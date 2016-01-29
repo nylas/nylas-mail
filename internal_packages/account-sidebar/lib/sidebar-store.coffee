@@ -39,8 +39,8 @@ class SidebarStore extends NylasStore
 
   _registerListeners: ->
     @listenTo SidebarActions.focusAccounts, @_onAccountsFocused
+    @listenTo AccountStore, @_onAccountsChanged
     @listenTo FocusedPerspectiveStore, @_updateSections
-    @listenTo AccountStore, @_updateSections
     @listenTo WorkspaceStore, @_updateSections
     @listenTo ThreadCountsStore, @_updateSections
     @listenTo CategoryStore, @_updateSections
@@ -58,6 +58,10 @@ class SidebarStore extends NylasStore
   _onAccountsFocused: (accounts) =>
     Actions.focusDefaultMailboxPerspectiveForAccounts(accounts)
     @_focusedAccounts = accounts
+    @_updateSections()
+
+  _onAccountsChanged: =>
+    @_focusedAccounts = AccountStore.accounts()
     @_updateSections()
 
   _updateSections: =>
