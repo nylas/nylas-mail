@@ -85,13 +85,18 @@ class Matcher
         return false
 
   whereSQL: (klass) ->
+
+    # https://www.sqlite.org/faq.html#q14
+    # That's right. Two single quotes in a row…
+    singleQuoteEscapeSequence = "''"
+
     if @comparator is "like"
       val = "%#{@val}%"
     else
       val = @val
 
     if _.isString(val)
-      escaped = "'#{val.replace(/'/g, "''")}'"
+      escaped = "'#{val.replace(/'/g, singleQuoteEscapeSequence)}'"
     else if val is true
       escaped = 1
     else if val is false
@@ -100,7 +105,7 @@ class Matcher
       escapedVals = []
       for v in val
         throw new Error("#{@attr.jsonKey} value #{v} must be a string.") unless _.isString(v)
-        escapedVals.push("'#{v.replace(/'/g, '\\\'')}'")
+        escapedVals.push("'#{v.replace(/'/g, singleQuoteEscapeSequence)}'")
       escaped = "(#{escapedVals.join(',')})"
     else
       escaped = val
