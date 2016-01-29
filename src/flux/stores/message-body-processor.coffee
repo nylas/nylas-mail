@@ -49,10 +49,15 @@ class MessageBodyProcessor
     # allow them to modify anything but the body for the time being.
     for extension in MessageStore.extensions()
       continue unless extension.formatMessageBody
-      virtual = message.clone()
-      virtual.body = body
-      extension.formatMessageBody({message: virtual})
-      body = virtual.body
+      latestBody = body
+      try
+        virtual = message.clone()
+        virtual.body = body
+        extension.formatMessageBody({message: virtual})
+        body = virtual.body
+      catch err
+        NylasEnv.emitError(err)
+        body = latestBody
 
     # Find inline images and give them a calculated CSS height based on
     # html width and height, when available. This means nothing changes size
