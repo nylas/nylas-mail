@@ -9,6 +9,8 @@ class MutableQuerySubscription extends QuerySubscription
 
     rangeIsOnlyChange = @_query?.clone().offset(0).limit(0).sql() is nextQuery.clone().offset(0).limit(0).sql()
 
+    @cancelPendingUpdate()
+
     nextQuery.finalize()
     @_query = nextQuery
     @_set = null unless @_set and rangeIsOnlyChange
