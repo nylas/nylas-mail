@@ -3,8 +3,6 @@ DatabaseStore = require '../stores/database-store'
 QueryRange = require './query-range'
 MutableQueryResultSet = require './mutable-query-result-set'
 
-verbose = false
-
 class QuerySubscription
   constructor: (@_query, @_options = {}) ->
     @_set = null
@@ -12,6 +10,7 @@ class QuerySubscription
     @_lastResult = null
     @_updateInFlight = false
     @_queuedChangeRecords = []
+    @_queryVersion = 1
 
     if @_query
       if @_query._count
@@ -111,9 +110,7 @@ class QuerySubscription
     @_queuedChangeRecords = []
 
     if unknownImpacts > 0
-      if mustRefetchAllIds
-        @log("Clearing result set - mustRefetchAllIds")
-        @_set = null
+      @_set = null if mustRefetchAllIds
       @update()
     else if knownImpacts > 0
       @_createResultAndTrigger()
@@ -129,14 +126,12 @@ class QuerySubscription
 
     return false
 
-  log: (msg) =>
-    return unless verbose
-    console.log(msg) if @_query._klass.name is 'Thread'
-
   update: =>
     desiredRange = @_query.range()
     currentRange = @_set?.range()
     @_updateInFlight = true
+
+    version = @_queryVersion
 
     if currentRange and not currentRange.isInfinite() and not desiredRange.isInfinite()
       ranges = QueryRange.rangesBySubtracting(desiredRange, currentRange)
@@ -146,16 +141,19 @@ class QuerySubscription
       entireModels = not @_set or @_set.modelCacheCount() is 0
 
     Promise.each ranges, (range) =>
-      @log("Update (#{@_query._klass.name}) - Fetching range #{range}")
-      @_fetchRange(range, {entireModels})
+      return unless @_queryVersion is version
+      @_fetchRange(range, {entireModels, version})
+
     .then =>
+      return unless @_queryVersion is version
       ids = @_set.ids().filter (id) => not @_set.modelWithId(id)
-      return @log("Update (#{@_query._klass.name}) - No missing Ids") if ids.length is 0
-      @log("Update (#{@_query._klass.name}) - Fetching missing Ids: #{ids}")
+      return if ids.length is 0
       return DatabaseStore.findAll(@_query._klass, {id: ids}).then (models) =>
-        @log("Update (#{@_query._klass.name}) - Fetched missing Ids")
+        return unless @_queryVersion is version
         @_set.replaceModel(m) for m in models
+
     .then =>
+      return unless @_queryVersion is version
       @_updateInFlight = false
 
       allChangesApplied = @_queuedChangeRecords.length is 0
@@ -169,12 +167,15 @@ class QuerySubscription
         throw new Error("QuerySubscription: Applied all changes and result set is missing models.")
 
       if allChangesApplied and allCompleteModels and allUniqueIds
-        @log("Update (#{@_query._klass.name}) - Triggering...")
         @_createResultAndTrigger()
       else
         @_processChangeRecords()
 
-  _fetchRange: (range, {entireModels} = {}) ->
+  cancelPendingUpdate: =>
+    @_queryVersion += 1
+    @_updateInFlight = false
+
+  _fetchRange: (range, {entireModels, version} = {}) ->
     rangeQuery = undefined
 
     unless range.isInfinite()
@@ -188,8 +189,9 @@ class QuerySubscription
     rangeQuery ?= @_query
 
     DatabaseStore.run(rangeQuery, {format: false}).then (results) =>
+      return unless @_queryVersion is version
+
       if @_set and not @_set.range().isContiguousWith(range)
-        @log("Clearing result set - #{range} isnt contiguous with #{@_set.range()}")
         @_set = null
       @_set ?= new MutableQueryResultSet()
 
