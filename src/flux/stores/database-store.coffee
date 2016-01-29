@@ -1,6 +1,7 @@
 _ = require 'underscore'
 async = require 'async'
 path = require 'path'
+fs = require 'fs'
 sqlite3 = require 'sqlite3'
 Model = require '../models/model'
 Utils = require '../models/utils'
@@ -190,16 +191,34 @@ class DatabaseStore extends NylasStore
         @_db.run(query, [], callback)
       , (err) =>
         return @_handleSetupError(err) if err
-        @_db.run "PRAGMA user_version=#{DatabaseVersion}", (err) ->
+        @_db.run "PRAGMA user_version=#{DatabaseVersion}", (err) =>
           return @_handleSetupError(err) if err
+
+          exportPath = path.join(NylasEnv.getConfigDirPath(), 'mail-rules-export.json')
+          if fs.existsSync(exportPath)
+            try
+              row = JSON.parse(fs.readFileSync(exportPath))
+              @inTransaction (t) -> t.persistJSONBlob('MailRules-V2', row['json'])
+              fs.unlink(exportPath)
+            catch err
+              console.log("Could not re-import mail rules: #{err}")
           ready()
 
   _handleSetupError: (err) =>
-    console.error(err)
-    console.log(NylasEnv.getWindowType())
     NylasEnv.emitError(err)
-    app = require('remote').getGlobal('application')
-    app.rebuildDatabase()
+
+    # Temporary: export mail rules. They're the only bit of data in the cache
+    # we can't rebuild. Should be moved to cloud metadata store soon.
+    @_db.all "SELECT * FROM JSONBlob WHERE id = 'MailRules-V2' LIMIT 1", [], (err, results = []) =>
+      if not err and results.length is 1
+        exportPath = path.join(NylasEnv.getConfigDirPath(), 'mail-rules-export.json')
+        try
+          fs.writeFileSync(exportPath, results[0]['data'])
+        catch err
+          console.log("Could not write mail rules to file: #{err}")
+
+      app = require('remote').getGlobal('application')
+      app.rebuildDatabase()
 
   _prettyConsoleLog: (q) =>
     q = "color:black |||%c " + q
