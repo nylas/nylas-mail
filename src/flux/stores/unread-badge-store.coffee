@@ -11,8 +11,8 @@ class UnreadBadgeStore extends NylasStore
 
     @listenTo FocusedPerspectiveStore, @_updateCount
     @listenTo ThreadCountsStore, @_updateCount
-    NylasEnv.config.observe 'core.notifications.unreadBadge', (val) =>
-      if val is true
+    NylasEnv.config.onDidChange 'core.notifications.unreadBadge', ({newValue}) =>
+      if newValue is true
         @_setBadgeForCount()
       else
         @_setBadge("")

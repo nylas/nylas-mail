@@ -76,7 +76,7 @@ Rx.Observable.fromStore = (store) =>
 
 Rx.Observable.fromConfig = (configKey) =>
   return Rx.Observable.create (observer) =>
-    disposable = NylasEnv.config.observe configKey, =>
+    disposable = NylasEnv.config.onDidChange configKey, =>
       observer.onNext(NylasEnv.config.get(configKey))
     observer.onNext(NylasEnv.config.get(configKey))
     return Rx.Disposable.create(disposable.dispose)

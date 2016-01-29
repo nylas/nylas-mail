@@ -31,9 +31,9 @@ class WorkspaceStore extends NylasStore
     @listenTo Actions.focusMailboxPerspective, @popToRootSheet
 
     @_preferredLayoutMode = NylasEnv.config.get('core.workspace.mode')
-    NylasEnv.config.observe 'core.workspace.mode', (mode) =>
-      return if mode is @_preferredLayoutMode
-      @_preferredLayoutMode = mode
+    NylasEnv.config.onDidChange 'core.workspace.mode', ({newValue}) =>
+      return if newValue is @_preferredLayoutMode
+      @_preferredLayoutMode = newValue
       @popToRootSheet()
       @trigger()
 
