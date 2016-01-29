@@ -57,6 +57,13 @@
 
   .item-container {
     display:flex;
+    &.dropping {
+      background-color: lighten(@source-list-bg, 20%);
+      .item {
+        color: @source-list-active-color;
+        img.content-mask { background-color: @source-list-active-color; }
+      }
+    }
   }
 
   .item {
