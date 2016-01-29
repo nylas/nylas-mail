@@ -175,7 +175,7 @@ body.platform-win32 {
       top: 9px;
       .show-more-fade {
         position: absolute;
-        width: 220px;
+        width: 190px;
         height: 37px;
         right: 0;
         top: 0;
@@ -297,6 +297,9 @@ body.platform-win32 {
     .message-item-white-wrap.composer-outer-wrap.focused {
       box-shadow: 0 0 0.5px rgba(0, 0, 0, 0.28), 0 1px 1.5px rgba(0, 0, 0, 0.08), 0 0 3px @accent-primary;
       background-color: @background-primary;
+      .show-more-fade {
+        background: linear-gradient(to right, fade(@background-primary, 0%) 0%, fade(@background-primary, 100%) 40%);
+      }
     }
   }
 }
