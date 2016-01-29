@@ -8,7 +8,7 @@ class ConfigPropContainer extends React.Component
     @state = @getStateFromStores()
 
   componentDidMount: =>
-    @subscription = NylasEnv.config.observe null, (val) =>
+    @subscription = NylasEnv.config.onDidChange null, =>
       @setState(@getStateFromStores())
 
   componentWillUnmount: =>

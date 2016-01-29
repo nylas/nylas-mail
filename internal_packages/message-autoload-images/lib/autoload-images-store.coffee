@@ -23,7 +23,7 @@ class AutoloadImagesStore extends NylasStore
     @listenTo AutoloadImagesActions.temporarilyEnableImages, @_onTemporarilyEnableImages
     @listenTo AutoloadImagesActions.permanentlyEnableImages, @_onPermanentlyEnableImages
 
-    NylasEnv.config.observe 'core.reading.autoloadImages', =>
+    NylasEnv.config.onDidChange 'core.reading.autoloadImages', =>
       MessageBodyProcessor.resetCache()
 
   shouldBlockImagesIn: (message) =>

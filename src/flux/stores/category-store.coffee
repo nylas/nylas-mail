@@ -22,7 +22,7 @@ class CategoryStore extends NylasStore
     @_userCategories = {}
     @_hiddenCategories = {}
 
-    NylasEnv.config.observe 'core.workspace.showImportant', =>
+    NylasEnv.config.onDidChange 'core.workspace.showImportant', =>
       return unless @_categoryResult
       @_onCategoriesChanged(@_categoryResult)
 

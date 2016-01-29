@@ -45,11 +45,11 @@ class SidebarStore extends NylasStore
     @listenTo ThreadCountsStore, @_updateSections
     @listenTo CategoryStore, @_updateSections
 
-    @configSubscription = NylasEnv.config.observe(
+    @configSubscription = NylasEnv.config.onDidChange(
       'core.workspace.showUnreadForAllCategories',
       @_updateSections
     )
-    @configSubscription = NylasEnv.config.observe(
+    @configSubscription = NylasEnv.config.onDidChange(
       'core.accountSidebarCollapsed',
       @_updateSections
     )
