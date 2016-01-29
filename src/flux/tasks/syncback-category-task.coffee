@@ -44,6 +44,7 @@ module.exports = class SyncbackCategoryTask extends Task
 
     if @category.serverId
       method = 'PUT'
+      path += "/#{@category.serverId}"
     else
       method = 'POST'
 
