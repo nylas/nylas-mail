@@ -212,9 +212,6 @@ class NylasEnvConstructor extends Model
     @subscribe @packages.onDidActivateInitialPackages => @watchThemes()
     @windowEventHandler = new WindowEventHandler
 
-    window.onbeforeunload = => @_unloading()
-    @_unloadCallbacks = []
-
   # Start our error reporting to the backend and attach error handlers
   # to the window and the Bluebird Promise library, converting things
   # back through the sourcemap as necessary.
@@ -915,19 +912,8 @@ class NylasEnvConstructor extends Model
   # work and then call finishUnload. We do not support cancelling quit!
   # https://phab.nylas.com/D1932#inline-11722
   #
-  onBeforeUnload: (callback) -> @_unloadCallbacks.push(callback)
-
-  _unloading: ->
-    continueUnload = true
-    for callback in @_unloadCallbacks
-      returnValue = callback()
-      if returnValue is true
-        continue
-      else if returnValue is false
-        continueUnload = false
-      else
-        console.warn "You registered an `onBeforeUnload` callback that does not return either exactly `true` or `false`. It returned #{returnValue}", callback
-    return continueUnload
+  onBeforeUnload: (callback) ->
+    @windowEventHandler.addUnloadCallback(callback)
 
   # Call this method to resume the close / quit process if you returned
   # false from a onBeforeUnload handler.
