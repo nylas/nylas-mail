@@ -33,7 +33,7 @@ class ComposerWithWindowProps extends React.Component
     </div>
 
   _showInitialErrorDialog: (msg) ->
-    remote = require('remote')
+    {remote} = require('electron')
     dialog = remote.require('dialog')
     # We delay so the view has time to update the restored draft. If we
     # don't delay the modal may come up in a state where the draft looks

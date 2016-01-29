@@ -1,6 +1,6 @@
 {ComposerExtension, AccountStore, DOMUtils, NylasSpellchecker} = require 'nylas-exports'
 _ = require 'underscore'
-remote = require('remote')
+{remote} = require('electron')
 MenuItem = remote.require('menu-item')
 spellchecker = NylasSpellchecker
 

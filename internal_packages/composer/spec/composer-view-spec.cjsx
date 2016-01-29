@@ -411,7 +411,7 @@ describe "ComposerView", ->
     describe "When sending a message", ->
       beforeEach ->
         spyOn(NylasEnv, "isMainWindow").andReturn true
-        remote = require('remote')
+        {remote} = require('electron')
         @dialog = remote.require('dialog')
         spyOn(remote, "getCurrentWindow")
         spyOn(@dialog, "showMessageBox")

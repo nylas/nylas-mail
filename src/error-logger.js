@@ -7,7 +7,7 @@ _ = require('underscore');
 fs = require('fs-plus');
 path = require('path');
 if (process.type === 'renderer') {
-  remote = require('remote');
+  remote = require('electron').remote;
   app = remote.require('app');
 } else {
   app = require('app');

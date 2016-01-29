@@ -48,6 +48,8 @@ class WindowEventHandler
       NylasEnv.commands.dispatch(activeElement, command, args[0])
 
     @subscribe $(window), 'beforeunload', =>
+      # Don't hide the window here if we don't want the renderer process to be
+      # throttled in case more work needs to be done before closing
       @reloadRequested = false
       return @runUnloadCallbacks()
 
@@ -185,7 +187,7 @@ class WindowEventHandler
     return unless event.target.type in ['text', 'password', 'email', 'number', 'range', 'search', 'tel', 'url']
     hasSelectedText = event.target.selectionStart isnt event.target.selectionEnd
 
-    remote = require('remote')
+    {remote} = require('electron')
     Menu = remote.require('menu')
     MenuItem = remote.require('menu-item')
     menu = new Menu()

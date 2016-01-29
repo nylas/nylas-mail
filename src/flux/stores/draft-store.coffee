@@ -405,7 +405,7 @@ class DraftStore
     title = if options.newDraft then "New Message" else "Message"
 
     save.then =>
-      app = require('remote').getGlobal('application')
+      app = require('electron').remote.getGlobal('application')
       existing = app.windowManager.windowWithPropsMatching({draftClientId})
       if existing
         existing.restore() if existing.isMinimized()

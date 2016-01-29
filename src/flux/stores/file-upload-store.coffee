@@ -87,7 +87,7 @@ class FileUploadStore extends NylasStore
     .catch(@_onAttachFileError)
 
   _onAttachFileError: (message) ->
-    remote = require('remote')
+    {remote} = require('electron')
     dialog = remote.require('dialog')
     console.error(message)
     dialog.showMessageBox

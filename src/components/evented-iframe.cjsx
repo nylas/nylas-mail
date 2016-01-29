@@ -143,7 +143,7 @@ class EventedIFrame extends React.Component
     # "Copy Image" and "Search Google for 'Bla'"
     event.preventDefault()
 
-    remote = require('remote')
+    {remote} = require('electron')
     clipboard = require('clipboard')
     Menu = remote.require('menu')
     MenuItem = remote.require('menu-item')

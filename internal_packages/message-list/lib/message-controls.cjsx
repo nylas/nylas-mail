@@ -81,7 +81,6 @@ class MessageControls extends React.Component
     else return "reply-all"
 
   _onShowActionsMenu: =>
-    remote = require('remote')
     SystemMenu = remote.require('menu')
     SystemMenuItem = remote.require('menu-item')
 

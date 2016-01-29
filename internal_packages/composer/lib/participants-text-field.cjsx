@@ -145,7 +145,7 @@ class ParticipantsTextField extends React.Component
     return ""
 
   _showContextMenu: (participant) =>
-    remote = require('remote')
+    {remote} = require('electron')
 
     # Warning: Menu is already initialized as Menu.cjsx!
 
