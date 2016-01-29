@@ -218,7 +218,9 @@ class OutlineViewItem extends Component {
   }
 
   _onEdit = ()=> {
-    this.setState({editing: true});
+    if (this.props.item.onEdited) {
+      this.setState({editing: true});
+    }
   }
 
   _onInputFocus = (event)=> {
