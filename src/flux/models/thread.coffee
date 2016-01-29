@@ -106,7 +106,7 @@ class Thread extends Model
     super(json)
 
     value = json['labels'] ? json['folders']
-    if value and not @categories
+    if value
       @categories = @constructor.attributes.categories.fromJSON(value)
 
     @
