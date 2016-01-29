@@ -111,6 +111,9 @@ class SendDraftTask extends Task
         @draft.uploads.splice(@draft.uploads.indexOf(upload), 1)
         @draft.files.push(file)
 
+        # Deletes the attachment from the uploads folder
+        Actions.attachmentUploaded(upload)
+
   _sendAndCreateMessage: =>
     NylasAPI.makeRequest
       path: "/send"
@@ -169,11 +172,6 @@ class SendDraftTask extends Task
     # Play the sending sound
     if NylasEnv.config.get("core.sending.sounds")
       SoundRegistry.playSound('send')
-
-    # Remove attachments we were waiting to upload
-    # Call the Action to do this
-    for upload in @draft.uploads
-      Actions.removeAttachment(upload)
 
     return Promise.resolve(Task.Status.Success)
 

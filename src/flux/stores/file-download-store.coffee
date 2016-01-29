@@ -12,11 +12,7 @@ NylasAPI = require '../nylas-api'
 RegExpUtils = require '../../regexp-utils'
 
 Promise.promisifyAll(fs)
-
-mkdirpAsync = (folder) ->
-  new Promise (resolve, reject) ->
-    mkdirp folder, (err) ->
-      if err then reject(err) else resolve(folder)
+mkdirpAsync = Promise.promisify(mkdirp)
 
 State =
   Unstarted: 'unstarted'

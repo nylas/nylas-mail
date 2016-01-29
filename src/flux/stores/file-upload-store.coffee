@@ -9,6 +9,8 @@ Message = require '../models/message'
 DraftStore = require './draft-store'
 DatabaseStore = require './database-store'
 
+Promise.promisifyAll(fs)
+mkdirpAsync = Promise.promisify(mkdirp)
 
 UPLOAD_DIR = path.join(NylasEnv.getConfigDirPath(), 'uploads')
 
@@ -27,9 +29,10 @@ class FileUploadStore extends NylasStore
   Upload: Upload
 
   constructor: ->
-    @listenTo Actions.selectAttachment, @_onSelectAttachment
     @listenTo Actions.addAttachment, @_onAddAttachment
+    @listenTo Actions.selectAttachment, @_onSelectAttachment
     @listenTo Actions.removeAttachment, @_onRemoveAttachment
+    @listenTo Actions.attachmentUploaded, @_onAttachmentUploaded
     @listenTo DatabaseStore, @_onDataChanged
 
     mkdirp.sync(UPLOAD_DIR)
@@ -39,63 +42,49 @@ class FileUploadStore extends NylasStore
   _onDataChanged: (change) =>
     return unless NylasEnv.isMainWindow()
     return unless change.objectClass is Message.name and change.type is 'unpersist'
-    change.objects.forEach (message) =>
-      messageDir = "#{UPLOAD_DIR}/#{message.clientId}"
-      uploads = message.uploads
 
-      if uploads and uploads.length > 0
-        Promise.all(uploads.map (upload) => @_deleteUpload(upload))
-        .then ->
-          fs.rmdir(messageDir)
-        .catch (err) ->
-          console.warn(err)
+    change.objects.forEach (message) =>
+      messageDir = path.join(UPLOAD_DIR, message.clientId)
+      for upload in message.uploads
+        @_deleteUpload(upload)
 
   _onSelectAttachment: ({messageClientId}) ->
     @_verifyId(messageClientId)
+
     # When the dialog closes, it triggers `Actions.addAttachment`
     NylasEnv.showOpenDialog {properties: ['openFile', 'multiSelections']}, (pathsToOpen) ->
-      return if not pathsToOpen?
+      return unless pathsToOpen?
       pathsToOpen = [pathsToOpen] if _.isString(pathsToOpen)
 
       pathsToOpen.forEach (filePath) ->
         Actions.addAttachment({messageClientId, filePath})
 
   _onAddAttachment: ({messageClientId, filePath}) ->
-    return unless NylasEnv.isMainWindow()
     @_verifyId(messageClientId)
     @_getFileStats({messageClientId, filePath})
     .then(@_makeUpload)
     .then(@_verifyUpload)
     .then(@_prepareTargetDir)
     .then(@_copyUpload)
-    .then(@_saveUpload)
+    .then (upload) =>
+      @_applySessionChanges upload.messageClientId, (uploads) ->
+        uploads.concat([upload])
     .catch(@_onAttachFileError)
 
   _onRemoveAttachment: (upload) ->
-    return unless NylasEnv.isMainWindow()
     return Promise.resolve() unless upload
-    {messageClientId} = upload
+
+    @_applySessionChanges upload.messageClientId, (uploads) ->
+      _.reject(uploads, _.matcher({id: upload.id}))
+
+    @_deleteUpload(upload).catch(@_onAttachFileError)
+
+  _onAttachmentUploaded: (upload) ->
+    return Promise.resolve() unless upload
     @_deleteUpload(upload)
-    .then (upload) =>
-      DraftStore.sessionForClientId(messageClientId)
-    .then (session) =>
-      uploads = session.draft().uploads
-      uploads = _.reject(uploads, ({id}) -> id is upload.id)
-      if uploads.length is 0
-        fs.rmdir("#{UPLOAD_DIR}/#{messageClientId}")
-      session.changes.add({uploads})
-    .catch(@_onAttachFileError)
 
-  _onAttachFileError: (message) ->
-    {remote} = require('electron')
-    dialog = remote.require('dialog')
-    console.error(message)
-    dialog.showMessageBox
-      type: 'info',
-      buttons: ['OK'],
-      message: 'Cannot Attach File',
-      detail: message
-
+  _onAttachFileError: (error) ->
+    NylasEnv.showErrorDialog(error.message)
 
   # Helpers
 
@@ -104,12 +93,10 @@ class FileUploadStore extends NylasStore
       throw new Error "You need to pass the ID of the message (draft) this Action refers to"
 
   _getFileStats: ({messageClientId, filePath}) ->
-    return new Promise (resolve, reject) ->
-      fs.stat filePath, (err, stats) =>
-        if err
-          reject("#{filePath} could not be found, or has invalid file permissions.")
-        else
-          resolve({messageClientId, filePath, stats})
+    fs.statAsync(filePath).then (stats) =>
+      Promise.resolve({messageClientId, filePath, stats})
+    .catch (err) ->
+      Promise.reject(new Error("#{filePath} could not be found, or has invalid file permissions."))
 
   _makeUpload: ({messageClientId, filePath, stats}) ->
     Promise.resolve(new Upload(messageClientId, filePath, stats))
@@ -117,19 +104,14 @@ class FileUploadStore extends NylasStore
   _verifyUpload: (upload) ->
     {filename, stats} = upload
     if stats.isDirectory()
-      Promise.reject("#{filename} is a directory. Try compressing it and attaching it again.")
+      Promise.reject(new Error("#{filename} is a directory. Try compressing it and attaching it again."))
     else if stats.size > 25 * 1000000
-      Promise.reject("#{filename} cannot be attached because it is larger than 25MB.")
+      Promise.reject(new Error("#{filename} cannot be attached because it is larger than 25MB."))
     else
       Promise.resolve(upload)
 
   _prepareTargetDir: (upload) =>
-    return new Promise (resolve, reject) ->
-      mkdirp upload.targetDir, (err) ->
-        if err
-          reject("Error creating folder for upload: `#{upload.filename}`")
-        else
-          resolve(upload)
+    mkdirpAsync(upload.targetDir).thenReturn(upload)
 
   _copyUpload: (upload) ->
     return new Promise (resolve, reject) =>
@@ -138,25 +120,25 @@ class FileUploadStore extends NylasStore
       writeStream = fs.createWriteStream(targetPath)
 
       readStream.on 'error', ->
-        reject("Error while reading file from #{originPath}")
+        reject(new Error("Could not read file at path: #{originPath}"))
       writeStream.on 'error', ->
-        reject("Error while writing file #{upload.filename}")
+        reject(new Error("Could not write #{upload.filename} to uploads directory."))
       readStream.on 'end', ->
         resolve(upload)
       readStream.pipe(writeStream)
 
-  _deleteUpload: (upload) ->
-    return new Promise (resolve, reject) ->
-      fs.unlink upload.targetPath, (err) ->
-        reject("Error removing file #{upload.filename}") if err
-        fs.rmdir upload.targetDir, (err) ->
-          reject("Error removing directory for file #{upload.filename}") if err
-          resolve(upload)
+  _deleteUpload: (upload) =>
+    fs.unlinkAsync(upload.targetPath).then ->
+      fs.rmdirAsync(upload.targetDir).then ->
+        fs.rmdir path.join(UPLOAD_DIR, upload.messageClientId), (err) ->
+          # Will fail if it's not empty, which is fine.
+        Promise.resolve(upload)
+    .catch ->
+      Promise.reject(new Error("Error cleaning up file #{upload.filename}"))
 
-  _saveUpload: (upload) =>
-    DraftStore.sessionForClientId(upload.messageClientId)
-    .then (session) =>
-      uploads = session.draft().uploads.concat [upload]
+  _applySessionChanges: (messageClientId, changeFunction) =>
+    DraftStore.sessionForClientId(messageClientId).then (session) =>
+      uploads = changeFunction(session.draft().uploads)
       session.changes.add({uploads})
 
 module.exports = new FileUploadStore()
