@@ -217,7 +217,7 @@ describe "QuerySubscription", ->
         subscription = new QuerySubscription(DatabaseStore.findAll(Thread))
         subscription.update()
         advanceClock()
-        expect(subscription._fetchRange).toHaveBeenCalledWith(QueryRange.infinite(), {entireModels: true})
+        expect(subscription._fetchRange).toHaveBeenCalledWith(QueryRange.infinite(), {entireModels: true, version: 1})
 
       it "should fetch full full models only when the previous set is empty", ->
         subscription = new QuerySubscription(DatabaseStore.findAll(Thread))
@@ -225,7 +225,7 @@ describe "QuerySubscription", ->
         subscription._set.addModelsInRange([new Thread()], new QueryRange(start: 0, end: 1))
         subscription.update()
         advanceClock()
-        expect(subscription._fetchRange).toHaveBeenCalledWith(QueryRange.infinite(), {entireModels: false})
+        expect(subscription._fetchRange).toHaveBeenCalledWith(QueryRange.infinite(), {entireModels: false, version: 1})
 
     describe "when the query has a range", ->
       beforeEach ->
@@ -237,7 +237,7 @@ describe "QuerySubscription", ->
           subscription._set = null
           subscription.update()
           advanceClock()
-          expect(subscription._fetchRange).toHaveBeenCalledWith(@query.range(), {entireModels: true})
+          expect(subscription._fetchRange).toHaveBeenCalledWith(@query.range(), {entireModels: true, version: 1})
 
       describe "when we have a previous range", ->
         it "should call _fetchRange for the ranges representing the difference", ->
@@ -255,5 +255,5 @@ describe "QuerySubscription", ->
           subscription.update()
           advanceClock()
           expect(subscription._fetchRange.callCount).toBe(2)
-          expect(subscription._fetchRange.calls[0].args).toEqual([customRange1, {entireModels: true}])
-          expect(subscription._fetchRange.calls[1].args).toEqual([customRange2, {entireModels: true}])
+          expect(subscription._fetchRange.calls[0].args).toEqual([customRange1, {entireModels: true, version: 1}])
+          expect(subscription._fetchRange.calls[1].args).toEqual([customRange2, {entireModels: true, version: 1}])

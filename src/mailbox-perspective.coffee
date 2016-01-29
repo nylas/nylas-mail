@@ -100,12 +100,12 @@ class MailboxPerspective
   # Subclasses should call `super` if they override these methods
   canArchiveThreads: =>
     for aid in @accountIds
-      return false unless CategoryStore.getArchiveCategory(AccountStore.accountForId(aid))
+      return false unless CategoryStore.getArchiveCategory(aid)
     return true
 
   canTrashThreads: =>
     for aid in @accountIds
-      return false unless CategoryStore.getTrashCategory(AccountStore.accountForId(aid))
+      return false unless CategoryStore.getTrashCategory(aid)
     return true
 
   isInbox: =>
