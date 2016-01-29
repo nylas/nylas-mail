@@ -193,7 +193,7 @@ class CategoryPicker extends React.Component
     <RetinaImg name={"#{item.name}.png"} fallback={'folder.png'} mode={RetinaImg.Mode.ContentIsMask} />
 
   _renderBoldedSearchResults: (item) ->
-    name = item.display_name
+    name = @_toHumanName(item.display_name)
     searchTerm = (@state.searchValue ? "").trim()
 
     return name if searchTerm.length is 0
@@ -306,8 +306,11 @@ class CategoryPicker extends React.Component
       categoryUsageCount[category.id] += 1
     return categoryUsageCount
 
-  _isInSearch: (searchValue, category) ->
-    return Utils.wordSearchRegExp(searchValue).test(category.displayName)
+  _isInSearch: (searchValue, category) =>
+    return Utils.wordSearchRegExp(searchValue).test(@_toHumanName(category.displayName))
+
+  _toHumanName: (displayName) ->
+    return displayName.replace(/[./\\]/g, '/') if displayName?
 
   _isUserFacing: (allInInbox, category) =>
     hiddenCategories = []
