@@ -151,6 +151,12 @@ class ContactStore extends NylasStore
       @_rankedContacts = []
       return
 
+    # Sort the emails by rank and then clip to 400 so that our ranked cache
+    # has a bounded size.
+    emails = _.sortBy emails, (email) ->
+      (- (rankings[email.toLowerCase()] ? 0) / 1)
+    emails.length = 400 if emails.length > 400
+
     DatabaseStore.findAll(Contact, {email: emails}).then (contacts) =>
       contacts = @_distinctByEmail(contacts)
       for contact in contacts
