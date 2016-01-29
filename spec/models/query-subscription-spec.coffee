@@ -79,7 +79,8 @@ describe "QuerySubscription", ->
           new Thread(accountId: 'a', clientId: '2', lastMessageReceivedTimestamp: 2),
           new Thread(accountId: 'a', clientId: '1', lastMessageReceivedTimestamp: 1),
         ]
-        mustUpdate: true
+        mustUpdate: false
+        mustTrigger: true
         mustRefetchAllIds: false
       },{
         name: 'Item in set saved - new sort value'
@@ -93,7 +94,8 @@ describe "QuerySubscription", ->
           new Thread(accountId: 'a', clientId: '3', lastMessageReceivedTimestamp: 3),
           new Thread(accountId: 'a', clientId: '2', lastMessageReceivedTimestamp: 2),
         ]
-        mustUpdate: true
+        mustUpdate: false
+        mustTrigger: true
         mustRefetchAllIds: true
       },{
         name: 'Item saved - does not match query clauses, offset > 0'
@@ -182,22 +184,27 @@ describe "QuerySubscription", ->
       scenarios.forEach (scenario) =>
         scenario.tests.forEach (test) =>
           it "with #{scenario.name}, should correctly apply #{test.name}", ->
-            @q = new QuerySubscription(scenario.query)
-            @q._set = new MutableQueryResultSet()
-            @q._set.addModelsInRange(scenario.lastModels, new QueryRange(start: 0, end: scenario.lastModels.length))
+            subscription = new QuerySubscription(scenario.query)
+            subscription._set = new MutableQueryResultSet()
+            subscription._set.addModelsInRange(scenario.lastModels, new QueryRange(start: 0, end: scenario.lastModels.length))
 
-            spyOn(@q, 'update')
-            @q.applyChangeRecord(test.change)
+            spyOn(subscription, 'update')
+            spyOn(subscription, '_createResultAndTrigger')
+            subscription._updateInFlight = false
+            subscription.applyChangeRecord(test.change)
 
             if test.mustRefetchAllIds
-              expect(@q._set).toBe(null)
+              expect(subscription._set).toBe(null)
             else if test.nextModels is 'unchanged'
-              expect(@q._set.models()).toEqual(scenario.lastModels)
+              expect(subscription._set.models()).toEqual(scenario.lastModels)
             else
-              expect(@q._set.models()).toEqual(test.nextModels)
+              expect(subscription._set.models()).toEqual(test.nextModels)
 
             if test.mustUpdate
-              expect(@q.update).toHaveBeenCalled()
+              expect(subscription.update).toHaveBeenCalled()
+
+            if test.mustTriger
+              expect(subscription._createResultAndTrigger).toHaveBeenCalled()
 
   describe "update", ->
     beforeEach ->
@@ -205,18 +212,12 @@ describe "QuerySubscription", ->
         @_set ?= new MutableQueryResultSet()
         Promise.resolve()
 
-    it "should increment the version", ->
-      subscription = new QuerySubscription(DatabaseStore.findAll(Thread))
-      expect(subscription._version).toBe(1)
-      subscription.update()
-      expect(subscription._version).toBe(2)
-
     describe "when the query has an infinite range", ->
       it "should call _fetchRange for the entire range", ->
         subscription = new QuerySubscription(DatabaseStore.findAll(Thread))
         subscription.update()
         advanceClock()
-        expect(subscription._fetchRange).toHaveBeenCalledWith(QueryRange.infinite(), {entireModels: true, version: 2})
+        expect(subscription._fetchRange).toHaveBeenCalledWith(QueryRange.infinite(), {entireModels: true})
 
       it "should fetch full full models only when the previous set is empty", ->
         subscription = new QuerySubscription(DatabaseStore.findAll(Thread))
@@ -224,7 +225,7 @@ describe "QuerySubscription", ->
         subscription._set.addModelsInRange([new Thread()], new QueryRange(start: 0, end: 1))
         subscription.update()
         advanceClock()
-        expect(subscription._fetchRange).toHaveBeenCalledWith(QueryRange.infinite(), {entireModels: false, version: 2})
+        expect(subscription._fetchRange).toHaveBeenCalledWith(QueryRange.infinite(), {entireModels: false})
 
     describe "when the query has a range", ->
       beforeEach ->
@@ -236,7 +237,7 @@ describe "QuerySubscription", ->
           subscription._set = null
           subscription.update()
           advanceClock()
-          expect(subscription._fetchRange).toHaveBeenCalledWith(@query.range(), {entireModels: true, version: 2})
+          expect(subscription._fetchRange).toHaveBeenCalledWith(@query.range(), {entireModels: true})
 
       describe "when we have a previous range", ->
         it "should call _fetchRange for the ranges representing the difference", ->
@@ -247,8 +248,12 @@ describe "QuerySubscription", ->
           subscription = new QuerySubscription(@query)
           subscription._set = new MutableQueryResultSet()
           subscription._set.addModelsInRange([new Thread()], new QueryRange(start: 0, end: 1))
+
+          advanceClock()
+          subscription._fetchRange.reset()
+          subscription._updateInFlight = false
           subscription.update()
           advanceClock()
           expect(subscription._fetchRange.callCount).toBe(2)
-          expect(subscription._fetchRange.calls[0].args).toEqual([customRange1, {entireModels: true, version: 2}])
-          expect(subscription._fetchRange.calls[1].args).toEqual([customRange2, {entireModels: true, version: 2}])
+          expect(subscription._fetchRange.calls[0].args).toEqual([customRange1, {entireModels: true}])
+          expect(subscription._fetchRange.calls[1].args).toEqual([customRange2, {entireModels: true}])

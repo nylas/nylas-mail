@@ -37,7 +37,7 @@ describe "registeredObjectReviver / registeredObjectReplacer", ->
   it "should re-inflate Models in places they're not explicitly declared types", ->
     b = new JSONBlob({id: "local-ThreadsToProcess", json: [@testThread]})
     jsonString = JSON.stringify(b, Utils.registeredObjectReplacer)
-    expectedString = '{"client_id":"local-ThreadsToProcess","json":[{"client_id":"local-1","subject":"Test 1234","participants":[{"client_id":"local-a","name":"Juan","email":"juan@nylas.com","thirdPartyData":{},"id":"local-a"},{"client_id":"local-b","name":"Ben","email":"ben@nylas.com","thirdPartyData":{},"id":"local-b"}],"id":"local-1","__constructorName":"Thread"}],"id":"local-ThreadsToProcess","__constructorName":"JSONBlob"}'
+    expectedString = '{"client_id":"local-ThreadsToProcess","server_id":"local-ThreadsToProcess","json":[{"client_id":"local-1","subject":"Test 1234","participants":[{"client_id":"local-a","name":"Juan","email":"juan@nylas.com","thirdPartyData":{},"id":"local-a"},{"client_id":"local-b","name":"Ben","email":"ben@nylas.com","thirdPartyData":{},"id":"local-b"}],"id":"local-1","__constructorName":"Thread"}],"id":"local-ThreadsToProcess","__constructorName":"JSONBlob"}'
 
     expect(jsonString).toEqual(expectedString)
     revived = JSON.parse(jsonString, Utils.registeredObjectReviver)
