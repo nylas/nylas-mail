@@ -247,7 +247,7 @@ class OutlineViewItem extends Component {
     const item = this.props.item;
     const name = item.name;
     const {remote} = require('electron');
-    const {Menu, MenuItem} = remote.require('electron');
+    const {Menu, MenuItem} = remote;
     const menu = new Menu();
 
     if (this.props.item.onEdited) {

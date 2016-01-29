@@ -10,7 +10,7 @@ class CalendarButton extends React.Component
     </button>
 
   _onClick: =>
-    BrowserWindow = require('remote').require('browser-window')
+    BrowserWindow = require('electron').remote.BrowserWindow
     w = new BrowserWindow
       title: 'N1 Quick Schedule'
       nodeIntegration: false

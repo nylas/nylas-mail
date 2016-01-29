@@ -785,7 +785,7 @@ describe "DraftStore", ->
     it "displays a popup in the main window if there's an error", ->
       spyOn(NylasEnv, "isMainWindow").andReturn true
       spyOn(FocusedContentStore, "focused").andReturn(id: "t1")
-      remote = require('remote')
+      {remote} = require('electron')
       dialog = remote.require('dialog')
       spyOn(dialog, "showMessageBox")
       spyOn(Actions, "composePopoutDraft")

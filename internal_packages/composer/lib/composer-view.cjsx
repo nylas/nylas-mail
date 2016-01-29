@@ -670,7 +670,7 @@ class ComposerView extends React.Component
     return false if DraftStore.isSendingDraft(@props.draftClientId)
 
     draft = @_proxy.draft()
-    remote = require('remote')
+    {remote} = require('electron')
     dialog = remote.require('dialog')
 
     allRecipients = [].concat(draft.to, draft.cc, draft.bcc)

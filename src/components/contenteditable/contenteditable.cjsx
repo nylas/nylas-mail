@@ -351,7 +351,7 @@ class Contenteditable extends React.Component
     @refs["toolbarController"]?.forceClose()
     event.preventDefault()
 
-    remote = require('remote')
+    {remote} = require('electron')
     Menu = remote.require('menu')
     MenuItem = remote.require('menu-item')
 
