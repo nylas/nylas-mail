@@ -9,6 +9,7 @@ classNames = require 'classnames'
  InjectedComponentSet} = require 'nylas-component-kit'
 
 {Thread,
+ AccountStore,
  CategoryStore,
  FocusedPerspectiveStore} = require 'nylas-exports'
 
@@ -64,18 +65,19 @@ c3 = new ListTabular.Column
   resolver: (thread) =>
     attachment = []
     labels = []
+
     if thread.hasAttachments
       attachment = <div className="thread-icon thread-icon-attachment"></div>
 
-    currentCategories = FocusedPerspectiveStore.current().categories() ? []
+    if AccountStore.accountForId(thread.accountId).usesLabels()
+      currentCategories = FocusedPerspectiveStore.current().categories() ? []
+      ignored = [].concat(currentCategories, CategoryStore.hiddenCategories(thread.accountId))
+      ignoredIds = _.pluck(ignored, 'id')
 
-    ignored = [].concat(currentCategories, CategoryStore.hiddenCategories(thread.accountId))
-    ignoredIds = _.pluck(ignored, 'id')
-
-    for label in (thread.sortedCategories())
-      continue if label.id in ignoredIds
-      c3LabelComponentCache[label.id] ?= <MailLabel label={label} key={label.id} />
-      labels.push c3LabelComponentCache[label.id]
+      for label in (thread.sortedCategories())
+        continue if label.id in ignoredIds
+        c3LabelComponentCache[label.id] ?= <MailLabel label={label} key={label.id} />
+        labels.push c3LabelComponentCache[label.id]
 
     <span className="details">
       {labels}
