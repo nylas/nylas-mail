@@ -13,6 +13,8 @@ RulesJSONBlobKey = "MailRules-V2"
 
 class MailRulesStore extends NylasStore
   constructor: ->
+    @_rules = []
+    
     query = DatabaseStore.findJSONBlob(RulesJSONBlobKey)
     @_subscription = Rx.Observable.fromQuery(query).subscribe (rules) =>
       @_rules = rules ? []
