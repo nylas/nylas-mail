@@ -28,7 +28,10 @@ c1 = new ListTabular.Column
   resolver: (thread) =>
     [
       <ThreadListIcon key="thread-list-icon" thread={thread} />
-      <MailImportantIcon key="mail-important-icon" thread={thread} />
+      <MailImportantIcon
+        key="mail-important-icon"
+        thread={thread}
+        showIfAvailableForAnyAccount={true} />
       <InjectedComponentSet
         key="injected-component-set"
         inline={true}
@@ -125,7 +128,9 @@ cNarrow = new ListTabular.Column
         {attachment}
         <span className="timestamp">{timestamp(thread.lastMessageReceivedTimestamp)}</span>
       </div>
-      <MailImportantIcon thread={thread} />
+      <MailImportantIcon
+        thread={thread}
+        showIfAvailableForAnyAccount={true} />
       <div className="subject">{subject(thread.subject)}</div>
       <div className="snippet">{thread.snippet}</div>
     </div>

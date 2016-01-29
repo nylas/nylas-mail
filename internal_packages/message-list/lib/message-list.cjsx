@@ -218,7 +218,7 @@ class MessageList extends React.Component
     subject = "(No Subject)" if not subject or subject.length is 0
 
     <div className="message-subject-wrap">
-      <MailImportantIcon thread={@state.currentThread} />
+      <MailImportantIcon thread={@state.currentThread}/>
       <span className="message-subject">{subject}</span>
       {@_renderLabels()}
       {@_renderIcons()}
