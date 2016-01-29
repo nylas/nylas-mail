@@ -410,6 +410,10 @@ class TokenizingTextField extends React.Component
       @_refreshCompletions(val)
 
   _onInputBlurred: (event) =>
+    # Not having a relatedTarget can happen when the whole app blurs. When
+    # this happens we want to leave the field as-is
+    return unless event.relatedTarget
+
     if event.relatedTarget is React.findDOMNode(@)
       return
 
