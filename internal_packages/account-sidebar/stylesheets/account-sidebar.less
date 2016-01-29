@@ -1,8 +1,6 @@
 @import "ui-variables";
 @import "ui-mixins";
 
-@unread-count-color: fadeout(@text-color-subtle, 40%);
-
 .account-sidebar {
   flex: 1;
   height: 100%;
@@ -13,132 +11,28 @@
   }
 }
 
-#account-switcher {
+.account-switcher {
   order: 1;
-  height: 100%;
+  height: auto;
   background-color: @source-list-bg;
-
-  section {
-    margin-bottom: @padding-base-vertical;
-
-    section {
-      padding-left: @padding-base-horizontal * 1.3;
-      margin-bottom: 0;
-    }
-  }
-
-  .heading {
-    color: @text-color-very-subtle;
-    font-weight: @font-weight-semi-bold;
-    font-size: @font-size-smaller;
-    padding-left:@padding-small-horizontal;
-    padding-top:@padding-small-horizontal;
-    letter-spacing: -0.2px;
-    display: inline-block;
-  }
-
-  .add-item-button {
-    display: inline-block;
-    margin-left: @padding-small-horizontal;
-    cursor: pointer;
-    img {background: @text-color-very-subtle; }
-  }
-
-  .add-item-container {
-    align-items: center;
-
-    .add-item-input {
-      order: 2;
-      font-size: @font-size-small;
-      margin-left: @padding-small-horizontal * 0.3;
-      height: 22px;
-      padding-left: 0;
-      text-indent: @padding-small-horizontal * 0.55;
-      width: 85%;
-    }
-  }
-
-  .item-container {
-    display:flex;
-  }
-
-  .item {
-    color: @text-color-subtle;
-    flex: 1;
-    display: flex;
-    img.content-mask {
-      background-color: @text-color-subtle;
-      vertical-align: text-bottom;
-    }
-    font-size: @font-size-small;
-    font-weight: 400;
-    padding-right: @spacing-standard;
-    line-height: @line-height-large * 1.1;
-    clear: both;
-
-    .icon {
-      flex-shrink: 0;
-      order: 1;
-    }
-    .name {
-      order: 2;
-      padding-left: @padding-small-horizontal * 0.85;
-      position:relative;
-      top:1px;
-      overflow: hidden;
-      padding-top: @padding-small-vertical;
-      padding-bottom:@padding-small-vertical;
-      line-height: @line-height-small;
-      text-overflow: ellipsis;
-    }
-    .item-count-box {
-      order: 3;
-      flex-shrink: 0;
-      font-weight: @font-weight-semi-bold;
-      color: @unread-count-color;
-      margin-left: @padding-small-horizontal * 0.8;
-      box-shadow: 0 0.5px 0 @unread-count-color, 0 -0.5px 0 @unread-count-color, 0.5px 0 0 @unread-count-color, -0.5px 0 0 @unread-count-color;
-
-    }
-    .item-count-box.alt-count {
-      color: @source-list-active-bg;
-      background: @source-list-active-color;
-      box-shadow: none;
-    }
-    .item-count-box.archive,
-    .item-count-box.all,
-    .item-count-box.spam {
-      display: none;
-    }
-
-    &.selected {
-      background: @source-list-active-bg;
-      color: @source-list-active-color;
-      img.content-mask { background-color: @source-list-active-color; }
-    }
-    &.dropping {
-      background-color: lighten(@source-list-bg, 20%);
-      color: @source-list-active-color;
-      img.content-mask { background-color: @source-list-active-color; }
-    }
-    &.deleted {
-      opacity: 0.5;
-    }
-
-    &:hover {
-      cursor: default;
-    }
-  }
-
-  .item-divider {
-    color:#586870;
-    padding-top: 1em;
-    padding-bottom: 0.25em;
-  }
-}
-
-#account-switcher {
   border-bottom: 1px solid @border-color-divider;
+
+  &.open {
+    .dropdown {
+      opacity: 1;
+      pointer-events: initial;
+      transform:scale(1, 1);
+      transform-origin: top;
+      .inner {
+        opacity: 1;
+        transition: opacity 50ms linear;
+        transition-delay: 50ms;
+      }
+    }
+    .toggle {
+      transform: rotateX(0deg);
+    }
+  }
 
   .primary-item {
     padding-top: @padding-large-vertical;
@@ -149,10 +43,23 @@
     }
   }
 
-  .name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .secondary-item {
+    &:hover {
+      background: @list-hover-bg;
+    }
+
+    padding: 6px 5px 0 14px;
+
+    &:first-child {
+      padding-top: 8px;
+      border-top-left-radius: @list-border-radius;
+      border-top-right-radius: @list-border-radius;
+    }
+    &:last-child {
+      padding-bottom: 2px;
+      border-bottom-left-radius: @list-border-radius;
+      border-bottom-right-radius: @list-border-radius;
+    }
   }
 
   .toggle {
@@ -189,9 +96,20 @@
   }
 
   .item {
+    color: @text-color-subtle;
+    display: block;
+    img.content-mask {
+      background-color: @text-color-subtle;
+      vertical-align: text-bottom;
+    }
+    font-size: @font-size-small;
+    font-weight: 400;
+    padding-right: @spacing-standard;
+    line-height: @line-height-large * 1.1;
+    clear: both;
     position: relative;
     margin-bottom: 0;
-    display:block;
+
     .gravatar {
       background-size: 28px 28px;
       width: 28px;
@@ -202,29 +120,26 @@
       top: -2px;
       background-repeat: no-repeat;
     }
-  }
 
-  .secondary-item {
+    .name {
+      order: 2;
+      padding-left: @padding-small-horizontal * 0.85;
+      position:relative;
+      top:1px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding-top: @padding-small-vertical;
+      padding-bottom:@padding-small-vertical;
+      line-height: @line-height-small;
+    }
     &:hover {
-      background: @list-hover-bg;
-    }
-
-    padding: 6px 5px 0 14px;
-
-    &:first-child {
-      padding-top: 8px;
-      border-top-left-radius: @list-border-radius;
-      border-top-right-radius: @list-border-radius;
-    }
-    &:last-child {
-      padding-bottom: 2px;
-      border-bottom-left-radius: @list-border-radius;
-      border-bottom-right-radius: @list-border-radius;
+      cursor: default;
     }
   }
 }
 body.platform-win32 {
-  #account-switcher {
+  .account-switcher {
     .dropdown {
       border-radius: 0;
     }
@@ -237,27 +152,4 @@ body.platform-win32 {
       }
     }
   }
-}
-
-
-#account-switcher.open {
-  .dropdown {
-    opacity: 1;
-    pointer-events: initial;
-    transform:scale(1, 1);
-    transform-origin: top;
-    .inner {
-      opacity: 1;
-      transition: opacity 50ms linear;
-      transition-delay: 50ms;
-    }
-  }
-  .toggle {
-    transform: rotateX(0deg);
-  }
-}
-
-
-#account-switcher {
-  height: auto;
 }
