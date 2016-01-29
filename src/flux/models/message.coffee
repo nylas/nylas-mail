@@ -192,8 +192,11 @@ class Message extends Model
     if json.object?
       @draft = (json.object is 'draft')
 
-    for file in (@files ? [])
-      file.accountId = @accountId
+    for attr in ['to', 'from', 'cc', 'bcc', 'files']
+      values = @[attr]
+      continue unless values and values instanceof Array
+      item.accountId = @accountId for item in values
+
     return @
 
   canReplyAll: ->

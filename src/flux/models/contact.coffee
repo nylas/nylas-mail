@@ -3,6 +3,7 @@ Utils = require './utils'
 Attributes = require '../attributes'
 RegExpUtils = require '../../regexp-utils'
 AccountStore = require '../stores/account-store'
+FocusedPerspectiveStore = null # Circular Dependency
 _ = require 'underscore'
 
 name_prefixes = {}
@@ -94,27 +95,37 @@ class Contact extends Model
   # You should use this method instead of comparing the user's email address to
   # the account email, since it is case-insensitive and future-proof.
   isMe: ->
+    @isMeAccount() isnt null
+
+  isMeAccount: ->
     for account in AccountStore.accounts()
       if Utils.emailIsEquivalent(@email, account.emailAddress)
-        return true
+        return account
 
       for alias in account.aliases
         if Utils.emailIsEquivalent(@email, Contact.fromString(alias).email)
-          return true
+          return account
 
-    return false
+    return null
+
+  isMePhrase: ->
+    account = @isMeAccount()
+    return null unless account
+
+    FocusedPerspectiveStore ?= require '../stores/focused-perspective-store'
+    if account and FocusedPerspectiveStore.current().accountIds.length > 1
+      return "You (#{account.label})"
+    return "You"
 
   # Returns a {String} display name.
   # - "You" if the contact is the current user
   # - `name` if the contact has a populated name value
   # - `email` in all other cases.
   displayName: ->
-    return "You" if @isMe()
-    @_nameParts().join(' ')
+    @isMePhrase() ? @_nameParts().join(' ')
 
   displayFirstName: ->
-    return "You" if @isMe()
-    @firstName()
+    @isMePhrase() ? @firstName()
 
   displayLastName: ->
     return "" if @isMe()

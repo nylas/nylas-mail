@@ -109,6 +109,10 @@ class Thread extends Model
     if value
       @categories = @constructor.attributes.categories.fromJSON(value)
 
+    if @participants
+      for contact in @participants
+        contact.accountId = @accountId
+
     @
 
   # Public: Returns true if the thread has a {Category} with the given
