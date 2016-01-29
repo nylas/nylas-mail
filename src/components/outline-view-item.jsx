@@ -312,7 +312,6 @@ class OutlineViewItem extends Component {
     const containerClass = classnames({
       'item': true,
       'selected': item.selected,
-      'dropping': state.isDropping,
       'editing': state.editing,
       [item.className]: item.className,
     });
@@ -348,10 +347,13 @@ class OutlineViewItem extends Component {
 
   render() {
     const item = this.props.item;
-
+    const containerClasses = classnames({
+      'item-container': true,
+      'dropping': this.state.isDropping,
+    })
     return (
       <div>
-        <span className="item-container">
+        <span className={containerClasses}>
           <DisclosureTriangle
             collapsed={item.collapsed}
             visible={item.children.length > 0}
