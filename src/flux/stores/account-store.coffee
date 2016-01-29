@@ -27,16 +27,21 @@ class AccountStore
     @listenTo Actions.removeAccount, @_onRemoveAccount
     @listenTo Actions.updateAccount, @_onUpdateAccount
 
-    NylasEnv.config.observe saveTokensKey, (updatedTokens) =>
+    @_caches = {}
+
+    NylasEnv.config.onDidChange saveTokensKey, (change) =>
+      updatedTokens = change.newValue
       return if _.isEqual(updatedTokens, @_tokens)
       newAccountIds = _.keys(_.omit(updatedTokens, _.keys(@_tokens)))
       @_load()
       if newAccountIds.length > 0
         Actions.focusDefaultMailboxPerspectiveForAccounts([newAccountIds[0]])
+
     if NylasEnv.isComposerWindow()
-      NylasEnv.config.observe saveObjectsKey, => @_load()
+      NylasEnv.config.onDidChange saveObjectsKey, => @_load()
 
   _load: =>
+    @_caches = {}
     @_accounts = []
     for json in NylasEnv.config.get(saveObjectsKey) || []
       @_accounts.push((new Account).fromJSON(json))
@@ -56,6 +61,7 @@ class AccountStore
     account = @_accounts[idx]
     return if !account
     account = _.extend(account, updated)
+    @_caches = {}
     @_accounts[idx] = account
     NylasEnv.config.set(saveObjectsKey, @_accounts)
     @trigger()
@@ -65,6 +71,7 @@ class AccountStore
     return if idx is -1
 
     delete @_tokens[id]
+    @_caches = {}
     @_accounts.splice(idx, 1)
     @_save()
 
@@ -84,6 +91,7 @@ class AccountStore
     @_tokens[json.id] = json.auth_token
 
     account = (new Account).fromJSON(json)
+    @_caches = {}
     @_accounts.push(account)
     @_save()
 
@@ -91,6 +99,13 @@ class AccountStore
     Actions.focusDefaultMailboxPerspectiveForAccounts([account.id])
 
   # Exposed Data
+
+  # Private: Helper which caches the results of getter functions often needed
+  # in the middle of React render cycles. (Performance critical!)
+
+  _cachedGetter: (key, fn) ->
+    @_caches[key] ?= fn()
+    @_caches[key]
 
   # Public: Returns an {Array} of {Account} objects
   accounts: =>
@@ -109,25 +124,26 @@ class AccountStore
 
   # Public: Returns the {Account} for the given email address, or null.
   accountForEmail: (email) =>
-    _.find @_accounts, (account) ->
-      return true if Utils.emailIsEquivalent(email, account.emailAddress)
-      for alias in account.aliases
-        return true if Utils.emailIsEquivalent(email, alias)
-      return false
+    @_cachedGetter "accountForEmail:#{email}", =>
+      _.find @_accounts, (account) ->
+        return true if Utils.emailIsEquivalent(email, account.emailAddress)
+        for alias in account.aliases
+          return true if Utils.emailIsEquivalent(email, alias)
+        return false
 
   # Public: Returns the {Account} for the given account id, or null.
   accountForId: (id) =>
-    _.findWhere(@_accounts, {id})
+    @_cachedGetter "accountForId:#{id}", => _.findWhere(@_accounts, {id})
 
   aliases: =>
-    aliases = []
-    for acc in @_accounts
-      aliases.push(acc.me())
-      for alias in acc.aliases
-        aliasContact = acc.meUsingAlias(alias)
-        aliasContact.isAlias = true
-        aliases.push(aliasContact)
-    return aliases
+      aliases = []
+      for acc in @_accounts
+        aliases.push(acc.me())
+        for alias in acc.aliases
+          aliasContact = acc.meUsingAlias(alias)
+          aliasContact.isAlias = true
+          aliases.push(aliasContact)
+      return aliases
 
   aliasesFor: (accountsOrIds) =>
     ids = accountsOrIds.map (accOrId) ->
@@ -136,7 +152,7 @@ class AccountStore
 
   # Public: Returns the currently active {Account}.
   current: =>
-    throw new Error("I can't haz the account")
+    throw new Error("AccountStore.current() has been deprecated.")
 
   # Private: This method is going away soon, do not rely on it.
   #
@@ -152,6 +168,8 @@ class AccountStore
     Account = require '../models/account'
     Thread = require '../models/thread'
     Label = require '../models/label'
+
+    @_caches = {}
 
     labels = {}
     threads = []
