@@ -136,19 +136,19 @@ class AccountSwitcher extends React.Component
 
   render: =>
     return <span /> unless @props.focusedAccounts
-    classnames = ""
-    classnames += "open" if @state.showing
+    classnames = "account-switcher"
+    classnames += " open" if @state.showing
     selected = @_selectedItem()
     if @props.accounts.length is 1
       items = @props.accounts.map(@_makeItem)
     else
       items = [@_makeItem()].concat @props.accounts.map(@_makeItem)
 
-    <div id="account-switcher"
-         tabIndex={-1}
-         onBlur={@_onBlur}
-         ref="button"
-         className={classnames}>
+    <div
+      className={classnames}
+      ref="button"
+      tabIndex={-1}
+      onBlur={@_onBlur}>
       {@_renderPrimaryItem(selected)}
       {@_renderDropdown(items)}
     </div>
