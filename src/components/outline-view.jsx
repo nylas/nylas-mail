@@ -72,7 +72,7 @@ class OutlineView extends Component {
     this.setState({showCreateInput: !this.state.showCreateInput});
   }
 
-  _onToggleCollapsed = ()=> {
+  _onCollapseToggled = ()=> {
     if (this.props.onCollapseToggled) {
       this.props.onCollapseToggled(this.props);
     }
@@ -130,7 +130,7 @@ class OutlineView extends Component {
         {collapsible ?
           <span
             className="collapse-button"
-            onClick={this._onToggleCollapsed}>
+            onClick={this._onCollapseToggled}>
             {collapseLabel}
           </span>
           : void 0
