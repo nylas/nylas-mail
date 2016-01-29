@@ -33,7 +33,7 @@ class AccountSwitcher extends React.Component
     id ?= ItemTypes.Unified
     label ?= "All Accounts"
     email = emailAddress ? ""
-    iconName = provider ? 'imap'
+    iconName = provider ? 'unified'
     accounts = if id is ItemTypes.Unified
       @props.accounts
     else
