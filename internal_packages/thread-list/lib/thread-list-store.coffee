@@ -48,28 +48,43 @@ class ThreadListStore extends NylasStore
     @createListDataSource()
 
   _onDataChanged: ({previous, next} = {}) =>
+    # This code keeps the focus and keyboard cursor in sync with the thread list.
+    # When the thread list changes, it looks to see if the focused thread is gone,
+    # or no longer matches the query criteria and advances the focus to the next
+    # thread.
+
+    # This means that removing a thread from view in any way causes selection
+    # to advance to the adjacent thread. Nice and declarative.
+
     if previous and next
-      focusedId = FocusedContentStore.focusedId('thread')
-      keyboardId = FocusedContentStore.keyboardCursorId('thread')
+      focused = FocusedContentStore.focused('thread')
+      keyboard = FocusedContentStore.keyboardCursor('thread')
       viewModeAutofocuses = WorkspaceStore.layoutMode() is 'split' or WorkspaceStore.topSheet().root is true
+      matchers = next.query()?.matchers()
 
-      focusedIndex = previous.offsetOfId(focusedId)
-      keyboardIndex = previous.offsetOfId(keyboardId)
+      focusedIndex = if focused then previous.offsetOfId(focused.id) else -1
+      keyboardIndex = if keyboard then previous.offsetOfId(keyboard.id) else -1
 
-      shiftIndex = (i) =>
+      nextItemFromIndex = (i) =>
         if i > 0 and (next.modelAtOffset(i - 1)?.unread or i >= next.count())
-          return i - 1
+          nextIndex = i - 1
         else
-          return i
+          nextIndex = i
 
-      focusedLost = focusedIndex >= 0 and next.offsetOfId(focusedId) is -1
-      keyboardLost = keyboardIndex >= 0 and next.offsetOfId(keyboardId) is -1
+        # May return null if no thread is loaded at the next index
+        next.modelAtOffset(nextIndex)
 
-      if viewModeAutofocuses and focusedLost
-        Actions.setFocus(collection: 'thread', item: next.modelAtOffset(shiftIndex(focusedIndex)))
+      notInSet = (model) ->
+        if matchers
+          return model.matches(matchers) is false
+        else
+          return next.offsetOfId(model.id) is -1
 
-      if keyboardLost
-        Actions.setCursorPosition(collection: 'thread', item: next.modelAtOffset(shiftIndex(keyboardIndex)))
+      if viewModeAutofocuses and focused and notInSet(focused)
+        Actions.setFocus(collection: 'thread', item: nextItemFromIndex(focusedIndex))
+
+      if keyboard and notInSet(keyboard)
+        Actions.setCursorPosition(collection: 'thread', item: nextItemFromIndex(keyboardIndex))
 
     @trigger(@)
 
