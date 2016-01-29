@@ -35,7 +35,7 @@ class SidebarSection
 
     items = _
       .reject(cats, (cat) -> cat.name is 'drafts')
-      .map (cat) => SidebarItem.forCategories([cat])
+      .map (cat) => SidebarItem.forCategories([cat], editable: false, deletable: false)
 
     starredItem = SidebarItem.forStarred([account.id])
     draftsItem = SidebarItem.forDrafts([account.id])
@@ -73,9 +73,9 @@ class SidebarSection
           names.map((name) -> CategoryStore.getStandardCategory(acc, name))
         ))
         return unless cat
-        children.push(SidebarItem.forCategories([cat], name: acc.label))
+        children.push(SidebarItem.forCategories([cat], name: acc.label, editable: false, deletable: false))
 
-      items.push SidebarItem.forCategories(categories, {children})
+      items.push SidebarItem.forCategories(categories, {children, editable: false, deletable: false})
 
     starredItem = SidebarItem.forStarred(_.pluck(accounts, 'id'),
       children: accounts.map (acc) -> SidebarItem.forStarred([acc.id], name: acc.label)

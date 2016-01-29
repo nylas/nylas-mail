@@ -96,8 +96,8 @@ class SidebarItem
   @forCategories: (categories = [], opts = {}) ->
     id = idForCategories(categories)
     perspective = MailboxPerspective.forCategories(categories)
-    opts.deletable = true
-    opts.editable = true
+    opts.deletable ?= true
+    opts.editable ?= true
     @forPerspective(id, perspective, opts)
 
   @forStarred: (accountIds, opts = {}) ->
