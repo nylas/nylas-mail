@@ -15,26 +15,32 @@ class MailImportantIcon extends React.Component
   @displayName: 'MailImportantIcon'
   @propTypes:
     thread: React.PropTypes.object
+    showIfAvailableForAnyAccount: React.PropTypes.bool
 
   constructor: (@props) ->
     @state = @getState()
 
-  getState: =>
-    perspective = FocusedPerspectiveStore.current()
-
-    categoryId = null
+  getState: (props = @props) =>
+    category = null
     visible = false
 
-    for accountId in perspective.accountIds
-      account = AccountStore.accountForId(accountId)
-      accountImportantId = CategoryStore.getStandardCategory(account, 'important')?.id
-      if accountImportantId
-        visible = true
-      if accountId is @props.thread.accountId
-        categoryId = accountImportantId
-      break if visible and categoryId
+    if props.showIfAvailableForAnyAccount
+      perspective = FocusedPerspectiveStore.current()
+      for accountId in perspective.accountIds
+        account = AccountStore.accountForId(accountId)
+        accountImportant = CategoryStore.getStandardCategory(account, 'important')
+        if accountImportant
+          visible = true
+        if accountId is props.thread.accountId
+          category = accountImportant
+        break if visible and category
+    else
+      category = CategoryStore.getStandardCategory(props.thread.accountId, 'important')
+      visible = category?
 
-    {visible, categoryId}
+    isImportant = category and _.findWhere(@props.thread.categories, {id: category.id})?
+
+    {visible, category, isImportant}
 
   componentDidMount: =>
     @unsubscribe = FocusedPerspectiveStore.listen =>
@@ -42,27 +48,27 @@ class MailImportantIcon extends React.Component
     @subscription = NylasEnv.config.observe ShowImportantKey, =>
       @setState(@getState())
 
+  componentWillReceiveProps: (nextProps) =>
+    @setState(@getState(nextProps))
+
   componentWillUnmount: =>
     @unsubscribe?()
     @subscription?.dispose()
 
   shouldComponentUpdate: (nextProps, nextState) =>
-    return false if nextProps.thread is @props.thread and @state.visible is nextState.visible and @state.categoryId is nextState.categoryId
-    true
+    not _.isEqual(nextState, @state)
 
   render: =>
     return false unless @state.visible
 
-    isImportant = @state.categoryId and _.findWhere(@props.thread.categories, {id: @state.categoryId})?
-
     classes = classNames
       'mail-important-icon': true
-      'enabled': @state.categoryId
-      'active': isImportant
+      'enabled': @state.category?
+      'active': @state.isImportant
 
-    if not @state.categoryId
+    if not @state.category
       title = "No important folder / label"
-    else if isImportant
+    else if @state.isImportant
       title = "Mark as unimportant"
     else
       title = "Mark as important"
@@ -72,8 +78,10 @@ class MailImportantIcon extends React.Component
          onClick={@_onToggleImportant}></div>
 
   _onToggleImportant: (event) =>
-    if @state.categoryId
-      isImportant = _.findWhere(@props.thread.categories, {id: @state.categoryId})?
+    {category} = @state
+
+    if category
+      isImportant = _.findWhere(@props.thread.categories, {id: category.id})?
       threads = [@props.thread]
 
       if !isImportant
