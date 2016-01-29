@@ -31,7 +31,7 @@ class Scrollbar extends React.Component
       'scrolling': @state.scrolling
 
     tooltip = []
-    if @props.scrollTooltipComponent
+    if @props.scrollTooltipComponent and @state.dragging
       tooltip = <@props.scrollTooltipComponent viewportCenter={@state.viewportScrollTop + @state.viewportHeight / 2} totalHeight={@state.totalHeight} />
 
     <div className={containerClasses} style={@_scrollbarWrapStyles()} onMouseEnter={@recomputeDimensions}>
