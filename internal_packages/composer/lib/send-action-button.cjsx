@@ -87,7 +87,7 @@ class SendActionButton extends React.Component
   _renderSendDropdown: ->
     actionConfigs = @_orderedActionConfigs()
     <ButtonDropdown
-      className={"btn-send dropdown-btn-emphasis dropdown-btn-text"}
+      className={"btn-send btn-emphasis btn-text"}
       style={order: -100}
       primaryItem={@_sendContent(actionConfigs[0].iconUrl)}
       primaryTitle={actionConfigs[0].title}
