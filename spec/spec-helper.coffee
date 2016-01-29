@@ -26,6 +26,8 @@ pathwatcher = require 'pathwatcher'
  TaskQueue,
  AccountStore,
  DatabaseStore,
+ MailboxPerspective,
+ FocusedPerspectiveStore,
  ComponentRegistry} = require "nylas-exports"
 
 NylasEnv.themes.loadBaseStylesheets()
@@ -169,6 +171,8 @@ beforeEach ->
       serverId: TEST_ACCOUNT_ID
     })
   ]
+
+  FocusedPerspectiveStore._current = MailboxPerspective.forNothing()
 
   # reset config before each spec; don't load or save from/to `config.json`
   spyOn(Config::, 'load')
