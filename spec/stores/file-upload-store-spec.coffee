@@ -53,7 +53,7 @@ describe 'FileUploadStore', ->
       spyOn(FileUploadStore, '_verifyUpload').andCallFake -> Promise.resolve()
       spyOn(FileUploadStore, '_prepareTargetDir').andCallFake -> Promise.resolve()
       spyOn(FileUploadStore, '_copyUpload').andCallFake => Promise.resolve(@upload)
-      spyOn(FileUploadStore, '_saveUpload').andCallThrough()
+      spyOn(FileUploadStore, '_applySessionChanges').andCallThrough()
 
     it "throws if no messageClientId or path is provided", ->
       expect(-> Actions.addAttachment()).toThrow()
@@ -68,7 +68,7 @@ describe 'FileUploadStore', ->
         expect(FileUploadStore._verifyUpload).toHaveBeenCalled()
         expect(FileUploadStore._prepareTargetDir).toHaveBeenCalled()
         expect(FileUploadStore._copyUpload).toHaveBeenCalled()
-        expect(FileUploadStore._saveUpload).toHaveBeenCalled()
+        expect(FileUploadStore._applySessionChanges).toHaveBeenCalled()
         expect(@session.changes.add).toHaveBeenCalledWith({uploads: [@upload]})
 
 
@@ -78,7 +78,7 @@ describe 'FileUploadStore', ->
       spyOn(FileUploadStore, '_deleteUpload').andCallFake => Promise.resolve(@upload)
       spyOn(fs, 'rmdir')
 
-    it 'removes upload correctly', ->
+    it 'removes the upload from the draft', ->
       @draft.uploads = [{id: 'u2'}, @upload]
       waitsForPromise =>
         FileUploadStore._onRemoveAttachment(@upload)
@@ -86,13 +86,12 @@ describe 'FileUploadStore', ->
           expect(@session.changes.add).toHaveBeenCalledWith uploads: [{id: 'u2'}]
           expect(fs.rmdir).not.toHaveBeenCalled()
 
-    it 'removes upload and removes directory if no more uploads left dor message', ->
+    it 'calls deleteUpload to clean up the filesystem', ->
       @draft.uploads = [@upload]
       waitsForPromise =>
         FileUploadStore._onRemoveAttachment(@upload)
         .then =>
-          expect(@session.changes.add).toHaveBeenCalledWith uploads: []
-          expect(fs.rmdir).toHaveBeenCalled()
+          expect(FileUploadStore._deleteUpload).toHaveBeenCalled()
 
   describe '_getFileStats', ->
 
@@ -111,8 +110,8 @@ describe 'FileUploadStore', ->
       waitsForPromise ->
         FileUploadStore._getFileStats(argsObj)
         .then -> throw new Error('It should fail.')
-        .catch (msg) ->
-          expect(msg.indexOf(fpath)).toBe 0
+        .catch (error) ->
+          expect(error.message.indexOf(fpath)).toBe 0
 
 
   describe '_verifyUpload', ->
@@ -122,16 +121,16 @@ describe 'FileUploadStore', ->
       waitsForPromise ->
         FileUploadStore._verifyUpload(upload)
         .then -> throw new Error('It should fail.')
-        .catch (msg) ->
-          expect(msg.indexOf(filename + ' is a directory')).toBe 0
+        .catch (error) ->
+          expect(error.message.indexOf(filename + ' is a directory')).toBe 0
 
     it 'throws if the file is more than 25MB', ->
       upload = new Upload(msgId, fpath, {size: 25*1000000+1, isDirectory: -> false})
       waitsForPromise ->
         FileUploadStore._verifyUpload(upload)
         .then -> throw new Error('It should fail.')
-        .catch (msg) ->
-          expect(msg.indexOf(filename + ' cannot')).toBe 0
+        .catch (error) ->
+          expect(error.message.indexOf(filename + ' cannot')).toBe 0
 
     it 'resolves otherwise', ->
       upload = new Upload(msgId, fpath, {size: 1234, isDirectory: -> false})

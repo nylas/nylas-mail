@@ -445,9 +445,11 @@ class Actions
 
   # File Actions
   # Some file actions only need to be processed in their current window
-  @addAttachment: ActionScopeGlobal
+  @addAttachment: ActionScopeWindow
   @selectAttachment: ActionScopeWindow
-  @removeAttachment: ActionScopeGlobal
+  @removeAttachment: ActionScopeWindow
+  @attachmentUploaded: ActionScopeWindow
+
   @fetchAndOpenFile: ActionScopeWindow
   @fetchAndSaveFile: ActionScopeWindow
   @fetchFile: ActionScopeWindow
