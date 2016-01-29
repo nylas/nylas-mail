@@ -6,6 +6,8 @@
 @compose-width: 800px;
 @compose-min-height: 150px;
 
+@blurred-bg-color: mix(@background-primary, #ffbb00, 96%);
+
 body.platform-win32 {
   .composer-inner-wrap {
     .composer-action-bar-wrap {
@@ -177,7 +179,7 @@ body.platform-win32 {
         height: 37px;
         right: 0;
         top: 0;
-        background: linear-gradient(to right, fade(@background-primary, 0%) 0%, fade(@background-primary, 100%) 40%);
+        background: linear-gradient(to right, fade(@blurred-bg-color, 0%) 0%, fade(@blurred-bg-color, 100%) 40%);
       }
     }
   }
@@ -290,7 +292,7 @@ body.platform-win32 {
 #message-list {
   .message-item-wrap {
     .message-item-white-wrap.composer-outer-wrap {
-      background: mix(@background-primary, #ffbb00, 96%);
+      background: @blurred-bg-color;
     }
     .message-item-white-wrap.composer-outer-wrap.focused {
       box-shadow: 0 0 0.5px rgba(0, 0, 0, 0.28), 0 1px 1.5px rgba(0, 0, 0, 0.08), 0 0 3px @accent-primary;
