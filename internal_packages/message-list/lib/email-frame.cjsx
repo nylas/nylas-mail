@@ -59,12 +59,15 @@ class EmailFrame extends React.Component
     @refs.iframe.documentWasReplaced()
     @_setFrameHeight()
 
+  _getFrameHeight: (doc) ->
+    return 0 unless doc
+    return doc.body?.scrollHeight ? doc.documentElement?.scrollHeight ? 0
+
   _setFrameHeight: =>
     return unless @_mounted
 
     domNode = React.findDOMNode(@)
-    wrapper = domNode.contentDocument.getElementsByTagName('html')[0]
-    height = wrapper.scrollHeight
+    height = @_getFrameHeight(domNode.contentDocument)
 
     # Why 5px? Some emails have elements with a height of 100%, and then put
     # tracking pixels beneath that. In these scenarios, the scrollHeight of the
@@ -74,7 +77,7 @@ class EmailFrame extends React.Component
       domNode.height = "#{height}px"
       @_lastComputedHeight = height
 
-    unless domNode?.contentDocument?.readyState is 'complete'
+    unless domNode.contentDocument?.readyState is 'complete'
       _.defer => @_setFrameHeight()
 
   _emailContent: =>
