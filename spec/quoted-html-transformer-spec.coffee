@@ -19,7 +19,7 @@ describe "QuotedHTMLTransformer", ->
     re = new RegExp(QuotedHTMLTransformer.annotationClass, 'g')
     html.match(re)?.length ? 0
 
-  [1..16].forEach (n) ->
+  [1..17].forEach (n) ->
     it "properly parses email_#{n}", ->
       opts = keepIfWholeBodyIsQuote: true
       expect(removeQuotedHTML("email_#{n}.html", opts)).toEqual readFile("email_#{n}_stripped.html")
@@ -268,6 +268,35 @@ describe "QuotedHTMLTransformer", ->
       after: """<head></head><body></body>
         """
 
+    # Test 12: Make sure that a single quote inside of a bunch of other
+    # content is detected. We used to have a bug where we were only
+    # looking at the common ancestor of blockquotes (and if there's 1 then
+    # the ancestor is itself). We now look at the root document for
+    # trailing text.
+    tests.push
+      before: """
+        <br>
+        Yo
+        <table><tbody>
+          <tr><td>A</td><td>B</td></tr>
+          <tr><td>C</td><td><blockquote>SAVE ME</blockquote></td></tr>
+          <tr><td>E</td><td>F</td></tr>
+        </tbody></table>
+        Yo
+        <br>
+        """
+      after: """<head></head><body>
+        <br>
+        Yo
+        <table><tbody>
+          <tr><td>A</td><td>B</td></tr>
+          <tr><td>C</td><td><blockquote>SAVE ME</blockquote></td></tr>
+          <tr><td>E</td><td>F</td></tr>
+        </tbody></table>
+        Yo
+        <br></body>
+        """
+
     it 'works with these manual test cases', ->
       for {before, after} in tests
         opts = keepIfWholeBodyIsQuote: true
@@ -318,7 +347,7 @@ describe "QuotedHTMLTransformer", ->
   # `QuotedHTMLTransformer` needs Electron booted up in order to work because
   # of the DOMParser.
   xit "Run this simple funciton to generate output files", ->
-    [16].forEach (n) ->
+    [17].forEach (n) ->
       newHTML = QuotedHTMLTransformer.removeQuotedHTML(readFile("email_#{n}.html"))
       outPath = path.resolve(__dirname, 'fixtures', 'emails', "email_#{n}_raw_stripped.html")
       fs.writeFileSync(outPath, newHTML)
