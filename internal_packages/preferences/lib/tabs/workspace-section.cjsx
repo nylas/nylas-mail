@@ -9,7 +9,13 @@ class DefaultMailClientItem extends React.Component
     @_services = new LaunchServices()
     if @_services.available()
       @_services.isRegisteredForURLScheme 'mailto', (registered) =>
-        @setState(defaultClient: registered)
+        @setState(defaultClient: registered) if @_mounted
+
+  componentDidMount: ->
+    @_mounted = true
+
+  componentWillUnmount: ->
+    @_mounted = false
 
   render: =>
     return false unless process.platform is 'darwin'
@@ -36,11 +42,15 @@ class LaunchSystemStartItem extends React.Component
     @_service = new SystemStartService()
 
   componentDidMount: ->
+    @_mounted = true
     @_service.checkAvailability().then (available) =>
-      @setState {available}
-      return if not available
+      @setState {available} if @_mounted
+      return if not available or not @_mounted
       @_service.doesLaunchOnSystemStart().then (launchOnStart) =>
-        @setState({launchOnStart})
+        @setState({launchOnStart}) if @_mounted
+
+  componentWillUnmount: ->
+    @_mounted = false
 
   render: =>
     return false if not @state.available
