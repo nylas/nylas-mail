@@ -27,7 +27,7 @@ The Developer Panel provides three views which you can click to activate:
 
 - `Tasks`: This view allows you to inspect the {TaskQueue} and see the what tasks are pending and complete. Click a task to see its JSON representation and inspect it's values, including the last error it encountered.
 
-- `Long Polling`: This view allows you to see the streaming updates from the Nylas API that the app has received. You can click individual updates to see the exact JSON that was consumed by the app, and search in the lower left for updates pertaining to an object ID or type.
+- `Delta Streaming`: This view allows you to see the streaming updates from the Nylas API that the app has received. You can click individual updates to see the exact JSON that was consumed by the app, and search in the lower left for updates pertaining to an object ID or type.
 
 - `Requests`: This view shows the requests the app has made to the Nylas API in `curl`-equivalent form. (The app does not actually make `curl` requests). You can click "Copy" to copy a `curl` command to the clipboard, or "Run" to execute it in a new Terminal window.
 
