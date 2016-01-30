@@ -29,6 +29,7 @@
       { label: 'Toggle Developer &Tools', command: 'window:toggle-dev-tools' }
       { label: 'Toggle Component Regions', command: 'window:toggle-component-regions' }
       { label: 'Toggle React Remote', command: 'window:toggle-react-remote' }
+      { label: 'Toggle Screenshot Mode', command: 'window:toggle-screenshot-mode' }
       { type: 'separator' }
       { label: 'Open Activity Window', command: 'application:show-work-window' }
       { type: 'separator' }

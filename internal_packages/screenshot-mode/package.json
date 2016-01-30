@@ -1,0 +1,11 @@
+{
+  "name": "screenshot-mode",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Replaces all text with blocks for taking screenshots without PII",
+  "license": "Proprietary",
+  "private": true,
+  "windowTypes": {
+    "all": true
+  }
+}
