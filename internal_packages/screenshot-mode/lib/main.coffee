@@ -15,7 +15,7 @@ module.exports =
         document.body.appendChild(style)
 
   deactivate: ->
-    if style.parentElement
+    if style and style.parentElement
       document.body.removeChild(style)
 
   serialize: ->
