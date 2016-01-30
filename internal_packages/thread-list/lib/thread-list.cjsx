@@ -107,11 +107,10 @@ class ThreadList extends React.Component
     dataSource = ThreadListStore.dataSource()
     if itemThreadId in dataSource.selection.ids()
       dragThreadIds = dataSource.selection.ids()
+      dragAccountIds = _.pluck(dataSource.selection.items(), 'accountId')
     else
       dragThreadIds = [itemThreadId]
-
-    dragAccountIds = dragThreadIds.map (threadId) -> dataSource.getById(threadId).accountId
-    dragAccountIds = _.uniq(dragAccountIds)
+      dragAccountIds = [dataSource.getById(itemThreadId).accountId]
 
     dragData = {
       accountIds: dragAccountIds,
