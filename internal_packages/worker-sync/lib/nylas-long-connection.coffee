@@ -99,7 +99,7 @@ class NylasLongConnection
 
     @withCursor (cursor) =>
       return if @state is NylasLongConnection.State.Ended
-      console.log("Long Polling Connection: Starting for account #{@_accountId}, token #{token}, with cursor #{cursor}")
+      console.log("Delta Connection: Starting for account #{@_accountId}, token #{token}, with cursor #{cursor}")
       options = url.parse("#{@_api.APIRoot}/delta/streaming?cursor=#{cursor}&exclude_folders=false")
       options.auth = "#{token}:"
 
@@ -113,7 +113,7 @@ class NylasLongConnection
         if res.statusCode isnt 200
           res.on 'data', (chunk) =>
             if chunk.toString().indexOf('Invalid cursor') > 0
-              console.log('Long Polling Connection: Cursor is invalid. Need to blow away local cache.')
+              console.log('Delta Connection: Cursor is invalid. Need to blow away local cache.')
               # TODO THIS!
             else
               @retry()
@@ -158,7 +158,7 @@ class NylasLongConnection
     , startDelay
 
   end: ->
-    console.log("Long Polling Connection: Closed.")
+    console.log("Delta Connection: Closed.")
     @setState(NylasLongConnection.State.Ended)
     @cleanup()
 
