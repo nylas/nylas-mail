@@ -1,8 +1,10 @@
 {React,
  Actions,
+ Thread,
+ DatabaseStore,
  TaskFactory,
  ComposerExtension,
- FocusedMailViewStore} = require 'nylas-exports'
+ FocusedPerspectiveStore} = require 'nylas-exports'
 
 {RetinaImg} = require 'nylas-component-kit'
 
@@ -18,9 +20,10 @@ class SendAndArchiveExtension extends ComposerExtension
 
   @_sendAndArchive: ({draft}) ->
     Actions.sendDraft(draft.clientId)
-    archiveTask = TaskFactory.taskForArchiving
-      threads: [draft.threadId]
-      fromView: FocusedMailViewStore.mailView()
-    Actions.queueTask(archiveTask)
+    DatabaseStore.modelify(Thread, [draft.threadId]).then (threads) =>
+      tasks = TaskFactory.tasksForArchiving
+        threads: threads
+        fromPerspective: FocusedPerspectiveStore.current()
+      Actions.queueTasks(tasks)
 
 module.exports = SendAndArchiveExtension

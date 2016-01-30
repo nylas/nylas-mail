@@ -5,6 +5,7 @@ ChangeUnreadTask = require './change-unread-task'
 ChangeStarredTask = require './change-starred-task'
 AccountStore = require '../stores/account-store'
 CategoryStore = require '../stores/category-store'
+Thread = require '../models/thread'
 
 class TaskFactory
 
@@ -13,6 +14,9 @@ class TaskFactory
     tasks = []
 
     for thread in threads
+      unless thread instanceof Thread
+        throw new Error("tasksForApplyingCategories: `threads` must be instances of Thread")
+
       accountId = thread.accountId
       byAccount[accountId] ?=
         categoriesToRemove: categoriesToRemove?(accountId) ? []
