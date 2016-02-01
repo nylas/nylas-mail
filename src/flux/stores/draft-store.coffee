@@ -424,6 +424,9 @@ class DraftStore
 
     [whole, to, queryString] = /mailto:\/*([^\?\&]*)((.|\n|\r)*)/.exec(urlString)
 
+    if to.length > 0 and to.indexOf('@') is -1
+      to = decodeURIComponent(to)
+
     # /many/ mailto links are malformed and do things like:
     #   &body=https://github.com/atom/electron/issues?utf8=&q=is%3Aissue+is%3Aopen+123&subject=...
     #   (note the unescaped ? and & in the URL).

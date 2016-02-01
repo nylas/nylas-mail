@@ -897,6 +897,7 @@ describe "DraftStore", ->
         'mailto:'
         'mailto://bengotow@gmail.com'
         'mailto:bengotow@gmail.com'
+        'mailto:mg%40nylas.com'
         'mailto:?subject=%1z2a', # fails uriDecode
         'mailto:?subject=%52z2a', # passes uriDecode
         'mailto:?subject=Martha Stewart',
@@ -918,6 +919,9 @@ describe "DraftStore", ->
         ),
         new Message(
           to: [new Contact(name: 'bengotow@gmail.com', email: 'bengotow@gmail.com')]
+        ),
+        new Message(
+          to: [new Contact(name: 'mg@nylas.com', email: 'mg@nylas.com')]
         ),
         new Message(
           subject: '%1z2a'
@@ -986,8 +990,8 @@ describe "DraftStore", ->
               expect(received['subject']).toEqual(expectedDraft['subject'])
               expect(received['body']).toEqual(expectedDraft['body']) if expectedDraft['body']
               ['to', 'cc', 'bcc'].forEach (attr) ->
-                received[attr].forEach (contact, jdx) ->
-                  expect(contact instanceof Contact).toBe(true)
-                  expectedContact = expectedDraft[attr][jdx]
-                  expect(contact.email).toEqual(expectedContact.email)
-                  expect(contact.name).toEqual(expectedContact.name)
+                expectedDraft[attr].forEach (expected, jdx) ->
+                  actual = received[attr][jdx]
+                  expect(actual instanceof Contact).toBe(true)
+                  expect(actual.email).toEqual(expected.email)
+                  expect(actual.name).toEqual(expected.name)
