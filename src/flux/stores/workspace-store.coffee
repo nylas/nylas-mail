@@ -37,9 +37,10 @@ class WorkspaceStore extends NylasStore
       @popToRootSheet()
       @trigger()
 
-    NylasEnv.config.observe 'core.workspace.interfaceZoom', (zoom) =>
-      if zoom and _.isNumber(zoom)
-        require('electron').webFrame.setZoomFactor(zoom)
+    {windowType} = NylasEnv.getLoadSettings()
+    unless windowType is 'onboarding'
+      NylasEnv.config.observe 'core.workspace.interfaceZoom', (z) =>
+        require('electron').webFrame.setZoomFactor(z) if z and _.isNumber(z)
 
     NylasEnv.commands.add 'body', @_navigationCommands()
 
