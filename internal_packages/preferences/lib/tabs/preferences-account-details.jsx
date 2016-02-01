@@ -39,7 +39,7 @@ class PreferencesAccountDetails extends Component {
     const emailRegex = RegExpUtils.emailRegex();
     const match = emailRegex.exec(str);
     if (!match) {
-      return `${str} <${account.emailAddress}>`;
+      return `${str || account.name} <${account.emailAddress}>`;
     }
     const email = match[0];
     let name = str.slice(0, Math.max(0, match.index - 1));
