@@ -67,6 +67,10 @@ module.exports =
             type: 'boolean'
             default: false
             title: "Use backspace / delete to move messages to trash"
+          timeFormat:
+            type: 'boolean'
+            default: false
+            title: "Military time"
       sending:
         type: 'object'
         properties:
@@ -96,3 +100,4 @@ module.exports =
             default: true
             title: "Show badge on the app icon"
             platforms: ['darwin']
+
