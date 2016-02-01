@@ -26,6 +26,7 @@ class AccountStore
     @_load()
     @listenTo Actions.removeAccount, @_onRemoveAccount
     @listenTo Actions.updateAccount, @_onUpdateAccount
+    @listenTo Actions.reorderAccount, @_onReorderAccount
 
     @_caches = {}
 
@@ -80,6 +81,16 @@ class AccountStore
       ipc.send('command', 'application:reset-config-and-relaunch')
     else
       @trigger()
+
+  _onReorderAccount: (id, newIdx) =>
+    existingIdx = _.findIndex @_accounts, (a) -> a.id is id
+    return if existingIdx is -1
+    account = @_accounts[existingIdx]
+    @_caches = {}
+    @_accounts.splice(existingIdx, 1)
+    @_accounts.splice(newIdx, 0, account)
+    @_save()
+    @trigger()
 
   addAccountFromJSON: (json) =>
     if not json.email_address or not json.provider

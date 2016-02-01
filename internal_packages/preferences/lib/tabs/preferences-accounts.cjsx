@@ -30,6 +30,9 @@ class PreferencesAccounts extends React.Component
     ipc = require('electron').ipcRenderer
     ipc.send('command', 'application:add-account')
 
+  _onReorderAccount: (account, oldIdx, newIdx) =>
+    Actions.reorderAccount(account.id, newIdx)
+
   _onSelectAccount: (account) =>
     @setState(selected: account)
 
@@ -49,6 +52,7 @@ class PreferencesAccounts extends React.Component
           accounts={@state.accounts}
           selected={@state.selected}
           onAddAccount={@_onAddAccount}
+          onReorderAccount={@_onReorderAccount}
           onSelectAccount={@_onSelectAccount}
           onRemoveAccount={@_onRemoveAccount} />
         <PreferencesAccountDetails

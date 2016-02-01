@@ -86,6 +86,7 @@ class PreferencesMailRules extends React.Component
       items={@state.rules}
       itemContent={@_renderListItemContent}
       onCreateItem={@_onAddRule}
+      onReorderItem={@_onReorderRule}
       onDeleteItem={@_onDeleteRule}
       onItemEdited={@_onRuleNameEdited}
       selected={@state.selectedRule}
@@ -96,7 +97,7 @@ class PreferencesMailRules extends React.Component
       return <div className="item-rule-disabled">{rule.name}</div>
     else
       return rule.name
-    
+
   _renderDetail: =>
     rule = @state.selectedRule
 
@@ -176,6 +177,9 @@ class PreferencesMailRules extends React.Component
 
   _onSelectRule: (rule, idx) =>
     @setState(selectedRule: rule)
+
+  _onReorderRule: (rule, idx, newIdx) =>
+    Actions.reorderMailRule(rule.id, newIdx)
 
   _onDeleteRule: (rule, idx) =>
     Actions.deleteMailRule(rule.id)
