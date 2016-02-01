@@ -58,6 +58,7 @@ class ThreadList extends React.Component
     'application:mark-unimportant': => @_onSetImportant(false)
     'application:mark-as-unread': => @_onSetUnread(true)
     'application:mark-as-read': => @_onSetUnread(false)
+    'application:report-as-spam': => @_onMarkAsSpam(false)
     'application:remove-and-previous': =>
       @_shift(offset: -1, afterRunning: @_onRemoveFromView)
     'application:remove-and-next': =>
@@ -175,6 +176,14 @@ class ThreadList extends React.Component
       unread: unread
     Actions.queueTask(task)
     Actions.popSheet()
+
+  _onMarkAsSpam: =>
+    threads = @_threadsForKeyboardAction()
+    return unless threads
+    tasks = TaskFactory.tasksForMarkingAsSpam(
+      threads: threads
+    )
+    Actions.queueTasks(tasks)
 
   _onRemoveFromView: =>
     threads = @_threadsForKeyboardAction()

@@ -43,9 +43,6 @@ class MailboxPerspective
   @forInbox: (accountsOrIds) =>
     @forStandardCategories(accountsOrIds, 'inbox')
 
-  @forAll: (accountsOrIds) =>
-    @forStandardCategories(accountsOrIds, 'all')
-
 
   # Instance Methods
 

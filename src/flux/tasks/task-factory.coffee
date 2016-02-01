@@ -71,6 +71,13 @@ class TaskFactory
         labelsToRemove: [category]
         labelsToAdd: labelsToAdd
 
+  tasksForMarkingAsSpam: ({threads}) =>
+    @tasksForApplyingCategories
+      threads: threads,
+      categoriesToRemove: (accountId) ->
+        [CategoryStore.getStandardCategory(accountId, 'inbox')]
+      categoryToAdd: (accountId) -> CategoryStore.getStandardCategory(accountId, 'spam')
+
   tasksForArchiving: ({threads, fromPerspective}) =>
     @tasksForApplyingCategories
       threads: threads,
