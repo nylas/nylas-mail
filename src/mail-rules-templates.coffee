@@ -40,6 +40,14 @@ ConditionTemplates = [
       _.pluck(message.files, 'filename')
   })
 
+  new Template('starred', Template.Type.Enum, {
+    name: 'Starred',
+    values: [{name: 'True', value: 'true'}, {name: 'False', value: 'false'}]
+    valueLabel: 'is:'
+    valueForMessage: (message) ->
+      if message.starred then return 'true' else return 'false'
+  })
+
   new Template('subject', Template.Type.String, {
     name: 'Subject',
     valueForMessage: (message) ->

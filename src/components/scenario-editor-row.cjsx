@@ -13,7 +13,10 @@ class SourceSelect extends React.Component
   @propTypes:
     value: React.PropTypes.string
     onChange: React.PropTypes.func.isRequired
-    options: React.PropTypes.object.isRequired
+    options: React.PropTypes.oneOfType([
+      React.PropTypes.object
+      React.PropTypes.array
+    ]).isRequired
 
   constructor: (@props) ->
     @state =
