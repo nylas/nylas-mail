@@ -13,6 +13,7 @@
     "coffee-react-transform": "^3.1.0",
     "coffeelint-cjsx": "^2.0",
     "donna": "1.0.10",
+    "escope": "3.3.0",
     "eslint": "^1.5.1",
     "eslint-config-airbnb": "^0.1.0",
     "eslint-plugin-react": "^3.4.2",
