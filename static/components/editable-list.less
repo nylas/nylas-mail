@@ -21,6 +21,23 @@
       color: @component-active-bg;
     }
 
+    .insertion-point {
+      display:block;
+      width:100%;
+      height: 0;
+      position: relative;
+      pointer-events: none;
+
+      div {
+        height:2px;
+        width: 100%;
+        position: absolute;
+        top: -1px;
+        background-color: @component-active-color;
+        box-shadow: 0 0 1px fade(@component-active-color, 50%);
+      }
+    }
+
     .edit-icon {
       display: none;
       cursor: pointer;

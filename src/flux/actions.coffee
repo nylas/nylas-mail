@@ -168,6 +168,17 @@ class Actions
   @updateAccount: ActionScopeWindow
 
   ###
+  Public: Re-order the provided account in the account list.
+
+  *Scope: Window*
+
+  ```
+  Actions.reorderAccount(account.id, newIndex)
+  ```
+  ###
+  @reorderAccount: ActionScopeWindow
+
+  ###
   Public: Select the provided sheet in the current window. This action changes
   the top level sheet.
 
@@ -487,6 +498,7 @@ class Actions
   @recordUserEvent: ActionScopeWindow
 
   @addMailRule: ActionScopeWindow
+  @reorderMailRule: ActionScopeWindow
   @updateMailRule: ActionScopeWindow
   @deleteMailRule: ActionScopeWindow
   @disableMailRule: ActionScopeWindow
