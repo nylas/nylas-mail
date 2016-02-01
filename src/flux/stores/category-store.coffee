@@ -74,6 +74,8 @@ class CategoryStore extends NylasStore
 
     return _.findWhere(@_standardCategories[asAccountId(accountOrId)], {name})
 
+  # Public: Returns the set of all standard categories that match the given
+  # names for each of the provided accounts
   getStandardCategories: (accountsOrIds, names...) ->
     if Array.isArray(accountsOrIds)
       res = []
