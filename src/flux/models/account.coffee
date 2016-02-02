@@ -69,19 +69,22 @@ class Account extends Model
 
   # Returns a {Contact} model that represents the current user.
   me: ->
-    if @defaultAlias
-      return @meUsingAlias(@defaultAlias)
-    else
-      Contact = require './contact'
-      return new Contact
-        accountId: @id
-        name: @name
-        email: @emailAddress
+    Contact = require './contact'
+    return new Contact
+      accountId: @id
+      name: @name
+      email: @emailAddress
 
   meUsingAlias: (alias) ->
     Contact = require './contact'
     return @me() unless alias
     return Contact.fromString(alias, accountId: @id)
+
+  defaultMe: ->
+    if @defaultAlias
+      return @meUsingAlias(@defaultAlias)
+    else
+      return @me()
 
   usesLabels: ->
     @organizationUnit is "label"
