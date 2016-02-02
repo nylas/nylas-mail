@@ -691,7 +691,7 @@ class ComposerView extends React.Component
 
     bodyIsEmpty = draft.body is @_proxy.draftPristineBody()
     forwarded = Utils.isForwardedMessage(draft)
-    hasAttachment = (draft.files ? []).length > 0
+    hasAttachment = (draft.files ? []).length > 0 or (draft.uploads ? []).length > 0
 
     warnings = []
 
