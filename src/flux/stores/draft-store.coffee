@@ -286,7 +286,7 @@ class DraftStore
     account = AccountStore.accountForId(thread.accountId)
     throw new Error("Cannot find #{thread.accountId}") unless account
     return new Message _.extend {}, attributes,
-      from: [account.me()]
+      from: [account.defaultMe()]
       date: (new Date)
       draft: true
       pristine: true
@@ -385,7 +385,7 @@ class DraftStore
 
     draft = new Message
       body: ""
-      from: [account.me()]
+      from: [account.defaultMe()]
       date: (new Date)
       draft: true
       pristine: true
@@ -463,7 +463,7 @@ class DraftStore
     draft = new Message
       body: query.body || ''
       subject: query.subject || '',
-      from: [account.me()]
+      from: [account.defaultMe()]
       date: (new Date)
       draft: true
       pristine: true

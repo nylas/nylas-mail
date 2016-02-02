@@ -73,13 +73,6 @@ class MessageControls extends React.Component
   _onForward: =>
     Actions.composeForward(thread: @props.thread, message: @props.message)
 
-  _replyType: =>
-    emails = @props.message.to.map (item) -> item.email.toLowerCase().trim()
-    myEmail = @_account()?.me().email.toLowerCase().trim()
-    if @props.message.cc.length is 0 and @props.message.to.length is 1 and emails[0] is myEmail
-      return "reply"
-    else return "reply-all"
-
   _onShowActionsMenu: =>
     SystemMenu = remote.require('menu')
     SystemMenuItem = remote.require('menu-item')
