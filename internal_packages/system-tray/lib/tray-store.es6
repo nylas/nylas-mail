@@ -48,14 +48,11 @@ class TrayStore extends NylasStore {
 
     this._unreadIcon = NativeImage.createFromPath(UNREAD_ICON_PATH);
     this._baseIcon = NativeImage.createFromPath(BASE_ICON_PATH);
-    this._unreadCount = UnreadBadgeStore.count() || 0;
-    this._menu = _buildMenu(platform);
+    this._menu = _buildMenu();
     this._icon = this._getIconImg();
-    this.listenTo(UnreadBadgeStore, this._onUnreadCountChanged);
-  }
 
-  unreadCount() {
-    return this._unreadCount;
+    this._unreadString = new Number(UnreadBadgeStore.count()).toLocaleString();
+    this.listenTo(UnreadBadgeStore, this._onUnreadCountChanged);
   }
 
   icon() {
@@ -63,22 +60,21 @@ class TrayStore extends NylasStore {
   }
 
   tooltip() {
-    return `${this._unreadCount} unread messages`;
+    return `${this._unreadString} unread messages`;
   }
 
   menu() {
     return this._menu;
   }
 
-  _getIconImg(platform = this._platform, unreadCount = this._unreadCount) {
+  _getIconImg() {
     const imgHandlers = {
       'darwin': ()=> {
         const img = new Image();
         // toDataUrl always returns the @1x image data, so the assets/darwin/
         // contains an "@2x" image /without/ the @2x extension
         img.src = this._baseIcon.toDataURL();
-        const count = this._unreadCount || '';
-        const canvas = canvasWithSystemTrayIconAndText(img, count.toString());
+        const canvas = canvasWithSystemTrayIconAndText(img, this._unreadString);
         const pngData = NativeImage.createFromDataURL(canvas.toDataURL()).toPng();
 
         // creating from a buffer allows us to specify that the image is @2x
@@ -87,15 +83,15 @@ class TrayStore extends NylasStore {
         return out2x;
       },
       'default': ()=> {
-        return unreadCount > 0 ? this._unreadIcon : this._baseIcon;
+        return this._unreadString != '0' ? this._unreadIcon : this._baseIcon;
       },
     };
 
-    return imgHandlers[platform in imgHandlers ? platform : 'default']();
+    return imgHandlers[this._platform in imgHandlers ? this._platform : 'default']();
   }
 
   _onUnreadCountChanged() {
-    this._unreadCount = UnreadBadgeStore.count();
+    this._unreadString = new Number(UnreadBadgeStore.count()).toLocaleString();
     this._icon = this._getIconImg();
     this.trigger();
   }
