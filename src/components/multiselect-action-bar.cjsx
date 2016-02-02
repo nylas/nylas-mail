@@ -128,6 +128,6 @@ class MultiselectActionBar extends React.Component
 
   _onClearSelection: =>
     @props.dataSource.selection.clear()
-
+    return
 
 module.exports = MultiselectActionBar
