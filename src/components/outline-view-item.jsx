@@ -61,7 +61,7 @@ const CounterStyles = {
  * @class OutlineViewItem
  */
 class OutlineViewItem extends Component {
-  static displayName = 'OutlineView'
+  static displayName = 'OutlineView';
 
   /**
    * If provided, this function will be called when receiving a drop. It must
@@ -129,7 +129,7 @@ class OutlineViewItem extends Component {
       onDelete: PropTypes.func,
       onEdited: PropTypes.func,
     }).isRequired,
-  }
+  };
 
 
   constructor(props) {
@@ -174,63 +174,63 @@ class OutlineViewItem extends Component {
       return item[method](item, ...args);
     }
     return undefined;
-  }
+  };
 
   _shouldShowContextMenu = ()=> {
     return this.props.item.onDelete != null || this.props.item.onEdited != null;
-  }
+  };
 
   _shouldAcceptDrop = (event)=> {
     return this._runCallback('shouldAcceptDrop', event);
-  }
+  };
 
   _clearEditingState = (event)=> {
     this.setState({editing: false});
     this._runCallback('onInputCleared', event);
-  }
+  };
 
 
   // Handlers
 
   _onDragStateChange = ({isDropping})=> {
     this.setState({isDropping});
-  }
+  };
 
   _onDrop = (event)=> {
     this._runCallback('onDrop', event);
-  }
+  };
 
   _onCollapseToggled = ()=> {
     this._runCallback('onCollapseToggled');
-  }
+  };
 
   _onClick = (event)=> {
     event.preventDefault();
     this._runCallback('onSelect');
-  }
+  };
 
   _onDelete = ()=> {
     this._runCallback('onDelete');
-  }
+  };
 
   _onEdited = (value)=> {
     this._runCallback('onEdited', value);
-  }
+  };
 
   _onEdit = ()=> {
     if (this.props.item.onEdited) {
       this.setState({editing: true});
     }
-  }
+  };
 
   _onInputFocus = (event)=> {
     const input = event.target;
     input.selectionStart = input.selectionEnd = input.value.length;
-  }
+  };
 
   _onInputBlur = (event)=> {
     this._clearEditingState(event);
-  }
+  };
 
   _onInputKeyDown = (event)=> {
     if (event.key === 'Escape') {
@@ -240,7 +240,7 @@ class OutlineViewItem extends Component {
       this._onEdited(event.target.value);
       this._clearEditingState(event);
     }
-  }
+  };
 
   _onShowContextMenu = (event)=> {
     event.stopPropagation()
@@ -264,7 +264,7 @@ class OutlineViewItem extends Component {
       }));
     }
     menu.popup(remote.getCurrentWindow());
-  }
+  };
 
 
   // Renderers

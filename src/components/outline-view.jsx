@@ -29,7 +29,7 @@ import OutlineViewItem from './outline-view-item';
  * @class OutlineView
  */
 class OutlineView extends Component {
-  static displayName = 'OutlineView'
+  static displayName = 'OutlineView';
 
   /**
    * If provided, this function will be called when an item has been created.
@@ -49,45 +49,45 @@ class OutlineView extends Component {
     collapsed: PropTypes.bool,
     onItemCreated: PropTypes.func,
     onCollapseToggled: PropTypes.func,
-  }
+  };
 
   static defaultProps = {
     title: '',
     items: [],
-  }
+  };
 
   state = {
     showCreateInput: false,
-  }
+  };
 
 
   // Handlers
 
   _onCreateButtonMouseDown = ()=> {
     this._clickingCreateButton = true;
-  }
+  };
 
   _onCreateButtonClicked = ()=> {
     this._clickingCreateButton = false;
     this.setState({showCreateInput: !this.state.showCreateInput});
-  }
+  };
 
   _onCollapseToggled = ()=> {
     if (this.props.onCollapseToggled) {
       this.props.onCollapseToggled(this.props);
     }
-  }
+  };
 
   _onItemCreated = (item, value)=> {
     this.setState({showCreateInput: false});
     this.props.onItemCreated(value)
-  }
+  };
 
   _onCreateInputCleared = ()=> {
     if (!this._clickingCreateButton) {
       this.setState({showCreateInput: false});
     }
-  }
+  };
 
 
   // Renderers
