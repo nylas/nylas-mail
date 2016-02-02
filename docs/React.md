@@ -73,13 +73,6 @@ Here are a few examples of how to use it to extend N1. Typically, packages regis
 	      role: 'Composer:ActionButton'
 	```
 
-3. Replace the `Participants` component that ships with N1 to display thread participants on your own:
-
-	```coffee
-	    ComponentRegistry.register ParticipantsWithStatusDots,
-	        role: 'Participants'
-	```
-
 *Tip: Remember to unregister components in the `deactivate` method of your package.*
 
 
