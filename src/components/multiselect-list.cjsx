@@ -28,7 +28,7 @@ class MultiselectList extends React.Component
   @displayName = 'MultiselectList'
 
   @propTypes =
-    dataSource: React.PropTypes.object.isRequired
+    dataSource: React.PropTypes.object
     className: React.PropTypes.string.isRequired
     columns: React.PropTypes.array.isRequired
     itemPropsProvider: React.PropTypes.func.isRequired
