@@ -1,4 +1,4 @@
-{AccountStore, MailboxPerspective, Category} = require 'nylas-exports'
+{AccountStore, MailboxPerspective, TaskFactory, Category, Actions, DatabaseStore} = require 'nylas-exports'
 
 
 describe 'MailboxPerspective', ->
@@ -48,3 +48,44 @@ describe 'MailboxPerspective', ->
 
     describe 'receiveThreads', ->
       # TODO
+
+    describe 'removeThreads', ->
+      beforeEach ->
+        @threads = ['t1', 't2']
+        @taskArgs = {threads: @threads, categories: @categories}
+        spyOn(Actions, 'queueTasks')
+        spyOn(DatabaseStore, 'modelify').andReturn then: (cb) => cb(@threads)
+
+      it 'moves the threads to finished category if in inbox', ->
+        spyOn(@perspective, 'isInbox').andReturn true
+        spyOn(@perspective, 'canTrashThreads').andReturn true
+        spyOn(@perspective, 'canArchiveThreads').andReturn true
+        spyOn(TaskFactory, 'tasksForRemovingCategories')
+        @perspective.removeThreads(@threads)
+        @taskArgs.moveToFinishedCategory = true
+        expect(TaskFactory.tasksForRemovingCategories).toHaveBeenCalledWith(@taskArgs)
+
+      it 'moves threads to inbox if in trash', ->
+        spyOn(@perspective, 'isInbox').andReturn false
+        spyOn(@perspective, 'canTrashThreads').andReturn false
+        spyOn(@perspective, 'canArchiveThreads').andReturn true
+        spyOn(TaskFactory, 'tasksForMovingToInbox')
+        @perspective.removeThreads(@threads)
+        expect(TaskFactory.tasksForMovingToInbox).toHaveBeenCalledWith(@taskArgs)
+
+      it 'removes categories if the current perspective does not correspond to archive or sent', ->
+        spyOn(@perspective, 'isInbox').andReturn false
+        spyOn(@perspective, 'canTrashThreads').andReturn true
+        spyOn(@perspective, 'canArchiveThreads').andReturn true
+        spyOn(TaskFactory, 'tasksForRemovingCategories')
+        @perspective.removeThreads(@threads)
+        @taskArgs.moveToFinishedCategory = false
+        expect(TaskFactory.tasksForRemovingCategories).toHaveBeenCalledWith(@taskArgs)
+
+      it 'does nothing otherwise', ->
+        spyOn(@perspective, 'isInbox').andReturn false
+        spyOn(@perspective, 'canTrashThreads').andReturn true
+        spyOn(@perspective, 'canArchiveThreads').andReturn false
+        @perspective.removeThreads(@threads)
+        expect(Actions.queueTasks).not.toHaveBeenCalled()
+

@@ -97,6 +97,17 @@ class Account extends Model
     else
       'Unknown'
 
+  defaultFinishedCategory: ->
+    CategoryStore = require '../stores/category-store'
+    preferDelete = NylasEnv.config.get('core.reading.backspaceDelete')
+    archiveCategory = CategoryStore.getArchiveCategory(@)
+    trashCategory = CategoryStore.getTrashCategory(@)
+
+    if preferDelete or not archiveCategory
+      trashCategory
+    else
+      archiveCategory
+
   categoryIcon: ->
     if @usesFolders()
       'folder.png'
