@@ -40,7 +40,7 @@ class SidebarStore extends NylasStore
   _registerListeners: ->
     @listenTo SidebarActions.focusAccounts, @_onAccountsFocused
     @listenTo AccountStore, @_onAccountsChanged
-    @listenTo FocusedPerspectiveStore, @_updateSections
+    @listenTo FocusedPerspectiveStore, @_onFocusedPerspectiveChanged
     @listenTo WorkspaceStore, @_updateSections
     @listenTo ThreadCountsStore, @_updateSections
     @listenTo CategoryStore, @_updateSections
@@ -62,6 +62,14 @@ class SidebarStore extends NylasStore
 
   _onAccountsChanged: =>
     @_focusedAccounts = AccountStore.accounts()
+    @_updateSections()
+
+  _onFocusedPerspectiveChanged: =>
+    currentIds = _.pluck(@_focusedAccounts, 'id')
+    newIds = FocusedPerspectiveStore.current().accountIds
+    newIdsNotInCurrent = _.difference(newIds, currentIds).length > 0
+    if newIdsNotInCurrent
+      @_focusedAccounts = newIds.map (id) -> AccountStore.accountForId(id)
     @_updateSections()
 
   _updateSections: =>
