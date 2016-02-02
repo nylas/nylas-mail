@@ -47,11 +47,11 @@ class TrayStore extends NylasStore {
     this._platform = platform;
 
     this._unreadIcon = NativeImage.createFromPath(UNREAD_ICON_PATH);
+    this._unreadString = new Number(UnreadBadgeStore.count()).toLocaleString();
     this._baseIcon = NativeImage.createFromPath(BASE_ICON_PATH);
     this._menu = _buildMenu();
     this._icon = this._getIconImg();
 
-    this._unreadString = new Number(UnreadBadgeStore.count()).toLocaleString();
     this.listenTo(UnreadBadgeStore, this._onUnreadCountChanged);
   }
 
