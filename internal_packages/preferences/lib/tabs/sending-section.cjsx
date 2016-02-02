@@ -15,14 +15,14 @@ class SendingSection extends React.Component
     values = accounts.map (acc) -> acc.id
     labels = accounts.map (acc) -> acc.me().toString()
 
-    values = [null, values...]
+    values = ['selected-mailbox', values...]
     labels = ['Account of selected mailbox', labels...]
 
     _.extend(configSchema.properties.sending.properties, {
       defaultAccountIdForSend:
         type: 'string'
         title: 'Send new messages from'
-        default: null
+        default: 'selected-mailbox'
         enum: values
         enumLabels: labels
     })
