@@ -61,15 +61,14 @@ describe("CreateModelTask", () => {
       const accountId = "a123"
       const modelName = "Metadata"
       const endpoint = "/endpoint"
-      const data = {key: "foo", value: "bar"}
-      const requiredFields = ["key", "value"]
+      const data = {value: "bar"}
+      const requiredFields = ["value"]
       const t = new CreateModelTask({accountId, modelName, data, endpoint, requiredFields})
       window.waitsForPromise(() => {
         return t.performLocal().then(() => {
           expect(persistFn).toHaveBeenCalled()
           const model = persistFn.calls[0].args[0]
           expect(model.constructor.name).toBe(modelName)
-          expect(model.key).toBe("foo")
           expect(model.value).toBe("bar")
         });
       });
@@ -80,7 +79,7 @@ describe("CreateModelTask", () => {
     const accountId = "a123"
     const modelName = "Metadata"
     const endpoint = "/endpoint"
-    const data = {key: "foo", value: "bar"}
+    const data = {value: "bar"}
 
     beforeEach(() => {
       this.task = new CreateModelTask({accountId, modelName, data, endpoint})
@@ -99,7 +98,7 @@ describe("CreateModelTask", () => {
       performRemote(() => {
         const opts = NylasAPI.makeRequest.calls[0].args[0]
         expect(opts.method).toBe("POST")
-        expect(opts.body.key).toBe("foo")
+        expect(opts.body.value).toBe("bar")
       })
     });
 
