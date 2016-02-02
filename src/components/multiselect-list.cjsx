@@ -95,11 +95,18 @@ class MultiselectList extends React.Component
     if @props.dataSource and @state.handler
       className += " " + @state.handler.cssClass()
 
-      @itemPropsProvider ?= (item) =>
-        props = @props.itemPropsProvider(item)
+      @itemPropsProvider ?= (item, idx) =>
+        selectedIds = @props.dataSource.selection.ids()
+        selected = item.id in selectedIds
+        if not selected
+          nextId = @props.dataSource.get(idx + 1)?.id
+          nextSelected = nextId in selectedIds
+
+        props = @props.itemPropsProvider(item, idx)
         props.className ?= ''
         props.className += " " + classNames
-          'selected': item.id in @props.dataSource.selection.ids()
+          'selected': selected
+          'next-is-selected': not selected and nextSelected
           'focused': @state.handler.shouldShowFocus() and item.id is @props.focusedId
           'keyboard-cursor': @state.handler.shouldShowKeyboardCursor() and item.id is @props.keyboardCursorId
         props['data-item-id'] = item.id

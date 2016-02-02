@@ -139,7 +139,7 @@ class ListTabular extends React.Component
 
       <ListTabularItem key={item.id ? idx}
                        item={item}
-                       itemProps={@props.itemPropsProvider?(item) ? {}}
+                       itemProps={@props.itemPropsProvider?(item, idx) ? {}}
                        metrics={top: idx * @props.itemHeight, height: @props.itemHeight}
                        columns={@props.columns}
                        onSelect={@props.onSelect}
