@@ -244,17 +244,6 @@ class Actions
   ###
   @focusDefaultMailboxPerspectiveForAccounts: ActionScopeWindow
 
-
-  ###
-  Public: Focus a set of accounts on the sidebar. This means that the source list
-  the sidebar will be updated to reflect the set of selected accounts, i.e. unified
-  or single
-
-  *Scope: Window*
-  ###
-  @focusSidebarAccounts: ActionScopeWindow
-
-
   ###
   Public: If the message with the provided id is currently beign displayed in the
   thread view, this action toggles whether it's full content or snippet is shown.
