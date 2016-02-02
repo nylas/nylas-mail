@@ -7,7 +7,7 @@ class TemplatePicker extends React.Component {
 
   static propTypes = {
     draftClientId: React.PropTypes.string,
-  }
+  };
 
   constructor() {
     super();
@@ -49,20 +49,20 @@ class TemplatePicker extends React.Component {
       searchValue: newSearch,
       templates: this._filteredTemplates(newSearch),
     });
-  }
+  };
 
   _onChooseTemplate = (template) => {
     Actions.insertTemplateId({templateId: template.id, draftClientId: this.props.draftClientId});
     return this.refs.popover.close();
-  }
+  };
 
   _onManageTemplates = () => {
     return Actions.showTemplates();
-  }
+  };
 
   _onNewTemplate = () => {
     return Actions.createTemplate({draftClientId: this.props.draftClientId});
-  }
+  };
 
   render() {
     const button = (

@@ -40,7 +40,7 @@ import React, {Component, PropTypes} from 'react';
  * @class EditableList
  */
 class EditableList extends Component {
-  static displayName = 'EditableList'
+  static displayName = 'EditableList';
 
   /**
    * If provided, this function will be called when the add button is clicked,
@@ -102,7 +102,7 @@ class EditableList extends Component {
     /* Optional, if you choose to control selection externally */
     selected: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     onSelectItem: PropTypes.func,
-  }
+  };
 
   static defaultProps = {
     items: [],
@@ -113,7 +113,7 @@ class EditableList extends Component {
     onDeleteItem: ()=> {},
     onItemEdited: ()=> {},
     onItemCreated: ()=> {},
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -132,20 +132,20 @@ class EditableList extends Component {
         this.props.onItemCreated(value);
       }
     });
-  }
+  };
 
   _updateItem = (value, originalItem, idx)=> {
     this._clearEditingState(()=> {
       this.props.onItemEdited(value, originalItem, idx);
     });
-  }
+  };
 
   _getSelectedItem = ()=> {
     if (this.props.onSelectItem) {
       return this.props.selected;
     }
     return this.state.selected;
-  }
+  };
 
   _selectItem = (item, idx)=> {
     if (this.props.onSelectItem) {
@@ -153,26 +153,26 @@ class EditableList extends Component {
     } else {
       this.setState({selected: item});
     }
-  }
+  };
 
   _clearEditingState = (callback)=> {
     this._setStateAndFocus({editingIndex: null}, callback);
-  }
+  };
 
   _clearCreatingState = (callback)=> {
     this._setStateAndFocus({creatingItem: false}, callback);
-  }
+  };
 
   _setStateAndFocus = (state, callback = ()=> {})=> {
     this.setState(state, ()=> {
       this._focusSelf();
       callback();
     });
-  }
+  };
 
   _focusSelf = ()=> {
     React.findDOMNode(this).focus();
-  }
+  };
 
   /**
    * @private Scrolls to the dom node of the item at the provided index
@@ -183,20 +183,20 @@ class EditableList extends Component {
     const list = this.refs.itemsWrapper;
     const nodes = React.findDOMNode(list).querySelectorAll('.list-item');
     list.scrollTo(nodes[idx]);
-  }
+  };
 
 
   // Handlers
 
   _onEditInputBlur = (event, item, idx)=> {
     this._updateItem(event.target.value, item, idx);
-  }
+  };
 
   _onEditInputFocus = (event)=> {
     const input = event.target;
     // Move cursor to the end of the input
     input.selectionStart = input.selectionEnd = input.value.length;
-  }
+  };
 
   _onEditInputKeyDown = (event, item, idx)=> {
     event.stopPropagation();
@@ -205,11 +205,11 @@ class EditableList extends Component {
     } else if (event.key === 'Escape') {
       this._clearEditingState();
     }
-  }
+  };
 
   _onCreateInputBlur = (event)=> {
     this._createItem(event.target.value);
-  }
+  };
 
   _onCreateInputKeyDown = (event)=> {
     event.stopPropagation();
@@ -218,15 +218,15 @@ class EditableList extends Component {
     } else if (event.key === 'Escape') {
       this._clearCreatingState();
     }
-  }
+  };
 
   _onItemClick = (event, item, idx)=> {
     this._selectItem(item, idx);
-  }
+  };
 
   _onItemEdit = (event, item, idx)=> {
     this.setState({editingIndex: idx});
-  }
+  };
 
   _listKeymapHandlers = ()=> {
     const _shift = (dir) => {
@@ -249,7 +249,7 @@ class EditableList extends Component {
         _shift(1);
       },
     };
-  }
+  };
 
   _onCreateItem = ()=> {
     if (this.props.onCreateItem) {
@@ -257,7 +257,7 @@ class EditableList extends Component {
     } else {
       this.setState({creatingItem: true});
     }
-  }
+  };
 
   _onDeleteItem = ()=> {
     const selectedItem = this._getSelectedItem();
@@ -273,7 +273,7 @@ class EditableList extends Component {
         this._selectItem(this.props.items[newIndex], newIndex);
       }
     }
-  }
+  };
 
   _onItemDragStart = (event)=> {
     if (!this.props.onReorderItem) {
@@ -291,7 +291,7 @@ class EditableList extends Component {
     event.dataTransfer.setData('editablelist-index', row.dataset.itemIdx);
     event.dataTransfer.setData('editablelist-reactid', wrapperId);
     event.dataTransfer.effectAllowed = "move";
-  }
+  };
 
   _onDragOver = (event)=> {
     const wrapperNode = React.findDOMNode(this.refs.itemsWrapper);
@@ -317,11 +317,11 @@ class EditableList extends Component {
     if (this.state.dropInsertionIndex !== dropInsertionIndex) {
       this.setState({dropInsertionIndex: dropInsertionIndex});
     }
-  }
+  };
 
   _onDragLeave = ()=> {
     this.setState({dropInsertionIndex: -1});
-  }
+  };
 
   _onDrop = (event)=> {
     if (this.state.dropInsertionIndex !== -1) {
@@ -338,7 +338,7 @@ class EditableList extends Component {
         this.setState({dropInsertionIndex: -1});
       }
     }
-  }
+  };
 
   // Renderers
 
@@ -357,7 +357,7 @@ class EditableList extends Component {
         onFocus={onInputFocus}
         onKeyDown={_.partial(onInputKeyDown, _, item, idx)} />
     );
-  }
+  };
 
   /**
    * @private Will render the create input with the provided input props.
@@ -377,7 +377,7 @@ class EditableList extends Component {
         <input {...props}/>
       </div>
     );
-  }
+  };
 
   // handlers object for testing
   _renderItem = (item, idx, {editingIndex} = this.state, handlers = {})=> {
@@ -417,7 +417,7 @@ class EditableList extends Component {
           onClick={_.partial(onEdit, _, item, idx)} />
       </div>
     );
-  }
+  };
 
   _renderButtons = ()=> {
     const deleteClasses = classNames({
@@ -434,13 +434,13 @@ class EditableList extends Component {
         </div>
       </div>
     );
-  }
+  };
 
   _renderDropInsertion = ()=> {
     return (
       <div className="insertion-point"><div></div></div>
     )
-  }
+  };
 
   render() {
     let items = this.props.items.map( (item, idx)=> this._renderItem(item, idx));

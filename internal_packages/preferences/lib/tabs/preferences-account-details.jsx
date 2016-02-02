@@ -8,7 +8,7 @@ class PreferencesAccountDetails extends Component {
   static propTypes = {
     account: PropTypes.object,
     onAccountUpdated: PropTypes.func.isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -60,14 +60,14 @@ class PreferencesAccountDetails extends Component {
 
   _saveChanges = ()=> {
     this.props.onAccountUpdated(this.props.account, this.state);
-  }
+  };
 
 
   // Handlers
 
   _onAccountLabelUpdated = (event)=> {
     this.setState({label: event.target.value});
-  }
+  };
 
   _onAccountAliasCreated = (newAlias)=> {
     const coercedAlias = this._makeAlias(newAlias);
@@ -75,7 +75,7 @@ class PreferencesAccountDetails extends Component {
     this.setState({aliases}, ()=> {
       this._saveChanges();
     });
-  }
+  };
 
   _onAccountAliasUpdated = (newAlias, alias, idx)=> {
     const coercedAlias = this._makeAlias(newAlias);
@@ -88,7 +88,7 @@ class PreferencesAccountDetails extends Component {
     this.setState({aliases, defaultAlias}, ()=> {
       this._saveChanges();
     });
-  }
+  };
 
   _onAccountAliasRemoved = (alias, idx)=> {
     const aliases = this.state.aliases.slice();
@@ -100,14 +100,14 @@ class PreferencesAccountDetails extends Component {
     this.setState({aliases, defaultAlias}, ()=> {
       this._saveChanges();
     });
-  }
+  };
 
   _onDefaultAliasSelected = (event)=> {
     const defaultAlias = event.target.value === 'None' ? null : event.target.value;
     this.setState({defaultAlias}, ()=> {
       this._saveChanges();
     });
-  }
+  };
 
 
   // Renderers

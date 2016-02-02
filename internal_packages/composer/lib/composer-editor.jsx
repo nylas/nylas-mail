@@ -28,7 +28,7 @@ import {ScrollRegion, Contenteditable} from 'nylas-component-kit';
  */
 
 class ComposerEditor extends Component {
-  static displayName = 'ComposerEditor'
+  static displayName = 'ComposerEditor';
 
   /**
    * This function will return the {DOMRect} for the parent component
@@ -78,7 +78,7 @@ class ComposerEditor extends Component {
       scrollTo: PropTypes.func,
       getComposerBoundingRect: PropTypes.func,
     }),
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -193,7 +193,7 @@ class ComposerEditor extends Component {
       clientId: this.props.draftClientId,
       position: ScrollRegion.ScrollPosition.Bottom,
     });
-  }
+  };
 
   /**
    * @private
@@ -208,7 +208,7 @@ class ComposerEditor extends Component {
     const parentRect = this.props.parentActions.getComposerBoundingRect();
     const selfRect = editableNode.getBoundingClientRect();
     return Math.abs(parentRect.bottom - selfRect.bottom) <= 250;
-  }
+  };
 
   /**
    * @private
@@ -253,14 +253,14 @@ class ComposerEditor extends Component {
         this.props.parentActions.scrollTo({rect});
       }
     }
-  }
+  };
 
 
   // Handlers
 
   _onExtensionsChanged = ()=> {
     this.setState({extensions: ExtensionRegistry.Composer.extensions()});
-  }
+  };
 
 
   // Renderers
