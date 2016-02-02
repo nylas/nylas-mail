@@ -371,8 +371,9 @@ class DraftStore
 
   _getAccountForNewMessage: =>
     defAccountId = NylasEnv.config.get('core.sending.defaultAccountIdForSend')
-    if defAccountId?
-      AccountStore.accountForId(defAccountId)
+    account = AccountStore.accountForId(defAccountId)
+    if account
+      account
     else
       focusedAccountId = FocusedPerspectiveStore.current().accountIds[0]
       if focusedAccountId
