@@ -35,7 +35,10 @@ class MessageTimestamp extends React.Component
           return msgDate.format "h:mm A"
       if diff < 1.5 and not isSameDay
         timeAgo = msgDate.from now
-        monthAndDay = msgDate.format "h:mm A"
+        if NylasEnv.config.get('core.reading.timeFormat')
+          monthAndDay = msgDate.format "HH:mm"
+        else
+          monthAndDay = msgDate.format "h:mm A"
         return monthAndDay + " (" + timeAgo + ")"
       if diff >= 1.5 and diff < 365
         return msgDate.format "MMM D"
