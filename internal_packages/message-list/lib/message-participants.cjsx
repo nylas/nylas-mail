@@ -68,7 +68,7 @@ class MessageParticipants extends React.Component
     </div>
 
   _shortNames: (contacts=[]) =>
-    _.map(contacts, (c) -> c.displayFirstName()).join(", ")
+    _.map(contacts, (c) -> c.displayName(includeAccountLabel: true, compact: true)).join(", ")
 
   _fullContact: (contacts=[]) =>
     if contacts.length is 0

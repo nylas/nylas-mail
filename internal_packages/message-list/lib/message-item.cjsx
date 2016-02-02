@@ -61,7 +61,7 @@ class MessageItem extends React.Component
       <div className="message-item-white-wrap">
         <div className="message-item-area">
           <div className="collapsed-from">
-            {@props.message.from?[0]?.displayFirstName()}
+            {@props.message.from?[0]?.displayName(compact: true)}
           </div>
           <div className="collapsed-snippet">
             {@props.message.snippet}
