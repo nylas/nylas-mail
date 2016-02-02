@@ -62,8 +62,10 @@ module.exports =
 
         return unless desiredCategory
         unless desiredCategory.id in _.pluck(currentCategories, 'id')
-          filter = MailboxPerspective.forCategory(desiredCategory)
-          Actions.focusMailboxPerspective(filter)
+          perspective = MailboxPerspective.forCategory(desiredCategory)
+          accounts = perspective.accountIds.map (id) -> AccountStore.accountForId(id)
+          Actions.focusMailboxPerspective(perspective)
+          Actions.focusSidebarAccounts(accounts)
         Actions.setFocus(collection: 'thread', item: thread)
 
   _notifyMessages: ->
