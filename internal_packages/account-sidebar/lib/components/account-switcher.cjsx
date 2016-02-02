@@ -3,6 +3,7 @@ crypto = require 'crypto'
 classNames = require 'classnames'
 {Actions} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
+SidebarActions = require '../sidebar-actions'
 
 
 ItemTypes = {
@@ -27,27 +28,24 @@ class AccountSwitcher extends React.Component
 
   # Helpers
 
-  _makeAccountItem: (account) =>
+  _makeItem: (account = {}) =>
     {id, label, emailAddress, provider} = account
-    email = emailAddress
-    iconName = provider
-    accounts = [account]
-    return {id, label, email, iconName, accounts}
+    id ?= ItemTypes.Unified
+    label ?= "All Accounts"
+    email = emailAddress ? ""
+    iconName = provider ? 'unified'
+    accounts = if id is ItemTypes.Unified
+      @props.accounts
+    else
+      [account]
 
-  _makeUnifiedItem: =>
-    id = ItemTypes.Unified
-    label = "All Accounts"
-    email = ""
-    iconName = 'unified'
-    accounts = @props.accounts
     return {id, label, email, iconName, accounts}
-
 
   _selectedItem: =>
     if @props.focusedAccounts.length > 1
-      @_makeUnifiedItem()
+      @_makeItem()
     else
-      @_makeAccountItem(@props.focusedAccounts[0])
+      @_makeItem(@props.focusedAccounts[0])
 
   _toggleDropdown: =>
     @setState showing: !@state.showing
@@ -62,8 +60,7 @@ class AccountSwitcher extends React.Component
     @setState(showing: false)
 
   _onSwitchAccount: (item) =>
-    Actions.focusDefaultMailboxPerspectiveForAccounts(item.accounts)
-    Actions.focusSidebarAccounts(item.accounts)
+    SidebarActions.focusAccounts(item.accounts)
     @setState(showing: false)
 
   _onManageAccounts: =>
@@ -143,9 +140,9 @@ class AccountSwitcher extends React.Component
     classnames += " open" if @state.showing
     selected = @_selectedItem()
     if @props.accounts.length is 1
-      items = @props.accounts.map(@_makeAccountItem)
+      items = @props.accounts.map(@_makeItem)
     else
-      items = [@_makeUnifiedItem()].concat @props.accounts.map(@_makeAccountItem)
+      items = [@_makeItem()].concat @props.accounts.map(@_makeItem)
 
     <div
       className={classnames}
