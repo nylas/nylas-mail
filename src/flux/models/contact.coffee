@@ -108,28 +108,36 @@ class Contact extends Model
 
     return null
 
-  isMePhrase: ->
+  isMePhrase: ({includeAccountLabel} = {}) ->
     account = @isMeAccount()
     return null unless account
 
-    FocusedPerspectiveStore ?= require '../stores/focused-perspective-store'
-    if account and FocusedPerspectiveStore.current().accountIds.length > 1
-      return "You (#{account.label})"
+    if includeAccountLabel
+      FocusedPerspectiveStore ?= require '../stores/focused-perspective-store'
+      if account and FocusedPerspectiveStore.current().accountIds.length > 1
+        return "You (#{account.label})"
+
     return "You"
 
   # Returns a {String} display name.
-  # - "You" if the contact is the current user
-  # - `name` if the contact has a populated name value
+  # - "You" if the contact is the current user or an alias for the current user.
+  # - `name` if the contact has a populated name
   # - `email` in all other cases.
-  displayName: ->
-    @isMePhrase() ? @_nameParts().join(' ')
+  #
+  # You can pass several options to customize the name:
+  # - includeAccountLabel: If the contact represents the current user, include
+  #   the account label afer "You"
+  # - compact: If the contact has a name, make the name as short as possible
+  #   (generally returns just the first name.)
+  #
+  displayName: ({includeAccountLabel, compact} = {}) ->
+    compact ?= false
+    includeAccountLabel ?= !compact
 
-  displayFirstName: ->
-    @isMePhrase() ? @firstName()
-
-  displayLastName: ->
-    return "" if @isMe()
-    @lastName()
+    if compact
+      @isMePhrase({includeAccountLabel}) ? @firstName()
+    else
+      @isMePhrase({includeAccountLabel}) ? @_nameParts().join(' ')
 
   firstName: ->
     articles = ['a', 'the']
@@ -151,10 +159,6 @@ class Contact extends Model
       # If the phrase has an '@', use everything before the @ sign
       # Unless there that would result in an empty string.
       name = name.split('@')[0] if name.indexOf('@') > 0
-
-    # Take care of phrases like "evan (Evan Morikawa)" that should be displayed
-    # as the contents of the parenthesis
-    name = name.split(/[()]/)[1] if name.split(/[()]/).length > 1
 
     # Take care of phrases like "Mike Kaylor via LinkedIn" that should be displayed
     # as the contents before the separator word. Do not break "Olivia"

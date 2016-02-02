@@ -68,26 +68,23 @@ describe "Contact", ->
     expect(c8.firstName()).toBe "Olivia"
     expect(c8.lastName()).toBe "Pope"
 
-  it "properly parses evan (Evan Morikawa)", ->
+  it "should not by fancy about the contents of parenthesis (Evan Morikawa)", ->
     c8 = new Contact {name: "evan (Evan Morikawa)"}
     expect(c8.firstName()).toBe "Evan"
-    expect(c8.lastName()).toBe "Morikawa"
+    expect(c8.lastName()).toBe "(Evan Morikawa)"
 
   it "falls back to the first component of the email if name isn't present", ->
     c1 = new Contact {name: " Evan Morikawa ", email: "evan@nylas.com"}
     expect(c1.displayName()).toBe "Evan Morikawa"
-    expect(c1.displayFirstName()).toBe "Evan"
-    expect(c1.displayLastName()).toBe "Morikawa"
+    expect(c1.displayName(compact: true)).toBe "Evan"
 
     c2 = new Contact {name: "", email: "evan@nylas.com"}
     expect(c2.displayName()).toBe "Evan"
-    expect(c2.displayFirstName()).toBe "Evan"
-    expect(c2.displayLastName()).toBe ""
+    expect(c2.displayName(compact: true)).toBe "Evan"
 
     c3 = new Contact {name: "", email: ""}
     expect(c3.displayName()).toBe ""
-    expect(c3.displayFirstName()).toBe ""
-    expect(c3.displayLastName()).toBe ""
+    expect(c3.displayName(compact: true)).toBe ""
 
 
   it "properly parses names with @", ->
@@ -107,15 +104,6 @@ describe "Contact", ->
     expect(c3.firstName()).toBe "Nyl@s"
     expect(c3.lastName()).toBe "2000"
 
-    c4 = new Contact {name: " Ev@n Morikawa ", email: "evan@nylas.com"}
-    expect(c4.displayName()).toBe "Ev@n Morikawa"
-    expect(c4.displayFirstName()).toBe "Ev@n"
-    expect(c4.displayLastName()).toBe "Morikawa"
-
-    c5 = new Contact {name: "ev@n (Evan Morik@wa)"}
-    expect(c5.firstName()).toBe "Evan"
-    expect(c5.lastName()).toBe "Morik@wa"
-
     c6 = new Contact {name: "ev@nylas.com", email: "ev@nylas.com"}
     expect(c6.firstName()).toBe "Ev@nylas.com"
     expect(c6.lastName()).toBe ""
@@ -131,8 +119,7 @@ describe "Contact", ->
   it "should properly return `You` as the display name for the current user", ->
     c1 = new Contact {name: " Test Monkey", email: @account.emailAddress}
     expect(c1.displayName()).toBe "You"
-    expect(c1.displayFirstName()).toBe "You"
-    expect(c1.displayLastName()).toBe ""
+    expect(c1.displayName(compact: true)).toBe "You"
 
   describe "isMe", ->
     it "returns true if the contact name matches the account email address", ->
