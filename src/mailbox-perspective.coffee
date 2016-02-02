@@ -93,6 +93,11 @@ class MailboxPerspective
   receiveThreads: (threadsOrIds) =>
     throw new Error("receiveThreads: Not implemented in base class.")
 
+  removeThreads: (threadsOrIds) =>
+    # Don't throw an error here because we just want it to be a no op if not
+    # implemented
+    return
+
   # Whether or not the current MailboxPerspective can "archive" or "trash"
   # Subclasses should call `super` if they override these methods
   canArchiveThreads: =>
@@ -170,6 +175,9 @@ class StarredMailboxPerspective extends MailboxPerspective
     task = new ChangeStarredTask({threads:threadsOrIds, starred: true})
     Actions.queueTask(task)
 
+  removeThreads: (threadsOrIds) =>
+    task = TaskFactory.taskForInvertingStarred(threads: threadsOrIds)
+    Actions.queueTask(task)
 
 class EmptyMailboxPerspective extends MailboxPerspective
   constructor: ->
@@ -254,14 +262,40 @@ class CategoryMailboxPerspective extends MailboxPerspective
     FocusedPerspectiveStore = require './flux/stores/focused-perspective-store'
     currentCategories = FocusedPerspectiveStore.current().categories()
 
-    # TODO
     # This assumes that the we don't have more than one category per accountId
     # attached to this perspective
     DatabaseStore.modelify(Thread, threadsOrIds).then (threads) =>
       tasks = TaskFactory.tasksForApplyingCategories
-        threads: threads
+        threads: threadsOrIds
         categoriesToRemove: (accountId) -> _.filter(currentCategories, _.matcher({accountId}))
         categoryToAdd: (accountId) => _.findWhere(@_categories, {accountId})
+      Actions.queueTasks(tasks)
+
+  removeThreads: (threadsOrIds) =>
+    DatabaseStore.modelify(Thread, threadsOrIds).then (threads) =>
+      isTrash = not @canTrashThreads()
+      isNotArchiveOrSent = @canArchiveThreads()
+
+      tasks = null
+      categories = @categories()
+
+      if @isInbox()
+        tasks = TaskFactory.tasksForRemovingCategories({
+          threads,
+          categories,
+          moveToFinishedCategory: true
+        })
+      else if isTrash
+        tasks = TaskFactory.tasksForMovingToInbox({threads, categories})
+      else if isNotArchiveOrSent
+        tasks = TaskFactory.tasksForRemovingCategories({
+          threads,
+          categories,
+          moveToFinishedCategory: false
+        })
+      else
+        return
+
       Actions.queueTasks(tasks)
 
 module.exports = MailboxPerspective

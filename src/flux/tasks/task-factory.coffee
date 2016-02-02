@@ -25,18 +25,19 @@ class TaskFactory
       byAccount[accountId].threads.push(thread)
 
     for accountId, {categoryToAdd, categoriesToRemove, threads} of byAccount
-      continue unless categoryToAdd and categoriesToRemove
-
       account = AccountStore.accountForId(accountId)
+
       if account.usesFolders()
+        continue unless categoryToAdd
         tasks.push new ChangeFolderTask
           folder: categoryToAdd
           threads: threads
       else
+        labelsToAdd = if categoryToAdd then [categoryToAdd] else []
         tasks.push new ChangeLabelsTask
           threads: threads
           labelsToRemove: categoriesToRemove
-          labelsToAdd: [categoryToAdd]
+          labelsToAdd: labelsToAdd
 
     return tasks
 
@@ -50,26 +51,38 @@ class TaskFactory
 
     return tasks[0]
 
-  taskForRemovingCategory: ({threads, fromPerspective, category, exclusive}) =>
-    # TODO Can not apply to threads across more than one account for now
-    account = AccountStore.accountForItems(threads)
-    return unless account?
+  tasksForRemovingCategories: ({threads, categories, moveToFinishedCategory}) =>
+    return unless categories
+    @tasksForApplyingCategories
+      threads: threads
+      categoriesToRemove: (accountId) ->
+        _.filter(categories, _.matcher({accountId}))
+      categoryToAdd: (accountId) ->
+        account = AccountStore.accountForId(accountId)
+        destination = account.defaultFinishedCategory()
+        if account.usesFolders()
+          # If we are removing a folder, it means we are moving the threads to the
+          # trash or to the archive, depending on the user setting, and
+          # regardless of the moveToFinishedCategory option
+          return destination
+        else
+          # Otherwise, we don't want to add any labels, unless we are moving the
+          # threads
+          return destination if moveToFinishedCategory
+          return null
 
-    if account.usesFolders()
-      return new ChangeFolderTask
-        folder: CategoryStore.getStandardCategory(account, "inbox")
-        threads: threads
-    else
-      labelsToAdd = []
-      if exclusive
-        currentLabel = fromPerspective?.category()
-        currentLabel ?= CategoryStore.getStandardCategory(account, "inbox")
-        labelsToAdd = [currentLabel]
+  taskForRemovingCategory: ({threads, category}) =>
+    tasks = @tasksForRemovingCategories({threads, categories: [category]})
+    if tasks.length > 1
+      throw new Error("taskForRemovingCategory: Threads must be from the same account.")
 
-      return new ChangeLabelsTask
-        threads: threads
-        labelsToRemove: [category]
-        labelsToAdd: labelsToAdd
+    return tasks[0]
+
+  tasksForMovingToInbox: ({threads, fromPerspective}) =>
+    @tasksForApplyingCategories
+      threads: threads,
+      categoriesToRemove: (accountId) -> _.filter(fromPerspective.categories(), _.matcher({accountId}))
+      categoryToAdd: (accountId) -> CategoryStore.getInboxCategory(accountId)
 
   tasksForMarkingAsSpam: ({threads}) =>
     @tasksForApplyingCategories

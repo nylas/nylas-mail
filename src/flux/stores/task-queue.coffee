@@ -78,6 +78,7 @@ class TaskQueue
 
     @listenTo Actions.queueTask, @enqueue
     @listenTo Actions.queueTasks, (tasks) =>
+      return unless tasks and tasks.length > 0
       @enqueue(t) for t in tasks
     @listenTo Actions.undoTaskId, @enqueueUndoOfTaskId
     @listenTo Actions.dequeueTask, @dequeue

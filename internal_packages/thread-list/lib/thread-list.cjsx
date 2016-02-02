@@ -187,25 +187,10 @@ class ThreadList extends React.Component
 
   _onRemoveFromView: =>
     threads = @_threadsForKeyboardAction()
-    backspaceDelete = NylasEnv.config.get('core.reading.backspaceDelete')
     if threads
-      if backspaceDelete
-        if FocusedPerspectiveStore.current().canTrashThreads()
-          removeMethod = TaskFactory.tasksForMovingToTrash
-        else
-          return
-      else
-        if FocusedPerspectiveStore.current().canArchiveThreads()
-          removeMethod = TaskFactory.tasksForArchiving
-        else
-          removeMethod = TaskFactory.tasksForMovingToTrash
-
-      tasks = removeMethod
-        threads: threads
-        fromPerspective: FocusedPerspectiveStore.current()
-      Actions.queueTasks(tasks)
-
-    Actions.popSheet()
+      current = FocusedPerspectiveStore.current()
+      current.removeThreads(threads)
+      Actions.popSheet()
 
   _onArchiveItem: =>
     return unless FocusedPerspectiveStore.current().canArchiveThreads()
