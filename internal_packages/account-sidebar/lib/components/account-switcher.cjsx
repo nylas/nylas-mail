@@ -3,7 +3,6 @@ crypto = require 'crypto'
 classNames = require 'classnames'
 {Actions} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
-SidebarActions = require '../sidebar-actions'
 
 
 ItemTypes = {
@@ -28,24 +27,27 @@ class AccountSwitcher extends React.Component
 
   # Helpers
 
-  _makeItem: (account = {}) =>
+  _makeAccountItem: (account) =>
     {id, label, emailAddress, provider} = account
-    id ?= ItemTypes.Unified
-    label ?= "All Accounts"
-    email = emailAddress ? ""
-    iconName = provider ? 'unified'
-    accounts = if id is ItemTypes.Unified
-      @props.accounts
-    else
-      [account]
-
+    email = emailAddress
+    iconName = provider
+    accounts = [account]
     return {id, label, email, iconName, accounts}
+
+  _makeUnifiedItem: =>
+    id = ItemTypes.Unified
+    label = "All Accounts"
+    email = ""
+    iconName = 'unified'
+    accounts = @props.accounts
+    return {id, label, email, iconName, accounts}
+
 
   _selectedItem: =>
     if @props.focusedAccounts.length > 1
-      @_makeItem()
+      @_makeUnifiedItem()
     else
-      @_makeItem(@props.focusedAccounts[0])
+      @_makeAccountItem(@props.focusedAccounts[0])
 
   _toggleDropdown: =>
     @setState showing: !@state.showing
@@ -60,7 +62,8 @@ class AccountSwitcher extends React.Component
     @setState(showing: false)
 
   _onSwitchAccount: (item) =>
-    SidebarActions.focusAccounts(item.accounts)
+    Actions.focusDefaultMailboxPerspectiveForAccounts(item.accounts)
+    Actions.focusSidebarAccounts(item.accounts)
     @setState(showing: false)
 
   _onManageAccounts: =>
@@ -140,9 +143,9 @@ class AccountSwitcher extends React.Component
     classnames += " open" if @state.showing
     selected = @_selectedItem()
     if @props.accounts.length is 1
-      items = @props.accounts.map(@_makeItem)
+      items = @props.accounts.map(@_makeAccountItem)
     else
-      items = [@_makeItem()].concat @props.accounts.map(@_makeItem)
+      items = [@_makeUnifiedItem()].concat @props.accounts.map(@_makeAccountItem)
 
     <div
       className={classnames}

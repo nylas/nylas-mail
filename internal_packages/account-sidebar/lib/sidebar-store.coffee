@@ -8,7 +8,6 @@ _ = require 'underscore'
  CategoryStore} = require 'nylas-exports'
 
 SidebarSection = require './sidebar-section'
-SidebarActions = require './sidebar-actions'
 
 Sections = {
   "Standard",
@@ -38,7 +37,7 @@ class SidebarStore extends NylasStore
     @_sections[Sections.User]
 
   _registerListeners: ->
-    @listenTo SidebarActions.focusAccounts, @_onAccountsFocused
+    @listenTo Actions.focusSidebarAccounts, @_onAccountsFocused
     @listenTo AccountStore, @_onAccountsChanged
     @listenTo FocusedPerspectiveStore, @_updateSections
     @listenTo WorkspaceStore, @_updateSections
@@ -56,7 +55,6 @@ class SidebarStore extends NylasStore
     return
 
   _onAccountsFocused: (accounts) =>
-    Actions.focusDefaultMailboxPerspectiveForAccounts(accounts)
     @_focusedAccounts = accounts
     @_updateSections()
 

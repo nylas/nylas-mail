@@ -1,12 +1,12 @@
 _ = require 'underscore'
-{AccountStore, MenuHelpers} = require 'nylas-exports'
-SidebarActions = require './sidebar-actions'
+{AccountStore, Actions, MenuHelpers} = require 'nylas-exports'
 
 
 class SidebarCommands
 
   @_focusAccounts: (accounts) ->
-    SidebarActions.focusAccounts(accounts)
+    Actions.focusDefaultMailboxPerspectiveForAccounts(accounts)
+    Actions.focusSidebarAccounts(accounts)
     NylasEnv.show() unless NylasEnv.isVisible()
 
   @_registerCommands: ->
