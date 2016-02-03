@@ -16,32 +16,41 @@ class UndoRedoStore
     @_undo = []
     @_redo = []
 
-    @listenTo(Actions.queueTask, @_onTaskQueued)
+    @listenTo(Actions.queueTask, @_onQueue)
+    @listenTo(Actions.queueTasks, @_onQueue)
 
-    NylasEnv.commands.add('body', {'core:undo': => @undo() })
-    NylasEnv.commands.add('body', {'core:redo': => @redo() })
+    NylasEnv.commands.add('body', {'core:undo': @undo })
+    NylasEnv.commands.add('body', {'core:redo': @redo })
 
-  _onTaskQueued: (task) =>
-    if task.canBeUndone()
+  _onQueue: (tasks) =>
+    tasks = [tasks] unless tasks instanceof Array
+    undoable = _.every tasks, (t) -> t.canBeUndone()
+
+    if undoable
       @_redo = []
-      @_undo.push(task)
-      @trigger() unless task._isReverting
+      @_undo.push(tasks)
+      @trigger()
 
   undo: =>
-    topTask = @_undo.pop()
-    return unless topTask
+    topTasks = @_undo.pop()
+    return unless topTasks
     @trigger()
-    Actions.undoTaskId(topTask.id)
-    @_redo.push(topTask.createIdenticalTask())
+
+    for task in topTasks
+      Actions.undoTaskId(task.id)
+
+    redoTasks = topTasks.map (t) -> t.createIdenticalTask()
+    @_redo.push(redoTasks)
 
   redo: =>
-    redoTask = @_redo.pop()
-    return unless redoTask
-    Actions.queueTask(redoTask)
+    redoTasks = @_redo.pop()
+    return unless redoTasks
+    Actions.queueTasks(redoTasks)
 
-  getMostRecentTask: =>
+  getMostRecent: =>
     for idx in [@_undo.length-1...-1]
-      return @_undo[idx] unless @_undo[idx]._isReverting
+      allReverting = _.every @_undo[idx], (t) -> t._isReverting
+      return @_undo[idx] unless allReverting
 
   print: ->
     console.log("Undo Stack")

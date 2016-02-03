@@ -17,14 +17,10 @@ class ImageFileUpload extends FileUpload
 
       <div className="file-preview">
         <div className="file-name-container">
-          <div className="file-name">{@props.uploadData.fileName}</div>
+          <div className="file-name">{@props.upload.filename}</div>
         </div>
 
-        <img src={@props.uploadData.filePath} onDragStart={@_onDragStart}/>
-      </div>
-
-      <div className={"progress-bar-wrap state-#{@props.uploadData.state}"}>
-        <span className="progress-foreground" style={@_uploadProgressStyle()}></span>
+        <img src={@props.upload.targetPath} onDragStart={@_onDragStart}/>
       </div>
     </div>
 

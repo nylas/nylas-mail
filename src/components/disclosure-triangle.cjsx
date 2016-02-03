@@ -6,15 +6,15 @@ class DisclosureTriangle extends React.Component
   @propTypes:
     collapsed: React.PropTypes.bool
     visible: React.PropTypes.bool
-    onToggleCollapsed: React.PropTypes.func
+    onCollapseToggled: React.PropTypes.func
 
   @defaultProps:
-    onToggleCollapsed: ->
+    onCollapseToggled: ->
 
   render: ->
     classnames = "disclosure-triangle"
     classnames += " visible" if @props.visible
     classnames += " collapsed" if @props.collapsed
-    <div className={classnames} onClick={@props.onToggleCollapsed}><div></div></div>
+    <div className={classnames} onClick={@props.onCollapseToggled}><div></div></div>
 
 module.exports = DisclosureTriangle

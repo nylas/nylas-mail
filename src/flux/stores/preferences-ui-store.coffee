@@ -1,6 +1,6 @@
 _ = require 'underscore'
 NylasStore = require 'nylas-store'
-AccountStore = require './account-store'
+FocusedPerspectiveStore = require './focused-perspective-store'
 Actions = require '../actions'
 Immutable = require 'immutable'
 
@@ -13,17 +13,15 @@ class TabItem
 
 class PreferencesUIStore extends NylasStore
   constructor: ->
+    perspective = FocusedPerspectiveStore.current()
+
     @_tabs = Immutable.List()
     @_selection = Immutable.Map({
       tabId: null
-      accountId: AccountStore.current()?.id
+      accountId: perspective?.account?.id
     })
 
     @_triggerDebounced ?= _.debounce(( => @trigger()), 20)
-
-    @listenTo AccountStore, =>
-      @_selection = @_selection.set('accountId', AccountStore.current()?.id)
-      @trigger()
 
     @listenTo Actions.switchPreferencesTab, (tabId, options = {}) =>
       @_selection = @_selection.set('tabId', tabId)

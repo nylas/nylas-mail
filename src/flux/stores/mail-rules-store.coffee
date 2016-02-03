@@ -13,6 +13,8 @@ RulesJSONBlobKey = "MailRules-V2"
 
 class MailRulesStore extends NylasStore
   constructor: ->
+    @_rules = []
+
     query = DatabaseStore.findJSONBlob(RulesJSONBlobKey)
     @_subscription = Rx.Observable.fromQuery(query).subscribe (rules) =>
       @_rules = rules ? []
@@ -20,6 +22,7 @@ class MailRulesStore extends NylasStore
 
     @listenTo Actions.addMailRule, @_onAddMailRule
     @listenTo Actions.deleteMailRule, @_onDeleteMailRule
+    @listenTo Actions.reorderMailRule, @_onReorderMailRule
     @listenTo Actions.updateMailRule, @_onUpdateMailRule
     @listenTo Actions.disableMailRule, @_onDisableMailRule
     @listenTo Actions.notificationActionTaken, @_onNotificationActionTaken
@@ -32,6 +35,15 @@ class MailRulesStore extends NylasStore
 
   _onDeleteMailRule: (id) =>
     @_rules = @_rules.filter (f) -> f.id isnt id
+    @_saveMailRules()
+    @trigger()
+
+  _onReorderMailRule: (id, newIdx) =>
+    currentIdx = _.findIndex(@_rules, _.matcher({id}))
+    return if currentIdx is -1
+    rule = @_rules[currentIdx]
+    @_rules.splice(currentIdx, 1)
+    @_rules.splice(newIdx, 0, rule)
     @_saveMailRules()
     @trigger()
 
@@ -90,8 +102,9 @@ class MailRulesStore extends NylasStore
 
   _onNotificationActionTaken: ({notification, action}) =>
     return unless NylasEnv.isMainWindow()
+    accountId = AccountStore.accounts()[0].accountId
     if action.id is 'mail-rule-failure:view-rules'
-      Actions.switchPreferencesTab('Mail Rules', {accountId: AccountStore.current().id})
+      Actions.switchPreferencesTab('Mail Rules', {accountId})
       Actions.openPreferences()
 
   _saveMailRules: =>

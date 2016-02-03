@@ -113,7 +113,8 @@ class Application
     if @config.get('devMode')
       @devMode = true
 
-    @windowManager = new WindowManager({@resourcePath, @configDirPath, @config, @devMode, @safeMode})
+    initializeInBackground = options.background ? false
+    @windowManager = new WindowManager({@resourcePath, @configDirPath, @config, @devMode, @safeMode, initializeInBackground})
     @autoUpdateManager = new AutoUpdateManager(@version, @config, @specMode)
     @applicationMenu = new ApplicationMenu(@version)
     @_databasePhase = 'setup'
@@ -229,7 +230,7 @@ class Application
     @setDatabasePhase('close')
     @windowManager.closeAllWindows()
 
-    loadingMessage = "We need to rebuild your mailbox to support new features.<br/>Please wait a few moments while we re-sync your mail."
+    loadingMessage = "Please wait while we prepare new features."
     @_deleteDatabase =>
       @setDatabasePhase('setup')
       @openWindowsForTokenState(loadingMessage)

@@ -43,14 +43,14 @@ class MultiselectActionBar extends React.Component
   ###
   Public: React `props` supported by MultiselectActionBar:
 
-   - `dataStore` An instance of a {ModelView}.
+   - `dataStore` An instance of a {ListDataSource}.
    - `collection` The name of the collection. The collection name is used for the text
       that appears in the bar "1 thread selected" and is also used to find components
       in the component registry that should appear in the bar (`thread` => `thread:BulkAtion`)
   ###
   @propTypes:
     collection: React.PropTypes.string.isRequired
-    dataStore: React.PropTypes.object.isRequired
+    dataSource: React.PropTypes.object
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
@@ -68,13 +68,13 @@ class MultiselectActionBar extends React.Component
     @teardownForProps()
 
   teardownForProps: =>
-    return unless @unsubscribers
-    unsubscribe() for unsubscribe in @unsubscribers
+    return unless @_unsubscribers
+    unsubscribe() for unsubscribe in @_unsubscribers
 
   setupForProps: (props) =>
-    @unsubscribers = []
-    @unsubscribers.push props.dataStore.listen @_onChange
-    @unsubscribers.push WorkspaceStore.listen @_onChange
+    @_unsubscribers = []
+    @_unsubscribers.push WorkspaceStore.listen @_onChange
+    @_unsubscribers.push props.dataSource.listen @_onChange
 
   shouldComponentUpdate: (nextProps, nextState) =>
     not Utils.isEqualReact(nextProps, @props) or
@@ -108,9 +108,9 @@ class MultiselectActionBar extends React.Component
     </div>
 
   _renderActions: =>
-    return <div></div> unless @state.view
+    return <div></div> unless @props.dataSource
     <InjectedComponentSet matching={role:"#{@props.collection}:BulkAction"}
-                          exposedProps={selection: @state.view.selection, items: @state.items} />
+                          exposedProps={selection: @props.dataSource.selection, items: @state.items} />
 
   _label: =>
     if @state.items.length > 1
@@ -120,21 +120,14 @@ class MultiselectActionBar extends React.Component
     else
       ""
 
-  _getStateFromStores: (props) =>
-    props ?= @props
-    view = props.dataStore.view()
-    items = view?.selection.items() ? []
-
-    return {
-      view: view
-      items: items
-    }
+  _getStateFromStores: (props = @props) =>
+    items: props.dataSource.selection.items() ? []
 
   _onChange: =>
     @setState(@_getStateFromStores())
 
   _onClearSelection: =>
-    @state.view.selection.clear()
-
+    @props.dataSource.selection.clear()
+    return
 
 module.exports = MultiselectActionBar

@@ -107,11 +107,12 @@
     options.alias('s', 'spec-directory').string('s').describe('s', 'Override the directory from which to run package specs');
     options.alias('f', 'spec-file-pattern').string('f').describe('f', 'Override the default file regex to determine which tests should run (defaults to "-spec\.(coffee|js|jsx|cjsx|es6|es)$" )');
     options.alias('v', 'version').boolean('v').describe('v', 'Print the version.');
+    options.alias('b', 'background').boolean('b').describe('b', 'Start N1 in the background');
     return options;
   };
 
   parseCommandLine = function() {
-    var args, configDirPath, devMode, logFile, options, ref, resourcePath, safeMode, showSpecsInWindow, specDirectory, specFilePattern, specMode, urlsToOpen, version;
+    var args, background, configDirPath, devMode, logFile, options, ref, resourcePath, safeMode, showSpecsInWindow, specDirectory, specFilePattern, specMode, urlsToOpen, version;
     version = app.getVersion();
     options = declareOptions(process.argv.slice(1));
     args = options.argv;
@@ -127,6 +128,7 @@
     logFile = args['log-file'];
     specMode = args['test'];
     safeMode = args['safe'];
+    background = args['background'];
     configDirPath = args['config-dir-path'];
     specDirectory = args['spec-directory'];
     specFilePattern = args['spec-file-pattern'];
@@ -139,6 +141,7 @@
     return {
       version: version,
       devMode: devMode,
+      background: background,
       logFile: logFile,
       specMode: specMode,
       safeMode: safeMode,

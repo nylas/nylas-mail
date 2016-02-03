@@ -10,7 +10,7 @@ async = require 'async'
 # A 0 code is when an error returns without a status code. These are
 # things like "ESOCKETTIMEDOUT"
 TimeoutErrorCode = 0
-PermanentErrorCodes = [400, 403, 404, 500]
+PermanentErrorCodes = [400, 403, 404, 405, 500]
 CancelledErrorCode = -123
 SampleTemporaryErrorCode = 504
 
@@ -151,6 +151,9 @@ class NylasAPI
     else if env in ['local']
       @AppID = 'n/a'
       @APIRoot = 'http://localhost:5555'
+    else if env in ['custom']
+      @AppID = NylasEnv.config.get('syncEngine.AppID') or 'n/a'
+      @APIRoot = NylasEnv.config.get('syncEngine.APIRoot') or 'http://localhost:5555'
 
     current = {@AppID, @APIRoot, @APITokens}
 
@@ -361,5 +364,70 @@ class NylasAPI
   accessTokenForAccountId: (aid) ->
     AccountStore = require './stores/account-store'
     AccountStore.tokenForAccountId(aid)
+
+  # Returns a promise that will resolve if the user is successfully authed
+  # to the plugin backend, and will reject if the auth fails for any reason.
+  #
+  # Inside the promise, we:
+  # 1. Ask the API whether this plugin is authed to this account already, and resolve
+  #    if true.
+  # 2. If not, we display a dialog to the user asking whether to auth this plugin.
+  # 3. If the user says yes to the dialog, then we send an auth request to the API to
+  #    auth this plugin.
+  #
+  # The returned promise will reject on the failure of any of these 3 steps, namely:
+  # 1. The API request to check that the account is authed failed. This may mean
+  #    that the plugin's Nylas Application is invalid, or that the Nylas API couldn't
+  #    be reached.
+  # 2. The user declined the plugin auth prompt.
+  # 3. The API request to auth this account to the plugin failed. This may mean that
+  #    the plugin server couldn't be reached or failed to respond properly when authing
+  #    the account, or that the Nylas API couldn't be reached.
+  authPlugin: (plugin, account) ->
+    return @makeRequest({
+      returnsModel: false,
+      method: "GET",
+      accountId: account.id,
+      path: "/auth/plugin?client_id=#{plugin.appId}"
+    }).then( (result) =>
+      if result.authed
+        return Promise.resolve()
+      else
+        return @_requestPluginAuth(plugin.name, account).then( -> @makeRequest({
+          returnsModel: false,
+          method: "POST",
+          accountId: account.id,
+          path: "/auth/plugin",
+          body: JSON.stringify({client_id: plugin.appId}),
+          json: true
+        }))
+    )
+
+  _requestPluginAuth: (pluginName, account) ->
+    dialog = require('remote').require('dialog')
+    return new Promise( (resolve, reject) =>
+      dialog.showMessageBox({
+        title: "Plugin Offline Email Access",
+        message: "The N1 plugin #{pluginName} requests offline access to your email.",
+        detail: "The #{pluginName} plugin would like to be able to access your email \
+account #{account.emailAddress} while you are offline. Only grant offline access to plugins you trust. \
+You can review and revoke Offline Access for plugins at any time from Preferences > Plugins.",
+        buttons: ["Grant access","Cancel"],
+        type: 'info',
+      }, (result) =>
+        if result == 0
+          resolve()
+        else
+          reject()
+      )
+    )
+
+  unauthPlugin: (plugin, account) ->
+    return @makeRequest({
+      returnsModel: false,
+      method: "DELETE",
+      accountId: account.id,
+      path: "/auth/plugin?client_id=#{plugin.appId}"
+    });
 
 module.exports = new NylasAPI()

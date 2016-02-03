@@ -109,6 +109,9 @@ declareOptions = (argv) ->
   options.alias('v', 'version').boolean('v')
     .describe('v', 'Print the version.')
 
+  options.alias('b', 'background').boolean('b')
+    .describe('b', 'Start N1 in the background')
+
   return options
 
 parseCommandLine = ->
@@ -128,6 +131,7 @@ parseCommandLine = ->
   logFile = args['log-file']
   specMode = args['test']
   safeMode = args['safe']
+  background = args['background']
   configDirPath = args['config-dir-path']
   specDirectory = args['spec-directory']
   specFilePattern = args['spec-file-pattern']
@@ -142,6 +146,6 @@ parseCommandLine = ->
   # have to explicitly pass it by command line, see http://git.io/YC8_Ew.
   process.env.PATH = args['path-environment'] if args['path-environment']
 
-  return {version, devMode, logFile, specMode, safeMode, configDirPath, specDirectory, specFilePattern, showSpecsInWindow, resourcePath, urlsToOpen}
+  return {version, devMode, background, logFile, specMode, safeMode, configDirPath, specDirectory, specFilePattern, showSpecsInWindow, resourcePath, urlsToOpen}
 
 start()

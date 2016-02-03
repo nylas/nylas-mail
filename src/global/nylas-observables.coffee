@@ -1,23 +1,17 @@
 Rx = require 'rx-lite'
 _ = require 'underscore'
+Category = require '../flux/models/category'
 QuerySubscriptionPool = require '../flux/models/query-subscription-pool'
 AccountStore = require '../flux/stores/account-store'
 DatabaseStore = require '../flux/stores/database-store'
 
 AccountOperators = {}
 
-AccountObservables =
-  forCurrentId: ->
-    observable = Rx.Observable
-      .fromStore(AccountStore)
-      .map -> AccountStore.current()?.id
-      .distinctUntilChanged()
-    _.extend(observable, AccountOperators)
-    observable
+AccountObservables = {}
 
 CategoryOperators =
   sort: ->
-    @.map (categories) ->
+    obs = @.map (categories) ->
       return categories.sort (catA, catB) ->
         nameA = catA.displayName
         nameB = catB.displayName
@@ -28,27 +22,44 @@ CategoryOperators =
         nameB = "ZZZ"+nameB if nameB[0] is '['
 
         nameA.localeCompare(nameB)
+    _.extend(obs, CategoryOperators)
+
+  categoryFilter: (filter) ->
+    obs = @.map (categories) ->
+      return categories.filter filter
+    _.extend(obs, CategoryOperators)
 
 CategoryObservables =
-  forCurrentAccount: ->
-    observable = Rx.Observable.fromStore(AccountStore).flatMapLatest ->
-      return CategoryObservables.forAccount(AccountStore.current())
-    _.extend(observable, CategoryOperators)
-    observable
 
   forAllAccounts: =>
-    observable = Rx.Observable.fromQuery(DatabaseStore.findAll(categoryClass))
+    observable = Rx.Observable.fromQuery(DatabaseStore.findAll(Category))
     _.extend(observable, CategoryOperators)
     observable
 
   forAccount: (account) =>
     if account
-      categoryClass = account.categoryClass()
-      observable = Rx.Observable.fromQuery(DatabaseStore.findAll(categoryClass).where(categoryClass.attributes.accountId.equal(account.id)))
+      observable = Rx.Observable.fromQuery(DatabaseStore.findAll(Category).where(accountId: account.id))
     else
-      observable = Rx.Observable.from([])
+      observable = Rx.Observable.fromQuery(DatabaseStore.findAll(Category))
     _.extend(observable, CategoryOperators)
     observable
+
+  standard: (account) =>
+    observable = Rx.Observable.fromConfig('core.workspace.showImportant')
+      .flatMapLatest (showImportant) =>
+        return CategoryObservables.forAccount(account).sort()
+          .categoryFilter (cat) -> cat.isStandardCategory(showImportant)
+    _.extend(observable, CategoryOperators)
+    observable
+
+  user: (account) =>
+    CategoryObservables.forAccount(account).sort()
+      .categoryFilter (cat) -> cat.isUserCategory()
+
+  hidden: (account) =>
+    CategoryObservables.forAccount(account).sort()
+      .categoryFilter (cat) -> cat.isHiddenCategory()
+
 
 module.exports =
   Categories: CategoryObservables
@@ -63,8 +74,27 @@ Rx.Observable.fromStore = (store) =>
     observer.onNext(store)
     return Rx.Disposable.create(unsubscribe)
 
-Rx.Observable.fromQuery = (query, options) =>
+Rx.Observable.fromConfig = (configKey) =>
   return Rx.Observable.create (observer) =>
-    unsubscribe = QuerySubscriptionPool.add query, options, (result) =>
+    disposable = NylasEnv.config.onDidChange configKey, =>
+      observer.onNext(NylasEnv.config.get(configKey))
+    observer.onNext(NylasEnv.config.get(configKey))
+    return Rx.Disposable.create(disposable.dispose)
+
+Rx.Observable.fromAction = (action) =>
+  return Rx.Observable.create (observer) =>
+    unsubscribe = action.listen (args...) =>
+      observer.onNext(args...)
+    return Rx.Disposable.create(unsubscribe)
+
+Rx.Observable.fromQuery = (query) =>
+  return Rx.Observable.create (observer) =>
+    unsubscribe = QuerySubscriptionPool.add query, (result) =>
+      observer.onNext(result)
+    return Rx.Disposable.create(unsubscribe)
+
+Rx.Observable.fromPrivateQuerySubscription = (name, subscription) =>
+  return Rx.Observable.create (observer) =>
+    unsubscribe = QuerySubscriptionPool.addPrivateSubscription name, subscription, (result) =>
       observer.onNext(result)
     return Rx.Disposable.create(unsubscribe)

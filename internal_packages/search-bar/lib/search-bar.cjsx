@@ -1,9 +1,14 @@
+_ = require 'underscore'
 React = require 'react/addons'
 classNames = require 'classnames'
-{Actions, WorkspaceStore} = require 'nylas-exports'
+
+{Actions,
+ WorkspaceStore,
+ FocusedPerspectiveStore} = require 'nylas-exports'
 {Menu, RetinaImg, KeyCommandsRegion} = require 'nylas-component-kit'
+
 SearchSuggestionStore = require './search-suggestion-store'
-_ = require 'underscore'
+SearchActions = require './search-actions'
 
 class SearchBar extends React.Component
   @displayName = 'SearchBar'
@@ -13,7 +18,6 @@ class SearchBar extends React.Component
       query: ""
       focused: false
       suggestions: []
-      committedQuery: null
 
   componentDidMount: =>
     @usub = []
@@ -32,9 +36,8 @@ class SearchBar extends React.Component
     'search-bar:escape-search': @_clearAndBlur
 
   render: =>
-    inputValue = @_queryToString(@state.query)
     inputClass = classNames
-      'empty': inputValue.length is 0
+      'empty': @state.query.length is 0
 
     headerComponents = [
       <input type="text"
@@ -42,7 +45,7 @@ class SearchBar extends React.Component
              key="input"
              className={inputClass}
              placeholder="Search all email"
-             value={inputValue}
+             value={@state.query}
              onChange={@_onValueChange}
              onFocus={@_onFocus}
              onBlur={@_onBlur} />
@@ -89,66 +92,46 @@ class SearchBar extends React.Component
     classNames
       'focused': @state.focused
       'showing-query': @state.query?.length > 0
-      'committed-query': @state.committedQuery?.length > 0
       'search-container': true
       'showing-suggestions': @state.suggestions?.length > 0
 
-  _queryToString: (query) =>
-    return "" unless query instanceof Array
-    str = ""
-    for term in query
-      for key,val of term
-        if key == "all"
-          str += val
-        else
-          str += val
-    str
-
-  _stringToQuery: (str) =>
-    return [] unless str
-    return [{all: str}]
-
   _onValueChange: (event) =>
-    Actions.searchQueryChanged(@_stringToQuery(event.target.value))
+    SearchActions.queryChanged(event.target.value)
     if (event.target.value is '')
       @_onClearSearch()
 
   _onSelectSuggestion: (item) =>
     if item.thread?
-      Actions.searchQueryCommitted([{all: "\"#{item.thread.subject}\""}])
+      SearchActions.querySubmitted("\"#{item.thread.subject}\"")
     else
-      Actions.searchQueryCommitted(item.value)
+      SearchActions.querySubmitted(item.value)
 
   _onClearSearch: (event) =>
-    if @state.committedQuery
-      Actions.searchQueryCommitted(null)
-    else
-      Actions.searchQueryChanged(null)
+    SearchActions.querySubmitted("")
 
   _clearAndBlur: =>
     @_onClearSearch()
     React.findDOMNode(@refs.searchInput)?.blur()
 
   _onFocus: =>
-    @setState focused: true
+    @setState(focused: true)
 
   _onBlur: =>
     # Don't immediately hide the menu when the text input is blurred,
     # because the user might have clicked an item in the menu. Wait to
     # handle the touch event, then dismiss the menu.
     setTimeout =>
-      Actions.searchBlurred()
+      SearchActions.searchBlurred()
       @setState(focused: false)
     , 150
 
   _doSearch: =>
-    Actions.searchQueryCommitted(@state.query)
+    SearchActions.querySubmitted(@state.query)
 
   _onChange: => @setState @_getStateFromStores()
 
   _getStateFromStores: =>
     query: SearchSuggestionStore.query()
     suggestions: SearchSuggestionStore.suggestions()
-    committedQuery: SearchSuggestionStore.committedQuery()
 
 module.exports = SearchBar

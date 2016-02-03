@@ -266,9 +266,6 @@ body.platform-win32 {
 
   }
 
-  .collapsed-participants {
-    padding: 10px 10px 10px 0;
-  }
 
   .message-item-divider {
     border:0; // remove default hr border left, right
@@ -409,7 +406,6 @@ body.platform-win32 {
       display: inline-block;
       margin-left: 1em;
     }
-    .message-participants { z-index: 1; position: relative; }
 
     .message-time, .message-indicator {
       color: @text-color-very-subtle;
@@ -519,7 +515,9 @@ body.platform-win32 {
   }
 }
 .message-participants {
-
+  z-index: 1;
+  position: relative;
+  display: flex;
   transition: padding-left 150ms;
   transition-timing-function: ease-in-out;
 
@@ -529,17 +527,38 @@ body.platform-win32 {
     font-weight: @headings-font-weight;
     color: @text-color;
   }
-  .from-label, .to-label, .cc-label, .bcc-label, .subject-label {
+  .from-label, .to-label, .cc-label, .bcc-label {
     color: @text-color-very-subtle;
   }
-  .to-label, .cc-label, .bcc-label, .subject-label { margin-left: @spacing-standard; }
   .to-contact, .cc-contact, .bcc-contact, .to-everyone {
     color: @text-color-very-subtle;
+  }
+
+  &.to-participants {
+    width: 100%;
+
+    .collapsed-participants {
+      width: 100%;
+      margin-top: -8px;
+    }
+  }
+
+  .collapsed-participants {
+    display: flex;
+    align-items: center;
+
+    .to-contact {
+      display: inline-block;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
   }
 
   .expanded-participants {
     position: relative;
     padding-right: 1.2em;
+    width: 100%;
 
     .participant {
       display: inline-block;
@@ -551,7 +570,7 @@ body.platform-win32 {
       &:first-child {margin-top: 0;}
     }
 
-    .from-label, .to-label, .cc-label, .bcc-label, .subject-label {
+    .from-label, .to-label, .cc-label, .bcc-label {
       float: left;
       display: block;
       font-weight: @font-weight-normal;

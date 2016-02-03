@@ -1,7 +1,7 @@
 _ = require 'underscore'
 Task = require './task'
-Folder = require '../models/folder'
 Thread = require '../models/thread'
+Category = require '../models/category'
 Message = require '../models/message'
 DatabaseStore = require '../stores/database-store'
 ChangeMailTask = require './change-mail-task'
@@ -31,7 +31,7 @@ class ChangeFolderTask extends ChangeMailTask
 
   description: ->
     folderText = ""
-    if @folder instanceof Folder
+    if @folder instanceof Category
       folderText = " to #{@folder.displayName}"
 
     if @threads.length > 0
@@ -51,14 +51,14 @@ class ChangeFolderTask extends ChangeMailTask
     if not @folder
       return Promise.reject(new Error("Must specify a `folder`"))
     if @threads.length > 0 and @messages.length > 0
-      return Promise.reject(new Error("ChangeLabelsTask: You can move `threads` or `messages` but not both"))
+      return Promise.reject(new Error("ChangeFoldersTask: You can move `threads` or `messages` but not both"))
     if @threads.length is 0 and @messages.length is 0
-      return Promise.reject(new Error("ChangeLabelsTask: You must provide a `threads` or `messages` Array of models or IDs."))
+      return Promise.reject(new Error("ChangeFoldersTask: You must provide a `threads` or `messages` Array of models or IDs."))
 
     # Convert arrays of IDs or models to models.
     # modelify returns immediately if no work is required
     Promise.props(
-      folder: DatabaseStore.modelify(Folder, [@folder])
+      folder: DatabaseStore.modelify(Category, [@folder])
       threads: DatabaseStore.modelify(Thread, @threads)
       messages: DatabaseStore.modelify(Message, @messages)
 

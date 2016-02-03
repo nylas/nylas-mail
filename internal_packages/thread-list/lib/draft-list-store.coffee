@@ -1,53 +1,44 @@
 NylasStore = require 'nylas-store'
-Reflux = require 'reflux'
+Rx = require 'rx-lite'
 _ = require 'underscore'
 {Message,
- Actions,
- DatabaseStore,
- AccountStore,
- FocusedContentStore,
- DestroyDraftTask,
- DatabaseView} = require 'nylas-exports'
+ MutableQuerySubscription,
+ ObservableListDataSource,
+ FocusedPerspectiveStore,
+ DatabaseStore} = require 'nylas-exports'
+{ListTabular} = require 'nylas-component-kit'
 
 class DraftListStore extends NylasStore
   constructor: ->
-    @listenTo DatabaseStore, @_onDataChanged
-    @listenTo AccountStore, @_onAccountChanged
+    @listenTo FocusedPerspectiveStore, @_onPerspectiveChanged
+    @_createListDataSource()
 
-    # It's important to listen to sendDraftSuccess because the
-    # _onDataChanged method will ignore our newly created draft because it
-    # has its draft bit set to false (since it's now a message)!
-    @listenTo Actions.sendDraftSuccess, => @_view.invalidate()
-    @_createView()
+  dataSource: =>
+    @_dataSource
 
-  view: =>
-    @_view
+  # Inbound Events
 
-  _createView: =>
-    account = AccountStore.current()
+  _onPerspectiveChanged: =>
+    @_createListDataSource()
 
-    if @unlisten
-      @unlisten()
-      @_view = null
+  # Internal
 
-    return unless account
+  _createListDataSource: =>
+    mailboxPerspective = FocusedPerspectiveStore.current()
 
-    @_view = new DatabaseView Message,
-      matchers: [
-        Message.attributes.accountId.equal(account.id)
-        Message.attributes.draft.equal(true)
-      ],
-      includes: [Message.attributes.body]
-      orders: [Message.attributes.date.descending()]
+    if mailboxPerspective.drafts
+      query = DatabaseStore.findAll(Message)
+        .include(Message.attributes.body)
+        .order(Message.attributes.date.descending())
+        .where(draft: true, accountId: mailboxPerspective.accountIds)
+        .page(0, 1)
 
-    @unlisten = @_view.listen => @trigger({})
+      subscription = new MutableQuerySubscription(query, {asResultSet: true})
+      $resultSet = Rx.Observable.fromPrivateQuerySubscription('draft-list', subscription)
+      @_dataSource = new ObservableListDataSource($resultSet, subscription.replaceRange)
+    else
+      @_dataSource = new ListTabular.DataSource.Empty()
 
-  _onAccountChanged: =>
-    @_createView()
-
-  _onDataChanged: (change) =>
-    return unless change.objectClass is Message.name
-    return unless @_view
-    @_view.invalidate({change: change, shallow: true})
+    @trigger(@)
 
 module.exports = new DraftListStore()

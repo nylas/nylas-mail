@@ -1,116 +1,134 @@
-Reflux = require 'reflux'
-{Actions,
- Contact,
+_ = require 'underscore'
+NylasStore = require 'nylas-store'
+{Contact,
  Thread,
+ Actions,
  DatabaseStore,
  AccountStore,
+ FocusedPerspectiveStore,
+ MailboxPerspective,
  ContactStore} = require 'nylas-exports'
-_ = require 'underscore'
+
+SearchActions = require './search-actions'
 
 # Stores should closely match the needs of a particular part of the front end.
 # For example, we might create a "MessageStore" that observes this store
 # for changes in selectedThread, "DatabaseStore" for changes to the underlying database,
 # and vends up the array used for that view.
 
-SearchSuggestionStore = Reflux.createStore
-  init: ->
-    @_query = ""
-    @_committedQuery = ""
+class SearchSuggestionStore extends NylasStore
+
+  constructor: ->
+    @_searchQuery = ""
+    @_searchSuggestionsVersion = 1
     @_clearResults()
 
-    @listenTo Actions.searchQueryChanged, @onSearchQueryChanged
-    @listenTo Actions.searchQueryCommitted, @onSearchQueryCommitted
-    @listenTo Actions.searchBlurred, @onSearchBlurred
+    @listenTo FocusedPerspectiveStore, @_onPerspectiveChanged
+    @listenTo SearchActions.querySubmitted, @_onQuerySubmitted
+    @listenTo SearchActions.queryChanged, @_onQueryChanged
+    @listenTo SearchActions.searchBlurred, @_onSearchBlurred
 
-  onSearchQueryChanged: (query) ->
-    @_query = query
+  _onPerspectiveChanged: =>
+    @_searchQuery = FocusedPerspectiveStore.current().searchQuery ? ""
+    @trigger()
+
+  _onQueryChanged: (query) =>
+    @_searchQuery = query
     @trigger()
     _.defer => @_rebuildResults()
 
-  onSearchQueryCommitted: (query) ->
-    @_query = query
-    @_committedQuery = query
+  _onQuerySubmitted: (query) =>
+    @_searchQuery = query
+    current = FocusedPerspectiveStore.current()
+
+    if @queryPopulated()
+      @_perspectiveBeforeSearch ?= current
+      next = MailboxPerspective.forSearch(current.accountIds, @_searchQuery.trim())
+      Actions.focusMailboxPerspective(next)
+
+    else if FocusedPerspectiveStore.current().searchQuery
+      Actions.focusMailboxPerspective(@_perspectiveBeforeSearch)
+      @_perspectiveBeforeSearch = null
+
     @_clearResults()
 
-  onSearchBlurred: ->
+  _onSearchBlurred: =>
     @_clearResults()
 
-  _clearResults: ->
-    @_threadResults = null
-    @_contactResults = null
+  _clearResults: =>
+    @_searchSuggestionsVersion = 1
+    @_threadResults = []
+    @_contactResults = []
     @_suggestions = []
     @trigger()
 
-  _rebuildResults: ->
-    {key, val} = @queryKeyAndVal()
-    return @_clearResults() unless key and val
+  _rebuildResults: =>
+    return @_clearResults() unless @queryPopulated()
+    @_searchSuggestionsVersion += 1
+    @_fetchThreadResults()
+    @_fetchContactResults()
 
-    ContactStore.searchContacts(val, limit:10).then (results) =>
-      @_contactResults = results
-      @_rebuildThreadResults()
-      @_compileSuggestions()
+  _fetchContactResults: =>
+    version = @_searchSuggestionsVersion
+    ContactStore.searchContacts(@_searchQuery, limit:10).then (contacts) =>
+      return unless version is @_searchSuggestionsVersion
+      @_contactResults = contacts
+      @_compileResults()
 
-  _rebuildThreadResults: ->
-    {key, val} = @queryKeyAndVal()
-    return @_threadResults = [] unless val
+  _fetchThreadResults: =>
+    return if @_fetchingThreadResultsVersion
+    @_fetchingThreadResultsVersion = @_searchSuggestionsVersion
 
-    # Don't update thread results if a previous query is still running, it'll
-    # just make performance even worse. When the old result comes in, re-run
-    return if @_threadQueryInFlight
+    databaseQuery = DatabaseStore.findAll(Thread)
+      .where(Thread.attributes.subject.like(@_searchQuery))
+      .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
+      .limit(4)
 
-    @_threadQueryInFlight = true
-    DatabaseStore.findAll(Thread)
-    .where(Thread.attributes.subject.like(val))
-    .where(Thread.attributes.accountId.equal(AccountStore.current().id))
-    .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
-    .limit(4)
-    .then (results) =>
-      @_threadQueryInFlight = false
-      if val is @queryKeyAndVal().val
+    accountIds = FocusedPerspectiveStore.current().accountIds
+    if accountIds instanceof Array
+      databaseQuery.where(Thread.attributes.accountId.in(accountIds))
+
+    databaseQuery.then (results) =>
+      # We've fetched the latest thread results - display them!
+      if @_searchSuggestionsVersion is @_fetchingThreadResultsVersion
+        @_fetchingThreadResultsVersion = null
         @_threadResults = results
-        @_compileSuggestions()
+        @_compileResults()
+      # We're behind and need to re-run the search for the latest results
+      else if @_searchSuggestionsVersion > @_fetchingThreadResultsVersion
+        @_fetchingThreadResultsVersion = null
+        @_fetchThreadResults()
       else
-        @_rebuildThreadResults()
+        @_fetchingThreadResultsVersion = null
 
-  _compileSuggestions: ->
-    {key, val} = @queryKeyAndVal()
-    return unless key and val
-
+  _compileResults: =>
     @_suggestions = []
-    @_suggestions.push
-      label: "Message Contains: #{val}"
-      value: [{"all": val}]
 
-    if @_threadResults?.length
+    @_suggestions.push
+      label: "Message Contains: #{@_searchQuery}"
+      value: @_searchQuery
+
+    if @_threadResults.length
       @_suggestions.push
         divider: 'Threads'
-      _.each @_threadResults, (thread) =>
-        @_suggestions.push({thread: thread})
+      @_suggestions.push({thread}) for thread in @_threadResults
 
-    if @_contactResults?.length
+    if @_contactResults.length
       @_suggestions.push
         divider: 'People'
-      _.each @_contactResults, (contact) =>
+      for contact in @_contactResults
         @_suggestions.push
           contact: contact
-          value: [{"all": contact.email}]
+          value: contact.email
 
     @trigger()
 
   # Exposed Data
 
-  query: -> @_query
+  query: => @_searchQuery
 
-  queryKeyAndVal: ->
-    return {} unless @_query and @_query.length > 0
-    term = @_query[0]
-    key = Object.keys(term)[0]
-    val = term[key]
-    {key, val}
+  queryPopulated: => @_searchQuery and @_searchQuery.trim().length > 0
 
-  committedQuery: -> @_committedQuery
+  suggestions: => @_suggestions
 
-  suggestions: ->
-    @_suggestions
-
-module.exports = SearchSuggestionStore
+module.exports = new SearchSuggestionStore()

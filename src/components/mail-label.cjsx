@@ -45,7 +45,7 @@ class MailLabel extends React.Component
     <div className={classname} style={LabelColorizer.styles(@props.label)}>{content}{x}</div>
 
   _removable: ->
-    isLockedLabel = @props.label.name in CategoryStore.LockedCategoryNames
+    isLockedLabel = @props.label.isLockedCategory()
     return @props.onRemove and not isLockedLabel
 
 module.exports = {MailLabel, LabelColorizer}

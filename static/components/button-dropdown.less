@@ -5,13 +5,32 @@
   display: inline-block;
 
   &.open {
+    .secondary-items {
+      visibility: inherit;
+    }
+  }
+
+  &.open.open-up {
+    .secondary-items {
+      border-radius: 4px 4px 0 4px;
+      box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.20);
+      top: -100%;
+      transform:translate(0, -2px);
+    }
+    .secondary-picker {
+      border-top-right-radius: 0;
+    }
+  }
+  &.open.open-down {
+    .secondary-items {
+      border-radius: 4px 0 4px 4px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.20);
+    }
     .secondary-picker {
       border-bottom-right-radius: 0;
     }
-    .secondary-items {
-      display:block;
-    }
   }
+
 
   &.bordered,
   &:hover {
@@ -22,6 +41,47 @@
       padding-top: 7px;
       line-height: 18px;
       border-radius: 4px 0 0 4px;
+    }
+  }
+
+  &.btn-emphasis {
+    .primary-item,
+    .secondary-picker,
+    .only-item {
+      .btn.btn-emphasis;
+    }
+    .primary-item {
+      border-right:0;
+    }
+  }
+
+  &.btn-text {
+    .primary-item,
+    .secondary-picker,
+    .only-item {
+      .btn.btn-text;
+      height: 28px;
+      line-height: 1;
+    }
+    .primary-item, .only-item {
+      padding-top: 5px;
+    }
+    .secondary-picker {
+      padding: 4px 8px 2px 8px;
+    }
+    .secondary-items {
+      .menu {
+        .item {
+          font-size: 13px;
+          padding: 6px 11px;
+          &:first-child {
+            padding-top: 6px;
+          }
+          &:last-child {
+            padding-bottom: 6px;
+          }
+        }
+      }
     }
   }
 
@@ -59,15 +119,13 @@
       white-space:nowrap;
     }
     border: 1px solid rgba(0, 0, 0, 0.15);
-    border-radius: 4px 0 4px 4px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.20);
     z-index: 2;
     background-color: @background-primary;
     line-height: 14px;
     position: absolute;
     right: -1px; // -1, because of the border above
     white-space:nowrap;
-    display:none;
+    visibility:hidden;
 
     .menu {
       .footer-container,
@@ -129,6 +187,34 @@ body.platform-win32 {
     .secondary-picker,
     .secondary-items {
       border-radius: 0;
+    }
+    &.btn-emphasis {
+      .primary-item,
+      .secondary-picker,
+      .only-item {
+        border: 0;
+        background: @btn-emphasis-bg-color;
+        &:hover {
+          border-radius: 0;
+          background: darken(@btn-emphasis-bg-color, 10%);
+        }
+        &:active {
+          background: @btn-emphasis-bg-color;
+          box-shadow: 0 0 0;
+        }
+      }
+    }
+    &.btn-text {
+      .primary-item,
+      .secondary-picker,
+      .only-item {
+        .btn.btn-text;
+        padding-top: 5px;
+        height: 28px;
+      }
+      .secondary-picker {
+        padding: 4px 8px 2px 8px;
+      }
     }
   }
 }

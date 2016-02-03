@@ -5,8 +5,7 @@ CategoryPicker = require '../lib/category-picker'
 {Popover} = require 'nylas-component-kit'
 
 {Utils,
- Label,
- Folder,
+ Category,
  Thread,
  Actions,
  AccountStore,
@@ -14,8 +13,12 @@ CategoryPicker = require '../lib/category-picker'
  DatabaseStore,
  TaskFactory,
  SyncbackCategoryTask,
- FocusedMailViewStore,
+ FocusedPerspectiveStore,
+ MailboxPerspective,
+ NylasTestUtils,
  TaskQueueStatusStore} = require 'nylas-exports'
+
+{Categories} = require 'nylas-observables'
 
 describe 'CategoryPicker', ->
   beforeEach ->
@@ -26,25 +29,31 @@ describe 'CategoryPicker', ->
 
   setupFor = (organizationUnit) ->
     NylasEnv.testOrganizationUnit = organizationUnit
-    @categoryClass = if organizationUnit is "label" then Label else Folder
+    @account = {
+      id: TEST_ACCOUNT_ID
+      usesLabels: -> organizationUnit is "label"
+      usesFolders: -> organizationUnit isnt "label"
+    }
 
-    @inboxCategory = new @categoryClass(id: 'id-123', name: 'inbox', displayName: "INBOX")
-    @archiveCategory = new @categoryClass(id: 'id-456', name: 'archive', displayName: "ArCHIVe")
-    @userCategory = new @categoryClass(id: 'id-789', name: null, displayName: "MyCategory")
+    @inboxCategory = new Category(id: 'id-123', name: 'inbox', displayName: "INBOX", accountId: TEST_ACCOUNT_ID)
+    @archiveCategory = new Category(id: 'id-456', name: 'archive', displayName: "ArCHIVe", accountId: TEST_ACCOUNT_ID)
+    @userCategory = new Category(id: 'id-789', name: null, displayName: "MyCategory", accountId: TEST_ACCOUNT_ID)
 
-    spyOn(CategoryStore, "getStandardCategories").andReturn [ @inboxCategory, @archiveCategory ]
-    spyOn(CategoryStore, "getUserCategories").andReturn [ @userCategory ]
+    spyOn(Categories, "forAccount").andReturn NylasTestUtils.mockObservable(
+      [@inboxCategory, @archiveCategory, @userCategory]
+    )
     spyOn(CategoryStore, "getStandardCategory").andReturn @inboxCategory
+    spyOn(AccountStore, "accountForItems").andReturn @account
 
     # By default we're going to set to "inbox". This has implications for
     # what categories get filtered out of the list.
-    f = FocusedMailViewStore
-    f._setMailView f._defaultMailView()
+    spyOn(FocusedPerspectiveStore, 'current').andCallFake =>
+      MailboxPerspective.forCategory(@inboxCategory)
 
   setupForCreateNew = (orgUnit = "folder") ->
     setupFor.call(@, orgUnit)
 
-    @testThread = new Thread(id: 't1', subject: "fake")
+    @testThread = new Thread(id: 't1', subject: "fake", accountId: TEST_ACCOUNT_ID, categories: [])
     @picker = ReactTestUtils.renderIntoDocument(
       <CategoryPicker thread={@testThread} />
     )
@@ -60,7 +69,7 @@ describe 'CategoryPicker', ->
     beforeEach ->
       setupFor.call(@, "folder")
 
-      @testThread = new Thread(id: 't1', subject: "fake")
+      @testThread = new Thread(id: 't1', subject: "fake", accountId: TEST_ACCOUNT_ID, categories: [])
       @picker = ReactTestUtils.renderIntoDocument(
         <CategoryPicker thread={@testThread} />
       )
@@ -69,11 +78,15 @@ describe 'CategoryPicker', ->
       data = @picker.state.categoryData
       # NOTE: The inbox category is not included here because it's the
       # currently focused category, which gets filtered out of the list.
+      expect(data.length).toBe 3
+
       expect(data[0].id).toBe "id-456"
       expect(data[0].name).toBe "archive"
       expect(data[0].category).toBe @archiveCategory
+
       expect(data[1].divider).toBe true
       expect(data[1].id).toBe "category-divider"
+
       expect(data[2].id).toBe "id-789"
       expect(data[2].name).toBeUndefined()
       expect(data[2].category).toBe @userCategory
@@ -157,7 +170,7 @@ describe 'CategoryPicker', ->
         expect(Actions.queueTask).toHaveBeenCalled()
         syncbackTask = Actions.queueTask.calls[0].args[0]
         newCategory  = syncbackTask.category
-        expect(newCategory instanceof @categoryClass).toBe(true)
+        expect(newCategory instanceof Category).toBe(true)
         expect(newCategory.displayName).toBe "teSTing!"
         expect(newCategory.accountId).toBe TEST_ACCOUNT_ID
 
@@ -170,7 +183,7 @@ describe 'CategoryPicker', ->
             resolveSave = resolve
 
         spyOn(DatabaseStore, "findBy").andCallFake (klass, {clientId}) ->
-          expect(klass).toBe(Folder)
+          expect(klass).toBe(Category)
           expect(typeof clientId).toBe("string")
           Promise.resolve(category)
 

@@ -19,6 +19,7 @@ class ComponentRegistry
 
   constructor: ->
     @_registry = {}
+    @_cache = {}
     @_showComponentRegions = false
 
 
@@ -61,6 +62,7 @@ class ComponentRegistry
     if @_registry[component.displayName] and @_registry[component.displayName].component isnt component
       throw new Error("ComponentRegistry.register(): A different component was already registered with the name #{component.displayName}")
 
+    @_cache = {}
     @_registry[component.displayName] = {component, locations, modes, roles}
 
     # Trigger listeners. It's very important the component registry is debounced.
@@ -74,6 +76,7 @@ class ComponentRegistry
   unregister: (component) =>
     if _.isString(component)
       throw new Error("ComponentRegistry.unregister() must be called with a component.")
+    @_cache = {}
     delete @_registry[component.displayName]
     @triggerDebounced()
 
@@ -125,6 +128,9 @@ class ComponentRegistry
     if not locations and not modes and not roles
       throw new Error("ComponentRegistry.findComponentsMatching called with an empty descriptor")
 
+    cacheKey = JSON.stringify({locations, modes, roles})
+    return [].concat(@_cache[cacheKey]) if @_cache[cacheKey]
+
     # Made into a convenience function because default
     # values (`[]`) are necessary and it was getting messy.
     overlaps = (entry = [], search = []) ->
@@ -140,7 +146,10 @@ class ComponentRegistry
         return false
       return true
 
-    _.map entries, (entry) -> entry.component
+    results = _.map entries, (entry) -> entry.component
+    @_cache[cacheKey] = results
+
+    return [].concat(results)
 
   triggerDebounced: _.debounce(( -> @trigger(@)), 1)
 
@@ -153,6 +162,7 @@ class ComponentRegistry
     {locations, modes, roles}
 
   _clear: =>
+    @_cache = {}
     @_registry = {}
 
   # Showing Component Regions

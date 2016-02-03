@@ -1,6 +1,6 @@
 _ = require 'underscore'
 
-Label = require '../../src/flux/models/label'
+Category = require '../../src/flux/models/category'
 Thread = require '../../src/flux/models/thread'
 TestModel = require '../fixtures/db-test-model'
 ModelQuery = require '../../src/flux/models/query'
@@ -59,7 +59,7 @@ describe "DatabaseTransaction", ->
 
     it "should throw an exception if the models are not the same class,\
         since it cannot be specified by the trigger payload", ->
-      expect(=> @transaction.persistModels([testModelInstanceA, new Label()])).toThrow()
+      expect(=> @transaction.persistModels([testModelInstanceA, new Category()])).toThrow()
 
     it "should throw an exception if the models are not a subclass of Model", ->
       expect(=> @transaction.persistModels([{id: 'asd', subject: 'bla'}])).toThrow()
@@ -174,7 +174,7 @@ describe "DatabaseTransaction", ->
           .then =>
             expect(@performed.length).toBe(4)
             expect(@performed[0].query).toBe("BEGIN IMMEDIATE TRANSACTION")
-            expect(@performed[2].query).toBe("DELETE FROM `TestModel-Label` WHERE `id` = ?")
+            expect(@performed[2].query).toBe("DELETE FROM `TestModel-Category` WHERE `id` = ?")
             expect(@performed[2].values[0]).toBe('1234')
             expect(@performed[3].query).toBe("COMMIT")
 
@@ -229,49 +229,49 @@ describe "DatabaseTransaction", ->
       beforeEach ->
         TestModel.configureWithCollectionAttribute()
         @m = new TestModel(id: 'local-6806434c-b0cd')
-        @m.labels = [new Label(id: 'a'),new Label(id: 'b')]
+        @m.categories = [new Category(id: 'a'),new Category(id: 'b')]
         @transaction._writeModels([@m])
 
       it "should delete all association records for the model from join tables", ->
-        expect(@performed[1].query).toBe('DELETE FROM `TestModel-Label` WHERE `id` IN (\'local-6806434c-b0cd\')')
+        expect(@performed[1].query).toBe('DELETE FROM `TestModel-Category` WHERE `id` IN (\'local-6806434c-b0cd\')')
 
       it "should insert new association records into join tables in a single query", ->
-        expect(@performed[2].query).toBe('INSERT OR IGNORE INTO `TestModel-Label` (`id`, `value`) VALUES (?,?),(?,?)')
+        expect(@performed[2].query).toBe('INSERT OR IGNORE INTO `TestModel-Category` (`id`, `value`) VALUES (?,?),(?,?)')
         expect(@performed[2].values).toEqual(['local-6806434c-b0cd', 'a','local-6806434c-b0cd', 'b'])
 
     describe "model collection attributes query building", ->
       beforeEach ->
         TestModel.configureWithCollectionAttribute()
         @m = new TestModel(id: 'local-6806434c-b0cd')
-        @m.labels = []
+        @m.categories = []
 
       it "should page association records into multiple queries correctly", ->
-        @m.labels.push(new Label(id: "id-#{i}")) for i in [0..199]
+        @m.categories.push(new Category(id: "id-#{i}")) for i in [0..199]
         @transaction._writeModels([@m])
 
         collectionAttributeQueries = _.filter @performed, (i) ->
-          i.query.indexOf('INSERT OR IGNORE INTO `TestModel-Label`') == 0
+          i.query.indexOf('INSERT OR IGNORE INTO `TestModel-Category`') == 0
 
         expect(collectionAttributeQueries.length).toBe(1)
         expect(collectionAttributeQueries[0].values[399]).toEqual('id-199')
 
       it "should page association records into multiple queries correctly", ->
-        @m.labels.push(new Label(id: "id-#{i}")) for i in [0..200]
+        @m.categories.push(new Category(id: "id-#{i}")) for i in [0..200]
         @transaction._writeModels([@m])
 
         collectionAttributeQueries = _.filter @performed, (i) ->
-          i.query.indexOf('INSERT OR IGNORE INTO `TestModel-Label`') == 0
+          i.query.indexOf('INSERT OR IGNORE INTO `TestModel-Category`') == 0
 
         expect(collectionAttributeQueries.length).toBe(2)
         expect(collectionAttributeQueries[0].values[399]).toEqual('id-199')
         expect(collectionAttributeQueries[1].values[1]).toEqual('id-200')
 
       it "should page association records into multiple queries correctly", ->
-        @m.labels.push(new Label(id: "id-#{i}")) for i in [0..201]
+        @m.categories.push(new Category(id: "id-#{i}")) for i in [0..201]
         @transaction._writeModels([@m])
 
         collectionAttributeQueries = _.filter @performed, (i) ->
-          i.query.indexOf('INSERT OR IGNORE INTO `TestModel-Label`') == 0
+          i.query.indexOf('INSERT OR IGNORE INTO `TestModel-Category`') == 0
 
         expect(collectionAttributeQueries.length).toBe(2)
         expect(collectionAttributeQueries[0].values[399]).toEqual('id-199')

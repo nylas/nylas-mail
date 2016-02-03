@@ -1,0 +1,34 @@
+@font-face {
+  font-family: 'Nylas-Pro';
+  font-style: normal;
+  font-weight: 200;
+  src: url('nylas://screenshot-mode/assets/BLOKKNeue-Regular.otf');
+}
+
+@font-face {
+  font-family: 'Nylas-Pro';
+  font-style: normal;
+  font-weight: 300;
+  src: url('nylas://screenshot-mode/assets/BLOKKNeue-Regular.otf');
+}
+
+@font-face {
+  font-family: 'Nylas-Pro';
+  font-style: normal;
+  font-weight: 400;
+  src: url('nylas://screenshot-mode/assets/BLOKKNeue-Regular.otf');
+}
+
+@font-face {
+  font-family: 'Nylas-Pro';
+  font-style: normal;
+  font-weight: 500;
+  src: url('nylas://screenshot-mode/assets/BLOKKNeue-Regular.otf');
+}
+
+@font-face {
+  font-family: 'Nylas-Pro';
+  font-style: normal;
+  font-weight: 600;
+  src: url('nylas://screenshot-mode/assets/BLOKKNeue-Regular.otf');
+}

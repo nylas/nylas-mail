@@ -51,11 +51,12 @@ class NylasExports
   @load "EdgehillAPI", 'flux/edgehill-api'
 
   # The Database
-  @load "ModelView", 'flux/stores/model-view'
-  @load "SearchView", 'flux/stores/search-view'
-  @load "DatabaseView", 'flux/stores/database-view'
   @load "DatabaseStore", 'flux/stores/database-store'
   @load "DatabaseTransaction", 'flux/stores/database-transaction'
+  @load "QueryResultSet", 'flux/models/query-result-set'
+  @load "ObservableListDataSource", 'flux/stores/observable-list-data-source'
+  @load "QuerySubscription", 'flux/models/query-subscription'
+  @load "MutableQuerySubscription", 'flux/models/mutable-query-subscription'
   @load "QuerySubscriptionPool", 'flux/models/query-subscription-pool'
 
   # Database Objects
@@ -74,7 +75,7 @@ class NylasExports
   @require "Metadata", 'flux/models/metadata'
   @require "JSONBlob", 'flux/models/json-blob'
   @require "DatabaseObjectRegistry", "database-object-registry"
-  @require "MailViewFilter", 'mail-view-filter'
+  @require "MailboxPerspective", 'mailbox-perspective'
 
   # Exported so 3rd party packages can subclass Model
   @load "Model", 'flux/models/model'
@@ -93,7 +94,6 @@ class NylasExports
   # we know how to deserialized saved or IPC-sent tasks.
   @require "EventRSVPTask", 'flux/tasks/event-rsvp'
   @require "SendDraftTask", 'flux/tasks/send-draft'
-  @require "FileUploadTask", 'flux/tasks/file-upload-task'
   @require "DestroyDraftTask", 'flux/tasks/destroy-draft'
   @require "ChangeMailTask", 'flux/tasks/change-mail-task'
   @require "ChangeLabelsTask", 'flux/tasks/change-labels-task'
@@ -106,6 +106,8 @@ class NylasExports
   @require "CreateModelTask", 'flux/tasks/create-model-task'
   @require "UpdateModelTask", 'flux/tasks/update-model-task'
   @require "DestroyModelTask", 'flux/tasks/destroy-model-task'
+  @require "SyncbackModelTask", 'flux/tasks/syncback-model-task'
+  @require "SyncbackMetadataTask", 'flux/tasks/syncback-metadata-task'
   @require "ReprocessMailRulesTask", 'flux/tasks/reprocess-mail-rules-task'
 
   # Stores
@@ -118,14 +120,13 @@ class NylasExports
   @require "ContactStore", 'flux/stores/contact-store'
   @require "CategoryStore", 'flux/stores/category-store'
   @require "WorkspaceStore", 'flux/stores/workspace-store'
-  @require "DraftCountStore", 'flux/stores/draft-count-store'
   @require "FileUploadStore", 'flux/stores/file-upload-store'
   @require "MailRulesStore", 'flux/stores/mail-rules-store'
   @require "ThreadCountsStore", 'flux/stores/thread-counts-store'
   @require "UnreadBadgeStore", 'flux/stores/unread-badge-store'
   @require "FileDownloadStore", 'flux/stores/file-download-store'
   @require "FocusedContentStore", 'flux/stores/focused-content-store'
-  @require "FocusedMailViewStore", 'flux/stores/focused-mail-view-store'
+  @require "FocusedPerspectiveStore", 'flux/stores/focused-perspective-store'
   @require "FocusedContactsStore", 'flux/stores/focused-contacts-store'
   @require "PreferencesUIStore", 'flux/stores/preferences-ui-store'
 
@@ -145,8 +146,12 @@ class NylasExports
   @require "ComposerExtension", 'extensions/composer-extension'
   @require "MessageViewExtension", 'extensions/message-view-extension'
 
-  # React Components
+  # Libraries
   @get "React", -> require 'react' # Our version of React for 3rd party use
+  @get "Reflux", -> require 'reflux'
+  @get "Rx", -> require 'rx-lite'
+
+  # React Components
   @load "ReactRemote", 'react-remote/react-remote-parent'
   @load "ComponentRegistry", 'component-registry'
   @load "PriorityUICoordinator", 'priority-ui-coordinator'
@@ -156,6 +161,7 @@ class NylasExports
   @load "DOMUtils", 'dom-utils'
   @load "CanvasUtils", 'canvas-utils'
   @load "RegExpUtils", 'regexp-utils'
+  @load "MenuHelpers", 'menu-helpers'
   @load "MessageUtils", 'flux/models/message-utils'
   @load "NylasSpellchecker", 'nylas-spellchecker'
 
@@ -178,6 +184,7 @@ class NylasExports
 
   # Process Internals
   @load "LaunchServices", 'launch-services'
+  @load "SystemStartService", 'system-start-service'
   @load "BufferedProcess", 'buffered-process'
   @get "APMWrapper", -> require('../apm-wrapper')
 

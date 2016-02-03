@@ -104,6 +104,18 @@ describe('EditableList', ()=> {
 
       expect(onItemCreated).toHaveBeenCalledWith('New Item');
     });
+
+    it('does not call onItemCreated when no value entered', ()=> {
+      const onItemCreated = jasmine.createSpy('onItemCreated');
+      const list = makeList(['1', '2'], {initialState: {creatingItem: true}, onItemCreated});
+      const createItem = findRenderedDOMComponentWithClass(list, 'create-item-input');
+      const input = findRenderedDOMComponentWithTag(createItem, 'input');
+      findDOMNode(input).value = '';
+
+      Simulate.keyDown(input, {key: 'Enter'});
+
+      expect(onItemCreated).not.toHaveBeenCalled();
+    });
   });
 
   describe('_onCreateItem', ()=> {

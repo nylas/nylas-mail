@@ -1,25 +1,32 @@
 _ = require 'underscore'
-DatabaseChangeRecord = require '../stores/database-change-record'
+DatabaseStore = require '../stores/database-store'
+QueryRange = require './query-range'
+MutableQueryResultSet = require './mutable-query-result-set'
 
 class QuerySubscription
-  constructor: (@_query, @_options) ->
-    ModelQuery = require './query'
-
-    if not @_query or not (@_query instanceof ModelQuery)
-      throw new Error("QuerySubscription: Must be constructed with a ModelQuery. Got #{@_query}")
-
-    if @_query._count
-      throw new Error("QuerySubscriptionPool::add - You cannot listen to count queries.")
-
-    @_query.finalize()
-    @_limit = @_query.range().limit ? Infinity
-    @_offset = @_query.range().offset ? 0
-
+  constructor: (@_query, @_options = {}) ->
+    @_set = null
     @_callbacks = []
-    @_version = 0
-    @_versionFetchInProgress = false
-    @_lastResultSet = null
-    @_refetchResultSet()
+    @_lastResult = null
+    @_updateInFlight = false
+    @_queuedChangeRecords = []
+    @_queryVersion = 1
+
+    if @_query
+      if @_query._count
+        throw new Error("QuerySubscriptionPool::add - You cannot listen to count queries.")
+
+      @_query.finalize()
+
+      if @_options.initialModels
+        @_set = new MutableQueryResultSet()
+        @_set.addModelsInRange(@_options.initialModels, new QueryRange({
+          limit: @_options.initialModels.length,
+          offset: 0
+        }))
+        @_createResultAndTrigger()
+      else
+        @update()
 
   query: =>
     @_query
@@ -29,10 +36,10 @@ class QuerySubscription
       throw new Error("QuerySubscription:addCallback - expects a function, received #{callback}")
     @_callbacks.push(callback)
 
-    # If we already have data, send it to our new observer. Users always expect
-    # callbacks to be fired asynchronously, so wait a tick.
-    if @_lastResultSet
-      _.defer => @_invokeCallback(callback)
+    if @_lastResult
+      process.nextTick =>
+        return unless @_lastResult
+        callback(@_lastResult)
 
   hasCallback: (callback) =>
     @_callbacks.indexOf(callback) isnt -1
@@ -46,167 +53,67 @@ class QuerySubscription
     @_callbacks.length
 
   applyChangeRecord: (record) =>
-    return unless record.objectClass is @_query.objectClass()
+    return unless @_query and record.objectClass is @_query.objectClass()
     return unless record.objects.length > 0
-    return @_invalidatePendingResultSet() unless @_lastResultSet
 
-    @_lastResultSet = [].concat(@_lastResultSet)
+    @_queuedChangeRecords.push(record)
+    @_processChangeRecords() unless @_updateInFlight
 
-    if record.type is 'unpersist'
-      status = @_optimisticallyRemoveModels(record.objects)
-    else if record.type is 'persist'
-      status = @_optimisticallyUpdateModels(record.objects)
-    else
-      throw new Error("QuerySubscription: Unknown change record type: #{record.type}")
+  _processChangeRecords: =>
+    return if @_queuedChangeRecords.length is 0
+    return @update() if not @_set
 
-    if status.setModified
-      @_invokeCallbacks()
-    if status.setFetchRequired
-      @_refetchResultSet()
+    knownImpacts = 0
+    unknownImpacts = 0
+    mustRefetchAllIds = false
 
-  _refetchResultSet: =>
-    @_version += 1
+    @_queuedChangeRecords.forEach (record) =>
+      if record.type is 'unpersist'
+        for item in record.objects
+          offset = @_set.offsetOfId(item.clientId)
+          if offset isnt -1
+            @_set.removeModelAtOffset(item, offset)
+            unknownImpacts += 1
 
-    return if @_versionFetchInProgress
-    @_versionFetchInProgress = true
-    fetchVersion = @_version
+      else if record.type is 'persist'
+        for item in record.objects
+          offset = @_set.offsetOfId(item.clientId)
+          itemIsInSet = offset isnt -1
+          itemShouldBeInSet = item.matches(@_query.matchers())
 
-    DatabaseStore = require '../stores/database-store'
-    DatabaseStore.run(@_query, {format: false}).then (result) =>
-      @_versionFetchInProgress = false
-      if @_version is fetchVersion
-        @_lastResultSet = result
-        @_invokeCallbacks()
-      else
-        @_refetchResultSet()
+          if itemIsInSet and not itemShouldBeInSet
+            @_set.removeModelAtOffset(item, offset)
+            unknownImpacts += 1
 
-  _invalidatePendingResultSet: =>
-    @_version += 1
+          else if itemShouldBeInSet and not itemIsInSet
+            @_set.replaceModel(item)
+            mustRefetchAllIds = true
+            unknownImpacts += 1
 
-  _resortResultSet: =>
-    sortDescriptors = @_query.orderSortDescriptors()
-    @_lastResultSet.sort (a, b) ->
-      for descriptor in sortDescriptors
-        if descriptor.direction is 'ASC'
-          direction = 1
-        else if descriptor.direction is 'DESC'
-          direction = -1
-        else
-          throw new Error("QuerySubscription: Unknown sort order: #{descriptor.direction}")
-        aValue = a[descriptor.attr.modelKey]
-        bValue = b[descriptor.attr.modelKey]
-        return -1 * direction if aValue < bValue
-        return 1 * direction if aValue > bValue
-      return 0
+          else if itemIsInSet
+            oldItem = @_set.modelWithId(item.clientId)
+            @_set.replaceModel(item)
 
-  _optimisticallyRemoveModels: (items) =>
-    status =
-      setModified: false
-      setFetchRequired: false
+            if @_itemSortOrderHasChanged(oldItem, item)
+              mustRefetchAllIds = true
+              unknownImpacts += 1
+            else
+              knownImpacts += 1
 
-    lastLength = @_lastResultSet.length
+        # If we're not at the top of the result set, we can't be sure whether an
+        # item previously matched the set and doesn't anymore, impacting the items
+        # in the query range. We need to refetch IDs to be sure our set is correct.
+        if @_query.range().offset > 0 and (unknownImpacts + knownImpacts) < record.objects.length
+          mustRefetchAllIds = true
+          unknownImpacts += 1
 
-    for item in items
-      idx = _.findIndex @_lastResultSet, ({id}) -> id is item.id
-      if idx isnt -1
-        @_lastResultSet.splice(idx, 1)
-        status.setModified = true
+    @_queuedChangeRecords = []
 
-        # Removing items is an issue if we previosly had LIMIT items. This
-        # means there are likely more items to display in the place of the one
-        # we're removing and we need to re-fetch
-        if lastLength is @_limit
-          status.setFetchRequired = true
-
-    status
-
-  _optimisticallyUpdateModels: (items) =>
-    status =
-      setModified: false
-      setFetchRequired: false
-
-    sortNecessary = false
-
-    # Pull attributes of the query
-    sortDescriptors = @_query.orderSortDescriptors()
-
-    oldSetInfo =
-      length: @_lastResultSet.length
-      startItem: @_lastResultSet[0]
-      endItem: @_lastResultSet[@_limit - 1]
-
-    for item in items
-      # TODO
-      # This logic is duplicated across DatabaseView#invalidate and
-      # ModelView#indexOf
-      #
-      # This duplication should go away when we refactor/replace DatabaseView
-      # for using observables
-      idx = _.findIndex @_lastResultSet, ({id, clientId}) ->
-        id is item.id or item.clientId is clientId
-
-      itemIsInSet = idx isnt -1
-      itemShouldBeInSet = item.matches(@_query.matchers())
-
-      if itemIsInSet and not itemShouldBeInSet
-        # remove the item
-        @_lastResultSet.splice(idx, 1)
-        status.setModified = true
-
-      else if itemShouldBeInSet and not itemIsInSet
-        # insert the item, re-sort if a sort order is defined
-        if sortDescriptors.length > 0
-          sortNecessary = true
-        @_lastResultSet.push(item)
-        status.setModified = true
-
-      else if itemIsInSet
-        # update the item in the set, re-sort if a sort attribute's value has changed
-        if @_itemSortOrderHasChanged(@_lastResultSet[idx], item)
-          sortNecessary = true
-        @_lastResultSet[idx] = item
-        status.setModified = true
-
-    if sortNecessary
-      @_resortResultSet()
-
-    if sortNecessary and @_itemOnEdgeHasChanged(oldSetInfo)
-      status.setFetchRequired = true
-
-    # If items have been added, truncate the result set to the requested length
-    if @_lastResultSet.length > @_limit
-      @_lastResultSet.length = @_limit
-
-    hadMaxItems = oldSetInfo.length is @_limit
-    hasLostItems = @_lastResultSet.length < oldSetInfo.length
-
-    if hadMaxItems and hasLostItems
-      # Ex: We asked for 20 items and had 20 items. Now we have 19 items.
-      # We need to pull a nw item to fill slot #20.
-      status.setFetchRequired = true
-
-    status
-
-  _itemOnEdgeHasChanged: (oldSetInfo) ->
-    hasPrecedingItems = @_offset > 0
-    hasChangedStartItem = oldSetInfo.startItem isnt @_lastResultSet[0]
-
-    if hasPrecedingItems and hasChangedStartItem
-      # We've changed the identity of the item at index zero. We have no way
-      # of knowing if it would still sort at this position, or if another item
-      # from earlier in the range should be at index zero.
-      # Full re-fetch is necessary.
-      return true
-
-    hasTrailingItems = @_lastResultSet.length is @_limit
-    hasChangedEndItem = oldSetInfo.endItem isnt @_lastResultSet[@_limit - 1]
-
-    if hasTrailingItems and hasChangedEndItem
-      # We've changed he last item in the set, and the set is at it's LIMIT length.
-      # We have no way of knowing if the item should still be at this position
-      # since we can't see the next item.
-      # Full re-fetch is necessary.
-      return true
+    if unknownImpacts > 0
+      @_set = null if mustRefetchAllIds
+      @update()
+    else if knownImpacts > 0
+      @_createResultAndTrigger()
 
   _itemSortOrderHasChanged: (old, updated) ->
     for descriptor in @_query.orderSortDescriptors()
@@ -219,15 +126,91 @@ class QuerySubscription
 
     return false
 
-  _invokeCallbacks: =>
-    set = [].concat(@_lastResultSet)
-    resultForSet = @_query.formatResultObjects(set)
-    @_callbacks.forEach (callback) =>
-      callback(resultForSet)
+  update: =>
+    desiredRange = @_query.range()
+    currentRange = @_set?.range()
+    @_updateInFlight = true
 
-  _invokeCallback: (callback) =>
-    set = [].concat(@_lastResultSet)
-    resultForSet = @_query.formatResultObjects(set)
-    callback(resultForSet)
+    version = @_queryVersion
+
+    if currentRange and not currentRange.isInfinite() and not desiredRange.isInfinite()
+      ranges = QueryRange.rangesBySubtracting(desiredRange, currentRange)
+      entireModels = true
+    else
+      ranges = [desiredRange]
+      entireModels = not @_set or @_set.modelCacheCount() is 0
+
+    Promise.each ranges, (range) =>
+      return unless @_queryVersion is version
+      @_fetchRange(range, {entireModels, version})
+
+    .then =>
+      return unless @_queryVersion is version
+      ids = @_set.ids().filter (id) => not @_set.modelWithId(id)
+      return if ids.length is 0
+      return DatabaseStore.findAll(@_query._klass, {id: ids}).then (models) =>
+        return unless @_queryVersion is version
+        @_set.replaceModel(m) for m in models
+
+    .then =>
+      return unless @_queryVersion is version
+      @_updateInFlight = false
+
+      allChangesApplied = @_queuedChangeRecords.length is 0
+      allCompleteModels = @_set.isComplete()
+      allUniqueIds = _.uniq(@_set.ids()).length is @_set.ids().length
+
+      if allChangesApplied and not allUniqueIds
+        throw new Error("QuerySubscription: Applied all changes and result set contains duplicate IDs.")
+
+      if allChangesApplied and not allCompleteModels
+        throw new Error("QuerySubscription: Applied all changes and result set is missing models.")
+
+      if allChangesApplied and allCompleteModels and allUniqueIds
+        @_createResultAndTrigger()
+      else
+        @_processChangeRecords()
+
+  cancelPendingUpdate: =>
+    @_queryVersion += 1
+    @_updateInFlight = false
+
+  _fetchRange: (range, {entireModels, version} = {}) ->
+    rangeQuery = undefined
+
+    unless range.isInfinite()
+      rangeQuery ?= @_query.clone()
+      rangeQuery.offset(range.offset).limit(range.limit)
+
+    unless entireModels
+      rangeQuery ?= @_query.clone()
+      rangeQuery.idsOnly()
+
+    rangeQuery ?= @_query
+
+    DatabaseStore.run(rangeQuery, {format: false}).then (results) =>
+      return unless @_queryVersion is version
+
+      if @_set and not @_set.range().isContiguousWith(range)
+        @_set = null
+      @_set ?= new MutableQueryResultSet()
+
+      if entireModels
+        @_set.addModelsInRange(results, range)
+      else
+        @_set.addIdsInRange(results, range)
+
+      @_set.clipToRange(@_query.range())
+
+  _createResultAndTrigger: =>
+    if @_options.asResultSet
+      @_set.setQuery(@_query)
+      @_lastResult = @_set.immutableClone()
+    else
+      @_lastResult = @_query.formatResult(@_set.models())
+
+    @_callbacks.forEach (callback) =>
+      callback(@_lastResult)
+
 
 module.exports = QuerySubscription

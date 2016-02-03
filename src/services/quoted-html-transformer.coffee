@@ -117,12 +117,7 @@ class QuotedHTMLTransformer
       # end of a message. If there were non quoted content after, it'd be
       # inline.
 
-      # We first need to find the common ancestor of the quoteElements.
-      # This tells us what depth to look at to determine if there's real
-      # content after us.
-      ancestor = DOMUtils.commonAncestor(quoteElements)
-
-      trailingQuotes = @_findTrailingQuotes(ancestor, quoteElements)
+      trailingQuotes = @_findTrailingQuotes(doc, quoteElements)
 
       # Only keep the trailing quotes so we can delete them.
       quoteElements = _.intersection(quoteElements, trailingQuotes)

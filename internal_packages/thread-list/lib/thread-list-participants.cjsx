@@ -44,9 +44,9 @@ class ThreadListParticipants extends React.Component
       else
         if contact.name.length > 0
           if items.length > 1
-            short = contact.displayFirstName()
+            short = contact.displayName(includeAccountLabel: false, compact: true)
           else
-            short = contact.displayName()
+            short = contact.displayName(includeAccountLabel: false)
         else
           short = contact.email
         if idx < items.length-1 and not items[idx+1].spacer

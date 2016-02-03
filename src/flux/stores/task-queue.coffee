@@ -49,9 +49,9 @@ if @_thread && @_thread.unread
 
 ```coffee
 Actions.dequeueMatchingTask({
-  type: 'FileUploadTask',
+  type: 'DestroyCategoryTask',
   matching: {
-    filePath: uploadData.filePath
+    categoryId: 'bla'
   }
 })
 ```
@@ -76,14 +76,15 @@ class TaskQueue
 
     @_restoreQueue()
 
-    @listenTo(Actions.queueTask,              @enqueue)
-    @listenTo(Actions.undoTaskId,             @enqueueUndoOfTaskId)
-    @listenTo(Actions.dequeueTask,            @dequeue)
-    @listenTo(Actions.dequeueAllTasks,        @dequeueAll)
-    @listenTo(Actions.dequeueMatchingTask,    @dequeueMatching)
-
-    @listenTo(Actions.clearDeveloperConsole,  @clearCompleted)
-
+    @listenTo Actions.queueTask, @enqueue
+    @listenTo Actions.queueTasks, (tasks) =>
+      return unless tasks and tasks.length > 0
+      @enqueue(t) for t in tasks
+    @listenTo Actions.undoTaskId, @enqueueUndoOfTaskId
+    @listenTo Actions.dequeueTask, @dequeue
+    @listenTo Actions.dequeueAllTasks, @dequeueAll
+    @listenTo Actions.dequeueMatchingTask, @dequeueMatching
+    @listenTo Actions.clearDeveloperConsole,  @clearCompleted
     @listenTo Actions.longPollConnected, =>
       @_processQueue()
 
@@ -203,12 +204,9 @@ class TaskQueue
     responses = _.filter responses, (r) -> r?
 
     responses.forEach (resp) =>
-      if resp.returnValue is Task.DO_NOT_DEQUEUE_ME
-        return
-      else
-        resp.downstreamTask.queueState.status = Task.Status.Continue
-        resp.downstreamTask.queueState.debugStatus = Task.DebugStatus.DequeuedDependency
-        @dequeue(resp.downstreamTask)
+      resp.downstreamTask.queueState.status = Task.Status.Continue
+      resp.downstreamTask.queueState.debugStatus = Task.DebugStatus.DequeuedDependency
+      @dequeue(resp.downstreamTask)
 
   # Recursively notifies tasks of dependent errors
   _notifyOfDependentError: (failedTask, err) ->

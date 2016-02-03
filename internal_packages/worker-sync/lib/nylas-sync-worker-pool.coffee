@@ -21,7 +21,7 @@ class NylasSyncWorkerPool
   _onAccountsChanged: ->
     return if NylasEnv.inSpecMode()
 
-    accounts = AccountStore.items()
+    accounts = AccountStore.accounts()
     workers = _.map(accounts, @workerForAccount)
 
     # Stop the workers that are not in the new workers list.

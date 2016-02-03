@@ -32,13 +32,12 @@ class ImageAttachmentComponent extends AttachmentComponent
     <RetinaImg name="image-download-button.png" mode={RetinaImg.Mode.ContentPreserve} />
 
   _imgOrLoader: ->
-    if @props.download
-      if @props.download.percent <= 5
-        <div style={width: "100%", height: "100px"}>
-          <Spinner visible={true} />
-        </div>
-      else
-        <DraggableImg src={"#{@props.targetPath}?percent=#{@props.download.percent}"} />
+    if @props.download and @props.download.percent <= 5
+      <div style={width: "100%", height: "100px"}>
+        <Spinner visible={true} />
+      </div>
+    else if @props.download and @props.download.percent < 100
+      <DraggableImg src={"#{@props.targetPath}?percent=#{@props.download.percent}"} />
     else
       <DraggableImg src={@props.targetPath} />
 

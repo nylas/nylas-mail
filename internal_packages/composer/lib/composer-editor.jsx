@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from 'react';
-import {ExtensionRegistry, DOMUtils} from 'nylas-exports';
+import {ContenteditableExtension, ExtensionRegistry, DOMUtils} from 'nylas-exports';
 import {ScrollRegion, Contenteditable} from 'nylas-component-kit';
 
 /**
@@ -26,8 +26,9 @@ import {ScrollRegion, Contenteditable} from 'nylas-component-kit';
  * @param {props.onBodyChanged} props.onBodyChanged
  * @class ComposerEditor
  */
+
 class ComposerEditor extends Component {
-  static displayName = 'ComposerEditor'
+  static displayName = 'ComposerEditor';
 
   /**
    * This function will return the {DOMRect} for the parent component
@@ -77,17 +78,24 @@ class ComposerEditor extends Component {
       scrollTo: PropTypes.func,
       getComposerBoundingRect: PropTypes.func,
     }),
-  }
+  };
 
   constructor(props) {
     super(props);
     this.state = {
       extensions: ExtensionRegistry.Composer.extensions(),
     };
-    this._coreExtension = {
-      onFocus: props.onFocus,
-      onBlur: props.onBlur,
-    };
+
+    class ComposerFocusManager extends ContenteditableExtension {
+      static onFocus() {
+        return props.onFocus();
+      }
+      static onBlur() {
+        return props.onBlur();
+      }
+    }
+
+    this._coreExtension = ComposerFocusManager;
   }
 
   componentDidMount() {
@@ -185,7 +193,7 @@ class ComposerEditor extends Component {
       clientId: this.props.draftClientId,
       position: ScrollRegion.ScrollPosition.Bottom,
     });
-  }
+  };
 
   /**
    * @private
@@ -200,7 +208,7 @@ class ComposerEditor extends Component {
     const parentRect = this.props.parentActions.getComposerBoundingRect();
     const selfRect = editableNode.getBoundingClientRect();
     return Math.abs(parentRect.bottom - selfRect.bottom) <= 250;
-  }
+  };
 
   /**
    * @private
@@ -245,14 +253,14 @@ class ComposerEditor extends Component {
         this.props.parentActions.scrollTo({rect});
       }
     }
-  }
+  };
 
 
   // Handlers
 
   _onExtensionsChanged = ()=> {
     this.setState({extensions: ExtensionRegistry.Composer.extensions()});
-  }
+  };
 
 
   // Renderers

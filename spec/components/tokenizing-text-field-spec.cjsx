@@ -295,22 +295,29 @@ describe 'TokenizingTextField', ->
       expect(@tabDownEvent.stopPropagation).toHaveBeenCalled()
 
   describe "when blurred", ->
+    it 'should do nothing if the relatedTarget is null meaning the app has been blurged', ->
+      ReactTestUtils.Simulate.focus(@renderedInput)
+      ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'text'}})
+      ReactTestUtils.Simulate.blur(@renderedInput, {relatedTarget: null})
+      expect(@propAdd).not.toHaveBeenCalled()
+      expect(ReactTestUtils.scryRenderedDOMComponentsWithClass(@renderedField, 'focused').length).toBe(1)
+
     it 'should call add, allowing the parent component to (optionally) turn the entered text into a token', ->
       ReactTestUtils.Simulate.focus(@renderedInput)
       ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'text'}})
-      ReactTestUtils.Simulate.blur(@renderedInput)
+      ReactTestUtils.Simulate.blur(@renderedInput, {relatedTarget: document.body})
       expect(@propAdd).toHaveBeenCalledWith('text', {})
 
     it 'should clear the entered text', ->
       ReactTestUtils.Simulate.focus(@renderedInput)
       ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'text'}})
-      ReactTestUtils.Simulate.blur(@renderedInput)
+      ReactTestUtils.Simulate.blur(@renderedInput, {relatedTarget: document.body})
       expect(@renderedInput.value).toBe('')
 
     it 'should no longer have the `focused` class', ->
       ReactTestUtils.Simulate.focus(@renderedInput)
       expect(ReactTestUtils.scryRenderedDOMComponentsWithClass(@renderedField, 'focused').length).toBe(1)
-      ReactTestUtils.Simulate.blur(@renderedInput)
+      ReactTestUtils.Simulate.blur(@renderedInput, {relatedTarget: document.body})
       expect(ReactTestUtils.scryRenderedDOMComponentsWithClass(@renderedField, 'focused').length).toBe(0)
 
   describe "when the user double-clicks a token", ->

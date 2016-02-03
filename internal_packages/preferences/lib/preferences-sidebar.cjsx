@@ -34,7 +34,7 @@ class PreferencesSidebarItem extends React.Component
       <DisclosureTriangle
         collapsed={@state.collapsed}
         visible={subitems isnt false}
-        onToggleCollapsed={@_onClick} />
+        onCollapseToggled={@_onClick} />
       <div className="name">{displayName}</div>
       {subitemsComponent}
     </div>
@@ -74,7 +74,7 @@ class PreferencesSidebar extends React.Component
 
   constructor: ->
     @state =
-      accounts: AccountStore.items()
+      accounts: AccountStore.accounts()
 
   componentDidMount: =>
     @unsub = AccountStore.listen @_onAccountsChanged
@@ -94,6 +94,6 @@ class PreferencesSidebar extends React.Component
     </div>
 
   _onAccountsChanged: =>
-    @setState(accounts: AccountStore.items())
+    @setState(accounts: AccountStore.accounts())
 
 module.exports = PreferencesSidebar

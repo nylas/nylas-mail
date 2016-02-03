@@ -5,6 +5,7 @@ _ = require 'underscore'
 
 ConfigSchemaItem = require './config-schema-item'
 WorkspaceSection = require './workspace-section'
+SendingSection = require './sending-section'
 
 class PreferencesGeneral extends React.Component
   @displayName: 'PreferencesGeneral'
@@ -31,11 +32,7 @@ class PreferencesGeneral extends React.Component
         keyPath="core.reading"
         config={@props.config} />
 
-      <ConfigSchemaItem
-        configSchema={@props.configSchema.properties.sending}
-        keyName="Sending"
-        keyPath="core.sending"
-        config={@props.config} />
+      <SendingSection config={@props.config} configSchema={@props.configSchema} />
 
       <ConfigSchemaItem
         configSchema={@props.configSchema.properties.attachments}
