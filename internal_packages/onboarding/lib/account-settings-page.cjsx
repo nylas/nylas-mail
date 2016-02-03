@@ -153,6 +153,15 @@ class AccountSettingsPage extends React.Component
         errorFields = _.uniq(_.without(@state.errorFieldNames, field))
       @setState({errorFieldNames: errorFields})
 
+    if providerField.type == "email" and event.target.value
+      if event.target.value.endsWith('@gmail.com')
+        # set a state that contains a "this is a gmail account" message
+        @setState({errorMessage: "This looks like a Gmail account. You should go back and sign in to Gmail instead."})
+        @_resize()
+      else
+        @setState({errorMessage: null})
+        @_resize()
+
     @setState({fields})
 
   _onFieldKeyPress: (event) =>
