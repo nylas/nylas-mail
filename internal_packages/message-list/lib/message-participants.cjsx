@@ -1,95 +1,33 @@
 _ = require 'underscore'
 React = require "react"
-classNames = require 'classnames'
+classnames = require 'classnames'
+{Contact} = require 'nylas-exports'
+
+
+MAX_COLLAPSED = 5
 
 class MessageParticipants extends React.Component
   @displayName: 'MessageParticipants'
 
-  render: =>
-    classSet = classNames
-      "participants": true
-      "message-participants": true
-      "collapsed": not @props.isDetailed
+  @propTypes:
+    to: React.PropTypes.array
+    cc: React.PropTypes.array
+    bcc: React.PropTypes.array
+    from: React.PropTypes.array
+    onClick: React.PropTypes.func
+    isDetailed: React.PropTypes.bool
 
-    <div className={classSet} onClick={@props.onClick}>
-      {if @props.isDetailed then @_renderExpanded() else @_renderCollapsed()}
-    </div>
+  @defaultProps:
+    to: []
+    cc: []
+    bcc: []
+    from: []
 
-  _renderCollapsed: =>
-    childSpans = [
-      <span className="participant-name from-contact" key="from">{@_shortNames(@props.from)}</span>
-    ]
 
-    if @props.to?.length > 0
-      childSpans.push(
-        <span className="participant-label to-label" key="to-label">To:&nbsp;</span>
-        <span className="participant-name to-contact" key="to-value">{@_shortNames(@props.to)}</span>
-      )
+  # Helpers
 
-    if @props.cc?.length > 0
-      childSpans.push(
-        <span className="participant-label cc-label" key="cc-label">Cc:&nbsp;</span>
-        <span className="participant-name cc-contact" key="cc-value">{@_shortNames(@props.cc)}</span>
-      )
-
-    if @props.bcc?.length > 0
-      childSpans.push(
-        <span className="participant-label bcc-label" key="bcc-label">Bcc:&nbsp;</span>
-        <span className="participant-name bcc-contact" key="bcc-value">{@_shortNames(@props.bcc)}</span>
-      )
-
-    <span className="collapsed-participants">
-      {childSpans}
-    </span>
-
-  _renderExpanded: =>
-    <div className="expanded-participants">
-      <div className="participant-type">
-        <div className="participant-name from-contact">{@_fullContact(@props.from)}</div>
-      </div>
-
-      <div className="participant-type">
-        <div className="participant-label to-label">To:&nbsp;</div>
-        <div className="participant-name to-contact">{@_fullContact(@props.to)}</div>
-      </div>
-
-      <div className="participant-type"
-           style={if @props.cc?.length > 0 then display:"block" else display:"none"}>
-        <div className="participant-label cc-label">Cc:&nbsp;</div>
-        <div className="participant-name cc-contact">{@_fullContact(@props.cc)}</div>
-      </div>
-
-      <div className="participant-type"
-           style={if @props.bcc?.length > 0 then display:"block" else display:"none"}>
-        <div className="participant-label bcc-label">Bcc:&nbsp;</div>
-        <div className="participant-name cc-contact">{@_fullContact(@props.bcc)}</div>
-      </div>
-
-    </div>
-
-  _shortNames: (contacts=[]) =>
-    _.map(contacts, (c) -> c.displayName(includeAccountLabel: true, compact: true)).join(", ")
-
-  _fullContact: (contacts=[]) =>
-    if contacts.length is 0
-      # This is necessary to make the floats work properly
-      <div>&nbsp;</div>
-    else
-      _.map(contacts, (c, i) =>
-        if contacts.length is 1 then comma = ""
-        else if i is contacts.length-1 then comma = ""
-        else comma = ","
-
-        if c.name?.length > 0 and c.name isnt c.email
-          <div key={c.email} className="participant selectable">
-            <span className="participant-primary" onClick={@_selectPlainText}>{c.name}</span>&nbsp;
-            <span className="participant-secondary" onClick={@_selectBracketedText}><{c.email}>{comma}</span>&nbsp;
-          </div>
-        else
-          <div key={c.email} className="participant selectable">
-            <span className="participant-primary" onClick={@_selectCommaText}>{c.email}{comma}</span>&nbsp;
-          </div>
-      )
+  _allToParticipants: =>
+    _.union(@props.to, @props.cc, @props.bcc)
 
   _selectPlainText: (e) =>
     textNode = e.currentTarget.childNodes[0]
@@ -111,6 +49,103 @@ class MessageParticipants extends React.Component
     selection.removeAllRanges()
     selection.addRange(range)
 
+  _shortNames: (contacts = [], max = MAX_COLLAPSED) =>
+    names = _.map(contacts, (c) -> c.displayName(includeAccountLabel: true, compact: true))
+    if names.length > max
+      extra = names.length - max
+      names = names.slice(0, max)
+      names.push("and #{extra} more")
+    names.join(", ")
 
+  # Renderers
+
+  _renderFullContacts: (contacts = []) =>
+    _.map(contacts, (c, i) =>
+      if contacts.length is 1 then comma = ""
+      else if i is contacts.length-1 then comma = ""
+      else comma = ","
+
+      if c.name?.length > 0 and c.name isnt c.email
+        <div key={"#{c.email}-#{i}"} className="participant selectable">
+          <span className="participant-primary" onClick={@_selectPlainText}>{c.name}</span>&nbsp;
+          <span className="participant-secondary" onClick={@_selectBracketedText}><{c.email}>{comma}</span>&nbsp;
+        </div>
+      else
+        <div key={"#{c.email}-#{i}"} className="participant selectable">
+          <span className="participant-primary" onClick={@_selectCommaText}>{c.email}{comma}</span>&nbsp;
+        </div>
+    )
+
+  _renderExpandedField: (name, field, {includeLabel} = {}) =>
+    includeLabel ?= true
+    <div className="participant-type" key={"participant-type-#{name}"}>
+      {
+        if includeLabel
+          <div className={"participant-label #{name}-label"}>To:&nbsp;</div>
+        else
+          undefined
+      }
+      <div className={"participant-name #{name}-contact"}>
+        {@_renderFullContacts(field)}
+      </div>
+    </div>
+
+  _renderExpanded: =>
+    expanded = []
+
+    if @props.from.length > 0
+      expanded.push(
+        @_renderExpandedField('from', @props.from, includeLabel: false)
+      )
+
+    if @props.to.length > 0
+      expanded.push(
+        @_renderExpandedField('to', @props.to)
+      )
+
+    if @props.cc.length > 0
+      expanded.push(
+        @_renderExpandedField('cc', @props.cc)
+      )
+
+    if @props.bcc.length > 0
+      expanded.push(
+        @_renderExpandedField('bcc', @props.bcc)
+      )
+
+    <div className="expanded-participants">
+      {expanded}
+    </div>
+
+  _renderCollapsed: =>
+    childSpans = []
+    toParticipants = @_allToParticipants()
+
+    if @props.from.length > 0
+      childSpans.push(
+        <span className="participant-name from-contact" key="from">{@_shortNames(@props.from)}</span>
+      )
+
+    if toParticipants.length > 0
+      childSpans.push(
+        <span className="participant-label to-label" key="to-label">To:&nbsp;</span>
+        <span className="participant-name to-contact" key="to-value">{@_shortNames(toParticipants)}</span>
+      )
+
+    <span className="collapsed-participants">
+      {childSpans}
+    </span>
+
+  render: =>
+    classSet = classnames
+      "participants": true
+      "message-participants": true
+      "collapsed": not @props.isDetailed
+      "from-participants": @props.from.length > 0
+      "to-participants": @_allToParticipants().length > 0
+
+    <div className={classSet} onClick={@props.onClick}>
+      {if @props.isDetailed then @_renderExpanded() else @_renderCollapsed()}
+    </div>
 
 module.exports = MessageParticipants

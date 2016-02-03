@@ -205,7 +205,7 @@ describe "MessageList", ->
     it "displays lists of participants on the page", ->
       items = TestUtils.scryRenderedComponentsWithType(@messageList,
               MessageParticipants)
-      expect(items.length).toBe 1
+      expect(items.length).toBe 2
 
     it "focuses new composers when a draft is added", ->
       spyOn(@messageList, "_focusDraft")
