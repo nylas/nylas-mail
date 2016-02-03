@@ -65,6 +65,10 @@ class NylasWindow
     if @neverClose
       # Prevents DOM timers from being suspended when the main window is hidden.
       # Means there's not an awkward catch-up when you re-show the main window.
+      # TODO
+      # This option is no longer working according to
+      # https://github.com/atom/electron/issues/3225
+      # Look into using option --disable-renderer-backgrounding
       options.webPreferences.pageVisibility = true
 
     # Don't set icon on Windows so the exe's ico will be used as window and

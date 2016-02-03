@@ -7,7 +7,7 @@ ThreadListStore = require './thread-list-store'
  TaskFactory,
  CategoryStore,
  FocusedContentStore,
- FocusedMailViewStore} = require "nylas-exports"
+ FocusedPerspectiveStore} = require "nylas-exports"
 
 class ThreadBulkArchiveButton extends React.Component
   @displayName: 'ThreadBulkArchiveButton'
@@ -17,8 +17,8 @@ class ThreadBulkArchiveButton extends React.Component
     selection: React.PropTypes.object.isRequired
 
   render: ->
-    mailViewFilter = FocusedMailViewStore.mailView()
-    return false unless mailViewFilter?.canArchiveThreads()
+    mailboxPerspective = FocusedPerspectiveStore.current()
+    return false unless mailboxPerspective?.canArchiveThreads()
 
     <button style={order:-107}
             className="btn btn-toolbar"
@@ -28,10 +28,11 @@ class ThreadBulkArchiveButton extends React.Component
     </button>
 
   _onArchive: =>
-    task = TaskFactory.taskForArchiving
+    tasks = TaskFactory.tasksForArchiving
       threads: @props.selection.items(),
-      fromView: FocusedMailViewStore.mailView()
-    Actions.queueTask(task)
+      fromPerspective: FocusedPerspectiveStore.current()
+    Actions.queueTasks(tasks)
+    return
 
 class ThreadBulkTrashButton extends React.Component
   @displayName: 'ThreadBulkTrashButton'
@@ -41,8 +42,8 @@ class ThreadBulkTrashButton extends React.Component
     selection: React.PropTypes.object.isRequired
 
   render: ->
-    mailViewFilter = FocusedMailViewStore.mailView()
-    return false unless mailViewFilter?.canTrashThreads()
+    mailboxPerspective = FocusedPerspectiveStore.current()
+    return false unless mailboxPerspective?.canTrashThreads()
 
     <button style={order:-106}
             className="btn btn-toolbar"
@@ -52,10 +53,11 @@ class ThreadBulkTrashButton extends React.Component
     </button>
 
   _onRemove: =>
-    task = TaskFactory.taskForMovingToTrash
+    tasks = TaskFactory.tasksForMovingToTrash
       threads: @props.selection.items(),
-      fromView: FocusedMailViewStore.mailView()
-    Actions.queueTask(task)
+      fromPerspective: FocusedPerspectiveStore.current()
+    Actions.queueTasks(tasks)
+    return
 
 
 class ThreadBulkStarButton extends React.Component
@@ -79,6 +81,7 @@ class ThreadBulkStarButton extends React.Component
   _onStar: =>
     task = TaskFactory.taskForInvertingStarred(threads: @props.selection.items())
     Actions.queueTask(task)
+    return
 
 
 class ThreadBulkToggleUnreadButton extends React.Component
@@ -103,6 +106,7 @@ class ThreadBulkToggleUnreadButton extends React.Component
   _onClick: =>
     task = TaskFactory.taskForInvertingUnread(threads: @props.selection.items())
     Actions.queueTask(task)
+    return
 
 
 ThreadNavButtonMixin =
@@ -115,13 +119,13 @@ ThreadNavButtonMixin =
 
   isFirstThread: ->
     selectedId = FocusedContentStore.focusedId('thread')
-    ThreadListStore.view().get(0)?.id is selectedId
+    ThreadListStore.dataSource().get(0)?.id is selectedId
 
   isLastThread: ->
     selectedId = FocusedContentStore.focusedId('thread')
 
-    lastIndex = ThreadListStore.view().count() - 1
-    ThreadListStore.view().get(lastIndex)?.id is selectedId
+    lastIndex = ThreadListStore.dataSource().count() - 1
+    ThreadListStore.dataSource().get(lastIndex)?.id is selectedId
 
   componentWillUnmount: ->
     @_unsubscribe()

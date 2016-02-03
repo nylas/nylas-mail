@@ -1,4 +1,5 @@
 {Matcher, AttributeJoinedData} = require '../attributes'
+QueryRange = require './query-range'
 Utils = require './utils'
 _ = require 'underscore'
 
@@ -24,7 +25,7 @@ query.then (thread) ->
 
 ```coffee
 query = DatabaseStore.findAll(Thread)
-query.where([Thread.attributes.labels.contains('label-id')])
+query.where([Thread.attributes.categories.contains('label-id')])
      .order([Thread.attributes.lastMessageReceivedTimestamp.descending()])
      .limit(100).offset(50)
      .then (threads) ->
@@ -44,10 +45,27 @@ class ModelQuery
     @_database || = require '../stores/database-store'
     @_matchers = []
     @_orders = []
-    @_range = {}
+    @_distinct = false
+    @_range = QueryRange.infinite()
     @_returnOne = false
+    @_returnIds = false
     @_includeJoinedData = []
     @_count = false
+    @
+
+  clone: ->
+    q = new ModelQuery(@_klass, @_database).where(@_matchers).order(@_orders)
+    q._orders = [].concat(@_orders)
+    q._includeJoinedData = [].concat(@_includeJoinedData)
+    q._range = @_range.clone()
+    q._distinct = @_distinct
+    q._returnOne = @_returnOne
+    q._returnIds = @_returnIds
+    q._count = @_count
+    q
+
+  distinct: ->
+    @_distinct = true
     @
 
   # Public: Add one or more where clauses to the query
@@ -62,6 +80,8 @@ class ModelQuery
     if matchers instanceof Matcher
       @_matchers.push(matchers)
     else if matchers instanceof Array
+      for m in matchers
+        throw new Error("You must provide instances of `Matcher`") unless m instanceof Matcher
       @_matchers = @_matchers.concat(matchers)
     else if matchers instanceof Object
       # Support a shorthand format of {id: '123', accountId: '123'}
@@ -75,6 +95,11 @@ class ModelQuery
           @_matchers.push(attr.in(value))
         else
           @_matchers.push(attr.equal(value))
+    @
+
+  whereAny: (matchers) ->
+    @_assertNotFinalized()
+    @_matchers.push(new Matcher.Or(matchers))
     @
 
   # Public: Include specific joined data attributes in result objects.
@@ -132,6 +157,7 @@ class ModelQuery
   limit: (limit) ->
     @_assertNotFinalized()
     throw new Error("Cannot use limit > 2 with one()") if @_returnOne and limit > 1
+    @_range = @_range.clone()
     @_range.limit = limit
     @
 
@@ -143,7 +169,18 @@ class ModelQuery
   #
   offset: (offset) ->
     @_assertNotFinalized()
+    @_range = @_range.clone()
     @_range.offset = offset
+    @
+
+  # Public:
+  #
+  # A convenience method for setting both limit and offset given a desired page size.
+  #
+  page: (start, end, pageSize = 50, pagePadding = 100) ->
+    roundToPage = (n) -> Math.max(0, Math.floor(n / pageSize) * pageSize)
+    @offset(roundToPage(start - pagePadding))
+    @limit(roundToPage((end - start) + pagePadding * 2))
     @
 
   # Public: Set the `count` flag - instead of returning inflated models,
@@ -154,6 +191,10 @@ class ModelQuery
   count: ->
     @_assertNotFinalized()
     @_count = true
+    @
+
+  idsOnly: ->
+    @_returnIds = true
     @
 
   ###
@@ -179,6 +220,8 @@ class ModelQuery
 
     if @_count
       return result[0]['count'] / 1
+    else if @_returnIds
+      return result.map (row) -> row['id']
     else
       try
         objects = result.map (row) =>
@@ -193,9 +236,10 @@ class ModelQuery
         throw new Error("Query could not parse the database result. Query: #{@sql()}, Error: #{jsonError.toString()}")
       return objects
 
-  formatResultObjects: (objects) ->
-    return objects[0] if @_returnOne
-    return objects
+  formatResult: (inflated) ->
+    return inflated[0] if @_returnOne
+    return inflated if @_count
+    return [].concat(inflated)
 
   # Query SQL Building
 
@@ -206,6 +250,8 @@ class ModelQuery
 
     if @_count
       result = "COUNT(*) as count"
+    else if @_returnIds
+      result = "`#{@_klass.name}`.`id`"
     else
       result = "`#{@_klass.name}`.`data`"
       @_includeJoinedData.forEach (attr) =>
@@ -218,7 +264,9 @@ class ModelQuery
       limit = ""
     if @_range.offset?
       limit += " OFFSET #{@_range.offset}"
-    "SELECT #{result} FROM `#{@_klass.name}` #{@_whereClause()} #{order} #{limit}"
+
+    distinct = if @_distinct then ' DISTINCT' else ''
+    "SELECT#{distinct} #{result} FROM `#{@_klass.name}` #{@_whereClause()} #{order} #{limit}"
 
   _whereClause: ->
     joins = []
@@ -251,11 +299,15 @@ class ModelQuery
   # Private: Marks the object as final, preventing any changes to the where
   # clauses, orders, etc.
   finalize: ->
+    return if @_finalized
+
     if @_orders.length is 0
       natural = @_klass.naturalSortOrder()
       @_orders.push(natural) if natural
+
     if @_returnOne and not @_range.limit
       @limit(1)
+
     @_finalized = true
     @
 

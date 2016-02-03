@@ -21,8 +21,12 @@ class JSONBlob extends Model
       modelKey: 'json'
       jsonKey: 'json'
 
-  Object.defineProperty @prototype, "key",
-    get: -> @id
-    set: (val) -> @id = val
+  Object.defineProperty @prototype, 'key',
+    get: -> @serverId
+    set: (val) -> @serverId = val
+
+  Object.defineProperty @prototype, 'clientId',
+    get: -> @serverId
+    set: (val) -> @serverId = val
 
 module.exports = JSONBlob

@@ -7,9 +7,10 @@ class PreferencesAccountList extends Component {
     accounts: PropTypes.array,
     selected: PropTypes.object,
     onAddAccount: PropTypes.func.isRequired,
+    onReorderAccount: PropTypes.func.isRequired,
     onSelectAccount: PropTypes.func.isRequired,
     onRemoveAccount: PropTypes.func.isRequired,
-  }
+  };
 
   _renderAccount = (account)=> {
     const label = account.label;
@@ -33,7 +34,7 @@ class PreferencesAccountList extends Component {
         </Flexbox>
       </div>
     );
-  }
+  };
 
   render() {
     if (!this.props.accounts) {
@@ -45,6 +46,7 @@ class PreferencesAccountList extends Component {
           items={this.props.accounts}
           itemContent={this._renderAccount}
           selected={this.props.selected}
+          onReorderItem={this.props.onReorderAccount}
           onCreateItem={this.props.onAddAccount}
           onSelectItem={this.props.onSelectAccount}
           onDeleteItem={this.props.onRemoveAccount} />

@@ -24,7 +24,7 @@ class PageRouterStore extends NylasStore
     @listenTo OnboardingActions.retryCheckTokenAuthStatus, @_checkTokenAuthStatus
 
   _onAccountJSONReceived: (json) =>
-    isFirstAccount = AccountStore.items().length is 0
+    isFirstAccount = AccountStore.accounts().length is 0
     AccountStore.addAccountFromJSON(json)
     ipcRenderer.send('new-account-added')
     NylasEnv.displayWindow()
@@ -60,7 +60,7 @@ class PageRouterStore extends NylasStore
     @trigger()
 
   _onCloseWindow: ->
-    isFirstAccount = AccountStore.items().length is 0
+    isFirstAccount = AccountStore.accounts().length is 0
     if isFirstAccount
       NylasEnv.quit()
     else

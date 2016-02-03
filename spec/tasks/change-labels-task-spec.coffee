@@ -32,9 +32,9 @@ describe "ChangeLabelsTask", ->
       "l3": new Label({name: null, id: 'l3', displayName: "My Label"})
 
     testThreads = @testThreads =
-      't1': new Thread(id: 't1', labels: [@testLabels['l1']])
-      't2': new Thread(id: 't2', labels: _.values(@testLabels))
-      't3': new Thread(id: 't3', labels: [@testLabels['l2'], @testLabels['l3']])
+      't1': new Thread(id: 't1', categories: [@testLabels['l1']])
+      't2': new Thread(id: 't2', categories: _.values(@testLabels))
+      't3': new Thread(id: 't3', categories: [@testLabels['l2'], @testLabels['l3']])
 
     @basicThreadTask = new ChangeLabelsTask
       labelsToAdd: ["l1", "l2"]
@@ -153,7 +153,7 @@ describe "ChangeLabelsTask", ->
           expect(out).toEqual(labels: [testLabels['l1']])
 
         it 'should return an == array of labels when no changes have occurred', ->
-          thread = new Thread(id: '1', labels: [testLabels['l2'], testLabels['l3'], testLabels['l1']])
+          thread = new Thread(id: '1', categories: [testLabels['l2'], testLabels['l3'], testLabels['l1']])
           task = new ChangeLabelsTask
             labelsToAdd: [testLabels['l3'], testLabels['l1'], testLabels['l2']]
             labelsToRemove: []
@@ -161,7 +161,7 @@ describe "ChangeLabelsTask", ->
           expect(_.isEqual(thread.labels, out.labels)).toBe(true)
 
         it 'should not modify the input thread in any way', ->
-          thread = new Thread(id: '1', labels: [testLabels['l2'], testLabels['l1']])
+          thread = new Thread(id: '1', categories: [testLabels['l2'], testLabels['l1']])
           task = new ChangeLabelsTask
             labelsToAdd: []
             labelsToRemove: [testLabels['l2']]

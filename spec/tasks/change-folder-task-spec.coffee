@@ -35,9 +35,9 @@ describe "ChangeFolderTask", ->
       "f3": new Folder({name: null, id: 'f3', displayName: "My Folder"})
 
     testThreads = @testThreads =
-      't1': new Thread(id: 't1', folders: [@testFolders['f1']])
-      't2': new Thread(id: 't2', folders: _.values(@testFolders))
-      't3': new Thread(id: 't3', folders: [@testFolders['f2'], @testFolders['f3']])
+      't1': new Thread(id: 't1', categories: [@testFolders['f1']])
+      't2': new Thread(id: 't2', categories: _.values(@testFolders))
+      't3': new Thread(id: 't3', categories: [@testFolders['f2'], @testFolders['f3']])
 
     testMessages = @testMessages =
       'm1': new Message(id: 'm1', folder: @testFolders['f1'])

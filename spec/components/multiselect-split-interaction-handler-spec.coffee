@@ -14,8 +14,11 @@ describe "MultiselectSplitInteractionHandler", ->
     @itemAfterKeyboardFocus = new Thread(id:'after-keyboard-focus')
 
     data = [@item, @itemFocus, @itemAfterFocus, @itemKeyboardFocus, @itemAfterKeyboardFocus]
+
+    @onFocusItem = jasmine.createSpy('onFocusItem')
+    @onSetCursorPosition = jasmine.createSpy('onSetCursorPosition')
     @selection = []
-    @dataView =
+    @dataSource =
       selection:
         toggle: jasmine.createSpy('toggle')
         expandTo: jasmine.createSpy('expandTo')
@@ -34,13 +37,19 @@ describe "MultiselectSplitInteractionHandler", ->
         _.findIndex data, (item) -> item.id is id
       count: -> data.length
 
+    @props =
+      dataSource: @dataSource
+      keyboardCursorId: 'keyboard-focus'
+      focused: @itemFocus
+      focusedId: 'focus'
+      onFocusItem: @onFocusItem
+      onSetCursorPosition: @onSetCursorPosition
+
     @collection = 'threads'
-    @handler = new MultiselectSplitInteractionHandler(@dataView, @collection)
     @isRootSheet = true
+    @handler = new MultiselectSplitInteractionHandler(@props)
 
     spyOn(WorkspaceStore, 'topSheet').andCallFake => {root: @isRootSheet}
-    spyOn(Actions, 'setFocus')
-    spyOn(Actions, 'setCursorPosition')
 
   it "should always show focus", ->
     expect(@handler.shouldShowFocus()).toEqual(true)
@@ -56,29 +65,21 @@ describe "MultiselectSplitInteractionHandler", ->
   describe "onClick", ->
     it "should focus the list item and indicate it was focused via click", ->
       @handler.onClick(@item)
-      expect(Actions.setFocus).toHaveBeenCalledWith({
-        collection: @collection
-        item: @item
-        usingClick: true
-      })
+      expect(@onFocusItem).toHaveBeenCalledWith(@item)
 
   describe "onMetaClick", ->
     describe "when there is currently a focused item", ->
-      beforeEach ->
-        spyOn(FocusedContentStore, 'focused').andCallFake => @itemFocus
-        spyOn(FocusedContentStore, 'focusedId').andCallFake -> 'focus'
-
       it "should turn the focused item into the first selected item", ->
         @handler.onMetaClick(@item)
-        expect(@dataView.selection.add).toHaveBeenCalledWith(@itemFocus)
+        expect(@dataSource.selection.add).toHaveBeenCalledWith(@itemFocus)
 
       it "should clear the focus", ->
         @handler.onMetaClick(@item)
-        expect(Actions.setFocus).toHaveBeenCalledWith({collection: @collection, item: null})
+        expect(@onFocusItem).toHaveBeenCalledWith(null)
 
     it "should toggle selection", ->
       @handler.onMetaClick(@item)
-      expect(@dataView.selection.toggle).toHaveBeenCalledWith(@item)
+      expect(@dataSource.selection.toggle).toHaveBeenCalledWith(@item)
 
     it "should call _checkSelectionAndFocusConsistency", ->
       spyOn(@handler, '_checkSelectionAndFocusConsistency')
@@ -87,21 +88,18 @@ describe "MultiselectSplitInteractionHandler", ->
 
   describe "onShiftClick", ->
     describe "when there is currently a focused item", ->
-      beforeEach ->
-        spyOn(FocusedContentStore, 'focused').andCallFake => @itemFocus
-        spyOn(FocusedContentStore, 'focusedId').andCallFake -> 'focus'
 
       it "should turn the focused item into the first selected item", ->
         @handler.onMetaClick(@item)
-        expect(@dataView.selection.add).toHaveBeenCalledWith(@itemFocus)
+        expect(@dataSource.selection.add).toHaveBeenCalledWith(@itemFocus)
 
       it "should clear the focus", ->
         @handler.onMetaClick(@item)
-        expect(Actions.setFocus).toHaveBeenCalledWith({collection: @collection, item: null})
+        expect(@onFocusItem).toHaveBeenCalledWith(null)
 
     it "should expand selection", ->
       @handler.onShiftClick(@item)
-      expect(@dataView.selection.expandTo).toHaveBeenCalledWith(@item)
+      expect(@dataSource.selection.expandTo).toHaveBeenCalledWith(@item)
 
     it "should call _checkSelectionAndFocusConsistency", ->
       spyOn(@handler, '_checkSelectionAndFocusConsistency')
@@ -124,41 +122,33 @@ describe "MultiselectSplitInteractionHandler", ->
 
     describe "when the select option is passed", ->
       it "should turn the existing focused item into a selected item", ->
-        spyOn(FocusedContentStore, 'focused').andCallFake => @itemFocus
-        spyOn(FocusedContentStore, 'focusedId').andCallFake -> 'focus'
         @handler.onShift(1, {select: true})
-        expect(@dataView.selection.add).toHaveBeenCalledWith(@itemFocus)
+        expect(@dataSource.selection.add).toHaveBeenCalledWith(@itemFocus)
 
       it "should walk the selection to the shift target", ->
-        spyOn(FocusedContentStore, 'focused').andCallFake => @itemFocus
-        spyOn(FocusedContentStore, 'focusedId').andCallFake -> 'focus'
         @handler.onShift(1, {select: true})
-        expect(@dataView.selection.walk).toHaveBeenCalledWith({current: @itemFocus, next: @itemAfterFocus})
+        expect(@dataSource.selection.walk).toHaveBeenCalledWith({current: @itemFocus, next: @itemAfterFocus})
 
     describe "when one or more items is selected", ->
       it "should move the keyboard cursor", ->
         @selection = [@itemFocus, @itemAfterFocus, @itemKeyboardFocus]
-        spyOn(FocusedContentStore, 'keyboardCursor').andCallFake => @itemKeyboardFocus
-        spyOn(FocusedContentStore, 'keyboardCursorId').andCallFake -> 'keyboard-focus'
         @handler.onShift(1, {})
-        expect(Actions.setCursorPosition).toHaveBeenCalledWith({collection: @collection, item: @itemAfterKeyboardFocus})
+        expect(@onSetCursorPosition).toHaveBeenCalledWith(@itemAfterKeyboardFocus)
 
     describe "when no items are selected", ->
       it "should move the focus", ->
-        spyOn(FocusedContentStore, 'focused').andCallFake => @itemFocus
-        spyOn(FocusedContentStore, 'focusedId').andCallFake -> 'focus'
         @handler.onShift(1, {})
-        expect(Actions.setFocus).toHaveBeenCalledWith({collection: @collection, item: @itemAfterFocus})
+        expect(@onFocusItem).toHaveBeenCalledWith(@itemAfterFocus)
 
 
   describe "_checkSelectionAndFocusConsistency", ->
     describe "when only one item is selected", ->
       beforeEach ->
-        spyOn(FocusedContentStore, 'focused').andCallFake -> null
-        spyOn(FocusedContentStore, 'focusedId').andCallFake -> null
         @selection = [@item]
+        @props.focused = null
+        @handler = new MultiselectSplitInteractionHandler(@props)
 
       it "should clear the selection and make the item focused", ->
         @handler._checkSelectionAndFocusConsistency()
-        expect(@dataView.selection.clear).toHaveBeenCalled()
-        expect(Actions.setFocus).toHaveBeenCalledWith({collection: @collection, item: @item})
+        expect(@dataSource.selection.clear).toHaveBeenCalled()
+        expect(@onFocusItem).toHaveBeenCalledWith(@item)

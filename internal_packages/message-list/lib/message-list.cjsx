@@ -8,6 +8,7 @@ MessageItemContainer = require './message-item-container'
  Message,
  DraftStore,
  MessageStore,
+ AccountStore,
  DatabaseStore,
  WorkspaceStore,
  ChangeLabelsTask,
@@ -182,7 +183,7 @@ class MessageList extends React.Component
     Actions.composeForward(thread: @state.currentThread)
 
   render: =>
-    if not @state.currentThread?
+    if not @state.currentThread
       return <div className="message-list" id="message-list"></div>
 
     wrapClass = classNames
@@ -200,11 +201,13 @@ class MessageList extends React.Component
             <InjectedComponentSet
               className="message-list-notification-bars"
               matching={role:"MessageListNotificationBar"}
-              exposedProps={thread: @state.currentThread}/>
+              exposedProps={thread: @state.currentThread}
+              direction="column"/>
             <InjectedComponentSet
               className="message-list-headers"
               matching={role:"MessageListHeaders"}
-              exposedProps={thread: @state.currentThread}/>
+              exposedProps={thread: @state.currentThread}
+              direction="column"/>
           </div>
           {@_messageElements()}
         </ScrollRegion>
@@ -213,11 +216,11 @@ class MessageList extends React.Component
     </KeyCommandsRegion>
 
   _renderSubject: ->
-    subject = @state.currentThread?.subject
+    subject = @state.currentThread.subject
     subject = "(No Subject)" if not subject or subject.length is 0
 
     <div className="message-subject-wrap">
-      <MailImportantIcon thread={@state.currentThread} />
+      <MailImportantIcon thread={@state.currentThread}/>
       <span className="message-subject">{subject}</span>
       {@_renderLabels()}
       {@_renderIcons()}
@@ -244,7 +247,9 @@ class MessageList extends React.Component
       </div>
 
   _renderLabels: =>
-    labels = @state.currentThread.sortedLabels()
+    account = AccountStore.accountForId(@state.currentThread.accountId)
+    return false unless account.usesLabels()
+    labels = @state.currentThread.sortedCategories()
     labels = _.reject labels, (l) -> l.name is 'important'
     labels.map (label) =>
       <MailLabel label={label} key={label.id} onRemove={ => @_onRemoveLabel(label) }/>

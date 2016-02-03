@@ -1,6 +1,7 @@
 _ = require 'underscore'
 AccountStore = require '../../src/flux/stores/account-store'
 Account = require '../../src/flux/models/account'
+Actions = require '../../src/flux/actions'
 
 describe "AccountStore", ->
   beforeEach ->
@@ -29,29 +30,14 @@ describe "AccountStore", ->
       }]
 
     spyOn(NylasEnv.config, 'get').andCallFake (key) ->
-      if key is 'nylas.accounts'
-        return accounts
-      else if key is 'nylas.currentAccountIndex'
-        return 1
+      return accounts if key is 'nylas.accounts'
+      return null
     @instance = new @constructor
 
-    expect(@instance.items()).toEqual([
+    expect(@instance.accounts()).toEqual([
       (new Account).fromJSON(accounts[0]),
       (new Account).fromJSON(accounts[1])
     ])
-    expect(@instance.current() instanceof Account).toBe(true)
-    expect(@instance.current().id).toEqual(accounts[1]['id'])
-    expect(@instance.current().emailAddress).toEqual(accounts[1]['email_address'])
-
-  it "should initialize current() to null if data is not present", ->
-    spyOn(NylasEnv.config, 'get').andCallFake -> null
-    @instance = new @constructor
-    expect(@instance.current()).toEqual(null)
-
-  it "should initialize current() to null if data is invalid", ->
-    spyOn(NylasEnv.config, 'get').andCallFake -> "this isn't an object"
-    @instance = new @constructor
-    expect(@instance.current()).toEqual(null)
 
   describe "adding account from json", ->
     beforeEach ->
@@ -66,7 +52,7 @@ describe "AccountStore", ->
         "auth_token": "auth-123"
         "organization_unit": "label"
       @instance = new @constructor
-      spyOn(@instance, "_onSelectAccount").andCallThrough()
+      spyOn(Actions, 'focusDefaultMailboxPerspectiveForAccounts')
       spyOn(@instance, "trigger")
       @instance.addAccountFromJSON(@json)
 
@@ -80,12 +66,10 @@ describe "AccountStore", ->
 
     it "saves the config", ->
       expect(NylasEnv.config.save).toHaveBeenCalled()
-      expect(NylasEnv.config.set.calls.length).toBe 4
+      expect(NylasEnv.config.set.calls.length).toBe 2
 
     it "selects the account", ->
-      expect(@instance._index).toBe 0
-      expect(@instance._onSelectAccount).toHaveBeenCalledWith("1234")
-      expect(@instance._onSelectAccount.calls.length).toBe 1
+      expect(Actions.focusDefaultMailboxPerspectiveForAccounts).toHaveBeenCalledWith(["1234"])
 
     it "triggers", ->
       expect(@instance.trigger).toHaveBeenCalled()

@@ -4,152 +4,88 @@ NylasStore = require 'nylas-store'
 {Thread,
  Message,
  Actions,
- SearchView,
- DatabaseView,
  DatabaseStore,
- AccountStore,
  WorkspaceStore,
  FocusedContentStore,
  TaskQueueStatusStore,
- FocusedMailViewStore} = require 'nylas-exports'
+ FocusedPerspectiveStore} = require 'nylas-exports'
+{ListTabular} = require 'nylas-component-kit'
 
-# Public: A mutable text container with undo/redo support and the ability
-# to annotate logical regions in the text.
+ThreadListDataSource = require './thread-list-data-source'
+
 class ThreadListStore extends NylasStore
   constructor: ->
-    @_resetInstanceVars()
+    @listenTo FocusedPerspectiveStore, @_onPerspectiveChanged
+    @createListDataSource()
 
-    @listenTo DatabaseStore, @_onDataChanged
-    @listenTo AccountStore, @_onAccountChanged
-    @listenTo FocusedMailViewStore, @_onMailViewChanged
-    @createView()
+  dataSource: =>
+    @_dataSource
 
-    NylasEnv.commands.add "body",
-      'thread-list:select-read'     : @_onSelectRead
-      'thread-list:select-unread'   : @_onSelectUnread
-      'thread-list:select-starred'  : @_onSelectStarred
-      'thread-list:select-unstarred': @_onSelectUnstarred
+  createListDataSource: =>
+    @_dataSourceUnlisten?()
+    @_dataSource = null
 
-    # We can't create a @view on construction because the CategoryStore
-    # has hot yet been populated from the database with the list of
-    # categories and their corresponding ids. Once that is ready, the
-    # CategoryStore will trigger, which will update the
-    # FocusedMailViewStore, which will cause us to create a new
-    # @view.
+    threadsSubscription = FocusedPerspectiveStore.current().threads()
+    if threadsSubscription
+      @_dataSource = new ThreadListDataSource(threadsSubscription)
+      @_dataSourceUnlisten = @_dataSource.listen(@_onDataChanged, @)
 
-  _resetInstanceVars: ->
-    @_lastQuery = null
-
-  view: ->
-    @_view
-
-  setView: (view) ->
-    @_viewUnlisten() if @_viewUnlisten
-    @_view = view
-
-    @_viewUnlisten = view.listen ->
-      @trigger(@)
-    ,@
-
-    # Set up a one-time listener to focus an item in the new view
-    if WorkspaceStore.layoutMode() is 'split'
-      unlisten = view.listen ->
-        if view.loaded()
-          Actions.setFocus(collection: 'thread', item: view.get(0))
-          unlisten()
+      # Set up a one-time listener to focus an item in the new view
+      if WorkspaceStore.layoutMode() is 'split'
+        unlisten = @_dataSource.listen =>
+          if @_dataSource.loaded()
+            Actions.setFocus(collection: 'thread', item: @_dataSource.get(0))
+            unlisten()
+    else
+      @_dataSource = new ListTabular.DataSource.Empty()
 
     @trigger(@)
-
-  createView: ->
-    mailViewFilter = FocusedMailViewStore.mailView()
-    account = AccountStore.current()
-    return unless account and mailViewFilter
-
-    if mailViewFilter.searchQuery
-      @setView(new SearchView(mailViewFilter.searchQuery, account.id))
-    else
-      matchers = []
-      matchers.push Thread.attributes.accountId.equal(account.id)
-      matchers = matchers.concat(mailViewFilter.matchers())
-
-      view = new DatabaseView Thread, {matchers}, (ids) =>
-        DatabaseStore.findAll(Message)
-        .where(Message.attributes.threadId.in(ids))
-        .where(Message.attributes.accountId.equal(account.id))
-        .then (messages) ->
-          messagesByThread = {}
-          for id in ids
-            messagesByThread[id] = []
-          for message in messages
-            messagesByThread[message.threadId].push message
-          messagesByThread
-      @setView(view)
-
     Actions.setFocus(collection: 'thread', item: null)
-
-  _onSelectRead: =>
-    items = @_view.itemsCurrentlyInViewMatching (item) -> not item.unread
-    @_view.selection.set(items)
-
-  _onSelectUnread: =>
-    items = @_view.itemsCurrentlyInViewMatching (item) -> item.unread
-    @_view.selection.set(items)
-
-  _onSelectStarred: =>
-    items = @_view.itemsCurrentlyInViewMatching (item) -> item.starred
-    @_view.selection.set(items)
-
-  _onSelectUnstarred: =>
-    items = @_view.itemsCurrentlyInViewMatching (item) -> not item.starred
-    @_view.selection.set(items)
 
   # Inbound Events
 
-  _onMailViewChanged: ->
-    @createView()
+  _onPerspectiveChanged: =>
+    @createListDataSource()
 
-  _onAccountChanged: ->
-    accountId = AccountStore.current()?.id
-    accountMatcher = (m) ->
-      m.attribute() is Thread.attributes.accountId and m.value() is accountId
+  _onDataChanged: ({previous, next} = {}) =>
+    # This code keeps the focus and keyboard cursor in sync with the thread list.
+    # When the thread list changes, it looks to see if the focused thread is gone,
+    # or no longer matches the query criteria and advances the focus to the next
+    # thread.
 
-    return if @_view instanceof DatabaseView and _.find(@_view.matchers(), accountMatcher)
-    @createView()
+    # This means that removing a thread from view in any way causes selection
+    # to advance to the adjacent thread. Nice and declarative.
 
-  _onDataChanged: (change) ->
-    return unless @_view
-
-    if change.objectClass is Thread.name
-      focusedId = FocusedContentStore.focusedId('thread')
-      keyboardId = FocusedContentStore.keyboardCursorId('thread')
+    if previous and next
+      focused = FocusedContentStore.focused('thread')
+      keyboard = FocusedContentStore.keyboardCursor('thread')
       viewModeAutofocuses = WorkspaceStore.layoutMode() is 'split' or WorkspaceStore.topSheet().root is true
+      matchers = next.query()?.matchers()
 
-      focusedIndex = @_view.indexOfId(focusedId)
-      keyboardIndex = @_view.indexOfId(keyboardId)
+      focusedIndex = if focused then previous.offsetOfId(focused.id) else -1
+      keyboardIndex = if keyboard then previous.offsetOfId(keyboard.id) else -1
 
-      shiftIndex = (i) =>
-        if i > 0 and (@_view.get(i - 1)?.unread or i >= @_view.count())
-          return i - 1
+      nextItemFromIndex = (i) =>
+        if i > 0 and (next.modelAtOffset(i - 1)?.unread or i >= next.count())
+          nextIndex = i - 1
         else
-          return i
+          nextIndex = i
 
-      @_view.invalidate({change: change, shallow: true})
+        # May return null if no thread is loaded at the next index
+        next.modelAtOffset(nextIndex)
 
-      focusedLost = focusedIndex >= 0 and @_view.indexOfId(focusedId) is -1
-      keyboardLost = keyboardIndex >= 0 and @_view.indexOfId(keyboardId) is -1
+      notInSet = (model) ->
+        if matchers
+          return model.matches(matchers) is false
+        else
+          return next.offsetOfId(model.id) is -1
 
-      if viewModeAutofocuses and focusedLost
-        Actions.setFocus(collection: 'thread', item: @_view.get(shiftIndex(focusedIndex)))
+      if viewModeAutofocuses and focused and notInSet(focused)
+        Actions.setFocus(collection: 'thread', item: nextItemFromIndex(focusedIndex))
 
-      if keyboardLost
-        Actions.setCursorPosition(collection: 'thread', item: @_view.get(shiftIndex(keyboardIndex)))
+      if keyboard and notInSet(keyboard)
+        Actions.setCursorPosition(collection: 'thread', item: nextItemFromIndex(keyboardIndex))
 
-    if change.objectClass is Message.name
-      # Important: Until we optimize this so that it detects the set change
-      # and avoids a query, this should be defered since it's very unimportant
-      _.defer =>
-        threadIds = _.uniq _.map change.objects, (m) -> m.threadId
-        @_view.invalidateMetadataFor(threadIds)
-
+    @trigger(@)
 
 module.exports = new ThreadListStore()

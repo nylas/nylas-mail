@@ -268,7 +268,7 @@ class TokenizingTextField extends React.Component
   render: =>
     {Menu} = require 'nylas-component-kit'
 
-    classes = classNames _.extend (@props.menuClassSet ? {}),
+    classes = classNames _.extend {}, (@props.menuClassSet ? {}),
       "tokenizing-field": true
       "native-key-bindings": true
       "focused": @state.focus
@@ -410,6 +410,10 @@ class TokenizingTextField extends React.Component
       @_refreshCompletions(val)
 
   _onInputBlurred: (event) =>
+    # Not having a relatedTarget can happen when the whole app blurs. When
+    # this happens we want to leave the field as-is
+    return unless event.relatedTarget
+
     if event.relatedTarget is React.findDOMNode(@)
       return
 
@@ -466,7 +470,7 @@ class TokenizingTextField extends React.Component
           selectedTokenKey: null
 
   _showDefaultTokenMenu: (token) =>
-    remote = require('remote')
+    {remote} = require('electron')
     Menu = remote.require('menu')
     MenuItem = remote.require('menu-item')
 

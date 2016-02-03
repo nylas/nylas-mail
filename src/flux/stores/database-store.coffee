@@ -1,6 +1,7 @@
 _ = require 'underscore'
 async = require 'async'
 path = require 'path'
+fs = require 'fs'
 sqlite3 = require 'sqlite3'
 Model = require '../models/model'
 Utils = require '../models/utils'
@@ -15,7 +16,7 @@ DatabaseTransaction = require './database-transaction'
 
 {ipcRenderer} = require 'electron'
 
-DatabaseVersion = 16
+DatabaseVersion = 18
 DatabasePhase =
   Setup: 'setup'
   Ready: 'ready'
@@ -23,7 +24,6 @@ DatabasePhase =
 
 DEBUG_TO_LOG = false
 DEBUG_QUERY_PLANS = NylasEnv.inDevMode()
-DEBUG_MISSING_ACCOUNT_ID = false
 
 BEGIN_TRANSACTION = 'BEGIN TRANSACTION'
 COMMIT = 'COMMIT'
@@ -31,7 +31,7 @@ COMMIT = 'COMMIT'
 TXINDEX = 0
 
 class JSONBlobQuery extends ModelQuery
-  formatResultObjects: (objects) =>
+  formatResult: (objects) =>
     return objects[0]?.json || null
 
 
@@ -88,6 +88,9 @@ class DatabaseStore extends NylasStore
     @_inflightTransactions = 0
     @_open = false
     @_waiting = []
+
+    @setupEmitter()
+    @_emitter.setMaxListeners(100)
 
     if NylasEnv.inSpecMode()
       @_databasePath = path.join(NylasEnv.getConfigDirPath(),'edgehill.test.db')
@@ -188,16 +191,34 @@ class DatabaseStore extends NylasStore
         @_db.run(query, [], callback)
       , (err) =>
         return @_handleSetupError(err) if err
-        @_db.run "PRAGMA user_version=#{DatabaseVersion}", (err) ->
+        @_db.run "PRAGMA user_version=#{DatabaseVersion}", (err) =>
           return @_handleSetupError(err) if err
+
+          exportPath = path.join(NylasEnv.getConfigDirPath(), 'mail-rules-export.json')
+          if fs.existsSync(exportPath)
+            try
+              row = JSON.parse(fs.readFileSync(exportPath))
+              @inTransaction (t) -> t.persistJSONBlob('MailRules-V2', row['json'])
+              fs.unlink(exportPath)
+            catch err
+              console.log("Could not re-import mail rules: #{err}")
           ready()
 
   _handleSetupError: (err) =>
-    console.error(err)
-    console.log(NylasEnv.getWindowType())
     NylasEnv.emitError(err)
-    app = require('remote').getGlobal('application')
-    app.rebuildDatabase()
+
+    # Temporary: export mail rules. They're the only bit of data in the cache
+    # we can't rebuild. Should be moved to cloud metadata store soon.
+    @_db.all "SELECT * FROM JSONBlob WHERE id = 'MailRules-V2' LIMIT 1", [], (err, results = []) =>
+      if not err and results.length is 1
+        exportPath = path.join(NylasEnv.getConfigDirPath(), 'mail-rules-export.json')
+        try
+          fs.writeFileSync(exportPath, results[0]['data'])
+        catch err
+          console.log("Could not write mail rules to file: #{err}")
+
+      app = require('remote').getGlobal('application')
+      app.rebuildDatabase()
 
   _prettyConsoleLog: (q) =>
     q = "color:black |||%c " + q
@@ -241,8 +262,6 @@ class DatabaseStore extends NylasStore
         fn = 'run'
 
       if query.indexOf("SELECT ") is 0
-        if DEBUG_MISSING_ACCOUNT_ID and query.indexOf("`account_id`") is -1
-          @_prettyConsoleLog("QUERY does not specify accountId: #{query}")
         if DEBUG_QUERY_PLANS
           @_db.all "EXPLAIN QUERY PLAN #{query}", values, (err, results=[]) =>
             str = results.map((row) -> row.detail).join('\n') + " for " + query
@@ -402,7 +421,7 @@ class DatabaseStore extends NylasStore
   run: (modelQuery, options = {format: true}) =>
     @_query(modelQuery.sql(), []).then (result) =>
       result = modelQuery.inflateResult(result)
-      result = modelQuery.formatResultObjects(result) unless options.format is false
+      result = modelQuery.formatResult(result) unless options.format is false
       Promise.resolve(result)
 
   findJSONBlob: (id) ->

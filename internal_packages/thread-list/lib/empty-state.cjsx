@@ -69,7 +69,6 @@ class EmptyState extends React.Component
   @displayName = 'EmptyState'
   @propTypes =
     visible: React.PropTypes.bool.isRequired
-    dataView: React.PropTypes.object
 
   constructor: (@props) ->
     @state =
@@ -85,9 +84,7 @@ class EmptyState extends React.Component
       @setState(active:true)
 
   shouldComponentUpdate: (nextProps, nextState) ->
-    # Avoid deep comparison of dataView, which is a very complex object
     return true if nextProps.visible isnt @props.visible
-    return true if nextProps.dataView isnt @props.dataView
     return not _.isEqual(nextState, @state)
 
   componentWillUnmount: ->
@@ -103,15 +100,12 @@ class EmptyState extends React.Component
 
   render: ->
     ContentComponent = ContentGeneric
-    messageOverride = null
 
-    if @props.dataView instanceof DatabaseView
-      if @props.dataView.klass is Message
-        messageOverride = "No messages to display."
-      if @state.layoutMode is 'list'
-        ContentComponent = ContentQuotes
-      if @state.syncing
-        messageOverride = "Please wait while we prepare your mailbox."
+    messageOverride = "Nothing to display."
+    if @state.layoutMode is 'list'
+      ContentComponent = ContentQuotes
+    if @state.syncing
+      messageOverride = "Please wait while we prepare your mailbox."
 
     classes = classNames
       'empty-state': true

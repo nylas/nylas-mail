@@ -43,7 +43,6 @@ class EventHeader extends React.Component
   componentWillUnmount: =>
     @_unlisten?()
 
-
   render: =>
     if @state.event?
       <div className="event-wrapper">

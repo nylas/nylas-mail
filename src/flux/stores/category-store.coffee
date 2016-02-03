@@ -1,161 +1,139 @@
 _ = require 'underscore'
-Label = require '../models/label'
-Folder = require '../models/folder'
-NylasAPI = require '../nylas-api'
 NylasStore = require 'nylas-store'
-DatabaseStore = require './database-store'
 AccountStore = require './account-store'
+Account = require '../models/account'
+{StandardCategoryNames} = require '../models/category'
+{Categories} = require 'nylas-observables'
 Rx = require 'rx-lite'
 
+asAccount = (a) ->
+  throw new Error("You must pass an Account or Account Id") unless a
+  if a instanceof Account then a else AccountStore.accountForId(a)
+
+asAccountId = (a) ->
+  throw new Error("You must pass an Account or Account Id") unless a
+  if a instanceof Account then a.id else a
+
 class CategoryStore extends NylasStore
+
   constructor: ->
     @_categoryCache = {}
-    @_standardCategories = []
-    @_userCategories = []
-    @_hiddenCategories = []
+    @_standardCategories = {}
+    @_userCategories = {}
+    @_hiddenCategories = {}
 
-    NylasEnv.config.observe 'core.workspace.showImportant', => @_buildQuerySubscription()
-    @_buildQuerySubscription()
+    NylasEnv.config.onDidChange 'core.workspace.showImportant', =>
+      return unless @_categoryResult
+      @_onCategoriesChanged(@_categoryResult)
 
-  # We look for a few standard categories and display them in the Mailboxes
-  # portion of the left sidebar. Note that these may not all be present on
-  # a particular account.
-  StandardCategoryNames: [
-    "inbox"
-    "important"
-    "sent"
-    "drafts"
-    "all"
-    "spam"
-    "archive"
-    "trash"
-  ]
+    Categories
+      .forAllAccounts()
+      .sort()
+      .subscribe(@_onCategoriesChanged)
 
-  LockedCategoryNames: [
-    "sent"
-  ]
+  byId: (accountOrId, categoryId) ->
+    @categories(accountOrId)[categoryId]
 
-  HiddenCategoryNames: [
-    "sent"
-    "drafts"
-    "all"
-    "archive"
-    "starred"
-    "important"
-  ]
-
-  AllMailName: "all"
-
-  byId: (id) -> @_categoryCache[id]
-
-  categoryLabel: ->
-    account = AccountStore.current()
-    return "Unknown" unless account
-
-    if account.usesFolders()
-      return "Folders"
-    else if account.usesLabels()
-      return "Labels"
-    else
-      return "Unknown"
-
-  categoryIconName: ->
-    account = AccountStore.current()
-    return "folder.png" unless account
-
-    if account.usesFolders()
-      return "folder.png"
-    else if account.usesLabels()
-      return "tag.png"
-    else
-      return null
-
-
-  # Public: Returns {Folder} or {Label}, depending on the current provider.
-  #
-  categoryClass: ->
-    account = AccountStore.current()
-    return null unless account
-    return account.categoryClass()
-
-  # Public: Returns an array of all the categories in the current account, both
+  # Public: Returns an array of all categories for an account, both
   # standard and user generated. The items returned by this function will be
   # either {Folder} or {Label} objects.
   #
-  getCategories: -> _.values @_categoryCache
+  categories: (accountOrId = null) ->
+    if accountOrId
+      @_categoryCache[asAccountId(accountOrId)] ? {}
+    else
+      all = []
+      for accountId, categories of @_categoryCache
+        all = all.concat(_.values(categories))
+      all
 
-  # Public: Returns the Folder or Label object for a standard category name.
+  # Public: Returns all of the standard categories for the given account.
+  #
+  standardCategories: (accountOrId) ->
+    @_standardCategories[asAccountId(accountOrId)] ? []
+
+  hiddenCategories: (accountOrId) ->
+    @_hiddenCategories[asAccountId(accountOrId)] ? []
+
+  # Public: Returns all of the categories that are not part of the standard
+  # category set.
+  #
+  userCategories: (accountOrId) ->
+    @_userCategories[asAccountId(accountOrId)] ? []
+
+  # Public: Returns the Folder or Label object for a standard category name and
+  # for a given account.
   # ('inbox', 'drafts', etc.) It's possible for this to return `null`.
   # For example, Gmail likely doesn't have an `archive` label.
   #
-  getStandardCategory: (name) ->
-    if not name in @StandardCategoryNames
+  getStandardCategory: (accountOrId, name) ->
+    return null unless accountOrId
+
+    unless name in StandardCategoryNames
       throw new Error("'#{name}' is not a standard category")
-    return _.findWhere @_categoryCache, {name}
+
+    return _.findWhere(@_standardCategories[asAccountId(accountOrId)], {name})
+
+  # Public: Returns the set of all standard categories that match the given
+  # names for each of the provided accounts
+  getStandardCategories: (accountsOrIds, names...) ->
+    if Array.isArray(accountsOrIds)
+      res = []
+      for accOrId in accountsOrIds
+        cats = names.map((name) => @getStandardCategory(accOrId, name))
+        res = res.concat(_.compact(cats))
+      res
+    else
+      names.map((name) => @getStandardCategory(accountsOrIds, name))
 
   # Public: Returns the Folder or Label object that should be used for "Archive"
   # actions. On Gmail, this is the "all" label. On providers using folders, it
   # returns any available "Archive" folder, or null if no such folder exists.
   #
-  getArchiveCategory: ->
-    account = AccountStore.current()
-    return null unless account
-    if account.usesFolders()
-      return @getStandardCategory("archive")
-    else
-      return @getStandardCategory("all")
+  getArchiveCategory: (accountOrId) ->
+    return null unless accountOrId
+    account = asAccount(accountOrId)
 
-  # Public: Returns the Folder or Label object taht should be used for
+    if account.usesFolders()
+      return @getStandardCategory(account.id, "archive")
+    else
+      return @getStandardCategory(account.id, "all")
+
+  # Public: Returns the Folder or Label object that should be used for
+  # the inbox or null if it doesn't exist
+  #
+  getInboxCategory: (accountOrId) ->
+    @getStandardCategory(accountOrId, "inbox")
+
+  # Public: Returns the Folder or Label object that should be used for
   # "Move to Trash", or null if no trash folder exists.
   #
-  getTrashCategory: ->
-    @getStandardCategory("trash")
-
-  # Public: Returns all of the standard categories for the current account.
-  #
-  getStandardCategories: ->
-    @_standardCategories
-
-  getHiddenCategories: ->
-    @_hiddenCategories
-
-  # Public: Returns all of the categories that are not part of the standard
-  # category set.
-  #
-  getUserCategories: ->
-    @_userCategories
-
-  _buildQuerySubscription: =>
-    {Categories} = require 'nylas-observables'
-    @_queryUnlisten?.dispose()
-    @_queryUnlisten = Categories.forCurrentAccount().sort().subscribe(@_onCategoriesChanged)
+  getTrashCategory: (accountOrId) ->
+    @getStandardCategory(accountOrId, "trash")
 
   _onCategoriesChanged: (categories) =>
-    return unless categories
-
+    @_categoryResult = categories
     @_categoryCache = {}
-    for category in categories
-      @_categoryCache[category.id] = category
+    for cat in categories
+      @_categoryCache[cat.accountId] ?= {}
+      @_categoryCache[cat.accountId][cat.id] = cat
 
-    # Compute user categories
-    @_userCategories = _.compact _.reject categories, (cat) =>
-      cat.name in @StandardCategoryNames or cat.name in @HiddenCategoryNames
+    filteredByAccount = (fn) ->
+      result = {}
+      for cat in categories
+        continue unless fn(cat)
+        result[cat.accountId] ?= []
+        result[cat.accountId].push(cat)
+      result
 
-    # Compute hidden categories
-    @_hiddenCategories = _.filter categories, (cat) =>
-      cat.name in @HiddenCategoryNames
+    @_standardCategories = filteredByAccount (cat) -> cat.isStandardCategory()
+    @_userCategories = filteredByAccount (cat) -> cat.isUserCategory()
+    @_hiddenCategories = filteredByAccount (cat) -> cat.isHiddenCategory()
 
-    # Compute standard categories
-    # Single pass to create lookup table, single pass to get ordered array
-    byStandardName = {}
-    for key, val of @_categoryCache
-      byStandardName[val.name] = val
-
-    if not NylasEnv.config.get('core.workspace.showImportant')
-      delete byStandardName['important']
-
-    @_standardCategories = _.compact @StandardCategoryNames.map (name) =>
-      byStandardName[name]
+    # Ensure standard categories are always sorted in the correct order
+    for accountId, items of @_standardCategories
+      @_standardCategories[accountId].sort (a, b) ->
+        StandardCategoryNames.indexOf(a.name) - StandardCategoryNames.indexOf(b.name)
 
     @trigger()
 

@@ -46,47 +46,66 @@ class Matcher
     @val
 
   evaluate: (model) ->
-    value = model[@attr.modelKey]
-    value = value() if value instanceof Function
+    modelValue = model[@attr.modelKey]
+    modelValue = modelValue() if modelValue instanceof Function
+    matcherValue = @val
+
+    # Given an array of strings or models, and a string or model search value,
+    # will find if a match exists.
+    modelArrayContainsValue = (array, searchItem) ->
+      asId = (v) -> if v and v.id then v.id else v
+      search = asId(searchItem)
+      for item in array
+        return true if asId(item) == search
+      return false
 
     switch @comparator
-      when '=' then return value == @val
-      when '<' then return value < @val
-      when '>' then return value > @val
-      when 'in' then return value in @val
+      when '=' then return modelValue == matcherValue
+      when '<' then return modelValue < matcherValue
+      when '>' then return modelValue > matcherValue
+      when 'in' then return modelValue in matcherValue
       when 'contains'
-        # You can provide an ID or an object, and an array of IDs or an array of objects
-        # Assumes that `value` is an array of items
-        !!_.find value, (x) =>
-          @val == x?.id || @val == x || @val?.id == x || @val?.id == x?.id
-      when 'startsWith' then return value.startsWith(@val)
-      when 'like' then value.search(new RegExp(".*#{@val}.*", "gi")) >= 0
+        !!modelArrayContainsValue(modelValue, matcherValue)
+
+      when 'containsAny'
+        _.any matcherValue, (submatcherValue) ->
+          !!modelArrayContainsValue(modelValue, submatcherValue)
+
+      when 'startsWith' then return modelValue.startsWith(matcherValue)
+      when 'like' then modelValue.search(new RegExp(".*#{matcherValue}.*", "gi")) >= 0
       else
         throw new Error("Matcher.evaulate() not sure how to evaluate @{@attr.modelKey} with comparator #{@comparator}")
 
   joinSQL: (klass) ->
     switch @comparator
-      when 'contains'
+      when 'contains', 'containsAny'
         joinTable = tableNameForJoin(klass, @attr.itemClass)
         return "INNER JOIN `#{joinTable}` AS `M#{@muid}` ON `M#{@muid}`.`id` = `#{klass.name}`.`id`"
       else
         return false
 
   whereSQL: (klass) ->
+
+    # https://www.sqlite.org/faq.html#q14
+    # That's right. Two single quotes in a row…
+    singleQuoteEscapeSequence = "''"
+
     if @comparator is "like"
       val = "%#{@val}%"
     else
       val = @val
 
     if _.isString(val)
-      escaped = "'#{val.replace(/'/g, "''")}'"
+      escaped = "'#{val.replace(/'/g, singleQuoteEscapeSequence)}'"
     else if val is true
       escaped = 1
     else if val is false
       escaped = 0
     else if val instanceof Array
       escapedVals = []
-      escapedVals.push("'#{v.replace(/'/g, '\\\'')}'") for v in val
+      for v in val
+        throw new Error("#{@attr.jsonKey} value #{v} must be a string.") unless _.isString(v)
+        escapedVals.push("'#{v.replace(/'/g, singleQuoteEscapeSequence)}'")
       escaped = "(#{escapedVals.join(',')})"
     else
       escaped = val
@@ -96,10 +115,43 @@ class Matcher
         return " RAISE `TODO`; "
       when 'contains'
         return "`M#{@muid}`.`value` = #{escaped}"
+      when 'containsAny'
+        return "`M#{@muid}`.`value` IN #{escaped}"
       else
         return "`#{klass.name}`.`#{@attr.jsonKey}` #{@comparator} #{escaped}"
 
+class OrCompositeMatcher extends Matcher
+  constructor: (@children) ->
+    @
+
+  attribute: =>
+    null
+
+  value: =>
+    null
+
+  evaluate: (model) =>
+    for matcher in @children
+      return true if matcher.evaluate(model)
+    return false
+
+  joinSQL: (klass) =>
+    joins = []
+    for matcher in @children
+      join = matcher.joinSQL(klass)
+      joins.push(join) if join
+    if joins.length
+      return joins.join(" ")
+    else
+      return false
+
+  whereSQL: (klass) =>
+    wheres = []
+    for matcher in @children
+      wheres.push(matcher.whereSQL(klass))
+    return "(" + wheres.join(" OR ") + ")"
 
 Matcher.muid = 0
+Matcher.Or = OrCompositeMatcher
 
 module.exports = Matcher

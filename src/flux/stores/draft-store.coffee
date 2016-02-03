@@ -8,6 +8,8 @@ DraftStoreProxy = require './draft-store-proxy'
 DatabaseStore = require './database-store'
 AccountStore = require './account-store'
 ContactStore = require './contact-store'
+FocusedPerspectiveStore = require './focused-perspective-store'
+FocusedContentStore = require './focused-content-store'
 
 SendDraftTask = require '../tasks/send-draft'
 DestroyDraftTask = require '../tasks/destroy-draft'
@@ -151,12 +153,6 @@ class DraftStore
 
   ########### PRIVATE ####################################################
 
-  _getFromField: (account) ->
-    if account.defaultAlias?
-      account.meUsingAlias(account.defaultAlias)
-    else
-      account.me()
-
   _doneWithSession: (session) ->
     session.teardown()
     delete @_draftSessions[session.draftClientId]
@@ -250,8 +246,6 @@ class DraftStore
       Promise.resolve(draftClientId: draft.clientId, draft: draft)
 
   _newMessageWithContext: (args, attributesCallback) =>
-    return unless AccountStore.current()
-
     # We accept all kinds of context. You can pass actual thread and message objects,
     # or you can pass Ids and we'll look them up. Passing the object is preferable,
     # and in most cases "the data is right there" anyway. Lookups add extra latency
@@ -289,8 +283,10 @@ class DraftStore
     return queries
 
   _constructDraft: ({attributes, thread}) =>
+    account = AccountStore.accountForId(thread.accountId)
+    throw new Error("Cannot find #{thread.accountId}") unless account
     return new Message _.extend {}, attributes,
-      from: [@_getFromField(AccountStore.current())]
+      from: [account.defaultMe()]
       date: (new Date)
       draft: true
       pristine: true
@@ -373,13 +369,24 @@ class DraftStore
     InlineStyleTransformer.run(body).then (body) =>
       SanitizeTransformer.run(body, SanitizeTransformer.Preset.UnsafeOnly)
 
+  _getAccountForNewMessage: =>
+    defAccountId = NylasEnv.config.get('core.sending.defaultAccountIdForSend')
+    account = AccountStore.accountForId(defAccountId)
+    if account
+      account
+    else
+      focusedAccountId = FocusedPerspectiveStore.current().accountIds[0]
+      if focusedAccountId
+        AccountStore.accountForId(focusedAccountId)
+      else
+        AccountStore.accounts()[0]
+
   _onPopoutBlankDraft: =>
-    account = AccountStore.current()
-    return unless account
+    account = @_getAccountForNewMessage()
 
     draft = new Message
       body: ""
-      from: [@_getFromField(account)]
+      from: [account.defaultMe()]
       date: (new Date)
       draft: true
       pristine: true
@@ -389,8 +396,6 @@ class DraftStore
       @_onPopoutDraftClientId(draftClientId, {newDraft: true})
 
   _onPopoutDraftClientId: (draftClientId, options = {}) =>
-    return unless AccountStore.current()
-
     if not draftClientId?
       throw new Error("DraftStore::onPopoutDraftId - You must provide a draftClientId")
 
@@ -401,7 +406,7 @@ class DraftStore
     title = if options.newDraft then "New Message" else "Message"
 
     save.then =>
-      app = require('remote').getGlobal('application')
+      app = require('electron').remote.getGlobal('application')
       existing = app.windowManager.windowWithPropsMatching({draftClientId})
       if existing
         existing.restore() if existing.isMinimized()
@@ -413,13 +418,15 @@ class DraftStore
           windowProps: _.extend(options, {draftClientId})
 
   _onHandleMailtoLink: (event, urlString) =>
-    account = AccountStore.current()
-    return unless account
+    account = @_getAccountForNewMessage()
 
     try
       urlString = decodeURI(urlString)
 
     [whole, to, queryString] = /mailto:\/*([^\?\&]*)((.|\n|\r)*)/.exec(urlString)
+
+    if to.length > 0 and to.indexOf('@') is -1
+      to = decodeURIComponent(to)
 
     # /many/ mailto links are malformed and do things like:
     #   &body=https://github.com/atom/electron/issues?utf8=&q=is%3Aissue+is%3Aopen+123&subject=...
@@ -457,7 +464,7 @@ class DraftStore
     draft = new Message
       body: query.body || ''
       subject: query.subject || '',
-      from: [@_getFromField(account)]
+      from: [account.defaultMe()]
       date: (new Date)
       draft: true
       pristine: true
@@ -509,21 +516,11 @@ class DraftStore
       # We do, however, need to ensure that all of the pending changes are
       # committed to the Database since we'll look them up again just
       # before send.
-      session.changes.commit(force: true, noSyncback: true).then =>
-        # We unfortunately can't give the SendDraftTask the raw draft JSON
-        # data because there may still be pending tasks (like a
-        # {FileUploadTask}) that will continue to update the draft data.
-        task = new SendDraftTask(draftClientId, {fromPopout: @_isPopout()})
-        Actions.queueTask(task)
-
-        # NOTE: We may be done with the session in this window, but there
-        # may still be {FileUploadTask}s and other pending draft mutations
-        # in the worker window.
-        #
-        # The send "pending" indicator in the main window is declaratively
-        # bound to the existence of a `@_draftSession`. We want to show
-        # the pending state immediately even as files are uploading.
+      session.changes.commit(noSyncback: true).then =>
+        draft = session.draft()
+        Actions.queueTask(new SendDraftTask(draft))
         @_doneWithSession(session)
+
         NylasEnv.close() if @_isPopout()
 
   _isPopout: ->
@@ -541,17 +538,23 @@ class DraftStore
       files = _.reject files, (f) -> f.id is file.id
       session.changes.add({files}, immediate: true)
 
-  _onDraftSendingFailed: ({draftClientId, errorMessage}) ->
+  _onDraftSendingFailed: ({draftClientId, threadId, errorMessage}) ->
     @_draftsSending[draftClientId] = false
     @trigger(draftClientId)
     if NylasEnv.isMainWindow()
       # We delay so the view has time to update the restored draft. If we
       # don't delay the modal may come up in a state where the draft looks
       # like it hasn't been restored or has been lost.
-      _.delay ->
-        NylasEnv.showErrorDialog(errorMessage)
+      _.delay =>
+        @_notifyUserOfError({draftClientId, threadId, errorMessage})
       , 100
 
+  _notifyUserOfError: ({draftClientId, threadId, errorMessage}) ->
+    focusedThread = FocusedContentStore.focused('thread')
+    if threadId and focusedThread?.id is threadId
+      NylasEnv.showErrorDialog(errorMessage)
+    else
+      Actions.composePopoutDraft(draftClientId, {errorMessage})
 
 # Deprecations
 store = new DraftStore()

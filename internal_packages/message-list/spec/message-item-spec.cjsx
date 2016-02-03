@@ -118,6 +118,7 @@ describe "MessageItem", ->
 
     @thread = new Thread
       id: 'thread-111'
+      accountId: TEST_ACCOUNT_ID
 
     @threadParticipants = [user_1, user_2, user_3, user_4]
 
@@ -150,8 +151,8 @@ describe "MessageItem", ->
       @component.setState detailedHeaders: true
 
     it "correctly sets the participant states", ->
-      participants = ReactTestUtils.findRenderedDOMComponentWithClass(@component, "expanded-participants")
-      expect(participants).toBeDefined()
+      participants = ReactTestUtils.scryRenderedDOMComponentsWithClass(@component, "expanded-participants")
+      expect(participants.length).toBe 2
       expect(-> ReactTestUtils.findRenderedDOMComponentWithClass(@component, "collapsed-participants")).toThrow()
 
     it "correctly sets the timestamp", ->

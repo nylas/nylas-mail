@@ -7,6 +7,9 @@ ThreadListParticipants = require '../lib/thread-list-participants'
 
 describe "ThreadListParticipants", ->
 
+  beforeEach ->
+    @account = AccountStore.accounts()[0]
+
   it "renders into the document", ->
     @participants = ReactTestUtils.renderIntoDocument(
       <ThreadListParticipants thread={new Thread}/>
@@ -181,7 +184,7 @@ describe "ThreadListParticipants", ->
 
     describe "when getTokens() called and current user is only sender", ->
       beforeEach ->
-        @me = AccountStore.current().me()
+        @me = @account.me()
         @ben = new Contact(email: 'ben@nylas.com', name: 'ben')
         @evan = new Contact(email: 'evan@nylas.com', name: 'evan')
         @evanCapitalized = new Contact(email: 'EVAN@nylas.com', name: 'evan')
@@ -263,7 +266,7 @@ describe "ThreadListParticipants", ->
 
     describe "when thread.messages is not available", ->
       it "correctly produces items for display in a wide range of scenarios", ->
-        me = AccountStore.current().me()
+        me = @account.me()
         scenarios = [{
           name: 'one participant'
           in: [@ben]

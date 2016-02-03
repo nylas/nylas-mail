@@ -2,11 +2,9 @@ Model = require './model'
 Utils = require './utils'
 Attributes = require '../attributes'
 RegExpUtils = require '../../regexp-utils'
+AccountStore = require '../stores/account-store'
+FocusedPerspectiveStore = null # Circular Dependency
 _ = require 'underscore'
-
-# Only load the AccountStore the first time we actually need it. This
-# lets us safely require a `Contact` object without side effects.
-AccountStore = null
 
 name_prefixes = {}
 name_suffixes = {}
@@ -64,9 +62,9 @@ class Contact extends Model
 
   @additionalSQLiteConfig:
     setup: ->
-      ['CREATE INDEX IF NOT EXISTS ContactEmailIndex ON Contact(account_id,email)']
+      ['CREATE INDEX IF NOT EXISTS ContactEmailIndex ON Contact(email)']
 
-  @fromString: (string) ->
+  @fromString: (string, {accountId} = {}) ->
     emailRegex = RegExpUtils.emailRegex()
     match = emailRegex.exec(string)
     if emailRegex.exec(string)
@@ -76,7 +74,7 @@ class Contact extends Model
     name = name[0...-1] if name[name.length - 1] in ['<', '(']
     name = name.trim()
     return new Contact
-      accountId: undefined
+      accountId: accountId
       name: name
       email: email
 
@@ -97,34 +95,49 @@ class Contact extends Model
   # You should use this method instead of comparing the user's email address to
   # the account email, since it is case-insensitive and future-proof.
   isMe: ->
-    AccountStore = require '../stores/account-store'
-    account = AccountStore.current()
-    return false unless account
+    @isMeAccount() isnt null
 
-    if Utils.emailIsEquivalent(@email, account.emailAddress)
-      return true
-    
-    for alias in account.aliases
-      if Utils.emailIsEquivalent(@email, Contact.fromString(alias).email)
-        return true
+  isMeAccount: ->
+    for account in AccountStore.accounts()
+      if Utils.emailIsEquivalent(@email, account.emailAddress)
+        return account
 
-    return false
+      for alias in account.aliases
+        if Utils.emailIsEquivalent(@email, Contact.fromString(alias).email)
+          return account
+
+    return null
+
+  isMePhrase: ({includeAccountLabel} = {}) ->
+    account = @isMeAccount()
+    return null unless account
+
+    if includeAccountLabel
+      FocusedPerspectiveStore ?= require '../stores/focused-perspective-store'
+      if account and FocusedPerspectiveStore.current().accountIds.length > 1
+        return "You (#{account.label})"
+
+    return "You"
 
   # Returns a {String} display name.
-  # - "You" if the contact is the current user
-  # - `name` if the contact has a populated name value
+  # - "You" if the contact is the current user or an alias for the current user.
+  # - `name` if the contact has a populated name
   # - `email` in all other cases.
-  displayName: ->
-    return "You" if @isMe()
-    @_nameParts().join(' ')
+  #
+  # You can pass several options to customize the name:
+  # - includeAccountLabel: If the contact represents the current user, include
+  #   the account label afer "You"
+  # - compact: If the contact has a name, make the name as short as possible
+  #   (generally returns just the first name.)
+  #
+  displayName: ({includeAccountLabel, compact} = {}) ->
+    compact ?= false
+    includeAccountLabel ?= !compact
 
-  displayFirstName: ->
-    return "You" if @isMe()
-    @firstName()
-
-  displayLastName: ->
-    return "" if @isMe()
-    @lastName()
+    if compact
+      @isMePhrase({includeAccountLabel}) ? @firstName()
+    else
+      @isMePhrase({includeAccountLabel}) ? @_nameParts().join(' ')
 
   firstName: ->
     articles = ['a', 'the']
@@ -146,10 +159,6 @@ class Contact extends Model
       # If the phrase has an '@', use everything before the @ sign
       # Unless there that would result in an empty string.
       name = name.split('@')[0] if name.indexOf('@') > 0
-
-    # Take care of phrases like "evan (Evan Morikawa)" that should be displayed
-    # as the contents of the parenthesis
-    name = name.split(/[()]/)[1] if name.split(/[()]/).length > 1
 
     # Take care of phrases like "Mike Kaylor via LinkedIn" that should be displayed
     # as the contents before the separator word. Do not break "Olivia"

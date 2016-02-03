@@ -123,7 +123,7 @@ describe "NylasAPI", ->
           if id is "a" then return false
 
         stubDB models: [new Thread(json[1])], testMatcher: (whereMatcher) ->
-          expect(whereMatcher.val).toEqual ['b']
+          expect(whereMatcher.val).toEqual 'b'
 
         waitsForPromise =>
           NylasAPI._handleModelResponse(json)

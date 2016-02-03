@@ -31,7 +31,7 @@ remoteDraft = -> new Message _.extend {}, testData, {clientId: "local-id", serve
 
 describe "SyncbackDraftTask", ->
   beforeEach ->
-    spyOn(AccountStore, "itemWithEmailAddress").andCallFake (email) ->
+    spyOn(AccountStore, "accountForEmail").andCallFake (email) ->
       return new Account(clientId: 'local-abc123', serverId: 'abc123')
 
     spyOn(DatabaseStore, "run").andCallFake (query) ->
@@ -100,28 +100,6 @@ describe "SyncbackDraftTask", ->
       expect(@taskB.queueState.isProcessing).toBe false
       expect(@taskB.runRemote).not.toHaveBeenCalled()
 
-    it "does not get dequeued if dependent tasks fail", ->
-      @taskA.queueState.localComplete = true
-      @taskB.queueState.localComplete = true
-
-      spyOn(@taskA, "performRemote").andReturn Promise.resolve(Task.Status.Failed)
-      spyOn(@taskB, "performRemote").andReturn Promise.resolve(Task.Status.Success)
-
-      spyOn(TaskQueue, "dequeue").andCallThrough()
-      spyOn(TaskQueue, "trigger")
-
-      TaskQueue._queue = [@taskA, @taskB]
-      TaskQueue._processQueue()
-      advanceClock(100)
-      TaskQueue._processQueue()
-      advanceClock(100)
-      expect(@taskA.performRemote).toHaveBeenCalled()
-      expect(@taskB.performRemote).toHaveBeenCalled()
-      expect(TaskQueue.dequeue.calls.length).toBe 2
-
-      expect(@taskA.queueState.debugStatus).not.toBe Task.DebugStatus.DequeuedDependency
-      expect(@taskA.queueState.debugStatus).not.toBe Task.DebugStatus.DequeuedDependency
-
   describe "performRemote", ->
     beforeEach ->
       spyOn(NylasAPI, 'makeRequest').andCallFake (opts) ->
@@ -180,56 +158,32 @@ describe "SyncbackDraftTask", ->
             body: inboxError
             requestOptions: method: method
         )
-    describe 'when PUT-ing', ->
-      beforeEach ->
-        @task = new SyncbackDraftTask("removeDraftId")
-        spyOn(@task, "getLatestLocalDraft").andCallFake -> Promise.resolve(remoteDraft())
-        spyOn(@task, "detatchFromRemoteID").andCallFake -> Promise.resolve(remoteDraft())
 
-      [400, 404, 409].forEach (code) ->
-        it "Retries on #{code} errors when we're PUT-ing", ->
-          stubAPI(code, "PUT")
-          waitsForPromise =>
-            @task.performRemote().then (status) =>
-              expect(@task.getLatestLocalDraft).toHaveBeenCalled()
-              expect(@task.getLatestLocalDraft.calls.length).toBe 2
-              expect(@task.detatchFromRemoteID).toHaveBeenCalled()
-              expect(@task.detatchFromRemoteID.calls.length).toBe 1
-              expect(status).toBe Task.Status.Retry
+    beforeEach ->
+      @task = new SyncbackDraftTask("removeDraftId")
+      spyOn(@task, "getLatestLocalDraft").andCallFake -> Promise.resolve(remoteDraft())
 
-      [500, 0].forEach (code) ->
-        it "Fails on #{code} errors when we're PUT-ing", ->
-          stubAPI(code, "PUT")
-          waitsForPromise =>
-            @task.performRemote().then ([status, err]) =>
-              expect(status).toBe Task.Status.Failed
-              expect(@task.getLatestLocalDraft).toHaveBeenCalled()
-              expect(@task.getLatestLocalDraft.calls.length).toBe 1
-              expect(@task.detatchFromRemoteID).not.toHaveBeenCalled()
-              expect(err.statusCode).toBe code
-
-    describe 'when POST-ing', ->
-      beforeEach ->
-        @task = new SyncbackDraftTask("removeDraftId")
-        spyOn(@task, "getLatestLocalDraft").andCallFake -> Promise.resolve(localDraft())
-        spyOn(@task, "detatchFromRemoteID").andCallFake -> Promise.resolve(localDraft())
-
-      [400, 404, 409, 500, 0].forEach (code) ->
-        it "Fails on #{code} errors when we're POST-ing", ->
-          stubAPI(code, "POST")
-          waitsForPromise =>
-            @task.performRemote().then ([status, err]) =>
-              expect(status).toBe Task.Status.Failed
-              expect(@task.getLatestLocalDraft).toHaveBeenCalled()
-              expect(@task.getLatestLocalDraft.calls.length).toBe 1
-              expect(@task.detatchFromRemoteID).not.toHaveBeenCalled()
-              expect(err.statusCode).toBe code
-
-      it "Fails on unknown errors", ->
-        spyOn(NylasAPI, "makeRequest").andCallFake -> Promise.reject(new APIError())
+    NylasAPI.PermanentErrorCodes.forEach (code) ->
+      it "fails on API status code #{code}", ->
+        stubAPI(code, "PUT")
         waitsForPromise =>
           @task.performRemote().then ([status, err]) =>
             expect(status).toBe Task.Status.Failed
             expect(@task.getLatestLocalDraft).toHaveBeenCalled()
             expect(@task.getLatestLocalDraft.calls.length).toBe 1
-            expect(@task.detatchFromRemoteID).not.toHaveBeenCalled()
+            expect(err.statusCode).toBe code
+
+    [NylasAPI.TimeoutErrorCode].forEach (code) ->
+      it "retries on status code #{code}", ->
+        stubAPI(code, "PUT")
+        waitsForPromise =>
+          @task.performRemote().then (status) =>
+            expect(status).toBe Task.Status.Retry
+
+    it "fails on other JavaScript errors", ->
+      spyOn(NylasAPI, "makeRequest").andCallFake -> Promise.reject(new TypeError())
+      waitsForPromise =>
+        @task.performRemote().then ([status, err]) =>
+          expect(status).toBe Task.Status.Failed
+          expect(@task.getLatestLocalDraft).toHaveBeenCalled()
+          expect(@task.getLatestLocalDraft.calls.length).toBe 1

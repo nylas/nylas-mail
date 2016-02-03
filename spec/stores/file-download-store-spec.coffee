@@ -4,6 +4,8 @@ path = require 'path'
 NylasAPI = require '../../src/flux/nylas-api'
 File = require '../../src/flux/models/file'
 FileDownloadStore = require '../../src/flux/stores/file-download-store'
+AccountStore = require '../../src/flux/stores/account-store'
+
 Download = FileDownloadStore.Download
 
 describe "FileDownloadStore.Download", ->
@@ -27,7 +29,8 @@ describe "FileDownloadStore.Download", ->
 
   describe "run", ->
     beforeEach ->
-      @download = new Download(fileId: '123', targetPath: 'test.png', filename: 'test.png')
+      account = AccountStore.accounts()[0]
+      @download = new Download(fileId: '123', targetPath: 'test.png', filename: 'test.png', accountId: account.id)
       @download.run()
       expect(NylasAPI.makeRequest).toHaveBeenCalled()
 
@@ -40,10 +43,19 @@ describe "FileDownloadStore.Download", ->
 
 describe "FileDownloadStore", ->
   beforeEach ->
+    account = AccountStore.accounts()[0]
+
     spyOn(shell, 'showItemInFolder')
     spyOn(shell, 'openItem')
-    @testfile = new File(filename: '123.png', contentType: 'image/png', id: "id", size: 100)
+    @testfile = new File({
+      accountId: account.id,
+      filename: '123.png',
+      contentType: 'image/png',
+      id: "id",
+      size: 100
+    })
     @testdownload = new Download({
+      accountId: account.id,
       state : 'unknown',
       fileId : 'id',
       percent : 0,
@@ -68,12 +80,12 @@ describe "FileDownloadStore", ->
       expect(FileDownloadStore.pathForFile(f1)).toBe("/Users/testuser/.nylas/downloads/id1/123.png")
       expect(FileDownloadStore.pathForFile(f2)).toBe("/Users/testuser/.nylas/downloads/id2/123.png")
 
-    it "should escape the displayName if it contains path separator characters", ->
-      f1 = new File(filename: "static#{path.sep}b#{path.sep}a.jpg", contentType: 'image/png', id: 'id1')
-      expect(FileDownloadStore.pathForFile(f1)).toBe("/Users/testuser/.nylas/downloads/id1/static-b-a.jpg")
+  it "should escape the displayName if it contains path separator characters", ->
+    f1 = new File(filename: "static#{path.sep}b#{path.sep}a.jpg", contentType: 'image/png', id: 'id1')
+    expect(FileDownloadStore.pathForFile(f1)).toBe("/Users/testuser/.nylas/downloads/id1/static-b-a.jpg")
 
-      f1 = new File(filename: "my:file ? Windows /hates/ me :->.jpg", contentType: 'image/png', id: 'id1')
-      expect(FileDownloadStore.pathForFile(f1)).toBe("/Users/testuser/.nylas/downloads/id1/my-file - Windows -hates- me ---.jpg")
+    f1 = new File(filename: "my:file ? Windows /hates/ me :->.jpg", contentType: 'image/png', id: 'id1')
+    expect(FileDownloadStore.pathForFile(f1)).toBe("/Users/testuser/.nylas/downloads/id1/my-file - Windows -hates- me ---.jpg")
 
   describe "_checkForDownloadedFile", ->
     it "should return true if the file exists at the path and is the right size", ->

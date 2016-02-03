@@ -2,8 +2,7 @@ _ = require 'underscore'
 React = require 'react'
 
 {Utils,
- Label,
- Folder,
+ Category,
  Thread,
  Actions,
  TaskQueue,
@@ -14,7 +13,7 @@ React = require 'react'
  WorkspaceStore,
  SyncbackCategoryTask,
  TaskQueueStatusStore,
- FocusedMailViewStore} = require 'nylas-exports'
+ FocusedPerspectiveStore} = require 'nylas-exports'
 
 {Menu,
  Popover,
@@ -22,38 +21,54 @@ React = require 'react'
  KeyCommandsRegion,
  LabelColorizer} = require 'nylas-component-kit'
 
+{Categories} = require 'nylas-observables'
+
 # This changes the category on one or more threads.
 class CategoryPicker extends React.Component
   @displayName: "CategoryPicker"
   @containerRequired: false
 
   constructor: (@props) ->
+    @_account = AccountStore.accountForItems(@_threads(@props))
+    @_categories = []
+    @_standardCategories = []
+    @_userCategories = []
     @state = _.extend @_recalculateState(@props), searchValue: ""
 
   @contextTypes:
     sheetDepth: React.PropTypes.number
 
   componentDidMount: =>
-    @unsubscribers = []
-    @unsubscribers.push CategoryStore.listen @_onStoreChanged
-    @unsubscribers.push AccountStore.listen @_onStoreChanged
+    @_registerObservables()
 
-    # If the threads we're picking categories for change, (like when they
-    # get their categories updated), we expect our parents to pass us new
-    # props. We don't listen to the DatabaseStore ourselves.
-
+  # If the threads we're picking categories for change, (like when they
+  # get their categories updated), we expect our parents to pass us new
+  # props. We don't listen to the DatabaseStore ourselves.
   componentWillReceiveProps: (nextProps) ->
+    @_account = AccountStore.accountForItems(@_threads(nextProps))
+    @_registerObservables()
     @setState @_recalculateState(nextProps)
 
   componentWillUnmount: =>
-    return unless @unsubscribers
-    unsubscribe() for unsubscribe in @unsubscribers
+    @_unregisterObservables()
+
+  _registerObservables: =>
+    @_unregisterObservables()
+    @disposables = [
+      Categories.forAccount(@_account).subscribe(@_onCategoriesChanged)
+    ]
+
+  _unregisterObservables: =>
+    return unless @disposables
+    disp.dispose() for disp in @disposables
 
   _keymapHandlers: ->
     "application:change-category": @_onOpenCategoryPopover
 
   render: =>
-    return <span></span> unless @_account
+    return <span></span> if @state.disabled or not @_account?
+    btnClasses = "btn btn-toolbar"
+    btnClasses += " btn-disabled" if @state.disabled
 
     if @_account?.usesLabels()
       img = "toolbar-tag.png"
@@ -70,9 +85,11 @@ class CategoryPicker extends React.Component
 
     if @state.isPopoverOpen then tooltip = ""
 
-    button = <button className="btn btn-toolbar" title={tooltip}>
-      <RetinaImg name={img} mode={RetinaImg.Mode.ContentIsMask}/>
-    </button>
+    button = (
+      <button className={btnClasses} title={tooltip}>
+        <RetinaImg name={img} mode={RetinaImg.Mode.ContentIsMask}/>
+      </button>
+    )
 
     headerComponents = [
       <input type="text"
@@ -202,10 +219,9 @@ class CategoryPicker extends React.Component
     @refs.menu.setSelectedItem(null)
 
     if item.newCategoryItem
-      CategoryClass = AccountStore.current().categoryClass()
-      category = new CategoryClass
+      category = new Category
         displayName: @state.searchValue,
-        accountId: AccountStore.current().id
+        accountId: @_account.id
 
       syncbackTask = new SyncbackCategoryTask({category})
       TaskQueueStatusStore.waitForPerformRemote(syncbackTask).then =>
@@ -230,9 +246,6 @@ class CategoryPicker extends React.Component
 
     @refs.popover.close()
 
-  _onStoreChanged: =>
-    @setState @_recalculateState(@props)
-
   _onSearchValueChange: (event) =>
     @setState @_recalculateState(@props, searchValue: event.target.value)
 
@@ -243,21 +256,27 @@ class CategoryPicker extends React.Component
   _onPopoverClosed: =>
     @setState isPopoverOpen: false
 
-  _recalculateState: (props=@props, {searchValue}={}) =>
+  _onCategoriesChanged: (categories) =>
+    @_categories = categories
+    @_standardCategories = categories.filter (cat) -> cat.isStandardCategory()
+    @_userCategories = categories.filter (cat) -> cat.isUserCategory()
+    @setState @_recalculateState()
+
+  _recalculateState: (props = @props, {searchValue}={}) =>
+    return {disabled: true} unless @_account
+    threads = @_threads(props)
+
     searchValue = searchValue ? @state?.searchValue ? ""
-    numThreads = @_threads(props).length
+    numThreads = threads.length
     if numThreads is 0
       return {categoryData: [], searchValue}
 
-    @_account = AccountStore.current()
-    return unless @_account
-
     if @_account.usesLabels()
-      categories = CategoryStore.getCategories()
+      categories = @_categories
     else
-      categories = CategoryStore.getStandardCategories()
+      categories = @_standardCategories
         .concat([{divider: true, id: "category-divider"}])
-        .concat(CategoryStore.getUserCategories())
+        .concat(@_userCategories)
 
     usageCount = @_categoryUsageCount(props, categories)
 
@@ -278,11 +297,11 @@ class CategoryPicker extends React.Component
         id: "category-create-new"
       categoryData.push(newItemData)
 
-    return {categoryData, searchValue}
+    return {categoryData, searchValue, disabled: false}
 
   _categoryUsageCount: (props, categories) =>
     categoryUsageCount = {}
-    _.flatten(@_threads(props).map(@_threadCategories)).forEach (category) ->
+    _.flatten(_.pluck(@_threads(props), 'categories')).forEach (category) ->
       categoryUsageCount[category.id] ?= 0
       categoryUsageCount[category.id] += 1
     return categoryUsageCount
@@ -292,7 +311,8 @@ class CategoryPicker extends React.Component
 
   _isUserFacing: (allInInbox, category) =>
     hiddenCategories = []
-    currentCategoryId = FocusedMailViewStore.mailView()?.categoryId()
+    currentCategories = FocusedPerspectiveStore.current().categories() ? []
+    currentCategoryIds = _.pluck(currentCategories, 'id')
 
     if @_account?.usesLabels()
       hiddenCategories = ["all", "drafts", "sent", "archive", "starred", "important"]
@@ -301,10 +321,11 @@ class CategoryPicker extends React.Component
     else if @_account?.usesFolders()
       hiddenCategories = ["drafts", "sent"]
 
-    return (category.name not in hiddenCategories) and (category.id isnt currentCategoryId)
+    return (category.name not in hiddenCategories) and not (category.id in currentCategoryIds)
 
   _allInInbox: (usageCount, numThreads) ->
-    inbox = CategoryStore.getStandardCategory("inbox")
+    return unless @_account?
+    inbox = CategoryStore.getStandardCategory(@_account, "inbox")
     return false unless inbox
     return usageCount[inbox.id] is numThreads
 
@@ -317,13 +338,6 @@ class CategoryPicker extends React.Component
     item.usage = usageCount[category.id] ? 0
     item.numThreads = numThreads
     item
-
-  _threadCategories: (thread) =>
-    if @_account.usesLabels()
-      return (thread.labels ? [])
-    else if @_account.usesFolders()
-      return (thread.folders ? [])
-    else throw new Error("Invalid organizationUnit")
 
   _threads: (props = @props) =>
     if props.items then return (props.items ? [])

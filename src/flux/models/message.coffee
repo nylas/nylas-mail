@@ -3,9 +3,9 @@ moment = require 'moment'
 
 File = require './file'
 Utils = require './utils'
-Folder = require './folder'
 Model = require './model'
 Event = require './event'
+Category = require './category'
 Contact = require './contact'
 Attributes = require '../attributes'
 AccountStore = require '../stores/account-store'
@@ -103,6 +103,10 @@ class Message extends Model
       modelKey: 'files'
       itemClass: File
 
+    'uploads': Attributes.Object
+      queryable: false
+      modelKey: 'uploads'
+
     'unread': Attributes.Boolean
       queryable: true
       modelKey: 'unread'
@@ -146,7 +150,7 @@ class Message extends Model
 
     'folder': Attributes.Object
       modelKey: 'folder'
-      itemClass: Folder
+      itemClass: Category
 
 
   @naturalSortOrder: ->
@@ -154,8 +158,7 @@ class Message extends Model
 
   @additionalSQLiteConfig:
     setup: ->
-      ['CREATE INDEX IF NOT EXISTS MessageListIndex ON Message(account_id, thread_id, date ASC)',
-       'CREATE INDEX IF NOT EXISTS MessageListThreadIndex ON Message(thread_id, date ASC)',
+      ['CREATE INDEX IF NOT EXISTS MessageListThreadIndex ON Message(thread_id, date ASC)',
        'CREATE INDEX IF NOT EXISTS MessageListDraftIndex ON Message(account_id, draft)',
        'CREATE UNIQUE INDEX IF NOT EXISTS MessageDraftIndex ON Message(client_id)',
        'CREATE UNIQUE INDEX IF NOT EXISTS MessageBodyIndex ON MessageBody(id)']
@@ -169,6 +172,7 @@ class Message extends Model
     @from ||= []
     @replyTo ||= []
     @files ||= []
+    @uploads ||= []
     @events ||= []
     @
 
@@ -188,8 +192,11 @@ class Message extends Model
     if json.object?
       @draft = (json.object is 'draft')
 
-    for file in (@files ? [])
-      file.accountId = @accountId
+    for attr in ['to', 'from', 'cc', 'bcc', 'files']
+      values = @[attr]
+      continue unless values and values instanceof Array
+      item.accountId = @accountId for item in values
+
     return @
 
   canReplyAll: ->

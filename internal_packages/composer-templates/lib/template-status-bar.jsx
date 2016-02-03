@@ -1,11 +1,11 @@
 import {DraftStore, React} from 'nylas-exports';
 
 class TemplateStatusBar extends React.Component {
-  static displayName = 'TemplateStatusBar'
+  static displayName = 'TemplateStatusBar';
 
   static propTypes = {
     draftClientId: React.PropTypes.string,
-  }
+  };
 
   constructor() {
     super();
@@ -34,7 +34,7 @@ class TemplateStatusBar extends React.Component {
     textAlign: 'center',
     width: 580,
     margin: 'auto',
-  }
+  };
 
   _onDraftChange() {
     this.setState({draft: this._proxy.draft()});

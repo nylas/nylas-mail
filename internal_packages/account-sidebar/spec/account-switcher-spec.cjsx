@@ -1,24 +1,24 @@
 React = require 'react/addons'
 TestUtils = React.addons.TestUtils
-AccountSwitcher = require './../lib/account-switcher'
+AccountSwitcher = require './../lib/components/account-switcher'
+SidebarStore = require './../lib/sidebar-store'
 {AccountStore} = require 'nylas-exports'
 
 describe "AccountSwitcher", ->
   switcher = null
 
   beforeEach ->
-    spyOn(AccountStore, "items").andCallFake ->
-      [
-        AccountStore.current(),
-        {
-          emailAddress: "dillon@nylas.com",
-          provider: "exchange"
-          label: "work"
-        }
-      ]
-
+    account = AccountStore.accounts()[0]
+    accounts = [
+      account,
+      {
+        emailAddress: "dillon@nylas.com",
+        provider: "exchange"
+        label: "work"
+      }
+    ]
     switcher = TestUtils.renderIntoDocument(
-      <AccountSwitcher />
+      <AccountSwitcher accounts={accounts} focusedAccounts={[account]} />
     )
 
   it "doesn't render the dropdown if nothing clicked", ->
@@ -47,5 +47,6 @@ describe "AccountSwitcher", ->
     items = TestUtils.scryRenderedDOMComponentsWithClass dropdown, "secondary-item"
     newAccountButton = TestUtils.scryRenderedDOMComponentsWithClass dropdown, "new-account-option"
 
-    expect(items.length).toBe 3
+     # The unified Inbox item, then both accounts, then the manage item
+    expect(items.length).toBe 4
     expect(newAccountButton.length).toBe 1

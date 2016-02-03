@@ -1,7 +1,6 @@
 _ = require 'underscore'
 
-Label = require './label'
-Folder = require './folder'
+Category = require './category'
 Model = require './model'
 Contact = require './contact'
 Actions = require '../actions'
@@ -61,15 +60,10 @@ class Thread extends Model
       queryable: true
       modelKey: 'version'
 
-    'folders': Attributes.Collection
+    'categories': Attributes.Collection
       queryable: true
-      modelKey: 'folders'
-      itemClass: Folder
-
-    'labels': Attributes.Collection
-      queryable: true
-      modelKey: 'labels'
-      itemClass: Label
+      modelKey: 'categories'
+      itemClass: Category
 
     'participants': Attributes.Collection
       modelKey: 'participants'
@@ -83,44 +77,65 @@ class Thread extends Model
       modelKey: 'lastMessageReceivedTimestamp'
       jsonKey: 'last_message_received_timestamp'
 
+  Object.defineProperty @prototype, "labels",
+    enumerable: false
+    get: -> @categories
+    set: (v) -> @categories = v
+
+  Object.defineProperty @prototype, "folders",
+    enumerable: false
+    get: -> @categories
+    set: (v) -> @categories = v
+
+  Object.defineProperty @attributes, "labels",
+    enumerable: false
+    get: -> @categories
+
+  Object.defineProperty @attributes, "folders",
+    enumerable: false
+    get: -> @categories
+
   @naturalSortOrder: ->
     Thread.attributes.lastMessageReceivedTimestamp.descending()
 
   @additionalSQLiteConfig:
     setup: ->
-      ['CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(account_id, last_message_received_timestamp DESC, id)']
+      ['CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(last_message_received_timestamp DESC, id)']
 
   fromJSON: (json) ->
     super(json)
 
+    value = json['labels'] ? json['folders']
+    if value
+      @categories = @constructor.attributes.categories.fromJSON(value)
+
+    for attr in ['participants', 'categories']
+      value = @[attr]
+      continue unless value and value instanceof Array
+      item.accountId = @accountId for item in value
+
+    @
+
   # Public: Returns true if the thread has a {Category} with the given
-  # name. Note, only `CategoryStore::standardCategories` have valid
+  # name. Note, only catgories of type `Category.Types.Standard` have valid
   # `names`
   #
   # * `id` A {String} {Category} name
   #
-  categoryNamed: (name) ->
-    return null unless name
-    for folder in (@folders ? [])
-      return folder if folder.name is name
-    for label in (@labels ? [])
-      return label if label.name is name
-    return null
-  labelNamed: (name) -> @categoryNamed(name)?
-  folderNamed: (name) -> @categoryNamed(name)?
+  categoryNamed: (name) -> return _.findWhere(@categories, {name})
 
-  sortedLabels: ->
+  sortedCategories: ->
     return [] unless @labels
     out = []
 
     CategoryStore = require '../stores/category-store'
 
     isImportant = (l) -> l.name is 'important'
-    isStandardCategory = (l) -> l.name in CategoryStore.StandardCategoryNames
+    isStandardCategory = (l) -> l.isStandardCategory()
     isUnhiddenStandardLabel = (l) ->
       not isImportant(l) and \
       isStandardCategory(l) and\
-      l.name not in CategoryStore.HiddenCategoryNames
+      not (l.isHiddenCategory())
 
     importantLabel = _.find @labels, isImportant
     out = out.concat importantLabel if importantLabel

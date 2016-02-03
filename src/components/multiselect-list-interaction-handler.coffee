@@ -1,57 +1,60 @@
 _ = require 'underscore'
 {Actions,
- WorkspaceStore,
- FocusedContentStore} = require 'nylas-exports'
+ WorkspaceStore} = require 'nylas-exports'
 
 module.exports =
 class MultiselectListInteractionHandler
-  constructor: (@dataView, @collection) ->
+  constructor: (@props) ->
+    {@onFocusItem, @onSetCursorPosition} = @props
 
-  cssClass: ->
+  cssClass: =>
     'handler-list'
 
-  shouldShowFocus: ->
+  shouldShowFocus: =>
     false
 
-  shouldShowKeyboardCursor: ->
+  shouldShowCheckmarks: =>
     true
 
-  onClick: (item) ->
-    Actions.setFocus({collection: @collection, item: item})
+  shouldShowKeyboardCursor: =>
+    true
 
-  onMetaClick: (item) ->
-    @dataView.selection.toggle(item)
-    Actions.setCursorPosition({collection: @collection, item: item})
+  onClick: (item) =>
+    @onFocusItem(item)
 
-  onShiftClick: (item) ->
-    @dataView.selection.expandTo(item)
-    Actions.setCursorPosition({collection: @collection, item: item})
+  onMetaClick: (item) =>
+    @props.dataSource.selection.toggle(item)
+    @onSetCursorPosition(item)
 
-  onEnter: ->
-    keyboardCursorId = FocusedContentStore.keyboardCursorId(@collection)
+  onShiftClick: (item) =>
+    @props.dataSource.selection.expandTo(item)
+    @onSetCursorPosition(item)
+
+  onEnter: =>
+    keyboardCursorId = @props.keyboardCursorId
     if keyboardCursorId
-      item = @dataView.getById(keyboardCursorId)
-      Actions.setFocus({collection: @collection, item: item})
+      item = @props.dataSource.getById(keyboardCursorId)
+      @onFocusItem(item)
 
-  onSelect: ->
+  onSelect: =>
     {id} = @_keyboardContext()
     return unless id
-    @dataView.selection.toggle(@dataView.getById(id))
+    @props.dataSource.selection.toggle(@props.dataSource.getById(id))
 
-  onShift: (delta, options = {}) ->
+  onShift: (delta, options = {}) =>
     {id, action} = @_keyboardContext()
 
-    current = @dataView.getById(id)
-    index = @dataView.indexOfId(id)
-    index = Math.max(0, Math.min(index + delta, @dataView.count() - 1))
-    next = @dataView.get(index)
+    current = @props.dataSource.getById(id)
+    index = @props.dataSource.indexOfId(id)
+    index = Math.max(0, Math.min(index + delta, @props.dataSource.count() - 1))
+    next = @props.dataSource.get(index)
 
-    action({collection: @collection, item: next})
+    action(next)
     if options.select
-      @dataView.selection.walk({current, next})
+      @props.dataSource.selection.walk({current, next})
 
-  _keyboardContext: ->
+  _keyboardContext: =>
     if WorkspaceStore.topSheet().root
-      {id: FocusedContentStore.keyboardCursorId(@collection), action: Actions.setCursorPosition}
+      {id: @props.keyboardCursorId, action: @onSetCursorPosition}
     else
-      {id: FocusedContentStore.focusedId(@collection), action: Actions.setFocus}
+      {id: @props.focusedId, action: @onFocusItem}

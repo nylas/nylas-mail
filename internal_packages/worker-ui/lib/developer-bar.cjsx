@@ -44,7 +44,7 @@ class DeveloperBar extends React.Component
             { _.map @state.longPollState, (val, key) =>
               <div title={"Account ID #{key} - State: #{val}"} key={key} className={"activity-status-bubble state-" + val}></div>
             }
-            <span>Long Polling</span>
+            <span>Delta Streaming</span>
           </div>
         </div>
         <div className="btn-container pull-left">

@@ -45,7 +45,7 @@ describe "NylasSyncWorker", ->
     expect(@worker.state().contacts.busy).toEqual(false)
 
   describe "start", ->
-    it "should open the long polling connection", ->
+    it "should open the delta connection", ->
       spyOn(@connection, 'start')
       @worker.start()
       advanceClock()
@@ -312,7 +312,7 @@ describe "NylasSyncWorker", ->
         expect(@worker.state().threads.errorRequestRange).toEqual(null)
 
   describe "cleanup", ->
-    it "should termiate the long polling connection", ->
+    it "should termiate the delta connection", ->
       spyOn(@connection, 'end')
       @worker.cleanup()
       expect(@connection.end).toHaveBeenCalled()

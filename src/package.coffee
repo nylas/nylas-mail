@@ -80,6 +80,11 @@ class Package
     @reset()
     @declaresNewDatabaseObjects = false
 
+    # TODO FIXME: Use a unique pluginID instead of just the "name"
+    # This needs to be included here to prevent a circular dependency error
+    CloudStorage = require './cloud-storage'
+    @cloudStorage = new CloudStorage(@name)
+
   ###
   Section: Event Subscription
   ###
@@ -179,7 +184,8 @@ class Package
       @activateConfig()
       @activateStylesheets()
       if @requireMainModule()
-        @mainModule.activate(NylasEnv.packages.getPackageState(@name) ? {}, path.resolve(@path))
+        localState = NylasEnv.packages.getPackageState(@name) ? {}
+        @mainModule.activate(localState, @cloudStorage)
         @mainActivated = true
         @activateServices()
     catch e

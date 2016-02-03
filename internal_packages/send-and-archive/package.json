@@ -1,0 +1,17 @@
+{
+  "name": "send-and-archive",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Adds a send and archive option to the composer.",
+  "license": "GPL-3.0",
+  "private": true,
+  "engines": {
+    "nylas": "*"
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  },
+  "dependencies": {
+  }
+}

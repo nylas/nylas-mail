@@ -39,7 +39,7 @@ class PreferencesMailRules extends React.Component
     @setState(newState)
 
   stateForAccount: (accountId) =>
-    account = AccountStore.itemWithId(accountId)
+    account = AccountStore.accountForId(accountId)
     rules = MailRulesStore.rulesForAccountId(accountId)
 
     return {
@@ -86,6 +86,7 @@ class PreferencesMailRules extends React.Component
       items={@state.rules}
       itemContent={@_renderListItemContent}
       onCreateItem={@_onAddRule}
+      onReorderItem={@_onReorderRule}
       onDeleteItem={@_onDeleteRule}
       onItemEdited={@_onRuleNameEdited}
       selected={@state.selectedRule}
@@ -96,7 +97,7 @@ class PreferencesMailRules extends React.Component
       return <div className="item-rule-disabled">{rule.name}</div>
     else
       return rule.name
-    
+
   _renderDetail: =>
     rule = @state.selectedRule
 
@@ -148,7 +149,7 @@ class PreferencesMailRules extends React.Component
             <RetinaImg name="sending-spinner.gif" width={18} mode={RetinaImg.Mode.ContentPreserve} />
           </div>
           <div>
-            <strong>{AccountStore.itemWithId(task.accountId).emailAddress}</strong>
+            <strong>{AccountStore.accountForId(task.accountId).emailAddress}</strong>
             {" — #{new Number(task.numberOfImpactedItems()).toLocaleString()} processed..."}
           </div>
           <div style={flex: 1}></div>
@@ -176,6 +177,9 @@ class PreferencesMailRules extends React.Component
 
   _onSelectRule: (rule, idx) =>
     @setState(selectedRule: rule)
+
+  _onReorderRule: (rule, idx, newIdx) =>
+    Actions.reorderMailRule(rule.id, newIdx)
 
   _onDeleteRule: (rule, idx) =>
     Actions.deleteMailRule(rule.id)

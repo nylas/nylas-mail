@@ -30,6 +30,8 @@ class Attribute
     throw (new Error "Attribute::in (#{@modelKey}) - this field cannot be queried against") unless @queryable
     if val.length is 0
       console.warn "Attribute::in (#{@modelKey}) called with an empty set. You should avoid this useless query!"
+    if val.length is 1
+      return new Matcher(@, '=', val[0])
     new Matcher(@, 'in', val)
 
   # Public: Returns a {Matcher} for objects `!=` to the provided value.

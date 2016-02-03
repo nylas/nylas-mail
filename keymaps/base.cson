@@ -66,13 +66,6 @@
   'cmdctrl-8': 'application:select-account-7'
   'cmdctrl-9': 'application:select-account-8'
 
-  ### N1 developer commands. ###
-  'cmdctrl-alt-l': 'window:reload'
-  'cmdctrl-alt-i': 'window:toggle-dev-tools'
-  'cmdctrl-alt-w': 'application:show-work-window'
-  'cmdctrl-alt-s': 'application:run-all-specs'
-  'cmdctrl-alt-p': 'application:run-package-specs'
-
 'body *[contenteditable].contenteditable':
   ### Basic formatting commands ###
   'cmdctrl-u': 'contenteditable:underline'
@@ -82,7 +75,6 @@
 
   ### Advanced formatting commands ###
   'cmdctrl-&': 'contenteditable:numbered-list'
-  'cmdctrl-#': 'contenteditable:numbered-list'
   'cmdctrl-*': 'contenteditable:bulleted-list'
   'cmdctrl-(': 'contenteditable:quote'
 

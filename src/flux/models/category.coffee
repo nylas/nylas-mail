@@ -2,6 +2,35 @@ _ = require 'underscore'
 Model = require './model'
 Attributes = require '../attributes'
 
+# We look for a few standard categories and display them in the Mailboxes
+# portion of the left sidebar. Note that these may not all be present on
+# a particular account.
+StandardCategories = {
+  "inbox",
+  "important",
+  "sent",
+  "drafts",
+  "all",
+  "spam",
+  "archive",
+  "trash"
+}
+
+LockedCategories = {
+  "sent"
+}
+
+HiddenCategories = {
+  "sent"
+  "drafts"
+  "all"
+  "archive"
+  "starred"
+  "important"
+}
+
+AllMailName = "all"
+
 ###
 Private:
 This abstract class has only two concrete implementations:
@@ -36,6 +65,35 @@ class Category extends Model
       modelKey: 'isDeleted'
       jsonKey: 'is_deleted'
 
+  @Types:
+    Standard: 'standard'
+    Locked: 'locked'
+    User: 'user'
+    Hidden: 'hidden'
+
+  @StandardCategoryNames: Object.keys(StandardCategories)
+  @LockedCategoryNames: Object.keys(LockedCategories)
+  @HiddenCategoryNames: Object.keys(HiddenCategories)
+
+  @additionalSQLiteConfig:
+    setup: ->
+      ['CREATE INDEX IF NOT EXISTS CategoryNameIndex ON Category(account_id,name)',
+       'CREATE UNIQUE INDEX IF NOT EXISTS CategoryClientIndex ON Category(client_id)']
+
+  constructor: ->
+    super
+
+  fromJSON: (json) ->
+    super
+    @
+
+  displayType: =>
+    AccountStore = require '../stores/account-store'
+    if AccountStore.accountForId(@accountId).usesLabels()
+      return 'label'
+    else
+      return 'folder'
+
   hue: ->
     return 0 unless @displayName
     hue = 0
@@ -43,5 +101,21 @@ class Category extends Model
       hue += @displayName.charCodeAt(i)
     hue = hue * (396.0/512.0)
     hue
+
+  isStandardCategory: (showImportant) ->
+    showImportant ?= NylasEnv.config.get('core.workspace.showImportant')
+    if showImportant is true
+      StandardCategories[@name]?
+    else
+      StandardCategories[@name]? and @name isnt 'important'
+
+  isLockedCategory: ->
+    LockedCategories[@name]?
+
+  isHiddenCategory: ->
+    HiddenCategories[@name]?
+
+  isUserCategory: ->
+    not @isStandardCategory() and not @isHiddenCategory()
 
 module.exports = Category

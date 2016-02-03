@@ -2,7 +2,7 @@ React = require 'react'
 {Actions,
  CategoryStore,
  TaskFactory,
- FocusedMailViewStore} = require 'nylas-exports'
+ FocusedPerspectiveStore} = require 'nylas-exports'
 
 class ThreadArchiveQuickAction extends React.Component
   @displayName: 'ThreadArchiveQuickAction'
@@ -10,10 +10,10 @@ class ThreadArchiveQuickAction extends React.Component
     thread: React.PropTypes.object
 
   render: =>
-    mailViewFilter = FocusedMailViewStore.mailView()
+    mailboxPerspective = FocusedPerspectiveStore.current()
     archive = null
 
-    if mailViewFilter?.canArchiveThreads()
+    if mailboxPerspective?.canArchiveThreads()
       archive = <div key="archive"
                      title="Archive"
                      style={{ order: 100 }}
@@ -25,10 +25,10 @@ class ThreadArchiveQuickAction extends React.Component
     newProps.thread.id isnt @props?.thread.id
 
   _onArchive: (event) =>
-    task = TaskFactory.taskForArchiving
+    tasks = TaskFactory.tasksForArchiving
       threads: [@props.thread]
-      fromView: FocusedMailViewStore.mailView()
-    Actions.queueTask(task)
+      fromPerspective: FocusedPerspectiveStore.current()
+    Actions.queueTasks(tasks)
 
     # Don't trigger the thread row click
     event.stopPropagation()
@@ -39,10 +39,10 @@ class ThreadTrashQuickAction extends React.Component
     thread: React.PropTypes.object
 
   render: =>
-    mailViewFilter = FocusedMailViewStore.mailView()
+    mailboxPerspective = FocusedPerspectiveStore.current()
     trash = null
 
-    if mailViewFilter?.canTrashThreads()
+    if mailboxPerspective?.canTrashThreads()
       trash = <div key="remove"
                    title="Trash"
                    style={{ order: 110 }}
@@ -54,10 +54,10 @@ class ThreadTrashQuickAction extends React.Component
     newProps.thread.id isnt @props?.thread.id
 
   _onRemove: (event) =>
-    task = TaskFactory.taskForMovingToTrash
+    tasks = TaskFactory.tasksForMovingToTrash
       threads: [@props.thread]
-      fromView: FocusedMailViewStore.mailView()
-    Actions.queueTask(task)
+      fromPerspective: FocusedPerspectiveStore.current()
+    Actions.queueTasks(tasks)
 
     # Don't trigger the thread row click
     event.stopPropagation()

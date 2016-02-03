@@ -31,9 +31,6 @@ ReactTestUtils = _.extend ReactTestUtils, require "jasmine-react-helpers"
 ThreadStore = require "../lib/thread-store"
 ThreadList = require "../lib/thread-list"
 
-ParticipantsItem = React.createClass
-  render: -> <div></div>
-
 test_threads = -> [
   (new Thread).fromJSON({
     "id": "111",
@@ -220,10 +217,6 @@ describe "ThreadList", ->
       @_columns = columns
 
     ThreadStore._resetInstanceVars()
-
-    ComponentRegistry.register
-      name: 'Participants'
-      view: ParticipantsItem
 
     @thread_list = ReactTestUtils.renderIntoDocument(
       <ThreadList />

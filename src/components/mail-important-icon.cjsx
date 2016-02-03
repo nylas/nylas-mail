@@ -1,58 +1,95 @@
 _ = require 'underscore'
 React = require 'react'
+classNames = require 'classnames'
 {Actions,
  Utils,
  Thread,
  TaskFactory,
  CategoryStore,
+ FocusedPerspectiveStore,
  AccountStore} = require 'nylas-exports'
+
+ShowImportantKey = 'core.workspace.showImportant'
 
 class MailImportantIcon extends React.Component
   @displayName: 'MailImportantIcon'
   @propTypes:
     thread: React.PropTypes.object
+    showIfAvailableForAnyAccount: React.PropTypes.bool
 
   constructor: (@props) ->
     @state = @getState()
 
-  getState: =>
-    showing: AccountStore.current()?.usesImportantFlag() and NylasEnv.config.get('core.workspace.showImportant')
+  getState: (props = @props) =>
+    category = null
+    visible = false
+
+    if props.showIfAvailableForAnyAccount
+      perspective = FocusedPerspectiveStore.current()
+      for accountId in perspective.accountIds
+        account = AccountStore.accountForId(accountId)
+        accountImportant = CategoryStore.getStandardCategory(account, 'important')
+        if accountImportant
+          visible = true
+        if accountId is props.thread.accountId
+          category = accountImportant
+        break if visible and category
+    else
+      category = CategoryStore.getStandardCategory(props.thread.accountId, 'important')
+      visible = category?
+
+    isImportant = category and _.findWhere(@props.thread.categories, {id: category.id})?
+
+    {visible, category, isImportant}
 
   componentDidMount: =>
-    @subscription = NylasEnv.config.observe 'core.workspace.showImportant', =>
+    @unsubscribe = FocusedPerspectiveStore.listen =>
+      @setState(@getState())
+    @subscription = NylasEnv.config.onDidChange ShowImportantKey, =>
       @setState(@getState())
 
+  componentWillReceiveProps: (nextProps) =>
+    @setState(@getState(nextProps))
+
   componentWillUnmount: =>
+    @unsubscribe?()
     @subscription?.dispose()
 
   shouldComponentUpdate: (nextProps, nextState) =>
-    return false if nextProps.thread is @props.thread and @state.showing is nextState.showing
-    true
+    not _.isEqual(nextState, @state)
 
   render: =>
-    return false unless @state.showing
+    return false unless @state.visible
 
-    importantId = CategoryStore.getStandardCategory('important')?.id
-    return false unless importantId
+    classes = classNames
+      'mail-important-icon': true
+      'enabled': @state.category?
+      'active': @state.isImportant
 
-    isImportant = _.findWhere(@props.thread.labels, {id: importantId})?
+    if not @state.category
+      title = "No important folder / label"
+    else if @state.isImportant
+      title = "Mark as unimportant"
+    else
+      title = "Mark as important"
 
-    activeClassname = if isImportant then "active" else ""
-    <div className="mail-important-icon #{activeClassname}"
-         title={if isImportant then "Mark as unimportant" else "Mark as important"}
+    <div className={classes}}
+         title={title}
          onClick={@_onToggleImportant}></div>
 
   _onToggleImportant: (event) =>
-    category = CategoryStore.getStandardCategory('important')
-    isImportant = _.findWhere(@props.thread.labels, {id: category.id})?
-    threads = [@props.thread]
+    {category} = @state
 
-    if !isImportant
-      task = TaskFactory.taskForApplyingCategory({threads, category})
-    else
-      task = TaskFactory.taskForRemovingCategory({threads, category})
+    if category
+      isImportant = _.findWhere(@props.thread.categories, {id: category.id})?
+      threads = [@props.thread]
 
-    Actions.queueTask(task)
+      if !isImportant
+        task = TaskFactory.taskForApplyingCategory({threads, category})
+      else
+        task = TaskFactory.taskForRemovingCategory({threads, category})
+
+      Actions.queueTask(task)
 
     # Don't trigger the thread row click
     event.stopPropagation()

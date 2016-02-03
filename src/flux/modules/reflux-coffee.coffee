@@ -151,7 +151,7 @@ module.exports =
     setupEmitter: ->
       return if @_emitter
       @_emitter ?= new EventEmitter()
-      @_emitter.setMaxListeners(50)
+      @_emitter.setMaxListeners(20)
 
     listen: (callback, bindContext) ->
       if not callback

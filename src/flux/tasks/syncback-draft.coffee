@@ -11,8 +11,6 @@ Task = require './task'
 Message = require '../models/message'
 Account = require '../models/account'
 
-FileUploadTask = require './file-upload-task'
-
 # MutateDraftTask
 
 module.exports =
@@ -31,11 +29,6 @@ class SyncbackDraftTask extends Task
     other.draftClientId is @draftClientId and
     other.creationDate <= @creationDate
 
-  # We want to wait for other SyncbackDraftTasks to run, but we don't want
-  # to get dequeued if they fail.
-  onDependentTaskError: ->
-    return Task.DO_NOT_DEQUEUE_ME
-
   performLocal: ->
     # SyncbackDraftTask does not do anything locally. You should persist your changes
     # to the local database directly or using a DraftStoreProxy, and then queue a
@@ -47,93 +40,68 @@ class SyncbackDraftTask extends Task
 
   performRemote: ->
     @getLatestLocalDraft().then (draft) =>
-      # The draft may have been deleted by another task. Nothing we can do.
       return Promise.resolve() unless draft
 
-      if draft.serverId
-        path = "/drafts/#{draft.serverId}"
-        method = 'PUT'
-      else
-        path = "/drafts"
-        method = 'POST'
+      @checkDraftFromMatchesAccount(draft)
+      .then(@saveDraft)
+      .then(@updateLocalDraft)
+      .thenReturn(Task.Status.Success)
+      .catch (err) =>
+        if err instanceof APIError and not (err.statusCode in NylasAPI.PermanentErrorCodes)
+          return Promise.resolve(Task.Status.Retry)
+        return Promise.resolve([Task.Status.Failed, err])
 
-      payload = draft.toJSON()
-      @submittedBody = payload.body
-      # Not sure why were doing this, so commenting out for now
-      # delete payload['from']
+  saveDraft: (draft) =>
+    if draft.serverId
+      path = "/drafts/#{draft.serverId}"
+      method = 'PUT'
+    else
+      path = "/drafts"
+      method = 'POST'
 
-      # We keep this in memory as a fallback in case
-      # `getLatestLocalDraft` returns null after we make our API
-      # request.
-      oldDraft = draft
+    NylasAPI.makeRequest
+      accountId: draft.accountId
+      path: path
+      method: method
+      body: draft.toJSON()
+      returnsModel: false
 
-      NylasAPI.makeRequest
-        accountId: draft.accountId
-        path: path
-        method: method
-        body: payload
-        returnsModel: false
-
-      .then (json) =>
-        # Important: There could be a significant delay between us initiating the save
-        # and getting JSON back from the server. Our local copy of the draft may have
-        # already changed more.
-        #
-        # The only fields we want to update from the server are the `id` and `version`.
-        #
-        # Also note that this *could* still rollback a save between the find / persist
-        # below. We currently have no way of locking between processes. Maybe a
-        # log-style data structure would be better suited for drafts.
-        #
-        DatabaseStore.inTransaction (t) =>
-          @getLatestLocalDraft().then (draft) ->
-            if not draft then draft = oldDraft
-            draft.version = json.version
-            draft.serverId = json.id
-            t.persistModel(draft)
-
-      .then =>
-        return Promise.resolve(Task.Status.Success)
-
-      .catch APIError, (err) =>
-        if err.statusCode in [400, 404, 409] and err.requestOptions?.method is 'PUT'
-          @getLatestLocalDraft().then (draft) =>
-            if not draft then draft = oldDraft
-            @detatchFromRemoteID(draft).then ->
-              return Promise.resolve(Task.Status.Retry)
-        else
-          # NOTE: There's no offline handling. If we're offline
-          # SyncbackDraftTasks should always fail.
-          #
-          # We don't roll anything back locally, but this failure
-          # ensures that SendDraftTasks can never succeed while offline.
-          Promise.resolve([Task.Status.Failed, err])
+  updateLocalDraft: ({version, id}) =>
+    # Important: There could be a significant delay between us initiating the save
+    # and getting JSON back from the server. Our local copy of the draft may have
+    # already changed more.
+    #
+    # The only fields we want to update from the server are the `id` and `version`.
+    #
+    DatabaseStore.inTransaction (t) =>
+      @getLatestLocalDraft().then (draft) =>
+        # Draft may have been deleted. Oh well.
+        return Promise.resolve() unless draft
+        draft.version = version
+        draft.serverId = id
+        t.persistModel(draft)
+    .thenReturn(true)
 
   getLatestLocalDraft: =>
     DatabaseStore.findBy(Message, clientId: @draftClientId).include(Message.attributes.body)
 
   checkDraftFromMatchesAccount: (draft) ->
-    account = AccountStore.itemWithEmailAddress(draft.from[0].email)
+    account = AccountStore.accountForEmail(draft.from[0].email)
     if draft.accountId is account.id
       return Promise.resolve(draft)
     else
-      DestroyDraftTask = require './destroy-draft'
-      destroy = new DestroyDraftTask(draftId: existingAccountDraft.id)
-      promise = TaskQueueStatusStore.waitForPerformLocal(destroy).then =>
-        @detatchFromRemoteID(existingAccountDraft, acct.id).then (newAccountDraft) =>
-          Promise.resolve(newAccountDraft)
-      Actions.queueTask(destroy)
-      return promise
+      NylasAPI.makeRequest
+        path: "/drafts/#{draft.serverId}"
+        accountId: draft.accountId
+        method: "DELETE"
+        body: {version: draft.version}
+        returnsModel: false
 
-  detatchFromRemoteID: (draft, newAccountId = null) ->
-    return Promise.resolve() unless draft
-    newDraft = new Message(draft)
-    newDraft.accountId = newAccountId if newAccountId
-
-    delete newDraft.serverId
-    delete newDraft.version
-    delete newDraft.threadId
-    delete newDraft.replyToMessageId
-
-    DatabaseStore.inTransaction (t) =>
-      t.persistModel(newDraft)
+      draft.accountId = account.id
+      delete draft.serverId
+      delete draft.version
+      delete draft.threadId
+      delete draft.replyToMessageId
+      DatabaseStore.inTransaction (t) =>
+        t.persistModel(draft)
+      .thenReturn(draft)

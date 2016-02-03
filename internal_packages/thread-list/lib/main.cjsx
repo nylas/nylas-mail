@@ -8,7 +8,6 @@ React = require "react"
 ThreadSelectionBar = require './thread-selection-bar'
 ThreadList = require './thread-list'
 
-DraftListSidebarItem = require './draft-list-sidebar-item'
 DraftSelectionBar = require './draft-selection-bar'
 DraftList = require './draft-list'
 
@@ -16,14 +15,6 @@ module.exports =
   activate: (@state={}) ->
     WorkspaceStore.defineSheet 'Drafts', {root: true},
       list: ['RootSidebar', 'DraftList']
-
-    @sidebarItem = new WorkspaceStore.SidebarItem
-      component: DraftListSidebarItem
-      sheet: WorkspaceStore.Sheet.Drafts
-      id: 'Drafts'
-      name: 'Drafts'
-
-    WorkspaceStore.addSidebarItem(@sidebarItem)
 
     ComponentRegistry.register ThreadList,
       location: WorkspaceStore.Location.ThreadList

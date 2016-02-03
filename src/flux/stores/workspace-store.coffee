@@ -1,20 +1,13 @@
 _ = require 'underscore'
 Actions = require '../actions'
 AccountStore = require './account-store'
+FocusedPerspectiveStore = require './focused-perspective-store'
 CategoryStore = require './category-store'
-MailViewFilter = require '../../mail-view-filter'
+MailboxPerspective = require '../../mailbox-perspective'
 NylasStore = require 'nylas-store'
 
 Sheet = {}
 Location = {}
-SidebarItems = {}
-
-class WorkspaceSidebarItem
-  constructor: ({@id, @component, @icon, @name, @sheet, @mailViewFilter, @section, @children, @unreadCount}) ->
-    if not @sheet and not @mailViewFilter and not @component
-      throw new Error("WorkspaceSidebarItem: You must provide either a sheet \
-                       component, or a mailViewFilter for the sidebar item named #{@name}")
-    @children ||= []
 
 ###
 Public: The WorkspaceStore manages Sheets and layout modes in the application.
@@ -35,18 +28,19 @@ class WorkspaceStore extends NylasStore
 
     @listenTo Actions.popSheet, @popSheet
     @listenTo Actions.pushSheet, @pushSheet
-    @listenTo Actions.searchQueryCommitted, @popToRootSheet
+    @listenTo Actions.focusMailboxPerspective, @popToRootSheet
 
     @_preferredLayoutMode = NylasEnv.config.get('core.workspace.mode')
-    NylasEnv.config.observe 'core.workspace.mode', (mode) =>
-      return if mode is @_preferredLayoutMode
-      @_preferredLayoutMode = mode
+    NylasEnv.config.onDidChange 'core.workspace.mode', ({newValue}) =>
+      return if newValue is @_preferredLayoutMode
+      @_preferredLayoutMode = newValue
       @popToRootSheet()
       @trigger()
 
-    NylasEnv.config.observe 'core.workspace.interfaceZoom', (zoom) =>
-      if zoom and _.isNumber(zoom)
-        require('electron').webFrame.setZoomFactor(zoom)
+    {windowType} = NylasEnv.getLoadSettings()
+    unless windowType is 'onboarding'
+      NylasEnv.config.observe 'core.workspace.interfaceZoom', (z) =>
+        require('electron').webFrame.setZoomFactor(z) if z and _.isNumber(z)
 
     NylasEnv.commands.add 'body', @_navigationCommands()
 
@@ -62,31 +56,31 @@ class WorkspaceStore extends NylasStore
     'navigation:go-to-label'   : => ## TODO
 
   _setMailViewByName: (categoryName) ->
-    category = CategoryStore.getStandardCategory(categoryName)
-    return unless category
-    view = MailViewFilter.forCategory(category)
-    return unless view
-    Actions.focusMailView(view)
+    accountIds = FocusedPerspectiveStore.current().accountIds
+    categories = accountIds.map (aid) -> CategoryStore.getStandardCategory(aid, categoryName)
+    categories = _.compact(categories)
+
+    if categories.length > 0
+      view = MailboxPerspective.forCategories(categories)
+      Actions.focusMailboxPerspective(view)
 
   _selectDraftsSheet: ->
     Actions.selectRootSheet(@Sheet.Drafts)
 
   _selectAllView: ->
-    category = CategoryStore.getArchiveCategory()
-    return unless category
-    view = MailViewFilter.forCategory(category)
-    return unless view
-    Actions.focusMailView(view)
+    accountIds = FocusedPerspectiveStore.current().accountIds
+    categories = accountIds.map (aid) -> CategoryStore.getArchiveCategory(aid)
+
+    view = MailboxPerspective.forCategories(categories)
+    Actions.focusMailboxPerspective(view)
 
   _selectStarredView: ->
-    Actions.focusMailView MailViewFilter.forStarred()
+    accountIds = FocusedPerspectiveStore.current().accountIds
+    Actions.focusMailboxPerspective MailboxPerspective.forStarred(accountIds)
 
   _resetInstanceVars: =>
     @Location = Location = {}
     @Sheet = Sheet = {}
-
-    @SidebarItem = WorkspaceSidebarItem
-    @SidebarItems = SidebarItems = {}
 
     @_hiddenLocations = NylasEnv.config.get('core.workspace.hiddenLocations') || {}
     @_sheetStack = []
@@ -188,19 +182,6 @@ class WorkspaceStore extends NylasStore
     return false unless loc
     @_hiddenLocations[loc.id]?
 
-
-  sidebarItems: =>
-    _.values(@SidebarItems)
-
-  addSidebarItem: (item) =>
-    unless item instanceof WorkspaceSidebarItem
-      throw new Error("WorkspaceStore::addSidebarItem requires a `WorkspaceSidebarItem`")
-    @SidebarItems[item.id] = item
-    @triggerDebounced()
-
-  removeSidebarItem: (item) =>
-    delete @SidebarItems[item.id]
-    @triggerDebounced()
 
   ###
   Managing Sheets

@@ -111,7 +111,7 @@ class InitialPreferencesPage extends React.Component
   @displayName: "InitialPreferencesPage"
 
   render: =>
-    account = AccountStore.items()[0]
+    account = AccountStore.accounts()[0]
 
     <div className="page opaque" style={width:900, height:620}>
       <h1 style={paddingTop: 100}>Welcome to N1</h1>

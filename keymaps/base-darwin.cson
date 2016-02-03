@@ -10,3 +10,10 @@
   'cmd-alt-h': 'application:hide-other-applications'
   'cmd-ctrl-f': 'window:toggle-full-screen'
   'alt-cmd-ctrl-m': 'application:zoom'
+
+  ### N1 developer commands. ###
+  'cmdctrl-alt-l': 'window:reload'
+  'cmdctrl-alt-i': 'window:toggle-dev-tools'
+  'cmdctrl-alt-w': 'application:show-work-window'
+  'cmdctrl-alt-s': 'application:run-all-specs'
+  'cmdctrl-alt-p': 'application:run-package-specs'

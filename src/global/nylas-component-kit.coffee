@@ -17,6 +17,7 @@ class NylasComponentKit
   @load "Popover", 'popover'
   @load "Flexbox", 'flexbox'
   @load "RetinaImg", 'retina-img'
+  @load "FluxContainer", 'flux-container'
   @load "ListTabular", 'list-tabular'
   @load "DraggableImg", 'draggable-img'
   @load "EventedIFrame", 'evented-iframe'
@@ -32,6 +33,8 @@ class NylasComponentKit
   @load "ConfigPropContainer", "config-prop-container"
   @load "DisclosureTriangle", "disclosure-triangle"
   @load "EditableList", "editable-list"
+  @load "OutlineViewItem", "outline-view-item"
+  @load "OutlineView", "outline-view"
 
   @load "ScrollRegion", 'scroll-region'
   @load "ResizableRegion", 'resizable-region'

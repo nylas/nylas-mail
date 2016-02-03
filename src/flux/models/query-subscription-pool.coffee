@@ -10,31 +10,35 @@ merge equivalent subscriptions, etc.
 class QuerySubscriptionPool
   constructor: ->
     @_subscriptions = {}
+    @_cleanupChecks = []
     @_setup()
 
-  add: (query, options, callback) =>
-    callback._registrationPoint = @_formatRegistrationPoint((new Error).stack)
+  add: (query, callback) =>
+    if NylasEnv.inDevMode()
+      callback._registrationPoint = @_formatRegistrationPoint((new Error).stack)
 
     key = @_keyForQuery(query)
     subscription = @_subscriptions[key]
     if not subscription
-      subscription = new QuerySubscription(query, options)
+      subscription = new QuerySubscription(query)
       @_subscriptions[key] = subscription
 
     subscription.addCallback(callback)
     return =>
       subscription.removeCallback(callback)
-      # We could be in the middle of an update that will remove and then re-add
-      # the exact same subscription. Keep around the cached set for one tick
-      # to see if that happens.
-      _.defer => @checkIfSubscriptionNeeded(subscription)
+      @_scheduleCleanupCheckForSubscription(key)
 
-  checkIfSubscriptionNeeded: (subscription) =>
-    return unless subscription.callbackCount() is 0
-    key = @_keyForQuery(subscription.query())
-    delete @_subscriptions[key]
+  addPrivateSubscription: (key, subscription, callback) =>
+    @_subscriptions[key] = subscription
+    subscription.addCallback(callback)
+    return =>
+      subscription.removeCallback(callback)
+      @_scheduleCleanupCheckForSubscription(key)
 
   printSubscriptions: =>
+    unless NylasEnv.inDevMode()
+      return console.log("printSubscriptions is only available in developer mode.")
+
     for key, subscription of @_subscriptions
       console.log(key)
       console.group()
@@ -42,6 +46,19 @@ class QuerySubscriptionPool
         console.log("#{callback._registrationPoint}")
       console.groupEnd()
     return
+
+  _scheduleCleanupCheckForSubscription: (key) =>
+    # We unlisten / relisten to lots of subscriptions and setTimeout is actually
+    # /not/ that fast. Create one timeout for all checks, not one for each.
+    _.defer(@_runCleanupChecks) if @_cleanupChecks.length is 0
+    @_cleanupChecks.push(key)
+
+  _runCleanupChecks: =>
+    for key in @_cleanupChecks
+      subscription = @_subscriptions[key]
+      if subscription and subscription.callbackCount() is 0
+        delete @_subscriptions[key]
+    @_cleanupChecks = []
 
   _formatRegistrationPoint: (stack) ->
     stack = stack.split('\n')
