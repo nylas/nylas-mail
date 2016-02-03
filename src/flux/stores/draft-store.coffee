@@ -529,7 +529,7 @@ class DraftStore
   # Give third-party plugins an opportunity to sanitize draft data
   _runExtensionsBeforeSend: (session) =>
     Promise.each @extensions(), (ext) ->
-      ext.finalizeSessionBeforeSending({session})
+      ext.finalizeSessionBeforeSending?({session})
     .return(session)
 
   _onRemoveFile: ({file, messageClientId}) =>
