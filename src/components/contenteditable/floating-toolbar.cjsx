@@ -128,7 +128,7 @@ class FloatingToolbar extends React.Component
         NylasEnv.emitError(error)
 
     if toolbarComponent and not toolbarLocationRef
-      throw new Error("You must provider a locationRefNode for #{toolbarComponent.displayName}")
+      throw new Error("You must provide a locationRefNode for #{toolbarComponent.displayName}. It must be either a DOM Element or a Range.")
 
     return {toolbarComponent, toolbarComponentProps, toolbarLocationRef, toolbarWidth}
 
@@ -136,6 +136,9 @@ class FloatingToolbar extends React.Component
 
   _calculatePositionState: (props, {toolbarLocationRef, toolbarWidth}) =>
     editableNode = props.editableNode
+
+    if not _.isFunction(toolbarLocationRef.getBoundingClientRect)
+      throw new Error("Your locationRefNode must implement getBoundingClientRect. Be aware that Text nodes do not implement this, but Element nodes do. Find the nearest Element relative.")
 
     referenceRect = toolbarLocationRef.getBoundingClientRect()
 
