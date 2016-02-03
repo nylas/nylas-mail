@@ -20,7 +20,7 @@ describe("SyncbackModelTask", () => {
     spyOn(DatabaseStore, "findBy")
     .andReturn(Promise.resolve(this.testModel));
 
-    spyOn(NylasEnv, "emitError")
+    spyOn(NylasEnv, "reportError")
     spyOn(NylasAPI, "makeRequest").andReturn(Promise.resolve({
       version: 10,
       id: "server-123",
@@ -194,7 +194,7 @@ describe("SyncbackModelTask", () => {
       performRemote((status) => {
         expect(status[0]).toBe(Task.Status.Failed)
         expect(status[1].message).toBe(errMsg)
-        expect(NylasEnv.emitError).toHaveBeenCalled()
+        expect(NylasEnv.reportError).toHaveBeenCalled()
       });
     });
   });

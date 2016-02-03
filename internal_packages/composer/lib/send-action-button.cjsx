@@ -52,7 +52,7 @@ class SendActionButton extends React.Component
           actionConfig.configKey = @_configKeyFromTitle(actionConfig.title)
           actionConfigs.push(actionConfig)
       catch err
-        NylasEnv.emitError(err)
+        NylasEnv.reportError(err)
 
     return actionConfigs
 
@@ -114,7 +114,7 @@ class SendActionButton extends React.Component
       try
         onSend({draft: @props.draft})
       catch err
-        NylasEnv.emitError(err)
+        NylasEnv.reportError(err)
 
   _dropdownMenu: (actionConfigs) ->
     <Menu items={actionConfigs}

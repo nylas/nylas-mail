@@ -257,6 +257,22 @@ class PackageManager
   getLoadedPackage: (name) ->
     @loadedPackages[name]
 
+  # Public: Gets the root paths of all loaded packages.
+  #
+  # Useful when determining if an error originated from a package.
+  getPluginIdsByPathBase: ->
+    pluginIdsByPathBase = {}
+    for name, pack of @loadedPackages
+      pathBase = _.last(pack.path.split("/"))
+
+      if pack.pluginId() and pack.pluginId() isnt name
+        id = "#{name}-#{pack.pluginId()}"
+      else
+        id = pack.pluginId()
+
+      pluginIdsByPathBase[pathBase] = id
+    return pluginIdsByPathBase
+
   # Public: Is the package with the given name loaded?
   #
   # * `name` - The {String} package name.

@@ -406,7 +406,10 @@ describe "ChangeMailTask", ->
         threads = []
         threads.push new Thread(id: "#{idx}", subject: idx) for idx in [0..100]
         @task._restoreValues = _.map threads, (t) -> {some: 'data'}
-        @task._performRequests(Thread, threads)
+        @task._performRequests(Thread, threads).catch (err) ->
+          # Need to catch the error so it's not a
+          # Promise.possiblyUnhandledRejection, which will stop the tests.
+          expect(err.statusCode).toBe 400
         advanceClock()
         expect(resolves.length).toEqual(5)
         resolves[idx]() for idx in [0...4]

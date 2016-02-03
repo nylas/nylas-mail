@@ -316,7 +316,7 @@ class AccountSettingsPage extends React.Component
     try
       OnboardingActions.accountJSONReceived(json)
     catch e
-      NylasEnv.emitError(e)
+      NylasEnv.reportError(e)
       @setState
         tryingToAuthenticate: false
         errorMessage: "Sorry, something went wrong on the Nylas server. Please try again. If you're still having issues, contact us at support@nylas.com."
