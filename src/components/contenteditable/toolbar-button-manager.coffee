@@ -38,7 +38,7 @@ class ToolbarButtonManager extends ContenteditableExtension
           return config
         buttonConfigs = buttonConfigs.concat(extensionConfigs)
       catch error
-        NylasEnv.emitError(error)
+        NylasEnv.reportError(error)
 
     return buttonConfigs
 

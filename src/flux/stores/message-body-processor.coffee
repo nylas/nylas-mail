@@ -56,7 +56,7 @@ class MessageBodyProcessor
         extension.formatMessageBody({message: virtual})
         body = virtual.body
       catch err
-        NylasEnv.emitError(err)
+        NylasEnv.reportError(err)
         body = latestBody
 
     # Find inline images and give them a calculated CSS height based on

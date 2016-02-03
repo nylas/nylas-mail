@@ -94,7 +94,7 @@ class SystemStartServiceWin32 extends SystemStartServiceBase {
       runStyle: ws.MIN,
       desc: "An extensible, open-source mail client built on the modern web.",
     }, (err) => {
-      if (err) NylasEnv.emitError(err)
+      if (err) NylasEnv.reportError(err)
     });
   }
 

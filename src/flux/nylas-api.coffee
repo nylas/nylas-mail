@@ -193,7 +193,7 @@ class NylasAPI
         if err.response.statusCode is 401
           handlePromise = @_handle401(options.url)
         if err.response.statusCode is 400
-          NylasEnv.emitError(err)
+          NylasEnv.reportError(err)
       handlePromise.finally ->
         Promise.reject(err)
 

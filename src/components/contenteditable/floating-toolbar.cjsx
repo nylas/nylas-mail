@@ -125,7 +125,7 @@ class FloatingToolbar extends React.Component
           toolbarLocationRef = params.locationRefNode
           toolbarWidth = params.width
       catch error
-        NylasEnv.emitError(error)
+        NylasEnv.reportError(error)
 
     if toolbarComponent and not toolbarLocationRef
       throw new Error("You must provide a locationRefNode for #{toolbarComponent.displayName}. It must be either a DOM Element or a Range.")

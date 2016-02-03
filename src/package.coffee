@@ -80,10 +80,12 @@ class Package
     @reset()
     @declaresNewDatabaseObjects = false
 
-    # TODO FIXME: Use a unique pluginID instead of just the "name"
-    # This needs to be included here to prevent a circular dependency error
     CloudStorage = require './cloud-storage'
-    @cloudStorage = new CloudStorage(@name)
+    @cloudStorage = new CloudStorage(@pluginId())
+
+  # TODO FIXME: Use a unique pluginID instead of just the "name"
+  # This needs to be included here to prevent a circular dependency error
+  pluginId: -> return @name
 
   ###
   Section: Event Subscription

@@ -205,7 +205,7 @@ class DatabaseStore extends NylasStore
           ready()
 
   _handleSetupError: (err) =>
-    NylasEnv.emitError(err)
+    NylasEnv.reportError(err)
 
     # Temporary: export mail rules. They're the only bit of data in the cache
     # we can't rebuild. Should be moved to cloud metadata store soon.

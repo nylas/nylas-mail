@@ -101,7 +101,7 @@ describe "DestroyCategoryTask", ->
     describe "when request fails", ->
       beforeEach ->
         makeAccount()
-        spyOn(NylasEnv, 'emitError')
+        spyOn(NylasEnv, 'reportError')
         spyOn(NylasAPI, 'makeRequest').andCallFake ->
           Promise.reject(new APIError({statusCode: 403}))
 
@@ -113,7 +113,7 @@ describe "DestroyCategoryTask", ->
           task.performRemote().then (status) ->
             expect(status).toEqual Task.Status.Failed
             expect(task._notifyUserOfError).toHaveBeenCalled()
-            expect(NylasEnv.emitError).toHaveBeenCalled()
+            expect(NylasEnv.reportError).toHaveBeenCalled()
             expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
             model = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
             expect(model.serverId).toEqual "server-444"

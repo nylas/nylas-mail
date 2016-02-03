@@ -107,7 +107,7 @@ class Contenteditable extends React.Component
     try
       editingFunction(argsObj)
     catch error
-      NylasEnv.emitError(error)
+      NylasEnv.reportError(error)
 
     @_setupNonMutationListeners()
 
@@ -243,7 +243,7 @@ class Contenteditable extends React.Component
           keymapHandlers[command] = (event) =>
             @atomicEdit(handler, {event})
       catch error
-        NylasEnv.emitError(error)
+        NylasEnv.reportError(error)
     return keymapHandlers
 
   # NOTE: Keymaps are now broken apart into individual extensions. See the

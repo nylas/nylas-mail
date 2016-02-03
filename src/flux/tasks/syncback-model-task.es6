@@ -101,7 +101,7 @@ export default class SyncbackModelTask extends Task {
       }
       return Promise.resolve([Task.Status.Failed, err])
     }
-    NylasEnv.emitError(err);
+    NylasEnv.reportError(err);
     return Promise.resolve([Task.Status.Failed, err])
   }
 

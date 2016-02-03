@@ -54,7 +54,7 @@ class DestroyCategoryTask extends Task
         DatabaseStore.inTransaction (t) =>
           t.persistModel(@category)
         .then =>
-          NylasEnv.emitError(
+          NylasEnv.reportError(
             new Error("Deleting category responded with #{err.statusCode}!")
           )
           @_notifyUserOfError()

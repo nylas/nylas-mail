@@ -212,6 +212,11 @@ class NylasEnvConstructor extends Model
     @subscribe @packages.onDidActivateInitialPackages => @watchThemes()
     @windowEventHandler = new WindowEventHandler
 
+  # This ties window.onerror and Promise.onPossiblyUnhandledRejection to
+  # the publically callable `reportError` method. This will take care of
+  # reporting errors if necessary and hooking into error handling
+  # callbacks.
+  #
   # Start our error reporting to the backend and attach error handlers
   # to the window and the Bluebird Promise library, converting things
   # back through the sourcemap as necessary.
@@ -224,55 +229,73 @@ class NylasEnvConstructor extends Model
 
     sourceMapCache = {}
 
+    # https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onerror
     window.onerror = =>
-      @lastUncaughtError = Array::slice.call(arguments)
-      [message, url, line, column, originalError] = @lastUncaughtError
-
+      args = Array::slice.call(arguments)
+      [message, url, line, column, originalError] = args
       {line, column} = mapSourcePosition({source: url, line, column})
+      originalError.stack = convertStackTrace(originalError.stack, sourceMapCache)
+      @reportError(originalerror, {url, line, column})
 
-      eventObject = {message, url, line, column, originalError}
-
-      openDevTools = true
-      eventObject.preventDefault = -> openDevTools = false
-
-      @emitter.emit 'will-throw-error', eventObject
-
-      if openDevTools and @inDevMode()
-        @openDevTools()
-        @executeJavaScriptInDevTools('DevToolsAPI.showConsole()')
-
-      @emitter.emit 'did-throw-error', {message, url, line, column, originalError}
-
-    if @inSpecMode() or @inDevMode()
-      Promise.longStackTraces()
-
-    Promise.onPossiblyUnhandledRejection (error) =>
+    Promise.onPossiblyUnhandledRejection (error, promise) =>
       error.stack = convertStackTrace(error.stack, sourceMapCache)
 
       # API Errors are logged to Sentry only under certain circumstances,
       # and are logged directly from the NylasAPI class.
       if error instanceof APIError
-        return
+        return if error.statusCode isnt 400
 
-      if @inSpecMode()
-        jasmine.getEnv().currentSpec.fail(error)
-      else if @inDevMode()
-        console.error(error.message, error.stack, error)
-        @openDevTools()
-        @executeJavaScriptInDevTools('InspectorFrontendAPI.showConsole()')
-      else
-        console.warn(error)
-        console.warn(error.stack)
+      @reportError(error, {promise})
 
-      @emitError(error)
+    if @inSpecMode() or @inDevMode()
+      Promise.longStackTraces()
 
-  emitError: (error) ->
-    console.error(error.message) unless @inSpecMode()
-    console.error(error.stack) unless @inSpecMode()
-    eventObject = {message: error.message, originalError: error}
-    @emitter.emit('will-throw-error', eventObject)
-    @emit('uncaught-error', error.message, null, null, null, error)
-    @emitter.emit('did-throw-error', eventObject)
+  _createErrorCallbackEvent: (error, extraArgs={}) ->
+    event = _.extend({}, extraArgs, {
+      message: error.message
+      originalError: error
+      defaultPrevented: false
+    })
+    event.preventDefault = -> event.defaultPrevented = true
+    return event
+
+  # Public: report an error through the `ErrorLogger`
+  #
+  # Takes an error and an extra object to report. Hooks into the
+  # `onWillThrowError` and `onDidThrowError` callbacks. If someone
+  # registered with `onWillThrowError` calls `preventDefault` on the event
+  # object it's given, then no error will be reported.
+  #
+  # The difference between this and `ErrorLogger.reportError` is that
+  # `NylasEnv.reportError` will hook into the event callbacks and handle
+  # test failures and dev tool popups.
+  reportError: (error, extra={}) ->
+    event = @_createErrorCallbackEvent(error, extra)
+    @emitter.emit('will-throw-error', event)
+    return if event.defaultPrevented
+
+    console.error(error.stack)
+    @lastUncaughtError = error
+
+    extra.pluginIds = @_findPluginsFromError(error)
+
+    if @inSpecMode()
+      jasmine.getEnv().currentSpec.fail(error)
+    else if @inDevMode()
+      @openDevTools()
+      @executeJavaScriptInDevTools('InspectorFrontendAPI.showConsole()')
+
+    @errorLogger.reportError(error, extra)
+
+    @emitter.emit('did-throw-error', event)
+
+  _findPluginsFromError: (error) ->
+    return [] unless error.stack
+    stackPaths = error.stack.match(/((?:\/[\w-_]+)+)/g) ? []
+    stackTokens = _.uniq(_.flatten(stackPaths.map((p) -> p.split("/"))))
+    pluginIdsByPathBase = @packages.getPluginIdsByPathBase()
+    tokens = _.intersection(Object.keys(pluginIdsByPathBase), stackTokens)
+    return tokens.map((tok) -> pluginIdsByPathBase[tok])
 
   ###
   Section: Event Subscription
