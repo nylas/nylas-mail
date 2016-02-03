@@ -186,6 +186,6 @@ class SendDraftTask extends Task
       threadId: @draft.threadId
       draftClientId: @draft.clientId,
       errorMessage: msg
-    NylasEnv.emitError(err)
+    NylasEnv.reportError(err)
 
     return Promise.resolve([Task.Status.Failed, err])

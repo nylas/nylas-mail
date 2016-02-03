@@ -82,7 +82,7 @@ class QuotedHTMLTransformer
     catch error
       text = "HTML Parser Error: #{error.toString()}"
       doc = domParser.parseFromString(text, "text/html")
-      NylasEnv.emitError(error)
+      NylasEnv.reportError(error)
     return doc
 
   _wholeBodyIsQuote: (doc, quoteElements) ->
