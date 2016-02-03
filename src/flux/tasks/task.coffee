@@ -191,7 +191,7 @@ class Task
     @queueState.localError = err
     @queueState.status = Task.Status.Failed
     @queueState.debugStatus = Task.DebugStatus.UncaughtError
-    NylasEnv.emitError(err)
+    NylasEnv.reportError(err)
     return Promise.reject(err)
 
   # Private: This is an internal wrapper around `performRemote`
@@ -257,7 +257,7 @@ class Task
 
     if status isnt Task.Status.Failed
       @queueState.debugStatus = Task.DebugStatus.UncaughtError
-      NylasEnv.emitError(err)
+      NylasEnv.reportError(err)
 
     @queueState.status = Task.Status.Failed
     @queueState.remoteAttempts += 1

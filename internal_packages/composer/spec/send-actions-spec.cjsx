@@ -33,7 +33,7 @@ describe "SendActionButton", ->
     )
 
   beforeEach ->
-    spyOn(NylasEnv, "emitError")
+    spyOn(NylasEnv, "reportError")
     spyOn(Actions, "sendDraft")
     @clientId = "client-23"
     @draft = new Message(clientId: @clientId, draft: true)
@@ -93,8 +93,8 @@ describe "SendActionButton", ->
     buttons = ReactTestUtils.scryRenderedDOMComponentsWithTag(@sendActionButton, "button")
     expect(buttons.length).toBe 1
     expect(dropdowns.length).toBe 0
-    expect(NylasEnv.emitError).toHaveBeenCalled()
-    expect(NylasEnv.emitError.calls[0].args[0].message).toMatch /title/
+    expect(NylasEnv.reportError).toHaveBeenCalled()
+    expect(NylasEnv.reportError.calls[0].args[0].message).toMatch /title/
 
   it "still renders with a null iconUrl and doesn't show the image", ->
     class NoIconUrl extends ComposerExtension
@@ -126,8 +126,8 @@ describe "SendActionButton", ->
     buttons = ReactTestUtils.scryRenderedDOMComponentsWithTag(@sendActionButton, "button")
     expect(buttons.length).toBe 1
     expect(dropdowns.length).toBe 0
-    expect(NylasEnv.emitError).toHaveBeenCalled()
-    expect(NylasEnv.emitError.calls[0].args[0].message).toMatch /onSend/
+    expect(NylasEnv.reportError).toHaveBeenCalled()
+    expect(NylasEnv.reportError.calls[0].args[0].message).toMatch /onSend/
 
   it "sends a draft by default", ->
     @sendActionButton = render(@draft)
@@ -175,8 +175,8 @@ describe "SendActionButton", ->
     button = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(@sendActionButton, "primary-item"))
     ReactTestUtils.Simulate.click(button)
     expect(clicked).toBe false
-    expect(NylasEnv.emitError).toHaveBeenCalled()
-    expect(NylasEnv.emitError.calls[0].args[0].message).toMatch /BOO/
+    expect(NylasEnv.reportError).toHaveBeenCalled()
+    expect(NylasEnv.reportError.calls[0].args[0].message).toMatch /BOO/
 
   it "initializes with the correct config item", ->
     spyOn(NylasEnv.config, "get").andReturn "test-state"

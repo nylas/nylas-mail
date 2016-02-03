@@ -1,9 +1,5 @@
 global.shellStartTime = Date.now()
 
-process.on 'uncaughtException', (error={}) ->
-  console.log(error.message) if error.message?
-  console.log(error.stack) if error.stack?
-
 {app} = require 'electron'
 fs = require 'fs-plus'
 path = require 'path'
@@ -63,10 +59,14 @@ setupCompileCache = (configDirPath) ->
 
 setupErrorLogger = (args={}) ->
   ErrorLogger = require '../error-logger'
-  return new ErrorLogger
+  errorLogger = new ErrorLogger
     inSpecMode: args.specMode
     inDevMode: args.devMode
     resourcePath: args.resourcePath
+
+  process.on 'uncaughtException', errorLogger.reportError
+  process.on 'unhandledRejection', errorLogger.reportError
+  return errorLogger
 
 declareOptions = (argv) ->
   optimist = require 'optimist'

@@ -76,7 +76,7 @@ describe "SendDraftTask", ->
       spyOn(SoundRegistry, "playSound")
       spyOn(Actions, "postNotification")
       spyOn(Actions, "sendDraftSuccess")
-      spyOn(NylasEnv, "emitError")
+      spyOn(NylasEnv, "reportError")
 
     sharedTests = =>
       it "makes a send request with the correct data", ->
@@ -152,7 +152,7 @@ describe "SendDraftTask", ->
               expect(status[0]).toBe Task.Status.Failed
               expect(status[1]).toBe thrownError
               expect(Actions.draftSendingFailed).toHaveBeenCalled()
-              expect(NylasEnv.emitError).toHaveBeenCalled()
+              expect(NylasEnv.reportError).toHaveBeenCalled()
 
         it "retries the task if 'Invalid message public id'", ->
           spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>

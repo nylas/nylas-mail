@@ -36,3 +36,8 @@ process.on("unhandledRejection", function(reason, promise) {
   if (reason.stack) { console.errorColor(reason.stack); }
   console.errorColor(promise);
 });
+
+process.on("uncaughtException", function(error) {
+  if (error.stack) { console.errorColor(error.stack); }
+  console.errorColor(error);
+});

@@ -1,9 +1,9 @@
-// This file cannot be Coffeescript because it loads before the Coffeescript
-// interpreter. Note that it runs in both browser and renderer processes.
+// This file cannot be Coffeescript because it loads before the
+// Coffeescript interpreter. Note that it runs in both browser and
+// renderer processes.
 
 var ErrorLogger, _, fs, path, app, os, remote;
 os = require('os');
-_ = require('underscore');
 fs = require('fs-plus');
 path = require('path');
 if (process.type === 'renderer') {
@@ -13,52 +13,98 @@ if (process.type === 'renderer') {
   app = require('app');
 }
 
-var tmpPath = app.getPath('temp');
-
-var logpid = process.pid;
-if (process.type === 'renderer') {
-  logpid = remote.process.pid + "." +  process.pid;
-}
-var logpath = path.join(tmpPath, 'Nylas-N1-' + logpid + '.log');
-
-// globally define Error.toJSON. This allows us to pass errors via IPC
-// and through the Action Bridge. Note:they are not re-inflated into
-// Error objects automatically.
-Object.defineProperty(Error.prototype, 'toJSON', {
-    value: function () {
-        var alt = {};
-
-        Object.getOwnPropertyNames(this).forEach(function (key) {
-            alt[key] = this[key];
-        }, this);
-
-        return alt;
-    },
-    configurable: true
-});
-
+// A globally available ErrorLogger that can report errors to various
+// sources and enhance error functionality.
+//
+// This runs in both the backend browser process and each and every
+// renderer process.
+//
+// This is available as `global.errorLogger` in the backend browser
+// process.
+//
+// It is available at `NylasEnv.errorLogger` in each renderer process.
+// You should almost always use `NylasEnv.reportError` in the renderer
+// processes instead of manually accessing the `errorLogger`
+//
+// The errorLogger will report errors to a log file as well as to 3rd
+// party reporting services if enabled.
 module.exports = ErrorLogger = (function() {
 
   function ErrorLogger(args) {
-    var self = this;
-
+    this.reportError = this.reportError.bind(this)
     this.inSpecMode = args.inSpecMode
     this.inDevMode = args.inDevMode
     this.resourcePath = args.resourcePath
 
-    this.extensions = this.setupErrorLoggerExtensions(args)
+    this._extendErrorObject()
 
-    if (!this.inSpecMode) {
-      this._cleanOldLogFiles();
-      this._setupNewLogFile();
-      this._hookProcessOutputs();
-      this._catchUncaughtErrors();
-    }
+    this._extendNativeConsole()
 
-    console.debug = _.bind(this.consoleDebug, this);
+    this.extensions = this._setupErrorLoggerExtensions(args)
+
+    if (this.inSpecMode) { return }
+
+    this._cleanOldLogFiles();
+    this._setupNewLogFile();
+    this._hookProcessOutputsToLogFile();
   }
 
-  ErrorLogger.prototype.setupErrorLoggerExtensions = function(args) {
+  /////////////////////////////////////////////////////////////////////
+  /////////////////////////// PUBLIC METHODS //////////////////////////
+  /////////////////////////////////////////////////////////////////////
+
+  ErrorLogger.prototype.reportError = function(error, extra) {
+    if (!error) { error = {stack: ""} }
+    this._appendLog(error.stack)
+    if (extra) { this._appendLog(extra) }
+    this._notifyExtensions("reportError", error, extra)
+    if (process.type === 'browser') { nslog(error.stack) }
+  }
+
+  ErrorLogger.prototype.openLogs = function() {
+    var shell = require('shell');
+    shell.openItem(this._logPath());
+  };
+
+  ErrorLogger.prototype.apiDebug = function(error) {
+    this._appendLog(error, error.statusCode, error.message);
+    this._notifyExtensions("onDidLogAPIError", error);
+  }
+
+
+  /////////////////////////////////////////////////////////////////////
+  ////////////////////////// PRIVATE METHODS //////////////////////////
+  /////////////////////////////////////////////////////////////////////
+
+  ErrorLogger.prototype._extendNativeConsole = function(args) {
+    console.debug = this._consoleDebug.bind(this)
+
+    if (process.type === 'browser' && process.platform === 'darwin') {
+      var nslog = require('nslog');
+      console.log = nslog;
+      console.error = nslog;
+    }
+  }
+
+  // globally define Error.toJSON. This allows us to pass errors via IPC
+  // and through the Action Bridge. Note:they are not re-inflated into
+  // Error objects automatically.
+  ErrorLogger.prototype._extendErrorObject = function(args) {
+    Object.defineProperty(Error.prototype, 'toJSON', {
+      value: function () {
+        var alt = {};
+
+        Object.getOwnPropertyNames(this).forEach(function (key) {
+          alt[key] = this[key];
+        }, this);
+
+        return alt;
+      },
+      configurable: true
+    });
+  }
+
+  ErrorLogger.prototype._setupErrorLoggerExtensions = function(args) {
     var extension, extensionConstructor, extensionPath, extensions, extensionsPath, i, len, ref;
     if (args == null) {
       args = {};
@@ -85,11 +131,22 @@ module.exports = ErrorLogger = (function() {
     return extensions;
   };
 
+  ErrorLogger.prototype._logPath = function() {
+    var tmpPath = app.getPath('temp');
+
+    var logpid = process.pid;
+    if (process.type === 'renderer') {
+      logpid = remote.process.pid + "." +  process.pid;
+    }
+    return path.join(tmpPath, 'Nylas-N1-' + logpid + '.log');
+  }
+
   // If we're the browser process, remove log files that are more than
   // two days old. These log files get pretty big because we're logging
   // so verbosely.
   ErrorLogger.prototype._cleanOldLogFiles = function() {
     if (process.type === 'browser') {
+      var tmpPath = app.getPath('temp');
       fs.readdir(tmpPath, function(err, files) {
         if (err) {
           console.error(err);
@@ -115,10 +172,10 @@ module.exports = ErrorLogger = (function() {
 
   ErrorLogger.prototype._setupNewLogFile = function() {
     // Open a file write stream to log output from this process
-    console.log("Streaming log data to "+logpath);
+    console.log("Streaming log data to "+this._logPath());
 
     this.loghost = os.hostname();
-    this.logstream = fs.createWriteStream(logpath, {
+    this.logstream = fs.createWriteStream(this._logPath(), {
       flags: 'a',
       encoding: 'utf8',
       fd: null,
@@ -126,7 +183,7 @@ module.exports = ErrorLogger = (function() {
     });
   }
 
-  ErrorLogger.prototype._hookProcessOutputs = function() {
+  ErrorLogger.prototype._hookProcessOutputsToLogFile = function() {
     var self = this;
     // Override stdout and stderr to pipe their output to the file
     // in addition to calling through to the existing implementation
@@ -146,14 +203,14 @@ module.exports = ErrorLogger = (function() {
     }
 
     hook_process_output('stdout', function(string, encoding, fd) {
-      self.appendLog.apply(self, [string]);
+      self._appendLog.apply(self, [string]);
     });
     hook_process_output('stderr', function(string, encoding, fd) {
-      self.appendLog.apply(self, [string]);
+      self._appendLog.apply(self, [string]);
     });
   }
 
-  ErrorLogger.prototype.notifyExtensions = function() {
+  ErrorLogger.prototype._notifyExtensions = function() {
     var command, args;
     command = arguments[0]
     args = 2 <= arguments.length ? Array.prototype.slice.call(arguments, 1) : [];
@@ -163,46 +220,11 @@ module.exports = ErrorLogger = (function() {
     }
   }
 
-  ErrorLogger.prototype.apiDebug = function(error) {
-    this.appendLog(error, error.statusCode, error.message);
-    this.notifyExtensions("onDidLogAPIError", error);
-  }
-
-  ErrorLogger.prototype._catchUncaughtErrors = function() {
-    var self = this;
-    // Link to the appropriate error handlers for the browser
-    // or renderer process
-    if (process.type === 'renderer') {
-      NylasEnv.onDidThrowError(function(_arg) {
-        if (self.inSpecMode || self.inDevMode) { return };
-        self.appendLog(_arg.originalError, _arg.message);
-        self.notifyExtensions("onDidThrowError", _arg.originalError, _arg.message)
-      });
-
-    } else if (process.type === 'browser') {
-      var nslog = require('nslog');
-      console.log = nslog;
-
-      process.on('uncaughtException', function(error) {
-        if (error == null) {
-          error = {};
-        }
-        self.notifyExtensions("onDidThrowError", error)
-        if (error.message != null) {
-          nslog(error.message);
-        }
-        if (error.stack != null) {
-          return nslog(error.stack);
-        }
-      });
-    }
-  }
-
   // Create a new console.debug option, which takes `true` (print)
   // or `false`, don't print in console as the first parameter.
   // This makes it easy for developers to turn on and off
   // "verbose console" mode.
-  ErrorLogger.prototype.consoleDebug = function() {
+  ErrorLogger.prototype._consoleDebug = function() {
     var args = [];
     var showIt = arguments[0];
     for (var ii = 1; ii < arguments.length; ii++) {
@@ -211,10 +233,10 @@ module.exports = ErrorLogger = (function() {
     if ((this.inDevMode === true) && (showIt === true)) {
       console.log.apply(console, args);
     }
-    this.appendLog.apply(this, [args]);
+    this._appendLog.apply(this, [args]);
   }
 
-  ErrorLogger.prototype.appendLog = function(obj) {
+  ErrorLogger.prototype._appendLog = function(obj) {
     if (this.inSpecMode) { return };
 
     try {
@@ -232,11 +254,6 @@ module.exports = ErrorLogger = (function() {
     } catch (err) {
       console.error("ErrorLogger: Unable to write to the log stream." + err.toString());
     }
-  };
-
-  ErrorLogger.prototype.openLogs = function() {
-    var shell = require('shell');
-    shell.openItem(logpath);
   };
 
   return ErrorLogger;

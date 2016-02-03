@@ -180,7 +180,7 @@ export default class CloudStorage {
       return metadatum
     }
 
-    NylasEnv.emitError(new Error(`Metadata object ${metadatum.id} doesn't match data for associated object ${objectToAssociate.id}. Automatically correcting to match.`, toMatch))
+    NylasEnv.reportError(new Error(`Metadata object ${metadatum.id} doesn't match data for associated object ${objectToAssociate.id}. Automatically correcting to match.`, toMatch))
     const json = this._newMetadataObject(objectToAssociate).toJSON()
     metadatum.fromJSON(json)
     return metadatum
