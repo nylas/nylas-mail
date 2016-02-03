@@ -1,0 +1,21 @@
+{
+  "name": "composer-emojis",
+  "main": "./lib/main",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "nylas": ">=0.3.43-b95f1f7"
+  },
+  "description": "A composer extension for adding emojis to your emails.",
+  "dependencies": {
+    "node-emoji": "^1.0.4"
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  },
+  "license": "MIT"
+}

@@ -136,6 +136,7 @@ class Contenteditable extends React.Component
   componentDidMount: =>
     @setInnerState editableNode: @_editableNode()
     @_setupNonMutationListeners()
+    @_setupEditingActionListeners()
     @_mutationObserver.observe(@_editableNode(), @_mutationConfig())
 
   # When we have a composition event in progress, we should not update
@@ -161,6 +162,7 @@ class Contenteditable extends React.Component
   componentWillUnmount: =>
     @_mutationObserver.disconnect()
     @_teardownNonMutationListeners()
+    @_teardownEditingActionListeners()
     @_teardownServices()
 
   setInnerState: (innerState={}) =>
@@ -261,6 +263,25 @@ class Contenteditable extends React.Component
     @_broadcastInnerStateToToolbar = false
     document.removeEventListener("selectionchange", @_saveSelection)
     @_editableNode().removeEventListener('contextmenu', @_onShowContextMenu)
+
+  _setupEditingActionListeners: =>
+    if @editingActionUnsubscribers?.length > 0
+      editingActionUnsubscriber() for editingActionUnsubscriber in @editingActionUnsubscribers
+    @editingActionUnsubscribers = []
+
+    @_extensions().forEach (ext) =>
+      try
+        editingActions = ext.editingActions?() ? []
+        editingActions.forEach ({action, callback}) =>
+          @editingActionUnsubscribers.push(action.listen((actionArg) =>
+            @atomicEdit(callback, {actionArg})
+          ))
+      catch error
+        NylasEnv.emitError(error)
+
+  _teardownEditingActionListeners: =>
+    for editingActionUnsubscriber in @editingActionUnsubscribers
+      editingActionUnsubscriber()
 
   # https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
   _mutationConfig: ->
