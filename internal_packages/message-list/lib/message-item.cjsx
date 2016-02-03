@@ -91,33 +91,33 @@ class MessageItem extends React.Component
       "pending": @props.pending
 
     <header className={classes} onClick={@_onClickHeader}>
-
       {@_renderHeaderSideItems()}
-
       <div className="message-header-right">
         <MessageTimestamp className="message-time"
                           isDetailed={@state.detailedHeaders}
                           date={@props.message.date} />
 
-        {@_renderMessageControls()}
+        <MessageControls thread={@props.thread} message={@props.message}/>
       </div>
-
-      <MessageParticipants to={@props.message.to}
-                           cc={@props.message.cc}
-                           bcc={@props.message.bcc}
-                           from={@props.message.from}
-                           subject={@props.message.subject}
-                           onClick={@_onClickParticipants}
-                           isDetailed={@state.detailedHeaders}
-                           message_participants={@props.message.participants()} />
-
+      {@_renderFromParticipants()}
+      {@_renderToParticipants()}
       {@_renderFolder()}
       {@_renderHeaderDetailToggle()}
-
     </header>
 
-  _renderMessageControls: ->
-    <MessageControls thread={@props.thread} message={@props.message}/>
+  _renderFromParticipants: =>
+    <MessageParticipants
+      from={@props.message.from}
+      onClick={@_onClickParticipants}
+      isDetailed={@state.detailedHeaders} />
+
+  _renderToParticipants: =>
+    <MessageParticipants
+      to={@props.message.to}
+      cc={@props.message.cc}
+      bcc={@props.message.bcc}
+      onClick={@_onClickParticipants}
+      isDetailed={@state.detailedHeaders} />
 
   _renderFolder: =>
     return [] unless @state.detailedHeaders and @props.message.folder
