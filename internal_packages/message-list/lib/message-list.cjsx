@@ -201,11 +201,13 @@ class MessageList extends React.Component
             <InjectedComponentSet
               className="message-list-notification-bars"
               matching={role:"MessageListNotificationBar"}
-              exposedProps={thread: @state.currentThread}/>
+              exposedProps={thread: @state.currentThread}
+              direction="column"/>
             <InjectedComponentSet
               className="message-list-headers"
               matching={role:"MessageListHeaders"}
-              exposedProps={thread: @state.currentThread}/>
+              exposedProps={thread: @state.currentThread}
+              direction="column"/>
           </div>
           {@_messageElements()}
         </ScrollRegion>

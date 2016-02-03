@@ -374,7 +374,8 @@ class ComposerView extends React.Component
     <div className="composer-footer-region">
       <InjectedComponentSet
         matching={role: "Composer:Footer"}
-        exposedProps={draftClientId:@props.draftClientId, threadId: @props.threadId}/>
+        exposedProps={draftClientId:@props.draftClientId, threadId: @props.threadId}
+        direction="column"/>
     </div>
 
   _renderAttachments: ->
