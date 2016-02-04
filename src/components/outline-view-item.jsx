@@ -36,6 +36,7 @@ const CounterStyles = {
  * @param {object} props.item - props for OutlineViewItem
  * @param {string} props.item.id - Unique id for the item.
  * @param {string} props.item.name - Name to display
+ * @param {string} props.item.contextMenuLabel - Label to be displayed in context menu
  * @param {string} props.item.className - Extra classes to add to the item
  * @param {string} props.item.iconName - Icon name for icon. See {@link RetinaImg} for further reference.
  * @param {array} props.item.children - Array of children of the same type to be
@@ -245,21 +246,21 @@ class OutlineViewItem extends Component {
   _onShowContextMenu = (event)=> {
     event.stopPropagation()
     const item = this.props.item;
-    const name = item.name;
+    const contextMenuLabel = item.contextMenuLabel || item.name
     const {remote} = require('electron');
     const {Menu, MenuItem} = remote;
     const menu = new Menu();
 
     if (this.props.item.onEdited) {
       menu.append(new MenuItem({
-        label: `Edit ${name}`,
+        label: `Rename ${contextMenuLabel}`,
         click: this._onEdit,
       }));
     }
 
     if (this.props.item.onDelete) {
       menu.append(new MenuItem({
-        label: `Delete ${name}`,
+        label: `Delete ${contextMenuLabel}`,
         click: this._onDelete,
       }));
     }

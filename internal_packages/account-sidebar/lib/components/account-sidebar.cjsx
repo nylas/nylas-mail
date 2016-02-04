@@ -40,8 +40,8 @@ class AccountSidebar extends React.Component
     {accounts, focusedAccounts, userSections, standardSection} = @state
 
     <Flexbox direction="column" style={order: 0, flexShrink: 1, flex: 1}>
-      <AccountSwitcher accounts={accounts} focusedAccounts={focusedAccounts} />
       <ScrollRegion className="account-sidebar" style={order: 2}>
+        <AccountSwitcher accounts={accounts} focusedAccounts={focusedAccounts} />
         <div className="account-sidebar-sections">
           <OutlineView {...standardSection} />
           {@_renderUserSections(userSections)}
