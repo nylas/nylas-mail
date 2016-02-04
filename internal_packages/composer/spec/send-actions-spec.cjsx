@@ -60,15 +60,15 @@ describe "SendActionButton", ->
 
   it "has the correct primary item", ->
     spyOn(ExtensionRegistry.Composer, "extensions").andReturn [GoodExtension, SecondExtension]
+    spyOn(NylasEnv.config, 'get').andReturn('second-extension')
     @sendActionButton = render(@draft)
-    @sendActionButton.setState(selectedSendType: 'second-extension')
     dropdown = ReactTestUtils.findRenderedComponentWithType(@sendActionButton, ButtonDropdown)
     expect(dropdown.props.primaryTitle).toBe "Second Extension"
 
   it "falls back to a default if the primary item can't be found", ->
     spyOn(ExtensionRegistry.Composer, "extensions").andReturn [GoodExtension, SecondExtension]
+    spyOn(NylasEnv.config, 'get').andReturn('does-not-exist')
     @sendActionButton = render(@draft)
-    @sendActionButton.setState(selectedSendType: 'does-not-exist')
     dropdown = ReactTestUtils.findRenderedComponentWithType(@sendActionButton, ButtonDropdown)
     expect(dropdown.props.primaryTitle).toBe "Send"
 
@@ -104,8 +104,8 @@ describe "SendActionButton", ->
         onSend: ->
 
     spyOn(ExtensionRegistry.Composer, "extensions").andReturn [NoIconUrl]
+    spyOn(NylasEnv.config, 'get').andReturn('some-title')
     @sendActionButton = render(@draft)
-    @sendActionButton.setState(selectedSendType: 'some-title')
     dropdowns = ReactTestUtils.scryRenderedComponentsWithType(@sendActionButton, ButtonDropdown)
     icons = ReactTestUtils.scryRenderedComponentsWithType(@sendActionButton, RetinaImg)
     buttons = ReactTestUtils.scryRenderedDOMComponentsWithTag(@sendActionButton, "button")
@@ -152,9 +152,9 @@ describe "SendActionButton", ->
         iconUrl: "nylas://foo/bar/baz"
         onSend: -> clicked = "onSend fired"
     spyOn(ExtensionRegistry.Composer, "extensions").andReturn [Click]
+    spyOn(NylasEnv.config, 'get').andReturn('click')
 
     @sendActionButton = render(@draft)
-    @sendActionButton.setState(selectedSendType: 'click')
 
     button = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(@sendActionButton, "primary-item"))
     ReactTestUtils.Simulate.click(button)
@@ -168,9 +168,9 @@ describe "SendActionButton", ->
         iconUrl: "nylas://foo/bar/baz"
         onSend: -> throw new Error("BOO")
     spyOn(ExtensionRegistry.Composer, "extensions").andReturn [Click]
+    spyOn(NylasEnv.config, 'get').andReturn('click')
 
     @sendActionButton = render(@draft)
-    @sendActionButton.setState(selectedSendType: 'click')
 
     button = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(@sendActionButton, "primary-item"))
     ReactTestUtils.Simulate.click(button)
@@ -178,14 +178,8 @@ describe "SendActionButton", ->
     expect(NylasEnv.reportError).toHaveBeenCalled()
     expect(NylasEnv.reportError.calls[0].args[0].message).toMatch /BOO/
 
-  it "initializes with the correct config item", ->
-    spyOn(NylasEnv.config, "get").andReturn "test-state"
+  it "initializes with the default and shows the standard Send option", ->
+    spyOn(NylasEnv.config, 'get').andReturn(null)
     @sendActionButton = render(@draft)
-    expect(@sendActionButton.state.selectedSendType).toBe "test-state"
-
-  it "initializes with the default key", ->
-    spyOn(NylasEnv.config, "get").andReturn null
-    @sendActionButton = render(@draft)
-    expect(@sendActionButton.state.selectedSendType).toBe "send"
-
-
+    button = React.findDOMNode(@sendActionButton)
+    expect(button.innerText).toEqual('Send')
