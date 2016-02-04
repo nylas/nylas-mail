@@ -4,6 +4,7 @@ TaskFactory = require './flux/tasks/task-factory'
 AccountStore = require './flux/stores/account-store'
 CategoryStore = require './flux/stores/category-store'
 DatabaseStore = require './flux/stores/database-store'
+OutboxStore = require './flux/stores/outbox-store'
 SearchSubscription = require './search-subscription'
 ThreadCountsStore = require './flux/stores/thread-counts-store'
 MutableQuerySubscription = require './flux/models/mutable-query-subscription'
@@ -67,7 +68,7 @@ class MailboxPerspective
   threads: =>
     throw new Error("threads: Not implemented in base class.")
 
-  threadUnreadCount: =>
+  unreadCount: =>
     0
 
   # Public:
@@ -148,6 +149,11 @@ class DraftsMailboxPerspective extends MailboxPerspective
 
   threads: =>
     null
+
+  unreadCount: =>
+    count = 0
+    count += OutboxStore.itemsForAccount(aid).length for aid in @accountIds
+    count
 
   canReceiveThreads: =>
     false
@@ -233,7 +239,7 @@ class CategoryMailboxPerspective extends MailboxPerspective
 
     return new MutableQuerySubscription(query, {asResultSet: true})
 
-  threadUnreadCount: =>
+  unreadCount: =>
     sum = 0
     for cat in @_categories
       sum += ThreadCountsStore.unreadCountForCategoryId(cat.id)

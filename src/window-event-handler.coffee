@@ -116,16 +116,27 @@ class WindowEventHandler
     @unloadCallbacks.push(callback)
 
   runUnloadCallbacks: ->
-    continueUnload = true
+    unloadCallbacksRunning = 0
+    unloadCallbackComplete = =>
+      unloadCallbacksRunning -= 1
+      if unloadCallbacksRunning is 0
+        @runUnloadFinished()
+
     for callback in @unloadCallbacks
-      returnValue = callback()
-      if returnValue is true
-        continue
-      else if returnValue is false
-        continueUnload = false
-      else
+      returnValue = callback(unloadCallbackComplete)
+      if returnValue is false
+        unloadCallbacksRunning += 1
+      else if returnValue isnt true
         console.warn "You registered an `onBeforeUnload` callback that does not return either exactly `true` or `false`. It returned #{returnValue}", callback
-    return continueUnload
+
+    return (unloadCallbacksRunning > 0)
+
+  runUnloadFinished: ->
+    _.defer =>
+      if remote.getGlobal('application').quitting
+        remote.require('app').quit()
+      else
+        @close()
 
   # Wire commands that should be handled by Chromium for elements with the
   # `.override-key-bindings` class.

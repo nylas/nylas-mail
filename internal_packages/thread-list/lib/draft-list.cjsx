@@ -1,9 +1,7 @@
 _ = require 'underscore'
 React = require 'react'
-{Actions,
- FocusedContentStore} = require 'nylas-exports'
-{ListTabular,
- FluxContainer,
+{Actions} = require 'nylas-exports'
+{FluxContainer,
  MultiselectList} = require 'nylas-component-kit'
 DraftListStore = require './draft-list-store'
 DraftListColumns = require './draft-list-columns'
@@ -12,7 +10,6 @@ EmptyState = require './empty-state'
 
 class DraftList extends React.Component
   @displayName: 'DraftList'
-
   @containerRequired: false
 
   render: =>
@@ -25,24 +22,28 @@ class DraftList extends React.Component
           onDoubleClick={@_onDoubleClick}
           emptyComponent={EmptyState}
           keymapHandlers={@_keymapHandlers()}
-          itemPropsProvider={ -> {} }
+          itemPropsProvider={@_itemPropsProvider}
           itemHeight={39}
           className="draft-list" />
       </FocusContainer>
     </FluxContainer>
 
+  _itemPropsProvider: (draft) ->
+    props = {}
+    props.className = 'sending' if draft.uploadTaskId
+    props
+
   _keymapHandlers: =>
     'core:remove-from-view': @_onRemoveFromView
 
-  _onDoubleClick: (item) =>
-    Actions.composePopoutDraft(item.clientId)
+  _onDoubleClick: (draft) =>
+    unless draft.uploadTaskId
+      Actions.composePopoutDraft(draft.clientId)
 
   # Additional Commands
 
   _onRemoveFromView: =>
-    items = DraftListStore.dataSource().selection.items()
-    for item in items
-      Actions.destroyDraft(item.clientId)
-
+    drafts = DraftListStore.dataSource().selection.items()
+    Actions.destroyDraft(draft.clientId) for draft in drafts
 
 module.exports = DraftList
