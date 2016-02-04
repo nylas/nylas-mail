@@ -15,32 +15,31 @@ class SendActionButton extends React.Component
   constructor: (@props) ->
     @state =
       actionConfigs: @_actionConfigs(@props)
-      selectedSendType: NylasEnv.config.get(SendActionButton.CONFIG_KEY) ? @_defaultActionConfig().configKey
 
-  componentDidMount: ->
+  componentDidMount: =>
     @unsub = ExtensionRegistry.Composer.listen(@_onExtensionsChanged)
 
-  componentWillReceiveProps: (newProps) ->
+  componentWillReceiveProps: (newProps) =>
     @setState actionConfigs: @_actionConfigs(newProps)
 
-  componentWillUnmount: ->
+  componentWillUnmount: =>
     @unsub()
 
   primaryClick: => @_onPrimaryClick()
 
-  _configKeyFromTitle: (title) ->
+  _configKeyFromTitle: (title) =>
     return _str.dasherize(title.toLowerCase())
 
   _onExtensionsChanged: =>
     @setState actionConfigs: @_actionConfigs(@props)
 
-  _defaultActionConfig: ->
+  _defaultActionConfig: =>
     title: "Send"
     iconUrl: null
     onSend: ({draft}) -> Actions.sendDraft(draft.clientId)
     configKey: "send"
 
-  _actionConfigs: (props) ->
+  _actionConfigs: (props) =>
     return [] unless props.draft
     actionConfigs = [@_defaultActionConfig()]
 
@@ -56,7 +55,7 @@ class SendActionButton extends React.Component
 
     return actionConfigs
 
-  _verifyConfig: (config={}, extension) ->
+  _verifyConfig: (config={}, extension) =>
     name = extension.name
     if not _.isString(config.title)
       throw new Error("#{name}.sendActionConfig must return a string `title`")
@@ -66,49 +65,50 @@ class SendActionButton extends React.Component
 
     return true
 
-  render: ->
-    return false if not @props.draft
+  render: =>
+    return false unless @props.draft
     if @state.actionConfigs.length is 1
       @_renderSingleDefaultButton()
     else
       @_renderSendDropdown()
 
   _onPrimaryClick: =>
-    actionConfigs = @_orderedActionConfigs()
-    @_sendWithAction(actionConfigs[0].onSend)
+    {preferred} = @_orderedActionConfigs()
+    @_sendWithAction(preferred)
 
-  _renderSingleDefaultButton: ->
-    classes = "btn btn-toolbar btn-normal btn-emphasis btn-text btn-send"
-    iconUrl = @state.actionConfigs[0].iconUrl
-    <button className={classes}
-            style={order: -100}
-            onClick={@_onPrimaryClick}>{@_sendContent(iconUrl)}</button>
+  _renderSingleDefaultButton: =>
+    <button
+      className={"btn btn-toolbar btn-normal btn-emphasis btn-text btn-send"}
+      style={order: -100}
+      onClick={@_onPrimaryClick}>
+      {@_contentForAction(@state.actionConfigs[0])}
+    </button>
 
-  _renderSendDropdown: ->
-    actionConfigs = @_orderedActionConfigs()
+  _renderSendDropdown: =>
+    {preferred, rest} = @_orderedActionConfigs()
+
     <ButtonDropdown
       className={"btn-send btn-emphasis btn-text"}
       style={order: -100}
-      primaryItem={@_sendContent(actionConfigs[0].iconUrl)}
-      primaryTitle={actionConfigs[0].title}
+      primaryItem={@_contentForAction(preferred)}
+      primaryTitle={preferred.title}
       primaryClick={@_onPrimaryClick}
       closeOnMenuClick={true}
-      menu={@_dropdownMenu(actionConfigs[1..-1])}/>
+      menu={@_dropdownMenu(rest)}/>
 
-  _orderedActionConfigs: ->
+  _orderedActionConfigs: =>
     configKeys = _.pluck(@state.actionConfigs, "configKey")
-    if @state.selectedSendType not in configKeys
-      selectedSendType = @_defaultActionConfig().configKey
-    else
-      selectedSendType = @state.selectedSendType
+    preferredKey = NylasEnv.config.get(SendActionButton.CONFIG_KEY)
 
-    primary = _.findWhere(@state.actionConfigs, configKey: selectedSendType)
-    rest = _.reject @state.actionConfigs, (config) ->
-      config.configKey is selectedSendType
+    if not preferredKey? or preferredKey not in configKeys
+      preferredKey = @_defaultActionConfig().configKey
 
-    return [primary].concat(rest)
+    preferred = _.findWhere(@state.actionConfigs, configKey: preferredKey)
+    rest = _.without(@state.actionConfigs, preferred)
 
-  _sendWithAction: (onSend) ->
+    {preferred, rest}
+
+  _sendWithAction: ({onSend}) =>
     isValidDraft = @props.isValidDraft()
     if isValidDraft
       try
@@ -116,19 +116,14 @@ class SendActionButton extends React.Component
       catch err
         NylasEnv.reportError(err)
 
-  _dropdownMenu: (actionConfigs) ->
+  _dropdownMenu: (actionConfigs) =>
     <Menu items={actionConfigs}
           itemKey={ (actionConfig) -> actionConfig.configKey }
-          itemContent={ (actionConfig) => @_sendContent(actionConfig.iconUrl) }
-          onSelect={@_menuItemSelect}
+          itemContent={@_contentForAction}
+          onSelect={@_sendWithAction}
           />
 
-  _menuItemSelect: (actionConfig) =>
-    @setState selectedSendType: actionConfig.configKey
-
-  _sendContent: (iconUrl) ->
-    sendIcon = "icon-composer-send.png"
-
+  _contentForAction: ({iconUrl}) =>
     if iconUrl
       plusHTML = <span>&nbsp;+&nbsp;</span>
       additionalImg = <RetinaImg url={iconUrl}
@@ -138,7 +133,7 @@ class SendActionButton extends React.Component
       additionalImg = ""
 
     <span>
-      <RetinaImg name={sendIcon} mode={RetinaImg.Mode.ContentIsMask} />
+      <RetinaImg name="icon-composer-send.png" mode={RetinaImg.Mode.ContentIsMask} />
       <span className="text">Send{plusHTML}</span>{additionalImg}
     </span>
 
