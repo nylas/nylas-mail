@@ -199,11 +199,6 @@ class MessageList extends React.Component
           {@_renderSubject()}
           <div className="headers" style={position:'relative'}>
             <InjectedComponentSet
-              className="message-list-notification-bars"
-              matching={role:"MessageListNotificationBar"}
-              exposedProps={thread: @state.currentThread}
-              direction="column"/>
-            <InjectedComponentSet
               className="message-list-headers"
               matching={role:"MessageListHeaders"}
               exposedProps={thread: @state.currentThread}
