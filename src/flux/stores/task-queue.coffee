@@ -73,6 +73,7 @@ class TaskQueue
   constructor: ->
     @_queue = []
     @_completed = []
+    @_updatePeriodicallyTimeout = null
 
     @_restoreQueue()
 
@@ -169,12 +170,18 @@ class TaskQueue
   # Helper Methods
 
   _processQueue: =>
+    started = 0
+
     for task in @_queue by -1
       if @_taskIsBlocked(task)
         task.queueState.debugStatus = Task.DebugStatus.WaitingOnDependency
         continue
       else
         @_processTask(task)
+        started += 1
+
+    if started > 0
+      @trigger()
 
   _processTask: (task) =>
     return if task.queueState.isProcessing
@@ -267,7 +274,7 @@ class TaskQueue
         task.queueState ?= {}
         task.queueState.isProcessing = false
       @_queue = queue
-      @_processQueue()
+      @_updateSoon()
 
   _updateSoon: =>
     @_updateSoonThrottled ?= _.throttle =>
@@ -275,9 +282,24 @@ class TaskQueue
         t.persistJSONBlob(JSONBlobStorageKey, @_queue ? [])
       _.defer =>
         @_processQueue()
-        @trigger()
+        @_ensurePeriodicUpdates()
     , 10
+
     @_updateSoonThrottled()
+
+  _ensurePeriodicUpdates: =>
+    anyIsProcessing = _.any @_queue, (task) -> task.queueState.isProcessing
+
+    # The task queue triggers periodically as tasks are processed, even if no
+    # major events have occurred. This allows tasks which have state, like
+    # SendDraftTask.progress to be propogated through the app and inspected.
+    if anyIsProcessing and not @_updatePeriodicallyTimeout
+      @_updatePeriodicallyTimeout = setInterval =>
+        @_updateSoon()
+      , 1000
+    else if not anyIsProcessing and @_updatePeriodicallyTimeout
+      clearTimeout(@_updatePeriodicallyTimeout)
+      @_updatePeriodicallyTimeout = null
 
 module.exports = new TaskQueue()
 module.exports.JSONBlobStorageKey = JSONBlobStorageKey

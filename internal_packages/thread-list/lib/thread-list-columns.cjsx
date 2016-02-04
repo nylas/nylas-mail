@@ -102,7 +102,7 @@ c5 = new ListTabular.Column
         children=
         {[
           <ThreadTrashQuickAction key="thread-trash-quick-action" thread={thread} />
-          <ThreadArchiveQuickAction key="thread-arhive-quick-action" thread={thread} />
+          <ThreadArchiveQuickAction key="thread-archive-quick-action" thread={thread} />
         ]}
         matching={role: "ThreadListQuickAction"}
         className="thread-injected-quick-actions"

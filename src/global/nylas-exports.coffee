@@ -54,6 +54,7 @@ class NylasExports
   @load "DatabaseStore", 'flux/stores/database-store'
   @load "DatabaseTransaction", 'flux/stores/database-transaction'
   @load "QueryResultSet", 'flux/models/query-result-set'
+  @load "MutableQueryResultSet", 'flux/models/mutable-query-result-set'
   @load "ObservableListDataSource", 'flux/stores/observable-list-data-source'
   @load "QuerySubscription", 'flux/models/query-subscription'
   @load "MutableQuerySubscription", 'flux/models/mutable-query-subscription'
@@ -115,6 +116,7 @@ class NylasExports
   # listen-only and not explicitly required from anywhere. Stores
   # currently set themselves up on require.
   @require "DraftStore", 'flux/stores/draft-store'
+  @require "OutboxStore", 'flux/stores/outbox-store'
   @require "AccountStore", 'flux/stores/account-store'
   @require "MessageStore", 'flux/stores/message-store'
   @require "ContactStore", 'flux/stores/contact-store'

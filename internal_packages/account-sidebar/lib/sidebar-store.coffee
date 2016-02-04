@@ -4,6 +4,7 @@ _ = require 'underscore'
  AccountStore,
  ThreadCountsStore,
  WorkspaceStore,
+ OutboxStore,
  FocusedPerspectiveStore,
  CategoryStore} = require 'nylas-exports'
 
@@ -42,6 +43,7 @@ class SidebarStore extends NylasStore
     @listenTo AccountStore, @_onAccountsChanged
     @listenTo FocusedPerspectiveStore, @_onFocusedPerspectiveChanged
     @listenTo WorkspaceStore, @_updateSections
+    @listenTo OutboxStore, @_updateSections
     @listenTo ThreadCountsStore, @_updateSections
     @listenTo CategoryStore, @_updateSections
 

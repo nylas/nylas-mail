@@ -35,13 +35,13 @@ describe "TaskQueue", ->
     it "should fetch the queue from the database, reset flags and start processing", ->
       queue = [@processingTask, @unstartedTask]
       spyOn(DatabaseStore, 'findJSONBlob').andCallFake => Promise.resolve(queue)
-      spyOn(TaskQueue, '_processQueue')
+      spyOn(TaskQueue, '_updateSoon')
 
       waitsForPromise =>
         TaskQueue._restoreQueue().then =>
           expect(TaskQueue._queue).toEqual(queue)
           expect(@processingTask.queueState.isProcessing).toEqual(false)
-          expect(TaskQueue._processQueue).toHaveBeenCalled()
+          expect(TaskQueue._updateSoon).toHaveBeenCalled()
 
   describe "findTask", ->
     beforeEach ->

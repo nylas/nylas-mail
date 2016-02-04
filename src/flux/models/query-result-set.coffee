@@ -35,11 +35,12 @@ class QueryResultSet
     set
 
   constructor: (other = {}) ->
-    @_modelsHash = other._modelsHash ? {}
     @_offset = other._offset ? null
     @_query = other._query ? null
-    @_ids = other._ids ? []
     @_idToIndexHash = other._idToIndexHash ? null
+    # Clone, since the others may be frozen
+    @_modelsHash = Object.assign({}, other._modelsHash ? {})
+    @_ids = [].concat(other._ids ? [])
 
   clone: ->
     new @constructor({

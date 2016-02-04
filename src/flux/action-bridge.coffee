@@ -40,8 +40,11 @@ class ActionBridge
 
   constructor: (ipc) ->
     @ipc = ipc
+    @ipcLastSendTime = null
     @initiatorId = NylasEnv.getWindowType()
     @role = if NylasEnv.isWorkWindow() then Role.WORK else Role.SECONDARY
+
+    NylasEnv.onBeforeUnload(@onBeforeUnload)
 
     # Listen for action bridge messages from other windows
     @ipc.on('action-bridge-message', @onIPCMessage)
@@ -104,6 +107,16 @@ class ActionBridge
 
     console.debug(printToConsole, "ActionBridge: #{@initiatorId} Action Bridge Broadcasting: #{name}")
     @ipc.send("action-bridge-rebroadcast-to-#{target}", @initiatorId, name, json)
+    @ipcLastSendTime = Date.now()
 
+  onBeforeUnload: (readyToUnload) =>
+    # Unfortunately, if you call ipc.send and then immediately close the window,
+    # Electron won't actually send the message. To work around this, we wait an
+    # arbitrary amount of time before closing the window after the last IPC event
+    # was sent. https://github.com/atom/electron/issues/4366
+    if @ipcLastSendTime and Date.now() - @ipcLastSendTime < 100
+      setTimeout(readyToUnload, 100)
+      return false
+    return true
 
 module.exports = ActionBridge
