@@ -3,6 +3,10 @@
 
 'body':
   # Windows email-specific menu items
+  
+  ### Threadlist selection ###
+  'cmdctrl-a':       'multiselect-list:select-all'
+  
   'cmdctrl-shift-v': 'application:change-category' # Outlook
   'F3':              'application:focus-search'
   'cmdctrl-e':       'application:focus-search'
