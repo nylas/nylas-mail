@@ -6,7 +6,7 @@ class EmojiPicker extends React.Component {
   static displayName = "EmojiPicker"
   static propTypes = {
     emojiOptions: React.PropTypes.array,
-    selectedEmoji: React.PropTypes.string
+    selectedEmoji: React.PropTypes.string,
   };
 
   constructor(props) {
@@ -15,35 +15,33 @@ class EmojiPicker extends React.Component {
   }
 
   componentDidUpdate() {
-    selectedButton = React.findDOMNode(this).querySelector(".emoji-option");
+    const selectedButton = React.findDOMNode(this).querySelector(".emoji-option");
     if (selectedButton) {
       selectedButton.scrollIntoViewIfNeeded();
     }
   }
 
+  onMouseDown(emojiChar) {
+    EmojiActions.selectEmoji({emojiChar});
+  }
+
   render() {
-    let emojis = [];
-    emojiIndex = this.props.emojiOptions.indexOf(this.props.selectedEmoji);
-    if (emojiIndex == -1) {
-      emojiIndex = 0;
-    }
+    const emojis = [];
+    let emojiIndex = this.props.emojiOptions.indexOf(this.props.selectedEmoji);
+    if (emojiIndex === -1) emojiIndex = 0;
     if (this.props.emojiOptions) {
-      this.props.emojiOptions.forEach((emojiOption, i) =>  {
+      this.props.emojiOptions.forEach((emojiOption, i) => {
         const emojiChar = emoji.get(emojiOption);
-        emojiClass = emojiIndex == i ? "btn btn-icon emoji-option" : "btn btn-icon";
+        const emojiClass = emojiIndex === i ? "btn btn-icon emoji-option" : "btn btn-icon";
         emojis.push(<button onMouseDown={() => this.onMouseDown(emojiChar)} className={emojiClass}>{emojiChar} :{emojiOption}:</button>);
         emojis.push(<br />);
       })
     }
-    return(
+    return (
       <div className="emoji-picker">
         {emojis}
       </div>
     );
-  }
-
-  onMouseDown(emojiChar) {
-    EmojiActions.selectEmoji({emojiChar});
   }
 }
 
