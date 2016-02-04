@@ -112,10 +112,9 @@ class MultiselectList extends React.Component
         props['data-item-id'] = item.id
         props
 
-      <KeyCommandsRegion globalHandlers={@_globalKeymapHandlers()} className="multiselect-list">
+      <KeyCommandsRegion globalHandlers={@_globalKeymapHandlers()} className={className}>
         <ListTabular
           ref="list"
-          className={className}
           columns={@state.computedColumns}
           dataSource={@props.dataSource}
           itemPropsProvider={@itemPropsProvider}

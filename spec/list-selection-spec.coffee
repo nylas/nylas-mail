@@ -11,7 +11,7 @@ describe "ListSelection", ->
     @trigger = jasmine.createSpy('trigger')
 
     @items = []
-    @items.push(new Thread(id: "#{ii}")) for ii in [0..99]
+    @items.push(new Thread(id: "#{ii}", clientId: "#{ii}")) for ii in [0..99]
 
     @view = new ListDataSource()
     @view.indexOfId = jasmine.createSpy('indexOfId').andCallFake (id) =>
@@ -84,13 +84,13 @@ describe "ListSelection", ->
       @selection.set([@items[2], @items[4], @items[7]])
       expect(@selection.items()[0]).toBe(@items[2])
       expect(@selection.items()[0].subject).toBe(undefined)
-      newItem2 = new Thread(id: '2', subject:'Hello world!')
+      newItem2 = new Thread(id: '2', clientId: '2', subject:'Hello world!')
       @selection._applyChangeRecord({objectClass: 'Thread', objects: [newItem2], type: 'persist'})
       expect(@selection.items()[0].subject).toBe('Hello world!')
 
     it "should rremove items in the selection if type is unpersist", ->
       @selection.set([@items[2], @items[4], @items[7]])
-      newItem2 = new Thread(id: '2', subject:'Hello world!')
+      newItem2 = new Thread(id: '2', clientId: '2', subject:'Hello world!')
       @selection._applyChangeRecord({objectClass: 'Thread', objects: [newItem2], type: 'unpersist'})
       expect(@selection.ids()).toEqual(['4', '7'])
 

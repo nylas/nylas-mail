@@ -15,7 +15,7 @@ idForCategories = (categories) ->
 countForItem = (perspective) ->
   unreadCountEnabled = NylasEnv.config.get('core.workspace.showUnreadForAllCategories')
   if perspective.isInbox() or unreadCountEnabled
-    return perspective.threadUnreadCount()
+    return perspective.unreadCount()
   return 0
 
 isItemSelected = (perspective) ->

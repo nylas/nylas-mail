@@ -8,6 +8,7 @@ DraftStoreProxy = require './draft-store-proxy'
 DatabaseStore = require './database-store'
 AccountStore = require './account-store'
 ContactStore = require './contact-store'
+TaskQueueStatusStore = require './task-queue-status-store'
 FocusedPerspectiveStore = require './focused-perspective-store'
 FocusedContentStore = require './focused-content-store'
 
@@ -161,7 +162,7 @@ class DraftStore
     for draftClientId, session of @_draftSessions
       @_doneWithSession(session)
 
-  _onBeforeUnload: =>
+  _onBeforeUnload: (readyToUnload) =>
     promises = []
 
     # Normally we'd just append all promises, even the ones already
@@ -180,7 +181,7 @@ class DraftStore
       # handler, so we need to always defer by one tick before re-firing close.
       Promise.settle(promises).then =>
         @_draftSessions = {}
-        NylasEnv.finishUnload()
+        readyToUnload()
 
       # Stop and wait before closing
       return false
@@ -486,6 +487,11 @@ class DraftStore
     # Immediately reset any pending changes so no saves occur
     if session
       @_doneWithSession(session)
+
+    # Stop any pending SendDraftTasks
+    for task in TaskQueueStatusStore.queue()
+      if task instanceof SendDraftTask and task.draft.clientId is draftClientId
+        Actions.dequeueTask(task.id)
 
     # Queue the task to destroy the draft
     Actions.queueTask(new DestroyDraftTask(draftClientId: draftClientId))

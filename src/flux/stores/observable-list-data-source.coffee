@@ -1,11 +1,5 @@
 _ = require 'underscore'
 Rx = require 'rx-lite'
-DatabaseStore = require './database-store'
-Message = require '../models/message'
-QuerySubscriptionPool = require '../models/query-subscription-pool'
-QuerySubscription = require '../models/query-subscription'
-MutableQuerySubscription = require '../models/mutable-query-subscription'
-
 {ListTabular} = require 'nylas-component-kit'
 
 ###
