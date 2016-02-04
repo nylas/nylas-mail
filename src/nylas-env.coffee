@@ -235,7 +235,7 @@ class NylasEnvConstructor extends Model
       [message, url, line, column, originalError] = args
       {line, column} = mapSourcePosition({source: url, line, column})
       originalError.stack = convertStackTrace(originalError.stack, sourceMapCache)
-      @reportError(originalerror, {url, line, column})
+      @reportError(originalError, {url, line, column})
 
     Promise.onPossiblyUnhandledRejection (error, promise) =>
       error.stack = convertStackTrace(error.stack, sourceMapCache)
