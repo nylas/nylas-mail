@@ -189,6 +189,8 @@ class NylasEnvConstructor extends Model
       if event.binding.command.indexOf('application:') is 0 and event.binding.selector.indexOf("body") is 0
         ipcRenderer.send('command', event.binding.command)
 
+    @windowEventHandler = new WindowEventHandler
+
     unless @inSpecMode()
       @actionBridge = new ActionBridge(ipcRenderer)
 
@@ -210,7 +212,6 @@ class NylasEnvConstructor extends Model
     @spellchecker = require('./nylas-spellchecker')
 
     @subscribe @packages.onDidActivateInitialPackages => @watchThemes()
-    @windowEventHandler = new WindowEventHandler
 
   # This ties window.onerror and Promise.onPossiblyUnhandledRejection to
   # the publically callable `reportError` method. This will take care of
@@ -937,16 +938,6 @@ class NylasEnvConstructor extends Model
   #
   onBeforeUnload: (callback) ->
     @windowEventHandler.addUnloadCallback(callback)
-
-  # Call this method to resume the close / quit process if you returned
-  # false from a onBeforeUnload handler.
-  #
-  finishUnload: ->
-    _.defer =>
-      if remote.getGlobal('application').quitting
-        remote.require('app').quit()
-      else
-        @close()
 
   enhanceEventObject: ->
     overriddenStop =  Event::stopPropagation

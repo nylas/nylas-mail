@@ -40,12 +40,12 @@ class ListTabular extends React.Component
   componentWillReceiveProps: (nextProps) =>
     if nextProps.dataSource isnt @props.dataSource
       @setupDataSource(nextProps.dataSource)
-      @setState(@buildStateForRange(dataSource: nextProps.dataSource))
 
   setupDataSource: (dataSource) =>
     @_unlisten?()
     @_unlisten = dataSource.listen =>
       @setState(@buildStateForRange())
+    @setState(@buildStateForRange(dataSource: dataSource))
 
   buildStateForRange: ({dataSource, start, end} = {}) =>
     start ?= @state.renderedRangeStart
@@ -117,12 +117,11 @@ class ListTabular extends React.Component
     if @props.emptyComponent
       emptyElement = <@props.emptyComponent visible={@state.loaded and @state.empty} />
 
-    <div className={@props.className}>
+    <div className="list-container list-tabular #{@props.className}">
       <ScrollRegion
         ref="container"
         onScroll={@onScroll}
         tabIndex="-1"
-        className="list-container list-tabular"
         scrollTooltipComponent={@props.scrollTooltipComponent}>
         <div className="list-rows" style={innerStyles} {...otherProps}>
           {@_rows()}

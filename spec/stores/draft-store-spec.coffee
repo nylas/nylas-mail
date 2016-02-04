@@ -634,12 +634,12 @@ describe "DraftStore", ->
         }}
 
       it "should return false and call window.close itself", ->
-        spyOn(NylasEnv, 'finishUnload')
-        expect(DraftStore._onBeforeUnload()).toBe(false)
-        expect(NylasEnv.finishUnload).not.toHaveBeenCalled()
+        callback = jasmine.createSpy('callback')
+        expect(DraftStore._onBeforeUnload(callback)).toBe(false)
+        expect(callback).not.toHaveBeenCalled()
         @resolve()
         advanceClock(1000)
-        expect(NylasEnv.finishUnload).toHaveBeenCalled()
+        expect(callback).toHaveBeenCalled()
 
     describe "when drafts return immediately fulfilled commit promises", ->
       beforeEach ->
@@ -651,11 +651,11 @@ describe "DraftStore", ->
         }}
 
       it "should still wait one tick before firing NylasEnv.close again", ->
-        spyOn(NylasEnv, 'finishUnload')
-        expect(DraftStore._onBeforeUnload()).toBe(false)
-        expect(NylasEnv.finishUnload).not.toHaveBeenCalled()
+        callback = jasmine.createSpy('callback')
+        expect(DraftStore._onBeforeUnload(callback)).toBe(false)
+        expect(callback).not.toHaveBeenCalled()
         advanceClock()
-        expect(NylasEnv.finishUnload).toHaveBeenCalled()
+        expect(callback).toHaveBeenCalled()
 
     describe "when there are no drafts", ->
       beforeEach ->

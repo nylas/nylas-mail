@@ -10,30 +10,22 @@ SendDraftTask = require './send-draft'
 
 module.exports =
 class DestroyDraftTask extends Task
-  constructor: ({@draftClientId, @draftId} = {}) -> super
+  constructor: ({@draftClientId} = {}) ->
+    super
 
   shouldDequeueOtherTask: (other) ->
-    if @draftClientId
-      (other instanceof DestroyDraftTask and other.draftClientId is @draftClientId) or
-      (other instanceof SyncbackDraftTask and other.draftClientId is @draftClientId) or
-      (other instanceof SendDraftTask and other.draftClientId is @draftClientId)
-    else if @draftId
-      (other instanceof DestroyDraftTask and other.draftClientId is @draftClientId)
-    else
-      false
+    (other instanceof DestroyDraftTask and other.draftClientId is @draftClientId) or
+    (other instanceof SyncbackDraftTask and other.draftClientId is @draftClientId) or
+    (other instanceof SendDraftTask and other.draftClientId is @draftClientId)
 
   isDependentTask: (other) ->
     (other instanceof SyncbackDraftTask and other.draftClientId is @draftClientId)
 
   performLocal: ->
-    if @draftClientId
-      find = DatabaseStore.findBy(Message, clientId: @draftClientId)
-    else if @draftId
-      find = DatabaseStore.find(Message, @draftId)
-    else
+    unless @draftClientId
       return Promise.reject(new Error("Attempt to call DestroyDraftTask.performLocal without draftClientId"))
 
-    find.include(Message.attributes.body).then (draft) =>
+    DatabaseStore.findBy(Message, clientId: @draftClientId).include(Message.attributes.body).then (draft) =>
       return Promise.resolve() unless draft
       @draft = draft
       DatabaseStore.inTransaction (t) =>
@@ -47,7 +39,10 @@ class DestroyDraftTask extends Task
       err = new Error("No valid draft to destroy!")
       return Promise.resolve([Task.Status.Failed, err])
 
-    if not @draft.serverId or not @draft.version?
+    if not @draft.serverId
+      return Promise.resolve(Task.Status.Continue)
+
+    if not @draft.version?
       err = new Error("Can't destroy draft without a version or serverId")
       return Promise.resolve([Task.Status.Failed, err])
 

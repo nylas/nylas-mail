@@ -7,7 +7,7 @@ ThreadCountsStore = require './thread-counts-store'
 class UnreadBadgeStore extends NylasStore
 
   constructor: ->
-    @_count = FocusedPerspectiveStore.current().threadUnreadCount()
+    @_count = FocusedPerspectiveStore.current().unreadCount()
 
     @listenTo FocusedPerspectiveStore, @_updateCount
     @listenTo ThreadCountsStore, @_updateCount
@@ -26,7 +26,7 @@ class UnreadBadgeStore extends NylasStore
   _updateCount: =>
     current = FocusedPerspectiveStore.current()
     if current.isInbox()
-      count = current.threadUnreadCount()
+      count = current.unreadCount()
       return if @_count is count
       @_count = count
       @_setBadgeForCount()

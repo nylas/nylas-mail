@@ -216,14 +216,12 @@ describe "SendDraftTask", ->
             expect(status[1]).toBe thrownError
             expect(Actions.draftSendingFailed).toHaveBeenCalled()
 
-        it "notifies of a permanent error on timeouts", ->
+        it "retries on timeouts", ->
           thrownError = new APIError(statusCode: NylasAPI.TimeoutErrorCode, body: "err")
           spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
             Promise.reject(thrownError)
           waitsForPromise => @task.performRemote().then (status) =>
-            expect(status[0]).toBe Task.Status.Failed
-            expect(status[1]).toBe thrownError
-            expect(Actions.draftSendingFailed).toHaveBeenCalled()
+            expect(status).toBe Task.Status.Retry
 
         describe "checking the promise chain halts on errors", ->
           beforeEach ->

@@ -26,11 +26,14 @@ class MultiRequestProgressMonitor
     delete @_requests[filepath]
     delete @_expected[filepath]
 
+  requests: =>
+    _.values(@_requests)
+
   value: =>
     sent = 0
     expected = 1
-    for filepath, req of @_requests
-      sent += @req?.req?.connection?._bytesDispatched ? 0
+    for filepath, request of @_requests
+      sent += request.req?.connection?._bytesDispatched ? 0
       expected += @_expected[filepath]
 
     return sent / expected
@@ -39,6 +42,7 @@ module.exports =
 class SendDraftTask extends Task
 
   constructor: (@draft) ->
+    @uploaded = []
     super
 
   label: ->
@@ -75,15 +79,29 @@ class SendDraftTask extends Task
     Promise.resolve()
 
   performRemote: ->
-    @_uploadAttachments()
-    .then(@_sendAndCreateMessage)
-    .then(@_deleteRemoteDraft)
-    .then(@_onSuccess)
-    .catch(@_onError)
+    @_uploadAttachments().then =>
+      return Promise.resolve(Task.Status.Continue) if @_cancelled
+      @_sendAndCreateMessage()
+      .then(@_deleteRemoteDraft)
+      .then(@_onSuccess)
+      .catch(@_onError)
+
+  cancel: =>
+    # Note that you can only cancel during the uploadAttachments phase. Once
+    # we hit sendAndCreateMessage, nothing checks the cancelled bit and
+    # performRemote will continue through to success.
+    @_cancelled = true
+    for request in @_attachmentUploadsMonitor.requests()
+      request.abort()
+    @
 
   _uploadAttachments: =>
-    progress = new MultiRequestProgressMonitor()
-    Object.defineProperty(@, 'progress', { get: -> progress.value() })
+    @_attachmentUploadsMonitor = new MultiRequestProgressMonitor()
+    Object.defineProperty(@, 'progress', {
+      configurable: true,
+      enumerable: true,
+      get: => @_attachmentUploadsMonitor.value()
+    })
 
     Promise.all @draft.uploads.map (upload) =>
       {targetPath, size} = upload
@@ -101,18 +119,20 @@ class SendDraftTask extends Task
         json: false
         formData: formData
         started: (req) =>
-          progress.add(targetPath, size, req)
+          @_attachmentUploadsMonitor.add(targetPath, size, req)
         timeout: 20 * 60 * 1000
       .finally =>
-        progress.remove(targetPath)
+        @_attachmentUploadsMonitor.remove(targetPath)
       .then (rawResponseString) =>
         json = JSON.parse(rawResponseString)
         file = (new File).fromJSON(json[0])
+        @uploaded.push(upload)
         @draft.uploads.splice(@draft.uploads.indexOf(upload), 1)
         @draft.files.push(file)
 
-        # Deletes the attachment from the uploads folder
-        Actions.attachmentUploaded(upload)
+        # Note: We don't actually delete uploaded files until send completes,
+        # because it's possible for the app to quit without saving state and
+        # need to re-upload the file.
 
   _sendAndCreateMessage: =>
     NylasAPI.makeRequest
@@ -169,6 +189,10 @@ class SendDraftTask extends Task
     Actions.sendDraftSuccess
       draftClientId: @draft.clientId
 
+    # Delete attachments from the uploads folder
+    for upload in @uploaded
+      Actions.attachmentUploaded(upload)
+
     # Play the sending sound
     if NylasEnv.config.get("core.sending.sounds")
       SoundRegistry.playSound('send')
@@ -176,16 +200,12 @@ class SendDraftTask extends Task
     return Promise.resolve(Task.Status.Success)
 
   _onError: (err) =>
-    # OUTBOX COMING SOON!
-
-    msg = "Your message could not be sent. Check your network connection and try again."
-    if err instanceof APIError and err.statusCode is NylasAPI.TimeoutErrorCode
-      msg = "We lost internet connection just as we were trying to send your message! Please wait a little bit to see if it went through. If not, check your internet connection and try sending again."
-
-    Actions.draftSendingFailed
-      threadId: @draft.threadId
-      draftClientId: @draft.clientId,
-      errorMessage: msg
-    NylasEnv.reportError(err)
-
-    return Promise.resolve([Task.Status.Failed, err])
+    if err instanceof APIError and not (err.statusCode in NylasAPI.PermanentErrorCodes)
+      return Promise.resolve(Task.Status.Retry)
+    else
+      Actions.draftSendingFailed
+        threadId: @draft.threadId
+        draftClientId: @draft.clientId,
+        errorMessage: "Your message could not be sent. Check your network connection and try again."
+      NylasEnv.reportError(err)
+      return Promise.resolve([Task.Status.Failed, err])

@@ -63,12 +63,12 @@ _observableForThreadMessages = (id, initialModels) ->
     asResultSet: true,
     initialModels: initialModels
   })
-  Rx.Observable.fromPrivateQuerySubscription('message-'+id, subscription)
+  Rx.Observable.fromNamedQuerySubscription('message-'+id, subscription)
 
 
 class ThreadListDataSource extends ObservableListDataSource
   constructor: (subscription) ->
-    $resultSetObservable = Rx.Observable.fromPrivateQuerySubscription('thread-list', subscription)
+    $resultSetObservable = Rx.Observable.fromNamedQuerySubscription('thread-list', subscription)
     $resultSetObservable = _flatMapJoiningMessages($resultSetObservable)
     super($resultSetObservable, subscription.replaceRange)
 
