@@ -31,7 +31,7 @@ class SidebarSection
       throw new Error("standardSectionForAccount: You must pass an account.")
 
     cats = CategoryStore.standardCategories(account)
-    return @empty('Mailboxes') if cats.length is 0
+    return @empty(account.label) if cats.length is 0
 
     items = _
       .reject(cats, (cat) -> cat.name is 'drafts')
@@ -45,13 +45,13 @@ class SidebarSection
     items.push(draftsItem)
 
     return {
-      title: 'Mailboxes'
+      title: account.label
       items: items
     }
 
   @standardSectionForAccounts: (accounts) ->
-    return @empty('Mailboxes') if not accounts or accounts.length is 0
-    return @empty('Mailboxes') if CategoryStore.categories().length is 0
+    return @empty('All Accounts') if not accounts or accounts.length is 0
+    return @empty('All Accounts') if CategoryStore.categories().length is 0
     return @standardSectionForAccount(accounts[0]) if accounts.length is 1
 
     standardNames = [
@@ -89,7 +89,7 @@ class SidebarSection
     items.push(draftsItem)
 
     return {
-      title: 'Mailboxes'
+      title: 'All Accounts'
       items: items
     }
 
