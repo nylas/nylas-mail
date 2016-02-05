@@ -218,6 +218,7 @@ Utils =
     return email
 
   emailIsEquivalent: (email1="", email2="") ->
+    return true if email1 is email2
     email1 = Utils.toEquivalentEmailForm(email1)
     email2 = Utils.toEquivalentEmailForm(email2)
     return email1 is email2
