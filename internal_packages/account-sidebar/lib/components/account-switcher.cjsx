@@ -44,7 +44,7 @@ class AccountSwitcher extends React.Component
   _toggleDropdown: =>
     @setState showing: !@state.showing
 
-  _makeMenuItem: (item, idx = 0) =>
+  _makeMenuItem: (item, idx) =>
     menuItem = {
       label: item.label,
       click: @_onSwitchAccount.bind(@, item)
@@ -64,11 +64,11 @@ class AccountSwitcher extends React.Component
     if @props.accounts.length > 1
       unifiedItem = @_makeUnifiedItem()
       template = [
-        @_makeMenuItem(unifiedItem)
+        @_makeMenuItem(unifiedItem, 1)
         {type: 'separator'}
       ]
 
-    items.forEach (item, idx) => template.push(@_makeMenuItem(item, idx + 1))
+    items.forEach (item, idx) => template.push(@_makeMenuItem(item, idx + 2))
 
     template = template.concat [
       {type: 'separator'}
