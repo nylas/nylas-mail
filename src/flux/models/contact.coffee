@@ -101,10 +101,9 @@ class Contact extends Model
     for account in AccountStore.accounts()
       if Utils.emailIsEquivalent(@email, account.emailAddress)
         return account
-
-      for alias in account.aliases
-        if Utils.emailIsEquivalent(@email, Contact.fromString(alias).email)
-          return account
+    for alias in AccountStore.aliases()
+      if Utils.emailIsEquivalent(@email, alias.email)
+        return AccountStore.accountForId(alias.accountId)
 
     return null
 
