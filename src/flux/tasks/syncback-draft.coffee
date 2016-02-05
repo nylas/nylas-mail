@@ -90,12 +90,13 @@ class SyncbackDraftTask extends Task
     if draft.accountId is account.id
       return Promise.resolve(draft)
     else
-      NylasAPI.makeRequest
-        path: "/drafts/#{draft.serverId}"
-        accountId: draft.accountId
-        method: "DELETE"
-        body: {version: draft.version}
-        returnsModel: false
+      if draft.serverId
+        NylasAPI.makeRequest
+          path: "/drafts/#{draft.serverId}"
+          accountId: draft.accountId
+          method: "DELETE"
+          body: {version: draft.version}
+          returnsModel: false
 
       draft.accountId = account.id
       delete draft.serverId
