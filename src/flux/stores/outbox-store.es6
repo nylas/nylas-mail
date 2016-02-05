@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import NylasStore from 'nylas-store';
 import SendDraftTask from '../tasks/send-draft';
 import TaskQueueStatusStore from './task-queue-status-store';
