@@ -32,6 +32,13 @@ class SearchSubscription extends MutableQuerySubscription
     resultCount = 0
     resultIds = []
 
+    resultReturned = =>
+      # Don't emit a "result" until we have at least one thread to display.
+      # Otherwise it will show "No Results Found"
+      if resultIds.length > 0 or resultCount is @_accountIds.length
+        query = DatabaseStore.findAll(Thread).where(id: resultIds).order(Thread.attributes.lastMessageReceivedTimestamp.descending())
+        @replaceQuery(query)
+
     @_accountIds.forEach (aid) =>
       NylasAPI.makeRequest
         method: 'GET'
@@ -39,15 +46,15 @@ class SearchSubscription extends MutableQuerySubscription
         accountId: aid
         json: true
         returnsModel: true
+
       .then (threads) =>
         return unless @_termsVersion is termsVersion
         resultCount += 1
         resultIds = resultIds.concat _.pluck(threads, 'id')
+        resultReturned()
 
-        # Don't emit a "result" until we have at least one thread to display.
-        # Otherwise it will show "No Results Found"
-        if resultIds.length > 0 or resultCount is @_accountIds.length
-          query = DatabaseStore.findAll(Thread).where(id: resultIds).order(Thread.attributes.lastMessageReceivedTimestamp.descending())
-          @replaceQuery(query)
+      .catch (err) =>
+        resultCount += 1
+        resultReturned()
 
 module.exports = SearchSubscription
