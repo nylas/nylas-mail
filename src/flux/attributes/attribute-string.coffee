@@ -11,7 +11,10 @@ Section: Database
 ###
 class AttributeString extends Attribute
   toJSON: (val) -> val
-  fromJSON: (val) -> val || ""
+  fromJSON: (val) ->
+    return null if val is null or val is undefined or val is false
+    return val + ""
+
 
   # Public: Returns a {Matcher} for objects starting with the provided value.
   startsWith: (val) -> new Matcher(@, 'startsWith', val)

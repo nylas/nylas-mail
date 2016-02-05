@@ -79,8 +79,8 @@ describe "Event", ->
   it "accepts a JSON response", ->
     e1 = (new Event).fromJSON(json_event)
     expect(e1.title).toBe "Meeting with Ben Bitdiddle"
-    expect(e1.description).toBe ''
-    expect(e1.location).toBe ''
+    expect(e1.description).toBe null
+    expect(e1.location).toBe null
     expect(e1.start).toBe 1408120200
     expect(e1.end).toBe 1408123800
     expect(e1.participants[0].name).toBe "Ben Bitdiddle"
