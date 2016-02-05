@@ -100,7 +100,8 @@ class Thread extends Model
 
   @additionalSQLiteConfig:
     setup: ->
-      ['CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(last_message_received_timestamp DESC, id)']
+      ['CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(last_message_received_timestamp DESC, id)',
+       'CREATE INDEX IF NOT EXISTS ThreadStarIndex ON Thread(account_id, starred)']
 
   fromJSON: (json) ->
     super(json)
