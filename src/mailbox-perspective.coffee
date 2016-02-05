@@ -202,8 +202,6 @@ class EmptyMailboxPerspective extends MailboxPerspective
   canTrashThreads: =>
     false
 
-  receiveThreads: (threadsOrIds) =>
-
 
 class CategoryMailboxPerspective extends MailboxPerspective
   constructor: (@_categories) ->
@@ -272,7 +270,7 @@ class CategoryMailboxPerspective extends MailboxPerspective
     # attached to this perspective
     DatabaseStore.modelify(Thread, threadsOrIds).then (threads) =>
       tasks = TaskFactory.tasksForApplyingCategories
-        threads: threadsOrIds
+        threads: threads
         categoriesToRemove: (accountId) -> _.filter(currentCategories, _.matcher({accountId}))
         categoryToAdd: (accountId) => _.findWhere(@_categories, {accountId})
       Actions.queueTasks(tasks)
