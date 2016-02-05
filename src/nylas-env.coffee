@@ -189,11 +189,6 @@ class NylasEnvConstructor extends Model
       if event.binding.command.indexOf('application:') is 0 and event.binding.selector.indexOf("body") is 0
         ipcRenderer.send('command', event.binding.command)
 
-    @windowEventHandler = new WindowEventHandler
-
-    unless @inSpecMode()
-      @actionBridge = new ActionBridge(ipcRenderer)
-
     @commands = new CommandRegistry
     @commands.attach(window)
 
@@ -203,7 +198,6 @@ class NylasEnvConstructor extends Model
     document.head.appendChild(new StylesElement)
     @themes = new ThemeManager({packageManager: @packages, configDirPath, resourcePath, safeMode})
     @clipboard = new Clipboard()
-
     @menu = new MenuManager({resourcePath})
     if process.platform is 'win32'
       @getCurrentWindow().setMenuBarVisibility(false)
@@ -212,6 +206,10 @@ class NylasEnvConstructor extends Model
     @spellchecker = require('./nylas-spellchecker')
 
     @subscribe @packages.onDidActivateInitialPackages => @watchThemes()
+    @windowEventHandler = new WindowEventHandler()
+
+    unless @inSpecMode()
+      @actionBridge = new ActionBridge(ipcRenderer)
 
   # This ties window.onerror and Promise.onPossiblyUnhandledRejection to
   # the publically callable `reportError` method. This will take care of
