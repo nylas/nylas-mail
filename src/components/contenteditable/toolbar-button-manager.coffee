@@ -14,13 +14,16 @@ class ToolbarButtonManager extends ContenteditableExtension
     return null unless toolbarState.selectionSnapshot
     return null if toolbarState.selectionSnapshot.isCollapsed
 
+    locationRef = DOMUtils.getRangeInScope(toolbarState.editableNode)
+    return null unless locationRef
+
     buttonConfigs = @_toolbarButtonConfigs(toolbarState)
 
     return {
       component: ToolbarButtons
       props:
         buttonConfigs: buttonConfigs
-      locationRefNode: DOMUtils.getRangeInScope(toolbarState.editableNode)
+      locationRefNode: locationRef
       width: buttonConfigs.length * 28.5
     }
 
