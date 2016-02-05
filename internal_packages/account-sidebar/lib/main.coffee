@@ -1,6 +1,5 @@
 React = require "react"
 AccountSidebar = require "./components/account-sidebar"
-SidebarCommands = require "./sidebar-commands"
 {ComponentRegistry, WorkspaceStore} = require "nylas-exports"
 
 module.exports =
@@ -9,7 +8,6 @@ module.exports =
   activate: (@state) ->
     ComponentRegistry.register AccountSidebar,
       location: WorkspaceStore.Location.RootSidebar
-    SidebarCommands.register()
 
   deactivate: (@state) ->
     ComponentRegistry.unregister(AccountSidebar)

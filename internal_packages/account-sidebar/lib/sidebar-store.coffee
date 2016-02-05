@@ -10,6 +10,7 @@ _ = require 'underscore'
 
 SidebarSection = require './sidebar-section'
 SidebarActions = require './sidebar-actions'
+AccountCommands = require './account-commands'
 
 Sections = {
   "Standard",
@@ -23,6 +24,8 @@ class SidebarStore extends NylasStore
     @_sections[Sections.Standard] = {}
     @_sections[Sections.User] = []
     @_focusedAccounts = @accounts()
+    @_registerCommands()
+    @_registerMenuItems()
     @_registerListeners()
     @_updateSections()
 
@@ -57,13 +60,23 @@ class SidebarStore extends NylasStore
     )
     return
 
+  _registerCommands: (accounts = AccountStore.accounts()) =>
+    AccountCommands.registerCommands(accounts)
+
+  _registerMenuItems: (accounts = AccountStore.accounts()) =>
+    AccountCommands.registerMenuItems(accounts, @_focusedAccounts)
+
   _onAccountsFocused: (accounts) =>
     Actions.focusDefaultMailboxPerspectiveForAccounts(accounts)
     @_focusedAccounts = accounts
+    @_registerMenuItems()
     @_updateSections()
 
   _onAccountsChanged: =>
-    @_focusedAccounts = AccountStore.accounts()
+    accounts = AccountStore.accounts()
+    @_focusedAccounts = accounts
+    @_registerCommands()
+    @_registerMenuItems()
     @_updateSections()
 
   _onFocusedPerspectiveChanged: =>
@@ -72,6 +85,7 @@ class SidebarStore extends NylasStore
     newIdsNotInCurrent = _.difference(newIds, currentIds).length > 0
     if newIdsNotInCurrent
       @_focusedAccounts = newIds.map (id) -> AccountStore.accountForId(id)
+      @_registerMenuItems()
     @_updateSections()
 
   _updateSections: =>
