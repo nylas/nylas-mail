@@ -80,6 +80,7 @@ class AccountStore
       ipc = require('electron').ipcRenderer
       ipc.send('command', 'application:reset-config-and-relaunch')
     else
+      Actions.focusDefaultMailboxPerspectiveForAccounts(@_accounts)
       @trigger()
 
   _onReorderAccount: (id, newIdx) =>
