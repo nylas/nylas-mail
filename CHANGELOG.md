@@ -1,5 +1,65 @@
 # N1 Changelog
 
+### 0.4.4 (2/5/16)
+
+We're really excited to announce this release - the largest improvement to N1
+since the initial release in October!
+
+- Features:
+ + Unified Inbox: The conversation view has been rebuilt so you can read and
+   triage mail from all your accounts at once. In addition to the Inbox, we've
+   unified Search, Drafts, Sent, Trash, and more.
+
+ + Send and Archive: You can now choose Send and Archive when replying to threads.
+   More "Send variants" are coming soon, including Send Later and Undo Send, and
+   you can choose a default in Preferences.
+
+ + Account Sidebar: We've rebuilt the account sidebar to address your feedback:
+   + Rename folders and labels by right clicking / double clicking
+   + Re-order accounts from Preferences > Accounts
+   + See unread counts for all accounts when viewing "All Accounts"
+   + Collapse label and folder views
+
+ + Send As: You can now choose which account or alias a new draft should be sent
+   from, and choose a default account in Preferences > Sending.
+
+ + Launch On System Start: N1 can now launch in the background via an option in Preferences.
+
+ + Search: You can now archive / trash items in the search results view.
+
+ + Contact autocompletion is now unified, uses dramatically less memory, and does
+   not depend on the selected account
+
+ + Outbox: N1 now keeps mail it isn't able to send in your Drafts folder, and
+   sends when you reconnect to the internet.
+
+- Performance:
+ + The conversation list has been rebuilt using a brand new "live query"
+   API that yields great performance and minimizes costly database queries.
+ + The conversation list data source no longer requires an accurate item count,
+   removing frequent and expensive count queries.
+
+ - Development:
+  + `AccountStore.current()` has been deprecated and replaced with the concept of
+    "Mailbox Perspectives" which are views of mail data.
+  + Developer > Toggle Screenshot Mode now allows you to hide text in the app to
+    take a screenshot.
+  + `window.eval` has been disabled in N1. (Issue #1159)
+
+- Fixes:
+  + On Mac OS X, N1 no longer crashes when you change language or spellcheck preferences.
+  + When viewing all accounts, the tray icon and dock icon also display
+    the unified unread count.
+  + You can now make N1 the default mail client on Windows.
+  + You can now re-order mail rules and use "starred" as a rule criteria.
+  + You can now authenticate IMAP / SMTP accounts where the username is not the
+    email address. (Fixed in the Nylas Sync Engine.)
+  + The maximum width of the account list has been increased.
+  + And many, many, many other fixes!
+
+- Coming Soon:
+  + Our PR has landed in Electron, unblocking Swipe to Archive.
+
 ### 0.3.45 (1/21/16)
 
 - Fixes:
