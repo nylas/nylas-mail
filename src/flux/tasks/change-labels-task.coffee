@@ -75,8 +75,8 @@ class ChangeLabelsTask extends ChangeMailTask
   changesToModel: (model) ->
     labelsToRemoveIds = _.pluck(@labelsToRemove, 'id')
 
-    labels = [].concat(model.labels, @labelsToAdd)
-    labels = _.reject labels, (label) -> label.id in labelsToRemoveIds
+    labels = _.reject model.labels, (label) -> label.id in labelsToRemoveIds
+    labels = labels.concat(@labelsToAdd)
     labels = _.uniq labels, false, (label) -> label.id
     {labels}
 

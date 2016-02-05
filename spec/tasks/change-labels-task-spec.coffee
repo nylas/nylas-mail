@@ -145,12 +145,12 @@ describe "ChangeLabelsTask", ->
           out = task.changesToModel(testThreads['t3'])
           expect(out).toEqual(labels: [testLabels['l3']])
 
-        it 'properly adds and removes labels', ->
+        it 'properly adds and removes labels, ignoring labels that are both added and removed', ->
           task = new ChangeLabelsTask
             labelsToAdd: [testLabels['l1'], testLabels['l2']]
             labelsToRemove: [testLabels['l2'], testLabels['l3']]
           out = task.changesToModel(testThreads['t1'])
-          expect(out).toEqual(labels: [testLabels['l1']])
+          expect(out).toEqual(labels: [testLabels['l1'], testLabels['l2']])
 
         it 'should return an == array of labels when no changes have occurred', ->
           thread = new Thread(id: '1', categories: [testLabels['l2'], testLabels['l3'], testLabels['l1']])
