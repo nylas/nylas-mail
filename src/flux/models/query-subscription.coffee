@@ -59,9 +59,16 @@ class QuerySubscription
     @_queuedChangeRecords.push(record)
     @_processChangeRecords() unless @_updateInFlight
 
+  # Scan through change records and apply them to the last result set.
+  # - Returns true if changes did / will result in new result set being created.
+  # - Returns false if no changes were made.
+  #
   _processChangeRecords: =>
-    return if @_queuedChangeRecords.length is 0
-    return @update() if not @_set
+    if @_queuedChangeRecords.length is 0
+      return false
+    if not @_set
+      @update()
+      return true
 
     knownImpacts = 0
     unknownImpacts = 0
@@ -112,8 +119,12 @@ class QuerySubscription
     if unknownImpacts > 0
       @_set = null if mustRefetchAllIds
       @update()
+      return true
     else if knownImpacts > 0
       @_createResultAndTrigger()
+      return true
+    else
+      return false
 
   _itemSortOrderHasChanged: (old, updated) ->
     for descriptor in @_query.orderSortDescriptors()
@@ -156,20 +167,11 @@ class QuerySubscription
       return unless @_queryVersion is version
       @_updateInFlight = false
 
-      allChangesApplied = @_queuedChangeRecords.length is 0
-      allCompleteModels = @_set.isComplete()
-      allUniqueIds = _.uniq(@_set.ids()).length is @_set.ids().length
-
-      if allChangesApplied and not allUniqueIds
-        throw new Error("QuerySubscription: Applied all changes and result set contains duplicate IDs.")
-
-      if allChangesApplied and not allCompleteModels
-        throw new Error("QuerySubscription: Applied all changes and result set is missing models.")
-
-      if allChangesApplied and allCompleteModels and allUniqueIds
+      # Trigger if A) no changes came in during the update, or B) applying
+      # those changes has no effect on the result set, and this one is
+      # still good.
+      if @_queuedChangeRecords.length is 0 or not @_processChangeRecords()
         @_createResultAndTrigger()
-      else
-        @_processChangeRecords()
 
   cancelPendingUpdate: =>
     @_queryVersion += 1
@@ -203,6 +205,15 @@ class QuerySubscription
       @_set.clipToRange(@_query.range())
 
   _createResultAndTrigger: =>
+    allCompleteModels = @_set.isComplete()
+    allUniqueIds = _.uniq(@_set.ids()).length is @_set.ids().length
+
+    if not allUniqueIds
+      throw new Error("QuerySubscription: Applied all changes and result set contains duplicate IDs.")
+
+    if not allCompleteModels
+      throw new Error("QuerySubscription: Applied all changes and result set is missing models.")
+
     if @_options.asResultSet
       @_set.setQuery(@_query)
       @_lastResult = @_set.immutableClone()
