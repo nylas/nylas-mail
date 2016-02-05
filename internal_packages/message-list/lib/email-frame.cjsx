@@ -37,7 +37,8 @@ class EmailFrame extends React.Component
     !_.isEqual(newProps, @props)
 
   _writeContent: =>
-    doc = React.findDOMNode(@).contentDocument
+    domNode = React.findDOMNode(@)
+    doc = domNode.contentDocument
     return unless doc
 
     doc.open()
@@ -57,6 +58,7 @@ class EmailFrame extends React.Component
     # Notify the EventedIFrame that we've replaced it's document (with `open`)
     # so it can attach event listeners again.
     @refs.iframe.documentWasReplaced()
+    domNode.height = '0px'
     @_setFrameHeight()
 
   _getFrameHeight: (doc) ->
