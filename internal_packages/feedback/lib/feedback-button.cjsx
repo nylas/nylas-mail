@@ -24,6 +24,6 @@ class FeedbackButton extends React.Component
 
   _onSendFeedback: =>
     return if NylasEnv.inSpecMode()
-    require('electron').shell.openExternal('http://support.nylas.com/')
+    require('electron').shell.openExternal('https://nylas.zendesk.com/hc/en-us/sections/203638587-N1')
 
 module.exports = FeedbackButton
