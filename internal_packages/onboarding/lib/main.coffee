@@ -14,8 +14,9 @@ module.exports =
     ComponentRegistry.register PageRouter,
       location: WorkspaceStore.Location.Center
 
-    startService = new SystemStartService()
     if (NylasEnv.config.get('nylas.accounts')?.length ? 0) is 0
+      startService = new SystemStartService()
       startService.checkAvailability().then (available) =>
-        startService.doesLaunchOnSystemStart().then (launchOnStart) =>
-          startService.configureToLaunchOnSystemStart() unless launchOnStart
+        return unless available
+        startService.doesLaunchOnSystemStart().then (launchesOnStart) =>
+          startService.configureToLaunchOnSystemStart() unless launchesOnStart
