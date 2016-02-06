@@ -167,6 +167,7 @@ class ContactStore extends NylasStore
     # remove query results that are duplicates, prefering ones that have names
     uniq = {}
     for contact in contacts
+      continue unless contact.email
       key = contact.email.toLowerCase()
       existing = uniq[key]
       if not existing or (not existing.name or existing.name is existing.email)
