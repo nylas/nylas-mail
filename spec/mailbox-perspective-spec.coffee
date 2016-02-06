@@ -71,7 +71,7 @@ describe 'MailboxPerspective', ->
         spyOn(@perspective, 'canArchiveThreads').andReturn true
         spyOn(TaskFactory, 'tasksForMovingToInbox')
         @perspective.removeThreads(@threads)
-        expect(TaskFactory.tasksForMovingToInbox).toHaveBeenCalledWith(@taskArgs)
+        expect(TaskFactory.tasksForMovingToInbox).toHaveBeenCalledWith({threads: @threads, fromPerspective: @perspective})
 
       it 'removes categories if the current perspective does not correspond to archive or sent', ->
         spyOn(@perspective, 'isInbox').andReturn false
@@ -88,4 +88,3 @@ describe 'MailboxPerspective', ->
         spyOn(@perspective, 'canArchiveThreads').andReturn false
         @perspective.removeThreads(@threads)
         expect(Actions.queueTasks).not.toHaveBeenCalled()
-
