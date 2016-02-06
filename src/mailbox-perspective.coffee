@@ -1,5 +1,6 @@
 _ = require 'underscore'
 
+Utils = require './flux/models/utils'
 TaskFactory = require './flux/tasks/task-factory'
 AccountStore = require './flux/stores/account-store'
 CategoryStore = require './flux/stores/category-store'
@@ -44,6 +45,22 @@ class MailboxPerspective
   @forInbox: (accountsOrIds) =>
     @forStandardCategories(accountsOrIds, 'inbox')
 
+  @fromJSON: (json) =>
+    try
+      if json.type is CategoryMailboxPerspective.name
+        categories = JSON.parse(json.serializedCategories, Utils.registeredObjectReviver)
+        return @forCategories(categories)
+      else if json.type is SearchMailboxPerspective.name
+        return @forSearch(json.accountIds, json.searchQuery)
+      else if json.type is StarredMailboxPerspective.name
+        return @forStarred(json.accountIds)
+      else if json.type is DraftsMailboxPerspective.name
+        return @forDrafts(json.accountIds)
+      else
+        return null
+    catch error
+      NylasEnv.reportError(new Error("Could not restore mailbox perspective: #{error}"))
+      return null
 
   # Instance Methods
 
@@ -51,6 +68,9 @@ class MailboxPerspective
     unless @accountIds instanceof Array and _.every(@accountIds, _.isString)
       throw new Error("#{@constructor.name}: You must provide an array of string `accountIds`")
     @
+
+  toJSON: =>
+    return {accountIds: @accountIds, type: @constructor.name}
 
   isEqual: (other) =>
     return false unless other and @constructor is other.constructor
@@ -123,6 +143,11 @@ class SearchMailboxPerspective extends MailboxPerspective
 
     @
 
+  toJSON: =>
+    json = super
+    json.searchQuery = @searchQuery
+    json
+
   isEqual: (other) =>
     super(other) and other.searchQuery is @searchQuery
 
@@ -146,6 +171,9 @@ class DraftsMailboxPerspective extends MailboxPerspective
     @iconName = "drafts.png"
     @drafts = true # The DraftListStore looks for this
     @
+
+  fromJSON: =>
+    {type: @constructor.name, accountIds: @accountIds}
 
   threads: =>
     null
@@ -220,8 +248,13 @@ class CategoryMailboxPerspective extends MailboxPerspective
 
     @
 
+  toJSON: =>
+    json = super
+    json.serializedCategories = JSON.stringify(@_categories, Utils.registeredObjectReplacer)
+    json
+
   isEqual: (other) =>
-    super(other) and _.isEqual(@categories(), other.categories())
+    super(other) and _.isEqual(_.pluck(@categories(), 'id'), _.pluck(other.categories(), 'id'))
 
   threads: =>
     query = DatabaseStore.findAll(Thread)

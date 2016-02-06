@@ -1,7 +1,8 @@
 Reflux = require 'reflux'
 
 Actions = [
-  'focusAccounts'
+  'focusAccounts',
+  'setKeyCollapsed',
 ]
 
 for idx in Actions
