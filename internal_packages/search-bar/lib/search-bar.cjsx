@@ -14,10 +14,9 @@ class SearchBar extends React.Component
   @displayName = 'SearchBar'
 
   constructor: (@props) ->
-    @state =
-      query: ""
+    @state = _.extend({}, @_getStateFromStores(), {
       focused: false
-      suggestions: []
+    },)
 
   componentDidMount: =>
     @usub = []

@@ -3,8 +3,6 @@ Model = require './models/model'
 DatabaseStore = require './stores/database-store'
 
 Utils = require './models/utils'
-TaskRegistry = require '../task-registry'
-DatabaseObjectRegistry = require '../database-object-registry'
 
 Role =
   WORK: 'work',

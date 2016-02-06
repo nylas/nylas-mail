@@ -19,7 +19,7 @@ SearchActions = require './search-actions'
 class SearchSuggestionStore extends NylasStore
 
   constructor: ->
-    @_searchQuery = ""
+    @_searchQuery = FocusedPerspectiveStore.current().searchQuery ? ""
     @_searchSuggestionsVersion = 1
     @_clearResults()
 
@@ -47,8 +47,11 @@ class SearchSuggestionStore extends NylasStore
       Actions.focusMailboxPerspective(next)
 
     else if FocusedPerspectiveStore.current().searchQuery
-      Actions.focusMailboxPerspective(@_perspectiveBeforeSearch)
-      @_perspectiveBeforeSearch = null
+      if @_perspectiveBeforeSearch
+        Actions.focusMailboxPerspective(@_perspectiveBeforeSearch)
+        @_perspectiveBeforeSearch = null
+      else
+        Actions.focusDefaultMailboxPerspectiveForAccounts(AccountStore.accounts())
 
     @_clearResults()
 
