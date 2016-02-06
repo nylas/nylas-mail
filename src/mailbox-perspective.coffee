@@ -323,7 +323,7 @@ class CategoryMailboxPerspective extends MailboxPerspective
           moveToFinishedCategory: true
         })
       else if isTrash
-        tasks = TaskFactory.tasksForMovingToInbox({threads, categories})
+        tasks = TaskFactory.tasksForMovingToInbox({threads, fromPerspective: @})
       else if isNotArchiveOrSent
         tasks = TaskFactory.tasksForRemovingCategories({
           threads,
