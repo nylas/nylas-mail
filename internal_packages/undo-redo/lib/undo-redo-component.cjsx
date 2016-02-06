@@ -15,66 +15,66 @@ class UndoRedoComponent extends React.Component
   @containerRequired: false
 
   constructor: (@props) ->
-    @state = @_getStateFromStores()
     @_timeout = null
-
-  _onChange: =>
-    @setState(@_getStateFromStores(), =>
-      @_setNewTimeout())
+    @state = @_getStateFromStores()
+    @_ensureTimeout(@state)
 
   _clearTimeout: =>
     clearTimeout(@_timeout)
+    @_timeout = null
 
-  _setNewTimeout: =>
-    @_clearTimeout()
-    @_timeout = setTimeout (=>
-      @_hide()
-      return
-    ), 3000
+  _ensureTimeout: (state = @state) =>
+    if @_timeout
+      @_clearTimeout()
+    if state.show
+      @_timeout = setTimeout(@_hide, 3000)
 
   _getStateFromStores: ->
     tasks = UndoRedoStore.getMostRecent()
-    show = false
-    if tasks
-      show = true
-
+    show = tasks?
     return {show, tasks}
 
   componentWillMount: ->
-    @_unsubscribe = UndoRedoStore.listen(@_onChange)
+    @_unsubscribe = UndoRedoStore.listen =>
+      nextState = @_getStateFromStores()
+      @setState(nextState)
+      @_ensureTimeout(nextState)
 
   componentWillUnmount: ->
     @_clearTimeout()
     @_unsubscribe()
 
   render: =>
-    inner = @_renderUndoRedoManager()
-
-    names = classNames
+    classes = classNames
       "undo-redo-manager": true
 
     <TimeoutTransitionGroup
-      className={names}
+      className={classes}
       leaveTimeout={150}
       enterTimeout={150}
       transitionName="undo-redo-item">
-      {inner}
+      {@_renderUndoRedoManager()}
     </TimeoutTransitionGroup>
 
   _renderUndoRedoManager: =>
-    if @state.show
-      <div className="undo-redo" onMouseEnter={@_clearTimeout} onMouseLeave={@_setNewTimeout}>
-        <div className="undo-redo-message-wrapper">
-          {@state.tasks.map((t) -> t.description()).join(', ')}
-        </div>
-        <div className="undo-redo-action-wrapper" onClick={@_onClick}>
-          <RetinaImg name="undo-icon@2x.png"
-                     mode={RetinaImg.Mode.ContentIsMask}/>
-          <span className="undo-redo-action-text">Undo</span>
-        </div>
+    return unless @state.show
+
+    <div className="undo-redo" onMouseEnter={@_onMouseEnter} onMouseLeave={@_onMouseLeave}>
+      <div className="undo-redo-message-wrapper">
+        {@state.tasks.map((t) -> t.description()).join(', ')}
       </div>
-    else
-      []
+      <div className="undo-redo-action-wrapper" onClick={@_onClick}>
+        <RetinaImg name="undo-icon@2x.png"
+                   mode={RetinaImg.Mode.ContentIsMask}/>
+        <span className="undo-redo-action-text">Undo</span>
+      </div>
+    </div>
+
+  _onMouseEnter: =>
+    @_clearTimeout()
+
+  _onMouseLeave: =>
+    @_ensureTimeout(@state)
 
   _onClick: =>
     NylasEnv.commands.dispatch(document.querySelector('body'), 'core:undo')
