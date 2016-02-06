@@ -8,14 +8,13 @@ Actions = require '../actions'
 
 class FocusedPerspectiveStore extends NylasStore
   constructor: ->
-    @_current = @_defaultPerspective()
+    if NylasEnv.savedState.perspective
+      @_current = MailboxPerspective.fromJSON(NylasEnv.savedState.perspective)
+    @_current ?= @_defaultPerspective()
 
     @listenTo CategoryStore, @_onCategoryStoreChanged
-
     @listenTo Actions.focusMailboxPerspective, @_onFocusPerspective
     @listenTo Actions.focusDefaultMailboxPerspectiveForAccounts, @_onFocusAccounts
-
-    @_onCategoryStoreChanged()
 
   # Inbound Events
 
@@ -45,6 +44,7 @@ class FocusedPerspectiveStore extends NylasStore
 
   _setPerspective: (perspective) ->
     return if perspective?.isEqual(@_current)
+    NylasEnv.savedState.perspective = perspective.toJSON()
     @_current = perspective
     @trigger()
 

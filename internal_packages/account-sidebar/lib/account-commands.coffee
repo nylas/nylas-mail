@@ -12,8 +12,10 @@ class AccountCommands
   @_isSelected: (account, focusedAccounts) =>
     if focusedAccounts.length > 1
       return account instanceof Array
-    else
+    else if focusedAccounts.length is 1
       return account?.id is focusedAccounts[0].id
+    else
+      return false
 
   @registerCommands: (accounts) ->
     @_commandsDisposable?.dispose()

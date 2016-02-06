@@ -9,6 +9,7 @@ _str = require 'underscore.string'
  Utils} = require 'nylas-exports'
 {OutlineViewItem} = require 'nylas-component-kit'
 
+SidebarActions = require './sidebar-actions'
 
 idForCategories = (categories) ->
   _.pluck(categories, 'id').join('-')
@@ -27,13 +28,14 @@ isItemDeleted = (perspective) ->
   _.any perspective.categories(), (c) -> c.isDeleted
 
 isItemCollapsed = (id) ->
-  key = "core.accountSidebarCollapsed.#{id}"
-  NylasEnv.config.get(key)
+  if NylasEnv.savedState.sidebarKeysCollapsed[id] isnt undefined
+    NylasEnv.savedState.sidebarKeysCollapsed[id]
+  else
+    true
 
 toggleItemCollapsed = (item) ->
   return unless item.children.length > 0
-  key = "core.accountSidebarCollapsed.#{item.id}"
-  NylasEnv.config.set(key, not item.collapsed)
+  SidebarActions.setKeyCollapsed(item.id, not isItemCollapsed(item.id))
 
 onDeleteItem = (item) ->
   # TODO Delete multiple categories at once
