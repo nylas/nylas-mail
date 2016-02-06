@@ -133,6 +133,7 @@ class WindowEventHandler
     return (unloadCallbacksRunning is 0)
 
   runUnloadFinished: ->
+    {remote} = require('electron')
     _.defer ->
       if remote.getGlobal('application').quitting
         remote.require('app').quit()
