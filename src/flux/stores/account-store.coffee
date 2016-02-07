@@ -1,11 +1,10 @@
+_ = require 'underscore'
+NylasStore = require 'nylas-store'
 Actions = require '../actions'
 Account = require '../models/account'
 Utils = require '../models/utils'
 DatabaseStore = require './database-store'
-_ = require 'underscore'
 
-{Listener, Publisher} = require '../modules/reflux-coffee'
-CoffeeHelpers = require '../coffee-helpers'
 
 saveObjectsKey = "nylas.accounts"
 saveTokensKey = "nylas.accountTokens"
@@ -16,11 +15,7 @@ the database and exposes the currently active Account via {::current}
 
 Section: Stores
 ###
-class AccountStore
-  @include: CoffeeHelpers.includeModule
-
-  @include Publisher
-  @include Listener
+class AccountStore extends NylasStore
 
   constructor: ->
     @_load()
@@ -140,7 +135,8 @@ class AccountStore
       _.find @_accounts, (account) ->
         return true if Utils.emailIsEquivalent(email, account.emailAddress)
         for alias in account.aliases
-          return true if Utils.emailIsEquivalent(email, alias)
+          aliasContact = account.meUsingAlias(alias)
+          return true if Utils.emailIsEquivalent(email, aliasContact.email)
         return false
 
   # Public: Returns the {Account} for the given account id, or null.
