@@ -93,6 +93,7 @@ class CategoryStore extends NylasStore
   getArchiveCategory: (accountOrId) ->
     return null unless accountOrId
     account = asAccount(accountOrId)
+    return null unless account
 
     if account.usesFolders()
       return @getStandardCategory(account.id, "archive")
