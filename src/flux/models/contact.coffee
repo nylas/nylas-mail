@@ -95,20 +95,11 @@ class Contact extends Model
   # You should use this method instead of comparing the user's email address to
   # the account email, since it is case-insensitive and future-proof.
   isMe: ->
-    @isMeAccount() isnt null
-
-  isMeAccount: ->
-    for account in AccountStore.accounts()
-      if Utils.emailIsEquivalent(@email, account.emailAddress)
-        return account
-    for alias in AccountStore.aliases()
-      if Utils.emailIsEquivalent(@email, alias.email)
-        return AccountStore.accountForId(alias.accountId)
-
-    return null
+    account = AccountStore.accountForEmail(@email)
+    return account?
 
   isMePhrase: ({includeAccountLabel} = {}) ->
-    account = @isMeAccount()
+    account = AccountStore.accountForEmail(@email)
     return null unless account
 
     if includeAccountLabel

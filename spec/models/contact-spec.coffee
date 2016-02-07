@@ -133,9 +133,6 @@ describe "Contact", ->
       expect(c1.isMe()).toBe(true)
 
     it "also matches any aliases you've created", ->
-      spyOn(AccountStore, 'aliases').andReturn [
-        new Contact(name: 'Ben Other', email: 'ben22@nylas.com', accountId: TEST_ACCOUNT_ID)
-      ]
       spyOn(AccountStore, 'accounts').andReturn [
         new Account
           provider: "gmail"
