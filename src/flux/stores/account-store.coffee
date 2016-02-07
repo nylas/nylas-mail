@@ -131,13 +131,13 @@ class AccountStore extends NylasStore
 
   # Public: Returns the {Account} for the given email address, or null.
   accountForEmail: (email) =>
-    @_cachedGetter "accountForEmail:#{email}", =>
-      _.find @accounts(), (account) ->
-        return true if Utils.emailIsEquivalent(email, account.emailAddress)
-        for alias in account.aliases
-          aliasContact = account.meUsingAlias(alias)
-          return true if Utils.emailIsEquivalent(email, aliasContact.email)
-        return false
+    for account in @accounts()
+      if Utils.emailIsEquivalent(email, account.emailAddress)
+        return account
+    for alias in @aliases()
+      if Utils.emailIsEquivalent(email, alias.email)
+        return @accountForId(alias.accountId)
+    return null
 
   # Public: Returns the {Account} for the given account id, or null.
   accountForId: (id) =>
