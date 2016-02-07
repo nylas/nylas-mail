@@ -1,5 +1,10 @@
 # N1 Changelog
 
+### 0.4.5 (2/7/16)
+
+ + Resolves a critical issue where emails could not be sent from some aliases.
+ + Fixes the keyboard shortcuts for "Go to All Mail", "Go to Starred", etc.
+
 ### 0.4.4 (2/5/16)
 
 We're really excited to announce this release - the largest improvement to N1
