@@ -1,6 +1,5 @@
 _ = require 'underscore'
 NylasStore = require 'nylas-store'
-WorkspaceStore = require './workspace-store'
 AccountStore = require './account-store'
 MailboxPerspective = require '../../mailbox-perspective'
 CategoryStore = require './category-store'
