@@ -39,6 +39,21 @@ describe "AccountStore", ->
       (new Account).fromJSON(accounts[1])
     ])
 
+  describe "accountForEmail", ->
+    beforeEach ->
+      @instance = new @constructor
+      @ac1 = new Account emailAddress: 'juan@nylas.com', aliases: []
+      @ac2 = new Account emailAddress: 'juan@gmail.com', aliases: ['Juan <juanchis@gmail.com>']
+      @ac3 = new Account emailAddress: 'jackie@columbia.edu', aliases: ['Jackie Luo <jacqueline.luo@columbia.edu>']
+      @instance._accounts = [@ac1, @ac2, @ac3]
+
+    it 'returns correct account when no alises present', ->
+      expect(@instance.accountForEmail('juan@nylas.com')).toEqual @ac1
+
+    it 'returns correct account when alias is used', ->
+      expect(@instance.accountForEmail('juanchis@gmail.com')).toEqual @ac2
+      expect(@instance.accountForEmail('jacqueline.luo@columbia.edu')).toEqual @ac3
+
   describe "adding account from json", ->
     beforeEach ->
       spyOn(NylasEnv.config, "set")
