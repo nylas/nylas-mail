@@ -132,16 +132,9 @@ describe "Contact", ->
       c1 = new Contact {email: @account.emailAddress.toUpperCase()}
       expect(c1.isMe()).toBe(true)
 
-    it "also matches any aliases you've created", ->
-      spyOn(AccountStore, 'accounts').andReturn [
-        new Account
-          provider: "gmail"
-          accountId: TEST_ACCOUNT_ID
-          aliases: ["Ben Other <ben22@nylas.com>"]
-          emailAddress: 'ben@nylas.com'
-      ]
-
-      c1 = new Contact {email: 'ben22@nylas.com'}
+    it "it calls through to accountForEmail", ->
+      c1 = new Contact {email: @account.emailAddress}
+      acct = new Account()
+      spyOn(AccountStore, 'accountForEmail').andReturn(acct)
       expect(c1.isMe()).toBe(true)
-      c1 = new Contact {email: 'ben23@nylas.com'}
-      expect(c1.isMe()).toBe(false)
+      expect(AccountStore.accountForEmail).toHaveBeenCalled()
