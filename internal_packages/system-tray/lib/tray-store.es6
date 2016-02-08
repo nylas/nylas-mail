@@ -71,7 +71,7 @@ class TrayStore extends NylasStore {
     const imgHandlers = {
       'darwin': ()=> {
         const img = new Image();
-        var canvas = null;
+        let canvas = null;
 
         // toDataUrl always returns the @1x image data, so the assets/darwin/
         // contains an "@2x" image /without/ the @2x extension
