@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/nylas/N1.png?label=ready&title=Ready)](https://waffle.io/nylas/N1)
 ![N1 Logo](https://edgehill.s3.amazonaws.com/static/N1.png)
 
 ![N1 Screenshot](http://nylas.com/N1/images/1-1-initial-outlook-base.png?feb2016)
