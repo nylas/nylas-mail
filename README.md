@@ -1,6 +1,6 @@
 ![N1 Logo](https://edgehill.s3.amazonaws.com/static/N1.png)
 
-![N1 Screenshot](http://nylas.com/N1/images/1-1-initial-outlook-base.png)
+![N1 Screenshot](http://nylas.com/N1/images/1-1-initial-outlook-base.png?feb2016)
 
 **N1 is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).** It is designed to be extensible, so it's easy to create new experiences and workflows around email. N1 is built on the Nylas Sync Engine which is also [open source free software](https://github.com/nylas/sync-engine).
 
