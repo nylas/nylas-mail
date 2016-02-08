@@ -71,10 +71,17 @@ class TrayStore extends NylasStore {
     const imgHandlers = {
       'darwin': ()=> {
         const img = new Image();
+        var canvas = null;
+
         // toDataUrl always returns the @1x image data, so the assets/darwin/
         // contains an "@2x" image /without/ the @2x extension
         img.src = this._baseIcon.toDataURL();
-        const canvas = canvasWithSystemTrayIconAndText(img, this._unreadString);
+
+        if (this._unreadString === '0') {
+          canvas = canvasWithSystemTrayIconAndText(img, '');
+        } else {
+          canvas = canvasWithSystemTrayIconAndText(img, this._unreadString);
+        }
         const pngData = NativeImage.createFromDataURL(canvas.toDataURL()).toPng();
 
         // creating from a buffer allows us to specify that the image is @2x
