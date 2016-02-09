@@ -1,20 +1,20 @@
 {EventEmitter} = require 'events'
 _ = require 'underscore'
-SquirrelUpdate = require './squirrel-update'
+WindowsUpdater = require './windows-updater'
 
-class AutoUpdater
+class WindowsUpdaterSquirrelAdapter
   _.extend @prototype, EventEmitter.prototype
 
   setFeedURL: (@updateUrl) ->
 
-  quitAndInstall: ->
-    if SquirrelUpdate.existsSync()
-      SquirrelUpdate.restartN1(require('app'))
+  restartN1: ->
+    if WindowsUpdater.existsSync()
+      WindowsUpdater.restartN1(require('app'))
     else
-      require('auto-updater').quitAndInstall()
+      NylasEnv.reportError(new Error("SquirrellUpdate does not exist"))
 
   downloadUpdate: (callback) ->
-    SquirrelUpdate.spawn ['--download', @updateUrl], (error, stdout) ->
+    WindowsUpdater.spawn ['--download', @updateUrl], (error, stdout) ->
       return callback(error) if error?
 
       try
@@ -28,17 +28,17 @@ class AutoUpdater
       callback(null, update)
 
   installUpdate: (callback) ->
-    SquirrelUpdate.spawn(['--update', @updateUrl], callback)
+    WindowsUpdater.spawn(['--update', @updateUrl], callback)
 
   supportsUpdates: ->
-    SquirrelUpdate.existsSync()
+    WindowsUpdater.existsSync()
 
-  checkForUpdates: ->
+  downloadAndInstallUpdate: ->
     throw new Error('Update URL is not set') unless @updateUrl
 
     @emit 'checking-for-update'
 
-    unless SquirrelUpdate.existsSync()
+    unless WindowsUpdater.existsSync()
       @emit 'update-not-available'
       return
 
@@ -54,8 +54,16 @@ class AutoUpdater
       @emit 'update-available'
       @installUpdate (error) =>
         if error?
-          @emit 'update-not-available'
+          @emit 'error', error
           return
+
+        # During this time, Windows Squirrel will invoke the Nylas.exe
+        # with a variety of flags as event hooks.
+        #
+        # See https://github.com/Squirrel/Squirrel.Windows/blob/master/docs/using/custom-squirrel-events-non-cs.md
+        #
+        # See `handleStartupEventsWithSquirrel` in `src/browser/main.js`
+
         @emit 'update-downloaded', {}, update.releaseNotes, update.version
 
-module.exports = new AutoUpdater()
+module.exports = new WindowsUpdaterSquirrelAdapter()
