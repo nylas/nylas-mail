@@ -3,8 +3,10 @@
 <script>
 window.trackDownloadLink = function(eventAction) {
   return function(event) {
-    event.stopPropagation();
-    event.preventDefault();
+    if (!ga || !ga.hasOwnProperty("loaded") || ga.loaded != true) {
+      document.location = href;
+      return;
+    }
     var href = $(event.currentTarget).attr('href');
     ga('send',{
       'hitType': 'event',
