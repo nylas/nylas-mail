@@ -203,7 +203,7 @@ class DatabaseTransaction
         if joinedModels
           for joined in joinedModels
             joinMarks.push('(?,?)')
-            joinedValues.push(model.id, joined.id)
+            joinedValues.push(model.id, joined.queryableValue())
 
       unless joinedValues.length is 0
         # Write no more than 200 items (400 values) at once to avoid sqlite limits
