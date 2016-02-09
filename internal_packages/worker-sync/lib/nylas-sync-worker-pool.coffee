@@ -76,6 +76,12 @@ class NylasSyncWorkerPool
 
     {create, modify, destroy} = @_clusterDeltas(deltas)
 
+    metadata = []
+    for deltas in [create, modify]
+      if deltas['metadata']
+        metadata = metadata.concat(_.values(deltas['metadata']))
+        delete deltas['metadata']
+
     # Apply all the deltas to create objects. Gets promises for handling
     # each type of model in the `create` hash, waits for them all to resolve.
     create[type] = NylasAPI._handleModelResponse(_.values(dict)) for type, dict of create
@@ -84,6 +90,9 @@ class NylasSyncWorkerPool
       # each type of model in the `modify` hash, waits for them all to resolve.
       modify[type] = NylasAPI._handleModelResponse(_.values(dict)) for type, dict of modify
       Promise.props(modify).then (modified) =>
+
+        if metadata.length > 0
+          @_handleDeltaMetadata(metadata)
 
         # Now that we've persisted creates/updates, fire an action
         # that allows other parts of the app to update based on new models
@@ -117,6 +126,15 @@ class NylasSyncWorkerPool
         destroy.push(delta)
 
     {create, modify, destroy}
+
+  _handleDeltaMetadata: (metadata) =>
+    for metadatum in metadata
+      klass = NylasAPI._apiObjectToClassMap[metadatum.object_type]
+      DatabaseStore.inTransaction (t) =>
+        t.find(klass, metadatum.object_id).then (model) ->
+          return Promise.resolve() unless model
+          updated = model.applyPluginMetadata(metadatum.application_id, metadatum.value)
+          t.persistModel(updated)
 
   _handleDeltaDeletion: (delta) =>
     klass = NylasAPI._apiObjectToClassMap[delta.object]

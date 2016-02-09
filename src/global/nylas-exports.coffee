@@ -73,7 +73,6 @@ class NylasExports
   @require "Contact", 'flux/models/contact'
   @require "Category", 'flux/models/category'
   @require "Calendar", 'flux/models/calendar'
-  @require "Metadata", 'flux/models/metadata'
   @require "JSONBlob", 'flux/models/json-blob'
   @require "DatabaseObjectRegistry", "database-object-registry"
   @require "MailboxPerspective", 'mailbox-perspective'
@@ -119,6 +118,7 @@ class NylasExports
   @require "OutboxStore", 'flux/stores/outbox-store'
   @require "AccountStore", 'flux/stores/account-store'
   @require "MessageStore", 'flux/stores/message-store'
+  @require "MetadataStore", 'flux/stores/metadata-store'
   @require "ContactStore", 'flux/stores/contact-store'
   @require "CategoryStore", 'flux/stores/category-store'
   @require "WorkspaceStore", 'flux/stores/workspace-store'
