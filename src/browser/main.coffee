@@ -49,9 +49,9 @@ setupConfigDir = (args) ->
 
 handleStartupEventWithSquirrel = ->
   return false unless process.platform is 'win32'
-  SquirrelUpdate = require './squirrel-update'
+  WindowsUpdater = require './windows-updater'
   squirrelCommand = process.argv[1]
-  SquirrelUpdate.handleStartupEvent(app, squirrelCommand)
+  WindowsUpdater.handleStartupEvent(app, squirrelCommand)
 
 setupCompileCache = (configDirPath) ->
   compileCache = require('../compile-cache')

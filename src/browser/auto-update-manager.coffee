@@ -44,7 +44,7 @@ class AutoUpdateManager
 
   setupAutoUpdater: ->
     if process.platform is 'win32'
-      autoUpdater = require './auto-updater-win32'
+      autoUpdater = require './windows-updater-squirrel-adapter'
     else
       autoUpdater = require('electron').autoUpdater
 
@@ -98,10 +98,23 @@ class AutoUpdateManager
     unless hidePopups
       autoUpdater.once 'update-not-available', @onUpdateNotAvailable
       autoUpdater.once 'error', @onUpdateError
-    autoUpdater.checkForUpdates()
+
+    if process.platform is "win32"
+      # There's no separate "checking" stage on Windows. It also
+      # "installs" as soon as it downloads. You just need to restart to
+      # launch the updated app.
+      autoUpdater.downloadAndInstallUpdate()
+    else
+      autoUpdater.checkForUpdates()
 
   install: ->
-    autoUpdater.quitAndInstall()
+    if process.platform is "win32"
+      # On windows the update has already been "installed" and shortcuts
+      # already updated. You just need to restart the app to load the new
+      # version.
+      autoUpdater.restartN1()
+    else
+      autoUpdater.quitAndInstall()
 
   iconURL: ->
     url = path.join(process.resourcesPath, 'app', 'nylas.png')
