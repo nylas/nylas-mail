@@ -16,7 +16,7 @@ class MetadataStore extends NylasStore {
     DatabaseStore.inTransaction((t)=> {
       t.persistModel(updated);
     }).then(()=> {
-      if (updated.serverId) {
+      if (updated.isSaved()) {
         const task = new SyncbackMetadataTask(updated.clientId, updated.constructor.name, pluginId);
         Actions.queueTask(task);
       } else {

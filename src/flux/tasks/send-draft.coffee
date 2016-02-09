@@ -63,12 +63,6 @@ class SendDraftTask extends Task
     unless account
       return Promise.reject(new Error("SendDraftTask - you can only send drafts from a configured account."))
 
-    if @draft.serverId
-      @deleteAfterSending =
-        accountId: @draft.accountId
-        serverId: @draft.serverId
-        version: @draft.version
-
     if account.id isnt @draft.accountId
       @draft.accountId = account.id
       delete @draft.serverId
@@ -159,21 +153,21 @@ class SendDraftTask extends Task
         return Promise.reject(err)
 
     .then (newMessageJSON) =>
-      message = new Message().fromJSON(newMessageJSON)
-      message.clientId = @draft.clientId
-      message.draft = false
+      @message = new Message().fromJSON(newMessageJSON)
+      @message.clientId = @draft.clientId
+      @message.draft = false
+
       DatabaseStore.inTransaction (t) =>
-        t.persistModel(message)
+        DatabaseStore.findBy(Message, {clientId: @draft.clientId}).then (draft) =>
+          @_deleteRemoteDraft(draft) if draft.serverId
+          t.persistModel(@message)
 
   # We DON'T need to delete the local draft because we turn it into a message
   # by writing the new message into the database with the same clientId.
   #
   # We DO, need to make sure that the remote draft has been cleaned up.
   #
-  _deleteRemoteDraft: =>
-    return Promise.resolve() unless @deleteAfterSending
-    {accountId, version, serverId} = @deleteAfterSending
-
+  _deleteRemoteDraft: ({accountId, version, serverId}) =>
     NylasAPI.makeRequest
       path: "/drafts/#{serverId}"
       accountId: accountId
@@ -192,6 +186,10 @@ class SendDraftTask extends Task
     # Delete attachments from the uploads folder
     for upload in @uploaded
       Actions.attachmentUploaded(upload)
+
+    # Apply metadata that was on the draft to the new message
+    for {pluginId, value} in (@draft.pluginMetadata ? [])
+      Actions.setMetadata(@message, pluginId, value)
 
     # Play the sending sound
     if NylasEnv.config.get("core.sending.sounds")
