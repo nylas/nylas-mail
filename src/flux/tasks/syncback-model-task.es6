@@ -58,17 +58,18 @@ export default class SyncbackModelTask extends Task {
   }
 
   getRequestData = (model) => {
-    if (model.serverId) {
+    if (model.isSaved()) {
       return {
         path: `${this.endpoint}/${model.serverId}`,
         body: model.toJSON(),
         method: "PUT",
       }
-    }
-    return {
-      path: `${this.endpoint}`,
-      body: model.toJSON(),
-      method: "POST",
+    } else {
+      return {
+        path: `${this.endpoint}`,
+        body: model.toJSON(),
+        method: "POST",
+      }
     }
   }
 

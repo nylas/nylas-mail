@@ -15,7 +15,7 @@ export default class PluginMetadata extends Model {
   });
 
   queryableValue = ()=> {
-    this.pluginId;
+    return this.pluginId;
   };
 }
 

@@ -73,14 +73,22 @@ class SyncbackDraftTask extends Task
     #
     # The only fields we want to update from the server are the `id` and `version`.
     #
+    metadataToApply = []
+
     DatabaseStore.inTransaction (t) =>
       @getLatestLocalDraft().then (draft) =>
         # Draft may have been deleted. Oh well.
         return Promise.resolve() unless draft
+        if draft.serverId isnt id
+          draft.serverId = id
+          metadataToApply = draft.pluginMetadata
+          draft.pluginMetadata = []
         draft.version = version
-        draft.serverId = id
         t.persistModel(draft)
-    .thenReturn(true)
+    .then =>
+      for {pluginId, value} in metadataToApply
+        Actions.setMetadata(@draftClientId, pluginId, value)
+      return true
 
   getLatestLocalDraft: =>
     DatabaseStore.findBy(Message, clientId: @draftClientId).include(Message.attributes.body)

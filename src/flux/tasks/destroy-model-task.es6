@@ -47,7 +47,7 @@ export default class DestroyModelTask extends Task {
 
   performRemote() {
     if (!this.serverId) {
-      throw new Error("Need a serverId to destroy remotely")
+      return Promise.resolve(Task.Status.Continue)
     }
     return NylasAPI.makeRequest({
       path: `${this.endpoint}/${this.serverId}`,
