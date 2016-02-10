@@ -29,14 +29,14 @@ class MessageTimestamp extends React.Component
       diff = now.diff(msgDate, 'days', true)
       isSameDay = now.isSame(msgDate, 'days')
       if diff < 1 and isSameDay
-        if NylasEnv.config.get('core.reading.timeFormat')
-          return msgDate.format "HH:mm"
+        if NylasEnv.config.get('core.reading.timeFormat') # Military time added here -->
+          return msgDate.format "HH:mm" # <--
         else
           return msgDate.format "h:mm A"
       if diff < 1.5 and not isSameDay
         timeAgo = msgDate.from now
-        if NylasEnv.config.get('core.reading.timeFormat')
-          monthAndDay = msgDate.format "HH:mm"
+        if NylasEnv.config.get('core.reading.timeFormat') # Military time added here -->
+          monthAndDay = msgDate.format "HH:mm" # <--
         else
           monthAndDay = msgDate.format "h:mm A"
         return monthAndDay + " (" + timeAgo + ")"

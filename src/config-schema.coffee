@@ -67,10 +67,10 @@ module.exports =
             type: 'boolean'
             default: false
             title: "Use backspace / delete to move messages to trash"
-          timeFormat:
+          timeFormat:            # military time section added here -->
             type: 'boolean'
             default: false
-            title: "Military time"
+            title: "Military time" # <--
       sending:
         type: 'object'
         properties:
