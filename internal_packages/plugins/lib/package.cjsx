@@ -24,18 +24,18 @@ class Package extends React.Component
     if @props.package.installed
       if @props.package.category in ['user' ,'dev', 'example']
         if @props.package.enabled
-          actions.push <div className="btn btn-small" onClick={@_onDisablePackage}>Disable</div>
+          actions.push <div className="btn" onClick={@_onDisablePackage}>Disable</div>
         else
-          actions.push <div className="btn btn-small" onClick={@_onEnablePackage}>Enable</div>
+          actions.push <div className="btn" onClick={@_onEnablePackage}>Enable</div>
       if @props.package.category is 'user'
-        actions.push <div className="btn btn-small" onClick={@_onUninstallPackage}>Uninstall</div>
+        actions.push <div className="btn" onClick={@_onUninstallPackage}>Uninstall</div>
       if @props.package.category is 'dev'
-        actions.push <div className="btn btn-small" onClick={@_onShowPackage}>Show...</div>
+        actions.push <div className="btn" onClick={@_onShowPackage}>Show...</div>
 
     else if @props.package.installing
-      actions.push <div className="btn btn-small">Installing...</div>
+      actions.push <div className="btn">Installing...</div>
     else
-      actions.push <div className="btn btn-small" onClick={@_onInstallPackage}>Install</div>
+      actions.push <div className="btn" onClick={@_onInstallPackage}>Install</div>
 
     {name, description, title} = @props.package
 
@@ -43,7 +43,7 @@ class Package extends React.Component
       extras.push(
         <div className="padded update-info">
           A newer version is available: {@props.package.newerVersion}
-          <div className="btn btn-small btn-emphasis" onClick={@_onUpdatePackage}>Update</div>
+          <div className="btn btn-emphasis" onClick={@_onUpdatePackage}>Update</div>
         </div>
       )
 

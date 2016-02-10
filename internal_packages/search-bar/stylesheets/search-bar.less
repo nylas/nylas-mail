@@ -7,21 +7,23 @@
   overflow: visible;
   z-index: 100;
   width:450px;
-  margin-top: (50px - 30px) / 2;
+  margin-top: (38px - 23px) / 2;
   margin-left: 12px;
   margin-right: 12px;
 
   .menu .header-container {
     padding:0;
-    height:30px;
+    height:23px;
     background-color: transparent;
     border:none;
 
     input {
-      padding-left: 30px;
+      padding-left: 26px;
       padding-right: 26px;
       width: 100%;
-      height: 30px;
+      height: 23px;
+      border: 0;
+      box-shadow: 0 0.5px 0 rgba(0,0,0,0.15), 0 -0.5px 0 rgba(0,0,0,0.15), 0.5px 0 0 rgba(0,0,0,0.15), -0.5px 0 0 rgba(0,0,0,0.15);
     }
     input.empty {
       text-align: left;
@@ -67,16 +69,23 @@
 
     &.search {
       position: absolute;
-      top: floor(40px - 16px)/2;
+      top: 8px;
       left: @padding-base-horizontal;
     }
 
     &.clear {
       position: absolute;
-      top: 4px;
+      top: 0;
       right: 4px;
       color: @input-accessory-color;
       display: none;
     }
+  }
+}
+
+body.is-blurred {
+  .search-bar .menu .header-container input {
+    background: none;
+    box-shadow: 0 0.5px 0 rgba(0,0,0,0.15), 0 -0.5px 0 rgba(0,0,0,0.15), 0.5px 0 0 rgba(0,0,0,0.15), -0.5px 0 0 rgba(0,0,0,0.15);
   }
 }

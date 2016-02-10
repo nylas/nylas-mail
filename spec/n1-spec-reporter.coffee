@@ -40,7 +40,7 @@ class N1SpecReporter extends View
   @content: ->
     @div class: 'spec-reporter', =>
       @div class: 'padded pull-right', =>
-        @button outlet: 'reloadButton', class: 'btn btn-small reload-button', 'Reload Specs'
+        @button outlet: 'reloadButton', class: 'btn reload-button', 'Reload Specs'
       @div outlet: 'coreArea', class: 'symbol-area', =>
         @div outlet: 'coreHeader', class: 'symbol-header'
         @ul outlet: 'coreSummary', class: 'symbol-summary list-unstyled'

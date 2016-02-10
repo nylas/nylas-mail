@@ -25,6 +25,35 @@ describe "FocusedPerspectiveStore", ->
       return @userCategory if id is @userCategory.id
       return null
 
+  describe "_initCurrentPerspective", ->
+    beforeEach ->
+      @default = 'default'
+      @accounts = [{id: 1}, {id: 2}]
+      spyOn(MailboxPerspective, 'fromJSON').andCallFake (json) -> json
+      spyOn(FocusedPerspectiveStore, '_defaultPerspective').andReturn @default
+
+    it "uses default perspective when no perspective has been saved", ->
+      current = FocusedPerspectiveStore._initCurrentPerspective(undefined, @accounts)
+      expect(current).toEqual @default
+
+    it "uses default if saved perspective has more account ids not present in current accounts", ->
+      saved = {accountIds: [1,2,3]}
+      current = FocusedPerspectiveStore._initCurrentPerspective(saved, @accounts)
+      expect(current).toEqual @default
+
+      saved = {accountIds: [3]}
+      current = FocusedPerspectiveStore._initCurrentPerspective(saved, @accounts)
+      expect(current).toEqual @default
+
+    it "uses saved perspective if all accounts in saved perspective are present in the current accounts", ->
+      saved = {accountIds: [1,2]}
+      current = FocusedPerspectiveStore._initCurrentPerspective(saved, @accounts)
+      expect(current).toEqual saved
+
+      saved = {accountIds: [1]}
+      current = FocusedPerspectiveStore._initCurrentPerspective(saved, @accounts)
+      expect(current).toEqual saved
+
   describe "_onCategoryStoreChanged", ->
     it "should set the current category to Inbox when it is unset", ->
       FocusedPerspectiveStore._perspective = null

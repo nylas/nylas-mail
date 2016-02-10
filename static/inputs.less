@@ -53,12 +53,14 @@ body.platform-win32 {
   input[type="tel"],
   input[type="time"],
   input[type="url"] {
-    border: 2px solid @input-border;
+    border: 0;
     border-radius: 0;
+    box-shadow: 0 0 0 2px @input-border;
 
     &:focus {
-      box-shadow: 0 0 0;
-      border: 2px solid darken(@input-border, 20%);
+      border: 0;
+      border-radius: 0;
+      box-shadow: 0 0 0 2px darken(@input-border, 20%);
     }
   }
 }
