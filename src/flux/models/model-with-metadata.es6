@@ -2,7 +2,7 @@ import Model from './model'
 import Attributes from '../attributes'
 
 export default class PluginMetadata extends Model {
-  static attributes = Object.assign({}, Model.attributes, {
+  static attributes = {
     pluginId: Attributes.String({
       modelKey: 'pluginId',
     }),
@@ -12,18 +12,19 @@ export default class PluginMetadata extends Model {
     value: Attributes.Object({
       modelKey: 'value',
     }),
-  });
+  };
 
   constructor(...args) {
     super(...args)
     this.version = this.version ? this.version : 0;
   }
-
-  queryableValue() {
-    return this.pluginId;
-  };
 }
 
+Object.defineProperty(PluginMetadata.prototype, "id", {
+  enumerable: false,
+  get: function() { return this.pluginId; },
+  set: function(v) { this.pluginId = v; },
+})
 
 /**
  Cloud-persisted data that is associated with a single Nylas API object
@@ -37,8 +38,9 @@ export default class ModelWithMetadata extends Model {
   static attributes = Object.assign({}, Model.attributes, {
     pluginMetadata: Attributes.Collection({
       queryable: true,
-      modelKey: 'pluginMetadata',
       itemClass: PluginMetadata,
+      modelKey: 'pluginMetadata',
+      jsonKey:  'metadata',
     }),
   });
 
@@ -47,14 +49,26 @@ export default class ModelWithMetadata extends Model {
     this.pluginMetadata = this.pluginMetadata ? this.pluginMetadata : [];
   }
 
-  metadataForPluginId(pluginId) {
-    return this.pluginMetadata.filter(metadata => metadata.pluginId === pluginId).pop();
+  // Public accessors
+
+  metadataForPluginId = (pluginId)=> {
+    const metadata = this.metadataObjectForPluginId(pluginId);
+    if (!metadata) {
+      return null;
+    }
+    return metadata.value;
   };
 
-  applyPluginMetadata(pluginId, pluginValue) {
+  // Private helpers
+
+  metadataObjectForPluginId = (pluginId)=> {
+    return this.pluginMetadata.find(metadata => metadata.pluginId === pluginId);
+  };
+
+  applyPluginMetadata = (pluginId, pluginValue)=> {
     const clone = this.clone();
 
-    let metadata = clone.metadataForPluginId(pluginId);
+    let metadata = clone.metadataObjectForPluginId(pluginId);
     if (!metadata) {
       metadata = new PluginMetadata({pluginId});
       clone.pluginMetadata.push(metadata);

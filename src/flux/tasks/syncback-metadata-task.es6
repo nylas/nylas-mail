@@ -14,7 +14,7 @@ export default class SyncbackMetadataTask extends SyncbackModelTask {
   }
 
   getRequestData = (model) => {
-    const metadata = model.metadataForPluginId(this.pluginId);
+    const metadata = model.metadataObjectForPluginId(this.pluginId);
 
     return {
       path: `/metadata/${model.id}?client_id=${this.pluginId}`,
@@ -29,7 +29,7 @@ export default class SyncbackMetadataTask extends SyncbackModelTask {
   };
 
   applyRemoteChangesToModel = (model, {version}) => {
-    const metadata = model.metadataForPluginId(this.pluginId);
+    const metadata = model.metadataObjectForPluginId(this.pluginId);
     metadata.version = version;
     return model;
   };

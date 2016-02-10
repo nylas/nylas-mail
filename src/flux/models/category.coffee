@@ -83,9 +83,6 @@ class Category extends Model
   constructor: ->
     super
 
-  queryableValue: ->
-    @id
-
   fromJSON: (json) ->
     super
     @
