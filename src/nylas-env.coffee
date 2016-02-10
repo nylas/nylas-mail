@@ -687,7 +687,7 @@ class NylasEnvConstructor extends Model
     document.getElementById("application-loading-cover").remove()
     document.body.classList.add("window-loaded")
     @restoreWindowDimensions()
-    @getCurrentWindow().setMinimumSize(875, 500)
+    @getCurrentWindow().setMinimumSize(875, 250)
 
   registerCommands: ->
     {resourcePath} = @getLoadSettings()
