@@ -4,15 +4,20 @@ import Attributes from '../attributes'
 export default class PluginMetadata extends Model {
   static attributes = Object.assign({}, Model.attributes, {
     pluginId: Attributes.String({
-      modelKey: 'pluginId'
+      modelKey: 'pluginId',
     }),
     version: Attributes.Number({
-      modelKey: 'version'
+      modelKey: 'version',
     }),
     value: Attributes.Object({
-      modelKey: 'value'
+      modelKey: 'value',
     }),
   });
+
+  constructor(...args) {
+    super(...args)
+    this.version = this.version ? this.version : 0;
+  }
 
   queryableValue = ()=> {
     return this.pluginId;
@@ -34,26 +39,28 @@ export default class ModelWithMetadata extends Model {
       queryable: true,
       modelKey: 'pluginMetadata',
       itemClass: PluginMetadata,
-    })
+    }),
   });
 
+  constructor(...args) {
+    super(...args)
+    this.pluginMetadata = this.pluginMetadata ? this.pluginMetadata : [];
+  }
+
   metadataForPluginId = (pluginId)=> {
-    if (!this.pluginMetadata) {
-      this.pluginMetadata = [];
-    }
     return this.pluginMetadata.filter(metadata => metadata.pluginId === pluginId).pop();
   };
 
   applyPluginMetadata = (pluginId, pluginValue)=> {
-    clone = this.clone();
+    const clone = this.clone();
 
-    metadata = clone.metadataForPluginId(pluginId);
+    let metadata = clone.metadataForPluginId(pluginId);
     if (!metadata) {
-      metadata = new PluginMetadata({pluginId, version: 0});
+      metadata = new PluginMetadata({pluginId});
       clone.pluginMetadata.push(metadata);
     }
     metadata.value = pluginValue;
     return clone;
-  }
+  };
 
 }

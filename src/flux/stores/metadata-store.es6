@@ -11,17 +11,21 @@ class MetadataStore extends NylasStore {
   }
 
   _setMetadata(model, pluginId, pluginData) {
-    const updated = model.applyPluginMetadata(pluginId, pluginData);
+    const models = model instanceof Array ? model : [models]
+    const updatedModels = model.map(m => m.applyPluginMetadata(pluginId, pluginData))
 
     DatabaseStore.inTransaction((t)=> {
-      t.persistModel(updated);
+      t.persistModels(updatedModels);
     }).then(()=> {
-      if (updated.isSaved()) {
-        const task = new SyncbackMetadataTask(updated.clientId, updated.constructor.name, pluginId);
-        Actions.queueTask(task);
-      } else {
-        // we'll syncback metadata after the object is saved
-      }
+      updatedModels.forEach((updated)=> {
+        if (updated.isSaved()) {
+          const task = new SyncbackMetadataTask(updated.clientId, updated.constructor.name, pluginId);
+          Actions.queueTask(task);
+        } else {
+          // TODO we'll syncback metadata after the object is saved
+          // Maybe move this into the task
+        }
+      })
     });
   }
 }

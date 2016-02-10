@@ -20,19 +20,18 @@ export default class SyncbackMetadataTask extends SyncbackModelTask {
       path: `/metadata/${model.id}?client_id=${this.pluginId}`,
       method: 'POST',
       body: {
-        object_id: this.clientId,
+        object_id: model.serverId,
         object_type: this.modelClassName.toLowerCase(),
         version: metadata.version,
         value: metadata.value,
       },
     };
-  }
+  };
 
   applyRemoteChangesToModel = (model, {version}) => {
-    // TODO: Waiting for fix for versions on server
-    // const metadata = model.metadataForPluginId(this.pluginId);
-    // metadata.version = version;
+    const metadata = model.metadataForPluginId(this.pluginId);
+    metadata.version = version;
     return model;
-  }
+  };
 
 }
