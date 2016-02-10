@@ -81,7 +81,7 @@ class MessageParticipants extends React.Component
     <div className="participant-type" key={"participant-type-#{name}"}>
       {
         if includeLabel
-          <div className={"participant-label #{name}-label"}>To:&nbsp;</div>
+          <div className={"participant-label #{name}-label"}>{name}:&nbsp;</div>
         else
           undefined
       }

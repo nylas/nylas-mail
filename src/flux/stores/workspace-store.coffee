@@ -39,6 +39,7 @@ class WorkspaceStore extends NylasStore
 
     {windowType} = NylasEnv.getLoadSettings()
     unless windowType is 'onboarding'
+      require('electron').webFrame.setZoomLevelLimits(1, 1)
       NylasEnv.config.observe 'core.workspace.interfaceZoom', (z) =>
         require('electron').webFrame.setZoomFactor(z) if z and _.isNumber(z)
 

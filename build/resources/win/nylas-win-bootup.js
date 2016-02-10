@@ -6,4 +6,4 @@ var arguments = process.argv.slice(2);
 arguments.unshift('--executed-from', process.cwd());
 var options = {detached: true, stdio: 'ignore'};
 spawn(nylasCommandPath, arguments, options);
-irocess.exit(0);
+process.exit(0);

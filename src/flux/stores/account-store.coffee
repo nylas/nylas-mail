@@ -1,11 +1,10 @@
+_ = require 'underscore'
+NylasStore = require 'nylas-store'
 Actions = require '../actions'
 Account = require '../models/account'
 Utils = require '../models/utils'
 DatabaseStore = require './database-store'
-_ = require 'underscore'
 
-{Listener, Publisher} = require '../modules/reflux-coffee'
-CoffeeHelpers = require '../coffee-helpers'
 
 saveObjectsKey = "nylas.accounts"
 saveTokensKey = "nylas.accountTokens"
@@ -16,11 +15,7 @@ the database and exposes the currently active Account via {::current}
 
 Section: Stores
 ###
-class AccountStore
-  @include: CoffeeHelpers.includeModule
-
-  @include Publisher
-  @include Listener
+class AccountStore extends NylasStore
 
   constructor: ->
     @_load()
@@ -80,6 +75,7 @@ class AccountStore
       ipc = require('electron').ipcRenderer
       ipc.send('command', 'application:reset-config-and-relaunch')
     else
+      Actions.focusDefaultMailboxPerspectiveForAccounts(@_accounts)
       @trigger()
 
   _onReorderAccount: (id, newIdx) =>
@@ -135,12 +131,13 @@ class AccountStore
 
   # Public: Returns the {Account} for the given email address, or null.
   accountForEmail: (email) =>
-    @_cachedGetter "accountForEmail:#{email}", =>
-      _.find @_accounts, (account) ->
-        return true if Utils.emailIsEquivalent(email, account.emailAddress)
-        for alias in account.aliases
-          return true if Utils.emailIsEquivalent(email, alias)
-        return false
+    for account in @accounts()
+      if Utils.emailIsEquivalent(email, account.emailAddress)
+        return account
+    for alias in @aliases()
+      if Utils.emailIsEquivalent(email, alias.email)
+        return @accountForId(alias.accountId)
+    return null
 
   # Public: Returns the {Account} for the given account id, or null.
   accountForId: (id) =>
