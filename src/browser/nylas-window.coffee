@@ -54,7 +54,7 @@ class NylasWindow
 
     options =
       show: false
-      title: title ? 'Nylas'
+      title: title ? 'Nylas N1'
       frame: frame
       width: width
       height: height
