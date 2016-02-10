@@ -58,19 +58,6 @@ export default class DestroyModelTask extends Task {
     }).catch(this.apiErrorHandler)
   }
 
-  canBeUndone() { return true }
+  canBeUndone() { return false }
 
-  isUndo() { return !!this._isUndoTask }
-
-  createUndoTask() {
-    const CreateModelTask = require('./create-model-task')
-    const undoTask = new CreateModelTask({
-      data: this.oldModel,
-      modelName: this.modelName,
-      endpoint: this.endpoint,
-      accountId: this.accountId,
-    })
-    undoTask._isUndoTask = true
-    return undoTask
-  }
 }

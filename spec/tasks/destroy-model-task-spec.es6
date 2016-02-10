@@ -1,5 +1,5 @@
 import {
-  Metadata,
+  Model,
   NylasAPI,
   DatabaseStore,
   DestroyModelTask,
@@ -7,7 +7,7 @@ import {
 
 describe("DestroyModelTask", () => {
   beforeEach(() => {
-    this.existingModel = new Metadata({key: "foo", value: "bar"})
+    this.existingModel = new Model()
     this.existingModel.clientId = "local-123"
     this.existingModel.serverId = "server-123"
     spyOn(DatabaseTransaction.prototype, "unpersistModel")
@@ -18,7 +18,7 @@ describe("DestroyModelTask", () => {
     this.defaultArgs = {
       clientId: "local-123",
       accountId: "a123",
-      modelName: "Metadata",
+      modelName: "Model",
       endpoint: "/endpoint",
     }
   });

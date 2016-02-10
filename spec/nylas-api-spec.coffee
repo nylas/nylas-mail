@@ -197,7 +197,6 @@ describe "NylasAPI", ->
         "message": require('../src/flux/models/message')
         "contact": require('../src/flux/models/contact')
         "calendar": require('../src/flux/models/calendar')
-        "metadata": require('../src/flux/models/metadata')
 
       verifyUpdateHappened = (klass, responseModels) ->
         changedModels = DatabaseTransaction.prototype.persistModels.calls[0].args[0]

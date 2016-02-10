@@ -64,12 +64,11 @@ export default class SyncbackModelTask extends Task {
         body: model.toJSON(),
         method: "PUT",
       }
-    } else {
-      return {
-        path: `${this.endpoint}`,
-        body: model.toJSON(),
-        method: "POST",
-      }
+    }
+    return {
+      path: `${this.endpoint}`,
+      body: model.toJSON(),
+      method: "POST",
     }
   }
 
@@ -86,8 +85,8 @@ export default class SyncbackModelTask extends Task {
       return this.getLatestModel().then((model) => {
         // Model may have been deleted
         if (!model) { return Promise.resolve() }
-        model = this.applyRemoteChangesToModel(model, responseJSON);
-        return t.persistModel(model);
+        const changed = this.applyRemoteChangesToModel(model, responseJSON);
+        return t.persistModel(changed);
       })
     }).thenReturn(true)
   }
@@ -102,11 +101,11 @@ export default class SyncbackModelTask extends Task {
     if (err instanceof APIError) {
       if (NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
         return Promise.resolve([Task.Status.Failed, err])
-      } else if (err.statusCode === 409) {
-        return this.handleRemoteVersionConflict(err);
-      } else {
-        return Promise.resolve(Task.Status.Retry)
       }
+      if (err.statusCode === 409) {
+        return this.handleRemoteVersionConflict(err);
+      }
+      return Promise.resolve(Task.Status.Retry)
     }
 
     NylasEnv.reportError(err);
