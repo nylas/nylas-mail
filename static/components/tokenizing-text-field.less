@@ -52,13 +52,12 @@
     display: inline-block;
     position: relative;
     color: @text-color;
-    padding: 0.5em @spacing-three-quarters 0.5em @spacing-three-quarters;
+    padding: 0 @spacing-three-quarters;
     padding-right: 1.5em;
-    margin: 3px 6px 6px 1px;
+    margin: 1px 5px 1px 1px;
     border-radius: @border-radius-base * 0.8;
     max-width: 100%;
-    font-size: 15px;
-    line-height: 17px;
+    line-height: 1.9em;
 
     background: linear-gradient(to bottom, @token-top 0%, @token-bottom 100%);
     box-shadow: 0 0.5px 0 rgba(0,0,0,0.17), 0 -0.5px 0 rgba(0,0,0,0.17), 0.5px 0 0 rgba(0,0,0,0.17), -0.5px 0 0 rgba(0,0,0,0.17), 0 1px 1px rgba(0, 0, 0, 0.1);
@@ -105,7 +104,7 @@
       // Note: we switch from 0.5px borders with box shadows to a real border,
       // because the 0.5px shadows can't be as dark as we want. This means
       // margins / border radius change by 1px.
-      margin: 2px 5px 5px 0;
+      margin: 0 4px 0 0;
 
       color: @text-color-inverse;
       .action {
@@ -126,7 +125,7 @@
     color: @text-color-very-subtle;
     float: left;
     text-transform: capitalize;
-    padding-top: 9px;
+    padding-top: 4px;
     display: block;
   }
 
@@ -152,8 +151,7 @@
       // The padding-left and padding-right must be 0 so we can manually
       // set the width properly to always match the size of the input
       // test.
-      padding: 0.4em 0 0.4em 0;
-      margin: 2px 0 3px 0;
+      padding: 0.3em 0 0.3em 0;
 
       &.noop-input {
         position: absolute;

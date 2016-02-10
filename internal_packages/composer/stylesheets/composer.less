@@ -10,12 +10,6 @@
 
 body.platform-win32 {
   .composer-inner-wrap {
-    .composer-action-bar-wrap {
-      .btn {
-        height: 30px;
-        padding-top: 1px;
-      }
-    }
     .composer-drop-cover {
       border-radius: 0;
     }
@@ -59,10 +53,6 @@ body.platform-win32 {
     background: transparent;
     border-bottom: 0;
 
-    .btn {
-      // Yes, 4px taller than in the rest of the app: https://phab.nylas.com/T2418
-      height:28px;
-    }
     .composer-action-bar-content {
       display:flex;
       margin: 0 auto;
@@ -93,7 +83,7 @@ body.platform-win32 {
     width: 100%;
     max-width: @compose-width;
     margin: 0 auto;
-    padding-top:@spacing-standard;
+    padding-top: @spacing-standard * 0.7;
   }
   .text-actions {
     text-align: right;
@@ -147,7 +137,7 @@ body.platform-win32 {
     border-bottom: 1px solid @border-color-divider;
     flex-shrink:0;
     color: @text-color-very-subtle;
-    padding: 16px 0 10px 0;
+    padding: 10px 0 10px 0;
 
     .collapsed-contact {
       padding-right: 0.25em;
@@ -164,8 +154,6 @@ body.platform-win32 {
       color: @text-color;
       padding-right: 12px;
       margin-left: 0;
-      padding-top: 6px;
-      padding-bottom: 6px;
     }
 
     .num-remaining-wrap {
@@ -314,11 +302,13 @@ body.platform-win32 {
   margin: 0 8+@spacing-standard;
   flex-shrink: 0;
   border-bottom: 1px solid @border-color-divider;
-  min-height: 49px;
+  min-height: 46px;
   color: @text-color;
 
   .button-dropdown {
     margin-left: 10px;
+    vertical-align: -webkit-baseline-middle;
+
     &:hover {
       .primary-item,
       .only-item {
