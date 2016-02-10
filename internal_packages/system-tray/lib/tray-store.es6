@@ -47,7 +47,7 @@ class TrayStore extends NylasStore {
     this._platform = platform;
 
     this._unreadIcon = NativeImage.createFromPath(UNREAD_ICON_PATH);
-    this._unreadString = +(UnreadBadgeStore.count()).toLocaleString();
+    this._unreadString = (+UnreadBadgeStore.count()).toLocaleString();
     this._baseIcon = NativeImage.createFromPath(BASE_ICON_PATH);
     this._menu = _buildMenu();
     this._icon = this._getIconImg();
@@ -71,10 +71,17 @@ class TrayStore extends NylasStore {
     const imgHandlers = {
       'darwin': ()=> {
         const img = new Image();
+        let canvas = null;
+
         // toDataUrl always returns the @1x image data, so the assets/darwin/
         // contains an "@2x" image /without/ the @2x extension
         img.src = this._baseIcon.toDataURL();
-        const canvas = canvasWithSystemTrayIconAndText(img, this._unreadString);
+
+        if (this._unreadString === '0') {
+          canvas = canvasWithSystemTrayIconAndText(img, '');
+        } else {
+          canvas = canvasWithSystemTrayIconAndText(img, this._unreadString);
+        }
         const pngData = NativeImage.createFromDataURL(canvas.toDataURL()).toPng();
 
         // creating from a buffer allows us to specify that the image is @2x
@@ -91,7 +98,7 @@ class TrayStore extends NylasStore {
   }
 
   _onUnreadCountChanged() {
-    this._unreadString = +(UnreadBadgeStore.count()).toLocaleString();
+    this._unreadString = (+UnreadBadgeStore.count()).toLocaleString();
     this._icon = this._getIconImg();
     this.trigger();
   }

@@ -190,17 +190,20 @@ exports.handleStartupEvent = (app, squirrelCommand) ->
   switch squirrelCommand
     when '--squirrel-install'
       createShortcuts ->
-        addCommandsToPath ->
+        addCommandsToPath (error) ->
+          console.error(error) if error
           app.quit()
       true
     when '--squirrel-updated'
       updateShortcuts ->
-        addCommandsToPath ->
+        addCommandsToPath (error) ->
+          console.error(error) if error
           app.quit()
       true
     when '--squirrel-uninstall'
       removeShortcuts ->
-        removeCommandsFromPath ->
+        removeCommandsFromPath (error) ->
+          console.error(error) if error
           app.quit()
       true
     when '--squirrel-obsolete'

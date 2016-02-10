@@ -1,7 +1,7 @@
 {
   "name": "nylas",
   "productName": "Nylas N1",
-  "version": "0.4.2",
+  "version": "0.4.6",
   "description": "An extensible, open-source mail client built on the modern web.",
   "main": "./src/browser/main.js",
   "repository": {
@@ -11,7 +11,7 @@
   "bugs": {
     "url": "https://github.com/nylas/N1/issues"
   },
-  "electronVersion": "0.35.4",
+  "electronVersion": "0.36.7",
   "dependencies": {
     "async": "^0.9",
     "atom-keymap": "^6.1.1",

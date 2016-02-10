@@ -64,8 +64,9 @@ class DestroyCategoryTask extends Task
 
   _notifyUserOfError: (category = @category) ->
     displayName = category.displayName
+    displayType = category.displayType()
 
-    msg = "The #{category.displayType()} #{displayName} could not be deleted."
+    msg = "The #{displayType} #{displayName} could not be deleted."
     if displayType is 'folder'
       msg += " Make sure the folder you want to delete is empty before deleting it."
 
