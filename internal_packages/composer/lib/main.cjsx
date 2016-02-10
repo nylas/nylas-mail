@@ -61,7 +61,7 @@ module.exports =
       ComponentRegistry.register ComposeButton,
         location: WorkspaceStore.Location.RootSidebar.Toolbar
     else
-      NylasEnv.getCurrentWindow().setMinimumSize(480, 400)
+      NylasEnv.getCurrentWindow().setMinimumSize(480, 250)
       WorkspaceStore.defineSheet 'Main', {root: true},
         popout: ['Center']
 

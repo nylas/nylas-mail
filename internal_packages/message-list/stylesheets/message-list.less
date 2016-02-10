@@ -155,7 +155,7 @@ body.platform-win32 {
        background: @text-color-subtle;
      }
      div + div {
-       margin-left: @padding-xs-horizontal;
+       margin-left: @padding-small-horizontal;
      }
   }
   .message-list-headers {
@@ -356,8 +356,6 @@ body.platform-win32 {
       transition: opacity 100ms, width 150ms;
       transition-delay: 50ms, 0ms;
       transition-timing-function: ease-in-out;
-      width: 99px;
-      height: 32px;
       opacity: 1;
       text-align: left;
     }
@@ -392,7 +390,7 @@ body.platform-win32 {
     }
 
     .message-time {
-      padding-top: 5px;
+      padding-top: 4px;
       z-index: 2; position: relative;
       display: inline-block;
       min-width: 125px;
@@ -479,13 +477,12 @@ body.platform-win32 {
       width: 100%;
       max-width: @message-max-width;
       margin: 0 auto;
-      padding: 20px @spacing-double;
+      padding: 12px @spacing-standard * 1.5;
     }
     .reply-text {
       display: inline-block;
+      vertical-align: middle;
       margin-left: 0.5em;
-      position: relative;
-      top: 2px;
     }
   }
 
@@ -535,7 +532,7 @@ body.platform-win32 {
 
     .collapsed-participants {
       width: 100%;
-      margin-top: -8px;
+      margin-top: -6px;
     }
   }
 

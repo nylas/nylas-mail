@@ -47,13 +47,15 @@ body.platform-win32 {
 }
 
 .btn {
-  padding: 0.33em 1em;
+  padding: 0 0.8em;
   border-radius: @border-radius-base;
   border: 0;
   cursor: default;
   display:inline-block;
-  color:      @btn-default-text-color;
-  img.content-mask { background-color:@btn-default-text-color; }
+  color: @btn-default-text-color;
+
+  img.content-mask { background-color: @btn-default-text-color; }
+
   .btn-gradient;
 
   // Use 4 box shadows to create a 0.5px hairline around the button, and another
@@ -61,32 +63,33 @@ body.platform-win32 {
   // Yes, 1px border looks really bad on retina.
   box-shadow: 0 0.5px 0 rgba(0,0,0,0.15), 0 -0.5px 0 rgba(0,0,0,0.15), 0.5px 0 0 rgba(0,0,0,0.15), -0.5px 0 0 rgba(0,0,0,0.15), 0 1px 1px rgba(0, 0, 0, 0.15);
 
-  height: auto;
-  line-height: 1;
+  height: 1.9em;
+  line-height: 1.9em;
+
+  .text {
+    margin-left: 6px;
+  }
 
   &:active {
     cursor: default;
-    background-color: darken(@btn-default-bg-color, 9%);
-    box-shadow: 0 0.5px 0 rgba(0,0,0,0.15), 0 -0.5px 0 rgba(0,0,0,0.15), 0.5px 0 0 rgba(0,0,0,0.15), -0.5px 0 0 rgba(0,0,0,0.15), 0 -1px 1px rgba(0, 0, 0, 0.21);
+    background: darken(@btn-default-bg-color, 9%);
   }
   &:focus {
     outline: none
   }
 
-  font-size: @font-size-base;
-  &.btn-smaller {
+  font-size: @font-size-small;
+
+  &.btn-small {
     font-size: @font-size-smaller;
   }
-  &.btn-small {
-    font-size: @font-size-small;
-  }
   &.btn-large {
-    font-size: @font-size-large;
-    padding: 0.5em 1.3em;
+    font-size: @font-size-base;
+    padding: 0 1.3em;
   }
   &.btn-larger {
-    font-size: @font-size-larger;
-    padding: 0.66em 1.6em;
+    font-size: @font-size-large;
+    padding: 0 1.6em;
   }
 
   &.btn-action {
@@ -111,27 +114,14 @@ body.platform-win32 {
       width: calc(~"100% + 2px");
       height: calc(~"100% + 2px");
       border-radius: 5px;
-      padding: 0;
       top: -1px;
       left: -1px;
       position: absolute;
       z-index: -1;
       background: linear-gradient(to bottom, #4ca2f9 0%, #015cff 100%);
     }
-  }
-
-  &.btn-emphasis:active {
-    background-image: -webkit-gradient(linear, left top, left bottom, from(darken(@btn-emphasis-bg-color,10%)), to(darken(@btn-emphasis-bg-color, 4%)));
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.21);
-  }
-
-  &.btn-text {
-    font-size: 13px;
-    padding: 2px 14px 2px 7px;
-    .text {
-      position: relative;
-      top: 1px;
-      margin-left: 6px;
+    &:active {
+      background: -webkit-gradient(linear, left top, left bottom, from(darken(@btn-emphasis-bg-color,10%)), to(darken(@btn-emphasis-bg-color, 4%)));
     }
   }
 
@@ -143,15 +133,14 @@ body.platform-win32 {
 }
 
 .btn-toolbar {
-  height: 24px;
-  padding: 2px 13px;
+  padding: 0 13px;
   &.narrow {
-    padding: 2px 9px;
+    padding: 0 9px;
   }
 }
 
 .btn-gradient {
-  background: -webkit-gradient(linear, left top, left bottom, from(@btn-default-bg-color), to(darken(@btn-default-bg-color, 4.5%)));
+  background: -webkit-gradient(linear, left top, left bottom, from(@btn-default-bg-color), to(darken(@btn-default-bg-color, 4.8%)));
 }
 .btn-gradient:active {
   background: -webkit-gradient(linear, left top, left bottom, from(darken(@btn-default-bg-color, 9%)), to(darken(@btn-default-bg-color, 13.5%)));
