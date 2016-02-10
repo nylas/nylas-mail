@@ -19,7 +19,7 @@ export default class PluginMetadata extends Model {
     this.version = this.version ? this.version : 0;
   }
 
-  queryableValue = ()=> {
+  queryableValue() {
     return this.pluginId;
   };
 }
@@ -47,11 +47,11 @@ export default class ModelWithMetadata extends Model {
     this.pluginMetadata = this.pluginMetadata ? this.pluginMetadata : [];
   }
 
-  metadataForPluginId = (pluginId)=> {
+  metadataForPluginId(pluginId) {
     return this.pluginMetadata.filter(metadata => metadata.pluginId === pluginId).pop();
   };
 
-  applyPluginMetadata = (pluginId, pluginValue)=> {
+  applyPluginMetadata(pluginId, pluginValue) {
     const clone = this.clone();
 
     let metadata = clone.metadataForPluginId(pluginId);
