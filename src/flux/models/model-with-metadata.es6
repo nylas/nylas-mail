@@ -51,21 +51,21 @@ export default class ModelWithMetadata extends Model {
 
   // Public accessors
 
-  metadataForPluginId = (pluginId)=> {
+  metadataForPluginId(pluginId) {
     const metadata = this.metadataObjectForPluginId(pluginId);
     if (!metadata) {
       return null;
     }
     return metadata.value;
-  };
+  }
 
   // Private helpers
 
-  metadataObjectForPluginId = (pluginId)=> {
+  metadataObjectForPluginId(pluginId) {
     return this.pluginMetadata.find(metadata => metadata.pluginId === pluginId);
-  };
+  }
 
-  applyPluginMetadata = (pluginId, pluginValue)=> {
+  applyPluginMetadata(pluginId, pluginValue) {
     const clone = this.clone();
 
     let metadata = clone.metadataObjectForPluginId(pluginId);
@@ -75,6 +75,6 @@ export default class ModelWithMetadata extends Model {
     }
     metadata.value = pluginValue;
     return clone;
-  };
+  }
 
 }
