@@ -71,10 +71,10 @@ class ThreadList extends React.Component
   render: ->
     if @state.style is 'wide'
       columns = ThreadListColumns.Wide
-      itemHeight = 39
+      itemHeight = 36
     else
       columns = ThreadListColumns.Narrow
-      itemHeight = 90
+      itemHeight = 85
 
     <FluxContainer
       stores=[ThreadListStore]

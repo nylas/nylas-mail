@@ -17,7 +17,7 @@ body.platform-win32 {
   .sheet-toolbar {
     .message-toolbar-arrow.down {
       margin: 0 0 0 1px;
-      padding: 6px 5px 0 5px;
+      padding: 0 5px;
       .windows-btn-bg;
       &:hover {
         background: #e5e5e5;
@@ -29,7 +29,7 @@ body.platform-win32 {
     }
     .message-toolbar-arrow.up {
       margin: 0 0 0 1px;
-      padding: 6px 5px 0 5px;
+      padding: 0 5px;
       .windows-btn-bg;
       &.btn-icon:hover {
         color: @text-color;
@@ -126,7 +126,6 @@ body.platform-win32 {
     width: calc(~"100% - 12px");
     max-width: @message-max-width;
     margin: 11px auto 10px auto;
-    padding-left: 20px;
     -webkit-user-select: text;
     line-height: @font-size-large * 1.8;
     display: flex;
@@ -134,7 +133,7 @@ body.platform-win32 {
   }
   .mail-important-icon {
     margin-right:@spacing-half;
-    margin-bottom:2px;
+    margin-bottom:1px;
     flex-shrink: 0;
   }
   .message-subject {

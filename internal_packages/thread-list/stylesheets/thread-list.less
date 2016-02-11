@@ -28,8 +28,8 @@
   .mail-label {
     // Note - these !important styles override values set by a style tag
     // since the color of the label is detemined programatically.
-    background: none !important;
-    box-shadow: 0 0.5px 0 @text-color-inverse, 0 -0.5px 0 @text-color-inverse, 0.5px 0 0 @text-color-inverse, -0.5px 0 0 @text-color-inverse !important;
+    background: fade(@text-color-inverse, 20%) !important;
+    box-shadow: none !important;
     -webkit-filter: brightness(600%) grayscale(100%);
   }
 
@@ -50,14 +50,11 @@
 
   .list-item {
     background-color: darken(@background-primary, 2%);
-  }
-
-  .list-column {
     border-bottom: 1px solid fade(@list-border, 60%);
+    line-height: 36px;
   }
 
   .mail-important-icon {
-    margin-top:1px;
     margin-left:6px;
     padding: 12px;
     vertical-align: initial;
@@ -85,8 +82,6 @@
     text-overflow: ellipsis;
     text-align: left;
     overflow: hidden;
-    position: relative;
-    top:2px;
 
     &.no-recipients {
       color: @text-color-very-subtle;
@@ -95,14 +90,14 @@
 
   .details {
     display:flex;
+    align-items: center;
+
     .subject {
       font-size:   @font-size-small;
       font-weight: @font-weight-normal;
       padding-right: @padding-base-horizontal;
-      position: relative;
       text-overflow: ellipsis;
       overflow: hidden;
-      top:2px;
 
       // Shrink, but only after snippet has shrunk
       flex-shrink:0.1;
@@ -110,11 +105,9 @@
     .snippet {
       font-size:   @font-size-small;
       font-weight: @font-weight-normal;
-      position: relative;
       text-overflow: ellipsis;
       overflow: hidden;
       opacity: 0.62;
-      top:2px;
       flex: 1;
     }
     .thread-icon {
@@ -126,8 +119,6 @@
   .timestamp {
     font-size:   @font-size-small;
     font-weight: @font-weight-normal;
-    position: relative;
-    top:2px;
     text-align: right;
     min-width:70px;
     margin-right:@scrollbar-margin;
@@ -146,9 +137,7 @@
   }
 
   .unread:not(.focused):not(.selected):not(.next-is-selected) {
-    .list-column {
-      border-bottom: 1px solid @list-border;
-    }
+    border-bottom: 1px solid @list-border;
   }
 
   .unread:not(.focused) {
@@ -171,11 +160,10 @@
 
   .thread-injected-icons {
     vertical-align: top;
-    line-height: 26px;
   }
   .thread-icon {
-    width:26px;
-    height:26px;
+    width:25px;
+    height:24px;
     flex-shrink:0;
     background-size: 15px;
     display:inline-block;
@@ -321,18 +309,24 @@ body.platform-win32 {
 }
 
 .thread-list-narrow {
+  .list-column {
+    display:block;
+  }
+  .list-tabular-item {
+    line-height: 21px;
+  }
   .timestamp {
     order: 100;
+    min-width: 0;
   }
   .participants {
     font-size: @font-size-base;
   }
   .thread-icon {
-    margin-right:4px;
+    margin-right:5px;
   }
 
   .mail-important-icon {
-    margin-top:1px;
     margin-left:1px;
     float:left;
     padding: 12px;
@@ -344,19 +338,30 @@ body.platform-win32 {
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: left;
-    padding-top:2px;
-    padding-bottom:2px;
     margin-left:30px;
     margin-right:@scrollbar-margin;
   }
-  .snippet {
-    font-size: @font-size-small;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    opacity: 0.7;
-    text-align: left;
+  .snippet-and-labels {
     margin-left:30px;
     margin-right:@scrollbar-margin;
+    display: flex;
+    align-items: baseline;
+    overflow: hidden;
+
+    .mail-label {
+      padding: 1px 8px;
+      font-size: 0.8em;
+      line-height: 17px;
+    }
+    .snippet {
+      font-size: @font-size-small;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      opacity: 0.7;
+      text-align: left;
+      min-height: 21px;
+      margin-right:4px;
+    }
   }
 }
 
@@ -388,10 +393,8 @@ body.is-blurred {
     .list-item {
       &.selected {
         background: fadeout(desaturate(@list-focused-bg, 100%), 65%);
+        border-bottom: 1px solid fadeout(desaturate(@list-focused-border, 100%), 65%);
         color: @text-color;
-        .list-column {
-          border-bottom: 1px solid fadeout(desaturate(@list-focused-border, 100%), 65%);
-        }
       }
     }
   }
