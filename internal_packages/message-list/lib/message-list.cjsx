@@ -216,8 +216,10 @@ class MessageList extends React.Component
 
     <div className="message-subject-wrap">
       <MailImportantIcon thread={@state.currentThread}/>
-      <span className="message-subject">{subject}</span>
-      {@_renderLabels()}
+      <div style={flex: 1}>
+        <span className="message-subject">{subject}</span>
+        {@_renderLabels()}
+      </div>
       {@_renderIcons()}
     </div>
 
