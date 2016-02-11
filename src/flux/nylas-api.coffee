@@ -382,7 +382,9 @@ class NylasAPI
   # 3. The API request to auth this account to the plugin failed. This may mean that
   #    the plugin server couldn't be reached or failed to respond properly when authing
   #    the account, or that the Nylas API couldn't be reached.
-  authPlugin: (pluginId, pluginName, account) ->
+  authPlugin: (pluginId, pluginName, accountId) ->
+    AccountStore = AccountStore || require './stores/account-store'
+    account = AccountStore.accountForId(accountId)
     return @makeRequest({
       returnsModel: false,
       method: "GET",
@@ -392,12 +394,12 @@ class NylasAPI
       if result.authed
         return Promise.resolve()
       else
-        return @_requestPluginAuth(pluginName, account).then( -> @makeRequest({
+        return @_requestPluginAuth(pluginName, account).then( => @makeRequest({
           returnsModel: false,
           method: "POST",
           accountId: account.id,
           path: "/auth/plugin",
-          body: JSON.stringify({client_id: pluginId}),
+          body: {client_id: pluginId},
           json: true
         }))
     )
@@ -421,11 +423,11 @@ You can review and revoke Offline Access for plugins at any time from Preference
       )
     )
 
-  unauthPlugin: (pluginId, account) ->
+  unauthPlugin: (pluginId, accountId) ->
     return @makeRequest({
       returnsModel: false,
       method: "DELETE",
-      accountId: account.id,
+      accountId: accountId,
       path: "/auth/plugin?client_id=#{pluginId}"
     });
 
