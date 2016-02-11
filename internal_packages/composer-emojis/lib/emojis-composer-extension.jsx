@@ -40,7 +40,7 @@ class EmojisComposerExtension extends ContenteditableExtension {
                       sel.focusOffset + triggerWord.length);
       }
     }
-  }
+  };
 
   static toolbarComponentConfig = ({toolbarState}) => {
     const sel = toolbarState.selectionSnapshot;
@@ -62,14 +62,14 @@ class EmojisComposerExtension extends ContenteditableExtension {
       }
     }
     return null;
-  }
+  };
 
   static editingActions = () => {
     return [{
       action: EmojiActions.selectEmoji,
       callback: EmojisComposerExtension._onSelectEmoji,
     }]
-  }
+  };
 
   static onKeyDown = ({editor, event}) => {
     const sel = editor.currentSelection()
@@ -104,7 +104,7 @@ class EmojisComposerExtension extends ContenteditableExtension {
                                                 actionArg: {emojiChar: emoji.get(selectedEmoji)}});
       }
     }
-  }
+  };
 
   static _findEmojiOptions(sel) {
     if (sel.anchorNode &&
@@ -161,7 +161,7 @@ class EmojisComposerExtension extends ContenteditableExtension {
       }
       editor.insertText(emojiChar);
     }
-  }
+  };
 
   static _emojiPickerWidth(emojiOptions) {
     let maxLength = 0;
