@@ -22,8 +22,8 @@ export default class PluginMetadata extends Model {
 
 Object.defineProperty(PluginMetadata.prototype, "id", {
   enumerable: false,
-  get: function() { return this.pluginId; },
-  set: function(v) { this.pluginId = v; },
+  get: ()=> this.pluginId,
+  set: (v)=> { this.pluginId = v; },
 })
 
 /**
@@ -40,7 +40,7 @@ export default class ModelWithMetadata extends Model {
       queryable: true,
       itemClass: PluginMetadata,
       modelKey: 'pluginMetadata',
-      jsonKey:  'metadata',
+      jsonKey: 'metadata',
     }),
   });
 
