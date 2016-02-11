@@ -128,6 +128,8 @@ class SendDraftTask extends Task
         # because it's possible for the app to quit without saving state and
         # need to re-upload the file.
 
+  # This function returns a promise that resolves to the draft when the draft has
+  # been sent successfully.
   _sendAndCreateMessage: =>
     NylasAPI.makeRequest
       path: "/send"
@@ -157,10 +159,12 @@ class SendDraftTask extends Task
       @message.clientId = @draft.clientId
       @message.draft = false
 
-      DatabaseStore.inTransaction (t) =>
-        DatabaseStore.findBy(Message, {clientId: @draft.clientId}).then (draft) =>
-          @_deleteRemoteDraft(draft) if draft.serverId
-          t.persistModel(@message)
+      return DatabaseStore.inTransaction (t) =>
+        DatabaseStore.findBy(Message, {clientId: @draft.clientId})
+        .then (draft) =>
+          t.persistModel(@message).then =>
+            Promise.resolve(draft)
+
 
   # We DON'T need to delete the local draft because we turn it into a message
   # by writing the new message into the database with the same clientId.
@@ -168,6 +172,7 @@ class SendDraftTask extends Task
   # We DO, need to make sure that the remote draft has been cleaned up.
   #
   _deleteRemoteDraft: ({accountId, version, serverId}) =>
+    return Promise.resolve() unless serverId
     NylasAPI.makeRequest
       path: "/drafts/#{serverId}"
       accountId: accountId
