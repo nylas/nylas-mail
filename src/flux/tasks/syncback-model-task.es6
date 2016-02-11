@@ -39,14 +39,14 @@ export default class SyncbackModelTask extends Task {
   getLatestModel = () => {
     return DatabaseStore.findBy(this.getModelConstructor(),
                                 {clientId: this.clientId})
-  }
+  };
 
   verifyModel = (model) => {
     if (model) {
       return Promise.resolve(model)
     }
     throw new Error(`Can't find a '${this.getModelConstructor().name}' model for clientId: ${this.clientId}'`)
-  }
+  };
 
   makeRequest = (model) => {
     const options = _.extend({
@@ -55,7 +55,7 @@ export default class SyncbackModelTask extends Task {
     }, this.getRequestData(model));
 
     return NylasAPI.makeRequest(options);
-  }
+  };
 
   getRequestData = (model) => {
     if (model.isSaved()) {
@@ -70,7 +70,7 @@ export default class SyncbackModelTask extends Task {
       body: model.toJSON(),
       method: "POST",
     }
-  }
+  };
 
   updateLocalModel = (responseJSON) => {
     /*
@@ -89,13 +89,13 @@ export default class SyncbackModelTask extends Task {
         return t.persistModel(changed);
       })
     }).thenReturn(true)
-  }
+  };
 
   applyRemoteChangesToModel = (model, {version, id}) => {
     model.version = version;
     model.serverId = id;
     return model;
-  }
+  };
 
   handleRemoteError = (err) => {
     if (err instanceof APIError) {
@@ -110,11 +110,11 @@ export default class SyncbackModelTask extends Task {
 
     NylasEnv.reportError(err);
     return Promise.resolve([Task.Status.Failed, err])
-  }
+  };
 
   handleRemoteVersionConflict = (err) => {
     return Promise.resolve([Task.Status.Failed, err])
-  }
+  };
 
   canBeUndone() { return false }
 
