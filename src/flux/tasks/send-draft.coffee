@@ -5,12 +5,14 @@ Task = require './task'
 Actions = require '../actions'
 File = require '../models/file'
 Message = require '../models/message'
+{PluginMetadata} = require '../models/model-with-metadata'
 NylasAPI = require '../nylas-api'
 TaskQueue = require '../stores/task-queue'
 {APIError} = require '../errors'
 SoundRegistry = require '../../sound-registry'
 DatabaseStore = require '../stores/database-store'
 AccountStore = require '../stores/account-store'
+SyncbackMetadataTask = require './syncback-metadata-task'
 
 class MultiRequestProgressMonitor
 
@@ -158,6 +160,12 @@ class SendDraftTask extends Task
       @message = new Message().fromJSON(newMessageJSON)
       @message.clientId = @draft.clientId
       @message.draft = false
+      # Create new metadata objs on the message based on the existing ones in the draft
+      @message.pluginMetadata = @draft.pluginMetadata.map((m)=>
+        new PluginMetadata
+          pluginId: m.pluginId,
+          value: m.value
+      );
 
       return DatabaseStore.inTransaction (t) =>
         DatabaseStore.findBy(Message, {clientId: @draft.clientId})
@@ -192,9 +200,11 @@ class SendDraftTask extends Task
     for upload in @uploaded
       Actions.attachmentUploaded(upload)
 
-    # Apply metadata that was on the draft to the new message
-    for {pluginId, value} in (@draft.pluginMetadata ? [])
-      Actions.setMetadata(@message, pluginId, value)
+    # Queue a task to save metadata on the message
+    @message.pluginMetadata.forEach((m)=>
+      task = new SyncbackMetadataTask(@message.clientId, @message.constructor.name, m.pluginId)
+      Actions.queueTask(task)
+    )
 
     # Play the sending sound
     if NylasEnv.config.get("core.sending.sounds")
