@@ -34,7 +34,7 @@ class SearchSuggestionStore extends NylasStore
 
   _onQueryChanged: (query) =>
     @_searchQuery = query
-    @trigger()
+    @_compileResults()
     _.defer => @_rebuildResults()
 
   _onQuerySubmitted: (query) =>
