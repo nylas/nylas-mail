@@ -193,8 +193,6 @@ class SendDraftTask extends Task
       Promise.resolve()
 
   _onSuccess: =>
-    Actions.sendDraftSuccess
-      draftClientId: @draft.clientId
 
     # Delete attachments from the uploads folder
     for upload in @uploaded
@@ -205,6 +203,9 @@ class SendDraftTask extends Task
       task = new SyncbackMetadataTask(@message.clientId, @message.constructor.name, m.pluginId)
       Actions.queueTask(task)
     )
+
+    Actions.sendDraftSuccess
+      message: @message
 
     # Play the sending sound
     if NylasEnv.config.get("core.sending.sounds")
