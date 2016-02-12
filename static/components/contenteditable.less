@@ -67,15 +67,11 @@
     .floating-toolbar-input {
       border: 0;
       display: inline;
-      // The hardcoded numbers here represent the widths of the various
-      // icons and buttons that surround the input. They are hardcoded here
-      // because CSS does the calculation for us that we'd otherwise have to
-      // do in React before the element renders to the page.
-      width: calc(~"100% - 62px");
-      &.with-remove {
-        width: calc(~"100% - 95px");
-      }
       color: @text-color;
+      &:focus {
+        border: 0;
+        box-shadow: 0 0 0;
+      }
     }
 
     @padding: 0.5em;
@@ -84,7 +80,7 @@
       font-size: 16px;
       height: auto;
       border-radius: 0;
-      padding: @padding*0.75 @padding;
+      padding: @padding*0.25 @padding;
       margin: 0;
       color: @text-color;
       box-shadow: none;
@@ -103,7 +99,7 @@
     .preview-btn-icon {
       position: relative;
       top: 1px;
-      padding: 0 @padding;
+      padding: 0 @padding*0.25 0 @padding*1.5;
     }
 
     button.btn.toolbar-btn {
