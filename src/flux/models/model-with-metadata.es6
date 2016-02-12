@@ -18,13 +18,16 @@ export default class PluginMetadata extends Model {
     super(...args)
     this.version = this.version ? this.version : 0;
   }
+
+  get id() {
+    return this.pluginId
+  }
+
+  set id(pluginId) {
+    this.pluginId = pluginId
+  }
 }
 
-Object.defineProperty(PluginMetadata.prototype, "id", {
-  enumerable: false,
-  get: ()=> this.pluginId,
-  set: (v)=> { this.pluginId = v; },
-})
 
 /**
  Cloud-persisted data that is associated with a single Nylas API object
