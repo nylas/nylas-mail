@@ -1,7 +1,7 @@
 import Model from './model'
 import Attributes from '../attributes'
 
-export default class PluginMetadata extends Model {
+export class PluginMetadata extends Model {
   static attributes = {
     pluginId: Attributes.String({
       modelKey: 'pluginId',
@@ -37,7 +37,7 @@ export default class PluginMetadata extends Model {
  with it. If you update the metadata object on an existing associated
  Nylas API object, it will override the previous `value`
 */
-export default class ModelWithMetadata extends Model {
+export class ModelWithMetadata extends Model {
   static attributes = Object.assign({}, Model.attributes, {
     pluginMetadata: Attributes.Collection({
       queryable: true,
