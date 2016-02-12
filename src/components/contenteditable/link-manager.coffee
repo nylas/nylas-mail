@@ -57,6 +57,7 @@ class LinkManager extends ContenteditableExtension
         focusOnMount: @_shouldFocusOnMount(toolbarState)
       locationRefNode: linkToModify
       width: @_linkWidth(linkToModify)
+      height: 34
     }
 
   @_shouldFocusOnMount: (toolbarState) ->
