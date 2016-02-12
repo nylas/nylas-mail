@@ -71,7 +71,7 @@
     "theorist": "^1.0",
     "underscore": "^1.8",
     "underscore.string": "^3.0",
-    "windows-shortcuts": "emorikawa/windows-shortcuts#19ad216"
+    "windows-shortcuts": "emorikawa/windows-shortcuts#b0a0fc7"
   },
   "packageDependencies": {},
   "private": true,
