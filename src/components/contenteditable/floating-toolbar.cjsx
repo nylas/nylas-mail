@@ -53,6 +53,7 @@ class FloatingToolbar extends React.Component
       toolbarPos: "above"
       editAreaWidth: 9999 # This will get set on first selection
       toolbarWidth: 0
+      toolbarHeight: 0
       toolbarComponent: null
       toolbarLocationRef: null
       toolbarComponentProps: {}
@@ -113,6 +114,7 @@ class FloatingToolbar extends React.Component
   _getToolbarComponentData: (props) ->
     toolbarComponent = null
     toolbarWidth = 0
+    toolbarHeight = 0
     toolbarLocationRef = null
     toolbarComponentProps = {}
 
@@ -124,17 +126,18 @@ class FloatingToolbar extends React.Component
           toolbarComponentProps = params.props ? {}
           toolbarLocationRef = params.locationRefNode
           toolbarWidth = params.width
+          toolbarHeight = params.height
       catch error
         NylasEnv.reportError(error)
 
     if toolbarComponent and not toolbarLocationRef
       throw new Error("You must provide a locationRefNode for #{toolbarComponent.displayName}. It must be either a DOM Element or a Range.")
 
-    return {toolbarComponent, toolbarComponentProps, toolbarLocationRef, toolbarWidth}
+    return {toolbarComponent, toolbarComponentProps, toolbarLocationRef, toolbarWidth, toolbarHeight}
 
   @CONTENT_PADDING: 15
 
-  _calculatePositionState: (props, {toolbarLocationRef, toolbarWidth}) =>
+  _calculatePositionState: (props, {toolbarLocationRef, toolbarWidth, toolbarHeight}) =>
     editableNode = props.editableNode
 
     if not _.isFunction(toolbarLocationRef.getBoundingClientRect)
@@ -154,7 +157,7 @@ class FloatingToolbar extends React.Component
     calcLeft = (referenceRect.left - editArea.left) + referenceRect.width/2
     calcLeft = Math.min(Math.max(calcLeft, FloatingToolbar.CONTENT_PADDING+BORDER_RADIUS_PADDING), editArea.width - BORDER_RADIUS_PADDING)
 
-    calcTop = referenceRect.top - editArea.top - 48
+    calcTop = referenceRect.top - editArea.top - toolbarHeight - 14
     toolbarPos = "above"
     if calcTop < TOP_PADDING
       calcTop = referenceRect.top - editArea.top + referenceRect.height + TOP_PADDING + 4
@@ -166,6 +169,7 @@ class FloatingToolbar extends React.Component
       toolbarTop: calcTop
       toolbarLeft: calcLeft
       toolbarWidth: Math.min(maxWidth, toolbarWidth)
+      toolbarHeight: toolbarHeight
       editAreaWidth: editArea.width
       toolbarPos: toolbarPos
     }
@@ -182,6 +186,7 @@ class FloatingToolbar extends React.Component
       left: @_toolbarLeft()
       top: @state.toolbarTop
       width: @state.toolbarWidth
+      height: @state.toolbarHeight
     return styles
 
   _toolbarLeft: =>

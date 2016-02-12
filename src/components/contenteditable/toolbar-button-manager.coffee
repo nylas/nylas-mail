@@ -18,13 +18,23 @@ class ToolbarButtonManager extends ContenteditableExtension
     return null unless locationRef
 
     buttonConfigs = @_toolbarButtonConfigs(toolbarState)
+    range = DOMUtils.getRangeInScope(toolbarState.editableNode)
+    if !range or !range.startContainer
+      return null
+    if range.startContainer.nodeType is Node.ELEMENT_NODE
+      locationRefNode = range.startContainer.childNodes[range.startOffset]
+      if !locationRefNode
+        locationRefNode = range
+    else
+      locationRefNode = range
 
     return {
       component: ToolbarButtons
       props:
         buttonConfigs: buttonConfigs
-      locationRefNode: locationRef
+      locationRefNode: locationRefNode
       width: buttonConfigs.length * 28.5
+      height: 34
     }
 
   @_toolbarButtonConfigs: (toolbarState) ->
