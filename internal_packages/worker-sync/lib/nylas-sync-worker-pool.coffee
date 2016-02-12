@@ -76,6 +76,8 @@ class NylasSyncWorkerPool
 
     {create, modify, destroy} = @_clusterDeltas(deltas)
 
+    # Remove any metadata deltas. These have to be handled at the end, since metadata
+    # is stored within the object that it points to (which may not exist yet)
     metadata = []
     for deltas in [create, modify]
       if deltas['metadata']
@@ -91,20 +93,19 @@ class NylasSyncWorkerPool
       modify[type] = NylasAPI._handleModelResponse(_.values(dict)) for type, dict of modify
       Promise.props(modify).then (modified) =>
 
-        if metadata.length > 0
-          @_handleDeltaMetadata(metadata)
+        Promise.all(@_handleDeltaMetadata(metadata)).then =>
 
-        # Now that we've persisted creates/updates, fire an action
-        # that allows other parts of the app to update based on new models
-        # (notifications)
-        if _.flatten(_.values(created)).length > 0
-          MailRulesProcessor.processMessages(created['message'] ? []).finally =>
-            Actions.didPassivelyReceiveNewModels(created)
+          # Now that we've persisted creates/updates, fire an action
+          # that allows other parts of the app to update based on new models
+          # (notifications)
+          if _.flatten(_.values(created)).length > 0
+            MailRulesProcessor.processMessages(created['message'] ? []).finally =>
+              Actions.didPassivelyReceiveNewModels(created)
 
-        # Apply all of the deletions
-        destroyPromises = destroy.map(@_handleDeltaDeletion)
-        Promise.settle(destroyPromises).then =>
-          Actions.longPollProcessedDeltas()
+          # Apply all of the deletions
+          destroyPromises = destroy.map(@_handleDeltaDeletion)
+          Promise.settle(destroyPromises).then =>
+            Actions.longPollProcessedDeltas()
 
   _clusterDeltas: (deltas) ->
     # Group deltas by object type so we can mutate the cache efficiently.
@@ -128,7 +129,7 @@ class NylasSyncWorkerPool
     {create, modify, destroy}
 
   _handleDeltaMetadata: (metadata) =>
-    for metadatum in metadata
+    metadata.map (metadatum) =>
       klass = NylasAPI._apiObjectToClassMap[metadatum.object_type]
       DatabaseStore.inTransaction (t) =>
         t.find(klass, metadatum.object_id).then (model) ->
