@@ -32,7 +32,14 @@ class PageRouterStore extends NylasStore
       @_onMoveToPage('initial-preferences', {account: json})
       Actions.recordUserEvent('First Account Linked')
     else
-      ipcRenderer.send('account-setup-successful')
+      # When account JSON is received, we want to notify external services
+      # that it succeeded. Unfortunately in this case we're likely to
+      # close the window before those requests can be made. We add a short
+      # delay here to ensure that any pending requests have a chance to
+      # clear before the window closes.
+      setTimeout ->
+        ipcRenderer.send('account-setup-successful')
+      , 100
 
   _onWindowPropsChanged: ({page, pageData}={}) =>
     @_onMoveToPage(page, pageData)
