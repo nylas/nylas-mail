@@ -165,7 +165,7 @@ class SendDraftTask extends Task
         new PluginMetadata
           pluginId: m.pluginId,
           value: m.value
-      );
+      )
 
       return DatabaseStore.inTransaction (t) =>
         DatabaseStore.findBy(Message, {clientId: @draft.clientId})

@@ -81,7 +81,7 @@ class SyncbackDraftTask extends Task
         return Promise.resolve() unless draft
         if draft.serverId isnt id
           draft.serverId = id
-          draftIsNew = true;
+          draftIsNew = true
         draft.version = version
         t.persistModel(draft)
     .then (draft) =>
