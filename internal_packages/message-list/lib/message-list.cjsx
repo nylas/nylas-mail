@@ -404,7 +404,7 @@ class MessageList extends React.Component
 
   _onChange: =>
     newState = @_getStateFromStores()
-    if @state.currentThread isnt newState.currentThread
+    if @state.currentThread?.id isnt newState.currentThread?.id
       newState.minified = true
     @setState(newState)
 
