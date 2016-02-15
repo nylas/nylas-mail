@@ -17,6 +17,21 @@ class ExpandedParticipants extends React.Component
     bcc: React.PropTypes.array
     from: React.PropTypes.array
 
+    # We need to know if the draft is ready so we can enable and disable
+    # ParticipantTextFields.
+    #
+    # It's possible for a ParticipantTextField, before the draft is
+    # ready, to start the request to `add`, `remove`, or `edit`. This
+    # happens when there are multiple drafts rendering, each requesting
+    # focus. A blur event gets fired before the draft is loaded, causing
+    # logic to run that sets an empty field. These requests are
+    # asynchronous. They may resolve after the draft is in fact ready.
+    # This is bad because the desire to `remove` participants may have
+    # been made with an empty, non-loaded draft, but executed on the new
+    # draft that was loaded in the time it took the async request to
+    # return.
+    draftReady: React.PropTypes.bool
+
     # The account to which the current draft belongs
     accounts: React.PropTypes.array
 
@@ -47,6 +62,7 @@ class ExpandedParticipants extends React.Component
     bcc: []
     from: []
     accounts: []
+    draftReady: false
     enabledFields: []
 
   constructor: (@props={}) ->
@@ -109,6 +125,7 @@ class ExpandedParticipants extends React.Component
           field='to'
           change={@props.onChangeParticipants}
           className="composer-participant-field to-field"
+          draftReady={@props.draftReady}
           onFocus={ => @props.onChangeFocusedField(Fields.To) }
           participants={to: @props['to'], cc: @props['cc'], bcc: @props['bcc']} />
       </div>
@@ -120,6 +137,7 @@ class ExpandedParticipants extends React.Component
           ref={Fields.Cc}
           key="cc"
           field='cc'
+          draftReady={@props.draftReady}
           change={@props.onChangeParticipants}
           onEmptied={ => @props.onAdjustEnabledFields(hide: [Fields.Cc]) }
           onFocus={ => @props.onChangeFocusedField(Fields.Cc) }
@@ -133,6 +151,7 @@ class ExpandedParticipants extends React.Component
           ref={Fields.Bcc}
           key="bcc"
           field='bcc'
+          draftReady={@props.draftReady}
           change={@props.onChangeParticipants}
           onEmptied={ => @props.onAdjustEnabledFields(hide: [Fields.Bcc]) }
           onFocus={ => @props.onChangeFocusedField(Fields.Bcc) }
