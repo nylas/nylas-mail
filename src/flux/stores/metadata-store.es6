@@ -10,9 +10,9 @@ class MetadataStore extends NylasStore {
     this.listenTo(Actions.setMetadata, this._setMetadata);
   }
 
-  _setMetadata(modelOrModels, pluginId, pluginData) {
+  _setMetadata(modelOrModels, pluginId, metadataValue) {
     const models = (modelOrModels instanceof Array) ? modelOrModels : [modelOrModels];
-    const updatedModels = models.map(m => m.applyPluginMetadata(pluginId, pluginData));
+    const updatedModels = models.map(m => m.applyPluginMetadata(pluginId, metadataValue));
 
     DatabaseStore.inTransaction((t)=> {
       return t.persistModels(updatedModels);

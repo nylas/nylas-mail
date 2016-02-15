@@ -5,7 +5,6 @@ Task = require './task'
 Actions = require '../actions'
 File = require '../models/file'
 Message = require '../models/message'
-{PluginMetadata} = require '../models/model-with-metadata'
 NylasAPI = require '../nylas-api'
 TaskQueue = require '../stores/task-queue'
 {APIError} = require '../errors'
@@ -161,11 +160,7 @@ class SendDraftTask extends Task
       @message.clientId = @draft.clientId
       @message.draft = false
       # Create new metadata objs on the message based on the existing ones in the draft
-      @message.pluginMetadata = @draft.pluginMetadata.map((m)=>
-        new PluginMetadata
-          pluginId: m.pluginId,
-          value: m.value
-      )
+      @message.setPluginMetadata(@draft.pluginMetadata)
 
       return DatabaseStore.inTransaction (t) =>
         DatabaseStore.findBy(Message, {clientId: @draft.clientId})

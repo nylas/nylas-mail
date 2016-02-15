@@ -1,7 +1,7 @@
 import Model from './model'
 import Attributes from '../attributes'
 
-export class PluginMetadata extends Model {
+class PluginMetadata extends Model {
   static attributes = {
     pluginId: Attributes.String({
       modelKey: 'pluginId',
@@ -37,7 +37,7 @@ export class PluginMetadata extends Model {
  with it. If you update the metadata object on an existing associated
  Nylas API object, it will override the previous `value`
 */
-export class ModelWithMetadata extends Model {
+export default class ModelWithMetadata extends Model {
   static attributes = Object.assign({}, Model.attributes, {
     pluginMetadata: Attributes.Collection({
       queryable: true,
@@ -68,7 +68,7 @@ export class ModelWithMetadata extends Model {
     return this.pluginMetadata.find(metadata => metadata.pluginId === pluginId);
   }
 
-  applyPluginMetadata(pluginId, pluginValue) {
+  applyPluginMetadata(pluginId, metadataValue) {
     const clone = this.clone();
 
     let metadata = clone.metadataObjectForPluginId(pluginId);
@@ -76,8 +76,15 @@ export class ModelWithMetadata extends Model {
       metadata = new PluginMetadata({pluginId});
       clone.pluginMetadata.push(metadata);
     }
-    metadata.value = pluginValue;
+    metadata.value = metadataValue;
     return clone;
+  }
+
+  setPluginMetadata(pluginMetadata) {
+    this.pluginMetadata = pluginMetadata.map(({pluginId, value})=> {
+      return new PluginMetadata({pluginId, value});
+    })
+    return this;
   }
 
 }

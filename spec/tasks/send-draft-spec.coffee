@@ -112,13 +112,16 @@ describe "SendDraftTask", ->
             expect(DBt.persistModel.mostRecentCall.args[0].draft).toEqual(false)
 
       it "should notify the draft was sent", ->
-        waitsForPromise => @task.performRemote().then =>
-          args = Actions.sendDraftSuccess.calls[0].args[0]
-          expect(args.draftClientId).toBe @draft.clientId
+        waitsForPromise =>
+          @task.performRemote().then =>
+            args = Actions.sendDraftSuccess.calls[0].args[0]
+            expect(args.draftClientId).toBe @draft.clientId
 
       it "get an object back on success", ->
-        waitsForPromise => @task.performRemote().then =>
-          args = Actions.sendDraftSuccess.calls[0].args[0]
+        # TODO what is this testing?
+        waitsForPromise =>
+          @task.performRemote().then =>
+            args = Actions.sendDraftSuccess.calls[0].args[0]
 
       it "should play a sound", ->
         spyOn(NylasEnv.config, "get").andReturn true

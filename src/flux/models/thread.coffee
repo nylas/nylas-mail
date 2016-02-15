@@ -4,7 +4,7 @@ Category = require './category'
 Contact = require './contact'
 Actions = require '../actions'
 Attributes = require '../attributes'
-{ModelWithMetadata} = require './model-with-metadata'
+ModelWithMetadata = require './model-with-metadata'
 
 Function::getter = (prop, get) ->
   Object.defineProperty @prototype, prop, {get, configurable: yes}

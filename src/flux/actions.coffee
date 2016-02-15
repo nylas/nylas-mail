@@ -75,6 +75,13 @@ class Actions
   @didPassivelyReceiveNewModels: ActionScopeGlobal
 
   @downloadStateChanged: ActionScopeGlobal
+
+  ###
+  Public: Fired when a draft is successfully sent
+  *Scope: Global*
+
+  Recieves the clientId of the message that was sent
+  ###
   @sendDraftSuccess: ActionScopeGlobal
   @sendToAllWindows: ActionScopeGlobal
   @draftSendingFailed: ActionScopeGlobal

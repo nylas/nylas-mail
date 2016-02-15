@@ -8,7 +8,7 @@ Category = require './category'
 Contact = require './contact'
 Attributes = require '../attributes'
 AccountStore = require '../stores/account-store'
-{ModelWithMetadata} = require './model-with-metadata'
+ModelWithMetadata = require './model-with-metadata'
 
 ###
 Public: The Message model represents a Message object served by the Nylas Platform API.
