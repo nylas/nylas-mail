@@ -144,7 +144,7 @@ describe "ComposerView", ->
       <ComposerView draftClientId={DRAFT_CLIENT_ID} {...props} />
     )
 
-  describe "populated composer", ->
+  describe "draftReady composer", ->
     beforeEach ->
       @isSending = false
       spyOn(DraftStore, "isSendingDraft").andCallFake => @isSending
@@ -242,7 +242,7 @@ describe "ComposerView", ->
         expect(@composer.state.body).toEqual "Hello <b>World</b><br/> This is a test"
 
       it "sets first-time initial state about focused fields", ->
-        expect(@composer.state.populated).toBe true
+        expect(@composer.state.draftReady).toBe true
         expect(@composer.state.focusedField).toBeDefined()
         expect(@composer.state.enabledFields).toBeDefined()
 

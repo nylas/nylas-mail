@@ -58,7 +58,7 @@ class ComposerView extends React.Component
 
   constructor: (@props) ->
     @state =
-      populated: false
+      draftReady: false
       to: []
       cc: []
       bcc: []
@@ -223,6 +223,7 @@ class ComposerView extends React.Component
           ref="expandedParticipants"
           mode={@props.mode}
           accounts={@state.accounts}
+          draftReady={@state.draftReady}
           focusedField={@state.focusedField}
           enabledFields={@state.enabledFields}
           onPopoutComposer={@_onPopoutComposer}
@@ -247,6 +248,7 @@ class ComposerView extends React.Component
     </div>
 
   _onPopoutComposer: =>
+    return unless @state.draftReady
     Actions.composePopoutDraft @props.draftClientId
 
   _onKeyDown: (event) =>
@@ -505,9 +507,9 @@ class ComposerView extends React.Component
       subject: draft.subject
       accounts: @_getAccountsForSend()
 
-    if !@state.populated
+    if !@state.draftReady
       _.extend state,
-        populated: true
+        draftReady: true
         focusedField: @_initiallyFocusedField(draft)
         enabledFields: @_initiallyEnabledFields(draft)
         showQuotedText: @isForwardedMessage()
@@ -645,7 +647,7 @@ class ComposerView extends React.Component
     return
 
   _addToProxy: (changes={}, source={}) =>
-    return unless @_proxy
+    return unless @_proxy and @_proxy.draft()
 
     selections = @_getSelections()
 

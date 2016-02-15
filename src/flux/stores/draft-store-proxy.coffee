@@ -103,6 +103,7 @@ class DraftStoreProxy
   # Public: Returns the draft object with the latest changes applied.
   #
   draft: ->
+    return null if not @_draft
     @changes.applyToModel(@_draft)
     @_draft
 
