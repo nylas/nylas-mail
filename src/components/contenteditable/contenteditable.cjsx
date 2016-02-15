@@ -63,7 +63,7 @@ class Contenteditable extends React.Component
     extensions: []
     spellcheck: true
     floatingToolbar: true
-    onSelectionChanged: =>
+    onSelectionRestored: =>
 
   coreServices: [MouseService, ClipboardService]
 
@@ -153,7 +153,9 @@ class Contenteditable extends React.Component
         previousExportedSelection: @innerState.exportedSelection
 
   componentDidUpdate: =>
-    @_restoreSelection() if @_shouldRestoreSelectionOnUpdate()
+    if @_shouldRestoreSelectionOnUpdate()
+      @_restoreSelection()
+      @_notifyOfSelectionRestoration()
     @_refreshServices()
     @_mutationObserver.disconnect()
     @_mutationObserver.observe(@_editableNode(), @_mutationConfig())
@@ -533,8 +535,14 @@ class Contenteditable extends React.Component
     selection = new ExtendedSelection(@_editableNode())
     selection.importSelection(@innerState.exportedSelection)
     if selection.isInScope()
-      @_onSelectionChanged(selection)
+      # The bounding client rect has changed
+      @setInnerState editableNode: @_editableNode()
     @_setupNonMutationListeners()
+
+  _notifyOfSelectionRestoration: =>
+    selection = new ExtendedSelection(@_editableNode())
+    if selection.isInScope()
+      @props.onSelectionRestored(selection, @_editableNode())
 
   # When the component updates, the selection may have changed from our
   # last known saved position. This can happen for a couple of reasons:
@@ -546,10 +554,5 @@ class Contenteditable extends React.Component
     (not @innerState.dragging) and
     (document.activeElement is @_editableNode() or
     not @_editableNode().parentNode.contains(document.activeElement))
-
-  _onSelectionChanged: (selection) ->
-    @props.onSelectionChanged(selection, @_editableNode())
-    # The bounding client rect has changed
-    @setInnerState editableNode: @_editableNode()
 
 module.exports = Contenteditable
