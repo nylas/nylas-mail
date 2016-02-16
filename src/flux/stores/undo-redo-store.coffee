@@ -23,7 +23,9 @@ class UndoRedoStore
     NylasEnv.commands.add('body', {'core:redo': @redo })
 
   _onQueue: (tasks) =>
+    return unless tasks
     tasks = [tasks] unless tasks instanceof Array
+    return unless tasks.length > 0
     undoable = _.every tasks, (t) -> t.canBeUndone()
 
     if undoable
