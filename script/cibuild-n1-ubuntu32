@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+
+# --rm \
+docker build -t n1-32 -f ./docker/ubuntu32/Dockerfile .
+docker run \
+ --env="CI=true" \
+ --volume="$HOME"/.npm:/root/.npm \
+ --volume="$HOME"/.nylas/.apm:/root/.nylas/.apm \
+ --volume="$HOME"/.nylas/electron:/root/.nylas/electron \
+ n1-32 /usr/bin/linux32 /n1/script/cibuild
+docker rmi n1-32
