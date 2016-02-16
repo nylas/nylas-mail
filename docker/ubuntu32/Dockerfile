@@ -18,8 +18,9 @@ RUN /usr/bin/touch /etc/init.d/systemd-logind
 # Install dependencies (NodeSource setup runs `apt-get update` for us)
 RUN apt-get -y install \
     build-essential \
-    git \
     fakeroot \
+    git \
+    python \
     rpm \
     nodejs
 
