@@ -20,13 +20,15 @@ RUN apt-get -y install \
     build-essential \
     git \
     fakeroot \
-    libgconf2-4 \
-    libgnome-keyring-dev \
-    libgtk2.0-0 \
-    libnotify4 \
     rpm \
-    nodejs \
-    xvfb
+    nodejs
+
+# For when Linux testing is re-enabled
+#    libgconf2-4 \
+#    libgnome-keyring-dev \
+#    libgtk2.0-0 \
+#    libnotify4 \
+#    xvfb
 
 #RUN npm install -g npm@3.3.10 --loglevel error
 
