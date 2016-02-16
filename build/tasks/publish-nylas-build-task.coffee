@@ -125,7 +125,7 @@ module.exports = (grunt) ->
         uploadToS3(buildZipFilename, key).then(resolve).catch(reject)
 
   grunt.registerTask "publish-nylas-build", "Publish Nylas build", ->
-    return false if not shouldPublishBuild()
+    return unless shouldPublishBuild()
 
     awsKey = process.env.AWS_ACCESS_KEY_ID ? ""
     awsSecret = process.env.AWS_SECRET_ACCESS_KEY ? ""
