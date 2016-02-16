@@ -5,7 +5,7 @@ set -e
 # --rm \
 docker build -t n1-32 -f ./docker/ubuntu32/Dockerfile .
 docker run \
- --env PUBLISH_BUILD="$PUBLIC_BUILD" \
+ --env PUBLISH_BUILD="$PUBLISH_BUILD" \
  --env TRAVIS="$TRAVIS" \
  --env TRAVIS_PULL_REQUEST="$TRAVIS_PULL_REQUEST" \
  --env TRAVIS_BRANCH="$TRAVIS_BRANCH" \
