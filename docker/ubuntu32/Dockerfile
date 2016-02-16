@@ -20,13 +20,13 @@ RUN apt-get -y install \
     build-essential \
     fakeroot \
     git \
+    libgnome-keyring-dev \
     python \
     rpm \
     nodejs
 
 # For when Linux testing is re-enabled
 #    libgconf2-4 \
-#    libgnome-keyring-dev \
 #    libgtk2.0-0 \
 #    libnotify4 \
 #    xvfb
