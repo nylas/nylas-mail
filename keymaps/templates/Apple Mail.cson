@@ -1,12 +1,19 @@
 # Note: For a menu item to have a keyboard equiavalent, it needs
 # to be listed in this file.
+#
+# http://dashkards.com/img/dashkard-mail.png
 
 'body':
-  'cmdctrl-n' : 'application:new-message'
-  'cmdctrl-r' : 'application:reply'
-  'cmdctrl-R' : 'application:reply-all'
-  'cmdctrl-F' : 'application:forward'
+  # Triage
+  'cmdctrl-r': 'application:reply'
+  'cmdctrl-shift-r': 'application:reply-all'
+  'cmdctrl-shift-f': 'application:forward'
+  'cmdctrl-shift-j': 'application:report-as-spam'
+  'cmdctrl-shift-u': 'application:mark-as-unread'
+
+  # Composing
+  'cmdctrl-n': 'application:new-message'
+  'cmdctrl-shift-d': 'composer:send-message'
+
+  # Management
   'cmdctrl-alt-f': 'application:focus-search'
-  'cmdctrl-shift-D': 'composer:send-message'
-  'cmdctrl-V': 'application:change-category'
-  'cmdctrl-e'   : 'application:archive-item'
