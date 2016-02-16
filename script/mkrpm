@@ -13,7 +13,7 @@ ARCH=`uname -m`
 
 # Work around for `uname -m` returning i686 when rpmbuild uses i386 instead
 if [ "$ARCH" = "i686" ]; then
-	ARCH = "i386"
+	ARCH="i386"
 fi
 
 # rpmdev-setuptree
