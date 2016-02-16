@@ -199,8 +199,7 @@ class SendDraftTask extends Task
       Actions.queueTask(task)
     )
 
-    Actions.sendDraftSuccess
-      message: @message
+    Actions.sendDraftSuccess draftClientId: @message.clientId
 
     # Play the sending sound
     if NylasEnv.config.get("core.sending.sounds")
