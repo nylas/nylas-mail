@@ -89,7 +89,8 @@ class TaskFactory
       threads: threads,
       categoriesToRemove: (accountId) ->
         [CategoryStore.getStandardCategory(accountId, 'inbox')]
-      categoryToAdd: (accountId) -> CategoryStore.getStandardCategory(accountId, 'spam')
+      categoryToAdd: (accountId) ->
+        CategoryStore.getStandardCategory(accountId, 'spam')
 
   tasksForArchiving: ({threads, fromPerspective}) =>
     @tasksForApplyingCategories

@@ -153,20 +153,25 @@ class ThreadList extends React.Component
   _onSetImportant: (important) =>
     threads = @_threadsForKeyboardAction()
     return unless threads
-
-    # TODO Can not apply to threads across more than one account for now
-    account = AccountStore.accountForItems(threads)
-    return unless account?
-
-    return unless account.usesImportantFlag()
     return unless NylasEnv.config.get('core.workspace.showImportant')
-    category = CategoryStore.getStandardCategory(account, 'important')
-    if important
-      task = TaskFactory.taskForApplyingCategory({threads, category})
-    else
-      task = TaskFactory.taskForRemovingCategory({threads, category})
 
-    Actions.queueTask(task)
+    if important
+      tasks = TaskFactory.tasksForApplyingCategories
+        threads: threads
+        categoriesToRemove: (accountId) -> []
+        categoryToAdd: (accountId) ->
+          CategoryStore.getStandardCategory(accountId, 'important')
+
+    else
+      tasks = TaskFactory.tasksForApplyingCategories
+        threads: threads
+        categoriesToRemove: (accountId) ->
+          important = CategoryStore.getStandardCategory(accountId, 'important')
+          return [important] if important
+          return []
+        categoryToAdd: (accountId) -> null
+
+    Actions.queueTasks(tasks)
 
   _onSetUnread: (unread) =>
     threads = @_threadsForKeyboardAction()
@@ -180,9 +185,7 @@ class ThreadList extends React.Component
   _onMarkAsSpam: =>
     threads = @_threadsForKeyboardAction()
     return unless threads
-    tasks = TaskFactory.tasksForMarkingAsSpam(
-      threads: threads
-    )
+    tasks = TaskFactory.tasksForMarkingAsSpam({threads})
     Actions.queueTasks(tasks)
 
   _onRemoveFromView: =>
