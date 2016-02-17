@@ -12,11 +12,11 @@ class PreferencesAccountDetails extends Component {
 
   constructor(props) {
     super(props);
-    this.state = _.clone(props.account);
+    this.state = {account: _.clone(props.account)};
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState(_.clone(nextProps.account));
+    this.setState({account: _.clone(nextProps.account)});
   }
 
   componentWillUnmount() {
@@ -51,30 +51,32 @@ class PreferencesAccountDetails extends Component {
     return `${name} <${email}>`;
   }
 
-  _updatedDefaultAlias(originalAlias, newAlias, defaultAlias) {
-    if (originalAlias === defaultAlias) {
-      return newAlias;
-    }
-    return defaultAlias;
-  }
-
   _saveChanges = ()=> {
-    this.props.onAccountUpdated(this.props.account, this.state);
+    this.props.onAccountUpdated(this.props.account, this.state.account);
+  };
+
+  _setState = (updates, callback = ()=>{})=> {
+    const updated = _.extend({}, this.state.account, updates);
+    this.setState({account: updated}, callback);
+  };
+
+  _setStateAndSave = (updates)=> {
+    this._setState(updates, ()=> {
+      this._saveChanges();
+    });
   };
 
 
   // Handlers
 
   _onAccountLabelUpdated = (event)=> {
-    this.setState({label: event.target.value});
+    this._setState({label: event.target.value});
   };
 
   _onAccountAliasCreated = (newAlias)=> {
     const coercedAlias = this._makeAlias(newAlias);
     const aliases = this.state.aliases.concat([coercedAlias]);
-    this.setState({aliases}, ()=> {
-      this._saveChanges();
-    });
+    this._setStateAndSave({aliases})
   };
 
   _onAccountAliasUpdated = (newAlias, alias, idx)=> {
@@ -85,9 +87,7 @@ class PreferencesAccountDetails extends Component {
       defaultAlias = coercedAlias;
     }
     aliases[idx] = coercedAlias;
-    this.setState({aliases, defaultAlias}, ()=> {
-      this._saveChanges();
-    });
+    this._setStateAndSave({aliases, defaultAlias});
   };
 
   _onAccountAliasRemoved = (alias, idx)=> {
@@ -97,16 +97,12 @@ class PreferencesAccountDetails extends Component {
       defaultAlias = null;
     }
     aliases.splice(idx, 1);
-    this.setState({aliases, defaultAlias}, ()=> {
-      this._saveChanges();
-    });
+    this._setStateAndSave({aliases, defaultAlias});
   };
 
   _onDefaultAliasSelected = (event)=> {
     const defaultAlias = event.target.value === 'None' ? null : event.target.value;
-    this.setState({defaultAlias}, ()=> {
-      this._saveChanges();
-    });
+    this._setStateAndSave({defaultAlias});
   };
 
 
@@ -129,7 +125,7 @@ class PreferencesAccountDetails extends Component {
   }
 
   render() {
-    const account = this.state;
+    const {account} = this.state;
     const aliasPlaceholder = this._makeAlias(
       `alias@${account.emailAddress.split('@')[1]}`
     );
