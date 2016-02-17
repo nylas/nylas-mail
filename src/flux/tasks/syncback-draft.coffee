@@ -7,6 +7,7 @@ TaskQueueStatusStore = require '../stores/task-queue-status-store'
 NylasAPI = require '../nylas-api'
 
 Task = require './task'
+SyncbackMetadataTask = require './syncback-metadata-task'
 {APIError} = require '../errors'
 Message = require '../models/message'
 Account = require '../models/account'
@@ -73,14 +74,23 @@ class SyncbackDraftTask extends Task
     #
     # The only fields we want to update from the server are the `id` and `version`.
     #
+    draftIsNew = false
+
     DatabaseStore.inTransaction (t) =>
       @getLatestLocalDraft().then (draft) =>
         # Draft may have been deleted. Oh well.
         return Promise.resolve() unless draft
+        if draft.serverId isnt id
+          draft.serverId = id
+          draftIsNew = true
         draft.version = version
-        draft.serverId = id
         t.persistModel(draft)
-    .thenReturn(true)
+    .then (draft) =>
+      if draftIsNew
+        for {pluginId, value} in draft.pluginMetadata
+          task = new SyncbackMetadataTask(@draftClientId, draft.constructor.name, pluginId)
+          Actions.queueTask(task)
+      return true
 
   getLatestLocalDraft: =>
     DatabaseStore.findBy(Message, clientId: @draftClientId).include(Message.attributes.body)
