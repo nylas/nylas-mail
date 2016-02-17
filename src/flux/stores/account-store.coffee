@@ -75,8 +75,8 @@ class AccountStore extends NylasStore
       ipc = require('electron').ipcRenderer
       ipc.send('command', 'application:reset-config-and-relaunch')
     else
-      Actions.focusDefaultMailboxPerspectiveForAccounts(@_accounts)
       @trigger()
+      Actions.focusDefaultMailboxPerspectiveForAccounts(@_accounts)
 
   _onReorderAccount: (id, newIdx) =>
     existingIdx = _.findIndex @_accounts, (a) -> a.id is id
