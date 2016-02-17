@@ -2,23 +2,22 @@ import {
   Task,
   NylasAPI,
   APIError,
-  Metadata,
+  Model,
   DatabaseStore,
   SyncbackModelTask,
   DatabaseTransaction } from 'nylas-exports'
 
 class TestTask extends SyncbackModelTask {
   getModelConstructor() {
-    return Metadata
+    return Model
   }
 }
 
 describe("SyncbackModelTask", () => {
   beforeEach(() => {
-    this.testModel = new Metadata({accountId: 'account-123'})
+    this.testModel = new Model({accountId: 'account-123'})
     spyOn(DatabaseTransaction.prototype, "persistModel")
-    spyOn(DatabaseStore, "findBy")
-    .andReturn(Promise.resolve(this.testModel));
+    spyOn(DatabaseStore, "findBy").andReturn(Promise.resolve(this.testModel));
 
     spyOn(NylasEnv, "reportError")
     spyOn(NylasAPI, "makeRequest").andReturn(Promise.resolve({
@@ -86,14 +85,14 @@ describe("SyncbackModelTask", () => {
 
     it("gets the correct path and method for existing objects", () => {
       jasmine.unspy(DatabaseStore, "findBy")
-      const serverModel = new Metadata({localId: 'local-123', serverId: 'server-123'})
+      const serverModel = new Model({clientId: 'local-123', serverId: 'server-123'})
 
       spyOn(DatabaseStore, "findBy").andReturn(Promise.resolve(serverModel));
 
-      spyOn(this.task, "getPathAndMethod").andCallThrough();
+      spyOn(this.task, "getRequestData").andCallThrough();
 
       performRemote(() => {
-        expect(this.task.getPathAndMethod).toHaveBeenCalled()
+        expect(this.task.getRequestData).toHaveBeenCalled()
         const opts = NylasAPI.makeRequest.calls[0].args[0]
         expect(opts.path).toBe("/test/server-123")
         expect(opts.method).toBe("PUT")
@@ -101,10 +100,10 @@ describe("SyncbackModelTask", () => {
     });
 
     it("gets the correct path and method for new objects", () => {
-      spyOn(this.task, "getPathAndMethod").andCallThrough();
+      spyOn(this.task, "getRequestData").andCallThrough();
 
       performRemote(() => {
-        expect(this.task.getPathAndMethod).toHaveBeenCalled()
+        expect(this.task.getRequestData).toHaveBeenCalled()
         const opts = NylasAPI.makeRequest.calls[0].args[0]
         expect(opts.path).toBe("/test")
         expect(opts.method).toBe("POST")
@@ -114,21 +113,21 @@ describe("SyncbackModelTask", () => {
     it("lets tasks override path and method", () => {
       class TaskMethodAndPath extends SyncbackModelTask {
         getModelConstructor() {
-          return Metadata
+          return Model
         }
-        getPathAndMethod = () => {
+        getRequestData = () => {
           return {
             path: `/override`,
             method: "DELETE",
           }
-        }
+        };
       }
       const task = new TaskMethodAndPath({clientId: 'local-123'});
-      spyOn(task, "getPathAndMethod").andCallThrough();
+      spyOn(task, "getRequestData").andCallThrough();
       spyOn(task, "getModelConstructor").andCallThrough()
       window.waitsForPromise(() => {
         return task.performRemote().then(() => {
-          expect(task.getPathAndMethod).toHaveBeenCalled()
+          expect(task.getRequestData).toHaveBeenCalled()
           const opts = NylasAPI.makeRequest.calls[0].args[0]
           expect(opts.path).toBe("/override")
           expect(opts.method).toBe("DELETE")

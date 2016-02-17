@@ -1,10 +1,10 @@
 _ = require 'underscore'
 
 Category = require './category'
-Model = require './model'
 Contact = require './contact'
 Actions = require '../actions'
 Attributes = require '../attributes'
+ModelWithMetadata = require './model-with-metadata'
 
 Function::getter = (prop, get) ->
   Object.defineProperty @prototype, prop, {get, configurable: yes}
@@ -38,9 +38,9 @@ This class also inherits attributes from {Model}
 
 Section: Models
 ###
-class Thread extends Model
+class Thread extends ModelWithMetadata
 
-  @attributes: _.extend {}, Model.attributes,
+  @attributes: _.extend {}, ModelWithMetadata.attributes,
     'snippet': Attributes.String
       modelKey: 'snippet'
 

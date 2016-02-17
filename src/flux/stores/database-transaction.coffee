@@ -13,6 +13,7 @@ class DatabaseTransaction
   find: (args...) => @database.find(args...)
   findBy: (args...) => @database.findBy(args...)
   findAll: (args...) => @database.findAll(args...)
+  modelify: (args...) => @database.modelify(args...)
   count: (args...) => @database.count(args...)
   findJSONBlob: (args...) => @database.findJSONBlob(args...)
 

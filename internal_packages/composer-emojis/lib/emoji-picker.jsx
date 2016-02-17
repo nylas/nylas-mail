@@ -3,7 +3,7 @@ import EmojiActions from './emoji-actions'
 const emoji = require('node-emoji');
 
 class EmojiPicker extends React.Component {
-  static displayName = "EmojiPicker"
+  static displayName = "EmojiPicker";
   static propTypes = {
     emojiOptions: React.PropTypes.array,
     selectedEmoji: React.PropTypes.string,
