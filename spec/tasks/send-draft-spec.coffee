@@ -69,14 +69,11 @@ describe "SendDraftTask", ->
       spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
         options.success?(@response)
         Promise.resolve(@response)
-      spyOn(DBt, 'unpersistModel').andCallFake (draft) ->
-        Promise.resolve()
-      spyOn(DBt, 'persistModel').andCallFake (draft) ->
-        Promise.resolve()
+      spyOn(DBt, 'unpersistModel').andReturn Promise.resolve()
+      spyOn(DBt, 'persistModel').andReturn Promise.resolve()
       spyOn(SoundRegistry, "playSound")
       spyOn(Actions, "postNotification")
       spyOn(Actions, "sendDraftSuccess")
-      spyOn(NylasEnv, "reportError")
 
     sharedTests = =>
       it "makes a send request with the correct data", ->
@@ -115,13 +112,16 @@ describe "SendDraftTask", ->
             expect(DBt.persistModel.mostRecentCall.args[0].draft).toEqual(false)
 
       it "should notify the draft was sent", ->
-        waitsForPromise => @task.performRemote().then =>
-          args = Actions.sendDraftSuccess.calls[0].args[0]
-          expect(args.draftClientId).toBe @draft.clientId
+        waitsForPromise =>
+          @task.performRemote().then =>
+            args = Actions.sendDraftSuccess.calls[0].args[0]
+            expect(args.draftClientId).toBe @draft.clientId
 
       it "get an object back on success", ->
-        waitsForPromise => @task.performRemote().then =>
-          args = Actions.sendDraftSuccess.calls[0].args[0]
+        # TODO what is this testing?
+        waitsForPromise =>
+          @task.performRemote().then =>
+            args = Actions.sendDraftSuccess.calls[0].args[0]
 
       it "should play a sound", ->
         spyOn(NylasEnv.config, "get").andReturn true
@@ -143,6 +143,7 @@ describe "SendDraftTask", ->
         it "notifies of a permanent error of misc error types", ->
           ## DB error
           thrownError = null
+          spyOn(NylasEnv, "reportError")
           jasmine.unspy(DBt, "persistModel")
           spyOn(DBt, "persistModel").andCallFake =>
             thrownError = new Error('db error')
@@ -200,6 +201,7 @@ describe "SendDraftTask", ->
 
         it "notifies of a permanent error on 500 errors", ->
           thrownError = new APIError(statusCode: 500, body: "err")
+          spyOn(NylasEnv, "reportError")
           spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
             Promise.reject(thrownError)
           waitsForPromise => @task.performRemote().then (status) =>
@@ -209,6 +211,7 @@ describe "SendDraftTask", ->
 
         it "notifies us and users of a permanent error on 400 errors", ->
           thrownError = new APIError(statusCode: 400, body: "err")
+          spyOn(NylasEnv, "reportError")
           spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
             Promise.reject(thrownError)
           waitsForPromise => @task.performRemote().then (status) =>
@@ -225,6 +228,7 @@ describe "SendDraftTask", ->
 
         describe "checking the promise chain halts on errors", ->
           beforeEach ->
+            spyOn(NylasEnv, 'reportError')
             spyOn(@task,"_sendAndCreateMessage").andCallThrough()
             spyOn(@task,"_deleteRemoteDraft").andCallThrough()
             spyOn(@task,"_onSuccess").andCallThrough()
@@ -240,32 +244,48 @@ describe "SendDraftTask", ->
             thrownError = new APIError(statusCode: 500, body: "err")
             spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
               Promise.reject(thrownError)
-            waitsForPromise => @task.performRemote().then (status) =>
-              @expectBlockedChain()
+            waitsForPromise =>
+              @task.performRemote().then (status) =>
+                @expectBlockedChain()
 
           it "halts on 400s", ->
             thrownError = new APIError(statusCode: 400, body: "err")
             spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
               Promise.reject(thrownError)
-            waitsForPromise => @task.performRemote().then (status) =>
-              @expectBlockedChain()
+            waitsForPromise =>
+              @task.performRemote().then (status) =>
+                @expectBlockedChain()
+
+          it "halts and retries on not permanent error codes", ->
+            thrownError = new APIError(statusCode: 409, body: "err")
+            spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
+              Promise.reject(thrownError)
+            waitsForPromise =>
+              @task.performRemote().then (status) =>
+                @expectBlockedChain()
 
           it "halts on other errors", ->
             thrownError = new Error("oh no")
             spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
               Promise.reject(thrownError)
-            waitsForPromise => @task.performRemote().then (status) =>
-              @expectBlockedChain()
+            waitsForPromise =>
+              @task.performRemote().then (status) =>
+                @expectBlockedChain()
 
-          it "dosn't halt on success", ->
+          it "doesn't halt on success", ->
+            # Don't spy reportError to make sure to fail the test on unexpected
+            # errors
+            jasmine.unspy(NylasEnv, 'reportError')
             spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
               options.success?(@response)
               Promise.resolve(@response)
-            waitsForPromise => @task.performRemote().then (status) =>
-              expect(@task._sendAndCreateMessage).toHaveBeenCalled()
-              expect(@task._deleteRemoteDraft).toHaveBeenCalled()
-              expect(@task._onSuccess).toHaveBeenCalled()
-              expect(@task._onError).not.toHaveBeenCalled()
+            waitsForPromise =>
+              @task.performRemote().then (status) =>
+                expect(status).toBe Task.Status.Success
+                expect(@task._sendAndCreateMessage).toHaveBeenCalled()
+                expect(@task._deleteRemoteDraft).toHaveBeenCalled()
+                expect(@task._onSuccess).toHaveBeenCalled()
+                expect(@task._onError).not.toHaveBeenCalled()
 
     describe "with a new draft", ->
       beforeEach ->
@@ -281,27 +301,28 @@ describe "SendDraftTask", ->
         @task = new SendDraftTask(@draft)
         @calledBody = "ERROR: The body wasn't included!"
         spyOn(DatabaseStore, "findBy").andCallFake =>
-          include: (body) =>
-            @calledBody = body
-            Promise.resolve(@draft)
+          Promise.resolve(@draft)
 
       sharedTests()
 
-      it "can complete a full performRemote", -> waitsForPromise =>
-        @task.performRemote().then (status) ->
-          expect(status).toBe Task.Status.Success
+      it "can complete a full performRemote", ->
+        waitsForPromise =>
+          @task.performRemote().then (status) ->
+            expect(status).toBe Task.Status.Success
 
-      it "shouldn't attempt to delete a draft", -> waitsForPromise =>
-        @task._deleteRemoteDraft().then =>
-          expect(NylasAPI.makeRequest).not.toHaveBeenCalled()
+      it "shouldn't attempt to delete a draft", ->
+        waitsForPromise =>
+          @task._deleteRemoteDraft(@draft).then =>
+            expect(NylasAPI.makeRequest).not.toHaveBeenCalled()
 
       it "should locally convert the draft to a message on send", ->
-        waitsForPromise => @task.performRemote().then =>
-          expect(DBt.persistModel).toHaveBeenCalled()
-          model = DBt.persistModel.calls[0].args[0]
-          expect(model.clientId).toBe @draft.clientId
-          expect(model.serverId).toBe @response.id
-          expect(model.draft).toBe false
+        waitsForPromise =>
+          @task.performRemote().then =>
+            expect(DBt.persistModel).toHaveBeenCalled()
+            model = DBt.persistModel.calls[0].args[0]
+            expect(model.clientId).toBe @draft.clientId
+            expect(model.serverId).toBe @response.id
+            expect(model.draft).toBe false
 
     describe "with an existing persisted draft", ->
       beforeEach ->
@@ -321,10 +342,7 @@ describe "SendDraftTask", ->
         @task = new SendDraftTask(@draft)
         @calledBody = "ERROR: The body wasn't included!"
         spyOn(DatabaseStore, "findBy").andCallFake =>
-          then: -> throw new Error("You must include the body!")
-          include: (body) =>
-            @calledBody = body
-            Promise.resolve(@draft)
+          Promise.resolve(@draft)
 
       sharedTests()
 
@@ -335,14 +353,15 @@ describe "SendDraftTask", ->
 
       it "should make a request to delete a draft", ->
         @task.performLocal()
-        waitsForPromise => @task._deleteRemoteDraft().then =>
-          expect(NylasAPI.makeRequest).toHaveBeenCalled()
-          expect(NylasAPI.makeRequest.callCount).toBe 1
-          req = NylasAPI.makeRequest.calls[0].args[0]
-          expect(req.path).toBe "/drafts/#{@draft.serverId}"
-          expect(req.accountId).toBe TEST_ACCOUNT_ID
-          expect(req.method).toBe "DELETE"
-          expect(req.returnsModel).toBe false
+        waitsForPromise =>
+          @task._deleteRemoteDraft(@draft).then =>
+            expect(NylasAPI.makeRequest).toHaveBeenCalled()
+            expect(NylasAPI.makeRequest.callCount).toBe 1
+            req = NylasAPI.makeRequest.calls[0].args[0]
+            expect(req.path).toBe "/drafts/#{@draft.serverId}"
+            expect(req.accountId).toBe TEST_ACCOUNT_ID
+            expect(req.method).toBe "DELETE"
+            expect(req.returnsModel).toBe false
 
       it "should continue if the request fails", ->
         jasmine.unspy(NylasAPI, "makeRequest")
@@ -350,11 +369,13 @@ describe "SendDraftTask", ->
           Promise.reject(new APIError(body: "Boo", statusCode: 500))
 
         @task.performLocal()
-        waitsForPromise => @task._deleteRemoteDraft().then =>
-          expect(NylasAPI.makeRequest).toHaveBeenCalled()
-          expect(NylasAPI.makeRequest.callCount).toBe 1
-        .catch =>
-          throw new Error("Shouldn't fail the promise")
+        waitsForPromise =>
+          @task._deleteRemoteDraft(@draft)
+          .then =>
+            expect(NylasAPI.makeRequest).toHaveBeenCalled()
+            expect(NylasAPI.makeRequest.callCount).toBe 1
+          .catch =>
+            throw new Error("Shouldn't fail the promise")
 
       it "should locally convert the existing draft to a message on send", ->
         expect(@draft.clientId).toBe @draft.clientId

@@ -16,7 +16,7 @@ DatabaseTransaction = require './database-transaction'
 
 {ipcRenderer} = require 'electron'
 
-DatabaseVersion = 18
+DatabaseVersion = 19
 DatabasePhase =
   Setup: 'setup'
   Ready: 'ready'
@@ -463,6 +463,9 @@ class DatabaseStore extends NylasStore
   #     + Other connections can read from the database, but they will not see
   #       pending changes.
   #
+  # @param fn {function} callback that will be executed inside a database transaction
+  # Returns a {Promise} that resolves when the transaction has successfully
+  # completed.
   inTransaction: (fn) ->
     t = new DatabaseTransaction(@)
     @_transactionQueue ?= new PromiseQueue(1, Infinity)

@@ -33,6 +33,7 @@ class Model
 
   Object.defineProperty @prototype, "id",
     enumerable: false
+    configurable: true
     get: -> @serverId ? @clientId
     set: ->
       throw new Error("You may not directly set the ID of an object. Set either the `clientId` or the `serverId` instead.")
