@@ -242,10 +242,10 @@ body.is-blurred {
     line-height: 1.75em;
     height: 1.75em;
     box-shadow: 0 0.5px 0.05px rgba(0,0,0,0.4), 0 -0.5px 0 rgba(0,0,0,0.12);
-    img.content-mask { background-color: fadeout(@text-color-heading, 10%); }
+    img.content-mask { background-color: fade(@text-color-heading, 80%); }
   }
   .btn-toolbar:active {
-    img.content-mask { background-color: fadeout(@text-color-heading, 3%); }
+    img.content-mask { background-color: fade(@text-color-heading, 90%); }
   }
   .btn-toolbar:only-of-type {
     margin-right: @spacing-three-quarters;
@@ -271,7 +271,7 @@ body.is-blurred {
 }
 
 .flexbox-handle-horizontal {
-  width: 6px;
+  width: 8px;
   top: 0;
   bottom: 0;
   z-index: 2;
@@ -279,16 +279,16 @@ body.is-blurred {
   cursor: col-resize;
   div {
     height:100%;
-    border-right: 1px solid @border-color-divider;
+    box-shadow: 0.5px 0 0 @border-color-divider;
   }
 
   &.flexbox-handle-right {
     right:-4px;
-    padding-right:3px;
+    padding-right:4px;
   }
   &.flexbox-handle-left {
-    left:-3px;
-    padding-right:2px;
+    left:-4px;
+    padding-right:4px;
   }
 }
 
