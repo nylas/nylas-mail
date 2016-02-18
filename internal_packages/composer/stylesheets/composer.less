@@ -154,6 +154,7 @@ body.platform-win32 {
       color: @text-color;
       padding-right: 12px;
       margin-left: 0;
+      margin-top: 2px;
     }
 
     .num-remaining-wrap {
@@ -164,10 +165,10 @@ body.platform-win32 {
       .show-more-fade {
         position: absolute;
         width: 190px;
-        height: 37px;
+        height: 32px;
         right: 0;
         top: 0;
-        background: linear-gradient(to right, fade(@blurred-bg-color, 0%) 0%, fade(@blurred-bg-color, 100%) 40%);
+        background: linear-gradient(to right, fade(@background-primary, 0%) 0%, fade(@background-primary, 100%) 40%);
       }
     }
   }
@@ -281,6 +282,9 @@ body.platform-win32 {
   .message-item-wrap {
     .message-item-white-wrap.composer-outer-wrap {
       background: @blurred-bg-color;
+      .show-more-fade {
+        background: linear-gradient(to right, fade(@blurred-bg-color, 0%) 0%, fade(@blurred-bg-color, 100%) 40%);
+      }
     }
     .message-item-white-wrap.composer-outer-wrap.focused {
       box-shadow: 0 0 0.5px rgba(0, 0, 0, 0.28), 0 1px 1.5px rgba(0, 0, 0, 0.08), 0 0 3px @accent-primary;
