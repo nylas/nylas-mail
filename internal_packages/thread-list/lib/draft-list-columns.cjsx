@@ -24,7 +24,7 @@ ParticipantsColumn = new ListTabular.Column
 
     if list.length > 0
       <div className="participants">
-        {list.map (p) => <span key={p.email}>{p.displayName()}</span>}
+        <span>{list.map((p) => p.displayName()).join(', ')}</span>
       </div>
     else
       <div className="participants no-recipients">
