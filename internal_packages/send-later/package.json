@@ -1,0 +1,15 @@
+{
+  "name": "n1-send-later",
+  "version": "1.0.0",
+  "description": "send email later",
+  "main": "lib/main",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  },
+  "isOptional": true,
+  "license": "GPL-3.0"
+}

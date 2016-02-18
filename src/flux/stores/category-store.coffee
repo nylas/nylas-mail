@@ -66,7 +66,7 @@ class CategoryStore extends NylasStore
   # ('inbox', 'drafts', etc.) It's possible for this to return `null`.
   # For example, Gmail likely doesn't have an `archive` label.
   #
-  getStandardCategory: (accountOrId, name) ->
+  getStandardCategory: (accountOrId, name) =>
     return null unless accountOrId
 
     unless name in StandardCategoryNames
@@ -76,7 +76,7 @@ class CategoryStore extends NylasStore
 
   # Public: Returns the set of all standard categories that match the given
   # names for each of the provided accounts
-  getStandardCategories: (accountsOrIds, names...) ->
+  getStandardCategories: (accountsOrIds, names...) =>
     if Array.isArray(accountsOrIds)
       res = []
       for accOrId in accountsOrIds
@@ -90,7 +90,7 @@ class CategoryStore extends NylasStore
   # actions. On Gmail, this is the "all" label. On providers using folders, it
   # returns any available "Archive" folder, or null if no such folder exists.
   #
-  getArchiveCategory: (accountOrId) ->
+  getArchiveCategory: (accountOrId) =>
     return null unless accountOrId
     account = asAccount(accountOrId)
     return null unless account
@@ -103,13 +103,13 @@ class CategoryStore extends NylasStore
   # Public: Returns the Folder or Label object that should be used for
   # the inbox or null if it doesn't exist
   #
-  getInboxCategory: (accountOrId) ->
+  getInboxCategory: (accountOrId) =>
     @getStandardCategory(accountOrId, "inbox")
 
   # Public: Returns the Folder or Label object that should be used for
   # "Move to Trash", or null if no trash folder exists.
   #
-  getTrashCategory: (accountOrId) ->
+  getTrashCategory: (accountOrId) =>
     @getStandardCategory(accountOrId, "trash")
 
   _onCategoriesChanged: (categories) =>

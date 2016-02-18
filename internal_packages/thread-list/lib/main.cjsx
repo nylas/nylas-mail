@@ -10,6 +10,7 @@ ThreadList = require './thread-list'
 
 DraftSelectionBar = require './draft-selection-bar'
 DraftList = require './draft-list'
+DraftListSendStatus = require './draft-list-send-status'
 
 module.exports =
   activate: (@state={}) ->
@@ -51,6 +52,9 @@ module.exports =
     ComponentRegistry.register DraftDeleteButton,
       role: 'draft:BulkAction'
 
+    ComponentRegistry.register DraftListSendStatus,
+      role: 'DraftList:DraftStatus'
+
   deactivate: ->
     ComponentRegistry.unregister DraftList
     ComponentRegistry.unregister DraftSelectionBar
@@ -62,3 +66,4 @@ module.exports =
     ComponentRegistry.unregister DownButton
     ComponentRegistry.unregister UpButton
     ComponentRegistry.unregister DraftDeleteButton
+    ComponentRegistry.unregister DraftListSendStatus
