@@ -34,9 +34,11 @@ class TaskFactory
           threads: threads
       else
         labelsToAdd = if categoryToAdd then [categoryToAdd] else []
+        labelsToRemove = categoriesToRemove ? []
+        labelsToRemove = if labelsToRemove instanceof Array then labelsToRemove else [labelsToRemove]
         tasks.push new ChangeLabelsTask
           threads: threads
-          labelsToRemove: categoriesToRemove
+          labelsToRemove: labelsToRemove
           labelsToAdd: labelsToAdd
 
     return tasks

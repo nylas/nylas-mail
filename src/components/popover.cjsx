@@ -190,7 +190,8 @@ class Popover extends React.Component
     if event.key is "Escape"
       @close()
 
-  _onClick: =>
+  _onClick: (e) =>
+    e.stopPropagation()
     if not @state.showing
       @open()
     else

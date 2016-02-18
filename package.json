@@ -17,6 +17,7 @@
     "atom-keymap": "^6.1.1",
     "babel-core": "^5.8.21",
     "bluebird": "^2.9",
+    "chrono-node": "^1.1.2",
     "classnames": "1.2.1",
     "clear-cut": "^2.0.1",
     "coffee-react": "^2.0.0",

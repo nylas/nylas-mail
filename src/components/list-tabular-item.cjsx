@@ -32,7 +32,7 @@ class ListTabularItem extends React.Component
     # We only do it if the item prop has changed.
     @_columnCache ?= @_columns()
 
-    <div {...props} className={className} onClick={@_onClick} style={position:'absolute', top: @props.metrics.top, width:'100%', height:@props.metrics.height, overflow: 'hidden'}>
+    <div {...props} className={className} onClick={@_onClick} style={position:'absolute', top: @props.metrics.top, width:'100%', height:@props.metrics.height}>
       {@_columnCache}
     </div>
 
