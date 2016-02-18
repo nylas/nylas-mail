@@ -25,7 +25,7 @@ export function createSnoozeCategory(accountId, name = SNOOZE_CATEGORY_NAME) {
   return TaskQueueStatusStore.waitForPerformRemote(task).then(()=>{
     return DatabaseStore.findBy(Category, {clientId: category.clientId})
     .then((updatedCat)=> {
-      if (updatedCat.isSavedRemotely()) {
+      if (updatedCat && updatedCat.isSavedRemotely()) {
         return Promise.resolve(updatedCat)
       }
       return Promise.reject(new Error('Could not create Snooze category'))
