@@ -76,12 +76,10 @@ body.platform-win32 {
   .message-toolbar-arrow.down {
     order:201;
     margin-right: 0;
-    padding-top:6px;
     margin-left: @spacing-standard * 1.5;
   }
   .message-toolbar-arrow.up {
     order:202;
-    padding-top:6px;
     // <1 because of hit region padding on the button
     margin-right: @spacing-standard * 0.75;
   }
@@ -130,6 +128,7 @@ body.platform-win32 {
     line-height: @font-size-large * 1.8;
     display: flex;
     align-items: center;
+    padding: 0 @padding-large-horizontal;
   }
   .mail-important-icon {
     margin-right:@spacing-half;
@@ -146,7 +145,6 @@ body.platform-win32 {
      cursor: pointer;
      -webkit-user-select: none;
      margin-left: auto;
-     margin-right: @padding-large-horizontal;
      display: flex;
      align-items: center;
 
@@ -192,10 +190,7 @@ body.platform-win32 {
     width: calc(~"100% - 12px");
 
     margin: 0 auto;
-    padding: @message-spacing 0;
-    &:last-child {
-      padding-bottom: @spacing-double;
-    }
+
     .message-item-white-wrap {
       background: @background-primary;
       border: 0;
@@ -203,6 +198,7 @@ body.platform-win32 {
       border-radius: 4px;
     }
 
+    padding-bottom: @message-spacing * 2;
     &.before-reply-area { padding-bottom: 0; }
 
     &.collapsed {
@@ -285,7 +281,7 @@ body.platform-win32 {
       top: 50%;
       left: 50%;
       margin-left: -80px;
-      margin-top: -14px;
+      margin-top: -15px;
       border-radius: 15px;
       border: 1px solid @border-color-divider;
       width: 160px;
@@ -425,7 +421,7 @@ body.platform-win32 {
       width: 100%;
       border: 0;
       padding: 0;
-      margin-top: 5px;
+      margin-top: 10px;
       overflow: auto;
     }
   }
@@ -554,7 +550,7 @@ body.platform-win32 {
 
     .participant {
       display: inline-block;
-      margin-right: 0.5em;
+      margin-right: 0.25em;
     }
 
     .participant-type {
@@ -580,9 +576,12 @@ body.platform-win32 {
 
     .participant-primary {
       color: @text-color-very-subtle;
+      margin-right: 0.15em;
+      display:inline-block;
     }
     .participant-secondary {
       color: @text-color-very-subtle;
+      display:inline-block;
     }
 
     .from-contact {

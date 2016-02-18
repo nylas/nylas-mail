@@ -168,14 +168,15 @@
 @line-height-large:         @line-height-computed * 1.3;
 @line-height-small:         @line-height-computed * 0.95;
 
-@border-radius-base:        4px;
-@border-radius-large:       6px;
-@border-radius-small:       3px;
+@border-radius-base:        3px;
+@border-radius-large:       5px;
+@border-radius-small:       2px;
 
 
 //============================== Shadows ===============================//
-@standard-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.21);
-@standard-shadow-up: 0 -1px 4px 0 rgba(0, 0, 0, 0.21);
+@standard-shadow-color: rgba(0, 0, 0, 0.21);
+@standard-shadow: 0 1px 4px 0 @standard-shadow-color;
+@standard-shadow-up: 0 -1px 4px 0 @standard-shadow-color;
 
 //=============================== Buttons ==============================//
 

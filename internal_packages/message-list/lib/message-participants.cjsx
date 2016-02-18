@@ -29,19 +29,9 @@ class MessageParticipants extends React.Component
   _allToParticipants: =>
     _.union(@props.to, @props.cc, @props.bcc)
 
-  _selectPlainText: (e) =>
+  _selectText: (e) =>
     textNode = e.currentTarget.childNodes[0]
-    @_selectText(textNode)
 
-  _selectCommaText: (e) =>
-    textNode = e.currentTarget.childNodes[0].childNodes[0]
-    @_selectText(textNode)
-
-  _selectBracketedText: (e) =>
-    textNode = e.currentTarget.childNodes[1].childNodes[0] # because of React rendering
-    @_selectText(textNode)
-
-  _selectText: (textNode) =>
     range = document.createRange()
     range.setStart(textNode, 0)
     range.setEnd(textNode, textNode.length)
@@ -67,12 +57,18 @@ class MessageParticipants extends React.Component
 
       if c.name?.length > 0 and c.name isnt c.email
         <div key={"#{c.email}-#{i}"} className="participant selectable">
-          <span className="participant-primary" onClick={@_selectPlainText}>{c.name}</span>&nbsp;
-          <span className="participant-secondary" onClick={@_selectBracketedText}><{c.email}>{comma}</span>&nbsp;
+          <div className="participant-primary" onClick={@_selectText}>
+            {c.name}
+          </div>
+          <div className="participant-secondary">
+            {"<"}<span onClick={@_selectText}>{c.email}</span>{">#{comma}"}
+          </div>
         </div>
       else
         <div key={"#{c.email}-#{i}"} className="participant selectable">
-          <span className="participant-primary" onClick={@_selectCommaText}>{c.email}{comma}</span>&nbsp;
+          <div className="participant-primary">
+            <span onClick={@_selectText}>{c.email}</span>{comma}
+          </div>
         </div>
     )
 
