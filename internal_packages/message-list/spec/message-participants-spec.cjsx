@@ -90,7 +90,7 @@ describe "MessageParticipants", ->
 
     it "uses full names", ->
       to = ReactTestUtils.findRenderedDOMComponentWithClass(@participants, "to-contact")
-      expect(React.findDOMNode(to).innerText.trim()).toEqual "User Two <user2@nylas.com>"
+      expect(React.findDOMNode(to).innerText.trim()).toEqual "User Two<user2@nylas.com>"
 
 
   # TODO: We no longer display "to everyone"
