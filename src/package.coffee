@@ -75,6 +75,7 @@ class Package
     @metadata ?= Package.loadMetadata(@path)
     @bundledPackage = Package.isBundledPackagePath(@path)
     @name = @metadata?.name ? path.basename(@path)
+    @pluginAppId = @metadata.appId ? null
     @displayName = @metadata?.displayName || @name
     ModuleCache.add(@path, @metadata)
     @reset()
@@ -82,7 +83,7 @@ class Package
 
   # TODO FIXME: Use a unique pluginID instead of just the "name"
   # This needs to be included here to prevent a circular dependency error
-  pluginId: -> return @name
+  pluginId: -> return @pluginAppId ? @name
 
   ###
   Section: Event Subscription
