@@ -27,11 +27,11 @@ class DatabaseTransaction
       fn(@)
     .finally =>
       if @_opened
-        @_query("COMMIT")
         @_opened = false
-      global.setImmediate =>
-        for record in @_changeRecords
-          @database.accumulateAndTrigger(record)
+        @_query("COMMIT")
+        .then =>
+          for record in @_changeRecords
+            @database.accumulateAndTrigger(record)
 
   # Mutating the Database
 
