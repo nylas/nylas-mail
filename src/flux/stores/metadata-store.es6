@@ -13,12 +13,16 @@ class MetadataStore extends NylasStore {
 
   _setMetadata(modelOrModels, pluginId, metadataValue) {
     const models = (modelOrModels instanceof Array) ? modelOrModels : [modelOrModels];
+    const modelClass = models[0].constructor
+    if (!models.every(m => m.constructor === modelClass)) {
+      throw new Error('Actions.setMetadata - All models provided must be of the same type')
+    }
     DatabaseStore.inTransaction((t)=> {
       // Get the latest version of the models from the datbaase before applying
       // metadata in case other plugins also saved metadata, and we don't want
       // to overwrite it
       return (
-        t.modelify(_.pluck(models, 'clientId'))
+        t.modelify(modelClass, _.pluck(models, 'clientId'))
         .then((latestModels)=> {
           const updatedModels = latestModels.map(m => m.applyPluginMetadata(pluginId, metadataValue));
           return (
