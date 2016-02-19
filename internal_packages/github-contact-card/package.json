@@ -10,7 +10,7 @@
   "description": "Extends the contact card in the sidebar to show public repos of the people you email.",
   "icon": "./icon.png",
 
-  "license": "MIT",
+  "license": "GPL-3.0",
   "engines": {
     "nylas": ">=0.3.0 <0.5.0"
   },

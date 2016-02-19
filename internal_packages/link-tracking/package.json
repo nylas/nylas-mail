@@ -1,0 +1,25 @@
+{
+  "name": "link-tracking",
+  "main": "./lib/main",
+  "version": "0.1.0",
+  "appId":"ybqmsi39th16ka60dcxz1in9",
+
+  "title": "Link Tracking",
+  "description": "Tracks whether links in an email have been clicked by recipients",
+  "icon": "./icon.png",
+  "isOptional": true,
+
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "nylas": ">=0.3.46"
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  },
+  "dependencies": {},
+  "license": "GPL-3.0"
+}
