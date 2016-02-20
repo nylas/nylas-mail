@@ -47,7 +47,7 @@ class SendDraftTask extends Task
     super
 
   label: ->
-    "Sending draft..."
+    "Sending message..."
 
   shouldDequeueOtherTask: (other) ->
     other instanceof SendDraftTask and other.draft.clientId is @draft.clientId
