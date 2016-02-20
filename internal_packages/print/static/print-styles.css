@@ -1,6 +1,26 @@
 body {
   overflow: auto !important;
 }
+#print-button {
+  float:right;
+  margin-left: 10px;
+
+  /* From main button styles: */
+  padding: 0 0.8em;
+  border-radius: 3px;
+  display: inline-block;
+  height: 1.9em;
+  line-height: 1.9em;
+  font-size: 13.02px;
+  cursor: default;
+  color: #231f20;
+  position: relative;
+  color: #ffffff;
+  font-weight: 500;
+  background: linear-gradient(to bottom, #6bb1f9 0%, #0a80ff 100%);
+  box-shadow: none;
+  border: 1px solid #3878fa;
+}
 #print-header {
   padding: 15px 20px 0 20px;
 }

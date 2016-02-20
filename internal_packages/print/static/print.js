@@ -25,17 +25,20 @@
     removeClassFromNodes(scrollContentInners, 'scroll-region-content-inner');
   }
 
-  function print() {
-    window.print();
-    // Close this print window after selecting to print
-    // This is really hackish but appears to be the only working solution
-    setTimeout(window.close, 500);
+  function continueAndPrint() {
+    document.getElementById('print-button').style.display = 'none';
+    window.requestAnimationFrame(function() {
+      window.print();
+      // Close this print window after selecting to print
+      // This is really hackish but appears to be the only working solution
+      setTimeout(window.close, 500);
+    });
   }
 
   var messageNodes = document.querySelectorAll('.message-item-area>span');
 
   removeScrollClasses();
   rebuildMessages(messageNodes, window.printMessages);
-  // Give it a few ms before poppint out the print dialog
-  setTimeout(print, 50);
+
+  window.continueAndPrint = continueAndPrint;
 })();
