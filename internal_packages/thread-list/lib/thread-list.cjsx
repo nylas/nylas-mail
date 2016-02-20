@@ -10,6 +10,7 @@ classNames = require 'classnames'
  TaskFactory,
  ChangeUnreadTask,
  WorkspaceStore,
+ AccountStore,
  CategoryStore,
  FocusedContentStore,
  FocusedPerspectiveStore} = require 'nylas-exports'
