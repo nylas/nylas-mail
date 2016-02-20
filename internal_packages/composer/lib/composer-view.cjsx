@@ -686,7 +686,7 @@ class ComposerView extends React.Component
     if dealbreaker
       dialog.showMessageBox(remote.getCurrentWindow(), {
         type: 'warning',
-        buttons: ['Edit Message'],
+        buttons: ['Edit Message', 'Cancel'],
         message: 'Cannot Send',
         detail: dealbreaker
       })
