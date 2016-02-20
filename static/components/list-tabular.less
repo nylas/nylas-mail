@@ -78,6 +78,10 @@
 
 
 .list-container {
+  .list-rows > div {
+    // Note: This allows rows to be animated in and out!
+    transition: top ease-out 120ms;
+  }
   .list-item {
     font-size: @font-size-base;
     color: @text-color;

@@ -98,8 +98,23 @@ class ThreadList extends React.Component
     </FluxContainer>
 
   _threadPropsProvider: (item) ->
-    className: classNames
-      'unread': item.unread
+    props =
+      className: classNames
+        'unread': item.unread
+
+    perspective = FocusedPerspectiveStore.current()
+    account = AccountStore.accountForId(item.accountId)
+    finishedName = account.defaultFinishedCategory()?.name
+
+    if finishedName is 'trash' and perspective.canTrashThreads()
+      props.onSwipeRightClass = 'swipe-trash'
+      props.onSwipeRight = -> perspective.removeThreads([item])
+
+    else if finishedName in ['archive', 'all'] and perspective.canArchiveThreads()
+      props.onSwipeRightClass = 'swipe-archive'
+      props.onSwipeRight = -> perspective.removeThreads([item])
+
+    props
 
   _threadMouseManipulateData: (event) ->
     itemThreadId = @refs.list.itemIdAtPoint(event.clientX, event.clientY)
