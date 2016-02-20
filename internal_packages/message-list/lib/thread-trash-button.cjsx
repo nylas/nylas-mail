@@ -15,7 +15,7 @@ class ThreadTrashButton extends React.Component
 
   render: =>
     focusedMailboxPerspective = FocusedPerspectiveStore.current()
-    return false unless focusedMailboxPerspective?.canTrashThreads()
+    return false unless focusedMailboxPerspective.canTrashThreads()
 
     <button className="btn btn-toolbar"
             style={order: -106}

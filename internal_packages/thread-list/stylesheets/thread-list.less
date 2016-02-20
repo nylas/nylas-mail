@@ -48,6 +48,80 @@
     -webkit-font-smoothing: subpixel-antialiased;
   }
 
+  .swipe-backing {
+    background-color: darken(@background-primary, 10%);
+    &::after {
+      color: fade(white, 90%);
+      padding-top: 45px;
+      text-align: center;
+      font-weight: 400;
+      font-size: @font-size-small;
+      position: absolute;
+      top: 0;
+      transform: translateX(0%);
+      width: 80px;
+      bottom: 0;
+      opacity: 0.8;
+      transition: opacity linear 150ms;
+      background-repeat: no-repeat;
+      background-position: 50% 35%;
+      background-size: 24px 24px;
+    }
+
+    &.swipe-trash {
+      transition: background-color linear 150ms;
+      background-color: mix(#ed304b, @background-primary, 75%);
+      &::after {
+        transition: left linear 150ms, transform linear 150ms;
+        content: "Trash";
+        left: 0;
+        background-image: url(../static/images/swipe/icon-swipe-trash@2x.png);
+      }
+      &.confirmed {
+        background-color: #ed304b;
+        &::after {
+          left: 100%;
+          transform: translateX(-100%);
+          opacity: 1;
+        }
+      }
+    }
+    &.swipe-archive {
+      transition: background-color linear 150ms;
+      background-color: mix(#6cd420, @background-primary, 75%);
+      &::after {
+        transition: left linear 150ms, transform linear 150ms;
+        content: "Archive";
+        left: 0;
+        background-image: url(../static/images/swipe/icon-swipe-archive@2x.png);
+      }
+      &.confirmed {
+        background-color: #6cd420;
+        &::after {
+          left: 100%;
+          transform: translateX(-100%);
+          opacity: 1;
+        }
+      }
+    }
+    &.swipe-snooze {
+      background-color: mix(#8d6be3, @background-primary, 75%);
+      &::after {
+        content: "Snooze";
+        left: 0;
+        background-image: url(../static/images/swipe/icon-swipe-snooze@2x.png);
+      }
+      &.confirmed {
+        background-color: #8d6be3;
+        &::after {
+          left: 100%;
+          transform: translateX(-100%);
+          opacity: 1;
+        }
+      }
+    }
+  }
+
   .list-item {
     background-color: darken(@background-primary, 2%);
     border-bottom: 1px solid fade(@list-border, 60%);
