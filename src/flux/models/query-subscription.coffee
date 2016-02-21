@@ -59,6 +59,10 @@ class QuerySubscription
     @_queuedChangeRecords.push(record)
     @_processChangeRecords() unless @_updateInFlight
 
+  cancelPendingUpdate: =>
+    @_queryVersion += 1
+    @_updateInFlight = false
+
   # Scan through change records and apply them to the last result set.
   # - Returns true if changes did / will result in new result set being created.
   # - Returns false if no changes were made.
@@ -122,7 +126,7 @@ class QuerySubscription
       return true
     else if knownImpacts > 0
       @_createResultAndTrigger()
-      return true
+      return false
     else
       return false
 
@@ -138,71 +142,70 @@ class QuerySubscription
     return false
 
   update: =>
-    desiredRange = @_query.range()
-    currentRange = @_set?.range()
     @_updateInFlight = true
 
     version = @_queryVersion
+    desiredRange = @_query.range()
+    currentRange = @_set?.range()
+    areNotInfinite = currentRange and not currentRange.isInfinite() and not desiredRange.isInfinite()
+    previousResultIsEmpty = not @_set or @_set.modelCacheCount() is 0
+    missingRange = @_getMissingRange(desiredRange, currentRange)
+    fetchEntireModels = if areNotInfinite then true else previousResultIsEmpty
 
+    @_fetchMissingRange(missingRange, {version, fetchEntireModels})
+
+  _getMissingRange: (desiredRange, currentRange) =>
     if currentRange and not currentRange.isInfinite() and not desiredRange.isInfinite()
       ranges = QueryRange.rangesBySubtracting(desiredRange, currentRange)
-      entireModels = true
+      missingRange = if ranges.length > 1 then desiredRange else ranges[0]
     else
-      ranges = [desiredRange]
-      entireModels = not @_set or @_set.modelCacheCount() is 0
+      missingRange = desiredRange
+    return missingRange
 
-    Promise.each ranges, (range) =>
-      return unless @_queryVersion is version
-      @_fetchRange(range, {entireModels, version})
-
-    .then =>
-      return unless @_queryVersion is version
-      ids = @_set.ids().filter (id) => not @_set.modelWithId(id)
-      return if ids.length is 0
-      return DatabaseStore.findAll(@_query._klass, {id: ids}).then (models) =>
-        return unless @_queryVersion is version
-        @_set.replaceModel(m) for m in models
-
-    .then =>
-      return unless @_queryVersion is version
-      @_updateInFlight = false
-
-      # Trigger if A) no changes came in during the update, or B) applying
-      # those changes has no effect on the result set, and this one is
-      # still good.
-      if @_queuedChangeRecords.length is 0 or not @_processChangeRecords()
-        @_createResultAndTrigger()
-
-  cancelPendingUpdate: =>
-    @_queryVersion += 1
-    @_updateInFlight = false
-
-  _fetchRange: (range, {entireModels, version} = {}) ->
-    rangeQuery = undefined
-
-    unless range.isInfinite()
+  _getQueryForRange: (range, fetchEntireModels) =>
+    rangeQuery = null
+    if not range.isInfinite()
       rangeQuery ?= @_query.clone()
       rangeQuery.offset(range.offset).limit(range.limit)
-
-    unless entireModels
+    if not fetchEntireModels
       rangeQuery ?= @_query.clone()
       rangeQuery.idsOnly()
-
     rangeQuery ?= @_query
+    return rangeQuery
 
-    DatabaseStore.run(rangeQuery, {format: false}).then (results) =>
+  _fetchMissingRange: (missingRange, {version, fetchEntireModels}) ->
+    missingRangeQuery = @_getQueryForRange(missingRange, fetchEntireModels)
+
+    DatabaseStore.run(missingRangeQuery, {format: false})
+    .then (results) =>
       return unless @_queryVersion is version
 
-      if @_set and not @_set.range().isContiguousWith(range)
+      if @_set and not @_set.range().isContiguousWith(missingRange)
         @_set = null
       @_set ?= new MutableQueryResultSet()
 
-      if entireModels
-        @_set.addModelsInRange(results, range)
-      else
-        @_set.addIdsInRange(results, range)
+      # Create result and trigger
+      # if A) no changes have come in during querying the missing range,
+      # or B) applying those changes has no effect on the result set, and this one is
+      # still good.
+      if @_queuedChangeRecords.length is 0 or @_processChangeRecords() is false
+        if fetchEntireModels
+          @_set.addModelsInRange(results, missingRange)
+        else
+          @_set.addIdsInRange(results, missingRange)
 
-      @_set.clipToRange(@_query.range())
+        @_set.clipToRange(@_query.range())
+
+        ids = @_set.ids().filter (id) => not @_set.modelWithId(id)
+        if ids.length > 0
+          return DatabaseStore.findAll(@_query._klass, {id: ids}).then (models) =>
+            return unless @_queryVersion is version
+            @_set.replaceModel(m) for m in models
+            @_updateInFlight = false
+            @_createResultAndTrigger()
+        else
+          @_updateInFlight = false
+          @_createResultAndTrigger()
 
   _createResultAndTrigger: =>
     allCompleteModels = @_set.isComplete()

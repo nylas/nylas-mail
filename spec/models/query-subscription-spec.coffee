@@ -208,16 +208,16 @@ describe "QuerySubscription", ->
 
   describe "update", ->
     beforeEach ->
-      spyOn(QuerySubscription.prototype, '_fetchRange').andCallFake ->
+      spyOn(QuerySubscription.prototype, '_fetchMissingRange').andCallFake ->
         @_set ?= new MutableQueryResultSet()
         Promise.resolve()
 
     describe "when the query has an infinite range", ->
-      it "should call _fetchRange for the entire range", ->
+      it "should call _fetchMissingRange for the entire range", ->
         subscription = new QuerySubscription(DatabaseStore.findAll(Thread))
         subscription.update()
         advanceClock()
-        expect(subscription._fetchRange).toHaveBeenCalledWith(QueryRange.infinite(), {entireModels: true, version: 1})
+        expect(subscription._fetchMissingRange).toHaveBeenCalledWith(QueryRange.infinite(), {fetchEntireModels: true, version: 1})
 
       it "should fetch full full models only when the previous set is empty", ->
         subscription = new QuerySubscription(DatabaseStore.findAll(Thread))
@@ -225,35 +225,51 @@ describe "QuerySubscription", ->
         subscription._set.addModelsInRange([new Thread()], new QueryRange(start: 0, end: 1))
         subscription.update()
         advanceClock()
-        expect(subscription._fetchRange).toHaveBeenCalledWith(QueryRange.infinite(), {entireModels: false, version: 1})
+        expect(subscription._fetchMissingRange).toHaveBeenCalledWith(QueryRange.infinite(), {fetchEntireModels: false, version: 1})
 
     describe "when the query has a range", ->
       beforeEach ->
         @query = DatabaseStore.findAll(Thread).limit(10)
 
       describe "when we have no current range", ->
-        it "should call _fetchRange for the entire range and fetch full models", ->
+        it "should call _fetchMissingRange for the entire range and fetch full models", ->
           subscription = new QuerySubscription(@query)
           subscription._set = null
           subscription.update()
           advanceClock()
-          expect(subscription._fetchRange).toHaveBeenCalledWith(@query.range(), {entireModels: true, version: 1})
+          expect(subscription._fetchMissingRange).toHaveBeenCalledWith(@query.range(), {fetchEntireModels: true, version: 1})
 
       describe "when we have a previous range", ->
-        it "should call _fetchRange for the ranges representing the difference", ->
-          customRange1 = jasmine.createSpy('customRange1')
-          customRange2 = jasmine.createSpy('customRange2')
-          spyOn(QueryRange, 'rangesBySubtracting').andReturn [customRange1, customRange2]
 
+        it "should call _fetchMissingRange with the missingRange", ->
+          customRange = jasmine.createSpy('customRange1')
+          spyOn(QueryRange, 'rangesBySubtracting').andReturn [customRange]
           subscription = new QuerySubscription(@query)
           subscription._set = new MutableQueryResultSet()
           subscription._set.addModelsInRange([new Thread()], new QueryRange(start: 0, end: 1))
 
           advanceClock()
-          subscription._fetchRange.reset()
+          subscription._fetchMissingRange.reset()
           subscription._updateInFlight = false
           subscription.update()
           advanceClock()
-          expect(subscription._fetchRange.callCount).toBe(2)
-          expect(subscription._fetchRange.calls[0].args).toEqual([customRange1, {entireModels: true, version: 1}])
-          expect(subscription._fetchRange.calls[1].args).toEqual([customRange2, {entireModels: true, version: 1}])
+          expect(subscription._fetchMissingRange.callCount).toBe(1)
+          expect(subscription._fetchMissingRange.calls[0].args).toEqual([customRange, {fetchEntireModels: true, version: 1}])
+
+        it "should call _fetchMissingRange for the entire query range when the missing range encompasses more than one range", ->
+          customRange1 = jasmine.createSpy('customRange1')
+          customRange2 = jasmine.createSpy('customRange2')
+          spyOn(QueryRange, 'rangesBySubtracting').andReturn [customRange1, customRange2]
+
+          range = new QueryRange(start: 0, end: 1)
+          subscription = new QuerySubscription(@query)
+          subscription._set = new MutableQueryResultSet()
+          subscription._set.addModelsInRange([new Thread()], range)
+
+          advanceClock()
+          subscription._fetchMissingRange.reset()
+          subscription._updateInFlight = false
+          subscription.update()
+          advanceClock()
+          expect(subscription._fetchMissingRange.callCount).toBe(1)
+          expect(subscription._fetchMissingRange.calls[0].args).toEqual([@query.range(), {fetchEntireModels: true, version: 1}])
