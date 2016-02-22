@@ -151,7 +151,7 @@ class ThreadList extends React.Component
     event.dataTransfer.effectAllowed = "move"
     event.dataTransfer.dragEffect = "move"
 
-    canvas = CanvasUtils.canvasWithThreadDragImage(dragThreadIds.length)
+    canvas = CanvasUtils.canvasWithThreadDragImage(dragData.threadIds.length)
     event.dataTransfer.setDragImage(canvas, 10, 10)
     event.dataTransfer.setData('nylas-threads-data', JSON.stringify(dragData))
     return
