@@ -15,6 +15,7 @@ class NylasComponentKit
   @load "Spinner", 'spinner'
   @load "Switch", 'switch'
   @load "Popover", 'popover'
+  @load "FixedPopover", 'fixed-popover'
   @load "Flexbox", 'flexbox'
   @load "RetinaImg", 'retina-img'
   @load "SwipeContainer", 'swipe-container'

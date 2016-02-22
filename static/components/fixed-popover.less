@@ -1,0 +1,34 @@
+@import "ui-variables";
+
+
+// TODO
+// Most of these styles are duplicated from the original popover.less
+// Eventually, we will get rid of the original popover and switch to this
+// implementation
+.nylas-fixed-popover-container {
+  position: absolute;
+  z-index: 40;
+
+  .fixed-popover {
+    position: absolute;
+    background-color: @background-primary;
+    border-radius: @border-radius-base;
+    box-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.15), 0 -0.5px 0 rgba(0, 0, 0, 0.15), 0.5px 0 0 rgba(0, 0, 0, 0.15), -0.5px 0 0 rgba(0, 0, 0, 0.15), 0 4px 7px rgba(0,0,0,0.15);
+  }
+
+  .fixed-popover-pointer,.fixed-popover-pointer.shadow {
+    position: absolute;
+    height: 20px;
+    width: 45px;
+  }
+  .fixed-popover-pointer {
+    -webkit-mask-image: url('images/tooltip/tooltip-bg-pointer@2x.png');
+    background-color: @background-primary;
+  }
+  .fixed-popover-pointer.shadow {
+    -webkit-mask-image: url('images/tooltip/tooltip-bg-pointer-shadow@2x.png');
+    background-color: fade(@black, 22%);
+  }
+
+}
+
