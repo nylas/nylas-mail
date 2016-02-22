@@ -129,11 +129,12 @@ body.platform-win32 {
       .windows-btn-bg;
       .windows-btn-border;
       border-radius: 0;
+      box-shadow: -1px 0 0 2px fade(@border-color-divider, 80%);
     }
     .secondary-picker {
       .windows-btn-bg;
       .windows-btn-border;
-      border-left: 0;
+      box-shadow: 1px 0 0 2px fade(@border-color-divider, 80%);
     }
     .secondary-picker,
     .secondary-items {
@@ -152,6 +153,18 @@ body.platform-win32 {
         &:active {
           background: @btn-emphasis-bg-color;
         }
+      }
+      .primary-item {
+        box-shadow: -1px 0 0 2px @btn-emphasis-bg-color;
+        &:hover { box-shadow: -1px 0 0 2px darken(@btn-emphasis-bg-color, 10%); }
+      }
+      .secondary-picker {
+        box-shadow: 1px 0 0 2px @btn-emphasis-bg-color;
+        &:hover { box-shadow: 1px 0 0 2px darken(@btn-emphasis-bg-color, 10%); }
+      }
+      .only-item {
+        box-shadow: 0 0 0 2px @btn-emphasis-bg-color;
+        &:hover { box-shadow: 0 0 0 2px darken(@btn-emphasis-bg-color, 10%); }
       }
     }
   }
