@@ -510,6 +510,10 @@ class Actions
   @deleteMailRule: ActionScopeWindow
   @disableMailRule: ActionScopeWindow
 
+
+  @openPopover: ActionScopeWindow
+  @closePopover: ActionScopeWindow
+
   ###
   Public: Set metadata for a specified model and pluginId.
 

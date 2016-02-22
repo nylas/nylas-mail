@@ -1,4 +1,5 @@
 /** @babel */
+import _ from 'underscore';
 import {Actions, NylasAPI, AccountStore} from 'nylas-exports';
 import {moveThreadsToSnooze} from './snooze-category-helpers';
 import {PLUGIN_ID, PLUGIN_NAME} from './snooze-constants';
@@ -22,8 +23,11 @@ class SnoozeStore {
     .then(()=> {
       return moveThreadsToSnooze(threads)
     })
-    .then((updatedThreads)=> {
-      Actions.setMetadata(updatedThreads, this.pluginId, {snoozeDate})
+    .then((updatedThreadsByAccountId)=> {
+      _.each(updatedThreadsByAccountId, (update)=> {
+        const {updatedThreads, snoozeCategoryId, returnCategoryId} = update;
+        Actions.setMetadata(updatedThreads, this.pluginId, {snoozeDate, snoozeCategoryId, returnCategoryId})
+      })
     })
     .catch((error)=> {
       NylasEnv.reportError(error);
