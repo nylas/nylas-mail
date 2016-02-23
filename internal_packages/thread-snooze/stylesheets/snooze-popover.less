@@ -1,0 +1,30 @@
+@import "ui-variables";
+@snooze-img: "../internal_packages/thread-snooze/assets/ic-toolbar-native-snooze@2x.png";
+
+.thread-list .list-item .list-column-HoverActions .action.action-snooze {
+  background: url(@snooze-img) center no-repeat, @background-gradient;
+  background-size: 50%;
+}
+
+.snooze-popover {
+  .snooze-container {
+    display: flex;
+    flex-direction: column;
+
+    .snooze-item {
+      padding: 7px 17px;
+      cursor: default;
+      min-width: 175px;
+      background-color: @background-primary;
+      line-height: initial;
+      text-align: initial;
+
+      &+.snooze-item {
+        border-top: 1px solid @border-color-divider;
+      }
+      &:hover {
+        background-color: @background-secondary;
+      }
+    }
+  }
+}

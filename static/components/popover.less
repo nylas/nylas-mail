@@ -6,12 +6,9 @@
 }
 
 .popover {
-  display: flex;
-  max-height:400px;
   background-color: @background-primary;
   border-radius: @border-radius-base;
-  box-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.15), 0 -0.5px 0 rgba(0, 0, 0, 0.15), 0.5px 0 0 rgba(0, 0, 0, 0.15), -0.5px 0 0 rgba(0, 0, 0, 0.15), 0 4px 7px rgba(0,0,0,0.15), inset 0 0 1px rgba(0,0,0,0.5);
-
+  box-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.15), 0 -0.5px 0 rgba(0, 0, 0, 0.15), 0.5px 0 0 rgba(0, 0, 0, 0.15), -0.5px 0 0 rgba(0, 0, 0, 0.15), 0 4px 7px rgba(0,0,0,0.15);
   .menu {
     z-index:1;
     position: relative;
@@ -38,6 +35,10 @@
   .popover-pointer {
     -webkit-mask-image: url('images/tooltip/tooltip-bg-pointer@2x.png');
     background-color: @background-primary;
+  }
+  .popover-pointer.shadow {
+    -webkit-mask-image: url('images/tooltip/tooltip-bg-pointer-shadow@2x.png');
+    background-color: fade(@black, 22%);
   }
 }
 

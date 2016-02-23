@@ -3,6 +3,7 @@ path = require 'path'
 {shell} = require 'electron'
 NylasAPI = require '../../src/flux/nylas-api'
 File = require '../../src/flux/models/file'
+Message = require '../../src/flux/models/message'
 FileDownloadStore = require '../../src/flux/stores/file-download-store'
 AccountStore = require '../../src/flux/stores/account-store'
 
@@ -111,6 +112,23 @@ describe "FileDownloadStore", ->
       waitsForPromise ->
         FileDownloadStore._checkForDownloadedFile(f).then (downloaded) ->
           expect(downloaded).toBe(false)
+
+  describe "_newMailReceived", ->
+    it "should fetch attachments if the setting is on-receive", ->
+      spyOn(FileDownloadStore, '_fetch')
+      spyOn(NylasEnv.config, 'get').andCallFake (key) ->
+        return 'on-receive' if key is 'core.attachments.downloadPolicy'
+        return null
+      FileDownloadStore._newMailReceived(message: [new Message(files: [new File()])])
+      expect(FileDownloadStore._fetch).toHaveBeenCalled()
+
+    it "should not fetch attachments otherwise", ->
+      spyOn(FileDownloadStore, '_fetch')
+      spyOn(NylasEnv.config, 'get').andCallFake (key) ->
+        return 'on-read' if key is 'core.attachments.downloadPolicy'
+        return null
+      FileDownloadStore._newMailReceived(message: [new Message(files: [new File()])])
+      expect(FileDownloadStore._fetch).not.toHaveBeenCalled()
 
   describe "_runDownload", ->
     beforeEach ->

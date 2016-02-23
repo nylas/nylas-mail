@@ -57,6 +57,7 @@ class LinkManager extends ContenteditableExtension
         focusOnMount: @_shouldFocusOnMount(toolbarState)
       locationRefNode: linkToModify
       width: @_linkWidth(linkToModify)
+      height: 34
     }
 
   @_shouldFocusOnMount: (toolbarState) ->
@@ -70,7 +71,11 @@ class LinkManager extends ContenteditableExtension
   @_linkAtCursor: (toolbarState) ->
     if toolbarState.selectionSnapshot.isCollapsed
       anchor = toolbarState.selectionSnapshot.anchorNode
-      return DOMUtils.closest(anchor, 'a, n1-prompt-link')
+      node = DOMUtils.closest(anchor, 'a, n1-prompt-link')
+      if toolbarState.selectionSnapshot.anchorOffset is DOMUtils.findLastTextNode(anchor)?.data.length
+        return null
+      else return node
+
     else
       anchor = toolbarState.selectionSnapshot.anchorNode
       focus = toolbarState.selectionSnapshot.anchorNode

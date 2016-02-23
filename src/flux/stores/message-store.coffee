@@ -259,7 +259,9 @@ class MessageStore extends NylasStore
     startedAFetch
 
   _fetchExpandedAttachments: (items) ->
-    return unless NylasEnv.config.get('core.attachments.downloadPolicy') is 'on-read'
+    policy = NylasEnv.config.get('core.attachments.downloadPolicy')
+    return if policy is 'manually'
+
     for item in items
       continue unless @_itemsExpanded[item.id]
       for file in item.files

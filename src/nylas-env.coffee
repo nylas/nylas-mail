@@ -665,23 +665,30 @@ class NylasEnvConstructor extends Model
   startRootWindow: ->
     {safeMode, windowType, initializeInBackground} = @getLoadSettings()
 
-    @displayWindow() unless initializeInBackground
+    # Temporary. It takes five paint cycles for all the CSS in index.html to
+    # be applied. Remove if https://github.com/atom/brightray/issues/196 fixed!
+    window.requestAnimationFrame =>
+      window.requestAnimationFrame =>
+        window.requestAnimationFrame =>
+          window.requestAnimationFrame =>
+            window.requestAnimationFrame =>
+              @displayWindow() unless initializeInBackground
 
-    @registerCommands()
-    @loadConfig()
-    @keymaps.loadBundledKeymaps()
-    @themes.loadBaseStylesheets()
-    @packages.loadPackages(windowType)
-    @deserializePackageStates()
-    @deserializeSheetContainer()
-    @packages.activate()
-    @keymaps.loadUserKeymap()
-    @requireUserInitScript() unless safeMode
-    @menu.update()
+              @registerCommands()
+              @loadConfig()
+              @keymaps.loadBundledKeymaps()
+              @themes.loadBaseStylesheets()
+              @packages.loadPackages(windowType)
+              @deserializePackageStates()
+              @deserializeSheetContainer()
+              @packages.activate()
+              @keymaps.loadUserKeymap()
+              @requireUserInitScript() unless safeMode
+              @menu.update()
 
-    @showRootWindow()
+              @showRootWindow()
 
-    ipcRenderer.send('window-command', 'window:loaded')
+              ipcRenderer.send('window-command', 'window:loaded')
 
   showRootWindow: ->
     document.getElementById("application-loading-cover").remove()

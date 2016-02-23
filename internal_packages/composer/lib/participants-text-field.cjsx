@@ -31,8 +31,24 @@ class ParticipantsTextField extends React.Component
 
     onFocus: React.PropTypes.func
 
+    # We need to know if the draft is ready so we can enable and disable
+    # ParticipantTextFields.
+    #
+    # It's possible for a ParticipantTextField, before the draft is
+    # ready, to start the request to `add`, `remove`, or `edit`. This
+    # happens when there are multiple drafts rendering, each requesting
+    # focus. A blur event gets fired before the draft is loaded, causing
+    # logic to run that sets an empty field. These requests are
+    # asynchronous. They may resolve after the draft is in fact ready.
+    # This is bad because the desire to `remove` participants may have
+    # been made with an empty, non-loaded draft, but executed on the new
+    # draft that was loaded in the time it took the async request to
+    # return.
+    draftReady: React.PropTypes.bool
+
   @defaultProps:
     visible: true
+    draftReady: false
 
   shouldComponentUpdate: (nextProps, nextState) =>
     not Utils.isEqualReact(nextProps, @props) or
@@ -95,6 +111,7 @@ class ParticipantsTextField extends React.Component
         return [new Contact(email: string, name: null)]
 
   _remove: (values) =>
+    return unless @props.draftReady
     field = @props.field
     updates = {}
     updates[field] = _.reject @props.participants[field], (p) ->
@@ -104,6 +121,7 @@ class ParticipantsTextField extends React.Component
     @props.change(updates)
 
   _edit: (token, replacementString) =>
+    return unless @props.draftReady
     field = @props.field
     tokenIndex = @props.participants[field].indexOf(token)
     @_tokensForString(replacementString).then (replacements) =>
@@ -113,6 +131,14 @@ class ParticipantsTextField extends React.Component
       @props.change(updates)
 
   _add: (values, options={}) =>
+    # It's important we return here (as opposed to ignoring the
+    # `@props.change` callback) because this method is asynchronous.
+    #
+    # The `tokensPromise` may be formed with an empty draft, but resolved
+    # after a draft was prepared. This would cause the bad data to be
+    # propagated.
+    return unless @props.draftReady
+
     # If the input is a string, parse out email addresses and build
     # an array of contact objects. For each email address wrapped in
     # parentheses, look for a preceding name, if one exists.

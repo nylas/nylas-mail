@@ -76,7 +76,7 @@ class Model
     @clientId ?= Utils.generateTempId()
     @
 
-  isSaved: ->
+  isSavedRemotely: ->
     @serverId?
 
   clone: ->

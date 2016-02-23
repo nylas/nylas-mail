@@ -167,11 +167,6 @@ class Contact extends Model
     # If we've removed all the parts, just return the whole name
     parts = [name] if parts.join('').length == 0
 
-    # Make the first letter of every name-part uppercase. Note that we can't do this
-    # using titleize because it changed MacArthur to Macarthur.
-    parts = _.map parts, (part) ->
-      part.replace /(?:^|\s|-)\S/g, (c) -> c.toUpperCase()
-
     # If all that failed, fall back to email
     parts = [@email] if parts.join('').length == 0
 
