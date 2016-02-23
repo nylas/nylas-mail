@@ -44,10 +44,11 @@ export default class LinkTrackingButton extends React.Component {
   };
 
   render() {
+    const title = this.state.enabled ? "Disable" : "Enable"
     return (
       <button
-        title="Link Tracking"
-        className={`btn btn-toolbar ${this.state.enabled ? "btn-action" : ""}`}
+        title={`${title} link tracking`}
+        className={`btn btn-toolbar ${this.state.enabled ? "btn-enabled" : ""}`}
         onClick={this._onClick}>
         <RetinaImg
           url="nylas://link-tracking/assets/linktracking-icon@2x.png"

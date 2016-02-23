@@ -13,6 +13,9 @@ body.platform-win32 {
     .composer-drop-cover {
       border-radius: 0;
     }
+    .composer-action-bar-wrap {
+      border-radius: 0;
+    }
     input, input:focus {
       box-shadow: none;
     }
@@ -50,20 +53,40 @@ body.platform-win32 {
   .composer-action-bar-wrap {
     position: relative;
     width: 100%;
-    background: transparent;
+    background: @background-off-primary;
+    border-top: 1px solid darken(@background-off-primary, 7%);
+    box-shadow: inset 0px 2px 1px rgba(0,0,0,0.03);
     border-bottom: 0;
+    border-radius: @border-radius-base;
+
+    // Buttons in the composer footer
+    .btn.btn-toolbar {
+      background: transparent;
+      box-shadow: 0 0 0;
+      margin: 0;
+      padding: 0 9px;
+    }
+
+    .btn-send {
+      margin-right: 10px;
+    }
+
+    .btn img.content-mask {
+      background-color: #6b777d;
+    }
+
+    .btn.btn-enabled {
+      img.content-mask {
+        background-color: @text-color-link;
+      }
+    }
 
     .composer-action-bar-content {
       display:flex;
       margin: 0 auto;
       flex-direction:row;
       max-width: @compose-width;
-      padding: @spacing-standard;
-
-      > * {
-        margin-left: @spacing-standard / 2;
-        margin-right: @spacing-standard / 2;
-      }
+      padding: 9px 22.5px;
     }
   }
 
