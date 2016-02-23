@@ -1,59 +1,60 @@
 @import "ui-variables";
 
+
 .send-later {
+  em {
+    font-size: 0.9em;
+    opacity: 0.6;
+  }
 
-  .send-later-container {
-    display: flex;
-    flex-direction: column;
-    padding: 10px 0;
+  .menu {
     width: 250px;
-
-    .divider {
-      border-top: 1px solid @border-color-divider;
-      margin: 10px 0;
-      width: 90%;
-      align-self: center;
+    .header-container {
+      display: none;
     }
-
-    .send-later-section {
-      padding: 0 10px;
-      display: flex;
-      flex-direction: column;
-
-      label {
-        margin-bottom: 3px;
-      }
-      input {
-        border: 1px solid @input-border;
-      }
-      .input-date-value {
-        font-size: 0.9em;
-        margin: 5px 0;
-      }
-      .btn-send-later {
-        width: 100%;
-      }
+    .content-container {
+      overflow:hidden;
+      border-top-right-radius: @border-radius-base;
+      border-top-left-radius: @border-radius-base;
     }
-
-    .send-later-option {
-      cursor: default;
-      width: 100%;
-      padding: 1px 10px;
-
-      .item-date-value {
+    .item {
+      em {
         display: none;
         float: right;
-        font-size: 0.9em;
+        padding-right: @padding-base-horizontal;
       }
       &:hover {
-        background-color: @background-secondary;
-        .item-date-value {
+        em {
           display: inline-block;
         }
       }
     }
   }
+  .divider {
+    border-top: 1px solid @border-color-divider;
+  }
+  .custom-time-section {
+    padding: @padding-base-vertical  @padding-base-horizontal;
+  }
+  .cancel-section {
+    padding: @padding-base-vertical  @padding-base-horizontal;
+    padding-bottom: @padding-base-vertical * 1.2;
+    .btn {
+      width: 100%;
+    }
+  }
 }
+
+.btn-send-later {
+  &.scheduled {
+    img { background-color: @component-active-color; margin-right: 5px; }
+    color: @component-active-color;
+    .at {
+      margin-left: 3px;
+    }
+  }
+}
+
 
 .send-later-status {
   display: flex;

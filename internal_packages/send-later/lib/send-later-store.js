@@ -9,61 +9,36 @@ class SendLaterStore extends NylasStore {
 
   constructor(pluginId = PLUGIN_ID) {
     super()
-    this.pluginId = pluginId
-    this.scheduledMessages = new Map()
+    this.pluginId = pluginId;
   }
 
   activate() {
-    this.setupQuerySubscription()
-
     this.unsubscribers = [
       SendLaterActions.sendLater.listen(this.onSendLater),
       SendLaterActions.cancelSendLater.listen(this.onCancelSendLater),
-    ]
+    ];
   }
 
-  setupQuerySubscription() {
-    const query = DatabaseStore.findAll(
-      Message, [Message.attributes.pluginMetadata.contains(this.pluginId)]
-    )
-    this.queryDisposable = Rx.Observable.fromQuery(query).subscribe(this.onScheduledMessagesChanged)
-  }
-
-  getScheduledMessage = (messageClientId)=> {
-    return this.scheduledMessages.get(messageClientId)
-  };
-
-  isScheduled = (messageClientId)=> {
-    const message = this.getScheduledMessage(messageClientId)
-    if (message && message.metadataForPluginId(this.pluginId).sendLaterDate) {
-      return true
-    }
-    return false
+  getScheduledDateForMessage = (message)=> {
+    const metadata = message.metadataForPluginId(this.pluginId) || {};
+    return metadata.sendLaterDate || null;
   };
 
   setMetadata = (draftClientId, metadata)=> {
     return (
       DatabaseStore.modelify(Message, [draftClientId])
       .then((messages)=> {
-        const {accountId} = messages[0]
-        return NylasAPI.authPlugin(this.pluginId, PLUGIN_NAME, accountId)
-        .then(()=> {
-          Actions.setMetadata(messages, this.pluginId, metadata)
-        })
-        .catch((error)=> {
-          console.error(error)
-          NylasEnv.showErrorDialog(error.message)
-        })
+        const {accountId} = messages[0];
+        return NylasAPI.authPlugin(this.pluginId, PLUGIN_NAME, accountId);
       })
-    )
-  };
-
-  onScheduledMessagesChanged = (messages)=> {
-    this.scheduledMessages.clear()
-    messages.forEach((message)=> {
-      this.scheduledMessages.set(message.clientId, message);
-    })
-    this.trigger()
+      .then(()=> {
+        Actions.setMetadata(messages, this.pluginId, metadata);
+      })
+      .catch((error)=> {
+        NylasEnv.reportError(error);
+        NylasEnv.showErrorDialog(error.message);
+      })
+    );
   };
 
   onSendLater = (draftClientId, sendLaterDate)=> {
@@ -75,7 +50,6 @@ class SendLaterStore extends NylasStore {
   };
 
   deactivate = ()=> {
-    this.queryDisposable.dispose()
     this.unsubscribers.forEach(unsub => unsub())
   };
 }
