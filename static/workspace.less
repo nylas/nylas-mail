@@ -232,6 +232,10 @@ body.is-blurred {
       vertical-align: middle;
       display:inline-block;
     }
+    &:active {
+      .item-back-title { color: mix(@text-color-heading, @black, 30%); }
+      img.content-mask { background-color: mix(@text-color-heading, @black, 30%); }
+    }
   }
 
   .btn-toolbar {
