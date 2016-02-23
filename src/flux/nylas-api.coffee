@@ -400,15 +400,15 @@ class NylasAPI
       if result.authed
         return Promise.resolve()
       else
-        return @_requestPluginAuth(pluginName, account).then =>
-          @makeRequest({
-            returnsModel: false,
-            method: "POST",
-            accountId: account.id,
-            path: "/auth/plugin",
-            body: {client_id: pluginId},
-            json: true
-          })
+#        return @_requestPluginAuth(pluginName, account).then =>
+        return @makeRequest({
+          returnsModel: false,
+          method: "POST",
+          accountId: account.id,
+          path: "/auth/plugin",
+          body: {client_id: pluginId},
+          json: true
+        })
 
   _requestPluginAuth: (pluginName, account) ->
     {dialog} = require('electron').remote
