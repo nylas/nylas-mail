@@ -80,6 +80,13 @@ class ListTabular extends React.Component
           idx: previousIdx
           end: Date.now() + 125
 
+      # If we think /all/ the items are animating out, or a lot of them,
+      # the user probably switched to an entirely different perspective.
+      # Don't bother trying to animate.
+      animatingCount = Object.keys(animatingOut).length
+      if animatingCount > 8 or animatingCount is Object.keys(@state.items).length
+        animatingOut = {}
+
     renderedRangeStart: start
     renderedRangeEnd: end
     count: dataSource.count()

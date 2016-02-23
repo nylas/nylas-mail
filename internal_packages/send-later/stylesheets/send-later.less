@@ -35,6 +35,9 @@
   }
   .custom-time-section {
     padding: @padding-base-vertical  @padding-base-horizontal;
+    em {
+      color: @text-color-subtle;
+    }
   }
   .cancel-section {
     padding: @padding-base-vertical  @padding-base-horizontal;
@@ -46,12 +49,8 @@
 }
 
 .btn-send-later {
-  &.scheduled {
-    img { background-color: @component-active-color; margin-right: 5px; }
-    color: @component-active-color;
-    .at {
-      margin-left: 3px;
-    }
+  .at {
+    margin-left: 3px;
   }
 }
 

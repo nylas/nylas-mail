@@ -21,9 +21,6 @@ const SendLaterOptions = {
 
 class SendLaterPopover extends Component {
   static displayName = 'SendLaterPopover';
-  static containerStyles = {
-    order: -99,
-  };
 
   static propTypes = {
     draftClientId: PropTypes.string,
@@ -50,7 +47,6 @@ class SendLaterPopover extends Component {
 
   componentWillUnmount() {
     this._subscription.dispose();
-    this.unsubscribe();
   }
 
   onSelectMenuOption = (optionKey)=> {
@@ -85,7 +81,7 @@ class SendLaterPopover extends Component {
         <input
           tabIndex={1}
           type="text"
-          placeholder="Or type a time"
+          placeholder="Or type a time..."
           onChange={event=> updateInputDateValue(event.target.value)}/>
         {dateInterpretation}
       </div>
@@ -102,6 +98,7 @@ class SendLaterPopover extends Component {
 
   renderButton() {
     const {scheduledDate} = this.state;
+    let className = 'btn btn-toolbar btn-send-later';
 
     if (scheduledDate === 'saving') {
       return (
@@ -114,10 +111,9 @@ class SendLaterPopover extends Component {
       );
     }
 
-    let className = 'btn btn-toolbar btn-send-later';
     let dateInterpretation = false;
     if (scheduledDate) {
-      className += ' scheduled';
+      className += ' btn-enabled';
       const momentDate = DateUtils.fromString(scheduledDate);
       if (momentDate) {
         dateInterpretation = <span className="at">Sending in {momentDate.fromNow(true)}</span>;
@@ -167,5 +163,9 @@ class SendLaterPopover extends Component {
   }
 
 }
+
+SendLaterPopover.containerStyles = {
+  order: -99,
+};
 
 export default SendLaterPopover
