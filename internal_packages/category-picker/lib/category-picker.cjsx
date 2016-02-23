@@ -33,7 +33,7 @@ class CategoryPicker extends React.Component
     @_categories = []
     @_standardCategories = []
     @_userCategories = []
-    @state = _.extend @_recalculateState(@props), searchValue: ""
+    @state = _.extend(@_recalculateState(@props), searchValue: "")
 
   @contextTypes:
     sheetDepth: React.PropTypes.number

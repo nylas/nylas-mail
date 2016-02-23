@@ -109,51 +109,62 @@ class ThreadList extends React.Component
 
     if finishedName is 'trash' and perspective.canTrashThreads()
       props.onSwipeRightClass = 'swipe-trash'
-      props.onSwipeRight = -> perspective.removeThreads([item])
+      props.onSwipeRight = (callback) ->
+        tasks = TaskFactory.tasksForMovingToTrash
+          threads: [item]
+          fromPerspective: FocusedPerspectiveStore.current()
+        Actions.queueTasks(tasks)
+        callback(true)
 
     else if finishedName in ['archive', 'all'] and perspective.canArchiveThreads()
       props.onSwipeRightClass = 'swipe-archive'
-      props.onSwipeRight = -> perspective.removeThreads([item])
+      props.onSwipeRight = (callback) ->
+        tasks = TaskFactory.tasksForArchiving
+          threads: [item]
+          fromPerspective: FocusedPerspectiveStore.current()
+        Actions.queueTasks(tasks)
+        callback(true)
 
     props
 
-  _threadMouseManipulateData: (event) ->
+  _targetItemsForMouseEvent: (event) ->
     itemThreadId = @refs.list.itemIdAtPoint(event.clientX, event.clientY)
     unless itemThreadId
       return null
 
     dataSource = ThreadListStore.dataSource()
     if itemThreadId in dataSource.selection.ids()
-      threadIds = dataSource.selection.ids()
-      accountIds = _.uniq(_.pluck(dataSource.selection.items(), 'accountId'))
+      return {
+        threadIds: dataSource.selection.ids()
+        accountIds: _.uniq(_.pluck(dataSource.selection.items(), 'accountId'))
+      }
     else
-      threadIds = [itemThreadId]
-      accountIds = [dataSource.getById(itemThreadId).accountId]
-
-    return {
-      accountIds: accountIds,
-      threadIds: threadIds
-    }
+      thread = dataSource.getById(itemThreadId)
+      return null unless thread
+      return {
+        threadIds: [thread.id]
+        accountIds: [thread.accountId]
+      }
 
   _onShowContextMenu: (event) =>
-    data = @_threadMouseManipulateData(event)
+    data = @_targetItemsForMouseEvent(event)
     if not data
       event.preventDefault()
       return
     (new ThreadListContextMenu(data)).displayMenu()
 
   _onDragStart: (event) =>
-    dragData = @_threadMouseManipulateData(event)
-    if not dragData
+    data = @_targetItemsForMouseEvent(event)
+    if not data
       event.preventDefault()
       return
 
     event.dataTransfer.effectAllowed = "move"
     event.dataTransfer.dragEffect = "move"
 
-    canvas = CanvasUtils.canvasWithThreadDragImage(dragData.threadIds.length)
+    canvas = CanvasUtils.canvasWithThreadDragImage(data.threadIds.length)
     event.dataTransfer.setDragImage(canvas, 10, 10)
-    event.dataTransfer.setData('nylas-threads-data', JSON.stringify(dragData))
+    event.dataTransfer.setData('nylas-threads-data', JSON.stringify(data))
     return
 
   _onDragEnd: (event) =>
@@ -206,24 +217,23 @@ class ThreadList extends React.Component
   _onSetUnread: (unread) =>
     threads = @_threadsForKeyboardAction()
     return unless threads
-    task = new ChangeUnreadTask
-      threads: threads
-      unread: unread
-    Actions.queueTask(task)
+    Actions.queueTask(new ChangeUnreadTask({threads, unread}))
     Actions.popSheet()
 
   _onMarkAsSpam: =>
     threads = @_threadsForKeyboardAction()
     return unless threads
-    tasks = TaskFactory.tasksForMarkingAsSpam({threads})
+    tasks = TaskFactory.tasksForMarkingAsSpam
+      threads: threads
+      fromPerspective: FocusedPerspectiveStore.current()
     Actions.queueTasks(tasks)
 
   _onRemoveFromView: =>
     threads = @_threadsForKeyboardAction()
-    if threads
-      current = FocusedPerspectiveStore.current()
-      current.removeThreads(threads)
-      Actions.popSheet()
+    return unless threads
+    current = FocusedPerspectiveStore.current()
+    current.removeThreads(threads)
+    Actions.popSheet()
 
   _onArchiveItem: =>
     return unless FocusedPerspectiveStore.current().canArchiveThreads()

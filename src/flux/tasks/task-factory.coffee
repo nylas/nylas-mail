@@ -86,13 +86,11 @@ class TaskFactory
       categoriesToRemove: (accountId) -> _.filter(fromPerspective.categories(), _.matcher({accountId}))
       categoryToAdd: (accountId) -> CategoryStore.getInboxCategory(accountId)
 
-  tasksForMarkingAsSpam: ({threads}) =>
+  tasksForMarkingAsSpam: ({threads, fromPerspective}) =>
     @tasksForApplyingCategories
       threads: threads,
-      categoriesToRemove: (accountId) ->
-        [CategoryStore.getStandardCategory(accountId, 'inbox')]
-      categoryToAdd: (accountId) ->
-        CategoryStore.getStandardCategory(accountId, 'spam')
+      categoriesToRemove: (accountId) -> _.filter(fromPerspective.categories(), _.matcher({accountId}))
+      categoryToAdd: (accountId) -> CategoryStore.getStandardCategory(accountId, 'spam')
 
   tasksForArchiving: ({threads, fromPerspective}) =>
     @tasksForApplyingCategories
