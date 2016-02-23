@@ -1,7 +1,13 @@
 {
   "name": "n1-send-later",
   "version": "1.0.0",
-  "description": "send email later",
+
+  "title": "Send Later",
+  "description": "Choose to send emails at a specified time in the future.",
+  "icon": "./icon.png",
+  "isOptional": true,
+
+
   "main": "lib/main",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
