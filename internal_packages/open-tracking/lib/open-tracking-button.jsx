@@ -45,9 +45,10 @@ export default class OpenTrackingButton extends React.Component {
   };
 
   render() {
-    return (<button className={`btn btn-toolbar ${this.state.enabled ? "btn-action" : ""}`}
-                   onClick={this._onClick} title="Open Tracking">
-      <RetinaImg url="nylas://open-tracking/assets/envelope-open-icon@2x.png"
+    const title = this.state.enabled ? "Disable" : "Enable";
+    return (<button className={`btn btn-toolbar ${this.state.enabled ? "btn-enabled" : ""}`}
+                   onClick={this._onClick} title={`${title} read receipts`}>
+      <RetinaImg url="nylas://open-tracking/assets/icon-composer-eye@2x.png"
                  mode={RetinaImg.Mode.ContentIsMask} />
     </button>)
   }
