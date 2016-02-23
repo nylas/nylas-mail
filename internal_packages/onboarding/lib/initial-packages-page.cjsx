@@ -41,7 +41,9 @@ class InitialPackagesPage extends React.Component
       <div>
         {@state.packages.map (item) =>
           <div className="initial-package" key={item.name}>
-            <img src="nylas://#{item.name}/#{item.icon}" style={width:50} />
+            <div className="icon-container">
+              <img src="nylas://#{item.name}/#{item.icon}" style={width:27, alignContent: 'center', objectFit: 'scale-down'} />
+            </div>
             <div className="install-container">
               <InstallButton package={item} />
             </div>

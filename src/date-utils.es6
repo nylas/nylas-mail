@@ -45,6 +45,10 @@ const DateUtils = {
     return DateUtils.minutesFromNow(60);
   },
 
+  in2Hours() {
+    return DateUtils.minutesFromNow(120);
+  },
+
   laterToday(now = moment()) {
     return now.add(3, 'hours').oclock();
   },

@@ -1,8 +1,9 @@
 /** @babel */
 import _ from 'underscore'
+import Rx from 'rx-lite'
 import React, {Component, PropTypes} from 'react'
-import {DateUtils} from 'nylas-exports'
-import {Popover} from 'nylas-component-kit'
+import {DateUtils, Message, DatabaseStore} from 'nylas-exports'
+import {Popover, RetinaImg, Menu} from 'nylas-component-kit'
 import SendLaterActions from './send-later-actions'
 import SendLaterStore from './send-later-store'
 import {DATE_FORMAT_SHORT, DATE_FORMAT_LONG} from './send-later-constants'
@@ -10,6 +11,7 @@ import {DATE_FORMAT_SHORT, DATE_FORMAT_LONG} from './send-later-constants'
 
 const SendLaterOptions = {
   'In 1 hour': DateUtils.in1Hour,
+  'In 2 hours': DateUtils.in2Hours,
   'Later Today': DateUtils.laterToday,
   'Tomorrow Morning': DateUtils.tomorrow,
   'Tomorrow Evening': DateUtils.tomorrowEvening,
@@ -27,128 +29,133 @@ class SendLaterPopover extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      inputSendDate: null,
-      isScheduled: SendLaterStore.isScheduled(this.props.draftClientId),
+      inputDate: null,
+      scheduledDate: null,
     }
   }
 
   componentDidMount() {
-    this.unsubscribe = SendLaterStore.listen(this.onScheduledMessagesChanged)
+    this._subscription = Rx.Observable.fromQuery(
+      DatabaseStore.findBy(Message, {clientId: this.props.draftClientId})
+    ).subscribe((draft)=> {
+      const scheduledDate = SendLaterStore.getScheduledDateForMessage(draft);
+      if (scheduledDate !== this.state.scheduledDate) {
+        this.setState({scheduledDate});
+      }
+    });
   }
 
   componentWillUnmount() {
-    this.unsubscribe()
+    this._subscription.dispose();
+    this.unsubscribe();
   }
 
-  onSendLater = (momentDate)=> {
-    const utcDate = momentDate.utc()
-    const formatted = DateUtils.format(utcDate)
-    SendLaterActions.sendLater(this.props.draftClientId, formatted)
+  onSelectMenuOption = (optionKey)=> {
+    const date = SendLaterOptions[optionKey]();
+    const formatted = DateUtils.format(date.utc())
 
-    this.setState({isScheduled: null, inputSendDate: null})
+    SendLaterActions.sendLater(this.props.draftClientId, formatted)
+    this.setState({scheduledDate: 'saving', inputDate: null})
     this.refs.popover.close()
   };
 
   onCancelSendLater = ()=> {
     SendLaterActions.cancelSendLater(this.props.draftClientId)
-    this.setState({inputSendDate: null})
+    this.setState({inputDate: null})
     this.refs.popover.close()
   };
 
-  onScheduledMessagesChanged = ()=> {
-    const isScheduled = SendLaterStore.isScheduled(this.props.draftClientId)
-    if (isScheduled !== this.state.isScheduled) {
-      this.setState({isScheduled});
+  renderCustomTimeSection() {
+    const updateInputDateValue = _.debounce((value)=> {
+      this.setState({inputDate: DateUtils.fromString(value)})
+    }, 250);
+
+    let dateInterpretation = false;
+    if (this.state.inputDate) {
+      dateInterpretation = (<em>
+        {DateUtils.format(this.state.inputDate, DATE_FORMAT_LONG)}
+      </em>);
     }
-  };
 
-  onInputChange = (event)=> {
-    this.updateInputSendDateValue(event.target.value)
-  };
+    return (
+      <div key="custom" className="custom-time-section">
+        <input
+          tabIndex={1}
+          type="text"
+          placeholder="Or type a time"
+          onChange={event=> updateInputDateValue(event.target.value)}/>
+        {dateInterpretation}
+      </div>
+    )
+  }
 
-  getButtonLabel = (isScheduled)=> {
-    return isScheduled ? '✅  Scheduled' : 'Send Later';
-  };
+  renderMenuOption(optionKey) {
+    const date = SendLaterOptions[optionKey]();
+    const formatted = DateUtils.format(date, DATE_FORMAT_SHORT);
+    return (
+      <div className="send-later-option">{optionKey}<em>{formatted}</em></div>
+    );
+  }
 
-  updateInputSendDateValue = _.debounce((dateValue)=> {
-    const inputSendDate = DateUtils.fromString(dateValue)
-    this.setState({inputSendDate})
-  }, 250);
+  renderButton() {
+    const {scheduledDate} = this.state;
 
-  renderItems() {
-    return Object.keys(SendLaterOptions).map((label)=> {
-      const date = SendLaterOptions[label]()
-      const formatted = DateUtils.format(date, DATE_FORMAT_SHORT)
+    if (scheduledDate === 'saving') {
       return (
-        <div
-          key={label}
-          onMouseDown={this.onSendLater.bind(this, date)}
-          className="send-later-option">
-          {label}
-          <em className="item-date-value">{formatted}</em>
-        </div>
+        <RetinaImg
+          name="inline-loading-spinner.gif"
+          mode={RetinaImg.Mode.ContentDark}
+          style={{width: 14, height: 14}}/>
       );
-    })
-  }
+    }
 
-  renderEmptyInput() {
+    let className = 'btn btn-toolbar btn-send-later';
+    let dateInterpretation = false;
+    if (scheduledDate) {
+      className += ' scheduled';
+      const momentDate = DateUtils.fromString(scheduledDate);
+      if (momentDate) {
+        dateInterpretation = <span className="at">Sending in {momentDate.fromNow(true)}</span>;
+      }
+    }
     return (
-      <div className="send-later-section">
-        <label>At a specific time</label>
-        <input
-          type="text"
-          placeholder="e.g. Next Monday at 1pm"
-          onChange={this.onInputChange}/>
-      </div>
-    )
-  }
-
-  renderLabeledInput(inputSendDate) {
-    const formatted = DateUtils.format(inputSendDate, DATE_FORMAT_LONG)
-    return (
-      <div className="send-later-section">
-        <label>At a specific time</label>
-        <input
-          type="text"
-          placeholder="e.g. Next Monday at 1pm"
-          onChange={this.onInputChange}/>
-        <em className="input-date-value">{formatted}</em>
-        <button
-          className="btn btn-send-later"
-          onClick={this.onSendLater.bind(this, inputSendDate)}>Schedule Email</button>
-      </div>
-    )
+      <button className={className}>
+        <RetinaImg name="icon-composer-sendlater.png" mode={RetinaImg.Mode.ContentIsMask}/>
+        {dateInterpretation}
+        <RetinaImg name="composer-caret.png" style={{marginLeft: 6}} mode={RetinaImg.Mode.ContentIsMask}/>
+      </button>
+    );
   }
 
   render() {
-    const {isScheduled, inputSendDate} = this.state
-    const buttonLabel = isScheduled != null ? this.getButtonLabel(isScheduled) : 'Scheduling...';
-    const button = (
-      <button className="btn btn-primary send-later-button">{buttonLabel}</button>
-    )
-    const input = inputSendDate ? this.renderLabeledInput(inputSendDate) : this.renderEmptyInput();
+    const footerComponents = [
+      <div key="divider" className="divider" />,
+      this.renderCustomTimeSection(),
+    ];
+
+    if (this.state.scheduledDate) {
+      footerComponents.push(<div key="divider-unschedule" className="divider" />)
+      footerComponents.push(
+        <div className="cancel-section" key="cancel-section">
+          <button className="btn" onClick={this.onCancelSendLater}>
+            Unschedule Send
+          </button>
+        </div>
+      )
+    }
 
     return (
       <Popover
         ref="popover"
         style={{order: -103}}
         className="send-later"
-        buttonComponent={button}>
-        <div className="send-later-container">
-          {this.renderItems()}
-          <div className="divider" />
-          {input}
-          {isScheduled ?
-            <div className="divider" />
-          : void 0}
-          {isScheduled ?
-            <div className="send-later-section">
-              <button className="btn btn-send-later" onClick={this.onCancelSendLater}>
-                Unschedule Send
-              </button>
-            </div>
-          : void 0}
-        </div>
+        buttonComponent={this.renderButton()}>
+        <Menu items={ Object.keys(SendLaterOptions) }
+              itemKey={ (item)=> item }
+              itemContent={this.renderMenuOption}
+              footerComponents={footerComponents}
+              onSelect={this.onSelectMenuOption}
+              />
       </Popover>
     );
   }
