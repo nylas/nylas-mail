@@ -93,6 +93,11 @@ class MessageItem extends React.Component
     <header className={classes} onClick={@_onClickHeader}>
       {@_renderHeaderSideItems()}
       <div className="message-header-right">
+        <InjectedComponentSet
+          className="message-header-status"
+          matching={role:"MessageHeaderStatus"}
+          exposedProps={message: @props.message, thread: @props.thread, detailedHeaders: @state.detailedHeaders} />
+
         <MessageTimestamp className="message-time"
                           isDetailed={@state.detailedHeaders}
                           date={@props.message.date} />
