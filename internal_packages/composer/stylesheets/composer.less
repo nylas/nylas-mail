@@ -15,6 +15,11 @@ body.platform-win32 {
     }
     .composer-action-bar-wrap {
       border-radius: 0;
+      .btn.btn-toolbar {
+        &.btn-emphasis {
+          .btn.btn-emphasis;
+        }
+      }
     }
     input, input:focus {
       box-shadow: none;
@@ -65,6 +70,10 @@ body.platform-win32 {
       box-shadow: 0 0 0;
       margin: 0;
       padding: 0 9px;
+
+      &.btn-emphasis {
+        .btn.btn-emphasis;
+      }
     }
 
     .btn-send {
@@ -277,7 +286,7 @@ body.platform-win32 {
     }
 
     .composer-action-bar-content {
-      padding: 8px 0.5px;
+      padding: 9px 13.5px 9px 22.5px;
     }
 
     .compose-body {
