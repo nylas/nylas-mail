@@ -21,6 +21,9 @@ const SendLaterOptions = {
 
 class SendLaterPopover extends Component {
   static displayName = 'SendLaterPopover';
+  static containerStyles = {
+    order: -99,
+  };
 
   static propTypes = {
     draftClientId: PropTypes.string,
@@ -102,10 +105,12 @@ class SendLaterPopover extends Component {
 
     if (scheduledDate === 'saving') {
       return (
-        <RetinaImg
-          name="inline-loading-spinner.gif"
-          mode={RetinaImg.Mode.ContentDark}
-          style={{width: 14, height: 14}}/>
+        <button className={className}>
+          <RetinaImg
+            name="inline-loading-spinner.gif"
+            mode={RetinaImg.Mode.ContentDark}
+            style={{width: 14, height: 14}}/>
+        </button>
       );
     }
 
@@ -122,7 +127,8 @@ class SendLaterPopover extends Component {
       <button className={className}>
         <RetinaImg name="icon-composer-sendlater.png" mode={RetinaImg.Mode.ContentIsMask}/>
         {dateInterpretation}
-        <RetinaImg name="composer-caret.png" style={{marginLeft: 6}} mode={RetinaImg.Mode.ContentIsMask}/>
+        <span data-reactid=".s.0.0.1">&nbsp;</span>
+        <RetinaImg name="icon-composer-dropdown.png" mode={RetinaImg.Mode.ContentIsMask}/>
       </button>
     );
   }
