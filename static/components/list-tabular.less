@@ -138,16 +138,14 @@ body.is-blurred {
     display: flex;
     align-items: center;
     border-bottom: 1px solid @list-border;
+    border-left:4px solid transparent;
 
     &:hover {
       cursor: default;
     }
 
     &.keyboard-cursor {
-      .list-column:first-child {
-        border-left:4px solid @list-focused-bg;
-        padding-left:8px;
-      }
+      border-left:4px solid @list-focused-bg;
     }
 
     &.selected {
@@ -198,7 +196,9 @@ body.is-blurred {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-
+    &:first-child {
+      padding-left: @padding-base-horizontal - 4;
+    }
     &:last-child {
       text-align: right;
     }
