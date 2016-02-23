@@ -16,7 +16,7 @@ class Package extends React.Component
     extras = []
 
     if @props.package.icon
-      icon = <img src="nylas://#{@props.package.name}/#{@props.package.icon}" style={width:50} />
+      icon = <img src="nylas://#{@props.package.name}/#{@props.package.icon}" style={width:27, alignContent: 'center', objectFit: 'scale-down'} />
     else
       icon = <RetinaImg name="plugin-icon-default.png"/>
 
@@ -48,7 +48,9 @@ class Package extends React.Component
       )
 
     <Flexbox className="package" direction="row">
-      <div className="icon" style={flexShink: 0}>{icon}</div>
+      <div className="icon-container">
+        <div className="icon" >{icon}</div>
+      </div>
       <div className="info">
         <div className="title">{title ? name}</div>
         <div className="description">{description}</div>
