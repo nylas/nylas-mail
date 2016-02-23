@@ -119,7 +119,7 @@ class EditableList extends Component {
     super(props);
     this.state = props.initialState || {
       dropInsertionIndex: -1,
-      editingIndex: null,
+      editingIndex: -1,
       creatingItem: false,
     };
   }
@@ -156,7 +156,7 @@ class EditableList extends Component {
   };
 
   _clearEditingState = (callback)=> {
-    this._setStateAndFocus({editingIndex: null}, callback);
+    this._setStateAndFocus({editingIndex: -1}, callback);
   };
 
   _clearCreatingState = (callback)=> {
@@ -285,6 +285,12 @@ class EditableList extends Component {
     const wrapperId = React.findDOMNode(this.refs.itemsWrapper).dataset.reactid;
 
     if (!row.dataset.itemIdx) {
+      return;
+    }
+
+    if (row.dataset.itemIdx / 1 === this.state.editingIndex / 1) {
+      // dragging the row currently being edited makes text selection impossible
+      event.preventDefault();
       return;
     }
 
