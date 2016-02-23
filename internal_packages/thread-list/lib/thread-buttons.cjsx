@@ -18,7 +18,7 @@ class ThreadBulkArchiveButton extends React.Component
 
   render: ->
     mailboxPerspective = FocusedPerspectiveStore.current()
-    return false unless mailboxPerspective?.canArchiveThreads()
+    return false unless mailboxPerspective.canArchiveThreads()
 
     <button style={order:-107}
             className="btn btn-toolbar"
@@ -43,7 +43,7 @@ class ThreadBulkTrashButton extends React.Component
 
   render: ->
     mailboxPerspective = FocusedPerspectiveStore.current()
-    return false unless mailboxPerspective?.canTrashThreads()
+    return false unless mailboxPerspective.canTrashThreads()
 
     <button style={order:-106}
             className="btn btn-toolbar"

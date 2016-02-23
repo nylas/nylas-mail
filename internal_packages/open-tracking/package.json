@@ -1,0 +1,25 @@
+{
+  "name": "open-tracking",
+  "main": "./lib/main",
+  "version": "0.1.0",
+  "appId":"9tm0s8yzzkaahi5nql34iw8wu",
+
+  "title": "Open Tracking",
+  "description": "Tracks whether email messages have been opened by recipients",
+  "icon": "./icon.png",
+  "isOptional": true,
+
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "nylas": ">=0.3.46"
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  },
+  "dependencies": {},
+  "license": "GPL-3.0"
+}

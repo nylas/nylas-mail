@@ -162,6 +162,12 @@ class NylasWindow
     @browserWindow.on 'closed', =>
       global.application.windowManager.removeWindow(this)
 
+    @browserWindow.on 'scroll-touch-begin', =>
+      @browserWindow.webContents.send('scroll-touch-begin')
+
+    @browserWindow.on 'scroll-touch-end', =>
+      @browserWindow.webContents.send('scroll-touch-end')
+
     @browserWindow.on 'focus', =>
       @browserWindow.webContents.send('browser-window-focus')
 

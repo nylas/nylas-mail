@@ -26,6 +26,9 @@ export default class PrintWindow {
         </head>
         <body>
           <div id="print-header">
+            <div onClick="continueAndPrint()" id="print-button">
+              Print
+            </div>
             <div class="logo-wrapper">
               <img src="${imgPath}" alt="nylas-logo"/>
               <span class="account">${account.name} &lt;${account.email}&gt;</span>

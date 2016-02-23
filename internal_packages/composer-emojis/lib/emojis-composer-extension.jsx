@@ -40,7 +40,7 @@ class EmojisComposerExtension extends ContenteditableExtension {
                       sel.focusOffset + triggerWord.length);
       }
     }
-  }
+  };
 
   static toolbarComponentConfig = ({toolbarState}) => {
     const sel = toolbarState.selectionSnapshot;
@@ -57,18 +57,19 @@ class EmojisComposerExtension extends ContenteditableExtension {
                   selectedEmoji},
           locationRefNode: locationRefNode,
           width: EmojisComposerExtension._emojiPickerWidth(emojiOptions),
+          height: EmojisComposerExtension._emojiPickerHeight(emojiOptions),
         }
       }
     }
     return null;
-  }
+  };
 
   static editingActions = () => {
     return [{
       action: EmojiActions.selectEmoji,
       callback: EmojisComposerExtension._onSelectEmoji,
     }]
-  }
+  };
 
   static onKeyDown = ({editor, event}) => {
     const sel = editor.currentSelection()
@@ -103,7 +104,7 @@ class EmojisComposerExtension extends ContenteditableExtension {
                                                 actionArg: {emojiChar: emoji.get(selectedEmoji)}});
       }
     }
-  }
+  };
 
   static _findEmojiOptions(sel) {
     if (sel.anchorNode &&
@@ -160,7 +161,7 @@ class EmojisComposerExtension extends ContenteditableExtension {
       }
       editor.insertText(emojiChar);
     }
-  }
+  };
 
   static _emojiPickerWidth(emojiOptions) {
     let maxLength = 0;
@@ -171,6 +172,14 @@ class EmojisComposerExtension extends ContenteditableExtension {
     }
     const WIDTH_PER_CHAR = 8;
     return (maxLength + 10) * WIDTH_PER_CHAR;
+  }
+
+  static _emojiPickerHeight(emojiOptions) {
+    const HEIGHT_PER_EMOJI = 28;
+    if (emojiOptions.length < 5) {
+      return emojiOptions.length * HEIGHT_PER_EMOJI + 20;
+    }
+    return 5 * HEIGHT_PER_EMOJI + 20;
   }
 
   static _getTextUntilSpace(node, offset) {

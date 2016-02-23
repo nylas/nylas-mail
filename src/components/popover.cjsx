@@ -139,7 +139,6 @@ class Popover extends React.Component
       popoverStyle =
         'position': 'absolute'
         'left': "calc(50% + #{@state.offset}px)"
-        'width': '250px'
         'zIndex': 40
       pointerStyle =
         'position': 'absolute'
@@ -155,7 +154,7 @@ class Popover extends React.Component
           'top': -10,
         pointerStyle = _.extend pointerStyle,
           'transform': 'translateX(-50%)'
-          'bottom': -10
+          'bottom': -21
 
       else if @props.direction is 'down'
         popoverStyle = _.extend popoverStyle,
@@ -163,7 +162,7 @@ class Popover extends React.Component
           'top': '100%'
         pointerStyle = _.extend pointerStyle,
           'transform': 'rotateX(180deg)'
-          'top': -10
+          'top': -21
           'left':-12
 
       if @props.direction is "down-align-left"
@@ -177,6 +176,7 @@ class Popover extends React.Component
       popoverComponent = <div ref="popover" className={"popover popover-"+@props.direction} style={popoverStyle}>
         {@props.children}
         <div className="popover-pointer" style={pointerStyle}></div>
+        <div className="popover-pointer shadow" style={pointerStyle}></div>
       </div>
 
     <div className={"popover-container "+@props.className}
@@ -191,7 +191,8 @@ class Popover extends React.Component
     if event.key is "Escape"
       @close()
 
-  _onClick: =>
+  _onClick: (e) =>
+    e.stopPropagation()
     if not @state.showing
       @open()
     else

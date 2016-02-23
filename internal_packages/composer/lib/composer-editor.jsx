@@ -272,7 +272,7 @@ class ComposerEditor extends Component {
         value={this.props.body}
         onChange={this.props.onBodyChanged}
         onFilePaste={this.props.onFilePaste}
-        onSelectionChanged={this._ensureSelectionVisible}
+        onSelectionRestored={this._ensureSelectionVisible}
         initialSelectionSnapshot={this.props.initialSelectionSnapshot}
         extensions={[this._coreExtension].concat(this.state.extensions)} />
     );

@@ -22,9 +22,9 @@ class EdgehillAPI
     else if env is 'experimental'
       @APIRoot = "https://edgehill-experimental.nylas.com"
     else if env is 'staging'
-      @APIRoot = "https://edgehill-staging.nylas.com"
+      @APIRoot = "https://n1-auth-staging.nylas.com"
     else
-      @APIRoot = "https://edgehill.nylas.com"
+      @APIRoot = "https://n1-auth.nylas.com"
 
   request: (options={}) ->
     return if NylasEnv.getLoadSettings().isSpec

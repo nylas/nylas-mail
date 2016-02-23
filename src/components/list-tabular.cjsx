@@ -35,6 +35,7 @@ class ListTabular extends React.Component
 
   componentWillUnmount: =>
     window.removeEventListener('resize', @onWindowResize, true)
+    window.clearTimeout(@_cleanupAnimationTimeout) if @_cleanupAnimationTimeout
     @_unlisten?()
 
   componentWillReceiveProps: (nextProps) =>
@@ -53,8 +54,31 @@ class ListTabular extends React.Component
     dataSource ?= @props.dataSource
 
     items = {}
+    animatingOut = {}
+
     [start..end].forEach (idx) =>
       items[idx] = dataSource.get(idx)
+
+    # If we have a previous state, and the previous range matches the new range,
+    # (eg: we're not scrolling), identify removed items. We'll render them in one
+    # last time but not allocate height to them. This allows us to animate them
+    # being covered by other items, not just disappearing when others start to slide up.
+    if @state and start is @state.renderedRangeStart
+      nextIds = _.pluck(_.values(items), 'id')
+      animatingOut = {}
+
+      # Keep items which are still animating out and are still not in the set
+      for recordIdx, record of @state.animatingOut
+        if Date.now() < record.end and not (record.item.id in nextIds)
+          animatingOut[recordIdx] = record
+
+      # Add items which are no longer found in the set
+      for previousIdx, previousItem of @state.items
+        continue if !previousItem or previousItem.id in nextIds
+        animatingOut[previousIdx] =
+          item: previousItem
+          idx: previousIdx
+          end: Date.now() + 125
 
     renderedRangeStart: start
     renderedRangeEnd: end
@@ -62,6 +86,7 @@ class ListTabular extends React.Component
     loaded: dataSource.loaded()
     empty: dataSource.empty()
     items: items
+    animatingOut: animatingOut
 
   componentDidUpdate: (prevProps, prevState) =>
     # If our view has been swapped out for an entirely different one,
@@ -72,6 +97,23 @@ class ListTabular extends React.Component
     unless @updateRangeStateFiring
       @updateRangeState()
     @updateRangeStateFiring = false
+
+    unless @_cleanupAnimationTimeout
+      @_cleanupAnimationTimeout = window.setTimeout(@onCleanupAnimatingItems, 50)
+
+  onCleanupAnimatingItems: =>
+    @_cleanupAnimationTimeout = null
+
+    nextAnimatingOut = {}
+    for idx, record of @state.animatingOut
+      if Date.now() < record.end
+        nextAnimatingOut[idx] = record
+
+    if Object.keys(nextAnimatingOut).length < Object.keys(@state.animatingOut).length
+      @setState(animatingOut: nextAnimatingOut)
+
+    if Object.keys(nextAnimatingOut).length > 0
+      @_cleanupAnimationTimeout = window.setTimeout(@onCleanupAnimatingItems, 50)
 
   onWindowResize: =>
     @_onWindowResize ?= _.debounce(@updateRangeState, 50)
@@ -132,19 +174,29 @@ class ListTabular extends React.Component
     </div>
 
   _rows: =>
-    [@state.renderedRangeStart..@state.renderedRangeEnd-1].map (idx) =>
-      item = @state.items[idx]
-      return false unless item
+    # The ordering of the results array is important. We want current rows to
+    # slide over rows which are animating out, so we need to render them last.
+    results = []
+    for idx, record of @state.animatingOut
+      results.push @_rowForItem(record.item, idx / 1)
 
-      <ListTabularItem key={item.id ? idx}
-                       item={item}
-                       itemProps={@props.itemPropsProvider?(item, idx) ? {}}
-                       metrics={top: idx * @props.itemHeight, height: @props.itemHeight}
-                       columns={@props.columns}
-                       onSelect={@props.onSelect}
-                       onClick={@props.onClick}
-                       onReorder={@props.onReorder}
-                       onDoubleClick={@props.onDoubleClick} />
+    [@state.renderedRangeStart..@state.renderedRangeEnd].forEach (idx) =>
+      if @state.items[idx]
+        results.push @_rowForItem(@state.items[idx], idx)
+
+    results
+
+  _rowForItem: (item, idx) =>
+    return false unless item
+    <ListTabularItem key={item.id ? idx}
+                     item={item}
+                     itemProps={@props.itemPropsProvider?(item, idx) ? {}}
+                     metrics={top: idx * @props.itemHeight, height: @props.itemHeight}
+                     columns={@props.columns}
+                     onSelect={@props.onSelect}
+                     onClick={@props.onClick}
+                     onReorder={@props.onReorder}
+                     onDoubleClick={@props.onDoubleClick} />
 
   # Public: Scroll to the DOM node provided.
   #

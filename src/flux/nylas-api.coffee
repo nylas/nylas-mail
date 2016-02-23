@@ -1,6 +1,7 @@
 _ = require 'underscore'
 request = require 'request'
 Utils = require './models/utils'
+Account = require './models/account'
 Actions = require './actions'
 {APIError} = require './errors'
 PriorityUICoordinator = require '../priority-ui-coordinator'
@@ -330,7 +331,6 @@ class NylasAPI
     "message": require('./models/message')
     "contact": require('./models/contact')
     "calendar": require('./models/calendar')
-    "metadata": require('./models/metadata')
 
   getThreads: (accountId, params = {}, requestOptions = {}) ->
     requestSuccess = requestOptions.success
@@ -383,28 +383,35 @@ class NylasAPI
   # 3. The API request to auth this account to the plugin failed. This may mean that
   #    the plugin server couldn't be reached or failed to respond properly when authing
   #    the account, or that the Nylas API couldn't be reached.
-  authPlugin: (pluginId, pluginName, account) ->
+  authPlugin: (pluginId, pluginName, accountOrId) ->
+    account = if accountOrId instanceof Account
+      accountOrId
+    else
+      AccountStore ?= require './stores/account-store'
+      AccountStore.accountForId(accountOrId)
+    Promise.reject(new Error('Invalid account')) unless account
     return @makeRequest({
       returnsModel: false,
       method: "GET",
       accountId: account.id,
       path: "/auth/plugin?client_id=#{pluginId}"
-    }).then( (result) =>
+    })
+    .then (result) =>
       if result.authed
         return Promise.resolve()
       else
-        return @_requestPluginAuth(pluginName, account).then( -> @makeRequest({
+#        return @_requestPluginAuth(pluginName, account).then =>
+        return @makeRequest({
           returnsModel: false,
           method: "POST",
           accountId: account.id,
           path: "/auth/plugin",
-          body: JSON.stringify({client_id: pluginId}),
+          body: {client_id: pluginId},
           json: true
-        }))
-    )
+        })
 
   _requestPluginAuth: (pluginName, account) ->
-    dialog = require('remote').require('dialog')
+    {dialog} = require('electron').remote
     return new Promise( (resolve, reject) =>
       dialog.showMessageBox({
         title: "Plugin Offline Email Access",
@@ -422,12 +429,12 @@ You can review and revoke Offline Access for plugins at any time from Preference
       )
     )
 
-  unauthPlugin: (pluginId, account) ->
+  unauthPlugin: (pluginId, accountId) ->
     return @makeRequest({
       returnsModel: false,
       method: "DELETE",
-      accountId: account.id,
+      accountId: accountId,
       path: "/auth/plugin?client_id=#{pluginId}"
-    });
+    })
 
 module.exports = new NylasAPI()

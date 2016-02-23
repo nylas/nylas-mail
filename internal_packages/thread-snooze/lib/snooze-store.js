@@ -1,0 +1,39 @@
+/** @babel */
+import {Actions, NylasAPI, AccountStore} from 'nylas-exports';
+import {moveThreadsToSnooze} from './snooze-category-helpers';
+import {PLUGIN_ID, PLUGIN_NAME} from './snooze-constants';
+import SnoozeActions from './snooze-actions';
+
+
+class SnoozeStore {
+
+  constructor(pluginId = PLUGIN_ID) {
+    this.pluginId = pluginId
+
+    this.unsubscribe = SnoozeActions.snoozeThreads.listen(this.onSnoozeThreads)
+  }
+
+  onSnoozeThreads = (threads, snoozeDate)=> {
+    const accounts = AccountStore.accountsForItems(threads)
+    const promises = accounts.map((acc)=> {
+      return NylasAPI.authPlugin(this.pluginId, PLUGIN_NAME, acc)
+    })
+    Promise.all(promises)
+    .then(()=> {
+      return moveThreadsToSnooze(threads)
+    })
+    .then((updatedThreads)=> {
+      Actions.setMetadata(updatedThreads, this.pluginId, {snoozeDate})
+    })
+    .catch((error)=> {
+      console.error(error)
+      NylasEnv.showErrorDialog(error.message)
+    })
+  };
+
+  deactivate() {
+    this.unsubscribe()
+  }
+}
+
+export default SnoozeStore;

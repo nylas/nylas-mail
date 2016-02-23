@@ -121,8 +121,19 @@ cNarrow = new ListTabular.Column
     if hasDraft
       pencil = <RetinaImg name="icon-draft-pencil.png" className="draft-icon" mode={RetinaImg.Mode.ContentPreserve} />
 
+    labels = []
+    if AccountStore.accountForId(thread.accountId).usesLabels()
+      currentCategories = FocusedPerspectiveStore.current().categories() ? []
+      ignored = [].concat(currentCategories, CategoryStore.hiddenCategories(thread.accountId))
+      ignoredIds = _.pluck(ignored, 'id')
+
+      for label in (thread.sortedCategories())
+        continue if label.id in ignoredIds
+        c3LabelComponentCache[label.id] ?= <MailLabel label={label} key={label.id} />
+        labels.push c3LabelComponentCache[label.id]
+
     <div>
-      <div style={display: 'flex'}>
+      <div style={display: 'flex', alignItems: 'center'}>
         <ThreadListIcon thread={thread} />
         <ThreadListParticipants thread={thread} />
         {pencil}
@@ -134,7 +145,11 @@ cNarrow = new ListTabular.Column
         thread={thread}
         showIfAvailableForAnyAccount={true} />
       <div className="subject">{subject(thread.subject)}</div>
-      <div className="snippet">{thread.snippet}</div>
+      <div className="snippet-and-labels">
+        <div className="snippet">{thread.snippet}&nbsp;</div>
+        <div style={flex: 1, flexShrink: 1}></div>
+        {labels}
+      </div>
     </div>
 
 module.exports =

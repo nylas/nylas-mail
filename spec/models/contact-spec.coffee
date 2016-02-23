@@ -26,13 +26,13 @@ describe "Contact", ->
     expect(c1.firstName()).toBe "Evan"
     expect(c1.lastName()).toBe "Morikawa"
 
-    c2 = new Contact {name: "evan takashi morikawa"}
+    c2 = new Contact {name: "Evan Takashi Morikawa"}
     expect(c2.firstName()).toBe "Evan"
     expect(c2.lastName()).toBe "Takashi Morikawa"
 
     c3 = new Contact {name: "evan foo last-name"}
-    expect(c3.firstName()).toBe "Evan"
-    expect(c3.lastName()).toBe "Foo Last-Name"
+    expect(c3.firstName()).toBe "evan"
+    expect(c3.lastName()).toBe "foo last-name"
 
     c4 = new Contact {name: "Prince"}
     expect(c4.firstName()).toBe "Prince"
@@ -44,13 +44,13 @@ describe "Contact", ->
 
     c6 = new Contact {name: "Mr Evan morikawa"}
     expect(c6.firstName()).toBe "Evan"
-    expect(c6.lastName()).toBe "Morikawa"
+    expect(c6.lastName()).toBe "morikawa"
 
     c7 = new Contact {name: "Dr. No"}
     expect(c7.firstName()).toBe "No"
     expect(c7.lastName()).toBe ""
 
-    c8 = new Contact {name: "mr"}
+    c8 = new Contact {name: "Mr"}
     expect(c8.firstName()).toBe "Mr"
     expect(c8.lastName()).toBe ""
 
@@ -69,7 +69,7 @@ describe "Contact", ->
     expect(c8.lastName()).toBe "Pope"
 
   it "should not by fancy about the contents of parenthesis (Evan Morikawa)", ->
-    c8 = new Contact {name: "evan (Evan Morikawa)"}
+    c8 = new Contact {name: "Evan (Evan Morikawa)"}
     expect(c8.firstName()).toBe "Evan"
     expect(c8.lastName()).toBe "(Evan Morikawa)"
 
@@ -79,8 +79,8 @@ describe "Contact", ->
     expect(c1.displayName(compact: true)).toBe "Evan"
 
     c2 = new Contact {name: "", email: "evan@nylas.com"}
-    expect(c2.displayName()).toBe "Evan"
-    expect(c2.displayName(compact: true)).toBe "Evan"
+    expect(c2.displayName()).toBe "evan"
+    expect(c2.displayName(compact: true)).toBe "evan"
 
     c3 = new Contact {name: "", email: ""}
     expect(c3.displayName()).toBe ""
@@ -89,27 +89,27 @@ describe "Contact", ->
 
   it "properly parses names with @", ->
     c1 = new Contact {name: "nyl@s"}
-    expect(c1.firstName()).toBe "Nyl@s"
+    expect(c1.firstName()).toBe "nyl@s"
     expect(c1.lastName()).toBe ""
 
     c1 = new Contact {name: "nyl@s@n1"}
-    expect(c1.firstName()).toBe "Nyl@s@n1"
+    expect(c1.firstName()).toBe "nyl@s@n1"
     expect(c1.lastName()).toBe ""
 
     c2 = new Contact {name: "nyl@s nyl@s"}
-    expect(c2.firstName()).toBe "Nyl@s"
-    expect(c2.lastName()).toBe "Nyl@s"
+    expect(c2.firstName()).toBe "nyl@s"
+    expect(c2.lastName()).toBe "nyl@s"
 
     c3 = new Contact {name: "nyl@s 2000"}
-    expect(c3.firstName()).toBe "Nyl@s"
+    expect(c3.firstName()).toBe "nyl@s"
     expect(c3.lastName()).toBe "2000"
 
     c6 = new Contact {name: "ev@nylas.com", email: "ev@nylas.com"}
-    expect(c6.firstName()).toBe "Ev@nylas.com"
+    expect(c6.firstName()).toBe "ev@nylas.com"
     expect(c6.lastName()).toBe ""
 
     c7 = new Contact {name: "evan@nylas.com"}
-    expect(c7.firstName()).toBe "Evan@nylas.com"
+    expect(c7.firstName()).toBe "evan@nylas.com"
     expect(c7.lastName()).toBe ""
 
     c8 = new Contact {name: "Mike K@ylor via L@nkedIn"}

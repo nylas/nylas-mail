@@ -1,6 +1,7 @@
 React = require 'react'
 {shell} = require 'electron'
 classnames = require 'classnames'
+{Actions} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
 PageRouterStore = require './page-router-store'
 OnboardingActions = require './onboarding-actions'
@@ -124,6 +125,9 @@ class WelcomePage extends React.Component
     if @state.step < 2
       @setState(step: @state.step + 1)
     else
+      Actions.recordUserEvent('Welcome Page Finished', {
+        tokenAuthEnabled: PageRouterStore.tokenAuthEnabled(0)
+      })
       if PageRouterStore.tokenAuthEnabled() is "no"
         OnboardingActions.moveToPage("account-choose")
       else

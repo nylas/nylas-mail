@@ -1,4 +1,4 @@
-Model = require './model'
+ModelWithMetadata = require './model-with-metadata'
 Attributes = require '../attributes'
 _ = require 'underscore'
 
@@ -27,9 +27,9 @@ This class also inherits attributes from {Model}
 
 Section: Models
 ###
-class Account extends Model
+class Account extends ModelWithMetadata
 
-  @attributes: _.extend {}, Model.attributes,
+  @attributes: _.extend {}, ModelWithMetadata.attributes,
     'name': Attributes.String
       modelKey: 'name'
 

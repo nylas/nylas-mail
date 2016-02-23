@@ -17,6 +17,7 @@ class NylasComponentKit
   @load "Popover", 'popover'
   @load "Flexbox", 'flexbox'
   @load "RetinaImg", 'retina-img'
+  @load "SwipeContainer", 'swipe-container'
   @load "FluxContainer", 'flux-container'
   @load "ListTabular", 'list-tabular'
   @load "DraggableImg", 'draggable-img'

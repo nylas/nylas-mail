@@ -1,0 +1,70 @@
+@import "ui-variables";
+
+.send-later {
+
+  .send-later-container {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+    width: 250px;
+
+    .divider {
+      border-top: 1px solid @border-color-divider;
+      margin: 10px 0;
+      width: 90%;
+      align-self: center;
+    }
+
+    .send-later-section {
+      padding: 0 10px;
+      display: flex;
+      flex-direction: column;
+
+      label {
+        margin-bottom: 3px;
+      }
+      input {
+        border: 1px solid @input-border;
+      }
+      .input-date-value {
+        font-size: 0.9em;
+        margin: 5px 0;
+      }
+      .btn-send-later {
+        width: 100%;
+      }
+    }
+
+    .send-later-option {
+      cursor: default;
+      width: 100%;
+      padding: 1px 10px;
+
+      .item-date-value {
+        display: none;
+        float: right;
+        font-size: 0.9em;
+      }
+      &:hover {
+        background-color: @background-secondary;
+        .item-date-value {
+          display: inline-block;
+        }
+      }
+    }
+  }
+}
+
+.send-later-status {
+  display: flex;
+  align-items: center;
+
+  em {
+    font-size: 0.9em;
+    opacity: 0.62;
+  }
+  img {
+    width: 38px;
+    margin-left: 15px;
+  }
+}

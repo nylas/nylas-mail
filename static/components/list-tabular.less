@@ -48,7 +48,7 @@
     left: -1px;
     right:-1px;
     top: 0;
-    height:49px;
+    height:37px;
     border-left:1px solid @border-color-divider;
     border-right:1px solid @border-color-divider;
     background-color: @background-primary;
@@ -66,7 +66,7 @@
         cursor:default;
         text-align: center;
         color:@text-color-subtle;
-        padding-top: 15px;
+        line-height: 38px;
         text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap;
@@ -78,9 +78,12 @@
 
 
 .list-container {
+  .list-rows > div {
+    // Note: This allows rows to be animated in and out!
+    transition: top ease-out 120ms;
+  }
   .list-item {
     font-size: @font-size-base;
-    line-height: @line-height-computed;
     color: @text-color;
     background: @list-bg;
 
@@ -91,23 +94,17 @@
     &.selected {
       background: @list-selected-bg;
       color: @list-selected-color;
-      .list-column {
-        border-bottom: 1px solid @list-selected-border;
-      }
+      border-bottom: 1px solid @list-selected-border;
     }
 
     &.next-is-selected {
-      .list-column {
-        border-bottom: 1px solid @list-selected-border;
-      }
+      border-bottom: 1px solid @list-selected-border;
     }
 
     &.focused {
       background: @list-focused-bg;
       color: @list-focused-color;
-      .list-column {
-        border-bottom: 1px solid @list-focused-border;
-      }
+      border-bottom: 1px solid @list-focused-border;
     }
   }
 }
@@ -117,18 +114,14 @@ body.is-blurred {
     .list-item {
       &.selected {
         background: fadeout(desaturate(@list-selected-bg, 100%), 65%);
+        border-bottom: 1px solid fadeout(desaturate(@list-selected-border, 100%), 65%);
         color: @text-color;
-        .list-column {
-          border-bottom: 1px solid fadeout(desaturate(@list-selected-border, 100%), 65%);
-        }
       }
 
       &.focused {
         background: fadeout(desaturate(@list-focused-bg, 100%), 65%);
+        border-bottom: 1px solid fadeout(desaturate(@list-focused-border, 100%), 65%);
         color: @text-color;
-        .list-column {
-          border-bottom: 1px solid fadeout(desaturate(@list-focused-border, 100%), 65%);
-        }
       }
     }
   }
@@ -143,15 +136,16 @@ body.is-blurred {
     position: relative;
     width: 100%;
     display: flex;
+    align-items: center;
+    border-bottom: 1px solid @list-border;
+    border-left:4px solid transparent;
+
     &:hover {
       cursor: default;
     }
 
     &.keyboard-cursor {
-      .list-column:first-child {
-        border-left:4px solid @list-focused-bg;
-        padding-left:8px;
-      }
+      border-left:4px solid @list-focused-bg;
     }
 
     &.selected {
@@ -178,7 +172,7 @@ body.is-blurred {
     }
 
     .checkmark {
-      padding: 12px;
+      padding: 11px;
       position: absolute;
       top: 0;
       left: 0;
@@ -197,32 +191,16 @@ body.is-blurred {
 
   .list-column {
     // The width is set by React.
-    display: inline-block;
-    padding: @padding-base-vertical @padding-base-horizontal @padding-base-vertical @padding-base-horizontal;
+    display: inherit;
+    padding: 0 @padding-base-horizontal;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    border-bottom: 1px solid @list-border;
-
+    &:first-child {
+      padding-left: @padding-base-horizontal - 4;
+    }
     &:last-child {
       text-align: right;
     }
   }
-
-  .list-headers {
-    display: flex;
-    position: absolute;
-    width: 100%;
-    top: 0;
-    position: absolute;
-    background: fade(@list-bg,90%);
-    font-size: @font-size-base;
-    line-height: @font-size-base * 1.6;
-    height:@font-size-base * 2;
-    z-index: 3;
-  }
-
-  .list-header {
-  }
-
 }
