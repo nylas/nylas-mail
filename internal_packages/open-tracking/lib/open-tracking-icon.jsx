@@ -28,13 +28,17 @@ export default class OpenTrackingIcon extends React.Component {
     if (this.state.opened == null) {
       return <span />;
     }
+    return this.renderImage()
+  };
+
+  renderImage() {
     return (
       <RetinaImg
         className={this.state.opened ? "opened" : "unopened"}
         url="nylas://open-tracking/assets/icon-composer-eye@2x.png"
         mode={RetinaImg.Mode.ContentIsMask} />
     );
-  };
+  }
 
   render() {
     return (

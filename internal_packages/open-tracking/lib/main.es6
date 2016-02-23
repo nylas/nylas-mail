@@ -1,6 +1,7 @@
 import {ComponentRegistry, ExtensionRegistry, DatabaseStore, Message, Actions} from 'nylas-exports';
 import OpenTrackingButton from './open-tracking-button';
 import OpenTrackingIcon from './open-tracking-icon';
+import OpenTrackingMessageStatus from './open-tracking-message-status';
 import OpenTrackingComposerExtension from './open-tracking-composer-extension';
 import plugin from '../package.json'
 
@@ -48,6 +49,7 @@ function afterDraftSend({draftClientId}) {
 export function activate() {
   ComponentRegistry.register(OpenTrackingButton, {role: 'Composer:ActionButton'});
   ComponentRegistry.register(OpenTrackingIcon, {role: 'ThreadListIcon'});
+  ComponentRegistry.register(OpenTrackingMessageStatus, {role: 'MessageHeaderStatus'});
   ExtensionRegistry.Composer.register(OpenTrackingComposerExtension);
   this._unlistenSendDraftSuccess = Actions.sendDraftSuccess.listen(afterDraftSend);
 }
@@ -57,6 +59,7 @@ export function serialize() {}
 export function deactivate() {
   ComponentRegistry.unregister(OpenTrackingButton);
   ComponentRegistry.unregister(OpenTrackingIcon);
+  ComponentRegistry.register(OpenTrackingMessageStatus);
   ExtensionRegistry.Composer.unregister(OpenTrackingComposerExtension);
   this._unlistenSendDraftSuccess()
 }
