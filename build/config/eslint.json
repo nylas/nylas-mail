@@ -11,7 +11,7 @@
   },
   "rules": {
     "react/prop-types": [2, {"ignore": ["children"]}],
-    "react/no-multi-comp": [1],
+    "react/no-multi-comp": [0],
     "eqeqeq": [2, "smart"],
     "id-length": [0],
     "object-curly-spacing": [0],

@@ -6,7 +6,8 @@
 @compose-width: 800px;
 @compose-min-height: 150px;
 
-@blurred-bg-color: mix(@background-primary, #ffbb00, 96%);
+@blurred-primary-color: mix(@background-primary, #ffbb00, 96%);
+@blurred-off-primary-color: mix(@background-off-primary, #ffbb00, 96%);
 
 body.platform-win32 {
   .composer-inner-wrap {
@@ -15,11 +16,6 @@ body.platform-win32 {
     }
     .composer-action-bar-wrap {
       border-radius: 0;
-      .btn.btn-toolbar {
-        &.btn-emphasis {
-          .btn.btn-emphasis;
-        }
-      }
     }
     input, input:focus {
       box-shadow: none;
@@ -65,29 +61,30 @@ body.platform-win32 {
     border-radius: @border-radius-base;
 
     // Buttons in the composer footer
-    .btn.btn-toolbar {
+    .btn.btn-toolbar:not(.btn-emphasis) {
       background: transparent;
       box-shadow: 0 0 0;
       margin: 0;
       padding: 0 9px;
 
-      &.btn-emphasis {
-        .btn.btn-emphasis;
+      img.content-mask {
+        background-color: fadeout(mix(@btn-default-text-color, @component-active-color, 88%), 30%);
+      }
+      &:hover {
+        img.content-mask {
+          background-color: fadeout(mix(@btn-default-text-color, @component-active-color, 88%), 5%);
+        }
+      }
+      &.btn-enabled {
+        color: @component-active-color;
+        img.content-mask {
+          background-color: @component-active-color;
+        }
       }
     }
 
     .btn-send {
       margin-right: 10px;
-    }
-
-    .btn img.content-mask {
-      background-color: #6b777d;
-    }
-
-    .btn.btn-enabled {
-      img.content-mask {
-        background-color: @text-color-link;
-      }
     }
 
     .composer-action-bar-content {
@@ -313,9 +310,16 @@ body.platform-win32 {
 #message-list {
   .message-item-wrap {
     .message-item-white-wrap.composer-outer-wrap {
-      background: @blurred-bg-color;
+      background: @blurred-primary-color;
+
+      .btn.btn-toolbar.btn-trash {
+        padding-right: 0;
+      }
       .show-more-fade {
-        background: linear-gradient(to right, fade(@blurred-bg-color, 0%) 0%, fade(@blurred-bg-color, 100%) 40%);
+        background: linear-gradient(to right, fade(@blurred-primary-color, 0%) 0%, fade(@blurred-primary-color, 100%) 40%);
+      }
+      .composer-action-bar-wrap {
+        background: @blurred-off-primary-color;
       }
     }
     .message-item-white-wrap.composer-outer-wrap.focused {
@@ -323,6 +327,9 @@ body.platform-win32 {
       background-color: @background-primary;
       .show-more-fade {
         background: linear-gradient(to right, fade(@background-primary, 0%) 0%, fade(@background-primary, 100%) 40%);
+      }
+      .composer-action-bar-wrap {
+        background: @background-off-primary;
       }
     }
   }

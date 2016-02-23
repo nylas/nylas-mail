@@ -20,6 +20,9 @@ class SendLaterStore extends NylasStore {
   }
 
   getScheduledDateForMessage = (message)=> {
+    if (!message) {
+      return null;
+    }
     const metadata = message.metadataForPluginId(this.pluginId) || {};
     return metadata.sendLaterDate || null;
   };
@@ -36,7 +39,7 @@ class SendLaterStore extends NylasStore {
       })
       .catch((error)=> {
         NylasEnv.reportError(error);
-        NylasEnv.showErrorDialog(error.message);
+        NylasEnv.showErrorDialog(`Sorry, we were unable to schedule this message. ${error.message}`);
       })
     );
   };
