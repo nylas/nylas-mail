@@ -174,7 +174,7 @@ class FixedPopover extends Component {
         top: originRect.height / 2,
       }
       pointerStyle = {
-        transform: 'translate(-12px, 0) rotate(90deg)',
+        transform: 'translate(-12px, -50%) rotate(90deg)',
         top: originRect.height, // Don't divide by 2 because of zoom
       }
       break;
