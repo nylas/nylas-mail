@@ -143,7 +143,7 @@ class SnoozePopoverBody extends Component {
           onMouseDown={this.onInputMouseDown}
           onKeyDown={this.onInputKeyDown}
           onChange={this.onInputChange}/>
-        <em className="input-date-value">{formatted}</em>
+        <span className="input-date-value">{formatted}</span>
       </div>
     );
   };
