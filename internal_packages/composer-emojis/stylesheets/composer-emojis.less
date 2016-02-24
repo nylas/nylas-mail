@@ -1,17 +1,19 @@
 @import "ui-variables";
+
 .emoji-picker {
-  max-height: 155px !important;
-  padding: 10px 10px 10px 10px !important;
+  max-height: 130px !important;
+  margin: 10px;
   overflow: auto;
-  .btn.btn-icon.emoji-option {
-    background-color: @btn-emphasis-bg-color;
-    color: #FFFFFF;
-    border-radius: 15px;
-  }
-  .btn.btn-icon:hover {
-    background-color: @btn-emphasis-bg-color;
-    color: #FFFFFF;
-    border-radius: 15px;
+  .btn.btn-icon {
+    font-size: 14px !important;
+    padding: 0em 0.5em;
+    &:first-child {
+      padding-left: 0.5em !important;
+    }
+    &.emoji-option, &:hover {
+      background-color: @btn-emphasis-bg-color;
+      color: #FFFFFF;
+      border-radius: 5px;
+    }
   }
 }
-
