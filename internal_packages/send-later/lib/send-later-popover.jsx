@@ -102,7 +102,7 @@ class SendLaterPopover extends Component {
 
     if (scheduledDate === 'saving') {
       return (
-        <button className={className}>
+        <button className={className} title="Send later...">
           <RetinaImg
             name="inline-loading-spinner.gif"
             mode={RetinaImg.Mode.ContentDark}

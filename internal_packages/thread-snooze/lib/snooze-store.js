@@ -26,9 +26,9 @@ class SnoozeStore {
       Actions.setMetadata(updatedThreads, this.pluginId, {snoozeDate})
     })
     .catch((error)=> {
-      console.error(error)
-      NylasEnv.showErrorDialog(error.message)
-    })
+      NylasEnv.reportError(error);
+      NylasEnv.showErrorDialog(`Sorry, we were unable to save your snooze settings. ${error.message}`);
+    });
   };
 
   deactivate() {
