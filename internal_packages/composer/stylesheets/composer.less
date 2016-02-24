@@ -6,11 +6,15 @@
 @compose-width: 800px;
 @compose-min-height: 150px;
 
-@blurred-bg-color: mix(@background-primary, #ffbb00, 96%);
+@blurred-primary-color: mix(@background-primary, #ffbb00, 96%);
+@blurred-off-primary-color: mix(@background-off-primary, #ffbb00, 96%);
 
 body.platform-win32 {
   .composer-inner-wrap {
     .composer-drop-cover {
+      border-radius: 0;
+    }
+    .composer-action-bar-wrap {
       border-radius: 0;
     }
     input, input:focus {
@@ -50,20 +54,45 @@ body.platform-win32 {
   .composer-action-bar-wrap {
     position: relative;
     width: 100%;
-    background: transparent;
+    background: @background-off-primary;
+    border-top: 1px solid darken(@background-off-primary, 7%);
+    box-shadow: inset 0 2px 1px rgba(0,0,0,0.03);
     border-bottom: 0;
+    border-radius: @border-radius-base;
+
+    // Buttons in the composer footer
+    .btn.btn-toolbar:not(.btn-emphasis) {
+      background: transparent;
+      box-shadow: 0 0 0;
+      margin: 0;
+      padding: 0 9px;
+
+      img.content-mask {
+        background-color: fadeout(mix(@btn-default-text-color, @component-active-color, 88%), 30%);
+      }
+      &:hover {
+        img.content-mask {
+          background-color: fadeout(mix(@btn-default-text-color, @component-active-color, 88%), 5%);
+        }
+      }
+      &.btn-enabled {
+        color: @component-active-color;
+        img.content-mask {
+          background-color: @component-active-color;
+        }
+      }
+    }
+
+    .btn-send {
+      margin-right: 10px;
+    }
 
     .composer-action-bar-content {
       display:flex;
       margin: 0 auto;
       flex-direction:row;
       max-width: @compose-width;
-      padding: @spacing-standard;
-
-      > * {
-        margin-left: @spacing-standard / 2;
-        margin-right: @spacing-standard / 2;
-      }
+      padding: 9px 22.5px;
     }
   }
 
@@ -254,7 +283,7 @@ body.platform-win32 {
     }
 
     .composer-action-bar-content {
-      padding: 8px 0.5px;
+      padding: 9px 13.5px 9px 22.5px;
     }
 
     .compose-body {
@@ -281,9 +310,16 @@ body.platform-win32 {
 #message-list {
   .message-item-wrap {
     .message-item-white-wrap.composer-outer-wrap {
-      background: @blurred-bg-color;
+      background: @blurred-primary-color;
+
+      .btn.btn-toolbar.btn-trash {
+        padding-right: 0;
+      }
       .show-more-fade {
-        background: linear-gradient(to right, fade(@blurred-bg-color, 0%) 0%, fade(@blurred-bg-color, 100%) 40%);
+        background: linear-gradient(to right, fade(@blurred-primary-color, 0%) 0%, fade(@blurred-primary-color, 100%) 40%);
+      }
+      .composer-action-bar-wrap {
+        background: @blurred-off-primary-color;
       }
     }
     .message-item-white-wrap.composer-outer-wrap.focused {
@@ -291,6 +327,9 @@ body.platform-win32 {
       background-color: @background-primary;
       .show-more-fade {
         background: linear-gradient(to right, fade(@background-primary, 0%) 0%, fade(@background-primary, 100%) 40%);
+      }
+      .composer-action-bar-wrap {
+        background: @background-off-primary;
       }
     }
   }

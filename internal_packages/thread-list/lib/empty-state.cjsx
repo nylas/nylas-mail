@@ -117,10 +117,10 @@ class EmptyState extends React.Component
     messageOverride = "Nothing to display."
     if @state.layoutMode is 'list'
       ContentComponent = ContentQuotes
+
     if @state.syncing
       messageOverride = "Please wait while we prepare your mailbox."
-
-    if FocusedPerspectiveStore.current()?.name is "Inbox"
+    else if FocusedPerspectiveStore.current()?.name is "Inbox"
       ContentComponent = InboxZero
 
     classes = classNames
