@@ -58,6 +58,7 @@ class EmojisComposerExtension extends ContenteditableExtension {
           locationRefNode: locationRefNode,
           width: EmojisComposerExtension._emojiPickerWidth(emojiOptions),
           height: EmojisComposerExtension._emojiPickerHeight(emojiOptions),
+          hidePointer: true,
         }
       }
     }
@@ -171,7 +172,7 @@ class EmojisComposerExtension extends ContenteditableExtension {
       }
     }
     const WIDTH_PER_CHAR = 8;
-    return (maxLength + 6) * WIDTH_PER_CHAR;
+    return (maxLength + 8) * WIDTH_PER_CHAR;
   }
 
   static _emojiPickerHeight(emojiOptions) {
