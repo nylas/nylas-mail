@@ -25,10 +25,10 @@ class QuickActionSnoozeButton extends Component {
     // Grab the parent node because of the zoom applied to this button. If we
     // took this element directly, we'd have to divide everything by 2
     const element = React.findDOMNode(this).parentNode;
-    const {height, width, top, left} = element.getBoundingClientRect()
+    const {height, width, top, bottom, left, right} = element.getBoundingClientRect()
 
     // The parent node is a bit too much to the left, lets adjust this.
-    const rect = {height, width, top, left: left + 5}
+    const rect = {height, width, top, bottom, right, left: left + 5}
     Actions.openPopover(
       <SnoozePopoverBody threads={[thread]}/>,
       rect,
