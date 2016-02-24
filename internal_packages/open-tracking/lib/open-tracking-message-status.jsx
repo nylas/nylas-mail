@@ -1,6 +1,6 @@
 import {React} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
-import plugin from '../package.json'
+import {PLUGIN_ID} from './open-tracking-constants'
 
 export default class OpenTrackingMessageStatus extends React.Component {
   static displayName = "OpenTrackingMessageStatus";
@@ -15,7 +15,7 @@ export default class OpenTrackingMessageStatus extends React.Component {
   }
 
   _getStateFromMessage(message) {
-    const metadata = message.metadataForPluginId(plugin.appId);
+    const metadata = message.metadataForPluginId(PLUGIN_ID);
     if (!metadata) {
       return {hasMetadata: false, opened: false}
     }

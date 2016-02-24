@@ -2,7 +2,6 @@ import {DraftStore, React, Actions, NylasAPI, DatabaseStore, Message, Rx} from '
 import {RetinaImg} from 'nylas-component-kit'
 import {PLUGIN_ID, PLUGIN_NAME} from './open-tracking-constants'
 
-
 export default class OpenTrackingButton extends React.Component {
 
   static displayName = 'OpenTrackingButton';
