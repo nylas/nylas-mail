@@ -619,6 +619,7 @@ class ComposerView extends React.Component
 
   _onChangeParticipants: (changes={}) =>
     @_addToProxy(changes)
+    Actions.draftParticipantsChanged(@props.draftClientId, changes)
 
   _onChangeSubject: (event) =>
     @_addToProxy(subject: event.target.value)

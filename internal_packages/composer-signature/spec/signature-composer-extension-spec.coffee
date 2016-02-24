@@ -23,6 +23,24 @@ describe "SignatureComposerExtension", ->
         SignatureComposerExtension.prepareNewDraft(draft: b)
         expect(b.body).toEqual('This is a another test.<br/><br/><div class="nylas-n1-signature"><div id="signature">This is my signature.</div></div>')
 
+      it "should replace the signature if a signature is already present", ->
+        a = new Message
+          draft: true
+          body: 'This is a test! <div class="nylas-n1-signature"><div>SIG</div></div><blockquote>Hello world</blockquote>'
+        b = new Message
+          draft: true
+          body: 'This is a test! <div class="nylas-n1-signature"><div>SIG</div></div>'
+        c = new Message
+          draft: true
+          body: 'This is a test! <div class="nylas-n1-signature"></div>'
+
+        SignatureComposerExtension.prepareNewDraft(draft: a)
+        expect(a.body).toEqual("This is a test! <div class=\"nylas-n1-signature\">#{@signature}</div><blockquote>Hello world</blockquote>")
+        SignatureComposerExtension.prepareNewDraft(draft: b)
+        expect(b.body).toEqual("This is a test! <div class=\"nylas-n1-signature\">#{@signature}</div>")
+        SignatureComposerExtension.prepareNewDraft(draft: c)
+        expect(c.body).toEqual("This is a test! <div class=\"nylas-n1-signature\">#{@signature}</div>")
+
     describe "when a signature is not defined", ->
       beforeEach ->
         spyOn(NylasEnv.config, 'get').andCallFake ->
