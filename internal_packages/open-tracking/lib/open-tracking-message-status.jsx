@@ -14,6 +14,10 @@ export default class OpenTrackingMessageStatus extends React.Component {
     this.state = this._getStateFromMessage(props.message)
   }
 
+  componentWillReceiveProps(nextProps) {
+    this.setState(this._getStateFromMessage(nextProps.message))
+  }
+
   _getStateFromMessage(message) {
     const metadata = message.metadataForPluginId(PLUGIN_ID);
     if (!metadata) {
