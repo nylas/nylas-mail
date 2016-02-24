@@ -15,17 +15,22 @@ class SnoozePopover extends Component {
     popoverStyle: PropTypes.object,
   };
 
+  closePopover = ()=> {
+    this.refs.popover.close();
+  };
+
   render() {
     const {buttonComponent, direction, popoverStyle, pointerStyle, threads} = this.props
 
     return (
       <Popover
+        ref="popover"
         className="snooze-popover"
         direction={direction || 'down-align-left'}
         buttonComponent={buttonComponent}
         popoverStyle={popoverStyle}
         pointerStyle={pointerStyle}>
-        <SnoozePopoverBody threads={threads}/>
+        <SnoozePopoverBody threads={threads} closePopover={this.closePopover}/>
       </Popover>
     );
   }
