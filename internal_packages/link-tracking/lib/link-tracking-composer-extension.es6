@@ -29,7 +29,7 @@ export default class LinkTrackingComposerExtension extends ComposerExtension {
       // loop through all <a href> elements, replace with redirect links and save mappings
       draftBody.unquoted = draftBody.unquoted.replace(RegExpUtils.linkTagRegex(), (match, prefix, url, suffix, content, closingTag) => {
         const encoded = encodeURIComponent(url);
-        const redirectUrl = `http://${PLUGIN_URL}/${draft.accountId}/${messageUid}/${links.length}?redirect=${encoded}`;
+        const redirectUrl = `http://${PLUGIN_URL}/link/${draft.accountId}/${messageUid}/${links.length}?redirect=${encoded}`;
         links.push({url: url, click_count: 0, click_data: [], redirect_url: redirectUrl});
         return prefix + redirectUrl + suffix + content + closingTag;
       });

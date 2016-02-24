@@ -27,7 +27,7 @@ function afterDraftSend({draftClientId}) {
 
       // post the uid and message id pair to the plugin server
       const data = {uid: uid, message_id: message.id, thread_id: 1};
-      const serverUrl = `${PLUGIN_URL}/register-message`;
+      const serverUrl = `${PLUGIN_URL}/plugins/register-message`;
       return post({
         url: serverUrl,
         body: JSON.stringify(data),

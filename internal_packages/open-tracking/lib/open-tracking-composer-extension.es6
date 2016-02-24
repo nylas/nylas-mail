@@ -21,7 +21,7 @@ export default class OpenTrackingComposerExtension extends ComposerExtension {
       const uid = uuid.v4().replace(/-/g, "");
 
       // insert a tracking pixel <img> into the message
-      const serverUrl = `http://${PLUGIN_URL}/${draft.accountId}/${uid}`;
+      const serverUrl = `http://${PLUGIN_URL}/open/${draft.accountId}/${uid}`;
       const img = `<img width="0" height="0" style="border:0; width:0; height:0;" src="${serverUrl}">`;
       const draftBody = new DraftBody(draft);
       draftBody.unquoted = draftBody.unquoted + "<br>" + img;
