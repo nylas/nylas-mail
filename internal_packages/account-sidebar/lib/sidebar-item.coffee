@@ -115,10 +115,13 @@ class SidebarItem
     id += "-#{opts.name}" if opts.name
     opts.name = "Snoozed" unless opts.name
     opts.iconName= 'snooze.png'
+
     categories = accountIds.map (accId) =>
       _.findWhere CategoryStore.userCategories(accId), {displayName}
+    categories = _.compact(categories)
 
     perspective = MailboxPerspective.forCategories(categories)
+    perspective.name = id unless perspective.name
     @forPerspective(id, perspective, opts)
 
   @forStarred: (accountIds, opts = {}) ->
