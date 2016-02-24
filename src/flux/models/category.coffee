@@ -18,6 +18,7 @@ StandardCategories = {
 
 LockedCategories = {
   "sent"
+  "N1-Snoozed"
 }
 
 HiddenCategories = {
@@ -27,6 +28,7 @@ HiddenCategories = {
   "archive"
   "starred"
   "important"
+  "N1-Snoozed"
 }
 
 AllMailName = "all"
@@ -110,10 +112,10 @@ class Category extends Model
       StandardCategories[@name]? and @name isnt 'important'
 
   isLockedCategory: ->
-    LockedCategories[@name]?
+    LockedCategories[@name]? or LockedCategories[@displayName]?
 
   isHiddenCategory: ->
-    HiddenCategories[@name]?
+    HiddenCategories[@name]? or HiddenCategories[@displayName]?
 
   isUserCategory: ->
     not @isStandardCategory() and not @isHiddenCategory()
