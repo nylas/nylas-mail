@@ -200,6 +200,13 @@ Providers = [
         format: 'integer'
         page: 1
       }, {
+        name: 'ssl_required'
+        type: 'checkbox'
+        label: 'Require SSL'
+        className: 'half'
+        default: true
+        page: 1
+      }, {
         name: 'imap_username'
         type: 'text'
         placeholder: 'Username'
@@ -229,6 +236,13 @@ Providers = [
         className: 'half'
         format: 'integer'
         default: 587
+        page: 2
+      }, {
+        name: 'ssl_required'
+        type: 'checkbox'
+        label: 'Require SSL'
+        className: 'half'
+        default: true
         page: 2
       }, {
         name: 'smtp_username'
