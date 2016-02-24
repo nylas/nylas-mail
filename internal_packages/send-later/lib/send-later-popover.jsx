@@ -1,5 +1,4 @@
 /** @babel */
-import _ from 'underscore'
 import Rx from 'rx-lite'
 import React, {Component, PropTypes} from 'react'
 import {DateUtils, Message, DatabaseStore} from 'nylas-exports'
@@ -57,7 +56,6 @@ class SendLaterPopover extends Component {
 
   onSelectMenuOption = (optionKey)=> {
     const date = SendLaterOptions[optionKey]();
-    const formatted = DateUtils.format(date.utc());
     this.onSelectDate(date);
   };
 
