@@ -109,6 +109,7 @@ window.TEST_ACCOUNT_CLIENT_ID = "local-test-account-client-id"
 window.TEST_ACCOUNT_ID = "test-account-server-id"
 window.TEST_ACCOUNT_EMAIL = "tester@nylas.com"
 window.TEST_ACCOUNT_NAME = "Nylas Test"
+window.TEST_PLUGIN_ID = "test-plugin-id-123"
 
 beforeEach ->
   NylasEnv.testOrganizationUnit = null

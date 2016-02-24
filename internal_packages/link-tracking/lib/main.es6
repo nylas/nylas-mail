@@ -31,7 +31,7 @@ function afterDraftSend({draftClientId}) {
         body: JSON.stringify(data),
       }).then( ([response, responseBody]) => {
         if (response.statusCode !== 200) {
-          throw new Error();
+          throw new Error(`Link Tracking server error ${response.statusCode} at ${serverUrl}: ${responseBody}`);
         }
         return responseBody;
       }).catch(error => {
