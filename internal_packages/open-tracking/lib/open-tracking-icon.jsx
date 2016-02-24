@@ -24,30 +24,25 @@ export default class OpenTrackingIcon extends React.Component {
     const metadataObjs = messages.map(msg => msg.metadataForPluginId(plugin.appId)).filter(meta => meta);
     return {
       hasMetadata: metadataObjs.length > 0,
-      opened: metadataObjs.every(m => m.openCount > 0),
+      opened: metadataObjs.length > 0 && metadataObjs.every(m => m.open_count > 0),
     };
   }
 
-  _renderIcon = () => {
-    if (!this.state.hasMetadata) {
-      return <span />;
-    }
-    return this.renderImage()
-  };
-
-  renderImage() {
+  _renderImage() {
     return (
       <RetinaImg
         className={this.state.opened ? "opened" : "unopened"}
-        url="nylas://open-tracking/assets/icon-composer-eye@2x.png"
+        url="nylas://open-tracking/assets/icon-tracking-read@2x.png"
         mode={RetinaImg.Mode.ContentIsMask} />
     );
   }
 
   render() {
+    if (!this.state.hasMetadata) { return false }
+    const title = this.state.opened ? "This message has been read at least once" : "This message has not been read";
     return (
-      <div className="open-tracking-icon">
-        {this._renderIcon()}
+      <div title={title} className="open-tracking-icon">
+        {this._renderImage()}
       </div>
     );
   }
