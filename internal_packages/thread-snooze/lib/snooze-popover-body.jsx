@@ -112,7 +112,7 @@ class SnoozePopoverBody extends Component {
         onMouseDown={this.onSnooze.bind(this, dateGenerator)}>
         <RetinaImg
           url={iconPath}
-          mode={RetinaImg.ContentIsMask} />
+          mode={RetinaImg.Mode.ContentPreserve} />
         {label}
       </div>
     )
