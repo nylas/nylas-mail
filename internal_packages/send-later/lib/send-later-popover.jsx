@@ -123,7 +123,7 @@ class SendLaterPopover extends Component {
       <button className={className}>
         <RetinaImg name="icon-composer-sendlater.png" mode={RetinaImg.Mode.ContentIsMask}/>
         {dateInterpretation}
-        <span data-reactid=".s.0.0.1">&nbsp;</span>
+        <span>&nbsp;</span>
         <RetinaImg name="icon-composer-dropdown.png" mode={RetinaImg.Mode.ContentIsMask}/>
       </button>
     );
