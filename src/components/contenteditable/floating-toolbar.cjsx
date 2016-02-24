@@ -215,7 +215,10 @@ class FloatingToolbar extends React.Component
     return styles
 
   _renderPointer: =>
-    unless @state.hidePointer
-      return <div className="toolbar-pointer" style={@_toolbarPointerStyles()}></div>
+    return false if @state.hidePointer
+    <div className="toolbar-pointer-container" style={@_toolbarPointerStyles()}>
+      <div className="shadow"></div>
+      <div className="foreground"></div>
+    </div>
 
 module.exports = FloatingToolbar

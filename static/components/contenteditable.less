@@ -42,24 +42,35 @@
       margin-top: 0;
     }
 
-    .toolbar-pointer {
+    .toolbar-pointer-container {
       position: absolute;
-      width: 22.5px;
+      width: 23px;
       height: 10px;
-      background: transparent url('images/tooltip/tooltip-bg-pointer@2x.png') no-repeat;
-      background-size: 22.5px 9.5px;
-      margin-left: -11.2px;
+
+      div {
+        -webkit-mask-image: url('images/tooltip/tooltip-bg-pointer@2x.png');
+        background-color: #fff;
+        position: absolute;
+        zoom: 0.5;
+        width: 45px;
+        height: 21px;
+        &.shadow {
+          -webkit-mask-image: url('images/tooltip/tooltip-bg-pointer-shadow@2x.png');
+          background-color: fade(@black, 22%);
+          transform: translateY(0.5px);
+        }
+      }
     }
 
     &.above {
-      .toolbar-pointer {
-        transform: rotate(0deg);
+      .toolbar-pointer-container {
+        transform: translateX(-11px) rotate(0deg);
         bottom: -9px;
       }
     }
     &.below {
-      .toolbar-pointer {
-        transform: rotate(180deg);
+      .toolbar-pointer-container {
+        transform: translateX(-11px) rotate(180deg);
         top: -9px;
       }
     }
