@@ -82,7 +82,7 @@ const DateUtils = {
 
   /**
    * Can take almost any string.
-   * e.g. "Next monday at 2pm"
+   * e.g. "Next Monday at 2pm"
    * @param {string} dateLikeString - a string representing a date.
    * @return {moment} - moment object representing date
    */
