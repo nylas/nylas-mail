@@ -24,9 +24,9 @@ export default class SendLaterStatus extends Component {
       const formatted = DateUtils.format(moment(sendLaterDate), DATE_FORMAT_SHORT)
       return (
         <div className="send-later-status">
-          <em className="send-later-status">
+          <span className="time">
             {`Scheduled for ${formatted}`}
-          </em>
+          </span>
           <RetinaImg
             name="image-cancel-button.png"
             title="Cancel Send Later"
