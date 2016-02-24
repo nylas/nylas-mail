@@ -1,15 +1,13 @@
+import request from 'request';
 import {ComponentRegistry, ExtensionRegistry, DatabaseStore, Message, Actions} from 'nylas-exports';
 import OpenTrackingButton from './open-tracking-button';
 import OpenTrackingIcon from './open-tracking-icon';
 import OpenTrackingMessageStatus from './open-tracking-message-status';
 import OpenTrackingComposerExtension from './open-tracking-composer-extension';
-import plugin from '../package.json'
-
-import request from 'request';
+import {PLUGIN_ID, PLUGIN_URL} from './open-tracking-constants'
 
 const post = Promise.promisify(request.post, {multiArgs: true});
-const PLUGIN_ID = plugin.appId[NylasEnv.config.get("env")];
-const PLUGIN_URL = "https://edgehill-staging.nylas.com/plugins";
+
 
 function afterDraftSend({draftClientId}) {
   // only run this handler in the main window

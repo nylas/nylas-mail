@@ -1,10 +1,9 @@
 import {React} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
-import plugin from '../package.json'
-
-const PLUGIN_ID = plugin.appId[NylasEnv.config.get("env")];
+import {PLUGIN_ID} from './link-tracking-constants'
 
 const sum = (array, extractFn) => array.reduce( (a, b) => a + extractFn(b), 0 );
+
 
 export default class LinkTrackingIcon extends React.Component {
 

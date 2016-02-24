@@ -1,14 +1,12 @@
+import uuid from 'node-uuid';
 import {
   ComposerExtension,
   Actions,
   QuotedHTMLTransformer,
-  RegExpUtils} from 'nylas-exports';
-import plugin from '../package.json'
+  RegExpUtils,
+} from 'nylas-exports';
+import {PLUGIN_ID, PLUGIN_URL} from './link-tracking-constants'
 
-import uuid from 'node-uuid';
-
-const PLUGIN_ID = plugin.appId[NylasEnv.config.get("env")];
-const PLUGIN_URL = "n1-link-tracking.herokuapp.com";
 
 class DraftBody {
   constructor(draft) {this._body = draft.body}
