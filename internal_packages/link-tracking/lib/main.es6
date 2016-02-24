@@ -2,7 +2,8 @@ import {ComponentRegistry, DatabaseStore, Message, ExtensionRegistry, Actions} f
 import LinkTrackingButton from './link-tracking-button';
 import LinkTrackingIcon from './link-tracking-icon';
 import LinkTrackingComposerExtension from './link-tracking-composer-extension';
-import LinkTrackingPanel from './link-tracking-panel';
+import LinkTrackingMessageExtension from './link-tracking-message-extension';
+// import LinkTrackingPanel from './link-tracking-panel';
 import plugin from '../package.json'
 
 import request from 'request';
@@ -45,8 +46,9 @@ function afterDraftSend({draftClientId}) {
 export function activate() {
   ComponentRegistry.register(LinkTrackingButton, {role: 'Composer:ActionButton'});
   ComponentRegistry.register(LinkTrackingIcon, {role: 'ThreadListIcon'});
-  ComponentRegistry.register(LinkTrackingPanel, {role: 'message:BodyHeader'});
+  // ComponentRegistry.register(LinkTrackingPanel, {role: 'message:BodyHeader'});
   ExtensionRegistry.Composer.register(LinkTrackingComposerExtension);
+  ExtensionRegistry.MessageView.register(LinkTrackingMessageExtension);
   this._unlistenSendDraftSuccess = Actions.sendDraftSuccess.listen(afterDraftSend);
 }
 
@@ -55,7 +57,8 @@ export function serialize() {}
 export function deactivate() {
   ComponentRegistry.unregister(LinkTrackingButton);
   ComponentRegistry.unregister(LinkTrackingIcon);
-  ComponentRegistry.unregister(LinkTrackingPanel);
+  // ComponentRegistry.unregister(LinkTrackingPanel);
   ExtensionRegistry.Composer.unregister(LinkTrackingComposerExtension);
+  ExtensionRegistry.MessageView.unregister(LinkTrackingMessageExtension);
   this._unlistenSendDraftSuccess()
 }

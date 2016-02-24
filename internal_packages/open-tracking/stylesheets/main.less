@@ -1,11 +1,11 @@
 @import "ui-variables";
 @import "ui-mixins";
 
-.open-tracking-icon img.content-mask {
+.open-tracking-icon img.content-mask.unopened {
   background-color: #6b777d;
   vertical-align: text-bottom;
 }
-.open-tracking-icon img.content-mask.unopened {
+.open-tracking-icon img.content-mask.opened {
   background-color: @text-color-link;
 }
 .open-tracking-icon .open-count {
@@ -21,4 +21,19 @@
 .open-tracking-icon {
   width: 16px;
   margin-right: 4px;
+}
+
+.read-receipt-message-status {
+  color: @text-color-very-subtle;
+  margin-left: 10px;
+  &.Unread {
+    img.content-mask {
+      background-color: @text-color-very-subtle;
+    }
+  }
+  &.Read {
+    img.content-mask {
+      background-color: @text-color-link;
+    }
+  }
 }

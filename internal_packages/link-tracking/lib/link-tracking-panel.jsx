@@ -25,8 +25,8 @@ export default class LinkTrackingPanel extends React.Component {
   _renderContents() {
     return this.state.links.map(link => {
       return (<tr className="link-info">
-        <td className="link-url">{link.url}</td>
-        <td className="link-count">{link.click_count + " clicks"}</td>
+        <td className="link-url">{link.originalUrl}</td>
+        <td className="link-count">{link.clickCount + " clicks"}</td>
       </tr>)
     })
   }

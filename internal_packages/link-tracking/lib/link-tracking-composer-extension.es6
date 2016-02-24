@@ -1,9 +1,12 @@
-import {ComposerExtension, Actions, QuotedHTMLTransformer} from 'nylas-exports';
+import {
+  ComposerExtension,
+  Actions,
+  QuotedHTMLTransformer,
+  RegExpUtils} from 'nylas-exports';
 import plugin from '../package.json'
 
 import uuid from 'node-uuid';
 
-const LINK_REGEX = (/(<a\s.*?href\s*?=\s*?")([^"]*)("[^>]*>)|(<a\s.*?href\s*?=\s*?')([^']*)('[^>]*>)/g);
 const PLUGIN_ID = plugin.appId;
 const PLUGIN_URL = "n1-link-tracking.herokuapp.com";
 
@@ -26,11 +29,11 @@ export default class LinkTrackingComposerExtension extends ComposerExtension {
       const messageUid = uuid.v4().replace(/-/g, "");
 
       // loop through all <a href> elements, replace with redirect links and save mappings
-      draftBody.unquoted = draftBody.unquoted.replace(LINK_REGEX, (match, prefix, url, suffix) => {
+      draftBody.unquoted = draftBody.unquoted.replace(RegExpUtils.linkTagRegex(), (match, prefix, url, suffix, content, closingTag) => {
         const encoded = encodeURIComponent(url);
         const redirectUrl = `http://${PLUGIN_URL}/${draft.accountId}/${messageUid}/${links.length}?redirect=${encoded}`;
-        links.push({url: url, click_count: 0, click_data: []});
-        return prefix + redirectUrl + suffix;
+        links.push({originalUrl: url, clickCount: 0, clickData: [], redirectUrl: redirectUrl});
+        return prefix + redirectUrl + suffix + content + closingTag;
       });
 
       // save the draft
