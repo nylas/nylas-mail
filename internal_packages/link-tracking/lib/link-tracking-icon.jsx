@@ -29,7 +29,7 @@ export default class LinkTrackingIcon extends React.Component {
       // If there's metadata, return the total number of link clicks in the most recent metadata
       const mostRecentMetadata = metadataObjs.pop();
       return {
-        clicks: sum(mostRecentMetadata.links || [], link => link.clickCount || 0),
+        clicks: sum(mostRecentMetadata.links || [], link => link.click_count || 0),
       };
     }
     return {clicks: null};
@@ -44,7 +44,7 @@ export default class LinkTrackingIcon extends React.Component {
     return (<span>
       <RetinaImg
         className={clicks > 0 ? "clicked" : ""}
-        url="nylas://link-tracking/assets/linktracking-icon@2x.png"
+        name="icon-composer-linktracking.png"
         mode={RetinaImg.Mode.ContentIsMask} />
       <span className="link-click-count">{clicks > 0 ? clicks : ""}</span>
     </span>)

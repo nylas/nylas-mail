@@ -1,6 +1,6 @@
 import {ComponentRegistry, DatabaseStore, Message, ExtensionRegistry, Actions} from 'nylas-exports';
 import LinkTrackingButton from './link-tracking-button';
-import LinkTrackingIcon from './link-tracking-icon';
+// import LinkTrackingIcon from './link-tracking-icon';
 import LinkTrackingComposerExtension from './link-tracking-composer-extension';
 import LinkTrackingMessageExtension from './link-tracking-message-extension';
 // import LinkTrackingPanel from './link-tracking-panel';
@@ -45,7 +45,7 @@ function afterDraftSend({draftClientId}) {
 
 export function activate() {
   ComponentRegistry.register(LinkTrackingButton, {role: 'Composer:ActionButton'});
-  ComponentRegistry.register(LinkTrackingIcon, {role: 'ThreadListIcon'});
+  // ComponentRegistry.register(LinkTrackingIcon, {role: 'ThreadListIcon'});
   // ComponentRegistry.register(LinkTrackingPanel, {role: 'message:BodyHeader'});
   ExtensionRegistry.Composer.register(LinkTrackingComposerExtension);
   ExtensionRegistry.MessageView.register(LinkTrackingMessageExtension);
@@ -56,7 +56,7 @@ export function serialize() {}
 
 export function deactivate() {
   ComponentRegistry.unregister(LinkTrackingButton);
-  ComponentRegistry.unregister(LinkTrackingIcon);
+  // ComponentRegistry.unregister(LinkTrackingIcon);
   // ComponentRegistry.unregister(LinkTrackingPanel);
   ExtensionRegistry.Composer.unregister(LinkTrackingComposerExtension);
   ExtensionRegistry.MessageView.unregister(LinkTrackingMessageExtension);

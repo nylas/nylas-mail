@@ -25,7 +25,7 @@ function afterDraftSend({draftClientId}) {
       const uid = metadata.uid;
 
       // set metadata against the message
-      Actions.setMetadata(message, PLUGIN_ID, {openCount: 0, openData: []});
+      Actions.setMetadata(message, PLUGIN_ID, {open_count: 0, open_data: []});
 
       // post the uid and message id pair to the plugin server
       const data = {uid: uid, message_id: message.id, thread_id: 1};

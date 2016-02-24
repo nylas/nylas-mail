@@ -21,7 +21,7 @@ export default class OpenTrackingMessageStatus extends React.Component {
     }
     return {
       hasMetadata: true,
-      opened: metadata.openCount > 0,
+      opened: metadata.open_count > 0,
     };
   }
 
@@ -41,8 +41,9 @@ export default class OpenTrackingMessageStatus extends React.Component {
   render() {
     if (!this.state.hasMetadata) { return false }
     const txt = this.state.opened ? "Read" : "Unread";
+    const title = this.state.opened ? "This message has been read at least once" : "This message has not been read";
     return (
-      <span className={`read-receipt-message-status ${txt}`}>{this.renderImage()}&nbsp;&nbsp;{txt}</span>
+      <span title={title} className={`read-receipt-message-status ${txt}`}>{this.renderImage()}&nbsp;&nbsp;{txt}</span>
     )
   }
 }
