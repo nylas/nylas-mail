@@ -1,3 +1,4 @@
+SystemTrayManager = require './system-tray-manager'
 NylasWindow = require './nylas-window'
 WindowManager = require './window-manager'
 ApplicationMenu = require './application-menu'
@@ -56,6 +57,7 @@ class Application
   nylasProtocolHandler: null
   resourcePath: null
   version: null
+  systemTrayManager: null
 
   exit: (status) -> app.exit(status)
 
@@ -118,6 +120,8 @@ class Application
     @autoUpdateManager = new AutoUpdateManager(@version, @config, @specMode)
     @applicationMenu = new ApplicationMenu(@version)
     @_databasePhase = 'setup'
+
+    @systemTrayManager = new SystemTrayManager(process.platform, @)
 
     @listenForArgumentsFromNewProcess()
     @setupJavaScriptArguments()
@@ -321,6 +325,7 @@ class Application
       # Destroy hot windows so that they can't block the app from quitting.
       # (Electron will wait for them to finish loading before quitting.)
       @windowManager.unregisterAllHotWindows()
+      @systemTrayManager?.destroy()
 
     # Called after the app has closed all windows.
     app.on 'will-quit', =>
@@ -337,6 +342,10 @@ class Application
     app.on 'open-url', (event, urlToOpen) =>
       @openUrl(urlToOpen)
       event.preventDefault()
+
+    # System Tray
+    ipcMain.on 'update-system-tray', (event, iconPath, unreadString) =>
+      @systemTrayManager?.setTrayCount(iconPath, unreadString)
 
     ipcMain.on 'set-badge-value', (event, value) =>
       app.dock?.setBadge?(value)
