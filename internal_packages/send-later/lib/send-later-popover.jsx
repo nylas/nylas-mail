@@ -81,7 +81,7 @@ class SendLaterPopover extends Component {
         <input
           tabIndex="1"
           type="text"
-          placeholder="e.g. 'Sunday at 2PM'"
+          placeholder="Or, 'next monday at 2PM'"
           onChange={event=> updateInputDateValue(event.target.value)}/>
         {dateInterpretation}
       </div>
