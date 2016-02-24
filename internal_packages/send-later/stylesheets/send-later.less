@@ -2,7 +2,7 @@
 
 
 .send-later {
-  em {
+  .time {
     font-size: 0.9em;
     opacity: 0.6;
   }
@@ -18,13 +18,14 @@
       border-top-left-radius: @border-radius-base;
     }
     .item {
-      em {
+      .time {
         display: none;
         float: right;
         padding-right: @padding-base-horizontal;
       }
+      &.selected,
       &:hover {
-        em {
+        .time {
           display: inline-block;
         }
       }
@@ -35,7 +36,7 @@
   }
   .custom-time-section {
     padding: @padding-base-vertical  @padding-base-horizontal;
-    em {
+    .time {
       color: @text-color-subtle;
     }
   }
@@ -59,7 +60,7 @@
   display: flex;
   align-items: center;
 
-  em {
+  .time {
     font-size: 0.9em;
     opacity: 0.62;
   }

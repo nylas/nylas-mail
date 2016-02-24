@@ -61,6 +61,7 @@ class TranslateButton extends React.Component
       <Menu items={ Object.keys(YandexLanguages) }
             itemKey={ (item) -> item }
             itemContent={ (item) -> item }
+            defaultSelectedIndex={-1}
             onSelect={@_onTranslate}
             />
     </Popover>

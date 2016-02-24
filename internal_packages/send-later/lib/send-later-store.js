@@ -28,32 +28,30 @@ class SendLaterStore extends NylasStore {
   };
 
   setMetadata = (draftClientId, metadata)=> {
-    return (
-      DatabaseStore.modelify(Message, [draftClientId])
-      .then((messages)=> {
-        const {accountId} = messages[0];
-        return NylasAPI.authPlugin(this.pluginId, PLUGIN_NAME, accountId);
-      })
+    DatabaseStore.modelify(Message, [draftClientId]).then((messages)=> {
+      const {accountId} = messages[0];
+
+      NylasAPI.authPlugin(this.pluginId, PLUGIN_NAME, accountId)
       .then(()=> {
         Actions.setMetadata(messages, this.pluginId, metadata);
       })
       .catch((error)=> {
         NylasEnv.reportError(error);
         NylasEnv.showErrorDialog(`Sorry, we were unable to schedule this message. ${error.message}`);
-      })
-    );
+      });
+    });
   };
 
   onSendLater = (draftClientId, sendLaterDate)=> {
-    this.setMetadata(draftClientId, {sendLaterDate})
+    this.setMetadata(draftClientId, {sendLaterDate});
   };
 
   onCancelSendLater = (draftClientId)=> {
-    this.setMetadata(draftClientId, {sendLaterDate: null})
+    this.setMetadata(draftClientId, {sendLaterDate: null});
   };
 
   deactivate = ()=> {
-    this.unsubscribers.forEach(unsub => unsub())
+    this.unsubscribers.forEach(unsub => unsub());
   };
 }
 

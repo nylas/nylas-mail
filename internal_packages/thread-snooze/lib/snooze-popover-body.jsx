@@ -139,7 +139,7 @@ class SnoozePopoverBody extends Component {
         <input
           type="text"
           tabIndex="1"
-          placeholder="Or type a time, like 'next monday at 2PM'"
+          placeholder="Or type a time, like 'next Monday at 2PM'"
           onMouseDown={this.onInputMouseDown}
           onKeyDown={this.onInputKeyDown}
           onChange={this.onInputChange}/>
