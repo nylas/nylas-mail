@@ -26,7 +26,7 @@ class FixedPopover extends Component {
       left: PropTypes.number,
       height: PropTypes.number,
       width: PropTypes.number,
-    }).isRequired,
+    }),
   };
 
   constructor(props) {
