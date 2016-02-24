@@ -60,7 +60,7 @@ class SendLaterPopover extends Component {
   };
 
   onSelectCustomOption = (value)=> {
-    const date = DateUtils.fromString(value);
+    const date = DateUtils.futureDateFromString(value);
     if (date) {
       this.onSelectDate(date);
     } else {
@@ -83,7 +83,7 @@ class SendLaterPopover extends Component {
 
   renderCustomTimeSection() {
     const onChange = (event)=> {
-      this.setState({inputDate: DateUtils.fromString(event.target.value)});
+      this.setState({inputDate: DateUtils.futureDateFromString(event.target.value)});
     }
 
     const onKeyDown = (event)=> {
@@ -130,7 +130,7 @@ class SendLaterPopover extends Component {
 
     if (scheduledDate === 'saving') {
       return (
-        <button className={className} title="Send later...">
+        <button className={className} title="Saving send date...">
           <RetinaImg
             name="inline-loading-spinner.gif"
             mode={RetinaImg.Mode.ContentDark}
@@ -142,13 +142,13 @@ class SendLaterPopover extends Component {
     let dateInterpretation = false;
     if (scheduledDate) {
       className += ' btn-enabled';
-      const momentDate = DateUtils.fromString(scheduledDate);
+      const momentDate = DateUtils.futureDateFromString(scheduledDate);
       if (momentDate) {
         dateInterpretation = <span className="at">Sending in {momentDate.fromNow(true)}</span>;
       }
     }
     return (
-      <button className={className}>
+      <button className={className} title="Send later...">
         <RetinaImg name="icon-composer-sendlater.png" mode={RetinaImg.Mode.ContentIsMask}/>
         {dateInterpretation}
         <span>&nbsp;</span>
