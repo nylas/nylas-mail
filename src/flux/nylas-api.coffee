@@ -11,7 +11,7 @@ async = require 'async'
 # A 0 code is when an error returns without a status code. These are
 # things like "ESOCKETTIMEDOUT"
 TimeoutErrorCode = 0
-PermanentErrorCodes = [400, 403, 404, 405, 500]
+PermanentErrorCodes = [400, 401, 403, 404, 405, 500]
 CancelledErrorCode = -123
 SampleTemporaryErrorCode = 504
 
@@ -127,6 +127,12 @@ class NylasAPI
     NylasEnv.config.onDidChange('env', @_onConfigChanged)
     @_onConfigChanged()
 
+    if NylasEnv.isMainWindow()
+      Actions.notificationActionTaken.listen ({notification, action}) ->
+        if action.id is '401:unlink'
+          Actions.switchPreferencesTab('Accounts')
+          Actions.openPreferences()
+
   _onConfigChanged: =>
     prev = {@AppID, @APIRoot, @APITokens}
 
@@ -191,8 +197,8 @@ class NylasAPI
       if err.response
         if err.response.statusCode is 404 and options.returnsModel
           handlePromise = @_handleModel404(options.url)
-        if err.response.statusCode is 401
-          handlePromise = @_handle401(options.url)
+        if err.response.statusCode in [401, 403]
+          handlePromise = @_handleAuthenticationFailure(options.url, options.auth?.user)
         if err.response.statusCode is 400
           NylasEnv.reportError(err)
       handlePromise.finally ->
@@ -227,14 +233,21 @@ class NylasAPI
     else
       return Promise.resolve()
 
-  _handle401: (modelUrl) ->
+  _handleAuthenticationFailure: (modelUrl, apiToken) ->
+    AccountStore ?= require './stores/account-store'
+    account = AccountStore.accounts().find (account) ->
+      AccountStore.tokenForAccountId(account.id) is apiToken
+
+    email = "your mail provider"
+    email = account.emailAddress if account
+
     Actions.postNotification
       type: 'error'
       tag: '401'
       sticky: true
-      message: "Nylas can no longer authenticate with your mail provider. You
-               will not be able to send or receive mail. Please unlink your
-               account and sign in again.",
+      message: "Nylas can no longer authenticate with #{email}. You
+                will not be able to send or receive mail. Please remove the
+                account and sign in again.",
       icon: 'fa-sign-out'
       actions: [{
         default: true
@@ -242,13 +255,6 @@ class NylasAPI
         label: 'Unlink'
         id: '401:unlink'
       }]
-
-    unless @_notificationUnlisten
-      handler = ({notification, action}) ->
-        if action.id is '401:unlink'
-          {ipcRenderer} = require 'electron'
-          ipcRenderer.send('command', 'application:reset-config-and-relaunch')
-      @_notificationUnlisten = Actions.notificationActionTaken.listen(handler, @)
 
     return Promise.resolve()
 
@@ -362,7 +368,7 @@ class NylasAPI
     @_optimisticChangeTracker.decrement(klass, id)
 
   accessTokenForAccountId: (aid) ->
-    AccountStore = require './stores/account-store'
+    AccountStore ?= require './stores/account-store'
     AccountStore.tokenForAccountId(aid)
 
   # Returns a promise that will resolve if the user is successfully authed

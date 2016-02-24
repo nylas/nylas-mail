@@ -1,7 +1,7 @@
 import {DraftStore, React, Actions, NylasAPI, DatabaseStore, Message, Rx} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
-import plugin from '../package.json'
-const PLUGIN_ID = plugin.appId;
+import {PLUGIN_ID, PLUGIN_NAME} from './link-tracking-constants'
+
 
 export default class LinkTrackingButton extends React.Component {
   static displayName = 'LinkTrackingButton';
@@ -17,30 +17,35 @@ export default class LinkTrackingButton extends React.Component {
 
   componentDidMount() {
     const query = DatabaseStore.findBy(Message, {clientId: this.props.draftClientId});
-    this._subscription = Rx.Observable.fromQuery(query).subscribe(this.setStateFromDraft)
+    this._subscription = Rx.Observable.fromQuery(query).subscribe(this.setStateFromDraft);
   }
 
   componentWillUnmount() {
     this._subscription.dispose();
   }
 
-  setStateFromDraft =(draft)=> {
+  setStateFromDraft = (draft)=> {
     if (!draft) return;
     const metadata = draft.metadataForPluginId(PLUGIN_ID);
     this.setState({enabled: metadata ? metadata.tracked : false});
   };
 
-  _onClick=()=> {
+  _onClick = ()=> {
     const currentlyEnabled = this.state.enabled;
 
     // write metadata into the draft to indicate tracked state
-    DraftStore.sessionForClientId(this.props.draftClientId)
-      .then(session => session.draft())
-      .then(draft => {
-        return NylasAPI.authPlugin(PLUGIN_ID, plugin.title, draft.accountId).then(() => {
-          Actions.setMetadata(draft, PLUGIN_ID, currentlyEnabled ? null : {tracked: true});
-        });
+    DraftStore.sessionForClientId(this.props.draftClientId).then((session) => {
+      const draft = session.draft();
+
+      NylasAPI.authPlugin(PLUGIN_ID, PLUGIN_NAME, draft.accountId)
+      .then(() => {
+        Actions.setMetadata(draft, PLUGIN_ID, currentlyEnabled ? null : {tracked: true});
+      })
+      .catch((error)=> {
+        NylasEnv.reportError(error);
+        NylasEnv.showErrorDialog(`Sorry, we were unable to save your link tracking settings. ${error.message}`);
       });
+    });
   };
 
   render() {
@@ -51,10 +56,9 @@ export default class LinkTrackingButton extends React.Component {
         className={`btn btn-toolbar ${this.state.enabled ? "btn-enabled" : ""}`}
         onClick={this._onClick}>
         <RetinaImg
-          url="nylas://link-tracking/assets/linktracking-icon@2x.png"
+          name="icon-composer-linktracking.png"
           mode={RetinaImg.Mode.ContentIsMask} />
       </button>
     )
   }
 }
-

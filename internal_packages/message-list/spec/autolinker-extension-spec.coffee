@@ -21,8 +21,8 @@ describe "AutolinkerExtension", ->
       body: """
         <a href="apple.com" title="apple.com" >hello world!</a>
         <a href = "http://apple.com" title="http://apple.com" >hello world!</a>
-        <a href ='http://apple.com' title='http://apple.com' >hello world!</a>
-        <a href ='mailto://' title='mailto://' >hello world!</a>
+        <a href ='http://apple.com' title="http://apple.com" >hello world!</a>
+        <a href ='mailto://' title="mailto://" >hello world!</a>
       """
     AutolinkerExtension.formatMessageBody({message})
     expect(message.body).toEqual(expected.body)

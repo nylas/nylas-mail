@@ -9,15 +9,10 @@ const toolbarButton = (
     className="btn btn-toolbar btn-snooze"
     title="Snooze">
     <RetinaImg
-      url="nylas://thread-snooze/assets/ic-toolbar-native-snooze@2x.png"
+      name="toolbar-snooze.png"
       mode={RetinaImg.Mode.ContentIsMask} />
   </button>
 )
-
-const quickActionButton = (
-  <div title="Snooze" className="btn action action-snooze" />
-)
-
 
 export class BulkThreadSnooze extends Component {
   static displayName = 'BulkThreadSnooze';
@@ -27,8 +22,15 @@ export class BulkThreadSnooze extends Component {
     items: PropTypes.array,
   };
 
+  static containerRequired = false;
+
   render() {
-    return <SnoozePopover buttonComponent={toolbarButton} threads={this.props.items} />;
+    return (
+      <SnoozePopover
+        direction="down"
+        buttonComponent={toolbarButton}
+        threads={this.props.items} />
+    );
   }
 }
 
@@ -39,19 +41,22 @@ export class ToolbarSnooze extends Component {
     thread: PropTypes.object,
   };
 
-  render() {
-    return <SnoozePopover buttonComponent={toolbarButton} threads={[this.props.thread]} />;
-  }
-}
-
-export class QuickActionSnooze extends Component {
-  static displayName = 'QuickActionSnooze';
-
-  static propTypes = {
-    thread: PropTypes.object,
-  };
+  static containerRequired = false;
 
   render() {
-    return <SnoozePopover buttonComponent={quickActionButton} threads={[this.props.thread]} />;
+    const pointerStyle = {
+      right: 18,
+      display: 'block',
+    };
+    const popoverStyle = {
+      transform: 'translate(0, 15px)',
+    }
+    return (
+      <SnoozePopover
+        pointerStyle={pointerStyle}
+        popoverStyle={popoverStyle}
+        buttonComponent={toolbarButton}
+        threads={[this.props.thread]} />
+    );
   }
 }

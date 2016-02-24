@@ -1,8 +1,9 @@
 import {React} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
-import plugin from '../package.json'
+import {PLUGIN_ID} from './link-tracking-constants'
 
 const sum = (array, extractFn) => array.reduce( (a, b) => a + extractFn(b), 0 );
+
 
 export default class LinkTrackingIcon extends React.Component {
 
@@ -24,7 +25,7 @@ export default class LinkTrackingIcon extends React.Component {
   _getStateFromThread(thread) {
     const messages = thread.metadata;
     // Pull a list of metadata for all messages
-    const metadataObjs = messages.map(msg => msg.metadataForPluginId(plugin.appId)).filter(meta => meta);
+    const metadataObjs = messages.map(msg => msg.metadataForPluginId(PLUGIN_ID)).filter(meta => meta);
     if (metadataObjs.length) {
       // If there's metadata, return the total number of link clicks in the most recent metadata
       const mostRecentMetadata = metadataObjs.pop();
@@ -44,7 +45,7 @@ export default class LinkTrackingIcon extends React.Component {
     return (<span>
       <RetinaImg
         className={clicks > 0 ? "clicked" : ""}
-        url="nylas://link-tracking/assets/linktracking-icon@2x.png"
+        name="icon-composer-linktracking.png"
         mode={RetinaImg.Mode.ContentIsMask} />
       <span className="link-click-count">{clicks > 0 ? clicks : ""}</span>
     </span>)

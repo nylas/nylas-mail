@@ -1,15 +1,15 @@
+import request from 'request';
 import {ComponentRegistry, DatabaseStore, Message, ExtensionRegistry, Actions} from 'nylas-exports';
 import LinkTrackingButton from './link-tracking-button';
-import LinkTrackingIcon from './link-tracking-icon';
+// TODO what's up with these components?
+// import LinkTrackingIcon from './link-tracking-icon';
+// import LinkTrackingPanel from './link-tracking-panel';
 import LinkTrackingComposerExtension from './link-tracking-composer-extension';
-import LinkTrackingPanel from './link-tracking-panel';
-import plugin from '../package.json'
-
-import request from 'request';
+import LinkTrackingMessageExtension from './link-tracking-message-extension';
+import {PLUGIN_ID, PLUGIN_URL} from './link-tracking-constants';
 
 const post = Promise.promisify(request.post, {multiArgs: true});
-const PLUGIN_ID = plugin.appId;
-const PLUGIN_URL = "n1-link-tracking.herokuapp.com";
+
 
 function afterDraftSend({draftClientId}) {
   // only run this handler in the main window
@@ -25,7 +25,7 @@ function afterDraftSend({draftClientId}) {
 
       // post the uid and message id pair to the plugin server
       const data = {uid: uid, message_id: message.id};
-      const serverUrl = `http://${PLUGIN_URL}/register-message`;
+      const serverUrl = `${PLUGIN_URL}/register-message`;
       return post({
         url: serverUrl,
         body: JSON.stringify(data),
@@ -44,9 +44,10 @@ function afterDraftSend({draftClientId}) {
 
 export function activate() {
   ComponentRegistry.register(LinkTrackingButton, {role: 'Composer:ActionButton'});
-  ComponentRegistry.register(LinkTrackingIcon, {role: 'ThreadListIcon'});
-  ComponentRegistry.register(LinkTrackingPanel, {role: 'message:BodyHeader'});
+  // ComponentRegistry.register(LinkTrackingIcon, {role: 'ThreadListIcon'});
+  // ComponentRegistry.register(LinkTrackingPanel, {role: 'message:BodyHeader'});
   ExtensionRegistry.Composer.register(LinkTrackingComposerExtension);
+  ExtensionRegistry.MessageView.register(LinkTrackingMessageExtension);
   this._unlistenSendDraftSuccess = Actions.sendDraftSuccess.listen(afterDraftSend);
 }
 
@@ -54,8 +55,9 @@ export function serialize() {}
 
 export function deactivate() {
   ComponentRegistry.unregister(LinkTrackingButton);
-  ComponentRegistry.unregister(LinkTrackingIcon);
-  ComponentRegistry.unregister(LinkTrackingPanel);
+  // ComponentRegistry.unregister(LinkTrackingIcon);
+  // ComponentRegistry.unregister(LinkTrackingPanel);
   ExtensionRegistry.Composer.unregister(LinkTrackingComposerExtension);
+  ExtensionRegistry.MessageView.unregister(LinkTrackingMessageExtension);
   this._unlistenSendDraftSuccess()
 }

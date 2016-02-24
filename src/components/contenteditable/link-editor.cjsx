@@ -24,7 +24,6 @@ class LinkEditor extends React.Component
 
   componentDidMount: ->
     if @props.focusOnMount
-      console.log "FOCUSING ON MOUNT"
       React.findDOMNode(@refs["urlInput"]).focus()
 
   render: =>

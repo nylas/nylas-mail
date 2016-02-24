@@ -1,30 +1,13 @@
-import SystemTray from './system-tray';
+import SystemTrayIconStore from './system-tray-icon-store';
 const platform = process.platform;
 
-let systemTray;
-let unsubConfig = ()=>{};
-
-export function deactivate() {
-  if (systemTray) {
-    systemTray.destroy();
-    systemTray = null;
-  }
-  unsubConfig();
+export function activate() {
+  this.store = new SystemTrayIconStore(platform);
+  this.store.activate();
 }
 
-const onSystemTrayToggle = (showSystemTray)=> {
-  deactivate();
-  if (showSystemTray.newValue) {
-    systemTray = new SystemTray(platform);
-  }
-};
-
-export function activate() {
-  deactivate();
-  unsubConfig = NylasEnv.config.onDidChange('core.workspace.systemTray', onSystemTrayToggle).dispose;
-  if (NylasEnv.config.get('core.workspace.systemTray')) {
-    systemTray = new SystemTray(platform);
-  }
+export function deactivate() {
+  this.store.deactivate();
 }
 
 export function serialize() {
