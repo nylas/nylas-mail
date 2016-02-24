@@ -96,6 +96,10 @@ TrackingBlacklist = [{
     name: 'Salesloft',
     pattern: 'sdr.salesloft.com/email_trackers',
     homepage: 'http://salesloft.com'
+  }, {
+    name: 'Nylas',
+    pattern: 'nylas.com/open',
+    homepage: 'http://nylas.com/N1'
   }]
 
 class TrackingPixelsExtension extends MessageViewExtension
