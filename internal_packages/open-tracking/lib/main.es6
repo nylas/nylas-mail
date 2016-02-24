@@ -57,7 +57,7 @@ export function serialize() {}
 export function deactivate() {
   ComponentRegistry.unregister(OpenTrackingButton);
   ComponentRegistry.unregister(OpenTrackingIcon);
-  ComponentRegistry.register(OpenTrackingMessageStatus);
+  ComponentRegistry.unregister(OpenTrackingMessageStatus);
   ExtensionRegistry.Composer.unregister(OpenTrackingComposerExtension);
   this._unlistenSendDraftSuccess()
 }

@@ -5,7 +5,7 @@ class PackageSet extends React.Component
   @propTypes:
     title: React.PropTypes.string.isRequired
     packages: React.PropTypes.array.isRequired
-    emptyText: React.PropTypes.string
+    emptyText: React.PropTypes.element
 
   render: ->
     return false unless @props.packages
