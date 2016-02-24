@@ -1,7 +1,7 @@
 import {DraftStore, React, Actions, NylasAPI, DatabaseStore, Message, Rx} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
-import plugin from '../package.json'
-const PLUGIN_ID = plugin.appId[NylasEnv.config.get("env")];
+import {PLUGIN_ID, PLUGIN_NAME} from './link-tracking-constants'
+
 
 export default class LinkTrackingButton extends React.Component {
   static displayName = 'LinkTrackingButton';
@@ -37,7 +37,7 @@ export default class LinkTrackingButton extends React.Component {
     DraftStore.sessionForClientId(this.props.draftClientId).then((session) => {
       const draft = session.draft();
 
-      NylasAPI.authPlugin(PLUGIN_ID, plugin.title, draft.accountId)
+      NylasAPI.authPlugin(PLUGIN_ID, PLUGIN_NAME, draft.accountId)
       .then(() => {
         Actions.setMetadata(draft, PLUGIN_ID, currentlyEnabled ? null : {tracked: true});
       })

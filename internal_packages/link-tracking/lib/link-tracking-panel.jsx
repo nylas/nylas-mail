@@ -1,6 +1,6 @@
 import {React} from 'nylas-exports'
-import plugin from '../package.json'
-const PLUGIN_ID = plugin.appId[NylasEnv.config.get("env")];
+import {PLUGIN_ID} from './link-tracking-constants'
+
 
 export default class LinkTrackingPanel extends React.Component {
   static displayName = 'LinkTrackingPanel';

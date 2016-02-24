@@ -1,7 +1,7 @@
 import {React} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
-import plugin from '../package.json'
-const PLUGIN_ID = plugin.appId[NylasEnv.config.get("env")];
+import {PLUGIN_ID} from './open-tracking-constants'
+
 
 export default class OpenTrackingIcon extends React.Component {
   static displayName = 'OpenTrackingIcon';

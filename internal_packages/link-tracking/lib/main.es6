@@ -1,16 +1,15 @@
+import request from 'request';
 import {ComponentRegistry, DatabaseStore, Message, ExtensionRegistry, Actions} from 'nylas-exports';
 import LinkTrackingButton from './link-tracking-button';
+// TODO what's up with these components?
 // import LinkTrackingIcon from './link-tracking-icon';
+// import LinkTrackingPanel from './link-tracking-panel';
 import LinkTrackingComposerExtension from './link-tracking-composer-extension';
 import LinkTrackingMessageExtension from './link-tracking-message-extension';
-// import LinkTrackingPanel from './link-tracking-panel';
-import plugin from '../package.json'
-
-import request from 'request';
+import {PLUGIN_ID, PLUGIN_URL} from './link-tracking-constants';
 
 const post = Promise.promisify(request.post, {multiArgs: true});
-const PLUGIN_ID = plugin.appId[NylasEnv.config.get("env")];
-const PLUGIN_URL = "https://edgehill-staging.nylas.com/plugins";
+
 
 function afterDraftSend({draftClientId}) {
   // only run this handler in the main window
