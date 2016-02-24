@@ -1,6 +1,7 @@
 import {React} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
-import plugin from '../package.json'
+import {PLUGIN_ID} from './open-tracking-constants'
+
 
 export default class OpenTrackingIcon extends React.Component {
   static displayName = 'OpenTrackingIcon';
@@ -20,26 +21,29 @@ export default class OpenTrackingIcon extends React.Component {
 
   _getStateFromThread(thread) {
     const messages = thread.metadata;
-    const metadataObjs = messages.map(msg => msg.metadataForPluginId(plugin.appId)).filter(meta => meta);
-    return {opened: metadataObjs.length ? metadataObjs.every(m => m.open_count > 0) : null};
+    if ((messages || []).length === 0) { return {opened: false, hasMetadata: false} }
+    const metadataObjs = messages.map(msg => msg.metadataForPluginId(PLUGIN_ID)).filter(meta => meta);
+    return {
+      hasMetadata: metadataObjs.length > 0,
+      opened: metadataObjs.length > 0 && metadataObjs.every(m => m.open_count > 0),
+    };
   }
 
-  _renderIcon = () => {
-    if (this.state.opened == null) {
-      return <span />;
-    }
+  _renderImage() {
     return (
       <RetinaImg
         className={this.state.opened ? "opened" : "unopened"}
-        url="nylas://open-tracking/assets/icon-composer-eye@2x.png"
+        url="nylas://open-tracking/assets/icon-tracking-read@2x.png"
         mode={RetinaImg.Mode.ContentIsMask} />
     );
-  };
+  }
 
   render() {
+    if (!this.state.hasMetadata) { return false }
+    const title = this.state.opened ? "This message has been read at least once" : "This message has not been read";
     return (
-      <div className="open-tracking-icon">
-        {this._renderIcon()}
+      <div title={title} className="open-tracking-icon">
+        {this._renderImage()}
       </div>
     );
   }

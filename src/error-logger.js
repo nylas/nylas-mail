@@ -54,6 +54,7 @@ module.exports = ErrorLogger = (function() {
   /////////////////////////////////////////////////////////////////////
 
   ErrorLogger.prototype.reportError = function(error, extra) {
+    var nslog = require('nslog');
     if (!error) { error = {stack: ""} }
     this._appendLog(error.stack)
     if (extra) { this._appendLog(extra) }

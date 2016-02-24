@@ -100,7 +100,7 @@ export default class SwipeContainer extends Component {
 
   _isEnabled = ()=> {
     return (this.props.onSwipeLeft || this.props.onSwipeRight);
-  }
+  };
 
   _onWheel = (e)=> {
     let velocity = e.deltaX / 3;
@@ -112,7 +112,7 @@ export default class SwipeContainer extends Component {
     if (this.phase === Phase.GestureConfirmed) {
       e.preventDefault();
     }
-  }
+  };
 
   _onDragWithVelocity = (velocity)=> {
     if ((this.tracking === false) || !this._isEnabled()) {
@@ -147,11 +147,11 @@ export default class SwipeContainer extends Component {
       targetX = -fullDistance;
     }
     this.setState({thresholdDistance, fullDistance, velocity, currentX, targetX, lastDragX});
-  }
+  };
 
   _onScrollTouchBegin = ()=> {
     this.tracking = true;
-  }
+  };
 
   _onScrollTouchEnd = ()=> {
     this.tracking = false;
@@ -162,7 +162,7 @@ export default class SwipeContainer extends Component {
         settleStartTime: Date.now(),
       });
     }
-  }
+  };
 
   _onTouchStart = (e)=> {
     if ((this.trackingTouchIdentifier === null) && (e.targetTouches.length > 0)) {
@@ -171,7 +171,7 @@ export default class SwipeContainer extends Component {
       this.trackingTouchX = touch.clientX;
       this._onScrollTouchBegin();
     }
-  }
+  };
 
   _onTouchMove = (e)=> {
     if (this.trackingTouchIdentifier === null) {
@@ -199,7 +199,7 @@ export default class SwipeContainer extends Component {
         e.preventDefault();
       }
     }
-  }
+  };
 
   _onTouchEnd = (e)=> {
     if (this.trackingTouchIdentifier === null) {
@@ -212,7 +212,7 @@ export default class SwipeContainer extends Component {
         break;
       }
     }
-  }
+  };
 
   _onSwipeActionCompleted = (rowWillDisappear)=> {
     let delay = 0;
@@ -225,7 +225,7 @@ export default class SwipeContainer extends Component {
         this._onReset();
       }
     }, delay);
-  }
+  };
 
   _onReset() {
     this.phase = Phase.Settling;

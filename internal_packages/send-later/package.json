@@ -1,6 +1,10 @@
 {
   "name": "n1-send-later",
   "version": "1.0.0",
+  "appId": {
+    "staging": "aqx344zhdh6jyabqokejknkvr",
+    "production": "f076wnyq9hfk00mifxr91mank"
+  },
 
   "title": "Send Later",
   "description": "Choose to send emails at a specified time in the future.",

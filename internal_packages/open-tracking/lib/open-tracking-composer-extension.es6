@@ -1,10 +1,7 @@
-import {ComposerExtension, Actions, QuotedHTMLTransformer} from 'nylas-exports';
-import plugin from '../package.json'
-
 import uuid from 'node-uuid';
+import {ComposerExtension, Actions, QuotedHTMLTransformer} from 'nylas-exports';
+import {PLUGIN_ID, PLUGIN_URL} from './open-tracking-constants';
 
-const PLUGIN_ID = plugin.appId;
-const PLUGIN_URL = "n1-open-tracking.herokuapp.com";
 
 class DraftBody {
   constructor(draft) {this._body = draft.body}

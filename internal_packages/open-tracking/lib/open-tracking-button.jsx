@@ -1,7 +1,7 @@
 import {DraftStore, React, Actions, NylasAPI, DatabaseStore, Message, Rx} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
-import plugin from '../package.json'
-const PLUGIN_ID = plugin.appId;
+import {PLUGIN_ID, PLUGIN_NAME} from './open-tracking-constants'
+
 
 export default class OpenTrackingButton extends React.Component {
 
@@ -35,13 +35,18 @@ export default class OpenTrackingButton extends React.Component {
     const currentlyEnabled = this.state.enabled;
 
     // write metadata into the draft to indicate tracked state
-    DraftStore.sessionForClientId(this.props.draftClientId)
-      .then(session => session.draft())
-      .then(draft => {
-        return NylasAPI.authPlugin(PLUGIN_ID, plugin.title, draft.accountId).then(() => {
-          Actions.setMetadata(draft, PLUGIN_ID, currentlyEnabled ? null : {tracked: true});
-        });
+    DraftStore.sessionForClientId(this.props.draftClientId).then((session)=> {
+      const draft = session.draft();
+
+      NylasAPI.authPlugin(PLUGIN_ID, PLUGIN_NAME, draft.accountId)
+      .then(() => {
+        Actions.setMetadata(draft, PLUGIN_ID, currentlyEnabled ? null : {tracked: true});
+      })
+      .catch((error)=> {
+        NylasEnv.reportError(error);
+        NylasEnv.showErrorDialog(`Sorry, we were unable to save your read receipt settings. ${error.message}`);
       });
+    });
   };
 
   render() {

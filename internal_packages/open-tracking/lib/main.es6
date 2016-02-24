@@ -1,14 +1,13 @@
+import request from 'request';
 import {ComponentRegistry, ExtensionRegistry, DatabaseStore, Message, Actions} from 'nylas-exports';
 import OpenTrackingButton from './open-tracking-button';
 import OpenTrackingIcon from './open-tracking-icon';
+import OpenTrackingMessageStatus from './open-tracking-message-status';
 import OpenTrackingComposerExtension from './open-tracking-composer-extension';
-import plugin from '../package.json'
-
-import request from 'request';
+import {PLUGIN_ID, PLUGIN_URL} from './open-tracking-constants'
 
 const post = Promise.promisify(request.post, {multiArgs: true});
-const PLUGIN_ID = plugin.appId;
-const PLUGIN_URL = "n1-open-tracking.herokuapp.com";
+
 
 function afterDraftSend({draftClientId}) {
   // only run this handler in the main window
@@ -28,7 +27,7 @@ function afterDraftSend({draftClientId}) {
 
       // post the uid and message id pair to the plugin server
       const data = {uid: uid, message_id: message.id, thread_id: 1};
-      const serverUrl = `http://${PLUGIN_URL}/register-message`;
+      const serverUrl = `${PLUGIN_URL}/register-message`;
       return post({
         url: serverUrl,
         body: JSON.stringify(data),
@@ -48,6 +47,7 @@ function afterDraftSend({draftClientId}) {
 export function activate() {
   ComponentRegistry.register(OpenTrackingButton, {role: 'Composer:ActionButton'});
   ComponentRegistry.register(OpenTrackingIcon, {role: 'ThreadListIcon'});
+  ComponentRegistry.register(OpenTrackingMessageStatus, {role: 'MessageHeaderStatus'});
   ExtensionRegistry.Composer.register(OpenTrackingComposerExtension);
   this._unlistenSendDraftSuccess = Actions.sendDraftSuccess.listen(afterDraftSend);
 }
@@ -57,6 +57,7 @@ export function serialize() {}
 export function deactivate() {
   ComponentRegistry.unregister(OpenTrackingButton);
   ComponentRegistry.unregister(OpenTrackingIcon);
+  ComponentRegistry.unregister(OpenTrackingMessageStatus);
   ExtensionRegistry.Composer.unregister(OpenTrackingComposerExtension);
   this._unlistenSendDraftSuccess()
 }
