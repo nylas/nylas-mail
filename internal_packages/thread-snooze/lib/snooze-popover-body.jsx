@@ -99,7 +99,7 @@ class SnoozePopoverBody extends Component {
   };
 
   updateInputDateValue = _.debounce((dateValue)=> {
-    const inputDate = DateUtils.fromString(dateValue)
+    const inputDate = DateUtils.futureDateFromString(dateValue)
     this.setState({inputDate})
   }, 250);
 
