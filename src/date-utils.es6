@@ -12,15 +12,15 @@ const Days = {
   ThisWeekend: 6,
 }
 
-moment.prototype.oclock = function oclock() {
+moment().__proto__.oclock = function oclock() {
   return this.minute(0).second(0)
 }
 
-moment.prototype.morning = function morning(morningHour = Hours.Morning) {
+moment().__proto__.morning = function morning(morningHour = Hours.Morning) {
   return this.hour(morningHour).oclock()
 }
 
-moment.prototype.evening = function evening(eveningHour = Hours.Evening) {
+moment().__proto__.evening = function evening(eveningHour = Hours.Evening) {
   return this.hour(eveningHour).oclock()
 }
 
