@@ -50,7 +50,7 @@
       { label: 'Check for Update', command: 'application:check-for-update', visible: false}
       { label: 'Downloading Update', enabled: false, visible: false}
       { type: 'separator' }
-      { label: 'Send Feedback to Nylas', command: 'application:send-feedback' }
+      { label: 'Nylas N1 Help', command: 'application:view-help' }
     ]
   }
   { type: 'separator' }
