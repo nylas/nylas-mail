@@ -1,6 +1,11 @@
 {
   "name": "thread-snooze",
   "version": "1.0.0",
+  "appId": {
+    "staging": "2bfvqp9ylcl1az76od31qmny",
+    "production": ""
+  },
+
   "title": "Thread Snooze",
   "description": "Snooze mail!",
   "main": "lib/main.js",

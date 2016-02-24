@@ -1,5 +1,6 @@
 import {React} from 'nylas-exports'
 import plugin from '../package.json'
+const PLUGIN_ID = plugin.appId[NylasEnv.config.get("env")];
 
 export default class LinkTrackingPanel extends React.Component {
   static displayName = 'LinkTrackingPanel';
@@ -18,7 +19,7 @@ export default class LinkTrackingPanel extends React.Component {
   }
 
   _getStateFromMessage(message) {
-    const metadata = message.metadataForPluginId(plugin.appId);
+    const metadata = message.metadataForPluginId(PLUGIN_ID);
     return metadata ? {links: metadata.links} : {};
   }
 

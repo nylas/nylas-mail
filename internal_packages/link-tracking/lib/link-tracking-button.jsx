@@ -1,7 +1,7 @@
 import {DraftStore, React, Actions, NylasAPI, DatabaseStore, Message, Rx} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
 import plugin from '../package.json'
-const PLUGIN_ID = plugin.appId;
+const PLUGIN_ID = plugin.appId[NylasEnv.config.get("env")];
 
 export default class LinkTrackingButton extends React.Component {
   static displayName = 'LinkTrackingButton';

@@ -2,7 +2,10 @@
   "name": "open-tracking",
   "main": "./lib/main",
   "version": "0.1.0",
-  "appId":"9tm0s8yzzkaahi5nql34iw8wu",
+  "appId": {
+    "staging": "3i2bws091xrj7fpb1aqt2tud6",
+    "production": ""
+  },
 
   "title": "Open Tracking",
   "description": "Tracks whether email messages have been opened by recipients",

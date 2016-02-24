@@ -9,8 +9,8 @@ import plugin from '../package.json'
 import request from 'request';
 
 const post = Promise.promisify(request.post, {multiArgs: true});
-const PLUGIN_ID = plugin.appId;
-const PLUGIN_URL = "n1-link-tracking.herokuapp.com";
+const PLUGIN_ID = plugin.appId[NylasEnv.config.get("env")];
+const PLUGIN_URL = "https://edgehill-staging.nylas.com/plugins";
 
 function afterDraftSend({draftClientId}) {
   // only run this handler in the main window
@@ -26,7 +26,7 @@ function afterDraftSend({draftClientId}) {
 
       // post the uid and message id pair to the plugin server
       const data = {uid: uid, message_id: message.id};
-      const serverUrl = `http://${PLUGIN_URL}/register-message`;
+      const serverUrl = `${PLUGIN_URL}/register-message`;
       return post({
         url: serverUrl,
         body: JSON.stringify(data),
