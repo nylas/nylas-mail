@@ -142,7 +142,10 @@ class ThreadList extends React.Component
       element = document.querySelector("[data-item-id=\"#{item.id}\"]")
       rect = element.getBoundingClientRect()
       Actions.openPopover(
-        <SnoozePopoverBody threads={[item]} swipeCallback={callback}/>,
+        <SnoozePopoverBody
+          threads={[item]}
+          swipeCallback={callback}
+          closePopover={Actions.closePopover}/>,
         rect,
         "right"
       )
