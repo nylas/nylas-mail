@@ -1,6 +1,7 @@
 import {React} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
 import plugin from '../package.json'
+const PLUGIN_ID = plugin.appId[NylasEnv.config.get("env")];
 
 export default class OpenTrackingIcon extends React.Component {
   static displayName = 'OpenTrackingIcon';
@@ -21,7 +22,7 @@ export default class OpenTrackingIcon extends React.Component {
   _getStateFromThread(thread) {
     const messages = thread.metadata;
     if ((messages || []).length === 0) { return {opened: false, hasMetadata: false} }
-    const metadataObjs = messages.map(msg => msg.metadataForPluginId(plugin.appId)).filter(meta => meta);
+    const metadataObjs = messages.map(msg => msg.metadataForPluginId(PLUGIN_ID)).filter(meta => meta);
     return {
       hasMetadata: metadataObjs.length > 0,
       opened: metadataObjs.length > 0 && metadataObjs.every(m => m.open_count > 0),

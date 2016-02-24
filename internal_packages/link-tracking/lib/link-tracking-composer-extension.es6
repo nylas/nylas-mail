@@ -7,7 +7,7 @@ import plugin from '../package.json'
 
 import uuid from 'node-uuid';
 
-const PLUGIN_ID = plugin.appId;
+const PLUGIN_ID = plugin.appId[NylasEnv.config.get("env")];
 const PLUGIN_URL = "n1-link-tracking.herokuapp.com";
 
 class DraftBody {

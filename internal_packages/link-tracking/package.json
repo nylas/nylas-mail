@@ -2,7 +2,10 @@
   "name": "link-tracking",
   "main": "./lib/main",
   "version": "0.1.0",
-  "appId":"ybqmsi39th16ka60dcxz1in9",
+  "appId": {
+    "staging": "2lsb6ounfysvwcdzxzy3bzsuh",
+    "production": ""
+  },
 
   "title": "Link Tracking",
   "description": "Tracks whether links in an email have been clicked by recipients",
