@@ -8,7 +8,11 @@ class SendActionButton extends React.Component
 
   @propTypes:
     draft: React.PropTypes.object
+    style: React.PropTypes.object
     isValidDraft: React.PropTypes.func
+
+  @defaultProps:
+    style: {}
 
   @CONFIG_KEY: "core.sending.defaultSendType"
 

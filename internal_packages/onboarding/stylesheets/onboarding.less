@@ -394,8 +394,17 @@
   border:1px solid #e1e1e1;
   text-align:left;
   cursor: default;
-  img {
+
+  .icon-container {
     float:left;
+    width: 52px;
+    height: 52px;
+    border-radius: 6px;
+    background: linear-gradient(to bottom, @background-primary 0%, @background-secondary 100%);
+    box-shadow: 0 0.5px 0 rgba(0,0,0,0.15), 0 -0.5px 0 rgba(0,0,0,0.15), 0.5px 0 0 rgba(0,0,0,0.15), -0.5px 0 0 rgba(0,0,0,0.15), 0 0.5px 1px rgba(0, 0, 0, 0.15);
+    flex-shrink: 0;
+    text-align: center;
+    line-height: 50px;
     margin: 12px;
     margin-left: 5px;
     margin-right: 20px;
