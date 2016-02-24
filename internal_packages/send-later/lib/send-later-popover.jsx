@@ -79,9 +79,9 @@ class SendLaterPopover extends Component {
     return (
       <div key="custom" className="custom-time-section">
         <input
-          tabIndex={1}
+          tabIndex="1"
           type="text"
-          placeholder="Or type a time..."
+          placeholder="e.g. 'Sunday at 2PM'"
           onChange={event=> updateInputDateValue(event.target.value)}/>
         {dateInterpretation}
       </div>
