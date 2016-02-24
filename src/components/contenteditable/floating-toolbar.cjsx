@@ -57,6 +57,7 @@ class FloatingToolbar extends React.Component
       toolbarComponent: null
       toolbarLocationRef: null
       toolbarComponentProps: {}
+      hidePointer: false
     @innerProps = FloatingToolbar.defaultInnerProps
 
   shouldComponentUpdate: (nextProps, nextState) ->
@@ -95,8 +96,8 @@ class FloatingToolbar extends React.Component
       <div ref="floatingToolbar"
            className={@_toolbarClasses()}
            style={@_toolbarStyles()}>
-        <div className="toolbar-pointer"
-             style={@_toolbarPointerStyles()}></div>
+
+        {@_renderPointer()}
         <ToolbarComponent {...@state.toolbarComponentProps} />
       </div>
     </div>
@@ -116,6 +117,7 @@ class FloatingToolbar extends React.Component
     toolbarWidth = 0
     toolbarHeight = 0
     toolbarLocationRef = null
+    hidePointer = false
     toolbarComponentProps = {}
 
     for extension in props.extensions
@@ -127,13 +129,15 @@ class FloatingToolbar extends React.Component
           toolbarLocationRef = params.locationRefNode
           toolbarWidth = params.width
           toolbarHeight = params.height
+          if params.hidePointer
+            hidePointer = params.hidePointer
       catch error
         NylasEnv.reportError(error)
 
     if toolbarComponent and not toolbarLocationRef
       throw new Error("You must provide a locationRefNode for #{toolbarComponent.displayName}. It must be either a DOM Element or a Range.")
 
-    return {toolbarComponent, toolbarComponentProps, toolbarLocationRef, toolbarWidth, toolbarHeight}
+    return {toolbarComponent, toolbarComponentProps, toolbarLocationRef, toolbarWidth, toolbarHeight, hidePointer}
 
   @CONTENT_PADDING: 15
 
@@ -158,9 +162,13 @@ class FloatingToolbar extends React.Component
     calcLeft = Math.min(Math.max(calcLeft, FloatingToolbar.CONTENT_PADDING+BORDER_RADIUS_PADDING), editArea.width - BORDER_RADIUS_PADDING)
 
     calcTop = referenceRect.top - editArea.top - toolbarHeight - 14
+    if @state.hidePointer
+      calcTop += 10
     toolbarPos = "above"
     if calcTop < TOP_PADDING
       calcTop = referenceRect.top - editArea.top + referenceRect.height + TOP_PADDING + 4
+      if @state.hidePointer
+        calcTop -= 10
       toolbarPos = "below"
 
     maxWidth = editArea.width - FloatingToolbar.CONTENT_PADDING * 2
@@ -205,5 +213,9 @@ class FloatingToolbar extends React.Component
     styles =
       left: left
     return styles
+
+  _renderPointer: =>
+    unless @state.hidePointer
+      return <div className="toolbar-pointer" style={@_toolbarPointerStyles()}></div>
 
 module.exports = FloatingToolbar

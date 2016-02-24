@@ -39,9 +39,10 @@ class SidebarSection
 
     starredItem = SidebarItem.forStarred([account.id])
     draftsItem = SidebarItem.forDrafts([account.id])
+    snoozedItem = SidebarItem.forSnoozed([account.id])
 
     # Order correctly: Inbox, Starred, rest... , Drafts
-    items.splice(1, 0, starredItem)
+    items.splice(1, 0, starredItem, snoozedItem)
     items.push(draftsItem)
 
     return {
@@ -77,15 +78,20 @@ class SidebarSection
 
       items.push SidebarItem.forCategories(categories, {children, editable: false, deletable: false})
 
-    starredItem = SidebarItem.forStarred(_.pluck(accounts, 'id'),
+    accountIds = _.pluck(accounts, 'id')
+
+    starredItem = SidebarItem.forStarred(accountIds,
       children: accounts.map (acc) -> SidebarItem.forStarred([acc.id], name: acc.label)
     )
-    draftsItem = SidebarItem.forDrafts(_.pluck(accounts, 'id'),
+    draftsItem = SidebarItem.forDrafts(accountIds,
       children: accounts.map (acc) -> SidebarItem.forDrafts([acc.id], name: acc.label)
+    )
+    snoozedItem = SidebarItem.forSnoozed(accountIds,
+      children: accounts.map (acc) -> SidebarItem.forSnoozed([acc.id], name: acc.label)
     )
 
     # Order correctly: Inbox, Starred, rest... , Drafts
-    items.splice(1, 0, starredItem)
+    items.splice(1, 0, starredItem, snoozedItem)
     items.push(draftsItem)
 
     return {

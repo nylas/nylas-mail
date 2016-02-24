@@ -1,7 +1,7 @@
 /** @babel */
 import _ from 'underscore';
 import React, {Component, PropTypes} from 'react';
-import {Actions, DateUtils} from 'nylas-exports'
+import {DateUtils} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit';
 import SnoozeActions from './snooze-actions'
 import {DATE_FORMAT_LONG} from './snooze-constants'
@@ -45,10 +45,12 @@ class SnoozePopoverBody extends Component {
   static propTypes = {
     threads: PropTypes.array.isRequired,
     swipeCallback: PropTypes.func,
+    closePopover: PropTypes.func,
   };
 
   static defaultProps = {
     swipeCallback: ()=> {},
+    closePopover: ()=> {},
   };
 
   constructor() {
@@ -62,8 +64,8 @@ class SnoozePopoverBody extends Component {
     const utcDate = dateGenerator().utc()
     const formatted = DateUtils.format(utcDate)
     SnoozeActions.snoozeThreads(this.props.threads, formatted);
-    this.props.swipeCallback(true);
-    Actions.closePopover();
+    this.props.swipeCallback(true)
+    this.props.closePopover()
   }
 
   onBlur = ()=> {
@@ -72,18 +74,18 @@ class SnoozePopoverBody extends Component {
       return;
     }
     this.props.swipeCallback(false);
-    Actions.closePopover();
+    this.props.closePopover();
   };
 
   onKeyDown = (event)=> {
     if (event.key === "Escape") {
       this.props.swipeCallback(false);
-      Actions.closePopover()
+      this.props.closePopover();
     }
   };
 
   onInputChange = (event)=> {
-    this.updateInputDateValue(event.target.value)
+    this.updateInputDateValue(event.target.value);
   };
 
   onInputKeyDown = (event)=> {
@@ -137,7 +139,7 @@ class SnoozePopoverBody extends Component {
         <input
           type="text"
           tabIndex="1"
-          placeholder="Or type a time, e.g. Next monday at 2pm"
+          placeholder="Or type a time, like 'next monday at 2PM'"
           onMouseDown={this.onInputMouseDown}
           onKeyDown={this.onInputKeyDown}
           onChange={this.onInputChange}/>
