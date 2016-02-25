@@ -55,12 +55,17 @@ class TranslateButton extends React.Component
   # interfaces that match the rest of N1's UI.
   #
   render: =>
+    headerComponents = [
+      <span>Translate:</span>
+    ]
     <Popover ref="popover"
              className="translate-language-picker pull-right"
              buttonComponent={@_renderButton()}>
       <Menu items={ Object.keys(YandexLanguages) }
             itemKey={ (item) -> item }
             itemContent={ (item) -> item }
+            headerComponents={headerComponents}
+            defaultSelectedIndex={-1}
             onSelect={@_onTranslate}
             />
     </Popover>
@@ -70,9 +75,10 @@ class TranslateButton extends React.Component
   # `RetinaImg` will automatically chose the best image format for our display.
   #
   _renderButton: =>
-    <button className="btn btn-toolbar" title="Translate">
-      <RetinaImg mode={RetinaImg.Mode.ContentIsMask} url="nylas://composer-translate/assets/translate-icon@2x.png" />
-      <span style={fontSize: "9px", verticalAlign: "top"}>▼</span>
+    <button className="btn btn-toolbar" title="Translate email body…">
+      <RetinaImg mode={RetinaImg.Mode.ContentIsMask} url="nylas://composer-translate/assets/icon-composer-translate@2x.png" />
+      &nbsp;
+      <RetinaImg name="icon-composer-dropdown.png" mode={RetinaImg.Mode.ContentIsMask}/>
     </button>
 
   _onTranslate: (lang) =>

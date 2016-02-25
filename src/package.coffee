@@ -75,17 +75,25 @@ class Package
     @metadata ?= Package.loadMetadata(@path)
     @bundledPackage = Package.isBundledPackagePath(@path)
     @name = @metadata?.name ? path.basename(@path)
+
+    if @metadata.appId
+      if _.isString @metadata.appId
+        @pluginAppId = @metadata.appId ? null
+      else if _.isObject @metadata.appId
+        @pluginAppId = @metadata.appId[NylasEnv.config.get('env')] ? null
+      else
+        @pluginAppId = null
+    else
+      @pluginAppId = null
+
     @displayName = @metadata?.displayName || @name
     ModuleCache.add(@path, @metadata)
     @reset()
     @declaresNewDatabaseObjects = false
 
-    CloudStorage = require './cloud-storage'
-    @cloudStorage = new CloudStorage(@pluginId())
-
   # TODO FIXME: Use a unique pluginID instead of just the "name"
   # This needs to be included here to prevent a circular dependency error
-  pluginId: -> return @name
+  pluginId: -> return @pluginAppId ? @name
 
   ###
   Section: Event Subscription
@@ -187,7 +195,7 @@ class Package
       @activateStylesheets()
       if @requireMainModule()
         localState = NylasEnv.packages.getPackageState(@name) ? {}
-        @mainModule.activate(localState, @cloudStorage)
+        @mainModule.activate(localState)
         @mainActivated = true
         @activateServices()
     catch e

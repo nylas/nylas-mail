@@ -97,6 +97,7 @@
 @font-family-heading:     @font-family-sans-serif;
 
 // ----- Font Weights -----
+@font-weight-thin:        200;
 @font-weight-blond:       300;
 @font-weight-normal:      400;
 @font-weight-medium:      500;
@@ -104,7 +105,7 @@
 @headings-font-weight:    600;
 
 // ----- Font Sizes -----
-@font-size-base:          15px;
+@font-size-base:          14px;
 
 @font-size-tiny:          @font-size-base * 0.70; // 10.5px
 @font-size-smaller:       @font-size-base * 0.80; // 12px
@@ -153,13 +154,13 @@
 @spacing-super-double:      @spacing-standard * 2.25;
 
 
-@padding-base-vertical:     6px;
+@padding-base-vertical:     5px;
 @padding-base-horizontal:   12px;
 
-@padding-large-vertical:    10px;
+@padding-large-vertical:    9px;
 @padding-large-horizontal:  16px;
 
-@padding-small-vertical:    5px;
+@padding-small-vertical:    4px;
 @padding-small-horizontal:  10px;
 
 @padding-xs-vertical:       1px;
@@ -168,20 +169,21 @@
 @line-height-large:         @line-height-computed * 1.3;
 @line-height-small:         @line-height-computed * 0.95;
 
-@border-radius-base:        4px;
-@border-radius-large:       6px;
-@border-radius-small:       3px;
+@border-radius-base:        3px;
+@border-radius-large:       5px;
+@border-radius-small:       2px;
 
 
 //============================== Shadows ===============================//
-@standard-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.21);
-@standard-shadow-up: 0 -1px 4px 0 rgba(0, 0, 0, 0.21);
+@standard-shadow-color: rgba(0, 0, 0, 0.21);
+@standard-shadow: 0 1px 4px 0 @standard-shadow-color;
+@standard-shadow-up: 0 -1px 4px 0 @standard-shadow-color;
 
 //=============================== Buttons ==============================//
 
 @btn-shadow: @standard-shadow;
 
-@btn-default-bg-color:    @background-primary;
+@btn-default-bg-color:    darken(@background-primary, 0.5%);
 @btn-default-text-color:  @text-color;
 
 @btn-action-bg-color:     @success-color;

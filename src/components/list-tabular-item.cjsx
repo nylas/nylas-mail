@@ -1,5 +1,6 @@
 _ = require 'underscore'
 React = require 'react/addons'
+SwipeContainer = require './swipe-container'
 {Utils} = require 'nylas-exports'
 
 class ListTabularItem extends React.Component
@@ -32,9 +33,11 @@ class ListTabularItem extends React.Component
     # We only do it if the item prop has changed.
     @_columnCache ?= @_columns()
 
-    <div {...props} className={className} onClick={@_onClick} style={position:'absolute', top: @props.metrics.top, width:'100%', height:@props.metrics.height, overflow: 'hidden'}>
-      {@_columnCache}
-    </div>
+    <SwipeContainer {...props} onClick={@_onClick} style={position:'absolute', top: @props.metrics.top, width:'100%', height:@props.metrics.height}>
+      <div className={className} style={height:@props.metrics.height}>
+        {@_columnCache}
+      </div>
+    </SwipeContainer>
 
   _columns: =>
     names = {}

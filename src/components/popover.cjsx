@@ -53,6 +53,10 @@ class Popover extends React.Component
   - `direction` Defaults to 'up'. You can also pass 'down' to make the Popover float beneath
     the button component.
 
+  - `pointerStyle` Additional styles to apply to the pointer
+
+  - `popoverStyle` Additional styles to apply to the popover
+
   Events
 
   - `onOpened` A {Function} that will be called when the popover is opened.
@@ -61,6 +65,8 @@ class Popover extends React.Component
   @propTypes =
     buttonComponent: React.PropTypes.element
     direction: React.PropTypes.string
+    popoverStyle: React.PropTypes.object
+    pointerStyle: React.PropTypes.object
 
   @defaultProps =
     direction: 'up'
@@ -139,15 +145,14 @@ class Popover extends React.Component
       popoverStyle =
         'position': 'absolute'
         'left': "calc(50% + #{@state.offset}px)"
-        'width': '250px'
         'zIndex': 40
       pointerStyle =
         'position': 'absolute'
         'marginLeft': '50%'
         'zoom': 0.5
         'width': 45
-        'height': 21
-        'zIndex': 0
+        'height': 20
+        'zIndex': 40
 
       if @props.direction is 'up'
         popoverStyle = _.extend popoverStyle,
@@ -155,15 +160,15 @@ class Popover extends React.Component
           'top': -10,
         pointerStyle = _.extend pointerStyle,
           'transform': 'translateX(-50%)'
-          'bottom': -10
+          'bottom': 48
 
       else if @props.direction is 'down'
         popoverStyle = _.extend popoverStyle,
-          'transform': 'translate(-50%,15px)'
+          'transform': 'translate(-50%, 15px)'
           'top': '100%'
         pointerStyle = _.extend pointerStyle,
           'transform': 'rotateX(180deg)'
-          'top': -10
+          'top': 71
           'left':-12
 
       if @props.direction is "down-align-left"
@@ -172,12 +177,18 @@ class Popover extends React.Component
           'top': '100%'
           'left': 0 + @state.offset
         pointerStyle = _.extend pointerStyle,
+          'transform': 'rotateX(180deg)'
+          'top': 71
           'display': 'none'
 
-      popoverComponent = <div ref="popover" className={"popover popover-"+@props.direction} style={popoverStyle}>
-        {@props.children}
-        <div className="popover-pointer" style={pointerStyle}></div>
-      </div>
+      popoverStyle = _.extend({}, popoverStyle, @props.popoverStyle) if @props.popoverStyle
+      pointerStyle = _.extend({}, pointerStyle, @props.pointerStyle) if @props.pointerStyle
+
+      popoverComponent = (
+        <div ref="popover" className={"popover popover-"+@props.direction} style={popoverStyle}>
+          {@props.children}
+        </div>
+      )
 
     <div className={"popover-container "+@props.className}
          onBlur={@_onBlur}
@@ -185,13 +196,16 @@ class Popover extends React.Component
          style={(@props.style ? {})} ref="popoverContainer">
       {wrappedButtonComponent}
       {popoverComponent}
+      <div className="popover-pointer" style={pointerStyle} />
+      <div className="popover-pointer shadow" style={pointerStyle} />
     </div>
 
   _onKeyDown: (event) =>
     if event.key is "Escape"
       @close()
 
-  _onClick: =>
+  _onClick: (e) =>
+    e.stopPropagation()
     if not @state.showing
       @open()
     else

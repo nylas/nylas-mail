@@ -209,7 +209,7 @@ class MultiselectList extends React.Component
   # Public Methods
 
   itemIdAtPoint: (x, y) ->
-    item = document.elementFromPoint(event.clientX, event.clientY).closest('.list-item')
+    item = document.elementFromPoint(event.clientX, event.clientY).closest('[data-item-id]')
     return null unless item
     return item.dataset.itemId
 

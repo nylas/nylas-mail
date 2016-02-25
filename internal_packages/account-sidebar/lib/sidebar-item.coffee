@@ -5,6 +5,7 @@ _str = require 'underscore.string'
  FocusedPerspectiveStore,
  SyncbackCategoryTask,
  DestroyCategoryTask,
+ CategoryStore,
  Actions,
  Utils} = require 'nylas-exports'
 {OutlineViewItem} = require 'nylas-component-kit'
@@ -105,6 +106,22 @@ class SidebarItem
     opts.deletable ?= true
     opts.editable ?= true
     opts.contextMenuLabel = contextMenuLabel
+    @forPerspective(id, perspective, opts)
+
+  @forSnoozed: (accountIds, opts = {}) ->
+    # TODO This constant should be available elsewhere
+    displayName = require('../../thread-snooze/lib/snooze-constants').SNOOZE_CATEGORY_NAME
+    id = displayName
+    id += "-#{opts.name}" if opts.name
+    opts.name = "Snoozed" unless opts.name
+    opts.iconName= 'snooze.png'
+
+    categories = accountIds.map (accId) =>
+      _.findWhere CategoryStore.categories(accId), {displayName}
+    categories = _.compact(categories)
+
+    perspective = MailboxPerspective.forCategories(categories)
+    perspective.name = id unless perspective.name
     @forPerspective(id, perspective, opts)
 
   @forStarred: (accountIds, opts = {}) ->

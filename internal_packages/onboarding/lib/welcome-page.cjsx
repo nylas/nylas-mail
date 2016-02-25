@@ -1,6 +1,7 @@
 React = require 'react'
 {shell} = require 'electron'
 classnames = require 'classnames'
+{Actions} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
 PageRouterStore = require './page-router-store'
 OnboardingActions = require './onboarding-actions'

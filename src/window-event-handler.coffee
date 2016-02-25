@@ -30,10 +30,6 @@ class WindowEventHandler
     @subscribe ipcRenderer, 'update-available', (event, detail) ->
       NylasEnv.updateAvailable(detail)
 
-    @subscribe ipcRenderer, 'send-feedback', (detail) ->
-      Actions = require './flux/actions'
-      Actions.sendFeedback()
-
     @subscribe ipcRenderer, 'browser-window-focus', ->
       document.body.classList.remove('is-blurred')
 
@@ -46,6 +42,12 @@ class WindowEventHandler
       if activeElement is document.body and workspaceElement = document.getElementById("nylas-workspace")
         activeElement = workspaceElement
       NylasEnv.commands.dispatch(activeElement, command, args[0])
+
+    @subscribe ipcRenderer, 'scroll-touch-begin', ->
+      window.dispatchEvent(new Event('scroll-touch-begin'))
+
+    @subscribe ipcRenderer, 'scroll-touch-end', ->
+      window.dispatchEvent(new Event('scroll-touch-end'))
 
     @subscribe $(window), 'beforeunload', =>
       # Don't hide the window here if we don't want the renderer process to be

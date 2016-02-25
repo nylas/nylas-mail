@@ -210,6 +210,8 @@ class StarredMailboxPerspective extends MailboxPerspective
     Actions.queueTask(task)
 
   removeThreads: (threadsOrIds) =>
+    unless threadsOrIds instanceof Array
+      throw new Error("removeThreads: you must pass an array of threads or thread ids")
     task = TaskFactory.taskForInvertingStarred(threads: threadsOrIds)
     Actions.queueTask(task)
 
@@ -292,7 +294,7 @@ class CategoryMailboxPerspective extends MailboxPerspective
 
   canTrashThreads: =>
     for cat in @_categories
-      return false if cat.name in ["trash"]
+      return false if cat.name in ["trash", "sent"]
     super
 
   receiveThreads: (threadsOrIds) =>
@@ -309,30 +311,23 @@ class CategoryMailboxPerspective extends MailboxPerspective
       Actions.queueTasks(tasks)
 
   removeThreads: (threadsOrIds) =>
+    unless threadsOrIds instanceof Array
+      throw new Error("removeThreads: you must pass an array of threads or thread ids")
+
     DatabaseStore.modelify(Thread, threadsOrIds).then (threads) =>
-      isTrash = not @canTrashThreads()
-      isNotArchiveOrSent = @canArchiveThreads()
+      isFinishedCategory = _.any @_categories, (cat) ->
+        cat.name in ['trash', 'archive', 'all']
 
-      tasks = null
-      categories = @categories()
-
-      if @isInbox()
-        tasks = TaskFactory.tasksForRemovingCategories({
-          threads,
-          categories,
-          moveToFinishedCategory: true
-        })
-      else if isTrash
-        tasks = TaskFactory.tasksForMovingToInbox({threads, fromPerspective: @})
-      else if isNotArchiveOrSent
-        tasks = TaskFactory.tasksForRemovingCategories({
-          threads,
-          categories,
-          moveToFinishedCategory: false
-        })
+      if isFinishedCategory
+        Actions.queueTasks(TaskFactory.tasksForMovingToInbox({
+          threads: threads,
+          fromPerspective: @
+        }))
       else
-        return
-
-      Actions.queueTasks(tasks)
+        Actions.queueTasks(TaskFactory.tasksForRemovingCategories({
+          threads: threads,
+          categories: @categories(),
+          moveToFinishedCategory: @isInbox()
+        }))
 
 module.exports = MailboxPerspective

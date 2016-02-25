@@ -63,7 +63,7 @@ class Contenteditable extends React.Component
     extensions: []
     spellcheck: true
     floatingToolbar: true
-    onSelectionChanged: =>
+    onSelectionRestored: =>
 
   coreServices: [MouseService, ClipboardService]
 
@@ -136,6 +136,7 @@ class Contenteditable extends React.Component
   componentDidMount: =>
     @setInnerState editableNode: @_editableNode()
     @_setupNonMutationListeners()
+    @_setupEditingActionListeners()
     @_mutationObserver.observe(@_editableNode(), @_mutationConfig())
 
   # When we have a composition event in progress, we should not update
@@ -152,7 +153,9 @@ class Contenteditable extends React.Component
         previousExportedSelection: @innerState.exportedSelection
 
   componentDidUpdate: =>
-    @_restoreSelection() if @_shouldRestoreSelectionOnUpdate()
+    if @_shouldRestoreSelectionOnUpdate()
+      @_restoreSelection()
+      @_notifyOfSelectionRestoration()
     @_refreshServices()
     @_mutationObserver.disconnect()
     @_mutationObserver.observe(@_editableNode(), @_mutationConfig())
@@ -161,6 +164,7 @@ class Contenteditable extends React.Component
   componentWillUnmount: =>
     @_mutationObserver.disconnect()
     @_teardownNonMutationListeners()
+    @_teardownEditingActionListeners()
     @_teardownServices()
 
   setInnerState: (innerState={}) =>
@@ -261,6 +265,25 @@ class Contenteditable extends React.Component
     @_broadcastInnerStateToToolbar = false
     document.removeEventListener("selectionchange", @_saveSelection)
     @_editableNode().removeEventListener('contextmenu', @_onShowContextMenu)
+
+  _setupEditingActionListeners: =>
+    if @editingActionUnsubscribers?.length > 0
+      editingActionUnsubscriber() for editingActionUnsubscriber in @editingActionUnsubscribers
+    @editingActionUnsubscribers = []
+
+    @_extensions().forEach (ext) =>
+      try
+        editingActions = ext.editingActions?() ? []
+        editingActions.forEach ({action, callback}) =>
+          @editingActionUnsubscribers.push(action.listen((actionArg) =>
+            @atomicEdit(callback, {actionArg})
+          ))
+      catch error
+        NylasEnv.emitError(error)
+
+  _teardownEditingActionListeners: =>
+    for editingActionUnsubscriber in @editingActionUnsubscribers
+      editingActionUnsubscriber()
 
   # https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
   _mutationConfig: ->
@@ -512,8 +535,14 @@ class Contenteditable extends React.Component
     selection = new ExtendedSelection(@_editableNode())
     selection.importSelection(@innerState.exportedSelection)
     if selection.isInScope()
-      @_onSelectionChanged(selection)
+      # The bounding client rect has changed
+      @setInnerState editableNode: @_editableNode()
     @_setupNonMutationListeners()
+
+  _notifyOfSelectionRestoration: =>
+    selection = new ExtendedSelection(@_editableNode())
+    if selection.isInScope()
+      @props.onSelectionRestored(selection, @_editableNode())
 
   # When the component updates, the selection may have changed from our
   # last known saved position. This can happen for a couple of reasons:
@@ -525,10 +554,5 @@ class Contenteditable extends React.Component
     (not @innerState.dragging) and
     (document.activeElement is @_editableNode() or
     not @_editableNode().parentNode.contains(document.activeElement))
-
-  _onSelectionChanged: (selection) ->
-    @props.onSelectionChanged(selection, @_editableNode())
-    # The bounding client rect has changed
-    @setInnerState editableNode: @_editableNode()
 
 module.exports = Contenteditable

@@ -136,43 +136,63 @@ class ComposerEditor extends Component {
     // quoted text that is visible. (as in forwarded messages.)
     //
     this.refs.contenteditable.atomicEdit( ({editor})=> {
-      const walker = document.createTreeWalker(editor.rootNode, NodeFilter.SHOW_TEXT);
-      const nodesBelowUserBody = editor.rootNode.querySelectorAll('.nylas-n1-signature, .gmail_quote, blockquote');
-
-      let lastNode = null;
-      let node = walker.nextNode();
-
-      while (node != null) {
-        let belowUserBody = false;
-        for (let i = 0; i < nodesBelowUserBody.length; ++i) {
-          if (nodesBelowUserBody[i].contains(node)) {
-            belowUserBody = true;
-            break;
-          }
-        }
-        if (belowUserBody) {
-          break;
-        }
-        lastNode = node;
-        node = walker.nextNode();
-      }
-
       editor.rootNode.focus();
-
-      if (lastNode) {
-        const range = document.createRange();
-        range.selectNodeContents(lastNode);
-        range.collapse(false);
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
-      }
+      const lastNode = this._findLastNodeBeforeQuoteOrSignature(editor)
+      this._selectEndOfNode(lastNode)
     });
   }
 
-  nativeFocus() {
+  _findLastNodeBeforeQuoteOrSignature(editor) {
+    const walker = document.createTreeWalker(editor.rootNode, NodeFilter.SHOW_TEXT);
+    const nodesBelowUserBody = editor.rootNode.querySelectorAll('.nylas-n1-signature, .gmail_quote, blockquote');
+
+    let lastNode = null;
+    let node = walker.nextNode();
+
+    while (node != null) {
+      let belowUserBody = false;
+      for (let i = 0; i < nodesBelowUserBody.length; ++i) {
+        if (nodesBelowUserBody[i].contains(node)) {
+          belowUserBody = true;
+          break;
+        }
+      }
+      if (belowUserBody) {
+        break;
+      }
+      lastNode = node;
+      node = walker.nextNode();
+    }
+    return lastNode
+  }
+
+  _findAbsoluteLastNode(editor) {
+    const walker = document.createTreeWalker(editor.rootNode, NodeFilter.SHOW_TEXT);
+    let lastNode = null;
+    let node = walker.nextNode();
+    while (node) {
+      lastNode = node;
+      node = walker.nextNode();
+    }
+    return lastNode;
+  }
+
+  _selectEndOfNode(node) {
+    if (node) {
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      range.collapse(false);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  }
+
+  focusAbsoluteEnd() {
     this.refs.contenteditable.atomicEdit( ({editor})=> {
       editor.rootNode.focus();
+      const lastNode = this._findAbsoluteLastNode(editor)
+      this._selectEndOfNode(lastNode)
     });
   }
 
@@ -272,7 +292,7 @@ class ComposerEditor extends Component {
         value={this.props.body}
         onChange={this.props.onBodyChanged}
         onFilePaste={this.props.onFilePaste}
-        onSelectionChanged={this._ensureSelectionVisible}
+        onSelectionRestored={this._ensureSelectionVisible}
         initialSelectionSnapshot={this.props.initialSelectionSnapshot}
         extensions={[this._coreExtension].concat(this.state.extensions)} />
     );

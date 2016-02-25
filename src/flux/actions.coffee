@@ -75,6 +75,13 @@ class Actions
   @didPassivelyReceiveNewModels: ActionScopeGlobal
 
   @downloadStateChanged: ActionScopeGlobal
+
+  ###
+  Public: Fired when a draft is successfully sent
+  *Scope: Global*
+
+  Recieves the clientId of the message that was sent
+  ###
   @sendDraftSuccess: ActionScopeGlobal
   @sendToAllWindows: ActionScopeGlobal
   @draftSendingFailed: ActionScopeGlobal
@@ -119,8 +126,7 @@ class Actions
   @longPollOffline: ActionScopeWorkWindow
   @willMakeAPIRequest: ActionScopeWorkWindow
   @didMakeAPIRequest: ActionScopeWorkWindow
-  @sendFeedback: ActionScopeWindow
-
+  
   ###
   Public: Retry the initial sync
 
@@ -502,6 +508,22 @@ class Actions
   @updateMailRule: ActionScopeWindow
   @deleteMailRule: ActionScopeWindow
   @disableMailRule: ActionScopeWindow
+
+
+  @openPopover: ActionScopeWindow
+  @closePopover: ActionScopeWindow
+
+  ###
+  Public: Set metadata for a specified model and pluginId.
+
+  *Scope: Window*
+
+  Receives an {Model} or {Array} of {Model}s, a plugin id, and an Object that
+  represents the metadata value.
+  ###
+  @setMetadata: ActionScopeWindow
+
+  @draftParticipantsChanged: ActionScopeWindow
 
 # Read the actions we declared on the dummy Actions object above
 # and translate them into Reflux Actions

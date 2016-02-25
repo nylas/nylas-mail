@@ -214,6 +214,9 @@ class ContenteditableExtension
     - width: The width of your component. This is necessary because when
     your component is displayed in the {FloatingToolbar}, the position is
     pre-computed based on the absolute width of the item.
+    - height: The height of your component. This is necessary for the same
+    reason listed above; the position of the toolbar will be determined
+    by the absolute height given.
   ###
   @toolbarComponentConfig: ({toolbarState}) ->
 

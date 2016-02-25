@@ -14,6 +14,7 @@ module.exports = (grunt) ->
       '**/examples/**'
       '**/src/tasks/**'
       '**/node_modules/spellchecker/**'
+      '**/node_modules/windows-shortcuts/**'
     ]
     unpack = "{#{unpack.join(',')}}"
 

@@ -144,7 +144,7 @@ describe "ComposerView", ->
       <ComposerView draftClientId={DRAFT_CLIENT_ID} {...props} />
     )
 
-  describe "populated composer", ->
+  describe "draftReady composer", ->
     beforeEach ->
       @isSending = false
       spyOn(DraftStore, "isSendingDraft").andCallFake => @isSending
@@ -242,7 +242,7 @@ describe "ComposerView", ->
         expect(@composer.state.body).toEqual "Hello <b>World</b><br/> This is a test"
 
       it "sets first-time initial state about focused fields", ->
-        expect(@composer.state.populated).toBe true
+        expect(@composer.state.draftReady).toBe true
         expect(@composer.state.focusedField).toBeDefined()
         expect(@composer.state.enabledFields).toBeDefined()
 
@@ -425,7 +425,7 @@ describe "ComposerView", ->
         expect(@dialog.showMessageBox).toHaveBeenCalled()
         dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
         expect(dialogArgs.detail).toEqual("You need to provide one or more recipients before sending the message.")
-        expect(dialogArgs.buttons).toEqual ['Edit Message']
+        expect(dialogArgs.buttons).toEqual ['Edit Message', 'Cancel']
 
       it "shows an error if a recipient is invalid", ->
         useDraft.call @,
@@ -437,7 +437,7 @@ describe "ComposerView", ->
         expect(@dialog.showMessageBox).toHaveBeenCalled()
         dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
         expect(dialogArgs.detail).toEqual("lol is not a valid email address - please remove or edit it before sending.")
-        expect(dialogArgs.buttons).toEqual ['Edit Message']
+        expect(dialogArgs.buttons).toEqual ['Edit Message', 'Cancel']
 
       describe "empty body warning", ->
         it "warns if the body of the email is still the pristine body", ->
@@ -751,4 +751,3 @@ describe "ComposerView", ->
       Actions.sendDraft(DRAFT_CLIENT_ID)
       secondStatus = @composer._isValidDraft()
       expect(secondStatus).toBe false
-

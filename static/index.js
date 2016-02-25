@@ -53,13 +53,13 @@ function setupWindow (loadSettings) {
   ModuleCache.add(loadSettings.resourcePath)
 
   // Start the crash reporter before anything else.
-  require('crash-reporter').start({
-    productName: 'N1',
-    companyName: 'Nylas',
-    // By explicitly passing the app version here, we could save the call
-    // of "require('remote').require('app').getVersion()".
-    extra: {_version: loadSettings.appVersion}
-  })
+  // require('crash-reporter').start({
+  //   productName: 'N1',
+  //   companyName: 'Nylas',
+  //   // By explicitly passing the app version here, we could save the call
+  //   // of "require('remote').require('app').getVersion()".
+  //   extra: {_version: loadSettings.appVersion}
+  // })
 
   setupVmCompatibility()
   setupCsonCache(CompileCache.getCacheDirectory())

@@ -62,7 +62,7 @@
     submenu: [
       { label: "VERSION", enabled: false }
       { type: 'separator' }
-      { label: 'Send Feedback to Nylas', command: 'application:send-feedback' }
+      { label: 'Nylas N1 Help', command: 'application:view-help' }
     ]
   }
 ]

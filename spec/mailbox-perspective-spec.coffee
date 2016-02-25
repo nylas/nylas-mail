@@ -1,9 +1,15 @@
-{AccountStore, MailboxPerspective, TaskFactory, Category, Actions, DatabaseStore} = require 'nylas-exports'
+{AccountStore,
+ MailboxPerspective,
+ TaskFactory,
+ Category,
+ Thread,
+ Actions,
+ DatabaseStore} = require 'nylas-exports'
 
 
 describe 'MailboxPerspective', ->
   beforeEach ->
-    spyOn(AccountStore, 'accountForId').andReturn {categoryIcon: -> 'icon'}
+    spyOn(AccountStore, 'accountForId').andReturn(AccountStore.accounts()[0])
     @accountIds = ['a1', 'a2', 'a3']
     @perspective = new MailboxPerspective(@accountIds)
 
@@ -51,40 +57,50 @@ describe 'MailboxPerspective', ->
 
     describe 'removeThreads', ->
       beforeEach ->
-        @threads = ['t1', 't2']
-        @taskArgs = {threads: @threads, categories: @categories}
+        @threads = [new Thread(id:'t1'), new Thread(id: 't2')]
         spyOn(Actions, 'queueTasks')
         spyOn(DatabaseStore, 'modelify').andReturn then: (cb) => cb(@threads)
 
       it 'moves the threads to finished category if in inbox', ->
-        spyOn(@perspective, 'isInbox').andReturn true
-        spyOn(@perspective, 'canTrashThreads').andReturn true
-        spyOn(@perspective, 'canArchiveThreads').andReturn true
         spyOn(TaskFactory, 'tasksForRemovingCategories')
+        @categories = [
+          new Category(name: 'inbox', accountId: 'a1')
+          new Category(name: 'inbox', accountId: 'a2')
+          new Category(name: 'inbox', accountId: 'a2')
+        ]
+        @perspective = MailboxPerspective.forCategories(@categories)
         @perspective.removeThreads(@threads)
-        @taskArgs.moveToFinishedCategory = true
-        expect(TaskFactory.tasksForRemovingCategories).toHaveBeenCalledWith(@taskArgs)
+        expect(TaskFactory.tasksForRemovingCategories).toHaveBeenCalledWith({
+          threads: @threads,
+          moveToFinishedCategory: true,
+          categories: @categories
+        })
 
       it 'moves threads to inbox if in trash', ->
-        spyOn(@perspective, 'isInbox').andReturn false
-        spyOn(@perspective, 'canTrashThreads').andReturn false
-        spyOn(@perspective, 'canArchiveThreads').andReturn true
         spyOn(TaskFactory, 'tasksForMovingToInbox')
+        @categories = [
+          new Category(name: 'trash', accountId: 'a1')
+          new Category(name: 'trash', accountId: 'a2')
+          new Category(name: 'trash', accountId: 'a2')
+        ]
+        @perspective = MailboxPerspective.forCategories(@categories)
         @perspective.removeThreads(@threads)
-        expect(TaskFactory.tasksForMovingToInbox).toHaveBeenCalledWith({threads: @threads, fromPerspective: @perspective})
+        expect(TaskFactory.tasksForMovingToInbox).toHaveBeenCalledWith({
+          threads: @threads,
+          fromPerspective: @perspective
+        })
 
       it 'removes categories if the current perspective does not correspond to archive or sent', ->
-        spyOn(@perspective, 'isInbox').andReturn false
-        spyOn(@perspective, 'canTrashThreads').andReturn true
-        spyOn(@perspective, 'canArchiveThreads').andReturn true
         spyOn(TaskFactory, 'tasksForRemovingCategories')
+        @categories = [
+          new Category(displayName: 'c1', accountId: 'a1')
+          new Category(displayName: 'c2', accountId: 'a2')
+          new Category(displayName: 'c3', accountId: 'a2')
+        ]
+        @perspective = MailboxPerspective.forCategories(@categories)
         @perspective.removeThreads(@threads)
-        @taskArgs.moveToFinishedCategory = false
-        expect(TaskFactory.tasksForRemovingCategories).toHaveBeenCalledWith(@taskArgs)
-
-      it 'does nothing otherwise', ->
-        spyOn(@perspective, 'isInbox').andReturn false
-        spyOn(@perspective, 'canTrashThreads').andReturn true
-        spyOn(@perspective, 'canArchiveThreads').andReturn false
-        @perspective.removeThreads(@threads)
-        expect(Actions.queueTasks).not.toHaveBeenCalled()
+        expect(TaskFactory.tasksForRemovingCategories).toHaveBeenCalledWith({
+          threads: @threads,
+          moveToFinishedCategory: false,
+          categories: @categories
+        })

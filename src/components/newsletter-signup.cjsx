@@ -69,7 +69,7 @@ class NewsletterSignup extends React.Component
     if @state.status is 'Pending'
       <RetinaImg name='inline-loading-spinner.gif' mode={RetinaImg.Mode.ContentDark} style={width:14, height:14}/>
     else if @state.status is 'Error'
-      <button onClick={@_onGetStatus} className="btn btn-small">Retry</button>
+      <button onClick={@_onGetStatus} className="btn">Retry</button>
     else if @state.status in ['Subscribed', 'Active']
       <input id="subscribe-check" type="checkbox" checked={true} style={marginTop:3} onChange={@_onUnsubscribe} />
     else

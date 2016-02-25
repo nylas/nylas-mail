@@ -39,41 +39,40 @@ export default class SyncbackModelTask extends Task {
   getLatestModel = () => {
     return DatabaseStore.findBy(this.getModelConstructor(),
                                 {clientId: this.clientId})
-  }
+  };
 
   verifyModel = (model) => {
     if (model) {
       return Promise.resolve(model)
     }
     throw new Error(`Can't find a '${this.getModelConstructor().name}' model for clientId: ${this.clientId}'`)
-  }
+  };
 
   makeRequest = (model) => {
-    const data = this.getPathAndMethod(model)
-
-    return NylasAPI.makeRequest({
+    const options = _.extend({
       accountId: model.accountId,
-      path: data.path,
-      method: data.method,
-      body: model.toJSON(),
       returnsModel: false,
-    })
-  }
+    }, this.getRequestData(model));
 
-  getPathAndMethod = (model) => {
-    if (model.serverId) {
+    return NylasAPI.makeRequest(options);
+  };
+
+  getRequestData = (model) => {
+    if (model.isSavedRemotely()) {
       return {
         path: `${this.endpoint}/${model.serverId}`,
+        body: model.toJSON(),
         method: "PUT",
       }
     }
     return {
       path: `${this.endpoint}`,
+      body: model.toJSON(),
       method: "POST",
     }
-  }
+  };
 
-  updateLocalModel = ({version, id}) => {
+  updateLocalModel = (responseJSON) => {
     /*
     Important: There could be a significant delay between us initiating
     the save and getting JSON back from the server. Our local copy of
@@ -86,24 +85,36 @@ export default class SyncbackModelTask extends Task {
       return this.getLatestModel().then((model) => {
         // Model may have been deleted
         if (!model) { return Promise.resolve() }
-
-        model.version = version
-        model.serverId = id
-        return t.persistModel(model)
+        const changed = this.applyRemoteChangesToModel(model, responseJSON);
+        return t.persistModel(changed);
       })
     }).thenReturn(true)
-  }
+  };
+
+  applyRemoteChangesToModel = (model, {version, id}) => {
+    model.version = version;
+    model.serverId = id;
+    return model;
+  };
 
   handleRemoteError = (err) => {
     if (err instanceof APIError) {
-      if (!(_.includes(NylasAPI.PermanentErrorCodes, err.statusCode))) {
-        return Promise.resolve(Task.Status.Retry)
+      if (NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
+        return Promise.resolve([Task.Status.Failed, err])
       }
-      return Promise.resolve([Task.Status.Failed, err])
+      if (err.statusCode === 409) {
+        return this.handleRemoteVersionConflict(err);
+      }
+      return Promise.resolve(Task.Status.Retry)
     }
+
     NylasEnv.reportError(err);
     return Promise.resolve([Task.Status.Failed, err])
-  }
+  };
+
+  handleRemoteVersionConflict = (err) => {
+    return Promise.resolve([Task.Status.Failed, err])
+  };
 
   canBeUndone() { return false }
 

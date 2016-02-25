@@ -33,7 +33,7 @@ class CategoryPicker extends React.Component
     @_categories = []
     @_standardCategories = []
     @_userCategories = []
-    @state = _.extend @_recalculateState(@props), searchValue: ""
+    @state = _.extend(@_recalculateState(@props), searchValue: "")
 
   @contextTypes:
     sheetDepth: React.PropTypes.number
@@ -315,13 +315,13 @@ class CategoryPicker extends React.Component
     currentCategoryIds = _.pluck(currentCategories, 'id')
 
     if @_account?.usesLabels()
-      hiddenCategories = ["all", "drafts", "sent", "archive", "starred", "important"]
+      hiddenCategories = ["all", "drafts", "sent", "archive", "starred", "important", "N1-Snoozed"]
       hiddenCategories.push("inbox") if allInInbox
       return false if category.divider
     else if @_account?.usesFolders()
-      hiddenCategories = ["drafts", "sent"]
+      hiddenCategories = ["drafts", "sent", "N1-Snoozed"]
 
-    return (category.name not in hiddenCategories) and not (category.id in currentCategoryIds)
+    return (category.name not in hiddenCategories) and (category.displayName not in hiddenCategories) and (category.id not in currentCategoryIds)
 
   _allInInbox: (usageCount, numThreads) ->
     return unless @_account?

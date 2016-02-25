@@ -279,9 +279,13 @@ class DraftStore
       queries.message = DatabaseStore.find(Message, messageId)
       queries.message.include(Message.attributes.body)
     else
-      queries.message = DatabaseStore.findBy(Message, {threadId: threadId ? thread.id}).order(Message.attributes.date.descending()).limit(1)
-      queries.message.include(Message.attributes.body)
+      queries.message = @_lastMessageFromThreadId(threadId ? thread.id)
     return queries
+
+  _lastMessageFromThreadId: (threadId) ->
+    query = DatabaseStore.findBy(Message, {threadId: threadId ? thread.id}).order(Message.attributes.date.descending()).limit(1)
+    query.include(Message.attributes.body)
+    return query
 
   _constructDraft: ({attributes, thread}) =>
     account = AccountStore.accountForId(thread.accountId)

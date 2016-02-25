@@ -9,7 +9,7 @@ Thread = require '../models/thread'
 
 class TaskFactory
 
-  tasksForApplyingCategories: ({threads, categoriesToRemove, categoryToAdd}) =>
+  tasksForApplyingCategories: ({threads, categoriesToRemove, categoryToAdd, taskDescription}) =>
     byAccount = {}
     tasks = []
 
@@ -32,12 +32,16 @@ class TaskFactory
         tasks.push new ChangeFolderTask
           folder: categoryToAdd
           threads: threads
+          taskDescription: taskDescription
       else
         labelsToAdd = if categoryToAdd then [categoryToAdd] else []
+        labelsToRemove = categoriesToRemove ? []
+        labelsToRemove = if labelsToRemove instanceof Array then labelsToRemove else [labelsToRemove]
         tasks.push new ChangeLabelsTask
           threads: threads
-          labelsToRemove: categoriesToRemove
+          labelsToRemove: labelsToRemove
           labelsToAdd: labelsToAdd
+          taskDescription: taskDescription
 
     return tasks
 
@@ -84,11 +88,10 @@ class TaskFactory
       categoriesToRemove: (accountId) -> _.filter(fromPerspective.categories(), _.matcher({accountId}))
       categoryToAdd: (accountId) -> CategoryStore.getInboxCategory(accountId)
 
-  tasksForMarkingAsSpam: ({threads}) =>
+  tasksForMarkingAsSpam: ({threads, fromPerspective}) =>
     @tasksForApplyingCategories
       threads: threads,
-      categoriesToRemove: (accountId) ->
-        [CategoryStore.getStandardCategory(accountId, 'inbox')]
+      categoriesToRemove: (accountId) -> _.filter(fromPerspective.categories(), _.matcher({accountId}))
       categoryToAdd: (accountId) -> CategoryStore.getStandardCategory(accountId, 'spam')
 
   tasksForArchiving: ({threads, fromPerspective}) =>

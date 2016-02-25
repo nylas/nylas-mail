@@ -1,5 +1,6 @@
 import {
-  Metadata,
+  Task,
+  Model,
   NylasAPI,
   DatabaseStore,
   DestroyModelTask,
@@ -7,7 +8,7 @@ import {
 
 describe("DestroyModelTask", () => {
   beforeEach(() => {
-    this.existingModel = new Metadata({key: "foo", value: "bar"})
+    this.existingModel = new Model()
     this.existingModel.clientId = "local-123"
     this.existingModel.serverId = "server-123"
     spyOn(DatabaseTransaction.prototype, "unpersistModel")
@@ -18,7 +19,7 @@ describe("DestroyModelTask", () => {
     this.defaultArgs = {
       clientId: "local-123",
       accountId: "a123",
-      modelName: "Metadata",
+      modelName: "Model",
       endpoint: "/endpoint",
     }
   });
@@ -91,16 +92,13 @@ describe("DestroyModelTask", () => {
       });
     }
 
-    it("throws an error if the serverId is undefined", () => {
+    it("skips request if the serverId is undefined", () => {
       window.waitsForPromise(() => {
         return this.task.performLocal().then(() => {
           this.task.serverId = null
-          try {
-            this.task.performRemote()
-            throw new Error("Should fail")
-          } catch (err) {
-            expect(err.message).toMatch(/^Need a serverId.*/)
-          }
+          return this.task.performRemote().then((status)=> {
+            expect(status).toEqual(Task.Status.Continue)
+          })
         });
       });
     });
@@ -113,28 +111,6 @@ describe("DestroyModelTask", () => {
         expect(opts.path).toBe("/endpoint/server-123")
         expect(opts.accountId).toBe(this.defaultArgs.accountId)
       })
-    });
-  });
-
-  describe("undo", () => {
-    beforeEach(() => {
-      this.task = new DestroyModelTask(this.defaultArgs)
-    });
-
-    it("indicates it's undoable", () => {
-      expect(this.task.canBeUndone()).toBe(true)
-      expect(this.task.isUndo()).toBe(false)
-    });
-
-    it("creates the appropriate CreateModelTask", () => {
-      window.waitsForPromise(() => {
-        return this.task.performLocal().then(() => {
-          const undoTask = this.task.createUndoTask()
-          expect(undoTask.constructor.name).toBe("CreateModelTask")
-          expect(undoTask.data).toBe(this.task.oldModel)
-          expect(undoTask.isUndo()).toBe(true)
-        });
-      });
     });
   });
 });

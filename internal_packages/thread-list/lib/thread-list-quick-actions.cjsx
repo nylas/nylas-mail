@@ -13,7 +13,7 @@ class ThreadArchiveQuickAction extends React.Component
     mailboxPerspective = FocusedPerspectiveStore.current()
     archive = null
 
-    if mailboxPerspective?.canArchiveThreads()
+    if mailboxPerspective.canArchiveThreads()
       archive = <div key="archive"
                      title="Archive"
                      style={{ order: 100 }}
@@ -42,7 +42,7 @@ class ThreadTrashQuickAction extends React.Component
     mailboxPerspective = FocusedPerspectiveStore.current()
     trash = null
 
-    if mailboxPerspective?.canTrashThreads()
+    if mailboxPerspective.canTrashThreads()
       trash = <div key="remove"
                    title="Trash"
                    style={{ order: 110 }}

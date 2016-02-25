@@ -16,7 +16,7 @@ SyncbackCategoryTask = require './syncback-category-task'
 # - messages: An {Array} of {Message}s or {Message} ids
 class ChangeLabelsTask extends ChangeMailTask
 
-  constructor: ({@labelsToAdd, @labelsToRemove}={}) ->
+  constructor: ({@labelsToAdd, @labelsToRemove, @taskDescription}={}) ->
     @labelsToAdd ?= []
     @labelsToRemove ?= []
 
@@ -25,6 +25,7 @@ class ChangeLabelsTask extends ChangeMailTask
   label: -> "Applying labels…"
 
   description: ->
+    return @taskDescription if @taskDescription
     type = "thread"
     if @threads.length > 1
       type = "threads"

@@ -20,6 +20,7 @@ ThreadListScrollTooltip = require './thread-list-scroll-tooltip'
 ThreadListStore = require './thread-list-store'
 FocusContainer = require './focus-container'
 EmptyState = require './empty-state'
+ThreadListContextMenu = require './thread-list-context-menu'
 
 
 class ThreadList extends React.Component
@@ -36,10 +37,12 @@ class ThreadList extends React.Component
 
   componentDidMount: =>
     window.addEventListener('resize', @_onResize, true)
+    React.findDOMNode(@).addEventListener('contextmenu', @_onShowContextMenu)
     @_onResize()
 
   componentWillUnmount: =>
     window.removeEventListener('resize', @_onResize, true)
+    React.findDOMNode(@).removeEventListener('contextmenu', @_onShowContextMenu)
 
   _shift: ({offset, afterRunning}) =>
     dataSource = ThreadListStore.dataSource()
@@ -71,10 +74,10 @@ class ThreadList extends React.Component
   render: ->
     if @state.style is 'wide'
       columns = ThreadListColumns.Wide
-      itemHeight = 39
+      itemHeight = 36
     else
       columns = ThreadListColumns.Narrow
-      itemHeight = 90
+      itemHeight = 85
 
     <FluxContainer
       stores=[ThreadListStore]
@@ -96,34 +99,94 @@ class ThreadList extends React.Component
     </FluxContainer>
 
   _threadPropsProvider: (item) ->
-    className: classNames
-      'unread': item.unread
+    props =
+      className: classNames
+        'unread': item.unread
 
-  _onDragStart: (event) =>
+    perspective = FocusedPerspectiveStore.current()
+    account = AccountStore.accountForId(item.accountId)
+    finishedName = account.defaultFinishedCategory()?.name
+
+    if finishedName is 'trash' and perspective.canTrashThreads()
+      props.onSwipeRightClass = 'swipe-trash'
+      props.onSwipeRight = (callback) ->
+        tasks = TaskFactory.tasksForMovingToTrash
+          threads: [item]
+          fromPerspective: FocusedPerspectiveStore.current()
+        Actions.closePopover()
+        Actions.queueTasks(tasks)
+        callback(true)
+
+    else if finishedName in ['archive', 'all'] and perspective.canArchiveThreads()
+      props.onSwipeRightClass = 'swipe-archive'
+      props.onSwipeRight = (callback) ->
+        tasks = TaskFactory.tasksForArchiving
+          threads: [item]
+          fromPerspective: FocusedPerspectiveStore.current()
+        Actions.closePopover()
+        Actions.queueTasks(tasks)
+        callback(true)
+
+    if perspective.isInbox()
+      props.onSwipeLeftClass = 'swipe-snooze'
+      props.onSwipeCenter = =>
+        Actions.closePopover()
+      props.onSwipeLeft = (callback) =>
+        # TODO this should be grabbed from elsewhere
+        {PopoverStore} = require 'nylas-exports'
+        SnoozePopoverBody = require '../../thread-snooze/lib/snooze-popover-body'
+
+        element = document.querySelector("[data-item-id=\"#{item.id}\"]")
+        rect = element.getBoundingClientRect()
+        Actions.openPopover(
+          <SnoozePopoverBody
+            threads={[item]}
+            swipeCallback={callback}
+            closePopover={Actions.closePopover}/>,
+          rect,
+          "right"
+        )
+
+    props
+
+  _targetItemsForMouseEvent: (event) ->
     itemThreadId = @refs.list.itemIdAtPoint(event.clientX, event.clientY)
     unless itemThreadId
-      event.preventDefault()
-      return
+      return null
 
     dataSource = ThreadListStore.dataSource()
     if itemThreadId in dataSource.selection.ids()
-      dragThreadIds = dataSource.selection.ids()
-      dragAccountIds = _.uniq(_.pluck(dataSource.selection.items(), 'accountId'))
+      return {
+        threadIds: dataSource.selection.ids()
+        accountIds: _.uniq(_.pluck(dataSource.selection.items(), 'accountId'))
+      }
     else
-      dragThreadIds = [itemThreadId]
-      dragAccountIds = [dataSource.getById(itemThreadId).accountId]
+      thread = dataSource.getById(itemThreadId)
+      return null unless thread
+      return {
+        threadIds: [thread.id]
+        accountIds: [thread.accountId]
+      }
 
-    dragData = {
-      accountIds: dragAccountIds,
-      threadIds: dragThreadIds
-    }
+  _onShowContextMenu: (event) =>
+    data = @_targetItemsForMouseEvent(event)
+    if not data
+      event.preventDefault()
+      return
+    (new ThreadListContextMenu(data)).displayMenu()
+
+  _onDragStart: (event) =>
+    data = @_targetItemsForMouseEvent(event)
+    if not data
+      event.preventDefault()
+      return
 
     event.dataTransfer.effectAllowed = "move"
     event.dataTransfer.dragEffect = "move"
 
-    canvas = CanvasUtils.canvasWithThreadDragImage(dragThreadIds.length)
+    canvas = CanvasUtils.canvasWithThreadDragImage(data.threadIds.length)
     event.dataTransfer.setDragImage(canvas, 10, 10)
-    event.dataTransfer.setData('nylas-threads-data', JSON.stringify(dragData))
+    event.dataTransfer.setData('nylas-threads-data', JSON.stringify(data))
     return
 
   _onDragEnd: (event) =>
@@ -153,44 +216,46 @@ class ThreadList extends React.Component
   _onSetImportant: (important) =>
     threads = @_threadsForKeyboardAction()
     return unless threads
-
-    # TODO Can not apply to threads across more than one account for now
-    account = AccountStore.accountForItems(threads)
-    return unless account?
-
-    return unless account.usesImportantFlag()
     return unless NylasEnv.config.get('core.workspace.showImportant')
-    category = CategoryStore.getStandardCategory(account, 'important')
-    if important
-      task = TaskFactory.taskForApplyingCategory({threads, category})
-    else
-      task = TaskFactory.taskForRemovingCategory({threads, category})
 
-    Actions.queueTask(task)
+    if important
+      tasks = TaskFactory.tasksForApplyingCategories
+        threads: threads
+        categoriesToRemove: (accountId) -> []
+        categoryToAdd: (accountId) ->
+          CategoryStore.getStandardCategory(accountId, 'important')
+
+    else
+      tasks = TaskFactory.tasksForApplyingCategories
+        threads: threads
+        categoriesToRemove: (accountId) ->
+          important = CategoryStore.getStandardCategory(accountId, 'important')
+          return [important] if important
+          return []
+        categoryToAdd: (accountId) -> null
+
+    Actions.queueTasks(tasks)
 
   _onSetUnread: (unread) =>
     threads = @_threadsForKeyboardAction()
     return unless threads
-    task = new ChangeUnreadTask
-      threads: threads
-      unread: unread
-    Actions.queueTask(task)
+    Actions.queueTask(new ChangeUnreadTask({threads, unread}))
     Actions.popSheet()
 
   _onMarkAsSpam: =>
     threads = @_threadsForKeyboardAction()
     return unless threads
-    tasks = TaskFactory.tasksForMarkingAsSpam(
+    tasks = TaskFactory.tasksForMarkingAsSpam
       threads: threads
-    )
+      fromPerspective: FocusedPerspectiveStore.current()
     Actions.queueTasks(tasks)
 
   _onRemoveFromView: =>
     threads = @_threadsForKeyboardAction()
-    if threads
-      current = FocusedPerspectiveStore.current()
-      current.removeThreads(threads)
-      Actions.popSheet()
+    return unless threads
+    current = FocusedPerspectiveStore.current()
+    current.removeThreads(threads)
+    Actions.popSheet()
 
   _onArchiveItem: =>
     return unless FocusedPerspectiveStore.current().canArchiveThreads()

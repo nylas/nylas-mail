@@ -53,9 +53,11 @@ class FloatingToolbar extends React.Component
       toolbarPos: "above"
       editAreaWidth: 9999 # This will get set on first selection
       toolbarWidth: 0
+      toolbarHeight: 0
       toolbarComponent: null
       toolbarLocationRef: null
       toolbarComponentProps: {}
+      hidePointer: false
     @innerProps = FloatingToolbar.defaultInnerProps
 
   shouldComponentUpdate: (nextProps, nextState) ->
@@ -94,8 +96,8 @@ class FloatingToolbar extends React.Component
       <div ref="floatingToolbar"
            className={@_toolbarClasses()}
            style={@_toolbarStyles()}>
-        <div className="toolbar-pointer"
-             style={@_toolbarPointerStyles()}></div>
+
+        {@_renderPointer()}
         <ToolbarComponent {...@state.toolbarComponentProps} />
       </div>
     </div>
@@ -113,7 +115,9 @@ class FloatingToolbar extends React.Component
   _getToolbarComponentData: (props) ->
     toolbarComponent = null
     toolbarWidth = 0
+    toolbarHeight = 0
     toolbarLocationRef = null
+    hidePointer = false
     toolbarComponentProps = {}
 
     for extension in props.extensions
@@ -124,18 +128,24 @@ class FloatingToolbar extends React.Component
           toolbarComponentProps = params.props ? {}
           toolbarLocationRef = params.locationRefNode
           toolbarWidth = params.width
+          toolbarHeight = params.height
+          if params.hidePointer
+            hidePointer = params.hidePointer
       catch error
         NylasEnv.reportError(error)
 
     if toolbarComponent and not toolbarLocationRef
-      throw new Error("You must provider a locationRefNode for #{toolbarComponent.displayName}")
+      throw new Error("You must provide a locationRefNode for #{toolbarComponent.displayName}. It must be either a DOM Element or a Range.")
 
-    return {toolbarComponent, toolbarComponentProps, toolbarLocationRef, toolbarWidth}
+    return {toolbarComponent, toolbarComponentProps, toolbarLocationRef, toolbarWidth, toolbarHeight, hidePointer}
 
   @CONTENT_PADDING: 15
 
-  _calculatePositionState: (props, {toolbarLocationRef, toolbarWidth}) =>
+  _calculatePositionState: (props, {toolbarLocationRef, toolbarWidth, toolbarHeight}) =>
     editableNode = props.editableNode
+
+    if not _.isFunction(toolbarLocationRef.getBoundingClientRect)
+      throw new Error("Your locationRefNode must implement getBoundingClientRect. Be aware that Text nodes do not implement this, but Element nodes do. Find the nearest Element relative.")
 
     referenceRect = toolbarLocationRef.getBoundingClientRect()
 
@@ -151,10 +161,14 @@ class FloatingToolbar extends React.Component
     calcLeft = (referenceRect.left - editArea.left) + referenceRect.width/2
     calcLeft = Math.min(Math.max(calcLeft, FloatingToolbar.CONTENT_PADDING+BORDER_RADIUS_PADDING), editArea.width - BORDER_RADIUS_PADDING)
 
-    calcTop = referenceRect.top - editArea.top - 48
+    calcTop = referenceRect.top - editArea.top - toolbarHeight - 14
+    if @state.hidePointer
+      calcTop += 10
     toolbarPos = "above"
     if calcTop < TOP_PADDING
       calcTop = referenceRect.top - editArea.top + referenceRect.height + TOP_PADDING + 4
+      if @state.hidePointer
+        calcTop -= 10
       toolbarPos = "below"
 
     maxWidth = editArea.width - FloatingToolbar.CONTENT_PADDING * 2
@@ -163,6 +177,7 @@ class FloatingToolbar extends React.Component
       toolbarTop: calcTop
       toolbarLeft: calcLeft
       toolbarWidth: Math.min(maxWidth, toolbarWidth)
+      toolbarHeight: toolbarHeight
       editAreaWidth: editArea.width
       toolbarPos: toolbarPos
     }
@@ -179,6 +194,7 @@ class FloatingToolbar extends React.Component
       left: @_toolbarLeft()
       top: @state.toolbarTop
       width: @state.toolbarWidth
+      height: @state.toolbarHeight
     return styles
 
   _toolbarLeft: =>
@@ -197,5 +213,12 @@ class FloatingToolbar extends React.Component
     styles =
       left: left
     return styles
+
+  _renderPointer: =>
+    return false if @state.hidePointer
+    <div className="toolbar-pointer-container" style={@_toolbarPointerStyles()}>
+      <div className="shadow"></div>
+      <div className="foreground"></div>
+    </div>
 
 module.exports = FloatingToolbar

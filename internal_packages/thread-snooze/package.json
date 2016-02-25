@@ -1,0 +1,23 @@
+{
+  "name": "thread-snooze",
+  "version": "1.0.0",
+  "appId": {
+    "staging": "2bfvqp9ylcl1az76od31qmny",
+    "production": "86bu9juw5bjeq1c8y2679aary"
+  },
+
+  "title": "Thread Snooze",
+  "description": "Snooze mail!",
+  "main": "lib/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/nylas/n1"
+  },
+  "engines": {
+    "nylas": ">=0.3.0 <0.5.0"
+  },
+  "license": "GPL-3.0"
+}

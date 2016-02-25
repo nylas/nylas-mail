@@ -11,13 +11,17 @@ class MessageBodyProcessor
     @_subscriptions = []
     @resetCache()
 
-  resetCache: ->
-    # Store an object for recently processed items. Put the item reference into
-    # both data structures so we can access it in O(1) and also delete in O(1)
-    @_recentlyProcessedA = []
-    @_recentlyProcessedD = {}
-    for {message, callback} in @_subscriptions
-      callback(@process(message))
+  resetCache: (msg) ->
+    if msg
+      key = @_key(msg)
+      delete @_recentlyProcessedD[key]
+    else
+      # Store an object for recently processed items. Put the item reference into
+      # both data structures so we can access it in O(1) and also delete in O(1)
+      @_recentlyProcessedA = []
+      @_recentlyProcessedD = {}
+      for {message, callback} in @_subscriptions
+        callback(@process(message))
 
   # It's far safer to key off the hash of the body then the [id, version]
   # pair. This is because it's theoretically possible for the body to

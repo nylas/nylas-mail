@@ -5,16 +5,15 @@
 // A box to hold counts of things (like number of items in a tag, or
 // number of messages in a thread)
 .item-count-box {
-  float: right;
   min-width: 15px;
   height: 15px;
   text-align: center;
   display: inline;
   font-size: @font-size-tiny;
   padding: 0 0.286em 0 0.286em;
-  margin-top: floor(@line-height-large*1.1 - @font-size)/2 + 1;
-  line-height: @font-size;
+  line-height: 15px;
   border-radius: @border-radius-small;
+  align-self: center;
 }
 body.platform-win32 {
   .item-count-box {
