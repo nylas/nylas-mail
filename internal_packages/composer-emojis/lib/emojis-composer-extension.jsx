@@ -171,8 +171,9 @@ class EmojisComposerExtension extends ContenteditableExtension {
         maxLength = emojiOption.length;
       }
     }
+    // TODO: Calculate width of words more accurately for a closer fit.
     const WIDTH_PER_CHAR = 8;
-    return (maxLength + 8) * WIDTH_PER_CHAR;
+    return (maxLength + 10) * WIDTH_PER_CHAR;
   }
 
   static _emojiPickerHeight(emojiOptions) {
