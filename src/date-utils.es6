@@ -49,7 +49,8 @@ chronoFuture.refiners.push(EnforceFutureDate);
 
 const Hours = {
   Morning: 9,
-  Evening: 19,
+  Evening: 20,
+  Midnight: 24,
 }
 
 const Days = {
@@ -67,6 +68,10 @@ function morning(momentDate, morningHour = Hours.Morning) {
 
 function evening(momentDate, eveningHour = Hours.Evening) {
   return oclock(momentDate.hour(eveningHour))
+}
+
+function midnight(momentDate, midnightHour = Hours.Midnight) {
+  return oclock(momentDate.hour(midnightHour))
 }
 
 
@@ -100,7 +105,7 @@ const DateUtils = {
 
   tonight(now = moment()) {
     if (now.hour() >= Hours.Evening) {
-      return DateUtils.tomorrowEvening();
+      return midnight(now);
     }
     return evening(now)
   },
