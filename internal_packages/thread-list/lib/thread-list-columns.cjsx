@@ -80,7 +80,13 @@ c3 = new ListTabular.Column
         labels.push c3LabelComponentCache[label.id]
 
     <span className="details">
-      {labels}
+      <InjectedComponentSet
+        inline
+        containerRequired={false}
+        children={labels}
+        matching={role: "ThreadList:Label"}
+        className="thread-injected-mail-labels"
+        exposedProps={thread: thread}/>
       <span className="subject">{subject(thread.subject)}</span>
       <span className="snippet">{thread.snippet}</span>
       {attachment}
@@ -148,7 +154,13 @@ cNarrow = new ListTabular.Column
       <div className="snippet-and-labels">
         <div className="snippet">{thread.snippet}&nbsp;</div>
         <div style={flex: 1, flexShrink: 1}></div>
-        {labels}
+        <InjectedComponentSet
+          inline
+          containerRequired={false}
+          children={labels}
+          matching={role: "ThreadList:Label"}
+          className="thread-injected-mail-labels-narrow"
+          exposedProps={thread: thread}/>
       </div>
     </div>
 
