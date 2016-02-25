@@ -429,10 +429,10 @@ class ComposerView extends React.Component
 
   _renderActionsRegion: =>
     return <div></div> unless @props.draftClientId
-
-    <InjectedComponentSet className="composer-action-bar-content"
+    <div className="composer-action-bar-content">
+      <InjectedComponentSet className="composer-action-bar-plugins"
                       matching={role: "Composer:ActionButton"}
-                      exposedProps={draftClientId:@props.draftClientId, threadId: @props.threadId}>
+                      exposedProps={draftClientId:@props.draftClientId, threadId: @props.threadId}></InjectedComponentSet>
 
       <button className="btn btn-toolbar btn-trash" style={order: 100}
               title="Delete draft"
@@ -448,7 +448,7 @@ class ComposerView extends React.Component
                         ref="sendActionButton"
                         isValidDraft={@_isValidDraft} />
 
-    </InjectedComponentSet>
+    </div>
 
   isForwardedMessage: =>
     return false if not @_proxy
