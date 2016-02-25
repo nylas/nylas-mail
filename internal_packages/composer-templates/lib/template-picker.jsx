@@ -64,7 +64,7 @@ class TemplatePicker extends React.Component {
 
   render() {
     const button = (
-      <button className="btn btn-toolbar narrow" title="Insert email template">
+      <button className="btn btn-toolbar narrow" title="Insert email template…">
         <RetinaImg url="nylas://composer-templates/assets/icon-composer-templates@2x.png" mode={RetinaImg.Mode.ContentIsMask}/>
         &nbsp;
         <RetinaImg name="icon-composer-dropdown.png" mode={RetinaImg.Mode.ContentIsMask}/>
