@@ -10,18 +10,8 @@ class QuickActionSnoozeButton extends Component {
     thread: PropTypes.object,
   };
 
-  constructor() {
-    super();
-    this.openedPopover = false;
-  }
-
   onClick = (event)=> {
     event.stopPropagation()
-    if (this.openedPopover) {
-      Actions.closePopover();
-      this.openedPopover = false;
-      return;
-    }
     const {thread} = this.props;
 
     // Grab the parent node because of the zoom applied to this button. If we
@@ -35,8 +25,7 @@ class QuickActionSnoozeButton extends Component {
       <SnoozePopoverBody threads={[thread]} closePopover={Actions.closePopover}/>,
       rect,
       "left"
-    )
-    this.openedPopover = true;
+    );
   };
 
   static containerRequired = false;

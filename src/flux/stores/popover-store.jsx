@@ -18,7 +18,7 @@ class PopoverStore extends NylasStore {
     super()
     this.isOpen = false;
     this.container = createContainer(containerId);
-    React.render(<FixedPopover showing={false} />, this.container);
+    React.render(<span />, this.container);
 
     this.listenTo(Actions.openPopover, this.openPopover);
     this.listenTo(Actions.closePopover, this.closePopover);
@@ -28,36 +28,39 @@ class PopoverStore extends NylasStore {
     return this.isOpen;
   };
 
-  renderPopover = (popover, isOpen, callback)=> {
+  renderPopover = (child, props, callback)=> {
+    const popover = (
+      <FixedPopover {...props}>{child}</FixedPopover>
+    );
+
     React.render(popover, this.container, ()=> {
-      this.isOpen = isOpen;
+      this.isOpen = props.showing;
       this.trigger();
-      callback()
-    })
+      callback();
+    });
   };
 
   openPopover = (element, originRect, direction, callback = ()=> {})=> {
-    const popover = (
-      <FixedPopover
-        showing
-        originRect={originRect}
-        direction={direction}>
-        {element}
-      </FixedPopover>
-    );
+    const props = {
+      originRect: originRect,
+      direction: direction,
+    };
 
     if (this.isOpen) {
       this.closePopover(()=> {
-        this.renderPopover(popover, true, callback);
+        this.renderPopover(element, props, callback);
       })
     } else {
-      this.renderPopover(popover, true, callback);
+      this.renderPopover(element, props, callback);
     }
   };
 
   closePopover = (callback = ()=>{})=> {
-    const popover = <FixedPopover showing={false} />;
-    this.renderPopover(popover, false, callback);
+    React.render(<span/>, this.container, ()=> {
+      this.isOpen = false;
+      this.trigger();
+      callback();
+    });
   };
 
 }
