@@ -12,6 +12,8 @@ class SnoozeMailLabel extends Component {
     thread: PropTypes.object,
   };
 
+  static containerRequired = false;
+
   render() {
     const {thread} = this.props;
     if (_.findWhere(thread.categories, {displayName: SNOOZE_CATEGORY_NAME})) {
