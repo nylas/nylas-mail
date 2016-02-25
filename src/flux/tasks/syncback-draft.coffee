@@ -67,7 +67,7 @@ class SyncbackDraftTask extends Task
       body: draft.toJSON()
       returnsModel: false
 
-  updateLocalDraft: ({version, id}) =>
+  updateLocalDraft: ({version, id, thread_id}) =>
     # Important: There could be a significant delay between us initiating the save
     # and getting JSON back from the server. Our local copy of the draft may have
     # already changed more.
@@ -81,6 +81,7 @@ class SyncbackDraftTask extends Task
         # Draft may have been deleted. Oh well.
         return Promise.resolve() unless draft
         if draft.serverId isnt id
+          draft.threadId = thread_id
           draft.serverId = id
           draftIsNew = true
         draft.version = version

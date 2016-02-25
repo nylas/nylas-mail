@@ -28,7 +28,7 @@ testData =
   body: '<body>123</body>'
 
 localDraft = -> new Message _.extend {}, testData, {clientId: "local-id"}
-remoteDraft = -> new Message _.extend {}, testData, {clientId: "local-id", serverId: "remoteid1234"}
+remoteDraft = -> new Message _.extend {}, testData, {clientId: "local-id", serverId: "remoteid1234", threadId: '1234', version: 2}
 
 describe "SyncbackDraftTask", ->
   beforeEach ->
@@ -140,6 +140,17 @@ describe "SyncbackDraftTask", ->
           expect(options.path).toBe("/drafts")
           expect(options.accountId).toBe("abc123")
           expect(options.method).toBe('POST')
+
+    it "should apply the server ID, thread ID and version to the draft", ->
+      task = new SyncbackDraftTask("localDraftId")
+      waitsForPromise =>
+        task.performRemote().then ->
+          expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
+          saved = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
+          remote = remoteDraft()
+          expect(saved.threadId).toEqual(remote.threadId)
+          expect(saved.serverId).toEqual(remote.serverId)
+          expect(saved.version).toEqual(remote.version)
 
     it "should pass returnsModel:false so that the draft can be manually removed/added to the database, accounting for its ID change", ->
       task = new SyncbackDraftTask("localDraftId")
