@@ -42,6 +42,7 @@ export default class LinkTrackingComposerExtension extends ComposerExtension {
       // save the link info to draft metadata
       metadata.uid = messageUid;
       metadata.links = links;
+
       Actions.setMetadata(draft, PLUGIN_ID, metadata);
     }
   }

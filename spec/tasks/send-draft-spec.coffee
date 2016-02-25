@@ -115,7 +115,8 @@ describe "SendDraftTask", ->
         waitsForPromise =>
           @task.performRemote().then =>
             args = Actions.sendDraftSuccess.calls[0].args[0]
-            expect(args.draftClientId).toBe @draft.clientId
+            expect(args.message instanceof Message).toBe(true)
+            expect(args.messageClientId).toBe(@draft.clientId)
 
       it "should play a sound", ->
         spyOn(NylasEnv.config, "get").andReturn true

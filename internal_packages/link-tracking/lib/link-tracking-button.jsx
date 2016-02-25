@@ -29,7 +29,7 @@ export default class LinkTrackingButton extends React.Component {
         iconName="icon-composer-linktracking.png"
         pluginId={PLUGIN_ID}
         pluginName={PLUGIN_NAME}
-        metadataKey="tracked"
+        metadataEnabledValue={{"tracked": true}}
         stickyToggle
         errorMessage={this._errorMessage}
         draftClientId={this.props.draftClientId} />

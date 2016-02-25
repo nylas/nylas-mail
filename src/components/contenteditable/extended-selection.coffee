@@ -52,6 +52,7 @@ class ExtendedSelection
   selectFromTo: (from, to) ->
     fromNode = @findNodeAt(from)
     toNode = @findNodeAt(to)
+    return unless fromNode and toNode
     @setBaseAndExtent(fromNode, 0, toNode, (toNode.length ? 0))
 
   selectFromToWithIndex: (from, fromIndex, to, toIndex) ->
@@ -59,6 +60,7 @@ class ExtendedSelection
     toNode = @findNodeAt(to)
     if (not _.isNumber(fromIndex)) or (not _.isNumber(toIndex))
       throw @_errBadUsage()
+    return unless fromNode and toNode
     @setBaseAndExtent(fromNode, fromIndex, toNode, toIndex)
 
   exportSelection: -> new ExportedSelection(@rawSelection, @scopeNode)
