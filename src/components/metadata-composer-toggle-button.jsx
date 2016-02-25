@@ -12,7 +12,7 @@ export default class MetadataComposerToggleButton extends React.Component {
     iconName: React.PropTypes.string,
     pluginId: React.PropTypes.string.isRequired,
     pluginName: React.PropTypes.string.isRequired,
-    metadataKey: React.PropTypes.string.isRequired,
+    metadataEnabledValue: React.PropTypes.object.isRequired,
     stickyToggle: React.PropTypes.bool,
     errorMessage: React.PropTypes.func.isRequired,
     draftClientId: React.PropTypes.string.isRequired,
@@ -55,21 +55,19 @@ export default class MetadataComposerToggleButton extends React.Component {
     if (!metadata) {
       if (!this.state.isSetup) {
         if (this._isDefaultOn()) {
-          this._setMetadataValueTo(true)
+          this._setEnabled(true)
         }
         this.setState({isSetup: true})
       }
     } else {
-      this.setState({enabled: metadata.tracked, isSetup: true});
+      this.setState({enabled: true, isSetup: true});
     }
   };
 
-  _setMetadataValueTo(enabled) {
-    const newValue = {}
-    newValue[this.props.metadataKey] = enabled
+  _setEnabled(enabled) {
+    const metadataValue = enabled ? this.props.metadataEnabledValue : null;
     this.setState({enabled, pending: true});
-    const metadataValue = enabled ? newValue : null
-    // write metadata into the draft to indicate tracked state
+
     return DraftStore.sessionForClientId(this.props.draftClientId).then((session)=> {
       const draft = session.draft();
 
@@ -108,7 +106,7 @@ export default class MetadataComposerToggleButton extends React.Component {
     if (this.props.stickyToggle) {
       NylasEnv.config.set(this._configKey(), !this.state.enabled)
     }
-    this._setMetadataValueTo(!this.state.enabled)
+    this._setEnabled(!this.state.enabled)
   };
 
   render() {

@@ -2,6 +2,7 @@
 import {React, APIError, NylasAPI} from 'nylas-exports'
 import {MetadataComposerToggleButton} from 'nylas-component-kit'
 import {PLUGIN_ID, PLUGIN_NAME} from './open-tracking-constants'
+import uuid from 'node-uuid';
 
 export default class OpenTrackingButton extends React.Component {
   static displayName = 'OpenTrackingButton';
@@ -23,13 +24,19 @@ export default class OpenTrackingButton extends React.Component {
   }
 
   render() {
+    const enabledValue = {
+      uid: uuid.v4().replace(/-/g, ""),
+      open_count: 0,
+      open_data: [],
+    };
+
     return (
       <MetadataComposerToggleButton
         title={this._title}
         iconUrl="nylas://open-tracking/assets/icon-composer-eye@2x.png"
         pluginId={PLUGIN_ID}
         pluginName={PLUGIN_NAME}
-        metadataKey="tracked"
+        metadataEnabledValue={enabledValue}
         stickyToggle
         errorMessage={this._errorMessage}
         draftClientId={this.props.draftClientId} />

@@ -1,5 +1,4 @@
-import uuid from 'node-uuid';
-import {ComposerExtension, Actions, QuotedHTMLTransformer} from 'nylas-exports';
+import {ComposerExtension, QuotedHTMLTransformer} from 'nylas-exports';
 import {PLUGIN_ID, PLUGIN_URL} from './open-tracking-constants';
 
 
@@ -17,11 +16,8 @@ export default class OpenTrackingComposerExtension extends ComposerExtension {
     // grab message metadata, if any
     const metadata = draft.metadataForPluginId(PLUGIN_ID);
     if (metadata) {
-      // generate a UID
-      const uid = uuid.v4().replace(/-/g, "");
-
       // insert a tracking pixel <img> into the message
-      const serverUrl = `${PLUGIN_URL}/open/${draft.accountId}/${uid}`;
+      const serverUrl = `${PLUGIN_URL}/open/${draft.accountId}/${metadata.uid}`;
       const img = `<img width="0" height="0" style="border:0; width:0; height:0;" src="${serverUrl}">`;
       const draftBody = new DraftBody(draft);
       draftBody.unquoted = draftBody.unquoted + "<br>" + img;
@@ -29,10 +25,6 @@ export default class OpenTrackingComposerExtension extends ComposerExtension {
       // save the draft
       session.changes.add({body: draftBody.body});
       session.changes.commit();
-
-      // save the uid to draft metadata
-      metadata.uid = uid;
-      Actions.setMetadata(draft, PLUGIN_ID, metadata);
     }
   }
 }
