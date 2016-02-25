@@ -15,6 +15,16 @@ class SnoozeStore {
   }
 
   onSnoozeThreads = (threads, snoozeDate)=> {
+    try {
+      const sec = Math.round(((new Date(snoozeDate)).valueOf() - Date.now()) / 1000);
+      Actions.recordUserEvent("Snooze Threads", {
+        numThreads: threads.length,
+        snoozeTime: sec,
+      });
+    } catch (e) {
+      // Do nothing
+    }
+
     const accounts = AccountStore.accountsForItems(threads)
     const promises = accounts.map((acc)=> {
       return NylasAPI.authPlugin(this.pluginId, PLUGIN_NAME, acc)
