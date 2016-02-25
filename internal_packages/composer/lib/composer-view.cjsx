@@ -334,7 +334,7 @@ class ComposerView extends React.Component
       onComponentDidRender={@_onEditorBodyDidRender}
       requiredMethods={[
         'focus'
-        'nativeFocus'
+        'focusAbsoluteEnd'
         'getCurrentSelection'
         'getPreviousSelection'
         '_onDOMMutated'
@@ -473,7 +473,7 @@ class ComposerView extends React.Component
       # We don't set state directly here because we want the native
       # contenteditable focus behavior. When the contenteditable gets focused
       # the focused field state will be properly set via editor.onFocus
-      @refs[Fields.Body].nativeFocus()
+      @refs[Fields.Body].focusAbsoluteEnd()
     @_mouseDownTarget = null
 
   # When a user focuses the composer, it's possible that no input is
