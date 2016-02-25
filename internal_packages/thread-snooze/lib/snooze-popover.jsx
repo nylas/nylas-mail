@@ -1,5 +1,6 @@
 /** @babel */
 import React, {Component, PropTypes} from 'react';
+import {Actions} from 'nylas-exports';
 import {Popover} from 'nylas-component-kit';
 import SnoozePopoverBody from './snooze-popover-body';
 
@@ -29,7 +30,8 @@ class SnoozePopover extends Component {
         direction={direction || 'down-align-left'}
         buttonComponent={buttonComponent}
         popoverStyle={popoverStyle}
-        pointerStyle={pointerStyle}>
+        pointerStyle={pointerStyle}
+        onOpened={()=> Actions.closePopover()}>
         <SnoozePopoverBody threads={threads} closePopover={this.closePopover}/>
       </Popover>
     );

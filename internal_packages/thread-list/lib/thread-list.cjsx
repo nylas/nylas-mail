@@ -125,30 +125,31 @@ class ThreadList extends React.Component
         Actions.queueTasks(tasks)
         callback(true)
 
-    props.onSwipeLeftClass = 'swipe-snooze'
-    props.onSwipeLeft = (callback) =>
-      # TODO this should be grabbed from elsewhere
-      {PopoverStore} = require 'nylas-exports'
-      SnoozePopoverBody = require '../../thread-snooze/lib/snooze-popover-body'
+    if perspective.isInbox()
+      props.onSwipeLeftClass = 'swipe-snooze'
+      props.onSwipeLeft = (callback) =>
+        # TODO this should be grabbed from elsewhere
+        {PopoverStore} = require 'nylas-exports'
+        SnoozePopoverBody = require '../../thread-snooze/lib/snooze-popover-body'
 
-      # TODO
-      # The question I want to ask is if I am already swiping, i.e. mid swipe,
-      # but I don't know how to ask it.
-      # This is good enough for now
-      if PopoverStore.isPopoverOpen()
-        callback(false)
-        return
+        # TODO
+        # The question I want to ask is if I am already swiping, i.e. mid swipe,
+        # but I don't know how to ask it.
+        # This is good enough for now
+        if PopoverStore.isPopoverOpen()
+          callback(false)
+          return
 
-      element = document.querySelector("[data-item-id=\"#{item.id}\"]")
-      rect = element.getBoundingClientRect()
-      Actions.openPopover(
-        <SnoozePopoverBody
-          threads={[item]}
-          swipeCallback={callback}
-          closePopover={Actions.closePopover}/>,
-        rect,
-        "right"
-      )
+        element = document.querySelector("[data-item-id=\"#{item.id}\"]")
+        rect = element.getBoundingClientRect()
+        Actions.openPopover(
+          <SnoozePopoverBody
+            threads={[item]}
+            swipeCallback={callback}
+            closePopover={Actions.closePopover}/>,
+          rect,
+          "right"
+        )
 
     props
 

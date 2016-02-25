@@ -1,13 +1,26 @@
 @import "ui-variables";
 @import "ui-mixins";
 
+.open-tracking-icon img {
+  vertical-align: initial;
+}
+
 .open-tracking-icon img.content-mask.unopened {
-  background-color: #6b777d;
-  vertical-align: text-bottom;
+  background-color: fadeout(@text-color, 80%);
 }
 .open-tracking-icon img.content-mask.opened {
   background-color: @text-color-link;
 }
+
+.list-item.focused {
+  .open-tracking-icon img.content-mask.unopened {
+    background-color: fadeout(@text-color-inverse, 70%);
+  }
+  .open-tracking-icon img.content-mask.opened {
+    background-color: @background-off-primary;
+  }
+}
+
 .open-tracking-icon .open-count {
   display: inline-block;
   position: relative;
@@ -18,9 +31,10 @@
   font-size: 12px;
   font-weight: bold;
 }
+
 .open-tracking-icon {
-  height: 10px;
-  margin: -9px 0 0 4px;
+  width: 15px;
+  margin: 0 2px;
 }
 
 .read-receipt-message-status {

@@ -2,6 +2,11 @@ import _ from 'underscore';
 import React, {Component, PropTypes} from 'react';
 
 
+// TODO
+// This is a temporary hack for the snooze popover
+// This should be the actual dimensions of the rendered popover body
+const OVERFLOW_LIMIT = 50;
+
 /**
  * Renders a popover absultely positioned in the window next to the provided
  * rect.
@@ -69,12 +74,8 @@ class FixedPopover extends Component {
     }
   };
 
-  _getNewDirection = (direction, originRect, windowDimensions)=> {
-    // TODO
-    // This is a temporary solution for the snooze popover.
-    // This should grab the actual dimensions of the rendered popover body
-    const limit = 50;
-
+  _getNewDirection = (direction, originRect, windowDimensions, limit = OVERFLOW_LIMIT)=> {
+    // TODO this is a hack. Implement proper repositioning
     switch (direction) {
     case 'right':
       if (
@@ -93,7 +94,6 @@ class FixedPopover extends Component {
       }
       break;
     default:
-      // TODO implement missing
       break;
     }
     return null;
@@ -145,9 +145,19 @@ class FixedPopover extends Component {
         top: originRect.top,
         right: (windowDimensions.width - originRect.left) + 10,
       }
+      // TODO This is a hack for the snooze popover. Fix this
+      let popoverTop = originRect.height / 2;
+      let popoverTransform = 'translate(-100%, -50%)';
+      if (originRect.top < OVERFLOW_LIMIT * 2) {
+        popoverTop = 0;
+        popoverTransform = 'translate(-100%, 0)';
+      } else if (windowDimensions.height - originRect.bottom < OVERFLOW_LIMIT * 2) {
+        popoverTop = -190;
+        popoverTransform = 'translate(-100%, 0)';
+      }
       popoverStyle = {
-        transform: 'translate(-100%, -50%)',
-        top: originRect.height / 2,
+        transform: popoverTransform,
+        top: popoverTop,
       }
       pointerStyle = {
         transform: 'translate(-13px, -50%) rotate(270deg)',
@@ -164,7 +174,7 @@ class FixedPopover extends Component {
         top: originRect.height / 2,
       }
       pointerStyle = {
-        transform: 'translate(-12px, 0) rotate(90deg)',
+        transform: 'translate(-12px, -50%) rotate(90deg)',
         top: originRect.height, // Don't divide by 2 because of zoom
       }
       break;

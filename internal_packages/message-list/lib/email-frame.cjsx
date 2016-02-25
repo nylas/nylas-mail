@@ -1,7 +1,7 @@
 React = require 'react'
 _ = require "underscore"
 {EventedIFrame} = require 'nylas-component-kit'
-{QuotedHTMLTransformer} = require 'nylas-exports'
+{Utils, QuotedHTMLTransformer} = require 'nylas-exports'
 
 EmailFrameStylesStore = require './email-frame-styles-store'
 
@@ -10,9 +10,6 @@ class EmailFrame extends React.Component
 
   @propTypes:
     content: React.PropTypes.string.isRequired
-
-  constructor: (@props) ->
-    @_lastComputedHeight = 0
 
   render: =>
     <EventedIFrame ref="iframe" seamless="seamless" onResize={@_setFrameHeight}/>
@@ -29,14 +26,12 @@ class EmailFrame extends React.Component
   componentDidUpdate: =>
     @_writeContent()
 
-  shouldComponentUpdate: (newProps, newState) =>
-    # Turns out, React is not able to tell if props.children has changed,
-    # so whenever the message list updates each email-frame is repopulated,
-    # often with the exact same content. To avoid unnecessary calls to
-    # _writeContent, we do a quick check for deep equality.
-    !_.isEqual(newProps, @props)
+  shouldComponentUpdate: (nextProps, nextState) =>
+    not Utils.isEqualReact(nextProps, @props) or
+    not Utils.isEqualReact(nextState, @state)
 
   _writeContent: =>
+    @_lastComputedHeight = 0
     domNode = React.findDOMNode(@)
     doc = domNode.contentDocument
     return unless doc

@@ -1,9 +1,9 @@
 import {MessageViewExtension, RegExpUtils} from 'nylas-exports'
-import plugin from '../package.json'
+import {PLUGIN_ID} from './link-tracking-constants'
 
 export default class LinkTrackingMessageExtension extends MessageViewExtension {
   static formatMessageBody({message}) {
-    const metadata = message.metadataForPluginId(plugin.appId) || {};
+    const metadata = message.metadataForPluginId(PLUGIN_ID) || {};
     if ((metadata.links || []).length === 0) { return }
     const links = {}
     for (const link of metadata.links) {

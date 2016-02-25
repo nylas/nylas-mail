@@ -1,6 +1,51 @@
 /** @babel */
 import moment from 'moment'
 import chrono from 'chrono-node'
+import _ from 'underscore'
+
+function isPastDate({year, month, day}, ref) {
+  const refDay = ref.getDate();
+  const refMonth = ref.getMonth() + 1;
+  const refYear = ref.getFullYear();
+  if (refYear > year) {
+    return true;
+  }
+  if (refMonth > month) {
+    return true;
+  }
+  if (refDay > day) {
+    return true;
+  }
+  return false;
+}
+
+const EnforceFutureDate = new chrono.Refiner();
+EnforceFutureDate.refine = (text, results)=> {
+  results.forEach((result)=> {
+    const current = _.extend({}, result.start.knownValues, result.start.impliedValues);
+
+    if (result.start.isCertain('weekday') && !result.start.isCertain('day')) {
+      if (isPastDate(current, result.ref)) {
+        result.start.imply('day', result.start.impliedValues.day + 7);
+      }
+    }
+
+    if (result.start.isCertain('day') && !result.start.isCertain('month')) {
+      if (isPastDate(current, result.ref)) {
+        result.start.imply('month', result.start.impliedValues.month + 1);
+      }
+    }
+    if (result.start.isCertain('month') && !result.start.isCertain('year')) {
+      if (isPastDate(current, result.ref)) {
+        result.start.imply('year', result.start.impliedValues.year + 1);
+      }
+    }
+  });
+  return results;
+};
+
+const chronoFuture = new chrono.Chrono(chrono.options.casualOption());
+chronoFuture.refiners.push(EnforceFutureDate);
 
 const Hours = {
   Morning: 9,
@@ -82,12 +127,12 @@ const DateUtils = {
 
   /**
    * Can take almost any string.
-   * e.g. "Next monday at 2pm"
+   * e.g. "Next Monday at 2pm"
    * @param {string} dateLikeString - a string representing a date.
    * @return {moment} - moment object representing date
    */
-  fromString(dateLikeString) {
-    const date = chrono.parseDate(dateLikeString)
+  futureDateFromString(dateLikeString) {
+    const date = chronoFuture.parseDate(dateLikeString)
     if (!date) {
       return null
     }

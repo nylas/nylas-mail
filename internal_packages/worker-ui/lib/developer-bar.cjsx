@@ -52,9 +52,6 @@ class DeveloperBar extends React.Component
             <span>Requests: {@state.curlHistory.length}</span>
           </div>
         </div>
-        <div className="btn-container pull-right">
-          <div className="btn" onClick={ => Actions.sendFeedback() }>Feedback</div>
-        </div>
       </div>
       {@_sectionContent()}
       <div className="footer">

@@ -273,7 +273,9 @@ class Application
 
     @on 'application:add-account', => @windowManager.ensureOnboardingWindow()
     @on 'application:new-message', => @windowManager.sendToMainWindow('new-message')
-    @on 'application:send-feedback', => @windowManager.sendToMainWindow('send-feedback')
+    @on 'application:view-help', =>
+      url = 'https://nylas.zendesk.com/hc/en-us/sections/203638587-N1'
+      require('electron').shell.openExternal(url)
     @on 'application:open-preferences', => @windowManager.sendToMainWindow('open-preferences')
     @on 'application:show-main-window', => @openWindowsForTokenState()
     @on 'application:show-work-window', => @windowManager.showWorkWindow()

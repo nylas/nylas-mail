@@ -874,12 +874,21 @@ class NylasEnvConstructor extends Model
     dialog = remote.require('dialog')
     callback(dialog.showSaveDialog(@getCurrentWindow(), options))
 
-  showErrorDialog: (message) ->
+  showErrorDialog: (messageData) ->
+    if _.isString(messageData) or _.isNumber(messageData)
+      message = messageData
+      title = "Error"
+    else if _.isObject(messageData)
+      message = messageData.message
+      title = messageData.title
+    else
+      throw new Error("Must pass a valid message to show dialog", message)
+
     dialog = remote.require('dialog')
     dialog.showMessageBox null, {
       type: 'warning'
       buttons: ['Okay'],
-      message: "Error"
+      message: title
       detail: message
     }
 
