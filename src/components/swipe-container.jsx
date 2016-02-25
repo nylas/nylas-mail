@@ -35,9 +35,6 @@ let SwipeInverted = false;
 
 if (process.platform === 'darwin') {
   exec("defaults read -g com.apple.swipescrolldirection", (err, stdout)=> {
-    if (err !== null) {
-      return;
-    }
     SwipeInverted = (stdout.toString().trim() !== '0');
   });
 } else if (process.platform === 'win32') {
