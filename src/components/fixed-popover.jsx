@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import React, {Component, PropTypes} from 'react';
-
+import Actions from '../flux/actions';
 
 // TODO
 // This is a temporary hack for the snooze popover
@@ -23,7 +23,6 @@ class FixedPopover extends Component {
     className: PropTypes.string,
     children: PropTypes.element,
     direction: PropTypes.string,
-    showing: PropTypes.bool,
     originRect: PropTypes.shape({
       bottom: PropTypes.number,
       top: PropTypes.number,
@@ -40,28 +39,19 @@ class FixedPopover extends Component {
       offset: 0,
       dimensions: {},
     };
-    this._focusOnOpen = props.showing;
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.showing === true) {
-      this._focusOnOpen = true;
-    }
-  }
-
-  componentDidUpdate() {
-    if (this._focusOnOpen) {
-      this._focusImportantElement()
-      this._focusOnOpen = false
-    }
+  componentDidMount() {
+    this._focusImportantElement();
   }
 
   _focusImportantElement = ()=> {
     // Automatically focus the element inside us with the lowest tab index
-    const popover = React.findDOMNode(this.refs.popover)
+    const popoverNode = React.findDOMNode(this);
 
     // _.sortBy ranks in ascending numerical order.
-    const matches = _.sortBy(popover.querySelectorAll("[tabIndex], input"), (node)=> {
+    const focusable = popoverNode.querySelectorAll("[tabIndex], input");
+    const matches = _.sortBy(focusable, (node)=> {
       if (node.tabIndex > 0) {
         return node.tabIndex;
       } else if (node.nodeName === "INPUT") {
@@ -189,19 +179,30 @@ class FixedPopover extends Component {
     return {containerStyle, popoverStyle, pointerStyle};
   };
 
+  _onBlur = (event)=> {
+    const target = event.nativeEvent.relatedTarget;
+    if (!target || (!React.findDOMNode(this).contains(target))) {
+      Actions.closePopover();
+    }
+  }
+
+  _onKeyDown = (event)=> {
+    if (event.key === "Escape") {
+      Actions.closePopover();
+    }
+  };
+
   render() {
-    const {children, direction, showing, originRect} = this.props;
+    const {children, direction, originRect} = this.props;
     const {containerStyle, popoverStyle, pointerStyle} = this._computePopoverPositions(originRect, direction);
 
-    if (!showing) {
-      return <span />;
-    }
     return (
       <div
         style={containerStyle}
-        className="nylas-fixed-popover-container"
-        onKeyDown={this._onKeyDown}>
-        <div ref="popover" className="fixed-popover" style={popoverStyle}>
+        className="fixed-popover-container"
+        onKeyDown={this._onKeyDown}
+        onBlur={this._onBlur}>
+        <div className="fixed-popover" style={popoverStyle}>
           {children}
         </div>
         <div className="fixed-popover-pointer" style={pointerStyle} />

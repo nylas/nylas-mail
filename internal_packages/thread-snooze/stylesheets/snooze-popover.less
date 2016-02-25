@@ -1,7 +1,5 @@
 @import "ui-variables";
 
-@snooze-bg-color: #f8f8f8;
-@snooze-color: #808080;
 @snooze-quickaction-img: "../static/images/thread-list-quick-actions/ic-quickaction-snooze@2x.png";
 
 .thread-list .list-item .list-column-HoverActions .action.action-snooze {
@@ -14,31 +12,13 @@
   .btn-toolbar:only-of-type {
     margin-right: 0;
   }
-  .popover-pointer {
-    background-color: @snooze-bg-color;
-  }
-  .popover-pointer.shadow {
-    background-color: fade(@black, 22%);
-  }
   .popover {
     overflow: hidden;
   }
 }
 
-// TODO this duplication should be removed when we switch to using a single
-// popover implementation
-.nylas-fixed-popover-container {
-  .fixed-popover {
-    overflow: hidden;
-  }
-  .fixed-popover-pointer {
-    background-color: @snooze-bg-color;
-  }
-}
-
 .snooze-container {
-  color: @snooze-color;
-  background-color: @snooze-bg-color;
+  color: fadeout(@btn-default-text-color, 20%);
   display: flex;
   flex-direction: column;
 
@@ -56,6 +36,17 @@
       line-height: initial;
       text-align: initial;
 
+      img { background-color: fadeout(@btn-default-text-color, 20%); }
+      &:hover {
+        background-color: darken(@btn-default-bg-color, 5%);
+        color: fadeout(@btn-default-text-color, 10%);
+        img { background-color: fadeout(@btn-default-text-color, 10%); }
+      }
+      &:active {
+        background-color: darken(@btn-default-bg-color, 8%);
+        color: fadeout(@btn-default-text-color, 0%);
+        img { background-color: fadeout(@btn-default-text-color, 0%); }
+      }
       &+.snooze-item {
         border-left: 1px solid @border-color-divider;
       }

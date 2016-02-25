@@ -1,7 +1,7 @@
 /** @babel */
 import _ from 'underscore';
 import React, {Component, PropTypes} from 'react';
-import {DateUtils} from 'nylas-exports'
+import {DateUtils, Actions} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit';
 import SnoozeActions from './snooze-actions'
 import {DATE_FORMAT_LONG} from './snooze-constants'
@@ -44,13 +44,11 @@ class SnoozePopoverBody extends Component {
 
   static propTypes = {
     threads: PropTypes.array.isRequired,
-    isFixedPopover: PropTypes.bool,
     swipeCallback: PropTypes.func,
     closePopover: PropTypes.func,
   };
 
   static defaultProps = {
-    isFixedPopover: true,
     swipeCallback: ()=> {},
     closePopover: ()=> {},
   };
@@ -68,28 +66,16 @@ class SnoozePopoverBody extends Component {
   }
 
   onSnooze(dateGenerator) {
-    const utcDate = dateGenerator().utc()
-    const formatted = DateUtils.format(utcDate)
+    const utcDate = dateGenerator().utc();
+    const formatted = DateUtils.format(utcDate);
     SnoozeActions.snoozeThreads(this.props.threads, formatted);
     this.didSnooze = true;
-    this.props.closePopover()
-  }
-
-  onBlur = ()=> {
-    if (!this.props.isFixedPopover) return;
-    if (this._focusingInput) {
-      this._focusingInput = false;
-      return;
-    }
     this.props.closePopover();
-  };
 
-  onKeyDown = (event)=> {
-    if (!this.props.isFixedPopover) return;
-    if (event.key === "Escape") {
-      this.props.closePopover();
-    }
-  };
+    // if we're looking at a thread, go back to the main view.
+    // has no effect otherwise.
+    Actions.popSheet();
+  }
 
   onInputChange = (event)=> {
     const inputDate = DateUtils.futureDateFromString(event.target.value)
@@ -99,36 +85,33 @@ class SnoozePopoverBody extends Component {
   onInputKeyDown = (event)=> {
     const {value} = event.target;
     if (value.length > 0 && ["Enter", "Return"].includes(event.key)) {
-      const inputDate = DateUtils.futureDateFromString(value)
+      const inputDate = DateUtils.futureDateFromString(value);
       if (inputDate) {
-        this.onSnooze(()=> inputDate)
+        this.onSnooze(()=> inputDate);
       }
     }
   };
 
-  onInputMouseDown = ()=> {
-    this._focusingInput = true;
-  };
 
   renderItem = (label)=> {
     const dateGenerator = SnoozeDateGenerators[label];
-    const iconName = SnoozeIconNames[label]
-    const iconPath = `nylas://thread-snooze/assets/ic-snoozepopover-${iconName}@2x.png`
+    const iconName = SnoozeIconNames[label];
+    const iconPath = `nylas://thread-snooze/assets/ic-snoozepopover-${iconName}@2x.png`;
     return (
       <div
         key={label}
         className="snooze-item"
-        onMouseDown={this.onSnooze.bind(this, dateGenerator)}>
+        onClick={this.onSnooze.bind(this, dateGenerator)}>
         <RetinaImg
           url={iconPath}
-          mode={RetinaImg.Mode.ContentPreserve} />
+          mode={RetinaImg.Mode.ContentIsMask} />
         {label}
       </div>
     )
   };
 
   renderRow = (options, idx)=> {
-    const items = _.map(options, this.renderItem)
+    const items = _.map(options, this.renderItem);
     return (
       <div key={`snooze-popover-row-${idx}`} className="snooze-row">
         {items}
@@ -137,9 +120,9 @@ class SnoozePopoverBody extends Component {
   };
 
   renderInputRow = (inputDate)=> {
-    let formatted = null
+    let formatted = null;
     if (inputDate) {
-      formatted = 'Snooze until ' + DateUtils.format(inputDate, DATE_FORMAT_LONG)
+      formatted = 'Snooze until ' + DateUtils.format(inputDate, DATE_FORMAT_LONG);
     }
     return (
       <div className="snooze-input">
@@ -147,7 +130,6 @@ class SnoozePopoverBody extends Component {
           type="text"
           tabIndex="1"
           placeholder="Or type a time, like 'next Monday at 2PM'"
-          onMouseDown={this.onInputMouseDown}
           onKeyDown={this.onInputKeyDown}
           onChange={this.onInputChange}/>
         <span className="input-date-value">{formatted}</span>
@@ -156,11 +138,11 @@ class SnoozePopoverBody extends Component {
   };
 
   render() {
-    const {inputDate} = this.state
-    const rows = SnoozeOptions.map(this.renderRow)
+    const {inputDate} = this.state;
+    const rows = SnoozeOptions.map(this.renderRow);
 
     return (
-      <div className="snooze-container" onBlur={this.onBlur} onKeyDown={this.onKeyDown}>
+      <div className="snooze-container" tabIndex="-1">
         {rows}
         {this.renderInputRow(inputDate)}
       </div>
