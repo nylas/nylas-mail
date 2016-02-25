@@ -117,7 +117,7 @@ class SidebarItem
     opts.iconName= 'snooze.png'
 
     categories = accountIds.map (accId) =>
-      _.findWhere CategoryStore.userCategories(accId), {displayName}
+      _.findWhere CategoryStore.categories(accId), {displayName}
     categories = _.compact(categories)
 
     perspective = MailboxPerspective.forCategories(categories)
