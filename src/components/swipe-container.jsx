@@ -38,9 +38,7 @@ if (process.platform === 'darwin') {
     if (err !== null) {
       return;
     }
-    if (stdout.toString().trim() === '1') {
-      SwipeInverted = true;
-    }
+    SwipeInverted = (stdout.toString().trim() !== '0');
   });
 } else if (process.platform === 'win32') {
   // Currently does not matter because we don't support trackpad gestures on Win.
