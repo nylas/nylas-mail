@@ -1,4 +1,5 @@
 @import "ui-variables";
+@header-color: #afafaf;
 
 .popover-container {
   display:inline-block;
@@ -19,6 +20,11 @@
       border-top-left-radius: @border-radius-base;
       border-top-right-radius: @border-radius-base;
       background: none;
+      color: @header-color;
+      font-weight: bold;
+      border-bottom: none;
+      overflow: hidden;
+      padding: @padding-base-vertical * 1.5  @padding-base-horizontal;
     }
     .footer-container {
       border-bottom-left-radius: @border-radius-base;
