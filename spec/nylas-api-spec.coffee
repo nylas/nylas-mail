@@ -3,6 +3,7 @@ fs = require 'fs'
 Actions = require '../src/flux/actions'
 NylasAPI = require '../src/flux/nylas-api'
 Thread = require '../src/flux/models/thread'
+AccountStore = require '../src/flux/stores/account-store'
 DatabaseStore = require '../src/flux/stores/database-store'
 DatabaseTransaction = require '../src/flux/stores/database-transaction'
 
@@ -45,12 +46,19 @@ describe "NylasAPI", ->
         expect(DatabaseStore.find).not.toHaveBeenCalled()
         expect(DatabaseTransaction.prototype.unpersistModel).not.toHaveBeenCalled()
 
-  describe "handle401", ->
+  describe "handleAuthenticationFailure", ->
     it "should post a notification", ->
       spyOn(Actions, 'postNotification')
-      NylasAPI._handle401('/threads/1234')
+      NylasAPI._handleAuthenticationFailure('/threads/1234', 'token')
       expect(Actions.postNotification).toHaveBeenCalled()
-      expect(Actions.postNotification.mostRecentCall.args[0].message).toEqual("Nylas can no longer authenticate with your mail provider. You will not be able to send or receive mail. Please unlink your account and sign in again.")
+      expect(Actions.postNotification.mostRecentCall.args[0].message.trim()).toEqual("Nylas can no longer authenticate with your mail provider. You will not be able to send or receive mail. Please remove the account and sign in again.")
+
+    it "should include the email address if possible", ->
+      spyOn(AccountStore, 'tokenForAccountId').andReturn('token')
+      spyOn(Actions, 'postNotification')
+      NylasAPI._handleAuthenticationFailure('/threads/1234', 'token')
+      expect(Actions.postNotification).toHaveBeenCalled()
+      expect(Actions.postNotification.mostRecentCall.args[0].message.trim()).toEqual("Nylas can no longer authenticate with #{AccountStore.accounts()[0].emailAddress}. You will not be able to send or receive mail. Please remove the account and sign in again.")
 
   describe "handleModelResponse", ->
     beforeEach ->
@@ -197,7 +205,6 @@ describe "NylasAPI", ->
         "message": require('../src/flux/models/message')
         "contact": require('../src/flux/models/contact')
         "calendar": require('../src/flux/models/calendar')
-        "metadata": require('../src/flux/models/metadata')
 
       verifyUpdateHappened = (klass, responseModels) ->
         changedModels = DatabaseTransaction.prototype.persistModels.calls[0].args[0]

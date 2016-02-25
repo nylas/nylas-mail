@@ -140,11 +140,11 @@ FileDownloadStore = Reflux.createStore
 
   ########### PRIVATE ####################################################
 
-  _newMailReceived: (incoming) =>
-    return unless NylasEnv.config.get('core.attachments.downloadPolicy') is 'on-receive'
-    for message in incoming
-      for file in message.files
-        @_fetch(file)
+  _newMailReceived: (incoming) ->
+    if NylasEnv.config.get('core.attachments.downloadPolicy') is 'on-receive'
+      for message in incoming['message']
+        for file in message.files
+          @_fetch(file)
 
   # Returns a promise with a Download object, allowing other actions to be
   # daisy-chained to the end of the download operation.

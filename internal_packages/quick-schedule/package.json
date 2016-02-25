@@ -23,5 +23,5 @@
     "default": true,
     "composer": true
   },
-  "license": "MIT"
+  "license": "GPL-3.0"
 }

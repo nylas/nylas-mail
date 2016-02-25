@@ -58,8 +58,16 @@
     margin-bottom:@padding-large-vertical;
     padding:@padding-large-vertical @padding-large-horizontal;
 
-    .icon {
-      padding-right: @padding-large-horizontal;
+    .icon-container {
+      width: 52px;
+      height: 52px;
+      border-radius: 6px;
+      background: linear-gradient(to bottom, @background-primary 0%, @background-secondary 100%);
+      box-shadow: 0 0.5px 0 rgba(0,0,0,0.15), 0 -0.5px 0 rgba(0,0,0,0.15), 0.5px 0 0 rgba(0,0,0,0.15), -0.5px 0 0 rgba(0,0,0,0.15), 0 0.5px 1px rgba(0, 0, 0, 0.15);
+      flex-shrink: 0;
+      margin-right: @padding-large-horizontal;
+      text-align: center;
+      line-height: 50px;
     }
     .info {
       max-width: 380px;

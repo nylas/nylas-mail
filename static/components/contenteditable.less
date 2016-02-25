@@ -29,7 +29,7 @@
 
     background: #fff;
     box-shadow: 0 10px 20px rgba(0,0,0,0.19), inset 0 0 1px rgba(0,0,0,0.5);
-    border-radius: @border-radius-base;
+    border-radius: @border-radius-large;
     color: @text-color;
 
     transition-duration: .15s;
@@ -42,24 +42,35 @@
       margin-top: 0;
     }
 
-    .toolbar-pointer {
+    .toolbar-pointer-container {
       position: absolute;
-      width: 22.5px;
+      width: 23px;
       height: 10px;
-      background: transparent url('images/tooltip/tooltip-bg-pointer@2x.png') no-repeat;
-      background-size: 22.5px 9.5px;
-      margin-left: -11.2px;
+
+      div {
+        -webkit-mask-image: url('images/tooltip/tooltip-bg-pointer@2x.png');
+        background-color: #fff;
+        position: absolute;
+        zoom: 0.5;
+        width: 45px;
+        height: 20px;
+        &.shadow {
+          -webkit-mask-image: url('images/tooltip/tooltip-bg-pointer-shadow@2x.png');
+          background-color: fade(@black, 22%);
+          transform: translateY(0.5px);
+        }
+      }
     }
 
     &.above {
-      .toolbar-pointer {
-        transform: rotate(0deg);
+      .toolbar-pointer-container {
+        transform: translateX(-11px) rotate(0deg);
         bottom: -9px;
       }
     }
     &.below {
-      .toolbar-pointer {
-        transform: rotate(180deg);
+      .toolbar-pointer-container {
+        transform: translateX(-11px) rotate(180deg);
         top: -9px;
       }
     }
@@ -67,15 +78,11 @@
     .floating-toolbar-input {
       border: 0;
       display: inline;
-      // The hardcoded numbers here represent the widths of the various
-      // icons and buttons that surround the input. They are hardcoded here
-      // because CSS does the calculation for us that we'd otherwise have to
-      // do in React before the element renders to the page.
-      width: calc(~"100% - 62px");
-      &.with-remove {
-        width: calc(~"100% - 95px");
-      }
       color: @text-color;
+      &:focus {
+        border: 0;
+        box-shadow: 0 0 0;
+      }
     }
 
     @padding: 0.5em;
@@ -84,7 +91,7 @@
       font-size: 16px;
       height: auto;
       border-radius: 0;
-      padding: @padding*0.75 @padding;
+      padding: @padding*0.25 @padding;
       margin: 0;
       color: @text-color;
       box-shadow: none;
@@ -103,7 +110,7 @@
     .preview-btn-icon {
       position: relative;
       top: 1px;
-      padding: 0 @padding;
+      padding: 0 @padding*0.25 0 @padding*1.5;
     }
 
     button.btn.toolbar-btn {
@@ -144,7 +151,7 @@ body.platform-win32 {
     .floating-toolbar {
       border-radius: 0;
       input, input:focus {
-        border: 0;
+        box-shadow: none;
       }
     }
   }

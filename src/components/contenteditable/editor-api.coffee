@@ -34,8 +34,8 @@ class EditorAPI
   unwrapNodeAndSelectAll: (node) ->
     replacedNodes = DOMUtils.unwrapNode(node)
     return @ if replacedNodes.length is 0
-    first = replacedNodes[0]
-    last = _.last(replacedNodes)
+    first = DOMUtils.findFirstTextNode(replacedNodes[0])
+    last = DOMUtils.findLastTextNode(_.last(replacedNodes))
     @_extendedSelection.selectFromTo(first, last)
     return @
 

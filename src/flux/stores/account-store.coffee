@@ -77,6 +77,7 @@ class AccountStore extends NylasStore
     else
       Actions.focusDefaultMailboxPerspectiveForAccounts(@_accounts)
       @trigger()
+      Actions.focusDefaultMailboxPerspectiveForAccounts(@_accounts)
 
   _onReorderAccount: (id, newIdx) =>
     existingIdx = _.findIndex @_accounts, (a) -> a.id is id

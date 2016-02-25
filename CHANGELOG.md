@@ -1,5 +1,54 @@
 # N1 Changelog
 
+### 0.4.9 (2/25/16)
+
+Read about this release on Medium: https://medium.com/@nylas
+
+- Features:
+
+ + Snooze: Schedules threads to return to your inbox in a few hours, a few days,
+   or whenever you choose.
+
+ + Swipe Actions: In the thread list, swipe to archive, trash or snooze your mail.
+   Swiping works with the Mac trackpad and with Windows / Linux touchscreen devices.
+
+ + Send Later: Choose “Send later” in the composer and pick when a draft should be sent.
+   These scheduled drafts are sent via the sync engine, so you don’t need to be online.
+
+ + Read Receipts and Link Tracking: Get notified when recipients view your message
+   and click links with new read receipts and link tracking built in to the composer.
+
+ + Emoji Picker: Type a `:` in the composer followed by the name of an emoji to
+   insert it into your draft.
+
+- Design:
+
+ + This release includes slimmer toolbars and new icons in the composer.
+
+ + Font sizes throughout the app have been made slightly smaller to match platform
+   conventions. Like it the old way? Use the zoom feature in Workspace preferences!
+
+ + The N1 icon is now more of a "sea foam" green, which helps it stand out among
+   standard system icons, and features a square design on Windows.
+
+ + Tons and tons of additional polish.
+
+- Developer:
+
+ + A new `MetadataStore` and `model.pluginMetadata` concept allows plugins to associate
+   arbitrary data with threads and messages (like snooze times and link IDs).
+
+- Many, many other bug fixes were incorporated into this release. Take a look at
+  closed GitHub issues that made it into this release here:  
+
+  https://github.com/nylas/N1/issues?q=updated%3A2016-02-07..2016-02-25+is%3Aclosed
+
+
+### 0.4.5 (2/7/16)
+
+ + Resolves a critical issue where emails could not be sent from some aliases.
+ + Fixes the keyboard shortcuts for "Go to All Mail", "Go to Starred", etc.
+
 ### 0.4.4 (2/5/16)
 
 We're really excited to announce this release - the largest improvement to N1

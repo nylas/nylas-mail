@@ -106,7 +106,7 @@ describe "MessageItem", ->
       snippet: "snippet one..."
       subject: "Subject One"
       threadId: "thread_12345"
-      accountId: TEST_ACCOUNT_ID
+      accountId: window.TEST_ACCOUNT_ID
 
     # Generate the test component. Should be called after @message is configured
     # for the test, since MessageItem assumes attributes of the message will not

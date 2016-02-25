@@ -1,0 +1,54 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+.open-tracking-icon img {
+  vertical-align: initial;
+}
+
+.open-tracking-icon img.content-mask.unopened {
+  background-color: fadeout(@text-color, 80%);
+}
+.open-tracking-icon img.content-mask.opened {
+  background-color: @text-color-link;
+}
+
+.list-item.focused {
+  .open-tracking-icon img.content-mask.unopened {
+    background-color: fadeout(@text-color-inverse, 70%);
+  }
+  .open-tracking-icon img.content-mask.opened {
+    background-color: @background-off-primary;
+  }
+}
+
+.open-tracking-icon .open-count {
+  display: inline-block;
+  position: relative;
+  left: -16px;
+  text-align: center;
+
+  background-color: @text-color-link;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.open-tracking-icon {
+  width: 15px;
+  margin: 0 2px;
+}
+
+.read-receipt-message-status {
+  color: @text-color-very-subtle;
+  margin-left: 10px;
+  cursor: default;
+  &.Unread {
+    img.content-mask {
+      background-color: @text-color-very-subtle;
+    }
+  }
+  &.Read {
+    img.content-mask {
+      background-color: @text-color-link;
+    }
+  }
+}

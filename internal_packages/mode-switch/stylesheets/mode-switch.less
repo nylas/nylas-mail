@@ -1,15 +1,11 @@
 @import 'ui-variables';
 
-.mode-toggle {
-    z-index: 1000;
-    position: relative;
-    padding-top:4px;
-    .content-mask {
-      background-color: @text-color-subtle;
-    }
+.btn-toolbar.mode-toggle {
+  z-index: 1000;
+  position: relative;
 }
-.mode-toggle.mode-false {
-  .content-mask {
+.btn-toolbar.mode-toggle.mode-false {
+  img.content-mask {
     background-color: @component-active-color;
   }
 }

@@ -58,7 +58,7 @@ class ComposerView extends React.Component
 
   constructor: (@props) ->
     @state =
-      populated: false
+      draftReady: false
       to: []
       cc: []
       bcc: []
@@ -223,6 +223,7 @@ class ComposerView extends React.Component
           ref="expandedParticipants"
           mode={@props.mode}
           accounts={@state.accounts}
+          draftReady={@state.draftReady}
           focusedField={@state.focusedField}
           enabledFields={@state.enabledFields}
           onPopoutComposer={@_onPopoutComposer}
@@ -247,6 +248,7 @@ class ComposerView extends React.Component
     </div>
 
   _onPopoutComposer: =>
+    return unless @state.draftReady
     Actions.composePopoutDraft @props.draftClientId
 
   _onKeyDown: (event) =>
@@ -332,7 +334,7 @@ class ComposerView extends React.Component
       onComponentDidRender={@_onEditorBodyDidRender}
       requiredMethods={[
         'focus'
-        'nativeFocus'
+        'focusAbsoluteEnd'
         'getCurrentSelection'
         'getPreviousSelection'
         '_onDOMMutated'
@@ -427,10 +429,10 @@ class ComposerView extends React.Component
 
   _renderActionsRegion: =>
     return <div></div> unless @props.draftClientId
-
-    <InjectedComponentSet className="composer-action-bar-content"
+    <div className="composer-action-bar-content">
+      <InjectedComponentSet className="composer-action-bar-plugins"
                       matching={role: "Composer:ActionButton"}
-                      exposedProps={draftClientId:@props.draftClientId, threadId: @props.threadId}>
+                      exposedProps={draftClientId:@props.draftClientId, threadId: @props.threadId}></InjectedComponentSet>
 
       <button className="btn btn-toolbar btn-trash" style={order: 100}
               title="Delete draft"
@@ -446,7 +448,7 @@ class ComposerView extends React.Component
                         ref="sendActionButton"
                         isValidDraft={@_isValidDraft} />
 
-    </InjectedComponentSet>
+    </div>
 
   isForwardedMessage: =>
     return false if not @_proxy
@@ -471,7 +473,7 @@ class ComposerView extends React.Component
       # We don't set state directly here because we want the native
       # contenteditable focus behavior. When the contenteditable gets focused
       # the focused field state will be properly set via editor.onFocus
-      @refs[Fields.Body].nativeFocus()
+      @refs[Fields.Body].focusAbsoluteEnd()
     @_mouseDownTarget = null
 
   # When a user focuses the composer, it's possible that no input is
@@ -505,9 +507,9 @@ class ComposerView extends React.Component
       subject: draft.subject
       accounts: @_getAccountsForSend()
 
-    if !@state.populated
+    if !@state.draftReady
       _.extend state,
-        populated: true
+        draftReady: true
         focusedField: @_initiallyFocusedField(draft)
         enabledFields: @_initiallyEnabledFields(draft)
         showQuotedText: @isForwardedMessage()
@@ -551,7 +553,7 @@ class ComposerView extends React.Component
     return enabledFields
 
   _getAccountsForSend: =>
-    if @_proxy.draft()?.replyToMessageId
+    if @_proxy.draft()?.threadId
       [AccountStore.accountForId(@_proxy.draft().accountId)]
     else
       AccountStore.accounts()
@@ -617,6 +619,7 @@ class ComposerView extends React.Component
 
   _onChangeParticipants: (changes={}) =>
     @_addToProxy(changes)
+    Actions.draftParticipantsChanged(@props.draftClientId, changes)
 
   _onChangeSubject: (event) =>
     @_addToProxy(subject: event.target.value)
@@ -645,7 +648,7 @@ class ComposerView extends React.Component
     return
 
   _addToProxy: (changes={}, source={}) =>
-    return unless @_proxy
+    return unless @_proxy and @_proxy.draft()
 
     selections = @_getSelections()
 
@@ -684,7 +687,7 @@ class ComposerView extends React.Component
     if dealbreaker
       dialog.showMessageBox(remote.getCurrentWindow(), {
         type: 'warning',
-        buttons: ['Edit Message'],
+        buttons: ['Edit Message', 'Cancel'],
         message: 'Cannot Send',
         detail: dealbreaker
       })

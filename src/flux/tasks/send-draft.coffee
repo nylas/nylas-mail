@@ -11,6 +11,7 @@ TaskQueue = require '../stores/task-queue'
 SoundRegistry = require '../../sound-registry'
 DatabaseStore = require '../stores/database-store'
 AccountStore = require '../stores/account-store'
+SyncbackMetadataTask = require './syncback-metadata-task'
 
 class MultiRequestProgressMonitor
 
@@ -46,7 +47,7 @@ class SendDraftTask extends Task
     super
 
   label: ->
-    "Sending draft..."
+    "Sending message..."
 
   shouldDequeueOtherTask: (other) ->
     other instanceof SendDraftTask and other.draft.clientId is @draft.clientId
@@ -62,12 +63,6 @@ class SendDraftTask extends Task
     account = AccountStore.accountForEmail(@draft.from[0].email)
     unless account
       return Promise.reject(new Error("SendDraftTask - you can only send drafts from a configured account."))
-
-    if @draft.serverId
-      @deleteAfterSending =
-        accountId: @draft.accountId
-        serverId: @draft.serverId
-        version: @draft.version
 
     if account.id isnt @draft.accountId
       @draft.accountId = account.id
@@ -134,6 +129,8 @@ class SendDraftTask extends Task
         # because it's possible for the app to quit without saving state and
         # need to re-upload the file.
 
+  # This function returns a promise that resolves to the draft when the draft has
+  # been sent successfully.
   _sendAndCreateMessage: =>
     NylasAPI.makeRequest
       path: "/send"
@@ -159,21 +156,26 @@ class SendDraftTask extends Task
         return Promise.reject(err)
 
     .then (newMessageJSON) =>
-      message = new Message().fromJSON(newMessageJSON)
-      message.clientId = @draft.clientId
-      message.draft = false
-      DatabaseStore.inTransaction (t) =>
-        t.persistModel(message)
+      @message = new Message().fromJSON(newMessageJSON)
+      @message.clientId = @draft.clientId
+      @message.draft = false
+      # Create new metadata objs on the message based on the existing ones in the draft
+      @message.setPluginMetadata(@draft.pluginMetadata)
+
+      return DatabaseStore.inTransaction (t) =>
+        DatabaseStore.findBy(Message, {clientId: @draft.clientId})
+        .then (draft) =>
+          t.persistModel(@message).then =>
+            Promise.resolve(draft)
+
 
   # We DON'T need to delete the local draft because we turn it into a message
   # by writing the new message into the database with the same clientId.
   #
   # We DO, need to make sure that the remote draft has been cleaned up.
   #
-  _deleteRemoteDraft: =>
-    return Promise.resolve() unless @deleteAfterSending
-    {accountId, version, serverId} = @deleteAfterSending
-
+  _deleteRemoteDraft: ({accountId, version, serverId}) =>
+    return Promise.resolve() unless serverId
     NylasAPI.makeRequest
       path: "/drafts/#{serverId}"
       accountId: accountId
@@ -186,8 +188,18 @@ class SendDraftTask extends Task
       Promise.resolve()
 
   _onSuccess: =>
-    Actions.sendDraftSuccess
-      draftClientId: @draft.clientId
+
+    # Delete attachments from the uploads folder
+    for upload in @uploaded
+      Actions.attachmentUploaded(upload)
+
+    # Queue a task to save metadata on the message
+    @message.pluginMetadata.forEach((m)=>
+      task = new SyncbackMetadataTask(@message.clientId, @message.constructor.name, m.pluginId)
+      Actions.queueTask(task)
+    )
+
+    Actions.sendDraftSuccess(message: @message, messageClientId: @message.clientId)
 
     # Delete attachments from the uploads folder
     for upload in @uploaded

@@ -3,12 +3,12 @@ moment = require 'moment'
 
 File = require './file'
 Utils = require './utils'
-Model = require './model'
 Event = require './event'
 Category = require './category'
 Contact = require './contact'
 Attributes = require '../attributes'
 AccountStore = require '../stores/account-store'
+ModelWithMetadata = require './model-with-metadata'
 
 ###
 Public: The Message model represents a Message object served by the Nylas Platform API.
@@ -66,9 +66,9 @@ This class also inherits attributes from {Model}
 
 Section: Models
 ###
-class Message extends Model
+class Message extends ModelWithMetadata
 
-  @attributes: _.extend {}, Model.attributes,
+  @attributes: _.extend {}, ModelWithMetadata.attributes,
 
     'to': Attributes.Collection
       modelKey: 'to'

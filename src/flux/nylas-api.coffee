@@ -1,6 +1,7 @@
 _ = require 'underscore'
 request = require 'request'
 Utils = require './models/utils'
+Account = require './models/account'
 Actions = require './actions'
 {APIError} = require './errors'
 PriorityUICoordinator = require '../priority-ui-coordinator'
@@ -10,7 +11,7 @@ async = require 'async'
 # A 0 code is when an error returns without a status code. These are
 # things like "ESOCKETTIMEDOUT"
 TimeoutErrorCode = 0
-PermanentErrorCodes = [400, 403, 404, 405, 500]
+PermanentErrorCodes = [400, 401, 403, 404, 405, 500]
 CancelledErrorCode = -123
 SampleTemporaryErrorCode = 504
 
@@ -126,6 +127,12 @@ class NylasAPI
     NylasEnv.config.onDidChange('env', @_onConfigChanged)
     @_onConfigChanged()
 
+    if NylasEnv.isMainWindow()
+      Actions.notificationActionTaken.listen ({notification, action}) ->
+        if action.id is '401:unlink'
+          Actions.switchPreferencesTab('Accounts')
+          Actions.openPreferences()
+
   _onConfigChanged: =>
     prev = {@AppID, @APIRoot, @APITokens}
 
@@ -190,8 +197,8 @@ class NylasAPI
       if err.response
         if err.response.statusCode is 404 and options.returnsModel
           handlePromise = @_handleModel404(options.url)
-        if err.response.statusCode is 401
-          handlePromise = @_handle401(options.url)
+        if err.response.statusCode in [401, 403]
+          handlePromise = @_handleAuthenticationFailure(options.url, options.auth?.user)
         if err.response.statusCode is 400
           NylasEnv.reportError(err)
       handlePromise.finally ->
@@ -226,14 +233,21 @@ class NylasAPI
     else
       return Promise.resolve()
 
-  _handle401: (modelUrl) ->
+  _handleAuthenticationFailure: (modelUrl, apiToken) ->
+    AccountStore ?= require './stores/account-store'
+    account = AccountStore.accounts().find (account) ->
+      AccountStore.tokenForAccountId(account.id) is apiToken
+
+    email = "your mail provider"
+    email = account.emailAddress if account
+
     Actions.postNotification
       type: 'error'
       tag: '401'
       sticky: true
-      message: "Nylas can no longer authenticate with your mail provider. You
-               will not be able to send or receive mail. Please unlink your
-               account and sign in again.",
+      message: "Nylas can no longer authenticate with #{email}. You
+                will not be able to send or receive mail. Please remove the
+                account and sign in again.",
       icon: 'fa-sign-out'
       actions: [{
         default: true
@@ -241,13 +255,6 @@ class NylasAPI
         label: 'Unlink'
         id: '401:unlink'
       }]
-
-    unless @_notificationUnlisten
-      handler = ({notification, action}) ->
-        if action.id is '401:unlink'
-          {ipcRenderer} = require 'electron'
-          ipcRenderer.send('command', 'application:reset-config-and-relaunch')
-      @_notificationUnlisten = Actions.notificationActionTaken.listen(handler, @)
 
     return Promise.resolve()
 
@@ -330,7 +337,6 @@ class NylasAPI
     "message": require('./models/message')
     "contact": require('./models/contact')
     "calendar": require('./models/calendar')
-    "metadata": require('./models/metadata')
 
   getThreads: (accountId, params = {}, requestOptions = {}) ->
     requestSuccess = requestOptions.success
@@ -362,7 +368,7 @@ class NylasAPI
     @_optimisticChangeTracker.decrement(klass, id)
 
   accessTokenForAccountId: (aid) ->
-    AccountStore = require './stores/account-store'
+    AccountStore ?= require './stores/account-store'
     AccountStore.tokenForAccountId(aid)
 
   # Returns a promise that will resolve if the user is successfully authed
@@ -383,28 +389,35 @@ class NylasAPI
   # 3. The API request to auth this account to the plugin failed. This may mean that
   #    the plugin server couldn't be reached or failed to respond properly when authing
   #    the account, or that the Nylas API couldn't be reached.
-  authPlugin: (plugin, account) ->
+  authPlugin: (pluginId, pluginName, accountOrId) ->
+    account = if accountOrId instanceof Account
+      accountOrId
+    else
+      AccountStore ?= require './stores/account-store'
+      AccountStore.accountForId(accountOrId)
+    Promise.reject(new Error('Invalid account')) unless account
     return @makeRequest({
       returnsModel: false,
       method: "GET",
       accountId: account.id,
-      path: "/auth/plugin?client_id=#{plugin.appId}"
-    }).then( (result) =>
+      path: "/auth/plugin?client_id=#{pluginId}"
+    })
+    .then (result) =>
       if result.authed
         return Promise.resolve()
       else
-        return @_requestPluginAuth(plugin.name, account).then( -> @makeRequest({
+#        return @_requestPluginAuth(pluginName, account).then =>
+        return @makeRequest({
           returnsModel: false,
           method: "POST",
           accountId: account.id,
           path: "/auth/plugin",
-          body: JSON.stringify({client_id: plugin.appId}),
+          body: {client_id: pluginId},
           json: true
-        }))
-    )
+        })
 
   _requestPluginAuth: (pluginName, account) ->
-    dialog = require('remote').require('dialog')
+    {dialog} = require('electron').remote
     return new Promise( (resolve, reject) =>
       dialog.showMessageBox({
         title: "Plugin Offline Email Access",
@@ -422,12 +435,12 @@ You can review and revoke Offline Access for plugins at any time from Preference
       )
     )
 
-  unauthPlugin: (plugin, account) ->
+  unauthPlugin: (pluginId, accountId) ->
     return @makeRequest({
       returnsModel: false,
       method: "DELETE",
-      accountId: account.id,
-      path: "/auth/plugin?client_id=#{plugin.appId}"
-    });
+      accountId: accountId,
+      path: "/auth/plugin?client_id=#{pluginId}"
+    })
 
 module.exports = new NylasAPI()

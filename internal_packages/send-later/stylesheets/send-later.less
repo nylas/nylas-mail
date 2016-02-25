@@ -1,0 +1,65 @@
+@import "ui-variables";
+
+
+.send-later {
+  .time {
+    font-size: @font-size-small;
+    opacity: 0.6;
+  }
+
+  .menu {
+    width: 250px;
+    .item {
+      .time {
+        display: none;
+        float: right;
+        padding-right: @padding-base-horizontal;
+      }
+      &.selected,
+      &:hover {
+        .time {
+          display: inline-block;
+        }
+      }
+    }
+  }
+  .divider {
+    border-top: 1px solid @border-color-divider;
+  }
+  .custom-time-section {
+    padding: @padding-base-vertical * 1.5  @padding-base-horizontal;
+    .time {
+      color: @text-color-subtle;
+    }
+  }
+  .cancel-section {
+    padding: @padding-base-vertical  @padding-base-horizontal;
+    padding-bottom: @padding-base-vertical * 1.2;
+    .btn {
+      width: 100%;
+    }
+  }
+}
+
+.btn-send-later {
+  .at {
+    margin-left: 3px;
+  }
+}
+
+
+.send-later-status {
+  display: flex;
+  align-items: center;
+
+  .time {
+    font-size: 0.9em;
+    opacity: 0.62;
+    color: @component-active-color;
+    font-weight: @font-weight-normal;
+  }
+  img {
+    width: 38px;
+    margin-left: 15px;
+  }
+}

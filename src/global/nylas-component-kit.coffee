@@ -15,8 +15,10 @@ class NylasComponentKit
   @load "Spinner", 'spinner'
   @load "Switch", 'switch'
   @load "Popover", 'popover'
+  @load "FixedPopover", 'fixed-popover'
   @load "Flexbox", 'flexbox'
   @load "RetinaImg", 'retina-img'
+  @load "SwipeContainer", 'swipe-container'
   @load "FluxContainer", 'flux-container'
   @load "ListTabular", 'list-tabular'
   @load "DraggableImg", 'draggable-img'
@@ -30,6 +32,7 @@ class NylasComponentKit
   @load "MultiselectActionBar", 'multiselect-action-bar'
   @load "InjectedComponentSet", 'injected-component-set'
   @load "TimeoutTransitionGroup", 'timeout-transition-group'
+  @load "MetadataComposerToggleButton", 'metadata-composer-toggle-button'
   @load "ConfigPropContainer", "config-prop-container"
   @load "DisclosureTriangle", "disclosure-triangle"
   @load "EditableList", "editable-list"

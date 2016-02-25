@@ -118,3 +118,10 @@ describe "DestroyCategoryTask", ->
             model = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
             expect(model.serverId).toEqual "server-444"
             expect(model.isDeleted).toBe false
+
+      describe "_notifyUserOfError", ->
+        it "should present an error dialog", ->
+          spyOn(NylasEnv, 'showErrorDialog')
+          task = makeTask()
+          task._notifyUserOfError()
+          expect(NylasEnv.showErrorDialog).toHaveBeenCalled()

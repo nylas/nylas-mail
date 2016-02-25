@@ -1,11 +1,12 @@
 ![N1 Logo](https://edgehill.s3.amazonaws.com/static/N1.png)
 
-![N1 Screenshot](http://nylas.com/N1/images/1-1-initial-outlook-base.png)
+![N1 Screenshot](http://nylas.com/N1/images/1-1-initial-outlook-base.png?feb2016)
 
 **N1 is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).** It is designed to be extensible, so it's easy to create new experiences and workflows around email. N1 is built on the Nylas Sync Engine which is also [open source free software](https://github.com/nylas/sync-engine).
 
 [![Build Status](https://travis-ci.org/nylas/N1.svg?branch=master)](https://travis-ci.org/nylas/N1)
 [![Slack Invite Button](http://slack-invite.nylas.com/badge.svg)](http://slack-invite.nylas.com)
+[![GitHub issues On Deck](https://badge.waffle.io/nylas/N1.png?label=on deck&title=On Deck)](https://waffle.io/nylas/N1)
 
 # Download N1
 
@@ -33,6 +34,8 @@ We're working on building a plugin index that makes it super easy to add them to
 - [Solarized Dark](https://github.com/NSHenry/N1-Solarized-Dark)
 - [Berend](https://github.com/Frique/N1-Berend)
 - [LevelUp](https://github.com/stolinski/level-up-nylas-n1-theme)
+- [Darkside](http://jamiewilson.io/darkside/)
+- [Sunrise](https://github.com/jackiehluo/n1-sunrise)
 
 ##### Composer
 - [Translate](https://github.com/nylas/N1/tree/master/internal_packages/composer-translate) -- Works with 10 languages

@@ -20,7 +20,7 @@ SyncbackCategoryTask = require './syncback-category-task'
 #
 class ChangeFolderTask extends ChangeMailTask
 
-  constructor: ({@folder}={}) ->
+  constructor: ({@folder, @taskDescription}={}) ->
     super
 
   label: ->
@@ -30,6 +30,7 @@ class ChangeFolderTask extends ChangeMailTask
       "Moving to folder…"
 
   description: ->
+    return @taskDescription if @taskDescription
     folderText = ""
     if @folder instanceof Category
       folderText = " to #{@folder.displayName}"

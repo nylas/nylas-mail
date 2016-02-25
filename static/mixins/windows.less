@@ -1,12 +1,14 @@
+@import "ui-variables";
+
 .windows-btn-bg {
-  transition: background 300ms;
+  transition: background 300ms, box-shadow 300ms;
   background: transparent;
   border-radius: 0;
   &:hover {
-    background: #e5e5e5;
+    background: fade(@border-color-divider, 80%);
   }
 }
 .windows-btn-border {
-  border: 2px solid #e5e5e5;
-  box-shadow: 0 0 0;
+  border: 0;
+  box-shadow: 0 0 0 2px fade(@border-color-divider, 80%);
 }

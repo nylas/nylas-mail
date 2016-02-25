@@ -85,7 +85,7 @@ class AppearanceModeSwitch extends React.Component
 
   render: ->
     hasChanges = @state.value isnt @props.config.get('core.workspace.mode')
-    applyChangesClass = "btn btn-small"
+    applyChangesClass = "btn"
     applyChangesClass += " btn-disabled" unless hasChanges
 
     <div className="appearance-mode-switch">

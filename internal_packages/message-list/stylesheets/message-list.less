@@ -17,7 +17,7 @@ body.platform-win32 {
   .sheet-toolbar {
     .message-toolbar-arrow.down {
       margin: 0 0 0 1px;
-      padding: 6px 5px 0 5px;
+      padding: 0 5px;
       .windows-btn-bg;
       &:hover {
         background: #e5e5e5;
@@ -29,7 +29,7 @@ body.platform-win32 {
     }
     .message-toolbar-arrow.up {
       margin: 0 0 0 1px;
-      padding: 6px 5px 0 5px;
+      padding: 0 5px;
       .windows-btn-bg;
       &.btn-icon:hover {
         color: @text-color;
@@ -76,12 +76,10 @@ body.platform-win32 {
   .message-toolbar-arrow.down {
     order:201;
     margin-right: 0;
-    padding-top:6px;
     margin-left: @spacing-standard * 1.5;
   }
   .message-toolbar-arrow.up {
     order:202;
-    padding-top:6px;
     // <1 because of hit region padding on the button
     margin-right: @spacing-standard * 0.75;
   }
@@ -126,15 +124,15 @@ body.platform-win32 {
     width: calc(~"100% - 12px");
     max-width: @message-max-width;
     margin: 11px auto 10px auto;
-    padding-left: 20px;
     -webkit-user-select: text;
     line-height: @font-size-large * 1.8;
     display: flex;
     align-items: center;
+    padding: 0 @padding-large-horizontal;
   }
   .mail-important-icon {
     margin-right:@spacing-half;
-    margin-bottom:2px;
+    margin-bottom:1px;
     flex-shrink: 0;
   }
   .message-subject {
@@ -147,7 +145,6 @@ body.platform-win32 {
      cursor: pointer;
      -webkit-user-select: none;
      margin-left: auto;
-     margin-right: @padding-large-horizontal;
      display: flex;
      align-items: center;
 
@@ -155,7 +152,7 @@ body.platform-win32 {
        background: @text-color-subtle;
      }
      div + div {
-       margin-left: @padding-xs-horizontal;
+       margin-left: @padding-small-horizontal;
      }
   }
   .message-list-headers {
@@ -193,10 +190,7 @@ body.platform-win32 {
     width: calc(~"100% - 12px");
 
     margin: 0 auto;
-    padding: @message-spacing 0;
-    &:last-child {
-      padding-bottom: @spacing-double;
-    }
+
     .message-item-white-wrap {
       background: @background-primary;
       border: 0;
@@ -204,6 +198,7 @@ body.platform-win32 {
       border-radius: 4px;
     }
 
+    padding-bottom: @message-spacing * 2;
     &.before-reply-area { padding-bottom: 0; }
 
     &.collapsed {
@@ -286,7 +281,7 @@ body.platform-win32 {
       top: 50%;
       left: 50%;
       margin-left: -80px;
-      margin-top: -14px;
+      margin-top: -15px;
       border-radius: 15px;
       border: 1px solid @border-color-divider;
       width: 160px;
@@ -324,6 +319,7 @@ body.platform-win32 {
       .message-actions-wrap {
         width: 0;
         opacity: 0;
+        position: absolute;
       }
       .pending-spinner {
         opacity: 1;
@@ -356,8 +352,6 @@ body.platform-win32 {
       transition: opacity 100ms, width 150ms;
       transition-delay: 50ms, 0ms;
       transition-timing-function: ease-in-out;
-      width: 99px;
-      height: 32px;
       opacity: 1;
       text-align: left;
     }
@@ -392,7 +386,7 @@ body.platform-win32 {
     }
 
     .message-time {
-      padding-top: 5px;
+      padding-top: 4px;
       z-index: 2; position: relative;
       display: inline-block;
       min-width: 125px;
@@ -428,7 +422,7 @@ body.platform-win32 {
       width: 100%;
       border: 0;
       padding: 0;
-      margin-top: 5px;
+      margin-top: 10px;
       overflow: auto;
     }
   }
@@ -479,13 +473,12 @@ body.platform-win32 {
       width: 100%;
       max-width: @message-max-width;
       margin: 0 auto;
-      padding: 20px @spacing-double;
+      padding: 12px @spacing-standard * 1.5;
     }
     .reply-text {
       display: inline-block;
+      vertical-align: middle;
       margin-left: 0.5em;
-      position: relative;
-      top: 2px;
     }
   }
 
@@ -535,7 +528,7 @@ body.platform-win32 {
 
     .collapsed-participants {
       width: 100%;
-      margin-top: -8px;
+      margin-top: -6px;
     }
   }
 
@@ -558,7 +551,7 @@ body.platform-win32 {
 
     .participant {
       display: inline-block;
-      margin-right: 0.5em;
+      margin-right: 0.25em;
     }
 
     .participant-type {
@@ -584,9 +577,12 @@ body.platform-win32 {
 
     .participant-primary {
       color: @text-color-very-subtle;
+      margin-right: 0.15em;
+      display:inline-block;
     }
     .participant-secondary {
       color: @text-color-very-subtle;
+      display:inline-block;
     }
 
     .from-contact {

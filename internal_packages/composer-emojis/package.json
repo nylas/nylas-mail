@@ -1,0 +1,27 @@
+{
+  "name": "composer-emojis",
+  "main": "./lib/main",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "nylas": ">=0.3.43-b95f1f7"
+  },
+
+  "isOptional": true,
+
+  "title":"Emoji Keyboard",
+  "icon":"./assets/icon.png",
+  "description": "Type a colon (:) followed by the name of an emoji symbol to insert it into your message!",
+
+  "dependencies": {
+    "node-emoji": "^1.0.4"
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  },
+  "license": "GPL-3.0"
+}

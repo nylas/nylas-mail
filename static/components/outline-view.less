@@ -21,7 +21,7 @@
     cursor: default;
     color: @text-color-very-subtle;
     font-weight: @font-weight-semi-bold;
-    font-size: @font-size-smaller;
+    font-size: @font-size-small * 0.9;
     padding-left:@padding-small-horizontal;
     padding-top:@padding-small-horizontal;
     padding-right: @padding-xs-horizontal;
@@ -38,6 +38,7 @@
       margin-right: @padding-small-horizontal;
       cursor: pointer;
       img {background: @text-color-very-subtle; }
+      display: none;
     }
 
     .collapse-button {
@@ -49,7 +50,7 @@
     }
 
     &:hover {
-      .collapse-button {
+      .collapse-button,.add-item-button {
         display: inherit;
       }
     }
@@ -71,15 +72,17 @@
     color: @text-color-subtle;
     flex: 1;
     display: flex;
+    align-items: baseline;
+    font-size: @font-size-base;
+    font-weight: 400;
+    padding-right: @spacing-standard;
+    line-height: @line-height-large;
+    clear: both;
+
     img.content-mask {
       background-color: @text-color-subtle;
       vertical-align: text-bottom;
     }
-    font-size: @font-size-small;
-    font-weight: 400;
-    padding-right: @spacing-standard;
-    line-height: @line-height-large * 1.1;
-    clear: both;
 
     .icon {
       flex-shrink: 0;
@@ -88,11 +91,7 @@
     .name {
       order: 2;
       padding-left: @padding-small-horizontal * 0.85;
-      position:relative;
-      top:1px;
       overflow: hidden;
-      padding-top: @padding-small-vertical;
-      padding-bottom:@padding-small-vertical;
       line-height: @line-height-small;
       text-overflow: ellipsis;
     }
@@ -103,7 +102,6 @@
       color: @count-color;
       margin-left: @padding-small-horizontal * 0.8;
       box-shadow: 0 0.5px 0 @count-color, 0 -0.5px 0 @count-color, 0.5px 0 0 @count-color, -0.5px 0 0 @count-color;
-
     }
     .item-count-box.alt-count {
       color: @source-list-active-bg;

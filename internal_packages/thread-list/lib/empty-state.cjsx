@@ -6,6 +6,7 @@ classNames = require 'classnames'
  NylasAPI,
  NylasSyncStatusStore,
  Message,
+ FocusedPerspectiveStore,
  WorkspaceStore} = require 'nylas-exports'
 
 EmptyMessages = [{
@@ -64,6 +65,18 @@ class ContentQuotes extends React.Component
         </div>
       </div>
 
+class InboxZero extends React.Component
+  @displayName = "Inbox Zero"
+
+  render: ->
+    msg = @props.messageOverride ? "No more messages"
+    <div className="inbox-zero">
+      <div className="inbox-zero-plain">
+        <RetinaImg mode={RetinaImg.Mode.ContentPreserve}
+                   name="inbox-zero-plain.png"/>
+        <div className="message">Hooray! You’re done.</div>
+      </div>
+    </div>
 
 class EmptyState extends React.Component
   @displayName = 'EmptyState'
@@ -104,8 +117,11 @@ class EmptyState extends React.Component
     messageOverride = "Nothing to display."
     if @state.layoutMode is 'list'
       ContentComponent = ContentQuotes
+
     if @state.syncing
       messageOverride = "Please wait while we prepare your mailbox."
+    else if FocusedPerspectiveStore.current()?.name is "Inbox"
+      ContentComponent = InboxZero
 
     classes = classNames
       'empty-state': true

@@ -1,5 +1,6 @@
 @import "ui-variables";
 
+@popover-width: 250px;
 
 body.platform-win32 {
   .category-picker {
@@ -14,6 +15,8 @@ body.platform-win32 {
 
   .menu {
     background: @background-secondary;
+    width: @popover-width;
+    max-height: 400px;
 
     .header-container {
       border-bottom: 0;

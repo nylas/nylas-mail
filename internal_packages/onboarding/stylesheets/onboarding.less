@@ -63,7 +63,7 @@
   }
   .btn-add-account-spinning {
     width: 200px;
-    img { vertical-align: top; margin-right: 5px; }
+    img { vertical-align: middle; margin-right: 5px; margin-bottom: 2px; }
   }
   .prompt {
     color:#5D5D5D;
@@ -394,8 +394,17 @@
   border:1px solid #e1e1e1;
   text-align:left;
   cursor: default;
-  img {
+
+  .icon-container {
     float:left;
+    width: 52px;
+    height: 52px;
+    border-radius: 6px;
+    background: linear-gradient(to bottom, @background-primary 0%, @background-secondary 100%);
+    box-shadow: 0 0.5px 0 rgba(0,0,0,0.15), 0 -0.5px 0 rgba(0,0,0,0.15), 0.5px 0 0 rgba(0,0,0,0.15), -0.5px 0 0 rgba(0,0,0,0.15), 0 0.5px 1px rgba(0, 0, 0, 0.15);
+    flex-shrink: 0;
+    text-align: center;
+    line-height: 50px;
     margin: 12px;
     margin-left: 5px;
     margin-right: 20px;
@@ -415,7 +424,7 @@
   }
   .btn-install {
     display:inline-block;
-    width: 70px;
+    width: 56px;
     margin: 24px;
     margin-right: 7px;
     margin-left: 14px;
@@ -512,11 +521,12 @@
     border-top: 1px solid #d4d4d4;
 
     .btn-continue {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 300;
       margin: 20px 0;
-      padding: 12px 0;
       width: 296px;
+      line-height: 2.5em;
+      height: 2.5em;
     }
     .btn-back {
       color: rgba(0,0,0,0.4);

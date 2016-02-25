@@ -1,8 +1,9 @@
 {PreferencesUIStore, ExtensionRegistry} = require 'nylas-exports'
 SignatureComposerExtension = require './signature-composer-extension'
+SignatureStore = require './signature-store'
 
 module.exports =
-  activate: (@state={}) ->
+  activate: ->
     @preferencesTab = new PreferencesUIStore.TabItem
       tabId: "Signatures"
       displayName: "Signatures"
@@ -11,8 +12,12 @@ module.exports =
     ExtensionRegistry.Composer.register(SignatureComposerExtension)
     PreferencesUIStore.registerPreferencesTab(@preferencesTab)
 
+    @signatureStore = new SignatureStore()
+    @signatureStore.activate()
+
   deactivate: ->
     ExtensionRegistry.Composer.unregister(SignatureComposerExtension)
     PreferencesUIStore.unregisterPreferencesTab(@preferencesTab.sectionId)
+    @signatureStore.deactivate()
 
-  serialize: -> @state
+  serialize: ->

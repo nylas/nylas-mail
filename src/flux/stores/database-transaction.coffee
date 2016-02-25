@@ -13,6 +13,7 @@ class DatabaseTransaction
   find: (args...) => @database.find(args...)
   findBy: (args...) => @database.findBy(args...)
   findAll: (args...) => @database.findAll(args...)
+  modelify: (args...) => @database.modelify(args...)
   count: (args...) => @database.count(args...)
   findJSONBlob: (args...) => @database.findJSONBlob(args...)
 
@@ -26,11 +27,11 @@ class DatabaseTransaction
       fn(@)
     .finally =>
       if @_opened
-        @_query("COMMIT")
         @_opened = false
-      global.setImmediate =>
-        for record in @_changeRecords
-          @database.accumulateAndTrigger(record)
+        @_query("COMMIT")
+        .then =>
+          for record in @_changeRecords
+            @database.accumulateAndTrigger(record)
 
   # Mutating the Database
 

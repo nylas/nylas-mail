@@ -2,12 +2,7 @@ Rx = require 'rx-lite'
 _ = require 'underscore'
 Category = require '../flux/models/category'
 QuerySubscriptionPool = require '../flux/models/query-subscription-pool'
-AccountStore = require '../flux/stores/account-store'
 DatabaseStore = require '../flux/stores/database-store'
-
-AccountOperators = {}
-
-AccountObservables = {}
 
 CategoryOperators =
   sort: ->
@@ -60,10 +55,8 @@ CategoryObservables =
     CategoryObservables.forAccount(account).sort()
       .categoryFilter (cat) -> cat.isHiddenCategory()
 
-
 module.exports =
   Categories: CategoryObservables
-  Accounts: AccountObservables
 
 # Attach a few global helpers
 

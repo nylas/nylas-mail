@@ -43,7 +43,7 @@ body.platform-win32 {
 
 .mail-label {
   font-size: 0.9em;
-  padding: 2px 8px;
+  padding: 1px 8px;
   margin-right: 6px;
   flex-shrink: 0;
   border-radius: 3px;
@@ -51,6 +51,10 @@ body.platform-win32 {
   cursor:default;
   line-height: 22px;
   -webkit-user-select: none;
+
+  &:last-child {
+    margin-right: 0;
+  }
 }
 .mail-label.removable {
   padding-left:12px;
@@ -80,9 +84,8 @@ body.platform-win32 {
 
 
 .mail-important-icon {
-  width:16px;
-  height:16px;
-  vertical-align: middle;
+  width: 25px;
+  height: 25px;
   display:inline-block;
   background-repeat: no-repeat;
   background-position:center;

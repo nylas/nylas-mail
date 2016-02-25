@@ -1,17 +1,10 @@
 _ = require 'underscore'
 React = require 'react'
 classNames = require 'classnames'
-
-{ListTabular,
- InjectedComponent,
- Flexbox} = require 'nylas-component-kit'
-
-{timestamp,
- subject} = require './formatting-utils'
-
 {Actions} = require 'nylas-exports'
-SendingProgressBar = require './sending-progress-bar'
-SendingCancelButton = require './sending-cancel-button'
+{InjectedComponentSet, ListTabular} = require 'nylas-component-kit'
+{subject} = require './formatting-utils'
+
 
 snippet = (html) =>
   return "" unless html and typeof(html) is 'string'
@@ -31,7 +24,7 @@ ParticipantsColumn = new ListTabular.Column
 
     if list.length > 0
       <div className="participants">
-        {list.map (p) => <span key={p.email}>{p.displayName()}</span>}
+        <span>{list.map((p) => p.displayName()).join(', ')}</span>
       </div>
     else
       <div className="participants no-recipients">
@@ -51,16 +44,15 @@ ContentsColumn = new ListTabular.Column
       {attachments}
     </span>
 
-SendStateColumn = new ListTabular.Column
+StatusColumn = new ListTabular.Column
   name: "State"
   resolver: (draft) =>
-    if draft.uploadTaskId
-      <Flexbox style={width:150, whiteSpace: 'no-wrap'}>
-        <SendingProgressBar style={flex: 1, marginRight: 10} progress={draft.uploadProgress * 100} />
-        <SendingCancelButton taskId={draft.uploadTaskId} />
-      </Flexbox>
-    else
-      <span className="timestamp">{timestamp(draft.date)}</span>
+    <InjectedComponentSet
+      inline={true}
+      containersRequired={false}
+      matching={role: "DraftList:DraftStatus"}
+      className="draft-list-injected-state"
+      exposedProps={{draft}}/>
 
 module.exports =
-  Wide: [ParticipantsColumn, ContentsColumn, SendStateColumn]
+  Wide: [ParticipantsColumn, ContentsColumn, StatusColumn]

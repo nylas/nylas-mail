@@ -186,6 +186,13 @@ DOMUtils =
     return unless selection?.isCollapsed
     return DOMUtils.closest(selection.anchorNode, selector)
 
+  closestElement: (node) ->
+    if node instanceof HTMLElement
+      return node
+    else if node?.parentNode
+      return DOMUtils.closestElement(node.parentNode)
+    else return null
+
   isInList: ->
     li = DOMUtils.closestAtCursor("li")
     list = DOMUtils.closestAtCursor("ul, ol")
@@ -670,5 +677,13 @@ DOMUtils =
       else return true
     else
       return false
+
+  previousTextNode: (node) ->
+    curNode = node
+    while curNode.parentNode
+      if curNode.previousSibling
+        return this.findLastTextNode(curNode.previousSibling)
+      curNode = curNode.parentNode
+    return null
 
 module.exports = DOMUtils

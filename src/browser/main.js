@@ -4,18 +4,6 @@
 
   global.shellStartTime = Date.now();
 
-  process.on('uncaughtException', function(error) {
-    if (error == null) {
-      error = {};
-    }
-    if (error.message != null) {
-      console.log(error.message);
-    }
-    if (error.stack != null) {
-      return console.log(error.stack);
-    }
-  });
-
   app = require('electron').app;
 
   fs = require('fs-plus');
@@ -65,13 +53,13 @@
   };
 
   handleStartupEventWithSquirrel = function() {
-    var SquirrelUpdate, squirrelCommand;
+    var WindowsUpdater, squirrelCommand;
     if (process.platform !== 'win32') {
       return false;
     }
-    SquirrelUpdate = require('./squirrel-update');
+    WindowsUpdater = require('./windows-updater');
     squirrelCommand = process.argv[1];
-    return SquirrelUpdate.handleStartupEvent(app, squirrelCommand);
+    return WindowsUpdater.handleStartupEvent(app, squirrelCommand);
   };
 
   setupCompileCache = function(configDirPath) {
@@ -81,16 +69,19 @@
   };
 
   setupErrorLogger = function(args) {
-    var ErrorLogger;
+    var ErrorLogger, errorLogger;
     if (args == null) {
       args = {};
     }
     ErrorLogger = require('../error-logger');
-    return new ErrorLogger({
+    errorLogger = new ErrorLogger({
       inSpecMode: args.specMode,
       inDevMode: args.devMode,
       resourcePath: args.resourcePath
     });
+    process.on('uncaughtException', errorLogger.reportError);
+    process.on('unhandledRejection', errorLogger.reportError);
+    return errorLogger;
   };
 
   declareOptions = function(argv) {
