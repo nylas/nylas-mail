@@ -68,14 +68,19 @@ class ThreadBulkStarButton extends React.Component
     selection: React.PropTypes.object.isRequired
 
   render: ->
-    noStars = _.every @props.selection.items(), (t) -> _.isMatch(t, {starred: false})
-    title = if noStars then "Star all" else "Remove stars from all"
+    postClickStarredState = _.every @props.selection.items(), (t) -> t.starred is false
+    title = "Remove stars from all"
+    imageName = "toolbar-star-selected.png"
+
+    if postClickStarredState
+      title = "Star all"
+      imageName = "toolbar-star.png"
 
     <button style={order:-104}
             className="btn btn-toolbar"
             title={title}
             onClick={@_onStar}>
-      <RetinaImg name="toolbar-star.png" mode={RetinaImg.Mode.ContentIsMask} />
+      <RetinaImg name={imageName} mode={RetinaImg.Mode.ContentIsMask} />
     </button>
 
   _onStar: =>
