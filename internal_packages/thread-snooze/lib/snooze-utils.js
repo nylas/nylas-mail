@@ -15,6 +15,25 @@ import {
 } from 'nylas-exports';
 import {SNOOZE_CATEGORY_NAME, DATE_FORMAT_SHORT} from './snooze-constants'
 
+export function snoozeMessage(snoozeDate) {
+  let message = 'Snoozed'
+  if (snoozeDate) {
+    let dateFormat = DATE_FORMAT_SHORT
+    const date = moment(snoozeDate)
+    const now = moment()
+    const hourDifference = moment.duration(date.diff(now)).asHours()
+
+    if (hourDifference < 24) {
+      dateFormat = dateFormat.replace('MMM D, ', '');
+    }
+    if (date.minutes() === 0) {
+      dateFormat = dateFormat.replace(':mm', '');
+    }
+
+    message += ` until ${DateUtils.format(date, dateFormat)}`;
+  }
+  return message;
+}
 
 export function createSnoozeCategory(accountId, name = SNOOZE_CATEGORY_NAME) {
   const category = new Category({
@@ -76,7 +95,7 @@ export function getSnoozeCategoriesByAccount(accounts = AccountStore.accounts())
 
 
 export function groupProcessedThreadsByAccountId(categoriesByAccountId, threads) {
-  return DatabaseStore.modelify(Thread, _.pluck(threads, 'id')).then((updatedThreads)=> {
+  return DatabaseStore.modelify(Thread, _.pluck(threads, 'clientId')).then((updatedThreads)=> {
     const threadsByAccountId = {}
     updatedThreads.forEach((thread)=> {
       const accId = thread.accountId
@@ -95,15 +114,9 @@ export function groupProcessedThreadsByAccountId(categoriesByAccountId, threads)
 }
 
 
-export function moveThreads(threads, categoriesByAccountId, {snooze, snoozeDate} = {}) {
+export function moveThreads(threads, categoriesByAccountId, {snooze, description} = {}) {
   const inbox = CategoryStore.getInboxCategory
   const snoozeCat = (accId)=> categoriesByAccountId[accId]
-  let description = 'Snoozed'
-  if (snoozeDate) {
-    const date = moment(snoozeDate)
-    description += ` until ${DateUtils.format(date, DATE_FORMAT_SHORT)}`
-  }
-
   const tasks = TaskFactory.tasksForApplyingCategories({
     threads,
     categoriesToRemove: snooze ? inbox : snoozeCat,
@@ -125,7 +138,8 @@ export function moveThreads(threads, categoriesByAccountId, {snooze, snoozeDate}
 export function moveThreadsToSnooze(threads, snoozeDate) {
   return getSnoozeCategoriesByAccount()
   .then((categoriesByAccountId)=> {
-    return moveThreads(threads, categoriesByAccountId, {snooze: true, snoozeDate})
+    const description = snoozeMessage(snoozeDate)
+    return moveThreads(threads, categoriesByAccountId, {snooze: true, description})
   })
 }
 
@@ -133,6 +147,7 @@ export function moveThreadsToSnooze(threads, snoozeDate) {
 export function moveThreadsFromSnooze(threads) {
   return getSnoozeCategoriesByAccount()
   .then((categoriesByAccountId)=> {
-    return moveThreads(threads, categoriesByAccountId, {snooze: false})
+    const description = 'Unsnoozed';
+    return moveThreads(threads, categoriesByAccountId, {snooze: false, description})
   })
 }

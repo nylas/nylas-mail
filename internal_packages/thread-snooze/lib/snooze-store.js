@@ -1,7 +1,7 @@
 /** @babel */
 import _ from 'underscore';
 import {Actions, NylasAPI, AccountStore} from 'nylas-exports';
-import {moveThreadsToSnooze} from './snooze-category-helpers';
+import {moveThreadsToSnooze, moveThreadsFromSnooze} from './snooze-utils';
 import {PLUGIN_ID, PLUGIN_NAME} from './snooze-constants';
 import SnoozeActions from './snooze-actions';
 
@@ -40,6 +40,7 @@ class SnoozeStore {
       })
     })
     .catch((error)=> {
+      moveThreadsFromSnooze(threads)
       Actions.closePopover();
       NylasEnv.reportError(error);
       NylasEnv.showErrorDialog(`Sorry, we were unable to save your snooze settings. ${error.message}`);
