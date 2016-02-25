@@ -74,7 +74,10 @@ c3 = new ListTabular.Column
       ignored = [].concat(currentCategories, CategoryStore.hiddenCategories(thread.accountId))
       ignoredIds = _.pluck(ignored, 'id')
 
-      for label in (thread.sortedCategories())
+      threadLabels = thread.sortedCategories()
+      threadLabels = _.reject threadLabels, (l) -> l.name is 'important'
+
+      for label in threadLabels
         continue if label.id in ignoredIds
         c3LabelComponentCache[label.id] ?= <MailLabel label={label} key={label.id} />
         labels.push c3LabelComponentCache[label.id]
@@ -127,7 +130,10 @@ cNarrow = new ListTabular.Column
       ignored = [].concat(currentCategories, CategoryStore.hiddenCategories(thread.accountId))
       ignoredIds = _.pluck(ignored, 'id')
 
-      for label in (thread.sortedCategories())
+      threadLabels = thread.sortedCategories()
+      threadLabels = _.reject threadLabels, (l) -> l.name is 'important'
+
+      for label in threadLabels
         continue if label.id in ignoredIds
         c3LabelComponentCache[label.id] ?= <MailLabel label={label} key={label.id} />
         labels.push c3LabelComponentCache[label.id]
