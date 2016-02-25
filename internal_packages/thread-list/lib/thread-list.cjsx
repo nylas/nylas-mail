@@ -113,6 +113,7 @@ class ThreadList extends React.Component
         tasks = TaskFactory.tasksForMovingToTrash
           threads: [item]
           fromPerspective: FocusedPerspectiveStore.current()
+        Actions.closePopover()
         Actions.queueTasks(tasks)
         callback(true)
 
@@ -122,6 +123,7 @@ class ThreadList extends React.Component
         tasks = TaskFactory.tasksForArchiving
           threads: [item]
           fromPerspective: FocusedPerspectiveStore.current()
+        Actions.closePopover()
         Actions.queueTasks(tasks)
         callback(true)
 

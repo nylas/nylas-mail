@@ -34,7 +34,7 @@ class PopoverStore extends NylasStore {
     );
 
     React.render(popover, this.container, ()=> {
-      this.isOpen = props.showing;
+      this.isOpen = true;
       this.trigger();
       callback();
     });
