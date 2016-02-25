@@ -56,7 +56,7 @@ class TranslateButton extends React.Component
   #
   render: =>
     headerComponents = [
-      <span>Transalate:</span>
+      <span>Translate:</span>
     ]
     <Popover ref="popover"
              className="translate-language-picker pull-right"
