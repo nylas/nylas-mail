@@ -9,7 +9,7 @@ Thread = require '../models/thread'
 
 class TaskFactory
 
-  tasksForApplyingCategories: ({threads, categoriesToRemove, categoryToAdd}) =>
+  tasksForApplyingCategories: ({threads, categoriesToRemove, categoryToAdd, taskDescription}) =>
     byAccount = {}
     tasks = []
 
@@ -32,6 +32,7 @@ class TaskFactory
         tasks.push new ChangeFolderTask
           folder: categoryToAdd
           threads: threads
+          taskDescription: taskDescription
       else
         labelsToAdd = if categoryToAdd then [categoryToAdd] else []
         labelsToRemove = categoriesToRemove ? []
@@ -40,6 +41,7 @@ class TaskFactory
           threads: threads
           labelsToRemove: labelsToRemove
           labelsToAdd: labelsToAdd
+          taskDescription: taskDescription
 
     return tasks
 

@@ -1,4 +1,5 @@
 /** @babel */
+import moment from 'moment';
 import _ from 'underscore';
 import {
   Actions,
@@ -10,8 +11,9 @@ import {
   SyncbackCategoryTask,
   TaskQueueStatusStore,
   TaskFactory,
+  DateUtils,
 } from 'nylas-exports';
-import {SNOOZE_CATEGORY_NAME} from './snooze-constants'
+import {SNOOZE_CATEGORY_NAME, DATE_FORMAT_SHORT} from './snooze-constants'
 
 
 export function createSnoozeCategory(accountId, name = SNOOZE_CATEGORY_NAME) {
@@ -93,13 +95,20 @@ export function groupProcessedThreadsByAccountId(categoriesByAccountId, threads)
 }
 
 
-export function moveThreads(threads, categoriesByAccountId, {snooze} = {}) {
+export function moveThreads(threads, categoriesByAccountId, {snooze, snoozeDate} = {}) {
   const inbox = CategoryStore.getInboxCategory
   const snoozeCat = (accId)=> categoriesByAccountId[accId]
+  let description = 'Snoozed'
+  if (snoozeDate) {
+    const date = moment(snoozeDate)
+    description += ` until ${DateUtils.format(date, DATE_FORMAT_SHORT)}`
+  }
+
   const tasks = TaskFactory.tasksForApplyingCategories({
     threads,
     categoriesToRemove: snooze ? inbox : snoozeCat,
     categoryToAdd: snooze ? snoozeCat : inbox,
+    taskDescription: description,
   })
 
   Actions.queueTasks(tasks)
@@ -113,10 +122,10 @@ export function moveThreads(threads, categoriesByAccountId, {snooze} = {}) {
 }
 
 
-export function moveThreadsToSnooze(threads) {
+export function moveThreadsToSnooze(threads, snoozeDate) {
   return getSnoozeCategoriesByAccount()
   .then((categoriesByAccountId)=> {
-    return moveThreads(threads, categoriesByAccountId, {snooze: true})
+    return moveThreads(threads, categoriesByAccountId, {snooze: true, snoozeDate})
   })
 }
 

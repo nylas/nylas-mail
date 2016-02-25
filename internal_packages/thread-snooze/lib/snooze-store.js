@@ -21,7 +21,7 @@ class SnoozeStore {
     })
     Promise.all(promises)
     .then(()=> {
-      return moveThreadsToSnooze(threads)
+      return moveThreadsToSnooze(threads, snoozeDate)
     })
     .then((updatedThreadsByAccountId)=> {
       _.each(updatedThreadsByAccountId, (update)=> {
