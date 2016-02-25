@@ -6,6 +6,7 @@ EmitterMixin = require('emissary').Emitter
 fs = require 'fs-plus'
 Q = require 'q'
 Grim = require 'grim'
+CSON = require 'season'
 
 ServiceHub = require 'service-hub'
 Package = require './package'
@@ -338,6 +339,8 @@ class PackageManager
     dialog = require('remote').require('dialog')
     shell = require('shell')
 
+    return unless @verifyValidPackage(packageSourceDir, callback)
+
     packagesDir = path.join(NylasEnv.getConfigDirPath(), 'packages')
     packageName = path.basename(packageSourceDir)
     packageTargetDir = path.join(packagesDir, packageName)
@@ -376,6 +379,22 @@ class PackageManager
             @activatePackage(packageName)
             callback(null, packageTargetDir)
 
+  verifyValidPackage: (packageSourceDir, callback) ->
+    if CSON.resolve(path.join(packageSourceDir, 'package'))
+      return true
+    else
+      errMsg = "The folder you selected doesn't look like a valid N1 plugin. All N1 plugins must have a package.json file in the top level of the folder. Check the contents of #{packageSourceDir} and try again"
+
+      dialog = require('remote').require('dialog')
+      dialog.showMessageBox({
+        type: 'warning'
+        buttons: ['OK']
+        title: 'Not a valid plugin folder'
+        message: errMsg
+      })
+
+      callback(errMsg)
+      return false
   ###
   Section: Private
   ###
