@@ -53,8 +53,8 @@ export function whenCategoriesReady() {
 export function getSnoozeCategory(accountId, categoryName = SNOOZE_CATEGORY_NAME) {
   return whenCategoriesReady()
   .then(()=> {
-    const userCategories = CategoryStore.userCategories(accountId)
-    const category = _.findWhere(userCategories, {displayName: categoryName})
+    const allCategories = CategoryStore.categories(accountId)
+    const category = _.findWhere(allCategories, {displayName: categoryName})
     if (category) {
       return Promise.resolve(category);
     }
