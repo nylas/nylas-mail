@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from 'react';
-import {Actions} from 'nylas-exports';
+import {Actions, FocusedPerspectiveStore} from 'nylas-exports';
 import SnoozePopoverBody from './snooze-popover-body';
 
 
@@ -42,6 +42,9 @@ class QuickActionSnoozeButton extends Component {
   static containerRequired = false;
 
   render() {
+    if (!FocusedPerspectiveStore.current().isInbox()) {
+      return <span />;
+    }
     return <div title="Snooze" className="btn action action-snooze" onClick={this.onClick}/>
   }
 }

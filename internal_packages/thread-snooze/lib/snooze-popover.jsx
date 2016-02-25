@@ -32,7 +32,7 @@ class SnoozePopover extends Component {
         popoverStyle={popoverStyle}
         pointerStyle={pointerStyle}
         onOpened={()=> Actions.closePopover()}>
-        <SnoozePopoverBody threads={threads} closePopover={this.closePopover}/>
+        <SnoozePopoverBody threads={threads} isFixedPopover={false} closePopover={this.closePopover}/>
       </Popover>
     );
   }

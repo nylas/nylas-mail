@@ -290,6 +290,7 @@
 // quick actions
 @archive-img: "../static/images/thread-list-quick-actions/ic-quick-button-archive@2x.png";
 @trash-img: "../static/images/thread-list-quick-actions/ic-quick-button-trash@2x.png";
+@snooze-img: "../static/images/thread-list-quick-actions/ic-quickaction-snooze@2x.png";
 
 .thread-list .list-item .list-column-HoverActions {
   display:none;
@@ -307,6 +308,9 @@
   .action.action-trash {
     background: url(@trash-img) center no-repeat, @background-gradient;
   }
+  .action.action-snooze {
+    background: url(@snooze-img) center no-repeat, @background-gradient;
+  }
 }
 body.platform-win32 {
   .thread-list .list-item .list-column-HoverActions {
@@ -319,6 +323,9 @@ body.platform-win32 {
     }
     .action.action-trash {
       background: url(@trash-img) center no-repeat;
+    }
+    .action.action-snooze {
+      background: url(@snooze-img) center no-repeat;
     }
   }
 }
@@ -358,6 +365,9 @@ body.platform-win32 {
   }
   .action.action-trash {
     background: url(@trash-img) center no-repeat;
+  }
+  .action.action-snooze {
+    background: url(@snooze-img) center no-repeat;
   }
 }
 
@@ -463,6 +473,9 @@ body.platform-win32 {
     }
     .action.action-trash {
       background: url(@trash-img) center no-repeat;
+    }
+    .action.action-snooze {
+      background: url(@snooze-img) center no-repeat;
     }
   }
 }
