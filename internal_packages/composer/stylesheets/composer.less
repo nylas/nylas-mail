@@ -66,6 +66,7 @@ body.platform-win32 {
       box-shadow: 0 0 0;
       margin: 0;
       padding: 0 9px;
+      white-space: nowrap;
 
       img.content-mask {
         background-color: fadeout(mix(@btn-default-text-color, @component-active-color, 88%), 30%);
@@ -85,6 +86,7 @@ body.platform-win32 {
 
     .btn-send {
       margin-right: 10px;
+      white-space: nowrap;
     }
 
     .composer-action-bar-content {
@@ -93,6 +95,10 @@ body.platform-win32 {
       flex-direction:row;
       max-width: @compose-width;
       padding: 9px 22.5px;
+
+      .composer-action-bar-plugins {
+        flex-wrap: wrap;
+      }
     }
   }
 
