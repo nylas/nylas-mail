@@ -1,4 +1,5 @@
 import React, {Component, PropTypes} from 'react';
+import DOMUtils from '../dom-utils';
 import _ from 'underscore';
 import {exec} from 'child_process';
 
@@ -59,6 +60,7 @@ export default class SwipeContainer extends Component {
     onSwipeLeftClass: React.PropTypes.string,
     onSwipeRight: React.PropTypes.func,
     onSwipeRightClass: React.PropTypes.string,
+    onSwipeCenter: React.PropTypes.func,
   };
 
   constructor(props) {
@@ -155,7 +157,7 @@ export default class SwipeContainer extends Component {
 
   _onScrollTouchEnd = ()=> {
     this.tracking = false;
-    if (this.phase !== Phase.None) {
+    if ((this.phase !== Phase.None) && (this.phase !== Phase.Settling)) {
       this.phase = Phase.Settling;
       this.fired = false;
       this.setState({
@@ -244,15 +246,16 @@ export default class SwipeContainer extends Component {
 
     const shouldFinish = (f >= 1.0);
     const mostlyFinished = ((Math.abs(currentX) / Math.abs(targetX)) > 0.8);
-    const shouldFire = (targetX !== 0) && mostlyFinished && (this.fired === false);
+    const shouldFire = mostlyFinished && (this.fired === false);
 
     if (shouldFire) {
       this.fired = true;
-      if (targetX > 0) {
+      if ((targetX > 0) && this.props.onSwipeRight) {
         this.props.onSwipeRight(this._onSwipeActionCompleted);
-      }
-      if (targetX < 0) {
+      } else if ((targetX < 0) && this.props.onSwipeLeft) {
         this.props.onSwipeLeft(this._onSwipeActionCompleted);
+      } else if ((targetX == 0) && this.props.onSwipeCenter) {
+        this.props.onSwipeCenter();
       }
     }
 

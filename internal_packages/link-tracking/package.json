@@ -6,6 +6,10 @@
     "staging": "2lsb6ounfysvwcdzxzy3bzsuh",
     "production": "a1ec1s3ieddpik6lpob74hmcq"
   },
+  "serverUrl": {
+    "staging": "https://link-staging.nylas.com",
+    "production": "https://link.nylas.com"
+  },
 
   "title": "Link Tracking",
   "description": "Tracks whether links in an email have been clicked by recipients",

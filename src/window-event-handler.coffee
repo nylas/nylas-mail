@@ -30,10 +30,6 @@ class WindowEventHandler
     @subscribe ipcRenderer, 'update-available', (event, detail) ->
       NylasEnv.updateAvailable(detail)
 
-    @subscribe ipcRenderer, 'send-feedback', (detail) ->
-      Actions = require './flux/actions'
-      Actions.sendFeedback()
-
     @subscribe ipcRenderer, 'browser-window-focus', ->
       document.body.classList.remove('is-blurred')
 

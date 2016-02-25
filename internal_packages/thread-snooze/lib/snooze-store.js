@@ -30,6 +30,7 @@ class SnoozeStore {
       })
     })
     .catch((error)=> {
+      Actions.closePopover();
       NylasEnv.reportError(error);
       NylasEnv.showErrorDialog(`Sorry, we were unable to save your snooze settings. ${error.message}`);
     });

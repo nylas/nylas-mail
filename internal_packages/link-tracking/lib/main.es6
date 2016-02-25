@@ -25,13 +25,13 @@ function afterDraftSend({draftClientId}) {
 
       // post the uid and message id pair to the plugin server
       const data = {uid: uid, message_id: message.id};
-      const serverUrl = `${PLUGIN_URL}/register-message`;
+      const serverUrl = `${PLUGIN_URL}/plugins/register-message`;
       return post({
         url: serverUrl,
         body: JSON.stringify(data),
       }).then( ([response, responseBody]) => {
         if (response.statusCode !== 200) {
-          throw new Error();
+          throw new Error(`Link Tracking server error ${response.statusCode} at ${serverUrl}: ${responseBody}`);
         }
         return responseBody;
       }).catch(error => {

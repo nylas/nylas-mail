@@ -1,5 +1,4 @@
 /** @babel */
-import _ from 'underscore'
 import Rx from 'rx-lite'
 import React, {Component, PropTypes} from 'react'
 import {DateUtils, Message, DatabaseStore} from 'nylas-exports'
@@ -23,7 +22,7 @@ class SendLaterPopover extends Component {
   static displayName = 'SendLaterPopover';
 
   static propTypes = {
-    draftClientId: PropTypes.string,
+    draftClientId: PropTypes.string.isRequired,
   };
 
   constructor(props) {
@@ -38,9 +37,15 @@ class SendLaterPopover extends Component {
     this._subscription = Rx.Observable.fromQuery(
       DatabaseStore.findBy(Message, {clientId: this.props.draftClientId})
     ).subscribe((draft)=> {
-      const scheduledDate = SendLaterStore.getScheduledDateForMessage(draft);
-      if (scheduledDate !== this.state.scheduledDate) {
-        this.setState({scheduledDate});
+      const nextScheduledDate = SendLaterStore.getScheduledDateForMessage(draft);
+
+      if (nextScheduledDate !== this.state.scheduledDate) {
+        const isPopout = (NylasEnv.getWindowType() === "composer");
+        const isFinishedSelecting = ((this.state.scheduledDate === 'saving') && (nextScheduledDate !== null));
+        if (isPopout && isFinishedSelecting) {
+          NylasEnv.close();
+        }
+        this.setState({scheduledDate: nextScheduledDate});
       }
     });
   }
@@ -51,29 +56,51 @@ class SendLaterPopover extends Component {
 
   onSelectMenuOption = (optionKey)=> {
     const date = SendLaterOptions[optionKey]();
-    const formatted = DateUtils.format(date.utc())
-
-    SendLaterActions.sendLater(this.props.draftClientId, formatted)
-    this.setState({scheduledDate: 'saving', inputDate: null})
-    this.refs.popover.close()
+    this.onSelectDate(date);
   };
 
+  onSelectCustomOption = (value)=> {
+    const date = DateUtils.futureDateFromString(value);
+    if (date) {
+      this.onSelectDate(date);
+    } else {
+      NylasEnv.showErrorDialog(`Sorry, we can't parse ${value} as a valid date.`);
+    }
+  }
+
+  onSelectDate = (date)=> {
+    const formatted = DateUtils.format(date.utc());
+    SendLaterActions.sendLater(this.props.draftClientId, formatted);
+    this.setState({scheduledDate: 'saving', inputDate: null});
+    this.refs.popover.close();
+  }
+
   onCancelSendLater = ()=> {
-    SendLaterActions.cancelSendLater(this.props.draftClientId)
-    this.setState({inputDate: null})
-    this.refs.popover.close()
+    SendLaterActions.cancelSendLater(this.props.draftClientId);
+    this.setState({inputDate: null});
+    this.refs.popover.close();
   };
 
   renderCustomTimeSection() {
-    const updateInputDateValue = _.debounce((value)=> {
-      this.setState({inputDate: DateUtils.fromString(value)})
-    }, 250);
+    const onChange = (event)=> {
+      this.setState({inputDate: DateUtils.futureDateFromString(event.target.value)});
+    }
+
+    const onKeyDown = (event)=> {
+      // we need to swallow these events so they don't reach the menu
+      // containing the text input, but only when you've typed something.
+      const val = event.target.value;
+      if ((val.length > 0) && ((event.keyCode === 13) || (event.keyCode === 39))) {
+        this.onSelectCustomOption(val);
+        event.stopPropagation();
+      }
+    };
 
     let dateInterpretation = false;
     if (this.state.inputDate) {
-      dateInterpretation = (<em>
+      dateInterpretation = (<span className="time">
         {DateUtils.format(this.state.inputDate, DATE_FORMAT_LONG)}
-      </em>);
+      </span>);
     }
 
     return (
@@ -81,8 +108,9 @@ class SendLaterPopover extends Component {
         <input
           tabIndex="1"
           type="text"
-          placeholder="e.g. 'Sunday at 2PM'"
-          onChange={event=> updateInputDateValue(event.target.value)}/>
+          placeholder="Or, 'next Monday at 2PM'"
+          onKeyDown={onKeyDown}
+          onChange={onChange}/>
         {dateInterpretation}
       </div>
     )
@@ -92,7 +120,7 @@ class SendLaterPopover extends Component {
     const date = SendLaterOptions[optionKey]();
     const formatted = DateUtils.format(date, DATE_FORMAT_SHORT);
     return (
-      <div className="send-later-option">{optionKey}<em>{formatted}</em></div>
+      <div className="send-later-option">{optionKey}<span className="time">{formatted}</span></div>
     );
   }
 
@@ -102,7 +130,7 @@ class SendLaterPopover extends Component {
 
     if (scheduledDate === 'saving') {
       return (
-        <button className={className} title="Send later...">
+        <button className={className} title="Saving send date...">
           <RetinaImg
             name="inline-loading-spinner.gif"
             mode={RetinaImg.Mode.ContentDark}
@@ -114,13 +142,13 @@ class SendLaterPopover extends Component {
     let dateInterpretation = false;
     if (scheduledDate) {
       className += ' btn-enabled';
-      const momentDate = DateUtils.fromString(scheduledDate);
+      const momentDate = DateUtils.futureDateFromString(scheduledDate);
       if (momentDate) {
         dateInterpretation = <span className="at">Sending in {momentDate.fromNow(true)}</span>;
       }
     }
     return (
-      <button className={className}>
+      <button className={className} title="Send later">
         <RetinaImg name="icon-composer-sendlater.png" mode={RetinaImg.Mode.ContentIsMask}/>
         {dateInterpretation}
         <span>&nbsp;</span>
@@ -152,9 +180,11 @@ class SendLaterPopover extends Component {
         style={{order: -103}}
         className="send-later"
         buttonComponent={this.renderButton()}>
-        <Menu items={ Object.keys(SendLaterOptions) }
+        <Menu ref="menu"
+              items={ Object.keys(SendLaterOptions) }
               itemKey={ (item)=> item }
               itemContent={this.renderMenuOption}
+              defaultSelectedIndex={-1}
               footerComponents={footerComponents}
               onSelect={this.onSelectMenuOption}
               />

@@ -39,11 +39,10 @@ export default class OpenTrackingIcon extends React.Component {
   }
 
   render() {
-    if (!this.state.hasMetadata) { return false }
     const title = this.state.opened ? "This message has been read at least once" : "This message has not been read";
     return (
       <div title={title} className="open-tracking-icon">
-        {this._renderImage()}
+        {this.state.hasMetadata ? this._renderImage() : ""}
       </div>
     );
   }

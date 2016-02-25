@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from 'react';
-import {PopoverStore, Actions} from 'nylas-exports';
+import {Actions} from 'nylas-exports';
 import SnoozePopoverBody from './snooze-popover-body';
 
 
@@ -12,12 +12,14 @@ class QuickActionSnoozeButton extends Component {
 
   constructor() {
     super();
+    this.openedPopover = false;
   }
 
   onClick = (event)=> {
     event.stopPropagation()
-    if (PopoverStore.isPopoverOpen()) {
+    if (this.openedPopover) {
       Actions.closePopover();
+      this.openedPopover = false;
       return;
     }
     const {thread} = this.props;
@@ -25,15 +27,16 @@ class QuickActionSnoozeButton extends Component {
     // Grab the parent node because of the zoom applied to this button. If we
     // took this element directly, we'd have to divide everything by 2
     const element = React.findDOMNode(this).parentNode;
-    const {height, width, top, left} = element.getBoundingClientRect()
+    const {height, width, top, bottom, left, right} = element.getBoundingClientRect()
 
     // The parent node is a bit too much to the left, lets adjust this.
-    const rect = {height, width, top, left: left + 5}
+    const rect = {height, width, top, bottom, right, left: left + 5}
     Actions.openPopover(
-      <SnoozePopoverBody threads={[thread]}/>,
+      <SnoozePopoverBody threads={[thread]} closePopover={Actions.closePopover}/>,
       rect,
       "left"
     )
+    this.openedPopover = true;
   };
 
   static containerRequired = false;

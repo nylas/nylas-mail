@@ -6,6 +6,10 @@
     "staging": "3i2bws091xrj7fpb1aqt2tud6",
     "production": "1hnytbkg4wd1ahodatwxdqlb5"
   },
+  "serverUrl": {
+    "staging": "https://link-staging.nylas.com",
+    "production": "https://link.nylas.com"
+  },
 
   "title": "Open Tracking",
   "description": "Tracks whether email messages have been opened by recipients",
