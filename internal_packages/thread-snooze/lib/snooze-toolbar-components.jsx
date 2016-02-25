@@ -1,5 +1,6 @@
 /** @babel */
 import React, {Component, PropTypes} from 'react';
+import {FocusedPerspectiveStore} from 'nylas-exports';
 import {RetinaImg} from 'nylas-component-kit';
 import SnoozePopover from './snooze-popover';
 
@@ -25,6 +26,9 @@ export class BulkThreadSnooze extends Component {
   static containerRequired = false;
 
   render() {
+    if (!FocusedPerspectiveStore.current().isInbox()) {
+      return <span />;
+    }
     return (
       <SnoozePopover
         direction="down"
@@ -44,6 +48,9 @@ export class ToolbarSnooze extends Component {
   static containerRequired = false;
 
   render() {
+    if (!FocusedPerspectiveStore.current().isInbox()) {
+      return <span />;
+    }
     const pointerStyle = {
       right: 18,
       display: 'block',
