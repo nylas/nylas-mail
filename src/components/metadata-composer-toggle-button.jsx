@@ -80,7 +80,7 @@ export default class MetadataComposerToggleButton extends React.Component {
       .catch((error) => {
         this.setState({enabled: false});
 
-        if (this._shouldStickFalseOnError(error)) {
+        if (this.props.stickyToggle) {
           NylasEnv.config.set(this._configKey(), false)
         }
 
@@ -98,11 +98,6 @@ export default class MetadataComposerToggleButton extends React.Component {
     }).finally(() => {
       this.setState({pending: false})
     });
-  }
-
-  _shouldStickFalseOnError(error) {
-    return this.props.stickyToggle && (error instanceof APIError) &&
-      (NylasAPI.PermanentErrorCodes.indexOf(error.statusCode) === -1);
   }
 
   _onClick = () => {
