@@ -29,10 +29,10 @@ function afterDraftSend({message}) {
       body: JSON.stringify(data),
     }).then(([response, responseBody]) => {
       if (response.statusCode !== 200) {
-        throw new Error(responseBody);
+        throw new Error(`Server error ${response.statusCode} at ${serverUrl}: ${responseBody}`);
       }
     }).catch(error => {
-      NylasEnv.showErrorDialog(`There was a problem saving your open tracking settings. This message will not have open tracking. ${error.message}`);
+      NylasEnv.showErrorDialog(`There was a problem saving your read receipt settings. This message will not have a read receipt. ${error.message}`);
       Promise.reject(error);
     });
   }

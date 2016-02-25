@@ -25,12 +25,12 @@ function afterDraftSend({message}) {
     post({
       url: serverUrl,
       body: JSON.stringify(data),
-    }).then( ([response, responseBody]) => {
+    }).then(([response, responseBody]) => {
       if (response.statusCode !== 200) {
-        throw new Error(`Link Tracking server error ${response.statusCode} at ${serverUrl}: ${responseBody}`);
+        throw new Error(`Server error ${response.statusCode} at ${serverUrl}: ${responseBody}`);
       }
     }).catch(error => {
-      NylasEnv.showErrorDialog("There was a problem contacting the Link Tracking server! This message will not have link tracking");
+      NylasEnv.showErrorDialog(`There was a problem saving your link tracking settings. This message will not have link tracking. ${error.message}`);
       Promise.reject(error);
     });
   }
