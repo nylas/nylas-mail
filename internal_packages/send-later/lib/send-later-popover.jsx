@@ -90,7 +90,7 @@ class SendLaterPopover extends Component {
       // we need to swallow these events so they don't reach the menu
       // containing the text input, but only when you've typed something.
       const val = event.target.value;
-      if ((val.length > 0) && ((event.keyCode === 13) || (event.keyCode === 39))) {
+      if ((val.length > 0) && ["Enter", "Return"].includes(event.key)) {
         this.onSelectCustomOption(val);
         event.stopPropagation();
       }

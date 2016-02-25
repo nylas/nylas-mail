@@ -80,11 +80,11 @@ class FixedPopover extends Component {
     case 'right':
       if (
         windowDimensions.width - (originRect.left + originRect.width) < limit ||
-        originRect.top < limit
+        originRect.top < limit * 2
       ) {
         return 'down';
       }
-      if (windowDimensions.height - (originRect.top + originRect.height) < limit) {
+      if (windowDimensions.height - (originRect.top + originRect.height) < limit * 2) {
         return 'up'
       }
       break;

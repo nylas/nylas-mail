@@ -44,64 +44,71 @@ class SnoozePopoverBody extends Component {
 
   static propTypes = {
     threads: PropTypes.array.isRequired,
+    isFixedPopover: PropTypes.bool,
     swipeCallback: PropTypes.func,
     closePopover: PropTypes.func,
   };
 
   static defaultProps = {
+    isFixedPopover: true,
     swipeCallback: ()=> {},
     closePopover: ()=> {},
   };
 
   constructor() {
     super();
+    this.didSnooze = false;
     this.state = {
       inputDate: null,
     }
+  }
+
+  componentWillUnmount() {
+    this.props.swipeCallback(this.didSnooze);
   }
 
   onSnooze(dateGenerator) {
     const utcDate = dateGenerator().utc()
     const formatted = DateUtils.format(utcDate)
     SnoozeActions.snoozeThreads(this.props.threads, formatted);
-    this.props.swipeCallback(true)
+    this.didSnooze = true;
     this.props.closePopover()
   }
 
   onBlur = ()=> {
+    if (!this.props.isFixedPopover) return;
     if (this._focusingInput) {
       this._focusingInput = false;
       return;
     }
-    this.props.swipeCallback(false);
     this.props.closePopover();
   };
 
   onKeyDown = (event)=> {
+    if (!this.props.isFixedPopover) return;
     if (event.key === "Escape") {
-      this.props.swipeCallback(false);
       this.props.closePopover();
     }
   };
 
   onInputChange = (event)=> {
-    this.updateInputDateValue(event.target.value);
+    const inputDate = DateUtils.futureDateFromString(event.target.value)
+    this.setState({inputDate})
   };
 
   onInputKeyDown = (event)=> {
-    if (["Enter", "Return"].includes(event.key)) {
-      this.onSnooze(()=> this.state.inputDate)
+    const {value} = event.target;
+    if (value.length > 0 && ["Enter", "Return"].includes(event.key)) {
+      const inputDate = DateUtils.futureDateFromString(value)
+      if (inputDate) {
+        this.onSnooze(()=> inputDate)
+      }
     }
   };
 
   onInputMouseDown = ()=> {
     this._focusingInput = true;
   };
-
-  updateInputDateValue = _.debounce((dateValue)=> {
-    const inputDate = DateUtils.futureDateFromString(dateValue)
-    this.setState({inputDate})
-  }, 250);
 
   renderItem = (label)=> {
     const dateGenerator = SnoozeDateGenerators[label];
