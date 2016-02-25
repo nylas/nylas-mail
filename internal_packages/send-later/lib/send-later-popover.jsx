@@ -56,21 +56,21 @@ class SendLaterPopover extends Component {
 
   onSelectMenuOption = (optionKey)=> {
     const date = SendLaterOptions[optionKey]();
-    this.onSelectDate(date);
+    this.onSelectDate(date, optionKey);
   };
 
   onSelectCustomOption = (value)=> {
     const date = DateUtils.futureDateFromString(value);
     if (date) {
-      this.onSelectDate(date);
+      this.onSelectDate(date, "Custom");
     } else {
       NylasEnv.showErrorDialog(`Sorry, we can't parse ${value} as a valid date.`);
     }
   };
 
-  onSelectDate = (date)=> {
+  onSelectDate = (date, label)=> {
     const formatted = DateUtils.format(date.utc());
-    SendLaterActions.sendLater(this.props.draftClientId, formatted);
+    SendLaterActions.sendLater(this.props.draftClientId, formatted, label);
     this.setState({scheduledDate: 'saving', inputDate: null});
     this.refs.popover.close();
   };

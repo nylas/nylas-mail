@@ -65,10 +65,10 @@ class SnoozePopoverBody extends Component {
     this.props.swipeCallback(this.didSnooze);
   }
 
-  onSnooze(dateGenerator) {
+  onSnooze(dateGenerator, label) {
     const utcDate = dateGenerator().utc();
     const formatted = DateUtils.format(utcDate);
-    SnoozeActions.snoozeThreads(this.props.threads, formatted);
+    SnoozeActions.snoozeThreads(this.props.threads, formatted, label);
     this.didSnooze = true;
     this.props.closePopover();
 
@@ -87,7 +87,7 @@ class SnoozePopoverBody extends Component {
     if (value.length > 0 && ["Enter", "Return"].includes(event.key)) {
       const inputDate = DateUtils.futureDateFromString(value);
       if (inputDate) {
-        this.onSnooze(()=> inputDate);
+        this.onSnooze(() => {return inputDate}, "Custom");
         // Prevent onInputChange from firing
         event.stopPropagation()
       }
@@ -103,7 +103,7 @@ class SnoozePopoverBody extends Component {
       <div
         key={label}
         className="snooze-item"
-        onClick={this.onSnooze.bind(this, dateGenerator)}>
+        onClick={this.onSnooze.bind(this, dateGenerator, label)}>
         <RetinaImg
           url={iconPath}
           mode={RetinaImg.Mode.ContentIsMask} />

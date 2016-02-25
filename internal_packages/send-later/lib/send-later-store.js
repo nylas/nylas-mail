@@ -42,12 +42,13 @@ class SendLaterStore extends NylasStore {
     });
   };
 
-  recordAction(sendLaterDate) {
+  recordAction(sendLaterDate, label) {
     try {
       if (sendLaterDate) {
-        const sec = Math.round(((new Date(sendLaterDate)).valueOf() - Date.now()) / 1000);
+        const min = Math.round(((new Date(sendLaterDate)).valueOf() - Date.now()) / 1000 / 60);
         Actions.recordUserEvent("Send Later", {
-          snoozeTime: sec,
+          sendLaterTime: min,
+          optionLabel: label,
         });
       } else {
         Actions.recordUserEvent("Send Later Cancel");
@@ -57,8 +58,8 @@ class SendLaterStore extends NylasStore {
     }
   }
 
-  onSendLater = (draftClientId, sendLaterDate)=> {
-    this.recordAction(sendLaterDate)
+  onSendLater = (draftClientId, sendLaterDate, label)=> {
+    this.recordAction(sendLaterDate, label)
     this.setMetadata(draftClientId, {sendLaterDate});
   };
 

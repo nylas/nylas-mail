@@ -14,12 +14,13 @@ class SnoozeStore {
     this.unsubscribe = SnoozeActions.snoozeThreads.listen(this.onSnoozeThreads)
   }
 
-  onSnoozeThreads = (threads, snoozeDate)=> {
+  onSnoozeThreads = (threads, snoozeDate, label) => {
     try {
-      const sec = Math.round(((new Date(snoozeDate)).valueOf() - Date.now()) / 1000);
+      const min = Math.round(((new Date(snoozeDate)).valueOf() - Date.now()) / 1000 / 60);
       Actions.recordUserEvent("Snooze Threads", {
         numThreads: threads.length,
-        snoozeTime: sec,
+        snoozeTime: min,
+        buttonType: label,
       });
     } catch (e) {
       // Do nothing
