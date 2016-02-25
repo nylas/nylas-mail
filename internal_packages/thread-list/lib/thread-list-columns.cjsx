@@ -82,7 +82,7 @@ c3 = new ListTabular.Column
     <span className="details">
       <InjectedComponentSet
         inline
-        containerRequired={false}
+        containersRequired={false}
         children={labels}
         matching={role: "ThreadList:Label"}
         className="thread-injected-mail-labels"
