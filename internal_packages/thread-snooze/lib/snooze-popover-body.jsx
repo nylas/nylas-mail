@@ -88,6 +88,8 @@ class SnoozePopoverBody extends Component {
       const inputDate = DateUtils.futureDateFromString(value);
       if (inputDate) {
         this.onSnooze(()=> inputDate);
+        // Prevent onInputChange from firing
+        event.stopPropagation()
       }
     }
   };

@@ -158,6 +158,9 @@ class SendLaterPopover extends Component {
   }
 
   render() {
+    const headerComponents = [
+      <span>Send later:</span>,
+    ]
     const footerComponents = [
       <div key="divider" className="divider" />,
       this.renderCustomTimeSection(),
@@ -185,6 +188,7 @@ class SendLaterPopover extends Component {
               itemKey={ (item)=> item }
               itemContent={this.renderMenuOption}
               defaultSelectedIndex={-1}
+              headerComponents={headerComponents}
               footerComponents={footerComponents}
               onSelect={this.onSelectMenuOption}
               />

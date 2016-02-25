@@ -55,12 +55,16 @@ class TranslateButton extends React.Component
   # interfaces that match the rest of N1's UI.
   #
   render: =>
+    headerComponents = [
+      <span>Transalate:</span>
+    ]
     <Popover ref="popover"
              className="translate-language-picker pull-right"
              buttonComponent={@_renderButton()}>
       <Menu items={ Object.keys(YandexLanguages) }
             itemKey={ (item) -> item }
             itemContent={ (item) -> item }
+            headerComponents={headerComponents}
             defaultSelectedIndex={-1}
             onSelect={@_onTranslate}
             />
