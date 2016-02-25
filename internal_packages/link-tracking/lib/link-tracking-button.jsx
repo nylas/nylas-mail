@@ -1,5 +1,5 @@
 // import {DraftStore, React, Actions, NylasAPI, DatabaseStore, Message, Rx} from 'nylas-exports'
-import {React} from 'nylas-exports'
+import {React, APIError, NylasAPI} from 'nylas-exports'
 import {MetadataComposerToggleButton} from 'nylas-component-kit'
 import {PLUGIN_ID, PLUGIN_NAME} from './link-tracking-constants'
 
@@ -16,7 +16,10 @@ export default class LinkTrackingButton extends React.Component {
   }
 
   _errorMessage(error) {
-    return `Sorry, we were unable to save your link tracking settings. ${error.message}`
+    if (error instanceof APIError && error.statusCode === NylasAPI.TimeoutErrorCode) {
+      return `Link tracking does not work offline. Please re-enable when you come back online.`
+    }
+    return `Unfortunately, link tracking servers are currently not available. Please try again later.`
   }
 
   render() {

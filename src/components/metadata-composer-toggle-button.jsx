@@ -1,4 +1,4 @@
-import {DraftStore, React, Actions, NylasAPI, DatabaseStore, Message, Rx} from 'nylas-exports'
+import {DraftStore, React, Actions, NylasAPI, APIError, DatabaseStore, Message, Rx} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
 import classnames from 'classnames'
 
@@ -79,12 +79,30 @@ export default class MetadataComposerToggleButton extends React.Component {
       })
       .catch((error) => {
         this.setState({enabled: false});
-        NylasEnv.reportError(error);
-        NylasEnv.showErrorDialog(this.props.errorMessage(error));
+
+        if (this._shouldStickFalseOnError(error)) {
+          NylasEnv.config.set(this._configKey(), false)
+        }
+
+        let title = "Error"
+        if (!(error instanceof APIError)) {
+          NylasEnv.reportError(error);
+        } else if (error.statusCode === 400) {
+          NylasEnv.reportError(error);
+        } else if (error.statusCode === NylasAPI.TimeoutErrorCode) {
+          title = "Offline"
+        }
+
+        NylasEnv.showErrorDialog({title, message: this.props.errorMessage(error)});
       })
     }).finally(() => {
       this.setState({pending: false})
     });
+  }
+
+  _shouldStickFalseOnError(error) {
+    return this.props.stickyToggle && (error instanceof APIError) &&
+      (NylasAPI.PermanentErrorCodes.indexOf(error.statusCode) === -1);
   }
 
   _onClick = () => {

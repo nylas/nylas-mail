@@ -148,7 +148,7 @@ class SendLaterPopover extends Component {
       }
     }
     return (
-      <button className={className} title="Send later...">
+      <button className={className} title="Send later">
         <RetinaImg name="icon-composer-sendlater.png" mode={RetinaImg.Mode.ContentIsMask}/>
         {dateInterpretation}
         <span>&nbsp;</span>

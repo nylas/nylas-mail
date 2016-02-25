@@ -71,7 +71,7 @@ class TranslateButton extends React.Component
   # `RetinaImg` will automatically chose the best image format for our display.
   #
   _renderButton: =>
-    <button className="btn btn-toolbar" title="Translate email body...">
+    <button className="btn btn-toolbar" title="Translate email body">
       <RetinaImg mode={RetinaImg.Mode.ContentIsMask} url="nylas://composer-translate/assets/icon-composer-translate@2x.png" />
       &nbsp;
       <RetinaImg name="icon-composer-dropdown.png" mode={RetinaImg.Mode.ContentIsMask}/>

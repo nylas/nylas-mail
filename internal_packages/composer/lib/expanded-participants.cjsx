@@ -111,7 +111,7 @@ class ExpandedParticipants extends React.Component
 
           { if @props.mode is "inline"
             <span className="header-action show-popout"
-                  title="Popout composer"
+                  title="Popout composer…"
                   style={paddingLeft: "1.5em"}
                   onClick={@props.onPopoutComposer}>
               <RetinaImg name="composer-popout.png"
