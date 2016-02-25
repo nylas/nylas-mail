@@ -9,33 +9,33 @@ import {DATE_FORMAT_LONG} from './snooze-constants'
 
 const SnoozeOptions = [
   [
-    'Later Today',
+    'Later today',
     'Tonight',
     'Tomorrow',
   ],
   [
-    'This Weekend',
-    'Next Week',
-    'Next Month',
+    'This weekend',
+    'Next week',
+    'Next month',
   ],
 ]
 
 const SnoozeDateGenerators = {
-  'Later Today': DateUtils.laterToday,
+  'Later today': DateUtils.laterToday,
   'Tonight': DateUtils.tonight,
   'Tomorrow': DateUtils.tomorrow,
-  'This Weekend': DateUtils.thisWeekend,
-  'Next Week': DateUtils.nextWeek,
-  'Next Month': DateUtils.nextMonth,
+  'This weekend': DateUtils.thisWeekend,
+  'Next week': DateUtils.nextWeek,
+  'Next month': DateUtils.nextMonth,
 }
 
 const SnoozeIconNames = {
-  'Later Today': 'later',
+  'Later today': 'later',
   'Tonight': 'tonight',
   'Tomorrow': 'tomorrow',
-  'This Weekend': 'weekend',
-  'Next Week': 'week',
-  'Next Month': 'month',
+  'This weekend': 'weekend',
+  'Next week': 'week',
+  'Next month': 'month',
 }
 
 
