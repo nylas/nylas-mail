@@ -173,15 +173,13 @@ PackagesStore = Reflux.createStore
       properties: ['openDirectory']
     , (filenames) =>
       return if not filenames or filenames.length is 0
-      NylasEnv.packages.installPackageFromPath filenames[0], (err, packageTargetDir) =>
+      NylasEnv.packages.installPackageFromPath filenames[0], (err) =>
         return if err
         packageName = path.basename(filenames[0])
         msg = "#{packageName} has been installed and enabled. No need to \
                restart! If you don't see the package loaded, check the \
                console for errors."
-        @_displayMessage("Package installed", msg)
-        if packageTargetDir
-          shell.showItemInFolder(packageTargetDir)
+        @_displayMessage("Plugin installed 🎉", msg)
 
   _onCreatePackage: ->
     if not NylasEnv.inDevMode()
@@ -210,19 +208,19 @@ PackagesStore = Reflux.createStore
       packageName = path.basename(packageDir)
 
       if not packageDir.startsWith(packagesDir)
-        return @_displayMessage('Invalid package location', 'Sorry, you must
-                                    create packages in the packages folder.')
+        return @_displayMessage('Invalid plugin location', 'Sorry, you must
+                                    create plugins in the packages folder.')
 
       if NylasEnv.packages.resolvePackagePath(packageName)
-        return @_displayMessage('Invalid package name', 'Sorry, you must
-                                    give your package a unqiue name.')
+        return @_displayMessage('Invalid plugin name', 'Sorry, you must
+                                    give your plugin a unqiue name.')
 
       if packageName.indexOf(' ') isnt -1
-        return @_displayMessage('Invalid package name', 'Sorry, package names
+        return @_displayMessage('Invalid plugin name', 'Sorry, plugin names
                                  cannot contain spaces.')
 
       fs.mkdir packageDir, (err) =>
-        return @_displayMessage('Could not create package', err.toString()) if err
+        return @_displayMessage('Could not create plugin', err.toString()) if err
 
         {resourcePath} = NylasEnv.getLoadSettings()
         packageTemplatePath = path.join(resourcePath, 'static', 'package-template')

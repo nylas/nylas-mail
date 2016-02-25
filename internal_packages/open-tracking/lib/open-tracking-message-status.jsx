@@ -37,7 +37,8 @@ export default class OpenTrackingMessageStatus extends React.Component {
     return (
       <RetinaImg
         className={this.state.opened ? "opened" : "unopened"}
-        url="nylas://open-tracking/assets/icon-composer-eye@2x.png"
+        style={{position: 'relative', top: -1}}
+        url="nylas://open-tracking/assets/InMessage-Read@2x.png"
         mode={RetinaImg.Mode.ContentIsMask} />
     );
   }
