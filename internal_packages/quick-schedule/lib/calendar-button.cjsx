@@ -5,7 +5,7 @@ class CalendarButton extends React.Component
   @displayName: 'CalendarButton'
 
   render: =>
-    <button className="btn btn-toolbar" onClick={@_onClick} title="Insert calendar availability...">
+    <button className="btn btn-toolbar" onClick={@_onClick} title="Insert calendar availability…">
       <RetinaImg url="nylas://quick-schedule/assets/icon-composer-quickschedule@2x.png" mode={RetinaImg.Mode.ContentIsMask} />
     </button>
 

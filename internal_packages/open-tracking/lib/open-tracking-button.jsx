@@ -1,5 +1,5 @@
 // import {DraftStore, React, Actions, NylasAPI, DatabaseStore, Message, Rx} from 'nylas-exports'
-import {React} from 'nylas-exports'
+import {React, APIError, NylasAPI} from 'nylas-exports'
 import {MetadataComposerToggleButton} from 'nylas-component-kit'
 import {PLUGIN_ID, PLUGIN_NAME} from './open-tracking-constants'
 
@@ -16,7 +16,10 @@ export default class OpenTrackingButton extends React.Component {
   }
 
   _errorMessage(error) {
-    return `Sorry, we were unable to save your read receipt settings. ${error.message}`
+    if (error instanceof APIError && error.statusCode === NylasAPI.TimeoutErrorCode) {
+      return `Read receipts do not work offline. Please re-enable when you come back online.`
+    }
+    return `Unfortunately, read receipts are currently not available. Please try again later.`
   }
 
   render() {
