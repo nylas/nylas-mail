@@ -11,11 +11,11 @@ import {DATE_FORMAT_SHORT, DATE_FORMAT_LONG} from './send-later-constants'
 const SendLaterOptions = {
   'In 1 hour': DateUtils.in1Hour,
   'In 2 hours': DateUtils.in2Hours,
-  'Later Today': DateUtils.laterToday,
-  'Tomorrow Morning': DateUtils.tomorrow,
-  'Tomorrow Evening': DateUtils.tomorrowEvening,
-  'This Weekend': DateUtils.thisWeekend,
-  'Next Week': DateUtils.nextWeek,
+  'Later today': DateUtils.laterToday,
+  'Tomorrow morning': DateUtils.tomorrow,
+  'Tomorrow evening': DateUtils.tomorrowEvening,
+  'This weekend': DateUtils.thisWeekend,
+  'Next week': DateUtils.nextWeek,
 }
 
 class SendLaterPopover extends Component {
