@@ -1,5 +1,4 @@
 import React, {Component, PropTypes} from 'react';
-import DOMUtils from '../dom-utils';
 import _ from 'underscore';
 import {exec} from 'child_process';
 
@@ -254,7 +253,7 @@ export default class SwipeContainer extends Component {
         this.props.onSwipeRight(this._onSwipeActionCompleted);
       } else if ((targetX < 0) && this.props.onSwipeLeft) {
         this.props.onSwipeLeft(this._onSwipeActionCompleted);
-      } else if ((targetX == 0) && this.props.onSwipeCenter) {
+      } else if ((targetX === 0) && this.props.onSwipeCenter) {
         this.props.onSwipeCenter();
       }
     }

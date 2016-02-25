@@ -66,14 +66,14 @@ class SendLaterPopover extends Component {
     } else {
       NylasEnv.showErrorDialog(`Sorry, we can't parse ${value} as a valid date.`);
     }
-  }
+  };
 
   onSelectDate = (date)=> {
     const formatted = DateUtils.format(date.utc());
     SendLaterActions.sendLater(this.props.draftClientId, formatted);
     this.setState({scheduledDate: 'saving', inputDate: null});
     this.refs.popover.close();
-  }
+  };
 
   onCancelSendLater = ()=> {
     SendLaterActions.cancelSendLater(this.props.draftClientId);

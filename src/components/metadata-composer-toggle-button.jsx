@@ -20,7 +20,7 @@ export default class MetadataComposerToggleButton extends React.Component {
 
   static defaultProps = {
     stickyToggle: false,
-  }
+  };
 
   constructor(props) {
     super(props);
