@@ -26,8 +26,6 @@ module.exports = (grunt) ->
 
       moduleCache = metadata._nylasModuleCache ? {}
 
-      rm metadataPath
-
       extensions = moduleCache.extensions?['.json'] ? []
       i = extensions.indexOf('package.json')
       if i >= 0 then extensions.splice(i, 1)
