@@ -184,7 +184,7 @@ class FixedPopover extends Component {
     if (!target || (!React.findDOMNode(this).contains(target))) {
       Actions.closePopover();
     }
-  }
+  };
 
   _onKeyDown = (event)=> {
     if (event.key === "Escape") {
