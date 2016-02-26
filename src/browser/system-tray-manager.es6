@@ -81,7 +81,7 @@ class SystemTrayManager {
     if (this._platform !== 'darwin') {
       this._application.emit('application:show-main-window');
     }
-  }
+  };
 
   setTrayCount(iconPath, unreadString) {
     if (!this._tray) return;

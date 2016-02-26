@@ -126,7 +126,7 @@ class Actions
   @longPollOffline: ActionScopeWorkWindow
   @willMakeAPIRequest: ActionScopeWorkWindow
   @didMakeAPIRequest: ActionScopeWorkWindow
-  
+
   ###
   Public: Retry the initial sync
 
@@ -137,16 +137,16 @@ class Actions
   ###
   Public: Open the preferences view.
 
-  *Scope: Window*
+  *Scope: Global*
   ###
-  @openPreferences: ActionScopeWindow
+  @openPreferences: ActionScopeGlobal
 
   ###
   Public: Switch to the preferences tab with the specific name
 
-  *Scope: Window*
+  *Scope: Global*
   ###
-  @switchPreferencesTab: ActionScopeWindow
+  @switchPreferencesTab: ActionScopeGlobal
 
   ###
   Public: Clear the developer console for the current window.
