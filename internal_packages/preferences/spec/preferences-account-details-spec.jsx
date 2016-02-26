@@ -166,5 +166,4 @@ describe('PreferencesAccountDetails', ()=> {
       });
     });
   });
-
 });
