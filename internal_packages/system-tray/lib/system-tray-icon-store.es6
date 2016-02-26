@@ -62,7 +62,7 @@ class SystemTrayIconStore {
         const outputImg = nativeImage.createFromBuffer(pngData);
         return outputImg;
       },
-      'default': () => 
+      'default': () => {
         return unreadString !== '0' ? this._unreadIcon : this._baseIcon;
       },
     };
