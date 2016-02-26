@@ -139,10 +139,11 @@ class MessageControls extends React.Component
 
   _onCopyToClipboard: =>
     clipboard = require('electron').clipboard
-    data = "Message ID: #{@props.message.serverId}\n"+
-        "Message Metadata: #{JSON.stringify(@props.message.pluginMetadata, null, '  ')}\n"+
-        "Thread ID: #{@props.thread.serverId}\n"+
-        "Thread Metadata: #{JSON.stringify(@props.thread.pluginMetadata, null, '  ')}\n"
+    data = "AccountID: #{@props.message.accountId}\n"+
+      "Message ID: #{@props.message.serverId}\n"+
+      "Message Metadata: #{JSON.stringify(@props.message.pluginMetadata, null, '  ')}\n"+
+      "Thread ID: #{@props.thread.serverId}\n"+
+      "Thread Metadata: #{JSON.stringify(@props.thread.pluginMetadata, null, '  ')}\n"
 
     clipboard.writeText(data)
 
