@@ -93,7 +93,7 @@ class MessageControls extends React.Component
 
     draft = new Message
       from: [@_account().me()]
-      to: [new Contact(name: "Nylas Team", email: "feedback@nylas.com")]
+      to: [new Contact(name: "Nylas Team", email: "n1-support@nylas.com")]
       date: (new Date)
       draft: true
       subject: "Feedback - Message Display Issue (#{issueType})"
