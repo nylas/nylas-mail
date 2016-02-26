@@ -24,7 +24,7 @@ class MetadataStore extends NylasStore {
       return (
         t.modelify(modelClass, _.pluck(models, 'clientId'))
         .then((latestModels)=> {
-          const updatedModels = latestModels.map(m => m.applyPluginMetadata(pluginId, metadataValue));
+          const updatedModels = _.compact(latestModels).map(m => m.applyPluginMetadata(pluginId, metadataValue));
           return (
             t.persistModels(updatedModels)
             .then(()=> Promise.resolve(updatedModels))
