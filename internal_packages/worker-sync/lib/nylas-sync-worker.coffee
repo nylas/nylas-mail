@@ -42,7 +42,16 @@ class NylasSyncWorker
     @_account = account
 
     @_terminated = false
-    @_connection = new NylasLongConnection(api, account.id)
+    @_connection = new NylasLongConnection(api, account.id, {
+      ready: => @_state isnt null
+      getCursor: =>
+        return null if @_state is null
+        @_state['cursor'] || NylasEnv.config.get("nylas.#{@_account.id}.cursor")
+      setCursor: (val) =>
+        @_state['cursor'] = val
+        @writeState()
+    })
+
     @_refreshingCaches = [new ContactRankingsCache(account.id)]
     @_resumeTimer = new BackoffTimer =>
       # indirection needed so resumeFetches can be spied on
@@ -53,9 +62,10 @@ class NylasSyncWorker
     @_state = null
     DatabaseStore.findJSONBlob("NylasSyncWorker:#{@_account.id}").then (json) =>
       @_state = json ? {}
-      for model, modelState of @_state
-        modelState.busy = false
+      for key in ['threads', 'labels', 'folders', 'drafts', 'contacts', 'calendars', 'events']
+        @_state[key].busy = false if @_state[key]
       @resumeFetches()
+      @_connection.start()
 
     @
 
