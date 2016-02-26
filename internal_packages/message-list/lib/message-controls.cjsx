@@ -84,6 +84,7 @@ class MessageControls extends React.Component
     menu.append(new SystemMenuItem({ label: 'Report Issue: Rendering', click: => @_onReport('Rendering')}))
     menu.append(new SystemMenuItem({ type: 'separator'}))
     menu.append(new SystemMenuItem({ label: 'Show Original', click: => @_onShowOriginal()}))
+    menu.append(new SystemMenuItem({ label: 'Copy Debug Info to Clipboard', click: => @_onCopyToClipboard()}))
     menu.append(new SystemMenuItem({ label: 'Log Data', click: => @_onLogData()}))
     menu.popup(remote.getCurrentWindow())
 
@@ -135,5 +136,14 @@ class MessageControls extends React.Component
     window.__message = @props.message
     window.__thread = @props.thread
     console.log "Also now available in window.__message and window.__thread"
+
+  _onCopyToClipboard: =>
+    clipboard = require('electron').clipboard
+    data = "Message ID: #{@props.message.serverId}\n"+
+        "Message Metadata: #{JSON.stringify(@props.message.pluginMetadata, null, '  ')}\n"+
+        "Thread ID: #{@props.thread.serverId}\n"+
+        "Thread Metadata: #{JSON.stringify(@props.thread.pluginMetadata, null, '  ')}\n"
+
+    clipboard.writeText(data)
 
 module.exports = MessageControls
