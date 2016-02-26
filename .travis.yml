@@ -26,19 +26,13 @@ branches:
 matrix:
   include:
   - os: linux
-    env: NODE_VERSION=0.10 CC=gcc-4.8 CXX=g++-4.8
-  - os: linux
     env: NODE_VERSION=0.12 CC=gcc-4.8 CXX=g++-4.8
   - os: linux
     env: NODE_VERSION=4.2 CC=gcc-4.8 CXX=g++-4.8 PUBLISH_BUILD=true
   - os: linux
     env: NODE_VERSION=5 CC=gcc-4.8 CXX=g++-4.8
   - os: osx
-    env: NODE_VERSION=0.10
-  - os: osx
     env: NODE_VERSION=4.2 CC=clang CXX=clang++ PUBLISH_BUILD=true
-  - os: osx
-    env: NODE_VERSION=5 CC=clang CXX=clang++
 
 before_install:
 - if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then
