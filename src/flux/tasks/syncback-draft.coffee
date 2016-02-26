@@ -85,7 +85,8 @@ class SyncbackDraftTask extends Task
           draft.serverId = id
           draftIsNew = true
         draft.version = version
-        t.persistModel(draft)
+        t.persistModel(draft).then =>
+          Promise.resolve(draft)
     .then (draft) =>
       if draftIsNew
         for {pluginId, value} in draft.pluginMetadata
