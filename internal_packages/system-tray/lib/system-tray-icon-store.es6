@@ -16,7 +16,7 @@ const TRAY_ICON_PATH = path.join(
   NylasEnv.getConfigDirPath(),
   'tray',
   'tray-icon.png'
-)
+);
 
 
 class SystemTrayIconStore {
@@ -31,11 +31,11 @@ class SystemTrayIconStore {
   }
 
   activate() {
-    const iconDir = path.dirname(TRAY_ICON_PATH)
+    const iconDir = path.dirname(TRAY_ICON_PATH);
     mkdirpAsync(iconDir).then(()=> {
       writeFile(TRAY_ICON_PATH, this._icon.toPng())
       .then(()=> {
-        ipcRenderer.send('update-system-tray', TRAY_ICON_PATH, this._unreadString)
+        ipcRenderer.send('update-system-tray', TRAY_ICON_PATH, this._unreadString);
         this._unsubscribe = UnreadBadgeStore.listen(this._onUnreadCountChanged);
       })
     });
@@ -43,7 +43,7 @@ class SystemTrayIconStore {
 
   _getIconImg(unreadString = this._unreadString) {
     const imgHandlers = {
-      'darwin': ()=> {
+      'darwin': () => {
         const img = new Image();
         let canvas = null;
 
@@ -62,7 +62,7 @@ class SystemTrayIconStore {
         const outputImg = nativeImage.createFromBuffer(pngData);
         return outputImg;
       },
-      'default': ()=> {
+      'default': () => {
         return unreadString !== '0' ? this._unreadIcon : this._baseIcon;
       },
     };
@@ -70,13 +70,13 @@ class SystemTrayIconStore {
     return imgHandlers[this._platform in imgHandlers ? this._platform : 'default']();
   }
 
-  _onUnreadCountChanged = ()=> {
+  _onUnreadCountChanged = () => {
     this._unreadString = (+UnreadBadgeStore.count()).toLocaleString();
     this._icon = this._getIconImg();
     writeFile(TRAY_ICON_PATH, this._icon.toPng())
-    .then(()=> {
-      ipcRenderer.send('update-system-tray', TRAY_ICON_PATH, this._unreadString)
-    })
+    .then(() => {
+      ipcRenderer.send('update-system-tray', TRAY_ICON_PATH, this._unreadString);
+    });
   };
 
   deactivate() {
