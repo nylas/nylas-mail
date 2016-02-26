@@ -134,7 +134,9 @@ class NylasSyncWorkerPool
       DatabaseStore.inTransaction (t) =>
         t.find(klass, metadatum.object_id).then (model) ->
           return Promise.resolve() unless model
-          model.applyPluginMetadata(metadatum.application_id, metadatum.value)
+          model = model.applyPluginMetadata(metadatum.application_id, metadatum.value)
+          localMetadatum = model.metadataObjectForPluginId(metadatum.application_id)
+          localMetadatum.version = metadatum.version
           t.persistModel(model)
 
   _handleDeltaDeletion: (delta) =>
