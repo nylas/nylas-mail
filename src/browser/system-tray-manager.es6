@@ -71,12 +71,13 @@ class SystemTrayManager {
     if (this._application.config.get('core.workspace.systemTray') !== false) {
       this._tray = new Tray(_getIcon(this._iconPath));
       this._tray.setToolTip(_getTooltip());
+      this._tray.addListener('click', this._onClick);
       this._tray.setContextMenu(Menu.buildFromTemplate(_getMenuTemplate(this._platform, this._application)));
       this._unsubscribe = ()=> this._tray.removeListener('click', this._onClick);
     }
   }
 
-  _onClick() {
+  _onClick = () => {
     if (this._platform !== 'darwin') {
       this._application.emit('application:show-main-window');
     }
