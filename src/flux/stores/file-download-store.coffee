@@ -142,6 +142,7 @@ FileDownloadStore = Reflux.createStore
 
   _newMailReceived: (incoming) ->
     if NylasEnv.config.get('core.attachments.downloadPolicy') is 'on-receive'
+      return unless incoming['message']
       for message in incoming['message']
         for file in message.files
           @_fetch(file)
