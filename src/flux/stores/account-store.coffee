@@ -43,6 +43,14 @@ class AccountStore extends NylasStore
       @_accounts.push((new Account).fromJSON(json))
 
     @_tokens = NylasEnv.config.get(saveTokensKey) || {}
+    @_trigger()
+
+  _trigger: ->
+    for account in @_accounts
+      if not account?.id
+        err = new Error("An invalid account was added to `this._accounts`")
+        NylasEnv.reportError(err)
+        @_accounts = _.compact(@_accounts)
     @trigger()
 
   _save: =>
@@ -60,7 +68,7 @@ class AccountStore extends NylasStore
     @_caches = {}
     @_accounts[idx] = account
     NylasEnv.config.set(saveObjectsKey, @_accounts)
-    @trigger()
+    @_trigger()
 
   _onRemoveAccount: (id) =>
     idx = _.findIndex @_accounts, (a) -> a.id is id
@@ -75,7 +83,7 @@ class AccountStore extends NylasStore
       ipc = require('electron').ipcRenderer
       ipc.send('command', 'application:reset-config-and-relaunch')
     else
-      @trigger()
+      @_trigger()
       Actions.focusDefaultMailboxPerspectiveForAccounts(@_accounts)
 
   _onReorderAccount: (id, newIdx) =>
@@ -86,7 +94,7 @@ class AccountStore extends NylasStore
     @_accounts.splice(existingIdx, 1)
     @_accounts.splice(newIdx, 0, account)
     @_save()
-    @trigger()
+    @_trigger()
 
   addAccountFromJSON: (json) =>
     if not json.email_address or not json.provider
@@ -102,7 +110,7 @@ class AccountStore extends NylasStore
     @_accounts.push(account)
     @_save()
 
-    @trigger()
+    @_trigger()
     Actions.focusDefaultMailboxPerspectiveForAccounts([account.id])
 
   # Exposed Data
