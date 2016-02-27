@@ -33,7 +33,7 @@ class AccountStore extends NylasStore
       if newAccountIds.length > 0
         Actions.focusDefaultMailboxPerspectiveForAccounts([newAccountIds[0]])
 
-    if NylasEnv.isComposerWindow()
+    if NylasEnv.isComposerWindow() or NylasEnv.isWorkWindow()
       NylasEnv.config.onDidChange saveObjectsKey, => @_load()
 
   _load: =>
