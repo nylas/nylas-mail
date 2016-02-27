@@ -226,6 +226,39 @@ export default class SwipeContainer extends Component {
     }
   };
 
+  _onMouseDown = (e)=> {
+    const touch = e;
+    this.trackingTouchIdentifier = touch.identifier;
+    this.trackingTouchX = touch.clientX;
+    this._onScrollTouchBegin();
+  };
+
+  _onMouseMove = (e)=> {
+    if (this.trackingTouchIdentifier === null) {
+      return;
+    }
+    if (e.cancelable === false) {
+      // Chrome has already started interpreting these touch events as a scroll.
+      // We can no longer call preventDefault to make them ours.
+      return;
+    }
+    const velocity = (e.clientX - this.trackingTouchX);
+    this.trackingTouchX = e.clientX;
+    this._onDragWithVelocity(velocity);
+
+    if (this.phase === Phase.GestureConfirmed) {
+      e.preventDefault();
+    }
+  };
+
+  _onMouseUp = (e)=> {
+    if (this.trackingTouchIdentifier === null) {
+      return;
+    }
+    this.trackingTouchIdentifier = null;
+    this._onScrollTouchEnd();
+  };
+
   _onSwipeActionCompleted = (rowWillDisappear)=> {
     let delay = 0;
     if (rowWillDisappear) {
@@ -310,7 +343,9 @@ export default class SwipeContainer extends Component {
            onTouchStart={this._onTouchStart}
            onTouchMove={this._onTouchMove}
            onTouchEnd={this._onTouchEnd}
-           onTouchCancel={this._onTouchEnd}
+           onMouseDown={this._onMouseDown}
+           onMouseMove={this._onMouseMove}
+           onMouseUp={this._onMouseUp}
            {...otherProps}>
         <div style={backingStyles} className={backingClass}></div>
         <div style={{transform: 'translate3d(' + currentX + 'px, 0, 0)'}}>
