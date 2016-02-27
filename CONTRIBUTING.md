@@ -116,6 +116,7 @@ however, the Sync Engine is open source and you can run it yourself.
    API Root, for example `192.168.1.00:5555`
 
    ```
+   env: "custom"
    syncEngine:
      APIRoot: "http://192.168.1.100:5555"
    ```
