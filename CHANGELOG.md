@@ -1,8 +1,26 @@
 # N1 Changelog
 
+### 0.4.10 (2/25/16)
+
+- Fixes:
+
+ + Prevent accounts from being wiped by rapid writes to config.cson
+ + Present nice error messages when sending results in 402 Message Rejected
+ + Fix a regression in adding / removing aliases
+ + Fix a regression in the Windows and Linux system tray icons
+ + Fix an issue with deltas throwing exceptions when messages are not present
+ + Stop checking for plugin auth once authentication succeeds. Makes "snooze"
+   animation more fluid and performant.
+ + Fix "Manage Templates" button in the pop-out composer.
+ + Right-align timestamps in the wide thread list.
+ + Fix print styling
+ + Add "Copy Debug Info to Clipboard", making it easier for users to collect
+   debugging information about messages.
+ + Update the email address used for reporting quoted text and rendering issues.
+
 ### 0.4.9 (2/25/16)
 
-Read about this release on Medium: https://medium.com/@nylas
+[Read about this release on Medium](https://medium.com/@Nylas/nylas-n1-now-has-snooze-swipe-actions-emoji-and-more-561cd1e91559)
 
 - Features:
 
