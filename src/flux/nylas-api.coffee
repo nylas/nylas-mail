@@ -396,6 +396,11 @@ class NylasAPI
       AccountStore ?= require './stores/account-store'
       AccountStore.accountForId(accountOrId)
     Promise.reject(new Error('Invalid account')) unless account
+
+    cacheKey = "plugins.#{pluginId}.lastAuthTimestamp"
+    if NylasEnv.config.get(cacheKey)
+      return Promise.resolve()
+
     return @makeRequest({
       returnsModel: false,
       method: "GET",
@@ -404,9 +409,11 @@ class NylasAPI
     })
     .then (result) =>
       if result.authed
+        NylasEnv.config.set(cacheKey, Date.now())
         return Promise.resolve()
       else
-#        return @_requestPluginAuth(pluginName, account).then =>
+        # Enable to show a prompt to the user
+        # return @_requestPluginAuth(pluginName, account).then =>
         return @makeRequest({
           returnsModel: false,
           method: "POST",
