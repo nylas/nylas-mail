@@ -16,5 +16,5 @@ NylasEnv.startRootWindow()
 # Workaround for focus getting cleared upon window creation
 windowFocused = ->
   window.removeEventListener('focus', windowFocused)
-  setTimeout (-> document.getElementById('sheet-container').focus()), 0
+  setTimeout (-> document.getElementById('sheet-container')?.focus()), 0
 window.addEventListener('focus', windowFocused)

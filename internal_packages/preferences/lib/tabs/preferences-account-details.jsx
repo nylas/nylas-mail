@@ -75,14 +75,14 @@ class PreferencesAccountDetails extends Component {
 
   _onAccountAliasCreated = (newAlias)=> {
     const coercedAlias = this._makeAlias(newAlias);
-    const aliases = this.state.aliases.concat([coercedAlias]);
+    const aliases = this.state.account.aliases.concat([coercedAlias]);
     this._setStateAndSave({aliases})
   };
 
   _onAccountAliasUpdated = (newAlias, alias, idx)=> {
     const coercedAlias = this._makeAlias(newAlias);
-    const aliases = this.state.aliases.slice();
-    let defaultAlias = this.state.defaultAlias;
+    const aliases = this.state.account.aliases.slice();
+    let defaultAlias = this.state.account.defaultAlias;
     if (defaultAlias === alias) {
       defaultAlias = coercedAlias;
     }
@@ -91,8 +91,8 @@ class PreferencesAccountDetails extends Component {
   };
 
   _onAccountAliasRemoved = (alias, idx)=> {
-    const aliases = this.state.aliases.slice();
-    let defaultAlias = this.state.defaultAlias;
+    const aliases = this.state.account.aliases.slice();
+    let defaultAlias = this.state.account.defaultAlias;
     if (defaultAlias === alias) {
       defaultAlias = null;
     }

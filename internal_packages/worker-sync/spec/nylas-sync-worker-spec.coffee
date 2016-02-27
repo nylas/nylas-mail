@@ -16,10 +16,12 @@ describe "NylasSyncWorker", ->
       getThreads: (account, params, requestOptions) =>
         @apiRequests.push({account, model:'threads', params, requestOptions})
 
+    @apiCursorStub = undefined
     spyOn(DatabaseTransaction.prototype, 'persistJSONBlob').andReturn(Promise.resolve())
     spyOn(DatabaseStore, 'findJSONBlob').andCallFake (key) =>
       if key is "NylasSyncWorker:#{TEST_ACCOUNT_ID}"
         return Promise.resolve _.extend {}, {
+          "cursor": @apiCursorStub
           "contacts":
             busy: true
             complete: false
@@ -36,6 +38,7 @@ describe "NylasSyncWorker", ->
     @account = new Account(clientId: TEST_ACCOUNT_CLIENT_ID, serverId: TEST_ACCOUNT_ID, organizationUnit: 'label')
     @worker = new NylasSyncWorker(@api, @account)
     @connection = @worker.connection()
+    spyOn(@connection, 'start')
     advanceClock()
 
   it "should reset `busy` to false when reading state from disk", ->
@@ -46,13 +49,11 @@ describe "NylasSyncWorker", ->
 
   describe "start", ->
     it "should open the delta connection", ->
-      spyOn(@connection, 'start')
       @worker.start()
       advanceClock()
       expect(@connection.start).toHaveBeenCalled()
 
     it "should start querying for model collections and counts that haven't been fully cached", ->
-      spyOn(@connection, 'start')
       @worker.start()
       advanceClock()
       expect(@apiRequests.length).toBe(10)
@@ -128,6 +129,40 @@ describe "NylasSyncWorker", ->
       expect(@worker.resumeFetches.callCount).toBe(1)
       advanceClock(30000)
       expect(@worker.resumeFetches.callCount).toBe(1)
+
+  describe "delta streaming cursor", ->
+    it "should read the cursor from the database, and the old config format", ->
+      spyOn(NylasLongConnection.prototype, 'withCursor').andCallFake =>
+
+      @apiCursorStub = undefined
+
+      # no cursor present
+      worker = new NylasSyncWorker(@api, @account)
+      connection = worker.connection()
+      expect(connection.hasCursor()).toBe(false)
+      advanceClock()
+      expect(connection.hasCursor()).toBe(false)
+
+      # cursor present in config
+      spyOn(NylasEnv.config, 'get').andCallFake (key) =>
+        return 'old-school' if key is "nylas.#{@account.id}.cursor"
+        return undefined
+
+      worker = new NylasSyncWorker(@api, @account)
+      connection = worker.connection()
+      advanceClock()
+      expect(connection.hasCursor()).toBe(true)
+      expect(connection._config.getCursor()).toEqual('old-school')
+
+      # cursor present in database, overrides cursor in config
+      @apiCursorStub = "new-school"
+
+      worker = new NylasSyncWorker(@api, @account)
+      connection = worker.connection()
+      expect(connection.hasCursor()).toBe(false)
+      advanceClock()
+      expect(connection.hasCursor()).toBe(true)
+      expect(connection._config.getCursor()).toEqual('new-school')
 
   describe "when a count request completes", ->
     beforeEach ->

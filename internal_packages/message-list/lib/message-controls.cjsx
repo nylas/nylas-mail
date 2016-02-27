@@ -84,6 +84,7 @@ class MessageControls extends React.Component
     menu.append(new SystemMenuItem({ label: 'Report Issue: Rendering', click: => @_onReport('Rendering')}))
     menu.append(new SystemMenuItem({ type: 'separator'}))
     menu.append(new SystemMenuItem({ label: 'Show Original', click: => @_onShowOriginal()}))
+    menu.append(new SystemMenuItem({ label: 'Copy Debug Info to Clipboard', click: => @_onCopyToClipboard()}))
     menu.append(new SystemMenuItem({ label: 'Log Data', click: => @_onLogData()}))
     menu.popup(remote.getCurrentWindow())
 
@@ -92,7 +93,7 @@ class MessageControls extends React.Component
 
     draft = new Message
       from: [@_account().me()]
-      to: [new Contact(name: "Nylas Team", email: "feedback@nylas.com")]
+      to: [new Contact(name: "Nylas Team", email: "n1-support@nylas.com")]
       date: (new Date)
       draft: true
       subject: "Feedback - Message Display Issue (#{issueType})"
@@ -135,5 +136,15 @@ class MessageControls extends React.Component
     window.__message = @props.message
     window.__thread = @props.thread
     console.log "Also now available in window.__message and window.__thread"
+
+  _onCopyToClipboard: =>
+    clipboard = require('electron').clipboard
+    data = "AccountID: #{@props.message.accountId}\n"+
+      "Message ID: #{@props.message.serverId}\n"+
+      "Message Metadata: #{JSON.stringify(@props.message.pluginMetadata, null, '  ')}\n"+
+      "Thread ID: #{@props.thread.serverId}\n"+
+      "Thread Metadata: #{JSON.stringify(@props.thread.pluginMetadata, null, '  ')}\n"
+
+    clipboard.writeText(data)
 
 module.exports = MessageControls
