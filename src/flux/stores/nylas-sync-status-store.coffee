@@ -17,7 +17,9 @@ class NylasSyncStatusStore extends NylasStore
     AccountStore.accounts().forEach (item) =>
       query = DatabaseStore.findJSONBlob("NylasSyncWorker:#{item.id}")
       @_subscriptions[item.id] ?= Rx.Observable.fromQuery(query).subscribe (json) =>
-        @_statesByAccount[item.id] = json ? {}
+        state = _.extend({}, json ? {})
+        delete state.cursor
+        @_statesByAccount[item.id] = state
         @trigger()
 
   state: =>

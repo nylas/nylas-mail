@@ -215,9 +215,18 @@ class SendDraftTask extends Task
     if err instanceof APIError and not (err.statusCode in NylasAPI.PermanentErrorCodes)
       return Promise.resolve(Task.Status.Retry)
     else
+      message = "Sorry, this message could not be sent. Please try again, and make sure your message is addressed correctly and is not too large."
+      if err.statusCode is 402 and err.body.message
+        if err.body.message.indexOf('at least one recipient') isnt -1
+          message = "This message could not be delivered to at least one recipient. (Note: other recipients may have received this message - you should check Sent Mail before re-sending this message.)"
+        else
+          message = "Sorry, this message could not be sent because it was rejected by your mail provider. (#{err.body.message})"
+          if err.body.server_error
+            message += "\n\n" + err.body.server_error
+
       Actions.draftSendingFailed
         threadId: @draft.threadId
         draftClientId: @draft.clientId,
-        errorMessage: "Your message could not be sent. Check your network connection and try again."
+        errorMessage: message
       NylasEnv.reportError(err)
       return Promise.resolve([Task.Status.Failed, err])

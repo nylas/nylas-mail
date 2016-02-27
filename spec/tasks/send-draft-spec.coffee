@@ -214,6 +214,51 @@ describe "SendDraftTask", ->
             expect(status[1]).toBe thrownError
             expect(Actions.draftSendingFailed).toHaveBeenCalled()
 
+        it "presents helpful error messages for 402 errors (security blocked)", ->
+          thrownError = new APIError(statusCode: 402, body: {
+            "message": "Message content rejected for security reasons",
+            "server_error": "552 : 5.7.0 This message was blocked because its content presents a potential\n5.7.0 security issue. Please visit\n5.7.0  https://support.google.com/mail/answer/6590 to review our message\n5.7.0 content and attachment content guidelines. fk9sm21147314pad.9 - gsmtp",
+            "type": "api_error"
+          })
+
+          expectedMessage =
+          """
+            Sorry, this message could not be sent because it was rejected by your mail provider. (Message content rejected for security reasons)
+
+            552 : 5.7.0 This message was blocked because its content presents a potential
+            5.7.0 security issue. Please visit
+            5.7.0  https://support.google.com/mail/answer/6590 to review our message
+            5.7.0 content and attachment content guidelines. fk9sm21147314pad.9 - gsmtp
+          """
+
+          spyOn(NylasEnv, "reportError")
+          spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
+            Promise.reject(thrownError)
+          waitsForPromise => @task.performRemote().then (status) =>
+            expect(status[0]).toBe Task.Status.Failed
+            expect(status[1]).toBe thrownError
+            expect(Actions.draftSendingFailed).toHaveBeenCalled()
+            expect(Actions.draftSendingFailed.calls[0].args[0].errorMessage).toEqual(expectedMessage)
+
+        it "presents helpful error messages for 402 errors (recipient failed)", ->
+          thrownError = new APIError(statusCode: 402, body: {
+            "message": "Sending to at least one recipient failed.",
+            "server_error": "<<Don't know what this looks like >>",
+            "type": "api_error"
+          })
+
+          expectedMessage = "This message could not be delivered to at least one recipient. (Note: other recipients may have received this message - you should check Sent Mail before re-sending this message.)"
+
+          spyOn(NylasEnv, "reportError")
+          spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
+            Promise.reject(thrownError)
+          waitsForPromise => @task.performRemote().then (status) =>
+            expect(status[0]).toBe Task.Status.Failed
+            expect(status[1]).toBe thrownError
+            expect(Actions.draftSendingFailed).toHaveBeenCalled()
+            expect(Actions.draftSendingFailed.calls[0].args[0].errorMessage).toEqual(expectedMessage)
+
+
         it "retries on timeouts", ->
           thrownError = new APIError(statusCode: NylasAPI.TimeoutErrorCode, body: "err")
           spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>

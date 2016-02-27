@@ -11,10 +11,10 @@ class NylasLongConnection
     Connected: 'connected'
     Retrying: 'retrying'
 
-  constructor: (api, accountId) ->
+  constructor: (api, accountId, config) ->
     @_api = api
     @_accountId = accountId
-    @_cursorKey = "nylas.#{@_accountId}.cursor"
+    @_config = config
     @_emitter = new Emitter
     @_state = 'idle'
     @_req = null
@@ -28,10 +28,9 @@ class NylasLongConnection
       last = @_deltas[@_deltas.length - 1]
 
       @_emitter.emit('deltas-stopped-arriving', @_deltas)
+      @_config.setCursor(last.cursor)
       @_deltas = []
 
-      # Note: setCursor is slow and saves to disk, so we do it once at the end
-      @setCursor(last.cursor)
     , 1000
 
     @
@@ -40,10 +39,10 @@ class NylasLongConnection
     @_accountId
 
   hasCursor: ->
-    !!NylasEnv.config.get(@_cursorKey)
+    !!@_config.getCursor()
 
   withCursor: (callback) ->
-    cursor = NylasEnv.config.get(@_cursorKey)
+    cursor = @_config.getCursor()
     return callback(cursor) if cursor
 
     @_api.makeRequest
@@ -52,11 +51,8 @@ class NylasLongConnection
       method: 'POST'
       success: ({cursor}) =>
         console.log("Obtained stream cursor #{cursor}.")
-        @setCursor(cursor)
+        @_config.setCursor(cursor)
         callback(cursor)
-
-  setCursor: (cursor) ->
-    NylasEnv.config.set(@_cursorKey, cursor)
 
   state: ->
     @state
@@ -92,6 +88,8 @@ class NylasLongConnection
         @_flushDeltasDebounced()
 
   start: ->
+    return unless @_config.ready()
+
     token = @_api.accessTokenForAccountId(@_accountId)
     return if not token?
     return if @_state is NylasLongConnection.State.Ended

@@ -1,6 +1,9 @@
 body {
   overflow: auto !important;
 }
+#message-list {
+  background: transparent;
+}
 #print-button {
   float:right;
   margin-left: 10px;

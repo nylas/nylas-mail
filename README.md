@@ -36,6 +36,8 @@ We're working on building a plugin index that makes it super easy to add them to
 - [LevelUp](https://github.com/stolinski/level-up-nylas-n1-theme)
 - [Darkside](http://jamiewilson.io/darkside/)
 - [Sunrise](https://github.com/jackiehluo/n1-sunrise)
+- [Less is More](https://github.com/P0WW0W/less-is-more/)
+
 
 ##### Composer
 - [Translate](https://github.com/nylas/N1/tree/master/internal_packages/composer-translate) -- Works with 10 languages
