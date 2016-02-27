@@ -108,7 +108,16 @@ however, the Sync Engine is open source and you can run it yourself.
 
    ```
    syncEngine:
-     APIRoot: http://mysite.com:5555
+     APIRoot: "http://mysite.com:5555"
+   ```
+
+   NOTE: If you are using a custom network layout and your sync engine is not on
+   `localhost:5555`, use `env: custom` instead along with your alternate IP for the
+   API Root, for example `192.168.1.00:5555`
+
+   ```
+   syncEngine:
+     APIRoot: "http://192.168.1.100:5555"
    ```
 
    Copy the JSON array of accounts returned from the Sync Engine's `/accounts`
