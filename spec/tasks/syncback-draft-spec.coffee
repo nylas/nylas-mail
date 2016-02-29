@@ -42,8 +42,7 @@ describe "SyncbackDraftTask", ->
       else if clientId is "missingDraftId" then Promise.resolve()
       else return Promise.resolve()
 
-    spyOn(DatabaseTransaction.prototype, "persistModel").andCallFake (draft) ->
-      Promise.resolve(draft)
+    spyOn(DatabaseTransaction.prototype, "persistModel").andReturn Promise.resolve()
 
   describe "queueing multiple tasks", ->
     beforeEach ->
