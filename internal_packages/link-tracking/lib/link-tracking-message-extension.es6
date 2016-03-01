@@ -10,7 +10,7 @@ export default class LinkTrackingMessageExtension extends MessageViewExtension {
       links[link.redirect_url] = link
     }
 
-    message.body = message.body.replace(RegExpUtils.linkTagRegex(), (match, openTagPrefix, aTagHref, openTagSuffix, content, closingTag) => {
+    message.body = message.body.replace(RegExpUtils.urlLinkTagRegex(), (match, openTagPrefix, aTagHref, openTagSuffix, content, closingTag) => {
       if (links[aTagHref]) {
         const openTag = openTagPrefix + aTagHref + openTagSuffix
         let title;
