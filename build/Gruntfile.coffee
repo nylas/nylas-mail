@@ -362,7 +362,7 @@ module.exports = (grunt) ->
     ['coffee', 'cjsx', 'babel', 'prebuild-less', 'cson', 'peg'])
 
   grunt.registerTask('lint',
-    ['coffeelint', 'csslint', 'lesslint', 'nylaslint', 'eslint'])
+    ['eslint', 'lesslint', 'nylaslint', 'coffeelint', 'csslint'])
 
   grunt.registerTask('test', ['shell:kill-n1', 'run-unit-tests'])
 

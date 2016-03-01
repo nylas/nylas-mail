@@ -160,7 +160,7 @@ class SendDraftTask extends Task
       @message.clientId = @draft.clientId
       @message.draft = false
       # Create new metadata objs on the message based on the existing ones in the draft
-      @message.setPluginMetadata(@draft.pluginMetadata)
+      @message.clonePluginMetadataFrom(@draft)
 
       return DatabaseStore.inTransaction (t) =>
         DatabaseStore.findBy(Message, {clientId: @draft.clientId})
