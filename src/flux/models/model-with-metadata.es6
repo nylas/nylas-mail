@@ -87,8 +87,8 @@ export default class ModelWithMetadata extends Model {
     return this;
   }
 
-  setPluginMetadata(pluginMetadata) {
-    this.pluginMetadata = pluginMetadata.map(({pluginId, value})=> {
+  clonePluginMetadataFrom(otherModel) {
+    this.pluginMetadata = otherModel.pluginMetadata.map(({pluginId, value})=> {
       return new PluginMetadata({pluginId, value});
     })
     return this;

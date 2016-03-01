@@ -1,4 +1,4 @@
-###
+/*
 This package displays a "Vew on Github Button" whenever the message you're
 looking at contains a "view it on Github" link.
 
@@ -26,12 +26,12 @@ The `GithubStore` is responsible for figuring out what message you're
 looking at, if it has a relevant Github link, and what that link is. Once
 it figures that out, it makes that data available for the
 `ViewOnGithubButton` to display.
-###
+*/
 
-{ComponentRegistry} = require 'nylas-exports'
-ViewOnGithubButton = require "./view-on-github-button"
+import {ComponentRegistry} from 'nylas-exports';
+import ViewOnGithubButton from "./view-on-github-button";
 
-###
+/*
 All packages must export a basic object that has at least the following 3
 methods:
 
@@ -39,19 +39,23 @@ methods:
 Pre-enabled packages get activated on N1 bootup. They can also be
 activated manually by a user.
 
-1. `deactivate` - Actions to take when a package gets turned off. This can
+2. `deactivate` - Actions to take when a package gets turned off. This can
 happen when a user manually disables a package.
 
-1. `serialize` - A simple serializable object that gets saved to disk
+3. `serialize` - A simple serializable object that gets saved to disk
 before N1 quits. This gets passed back into `activate` next time N1 boots
 up or your package is manually activated.
-###
-module.exports =
-  activate: (@state={}) ->
-    ComponentRegistry.register ViewOnGithubButton,
-      roles: ['message:Toolbar']
+*/
+export function activate() {
+  ComponentRegistry.register(ViewOnGithubButton, {
+    roles: ['message:Toolbar'],
+  });
+}
 
-  deactivate: ->
-    ComponentRegistry.unregister(ViewOnGithubButton)
+export function serialize() {
+  return {};
+}
 
-  serialize: -> @state
+export function deactivate() {
+  ComponentRegistry.unregister(ViewOnGithubButton);
+}
