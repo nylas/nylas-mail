@@ -113,7 +113,7 @@ export default class SpellcheckComposerExtension extends ComposerExtension {
   // Traverses all of the text nodes within the provided `editor`. If it finds a
   // text node with a misspelled word, it splits it, wraps the misspelled word
   // with a <spelling> node and updates the selection to account for the change.
-  static _wrapMisspelledWords = (editor)=> {
+  static _wrapMisspelledWords = (editor) => {
     SpellcheckComposerExtension._whileApplyingSelectionChanges((selectionSnapshot)=> {
       const treeWalker = document.createTreeWalker(editor.rootNode, NodeFilter.SHOW_TEXT);
       const nodeList = [];
@@ -179,14 +179,15 @@ export default class SpellcheckComposerExtension extends ComposerExtension {
     });
   }
 
-  static finalizeSessionBeforeSending = ({session})=> {
+  static finalizeSessionBeforeSending = ({session}) => {
     const body = session.draft().body;
     const clean = body.replace(/<\/?spelling[^>]*>/g, '');
+
     if (body !== clean) {
       return session.changes.add({body: clean});
-    } else {
-      return Promise.resolve();
     }
+
+    return Promise.resolve();
   }
 }
 
