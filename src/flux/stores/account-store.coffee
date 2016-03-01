@@ -101,13 +101,19 @@ class AccountStore extends NylasStore
       console.error("Returned account data is invalid", json)
       console.log JSON.stringify(json)
       throw new Error("Returned account data is invalid")
-    return if @_tokens[json.id]
+
     @_load()
     @_tokens[json.id] = json.auth_token
 
-    account = (new Account).fromJSON(json)
     @_caches = {}
-    @_accounts.push(account)
+    existingIdx = _.findIndex @_accounts, (a) -> a.id is json.id
+    if existingIdx is -1
+      account = (new Account).fromJSON(json)
+      @_accounts.push(account)
+    else
+      account = @_accounts[existingIdx]
+      account.fromJSON(json)
+
     @_save()
 
     @_trigger()
