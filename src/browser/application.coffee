@@ -271,7 +271,8 @@ class Application
       nylasWindow ?= @windowManager.focusedWindow()
       nylasWindow?.browserWindow.inspectElement(x, y)
 
-    @on 'application:add-account', => @windowManager.ensureOnboardingWindow()
+    @on 'application:add-account', (provider) =>
+      @windowManager.ensureOnboardingWindow({provider})
     @on 'application:new-message', => @windowManager.sendToMainWindow('new-message')
     @on 'application:view-help', =>
       url = 'https://nylas.zendesk.com/hc/en-us/sections/203638587-N1'
@@ -389,8 +390,8 @@ class Application
       win = BrowserWindow.fromWebContents(event.sender)
       @applicationMenu.update(win, template, keystrokesByCommand)
 
-    ipcMain.on 'command', (event, command) =>
-      @emit(command)
+    ipcMain.on 'command', (event, command, args...) =>
+      @emit(command, args...)
 
     ipcMain.on 'window-command', (event, command, args...) ->
       win = BrowserWindow.fromWebContents(event.sender)

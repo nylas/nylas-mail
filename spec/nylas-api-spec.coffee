@@ -51,14 +51,14 @@ describe "NylasAPI", ->
       spyOn(Actions, 'postNotification')
       NylasAPI._handleAuthenticationFailure('/threads/1234', 'token')
       expect(Actions.postNotification).toHaveBeenCalled()
-      expect(Actions.postNotification.mostRecentCall.args[0].message.trim()).toEqual("Nylas can no longer authenticate with your mail provider. You will not be able to send or receive mail. Please remove the account and sign in again.")
+      expect(Actions.postNotification.mostRecentCall.args[0].message.trim()).toEqual("Nylas N1 can no longer authenticate with your mail provider. You will not be able to send or receive mail. Please click here to reconnect your account.")
 
     it "should include the email address if possible", ->
       spyOn(AccountStore, 'tokenForAccountId').andReturn('token')
       spyOn(Actions, 'postNotification')
       NylasAPI._handleAuthenticationFailure('/threads/1234', 'token')
       expect(Actions.postNotification).toHaveBeenCalled()
-      expect(Actions.postNotification.mostRecentCall.args[0].message.trim()).toEqual("Nylas can no longer authenticate with #{AccountStore.accounts()[0].emailAddress}. You will not be able to send or receive mail. Please remove the account and sign in again.")
+      expect(Actions.postNotification.mostRecentCall.args[0].message.trim()).toEqual("Nylas N1 can no longer authenticate with #{AccountStore.accounts()[0].emailAddress}. You will not be able to send or receive mail. Please click here to reconnect your account.")
 
   describe "handleModelResponse", ->
     beforeEach ->
