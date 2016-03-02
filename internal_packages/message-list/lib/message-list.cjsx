@@ -17,7 +17,7 @@ MessageItemContainer = require './message-item-container'
 
 {Spinner,
  RetinaImg,
- MailLabel,
+ MailLabelSet,
  ScrollRegion,
  MailImportantIcon,
  InjectedComponent,
@@ -218,7 +218,7 @@ class MessageList extends React.Component
       <MailImportantIcon thread={@state.currentThread}/>
       <div style={flex: 1}>
         <span className="message-subject">{subject}</span>
-        {@_renderLabels()}
+        <MailLabelSet thread={@state.currentThread} includeCurrentCategories={true} />
       </div>
       {@_renderIcons()}
     </div>
@@ -242,14 +242,6 @@ class MessageList extends React.Component
       <div onClick={@_onToggleAllMessagesExpanded}>
         <RetinaImg name={"collapse.png"} title={"Collapse All"} mode={RetinaImg.Mode.ContentIsMask}/>
       </div>
-
-  _renderLabels: =>
-    account = AccountStore.accountForId(@state.currentThread.accountId)
-    return false unless account.usesLabels()
-    labels = @state.currentThread.sortedCategories()
-    labels = _.reject labels, (l) -> l.name is 'important'
-    labels.map (label) =>
-      <MailLabel label={label} key={label.id} onRemove={ => @_onRemoveLabel(label) }/>
 
   _renderReplyArea: =>
     <div className="footer-reply-area-wrap" onClick={@_onClickReplyArea} key='reply-area'>
@@ -279,10 +271,6 @@ class MessageList extends React.Component
   _onPrintThread: =>
     node = React.findDOMNode(@)
     Actions.printThread(@state.currentThread, node.innerHTML)
-
-  _onRemoveLabel: (label) =>
-    task = new ChangeLabelsTask(thread: @state.currentThread, labelsToRemove: [label])
-    Actions.queueTask(task)
 
   _onClickReplyArea: =>
     return unless @state.currentThread

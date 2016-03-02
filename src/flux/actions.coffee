@@ -264,6 +264,12 @@ class Actions
   @toggleMessageIdExpanded: ActionScopeWindow
 
   ###
+  Public: Toggle whether messages from trash and spam are shown in the current
+  message view.
+  ###
+  @toggleHiddenMessages: ActionScopeWindow
+
+  ###
   Public: This action toggles wether to collapse or expand all messages in a
   thread depending on if there are currently collapsed messages.
 

@@ -37,7 +37,6 @@ describe 'MailboxPerspective', ->
       @perspective = MailboxPerspective.forCategories(@categories)
 
     describe 'canReceiveThreads', ->
-
       it 'returns true if the thread account ids are included in the current account ids', ->
         expect(@perspective.canReceiveThreads(['a2'])).toBe true
 
@@ -51,6 +50,22 @@ describe 'MailboxPerspective', ->
           new Category(name: 'sent', displayName: 'c4', accountId: 'a1')
         )
         expect(@perspective.canReceiveThreads(['a2'])).toBe false
+
+    describe 'categoriesSharedName', ->
+      it "returns the name if all the categories on the perspective have the same name", ->
+        expect(MailboxPerspective.forCategories([
+          new Category(name: 'c1', accountId: 'a1')
+          new Category(name: 'c1', accountId: 'a2')
+        ]).categoriesSharedName()).toEqual('c1')
+
+      it "returns null if there are no categories", ->
+        expect(MailboxPerspective.forStarred(['a1', 'a2']).categoriesSharedName()).toEqual(null)
+
+      it "returns null if the categories have different names", ->
+        expect(MailboxPerspective.forCategories([
+          new Category(name: 'c1', accountId: 'a1')
+          new Category(name: 'c2', accountId: 'a2')
+        ]).categoriesSharedName()).toEqual(null)
 
     describe 'receiveThreads', ->
       # TODO
