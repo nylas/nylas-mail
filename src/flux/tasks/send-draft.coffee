@@ -188,7 +188,6 @@ class SendDraftTask extends Task
       Promise.resolve()
 
   _onSuccess: =>
-
     # Delete attachments from the uploads folder
     for upload in @uploaded
       Actions.attachmentUploaded(upload)
