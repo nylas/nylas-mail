@@ -18,6 +18,12 @@ class AccountChoosePage extends React.Component
   componentWillUnmount: ->
     @_usub?()
 
+  componentDidMount: ->
+    if @props.pageData.provider
+      providerData = _.findWhere(Providers, name: @props.pageData.provider)
+      if providerData
+        @_onChooseProvider(providerData)
+
   render: =>
     <div className="page account-choose">
       <div className="quit" onClick={ -> OnboardingActions.closeWindow() }>
