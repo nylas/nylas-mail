@@ -31,7 +31,7 @@ class Scrollbar extends React.Component
 
   componentDidMount: ->
     if @props.scrollbarTickProvider?.listen
-      @_tickUnsub = @props.scrollbarTickProvider.listen(@_onTickProvider)
+      @_tickUnsub = @props.scrollbarTickProvider.listen(@_onTickProviderChange)
 
   shouldComponentUpdate: (nextProps, nextState) =>
     not Utils.isEqualReact(nextProps, @props) or
@@ -69,7 +69,7 @@ class Scrollbar extends React.Component
       @props.getScrollRegion()._recomputeDimensions(options)
     @_recomputeDimensions(options)
 
-  _onTickProvider: =>
+  _onTickProviderChange: =>
     if not @props.scrollbarTickProvider?.scrollbarTicks
       throw new Error("The scrollbarTickProvider must implement `scrollbarTicks`")
     @setState scrollbarTicks: @props.scrollbarTickProvider.scrollbarTicks()

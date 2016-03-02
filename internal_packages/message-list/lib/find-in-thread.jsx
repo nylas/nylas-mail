@@ -61,7 +61,9 @@ export default class FindInThread extends React.Component {
     return ""
   }
 
-  _navEnabled() { return this.state.resultsLength > 0 }
+  _navEnabled() {
+    return this.state.resultsLength > 0;
+  }
 
   _onPrevResult = () => {
     if (this._navEnabled()) { Actions.previousSearchResult() }

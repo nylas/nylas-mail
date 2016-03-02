@@ -23,15 +23,12 @@ class SearchableComponentStore extends NylasStore {
     this.listenTo(Actions.previousSearchResult, this._previousSearchResult)
   }
 
-  /**
-   * The searchIndex
-   */
   getCurrentRegionIndex(regionId) {
-    let searchIndex = null;
+    let regionOffset = null;
     if (regionId && this.currentMatch && this.currentMatch.node.getAttribute('data-region-id') === regionId) {
-      searchIndex = +this.currentMatch.node.getAttribute('data-render-index')
+      regionOffset = +this.currentMatch.node.getAttribute('data-render-index')
     }
-    return searchIndex
+    return regionOffset
   }
 
   getCurrentSearchData() {
