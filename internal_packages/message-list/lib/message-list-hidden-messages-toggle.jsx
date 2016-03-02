@@ -31,7 +31,7 @@ export default class MessageListHiddenMessagesToggle extends React.Component {
   render() {
     const {numberOfHiddenItems} = this.state;
     if (numberOfHiddenItems === 0) {
-      return false;
+      return (<span />);
     }
 
 
