@@ -3,7 +3,7 @@ Actions = require '../actions'
 DatabaseStore = require './database-store'
 
 {Listener, Publisher} = require '../modules/reflux-coffee'
-SyncbackDraftTask = require '../tasks/syncback-draft'
+SyncbackDraftTask = require '../tasks/syncback-draft-task'
 CoffeeHelpers = require '../coffee-helpers'
 
 _ = require 'underscore'

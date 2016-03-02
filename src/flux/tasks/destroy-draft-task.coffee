@@ -5,8 +5,8 @@ DatabaseStore = require '../stores/database-store'
 Actions = require '../actions'
 NylasAPI = require '../nylas-api'
 
-SyncbackDraftTask = require './syncback-draft'
-SendDraftTask = require './send-draft'
+SyncbackDraftTask = require './syncback-draft-task'
+SendDraftTask = require './send-draft-task'
 
 module.exports =
 class DestroyDraftTask extends Task

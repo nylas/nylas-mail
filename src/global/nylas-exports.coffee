@@ -92,16 +92,16 @@ class NylasExports
   # Tasks
   # These need to be required immediately to populate the TaskRegistry so
   # we know how to deserialized saved or IPC-sent tasks.
-  @require "EventRSVPTask", 'flux/tasks/event-rsvp'
-  @require "SendDraftTask", 'flux/tasks/send-draft'
-  @require "DestroyDraftTask", 'flux/tasks/destroy-draft'
+  @require "EventRSVPTask", 'flux/tasks/event-rsvp-task'
+  @require "SendDraftTask", 'flux/tasks/send-draft-task'
+  @require "DestroyDraftTask", 'flux/tasks/destroy-draft-task'
   @require "ChangeMailTask", 'flux/tasks/change-mail-task'
   @require "ChangeLabelsTask", 'flux/tasks/change-labels-task'
   @require "ChangeFolderTask", 'flux/tasks/change-folder-task'
   @require "SyncbackCategoryTask", 'flux/tasks/syncback-category-task'
   @require "DestroyCategoryTask", 'flux/tasks/destroy-category-task'
   @require "ChangeUnreadTask", 'flux/tasks/change-unread-task'
-  @require "SyncbackDraftTask", 'flux/tasks/syncback-draft'
+  @require "SyncbackDraftTask", 'flux/tasks/syncback-draft-task'
   @require "ChangeStarredTask", 'flux/tasks/change-starred-task'
   @require "DestroyModelTask", 'flux/tasks/destroy-model-task'
   @require "SyncbackModelTask", 'flux/tasks/syncback-model-task'
