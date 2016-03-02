@@ -1,4 +1,5 @@
 _ = require 'underscore'
+fs = require 'fs'
 {APIError,
  Actions,
  DatabaseStore,
@@ -18,7 +19,7 @@ describe "SendDraftTask", ->
 
   describe "isDependentTask", ->
     it "is not dependent on any pending SyncbackDraftTasks", ->
-      @draftA = new Message
+      draftA = new Message
         version: '1'
         clientId: 'localid-A'
         serverId: '1233123AEDF1'
@@ -29,29 +30,41 @@ describe "SendDraftTask", ->
           name: 'Dummy'
           email: 'dummy@nylas.com'
 
-      @saveA = new SyncbackDraftTask(@draftA, [])
-      @sendA = new SendDraftTask(@draftA, [])
+      saveA = new SyncbackDraftTask(draftA, [])
+      sendA = new SendDraftTask(draftA, [])
 
-      expect(@sendA.isDependentTask(@saveA)).toBe(false)
+      expect(sendA.isDependentTask(saveA)).toBe(false)
 
   describe "performLocal", ->
-    it "throws an error if we we don't pass a draft", ->
+    it "rejects if we we don't pass a draft", ->
       badTask = new SendDraftTask()
-      badTask.performLocal()
-        .then ->
-          throw new Error("Shouldn't succeed")
-        .catch (err) ->
-          expect(err.message).toBe "SendDraftTask - must be provided a draft."
+      badTask.performLocal().then ->
+        throw new Error("Shouldn't succeed")
+      .catch (err) ->
+        expect(err.message).toBe "SendDraftTask - must be provided a draft."
 
-    it "throws an error if we we don't pass uploads", ->
-      message = new Message()
+    it "rejects if we we don't pass uploads", ->
+      message = new Message(from: [new Contact(email: TEST_ACCOUNT_EMAIL)])
       message.uploads = null
       badTask = new SendDraftTask(message)
-      badTask.performLocal()
-        .then ->
-          throw new Error("Shouldn't succeed")
-        .catch (err) ->
-          expect(err.message).toBe "SendDraftTask - must be provided an array of uploads."
+      badTask.performLocal().then ->
+        throw new Error("Shouldn't succeed")
+      .catch (err) ->
+        expect(err.message).toBe "SendDraftTask - must be provided an array of uploads."
+
+    it "rejects if no from address is specified", ->
+      badTask = new SendDraftTask(new Message(from: [], uploads: []))
+      badTask.performLocal().then ->
+        throw new Error("Shouldn't succeed")
+      .catch (err) ->
+        expect(err.message).toBe "SendDraftTask - you must populate `from` before sending."
+
+    it "rejects if the from address does not map to any account", ->
+      badTask = new SendDraftTask(new Message(from: [new Contact(email: 'not-configured@nylas.com')], uploads: null))
+      badTask.performLocal().then ->
+        throw new Error("Shouldn't succeed")
+      .catch (err) ->
+        expect(err.message).toBe "SendDraftTask - you can only send drafts from a configured account."
 
   describe "performRemote", ->
     beforeEach ->
@@ -68,20 +81,35 @@ describe "SendDraftTask", ->
 
       spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
         options.success?(@response)
-        Promise.resolve(@response)
+        return Promise.resolve(@response)
+
       spyOn(DBt, 'unpersistModel').andReturn Promise.resolve()
       spyOn(DBt, 'persistModel').andReturn Promise.resolve()
       spyOn(SoundRegistry, "playSound")
       spyOn(Actions, "postNotification")
       spyOn(Actions, "sendDraftSuccess")
+      spyOn(Actions, "attachmentUploaded")
+      spyOn(fs, 'createReadStream').andReturn "stub"
+
+    # The tests below are invoked twice, once with a new @draft and one with a
+    # persisted @draft.
 
     sharedTests = =>
+      it "should return Task.Status.Success", ->
+        waitsForPromise =>
+          @task.performLocal()
+          @task.performRemote().then (status) ->
+            expect(status).toBe Task.Status.Success
+
       it "makes a send request with the correct data", ->
         waitsForPromise => @task._sendAndCreateMessage().then =>
           expect(NylasAPI.makeRequest).toHaveBeenCalled()
-          reqArgs = NylasAPI.makeRequest.calls[0].args[0]
-          expect(reqArgs.accountId).toBe TEST_ACCOUNT_ID
-          expect(reqArgs.body).toEqual @draft.toJSON()
+          expect(NylasAPI.makeRequest.callCount).toBe(1)
+          options = NylasAPI.makeRequest.mostRecentCall.args[0]
+          expect(options.path).toBe("/send")
+          expect(options.method).toBe('POST')
+          expect(options.accountId).toBe TEST_ACCOUNT_ID
+          expect(options.body).toEqual @draft.toJSON()
 
       it "should pass returnsModel:false", ->
         waitsForPromise => @task._sendAndCreateMessage().then ->
@@ -96,20 +124,28 @@ describe "SendDraftTask", ->
             options = NylasAPI.makeRequest.mostRecentCall.args[0]
             expect(options.body.body).toBe('hello world')
 
-      it "should start an API request to /send", -> waitsForPromise =>
-        @task._sendAndCreateMessage().then =>
-          expect(NylasAPI.makeRequest.calls.length).toBe(1)
-          options = NylasAPI.makeRequest.mostRecentCall.args[0]
-          expect(options.path).toBe("/send")
-          expect(options.method).toBe('POST')
+      describe "saving the sent message", ->
+        it "should preserve the draft client id", ->
+          waitsForPromise =>
+            @task._sendAndCreateMessage().then =>
+              expect(DBt.persistModel).toHaveBeenCalled()
+              model = DBt.persistModel.mostRecentCall.args[0]
+              expect(model.clientId).toEqual(@draft.clientId)
+              expect(model.serverId).toEqual(@response.id)
+              expect(model.draft).toEqual(false)
 
-      it "should write the saved message to the database with the same client ID", ->
-        waitsForPromise =>
-          @task._sendAndCreateMessage().then =>
-            expect(DBt.persistModel).toHaveBeenCalled()
-            expect(DBt.persistModel.mostRecentCall.args[0].clientId).toEqual(@draft.clientId)
-            expect(DBt.persistModel.mostRecentCall.args[0].serverId).toEqual(@response.id)
-            expect(DBt.persistModel.mostRecentCall.args[0].draft).toEqual(false)
+        it "should preserve metadata, but not version numbers", ->
+          waitsForPromise =>
+            @task._sendAndCreateMessage().then =>
+              expect(DBt.persistModel).toHaveBeenCalled()
+              model = DBt.persistModel.mostRecentCall.args[0]
+
+              expect(model.pluginMetadata.length).toEqual(@draft.pluginMetadata.length)
+
+              for {pluginId, value, version} in @draft.pluginMetadata
+                updated = model.metadataObjectForPluginId(pluginId)
+                expect(updated.value).toEqual(value)
+                expect(updated.version).toEqual(0)
 
       it "should notify the draft was sent", ->
         waitsForPromise =>
@@ -117,6 +153,17 @@ describe "SendDraftTask", ->
             args = Actions.sendDraftSuccess.calls[0].args[0]
             expect(args.message instanceof Message).toBe(true)
             expect(args.messageClientId).toBe(@draft.clientId)
+
+      it "should queue tasks to sync back the metadata on the new message", ->
+        waitsForPromise =>
+          spyOn(Actions, 'queueTask')
+          @task.performRemote().then =>
+            metadataTasks = Actions.queueTask.calls.map (call) -> call.args[0]
+            expect(metadataTasks.length).toEqual(@draft.pluginMetadata.length)
+            for pluginMetadatum, idx in @draft.pluginMetadata
+              expect(metadataTasks[idx].clientId).toEqual(@draft.clientId)
+              expect(metadataTasks[idx].modelClassName).toEqual('Message')
+              expect(metadataTasks[idx].pluginId).toEqual(pluginMetadatum.pluginId)
 
       it "should play a sound", ->
         spyOn(NylasEnv.config, "get").andReturn true
@@ -338,22 +385,17 @@ describe "SendDraftTask", ->
           draft: true
           body: 'hello world'
           uploads: []
+
+        @draft.applyPluginMetadata('pluginIdA', {tracked: true})
+        @draft.applyPluginMetadata('pluginIdB', {a: true, b: 2})
+        @draft.metadataObjectForPluginId('pluginIdA').version = 2
+
         @task = new SendDraftTask(@draft)
         @calledBody = "ERROR: The body wasn't included!"
         spyOn(DatabaseStore, "findBy").andCallFake =>
           Promise.resolve(@draft)
 
       sharedTests()
-
-      it "can complete a full performRemote", ->
-        waitsForPromise =>
-          @task.performRemote().then (status) ->
-            expect(status).toBe Task.Status.Success
-
-      it "shouldn't attempt to delete a draft", ->
-        waitsForPromise =>
-          @task._deleteRemoteDraft(@draft).then =>
-            expect(NylasAPI.makeRequest).not.toHaveBeenCalled()
 
       it "should locally convert the draft to a message on send", ->
         waitsForPromise =>
@@ -363,6 +405,13 @@ describe "SendDraftTask", ->
             expect(model.clientId).toBe @draft.clientId
             expect(model.serverId).toBe @response.id
             expect(model.draft).toBe false
+
+      describe "deleteRemoteDraft", ->
+        it "should not make an API request", ->
+          waitsForPromise =>
+            @task._deleteRemoteDraft(@draft).then =>
+              expect(NylasAPI.makeRequest).not.toHaveBeenCalled()
+
 
     describe "with an existing persisted draft", ->
       beforeEach ->
@@ -379,43 +428,17 @@ describe "SendDraftTask", ->
             name: 'Dummy'
             email: 'dummy@nylas.com'
           uploads: []
+
+        @draft.applyPluginMetadata('pluginIdA', {tracked: true})
+        @draft.applyPluginMetadata('pluginIdB', {a: true, b: 2})
+        @draft.metadataObjectForPluginId('pluginIdA').version = 2
+
         @task = new SendDraftTask(@draft)
         @calledBody = "ERROR: The body wasn't included!"
         spyOn(DatabaseStore, "findBy").andCallFake =>
           Promise.resolve(@draft)
 
       sharedTests()
-
-      it "can complete a full performRemote", -> waitsForPromise =>
-        @task.performLocal()
-        @task.performRemote().then (status) ->
-          expect(status).toBe Task.Status.Success
-
-      it "should make a request to delete a draft", ->
-        @task.performLocal()
-        waitsForPromise =>
-          @task._deleteRemoteDraft(@draft).then =>
-            expect(NylasAPI.makeRequest).toHaveBeenCalled()
-            expect(NylasAPI.makeRequest.callCount).toBe 1
-            req = NylasAPI.makeRequest.calls[0].args[0]
-            expect(req.path).toBe "/drafts/#{@draft.serverId}"
-            expect(req.accountId).toBe TEST_ACCOUNT_ID
-            expect(req.method).toBe "DELETE"
-            expect(req.returnsModel).toBe false
-
-      it "should continue if the request fails", ->
-        jasmine.unspy(NylasAPI, "makeRequest")
-        spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
-          Promise.reject(new APIError(body: "Boo", statusCode: 500))
-
-        @task.performLocal()
-        waitsForPromise =>
-          @task._deleteRemoteDraft(@draft)
-          .then =>
-            expect(NylasAPI.makeRequest).toHaveBeenCalled()
-            expect(NylasAPI.makeRequest.callCount).toBe 1
-          .catch =>
-            throw new Error("Shouldn't fail the promise")
 
       it "should locally convert the existing draft to a message on send", ->
         expect(@draft.clientId).toBe @draft.clientId
@@ -428,3 +451,129 @@ describe "SendDraftTask", ->
           expect(model.clientId).toBe @draft.clientId
           expect(model.serverId).toBe @response.id
           expect(model.draft).toBe false
+
+      describe "deleteRemoteDraft", ->
+        it "should make an API request to delete the draft", ->
+          @task.performLocal()
+          waitsForPromise =>
+            @task._deleteRemoteDraft(@draft).then =>
+              expect(NylasAPI.makeRequest).toHaveBeenCalled()
+              expect(NylasAPI.makeRequest.callCount).toBe 1
+              req = NylasAPI.makeRequest.calls[0].args[0]
+              expect(req.path).toBe "/drafts/#{@draft.serverId}"
+              expect(req.accountId).toBe TEST_ACCOUNT_ID
+              expect(req.method).toBe "DELETE"
+              expect(req.returnsModel).toBe false
+
+        it "should continue if the request fails", ->
+          jasmine.unspy(NylasAPI, "makeRequest")
+          spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
+            Promise.reject(new APIError(body: "Boo", statusCode: 500))
+
+          @task.performLocal()
+          waitsForPromise =>
+            @task._deleteRemoteDraft(@draft)
+            .then =>
+              expect(NylasAPI.makeRequest).toHaveBeenCalled()
+              expect(NylasAPI.makeRequest.callCount).toBe 1
+            .catch =>
+              throw new Error("Shouldn't fail the promise")
+
+    describe "with uploads", ->
+      beforeEach ->
+        @uploads = [
+          {targetPath: '/test-file-1.png', size: 100},
+          {targetPath: '/test-file-2.png', size: 100}
+        ]
+        @draft = new Message
+          version: 1
+          clientId: 'client-id'
+          accountId: TEST_ACCOUNT_ID
+          from: [new Contact(email: TEST_ACCOUNT_EMAIL)]
+          subject: 'New Draft'
+          draft: true
+          body: 'hello world'
+          uploads: [].concat(@uploads)
+
+        @task = new SendDraftTask(@draft)
+        jasmine.unspy(NylasAPI, 'makeRequest')
+
+        @resolves = []
+        @resolveAll = =>
+          resolve() for resolve in @resolves
+          @resolves = []
+          advanceClock()
+
+        spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
+          response = @response
+
+          if options.path is '/files'
+            response = JSON.stringify([{
+              id: '1234'
+              account_id: TEST_ACCOUNT_ID
+              filename: options.formData.file.options.filename
+            }])
+
+          new Promise (resolve, reject) =>
+            @resolves.push =>
+              options.success?(response)
+              resolve(response)
+
+        spyOn(DatabaseStore, 'findBy').andCallFake =>
+          Promise.resolve(@draft)
+
+      it "should begin file uploads and not hit /send until they complete", ->
+        @task.performRemote()
+        advanceClock()
+
+        # uploads should be queued, but not the send
+        expect(NylasAPI.makeRequest.callCount).toEqual(2)
+        expect(NylasAPI.makeRequest.calls[0].args[0].formData).toEqual({ file : { value : 'stub', options : { filename : 'test-file-1.png' } } })
+        expect(NylasAPI.makeRequest.calls[1].args[0].formData).toEqual({ file : { value : 'stub', options : { filename : 'test-file-2.png' } } })
+
+        # finish all uploads
+        @resolveAll()
+
+        # send should now be queued
+        expect(NylasAPI.makeRequest.callCount).toEqual(3)
+        expect(NylasAPI.makeRequest.calls[2].args[0].path).toEqual('/send')
+
+      it "should convert the uploads to files", ->
+        @task.performRemote()
+        advanceClock()
+        expect(@task.draft.files.length).toEqual(0)
+        expect(@task.draft.uploads.length).toEqual(2)
+        @resolves[0]()
+        advanceClock()
+        expect(@task.draft.files.length).toEqual(1)
+        expect(@task.draft.uploads.length).toEqual(1)
+
+        {filename, accountId, id} = @task.draft.files[0]
+        expect({filename, accountId, id}).toEqual({
+          filename: 'test-file-1.png',
+          accountId: TEST_ACCOUNT_ID,
+          id: '1234'
+        })
+
+      describe "cancel, during attachment upload", ->
+        it "should make the task resolve early, before making the /send call", ->
+          exitStatus = null
+          @task.performRemote().then (status) => exitStatus = status
+          advanceClock()
+          @task.cancel()
+          NylasAPI.makeRequest.reset()
+          @resolveAll()
+          advanceClock()
+          expect(NylasAPI.makeRequest).not.toHaveBeenCalled()
+          expect(exitStatus).toEqual(Task.Status.Continue)
+
+      describe "after the message sends", ->
+        it "should notify the attachments were uploaded (so they can be deleted)", ->
+          @task.performRemote()
+          advanceClock()
+          @resolveAll() # uploads
+          @resolveAll() # send
+          expect(Actions.attachmentUploaded).toHaveBeenCalled()
+          expect(Actions.attachmentUploaded.callCount).toEqual(@uploads.length)
+          for upload, idx in @uploads
+            expect(Actions.attachmentUploaded.calls[idx].args[0]).toBe(upload)
