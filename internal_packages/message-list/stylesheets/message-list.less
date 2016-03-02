@@ -120,6 +120,15 @@ body.platform-win32 {
   padding: 0;
   order: 2;
 
+  search-match, .search-match {
+    background: @text-color-search-match;
+    border-radius: @border-radius-base;
+    box-shadow: 0 0.5px 0.5px rgba(0,0,0,0.25);
+    &.current-match {
+      background: @text-color-search-current-match;
+    }
+  }
+
   .show-hidden-messages {
     background-color: darken(@background-secondary, 4%);
     border: 1px solid darken(@background-secondary, 8%);

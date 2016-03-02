@@ -12,7 +12,8 @@ class EmailFrame extends React.Component
     content: React.PropTypes.string.isRequired
 
   render: =>
-    <EventedIFrame ref="iframe" seamless="seamless" onResize={@_setFrameHeight}/>
+    <EventedIFrame ref="iframe" seamless="seamless" searchable={true}
+      onResize={@_setFrameHeight}/>
 
   componentDidMount: =>
     @_mounted = true

@@ -66,6 +66,10 @@
   'cmdctrl-8': 'application:select-account-7'
   'cmdctrl-9': 'application:select-account-8'
 
+  'cmdctrl-f': 'application:find-in-thread'
+  'cmdctrl-g': 'application:find-in-thread-next'
+  'cmdctrl-shift-g': 'application:find-in-thread-previous'
+
 'body *[contenteditable].contenteditable':
   ### Basic formatting commands ###
   'cmdctrl-u': 'contenteditable:underline'
