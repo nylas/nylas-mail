@@ -129,9 +129,9 @@ class NylasAPI
 
     if NylasEnv.isMainWindow()
       Actions.notificationActionTaken.listen ({notification, action}) ->
-        if action.id is '401:unlink'
-          Actions.switchPreferencesTab('Accounts')
-          Actions.openPreferences()
+        if action.id is '401:reconnect'
+          ipc = require('electron').ipcRenderer
+          ipc.send('command', 'application:add-account', action.provider)
 
   _onConfigChanged: =>
     prev = {@AppID, @APIRoot, @APITokens}
@@ -245,15 +245,16 @@ class NylasAPI
       type: 'error'
       tag: '401'
       sticky: true
-      message: "Nylas can no longer authenticate with #{email}. You
-                will not be able to send or receive mail. Please remove the
-                account and sign in again.",
+      message: "Nylas N1 can no longer authenticate with #{email}. You
+                will not be able to send or receive mail. Please click
+                here to reconnect your account.",
       icon: 'fa-sign-out'
       actions: [{
         default: true
         dismisses: true
-        label: 'Unlink'
-        id: '401:unlink'
+        label: 'Reconnect'
+        provider: account?.provider ? ""
+        id: '401:reconnect'
       }]
 
     return Promise.resolve()
