@@ -15,7 +15,7 @@ export default class MailLabelSet extends React.Component {
 
   static propTypes = {
     thread: React.PropTypes.object.isRequired,
-    includeCurrentCategories: React.PropTypes.boolean,
+    includeCurrentCategories: React.PropTypes.bool,
   };
 
   _onRemoveLabel(label) {
@@ -56,13 +56,14 @@ export default class MailLabelSet extends React.Component {
         labels.push(LabelComponentCache[label.id]);
       }
     }
-    return (<InjectedComponentSet
-      inline
-      containersRequired={false}
-      children={labels}
-      matching={{role: "Thread:MailLabel"}}
-      className="thread-injected-mail-labels"
-      exposedProps={{thread: thread}}/>
+    return (
+      <InjectedComponentSet
+        inline
+        containersRequired={false}
+        children={labels}
+        matching={{role: "Thread:MailLabel"}}
+        className="thread-injected-mail-labels"
+        exposedProps={{thread: thread}}/>
     );
   }
 }
