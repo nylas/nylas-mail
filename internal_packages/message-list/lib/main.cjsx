@@ -1,4 +1,5 @@
 MessageList = require "./message-list"
+MessageListHiddenMessagesToggle = require './message-list-hidden-messages-toggle'
 MessageToolbarItems = require "./message-toolbar-items"
 {ComponentRegistry,
  ExtensionRegistry,
@@ -45,6 +46,9 @@ module.exports =
 
     ComponentRegistry.register ThreadToggleUnreadButton,
       role: 'message:Toolbar'
+
+    ComponentRegistry.register MessageListHiddenMessagesToggle,
+      role: 'MessageListHeaders'
 
     ExtensionRegistry.MessageView.register AutolinkerExtension
     ExtensionRegistry.MessageView.register TrackingPixelsExtension

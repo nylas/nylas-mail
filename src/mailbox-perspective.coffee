@@ -81,6 +81,13 @@ class MailboxPerspective
   categories: =>
     []
 
+  categoriesSharedName: =>
+    cats = @categories()
+    return null unless cats and cats.length > 0
+    name = cats[0].name
+    return null unless _.every cats, (cat) -> cat.name is name
+    return name
+
   category: =>
     return null unless @categories().length is 1
     return @categories()[0]
@@ -282,7 +289,7 @@ class CategoryMailboxPerspective extends MailboxPerspective
     @_categories
 
   isInbox: =>
-    @_categories[0].name is 'inbox'
+    @categoriesSharedName() is 'inbox'
 
   canReceiveThreads: =>
     super and not _.any @_categories, (c) -> c.isLockedCategory()

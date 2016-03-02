@@ -44,6 +44,7 @@ class NylasComponentKit
 
   @loadFrom "MailLabel", "mail-label"
   @loadFrom "LabelColorizer", "mail-label"
+  @load "MailLabelSet", "mail-label-set"
   @load "MailImportantIcon", 'mail-important-icon'
 
   @loadFrom "FormItem", "generated-form"

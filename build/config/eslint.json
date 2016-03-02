@@ -17,6 +17,7 @@
     "object-curly-spacing": [0],
     "no-console": [0],
     "no-loop-func": [0],
+    "no-constant-condition": [0],
     "new-cap": [2, {"capIsNew": false}],
     "no-shadow": [1],
     "quotes": [0],
