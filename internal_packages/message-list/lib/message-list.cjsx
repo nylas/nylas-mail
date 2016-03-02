@@ -1,6 +1,7 @@
 _ = require 'underscore'
 React = require 'react'
 classNames = require 'classnames'
+FindInThread = require './find-in-thread'
 MessageItemContainer = require './message-item-container'
 
 {Utils,
@@ -13,7 +14,9 @@ MessageItemContainer = require './message-item-container'
  WorkspaceStore,
  ChangeLabelsTask,
  ComponentRegistry,
- ChangeStarredTask} = require("nylas-exports")
+ ChangeStarredTask,
+ SearchableComponentStore
+ SearchableComponentMaker} = require("nylas-exports")
 
 {Spinner,
  RetinaImg,
@@ -88,7 +91,7 @@ class MessageList extends React.Component
     if newDraftClientIds.length > 0
       @_focusDraft(@_getMessageContainer(newDraftClientIds[0]))
 
-  _keymapHandlers: ->
+  _globalKeymapHandlers: ->
     'application:reply': => @_createReplyOrUpdateExistingDraft('reply')
     'application:reply-all': => @_createReplyOrUpdateExistingDraft('reply-all')
     'application:forward': => @_onForward()
@@ -190,10 +193,12 @@ class MessageList extends React.Component
       "messages-wrap": true
       "ready": not @state.loading
 
-    <KeyCommandsRegion globalHandlers={@_keymapHandlers()}>
+    <KeyCommandsRegion globalHandlers={@_globalKeymapHandlers()}>
+      <FindInThread ref="findInThread" />
       <div className="message-list" id="message-list">
         <ScrollRegion tabIndex="-1"
              className={wrapClass}
+             scrollbarTickProvider={SearchableComponentStore}
              scrollTooltipComponent={MessageListScrollTooltip}
              ref="messageWrap">
           {@_renderSubject()}
@@ -402,4 +407,4 @@ class MessageList extends React.Component
     currentThread: MessageStore.thread()
     loading: MessageStore.itemsLoading()
 
-module.exports = MessageList
+module.exports = SearchableComponentMaker.extend(MessageList)

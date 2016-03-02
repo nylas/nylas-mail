@@ -1,5 +1,9 @@
 React = require 'react'
-{RegExpUtils}= require 'nylas-exports'
+{Utils,
+ RegExpUtils,
+ SearchableComponentMaker,
+ SearchableComponentStore}= require 'nylas-exports'
+IFrameSearcher = require '../searchable-components/iframe-searcher'
 url = require 'url'
 _ = require "underscore"
 
@@ -27,10 +31,25 @@ class EventedIFrame extends React.Component
     <iframe seamless="seamless" {...@props} />
 
   componentDidMount: =>
+    if @props.searchable
+      @_regionId = Utils.generateTempId()
+      @_searchUsub = SearchableComponentStore.listen @_onSearchableStoreChange
+      SearchableComponentStore.registerSearchRegion(@_regionId, React.findDOMNode(this))
     @_subscribeToIFrameEvents()
 
   componentWillUnmount: =>
     @_unsubscribeFromIFrameEvents()
+    if @props.searchable
+      @_searchUsub()
+      SearchableComponentStore.unregisterSearchRegion(@_regionId)
+
+  componentDidUpdate: ->
+    if @props.searchable
+      SearchableComponentStore.registerSearchRegion(@_regionId, React.findDOMNode(this))
+
+  shouldComponentUpdate: (nextProps, nextState) =>
+    not Utils.isEqualReact(nextProps, @props) or
+    not Utils.isEqualReact(nextState, @state)
 
   ###
   Public: Call this method if you replace the contents of the iframe's document.
@@ -39,6 +58,17 @@ class EventedIFrame extends React.Component
   documentWasReplaced: =>
     @_unsubscribeFromIFrameEvents()
     @_subscribeToIFrameEvents()
+
+  _onSearchableStoreChange: =>
+    return unless @props.searchable
+    node = React.findDOMNode(@)
+    doc = node.contentDocument?.body ? node.contentDocument
+    searchIndex = SearchableComponentStore.getCurrentRegionIndex(@_regionId)
+    {searchTerm} = SearchableComponentStore.getCurrentSearchData()
+    if @lastSearchIndex isnt searchIndex or @lastSearchTerm isnt searchTerm
+      IFrameSearcher.highlightSearchInDocument(@_regionId, searchTerm, doc, searchIndex)
+    @lastSearchIndex = searchIndex
+    @lastSearchTerm = searchTerm
 
   _unsubscribeFromIFrameEvents: =>
     node = React.findDOMNode(@)

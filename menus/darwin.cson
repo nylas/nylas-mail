@@ -44,6 +44,12 @@
       { label: 'Paste', command: 'core:paste' }
       { label: 'Paste and Match Style', command: 'core:paste-and-match-style' }
       { label: 'Select All', command: 'core:select-all' }
+      { type: 'separator' }
+      { label: 'Find', submenu: [
+        { label: 'Find in Thread...', command: 'application:find-in-thread' }
+        { label: 'Find Next', command: 'application:find-in-thread-next' }
+        { label: 'Find Previous', command: 'application:find-in-thread-previous' }
+      ] }
     ]
   }
 
