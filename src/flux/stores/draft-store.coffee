@@ -12,8 +12,8 @@ TaskQueueStatusStore = require './task-queue-status-store'
 FocusedPerspectiveStore = require './focused-perspective-store'
 FocusedContentStore = require './focused-content-store'
 
-SendDraftTask = require '../tasks/send-draft'
-DestroyDraftTask = require '../tasks/destroy-draft'
+SendDraftTask = require '../tasks/send-draft-task'
+DestroyDraftTask = require '../tasks/destroy-draft-task'
 
 InlineStyleTransformer = require '../../services/inline-style-transformer'
 SanitizeTransformer = require '../../services/sanitize-transformer'
