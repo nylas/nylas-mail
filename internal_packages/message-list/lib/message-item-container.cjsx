@@ -24,20 +24,21 @@ class MessageItemContainer extends React.Component
     @state = @_getStateFromStores()
 
   componentWillReceiveProps: (newProps) ->
-    @setState(@_getStateFromStores())
+    @setState(@_getStateFromStores(newProps))
 
   componentDidMount: =>
-    if @props.message?.draft
-      @unlisten = DraftStore.listen @_onSendingStateChanged
+    if @props.message.draft
+      @_unlisten = DraftStore.listen @_onSendingStateChanged
 
   shouldComponentUpdate: (nextProps, nextState) =>
     not Utils.isEqualReact(nextProps, @props) or
     not Utils.isEqualReact(nextState, @state)
 
   componentWillUnmount: =>
-    @unlisten() if @unlisten
+    @_unlisten() if @_unlisten
 
-  focus: => @refs.message.focus?()
+  focus: =>
+    @refs.message.focus?()
 
   render: =>
     if @props.message.draft
@@ -49,25 +50,27 @@ class MessageItemContainer extends React.Component
       @_renderMessage(pending: false)
 
   _renderMessage: ({pending}) =>
-    <MessageItem ref="message"
-                 pending={pending}
-                 thread={@props.thread}
-                 message={@props.message}
-                 className={@_classNames()}
-                 collapsed={@props.collapsed}
-                 isLastMsg={@props.isLastMsg} />
+    <MessageItem
+      ref="message"
+      pending={pending}
+      thread={@props.thread}
+      message={@props.message}
+      className={@_classNames()}
+      collapsed={@props.collapsed}
+      isLastMsg={@props.isLastMsg} />
 
   _renderComposer: =>
-    props =
+    exposedProps =
       mode: "inline"
       draftClientId: @props.message.clientId
       threadId: @props.thread.id
       scrollTo: @props.scrollTo
 
-    <InjectedComponent ref="message"
-                       matching={role: "Composer"}
-                       className={@_classNames()}
-                       exposedProps={props} />
+    <InjectedComponent
+      ref="message"
+      matching={role: "Composer"}
+      className={@_classNames()}
+      exposedProps={exposedProps}/>
 
   _classNames: => classNames
     "draft": @props.message.draft
@@ -77,9 +80,10 @@ class MessageItemContainer extends React.Component
     "before-reply-area": @props.isBeforeReplyArea
 
   _onSendingStateChanged: (draftClientId) =>
-    @setState(@_getStateFromStores()) if draftClientId is @props.message.clientId
+    if draftClientId is @props.message.clientId
+      @setState(@_getStateFromStores())
 
-  _getStateFromStores: ->
-    isSending: DraftStore.isSendingDraft(@props.message.clientId)
+  _getStateFromStores: (props = @props) ->
+    isSending: DraftStore.isSendingDraft(props.message.clientId)
 
 module.exports = MessageItemContainer

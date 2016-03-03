@@ -297,7 +297,7 @@ class MessageList extends React.Component
       isBeforeReplyArea = isLastMsg and hasReplyArea
 
       elements.push(
-        <MessageItemContainer key={idx}
+        <MessageItemContainer key={message.clientId}
                               ref={"message-container-#{message.clientId}"}
                               thread={@state.currentThread}
                               message={message}
