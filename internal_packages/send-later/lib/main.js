@@ -5,7 +5,9 @@ import SendLaterStore from './send-later-store'
 import SendLaterStatus from './send-later-status'
 
 export function activate() {
-  SendLaterStore.activate()
+  this.store = new SendLaterStore()
+
+  this.store.activate()
   ComponentRegistry.register(SendLaterPopover, {role: 'Composer:ActionButton'})
   ComponentRegistry.register(SendLaterStatus, {role: 'DraftList:DraftStatus'})
 }
@@ -13,7 +15,7 @@ export function activate() {
 export function deactivate() {
   ComponentRegistry.unregister(SendLaterPopover)
   ComponentRegistry.unregister(SendLaterStatus)
-  SendLaterStore.deactivate()
+  this.store.deactivate()
 }
 
 export function serialize() {

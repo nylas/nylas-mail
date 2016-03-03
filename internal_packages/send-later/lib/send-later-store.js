@@ -7,9 +7,10 @@ import {PLUGIN_ID, PLUGIN_NAME} from './send-later-constants'
 
 class SendLaterStore extends NylasStore {
 
-  constructor(pluginId = PLUGIN_ID) {
+  constructor(pluginId = PLUGIN_ID, pluginName = PLUGIN_NAME) {
     super()
     this.pluginId = pluginId;
+    this.pluginName = pluginName;
   }
 
   activate() {
@@ -19,19 +20,12 @@ class SendLaterStore extends NylasStore {
     ];
   }
 
-  getScheduledDateForMessage = (message)=> {
-    if (!message) {
-      return null;
-    }
-    const metadata = message.metadataForPluginId(this.pluginId) || {};
-    return metadata.sendLaterDate || null;
-  };
-
   setMetadata = (draftClientId, metadata)=> {
-    DatabaseStore.modelify(Message, [draftClientId]).then((messages)=> {
+    return DatabaseStore.modelify(Message, [draftClientId])
+    .then((messages)=> {
       const {accountId} = messages[0];
 
-      NylasAPI.authPlugin(this.pluginId, PLUGIN_NAME, accountId)
+      return NylasAPI.authPlugin(this.pluginId, this.pluginName, accountId)
       .then(()=> {
         Actions.setMetadata(messages, this.pluginId, metadata);
       })
@@ -42,13 +36,13 @@ class SendLaterStore extends NylasStore {
     });
   };
 
-  recordAction(sendLaterDate, label) {
+  recordAction(sendLaterDate, dateLabel) {
     try {
       if (sendLaterDate) {
         const min = Math.round(((new Date(sendLaterDate)).valueOf() - Date.now()) / 1000 / 60);
         Actions.recordUserEvent("Send Later", {
           sendLaterTime: min,
-          optionLabel: label,
+          optionLabel: dateLabel,
         });
       } else {
         Actions.recordUserEvent("Send Later Cancel");
@@ -58,8 +52,8 @@ class SendLaterStore extends NylasStore {
     }
   }
 
-  onSendLater = (draftClientId, sendLaterDate, label)=> {
-    this.recordAction(sendLaterDate, label)
+  onSendLater = (draftClientId, sendLaterDate, dateLabel)=> {
+    this.recordAction(sendLaterDate, dateLabel)
     this.setMetadata(draftClientId, {sendLaterDate});
   };
 
@@ -73,5 +67,4 @@ class SendLaterStore extends NylasStore {
   };
 }
 
-
-export default new SendLaterStore()
+export default SendLaterStore

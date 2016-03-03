@@ -2,7 +2,8 @@
   "extends": "airbnb",
   "globals": {
     "NylasEnv": false,
-    "$n": false
+    "$n": false,
+    "waitsForPromise": false
   },
   "env": {
     "browser": true,

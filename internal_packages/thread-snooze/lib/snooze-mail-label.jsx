@@ -2,7 +2,7 @@ import _ from 'underscore';
 import React, {Component, PropTypes} from 'react';
 import {RetinaImg, MailLabel} from 'nylas-component-kit';
 import {SNOOZE_CATEGORY_NAME, PLUGIN_ID} from './snooze-constants';
-import {snoozeMessage} from './snooze-utils';
+import {snoozedUntilMessage} from './snooze-utils';
 
 
 class SnoozeMailLabel extends Component {
@@ -21,7 +21,7 @@ class SnoozeMailLabel extends Component {
       if (metadata) {
         // TODO this is such a hack
         const {snoozeDate} = metadata;
-        const message = snoozeMessage(snoozeDate).replace('Snoozed', '')
+        const message = snoozedUntilMessage(snoozeDate).replace('Snoozed', '')
         const content = (
           <span className="snooze-mail-label">
             <RetinaImg

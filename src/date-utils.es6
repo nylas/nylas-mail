@@ -3,6 +3,37 @@ import moment from 'moment'
 import chrono from 'chrono-node'
 import _ from 'underscore'
 
+// Init locale for moment
+moment.locale(navigator.language)
+
+
+const Hours = {
+  Morning: 9,
+  Evening: 20,
+  Midnight: 24,
+}
+
+const Days = {
+  NextMonday: 8,
+  ThisWeekend: 6,
+}
+
+function oclock(momentDate) {
+  return momentDate.minute(0).second(0)
+}
+
+function morning(momentDate, morningHour = Hours.Morning) {
+  return oclock(momentDate.hour(morningHour))
+}
+
+function evening(momentDate, eveningHour = Hours.Evening) {
+  return oclock(momentDate.hour(eveningHour))
+}
+
+function midnight(momentDate, midnightHour = Hours.Midnight) {
+  return oclock(momentDate.hour(midnightHour))
+}
+
 function isPastDate({year, month, day}, ref) {
   const refDay = ref.getDate();
   const refMonth = ref.getMonth() + 1;
@@ -46,33 +77,6 @@ EnforceFutureDate.refine = (text, results)=> {
 
 const chronoFuture = new chrono.Chrono(chrono.options.casualOption());
 chronoFuture.refiners.push(EnforceFutureDate);
-
-const Hours = {
-  Morning: 9,
-  Evening: 20,
-  Midnight: 24,
-}
-
-const Days = {
-  NextMonday: 8,
-  ThisWeekend: 6,
-}
-
-function oclock(momentDate) {
-  return momentDate.minute(0).second(0)
-}
-
-function morning(momentDate, morningHour = Hours.Morning) {
-  return oclock(momentDate.hour(morningHour))
-}
-
-function evening(momentDate, eveningHour = Hours.Evening) {
-  return oclock(momentDate.hour(eveningHour))
-}
-
-function midnight(momentDate, midnightHour = Hours.Midnight) {
-  return oclock(momentDate.hour(midnightHour))
-}
 
 
 const DateUtils = {

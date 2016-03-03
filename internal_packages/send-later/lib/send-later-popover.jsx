@@ -2,10 +2,9 @@
 import Rx from 'rx-lite'
 import React, {Component, PropTypes} from 'react'
 import {DateUtils, Message, DatabaseStore} from 'nylas-exports'
-import {Popover, RetinaImg, Menu} from 'nylas-component-kit'
+import {Popover, RetinaImg, Menu, DateInput} from 'nylas-component-kit'
 import SendLaterActions from './send-later-actions'
-import SendLaterStore from './send-later-store'
-import {DATE_FORMAT_SHORT, DATE_FORMAT_LONG} from './send-later-constants'
+import {DATE_FORMAT_SHORT, DATE_FORMAT_LONG, PLUGIN_ID} from './send-later-constants'
 
 
 const SendLaterOptions = {
@@ -28,7 +27,6 @@ class SendLaterPopover extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      inputDate: null,
       scheduledDate: null,
     }
   }
@@ -36,85 +34,52 @@ class SendLaterPopover extends Component {
   componentDidMount() {
     this._subscription = Rx.Observable.fromQuery(
       DatabaseStore.findBy(Message, {clientId: this.props.draftClientId})
-    ).subscribe((draft)=> {
-      const nextScheduledDate = SendLaterStore.getScheduledDateForMessage(draft);
-
-      if (nextScheduledDate !== this.state.scheduledDate) {
-        const isPopout = (NylasEnv.getWindowType() === "composer");
-        const isFinishedSelecting = ((this.state.scheduledDate === 'saving') && (nextScheduledDate !== null));
-        if (isPopout && isFinishedSelecting) {
-          NylasEnv.close();
-        }
-        this.setState({scheduledDate: nextScheduledDate});
-      }
-    });
+    ).subscribe(this.onMessageChanged);
   }
 
   componentWillUnmount() {
     this._subscription.dispose();
   }
 
-  onSelectMenuOption = (optionKey)=> {
-    const date = SendLaterOptions[optionKey]();
-    this.onSelectDate(date, optionKey);
-  };
+  onMessageChanged = (message)=> {
+    if (!message) return;
+    const messageMetadata = message.metadataForPluginId(PLUGIN_ID) || {}
+    const nextScheduledDate = messageMetadata.sendLaterDate
 
-  onSelectCustomOption = (value)=> {
-    const date = DateUtils.futureDateFromString(value);
-    if (date) {
-      this.onSelectDate(date, "Custom");
-    } else {
-      NylasEnv.showErrorDialog(`Sorry, we can't parse ${value} as a valid date.`);
+    if (nextScheduledDate !== this.state.scheduledDate) {
+      const isComposer = NylasEnv.isComposerWindow()
+      const isFinishedSelecting = ((this.state.scheduledDate === 'saving') && (nextScheduledDate !== null));
+      if (isComposer && isFinishedSelecting) {
+        NylasEnv.close();
+      }
+      this.setState({scheduledDate: nextScheduledDate});
     }
   };
 
-  onSelectDate = (date, label)=> {
-    const formatted = DateUtils.format(date.utc());
-    SendLaterActions.sendLater(this.props.draftClientId, formatted, label);
-    this.setState({scheduledDate: 'saving', inputDate: null});
-    this.refs.popover.close();
+  onSelectMenuOption = (optionKey)=> {
+    const date = SendLaterOptions[optionKey]();
+    this.selectDate(date, optionKey);
+  };
+
+  onSelectCustomOption = (date, inputValue)=> {
+    if (date) {
+      this.selectDate(date, "Custom");
+    } else {
+      NylasEnv.showErrorDialog(`Sorry, we can't parse ${inputValue} as a valid date.`);
+    }
   };
 
   onCancelSendLater = ()=> {
     SendLaterActions.cancelSendLater(this.props.draftClientId);
-    this.setState({inputDate: null});
     this.refs.popover.close();
   };
 
-  renderCustomTimeSection() {
-    const onChange = (event)=> {
-      this.setState({inputDate: DateUtils.futureDateFromString(event.target.value)});
-    }
-
-    const onKeyDown = (event)=> {
-      // we need to swallow these events so they don't reach the menu
-      // containing the text input, but only when you've typed something.
-      const val = event.target.value;
-      if ((val.length > 0) && ["Enter", "Return"].includes(event.key)) {
-        this.onSelectCustomOption(val);
-        event.stopPropagation();
-      }
-    };
-
-    let dateInterpretation = false;
-    if (this.state.inputDate) {
-      dateInterpretation = (<span className="time">
-        {DateUtils.format(this.state.inputDate, DATE_FORMAT_LONG)}
-      </span>);
-    }
-
-    return (
-      <div key="custom" className="custom-time-section">
-        <input
-          tabIndex="1"
-          type="text"
-          placeholder="Or, 'next Monday at 2PM'"
-          onKeyDown={onKeyDown}
-          onChange={onChange}/>
-        {dateInterpretation}
-      </div>
-    )
-  }
+  selectDate = (date, dateLabel)=> {
+    const formatted = DateUtils.format(date.utc());
+    SendLaterActions.sendLater(this.props.draftClientId, formatted, dateLabel);
+    this.setState({scheduledDate: 'saving'});
+    this.refs.popover.close();
+  };
 
   renderMenuOption(optionKey) {
     const date = SendLaterOptions[optionKey]();
@@ -139,7 +104,7 @@ class SendLaterPopover extends Component {
       );
     }
 
-    let dateInterpretation = false;
+    let dateInterpretation;
     if (scheduledDate) {
       className += ' btn-enabled';
       const momentDate = DateUtils.futureDateFromString(scheduledDate);
@@ -163,7 +128,11 @@ class SendLaterPopover extends Component {
     ]
     const footerComponents = [
       <div key="divider" className="divider" />,
-      this.renderCustomTimeSection(),
+      <DateInput
+        key="custom"
+        className="custom-section"
+        dateFormat={DATE_FORMAT_LONG}
+        onSubmitDate={this.onSelectCustomOption} />,
     ];
 
     if (this.state.scheduledDate) {
