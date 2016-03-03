@@ -14,7 +14,6 @@ const {
   snoozedUntilMessage,
   createSnoozeCategory,
   getSnoozeCategory,
-  groupProcessedThreadsByAccountId,
   moveThreads,
 } = SnoozeUtils
 
