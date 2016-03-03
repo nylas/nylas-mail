@@ -404,7 +404,7 @@ DOMUtils =
   # WARNING. This is a fairly expensive operation and should be used
   # sparingly.
   nodeIsVisible: (node) ->
-    while node and node isnt window.document
+    while node and node.nodeType is Node.ELEMENT_NODE
       style = window.getComputedStyle(node)
       node = node.parentNode
       continue unless style?
@@ -412,6 +412,14 @@ DOMUtils =
       if style.opacity is 0 or style.opacity is "0" or style.visibility is "hidden" or style.display is "none"
         return false
     return true
+
+  # This checks for the `offsetParent` to be null. This will work for
+  # hidden elements, but not if they are in a `position:fixed` container.
+  #
+  # It is less thorough then Utils.nodeIsVisible, but is ~16x faster!!
+  # http://jsperf.com/check-hidden
+  # http://stackoverflow.com/a/21696585/793472
+  nodeIsLikelyVisible: (node) -> node.offsetParent isnt null
 
   # Finds all of the non blank node in a {Document} object or HTML string.
   #
@@ -471,7 +479,9 @@ DOMUtils =
     return true if root.childNodes[0] is node
     return DOMUtils.isFirstChild(root.childNodes[0], node)
 
-  commonAncestor: (nodes=[]) ->
+  commonAncestor: (nodes=[], parentFilter) ->
+    return null if nodes.length is 0
+
     nodes = Array::slice.call(nodes)
 
     minDepth = Number.MAX_VALUE
@@ -479,20 +489,23 @@ DOMUtils =
     # nodes. Since we're looking for a common ancestor we can really speed
     # this up by keeping track of the min depth reached. We know that we
     # won't need to check past that.
-    parents = ->
-      nodes = []
+    getParents = (node) ->
+      parentNodes = [node]
       depth = 0
       while node = node.parentNode
-        nodes.unshift(node)
+        if parentFilter
+          parentNodes.unshift(node) if parentFilter(node)
+        else
+          parentNodes.unshift(node)
         depth += 1
         if depth > minDepth then break
       minDepth = Math.min(minDepth, depth)
-      return nodes
+      return parentNodes
 
     # _.intersection will preserve the ordering of the parent node arrays.
     # parents are ordered top to bottom, so the last node is the most
     # specific common ancenstor
-    _.last(_.intersection.apply(null, nodes.map(DOMUtils.parents)))
+    _.last(_.intersection.apply(null, nodes.map(getParents)))
 
   scrollAdjustmentToMakeNodeVisibleInContainer: (node, container) ->
     return unless node

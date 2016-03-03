@@ -133,12 +133,12 @@ describe "ChangeFolderTask", ->
 
       describe "changesToModel", ->
         describe "if the model is a Thread", ->
-          it "returns an object with a folders key, and an array with the folder", ->
-            expect(@task.changesToModel(@thread)).toEqual({folders: [testFolders['f1']]})
+          it "returns an object with a categories key, and an array with the folder", ->
+            expect(@task.changesToModel(@thread)).toEqual({categories: [testFolders['f1']]})
 
         describe "if the model is a Message", ->
-          it "returns an object with a folder key, and the folder", ->
-            expect(@task.changesToModel(@message)).toEqual({folder: testFolders['f1']})
+          it "returns an object with a categories key, and the folder", ->
+            expect(@task.changesToModel(@message)).toEqual({categories: [testFolders['f1']]})
 
       describe "requestBodyForModel", ->
         describe "if the model is a Thread", ->
@@ -149,10 +149,3 @@ describe "ChangeFolderTask", ->
             expect(@task.requestBodyForModel(@thread)).toEqual(folder: 'f1')
             @thread.folders = [testFolders['f2'], testFolders['f1']]
             expect(@task.requestBodyForModel(@thread)).toEqual(folder: 'f2')
-
-        describe "if the model is a Message", ->
-          it "returns folder: <id>, using the message folder", ->
-            @message.folder = null
-            expect(@task.requestBodyForModel(@message)).toEqual(folder: null)
-            @message.folder = testFolders['f1']
-            expect(@task.requestBodyForModel(@message)).toEqual(folder: 'f1')

@@ -81,9 +81,9 @@ class ChangeFolderTask extends ChangeMailTask
 
   changesToModel: (model) ->
     if model instanceof Thread
-      {folders: [@folder]}
+      {categories: [@folder]}
     else
-      {folder: @folder}
+      {categories: [@folder]}
 
   requestBodyForModel: (model) ->
     if model instanceof Thread

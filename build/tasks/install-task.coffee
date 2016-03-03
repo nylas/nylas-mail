@@ -37,9 +37,7 @@ module.exports = (grunt) ->
       iconName = path.join(linuxShareDir, 'resources', 'app', 'nylas.png')
 
       mkdir linuxBinDir
-      # Note that `N1.sh` can't be renamed `nylas.sh` because `apm`
-      # is currently hard-coded to call `N1.sh`
-      cp 'N1.sh', path.join(linuxBinDir, 'nylas')
+      cp path.join('build', 'resources', 'nylas.sh'), path.join(linuxBinDir, 'nylas')
       rm linuxShareDir
       mkdir path.dirname(linuxShareDir)
       cp shellAppDir, linuxShareDir

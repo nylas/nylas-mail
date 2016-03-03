@@ -11,7 +11,7 @@ export function activate() {
   ComponentRegistry.register(ToolbarSnooze, {role: 'message:Toolbar'});
   ComponentRegistry.register(SnoozeQuickActionButton, {role: 'ThreadListQuickAction'});
   ComponentRegistry.register(BulkThreadSnooze, {role: 'thread:BulkAction'});
-  ComponentRegistry.register(SnoozeMailLabel, {role: 'ThreadList:Label'});
+  ComponentRegistry.register(SnoozeMailLabel, {role: 'Thread:MailLabel'});
 }
 
 export function deactivate() {

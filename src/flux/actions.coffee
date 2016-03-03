@@ -264,6 +264,12 @@ class Actions
   @toggleMessageIdExpanded: ActionScopeWindow
 
   ###
+  Public: Toggle whether messages from trash and spam are shown in the current
+  message view.
+  ###
+  @toggleHiddenMessages: ActionScopeWindow
+
+  ###
   Public: This action toggles wether to collapse or expand all messages in a
   thread depending on if there are currently collapsed messages.
 
@@ -509,7 +515,6 @@ class Actions
   @deleteMailRule: ActionScopeWindow
   @disableMailRule: ActionScopeWindow
 
-
   @openPopover: ActionScopeWindow
   @closePopover: ActionScopeWindow
 
@@ -524,6 +529,10 @@ class Actions
   @setMetadata: ActionScopeWindow
 
   @draftParticipantsChanged: ActionScopeWindow
+
+  @findInThread: ActionScopeWindow
+  @nextSearchResult: ActionScopeWindow
+  @previousSearchResult: ActionScopeWindow
 
 # Read the actions we declared on the dummy Actions object above
 # and translate them into Reflux Actions

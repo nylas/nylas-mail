@@ -1,0 +1,57 @@
+@import 'ui-variables';
+
+body.platform-win32 {
+  .find-in-thread {
+  }
+}
+
+.find-in-thread {
+  background: @background-secondary;
+  border-bottom: 1px solid @border-secondary-bg;
+  text-align: right;
+  overflow: hidden;
+
+  height: 0;
+  padding: 0 8px;
+  transition: all 125ms ease-in-out;
+  &.enabled {
+    padding: 4px 8px;
+    height: 35px;
+  }
+
+  .controls-wrap {
+    display: inline-block;
+  }
+
+  .selection-progress {
+    color: @text-color-very-subtle;
+    position: absolute;
+    top: 4px;
+    right: 54px;
+    font-size: 12px;
+  }
+
+  .btn.btn-find-in-thread {
+    border: 0;
+    box-shadow: 0 0 0;
+    border-radius: 0;
+    background: transparent;
+    display: inline-block;
+  }
+  .input-wrap {
+    display: inline-block;
+    position: relative;
+    input {
+      height: 26px;
+      width: 230px;
+      padding-left: 8px;
+      font-size: 12px;
+    }
+    .btn-wrap {
+      width: 54px;
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+  }
+}

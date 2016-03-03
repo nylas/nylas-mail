@@ -130,6 +130,7 @@ class NylasExports
   @require "FocusedContactsStore", 'flux/stores/focused-contacts-store'
   @require "PreferencesUIStore", 'flux/stores/preferences-ui-store'
   @require "PopoverStore", 'flux/stores/popover-store'
+  @require "SearchableComponentStore", 'flux/stores/searchable-component-store'
 
   @require "MessageBodyProcessor", 'flux/stores/message-body-processor'
   @require "MailRulesTemplates", 'mail-rules-templates'
@@ -160,6 +161,7 @@ class NylasExports
   # Utils
   @load "Utils", 'flux/models/utils'
   @load "DOMUtils", 'dom-utils'
+  @load "VirtualDOMUtils", 'virtual-dom-utils'
   @load "CanvasUtils", 'canvas-utils'
   @load "RegExpUtils", 'regexp-utils'
   @load "DateUtils", 'date-utils'
@@ -171,6 +173,8 @@ class NylasExports
   @load "UndoManager", 'undo-manager'
   @load "SoundRegistry", 'sound-registry'
   @load "NativeNotifications", 'native-notifications'
+
+  @load "SearchableComponentMaker", 'searchable-components/searchable-component-maker'
 
   @load "QuotedHTMLTransformer", 'services/quoted-html-transformer'
   @load "QuotedPlainTextTransformer", 'services/quoted-plain-text-transformer'
