@@ -10,7 +10,7 @@ packageVersion = null
 fullVersion = null
 
 module.exports = (grunt) ->
-  {cp, spawn, rm} = require('./task-helpers')(grunt)
+  {cp, shouldPublishBuild, spawn, rm} = require('./task-helpers')(grunt)
 
   appName = -> grunt.config.get('nylasGruntConfig.appName')
   dmgName = -> "#{appName().split('.')[0]}.dmg"
@@ -125,6 +125,8 @@ module.exports = (grunt) ->
         uploadToS3(buildZipFilename, key).then(resolve).catch(reject)
 
   grunt.registerTask "publish-nylas-build", "Publish Nylas build", ->
+    return unless shouldPublishBuild()
+
     awsKey = process.env.AWS_ACCESS_KEY_ID ? ""
     awsSecret = process.env.AWS_SECRET_ACCESS_KEY ? ""
 
