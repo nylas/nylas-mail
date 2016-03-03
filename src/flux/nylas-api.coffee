@@ -18,7 +18,7 @@ SampleTemporaryErrorCode = 504
 # This is lazy-loaded
 AccountStore = null
 
-class NylasAPIOptimisticChangeTracker
+class NylasAPIChangeLockTracker
   constructor: ->
     @_locks = {}
 
@@ -122,7 +122,7 @@ class NylasAPI
 
   constructor: ->
     @_workers = []
-    @_optimisticChangeTracker = new NylasAPIOptimisticChangeTracker()
+    @_lockTracker = new NylasAPIChangeLockTracker()
 
     NylasEnv.config.onDidChange('env', @_onConfigChanged)
     @_onConfigChanged()
@@ -282,10 +282,11 @@ class NylasAPI
     if uniquedJSONs.length < jsons.length
       console.warn("NylasAPI.handleModelResponse: called with non-unique object set. Maybe an API request returned the same object more than once?")
 
-    # Step 2: Filter out any objects locked by the optimistic change tracker.
+    # Step 2: Filter out any objects we've locked (usually because we successfully)
+    # deleted them moments ago.
     unlockedJSONs = _.filter uniquedJSONs, (json) =>
-      if @_optimisticChangeTracker.acceptRemoteChangesTo(klass, json.id) is false
-        json._delta?.ignoredBecause = "This model is locked by the optimistic change tracker"
+      if @_lockTracker.acceptRemoteChangesTo(klass, json.id) is false
+        json._delta?.ignoredBecause = "Model is locked, possibly because it's already been deleted."
         return false
       return true
 
@@ -362,11 +363,11 @@ class NylasAPI
       qs: params
       returnsModel: true
 
-  incrementOptimisticChangeCount: (klass, id) ->
-    @_optimisticChangeTracker.increment(klass, id)
+  incrementRemoteChangeLock: (klass, id) ->
+    @_lockTracker.increment(klass, id)
 
-  decrementOptimisticChangeCount: (klass, id) ->
-    @_optimisticChangeTracker.decrement(klass, id)
+  decrementRemoteChangeLock: (klass, id) ->
+    @_lockTracker.decrement(klass, id)
 
   accessTokenForAccountId: (aid) ->
     AccountStore ?= require './stores/account-store'

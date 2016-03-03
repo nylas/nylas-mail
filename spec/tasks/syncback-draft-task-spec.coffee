@@ -42,6 +42,8 @@ describe "SyncbackDraftTask", ->
       else if clientId is "missingDraftId" then Promise.resolve()
       else return Promise.resolve()
 
+    spyOn(NylasAPI, 'incrementRemoteChangeLock')
+    spyOn(NylasAPI, 'decrementRemoteChangeLock')
     spyOn(DatabaseTransaction.prototype, "persistModel").andReturn Promise.resolve()
 
   describe "queueing multiple tasks", ->
@@ -202,6 +204,11 @@ describe "SyncbackDraftTask", ->
             params = NylasAPI.makeRequest.mostRecentCall.args[0]
             expect(params.method).toEqual "DELETE"
             expect(params.path).toEqual "/drafts/#{@serverId}"
+
+      it "should increment the change tracker for the deleted serverId, preventing any further deltas about the draft", ->
+        waitsForPromise =>
+          @task.checkDraftFromMatchesAccount(@draft).then =>
+            expect(NylasAPI.incrementRemoteChangeLock).toHaveBeenCalledWith(Message, 'remote123')
 
       it "should change the accountId and clear server fields", ->
         waitsForPromise =>

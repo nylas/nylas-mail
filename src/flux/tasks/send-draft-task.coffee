@@ -176,6 +176,7 @@ class SendDraftTask extends Task
   #
   _deleteRemoteDraft: ({accountId, version, serverId}) =>
     return Promise.resolve() unless serverId
+    NylasAPI.incrementRemoteChangeLock(Message, serverId)
     NylasAPI.makeRequest
       path: "/drafts/#{serverId}"
       accountId: accountId
@@ -185,6 +186,9 @@ class SendDraftTask extends Task
     .catch APIError, (err) =>
       # If the draft failed to delete remotely, we don't really care. It
       # shouldn't stop the send draft task from continuing.
+
+      # Deliberately do not decrement the change count so that deltas about
+      # this (deleted) draft are ignored.
       Promise.resolve()
 
   _onSuccess: =>

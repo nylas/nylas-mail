@@ -103,6 +103,7 @@ class SyncbackDraftTask extends Task
       return Promise.resolve(draft)
     else
       if draft.serverId
+        NylasAPI.incrementRemoteChangeLock(Message, draft.serverId)
         NylasAPI.makeRequest
           path: "/drafts/#{draft.serverId}"
           accountId: draft.accountId

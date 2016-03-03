@@ -277,11 +277,11 @@ class ChangeMailTask extends Task
     for item in @objectArray()
       @_locked[item.id] ?= 0
       @_locked[item.id] += 1
-      NylasAPI.incrementOptimisticChangeCount(klass, item.id)
+      NylasAPI.incrementRemoteChangeLock(klass, item.id)
 
   _removeLock: (item) ->
     klass = @objectClass()
-    NylasAPI.decrementOptimisticChangeCount(klass, item.id)
+    NylasAPI.decrementRemoteChangeLock(klass, item.id)
     @_locked[item.id] -= 1
 
   _ensureLocksRemoved: ->
@@ -289,7 +289,7 @@ class ChangeMailTask extends Task
     return unless @_locked
     for id, count of @_locked
       while count > 0
-        NylasAPI.decrementOptimisticChangeCount(klass, id)
+        NylasAPI.decrementRemoteChangeLock(klass, id)
         count -= 1
     @_locked = null
 

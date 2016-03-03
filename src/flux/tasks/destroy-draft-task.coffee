@@ -46,6 +46,7 @@ class DestroyDraftTask extends Task
       err = new Error("Can't destroy draft without a version or serverId")
       return Promise.resolve([Task.Status.Failed, err])
 
+    NylasAPI.incrementRemoteChangeLock(Message, @draft.serverId)
     NylasAPI.makeRequest
       path: "/drafts/#{@draft.serverId}"
       accountId: @draft.accountId
@@ -54,8 +55,12 @@ class DestroyDraftTask extends Task
         version: @draft.version
       returnsModel: false
     .then =>
+      # We deliberately do not decrement the change count, ensuring no deltas
+      # about this object are received that could restore it.
       return Promise.resolve(Task.Status.Success)
     .catch APIError, (err) =>
+      NylasAPI.decrementRemoteChangeLock(Message, @draft.serverId)
+
       inboxMsg = err.body?.message ? ""
 
       # Draft has already been deleted, this is not really an error
