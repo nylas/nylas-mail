@@ -17,7 +17,7 @@ class EdgehillAPI
 
   _onConfigChanged: =>
     env = NylasEnv.config.get('env')
-    if env is 'development'
+    if env in ['development', 'local']
       @APIRoot = "http://localhost:5009"
     else if env is 'experimental'
       @APIRoot = "https://edgehill-experimental.nylas.com"
