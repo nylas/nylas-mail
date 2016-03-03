@@ -82,7 +82,8 @@ describe "SendDraftTask", ->
       spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
         options.success?(@response)
         return Promise.resolve(@response)
-
+      spyOn(NylasAPI, 'incrementRemoteChangeLock')
+      spyOn(NylasAPI, 'decrementRemoteChangeLock')
       spyOn(DBt, 'unpersistModel').andReturn Promise.resolve()
       spyOn(DBt, 'persistModel').andReturn Promise.resolve()
       spyOn(SoundRegistry, "playSound")
@@ -464,6 +465,12 @@ describe "SendDraftTask", ->
               expect(req.accountId).toBe TEST_ACCOUNT_ID
               expect(req.method).toBe "DELETE"
               expect(req.returnsModel).toBe false
+
+        it "should increment the change tracker, preventing any further deltas about the draft", ->
+          @task.performLocal()
+          waitsForPromise =>
+            @task._deleteRemoteDraft(@draft).then =>
+              expect(NylasAPI.incrementRemoteChangeLock).toHaveBeenCalledWith(Message, @draft.serverId)
 
         it "should continue if the request fails", ->
           jasmine.unspy(NylasAPI, "makeRequest")

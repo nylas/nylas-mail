@@ -121,13 +121,13 @@ describe "NylasAPI", ->
             expect(models[0].id).toBe 'a'
             expect(models[1].id).toBe 'b'
 
-    describe "when locked by the optimistic change tracker", ->
+    describe "when items in the JSON are locked and we are not accepting changes to them", ->
       it "should remove locked models from the set", ->
         json = [
           {id: 'a', object: 'thread'}
           {id: 'b', object: 'thread'}
         ]
-        spyOn(NylasAPI._optimisticChangeTracker, "acceptRemoteChangesTo").andCallFake (klass, id) ->
+        spyOn(NylasAPI._lockTracker, "acceptRemoteChangesTo").andCallFake (klass, id) ->
           if id is "a" then return false
 
         stubDB models: [new Thread(json[1])], testMatcher: (whereMatcher) ->
