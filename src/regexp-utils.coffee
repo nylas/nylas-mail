@@ -26,13 +26,25 @@ RegExpUtils =
   urlRegex: -> new RegExp(/^\b((?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))$/)
 
   # Test cases: https://regex101.com/r/jD5zC7/2
-  # Retruns the following capturing groups:
+  # Returns the following capturing groups:
   # 1. start of the opening a tag to href="
   # 2. The contents of the href without quotes
   # 3. the rest of the opening a tag
   # 4. the contents of the a tag
   # 5. the closing tag
   linkTagRegex: -> new RegExp(/(<a.*?href\s*?=\s*?['"])(.*?)(['"].*?>)([\s\S]*?)(<\/a>)/gim)
+
+  # Test cases: https://regex101.com/r/cK0zD8/3
+  # Catches link tags containing which are:
+  # - Non empty
+  # - Not a mailto: link
+  # Returns the following capturing groups:
+  # 1. start of the opening a tag to href="
+  # 2. The contents of the href without quotes
+  # 3. the rest of the opening a tag
+  # 4. the contents of the a tag
+  # 5. the closing tag
+  urlLinkTagRegex: -> new RegExp(/(<a.*?href\s*?=\s*?['"])((?!mailto).+)(['"].*?>)([\s\S]*?)(<\/a>)/gim)
 
   # https://regex101.com/r/zG7aW4/3
   imageTagRegex: -> /<img\s+[^>]*src="([^"]*)"[^>]*>/g
