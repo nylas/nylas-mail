@@ -38,7 +38,7 @@ class PhishingIndicator extends React.Component {
         return (
           <div className="phishingIndicator">
             <b>This message looks suspicious!</b>
-            <p>It originates from {from} but replies will go to {replyTo}.</p>
+            <div>{`It originates from ${from} but replies will go to ${replyTo}.`}</div>
           </div>
         );
       }
