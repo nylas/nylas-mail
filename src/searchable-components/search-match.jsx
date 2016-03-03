@@ -1,5 +1,4 @@
 import React from 'react'
-import {Utils} from 'nylas-exports'
 
 export default class SearchMatch extends React.Component {
   static displayName = "SearchMatch";
