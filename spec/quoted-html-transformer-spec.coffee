@@ -19,7 +19,7 @@ describe "QuotedHTMLTransformer", ->
     re = new RegExp(QuotedHTMLTransformer.annotationClass, 'g')
     html.match(re)?.length ? 0
 
-  [1..17].forEach (n) ->
+  [1..18].forEach (n) ->
     it "properly parses email_#{n}", ->
       opts = keepIfWholeBodyIsQuote: true
       expect(removeQuotedHTML("email_#{n}.html", opts)).toEqual readFile("email_#{n}_stripped.html")
@@ -347,7 +347,7 @@ describe "QuotedHTMLTransformer", ->
   # `QuotedHTMLTransformer` needs Electron booted up in order to work because
   # of the DOMParser.
   xit "Run this simple funciton to generate output files", ->
-    [17].forEach (n) ->
+    [18].forEach (n) ->
       newHTML = QuotedHTMLTransformer.removeQuotedHTML(readFile("email_#{n}.html"))
       outPath = path.resolve(__dirname, 'fixtures', 'emails', "email_#{n}_raw_stripped.html")
       fs.writeFileSync(outPath, newHTML)
