@@ -15,18 +15,34 @@ class PhishingIndicator extends React.Component {
   // Adding a displayName to a React component helps for debugging.
   static displayName = 'PhishingIndicator';
 
-  // @propTypes is an object which validates the datatypes of properties that
-  // this React component can receive.
-  static propTypes = {
-    thread: React.PropTypes.object.isRequired,
-  };
+  constructor() {
+    super();
+    this.state = {
+      message: MessageStore.items()[0],
+    };
+  }
+  componentDidMount() {
+    this._unlisten = MessageStore.listen(this._onMessagesChanged);
+  }
+
+  componentWillUnmount() {
+    if (this._unlisten) {
+      this._unlisten();
+    }
+  }
+
+  _onMessagesChanged = () => {
+    this.setState({
+      message: MessageStore.items()[0],
+    });
+  }
 
   // A React component's `render` method returns a virtual DOM element described
   // in CJSX. `render` is deterministic: with the same input, it will always
   // render the same output. Here, the input is provided by @isPhishingAttempt.
   // `@state` and `@props` are popular inputs as well.
   render() {
-    const message = MessageStore.items()[0];
+    const {message} = this.state;
 
     // This package's strategy to ascertain whether or not the email is a
     // phishing attempt boils down to checking the `replyTo` attributes on
