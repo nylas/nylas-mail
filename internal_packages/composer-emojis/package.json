@@ -17,7 +17,7 @@
   "description": "Type a colon (:) followed by the name of an emoji symbol to insert it into your message!",
 
   "dependencies": {
-    "node-emoji": "^1.0.4"
+    "node-emoji": "^1.1.0"
   },
   "windowTypes": {
     "default": true,
