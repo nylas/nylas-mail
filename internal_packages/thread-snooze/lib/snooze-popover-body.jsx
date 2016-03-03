@@ -2,7 +2,7 @@
 import _ from 'underscore';
 import React, {Component, PropTypes} from 'react';
 import {DateUtils, Actions} from 'nylas-exports'
-import {RetinaImg} from 'nylas-component-kit';
+import {RetinaImg, DateInput} from 'nylas-component-kit';
 import SnoozeActions from './snooze-actions'
 import {DATE_FORMAT_LONG} from './snooze-constants'
 
@@ -20,7 +20,7 @@ const SnoozeOptions = [
   ],
 ]
 
-const SnoozeDateGenerators = {
+const SnoozeDatesFactory = {
   'Later today': DateUtils.laterToday,
   'Tonight': DateUtils.tonight,
   'Tomorrow': DateUtils.tomorrow,
@@ -56,19 +56,16 @@ class SnoozePopoverBody extends Component {
   constructor() {
     super();
     this.didSnooze = false;
-    this.state = {
-      inputDate: null,
-    }
   }
 
   componentWillUnmount() {
     this.props.swipeCallback(this.didSnooze);
   }
 
-  onSnooze(dateGenerator, label) {
-    const utcDate = dateGenerator().utc();
+  onSnooze(date, itemLabel) {
+    const utcDate = date.utc();
     const formatted = DateUtils.format(utcDate);
-    SnoozeActions.snoozeThreads(this.props.threads, formatted, label);
+    SnoozeActions.snoozeThreads(this.props.threads, formatted, itemLabel);
     this.didSnooze = true;
     this.props.closePopover();
 
@@ -77,37 +74,27 @@ class SnoozePopoverBody extends Component {
     Actions.popSheet();
   }
 
-  onInputChange = (event)=> {
-    const inputDate = DateUtils.futureDateFromString(event.target.value)
-    this.setState({inputDate})
-  };
-
-  onInputKeyDown = (event)=> {
-    const {value} = event.target;
-    if (value.length > 0 && ["Enter", "Return"].includes(event.key)) {
-      const inputDate = DateUtils.futureDateFromString(value);
-      if (inputDate) {
-        this.onSnooze(() => {return inputDate}, "Custom");
-        // Prevent onInputChange from firing
-        event.stopPropagation()
-      }
+  onSelectCustomDate = (date, inputValue)=> {
+    if (date) {
+      this.onSnooze(date, "Custom");
+    } else {
+      NylasEnv.showErrorDialog(`Sorry, we can't parse ${inputValue} as a valid date.`);
     }
   };
 
-
-  renderItem = (label)=> {
-    const dateGenerator = SnoozeDateGenerators[label];
-    const iconName = SnoozeIconNames[label];
+  renderItem = (itemLabel)=> {
+    const date = SnoozeDatesFactory[itemLabel]();
+    const iconName = SnoozeIconNames[itemLabel];
     const iconPath = `nylas://thread-snooze/assets/ic-snoozepopover-${iconName}@2x.png`;
     return (
       <div
-        key={label}
+        key={itemLabel}
         className="snooze-item"
-        onClick={this.onSnooze.bind(this, dateGenerator, label)}>
+        onClick={this.onSnooze.bind(this, date, itemLabel)}>
         <RetinaImg
           url={iconPath}
           mode={RetinaImg.Mode.ContentIsMask} />
-        {label}
+        {itemLabel}
       </div>
     )
   };
@@ -121,32 +108,16 @@ class SnoozePopoverBody extends Component {
     );
   };
 
-  renderInputRow = (inputDate)=> {
-    let formatted = null;
-    if (inputDate) {
-      formatted = 'Snooze until ' + DateUtils.format(inputDate, DATE_FORMAT_LONG);
-    }
-    return (
-      <div className="snooze-input">
-        <input
-          type="text"
-          tabIndex="1"
-          placeholder="Or type a time, like 'next Monday at 2PM'"
-          onKeyDown={this.onInputKeyDown}
-          onChange={this.onInputChange}/>
-        <span className="input-date-value">{formatted}</span>
-      </div>
-    );
-  };
-
   render() {
-    const {inputDate} = this.state;
     const rows = SnoozeOptions.map(this.renderRow);
 
     return (
       <div className="snooze-container" tabIndex="-1">
         {rows}
-        {this.renderInputRow(inputDate)}
+        <DateInput
+          className="snooze-input"
+          dateFormat={DATE_FORMAT_LONG}
+          onSubmitDate={this.onSelectCustomDate} />
       </div>
     );
   }

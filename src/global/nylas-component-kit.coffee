@@ -38,6 +38,7 @@ class NylasComponentKit
   @load "EditableList", "editable-list"
   @load "OutlineViewItem", "outline-view-item"
   @load "OutlineView", "outline-view"
+  @load "DateInput", "date-input"
 
   @load "ScrollRegion", 'scroll-region'
   @load "ResizableRegion", 'resizable-region'

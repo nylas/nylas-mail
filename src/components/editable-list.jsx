@@ -29,8 +29,6 @@ import React, {Component, PropTypes} from 'react';
  * @param {object} props.createInputProps - Props object to be passed on to
  * the create input element. However, keep in mind that these props can not
  * override the default props that EditableList will pass to the input.
- * @param {object} props.initialState - Used for testing purposes to initialize
- * the component with a given state.
  * @param {props.onCreateItem} props.onCreateItem
  * @param {props.onDeleteItem} props.onDeleteItem
  * @param {props.onSelectItem} props.onSelectItem
@@ -97,7 +95,6 @@ class EditableList extends Component {
     onReorderItem: PropTypes.func,
     onItemEdited: PropTypes.func,
     onItemCreated: PropTypes.func,
-    initialState: PropTypes.object,
 
     /* Optional, if you choose to control selection externally */
     selected: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
@@ -117,7 +114,7 @@ class EditableList extends Component {
 
   constructor(props) {
     super(props);
-    this.state = props.initialState || {
+    this.state = {
       dropInsertionIndex: -1,
       editingIndex: -1,
       creatingItem: false,
