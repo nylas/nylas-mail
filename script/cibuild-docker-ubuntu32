@@ -3,11 +3,11 @@
 set -e
 
 # --rm \
-docker build -t n1-32 -f ./docker/ubuntu32/Dockerfile .
+docker build -t n1-32 -f ./build/resources/linux/docker/ubuntu32/Dockerfile .
 docker run \
  --env PUBLISH_BUILD="$PUBLISH_BUILD" \
  --env TRAVIS="$TRAVIS" \
  --env TRAVIS_PULL_REQUEST="$TRAVIS_PULL_REQUEST" \
  --env TRAVIS_BRANCH="$TRAVIS_BRANCH" \
- n1-32 /usr/bin/linux32 /n1/script/dockerbuild
+ n1-32 /usr/bin/linux32 /n1/build/resources/linux/docker/dockerbuild
 docker rmi n1-32
