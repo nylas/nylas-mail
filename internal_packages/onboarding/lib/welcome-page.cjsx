@@ -20,14 +20,18 @@ class WelcomePage extends React.Component
         <RetinaImg name="onboarding-close.png" mode={RetinaImg.Mode.ContentPreserve}/>
       </div>
       <div className="steps-container">{@_renderSteps()}</div>
-      <div className="footer">{@_renderButtons()}</div>
+      <div className="footer step-#{@state.step}">{@_renderButtons()}</div>
     </div>
 
   _renderButtons: ->
     buttons = []
-    # if @state.step > 0
-    #   buttons.push <span key="back" className="btn-back" onClick={@_onBack}>Back</span>
-    btnText = if @state.step is 2 then "Get Started" else "Continue"
+    btnText = ""
+    if @state.step is 0
+      btnText = "Let’s get started"
+    else if @state.step is 1
+      btnText = "Continue"
+    else if @state.step is 2
+      btnText = "Get started"
     buttons.push <button key="next" className="btn btn-large btn-continue" onClick={@_onContinue}>{btnText}</button>
     return buttons
 
@@ -47,16 +51,9 @@ class WelcomePage extends React.Component
 
   _renderStep0: ->
     <div className={@_stepClass(0)} key="step-0">
-      <RetinaImg className="logo" style={zoom: 0.20, marginTop: 60, opacity: 0.7} url="nylas://onboarding/assets/nylas-pictographB@2x.png" mode={RetinaImg.Mode.ContentPreserve}/>
-      <p className="hero-text" style={marginTop: 30, fontSize: 44}>Say hello to N1.</p>
-      <p className="sub-text" style={marginTop: 0, fontSize: 24}>The next-generation email platform.</p>
-      <div style={fontSize:17, marginTop: 45}>
-        Built with
-        <RetinaImg url="nylas://onboarding/assets/nylas-love@2x.png" mode={RetinaImg.Mode.ContentPreserve}/>
-        by Nylas
-      </div>
-      <RetinaImg className="icons" style={position: "absolute", left: -45, top: 130} url="nylas://onboarding/assets/shapes-left@2x.png" mode={RetinaImg.Mode.ContentIsMask} />
-      <RetinaImg className="icons" style={position: "absolute", right: -40, top: 130} url="nylas://onboarding/assets/shapes-right@2x.png" mode={RetinaImg.Mode.ContentIsMask} />
+      <RetinaImg className="logo" style={marginTop: 86} url="nylas://onboarding/assets/nylas-logo@2x.png" mode={RetinaImg.Mode.ContentPreserve}/>
+      <p className="hero-text" style={fontSize: 46, marginTop: 57}>Welcome to Nylas N1</p>
+      <RetinaImg className="icons" style={position: "absolute", top: 0, left: 0} url="nylas://onboarding/assets/icons-bg@2x.png" mode={RetinaImg.Mode.ContentPreserve} />
       {@_renderNavBubble(0)}
     </div>
 
