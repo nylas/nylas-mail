@@ -56,7 +56,7 @@ class NewsletterSignup extends React.Component
     "/newsletter-subscription/#{encodeURIComponent(props.emailAddress)}?name=#{encodeURIComponent(props.name)}"
 
   render: =>
-    <Flexbox direction='row' style={textAlign: 'left', height: 'auto'}>
+    <Flexbox direction='row' height='auto' style={textAlign: 'left'}>
       <div style={minWidth:15}>
         {@_renderControl()}
       </div>

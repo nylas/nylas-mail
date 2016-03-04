@@ -32,6 +32,8 @@
       ] }
       { type: 'separator' }
       { label: 'Preferences', command: 'application:open-preferences' }
+      { label: 'Change Theme...', command: 'window:launch-theme-picker' }
+      { label: 'Install New Theme...', command: 'application:install-package' }
     ]
   }
 

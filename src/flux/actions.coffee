@@ -518,6 +518,9 @@ class Actions
   @openPopover: ActionScopeWindow
   @closePopover: ActionScopeWindow
 
+  @openModal: ActionScopeWindow
+  @closeModal: ActionScopeWindow
+
   ###
   Public: Set metadata for a specified model and pluginId.
 

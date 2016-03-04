@@ -61,6 +61,8 @@
   }
   { type: 'separator' }
   { label: 'Preferences', command: 'application:open-preferences' }
+  { label: 'Change Theme...', command: 'window:launch-theme-picker' }
+  { label: 'Install New Theme...', command: 'application:install-package' }
   { type: 'separator' }
   { label: 'Print Current Thread', command: 'application:print-thread' }
   { type: 'separator' }
