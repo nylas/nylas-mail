@@ -519,12 +519,14 @@
   .footer {
     text-align: center;
     background: #ececec;
-    border-top: 1px solid #d4d4d4;
+    border-top: 1px solid rgba(0,0,0,0.10);
+    box-shadow: 0 1px 1px solid rgba(255,255,255,0.25);
 
     &.step-0 {
-      border-top: 1px solid rgba(0,0,0,0.15);
-      box-shadow: 0 1px 1px solid rgba(255,255,255,0.25);
       background-image: linear-gradient(to right, rgba(167,214,134,1) 0%,rgba(122,201,201,1) 100%);
+    }
+    &.step-1 {
+      background: #4e575c;
     }
 
     .btn-continue {
@@ -650,11 +652,12 @@
     }
 
     .gear-large-0 {
-      left: 50%;
-      top: 50%;
-      margin-left: -150px;
-      margin-top: -150px;
+      left: 51%;
+      top: 51%;
+      margin-left: -148px;
+      margin-top: -149px;
       transform: rotate(7deg);
+      zoom: 0.525 !important;
     }
     .gear-large-1 {
       left: -147px;
@@ -666,8 +669,8 @@
     }
     .gear-large-3 {
       left: 50%;
-      margin-left: -148px;
-      bottom: -226px;
+      margin-left: -143px;
+      bottom: -223px;
     }
 
     .gear-small {

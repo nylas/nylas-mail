@@ -59,7 +59,7 @@ class WelcomePage extends React.Component
 
   _renderStep1: ->
     <div className={@_stepClass(1)} key="step-1">
-      <p className="hero-text" style={marginTop: 40}>Developers welcome.</p>
+      <p className="hero-text" style={marginTop: 40}>Open source & made for developers.</p>
       <div className="gear-outer-container"><div className="gear-container">
         {@_gears()}
       </div></div>
@@ -68,16 +68,18 @@ class WelcomePage extends React.Component
       <RetinaImg className="wrench" mode={RetinaImg.Mode.ContentPreserve}
                  url="nylas://onboarding/assets/wrench@2x.png" />
 
-      <p className="sub-text">N1 is built with modern web technologies and is easy to extend with JavaScript.</p>
+      <p className="sub-text">Nylas N1 and the cloud sync engine are available on <a href="https://github.com/nylas/n1">GitHub</a></p>
       {@_renderNavBubble(1)}
     </div>
 
   _gears: ->
     gears = []
+    gear = "gear-large@2x.png"
     for i in [0..3]
+      if i isnt 0 then gear = "gear-large-outer@2x.png"
       gears.push <RetinaImg className="gear-large gear-large-#{i}"
                              mode={RetinaImg.Mode.ContentPreserve}
-                             url="nylas://onboarding/assets/gear-large@2x.png" />
+                             url="nylas://onboarding/assets/#{gear}" />
     return gears
 
   _renderStep2: ->
