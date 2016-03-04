@@ -195,17 +195,17 @@ Providers = [
         type: 'text'
         placeholder: '993'
         label: 'Port (optional)'
-        # className: 'half'
+        className: 'half'
         default: 993
         format: 'integer'
         page: 1
-      # }, {
-      #   name: 'ssl_required'
-      #   type: 'checkbox'
-      #   label: 'Require SSL'
-      #   className: 'half'
-      #   default: true
-      #   page: 1
+      }, {
+        name: 'ssl_required'
+        type: 'checkbox'
+        label: 'Require SSL'
+        className: 'half'
+        default: true
+        page: 1
       }, {
         name: 'imap_username'
         type: 'text'
@@ -233,17 +233,17 @@ Providers = [
         type: 'text'
         placeholder: '587'
         label: 'Port (optional)'
-        # className: 'half'
+        className: 'half'
         format: 'integer'
         default: 587
         page: 2
-      # }, {
-      #   name: 'ssl_required'
-      #   type: 'checkbox'
-      #   label: 'Require SSL'
-      #   className: 'half'
-      #   default: true
-      #   page: 2
+      }, {
+        name: 'ssl_required'
+        type: 'checkbox'
+        label: 'Require SSL'
+        className: 'half'
+        default: true
+        page: 2
       }, {
         name: 'smtp_username'
         type: 'text'
