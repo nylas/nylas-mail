@@ -247,8 +247,8 @@ describe "FileDownloadStore", ->
 
   describe "_fetchAndSave", ->
     beforeEach ->
-      @savePath = "/Users/imaginary/.nylas/Downloads/b.png"
-      spyOn(NylasEnv, 'showSaveDialog').andCallFake (options, callback) => callback(@savePath)
+      @userSelectedPath = "/Users/imaginary/.nylas/Downloads/b.png"
+      spyOn(NylasEnv, 'showSaveDialog').andCallFake (options, callback) => callback(@userSelectedPath)
 
     it "should open a save dialog and prompt the user to choose a download path", ->
       spyOn(FileDownloadStore, '_runDownload').andCallFake =>
@@ -257,27 +257,6 @@ describe "FileDownloadStore", ->
       expect(NylasEnv.showSaveDialog).toHaveBeenCalled()
       expect(FileDownloadStore._runDownload).toHaveBeenCalledWith(@testfile)
 
-    it "should copy the file to the download path after it's been downloaded and open it after the stream has ended", ->
-      download = {targetPath: @savePath}
-      onEndEventCallback = null
-      streamStub =
-        pipe: ->
-        on: (eventName, eventCallback) =>
-          onEndEventCallback = eventCallback
-
-      spyOn(FileDownloadStore, '_runDownload').andCallFake =>
-        Promise.resolve(download)
-      spyOn(fs, 'createReadStream').andReturn(streamStub)
-      spyOn(fs, 'createWriteStream')
-
-      FileDownloadStore._fetchAndSave(@testfile)
-      advanceClock(1)
-      expect(fs.createReadStream).toHaveBeenCalledWith(download.targetPath)
-      expect(shell.showItemInFolder).not.toHaveBeenCalled()
-      onEndEventCallback()
-      advanceClock(1)
-      expect(shell.showItemInFolder).toHaveBeenCalledWith(download.targetPath)
-
     it "should open an error if the download fails", ->
       spyOn(FileDownloadStore, '_presentError')
       spyOn(FileDownloadStore, '_runDownload').andCallFake =>
@@ -285,6 +264,49 @@ describe "FileDownloadStore", ->
       FileDownloadStore._fetchAndSave(@testfile)
       advanceClock(1)
       expect(FileDownloadStore._presentError).toHaveBeenCalled()
+
+    describe "when the user confirms a path", ->
+      beforeEach ->
+        @download = {targetPath: 'bla'}
+        @onEndEventCallback = null
+        streamStub =
+          pipe: ->
+          on: (eventName, eventCallback) =>
+            @onEndEventCallback = eventCallback
+
+        spyOn(FileDownloadStore, '_runDownload').andCallFake =>
+          Promise.resolve(@download)
+        spyOn(fs, 'createReadStream').andReturn(streamStub)
+        spyOn(fs, 'createWriteStream')
+
+      it "should copy the file to the download path after it's been downloaded and open it after the stream has ended", ->
+        FileDownloadStore._fetchAndSave(@testfile)
+        advanceClock(1)
+        expect(fs.createReadStream).toHaveBeenCalledWith(@download.targetPath)
+        expect(shell.showItemInFolder).not.toHaveBeenCalled()
+        @onEndEventCallback()
+        advanceClock(1)
+        expect(shell.showItemInFolder).toHaveBeenCalledWith(@userSelectedPath)
+
+      it "should update the NylasEnv.savedState.lastDownloadDirectory", ->
+          NylasEnv.savedState.lastDownloadDirectory = null
+          @userSelectedPath = "/Users/imaginary/.nylas/Another Random Folder/file.jpg"
+          FileDownloadStore._fetchAndSave(@testfile)
+          advanceClock(1)
+          expect(NylasEnv.savedState.lastDownloadDirectory).toEqual('/Users/imaginary/.nylas/Another Random Folder')
+
+      describe "file extensions", ->
+        it "should allow the user to save the file with a different extension", ->
+          @userSelectedPath = "/Users/imaginary/.nylas/Downloads/b-changed.tiff"
+          FileDownloadStore._fetchAndSave(@testfile)
+          advanceClock(1)
+          expect(fs.createWriteStream).toHaveBeenCalledWith(@userSelectedPath)
+
+        it "should restore the extension if the user removed it entirely, because it's usually an accident", ->
+          @userSelectedPath = "/Users/imaginary/.nylas/Downloads/b-changed"
+          FileDownloadStore._fetchAndSave(@testfile)
+          advanceClock(1)
+          expect(fs.createWriteStream).toHaveBeenCalledWith("#{@userSelectedPath}.png")
 
   describe "_abortFetchFile", ->
     beforeEach ->

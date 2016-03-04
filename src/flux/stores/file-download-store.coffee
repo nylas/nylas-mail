@@ -210,8 +210,19 @@ FileDownloadStore = Reflux.createStore
       @_presentError(file)
 
   _fetchAndSave: (file) ->
-    NylasEnv.showSaveDialog {defaultPath: @_defaultSavePath(file)}, (savePath) =>
+    defaultPath = @_defaultSavePath(file)
+    defaultExtension = path.extname(defaultPath)
+
+    NylasEnv.showSaveDialog {defaultPath: defaultPath}, (savePath) =>
       return unless savePath
+      NylasEnv.savedState.lastDownloadDirectory = path.dirname(savePath)
+
+      saveExtension = path.extname(savePath)
+      didLoseExtension = defaultExtension isnt '' and saveExtension is ''
+      if didLoseExtension
+        savePath = savePath + defaultExtension
+
+      defaultPath = NylasEnv.savedState.lastDownloadDirectory
       @_runDownload(file).then (download) ->
         stream = fs.createReadStream(download.targetPath)
         stream.pipe(fs.createWriteStream(savePath))
@@ -236,13 +247,19 @@ FileDownloadStore = Reflux.createStore
   _defaultSavePath: (file) ->
     if process.platform is 'win32'
       home = process.env.USERPROFILE
-    else home = process.env.HOME
+    else
+      home = process.env.HOME
 
     downloadDir = path.join(home, 'Downloads')
     if not fs.existsSync(downloadDir)
       downloadDir = os.tmpdir()
 
-    path.join(downloadDir, file.displayName())
+    if NylasEnv.savedState.lastDownloadDirectory
+      if fs.existsSync(NylasEnv.savedState.lastDownloadDirectory)
+        downloadDir = NylasEnv.savedState.lastDownloadDirectory
+
+    filesafeName = file.displayName().replace(RegExpUtils.illegalPathCharactersRegexp(), '-')
+    path.join(downloadDir, filesafeName)
 
   _presentError: (file) ->
     dialog = require('remote').require('dialog')
