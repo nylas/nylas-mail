@@ -312,6 +312,12 @@ DOMUtils =
       else continue
     return lastNode
 
+  lastDescendent: (node) ->
+    return null unless node
+    if node.childNodes.length > 0
+      return DOMUtils.lastNode(node.childNodes[node.childNodes.length - 1])
+    else return null
+
   findLastTextNode: (node) ->
     return null unless node
     return node if node.nodeType is Node.TEXT_NODE

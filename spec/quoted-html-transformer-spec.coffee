@@ -297,6 +297,65 @@ describe "QuotedHTMLTransformer", ->
         <br></body>
         """
 
+    # Test 13: If there's an "On date…" string immediatley before a blockquote,
+    # then remove it.
+    tests.push
+      before: """
+        Hey
+        <div>
+          On FOOBAR
+          <br>
+          On Thu, Mar 3, 2016
+          at 3:19 AM,
+          First Middle Last-Last
+          <span dir="ltr">
+            &lt;
+            <a href="mailto:test@nylas.com" target="_blank">
+              test@nylas.com
+            </a>
+            &gt;
+          </span>
+          wrote:
+          <br>
+          <blockquote>
+            QUOTED TEXT
+          </blockquote>
+        </div>
+        <br>
+      """
+      after: """<head></head><body>
+        Hey
+        <div>
+          On FOOBAR
+          <br><br>
+          </div><br></body>
+      """
+
+    # Test 14: Don't pick up false positives on the string precursors to block
+    # quotes.
+    tests.push
+      before: """
+        Hey
+        <div>
+        On FOOBAR
+        <br>
+        On Thu, Mar 3, 2016 I went to my writing club and wrote:
+        <strong>A little song</strong>
+        <blockquote>
+          QUOTED TEXT
+        </blockquote>
+        </div>
+      """
+      after: """<head></head><body>
+        Hey
+        <div>
+        On FOOBAR
+        <br>
+        On Thu, Mar 3, 2016 I went to my writing club and wrote:
+        <strong>A little song</strong>
+        </div></body>
+      """
+
     it 'works with these manual test cases', ->
       for {before, after} in tests
         opts = keepIfWholeBodyIsQuote: true
