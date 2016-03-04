@@ -129,12 +129,14 @@ body.platform-win32 {
       .windows-btn-bg;
       .windows-btn-border;
       border-radius: 0;
-      box-shadow: -1px 0 0 2px fade(@border-color-divider, 80%);
+      position: relative;
+      left: -1px;
     }
     .secondary-picker {
       .windows-btn-bg;
       .windows-btn-border;
-      box-shadow: 1px 0 0 2px fade(@border-color-divider, 80%);
+      position: relative;
+      right: -1px;
     }
     .secondary-picker,
     .secondary-items {
