@@ -68,7 +68,7 @@ class WelcomePage extends React.Component
       <RetinaImg className="wrench" mode={RetinaImg.Mode.ContentPreserve}
                  url="nylas://onboarding/assets/wrench@2x.png" />
 
-      <p className="sub-text">Nylas N1 and the cloud sync engine are available on <a href="https://github.com/nylas/n1">GitHub</a></p>
+      <p className="sub-text">Nylas N1 and the cloud sync engine are available on <a onClick={=> @_open("https://github.com/nylas/n1")}>GitHub</a></p>
       {@_renderNavBubble(1)}
     </div>
 
@@ -84,22 +84,12 @@ class WelcomePage extends React.Component
 
   _renderStep2: ->
     <div className={@_stepClass(2)} key="step-2">
-      <p className="hero-text" style={marginTop: 40}>N1 is made possible by the Nylas Sync Engine</p>
-      <div className="cell-wrap">
-        <div className="cell" style={float: "left"}>
-          <RetinaImg mode={RetinaImg.Mode.ContentPreserve}
-                     style={paddingTop: 4, paddingBottom: 4}
-                     url="nylas://onboarding/assets/cloud@2x.png" />
-          <p>A modern API layer for<br/>email, contacts &amp; calendar</p>
-          <a onClick={=> @_open("https://github.com/nylas/sync-engine")}>more info</a>
-        </div>
-        <div className="cell" style={float: "right"}>
-          <RetinaImg mode={RetinaImg.Mode.ContentPreserve}
-                     url="nylas://onboarding/assets/lock@2x.png" />
-          <p>Secured using<br/>bank-grade encryption</p>
-          <a onClick={=> @_open("https://nylas.com/security/")}>more info</a>
-        </div>
-      </div>
+      <p className="hero-text" style={marginTop: 26}>Powered by Cloud Sync.</p>
+      <RetinaImg mode={RetinaImg.Mode.ContentPreserve}
+                 style={paddingTop: 4, paddingBottom: 4}
+                 url="nylas://onboarding/assets/cloud@2x.png" />
+      <p style={fontSize: 17, opacity: 0.7, marginTop: 18}>Nylas syncs your mail in the cloud. This makes N1 blazing fast<br/>and is needed for features like Snooze and Send Later.</p>
+      <p><a onClick={=> @_open("https://github.com/nylas/sync-engine")}>Learn more</a></p>
       {@_renderNavBubble(2)}
     </div>
 
