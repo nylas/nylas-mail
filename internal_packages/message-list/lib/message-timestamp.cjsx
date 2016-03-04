@@ -1,5 +1,6 @@
 _ = require 'underscore'
 moment = require 'moment-timezone'
+moment = require "moment"
 React = require 'react'
 {Utils} = require 'nylas-exports'
 
@@ -28,10 +29,16 @@ class MessageTimestamp extends React.Component
       diff = now.diff(msgDate, 'days', true)
       isSameDay = now.isSame(msgDate, 'days')
       if diff < 1 and isSameDay
-        return msgDate.format "h:mm A"
+        if NylasEnv.config.get('core.reading.timeFormat') # Military (24 hour time) time added here -->
+          return msgDate.format "HH:mm" # <--
+        else
+          return msgDate.format "h:mm A"
       if diff < 1.5 and not isSameDay
         timeAgo = msgDate.from now
-        monthAndDay = msgDate.format "h:mm A"
+        if NylasEnv.config.get('core.reading.timeFormat') # Military time added here -->
+          monthAndDay = msgDate.format "HH:mm" # <--
+        else
+          monthAndDay = msgDate.format "h:mm A"
         return monthAndDay + " (" + timeAgo + ")"
       if diff >= 1.5 and diff < 365
         return msgDate.format "MMM D"
