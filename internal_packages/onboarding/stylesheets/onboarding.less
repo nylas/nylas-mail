@@ -469,7 +469,7 @@
 
 .welcome-page {
   width: 675px;
-  height: 480px;
+  height: 470px;
   display: flex;
   flex-direction: column;
 
@@ -501,6 +501,7 @@
 
   .step-wrap {
     position: absolute;
+    overflow: hidden;
     top: 0;
     left: 0;
     right: 0;
@@ -519,6 +520,12 @@
     text-align: center;
     background: #ececec;
     border-top: 1px solid #d4d4d4;
+
+    &.step-0 {
+      border-top: 1px solid rgba(0,0,0,0.15);
+      box-shadow: 0 1px 1px solid rgba(255,255,255,0.25);
+      background-image: linear-gradient(to right, rgba(167,214,134,1) 0%,rgba(122,201,201,1) 100%);
+    }
 
     .btn-continue {
       font-size: 17px;
@@ -561,7 +568,7 @@
   }
 
   .nylas-static-wash-bg {
-    background-image: linear-gradient(to right, rgba(162,210,128,1) 0%,rgba(113,193,154,1) 50%,rgba(89,187,187,1) 100%);
+    background-image: linear-gradient(to right, rgba(149,205,107,1) 0%,rgba(60,176,176,1) 100%);
     color: white;
   }
 
