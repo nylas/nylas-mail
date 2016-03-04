@@ -528,6 +528,9 @@
     &.step-1 {
       background: #4e575c;
     }
+    &.step-2 {
+      background-image: linear-gradient(to right, rgba(136,208,184,1) 0%,rgba(105,199,210,1) 100%);
+    }
 
     .btn-continue {
       font-size: 17px;
@@ -583,7 +586,7 @@
   }
 
   .nylas-blue-wash-bg {
-    background-image: linear-gradient(to right, rgba(79,186,151,1) 0%,rgba(113,193,154,1) 50%,rgba(34,172,187,1) 100%);
+    background-image: linear-gradient(to right, rgba(79,186,151,1) 0%, rgba(34,172,187,1) 100%);
     color: white;
   }
 
@@ -611,7 +614,7 @@
       border: 1px solid #161f25;
       width: 210px;
       height: 210px;
-      margin: 20px auto;
+      margin: 20px auto 15px auto;
       border-radius: 105px;
     }
     .gear-container {
@@ -711,13 +714,14 @@
     }
 
     .hero-text {
-      font-size: 27px;
+      font-size: 39px;
+      opacity: 0.7;
     }
   }
 
   .nav-bubbles {
     position: absolute;
-    bottom: 14px;
+    bottom: 7px;
     left: 50%;
     margin-left: -24px;
     display: flex;
