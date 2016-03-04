@@ -23,42 +23,43 @@ guide](https://github.com/nylas/N1/blob/master/CONTRIBUTING.md).
 We're working on building a plugin index that makes it super easy to add them to N1. For now, check out the list below! (Feel free to submit a PR if you build a plugin and want it featured here.)
 
 ##### Themes
-- [Dark](https://github.com/nylas/N1/tree/master/internal_packages/ui-dark) -- ([tutorial here](https://github.com/nylas/N1/issues/74))
-- [Taiga](http://noahbuscher.github.io/N1-Taiga/) -- Mailbox-inspired light theme
+- [Dark](https://github.com/nylas/N1/tree/master/internal_packages/ui-dark)
+- [Taiga](http://noahbuscher.github.io/N1-Taiga/) — Mailbox-inspired light theme
 - [Predawn](https://github.com/adambmedia/N1-Predawn)
 - [ElementaryOS](https://github.com/edipox/elementary-nylas)
 - [Ubuntu](https://github.com/ahmedlhanafy/Ubuntu-Ui-Theme-for-Nylas-N1)
-- [Material](https://github.com/equinusocio/N1-Material) ([preview](https://twitter.com/MattiaAstorino/status/683348095770456064))
-- [Ido](https://github.com/edipox/n1-ido) -- Polymail-inspired theme
-- [Wattenberger](https://github.com/Wattenberger/Nylas-N1-theme)
+- [Ido](https://github.com/edipox/n1-ido) — Polymail-inspired theme
 - [Solarized Dark](https://github.com/NSHenry/N1-Solarized-Dark)
 - [Berend](https://github.com/Frique/N1-Berend)
 - [LevelUp](https://github.com/stolinski/level-up-nylas-n1-theme)
 - [Darkside](http://jamiewilson.io/darkside/)
 - [Sunrise](https://github.com/jackiehluo/n1-sunrise)
-- [Less is More](https://github.com/P0WW0W/less-is-more/)
-
+- [Less Is More](https://github.com/P0WW0W/less-is-more/)
 
 ##### Composer
-- [Translate](https://github.com/nylas/N1/tree/master/internal_packages/composer-translate) -- Works with 10 languages
-- [QuickSchedule](https://github.com/nylas/N1/tree/master/internal_packages/quick-schedule) -- Quickly schedule a meeting with someone
-- [Templates](https://github.com/nylas/N1/tree/master/internal_packages/composer-templates) -- Also sometimes known as "canned responses"
-- [Jiffy](http://noahbuscher.github.io/N1-Jiffy/) -- Insert animated Gifs
+- [Translate](https://github.com/nylas/N1/tree/master/internal_packages/composer-translate) — Works with 10 languages
+- [Quick Schedule](https://github.com/nylas/N1/tree/master/internal_packages/quick-schedule) — Show your availability to schedule a meeting with someone
+- [Quick Replies](https://github.com/nylas/N1/tree/master/internal_packages/composer-templates) — Send emails faster with templates
+- [Send Later](https://github.com/nylas/N1/tree/master/internal_packages/send-later) — Schedule your emails to be sent at a later time
+- [Open Tracking](https://github.com/nylas/N1/tree/master/internal_packages/open-tracking) — See if your emails have been read
+- [Link Tracking](https://github.com/nylas/N1/tree/master/internal_packages/link-tracking) — See if your links have been clicked
+- [Emoji Keyboard](https://github.com/nylas/N1/tree/master/internal_packages/composer-emojis) — Insert emojis by typing a colon (:) followed by the name of an emoji symbol
+- [Jiffy](http://noahbuscher.github.io/N1-Jiffy/) — Insert animated GIFs
 - In Development: [PGP Encryption](https://github.com/mbilker/email-pgp)
 
 ##### Sidebar
-- [GitHub info in Sidebar](https://github.com/nylas/N1/tree/master/internal_packages/github-contact-card)
+- [GitHub Sidebar Info](https://github.com/nylas/N1/tree/master/internal_packages/github-contact-card)
 - [Weather](https://github.com/jackiehluo/n1-weather)
 - [Todoist](https://github.com/anopensourceguy/TodoistN1)
 
 ##### Navbar
-- [Open GitHub Issues](https://github.com/nylas/N1/tree/master/internal_packages/message-view-on-github)
+- [View on GitHub](https://github.com/nylas/N1/tree/master/internal_packages/message-view-on-github)
 
 ##### Threadlist
-- [Personal-level indicators](https://github.com/nylas/N1/tree/master/internal_packages/personal-level-indicators)
-- [Unsubscribe button](https://github.com/colinking/n1-unsubscribe)
+- [Personal-level Indicators](https://github.com/nylas/N1/tree/master/internal_packages/personal-level-indicators)
+- [Unsubscribe](https://github.com/colinking/n1-unsubscribe)
 
-##### Message View
+##### Messages
 - [Phishing Detection](https://github.com/nylas/N1/tree/master/internal_packages/phishing-detection)
 - [Squirt Speed Reader](https://github.com/HarleyKwyn/squirt-reader-N1-plugin/)
 
