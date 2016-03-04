@@ -289,11 +289,11 @@ describe "FileDownloadStore", ->
         expect(shell.showItemInFolder).toHaveBeenCalledWith(@userSelectedPath)
 
       it "should update the NylasEnv.savedState.lastDownloadDirectory", ->
-          NylasEnv.savedState.lastDownloadDirectory = null
-          @userSelectedPath = "/Users/imaginary/.nylas/Another Random Folder/file.jpg"
-          FileDownloadStore._fetchAndSave(@testfile)
-          advanceClock(1)
-          expect(NylasEnv.savedState.lastDownloadDirectory).toEqual('/Users/imaginary/.nylas/Another Random Folder')
+        NylasEnv.savedState.lastDownloadDirectory = null
+        @userSelectedPath = "/Users/imaginary/.nylas/Another Random Folder/file.jpg"
+        FileDownloadStore._fetchAndSave(@testfile)
+        advanceClock(1)
+        expect(NylasEnv.savedState.lastDownloadDirectory).toEqual('/Users/imaginary/.nylas/Another Random Folder')
 
       describe "file extensions", ->
         it "should allow the user to save the file with a different extension", ->
