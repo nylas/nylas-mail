@@ -1,0 +1,93 @@
+html,
+body {
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.theme-option {
+  position: absolute;
+  top: 0;
+  width: 100px;
+  height: 60px;
+  background-color: @background-secondary;
+  color: @text-color;
+  border-radius: 5px;
+  text-align: center;
+  overflow: hidden;
+
+  &.active-true {
+    border: 1px solid #3187e1;
+  }
+
+  &.active-false {
+    border: 1px solid darken(#f6f6f6, 10%);
+  }
+
+  .theme-name {
+    font-family: @font-family;
+    font-size: 14px;
+    margin-top: 5px;
+    height: 18px;
+    overflow: hidden;
+  }
+
+  .swatches {
+    padding-left: 27px;
+    padding-right: 27px;
+    display: flex;
+    flex-direction: row;
+
+    .swatch {
+      flex: 1;
+      height: 10px;
+      width: 10px;
+      margin: 4px 2px 4px 2px;
+      border-radius: 2px;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      background-clip: border-box;
+      background-origin: border-box;
+
+      &.font-color {
+        background-color: @text-color;
+      }
+
+      &.active-color {
+        background-color: @component-active-color;
+      }
+
+      &.toolbar-color {
+        background-color: @toolbar-background-color;
+      }
+    }
+  }
+
+  .divider-black {
+    position: absolute;
+    bottom: 12px;
+    height: 1px;
+    width: 100%;
+    background-color: black;
+    opacity: 0.15;
+  }
+
+  .divider-white {
+    position: absolute;
+    z-index: 10;
+    bottom: 11px;
+    height: 1px;
+    width: 100%;
+    background-color: white;
+    opacity: 0.15;
+  }
+
+  .strip {
+    position: absolute;
+    bottom: 0;
+    height: 12px;
+    width: 100%;
+    background-color: @panel-background-color;
+  }
+}
