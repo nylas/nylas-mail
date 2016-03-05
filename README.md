@@ -47,7 +47,7 @@ We're working on building a plugin index that makes it super easy to add them to
 - [Link Tracking](https://github.com/nylas/N1/tree/master/internal_packages/link-tracking) — See if your links have been clicked
 - [Emoji Keyboard](https://github.com/nylas/N1/tree/master/internal_packages/composer-emojis) — Insert emojis by typing a colon (:) followed by the name of an emoji symbol
 - [Jiffy](http://noahbuscher.github.io/N1-Jiffy/) — Insert animated GIFs
-- In Development: [PGP Encryption](https://github.com/mbilker/email-pgp)
+- In Development: [Cypher](https://github.com/mbilker/cypher) (PGP Encryption)
 
 ##### Sidebar
 - [GitHub Sidebar Info](https://github.com/nylas/N1/tree/master/internal_packages/github-contact-card)
