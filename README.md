@@ -14,7 +14,7 @@ You can download compiled versions of N1 for Windows, Mac OS X, and Linux (.deb)
 
 # Build A Plugin
 
-Plugins lie at the heart of N1 and give it its powerful features. Building your own plugins allows you to integrate the app with other tools, experiment with new workflows, and more. Follow the [Getting Started guide](http://nylas.com/N1/getting-started/) to write your first plugin in 5 minutes.
+Plugins lie at the heart of N1 and give it its powerful features. Building your own plugins allows you to integrate the app with other tools, experiment with new workflows, and more. Follow the [Getting Started guide](http://nylas.com/N1/getting-started/) to write your first plugin in 5 minutes. To create your own theme, go to our [Theme Starter guide](http://github.com/nylas/N1-theme-starter).
 
 If you would like to run the N1 source and contribute, check out our [contributing
 guide](https://github.com/nylas/N1/blob/master/CONTRIBUTING.md).
@@ -35,6 +35,7 @@ We're working on building a plugin index that makes it super easy to add them to
 - [Darkside](http://jamiewilson.io/darkside/)
 - [Sunrise](https://github.com/jackiehluo/n1-sunrise)
 - [Less Is More](https://github.com/P0WW0W/less-is-more/)
+[Create your own!](http://github.com/nylas/N1-theme-starter)
 
 ##### Composer
 - [Translate](https://github.com/nylas/N1/tree/master/internal_packages/composer-translate) — Works with 10 languages
