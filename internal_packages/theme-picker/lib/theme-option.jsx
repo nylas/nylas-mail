@@ -70,9 +70,9 @@ class ThemeOption extends React.Component {
     if (!doc) return;
 
     const {resourcePath} = NylasEnv.getLoadSettings();
-
+    const css = `<style>${this._loadStylesheet(`${resourcePath}/internal_packages/theme-picker/preview-styles/theme-option.less`)}</style>`
     const html = `<!DOCTYPE html>
-                  <style>${this._loadStylesheet(`${resourcePath}/internal_packages/theme-picker/preview-styles/theme-option.less`)}</style>
+                  ${css}
                   <body>
                     <div class="theme-option active-${this.props.active}">
                       <div class="theme-name ">${this.props.theme.displayName}</div>
