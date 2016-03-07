@@ -262,7 +262,7 @@ module.exports = (grunt) ->
 
     eslint:
       options:
-        configFile: 'build/config/eslint.json'
+        configFile: 'config/eslint.json'
       target: [
         'internal_packages/**/*.jsx'
         'internal_packages/**/*.es6'
