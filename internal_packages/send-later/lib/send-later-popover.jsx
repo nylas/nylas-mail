@@ -4,7 +4,9 @@ import React, {Component, PropTypes} from 'react'
 import {DateUtils, Message, DatabaseStore} from 'nylas-exports'
 import {Popover, RetinaImg, Menu, DateInput} from 'nylas-component-kit'
 import SendLaterActions from './send-later-actions'
-import {DATE_FORMAT_SHORT, DATE_FORMAT_LONG, PLUGIN_ID} from './send-later-constants'
+import {PLUGIN_ID} from './send-later-constants'
+
+const {DATE_FORMAT_SHORT, DATE_FORMAT_LONG} = DateUtils
 
 
 const SendLaterOptions = {

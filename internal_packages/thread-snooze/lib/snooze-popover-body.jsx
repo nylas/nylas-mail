@@ -4,7 +4,8 @@ import React, {Component, PropTypes} from 'react';
 import {DateUtils, Actions} from 'nylas-exports'
 import {RetinaImg, DateInput} from 'nylas-component-kit';
 import SnoozeActions from './snooze-actions'
-import {DATE_FORMAT_LONG} from './snooze-constants'
+
+const {DATE_FORMAT_LONG} = DateUtils
 
 
 const SnoozeOptions = [
