@@ -8,7 +8,7 @@ const {resourcePath} = NylasEnv.getLoadSettings();
 const light = new ThemePackage(resourcePath + '/internal_packages/ui-light');
 const dark = new ThemePackage(resourcePath + '/internal_packages/ui-dark');
 
-fdescribe('ThemePicker', ()=> {
+describe('ThemePicker', ()=> {
   beforeEach(()=> {
     spyOn(ThemePicker.prototype, '_setActiveTheme').andCallThrough();
     spyOn(ThemePicker.prototype, '_rewriteIFrame');
