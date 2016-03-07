@@ -35,14 +35,14 @@ describe('Snooze Utils', ()=> {
         const now9AM = moment().hour(9).minute(0)
         const tomorrowAt8 = moment(now9AM).add(1, 'day').hour(8)
         const result = snoozedUntilMessage(tomorrowAt8, now9AM)
-        expect(result).toEqual('Snoozed until 8AM')
+        expect(result).toEqual('Snoozed until 8 AM')
       });
 
       it('returns correct message if snoozeDate otherwise', ()=> {
         const now9AM = moment().hour(9).minute(0)
         const snooze10AM = moment(now9AM).hour(10).minute(5)
         const result = snoozedUntilMessage(snooze10AM, now9AM)
-        expect(result).toEqual('Snoozed until 10:05AM')
+        expect(result).toEqual('Snoozed until 10:05 AM')
       });
     });
 
@@ -52,7 +52,7 @@ describe('Snooze Utils', ()=> {
         const now9AM = moment().month(0).date(1).hour(9).minute(0)
         const tomorrowAt10 = moment(now9AM).add(1, 'day').hour(10)
         const result = snoozedUntilMessage(tomorrowAt10, now9AM)
-        expect(result).toEqual('Snoozed until Jan 2, 10AM')
+        expect(result).toEqual('Snoozed until Jan 2, 10 AM')
       });
 
       it('returns correct message if snoozeDate otherwise', ()=> {
@@ -60,7 +60,7 @@ describe('Snooze Utils', ()=> {
         const now9AM = moment().month(0).date(1).hour(9).minute(0)
         const tomorrowAt930 = moment(now9AM).add(1, 'day').minute(30)
         const result = snoozedUntilMessage(tomorrowAt930, now9AM)
-        expect(result).toEqual('Snoozed until Jan 2, 9:30AM')
+        expect(result).toEqual('Snoozed until Jan 2, 9:30 AM')
       });
     });
   });

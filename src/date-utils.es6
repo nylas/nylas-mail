@@ -7,6 +7,8 @@ import _ from 'underscore'
 moment.locale(navigator.language)
 
 
+const yearRegex = / ?YY(YY)?/
+
 const Hours = {
   Morning: 9,
   Evening: 20,
@@ -14,8 +16,10 @@ const Hours = {
 }
 
 const Days = {
-  NextMonday: 8,
-  ThisWeekend: 6,
+  // The value for next monday and next weekend varies depending if the current
+  // day is saturday or sunday. See http://momentjs.com/docs/#/get-set/day/
+  NextMonday: day => day === 0 ? 1 : 8,
+  ThisWeekend: day => day === 6 ? 13 : 6,
 }
 
 function oclock(momentDate) {
@@ -81,6 +85,12 @@ chronoFuture.refiners.push(EnforceFutureDate);
 
 const DateUtils = {
 
+  // Localized format: ddd, MMM D, YYYY h:mmA
+  DATE_FORMAT_LONG: 'llll',
+
+  // Localized format: MMM D, h:mmA
+  DATE_FORMAT_SHORT: moment.localeData().longDateFormat('lll').replace(yearRegex, ''),
+
   format(momentDate, formatString) {
     if (!momentDate) return null;
     return momentDate.format(formatString);
@@ -123,11 +133,11 @@ const DateUtils = {
   },
 
   thisWeekend(now = moment()) {
-    return morning(now.day(Days.ThisWeekend))
+    return morning(now.day(Days.ThisWeekend(now.day())))
   },
 
   nextWeek(now = moment()) {
-    return morning(now.day(Days.NextMonday))
+    return morning(now.day(Days.NextMonday(now.day())))
   },
 
   nextMonth(now = moment()) {

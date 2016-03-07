@@ -13,7 +13,9 @@ import {
   TaskFactory,
   DateUtils,
 } from 'nylas-exports';
-import {SNOOZE_CATEGORY_NAME, DATE_FORMAT_SHORT} from './snooze-constants'
+import {SNOOZE_CATEGORY_NAME} from './snooze-constants'
+
+const {DATE_FORMAT_SHORT} = DateUtils
 
 
 const SnoozeUtils = {

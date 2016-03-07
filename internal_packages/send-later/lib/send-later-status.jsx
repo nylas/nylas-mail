@@ -3,7 +3,10 @@ import moment from 'moment'
 import {DateUtils} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
 import SendLaterActions from './send-later-actions'
-import {PLUGIN_ID, DATE_FORMAT_SHORT} from './send-later-constants'
+import {PLUGIN_ID} from './send-later-constants'
+
+const {DATE_FORMAT_SHORT} = DateUtils
+
 
 export default class SendLaterStatus extends Component {
   static displayName = 'SendLaterStatus';
