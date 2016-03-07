@@ -67,7 +67,7 @@ class ThemePicker extends React.Component {
       <div style={{textAlign: "center", cursor: "default"}}>
         <Flexbox direction="column">
           <RetinaImg
-            style={{width: "14", height: "14", margin: "8px"}}
+            style={{width: "14", height: "14", margin: "8px", WebkitFilter: "none"}}
             name="picker-close.png"
             mode={RetinaImg.Mode.ContentDark}
             onMouseDown={() => Actions.closeModal()} />
