@@ -35,6 +35,7 @@ We're working on building a plugin index that makes it super easy to add them to
 - [Darkside](http://jamiewilson.io/darkside/)
 - [Sunrise](https://github.com/jackiehluo/n1-sunrise)
 - [Less Is More](https://github.com/P0WW0W/less-is-more/)
+- [ToogaBooga](https://github.com/brycedorn/N1-ToogaBooga)
 
 [Create your own theme!](http://github.com/nylas/N1-theme-starter)
 
