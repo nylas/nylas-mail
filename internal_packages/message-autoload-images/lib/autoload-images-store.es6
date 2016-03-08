@@ -15,19 +15,21 @@ class AutoloadImagesStore extends NylasStore {
 
     this._whitelistEmails = {}
     this._whitelistMessageIds = {}
-    this._whitelistEmailsPath = path.join(NylasEnv.getConfigDirPath(), 'autoload-images-whitelist.txt');
+
+    const filename = 'autoload-images-whitelist.txt';
+    this._whitelistEmailsPath = path.join(NylasEnv.getConfigDirPath(), filename);
 
     this._loadWhitelist();
 
     this.listenTo(AutoloadImagesActions.temporarilyEnableImages, this._onTemporarilyEnableImages);
     this.listenTo(AutoloadImagesActions.permanentlyEnableImages, this._onPermanentlyEnableImages);
 
-    NylasEnv.config.onDidChange('core.reading.autoloadImages', ()=> {
-      MessageBodyProcessor.resetCache()
+    NylasEnv.config.onDidChange('core.reading.autoloadImages', () => {
+      MessageBodyProcessor.resetCache();
     });
   }
 
-  shouldBlockImagesIn = (message)=> {
+  shouldBlockImagesIn = (message) => {
     if (NylasEnv.config.get('core.reading.autoloadImages') === true) {
       return false;
     }
@@ -41,22 +43,26 @@ class AutoloadImagesStore extends NylasStore {
     return ImagesRegexp.test(message.body);
   }
 
-  _loadWhitelist = ()=> {
-    fs.exists(this._whitelistEmailsPath, (exists)=> {
+  _loadWhitelist = () => {
+    fs.exists(this._whitelistEmailsPath, (exists) => {
       if (!exists) { return; }
 
-      fs.readFile(this._whitelistEmailsPath, (err, body)=> {
-        if (err || !body) { return console.log(err); }
+      fs.readFile(this._whitelistEmailsPath, (err, body) => {
+        if (err || !body) {
+          console.log(err);
+          return;
+        }
 
         this._whitelistEmails = {}
-        body.toString().split(/[\n\r]+/).forEach((email)=> {
+        body.toString().split(/[\n\r]+/).forEach((email) => {
           this._whitelistEmails[Utils.toEquivalentEmailForm(email)] = true;
         });
+        this.trigger();
       });
     });
   }
 
-  _saveWhitelist = ()=> {
+  _saveWhitelist = () => {
     const data = Object.keys(this._whitelistEmails).join('\n');
     fs.writeFile(this._whitelistEmailsPath, data, (err) => {
       if (err) {
@@ -65,16 +71,18 @@ class AutoloadImagesStore extends NylasStore {
     });
   }
 
-  _onTemporarilyEnableImages = (message)=> {
+  _onTemporarilyEnableImages = (message) => {
     this._whitelistMessageIds[message.id] = true;
     MessageBodyProcessor.resetCache();
+    this.trigger();
   }
 
-  _onPermanentlyEnableImages = (message)=> {
+  _onPermanentlyEnableImages = (message) => {
     const email = Utils.toEquivalentEmailForm(message.fromContact().email);
     this._whitelistEmails[email] = true;
     MessageBodyProcessor.resetCache();
     setTimeout(this._saveWhitelist, 1);
+    this.trigger();
   }
 }
 
