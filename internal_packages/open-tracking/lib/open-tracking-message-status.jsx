@@ -20,7 +20,7 @@ export default class OpenTrackingMessageStatus extends React.Component {
 
   _getStateFromMessage(message) {
     const metadata = message.metadataForPluginId(PLUGIN_ID);
-    if (!metadata) {
+    if (!metadata || metadata.open_count == null) {
       return {hasMetadata: false, opened: false}
     }
     return {

@@ -15,15 +15,22 @@ export default class OpenTrackingComposerExtension extends ComposerExtension {
 
     // grab message metadata, if any
     const metadata = draft.metadataForPluginId(PLUGIN_ID);
-    if (metadata) {
-      // insert a tracking pixel <img> into the message
-      const serverUrl = `${PLUGIN_URL}/open/${draft.accountId}/${metadata.uid}`;
-      const img = `<img width="0" height="0" style="border:0; width:0; height:0;" src="${serverUrl}">`;
-      const draftBody = new DraftBody(draft);
-      draftBody.unquoted = draftBody.unquoted + "<br>" + img;
-
-      // save the draft
-      session.changes.add({body: draftBody.body});
+    if (!metadata) {
+      return;
     }
+
+    if (!metadata.uid) {
+      NylasEnv.reportError(new Error("Open tracking composer extension could not find 'uid' in metadata!"));
+      return;
+    }
+
+    // insert a tracking pixel <img> into the message
+    const serverUrl = `${PLUGIN_URL}/open/${draft.accountId}/${metadata.uid}`;
+    const img = `<img width="0" height="0" style="border:0; width:0; height:0;" src="${serverUrl}">`;
+    const draftBody = new DraftBody(draft);
+    draftBody.unquoted = draftBody.unquoted + "<br>" + img;
+
+    // save the draft
+    session.changes.add({body: draftBody.body});
   }
 }
