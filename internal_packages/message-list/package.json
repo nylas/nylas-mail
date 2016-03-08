@@ -9,6 +9,6 @@
     "nylas": "*"
   },
   "dependencies": {
-    "autolinker": "0.18.1"
+    "autolinker": "0.24.1"
   }
 }
