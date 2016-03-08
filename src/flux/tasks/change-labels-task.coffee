@@ -24,6 +24,10 @@ class ChangeLabelsTask extends ChangeMailTask
 
   label: -> "Applying labels…"
 
+  categoriesToAdd: => @labelsToAdd
+
+  categoriesToRemove: => @labelsToRemove
+
   description: ->
     return @taskDescription if @taskDescription
     type = "thread"

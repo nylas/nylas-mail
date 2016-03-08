@@ -50,11 +50,22 @@ export default class SwipeContainer extends Component {
 
   static propTypes = {
     children: PropTypes.object.isRequired,
+    shouldEnableSwipe: React.PropTypes.func,
     onSwipeLeft: React.PropTypes.func,
-    onSwipeLeftClass: React.PropTypes.string,
+    onSwipeLeftClass: React.PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.func,
+    ]),
     onSwipeRight: React.PropTypes.func,
-    onSwipeRightClass: React.PropTypes.string,
+    onSwipeRightClass: React.PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.func,
+    ]),
     onSwipeCenter: React.PropTypes.func,
+  };
+
+  static defaultProps = {
+    shouldEnableSwipe: () => true,
   };
 
   constructor(props) {
@@ -65,6 +76,7 @@ export default class SwipeContainer extends Component {
     this.trackingTouchIdentifier = null;
     this.phase = Phase.None;
     this.fired = false;
+    this.isEnabled = null;
     this.state = {
       fullDistance: 'unknown',
       currentX: 0,
@@ -78,6 +90,10 @@ export default class SwipeContainer extends Component {
     window.addEventListener('scroll-touch-end', this._onScrollTouchEnd);
   }
 
+  componentWillReceiveProps() {
+    this.isEnabled = null;
+  }
+
   componentDidUpdate() {
     if (this.phase === Phase.Settling) {
       window.requestAnimationFrame(()=> {
@@ -87,6 +103,7 @@ export default class SwipeContainer extends Component {
       });
     }
   }
+
   componentWillUnmount() {
     this.phase = Phase.None;
     this.mounted = false;
@@ -95,7 +112,14 @@ export default class SwipeContainer extends Component {
   }
 
   _isEnabled = ()=> {
-    return (this.props.onSwipeLeft || this.props.onSwipeRight);
+    if (!this.isEnabled) {
+      // Cache this value so we don't have to recalculate on every swipe
+      this.isEnabled = (
+        (this.props.onSwipeLeft || this.props.onSwipeRight) &&
+        this.props.shouldEnableSwipe()
+      );
+    }
+    return this.isEnabled;
   };
 
   _onWheel = (e)=> {
@@ -291,14 +315,20 @@ export default class SwipeContainer extends Component {
     let backingClass = 'swipe-backing';
 
     if ((currentX < 0) && (this.trackingInitialTargetX <= 0)) {
-      backingClass += ' ' + this.props.onSwipeLeftClass;
+      const {onSwipeLeftClass} = this.props
+      const swipeLeftClass = _.isFunction(onSwipeLeftClass) ? onSwipeLeftClass() : onSwipeLeftClass || ''
+
+      backingClass += ' ' + swipeLeftClass;
       backingStyles.right = 0;
       backingStyles.width = -currentX + 1;
       if (targetX < 0) {
         backingClass += ' confirmed';
       }
     } else if ((currentX > 0) && (this.trackingInitialTargetX >= 0)) {
-      backingClass += ' ' + this.props.onSwipeRightClass;
+      const {onSwipeRightClass} = this.props
+      const swipeRightClass = _.isFunction(onSwipeRightClass) ? onSwipeRightClass() : onSwipeRightClass || ''
+
+      backingClass += ' ' + swipeRightClass;
       backingStyles.left = 0;
       backingStyles.width = currentX + 1;
       if (targetX > 0) {

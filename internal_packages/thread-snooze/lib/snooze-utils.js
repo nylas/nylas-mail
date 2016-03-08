@@ -98,7 +98,7 @@ const SnoozeUtils = {
     const tasks = TaskFactory.tasksForApplyingCategories({
       threads,
       categoriesToRemove: snooze ? getInboxCategory : getSnoozeCategory,
-      categoryToAdd: snooze ? getSnoozeCategory : getInboxCategory,
+      categoriesToAdd: snooze ? getSnoozeCategory : getInboxCategory,
       taskDescription: description,
     })
 
@@ -115,8 +115,8 @@ const SnoozeUtils = {
   moveThreadsToSnooze(threads, snoozeCategoriesByAccountPromise, snoozeDate) {
     return snoozeCategoriesByAccountPromise
     .then((snoozeCategoriesByAccountId)=> {
-      const getSnoozeCategory = (accId)=> snoozeCategoriesByAccountId[accId]
-      const {getInboxCategory} = CategoryStore
+      const getSnoozeCategory = (accId) => [snoozeCategoriesByAccountId[accId]]
+      const getInboxCategory = (accId) => [CategoryStore.getInboxCategory[accId]]
       const description = SnoozeUtils.snoozedUntilMessage(snoozeDate)
       return SnoozeUtils.moveThreads(
         threads,
@@ -128,8 +128,8 @@ const SnoozeUtils = {
   moveThreadsFromSnooze(threads, snoozeCategoriesByAccountPromise) {
     return snoozeCategoriesByAccountPromise
     .then((snoozeCategoriesByAccountId)=> {
-      const getSnoozeCategory = (accId)=> snoozeCategoriesByAccountId[accId]
-      const {getInboxCategory} = CategoryStore
+      const getSnoozeCategory = (accId) => [snoozeCategoriesByAccountId[accId]]
+      const getInboxCategory = (accId) => [CategoryStore.getInboxCategory[accId]]
       const description = 'Unsnoozed';
       return SnoozeUtils.moveThreads(
         threads,

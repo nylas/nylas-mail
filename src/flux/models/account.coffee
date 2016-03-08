@@ -100,17 +100,6 @@ class Account extends ModelWithMetadata
     else
       'Unknown'
 
-  defaultFinishedCategory: ->
-    CategoryStore = require '../stores/category-store'
-    preferDelete = NylasEnv.config.get('core.reading.backspaceDelete')
-    archiveCategory = CategoryStore.getArchiveCategory(@)
-    trashCategory = CategoryStore.getTrashCategory(@)
-
-    if preferDelete or not archiveCategory
-      trashCategory
-    else
-      archiveCategory
-
   categoryIcon: ->
     if @usesFolders()
       'folder.png'
@@ -128,5 +117,25 @@ class Account extends ModelWithMetadata
       return 'Gmail'
     else
       return @provider
+
+  canArchiveThreads: ->
+    CategoryStore = require '../stores/category-store'
+    CategoryStore.getArchiveCategory(@)?
+
+  canTrashThreads: ->
+    CategoryStore = require '../stores/category-store'
+    CategoryStore.getTrashCategory(@)?
+
+  defaultFinishedCategory: ->
+    CategoryStore = require '../stores/category-store'
+    preferDelete = NylasEnv.config.get('core.reading.backspaceDelete')
+    archiveCategory = CategoryStore.getArchiveCategory(@)
+    trashCategory = CategoryStore.getTrashCategory(@)
+
+    if preferDelete or not archiveCategory
+      trashCategory
+    else
+      archiveCategory
+
 
 module.exports = Account

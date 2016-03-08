@@ -88,7 +88,7 @@ class SidebarItem
         return false unless data
         return false unless target
         return false if target.isEqual(current)
-        return false unless target.canReceiveThreads(data.accountIds)
+        return false unless target.canReceiveThreadsFromAccountIds(data.accountIds)
 
         return item.dataTransferType in event.dataTransfer.types
 
