@@ -179,8 +179,8 @@ describe('Snooze Utils', ()=> {
         new Thread({accountId: 123}),
         new Thread({accountId: 321}),
       ]
-      this.getInboxCat = (accId) => this.inboxCatsByAccount[accId]
-      this.getSnoozeCat = (accId) => this.snoozeCatsByAccount[accId]
+      this.getInboxCat = (accId) => [this.inboxCatsByAccount[accId]]
+      this.getSnoozeCat = (accId) => [this.snoozeCatsByAccount[accId]]
 
       spyOn(DatabaseStore, 'modelify').andReturn(Promise.resolve(this.threads))
       spyOn(TaskFactory, 'tasksForApplyingCategories').andReturn([])
@@ -197,13 +197,13 @@ describe('Snooze Utils', ()=> {
         .then(()=> {
           expect(TaskFactory.tasksForApplyingCategories).toHaveBeenCalled()
           expect(Actions.queueTasks).toHaveBeenCalled()
-          const taskArgs = TaskFactory.tasksForApplyingCategories.calls[0].args[0]
-          expect(taskArgs.threads).toBe(this.threads)
-          expect(taskArgs.categoriesToRemove('123')).toBe(this.inboxCatsByAccount['123'])
-          expect(taskArgs.categoriesToRemove('321')).toBe(this.inboxCatsByAccount['321'])
-          expect(taskArgs.categoryToAdd('123')).toBe(this.snoozeCatsByAccount['123'])
-          expect(taskArgs.categoryToAdd('321')).toBe(this.snoozeCatsByAccount['321'])
-          expect(taskArgs.taskDescription).toEqual(description)
+          const {threads, categoriesToAdd, categoriesToRemove, taskDescription} = TaskFactory.tasksForApplyingCategories.calls[0].args[0]
+          expect(threads).toBe(this.threads)
+          expect(categoriesToRemove('123')[0]).toBe(this.inboxCatsByAccount['123'])
+          expect(categoriesToRemove('321')[0]).toBe(this.inboxCatsByAccount['321'])
+          expect(categoriesToAdd('123')[0]).toBe(this.snoozeCatsByAccount['123'])
+          expect(categoriesToAdd('321')[0]).toBe(this.snoozeCatsByAccount['321'])
+          expect(taskDescription).toEqual(description)
         })
       })
     });
@@ -217,13 +217,13 @@ describe('Snooze Utils', ()=> {
         .then(()=> {
           expect(TaskFactory.tasksForApplyingCategories).toHaveBeenCalled()
           expect(Actions.queueTasks).toHaveBeenCalled()
-          const taskArgs = TaskFactory.tasksForApplyingCategories.calls[0].args[0]
-          expect(taskArgs.threads).toBe(this.threads)
-          expect(taskArgs.categoryToAdd('123')).toBe(this.inboxCatsByAccount['123'])
-          expect(taskArgs.categoryToAdd('321')).toBe(this.inboxCatsByAccount['321'])
-          expect(taskArgs.categoriesToRemove('123')).toBe(this.snoozeCatsByAccount['123'])
-          expect(taskArgs.categoriesToRemove('321')).toBe(this.snoozeCatsByAccount['321'])
-          expect(taskArgs.taskDescription).toEqual(description)
+          const {threads, categoriesToAdd, categoriesToRemove, taskDescription} = TaskFactory.tasksForApplyingCategories.calls[0].args[0]
+          expect(threads).toBe(this.threads)
+          expect(categoriesToAdd('123')[0]).toBe(this.inboxCatsByAccount['123'])
+          expect(categoriesToAdd('321')[0]).toBe(this.inboxCatsByAccount['321'])
+          expect(categoriesToRemove('123')[0]).toBe(this.snoozeCatsByAccount['123'])
+          expect(categoriesToRemove('321')[0]).toBe(this.snoozeCatsByAccount['321'])
+          expect(taskDescription).toEqual(description)
         })
       })
     });

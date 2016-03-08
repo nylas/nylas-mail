@@ -2,6 +2,7 @@ React = require 'react'
 {Actions,
  CategoryStore,
  TaskFactory,
+ AccountStore,
  FocusedPerspectiveStore} = require 'nylas-exports'
 
 class ThreadArchiveQuickAction extends React.Component
@@ -10,16 +11,15 @@ class ThreadArchiveQuickAction extends React.Component
     thread: React.PropTypes.object
 
   render: =>
-    mailboxPerspective = FocusedPerspectiveStore.current()
-    archive = null
+    canArchiveThreads = FocusedPerspectiveStore.current().canArchiveThreads([@props.thread])
+    return <span /> unless canArchiveThreads
 
-    if mailboxPerspective.canArchiveThreads()
-      archive = <div key="archive"
-                     title="Archive"
-                     style={{ order: 100 }}
-                     className="btn action action-archive"
-                     onClick={@_onArchive}></div>
-    return archive
+    <div
+      key="archive"
+      title="Archive"
+      style={{ order: 100 }}
+      className="btn action action-archive"
+      onClick={@_onArchive} />
 
   shouldComponentUpdate: (newProps, newState) ->
     newProps.thread.id isnt @props?.thread.id
@@ -39,16 +39,15 @@ class ThreadTrashQuickAction extends React.Component
     thread: React.PropTypes.object
 
   render: =>
-    mailboxPerspective = FocusedPerspectiveStore.current()
-    trash = null
+    canTrashThreads = FocusedPerspectiveStore.current().canTrashThreads([@props.thread])
+    return <span /> unless canTrashThreads
 
-    if mailboxPerspective.canTrashThreads()
-      trash = <div key="remove"
-                   title="Trash"
-                   style={{ order: 110 }}
-                   className='btn action action-trash'
-                   onClick={@_onRemove}></div>
-    return trash
+    <div
+      key="remove"
+      title="Trash"
+      style={{ order: 110 }}
+      className='btn action action-trash'
+      onClick={@_onRemove} />
 
   shouldComponentUpdate: (newProps, newState) ->
     newProps.thread.id isnt @props?.thread.id

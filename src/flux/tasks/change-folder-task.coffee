@@ -29,6 +29,8 @@ class ChangeFolderTask extends ChangeMailTask
     else
       "Moving to folder…"
 
+  categoriesToAdd: => [@folder]
+
   description: ->
     return @taskDescription if @taskDescription
     folderText = ""

@@ -6,9 +6,11 @@ classNames = require 'classnames'
 
 {Actions,
  Thread,
+ Category,
  CanvasUtils,
  TaskFactory,
  ChangeUnreadTask,
+ ChangeStarredTask,
  WorkspaceStore,
  AccountStore,
  CategoryStore,
@@ -21,6 +23,7 @@ ThreadListStore = require './thread-list-store'
 FocusContainer = require './focus-container'
 EmptyState = require './empty-state'
 ThreadListContextMenu = require './thread-list-context-menu'
+CategoryRemovalTargetRulesets = require './category-removal-target-rulesets'
 
 
 class ThreadList extends React.Component
@@ -53,7 +56,9 @@ class ThreadList extends React.Component
     Actions.setFocus(collection: 'thread', item: item)
 
   _keymapHandlers: ->
-    'core:remove-from-view': @_onRemoveFromView
+    'application:remove-from-view': => @_onRemoveFromView
+    'application:gmail-remove-from-view': =>
+      @_onRemoveFromView(CategoryRemovalTargetRulesets.Gmail)
     'application:archive-item': @_onArchiveItem
     'application:delete-item': @_onDeleteItem
     'application:star-item': @_onStarItem
@@ -103,31 +108,36 @@ class ThreadList extends React.Component
       className: classNames
         'unread': item.unread
 
-    perspective = FocusedPerspectiveStore.current()
-    account = AccountStore.accountForId(item.accountId)
-    finishedName = account.defaultFinishedCategory()?.name
+    props.shouldEnableSwipe = =>
+      perspective = FocusedPerspectiveStore.current()
+      tasks = perspective.tasksForRemovingItems([item], CategoryRemovalTargetRulesets.Default)
+      return tasks.length > 0
 
-    if finishedName is 'trash' and perspective.canTrashThreads()
-      props.onSwipeRightClass = 'swipe-trash'
-      props.onSwipeRight = (callback) ->
-        tasks = TaskFactory.tasksForMovingToTrash
-          threads: [item]
-          fromPerspective: FocusedPerspectiveStore.current()
-        Actions.closePopover()
-        Actions.queueTasks(tasks)
-        callback(true)
+    props.onSwipeRightClass = =>
+      perspective = FocusedPerspectiveStore.current()
+      tasks = perspective.tasksForRemovingItems([item], CategoryRemovalTargetRulesets.Default)
+      return null if tasks.length is 0
 
-    else if finishedName in ['archive', 'all'] and perspective.canArchiveThreads()
-      props.onSwipeRightClass = 'swipe-archive'
-      props.onSwipeRight = (callback) ->
-        tasks = TaskFactory.tasksForArchiving
-          threads: [item]
-          fromPerspective: FocusedPerspectiveStore.current()
-        Actions.closePopover()
-        Actions.queueTasks(tasks)
-        callback(true)
+      # TODO this logic is brittle
+      task = tasks[0]
+      name = if task instanceof ChangeStarredTask
+        'unstar'
+      else if task.categoriesToAdd().length is 1
+        task.categoriesToAdd()[0].name
+      else
+        'remove'
 
-    if perspective.isInbox()
+      return "swipe-#{name}"
+
+    props.onSwipeRight = (callback) ->
+      perspective = FocusedPerspectiveStore.current()
+      tasks = perspective.tasksForRemovingItems([item], CategoryRemovalTargetRulesets.Default)
+      callback(false) if tasks.length is 0
+      Actions.closePopover()
+      Actions.queueTasks(tasks)
+      callback(true)
+
+    if FocusedPerspectiveStore.current().isInbox()
       props.onSwipeLeftClass = 'swipe-snooze'
       props.onSwipeCenter = =>
         Actions.closePopover()
@@ -147,7 +157,7 @@ class ThreadList extends React.Component
           "right"
         )
 
-    props
+    return props
 
   _targetItemsForMouseEvent: (event) ->
     itemThreadId = @refs.list.itemIdAtPoint(event.clientX, event.clientY)
@@ -222,8 +232,8 @@ class ThreadList extends React.Component
       tasks = TaskFactory.tasksForApplyingCategories
         threads: threads
         categoriesToRemove: (accountId) -> []
-        categoryToAdd: (accountId) ->
-          CategoryStore.getStandardCategory(accountId, 'important')
+        categoriesToAdd: (accountId) ->
+          [CategoryStore.getStandardCategory(accountId, 'important')]
 
     else
       tasks = TaskFactory.tasksForApplyingCategories
@@ -232,7 +242,6 @@ class ThreadList extends React.Component
           important = CategoryStore.getStandardCategory(accountId, 'important')
           return [important] if important
           return []
-        categoryToAdd: (accountId) -> null
 
     Actions.queueTasks(tasks)
 
@@ -250,15 +259,15 @@ class ThreadList extends React.Component
       fromPerspective: FocusedPerspectiveStore.current()
     Actions.queueTasks(tasks)
 
-  _onRemoveFromView: =>
+  _onRemoveFromView: (ruleset = CategoryRemovalTargetRulesets.Default) =>
     threads = @_threadsForKeyboardAction()
     return unless threads
     current = FocusedPerspectiveStore.current()
-    current.removeThreads(threads)
+    tasks = current.tasksForRemovingItems(threads, ruleset)
+    Actions.queueTasks(tasks)
     Actions.popSheet()
 
   _onArchiveItem: =>
-    return unless FocusedPerspectiveStore.current().canArchiveThreads()
     threads = @_threadsForKeyboardAction()
     if threads
       tasks = TaskFactory.tasksForArchiving
@@ -268,7 +277,6 @@ class ThreadList extends React.Component
     Actions.popSheet()
 
   _onDeleteItem: =>
-    return unless FocusedPerspectiveStore.current().canTrashThreads()
     threads = @_threadsForKeyboardAction()
     if threads
       tasks = TaskFactory.tasksForMovingToTrash

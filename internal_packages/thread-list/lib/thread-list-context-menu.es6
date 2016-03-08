@@ -5,7 +5,8 @@ import {
   Message,
   TaskFactory,
   DatabaseStore,
-  FocusedPerspectiveStore} from 'nylas-exports'
+  FocusedPerspectiveStore,
+} from 'nylas-exports'
 
 export default class ThreadListContextMenu {
   constructor({threadIds = [], accountIds = []}) {
@@ -80,7 +81,9 @@ export default class ThreadListContextMenu {
   }
 
   archiveItem() {
-    if (!FocusedPerspectiveStore.current().canArchiveThreads()) {
+    const perspective = FocusedPerspectiveStore.current()
+    const canArchiveThreads = perspective.canArchiveThreads(this.threads)
+    if (!canArchiveThreads) {
       return null
     }
     return {
@@ -96,7 +99,9 @@ export default class ThreadListContextMenu {
   }
 
   trashItem() {
-    if (!FocusedPerspectiveStore.current().canTrashThreads()) {
+    const perspective = FocusedPerspectiveStore.current()
+    const canTrashThreads = perspective.canTrashThreads(this.threads)
+    if (!canTrashThreads) {
       return null
     }
     return {

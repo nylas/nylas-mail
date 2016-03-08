@@ -77,6 +77,12 @@ class Category extends Model
   @LockedCategoryNames: Object.keys(LockedCategories)
   @HiddenCategoryNames: Object.keys(HiddenCategories)
 
+  @categoriesSharedName: (cats) ->
+    return null unless cats and cats.length > 0
+    name = cats[0].name
+    return null unless _.every cats, (cat) -> cat.name is name
+    return name
+
   @additionalSQLiteConfig:
     setup: ->
       ['CREATE INDEX IF NOT EXISTS CategoryNameIndex ON Category(account_id,name)',
@@ -119,5 +125,8 @@ class Category extends Model
 
   isUserCategory: ->
     not @isStandardCategory() and not @isHiddenCategory()
+
+  isArchive: ->
+    @name in ['all', 'archive']
 
 module.exports = Category

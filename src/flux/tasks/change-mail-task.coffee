@@ -108,6 +108,16 @@ class ChangeMailTask extends Task
   processNestedMessages: ->
     false
 
+  # Public: Returns categories that this task will add to the set of threads
+  # Must be overriden
+  categoriesToAdd: ->
+    []
+
+  # Public: Returns categories that this task will remove the set of threads
+  # Must be overriden
+  categoriesToRemove: ->
+    []
+
   # Public: Subclasses should override `performLocal` and call super once
   # they've prepared the data they need and verified that requirements are
   # met.

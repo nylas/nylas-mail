@@ -41,7 +41,7 @@
   ',': 'application:focus-toolbar'
   'x': 'core:select-item'
   's': 'application:star-item'
-  'y': 'core:remove-from-view' # Remove label
+  'y': 'application:gmail-remove-from-view' # Remove label
   'e': 'application:archive-item'
   'm': 'application:mute-conversation'
   '!': 'application:report-as-spam'
