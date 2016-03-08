@@ -12,6 +12,7 @@ SoundRegistry = require '../../sound-registry'
 DatabaseStore = require '../stores/database-store'
 AccountStore = require '../stores/account-store'
 SyncbackMetadataTask = require './syncback-metadata-task'
+SyncbackDraftTask = require './syncback-draft-task'
 
 class MultiRequestProgressMonitor
 
@@ -50,7 +51,22 @@ class SendDraftTask extends Task
     "Sending message..."
 
   shouldDequeueOtherTask: (other) ->
-    other instanceof SendDraftTask and other.draft.clientId is @draft.clientId
+    # A new send action should knock any other sends that are not
+    # currently executing out of the queue. It should also knock out
+    # any SyncbackDraftTasks - running these concurrently with a send
+    # results in weird behavior.
+    (other instanceof SendDraftTask and other.draft.clientId is @draft.clientId) or
+    (other instanceof SyncbackDraftTask and other.draftClientId is @draft.clientId)
+
+
+  isDependentOnTask: (other) ->
+    # Set this task to be dependent on any SyncbackDraftTasks for the
+    # same draft that were created first, to ensure this task does not
+    # execute at the same time as a syncback. Works in conjunction with
+    # similar restrictions in this method on the SyncbackDraftTask.
+    other instanceof SyncbackDraftTask and
+    other.draftClientId is @draft.clientId and
+    other.sequentialId < @sequentialId
 
   performLocal: ->
     unless @draft and @draft instanceof Message

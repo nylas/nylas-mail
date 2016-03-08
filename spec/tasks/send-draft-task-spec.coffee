@@ -17,7 +17,7 @@ DBt = DatabaseTransaction.prototype
 
 describe "SendDraftTask", ->
 
-  describe "isDependentTask", ->
+  describe "isDependentOnTask", ->
     it "is not dependent on any pending SyncbackDraftTasks", ->
       draftA = new Message
         version: '1'
@@ -33,7 +33,7 @@ describe "SendDraftTask", ->
       saveA = new SyncbackDraftTask(draftA, [])
       sendA = new SendDraftTask(draftA, [])
 
-      expect(sendA.isDependentTask(saveA)).toBe(false)
+      expect(sendA.isDependentOnTask(saveA)).toBe(false)
 
   describe "performLocal", ->
     it "rejects if we we don't pass a draft", ->

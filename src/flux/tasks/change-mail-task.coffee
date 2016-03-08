@@ -272,10 +272,10 @@ class ChangeMailTask extends Task
   # To ensure that complex offline actions are synced correctly, label/folder additions
   # and removals need to be applied in order. (For example, star many threads,
   # and then unstar one.)
-  isDependentTask: (other) ->
+  isDependentOnTask: (other) ->
     # Only wait on other tasks that are older and also involve the same threads
     return unless other instanceof ChangeMailTask
-    otherOlder = other.creationDate < @creationDate
+    otherOlder = other.sequentialId < @sequentialId
     otherSameObjs = _.intersection(other.objectIds(), @objectIds()).length > 0
     return otherOlder and otherSameObjs
 

@@ -53,10 +53,9 @@ describe "SyncbackDraftTask", ->
       @taskC = new SyncbackDraftTask("draft-123")
       @taskOther = new SyncbackDraftTask("draft-456")
 
-      now = Date.now()
-      @taskA.creationDate = now - 20
-      @taskB.creationDate = now - 10
-      @taskC.creationDate = now
+      @taskA.sequentialId = 0
+      @taskB.sequentialId = 1
+      @taskC.sequentialId = 2
       TaskQueue._queue = []
 
     it "dequeues other SyncbackDraftTasks that haven't started yet", ->

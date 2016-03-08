@@ -74,6 +74,7 @@ class TaskQueue
     @_queue = []
     @_completed = []
     @_updatePeriodicallyTimeout = null
+    @_currentSequentialId = Date.now()
 
     @_restoreQueue()
 
@@ -117,6 +118,7 @@ class TaskQueue
       throw new Error("Tasks must have an ID prior to being queued. Check that your Task constructor is calling `super`")
     if not task.queueState
       throw new Error("Tasks must have a queueState prior to being queued. Check that your Task constructor is calling `super`")
+    task.sequentialId = ++@_currentSequentialId
 
     @_dequeueObsoleteTasks(task)
     task.runLocal().then =>
@@ -252,11 +254,11 @@ class TaskQueue
 
   _tasksDependingOn: (task) ->
     _.filter @_queue, (otherTask) ->
-      otherTask.isDependentTask(task) and task isnt otherTask
+      otherTask.isDependentOnTask(task) and task isnt otherTask
 
   _taskIsBlocked: (task) =>
     _.any @_queue, (otherTask) ->
-      task.isDependentTask(otherTask) and task isnt otherTask
+      task.isDependentOnTask(otherTask) and task isnt otherTask
 
   _resolveTaskArgument: (taskOrId) =>
     if not taskOrId

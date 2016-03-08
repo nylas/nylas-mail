@@ -44,7 +44,7 @@ TaskDebugStatus =
 # (aka saving) succeeding. To establish dependencies between tasks, your
 # subclass may implement one or more of the following methods:
 #
-# - {Task::isDependentTask}
+# - {Task::isDependentOnTask}
 # - {Task::onDependentTaskError}
 # - {Task::shouldDequeueOtherTask}
 #
@@ -73,7 +73,7 @@ TaskDebugStatus =
 #
 # Remember that a user may be offline for hours and perform thousands of
 # tasks in the meantime. It's important that your tasks implement
-# `shouldDequeueOtherTask` and `isDependentTask` to make sure ordering
+# `shouldDequeueOtherTask` and `isDependentOnTask` to make sure ordering
 # always remains correct.
 #
 # ## Serialization and Window Considerations
@@ -155,7 +155,7 @@ class Task
   constructor: ->
     @_rememberedToCallSuper = true
     @id = generateTempId()
-    @creationDate = new Date()
+    @sequentialId = null  # set when queued
     @queueState =
       isProcessing: false
       localError: null
@@ -448,10 +448,14 @@ class Task
   # If a "dependency" has a `Task.Status.Failed`, then all downstream
   # tasks will get dequeued recursively.
   #
+  # A task will also never be run at the same time as one of its
+  # dependencies.
+  #
   # Returns `true` (is dependent on) or `false` (is not dependent on)
-  isDependentTask: (other) -> false
+  isDependentOnTask: (other) -> false
 
-  # Public: determines which other tasks this one should dequeue.
+  # Public: determines which other tasks this one should dequeue when
+  # it is first queued.
   #
   # - `other` An instance of a {Task} you must test to see if it's now
   # obsolete.

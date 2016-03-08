@@ -37,7 +37,6 @@ export default class LinkTrackingComposerExtension extends ComposerExtension {
 
       // save the draft
       session.changes.add({body: draftBody.body});
-      session.changes.commit();
 
       // save the link info to draft metadata
       metadata.uid = messageUid;

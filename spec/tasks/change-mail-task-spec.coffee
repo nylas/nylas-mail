@@ -548,19 +548,20 @@ describe "ChangeMailTask", ->
       task._restoreValues = null
       expect( -> task.createUndoTask()).toThrow()
 
-  describe "isDependentTask", ->
+  describe "isDependentOnTask", ->
     it "should return true if another, older ChangeMailTask involves the same threads", ->
       a = new ChangeMailTask()
       a.threads = ['t1', 't2', 't3']
-      a.creationDate = new Date(1000)
+      a.sequentialId = 0
       b = new ChangeMailTask()
       b.threads = ['t3', 't4', 't7']
-      b.creationDate = new Date(2000)
+      b.sequentialId = 1
       c = new ChangeMailTask()
+      console.log([a,b,c].map((x) -> x.sequentialId))
       c.threads = ['t0', 't7']
-      c.creationDate = new Date(3000)
-      expect(a.isDependentTask(b)).toEqual(false)
-      expect(a.isDependentTask(c)).toEqual(false)
-      expect(b.isDependentTask(a)).toEqual(true)
-      expect(c.isDependentTask(a)).toEqual(false)
-      expect(c.isDependentTask(b)).toEqual(true)
+      c.sequentialId = 2
+      expect(a.isDependentOnTask(b)).toEqual(false)
+      expect(a.isDependentOnTask(c)).toEqual(false)
+      expect(b.isDependentOnTask(a)).toEqual(true)
+      expect(c.isDependentOnTask(a)).toEqual(false)
+      expect(c.isDependentOnTask(b)).toEqual(true)
