@@ -21,14 +21,27 @@ class SyncbackDraftTask extends Task
     super
 
   shouldDequeueOtherTask: (other) ->
+    # A new syncback action should knock any other syncbacks that are
+    # not currently executing out of the queue.
     other instanceof SyncbackDraftTask and
     other.draftClientId is @draftClientId and
-    other.creationDate <= @creationDate
+    other.sequentialId <= @sequentialId
 
-  isDependentTask: (other) ->
-    other instanceof SyncbackDraftTask and
+  isDependentOnTask: (other) ->
+    # Set this task to be dependent on any SyncbackDraftTasks and
+    # SendDraftTasks for the same draft that were created first.
+    # This, in conjunction with this method on SendDraftTask, ensures
+    # that a send and a syncback never run at the same time for a draft.
+
+    # Require here rather than on top to avoid a circular dependency
+    SendDraftTask = require './send-draft-task'
+
+    (other instanceof SyncbackDraftTask and
     other.draftClientId is @draftClientId and
-    other.creationDate <= @creationDate
+    other.sequentialId < @sequentialId) or
+    (other instanceof SendDraftTask and
+    other.draft.clientId is @draftClientId and
+    other.sequentialId < @sequentialId)
 
   performLocal: ->
     # SyncbackDraftTask does not do anything locally. You should persist your changes
@@ -96,6 +109,10 @@ class SyncbackDraftTask extends Task
 
   getLatestLocalDraft: =>
     DatabaseStore.findBy(Message, clientId: @draftClientId).include(Message.attributes.body)
+    .then (message) ->
+      if not message?.draft
+        return Promise.resolve()
+      return Promise.resolve(message)
 
   checkDraftFromMatchesAccount: (draft) ->
     account = AccountStore.accountForEmail(draft.from[0].email)

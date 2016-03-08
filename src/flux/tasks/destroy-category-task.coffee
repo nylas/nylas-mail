@@ -16,7 +16,7 @@ class DestroyCategoryTask extends Task
   label: ->
     "Deleting #{@category.displayType()} #{@category.displayName}..."
 
-  isDependentTask: (other) ->
+  isDependentOnTask: (other) ->
     (other instanceof ChangeFolderTask) or
     (other instanceof ChangeLabelTask) or
     (other instanceof SyncbackCategoryTask)

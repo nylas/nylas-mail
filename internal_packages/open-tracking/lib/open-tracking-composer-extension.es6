@@ -24,7 +24,6 @@ export default class OpenTrackingComposerExtension extends ComposerExtension {
 
       // save the draft
       session.changes.add({body: draftBody.body});
-      session.changes.commit();
     }
   }
 }

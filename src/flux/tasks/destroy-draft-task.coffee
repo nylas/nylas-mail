@@ -18,7 +18,7 @@ class DestroyDraftTask extends Task
     (other instanceof SyncbackDraftTask and other.draftClientId is @draftClientId) or
     (other instanceof SendDraftTask and other.draftClientId is @draftClientId)
 
-  isDependentTask: (other) ->
+  isDependentOnTask: (other) ->
     (other instanceof SyncbackDraftTask and other.draftClientId is @draftClientId)
 
   performLocal: ->
