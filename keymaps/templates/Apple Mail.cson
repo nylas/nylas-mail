@@ -4,12 +4,28 @@
 # http://dashkards.com/img/dashkard-mail.png
 
 'body':
+
+  ### Jumping ###
+  'cmd-ctrl-1' : 'navigation:go-to-inbox'
+  'cmd-ctrl-2' : 'navigation:go-to-starred'
+  'cmd-ctrl-3' : 'navigation:go-to-sent'
+  'cmd-ctrl-4' : 'navigation:go-to-drafts'
+  'cmd-ctrl-5' : 'navigation:go-to-all'
+  'cmd-ctrl-6' : 'navigation:go-to-contacts'
+  'cmd-ctrl-7' : 'navigation:go-to-tasks'
+  'cmd-ctrl-8' : 'navigation:go-to-label'
+
+    ### Threadlist selection ###
+  'cmd-a': 'multiselect-list:select-all'
+
   # Triage
   'cmdctrl-r': 'application:reply'
-  'cmdctrl-shift-r': 'application:reply-all'
-  'cmdctrl-shift-f': 'application:forward'
-  'cmdctrl-shift-j': 'application:report-as-spam'
-  'cmdctrl-shift-u': 'application:mark-as-unread'
+  'cmd-ctrl-shift-r': 'application:reply-all'
+  'cmd-ctrl-shift-f': 'application:forward'
+  'cmd-ctrl-shift-j': 'application:report-as-spam'
+  'cmd-ctrl-shift-u': 'application:mark-as-unread'
+  'cmd-ctrl-a': 'application:archive-item'
+  'cmd-shift-l': 'application:star-item'
 
   # Composing
   'cmdctrl-n': 'application:new-message'
