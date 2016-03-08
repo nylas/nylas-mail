@@ -22,20 +22,12 @@ class MessageItemBody extends React.Component
       processedBody: undefined
 
   componentWillMount: =>
-    @_prepareBody(@props)
+    @_unsub = MessageBodyProcessor.processAndSubscribe(@props.message, @_onBodyChanged)
 
-  shouldComponentUpdate: (nextProps, nextState) ->
-    not Utils.isEqualReact(nextProps, @props) or
-    not Utils.isEqualReact(nextState, @state)
-
-  componentWillUpdate: (nextProps, nextState) =>
-    if not Utils.isEqualReact(nextProps.message, @props.message)
-      @_prepareBody(nextProps)
-
-  _prepareBody: (props) ->
-    MessageBodyProcessor.resetCache(props.message)
-    @_unsub?()
-    @_unsub = MessageBodyProcessor.processAndSubscribe(props.message, @_onBodyChanged)
+  componentWillReceiveProps: (nextProps) ->
+    if nextProps.message.id isnt @props.message.id
+      @_unsub?()
+      @_unsub = MessageBodyProcessor.processAndSubscribe(nextProps.message, @_onBodyChanged)
 
   componentWillUnmount: =>
     @_unsub?()
