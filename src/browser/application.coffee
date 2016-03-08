@@ -539,4 +539,9 @@ class Application
     isSpec = true
     devMode = true
     safeMode ?= false
-    new NylasWindow({bootstrapScript, @configDirPath, resourcePath, exitWhenDone, isSpec, devMode, specDirectory, specFilePattern, logFile, safeMode, showSpecsInWindow})
+
+    # Important: Use .nylas-spec instead of .nylas to avoid overwriting the
+    # user's real email config!
+    configDirPath = path.join(app.getPath('home'), '.nylas-spec')
+
+    new NylasWindow({bootstrapScript, configDirPath, resourcePath, exitWhenDone, isSpec, devMode, specDirectory, specFilePattern, logFile, safeMode, showSpecsInWindow})
