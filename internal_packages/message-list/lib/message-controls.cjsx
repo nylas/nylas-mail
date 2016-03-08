@@ -80,12 +80,12 @@ class MessageControls extends React.Component
     # Todo: refactor this so that message actions are provided
     # dynamically. Waiting to see if this will be used often.
     menu = new SystemMenu()
-    menu.append(new SystemMenuItem({ label: 'Report Issue: Quoted Text', click: => @_onReport('Quoted Text')}))
-    menu.append(new SystemMenuItem({ label: 'Report Issue: Rendering', click: => @_onReport('Rendering')}))
-    menu.append(new SystemMenuItem({ type: 'separator'}))
+    menu.append(new SystemMenuItem({ label: 'Log Data', click: => @_onLogData()}))
     menu.append(new SystemMenuItem({ label: 'Show Original', click: => @_onShowOriginal()}))
     menu.append(new SystemMenuItem({ label: 'Copy Debug Info to Clipboard', click: => @_onCopyToClipboard()}))
-    menu.append(new SystemMenuItem({ label: 'Log Data', click: => @_onLogData()}))
+    menu.append(new SystemMenuItem({ type: 'separator'}))
+    menu.append(new SystemMenuItem({ label: 'Report Issue: Quoted Text', click: => @_onReport('Quoted Text')}))
+    menu.append(new SystemMenuItem({ label: 'Report Issue: Rendering', click: => @_onReport('Rendering')}))
     menu.popup(remote.getCurrentWindow())
 
   _onReport: (issueType) =>
@@ -110,7 +110,7 @@ class MessageControls extends React.Component
         type: 'warning'
         buttons: ['OK'],
         message: "Thank you."
-        detail: "The contents of this message have been sent to the N1 team and we added to a test suite."
+        detail: "The contents of this message have been sent to the N1 team and will be added to a test suite."
       }
 
   _onShowOriginal: =>
