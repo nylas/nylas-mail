@@ -557,7 +557,6 @@ describe "ChangeMailTask", ->
       b.threads = ['t3', 't4', 't7']
       b.sequentialId = 1
       c = new ChangeMailTask()
-      console.log([a,b,c].map((x) -> x.sequentialId))
       c.threads = ['t0', 't7']
       c.sequentialId = 2
       expect(a.isDependentOnTask(b)).toEqual(false)

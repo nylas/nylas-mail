@@ -52,3 +52,4 @@ export default class OpenTrackingMessageStatus extends React.Component {
     )
   }
 }
+

@@ -52,3 +52,4 @@ describe("Open tracking message status", () => {
     expect(icon.querySelector("img.opened")).not.toBeNull();
   });
 });
+

@@ -30,23 +30,26 @@ const TaskFactory = {
       byAccount[accountId].threadsToUpdate.push(thread)
     })
 
-    _.each(byAccount, ({categoriesToAdd, categoriesToRemove, threadsToUpdate}, accountId)=> {
-      const account = AccountStore.accountForId(accountId)
-      if (!(categoriesToAdd instanceof Array)) {
-        throw new Error("tasksForApplyingCategories: `categoriesToAdd` must return an array of Categories")
+    _.each(byAccount, (data, accountId) => {
+      const catToAdd = data.categoriesToAdd;
+      const catToRemove = data.categoriesToRemove;
+      const threadsToUpdate = data.threadsToUpdate;
+      const account = AccountStore.accountForId(accountId);
+      if (!(catToAdd instanceof Array)) {
+        throw new Error("tasksForApplyingCategories: `catToAdd` must return an array of Categories")
       }
-      if (!(categoriesToRemove instanceof Array)) {
-        throw new Error("tasksForApplyingCategories: `categoriesToRemove` must return an array of Categories")
+      if (!(catToRemove instanceof Array)) {
+        throw new Error("tasksForApplyingCategories: `catToRemove` must return an array of Categories")
       }
 
       if (account.usesFolders()) {
-        if (categoriesToAdd.length === 0) return;
-        if (categoriesToAdd.length > 1) {
-          throw new Error("tasksForApplyingCategories: `categoriesToAdd` must return a single `Category` (folder) for Exchange accounts")
+        if (catToAdd.length === 0) return;
+        if (catToAdd.length > 1) {
+          throw new Error("tasksForApplyingCategories: `catToAdd` must return a single `Category` (folder) for Exchange accounts")
         }
-        const folder = categoriesToAdd[0]
+        const folder = catToAdd[0]
         if (!(folder instanceof Category)) {
-          throw new Error("tasksForApplyingCategories: `categoriesToAdd` must return a Categories")
+          throw new Error("tasksForApplyingCategories: `catToAdd` must return a Categories")
         }
 
         tasks.push(new ChangeFolderTask({
@@ -55,8 +58,8 @@ const TaskFactory = {
           taskDescription,
         }))
       } else {
-        const labelsToAdd = categoriesToAdd
-        const labelsToRemove = categoriesToRemove
+        const labelsToAdd = catToAdd
+        const labelsToRemove = catToRemove
         if (labelsToAdd.length === 0 && labelsToRemove.length === 0) return;
 
         tasks.push(new ChangeLabelsTask({

@@ -23,14 +23,13 @@ const testBody = `<body>${testContent}${quote}</body>`;
 const replacedBody = (accountId, messageUid, unquoted) => `<body>${replacedContent(accountId, messageUid)}${unquoted ? "" : quote}</body>`;
 
 describe("Open tracking composer extension", () => {
-
   // Set up a draft, session that returns the draft, and metadata
   beforeEach(()=>{
     this.draft = new Message({accountId: "test"});
     this.draft.body = testBody;
     this.session = {
       draft: () => this.draft,
-      changes: jasmine.createSpyObj('changes', ['add', 'commit'])
+      changes: jasmine.createSpyObj('changes', ['add', 'commit']),
     };
   });
 
@@ -83,3 +82,4 @@ describe("Open tracking composer extension", () => {
     })
   });
 });
+
