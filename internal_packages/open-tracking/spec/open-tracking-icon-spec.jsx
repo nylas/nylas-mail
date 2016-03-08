@@ -22,7 +22,7 @@ function addOpenMetadata(obj, openCount) {
 
 describe("Open tracking icon", () => {
   beforeEach(() => {
-    this.thread = {metadata:[]};
+    this.thread = {metadata: []};
   });
 
 
@@ -65,7 +65,6 @@ describe("Open tracking icon", () => {
       expect(icon.children.length).toEqual(1);
       expect(icon.querySelector("img.unopened")).not.toBeNull();
       expect(icon.querySelector("img.opened")).toBeNull();
-
     });
 
     it("shows an opened icon if all messages with metadata are opened", () => {
@@ -78,3 +77,4 @@ describe("Open tracking icon", () => {
     });
   });
 });
+

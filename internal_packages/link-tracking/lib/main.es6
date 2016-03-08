@@ -1,4 +1,3 @@
-import request from 'request';
 import {ComponentRegistry, ExtensionRegistry, Actions} from 'nylas-exports';
 import LinkTrackingButton from './link-tracking-button';
 import LinkTrackingComposerExtension from './link-tracking-composer-extension';

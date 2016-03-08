@@ -2,7 +2,7 @@ import request from 'request';
 import {Actions} from 'nylas-exports';
 import {PLUGIN_ID, PLUGIN_URL} from './link-tracking-constants'
 
-export default class LinkTrackingAfterSend{
+export default class LinkTrackingAfterSend {
   static post = Promise.promisify(request.post, {multiArgs: true});
 
   static afterDraftSend({message}) {
@@ -35,3 +35,4 @@ export default class LinkTrackingAfterSend{
     }
   }
 }
+
