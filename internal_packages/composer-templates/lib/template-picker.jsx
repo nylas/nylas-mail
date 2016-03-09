@@ -1,5 +1,5 @@
 import {Actions, React} from 'nylas-exports';
-import {Popover, Menu, RetinaImg} from 'nylas-component-kit';
+import {Menu, RetinaImg} from 'nylas-component-kit';
 import TemplateStore from './template-store';
 
 class TemplatePicker extends React.Component {
@@ -51,33 +51,34 @@ class TemplatePicker extends React.Component {
 
   _onChooseTemplate = (template) => {
     Actions.insertTemplateId({templateId: template.id, draftClientId: this.props.draftClientId});
-    return this.refs.popover.close();
+    Actions.closePopover()
   };
 
   _onManageTemplates = () => {
-    return Actions.showTemplates();
+    Actions.showTemplates();
   };
 
   _onNewTemplate = () => {
-    return Actions.createTemplate({draftClientId: this.props.draftClientId});
+    Actions.createTemplate({draftClientId: this.props.draftClientId});
   };
 
-  render() {
-    const button = (
-      <button className="btn btn-toolbar narrow" title="Insert email template…">
-        <RetinaImg url="nylas://composer-templates/assets/icon-composer-templates@2x.png" mode={RetinaImg.Mode.ContentIsMask}/>
-        &nbsp;
-        <RetinaImg name="icon-composer-dropdown.png" mode={RetinaImg.Mode.ContentIsMask}/>
-      </button>
-    );
+  _onClickButton = ()=> {
+    const buttonRect = React.findDOMNode(this).getBoundingClientRect()
+    Actions.openPopover(
+      this._renderPopover(),
+      {originRect: buttonRect, direction: 'up'}
+    )
+  };
 
+  _renderPopover() {
     const headerComponents = [
-      <input type="text"
-             tabIndex="1"
-             key="textfield"
-             className="search"
-             value={this.state.searchValue}
-             onChange={this._onSearchValueChange}/>,
+      <input
+        type="text"
+        tabIndex="1"
+        key="textfield"
+        className="search"
+        value={this.state.searchValue}
+        onChange={this._onSearchValueChange} />,
     ];
 
     const footerComponents = [
@@ -86,19 +87,30 @@ class TemplatePicker extends React.Component {
     ];
 
     return (
-      <Popover ref="popover" className="template-picker pull-right" buttonComponent={button}>
-        <Menu ref="menu"
-              headerComponents={headerComponents}
-              footerComponents={footerComponents}
-              items={this.state.templates}
-              itemKey={ (item)=> item.id }
-              itemContent={ (item)=> item.name }
-              onSelect={this._onChooseTemplate.bind(this)}
-              />
-      </Popover>
+      <Menu
+        className="template-picker"
+        headerComponents={headerComponents}
+        footerComponents={footerComponents}
+        items={this.state.templates}
+        itemKey={ (item)=> item.id }
+        itemContent={ (item)=> item.name }
+        onSelect={this._onChooseTemplate.bind(this)}
+      />
     );
   }
 
+  render() {
+    return (
+      <button
+        className="btn btn-toolbar narrow pull-right"
+        onClick={this._onClickButton}
+        title="Insert email template…">
+        <RetinaImg url="nylas://composer-templates/assets/icon-composer-templates@2x.png" mode={RetinaImg.Mode.ContentIsMask}/>
+        &nbsp;
+        <RetinaImg name="icon-composer-dropdown.png" mode={RetinaImg.Mode.ContentIsMask}/>
+      </button>
+    );
+  }
 }
 
 export default TemplatePicker;
