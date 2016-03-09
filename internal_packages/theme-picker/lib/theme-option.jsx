@@ -2,7 +2,7 @@ import React from 'react';
 import fs from 'fs-plus';
 import path from 'path';
 
-import {EventedIFrame} from 'nylas-component-kit';
+import {EventedIFrame, RetinaImg} from 'nylas-component-kit';
 import LessCompileCache from '../../../src/less-compile-cache'
 
 
@@ -10,6 +10,8 @@ class ThemeOption extends React.Component {
   static propTypes = {
     theme: React.PropTypes.object.isRequired,
     active: React.PropTypes.bool.isRequired,
+    onSelect: React.PropTypes.func.isRequired,
+    onUninstall: React.PropTypes.func.isRequired,
   }
 
   constructor(props) {
@@ -65,7 +67,7 @@ class ThemeOption extends React.Component {
   }
 
   _writeContent() {
-    const domNode = React.findDOMNode(this);
+    const domNode = React.findDOMNode(this.refs.iframe);
     const doc = domNode.contentDocument;
     if (!doc) return;
 
@@ -93,8 +95,26 @@ class ThemeOption extends React.Component {
   }
 
   render() {
+    const uninstallButton = this.props.theme.path.indexOf("/n1/internal_packages") === -1 ? (
+                            <RetinaImg
+                              className="theme-uninstall-x"
+                              name="uninstall-x.png"
+                              mode={RetinaImg.Mode.ContentDark}
+                              style={{width: "14", height: "14"}}
+                              onMouseDown={this.props.onUninstall} />) : null;
     return (
-      <EventedIFrame ref="iframe" className={`theme-preview-${this.props.theme.name}`} frameBorder="0" width="105px" height="65px" flex="1" style={{pointerEvents: "none"}} />
+      <div>
+        {uninstallButton}
+        <div className="clickable-theme-option" onMouseDown={this.props.onSelect}>
+          <EventedIFrame
+            ref="iframe"
+            className={`theme-preview-${this.props.theme.name}`}
+            frameBorder="0"
+            width="105px"
+            height="65px"
+            flex="1" />
+        </div>
+      </div>
     );
   }
 }
