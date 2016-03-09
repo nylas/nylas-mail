@@ -11,12 +11,12 @@ import {
   ComponentRegistry,
   QuotedHTMLTransformer,
   DraftStore,
+  Actions,
 } from 'nylas-exports';
 
 import {
   Menu,
   RetinaImg,
-  Popover,
 } from 'nylas-component-kit';
 
 const YandexTranslationURL = 'https://translate.yandex.net/api/v1.5/tr.json/translate';
@@ -37,23 +37,23 @@ const YandexLanguages = {
 class TranslateButton extends React.Component {
 
   // Adding a `displayName` makes debugging React easier
-  static displayName = 'TranslateButton'
+  static displayName = 'TranslateButton';
 
   // Since our button is being injected into the Composer Footer,
   // we receive the local id of the current draft as a `prop` (a read-only
   // property). Since our code depends on this prop, we mark it as a requirement.
   static propTypes = {
     draftClientId: React.PropTypes.string.isRequired,
-  }
+  };
 
   _onError(error) {
-    this.refs.popover.close();
+    Actions.closePopover()
     const dialog = require('remote').require('dialog');
     dialog.showErrorBox('Language Conversion Failed', error.toString());
   }
 
   _onTranslate = (lang) => {
-    this.refs.popover.close();
+    Actions.closePopover()
 
     // Obtain the session for the current draft. The draft session provides us
     // the draft object and also manages saving changes to the local cache and
@@ -90,15 +90,52 @@ class TranslateButton extends React.Component {
         session.changes.commit();
       });
     });
+  };
+
+  _onClickTranslateButton = ()=> {
+    const buttonRect = React.findDOMNode(this).getBoundingClientRect()
+    Actions.openPopover(
+      this._renderPopover(),
+      {originRect: buttonRect, direction: 'up'}
+    )
+  };
+
+  // Helper method that will render the contents of our popover.
+  _renderPopover() {
+    const headerComponents = [
+      <span>Translate:</span>,
+    ];
+    return (
+      <Menu
+        className="translate-language-picker"
+        items={ Object.keys(YandexLanguages) }
+        itemKey={ (item)=> item }
+        itemContent={ (item)=> item }
+        headerComponents={headerComponents}
+        defaultSelectedIndex={-1}
+        onSelect={this._onTranslate}
+      />
+    )
   }
 
-  // Helper method to render the button that will activate the popover. Using the
-  // `RetinaImg` component makes it easy to display an image from our package.
-  // `RetinaImg` will automatically chose the best image format for our display.
-  _renderButton() {
+  // The `render` method returns a React Virtual DOM element. This code looks
+  // like HTML, but don't be fooled. The JSX preprocessor converts
+  // `<a href="http://facebook.github.io/react/">Hello!</a>`
+  // into Javascript objects which describe the HTML you want:
+  // `React.createElement('a', {href: 'http://facebook.github.io/react/'}, 'Hello!')`
+
+  // We're rendering a `Menu` inside our Popover, and using a `RetinaImg` for the button.
+  // These components are part of N1's standard `nylas-component-kit` library,
+  // and make it easy to build interfaces that match the rest of N1's UI.
+  //
+  // For example, using the `RetinaImg` component makes it easy to display an
+  // image from our package. `RetinaImg` will automatically chose the best image
+  // format for our display.
+  render() {
     return (
       <button
-        className="btn btn-toolbar"
+        className="btn btn-toolbar pull-right"
+        onClick={this._onClickTranslateButton}
         title="Translate email body…">
         <RetinaImg
           mode={RetinaImg.Mode.ContentIsMask}
@@ -108,37 +145,6 @@ class TranslateButton extends React.Component {
           name="icon-composer-dropdown.png"
           mode={RetinaImg.Mode.ContentIsMask}/>
       </button>
-    )
-  }
-
-  // The `render` method returns a React Virtual DOM element. This code looks
-  // like HTML, but don't be fooled. The CJSX preprocessor converts
-
-  // `<a href="http://facebook.github.io/react/">Hello!</a>`
-
-  // into Javascript objects which describe the HTML you want:
-
-  // `React.createElement('a', {href: 'http://facebook.github.io/react/'}, 'Hello!')`
-
-  // We're rendering a `Popover` with a `Menu` inside. These components are part
-  // of N1's standard `nylas-component-kit` library, and make it easy to build
-  // interfaces that match the rest of N1's UI.
-  render() {
-    const headerComponents = [
-      <span>Translate:</span>,
-    ];
-    return (
-      <Popover ref="popover"
-               className="translate-language-picker pull-right"
-               buttonComponent={this._renderButton()}>
-        <Menu items={ Object.keys(YandexLanguages) }
-              itemKey={ (item)=> item }
-              itemContent={ (item)=> item }
-              headerComponents={headerComponents}
-              defaultSelectedIndex={-1}
-              onSelect={this._onTranslate}
-              />
-      </Popover>
     );
   }
 }

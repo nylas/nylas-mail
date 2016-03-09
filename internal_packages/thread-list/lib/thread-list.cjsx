@@ -143,18 +143,15 @@ class ThreadList extends React.Component
         Actions.closePopover()
       props.onSwipeLeft = (callback) =>
         # TODO this should be grabbed from elsewhere
-        {PopoverStore} = require 'nylas-exports'
-        SnoozePopoverBody = require '../../thread-snooze/lib/snooze-popover-body'
+        SnoozePopover = require '../../thread-snooze/lib/snooze-popover'
 
         element = document.querySelector("[data-item-id=\"#{item.id}\"]")
-        rect = element.getBoundingClientRect()
+        originRect = element.getBoundingClientRect()
         Actions.openPopover(
-          <SnoozePopoverBody
+          <SnoozePopover
             threads={[item]}
-            swipeCallback={callback}
-            closePopover={Actions.closePopover}/>,
-          rect,
-          "right"
+            swipeCallback={callback} />,
+          {originRect, direction: 'right', fallbackDirection: 'down'}
         )
 
     return props
