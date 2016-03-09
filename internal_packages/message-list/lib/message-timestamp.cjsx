@@ -24,7 +24,7 @@ class MessageTimestamp extends React.Component
 
   _formattedDate: (msgDate, now, isDetailed) =>
     if isDetailed
-      return msgDate.format "MMMM D, YYYY [at] h:mm A z"
+      return msgDate.format "MMMM D, YYYY [at] h:mm A"
     else
       diff = now.diff(msgDate, 'days', true)
       isSameDay = now.isSame(msgDate, 'days')
