@@ -3,6 +3,7 @@ import DOMUtils from '../../dom-utils'
 import NylasStore from 'nylas-store'
 import Actions from '../actions'
 import {MAX_MATCHES, CHAR_THRESHOLD} from '../../searchable-components/search-constants'
+import FocusedContentStore from './focused-content-store'
 
 class SearchableComponentStore extends NylasStore {
   constructor() {
@@ -19,9 +20,18 @@ class SearchableComponentStore extends NylasStore {
 
     this.searchRegions = {}
 
+    this._lastThread = FocusedContentStore.focused('thread')
+
     this.listenTo(Actions.findInThread, this._findInThread)
     this.listenTo(Actions.nextSearchResult, this._nextSearchResult)
     this.listenTo(Actions.previousSearchResult, this._previousSearchResult)
+    this.listenTo(FocusedContentStore, () => {
+      const newThread = FocusedContentStore.focused('thread')
+      if (newThread !== this._lastThread) {
+        this._findInThread(null);
+        this._lastThread = newThread
+      }
+    })
   }
 
   getCurrentRegionIndex(regionId) {
