@@ -16,12 +16,12 @@ class ThemePickerStore extends NylasStore {
   activate = ()=> {
     this._apm = new APMWrapper();
     this.unlisten = ThemePickerActions.uninstallTheme.listen(this.uninstallTheme);
-    this.disposable = NylasEnv.commands.add("body", "window:launch-theme-picker",  () => {
-      Actions.openModal(
-         children=<ThemePicker />,
-         height=400,
-         width=250,
-      );
+    this.disposable = NylasEnv.commands.add("body", "window:launch-theme-picker", () => {
+      Actions.openModal({
+        component: (<ThemePicker />),
+        height: 400,
+        width: 250,
+      });
     });
   }
 
