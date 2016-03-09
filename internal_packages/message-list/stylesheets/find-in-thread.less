@@ -7,16 +7,17 @@ body.platform-win32 {
 
 .find-in-thread {
   background: @background-secondary;
-  border-bottom: 1px solid @border-secondary-bg;
   text-align: right;
   overflow: hidden;
 
   height: 0;
   padding: 0 8px;
   transition: all 125ms ease-in-out;
+  border-bottom: 0;
   &.enabled {
     padding: 4px 8px;
     height: 35px;
+    border-bottom: 1px solid @border-secondary-bg;
   }
 
   .controls-wrap {
