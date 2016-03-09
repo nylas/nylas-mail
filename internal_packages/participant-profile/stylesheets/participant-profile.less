@@ -13,14 +13,20 @@
   border-radius: 0 0 @border-radius-large @border-radius-large;
 
   .related-thread {
+    display: flex;
     font-size: 12px;
     color: #566f86;
     width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     padding: 0.5em 15px;
     border-top: 1px solid rgba(0,0,0,0.08);
+
+    .subject {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding-right: 1em;
+    }
   }
 
   .toggle {

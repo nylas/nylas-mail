@@ -1,5 +1,5 @@
 import React from 'react'
-import {Actions} from 'nylas-exports'
+import {Utils, Actions} from 'nylas-exports'
 
 export default class RelatedThreads extends React.Component {
   static displayName = "RelatedThreads";
@@ -53,7 +53,8 @@ export default class RelatedThreads extends React.Component {
       const onClick = () => { this._onClick(thread) }
       return (
         <div key={thread.id} className="related-thread" onClick={onClick} >
-          {thread.subject}
+          <span className="subject" title={thread.subject}>{thread.subject}</span>
+          <span className="timestamp" title={Utils.fullTimeString(thread.lastMessageReceivedTimestamp)}>{Utils.shortTimeString(thread.lastMessageReceivedTimestamp)}</span>
         </div>
       )
     })

@@ -1,6 +1,7 @@
 _ = require 'underscore'
 fs = require('fs-plus')
 path = require('path')
+moment = require('moment-timezone')
 tz = Intl.DateTimeFormat().resolvedOptions().timeZone
 
 TaskRegistry = null
@@ -36,6 +37,19 @@ Utils =
     return v
 
   timeZone: tz
+
+  shortTimeString: (time) ->
+    diff = moment().diff(time, 'days', true)
+    if diff <= 1
+      format = "h:mm a"
+    else if diff > 1 and diff <= 365
+      format = "MMM D"
+    else
+      format = "MMM D YYYY"
+    moment(time).format(format)
+
+  fullTimeString: (time) ->
+    moment(time).tz(Utils.timeZone).format("dddd, MMMM Do YYYY, h:mm:ss a z")
 
   isHash: (object) ->
     _.isObject(object) and not _.isFunction(object) and not _.isArray(object)
