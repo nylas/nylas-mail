@@ -134,7 +134,6 @@ describe "FileDownloadStore", ->
     beforeEach ->
       spyOn(FileDownloadStore.Download.prototype, 'run').andCallFake -> Promise.resolve(@)
       spyOn(FileDownloadStore, '_prepareFolder').andCallFake -> Promise.resolve(true)
-      spyOn(FileDownloadStore, '_cleanupDownload')
 
     it "should make sure that the download file path exists", ->
       FileDownloadStore._runDownload(@testfile)
