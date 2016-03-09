@@ -1,4 +1,5 @@
 import {Utils} from 'nylas-exports'
+import {MAX_MATCHES, CHAR_THRESHOLD} from './search-constants'
 
 export default class UnifiedDOMParser {
   constructor(regionId) {
@@ -7,7 +8,7 @@ export default class UnifiedDOMParser {
   }
 
   matchesSearch(dom, searchTerm) {
-    if ((searchTerm || "").trim().length === 0) { return false; }
+    if ((searchTerm || "").trim().length < CHAR_THRESHOLD) { return false; }
     const fullStrings = this.buildNormalizedText(dom)
     // For each match, we return an array of new elements.
     for (const fullString of fullStrings) {
@@ -59,7 +60,7 @@ export default class UnifiedDOMParser {
     const matches = []
     let matchCount = 0;
     let match = re.exec(rawString);
-    while (match && matchCount < 1000) {
+    while (match && matchCount <= MAX_MATCHES) {
       const matchStart = match.index;
       const matchEnd = match.index + match[0].length;
       matches.push([matchStart, matchEnd])

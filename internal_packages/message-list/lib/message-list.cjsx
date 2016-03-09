@@ -193,9 +193,13 @@ class MessageList extends React.Component
       "messages-wrap": true
       "ready": not @state.loading
 
+    messageListClass = classNames
+      "message-list": true
+      "height-fix": SearchableComponentStore.searchTerm isnt null
+
     <KeyCommandsRegion globalHandlers={@_globalKeymapHandlers()}>
       <FindInThread ref="findInThread" />
-      <div className="message-list" id="message-list">
+      <div className={messageListClass} id="message-list">
         <ScrollRegion tabIndex="-1"
              className={wrapClass}
              scrollbarTickProvider={SearchableComponentStore}
