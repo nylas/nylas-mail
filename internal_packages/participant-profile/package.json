@@ -1,0 +1,15 @@
+{
+  "name": "participant-profile",
+  "version": "0.1.0",
+  "title": "Participant Profile",
+  "description": "Information about a participant",
+  "isOptional": true,
+  "main": "lib/main",
+  "windowTypes": {
+    "default": true
+  },
+  "dependencies": {
+    "clearbit": "^1.2"
+  },
+  "license": "GPL-3.0"
+}

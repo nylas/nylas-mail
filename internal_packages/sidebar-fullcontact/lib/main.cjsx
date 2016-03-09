@@ -7,10 +7,10 @@ module.exports =
   item: null
 
   activate: (@state={}) ->
-    ComponentRegistry.register SidebarFullContact,
-      role: "MessageListSidebar:ContactCard"
+    # ComponentRegistry.register SidebarFullContact,
+    #   role: "MessageListSidebar:ContactCard"
 
   deactivate: ->
-    ComponentRegistry.unregister(SidebarFullContact)
+    # ComponentRegistry.unregister(SidebarFullContact)
 
   serialize: -> @state

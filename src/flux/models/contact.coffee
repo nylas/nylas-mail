@@ -98,13 +98,13 @@ class Contact extends Model
     account = AccountStore.accountForEmail(@email)
     return account?
 
-  isMePhrase: ({includeAccountLabel} = {}) ->
+  isMePhrase: ({includeAccountLabel, forceAccountLabel} = {}) ->
     account = AccountStore.accountForEmail(@email)
     return null unless account
 
     if includeAccountLabel
       FocusedPerspectiveStore ?= require '../stores/focused-perspective-store'
-      if account and FocusedPerspectiveStore.current().accountIds.length > 1
+      if account and (FocusedPerspectiveStore.current().accountIds.length > 1 || forceAccountLabel)
         return "You (#{account.label})"
 
     return "You"
@@ -120,14 +120,17 @@ class Contact extends Model
   # - compact: If the contact has a name, make the name as short as possible
   #   (generally returns just the first name.)
   #
-  displayName: ({includeAccountLabel, compact} = {}) ->
+  displayName: ({includeAccountLabel, compact, forceAccountLabel} = {}) ->
     compact ?= false
     includeAccountLabel ?= !compact
 
     if compact
-      @isMePhrase({includeAccountLabel}) ? @firstName()
+      @isMePhrase({includeAccountLabel, forceAccountLabel}) ? @firstName()
     else
-      @isMePhrase({includeAccountLabel}) ? @_nameParts().join(' ')
+      @isMePhrase({includeAccountLabel, forceAccountLabel}) ? @fullName()
+
+  fullName: ->
+    return @_nameParts().join(' ')
 
   firstName: ->
     articles = ['a', 'the']
@@ -138,6 +141,11 @@ class Contact extends Model
 
   lastName: ->
     @_nameParts()[1..-1]?.join(" ") ? ""
+
+  nameAbbreviation: ->
+    c1 = @firstName()[0]?.toUpperCase() ? ""
+    c2 = @lastName()[0]?.toUpperCase() ? ""
+    return c1+c2
 
   _nameParts: ->
     name = @name

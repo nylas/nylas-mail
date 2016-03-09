@@ -625,8 +625,13 @@ body.platform-win32 {
 ///////////////////////////////
 .sidebar-section {
   opacity: 0;
-  padding: @spacing-standard;
+  margin: 5px;
   cursor: default;
+  border: 1px solid @border-primary-bg;
+  border-radius: @border-radius-large;
+  background: @background-primary;
+  padding: 15px;
+
   &.visible {
     transition: opacity 0.1s ease-out;
     opacity: 1;
@@ -643,22 +648,14 @@ body.platform-win32 {
 
   .sidebar-contact-card {
   }
-  .sidebar-contact-list {
-    min-height:120px;
-
-    .contact {
-      color: @text-color-subtle;
-      font-size: @font-size-smaller;
-      &.selected {
-        font-weight: @font-weight-semi-bold;
-      }
-    }
-  }
+}
+.sidebar-participant-picker {
+  padding: 10px 5px 20px 5px;
+  text-align: right;
 }
 
-
 .column-MessageListSidebar {
-  background-color: @background-off-primary;
+  background-color: @background-secondary;
   overflow: auto;
   border-left: 1px solid @border-color-divider;
   color: @text-color-subtle;
