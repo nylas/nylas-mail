@@ -30,9 +30,7 @@ class AccountChoosePage extends React.Component
         <RetinaImg name="onboarding-close.png" mode={RetinaImg.Mode.ContentPreserve}/>
       </div>
 
-      <RetinaImg url="nylas://onboarding/assets/nylas-mailplane@2x.png" mode={RetinaImg.Mode.ContentPreserve} className="logo"/>
-
-      <div className="caption" style={marginTop: 25, marginBottom:20}>Select your email provider</div>
+      <div className="caption" style={marginTop: 33, marginBottom:25}>Select your email provider:</div>
 
       {@_renderProviders()}
 

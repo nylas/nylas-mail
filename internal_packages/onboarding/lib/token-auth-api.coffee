@@ -33,11 +33,8 @@ class TokenAuthAPI
         request: options,
         requestId: requestId
       })
-      console.log options
       nodeRequest options, (error, response, body) ->
         statusCode = response?.statusCode
-
-        console.log error, response, body
 
         Actions.didMakeAPIRequest({
           request: options,

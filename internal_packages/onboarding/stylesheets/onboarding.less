@@ -117,9 +117,6 @@
   .page {
     margin:auto;
 
-    &.account-choose {
-      padding-top: 45px;
-    }
     &.account-setup {
       padding: 0 15px;
       width: 330px
@@ -313,16 +310,16 @@
 }
 
 .page.account-choose {
-  width: 388px;
-  height: 688px;
+  width: 330px;
+  height: 478px;
 
   .caption {
-    font-size: 17px;
+    font-size: 19px;
     color: rgba(0,0,0,0.56);
   }
 
   .provider-name {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 300;
     color: rgba(0,0,0,0.7);
   }
@@ -331,19 +328,20 @@
     text-align: left;
     border-top: 1px solid rgba(0,0,0,0.05);
     cursor: default;
-    line-height: 70px;
+    line-height: 63px;
 
     .icon-container {
       width: 50px;
       height: 50px;
       display: inline-block;
       box-sizing: content-box;
-      padding: 0 25px 0 25px;
+      padding: 0 15px 0 20px;
       vertical-align: top;
+      zoom: 0.9;
     }
   }
   .provider:hover{
-    background: rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.4);
   }
 }
 
@@ -351,12 +349,12 @@
   height: auto;
   padding-bottom:25px;
 }
-.page.token-auth{
+.page.token-auth {
   width: 388px;
-  min-height: 500px;
+  min-height: 478px;
   position: relative;
 
-  padding-top: 50px;
+  padding-top: 40px;
   img.logo.content-mask {
     background-color: rgba(255,255,255,0.4);
   }
