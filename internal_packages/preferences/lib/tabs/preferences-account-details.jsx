@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import React, {Component, PropTypes} from 'react';
 import {EditableList, NewsletterSignup} from 'nylas-component-kit';
-import {RegExpUtils} from 'nylas-exports';
+import {RegExpUtils, Account} from 'nylas-exports';
 
 class PreferencesAccountDetails extends Component {
 
@@ -105,6 +105,15 @@ class PreferencesAccountDetails extends Component {
     this._setStateAndSave({defaultAlias});
   };
 
+  _reconnect() {
+    const {account} = this.state;
+    const ipc = require('electron').ipcRenderer;
+    ipc.send('command', 'application:add-account', account.provider);
+  }
+  _contactSupport() {
+    const {shell} = require("electron");
+    shell.openExternal("https://support.nylas.com/hc/en-us/requests/new");
+  }
 
   // Renderers
 
@@ -124,6 +133,37 @@ class PreferencesAccountDetails extends Component {
     }
   }
 
+
+  _renderErrorDetail(message, buttonText, buttonAction) {
+    return (<div className="account-error-detail">
+      <div className="message">{message}</div>
+      <a className="action" onClick={buttonAction}>{buttonText}</a>
+    </div>)
+  }
+  _renderSyncErrorDetails() {
+    const {account} = this.state;
+    if (account.syncState !== Account.SYNC_STATE_RUNNING) {
+      switch (account.syncState) {
+      case Account.SYNC_STATE_AUTH_FAILED:
+        return this._renderErrorDetail(
+          `Nylas N1 can no longer authenticate with ${account.emailAddress}. The password or
+          authentication may have changed.`,
+          "Reconnect",
+          ()=>this._reconnect());
+      case Account.SYNC_STATE_STOPPED:
+        return this._renderErrorDetail(
+          `The cloud sync for ${account.emailAddress} has been disabled. Please contact Nylas support.`,
+          "Contact support",
+          ()=>this._contactSupport());
+      default:
+        return this._renderErrorDetail(
+          `Nylas encountered an error while syncing mail for ${account.emailAddress}. Contact Nylas support for details.`,
+          "Contact support",
+          ()=>this._contactSupport());
+      }
+    }
+  }
+
   render() {
     const {account} = this.state;
     const aliasPlaceholder = this._makeAlias(
@@ -132,6 +172,7 @@ class PreferencesAccountDetails extends Component {
 
     return (
       <div className="account-details">
+        {this._renderSyncErrorDetails(account)}
         <h3>Account Label</h3>
         <input
           type="text"
@@ -159,6 +200,8 @@ class PreferencesAccountDetails extends Component {
         <div className="newsletter">
           <NewsletterSignup emailAddress={account.emailAddress} name={account.name} />
         </div>
+
+
       </div>
     );
   }

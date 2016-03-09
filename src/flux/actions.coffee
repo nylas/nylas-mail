@@ -171,7 +171,7 @@ class Actions
   Actions.updateAccount(account.id, {accountName: 'new'})
   ```
   ###
-  @updateAccount: ActionScopeWindow
+  @updateAccount: ActionScopeGlobal
 
   ###
   Public: Re-order the provided account in the account list.
