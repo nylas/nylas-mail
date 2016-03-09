@@ -60,6 +60,8 @@
         font-size: 22px;
         font-weight: 500;
         color: white;
+        box-shadow: inset 0 0 1px rgba(0,0,0,0.18);
+        background-image: linear-gradient(to bottom, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%);
       }
     }
   }
@@ -67,6 +69,13 @@
   .core-personal-info {
     padding-top: 30px;
     text-align: center;
+
+    .full-name, .email {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     .full-name {
       font-size: 16px;
     }
@@ -93,9 +102,12 @@
 
 body.platform-win32 {
   .participant-profile {
-    * {
+    border-radius: 0;
+    .profile-photo {
       border-radius: 0;
     }
+  }
+  .related-threads {
     border-radius: 0;
   }
 }
