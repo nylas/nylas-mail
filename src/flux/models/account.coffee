@@ -29,6 +29,11 @@ Section: Models
 ###
 class Account extends ModelWithMetadata
 
+  @SYNC_STATE_RUNNING = "running"
+  @SYNC_STATE_STOPPED = "stopped"
+  @SYNC_STATE_AUTH_FAILED = "invalid"
+  @SYNC_STATE_ERROR = "sync_error"
+
   @attributes: _.extend {}, ModelWithMetadata.attributes,
     'name': Attributes.String
       modelKey: 'name'
@@ -58,10 +63,16 @@ class Account extends ModelWithMetadata
       modelKey: 'defaultAlias'
       jsonKey: 'default_alias'
 
+    'syncState': Attributes.String
+      queryable: false
+      modelKey: 'syncState'
+      jsonKey: 'sync_state'
+
   constructor: ->
     super
     @aliases ||= []
     @label ||= @emailAddress
+    @syncState ||= "running"
 
   fromJSON: (json) ->
     json["label"] ||= json[@constructor.attributes['emailAddress'].jsonKey]
