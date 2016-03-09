@@ -18,9 +18,14 @@ class DateInput extends Component {
 
   constructor(props) {
     super(props)
+    this.unmounted = false
     this.state = {
       inputDate: null,
     }
+  }
+
+  componentWillUnmount() {
+    this.unmounted = true
   }
 
   onInputKeyDown = (event)=> {
@@ -30,7 +35,11 @@ class DateInput extends Component {
       event.stopPropagation();
       const date = DateUtils.futureDateFromString(value);
       this.props.onSubmitDate(date, value);
-      this.setState({inputDate: null})
+
+      // this.props.onSubmitDate may have unmounted this component
+      if (!this.unmounted) {
+        this.setState({inputDate: null})
+      }
     }
   };
 
