@@ -19,11 +19,12 @@ class MessageTimestamp extends React.Component
     nowDate = @_today()
     formattedDate = @_formattedDate(msgDate, nowDate, @props.isDetailed)
     <div className={@props.className}
+         title={Utils.fullTimeString(@props.date)}
          onClick={@props.onClick}>{formattedDate}</div>
 
   _formattedDate: (msgDate, now, isDetailed) =>
     if isDetailed
-      return msgDate.format "MMMM D, YYYY [at] h:mm A"
+      return msgDate.format "MMMM D, YYYY [at] h:mm A z"
     else
       diff = now.diff(msgDate, 'days', true)
       isSameDay = now.isSame(msgDate, 'days')
