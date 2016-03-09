@@ -8,7 +8,7 @@ classNames = require 'classnames'
  MailImportantIcon,
  InjectedComponentSet} = require 'nylas-component-kit'
 
-{Thread} = require 'nylas-exports'
+{Thread, FocusedPerspectiveStore} = require 'nylas-exports'
 
 {ThreadArchiveQuickAction,
  ThreadTrashQuickAction} = require './thread-list-quick-actions'
@@ -19,6 +19,12 @@ classNames = require 'classnames'
 ThreadListParticipants = require './thread-list-participants'
 ThreadListStore = require './thread-list-store'
 ThreadListIcon = require './thread-list-icon'
+
+TimestampComponentForPerspective = (thread) ->
+  if FocusedPerspectiveStore.current().isSent()
+    <span className="timestamp">{timestamp(thread.lastMessageSentTimestamp)}</span>
+  else
+    <span className="timestamp">{timestamp(thread.lastMessageReceivedTimestamp)}</span>
 
 
 c1 = new ListTabular.Column
@@ -72,7 +78,7 @@ c3 = new ListTabular.Column
 c4 = new ListTabular.Column
   name: "Date"
   resolver: (thread) =>
-    <span className="timestamp">{timestamp(thread.lastMessageReceivedTimestamp)}</span>
+    TimestampComponentForPerspective(thread)
 
 c5 = new ListTabular.Column
   name: "HoverActions"
@@ -111,7 +117,7 @@ cNarrow = new ListTabular.Column
         {pencil}
         <span style={flex:1}></span>
         {attachment}
-        <span className="timestamp">{timestamp(thread.lastMessageReceivedTimestamp)}</span>
+        {TimestampComponentForPerspective(thread)}
       </div>
       <MailImportantIcon
         thread={thread}

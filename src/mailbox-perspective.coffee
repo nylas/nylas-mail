@@ -81,19 +81,23 @@ class MailboxPerspective
     true
 
   isInbox: =>
-    false
+    @categoriesSharedName() is 'inbox'
 
-  isArchive: =>
-    false
+  isSent: =>
+    @categoriesSharedName() is 'sent'
 
   isTrash: =>
+    @categoriesSharedName() is 'trash'
+
+  isArchive: =>
     false
 
   categories: =>
     []
 
   categoriesSharedName: =>
-    Category.categoriesSharedName(@categories())
+    @_categoriesSharedName ?= Category.categoriesSharedName(@categories())
+    @_categoriesSharedName
 
   category: =>
     return null unless @categories().length is 1
@@ -268,6 +272,9 @@ class CategoryMailboxPerspective extends MailboxPerspective
       .where([Thread.attributes.categories.containsAny(_.pluck(@categories(), 'id'))])
       .limit(0)
 
+    if @isSent()
+      query.order(Thread.attributes.lastMessageSentTimestamp.descending())
+
     if @_categories.length > 1 and @accountIds.length < @_categories.length
       # The user has multiple categories in the same account selected, which
       # means our result set could contain multiple copies of the same threads
@@ -286,14 +293,8 @@ class CategoryMailboxPerspective extends MailboxPerspective
   categories: =>
     @_categories
 
-  isInbox: =>
-    @categoriesSharedName() is 'inbox'
-
   isArchive: =>
     _.every(@_categories, (cat) -> cat.isArchive())
-
-  isTrash: =>
-    @categoriesSharedName() is 'trash'
 
   canReceiveThreadsFromAccountIds: =>
     super and not _.any @_categories, (c) -> c.isLockedCategory()

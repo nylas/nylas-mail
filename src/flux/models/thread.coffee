@@ -79,6 +79,11 @@ class Thread extends ModelWithMetadata
       modelKey: 'lastMessageReceivedTimestamp'
       jsonKey: 'last_message_received_timestamp'
 
+    'lastMessageSentTimestamp': Attributes.DateTime
+      queryable: true
+      modelKey: 'lastMessageSentTimestamp'
+      jsonKey: 'last_message_sent_timestamp'
+
   Object.defineProperty @prototype, "labels",
     enumerable: false
     get: -> @categories
