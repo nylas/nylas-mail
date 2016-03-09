@@ -1,6 +1,9 @@
+import React from 'react';
+import Actions from '../../../src/flux/actions';
 import NylasStore from 'nylas-store';
 import {APMWrapper} from 'nylas-exports';
 
+import ThemePicker from './theme-picker';
 import ThemePickerActions from './theme-picker-actions';
 
 
@@ -8,11 +11,18 @@ class ThemePickerStore extends NylasStore {
 
   constructor() {
     super();
-    this._apm = new APMWrapper();
   }
 
   activate = ()=> {
+    this._apm = new APMWrapper();
     this.unlisten = ThemePickerActions.uninstallTheme.listen(this.uninstallTheme);
+    this.disposable = NylasEnv.commands.add("body", "window:launch-theme-picker",  () => {
+      Actions.openModal(
+         children=<ThemePicker />,
+         height=400,
+         width=250,
+      );
+    });
   }
 
   uninstallTheme = (theme)=> {
@@ -25,6 +35,7 @@ class ThemePickerStore extends NylasStore {
 
   deactivate = ()=> {
     this.unlisten();
+    this.disposable.dispose();
   }
 
 }
