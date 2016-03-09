@@ -2,6 +2,7 @@ import React from 'react';
 import Actions from '../../../src/flux/actions'
 
 import {Flexbox, RetinaImg} from 'nylas-component-kit';
+import ThemePickerActions from './theme-picker-actions';
 import ThemeOption from './theme-option';
 
 
@@ -10,12 +11,12 @@ class ThemePicker extends React.Component {
 
   constructor(props) {
     super(props);
-    this._themeManager = NylasEnv.themes;
+    this.themes = NylasEnv.themes;
     this.state = this._getState();
   }
 
   componentDidMount() {
-    this.disposable = this._themeManager.onDidChangeActiveThemes(() => {
+    this.disposable = this.themes.onDidChangeActiveThemes(() => {
       this.setState(this._getState());
     });
   }
@@ -26,15 +27,14 @@ class ThemePicker extends React.Component {
 
   _getState() {
     return {
-      themes: this._themeManager.getLoadedThemes(),
-      activeTheme: this._themeManager.getActiveTheme().name,
+      themes: this.themes.getLoadedThemes(),
+      activeTheme: this.themes.getActiveTheme().name,
     }
   }
 
   _setActiveTheme(theme) {
     const prevActiveTheme = this.state.activeTheme;
-    this.setState({activeTheme: theme});
-    this._themeManager.setActiveTheme(theme);
+    this.themes.setActiveTheme(theme);
     this._rewriteIFrame(prevActiveTheme, theme);
   }
 
@@ -47,24 +47,25 @@ class ThemePicker extends React.Component {
     activeElement.className = "theme-option active-true";
   }
 
+  _onUninstallTheme(theme) {
+    ThemePickerActions.uninstallTheme(theme);
+    this.setState({themes: this.themes.getLoadedThemes()});
+  }
+
   _renderThemeOptions() {
-    const themeOptions = this.state.themes.map((theme) =>
-        <div
-          className="clickable-theme-option"
-          onMouseDown={() => this._setActiveTheme(theme.name)}
-          style={{cursor: "pointer", width: "115px", margin: "2px"}}>
-          <ThemeOption
-            key={theme.name}
-            theme={theme}
-            active={this.state.activeTheme === theme.name} />
-        </div>
-      )
-    return themeOptions;
+    return this.state.themes.map((theme) =>
+      <ThemeOption
+        key={theme.name}
+        theme={theme}
+        active={this.state.activeTheme === theme.name}
+        onSelect={() => this._setActiveTheme(theme.name)}
+        onUninstall={() => this._onUninstallTheme(theme)} />
+    );
   }
 
   render() {
     return (
-      <div style={{textAlign: "center", cursor: "default"}}>
+      <div className="theme-picker">
         <Flexbox direction="column">
           <RetinaImg
             style={{width: "14", height: "14", margin: "8px", WebkitFilter: "none"}}
