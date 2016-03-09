@@ -40,7 +40,6 @@
       { label: 'Open Activity Window', command: 'application:show-work-window' }
       { type: 'separator' }
       { label: 'Create a Plugin...', command: 'application:create-package' }
-      { label: 'Install a Plugin Manually...', command: 'application:install-package' }
       { type: 'separator' }
       { label: 'Run Plugin &Specs...', command: 'application:run-package-specs' }
       { label: 'Run &N1 Specs', command: 'application:run-all-specs' }
@@ -62,7 +61,7 @@
   { type: 'separator' }
   { label: 'Preferences', command: 'application:open-preferences' }
   { label: 'Change Theme...', command: 'window:launch-theme-picker' }
-  { label: 'Install New Theme...', command: 'application:install-package' }
+  { label: 'Install Plugin...', command: 'application:install-package' }
   { type: 'separator' }
   { label: 'Print Current Thread', command: 'application:print-thread' }
   { type: 'separator' }
