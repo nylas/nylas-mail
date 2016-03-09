@@ -87,7 +87,12 @@ class PageRouterStore extends NylasStore
           @_tokenAuthEnabled = "yes"
         else
           @_tokenAuthEnabled = "no"
-        @trigger()
+
+        if @_tokenAuthEnabled is "no" and @_page is 'token-auth'
+          @_onMoveToPage("account-choose")
+        else
+          @trigger()
+
       error: (err) =>
         if err.statusCode is 404
           err.message = "Sorry, we could not reach the Nylas API. Please try again."
