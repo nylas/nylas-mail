@@ -180,7 +180,7 @@ class NylasSyncWorker
         if moreToFetch
           nextParams = _.extend({}, params, {offset: lastReceivedIndex})
           nextParams.limit = Math.min(Math.round(params.limit * 1.5), MAX_PAGE_SIZE)
-          nextDelay = Math.max(0, 1000 - (Date.now() - requestStartTime))
+          nextDelay = Math.max(0, 1500 - (Date.now() - requestStartTime))
           setTimeout(( => @fetchCollectionPage(model, nextParams)), nextDelay)
 
         @updateTransferState(model, {
