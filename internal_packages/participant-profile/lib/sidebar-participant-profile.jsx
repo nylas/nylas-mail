@@ -2,7 +2,7 @@
 import _ from 'underscore'
 import React from 'react'
 import {shell} from 'electron'
-import {Utils} from 'nylas-exports'
+import {DOMUtils, Utils} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
 import ParticipantProfileStore from './participant-profile-store'
 
@@ -78,8 +78,8 @@ export default class SidebarParticipantProfile extends React.Component {
   _renderCorePersonalInfo() {
     return (
       <div className="core-personal-info">
-        <div className="full-name">{this.props.contact.fullName()}</div>
-        <div className="email">{this.props.contact.email}</div>
+        <div className="selectable full-name" onClick={this._select}>{this.props.contact.fullName()}</div>
+        <div className="selectable email" onClick={this._select}>{this.props.contact.email}</div>
         <div className="social-profiles-wrap">{this._renderSocialProfiles()}</div>
       </div>
     )
@@ -115,14 +115,14 @@ export default class SidebarParticipantProfile extends React.Component {
       title = <span>{this.state.title},&nbsp;</span>
     }
     return (
-      <p className="current-job">{title}{this.state.employer}</p>
+      <p className="selectable current-job">{title}{this.state.employer}</p>
     )
   }
 
   _renderBio() {
     if (!this.state.bio) { return false; }
     return (
-      <p className="bio">{this.state.bio}</p>
+      <p className="selectable bio">{this.state.bio}</p>
     )
   }
 
@@ -132,10 +132,23 @@ export default class SidebarParticipantProfile extends React.Component {
       <p className="location">
         <RetinaImg url={`nylas://participant-profile/assets/location-icon@2x.png`}
                    mode={RetinaImg.Mode.ContentPreserve}
-                   style={{marginRight: 10}} />
-        {this.state.location}
+                   style={{float: "left"}} />
+        <span className="selectable" style={{display: "block", marginLeft: 20}}>{this.state.location}</span>
       </p>
     )
+  }
+
+  _select(event) {
+    const el = event.target;
+    const sel = document.getSelection()
+    if (el.contains(sel.anchorNode) && !sel.isCollapsed) {
+      return
+    }
+    const anchor = DOMUtils.findFirstTextNode(el)
+    const focus = DOMUtils.findLastTextNode(el)
+    if (anchor && focus && focus.data) {
+      sel.setBaseAndExtent(anchor, 0, focus, focus.data.length)
+    }
   }
 
   render() {
