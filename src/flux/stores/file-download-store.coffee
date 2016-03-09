@@ -56,19 +56,6 @@ class Download
 
     @promise = new Promise (resolve, reject) =>
       stream = fs.createWriteStream(@targetPath)
-
-      # We need to watch the request for `success` or `error`, but not fire
-      # a callback until the stream has ended. This helper functions ensure
-      # that resolve or reject is only fired once the stream has been closed.
-      checkIfFinished = (action) =>
-        # Wait for the stream to finish writing to disk and clear the request
-        return if @request
-
-        if @state is State.Finished
-          resolve(@) # Note: we must resolve with this
-        else if @state is State.Failed
-          reject(@)
-
       @state = State.Downloading
 
       NylasAPI.makeRequest
@@ -82,21 +69,24 @@ class Download
           .on "progress", (progress) =>
             @percent = progress.percent
             @progressCallback()
-          .on "end", =>
+
+          .on "error", (err) =>
             @request = null
-            checkIfFinished()
+            @state = State.Failed
+            stream.end()
+            if fs.existsSync(@targetPath)
+              fs.unlinkSync(@targetPath)
+            reject(@)
+
+          .on "end", =>
+            return if @state is State.Failed
+            @request = null
+            @state = State.Finished
+            @percent = 100
+            stream.end()
+            resolve(@) # Note: we must resolve with this
+
           .pipe(stream)
-
-        success: =>
-          # At this point, the file stream has not finished writing to disk.
-          # Don't resolve yet, or the browser will load only part of the image.
-          @state = State.Finished
-          @percent = 100
-          checkIfFinished()
-
-        error: =>
-          @state = State.Failed
-          checkIfFinished()
 
   ensureClosed: ->
     @request?.abort()
@@ -180,7 +170,10 @@ FileDownloadStore = Reflux.createStore
           @_downloads[file.id] = download
           @trigger()
           return download.run().finally =>
-            @_cleanupDownload(download)
+            download.ensureClosed()
+            if download.state is State.Failed
+              delete @_downloads[file.id]
+            @trigger()
 
   # Returns a promise that resolves with true or false. True if the file has
   # been downloaded, false if it should be downloaded.
@@ -213,7 +206,7 @@ FileDownloadStore = Reflux.createStore
     defaultPath = @_defaultSavePath(file)
     defaultExtension = path.extname(defaultPath)
 
-    NylasEnv.showSaveDialog {defaultPath: defaultPath}, (savePath) =>
+    NylasEnv.showSaveDialog {defaultPath}, (savePath) =>
       return unless savePath
       NylasEnv.savedState.lastDownloadDirectory = path.dirname(savePath)
 
@@ -234,15 +227,12 @@ FileDownloadStore = Reflux.createStore
   _abortFetchFile: (file) ->
     download = @_downloads[file.id]
     return unless download
-    @_cleanupDownload(download)
+    download.ensureClosed()
+    @trigger()
 
     downloadPath = @pathForFile(file)
     fs.exists downloadPath, (exists) ->
       fs.unlink(downloadPath) if exists
-
-  _cleanupDownload: (download) ->
-    download.ensureClosed()
-    @trigger()
 
   _defaultSavePath: (file) ->
     if process.platform is 'win32'
