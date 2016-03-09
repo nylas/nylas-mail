@@ -66,6 +66,8 @@ class Thread extends ModelWithMetadata
       itemClass: Category
 
     'participants': Attributes.Collection
+      queryable: true
+      joinOnField: 'email'
       modelKey: 'participants'
       itemClass: Contact
 

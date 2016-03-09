@@ -507,3 +507,32 @@ Utils =
     catch err
       console.error("JSON parse error: #{err}")
     return data
+
+  hueForString: (str='') ->
+    str.split('').map((c) -> c.charCodeAt()).reduce((n,a) -> n+a) % 360
+
+  # Emails that nave no-reply or similar phrases in them are likely not a
+  # human. As such it's not worth the cost to do a lookup on that person.
+  #
+  # Also emails that are really long are likely computer-generated email
+  # strings used for bcc-based automated teasks.
+  likelyNonHumanEmail: (email) ->
+    prefixes = [
+      "noreply"
+      "no-reply"
+      "donotreply"
+      "do-not-reply"
+      "bounce[s]?@"
+      "notification[s]?@"
+      "support@"
+      "alert[s]?@"
+      "news@"
+      "automated@"
+      "list[s]?@"
+      "distribute[s]?@"
+      "catchall@"
+      "catch-all@"
+    ]
+    reStr = "(#{prefixes.join("|")})"
+    re = new RegExp(reStr, "gi")
+    return re.test(email) or email.length > 64
