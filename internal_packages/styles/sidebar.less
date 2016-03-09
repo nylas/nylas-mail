@@ -1,0 +1,49 @@
+@import "variables";
+
+#account-switcher .primary-item .name {
+  color: @taiga-dark;
+}
+
+.account-sidebar-sections {
+  background-color: @white !important;
+
+  section {
+    .item-container {
+      margin: 0 10px !important;
+
+      .disclosure-triangle {
+        display: none;
+      }
+
+      .item {
+        padding: 0 10px !important;
+        color: @taiga-light !important;
+        cursor: pointer !important;
+
+        .item-count-box {
+          background: transparent !important;
+          color: @taiga-light !important;
+          box-shadow: 0 0.5px 0 @taiga-light, 0 -0.5px 0 @taiga-light, 0.5px 0 0 @taiga-light, -0.5px 0 0 @taiga-light !important;
+        }
+
+        &.selected {
+          background: @taiga-accent !important;
+          border-radius: @base-border-radius;
+          color: @white !important;
+
+          .item-count-box {
+            background: transparent !important;
+            color: @white !important;
+            box-shadow: 0 0.5px 0 @white, 0 -0.5px 0 @white, 0.5px 0 0 @white, -0.5px 0 0 @white !important;
+          }
+
+          .icon {
+            img {
+              background: @white !important;
+            }
+          }
+        }
+      }
+    }
+  }
+}
