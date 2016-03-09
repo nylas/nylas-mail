@@ -1,6 +1,6 @@
 React = require 'react'
 _ = require 'underscore'
-{Flexbox, RetinaImg} = require 'nylas-component-kit'
+{Flexbox, RetinaImg, Switch} = require 'nylas-component-kit'
 PluginsActions = require './plugins-actions'
 
 class Package extends React.Component
@@ -24,11 +24,11 @@ class Package extends React.Component
     if @props.package.installed
       if @props.package.category in ['user' ,'dev', 'example']
         if @props.package.enabled
-          actions.push <div className="btn" onClick={@_onDisablePackage}>Disable</div>
+          actions.push <Switch onChange={@_onDisablePackage} checked=true>Disable</Switch>
         else
-          actions.push <div className="btn" onClick={@_onEnablePackage}>Enable</div>
+          actions.push <Switch onChange={@_onEnablePackage} checked=false>Enable</Switch>
       if @props.package.category is 'user'
-        actions.push <div className="btn" onClick={@_onUninstallPackage}>Uninstall</div>
+        uninstallButton = <div className="uninstall-plugin" onClick={@_onUninstallPackage}>Uninstall</div>
       if @props.package.category is 'dev'
         actions.push <div className="btn" onClick={@_onShowPackage}>Show...</div>
 
@@ -52,7 +52,10 @@ class Package extends React.Component
         <div className="icon" >{icon}</div>
       </div>
       <div className="info">
-        <div className="title">{title ? name}</div>
+        <div style={{display: "flex", flexDirection: "row"}}>
+          <div className="title">{title ? name}</div>
+          {uninstallButton}
+        </div>
         <div className="description">{description}</div>
       </div>
       <div className="actions">{actions}</div>
