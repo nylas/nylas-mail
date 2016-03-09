@@ -1,6 +1,7 @@
 export default {
   applySignature(body, signature) {
-    const signatureRegex = /<div class="nylas-n1-signature">.*<\/div>/;
+    // https://regex101.com/r/nC0qL2/1
+    const signatureRegex = /<div class="nylas-n1-signature">[^]*<\/div>/;
 
     let signatureHTML = '<div class="nylas-n1-signature">' + signature + '</div>';
     let insertionPoint = body.search(signatureRegex);

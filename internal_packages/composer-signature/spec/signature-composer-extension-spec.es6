@@ -26,24 +26,34 @@ describe("SignatureComposerExtension", ()=> {
       });
 
       it("should replace the signature if a signature is already present", ()=> {
-        const a = new Message({
-          draft: true,
-          body: 'This is a test! <div class="nylas-n1-signature"><div>SIG</div></div><blockquote>Hello world</blockquote>',
+        const scenarios = [
+          {
+            // With blockquote
+            body: 'This is a test! <div class="nylas-n1-signature"><div>SIG</div></div><blockquote>Hello world</blockquote>',
+            expected: `This is a test! <div class="nylas-n1-signature">${this.signature}</div><blockquote>Hello world</blockquote>`,
+          },
+          {
+            // Populated signature div
+            body: 'This is a test! <div class="nylas-n1-signature"><div>SIG</div></div>',
+            expected: `This is a test! <div class="nylas-n1-signature">${this.signature}</div>`,
+          },
+          {
+            // Empty signature div
+            body: 'This is a test! <div class="nylas-n1-signature"></div>',
+            expected: `This is a test! <div class="nylas-n1-signature">${this.signature}</div>`,
+          },
+          {
+            // With newlines
+            body: 'This is a test! <div class="nylas-n1-signature">\n<br>\n<div>SIG</div>\n</div>',
+            expected: `This is a test! <div class="nylas-n1-signature">${this.signature}</div>`,
+          },
+        ]
+
+        scenarios.forEach((scenario)=> {
+          const message = new Message({draft: true, body: scenario.body})
+          SignatureComposerExtension.prepareNewDraft({draft: message});
+          expect(message.body).toEqual(scenario.expected)
         })
-        const b = new Message({
-          draft: true,
-          body: 'This is a test! <div class="nylas-n1-signature"><div>SIG</div></div>',
-        })
-        const c = new Message({
-          draft: true,
-          body: 'This is a test! <div class="nylas-n1-signature"></div>',
-        })
-        SignatureComposerExtension.prepareNewDraft({draft: a});
-        expect(a.body).toEqual(`This is a test! <div class="nylas-n1-signature">${this.signature}</div><blockquote>Hello world</blockquote>`);
-        SignatureComposerExtension.prepareNewDraft({draft: b});
-        expect(b.body).toEqual(`This is a test! <div class="nylas-n1-signature">${this.signature}</div>`);
-        SignatureComposerExtension.prepareNewDraft({draft: c});
-        expect(c.body).toEqual(`This is a test! <div class="nylas-n1-signature">${this.signature}</div>`);
       });
     });
 
