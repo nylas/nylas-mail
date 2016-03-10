@@ -70,8 +70,8 @@ describe 'Thread', ->
       expect(actualOut.length).toBe 1
       expect(actualOut[0].displayName).toBe 'not important'
 
-    it "doesn't display 'sent', 'all', 'archive', or 'drafts'", ->
-      inputs = ['sent', 'all', 'archive', 'drafts']
+    it "doesn't display 'all', 'archive', or 'drafts'", ->
+      inputs = ['all', 'archive', 'drafts']
       actualOut = sortedForCategoryNames inputs
       expect(actualOut.length).toBe 0
 

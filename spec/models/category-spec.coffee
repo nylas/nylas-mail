@@ -58,5 +58,5 @@ describe 'Category', ->
       cat.name = 'sent'
       expect(cat.isUserCategory()).toBe false
       expect(cat.isStandardCategory()).toBe true
-      expect(cat.isHiddenCategory()).toBe true
+      expect(cat.isHiddenCategory()).toBe false
       expect(cat.isLockedCategory()).toBe true
