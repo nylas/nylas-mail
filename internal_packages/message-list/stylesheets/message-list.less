@@ -168,14 +168,13 @@ body.platform-win32 {
   }
 
   .message-subject-wrap {
-    width: calc(~"100% - 12px");
     max-width: @message-max-width;
-    margin: 11px auto 10px auto;
+    margin: 5px auto 10px auto;
     -webkit-user-select: text;
     line-height: @font-size-large * 1.8;
     display: flex;
     align-items: center;
-    padding: 0 @padding-large-horizontal;
+    padding: 0 @padding-base-horizontal;
   }
   .mail-important-icon {
     margin-right:@spacing-half;
@@ -222,10 +221,15 @@ body.platform-win32 {
     flex: 1;
     opacity:0;
     transition: opacity 0s;
-  }
-  .messages-wrap.ready {
-    opacity:1;
-    transition: opacity .1s linear;
+
+    &.ready {
+      opacity:1;
+      transition: opacity .1s linear;
+    }
+
+    .scroll-region-content-inner {
+      padding: 6px;
+    }
   }
 
   .minified-bundle + .message-item-wrap {
@@ -235,10 +239,7 @@ body.platform-win32 {
   .message-item-wrap {
     transition: height 0.1s;
     position: relative;
-
     max-width: @message-max-width;
-    width: calc(~"100% - 12px");
-
     margin: 0 auto;
 
     .message-item-white-wrap {
@@ -323,8 +324,6 @@ body.platform-win32 {
   }
 
   .minified-bundle {
-    margin-right: @message-spacing;
-    margin-left: @message-spacing;
     position: relative;
     .num-messages {
       position: absolute;
@@ -500,9 +499,8 @@ body.platform-win32 {
   .footer-reply-area-wrap {
     overflow: hidden;
 
-    width: calc(~"100% - 12px");
     max-width: @message-max-width;
-    margin: -3px auto @spacing-double auto;
+    margin: -3px auto 0 auto;
 
     position: relative;
     z-index: 2;
