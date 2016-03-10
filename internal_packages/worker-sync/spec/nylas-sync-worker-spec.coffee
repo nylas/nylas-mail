@@ -17,6 +17,7 @@ describe "NylasSyncWorker", ->
         @apiRequests.push({account, model:'threads', params, requestOptions})
 
     @apiCursorStub = undefined
+    spyOn(NylasSyncWorker.prototype, 'fetchAllMetadata').andCallFake (cb) -> cb()
     spyOn(DatabaseTransaction.prototype, 'persistJSONBlob').andReturn(Promise.resolve())
     spyOn(DatabaseStore, 'findJSONBlob').andCallFake (key) =>
       if key is "NylasSyncWorker:#{TEST_ACCOUNT_ID}"
@@ -37,6 +38,7 @@ describe "NylasSyncWorker", ->
 
     @account = new Account(clientId: TEST_ACCOUNT_CLIENT_ID, serverId: TEST_ACCOUNT_ID, organizationUnit: 'label')
     @worker = new NylasSyncWorker(@api, @account)
+    @worker._metadata = {"a": [{"id":"b"}]}
     @connection = @worker.connection()
     spyOn(@connection, 'start')
     advanceClock()
@@ -177,35 +179,58 @@ describe "NylasSyncWorker", ->
       expect(nextState.threads.count).toEqual(1001)
 
   describe "resumeFetches", ->
-    it "should fetch collections", ->
+    it "should fetch metadata first and fetch other collections when metadata is ready", ->
+      fetchAllMetadataCallback = null
+      jasmine.unspy(NylasSyncWorker.prototype, 'fetchAllMetadata')
+      spyOn(NylasSyncWorker.prototype, 'fetchAllMetadata').andCallFake (cb) =>
+        fetchAllMetadataCallback = cb
       spyOn(@worker, 'fetchCollection')
+      @worker._state = {}
       @worker.resumeFetches()
-      expect(@worker.fetchCollection.calls.map (call) -> call.args[0]).toEqual(['threads', 'labels', 'drafts', 'contacts', 'calendars', 'events'])
+      expect(@worker.fetchAllMetadata).toHaveBeenCalled()
+      expect(@worker.fetchCollection.calls.length).toBe(0)
+      fetchAllMetadataCallback()
+      expect(@worker.fetchCollection.calls.length).not.toBe(0)
+
+    it "should fetch collections for which `shouldFetchCollection` returns true", ->
+      spyOn(@worker, 'fetchCollection')
+      spyOn(@worker, 'shouldFetchCollection').andCallFake (collection) =>
+        return collection in ['threads', 'labels', 'drafts']
+      @worker.resumeFetches()
+      expect(@worker.fetchCollection.calls.map (call) -> call.args[0]).toEqual(['threads', 'labels', 'drafts'])
 
     it "should be called when Actions.retryInitialSync is received", ->
       spyOn(@worker, 'resumeFetches').andCallThrough()
       Actions.retryInitialSync()
       expect(@worker.resumeFetches).toHaveBeenCalled()
 
-  describe "fetchCollection", ->
-    beforeEach ->
-      @apiRequests = []
-
-    it "should not start if the collection sync is already in progress", ->
+  describe "shouldFetchCollection", ->
+    it "should return false if the collection sync is already in progress", ->
       @worker._state.threads = {
         'busy': true
         'complete': false
       }
-      @worker.fetchCollection('threads')
-      expect(@apiRequests.length).toBe(0)
+      expect(@worker.shouldFetchCollection('threads')).toBe(false)
 
-    it "should not start if the collection sync is already complete", ->
+    it "should return false if the collection sync is already complete", ->
       @worker._state.threads = {
         'busy': false
         'complete': true
       }
-      @worker.fetchCollection('threads')
-      expect(@apiRequests.length).toBe(0)
+      expect(@worker.shouldFetchCollection('threads')).toBe(false)
+
+    it "should return true otherwise", ->
+      @worker._state.threads = {
+        'busy': false
+        'complete': false
+      }
+      expect(@worker.shouldFetchCollection('threads')).toBe(true)
+      @worker._state.threads = undefined
+      expect(@worker.shouldFetchCollection('threads')).toBe(true)
+
+  describe "fetchCollection", ->
+    beforeEach ->
+      @apiRequests = []
 
     it "should start the request for the model count", ->
       @worker._state.threads = {
@@ -216,7 +241,16 @@ describe "NylasSyncWorker", ->
       expect(@apiRequests[0].requestOptions.path).toBe('/threads')
       expect(@apiRequests[0].requestOptions.qs.view).toBe('count')
 
-    describe "when there is no errorRequestRange saved", ->
+    it "should pass any metadata it preloaded", ->
+      @worker._state.threads = {
+        'busy': false
+        'complete': false
+      }
+      @worker.fetchCollection('threads')
+      expect(@apiRequests[1].model).toBe('threads')
+      expect(@apiRequests[1].requestOptions.metadataToAttach).toBe(@worker._metadata)
+
+    describe "when there is not a previous page failure (`errorRequestRange`)", ->
       it "should start the first request for models", ->
         @worker._state.threads = {
           'busy': false
@@ -226,7 +260,7 @@ describe "NylasSyncWorker", ->
         expect(@apiRequests[1].model).toBe('threads')
         expect(@apiRequests[1].params.offset).toBe(0)
 
-    describe "when there is an errorRequestRange saved", ->
+    describe "when there is a previous page failure (`errorRequestRange`)", ->
       beforeEach ->
         @worker._state.threads =
           'count': 1200

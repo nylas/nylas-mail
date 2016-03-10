@@ -32,7 +32,8 @@ class CategoryStore extends NylasStore
       .subscribe(@_onCategoriesChanged)
 
   byId: (accountOrId, categoryId) ->
-    @categories(accountOrId)[categoryId]
+    categories = @_categoryCache[asAccountId(accountOrId)] ? {}
+    categories[categoryId]
 
   # Public: Returns an array of all categories for an account, both
   # standard and user generated. The items returned by this function will be
@@ -40,7 +41,7 @@ class CategoryStore extends NylasStore
   #
   categories: (accountOrId = null) ->
     if accountOrId
-      @_categoryCache[asAccountId(accountOrId)] ? {}
+      _.values(@_categoryCache[asAccountId(accountOrId)]) ? []
     else
       all = []
       for accountId, categories of @_categoryCache
