@@ -30,8 +30,7 @@ class ThreadBulkArchiveButton extends React.Component
 
   _onArchive: =>
     tasks = TaskFactory.tasksForArchiving
-      threads: @props.selection.items(),
-      fromPerspective: FocusedPerspectiveStore.current()
+      threads: @props.selection.items()
     Actions.queueTasks(tasks)
     return
 
@@ -55,8 +54,7 @@ class ThreadBulkTrashButton extends React.Component
 
   _onRemove: =>
     tasks = TaskFactory.tasksForMovingToTrash
-      threads: @props.selection.items(),
-      fromPerspective: FocusedPerspectiveStore.current()
+      threads: @props.selection.items()
     Actions.queueTasks(tasks)
     return
 

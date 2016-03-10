@@ -91,7 +91,6 @@ export default class ThreadListContextMenu {
       click: () => {
         const tasks = TaskFactory.tasksForArchiving({
           threads: this.threads,
-          fromPerspective: FocusedPerspectiveStore.current(),
         })
         Actions.queueTasks(tasks)
       },
@@ -109,7 +108,6 @@ export default class ThreadListContextMenu {
       click: () => {
         const tasks = TaskFactory.tasksForMovingToTrash({
           threads: this.threads,
-          fromPerspective: FocusedPerspectiveStore.current(),
         })
         Actions.queueTasks(tasks)
       },

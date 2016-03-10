@@ -4,6 +4,8 @@ Thread = require '../models/thread'
 Message = require '../models/message'
 Category = require '../models/category'
 DatabaseStore = require '../stores/database-store'
+CategoryStore = require '../stores/category-store'
+AccountStore = require '../stores/account-store'
 ChangeMailTask = require './change-mail-task'
 SyncbackCategoryTask = require './syncback-category-task'
 
@@ -41,6 +43,45 @@ class ChangeLabelsTask extends ChangeMailTask
 
   isDependentOnTask: (other) -> other instanceof SyncbackCategoryTask
 
+  # In Gmail all threads /must/ belong to either All Mail, Trash and Spam, and
+  # they are mutually exclusive, so we need to make sure that any add/remove
+  # label operation still guarantees that constraint
+  _ensureAndUpdateLabels: (account, labelsToAdd, labelsToRemove={})=>
+    setToAdd = new Set(_.compact(_.pluck(labelsToAdd, 'name')))
+    setToRemove = new Set(_.compact(_.pluck(labelsToRemove, 'name')))
+
+    if setToRemove.has('all')
+      if not setToAdd.has('spam') and not setToAdd.has('trash')
+        labelsToRemove = _.reject(labelsToRemove, (label) -> label.name is 'all')
+    else if setToAdd.has('all')
+      if not setToRemove.has('trash')
+        labelsToRemove.push(CategoryStore.getTrashCategory(account))
+      if not setToRemove.has('spam')
+        labelsToRemove.push(CategoryStore.getSpamCategory(account))
+
+    if setToRemove.has('trash')
+      if not setToAdd.has('spam') and not setToAdd.has('all')
+        labelsToAdd.push(CategoryStore.getAllMailCategory(account))
+    else if setToAdd.has('trash')
+      if not setToRemove.has('all')
+        labelsToRemove.push(CategoryStore.getAllMailCategory(account))
+      if not setToRemove.has('spam')
+        labelsToRemove.push(CategoryStore.getSpamCategory(account))
+
+    if setToRemove.has('spam')
+      if not setToAdd.has('trash') and not setToAdd.has('all')
+        labelsToAdd.push(CategoryStore.getAllMailCategory(account))
+    else if setToAdd.has('spam')
+      if not setToRemove.has('all')
+        labelsToRemove.push(CategoryStore.getAllMailCategory(account))
+      if not setToRemove.has('trash')
+        labelsToRemove.push(CategoryStore.getTrashCategory(account))
+
+    # This should technically not be possible, but we like to keep it safe
+    labelsToAdd = _.compact(labelsToAdd)
+    labelsToRemove = _.compact(labelsToRemove)
+    return {labelsToAdd, labelsToRemove}
+
   performLocal: ->
     if @messages.length
       return Promise.reject(new Error("ChangeLabelsTask: N1 does not support viewing or changing labels on individual messages."))
@@ -51,6 +92,17 @@ class ChangeLabelsTask extends ChangeMailTask
       return Promise.reject(new Error("ChangeLabelsTask: You can move `threads` or `messages` but not both"))
     if @threads.length is 0 and @messages.length is 0
       return Promise.reject(new Error("ChangeLabelsTask: You must provide a `threads` or `messages` Array of models or IDs."))
+
+    account = AccountStore.accountForItems(@threads)
+    if not account
+      return Promise.reject(new Error("ChangeLabelsTask: You must provide a set of `threads` from the same Account"))
+
+    # In Gmail all threads /must/ belong to either All Mail, Trash and Spam, and
+    # they are mutually exclusive, so we need to make sure that any add/remove
+    # label operation still guarantees that constraint
+    updated = @_ensureAndUpdateLabels(account, @labelsToAdd, @labelsToRemove)
+    @labelsToAdd = updated.labelsToAdd
+    @labelsToRemove = updated.labelsToRemove
 
     # Convert arrays of IDs or models to models.
     # modelify returns immediately if no work is required

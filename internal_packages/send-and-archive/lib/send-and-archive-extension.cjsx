@@ -23,7 +23,6 @@ class SendAndArchiveExtension extends ComposerExtension
     DatabaseStore.modelify(Thread, [draft.threadId]).then (threads) =>
       tasks = TaskFactory.tasksForArchiving
         threads: threads
-        fromPerspective: FocusedPerspectiveStore.current()
       Actions.queueTasks(tasks)
 
 module.exports = SendAndArchiveExtension

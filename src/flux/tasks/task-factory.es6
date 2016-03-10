@@ -31,25 +31,25 @@ const TaskFactory = {
     })
 
     _.each(byAccount, (data, accountId) => {
-      const catToAdd = data.categoriesToAdd;
-      const catToRemove = data.categoriesToRemove;
+      const catsToAdd = data.categoriesToAdd;
+      const catsToRemove = data.categoriesToRemove;
       const threadsToUpdate = data.threadsToUpdate;
       const account = AccountStore.accountForId(accountId);
-      if (!(catToAdd instanceof Array)) {
-        throw new Error("tasksForApplyingCategories: `catToAdd` must return an array of Categories")
+      if (!(catsToAdd instanceof Array)) {
+        throw new Error("tasksForApplyingCategories: `categoriesToAdd` must return an array of Categories")
       }
-      if (!(catToRemove instanceof Array)) {
-        throw new Error("tasksForApplyingCategories: `catToRemove` must return an array of Categories")
+      if (!(catsToRemove instanceof Array)) {
+        throw new Error("tasksForApplyingCategories: `categoriesToRemove` must return an array of Categories")
       }
 
       if (account.usesFolders()) {
-        if (catToAdd.length === 0) return;
-        if (catToAdd.length > 1) {
-          throw new Error("tasksForApplyingCategories: `catToAdd` must return a single `Category` (folder) for Exchange accounts")
+        if (catsToAdd.length === 0) return;
+        if (catsToAdd.length > 1) {
+          throw new Error("tasksForApplyingCategories: `categoriesToAdd` must return a single `Category` (folder) for Exchange accounts")
         }
-        const folder = catToAdd[0]
+        const folder = catsToAdd[0]
         if (!(folder instanceof Category)) {
-          throw new Error("tasksForApplyingCategories: `catToAdd` must return a Categories")
+          throw new Error("tasksForApplyingCategories: `categoriesToAdd` must return a Category")
         }
 
         tasks.push(new ChangeFolderTask({
@@ -58,8 +58,8 @@ const TaskFactory = {
           taskDescription,
         }))
       } else {
-        const labelsToAdd = catToAdd
-        const labelsToRemove = catToRemove
+        const labelsToAdd = catsToAdd
+        const labelsToRemove = catsToRemove
         if (labelsToAdd.length === 0 && labelsToRemove.length === 0) return;
 
         tasks.push(new ChangeLabelsTask({
@@ -90,7 +90,7 @@ const TaskFactory = {
   taskForRemovingCategory({threads, category}) {
     const tasks = TaskFactory.tasksForApplyingCategories({
       threads,
-      categoriesToAdd: () => [category],
+      categoriesToRemove: () => [category],
     })
 
     if (tasks.length > 1) {
@@ -100,34 +100,26 @@ const TaskFactory = {
     return tasks[0];
   },
 
-  tasksForMovingToInbox({threads, fromPerspective}) {
+  tasksForMarkingAsSpam({threads}) {
     return TaskFactory.tasksForApplyingCategories({
       threads,
-      categoriesToRemove: (accountId) => _.filter(fromPerspective.categories(), _.matcher({accountId})),
-      categoriesToAdd: (accountId) => [CategoryStore.getInboxCategory(accountId)],
+      categoriesToAdd: (accountId) => [CategoryStore.getSpamCategory(accountId)],
     })
   },
 
-  tasksForMarkingAsSpam({threads, fromPerspective}) {
+  tasksForArchiving({threads}) {
     return TaskFactory.tasksForApplyingCategories({
       threads,
-      categoriesToRemove: (accountId) => _.filter(fromPerspective.categories(), _.matcher({accountId})),
-      categoriesToAdd: (accountId) => [CategoryStore.getStandardCategory(accountId, 'spam')],
-    })
-  },
-
-  tasksForArchiving({threads, fromPerspective}) {
-    return TaskFactory.tasksForApplyingCategories({
-      threads,
-      categoriesToRemove: (accountId) => _.filter(fromPerspective.categories(), _.matcher({accountId})),
+      categoriesToRemove: (accountId) => [
+        CategoryStore.getInboxCategory(accountId),
+      ],
       categoriesToAdd: (accountId) => [CategoryStore.getArchiveCategory(accountId)],
     })
   },
 
-  tasksForMovingToTrash({threads, fromPerspective}) {
+  tasksForMovingToTrash({threads}) {
     return TaskFactory.tasksForApplyingCategories({
       threads,
-      categoriesToRemove: (accountId) => _.filter(fromPerspective.categories(), _.matcher({accountId})),
       categoriesToAdd: (accountId) => [CategoryStore.getTrashCategory(accountId)],
     })
   },

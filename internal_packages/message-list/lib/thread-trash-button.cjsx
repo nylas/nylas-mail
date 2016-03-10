@@ -28,8 +28,7 @@ class ThreadTrashButton extends React.Component
   _onRemove: (e) =>
     return unless DOMUtils.nodeIsVisible(e.currentTarget)
     tasks = TaskFactory.tasksForMovingToTrash
-      threads: [@props.thread],
-      fromPerspective: FocusedPerspectiveStore.current()
+      threads: [@props.thread]
     Actions.queueTasks(tasks)
     Actions.popSheet()
     e.stopPropagation()
