@@ -19,6 +19,9 @@ RegExpUtils =
   # NOTE: This does not match full urls with `http` protocol components.
   domainRegex: -> new RegExp(/^(?!:\/\/)([a-zA-Z0-9-_]+\.)*[a-zA-Z0-9][a-zA-Z0-9-_]+\.[a-zA-Z]{2,11}?/i)
 
+  # https://www.safaribooksonline.com/library/view/regular-expressions-cookbook/9780596802837/ch07s16.html
+  ipAddressRegex: -> new RegExp(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/i)
+
   # Test cases: https://regex101.com/r/pD7iS5/2
   # http://daringfireball.net/2010/07/improved_regex_for_matching_urls
   # https://mathiasbynens.be/demo/url-regex

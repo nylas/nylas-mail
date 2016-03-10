@@ -4,7 +4,7 @@ validEmail = (address) ->
   return RegExpUtils.emailRegex().test(address)
 
 validDomain = (domain) ->
-  return RegExpUtils.domainRegex().test(domain)
+  return RegExpUtils.domainRegex().test(domain) || RegExpUtils.ipAddressRegex().test(domain)
 
 Providers = [
   {
