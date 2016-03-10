@@ -276,7 +276,7 @@ class CategoryMailboxPerspective extends MailboxPerspective
     if @isSent()
       query.order(Thread.attributes.lastMessageSentTimestamp.descending())
 
-    unless @categoriesSharedName() in ['sent', 'trash']
+    unless @categoriesSharedName() in ['spam', 'trash']
       query.where(inAllMail: true)
 
     if @_categories.length > 1 and @accountIds.length < @_categories.length
