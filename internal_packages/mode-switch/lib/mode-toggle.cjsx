@@ -26,7 +26,7 @@ class ModeToggle extends React.Component
          title={if @state.hidden then "Show sidebar" else "Hide sidebar"}
          onClick={@_onToggleMode}>
       <RetinaImg
-        name="toolbar-icon-toggle-pane.png"
+        name="toolbar-person-sidebar.png"
         mode={RetinaImg.Mode.ContentIsMask} />
     </button>
 
