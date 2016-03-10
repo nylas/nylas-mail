@@ -48,6 +48,17 @@
     -webkit-font-smoothing: subpixel-antialiased;
   }
 
+  // Do not show the "removable" X on mail labels within the thread list.
+  .mail-label {
+    padding: 1px 8px;
+    .inner {
+      position: inherit;
+    }
+    .x {
+      display: none;
+    }
+  }
+
   .swipe-backing {
     background-color: darken(@background-primary, 10%);
     &::after {
@@ -443,16 +454,10 @@ body.platform-win32 {
     overflow: hidden;
 
     .mail-label {
-      padding: 1px 8px;
       font-size: 0.8em;
       line-height: 17px;
-      .inner {
-        position: inherit;
-      }
-      .x {
-        display: none;
-      }
     }
+
     .snippet {
       font-size: @font-size-small;
       overflow: hidden;
