@@ -8,6 +8,110 @@ DatabaseStore = require '../src/flux/stores/database-store'
 DatabaseTransaction = require '../src/flux/stores/database-transaction'
 
 describe "NylasAPI", ->
+  describe "authPlugin", ->
+    beforeEach ->
+      NylasAPI.pluginsSupported = true
+      @authGetResponse = null
+      @authPostResponse = null
+      @error = null
+      @resolved = false
+      spyOn(NylasEnv.config, 'set')
+      spyOn(NylasEnv.config, 'get').andReturn(null)
+      spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
+        return @authGetResponse if options.method is 'GET' and @authGetResponse
+        return @authPostResponse if options.method is 'POST' and @authPostResponse
+        return new Promise (resolve, reject) -> #never respond
+
+    it "should reject if the current environment does not support plugins", ->
+      NylasAPI.pluginsSupported = false
+      NylasAPI.authPlugin('PID', 'PSECRET', TEST_ACCOUNT_ID).catch (err) => @error = err
+      waitsFor =>
+        @error
+      runs =>
+        expect(@error.message).toEqual('Sorry, this feature is only available when N1 is running against the hosted version of the Nylas Sync Engine.')
+
+    it "should reject if no account can be found for the given accountOrId", ->
+      NylasAPI.authPlugin('PID', 'PSECRET', 'randomAccountId').catch (err) => @error = err
+      waitsFor =>
+        @error
+      runs =>
+        expect(@error.message).toEqual('Invalid account')
+
+    it "should resolve if the plugin has been successfully authed with accountOrId already", ->
+      jasmine.unspy(NylasEnv.config, 'get')
+      spyOn(NylasEnv.config, 'get').andCallFake (key) =>
+        return Date.now() if key is "plugins.PID.lastAuth.#{TEST_ACCOUNT_ID}"
+        return null
+      NylasAPI.authPlugin('PID', 'PSECRET', TEST_ACCOUNT_ID).then (err) =>
+        @resolved = true
+      waitsFor =>
+        @resolved
+      expect(NylasAPI.makeRequest).not.toHaveBeenCalled()
+
+    describe "check for existing auth", ->
+      it "should GET /auth/plugin to check if the plugin has been authed", ->
+        @authGetResponse = Promise.resolve({authed: true})
+        NylasAPI.authPlugin('PID', 'PSECRET', TEST_ACCOUNT_ID)
+        advanceClock()
+        expect(NylasAPI.makeRequest).toHaveBeenCalledWith({
+          returnsModel: false,
+          method: 'GET',
+          accountId: 'test-account-server-id',
+          path: '/auth/plugin?client_id=PID'
+        })
+
+      it "should record a successful auth in the config and resolve without making a POST", ->
+        @authGetResponse = Promise.resolve({authed: true})
+        @authPostResponse = null
+        NylasAPI.authPlugin('PID', 'PSECRET', TEST_ACCOUNT_ID).then => @resolved = true
+        waitsFor =>
+          @resolved
+        runs =>
+          expect(NylasAPI.makeRequest).toHaveBeenCalled()
+          expect(NylasEnv.config.set.mostRecentCall.args[0]).toEqual("plugins.PID.lastAuth.#{TEST_ACCOUNT_ID}")
+
+      it "should propagate any network errors back to the caller", ->
+        @authGetResponse = Promise.reject(new Error("Network failure!"))
+        NylasAPI.authPlugin('PID', 'PSECRET', TEST_ACCOUNT_ID).catch (err) => @error = err
+        advanceClock()
+        advanceClock()
+        expect(@error.message).toBe("Network failure!")
+        expect(NylasEnv.config.set).not.toHaveBeenCalled()
+
+    describe "request for auth", ->
+      it "should POST to /auth/plugin with the client id and record a successful auth", ->
+        @authGetResponse = Promise.resolve({authed: false})
+        @authPostResponse = Promise.resolve({authed: true})
+        NylasAPI.authPlugin('PID', 'PSECRET', TEST_ACCOUNT_ID).then => @resolved = true
+        waitsFor =>
+          @resolved
+        runs =>
+          expect(NylasAPI.makeRequest.calls[0].args[0]).toEqual({
+            returnsModel: false,
+            method: 'GET',
+            accountId: 'test-account-server-id',
+            path: '/auth/plugin?client_id=PID'
+          })
+          expect(NylasAPI.makeRequest.calls[1].args[0]).toEqual({
+            returnsModel: false,
+            method: 'POST',
+            accountId: 'test-account-server-id',
+            path: '/auth/plugin',
+            body: {client_id: 'PID'},
+            json: true
+          })
+          setCall = NylasEnv.config.set.mostRecentCall
+          expect(setCall.args[0]).toEqual("plugins.PID.lastAuth.#{TEST_ACCOUNT_ID}")
+
+      it "should propagate any network errors back to the caller", ->
+        @authGetResponse = Promise.resolve({authed: false})
+        @authPostResponse = Promise.reject(new Error("Network failure!"))
+        NylasAPI.authPlugin('PID', 'PSECRET', TEST_ACCOUNT_ID).catch (err) => @error = err
+        waitsFor =>
+          @error
+        runs =>
+          expect(@error.message).toBe("Network failure!")
+
   describe "handleModel404", ->
     it "should unpersist the model from the cache that was requested", ->
       model = new Thread(id: 'threadidhere')
