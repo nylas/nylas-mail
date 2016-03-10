@@ -44,7 +44,7 @@ class SnoozeButton extends Component {
       return <span />;
     }
     return (
-      <div
+      <button
         title="Snooze"
         className={"snooze-button " + this.props.className}
         onClick={this.onClick}>
@@ -54,7 +54,7 @@ class SnoozeButton extends Component {
             mode={RetinaImg.Mode.ContentIsMask} /> :
           void 0
         }
-      </div>
+      </button>
     );
   }
 }
