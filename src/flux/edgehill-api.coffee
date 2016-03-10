@@ -53,7 +53,7 @@ class EdgehillAPI
           if error? or response.statusCode > 299
             options.error(new APIError({error:error, response:response, body:body, requestOptions: options}))
           else
-            options.success(body) if options.success
+            options.success(body, response) if options.success
 
   _defaultErrorCallback: (apiError) ->
     console.error(apiError)
