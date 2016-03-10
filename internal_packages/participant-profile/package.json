@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "title": "Participant Profile",
   "description": "Information about a participant",
-  "isOptional": true,
+  "isOptional": false,
   "main": "lib/main",
   "windowTypes": {
     "default": true
