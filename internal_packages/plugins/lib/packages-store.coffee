@@ -140,7 +140,6 @@ PackagesStore = Reflux.createStore
   _onPackagesChanged: ->
     @_apm.getInstalled().then (packages) =>
       for category in ['dev', 'user']
-        packages[category] = packages[category].filter ({theme}) -> not theme
         packages[category].forEach (pkg) =>
           pkg.category = category
           delete @_installing[pkg.name]

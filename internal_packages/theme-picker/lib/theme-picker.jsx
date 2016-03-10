@@ -2,7 +2,6 @@ import React from 'react';
 import Actions from '../../../src/flux/actions'
 
 import {Flexbox, RetinaImg} from 'nylas-component-kit';
-import ThemePickerActions from './theme-picker-actions';
 import ThemeOption from './theme-option';
 
 
@@ -47,19 +46,13 @@ class ThemePicker extends React.Component {
     activeElement.className = "theme-option active-true";
   }
 
-  _onUninstallTheme(theme) {
-    ThemePickerActions.uninstallTheme(theme);
-    this.setState({themes: this.themes.getLoadedThemes()});
-  }
-
   _renderThemeOptions() {
     return this.state.themes.map((theme) =>
       <ThemeOption
         key={theme.name}
         theme={theme}
         active={this.state.activeTheme === theme.name}
-        onSelect={() => this._setActiveTheme(theme.name)}
-        onUninstall={() => this._onUninstallTheme(theme)} />
+        onSelect={() => this._setActiveTheme(theme.name)} />
     );
   }
 
@@ -80,6 +73,9 @@ class ThemePicker extends React.Component {
               height="auto"
               style={{alignItems: "flex-start", flexWrap: "wrap"}}>
               {this._renderThemeOptions()}
+              <div className="create-theme">
+                <a href="https://github.com/nylas/N1-theme-starter">Create a Theme</a>
+              </div>
             </Flexbox>
           </div>
         </Flexbox>
