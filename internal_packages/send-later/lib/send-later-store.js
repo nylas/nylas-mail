@@ -1,6 +1,12 @@
 /** @babel */
 import NylasStore from 'nylas-store'
-import {NylasAPI, Actions, Message, DatabaseStore} from 'nylas-exports'
+import {
+  NylasAPI,
+  Actions,
+  Message,
+  DatabaseStore,
+  SyncbackDraftTask,
+} from 'nylas-exports'
 import SendLaterActions from './send-later-actions'
 import {PLUGIN_ID, PLUGIN_NAME} from './send-later-constants'
 
@@ -28,6 +34,9 @@ class SendLaterStore extends NylasStore {
       return NylasAPI.authPlugin(this.pluginId, this.pluginName, accountId)
       .then(()=> {
         Actions.setMetadata(messages, this.pluginId, metadata);
+
+        // Important: Do not remove this unless N1 is syncing drafts by default.
+        Actions.queueTask(new SyncbackDraftTask(draftClientId));
       })
       .catch((error)=> {
         NylasEnv.reportError(error);

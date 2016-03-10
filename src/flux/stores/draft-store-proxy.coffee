@@ -36,19 +36,16 @@ class DraftChangeSet
       clearTimeout(@_timer)
       @_timer = null
 
-  add: (changes, {immediate, silent}={}) =>
+  add: (changes, {silent} = {}) =>
     @_pending = _.extend(@_pending, changes)
     @_pending['pristine'] = false
     @_onTrigger() unless silent
-    if immediate
-      @commit()
-    else
-      clearTimeout(@_timer) if @_timer
-      @_timer = setTimeout(@commit, 10000)
+
+    clearTimeout(@_timer) if @_timer
+    @_timer = setTimeout(@commit, 10000)
 
   commit: ({noSyncback}={}) =>
     @_commitChain = @_commitChain.finally =>
-
       if Object.keys(@_pending).length is 0
         return Promise.resolve(true)
 
@@ -165,7 +162,7 @@ class DraftStoreProxy
     inMemoryDraft = @_draft
 
     DatabaseStore.inTransaction (t) =>
-      t.findBy(Message, clientId: inMemoryDraft.clientId).then (draft) =>
+      t.findBy(Message, clientId: inMemoryDraft.clientId).include(Message.attributes.body).then (draft) =>
         # This can happen if we get a "delete" delta, or something else
         # strange happens. In this case, we'll use the @_draft we have in
         # memory to apply the changes to. On the `persistModel` in the
@@ -173,13 +170,23 @@ class DraftStoreProxy
         # `SyncbackDraftTask` may then fail due to differing Ids not
         # existing, but if this happens it'll 404 and recover gracefully
         # by creating a new draft
-        if not draft then draft = inMemoryDraft
-
+        draft ?= inMemoryDraft
         updatedDraft = @changes.applyToModel(draft)
         return t.persistModel(updatedDraft)
+
     .then =>
       return if noSyncback
+      # We have temporarily disabled the syncback of most drafts to user's mail
+      # providers, due to a number of issues in the sync-engine that we're still
+      # firefighting.
+      #
+      # For now, drafts are only synced when you choose "Send Later", and then
+      # once they have a serverId we sync them periodically here.
+      #
+      return unless @_draft.serverId
+
       Actions.queueTask(new SyncbackDraftTask(@draftClientId))
+
 
 DraftStoreProxy.DraftChangeSet = DraftChangeSet
 

@@ -12,7 +12,6 @@ SyncbackMetadataTask = require './syncback-metadata-task'
 Message = require '../models/message'
 Account = require '../models/account'
 
-# MutateDraftTask
 
 module.exports =
 class SyncbackDraftTask extends Task
