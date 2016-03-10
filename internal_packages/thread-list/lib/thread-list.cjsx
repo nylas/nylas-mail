@@ -56,7 +56,8 @@ class ThreadList extends React.Component
     Actions.setFocus(collection: 'thread', item: item)
 
   _keymapHandlers: ->
-    'application:remove-from-view': => @_onRemoveFromView
+    'application:remove-from-view': =>
+      @_onRemoveFromView()
     'application:gmail-remove-from-view': =>
       @_onRemoveFromView(CategoryRemovalTargetRulesets.Gmail)
     'application:archive-item': @_onArchiveItem
