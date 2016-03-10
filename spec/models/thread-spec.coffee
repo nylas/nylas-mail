@@ -20,6 +20,38 @@ describe 'Thread', ->
         iterations += 1
       console.log((Date.now() - start) / 1000.0 + "ms per 1000")
 
+  describe "inAllMail", ->
+    describe "when the thread categoriesType is 'folders'", ->
+      it "should return true", ->
+        thread = new Thread(categoriesType: 'folders', categories: [new Category(name: 'inbox')])
+        expect(thread.inAllMail).toBe(true)
+
+        # Unlike Gmail, this means half the thread is in trash and half is in sent.
+        # It should still appear in results for "Sent"
+        thread = new Thread(categoriesType: 'folders', categories: [new Category(name: 'sent'), new Category(name: 'trash')])
+        expect(thread.inAllMail).toBe(true)
+
+    describe "when the thread categoriesType is 'labels'", ->
+      it "should return true if the thread has an all category", ->
+        thread = new Thread(categoriesType: 'labels', categories: [new Category(name: 'all')])
+        expect(thread.inAllMail).toBe(true)
+
+        # thread is half in spam
+        thread = new Thread(categoriesType: 'labels', categories: [new Category(name: 'all'), new Category(name: 'inbox'), new Category(name: 'spam')])
+        expect(thread.inAllMail).toBe(true)
+
+      it "should return false if the thread has the spam category and no all mail", ->
+        thread = new Thread(categoriesType: 'labels', categories: [new Category(name: 'sent'), new Category(name: 'spam')])
+        expect(thread.inAllMail).toBe(false)
+
+      it "should return false if the thread has the trash category and no all mail", ->
+        thread = new Thread(categoriesType: 'labels', categories: [new Category(name: 'sent'), new Category(name: 'trash')])
+        expect(thread.inAllMail).toBe(false)
+
+      it "should return true if the thread has none of the above (assume all mail)", ->
+        thread = new Thread(categoriesType: 'labels', categories: [new Category(name: 'inbox')])
+        expect(thread.inAllMail).toBe(true)
+
   describe 'sortedCategories', ->
     sortedForCategoryNames = (inputs) ->
       categories = _.map inputs, (i) ->

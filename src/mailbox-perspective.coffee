@@ -213,7 +213,8 @@ class StarredMailboxPerspective extends MailboxPerspective
   threads: =>
     query = DatabaseStore.findAll(Thread).where([
       Thread.attributes.accountId.in(@accountIds),
-      Thread.attributes.starred.equal(true)
+      Thread.attributes.starred.equal(true),
+      Thread.attributes.inAllMail.equal(true),
     ]).limit(0)
 
     return new MutableQuerySubscription(query, {asResultSet: true})
@@ -274,6 +275,9 @@ class CategoryMailboxPerspective extends MailboxPerspective
 
     if @isSent()
       query.order(Thread.attributes.lastMessageSentTimestamp.descending())
+
+    unless @categoriesSharedName() in ['sent', 'trash']
+      query.where(inAllMail: true)
 
     if @_categories.length > 1 and @accountIds.length < @_categories.length
       # The user has multiple categories in the same account selected, which
