@@ -18,7 +18,7 @@ class GithubStore extends NylasStore {
   // This is the computed & cached value that our `ViewOnGithubButton` will
   // render.
   link() {
-    return this.link;
+    return this._link;
   }
 
   // Private methods
