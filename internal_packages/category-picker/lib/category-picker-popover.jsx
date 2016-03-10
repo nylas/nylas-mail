@@ -72,7 +72,7 @@ export default class CategoryPickerPopover extends Component {
 
     if (account) {
       if (account.usesLabels()) {
-        hiddenCategories = ["all", "drafts", "sent", "archive", "starred", "important", "N1-Snoozed"]
+        hiddenCategories = Category.StandardCategoryNames.concat(["N1-Snoozed"])
         if (allInInbox) {
           hiddenCategories.push("inbox")
         }
@@ -163,6 +163,10 @@ export default class CategoryPickerPopover extends Component {
     this._standardCategories = categories.filter((cat) => cat.isStandardCategory())
     this._userCategories = categories.filter((cat) => cat.isUserCategory())
     this.setState(this._recalculateState())
+  };
+
+  _onEscape = ()=> {
+    Actions.closePopover()
   };
 
   _onSelectCategory = (item)=> {
@@ -353,6 +357,7 @@ export default class CategoryPickerPopover extends Component {
           itemKey={item => item.id}
           itemContent={this._renderItem}
           onSelect={this._onSelectCategory}
+          onEscape={this._onEscape}
           defaultSelectedIndex={this.state.searchValue === "" ? -1 : 0}
         />
       </div>

@@ -7,6 +7,7 @@ NylasAPI = require '../../src/flux/nylas-api'
 DatabaseStore = require '../../src/flux/stores/database-store'
 ChangeLabelsTask = require '../../src/flux/tasks/change-labels-task'
 
+{AccountStore, CategoryStore} = require 'nylas-exports'
 {APIError} = require '../../src/flux/errors'
 {Utils} = require '../../src/flux/models/utils'
 
@@ -19,6 +20,12 @@ describe "ChangeLabelsTask", ->
     # Tests for that logic are in change-mail-task-spec.
     spyOn(ChangeLabelsTask.__super__, 'performLocal').andCallFake =>
       Promise.resolve()
+
+    spyOn(AccountStore, 'accountForItems').andReturn({id: 'a1'})
+    spyOn(CategoryStore, 'getTrashCategory').andReturn name: 'trash'
+    spyOn(CategoryStore, 'getInboxCategory').andReturn name: 'inbox'
+    spyOn(CategoryStore, 'getSpamCategory').andReturn name: 'spam'
+    spyOn(CategoryStore, 'getAllMailCategory').andReturn name: 'all'
 
     spyOn(DatabaseStore, 'modelify').andCallFake (klass, items) =>
       Promise.resolve items.map (item) =>
@@ -61,6 +68,47 @@ describe "ChangeLabelsTask", ->
     it "should pluralize properly", ->
       task = new ChangeLabelsTask(labelsToAdd: ["l2"], labelsToRemove: ["l1"], threads: ['t1', 't2', 't3'])
       expect(task.description()).toEqual("Changed labels on 3 threads")
+
+  describe "_ensureAndUpdateLabels", ->
+    beforeEach ->
+      @task = new ChangeLabelsTask()
+      @account = {}
+
+    it "does not remove `all` if attempting to remove `all` without adding `trash` or `spam`", ->
+      toAdd = []
+      toRemove = [{name: 'all'}]
+      {labelsToAdd, labelsToRemove} = @task._ensureAndUpdateLabels(@account, toAdd, toRemove)
+      expect(labelsToRemove).toEqual([])
+
+    it "removes `trash` and `spam` if attempting to add `all` and not already removing them", ->
+      toRemove = []
+      toAdd = [{name: 'all'}]
+      {labelsToAdd, labelsToRemove} = @task._ensureAndUpdateLabels(@account, toAdd, toRemove)
+      expect(labelsToRemove).toEqual([{name: 'trash'}, {name: 'spam'}])
+
+    it "adds `all` if removing `trash` and not adding to `all` or `spam`", ->
+      toRemove = [{name: 'trash'}]
+      toAdd = []
+      {labelsToAdd, labelsToRemove} = @task._ensureAndUpdateLabels(@account, toAdd, toRemove)
+      expect(labelsToAdd).toEqual([{name: 'all'}])
+
+    it "removes `all` and `spam` if attempting to add `trash` and not already removing it", ->
+      toRemove = []
+      toAdd = [{name: 'trash'}]
+      {labelsToAdd, labelsToRemove} = @task._ensureAndUpdateLabels(@account, toAdd, toRemove)
+      expect(labelsToRemove).toEqual([{name: 'all'}, {name: 'spam'}])
+
+    it "adds `all` if removing `spam` and not adding to `all` or `trash`", ->
+      toRemove = [{name: 'spam'}]
+      toAdd = []
+      {labelsToAdd, labelsToRemove} = @task._ensureAndUpdateLabels(@account, toAdd, toRemove)
+      expect(labelsToAdd).toEqual([{name: 'all'}])
+
+    it "removes `all` and `trash` if attempting to add `spam` and not already removing it", ->
+      toRemove = []
+      toAdd = [{name: 'spam'}]
+      {labelsToAdd, labelsToRemove} = @task._ensureAndUpdateLabels(@account, toAdd, toRemove)
+      expect(labelsToRemove).toEqual([{name: 'all'}, {name: 'trash'}])
 
   describe "performLocal", ->
     it "should throw an exception if task has not been given a label, has been given messages, or no threads", ->

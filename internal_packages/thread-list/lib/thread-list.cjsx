@@ -253,7 +253,6 @@ class ThreadList extends React.Component
     return unless threads
     tasks = TaskFactory.tasksForMarkingAsSpam
       threads: threads
-      fromPerspective: FocusedPerspectiveStore.current()
     Actions.queueTasks(tasks)
 
   _onRemoveFromView: (ruleset = CategoryRemovalTargetRulesets.Default) =>
@@ -269,7 +268,6 @@ class ThreadList extends React.Component
     if threads
       tasks = TaskFactory.tasksForArchiving
         threads: threads
-        fromPerspective: FocusedPerspectiveStore.current()
       Actions.queueTasks(tasks)
     Actions.popSheet()
 
@@ -278,7 +276,6 @@ class ThreadList extends React.Component
     if threads
       tasks = TaskFactory.tasksForMovingToTrash
         threads: threads
-        fromPerspective: FocusedPerspectiveStore.current()
       Actions.queueTasks(tasks)
     Actions.popSheet()
 

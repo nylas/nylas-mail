@@ -131,6 +131,8 @@ class Menu extends React.Component
    - `onSelect` A {Function} called with the selected item when the user clicks
      an item in the menu or confirms their selection with the Enter key.
 
+   - `onEscape` A {Function} called when a user presses escape in the input.
+
    - `defaultSelectedIndex` The index of the item first selected if there
    was no other previous index. Defaults to 0. Set to -1 if you want
    nothing selected.
@@ -148,7 +150,12 @@ class Menu extends React.Component
 
     onSelect: React.PropTypes.func.isRequired,
 
+    onEscape: React.PropTypes.func,
+
     defaultSelectedIndex: React.PropTypes.number
+
+  @defaultProps:
+    onEscape: ->
 
   constructor: (@props) ->
     @state =
@@ -210,8 +217,10 @@ class Menu extends React.Component
   _onKeyDown: (event) =>
     return if @props.items.length is 0
     event.stopPropagation()
-    if event.key is "Enter"
+    if event.key in ["Enter", "Return"]
       @_onEnter()
+    if event.key is "Escape"
+      @_onEscape()
     else if event.key is "ArrowUp" or (event.key is "Tab" and event.shiftKey)
       @_onShiftSelectedIndex(-1)
       event.preventDefault()
@@ -269,6 +278,9 @@ class Menu extends React.Component
   _onEnter: =>
     item = @props.items[@state.selectedIndex]
     @props.onSelect(item) if item?
+
+  _onEscape: =>
+    @props.onEscape()
 
 
 Menu.Item = MenuItem
