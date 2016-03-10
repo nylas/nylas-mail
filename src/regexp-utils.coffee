@@ -23,7 +23,11 @@ RegExpUtils =
   # http://daringfireball.net/2010/07/improved_regex_for_matching_urls
   # https://mathiasbynens.be/demo/url-regex
   # This is the Gruber Regex.
-  urlRegex: -> new RegExp(/^\b((?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))$/)
+  urlRegex: ({matchEntireString} = {}) ->
+    if matchEntireString
+      new RegExp(/^\b((?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))$/)
+    else
+      new RegExp(/\b((?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))$/)
 
   # Test cases: https://regex101.com/r/jD5zC7/2
   # Returns the following capturing groups:

@@ -2,7 +2,7 @@ React = require 'react'
 _ = require 'underscore'
 {ipcRenderer, dialog, remote} = require 'electron'
 {RetinaImg} = require 'nylas-component-kit'
-{EdgehillAPI, NylasAPI, APIError, Actions} = require 'nylas-exports'
+{RegExpUtils, EdgehillAPI, NylasAPI, APIError, Actions} = require 'nylas-exports'
 
 OnboardingActions = require './onboarding-actions'
 NylasApiEnvironmentStore = require './nylas-api-environment-store'
@@ -190,8 +190,26 @@ class AccountSettingsPage extends React.Component
       </h2>
 
   _renderErrorMessage: =>
-    if @state.errorMessage
-      <div className="errormsg">{@state.errorMessage ? ""}</div>
+    return unless @state.errorMessage
+
+    text = @state.errorMessage
+    result = RegExpUtils.urlRegex(matchEntireString: false).exec(text)
+
+    if result
+      link = result[0]
+      beforeText = text.substr(0, result.index)
+      afterText  = text.substr(result.index + link.length)
+      return (
+        <div className="errormsg">
+          {beforeText}<a href={link}>{link}</a>{afterText}
+        </div>
+      )
+    else
+      return (
+        <div className="errormsg">
+          {text}
+        </div>
+      )
 
   _fieldOnCurrentPage: (field) =>
     !@state.provider.pages || field.page is @state.pageNumber

@@ -106,8 +106,9 @@ class LinkEditor extends React.Component
   _initialUrl: (props=@props) =>
     initialUrl = props.linkToModify?.getAttribute('href') ? ""
     if initialUrl.length is 0
-      if RegExpUtils.urlRegex().test(props.linkToModify?.textContent ? "")
-        initialUrl = props.linkToModify.textContent ? ""
+      textContent = props.linkToModify?.textContent ? ""
+      if RegExpUtils.urlRegex(matchEntireString: true).test(textContent)
+        initialUrl = textContent
 
     return initialUrl
 
