@@ -13,22 +13,35 @@ module.exports = class ClearbitDataSource
           user: tok
           pass: ""
         path: "/proxy/clearbit/#{@clearbitAPI()}/find?email=#{email}",
-        success: (body) =>
-          resolve(@parseResponse(body))
+        success: (body, response) =>
+          resolve(@parseResponse(body, response, email))
         error: reject
 
   # The clearbit -> Nylas adapater
-  parseResponse: (resp={}) ->
-    person = resp.person
-    return null unless person
-    cacheDate: Date.now()
-    email: person.email # Used as checksum
-    bio: person.bio ? person.twitter?.bio ? person.aboutme?.bio,
-    location: person.location ? person.geo?.city
-    currentTitle: person.employment?.title,
-    currentEmployer: person.employment?.name,
-    profilePhotoUrl: person.avatar,
-    socialProfiles: @_socialProfiles(person)
+  parseResponse: (body={}, response, requestedEmail) ->
+    # This means it's in the process of fetching. Return null so we don't
+    # cache and try again.
+    if response.statusCode isnt 200
+      return null
+
+    person = body.person
+
+    # This means there was no data about the person available. Return a
+    # valid, but empty object for us to cache. This can happen when we
+    # have company data, but no personal data.
+    if not person
+      return {email: requestedEmail}
+
+    return {
+      cacheDate: Date.now()
+      email: person.email # Used as checksum
+      bio: person.bio ? person.twitter?.bio ? person.aboutme?.bio,
+      location: person.location ? person.geo?.city
+      currentTitle: person.employment?.title,
+      currentEmployer: person.employment?.name,
+      profilePhotoUrl: person.avatar,
+      socialProfiles: @_socialProfiles(person)
+    }
 
   _socialProfiles: (person={}) ->
     profiles = {}
