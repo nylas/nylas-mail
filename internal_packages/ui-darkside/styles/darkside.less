@@ -1,0 +1,726 @@
+//====================================================
+//  Theme Variables
+//====================================================
+
+// Default
+@sidebar: #313042;
+@accent: #F18260;
+
+// Luna
+// @sidebar: #202C46;
+// @accent: #39DFF8;
+
+// Zond
+// @sidebar: #333333;
+// @accent: #F6D49C;
+
+// Gemini
+// @sidebar: #00203C;
+// @accent: #F6B312;
+
+// Mercury
+// @sidebar: #555;
+// @accent: #999;
+
+// Apollo
+// @sidebar: #3A1E15;
+// @accent: #F6AA1C;
+
+@threadlist-bg: #FFFFFF;
+@messagelist-bg: tint(@sidebar, 95%);
+@active-thread-text: @sidebar;
+@sidebar-text: desaturate(lighten(@sidebar, 40%), 75%);
+@active-sidebar-text: #FFFFFF;
+@border-color: fade(@sidebar, 10%);
+@close: #FF5F56;
+@minimize: #FBD852;
+@maximize: #8DD07D;
+@swipe-archive: #8DD07D;
+@swipe-snooze: #FBD852;
+@invalid: @close;
+
+@message-width: 700px;
+@sidebar-margin: 15px;
+
+//====================================================
+//  Main Sidebar
+//====================================================
+
+// Make sidebar and corresponding toolbar match
+.column-RootSidebar,
+.account-sidebar,
+.sheet-toolbar-container [data-column='0'] {
+  height: 100%;
+  background-color: @sidebar;
+  // If NOT Retina display, subpixel-antialias fonts instead
+  @media
+    not screen and (-webkit-min-device-pixel-ratio: 1.3),
+    not screen and (-o-min-device-pixel-ratio: 13/10),
+    not screen and (min-resolution: 120dpi) {
+      -webkit-font-smoothing: subpixel-antialiased !important;
+  }
+}
+
+// Refactored this to make sure all items
+// in sidebar always align left with each other
+.account-sidebar {
+  // make absolute elements (like compose button)
+  // relate to the sidear, not the column
+  position: relative;
+  margin: @sidebar-margin;
+}
+
+.nylas-outline-view {
+  margin-bottom: @sidebar-margin;
+}
+
+//====================================================
+//  Window Controls
+//====================================================
+
+// Match alignment for toolbar above sidebar
+.sheet-toolbar-container [data-column='0'] {
+  padding-left: @sidebar-margin;
+  padding-right: @sidebar-margin;
+}
+
+.toolbar-window-controls {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  width: 50px;
+}
+
+.toolbar-window-controls button {
+  background-color: @sidebar-text;
+  background-image: none !important;
+  width: 12px;
+  height: 12px;
+  float: none;
+  opacity: 0.5;
+  margin: 0;
+  margin-right: 5px;
+  transform: scaleY(0.5);
+  border-radius: 2px;
+  transition-duration: 150ms;
+  transition-property: border-radius, opacity, transform;
+}
+
+.toolbar-window-controls:hover button {
+  opacity: 1;
+  border-radius: 50%;
+  transform: scaleY(1);
+}
+
+.toolbar-window-controls .close {
+  background-color: @close;
+  background-image: none;
+}
+
+.toolbar-window-controls .minimize {
+  background-color: @minimize;
+  background-image: none;
+}
+
+.toolbar-window-controls .maximize {
+  background-color: @maximize;
+  background-image: none;
+}
+
+.is-blurred {
+  .toolbar-window-controls .close,
+  .toolbar-window-controls .minimize,
+  .toolbar-window-controls .maximize {
+    background-color: fade(@sidebar-text, 50%);
+  }
+}
+
+// Compose Button Overrides
+.sheet-toolbar .btn.btn-toolbar.item-compose {
+  background: transparent;
+  box-shadow: none;
+  opacity: 0.5;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  transition: opacity 200ms;
+  &:hover {
+    opacity: 1;
+  }
+}
+
+// Compose button icon color
+.sheet-toolbar .btn.btn-toolbar.item-compose img.content-mask {
+  background-color: @sidebar-text;
+}
+
+//====================================================
+//  Sidebar Items
+//====================================================
+
+// Section headers
+.account-sidebar .heading {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: fade(@sidebar-text, 50%);
+  margin-bottom: 10px;
+  padding: 0;
+}
+
+// Down arrow icon
+.account-switcher {
+  height: 16px;
+  width: 16px;
+  top: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0.5;
+  transition: opacity 200ms;
+  &:hover {
+    opacity: 1;
+  }
+}
+
+// Down arrow icon
+.account-switcher img {
+  zoom: 1 !important;
+  max-width: 10px;
+  max-height: 6px;
+  transform: none;
+  background-image: none;
+  background-color: @sidebar-text;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-image: url(nylas://ui-darkside/images/down-arrow.svg);
+}
+
+.account-sidebar .item,
+.account-sidebar .item.selected {
+  color: @sidebar-text;
+  font-size: 13px;
+  font-weight: 400;
+  padding-right: 0;
+}
+
+.account-sidebar .item.selected {
+  background: transparent;
+  color: @active-sidebar-text;
+}
+
+// Item expansion icon wrapper
+.disclosure-triangle {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  width: 15px;
+}
+
+// Item expansion icon
+.disclosure-triangle div {
+  border-left-color: fade(@sidebar-text, 50%);
+  border-top-width: 3px;
+  border-bottom-width: 3px;
+  border-left-width: 5px;
+  transform-origin: 2px;
+}
+
+//====================================================
+//  Sidebar Icons
+//====================================================
+
+.account-sidebar .item img.content-mask,
+.account-sidebar .add-item-button img, {
+  background-color: @sidebar-text;
+}
+
+.account-sidebar .item.selected img.content-mask {
+  background-color: @active-sidebar-text;
+}
+
+.nylas-outline-view .item-container.dropping {
+  background: transparent;
+}
+
+.nylas-outline-view .item-container.dropping .item {
+  color: @accent;
+}
+
+.nylas-outline-view .item-container.dropping .item img.content-mask {
+  background-color: @accent;
+}
+
+.nylas-outline-view .heading .add-item-button img {
+  background: fade(@sidebar-text, 50%);
+}
+
+//====================================================
+//  Sidebar Count Badges
+//====================================================
+
+.nylas-outline-view .item .item-count-box.alt-count {
+  background: @accent;
+  color: @sidebar;
+}
+
+.nylas-outline-view .item .item-count-box {
+  color: @accent;
+  box-shadow: inset 0 0 0 1px fade(@accent, 50%);
+}
+
+//====================================================
+//  Scrollbar Base & Sidebar Scrollbar
+//====================================================
+
+.scrollbar-track {
+  background: transparent;
+  border-left: none;
+  width: 10px;
+}
+
+// transitioning background instead of opacity
+// so the location tooltip isn't affected
+.scrollbar-track .scrollbar-handle {
+  background: fade(@sidebar, 20%);
+  border: none !important;
+  cursor: -webkit-grab;
+  transition: background 300ms;
+}
+
+.scrollbar-track.dragging .scrollbar-handle {
+  background: fade(@sidebar, 50%);
+  cursor: -webkit-grabbing;
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(-50px); }
+  to   { opacity: 1; transform: translateX(-15px); }
+}
+
+.scrollbar-track .scrollbar-handle .tooltip .scroll-tooltip {
+  transform-origin: center right;
+  animation: slideInRight 300ms;
+}
+
+.flexbox-handle-horizontal div {
+  box-shadow: none;
+}
+
+// Removing overlap of scrollbar and handle
+.column-ThreadList .flexbox-handle-horizontal.flexbox-handle-right {
+  right: -8px;
+  padding: 0;
+}
+
+// we now offset the margin on scrollbar
+// in sidebar since it's position: relative
+.account-sidebar .scrollbar-track {
+  margin-right: -@sidebar-margin;
+}
+
+// and lighten the handle background
+.account-sidebar .scrollbar-track .scrollbar-handle {
+  background: fade(lighten(@sidebar, 50%), 40%);
+}
+
+//====================================================
+//  Thread List
+//====================================================
+
+// Make corresponding toolbar match threadlist background
+.column-ThreadList,
+.sheet-toolbar-container [data-column='1'] {
+  height: 100%;
+  background: @threadlist-bg;
+  border-bottom: 1px solid @border-color;
+}
+
+.list-tabular .list-tabular-item {
+  background-color: @threadlist-bg;
+  border-bottom: 1px solid @border-color !important;
+}
+
+// Using !important so multiple selection actions
+.list-tabular .list-tabular-item:hover {
+  background: tint(@sidebar, 95%) !important;
+}
+
+.list-container .list-item.focused,
+.list-container .list-item.selected,
+.thread-list.handler-split .list-item.selected {
+  background: tint(@accent, 90%);
+  color: @active-thread-text;
+}
+
+body.is-blurred .list-container .list-item.focused,
+body.is-blurred .list-container .list-item.selected,
+body.is-blurred .thread-list.handler-split .list-item.selected {
+  background: tint(@sidebar, 90%);
+  color: @active-thread-text;
+}
+
+.list-tabular .list-tabular-item.keyboard-cursor {
+  border-left-color: @accent;
+  background: tint(@accent, 90%);
+}
+
+body.is-blurred .list-tabular .list-tabular-item.keyboard-cursor {
+  border-left-color: tint(@sidebar, 70%);
+}
+
+//====================================================
+//  Search & Suggestion Menu
+//====================================================
+
+.search-bar {
+  margin: 7.5px;
+  width: 100%;
+}
+
+.search-container .content-container {
+  margin-top: 5px !important;
+}
+
+.menu .item.selected, .menu .item:active,
+.search-container .content-container .item.selected {
+  background: @accent;
+}
+
+//====================================================
+//  Thread Icons
+//====================================================
+
+// Remove inverted color effects
+.thread-list .focused .thread-icon,
+.draft-list .focused .thread-icon,
+.thread-list .focused .draft-icon,
+.draft-list .focused .draft-icon,
+.thread-list .focused .mail-important-icon,
+.draft-list .focused .mail-important-icon,
+.thread-list.handler-split .list-item.selected .thread-icon,
+.thread-list.handler-split .list-item.selected .draft-icon,
+.thread-list.handler-split .list-item.selected .mail-important-icon {
+  -webkit-filter: none !important;
+}
+
+// Base settings for replacing backgrounds with -webkit-filters for easier color changes
+.thread-list .thread-icon {
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 12px;
+  -webkit-mask-position: center;
+}
+
+// Change color of unread dot icon
+.thread-list .thread-icon.thread-icon-unread {
+  background-image: none;
+  background-color: @accent;
+  -webkit-mask-image: url(../static/images/thread-list/icon-unread-@2x.png);
+}
+
+// replace undread icon with star icon on thread item hover
+.thread-list .list-item:hover .thread-icon.thread-icon-unread {
+  background-color: tint(@sidebar);
+  -webkit-mask-image: url(../static/images/thread-list/icon-star-@2x.png);
+  &:hover { background-color: tint(@sidebar, 20%); }
+}
+
+// Replace outlined star icon with solid one
+.thread-list .thread-icon.thread-icon-star,
+.thread-list .thread-icon-star-on-hover:hover {
+  background-color: tint(@sidebar);
+  -webkit-mask-image: url(../static/images/thread-list/icon-star-@2x.png);
+}
+
+// for Read messages, use the solid star on item hover as well
+.thread-list .list-item:hover .thread-icon-none {
+  background-image: none;
+  background-color: tint(@sidebar);
+  -webkit-mask-image: url(../static/images/thread-list/icon-star-@2x.png);
+}
+
+// Make the star a bit darker on direct hover
+.thread-list .list-item:hover .thread-icon-none:hover {
+  background-image: none;
+  background-color: tint(@sidebar, 20%);
+  -webkit-mask-image: url(../static/images/thread-list/icon-star-@2x.png);
+}
+
+.thread-icon.thread-icon-attachment {
+  opacity: 0.5;
+  background-size: 12px;
+}
+
+// The gradient behind threadlist hover icons (Snooze, Arvhive Delete)
+.thread-list .list-item:hover .list-column-HoverActions .inner,
+.thread-list .list-item.focused:hover .list-column-HoverActions .inner,
+.thread-list .list-item.selected:hover .list-column-HoverActions .inner,
+.thread-list.handler-split .list-item.selected:hover .list-column-HoverActions .inner {
+  background-image: -webkit-linear-gradient(left, fade(@messagelist-bg, 0%) 0%, @messagelist-bg 40%, @messagelist-bg 100%);
+}
+
+.thread-list .list-item.focused:hover .list-column-HoverActions .inner .action,
+.thread-list.handler-split .list-item.selected:hover .list-column-HoverActions .inner .action {
+  -webkit-filter: none;
+}
+
+.thread-list .list-item.focused:hover .list-column-HoverActions .inner .action.action-trash {
+  background: url("../static/images/thread-list-quick-actions/ic-quick-button-trash@2x.png") center no-repeat, linear-gradient(to top, rgba(241, 241, 241, 0.75) 0%, rgba(253, 253, 253, 0.75) 100%);
+}
+
+//====================================================
+//  Swiping
+//====================================================
+
+.thread-list .swipe-backing.swipe-archive,
+.draft-list .swipe-backing.swipe-archive {
+  background: @swipe-archive;
+  &.confirmed {
+    background: saturate(@swipe-archive, 10%);
+  }
+}
+
+.thread-list .swipe-backing.swipe-snooze,
+.draft-list .swipe-backing.swipe-snooze {
+  background: @swipe-snooze;
+  &.confirmed {
+    background: saturate(@swipe-snooze, 10%);
+  }
+}
+
+//====================================================
+//  Mail Labels
+//====================================================
+
+// Make labels white on accent color when message is selected
+.thread-list .focused .mail-label, .draft-list .focused .mail-label,
+.thread-list.handler-split .list-item.selected .mail-label {
+  background: @accent !important;
+  color: white !important;
+  box-shadow: none !important;
+  -webkit-filter: none !important;
+}
+
+//====================================================
+//  Message List & Corresponding Toolbar
+//====================================================
+
+#message-list {
+  background: @messagelist-bg;
+}
+
+// Make toolbars match panels
+.column-MessageList,
+.sheet-toolbar-container [data-column='2'],
+.column-MessageListSidebar,
+.sheet-toolbar-container [data-column='3']  {
+  height: 100%;
+  background: @messagelist-bg;
+  border-left: 1px solid @border-color;
+}
+
+// Reducing width of message since the font size was reduced
+#message-list .message-subject-wrap,
+#message-list .message-item-wrap,
+#message-list .footer-reply-area-wrap,
+#message-list .minified-bundle .msg-lines {
+  max-width: @message-width;
+}
+
+#message-list .message-item-wrap {
+  margin-bottom: 12px;
+  padding-bottom: 0;
+}
+
+#message-list .message-item-wrap .message-item-white-wrap,
+#message-list .minified-bundle .msg-line,
+#message-list .minified-bundle .num-messages,
+#message-list .footer-reply-area-wrap, {
+  box-shadow: inset 0 0 0 1px @border-color;
+  border: none;
+}
+
+#message-list .minified-bundle + .message-item-wrap,
+#message-list .message-item-wrap.collapsed + .minified-bundle,
+#message-list .minified-bundle .num-messages,
+#message-list .minified-bundle .msg-lines {
+  margin-top: 0;
+}
+
+#message-list .minified-bundle .num-messages {
+  padding: 3px;
+}
+
+#message-list .message-item-wrap.before-reply-area {
+  margin-bottom: 0;
+}
+
+// Replacing focused state with theme accent
+#message-list .message-item-wrap .message-item-white-wrap.composer-outer-wrap.focused {
+  box-shadow: 0 0 0 1px @accent;
+}
+
+.composer-inner-wrap .composer-action-bar-wrap,
+.composer-full-window .composer-inner-wrap .composer-action-bar-wrap {
+  background: darken(@messagelist-bg, 1%);
+  box-shadow: none;
+  border-radius: 0;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+// make action bar at bottom of composer a bit darker than background
+#message-list .message-item-wrap .message-item-white-wrap.composer-outer-wrap.focused .composer-action-bar-wrap {
+  background: darken(@messagelist-bg, 1%);
+}
+
+//====================================================
+//  Preferences
+//====================================================
+
+.preferences-sidebar,
+.preferences-content {
+  background: @messagelist-bg;
+}
+
+.preferences-wrap .preferences-content > .scroll-region-content {
+  padding-bottom: 100px;
+}
+
+//====================================================
+//  Notifications
+//====================================================
+
+[name="Header"] {
+  z-index: 3 !important;
+  height: 0;
+}
+
+.notifications-sticky .notifications-sticky-item {
+  background-color: @accent;
+  line-height: 50px;
+  border: none;
+}
+
+.sidebar-activity {
+  background: darken(@sidebar, 5%);
+  color: @active-sidebar-text;
+  box-shadow: none;
+}
+
+.sidebar-activity .item {
+  border: none;
+}
+
+//====================================================
+//  Drafts & Selection List
+//====================================================
+
+// Make corresponding toolbar match threadlist background
+.draft-list {
+  background: @messagelist-bg;
+}
+
+.draft-list .list-tabular .list-tabular-item .checkmark .inner {
+  background-color: white;
+  border-color: tint(@sidebar, 75%);
+}
+
+.list-tabular .list-tabular-item.selected .checkmark .inner {
+  background-color: @accent;
+  background-image: url(nylas://ui-darkside/images/checkmark.svg);
+  background-size: 8px 6px;
+}
+
+// Make draft-list items slightly darker on hover
+// Using !important so multiple selection actions
+.draft-list .list-tabular .list-tabular-item:hover {
+  background: tint(@sidebar, 90%) !important;
+}
+
+// Center vertically regardless of list item height
+.draft-list .sending-progress {
+  align-self: center;
+  background-color: #f5f5f5;
+  border: none;
+  margin-top: 0;
+}
+
+//====================================================
+//  Composer
+//====================================================
+
+.tokenizing-field .token.invalid {
+  border-bottom: 1px solid @invalid;
+}
+
+.tokenizing-field .token.selected,
+.tokenizing-field .token.dragging {
+  background: @accent;
+  box-shadow: none;
+  border: none;
+}
+
+.tokenizing-field .token.invalid.selected,
+.tokenizing-field .token.invalid.dragging {
+  background: @invalid;
+}
+
+//====================================================
+//  Toolbars Bar
+//====================================================
+
+.sheet-toolbar {
+  border: none;
+}
+
+.sheet-toolbar-container {
+  background: transparent;
+  box-shadow: none;
+  border: none;
+}
+
+.sheet-toolbar .selection-bar .absolute {
+  left: 0;
+  right: 0;
+  border-left: none;
+  border-right: none;
+}
+
+.sheet-toolbar-container.mode-popout,
+// mode-list toolbar
+[data-reactid=".1.0.1.$=1$1=02Thread=02toolbar"] [data-column='0'],
+// Preferences toolbar
+[data-reactid=".1.0.1.$=1$1=02Preferences=02toolbar"] [data-column='0'] {
+  background-image: none;
+  background-color: tint(@sidebar, 90%);
+}
+
+.sheet-toolbar-container.mode-popout [data-column='0'] {
+  background: transparent;
+}
+
+// Centering vertially without magic numbers
+.layout-mode-popout .toolbar-window-controls {
+  margin-top: 0;
+}
+
+.sheet-toolbar .item-container .window-title {
+  position: static;
+  // compensate for width of .toolbar-window-controls
+  transform: translateX(-25px);
+}
+
+.sheet-toolbar .btn-toolbar {
+  box-shadow: 0 0 0 1px @border-color;
+}
+
+.sheet-toolbar .message-toolbar-items {
+  margin-right: 11.25px;
+}
+
+.btn-toolbar.mode-toggle.mode-false img.content-mask {
+  background-color: @accent;
+}
