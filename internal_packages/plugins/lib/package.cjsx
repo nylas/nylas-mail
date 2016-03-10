@@ -22,7 +22,7 @@ class Package extends React.Component
 
 
     if @props.package.installed
-      if @props.package.category in ['user' ,'dev', 'example']
+      if @props.package.category in ['user' ,'dev', 'example'] and not @props.package.theme
         if @props.package.enabled
           actions.push <Switch onChange={@_onDisablePackage} checked=true>Disable</Switch>
         else

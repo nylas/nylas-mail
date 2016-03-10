@@ -7,13 +7,10 @@ import ThemePicker from '../lib/theme-picker';
 const {resourcePath} = NylasEnv.getLoadSettings();
 const light = new ThemePackage(resourcePath + '/internal_packages/ui-light');
 const dark = new ThemePackage(resourcePath + '/internal_packages/ui-dark');
-const thirdPartyTheme = new ThemePackage(resourcePath + '/internal_packages/ui-light');
-thirdPartyTheme.name = 'third-party-theme'
-thirdPartyTheme.path = ''
 
 describe('ThemePicker', ()=> {
   beforeEach(()=> {
-    spyOn(NylasEnv.themes, 'getLoadedThemes').andReturn([light, dark, thirdPartyTheme]);
+    spyOn(NylasEnv.themes, 'getLoadedThemes').andReturn([light, dark]);
     spyOn(NylasEnv.themes, 'getActiveTheme').andReturn(light);
     this.component = ReactTestUtils.renderIntoDocument(<ThemePicker />);
   });
@@ -24,14 +21,5 @@ describe('ThemePicker', ()=> {
     const themeOption = React.findDOMNode(ReactTestUtils.scryRenderedDOMComponentsWithClass(this.component, 'clickable-theme-option')[1]);
     ReactTestUtils.Simulate.mouseDown(themeOption);
     expect(ThemePicker.prototype._setActiveTheme).toHaveBeenCalled();
-  });
-
-  it('uninstalls themes on click', ()=> {
-    spyOn(ThemePicker.prototype, '_onUninstallTheme').andCallThrough();
-    spyOn(ThemePicker.prototype, 'setState').andCallThrough();
-    const uninstallButton = React.findDOMNode(ReactTestUtils.scryRenderedDOMComponentsWithClass(this.component, 'theme-uninstall-x')[0]);
-    ReactTestUtils.Simulate.mouseDown(uninstallButton);
-    expect(ThemePicker.prototype._onUninstallTheme).toHaveBeenCalled();
-    expect(ThemePicker.prototype.setState).toHaveBeenCalled();
   });
 });

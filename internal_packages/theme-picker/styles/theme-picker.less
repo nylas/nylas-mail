@@ -3,23 +3,24 @@
 .theme-picker {
   text-align: center;
   cursor: default;
-  iframe {
-    pointer-events: none;
-    position: relative;
-    z-index: 0;
-  }
-  .theme-uninstall-x {
-    float: right;
-    position: relative;
-    z-index: 1;
-    margin-bottom: -40px;
-    margin-right: 10px;
-    -webkit-filter: none;
+  .create-theme {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 5px;
+    a {
+      color: #3187e1;
+      text-decoration: none;
+      cursor: default;
+    }
   }
   .clickable-theme-option {
-    cursor: pointer;
     width: 115px;
     margin: 2px;
     top: -10px;
+    iframe {
+      pointer-events: none;
+      position: relative;
+      z-index: 0;
+    }
   }
 }
