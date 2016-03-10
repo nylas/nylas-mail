@@ -100,8 +100,8 @@ class ThemeOption extends React.Component {
           ref="iframe"
           className={`theme-preview-${this.props.theme.name}`}
           frameBorder="0"
-          width="105px"
-          height="65px"
+          width="115px"
+          height="70px"
           flex="1" />
       </div>
     );

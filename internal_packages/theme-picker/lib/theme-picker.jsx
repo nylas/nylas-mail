@@ -61,22 +61,22 @@ class ThemePicker extends React.Component {
       <div className="theme-picker">
         <Flexbox direction="column">
           <RetinaImg
-            style={{width: "14", height: "14", margin: "8px", WebkitFilter: "none"}}
+            style={{width: "14", height: "14", margin: "12px", WebkitFilter: "none"}}
             name="picker-close.png"
             mode={RetinaImg.Mode.ContentDark}
             onMouseDown={() => Actions.closeModal()} />
-          <h4 style={{color: "#313435"}}>Themes</h4>
-          <div style={{color: "rgba(35, 31, 32, 0.5)"}}>Click any theme to preview.</div>
-          <div style={{margin: "10px 5px 0 5px", height: "300px", overflow: "auto"}}>
+          <h4 style={{color: "#434648"}}>Themes</h4>
+          <div style={{color: "rgba(35, 31, 32, 0.5)", fontSize: "12px"}}>Click any theme to apply:</div>
+          <div style={{margin: "10px 5px 0 5px", height: "290px", overflow: "auto"}}>
             <Flexbox
               direction="row"
               height="auto"
               style={{alignItems: "flex-start", flexWrap: "wrap"}}>
               {this._renderThemeOptions()}
-              <div className="create-theme">
-                <a href="https://github.com/nylas/N1-theme-starter">Create a Theme</a>
-              </div>
             </Flexbox>
+          </div>
+          <div className="create-theme">
+            <a href="https://github.com/nylas/N1-theme-starter">Create a Theme</a>
           </div>
         </Flexbox>
       </div>
