@@ -86,7 +86,7 @@ describe "MessageItem", ->
       return '/fake/path-inline.png' if f.id is file_inline.id
       return '/fake/path-downloading.png' if f.id is file_inline_downloading.id
       return null
-    spyOn(MessageBodyProcessor, 'addToCache').andCallFake ->
+    spyOn(MessageBodyProcessor, '_addToCache').andCallFake ->
 
     @downloads =
       'file_1_id': download,

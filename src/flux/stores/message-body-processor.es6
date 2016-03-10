@@ -24,7 +24,7 @@ class MessageBodyProcessor {
     this._recentlyProcessedA = [];
     this._recentlyProcessedD = {};
     for (const {message, callback} of this._subscriptions) {
-      callback(this.process(message));
+      callback(this.retrieve(message));
     }
   }
 
@@ -51,7 +51,7 @@ class MessageBodyProcessor {
     if (subscriptions.length > 0) {
       const updatedMessage = changedMessage.clone();
       updatedMessage.body = updatedMessage.body || subscriptions[0].message.body;
-      const output = this.process(updatedMessage);
+      const output = this.retrieve(updatedMessage);
       for (const subscription of subscriptions) {
         subscription.callback(output);
         subscription.message = updatedMessage;
@@ -59,18 +59,12 @@ class MessageBodyProcessor {
     }
   }
 
-  _key(message) {
-    // It's safe to key off of the message ID alone because we invalidate the
-    // cache whenever the message is persisted to the database.
-    return message.id;
-  }
-
   version() {
     return this._version;
   }
 
-  processAndSubscribe(message, callback) {
-    _.defer(() => callback(this.process(message)));
+  subscribe(message, callback) {
+    _.defer(() => callback(this.retrieve(message)));
     const sub = {message, callback}
     this._subscriptions.push(sub);
     return () => {
@@ -78,15 +72,29 @@ class MessageBodyProcessor {
     }
   }
 
-  process(message) {
-    let body = message.body;
-    if (!_.isString(message.body)) {
-      return "";
-    }
-
+  retrieve(message) {
     const key = this._key(message);
     if (this._recentlyProcessedD[key]) {
       return this._recentlyProcessedD[key].body;
+    }
+    const body = this._process(message);
+    this._addToCache(key, body);
+    return body;
+  }
+
+  // Private Methods
+
+  _key(message) {
+    // It's safe to key off of the message ID alone because we invalidate the
+    // cache whenever the message is persisted to the database.
+    return message.id;
+  }
+
+  _process(message) {
+    let body = message.body;
+
+    if (!_.isString(body)) {
+      return "";
     }
 
     // Give each extension the message object to process the body, but don't
@@ -132,11 +140,11 @@ class MessageBodyProcessor {
 
       result = MessageUtils.cidRegex.exec(body);
     }
-    this.addToCache(key, body);
+
     return body;
   }
 
-  addToCache(key, body) {
+  _addToCache(key, body) {
     if (this._recentlyProcessedA.length > 50) {
       const removed = this._recentlyProcessedA.pop()
       delete this._recentlyProcessedD[removed.key]
