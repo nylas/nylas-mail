@@ -9,7 +9,10 @@ module.exports = class ClearbitDataSource
     tok = AccountStore.tokenForAccountId(AccountStore.accounts()[0].id)
     new Promise (resolve, reject) =>
       EdgehillAPI.request
-        path: "/proxy/clearbit/#{@clearbitAPI()}/find?email=#{email}&api_token=#{tok}",
+        auth:
+          user: tok
+          pass: ""
+        path: "/proxy/clearbit/#{@clearbitAPI()}/find?email=#{email}",
         success: (body) =>
           resolve(@parseResponse(body))
         error: reject
