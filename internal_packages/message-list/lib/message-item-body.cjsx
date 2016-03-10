@@ -2,11 +2,12 @@ React = require 'react'
 _ = require 'underscore'
 EmailFrame = require './email-frame'
 {Utils,
+ NylasAPI,
  MessageUtils,
  MessageBodyProcessor,
  QuotedHTMLTransformer,
  FileDownloadStore} = require 'nylas-exports'
-{InjectedComponentSet} = require 'nylas-component-kit'
+{InjectedComponentSet, RetinaImg} = require 'nylas-component-kit'
 
 TransparentPixel = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNikAQAACIAHF/uBd8AAAAASUVORK5CYII="
 
@@ -17,19 +18,25 @@ class MessageItemBody extends React.Component
     downloads: React.PropTypes.object.isRequired
 
   constructor: (@props) ->
+    @_unmounted = false
     @state =
       showQuotedText: Utils.isForwardedMessage(@props.message)
-      processedBody: undefined
+      processedBody: null
+      error: null
 
   componentWillMount: =>
-    @_unsub = MessageBodyProcessor.processAndSubscribe(@props.message, @_onBodyChanged)
+    @_unsub = MessageBodyProcessor.subscribe(@props.message, @_onBodyProcessed)
+
+  componentDidMount: =>
+    @_onFetchBody() if not _.isString(@props.message.body)
 
   componentWillReceiveProps: (nextProps) ->
     if nextProps.message.id isnt @props.message.id
       @_unsub?()
-      @_unsub = MessageBodyProcessor.processAndSubscribe(nextProps.message, @_onBodyChanged)
+      @_unsub = MessageBodyProcessor.subscribe(nextProps.message, @_onBodyProcessed)
 
   componentWillUnmount: =>
+    @_unmounted = true
     @_unsub?()
 
   render: =>
@@ -44,8 +51,20 @@ class MessageItemBody extends React.Component
     </span>
 
   _renderBody: =>
-    return null unless @state.processedBody?
-    <EmailFrame showQuotedText={@state.showQuotedText} content={@state.processedBody}/>
+    if _.isString(@props.message.body) and @state.processedBody
+      <EmailFrame showQuotedText={@state.showQuotedText} content={@state.processedBody}/>
+    else if @state.error
+      <div className="message-body-error">
+        Sorry, this message could not be loaded. (Status code {@state.error.statusCode})
+        <a onClick={@_onFetchBody}>Try Again</a>
+      </div>
+    else
+      <div className="message-body-loading">
+        <RetinaImg
+          name="inline-loading-spinner.gif"
+          mode={RetinaImg.Mode.ContentDark}
+          style={{width: 14, height: 14}}/>
+      </div>
 
   _renderQuotedTextControl: =>
     return null unless QuotedHTMLTransformer.hasQuotedHTML(@props.message.body)
@@ -58,7 +77,21 @@ class MessageItemBody extends React.Component
     @setState
       showQuotedText: !@state.showQuotedText
 
-  _onBodyChanged: (body) =>
+  _onFetchBody: =>
+    NylasAPI.makeRequest
+      path: "/messages/#{@props.message.id}"
+      accountId: @props.message.accountId
+      returnsModel: true
+    .then =>
+      return if @_unmounted
+      @setState({error: null})
+      # message will be put into the database and the MessageBodyProcessor
+      # will provide us with the new body once it's been processed.
+    .catch (error) =>
+      return if @_unmounted
+      @setState({error})
+
+  _onBodyProcessed: (body) =>
     downloadingSpinnerPath = Utils.imageNamed('inline-loading-spinner.gif')
 
     # Replace cid:// references with the paths to downloaded files

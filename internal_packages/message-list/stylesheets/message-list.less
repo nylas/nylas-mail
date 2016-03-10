@@ -150,6 +150,23 @@ body.platform-win32 {
     a { float: right; }
   }
 
+  .message-body-error {
+    background-color: @background-secondary;
+    border: 1px solid darken(@background-secondary, 8%);
+    color: @text-color-very-subtle;
+    margin-top: @padding-large-vertical;
+    cursor: default;
+    padding: @padding-base-vertical @padding-base-horizontal;
+    a { float: right; }
+  }
+
+  .message-body-loading {
+    height: 1em;
+    align-content: center;
+    margin-top: @padding-large-vertical;
+    margin-bottom: @padding-large-vertical;
+  }
+
   .message-subject-wrap {
     width: calc(~"100% - 12px");
     max-width: @message-max-width;
