@@ -80,14 +80,14 @@ export default class SidebarParticipantProfile extends React.Component {
       <div className="core-personal-info">
         <div className="selectable full-name" onClick={this._select}>{this.props.contact.fullName()}</div>
         <div className="selectable email" onClick={this._select}>{this.props.contact.email}</div>
-        <div className="social-profiles-wrap">{this._renderSocialProfiles()}</div>
+        {this._renderSocialProfiles()}
       </div>
     )
   }
 
   _renderSocialProfiles() {
     if (!this.state.socialProfiles) { return false }
-    return _.map(this.state.socialProfiles, (profile, type) => {
+    const profiles = _.map(this.state.socialProfiles, (profile, type) => {
       const linkFn = () => {shell.openExternal(profile.url)}
       return (
         <a className="social-profile-item" onClick={linkFn} key={type}>
@@ -96,6 +96,7 @@ export default class SidebarParticipantProfile extends React.Component {
         </a>
       )
     });
+    return <div className="social-profiles-wrap">{profiles}</div>
   }
 
   _renderAdditionalInfo() {
