@@ -102,6 +102,10 @@ export default class GithubContactCardSection extends React.Component {
     );
   }
 
+  static containerStyles = {
+    order: 10,
+  }
+
   render() {
     return (
       <div className="sidebar-github-profile">

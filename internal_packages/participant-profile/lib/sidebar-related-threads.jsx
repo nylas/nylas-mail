@@ -16,7 +16,7 @@ export default class RelatedThreads extends React.Component {
   }
 
   static containerStyles = {
-    order: 1,
+    order: 99,
   }
 
   _onClick(thread) {
