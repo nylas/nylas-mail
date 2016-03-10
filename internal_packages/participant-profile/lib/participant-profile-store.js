@@ -28,7 +28,7 @@ class ParticipantProfileStore extends NylasStore {
     }
 
     this.dataSource.find({email: contact.email}).then((data) => {
-      if (data.email === contact.email) {
+      if (data && data.email === contact.email) {
         this.setCache(contact, data);
         this.trigger()
       }
