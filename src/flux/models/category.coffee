@@ -18,11 +18,11 @@ StandardCategories = {
 
 LockedCategories = {
   "sent"
+  "drafts"
   "N1-Snoozed"
 }
 
 HiddenCategories = {
-  "sent"
   "drafts"
   "all"
   "archive"

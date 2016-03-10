@@ -305,14 +305,17 @@ class CategoryMailboxPerspective extends MailboxPerspective
 
   receiveThreads: (threadsOrIds) =>
     FocusedPerspectiveStore = require './flux/stores/focused-perspective-store'
-    currentCategories = FocusedPerspectiveStore.current().categories()
+    current= FocusedPerspectiveStore.current()
 
     # This assumes that the we don't have more than one category per accountId
     # attached to this perspective
     DatabaseStore.modelify(Thread, threadsOrIds).then (threads) =>
       tasks = TaskFactory.tasksForApplyingCategories
         threads: threads
-        categoriesToRemove: (accountId) -> _.filter(currentCategories, _.matcher({accountId}))
+        categoriesToRemove: (accountId) ->
+          if current.categoriesSharedName() in Category.LockedCategoryNames
+            return []
+          return _.filter(current.categories(), _.matcher({accountId}))
         categoriesToAdd: (accountId) => [_.findWhere(@_categories, {accountId})]
       Actions.queueTasks(tasks)
 
