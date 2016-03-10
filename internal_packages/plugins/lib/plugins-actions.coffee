@@ -8,6 +8,7 @@ Actions = [
   'disablePackage',
   'enablePackage',
   'installPackage',
+  'installNewPackage'
   'uninstallPackage',
   'createPackage',
   'reloadPackage',

@@ -31,6 +31,7 @@ PackagesStore = Reflux.createStore
     NylasEnv.commands.add 'body',
       'application:install-package': => @_onInstallPackage()
 
+    @listenTo PluginsActions.installNewPackage, @_onInstallPackage
     @listenTo PluginsActions.createPackage, @_onCreatePackage
     @listenTo PluginsActions.updatePackage, @_onUpdatePackage
     @listenTo PluginsActions.setGlobalSearchValue, @_onGlobalSearchChange
@@ -169,7 +170,7 @@ PackagesStore = Reflux.createStore
 
   _onInstallPackage: ->
     NylasEnv.showOpenDialog
-      title: "Choose a Package Directory"
+      title: "Choose a Plugin Directory"
       properties: ['openDirectory']
     , (filenames) =>
       return if not filenames or filenames.length is 0
@@ -177,9 +178,9 @@ PackagesStore = Reflux.createStore
         return if err
         packageName = path.basename(filenames[0])
         msg = "#{packageName} has been installed and enabled. No need to \
-               restart! If you don't see the package loaded, check the \
+               restart! If you don't see the plugin loaded, check the \
                console for errors."
-        @_displayMessage("Plugin installed 🎉", msg)
+        @_displayMessage("Plugin installed! 🎉", msg)
 
   _onCreatePackage: ->
     if not NylasEnv.inDevMode()

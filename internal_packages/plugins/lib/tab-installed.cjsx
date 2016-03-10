@@ -38,6 +38,7 @@ class TabInstalled extends React.Component
           value={@state.search}
           onChange={@_onSearchChange }
           placeholder="Search Installed Plugins"/>
+        <div className="btn btn-large" onClick={@_onInstallPackage}>Install Plugin...</div>
         <PackageSet
           packages={@state.packages.user}
           title="Third Party"
@@ -73,6 +74,9 @@ class TabInstalled extends React.Component
 
   _onChange: =>
     @setState(@_getStateFromStores())
+
+  _onInstallPackage: =>
+    PluginsActions.installNewPackage()
 
   _onCreatePackage: =>
     PluginsActions.createPackage()
