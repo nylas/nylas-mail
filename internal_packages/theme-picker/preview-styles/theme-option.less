@@ -12,6 +12,8 @@ body {
 .theme-option {
   position: absolute;
   top: 0;
+  margin-top: 4px;
+  margin-left: 5px;
   width: 100px;
   height: 60px;
   background-color: @background-secondary;
@@ -22,6 +24,7 @@ body {
 
   &.active-true {
     border: 1px solid #3187e1;
+    box-shadow: 0 0 4px #9ecaed;
   }
 
   &.active-false {
@@ -30,8 +33,9 @@ body {
 
   .theme-name {
     font-family: @font-family;
-    font-size: 14px;
-    margin-top: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 7px;
     height: 18px;
     overflow: hidden;
   }

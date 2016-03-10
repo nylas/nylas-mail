@@ -15,7 +15,7 @@ class ThemePickerStore extends NylasStore {
     this.disposable = NylasEnv.commands.add("body", "window:launch-theme-picker", () => {
       Actions.openModal({
         component: (<ThemePicker />),
-        height: 400,
+        height: 390,
         width: 250,
       });
     });

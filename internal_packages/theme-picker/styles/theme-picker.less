@@ -3,24 +3,30 @@
 .theme-picker {
   text-align: center;
   cursor: default;
-  .create-theme {
-    width: 100%;
-    text-align: center;
+  h4 {
+    font-size: 14.5px;
+    margin-top: -10px;
     margin-bottom: 5px;
-    a {
-      color: #3187e1;
-      text-decoration: none;
-      cursor: default;
-    }
   }
   .clickable-theme-option {
     width: 115px;
+    height: 70px;
     margin: 2px;
     top: -10px;
     iframe {
       pointer-events: none;
       position: relative;
       z-index: 0;
+    }
+  }
+  .create-theme {
+    width: 100%;
+    text-align: center;
+    margin-top: 5px;
+    a {
+      color: #3187e1;
+      text-decoration: none;
+      cursor: default;
     }
   }
 }
