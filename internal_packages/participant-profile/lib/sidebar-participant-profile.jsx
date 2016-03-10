@@ -95,7 +95,7 @@ export default class SidebarParticipantProfile extends React.Component {
     const profiles = _.map(this.state.socialProfiles, (profile, type) => {
       const linkFn = () => {shell.openExternal(profile.url)}
       return (
-        <a className="social-profile-item" onClick={linkFn} key={type}>
+        <a className="social-profile-item" onClick={linkFn} key={type} title={profile.url}>
           <RetinaImg url={`nylas://participant-profile/assets/${type}-sidebar-icon@2x.png`}
                      mode={RetinaImg.Mode.ContentPreserve} />
         </a>

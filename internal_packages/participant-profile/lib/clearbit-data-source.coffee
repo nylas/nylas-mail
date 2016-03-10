@@ -45,15 +45,15 @@ module.exports = class ClearbitDataSource
 
   _socialProfiles: (person={}) ->
     profiles = {}
-    if person.twitter
+    if (person.twitter?.handle ? "").length > 0
       profiles.twitter =
         handle: person.twitter.handle
         url: "https://twitter.com/#{person.twitter.handle}"
-    if person.facebook
+    if (person.facebook?.handle ? "").length > 0
       profiles.facebook =
         handle: person.facebook.handle
         url: "https://facebook.com/#{person.facebook.handle}"
-    if person.linkedin
+    if (person.linkedin?.handle ? "").length > 0
       profiles.linkedin =
         handle: person.linkedin.handle
         url: "https://linkedin.com/#{person.linkedin.handle}"
