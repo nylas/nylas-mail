@@ -62,7 +62,7 @@ export default class SidebarParticipantProfile extends React.Component {
 
   _renderDefaultProfileImage() {
     const hue = Utils.hueForString(this.props.contact.email);
-    const bgColor = `hsl(${hue}, 50%, 34%)`
+    const bgColor = `hsl(${hue}, 50%, 45%)`
     const abv = this.props.contact.nameAbbreviation()
     return (
       <div className="profile-photo-wrap">
@@ -76,9 +76,14 @@ export default class SidebarParticipantProfile extends React.Component {
   }
 
   _renderCorePersonalInfo() {
+    const fullName = this.props.contact.fullName();
+    let renderName = false;
+    if (fullName !== this.props.contact.email) {
+      renderName = <div className="selectable full-name" onClick={this._select}>{this.props.contact.fullName()}</div>
+    }
     return (
       <div className="core-personal-info">
-        <div className="selectable full-name" onClick={this._select}>{this.props.contact.fullName()}</div>
+        {renderName}
         <div className="selectable email" onClick={this._select}>{this.props.contact.email}</div>
         {this._renderSocialProfiles()}
       </div>

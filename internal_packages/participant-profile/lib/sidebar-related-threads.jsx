@@ -47,7 +47,7 @@ export default class RelatedThreads extends React.Component {
       limit = Math.min(this.props.contactThreads.length, this.DEFAULT_NUM)
     }
 
-    const height = ((limit + (this._hasToggle() ? 1 : 0)) * 31) + 5;
+    const height = ((limit + (this._hasToggle() ? 1 : 0)) * 31);
     const shownThreads = this.props.contactThreads.slice(0, limit)
     const threads = shownThreads.map((thread) => {
       const onClick = () => { this._onClick(thread) }
