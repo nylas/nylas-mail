@@ -6,10 +6,10 @@ module.exports = class ClearbitDataSource
     return "https://person.clearbit.com/v2/combined"
 
   find: ({email}) ->
-    tok = AccountStore.tokenForAccountId(AccountStore.accounts()[0].id)
+    n1_id = NylasEnv.config.get('updateIdentity')
     new Promise (resolve, reject) =>
       EdgehillAPI.request
-        path: "/proxy/clearbit/#{@clearbitAPI()}/find?email=#{email}&api_token=#{tok}",
+        path: "/proxy/clearbit/#{@clearbitAPI()}/find?email=#{email}&n1_id=#{n1_id}",
         success: (body) =>
           resolve(@parseResponse(body))
         error: reject
