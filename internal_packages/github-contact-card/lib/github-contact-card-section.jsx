@@ -90,11 +90,11 @@ export default class GithubContactCardSection extends React.Component {
   _renderInner() {
     // Handle various loading states by returning early
     if (this.state.loading) {
-      return (<div>Loading...</div>);
+      return (<div className="pending">Loading...</div>);
     }
 
     if (!this.state.profile) {
-      return (<div>No Matching Profile</div>);
+      return (<div className="pending">No Matching Profile</div>);
     }
 
     return (
