@@ -30,7 +30,7 @@ module.exports = class ClearbitDataSource
     # valid, but empty object for us to cache. This can happen when we
     # have company data, but no personal data.
     if not person
-      return {email: requestedEmail}
+      person = {email: requestedEmail}
 
     return {
       cacheDate: Date.now()
