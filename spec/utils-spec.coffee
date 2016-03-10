@@ -30,7 +30,7 @@ describe 'Utils', ->
         subject: 'Test 1234'
 
     it "should serialize and de-serialize models correctly", ->
-      expectedString = '[{"client_id":"local-1","account_id":"1","metadata":[],"subject":"Test 1234","participants":[{"client_id":"local-a","account_id":"1","name":"Juan","email":"juan@nylas.com","thirdPartyData":{},"id":"local-a"},{"client_id":"local-b","account_id":"1","name":"Ben","email":"ben@nylas.com","thirdPartyData":{},"id":"local-b"}],"id":"local-1","__constructorName":"Thread"}]'
+      expectedString = '[{"client_id":"local-1","account_id":"1","metadata":[],"subject":"Test 1234","participants":[{"client_id":"local-a","account_id":"1","name":"Juan","email":"juan@nylas.com","thirdPartyData":{},"id":"local-a"},{"client_id":"local-b","account_id":"1","name":"Ben","email":"ben@nylas.com","thirdPartyData":{},"id":"local-b"}],"in_all_mail":true,"id":"local-1","__constructorName":"Thread"}]'
 
       jsonString = JSON.stringify([@testThread], Utils.registeredObjectReplacer)
       expect(jsonString).toEqual(expectedString)
@@ -40,7 +40,7 @@ describe 'Utils', ->
     it "should re-inflate Models in places they're not explicitly declared types", ->
       b = new JSONBlob({id: "local-ThreadsToProcess", json: [@testThread]})
       jsonString = JSON.stringify(b, Utils.registeredObjectReplacer)
-      expectedString = '{"client_id":"local-ThreadsToProcess","server_id":"local-ThreadsToProcess","json":[{"client_id":"local-1","account_id":"1","metadata":[],"subject":"Test 1234","participants":[{"client_id":"local-a","account_id":"1","name":"Juan","email":"juan@nylas.com","thirdPartyData":{},"id":"local-a"},{"client_id":"local-b","account_id":"1","name":"Ben","email":"ben@nylas.com","thirdPartyData":{},"id":"local-b"}],"id":"local-1","__constructorName":"Thread"}],"id":"local-ThreadsToProcess","__constructorName":"JSONBlob"}'
+      expectedString = '{"client_id":"local-ThreadsToProcess","server_id":"local-ThreadsToProcess","json":[{"client_id":"local-1","account_id":"1","metadata":[],"subject":"Test 1234","participants":[{"client_id":"local-a","account_id":"1","name":"Juan","email":"juan@nylas.com","thirdPartyData":{},"id":"local-a"},{"client_id":"local-b","account_id":"1","name":"Ben","email":"ben@nylas.com","thirdPartyData":{},"id":"local-b"}],"in_all_mail":true,"id":"local-1","__constructorName":"Thread"}],"id":"local-ThreadsToProcess","__constructorName":"JSONBlob"}'
 
       expect(jsonString).toEqual(expectedString)
       revived = JSON.parse(jsonString, Utils.registeredObjectReviver)

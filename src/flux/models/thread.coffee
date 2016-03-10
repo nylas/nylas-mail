@@ -65,6 +65,9 @@ class Thread extends ModelWithMetadata
       modelKey: 'categories'
       itemClass: Category
 
+    'categoriesType': Attributes.String
+      modelKey: 'categoriesType'
+
     'participants': Attributes.Collection
       queryable: true
       joinOnField: 'email'
@@ -84,6 +87,19 @@ class Thread extends ModelWithMetadata
       modelKey: 'lastMessageSentTimestamp'
       jsonKey: 'last_message_sent_timestamp'
 
+    'inAllMail': Attributes.Boolean
+      queryable: true
+      modelKey: 'inAllMail'
+      jsonKey: 'in_all_mail'
+
+  Object.defineProperty @attributes, "labels",
+    enumerable: false
+    get: -> @categories
+
+  Object.defineProperty @attributes, "folders",
+    enumerable: false
+    get: -> @categories
+
   Object.defineProperty @prototype, "labels",
     enumerable: false
     get: -> @categories
@@ -94,13 +110,17 @@ class Thread extends ModelWithMetadata
     get: -> @categories
     set: (v) -> @categories = v
 
-  Object.defineProperty @attributes, "labels",
+  Object.defineProperty @prototype, "inAllMail",
     enumerable: false
-    get: -> @categories
-
-  Object.defineProperty @attributes, "folders",
-    enumerable: false
-    get: -> @categories
+    get: ->
+      if @categoriesType is 'labels'
+        inAllMail = _.any @categories, (cat) -> cat.name is 'all'
+        return true if inAllMail
+        inTrashOrSpam = _.any @categories, (cat) -> cat.name is 'trash' or cat.name is 'spam'
+        return true if not inTrashOrSpam
+        return false
+      else
+        return true
 
   @naturalSortOrder: ->
     Thread.attributes.lastMessageReceivedTimestamp.descending()
@@ -108,14 +128,19 @@ class Thread extends ModelWithMetadata
   @additionalSQLiteConfig:
     setup: ->
       ['CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(last_message_received_timestamp DESC, id)',
+       'CREATE INDEX IF NOT EXISTS ThreadListSentIndex ON Thread(last_message_sent_timestamp DESC, id)',
        'CREATE INDEX IF NOT EXISTS ThreadStarIndex ON Thread(account_id, starred)']
 
   fromJSON: (json) ->
     super(json)
 
-    value = json['labels'] ? json['folders']
-    if value
-      @categories = @constructor.attributes.categories.fromJSON(value)
+    if json['folders']
+      @categoriesType = 'folders'
+      @categories = @constructor.attributes.categories.fromJSON(json['folders'])
+
+    if json['labels']
+      @categoriesType = 'labels'
+      @categories = @constructor.attributes.categories.fromJSON(json['labels'])
 
     for attr in ['participants', 'categories']
       value = @[attr]
