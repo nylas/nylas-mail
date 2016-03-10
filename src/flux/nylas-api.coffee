@@ -231,6 +231,9 @@ class NylasAPI
       return Promise.resolve()
 
   _handleAuthenticationFailure: (modelUrl, apiToken) ->
+    # prevent /auth errors from presenting auth failure notices
+    return Promise.resolve() unless apiToken
+
     AccountStore ?= require './stores/account-store'
     account = AccountStore.accounts().find (account) ->
       AccountStore.tokenForAccountId(account.id) is apiToken
