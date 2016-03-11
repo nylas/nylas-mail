@@ -4,6 +4,11 @@
   "main": "./lib/main",
   "license": "GPL-3.0",
 
+  "appId": {
+    "staging": "829s742c6v8G4jqV6KHUzaWd",
+    "production": "K3Rxa487mjMP36zh7w7xvo34"
+  },
+
   "title": "Phishing Detection",
   "description": "Warns you when an email specifies a reply-to address which is not the from address.",
   "icon": "./icon.png",

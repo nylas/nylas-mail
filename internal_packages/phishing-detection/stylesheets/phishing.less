@@ -1,3 +1,5 @@
+@background-color: rgb(242, 222, 222);
+
 .phishingIndicator {
   display: block;
   box-sizing: border-box;
@@ -7,8 +9,18 @@
   border: 1px solid rgb(235, 204, 209);
   border-radius: 4px;
   color: rgb(169, 68, 66);
-  background-color: rgb(242, 222, 222);
+  background-color: @background-color;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.phishingIndicator .x {
+  float: right;
+  background-color: hsl(hue(@background-color), 50%, 34%);
+  visibility: hidden;
+}
+
+.phishingIndicator:hover .x {
+  visibility: visible;
 }
