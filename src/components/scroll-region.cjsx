@@ -100,6 +100,7 @@ class Scrollbar extends React.Component
     bottom: 0
     right: 0
     zIndex: 2
+    visibility: "hidden" if @state.totalHeight != 0 && @state.totalHeight == @state.viewportHeight
 
   _onHandleDown: (event) =>
     handleNode = React.findDOMNode(@refs.handle)
