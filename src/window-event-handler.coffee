@@ -175,7 +175,7 @@ class WindowEventHandler
     event.preventDefault()
     event.stopPropagation()
 
-  openLink: ({href, target, currentTarget}) ->
+  openLink: ({href, target, currentTarget, metaKey}) ->
     if not href
       href = target?.getAttribute('href') or currentTarget?.getAttribute('href')
 
@@ -192,7 +192,7 @@ class WindowEventHandler
       # *might* apply to http/https as well but it's unclear.
       shell.openExternal(encodeURI(decodeURI(href)))
     else if schema in ['http:', 'https:', 'tel:']
-      shell.openExternal(href)
+      shell.openExternal(href, activate: !metaKey)
 
     return
 
