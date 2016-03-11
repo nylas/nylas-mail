@@ -62,7 +62,7 @@ export default class TemplateEditor extends ContenteditableExtension {
         // Sets node contents to just its textContent, strips HTML
         codeNode.textContent = codeNode.textContent;
 
-        if (selIndex !== undefined) {
+        if (selIndex != null) {
           editor.restoreSelectionByTextIndex(codeNode, selIndex.startIndex, selIndex.endIndex);
         }
       }
