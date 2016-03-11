@@ -116,7 +116,7 @@ const SnoozeUtils = {
     return snoozeCategoriesByAccountPromise
     .then((snoozeCategoriesByAccountId)=> {
       const getSnoozeCategory = (accId) => [snoozeCategoriesByAccountId[accId]]
-      const getInboxCategory = (accId) => [CategoryStore.getInboxCategory[accId]]
+      const getInboxCategory = (accId) => [CategoryStore.getInboxCategory(accId)]
       const description = SnoozeUtils.snoozedUntilMessage(snoozeDate)
       return SnoozeUtils.moveThreads(
         threads,
@@ -129,7 +129,7 @@ const SnoozeUtils = {
     return snoozeCategoriesByAccountPromise
     .then((snoozeCategoriesByAccountId)=> {
       const getSnoozeCategory = (accId) => [snoozeCategoriesByAccountId[accId]]
-      const getInboxCategory = (accId) => [CategoryStore.getInboxCategory[accId]]
+      const getInboxCategory = (accId) => [CategoryStore.getInboxCategory(accId)]
       const description = 'Unsnoozed';
       return SnoozeUtils.moveThreads(
         threads,
