@@ -7,6 +7,7 @@ describe "NylasSyncWorker", ->
   beforeEach ->
     @apiRequests = []
     @api =
+      pluginsSupported: true
       accessTokenForAccountId: =>
         '123'
       makeRequest: (requestOptions) =>
@@ -190,6 +191,15 @@ describe "NylasSyncWorker", ->
       expect(@worker.fetchAllMetadata).toHaveBeenCalled()
       expect(@worker.fetchCollection.calls.length).toBe(0)
       fetchAllMetadataCallback()
+      expect(@worker.fetchCollection.calls.length).not.toBe(0)
+
+    it "should not fetch metadata pages if pluginsSupported is false", ->
+      @api.pluginsSupported = false
+      spyOn(NylasSyncWorker.prototype, '_fetchWithErrorHandling')
+      spyOn(@worker, 'fetchCollection')
+      @worker._state = {}
+      @worker.resumeFetches()
+      expect(@worker._fetchWithErrorHandling).not.toHaveBeenCalled()
       expect(@worker.fetchCollection.calls.length).not.toBe(0)
 
     it "should fetch collections for which `shouldFetchCollection` returns true", ->
