@@ -48,7 +48,7 @@ export default class MailLabelSet extends React.Component {
         }
 
         if (this.props.removable) {
-          labels.push (
+          labels.push(
             <MailLabel
               label={label}
               key={label.id}
