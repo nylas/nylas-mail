@@ -100,7 +100,7 @@ class Scrollbar extends React.Component
     bottom: 0
     right: 0
     zIndex: 2
-    visibility: "hidden" if @state.totalHeight != 0 && @state.totalHeight == @state.viewportHeight
+    visibility: if @state.totalHeight != 0 && @state.totalHeight == @state.viewportHeight then "hidden" else "visible"
 
   _onHandleDown: (event) =>
     handleNode = React.findDOMNode(@refs.handle)
@@ -197,6 +197,10 @@ class ScrollRegion extends React.Component
       attributeOldValue: true,
       attributeFilter: ['style']
     })
+
+  componentDidUpdate: (prevProps, prevState) =>
+    if (@props.children != prevProps.children)
+      @recomputeDimensions()
 
   componentWillReceiveProps: (props) =>
     if @shouldInvalidateScrollbarComponent(props)
