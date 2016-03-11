@@ -93,17 +93,6 @@ class ChangeLabelsTask extends ChangeMailTask
     if @threads.length is 0 and @messages.length is 0
       return Promise.reject(new Error("ChangeLabelsTask: You must provide a `threads` or `messages` Array of models or IDs."))
 
-    account = AccountStore.accountForItems(@threads)
-    if not account
-      return Promise.reject(new Error("ChangeLabelsTask: You must provide a set of `threads` from the same Account"))
-
-    # In Gmail all threads /must/ belong to either All Mail, Trash and Spam, and
-    # they are mutually exclusive, so we need to make sure that any add/remove
-    # label operation still guarantees that constraint
-    updated = @_ensureAndUpdateLabels(account, @labelsToAdd, @labelsToRemove)
-    @labelsToAdd = updated.labelsToAdd
-    @labelsToRemove = updated.labelsToRemove
-
     # Convert arrays of IDs or models to models.
     # modelify returns immediately if no work is required
     Promise.props(
@@ -116,10 +105,19 @@ class ChangeLabelsTask extends ChangeMailTask
       if _.any([].concat(labelsToAdd, labelsToRemove), _.isUndefined)
         return Promise.reject(new Error("One or more of the specified labels could not be found."))
 
+      account = AccountStore.accountForItems(threads)
+      if not account
+        return Promise.reject(new Error("ChangeLabelsTask: You must provide a set of `threads` from the same Account"))
+
+      # In Gmail all threads /must/ belong to either All Mail, Trash and Spam, and
+      # they are mutually exclusive, so we need to make sure that any add/remove
+      # label operation still guarantees that constraint
+      updated = @_ensureAndUpdateLabels(account, labelsToAdd, labelsToRemove)
+
       # Remove any objects we weren't able to find. This can happen pretty easily
       # if you undo an action and other things have happened.
-      @labelsToAdd = labelsToAdd
-      @labelsToRemove = labelsToRemove
+      @labelsToAdd = updated.labelsToAdd
+      @labelsToRemove = updated.labelsToRemove
       @threads = _.compact(threads)
       @messages = _.compact(messages)
 
