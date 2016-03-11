@@ -41,7 +41,7 @@ RegExpUtils =
   # 5. the closing tag
   linkTagRegex: -> new RegExp(/(<a.*?href\s*?=\s*?['"])(.*?)(['"].*?>)([\s\S]*?)(<\/a>)/gim)
 
-  # Test cases: https://regex101.com/r/cK0zD8/3
+  # Test cases: https://regex101.com/r/cK0zD8/4
   # Catches link tags containing which are:
   # - Non empty
   # - Not a mailto: link
