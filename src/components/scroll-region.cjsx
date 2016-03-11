@@ -198,6 +198,10 @@ class ScrollRegion extends React.Component
       attributeFilter: ['style']
     })
 
+  componentDidUpdate: (prevProps, prevState) =>
+    if (@props.children != prevProps.children)
+      @recomputeDimensions()
+
   componentWillReceiveProps: (props) =>
     if @shouldInvalidateScrollbarComponent(props)
       @_scrollbarComponent = null
