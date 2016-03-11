@@ -148,10 +148,9 @@ class Message extends ModelWithMetadata
       modelKey: 'replyToMessageId'
       jsonKey: 'reply_to_message_id'
 
-    'folder': Attributes.Object
-      modelKey: 'folder'
+    'categories': Attributes.Collection
+      modelKey: 'categories'
       itemClass: Category
-
 
   @naturalSortOrder: ->
     Message.attributes.date.ascending()
@@ -174,6 +173,7 @@ class Message extends ModelWithMetadata
     @files ||= []
     @uploads ||= []
     @events ||= []
+    @categories ||= []
     @
 
   toJSON: (options) ->
@@ -192,7 +192,12 @@ class Message extends ModelWithMetadata
     if json.object?
       @draft = (json.object is 'draft')
 
-    for attr in ['to', 'from', 'cc', 'bcc', 'files']
+    if json['folder']
+      @categories = @constructor.attributes.categories.fromJSON([json['folder']])
+    else if json['labels']
+      @categories = @constructor.attributes.categories.fromJSON(json['labels'])
+
+    for attr in ['to', 'from', 'cc', 'bcc', 'files', 'categories']
       values = @[attr]
       continue unless values and values instanceof Array
       item.accountId = @accountId for item in values

@@ -10,12 +10,21 @@ class NylasComponentKit
         exported = require "../components/#{path}"
         return exported[prop]
 
+  @loadDeprecated = (prop, path, {instead} = {}) ->
+    {deprecate} = require '../deprecate-utils'
+    Object.defineProperty @prototype, prop,
+      get: deprecate prop, instead, @, ->
+        exported = require "../components/#{path}"
+        return exported
+      enumerable: true
+
   @load "Menu", 'menu'
   @load "DropZone", 'drop-zone'
   @load "Spinner", 'spinner'
   @load "Switch", 'switch'
-  @load "Popover", 'popover'
+  @loadDeprecated "Popover", 'popover', instead: 'Actions.openPopover'
   @load "FixedPopover", 'fixed-popover'
+  @load "Modal", 'modal'
   @load "Flexbox", 'flexbox'
   @load "RetinaImg", 'retina-img'
   @load "SwipeContainer", 'swipe-container'
@@ -38,12 +47,14 @@ class NylasComponentKit
   @load "EditableList", "editable-list"
   @load "OutlineViewItem", "outline-view-item"
   @load "OutlineView", "outline-view"
+  @load "DateInput", "date-input"
 
   @load "ScrollRegion", 'scroll-region'
   @load "ResizableRegion", 'resizable-region'
 
   @loadFrom "MailLabel", "mail-label"
   @loadFrom "LabelColorizer", "mail-label"
+  @load "MailLabelSet", "mail-label-set"
   @load "MailImportantIcon", 'mail-important-icon'
 
   @loadFrom "FormItem", "generated-form"

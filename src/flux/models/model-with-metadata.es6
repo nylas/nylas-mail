@@ -23,6 +23,13 @@ class PluginMetadata extends Model {
     this.version = this.version || 0;
   }
 
+  fromJSON(json) {
+    super.fromJSON(json);
+
+    // application_id is used in JSON coming down from the API
+    this.pluginId = this.pluginId || json.application_id;
+  }
+
   get id() {
     return this.pluginId
   }
@@ -87,8 +94,8 @@ export default class ModelWithMetadata extends Model {
     return this;
   }
 
-  setPluginMetadata(pluginMetadata) {
-    this.pluginMetadata = pluginMetadata.map(({pluginId, value})=> {
+  clonePluginMetadataFrom(otherModel) {
+    this.pluginMetadata = otherModel.pluginMetadata.map(({pluginId, value})=> {
       return new PluginMetadata({pluginId, value});
     })
     return this;

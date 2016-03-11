@@ -482,32 +482,32 @@ describe "ChangeMailTask", ->
     beforeEach ->
       @task = new ChangeMailTask()
       @task.threads = [@threadA, @threadB]
-      spyOn(NylasAPI, 'incrementOptimisticChangeCount')
+      spyOn(NylasAPI, 'incrementRemoteChangeLock')
 
     it "should keep a hash of the items that it locks", ->
       @task._lockAll()
-      expect(NylasAPI.incrementOptimisticChangeCount.callCount).toBe(2)
+      expect(NylasAPI.incrementRemoteChangeLock.callCount).toBe(2)
       expect(@task._locked).toEqual('A': 1, 'B': 1)
 
     it "should not break anything if it's accidentally called twice", ->
       @task._lockAll()
       @task._lockAll()
-      expect(NylasAPI.incrementOptimisticChangeCount.callCount).toBe(4)
+      expect(NylasAPI.incrementRemoteChangeLock.callCount).toBe(4)
       expect(@task._locked).toEqual('A': 2, 'B': 2)
 
   describe "_ensureLocksRemoved", ->
     it "should decrement locks given any aribtrarily messed up lock state and reset the locked array", ->
       @task = new ChangeMailTask()
       @task.threads = [@threadA, @threadB, @threadC]
-      spyOn(NylasAPI, 'decrementOptimisticChangeCount')
+      spyOn(NylasAPI, 'decrementRemoteChangeLock')
       @task._locked = {'A': 2, 'B': 2, 'C': 1}
       @task._ensureLocksRemoved()
-      expect(NylasAPI.decrementOptimisticChangeCount.callCount).toBe(5)
-      expect(NylasAPI.decrementOptimisticChangeCount.calls[0].args[1]).toBe('A')
-      expect(NylasAPI.decrementOptimisticChangeCount.calls[1].args[1]).toBe('A')
-      expect(NylasAPI.decrementOptimisticChangeCount.calls[2].args[1]).toBe('B')
-      expect(NylasAPI.decrementOptimisticChangeCount.calls[3].args[1]).toBe('B')
-      expect(NylasAPI.decrementOptimisticChangeCount.calls[4].args[1]).toBe('C')
+      expect(NylasAPI.decrementRemoteChangeLock.callCount).toBe(5)
+      expect(NylasAPI.decrementRemoteChangeLock.calls[0].args[1]).toBe('A')
+      expect(NylasAPI.decrementRemoteChangeLock.calls[1].args[1]).toBe('A')
+      expect(NylasAPI.decrementRemoteChangeLock.calls[2].args[1]).toBe('B')
+      expect(NylasAPI.decrementRemoteChangeLock.calls[3].args[1]).toBe('B')
+      expect(NylasAPI.decrementRemoteChangeLock.calls[4].args[1]).toBe('C')
       expect(@task._locked).toEqual(null)
 
   describe "createIdenticalTask", ->
@@ -548,19 +548,19 @@ describe "ChangeMailTask", ->
       task._restoreValues = null
       expect( -> task.createUndoTask()).toThrow()
 
-  describe "isDependentTask", ->
+  describe "isDependentOnTask", ->
     it "should return true if another, older ChangeMailTask involves the same threads", ->
       a = new ChangeMailTask()
       a.threads = ['t1', 't2', 't3']
-      a.creationDate = new Date(1000)
+      a.sequentialId = 0
       b = new ChangeMailTask()
       b.threads = ['t3', 't4', 't7']
-      b.creationDate = new Date(2000)
+      b.sequentialId = 1
       c = new ChangeMailTask()
       c.threads = ['t0', 't7']
-      c.creationDate = new Date(3000)
-      expect(a.isDependentTask(b)).toEqual(false)
-      expect(a.isDependentTask(c)).toEqual(false)
-      expect(b.isDependentTask(a)).toEqual(true)
-      expect(c.isDependentTask(a)).toEqual(false)
-      expect(c.isDependentTask(b)).toEqual(true)
+      c.sequentialId = 2
+      expect(a.isDependentOnTask(b)).toEqual(false)
+      expect(a.isDependentOnTask(c)).toEqual(false)
+      expect(b.isDependentOnTask(a)).toEqual(true)
+      expect(c.isDependentOnTask(a)).toEqual(false)
+      expect(c.isDependentOnTask(b)).toEqual(true)

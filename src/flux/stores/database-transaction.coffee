@@ -188,7 +188,7 @@ class DatabaseTransaction
     promises.push @_query("REPLACE INTO `#{klass.name}` (#{columnsSQL}) VALUES #{marksSQL}", values)
 
     # For each join table property, find all the items in the join table for this
-    # model and delte them. Insert each new value back into the table.
+    # model and delete them. Insert each new value back into the table.
     collectionAttributes = _.filter attributes, (attr) ->
       attr.queryable && attr instanceof AttributeCollection
 
@@ -204,7 +204,8 @@ class DatabaseTransaction
         if joinedModels
           for joined in joinedModels
             joinMarks.push('(?,?)')
-            joinedValues.push(model.id, joined.id)
+            joinValue = joined[attr.joinOnField ? "id"]
+            joinedValues.push(model.id, joinValue)
 
       unless joinedValues.length is 0
         # Write no more than 200 items (400 values) at once to avoid sqlite limits

@@ -21,13 +21,17 @@ class Flexbox extends React.Component
     direction: React.PropTypes.string
     inline: React.PropTypes.bool
     style: React.PropTypes.object
+    height: React.PropTypes.string
+
+  @defaultProps:
+    height: '100%'
 
   render: ->
     style = _.extend {}, (@props.style || {}),
       'flexDirection': @props.direction,
       'position':'relative'
       'display': 'flex'
-      'height':'100%'
+      'height': @props.height
 
     if @props.inline is true
       style.display = 'inline-flex'

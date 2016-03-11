@@ -4,14 +4,11 @@ classNames = require 'classnames'
 
 {ListTabular,
  RetinaImg,
- MailLabel,
+ MailLabelSet,
  MailImportantIcon,
  InjectedComponentSet} = require 'nylas-component-kit'
 
-{Thread,
- AccountStore,
- CategoryStore,
- FocusedPerspectiveStore} = require 'nylas-exports'
+{Thread, FocusedPerspectiveStore} = require 'nylas-exports'
 
 {ThreadArchiveQuickAction,
  ThreadTrashQuickAction} = require './thread-list-quick-actions'
@@ -22,6 +19,12 @@ classNames = require 'classnames'
 ThreadListParticipants = require './thread-list-participants'
 ThreadListStore = require './thread-list-store'
 ThreadListIcon = require './thread-list-icon'
+
+TimestampComponentForPerspective = (thread) ->
+  if FocusedPerspectiveStore.current().isSent()
+    <span className="timestamp">{timestamp(thread.lastMessageSentTimestamp)}</span>
+  else
+    <span className="timestamp">{timestamp(thread.lastMessageReceivedTimestamp)}</span>
 
 
 c1 = new ListTabular.Column
@@ -57,36 +60,16 @@ c2 = new ListTabular.Column
     else
       <ThreadListParticipants thread={thread} />
 
-c3LabelComponentCache = {}
-
 c3 = new ListTabular.Column
   name: "Message"
   flex: 4
   resolver: (thread) =>
     attachment = []
-    labels = []
-
     if thread.hasAttachments
       attachment = <div className="thread-icon thread-icon-attachment"></div>
 
-    if AccountStore.accountForId(thread.accountId).usesLabels()
-      currentCategories = FocusedPerspectiveStore.current().categories() ? []
-      ignored = [].concat(currentCategories, CategoryStore.hiddenCategories(thread.accountId))
-      ignoredIds = _.pluck(ignored, 'id')
-
-      for label in (thread.sortedCategories())
-        continue if label.id in ignoredIds
-        c3LabelComponentCache[label.id] ?= <MailLabel label={label} key={label.id} />
-        labels.push c3LabelComponentCache[label.id]
-
     <span className="details">
-      <InjectedComponentSet
-        inline
-        containersRequired={false}
-        children={labels}
-        matching={role: "ThreadList:Label"}
-        className="thread-injected-mail-labels"
-        exposedProps={thread: thread}/>
+      <MailLabelSet thread={thread} />
       <span className="subject">{subject(thread.subject)}</span>
       <span className="snippet">{thread.snippet}</span>
       {attachment}
@@ -95,7 +78,7 @@ c3 = new ListTabular.Column
 c4 = new ListTabular.Column
   name: "Date"
   resolver: (thread) =>
-    <span className="timestamp">{timestamp(thread.lastMessageReceivedTimestamp)}</span>
+    TimestampComponentForPerspective(thread)
 
 c5 = new ListTabular.Column
   name: "HoverActions"
@@ -127,17 +110,6 @@ cNarrow = new ListTabular.Column
     if hasDraft
       pencil = <RetinaImg name="icon-draft-pencil.png" className="draft-icon" mode={RetinaImg.Mode.ContentPreserve} />
 
-    labels = []
-    if AccountStore.accountForId(thread.accountId).usesLabels()
-      currentCategories = FocusedPerspectiveStore.current().categories() ? []
-      ignored = [].concat(currentCategories, CategoryStore.hiddenCategories(thread.accountId))
-      ignoredIds = _.pluck(ignored, 'id')
-
-      for label in (thread.sortedCategories())
-        continue if label.id in ignoredIds
-        c3LabelComponentCache[label.id] ?= <MailLabel label={label} key={label.id} />
-        labels.push c3LabelComponentCache[label.id]
-
     <div>
       <div style={display: 'flex', alignItems: 'center'}>
         <ThreadListIcon thread={thread} />
@@ -145,7 +117,7 @@ cNarrow = new ListTabular.Column
         {pencil}
         <span style={flex:1}></span>
         {attachment}
-        <span className="timestamp">{timestamp(thread.lastMessageReceivedTimestamp)}</span>
+        {TimestampComponentForPerspective(thread)}
       </div>
       <MailImportantIcon
         thread={thread}
@@ -154,13 +126,7 @@ cNarrow = new ListTabular.Column
       <div className="snippet-and-labels">
         <div className="snippet">{thread.snippet}&nbsp;</div>
         <div style={flex: 1, flexShrink: 1}></div>
-        <InjectedComponentSet
-          inline
-          containerRequired={false}
-          children={labels}
-          matching={role: "ThreadList:Label"}
-          className="thread-injected-mail-labels-narrow"
-          exposedProps={thread: thread}/>
+        <MailLabelSet thread={thread} />
       </div>
     </div>
 

@@ -125,10 +125,14 @@ class MessageItem extends React.Component
       isDetailed={@state.detailedHeaders} />
 
   _renderFolder: =>
-    return [] unless @state.detailedHeaders and @props.message.folder
+    return [] unless @state.detailedHeaders
+    acct = AccountStore.accountForId(@props.message.accountId)
+    acctUsesFolders = acct and acct.usesFolders()
+    folder = @props.message.categories?[0]
+    return unless folder and acctUsesFolders
     <div className="header-row">
       <div className="header-label">Folder:&nbsp;</div>
-      <div className="header-name">{@props.message.folder.displayName}</div>
+      <div className="header-name">{folder.displayName}</div>
     </div>
 
   _onClickParticipants: (e) =>

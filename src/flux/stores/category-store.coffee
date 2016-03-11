@@ -32,7 +32,8 @@ class CategoryStore extends NylasStore
       .subscribe(@_onCategoriesChanged)
 
   byId: (accountOrId, categoryId) ->
-    @categories(accountOrId)[categoryId]
+    categories = @_categoryCache[asAccountId(accountOrId)] ? {}
+    categories[categoryId]
 
   # Public: Returns an array of all categories for an account, both
   # standard and user generated. The items returned by this function will be
@@ -40,7 +41,7 @@ class CategoryStore extends NylasStore
   #
   categories: (accountOrId = null) ->
     if accountOrId
-      @_categoryCache[asAccountId(accountOrId)] ? {}
+      _.values(@_categoryCache[asAccountId(accountOrId)]) ? []
     else
       all = []
       for accountId, categories of @_categoryCache
@@ -100,6 +101,16 @@ class CategoryStore extends NylasStore
     else
       return @getStandardCategory(account.id, "all")
 
+  # Public: Returns Label object for "All mail"
+  #
+  getAllMailCategory: (accountOrId) =>
+    return null unless accountOrId
+    account = asAccount(accountOrId)
+    return null unless account
+    return null unless account.usesLabels()
+
+    return @getStandardCategory(account.id, "all")
+
   # Public: Returns the Folder or Label object that should be used for
   # the inbox or null if it doesn't exist
   #
@@ -111,6 +122,12 @@ class CategoryStore extends NylasStore
   #
   getTrashCategory: (accountOrId) =>
     @getStandardCategory(accountOrId, "trash")
+
+  # Public: Returns the Folder or Label object that should be used for
+  # "Move to Spam", or null if no trash folder exists.
+  #
+  getSpamCategory: (accountOrId) =>
+    @getStandardCategory(accountOrId, "spam")
 
   _onCategoriesChanged: (categories) =>
     @_categoryResult = categories

@@ -84,6 +84,14 @@ class NylasSyncWorkerPool
         metadata = metadata.concat(_.values(deltas['metadata']))
         delete deltas['metadata']
 
+    # Remove any account deltas, which are only used to notify broken/fixed sync state
+    # on accounts
+    delete create['account']
+    delete destroy['account']
+    if modify['account']
+      @_handleAccountDeltas(_.values(modify['account']))
+      delete modify['account']
+
     # Apply all the deltas to create objects. Gets promises for handling
     # each type of model in the `create` hash, waits for them all to resolve.
     create[type] = NylasAPI._handleModelResponse(_.values(dict)) for type, dict of create
@@ -138,6 +146,10 @@ class NylasSyncWorkerPool
           localMetadatum = model.metadataObjectForPluginId(metadatum.application_id)
           localMetadatum.version = metadatum.version
           t.persistModel(model)
+
+  _handleAccountDeltas: (deltas) =>
+    for delta in deltas
+      Actions.updateAccount(delta.account_id, {syncState: delta.sync_state})
 
   _handleDeltaDeletion: (delta) =>
     klass = NylasAPI._apiObjectToClassMap[delta.object]

@@ -3,6 +3,41 @@ import moment from 'moment'
 import chrono from 'chrono-node'
 import _ from 'underscore'
 
+// Init locale for moment
+moment.locale(navigator.language)
+
+
+const yearRegex = / ?YY(YY)?/
+
+const Hours = {
+  Morning: 9,
+  Evening: 20,
+  Midnight: 24,
+}
+
+const Days = {
+  // The value for next monday and next weekend varies depending if the current
+  // day is saturday or sunday. See http://momentjs.com/docs/#/get-set/day/
+  NextMonday: day => day === 0 ? 1 : 8,
+  ThisWeekend: day => day === 6 ? 13 : 6,
+}
+
+function oclock(momentDate) {
+  return momentDate.minute(0).second(0)
+}
+
+function morning(momentDate, morningHour = Hours.Morning) {
+  return oclock(momentDate.hour(morningHour))
+}
+
+function evening(momentDate, eveningHour = Hours.Evening) {
+  return oclock(momentDate.hour(eveningHour))
+}
+
+function midnight(momentDate, midnightHour = Hours.Midnight) {
+  return oclock(momentDate.hour(midnightHour))
+}
+
 function isPastDate({year, month, day}, ref) {
   const refDay = ref.getDate();
   const refMonth = ref.getMonth() + 1;
@@ -47,35 +82,14 @@ EnforceFutureDate.refine = (text, results)=> {
 const chronoFuture = new chrono.Chrono(chrono.options.casualOption());
 chronoFuture.refiners.push(EnforceFutureDate);
 
-const Hours = {
-  Morning: 9,
-  Evening: 20,
-  Midnight: 24,
-}
-
-const Days = {
-  NextMonday: 8,
-  ThisWeekend: 6,
-}
-
-function oclock(momentDate) {
-  return momentDate.minute(0).second(0)
-}
-
-function morning(momentDate, morningHour = Hours.Morning) {
-  return oclock(momentDate.hour(morningHour))
-}
-
-function evening(momentDate, eveningHour = Hours.Evening) {
-  return oclock(momentDate.hour(eveningHour))
-}
-
-function midnight(momentDate, midnightHour = Hours.Midnight) {
-  return oclock(momentDate.hour(midnightHour))
-}
-
 
 const DateUtils = {
+
+  // Localized format: ddd, MMM D, YYYY h:mmA
+  DATE_FORMAT_LONG: 'llll',
+
+  // Localized format: MMM D, h:mmA
+  DATE_FORMAT_SHORT: moment.localeData().longDateFormat('lll').replace(yearRegex, ''),
 
   format(momentDate, formatString) {
     if (!momentDate) return null;
@@ -119,11 +133,11 @@ const DateUtils = {
   },
 
   thisWeekend(now = moment()) {
-    return morning(now.day(Days.ThisWeekend))
+    return morning(now.day(Days.ThisWeekend(now.day())))
   },
 
   nextWeek(now = moment()) {
-    return morning(now.day(Days.NextMonday))
+    return morning(now.day(Days.NextMonday(now.day())))
   },
 
   nextMonth(now = moment()) {

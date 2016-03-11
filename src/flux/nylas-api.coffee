@@ -18,7 +18,7 @@ SampleTemporaryErrorCode = 504
 # This is lazy-loaded
 AccountStore = null
 
-class NylasAPIOptimisticChangeTracker
+class NylasAPIChangeLockTracker
   constructor: ->
     @_locks = {}
 
@@ -121,22 +121,16 @@ class NylasAPI
   SampleTemporaryErrorCode: SampleTemporaryErrorCode
 
   constructor: ->
-    @_workers = []
-    @_optimisticChangeTracker = new NylasAPIOptimisticChangeTracker()
+    @_lockTracker = new NylasAPIChangeLockTracker()
 
     NylasEnv.config.onDidChange('env', @_onConfigChanged)
     @_onConfigChanged()
-
-    if NylasEnv.isMainWindow()
-      Actions.notificationActionTaken.listen ({notification, action}) ->
-        if action.id is '401:unlink'
-          Actions.switchPreferencesTab('Accounts')
-          Actions.openPreferences()
 
   _onConfigChanged: =>
     prev = {@AppID, @APIRoot, @APITokens}
 
     if NylasEnv.inSpecMode()
+      @pluginsSupported = true
       env = "testing"
     else
       env = NylasEnv.config.get('env')
@@ -149,14 +143,17 @@ class NylasAPI
     if env in ['production']
       @AppID = 'eco3rpsghu81xdc48t5qugwq7'
       @APIRoot = 'https://api.nylas.com'
+      @pluginsSupported = true
     else if env in ['staging', 'development']
       @AppID = '54miogmnotxuo5st254trcmb9'
       @APIRoot = 'https://api-staging.nylas.com'
+      @pluginsSupported = true
     else if env in ['experimental']
       @AppID = 'c5dis00do2vki9ib6hngrjs18'
       @APIRoot = 'https://api-staging-experimental.nylas.com'
+      @pluginsSupported = true
     else if env in ['local']
-      @AppID = 'n/a'
+      @AppID = NylasEnv.config.get('syncEngine.AppID') or 'n/a'
       @APIRoot = 'http://localhost:5555'
     else if env in ['custom']
       @AppID = NylasEnv.config.get('syncEngine.AppID') or 'n/a'
@@ -234,6 +231,9 @@ class NylasAPI
       return Promise.resolve()
 
   _handleAuthenticationFailure: (modelUrl, apiToken) ->
+    # prevent /auth errors from presenting auth failure notices
+    return Promise.resolve() unless apiToken
+
     AccountStore ?= require './stores/account-store'
     account = AccountStore.accounts().find (account) ->
       AccountStore.tokenForAccountId(account.id) is apiToken
@@ -245,16 +245,16 @@ class NylasAPI
       type: 'error'
       tag: '401'
       sticky: true
-      message: "Nylas can no longer authenticate with #{email}. You
-                will not be able to send or receive mail. Please remove the
-                account and sign in again.",
+      message: "Action failed: There was an error syncing with #{email}. You
+                may not be able to send or receive mail.",
       icon: 'fa-sign-out'
       actions: [{
-        default: true
-        dismisses: true
-        label: 'Unlink'
-        id: '401:unlink'
-      }]
+          default: true
+          dismisses: true
+          label: 'Dismiss'
+          provider: account?.provider ? ""
+          id: '401:dismiss'
+        }]
 
     return Promise.resolve()
 
@@ -281,10 +281,11 @@ class NylasAPI
     if uniquedJSONs.length < jsons.length
       console.warn("NylasAPI.handleModelResponse: called with non-unique object set. Maybe an API request returned the same object more than once?")
 
-    # Step 2: Filter out any objects locked by the optimistic change tracker.
+    # Step 2: Filter out any objects we've locked (usually because we successfully)
+    # deleted them moments ago.
     unlockedJSONs = _.filter uniquedJSONs, (json) =>
-      if @_optimisticChangeTracker.acceptRemoteChangesTo(klass, json.id) is false
-        json._delta?.ignoredBecause = "This model is locked by the optimistic change tracker"
+      if @_lockTracker.acceptRemoteChangesTo(klass, json.id) is false
+        json._delta?.ignoredBecause = "Model is locked, possibly because it's already been deleted."
         return false
       return true
 
@@ -326,6 +327,12 @@ class NylasAPI
       .then ->
         return Promise.resolve(responseModels)
 
+  _attachMetadataToResponse: (jsons, metadataToAttach) ->
+    return unless metadataToAttach
+    for obj in jsons
+      if metadataToAttach[obj.id]
+        obj.metadata = metadataToAttach[obj.id]
+
   _apiObjectToClassMap:
     "file": require('./models/file')
     "event": require('./models/event')
@@ -346,6 +353,7 @@ class NylasAPI
         if result.messages
           messages = messages.concat(result.messages)
       if messages.length > 0
+        @_attachMetadataToResponse(messages, requestOptions.metadataToAttach)
         @_handleModelResponse(messages)
       if requestSuccess
         requestSuccess(json)
@@ -355,17 +363,23 @@ class NylasAPI
 
   getCollection: (accountId, collection, params={}, requestOptions={}) ->
     throw (new Error "getCollection requires accountId") unless accountId
+    requestSuccess = requestOptions.success
     @makeRequest _.extend requestOptions,
       path: "/#{collection}"
       accountId: accountId
       qs: params
-      returnsModel: true
+      returnsModel: false
+      success: (jsons) =>
+        @_attachMetadataToResponse(jsons, requestOptions.metadataToAttach)
+        @_handleModelResponse(jsons)
+        if requestSuccess
+          requestSuccess(jsons)
 
-  incrementOptimisticChangeCount: (klass, id) ->
-    @_optimisticChangeTracker.increment(klass, id)
+  incrementRemoteChangeLock: (klass, id) ->
+    @_lockTracker.increment(klass, id)
 
-  decrementOptimisticChangeCount: (klass, id) ->
-    @_optimisticChangeTracker.decrement(klass, id)
+  decrementRemoteChangeLock: (klass, id) ->
+    @_lockTracker.decrement(klass, id)
 
   accessTokenForAccountId: (aid) ->
     AccountStore ?= require './stores/account-store'
@@ -390,14 +404,19 @@ class NylasAPI
   #    the plugin server couldn't be reached or failed to respond properly when authing
   #    the account, or that the Nylas API couldn't be reached.
   authPlugin: (pluginId, pluginName, accountOrId) ->
-    account = if accountOrId instanceof Account
-      accountOrId
+    unless @pluginsSupported
+      return Promise.reject(new Error('Sorry, this feature is only available when N1 is running against the hosted version of the Nylas Sync Engine.'))
+
+    if accountOrId instanceof Account
+      account = accountOrId
     else
       AccountStore ?= require './stores/account-store'
-      AccountStore.accountForId(accountOrId)
-    Promise.reject(new Error('Invalid account')) unless account
+      account = AccountStore.accountForId(accountOrId)
 
-    cacheKey = "plugins.#{pluginId}.lastAuthTimestamp"
+    unless account
+      return Promise.reject(new Error('Invalid account'))
+
+    cacheKey = "plugins.#{pluginId}.lastAuth.#{account.id}"
     if NylasEnv.config.get(cacheKey)
       return Promise.resolve()
 
@@ -406,22 +425,24 @@ class NylasAPI
       method: "GET",
       accountId: account.id,
       path: "/auth/plugin?client_id=#{pluginId}"
-    })
-    .then (result) =>
+
+    }).then (result) =>
       if result.authed
         NylasEnv.config.set(cacheKey, Date.now())
         return Promise.resolve()
-      else
-        # Enable to show a prompt to the user
-        # return @_requestPluginAuth(pluginName, account).then =>
-        return @makeRequest({
-          returnsModel: false,
-          method: "POST",
-          accountId: account.id,
-          path: "/auth/plugin",
-          body: {client_id: pluginId},
-          json: true
-        })
+
+      # Enable to show a prompt to the user
+      # return @_requestPluginAuth(pluginName, account).then =>
+      return @makeRequest({
+        returnsModel: false,
+        method: "POST",
+        accountId: account.id,
+        path: "/auth/plugin",
+        body: {client_id: pluginId},
+        json: true
+      }).then =>
+        NylasEnv.config.set(cacheKey, Date.now())
+        return Promise.resolve()
 
   _requestPluginAuth: (pluginName, account) ->
     {dialog} = require('electron').remote

@@ -17,7 +17,7 @@ class EdgehillAPI
 
   _onConfigChanged: =>
     env = NylasEnv.config.get('env')
-    if env is 'development'
+    if env in ['development', 'local']
       @APIRoot = "http://localhost:5009"
     else if env is 'experimental'
       @APIRoot = "https://edgehill-experimental.nylas.com"
@@ -53,7 +53,7 @@ class EdgehillAPI
           if error? or response.statusCode > 299
             options.error(new APIError({error:error, response:response, body:body, requestOptions: options}))
           else
-            options.success(body) if options.success
+            options.success(body, response) if options.success
 
   _defaultErrorCallback: (apiError) ->
     console.error(apiError)

@@ -1,0 +1,13 @@
+{
+  "name": "theme-picker",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "View different themes and choose them easily",
+  "license": "GPL-3.0",
+  "private": true,
+  "engines": {
+    "nylas": "*"
+  },
+  "dependencies": {
+  }
+}

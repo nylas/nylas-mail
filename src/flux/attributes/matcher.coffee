@@ -151,7 +151,34 @@ class OrCompositeMatcher extends Matcher
       wheres.push(matcher.whereSQL(klass))
     return "(" + wheres.join(" OR ") + ")"
 
+class AndCompositeMatcher extends Matcher
+  constructor: (@children) ->
+    @
+
+  attribute: =>
+    null
+
+  value: =>
+    null
+
+  evaluate: (model) =>
+    _.every @children, (matcher) -> matcher.evaluate(model)
+
+  joinSQL: (klass) =>
+    joins = []
+    for matcher in @children
+      join = matcher.joinSQL(klass)
+      joins.push(join) if join
+    return joins
+
+  whereSQL: (klass) =>
+    wheres = []
+    for matcher in @children
+      wheres.push(matcher.whereSQL(klass))
+    return "(" + wheres.join(" AND ") + ")"
+
 Matcher.muid = 0
 Matcher.Or = OrCompositeMatcher
+Matcher.And = AndCompositeMatcher
 
 module.exports = Matcher

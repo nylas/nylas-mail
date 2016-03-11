@@ -171,7 +171,7 @@ class Actions
   Actions.updateAccount(account.id, {accountName: 'new'})
   ```
   ###
-  @updateAccount: ActionScopeWindow
+  @updateAccount: ActionScopeGlobal
 
   ###
   Public: Re-order the provided account in the account list.
@@ -262,6 +262,12 @@ class Actions
   ```
   ###
   @toggleMessageIdExpanded: ActionScopeWindow
+
+  ###
+  Public: Toggle whether messages from trash and spam are shown in the current
+  message view.
+  ###
+  @toggleHiddenMessages: ActionScopeWindow
 
   ###
   Public: This action toggles wether to collapse or expand all messages in a
@@ -509,9 +515,11 @@ class Actions
   @deleteMailRule: ActionScopeWindow
   @disableMailRule: ActionScopeWindow
 
-
   @openPopover: ActionScopeWindow
   @closePopover: ActionScopeWindow
+
+  @openModal: ActionScopeWindow
+  @closeModal: ActionScopeWindow
 
   ###
   Public: Set metadata for a specified model and pluginId.
@@ -524,6 +532,10 @@ class Actions
   @setMetadata: ActionScopeWindow
 
   @draftParticipantsChanged: ActionScopeWindow
+
+  @findInThread: ActionScopeWindow
+  @nextSearchResult: ActionScopeWindow
+  @previousSearchResult: ActionScopeWindow
 
 # Read the actions we declared on the dummy Actions object above
 # and translate them into Reflux Actions

@@ -7,8 +7,5 @@
   "private": true,
   "engines": {
     "nylas": "*"
-  },
-  "dependencies": {
-    "autolinker": "0.18.1"
   }
 }

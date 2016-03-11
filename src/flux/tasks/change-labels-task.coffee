@@ -4,6 +4,8 @@ Thread = require '../models/thread'
 Message = require '../models/message'
 Category = require '../models/category'
 DatabaseStore = require '../stores/database-store'
+CategoryStore = require '../stores/category-store'
+AccountStore = require '../stores/account-store'
 ChangeMailTask = require './change-mail-task'
 SyncbackCategoryTask = require './syncback-category-task'
 
@@ -24,6 +26,10 @@ class ChangeLabelsTask extends ChangeMailTask
 
   label: -> "Applying labels…"
 
+  categoriesToAdd: => @labelsToAdd
+
+  categoriesToRemove: => @labelsToRemove
+
   description: ->
     return @taskDescription if @taskDescription
     type = "thread"
@@ -35,7 +41,46 @@ class ChangeLabelsTask extends ChangeMailTask
       return "Removed #{@labelsToRemove[0].displayName} from #{@threads.length} #{type}"
     return "Changed labels on #{@threads.length} #{type}"
 
-  isDependentTask: (other) -> other instanceof SyncbackCategoryTask
+  isDependentOnTask: (other) -> other instanceof SyncbackCategoryTask
+
+  # In Gmail all threads /must/ belong to either All Mail, Trash and Spam, and
+  # they are mutually exclusive, so we need to make sure that any add/remove
+  # label operation still guarantees that constraint
+  _ensureAndUpdateLabels: (account, labelsToAdd, labelsToRemove={})=>
+    setToAdd = new Set(_.compact(_.pluck(labelsToAdd, 'name')))
+    setToRemove = new Set(_.compact(_.pluck(labelsToRemove, 'name')))
+
+    if setToRemove.has('all')
+      if not setToAdd.has('spam') and not setToAdd.has('trash')
+        labelsToRemove = _.reject(labelsToRemove, (label) -> label.name is 'all')
+    else if setToAdd.has('all')
+      if not setToRemove.has('trash')
+        labelsToRemove.push(CategoryStore.getTrashCategory(account))
+      if not setToRemove.has('spam')
+        labelsToRemove.push(CategoryStore.getSpamCategory(account))
+
+    if setToRemove.has('trash')
+      if not setToAdd.has('spam') and not setToAdd.has('all')
+        labelsToAdd.push(CategoryStore.getAllMailCategory(account))
+    else if setToAdd.has('trash')
+      if not setToRemove.has('all')
+        labelsToRemove.push(CategoryStore.getAllMailCategory(account))
+      if not setToRemove.has('spam')
+        labelsToRemove.push(CategoryStore.getSpamCategory(account))
+
+    if setToRemove.has('spam')
+      if not setToAdd.has('trash') and not setToAdd.has('all')
+        labelsToAdd.push(CategoryStore.getAllMailCategory(account))
+    else if setToAdd.has('spam')
+      if not setToRemove.has('all')
+        labelsToRemove.push(CategoryStore.getAllMailCategory(account))
+      if not setToRemove.has('trash')
+        labelsToRemove.push(CategoryStore.getTrashCategory(account))
+
+    # This should technically not be possible, but we like to keep it safe
+    labelsToAdd = _.compact(labelsToAdd)
+    labelsToRemove = _.compact(labelsToRemove)
+    return {labelsToAdd, labelsToRemove}
 
   performLocal: ->
     if @messages.length
@@ -60,10 +105,19 @@ class ChangeLabelsTask extends ChangeMailTask
       if _.any([].concat(labelsToAdd, labelsToRemove), _.isUndefined)
         return Promise.reject(new Error("One or more of the specified labels could not be found."))
 
+      account = AccountStore.accountForItems(threads)
+      if not account
+        return Promise.reject(new Error("ChangeLabelsTask: You must provide a set of `threads` from the same Account"))
+
+      # In Gmail all threads /must/ belong to either All Mail, Trash and Spam, and
+      # they are mutually exclusive, so we need to make sure that any add/remove
+      # label operation still guarantees that constraint
+      updated = @_ensureAndUpdateLabels(account, labelsToAdd, labelsToRemove)
+
       # Remove any objects we weren't able to find. This can happen pretty easily
       # if you undo an action and other things have happened.
-      @labelsToAdd = labelsToAdd
-      @labelsToRemove = labelsToRemove
+      @labelsToAdd = updated.labelsToAdd
+      @labelsToRemove = updated.labelsToRemove
       @threads = _.compact(threads)
       @messages = _.compact(messages)
 

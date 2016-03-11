@@ -3,16 +3,16 @@
 @popover-width: 250px;
 
 body.platform-win32 {
-  .category-picker {
+  .category-picker-popover {
     margin-left: 0;
   }
 }
 
-.category-picker {
-  margin-left: @spacing-three-quarters;
-  .popover {
-  }
+.sheet-toolbar .btn-category-picker:only-of-type {
+  margin-right: 0;
+}
 
+.category-picker-popover {
   .menu {
     background: @background-secondary;
     width: @popover-width;

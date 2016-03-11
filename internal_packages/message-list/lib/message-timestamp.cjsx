@@ -19,6 +19,7 @@ class MessageTimestamp extends React.Component
     nowDate = @_today()
     formattedDate = @_formattedDate(msgDate, nowDate, @props.isDetailed)
     <div className={@props.className}
+         title={Utils.fullTimeString(@props.date)}
          onClick={@props.onClick}>{formattedDate}</div>
 
   _formattedDate: (msgDate, now, isDetailed) =>

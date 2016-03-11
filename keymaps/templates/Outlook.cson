@@ -16,3 +16,7 @@
   'cmdctrl-n' :      'application:new-message'
   'cmdctrl-shift-m': 'application:new-message'
   'cmdctrl-enter':   'send'
+
+  'F4': 'application:find-in-thread'
+  'shift-F4': 'application:find-in-thread-next'
+  'ctrl-shift-F4': 'application:find-in-thread-previous'
