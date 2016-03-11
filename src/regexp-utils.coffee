@@ -51,7 +51,7 @@ RegExpUtils =
   # 3. the rest of the opening a tag
   # 4. the contents of the a tag
   # 5. the closing tag
-  urlLinkTagRegex: -> new RegExp(/(<a.*?href\s*?=\s*?['"])((?!mailto).+)(['"].*?>)([\s\S]*?)(<\/a>)/gim)
+  urlLinkTagRegex: -> new RegExp(/(<a.*?href\s*?=\s*?['"])((?!mailto).+?)(['"].*?>)([\s\S]*?)(<\/a>)/gim)
 
   # https://regex101.com/r/zG7aW4/3
   imageTagRegex: -> /<img\s+[^>]*src="([^"]*)"[^>]*>/g
