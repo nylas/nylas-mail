@@ -16,6 +16,7 @@ export default class MailLabelSet extends React.Component {
   static propTypes = {
     thread: React.PropTypes.object.isRequired,
     includeCurrentCategories: React.PropTypes.bool,
+    removable: React.PropTypes.bool,
   };
 
   _onRemoveLabel(label) {
@@ -45,15 +46,22 @@ export default class MailLabelSet extends React.Component {
         if (ignoredNames.includes(label.name) || ignoredIds.includes(label.id)) {
           continue;
         }
-        if (LabelComponentCache[label.id] === undefined) {
-          LabelComponentCache[label.id] = (
+
+        if (this.props.removable) {
+          labels.push (
             <MailLabel
               label={label}
               key={label.id}
-              onRemove={()=> this._onRemoveLabel(label)}/>
-          );
+              onRemove={()=> this._onRemoveLabel(label)} />
+          )
+        } else {
+          if (LabelComponentCache[label.id] === undefined) {
+            LabelComponentCache[label.id] = (
+              <MailLabel label={label} key={label.id} />
+            );
+          }
+          labels.push(LabelComponentCache[label.id]);
         }
-        labels.push(LabelComponentCache[label.id]);
       }
     }
     return (

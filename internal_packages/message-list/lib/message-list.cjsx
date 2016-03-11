@@ -227,7 +227,7 @@ class MessageList extends React.Component
       <MailImportantIcon thread={@state.currentThread}/>
       <div style={flex: 1}>
         <span className="message-subject">{subject}</span>
-        <MailLabelSet thread={@state.currentThread} includeCurrentCategories={true} />
+        <MailLabelSet removable={true} thread={@state.currentThread} includeCurrentCategories={true} />
       </div>
       {@_renderIcons()}
     </div>
