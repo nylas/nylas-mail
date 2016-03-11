@@ -51,7 +51,7 @@ class MessageItemBody extends React.Component
     </span>
 
   _renderBody: =>
-    if _.isString(@props.message.body) and @state.processedBody
+    if _.isString(@props.message.body) and _.isString(@state.processedBody)
       <EmailFrame showQuotedText={@state.showQuotedText} content={@state.processedBody}/>
     else if @state.error
       <div className="message-body-error">
