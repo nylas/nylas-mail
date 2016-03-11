@@ -541,6 +541,7 @@ Utils =
       "support@"
       "alert[s]?@"
       "news@"
+      "info@"
       "automated@"
       "list[s]?@"
       "distribute[s]?@"
