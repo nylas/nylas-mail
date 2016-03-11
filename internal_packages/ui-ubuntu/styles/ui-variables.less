@@ -1,0 +1,44 @@
+
+//buttons color
+@btn-default-bg-color:      lighten(@toolbar-background-color,4%);
+
+// dropdowns color
+@dropdown-default-bg-color:#f07746;
+
+@accent-primary:            #f07746;
+@accent-primary-dark:       darken(#f07746, 1%);
+
+@border-secondary-bg:   lighten(@background-secondary, 10%);
+
+
+@toolbar-background-color: #41403b;
+@light:  rgb(246, 246, 246);
+
+.sheet-toolbar .btn-toolbar img.content-mask {
+    background-color: @light;
+}
+
+.layout-mode-popout .sheet-toolbar {
+display: none;
+}
+
+.sheet-toolbar-container {
+  background-image: -webkit-linear-gradient(top,@toolbar-background-color, darken(@toolbar-background-color,5%));
+    box-shadow: none;
+}
+
+.sheet-toolbar .item-back img.content-mask{
+  background-color: @light;
+}
+
+.sheet-toolbar .item-back .item-back-title{
+  color: @light;
+}
+
+.btn-icon img.content-mask {
+    background-color:@light;
+}
+
+.btn-icon img.content-mask:hover {
+    background-color:@accent-primary;
+}
