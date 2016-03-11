@@ -440,8 +440,8 @@ class NylasAPI
         path: "/auth/plugin",
         body: {client_id: pluginId},
         json: true
-      }).then (result) =>
-        NylasEnv.config.set(cacheKey, Date.now()) if result.authed
+      }).then =>
+        NylasEnv.config.set(cacheKey, Date.now())
         return Promise.resolve()
 
   _requestPluginAuth: (pluginName, account) ->
