@@ -220,10 +220,6 @@ class SendDraftTask extends Task
 
     Actions.sendDraftSuccess(message: @message, messageClientId: @message.clientId)
 
-    # Delete attachments from the uploads folder
-    for upload in @uploaded
-      Actions.attachmentUploaded(upload)
-
     # Play the sending sound
     if NylasEnv.config.get("core.sending.sounds")
       SoundRegistry.playSound('send')
