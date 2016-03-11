@@ -43,8 +43,6 @@ We're working on building a plugin index that makes it super easy to add them to
 
 #### Bundled Plugins
 Great starting points for creating your own plugins!
-
-##### Composer
 - [Translate](https://github.com/nylas/N1/tree/master/internal_packages/composer-translate) — Works with 10 languages
 - [Quick Schedule](https://github.com/nylas/N1/tree/master/internal_packages/quick-schedule) — Show your availability to schedule a meeting with someone
 - [Quick Replies](https://github.com/nylas/N1/tree/master/internal_packages/composer-templates) — Send emails faster with templates
@@ -52,34 +50,18 @@ Great starting points for creating your own plugins!
 - [Open Tracking](https://github.com/nylas/N1/tree/master/internal_packages/open-tracking) — See if your emails have been read
 - [Link Tracking](https://github.com/nylas/N1/tree/master/internal_packages/link-tracking) — See if your links have been clicked
 - [Emoji Keyboard](https://github.com/nylas/N1/tree/master/internal_packages/composer-emojis) — Insert emojis by typing a colon (:) followed by the name of an emoji symbol
-
-##### Sidebar
 - [GitHub Sidebar Info](https://github.com/nylas/N1/tree/master/internal_packages/github-contact-card)
-
-##### Navbar
 - [View on GitHub](https://github.com/nylas/N1/tree/master/internal_packages/message-view-on-github)
-
-##### Thread List
 - [Personal Level Indicators](https://github.com/nylas/N1/tree/master/internal_packages/personal-level-indicators)
-
-##### Messages
 - [Phishing Detection](https://github.com/nylas/N1/tree/master/internal_packages/phishing-detection)
 
 #### Community Plugins
-
-##### Composer
 - [Jiffy](http://noahbuscher.github.io/N1-Jiffy/) — Insert animated GIFs
-- In Development: [Cypher](https://github.com/mbilker/cypher) (PGP Encryption)
-
-##### Sidebar
 - [Weather](https://github.com/jackiehluo/n1-weather)
 - [Todoist](https://github.com/anopensourceguy/TodoistN1)
-
-##### Thread List
 - [Unsubscribe](https://github.com/colinking/n1-unsubscribe)
-
-##### Messages
 - [Squirt Speed Reader](https://github.com/HarleyKwyn/squirt-reader-N1-plugin/)
+- In Development: [Cypher](https://github.com/mbilker/cypher) (PGP Encryption)
 
 # Running Locally
 By default the N1 source points to our hosted version of the Nylas Sync Engine; however, the Sync Engine is open source and you can [run it yourself](https://github.com/nylas/N1/blob/master/CONTRIBUTING.md#running-against-open-source-sync-engine).
