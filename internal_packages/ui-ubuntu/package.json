@@ -3,10 +3,10 @@
   "displayName": "Ubuntu",
   "theme": "ui",
   "version": "0.1.0",
-  "description": "Ubuntu Theme for Nylas N1",
+  "description": "The Ubuntu theme for N1.",
   "license": "Proprietary",
   "engines": {
-    "atom": "*"
+    "nylas": "*"
   },
   "private": true
 }

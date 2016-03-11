@@ -47,7 +47,7 @@ class ThemePicker extends React.Component {
   }
 
   _renderThemeOptions() {
-    const internalThemes = ['ui-taiga', 'ui-darkside', 'ui-dark', 'ui-light'];
+    const internalThemes = ['ui-ubuntu', 'ui-taiga', 'ui-darkside', 'ui-dark', 'ui-light'];
     const sortedThemes = [].concat(this.state.themes);
     sortedThemes.sort((a, b) => {
       return (internalThemes.indexOf(a.name) - internalThemes.indexOf(b.name)) * -1;
