@@ -139,7 +139,10 @@ class NylasSyncWorker
             console.log("Retrieved #{offset + data.length} metadata objects")
             finished()
 
-    makeMetadataRequest(0)
+    if @_api.pluginsSupported
+      makeMetadataRequest(0)
+    else
+      finished()
 
   shouldFetchCollection: (model) ->
     return false unless @_state
