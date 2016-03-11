@@ -1,5 +1,59 @@
 # N1 Changelog
 
+### 0.4.14 (3/10/16)
+
+- Features:
+
+ + Overhauled Sidebar: The sidebar now shows more accurate contact information,
+   recent conversations with the selected participant, and more.
+
+ + Themes: A brand new theme picker (in the Application Menu) allows you
+   to quickly try different themes, and we've bundled two great community themes
+   (Darkside and Taiga) into the app! An updated dark theme is coming soon.
+
+- Fixes:
+ + Warnings now appear in the main window if we are unable to connect to your email provider.
+ + The Send Later, Snooze and read receipts plugins now alert you if you are not using our hosted infrastructure.
+ + The Autoload Images and Snooze date input field is now locale-aware.
+
+ + Composer:
+   + N1 cleans up drafts properly after sending if an autosave occurred immediately
+     before your message was sent.
+   + The emoji picker now matches emoji against more common words, like `:thumbsup`!
+   + Link tracking correctly modifies only `http://` and `https://` links
+   + When sending two responses to the same email, the second email no longer appears
+     to be sending in some scenarios.
+
+ + Reading:
+   + Messages now show a loading indicator while they're being downloaded, and you can
+     retry if the download is interrupted.
+   + The "Sent" view now orders your messages by "last sent message".
+   + The "At 2:30PM, Mark wrote..." byline is now recognized as part of quoted text.
+   + Deleted messages are filtered from the conversation view, and you can show them by clicking "Show Deleted Messages." Threads in trash and spam are also excluded from the Starred and Gmail label views.
+   + "Archive" no longer removes the label you are currently viewing.
+   + Delete and backspace no longer follow Gmail's "remove from view" behavior. For Gmail's behavior, use the `y` shortcut.
+
+ + Attachments:
+   + Downloads that fail are now retried properly when you interact with them.
+   + Changing an attachment name when saving it no longer clears the file extension.
+
+ + Account Setup:
+   + The "Welcome to N1" screens now emphasize that it is cloud-based.
+   + You can use IP addresses as IMAP / SMTP and Exchange domains.
+   + You can now check "Require SSL" during IMAP / SMTP setup and N1 will not try plaintext authentication.
+   + N1 now displays better error messages for a wide variety of auth issues.
+   + Themes are no longer applied in the account setup window.
+
+- Temporary:
+ + N1 no longer syncs Drafts with Gmail, avoiding several critical issues our
+   platform team is working to resolve. (Drafts duplicating or appearing sent as you edit.)
+
+- Cleanup:
+ + All sample plugins have been converted from CoffeeScript to ES2016.
+ + The `<Popover>` component has been deprecated in favor of `<FixedPopover>` which is more flexible.
+ + Running specs from the application no longer resets your account configuration.
+ + N1 no longer adds `N1` and `apm` to `/usr/bin`
+
 ### 0.4.10 (2/25/16)
 
 - Fixes:
