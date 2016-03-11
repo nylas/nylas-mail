@@ -1,8 +1,8 @@
 'menu': [
   {
-    label: 'Nylas'
+    label: 'Nylas N1'
     submenu: [
-      { label: 'About Nylas', command: 'application:about' }
+      { label: 'About Nylas N1', command: 'application:about' }
       { type: 'separator' }
       { label: 'Preferences', command: 'application:open-preferences' }
       { label: 'Change Theme...', command: 'window:launch-theme-picker' }
@@ -17,7 +17,7 @@
       { type: 'separator' }
       { label: 'Services', submenu: [] }
       { type: 'separator' }
-      { label: 'Hide Nylas', command: 'application:hide' }
+      { label: 'Hide Nylas N1', command: 'application:hide' }
       { label: 'Hide Others', command: 'application:hide-other-applications' }
       { label: 'Show All', command: 'application:unhide-all-applications' }
       { type: 'separator' }
