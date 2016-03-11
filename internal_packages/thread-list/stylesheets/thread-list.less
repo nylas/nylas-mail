@@ -86,7 +86,7 @@
         }
       }
     }
-    &.swipe-archive {
+    &.swipe-archive,&.swipe-all {
       transition: background-color linear 150ms;
       background-color: mix(#6cd420, @background-primary, 75%);
       &::after {
@@ -443,10 +443,10 @@ body.platform-win32 {
     overflow: hidden;
 
     .mail-label {
-      padding: 1px 8px;
       font-size: 0.8em;
       line-height: 17px;
     }
+
     .snippet {
       font-size: @font-size-small;
       overflow: hidden;

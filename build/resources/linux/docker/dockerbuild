@@ -1,0 +1,6 @@
+#!/bin/sh
+
+set -e
+
+script/build
+script/grunt mkdeb mkrpm publish-nylas-build --stack --no-color --install-dir /usr

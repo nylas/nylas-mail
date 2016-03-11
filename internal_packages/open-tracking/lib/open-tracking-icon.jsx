@@ -22,7 +22,9 @@ export default class OpenTrackingIcon extends React.Component {
   _getStateFromThread(thread) {
     const messages = thread.metadata;
     if ((messages || []).length === 0) { return {opened: false, hasMetadata: false} }
-    const metadataObjs = messages.map(msg => msg.metadataForPluginId(PLUGIN_ID)).filter(meta => meta);
+    const metadataObjs = messages
+      .map(msg => msg.metadataForPluginId(PLUGIN_ID))
+      .filter(meta => meta && meta.open_count != null);
     return {
       hasMetadata: metadataObjs.length > 0,
       opened: metadataObjs.length > 0 && metadataObjs.every(m => m.open_count > 0),

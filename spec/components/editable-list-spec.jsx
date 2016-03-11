@@ -12,7 +12,11 @@ const {TestUtils: {
 
 
 const makeList = (items = [], props = {})=> {
-  return renderIntoDocument(<EditableList {...props} items={items}></EditableList>);
+  const list = renderIntoDocument(<EditableList {...props} items={items} />);
+  if (props.initialState) {
+    list.setState(props.initialState)
+  }
+  return list
 };
 
 describe('EditableList', ()=> {

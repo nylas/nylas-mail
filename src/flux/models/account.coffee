@@ -29,6 +29,11 @@ Section: Models
 ###
 class Account extends ModelWithMetadata
 
+  @SYNC_STATE_RUNNING = "running"
+  @SYNC_STATE_STOPPED = "stopped"
+  @SYNC_STATE_AUTH_FAILED = "invalid"
+  @SYNC_STATE_ERROR = "sync_error"
+
   @attributes: _.extend {}, ModelWithMetadata.attributes,
     'name': Attributes.String
       modelKey: 'name'
@@ -58,10 +63,16 @@ class Account extends ModelWithMetadata
       modelKey: 'defaultAlias'
       jsonKey: 'default_alias'
 
+    'syncState': Attributes.String
+      queryable: false
+      modelKey: 'syncState'
+      jsonKey: 'sync_state'
+
   constructor: ->
     super
     @aliases ||= []
     @label ||= @emailAddress
+    @syncState ||= "running"
 
   fromJSON: (json) ->
     json["label"] ||= json[@constructor.attributes['emailAddress'].jsonKey]
@@ -100,17 +111,6 @@ class Account extends ModelWithMetadata
     else
       'Unknown'
 
-  defaultFinishedCategory: ->
-    CategoryStore = require '../stores/category-store'
-    preferDelete = NylasEnv.config.get('core.reading.backspaceDelete')
-    archiveCategory = CategoryStore.getArchiveCategory(@)
-    trashCategory = CategoryStore.getTrashCategory(@)
-
-    if preferDelete or not archiveCategory
-      trashCategory
-    else
-      archiveCategory
-
   categoryIcon: ->
     if @usesFolders()
       'folder.png'
@@ -128,5 +128,25 @@ class Account extends ModelWithMetadata
       return 'Gmail'
     else
       return @provider
+
+  canArchiveThreads: ->
+    CategoryStore = require '../stores/category-store'
+    CategoryStore.getArchiveCategory(@)?
+
+  canTrashThreads: ->
+    CategoryStore = require '../stores/category-store'
+    CategoryStore.getTrashCategory(@)?
+
+  defaultFinishedCategory: ->
+    CategoryStore = require '../stores/category-store'
+    preferDelete = NylasEnv.config.get('core.reading.backspaceDelete')
+    archiveCategory = CategoryStore.getArchiveCategory(@)
+    trashCategory = CategoryStore.getTrashCategory(@)
+
+    if preferDelete or not archiveCategory
+      trashCategory
+    else
+      archiveCategory
+
 
 module.exports = Account

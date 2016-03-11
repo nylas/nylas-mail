@@ -90,6 +90,8 @@ module.exports =
       .forAccount(account)
       .sort()
       .map (cats) ->
+        cats.filter (cat) -> not cat.isLockedCategory()
+      .map (cats) ->
         cats.map (cat) ->
           name: cat.displayName || cat.name
           value: cat.id

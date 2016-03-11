@@ -42,11 +42,14 @@ class PreferencesRoot extends React.Component
       'core:select-up': stopPropagation
       'core:select-down': stopPropagation
       'core:select-item': stopPropagation
-      'core:remove-from-view': stopPropagation
       'core:messages-page-up': stopPropagation
       'core:messages-page-down': stopPropagation
       'core:list-page-up': stopPropagation
       'core:list-page-down': stopPropagation
+      'application:remove-from-view': stopPropagation
+      'application:gmail-remove-from-view': stopPropagation
+      'application:remove-and-previous': stopPropagation
+      'application:remove-and-next': stopPropagation
       'application:archive-item': stopPropagation
       'application:delete-item': stopPropagation
       'application:print-thread': stopPropagation

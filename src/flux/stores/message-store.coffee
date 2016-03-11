@@ -4,7 +4,7 @@ Message = require "../models/message"
 Thread = require "../models/thread"
 Utils = require '../models/utils'
 DatabaseStore = require "./database-store"
-AccountStore = require "./account-store"
+FocusedPerspectiveStore = require './focused-perspective-store'
 FocusedContentStore = require "./focused-content-store"
 ChangeUnreadTask = require '../tasks/change-unread-task'
 NylasAPI = require '../nylas-api'
@@ -12,6 +12,8 @@ ExtensionRegistry = require '../../extension-registry'
 {deprecate} = require '../../deprecate-utils'
 async = require 'async'
 _ = require 'underscore'
+
+CategoryNamesHiddenByDefault = ['spam', 'trash']
 
 class MessageStore extends NylasStore
 
@@ -22,7 +24,16 @@ class MessageStore extends NylasStore
   ########### PUBLIC #####################################################
 
   items: ->
-    @_items
+    return @_items if @_showingHiddenItems
+
+    viewing = FocusedPerspectiveStore.current().categoriesSharedName()
+    viewingHidden = viewing in CategoryNamesHiddenByDefault
+
+    return @_items.filter (item) ->
+      inHidden = _.any item.categories, (cat) -> cat.name in CategoryNamesHiddenByDefault
+      return false if viewingHidden and not inHidden
+      return false if not viewingHidden and inHidden
+      return true
 
   threadId: -> @_thread?.id
 
@@ -35,6 +46,9 @@ class MessageStore extends NylasStore
 
   hasCollapsedItems: ->
     _.size(@_itemsExpanded) < @_items.length
+
+  numberOfHiddenItems: ->
+    @_items.length - @items().length
 
   itemClientIds: ->
     _.pluck(@_items, "clientId")
@@ -79,8 +93,8 @@ class MessageStore extends NylasStore
     @_items = []
     @_itemsExpanded = {}
     @_itemsLoading = false
+    @_showingHiddenItems = false
     @_thread = null
-    @_inflight = {}
 
   _registerListeners: ->
     @listenTo ExtensionRegistry.MessageView, @_onExtensionsChanged
@@ -88,6 +102,11 @@ class MessageStore extends NylasStore
     @listenTo FocusedContentStore, @_onFocusChanged
     @listenTo Actions.toggleMessageIdExpanded, @_onToggleMessageIdExpanded
     @listenTo Actions.toggleAllMessagesExpanded, @_onToggleAllMessagesExpanded
+    @listenTo Actions.toggleHiddenMessages, @_onToggleHiddenMessages
+    @listenTo FocusedPerspectiveStore, @_onPerspectiveChanged
+
+  _onPerspectiveChanged: =>
+    @trigger()
 
   _onDataChanged: (change) =>
     return unless @_thread
@@ -151,6 +170,7 @@ class MessageStore extends NylasStore
     @_thread = focused
     @_items = []
     @_itemsLoading = true
+    @_showingHiddenItems = false
     @_itemsExpanded = {}
     @trigger()
 
@@ -187,6 +207,12 @@ class MessageStore extends NylasStore
       @_items[...-1].forEach @_collapseItem
     @trigger()
 
+  _onToggleHiddenMessages: =>
+    @_showingHiddenItems = !@_showingHiddenItems
+    @_expandItemsToDefault()
+    @_fetchExpandedAttachments(@_items)
+    @trigger()
+
   _onToggleMessageIdExpanded: (id) =>
     item = _.findWhere(@_items, {id})
     return unless item
@@ -199,7 +225,6 @@ class MessageStore extends NylasStore
 
   _expandItem: (item) =>
     @_itemsExpanded[item.id] = "explicit"
-    @_fetchExpandedBodies([item])
     @_fetchExpandedAttachments([item])
 
   _collapseItem: (item) =>
@@ -233,12 +258,6 @@ class MessageStore extends NylasStore
       # Download the attachments on expanded messages.
       @_fetchExpandedAttachments(@_items)
 
-      # Check that expanded messages have bodies. We won't mark ourselves
-      # as loaded until they're all available. Note that items can be manually
-      # expanded so this logic must be separate from above.
-      if @_fetchExpandedBodies(@_items)
-        loaded = false
-
       # Normally, we would trigger often and let the view's
       # shouldComponentUpdate decide whether to re-render, but if we
       # know we're not ready, don't even bother.  Trigger once at start
@@ -248,15 +267,6 @@ class MessageStore extends NylasStore
         @_itemsLoading = false
         @_markAsRead()
         @trigger(@)
-
-  _fetchExpandedBodies: (items) ->
-    startedAFetch = false
-    for item in items
-      continue unless @_itemsExpanded[item.id]
-      if not _.isString(item.body)
-        @_fetchMessageIdFromAPI(item.id)
-        startedAFetch = true
-    startedAFetch
 
   _fetchExpandedAttachments: (items) ->
     policy = NylasEnv.config.get('core.attachments.downloadPolicy')
@@ -269,27 +279,13 @@ class MessageStore extends NylasStore
 
   # Expand all unread messages, all drafts, and the last message
   _expandItemsToDefault: ->
-    for item, idx in @_items
-      if item.unread or item.draft or idx is @_items.length - 1
+    visibleItems = @items()
+    for item, idx in visibleItems
+      if item.unread or item.draft or idx is visibleItems.length - 1
         @_itemsExpanded[item.id] = "default"
 
   _fetchMessages: ->
-    account = AccountStore.accountForId(@_thread.accountId)
-    NylasAPI.getCollection account.id, 'messages', {thread_id: @_thread.id}
-
-  _fetchMessageIdFromAPI: (id) ->
-    return if @_inflight[id]
-
-    @_inflight[id] = true
-    account = AccountStore.accountForId(@_thread.accountId)
-    NylasAPI.makeRequest
-      path: "/messages/#{id}"
-      accountId: account.id
-      returnsModel: true
-      success: =>
-        delete @_inflight[id]
-      error: =>
-        delete @_inflight[id]
+    NylasAPI.getCollection(@_thread.accountId, 'messages', {thread_id: @_thread.id})
 
   _sortItemsForDisplay: (items) ->
     # Re-sort items in the list so that drafts appear after the message that
@@ -327,4 +323,6 @@ store.unregisterExtension = deprecate(
   store,
   store.unregisterExtension
 )
+store.CategoryNamesHiddenByDefault = CategoryNamesHiddenByDefault
+
 module.exports = store

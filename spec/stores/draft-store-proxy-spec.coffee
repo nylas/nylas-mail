@@ -35,12 +35,6 @@ describe "DraftChangeSet", ->
       @changeSet.add(body: 'Hello World!')
       expect(@changeSet._pending.body).toEqual('Hello World!')
 
-    describe "when the immediate option is passed", ->
-      it "should commit", ->
-        spyOn(@changeSet, 'commit')
-        @changeSet.add({body: 'Hello World!'}, {immediate: true})
-        expect(@changeSet.commit).toHaveBeenCalled()
-
     describe "otherwise", ->
       it "should commit after thirty seconds", ->
         spyOn(@changeSet, 'commit')
@@ -50,7 +44,6 @@ describe "DraftChangeSet", ->
         expect(@changeSet.commit).toHaveBeenCalled()
 
   describe "commit", ->
-
     it "should resolve immediately if the pending set is empty", ->
       @changeSet._pending = {}
       waitsForPromise =>
@@ -193,53 +186,57 @@ describe "DraftStoreProxy", ->
       expect(@proxy.draft().subject).toEqual(updatedDraft.subject)
 
     it "atomically commits changes", ->
-      spyOn(DatabaseStore, "findBy").andReturn(Promise.resolve(@draft))
+      spyOn(DatabaseStore, "run").andReturn(Promise.resolve(@draft))
       spyOn(DatabaseStore, 'inTransaction').andCallThrough()
+      @proxy.changes.add({body: "123"})
       waitsForPromise =>
-        @proxy.changes.add({body: "123"}, {immediate: true}).then =>
+        @proxy.changes.commit().then =>
           expect(DatabaseStore.inTransaction).toHaveBeenCalled()
           expect(DatabaseStore.inTransaction.calls.length).toBe 1
 
     it "persist the applied changes", ->
-      spyOn(DatabaseStore, "findBy").andReturn(Promise.resolve(@draft))
+      spyOn(DatabaseStore, "run").andReturn(Promise.resolve(@draft))
+      @proxy.changes.add({body: "123"})
       waitsForPromise =>
-        @proxy.changes.add({body: "123"}, {immediate: true}).then =>
+        @proxy.changes.commit().then =>
           expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
           updated = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
           expect(updated.body).toBe "123"
 
-    it "queues a SyncbackDraftTask", ->
-      spyOn(DatabaseStore, "findBy").andReturn(Promise.resolve(@draft))
-      waitsForPromise =>
-        @proxy.changes.add({body: "123"}, {immediate: true}).then =>
-          expect(Actions.queueTask).toHaveBeenCalled()
-          task = Actions.queueTask.calls[0].args[0]
-          expect(task.draftClientId).toBe "client-id"
+    # Note: Syncback temporarily disabled
+    #
+    # it "queues a SyncbackDraftTask", ->
+    #   spyOn(DatabaseStore, "run").andReturn(Promise.resolve(@draft))
+    #   @proxy.changes.add({body: "123"})
+    #   waitsForPromise =>
+    #     @proxy.changes.commit().then =>
+    #       expect(Actions.queueTask).toHaveBeenCalled()
+    #       task = Actions.queueTask.calls[0].args[0]
+    #       expect(task.draftClientId).toBe "client-id"
 
     it "doesn't queues a SyncbackDraftTask if no Syncback is passed", ->
-      spyOn(DatabaseStore, "findBy").andReturn(Promise.resolve(@draft))
+      spyOn(DatabaseStore, "run").andReturn(Promise.resolve(@draft))
       waitsForPromise =>
         @proxy.changes.commit({noSyncback: true}).then =>
           expect(Actions.queueTask).not.toHaveBeenCalled()
 
     describe "when findBy does not return a draft", ->
       it "continues and persists it's local draft reference, so it is resaved and draft editing can continue", ->
-        spyOn(DatabaseStore, "findBy").andReturn(Promise.resolve(null))
+        spyOn(DatabaseStore, "run").andReturn(Promise.resolve(null))
+        @proxy.changes.add({body: "123"})
         waitsForPromise =>
-          @proxy.changes.add({body: "123"}, {immediate: true}).then =>
+          @proxy.changes.commit().then =>
             expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
             updated = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
             expect(updated.body).toBe "123"
-            expect(Actions.queueTask).toHaveBeenCalled()
-            task = Actions.queueTask.calls[0].args[0]
-            expect(task.draftClientId).toBe "client-id"
 
     it "does nothing if the draft is marked as destroyed", ->
-      spyOn(DatabaseStore, "findBy").andReturn(Promise.resolve(@draft))
+      spyOn(DatabaseStore, "run").andReturn(Promise.resolve(@draft))
       spyOn(DatabaseStore, 'inTransaction').andCallThrough()
       waitsForPromise =>
         @proxy._destroyed = true
-        @proxy.changes.add({body: "123"}, {immediate: true}).then =>
+        @proxy.changes.add({body: "123"})
+        @proxy.changes.commit().then =>
           expect(DatabaseStore.inTransaction).not.toHaveBeenCalled()
 
   describe "draft pristine body", ->

@@ -1,7 +1,7 @@
 import React from 'react';
 import NylasStore from 'nylas-store'
 import Actions from '../actions'
-import {FixedPopover} from 'nylas-component-kit';
+import FixedPopover from '../../components/fixed-popover'
 
 
 const CONTAINER_ID = "nylas-popover-container";
@@ -40,10 +40,11 @@ class PopoverStore extends NylasStore {
     });
   };
 
-  openPopover = (element, originRect, direction, callback = ()=> {})=> {
+  openPopover = (element, {originRect, direction, fallbackDirection, callback = ()=> {}})=> {
     const props = {
-      originRect: originRect,
-      direction: direction,
+      direction,
+      originRect,
+      fallbackDirection,
     };
 
     if (this.isOpen) {

@@ -4,6 +4,7 @@ Rx = require 'rx-lite'
 Utils = require '../models/utils'
 Actions = require '../actions'
 NylasStore = require 'nylas-store'
+Thread = require '../models/thread'
 Contact = require '../models/contact'
 MessageStore = require './message-store'
 AccountStore = require './account-store'
@@ -20,6 +21,8 @@ class FocusedContactsStore extends NylasStore
   sortedContacts: -> @_currentContacts
 
   focusedContact: -> @_currentFocusedContact
+
+  focusedContactThreads: -> @_currentParticipantThreads ? []
 
   # We need to wait now for the MessageStore to grab all of the
   # appropriate messages for the given thread.
@@ -57,10 +60,12 @@ class FocusedContactsStore extends NylasStore
     @_unsubFocusedContact = null
     @_currentFocusedContact = null
     @_currentThread = null
+    @_currentParticipantThreads = []
 
   _onFocusContact: (contact) =>
     @_unsubFocusedContact?.dispose()
     @_unsubFocusedContact = null
+    @_currentParticipantThreads = []
 
     if contact
       query = DatabaseStore.findBy(Contact, {
@@ -70,8 +75,14 @@ class FocusedContactsStore extends NylasStore
       @_unsubFocusedContact = Rx.Observable.fromQuery(query).subscribe (match) =>
         @_currentFocusedContact = match ? contact
         @trigger()
+      @_loadCurrentParticipantThreads(contact.email)
     else
       @_currentFocusedContact = null
+      @trigger()
+
+  _loadCurrentParticipantThreads: (email) ->
+    DatabaseStore.findAll(Thread).where(Thread.attributes.participants.contains(email)).limit(100).then (threads = []) =>
+      @_currentParticipantThreads = threads
       @trigger()
 
   # We score everyone to determine who's the most relevant to display in

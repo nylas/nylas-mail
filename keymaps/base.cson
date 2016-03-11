@@ -46,9 +46,9 @@
 
   ### Universal N1 commands. ###
   'enter'    : 'core:focus-item'
-  'delete'   : 'core:remove-from-view'
+  'delete'   : 'application:remove-from-view'
   'escape'   : 'application:pop-sheet'
-  'backspace': 'core:remove-from-view'
+  'backspace': 'application:remove-from-view'
   'cmdctrl-,': 'application:open-preferences'
 
   'pageup'        : 'core:messages-page-up'
@@ -65,6 +65,10 @@
   'cmdctrl-7': 'application:select-account-6'
   'cmdctrl-8': 'application:select-account-7'
   'cmdctrl-9': 'application:select-account-8'
+
+  'cmdctrl-f': 'application:find-in-thread'
+  'cmdctrl-g': 'application:find-in-thread-next'
+  'cmdctrl-shift-g': 'application:find-in-thread-previous'
 
 'body *[contenteditable].contenteditable':
   ### Basic formatting commands ###

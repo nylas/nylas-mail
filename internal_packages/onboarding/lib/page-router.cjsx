@@ -68,7 +68,7 @@ class PageRouter extends React.Component
       background = "linear-gradient(to top, #f6f7f8, #{gradient})"
       height = 200
     else
-      background = "linear-gradient(to top, #f6f7f8 0%,  rgba(255,255,255,0) 100%), linear-gradient(to right, #e1e58f 0%, #a8d29e 50%, #8bc9c9 100%)"
+      background = "linear-gradient(to top, #f6f7f8 0%,  rgba(255,255,255,0) 100%), linear-gradient(to right, #E7EBAE 0%, #C1DFBC 50%, #AED7D7 100%)"
       height = 330
     <div className="page-gradient" key={"#{@state.page}-gradient"} style={background: background, height: height}/>
 

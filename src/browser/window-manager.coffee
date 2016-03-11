@@ -133,7 +133,7 @@ class WindowManager
 
   # Returns a new onboarding window
   #
-  ensureOnboardingWindow: ({welcome}={}) ->
+  ensureOnboardingWindow: ({welcome, provider}={}) ->
     existing = @onboardingWindow()
     if existing
       existing.focus()
@@ -147,6 +147,7 @@ class WindowManager
         windowProps:
           page: 'account-choose'
           uniqueId: 'onboarding'
+          pageData: {provider}
 
       if welcome
         options.title = "Welcome to N1"

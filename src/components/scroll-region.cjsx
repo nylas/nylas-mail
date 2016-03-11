@@ -2,11 +2,21 @@ _ = require 'underscore'
 React = require 'react/addons'
 {Utils} = require 'nylas-exports'
 classNames = require 'classnames'
+ScrollbarTicks = require './scrollbar-ticks'
 
 class Scrollbar extends React.Component
   @displayName: 'Scrollbar'
   @propTypes:
     scrollTooltipComponent: React.PropTypes.func
+    # A scrollbarTickProvider is any object that has the `listen` and
+    # `scrollbarTicks` method. Since ScrollRegions tend to encompass large
+    # render trees it's more efficent for the scrollbar to listen for its
+    # own state then have it passed down as new props and potentially
+    # cause re-renders of the whole scroll region. The `scrollbarTicks`
+    # method must return an array of numbers between 0 and 1 which
+    # represent the height percentages at which tick marks will be
+    # rendered.
+    scrollbarTickProvider: React.PropTypes.object
     getScrollRegion: React.PropTypes.func
 
   constructor: (@props) ->
@@ -17,9 +27,19 @@ class Scrollbar extends React.Component
       viewportScrollTop: 0
       dragging: false
       scrolling: false
+      scrollbarTicks: []
+
+  componentDidMount: ->
+    if @props.scrollbarTickProvider?.listen
+      @_tickUnsub = @props.scrollbarTickProvider.listen(@_onTickProviderChange)
+
+  shouldComponentUpdate: (nextProps, nextState) =>
+    not Utils.isEqualReact(nextProps, @props) or
+    not Utils.isEqualReact(nextState, @state)
 
   componentWillUnmount: =>
     @_onHandleUp({preventDefault: -> })
+    @_tickUnsub?()
 
   setStateFromScrollRegion: (state) ->
     @setState(state)
@@ -29,6 +49,7 @@ class Scrollbar extends React.Component
       'scrollbar-track': true
       'dragging': @state.dragging
       'scrolling': @state.scrolling
+      'with-ticks': @state.scrollbarTicks.length > 0
 
     tooltip = []
     if @props.scrollTooltipComponent and @state.dragging
@@ -36,6 +57,7 @@ class Scrollbar extends React.Component
 
     <div className={containerClasses} style={@_scrollbarWrapStyles()} onMouseEnter={@recomputeDimensions}>
       <div className="scrollbar-track-inner" ref="track" onClick={@_onScrollJump}>
+        {@_renderScrollbarTicks()}
         <div className="scrollbar-handle" onMouseDown={@_onHandleDown} style={@_scrollbarHandleStyles()} ref="handle" onClick={@_onHandleClick} >
           <div className="tooltip">{tooltip}</div>
         </div>
@@ -46,6 +68,15 @@ class Scrollbar extends React.Component
     if @props.getScrollRegion?
       @props.getScrollRegion()._recomputeDimensions(options)
     @_recomputeDimensions(options)
+
+  _onTickProviderChange: =>
+    if not @props.scrollbarTickProvider?.scrollbarTicks
+      throw new Error("The scrollbarTickProvider must implement `scrollbarTicks`")
+    @setState scrollbarTicks: @props.scrollbarTickProvider.scrollbarTicks()
+
+  _renderScrollbarTicks: ->
+    return false unless @state.scrollbarTicks.length > 0
+    <ScrollbarTicks ticks={@state.scrollbarTicks}/>
 
   _recomputeDimensions: ({useCachedValues}) =>
     if not useCachedValues
@@ -115,6 +146,7 @@ class ScrollRegion extends React.Component
     onScrollEnd: React.PropTypes.func
     className: React.PropTypes.string
     scrollTooltipComponent: React.PropTypes.func
+    scrollbarTickProvider: React.PropTypes.object
     children: React.PropTypes.oneOfType([React.PropTypes.element, React.PropTypes.array])
     getScrollbar: React.PropTypes.func
 
@@ -193,6 +225,7 @@ class ScrollRegion extends React.Component
     if not @props.getScrollbar
       @_scrollbarComponent ?= <Scrollbar
         ref="scrollbar"
+        scrollbarTickProvider={@props.scrollbarTickProvider}
         scrollTooltipComponent={@props.scrollTooltipComponent}
         getScrollRegion={@_getSelf} />
 

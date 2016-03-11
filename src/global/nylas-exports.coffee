@@ -92,16 +92,16 @@ class NylasExports
   # Tasks
   # These need to be required immediately to populate the TaskRegistry so
   # we know how to deserialized saved or IPC-sent tasks.
-  @require "EventRSVPTask", 'flux/tasks/event-rsvp'
-  @require "SendDraftTask", 'flux/tasks/send-draft'
-  @require "DestroyDraftTask", 'flux/tasks/destroy-draft'
+  @require "EventRSVPTask", 'flux/tasks/event-rsvp-task'
+  @require "SendDraftTask", 'flux/tasks/send-draft-task'
+  @require "DestroyDraftTask", 'flux/tasks/destroy-draft-task'
   @require "ChangeMailTask", 'flux/tasks/change-mail-task'
   @require "ChangeLabelsTask", 'flux/tasks/change-labels-task'
   @require "ChangeFolderTask", 'flux/tasks/change-folder-task'
   @require "SyncbackCategoryTask", 'flux/tasks/syncback-category-task'
   @require "DestroyCategoryTask", 'flux/tasks/destroy-category-task'
   @require "ChangeUnreadTask", 'flux/tasks/change-unread-task'
-  @require "SyncbackDraftTask", 'flux/tasks/syncback-draft'
+  @require "SyncbackDraftTask", 'flux/tasks/syncback-draft-task'
   @require "ChangeStarredTask", 'flux/tasks/change-starred-task'
   @require "DestroyModelTask", 'flux/tasks/destroy-model-task'
   @require "SyncbackModelTask", 'flux/tasks/syncback-model-task'
@@ -130,7 +130,8 @@ class NylasExports
   @require "FocusedContactsStore", 'flux/stores/focused-contacts-store'
   @require "PreferencesUIStore", 'flux/stores/preferences-ui-store'
   @require "PopoverStore", 'flux/stores/popover-store'
-
+  @require "ModalStore", 'flux/stores/modal-store'
+  @require "SearchableComponentStore", 'flux/stores/searchable-component-store'
   @require "MessageBodyProcessor", 'flux/stores/message-body-processor'
   @require "MailRulesTemplates", 'mail-rules-templates'
   @require "MailRulesProcessor", 'mail-rules-processor'
@@ -160,6 +161,7 @@ class NylasExports
   # Utils
   @load "Utils", 'flux/models/utils'
   @load "DOMUtils", 'dom-utils'
+  @load "VirtualDOMUtils", 'virtual-dom-utils'
   @load "CanvasUtils", 'canvas-utils'
   @load "RegExpUtils", 'regexp-utils'
   @load "DateUtils", 'date-utils'
@@ -171,6 +173,8 @@ class NylasExports
   @load "UndoManager", 'undo-manager'
   @load "SoundRegistry", 'sound-registry'
   @load "NativeNotifications", 'native-notifications'
+
+  @load "SearchableComponentMaker", 'searchable-components/searchable-component-maker'
 
   @load "QuotedHTMLTransformer", 'services/quoted-html-transformer'
   @load "QuotedPlainTextTransformer", 'services/quoted-plain-text-transformer'

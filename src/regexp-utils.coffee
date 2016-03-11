@@ -19,20 +19,39 @@ RegExpUtils =
   # NOTE: This does not match full urls with `http` protocol components.
   domainRegex: -> new RegExp(/^(?!:\/\/)([a-zA-Z0-9-_]+\.)*[a-zA-Z0-9][a-zA-Z0-9-_]+\.[a-zA-Z]{2,11}?/i)
 
+  # https://www.safaribooksonline.com/library/view/regular-expressions-cookbook/9780596802837/ch07s16.html
+  ipAddressRegex: -> new RegExp(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/i)
+
   # Test cases: https://regex101.com/r/pD7iS5/2
   # http://daringfireball.net/2010/07/improved_regex_for_matching_urls
   # https://mathiasbynens.be/demo/url-regex
   # This is the Gruber Regex.
-  urlRegex: -> new RegExp(/^\b((?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))$/)
+  urlRegex: ({matchEntireString} = {}) ->
+    if matchEntireString
+      new RegExp(/^\b((?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))$/)
+    else
+      new RegExp(/\b((?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))$/)
 
   # Test cases: https://regex101.com/r/jD5zC7/2
-  # Retruns the following capturing groups:
+  # Returns the following capturing groups:
   # 1. start of the opening a tag to href="
   # 2. The contents of the href without quotes
   # 3. the rest of the opening a tag
   # 4. the contents of the a tag
   # 5. the closing tag
   linkTagRegex: -> new RegExp(/(<a.*?href\s*?=\s*?['"])(.*?)(['"].*?>)([\s\S]*?)(<\/a>)/gim)
+
+  # Test cases: https://regex101.com/r/cK0zD8/4
+  # Catches link tags containing which are:
+  # - Non empty
+  # - Not a mailto: link
+  # Returns the following capturing groups:
+  # 1. start of the opening a tag to href="
+  # 2. The contents of the href without quotes
+  # 3. the rest of the opening a tag
+  # 4. the contents of the a tag
+  # 5. the closing tag
+  urlLinkTagRegex: -> new RegExp(/(<a.*?href\s*?=\s*?['"])((?!mailto).+?)(['"].*?>)([\s\S]*?)(<\/a>)/gim)
 
   # https://regex101.com/r/zG7aW4/3
   imageTagRegex: -> /<img\s+[^>]*src="([^"]*)"[^>]*>/g

@@ -98,7 +98,7 @@ class NylasLongConnection
     @withCursor (cursor) =>
       return if @state is NylasLongConnection.State.Ended
       console.log("Delta Connection: Starting for account #{@_accountId}, token #{token}, with cursor #{cursor}")
-      options = url.parse("#{@_api.APIRoot}/delta/streaming?cursor=#{cursor}&exclude_folders=false&exclude_metadata=false")
+      options = url.parse("#{@_api.APIRoot}/delta/streaming?cursor=#{cursor}&exclude_folders=false&exclude_metadata=false&exclude_account=false")
       options.auth = "#{token}:"
 
       if @_api.APIRoot.indexOf('https') is -1

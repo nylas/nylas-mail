@@ -1,10 +1,15 @@
 @import "ui-variables";
-
+@header-color: #afafaf;
 
 // TODO
 // Most of these styles are duplicated from the original popover.less
 // Eventually, we will get rid of the original popover and switch to this
 // implementation
+.fixed-popover-blur-trap {
+  position: absolute;
+  z-index: 40;
+}
+
 .fixed-popover-container {
   position: absolute;
   z-index: 40;
@@ -15,6 +20,34 @@
     border-radius: @border-radius-base;
     box-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.15), 0 -0.5px 0 rgba(0, 0, 0, 0.15), 0.5px 0 0 rgba(0, 0, 0, 0.15), -0.5px 0 0 rgba(0, 0, 0, 0.15), 0 4px 7px rgba(0,0,0,0.15);
     overflow: hidden;
+
+    .menu {
+      z-index:1;
+      position: relative;
+      .content-container {
+        background: none;
+      }
+      .header-container {
+        border-top-left-radius: @border-radius-base;
+        border-top-right-radius: @border-radius-base;
+        background: none;
+        color: @header-color;
+        font-weight: bold;
+        border-bottom: none;
+        overflow: hidden;
+        padding: @padding-base-vertical * 1.5  @padding-base-horizontal;
+      }
+      .footer-container {
+        border-bottom-left-radius: @border-radius-base;
+        border-bottom-right-radius: @border-radius-base;
+        background: none;
+
+        .item:last-child:hover {
+            border-bottom-left-radius: @border-radius-base;
+            border-bottom-right-radius: @border-radius-base;
+        }
+      }
+    }
 
     input[type=text] {
       border: 1px solid darken(@background-secondary, 10%);
@@ -47,5 +80,17 @@
     -webkit-mask-image: url('images/tooltip/tooltip-bg-pointer-shadow@2x.png');
     background-color: fade(@black, 22%);
   }
+}
 
+body.platform-win32 {
+  .fixed-popover {
+    border-radius: 0;
+
+    .menu {
+      .header-container,
+      .footer-container {
+        border-radius: 0;
+      }
+    }
+  }
 }

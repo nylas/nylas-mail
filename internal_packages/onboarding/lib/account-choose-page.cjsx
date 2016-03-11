@@ -18,15 +18,19 @@ class AccountChoosePage extends React.Component
   componentWillUnmount: ->
     @_usub?()
 
+  componentDidMount: ->
+    if @props.pageData.provider
+      providerData = _.findWhere(Providers, name: @props.pageData.provider)
+      if providerData
+        @_onChooseProvider(providerData)
+
   render: =>
     <div className="page account-choose">
       <div className="quit" onClick={ -> OnboardingActions.closeWindow() }>
         <RetinaImg name="onboarding-close.png" mode={RetinaImg.Mode.ContentPreserve}/>
       </div>
 
-      <RetinaImg url="nylas://onboarding/assets/nylas-pictographB@2x.png" mode={RetinaImg.Mode.ContentPreserve} style={zoom: 0.29, opacity: 0.55} className="logo"/>
-
-      <div className="caption" style={marginTop: 15, marginBottom:20}>Select your email provider</div>
+      <div className="caption" style={marginTop: 33, marginBottom:25}>Select your email provider:</div>
 
       {@_renderProviders()}
 

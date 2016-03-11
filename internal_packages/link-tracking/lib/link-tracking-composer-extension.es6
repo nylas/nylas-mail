@@ -27,7 +27,7 @@ export default class LinkTrackingComposerExtension extends ComposerExtension {
       const messageUid = uuid.v4().replace(/-/g, "");
 
       // loop through all <a href> elements, replace with redirect links and save mappings
-      draftBody.unquoted = draftBody.unquoted.replace(RegExpUtils.linkTagRegex(), (match, prefix, url, suffix, content, closingTag) => {
+      draftBody.unquoted = draftBody.unquoted.replace(RegExpUtils.urlLinkTagRegex(), (match, prefix, url, suffix, content, closingTag) => {
         const encoded = encodeURIComponent(url);
         // the links param is an index of the link array.
         const redirectUrl = `${PLUGIN_URL}/link/${draft.accountId}/${messageUid}/${links.length}?redirect=${encoded}`;
@@ -37,7 +37,6 @@ export default class LinkTrackingComposerExtension extends ComposerExtension {
 
       // save the draft
       session.changes.add({body: draftBody.body});
-      session.changes.commit();
 
       // save the link info to draft metadata
       metadata.uid = messageUid;

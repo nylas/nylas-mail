@@ -7,7 +7,6 @@ classNames = require 'classnames'
  FocusedContentStore} = require 'nylas-exports'
 
 {Menu,
- Popover,
  RetinaImg,
  TimeoutTransitionGroup,
  InjectedComponentSet} = require 'nylas-component-kit'

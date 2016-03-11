@@ -12,8 +12,8 @@ TaskQueueStatusStore = require './task-queue-status-store'
 FocusedPerspectiveStore = require './focused-perspective-store'
 FocusedContentStore = require './focused-content-store'
 
-SendDraftTask = require '../tasks/send-draft'
-DestroyDraftTask = require '../tasks/destroy-draft'
+SendDraftTask = require '../tasks/send-draft-task'
+DestroyDraftTask = require '../tasks/destroy-draft-task'
 
 InlineStyleTransformer = require '../../services/inline-style-transformer'
 SanitizeTransformer = require '../../services/sanitize-transformer'
@@ -546,7 +546,8 @@ class DraftStore
     @sessionForClientId(messageClientId).then (session) ->
       files = _.clone(session.draft().files) ? []
       files = _.reject files, (f) -> f.id is file.id
-      session.changes.add({files}, immediate: true)
+      session.changes.add({files})
+      session.changes.commit()
 
   _onDraftSendingFailed: ({draftClientId, threadId, errorMessage}) ->
     @_draftsSending[draftClientId] = false

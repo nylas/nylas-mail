@@ -1,0 +1,19 @@
+@import "ui-variables";
+
+.nylas-modal-container {
+  position: absolute;
+  z-index: 40;
+
+  .modal {
+    position: absolute;
+    background-color: @background-primary;
+    border-radius: @border-radius-base;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.20), 0 0 1px rgba(0, 0, 0, 0.7);
+  }
+}
+
+body.platform-win32 {
+  .modal {
+    border-radius: 0;
+  }
+}

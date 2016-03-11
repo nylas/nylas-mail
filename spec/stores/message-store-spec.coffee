@@ -135,7 +135,6 @@ describe "MessageStore", ->
   describe "when toggling expansion of all messages", ->
     beforeEach ->
       MessageStore._items = [testMessage1, testMessage2, testMessage3]
-      spyOn(MessageStore, '_fetchExpandedBodies')
       spyOn(MessageStore, '_fetchExpandedAttachments')
 
     it 'should expand all when at default state', ->

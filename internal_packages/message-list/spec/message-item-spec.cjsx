@@ -98,7 +98,7 @@ describe "MessageItem", ->
     spyOn(FileDownloadStore, 'downloadDataForFiles').andCallFake (ids) ->
       return {'file_1_id': download, 'file_inline_downloading_id': download_inline}
 
-    spyOn(MessageBodyProcessor, 'addToCache').andCallFake ->
+    spyOn(MessageBodyProcessor, '_addToCache').andCallFake ->
 
     @message = new Message
       id: "111"

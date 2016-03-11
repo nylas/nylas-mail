@@ -674,7 +674,6 @@ class NylasEnvConstructor extends Model
             window.requestAnimationFrame =>
               @displayWindow() unless initializeInBackground
 
-              @registerCommands()
               @loadConfig()
               @keymaps.loadBundledKeymaps()
               @themes.loadBaseStylesheets()
@@ -695,14 +694,6 @@ class NylasEnvConstructor extends Model
     document.body.classList.add("window-loaded")
     @restoreWindowDimensions()
     @getCurrentWindow().setMinimumSize(875, 250)
-
-  registerCommands: ->
-    {resourcePath} = @getLoadSettings()
-    CommandInstaller = require './command-installer'
-    CommandInstaller.installN1Command resourcePath, false, (error) ->
-      console.warn error.message if error?
-    CommandInstaller.installApmCommand resourcePath, false, (error) ->
-      console.warn error.message if error?
 
   # Call this method when establishing a secondary application window
   # displaying a specific set of packages.

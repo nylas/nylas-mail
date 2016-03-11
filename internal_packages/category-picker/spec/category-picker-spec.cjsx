@@ -1,8 +1,7 @@
 _ = require 'underscore'
 React = require "react/addons"
 ReactTestUtils = React.addons.TestUtils
-CategoryPicker = require '../lib/category-picker'
-{Popover} = require 'nylas-component-kit'
+CategoryPickerPopover = require '../lib/category-picker-popover'
 
 {Utils,
  Category,
@@ -20,7 +19,7 @@ CategoryPicker = require '../lib/category-picker'
 
 {Categories} = require 'nylas-observables'
 
-describe 'CategoryPicker', ->
+describe 'CategoryPickerPopover', ->
   beforeEach ->
     CategoryStore._categoryCache = {}
 
@@ -44,6 +43,7 @@ describe 'CategoryPicker', ->
     )
     spyOn(CategoryStore, "getStandardCategory").andReturn @inboxCategory
     spyOn(AccountStore, "accountForItems").andReturn @account
+    spyOn(Actions, "closePopover")
 
     # By default we're going to set to "inbox". This has implications for
     # what categories get filtered out of the list.
@@ -55,11 +55,8 @@ describe 'CategoryPicker', ->
 
     @testThread = new Thread(id: 't1', subject: "fake", accountId: TEST_ACCOUNT_ID, categories: [])
     @picker = ReactTestUtils.renderIntoDocument(
-      <CategoryPicker thread={@testThread} />
+      <CategoryPickerPopover threads={[@testThread]} account={@account} />
     )
-
-    @popover = ReactTestUtils.findRenderedComponentWithType @picker, Popover
-    @popover.open()
 
   describe 'when using labels', ->
     beforeEach ->
@@ -71,7 +68,7 @@ describe 'CategoryPicker', ->
 
       @testThread = new Thread(id: 't1', subject: "fake", accountId: TEST_ACCOUNT_ID, categories: [])
       @picker = ReactTestUtils.renderIntoDocument(
-        <CategoryPicker thread={@testThread} />
+        <CategoryPickerPopover threads={[@testThread]} account={@account} />
       )
 
     it 'lists the desired categories', ->
@@ -131,9 +128,8 @@ describe 'CategoryPicker', ->
       spyOn(Actions, "queueTask")
 
     it "closes the popover", ->
-      spyOn(@popover, "close")
       @picker._onSelectCategory { usage: 0, category: "asdf" }
-      expect(@popover.close).toHaveBeenCalled()
+      expect(Actions.closePopover).toHaveBeenCalled()
 
     describe "when selecting a category currently on all the selected items", ->
       it "fires a task to remove the category", ->

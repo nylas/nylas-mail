@@ -177,7 +177,7 @@ describe "TaskQueue", ->
 
     it "doesn't process blocked tasks", ->
       class BlockedByTaskA extends Task
-        isDependentTask: (other) -> other instanceof TaskSubclassA
+        isDependentOnTask: (other) -> other instanceof TaskSubclassA
 
       taskA = new TaskSubclassA()
       otherTask = new Task()
@@ -199,9 +199,9 @@ describe "TaskQueue", ->
       expect(taskA.runRemote).toHaveBeenCalled()
       expect(blockedByTaskA.runRemote).not.toHaveBeenCalled()
 
-    it "doesn't block itself, even if the isDependentTask method is implemented naively", ->
+    it "doesn't block itself, even if the isDependentOnTask method is implemented naively", ->
       class BlockingTask extends Task
-        isDependentTask: (other) -> other instanceof BlockingTask
+        isDependentOnTask: (other) -> other instanceof BlockingTask
 
       blockedTask = new BlockingTask()
       spyOn(blockedTask, "runRemote").andCallFake -> Promise.resolve()
@@ -233,7 +233,7 @@ describe "TaskQueue", ->
           return Promise.reject(testError)
 
       class TaskBB extends Task
-        isDependentTask: (other) -> other instanceof TaskAA
+        isDependentOnTask: (other) -> other instanceof TaskAA
         performRemote: spyBBRemote
 
       @taskAA = new TaskAA

@@ -1,6 +1,7 @@
 _ = require 'underscore'
 React = require 'react'
 classNames = require 'classnames'
+FindInThread = require './find-in-thread'
 MessageItemContainer = require './message-item-container'
 
 {Utils,
@@ -13,11 +14,13 @@ MessageItemContainer = require './message-item-container'
  WorkspaceStore,
  ChangeLabelsTask,
  ComponentRegistry,
- ChangeStarredTask} = require("nylas-exports")
+ ChangeStarredTask,
+ SearchableComponentStore
+ SearchableComponentMaker} = require("nylas-exports")
 
 {Spinner,
  RetinaImg,
- MailLabel,
+ MailLabelSet,
  ScrollRegion,
  MailImportantIcon,
  InjectedComponent,
@@ -88,7 +91,7 @@ class MessageList extends React.Component
     if newDraftClientIds.length > 0
       @_focusDraft(@_getMessageContainer(newDraftClientIds[0]))
 
-  _keymapHandlers: ->
+  _globalKeymapHandlers: ->
     'application:reply': => @_createReplyOrUpdateExistingDraft('reply')
     'application:reply-all': => @_createReplyOrUpdateExistingDraft('reply-all')
     'application:forward': => @_onForward()
@@ -190,10 +193,16 @@ class MessageList extends React.Component
       "messages-wrap": true
       "ready": not @state.loading
 
-    <KeyCommandsRegion globalHandlers={@_keymapHandlers()}>
-      <div className="message-list" id="message-list">
+    messageListClass = classNames
+      "message-list": true
+      "height-fix": SearchableComponentStore.searchTerm isnt null
+
+    <KeyCommandsRegion globalHandlers={@_globalKeymapHandlers()}>
+      <FindInThread ref="findInThread" />
+      <div className={messageListClass} id="message-list">
         <ScrollRegion tabIndex="-1"
              className={wrapClass}
+             scrollbarTickProvider={SearchableComponentStore}
              scrollTooltipComponent={MessageListScrollTooltip}
              ref="messageWrap">
           {@_renderSubject()}
@@ -218,7 +227,7 @@ class MessageList extends React.Component
       <MailImportantIcon thread={@state.currentThread}/>
       <div style={flex: 1}>
         <span className="message-subject">{subject}</span>
-        {@_renderLabels()}
+        <MailLabelSet removable={true} thread={@state.currentThread} includeCurrentCategories={true} />
       </div>
       {@_renderIcons()}
     </div>
@@ -242,14 +251,6 @@ class MessageList extends React.Component
       <div onClick={@_onToggleAllMessagesExpanded}>
         <RetinaImg name={"collapse.png"} title={"Collapse All"} mode={RetinaImg.Mode.ContentIsMask}/>
       </div>
-
-  _renderLabels: =>
-    account = AccountStore.accountForId(@state.currentThread.accountId)
-    return false unless account.usesLabels()
-    labels = @state.currentThread.sortedCategories()
-    labels = _.reject labels, (l) -> l.name is 'important'
-    labels.map (label) =>
-      <MailLabel label={label} key={label.id} onRemove={ => @_onRemoveLabel(label) }/>
 
   _renderReplyArea: =>
     <div className="footer-reply-area-wrap" onClick={@_onClickReplyArea} key='reply-area'>
@@ -280,10 +281,6 @@ class MessageList extends React.Component
     node = React.findDOMNode(@)
     Actions.printThread(@state.currentThread, node.innerHTML)
 
-  _onRemoveLabel: (label) =>
-    task = new ChangeLabelsTask(thread: @state.currentThread, labelsToRemove: [label])
-    Actions.queueTask(task)
-
   _onClickReplyArea: =>
     return unless @state.currentThread
     @_createReplyOrUpdateExistingDraft(@_replyType())
@@ -304,7 +301,7 @@ class MessageList extends React.Component
       isBeforeReplyArea = isLastMsg and hasReplyArea
 
       elements.push(
-        <MessageItemContainer key={idx}
+        <MessageItemContainer key={message.clientId}
                               ref={"message-container-#{message.clientId}"}
                               thread={@state.currentThread}
                               message={message}
@@ -414,4 +411,4 @@ class MessageList extends React.Component
     currentThread: MessageStore.thread()
     loading: MessageStore.itemsLoading()
 
-module.exports = MessageList
+module.exports = SearchableComponentMaker.extend(MessageList)

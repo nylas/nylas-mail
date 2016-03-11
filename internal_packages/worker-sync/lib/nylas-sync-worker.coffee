@@ -106,23 +106,54 @@ class NylasSyncWorker
     # we'll backoff and restart the timer.
     @_resumeTimer.cancel()
 
-    @fetchCollection('threads')
-    if @_account.usesLabels()
-      @fetchCollection('labels', {initialPageSize: 1000})
-    if @_account.usesFolders()
-      @fetchCollection('folders', {initialPageSize: 1000})
-    @fetchCollection('drafts')
-    @fetchCollection('contacts')
-    @fetchCollection('calendars')
-    @fetchCollection('events')
+    needed = [
+      {model: 'threads'},
+      {model: "#{@_account.organizationUnit}s", initialPageSize: 1000}
+      {model: 'drafts'},
+      {model: 'contacts'},
+      {model: 'calendars'},
+      {model: 'events'},
+    ].filter ({model}) =>
+      @shouldFetchCollection(model)
 
-  fetchCollection: (model, options = {}) ->
-    return unless @_state
+    return if needed.length is 0
+
+    @fetchAllMetadata =>
+      needed.forEach ({model, initialPageSize}) =>
+        @fetchCollection(model, initialPageSize)
+
+  fetchAllMetadata: (finished) ->
+    @_metadata = {}
+    makeMetadataRequest = (offset) =>
+      limit = 200
+      @_fetchWithErrorHandling
+        path: "/metadata"
+        qs: {limit, offset}
+        success: (data) =>
+          for metadatum in data
+            @_metadata[metadatum.object_id] ?= []
+            @_metadata[metadatum.object_id].push(metadatum)
+          if data.length is limit
+            makeMetadataRequest(offset + limit)
+          else
+            console.log("Retrieved #{offset + data.length} metadata objects")
+            finished()
+
+    if @_api.pluginsSupported
+      makeMetadataRequest(0)
+    else
+      finished()
+
+  shouldFetchCollection: (model) ->
+    return false unless @_state
     state = @_state[model] ? {}
 
-    return if state.complete and not options.force?
-    return if state.busy
+    return false if state.complete
+    return false if state.busy
+    return true
 
+  fetchCollection: (model, initialPageSize = INITIAL_PAGE_SIZE) ->
+    state = @_state[model] ? {}
     state.complete = false
     state.error = null
     state.busy = true
@@ -138,7 +169,7 @@ class NylasSyncWorker
       @fetchCollectionPage(model, {limit, offset})
     else
       @fetchCollectionPage(model, {
-        limit: options.initialPageSize ? INITIAL_PAGE_SIZE,
+        limit: initialPageSize,
         offset: 0
       })
 
@@ -146,23 +177,17 @@ class NylasSyncWorker
     @writeState()
 
   fetchCollectionCount: (model) ->
-    @_api.makeRequest
-      accountId: @_account.id
+    @_fetchWithErrorHandling
       path: "/#{model}"
-      returnsModel: false
-      qs:
-        view: 'count'
+      qs: {view: 'count'}
       success: (response) =>
-        return if @_terminated
         @updateTransferState(model, count: response.count)
-      error: (err) =>
-        return if @_terminated
-        @_resumeTimer.backoff()
-        @_resumeTimer.start()
 
   fetchCollectionPage: (model, params = {}) ->
     requestStartTime = Date.now()
     requestOptions =
+      metadataToAttach: @_metadata
+
       error: (err) =>
         return if @_terminated
         @_fetchCollectionPageError(model, params, err)
@@ -180,7 +205,7 @@ class NylasSyncWorker
         if moreToFetch
           nextParams = _.extend({}, params, {offset: lastReceivedIndex})
           nextParams.limit = Math.min(Math.round(params.limit * 1.5), MAX_PAGE_SIZE)
-          nextDelay = Math.max(0, 1000 - (Date.now() - requestStartTime))
+          nextDelay = Math.max(0, 1500 - (Date.now() - requestStartTime))
           setTimeout(( => @fetchCollectionPage(model, nextParams)), nextDelay)
 
         @updateTransferState(model, {
@@ -202,6 +227,21 @@ class NylasSyncWorker
   # it.
   _hasNoInbox: (json) ->
     return not _.any(json, (obj) -> obj.name is "inbox")
+
+  _fetchWithErrorHandling: ({path, qs, success, error}) ->
+    @_api.makeRequest
+      accountId: @_account.id
+      returnsModel: false
+      path: path
+      qs: qs
+      success: (response) =>
+        return if @_terminated
+        success(response) if success
+      error: (err) =>
+        return if @_terminated
+        @_resumeTimer.backoff()
+        @_resumeTimer.start()
+        error(err) if error
 
   _fetchCollectionPageError: (model, params, err) ->
     @_resumeTimer.backoff()

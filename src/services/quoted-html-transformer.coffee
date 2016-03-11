@@ -1,6 +1,7 @@
 _ = require 'underscore'
 crypto = require 'crypto'
 DOMUtils = require '../dom-utils'
+quoteStringDetector = require './quote-string-detector'
 
 class QuotedHTMLTransformer
 
@@ -49,18 +50,22 @@ class QuotedHTMLTransformer
       # It's possible that the entire body was quoted text and we've removed everything.
       return "<head></head><body></body>" unless doc.body
 
-      childNodes = doc.body.childNodes
-      extraTailBrTags = []
-      for i in [(childNodes.length - 1)..0] by -1
-        curr = childNodes[i]
-        next = childNodes[i - 1]
-        if curr and curr.nodeName == 'BR' and next and next.nodeName == 'BR'
-          extraTailBrTags.push(curr)
-        else
-          break
-
-      DOMUtils.Mutating.removeElements(extraTailBrTags)
+      @removeTrailingBr(doc)
+      DOMUtils.Mutating.removeElements(quoteStringDetector(doc))
       return doc.children[0].innerHTML
+
+  # Finds any trailing BR tags and removes them in place
+  removeTrailingBr: (doc) ->
+    childNodes = doc.body.childNodes
+    extraTailBrTags = []
+    for i in [(childNodes.length - 1)..0] by -1
+      curr = childNodes[i]
+      next = childNodes[i - 1]
+      if curr and curr.nodeName == 'BR' and next and next.nodeName == 'BR'
+        extraTailBrTags.push(curr)
+      else
+        break
+    DOMUtils.Mutating.removeElements(extraTailBrTags)
 
   appendQuotedHTML: (htmlWithoutQuotes, originalHTML) ->
     doc = @_parseHTML(originalHTML)
@@ -194,6 +199,5 @@ class QuotedHTMLTransformer
 
   _findBlockquoteQuotes: (doc) ->
     return Array::slice.call(doc.querySelectorAll('blockquote'))
-
 
 module.exports = new QuotedHTMLTransformer

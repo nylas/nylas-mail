@@ -29,6 +29,8 @@ class ChangeFolderTask extends ChangeMailTask
     else
       "Moving to folder…"
 
+  categoriesToAdd: => [@folder]
+
   description: ->
     return @taskDescription if @taskDescription
     folderText = ""
@@ -46,7 +48,7 @@ class ChangeFolderTask extends ChangeMailTask
     else
       return "Moved objects#{folderText}"
 
-  isDependentTask: (other) -> other instanceof SyncbackCategoryTask
+  isDependentOnTask: (other) -> other instanceof SyncbackCategoryTask
 
   performLocal: ->
     if not @folder
@@ -81,9 +83,9 @@ class ChangeFolderTask extends ChangeMailTask
 
   changesToModel: (model) ->
     if model instanceof Thread
-      {folders: [@folder]}
+      {categories: [@folder]}
     else
-      {folder: @folder}
+      {categories: [@folder]}
 
   requestBodyForModel: (model) ->
     if model instanceof Thread

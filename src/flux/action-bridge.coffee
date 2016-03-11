@@ -49,7 +49,7 @@ class ActionBridge
 
     # Observe all global actions and re-broadcast them to other windows
     Actions.globalActions.forEach (name) =>
-      callback = => @onRebroadcast(TargetWindows.ALL, name, arguments)
+      callback = (args...) => @onRebroadcast(TargetWindows.ALL, name, args)
       Actions[name].listen(callback, @)
 
     # Observe the database store (possibly other stores in the future), and
@@ -63,7 +63,7 @@ class ActionBridge
       # Observe all mainWindow actions fired in this window and re-broadcast
       # them to other windows so the central application stores can take action
       Actions.workWindowActions.forEach (name) =>
-        callback = => @onRebroadcast(TargetWindows.WORK, name, arguments)
+        callback = (args...) => @onRebroadcast(TargetWindows.WORK, name, args)
         Actions[name].listen(callback, @)
 
   onIPCMessage: (event, initiatorId, name, json) =>
@@ -90,7 +90,7 @@ class ActionBridge
       else
         throw new Error("#{@initiatorId} received unknown action-bridge event: #{name}")
 
-  onRebroadcast: (target, name, args...) =>
+  onRebroadcast: (target, name, args) =>
     if Actions[name]?.firing
       Actions[name].firing = false
       return
@@ -99,7 +99,7 @@ class ActionBridge
     args.forEach (arg) ->
       if arg instanceof Function
         throw new Error("ActionBridge cannot forward action argument of type `function` to work window.")
-      params.push(arg[0])
+      params.push(arg)
 
     json = JSON.stringify(params, Utils.registeredObjectReplacer)
 

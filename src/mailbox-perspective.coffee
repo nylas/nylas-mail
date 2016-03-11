@@ -10,10 +10,12 @@ SearchSubscription = require './search-subscription'
 ThreadCountsStore = require './flux/stores/thread-counts-store'
 MutableQuerySubscription = require './flux/models/mutable-query-subscription'
 Thread = require './flux/models/thread'
+Category = require './flux/models/category'
 Actions = require './flux/actions'
 
 # This is a class cluster. Subclasses are not for external use!
 # https://developer.apple.com/library/ios/documentation/General/Conceptual/CocoaEncyclopedia/ClassClusters/ClassClusters.html
+
 
 class MailboxPerspective
 
@@ -78,8 +80,24 @@ class MailboxPerspective
     return false unless _.isEqual(@accountIds, other.accountIds)
     true
 
+  isInbox: =>
+    @categoriesSharedName() is 'inbox'
+
+  isSent: =>
+    @categoriesSharedName() is 'sent'
+
+  isTrash: =>
+    @categoriesSharedName() is 'trash'
+
+  isArchive: =>
+    false
+
   categories: =>
     []
+
+  categoriesSharedName: =>
+    @_categoriesSharedName ?= Category.categoriesSharedName(@categories())
+    @_categoriesSharedName
 
   category: =>
     return null unless @categories().length is 1
@@ -96,47 +114,44 @@ class MailboxPerspective
   # that want to be included in this perspective
   #
   # Returns true if the accountIds are part of the current ids, or false
-  # otherwise. This means that it checks if I am moving trying to move threads
-  # betwee the same set of accounts:
+  # otherwise. This means that it checks if I am attempting to move threads
+  # between the same set of accounts:
   #
   # E.g.:
   # perpective = Starred for accountIds: a1, a2
   # thread1 has accountId a3
   # thread2 has accountId a2
   #
-  # perspective.canReceiveThreads([a2, a3]) -> false -> I cant move those threads to Starred
-  # perspective.canReceiveThreads([a2]) -> true -> I can move that thread to # Starred
-  canReceiveThreads: (accountIds) =>
+  # perspective.canReceiveThreadsFromAccountIds([a2, a3]) -> false -> I cant move those threads to Starred
+  # perspective.canReceiveThreadsFromAccountIds([a2]) -> true -> I can move that thread to # Starred
+  canReceiveThreadsFromAccountIds: (accountIds) =>
     return false unless accountIds and accountIds.length > 0
-    incomingIdsInCurrent = _.difference(accountIds, @accountIds).length is 0
-    return incomingIdsInCurrent
+    areIncomingIdsInCurrent = _.difference(accountIds, @accountIds).length is 0
+    return areIncomingIdsInCurrent
 
   receiveThreads: (threadsOrIds) =>
     throw new Error("receiveThreads: Not implemented in base class.")
 
-  removeThreads: (threadsOrIds) =>
-    # Don't throw an error here because we just want it to be a no op if not
-    # implemented
-    return
+  canArchiveThreads: (threads) =>
+    accounts = AccountStore.accountsForItems(threads)
+    accountsCanArchiveThreads = _.every(accounts, (acc) -> acc.canArchiveThreads())
+    return (not @isArchive()) and accountsCanArchiveThreads
 
-  # Whether or not the current MailboxPerspective can "archive" or "trash"
-  # Subclasses should call `super` if they override these methods
-  canArchiveThreads: =>
-    for aid in @accountIds
-      return false unless CategoryStore.getArchiveCategory(aid)
-    return true
+  canTrashThreads: (threads) =>
+    accounts = AccountStore.accountsForItems(threads)
+    accountCanTrashThreads = _.every(accounts, (acc) -> acc.canTrashThreads())
+    return (not @isTrash()) and accountCanTrashThreads
 
-  canTrashThreads: =>
-    for aid in @accountIds
-      return false unless CategoryStore.getTrashCategory(aid)
-    return true
+  tasksForRemovingItems: (threads) =>
+    if not threads instanceof Array
+      throw new Error("tasksForRemovingItems: you must pass an array of threads or thread ids")
+    []
 
-  isInbox: =>
-    false
 
 class SearchMailboxPerspective extends MailboxPerspective
   constructor: (@accountIds, @searchQuery) ->
     super(@accountIds)
+    @name = 'Search'
 
     unless _.isString(@searchQuery)
       throw new Error("SearchMailboxPerspective: Expected a `string` search query")
@@ -154,15 +169,16 @@ class SearchMailboxPerspective extends MailboxPerspective
   threads: =>
     new SearchSubscription(@searchQuery, @accountIds)
 
-  canReceiveThreads: =>
+  canReceiveThreadsFromAccountIds: =>
     false
 
-  canArchiveThreads: =>
-    false
-
-  canTrashThreads: =>
-    false
-
+  tasksForRemovingItems: (threads) =>
+    TaskFactory.tasksForApplyingCategories(
+      threads: threads,
+      categoriesToAdd: (accountId) =>
+        account = AccountStore.accountForId(accountId)
+        return [account.defaultFinishedCategory()]
+    )
 
 class DraftsMailboxPerspective extends MailboxPerspective
   constructor: (@accountIds) ->
@@ -183,8 +199,9 @@ class DraftsMailboxPerspective extends MailboxPerspective
     count += OutboxStore.itemsForAccount(aid).length for aid in @accountIds
     count
 
-  canReceiveThreads: =>
+  canReceiveThreadsFromAccountIds: =>
     false
+
 
 class StarredMailboxPerspective extends MailboxPerspective
   constructor: (@accountIds) ->
@@ -196,12 +213,13 @@ class StarredMailboxPerspective extends MailboxPerspective
   threads: =>
     query = DatabaseStore.findAll(Thread).where([
       Thread.attributes.accountId.in(@accountIds),
-      Thread.attributes.starred.equal(true)
+      Thread.attributes.starred.equal(true),
+      Thread.attributes.inAllMail.equal(true),
     ]).limit(0)
 
     return new MutableQuerySubscription(query, {asResultSet: true})
 
-  canReceiveThreads: =>
+  canReceiveThreadsFromAccountIds: =>
     super
 
   receiveThreads: (threadsOrIds) =>
@@ -209,11 +227,10 @@ class StarredMailboxPerspective extends MailboxPerspective
     task = new ChangeStarredTask({threads:threadsOrIds, starred: true})
     Actions.queueTask(task)
 
-  removeThreads: (threadsOrIds) =>
-    unless threadsOrIds instanceof Array
-      throw new Error("removeThreads: you must pass an array of threads or thread ids")
-    task = TaskFactory.taskForInvertingStarred(threads: threadsOrIds)
-    Actions.queueTask(task)
+  tasksForRemovingItems: (threads) =>
+    task = TaskFactory.taskForInvertingStarred(threads: threads)
+    return [task]
+
 
 class EmptyMailboxPerspective extends MailboxPerspective
   constructor: ->
@@ -223,13 +240,7 @@ class EmptyMailboxPerspective extends MailboxPerspective
     query = DatabaseStore.findAll(Thread).where(accountId: -1).limit(0)
     return new MutableQuerySubscription(query, {asResultSet: true})
 
-  canReceiveThreads: =>
-    false
-
-  canArchiveThreads: =>
-    false
-
-  canTrashThreads: =>
+  canReceiveThreadsFromAccountIds: =>
     false
 
 
@@ -247,7 +258,6 @@ class CategoryMailboxPerspective extends MailboxPerspective
       @iconName = "#{@_categories[0].name}.png"
     else
       @iconName = AccountStore.accountForId(@accountIds[0]).categoryIcon()
-
     @
 
   toJSON: =>
@@ -262,6 +272,12 @@ class CategoryMailboxPerspective extends MailboxPerspective
     query = DatabaseStore.findAll(Thread)
       .where([Thread.attributes.categories.containsAny(_.pluck(@categories(), 'id'))])
       .limit(0)
+
+    if @isSent()
+      query.order(Thread.attributes.lastMessageSentTimestamp.descending())
+
+    unless @categoriesSharedName() in ['spam', 'trash']
+      query.where(inAllMail: true)
 
     if @_categories.length > 1 and @accountIds.length < @_categories.length
       # The user has multiple categories in the same account selected, which
@@ -281,53 +297,82 @@ class CategoryMailboxPerspective extends MailboxPerspective
   categories: =>
     @_categories
 
-  isInbox: =>
-    @_categories[0].name is 'inbox'
+  isArchive: =>
+    _.every(@_categories, (cat) -> cat.isArchive())
 
-  canReceiveThreads: =>
+  canReceiveThreadsFromAccountIds: =>
     super and not _.any @_categories, (c) -> c.isLockedCategory()
-
-  canArchiveThreads: =>
-    for cat in @_categories
-      return false if cat.name in ["archive", "all", "sent"]
-    super
-
-  canTrashThreads: =>
-    for cat in @_categories
-      return false if cat.name in ["trash", "sent"]
-    super
 
   receiveThreads: (threadsOrIds) =>
     FocusedPerspectiveStore = require './flux/stores/focused-perspective-store'
-    currentCategories = FocusedPerspectiveStore.current().categories()
+    current= FocusedPerspectiveStore.current()
 
     # This assumes that the we don't have more than one category per accountId
     # attached to this perspective
     DatabaseStore.modelify(Thread, threadsOrIds).then (threads) =>
       tasks = TaskFactory.tasksForApplyingCategories
         threads: threads
-        categoriesToRemove: (accountId) -> _.filter(currentCategories, _.matcher({accountId}))
-        categoryToAdd: (accountId) => _.findWhere(@_categories, {accountId})
+        categoriesToRemove: (accountId) ->
+          if current.categoriesSharedName() in Category.LockedCategoryNames
+            return []
+          return _.filter(current.categories(), _.matcher({accountId}))
+        categoriesToAdd: (accountId) => [_.findWhere(@_categories, {accountId})]
       Actions.queueTasks(tasks)
 
-  removeThreads: (threadsOrIds) =>
-    unless threadsOrIds instanceof Array
-      throw new Error("removeThreads: you must pass an array of threads or thread ids")
+  # Public:
+  # Returns the tasks for removing threads from this perspective and moving them
+  # to a given target/destination based on a {RemovalTargetRuleset}.
+  #
+  # A RemovalTargetRuleset for categories is a map that represents the
+  # target/destination Category when removing threads from another given
+  # category, i.e., when removing them the current CategoryPerspective.
+  # Rulesets are of the form:
+  #
+  #   [categoryName] -> function(accountId): Category
+  #
+  # Keys correspond to category names, e.g.`{'inbox', 'trash',...}`, which
+  # correspond to the name of the categories associated with the current perspective
+  # Values are functions with the following signature:
+  #
+  #   `function(accountId): Category`
+  #
+  # If the value of the category name of the current perspective is null instead
+  # of a function, this method will return an empty array of tasks
+  #
+  # RemovalRulesets should also contain a key `other`, that is meant to be used
+  # when a key cannot be found for the current category name
+  #
+  # Example:
+  # perspective.tasksForRemovingItems(
+  #   threads,
+  #   {
+  #     # Move to trash if the current perspective is inbox
+  #     inbox: (accountId) -> CategoryStore.getTrashCategory(accountId),
+  #
+  #     # Do nothing if the current perspective is trash
+  #     trash: null,
+  #   }
+  # )
+  #
+  tasksForRemovingItems: (threads, ruleset) =>
+    if not ruleset
+      throw new Error("tasksForRemovingItems: you must pass a ruleset object to determine the destination of the threads")
 
-    DatabaseStore.modelify(Thread, threadsOrIds).then (threads) =>
-      isFinishedCategory = _.any @_categories, (cat) ->
-        cat.name in ['trash', 'archive', 'all']
+    name = if @isArchive()
+      # TODO this is an awful hack
+      'archive'
+    else
+      @categoriesSharedName()
 
-      if isFinishedCategory
-        Actions.queueTasks(TaskFactory.tasksForMovingToInbox({
-          threads: threads,
-          fromPerspective: @
-        }))
-      else
-        Actions.queueTasks(TaskFactory.tasksForRemovingCategories({
-          threads: threads,
-          categories: @categories(),
-          moveToFinishedCategory: @isInbox()
-        }))
+    return [] if ruleset[name] is null
+
+    return TaskFactory.tasksForApplyingCategories(
+      threads: threads,
+      categoriesToRemove: (accountId) =>
+        # Remove all categories from this perspective that match the accountId
+        _.filter(@_categories, _.matcher({accountId}))
+      categoriesToAdd: (accId) => [(ruleset[name] ? ruleset.other)(accId)]
+    )
+
 
 module.exports = MailboxPerspective

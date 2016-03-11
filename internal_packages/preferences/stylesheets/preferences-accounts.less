@@ -18,11 +18,16 @@
           border-bottom: 1px solid @border-color-divider;
         }
 
+        .list-item:not(.selected) .sync-error {
+          color: @text-color-error;
+        }
+
         .account-name {
           font-size: @font-size-large;
           cursor:default;
           overflow: hidden;
           text-overflow: ellipsis;
+          vertical-align: middle;
         }
 
         .account-subtext {
@@ -50,6 +55,29 @@
 
         .items-wrapper {
           height: 140px;
+        }
+
+        .account-error-detail {
+          display: flex;
+          flex-direction: column;
+          background: linear-gradient(to top, #ca2541 0%, #d55268 100%);
+
+          .action {
+            flex-shrink: 0;
+            background-color: rgba(0,0,0,0.15);
+            text-align: center;
+            padding: 3px @padding-base-horizontal;
+            color: @text-color-inverse
+          }
+          .action:hover {
+            background-color: rgba(255,255,255,0.15);
+            text-decoration:none;
+          }
+          .message {
+            flex-grow: 1;
+            padding: 3px @padding-base-horizontal;
+            color: @text-color-inverse
+          }
         }
 
         .newsletter {

@@ -3,6 +3,7 @@
  React,
  TaskFactory,
  DOMUtils,
+ AccountStore,
  FocusedPerspectiveStore} = require 'nylas-exports'
 
 class ThreadArchiveButton extends React.Component
@@ -13,7 +14,8 @@ class ThreadArchiveButton extends React.Component
     thread: React.PropTypes.object.isRequired
 
   render: =>
-    return false unless FocusedPerspectiveStore.current().canArchiveThreads()
+    canArchiveThreads = FocusedPerspectiveStore.current().canArchiveThreads([@props.thread])
+    return <span /> unless canArchiveThreads
 
     <button className="btn btn-toolbar btn-archive"
             style={order: -107}
@@ -25,8 +27,7 @@ class ThreadArchiveButton extends React.Component
   _onArchive: (e) =>
     return unless DOMUtils.nodeIsVisible(e.currentTarget)
     tasks = TaskFactory.tasksForArchiving
-      threads: [@props.thread],
-      fromPerspective: FocusedPerspectiveStore.current()
+      threads: [@props.thread]
     Actions.queueTasks(tasks)
     Actions.popSheet()
     e.stopPropagation()

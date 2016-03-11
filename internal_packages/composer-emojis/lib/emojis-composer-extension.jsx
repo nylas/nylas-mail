@@ -96,7 +96,7 @@ class EmojisComposerExtension extends ContenteditableExtension {
           const index = moveToNext ? 1 : emojiOptions.length - 1;
           emojiNameNode.setAttribute("selectedEmoji", emojiOptions[index]);
         }
-      } else if (event.key === "Enter") {
+      } else if (event.key === "Enter" || event.key === "Tab") {
         event.preventDefault();
         const emojiNameNode = DOMUtils.closest(sel.anchorNode, "n1-emoji-autocomplete");
         let selectedEmoji = emojiNameNode.getAttribute("selectedEmoji");
