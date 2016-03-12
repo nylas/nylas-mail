@@ -105,9 +105,9 @@ class ToolbarMenuControl extends React.Component
   @displayName: 'ToolbarMenuControl'
   render: =>
     <div className="toolbar-menu-control">
-      <div className="btn btn-toolbar" onClick={@_openMenu}>
+      <button className="btn btn-toolbar" onClick={@_openMenu}>
         <RetinaImg name="windows-menu-icon.png" mode={RetinaImg.Mode.ContentIsMask} />
-      </div>
+      </button>
     </div>
 
   _openMenu: =>
