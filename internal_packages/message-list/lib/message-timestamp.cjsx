@@ -1,6 +1,5 @@
 _ = require 'underscore'
 moment = require 'moment-timezone'
-moment = require "moment"
 React = require 'react'
 {Utils} = require 'nylas-exports'
 

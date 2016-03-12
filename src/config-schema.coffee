@@ -67,7 +67,7 @@ module.exports =
             type: 'boolean'
             default: false
             title: "Use backspace / delete to move messages to trash"
-          timeFormat:            # military time(24 hour clock) section added here -->
+          is24HrFormat:            # military time(24 hour clock) section added here -->
             type: 'boolean'
             default: false
             title: "24 hour time" # <--

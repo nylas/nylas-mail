@@ -159,10 +159,6 @@ class WorkspaceSection extends React.Component
         keyPath="core.workspace.interfaceZoom"
         config={@props.config} />
 
-
-
-
-
       <ThemeSelector />
 
       <h2>Layout</h2>

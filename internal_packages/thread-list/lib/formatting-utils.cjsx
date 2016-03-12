@@ -4,7 +4,6 @@ React = require 'react'
 module.exports =
   timestamp: (time) ->
     diff = moment().diff(time, 'days', true)
-    mins = moment().diff(time, 'minutes', true)
     if diff <= 1
       if NylasEnv.config.get('core.reading.timeFormat') # Military time(24 hour clock) added here -->
         format = "HH:mm" # <--
