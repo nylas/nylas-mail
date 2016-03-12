@@ -171,6 +171,7 @@ class Toolbar extends React.Component
 
     toolbars = @state.columns.map (components, idx) =>
       <div style={position: 'absolute', top:0, display:'none'}
+           className="toolbar-#{@state.columnNames[idx]}"
            data-column={idx}
            key={idx}>
         {@_flexboxForComponents(components)}
@@ -220,6 +221,7 @@ class Toolbar extends React.Component
     state =
       mode: WorkspaceStore.layoutMode()
       columns: []
+      columnNames: []
 
     # Add items registered to Regions in the current sheet
     if @props.data?.columns[state.mode]?
@@ -227,18 +229,19 @@ class Toolbar extends React.Component
         continue if WorkspaceStore.isLocationHidden(loc)
         entries = ComponentRegistry.findComponentsMatching({location: loc.Toolbar, mode: state.mode})
         state.columns.push(entries)
+        state.columnNames.push(loc.Toolbar.id.split(":")[0]) if entries
 
     # Add left items registered to the Sheet instead of to a Region
     for loc in [WorkspaceStore.Sheet.Global, @props.data]
       entries = ComponentRegistry.findComponentsMatching({location: loc.Toolbar.Left, mode: state.mode})
       state.columns[0]?.push(entries...)
-    state.columns[0]?.push(ToolbarBack) if @props.depth > 0
+    if @props.depth > 0
+      state.columns[0]?.push(ToolbarBack)
 
     # Add right items registered to the Sheet instead of to a Region
     for loc in [WorkspaceStore.Sheet.Global, @props.data]
       entries = ComponentRegistry.findComponentsMatching({location: loc.Toolbar.Right, mode: state.mode})
       state.columns[state.columns.length - 1]?.push(entries...)
-
     if state.mode is "popout"
       state.columns[0]?.push(WindowTitle)
 
