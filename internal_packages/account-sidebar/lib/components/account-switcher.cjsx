@@ -20,11 +20,16 @@ class AccountSwitcher extends React.Component
     )
     template = template.concat [
       {type: 'separator'}
+      {label: 'Add Account...', click: @_onAddAccount}
       {label: 'Manage Accounts...', click: @_onManageAccounts}
     ]
     return template
 
   # Handlers
+
+  _onAddAccount: =>
+    ipc = require('electron').ipcRenderer
+    ipc.send('command', 'application:add-account')
 
   _onManageAccounts: =>
     Actions.switchPreferencesTab('Accounts')
