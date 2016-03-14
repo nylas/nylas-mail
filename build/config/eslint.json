@@ -3,7 +3,8 @@
   "globals": {
     "NylasEnv": false,
     "$n": false,
-    "waitsForPromise": false
+    "waitsForPromise": false,
+    "advanceClock": false
   },
   "env": {
     "browser": true,

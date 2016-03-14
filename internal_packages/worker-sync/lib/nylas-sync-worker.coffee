@@ -108,7 +108,7 @@ class NylasSyncWorker
 
     needed = [
       {model: 'threads'},
-      {model: "#{@_account.organizationUnit}s", initialPageSize: 1000}
+      {model: @_account.categoryCollection(), initialPageSize: 1000}
       {model: 'drafts'},
       {model: 'contacts'},
       {model: 'calendars'},

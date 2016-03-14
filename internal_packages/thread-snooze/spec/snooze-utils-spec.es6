@@ -22,7 +22,7 @@ describe('Snooze Utils', ()=> {
   beforeEach(()=> {
     this.name = 'Snoozed Folder'
     this.accId = 123
-    spyOn(SnoozeUtils, 'whenCategoriesReady').andReturn(Promise.resolve())
+    spyOn(CategoryStore, 'whenCategoriesReady').andReturn(Promise.resolve())
   })
 
   describe('snoozedUntilMessage', ()=> {
