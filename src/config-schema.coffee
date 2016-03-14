@@ -26,8 +26,7 @@ module.exports =
             title: "Override standard interface scaling"
             type: 'number'
             default: 1
-            enum: [0.6, 0.8, 1, 1.2, 1.4]
-            enumLabels: ['60%', '80%', '100%', '120%', '140%']
+            advanced: true
       disabledPackages:
         type: 'array'
         default: []
