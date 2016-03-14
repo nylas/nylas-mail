@@ -8,7 +8,7 @@
 [![Slack Invite Button](http://slack-invite.nylas.com/badge.svg)](http://slack-invite.nylas.com)
 [![GitHub issues On Deck](https://badge.waffle.io/nylas/N1.png?label=on deck&title=On Deck)](https://waffle.io/nylas/N1)
 
-#### Want help build the future of email? [Nylas is hiring](https://jobs.lever.co/nylas)! 
+#### Want help build the future of email? [Nylas is hiring](https://jobs.lever.co/nylas)!
 
 # Download N1
 
@@ -66,7 +66,7 @@ Great starting points for creating your own plugins!
 - In Development: [Cypher](https://github.com/mbilker/cypher) (PGP Encryption)
 
 # Running Locally
-By default the N1 source points to our hosted version of the Nylas Sync Engine; however, the Sync Engine is open source and you can [run it yourself](https://github.com/nylas/N1/blob/master/CONTRIBUTING.md#running-against-open-source-sync-engine).
+By default the N1 source points to our hosted version of the Nylas Sync Engine; however, the Sync Engine is open source and you can [run it yourself](https://github.com/nylas/N1/blob/master/CONFIGURATION.md).
 
 # Feature Requests / Plugin Ideas
 

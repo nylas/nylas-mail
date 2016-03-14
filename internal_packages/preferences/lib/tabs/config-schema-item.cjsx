@@ -18,6 +18,10 @@ class ConfigSchemaItem extends React.Component
 
   render: ->
     return false unless @_appliesToPlatform()
+
+    # In the future, we may add an option to reveal "advanced settings"
+    return false if @props.configSchema.advanced is true
+
     if @props.configSchema.type is 'object'
       <section>
         <h2>{_str.humanize(@props.keyName)}</h2>
