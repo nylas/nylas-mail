@@ -25,10 +25,17 @@ class NylasSyncStatusStore extends NylasStore
   state: =>
     @_statesByAccount
 
-  isComplete: ->
-    for acctId, state of @_statesByAccount
-      for model, modelState of state
-        return false if not modelState.complete
+  isSyncCompleteForAccount: (acctId, model) =>
+    return false unless @_statesByAccount[acctId]
+    if model
+      return @_statesByAccount[acctId][model]?.complete ? false
+    for _model, modelState of @_statesByAccount[acctId]
+      return false if not modelState.complete
+    return true
+
+  isSyncComplete: =>
+    for acctId of @_statesByAccount
+      return false if not @isSyncCompleteForAccount(acctId)
     return true
 
   busy: =>

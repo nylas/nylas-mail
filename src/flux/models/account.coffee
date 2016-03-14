@@ -111,6 +111,9 @@ class Account extends ModelWithMetadata
     else
       'Unknown'
 
+  categoryCollection: ->
+    "#{@organizationUnit}s"
+
   categoryIcon: ->
     if @usesFolders()
       'folder.png'

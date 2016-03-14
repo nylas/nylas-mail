@@ -42,6 +42,10 @@ class NylasExports
         return exported
       enumerable: true
 
+  # Make sure our custom observable helpers are defined immediately
+  # (fromStore, fromQuery, etc...)
+  require 'nylas-observables'
+
   # Actions
   @load "Actions", 'flux/actions'
 

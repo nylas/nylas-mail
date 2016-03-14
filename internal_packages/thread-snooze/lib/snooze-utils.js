@@ -58,23 +58,8 @@ const SnoozeUtils = {
     })
   },
 
-  whenCategoriesReady(accountId) {
-    const categoriesReady = ()=> CategoryStore.categories(accountId).length > 0;
-    if (!categoriesReady()) {
-      return new Promise((resolve)=> {
-        const unsubscribe = CategoryStore.listen(()=> {
-          if (categoriesReady()) {
-            unsubscribe()
-            resolve()
-          }
-        })
-      })
-    }
-    return Promise.resolve()
-  },
-
   getSnoozeCategory(accountId, categoryName = SNOOZE_CATEGORY_NAME) {
-    return SnoozeUtils.whenCategoriesReady(accountId)
+    return CategoryStore.whenCategoriesReady(accountId)
     .then(()=> {
       const allCategories = CategoryStore.categories(accountId)
       const category = _.findWhere(allCategories, {displayName: categoryName})
