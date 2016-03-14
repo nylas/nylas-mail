@@ -37,6 +37,7 @@
     "jasmine-tagged": "^1.1.2",
     "jquery": "^2.1.1",
     "juice": "^1.4",
+    "keytar": "^3.0.0",
     "less-cache": "0.21",
     "marked": "^0.3",
     "mkdirp": "^0.5",

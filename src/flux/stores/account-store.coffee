@@ -4,10 +4,12 @@ Actions = require '../actions'
 Account = require '../models/account'
 Utils = require '../models/utils'
 DatabaseStore = require './database-store'
+keytar = require 'keytar'
 
-
-saveObjectsKey = "nylas.accounts"
-saveTokensKey = "nylas.accountTokens"
+configAccountsKey = "nylas.accounts"
+configVersionKey = "nylas.accountsVersion"
+configTokensKey = "nylas.accountTokens"
+keytarServiceName = 'Nylas'
 
 ###
 Public: The AccountStore listens to changes to the available accounts in
@@ -18,31 +20,45 @@ Section: Stores
 class AccountStore extends NylasStore
 
   constructor: ->
-    @_load()
+    @_loadAccounts()
     @listenTo Actions.removeAccount, @_onRemoveAccount
     @listenTo Actions.updateAccount, @_onUpdateAccount
     @listenTo Actions.reorderAccount, @_onReorderAccount
 
-    @_caches = {}
+    NylasEnv.config.onDidChange configVersionKey, (change) =>
+      # If we already have this version of the accounts config, it means we
+      # are the ones who saved the change, and we don't need to reload.
+      return if @_version / 1 is change.newValue / 1
+      oldAccountIds = _.pluck(@_accounts, 'id')
+      @_loadAccounts()
+      newAccountIds = _.pluck(@_accounts, 'id')
+      newAccountIds = _.without(newAccountIds, oldAccountIds)
 
-    NylasEnv.config.onDidChange saveTokensKey, (change) =>
-      updatedTokens = change.newValue
-      return if _.isEqual(updatedTokens, @_tokens)
-      newAccountIds = _.keys(_.omit(updatedTokens, _.keys(@_tokens)))
-      @_load()
       if newAccountIds.length > 0
         Actions.focusDefaultMailboxPerspectiveForAccounts([newAccountIds[0]])
 
-    if NylasEnv.isComposerWindow() or NylasEnv.isWorkWindow()
-      NylasEnv.config.onDidChange saveObjectsKey, => @_load()
-
-  _load: =>
+  _loadAccounts: =>
     @_caches = {}
+    @_version = NylasEnv.config.get(configVersionKey) || 0
+
     @_accounts = []
-    for json in NylasEnv.config.get(saveObjectsKey) || []
+    for json in NylasEnv.config.get(configAccountsKey) || []
       @_accounts.push((new Account).fromJSON(json))
 
-    @_tokens = NylasEnv.config.get(saveTokensKey) || {}
+    # Load tokens using the old config method and save them into the keychain
+    oldTokens = NylasEnv.config.get(configTokensKey)
+    if oldTokens
+      for key, val of oldTokens
+        account = @accountForId(key)
+        continue unless account
+        keytar.replacePassword(keytarServiceName, account.emailAddress, val)
+      NylasEnv.config.set(configTokensKey, null)
+
+    # Load tokens using the new keytar method
+    @_tokens = {}
+    for account in @_accounts
+      @_tokens[account.id] = keytar.getPassword(keytarServiceName, account.emailAddress)
+
     @_trigger()
 
   _trigger: ->
@@ -54,9 +70,11 @@ class AccountStore extends NylasStore
     @trigger()
 
   _save: =>
-    NylasEnv.config.set(saveObjectsKey, @_accounts)
-    NylasEnv.config.set(saveTokensKey, @_tokens)
+    @_version += 1
+    NylasEnv.config.set(configVersionKey, @_version)
+    NylasEnv.config.set(configAccountsKey, @_accounts)
     NylasEnv.config.save()
+    @_trigger()
 
   # Inbound Events
 
@@ -68,23 +86,21 @@ class AccountStore extends NylasStore
     account = _.extend(account, updated)
     @_caches = {}
     @_accounts[idx] = account
-    NylasEnv.config.set(saveObjectsKey, @_accounts)
-    @_trigger()
+    @_save()
 
   _onRemoveAccount: (id) =>
-    idx = _.findIndex @_accounts, (a) -> a.id is id
-    return if idx is -1
+    account = _.findWhere(@_accounts, {id})
+    return unless account
+    keytar.deletePassword(keytarServiceName, account.emailAddress)
 
-    delete @_tokens[id]
     @_caches = {}
-    @_accounts.splice(idx, 1)
+    @_accounts = _.without(@_accounts, account)
     @_save()
 
     if @_accounts.length is 0
       ipc = require('electron').ipcRenderer
       ipc.send('command', 'application:reset-config-and-relaunch')
     else
-      @_trigger()
       Actions.focusDefaultMailboxPerspectiveForAccounts(@_accounts)
 
   _onReorderAccount: (id, newIdx) =>
@@ -95,7 +111,6 @@ class AccountStore extends NylasStore
     @_accounts.splice(existingIdx, 1)
     @_accounts.splice(newIdx, 0, account)
     @_save()
-    @_trigger()
 
   addAccountFromJSON: (json) =>
     if not json.email_address or not json.provider
@@ -103,10 +118,11 @@ class AccountStore extends NylasStore
       console.log JSON.stringify(json)
       throw new Error("Returned account data is invalid")
 
-    @_load()
-    @_tokens[json.id] = json.auth_token
+    @_loadAccounts()
 
-    @_caches = {}
+    @_tokens[json.id] = json.auth_token
+    keytar.replacePassword(keytarServiceName, json.email_address, json.auth_token)
+
     existingIdx = _.findIndex @_accounts, (a) -> a.id is json.id
     if existingIdx is -1
       account = (new Account).fromJSON(json)
@@ -116,8 +132,6 @@ class AccountStore extends NylasStore
       account.fromJSON(json)
 
     @_save()
-
-    @_trigger()
     Actions.focusDefaultMailboxPerspectiveForAccounts([account.id])
 
   # Exposed Data

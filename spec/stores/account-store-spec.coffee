@@ -1,4 +1,5 @@
 _ = require 'underscore'
+keytar = require 'keytar'
 AccountStore = require '../../src/flux/stores/account-store'
 Account = require '../../src/flux/models/account'
 Actions = require '../../src/flux/actions'
@@ -7,37 +8,71 @@ describe "AccountStore", ->
   beforeEach ->
     @instance = null
     @constructor = AccountStore.constructor
+    @keys = {}
+    spyOn(keytar, 'getPassword').andCallFake (service, account) =>
+      @keys[account]
+    spyOn(keytar, 'deletePassword').andCallFake (service, account) =>
+      delete @keys[account]
+    spyOn(keytar, 'replacePassword').andCallFake (service, account, pass) =>
+      @keys[account] = pass
 
   afterEach ->
     @instance.stopListeningToAll()
 
-  it "should initialize using data saved in config", ->
-    accounts =
-      [{
-        "id": "123",
-        "client_id" : 'local-4f9d476a-c173',
-        "server_id" : '123',
-        "email_address":"bengotow@gmail.com",
-        "object":"account"
-        "organization_unit": "label"
-      },{
-        "id": "1234",
-        "client_id" : 'local-4f9d476a-c175',
-        "server_id" : '1234',
-        "email_address":"ben@nylas.com",
-        "object":"account"
-        "organization_unit": "label"
-      }]
+  describe "initialization", ->
+    beforeEach ->
+      @configTokens = null
+      @configVersion = 1
+      @configAccounts =
+        [{
+          "id": "A",
+          "client_id" : 'local-4f9d476a-c173',
+          "server_id" : 'A',
+          "email_address":"bengotow@gmail.com",
+          "object":"account"
+          "organization_unit": "label"
+        },{
+          "id": "B",
+          "client_id" : 'local-4f9d476a-c175',
+          "server_id" : 'B',
+          "email_address":"ben@nylas.com",
+          "object":"account"
+          "organization_unit": "label"
+        }]
 
-    spyOn(NylasEnv.config, 'get').andCallFake (key) ->
-      return accounts if key is 'nylas.accounts'
-      return null
-    @instance = new @constructor
+      spyOn(NylasEnv.config, 'set')
+      spyOn(NylasEnv.config, 'get').andCallFake (key) =>
+        return @configAccounts if key is 'nylas.accounts'
+        return @configVersion if key is 'nylas.accountsVersion'
+        return @configTokens if key is 'nylas.accountTokens'
+        return null
 
-    expect(@instance.accounts()).toEqual([
-      (new Account).fromJSON(accounts[0]),
-      (new Account).fromJSON(accounts[1])
-    ])
+    it "should initialize the accounts and version from config", ->
+      @instance = new @constructor
+      expect(@instance._version).toEqual(@configVersion)
+      expect(@instance.accounts()).toEqual([
+        (new Account).fromJSON(@configAccounts[0]),
+        (new Account).fromJSON(@configAccounts[1])
+      ])
+
+    it "should initialize tokens from config, if present, save them to keytar, and remove them from config", ->
+      @configTokens = {'A': 'A-TOKEN'}
+      @instance = new @constructor
+      expect(@instance.tokenForAccountId('A')).toEqual('A-TOKEN')
+      expect(@instance.tokenForAccountId('B')).toEqual(undefined)
+      expect(keytar.replacePassword).toHaveBeenCalledWith('Nylas', 'bengotow@gmail.com', 'A-TOKEN')
+      expect(NylasEnv.config.set).toHaveBeenCalledWith('nylas.accountTokens', null)
+
+    it "should initialize tokens from keytar", ->
+      @configTokens = null
+      jasmine.unspy(keytar, 'getPassword')
+      spyOn(keytar, 'getPassword').andCallFake (service, account) =>
+        return 'A-TOKEN' if account is 'bengotow@gmail.com'
+        return 'B-TOKEN' if account is 'ben@nylas.com'
+        return null
+      @instance = new @constructor
+      expect(@instance.tokenForAccountId('A')).toEqual('A-TOKEN')
+      expect(@instance.tokenForAccountId('B')).toEqual('B-TOKEN')
 
   describe "accountForEmail", ->
     beforeEach ->
@@ -58,33 +93,32 @@ describe "AccountStore", ->
     beforeEach ->
       spyOn(NylasEnv.config, "set")
       @json =
-        "id": "1234",
+        "id": "B",
         "client_id" : 'local-4f9d476a-c175',
-        "server_id" : '1234',
+        "server_id" : 'B',
         "email_address":"ben@nylas.com",
         "provider":"gmail",
         "object":"account"
-        "auth_token": "auth-123"
+        "auth_token": "B-NEW-TOKEN"
         "organization_unit": "label"
       @instance = new @constructor
       spyOn(Actions, 'focusDefaultMailboxPerspectiveForAccounts')
       spyOn(@instance, "trigger")
       @instance.addAccountFromJSON(@json)
 
-    it "sets the tokens", ->
-      expect(@instance._tokens["1234"]).toBe "auth-123"
+    it "saves the token to keytar and to the loaded tokens cache", ->
+      expect(@instance._tokens["B"]).toBe("B-NEW-TOKEN")
+      expect(keytar.replacePassword).toHaveBeenCalledWith("Nylas", "ben@nylas.com", "B-NEW-TOKEN")
 
-    it "sets the accounts", ->
+    it "saves the account to the accounts cache and saves", ->
       account = (new Account).fromJSON(@json)
       expect(@instance._accounts.length).toBe 1
       expect(@instance._accounts[0]).toEqual account
-
-    it "saves the config", ->
       expect(NylasEnv.config.save).toHaveBeenCalled()
       expect(NylasEnv.config.set.calls.length).toBe 2
 
     it "selects the account", ->
-      expect(Actions.focusDefaultMailboxPerspectiveForAccounts).toHaveBeenCalledWith(["1234"])
+      expect(Actions.focusDefaultMailboxPerspectiveForAccounts).toHaveBeenCalledWith(["B"])
 
     it "triggers", ->
       expect(@instance.trigger).toHaveBeenCalled()
