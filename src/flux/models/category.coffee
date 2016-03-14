@@ -23,6 +23,7 @@ LockedCategories = {
 }
 
 HiddenCategories = {
+  "sent"
   "drafts"
   "all"
   "archive"
