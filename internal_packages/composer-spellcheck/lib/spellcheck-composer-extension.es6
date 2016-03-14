@@ -1,58 +1,27 @@
 import {DOMUtils, ComposerExtension, NylasSpellchecker} from 'nylas-exports';
-import {remote} from 'electron';
-const MenuItem = remote.require('menu-item');
-
-const SpellcheckCache = {};
 
 export default class SpellcheckComposerExtension extends ComposerExtension {
-
-  static isMisspelled(word) {
-    if (SpellcheckCache[word] === undefined) {
-      SpellcheckCache[word] = NylasSpellchecker.isMisspelled(word);
-    }
-    return SpellcheckCache[word];
-  }
 
   static onContentChanged({editor}) {
     SpellcheckComposerExtension.update(editor);
   }
 
-  static onShowContextMenu = ({editor, menu})=> {
+  static onShowContextMenu = ({editor, menu}) => {
     const selection = editor.currentSelection();
     const range = DOMUtils.Mutating.getRangeAtAndSelectWord(selection, 0);
     const word = range.toString();
 
-    if (SpellcheckComposerExtension.isMisspelled(word)) {
-      const corrections = NylasSpellchecker.getCorrectionsForMisspelling(word);
-      if (corrections.length > 0) {
-        corrections.forEach((correction)=> {
-          menu.append(new MenuItem({
-            label: correction,
-            click: SpellcheckComposerExtension.applyCorrection.bind(SpellcheckComposerExtension, editor, range, selection, correction),
-          }));
-        });
-      } else {
-        menu.append(new MenuItem({ label: 'No Guesses Found', enabled: false}));
-      }
-
-      menu.append(new MenuItem({ type: 'separator' }));
-      menu.append(new MenuItem({
-        label: 'Learn Spelling',
-        click: SpellcheckComposerExtension.learnSpelling.bind(SpellcheckComposerExtension, editor, word),
-      }));
-      menu.append(new MenuItem({ type: 'separator' }));
-    }
-  }
-
-  static applyCorrection = (editor, range, selection, correction)=> {
-    DOMUtils.Mutating.applyTextInRange(range, selection, correction);
-    SpellcheckComposerExtension.update(editor);
-  }
-
-  static learnSpelling = (editor, word)=> {
-    NylasSpellchecker.add(word);
-    delete SpellcheckCache[word];
-    SpellcheckComposerExtension.update(editor);
+    NylasSpellchecker.appendSpellingItemsToMenu({
+      menu,
+      word,
+      onCorrect: (correction) => {
+        DOMUtils.Mutating.applyTextInRange(range, selection, correction);
+        SpellcheckComposerExtension.update(editor);
+      },
+      onDidLearn: () => {
+        SpellcheckComposerExtension.update(editor);
+      },
+    });
   }
 
   static update = (editor) => {
@@ -141,7 +110,7 @@ export default class SpellcheckComposerExtension extends ComposerExtension {
             break;
           }
 
-          if (SpellcheckComposerExtension.isMisspelled(match[0])) {
+          if (NylasSpellchecker.isMisspelled(match[0])) {
             // The insertion point is currently at the end of this misspelled word.
             // Do not mark it until the user types a space or leaves.
             if ((selectionSnapshot.focusNode === node) && (selectionSnapshot.focusOffset === match.index + match[0].length)) {
@@ -190,5 +159,3 @@ export default class SpellcheckComposerExtension extends ComposerExtension {
     return Promise.resolve();
   }
 }
-
-SpellcheckComposerExtension.SpellcheckCache = SpellcheckCache;
