@@ -13,7 +13,6 @@ ThreadArchiveButton = require './thread-archive-button'
 ThreadTrashButton = require './thread-trash-button'
 ThreadToggleUnreadButton = require './thread-toggle-unread-button'
 
-AutolinkerExtension = require './plugins/autolinker-extension'
 TrackingPixelsExtension = require './plugins/tracking-pixels-extension'
 
 module.exports =
@@ -47,7 +46,6 @@ module.exports =
     ComponentRegistry.register MessageListHiddenMessagesToggle,
       role: 'MessageListHeaders'
 
-    ExtensionRegistry.MessageView.register AutolinkerExtension
     ExtensionRegistry.MessageView.register TrackingPixelsExtension
 
   deactivate: ->
@@ -59,7 +57,6 @@ module.exports =
     ComponentRegistry.unregister MessageToolbarItems
     ComponentRegistry.unregister SidebarPluginContainer
     ComponentRegistry.unregister SidebarParticipantPicker
-    ExtensionRegistry.MessageView.unregister AutolinkerExtension
     ExtensionRegistry.MessageView.unregister TrackingPixelsExtension
 
   serialize: -> @state
