@@ -561,6 +561,7 @@ class ComposerView extends React.Component
   # When the account store changes, the From field may or may not still
   # be in scope. We need to make sure to update our enabled fields.
   _onAccountStoreChanged: =>
+    return unless @_proxy
     accounts = @_getAccountsForSend()
     enabledFields = if @_shouldShowFromField(@_proxy?.draft())
       @state.enabledFields.concat [Fields.From]
