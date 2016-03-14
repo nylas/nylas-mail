@@ -202,10 +202,30 @@ class WindowEventHandler
     return unless event.target.type in ['text', 'password', 'email', 'number', 'range', 'search', 'tel', 'url']
     hasSelectedText = event.target.selectionStart isnt event.target.selectionEnd
 
+    if hasSelectedText
+      wordStart = event.target.selectionStart
+      wordEnd = event.target.selectionEnd
+    else
+      wordStart = event.target.value.lastIndexOf(" ", event.target.selectionStart)
+      wordStart = 0 if wordStart is -1
+      wordEnd = event.target.value.indexOf(" ", event.target.selectionStart)
+      wordEnd = event.target.value.length if wordEnd is -1
+    word = event.target.value.substr(wordStart, wordEnd - wordStart)
+
     {remote} = require('electron')
     Menu = remote.require('menu')
     MenuItem = remote.require('menu-item')
     menu = new Menu()
+
+    NylasSpellchecker = require('./nylas-spellchecker')
+    NylasSpellchecker.appendSpellingItemsToMenu
+      menu: menu,
+      word: word,
+      onCorrect: (correction) =>
+        insertionPoint = wordStart + correction.length
+        event.target.value = event.target.value.replace(word, correction)
+        event.target.setSelectionRange(insertionPoint, insertionPoint)
+
     menu.append(new MenuItem({
       label: 'Cut'
       enabled: hasSelectedText
