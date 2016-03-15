@@ -1,0 +1,61 @@
+To get up and running with the api you'll need to follow these steps.
+
+1. Once you feel familiar with the endpoints and http responses go ham!!!
+
+## Support
+
+Please [open an issue](<a href="https://github.com/a/b/issues/new" title="https://github.com/a/b/issues/new">https://github.com/a/b/issues/new</a>) for support.
+
+## Contributing
+If you would like to contribute to the axefax api (which you are encouraged to do) here are the basics.
+
+- Ruby version: 2.2.2
+- System dependencies: Rails, AWS, postgres, eb-cli
+- Configuration:
+```bash
+$ git clone <a href="https://github.com/a/b.git" title="https://github.com/a/b.git">https://github.com/a/b.git</a>
+$ bundle install
+```
+- Database intitialization/creation:
+```bash
+$ rake db:reset db:setup db:seed
+```
+- How to run the test suite:
+```bash
+$ rspec spec
+```
+- or alternatively:
+```bash
+$ guard
+```
+- run the server:
+```bash
+$ rails server
+```
+- Git Guidelines:
+ - Please create a contributor/feature branch for any changes you make.
+ - Be sure to always pull down the latest master branch before pushing.
+ - etc...
+- Generating Documentation:
+ - This app makes use of the (Apipie Gem)[<a href="https://github.com/Apipie/apipie-rails" title="https://github.com/Apipie/apipie-rails">https://github.com/Apipie/apipie-rails</a>]
+ - To Auto/Re-Generate Documentation for API Endpoints based on config/<a href="routes.rb" title="routes.rb">routes.rb</a>
+   and the spec suite run...
+```bash
+$ APIPIE_RECORD=params rake spec:controllers
+$ APIPIE_RECORD=examples rake spec:controllers
+```
+ - Then to generate static HTML files for production...
+```bash
+$ rake apipie:static
+```
+- Deployment instructions:
+ - If the test suite is passing and you've successfully merged to master and pushed up to github...
+```bash
+$ eb deploy
+```
+ - Hopefully you won't need to ssh into the remote server to run migrations but if you do...
+```bash
+$ eb ssh
+remote:ec2 ~ $ cd /var/app/current/
+```
+ - From here you have access to a limited set of railsy stuffs. But for example rake db:migrate

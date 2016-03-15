@@ -27,10 +27,48 @@ RegExpUtils =
 
   # Test cases: https://regex101.com/r/pD7iS5/3
   urlRegex: ({matchEntireString} = {}) ->
+    parts = [
+      '('
+        # one of:
+        '('
+          # optional scheme, ala https://
+          '([A-Za-z]{3,9}:(?:\\/\\/))?'
+
+          # optional username:password
+          '(?:[\\-;:&=\\+\\$,\\w]+@)?'
+
+          # one of:
+          '('
+            # domain
+            '([a-zA-Z0-9-_]+\\.)*[a-zA-Z0-9][a-zA-Z0-9-_]+\\.[a-zA-Z]{2,11}'
+
+            '|'
+
+            # ip address
+            '(?:[0-9]{1,3}\.){3}[0-9]{1,3}'
+          ')'
+
+          '|'
+
+          # mailto:username@password.com
+          'mailto:\\/*(?:\\w+\\.|[\\-;:&=\\+\\$.,\\w]+@)[A-Za-z0-9\\.\\-]+'
+        ')'
+
+        # optionally followed by:
+        '('
+          # URL components
+          '(?:\\/[\\+~%\\/\\.\\w\\-_]*)?'
+          # optionally followed by a ?
+          '\\??'
+          # optionally followed by a query string
+          '(?:[\\-\\+=&;%@\\.\\w_]*)#?(?:[\\.\\!\\/\\\\\\w]*)'
+        ')?'
+      ')'
+    ]
     if matchEntireString
-      new RegExp(/^((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:[\w\-]+\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/g)
-    else
-      new RegExp(/(?:^|\s)((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:[\w\-]+\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/g)
+      parts.unshift('^')
+
+    return new RegExp(parts.join(''), 'g')
 
   # Test cases: https://regex101.com/r/jD5zC7/2
   # Returns the following capturing groups:
