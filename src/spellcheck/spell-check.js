@@ -28,13 +28,7 @@ class NylasSpellcheck {
       spellCheck: (text) => {
         if (!this.current) return true;
 
-        let val = true;
-        try {
-          val = !(this.current.isMisspelled(text));
-        } catch (e) {
-          console.log(e);
-          console.log((e || {}).stack);
-        }
+        let val = !(this.current.isMisspelled(text));
         return val;
       }
     });
