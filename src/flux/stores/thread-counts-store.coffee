@@ -10,7 +10,7 @@ Thread = require '../models/thread'
 Category = require '../models/category'
 WindowBridge = require '../../window-bridge'
 
-JSONBlobKey = 'UnreadCounts-V2'
+JSONBlobKey = 'UnreadCounts-V3'
 
 class CategoryDatabaseMutationObserver
   constructor: (@_countsDidChange) ->
@@ -18,7 +18,7 @@ class CategoryDatabaseMutationObserver
   beforeDatabaseChange: (query, {type, objects, objectIds, objectClass}) =>
     if objectClass is Thread.name
       idString = "'" + objectIds.join("','") +  "'"
-      query("SELECT `Thread`.id as id, `Thread-Category`.`value` as catId FROM `Thread` INNER JOIN `Thread-Category` ON `Thread`.`id` = `Thread-Category`.`id` WHERE `Thread`.id IN (#{idString}) AND `Thread`.unread = 1", [])
+      query("SELECT `Thread`.id as id, `Thread-Category`.`value` as catId FROM `Thread` INNER JOIN `Thread-Category` ON `Thread`.`id` = `Thread-Category`.`id` WHERE `Thread`.id IN (#{idString}) AND `Thread`.unread = 1 AND `Thread`.in_all_mail = 1", [])
       .then (categoryData) =>
         categories = {}
         for {id, catId} in categoryData
@@ -35,6 +35,7 @@ class CategoryDatabaseMutationObserver
       if type is 'persist'
         for thread in objects
           continue unless thread.unread
+          continue unless thread.inAllMail
           for cat in thread.categories
             categories[cat.id] ?= 0
             categories[cat.id] += 1
