@@ -22,8 +22,6 @@ class NylasSpellcheck {
     const lang = this.getCurrentKeyboardLanguage();
     this.current = this.spellCheckers[lang];
 
-    const current = this.current;
-
     webFrame.setSpellCheckProvider(lang.replace(/_/, '-'), false, {
       spellCheck: (text) => {
         if (!this.current) return true;
