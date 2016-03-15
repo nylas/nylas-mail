@@ -17,6 +17,8 @@ class Package extends React.Component
 
     if @props.package.icon
       icon = <img src="nylas://#{@props.package.name}/#{@props.package.icon}" style={width:27, alignContent: 'center', objectFit: 'scale-down'} />
+    else if @props.package.theme
+      icon = <RetinaImg name="theme-icon-default.png"/>
     else
       icon = <RetinaImg name="plugin-icon-default.png"/>
 
