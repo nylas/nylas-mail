@@ -1,86 +1,67 @@
-import fs from 'fs';
 import path from 'path';
-import mkdirp from 'mkdirp';
-import {remote, ipcRenderer} from 'electron';
-import {UnreadBadgeStore, CanvasUtils} from 'nylas-exports';
-const {canvasWithSystemTrayIconAndText} = CanvasUtils;
-const {nativeImage} = remote
-const mkdirpAsync = Promise.promisify(mkdirp)
-const writeFile = Promise.promisify(fs.writeFile)
+import {ipcRenderer} from 'electron';
+import {UnreadBadgeStore} from 'nylas-exports';
 
 // Must be absolute real system path
 // https://github.com/atom/electron/issues/1299
-const BASE_ICON_PATH = path.join(__dirname, '..', 'assets', process.platform, 'ic-systemtray-nylas.png');
-const UNREAD_ICON_PATH = path.join(__dirname, '..', 'assets', process.platform, 'ic-systemtray-nylas-unread.png');
-const TRAY_ICON_PATH = path.join(
-  NylasEnv.getConfigDirPath(),
-  'tray',
-  'tray-icon.png'
-);
+const INBOX_ZERO_ICON = path.join(__dirname, '..', 'assets', 'MenuItem-Inbox-Zero.png');
+const INBOX_UNREAD_ICON = path.join(__dirname, '..', 'assets', 'MenuItem-Inbox-Full.png');
+const INBOX_UNREAD_ALT_ICON = path.join(__dirname, '..', 'assets', 'MenuItem-Inbox-Full-NewItems.png');
 
 
 class SystemTrayIconStore {
 
-  constructor(platform) {
-    this._platform = platform;
+  static INBOX_ZERO_ICON = INBOX_ZERO_ICON;
 
-    this._unreadString = (+UnreadBadgeStore.count()).toLocaleString();
-    this._unreadIcon = nativeImage.createFromPath(UNREAD_ICON_PATH);
-    this._baseIcon = nativeImage.createFromPath(BASE_ICON_PATH);
-    this._icon = this._getIconImg();
+  static INBOX_UNREAD_ICON = INBOX_UNREAD_ICON;
+
+  static INBOX_UNREAD_ALT_ICON = INBOX_UNREAD_ALT_ICON;
+
+  constructor() {
+    this._windowBlurred = false;
+    this._unsubscribers = [];
   }
 
   activate() {
-    const iconDir = path.dirname(TRAY_ICON_PATH);
-    mkdirpAsync(iconDir).then(()=> {
-      writeFile(TRAY_ICON_PATH, this._icon.toPng())
-      .then(()=> {
-        ipcRenderer.send('update-system-tray', TRAY_ICON_PATH, this._unreadString);
-        this._unsubscribe = UnreadBadgeStore.listen(this._onUnreadCountChanged);
-      })
-    });
+    this._updateIcon()
+    this._unsubscribers.push(UnreadBadgeStore.listen(this._updateIcon));
+
+    ipcRenderer.on('browser-window-blur', this._onWindowBlur)
+    ipcRenderer.on('browser-window-focus', this._onWindowFocus)
+    this._unsubscribers.push(() => ipcRenderer.removeListener('browser-window-blur', this._onWindowBlur))
+    this._unsubscribers.push(() => ipcRenderer.removeListener('browser-window-focus', this._onWindowFocus))
   }
 
-  _getIconImg(unreadString = this._unreadString) {
-    const imgHandlers = {
-      'darwin': () => {
-        const img = new Image();
-        let canvas = null;
-
-        // toDataUrl always returns the @1x image data, so the assets/darwin/
-        // contains an "@2x" image /without/ the @2x extension
-        img.src = this._baseIcon.toDataURL();
-
-        if (unreadString === '0') {
-          canvas = canvasWithSystemTrayIconAndText(img, '');
-        } else {
-          canvas = canvasWithSystemTrayIconAndText(img, unreadString);
-        }
-        const pngData = nativeImage.createFromDataURL(canvas.toDataURL()).toPng();
-
-        // creating from a buffer allows us to specify that the image is @2x
-        const outputImg = nativeImage.createFromBuffer(pngData);
-        return outputImg;
-      },
-      'default': () => {
-        return unreadString !== '0' ? this._unreadIcon : this._baseIcon;
-      },
-    };
-
-    return imgHandlers[this._platform in imgHandlers ? this._platform : 'default']();
+  _getIconImageData(unreadCount, isWindowBlurred) {
+    if (unreadCount === 0) {
+      return {iconPath: INBOX_ZERO_ICON, isTemplateImg: true};
+    }
+    return isWindowBlurred ?
+      {iconPath: INBOX_UNREAD_ALT_ICON, isTemplateImg: false} :
+      {iconPath: INBOX_UNREAD_ICON, isTemplateImg: true};
   }
 
-  _onUnreadCountChanged = () => {
-    this._unreadString = (+UnreadBadgeStore.count()).toLocaleString();
-    this._icon = this._getIconImg();
-    writeFile(TRAY_ICON_PATH, this._icon.toPng())
-    .then(() => {
-      ipcRenderer.send('update-system-tray', TRAY_ICON_PATH, this._unreadString);
-    });
+  _onWindowBlur = ()=> {
+    // Set state to blurred, but don't trigger a change. The icon should only be
+    // updated when the count changes
+    this._windowBlurred = true;
+  };
+
+  _onWindowFocus = ()=> {
+    // Make sure that as long as the window is focused we never use the alt icon
+    this._windowBlurred = false;
+    this._updateIcon();
+  };
+
+  _updateIcon = () => {
+    const count = UnreadBadgeStore.count()
+    const unreadString = (+count).toLocaleString();
+    const {iconPath, isTemplateImg} = this._getIconImageData(count, this._windowBlurred);
+    ipcRenderer.send('update-system-tray', iconPath, unreadString, isTemplateImg);
   };
 
   deactivate() {
-    if (this._unsubscribe) this._unsubscribe();
+    this._unsubscribers.forEach(unsub => unsub())
   }
 }
 

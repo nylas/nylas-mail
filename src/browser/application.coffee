@@ -347,8 +347,8 @@ class Application
       event.preventDefault()
 
     # System Tray
-    ipcMain.on 'update-system-tray', (event, iconPath, unreadString) =>
-      @systemTrayManager?.setTrayCount(iconPath, unreadString)
+    ipcMain.on 'update-system-tray', (event, args...) =>
+      @systemTrayManager?.updateTray(args...)
 
     ipcMain.on 'set-badge-value', (event, value) =>
       app.dock?.setBadge?(value)

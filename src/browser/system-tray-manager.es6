@@ -1,4 +1,3 @@
-import fs from 'fs';
 import {Tray, Menu, nativeImage} from 'electron';
 
 
@@ -35,20 +34,15 @@ function _getTooltip(unreadString) {
   return unreadString ? '' : `${unreadString} unread messages`;
 }
 
-function _getIcon(iconPath) {
-  if (!iconPath) return nativeImage.createEmpty()
-  try {
-    fs.accessSync(iconPath, fs.F_OK | fs.R_OK)
-    const buffer = fs.readFileSync(iconPath);
-    if (buffer.length > 0) {
-      const out2x = nativeImage.createFromBuffer(buffer, 2);
-      out2x.setTemplateImage(true);
-      return out2x;
-    }
-    return nativeImage.createEmpty();
-  } catch (e) {
+function _getIcon(iconPath, isTemplateImg) {
+  if (!iconPath) {
     return nativeImage.createEmpty();
   }
+  const icon = nativeImage.createFromPath(iconPath)
+  if (isTemplateImg) {
+    icon.setTemplateImage(true);
+  }
+  return icon;
 }
 
 
@@ -83,20 +77,19 @@ class SystemTrayManager {
     }
   };
 
-  setTrayCount(iconPath, unreadString) {
+  updateTray(iconPath, unreadString, isTemplateImg) {
     if (!this._tray) return;
     this._iconPath = iconPath;
 
-    const icon = _getIcon(this._iconPath);
+    const icon = _getIcon(this._iconPath, isTemplateImg);
     const tooltip = _getTooltip(unreadString);
     this._tray.setImage(icon);
     this._tray.setToolTip(tooltip);
   }
 
   destroy() {
-    if (!this._tray) return;
+    if (this._tray) this._tray.destroy();
     this._unsubscribe();
-    this._tray.destroy();
   }
 }
 
