@@ -7,6 +7,42 @@ Category = require '../../src/flux/models/category'
 Matcher = require '../../src/flux/attributes/matcher'
 WindowBridge = require '../../src/window-bridge'
 
+category1 = new Category(id: "l1", name: "inbox", displayName: "Inbox")
+category2 = new Category(id: "l2", name: "archive", displayName: "Archive")
+category3 = new Category(id: "l3", displayName: "Happy Days")
+category4 = new Category(id: "l4", displayName: "Sad Days")
+category5 = new Category(id: "l5", name: 'all', displayName: "All Mail")
+category6 = new Category(id: "l6", name: 'trash', displayName: "Trash")
+
+# Values here are the "after" state. Below, the spy on the query returns the
+# "current" state.
+threadA = new Thread
+  id: "A"
+  unread: true
+  categories: [category1, category4, category5]
+  categoriesType: 'labels'
+threadB = new Thread
+  id: "B"
+  unread: true
+  categories: [category3, category5]
+  categoriesType: 'labels'
+threadC = new Thread
+  id: "C"
+  unread: false
+  categories: [category1, category3, category5]
+  categoriesType: 'labels'
+threadD = new Thread
+  id: "D"
+  unread: true
+  categories: [category6]
+  categoriesType: 'labels'
+threadE = new Thread
+  id: "E"
+  unread: true
+  categories: [category1, category5]
+  categoriesType: 'labels'
+
+
 describe "ThreadCountsStore", ->
   describe "unreadCountForCategoryId", ->
     it "returns null if no count exists for the category id", ->
@@ -177,80 +213,121 @@ describe "ThreadCountsStore", ->
 
 describe "CategoryDatabaseMutationObserver", ->
   beforeEach ->
-    @category1 = new Category(id: "l1", name: "inbox", displayName: "Inbox")
-    @category2 = new Category(id: "l2", name: "archive", displayName: "Archive")
-    @category3 = new Category(id: "l3", displayName: "Happy Days")
-    @category4 = new Category(id: "l4", displayName: "Sad Days")
+    @queryResolves = []
+    @query = jasmine.createSpy('query').andCallFake =>
+      new Promise (resolve, reject) =>
+        @queryResolves.push(resolve)
 
-    # Values here are the "after" state. Below, the spy on the query returns the
-    # "current" state.
-    @threadA = new Thread
-      id: "A"
-      unread: true
-      categories: [@category1, @category4]
-    @threadB = new Thread
-      id: "B"
-      unread: true
-      categories: [@category3]
-    @threadC = new Thread
-      id: "C"
-      unread: false
-      categories: [@category1, @category3]
+    @countsDidChange = jasmine.createSpy('countsDidChange')
+    @m = new ThreadCountsStore.CategoryDatabaseMutationObserver(@countsDidChange)
 
   describe "given a set of modifying models", ->
-    scenarios = [{
+    scenarios = [
+      {
+        name: 'Persisting a three threads, two unread, all in all mail'
         type: 'persist',
-        expected: {
-          l3: -1,
-          l2: -1,
-          l4: 1
-        }
-      },{
-        type: 'unpersist',
-        expected: {
+        threads: [threadA, threadB, threadC],
+        beforePersistQueryResults: [
+          {id: threadA.id, catId: category1.id},
+          {id: threadA.id, catId: category3.id},
+          {id: threadA.id, catId: category5.id},
+          {id: threadB.id, catId: category2.id},
+          {id: threadB.id, catId: category5.id},
+          {id: threadB.id, catId: category3.id},
+          {id: threadC.id, catId: category5.id},
+        ]
+        beforePersistExpected: {
           l1: -1,
+          l3: -2,
+          l2: -1,
+          l5: -3
+        }
+        afterPersistExpected: {
+          l3: -1,
+          l5: -1,
+          l2: -1,
+          l4: 1,
+        }
+      },
+      {
+        name: 'Unpersisting a normal set of threads, all in all mail'
+        type: 'unpersist',
+        threads: [threadA, threadB, threadC],
+        beforePersistQueryResults: [
+          {id: threadA.id, catId: category1.id},
+          {id: threadA.id, catId: category3.id},
+          {id: threadA.id, catId: category5.id},
+          {id: threadB.id, catId: category2.id},
+          {id: threadB.id, catId: category5.id},
+          {id: threadB.id, catId: category3.id},
+          {id: threadC.id, catId: category5.id},
+        ]
+        beforePersistExpected: {
+          l1: -1,
+          l3: -2,
+          l2: -1,
+          l5: -3
+        }
+        afterPersistExpected: {
+          l1: -1,
+          l5: -3,
           l3: -2,
           l2: -1
         }
-      }]
-    scenarios.forEach ({type, expected}) ->
-      it "should call countsDidChange with the category membership deltas (#{type})", ->
-        queryResolves = []
-        query = jasmine.createSpy('query').andCallFake =>
-          new Promise (resolve, reject) ->
-            queryResolves.push(resolve)
-
-        countsDidChange = jasmine.createSpy('countsDidChange')
-        m = new ThreadCountsStore.CategoryDatabaseMutationObserver(countsDidChange)
-
-        beforePromise = m.beforeDatabaseChange(query, {
+      },
+      {
+        name: 'Thread D going from inbox to trash'
+        type: 'persist',
+        threads: [threadD],
+        beforePersistQueryResults: [
+          {id: threadD.id, catId: category1.id},
+          {id: threadD.id, catId: category3.id},
+          {id: threadD.id, catId: category4.id},
+        ]
+        beforePersistExpected: {
+          l1: -1,
+          l3: -1,
+          l4: -1
+        }
+        afterPersistExpected: {
+          l1: -1,
+          l3: -1,
+          l4: -1,
+        }
+      },
+      {
+        name: 'Thread E going from trash to inbox'
+        type: 'persist',
+        threads: [threadE],
+        beforePersistQueryResults: [
+        ]
+        beforePersistExpected: {
+        }
+        afterPersistExpected: {
+          l1: 1,
+          l5: 1
+        }
+      },
+    ]
+    scenarios.forEach ({name, type, threads, beforePersistQueryResults, beforePersistExpected, afterPersistExpected}) ->
+      it "should call countsDidChange with the category membership deltas (#{name})", ->
+        beforePromise = @m.beforeDatabaseChange(@query, {
           type: type
-          objects: [@threadA, @threadB, @threadC],
-          objectIds: [@threadA.id, @threadB.id, @threadC.id]
+          objects: threads,
+          objectIds: _.pluck(threads, 'id'),
           objectClass: Thread.name
         })
-        expect(query.callCount).toBe(1)
-        expect(query.calls[0].args[0]).toEqual("SELECT `Thread`.id as id, `Thread-Category`.`value` as catId FROM `Thread` INNER JOIN `Thread-Category` ON `Thread`.`id` = `Thread-Category`.`id` WHERE `Thread`.id IN ('A','B','C') AND `Thread`.unread = 1")
-        queryResolves[0]([
-          {id: @threadA.id, catId: @category1.id},
-          {id: @threadA.id, catId: @category3.id},
-          {id: @threadB.id, catId: @category2.id},
-          {id: @threadB.id, catId: @category3.id},
-        ])
+        expect(@query.callCount).toBe(1)
+        expect(@query.calls[0].args[0]).toEqual("SELECT `Thread`.id as id, `Thread-Category`.`value` as catId FROM `Thread` INNER JOIN `Thread-Category` ON `Thread`.`id` = `Thread-Category`.`id` WHERE `Thread`.id IN ('#{_.pluck(threads, 'id').join("','")}') AND `Thread`.unread = 1 AND `Thread`.in_all_mail = 1")
+        @queryResolves[0](beforePersistQueryResults)
 
         waitsForPromise =>
           beforePromise.then (result) =>
-            expect(result).toEqual({
-              categories: {
-                l1: -1,
-                l3: -2,
-                l2: -1
-              }
-            })
-            m.afterDatabaseChange(query, {
+            expect(result).toEqual({categories: beforePersistExpected})
+            @m.afterDatabaseChange(@query, {
               type: type
-              objects: [@threadA, @threadB, @threadC],
-              objectIds: [@threadA.id, @threadB.id, @threadC.id]
+              objects: threads,
+              objectIds: _.pluck(threads, 'id'),
               objectClass: Thread.name
             }, result)
-            expect(countsDidChange).toHaveBeenCalledWith(expected)
+            expect(@countsDidChange).toHaveBeenCalledWith(afterPersistExpected)
