@@ -32,9 +32,11 @@ class WindowEventHandler
 
     @subscribe ipcRenderer, 'browser-window-focus', ->
       document.body.classList.remove('is-blurred')
+      window.dispatchEvent(new Event('browser-window-focus'))
 
     @subscribe ipcRenderer, 'browser-window-blur', ->
       document.body.classList.add('is-blurred')
+      window.dispatchEvent(new Event('browser-window-blur'))
 
     @subscribe ipcRenderer, 'command', (event, command, args...) ->
       activeElement = document.activeElement
