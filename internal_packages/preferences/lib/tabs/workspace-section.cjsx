@@ -1,6 +1,6 @@
 React = require 'react'
 {RetinaImg, Flexbox} = require 'nylas-component-kit'
-{LaunchServices, SystemStartService, AccountStore} = require 'nylas-exports'
+{Actions, LaunchServices, SystemStartService, AccountStore} = require 'nylas-exports'
 ConfigSchemaItem = require './config-schema-item'
 
 class DefaultMailClientItem extends React.Component
@@ -95,7 +95,7 @@ class AppearanceModeSwitch extends React.Component
         className="item">
         {@_renderModeOptions()}
       </Flexbox>
-      <div className={applyChangesClass} onClick={@_onApplyChanges}>Apply Changes</div>
+      <div className={applyChangesClass} onClick={@_onApplyChanges}>Apply Layout</div>
     </div>
 
   _renderModeOptions: ->
@@ -107,8 +107,8 @@ class AppearanceModeSwitch extends React.Component
         onClick={ => @setState(value: mode) } />
 
   _onApplyChanges: =>
-    @props.config.set('core.workspace.mode', @state.value)
-
+    NylasEnv.commands.dispatch(document.body, "application:select-#{@state.value}-mode")
+    return
 
 class AppearanceModeOption extends React.Component
   @propTypes:
