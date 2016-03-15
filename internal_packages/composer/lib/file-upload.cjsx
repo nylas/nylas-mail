@@ -31,6 +31,6 @@ class FileUpload extends React.Component
     Actions.removeAttachment @props.upload
 
   _extension: =>
-    path.extname(@props.upload.filename)[1..-1]
+    path.extname(@props.upload.filename.toLowerCase())[1..-1]
 
 module.exports = FileUpload
