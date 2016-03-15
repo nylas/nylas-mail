@@ -58,6 +58,9 @@
   {
     label: 'View'
     submenu: [
+      { label: 'Single Panel Mode', type: 'checkbox', command: 'application:select-list-mode' }
+      { label: 'Two Panel Mode', type: 'checkbox', command: 'application:select-split-mode' }
+      { type: 'separator' }
       { label: 'Enter Full Screen', command: 'window:toggle-full-screen' }
       { label: 'Exit Full Screen', command: 'window:toggle-full-screen', visible: false }
     ]
