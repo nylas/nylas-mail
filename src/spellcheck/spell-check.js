@@ -28,7 +28,7 @@ class NylasSpellcheck {
       spellCheck: (text) => {
         if (!this.current) return true;
 
-        let val = "";
+        let val = true;
         try {
           val = !(this.current.isMisspelled(text));
         } catch (e) {
