@@ -4,7 +4,8 @@
     "NylasEnv": false,
     "$n": false,
     "waitsForPromise": false,
-    "advanceClock": false
+    "advanceClock": false,
+    "TEST_ACCOUNT_ID": false
   },
   "env": {
     "browser": true,

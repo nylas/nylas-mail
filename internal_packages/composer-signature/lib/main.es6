@@ -13,15 +13,13 @@ export function activate() {
 
   ExtensionRegistry.Composer.register(SignatureComposerExtension);
   PreferencesUIStore.registerPreferencesTab(this.preferencesTab);
-
-  this.signatureStore = new SignatureStore();
-  this.signatureStore.activate();
+  SignatureStore.activate();
 }
 
 export function deactivate() {
   ExtensionRegistry.Composer.unregister(SignatureComposerExtension);
   PreferencesUIStore.unregisterPreferencesTab(this.preferencesTab.sectionId);
-  this.signatureStore.deactivate();
+  SignatureStore.deactivate();
 }
 
 export function serialize() {
