@@ -1,6 +1,7 @@
 /** @babel */
 
 import webFrame from 'web-frame';
+import { MenuItem } from 'remote';
 
 import DictionaryManager from './dictionary-manager';
 
@@ -21,11 +22,19 @@ class NylasSpellcheck {
     const lang = this.getCurrentKeyboardLanguage();
     this.current = this.spellCheckers[lang];
 
+    const current = this.current;
+
     webFrame.setSpellCheckProvider(lang.replace(/_/, '-'), false, {
       spellCheck: (text) => {
-        if (!current) return true;
+        if (!this.current) return true;
 
-        let val = !(current.isMisspelled(text));
+        let val = "";
+        try {
+          val = !(this.current.isMisspelled(text));
+        } catch (e) {
+          console.log(e);
+          console.log((e || {}).stack);
+        }
         return val;
       }
     });
