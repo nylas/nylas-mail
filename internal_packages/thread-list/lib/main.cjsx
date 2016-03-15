@@ -30,11 +30,11 @@ module.exports =
       location: WorkspaceStore.Location.DraftList.Toolbar
 
     ComponentRegistry.register DownButton,
-      location: WorkspaceStore.Sheet.Thread.Toolbar.Right
+      location: WorkspaceStore.Location.MessageList.Toolbar
       modes: ['list']
 
     ComponentRegistry.register UpButton,
-      location: WorkspaceStore.Sheet.Thread.Toolbar.Right
+      location: WorkspaceStore.Location.MessageList.Toolbar
       modes: ['list']
 
     ComponentRegistry.register ThreadBulkArchiveButton,
