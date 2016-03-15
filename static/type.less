@@ -87,7 +87,7 @@ small,
 
 mark,
 .mark {
-  background-color: @state-warning-bg;
+  background-color: #fcf8e3;
   padding: .2em;
 }
 
@@ -111,16 +111,16 @@ mark,
   .text-emphasis-variant(@accent-primary);
 }
 .text-success {
-  .text-emphasis-variant(@state-success-text);
+  .text-emphasis-variant(#3c763d);
 }
 .text-info {
-  .text-emphasis-variant(@state-info-text);
+  .text-emphasis-variant(#31708f);
 }
 .text-warning {
-  .text-emphasis-variant(@state-warning-text);
+  .text-emphasis-variant(#8a6d3b);
 }
 .text-danger {
-  .text-emphasis-variant(@state-danger-text);
+  .text-emphasis-variant(#a94442);
 }
 
 // Contextual backgrounds
@@ -133,16 +133,16 @@ mark,
   .bg-variant(@accent-primary);
 }
 .bg-success {
-  .bg-variant(@state-success-bg);
+  .bg-variant(#dff0d8);
 }
 .bg-info {
-  .bg-variant(@state-info-bg);
+  .bg-variant(#d9edf7);
 }
 .bg-warning {
-  .bg-variant(@state-warning-bg);
+  .bg-variant(#fcf8e3);
 }
 .bg-danger {
-  .bg-variant(@state-danger-bg);
+  .bg-variant(#f2dede);
 }
 
 
@@ -204,7 +204,7 @@ abbr[title],
 // Add data-* attribute to help out our tooltip plugin, per https://github.com/twbs/bootstrap/issues/5257
 abbr[data-original-title] {
   cursor: help;
-  border-bottom: 1px dotted @abbr-border-color;
+  border-bottom: 1px dotted @gray-light;
 }
 .initialism {
   font-size: 90%;
@@ -215,7 +215,7 @@ abbr[data-original-title] {
 blockquote {
   padding: (@line-height-computed / 2) @line-height-computed;
   margin: 0 0 @line-height-computed;
-  border-left: 5px solid @blockquote-border-color;
+  border-left: 5px solid @gray-lighter;
 
   p,
   ul,
@@ -233,7 +233,7 @@ blockquote {
     display: block;
     font-size: 80%; // back to default font-size
     line-height: @line-height-base;
-    color: @blockquote-small-color;
+    color: @gray-light;
 
     &:before {
       content: '\2014 \00A0'; // em dash, nbsp
@@ -248,7 +248,7 @@ blockquote {
 blockquote.pull-right {
   padding-right: 15px;
   padding-left: 0;
-  border-right: 5px solid @blockquote-border-color;
+  border-right: 5px solid @gray-lighter;
   border-left: 0;
   text-align: right;
 
