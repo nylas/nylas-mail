@@ -26,10 +26,11 @@ class SystemTrayIconStore {
     this._updateIcon()
     this._unsubscribers.push(UnreadBadgeStore.listen(this._updateIcon));
 
-    ipcRenderer.on('browser-window-blur', this._onWindowBlur)
-    ipcRenderer.on('browser-window-focus', this._onWindowFocus)
-    this._unsubscribers.push(() => ipcRenderer.removeListener('browser-window-blur', this._onWindowBlur))
-    this._unsubscribers.push(() => ipcRenderer.removeListener('browser-window-focus', this._onWindowFocus))
+
+    window.addEventListener('browser-window-blur', this._onWindowBlur);
+    window.addEventListener('browser-window-focus', this._onWindowFocus);
+    this._unsubscribers.push(() => window.removeEventListener('browser-window-blur', this._onWindowBlur))
+    this._unsubscribers.push(() => window.removeEventListener('browser-window-focus', this._onWindowFocus))
   }
 
   _getIconImageData(unreadCount, isWindowBlurred) {
