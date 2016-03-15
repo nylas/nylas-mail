@@ -1,5 +1,6 @@
 import {Message} from 'nylas-exports';
 import SignatureComposerExtension from '../lib/signature-composer-extension';
+import SignatureStore from '../lib/signature-store';
 
 describe("SignatureComposerExtension", ()=> {
   describe("prepareNewDraft", ()=> {
@@ -12,10 +13,12 @@ describe("SignatureComposerExtension", ()=> {
       it("should insert the signature at the end of the message or before the first blockquote and have a newline", ()=> {
         const a = new Message({
           draft: true,
+          accountId: TEST_ACCOUNT_ID,
           body: 'This is a test! <blockquote>Hello world</blockquote>',
         });
         const b = new Message({
           draft: true,
+          accountId: TEST_ACCOUNT_ID,
           body: 'This is a another test.',
         });
 
@@ -50,25 +53,47 @@ describe("SignatureComposerExtension", ()=> {
         ]
 
         scenarios.forEach((scenario)=> {
-          const message = new Message({draft: true, body: scenario.body})
+          const message = new Message({
+            draft: true,
+            body: scenario.body,
+            accountId: TEST_ACCOUNT_ID,
+          })
           SignatureComposerExtension.prepareNewDraft({draft: message});
           expect(message.body).toEqual(scenario.expected)
         })
       });
     });
 
-    describe("when a signature is not defined", ()=> {
+    describe("when no signature is present in the config file", ()=> {
       beforeEach(()=> {
-        spyOn(NylasEnv.config, 'get').andCallFake(()=> null);
+        spyOn(NylasEnv.config, 'get').andCallFake(()=> undefined);
       });
 
-      it("should not do anything", ()=> {
+      it("should insert the default signature", ()=> {
         const a = new Message({
           draft: true,
+          accountId: TEST_ACCOUNT_ID,
           body: 'This is a test! <blockquote>Hello world</blockquote>',
         });
         SignatureComposerExtension.prepareNewDraft({draft: a});
-        expect(a.body).toEqual('This is a test! <blockquote>Hello world</blockquote>');
+        expect(a.body).toEqual(`This is a test! <div class="nylas-n1-signature">${SignatureStore.DefaultSignature}</div><blockquote>Hello world</blockquote>`);
+      });
+    });
+
+
+    describe("when a blank signature is present in the config file", ()=> {
+      beforeEach(()=> {
+        spyOn(NylasEnv.config, 'get').andCallFake(()=> "");
+      });
+
+      it("should insert nothing", ()=> {
+        const a = new Message({
+          draft: true,
+          accountId: TEST_ACCOUNT_ID,
+          body: 'This is a test! <blockquote>Hello world</blockquote>',
+        });
+        SignatureComposerExtension.prepareNewDraft({draft: a});
+        expect(a.body).toEqual(`This is a test! <blockquote>Hello world</blockquote>`);
       });
     });
   });

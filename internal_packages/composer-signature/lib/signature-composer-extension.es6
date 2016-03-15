@@ -1,10 +1,11 @@
 import {ComposerExtension} from 'nylas-exports';
 import SignatureUtils from './signature-utils';
+import SignatureStore from './signature-store';
 
 export default class SignatureComposerExtension extends ComposerExtension {
-  static prepareNewDraft = ({draft})=> {
+  static prepareNewDraft = ({draft}) => {
     const accountId = draft.accountId;
-    const signature = NylasEnv.config.get(`nylas.account-${accountId}.signature`);
+    const signature = SignatureStore.signatureForAccountId(accountId);
     if (!signature) {
       return;
     }
