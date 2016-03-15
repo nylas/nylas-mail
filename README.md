@@ -51,7 +51,7 @@ Great starting points for creating your own plugins!
 - [Send Later](https://github.com/nylas/N1/tree/master/internal_packages/send-later) — Schedule your emails to be sent at a later time
 - [Open Tracking](https://github.com/nylas/N1/tree/master/internal_packages/open-tracking) — See if your emails have been read
 - [Link Tracking](https://github.com/nylas/N1/tree/master/internal_packages/link-tracking) — See if your links have been clicked
-- [Emoji Keyboard](https://github.com/nylas/N1/tree/master/internal_packages/composer-emojis) — Insert emojis by typing a colon (:) followed by the name of an emoji symbol
+- [Emoji Keyboard](https://github.com/nylas/N1/tree/master/internal_packages/composer-emoji) — Insert emoji by typing a colon (:) followed by the name of an emoji symbol
 - [GitHub Sidebar Info](https://github.com/nylas/N1/tree/master/internal_packages/github-contact-card)
 - [View on GitHub](https://github.com/nylas/N1/tree/master/internal_packages/message-view-on-github)
 - [Personal Level Indicators](https://github.com/nylas/N1/tree/master/internal_packages/personal-level-indicators)

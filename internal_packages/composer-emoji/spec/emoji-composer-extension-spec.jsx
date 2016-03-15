@@ -1,18 +1,18 @@
 import React, {addons} from 'react/addons';
 import {renderIntoDocument} from '../../../spec/nylas-test-utils';
 import Contenteditable from '../../../src/components/contenteditable/contenteditable';
-import EmojisComposerExtension from '../lib/emojis-composer-extension';
+import EmojiComposerExtension from '../lib/emoji-composer-extension';
 
 const ReactTestUtils = addons.TestUtils;
 
-describe('EmojisComposerExtension', ()=> {
+describe('EmojiComposerExtension', ()=> {
   beforeEach(()=> {
-    spyOn(EmojisComposerExtension, 'onContentChanged').andCallThrough()
-    spyOn(EmojisComposerExtension, '_onSelectEmoji').andCallThrough()
+    spyOn(EmojiComposerExtension, 'onContentChanged').andCallThrough()
+    spyOn(EmojiComposerExtension, '_onSelectEmoji').andCallThrough()
     const html = 'Testing!'
     const onChange = jasmine.createSpy('onChange')
     this.component = renderIntoDocument(
-      <Contenteditable html={html} onChange={onChange} extensions={[EmojisComposerExtension]}/>
+      <Contenteditable html={html} onChange={onChange} extensions={[EmojiComposerExtension]}/>
     )
     this.editableNode = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(this.component, 'contentEditable'));
   })
@@ -59,7 +59,7 @@ describe('EmojisComposerExtension', ()=> {
         ReactTestUtils.Simulate.keyDown(this.editableNode, {key: "Enter", keyCode: 13, which: 13});
       });
       waitsFor(()=> {
-        return EmojisComposerExtension._onSelectEmoji.calls.length > 0
+        return EmojiComposerExtension._onSelectEmoji.calls.length > 0
       })
       runs(()=> {
         expect(this.editableNode.textContent === "Testing! 💇").toBe(true);
@@ -76,10 +76,10 @@ describe('EmojisComposerExtension', ()=> {
       runs(()=> {
         const button = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(this.component, 'emoji-option'))
         ReactTestUtils.Simulate.mouseDown(button);
-        expect(EmojisComposerExtension._onSelectEmoji).toHaveBeenCalled()
+        expect(EmojiComposerExtension._onSelectEmoji).toHaveBeenCalled()
       });
       waitsFor(()=> {
-        return EmojisComposerExtension._onSelectEmoji.calls.length > 0
+        return EmojiComposerExtension._onSelectEmoji.calls.length > 0
       })
       runs(()=> {
         expect(this.editableNode.textContent).toEqual("Testing! 💇");
@@ -97,14 +97,14 @@ describe('EmojisComposerExtension', ()=> {
         ReactTestUtils.Simulate.keyDown(this.editableNode, {key: "ArrowDown", keyCode: 40, which: 40});
       });
       waitsFor(()=> {
-        return EmojisComposerExtension.onContentChanged.calls.length > 1
+        return EmojiComposerExtension.onContentChanged.calls.length > 1
       });
       runs(()=> {
         expect(React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(this.component, 'emoji-option')).textContent).toEqual("🍔 :hamburger:");
       });
     })
 
-    it('should be able to insert two emojis next to each other', ()=> {
+    it('should be able to insert two emoji next to each other', ()=> {
       runs(()=> {
         this._performEdit('Testing! 🍔 :h');
       });

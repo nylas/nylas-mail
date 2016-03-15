@@ -2,13 +2,12 @@ import {DOMUtils, ContenteditableExtension} from 'nylas-exports'
 import EmojiActions from './emoji-actions'
 import EmojiPicker from './emoji-picker'
 const emoji = require('node-emoji');
-const emojis = Object.keys(emoji.emoji).sort();
 
-class EmojisComposerExtension extends ContenteditableExtension {
+class EmojiComposerExtension extends ContenteditableExtension {
 
   static onContentChanged = ({editor}) => {
     const sel = editor.currentSelection()
-    const {emojiOptions, triggerWord} = EmojisComposerExtension._findEmojiOptions(sel);
+    const {emojiOptions, triggerWord} = EmojiComposerExtension._findEmojiOptions(sel);
     if (sel.anchorNode && sel.isCollapsed) {
       if (emojiOptions.length > 0) {
         const offset = sel.anchorOffset;
@@ -45,7 +44,7 @@ class EmojisComposerExtension extends ContenteditableExtension {
   static toolbarComponentConfig = ({toolbarState}) => {
     const sel = toolbarState.selectionSnapshot;
     if (sel) {
-      const {emojiOptions} = EmojisComposerExtension._findEmojiOptions(sel);
+      const {emojiOptions} = EmojiComposerExtension._findEmojiOptions(sel);
       if (emojiOptions.length > 0 && !toolbarState.dragging && !toolbarState.doubleDown) {
         const locationRefNode = DOMUtils.closest(sel.anchorNode,
                                                  "n1-emoji-autocomplete");
@@ -56,8 +55,8 @@ class EmojisComposerExtension extends ContenteditableExtension {
           props: {emojiOptions,
                   selectedEmoji},
           locationRefNode: locationRefNode,
-          width: EmojisComposerExtension._emojiPickerWidth(emojiOptions),
-          height: EmojisComposerExtension._emojiPickerHeight(emojiOptions),
+          width: EmojiComposerExtension._emojiPickerWidth(emojiOptions),
+          height: EmojiComposerExtension._emojiPickerHeight(emojiOptions),
           hidePointer: true,
         }
       }
@@ -68,13 +67,13 @@ class EmojisComposerExtension extends ContenteditableExtension {
   static editingActions = () => {
     return [{
       action: EmojiActions.selectEmoji,
-      callback: EmojisComposerExtension._onSelectEmoji,
+      callback: EmojiComposerExtension._onSelectEmoji,
     }]
   };
 
   static onKeyDown = ({editor, event}) => {
     const sel = editor.currentSelection()
-    const {emojiOptions} = EmojisComposerExtension._findEmojiOptions(sel);
+    const {emojiOptions} = EmojiComposerExtension._findEmojiOptions(sel);
     if (emojiOptions.length > 0) {
       if (event.key === "ArrowDown" || event.key === "ArrowRight" ||
           event.key === "ArrowUp" || event.key === "ArrowLeft") {
@@ -101,7 +100,7 @@ class EmojisComposerExtension extends ContenteditableExtension {
         const emojiNameNode = DOMUtils.closest(sel.anchorNode, "n1-emoji-autocomplete");
         let selectedEmoji = emojiNameNode.getAttribute("selectedEmoji");
         if (!selectedEmoji) selectedEmoji = emojiOptions[0];
-        EmojisComposerExtension._onSelectEmoji({editor: editor,
+        EmojiComposerExtension._onSelectEmoji({editor: editor,
                                                 actionArg: {emojiChar: emoji.get(selectedEmoji)}});
       }
     }
@@ -118,7 +117,7 @@ class EmojisComposerExtension extends ContenteditableExtension {
       if (index !== -1 && words.lastIndexOf(" ") < index) {
         lastWord = words.substring(index + 1, sel.anchorOffset);
       } else {
-        const {text} = EmojisComposerExtension._getTextUntilSpace(sel.anchorNode, sel.anchorOffset);
+        const {text} = EmojiComposerExtension._getTextUntilSpace(sel.anchorNode, sel.anchorOffset);
         index = text.lastIndexOf(":");
         if (index !== -1 && text.lastIndexOf(" ") < index) {
           lastWord = text.substring(index + 1);
@@ -127,7 +126,7 @@ class EmojisComposerExtension extends ContenteditableExtension {
         }
       }
       if (lastWord.length > 0) {
-        return {triggerWord: lastWord, emojiOptions: EmojisComposerExtension._findMatches(lastWord)};
+        return {triggerWord: lastWord, emojiOptions: EmojiComposerExtension._findMatches(lastWord)};
       }
       return {triggerWord: lastWord, emojiOptions: []};
     }
@@ -151,7 +150,7 @@ class EmojisComposerExtension extends ContenteditableExtension {
                       sel.focusNode,
                       sel.focusOffset);
       } else {
-        const {text, textNode} = EmojisComposerExtension._getTextUntilSpace(sel.anchorNode, sel.anchorOffset);
+        const {text, textNode} = EmojiComposerExtension._getTextUntilSpace(sel.anchorNode, sel.anchorOffset);
         index = text.lastIndexOf(":");
         lastWord = text.substring(index + 1);
         const offset = textNode.nodeValue.lastIndexOf(":");
@@ -203,9 +202,10 @@ class EmojisComposerExtension extends ContenteditableExtension {
 
   static _findMatches(word) {
     const emojiOptions = []
-    for (const curEmoji of emojis) {
-      if (word === curEmoji.substring(0, word.length)) {
-        emojiOptions.push(curEmoji);
+    const emojiChars = Object.keys(emoji.emoji).sort();
+    for (const emojiChar of emojiChars) {
+      if (word === emojiChar.substring(0, word.length)) {
+        emojiOptions.push(emojiChar);
       }
     }
     return emojiOptions;
@@ -213,4 +213,4 @@ class EmojisComposerExtension extends ContenteditableExtension {
 
 }
 
-export default EmojisComposerExtension;
+export default EmojiComposerExtension;
