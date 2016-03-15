@@ -23,7 +23,7 @@ input[type="url"] {
   color: @text-color;
 
   border-radius: @border-radius-base;
-  border: 1px solid @input-border;
+  border: 1px solid @input-border-color;
 
   &:disabled {
     background: fadeout(@input-bg, 40%);
@@ -56,12 +56,12 @@ body.platform-win32 {
   input[type="url"] {
     border: 0;
     border-radius: 0;
-    box-shadow: 0 0 0 2px @input-border;
+    box-shadow: 0 0 0 2px @input-border-color;
 
     &:focus {
       border: 0;
       border-radius: 0;
-      box-shadow: 0 0 0 2px darken(@input-border, 20%);
+      box-shadow: 0 0 0 2px darken(@input-border-color, 20%);
     }
   }
 }

@@ -6,14 +6,14 @@
   order: -100;
   overflow: visible;
   z-index: 100;
-  width:450px;
+  width: 450px;
   margin-top: (38px - 23px) / 2;
 
   .menu .header-container {
-    padding:0;
-    height:23px;
+    padding: 0;
+    height: 23px;
     background-color: transparent;
-    border:none;
+    border: none;
 
     input {
       padding-left: 26px;
@@ -21,7 +21,7 @@
       width: 100%;
       height: 23px;
       border: 1px solid transparent;
-      box-shadow: 0 0.5px 0 rgba(0,0,0,0.15), 0 -0.5px 0 rgba(0,0,0,0.15), 0.5px 0 0 rgba(0,0,0,0.15), -0.5px 0 0 rgba(0,0,0,0.15);
+      box-shadow: @shadow-border;
     }
     input.empty {
       text-align: left;
@@ -54,7 +54,7 @@
     &.showing-suggestions {
       .suggestions { display: inherit; }
       .clear {
-        color: @input-accessory-color;
+        color: @text-color-subtle;
         display: inherit;
       }
     }
@@ -75,7 +75,7 @@
       position: absolute;
       top: 3px;
       right: 4px;
-      color: @input-accessory-color;
+      color: @text-color-subtle;
       display: none;
     }
   }
@@ -84,6 +84,6 @@
 body.is-blurred {
   .search-bar .menu .header-container input {
     background: none;
-    box-shadow: 0 0.5px 0 rgba(0,0,0,0.15), 0 -0.5px 0 rgba(0,0,0,0.15), 0.5px 0 0 rgba(0,0,0,0.15), -0.5px 0 0 rgba(0,0,0,0.15);
+    box-shadow: @shadow-border;
   }
 }
