@@ -525,7 +525,6 @@ class DraftStore
 
     NylasEnv.close() if @_isPopout()
 
-  # The user request to send the draft
   _onEnsureDraftSynced: (draftClientId) =>
     @sessionForClientId(draftClientId).then (session) =>
       @_prepareForSyncback(session).then =>
@@ -556,7 +555,7 @@ class DraftStore
     # accountId if the from address does not match the current account.
     account = AccountStore.accountForEmail(draft.from[0].email)
     unless account
-      return Promise.reject(new Error("DraftStore._finalizeForSending - you can only send drafts from a configured account."))
+      return Promise.reject(new Error("DraftStore::_prepareForSyncback - you can only send drafts from a configured account."))
 
     if account.id isnt draft.accountId
       NylasAPI.makeDraftDeletionRequest(draft)
