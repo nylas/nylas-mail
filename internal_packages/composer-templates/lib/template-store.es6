@@ -108,7 +108,7 @@ class TemplateStore extends NylasStore {
         const draftName = name ? name : draft.subject.replace(TemplateStore.INVALID_TEMPLATE_NAME_REGEX, '');
         let draftContents = contents ? contents : QuotedHTMLTransformer.removeQuotedHTML(draft.body);
 
-        const sigIndex = draftContents.indexOf('<div class="nylas-n1-signature">');
+        const sigIndex = draftContents.indexOf('<signature>');
         draftContents = sigIndex > -1 ? draftContents.slice(0, sigIndex) : draftContents;
         if (!draftName || draftName.length === 0) {
           this._displayError('Give your draft a subject to name your template.');
@@ -259,7 +259,7 @@ class TemplateStore extends NylasStore {
 
         if (proceed) {
           const draftContents = QuotedHTMLTransformer.removeQuotedHTML(session.draft().body);
-          const sigIndex = draftContents.indexOf('<div class="nylas-n1-signature">');
+          const sigIndex = draftContents.indexOf('<signature>');
           const signature = sigIndex > -1 ? draftContents.slice(sigIndex) : '';
 
           const draftHtml = QuotedHTMLTransformer.appendQuotedHTML(templateBody + signature, session.draft().body);

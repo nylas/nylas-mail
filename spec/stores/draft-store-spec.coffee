@@ -327,8 +327,9 @@ describe "DraftStore", ->
         runs ->
           @model = DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0]
 
-      it "should include quoted text", ->
-        expect(@model.body.indexOf('blockquote') > 0).toBe(true)
+      it "should include quoted text, but in a div rather than a blockquote", ->
+        expect(@model.body.indexOf('gmail_quote') > 0).toBe(true)
+        expect(@model.body.indexOf('blockquote') > 0).toBe(false)
         expect(@model.body.indexOf(fakeMessage1.body) > 0).toBe(true)
 
       it "should not address the message to anyone", ->
@@ -497,12 +498,12 @@ describe "DraftStore", ->
             expect(model.body.indexOf('gmail_quote') > 0).toBe(true)
             expect(model.body.indexOf('Fake Message 1') > 0).toBe(true)
 
-        it "should include the `Begin forwarded message:` line", ->
+        it "should include the `---------- Forwarded message ---------:` line", ->
           @_callNewMessageWithContext {threadId: fakeThread.id}
           , (thread, message) ->
             forwardMessage: fakeMessage1
           , (model) ->
-            expect(model.body.indexOf('Begin forwarded message') > 0).toBe(true)
+            expect(model.body.indexOf('---------- Forwarded message ---------') > 0).toBe(true)
 
         it "should make the subject the subject of the message, not the thread", ->
           fakeMessage1.subject = "OLD SUBJECT"

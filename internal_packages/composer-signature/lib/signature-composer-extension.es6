@@ -11,4 +11,14 @@ export default class SignatureComposerExtension extends ComposerExtension {
     }
     draft.body = SignatureUtils.applySignature(draft.body, signature);
   }
+
+  static finalizeSessionBeforeSending = ({session}) => {
+    // remove the <signature> element from the DOM,
+    // essentially unwraps the signature
+    const body = session.draft().body;
+    const changed = body.replace(/<\/?signature>/g, '');
+    if (body !== changed) {
+      session.changes.add({body: changed})
+    }
+  }
 }

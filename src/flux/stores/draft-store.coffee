@@ -337,12 +337,15 @@ class DraftStore
       replyToMessage = attributes.replyToMessage
       @_prepareBodyForQuoting(replyToMessage.body).then (body) ->
         return """
-          <br><br><blockquote class="gmail_quote"
-            style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
+          <br><br><div class="gmail_quote">
             #{DOMUtils.escapeHTMLCharacters(replyToMessage.replyAttributionLine())}
             <br>
-            #{body}
-          </blockquote>"""
+            <blockquote class="gmail_quote"
+              style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
+              #{body}
+            </blockquote>
+          </div>"""
+
     else if attributes.forwardMessage
       forwardMessage = attributes.forwardMessage
       contactsAsHtml = (cs) ->
@@ -356,14 +359,13 @@ class DraftStore
       fields.push("BCC: #{contactsAsHtml(forwardMessage.bcc)}") if forwardMessage.bcc.length > 0
       @_prepareBodyForQuoting(forwardMessage.body).then (body) ->
         return """
-          <br><br><blockquote class="gmail_quote"
-            style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
-            Begin forwarded message:
+          <br><br><div class="gmail_quote">
+            ---------- Forwarded message ---------
             <br><br>
             #{fields.join('<br>')}
             <br><br>
             #{body}
-          </blockquote>"""
+          </div>"""
     else return Promise.resolve("")
 
   # Eventually we'll want a nicer solution for inline attachments
