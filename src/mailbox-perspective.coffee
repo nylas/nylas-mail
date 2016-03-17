@@ -370,8 +370,10 @@ class CategoryMailboxPerspective extends MailboxPerspective
       threads: threads,
       categoriesToRemove: (accountId) =>
         # Remove all categories from this perspective that match the accountId
-        _.filter(@_categories, _.matcher({accountId}))
-      categoriesToAdd: (accId) => [(ruleset[name] ? ruleset.other)(accId)]
+        return _.filter(@_categories, _.matcher({accountId}))
+      categoriesToAdd: (accId) =>
+        category = (ruleset[name] ? ruleset.other)(accId)
+        return if category then [category] else []
     )
 
 
