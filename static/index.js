@@ -65,7 +65,6 @@ function setupWindow (loadSettings) {
   setupCsonCache(CompileCache.getCacheDirectory())
 
   require(loadSettings.bootstrapScript)
-  require('electron').ipcRenderer.send('window-command', 'window:loaded')
 }
 
 function setupCsonCache (cacheDir) {

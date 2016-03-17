@@ -102,6 +102,7 @@ class DraftStore
     @_draftsSending = {}
 
     ipcRenderer.on 'mailto', @_onHandleMailtoLink
+    ipcRenderer.on 'mailfiles', @_onHandleMailFiles
 
   ######### PUBLIC #######################################################
 
@@ -491,6 +492,21 @@ class DraftStore
       draft = _.extend(draft, contacts)
       @_finalizeAndPersistNewMessage(draft).then ({draftClientId}) =>
         @_onPopoutDraftClientId(draftClientId)
+
+  _onHandleMailFiles: (event, paths) =>
+    account = @_getAccountForNewMessage()
+    draft = new Message
+      body: ''
+      subject: ''
+      from: [account.defaultMe()]
+      date: (new Date)
+      draft: true
+      pristine: true
+      accountId: account.id
+    @_finalizeAndPersistNewMessage(draft).then ({draftClientId}) =>
+      for path in paths
+        Actions.addAttachment({filePath: path, messageClientId: draftClientId})
+      @_onPopoutDraftClientId(draftClientId)
 
   _onDestroyDraft: (draftClientId) =>
     session = @_draftSessions[draftClientId]

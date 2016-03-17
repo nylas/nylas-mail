@@ -13,7 +13,7 @@
   mkdirp = require('mkdirp');
 
   start = function() {
-    var addUrlToOpen, args, configDirPath;
+    var addFileToOpen, addUrlToOpen, args, configDirPath;
     args = parseCommandLine();
     global.errorLogger = setupErrorLogger(args);
     configDirPath = setupConfigDir(args);
@@ -28,9 +28,15 @@
       return args.urlsToOpen.push(urlToOpen);
     };
     app.on('open-url', addUrlToOpen);
+    addFileToOpen = function(event, fileToOpen) {
+      event.preventDefault();
+      return args.filesToOpen.push(fileToOpen);
+    };
+    app.on('open-file', addFileToOpen);
     return app.on('ready', function() {
       var Application;
       app.removeListener('open-url', addUrlToOpen);
+      app.removeListener('open-file', addFileToOpen);
       Application = require(path.join(args.resourcePath, 'src', 'browser', 'application'));
       Application.open(args);
       if (!args.specMode) {
@@ -103,7 +109,7 @@
   };
 
   parseCommandLine = function() {
-    var args, background, configDirPath, devMode, logFile, options, ref, resourcePath, safeMode, showSpecsInWindow, specDirectory, specFilePattern, specMode, urlsToOpen, version;
+    var args, background, configDirPath, devMode, filesToOpen, logFile, options, ref, resourcePath, safeMode, showSpecsInWindow, specDirectory, specFilePattern, specMode, urlsToOpen, version;
     version = app.getVersion();
     options = declareOptions(process.argv.slice(1));
     args = options.argv;
@@ -126,6 +132,7 @@
     showSpecsInWindow = specMode === "window";
     resourcePath = path.resolve((ref = args['resource-path']) != null ? ref : path.dirname(path.dirname(__dirname)));
     urlsToOpen = [];
+    filesToOpen = [];
     if (args['path-environment']) {
       process.env.PATH = args['path-environment'];
     }
@@ -141,7 +148,8 @@
       specFilePattern: specFilePattern,
       showSpecsInWindow: showSpecsInWindow,
       resourcePath: resourcePath,
-      urlsToOpen: urlsToOpen
+      urlsToOpen: urlsToOpen,
+      filesToOpen: filesToOpen
     };
   };
 
