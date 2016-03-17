@@ -148,14 +148,11 @@ export default class SpellcheckComposerExtension extends ComposerExtension {
     });
   }
 
-  static finalizeSessionBeforeSending = ({session}) => {
-    const body = session.draft().body;
-    const clean = body.replace(/<\/?spelling[^>]*>/g, '');
-
-    if (body !== clean) {
-      return session.changes.add({body: clean});
-    }
-
-    return Promise.resolve();
+  static applyTransformsToDraft = ({draft}) => {
+    const nextDraft = draft.clone();
+    nextDraft.body = nextDraft.body.replace(/<\/?spelling[^>]*>/g, '');
+    return nextDraft;
   }
+
+  static unapplyTransformsToDraft = () => 'unnecessary'
 }

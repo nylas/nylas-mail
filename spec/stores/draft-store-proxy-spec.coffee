@@ -116,8 +116,10 @@ describe "DraftStoreProxy", ->
       it "should not make a query for the draft", ->
         expect(DatabaseStore.run).not.toHaveBeenCalled()
 
-      it "should immediately make the draft available", ->
-        expect(@proxy.draft()).toEqual(@draft)
+      it "prepare should resolve without querying for the draft", ->
+        waitsForPromise => @proxy.prepare().then =>
+          expect(@proxy.draft()).toEqual(@draft)
+          expect(DatabaseStore.run).not.toHaveBeenCalled()
 
   describe "teardown", ->
     it "should mark the session as destroyed", ->
@@ -131,7 +133,7 @@ describe "DraftStoreProxy", ->
       @draft = new Message(draft: true, body: '123', clientId: 'client-id')
       spyOn(DraftStoreProxy.prototype, "prepare")
       @proxy = new DraftStoreProxy('client-id')
-      spyOn(@proxy, '_setDraft')
+      spyOn(@proxy, '_setDraft').andCallThrough()
       spyOn(DatabaseStore, 'run').andCallFake (modelQuery) =>
         Promise.resolve(@draft)
       jasmine.unspy(DraftStoreProxy.prototype, "prepare")
@@ -167,6 +169,7 @@ describe "DraftStoreProxy", ->
     beforeEach ->
       @draft = new Message(draft: true, clientId: 'client-id', body: 'A', subject: 'initial')
       @proxy = new DraftStoreProxy('client-id', @draft)
+      advanceClock()
 
       spyOn(DatabaseTransaction.prototype, "persistModel").andReturn Promise.resolve()
       spyOn(Actions, "queueTask").andReturn Promise.resolve()

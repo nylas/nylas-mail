@@ -4,6 +4,7 @@ moment = require 'moment'
 
 {ipcRenderer} = require 'electron'
 
+NylasAPI = require '../nylas-api'
 DraftStoreProxy = require './draft-store-proxy'
 DatabaseStore = require './database-store'
 AccountStore = require './account-store'
@@ -12,7 +13,10 @@ TaskQueueStatusStore = require './task-queue-status-store'
 FocusedPerspectiveStore = require './focused-perspective-store'
 FocusedContentStore = require './focused-content-store'
 
+BaseDraftTask = require '../tasks/base-draft-task'
 SendDraftTask = require '../tasks/send-draft-task'
+SyncbackDraftFilesTask = require '../tasks/syncback-draft-files-task'
+SyncbackDraftTask = require '../tasks/syncback-draft-task'
 DestroyDraftTask = require '../tasks/destroy-draft-task'
 
 InlineStyleTransformer = require '../../services/inline-style-transformer'
@@ -71,6 +75,7 @@ class DraftStore
     # Remember that these two actions only fire in the current window and
     # are picked up by the instance of the DraftStore in the current
     # window.
+    @listenTo Actions.ensureDraftSynced, @_onEnsureDraftSynced
     @listenTo Actions.sendDraft, @_onSendDraft
     @listenTo Actions.destroyDraft, @_onDestroyDraft
 
@@ -171,7 +176,7 @@ class DraftStore
     # window.close() within on onbeforeunload could do weird things.
     for key, session of @_draftSessions
       if session.draft()?.pristine
-        Actions.queueTask(new DestroyDraftTask(draftClientId: session.draftClientId))
+        Actions.queueTask(new DestroyDraftTask(session.draftClientId))
       else
         promises.push(session.changes.commit())
 
@@ -492,55 +497,87 @@ class DraftStore
     if session
       @_doneWithSession(session)
 
-    # Stop any pending SendDraftTasks
+    # Stop any pending tasks related ot the draft
     for task in TaskQueueStatusStore.queue()
-      if task instanceof SendDraftTask and task.draft.clientId is draftClientId
+      if task instanceof BaseDraftTask and task.draftClientId is draftClientId
         Actions.dequeueTask(task.id)
 
     # Queue the task to destroy the draft
-    Actions.queueTask(new DestroyDraftTask(draftClientId: draftClientId))
+    Actions.queueTask(new DestroyDraftTask(draftClientId))
 
     NylasEnv.close() if @_isPopout()
 
   # The user request to send the draft
-  _onSendDraft: (draftClientId) =>
-    if NylasEnv.config.get("core.sending.sounds")
-      SoundRegistry.playSound('hit-send')
+  _onEnsureDraftSynced: (draftClientId) =>
+    @sessionForClientId(draftClientId).then (session) =>
+      @_prepareForSyncback(session).then =>
+        Actions.queueTask(new SyncbackDraftFilesTask(draftClientId))
+        Actions.queueTask(new SyncbackDraftTask(draftClientId))
 
+  _onSendDraft: (draftClientId) =>
     @_draftsSending[draftClientId] = true
 
-    # It's important NOT to call `trigger(draftClientId)` here. At this
-    # point there are still unpersisted changes in the DraftStoreProxy. If
-    # we `trigger`, we'll briefly display the wrong version of the draft
-    # as if it was sending.
-    @sessionForClientId(draftClientId)
-    .then(@_runExtensionsBeforeSend)
-    .then (session) =>
-      # Immediately save any pending changes so we don't save after
-      # sending
-      #
-      # We do NOT queue a final {SyncbackDraftTask} before sending because
-      # we're going to send the full raw body with the Send are are about
-      # to delete the draft anyway.
-      #
-      # We do, however, need to ensure that all of the pending changes are
-      # committed to the Database since we'll look them up again just
-      # before send.
-      session.changes.commit(noSyncback: true).then =>
-        draft = session.draft()
-        Actions.queueTask(new SendDraftTask(draft))
+    @sessionForClientId(draftClientId).then (session) =>
+      @_prepareForSyncback(session).then =>
+        if NylasEnv.config.get("core.sending.sounds")
+          SoundRegistry.playSound('hit-send')
+        Actions.queueTask(new SyncbackDraftFilesTask(draftClientId))
+        Actions.queueTask(new SendDraftTask(draftClientId))
         @_doneWithSession(session)
 
-        NylasEnv.close() if @_isPopout()
+        if @_isPopout()
+          NylasEnv.close()
 
   _isPopout: ->
     NylasEnv.getWindowType() is "composer"
 
-  # Give third-party plugins an opportunity to sanitize draft data
-  _runExtensionsBeforeSend: (session) =>
+  _prepareForSyncback: (session) =>
+    draft = session.draft()
+
+    # Make sure the draft is attached to a valid account, and change it's
+    # accountId if the from address does not match the current account.
+    account = AccountStore.accountForEmail(draft.from[0].email)
+    unless account
+      return Promise.reject(new Error("DraftStore._finalizeForSending - you can only send drafts from a configured account."))
+
+    if account.id isnt draft.accountId
+      NylasAPI.makeDraftDeletionRequest(draft)
+      session.changes.add({
+        accountId: account.id
+        version: null
+        serverId: null
+        threadId: null
+        replyToMessageId: null
+      })
+
+    # Run draft transformations registered by third-party plugins
+    allowedFields = ['to', 'from', 'cc', 'bcc', 'subject', 'body']
+
     Promise.each @extensions(), (ext) ->
-      ext.finalizeSessionBeforeSending?({session})
-    .return(session)
+      extApply = ext.applyTransformsToDraft
+      extUnapply = ext.unapplyTransformsToDraft
+      unless extApply and extUnapply
+        return Promise.resolve()
+
+      draft = session.draft().clone()
+      Promise.resolve(extUnapply({draft})).then (cleaned) =>
+        cleaned = draft if cleaned is 'unnecessary'
+        Promise.resolve(extApply({draft: cleaned})).then (transformed) =>
+          Promise.resolve(extUnapply({draft: transformed.clone()})).then (untransformed) =>
+            untransformed = cleaned if untransformed is 'unnecessary'
+
+            if not _.isEqual(_.pick(untransformed, allowedFields), _.pick(cleaned, allowedFields))
+              console.log("-- BEFORE --")
+              console.log(draft.body)
+              console.log("-- TRANSFORMED --")
+              console.log(transformed.body)
+              console.log("-- UNTRANSFORMED (should match BEFORE) --")
+              console.log(untransformed.body)
+              NylasEnv.reportError(new Error("An extension applied a tranform to the draft that it could not reverse."))
+            session.changes.add(_.pick(transformed, allowedFields))
+
+    .then =>
+      session.changes.commit(noSyncback: true)
 
   _onRemoveFile: ({file, messageClientId}) =>
     @sessionForClientId(messageClientId).then (session) ->

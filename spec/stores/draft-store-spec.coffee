@@ -16,6 +16,7 @@
  FocusedContentStore,
  DatabaseTransaction,
  SanitizeTransformer,
+ SyncbackDraftFilesTask,
  InlineStyleTransformer} = require 'nylas-exports'
 
 ModelQuery = require '../../src/flux/models/query'
@@ -685,6 +686,7 @@ describe "DraftStore", ->
 
       DraftStore._draftSessions[@draft.clientId] = proxy
       spyOn(DraftStore, "_doneWithSession").andCallThrough()
+      spyOn(DraftStore, "_prepareForSyncback").andReturn(Promise.resolve())
       spyOn(DraftStore, "trigger")
       spyOn(SoundRegistry, "playSound")
       spyOn(Actions, "queueTask")
@@ -692,18 +694,21 @@ describe "DraftStore", ->
     it "plays a sound immediately when sending draft", ->
       spyOn(NylasEnv.config, "get").andReturn true
       DraftStore._onSendDraft(@draft.clientId)
+      advanceClock()
       expect(NylasEnv.config.get).toHaveBeenCalledWith("core.sending.sounds")
       expect(SoundRegistry.playSound).toHaveBeenCalledWith("hit-send")
 
     it "doesn't plays a sound if the setting is off", ->
       spyOn(NylasEnv.config, "get").andReturn false
       DraftStore._onSendDraft(@draft.clientId)
+      advanceClock()
       expect(NylasEnv.config.get).toHaveBeenCalledWith("core.sending.sounds")
       expect(SoundRegistry.playSound).not.toHaveBeenCalled()
 
     it "sets the sending state when sending", ->
       spyOn(NylasEnv, "isMainWindow").andReturn true
       DraftStore._onSendDraft(@draft.clientId)
+      advanceClock()
       expect(DraftStore.isSendingDraft(@draft.clientId)).toBe true
 
     # Since all changes haven't been applied yet, we want to ensure that
@@ -753,27 +758,19 @@ describe "DraftStore", ->
       runs ->
         expect(NylasEnv.close).not.toHaveBeenCalled()
 
-    it "queues the correct SendDraftTask", ->
+    it "queues tasks to upload files and send the draft", ->
       runs ->
         DraftStore._onSendDraft(@draft.clientId)
       waitsFor ->
         DraftStore._doneWithSession.calls.length > 0
       runs ->
         expect(Actions.queueTask).toHaveBeenCalled()
-        task = Actions.queueTask.calls[0].args[0]
-        expect(task instanceof SendDraftTask).toBe true
-        expect(task.draft).toBe @draft
-
-    it "queues a SendDraftTask", ->
-      runs ->
-        DraftStore._onSendDraft(@draft.clientId)
-      waitsFor ->
-        DraftStore._doneWithSession.calls.length > 0
-      runs ->
-        expect(Actions.queueTask).toHaveBeenCalled()
-        task = Actions.queueTask.calls[0].args[0]
-        expect(task instanceof SendDraftTask).toBe true
-        expect(task.draft).toBe(@draft)
+        saveAttachments = Actions.queueTask.calls[0].args[0]
+        expect(saveAttachments instanceof SyncbackDraftFilesTask).toBe true
+        expect(saveAttachments.draftClientId).toBe(@draft.clientId)
+        sendDraft = Actions.queueTask.calls[1].args[0]
+        expect(sendDraft instanceof SendDraftTask).toBe true
+        expect(sendDraft.draftClientId).toBe(@draft.clientId)
 
     it "resets the sending state if there's an error", ->
       spyOn(NylasEnv, "isMainWindow").andReturn false

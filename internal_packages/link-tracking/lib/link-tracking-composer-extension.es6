@@ -16,33 +16,57 @@ class DraftBody {
 }
 
 export default class LinkTrackingComposerExtension extends ComposerExtension {
-  static finalizeSessionBeforeSending({session}) {
-    const draft = session.draft();
-
+  static applyTransformsToDraft({draft}) {
     // grab message metadata, if any
-    const metadata = draft.metadataForPluginId(PLUGIN_ID);
+    const nextDraft = draft.clone();
+    const metadata = nextDraft.metadataForPluginId(PLUGIN_ID);
     if (metadata) {
       const draftBody = new DraftBody(draft);
       const links = [];
       const messageUid = uuid.v4().replace(/-/g, "");
 
-      // loop through all <a href> elements, replace with redirect links and save mappings
-      draftBody.unquoted = draftBody.unquoted.replace(RegExpUtils.urlLinkTagRegex(), (match, prefix, url, suffix, content, closingTag) => {
-        const encoded = encodeURIComponent(url);
-        // the links param is an index of the link array.
-        const redirectUrl = `${PLUGIN_URL}/link/${draft.accountId}/${messageUid}/${links.length}?redirect=${encoded}`;
-        links.push({url: url, click_count: 0, click_data: [], redirect_url: redirectUrl});
-        return prefix + redirectUrl + suffix + content + closingTag;
-      });
+      // loop through all <a href> elements, replace with redirect links and save
+      // mappings. The links component of the path is an index of the link array.
+      draftBody.unquoted = draftBody.unquoted.replace(
+        RegExpUtils.urlLinkTagRegex(),
+        (match, prefix, url, suffix, content, closingTag) => {
+          const encoded = encodeURIComponent(url);
+          const redirectUrl = `${PLUGIN_URL}/link/${draft.accountId}/${messageUid}/${links.length}?redirect=${encoded}`;
+          links.push({
+            url,
+            click_count: 0,
+            click_data: [],
+            redirect_url: redirectUrl,
+          });
+          return prefix + redirectUrl + suffix + content + closingTag;
+        }
+      );
 
       // save the draft
-      session.changes.add({body: draftBody.body});
+      nextDraft.body = draftBody.body;
 
       // save the link info to draft metadata
       metadata.uid = messageUid;
       metadata.links = links;
-
       Actions.setMetadata(draft, PLUGIN_ID, metadata);
     }
+    return nextDraft;
+  }
+
+  static unapplyTransformsToDraft({draft}) {
+    const nextDraft = draft.clone();
+    const draftBody = new DraftBody(draft);
+    draftBody.unquoted = draftBody.unquoted.replace(
+      RegExpUtils.urlLinkTagRegex(),
+      (match, prefix, url, suffix, content, closingTag) => {
+        if (url.indexOf(PLUGIN_URL) !== -1) {
+          const userURLEncoded = url.split('?redirect=')[1];
+          return prefix + decodeURIComponent(userURLEncoded) + suffix + content + closingTag;
+        }
+        return prefix + url + suffix + content + closingTag;
+      }
+    )
+    nextDraft.body = draftBody.body;
+    return nextDraft;
   }
 }

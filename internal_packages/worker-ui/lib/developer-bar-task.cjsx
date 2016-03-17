@@ -15,7 +15,7 @@ class DeveloperBarTask extends React.Component
     if @state.expanded
       # This could be a potentially large amount of JSON.
       # Do not render unless it's actually being displayed!
-      details = <div className="task-details">{JSON.stringify(@props.task.toJSON())}</div>
+      details = <div className="task-details">{JSON.stringify(@props.task.toJSON(), null, 2)}</div>
 
     <div className={@_classNames()} onClick={=> @setState(expanded: not @state.expanded)}>
       <div className="task-summary">

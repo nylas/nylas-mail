@@ -49,7 +49,7 @@ class DraftListStore extends NylasStore
 
         mailboxPerspective.accountIds.forEach (aid) =>
           OutboxStore.itemsForAccount(aid).forEach (task) =>
-            draft = resultSet.modelWithId(task.draft.clientId)
+            draft = resultSet.modelWithId(task.draftClientId)
             if draft
               draft = draft.clone()
               draft.uploadTaskId = task.id

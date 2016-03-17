@@ -4,28 +4,29 @@ import fs from 'fs';
 import path from 'path';
 
 import SpellcheckComposerExtension from '../lib/spellcheck-composer-extension';
-import {NylasSpellchecker} from 'nylas-exports';
+import {NylasSpellchecker, Message} from 'nylas-exports';
 
-const initialHTML = fs.readFileSync(path.join(__dirname, 'fixtures', 'california-with-misspellings-before.html')).toString();
-const expectedHTML = fs.readFileSync(path.join(__dirname, 'fixtures', 'california-with-misspellings-after.html')).toString();
+const initialPath = path.join(__dirname, 'fixtures', 'california-with-misspellings-before.html');
+const initialHTML = fs.readFileSync(initialPath).toString();
+const expectedPath = path.join(__dirname, 'fixtures', 'california-with-misspellings-after.html');
+const expectedHTML = fs.readFileSync(expectedPath).toString();
 
-describe("SpellcheckComposerExtension", ()=> {
-  beforeEach(()=> {
+describe("SpellcheckComposerExtension", () => {
+  beforeEach(() => {
     // Avoid differences between node-spellcheck on different platforms
-    const spellings = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', 'california-spelling-lookup.json')));
-    spyOn(NylasSpellchecker, 'isMisspelled').andCallFake(word=> spellings[word])
+    const lookupPath = path.join(__dirname, 'fixtures', 'california-spelling-lookup.json');
+    const spellings = JSON.parse(fs.readFileSync(lookupPath));
+    spyOn(NylasSpellchecker, 'isMisspelled').andCallFake(word => spellings[word])
   });
 
-  describe("update", ()=> {
-    it("correctly walks a DOM tree and surrounds mispelled words", ()=> {
+  describe("update", () => {
+    it("correctly walks a DOM tree and surrounds mispelled words", () => {
       const node = document.createElement('div');
       node.innerHTML = initialHTML;
 
       const editor = {
         rootNode: node,
-        whilePreservingSelection: (cb)=> {
-          return cb();
-        },
+        whilePreservingSelection: (cb) => cb(),
       };
 
       SpellcheckComposerExtension.update(editor);
@@ -33,24 +34,19 @@ describe("SpellcheckComposerExtension", ()=> {
     });
   });
 
-  describe("finalizeSessionBeforeSending", ()=> {
-    it("removes the annotations it inserted", ()=> {
-      const session = {
-        draft: ()=> {
-          return {
-            body: expectedHTML,
-          };
-        },
-        changes: {
-          add: jasmine.createSpy('add').andReturn(Promise.resolve()),
-        },
-      };
+  describe("applyTransformsToDraft", () => {
+    it("removes the spelling annotations it inserted", () => {
+      const draft = new Message({ body: expectedHTML });
+      const out = SpellcheckComposerExtension.applyTransformsToDraft({draft});
+      expect(out.body).toEqual(initialHTML);
+    });
+  });
 
-      waitsForPromise(()=> {
-        return SpellcheckComposerExtension.finalizeSessionBeforeSending({session}).then(()=> {
-          expect(session.changes.add).toHaveBeenCalledWith({body: initialHTML});
-        });
-      });
+  describe("unapplyTransformsToDraft", () => {
+    it("returns the magic no-op option", () => {
+      const draft = new Message({ body: expectedHTML });
+      const out = SpellcheckComposerExtension.unapplyTransformsToDraft({draft});
+      expect(out).toEqual('unnecessary');
     });
   });
 });

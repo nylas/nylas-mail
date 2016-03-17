@@ -3,6 +3,7 @@ fs = require 'fs'
 Actions = require '../src/flux/actions'
 NylasAPI = require '../src/flux/nylas-api'
 Thread = require '../src/flux/models/thread'
+Message = require '../src/flux/models/message'
 AccountStore = require '../src/flux/stores/account-store'
 DatabaseStore = require '../src/flux/stores/database-store'
 DatabaseTransaction = require '../src/flux/stores/database-transaction'
@@ -334,3 +335,33 @@ describe "NylasAPI", ->
           verifyUpdate = _.partial(verifyUpdateHappened, klass)
           waitsForPromise =>
             NylasAPI._handleModelResponse(json).then verifyUpdate
+
+  describe "makeDraftDeletionRequest", ->
+    it "should make an API request to delete the draft", ->
+      draft = new Message(accountId: TEST_ACCOUNT_ID, draft: true, clientId: 'asd', serverId: 'asd')
+      spyOn(NylasAPI, 'makeRequest')
+      NylasAPI.makeDraftDeletionRequest(draft)
+      expect(NylasAPI.makeRequest).toHaveBeenCalled()
+      expect(NylasAPI.makeRequest.callCount).toBe 1
+      req = NylasAPI.makeRequest.calls[0].args[0]
+      expect(req.path).toBe "/drafts/#{draft.serverId}"
+      expect(req.accountId).toBe TEST_ACCOUNT_ID
+      expect(req.method).toBe "DELETE"
+      expect(req.returnsModel).toBe false
+
+    it "should increment the change tracker, preventing any further deltas about the draft", ->
+      draft = new Message(accountId: TEST_ACCOUNT_ID, draft: true, clientId: 'asd', serverId: 'asd')
+      spyOn(NylasAPI, 'incrementRemoteChangeLock')
+      NylasAPI.makeDraftDeletionRequest(draft)
+      expect(NylasAPI.incrementRemoteChangeLock).toHaveBeenCalledWith(Message, draft.serverId)
+
+    it "should not return a promise or anything else, to avoid accidentally making things dependent on the request", ->
+      draft = new Message(accountId: TEST_ACCOUNT_ID, draft: true, clientId: 'asd', serverId: 'asd')
+      a = NylasAPI.makeDraftDeletionRequest(draft)
+      expect(a).toBe(undefined)
+
+    it "should not do anything if the draft is missing a serverId", ->
+      draft = new Message(accountId: TEST_ACCOUNT_ID, draft: true, clientId: 'asd', serverId: null)
+      spyOn(NylasAPI, 'makeRequest')
+      NylasAPI.makeDraftDeletionRequest(draft)
+      expect(NylasAPI.makeRequest).not.toHaveBeenCalled()
