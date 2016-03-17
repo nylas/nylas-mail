@@ -95,8 +95,8 @@ export class QuickActionSnooze extends Component {
 }
 
 
-export class BulkThreadSnooze extends Component {
-  static displayName = 'BulkThreadSnooze';
+export class ToolbarSnooze extends Component {
+  static displayName = 'ToolbarSnooze';
 
   static propTypes = {
     items: PropTypes.array,
@@ -110,25 +110,6 @@ export class BulkThreadSnooze extends Component {
     }
     return (
       <SnoozeButton threads={this.props.items}/>
-    );
-  }
-}
-
-export class ToolbarSnooze extends Component {
-  static displayName = 'ToolbarSnooze';
-
-  static propTypes = {
-    thread: PropTypes.object,
-  };
-
-  static containerRequired = false;
-
-  render() {
-    if (!FocusedPerspectiveStore.current().isInbox()) {
-      return <span />;
-    }
-    return (
-      <SnoozeButton threads={[this.props.thread]}/>
     );
   }
 }

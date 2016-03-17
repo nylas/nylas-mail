@@ -165,6 +165,7 @@ class NylasExports
   @load "PriorityUICoordinator", 'priority-ui-coordinator'
 
   # Utils
+  @load "DeprecateUtils", 'deprecate-utils'
   @load "Utils", 'flux/models/utils'
   @load "DOMUtils", 'dom-utils'
   @load "VirtualDOMUtils", 'virtual-dom-utils'

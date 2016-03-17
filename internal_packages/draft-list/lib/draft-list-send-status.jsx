@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from 'react'
+import {Utils} from 'nylas-exports'
 import {Flexbox} from 'nylas-component-kit'
-import {timestamp} from './formatting-utils'
 import SendingProgressBar from './sending-progress-bar'
 
 export default class DraftListSendStatus extends Component {
@@ -16,7 +16,7 @@ export default class DraftListSendStatus extends Component {
     const {draft} = this.props
     if (draft.uploadTaskId) {
       return (
-        <Flexbox style={{width: 150, whiteSpace: 'no-wrap'}}>
+        <Flexbox style={{width: 150, whiteSpace: 'nowrap'}}>
           <SendingProgressBar
             style={{flex: 1, marginRight: 10}}
             progress={draft.uploadProgress * 100}
@@ -24,6 +24,6 @@ export default class DraftListSendStatus extends Component {
         </Flexbox>
       )
     }
-    return <span className="timestamp">{timestamp(draft.date)}</span>
+    return <span className="timestamp">{Utils.shortTimeString(draft.date)}</span>
   }
 }

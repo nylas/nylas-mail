@@ -8,13 +8,10 @@ classNames = require 'classnames'
  MailImportantIcon,
  InjectedComponentSet} = require 'nylas-component-kit'
 
-{Thread, FocusedPerspectiveStore} = require 'nylas-exports'
+{Thread, FocusedPerspectiveStore, Utils} = require 'nylas-exports'
 
 {ThreadArchiveQuickAction,
  ThreadTrashQuickAction} = require './thread-list-quick-actions'
-
-{timestamp,
- subject} = require './formatting-utils'
 
 ThreadListParticipants = require './thread-list-participants'
 ThreadListStore = require './thread-list-store'
@@ -22,9 +19,15 @@ ThreadListIcon = require './thread-list-icon'
 
 TimestampComponentForPerspective = (thread) ->
   if FocusedPerspectiveStore.current().isSent()
-    <span className="timestamp">{timestamp(thread.lastMessageSentTimestamp)}</span>
+    <span className="timestamp">{Utils.shortTimeString(thread.lastMessageSentTimestamp)}</span>
   else
-    <span className="timestamp">{timestamp(thread.lastMessageReceivedTimestamp)}</span>
+    <span className="timestamp">{Utils.shortTimeString(thread.lastMessageReceivedTimestamp)}</span>
+
+subject = (subj) ->
+  if (subj ? "").trim().length is 0
+    return <span className="no-subject">(No Subject)</span>
+  else
+    return subj
 
 
 c1 = new ListTabular.Column

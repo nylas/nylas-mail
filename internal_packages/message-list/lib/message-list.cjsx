@@ -187,7 +187,7 @@ class MessageList extends React.Component
 
   render: =>
     if not @state.currentThread
-      return <div className="message-list" id="message-list"></div>
+      return <span />
 
     wrapClass = classNames
       "messages-wrap": true

@@ -10,15 +10,15 @@ ThreadListStore = require './thread-list-store'
  FocusedContentStore,
  FocusedPerspectiveStore} = require "nylas-exports"
 
-class ThreadBulkArchiveButton extends React.Component
-  @displayName: 'ThreadBulkArchiveButton'
+class ArchiveButton extends React.Component
+  @displayName: 'ArchiveButton'
   @containerRequired: false
 
   @propTypes:
-    selection: React.PropTypes.object.isRequired
+    items: React.PropTypes.array.isRequired
 
   render: ->
-    canArchiveThreads = FocusedPerspectiveStore.current().canArchiveThreads(@props.selection.items())
+    canArchiveThreads = FocusedPerspectiveStore.current().canArchiveThreads(@props.items)
     return <span /> unless canArchiveThreads
 
     <button style={order:-107}
@@ -28,21 +28,23 @@ class ThreadBulkArchiveButton extends React.Component
       <RetinaImg name="toolbar-archive.png" mode={RetinaImg.Mode.ContentIsMask} />
     </button>
 
-  _onArchive: =>
+  _onArchive: (event) =>
     tasks = TaskFactory.tasksForArchiving
-      threads: @props.selection.items()
+      threads: @props.items
     Actions.queueTasks(tasks)
+    Actions.popSheet()
+    event.stopPropagation()
     return
 
-class ThreadBulkTrashButton extends React.Component
-  @displayName: 'ThreadBulkTrashButton'
+class TrashButton extends React.Component
+  @displayName: 'TrashButton'
   @containerRequired: false
 
   @propTypes:
-    selection: React.PropTypes.object.isRequired
+    items: React.PropTypes.array.isRequired
 
   render: ->
-    canTrashThreads = FocusedPerspectiveStore.current().canTrashThreads(@props.selection.items())
+    canTrashThreads = FocusedPerspectiveStore.current().canTrashThreads(@props.items)
     return <span /> unless canTrashThreads
 
     <button style={order:-106}
@@ -52,22 +54,24 @@ class ThreadBulkTrashButton extends React.Component
       <RetinaImg name="toolbar-trash.png" mode={RetinaImg.Mode.ContentIsMask} />
     </button>
 
-  _onRemove: =>
+  _onRemove: (event) =>
     tasks = TaskFactory.tasksForMovingToTrash
-      threads: @props.selection.items()
+      threads: @props.items
     Actions.queueTasks(tasks)
+    Actions.popSheet()
+    event.stopPropagation()
     return
 
 
-class ThreadBulkStarButton extends React.Component
-  @displayName: 'ThreadBulkStarButton'
+class ToggleStarredButton extends React.Component
+  @displayName: 'ToggleStarredButton'
   @containerRequired: false
 
   @propTypes:
-    selection: React.PropTypes.object.isRequired
+    items: React.PropTypes.array.isRequired
 
   render: ->
-    postClickStarredState = _.every @props.selection.items(), (t) -> t.starred is false
+    postClickStarredState = _.every @props.items, (t) -> t.starred is false
     title = "Remove stars from all"
     imageName = "toolbar-star-selected.png"
 
@@ -82,21 +86,22 @@ class ThreadBulkStarButton extends React.Component
       <RetinaImg name={imageName} mode={RetinaImg.Mode.ContentIsMask} />
     </button>
 
-  _onStar: =>
-    task = TaskFactory.taskForInvertingStarred(threads: @props.selection.items())
+  _onStar: (event) =>
+    task = TaskFactory.taskForInvertingStarred(threads: @props.items)
     Actions.queueTask(task)
+    event.stopPropagation()
     return
 
 
-class ThreadBulkToggleUnreadButton extends React.Component
-  @displayName: 'ThreadBulkToggleUnreadButton'
+class ToggleUnreadButton extends React.Component
+  @displayName: 'ToggleUnreadButton'
   @containerRequired: false
 
   @propTypes:
-    selection: React.PropTypes.object.isRequired
+    items: React.PropTypes.array.isRequired
 
   render: =>
-    postClickUnreadState = _.every @props.selection.items(), (t) -> _.isMatch(t, {unread: false})
+    postClickUnreadState = _.every @props.items, (t) -> _.isMatch(t, {unread: false})
     fragment = if postClickUnreadState then "unread" else "read"
 
     <button style={order:-105}
@@ -107,11 +112,12 @@ class ThreadBulkToggleUnreadButton extends React.Component
                  mode={RetinaImg.Mode.ContentIsMask} />
     </button>
 
-  _onClick: =>
-    task = TaskFactory.taskForInvertingUnread(threads: @props.selection.items())
+  _onClick: (event) =>
+    task = TaskFactory.taskForInvertingUnread(threads: @props.items)
     Actions.queueTask(task)
+    Actions.popSheet()
+    event.stopPropagation()
     return
-
 
 ThreadNavButtonMixin =
   getInitialState: ->
@@ -191,10 +197,10 @@ UpButton.containerRequired = false
 DownButton.containerRequired = false
 
 module.exports = {
-  DownButton,
   UpButton,
-  ThreadBulkArchiveButton,
-  ThreadBulkTrashButton,
-  ThreadBulkStarButton,
-  ThreadBulkToggleUnreadButton
+  DownButton,
+  TrashButton,
+  ArchiveButton,
+  ToggleStarredButton,
+  ToggleUnreadButton
 }

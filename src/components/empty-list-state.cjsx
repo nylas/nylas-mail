@@ -78,8 +78,8 @@ class InboxZero extends React.Component
       </div>
     </div>
 
-class EmptyState extends React.Component
-  @displayName = 'EmptyState'
+class EmptyListState extends React.Component
+  @displayName = 'EmptyListState'
   @propTypes =
     visible: React.PropTypes.bool.isRequired
 
@@ -137,4 +137,4 @@ class EmptyState extends React.Component
       layoutMode: WorkspaceStore.layoutMode()
       syncing: NylasSyncStatusStore.busy()
 
-module.exports = EmptyState
+module.exports = EmptyListState

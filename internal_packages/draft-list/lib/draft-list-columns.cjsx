@@ -1,9 +1,7 @@
 _ = require 'underscore'
 React = require 'react'
-classNames = require 'classnames'
 {Actions} = require 'nylas-exports'
 {InjectedComponentSet, ListTabular} = require 'nylas-component-kit'
-{subject} = require './formatting-utils'
 
 
 snippet = (html) =>
@@ -15,6 +13,12 @@ snippet = (html) =>
     text[0..200]
   catch
     return ""
+
+subject = (subj) ->
+  if (subj ? "").trim().length is 0
+    return <span className="no-subject">(No Subject)</span>
+  else
+    return subj
 
 ParticipantsColumn = new ListTabular.Column
   name: "Participants"

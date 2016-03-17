@@ -1,0 +1,53 @@
+@import "ui-variables";
+@img-path: "../internal_packages/thread-list/assets/graphic-stackable-card-filled.svg";
+
+.selected-items-stack {
+  display: flex;
+  align-self: center;
+  align-items: center;
+  height: 100%;
+
+  .selected-items-stack-content {
+    display: flex;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    width: 198px;
+    height: 268px;
+
+    .stack {
+      .card {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 198px;
+        height: 268px;
+        background: url(@img-path);
+        background-size: 198px 268px;
+      }
+    }
+
+    .count-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 6;
+
+      .count {
+        font-size: 4em;
+        font-weight: 200;
+        color: @text-color-very-subtle;
+      }
+      .count-message {
+        padding-top: @padding-base-vertical;
+        color: @text-color-very-subtle;
+      }
+      .clear {
+        padding-top: @padding-large-vertical * 2;
+        color: @text-color-link;
+        cursor: default;
+      }
+    }
+  }
+}
+

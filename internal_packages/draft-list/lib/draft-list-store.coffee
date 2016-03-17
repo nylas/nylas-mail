@@ -18,6 +18,9 @@ class DraftListStore extends NylasStore
   dataSource: =>
     @_dataSource
 
+  selectionObservable: =>
+    return Rx.Observable.fromListSelection(@)
+
   # Inbound Events
 
   _onPerspectiveChanged: =>

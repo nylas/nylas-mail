@@ -67,6 +67,33 @@ Rx.Observable.fromStore = (store) =>
     observer.onNext(store)
     return Rx.Disposable.create(unsubscribe)
 
+# Takes a store that provides an {ObservableListDataSource} via `dataSource()`
+# Returns an observable that provides array of selected items on subscription
+Rx.Observable.fromListSelection = (originStore) =>
+  return Rx.Observable.create((observer) =>
+    dataSourceDisposable = null
+    storeObservable = Rx.Observable.fromStore(originStore)
+
+    disposable = storeObservable.subscribe( =>
+      dataSource = originStore.dataSource()
+      dataSourceObservable = Rx.Observable.fromStore(dataSource)
+
+      if dataSourceDisposable
+        dataSourceDisposable.dispose()
+
+      dataSourceDisposable = dataSourceObservable.subscribe( =>
+        observer.onNext(dataSource.selection.items())
+      )
+      return
+    )
+    return {
+      dispose: =>
+        if dataSourceDisposable
+          dataSourceDisposable.dispose()
+        disposable.dispose()
+    }
+  )
+
 Rx.Observable.fromConfig = (configKey) =>
   return Rx.Observable.create (observer) =>
     disposable = NylasEnv.config.onDidChange configKey, =>
