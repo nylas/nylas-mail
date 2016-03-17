@@ -1,7 +1,7 @@
 Message = require '../models/message'
 Actions = require '../actions'
 DatabaseStore = require './database-store'
-
+ExtensionRegistry = require '../../extension-registry'
 {Listener, Publisher} = require '../modules/reflux-coffee'
 SyncbackDraftTask = require '../tasks/syncback-draft-task'
 CoffeeHelpers = require '../coffee-helpers'
@@ -135,7 +135,7 @@ class DraftStoreProxy
     # was last saved to disk
     DraftStore = require './draft-store'
 
-    return Promise.each DraftStore.extensions(), (ext) ->
+    return Promise.each ExtensionRegistry.Composer.extensions(), (ext) ->
       if ext.applyTransformsToDraft and ext.unapplyTransformsToDraft
         Promise.resolve(ext.unapplyTransformsToDraft({draft})).then (untransformed) ->
           unless untransformed is 'unnecessary'
