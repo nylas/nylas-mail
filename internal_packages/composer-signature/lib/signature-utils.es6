@@ -1,24 +1,28 @@
 export default {
   applySignature(body, signature) {
     // https://regex101.com/r/nC0qL2/1
-    const signatureRegex = /<div class="nylas-n1-signature">[^]*<\/div>/;
+    const signatureRegex = /<signature>[^]*<\/signature>/;
 
-    let signatureHTML = '<div class="nylas-n1-signature">' + signature + '</div>';
-    let insertionPoint = body.search(signatureRegex);
     let newBody = body;
+    let paddingBefore = '';
+    let paddingAfter = '';
 
-    // If there is a signature already present
-    if (insertionPoint !== -1) {
-      // Remove it
-      newBody = newBody.replace(signatureRegex, "");
+    // Remove any existing signature in the body
+    newBody = newBody.replace(signatureRegex, "");
+
+    // http://www.regexpal.com/?fam=94390
+    // prefer to put the signature one <br> before the beginning of the quote,
+    // if possible.
+    let insertionPoint = newBody.search(/<\w+[^>]*gmail_quote/i);
+    if (insertionPoint === -1) {
+      insertionPoint = newBody.length;
+      paddingBefore = '<br/><br/>';
     } else {
-      insertionPoint = newBody.indexOf('<blockquote');
-
-      if (insertionPoint === -1) {
-        insertionPoint = newBody.length;
-        signatureHTML = '<br/><br/>' + signatureHTML;
-      }
+      paddingAfter = '<br/>';
     }
-    return newBody.slice(0, insertionPoint) + signatureHTML + newBody.slice(insertionPoint);
+
+    const contentBefore = newBody.slice(0, insertionPoint);
+    const contentAfter = newBody.slice(insertionPoint);
+    return `${contentBefore}<signature>${paddingBefore}${signature}${paddingAfter}</signature>${contentAfter}`;
   },
 };

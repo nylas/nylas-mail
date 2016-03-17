@@ -144,7 +144,7 @@ class ComposerEditor extends Component {
 
   _findLastNodeBeforeQuoteOrSignature(editor) {
     const walker = document.createTreeWalker(editor.rootNode, NodeFilter.SHOW_TEXT);
-    const nodesBelowUserBody = editor.rootNode.querySelectorAll('.nylas-n1-signature, .gmail_quote, blockquote');
+    const nodesBelowUserBody = editor.rootNode.querySelectorAll('signature, .gmail_quote, blockquote');
 
     let lastNode = null;
     let node = walker.nextNode();
