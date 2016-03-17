@@ -107,12 +107,12 @@ class NylasWindow
     @setLoadSettings(loadSettings)
 
     @browserWindow.once 'window:loaded', =>
-      @emit 'window:loaded'
       @loaded = true
       if @mainWindow
         @browserWindow.setResizable(true)
       if @browserWindow.loadSettingsChangedSinceGetURL
         @browserWindow.webContents.send('load-settings-changed', @browserWindow.loadSettings)
+      @emit 'window:loaded'
 
     @browserWindow.loadURL(@getURL(loadSettings))
     @browserWindow.focusOnWebView() if @isSpec

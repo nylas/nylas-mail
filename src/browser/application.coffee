@@ -130,14 +130,16 @@ class Application
     @launchWithOptions(options)
 
   # Opens a new window based on the options provided.
-  launchWithOptions: ({urlsToOpen, specMode, devMode, safeMode, specDirectory, specFilePattern, logFile, showSpecsInWindow}) ->
+  launchWithOptions: ({urlsToOpen, pathsToOpen, specMode, safeMode, specDirectory, specFilePattern, logFile, showSpecsInWindow}) ->
     if specMode
       exitWhenDone = true
       @runSpecs({exitWhenDone, showSpecsInWindow, @resourcePath, specDirectory, specFilePattern, logFile})
     else
       @openWindowsForTokenState()
-      for urlToOpen in (urlsToOpen || [])
-        @openUrl(urlToOpen)
+      if pathsToOpen instanceof Array
+        @openComposerWithFiles(pathsToOpen)
+      if urlsToOpen instanceof Array
+        @openUrl(urlToOpen) for urlToOpen in urlsToOpen
 
   # Creates server to listen for additional N1 application launches.
   #
@@ -339,7 +341,8 @@ class Application
       @setDatabasePhase('close')
       @deleteSocketFile()
 
-    app.on 'open-file', (event, pathToOpen) ->
+    app.on 'open-file', (event, pathToOpen) =>
+      @openComposerWithFiles([pathToOpen])
       event.preventDefault()
 
     app.on 'open-url', (event, urlToOpen) =>
@@ -514,6 +517,9 @@ class Application
       @windowManager.sendToMainWindow('mailto', urlToOpen)
     else
       console.log "Ignoring unknown URL type: #{urlToOpen}"
+
+  openComposerWithFiles: (pathsToOpen) ->
+    @windowManager.sendToMainWindow('mailfiles', pathsToOpen)
 
   # Opens up a new {NylasWindow} to run specs within.
   #

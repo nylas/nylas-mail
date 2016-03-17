@@ -19,6 +19,7 @@ describe 'FileUploadStore', ->
     @session =
       changes:
         add: jasmine.createSpy('session.changes.add')
+        commit: ->
       draft: => @draft
     spyOn(NylasEnv, "isMainWindow").andReturn true
     spyOn(FileUploadStore, "_onAttachFileError").andCallFake (msg) ->

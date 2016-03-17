@@ -4,6 +4,7 @@
  Actions,
  Contact,
  Message,
+ Account,
  DraftStore,
  AccountStore,
  DatabaseStore,
@@ -993,3 +994,27 @@ describe "DraftStore", ->
                   expect(actual instanceof Contact).toBe(true)
                   expect(actual.email).toEqual(expected.email)
                   expect(actual.name).toEqual(expected.name)
+
+  describe "mailfiles handling", ->
+    it "should popout a new draft", ->
+      defaultMe = new Contact()
+      spyOn(DraftStore, '_onPopoutDraftClientId')
+      spyOn(DatabaseTransaction.prototype, 'persistModel')
+      spyOn(Account.prototype, 'defaultMe').andReturn(defaultMe)
+      spyOn(Actions, 'addAttachment')
+      DraftStore._onHandleMailFiles({}, ['/Users/ben/file1.png', '/Users/ben/file2.png'])
+      waitsFor ->
+        DatabaseTransaction.prototype.persistModel.callCount > 0
+      runs ->
+        {body, subject, from} = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
+        expect({body, subject, from}).toEqual({body:'', subject:'', from: [defaultMe]})
+        expect(DraftStore._onPopoutDraftClientId).toHaveBeenCalled()
+
+    it "should call addAttachment for each provided file path", ->
+      spyOn(Actions, 'addAttachment')
+      DraftStore._onHandleMailFiles({}, ['/Users/ben/file1.png', '/Users/ben/file2.png'])
+      waitsFor ->
+        Actions.addAttachment.callCount is 2
+      runs ->
+        expect(Actions.addAttachment.calls[0].args[0].filePath).toEqual('/Users/ben/file1.png')
+        expect(Actions.addAttachment.calls[1].args[0].filePath).toEqual('/Users/ben/file2.png')

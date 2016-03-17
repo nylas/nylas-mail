@@ -144,4 +144,10 @@ class FileUploadStore extends NylasStore
       uploads = changeFunction(session.draft().uploads)
       session.changes.add({uploads})
 
+      # In some scenarios (like dropping attachments on the dock icon), files
+      # are added to drafts which may be open in another composer window.
+      # Committing here ensures the files appear immediately, no matter where the
+      # user is now viewing the draft.
+      session.changes.commit()
+
 module.exports = new FileUploadStore()
