@@ -1,5 +1,5 @@
 import React, {addons} from 'react/addons';
-import {Rx, DatabaseStore, DateUtils, Actions} from 'nylas-exports'
+import {Rx, DatabaseStore, DateUtils} from 'nylas-exports'
 import SendLaterButton from '../lib/send-later-button';
 import SendLaterActions from '../lib/send-later-actions';
 import {renderIntoDocument} from '../../../spec/nylas-test-utils'
