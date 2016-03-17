@@ -2,32 +2,34 @@ _ = require 'underscore'
 React = require "react"
 {ComponentRegistry, WorkspaceStore} = require "nylas-exports"
 
-{DownButton, UpButton, ThreadBulkArchiveButton, ThreadBulkTrashButton,
- ThreadBulkStarButton, ThreadBulkToggleUnreadButton} = require "./thread-buttons"
-{DraftDeleteButton} = require "./draft-buttons"
-ThreadSelectionBar = require './thread-selection-bar'
 ThreadList = require './thread-list'
+ThreadListToolbar = require './thread-list-toolbar'
+MessageListToolbar = require './message-list-toolbar'
+SelectedItemsStack = require './selected-items-stack'
 
-DraftSelectionBar = require './draft-selection-bar'
-DraftList = require './draft-list'
-DraftListSendStatus = require './draft-list-send-status'
+{UpButton,
+ DownButton,
+ TrashButton,
+ ArchiveButton,
+ ToggleUnreadButton,
+ ToggleStarredButton} = require "./thread-toolbar-buttons"
 
 module.exports =
   activate: (@state={}) ->
-    WorkspaceStore.defineSheet 'Drafts', {root: true},
-      list: ['RootSidebar', 'DraftList']
-
     ComponentRegistry.register ThreadList,
       location: WorkspaceStore.Location.ThreadList
 
-    ComponentRegistry.register ThreadSelectionBar,
+    ComponentRegistry.register SelectedItemsStack,
+      location: WorkspaceStore.Location.MessageList
+      modes: ['split']
+
+    # Toolbars
+    ComponentRegistry.register ThreadListToolbar,
       location: WorkspaceStore.Location.ThreadList.Toolbar
+      modes: ['list']
 
-    ComponentRegistry.register DraftList,
-      location: WorkspaceStore.Location.DraftList
-
-    ComponentRegistry.register DraftSelectionBar,
-      location: WorkspaceStore.Location.DraftList.Toolbar
+    ComponentRegistry.register MessageListToolbar,
+      location: WorkspaceStore.Location.MessageList.Toolbar
 
     ComponentRegistry.register DownButton,
       location: WorkspaceStore.Location.MessageList.Toolbar
@@ -37,33 +39,26 @@ module.exports =
       location: WorkspaceStore.Location.MessageList.Toolbar
       modes: ['list']
 
-    ComponentRegistry.register ThreadBulkArchiveButton,
-      role: 'thread:BulkAction'
+    ComponentRegistry.register ArchiveButton,
+      role: 'ThreadActionsToolbarButton'
 
-    ComponentRegistry.register ThreadBulkTrashButton,
-      role: 'thread:BulkAction'
+    ComponentRegistry.register TrashButton,
+      role: 'ThreadActionsToolbarButton'
 
-    ComponentRegistry.register ThreadBulkStarButton,
-      role: 'thread:BulkAction'
+    ComponentRegistry.register ToggleStarredButton,
+      role: 'ThreadActionsToolbarButton'
 
-    ComponentRegistry.register ThreadBulkToggleUnreadButton,
-      role: 'thread:BulkAction'
-
-    ComponentRegistry.register DraftDeleteButton,
-      role: 'draft:BulkAction'
-
-    ComponentRegistry.register DraftListSendStatus,
-      role: 'DraftList:DraftStatus'
+    ComponentRegistry.register ToggleUnreadButton,
+      role: 'ThreadActionsToolbarButton'
 
   deactivate: ->
-    ComponentRegistry.unregister DraftList
-    ComponentRegistry.unregister DraftSelectionBar
     ComponentRegistry.unregister ThreadList
-    ComponentRegistry.unregister ThreadSelectionBar
-    ComponentRegistry.unregister ThreadBulkArchiveButton
-    ComponentRegistry.unregister ThreadBulkTrashButton
-    ComponentRegistry.unregister ThreadBulkToggleUnreadButton
-    ComponentRegistry.unregister DownButton
+    ComponentRegistry.unregister SelectedItemsStack
+    ComponentRegistry.unregister ThreadListToolbar
+    ComponentRegistry.unregister MessageListToolbar
+    ComponentRegistry.unregister ArchiveButton
+    ComponentRegistry.unregister TrashButton
+    ComponentRegistry.unregister ToggleUnreadButton
+    ComponentRegistry.unregister ToggleStarredButton
     ComponentRegistry.unregister UpButton
-    ComponentRegistry.unregister DraftDeleteButton
-    ComponentRegistry.unregister DraftListSendStatus
+    ComponentRegistry.unregister DownButton

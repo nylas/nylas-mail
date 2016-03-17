@@ -1,7 +1,8 @@
 _ = require 'underscore'
 NylasStore = require 'nylas-store'
 
-{Thread,
+{Rx,
+ Thread,
  Message,
  Actions,
  DatabaseStore,
@@ -41,6 +42,9 @@ class ThreadListStore extends NylasStore
 
     @trigger(@)
     Actions.setFocus(collection: 'thread', item: null)
+
+  selectionObservable: =>
+    return Rx.Observable.fromListSelection(@)
 
   # Inbound Events
 

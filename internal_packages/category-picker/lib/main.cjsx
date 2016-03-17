@@ -6,7 +6,7 @@ CategoryPicker = require "./category-picker"
 module.exports =
   activate: (@state={}) ->
     ComponentRegistry.register CategoryPicker,
-      roles: ['thread:BulkAction', 'message:Toolbar']
+      role: 'ThreadActionsToolbarButton'
 
   deactivate: ->
     ComponentRegistry.unregister(CategoryPicker)

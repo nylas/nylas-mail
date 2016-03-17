@@ -2,8 +2,7 @@ React = require "react/addons"
 _ = require 'underscore'
 
 {Utils,
- Actions,
- WorkspaceStore} = require "nylas-exports"
+ Actions} = require "nylas-exports"
 InjectedComponentSet = require './injected-component-set'
 TimeoutTransitionGroup = require './timeout-transition-group'
 RetinaImg = require './retina-img'
@@ -32,7 +31,7 @@ collection name. To add an item to the bar created in the example above, registe
 
 ```coffee
 ComponentRegistry.register ThreadBulkTrashButton,
-  role: 'thread:BulkAction'
+  role: 'thread:Toolbar'
 ```
 
 Section: Component Kit
@@ -73,7 +72,6 @@ class MultiselectActionBar extends React.Component
 
   setupForProps: (props) =>
     @_unsubscribers = []
-    @_unsubscribers.push WorkspaceStore.listen @_onChange
     @_unsubscribers.push props.dataSource.listen @_onChange
 
   shouldComponentUpdate: (nextProps, nextState) =>
@@ -109,7 +107,7 @@ class MultiselectActionBar extends React.Component
 
   _renderActions: =>
     return <div></div> unless @props.dataSource
-    <InjectedComponentSet matching={role:"#{@props.collection}:BulkAction"}
+    <InjectedComponentSet matching={role:"#{@props.collection}:Toolbar"}
                           exposedProps={selection: @props.dataSource.selection, items: @state.items} />
 
   _label: =>

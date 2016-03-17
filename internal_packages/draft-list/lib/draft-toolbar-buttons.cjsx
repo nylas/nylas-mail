@@ -1,5 +1,4 @@
-React = require "react/addons"
-classNames = require 'classnames'
+React = require "react"
 {RetinaImg} = require 'nylas-component-kit'
 {Actions, FocusedContentStore, DestroyDraftTask} = require "nylas-exports"
 

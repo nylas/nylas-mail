@@ -2,11 +2,11 @@ _ = require 'underscore'
 React = require 'react'
 {Actions} = require 'nylas-exports'
 {FluxContainer,
+ FocusContainer,
+ EmptyListState,
  MultiselectList} = require 'nylas-component-kit'
 DraftListStore = require './draft-list-store'
 DraftListColumns = require './draft-list-columns'
-FocusContainer = require './focus-container'
-EmptyState = require './empty-state'
 
 class DraftList extends React.Component
   @displayName: 'DraftList'
@@ -20,7 +20,7 @@ class DraftList extends React.Component
         <MultiselectList
           columns={DraftListColumns.Wide}
           onDoubleClick={@_onDoubleClick}
-          emptyComponent={EmptyState}
+          emptyComponent={EmptyListState}
           keymapHandlers={@_keymapHandlers()}
           itemPropsProvider={@_itemPropsProvider}
           itemHeight={39}
