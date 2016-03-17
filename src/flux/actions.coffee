@@ -376,6 +376,7 @@ class Actions
   ```
   ###
   @sendDraft: ActionScopeWindow
+  @ensureDraftSynced: ActionScopeWindow
 
   ###
   Public: Destroys the draft with the given ID. This Action is handled by the {DraftStore},
@@ -471,7 +472,6 @@ class Actions
   @addAttachment: ActionScopeWindow
   @selectAttachment: ActionScopeWindow
   @removeAttachment: ActionScopeWindow
-  @attachmentUploaded: ActionScopeWindow
 
   @fetchAndOpenFile: ActionScopeWindow
   @fetchAndSaveFile: ActionScopeWindow

@@ -32,36 +32,36 @@ class SendLaterButton extends Component {
     this._subscription.dispose();
   }
 
-  onSendLater = (formattedDate, dateLabel)=> {
+  onSendLater = (formattedDate, dateLabel) => {
     SendLaterActions.sendLater(this.props.draftClientId, formattedDate, dateLabel);
     this.setState({scheduledDate: 'saving'});
-    Actions.closePopover()
   };
 
-  onCancelSendLater = ()=> {
+  onCancelSendLater = () => {
     SendLaterActions.cancelSendLater(this.props.draftClientId);
-    Actions.closePopover()
   };
 
-  onClick = ()=> {
+  onClick = () => {
     const buttonRect = React.findDOMNode(this).getBoundingClientRect()
     Actions.openPopover(
       <SendLaterPopover
         scheduledDate={this.state.scheduledDate}
         onSendLater={this.onSendLater}
-        onCancelSendLater={this.onCancelSendLater} />,
+        onCancelSendLater={this.onCancelSendLater}
+      />,
       {originRect: buttonRect, direction: 'up'}
     )
   };
 
-  onMessageChanged = (message)=> {
+  onMessageChanged = (message) => {
     if (!message) return;
+    const {scheduledDate} = this.state;
     const messageMetadata = message.metadataForPluginId(PLUGIN_ID) || {}
     const nextScheduledDate = messageMetadata.sendLaterDate
 
-    if (nextScheduledDate !== this.state.scheduledDate) {
+    if (nextScheduledDate !== scheduledDate) {
       const isComposer = NylasEnv.isComposerWindow()
-      const isFinishedSelecting = ((this.state.scheduledDate === 'saving') && (nextScheduledDate !== null));
+      const isFinishedSelecting = ((scheduledDate === 'saving') && (nextScheduledDate !== null));
       if (isComposer && isFinishedSelecting) {
         NylasEnv.close();
       }
@@ -79,7 +79,8 @@ class SendLaterButton extends Component {
           <RetinaImg
             name="inline-loading-spinner.gif"
             mode={RetinaImg.Mode.ContentDark}
-            style={{width: 14, height: 14}}/>
+            style={{width: 14, height: 14}}
+          />
         </button>
       );
     }
@@ -94,10 +95,10 @@ class SendLaterButton extends Component {
     }
     return (
       <button className={className} title="Send later…" onClick={this.onClick}>
-        <RetinaImg name="icon-composer-sendlater.png" mode={RetinaImg.Mode.ContentIsMask}/>
+        <RetinaImg name="icon-composer-sendlater.png" mode={RetinaImg.Mode.ContentIsMask} />
         {dateInterpretation}
         <span>&nbsp;</span>
-        <RetinaImg name="icon-composer-dropdown.png" mode={RetinaImg.Mode.ContentIsMask}/>
+        <RetinaImg name="icon-composer-dropdown.png" mode={RetinaImg.Mode.ContentIsMask} />
       </button>
     );
   }

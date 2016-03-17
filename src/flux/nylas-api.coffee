@@ -2,6 +2,7 @@ _ = require 'underscore'
 request = require 'request'
 Utils = require './models/utils'
 Account = require './models/account'
+Message = require './models/message'
 Actions = require './actions'
 {APIError} = require './errors'
 PriorityUICoordinator = require '../priority-ui-coordinator'
@@ -279,7 +280,7 @@ class NylasAPI
     # problems downstream when we try to write to the database.
     uniquedJSONs = _.uniq jsons, false, (model) -> model.id
     if uniquedJSONs.length < jsons.length
-      console.warn("NylasAPI.handleModelResponse: called with non-unique object set. Maybe an API request returned the same object more than once?")
+      console.warn("NylasAPI::handleModelResponse: called with non-unique object set. Maybe an API request returned the same object more than once?")
 
     # Step 2: Filter out any objects we've locked (usually because we successfully)
     # deleted them moments ago.
@@ -374,6 +375,17 @@ class NylasAPI
         @_handleModelResponse(jsons)
         if requestSuccess
           requestSuccess(jsons)
+
+  makeDraftDeletionRequest: (draft) ->
+    return unless draft.serverId
+    @incrementRemoteChangeLock(Message, draft.serverId)
+    @makeRequest
+      path: "/drafts/#{draft.serverId}"
+      accountId: draft.accountId
+      method: "DELETE"
+      body: {version: draft.version}
+      returnsModel: false
+    return
 
   incrementRemoteChangeLock: (klass, id) ->
     @_lockTracker.increment(klass, id)

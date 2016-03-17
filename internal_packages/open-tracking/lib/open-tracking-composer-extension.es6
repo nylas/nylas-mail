@@ -10,27 +10,33 @@ class DraftBody {
 }
 
 export default class OpenTrackingComposerExtension extends ComposerExtension {
-  static finalizeSessionBeforeSending({session}) {
-    const draft = session.draft();
 
+  static applyTransformsToDraft({draft}) {
     // grab message metadata, if any
+    const nextDraft = draft.clone();
     const metadata = draft.metadataForPluginId(PLUGIN_ID);
     if (!metadata) {
-      return;
+      return nextDraft;
     }
 
     if (!metadata.uid) {
       NylasEnv.reportError(new Error("Open tracking composer extension could not find 'uid' in metadata!"));
-      return;
+      return nextDraft;
     }
 
     // insert a tracking pixel <img> into the message
     const serverUrl = `${PLUGIN_URL}/open/${draft.accountId}/${metadata.uid}`;
-    const img = `<img width="0" height="0" style="border:0; width:0; height:0;" src="${serverUrl}">`;
+    const img = `<img class="n1-open" width="0" height="0" style="border:0; width:0; height:0;" src="${serverUrl}">`;
     const draftBody = new DraftBody(draft);
-    draftBody.unquoted = draftBody.unquoted + "<br>" + img;
 
-    // save the draft
-    session.changes.add({body: draftBody.body});
+    draftBody.unquoted = `${draftBody.unquoted}${img}`;
+    nextDraft.body = draftBody.body;
+    return nextDraft;
+  }
+
+  static unapplyTransformsToDraft({draft}) {
+    const nextDraft = draft.clone();
+    nextDraft.body = draft.body.replace(/<img class="n1-open"[^>]*>/g, '');
+    return nextDraft;
   }
 }

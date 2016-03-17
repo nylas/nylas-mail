@@ -5,7 +5,6 @@ import {
   Actions,
   Message,
   DatabaseStore,
-  SyncbackDraftTask,
 } from 'nylas-exports'
 import SendLaterActions from './send-later-actions'
 import {PLUGIN_ID, PLUGIN_NAME} from './send-later-constants'
@@ -26,19 +25,17 @@ class SendLaterStore extends NylasStore {
     ];
   }
 
-  setMetadata = (draftClientId, metadata)=> {
+  setMetadata = (draftClientId, metadata) => {
     return DatabaseStore.modelify(Message, [draftClientId])
-    .then((messages)=> {
-      const {accountId} = messages[0];
+    .then((messages) => {
+      const message = messages[0];
 
-      return NylasAPI.authPlugin(this.pluginId, this.pluginName, accountId)
-      .then(()=> {
-        Actions.setMetadata(messages, this.pluginId, metadata);
-
-        // Important: Do not remove this unless N1 is syncing drafts by default.
-        Actions.queueTask(new SyncbackDraftTask(draftClientId));
+      return NylasAPI.authPlugin(this.pluginId, this.pluginName, message.accountId)
+      .then(() => {
+        Actions.setMetadata(message, this.pluginId, metadata);
+        Actions.ensureDraftSynced(message.clientId);
       })
-      .catch((error)=> {
+      .catch((error) => {
         NylasEnv.reportError(error);
         NylasEnv.showErrorDialog(`Sorry, we were unable to schedule this message. ${error.message}`);
       });
@@ -61,17 +58,21 @@ class SendLaterStore extends NylasStore {
     }
   }
 
-  onSendLater = (draftClientId, sendLaterDate, dateLabel)=> {
+  onSendLater = (draftClientId, sendLaterDate, dateLabel) => {
     this.recordAction(sendLaterDate, dateLabel)
-    this.setMetadata(draftClientId, {sendLaterDate});
+    this.setMetadata(draftClientId, {sendLaterDate}).then(() => {
+      if (NylasEnv.isComposerWindow()) {
+        Actions.closePopover();
+      }
+    });
   };
 
-  onCancelSendLater = (draftClientId)=> {
+  onCancelSendLater = (draftClientId) => {
     this.recordAction(null)
     this.setMetadata(draftClientId, {sendLaterDate: null});
   };
 
-  deactivate = ()=> {
+  deactivate = () => {
     this.unsubscribers.forEach(unsub => unsub());
   };
 }

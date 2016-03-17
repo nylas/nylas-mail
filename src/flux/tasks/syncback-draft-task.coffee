@@ -1,137 +1,70 @@
 _ = require 'underscore'
-
-Actions = require '../actions'
-AccountStore = require '../stores/account-store'
-DatabaseStore = require '../stores/database-store'
-TaskQueueStatusStore = require '../stores/task-queue-status-store'
-NylasAPI = require '../nylas-api'
+fs = require 'fs'
+path = require 'path'
 
 Task = require './task'
+Actions = require '../actions'
+DatabaseStore = require '../stores/database-store'
+TaskQueueStatusStore = require '../stores/task-queue-status-store'
+MultiRequestProgressMonitor = require '../../multi-request-progress-monitor'
+NylasAPI = require '../nylas-api'
+
+BaseDraftTask = require './base-draft-task'
 SyncbackMetadataTask = require './syncback-metadata-task'
 {APIError} = require '../errors'
-Message = require '../models/message'
-Account = require '../models/account'
 
+class DraftNotFoundError extends Error
 
 module.exports =
-class SyncbackDraftTask extends Task
-
-  constructor: (@draftClientId) ->
-    super
-
-  shouldDequeueOtherTask: (other) ->
-    # A new syncback action should knock any other syncbacks that are
-    # not currently executing out of the queue.
-    other instanceof SyncbackDraftTask and
-    other.draftClientId is @draftClientId and
-    other.sequentialId <= @sequentialId
-
-  isDependentOnTask: (other) ->
-    # Set this task to be dependent on any SyncbackDraftTasks and
-    # SendDraftTasks for the same draft that were created first.
-    # This, in conjunction with this method on SendDraftTask, ensures
-    # that a send and a syncback never run at the same time for a draft.
-
-    # Require here rather than on top to avoid a circular dependency
-    SendDraftTask = require './send-draft-task'
-
-    (other instanceof SyncbackDraftTask and
-    other.draftClientId is @draftClientId and
-    other.sequentialId < @sequentialId) or
-    (other instanceof SendDraftTask and
-    other.draft.clientId is @draftClientId and
-    other.sequentialId < @sequentialId)
-
-  performLocal: ->
-    # SyncbackDraftTask does not do anything locally. You should persist your changes
-    # to the local database directly or using a DraftStoreProxy, and then queue a
-    # SyncbackDraftTask to send those changes to the server.
-    if not @draftClientId
-      errMsg = "Attempt to call SyncbackDraftTask.performLocal without @draftClientId"
-      return Promise.reject(new Error(errMsg))
-    Promise.resolve()
+class SyncbackDraftTask extends BaseDraftTask
 
   performRemote: ->
-    @getLatestLocalDraft().then (draft) =>
-      return Promise.resolve() unless draft
+    @refreshDraftReference()
+    .then =>
+      if @draft.serverId
+        requestPath = "/drafts/#{@draft.serverId}"
+        requestMethod = 'PUT'
+      else
+        requestPath = "/drafts"
+        requestMethod = 'POST'
 
-      @checkDraftFromMatchesAccount(draft)
-      .then(@saveDraft)
-      .then(@updateLocalDraft)
+      NylasAPI.makeRequest
+        accountId: @draft.accountId
+        path: requestPath
+        method: requestMethod
+        body: @draft.toJSON()
+        returnsModel: false
+      .then(@applyResponseToDraft)
       .thenReturn(Task.Status.Success)
-      .catch (err) =>
-        if err instanceof APIError and not (err.statusCode in NylasAPI.PermanentErrorCodes)
-          return Promise.resolve(Task.Status.Retry)
-        return Promise.resolve([Task.Status.Failed, err])
 
-  saveDraft: (draft) =>
-    if draft.serverId
-      path = "/drafts/#{draft.serverId}"
-      method = 'PUT'
-    else
-      path = "/drafts"
-      method = 'POST'
+    .catch (err) =>
+      if err instanceof DraftNotFoundError
+        return Promise.resolve(Task.Status.Continue)
+      if err instanceof APIError and not (err.statusCode in NylasAPI.PermanentErrorCodes)
+        return Promise.resolve(Task.Status.Retry)
+      return Promise.resolve([Task.Status.Failed, err])
 
-    NylasAPI.makeRequest
-      accountId: draft.accountId
-      path: path
-      method: method
-      body: draft.toJSON()
-      returnsModel: false
-
-  updateLocalDraft: ({version, id, thread_id}) =>
+  applyResponseToDraft: (response) =>
     # Important: There could be a significant delay between us initiating the save
     # and getting JSON back from the server. Our local copy of the draft may have
     # already changed more.
     #
     # The only fields we want to update from the server are the `id` and `version`.
     #
-    draftIsNew = false
+    draftWasCreated = false
 
     DatabaseStore.inTransaction (t) =>
-      @getLatestLocalDraft().then (draft) =>
-        # Draft may have been deleted. Oh well.
-        return Promise.resolve() unless draft
-        if draft.serverId isnt id
-          draft.threadId = thread_id
-          draft.serverId = id
-          draftIsNew = true
-        draft.version = version
-        t.persistModel(draft).then =>
-          Promise.resolve(draft)
-    .then (draft) =>
-      if draftIsNew
-        for {pluginId, value} in draft.pluginMetadata
-          task = new SyncbackMetadataTask(@draftClientId, draft.constructor.name, pluginId)
+      @refreshDraftReference().then =>
+        if @draft.serverId isnt response.id
+          @draft.threadId = response.thread_id
+          @draft.serverId = response.id
+          draftWasCreated = true
+        @draft.version = response.version
+        t.persistModel(@draft)
+
+    .then =>
+      if draftWasCreated
+        for {pluginId, value} in @draft.pluginMetadata
+          task = new SyncbackMetadataTask(@draftClientId, @draft.constructor.name, pluginId)
           Actions.queueTask(task)
       return true
-
-  getLatestLocalDraft: =>
-    DatabaseStore.findBy(Message, clientId: @draftClientId).include(Message.attributes.body)
-    .then (message) ->
-      if not message?.draft
-        return Promise.resolve()
-      return Promise.resolve(message)
-
-  checkDraftFromMatchesAccount: (draft) ->
-    account = AccountStore.accountForEmail(draft.from[0].email)
-    if draft.accountId is account.id
-      return Promise.resolve(draft)
-    else
-      if draft.serverId
-        NylasAPI.incrementRemoteChangeLock(Message, draft.serverId)
-        NylasAPI.makeRequest
-          path: "/drafts/#{draft.serverId}"
-          accountId: draft.accountId
-          method: "DELETE"
-          body: {version: draft.version}
-          returnsModel: false
-
-      draft.accountId = account.id
-      delete draft.serverId
-      delete draft.version
-      delete draft.threadId
-      delete draft.replyToMessageId
-      DatabaseStore.inTransaction (t) =>
-        t.persistModel(draft)
-      .thenReturn(draft)

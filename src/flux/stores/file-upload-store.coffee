@@ -32,10 +32,12 @@ class FileUploadStore extends NylasStore
     @listenTo Actions.addAttachment, @_onAddAttachment
     @listenTo Actions.selectAttachment, @_onSelectAttachment
     @listenTo Actions.removeAttachment, @_onRemoveAttachment
-    @listenTo Actions.attachmentUploaded, @_onAttachmentUploaded
     @listenTo DatabaseStore, @_onDataChanged
 
     mkdirp.sync(UPLOAD_DIR)
+    if NylasEnv.isMainWindow() or NylasEnv.inSpecMode()
+      @listenTo Actions.sendDraftSuccess, ({messageClientId}) =>
+        @_deleteUploadsForClientId(messageClientId)
 
   # Handlers
 
@@ -78,10 +80,6 @@ class FileUploadStore extends NylasStore
       _.reject(uploads, _.matcher({id: upload.id}))
 
     @_deleteUpload(upload).catch(@_onAttachFileError)
-
-  _onAttachmentUploaded: (upload) ->
-    return Promise.resolve() unless upload
-    @_deleteUpload(upload)
 
   _onAttachFileError: (error) ->
     NylasEnv.showErrorDialog(error.message)
@@ -135,6 +133,11 @@ class FileUploadStore extends NylasStore
         Promise.resolve(upload)
     .catch ->
       Promise.reject(new Error("Error cleaning up file #{upload.filename}"))
+
+  _deleteUploadsForClientId: (messageClientId) =>
+    rimraf = require('rimraf')
+    rimraf path.join(UPLOAD_DIR, messageClientId), {disableGlob: true}, (err) =>
+      console.warn(err) if err
 
   _applySessionChanges: (messageClientId, changeFunction) =>
     DraftStore.sessionForClientId(messageClientId).then (session) =>

@@ -164,73 +164,29 @@ describe "SyncbackDraftTask", ->
       draft = remoteDraft()
       draft.pluginMetadata = [{pluginId: 1, value: {a: 1}}]
       task = new SyncbackDraftTask(draft.clientId)
-      spyOn(task, 'getLatestLocalDraft').andReturn Promise.resolve(draft)
+      spyOn(task, 'refreshDraftReference').andCallFake ->
+        task.draft = draft
+        Promise.resolve(draft)
       spyOn(Actions, 'queueTask')
       waitsForPromise =>
-        task.updateLocalDraft(draft).then =>
+        task.applyResponseToDraft(draft).then =>
           expect(Actions.queueTask).not.toHaveBeenCalled()
 
     it "should save metadata associated to the draft when the draft is syncbacked for the first time", ->
       draft = localDraft()
       draft.pluginMetadata = [{pluginId: 1, value: {a: 1}}]
       task = new SyncbackDraftTask(draft.clientId)
-      spyOn(task, 'getLatestLocalDraft').andReturn Promise.resolve(draft)
+      spyOn(task, 'refreshDraftReference').andCallFake =>
+        task.draft = draft
+        Promise.resolve()
       spyOn(Actions, 'queueTask')
       waitsForPromise =>
-        task.updateLocalDraft(draft).then =>
+        task.applyResponseToDraft(draft).then =>
           metadataTask = Actions.queueTask.mostRecentCall.args[0]
           expect(metadataTask instanceof SyncbackMetadataTask).toBe true
           expect(metadataTask.clientId).toEqual draft.clientId
           expect(metadataTask.modelClassName).toEqual 'Message'
           expect(metadataTask.pluginId).toEqual 1
-
-    describe 'when `from` value does not match the account associated to the draft', ->
-      beforeEach ->
-        @serverId = 'remote123'
-        @draft = remoteDraft()
-        @draft.serverId = 'remote123'
-        @draft.from = [{email: 'another@email.com'}]
-        @task = new SyncbackDraftTask(@draft.clientId)
-        jasmine.unspy(AccountStore, 'accountForEmail')
-        spyOn(AccountStore, "accountForEmail").andReturn {id: 'other-account'}
-        spyOn(Actions, "queueTask")
-        spyOn(@task, 'getLatestLocalDraft').andReturn Promise.resolve(@draft)
-
-      it "should delete the remote draft if it was already saved", ->
-        waitsForPromise =>
-          @task.checkDraftFromMatchesAccount(@draft).then =>
-            expect(NylasAPI.makeRequest).toHaveBeenCalled()
-            params = NylasAPI.makeRequest.mostRecentCall.args[0]
-            expect(params.method).toEqual "DELETE"
-            expect(params.path).toEqual "/drafts/#{@serverId}"
-
-      it "should increment the change tracker for the deleted serverId, preventing any further deltas about the draft", ->
-        waitsForPromise =>
-          @task.checkDraftFromMatchesAccount(@draft).then =>
-            expect(NylasAPI.incrementRemoteChangeLock).toHaveBeenCalledWith(Message, 'remote123')
-
-      it "should change the accountId and clear server fields", ->
-        waitsForPromise =>
-          @task.checkDraftFromMatchesAccount(@draft).then (updatedDraft) =>
-            expect(updatedDraft.serverId).toBeUndefined()
-            expect(updatedDraft.version).toBeUndefined()
-            expect(updatedDraft.threadId).toBeUndefined()
-            expect(updatedDraft.replyToMessageId).toBeUndefined()
-            expect(updatedDraft.accountId).toEqual 'other-account'
-
-      it "should syncback any metadata associated with the original draft", ->
-        @draft.pluginMetadata = [{pluginId: 1, value: {a: 1}}]
-        @task = new SyncbackDraftTask(@draft.clientId)
-        spyOn(@task, 'getLatestLocalDraft').andReturn Promise.resolve(@draft)
-        spyOn(@task, 'saveDraft').andCallFake (d) -> Promise.resolve(d)
-        waitsForPromise =>
-          @task.performRemote().then =>
-            metadataTask = Actions.queueTask.mostRecentCall.args[0]
-            expect(metadataTask instanceof SyncbackMetadataTask).toBe true
-            expect(metadataTask.clientId).toEqual @draft.clientId
-            expect(metadataTask.modelClassName).toEqual 'Message'
-            expect(metadataTask.pluginId).toEqual 1
-
 
   describe "When the api throws errors", ->
     stubAPI = (code, method) ->
@@ -245,7 +201,9 @@ describe "SyncbackDraftTask", ->
 
     beforeEach ->
       @task = new SyncbackDraftTask("removeDraftId")
-      spyOn(@task, "getLatestLocalDraft").andCallFake -> Promise.resolve(remoteDraft())
+      spyOn(@task, 'refreshDraftReference').andCallFake =>
+        @task.draft = remoteDraft()
+        Promise.resolve()
 
     NylasAPI.PermanentErrorCodes.forEach (code) ->
       it "fails on API status code #{code}", ->
@@ -253,8 +211,8 @@ describe "SyncbackDraftTask", ->
         waitsForPromise =>
           @task.performRemote().then ([status, err]) =>
             expect(status).toBe Task.Status.Failed
-            expect(@task.getLatestLocalDraft).toHaveBeenCalled()
-            expect(@task.getLatestLocalDraft.calls.length).toBe 1
+            expect(@task.refreshDraftReference).toHaveBeenCalled()
+            expect(@task.refreshDraftReference.calls.length).toBe 1
             expect(err.statusCode).toBe code
 
     [NylasAPI.TimeoutErrorCode].forEach (code) ->
@@ -269,5 +227,5 @@ describe "SyncbackDraftTask", ->
       waitsForPromise =>
         @task.performRemote().then ([status, err]) =>
           expect(status).toBe Task.Status.Failed
-          expect(@task.getLatestLocalDraft).toHaveBeenCalled()
-          expect(@task.getLatestLocalDraft.calls.length).toBe 1
+          expect(@task.refreshDraftReference).toHaveBeenCalled()
+          expect(@task.refreshDraftReference.calls.length).toBe 1

@@ -4,32 +4,21 @@ Message = require '../models/message'
 DatabaseStore = require '../stores/database-store'
 Actions = require '../actions'
 NylasAPI = require '../nylas-api'
-
-SyncbackDraftTask = require './syncback-draft-task'
-SendDraftTask = require './send-draft-task'
+BaseDraftTask = require './base-draft-task'
 
 module.exports =
-class DestroyDraftTask extends Task
-  constructor: ({@draftClientId} = {}) ->
-    super
+class DestroyDraftTask extends BaseDraftTask
+  constructor: (@draftClientId) ->
+    super(@draftClientId)
 
   shouldDequeueOtherTask: (other) ->
-    (other instanceof DestroyDraftTask and other.draftClientId is @draftClientId) or
-    (other instanceof SyncbackDraftTask and other.draftClientId is @draftClientId) or
-    (other instanceof SendDraftTask and other.draftClientId is @draftClientId)
-
-  isDependentOnTask: (other) ->
-    (other instanceof SyncbackDraftTask and other.draftClientId is @draftClientId)
+    other instanceof BaseDraftTask and other.draftClientId is @draftClientId
 
   performLocal: ->
-    unless @draftClientId
-      return Promise.reject(new Error("Attempt to call DestroyDraftTask.performLocal without draftClientId"))
-
-    DatabaseStore.findBy(Message, clientId: @draftClientId).include(Message.attributes.body).then (draft) =>
-      return Promise.resolve() unless draft
-      @draft = draft
+    super
+    @refreshDraftReference().then =>
       DatabaseStore.inTransaction (t) =>
-        t.unpersistModel(draft)
+        t.unpersistModel(@draft)
 
   performRemote: ->
     # We don't need to do anything if we weren't able to find the draft

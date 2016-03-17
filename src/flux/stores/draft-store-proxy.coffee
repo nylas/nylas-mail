@@ -58,8 +58,8 @@ class DraftChangeSet
 
   applyToModel: (model) =>
     if model
-      model.fromJSON(@_saving)
-      model.fromJSON(@_pending)
+      model[key] = val for key, val of @_saving
+      model[key] = val for key, val of @_pending
     model
 
 ###
@@ -92,8 +92,7 @@ class DraftStoreProxy
     @changes = new DraftChangeSet(@_changeSetTrigger, @_changeSetCommit)
 
     if draft
-      @_setDraft(draft)
-      @_draftPromise = Promise.resolve(@)
+      @_draftPromise = @_setDraft(draft)
 
     @prepare()
 
@@ -115,9 +114,7 @@ class DraftStoreProxy
     @_draftPromise ?= DatabaseStore.findBy(Message, clientId: @draftClientId).include(Message.attributes.body).then (draft) =>
       return Promise.reject(new Error("Draft has been destroyed.")) if @_destroyed
       return Promise.reject(new Error("Assertion Failure: Draft #{@draftClientId} not found.")) if not draft
-      @_setDraft(draft)
-      Promise.resolve(@)
-    @_draftPromise
+      return @_setDraft(draft)
 
   teardown: ->
     @stopListeningToAll()
@@ -133,8 +130,20 @@ class DraftStoreProxy
     # to send with an empty body?"
     if draft.pristine
       @_draftPristineBody = draft.body
-    @_draft = draft
-    @trigger()
+
+    # Reverse draft transformations performed by third-party plugins when the draft
+    # was last saved to disk
+    DraftStore = require './draft-store'
+
+    return Promise.each DraftStore.extensions(), (ext) ->
+      if ext.applyTransformsToDraft and ext.unapplyTransformsToDraft
+        Promise.resolve(ext.unapplyTransformsToDraft({draft})).then (untransformed) ->
+          unless untransformed is 'unnecessary'
+            draft = untransformed
+    .then =>
+      @_draft = draft
+      @trigger()
+      Promise.resolve(@)
 
   _onDraftChanged: (change) ->
     return if not change?
@@ -184,8 +193,7 @@ class DraftStoreProxy
       # once they have a serverId we sync them periodically here.
       #
       return unless @_draft.serverId
-
-      Actions.queueTask(new SyncbackDraftTask(@draftClientId))
+      Actions.ensureDraftSynced(@draftClientId)
 
 
 DraftStoreProxy.DraftChangeSet = DraftChangeSet

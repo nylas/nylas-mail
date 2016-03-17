@@ -71,12 +71,10 @@ describe('SendLaterButton', ()=> {
     it('sets scheduled date to "saving" and dispatches action', ()=> {
       const button = makeButton()
       spyOn(button, 'setState')
-      spyOn(Actions, 'closePopover')
       button.onSendLater({utc: ()=> 'utc'})
 
       expect(SendLaterActions.sendLater).toHaveBeenCalled()
       expect(button.setState).toHaveBeenCalledWith({scheduledDate: 'saving'})
-      expect(Actions.closePopover).toHaveBeenCalled()
     });
   });
 
