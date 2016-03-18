@@ -148,5 +148,9 @@ class Account extends ModelWithMetadata
     else
       archiveCategory
 
+  hasSyncStateError: ->
+    # TODO: ignoring "stopped" until it's no longer overloaded on API
+    return @syncState != Account.SYNC_STATE_RUNNING &&
+        @syncState != Account.SYNC_STATE_STOPPED
 
 module.exports = Account

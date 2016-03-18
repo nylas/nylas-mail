@@ -26,7 +26,7 @@ class PreferencesAccountList extends Component {
   _renderAccount = (account)=> {
     const label = account.label;
     const accountSub = `${account.name || 'No name provided'} <${account.emailAddress}>`;
-    const syncError = account.syncState !== Account.SYNC_STATE_RUNNING;
+    const syncError = account.hasSyncStateError();
 
     return (
       <div
