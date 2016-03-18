@@ -150,6 +150,11 @@ class NylasSyncWorkerPool
   _handleAccountDeltas: (deltas) =>
     for delta in deltas
       Actions.updateAccount(delta.account_id, {syncState: delta.sync_state})
+      Actions.recordUserEvent('Account State Delta', {
+        accountId: delta.account_id
+        accountEmail: delta.email_address
+        syncState: delta.sync_state
+      })
 
   _handleDeltaDeletion: (delta) =>
     klass = NylasAPI._apiObjectToClassMap[delta.object]
