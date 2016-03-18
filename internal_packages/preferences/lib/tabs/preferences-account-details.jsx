@@ -142,7 +142,7 @@ class PreferencesAccountDetails extends Component {
   }
   _renderSyncErrorDetails() {
     const {account} = this.state;
-    if (account.syncState !== Account.SYNC_STATE_RUNNING) {
+    if (account.hasSyncStateError()) {
       switch (account.syncState) {
       case Account.SYNC_STATE_AUTH_FAILED:
         return this._renderErrorDetail(
