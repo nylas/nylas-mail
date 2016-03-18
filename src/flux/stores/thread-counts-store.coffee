@@ -84,7 +84,7 @@ class ThreadCountsStore extends NylasStore
       DatabaseStore._query(SetCountsQuery())
     .then =>
       NylasEnv.config.set('nylas.threadCountsValid', true)
-      console.log("Recomputed all thread counts in #{countsStartTime}s")
+      console.log("Recomputed all thread counts in #{Date.now() - countsStartTime}ms")
 
   _onCountsChanged: =>
     DatabaseStore._query(ReadCountsQuery()).then (results) =>
