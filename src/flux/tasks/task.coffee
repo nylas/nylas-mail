@@ -12,6 +12,7 @@ TaskDebugStatus =
   DequeuedObsolete: "DEQUEUED (Obsolete)"
   DequeuedDependency: "DEQUEUED (Dependency Failure)"
   WaitingOnQueue: "WAITING ON QUEUE"
+  WaitingToRetry: "WAITING TO RETRY"
   WaitingOnDependency: "WAITING ON DEPENDENCY"
   RunningLocal: "RUNNING LOCAL"
   ProcessingRemote: "PROCESSING REMOTE"
