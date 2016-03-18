@@ -1,5 +1,6 @@
 import React, {addons} from 'react/addons';
 import PreferencesAccountDetails from '../lib/tabs/preferences-account-details';
+import {Account} from 'nylas-exports';
 const {TestUtils: {renderIntoDocument}} = addons;
 
 
@@ -7,13 +8,14 @@ const makeComponent = (props = {})=> {
   return renderIntoDocument(<PreferencesAccountDetails {...props} />);
 };
 
-const account = {
+const account = new Account({
   id: 1,
+  clientId: 1,
   name: 'someone',
   emailAddress: 'someone@nylas.com',
   aliases: [],
   defaultAlias: null,
-}
+})
 
 describe('PreferencesAccountDetails', ()=> {
   beforeEach(()=> {
@@ -24,15 +26,9 @@ describe('PreferencesAccountDetails', ()=> {
   })
 
   function assertAccountState(actual, expected) {
-    expect(actual).toEqual({
-      account: {
-        id: expected.id || 1,
-        name: expected.name || 'someone',
-        emailAddress: expected.emailAddress || 'someone@nylas.com',
-        aliases: expected.aliases || [],
-        defaultAlias: expected.defaultAlias || null,
-      },
-    })
+    for (const key of Object.keys(expected)) {
+      expect(actual.account[key]).toEqual(expected[key]);
+    }
   }
 
   describe('_makeAlias', ()=> {

@@ -1,6 +1,5 @@
 import React, {Component, PropTypes} from 'react';
 import {RetinaImg, Flexbox, EditableList} from 'nylas-component-kit';
-import {Account} from 'nylas-exports';
 import classnames from 'classnames';
 
 class PreferencesAccountList extends Component {
