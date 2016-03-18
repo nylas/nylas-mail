@@ -174,16 +174,31 @@ class TaskQueue
   _processQueue: =>
     started = 0
 
+    if @_processQueueTimeout
+      clearTimeout(@_processQueueTimeout)
+      @_processQueueTimeout = null
+
+    now = Date.now()
+    reprocessIn = Number.MAX_VALUE
+
     for task in @_queue by -1
       if @_taskIsBlocked(task)
         task.queueState.debugStatus = Task.DebugStatus.WaitingOnDependency
         continue
-      else
-        @_processTask(task)
-        started += 1
+
+      if task.queueState.retryAfter and task.queueState.retryAfter > now
+        reprocessIn = Math.min(task.queueState.retryAfter - now, reprocessIn)
+        task.queueState.debugStatus = Task.DebugStatus.WaitingToRetry
+        continue
+
+      @_processTask(task)
+      started += 1
 
     if started > 0
       @trigger()
+
+    if reprocessIn isnt Number.MAX_VALUE
+      @_processQueueTimeout = setTimeout(@_processQueue, reprocessIn + 500)
 
   _processTask: (task) =>
     return if task.queueState.isProcessing
@@ -194,7 +209,13 @@ class TaskQueue
       task.queueState.isProcessing = false
       @trigger()
     .then (status) =>
-      @dequeue(task) unless status is Task.Status.Retry
+      if status is Task.Status.Retry
+        task.queueState.retryDelay = Math.round(Math.min((task.queueState.retryDelay ? 1000) * 1.2, 30000))
+        task.queueState.retryAfter = Date.now() + task.queueState.retryDelay
+      else
+        @dequeue(task)
+      @_updateSoon()
+
     .catch (err) =>
       @_seenDownstream = {}
       @_notifyOfDependentError(task, err)
@@ -275,6 +296,9 @@ class TaskQueue
       for task in queue
         task.queueState ?= {}
         task.queueState.isProcessing = false
+        delete task.queueState['retryAfter']
+        delete task.queueState['retryDelay']
+
       @_queue = queue
       @_updateSoon()
 

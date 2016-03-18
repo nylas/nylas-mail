@@ -22,10 +22,16 @@ describe "TaskQueue", ->
     task.queueState.isProcessing = true
     task
 
+  makeRetryInFuture = (task) ->
+    task.queueState.retryAfter = Date.now() + 1000
+    task.queueState.retryDelay = 1000
+    task
+
   beforeEach ->
     @task              = new Task()
     @unstartedTask     = makeUnstartedTask(new Task())
     @processingTask    = makeProcessing(new Task())
+    @retryInFutureTask = makeRetryInFuture(new Task())
 
   afterEach ->
     # Flush any throttled or debounced updates
@@ -33,7 +39,7 @@ describe "TaskQueue", ->
 
   describe "restoreQueue", ->
     it "should fetch the queue from the database, reset flags and start processing", ->
-      queue = [@processingTask, @unstartedTask]
+      queue = [@processingTask, @unstartedTask, @retryInFutureTask]
       spyOn(DatabaseStore, 'findJSONBlob').andCallFake => Promise.resolve(queue)
       spyOn(TaskQueue, '_updateSoon')
 
@@ -41,6 +47,8 @@ describe "TaskQueue", ->
         TaskQueue._restoreQueue().then =>
           expect(TaskQueue._queue).toEqual(queue)
           expect(@processingTask.queueState.isProcessing).toEqual(false)
+          expect(@retryInFutureTask.queueState.retryAfter).toEqual(undefined)
+          expect(@retryInFutureTask.queueState.retryDelay).toEqual(undefined)
           expect(TaskQueue._updateSoon).toHaveBeenCalled()
 
   describe "findTask", ->
@@ -169,12 +177,7 @@ describe "TaskQueue", ->
         expect(TaskQueue._queue.length).toBe(2)
         expect(TaskQueue._completed.length).toBe(0)
 
-  describe "process Task", ->
-    it "doesn't process processing tasks", ->
-      spyOn(@processingTask, "runRemote").andCallFake -> Promise.resolve()
-      TaskQueue._processTask(@processingTask)
-      expect(@processingTask.runRemote).not.toHaveBeenCalled()
-
+  describe "_processQueue", ->
     it "doesn't process blocked tasks", ->
       class BlockedByTaskA extends Task
         isDependentOnTask: (other) -> other instanceof TaskSubclassA
@@ -210,13 +213,61 @@ describe "TaskQueue", ->
       advanceClock()
       blockedTask.runRemote.callCount > 0
 
+  describe "_processTask", ->
+    it "doesn't process processing tasks", ->
+      spyOn(@processingTask, "runRemote").andCallFake -> Promise.resolve()
+      TaskQueue._processTask(@processingTask)
+      expect(@processingTask.runRemote).not.toHaveBeenCalled()
+
     it "sets the processing bit", ->
-      spyOn(@unstartedTask, "runRemote").andCallFake -> Promise.resolve()
       task = new Task()
       task.queueState.localComplete = true
       TaskQueue._queue = [task]
       TaskQueue._processTask(task)
       expect(task.queueState.isProcessing).toBe true
+
+    describe "when the task returns Task.Status.Retry", ->
+      beforeEach ->
+        @retryTaskWith = (qs) =>
+          task = new Task()
+          task.performRemote = =>
+            return Promise.resolve(Task.Status.Retry)
+          task.queueState.localComplete = true
+          task.queueState.retryDelay = qs.retryDelay
+          task.queueState.retryAfter = qs.retryAfter
+          return task
+
+      it "sets retryAfter and retryDelay", ->
+        task = @retryTaskWith({})
+        TaskQueue._queue = [task]
+        TaskQueue._processTask(task)
+        advanceClock()
+        expect(task.queueState.retryAfter).toBeDefined()
+        expect(task.queueState.retryDelay).toEqual(1000 * 1.2)
+
+      it "increases retryDelay", ->
+        task = @retryTaskWith({retryAfter: Date.now() - 1000, retryDelay: 2000})
+        TaskQueue._queue = [task]
+        TaskQueue._processTask(task)
+        advanceClock()
+        expect(task.queueState.retryAfter).toBeDefined()
+        expect(task.queueState.retryDelay).toEqual(2000 * 1.2)
+
+      it "caps retryDelay", ->
+        task = @retryTaskWith({retryAfter: Date.now() - 1000, retryDelay: 30000})
+        TaskQueue._queue = [task]
+        TaskQueue._processTask(task)
+        advanceClock()
+        expect(task.queueState.retryAfter).toBeDefined()
+        expect(task.queueState.retryDelay).toEqual(30000)
+
+      it "calls updateSoon", ->
+        task = @retryTaskWith({})
+        TaskQueue._queue = [task]
+        spyOn(TaskQueue, '_updateSoon')
+        TaskQueue._processTask(task)
+        advanceClock()
+        expect(TaskQueue._updateSoon).toHaveBeenCalled()
 
   describe "handling task runRemote task errors", ->
     spyBBRemote = jasmine.createSpy("performRemote")
