@@ -2,7 +2,7 @@ React = require 'react'
 _ = require 'underscore'
 
 {Utils, Contact, ContactStore} = require 'nylas-exports'
-{TokenizingTextField, Menu} = require 'nylas-component-kit'
+{TokenizingTextField, Menu, InjectedComponentSet} = require 'nylas-component-kit'
 
 class ParticipantsTextField extends React.Component
   @displayName: 'ParticipantsTextField'
@@ -87,13 +87,18 @@ class ParticipantsTextField extends React.Component
 
   _tokenNode: (p) =>
     if p.name?.length > 0 and p.name isnt p.email
-      <div className="participant">
-        <span className="participant-primary">{p.name}</span>&nbsp;&nbsp;
-      </div>
+      chipText = p.name
     else
-      <div className="participant">
-        <span className="participant-primary">{p.email}</span>
-      </div>
+      chipText = p.email
+
+    <div className="participant">
+      <InjectedComponentSet
+        matching={role: "Composer:RecipientChip"}
+        exposedProps={contact: p}
+        direction="column"
+        inline={true}/>
+      <span className="participant-primary">{chipText}</span>
+    </div>
 
   _tokensForString: (string, options = {}) =>
     # If the input is a string, parse out email addresses and build
