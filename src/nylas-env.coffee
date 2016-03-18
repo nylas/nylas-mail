@@ -787,8 +787,7 @@ class NylasEnvConstructor extends Model
     else
       buttonLabels = Object.keys(buttons)
 
-    dialog = remote.require('dialog')
-    chosen = dialog.showMessageBox @getCurrentWindow(),
+    chosen = remote.dialog.showMessageBox @getCurrentWindow(),
       type: 'info'
       message: message
       detail: detailedMessage
@@ -857,13 +856,11 @@ class NylasEnvConstructor extends Model
     remote.process.exit(status)
 
   showOpenDialog: (options, callback) ->
-    dialog = remote.require('dialog')
-    callback(dialog.showOpenDialog(@getCurrentWindow(), options))
+    callback(remote.dialog.showOpenDialog(@getCurrentWindow(), options))
 
   showSaveDialog: (options, callback) ->
     options.title ?= 'Save File'
-    dialog = remote.require('dialog')
-    callback(dialog.showSaveDialog(@getCurrentWindow(), options))
+    callback(remote.dialog.showSaveDialog(@getCurrentWindow(), options))
 
   showErrorDialog: (messageData) ->
     if _.isString(messageData) or _.isNumber(messageData)
@@ -875,8 +872,7 @@ class NylasEnvConstructor extends Model
     else
       throw new Error("Must pass a valid message to show dialog", message)
 
-    dialog = remote.require('dialog')
-    dialog.showMessageBox null, {
+    remote.dialog.showMessageBox null, {
       type: 'warning'
       buttons: ['Okay'],
       message: title

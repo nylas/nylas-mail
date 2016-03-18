@@ -3,6 +3,7 @@ Sheet = require './sheet'
 Flexbox = require './components/flexbox'
 RetinaImg = require './components/retina-img'
 Utils = require './flux/models/utils'
+{remote} = require 'electron'
 _str = require 'underscore.string'
 _ = require 'underscore'
 
@@ -111,7 +112,7 @@ class ToolbarMenuControl extends React.Component
     </div>
 
   _openMenu: =>
-    applicationMenu = require('remote').getGlobal('application').applicationMenu
+    applicationMenu = remote.getGlobal('application').applicationMenu
     applicationMenu.menu.popup(NylasEnv.getCurrentWindow())
 
 ComponentRegistry.register ToolbarWindowControls,
