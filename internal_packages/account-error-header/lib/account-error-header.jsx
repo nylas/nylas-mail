@@ -55,7 +55,7 @@ export default class AccountErrorHeader extends React.Component {
   }
 
   render() {
-    const errorAccounts = this.state.accounts.filter(a => a.syncState !== "running");
+    const errorAccounts = this.state.accounts.filter(a => a.hasSyncStateError());
     if (errorAccounts.length === 1) {
       const account = errorAccounts[0];
 
