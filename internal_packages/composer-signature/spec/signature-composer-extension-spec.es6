@@ -4,32 +4,23 @@ import SignatureStore from '../lib/signature-store';
 
 const TEST_SIGNATURE = '<div class="something">This is my signature.</div>';
 
-describe("SignatureComposerExtension", ()=> {
-  describe("finalizeSessionBeforeSending", ()=> {
-    it("should unwrap the signature and remove the custom DOM element", ()=> {
+describe("SignatureComposerExtension", () => {
+  describe("applyTransformsToDraft", () => {
+    it("should unwrap the signature and remove the custom DOM element", () => {
       const a = new Message({
         draft: true,
         accountId: TEST_ACCOUNT_ID,
         body: `This is a test! <signature>${TEST_SIGNATURE}<br/></signature><div class="gmail_quote">Hello world</div>`,
       });
-      const add = jasmine.createSpy('changes.add');
-      const session = {
-        draft: ()=> a,
-        changes: {
-          add: add,
-        },
-      }
-      SignatureComposerExtension.finalizeSessionBeforeSending({session});
-      expect(add).toHaveBeenCalledWith({
-        body: `This is a test! ${TEST_SIGNATURE}<br/><div class="gmail_quote">Hello world</div>`,
-      })
+      const out = SignatureComposerExtension.applyTransformsToDraft({draft: a});
+      expect(out.body).toEqual(`This is a test! <!-- <signature> -->${TEST_SIGNATURE}<br/><!-- </signature> --><div class="gmail_quote">Hello world</div>`);
     });
   });
 
-  describe("prepareNewDraft", ()=> {
-    describe("when a signature is defined", ()=> {
-      beforeEach(()=> {
-        spyOn(NylasEnv.config, 'get').andCallFake(()=> TEST_SIGNATURE);
+  describe("prepareNewDraft", () => {
+    describe("when a signature is defined", () => {
+      beforeEach(() => {
+        spyOn(NylasEnv.config, 'get').andCallFake(() => TEST_SIGNATURE);
       });
 
       it("should insert the signature at the end of the message or before the first quoted text block and have a newline", ()=> {
@@ -73,8 +64,8 @@ describe("SignatureComposerExtension", ()=> {
         },
       ]
 
-      scenarios.forEach((scenario)=> {
-        it(`should replace the signature if a signature is already present (${scenario.name})`, ()=> {
+      scenarios.forEach((scenario) => {
+        it(`should replace the signature if a signature is already present (${scenario.name})`, () => {
           const message = new Message({
             draft: true,
             body: scenario.body,
@@ -86,12 +77,12 @@ describe("SignatureComposerExtension", ()=> {
       });
     });
 
-    describe("when no signature is present in the config file", ()=> {
+    describe("when no signature is present in the config file", () => {
       beforeEach(()=> {
-        spyOn(NylasEnv.config, 'get').andCallFake(()=> undefined);
+        spyOn(NylasEnv.config, 'get').andCallFake(() => undefined);
       });
 
-      it("should insert the default signature", ()=> {
+      it("should insert the default signature", () => {
         const a = new Message({
           draft: true,
           accountId: TEST_ACCOUNT_ID,
@@ -103,12 +94,12 @@ describe("SignatureComposerExtension", ()=> {
     });
 
 
-    describe("when a blank signature is present in the config file", ()=> {
-      beforeEach(()=> {
-        spyOn(NylasEnv.config, 'get').andCallFake(()=> "");
+    describe("when a blank signature is present in the config file", () => {
+      beforeEach(() => {
+        spyOn(NylasEnv.config, 'get').andCallFake(() => "");
       });
 
-      it("should insert nothing", ()=> {
+      it("should insert nothing", () => {
         const a = new Message({
           draft: true,
           accountId: TEST_ACCOUNT_ID,

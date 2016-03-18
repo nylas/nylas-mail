@@ -24,12 +24,13 @@ deactivate: -> ExtensionRegistry.Composer.unregister(MyExtension)
 **Your ComposerExtension should be stateless**. The user may have multiple
 drafts open at any time, and the methods of your ComposerExtension may be
 called for different drafts at any time. You should not expect that the
-session you receive in {::finalizeSessionBeforeSending} is for the same
+session you receive in {::applyTransformsToDraft} is for the same
 draft you previously received in {::warningsForSending}, etc.
 
 The ComposerExtension API does not currently expose any asynchronous or
-{Promise}-based APIs, except for finalizeSessionBeforeSending. This will likely
-change in the future. If you havea use-case for a ComposerExtension that is not possible with the current
+{Promise}-based APIs, except for applyTransformsToDraft and unapplyTransformsToDraft,
+which can optionally return a promsie. This will likely change in the future.
+If you have a use-case for a ComposerExtension that is not possible with the current
 API, please let us know.
 
 Section: Extensions
@@ -119,28 +120,37 @@ class ComposerExtension extends ContenteditableExtension
     return
 
   ###
-  Public: Override finalizeSessionBeforeSending in your ComposerExtension
-  subclass to transform the {DraftStoreProxy} editing session just before
-  the draft is sent. This method gives you an opportunity to make any
-  final substitutions or changes after any {::warningsForSending} have
-  been displayed.
-  If you want to perform asynchronous work, you this method can return a promise,
-  however, returning a Promise is not required.
+  Public: applyTransformsToDraft is called when a draft the user is editing
+  is saved to the server and/or sent. This method gives you an opportunity to
+  remove any annotations you've inserted into the draft body, apply final changes
+  to the body, etc.
 
-  - `session`: A {DraftStoreProxy} for the draft.
+  Note that your extension /must/ be able to reverse the changes it applies to
+  the draft in `applyTransformsToDraft`. If the user re-opens the draft,
+  `unapplyTransformsToDraft` will be called and must restore the draft to it's
+  previous edit-ready state.
 
-  Example:
+  Examples:
+  - `applyTransformsToDraft`: Add tracking pixel to the email body.
+  - `unapplyTransformsToDraft`: Remove the tracking pixel from the email body.
 
-  ```coffee
-  # Remove any <code> tags found in the draft body
-  finalizeSessionBeforeSending: ({session}) ->
-    body = session.draft().body
-    clean = body.replace(/<\/?code[^>]*>/g, '')
-    if body != clean
-      session.changes.add(body: clean)
-  ```
+  - `applyTransformsToDraft`: Encrypt the message body.
+  - `unapplyTransformsToDraft`: Decrypt the message body.
+
+  This method should return a modified {Message} object, or a {Promise} which resolves
+  to a modified Message object.
+
+  - `draft`: A {Message} the user is about to finish editing.
   ###
-  @finalizeSessionBeforeSending: ({session}) ->
-    return Promise.resolve(session)
+  @applyTransformsToDraft: ({draft}) ->
+    return draft
+
+  ###
+  Public: unapplyTransformsToDraft should revert the changes made in
+  `applyTransformsToDraft`. See the documentation for that method for more
+  information.
+  ###
+  @unapplyTransformsToDraft: ({draft}) ->
+    return draft
 
 module.exports = ComposerExtension
