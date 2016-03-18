@@ -785,16 +785,15 @@ describe "DraftStore", ->
       spyOn(NylasEnv, "isMainWindow").andReturn true
       spyOn(FocusedContentStore, "focused").andReturn(id: "t1")
       {remote} = require('electron')
-      dialog = remote.require('dialog')
-      spyOn(dialog, "showMessageBox")
+      spyOn(remote.dialog, "showMessageBox")
       spyOn(Actions, "composePopoutDraft")
       DraftStore._draftsSending[@draft.clientId] = true
       Actions.draftSendingFailed({threadId: 't1', errorMessage: "boohoo", draftClientId: @draft.clientId})
       advanceClock(200)
       expect(DraftStore.isSendingDraft(@draft.clientId)).toBe false
       expect(DraftStore.trigger).toHaveBeenCalledWith(@draft.clientId)
-      expect(dialog.showMessageBox).toHaveBeenCalled()
-      dialogArgs = dialog.showMessageBox.mostRecentCall.args[1]
+      expect(remote.dialog.showMessageBox).toHaveBeenCalled()
+      dialogArgs = remote.dialog.showMessageBox.mostRecentCall.args[1]
       expect(dialogArgs.detail).toEqual("boohoo")
       expect(Actions.composePopoutDraft).not.toHaveBeenCalled
 
