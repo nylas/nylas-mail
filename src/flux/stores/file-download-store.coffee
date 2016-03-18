@@ -1,7 +1,7 @@
 os = require 'os'
 fs = require 'fs'
 path = require 'path'
-{shell} = require 'electron'
+{remote, shell} = require 'electron'
 mkdirp = require 'mkdirp'
 Utils = require '../models/utils'
 Reflux = require 'reflux'
@@ -252,8 +252,7 @@ FileDownloadStore = Reflux.createStore
     path.join(downloadDir, filesafeName)
 
   _presentError: (file) ->
-    dialog = require('remote').require('dialog')
-    dialog.showMessageBox
+    remote.dialog.showMessageBox
       type: 'warning'
       message: "Download Failed"
       detail: "Unable to download #{file.displayName()}.

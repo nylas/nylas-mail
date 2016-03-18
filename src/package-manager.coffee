@@ -1,6 +1,7 @@
 path = require 'path'
 
 _ = require 'underscore'
+{remote} = require 'electron'
 EmitterMixin = require('emissary').Emitter
 {Emitter} = require 'event-kit'
 fs = require 'fs-plus'
@@ -336,9 +337,6 @@ class PackageManager
     packages
 
   installPackageFromPath: (packageSourceDir, callback) ->
-    dialog = require('remote').require('dialog')
-    shell = require('shell')
-
     return unless @verifyValidPackage(packageSourceDir, callback)
 
     packagesDir = path.join(NylasEnv.getConfigDirPath(), 'packages')
@@ -352,7 +350,7 @@ class PackageManager
         if packageAlreadyExists
           message = "A package named '#{packageName}' is already installed
                  in ~/.nylas/packages."
-          dialog.showMessageBox({
+          remote.dialog.showMessageBox({
             type: 'warning'
             buttons: ['OK']
             title: 'Package already installed'
@@ -367,7 +365,7 @@ class PackageManager
         apm = new APMWrapper()
         apm.installDependenciesInPackageDirectory packageTargetDir, (err) =>
           if err
-            dialog.showMessageBox({
+            remote.dialog.showMessageBox({
               type: 'warning'
               buttons: ['OK']
               title: 'Package installation failed'
@@ -385,8 +383,7 @@ class PackageManager
     else
       errMsg = "The folder you selected doesn't look like a valid N1 plugin. All N1 plugins must have a package.json file in the top level of the folder. Check the contents of #{packageSourceDir} and try again"
 
-      dialog = require('remote').require('dialog')
-      dialog.showMessageBox({
+      remote.dialog.showMessageBox({
         type: 'warning'
         buttons: ['OK']
         title: 'Not a valid plugin folder'
