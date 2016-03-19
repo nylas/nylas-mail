@@ -1,4 +1,5 @@
 _ = require 'underscore'
+{remote} = require 'electron'
 request = require 'request'
 Utils = require './models/utils'
 Account = require './models/account'
@@ -457,9 +458,8 @@ class NylasAPI
         return Promise.resolve()
 
   _requestPluginAuth: (pluginName, account) ->
-    {dialog} = require('electron').remote
     return new Promise( (resolve, reject) =>
-      dialog.showMessageBox({
+      remote.dialog.showMessageBox({
         title: "Plugin Offline Email Access",
         message: "The N1 plugin #{pluginName} requests offline access to your email.",
         detail: "The #{pluginName} plugin would like to be able to access your email \
