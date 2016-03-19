@@ -63,7 +63,7 @@ class ThemePicker extends React.Component {
 
   render() {
     return (
-      <div className="theme-picker">
+      <div className="theme-picker" tabIndex="1">
         <Flexbox direction="column">
           <RetinaImg
             style={{width: "14", height: "14", margin: "12px", WebkitFilter: "none"}}
