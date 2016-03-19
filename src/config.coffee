@@ -1,5 +1,6 @@
 _ = require 'underscore'
 _ = _.extend(_, require('./config-utils'))
+{remote} = require 'electron'
 fs = require 'fs-plus'
 EmitterMixin = require('emissary').Emitter
 {CompositeDisposable, Disposable, Emitter} = require 'event-kit'
@@ -16,7 +17,7 @@ ScopeDescriptor = require './scope-descriptor'
 if global.application
   app = global.application
 else
-  app = require('remote').getGlobal('application')
+  app = remote.getGlobal('application')
 
 # Essential: Used to access all of N1's configuration details.
 #

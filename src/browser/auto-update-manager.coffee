@@ -1,9 +1,11 @@
-autoUpdater = null
 _ = require 'underscore'
+{dialog} = require 'electron'
 {EventEmitter} = require 'events'
 uuid = require 'node-uuid'
 path = require 'path'
 fs = require 'fs'
+
+autoUpdater = null
 
 IdleState = 'idle'
 CheckingState = 'checking'
@@ -123,8 +125,7 @@ class AutoUpdateManager
 
   onUpdateNotAvailable: =>
     autoUpdater.removeListener 'error', @onUpdateError
-    {dialog} = require 'electron'
-    dialog.showMessageBox
+    remote.dialog.showMessageBox
       type: 'info'
       buttons: ['OK']
       icon: @iconURL()
@@ -134,7 +135,6 @@ class AutoUpdateManager
 
   onUpdateError: (event, message) =>
     autoUpdater.removeListener 'update-not-available', @onUpdateNotAvailable
-    {dialog} = require 'electron'
     dialog.showMessageBox
       type: 'warning'
       buttons: ['OK']
