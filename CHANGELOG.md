@@ -1,5 +1,15 @@
 # N1 Changelog
 
+### 0.4.16 (3/18/16)
+
+This is a small patch release resolving the following issues:
+
+- The red "Account Error" bar no longer appears incorrectly in some scenarios.
+- The "Sent Mail" label is no longer visible on threads (normally this label is hidden)
+- Unread counts are now correct and match your mailbox.
+- N1 now backs off when API requests fail temporarily (Gmail throttling, etc.)
+- Contact sidebar API requests retry on 202s from our backend provider.
+
 ### 0.4.14 (3/10/16)
 
 - Features:
