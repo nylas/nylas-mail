@@ -262,19 +262,21 @@ describe "ComposerView", ->
 
       it "focuses the body if the composer is not inline", ->
         useDraft.call @, to: [u1], subject: "Yo"
-        makeComposer.call @, {mode: 'fullWindow'}
+        spyOn(NylasEnv, 'isComposerWindow').andReturn(true)
+        makeComposer.call @
         expect(@composer.state.focusedField).toBe Fields.Body
 
       it "focuses the body if the composer is inline and the thread was focused via a click", ->
         spyOn(FocusedContentStore, 'didFocusUsingClick').andReturn true
         useDraft.call @, to: [u1], subject: "Yo"
-        makeComposer.call @, {mode: 'inline'}
+        makeComposer.call @
         expect(@composer.state.focusedField).toBe Fields.Body
 
       it "does not focus any field if the composer is inline and the thread was not focused via a click", ->
         spyOn(FocusedContentStore, 'didFocusUsingClick').andReturn false
+        spyOn(NylasEnv, 'isComposerWindow').andReturn(false)
         useDraft.call @, to: [u1], subject: "Yo"
-        makeComposer.call @, {mode: 'inline'}
+        makeComposer.call @
         expect(@composer.state.focusedField).toBe null
 
     describe "when deciding whether or not to enable the subject", ->

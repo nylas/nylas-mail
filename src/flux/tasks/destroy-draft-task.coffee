@@ -19,6 +19,10 @@ class DestroyDraftTask extends BaseDraftTask
     @refreshDraftReference().then =>
       DatabaseStore.inTransaction (t) =>
         t.unpersistModel(@draft)
+    .catch (err) =>
+      if err instanceof BaseDraftTask.DraftNotFoundError
+        return Promise.resolve()
+      Promsie.reject(err)
 
   performRemote: ->
     # We don't need to do anything if we weren't able to find the draft

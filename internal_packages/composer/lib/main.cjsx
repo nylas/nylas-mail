@@ -29,7 +29,7 @@ class ComposerWithWindowProps extends React.Component
 
   render: ->
     <div className="composer-full-window">
-      <ComposerView mode="fullwindow" draftClientId={@state.draftClientId} />
+      <ComposerView draftClientId={@state.draftClientId} />
     </div>
 
   _showInitialErrorDialog: (msg) ->

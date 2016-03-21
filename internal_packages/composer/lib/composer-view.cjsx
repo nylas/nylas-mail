@@ -26,6 +26,7 @@ FileUpload = require './file-upload'
 ImageFileUpload = require './image-file-upload'
 
 ComposerEditor = require './composer-editor'
+ComposerHeaderActions = require './composer-header-actions'
 SendActionButton = require './send-action-button'
 ExpandedParticipants = require './expanded-participants'
 CollapsedParticipants = require './collapsed-participants'
@@ -42,9 +43,6 @@ class ComposerView extends React.Component
 
   @propTypes:
     draftClientId: React.PropTypes.string
-
-    # Either "inline" or "fullwindow"
-    mode: React.PropTypes.string
 
     # If this composer is part of an existing thread (like inline
     # composers) the threadId will be handed down
@@ -207,37 +205,46 @@ class ComposerView extends React.Component
     </DropZone>
 
   _renderScrollRegion: ->
-    if @props.mode is "inline"
-      @_renderContent()
-    else
+    if NylasEnv.isComposerWindow()
       <ScrollRegion className="compose-body-scroll" ref="scrollregion">
         {@_renderContent()}
       </ScrollRegion>
+    else
+      @_renderContent()
 
   _renderContent: =>
     <div className="composer-centered">
-      {if @state.focusedField in Fields.ParticipantFields
-        <ExpandedParticipants
-          to={@state.to} cc={@state.cc} bcc={@state.bcc}
-          from={@state.from}
-          ref="expandedParticipants"
-          mode={@props.mode}
-          accounts={@state.accounts}
-          draftReady={@state.draftReady}
-          focusedField={@state.focusedField}
-          enabledFields={@state.enabledFields}
-          onPopoutComposer={@_onPopoutComposer}
-          onChangeParticipants={@_onChangeParticipants}
-          onChangeFocusedField={@_onChangeFocusedField}
-          onAdjustEnabledFields={@_onAdjustEnabledFields} />
-      else
-        <CollapsedParticipants
-          to={@state.to} cc={@state.cc} bcc={@state.bcc}
-          onClick={@_onExpandParticipantFields} />
-      }
+      <div className="composer-header">
+        {if @state.draftReady
+          <ComposerHeaderActions
+            draftClientId={@props.draftClientId}
+            focusedField={@state.focusedField}
+            enabledFields={@state.enabledFields}
+            onAdjustEnabledFields={@_onAdjustEnabledFields}
+          />
+        }
+        {if @state.focusedField in Fields.ParticipantFields
+          <ExpandedParticipants
+            to={@state.to} cc={@state.cc} bcc={@state.bcc}
+            from={@state.from}
+            ref="expandedParticipants"
+            accounts={@state.accounts}
+            draftReady={@state.draftReady}
+            focusedField={@state.focusedField}
+            enabledFields={@state.enabledFields}
+            onPopoutComposer={@_onPopoutComposer}
+            onChangeParticipants={@_onChangeParticipants}
+            onChangeFocusedField={@_onChangeFocusedField}
+            onAdjustEnabledFields={@_onAdjustEnabledFields} />
+        else
+          <CollapsedParticipants
+            to={@state.to} cc={@state.cc} bcc={@state.bcc}
+            onPopoutComposer={@_onPopoutComposer}
+            onClick={@_onExpandParticipantFields} />
+        }
 
-      {@_renderSubject()}
-
+        {@_renderSubject()}
+      </div>
       <div className="compose-body"
            ref="composeBody"
            onMouseUp={@_onMouseUpComposerBody}
@@ -246,10 +253,6 @@ class ComposerView extends React.Component
         {@_renderFooterRegions()}
       </div>
     </div>
-
-  _onPopoutComposer: =>
-    return unless @state.draftReady
-    Actions.composePopoutDraft @props.draftClientId
 
   _onKeyDown: (event) =>
     if event.key is "Tab"
@@ -430,17 +433,22 @@ class ComposerView extends React.Component
   _renderActionsRegion: =>
     return <div></div> unless @props.draftClientId
     <div className="composer-action-bar-content">
-      <InjectedComponentSet className="composer-action-bar-plugins"
-                      matching={role: "Composer:ActionButton"}
-                      exposedProps={draftClientId:@props.draftClientId, threadId: @props.threadId}></InjectedComponentSet>
+      <InjectedComponentSet
+        className="composer-action-bar-plugins"
+        matching={role: "Composer:ActionButton"}
+        exposedProps={draftClientId: @props.draftClientId, threadId: @props.threadId} />
 
       <button className="btn btn-toolbar btn-trash" style={order: 100}
               title="Delete draft"
-              onClick={@_destroyDraft}><RetinaImg name="icon-composer-trash.png" mode={RetinaImg.Mode.ContentIsMask} /></button>
+              onClick={@_destroyDraft}>
+        <RetinaImg name="icon-composer-trash.png" mode={RetinaImg.Mode.ContentIsMask} />
+      </button>
 
       <button className="btn btn-toolbar btn-attach" style={order: 50}
               title="Attach file"
-              onClick={@_selectAttachment}><RetinaImg name="icon-composer-attachment.png" mode={RetinaImg.Mode.ContentIsMask} /></button>
+              onClick={@_selectAttachment}>
+        <RetinaImg name="icon-composer-attachment.png" mode={RetinaImg.Mode.ContentIsMask} />
+      </button>
 
       <div style={order: 0, flex: 1} />
 
@@ -522,7 +530,7 @@ class ComposerView extends React.Component
     return Fields.To if draft.to.length is 0
     return Fields.Subject if (draft.subject ? "").trim().length is 0
 
-    shouldFocusBody = @props.mode isnt 'inline' or draft.pristine or
+    shouldFocusBody = NylasEnv.isComposerWindow() or draft.pristine or
       (FocusedContentStore.didFocusUsingClick('thread') is true)
     return Fields.Body if shouldFocusBody
     return null
