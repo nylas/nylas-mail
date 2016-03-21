@@ -127,19 +127,7 @@ body.platform-win32 {
     top: -3px;
   }
 
-  .header-action {
-    color: @text-color-very-subtle;
-    img.content-mask { background-color: @text-color-very-subtle; }
-    font-size: @font-size-small;
-    padding-left: 1em;
-    &:hover {
-      color: @text-color-link;
-      img.content-mask { background-color: @text-color-link; }
-      cursor: default;
-    }
-  }
-
-  .composer-participant-actions {
+  .composer-header-actions {
     position: relative;
     float: right;
     z-index: 2;
@@ -147,6 +135,18 @@ body.platform-win32 {
     padding-right: @spacing-standard + @spacing-half;
     padding-left: @spacing-standard;
     padding-top: 12px;
+
+    .action {
+      color: @text-color-very-subtle;
+      img.content-mask { background-color: @text-color-very-subtle; }
+      font-size: @font-size-small;
+      padding-left: 1em;
+      &:hover {
+        color: @text-color-link;
+        img.content-mask { background-color: @text-color-link; }
+        cursor: default;
+      }
+    }
   }
 
   input, textarea {
