@@ -192,12 +192,15 @@ FileDownloadStore = Reflux.createStore
       mkdirpAsync(targetFolder)
 
   _fetch: (file) ->
-    @_runDownload(file).catch ->
+    @_runDownload(file)
+    .catch(@_catchFSErrors)
+    .catch (error) ->
       # Passively ignore
 
   _fetchAndOpen: (file) ->
     @_runDownload(file).then (download) ->
       shell.openItem(download.targetPath)
+    .catch(@_catchFSErrors)
     .catch =>
       @_presentError(file)
 
@@ -224,6 +227,7 @@ FileDownloadStore = Reflux.createStore
       @_runDownload(file)
       .then (download) => @_saveDownload(download, savePath)
       .then => shell.showItemInFolder(savePath)
+      .catch(@_catchFSErrors)
       .catch =>
         @_presentError(file)
 
@@ -251,6 +255,7 @@ FileDownloadStore = Reflux.createStore
       Promise.all(savePromises)
       .then =>
         shell.showItemInFolder(lastSavePath) if lastSavePath
+      .catch(@_catchFSErrors)
       .catch =>
         @_presentError(file)
 
@@ -291,6 +296,17 @@ FileDownloadStore = Reflux.createStore
       detail: "Unable to download #{file.displayName()}.
                Check your network connection and try again."
       buttons: ["OK"]
+
+  _catchFSErrors: (error) ->
+    if error.code in ['EPERM', 'EMFILE', 'EACCES']
+      remote.dialog.showMessageBox
+        type: 'warning'
+        message: "Download Failed"
+        detail: "N1 could not save an attachment. Check that permissions are set correctly and that you have enough disk space.\n\n#{error.message}"
+        buttons: ["OK"]
+      return Promise.resolve()
+    else
+      return Promise.reject(error)
 
 # Expose the Download class for our tests, and possibly for other things someday
 FileDownloadStore.Download = Download
