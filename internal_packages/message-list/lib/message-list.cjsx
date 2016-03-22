@@ -76,6 +76,10 @@ class MessageList extends React.Component
   componentDidMount: =>
     @_unsubscribers = []
     @_unsubscribers.push MessageStore.listen @_onChange
+    @_unsubscribers.push Actions.focusDraft.listen ({draftClientId}) =>
+      draftEl = @_getMessageContainer(draftClientId)
+      return unless draftEl
+      @_focusDraft(draftEl)
 
   componentWillUnmount: =>
     unsubscribe() for unsubscribe in @_unsubscribers
@@ -92,8 +96,20 @@ class MessageList extends React.Component
       @_focusDraft(@_getMessageContainer(newDraftClientIds[0]))
 
   _globalKeymapHandlers: ->
-    'application:reply': => @_createReplyOrUpdateExistingDraft('reply')
-    'application:reply-all': => @_createReplyOrUpdateExistingDraft('reply-all')
+    'application:reply': =>
+      Actions.composeReply({
+        thread: @state.currentThread,
+        message: @_lastMessage(),
+        type: 'reply',
+        behavior: 'prefer-existing',
+      })
+    'application:reply-all': =>
+      Actions.composeReply({
+        thread: @state.currentThread,
+        message: @_lastMessage(),
+        type: 'reply-all',
+        behavior: 'prefer-existing',
+      })
     'application:forward': => @_onForward()
     'application:print-thread': => @_onPrintThread()
     'core:messages-page-up': => @_onScrollByPage(-1)
@@ -118,68 +134,6 @@ class MessageList extends React.Component
       done: =>
         @_draftScrollInProgress = false
     })
-
-  _createReplyOrUpdateExistingDraft: (type) =>
-    unless type in ['reply', 'reply-all']
-      throw new Error("_createReplyOrUpdateExistingDraft called with #{type}, not reply or reply-all")
-
-    last = _.last(@state.messages ? [])
-
-    return unless @state.currentThread and last
-
-    # If the last message on the thread is already a draft, fetch the message it's
-    # in reply to and the draft session and change the participants.
-    if last.draft is true
-      data =
-        session: DraftStore.sessionForClientId(last.clientId)
-        replyToMessage: Promise.resolve(@state.messages[@state.messages.length - 2])
-        type: type
-
-      if last.replyToMessageId
-        msg = _.findWhere(@state.messages, {id: last.replyToMessageId})
-        if msg
-          data.replyToMessage = Promise.resolve(msg)
-        else
-          data.replyToMessage = DatabaseStore.find(Message, last.replyToMessageId)
-
-      Promise.props(data).then @_updateExistingDraft, (err) =>
-        # This can happen if the draft was deleted and the update hadn't reached
-        # our component yet, but it's very rare. This is here to silence the error.
-        Promise.resolve()
-    else
-      if type is 'reply'
-        Actions.composeReply(thread: @state.currentThread, message: last)
-      else
-        Actions.composeReplyAll(thread: @state.currentThread, message: last)
-
-  _updateExistingDraft: ({type, session, replyToMessage}) =>
-    return unless replyToMessage and session
-    draft = session.draft()
-    updated = {to: [].concat(draft.to), cc: [].concat(draft.cc)}
-
-    replySet = replyToMessage.participantsForReply()
-    replyAllSet = replyToMessage.participantsForReplyAll()
-
-    if type is 'reply'
-      targetSet = replySet
-
-      # Remove participants present in the reply-all set and not the reply set
-      for key in ['to', 'cc']
-        updated[key] = _.reject updated[key], (contact) ->
-          inReplySet = _.findWhere(replySet[key], {email: contact.email})
-          inReplyAllSet = _.findWhere(replyAllSet[key], {email: contact.email})
-          return inReplyAllSet and not inReplySet
-    else
-      # Add participants present in the reply-all set and not on the draft
-      # Switching to reply-all shouldn't really ever remove anyone.
-      targetSet = replyAllSet
-
-    for key in ['to', 'cc']
-      for contact in targetSet[key]
-        updated[key].push(contact) unless _.findWhere(updated[key], {email: contact.email})
-
-    session.changes.add(updated)
-    @_focusDraft(@_getMessageContainer(draft.clientId))
 
   _onForward: =>
     return unless @state.currentThread
@@ -260,13 +214,16 @@ class MessageList extends React.Component
       </div>
     </div>
 
+  _lastMessage: =>
+    _.last(_.filter((@state.messages ? []), (m) -> not m.draft))
+
   # Returns either "reply" or "reply-all"
   _replyType: =>
     defaultReplyType = NylasEnv.config.get('core.sending.defaultReplyType')
-    lastMsg = _.last(_.filter((@state.messages ? []), (m) -> not m.draft))
-    return 'reply' unless lastMsg
+    lastMessage = @_lastMessage()
+    return 'reply' unless lastMessage
 
-    if lastMsg.canReplyAll()
+    if lastMessage.canReplyAll()
       if defaultReplyType is 'reply-all'
         return 'reply-all'
       else
@@ -283,7 +240,12 @@ class MessageList extends React.Component
 
   _onClickReplyArea: =>
     return unless @state.currentThread
-    @_createReplyOrUpdateExistingDraft(@_replyType())
+    Actions.composeReply({
+      thread: @state.currentThread,
+      message: @_lastMessage(),
+      type: @_replyType(),
+      behavior: 'prefer-existing-if-pristine',
+    })
 
   _messageElements: =>
     elements = []

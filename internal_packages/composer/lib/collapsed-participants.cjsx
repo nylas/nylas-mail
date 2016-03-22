@@ -36,6 +36,14 @@ class CollapsedParticipants extends React.Component
   componentDidUpdate: ->
     @_setNumHiddenParticipants()
 
+  componentWillReceiveProps: ->
+    # Always re-evaluate the hidden participant count when the participant set changes
+    @setState({
+      numToDisplay: 999
+      numRemaining: 0
+      numBccRemaining: 0
+    })
+
   render: ->
     contacts = @props.to.concat(@props.cc).map(@_collapsedContact)
     bcc = @props.bcc.map(@_collapsedBccContact)
