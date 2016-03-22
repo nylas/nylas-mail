@@ -7,9 +7,6 @@ import BaseDraftTask from './base-draft-task';
 import SyncbackMetadataTask from './syncback-metadata-task';
 import {APIError} from '../errors';
 
-class DraftNotFoundError extends Error {
-
-}
 
 export default class SyncbackDraftTask extends BaseDraftTask {
 
@@ -27,7 +24,7 @@ export default class SyncbackDraftTask extends BaseDraftTask {
       .thenReturn(Task.Status.Success)
     )
     .catch((err) => {
-      if (err instanceof DraftNotFoundError) {
+      if (err instanceof BaseDraftTask.DraftNotFoundError) {
         return Promise.resolve(Task.Status.Continue);
       }
       if ((err instanceof APIError) && (!NylasAPI.PermanentErrorCodes.includes(err.statusCode))) {

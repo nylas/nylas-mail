@@ -17,20 +17,17 @@ export default class DestroyDraftTask extends BaseDraftTask {
 
   performLocal() {
     super.performLocal();
-    return this.refreshDraftReference().then(()=>
-      DatabaseStore.inTransaction((t) =>
-        t.unpersistModel(this.draft)
-      )
-    );
+    return this.refreshDraftReference()
+    .then(() => DatabaseStore.inTransaction((t) => t.unpersistModel(this.draft)))
+    .catch(BaseDraftTask.DraftNotFoundError, () => Promise.resolve());
   }
 
   performRemote() {
-    // We don't need to do anything if (we weren't able to find the draft)
-    // when we performed locally, or if (the draft has never been synced to)
+    // We don't need to do anything if we weren't able to find the draft
+    // when we performed locally, or if the draft has never been synced to
     // the server (id is still self-assigned)
     if (!this.draft) {
-      const err = new Error("No valid draft to destroy!");
-      return Promise.resolve([Task.Status.Failed, err]);
+      return Promise.resolve(Task.Status.Continue);
     }
     if (!this.draft.serverId) {
       return Promise.resolve(Task.Status.Continue);
