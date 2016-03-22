@@ -364,9 +364,8 @@ class ComposerView extends React.Component
 
   _renderQuotedTextControl: ->
     if QuotedHTMLTransformer.hasQuotedHTML(@state.body)
-      text = if @state.showQuotedText then "Hide" else "Show"
       <a className="quoted-text-control" onClick={@_onToggleQuotedText}>
-        <span className="dots">&bull;&bull;&bull;</span>{text} previous
+        <span className="dots">&bull;&bull;&bull;</span>
       </a>
     else return []
 

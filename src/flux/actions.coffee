@@ -475,6 +475,7 @@ class Actions
 
   @fetchAndOpenFile: ActionScopeWindow
   @fetchAndSaveFile: ActionScopeWindow
+  @fetchAndSaveAllFiles: ActionScopeWindow
   @fetchFile: ActionScopeWindow
   @abortFetchFile: ActionScopeWindow
 
