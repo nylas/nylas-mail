@@ -128,7 +128,7 @@ class NylasExports
   @require "FileUploadStore", 'flux/stores/file-upload-store'
   @require "MailRulesStore", 'flux/stores/mail-rules-store'
   @require "ThreadCountsStore", 'flux/stores/thread-counts-store'
-  @require "UnreadBadgeStore", 'flux/stores/unread-badge-store'
+  @require "BadgeStore", 'flux/stores/badge-store'
   @require "FileDownloadStore", 'flux/stores/file-download-store'
   @require "FocusedContentStore", 'flux/stores/focused-content-store'
   @require "FocusedPerspectiveStore", 'flux/stores/focused-perspective-store'

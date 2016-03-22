@@ -1,6 +1,6 @@
 import path from 'path';
 import {ipcRenderer} from 'electron';
-import {UnreadBadgeStore} from 'nylas-exports';
+import {BadgeStore} from 'nylas-exports';
 
 // Must be absolute real system path
 // https://github.com/atom/electron/issues/1299
@@ -23,9 +23,8 @@ class SystemTrayIconStore {
   }
 
   activate() {
-    this._updateIcon()
-    this._unsubscribers.push(UnreadBadgeStore.listen(this._updateIcon));
-
+    this._updateIcon();
+    this._unsubscribers.push(BadgeStore.listen(this._updateIcon));
 
     window.addEventListener('browser-window-blur', this._onWindowBlur);
     window.addEventListener('browser-window-focus', this._onWindowFocus);
@@ -33,8 +32,8 @@ class SystemTrayIconStore {
     this._unsubscribers.push(() => window.removeEventListener('browser-window-focus', this._onWindowFocus))
   }
 
-  _getIconImageData(unreadCount, isWindowBlurred) {
-    if (unreadCount === 0) {
+  _getIconImageData(isInboxZero, isWindowBlurred) {
+    if (isInboxZero) {
       return {iconPath: INBOX_ZERO_ICON, isTemplateImg: true};
     }
     return isWindowBlurred ?
@@ -55,9 +54,10 @@ class SystemTrayIconStore {
   };
 
   _updateIcon = () => {
-    const count = UnreadBadgeStore.count()
-    const unreadString = (+count).toLocaleString();
-    const {iconPath, isTemplateImg} = this._getIconImageData(count, this._windowBlurred);
+    const unread = BadgeStore.unread();
+    const unreadString = (+unread).toLocaleString();
+    const isInboxZero = (BadgeStore.total() === 0);
+    const {iconPath, isTemplateImg} = this._getIconImageData(isInboxZero, this._windowBlurred);
     ipcRenderer.send('update-system-tray', iconPath, unreadString, isTemplateImg);
   };
 
