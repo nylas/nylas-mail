@@ -62,7 +62,7 @@ class ImageAttachmentComponent extends AttachmentComponent {
           <span className="progress-background"></span>
           <span className="progress-foreground" style={this._downloadProgressStyle()}></span>
         </span>
-        {this._renderFileActions()}
+        {this._renderFileActionIcon()}
         <div className="file-preview" onDoubleClick={this._onClickView}>
           <div className="file-name-container">
             <div className="file-name">{displayName}</div>
