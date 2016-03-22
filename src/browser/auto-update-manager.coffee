@@ -125,7 +125,7 @@ class AutoUpdateManager
 
   onUpdateNotAvailable: =>
     autoUpdater.removeListener 'error', @onUpdateError
-    remote.dialog.showMessageBox
+    dialog.showMessageBox
       type: 'info'
       buttons: ['OK']
       icon: @iconURL()
