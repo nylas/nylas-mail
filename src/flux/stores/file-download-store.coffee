@@ -298,11 +298,17 @@ FileDownloadStore = Reflux.createStore
       buttons: ["OK"]
 
   _catchFSErrors: (error) ->
+    message = null
     if error.code in ['EPERM', 'EMFILE', 'EACCES']
+      message = "N1 could not save an attachment. Check that permissions are set correctly and try restarting N1 if the issue persists."
+    if error.code in ['ENOSPC']
+      message = "N1 could not save an attachment because you have run out of disk space."
+
+    if message
       remote.dialog.showMessageBox
         type: 'warning'
         message: "Download Failed"
-        detail: "N1 could not save an attachment. Check that permissions are set correctly and that you have enough disk space.\n\n#{error.message}"
+        detail: "#{message}\n\n#{error.message}"
         buttons: ["OK"]
       return Promise.resolve()
     else
