@@ -3,6 +3,9 @@
 .theme-picker {
   text-align: center;
   cursor: default;
+  .theme-picker-x {
+    margin: 6px;
+  }
   h4 {
     font-size: 14.5px;
     margin-top: -10px;
@@ -12,7 +15,7 @@
     width: 115px;
     height: 70px;
     margin: 2px;
-    top: -10px;
+    top: -20px;
     iframe {
       pointer-events: none;
       position: relative;
@@ -24,9 +27,19 @@
     text-align: center;
     margin-top: 5px;
     a {
-      color: #3187e1;
       text-decoration: none;
       cursor: default;
+    }
+  }
+}
+
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .theme-picker {
+    .theme-picker-x {
+      margin: 12px;
+    }
+    .clickable-theme-option {
+      top: -10px;
     }
   }
 }
