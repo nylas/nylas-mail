@@ -98,6 +98,7 @@ FileDownloadStore = Reflux.createStore
     @listenTo Actions.fetchFile, @_fetch
     @listenTo Actions.fetchAndOpenFile, @_fetchAndOpen
     @listenTo Actions.fetchAndSaveFile, @_fetchAndSave
+    @listenTo Actions.fetchAndSaveAllFiles, @_fetchAndSaveAll
     @listenTo Actions.abortFetchFile, @_abortFetchFile
     @listenTo Actions.didPassivelyReceiveNewModels, @_newMailReceived
 
@@ -113,9 +114,7 @@ FileDownloadStore = Reflux.createStore
   #
   pathForFile: (file) ->
     return undefined unless file
-
-    filesafeName = file.displayName().replace(RegExpUtils.illegalPathCharactersRegexp(), '-')
-    path.join(@_downloadDirectory, file.id, filesafeName)
+    path.join(@_downloadDirectory, file.id, file.safeDisplayName())
 
   downloadDataForFile: (fileId) ->
     @_downloads[fileId]?.data()
@@ -202,6 +201,13 @@ FileDownloadStore = Reflux.createStore
     .catch =>
       @_presentError(file)
 
+  _saveDownload: (download, savePath) =>
+    return new Promise (resolve, reject) =>
+      stream = fs.createReadStream(download.targetPath)
+      stream.pipe(fs.createWriteStream(savePath))
+      stream.on 'error', (err) -> reject(err)
+      stream.on 'end', -> resolve()
+
   _fetchAndSave: (file) ->
     defaultPath = @_defaultSavePath(file)
     defaultExtension = path.extname(defaultPath)
@@ -215,12 +221,36 @@ FileDownloadStore = Reflux.createStore
       if didLoseExtension
         savePath = savePath + defaultExtension
 
-      defaultPath = NylasEnv.savedState.lastDownloadDirectory
-      @_runDownload(file).then (download) ->
-        stream = fs.createReadStream(download.targetPath)
-        stream.pipe(fs.createWriteStream(savePath))
-        stream.on 'end', ->
-          shell.showItemInFolder(savePath)
+      @_runDownload(file)
+      .then (download) => @_saveDownload(download, savePath)
+      .then => shell.showItemInFolder(savePath)
+      .catch =>
+        @_presentError(file)
+
+  _fetchAndSaveAll: (files) ->
+    defaultPath = @_defaultSaveDir()
+    options = {
+      defaultPath,
+      properties: ['openDirectory'],
+    }
+
+    NylasEnv.showOpenDialog options, (selected) =>
+      return unless selected
+      dirPath = selected[0]
+      return unless dirPath
+      NylasEnv.savedState.lastDownloadDirectory = dirPath
+
+      lastSavePath = null
+      savePromises = files.map (file) =>
+        savePath = path.join(dirPath, file.safeDisplayName())
+        @_runDownload(file)
+        .then (download) => @_saveDownload(download, savePath)
+        .then ->
+          lastSavePath = savePath
+
+      Promise.all(savePromises)
+      .then =>
+        shell.showItemInFolder(lastSavePath) if lastSavePath
       .catch =>
         @_presentError(file)
 
@@ -234,7 +264,7 @@ FileDownloadStore = Reflux.createStore
     fs.exists downloadPath, (exists) ->
       fs.unlink(downloadPath) if exists
 
-  _defaultSavePath: (file) ->
+  _defaultSaveDir: ->
     if process.platform is 'win32'
       home = process.env.USERPROFILE
     else
@@ -248,8 +278,11 @@ FileDownloadStore = Reflux.createStore
       if fs.existsSync(NylasEnv.savedState.lastDownloadDirectory)
         downloadDir = NylasEnv.savedState.lastDownloadDirectory
 
-    filesafeName = file.displayName().replace(RegExpUtils.illegalPathCharactersRegexp(), '-')
-    path.join(downloadDir, filesafeName)
+    return downloadDir
+
+  _defaultSavePath: (file) ->
+    downloadDir = @_defaultSaveDir()
+    path.join(downloadDir, file.safeDisplayName())
 
   _presentError: (file) ->
     remote.dialog.showMessageBox

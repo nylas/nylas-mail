@@ -157,12 +157,38 @@ class MessageItem extends React.Component
       el = el.parentElement
     @_toggleCollapsed()
 
+  _onDownloadAll: =>
+    Actions.fetchAndSaveAllFiles(@props.message.files)
+
+  _renderDownloadAllButton: =>
+    <div className="download-all" onClick={@_onDownloadAll}>
+      <div className="attachment-number">
+        <RetinaImg
+          name="ic-attachments-all-clippy.png"
+          mode={RetinaImg.Mode.ContentIsMask}
+        />
+        <span>{@props.message.files.length} attachments</span>
+      </div>
+      <div className="separator">-</div>
+      <div className="download-all-action">
+        <RetinaImg
+          name="ic-attachments-download-all.png"
+          mode={RetinaImg.Mode.ContentIsMask}
+        />
+        <span>Download all</span>
+      </div>
+    </div>
+
+
   _renderAttachments: =>
     attachments = @_attachmentComponents()
     if attachments.length > 0
-      <div className="attachments-area">{attachments}</div>
+      <div>
+        {if attachments.length > 1 then @_renderDownloadAllButton()}
+        <div className="attachments-area">{attachments}</div>
+      </div>
     else
-      <div></div>
+      <div />
 
   _renderHeaderSideItems: ->
     styles =

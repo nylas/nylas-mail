@@ -532,8 +532,43 @@ body.platform-win32 {
   }
 
 }
+
+.download-all {
+  @download-btn-color: fadeout(#929292, 20%);
+  @download-hover-color: fadeout(@component-active-color, 20%);
+
+  display: flex;
+  align-items: center;
+  color: @download-btn-color;
+  font-size: 0.9em;
+  cursor: default;
+  margin-top: @spacing-three-quarters;
+
+  .separator {
+    margin: 0 5px;
+  }
+
+  .attachment-number {
+    display: flex;
+    align-items: center;
+  }
+
+  img {
+    vertical-align: middle;
+    margin-right: @spacing-half;
+    background-color: @download-btn-color;
+  }
+
+  .download-all-action:hover {
+    color: @download-hover-color;
+    img {
+      background-color: @download-hover-color;
+    }
+  }
+}
+
 .attachments-area {
-  padding-top: @spacing-standard;
+  padding-top: @spacing-half + 2;
 
   // attachments are padded on both sides so that things like the remove "X" can
   // overhang them. To make the attachments line up with the body, we need to outdent
