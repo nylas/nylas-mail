@@ -55,6 +55,7 @@ class FixedPopover extends Component {
   }
 
   componentDidMount() {
+    window.addEventListener('resize', this.onWindowResize)
     this.focusElementWithTabIndex();
     _.defer(this.onPopoverRendered)
   }
@@ -74,6 +75,14 @@ class FixedPopover extends Component {
   componentDidUpdate() {
     this.focusElementWithTabIndex();
     _.defer(this.onPopoverRendered)
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.onWindowResize)
+  }
+
+  onWindowResize() {
+    Actions.closePopover()
   }
 
   onPopoverRendered = ()=> {
@@ -277,7 +286,16 @@ class FixedPopover extends Component {
       break;
     }
 
-    popoverStyle.visibility = visible ? 'visible' : 'hidden';
+    const visibilityProps = {}
+    if (visible) {
+      visibilityProps.visibility = 'visible';
+      visibilityProps.opacity = 1;
+    } else {
+      visibilityProps.visibility = 'hidden';
+      visibilityProps.opacity = 0;
+    }
+    popoverStyle = _.extend({}, popoverStyle, visibilityProps)
+    pointerStyle = _.extend({}, pointerStyle, visibilityProps)
 
     // Set the zoom directly on the style element. Otherwise it won't work with
     // mask image of our shadow pointer element. This is probably a Chrome bug
@@ -292,7 +310,6 @@ class FixedPopover extends Component {
     if (!originRect) {
       return <span />;
     }
-
     const blurTrapStyle = {top: originRect.top, left: originRect.left, height: originRect.height, width: originRect.width}
     const {containerStyle, popoverStyle, pointerStyle} = (
       this.computePopoverStyles({originRect, direction, offset, visible})

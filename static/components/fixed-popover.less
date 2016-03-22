@@ -80,6 +80,10 @@
     -webkit-mask-image: url('images/tooltip/tooltip-bg-pointer-shadow@2x.png');
     background-color: fade(@black, 22%);
   }
+
+  .fixed-popover,.fixed-popover-pointer,.fixed-popover-pointer.shadow {
+    transition: opacity 200ms ease-in-out;
+  }
 }
 
 body.platform-win32 {
