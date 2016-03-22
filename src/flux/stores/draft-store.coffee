@@ -1,16 +1,13 @@
 _ = require 'underscore'
-crypto = require 'crypto'
-moment = require 'moment'
 
 {ipcRenderer} = require 'electron'
 
 NylasAPI = require '../nylas-api'
 DraftStoreProxy = require './draft-store-proxy'
+DraftFactory = require './draft-factory'
 DatabaseStore = require './database-store'
 AccountStore = require './account-store'
-ContactStore = require './contact-store'
 TaskQueueStatusStore = require './task-queue-status-store'
-FocusedPerspectiveStore = require './focused-perspective-store'
 FocusedContentStore = require './focused-content-store'
 
 BaseDraftTask = require '../tasks/base-draft-task'
@@ -19,23 +16,16 @@ SyncbackDraftFilesTask = require '../tasks/syncback-draft-files-task'
 SyncbackDraftTask = require '../tasks/syncback-draft-task'
 DestroyDraftTask = require '../tasks/destroy-draft-task'
 
-InlineStyleTransformer = require '../../services/inline-style-transformer'
-SanitizeTransformer = require '../../services/sanitize-transformer'
-
 Thread = require '../models/thread'
 Contact = require '../models/contact'
 Message = require '../models/message'
-Utils = require '../models/utils'
-MessageUtils = require '../models/message-utils'
 Actions = require '../actions'
 
 TaskQueue = require './task-queue'
 SoundRegistry = require '../../sound-registry'
 
-{subjectWithPrefix} = require '../models/utils'
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'
-DOMUtils = require '../../dom-utils'
 
 ExtensionRegistry = require '../../extension-registry'
 {deprecate} = require '../../deprecate-utils'
@@ -62,7 +52,6 @@ class DraftStore
 
     @listenTo Actions.composeReply, @_onComposeReply
     @listenTo Actions.composeForward, @_onComposeForward
-    @listenTo Actions.composeReplyAll, @_onComposeReplyAll
     @listenTo Actions.sendDraftSuccess, => @trigger()
     @listenTo Actions.composePopoutDraft, @_onPopoutDraftClientId
     @listenTo Actions.composeNewBlankDraft, @_onPopoutBlankDraft
@@ -201,14 +190,11 @@ class DraftStore
     return unless containsDraft
     @trigger(change)
 
-  _onSendQuickReply: (context, body) =>
-    @_newMessageWithContext context, (thread, message) =>
-      {to, cc} = message.participantsForReply()
-      return {
-        replyToMessage: message
-        to: to
-      }
-    .then ({draft}) =>
+  _onSendQuickReply: ({thread, threadId, message, messageId}, body) =>
+    Promise.props(@_modelifyContext({thread, threadId, message, messageId}))
+    .then ({message, thread}) =>
+      DraftFactory.createDraftForReply({message, thread, type: 'reply'})
+    .then (draft) =>
       draft.body = body + "\n\n" + draft.body
       draft.pristine = false
       DatabaseStore.inTransaction (t) =>
@@ -216,28 +202,44 @@ class DraftStore
       .then =>
         Actions.sendDraft(draft.clientId)
 
-  _onComposeReply: (context) =>
-    @_newMessageWithContext context, (thread, message) =>
-      {to, cc} = message.participantsForReply()
-      return {
-        replyToMessage: message
-        to: to
-      }
+  _onComposeReply: ({thread, threadId, message, messageId, popout, type, behavior}) =>
+    Promise.props(@_modelifyContext({thread, threadId, message, messageId}))
+    .then ({message, thread}) =>
+      DraftFactory.createOrUpdateDraftForReply({message, thread, type, behavior})
+    .then (draft) =>
+      @_finalizeAndPersistNewMessage(draft, {popout})
 
-  _onComposeReplyAll: (context) =>
-    @_newMessageWithContext context, (thread, message) =>
-      {to, cc} = message.participantsForReplyAll()
-      return {
-        replyToMessage: message
-        to: to
-        cc: cc
-      }
+  _onComposeForward: ({thread, threadId, message, messageId, popout}) =>
+    Promise.props(@_modelifyContext({thread, threadId, message, messageId}))
+    .then(DraftFactory.createDraftForForward)
+    .then (draft) =>
+      @_finalizeAndPersistNewMessage(draft, {popout})
 
-  _onComposeForward: (context) =>
-    @_newMessageWithContext context, (thread, message) ->
-      forwardMessage: message
+  _modelifyContext: ({thread, threadId, message, messageId}) ->
+    queries = {}
+    if thread
+      throw new Error("newMessageWithContext: `thread` present, expected a Model. Maybe you wanted to pass `threadId`?") unless thread instanceof Thread
+      queries.thread = thread
+    else
+      queries.thread = DatabaseStore.find(Thread, threadId)
 
-  _finalizeAndPersistNewMessage: (draft) =>
+    if message
+      throw new Error("newMessageWithContext: `message` present, expected a Model. Maybe you wanted to pass `messageId`?") unless message instanceof Message
+      queries.message = message
+    else if messageId?
+      queries.message = DatabaseStore
+        .find(Message, messageId)
+        .include(Message.attributes.body)
+    else
+      queries.message = DatabaseStore
+        .findBy(Message, {threadId: threadId ? thread.id})
+        .order(Message.attributes.date.descending())
+        .limit(1)
+        .include(Message.attributes.body)
+
+    queries
+
+  _finalizeAndPersistNewMessage: (draft, {popout} = {}) =>
     # Give extensions an opportunity to perform additional setup to the draft
     for extension in @extensions()
       continue unless extension.prepareNewDraft
@@ -250,163 +252,14 @@ class DraftStore
     DatabaseStore.inTransaction (t) =>
       t.persistModel(draft)
     .then =>
-      Promise.resolve(draftClientId: draft.clientId, draft: draft)
-
-  _newMessageWithContext: (args, attributesCallback) =>
-    # We accept all kinds of context. You can pass actual thread and message objects,
-    # or you can pass Ids and we'll look them up. Passing the object is preferable,
-    # and in most cases "the data is right there" anyway. Lookups add extra latency
-    # that feels bad.
-    queries = @_buildModelResolvers(args)
-    queries.attributesCallback = attributesCallback
-
-    # Waits for the query promises to resolve and then resolve with a hash
-    # of their resolved values. *swoon*
-    Promise.props(queries)
-    .then @_prepareNewMessageAttributes
-    .then @_constructDraft
-    .then @_finalizeAndPersistNewMessage
-    .then ({draftClientId, draft}) =>
-      Actions.composePopoutDraft(draftClientId) if args.popout
-      Promise.resolve({draftClientId, draft})
-
-  _buildModelResolvers: ({thread, threadId, message, messageId}) ->
-    queries = {}
-    if thread?
-      throw new Error("newMessageWithContext: `thread` present, expected a Model. Maybe you wanted to pass `threadId`?") unless thread instanceof Thread
-      queries.thread = thread
-    else
-      queries.thread = DatabaseStore.find(Thread, threadId)
-
-    if message?
-      throw new Error("newMessageWithContext: `message` present, expected a Model. Maybe you wanted to pass `messageId`?") unless message instanceof Message
-      queries.message = message
-    else if messageId?
-      queries.message = DatabaseStore.find(Message, messageId)
-      queries.message.include(Message.attributes.body)
-    else
-      queries.message = @_lastMessageFromThreadId(threadId ? thread.id)
-    return queries
-
-  _lastMessageFromThreadId: (threadId) ->
-    query = DatabaseStore.findBy(Message, {threadId: threadId ? thread.id}).order(Message.attributes.date.descending()).limit(1)
-    query.include(Message.attributes.body)
-    return query
-
-  _constructDraft: ({attributes, thread}) =>
-    account = AccountStore.accountForId(thread.accountId)
-    throw new Error("Cannot find #{thread.accountId}") unless account
-    return new Message _.extend {}, attributes,
-      from: [account.defaultMe()]
-      date: (new Date)
-      draft: true
-      pristine: true
-      threadId: thread.id
-      accountId: thread.accountId
-
-  _prepareNewMessageAttributes: ({thread, message, attributesCallback}) =>
-    attributes = attributesCallback(thread, message)
-    attributes.subject ?= subjectWithPrefix(thread.subject, 'Re:')
-
-    # We set the clientID here so we have a unique id to use for shipping
-    # the body to the browser process.
-    attributes.clientId = Utils.generateTempId()
-
-    @_prepareAttributesBody(attributes).then (body) ->
-      attributes.body = body
-
-      if attributes.replyToMessage
-        msg = attributes.replyToMessage
-        attributes.subject = subjectWithPrefix(msg.subject, 'Re:')
-        attributes.replyToMessageId = msg.id
-        delete attributes.quotedMessage
-
-      else if attributes.forwardMessage
-        msg = attributes.forwardMessage
-
-        if msg.files?.length > 0
-          attributes.files ?= []
-          attributes.files = attributes.files.concat(msg.files)
-
-        attributes.subject = subjectWithPrefix(msg.subject, 'Fwd:')
-        delete attributes.forwardedMessage
-
-      return {attributes, thread}
-
-  _prepareAttributesBody: (attributes) ->
-    if attributes.replyToMessage
-      replyToMessage = attributes.replyToMessage
-      @_prepareBodyForQuoting(replyToMessage.body).then (body) ->
-        return """
-          <br><br><div class="gmail_quote">
-            #{DOMUtils.escapeHTMLCharacters(replyToMessage.replyAttributionLine())}
-            <br>
-            <blockquote class="gmail_quote"
-              style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
-              #{body}
-            </blockquote>
-          </div>"""
-
-    else if attributes.forwardMessage
-      forwardMessage = attributes.forwardMessage
-      contactsAsHtml = (cs) ->
-        DOMUtils.escapeHTMLCharacters(_.invoke(cs, "toString").join(", "))
-      fields = []
-      fields.push("From: #{contactsAsHtml(forwardMessage.from)}") if forwardMessage.from.length > 0
-      fields.push("Subject: #{forwardMessage.subject}")
-      fields.push("Date: #{forwardMessage.formattedDate()}")
-      fields.push("To: #{contactsAsHtml(forwardMessage.to)}") if forwardMessage.to.length > 0
-      fields.push("CC: #{contactsAsHtml(forwardMessage.cc)}") if forwardMessage.cc.length > 0
-      fields.push("BCC: #{contactsAsHtml(forwardMessage.bcc)}") if forwardMessage.bcc.length > 0
-      @_prepareBodyForQuoting(forwardMessage.body).then (body) ->
-        return """
-          <br><br><div class="gmail_quote">
-            ---------- Forwarded message ---------
-            <br><br>
-            #{fields.join('<br>')}
-            <br><br>
-            #{body}
-          </div>"""
-    else return Promise.resolve("")
-
-  # Eventually we'll want a nicer solution for inline attachments
-  _prepareBodyForQuoting: (body="") =>
-    ## Fix inline images
-    cidRE = MessageUtils.cidRegexString
-
-    # Be sure to match over multiple lines with [\s\S]*
-    # Regex explanation here: https://regex101.com/r/vO6eN2/1
-    re = new RegExp("<img.*#{cidRE}[\\s\\S]*?>", "igm")
-    body.replace(re, "")
-
-    InlineStyleTransformer.run(body).then (body) =>
-      SanitizeTransformer.run(body, SanitizeTransformer.Preset.UnsafeOnly)
-
-  _getAccountForNewMessage: =>
-    defAccountId = NylasEnv.config.get('core.sending.defaultAccountIdForSend')
-    account = AccountStore.accountForId(defAccountId)
-    if account
-      account
-    else
-      focusedAccountId = FocusedPerspectiveStore.current().accountIds[0]
-      if focusedAccountId
-        AccountStore.accountForId(focusedAccountId)
-      else
-        AccountStore.accounts()[0]
+      @_onPopoutDraftClientId(draft.clientId) if popout
+      Actions.focusDraft({draftClientId: draft.clientId})
+    .thenReturn({draftClientId: draft.clientId, draft: draft})
 
   _onPopoutBlankDraft: =>
-    account = @_getAccountForNewMessage()
-
-    draft = new Message
-      body: ""
-      from: [account.defaultMe()]
-      date: (new Date)
-      draft: true
-      pristine: true
-      accountId: account.id
-
-    @_finalizeAndPersistNewMessage(draft).then ({draftClientId}) =>
-      @_onPopoutDraftClientId(draftClientId, {newDraft: true})
+    DraftFactory.createDraft().then (draft) =>
+      @_finalizeAndPersistNewMessage(draft).then ({draftClientId}) =>
+        @_onPopoutDraftClientId(draftClientId, {newDraft: true})
 
   _onPopoutDraftClientId: (draftClientId, options = {}) =>
     if not draftClientId?
@@ -431,82 +284,15 @@ class DraftStore
           windowProps: _.extend(options, {draftClientId})
 
   _onHandleMailtoLink: (event, urlString) =>
-    account = @_getAccountForNewMessage()
-
-    try
-      urlString = decodeURI(urlString)
-
-    [whole, to, queryString] = /mailto:\/*([^\?\&]*)((.|\n|\r)*)/.exec(urlString)
-
-    if to.length > 0 and to.indexOf('@') is -1
-      to = decodeURIComponent(to)
-
-    # /many/ mailto links are malformed and do things like:
-    #   &body=https://github.com/atom/electron/issues?utf8=&q=is%3Aissue+is%3Aopen+123&subject=...
-    #   (note the unescaped ? and & in the URL).
-    #
-    # To account for these scenarios, we parse the query string manually and only
-    # split on params we expect to be there. (Jumping from &body= to &subject=
-    # in the above example.) We only decode values when they appear to be entirely
-    # URL encoded. (In the above example, decoding the body would cause the URL
-    # to fall apart.)
-    #
-    query = {}
-    query.to = to
-
-    querySplit = /[&|?](subject|body|cc|to|from|bcc)+\s*=/gi
-
-    openKey = null
-    openValueStart = null
-
-    until match is null
-      match = querySplit.exec(queryString)
-      openValueEnd = match?.index || queryString.length
-
-      if openKey
-        value = queryString.substr(openValueStart, openValueEnd - openValueStart)
-        valueIsntEscaped = value.indexOf('?') isnt -1 or value.indexOf('&') isnt -1
-        try
-          value = decodeURIComponent(value) unless valueIsntEscaped
-        query[openKey] = value
-
-      if match
-        openKey = match[1].toLowerCase()
-        openValueStart = querySplit.lastIndex
-
-    draft = new Message
-      body: query.body || ''
-      subject: query.subject || '',
-      from: [account.defaultMe()]
-      date: (new Date)
-      draft: true
-      pristine: true
-      accountId: account.id
-
-    contacts = {}
-    for attr in ['to', 'cc', 'bcc']
-      if query[attr]
-        contacts[attr] = ContactStore.parseContactsInString(query[attr])
-
-    Promise.props(contacts).then (contacts) =>
-      draft = _.extend(draft, contacts)
-      @_finalizeAndPersistNewMessage(draft).then ({draftClientId}) =>
-        @_onPopoutDraftClientId(draftClientId)
+    DraftFactory.createDraftForMailto(urlString).then (draft) =>
+      @_finalizeAndPersistNewMessage(draft, popout: true)
 
   _onHandleMailFiles: (event, paths) =>
-    account = @_getAccountForNewMessage()
-    draft = new Message
-      body: ''
-      subject: ''
-      from: [account.defaultMe()]
-      date: (new Date)
-      draft: true
-      pristine: true
-      accountId: account.id
-    @_finalizeAndPersistNewMessage(draft).then ({draftClientId}) =>
+    DraftFactory.createDraft().then (draft) =>
+      @_finalizeAndPersistNewMessage(draft, popout: true)
+    .then ({draftClientId}) =>
       for path in paths
         Actions.addAttachment({filePath: path, messageClientId: draftClientId})
-      @_onPopoutDraftClientId(draftClientId)
 
   _onDestroyDraft: (draftClientId) =>
     session = @_draftSessions[draftClientId]

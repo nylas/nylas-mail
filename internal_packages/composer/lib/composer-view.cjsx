@@ -107,7 +107,10 @@ class ComposerView extends React.Component
     @_applyFieldFocus()
 
   focus: =>
-    @_applyFieldFocus()
+    if not @state.focusedField
+      @setState(focusedField: @_initiallyFocusedField(@_proxy.draft()))
+    else
+      @_applyFieldFocus()
 
   _keymapHandlers: ->
     'composer:send-message': => @_onPrimarySend()

@@ -332,14 +332,6 @@ class Actions
   @composeForward: ActionScopeWindow
 
   ###
-  Public: Create a new draft and "reply all" to the provided threadId and messageId. See
-  {::composeReply} for parameters and behavior.
-
-  *Scope: Window*
-  ###
-  @composeReplyAll: ActionScopeWindow
-
-  ###
   Public: Pop out the draft with the provided ID so the user can edit it in another
   window.
 
@@ -351,6 +343,8 @@ class Actions
   ```
   ###
   @composePopoutDraft: ActionScopeWindow
+
+  @focusDraft: ActionScopeWindow
 
   ###
   Public: Open a new composer window for creating a new draft from scratch.
