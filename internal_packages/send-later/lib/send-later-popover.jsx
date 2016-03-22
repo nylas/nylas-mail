@@ -1,6 +1,6 @@
 /** @babel */
 import React, {Component, PropTypes} from 'react'
-import {DateUtils} from 'nylas-exports'
+import {Actions, DateUtils} from 'nylas-exports'
 import {Menu, DateInput} from 'nylas-component-kit'
 
 const {DATE_FORMAT_SHORT, DATE_FORMAT_LONG} = DateUtils
@@ -24,6 +24,10 @@ class SendLaterPopover extends Component {
     onSendLater: PropTypes.func.isRequired,
     onCancelSendLater: PropTypes.func.isRequired,
   };
+
+  onEscape() {
+    Actions.closePopover()
+  }
 
   onSelectMenuOption = (optionKey)=> {
     const date = SendLaterOptions[optionKey]();
@@ -79,8 +83,7 @@ class SendLaterPopover extends Component {
     }
 
     return (
-      <div
-        className="send-later">
+      <div className="send-later">
         <Menu
           ref="menu"
           items={Object.keys(SendLaterOptions)}
@@ -89,6 +92,7 @@ class SendLaterPopover extends Component {
           defaultSelectedIndex={-1}
           headerComponents={headerComponents}
           footerComponents={footerComponents}
+          onEscape={this.onEscape}
           onSelect={this.onSelectMenuOption} />
       </div>
     );
