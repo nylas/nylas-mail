@@ -86,12 +86,11 @@ Rx.Observable.fromListSelection = (originStore) =>
       )
       return
     )
-    return {
-      dispose: =>
-        if dataSourceDisposable
-          dataSourceDisposable.dispose()
-        disposable.dispose()
-    }
+    dispose = =>
+      if dataSourceDisposable
+        dataSourceDisposable.dispose()
+      disposable.dispose()
+    return Rx.Disposable.create(dispose)
   )
 
 Rx.Observable.fromConfig = (configKey) =>

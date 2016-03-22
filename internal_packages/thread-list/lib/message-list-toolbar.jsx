@@ -8,23 +8,16 @@ import InjectsToolbarButtons, {ToolbarRole} from './injects-toolbar-buttons'
 
 function getObservable() {
   return (
-    Rx.Observable.merge(
+    Rx.Observable.combineLatest(
       Rx.Observable.fromStore(FocusedContentStore),
       ThreadListStore.selectionObservable(),
+      (store, items) => ({focusedThread: store.focused('thread'), items})
     )
-    .map((data) => {
-      const storeChanged = data === FocusedContentStore
-      const selectionChanged = data instanceof Array
-
-      if (storeChanged) {
-        const focusedThread = FocusedContentStore.focused('thread')
-        if (focusedThread) {
-          return [focusedThread]
-        }
-      } else if (selectionChanged) {
-        return data
+    .map(({focusedThread, items}) => {
+      if (focusedThread) {
+        return [focusedThread]
       }
-      return []
+      return items
     })
   )
 }
