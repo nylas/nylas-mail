@@ -12,10 +12,12 @@ class EmojiComposerExtension extends ContenteditableExtension {
       if (emojiOptions.length > 0) {
         const offset = sel.anchorOffset;
         if (!DOMUtils.closest(sel.anchorNode, "n1-emoji-autocomplete")) {
+          const anchorOffset = Math.max(sel.anchorOffset - triggerWord.length - 1, 0);
           editor.select(sel.anchorNode,
-                        sel.anchorOffset - triggerWord.length - 1,
+                        anchorOffset,
                         sel.focusNode,
-                        sel.focusOffset).wrapSelection("n1-emoji-autocomplete");
+                        sel.focusOffset)
+          editor.wrapSelection("n1-emoji-autocomplete");
           editor.select(sel.anchorNode,
                         offset,
                         sel.anchorNode,
