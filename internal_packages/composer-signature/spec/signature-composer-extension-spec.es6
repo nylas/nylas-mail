@@ -38,7 +38,7 @@ describe("SignatureComposerExtension", () => {
         SignatureComposerExtension.prepareNewDraft({draft: a});
         expect(a.body).toEqual(`This is a test! <signature>${TEST_SIGNATURE}<br/></signature><div class="gmail_quote">Hello world</div>`);
         SignatureComposerExtension.prepareNewDraft({draft: b});
-        expect(b.body).toEqual(`This is a another test.<signature><br/><br/>${TEST_SIGNATURE}</signature>`);
+        expect(b.body).toEqual(`This is a another test.<br/><br/><signature>${TEST_SIGNATURE}</signature>`);
       });
 
       const scenarios = [
@@ -50,17 +50,17 @@ describe("SignatureComposerExtension", () => {
         {
           name: 'Populated signature div',
           body: `This is a test! <signature><br/><br/><div>SIG</div></signature>`,
-          expected: `This is a test! <signature><br/><br/>${TEST_SIGNATURE}</signature>`,
+          expected: `This is a test! <br/><br/><signature>${TEST_SIGNATURE}</signature>`,
         },
         {
           name: 'Empty signature div',
           body: 'This is a test! <signature></signature>',
-          expected: `This is a test! <signature><br/><br/>${TEST_SIGNATURE}</signature>`,
+          expected: `This is a test! <br/><br/><signature>${TEST_SIGNATURE}</signature>`,
         },
         {
           name: 'With newlines',
-          body: 'This is a test! <signature>\n<br>\n<div>SIG</div>\n</signature>',
-          expected: `This is a test! <signature><br/><br/>${TEST_SIGNATURE}</signature>`,
+          body: 'This is a test!<br/> <signature>\n<br>\n<div>SIG</div>\n</signature>',
+          expected: `This is a test!<br/> <br/><br/><signature>${TEST_SIGNATURE}</signature>`,
         },
       ]
 

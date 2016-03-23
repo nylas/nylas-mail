@@ -1,7 +1,7 @@
 export default {
   applySignature(body, signature) {
-    // https://regex101.com/r/nC0qL2/1
-    const signatureRegex = /<signature>[^]*<\/signature>/;
+    // https://regex101.com/r/nC0qL2/2
+    const signatureRegex = /(<br\/>){0,2}<signature>[^]*<\/signature>/;
 
     let newBody = body;
     let paddingBefore = '';
@@ -23,6 +23,6 @@ export default {
 
     const contentBefore = newBody.slice(0, insertionPoint);
     const contentAfter = newBody.slice(insertionPoint);
-    return `${contentBefore}<signature>${paddingBefore}${signature}${paddingAfter}</signature>${contentAfter}`;
+    return `${contentBefore}${paddingBefore}<signature>${signature}${paddingAfter}</signature>${contentAfter}`;
   },
 };
