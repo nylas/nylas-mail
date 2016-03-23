@@ -46,9 +46,7 @@ class FileUploadStore extends NylasStore
     return unless change.objectClass is Message.name and change.type is 'unpersist'
 
     change.objects.forEach (message) =>
-      messageDir = path.join(UPLOAD_DIR, message.clientId)
-      for upload in message.uploads
-        @_deleteUpload(upload)
+      @_deleteUploadsForClientId(message.clientId)
 
   _onSelectAttachment: ({messageClientId}) ->
     @_verifyId(messageClientId)
@@ -75,11 +73,10 @@ class FileUploadStore extends NylasStore
 
   _onRemoveAttachment: (upload) ->
     return Promise.resolve() unless upload
-
     @_applySessionChanges upload.messageClientId, (uploads) ->
       _.reject(uploads, _.matcher({id: upload.id}))
-
-    @_deleteUpload(upload).catch(@_onAttachFileError)
+    @_deleteUpload(upload)
+    .catch(@_onAttachFileError)
 
   _onAttachFileError: (error) ->
     NylasEnv.showErrorDialog(error.message)
@@ -126,13 +123,17 @@ class FileUploadStore extends NylasStore
       readStream.pipe(writeStream)
 
   _deleteUpload: (upload) =>
+    # Delete the upload file
     fs.unlinkAsync(upload.targetPath).then ->
+      # Delete the containing folder
       fs.rmdirAsync(upload.targetDir).then ->
+        # Try to remove the directory for the associated message if this was the
+        # last upload
         fs.rmdir path.join(UPLOAD_DIR, upload.messageClientId), (err) ->
           # Will fail if it's not empty, which is fine.
         Promise.resolve(upload)
-    .catch ->
-      Promise.reject(new Error("Error cleaning up file #{upload.filename}"))
+    .catch (err) ->
+      Promise.reject(new Error("Error deleting file upload #{upload.filename}:\n\n#{err.message}"))
 
   _deleteUploadsForClientId: (messageClientId) =>
     rimraf = require('rimraf')
