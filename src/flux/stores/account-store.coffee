@@ -45,19 +45,19 @@ class AccountStore extends NylasStore
     for json in NylasEnv.config.get(configAccountsKey) || []
       @_accounts.push((new Account).fromJSON(json))
 
-    # Load tokens using the old config method and save them into the keychain
     oldTokens = NylasEnv.config.get(configTokensKey)
     if oldTokens
+      # Load tokens using the old config method and save them into the keychain
+      @_tokens = oldTokens
       for key, val of oldTokens
         account = @accountForId(key)
         continue unless account
         keytar.replacePassword(keytarServiceName, account.emailAddress, val)
-      NylasEnv.config.set(configTokensKey, null)
-
-    # Load tokens using the new keytar method
-    @_tokens = {}
-    for account in @_accounts
-      @_tokens[account.id] = keytar.getPassword(keytarServiceName, account.emailAddress)
+    else
+      # Load tokens using the new keytar method
+      @_tokens = {}
+      for account in @_accounts
+        @_tokens[account.id] = keytar.getPassword(keytarServiceName, account.emailAddress)
 
     @_trigger()
 
@@ -73,6 +73,7 @@ class AccountStore extends NylasStore
     @_version += 1
     NylasEnv.config.set(configVersionKey, @_version)
     NylasEnv.config.set(configAccountsKey, @_accounts)
+    NylasEnv.config.set(configTokensKey, null)
     NylasEnv.config.save()
     @_trigger()
 
