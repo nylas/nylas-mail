@@ -49,6 +49,8 @@ class ThreadListStore extends NylasStore
   # Inbound Events
 
   _onPerspectiveChanged: =>
+    if FocusedPerspectiveStore.current().searchQuery is undefined
+      Actions.dismissNotificationsMatching({tag: 'search-error'})
     @createListDataSource()
 
   _onDataChanged: ({previous, next} = {}) =>
