@@ -80,8 +80,9 @@ class EmojiComposerExtension extends ContenteditableExtension {
       if (event.key === "ArrowDown" || event.key === "ArrowRight" ||
           event.key === "ArrowUp" || event.key === "ArrowLeft") {
         event.preventDefault();
-        const moveToNext = (event.key === "ArrowDown" || event.key === "ArrowRight")
+        const moveToNext = (event.key === "ArrowDown" || event.key === "ArrowRight");
         const emojiNameNode = DOMUtils.closest(sel.anchorNode, "n1-emoji-autocomplete");
+        if (!emojiNameNode) return null;
         const selectedEmoji = emojiNameNode.getAttribute("selectedEmoji");
         if (selectedEmoji) {
           const emojiIndex = emojiOptions.indexOf(selectedEmoji);
@@ -100,6 +101,7 @@ class EmojiComposerExtension extends ContenteditableExtension {
       } else if (event.key === "Enter" || event.key === "Tab") {
         event.preventDefault();
         const emojiNameNode = DOMUtils.closest(sel.anchorNode, "n1-emoji-autocomplete");
+        if (!emojiNameNode) return null;
         let selectedEmoji = emojiNameNode.getAttribute("selectedEmoji");
         if (!selectedEmoji) selectedEmoji = emojiOptions[0];
         EmojiComposerExtension._onSelectEmoji({editor: editor,
