@@ -28,7 +28,7 @@ function _runOnTextNode(node, matchers) {
   }
 }
 
-export function autolink(doc) {
+export function autolink(doc, {async} = {}) {
   // Traverse the new DOM tree and make things that look like links clickable,
   // and ensure anything with an href has a title attribute.
   const textWalker = document.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
@@ -38,8 +38,21 @@ export function autolink(doc) {
     ['', RegExpUtils.urlRegex({matchEntireString: false})],
   ];
 
-  while (textWalker.nextNode()) {
-    _runOnTextNode(textWalker.currentNode, matchers);
+  if (async) {
+    const fn = (deadline) => {
+      while (textWalker.nextNode()) {
+        _runOnTextNode(textWalker.currentNode, matchers);
+        if (deadline.timeRemaining() <= 0) {
+          window.requestIdleCallback(fn, {timeout: 500});
+          return;
+        }
+      }
+    };
+    window.requestIdleCallback(fn, {timeout: 500});
+  } else {
+    while (textWalker.nextNode()) {
+      _runOnTextNode(textWalker.currentNode, matchers);
+    }
   }
 
   // Traverse the new DOM tree and make sure everything with an href has a title.
