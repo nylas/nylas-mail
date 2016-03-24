@@ -157,7 +157,7 @@ class ListTabular extends React.Component
     @setState(@buildStateForRange(start: rangeStart, end: rangeEnd))
 
   render: =>
-    otherProps = _.omit(@props, _.keys(@constructor.propTypes))
+    otherProps = Utils.fastOmit(@props, Object.keys(@constructor.propTypes))
 
     innerStyles =
       height: @state.count * @props.itemHeight

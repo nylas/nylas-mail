@@ -10,7 +10,7 @@ class DropZone extends React.Component
   constructor: ->
 
   render: ->
-    otherProps = _.omit(@props, _.keys(@constructor.propTypes))
+    otherProps = _.omit(@props, Object.keys(@constructor.propTypes))
     <div {...otherProps} onDragEnter={@_onDragEnter} onDragLeave={@_onDragLeave} onDrop={@_onDrop}>
       {@props.children}
     </div>

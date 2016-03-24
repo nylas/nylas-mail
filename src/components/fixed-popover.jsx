@@ -168,7 +168,7 @@ class FixedPopover extends Component {
 
   computeAdjustedOffsetAndDirection = ({direction, currentRect, windowDimensions, fallback = this.fallback, offsetPadding = OFFSET_PADDING})=> {
     const {overflows, overflowValues} = this.computeOverflows({currentRect, windowDimensions})
-    const overflowCount = _.keys(_.pick(overflows, (val)=> val === true)).length
+    const overflowCount = Object.keys(_.pick(overflows, (val)=> val === true)).length
 
     if (overflowCount > 0) {
       if (fallback) {

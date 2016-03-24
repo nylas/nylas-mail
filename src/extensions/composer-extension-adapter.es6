@@ -40,7 +40,7 @@ export function adaptContenteditableMethod(extension, method, original = extensi
   extension[method] = (argsObj)=> {
     const {editor, event, mutations} = argsObj;
     const eventOrMutations = event || mutations || {};
-    const extraArgs = _.keys(_.omit(argsObj, ['editor', 'event', 'mutations'])).map(
+    const extraArgs = Object.keys(_.omit(argsObj, ['editor', 'event', 'mutations'])).map(
       key => argsObj[key]
     );
 

@@ -1,6 +1,6 @@
 React = require 'react'
 _ = require 'underscore'
-{Actions,ComponentRegistry} = require "nylas-exports"
+{Actions, ComponentRegistry, Utils} = require "nylas-exports"
 
 ###
 Public: A simple wrapper that provides a Flexbox layout with the given direction and style.
@@ -36,8 +36,7 @@ class Flexbox extends React.Component
     if @props.inline is true
       style.display = 'inline-flex'
 
-    otherProps = _.omit(@props, _.keys(@constructor.propTypes))
-
+    otherProps = Utils.fastOmit(@props, Object.keys(@constructor.propTypes))
     <div style={style} {...otherProps}>
       {@props.children}
     </div>

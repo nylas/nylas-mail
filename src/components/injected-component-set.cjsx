@@ -3,7 +3,8 @@ _ = require 'underscore'
 UnsafeComponent = require './unsafe-component'
 Flexbox = require './flexbox'
 InjectedComponentLabel = require './injected-component-label'
-{Actions,
+{Utils,
+ Actions,
  WorkspaceStore,
  ComponentRegistry} = require "nylas-exports"
 
@@ -89,7 +90,7 @@ class InjectedComponentSet extends React.Component
 
   render: =>
     @_renderedComponents = new Set()
-    flexboxProps = _.omit(@props, _.keys(@constructor.propTypes))
+    flexboxProps = Utils.fastOmit(@props, Object.keys(@constructor.propTypes))
     flexboxClassName = @props.className ? ""
     exposedProps = @props.exposedProps ? {}
 

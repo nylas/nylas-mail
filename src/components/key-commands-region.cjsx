@@ -182,7 +182,7 @@ class KeyCommandsRegion extends React.Component
     classname = classNames
       'key-commands-region': true
       'focused': @state.focused
-    otherProps = _.omit(@props, _.keys(@constructor.propTypes))
+    otherProps = _.omit(@props, Object.keys(@constructor.propTypes))
 
     <div className="#{classname} #{@props.className}" {...otherProps}>
       {@props.children}

@@ -425,7 +425,7 @@ class Package
     if @bundledPackage and packagesCache[@name]?
       if packagesCache[@name].main
         @mainModulePath = "#{NylasEnv.packages.resourcePath}#{path.sep}#{packagesCache[@name].main}"
-        @mainModulePath = fs.resolveExtension(@mainModulePath, ["", _.keys(require.extensions)...])
+        @mainModulePath = fs.resolveExtension(@mainModulePath, ["", Object.keys(require.extensions)...])
       else
         @mainModulePath = null
     else
@@ -434,7 +434,7 @@ class Package
           path.join(@path, @metadata.main)
         else
           path.join(@path, 'index')
-      @mainModulePath = fs.resolveExtension(mainModulePath, ["", _.keys(require.extensions)...])
+      @mainModulePath = fs.resolveExtension(mainModulePath, ["", Object.keys(require.extensions)...])
 
   hasActivationCommands: ->
     for selector, commands of @getActivationCommands()
