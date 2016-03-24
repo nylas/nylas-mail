@@ -161,7 +161,7 @@ class MessageItem extends React.Component
     Actions.fetchAndSaveAllFiles(@props.message.files)
 
   _renderDownloadAllButton: =>
-    <div className="download-all" onClick={@_onDownloadAll}>
+    <div className="download-all">
       <div className="attachment-number">
         <RetinaImg
           name="ic-attachments-all-clippy.png"
@@ -170,7 +170,7 @@ class MessageItem extends React.Component
         <span>{@props.message.files.length} attachments</span>
       </div>
       <div className="separator">-</div>
-      <div className="download-all-action">
+      <div className="download-all-action" onClick={@_onDownloadAll}>
         <RetinaImg
           name="ic-attachments-download-all.png"
           mode={RetinaImg.Mode.ContentIsMask}

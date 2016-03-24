@@ -9,18 +9,23 @@ class FileUpload extends React.Component
   @displayName: 'FileUpload'
 
   render: =>
-    <div className={"file-wrap file-upload"}>
+    <div className="file-wrap file-upload">
       <div className="inner">
         <Flexbox direction="row" style={alignItems: 'center'}>
-          <RetinaImg className="file-icon"
-                     fallback="file-fallback.png"
-                     mode={RetinaImg.Mode.ContentPreserve}
-                     name="file-#{@_extension()}.png"/>
-          <span className="file-name">
-            <span className="uploading">{@props.upload.filename}</span>
-          </span>
+          <div className="file-info-wrap">
+            <RetinaImg className="file-icon"
+                      fallback="file-fallback.png"
+                      mode={RetinaImg.Mode.ContentPreserve}
+                      name="file-#{@_extension()}.png"/>
+            <span className="file-name">
+              <span className="uploading">{@props.upload.filename}</span>
+            </span>
+          </div>
           <div className="file-action-icon" onClick={@_onClickRemove}>
-            <RetinaImg name="remove-attachment.png" mode={RetinaImg.Mode.ContentDark} />
+            <RetinaImg
+              name="remove-attachment.png"
+              mode={RetinaImg.Mode.ContentIsMask}
+            />
           </div>
         </Flexbox>
       </div>
