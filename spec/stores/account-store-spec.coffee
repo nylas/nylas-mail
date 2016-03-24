@@ -61,7 +61,6 @@ describe "AccountStore", ->
       expect(@instance.tokenForAccountId('A')).toEqual('A-TOKEN')
       expect(@instance.tokenForAccountId('B')).toEqual(undefined)
       expect(keytar.replacePassword).toHaveBeenCalledWith('Nylas', 'bengotow@gmail.com', 'A-TOKEN')
-      expect(NylasEnv.config.set).toHaveBeenCalledWith('nylas.accountTokens', null)
 
     it "should initialize tokens from keytar", ->
       @configTokens = null
@@ -114,8 +113,9 @@ describe "AccountStore", ->
       account = (new Account).fromJSON(@json)
       expect(@instance._accounts.length).toBe 1
       expect(@instance._accounts[0]).toEqual account
+      expect(NylasEnv.config.set.calls.length).toBe 3
+      expect(NylasEnv.config.set.calls[2].args).toEqual(['nylas.accountTokens', null])
       expect(NylasEnv.config.save).toHaveBeenCalled()
-      expect(NylasEnv.config.set.calls.length).toBe 2
 
     it "selects the account", ->
       expect(Actions.focusDefaultMailboxPerspectiveForAccounts).toHaveBeenCalledWith(["B"])
