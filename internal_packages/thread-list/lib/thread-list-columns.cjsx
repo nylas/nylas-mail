@@ -6,6 +6,7 @@ classNames = require 'classnames'
  RetinaImg,
  MailLabelSet,
  MailImportantIcon,
+ InjectedComponent,
  InjectedComponentSet} = require 'nylas-component-kit'
 
 {Thread, FocusedPerspectiveStore, Utils} = require 'nylas-exports'
@@ -113,23 +114,37 @@ cNarrow = new ListTabular.Column
     if hasDraft
       pencil = <RetinaImg name="icon-draft-pencil.png" className="draft-icon" mode={RetinaImg.Mode.ContentPreserve} />
 
-    <div>
-      <div style={display: 'flex', alignItems: 'center'}>
+    <div style={display: 'flex', alignItems: 'flex-start'}>
+      <div className="icons-column">
         <ThreadListIcon thread={thread} />
-        <ThreadListParticipants thread={thread} />
-        {pencil}
-        <span style={flex:1}></span>
-        {attachment}
-        {TimestampComponentForPerspective(thread)}
+        <InjectedComponentSet
+          key="injected-component-set"
+          inline={true}
+          direction="column"
+          containersRequired={false}
+          matching={role: "ThreadListIcon"}
+          className="thread-injected-icons"
+          exposedProps={thread: thread}
+        />
+        <MailImportantIcon
+          thread={thread}
+          showIfAvailableForAnyAccount={true}
+        />
       </div>
-      <MailImportantIcon
-        thread={thread}
-        showIfAvailableForAnyAccount={true} />
-      <div className="subject">{subject(thread.subject)}</div>
-      <div className="snippet-and-labels">
-        <div className="snippet">{thread.snippet}&nbsp;</div>
-        <div style={flex: 1, flexShrink: 1}></div>
-        <MailLabelSet thread={thread} />
+      <div className="thread-info-column">
+        <div className="participants-wrapper">
+          <ThreadListParticipants thread={thread} />
+          {pencil}
+          <span style={flex:1}></span>
+          {attachment}
+          {TimestampComponentForPerspective(thread)}
+        </div>
+        <div className="subject">{subject(thread.subject)}</div>
+        <div className="snippet-and-labels">
+          <div className="snippet">{thread.snippet}&nbsp;</div>
+          <div style={flex: 1, flexShrink: 1}></div>
+          <MailLabelSet thread={thread} />
+        </div>
       </div>
     </div>
 

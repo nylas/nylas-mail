@@ -200,10 +200,10 @@
   }
 
   .timestamp {
-    font-size:   @font-size-small;
+    font-size: @font-size-small;
     font-weight: @font-weight-normal;
     min-width:70px;
-    margin-right:@scrollbar-margin;
+    margin-right: @scrollbar-margin;
     opacity: 0.62;
   }
 
@@ -394,6 +394,27 @@ body.platform-win32 {
 }
 
 .thread-list-narrow {
+  .icons-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 25px;
+    margin-right: 5px;
+
+    .thread-injected-icons {
+      align-items: center;
+    }
+  }
+  .thread-info-column {
+    flex: 1;
+    align-self: center;
+
+    .participants-wrapper {
+      display: flex;
+      align-items: center;
+      min-height: 24px;
+    }
+  }
   .list-column {
     display:block;
   }
@@ -406,9 +427,6 @@ body.platform-win32 {
   }
   .participants {
     font-size: @font-size-base;
-  }
-  .thread-icon {
-    margin-right:5px;
   }
 
   .mail-important-icon {
@@ -423,12 +441,10 @@ body.platform-win32 {
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: left;
-    margin-left:30px;
-    margin-right:@scrollbar-margin;
+    margin-right: @scrollbar-margin;
   }
   .snippet-and-labels {
-    margin-left:30px;
-    margin-right:@scrollbar-margin;
+    margin-right: @scrollbar-margin;
     display: flex;
     align-items: baseline;
     overflow: hidden;
