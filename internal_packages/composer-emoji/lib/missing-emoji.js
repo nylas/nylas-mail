@@ -15,6 +15,7 @@ export default missingEmojiList = [
   'baseball',
   'airplane',
   'envelope',
+  'email',
   'scissors',
   'black_nib',
   'pencil2',

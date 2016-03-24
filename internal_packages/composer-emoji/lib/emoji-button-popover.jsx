@@ -128,6 +128,8 @@ class EmojiButtonPopover extends React.Component {
       }
       categoryNames = ["Frequently Used"].concat(categoryNames);
     }
+    // Calculates where each category should be (variable because Frequently
+    // Used may or may not be present)
     for (const name of categoryNames) {
       categoryPositions[name] = {top: 0, bottom: 0};
     }
@@ -165,6 +167,7 @@ class EmojiButtonPopover extends React.Component {
   }
 
   findSearchMatches(searchValue) {
+    // TODO: Find matches for aliases, too.
     const searchMatches = [];
     for (const category of Object.keys(categorizedEmojiList)) {
       categorizedEmojiList[category].forEach((emojiName) => {
@@ -188,13 +191,13 @@ class EmojiButtonPopover extends React.Component {
   calcEmojiByPosition = (position) => {
     for (const category in this.state.categoryPositions) {
       if (this.state.categoryPositions.hasOwnProperty(category)) {
-        const LEFT_PADDING = 8;
-        const RIGHT_PADDING = 204;
+        const LEFT_BOUNDARY = 8;
+        const RIGHT_BOUNDARY = 204;
         const EMOJI_WIDTH = 24.5;
         const EMOJI_HEIGHT = 24;
         const EMOJI_PER_ROW = 8;
-        if (position.x >= LEFT_PADDING &&
-            position.x <= RIGHT_PADDING &&
+        if (position.x >= LEFT_BOUNDARY &&
+            position.x <= RIGHT_BOUNDARY &&
             position.y >= this.state.categoryPositions[category].top &&
             position.y <= this.state.categoryPositions[category].bottom) {
           const x = Math.round((position.x + 5) / EMOJI_WIDTH);
@@ -264,6 +267,7 @@ class EmojiButtonPopover extends React.Component {
     position.y += 48;
     ctx.font = "32px Arial";
     ctx.fillStyle = 'black';
+    if (this.state.categorizedEmoji[category].length === 0) return;
     this.state.categorizedEmoji[category].forEach((emojiName, j) => {
       if (missingEmojiList.indexOf(emojiName) === -1) {
         const emojiChar = emoji.get(emojiName);
