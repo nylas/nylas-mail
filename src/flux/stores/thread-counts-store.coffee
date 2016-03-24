@@ -92,7 +92,6 @@ class ThreadCountsStore extends NylasStore
 
       foundNegative = false
       for {category_id, unread, total} in results
-        unread = -1
         @_counts[category_id] = {unread, total}
         if unread < 0 or total < 0
           foundNegative = true
