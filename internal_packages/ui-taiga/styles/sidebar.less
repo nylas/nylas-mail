@@ -12,10 +12,19 @@
       padding-bottom: 5px;
     }
     .item-container {
-      margin: 0 10px !important;
+      margin: 0 10px 0 0 !important;
 
       .disclosure-triangle {
-        display: none;
+        display: flex;
+        align-items: center;
+        width: 15px;
+        div {
+          border-left-color: @border-color-primary;
+          border-top-width: 3px;
+          border-bottom-width: 3px;
+          border-left-width: 5px;
+          transform-origin: 2px;
+        }
       }
 
       .item {
