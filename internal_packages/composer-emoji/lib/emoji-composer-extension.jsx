@@ -1,9 +1,13 @@
-import {DOMUtils, ContenteditableExtension} from 'nylas-exports'
-import EmojiActions from './emoji-actions'
-import EmojiPicker from './emoji-picker'
-const emoji = require('node-emoji');
+import {DOMUtils, ComposerExtension} from 'nylas-exports';
+import EmojiActions from './emoji-actions';
+import EmojiPicker from './emoji-picker';
+import emoji from 'node-emoji';
+import missingEmojiList from './missing-emoji';
 
-class EmojiComposerExtension extends ContenteditableExtension {
+
+class EmojiComposerExtension extends ComposerExtension {
+
+  static selState = null;
 
   static onContentChanged = ({editor}) => {
     const sel = editor.currentSelection()
@@ -40,6 +44,17 @@ class EmojiComposerExtension extends ContenteditableExtension {
                       sel.focusNode,
                       sel.focusOffset + triggerWord.length);
       }
+    }
+  };
+
+  static onBlur = ({editor}) => {
+    EmojiComposerExtension.selState = editor.currentSelection().exportSelection();
+  };
+
+  static onFocus = ({editor}) => {
+    if (EmojiComposerExtension.selState) {
+      editor.select(EmojiComposerExtension.selState);
+      EmojiComposerExtension.selState = null;
     }
   };
 
@@ -104,11 +119,33 @@ class EmojiComposerExtension extends ContenteditableExtension {
         if (!emojiNameNode) return null;
         let selectedEmoji = emojiNameNode.getAttribute("selectedEmoji");
         if (!selectedEmoji) selectedEmoji = emojiOptions[0];
-        EmojiComposerExtension._onSelectEmoji({editor: editor,
-                                                actionArg: {emojiChar: emoji.get(selectedEmoji)}});
+        const args = {
+          editor: editor,
+          actionArg: {
+            emojiName: selectedEmoji,
+            replaceSelection: true,
+          },
+        };
+        EmojiComposerExtension._onSelectEmoji(args);
       }
     }
   };
+
+  static applyTransformsToDraft = ({draft}) => {
+    const nextDraft = draft.clone();
+    nextDraft.body = nextDraft.body.replace(/<span class="missing-emoji ([a-zA-Z0-9-_]*)">.*<\/span>/g, (match, emojiName) =>
+      `<span class="broken-emoji ${emojiName}">${emoji.get(emojiName)}</span>`
+    );
+    return nextDraft;
+  }
+
+  static unapplyTransformsToDraft = ({draft}) => {
+    const nextDraft = draft.clone();
+    nextDraft.body = nextDraft.body.replace(/<span class="broken-emoji ([a-zA-Z0-9-_]*)">.*<\/span>/g, (match, emojiName) =>
+      `<span class="missing-emoji ${emojiName}"><img src="images/composer-emoji/missing-emoji/${emojiName}.png" width="14" height="14" style="margin-top: -5px;" /></span>`
+    );
+    return nextDraft;
+  }
 
   static _findEmojiOptions(sel) {
     if (sel.anchorNode &&
@@ -138,33 +175,47 @@ class EmojiComposerExtension extends ContenteditableExtension {
   }
 
   static _onSelectEmoji = ({editor, actionArg}) => {
-    const emojiChar = actionArg.emojiChar;
-    if (!emojiChar) return null;
-    const sel = editor.currentSelection()
-    if (sel.anchorNode &&
-        sel.anchorNode.nodeValue &&
-        sel.anchorNode.nodeValue.length > 0 &&
-          sel.isCollapsed) {
-      const words = sel.anchorNode.nodeValue.substring(0, sel.anchorOffset);
-      let index = words.lastIndexOf(":");
-      let lastWord = words.substring(index + 1, sel.anchorOffset);
-      if (index !== -1 && words.lastIndexOf(" ") < index) {
-        editor.select(sel.anchorNode,
-                      sel.anchorOffset - lastWord.length - 1,
-                      sel.focusNode,
-                      sel.focusOffset);
-      } else {
-        const {text, textNode} = EmojiComposerExtension._getTextUntilSpace(sel.anchorNode, sel.anchorOffset);
-        index = text.lastIndexOf(":");
-        lastWord = text.substring(index + 1);
-        const offset = textNode.nodeValue.lastIndexOf(":");
-        editor.select(textNode,
-                      offset,
-                      sel.focusNode,
-                      sel.focusOffset);
+    const {emojiName, replaceSelection} = actionArg;
+    if (!emojiName) return null;
+    if (replaceSelection) {
+      const sel = editor.currentSelection();
+      if (sel.anchorNode &&
+          sel.anchorNode.nodeValue &&
+          sel.anchorNode.nodeValue.length > 0 &&
+            sel.isCollapsed) {
+        const words = sel.anchorNode.nodeValue.substring(0, sel.anchorOffset);
+        let index = words.lastIndexOf(":");
+        let lastWord = words.substring(index + 1, sel.anchorOffset);
+        if (index !== -1 && words.lastIndexOf(" ") < index) {
+          editor.select(sel.anchorNode,
+                        sel.anchorOffset - lastWord.length - 1,
+                        sel.focusNode,
+                        sel.focusOffset);
+        } else {
+          const {text, textNode} = EmojiComposerExtension._getTextUntilSpace(sel.anchorNode, sel.anchorOffset);
+          index = text.lastIndexOf(":");
+          lastWord = text.substring(index + 1);
+          const offset = textNode.nodeValue.lastIndexOf(":");
+          editor.select(textNode,
+                        offset,
+                        sel.focusNode,
+                        sel.focusOffset);
+          editor.delete();
+        }
       }
+    }
+    const emojiChar = emoji.get(emojiName);
+    if (missingEmojiList.indexOf(emojiName) !== -1) {
+      const html = `<span class="missing-emoji ${emojiName}"><img
+                      src="images/composer-emoji/missing-emoji/${emojiName}.png"
+                      width="14"
+                      height="14"
+                      style="margin-top: -5px;" /></span>`;
+      editor.insertHTML(html, {selectInsertion: false});
+    } else {
       editor.insertText(emojiChar);
     }
+    EmojiActions.useEmoji({emojiName: emojiName, emojiChar: emojiChar});
   };
 
   static _emojiPickerWidth(emojiOptions) {
@@ -206,10 +257,10 @@ class EmojiComposerExtension extends ContenteditableExtension {
 
   static _findMatches(word) {
     const emojiOptions = []
-    const emojiChars = Object.keys(emoji.emoji).sort();
-    for (const emojiChar of emojiChars) {
-      if (word === emojiChar.substring(0, word.length)) {
-        emojiOptions.push(emojiChar);
+    const emojiNames = Object.keys(emoji.emoji).sort();
+    for (const emojiName of emojiNames) {
+      if (word === emojiName.substring(0, word.length)) {
+        emojiOptions.push(emojiName);
       }
     }
     return emojiOptions;

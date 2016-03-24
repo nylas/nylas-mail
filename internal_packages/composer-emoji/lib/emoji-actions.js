@@ -2,7 +2,8 @@
 import Reflux from 'reflux';
 
 EmojiActions = Reflux.createActions([
-  "selectEmoji"
+  "selectEmoji",
+  "useEmoji"
 ]);
 
 for (key in EmojiActions) {

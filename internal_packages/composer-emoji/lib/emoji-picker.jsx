@@ -1,6 +1,8 @@
-import {React} from 'nylas-exports'
-import EmojiActions from './emoji-actions'
-const emoji = require('node-emoji');
+import {React} from 'nylas-exports';
+import EmojiActions from './emoji-actions';
+import emoji from 'node-emoji';
+import missingEmojiList from './missing-emoji';
+
 
 class EmojiPicker extends React.Component {
   static displayName = "EmojiPicker";
@@ -21,8 +23,8 @@ class EmojiPicker extends React.Component {
     }
   }
 
-  onMouseDown(emojiChar) {
-    EmojiActions.selectEmoji({emojiChar});
+  onMouseDown(emojiName) {
+    EmojiActions.selectEmoji({emojiName, replaceSelection: true});
   }
 
   render() {
@@ -31,11 +33,25 @@ class EmojiPicker extends React.Component {
     if (emojiIndex === -1) emojiIndex = 0;
     if (this.props.emojiOptions) {
       this.props.emojiOptions.forEach((emojiOption, i) => {
-        const emojiChar = emoji.get(emojiOption);
         const emojiClass = emojiIndex === i ? "btn btn-icon emoji-option" : "btn btn-icon";
-        emojiButtons.push(<button key={emojiChar} onMouseDown={() => this.onMouseDown(emojiChar)} className={emojiClass}>{emojiChar} :{emojiOption}:</button>);
-        emojiButtons.push(<br key={emojiChar + " br"} />);
-      })
+        let emojiChar = emoji.get(emojiOption);
+        if (missingEmojiList.indexOf(emojiOption) !== -1) {
+          emojiChar = (<img
+                        src={`images/composer-emoji/missing-emoji/${emojiOption}.png`}
+                        width="16"
+                        height="16"
+                        style={{marginTop: "-4px", marginRight: "3px"}} />);
+        }
+        emojiButtons.push(
+          <button
+            key={emojiOption}
+            onMouseDown={() => this.onMouseDown(emojiOption)}
+            className={emojiClass}>
+            {emojiChar} :{emojiOption}:
+          </button>
+        );
+        emojiButtons.push(<br key={emojiOption + " br"} />);
+      });
     }
     return (
       <div className="emoji-picker">
