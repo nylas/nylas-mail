@@ -35,6 +35,9 @@ class MessageBodyProcessor {
       return;
     }
 
+    // grab the old value
+    const oldOutput = this._recentlyProcessedD[changedKey].body;
+
     // remove the message from the cache
     delete this._recentlyProcessedD[changedKey];
     this._recentlyProcessedA = this._recentlyProcessedA.filter(({key}) =>
@@ -52,9 +55,13 @@ class MessageBodyProcessor {
       const updatedMessage = changedMessage.clone();
       updatedMessage.body = updatedMessage.body || subscriptions[0].message.body;
       const output = this.retrieve(updatedMessage);
-      for (const subscription of subscriptions) {
-        subscription.callback(output);
-        subscription.message = updatedMessage;
+
+      // only trigger if the output has really changed
+      if (output !== oldOutput) {
+        for (const subscription of subscriptions) {
+          subscription.callback(output);
+          subscription.message = updatedMessage;
+        }
       }
     }
   }

@@ -65,7 +65,7 @@ export default class EmailFrame extends React.Component {
     doc.write(`<div id='inbox-html-wrapper'>${this._emailContent()}</div>`);
     doc.close();
 
-    autolink(doc);
+    autolink(doc, {async: true});
 
     // Notify the EventedIFrame that we've replaced it's document (with `open`)
     // so it can attach event listeners again.

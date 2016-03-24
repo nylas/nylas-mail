@@ -55,7 +55,7 @@ describe "AccountStore", ->
         (new Account).fromJSON(@configAccounts[1])
       ])
 
-    it "should initialize tokens from config, if present, save them to keytar, and remove them from config", ->
+    it "should initialize tokens from config, if present, and save them to keytar", ->
       @configTokens = {'A': 'A-TOKEN'}
       @instance = new @constructor
       expect(@instance.tokenForAccountId('A')).toEqual('A-TOKEN')
