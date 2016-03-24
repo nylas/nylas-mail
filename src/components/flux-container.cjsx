@@ -29,7 +29,7 @@ class FluxContainer extends React.Component
     @_unlisteners = []
 
   render: ->
-    otherProps = _.omit(@props, _.keys(@constructor.propTypes))
+    otherProps = _.omit(@props, Object.keys(@constructor.propTypes))
     React.cloneElement(@props.children, _.extend({}, otherProps, @state))
 
 module.exports = FluxContainer

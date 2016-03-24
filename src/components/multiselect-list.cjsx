@@ -89,7 +89,7 @@ class MultiselectList extends React.Component
     # BAD:   onSelect={ (item) -> Actions.focusThread(item) }
     # GOOD:  onSelect={@_onSelectItem}
     #
-    otherProps = _.omit(@props, _.keys(@constructor.propTypes))
+    otherProps = Utils.fastOmit(@props, Object.keys(@constructor.propTypes))
 
     className = @props.className
     if @props.dataSource and @state.handler

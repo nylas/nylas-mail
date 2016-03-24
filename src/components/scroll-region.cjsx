@@ -199,7 +199,7 @@ class ScrollRegion extends React.Component
     })
 
   componentDidUpdate: (prevProps, prevState) =>
-    if (@props.children != prevProps.children)
+    if not @state.scrolling and @props.children isnt prevProps.children
       @recomputeDimensions()
 
   componentWillReceiveProps: (props) =>
@@ -234,7 +234,7 @@ class ScrollRegion extends React.Component
         scrollTooltipComponent={@props.scrollTooltipComponent}
         getScrollRegion={@_getSelf} />
 
-    otherProps = _.omit(@props, _.keys(@constructor.propTypes))
+    otherProps = Utils.fastOmit(@props, Object.keys(@constructor.propTypes))
 
     <div className={containerClasses} {...otherProps}>
       {@_scrollbarComponent}
@@ -379,6 +379,7 @@ class ScrollRegion extends React.Component
 
     @_onScrollEnd ?= _.debounce =>
       @_setSharedState(scrolling: false)
+      @recomputeDimensions()
       @props.onScrollEnd?(event)
     , 250
     @_onScrollEnd()

@@ -51,6 +51,11 @@ Utils =
   fullTimeString: (time) ->
     moment(time).tz(Utils.timeZone).format("dddd, MMMM Do YYYY, h:mm:ss a z")
 
+  fastOmit: (props, without) ->
+    otherProps = Object.assign({}, props)
+    delete otherProps[w] for w in without
+    otherProps
+
   isHash: (object) ->
     _.isObject(object) and not _.isFunction(object) and not _.isArray(object)
 
@@ -335,11 +340,11 @@ Utils =
     else
       # Deep compare objects.
       key = undefined
-      keys = _.keys(a)
+      keys = Object.keys(a)
       length = keys.length
       # Ensure that both objects contain the same number of properties
       # before comparing deep equality.
-      if (_.keys(b).length isnt length) then return false
+      if (Object.keys(b).length isnt length) then return false
       keysToIgnore = {}
       if options.ignoreKeys and _.isArray(options.ignoreKeys)
         keysToIgnore[key] = true for key in options.ignoreKeys

@@ -194,7 +194,7 @@ export default class QuerySubscription {
   _getMissingRange = (desiredRange, currentRange) => {
     if (currentRange && !currentRange.isInfinite() && !desiredRange.isInfinite()) {
       const ranges = QueryRange.rangesBySubtracting(desiredRange, currentRange);
-      return ranges.length > 1 ? desiredRange : ranges[0];
+      return (ranges.length === 1) ? ranges[0] : desiredRange;
     }
     return desiredRange;
   }

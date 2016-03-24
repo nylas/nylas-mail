@@ -103,7 +103,7 @@ class Spinner extends React.Component
       'zIndex': @props.zIndex+1 ? 1001
       'transform':'translate(-50%,-50%)'
 
-    otherProps = _.omit(@props, _.keys(@constructor.propTypes))
+    otherProps = _.omit(@props, Object.keys(@constructor.propTypes))
 
     <div className={spinnerClass} {...otherProps} style={style}>
       <div className="bounce1"></div>

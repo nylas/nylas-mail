@@ -474,7 +474,7 @@ class PackageManager
     null
 
   unloadPackages: ->
-    @unloadPackage(name) for name in _.keys(@loadedPackages)
+    @unloadPackage(name) for name in Object.keys(@loadedPackages)
     null
 
   unloadPackage: (name) ->

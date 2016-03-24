@@ -121,7 +121,7 @@ class RetinaImg extends React.Component
       if key in StylesImpactedByZoom and val.indexOf('%') is -1
         style[key] = val.replace('px','') / style.zoom
 
-    otherProps = _.omit(@props, _.keys(@constructor.propTypes))
+    otherProps = Utils.fastOmit(@props, Object.keys(@constructor.propTypes))
     <img className={className} src={path} style={style} {...otherProps} />
 
   _pathFor: (name) =>
