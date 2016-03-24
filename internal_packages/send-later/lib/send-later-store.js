@@ -61,9 +61,7 @@ class SendLaterStore extends NylasStore {
   onSendLater = (draftClientId, sendLaterDate, dateLabel) => {
     this.recordAction(sendLaterDate, dateLabel)
     this.setMetadata(draftClientId, {sendLaterDate}).then(() => {
-      if (NylasEnv.isComposerWindow()) {
-        Actions.closePopover();
-      }
+      Actions.closePopover();
     });
   };
 
