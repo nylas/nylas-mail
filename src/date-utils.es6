@@ -38,20 +38,11 @@ function midnight(momentDate, midnightHour = Hours.Midnight) {
   return oclock(momentDate.hour(midnightHour))
 }
 
-function isPastDate({year, month, day}, ref) {
-  const refDay = ref.getDate();
-  const refMonth = ref.getMonth() + 1;
-  const refYear = ref.getFullYear();
-  if (refYear > year) {
-    return true;
-  }
-  if (refMonth > month) {
-    return true;
-  }
-  if (refDay > day) {
-    return true;
-  }
-  return false;
+function isPastDate(inputDateObj, currentDate) {
+  const inputMoment = moment({...inputDateObj, month: inputDateObj.month - 1})
+  const currentMoment = moment(currentDate)
+
+  return inputMoment.isBefore(currentMoment)
 }
 
 const EnforceFutureDate = new chrono.Refiner();
