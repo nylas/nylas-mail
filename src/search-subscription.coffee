@@ -45,6 +45,7 @@ class SearchSubscription extends MutableQuerySubscription
         path: "/threads/search?q=#{encodeURIComponent(@_terms)}"
         accountId: aid
         json: true
+        timeout: 45000
         returnsModel: true
 
       .then (threads) =>
