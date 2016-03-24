@@ -89,8 +89,19 @@ class ThreadCountsStore extends NylasStore
   _onCountsChanged: =>
     DatabaseStore._query(ReadCountsQuery()).then (results) =>
       @_counts = {}
+
+      foundNegative = false
       for {category_id, unread, total} in results
+        unread = -1
         @_counts[category_id] = {unread, total}
+        if unread < 0 or total < 0
+          foundNegative = true
+
+      if foundNegative
+        NylasEnv.reportError(new Error('Assertion Failure: Negative Count'));
+        @reset()
+        return
+
       @trigger()
 
   unreadCountForCategoryId: (catId) =>
