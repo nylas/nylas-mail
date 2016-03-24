@@ -86,11 +86,11 @@ RegExpUtils =
         # optionally followed by:
         '('
           # URL components
-          '(?:\\/[\\+~%\\/\\.\\w\\-_]*)?'
-          # optionally followed by a ?
-          '\\??'
+          # (last character must not be puncation, hence two groups)
+          '(?:[\\+~%\\/\\.\\w\\-_]*[\\+~%\\/\\w\\-_]+)?'
           # optionally followed by a query string
-          '(?:[\\-\\+=&;%@\\.\\w_]*)#?(?:[\\.\\!\\/\\\\\\w]*)'
+          # (last character must not be puncation, hence two groups)
+          '(?:(\\?[\\-\\+=&;%@\\.\\w_]*[\\-\\+=&;%@\\w_\\/]+)#?(?:[\\.\\!\\/\\\\\\w]*[\\/\\\\\\w]+)?)?'
         ')?'
       ')'
     ]
