@@ -18,9 +18,8 @@ class SnoozeMailLabel extends Component {
   render() {
     const current = FocusedPerspectiveStore.current()
     const isSnoozedPerspective = (
-      current.categories &&
-      current.categories.length > 0 &&
-      current.categories[0].displayName === SNOOZE_CATEGORY_NAME
+      current.categories().length > 0 &&
+      current.categories()[0].displayName === SNOOZE_CATEGORY_NAME
     )
 
     if (!isSnoozedPerspective) {
