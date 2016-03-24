@@ -32,7 +32,7 @@ class KeymapManager extends AtomKeymap
     templateKeymapPath = null
     reloadTemplateKeymap = =>
       @removeBindingsFromSource(templateKeymapPath) if templateKeymapPath
-      templateFile = NylasEnv.config.get(templateConfigKey).replace("GoogleInbox", "Inbox by Gmail")
+      templateFile = NylasEnv.config.get(templateConfigKey)?.replace("GoogleInbox", "Inbox by Gmail")
       if templateFile
         templateKeymapPath = fs.resolve(path.join(@resourcePath, 'keymaps', 'templates'), templateFile, ['cson', 'json'])
         if fs.existsSync(templateKeymapPath)
