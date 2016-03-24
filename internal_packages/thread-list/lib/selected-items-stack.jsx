@@ -62,7 +62,7 @@ class SelectedItemsStack extends Component {
           <div className="count-info">
             <div className="count">{selectionCount}</div>
             <div className="count-message">messages selected</div>
-            <div className="clear" onClick={this.onClearSelection}>clear selection</div>
+            <div className="clear btn" onClick={this.onClearSelection}>Clear Selection</div>
           </div>
         </div>
       </div>
