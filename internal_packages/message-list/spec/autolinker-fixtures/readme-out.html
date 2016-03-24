@@ -2,6 +2,16 @@ To get up and running with the api you'll need to follow these steps.
 
 1. Once you feel familiar with the endpoints and http responses go ham!!!
 
+&gt; [ ID] Interval Transfer Bandwidth Jitter Lost/Total
+&gt; [ 4] 0.00-10.00 sec 11.8 MBytes 9.90 Mbits/sec 0.687 ms 1397/1497 (93%)
+
+diff --git a/drivers/video/fbdev/nvidia/nv_local.h b/drivers/video/fbdev/nvidia/nv_local.h
+index 68e508d..2c6baa1 100644
+--- a/drivers/video/fbdev/nvidia/nv_local.h
++++ b/drivers/video/fbdev/nvidia/nv_local.h
+
+This is the correct solution as there is really no imx6sl-fox-p1.dts file.
+
 ## Support
 
 Please [open an issue](<a href="https://github.com/a/b/issues/new" title="https://github.com/a/b/issues/new">https://github.com/a/b/issues/new</a>) for support.
@@ -38,7 +48,7 @@ $ rails server
  - etc...
 - Generating Documentation:
  - This app makes use of the (Apipie Gem)[<a href="https://github.com/Apipie/apipie-rails" title="https://github.com/Apipie/apipie-rails">https://github.com/Apipie/apipie-rails</a>]
- - To Auto/Re-Generate Documentation for API Endpoints based on config/<a href="routes.rb" title="routes.rb">routes.rb</a>
+ - To Auto/Re-Generate Documentation for API Endpoints based on config/routes.rb
    and the spec suite run...
 ```bash
 $ APIPIE_RECORD=params rake spec:controllers
