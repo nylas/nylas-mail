@@ -40,6 +40,7 @@ class InjectedComponentSet extends React.Component
    - `matching` Pass an {Object} with ComponentRegistry descriptors
       This set of descriptors is provided to {ComponentRegistry::findComponentsForDescriptor}
       to retrieve components for display.
+   - `matchLimit` (optional) A {Number} that indicates the max number of matching elements to render
    - `className` (optional) A {String} class name for the containing element.
    - `children` (optional) Any React elements rendered inside the InjectedComponentSet
       will always be displayed.
@@ -57,6 +58,7 @@ class InjectedComponentSet extends React.Component
     matching: React.PropTypes.object.isRequired
     children: React.PropTypes.array
     className: React.PropTypes.string
+    matchLimit: React.PropTypes.number
     exposedProps: React.PropTypes.object
     containersRequired: React.PropTypes.bool
     onComponentsDidRender: React.PropTypes.func
@@ -121,8 +123,9 @@ class InjectedComponentSet extends React.Component
 
   _getStateFromStores: (props) =>
     props ?= @props
+    limit = props.matchLimit
 
-    components: ComponentRegistry.findComponentsMatching(@props.matching)
+    components: ComponentRegistry.findComponentsMatching(@props.matching)[...limit]
     visible: ComponentRegistry.showComponentRegions()
 
 

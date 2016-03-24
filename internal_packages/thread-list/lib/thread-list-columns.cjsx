@@ -6,7 +6,6 @@ classNames = require 'classnames'
  RetinaImg,
  MailLabelSet,
  MailImportantIcon,
- InjectedComponent,
  InjectedComponentSet} = require 'nylas-component-kit'
 
 {Thread, FocusedPerspectiveStore, Utils} = require 'nylas-exports'
@@ -114,17 +113,20 @@ cNarrow = new ListTabular.Column
     if hasDraft
       pencil = <RetinaImg name="icon-draft-pencil.png" className="draft-icon" mode={RetinaImg.Mode.ContentPreserve} />
 
+    # TODO We are limiting the amount on injected icons in narrow mode to 1
+    # until we revisit the UI to accommodate more icons
     <div style={display: 'flex', alignItems: 'flex-start'}>
       <div className="icons-column">
         <ThreadListIcon thread={thread} />
         <InjectedComponentSet
-          key="injected-component-set"
           inline={true}
+          matchLimit={1}
           direction="column"
           containersRequired={false}
+          key="injected-component-set"
+          exposedProps={thread: thread}
           matching={role: "ThreadListIcon"}
           className="thread-injected-icons"
-          exposedProps={thread: thread}
         />
         <MailImportantIcon
           thread={thread}
