@@ -1,82 +1,77 @@
 _ = require 'underscore'
 React = require 'react'
 classNames = require 'classnames'
-{RetinaImg} = require 'nylas-component-kit'
-{DatabaseView,
- NylasAPI,
- NylasSyncStatusStore,
- Message,
- FocusedPerspectiveStore,
- WorkspaceStore} = require 'nylas-exports'
+RetinaImg = require './retina-img'
+EventedIFrame = require './evented-iframe'
+{NylasSyncStatusStore,
+ FocusedPerspectiveStore} = require 'nylas-exports'
 
-EmptyMessages = [{
-  "body":"The pessimist complains about the wind.\nThe optimist expects it to change.\nThe realist adjusts the sails."
-  "byline": "- William Arthur Ward"
-},{
-  "body":"The best and most beautiful things in the world cannot be seen or even touched - they must be felt with the heart."
-  "byline": "- Helen Keller"
-},{
-  "body":"Believe you can and you're halfway there."
-  "byline": "- Theodore Roosevelt"
-},{
-  "body":"Don't judge each day by the harvest you reap but by the seeds that you plant."
-  "byline": "- Robert Louis Stevenson"
-}]
 
-class ContentGeneric extends React.Component
-  render: ->
-    <div className="generic">
-      <div className="message">
-        {@props.messageOverride ? "No threads to display."}
-      </div>
-    </div>
+INBOX_ZERO_ANIMATIONS = [
+  'gem',
+  'oasis',
+  'tron',
+  'airstrip',
+  'galaxy',
+]
 
-class ContentQuotes extends React.Component
-  @displayName = 'Quotes'
+class EmptyPerspectiveState extends React.Component
+  @displayName: "EmptyPerspectiveState"
 
-  constructor: (@props) ->
-    @state = {}
-
-  componentDidMount: ->
-    # Pick a random quote using the day as a seed. I know not all months have
-    # 31 days - this is good enough to generate one quote a day at random!
-    d = new Date()
-    r = d.getDate() + d.getMonth() * 31
-    message = EmptyMessages[r % EmptyMessages.length]
-    @setState(message: message)
+  @propTypes:
+    perspective: React.PropTypes.object,
+    messageOverride: React.PropTypes.string,
 
   render: ->
-    <div className="quotes">
-      {@_renderMessage()}
-      <RetinaImg mode={RetinaImg.Mode.ContentLight} url="nylas://thread-list/assets/blank-bottom-left@2x.png" className="bottom-left"/>
-      <RetinaImg mode={RetinaImg.Mode.ContentLight} url="nylas://thread-list/assets/blank-top-left@2x.png" className="top-left"/>
-      <RetinaImg mode={RetinaImg.Mode.ContentLight} url="nylas://thread-list/assets/blank-bottom-right@2x.png" className="bottom-right"/>
-      <RetinaImg mode={RetinaImg.Mode.ContentLight} url="nylas://thread-list/assets/blank-top-right@2x.png" className="top-right"/>
+    {messageOverride, perspective} = @props
+    name = perspective.categoriesSharedName()
+    name = 'archive' if perspective.isArchive()
+    name = perspective.name if not name
+    name = name.toLowerCase() if name
+
+    <div className="perspective-empty-state">
+      {if name
+        <RetinaImg
+          name={"ic-emptystate-#{name}.png"}
+          mode={RetinaImg.Mode.ContentIsMask}
+        />
+      }
+      <div className="message">{messageOverride}</div>
     </div>
 
-  _renderMessage: ->
-    if @props.messageOverride
-      <div className="message">{@props.messageOverride}</div>
+class EmptyInboxState extends React.Component
+  @displayName: "EmptyInboxState"
+
+  @propTypes:
+    containerRect: React.PropTypes.object,
+
+  _getScalingFactor: =>
+    {width} = @props.containerRect
+    return null unless width
+    return (width + 100) / 1000
+
+  _getAnimationName: (now = new Date()) =>
+    msInADay = 8.64e7
+    msSinceEpoch = now.getTime() - (now.getTimezoneOffset() * 1000 * 60)
+    daysSinceEpoch = Math.floor(msSinceEpoch / msInADay)
+    idx = daysSinceEpoch  % INBOX_ZERO_ANIMATIONS.length
+    return INBOX_ZERO_ANIMATIONS[idx]
+
+  render: ->
+    animationName = @_getAnimationName()
+    factor = @_getScalingFactor()
+    style = if factor
+      {transform: "scale(#{factor})"}
     else
-      <div className="message">
-        {@state.message?.body}
-        <div className="byline">
-          {@state.message?.byline}
-        </div>
-      </div>
+      {}
 
-class InboxZero extends React.Component
-  @displayName = "Inbox Zero"
-
-  render: ->
-    msg = @props.messageOverride ? "No more messages"
-    <div className="inbox-zero">
-      <div className="inbox-zero-plain">
-        <RetinaImg mode={RetinaImg.Mode.ContentPreserve}
-                   name="inbox-zero-plain.png"/>
+    <div className="inbox-zero-animation">
+      <div className="animation-wrapper" style={style}>
+        <iframe src={"animations/#{animationName}/#{animationName}.html"}/>
         <div className="message">Hooray! You’re done.</div>
       </div>
     </div>
+
 
 class EmptyListState extends React.Component
   @displayName = 'EmptyListState'
@@ -84,44 +79,52 @@ class EmptyListState extends React.Component
     visible: React.PropTypes.bool.isRequired
 
   constructor: (@props) ->
+    @_mounted = false
     @state =
-      layoutMode: WorkspaceStore.layoutMode()
       syncing: NylasSyncStatusStore.busy()
       active: false
+      rect: {}
 
   componentDidMount: ->
+    @_mounted = true
     @_unlisteners = []
-    @_unlisteners.push WorkspaceStore.listen(@_onChange, @)
     @_unlisteners.push NylasSyncStatusStore.listen(@_onChange, @)
+    window.addEventListener('resize', @_onResize)
     if @props.visible and not @state.active
-      @setState(active:true)
+      rect = @_getDimensions()
+      @setState(active:true, rect: rect)
 
   shouldComponentUpdate: (nextProps, nextState) ->
     return true if nextProps.visible isnt @props.visible
     return not _.isEqual(nextState, @state)
 
   componentWillUnmount: ->
+    @_mounted = false
     unlisten() for unlisten in @_unlisteners
+    window.removeEventListener('resize', @_onResize)
 
   componentDidUpdate: ->
     if @props.visible and not @state.active
-      @setState(active:true)
+      rect = @_getDimensions()
+      @setState(active:true, rect: rect)
 
   componentWillReceiveProps: (newProps) ->
     if newProps.visible is false
       @setState(active:false)
 
   render: ->
-    ContentComponent = ContentGeneric
+    ContentComponent = EmptyPerspectiveState
+    current = FocusedPerspectiveStore.current()
 
-    messageOverride = "Nothing to display."
-    if @state.layoutMode is 'list'
-      ContentComponent = ContentQuotes
+    messageOverride = if current.isSearch()
+      "No search results available"
+    else
+      "Nothing to display"
 
     if @state.syncing
       messageOverride = "Please wait while we prepare your mailbox."
-    else if FocusedPerspectiveStore.current()?.name is "Inbox"
-      ContentComponent = InboxZero
+    else if FocusedPerspectiveStore.current().isInbox()
+      ContentComponent = EmptyInboxState
 
     classes = classNames
       'empty-state': true
@@ -129,12 +132,26 @@ class EmptyListState extends React.Component
       'active': @state.active
 
     <div className={classes}>
-      <ContentComponent messageOverride={messageOverride}/>
+      <ContentComponent
+        perspective={current}
+        containerRect={@state.rect}
+        messageOverride={messageOverride}
+      />
     </div>
+
+  _getDimensions: =>
+    return null unless @_mounted
+    node = React.findDOMNode(@)
+    rect = node.getBoundingClientRect()
+    return {width: rect.width, height: rect.height}
+
+  _onResize: =>
+    rect = @_getDimensions()
+    if rect
+      @setState({rect})
 
   _onChange: ->
     @setState
-      layoutMode: WorkspaceStore.layoutMode()
       syncing: NylasSyncStatusStore.busy()
 
 module.exports = EmptyListState
