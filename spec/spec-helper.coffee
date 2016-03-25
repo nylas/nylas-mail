@@ -110,6 +110,7 @@ window.TEST_ACCOUNT_ID = "test-account-server-id"
 window.TEST_ACCOUNT_EMAIL = "tester@nylas.com"
 window.TEST_ACCOUNT_NAME = "Nylas Test"
 window.TEST_PLUGIN_ID = "test-plugin-id-123"
+window.TEST_ACCOUNT_ALIAS_EMAIL = "tester+alternative@nylas.com"
 
 beforeEach ->
   NylasEnv.testOrganizationUnit = null
@@ -161,7 +162,6 @@ beforeEach ->
   spyOn(NylasEnv.menu, 'sendToBrowserProcess')
 
   # Log in a fake user, and ensure that accountForId, etc. work
-  AccountStore._index = 0
   AccountStore._accounts = [
     new Account({
       provider: "gmail"
@@ -169,7 +169,23 @@ beforeEach ->
       emailAddress: TEST_ACCOUNT_EMAIL
       organizationUnit: NylasEnv.testOrganizationUnit || 'label'
       clientId: TEST_ACCOUNT_CLIENT_ID
-      serverId: TEST_ACCOUNT_ID
+      serverId: TEST_ACCOUNT_ID,
+      aliases: [
+        "#{TEST_ACCOUNT_NAME} Alternate <#{TEST_ACCOUNT_ALIAS_EMAIL}>"
+      ]
+    }),
+    new Account({
+      provider: "gmail"
+      name: 'Second'
+      emailAddress: 'second@gmail.com'
+      organizationUnit: NylasEnv.testOrganizationUnit || 'label'
+      clientId: 'second-test-account-id'
+      serverId: 'second-test-account-id'
+      aliases: [
+        'Second Support <second@gmail.com>'
+        'Second Alternate <second+alternate@gmail.com>'
+        'Second <second+third@gmail.com>'
+      ]
     })
   ]
 

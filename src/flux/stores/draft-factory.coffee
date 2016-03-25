@@ -106,7 +106,9 @@ class DraftFactory
         subject: subjectWithPrefix(message.subject, 'Re:')
         to: to,
         cc: cc,
+        from: [@_fromContactForReply(message)],
         threadId: thread.id,
+        accountId: message.accountId
         replyToMessageId: message.id,
         body: """
           <br><br><div class="gmail_quote">
@@ -133,7 +135,9 @@ class DraftFactory
       @createDraft(
         subject: subjectWithPrefix(message.subject, 'Fwd:')
         files: [].concat(message.files),
+        from: [@_fromContactForReply(message)],
         threadId: thread.id,
+        accountId: message.accountId,
         body: """
           <br><br><div class="gmail_quote">
             ---------- Forwarded message ---------
@@ -218,6 +222,31 @@ class DraftFactory
 
     InlineStyleTransformer.run(body).then (body) =>
       SanitizeTransformer.run(body, SanitizeTransformer.Preset.UnsafeOnly)
+
+  _fromContactForReply: (message) =>
+    account = AccountStore.accountForId(message.accountId)
+    defaultMe = account.defaultMe()
+    result = defaultMe
+
+    for aliasString in account.aliases
+      alias = account.meUsingAlias(aliasString)
+      for recipient in [].concat(message.to, message.cc)
+        emailIsNotDefault = alias.email isnt defaultMe.email
+        emailsMatch = recipient.email is alias.email
+        nameIsNotDefault = alias.name isnt defaultMe.name
+        namesMatch = recipient.name is alias.name
+
+        # No better match is possible
+        if emailsMatch and emailIsNotDefault and namesMatch and nameIsNotDefault
+          return alias
+
+        # A better match is possible. eg: the user may have two aliases with the same
+        # email but different phrases, and we'll get an exact match on the other one.
+        # Continue iterating and wait to see.
+        if (emailsMatch and emailIsNotDefault) or (namesMatch and nameIsNotDefault)
+          result = alias
+
+    return result
 
   _accountForNewDraft: =>
     defAccountId = NylasEnv.config.get('core.sending.defaultAccountIdForSend')

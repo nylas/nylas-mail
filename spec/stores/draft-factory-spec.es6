@@ -148,6 +148,57 @@ describe("DraftFactory", () => {
         });
       });
 
+      it("should set the accountId and from address based on the message", () => {
+        waitsForPromise(() => {
+          const secondAccount = AccountStore.accounts()[1];
+          fakeMessage1.to = [
+            new Contact({email: secondAccount.emailAddress}),
+            new Contact({email: 'evan@nylas.com'}),
+          ]
+          fakeMessage1.accountId = secondAccount.id
+          fakeThread.accountId = secondAccount.id
+
+          return DraftFactory.createDraftForReply({thread: fakeThread, message: fakeMessage1, type: 'reply'}).then((draft) => {
+            expect(draft.accountId).toEqual(secondAccount.id);
+            expect(draft.from[0].email).toEqual(secondAccount.defaultMe().email);
+          });
+        });
+      });
+
+      describe("when the email is TO an alias", () => {
+        it("should use the alias as the from address", () => {
+          waitsForPromise(() => {
+            fakeMessage1.to = [
+              new Contact({email: TEST_ACCOUNT_ALIAS_EMAIL}),
+              new Contact({email: 'evan@nylas.com'}),
+            ]
+
+            return DraftFactory.createDraftForReply({thread: fakeThread, message: fakeMessage1, type: 'reply'}).then((draft) => {
+              expect(draft.accountId).toEqual(TEST_ACCOUNT_ID);
+              expect(draft.from[0].email).toEqual(TEST_ACCOUNT_ALIAS_EMAIL);
+            });
+          });
+        });
+      });
+
+      describe("when the email is CC'd to an alias", () => {
+        it("should use the alias as the from address", () => {
+          waitsForPromise(() => {
+            fakeMessage1.to = [
+              new Contact({email: 'juan@nylas.com'}),
+            ]
+            fakeMessage1.cc = [
+              new Contact({email: TEST_ACCOUNT_ALIAS_EMAIL}),
+              new Contact({email: 'evan@nylas.com'}),
+            ]
+
+            return DraftFactory.createDraftForReply({thread: fakeThread, message: fakeMessage1, type: 'reply'}).then((draft) => {
+              expect(draft.accountId).toEqual(TEST_ACCOUNT_ID);
+              expect(draft.from[0].email).toEqual(TEST_ACCOUNT_ALIAS_EMAIL);
+            });
+          });
+        });
+      });
       it("should sanitize the HTML", () => {
         waitsForPromise(() => {
           return DraftFactory.createDraftForReply({thread: fakeThread, message: fakeMessage1, type: 'reply'}).then(() => {
@@ -455,6 +506,53 @@ describe("DraftFactory", () => {
     });
   });
 
+  describe("_fromContactForReply", () => {
+    it("should work correctly in a range of test cases", () => {
+      // Note: These specs are based on the second account hard-coded in SpecHelper
+      account = AccountStore.accounts()[1];
+      const cases = [
+        {
+          to: [new Contact({name: 'Ben', email: 'ben@nylas.com'})], // user is not present, must have been BCC'd
+          cc: [],
+          expected: account.defaultMe(),
+        },
+        {
+          to: [new Contact({name: 'Second Support', email: 'second@gmail.com'})], // only name identifies alias
+          cc: [],
+          expected: new Contact({name: 'Second Support', email: 'second@gmail.com'}),
+        },
+        {
+          to: [new Contact({name: 'Second Wrong!', email: 'second+alternate@gmail.com'})], // only email identifies alias, name wrong
+          cc: [],
+          expected: new Contact({name: 'Second Alternate', email: 'second+alternate@gmail.com'}),
+        },
+        {
+          to: [new Contact({name: 'Second Alternate', email: 'second+alternate@gmail.com'})], // exact alias match
+          cc: [],
+          expected: new Contact({name: 'Second Alternate', email: 'second+alternate@gmail.com'}),
+        },
+        {
+          to: [new Contact({email: 'second+third@gmail.com'})], // exact alias match, name not present
+          cc: [],
+          expected: new Contact({name: 'Second', email: 'second+third@gmail.com'}),
+        },
+        {
+          to: [new Contact({email: 'ben@nylas.com'})],
+          cc: [new Contact({email: 'second+third@gmail.com'})], // exact alias match, but in CC
+          expected: new Contact({name: 'Second', email: 'second+third@gmail.com'}),
+        },
+      ]
+      cases.forEach(({to, cc, expected}) => {
+        const contact = DraftFactory._fromContactForReply(new Message({
+          accountId: account.id,
+          to: to,
+          cc: cc,
+        }));
+        expect(contact.name).toEqual(expected.name);
+        expect(contact.email).toEqual(expected.email);
+      });
+    });
+  });
 
   describe("_prepareBodyForQuoting", () => {
     it("should transform inline styles and sanitize unsafe html", () => {
