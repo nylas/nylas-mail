@@ -113,6 +113,7 @@ class EmptyListState extends React.Component
       @setState(active:false)
 
   render: ->
+    return <span /> unless @props.visible
     ContentComponent = EmptyPerspectiveState
     current = FocusedPerspectiveStore.current()
 
@@ -128,7 +129,6 @@ class EmptyListState extends React.Component
 
     classes = classNames
       'empty-state': true
-      'visible': @props.visible
       'active': @state.active
 
     <div className={classes}>
