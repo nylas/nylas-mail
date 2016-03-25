@@ -1,4 +1,4 @@
-import {React, FocusedPerspectiveStore} from 'nylas-exports'
+import {React} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
 import {PLUGIN_ID} from './open-tracking-constants'
 
@@ -41,10 +41,6 @@ export default class OpenTrackingIcon extends React.Component {
   }
 
   render() {
-    const perspective = FocusedPerspectiveStore.current()
-    if (perspective.categoriesSharedName() !== 'sent') {
-      return false;
-    }
     const title = this.state.opened ? "This message has been read at least once" : "This message has not been read";
     return (
       <div title={title} className="open-tracking-icon">
