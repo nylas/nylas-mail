@@ -14,116 +14,56 @@
 
   > div {
     opacity: 0;
-    -webkit-transition: opacity @duration ease-out;
+    transition: opacity @duration ease-in;
     width:100%;
     height: 100%;
   }
 
-  .inbox-zero {
-    text-align: center;
-    position: relative;
-    .inbox-zero-plain {
-      position: relative;
-      top: 50%;
-      transform: translate(0, -50%);
-      img {
+  .perspective-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      background-color: @text-color-subtle;
+    }
+    .message {
+      margin-top: 1em;
+      color: @text-color-very-subtle;
+      font-size: 2em;
+      font-weight: @font-weight-thin;
+      text-align: center;
+    }
+  }
+
+  .inbox-zero-animation {
+    // The animation inside the iframe already contains a fade effect, so we
+    // don't want to animate opacity for this component
+    opacity: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    .animation-wrapper {
+      text-align: center;
+      transform: scale(0.8);
+      transition: transform 100ms ease-in;
+
+      iframe {
+        width: 600px;
+        height: 400px;
+        border: none;
       }
       .message {
-        margin-top: 70px;
+        opacity: 0;
+        transition: opacity @duration ease-in;
+        margin-top: 1em;
+        font-size: 3.5em;
+        color: @text-color-subtle;
+        font-weight: @font-weight-thin;
       }
-    }
-    .message {
-      font-size: 28px;
-      color: @text-color-subtle;
-      font-weight: @font-weight-thin;
-    }
-  }
-
-  // Generic Mode
-  .generic {
-    text-align: center;
-
-    .message {
-      color: @text-color-very-subtle;
-      font-size: 28px;
-      font-weight: @font-weight-blond;
-      text-align: center;
-      top:45%;
-      left:50%;
-      width:80%;
-      transform: translate(-50%, -50%);
-      position: absolute;
-      white-space: pre-line;
-    }
-  }
-
-  // Quotes Mode
-
-  .quotes {
-    min-width: 840px;
-    min-height: 650px;
-    position: absolute;
-    transform: translate(-50%, -50%);
-    left: 50%;
-    top: 50%;
-
-    .message {
-      opacity:0;
-      -webkit-user-select: text;
-      -webkit-transition: opacity @duration ease-in;
-      -webkit-transition-delay: 0.6s;
-      top:45%;
-      left:50%;
-      transform: translate(-50%, -50%);
-      width:50%;
-      min-width: 500px;
-      position: absolute;
-      color: @text-color-very-subtle;
-      font-size: 28px;
-      font-weight: @font-weight-blond;
-      text-align: center;
-
-      // Sequences of whitespace are collapsed. Lines are broken at
-      // newline characters, at <br>, and as necessary to fill line boxes.
-      white-space: pre-line;
-
-      .byline {
-        padding-top:25px;
-        font-size:14px;
-        color: fade(@text-color-very-subtle, 50%);
-      }
-    }
-
-    .top-left {
-      -webkit-transition: all @duration ease-out;
-      transform: translate3d(-20px, -10px, 0);
-      position:absolute;
-      top:0;
-      left:0;
-    }
-
-    .top-right {
-      -webkit-transition: all @duration ease-out;
-      transform: translate3d(20px, -10px, 0);
-      position:absolute;
-      top:0;
-      right:0;
-    }
-
-    .bottom-left {
-      -webkit-transition: all @duration ease-out;
-      transform: translate3d(-20px, 10px, 0);
-      position:absolute;
-      bottom:0;
-      left:0;
-    }
-
-    .bottom-right {
-      -webkit-transition: all @duration ease-out;
-      transform: translate3d(20px, 10px, 0);
-      position:absolute;
-      bottom:0;
-      right:0;
     }
   }
 
@@ -133,26 +73,10 @@
 
   &.active {
     > div {
-      opacity:1;
+      opacity: 1;
 
       .message {
-        opacity:1;
-      }
-
-      .top-left {
-        transform: translate3d(0, 0, 0);
-      }
-
-      .top-right {
-        transform: translate3d(0, 0, 0);
-      }
-
-      .bottom-left {
-        transform: translate3d(0, 0, 0);
-      }
-
-      .bottom-right {
-        transform: translate3d(0, 0, 0);
+        opacity: 1 !important;
       }
     }
   }

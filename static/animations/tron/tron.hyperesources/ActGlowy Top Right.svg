@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="69px" height="111px" viewBox="0 0 69 111" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.6.1 (26313) - http://www.bohemiancoding.com/sketch -->
+    <title>ActGlowy Top Right</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="GLOWIES-Inactive" transform="translate(-405.000000, 0.000000)" fill="#3FCAE8">
+            <path d="M433.934431,32.3498405 C432.069179,29.1650183 431,25.4573692 431,21.5 C431,9.62587788 440.625878,0 452.5,0 C464.374122,0 474,9.62587788 474,21.5 C474,33.3741221 464.374122,43 452.5,43 C447.842358,43 443.530634,41.5189507 440.010084,39.0021092 L414.745345,64.2668482 L414.745345,80.1328125 L437.981445,103.72876 L431.298096,110.478271 L405,84.7403711 L405,61.8623047 L405.287293,61.571564 L405,61.2842712 L433.934431,32.3498405 Z M452.5,33 C458.851275,33 464,27.8512746 464,21.5 C464,15.1487254 458.851275,10 452.5,10 C446.148725,10 441,15.1487254 441,21.5 C441,27.8512746 446.148725,33 452.5,33 Z" id="ActGlowy-Top-Right"></path>
+        </g>
+    </g>
+</svg>

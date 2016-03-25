@@ -92,6 +92,9 @@ class MailboxPerspective
   isArchive: =>
     false
 
+  isSearch: =>
+    @ instanceof SearchMailboxPerspective
+
   categories: =>
     []
 
