@@ -1,5 +1,45 @@
 # N1 Changelog
 
+### 0.4.19 (3/25/16)
+
+- Features:
+  + Inbox Zero: Beautiful new inbox zero artwork and a refined tray icon on Mac OS X!
+  + Reply from Alias: N1 now chooses the alias you were emailed at for a reply.
+  + Emoji: The emoji picker is now available in the bottom toolbar of the composer, and includes tabs and search!
+  + Download All: A new button allows you to quickly download all attachments in a message.
+  + Drop to Send: You can now drop files on the N1 app icon on Mac OS X to attach them to a new email!
+  + Default Signature: This version of N1 includes a default signature. You can remove it
+    by visiting `Preferences > Signatures`
+
+- Design:
+  + We've overhauled the multiple-selection UI to avoid toolbar issues.
+  + Thanks to nearly a dozen pull requests, many of the bundled themes have received visual polish
+  + Attachments have a refined design and better affordance for interaction.
+  + The "pop-out" button is always visible when composing in the main window.
+  + We've cleaned up the variables available to theme developers and created a starter kit for creating themes:
+    [https://github.com/nylas/N1-theme-starter](https://github.com/nylas/N1-theme-starter)
+
+- Fixes:
+  + N1 no longer incorrectly quotes forwarded message bodies.
+  + N1 API tokens are now stored in the system keychain for enhanced security.
+  + Filesystem errors (no disk space, wrong permissions, etc.) are presented when uploading or downloading attachments.
+  + Double-clicking image attachments now opens them.
+  + When you receive email to an alias, replies are sent from that alias by default.
+  + Search works more reliably, waits loner for results, and displays errors when results cannot be loaded.
+  + Read receipts are now visible in the narrow thread list.
+  + The undo/redo bar no longer appears when returning to your mailbox from Drafts.
+  + N1 no longer hangs while processing links in very large emails.
+  + The first input is auto-focused as you move through the Add Account flow.
+  + Failing API actions are retried more slowly, reducing CPU load when your machine is offline.
+  + The emoji keyboard now inserts emoji for a wider range of emoji names.
+  + You can now select a view mode from the View menu.
+  + Interface zoom is now an "advanced option", and has been removed from the preferences.
+
+- Developer:
+  + Composer Extensions using `finalizeSessionBeforeSending:` must now use `applyTransformsToDraft:`
+  + A new `InjectedComponentSet` allows you to add icons beside user's names in the composer.
+  + N1 is slowly transitioning to ES6 - 20% of package code was converted to ES6 this month!  
+
 ### 0.4.16 (3/18/16)
 
 This is a small patch release resolving the following issues:
@@ -14,73 +54,76 @@ This is a small patch release resolving the following issues:
 
 - Features:
 
- + Overhauled Sidebar: The sidebar now shows more accurate contact information,
-   recent conversations with the selected participant, and more.
+  + Overhauled Sidebar: The sidebar now shows more accurate contact information,
+    recent conversations with the selected participant, and more.
 
- + Themes: A brand new theme picker (in the Application Menu) allows you
-   to quickly try different themes, and we've bundled two great community themes
-   (Darkside and Taiga) into the app! An updated dark theme is coming soon.
+  + Themes: A brand new theme picker (in the Application Menu) allows you
+    to quickly try different themes, and we've bundled two great community themes
+    (Darkside and Taiga) into the app! An updated dark theme is coming soon.
 
 - Fixes:
- + Warnings now appear in the main window if we are unable to connect to your email provider.
- + The Send Later, Snooze and read receipts plugins now alert you if you are not using our hosted infrastructure.
- + The Autoload Images and Snooze date input field is now locale-aware.
+  + Warnings now appear in the main window if we are unable to connect to your email provider.
+  + The Send Later, Snooze and read receipts plugins now alert you if you are not using our hosted infrastructure.
+  + The Autoload Images and Snooze date input field is now locale-aware.
 
- + Composer:
-   + N1 cleans up drafts properly after sending if an autosave occurred immediately
-     before your message was sent.
-   + The emoji picker now matches emoji against more common words, like `:thumbsup`!
-   + Link tracking correctly modifies only `http://` and `https://` links
-   + When sending two responses to the same email, the second email no longer appears
-     to be sending in some scenarios.
+  + Composer:
+    + N1 cleans up drafts properly after sending if an autosave occurred immediately
+      before your message was sent.
+    + The emoji picker now matches emoji against more common words, like `:thumbsup`!
+    + Link tracking correctly modifies only `http://` and `https://` links
+    + When sending two responses to the same email, the second email no longer appears
+      to be sending in some scenarios.
 
- + Reading:
-   + Messages now show a loading indicator while they're being downloaded, and you can
-     retry if the download is interrupted.
-   + The "Sent" view now orders your messages by "last sent message".
-   + The "At 2:30PM, Mark wrote..." byline is now recognized as part of quoted text.
-   + Deleted messages are filtered from the conversation view, and you can show them by clicking "Show Deleted Messages." Threads in trash and spam are also excluded from the Starred and Gmail label views.
-   + "Archive" no longer removes the label you are currently viewing.
-   + Delete and backspace no longer follow Gmail's "remove from view" behavior. For Gmail's behavior, use the `y` shortcut.
+  + Reading:
+    + Messages now show a loading indicator while they're being downloaded, and you can
+      retry if the download is interrupted.
+    + The "Sent" view now orders your messages by "last sent message".
+    + The "At 2:30PM, Mark wrote..." byline is now recognized as part of quoted text.
+    + Deleted messages are filtered from the conversation view, and you can show them by
+      clicking "Show Deleted   Messages." Threads in trash and spam are also excluded from
+      the Starred and Gmail label views.
+    + "Archive" no longer removes the label you are currently viewing.
+    + Delete and backspace no longer follow Gmail's "remove from view" behavior.
+      For Gmail's behavior, use the `y` shortcut.
 
- + Attachments:
-   + Downloads that fail are now retried properly when you interact with them.
-   + Changing an attachment name when saving it no longer clears the file extension.
+  + Attachments:
+    + Downloads that fail are now retried properly when you interact with them.
+    + Changing an attachment name when saving it no longer clears the file extension.
 
- + Account Setup:
-   + The "Welcome to N1" screens now emphasize that it is cloud-based.
-   + You can use IP addresses as IMAP / SMTP and Exchange domains.
-   + You can now check "Require SSL" during IMAP / SMTP setup and N1 will not try plaintext authentication.
-   + N1 now displays better error messages for a wide variety of auth issues.
-   + Themes are no longer applied in the account setup window.
+  + Account Setup:
+    + The "Welcome to N1" screens now emphasize that it is cloud-based.
+    + You can use IP addresses as IMAP / SMTP and Exchange domains.
+    + You can now check "Require SSL" during IMAP / SMTP setup and N1 will not try plaintext authentication.
+    + N1 now displays better error messages for a wide variety of auth issues.
+    + Themes are no longer applied in the account setup window.
 
 - Temporary:
- + N1 no longer syncs Drafts with Gmail, avoiding several critical issues our
-   platform team is working to resolve. (Drafts duplicating or appearing sent as you edit.)
+  + N1 no longer syncs Drafts with Gmail, avoiding several critical issues our
+    platform team is working to resolve. (Drafts duplicating or appearing sent as you edit.)
 
 - Cleanup:
- + All sample plugins have been converted from CoffeeScript to ES2016.
- + The `<Popover>` component has been deprecated in favor of `<FixedPopover>` which is more flexible.
- + Running specs from the application no longer resets your account configuration.
- + N1 no longer adds `N1` and `apm` to `/usr/bin`
+  + All sample plugins have been converted from CoffeeScript to ES2016.
+  + The `<Popover>` component has been deprecated in favor of `<FixedPopover>` which is more flexible.
+  + Running specs from the application no longer resets your account configuration.
+  + N1 no longer adds `N1` and `apm` to `/usr/bin`
 
 ### 0.4.10 (2/25/16)
 
 - Fixes:
 
- + Prevent accounts from being wiped by rapid writes to config.cson
- + Present nice error messages when sending results in 402 Message Rejected
- + Fix a regression in adding / removing aliases
- + Fix a regression in the Windows and Linux system tray icons
- + Fix an issue with deltas throwing exceptions when messages are not present
- + Stop checking for plugin auth once authentication succeeds. Makes "snooze"
-   animation more fluid and performant.
- + Fix "Manage Templates" button in the pop-out composer.
- + Right-align timestamps in the wide thread list.
- + Fix print styling
- + Add "Copy Debug Info to Clipboard", making it easier for users to collect
-   debugging information about messages.
- + Update the email address used for reporting quoted text and rendering issues.
+  + Prevent accounts from being wiped by rapid writes to config.cson
+  + Present nice error messages when sending results in 402 Message Rejected
+  + Fix a regression in adding / removing aliases
+  + Fix a regression in the Windows and Linux system tray icons
+  + Fix an issue with deltas throwing exceptions when messages are not present
+  + Stop checking for plugin auth once authentication succeeds. Makes "snooze"
+    animation more fluid and performant.
+  + Fix "Manage Templates" button in the pop-out composer.
+  + Right-align timestamps in the wide thread list.
+  + Fix print styling
+  + Add "Copy Debug Info to Clipboard", making it easier for users to collect
+    debugging information about messages.
+  + Update the email address used for reporting quoted text and rendering issues.
 
 ### 0.4.9 (2/25/16)
 
@@ -88,37 +131,37 @@ This is a small patch release resolving the following issues:
 
 - Features:
 
- + Snooze: Schedules threads to return to your inbox in a few hours, a few days,
+  + Snooze: Schedules threads to return to your inbox in a few hours, a few days,
    or whenever you choose.
 
- + Swipe Actions: In the thread list, swipe to archive, trash or snooze your mail.
-   Swiping works with the Mac trackpad and with Windows / Linux touchscreen devices.
+  + Swipe Actions: In the thread list, swipe to archive, trash or snooze your mail.
+    Swiping works with the Mac trackpad and with Windows / Linux touchscreen devices.
 
- + Send Later: Choose “Send later” in the composer and pick when a draft should be sent.
-   These scheduled drafts are sent via the sync engine, so you don’t need to be online.
+  + Send Later: Choose “Send later” in the composer and pick when a draft should be sent.
+    These scheduled drafts are sent via the sync engine, so you don’t need to be online.
 
- + Read Receipts and Link Tracking: Get notified when recipients view your message
-   and click links with new read receipts and link tracking built in to the composer.
+  + Read Receipts and Link Tracking: Get notified when recipients view your message
+    and click links with new read receipts and link tracking built in to the composer.
 
- + Emoji Picker: Type a `:` in the composer followed by the name of an emoji to
-   insert it into your draft.
+  + Emoji Picker: Type a `:` in the composer followed by the name of an emoji to
+    insert it into your draft.
 
 - Design:
 
- + This release includes slimmer toolbars and new icons in the composer.
+  + This release includes slimmer toolbars and new icons in the composer.
 
- + Font sizes throughout the app have been made slightly smaller to match platform
+  + Font sizes throughout the app have been made slightly smaller to match platform
    conventions. Like it the old way? Use the zoom feature in Workspace preferences!
 
- + The N1 icon is now more of a "sea foam" green, which helps it stand out among
-   standard system icons, and features a square design on Windows.
+  + The N1 icon is now more of a "sea foam" green, which helps it stand out among
+    standard system icons, and features a square design on Windows.
 
- + Tons and tons of additional polish.
+  + Tons and tons of additional polish.
 
 - Developer:
 
- + A new `MetadataStore` and `model.pluginMetadata` concept allows plugins to associate
-   arbitrary data with threads and messages (like snooze times and link IDs).
+  + A new `MetadataStore` and `model.pluginMetadata` concept allows plugins to associate
+    arbitrary data with threads and messages (like snooze times and link IDs).
 
 - Many, many other bug fixes were incorporated into this release. Take a look at
   closed GitHub issues that made it into this release here:  
