@@ -10,12 +10,20 @@ class TemplatesComposerExtension extends ComposerExtension {
     return warnings;
   }
 
-  static finalizeSessionBeforeSending({session}) {
-    const body = session.draft().body;
-    const clean = body.replace(/<\/?code[^>]*>/g, '');
-    if (body !== clean) {
-      return session.changes.add({body: clean});
-    }
+  static applyTransformsToDraft = ({draft}) => {
+    const nextDraft = draft.clone();
+    nextDraft.body = nextDraft.body.replace(/<\/?code[^>]*>/g, (match) =>
+      `<!-- ${match} -->`
+    );
+    return nextDraft;
+  }
+
+  static unapplyTransformsToDraft = ({draft}) => {
+    const nextDraft = draft.clone();
+    nextDraft.body = nextDraft.body.replace(/<!-- (<\/?code[^>]*>) -->/g, (match, node) =>
+      node
+    );
+    return nextDraft;
   }
 
   static onClick({editor, event}) {
@@ -87,7 +95,7 @@ class TemplatesComposerExtension extends ComposerExtension {
   static onContentChanged({editor}) {
     const editableNode = editor.rootNode;
     const selection = editor.currentSelection().rawSelection;
-    const isWithinNode = (node)=> {
+    const isWithinNode = (node) => {
       let test = selection.baseNode;
       while (test !== editableNode) {
         if (test === node) { return true; }
@@ -97,19 +105,14 @@ class TemplatesComposerExtension extends ComposerExtension {
     };
 
     const codeTags = editableNode.querySelectorAll('code.var.empty');
-    return (() => {
-      const result = [];
-      for (let i = 0, codeTag; i < codeTags.length; i++) {
-        codeTag = codeTags[i];
-        codeTag.textContent = codeTag.textContent; // sets node contents to just its textContent, strips HTML
-        result.push((() => {
-          if (selection.containsNode(codeTag) || isWithinNode(codeTag)) {
-            return codeTag.classList.remove('empty');
-          }
-        })());
+    for (let i = 0, codeTag; i < codeTags.length; i++) {
+      codeTag = codeTags[i];
+      // sets node contents to just its textContent, strips HTML
+      codeTag.textContent = codeTag.textContent;
+      if (selection.containsNode(codeTag) || isWithinNode(codeTag)) {
+        codeTag.classList.remove('empty');
       }
-      return result;
-    })();
+    }
   }
 }
 

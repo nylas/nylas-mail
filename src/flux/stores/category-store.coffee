@@ -1,10 +1,11 @@
 _ = require 'underscore'
+Rx = require 'rx-lite'
 NylasStore = require 'nylas-store'
 AccountStore = require './account-store'
+NylasSyncStatusStore = require './nylas-sync-status-store'
 Account = require '../models/account'
 {StandardCategoryNames} = require '../models/category'
 {Categories} = require 'nylas-observables'
-Rx = require 'rx-lite'
 
 asAccount = (a) ->
   throw new Error("You must pass an Account or Account Id") unless a
@@ -128,6 +129,36 @@ class CategoryStore extends NylasStore
   #
   getSpamCategory: (accountOrId) =>
     @getStandardCategory(accountOrId, "spam")
+
+  # Public: Returns a promise that resolves when the categories for a given
+  # account have been loaded into the local cache
+  #
+  whenCategoriesReady: (accountOrId) =>
+    if not accountOrId
+      Promise.reject('whenCategoriesReady: must pass an account or accountId')
+
+    account = asAccount(accountOrId)
+    categoryCollection = account.categoryCollection()
+    categoriesReady = => (
+      @categories(account).length > 0 and
+      NylasSyncStatusStore.isSyncCompleteForAccount(account.id, categoryCollection)
+    )
+
+    if not categoriesReady()
+      return new Promise (resolve) =>
+        syncStatusObservable = Rx.Observable.fromStore(NylasSyncStatusStore)
+        categoryObservable = Rx.Observable.fromStore(@)
+
+        disposable = Rx.Observable.merge(
+          syncStatusObservable,
+          categoryObservable
+        ).subscribe =>
+          if categoriesReady()
+            disposable.dispose()
+            resolve()
+
+    return Promise.resolve()
+
 
   _onCategoriesChanged: (categories) =>
     @_categoryResult = categories

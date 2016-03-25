@@ -206,6 +206,10 @@ export default class CategoryPickerPopover extends Component {
       })
       Actions.queueTask(applyTask)
     }
+    if (account.usesFolders()) {
+      // In case we are drilled down into a message
+      Actions.popSheet()
+    }
     Actions.closePopover()
   };
 

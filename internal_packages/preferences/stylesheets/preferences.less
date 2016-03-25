@@ -159,7 +159,7 @@
         font-weight: 600;
         color: @text-color;
         .then {
-          font-family: @font-family-base;
+          font-family: @font-family;
           color: @text-color-very-subtle;
           font-weight: 400;
           font-size: 0.9em;
@@ -179,11 +179,11 @@
   .platform-note {
     padding: @padding-base-vertical @padding-base-horizontal;
     background: fade(@black, 4%);
-    border-left:3px solid @info-color;
+    border-left:3px solid @color-info;
     margin:@padding-base-vertical 0;
     font-size:0.95em;
     &:before {
-      color: @info-color;
+      color: @color-info;
       font-weight:600;
       content: "NOTE: ";
     }

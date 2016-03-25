@@ -16,10 +16,10 @@ See more details about how this works in the {ComponentRegistry}
 documentation.
 
 In this case the `ViewOnGithubButton` React Component will get rendered
-whenever the `"message:Toolbar"` region gets rendered.
+whenever the `"MessageList:ThreadActionsToolbarButton"` region gets rendered.
 
 Since the `ViewOnGithubButton` doesn't know who owns the
-`"message:Toolbar"` region, or even when or where it will be rendered, it
+`"MessageList:ThreadActionsToolbarButton"` region, or even when or where it will be rendered, it
 has to load its internal `state` from the `GithubStore`.
 
 The `GithubStore` is responsible for figuring out what message you're
@@ -48,7 +48,7 @@ up or your package is manually activated.
 */
 export function activate() {
   ComponentRegistry.register(ViewOnGithubButton, {
-    roles: ['message:Toolbar'],
+    role: 'MessageList:ThreadActionsToolbarButton',
   });
 }
 

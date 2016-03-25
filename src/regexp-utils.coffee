@@ -14,6 +14,9 @@ RegExpUtils =
   # https://en.wikipedia.org/wiki/Email_address#Local_part
   emailRegex: -> new RegExp(/([a-z.A-Z0-9!#$%&'*+\-/=?^_`{|}~;:]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63})/g)
 
+  # http://stackoverflow.com/questions/16631571/javascript-regular-expression-detect-all-the-phone-number-from-the-page-source
+  phoneRegex: -> new RegExp(/(?:\+?(\d{1,3}))?[- (]*(\d{3})[- )]*(\d{3})[- ]*(\d{4})(?: *x(\d+))?\b/g)
+
   # http://stackoverflow.com/a/16463966
   # http://www.regexpal.com/?fam=93928
   # NOTE: This does not match full urls with `http` protocol components.
@@ -22,15 +25,79 @@ RegExpUtils =
   # https://www.safaribooksonline.com/library/view/regular-expressions-cookbook/9780596802837/ch07s16.html
   ipAddressRegex: -> new RegExp(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/i)
 
-  # Test cases: https://regex101.com/r/pD7iS5/2
-  # http://daringfireball.net/2010/07/improved_regex_for_matching_urls
-  # https://mathiasbynens.be/demo/url-regex
-  # This is the Gruber Regex.
+  # Test cases: https://regex101.com/r/pD7iS5/3
   urlRegex: ({matchEntireString} = {}) ->
+    commonTlds = ['com', 'org', 'edu', 'gov', 'uk', 'net', 'ca', 'de', 'jp', 'fr', 'au', 'us', 'ru', 'ch', 'it', 'nl', 'se', 'no', 'es', 'mil']
+
+    parts = [
+      '('
+        # one of:
+        '('
+          # This OR block matches any TLD if the URL includes a scheme, and only
+          # the top ten TLDs if the scheme is omitted.
+          # YES - https://nylas.ai
+          # YES - https://10.2.3.1
+          # YES - nylas.com
+          # NO  - nylas.ai
+          '('
+            # scheme, ala https:// (mandatory)
+            '([A-Za-z]{3,9}:(?:\\/\\/))'
+
+            # username:password (optional)
+            '(?:[\\-;:&=\\+\\$,\\w]+@)?'
+
+            # one of:
+            '('
+              # domain with any tld
+              '([a-zA-Z0-9-_]+\\.)*[a-zA-Z0-9][a-zA-Z0-9-_]+\\.[a-zA-Z]{2,11}'
+
+              '|'
+
+              # ip address
+              '(?:[0-9]{1,3}\\.){3}[0-9]{1,3}'
+            ')'
+
+            '|'
+
+            # scheme, ala https:// (optional)
+            '([A-Za-z]{3,9}:(?:\\/\\/))?'
+
+            # username:password (optional)
+            '(?:[\\-;:&=\\+\\$,\\w]+@)?'
+
+            # one of:
+            '('
+              # domain with common tld
+              '([a-zA-Z0-9-_]+\\.)*[a-zA-Z0-9][a-zA-Z0-9-_]+\\.(?:' + commonTlds.join('|') + ')'
+
+              '|'
+
+              # ip address
+              '(?:[0-9]{1,3}\\.){3}[0-9]{1,3}'
+            ')'
+          ')'
+
+          '|'
+
+          # mailto:username@password.com
+          'mailto:\\/*(?:\\w+\\.|[\\-;:&=\\+\\$.,\\w]+@)[A-Za-z0-9\\.\\-]+'
+        ')'
+
+        # optionally followed by:
+        '('
+          # URL components
+          # (last character must not be puncation, hence two groups)
+          '(?:[\\+~%\\/\\.\\w\\-_]*[\\+~%\\/\\w\\-_]+)?'
+          # optionally followed by a query string
+          # (last character must not be puncation, hence two groups)
+          '(?:(\\?[\\-\\+=&;%@\\.\\w_]*[\\-\\+=&;%@\\w_\\/]+)#?(?:[\\.\\!\\/\\\\\\w]*[\\/\\\\\\w]+)?)?'
+        ')?'
+      ')'
+    ]
     if matchEntireString
-      new RegExp(/^\b((?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))$/)
-    else
-      new RegExp(/\b((?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))$/)
+      parts.unshift('^')
+
+    return new RegExp(parts.join(''), 'gi')
 
   # Test cases: https://regex101.com/r/jD5zC7/2
   # Returns the following capturing groups:

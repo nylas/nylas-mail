@@ -3,6 +3,13 @@ _ = require 'underscore'
 {Listener, Publisher} = require './flux/modules/reflux-coffee'
 CoffeeHelpers = require './flux/coffee-helpers'
 
+DeprecatedRoles = {
+  'thread:BulkAction': 'ThreadActionsToolbarButton',
+  'draft:BulkAction': 'DraftActionsToolbarButton',
+  'message:Toolbar': 'ThreadActionsToolbarButton',
+  'thread:Toolbar': 'ThreadActionsToolbarButton',
+}
+
 ###
 Public: The ComponentRegistry maintains an index of React components registered
 by Nylas packages. Components can use {InjectedComponent} and {InjectedComponentSet}
@@ -61,6 +68,8 @@ class ComponentRegistry
 
     if @_registry[component.displayName] and @_registry[component.displayName].component isnt component
       throw new Error("ComponentRegistry.register(): A different component was already registered with the name #{component.displayName}")
+
+    roles = @_removeDeprecatedRoles(component.displayName, roles) if roles
 
     @_cache = {}
     @_registry[component.displayName] = {component, locations, modes, roles}
@@ -153,6 +162,15 @@ class ComponentRegistry
 
   triggerDebounced: _.debounce(( -> @trigger(@)), 1)
 
+  _removeDeprecatedRoles: (displayName, roles) ->
+    newRoles = _.clone(roles)
+    roles.forEach (role, idx) ->
+      if role of DeprecatedRoles
+        instead = DeprecatedRoles[role]
+        console.warn("Deprecation warning! The role `#{role}` has been deprecated.
+        Register `#{displayName}` for the role `#{instead}` instead.")
+        newRoles.splice(idx, 1, instead)
+    return newRoles
 
   _pluralizeDescriptor: (descriptor) ->
     {locations, modes, roles} = descriptor

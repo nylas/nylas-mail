@@ -68,9 +68,8 @@ class MessageItemBody extends React.Component
 
   _renderQuotedTextControl: =>
     return null unless QuotedHTMLTransformer.hasQuotedHTML(@props.message.body)
-    text = if @state.showQuotedText then "Hide" else "Show"
     <a className="quoted-text-control" onClick={@_toggleQuotedText}>
-      <span className="dots">&bull;&bull;&bull;</span>{text} previous
+      <span className="dots">&bull;&bull;&bull;</span>
     </a>
 
   _toggleQuotedText: =>

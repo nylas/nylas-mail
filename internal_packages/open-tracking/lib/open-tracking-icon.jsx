@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import {React} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
 import {PLUGIN_ID} from './open-tracking-constants'
@@ -22,12 +23,12 @@ export default class OpenTrackingIcon extends React.Component {
   _getStateFromThread(thread) {
     const messages = thread.metadata;
     if ((messages || []).length === 0) { return {opened: false, hasMetadata: false} }
-    const metadataObjs = messages
-      .map(msg => msg.metadataForPluginId(PLUGIN_ID))
-      .filter(meta => meta && meta.open_count != null);
+    const last = _.last(_.filter(messages, m => !m.draft))
+    const meta = last.metadataForPluginId(PLUGIN_ID)
+    const hasMetadata = meta && meta.open_count != null
     return {
-      hasMetadata: metadataObjs.length > 0,
-      opened: metadataObjs.length > 0 && metadataObjs.every(m => m.open_count > 0),
+      hasMetadata,
+      opened: hasMetadata && meta.open_count > 0,
     };
   }
 
@@ -44,7 +45,7 @@ export default class OpenTrackingIcon extends React.Component {
     const title = this.state.opened ? "This message has been read at least once" : "This message has not been read";
     return (
       <div title={title} className="open-tracking-icon">
-        {this.state.hasMetadata ? this._renderImage() : ""}
+        {this.state.hasMetadata ? this._renderImage() : null}
       </div>
     );
   }

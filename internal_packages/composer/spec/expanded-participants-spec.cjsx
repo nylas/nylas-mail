@@ -36,67 +36,6 @@ describe "ExpandedParticipants", ->
     el = ReactTestUtils.findRenderedComponentWithType(@fields, AccountContactField)
     expect(el).toBeDefined()
 
-  it "renders all 'show' fields", ->
-    makeField.call(@)
-    showCc = ReactTestUtils.findRenderedDOMComponentWithClass(@fields, "show-cc")
-    showBcc = ReactTestUtils.findRenderedDOMComponentWithClass(@fields, "show-bcc")
-    showSubject = ReactTestUtils.findRenderedDOMComponentWithClass(@fields, "show-subject")
-    expect(showCc).toBeDefined()
-    expect(showBcc).toBeDefined()
-    expect(showSubject).toBeDefined()
-
-  it "hides show cc if it's enabled", ->
-    makeField.call(@, enabledFields: [Fields.Cc])
-    els = ReactTestUtils.scryRenderedDOMComponentsWithClass(@fields, "show-cc")
-    expect(els.length).toBe 0
-
-  it "hides show bcc if it's enabled", ->
-    makeField.call(@, enabledFields: [Fields.Bcc])
-    els = ReactTestUtils.scryRenderedDOMComponentsWithClass(@fields, "show-bcc")
-    expect(els.length).toBe 0
-
-  it "hides show subject if it's enabled", ->
-    makeField.call(@, enabledFields: [Fields.Subject])
-    els = ReactTestUtils.scryRenderedDOMComponentsWithClass(@fields, "show-subject")
-    expect(els.length).toBe 0
-
-  it "renders popout composer in the inline mode", ->
-    makeField.call(@, mode: "inline")
-    els = ReactTestUtils.scryRenderedDOMComponentsWithClass(@fields, "show-popout")
-    expect(els.length).toBe 1
-
-  it "doesn't render popout composer in the fullwindow mode", ->
-    makeField.call(@, mode: "fullwindow")
-    els = ReactTestUtils.scryRenderedDOMComponentsWithClass(@fields, "show-popout")
-    expect(els.length).toBe 0
-
-  it "pops out the composer when clicked", ->
-    spyOn(Actions, "composePopoutDraft")
-    onPopoutComposer = jasmine.createSpy('onPopoutComposer')
-    makeField.call(@, mode: "inline", onPopoutComposer: onPopoutComposer)
-    el = ReactTestUtils.findRenderedDOMComponentWithClass(@fields, "show-popout")
-    ReactTestUtils.Simulate.click(React.findDOMNode(el))
-    expect(onPopoutComposer).toHaveBeenCalled()
-    expect(onPopoutComposer.calls.length).toBe 1
-
-  it "shows and focuses cc when clicked", ->
-    makeField.call(@)
-    el = ReactTestUtils.findRenderedDOMComponentWithClass(@fields, "show-cc")
-    ReactTestUtils.Simulate.click(React.findDOMNode(el))
-    expect(@onAdjustEnabledFields).toHaveBeenCalledWith show: [Fields.Cc]
-
-  it "shows and focuses bcc when clicked", ->
-    makeField.call(@)
-    el = ReactTestUtils.findRenderedDOMComponentWithClass(@fields, "show-bcc")
-    ReactTestUtils.Simulate.click(React.findDOMNode(el))
-    expect(@onAdjustEnabledFields).toHaveBeenCalledWith show: [Fields.Bcc]
-
-  it "shows subject when clicked", ->
-    makeField.call(@)
-    el = ReactTestUtils.findRenderedDOMComponentWithClass(@fields, "show-subject")
-    ReactTestUtils.Simulate.click(React.findDOMNode(el))
-    expect(@onAdjustEnabledFields).toHaveBeenCalledWith show: [Fields.Subject]
-
   it "empties cc and focuses on to field", ->
     makeField.call(@, enabledFields: [Fields.Cc, Fields.Bcc, Fields.Subject])
     @fields.refs[Fields.Cc].props.onEmptied()

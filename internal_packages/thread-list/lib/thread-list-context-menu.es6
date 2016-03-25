@@ -47,7 +47,12 @@ export default class ThreadListContextMenu {
     return {
       label: "Reply",
       click: () => {
-        Actions.composeReply({threadId: this.threadIds[0], popout: true});
+        Actions.composeReply({
+          threadId: this.threadIds[0],
+          popout: true,
+          type: 'reply',
+          behavior: 'prefer-existing-if-pristine',
+        });
       },
     }
   }
@@ -62,7 +67,12 @@ export default class ThreadListContextMenu {
         return {
           label: "Reply All",
           click: () => {
-            Actions.composeReplyAll({threadId: this.threadIds[0], popout: true});
+            Actions.composeReply({
+              threadId: this.threadIds[0],
+              popout: true,
+              type: 'reply-all',
+              behavior: 'prefer-existing-if-pristine',
+            });
           },
         }
       }

@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react';
 import _ from 'underscore';
 import {exec} from 'child_process';
+import {Utils} from 'nylas-exports';
 
 // This is a stripped down version of
 // https://github.com/michaelvillar/dynamics.js/blob/master/src/dynamics.coffee#L1179,
@@ -309,8 +310,7 @@ export default class SwipeContainer extends Component {
 
   render() {
     const {currentX, targetX} = this.state;
-    const otherProps = _.omit(this.props, _.keys(this.constructor.propTypes));
-
+    const otherProps = Utils.fastOmit(this.props, Object.keys(this.constructor.propTypes));
     const backingStyles = {top: 0, bottom: 0, position: 'absolute'};
     let backingClass = 'swipe-backing';
 

@@ -1406,7 +1406,7 @@
 4208627: node_modules/request/lib/cookies.js
 4209596: node_modules/less-cache/node_modules/less/node_modules/request/node_modules/tough-cookie/lib/cookie.js
 4247150: node_modules/less-cache/node_modules/less/node_modules/request/node_modules/tough-cookie/lib/pubsuffix.js
-6156359: src/flux/stores/unread-badge-store.js
+6156359: src/flux/stores/badge-store.js
 6165032: src/flux/stores/file-download-store.js
 6196816: node_modules/request-progress/package.json
 6202896: node_modules/request-progress/index.js
@@ -1828,7 +1828,7 @@
 6063542: src/flux/stores/file-upload-store.js
 1676695: node_modules/mkdirp/package.json
 1678098: node_modules/mkdirp/index.js
-6156359: src/flux/stores/unread-badge-store.js
+6156359: src/flux/stores/badge-store.js
 6165032: src/flux/stores/file-download-store.js
 6196816: node_modules/request-progress/package.json
 6202896: node_modules/request-progress/index.js
@@ -3709,7 +3709,7 @@
 6063542: src/flux/stores/file-upload-store.js
 1676695: node_modules/mkdirp/package.json
 1678098: node_modules/mkdirp/index.js
-6156359: src/flux/stores/unread-badge-store.js
+6156359: src/flux/stores/badge-store.js
 6165032: src/flux/stores/file-download-store.js
 6196816: node_modules/request-progress/package.json
 6202896: node_modules/request-progress/index.js
@@ -5201,7 +5201,7 @@
 6063542: src/flux/stores/file-upload-store.js
 1676695: node_modules/mkdirp/package.json
 1678098: node_modules/mkdirp/index.js
-6156359: src/flux/stores/unread-badge-store.js
+6156359: src/flux/stores/badge-store.js
 6165032: src/flux/stores/file-download-store.js
 6196816: node_modules/request-progress/package.json
 6202896: node_modules/request-progress/index.js

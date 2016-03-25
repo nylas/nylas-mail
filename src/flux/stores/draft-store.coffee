@@ -1,37 +1,31 @@
 _ = require 'underscore'
-crypto = require 'crypto'
-moment = require 'moment'
 
 {ipcRenderer} = require 'electron'
 
+NylasAPI = require '../nylas-api'
 DraftStoreProxy = require './draft-store-proxy'
+DraftFactory = require './draft-factory'
 DatabaseStore = require './database-store'
 AccountStore = require './account-store'
-ContactStore = require './contact-store'
 TaskQueueStatusStore = require './task-queue-status-store'
-FocusedPerspectiveStore = require './focused-perspective-store'
 FocusedContentStore = require './focused-content-store'
 
+BaseDraftTask = require '../tasks/base-draft-task'
 SendDraftTask = require '../tasks/send-draft-task'
+SyncbackDraftFilesTask = require '../tasks/syncback-draft-files-task'
+SyncbackDraftTask = require '../tasks/syncback-draft-task'
 DestroyDraftTask = require '../tasks/destroy-draft-task'
-
-InlineStyleTransformer = require '../../services/inline-style-transformer'
-SanitizeTransformer = require '../../services/sanitize-transformer'
 
 Thread = require '../models/thread'
 Contact = require '../models/contact'
 Message = require '../models/message'
-Utils = require '../models/utils'
-MessageUtils = require '../models/message-utils'
 Actions = require '../actions'
 
 TaskQueue = require './task-queue'
 SoundRegistry = require '../../sound-registry'
 
-{subjectWithPrefix} = require '../models/utils'
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'
-DOMUtils = require '../../dom-utils'
 
 ExtensionRegistry = require '../../extension-registry'
 {deprecate} = require '../../deprecate-utils'
@@ -58,7 +52,6 @@ class DraftStore
 
     @listenTo Actions.composeReply, @_onComposeReply
     @listenTo Actions.composeForward, @_onComposeForward
-    @listenTo Actions.composeReplyAll, @_onComposeReplyAll
     @listenTo Actions.sendDraftSuccess, => @trigger()
     @listenTo Actions.composePopoutDraft, @_onPopoutDraftClientId
     @listenTo Actions.composeNewBlankDraft, @_onPopoutBlankDraft
@@ -71,6 +64,7 @@ class DraftStore
     # Remember that these two actions only fire in the current window and
     # are picked up by the instance of the DraftStore in the current
     # window.
+    @listenTo Actions.ensureDraftSynced, @_onEnsureDraftSynced
     @listenTo Actions.sendDraft, @_onSendDraft
     @listenTo Actions.destroyDraft, @_onDestroyDraft
 
@@ -97,6 +91,7 @@ class DraftStore
     @_draftsSending = {}
 
     ipcRenderer.on 'mailto', @_onHandleMailtoLink
+    ipcRenderer.on 'mailfiles', @_onHandleMailFiles
 
   ######### PUBLIC #######################################################
 
@@ -171,7 +166,7 @@ class DraftStore
     # window.close() within on onbeforeunload could do weird things.
     for key, session of @_draftSessions
       if session.draft()?.pristine
-        Actions.queueTask(new DestroyDraftTask(draftClientId: session.draftClientId))
+        Actions.queueTask(new DestroyDraftTask(session.draftClientId))
       else
         promises.push(session.changes.commit())
 
@@ -195,14 +190,11 @@ class DraftStore
     return unless containsDraft
     @trigger(change)
 
-  _onSendQuickReply: (context, body) =>
-    @_newMessageWithContext context, (thread, message) =>
-      {to, cc} = message.participantsForReply()
-      return {
-        replyToMessage: message
-        to: to
-      }
-    .then ({draft}) =>
+  _onSendQuickReply: ({thread, threadId, message, messageId}, body) =>
+    Promise.props(@_modelifyContext({thread, threadId, message, messageId}))
+    .then ({message, thread}) =>
+      DraftFactory.createDraftForReply({message, thread, type: 'reply'})
+    .then (draft) =>
       draft.body = body + "\n\n" + draft.body
       draft.pristine = false
       DatabaseStore.inTransaction (t) =>
@@ -210,28 +202,44 @@ class DraftStore
       .then =>
         Actions.sendDraft(draft.clientId)
 
-  _onComposeReply: (context) =>
-    @_newMessageWithContext context, (thread, message) =>
-      {to, cc} = message.participantsForReply()
-      return {
-        replyToMessage: message
-        to: to
-      }
+  _onComposeReply: ({thread, threadId, message, messageId, popout, type, behavior}) =>
+    Promise.props(@_modelifyContext({thread, threadId, message, messageId}))
+    .then ({message, thread}) =>
+      DraftFactory.createOrUpdateDraftForReply({message, thread, type, behavior})
+    .then (draft) =>
+      @_finalizeAndPersistNewMessage(draft, {popout})
 
-  _onComposeReplyAll: (context) =>
-    @_newMessageWithContext context, (thread, message) =>
-      {to, cc} = message.participantsForReplyAll()
-      return {
-        replyToMessage: message
-        to: to
-        cc: cc
-      }
+  _onComposeForward: ({thread, threadId, message, messageId, popout}) =>
+    Promise.props(@_modelifyContext({thread, threadId, message, messageId}))
+    .then(DraftFactory.createDraftForForward)
+    .then (draft) =>
+      @_finalizeAndPersistNewMessage(draft, {popout})
 
-  _onComposeForward: (context) =>
-    @_newMessageWithContext context, (thread, message) ->
-      forwardMessage: message
+  _modelifyContext: ({thread, threadId, message, messageId}) ->
+    queries = {}
+    if thread
+      throw new Error("newMessageWithContext: `thread` present, expected a Model. Maybe you wanted to pass `threadId`?") unless thread instanceof Thread
+      queries.thread = thread
+    else
+      queries.thread = DatabaseStore.find(Thread, threadId)
 
-  _finalizeAndPersistNewMessage: (draft) =>
+    if message
+      throw new Error("newMessageWithContext: `message` present, expected a Model. Maybe you wanted to pass `messageId`?") unless message instanceof Message
+      queries.message = message
+    else if messageId?
+      queries.message = DatabaseStore
+        .find(Message, messageId)
+        .include(Message.attributes.body)
+    else
+      queries.message = DatabaseStore
+        .findBy(Message, {threadId: threadId ? thread.id})
+        .order(Message.attributes.date.descending())
+        .limit(1)
+        .include(Message.attributes.body)
+
+    queries
+
+  _finalizeAndPersistNewMessage: (draft, {popout} = {}) =>
     # Give extensions an opportunity to perform additional setup to the draft
     for extension in @extensions()
       continue unless extension.prepareNewDraft
@@ -244,161 +252,14 @@ class DraftStore
     DatabaseStore.inTransaction (t) =>
       t.persistModel(draft)
     .then =>
-      Promise.resolve(draftClientId: draft.clientId, draft: draft)
-
-  _newMessageWithContext: (args, attributesCallback) =>
-    # We accept all kinds of context. You can pass actual thread and message objects,
-    # or you can pass Ids and we'll look them up. Passing the object is preferable,
-    # and in most cases "the data is right there" anyway. Lookups add extra latency
-    # that feels bad.
-    queries = @_buildModelResolvers(args)
-    queries.attributesCallback = attributesCallback
-
-    # Waits for the query promises to resolve and then resolve with a hash
-    # of their resolved values. *swoon*
-    Promise.props(queries)
-    .then @_prepareNewMessageAttributes
-    .then @_constructDraft
-    .then @_finalizeAndPersistNewMessage
-    .then ({draftClientId, draft}) =>
-      Actions.composePopoutDraft(draftClientId) if args.popout
-      Promise.resolve({draftClientId, draft})
-
-  _buildModelResolvers: ({thread, threadId, message, messageId}) ->
-    queries = {}
-    if thread?
-      throw new Error("newMessageWithContext: `thread` present, expected a Model. Maybe you wanted to pass `threadId`?") unless thread instanceof Thread
-      queries.thread = thread
-    else
-      queries.thread = DatabaseStore.find(Thread, threadId)
-
-    if message?
-      throw new Error("newMessageWithContext: `message` present, expected a Model. Maybe you wanted to pass `messageId`?") unless message instanceof Message
-      queries.message = message
-    else if messageId?
-      queries.message = DatabaseStore.find(Message, messageId)
-      queries.message.include(Message.attributes.body)
-    else
-      queries.message = @_lastMessageFromThreadId(threadId ? thread.id)
-    return queries
-
-  _lastMessageFromThreadId: (threadId) ->
-    query = DatabaseStore.findBy(Message, {threadId: threadId ? thread.id}).order(Message.attributes.date.descending()).limit(1)
-    query.include(Message.attributes.body)
-    return query
-
-  _constructDraft: ({attributes, thread}) =>
-    account = AccountStore.accountForId(thread.accountId)
-    throw new Error("Cannot find #{thread.accountId}") unless account
-    return new Message _.extend {}, attributes,
-      from: [account.defaultMe()]
-      date: (new Date)
-      draft: true
-      pristine: true
-      threadId: thread.id
-      accountId: thread.accountId
-
-  _prepareNewMessageAttributes: ({thread, message, attributesCallback}) =>
-    attributes = attributesCallback(thread, message)
-    attributes.subject ?= subjectWithPrefix(thread.subject, 'Re:')
-
-    # We set the clientID here so we have a unique id to use for shipping
-    # the body to the browser process.
-    attributes.clientId = Utils.generateTempId()
-
-    @_prepareAttributesBody(attributes).then (body) ->
-      attributes.body = body
-
-      if attributes.replyToMessage
-        msg = attributes.replyToMessage
-        attributes.subject = subjectWithPrefix(msg.subject, 'Re:')
-        attributes.replyToMessageId = msg.id
-        delete attributes.quotedMessage
-
-      else if attributes.forwardMessage
-        msg = attributes.forwardMessage
-
-        if msg.files?.length > 0
-          attributes.files ?= []
-          attributes.files = attributes.files.concat(msg.files)
-
-        attributes.subject = subjectWithPrefix(msg.subject, 'Fwd:')
-        delete attributes.forwardedMessage
-
-      return {attributes, thread}
-
-  _prepareAttributesBody: (attributes) ->
-    if attributes.replyToMessage
-      replyToMessage = attributes.replyToMessage
-      @_prepareBodyForQuoting(replyToMessage.body).then (body) ->
-        return """
-          <br><br><blockquote class="gmail_quote"
-            style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
-            #{DOMUtils.escapeHTMLCharacters(replyToMessage.replyAttributionLine())}
-            <br>
-            #{body}
-          </blockquote>"""
-    else if attributes.forwardMessage
-      forwardMessage = attributes.forwardMessage
-      contactsAsHtml = (cs) ->
-        DOMUtils.escapeHTMLCharacters(_.invoke(cs, "toString").join(", "))
-      fields = []
-      fields.push("From: #{contactsAsHtml(forwardMessage.from)}") if forwardMessage.from.length > 0
-      fields.push("Subject: #{forwardMessage.subject}")
-      fields.push("Date: #{forwardMessage.formattedDate()}")
-      fields.push("To: #{contactsAsHtml(forwardMessage.to)}") if forwardMessage.to.length > 0
-      fields.push("CC: #{contactsAsHtml(forwardMessage.cc)}") if forwardMessage.cc.length > 0
-      fields.push("BCC: #{contactsAsHtml(forwardMessage.bcc)}") if forwardMessage.bcc.length > 0
-      @_prepareBodyForQuoting(forwardMessage.body).then (body) ->
-        return """
-          <br><br><blockquote class="gmail_quote"
-            style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
-            Begin forwarded message:
-            <br><br>
-            #{fields.join('<br>')}
-            <br><br>
-            #{body}
-          </blockquote>"""
-    else return Promise.resolve("")
-
-  # Eventually we'll want a nicer solution for inline attachments
-  _prepareBodyForQuoting: (body="") =>
-    ## Fix inline images
-    cidRE = MessageUtils.cidRegexString
-
-    # Be sure to match over multiple lines with [\s\S]*
-    # Regex explanation here: https://regex101.com/r/vO6eN2/1
-    re = new RegExp("<img.*#{cidRE}[\\s\\S]*?>", "igm")
-    body.replace(re, "")
-
-    InlineStyleTransformer.run(body).then (body) =>
-      SanitizeTransformer.run(body, SanitizeTransformer.Preset.UnsafeOnly)
-
-  _getAccountForNewMessage: =>
-    defAccountId = NylasEnv.config.get('core.sending.defaultAccountIdForSend')
-    account = AccountStore.accountForId(defAccountId)
-    if account
-      account
-    else
-      focusedAccountId = FocusedPerspectiveStore.current().accountIds[0]
-      if focusedAccountId
-        AccountStore.accountForId(focusedAccountId)
-      else
-        AccountStore.accounts()[0]
+      @_onPopoutDraftClientId(draft.clientId) if popout
+      Actions.focusDraft({draftClientId: draft.clientId})
+    .thenReturn({draftClientId: draft.clientId, draft: draft})
 
   _onPopoutBlankDraft: =>
-    account = @_getAccountForNewMessage()
-
-    draft = new Message
-      body: ""
-      from: [account.defaultMe()]
-      date: (new Date)
-      draft: true
-      pristine: true
-      accountId: account.id
-
-    @_finalizeAndPersistNewMessage(draft).then ({draftClientId}) =>
-      @_onPopoutDraftClientId(draftClientId, {newDraft: true})
+    DraftFactory.createDraft().then (draft) =>
+      @_finalizeAndPersistNewMessage(draft).then ({draftClientId}) =>
+        @_onPopoutDraftClientId(draftClientId, {newDraft: true})
 
   _onPopoutDraftClientId: (draftClientId, options = {}) =>
     if not draftClientId?
@@ -423,67 +284,15 @@ class DraftStore
           windowProps: _.extend(options, {draftClientId})
 
   _onHandleMailtoLink: (event, urlString) =>
-    account = @_getAccountForNewMessage()
+    DraftFactory.createDraftForMailto(urlString).then (draft) =>
+      @_finalizeAndPersistNewMessage(draft, popout: true)
 
-    try
-      urlString = decodeURI(urlString)
-
-    [whole, to, queryString] = /mailto:\/*([^\?\&]*)((.|\n|\r)*)/.exec(urlString)
-
-    if to.length > 0 and to.indexOf('@') is -1
-      to = decodeURIComponent(to)
-
-    # /many/ mailto links are malformed and do things like:
-    #   &body=https://github.com/atom/electron/issues?utf8=&q=is%3Aissue+is%3Aopen+123&subject=...
-    #   (note the unescaped ? and & in the URL).
-    #
-    # To account for these scenarios, we parse the query string manually and only
-    # split on params we expect to be there. (Jumping from &body= to &subject=
-    # in the above example.) We only decode values when they appear to be entirely
-    # URL encoded. (In the above example, decoding the body would cause the URL
-    # to fall apart.)
-    #
-    query = {}
-    query.to = to
-
-    querySplit = /[&|?](subject|body|cc|to|from|bcc)+\s*=/gi
-
-    openKey = null
-    openValueStart = null
-
-    until match is null
-      match = querySplit.exec(queryString)
-      openValueEnd = match?.index || queryString.length
-
-      if openKey
-        value = queryString.substr(openValueStart, openValueEnd - openValueStart)
-        valueIsntEscaped = value.indexOf('?') isnt -1 or value.indexOf('&') isnt -1
-        try
-          value = decodeURIComponent(value) unless valueIsntEscaped
-        query[openKey] = value
-
-      if match
-        openKey = match[1].toLowerCase()
-        openValueStart = querySplit.lastIndex
-
-    draft = new Message
-      body: query.body || ''
-      subject: query.subject || '',
-      from: [account.defaultMe()]
-      date: (new Date)
-      draft: true
-      pristine: true
-      accountId: account.id
-
-    contacts = {}
-    for attr in ['to', 'cc', 'bcc']
-      if query[attr]
-        contacts[attr] = ContactStore.parseContactsInString(query[attr])
-
-    Promise.props(contacts).then (contacts) =>
-      draft = _.extend(draft, contacts)
-      @_finalizeAndPersistNewMessage(draft).then ({draftClientId}) =>
-        @_onPopoutDraftClientId(draftClientId)
+  _onHandleMailFiles: (event, paths) =>
+    DraftFactory.createDraft().then (draft) =>
+      @_finalizeAndPersistNewMessage(draft, popout: true)
+    .then ({draftClientId}) =>
+      for path in paths
+        Actions.addAttachment({filePath: path, messageClientId: draftClientId})
 
   _onDestroyDraft: (draftClientId) =>
     session = @_draftSessions[draftClientId]
@@ -492,55 +301,88 @@ class DraftStore
     if session
       @_doneWithSession(session)
 
-    # Stop any pending SendDraftTasks
+    # Stop any pending tasks related ot the draft
     for task in TaskQueueStatusStore.queue()
-      if task instanceof SendDraftTask and task.draft.clientId is draftClientId
+      if task instanceof BaseDraftTask and task.draftClientId is draftClientId
         Actions.dequeueTask(task.id)
 
     # Queue the task to destroy the draft
-    Actions.queueTask(new DestroyDraftTask(draftClientId: draftClientId))
+    Actions.queueTask(new DestroyDraftTask(draftClientId))
 
     NylasEnv.close() if @_isPopout()
 
-  # The user request to send the draft
-  _onSendDraft: (draftClientId) =>
-    if NylasEnv.config.get("core.sending.sounds")
-      SoundRegistry.playSound('hit-send')
+  _onEnsureDraftSynced: (draftClientId) =>
+    @sessionForClientId(draftClientId).then (session) =>
+      @_prepareForSyncback(session).then =>
+        if session.draft().files.length or session.draft().uploads.length
+          Actions.queueTask(new SyncbackDraftFilesTask(draftClientId))
+        Actions.queueTask(new SyncbackDraftTask(draftClientId))
 
+  _onSendDraft: (draftClientId) =>
     @_draftsSending[draftClientId] = true
 
-    # It's important NOT to call `trigger(draftClientId)` here. At this
-    # point there are still unpersisted changes in the DraftStoreProxy. If
-    # we `trigger`, we'll briefly display the wrong version of the draft
-    # as if it was sending.
-    @sessionForClientId(draftClientId)
-    .then(@_runExtensionsBeforeSend)
-    .then (session) =>
-      # Immediately save any pending changes so we don't save after
-      # sending
-      #
-      # We do NOT queue a final {SyncbackDraftTask} before sending because
-      # we're going to send the full raw body with the Send are are about
-      # to delete the draft anyway.
-      #
-      # We do, however, need to ensure that all of the pending changes are
-      # committed to the Database since we'll look them up again just
-      # before send.
-      session.changes.commit(noSyncback: true).then =>
-        draft = session.draft()
-        Actions.queueTask(new SendDraftTask(draft))
+    @sessionForClientId(draftClientId).then (session) =>
+      @_prepareForSyncback(session).then =>
+        if NylasEnv.config.get("core.sending.sounds")
+          SoundRegistry.playSound('hit-send')
+        if session.draft().files.length or session.draft().uploads.length
+          Actions.queueTask(new SyncbackDraftFilesTask(draftClientId))
+        Actions.queueTask(new SendDraftTask(draftClientId))
         @_doneWithSession(session)
 
-        NylasEnv.close() if @_isPopout()
+        if @_isPopout()
+          NylasEnv.close()
 
   _isPopout: ->
     NylasEnv.getWindowType() is "composer"
 
-  # Give third-party plugins an opportunity to sanitize draft data
-  _runExtensionsBeforeSend: (session) =>
+  _prepareForSyncback: (session) =>
+    draft = session.draft()
+
+    # Make sure the draft is attached to a valid account, and change it's
+    # accountId if the from address does not match the current account.
+    account = AccountStore.accountForEmail(draft.from[0].email)
+    unless account
+      return Promise.reject(new Error("DraftStore::_prepareForSyncback - you can only send drafts from a configured account."))
+
+    if account.id isnt draft.accountId
+      NylasAPI.makeDraftDeletionRequest(draft)
+      session.changes.add({
+        accountId: account.id
+        version: null
+        serverId: null
+        threadId: null
+        replyToMessageId: null
+      })
+
+    # Run draft transformations registered by third-party plugins
+    allowedFields = ['to', 'from', 'cc', 'bcc', 'subject', 'body']
+
     Promise.each @extensions(), (ext) ->
-      ext.finalizeSessionBeforeSending?({session})
-    .return(session)
+      extApply = ext.applyTransformsToDraft
+      extUnapply = ext.unapplyTransformsToDraft
+      unless extApply and extUnapply
+        return Promise.resolve()
+
+      draft = session.draft().clone()
+      Promise.resolve(extUnapply({draft})).then (cleaned) =>
+        cleaned = draft if cleaned is 'unnecessary'
+        Promise.resolve(extApply({draft: cleaned})).then (transformed) =>
+          Promise.resolve(extUnapply({draft: transformed.clone()})).then (untransformed) =>
+            untransformed = cleaned if untransformed is 'unnecessary'
+
+            if not _.isEqual(_.pick(untransformed, allowedFields), _.pick(cleaned, allowedFields))
+              console.log("-- BEFORE --")
+              console.log(draft.body)
+              console.log("-- TRANSFORMED --")
+              console.log(transformed.body)
+              console.log("-- UNTRANSFORMED (should match BEFORE) --")
+              console.log(untransformed.body)
+              NylasEnv.reportError(new Error("An extension applied a tranform to the draft that it could not reverse."))
+            session.changes.add(_.pick(transformed, allowedFields))
+
+    .then =>
+      session.changes.commit(noSyncback: true)
 
   _onRemoveFile: ({file, messageClientId}) =>
     @sessionForClientId(messageClientId).then (session) ->

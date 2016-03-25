@@ -35,9 +35,6 @@ class ExpandedParticipants extends React.Component
     # The account to which the current draft belongs
     accounts: React.PropTypes.array
 
-    # Either "fullwindow" or "inline"
-    mode: React.PropTypes.string
-
     # The field that should be focused
     focusedField: React.PropTypes.string
 
@@ -74,8 +71,7 @@ class ExpandedParticipants extends React.Component
     @_applyFocusedField()
 
   render: ->
-    <div className="expanded-participants"
-         ref="participantWrap">
+    <div className="expanded-participants" ref="participantWrap">
       {@_renderFields()}
     </div>
 
@@ -92,43 +88,15 @@ class ExpandedParticipants extends React.Component
     # If they're hidden, shift-tab between fields breaks.
     fields = []
     fields.push(
-      <div key="to">
-        <div className="composer-participant-actions">
-          {if Fields.Cc not in @props.enabledFields
-            <span className="header-action show-cc"
-                  onClick={ => @props.onAdjustEnabledFields(show: [Fields.Cc]) }>Cc</span>
-          }
-
-          { if Fields.Bcc not in @props.enabledFields
-            <span className="header-action show-bcc"
-                  onClick={ => @props.onAdjustEnabledFields(show: [Fields.Bcc]) }>Bcc</span>
-          }
-
-          { if Fields.Subject not in @props.enabledFields
-            <span className="header-action show-subject"
-                  onClick={ => @props.onAdjustEnabledFields(show: [Fields.Subject]) }>Subject</span>
-          }
-
-          { if @props.mode is "inline"
-            <span className="header-action show-popout"
-                  title="Popout composer…"
-                  style={paddingLeft: "1.5em"}
-                  onClick={@props.onPopoutComposer}>
-              <RetinaImg name="composer-popout.png"
-                mode={RetinaImg.Mode.ContentIsMask}
-                style={{position: "relative", top: "-2px"}}/>
-            </span>
-          }
-        </div>
-        <ParticipantsTextField
-          ref={Fields.To}
-          field='to'
-          change={@props.onChangeParticipants}
-          className="composer-participant-field to-field"
-          draftReady={@props.draftReady}
-          onFocus={ => @props.onChangeFocusedField(Fields.To) }
-          participants={to: @props['to'], cc: @props['cc'], bcc: @props['bcc']} />
-      </div>
+      <ParticipantsTextField
+        ref={Fields.To}
+        key="to"
+        field='to'
+        change={@props.onChangeParticipants}
+        className="composer-participant-field to-field"
+        draftReady={@props.draftReady}
+        onFocus={ => @props.onChangeFocusedField(Fields.To) }
+        participants={to: @props['to'], cc: @props['cc'], bcc: @props['bcc']} />
     )
 
     if Fields.Cc in @props.enabledFields

@@ -7,13 +7,24 @@ import {
 import SendLaterStore from '../lib/send-later-store'
 
 
-describe('SendLaterStore', ()=> {
-  beforeEach(()=> {
+describe('SendLaterStore', () => {
+  beforeEach(() => {
     this.store = new SendLaterStore('plug-id', 'plug-name')
   });
 
-  describe('setMetadata', ()=> {
-    beforeEach(()=> {
+  describe('onSendLater', () => {
+    it("should call setMetadata and then close the popover (if in a composer)", () => {
+      spyOn(Actions, 'closePopover');
+      spyOn(NylasEnv, 'isComposerWindow').andReturn(true);
+      spyOn(this.store, 'setMetadata').andReturn(Promise.resolve());
+      this.store.onSendLater('client-id', new Date(), 'asd');
+      advanceClock();
+      expect(Actions.closePopover).toHaveBeenCalled();
+    });
+  });
+
+  describe('setMetadata', () => {
+    beforeEach(() => {
       this.message = new Message({accountId: 123, clientId: 'c-1'})
       this.metadata = {sendLaterDate: 'the future'}
       spyOn(this.store, 'recordAction')
@@ -24,10 +35,10 @@ describe('SendLaterStore', ()=> {
       spyOn(NylasEnv, 'showErrorDialog')
     });
 
-    it('auths the plugin correctly', ()=> {
-      waitsForPromise(()=> {
+    it('auths the plugin correctly', () => {
+      waitsForPromise(() => {
         return this.store.setMetadata('c-1', this.metadata)
-        .then(()=> {
+        .then(() => {
           expect(NylasAPI.authPlugin).toHaveBeenCalled()
           expect(NylasAPI.authPlugin).toHaveBeenCalledWith(
             'plug-id',
@@ -38,12 +49,12 @@ describe('SendLaterStore', ()=> {
       })
     });
 
-    it('sets the correct metadata', ()=> {
-      waitsForPromise(()=> {
+    it('sets the correct metadata', () => {
+      waitsForPromise(() => {
         return this.store.setMetadata('c-1', this.metadata)
-        .then(()=> {
+        .then(() => {
           expect(Actions.setMetadata).toHaveBeenCalledWith(
-            [this.message],
+            this.message,
             'plug-id',
             this.metadata
           )
@@ -52,12 +63,12 @@ describe('SendLaterStore', ()=> {
       })
     });
 
-    it('displays dialog if an error occurs', ()=> {
+    it('displays dialog if an error occurs', () => {
       jasmine.unspy(NylasAPI, 'authPlugin')
       spyOn(NylasAPI, 'authPlugin').andReturn(Promise.reject(new Error('Oh no!')))
-      waitsForPromise(()=> {
+      waitsForPromise(() => {
         return this.store.setMetadata('c-1', this.metadata)
-        .finally(()=> {
+        .finally(() => {
           expect(Actions.setMetadata).not.toHaveBeenCalled()
           expect(NylasEnv.reportError).toHaveBeenCalled()
           expect(NylasEnv.showErrorDialog).toHaveBeenCalled()

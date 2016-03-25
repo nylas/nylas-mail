@@ -19,11 +19,16 @@ start = ->
   addUrlToOpen = (event, urlToOpen) ->
     event.preventDefault()
     args.urlsToOpen.push(urlToOpen)
-
   app.on 'open-url', addUrlToOpen
+
+  addFileToOpen = (event, fileToOpen) ->
+    event.preventDefault()
+    args.filesToOpen.push(fileToOpen)
+  app.on 'open-file', addFileToOpen
 
   app.on 'ready', ->
     app.removeListener 'open-url', addUrlToOpen
+    app.removeListener 'open-file', addFileToOpen
 
     Application = require path.join(args.resourcePath, 'src', 'browser', 'application')
     Application.open(args)
@@ -141,11 +146,12 @@ parseCommandLine = ->
                               path.dirname(path.dirname(__dirname)))
 
   urlsToOpen = []
+  filesToOpen = []
 
   # On Yosemite the $PATH is not inherited by the "open" command, so we
   # have to explicitly pass it by command line, see http://git.io/YC8_Ew.
   process.env.PATH = args['path-environment'] if args['path-environment']
 
-  return {version, devMode, background, logFile, specMode, safeMode, configDirPath, specDirectory, specFilePattern, showSpecsInWindow, resourcePath, urlsToOpen}
+  return {version, devMode, background, logFile, specMode, safeMode, configDirPath, specDirectory, specFilePattern, showSpecsInWindow, resourcePath, urlsToOpen, filesToOpen}
 
 start()

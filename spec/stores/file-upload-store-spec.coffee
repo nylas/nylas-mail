@@ -19,6 +19,7 @@ describe 'FileUploadStore', ->
     @session =
       changes:
         add: jasmine.createSpy('session.changes.add')
+        commit: ->
       draft: => @draft
     spyOn(NylasEnv, "isMainWindow").andReturn true
     spyOn(FileUploadStore, "_onAttachFileError").andCallFake (msg) ->
@@ -92,6 +93,12 @@ describe 'FileUploadStore', ->
         FileUploadStore._onRemoveAttachment(@upload)
         .then =>
           expect(FileUploadStore._deleteUpload).toHaveBeenCalled()
+
+  describe "when a draft is sent", ->
+    it "should delete its uploads directory", ->
+      spyOn(FileUploadStore, '_deleteUploadsForClientId')
+      Actions.sendDraftSuccess({messageClientId: '123'})
+      expect(FileUploadStore._deleteUploadsForClientId).toHaveBeenCalledWith('123')
 
   describe '_getFileStats', ->
 

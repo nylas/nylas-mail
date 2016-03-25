@@ -1,4 +1,4 @@
-{BrowserWindow, app} = require 'electron'
+{BrowserWindow, app, dialog} = require 'electron'
 path = require 'path'
 fs = require 'fs'
 url = require 'url'
@@ -107,12 +107,12 @@ class NylasWindow
     @setLoadSettings(loadSettings)
 
     @browserWindow.once 'window:loaded', =>
-      @emit 'window:loaded'
       @loaded = true
       if @mainWindow
         @browserWindow.setResizable(true)
       if @browserWindow.loadSettingsChangedSinceGetURL
         @browserWindow.webContents.send('load-settings-changed', @browserWindow.loadSettings)
+      @emit 'window:loaded'
 
     @browserWindow.loadURL(@getURL(loadSettings))
     @browserWindow.focusOnWebView() if @isSpec
@@ -184,7 +184,6 @@ class NylasWindow
       return if @isSpec
       return if not @loaded
 
-      {dialog} = require 'electron'
       chosen = dialog.showMessageBox @browserWindow,
         type: 'warning'
         buttons: ['Close', 'Keep Waiting']
@@ -198,7 +197,6 @@ class NylasWindow
       if @neverClose
         @browserWindow.reload()
       else
-        {dialog} = require 'electron'
         chosen = dialog.showMessageBox @browserWindow,
           type: 'warning'
           buttons: ['Close Window', 'Reload', 'Keep It Open']

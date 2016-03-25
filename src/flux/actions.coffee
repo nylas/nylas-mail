@@ -171,7 +171,7 @@ class Actions
   Actions.updateAccount(account.id, {accountName: 'new'})
   ```
   ###
-  @updateAccount: ActionScopeGlobal
+  @updateAccount: ActionScopeWindow
 
   ###
   Public: Re-order the provided account in the account list.
@@ -332,14 +332,6 @@ class Actions
   @composeForward: ActionScopeWindow
 
   ###
-  Public: Create a new draft and "reply all" to the provided threadId and messageId. See
-  {::composeReply} for parameters and behavior.
-
-  *Scope: Window*
-  ###
-  @composeReplyAll: ActionScopeWindow
-
-  ###
   Public: Pop out the draft with the provided ID so the user can edit it in another
   window.
 
@@ -351,6 +343,8 @@ class Actions
   ```
   ###
   @composePopoutDraft: ActionScopeWindow
+
+  @focusDraft: ActionScopeWindow
 
   ###
   Public: Open a new composer window for creating a new draft from scratch.
@@ -376,6 +370,7 @@ class Actions
   ```
   ###
   @sendDraft: ActionScopeWindow
+  @ensureDraftSynced: ActionScopeWindow
 
   ###
   Public: Destroys the draft with the given ID. This Action is handled by the {DraftStore},
@@ -471,10 +466,10 @@ class Actions
   @addAttachment: ActionScopeWindow
   @selectAttachment: ActionScopeWindow
   @removeAttachment: ActionScopeWindow
-  @attachmentUploaded: ActionScopeWindow
 
   @fetchAndOpenFile: ActionScopeWindow
   @fetchAndSaveFile: ActionScopeWindow
+  @fetchAndSaveAllFiles: ActionScopeWindow
   @fetchFile: ActionScopeWindow
   @abortFetchFile: ActionScopeWindow
 

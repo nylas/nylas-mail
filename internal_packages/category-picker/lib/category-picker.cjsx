@@ -18,38 +18,30 @@ class CategoryPicker extends React.Component
   @containerRequired: false
 
   @propTypes:
-    thread: React.PropTypes.object
     items: React.PropTypes.array
 
   @contextTypes:
     sheetDepth: React.PropTypes.number
 
   constructor: (@props) ->
-    @_threads = @_getThreads(@props)
-    @_account = AccountStore.accountForItems(@_threads)
+    @_account = AccountStore.accountForItems(@props.items)
 
   # If the threads we're picking categories for change, (like when they
   # get their categories updated), we expect our parents to pass us new
   # props. We don't listen to the DatabaseStore ourselves.
   componentWillReceiveProps: (nextProps) ->
-    @_threads = @_getThreads(nextProps)
-    @_account = AccountStore.accountForItems(@_threads)
-
-  _getThreads: (props = @props) =>
-    if props.items then return (props.items ? [])
-    else if props.thread then return [props.thread]
-    else return []
+    @_account = AccountStore.accountForItems(nextProps.items)
 
   _keymapHandlers: ->
     "application:change-category": @_onOpenCategoryPopover
 
   _onOpenCategoryPopover: =>
-    return unless @_threads.length > 0
+    return unless @props.items.length > 0
     return unless @context.sheetDepth is WorkspaceStore.sheetStack().length - 1
     buttonRect = React.findDOMNode(@refs.button).getBoundingClientRect()
     Actions.openPopover(
       <CategoryPickerPopover
-        threads={@_threads}
+        threads={@props.items}
         account={@_account} />,
       {originRect: buttonRect, direction: 'down'}
     )

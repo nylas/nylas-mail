@@ -3,6 +3,7 @@ Sheet = require './sheet'
 Flexbox = require './components/flexbox'
 RetinaImg = require './components/retina-img'
 Utils = require './flux/models/utils'
+{remote} = require 'electron'
 _str = require 'underscore.string'
 _ = require 'underscore'
 
@@ -105,13 +106,13 @@ class ToolbarMenuControl extends React.Component
   @displayName: 'ToolbarMenuControl'
   render: =>
     <div className="toolbar-menu-control">
-      <div className="btn btn-toolbar" onClick={@_openMenu}>
+      <button className="btn btn-toolbar" onClick={@_openMenu}>
         <RetinaImg name="windows-menu-icon.png" mode={RetinaImg.Mode.ContentIsMask} />
-      </div>
+      </button>
     </div>
 
   _openMenu: =>
-    applicationMenu = require('remote').getGlobal('application').applicationMenu
+    applicationMenu = remote.getGlobal('application').applicationMenu
     applicationMenu.menu.popup(NylasEnv.getCurrentWindow())
 
 ComponentRegistry.register ToolbarWindowControls,
@@ -171,6 +172,7 @@ class Toolbar extends React.Component
 
     toolbars = @state.columns.map (components, idx) =>
       <div style={position: 'absolute', top:0, display:'none'}
+           className="toolbar-#{@state.columnNames[idx]}"
            data-column={idx}
            key={idx}>
         {@_flexboxForComponents(components)}
@@ -220,6 +222,7 @@ class Toolbar extends React.Component
     state =
       mode: WorkspaceStore.layoutMode()
       columns: []
+      columnNames: []
 
     # Add items registered to Regions in the current sheet
     if @props.data?.columns[state.mode]?
@@ -227,18 +230,19 @@ class Toolbar extends React.Component
         continue if WorkspaceStore.isLocationHidden(loc)
         entries = ComponentRegistry.findComponentsMatching({location: loc.Toolbar, mode: state.mode})
         state.columns.push(entries)
+        state.columnNames.push(loc.Toolbar.id.split(":")[0]) if entries
 
     # Add left items registered to the Sheet instead of to a Region
     for loc in [WorkspaceStore.Sheet.Global, @props.data]
       entries = ComponentRegistry.findComponentsMatching({location: loc.Toolbar.Left, mode: state.mode})
       state.columns[0]?.push(entries...)
-    state.columns[0]?.push(ToolbarBack) if @props.depth > 0
+    if @props.depth > 0
+      state.columns[0]?.push(ToolbarBack)
 
     # Add right items registered to the Sheet instead of to a Region
     for loc in [WorkspaceStore.Sheet.Global, @props.data]
       entries = ComponentRegistry.findComponentsMatching({location: loc.Toolbar.Right, mode: state.mode})
       state.columns[state.columns.length - 1]?.push(entries...)
-
     if state.mode is "popout"
       state.columns[0]?.push(WindowTitle)
 

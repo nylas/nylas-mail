@@ -219,7 +219,8 @@ describe "ChangeMailTask", ->
     describe "if _performRequests rejects with a permanent network error", ->
       beforeEach ->
         @task = new ChangeMailTask()
-        spyOn(@task, '_performRequests').andReturn(Promise.reject(new APIError(statusCode: 400)))
+        @error = new APIError(statusCode: 400)
+        spyOn(@task, '_performRequests').andReturn(Promise.reject(@error))
         spyOn(@task, 'performLocal').andReturn(Promise.resolve())
 
       it "should set isReverting and call performLocal", ->
@@ -231,7 +232,7 @@ describe "ChangeMailTask", ->
       it "should resolve with Task.Status.Failed after reverting", ->
         waitsForPromise =>
           @task.performRemote().then (result) =>
-            expect(result).toBe(Task.Status.Failed)
+            expect(result).toEqual([Task.Status.Failed, @error])
 
     describe "if _performRequests rejects with a temporary network error", ->
       beforeEach ->

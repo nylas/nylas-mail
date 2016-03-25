@@ -108,7 +108,7 @@ class ActivitySidebar extends React.Component
   _getStateFromStores: =>
     notifications: NotificationStore.notifications()
     tasks: TaskQueueStatusStore.queue()
-    isInitialSyncComplete: NylasSyncStatusStore.isComplete()
+    isInitialSyncComplete: NylasSyncStatusStore.isSyncComplete()
 
   _onDeltaReceived: (countDeltas) =>
     tooSmallForNotification = countDeltas <= 10

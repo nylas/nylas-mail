@@ -6,58 +6,57 @@ const quote = `<blockquote class="gmail_quote" style="margin:0 0 0 .8ex;border-l
 
 describe("Open tracking composer extension", () => {
   // Set up a draft, session that returns the draft, and metadata
-  beforeEach(()=>{
-    this.draft = new Message();
-    this.draft.body = `<body>TEST_BODY ${quote}</body>`;
-    this.session = {
-      draft: () => this.draft,
-      changes: jasmine.createSpyObj('changes', ['add', 'commit']),
-    };
+  beforeEach(() => {
+    this.draft = new Message({
+      body: `<head></head><body>TEST_BODY ${quote}</body>`,
+    });
   });
 
-  it("takes no action if there is no metadata", ()=>{
-    OpenTrackingComposerExtension.finalizeSessionBeforeSending({session: this.session});
-    expect(this.session.changes.add.calls.length).toEqual(0);
-    expect(this.session.changes.commit.calls.length).toEqual(0);
-  });
-
-  describe("With properly formatted metadata and correct params", () => {
-    // Set metadata on the draft and call finalizeSessionBeforeSending
-    beforeEach(()=>{
-      this.metadata = {uid: "TEST_UID"};
-      this.draft.applyPluginMetadata(PLUGIN_ID, this.metadata);
-      OpenTrackingComposerExtension.finalizeSessionBeforeSending({session: this.session});
+  describe("applyTransformsToDraft", () => {
+    it("takes no action if there is no metadata", () => {
+      const out = OpenTrackingComposerExtension.applyTransformsToDraft({draft: this.draft});
+      expect(out.body).toEqual(this.draft.body);
     });
 
-    it("adds (but does not commit) the changes to the session", ()=>{
-      expect(this.session.changes.add).toHaveBeenCalled();
-      expect(this.session.changes.add.mostRecentCall.args[0].body).toBeDefined();
-      expect(this.session.changes.add.mostRecentCall.args[0].body).toContain("TEST_BODY");
-      expect(this.session.changes.commit).not.toHaveBeenCalled();
+    it("reports an error if the metadata is missing required fields", () => {
+      this.draft.applyPluginMetadata(PLUGIN_ID, {});
+      spyOn(NylasEnv, "reportError");
+      OpenTrackingComposerExtension.applyTransformsToDraft({draft: this.draft});
+      expect(NylasEnv.reportError).toHaveBeenCalled()
     });
 
-    describe("On the unquoted body", () => {
-      beforeEach(()=>{
-        const body = this.session.changes.add.mostRecentCall.args[0].body;
-        this.unquoted = QuotedHTMLTransformer.removeQuotedHTML(body);
+    describe("With properly formatted metadata and correct params", () => {
+      beforeEach(() => {
+        this.metadata = {uid: "TEST_UID"};
+        this.draft.applyPluginMetadata(PLUGIN_ID, this.metadata);
+        const out = OpenTrackingComposerExtension.applyTransformsToDraft({draft: this.draft});
+        this.unquoted = QuotedHTMLTransformer.removeQuotedHTML(out.body);
       });
 
-      it("appends an image to the body", ()=>{
+      it("appends an image to the unquoted body", () => {
         expect(this.unquoted).toMatch(/<img .*?>/);
       });
 
-      it("has the right server URL", ()=>{
+      it("has the right server URL", () => {
         const img = this.unquoted.match(/<img .*?>/)[0];
         expect(img).toContain(`${PLUGIN_URL}/open/${this.draft.accountId}/${this.metadata.uid}`);
       });
-    })
+    });
   });
 
-  it("reports an error if the metadata is missing required fields", ()=>{
-    this.draft.applyPluginMetadata(PLUGIN_ID, {});
-    spyOn(NylasEnv, "reportError");
-    OpenTrackingComposerExtension.finalizeSessionBeforeSending({session: this.session});
-    expect(NylasEnv.reportError).toHaveBeenCalled()
+  describe("unapplyTransformsToDraft", () => {
+    it("takes no action if the img tag is missing", () => {
+      const out = OpenTrackingComposerExtension.unapplyTransformsToDraft({draft: this.draft});
+      expect(out.body).toEqual(this.draft.body);
+    });
+
+    it("removes the image from the body and restore the body to it's exact original content", () => {
+      this.metadata = {uid: "TEST_UID"};
+      this.draft.applyPluginMetadata(PLUGIN_ID, this.metadata);
+      const withImg = OpenTrackingComposerExtension.applyTransformsToDraft({draft: this.draft});
+
+      const withoutImg = OpenTrackingComposerExtension.unapplyTransformsToDraft({draft: withImg});
+      expect(withoutImg.body).toEqual(this.draft.body);
+    });
   });
 });
-

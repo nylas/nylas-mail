@@ -93,13 +93,13 @@ class EditorAPI
 
   insertHTML: (html, {selectInsertion}) ->
     if selectInsertion
-      wrappedHtml = "<span id='tmp-html-insertion-wrap'>#{html}</span>"
+      wrappedHtml = """<span id="tmp-html-insertion-wrap">#{html}</span>"""
       @_ec("insertHTML", false, wrappedHtml)
       wrap = @rootNode.querySelector("#tmp-html-insertion-wrap")
       @unwrapNodeAndSelectAll(wrap)
       return @
     else
-      @_ec("insertHTML", false, wrappedHtml)
+      @_ec("insertHTML", false, html)
 
   insertImage: (uri) -> @_ec("insertImage", false, uri)
   insertOrderedList: -> @_ec("insertOrderedList", false)

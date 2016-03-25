@@ -16,8 +16,10 @@ class UndoRedoComponent extends React.Component
 
   constructor: (@props) ->
     @_timeout = null
-    @state = @_getStateFromStores()
-    @_ensureTimeout(@state)
+
+    # Note: we do not set from initial state, because we don't want
+    # the last item on the stack to appear, just the next one.
+    @state = {}
 
   _clearTimeout: =>
     clearTimeout(@_timeout)

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="130px" height="107px" viewBox="0 0 130 107" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.6.1 (26313) - http://www.bohemiancoding.com/sketch -->
+    <title>Glowy Top Left</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="GLOWIES-Inactive" transform="translate(0.000000, -109.000000)" fill="#212A2D">
+            <path d="M98.9650148,175.224644 C101.838412,173.800527 105.075719,173 108.5,173 C120.374122,173 130,182.625878 130,194.5 C130,206.374122 120.374122,216 108.5,216 C96.6258779,216 87,206.374122 87,194.5 C87,189.658057 88.6005775,185.189949 91.3015003,181.595907 L28.1328125,118.745345 L-2.84217094e-14,118.745345 L9.86230469,109 L32.7403711,109 L98.9650148,175.224644 Z M108.5,206 C114.851275,206 120,200.851275 120,194.5 C120,188.148725 114.851275,183 108.5,183 C102.148725,183 97,188.148725 97,194.5 C97,200.851275 102.148725,206 108.5,206 Z" id="Glowy-Top-Left"></path>
+        </g>
+    </g>
+</svg>

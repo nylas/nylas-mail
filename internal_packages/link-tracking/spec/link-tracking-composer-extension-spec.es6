@@ -18,68 +18,71 @@ const replacedContent = (accountId, messageUid) => `TEST_BODY<br>
 <div href="stillhere"></div>
 http://www.stillhere.com`;
 
-const quote = `<blockquote class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;"> On Feb 25 2016, at 3:38 pm, Drew &lt;drew@nylas.com&gt; wrote: <br> twst </blockquote>`;
-const testBody = `<body>${testContent}${quote}</body>`;
-const replacedBody = (accountId, messageUid, unquoted) => `<body>${replacedContent(accountId, messageUid)}${unquoted ? "" : quote}</body>`;
+const quote = `<blockquote class="gmail_quote"> twst </blockquote>`;
+const testBody = `<head></head><body>${testContent}${quote}</body>`;
 
-describe("Open tracking composer extension", () => {
+const replacedBody = (accountId, messageUid, unquoted) =>
+  `<head></head><body>${replacedContent(accountId, messageUid)}${unquoted ? "" : quote}</body>`;
+
+describe("Link tracking composer extension", () => {
   // Set up a draft, session that returns the draft, and metadata
-  beforeEach(()=>{
+  beforeEach(() => {
     this.draft = new Message({accountId: "test"});
     this.draft.body = testBody;
-    this.session = {
-      draft: () => this.draft,
-      changes: jasmine.createSpyObj('changes', ['add', 'commit']),
-    };
   });
 
-  it("takes no action if there is no metadata", ()=>{
-    LinkTrackingComposerExtension.finalizeSessionBeforeSending({session: this.session});
-    expect(this.session.changes.add).not.toHaveBeenCalled();
-    expect(this.session.changes.commit).not.toHaveBeenCalled();
+  describe("applyTransformsToDraft", () => {
+    it("takes no action if there is no metadata", () => {
+      const out = LinkTrackingComposerExtension.applyTransformsToDraft({draft: this.draft});
+      expect(out.body).toEqual(this.draft.body);
+    });
+
+    describe("With properly formatted metadata and correct params", () => {
+      beforeEach(() => {
+        this.metadata = {tracked: true};
+        this.draft.applyPluginMetadata(PLUGIN_ID, this.metadata);
+      });
+
+      it("replaces links in the unquoted portion of the body", () => {
+        const out = LinkTrackingComposerExtension.applyTransformsToDraft({draft: this.draft});
+        const outUnquoted = QuotedHTMLTransformer.removeQuotedHTML(out.body);
+
+        expect(outUnquoted).toContain(replacedBody(this.draft.accountId, this.metadata.uid, true));
+        expect(out.body).toContain(replacedBody(this.draft.accountId, this.metadata.uid, false));
+      });
+
+      it("sets a uid and list of links on the metadata", () => {
+        LinkTrackingComposerExtension.applyTransformsToDraft({draft: this.draft});
+
+        expect(this.metadata.uid).not.toBeUndefined();
+        expect(this.metadata.links).not.toBeUndefined();
+        expect(this.metadata.links.length).toEqual(2);
+
+        for (const link of this.metadata.links) {
+          expect(link.click_count).toEqual(0);
+        }
+      });
+    });
   });
 
-  describe("With properly formatted metadata and correct params", () => {
-    // Set metadata on the draft and call finalizeSessionBeforeSending
-    beforeEach(()=>{
+  describe("unapplyTransformsToDraft", () => {
+    it("takes no action if there are no tracked links in the body", () => {
+      const out = LinkTrackingComposerExtension.unapplyTransformsToDraft({
+        draft: this.draft.clone(),
+      });
+      expect(out.body).toEqual(this.draft.body);
+    });
+
+    it("replaces tracked links with the original links, restoring the body exactly", () => {
       this.metadata = {tracked: true};
       this.draft.applyPluginMetadata(PLUGIN_ID, this.metadata);
-      LinkTrackingComposerExtension.finalizeSessionBeforeSending({session: this.session});
+      const withImg = LinkTrackingComposerExtension.applyTransformsToDraft({
+        draft: this.draft.clone(),
+      });
+      const withoutImg = LinkTrackingComposerExtension.unapplyTransformsToDraft({
+        draft: withImg.clone(),
+      });
+      expect(withoutImg.body).toEqual(this.draft.body);
     });
-
-    it("adds (but does not commit) the changes to the session", ()=>{
-      expect(this.session.changes.add).toHaveBeenCalled();
-      expect(this.session.changes.add.mostRecentCall.args[0].body).toBeDefined();
-      expect(this.session.changes.commit).not.toHaveBeenCalled();
-    });
-
-    describe("On the unquoted body", () => {
-      beforeEach(()=>{
-        this.body = this.session.changes.add.mostRecentCall.args[0].body;
-        this.unquoted = QuotedHTMLTransformer.removeQuotedHTML(this.body);
-
-        waitsFor(()=>this.metadata.uid)
-      });
-
-      it("sets a uid and list of links on the metadata", ()=>{
-        runs(() => {
-          expect(this.metadata.uid).not.toBeUndefined();
-          expect(this.metadata.links).not.toBeUndefined();
-          expect(this.metadata.links.length).toEqual(2);
-
-          for (const link of this.metadata.links) {
-            expect(link.click_count).toEqual(0);
-          }
-        })
-      });
-
-      it("replaces all the valid href URLs with redirects", ()=>{
-        runs(() => {
-          expect(this.unquoted).toContain(replacedBody(this.draft.accountId, this.metadata.uid, true));
-          expect(this.body).toContain(replacedBody(this.draft.accountId, this.metadata.uid, false));
-        })
-      });
-    })
   });
 });
-

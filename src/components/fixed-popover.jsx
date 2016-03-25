@@ -45,6 +45,7 @@ class FixedPopover extends Component {
 
   constructor(props) {
     super(props);
+    this.mounted = false;
     this.updateCount = 0
     this.fallback = this.props.fallbackDirection;
     this.state = {
@@ -55,6 +56,8 @@ class FixedPopover extends Component {
   }
 
   componentDidMount() {
+    this.mounted = true;
+    window.addEventListener('resize', this.onWindowResize)
     this.focusElementWithTabIndex();
     _.defer(this.onPopoverRendered)
   }
@@ -76,7 +79,20 @@ class FixedPopover extends Component {
     _.defer(this.onPopoverRendered)
   }
 
+  componentWillUnmount() {
+    this.mounted = false;
+    window.removeEventListener('resize', this.onWindowResize)
+  }
+
+  onWindowResize() {
+    Actions.closePopover()
+  }
+
   onPopoverRendered = ()=> {
+    if (!this.mounted) {
+      return;
+    }
+
     const {direction} = this.state
     const currentRect = this.getCurrentRect()
     const windowDimensions = this.getWindowDimensions()
@@ -159,7 +175,7 @@ class FixedPopover extends Component {
 
   computeAdjustedOffsetAndDirection = ({direction, currentRect, windowDimensions, fallback = this.fallback, offsetPadding = OFFSET_PADDING})=> {
     const {overflows, overflowValues} = this.computeOverflows({currentRect, windowDimensions})
-    const overflowCount = _.keys(_.pick(overflows, (val)=> val === true)).length
+    const overflowCount = Object.keys(_.pick(overflows, (val)=> val === true)).length
 
     if (overflowCount > 0) {
       if (fallback) {
@@ -277,7 +293,16 @@ class FixedPopover extends Component {
       break;
     }
 
-    popoverStyle.visibility = visible ? 'visible' : 'hidden';
+    const visibilityProps = {}
+    if (visible) {
+      visibilityProps.visibility = 'visible';
+      visibilityProps.opacity = 1;
+    } else {
+      visibilityProps.visibility = 'hidden';
+      visibilityProps.opacity = 0;
+    }
+    popoverStyle = _.extend({}, popoverStyle, visibilityProps)
+    pointerStyle = _.extend({}, pointerStyle, visibilityProps)
 
     // Set the zoom directly on the style element. Otherwise it won't work with
     // mask image of our shadow pointer element. This is probably a Chrome bug
@@ -292,7 +317,6 @@ class FixedPopover extends Component {
     if (!originRect) {
       return <span />;
     }
-
     const blurTrapStyle = {top: originRect.top, left: originRect.left, height: originRect.height, width: originRect.width}
     const {containerStyle, popoverStyle, pointerStyle} = (
       this.computePopoverStyles({originRect, direction, offset, visible})

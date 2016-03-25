@@ -6,6 +6,7 @@ Actions = require '../../src/flux/actions'
 NylasAPI = require '../../src/flux/nylas-api'
 DatabaseStore = require '../../src/flux/stores/database-store'
 ChangeLabelsTask = require '../../src/flux/tasks/change-labels-task'
+ChangeMailTask = require '../../src/flux/tasks/change-mail-task'
 
 {AccountStore, CategoryStore} = require 'nylas-exports'
 {APIError} = require '../../src/flux/errors'
@@ -18,7 +19,7 @@ describe "ChangeLabelsTask", ->
   beforeEach ->
     # IMPORTANT: These specs do not run the performLocal logic of their superclass!
     # Tests for that logic are in change-mail-task-spec.
-    spyOn(ChangeLabelsTask.__super__, 'performLocal').andCallFake =>
+    spyOn(ChangeMailTask.prototype, 'performLocal').andCallFake =>
       Promise.resolve()
 
     spyOn(AccountStore, 'accountForItems').andReturn({id: 'a1'})
@@ -147,7 +148,7 @@ describe "ChangeLabelsTask", ->
         threads: ['t1']
       waitsForPromise =>
         task.performLocal().then =>
-          expect(task.constructor.__super__.performLocal).toHaveBeenCalled()
+          expect(task.__proto__.__proto__.performLocal).toHaveBeenCalled()
 
     describe "when object IDs are provided", ->
       beforeEach ->

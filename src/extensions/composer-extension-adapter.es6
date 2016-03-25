@@ -27,15 +27,9 @@ export function adaptComposerMethod(extension, method) {
   const original = extension[method];
   if (!original || !isUsingOutdatedComposerApi(original)) return;
 
-  if (method === 'finalizeSessionBeforeSending') {
-    extension[method] = (argsObj)=> {
-      return original(argsObj.session);
-    };
-  } else {
-    extension[method] = (argsObj)=> {
-      return original(argsObj.draft);
-    };
-  }
+  extension[method] = (argsObj)=> {
+    return original(argsObj.draft);
+  };
 }
 
 export function adaptContenteditableMethod(extension, method, original = extension[method]) {
@@ -46,7 +40,7 @@ export function adaptContenteditableMethod(extension, method, original = extensi
   extension[method] = (argsObj)=> {
     const {editor, event, mutations} = argsObj;
     const eventOrMutations = event || mutations || {};
-    const extraArgs = _.keys(_.omit(argsObj, ['editor', 'event', 'mutations'])).map(
+    const extraArgs = Object.keys(_.omit(argsObj, ['editor', 'event', 'mutations'])).map(
       key => argsObj[key]
     );
 
@@ -137,7 +131,6 @@ export default function adaptExtension(extension) {
   const composerMethods = [
     'warningsForSending',
     'prepareNewDraft',
-    'finalizeSessionBeforeSending',
   ];
   composerMethods.forEach(
     method => adaptComposerMethod(extension, method)

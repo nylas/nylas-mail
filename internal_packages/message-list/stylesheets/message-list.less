@@ -311,10 +311,10 @@ body.platform-win32 {
 
   .message-item-divider {
     border:0; // remove default hr border left, right
-    border-top: 2px solid @border-secondary-bg;
+    border-top: 2px solid @border-color-secondary;
     height: 3px;
     background: @background-secondary;
-    border-bottom: 1px solid @border-primary-bg;
+    border-bottom: 1px solid @border-color-primary;
     margin: 0;
 
     &.collapsed {
@@ -532,8 +532,43 @@ body.platform-win32 {
   }
 
 }
+
+.download-all {
+  @download-btn-color: fadeout(#929292, 20%);
+  @download-hover-color: fadeout(@component-active-color, 20%);
+
+  display: flex;
+  align-items: center;
+  color: @download-btn-color;
+  font-size: 0.9em;
+  cursor: default;
+  margin-top: @spacing-three-quarters;
+
+  .separator {
+    margin: 0 5px;
+  }
+
+  .attachment-number {
+    display: flex;
+    align-items: center;
+  }
+
+  img {
+    vertical-align: middle;
+    margin-right: @spacing-half;
+    background-color: @download-btn-color;
+  }
+
+  .download-all-action:hover {
+    color: @download-hover-color;
+    img {
+      background-color: @download-hover-color;
+    }
+  }
+}
+
 .attachments-area {
-  padding-top: @spacing-standard;
+  padding-top: @spacing-half + 2;
 
   // attachments are padded on both sides so that things like the remove "X" can
   // overhang them. To make the attachments line up with the body, we need to outdent
@@ -652,7 +687,7 @@ body.platform-win32 {
   opacity: 0;
   margin: 5px;
   cursor: default;
-  border: 1px solid @border-primary-bg;
+  border: 1px solid @border-color-primary;
   border-radius: @border-radius-large;
   background: @background-primary;
   padding: 15px;

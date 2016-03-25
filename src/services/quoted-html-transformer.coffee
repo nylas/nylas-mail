@@ -181,8 +181,10 @@ class QuotedHTMLTransformer
       el.removeAttribute("data-nylas-quoted-text-original-display")
 
   _findGmailQuotes: (doc) ->
-    # There can sometimes be `div.gmail_quote` that are false positives.
-    return Array::slice.call(doc.querySelectorAll('blockquote.gmail_quote'))
+    # Gmail creates both div.gmail_quote and blockquote.gmail_quote. The div
+    # version marks text but does not cause indentation, but both should be
+    # considered quoted text.
+    return Array::slice.call(doc.querySelectorAll('.gmail_quote'))
 
   _findOffice365Quotes: (doc) ->
     elements = doc.querySelectorAll('#divRplyFwdMsg, #OLK_SRC_BODY_SECTION')

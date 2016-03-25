@@ -40,6 +40,9 @@
   {
     label: '&View'
     submenu: [
+      { label: 'Single Panel Mode', type: 'checkbox', command: 'application:select-list-mode' }
+      { label: 'Two Panel Mode', type: 'checkbox', command: 'application:select-split-mode' }
+      { type: 'separator' }
       { label: 'Toggle &Full Screen', command: 'window:toggle-full-screen' }
     ]
   }

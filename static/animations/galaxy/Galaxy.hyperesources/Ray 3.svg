@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="102px" height="103px" viewBox="0 0 102 103" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.6.1 (26313) - http://www.bohemiancoding.com/sketch -->
+    <title>Ray 3</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" opacity="0.848006063" stroke-dasharray="46,7,17">
+        <g id="Sunrays" transform="translate(-17.000000, -17.000000)" stroke="#FFC500" stroke-width="3">
+            <path d="M68.5,118 C95.8380951,118 118,95.8380951 118,68.5 C118,41.1619049 95.8380951,19 68.5,19 C41.1619049,19 19,41.1619049 19,68.5 C19,95.8380951 41.1619049,118 68.5,118 Z" id="Ray-3" opacity="0.27576959"></path>
+        </g>
+    </g>
+</svg>

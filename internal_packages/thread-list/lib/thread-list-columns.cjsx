@@ -8,13 +8,10 @@ classNames = require 'classnames'
  MailImportantIcon,
  InjectedComponentSet} = require 'nylas-component-kit'
 
-{Thread, FocusedPerspectiveStore} = require 'nylas-exports'
+{Thread, FocusedPerspectiveStore, Utils} = require 'nylas-exports'
 
 {ThreadArchiveQuickAction,
  ThreadTrashQuickAction} = require './thread-list-quick-actions'
-
-{timestamp,
- subject} = require './formatting-utils'
 
 ThreadListParticipants = require './thread-list-participants'
 ThreadListStore = require './thread-list-store'
@@ -22,9 +19,15 @@ ThreadListIcon = require './thread-list-icon'
 
 TimestampComponentForPerspective = (thread) ->
   if FocusedPerspectiveStore.current().isSent()
-    <span className="timestamp">{timestamp(thread.lastMessageSentTimestamp)}</span>
+    <span className="timestamp">{Utils.shortTimeString(thread.lastMessageSentTimestamp)}</span>
   else
-    <span className="timestamp">{timestamp(thread.lastMessageReceivedTimestamp)}</span>
+    <span className="timestamp">{Utils.shortTimeString(thread.lastMessageReceivedTimestamp)}</span>
+
+subject = (subj) ->
+  if (subj ? "").trim().length is 0
+    return <span className="no-subject">(No Subject)</span>
+  else
+    return subj
 
 
 c1 = new ListTabular.Column
@@ -110,23 +113,40 @@ cNarrow = new ListTabular.Column
     if hasDraft
       pencil = <RetinaImg name="icon-draft-pencil.png" className="draft-icon" mode={RetinaImg.Mode.ContentPreserve} />
 
-    <div>
-      <div style={display: 'flex', alignItems: 'center'}>
+    # TODO We are limiting the amount on injected icons in narrow mode to 1
+    # until we revisit the UI to accommodate more icons
+    <div style={display: 'flex', alignItems: 'flex-start'}>
+      <div className="icons-column">
         <ThreadListIcon thread={thread} />
-        <ThreadListParticipants thread={thread} />
-        {pencil}
-        <span style={flex:1}></span>
-        {attachment}
-        {TimestampComponentForPerspective(thread)}
+        <InjectedComponentSet
+          inline={true}
+          matchLimit={1}
+          direction="column"
+          containersRequired={false}
+          key="injected-component-set"
+          exposedProps={thread: thread}
+          matching={role: "ThreadListIcon"}
+          className="thread-injected-icons"
+        />
+        <MailImportantIcon
+          thread={thread}
+          showIfAvailableForAnyAccount={true}
+        />
       </div>
-      <MailImportantIcon
-        thread={thread}
-        showIfAvailableForAnyAccount={true} />
-      <div className="subject">{subject(thread.subject)}</div>
-      <div className="snippet-and-labels">
-        <div className="snippet">{thread.snippet}&nbsp;</div>
-        <div style={flex: 1, flexShrink: 1}></div>
-        <MailLabelSet thread={thread} />
+      <div className="thread-info-column">
+        <div className="participants-wrapper">
+          <ThreadListParticipants thread={thread} />
+          {pencil}
+          <span style={flex:1}></span>
+          {attachment}
+          {TimestampComponentForPerspective(thread)}
+        </div>
+        <div className="subject">{subject(thread.subject)}</div>
+        <div className="snippet-and-labels">
+          <div className="snippet">{thread.snippet}&nbsp;</div>
+          <div style={flex: 1, flexShrink: 1}></div>
+          <MailLabelSet thread={thread} />
+        </div>
       </div>
     </div>
 

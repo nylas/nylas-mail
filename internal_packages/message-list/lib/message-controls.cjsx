@@ -19,6 +19,7 @@ class MessageControls extends React.Component
         primaryItem={<RetinaImg name={items[0].image} mode={RetinaImg.Mode.ContentIsMask}/>}
         primaryTitle={items[0].name}
         primaryClick={items[0].select}
+        closeOnMenuClick={true}
         menu={@_dropdownMenu(items[1..-1])}/>
       <div className="message-actions-ellipsis" onClick={@_onShowActionsMenu}>
         <RetinaImg name={"message-actions-ellipsis.png"} mode={RetinaImg.Mode.ContentIsMask}/>
@@ -65,10 +66,12 @@ class MessageControls extends React.Component
           />
 
   _onReply: =>
-    Actions.composeReply(thread: @props.thread, message: @props.message)
+    {thread, message} = @props
+    Actions.composeReply({thread, message, type: 'reply', behavior: 'prefer-existing-if-pristine'})
 
   _onReplyAll: =>
-    Actions.composeReplyAll(thread: @props.thread, message: @props.message)
+    {thread, message} = @props
+    Actions.composeReply({thread, message, type: 'reply-all', behavior: 'prefer-existing-if-pristine'})
 
   _onForward: =>
     Actions.composeForward(thread: @props.thread, message: @props.message)

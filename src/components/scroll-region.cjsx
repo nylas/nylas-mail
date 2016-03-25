@@ -100,6 +100,7 @@ class Scrollbar extends React.Component
     bottom: 0
     right: 0
     zIndex: 2
+    visibility: "hidden" if @state.totalHeight != 0 && @state.totalHeight == @state.viewportHeight
 
   _onHandleDown: (event) =>
     handleNode = React.findDOMNode(@refs.handle)
@@ -197,6 +198,10 @@ class ScrollRegion extends React.Component
       attributeFilter: ['style']
     })
 
+  componentDidUpdate: (prevProps, prevState) =>
+    if not @state.scrolling and @props.children isnt prevProps.children
+      @recomputeDimensions()
+
   componentWillReceiveProps: (props) =>
     if @shouldInvalidateScrollbarComponent(props)
       @_scrollbarComponent = null
@@ -229,7 +234,7 @@ class ScrollRegion extends React.Component
         scrollTooltipComponent={@props.scrollTooltipComponent}
         getScrollRegion={@_getSelf} />
 
-    otherProps = _.omit(@props, _.keys(@constructor.propTypes))
+    otherProps = Utils.fastOmit(@props, Object.keys(@constructor.propTypes))
 
     <div className={containerClasses} {...otherProps}>
       {@_scrollbarComponent}
@@ -374,6 +379,7 @@ class ScrollRegion extends React.Component
 
     @_onScrollEnd ?= _.debounce =>
       @_setSharedState(scrolling: false)
+      @recomputeDimensions()
       @props.onScrollEnd?(event)
     , 250
     @_onScrollEnd()

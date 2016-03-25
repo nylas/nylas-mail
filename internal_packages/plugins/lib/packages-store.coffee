@@ -232,7 +232,10 @@ PackagesStore = Reflux.createStore
             type: 'git'
             url: ''
           engines:
-            nylas: ">=#{NylasEnv.getVersion()}"
+            nylas: ">=#{NylasEnv.getVersion().split('-')[0]}"
+          windowTypes:
+            default: true
+            composer: true
           description: "Enter a description of your package!"
           dependencies: {}
           license: "MIT"
