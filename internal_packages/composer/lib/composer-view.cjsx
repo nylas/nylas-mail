@@ -491,6 +491,7 @@ class ComposerView extends React.Component
   # we didn't focus the contenteditable, the user may start typing and
   # erroneously trigger keyboard shortcuts.
   _onFocusIn: (event) =>
+    return unless @_proxy
     return if DOMUtils.closest(event.target, DOMUtils.inputTypes())
     @setState(focusedField: @_initiallyFocusedField(@_proxy.draft()))
 
