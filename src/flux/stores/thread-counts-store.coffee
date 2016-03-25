@@ -97,7 +97,7 @@ class ThreadCountsStore extends NylasStore
           foundNegative = true
 
       if foundNegative
-        NylasEnv.reportError(new Error('Assertion Failure: Negative Count'));
+        NylasEnv.reportError(new Error('Assertion Failure: Negative Count'))
         @reset()
         return
 
