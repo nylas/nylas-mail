@@ -314,7 +314,8 @@ class DraftStore
   _onEnsureDraftSynced: (draftClientId) =>
     @sessionForClientId(draftClientId).then (session) =>
       @_prepareForSyncback(session).then =>
-        Actions.queueTask(new SyncbackDraftFilesTask(draftClientId))
+        if session.draft().files.length or session.draft().uploads.length
+          Actions.queueTask(new SyncbackDraftFilesTask(draftClientId))
         Actions.queueTask(new SyncbackDraftTask(draftClientId))
 
   _onSendDraft: (draftClientId) =>
@@ -324,7 +325,8 @@ class DraftStore
       @_prepareForSyncback(session).then =>
         if NylasEnv.config.get("core.sending.sounds")
           SoundRegistry.playSound('hit-send')
-        Actions.queueTask(new SyncbackDraftFilesTask(draftClientId))
+        if session.draft().files.length or session.draft().uploads.length
+          Actions.queueTask(new SyncbackDraftFilesTask(draftClientId))
         Actions.queueTask(new SendDraftTask(draftClientId))
         @_doneWithSession(session)
 
