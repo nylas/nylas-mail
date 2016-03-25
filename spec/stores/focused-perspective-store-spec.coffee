@@ -55,18 +55,21 @@ describe "FocusedPerspectiveStore", ->
       expect(current).toEqual saved
 
   describe "_onCategoryStoreChanged", ->
-    it "should set the current category to Inbox when it is unset", ->
+    it "should set the current category to unified inbox when it is unset", ->
       FocusedPerspectiveStore._perspective = null
       FocusedPerspectiveStore._onCategoryStoreChanged()
       expect(FocusedPerspectiveStore.current()).not.toBe(null)
-      expect(FocusedPerspectiveStore.current().categories()).toEqual([@inboxCategory])
+
+      # same because the stub above returns @inboxCategory for both accounts
+      expect(FocusedPerspectiveStore.current().categories()).toEqual([@inboxCategory, @inboxCategory])
 
     it "should set the current category to Inbox when the current category no longer exists in the CategoryStore", ->
       otherAccountInbox = @inboxCategory.clone()
       otherAccountInbox.serverId = 'other-id'
       FocusedPerspectiveStore._perspective = MailboxPerspective.forCategory(otherAccountInbox)
       FocusedPerspectiveStore._onCategoryStoreChanged()
-      expect(FocusedPerspectiveStore.current().categories()).toEqual([@inboxCategory])
+      # same because the stub above returns @inboxCategory for both accounts
+      expect(FocusedPerspectiveStore.current().categories()).toEqual([@inboxCategory, @inboxCategory])
 
   describe "_onFocusPerspective", ->
     it "should focus the category and trigger", ->

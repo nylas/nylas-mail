@@ -5,7 +5,9 @@
     "$n": false,
     "waitsForPromise": false,
     "advanceClock": false,
-    "TEST_ACCOUNT_ID": false
+    "TEST_ACCOUNT_ID": false,
+    "TEST_ACCOUNT_NAME": false,
+    "TEST_ACCOUNT_ALIAS_EMAIL": false
   },
   "env": {
     "browser": true,
