@@ -35,7 +35,7 @@ class EmojiPicker extends React.Component {
       this.props.emojiOptions.forEach((emojiOption, i) => {
         const emojiClass = emojiIndex === i ? "btn btn-icon emoji-option" : "btn btn-icon";
         let emojiChar = emoji.get(emojiOption);
-        if (missingEmojiList.indexOf(emojiOption) !== -1) {
+        if (process.platform === "darwin" && missingEmojiList.indexOf(emojiOption) !== -1) {
           emojiChar = (<img
                         src={`images/composer-emoji/missing-emoji/${emojiOption}.png`}
                         width="16"

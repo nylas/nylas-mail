@@ -205,7 +205,7 @@ class EmojiComposerExtension extends ComposerExtension {
       }
     }
     const emojiChar = emoji.get(emojiName);
-    if (missingEmojiList.indexOf(emojiName) !== -1) {
+    if (process.platform === "darwin" && missingEmojiList.indexOf(emojiName) !== -1) {
       const html = `<span class="missing-emoji ${emojiName}"><img
                       src="images/composer-emoji/missing-emoji/${emojiName}.png"
                       width="14"
