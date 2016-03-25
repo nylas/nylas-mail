@@ -269,7 +269,7 @@ class EmojiButtonPopover extends React.Component {
     ctx.fillStyle = 'black';
     if (this.state.categorizedEmoji[category].length === 0) return;
     this.state.categorizedEmoji[category].forEach((emojiName, j) => {
-      if (missingEmojiList.indexOf(emojiName) === -1) {
+      if (process.platform === "darwin" && missingEmojiList.indexOf(emojiName) === -1) {
         const emojiChar = emoji.get(emojiName);
         ctx.fillText(emojiChar, position.x, position.y);
       } else {
