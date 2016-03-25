@@ -25,7 +25,7 @@
   + Filesystem errors (no disk space, wrong permissions, etc.) are presented when uploading or downloading attachments.
   + Double-clicking image attachments now opens them.
   + When you receive email to an alias, replies are sent from that alias by default.
-  + Search works more reliably, waits loner for results, and displays errors when results cannot be loaded.
+  + Search works more reliably, waits longer for results, and displays errors when results cannot be loaded.
   + Read receipts are now visible in the narrow thread list.
   + The undo/redo bar no longer appears when returning to your mailbox from Drafts.
   + N1 no longer hangs while processing links in very large emails.
