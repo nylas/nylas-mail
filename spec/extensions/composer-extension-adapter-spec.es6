@@ -123,21 +123,6 @@ describe('ComposerExtensionAdapter', ()=> {
   });
 
   describe('adaptComposerMethod', ()=> {
-    it('adapts correctly for finalizeSessionBeforeSending', ()=> {
-      const methodSpy = jasmine.createSpy('methodSpy');
-      const session = 'session';
-      const extension = {
-        finalizeSessionBeforeSending(sess) {
-          methodSpy(sess);
-          return 'result';
-        },
-      };
-      adapter.adaptComposerMethod(extension, 'finalizeSessionBeforeSending');
-      const res = extension.finalizeSessionBeforeSending({session});
-      expect(res).toEqual('result');
-      expect(methodSpy).toHaveBeenCalledWith(session);
-    });
-
     it('adapts correctly for other composer extension methods', ()=> {
       const methodSpy = jasmine.createSpy('methodSpy');
       const draft = 'draft';

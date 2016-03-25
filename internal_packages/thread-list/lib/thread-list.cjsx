@@ -2,7 +2,10 @@ _ = require 'underscore'
 React = require 'react'
 classNames = require 'classnames'
 
-{MultiselectList, FluxContainer} = require 'nylas-component-kit'
+{MultiselectList,
+ FocusContainer,
+ EmptyListState,
+ FluxContainer} = require 'nylas-component-kit'
 
 {Actions,
  Thread,
@@ -20,8 +23,6 @@ classNames = require 'classnames'
 ThreadListColumns = require './thread-list-columns'
 ThreadListScrollTooltip = require './thread-list-scroll-tooltip'
 ThreadListStore = require './thread-list-store'
-FocusContainer = require './focus-container'
-EmptyState = require './empty-state'
 ThreadListContextMenu = require './thread-list-context-menu'
 CategoryRemovalTargetRulesets = require './category-removal-target-rulesets'
 
@@ -96,7 +97,7 @@ class ThreadList extends React.Component
           itemHeight={itemHeight}
           className="thread-list thread-list-#{@state.style}"
           scrollTooltipComponent={ThreadListScrollTooltip}
-          emptyComponent={EmptyState}
+          emptyComponent={EmptyListState}
           keymapHandlers={@_keymapHandlers()}
           onDragStart={@_onDragStart}
           onDragEnd={@_onDragEnd}

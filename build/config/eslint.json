@@ -3,7 +3,11 @@
   "globals": {
     "NylasEnv": false,
     "$n": false,
-    "waitsForPromise": false
+    "waitsForPromise": false,
+    "advanceClock": false,
+    "TEST_ACCOUNT_ID": false,
+    "TEST_ACCOUNT_NAME": false,
+    "TEST_ACCOUNT_ALIAS_EMAIL": false
   },
   "env": {
     "browser": true,
@@ -13,6 +17,7 @@
   "rules": {
     "react/prop-types": [2, {"ignore": ["children"]}],
     "react/no-multi-comp": [0],
+    "react/sort-comp": [2],
     "eqeqeq": [2, "smart"],
     "id-length": [0],
     "object-curly-spacing": [0],

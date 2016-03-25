@@ -1,0 +1,57 @@
+@import "ui-variables";
+
+.emoji-picker {
+  max-height: 130px !important;
+  margin: 10px;
+  overflow: auto;
+  .btn.btn-icon {
+    font-size: 14px !important;
+    padding: 0 0.5em;
+    &:first-child {
+      padding-left: 0.5em !important;
+    }
+    &.emoji-option, &:hover {
+      background-color: @btn-emphasis-bg-color;
+      color: #FFFFFF;
+      border-radius: 5px;
+    }
+  }
+}
+
+.emoji-button-popover {
+  width: 210px;
+  height: 290px;
+  overflow: hidden;
+  .emoji-tabs {
+    display: flex;
+    flex-direction: row;
+    padding: 5px 5px 5px 10px;
+    border-bottom: 1px solid @border-color-primary;
+    transition: box-shadow 0.5s;
+    &.shadow {
+      box-shadow: @standard-shadow;
+    }
+    .emoji-tab {
+      background-color: @gray-light;
+      &.active {
+        background-color: @component-active-color;
+      }
+    }
+  }
+  .emoji-finder-container {
+    height: 232px;
+    overflow: auto;
+    .emoji-search-container {
+      padding: @padding-base-vertical * 1.5 @padding-base-horizontal 0;
+    }
+  }
+  .emoji-name {
+    height: 25px;
+    width: 192px;
+    margin-top: 2px;
+    margin-left: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: @text-color-very-subtle;
+  }
+}

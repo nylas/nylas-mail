@@ -2,9 +2,11 @@ Name:           <%= name %>
 Version:        <%= version %>
 Release:        0.1%{?dist}
 Summary:        <%= description %>
-License:        Proprietary
+License:        GPLv3
 URL:            https://nylas.com/N1
 AutoReqProv:    no # Avoid libchromiumcontent.so missing dependency
+
+requires:       libgnome-keyring0, gir1.2-gnomekeyring-1.0
 
 %description
 <%= description %>

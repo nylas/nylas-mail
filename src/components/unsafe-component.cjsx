@@ -60,7 +60,7 @@ class UnsafeComponent extends React.Component
     node = React.findDOMNode(@)
     element = null
     try
-      props = _.omit(@props, _.keys(@constructor.propTypes))
+      props = Utils.fastOmit(@props, Object.keys(@constructor.propTypes))
       component = @props.component
       element = <component key={name} {...props} />
       @injected = React.render(element, node, @props.onComponentDidRender)

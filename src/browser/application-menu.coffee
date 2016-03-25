@@ -15,6 +15,8 @@ class ApplicationMenu
       @showUpdateMenuItem(state)
     global.application.config.observe 'devMode', (state) =>
       @showDevModeItem()
+    global.application.config.observe 'core.workspace.mode', =>
+      @showViewModeItems()
 
   # Public: Updates the entire menu with the given keybindings.
   #
@@ -37,6 +39,7 @@ class ApplicationMenu
     @showUpdateMenuItem(global.application.autoUpdateManager.getState())
     @showFullscreenMenuItem(@lastFocusedWindow?.isFullScreen())
     @showDevModeItem()
+    @showViewModeItems()
 
   # Register a BrowserWindow with this application menu.
   addWindow: (window) ->
@@ -126,6 +129,15 @@ class ApplicationMenu
   showDevModeItem: ->
     devModeItem = _.find(@flattenMenuItems(@menu), ({command}) -> command is 'application:toggle-dev')
     devModeItem?.checked = global.application.devMode
+
+  showViewModeItems: ->
+    selectedMode = global.application.config.get('core.workspace.mode')
+
+    splitModeItem = _.find(@flattenMenuItems(@menu), ({command}) -> command is 'application:select-split-mode')
+    listModeItem  = _.find(@flattenMenuItems(@menu), ({command}) -> command is 'application:select-list-mode')
+    splitModeItem?.checked = selectedMode is 'split'
+    listModeItem?.checked  = selectedMode isnt 'split'
+
 
   # Default list of menu items.
   #

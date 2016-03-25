@@ -1,25 +1,25 @@
 @import "ui-variables";
 
 .release-bar {
-    order: -1;
+  order: -1;
 }
 .release-bar-inner {
-    height: 25px;
-    display:block;
-    padding-left:10px;
-    padding-top:2px;
-    color:@text-color-inverse;
-    background-color: @action-color;
-    border-bottom:1px solid darken(@action-color, 10%);
+  height: 25px;
+  display: block;
+  padding-left: 10px;
+  padding-top: 2px;
+  color: @text-color-inverse;
+  background-color: @background-color-success;
+  border-bottom: 1px solid darken(@background-color-success, 10%);
 
-    &:hover {
-      background-color: darken(@action-color, 10%);
-      border-bottom:1px solid darken(@action-color, 15%);
-      text-decoration:none;
-      color:white;
-    }
+  &:hover {
+    background-color: darken(@background-color-success, 10%);
+    border-bottom: 1px solid darken(@background-color-success, 15%);
+    text-decoration: none;
+    color: white;
+  }
 
-    i {
-      margin-right:8px;
-    }
+  i {
+    margin-right:8px;
+  }
 }

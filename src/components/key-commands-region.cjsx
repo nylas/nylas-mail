@@ -162,6 +162,7 @@ class KeyCommandsRegion extends React.Component
     @_localDisposable = NylasEnv.commands.add($el, props.localHandlers)
     $el.addEventListener('focusin', @_in)
     $el.addEventListener('focusout', @_out)
+    window.addEventListener('browser-window-blur', @_onWindowBlur)
 
   _unmountListeners: ->
     @_globalDisposable?.dispose()
@@ -171,13 +172,17 @@ class KeyCommandsRegion extends React.Component
     $el = React.findDOMNode(@)
     $el.removeEventListener('focusin', @_in)
     $el.removeEventListener('focusout', @_out)
+    window.removeEventListener('browser-window-blur', @_onWindowBlur)
     @_goingout = false
+
+  _onWindowBlur: =>
+    @setState(focused: false)
 
   render: ->
     classname = classNames
       'key-commands-region': true
       'focused': @state.focused
-    otherProps = _.omit(@props, _.keys(@constructor.propTypes))
+    otherProps = _.omit(@props, Object.keys(@constructor.propTypes))
 
     <div className="#{classname} #{@props.className}" {...otherProps}>
       {@props.children}

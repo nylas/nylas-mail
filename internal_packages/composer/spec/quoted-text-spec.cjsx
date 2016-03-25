@@ -109,9 +109,6 @@ describe "Composer Quoted Text", ->
       it 'should be rendered', ->
         expect(@toggle).toBeDefined()
 
-      it 'prompts to hide the quote', ->
-        expect(React.findDOMNode(@toggle).textContent).toEqual "•••Hide previous"
-
   describe 'when showQuotedText is false', ->
     beforeEach ->
       @composer.setState
@@ -151,6 +148,3 @@ describe "Composer Quoted Text", ->
 
       it 'should be rendered', ->
         expect(@toggle).toBeDefined()
-
-      it 'prompts to hide the quote', ->
-        expect(React.findDOMNode(@toggle).textContent).toEqual "•••Show previous"

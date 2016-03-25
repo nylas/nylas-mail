@@ -196,9 +196,6 @@ describe "MessageItem", ->
       it 'should be rendered', ->
         expect(@toggle).toBeDefined()
 
-      it 'prompts to hide the quote', ->
-        expect(React.findDOMNode(@toggle).textContent).toEqual "•••Show previous"
-
     it "should be initialized to true if the message contains `Forwarded`...", ->
       @message.body = """
         Hi guys, take a look at this. Very relevant. -mg
@@ -248,9 +245,6 @@ describe "MessageItem", ->
 
         it 'should be rendered', ->
           expect(@toggle).toBeDefined()
-
-        it 'prompts to hide the quote', ->
-          expect(React.findDOMNode(@toggle).textContent).toEqual "•••Hide previous"
 
       it "should pass the value into the EmailFrame", ->
         frame = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub)

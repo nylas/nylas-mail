@@ -35,12 +35,12 @@ class ProductsExtension extends ComposerExtension
         	return ["with the word '#{word}'?"]
 	  return []
 
-   @finalizeSessionBeforeSending: ({session}) ->
-      draft = session.draft()
-      if @warningsForSending({draft})
-         bodyWithWarning = draft.body += "<br>This email \
-         	contains competitor's product names \
-        	or trademarks used in context."
-         return session.changes.add(body: bodyWithWarning)
-      else return Promise.resolve()
+   @applyTransformsToDraft: ({draft}) ->
+    if @warningsForSending({draft})
+      updated = draft.clone()
+      updated.body += "<br>This email \
+       	contains competitor's product names \
+      	or trademarks used in context."
+      return updated
+    return draft
 ```

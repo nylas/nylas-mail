@@ -14,37 +14,37 @@
   border-radius: @border-radius-base;
   border: 1px solid @border-color-divider;
 
-  .event-header{
+  .event-header {
     border-bottom: 1px solid @border-color-divider;
     padding: 10px;
 
-    img{
+    img {
       margin-right: 20px;
     }
 
-    .event-title-text{
+    .event-title-text {
       color: @text-color-very-subtle;
     }
 
-    .event-title{
+    .event-title {
       color: @text-color;
     }
   }
 
-  .event-body{
+  .event-body {
     padding: @padding-small-horizontal;
 
-    .event-date{
+    .event-date {
       display: inline-block;
       width: 100%;
 
-      .event-day{
+      .event-day {
         display: block;
         font-size: @font-size-large;
-        color: @text-color-alert;
+        color: #e64d65;
       }
 
-      .event-time{
+      .event-time {
         display: inline-block;
         font-size: @font-size-h3;
         font-weight: @font-weight-blond;
@@ -60,7 +60,7 @@
 
       .btn-rsvp {
         float: left;
-        padding: @spacing-three-quarters @spacing-sub-double @spacing-three-quarters @spacing-sub-double;
+        padding: @spacing-three-quarters @spacing-standard * 1.75 @spacing-three-quarters @spacing-standard * 1.75;
         line-height: 10px;
         color: @text-color;
         border-radius: 3px;
@@ -69,17 +69,17 @@
         margin: 0 7.5px 0 7.5px;
         &:active {background: transparent;}
 
-        &.no{
-          background: @error-color;
+        &.no {
+          background: @color-error;
           color: @white;
         }
 
-        &.yes{
-          background: @success-color;
+        &.yes {
+          background: @color-success;
           color: @white;
         }
 
-        &.maybe{
+        &.maybe {
           background: @gray-light;
           color: @white;
         }

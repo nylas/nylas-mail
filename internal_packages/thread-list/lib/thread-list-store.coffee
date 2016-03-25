@@ -1,7 +1,8 @@
 _ = require 'underscore'
 NylasStore = require 'nylas-store'
 
-{Thread,
+{Rx,
+ Thread,
  Message,
  Actions,
  DatabaseStore,
@@ -42,9 +43,14 @@ class ThreadListStore extends NylasStore
     @trigger(@)
     Actions.setFocus(collection: 'thread', item: null)
 
+  selectionObservable: =>
+    return Rx.Observable.fromListSelection(@)
+
   # Inbound Events
 
   _onPerspectiveChanged: =>
+    if FocusedPerspectiveStore.current().searchQuery is undefined
+      Actions.dismissNotificationsMatching({tag: 'search-error'})
     @createListDataSource()
 
   _onDataChanged: ({previous, next} = {}) =>

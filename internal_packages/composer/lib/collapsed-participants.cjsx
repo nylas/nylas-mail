@@ -1,5 +1,6 @@
 React = require 'react'
 {Utils} = require 'nylas-exports'
+{InjectedComponentSet} = require 'nylas-component-kit'
 
 class CollapsedParticipants extends React.Component
   @displayName: "CollapsedParticipants"
@@ -36,6 +37,14 @@ class CollapsedParticipants extends React.Component
   componentDidUpdate: ->
     @_setNumHiddenParticipants()
 
+  componentWillReceiveProps: ->
+    # Always re-evaluate the hidden participant count when the participant set changes
+    @setState({
+      numToDisplay: 999
+      numRemaining: 0
+      numBccRemaining: 0
+    })
+
   render: ->
     contacts = @props.to.concat(@props.cc).map(@_collapsedContact)
     bcc = @props.bcc.map(@_collapsedBccContact)
@@ -65,7 +74,14 @@ class CollapsedParticipants extends React.Component
     name = contact.displayName()
     key = @_keyPrefix + contact.email + contact.name
     <span key={key}
-          className="collapsed-contact regular-contact">{name}</span>
+          className="collapsed-contact regular-contact">
+      <InjectedComponentSet
+        matching={role: "Composer:RecipientChip"}
+        exposedProps={contact: contact}
+        direction="column"
+        inline={true}/>
+      {name}
+    </span>
 
   _collapsedBccContact: (contact, i) =>
     name = contact.displayName()

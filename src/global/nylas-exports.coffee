@@ -42,6 +42,10 @@ class NylasExports
         return exported
       enumerable: true
 
+  # Make sure our custom observable helpers are defined immediately
+  # (fromStore, fromQuery, etc...)
+  require 'nylas-observables'
+
   # Actions
   @load "Actions", 'flux/actions'
 
@@ -101,6 +105,7 @@ class NylasExports
   @require "SyncbackCategoryTask", 'flux/tasks/syncback-category-task'
   @require "DestroyCategoryTask", 'flux/tasks/destroy-category-task'
   @require "ChangeUnreadTask", 'flux/tasks/change-unread-task'
+  @require "SyncbackDraftFilesTask", 'flux/tasks/syncback-draft-files-task'
   @require "SyncbackDraftTask", 'flux/tasks/syncback-draft-task'
   @require "ChangeStarredTask", 'flux/tasks/change-starred-task'
   @require "DestroyModelTask", 'flux/tasks/destroy-model-task'
@@ -123,7 +128,7 @@ class NylasExports
   @require "FileUploadStore", 'flux/stores/file-upload-store'
   @require "MailRulesStore", 'flux/stores/mail-rules-store'
   @require "ThreadCountsStore", 'flux/stores/thread-counts-store'
-  @require "UnreadBadgeStore", 'flux/stores/unread-badge-store'
+  @require "BadgeStore", 'flux/stores/badge-store'
   @require "FileDownloadStore", 'flux/stores/file-download-store'
   @require "FocusedContentStore", 'flux/stores/focused-content-store'
   @require "FocusedPerspectiveStore", 'flux/stores/focused-perspective-store'
@@ -152,6 +157,7 @@ class NylasExports
   @get "React", -> require 'react' # Our version of React for 3rd party use
   @get "Reflux", -> require 'reflux'
   @get "Rx", -> require 'rx-lite'
+  @get "Keytar", -> require 'keytar' # atom-keytar access through native module
 
   # React Components
   @load "ReactRemote", 'react-remote/react-remote-parent'
@@ -159,6 +165,7 @@ class NylasExports
   @load "PriorityUICoordinator", 'priority-ui-coordinator'
 
   # Utils
+  @load "DeprecateUtils", 'deprecate-utils'
   @load "Utils", 'flux/models/utils'
   @load "DOMUtils", 'dom-utils'
   @load "VirtualDOMUtils", 'virtual-dom-utils'

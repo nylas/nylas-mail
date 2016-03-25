@@ -32,10 +32,12 @@ class FileUploadStore extends NylasStore
     @listenTo Actions.addAttachment, @_onAddAttachment
     @listenTo Actions.selectAttachment, @_onSelectAttachment
     @listenTo Actions.removeAttachment, @_onRemoveAttachment
-    @listenTo Actions.attachmentUploaded, @_onAttachmentUploaded
     @listenTo DatabaseStore, @_onDataChanged
 
     mkdirp.sync(UPLOAD_DIR)
+    if NylasEnv.isMainWindow() or NylasEnv.inSpecMode()
+      @listenTo Actions.sendDraftSuccess, ({messageClientId}) =>
+        @_deleteUploadsForClientId(messageClientId)
 
   # Handlers
 
@@ -44,9 +46,7 @@ class FileUploadStore extends NylasStore
     return unless change.objectClass is Message.name and change.type is 'unpersist'
 
     change.objects.forEach (message) =>
-      messageDir = path.join(UPLOAD_DIR, message.clientId)
-      for upload in message.uploads
-        @_deleteUpload(upload)
+      @_deleteUploadsForClientId(message.clientId)
 
   _onSelectAttachment: ({messageClientId}) ->
     @_verifyId(messageClientId)
@@ -73,15 +73,10 @@ class FileUploadStore extends NylasStore
 
   _onRemoveAttachment: (upload) ->
     return Promise.resolve() unless upload
-
     @_applySessionChanges upload.messageClientId, (uploads) ->
       _.reject(uploads, _.matcher({id: upload.id}))
-
-    @_deleteUpload(upload).catch(@_onAttachFileError)
-
-  _onAttachmentUploaded: (upload) ->
-    return Promise.resolve() unless upload
     @_deleteUpload(upload)
+    .catch(@_onAttachFileError)
 
   _onAttachFileError: (error) ->
     NylasEnv.showErrorDialog(error.message)
@@ -128,17 +123,32 @@ class FileUploadStore extends NylasStore
       readStream.pipe(writeStream)
 
   _deleteUpload: (upload) =>
+    # Delete the upload file
     fs.unlinkAsync(upload.targetPath).then ->
+      # Delete the containing folder
       fs.rmdirAsync(upload.targetDir).then ->
+        # Try to remove the directory for the associated message if this was the
+        # last upload
         fs.rmdir path.join(UPLOAD_DIR, upload.messageClientId), (err) ->
           # Will fail if it's not empty, which is fine.
         Promise.resolve(upload)
-    .catch ->
-      Promise.reject(new Error("Error cleaning up file #{upload.filename}"))
+    .catch (err) ->
+      Promise.reject(new Error("Error deleting file upload #{upload.filename}:\n\n#{err.message}"))
+
+  _deleteUploadsForClientId: (messageClientId) =>
+    rimraf = require('rimraf')
+    rimraf path.join(UPLOAD_DIR, messageClientId), {disableGlob: true}, (err) =>
+      console.warn(err) if err
 
   _applySessionChanges: (messageClientId, changeFunction) =>
     DraftStore.sessionForClientId(messageClientId).then (session) =>
       uploads = changeFunction(session.draft().uploads)
       session.changes.add({uploads})
+
+      # In some scenarios (like dropping attachments on the dock icon), files
+      # are added to drafts which may be open in another composer window.
+      # Committing here ensures the files appear immediately, no matter where the
+      # user is now viewing the draft.
+      session.changes.commit()
 
 module.exports = new FileUploadStore()

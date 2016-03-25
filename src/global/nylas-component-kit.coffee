@@ -29,6 +29,8 @@ class NylasComponentKit
   @load "RetinaImg", 'retina-img'
   @load "SwipeContainer", 'swipe-container'
   @load "FluxContainer", 'flux-container'
+  @load "FocusContainer", 'focus-container'
+  @load "EmptyListState", 'empty-list-state'
   @load "ListTabular", 'list-tabular'
   @load "DraggableImg", 'draggable-img'
   @load "EventedIFrame", 'evented-iframe'
@@ -38,7 +40,8 @@ class NylasComponentKit
   @load "KeyCommandsRegion", 'key-commands-region'
   @load "InjectedComponent", 'injected-component'
   @load "TokenizingTextField", 'tokenizing-text-field'
-  @load "MultiselectActionBar", 'multiselect-action-bar'
+  @loadDeprecated "MultiselectActionBar", 'multiselect-action-bar', instead: 'MultiselectToolbar'
+  @load "MultiselectToolbar", 'multiselect-toolbar'
   @load "InjectedComponentSet", 'injected-component-set'
   @load "TimeoutTransitionGroup", 'timeout-transition-group'
   @load "MetadataComposerToggleButton", 'metadata-composer-toggle-button'
@@ -63,5 +66,8 @@ class NylasComponentKit
 
   @load "ScenarioEditor", 'scenario-editor'
   @load "NewsletterSignup", 'newsletter-signup'
+
+  # Higher order components
+  @load "ListensToObservable", 'listens-to-observable'
 
 module.exports = new NylasComponentKit()

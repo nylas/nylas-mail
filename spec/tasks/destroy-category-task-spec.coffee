@@ -123,5 +123,5 @@ describe "DestroyCategoryTask", ->
         it "should present an error dialog", ->
           spyOn(NylasEnv, 'showErrorDialog')
           task = makeTask()
-          task._notifyUserOfError()
+          task._notifyUserOfError(task.category)
           expect(NylasEnv.showErrorDialog).toHaveBeenCalled()

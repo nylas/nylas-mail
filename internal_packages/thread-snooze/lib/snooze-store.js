@@ -15,11 +15,14 @@ class SnoozeStore {
   constructor(pluginId = PLUGIN_ID, pluginName = PLUGIN_NAME) {
     this.pluginId = pluginId
     this.pluginName = pluginName
-    this.snoozeCategoriesPromise = getSnoozeCategoriesByAccount()
+    this.snoozeCategoriesPromise = getSnoozeCategoriesByAccount(AccountStore.accounts())
   }
 
   activate() {
-    this.unsubscribe = SnoozeActions.snoozeThreads.listen(this.onSnoozeThreads)
+    this.unsubscribers = [
+      AccountStore.listen(this.onAccountsChanged),
+      SnoozeActions.snoozeThreads.listen(this.onSnoozeThreads),
+    ]
   }
 
   recordSnoozeEvent(threads, snoozeDate, label) {
@@ -55,6 +58,10 @@ class SnoozeStore {
     return Promise.resolve(threadsByAccountId);
   };
 
+  onAccountsChanged = ()=> {
+    this.snoozeCategoriesPromise = getSnoozeCategoriesByAccount(AccountStore.accounts())
+  };
+
   onSnoozeThreads = (threads, snoozeDate, label) => {
     this.recordSnoozeEvent(threads, label)
 
@@ -85,7 +92,7 @@ class SnoozeStore {
   };
 
   deactivate() {
-    this.unsubscribe()
+    this.unsubscribers.forEach(unsub => unsub())
   }
 }
 

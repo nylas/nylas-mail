@@ -21,13 +21,13 @@ class ListTabularItem extends React.Component
     if not Utils.isEqualReact(@props.item, nextProps.item) or @props.columns isnt nextProps.columns
       @_columnCache = null
       return true
-    if not Utils.isEqualReact(_.omit(@props, 'item'), _.omit(nextProps, 'item'))
+    if not Utils.isEqualReact(Utils.fastOmit(@props, ['item']), Utils.fastOmit(nextProps, ['item']))
       return true
     false
 
   render: =>
     className = "list-item list-tabular-item #{@props.itemProps?.className}"
-    props = _.omit(@props.itemProps ? {}, 'className')
+    props = Utils.fastOmit(@props.itemProps ? {}, ['className'])
 
     # It's expensive to compute the contents of columns (format timestamps, etc.)
     # We only do it if the item prop has changed.
@@ -48,7 +48,7 @@ class ListTabularItem extends React.Component
 
       <div key={column.name}
            displayName={column.name}
-           style={_.pick(column, ['flex', 'width'])}
+           style={{flex: column.flex, width: column.width}}
            className="list-column list-column-#{column.name}">
         {column.resolver(@props.item, @)}
       </div>

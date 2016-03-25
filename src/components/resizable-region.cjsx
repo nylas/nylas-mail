@@ -1,6 +1,7 @@
 React = require 'react'
 _ = require 'underscore'
-{Actions,
+{Utils,
+ Actions,
  ComponentRegistry,
  PriorityUICoordinator} = require "nylas-exports"
 
@@ -93,7 +94,7 @@ class ResizableRegion extends React.Component
       else
         containerStyle.flex = 1
 
-    otherProps = _.omit(@props, _.keys(@constructor.propTypes))
+    otherProps = Utils.fastOmit(@props, Object.keys(@constructor.propTypes))
 
     <div style={containerStyle} {...otherProps}>
       {@props.children}

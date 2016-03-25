@@ -67,6 +67,10 @@ class File extends Model
     else
       return "Unnamed Attachment"
 
+  safeDisplayName: ->
+    RegExpUtils = require '../../regexp-utils'
+    return @displayName().replace(RegExpUtils.illegalPathCharactersRegexp(), '-')
+
   # Public: Returns the file extension that should be used for this file.
   # Note that asking for the displayExtension is more accurate than trying to read
   # the extension directly off the filename. The returned extension may be based
@@ -76,5 +80,21 @@ class File extends Model
   #
   displayExtension: ->
     path.extname(@displayName().toLowerCase())[1..-1]
+
+  displayFileSize: (bytes = @size) ->
+    threshold = 1000000000
+    units = ['B', 'KB', 'MB', 'GB']
+    idx = units.length - 1
+
+    result = bytes / threshold
+    while result < 1 and idx >= 0
+      threshold /= 1000
+      result = bytes / threshold
+      idx--
+
+    # parseFloat will remove trailing zeros
+    decimalPoints = if idx >= 2 then 1 else 0
+    rounded = parseFloat(result.toFixed(decimalPoints))
+    return "#{rounded} #{units[idx]}"
 
 module.exports = File

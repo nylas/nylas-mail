@@ -1,0 +1,76 @@
+@import "ui-variables";
+
+@duration: 1s;
+
+.empty-state {
+  position:absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow:hidden;
+
+  > div {
+    opacity: 0;
+    transition: opacity @duration ease-in;
+    width: 100%;
+    height: 100%;
+  }
+
+  .perspective-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      background-color: @text-color-subtle;
+    }
+    .message {
+      color: @text-color-very-subtle;
+      font-size: 2em;
+      font-weight: @font-weight-thin;
+      text-align: center;
+    }
+  }
+
+  .inbox-zero-animation {
+    // The animation inside the iframe already contains a fade effect, so we
+    // don't want to animate opacity for this component
+    opacity: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    .animation-wrapper {
+      text-align: center;
+      transform: scale(0.8);
+      transition: transform 100ms ease-in;
+
+      iframe {
+        width: 600px;
+        height: 500px;
+        border: none;
+      }
+      .message {
+        opacity: 0;
+        transition: opacity @duration ease-in;
+        margin-top: 1em;
+        font-size: 3.5em;
+        color: @text-color-subtle;
+        font-weight: @font-weight-thin;
+      }
+    }
+  }
+
+  &.active {
+    > div {
+      opacity: 1;
+
+      .message {
+        opacity: 1 !important;
+      }
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import React, {addons} from 'react/addons';
-import {Rx, DatabaseStore, DateUtils, Actions} from 'nylas-exports'
+import {Rx, DatabaseStore, DateUtils} from 'nylas-exports'
 import SendLaterButton from '../lib/send-later-button';
 import SendLaterActions from '../lib/send-later-actions';
 import {renderIntoDocument} from '../../../spec/nylas-test-utils'
@@ -71,12 +71,10 @@ describe('SendLaterButton', ()=> {
     it('sets scheduled date to "saving" and dispatches action', ()=> {
       const button = makeButton()
       spyOn(button, 'setState')
-      spyOn(Actions, 'closePopover')
       button.onSendLater({utc: ()=> 'utc'})
 
       expect(SendLaterActions.sendLater).toHaveBeenCalled()
       expect(button.setState).toHaveBeenCalledWith({scheduledDate: 'saving'})
-      expect(Actions.closePopover).toHaveBeenCalled()
     });
   });
 

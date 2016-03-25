@@ -1,74 +1,112 @@
 import {Message} from 'nylas-exports';
 import SignatureComposerExtension from '../lib/signature-composer-extension';
+import SignatureStore from '../lib/signature-store';
 
-describe("SignatureComposerExtension", ()=> {
-  describe("prepareNewDraft", ()=> {
-    describe("when a signature is defined", ()=> {
-      beforeEach(()=> {
-        this.signature = '<div id="signature">This is my signature.</div>';
-        spyOn(NylasEnv.config, 'get').andCallFake(()=> this.signature);
+const TEST_SIGNATURE = '<div class="something">This is my signature.</div>';
+
+describe("SignatureComposerExtension", () => {
+  describe("applyTransformsToDraft", () => {
+    it("should unwrap the signature and remove the custom DOM element", () => {
+      const a = new Message({
+        draft: true,
+        accountId: TEST_ACCOUNT_ID,
+        body: `This is a test! <signature>${TEST_SIGNATURE}<br/></signature><div class="gmail_quote">Hello world</div>`,
+      });
+      const out = SignatureComposerExtension.applyTransformsToDraft({draft: a});
+      expect(out.body).toEqual(`This is a test! <!-- <signature> -->${TEST_SIGNATURE}<br/><!-- </signature> --><div class="gmail_quote">Hello world</div>`);
+    });
+  });
+
+  describe("prepareNewDraft", () => {
+    describe("when a signature is defined", () => {
+      beforeEach(() => {
+        spyOn(NylasEnv.config, 'get').andCallFake(() => TEST_SIGNATURE);
       });
 
-      it("should insert the signature at the end of the message or before the first blockquote and have a newline", ()=> {
+      it("should insert the signature at the end of the message or before the first quoted text block and have a newline", ()=> {
         const a = new Message({
           draft: true,
-          body: 'This is a test! <blockquote>Hello world</blockquote>',
+          accountId: TEST_ACCOUNT_ID,
+          body: 'This is a test! <div class="gmail_quote">Hello world</div>',
         });
         const b = new Message({
           draft: true,
+          accountId: TEST_ACCOUNT_ID,
           body: 'This is a another test.',
         });
 
         SignatureComposerExtension.prepareNewDraft({draft: a});
-        expect(a.body).toEqual('This is a test! <div class="nylas-n1-signature"><div id="signature">This is my signature.</div></div><blockquote>Hello world</blockquote>');
+        expect(a.body).toEqual(`This is a test! <signature>${TEST_SIGNATURE}<br/></signature><div class="gmail_quote">Hello world</div>`);
         SignatureComposerExtension.prepareNewDraft({draft: b});
-        expect(b.body).toEqual('This is a another test.<br/><br/><div class="nylas-n1-signature"><div id="signature">This is my signature.</div></div>');
+        expect(b.body).toEqual(`This is a another test.<br/><br/><signature>${TEST_SIGNATURE}</signature>`);
       });
 
-      it("should replace the signature if a signature is already present", ()=> {
-        const scenarios = [
-          {
-            // With blockquote
-            body: 'This is a test! <div class="nylas-n1-signature"><div>SIG</div></div><blockquote>Hello world</blockquote>',
-            expected: `This is a test! <div class="nylas-n1-signature">${this.signature}</div><blockquote>Hello world</blockquote>`,
-          },
-          {
-            // Populated signature div
-            body: 'This is a test! <div class="nylas-n1-signature"><div>SIG</div></div>',
-            expected: `This is a test! <div class="nylas-n1-signature">${this.signature}</div>`,
-          },
-          {
-            // Empty signature div
-            body: 'This is a test! <div class="nylas-n1-signature"></div>',
-            expected: `This is a test! <div class="nylas-n1-signature">${this.signature}</div>`,
-          },
-          {
-            // With newlines
-            body: 'This is a test! <div class="nylas-n1-signature">\n<br>\n<div>SIG</div>\n</div>',
-            expected: `This is a test! <div class="nylas-n1-signature">${this.signature}</div>`,
-          },
-        ]
+      const scenarios = [
+        {
+          name: 'With blockquote',
+          body: `This is a test! <signature><div>SIG</div></signature><div class="gmail_quote">Hello world</div>`,
+          expected: `This is a test! <signature>${TEST_SIGNATURE}<br/></signature><div class="gmail_quote">Hello world</div>`,
+        },
+        {
+          name: 'Populated signature div',
+          body: `This is a test! <signature><br/><br/><div>SIG</div></signature>`,
+          expected: `This is a test! <br/><br/><signature>${TEST_SIGNATURE}</signature>`,
+        },
+        {
+          name: 'Empty signature div',
+          body: 'This is a test! <signature></signature>',
+          expected: `This is a test! <br/><br/><signature>${TEST_SIGNATURE}</signature>`,
+        },
+        {
+          name: 'With newlines',
+          body: 'This is a test!<br/> <signature>\n<br>\n<div>SIG</div>\n</signature>',
+          expected: `This is a test!<br/> <br/><br/><signature>${TEST_SIGNATURE}</signature>`,
+        },
+      ]
 
-        scenarios.forEach((scenario)=> {
-          const message = new Message({draft: true, body: scenario.body})
+      scenarios.forEach((scenario) => {
+        it(`should replace the signature if a signature is already present (${scenario.name})`, () => {
+          const message = new Message({
+            draft: true,
+            body: scenario.body,
+            accountId: TEST_ACCOUNT_ID,
+          })
           SignatureComposerExtension.prepareNewDraft({draft: message});
           expect(message.body).toEqual(scenario.expected)
-        })
+        });
       });
     });
 
-    describe("when a signature is not defined", ()=> {
+    describe("when no signature is present in the config file", () => {
       beforeEach(()=> {
-        spyOn(NylasEnv.config, 'get').andCallFake(()=> null);
+        spyOn(NylasEnv.config, 'get').andCallFake(() => undefined);
       });
 
-      it("should not do anything", ()=> {
+      it("should insert the default signature", () => {
         const a = new Message({
           draft: true,
-          body: 'This is a test! <blockquote>Hello world</blockquote>',
+          accountId: TEST_ACCOUNT_ID,
+          body: 'This is a test! <div class="gmail_quote">Hello world</div>',
         });
         SignatureComposerExtension.prepareNewDraft({draft: a});
-        expect(a.body).toEqual('This is a test! <blockquote>Hello world</blockquote>');
+        expect(a.body).toEqual(`This is a test! <signature>${SignatureStore.DefaultSignature}<br/></signature><div class="gmail_quote">Hello world</div>`);
+      });
+    });
+
+
+    describe("when a blank signature is present in the config file", () => {
+      beforeEach(() => {
+        spyOn(NylasEnv.config, 'get').andCallFake(() => "");
+      });
+
+      it("should insert nothing", () => {
+        const a = new Message({
+          draft: true,
+          accountId: TEST_ACCOUNT_ID,
+          body: 'This is a test! <div class="gmail_quote">Hello world</div>',
+        });
+        SignatureComposerExtension.prepareNewDraft({draft: a});
+        expect(a.body).toEqual(`This is a test! <div class="gmail_quote">Hello world</div>`);
       });
     });
   });

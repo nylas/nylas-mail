@@ -194,7 +194,7 @@ describe "ComposerView", ->
     describe "when sending a forwarded message message", ->
       beforeEach ->
         @fwdBody = """<br><br><blockquote class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
-        Begin forwarded message:
+        ---------- Forwarded message ---------
         <br><br>
         From: Evan Morikawa &lt;evan@evanmorikawa.com&gt;<br>Subject: Test Forward Message 1<br>Date: Sep 3 2015, at 12:14 pm<br>To: Evan Morikawa &lt;evan@nylas.com&gt;
         <br><br>
@@ -262,19 +262,21 @@ describe "ComposerView", ->
 
       it "focuses the body if the composer is not inline", ->
         useDraft.call @, to: [u1], subject: "Yo"
-        makeComposer.call @, {mode: 'fullWindow'}
+        spyOn(NylasEnv, 'isComposerWindow').andReturn(true)
+        makeComposer.call @
         expect(@composer.state.focusedField).toBe Fields.Body
 
       it "focuses the body if the composer is inline and the thread was focused via a click", ->
         spyOn(FocusedContentStore, 'didFocusUsingClick').andReturn true
         useDraft.call @, to: [u1], subject: "Yo"
-        makeComposer.call @, {mode: 'inline'}
+        makeComposer.call @
         expect(@composer.state.focusedField).toBe Fields.Body
 
       it "does not focus any field if the composer is inline and the thread was not focused via a click", ->
         spyOn(FocusedContentStore, 'didFocusUsingClick').andReturn false
+        spyOn(NylasEnv, 'isComposerWindow').andReturn(false)
         useDraft.call @, to: [u1], subject: "Yo"
-        makeComposer.call @, {mode: 'inline'}
+        makeComposer.call @
         expect(@composer.state.focusedField).toBe null
 
     describe "when deciding whether or not to enable the subject", ->

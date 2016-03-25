@@ -1,7 +1,7 @@
 os = require 'os'
 fs = require 'fs'
 path = require 'path'
-{shell} = require 'electron'
+{remote, shell} = require 'electron'
 mkdirp = require 'mkdirp'
 Utils = require '../models/utils'
 Reflux = require 'reflux'
@@ -98,6 +98,7 @@ FileDownloadStore = Reflux.createStore
     @listenTo Actions.fetchFile, @_fetch
     @listenTo Actions.fetchAndOpenFile, @_fetchAndOpen
     @listenTo Actions.fetchAndSaveFile, @_fetchAndSave
+    @listenTo Actions.fetchAndSaveAllFiles, @_fetchAndSaveAll
     @listenTo Actions.abortFetchFile, @_abortFetchFile
     @listenTo Actions.didPassivelyReceiveNewModels, @_newMailReceived
 
@@ -113,9 +114,7 @@ FileDownloadStore = Reflux.createStore
   #
   pathForFile: (file) ->
     return undefined unless file
-
-    filesafeName = file.displayName().replace(RegExpUtils.illegalPathCharactersRegexp(), '-')
-    path.join(@_downloadDirectory, file.id, filesafeName)
+    path.join(@_downloadDirectory, file.id, file.safeDisplayName())
 
   downloadDataForFile: (fileId) ->
     @_downloads[fileId]?.data()
@@ -193,14 +192,24 @@ FileDownloadStore = Reflux.createStore
       mkdirpAsync(targetFolder)
 
   _fetch: (file) ->
-    @_runDownload(file).catch ->
+    @_runDownload(file)
+    .catch(@_catchFSErrors)
+    .catch (error) ->
       # Passively ignore
 
   _fetchAndOpen: (file) ->
     @_runDownload(file).then (download) ->
       shell.openItem(download.targetPath)
+    .catch(@_catchFSErrors)
     .catch =>
       @_presentError(file)
+
+  _saveDownload: (download, savePath) =>
+    return new Promise (resolve, reject) =>
+      stream = fs.createReadStream(download.targetPath)
+      stream.pipe(fs.createWriteStream(savePath))
+      stream.on 'error', (err) -> reject(err)
+      stream.on 'end', -> resolve()
 
   _fetchAndSave: (file) ->
     defaultPath = @_defaultSavePath(file)
@@ -215,12 +224,38 @@ FileDownloadStore = Reflux.createStore
       if didLoseExtension
         savePath = savePath + defaultExtension
 
-      defaultPath = NylasEnv.savedState.lastDownloadDirectory
-      @_runDownload(file).then (download) ->
-        stream = fs.createReadStream(download.targetPath)
-        stream.pipe(fs.createWriteStream(savePath))
-        stream.on 'end', ->
-          shell.showItemInFolder(savePath)
+      @_runDownload(file)
+      .then (download) => @_saveDownload(download, savePath)
+      .then => shell.showItemInFolder(savePath)
+      .catch(@_catchFSErrors)
+      .catch =>
+        @_presentError(file)
+
+  _fetchAndSaveAll: (files) ->
+    defaultPath = @_defaultSaveDir()
+    options = {
+      defaultPath,
+      properties: ['openDirectory'],
+    }
+
+    NylasEnv.showOpenDialog options, (selected) =>
+      return unless selected
+      dirPath = selected[0]
+      return unless dirPath
+      NylasEnv.savedState.lastDownloadDirectory = dirPath
+
+      lastSavePath = null
+      savePromises = files.map (file) =>
+        savePath = path.join(dirPath, file.safeDisplayName())
+        @_runDownload(file)
+        .then (download) => @_saveDownload(download, savePath)
+        .then ->
+          lastSavePath = savePath
+
+      Promise.all(savePromises)
+      .then =>
+        shell.showItemInFolder(lastSavePath) if lastSavePath
+      .catch(@_catchFSErrors)
       .catch =>
         @_presentError(file)
 
@@ -234,7 +269,7 @@ FileDownloadStore = Reflux.createStore
     fs.exists downloadPath, (exists) ->
       fs.unlink(downloadPath) if exists
 
-  _defaultSavePath: (file) ->
+  _defaultSaveDir: ->
     if process.platform is 'win32'
       home = process.env.USERPROFILE
     else
@@ -248,17 +283,36 @@ FileDownloadStore = Reflux.createStore
       if fs.existsSync(NylasEnv.savedState.lastDownloadDirectory)
         downloadDir = NylasEnv.savedState.lastDownloadDirectory
 
-    filesafeName = file.displayName().replace(RegExpUtils.illegalPathCharactersRegexp(), '-')
-    path.join(downloadDir, filesafeName)
+    return downloadDir
+
+  _defaultSavePath: (file) ->
+    downloadDir = @_defaultSaveDir()
+    path.join(downloadDir, file.safeDisplayName())
 
   _presentError: (file) ->
-    dialog = require('remote').require('dialog')
-    dialog.showMessageBox
+    remote.dialog.showMessageBox
       type: 'warning'
       message: "Download Failed"
       detail: "Unable to download #{file.displayName()}.
                Check your network connection and try again."
       buttons: ["OK"]
+
+  _catchFSErrors: (error) ->
+    message = null
+    if error.code in ['EPERM', 'EMFILE', 'EACCES']
+      message = "N1 could not save an attachment. Check that permissions are set correctly and try restarting N1 if the issue persists."
+    if error.code in ['ENOSPC']
+      message = "N1 could not save an attachment because you have run out of disk space."
+
+    if message
+      remote.dialog.showMessageBox
+        type: 'warning'
+        message: "Download Failed"
+        detail: "#{message}\n\n#{error.message}"
+        buttons: ["OK"]
+      return Promise.resolve()
+    else
+      return Promise.reject(error)
 
 # Expose the Download class for our tests, and possibly for other things someday
 FileDownloadStore.Download = Download

@@ -135,7 +135,7 @@ module.exports =
       text = QuotedHTMLTransformer.removeQuotedHTML(draftHtml)
 
       # Check for an N1 signature and split that off
-      sigIndex = text.indexOf('<div class="nylas-n1-signature">')
+      sigIndex = text.indexOf('<signature>')
       beforeSig = if sigIndex>-1 then text.slice(0,sigIndex) else text
       afterSig = text.slice(beforeSig.length)
 

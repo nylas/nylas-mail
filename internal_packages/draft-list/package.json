@@ -1,0 +1,13 @@
+{
+  "name": "draft-list",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "View drafts using React",
+  "license": "GPL-3.0",
+  "private": true,
+  "engines": {
+    "nylas": "*"
+  },
+  "dependencies": {
+  }
+}

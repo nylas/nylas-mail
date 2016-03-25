@@ -61,6 +61,18 @@
 	</array>
 	<key>CFBundleDocumentTypes</key>
 	<array>
+		<dict>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>CFBundleTypeName</key>
+			<string>File</string>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>*</string>
+			</array>
+		</dict>
 	</array>
 </dict>
 </plist>

@@ -1,7 +1,6 @@
 React = require 'react'
+{Utils} = require 'nylas-exports'
 ThreadListStore = require './thread-list-store'
-{timestamp} = require './formatting-utils'
-
 
 class ThreadListScrollTooltip extends React.Component
   @displayName: 'ThreadListScrollTooltip'
@@ -26,7 +25,7 @@ class ThreadListScrollTooltip extends React.Component
 
   render: ->
     if @state.item
-      content = timestamp(@state.item.lastMessageReceivedTimestamp)
+      content = Utils.shortTimeString(@state.item.lastMessageReceivedTimestamp)
     else
       content = "Loading..."
     <div className="scroll-tooltip">

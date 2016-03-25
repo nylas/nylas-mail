@@ -81,6 +81,19 @@ class AccountSettingsPage extends React.Component
       </form>
     </div>
 
+  componentDidMount: =>
+    @_applyFocus()
+
+  componentDidUpdate: =>
+    @_applyFocus()
+
+  _applyFocus: =>
+    firstInput = React.findDOMNode(@).querySelector('input')
+    anyInputFocused = document.activeElement and document.activeElement.nodeName is 'INPUT'
+
+    if firstInput and not anyInputFocused
+      firstInput.focus()
+
   _onSettingsChanged: (event) =>
     # NOTE: This code is largely duplicated in _onValueChanged. TODO Fix!
     {field, format} = event.target.dataset

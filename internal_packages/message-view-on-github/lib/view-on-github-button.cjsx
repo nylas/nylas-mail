@@ -14,8 +14,8 @@ display.
 Unlike a traditional React application, N1 components have very few
 guarantees on who will render them and where they will be rendered. In our
 `lib/main.cjsx` file we registered this component with our
-{ComponentRegistry} for the `"message:Toolbar"` role. That means that
-whenever the "message:Toolbar" region gets rendered, we'll render
+{ComponentRegistry} for the `"ThreadActionsToolbarButton"` role. That means that
+whenever the "ThreadActionsToolbarButton" region gets rendered, we'll render
 everything registered with that area. Other buttons, such as "Archive" and
 the "Change Label" button are reigstered with that role, so we should
 expect ourselves to showup alongside them.
@@ -49,6 +49,8 @@ class ViewOnGithubButton extends React.Component
   @displayName: "ViewOnGithubButton"
   @containerRequired: false
 
+  @propTypes:
+    items: React.PropTypes.array
 
   #### React methods ####
   # The following methods are React methods that we override. See {React}
@@ -76,9 +78,10 @@ class ViewOnGithubButton extends React.Component
     'github:open': @_openLink
 
   render: ->
+    return null unless @props.items.length is 1
     return null unless @state.link
     <KeyCommandsRegion globalHandlers={@_keymapHandlers()}>
-      <button className="btn btn-toolbar"
+      <button className="btn btn-toolbar btn-view-on-github"
               onClick={@_openLink}
               title={"Visit Thread on GitHub"}>
         <RetinaImg
