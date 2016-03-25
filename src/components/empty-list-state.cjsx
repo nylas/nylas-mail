@@ -48,6 +48,7 @@ class EmptyInboxState extends React.Component
   _getScalingFactor: =>
     {width} = @props.containerRect
     return null unless width
+    return null if width > 600
     return (width + 100) / 1000
 
   _getAnimationName: (now = new Date()) =>
