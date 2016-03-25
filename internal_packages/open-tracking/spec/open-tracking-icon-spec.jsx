@@ -40,7 +40,7 @@ describe("Open tracking icon", () => {
 
   describe("With messages and metadata", () => {
     beforeEach(() => {
-      this.messages = [new Message(), new Message(), new Message()];
+      this.messages = [new Message(), new Message(), new Message({draft: true})];
       this.thread.metadata.push(...this.messages);
     });
 
@@ -50,7 +50,8 @@ describe("Open tracking icon", () => {
       expect(icon.children.length).toEqual(0);
     });
 
-    it("shows an unopened icon if one message has metadata and is unopened", () => {
+    it("shows an unopened icon if last non draft message has metadata and is unopened", () => {
+      addOpenMetadata(this.messages[0], 1);
       addOpenMetadata(this.messages[1], 0);
       const icon = find(makeIcon(this.thread), "open-tracking-icon");
       expect(icon.children.length).toEqual(1);
@@ -58,18 +59,9 @@ describe("Open tracking icon", () => {
       expect(icon.querySelector("img.opened")).toBeNull();
     });
 
-    it("shows an unopened icon if only some messages are unopened", () => {
+    it("shows an opened icon if last non draft message with metadata is opened", () => {
       addOpenMetadata(this.messages[0], 0);
       addOpenMetadata(this.messages[1], 1);
-      const icon = find(makeIcon(this.thread), "open-tracking-icon");
-      expect(icon.children.length).toEqual(1);
-      expect(icon.querySelector("img.unopened")).not.toBeNull();
-      expect(icon.querySelector("img.opened")).toBeNull();
-    });
-
-    it("shows an opened icon if all messages with metadata are opened", () => {
-      addOpenMetadata(this.messages[1], 1);
-      addOpenMetadata(this.messages[2], 1);
       const icon = find(makeIcon(this.thread), "open-tracking-icon");
       expect(icon.children.length).toEqual(1);
       expect(icon.querySelector("img.unopened")).toBeNull();
