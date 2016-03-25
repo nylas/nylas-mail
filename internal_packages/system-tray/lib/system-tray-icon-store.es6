@@ -4,9 +4,10 @@ import {BadgeStore} from 'nylas-exports';
 
 // Must be absolute real system path
 // https://github.com/atom/electron/issues/1299
-const INBOX_ZERO_ICON = path.join(__dirname, '..', 'assets', 'MenuItem-Inbox-Zero.png');
-const INBOX_UNREAD_ICON = path.join(__dirname, '..', 'assets', 'MenuItem-Inbox-Full.png');
-const INBOX_UNREAD_ALT_ICON = path.join(__dirname, '..', 'assets', 'MenuItem-Inbox-Full-NewItems.png');
+const {platform} = process
+const INBOX_ZERO_ICON = path.join(__dirname, '..', 'assets', platform, 'MenuItem-Inbox-Zero.png');
+const INBOX_UNREAD_ICON = path.join(__dirname, '..', 'assets', platform, 'MenuItem-Inbox-Full.png');
+const INBOX_UNREAD_ALT_ICON = path.join(__dirname, '..', 'assets', platform, 'MenuItem-Inbox-Full-NewItems.png');
 
 
 class SystemTrayIconStore {
