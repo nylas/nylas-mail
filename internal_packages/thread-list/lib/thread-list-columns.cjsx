@@ -26,6 +26,15 @@ TimestampComponentForPerspective = (thread) ->
 subject = (subj) ->
   if (subj ? "").trim().length is 0
     return <span className="no-subject">(No Subject)</span>
+  else if subj.split(/([\uD800-\uDBFF][\uDC00-\uDFFF])/g).length > 1
+    subjComponents = []
+    subjParts = subj.split /([\uD800-\uDBFF][\uDC00-\uDFFF])/g
+    for part in subjParts
+      if part.match /([\uD800-\uDBFF][\uDC00-\uDFFF])/g
+        subjComponents.push <span className="emoji">{part}</span>
+      else
+        subjComponents.push <span>{part}</span>
+    return subjComponents
   else
     return subj
 
