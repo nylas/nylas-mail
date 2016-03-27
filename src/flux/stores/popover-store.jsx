@@ -25,10 +25,6 @@ class PopoverStore extends NylasStore {
     this.listenTo(Actions.closePopover, this.closePopover);
   }
 
-  isPopoverOpen = ()=> {
-    return this.isOpen;
-  };
-
   renderPopover = (child, props, callback)=> {
     const popover = (
       <FixedPopover {...props}>{child}</FixedPopover>

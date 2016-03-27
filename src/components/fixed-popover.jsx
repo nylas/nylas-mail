@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import React, {Component, PropTypes} from 'react';
-import ReactDOM from 'react-dom';
+import {findDOMNode} from 'react-dom';
 import Actions from '../flux/actions';
 
 
@@ -30,7 +30,6 @@ const OFFSET_PADDING = 11.5;
 class FixedPopover extends Component {
 
   static propTypes = {
-    className: PropTypes.string,
     children: PropTypes.element,
     direction: PropTypes.string,
     fallbackDirection: PropTypes.string,
@@ -58,8 +57,9 @@ class FixedPopover extends Component {
 
   componentDidMount() {
     this.mounted = true;
+    this.focusElementWithTabIndex()
+    findDOMNode(this.refs.popoverContainer).addEventListener('animationend', this.onAnimationEnd)
     window.addEventListener('resize', this.onWindowResize)
-    this.focusElementWithTabIndex();
     _.defer(this.onPopoverRendered)
   }
 
@@ -76,13 +76,18 @@ class FixedPopover extends Component {
   }
 
   componentDidUpdate() {
-    this.focusElementWithTabIndex();
+    this.focusElementWithTabIndex()
     _.defer(this.onPopoverRendered)
   }
 
   componentWillUnmount() {
     this.mounted = false;
+    findDOMNode(this.refs.popoverContainer).removeEventListener('animationend', this.onAnimationEnd)
     window.removeEventListener('resize', this.onWindowResize)
+  }
+
+  onAnimationEnd = () => {
+    _.defer(this.focusElementWithTabIndex);
   }
 
   onWindowResize() {
@@ -115,7 +120,7 @@ class FixedPopover extends Component {
 
   onBlur = (event)=> {
     const target = event.nativeEvent.relatedTarget;
-    if (!target || (!ReactDOM.findDOMNode(this).contains(target))) {
+    if (!target || (!React.findDOMNode(this).contains(target))) {
       Actions.closePopover();
     }
   };
@@ -127,7 +132,7 @@ class FixedPopover extends Component {
   };
 
   getCurrentRect = ()=> {
-    return ReactDOM.findDOMNode(this.refs.popover).getBoundingClientRect();
+    return findDOMNode(this.refs.popover).getBoundingClientRect();
   };
 
   getWindowDimensions = ()=> {
@@ -137,11 +142,12 @@ class FixedPopover extends Component {
     }
   };
 
-  static Directions = Directions;
-
   focusElementWithTabIndex = ()=> {
+    if (!this.mounted) {
+      return;
+    }
     // Automatically focus the element inside us with the lowest tab index
-    const popoverNode = ReactDOM.findDOMNode(this);
+    const popoverNode = React.findDOMNode(this);
 
     // _.sortBy ranks in ascending numerical order.
     const focusable = popoverNode.querySelectorAll("[tabIndex], input");
@@ -215,7 +221,7 @@ class FixedPopover extends Component {
     return null;
   };
 
-  computePopoverStyles = ({originRect, direction, offset, visible})=> {
+  computePopoverStyles = ({originRect, direction, offset})=> {
     const {Up, Down, Left, Right} = Directions
     let containerStyle = {};
     let popoverStyle = {};
@@ -227,6 +233,7 @@ class FixedPopover extends Component {
         // Place container on the top left corner of the rect
         top: originRect.top,
         left: originRect.left,
+        width: originRect.width,
       }
       popoverStyle = {
         // Center, place on top of container, and adjust 10px for the pointer
@@ -244,6 +251,7 @@ class FixedPopover extends Component {
         // Place container on the bottom left corner of the rect
         top: originRect.top + originRect.height,
         left: originRect.left,
+        width: originRect.width,
       }
       popoverStyle = {
         // Center and adjust 10px for the pointer (already positioned at the bottom of container)
@@ -261,6 +269,7 @@ class FixedPopover extends Component {
         // Place container on the top left corner of the rect
         top: originRect.top,
         left: originRect.left,
+        height: originRect.height,
       }
       popoverStyle = {
         // Center, place on left of container, and adjust 10px for the pointer
@@ -278,6 +287,7 @@ class FixedPopover extends Component {
         // Place container on the top right corner of the rect
         top: originRect.top,
         left: originRect.left + originRect.width,
+        height: originRect.height,
       }
       popoverStyle = {
         // Center and adjust 10px for the pointer
@@ -294,17 +304,6 @@ class FixedPopover extends Component {
       break;
     }
 
-    const visibilityProps = {}
-    if (visible) {
-      visibilityProps.visibility = 'visible';
-      visibilityProps.opacity = 1;
-    } else {
-      visibilityProps.visibility = 'hidden';
-      visibilityProps.opacity = 0;
-    }
-    popoverStyle = _.extend({}, popoverStyle, visibilityProps)
-    pointerStyle = _.extend({}, pointerStyle, visibilityProps)
-
     // Set the zoom directly on the style element. Otherwise it won't work with
     // mask image of our shadow pointer element. This is probably a Chrome bug
     pointerStyle.zoom = 0.5;
@@ -315,27 +314,26 @@ class FixedPopover extends Component {
   render() {
     const {offset, direction, visible} = this.state;
     const {children, originRect} = this.props;
-    if (!originRect) {
-      return <span />;
-    }
     const blurTrapStyle = {top: originRect.top, left: originRect.left, height: originRect.height, width: originRect.width}
     const {containerStyle, popoverStyle, pointerStyle} = (
-      this.computePopoverStyles({originRect, direction, offset, visible})
+      this.computePopoverStyles({originRect, direction, offset})
     );
+    const animateClass = visible ? ' popout' : '';
 
     return (
       <div>
         <div ref="blurTrap" className="fixed-popover-blur-trap" style={blurTrapStyle}/>
         <div
+          ref="popoverContainer"
           style={containerStyle}
-          className="fixed-popover-container"
+          className={`fixed-popover-container${animateClass}`}
           onKeyDown={this.onKeyDown}
           onBlur={this.onBlur}>
-          <div ref="popover" className="fixed-popover" style={popoverStyle}>
+          <div ref="popover" className={`fixed-popover`} style={popoverStyle}>
             {children}
           </div>
-          <div className="fixed-popover-pointer" style={pointerStyle} />
-          <div className="fixed-popover-pointer shadow" style={pointerStyle} />
+          <div className={`fixed-popover-pointer`} style={pointerStyle} />
+          <div className={`fixed-popover-pointer shadow`} style={pointerStyle} />
         </div>
       </div>
     );
