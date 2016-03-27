@@ -10,9 +10,11 @@
 .btn-toolbar, .token, .actions>.btn, .new-package>.btn, .appearance-mode-switch>.btn {
   box-shadow: none !important;
   background: @white !important;
-  border: 1px solid @taiga-light !important;
+  border: 0;
   border-radius: @base-border-radius !important;
-  cursor: pointer !important;
+  &.item-compose {
+    border: 1px solid @taiga-light;
+  }
 }
 
 .composer-action-bar-content {
@@ -42,7 +44,6 @@ body.platform-win32 {
 
 .button-dropdown.bordered {
   .primary-item {
-    cursor: pointer !important;
     box-shadow: none !important;
     background: @white !important;
     border: 1px solid @taiga-light !important;
@@ -55,7 +56,6 @@ body.platform-win32 {
   }
 
   .secondary-picker {
-    cursor: pointer !important;
     box-shadow: none !important;
     background: @white !important;
     border: 1px solid @taiga-light !important;
@@ -66,7 +66,6 @@ body.platform-win32 {
 
   .secondary-items {
     .item  {
-      cursor: pointer;
       color: @taiga-light !important;
       background: @white !important;
 
@@ -129,8 +128,6 @@ body.platform-win32 {
  * Prefs page
  */
 .appearance-mode {
-  cursor: pointer;
-
   &.active {
     background-color: lighten(@taiga-light, 30%) !important;
   }
