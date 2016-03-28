@@ -265,7 +265,7 @@ class EmojiButtonPopover extends React.Component {
     }
     position.x = 18;
     position.y += 48;
-    ctx.font = "32px Arial";
+    ctx.font = "32px Noto Color Emoji";
     ctx.fillStyle = 'black';
     if (this.state.categorizedEmoji[category].length === 0) return;
     this.state.categorizedEmoji[category].forEach((emojiName, j) => {
