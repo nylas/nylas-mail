@@ -32,6 +32,7 @@ We're working on building a plugin index that makes it super easy to add them to
 
 #### Community Themes
 [Create your own theme!](http://github.com/nylas/N1-theme-starter)
+- [Arc Dark](https://github.com/varlesh/Nylas-Arc-Dark-Theme)
 - [Predawn](https://github.com/adambmedia/N1-Predawn)
 - [ElementaryOS](https://github.com/edipox/elementary-nylas)
 - [Ido](https://github.com/edipox/n1-ido) — Polymail-inspired theme
