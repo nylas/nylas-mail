@@ -68,7 +68,7 @@ class EmptyInboxState extends React.Component
 
     <div className="inbox-zero-animation">
       <div className="animation-wrapper" style={style}>
-        <iframe src={"animations/#{animationName}/#{animationName}.html"}/>
+        <iframe src={"animations/inbox-zero/#{animationName}/#{animationName}.html"}/>
         <div className="message">Hooray! You’re done.</div>
       </div>
     </div>
