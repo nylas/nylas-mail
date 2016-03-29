@@ -13,8 +13,8 @@ return
 moment = require "moment"
 _ = require 'underscore'
 CSON = require 'season'
-React = require "react/addons"
-ReactTestUtils = React.addons.TestUtils
+React = require "react"
+ReactTestUtils = require('react-addons-test-utils')
 ReactTestUtils = _.extend ReactTestUtils, require "jasmine-react-helpers"
 
 {Thread,
@@ -274,7 +274,7 @@ describe "ThreadList", ->
       ThreadStore._view = view
       ThreadStore._focusedId = null
       ThreadStore.trigger(ThreadStore)
-      @thread_list_node = React.findDOMNode(@thread_list)
+      @thread_list_node = ReactDOM.findDOMNode(@thread_list)
       spyOn(@thread_list, "setState").andCallThrough()
 
     it "renders all of the thread list items", ->

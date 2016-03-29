@@ -1,10 +1,9 @@
-React = require "react/addons"
+React = require "react"
+ReactCSSTransitionGroup = require 'react-addons-css-transition-group'
 _ = require 'underscore'
 
-{Utils,
- Actions} = require "nylas-exports"
+{Utils, Actions} = require "nylas-exports"
 InjectedComponentSet = require './injected-component-set'
-TimeoutTransitionGroup = require './timeout-transition-group'
 RetinaImg = require './retina-img'
 Flexbox = require './flexbox'
 
@@ -79,14 +78,14 @@ class MultiselectActionBar extends React.Component
     not Utils.isEqualReact(nextState, @state)
 
   render: =>
-    <TimeoutTransitionGroup
+    <ReactCSSTransitionGroup
       className={"selection-bar"}
       transitionName="selection-bar-absolute"
       component="div"
-      leaveTimeout={200}
-      enterTimeout={200}>
+      transitionLeaveTimeout={200}
+      transitionEnterTimeout={200}>
       { if @state.items.length > 0 then @_renderBar() else [] }
-    </TimeoutTransitionGroup>
+    </ReactCSSTransitionGroup>
 
   _renderBar: =>
     <div className="absolute" key="absolute">

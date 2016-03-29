@@ -4,8 +4,9 @@
 # contenteditable-component-spec.cjsx
 #
 _ = require "underscore"
-React = require "react/addons"
-ReactTestUtils = React.addons.TestUtils
+React = require "react"
+ReactDOM = require 'react-dom'
+ReactTestUtils = require('react-addons-test-utils')
 
 Fields = require '../lib/fields'
 Composer = require "../lib/composer-view"
@@ -58,8 +59,8 @@ describe "Composer Quoted Text", ->
         body: @htmlNoQuote
         showQuotedText: true
       @contentEditable = @composer.refs[Fields.Body]
-      @$contentEditable = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(@contentEditable, 'contentEditable'))
-      @$composerBodyWrap = React.findDOMNode(@composer.refs.composerBodyWrap)
+      @$contentEditable = ReactDOM.findDOMNode(@contentEditable).querySelector('[contenteditable]')
+      @$composerBodyWrap = ReactDOM.findDOMNode(@composer.refs.composerBodyWrap)
 
     it 'should not display any quoted text', ->
       expect(@$contentEditable.innerHTML).toBe @htmlNoQuote
@@ -82,8 +83,8 @@ describe "Composer Quoted Text", ->
         body: @htmlWithQuote
         showQuotedText: true
       @contentEditable = @composer.refs[Fields.Body]
-      @$contentEditable = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(@contentEditable, 'contentEditable'))
-      @$composerBodyWrap = React.findDOMNode(@composer.refs.composerBodyWrap)
+      @$contentEditable = ReactDOM.findDOMNode(@contentEditable).querySelector('[contenteditable]')
+      @$composerBodyWrap = ReactDOM.findDOMNode(@composer.refs.composerBodyWrap)
 
     it 'should display the quoted text', ->
       expect(@$contentEditable.innerHTML).toBe @htmlWithQuote
@@ -115,8 +116,8 @@ describe "Composer Quoted Text", ->
         body: @htmlWithQuote
         showQuotedText: false
       @contentEditable = @composer.refs[Fields.Body]
-      @$contentEditable = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(@contentEditable, 'contentEditable'))
-      @$composerBodyWrap = React.findDOMNode(@composer.refs.composerBodyWrap)
+      @$contentEditable = ReactDOM.findDOMNode(@contentEditable).querySelector('[contenteditable]')
+      @$composerBodyWrap = ReactDOM.findDOMNode(@composer.refs.composerBodyWrap)
 
     # The quoted text dom parser wraps stuff inertly in body tags
     wrapBody = (html) -> "<head></head><body>#{html}</body>"

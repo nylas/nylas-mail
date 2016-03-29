@@ -1,6 +1,7 @@
-React = require 'react/addons'
+React = require 'react'
+ReactDOM = require 'react-dom'
+ReactCSSTransitionGroup = require 'react-addons-css-transition-group'
 OnboardingActions = require './onboarding-actions'
-ReactCSSTransitionGroup = React.addons.CSSTransitionGroup
 PageRouterStore = require './page-router-store'
 
 WelcomePage = require './welcome-page'
@@ -32,14 +33,14 @@ class PageRouter extends React.Component
 
   _initializeWindowSize: =>
     return if @_unmounted
-    {width, height} = React.findDOMNode(@refs.activePage).getBoundingClientRect()
+    {width, height} = ReactDOM.findDOMNode(@refs.activePage).getBoundingClientRect()
     NylasEnv.setSize(width, height)
     NylasEnv.center()
     NylasEnv.show()
 
   _updateWindowSize: =>
     return if @_unmounted
-    {width, height} = React.findDOMNode(@refs.activePage).getBoundingClientRect()
+    {width, height} = ReactDOM.findDOMNode(@refs.activePage).getBoundingClientRect()
     NylasEnv.setSizeAnimated(width, height)
 
   _onStateChanged: =>
@@ -54,8 +55,8 @@ class PageRouter extends React.Component
       {@_renderDragRegion()}
       <ReactCSSTransitionGroup
         transitionName="alpha-fade"
-        leaveTimeout={150}
-        enterTimeout={150}>
+        transitionLeaveTimeout={150}
+        transitionEnterTimeout={150}>
         {@_renderCurrentPage()}
         {@_renderCurrentPageGradient()}
       </ReactCSSTransitionGroup>

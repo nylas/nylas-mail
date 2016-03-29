@@ -1,5 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
+ReactDOM = require 'react-dom'
 classNames = require 'classnames'
 RetinaImg = require './retina-img'
 EventedIFrame = require './evented-iframe'
@@ -142,7 +143,7 @@ class EmptyListState extends React.Component
 
   _getDimensions: =>
     return null unless @_mounted
-    node = React.findDOMNode(@)
+    node = ReactDOM.findDOMNode(@)
     rect = node.getBoundingClientRect()
     return {width: rect.width, height: rect.height}
 

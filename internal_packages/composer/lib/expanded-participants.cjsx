@@ -1,5 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
+ReactDOM = require 'react-dom'
 AccountContactField = require './account-contact-field'
 ParticipantsTextField = require './participants-text-field'
 {Actions} = require 'nylas-exports'
@@ -81,7 +82,7 @@ class ExpandedParticipants extends React.Component
       if @refs[@props.focusedField].focus
         @refs[@props.focusedField].focus()
       else
-        React.findDOMNode(@refs[@props.focusedField]).focus()
+        ReactDOM.findDOMNode(@refs[@props.focusedField]).focus()
 
   _renderFields: =>
     # Note: We need to physically add and remove these elements, not just hide them.

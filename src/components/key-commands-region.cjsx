@@ -1,5 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
+ReactDOM = require 'react-dom'
 classNames = require 'classnames'
 
 ###
@@ -119,7 +120,7 @@ class KeyCommandsRegion extends React.Component
         # This happens when component that used to have the focus is
         # unmounted. An example is the url input field of the
         # FloatingToolbar in the Composer's Contenteditable
-        el = React.findDOMNode(@)
+        el = ReactDOM.findDOMNode(@)
         return if el.contains document.activeElement
 
         # This prevents the strange effect of an input appearing to have focus
@@ -158,7 +159,7 @@ class KeyCommandsRegion extends React.Component
   _setupListeners: (props) ->
     @_globalDisposable = NylasEnv.commands.add('body', props.globalHandlers)
     return unless @_mounted
-    $el = React.findDOMNode(@)
+    $el = ReactDOM.findDOMNode(@)
     @_localDisposable = NylasEnv.commands.add($el, props.localHandlers)
     $el.addEventListener('focusin', @_in)
     $el.addEventListener('focusout', @_out)
@@ -169,7 +170,7 @@ class KeyCommandsRegion extends React.Component
     @_globalDisposable = null
     @_localDisposable?.dispose()
     @_localDisposable = null
-    $el = React.findDOMNode(@)
+    $el = ReactDOM.findDOMNode(@)
     $el.removeEventListener('focusin', @_in)
     $el.removeEventListener('focusout', @_out)
     window.removeEventListener('browser-window-blur', @_onWindowBlur)

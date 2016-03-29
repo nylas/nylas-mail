@@ -1,4 +1,5 @@
 React = require 'react'
+ReactDOM = require 'react-dom'
 _ = require 'underscore'
 UnsafeComponent = require './unsafe-component'
 InjectedComponentLabel = require './injected-component-label'
@@ -134,9 +135,9 @@ class InjectedComponent extends React.Component
     else if @refs.inner and @refs.inner[method]?
       target = @refs.inner
     else if @refs.inner
-      target = React.findDOMNode(@refs.inner)
+      target = ReactDOM.findDOMNode(@refs.inner)
     else
-      target = React.findDOMNode(@)
+      target = ReactDOM.findDOMNode(@)
 
     target[method].bind(target)(args...)
 

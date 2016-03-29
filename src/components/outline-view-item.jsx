@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import classnames from 'classnames';
 import React, {Component, PropTypes} from 'react';
+import ReactDOM from 'react-dom';
 import DisclosureTriangle from './disclosure-triangle';
 import DropZone from './drop-zone';
 import RetinaImg from './retina-img';
@@ -143,7 +144,7 @@ class OutlineViewItem extends Component {
 
   componentDidMount() {
     if (this._shouldShowContextMenu()) {
-      React.findDOMNode(this).addEventListener('contextmenu', this._onShowContextMenu);
+      ReactDOM.findDOMNode(this).addEventListener('contextmenu', this._onShowContextMenu);
     }
   }
 
@@ -160,7 +161,7 @@ class OutlineViewItem extends Component {
 
   componentWillUnmount() {
     if (this._shouldShowContextMenu()) {
-      React.findDOMNode(this).removeEventListener('contextmenu', this._onShowContextMenu);
+      ReactDOM.findDOMNode(this).removeEventListener('contextmenu', this._onShowContextMenu);
     }
   }
 

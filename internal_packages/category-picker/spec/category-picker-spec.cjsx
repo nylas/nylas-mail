@@ -1,6 +1,7 @@
 _ = require 'underscore'
-React = require "react/addons"
-ReactTestUtils = React.addons.TestUtils
+React = require "react"
+ReactDOM = require 'react-dom'
+ReactTestUtils = require 'react-addons-test-utils'
 CategoryPickerPopover = require '../lib/category-picker-popover'
 
 {Utils,
@@ -99,13 +100,13 @@ describe 'CategoryPickerPopover', ->
       expect(count).toBe 0
 
     it "is visible when the search box has text", ->
-      inputNode = React.findDOMNode(ReactTestUtils.scryRenderedDOMComponentsWithTag(@picker, "input")[0])
+      inputNode = ReactDOM.findDOMNode(ReactTestUtils.scryRenderedDOMComponentsWithTag(@picker, "input")[0])
       ReactTestUtils.Simulate.change inputNode, target: { value: "calendar" }
       count = ReactTestUtils.scryRenderedDOMComponentsWithClass(@picker, 'category-create-new').length
       expect(count).toBe 1
 
     it "shows folder icon if we're using exchange", ->
-      inputNode = React.findDOMNode(ReactTestUtils.scryRenderedDOMComponentsWithTag(@picker, "input")[0])
+      inputNode = ReactDOM.findDOMNode(ReactTestUtils.scryRenderedDOMComponentsWithTag(@picker, "input")[0])
       ReactTestUtils.Simulate.change inputNode, target: { value: "calendar" }
       count = ReactTestUtils.scryRenderedDOMComponentsWithClass(@picker, 'category-create-new-folder').length
       expect(count).toBe 1
@@ -115,7 +116,7 @@ describe 'CategoryPickerPopover', ->
       setupForCreateNew.call @, "label"
 
     it "shows label icon if we're using gmail", ->
-      inputNode = React.findDOMNode(ReactTestUtils.scryRenderedDOMComponentsWithTag(@picker, "input")[0])
+      inputNode = ReactDOM.findDOMNode(ReactTestUtils.scryRenderedDOMComponentsWithTag(@picker, "input")[0])
       ReactTestUtils.Simulate.change inputNode, target: { value: "calendar" }
       count = ReactTestUtils.scryRenderedDOMComponentsWithClass(@picker, 'category-create-new-tag').length
       expect(count).toBe 1

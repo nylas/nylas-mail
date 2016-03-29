@@ -1,7 +1,8 @@
 React = require 'react'
+ReactDOM = require 'react-dom'
 ComposerHeaderActions = require '../lib/composer-header-actions'
 Fields = require '../lib/fields'
-ReactTestUtils = React.addons.TestUtils
+ReactTestUtils = require('react-addons-test-utils')
 {Actions} = require 'nylas-exports'
 
 describe "ComposerHeaderActions", ->
@@ -64,23 +65,23 @@ describe "ComposerHeaderActions", ->
     spyOn(Actions, "composePopoutDraft")
     makeField.call(@, {focusedField: Fields.To})
     el = ReactTestUtils.findRenderedDOMComponentWithClass(@component, "show-popout")
-    ReactTestUtils.Simulate.click(React.findDOMNode(el))
+    ReactTestUtils.Simulate.click(ReactDOM.findDOMNode(el))
     expect(Actions.composePopoutDraft).toHaveBeenCalled()
 
   it "shows and focuses cc when clicked", ->
     makeField.call(@, {focusedField: Fields.To})
     el = ReactTestUtils.findRenderedDOMComponentWithClass(@component, "show-cc")
-    ReactTestUtils.Simulate.click(React.findDOMNode(el))
+    ReactTestUtils.Simulate.click(ReactDOM.findDOMNode(el))
     expect(@onAdjustEnabledFields).toHaveBeenCalledWith show: [Fields.Cc]
 
   it "shows and focuses bcc when clicked", ->
     makeField.call(@, {focusedField: Fields.To})
     el = ReactTestUtils.findRenderedDOMComponentWithClass(@component, "show-bcc")
-    ReactTestUtils.Simulate.click(React.findDOMNode(el))
+    ReactTestUtils.Simulate.click(ReactDOM.findDOMNode(el))
     expect(@onAdjustEnabledFields).toHaveBeenCalledWith show: [Fields.Bcc]
 
   it "shows subject when clicked", ->
     makeField.call(@, {focusedField: Fields.To})
     el = ReactTestUtils.findRenderedDOMComponentWithClass(@component, "show-subject")
-    ReactTestUtils.Simulate.click(React.findDOMNode(el))
+    ReactTestUtils.Simulate.click(ReactDOM.findDOMNode(el))
     expect(@onAdjustEnabledFields).toHaveBeenCalledWith show: [Fields.Subject]

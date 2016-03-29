@@ -1,5 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
+ReactDOM = require 'react-dom'
 
 {File,
  Utils,
@@ -131,7 +132,7 @@ class ComposerView extends React.Component
   _applyFieldFocusTo: (fieldName) =>
     return unless @refs[fieldName]
 
-    $el = React.findDOMNode(@refs[fieldName])
+    $el = ReactDOM.findDOMNode(@refs[fieldName])
     return if document.activeElement is $el or $el.contains(document.activeElement)
     if @refs[fieldName].focus
       @refs[fieldName].focus()
@@ -355,7 +356,7 @@ class ComposerView extends React.Component
   # component. We provide it our boundingClientRect so it can calculate
   # this value.
   _getComposerBoundingRect: =>
-    React.findDOMNode(@refs.composerWrap).getBoundingClientRect()
+    ReactDOM.findDOMNode(@refs.composerWrap).getBoundingClientRect()
 
   _removeQuotedText: (html) =>
     if @state.showQuotedText then return html
@@ -474,7 +475,7 @@ class ComposerView extends React.Component
   # start and end target are both not in the contenteditable. This ensures
   # that this behavior doesn't interfear with a click and drag selection.
   _onMouseDownComposerBody: (event) =>
-    if React.findDOMNode(@refs[Fields.Body]).contains(event.target)
+    if ReactDOM.findDOMNode(@refs[Fields.Body]).contains(event.target)
       @_mouseDownTarget = null
     else @_mouseDownTarget = event.target
 

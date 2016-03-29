@@ -1,5 +1,6 @@
 _ = require 'underscore'
-React = require 'react/addons'
+React = require 'react'
+ReactDOM = require 'react-dom'
 ScrollRegion = require './scroll-region'
 Spinner = require './spinner'
 {Utils} = require 'nylas-exports'
@@ -211,7 +212,7 @@ class ListTabular extends React.Component
     @refs.container.scrollTo(node)
 
   scrollByPage: (direction) =>
-    height = React.findDOMNode(@refs.container).clientHeight
+    height = ReactDOM.findDOMNode(@refs.container).clientHeight
     @refs.container.scrollTop += height * direction
 
 

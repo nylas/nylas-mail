@@ -1,4 +1,5 @@
-React = require 'react/addons'
+React = require 'react'
+ReactDOM = require 'react-dom'
 classNames = require 'classnames'
 _ = require 'underscore'
 {DOMUtils} = require 'nylas-exports'
@@ -191,8 +192,8 @@ class Menu extends React.Component
       selectedIndex: newSelectionIndex
 
   componentDidUpdate: =>
-    item = React.findDOMNode(@).querySelector(".selected")
-    container = React.findDOMNode(@).querySelector(".content-container")
+    item = ReactDOM.findDOMNode(@).querySelector(".selected")
+    container = ReactDOM.findDOMNode(@).querySelector(".content-container")
     adjustment = DOMUtils.scrollAdjustmentToMakeNodeVisibleInContainer(item, container)
     if adjustment isnt 0
       container.scrollTop += adjustment

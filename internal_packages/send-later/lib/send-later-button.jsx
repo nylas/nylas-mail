@@ -1,6 +1,7 @@
 /** @babel */
 import Rx from 'rx-lite'
 import React, {Component, PropTypes} from 'react'
+import ReactDOM from 'react-dom'
 import {Actions, DateUtils, Message, DatabaseStore} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
 import SendLaterPopover from './send-later-popover'
@@ -42,7 +43,7 @@ class SendLaterButton extends Component {
   };
 
   onClick = () => {
-    const buttonRect = React.findDOMNode(this).getBoundingClientRect()
+    const buttonRect = ReactDOM.findDOMNode(this).getBoundingClientRect()
     Actions.openPopover(
       <SendLaterPopover
         scheduledDate={this.state.scheduledDate}

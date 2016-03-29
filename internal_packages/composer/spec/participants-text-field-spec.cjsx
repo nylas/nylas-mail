@@ -1,6 +1,7 @@
 _ = require 'underscore'
-React = require 'react/addons'
-ReactTestUtils = React.addons.TestUtils
+React = require 'react'
+ReactDOM = require 'react-dom'
+ReactTestUtils = require('react-addons-test-utils')
 proxyquire = require 'proxyquire'
 
 {NylasTestUtils,
@@ -54,7 +55,7 @@ describe 'ParticipantsTextField', ->
         participants={@participants}
         change={@propChange} />
     )
-    @renderedInput = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithTag(@renderedField, 'input'))
+    @renderedInput = ReactDOM.findDOMNode(@renderedField).querySelector('input')
 
     @expectInputToYield = (input, expected) ->
       reviver = (k,v) ->

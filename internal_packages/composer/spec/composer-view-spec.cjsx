@@ -1,8 +1,9 @@
 _ = require "underscore"
 proxyquire = require "proxyquire"
 
-React = require "react/addons"
-ReactTestUtils = React.addons.TestUtils
+React = require "react"
+ReactDOM = require 'react-dom'
+ReactTestUtils = require('react-addons-test-utils')
 
 {Actions,
  File,
@@ -157,7 +158,7 @@ describe "ComposerView", ->
       it 'makes a request with the message contents', ->
         useDraft.call @
         makeComposer.call @
-        editableNode = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(@composer, 'contentEditable'))
+        editableNode = ReactDOM.findDOMNode(@composer).querySelector('[contenteditable]')
         spyOn(@proxy.changes, "add")
         editableNode.innerHTML = "Hello <strong>world</strong>"
         @composer.refs[Fields.Body]._onDOMMutated(["mutated"])
@@ -177,7 +178,7 @@ describe "ComposerView", ->
           body: @replyBody
 
         makeComposer.call @
-        @editableNode = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(@composer, 'contentEditable'))
+        @editableNode = ReactDOM.findDOMNode(@composer).querySelector('[contenteditable]')
         spyOn(@proxy.changes, "add")
 
       it 'begins with the replying message collapsed', ->
@@ -209,7 +210,7 @@ describe "ComposerView", ->
           body: @fwdBody
 
         makeComposer.call @
-        @editableNode = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(@composer, 'contentEditable'))
+        @editableNode = ReactDOM.findDOMNode(@composer).querySelector('[contenteditable]')
         spyOn(@proxy.changes, "add")
 
       it 'begins with the forwarded message expanded', ->
@@ -365,7 +366,7 @@ describe "ComposerView", ->
         makeComposer.call(@)
         @composer.setState focusedField: Fields.Cc
         @body = @composer.refs[Fields.Body]
-        spyOn(React, "findDOMNode").andCallThrough()
+        spyOn(ReactDOM, "findDOMNode").andCallThrough()
         spyOn(@composer, "focus")
         spyOn(@composer, "_applyFieldFocus").andCallThrough()
         spyOn(@composer, "_onEditorBodyDidRender").andCallThrough()
@@ -379,7 +380,7 @@ describe "ComposerView", ->
       it "can focus on the subject", ->
         @composer.setState focusedField: Fields.Subject
         expect(@composer._applyFieldFocus.calls.length).toBe 2
-        expect(React.findDOMNode).toHaveBeenCalledWith(@composer.refs[Fields.Subject])
+        expect(ReactDOM.findDOMNode).toHaveBeenCalledWith(@composer.refs[Fields.Subject])
 
       it "focuses the body when the body changes only after it has been rendered", ->
         @composer._onEditorBodyDidRender()
@@ -567,12 +568,12 @@ describe "ComposerView", ->
             cmdctrl = 'cmd'
           else
             cmdctrl = 'ctrl'
-          NylasTestUtils.keyDown("#{cmdctrl}-enter", React.findDOMNode(@$composer))
+          NylasTestUtils.keyDown("#{cmdctrl}-enter", ReactDOM.findDOMNode(@$composer))
           expect(Actions.sendDraft).toHaveBeenCalled()
           expect(Actions.sendDraft.calls.length).toBe 1
 
         it "does not send the draft on enter if the button isn't in focus", ->
-          NylasTestUtils.keyDown("enter", React.findDOMNode(@$composer))
+          NylasTestUtils.keyDown("enter", ReactDOM.findDOMNode(@$composer))
           expect(Actions.sendDraft).not.toHaveBeenCalled()
 
         it "doesn't let you send twice", ->
@@ -580,12 +581,12 @@ describe "ComposerView", ->
             cmdctrl = 'cmd'
           else
             cmdctrl = 'ctrl'
-          NylasTestUtils.keyDown("#{cmdctrl}-enter", React.findDOMNode(@$composer))
+          NylasTestUtils.keyDown("#{cmdctrl}-enter", ReactDOM.findDOMNode(@$composer))
           expect(Actions.sendDraft).toHaveBeenCalled()
           expect(Actions.sendDraft.calls.length).toBe 1
           @isSending = true
           DraftStore.trigger()
-          NylasTestUtils.keyDown("#{cmdctrl}-enter", React.findDOMNode(@$composer))
+          NylasTestUtils.keyDown("#{cmdctrl}-enter", ReactDOM.findDOMNode(@$composer))
           expect(Actions.sendDraft).toHaveBeenCalled()
           expect(Actions.sendDraft.calls.length).toBe 1
 

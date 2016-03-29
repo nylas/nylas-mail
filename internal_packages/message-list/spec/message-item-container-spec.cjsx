@@ -1,6 +1,6 @@
-React = require "react/addons"
+React = require "react"
 proxyquire = require("proxyquire").noPreserveCache()
-ReactTestUtils = React.addons.TestUtils
+ReactTestUtils = require('react-addons-test-utils')
 
 {Thread,
  Message,

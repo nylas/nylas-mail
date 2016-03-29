@@ -1,5 +1,6 @@
 _ = require 'underscore'
-React = require 'react/addons'
+React = require 'react'
+ReactDOM = require 'react-dom'
 {Utils} = require 'nylas-exports'
 classNames = require 'classnames'
 ScrollbarTicks = require './scrollbar-ticks'
@@ -80,7 +81,7 @@ class Scrollbar extends React.Component
 
   _recomputeDimensions: ({useCachedValues}) =>
     if not useCachedValues
-      trackNode = React.findDOMNode(@refs.track)
+      trackNode = ReactDOM.findDOMNode(@refs.track)
       return unless trackNode
       trackHeight = trackNode.clientHeight
       if trackHeight isnt @state.trackHeight
@@ -91,8 +92,8 @@ class Scrollbar extends React.Component
     handleTop = (@state.viewportScrollTop / (@state.totalHeight - @state.viewportHeight)) * (@state.trackHeight - handleHeight)
 
     position:'relative'
-    height: handleHeight
-    top: handleTop
+    height: handleHeight || 0
+    top: handleTop || 0
 
   _scrollbarWrapStyles: =>
     position:'absolute'
@@ -103,8 +104,8 @@ class Scrollbar extends React.Component
     visibility: "hidden" if @state.totalHeight != 0 && @state.totalHeight == @state.viewportHeight
 
   _onHandleDown: (event) =>
-    handleNode = React.findDOMNode(@refs.handle)
-    @_trackOffset = React.findDOMNode(@refs.track).getBoundingClientRect().top
+    handleNode = ReactDOM.findDOMNode(@refs.handle)
+    @_trackOffset = ReactDOM.findDOMNode(@refs.track).getBoundingClientRect().top
     @_mouseOffsetWithinHandle = event.pageY - handleNode.getBoundingClientRect().top
     window.addEventListener("mousemove", @_onHandleMove)
     window.addEventListener("mouseup", @_onHandleUp)
@@ -128,7 +129,7 @@ class Scrollbar extends React.Component
     event.stopPropagation()
 
   _onScrollJump: (event) =>
-    @_trackOffset = React.findDOMNode(@refs.track).getBoundingClientRect().top
+    @_trackOffset = ReactDOM.findDOMNode(@refs.track).getBoundingClientRect().top
     @_mouseOffsetWithinHandle = @_getHandleHeight() / 2
     @_onHandleMove(event)
 
@@ -177,8 +178,8 @@ class ScrollRegion extends React.Component
       scrolling: false
 
     Object.defineProperty(@, 'scrollTop', {
-      get: -> React.findDOMNode(@refs.content).scrollTop
-      set: (val) -> React.findDOMNode(@refs.content).scrollTop = val
+      get: -> ReactDOM.findDOMNode(@refs.content).scrollTop
+      set: (val) -> ReactDOM.findDOMNode(@refs.content).scrollTop = val
     })
 
   componentDidMount: =>
@@ -191,7 +192,7 @@ class ScrollRegion extends React.Component
         recompute ||= !mutation.oldValue or mutation.oldValue.indexOf('height:') isnt -1
       @recomputeDimensions({useCachedValues: false}) if recompute
 
-    @_heightObserver.observe(React.findDOMNode(@refs.content), {
+    @_heightObserver.observe(ReactDOM.findDOMNode(@refs.content), {
       subtree: true,
       attributes: true,
       attributeOldValue: true,
@@ -249,7 +250,7 @@ class ScrollRegion extends React.Component
   #
   scrollTo: (node, {position, settle, done} = {}) =>
     if node instanceof React.Component
-      node = React.findDOMNode(node)
+      node = ReactDOM.findDOMNode(node)
     unless node instanceof Node
       throw new Error("ScrollRegion.scrollTo: requires a DOM node or React element. Maybe you meant scrollToRect?")
     @_scroll {position, settle, done}, =>
@@ -267,7 +268,7 @@ class ScrollRegion extends React.Component
     @_scroll {position, settle, done}, => rect
 
   _scroll: ({position, settle, done}, clientRectProviderCallback) ->
-    contentNode = React.findDOMNode(@refs.content)
+    contentNode = ReactDOM.findDOMNode(@refs.content)
     position ?= ScrollRegion.ScrollPosition.Visible
 
     if settle is true
@@ -316,7 +317,7 @@ class ScrollRegion extends React.Component
       done?(true)
 
   _settleHeight: (callback) =>
-    contentNode = React.findDOMNode(@refs.content)
+    contentNode = ReactDOM.findDOMNode(@refs.content)
     lastContentHeight = -1
     scrollIfSettled = =>
       return unless @_mounted
@@ -335,7 +336,7 @@ class ScrollRegion extends React.Component
 
   _recomputeDimensions: ({useCachedValues}) =>
     return unless @refs.content
-    contentNode = React.findDOMNode(@refs.content)
+    contentNode = ReactDOM.findDOMNode(@refs.content)
     return unless contentNode
 
     viewportScrollTop = contentNode.scrollTop
@@ -367,7 +368,7 @@ class ScrollRegion extends React.Component
     # onScroll events propogate, which is a bit strange. We could actually be
     # receiving a scroll event for a textarea inside the scroll region.
     # See Preferences > Signatures > textarea
-    return unless event.target is React.findDOMNode(@refs.content)
+    return unless event.target is ReactDOM.findDOMNode(@refs.content)
 
     if @state.scrolling
       @recomputeDimensions({useCachedValues: true})

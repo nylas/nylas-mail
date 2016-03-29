@@ -1,6 +1,7 @@
 _ = require 'underscore'
 classNames = require 'classnames'
 React = require 'react'
+ReactDOM = require 'react-dom'
 {Utils} = require 'nylas-exports'
 
 idPropType = React.PropTypes.oneOfType([
@@ -135,7 +136,7 @@ class FormItem extends React.Component
 
   refreshValidityState: => _.defer =>
     return unless @refs.input
-    el = React.findDOMNode(@refs.input)
+    el = ReactDOM.findDOMNode(@refs.input)
 
     customMsg = @props.formItemError?.message
     if el.setCustomValidity?
@@ -317,7 +318,7 @@ class GeneratedForm extends React.Component
     not Utils.isEqualReact(nextState, @state)
 
   _onSubmit: =>
-    valid = React.findDOMNode(@refs.form).reportValidity()
+    valid = ReactDOM.findDOMNode(@refs.form).reportValidity()
     if valid
       @props.onSubmit()
     else

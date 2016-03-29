@@ -1,5 +1,5 @@
-import {React} from 'nylas-exports';
-const ReactTestUtils = React.addons.TestUtils
+import {React, ReactDOM} from 'nylas-exports';
+const ReactTestUtils = require('react-addons-test-utils')
 
 import MyComposerButton from '../lib/my-composer-button';
 
@@ -20,7 +20,7 @@ describe("MyComposerButton", () => {
 
   it("should show a dialog box when clicked", () => {
     spyOn(this.component, '_onClick');
-    const buttonNode = React.findDOMNode(this.component.refs.button);
+    const buttonNode = ReactDOM.findDOMNode(this.component.refs.button);
     ReactTestUtils.Simulate.click(buttonNode);
     expect(this.component._onClick).toHaveBeenCalled();
   });

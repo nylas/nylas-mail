@@ -1,7 +1,8 @@
-import React, {addons} from 'react/addons';
+import React from 'react';
+import {renderIntoDocument} from 'react-addons-test-utils';
+
 import PreferencesAccountDetails from '../lib/tabs/preferences-account-details';
 import {Account} from 'nylas-exports';
-const {TestUtils: {renderIntoDocument}} = addons;
 
 
 const makeComponent = (props = {})=> {

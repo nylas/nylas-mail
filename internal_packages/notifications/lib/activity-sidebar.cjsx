@@ -1,6 +1,9 @@
 React = require 'react'
+ReactDOM = require 'react-dom'
+ReactCSSTransitionGroup = require 'react-addons-css-transition-group'
 _ = require 'underscore'
 classNames = require 'classnames'
+
 NotificationStore = require './notifications-store'
 InitialSyncActivity = require './initial-sync-activity'
 {Actions,
@@ -9,7 +12,7 @@ InitialSyncActivity = require './initial-sync-activity'
  NylasSyncStatusStore,
  TaskQueueStatusStore} = require 'nylas-exports'
 ActivitySidebarLongPollStore = require './activity-sidebar-long-poll-store'
-{TimeoutTransitionGroup, RetinaImg} = require 'nylas-component-kit'
+{RetinaImg} = require 'nylas-component-kit'
 
 class ActivitySidebar extends React.Component
   @displayName: 'ActivitySidebar'
@@ -51,21 +54,21 @@ class ActivitySidebar extends React.Component
     if items.length is 0
       wrapperClass += "sidebar-activity-empty"
     else
-      inside = <TimeoutTransitionGroup
+      inside = <ReactCSSTransitionGroup
         className={names}
-        leaveTimeout={625}
-        enterTimeout={125}
+        transitionLeaveTimeout={625}
+        transitionEnterTimeout={125}
         transitionName="activity-opacity">
         {items}
-      </TimeoutTransitionGroup>
+      </ReactCSSTransitionGroup>
 
-    <TimeoutTransitionGroup
+    <ReactCSSTransitionGroup
       className={wrapperClass}
-      leaveTimeout={625}
-      enterTimeout={125}
+      transitionLeaveTimeout={625}
+      transitionEnterTimeout={125}
       transitionName="activity-opacity">
         {inside}
-    </TimeoutTransitionGroup>
+    </ReactCSSTransitionGroup>
 
   _renderTaskActivityItems: =>
     summary = {}

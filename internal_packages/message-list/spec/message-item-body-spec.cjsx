@@ -1,6 +1,6 @@
 proxyquire = require 'proxyquire'
-React = require "react/addons"
-ReactTestUtils = React.addons.TestUtils
+React = require "react"
+ReactTestUtils = require('react-addons-test-utils')
 
 {Contact,
  Message,

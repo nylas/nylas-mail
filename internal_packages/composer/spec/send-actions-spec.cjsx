@@ -1,5 +1,6 @@
-React = require "react/addons"
-ReactTestUtils = React.addons.TestUtils
+React = require "react"
+ReactDOM = require 'react-dom'
+ReactTestUtils = require('react-addons-test-utils')
 
 SendActionButton = require '../lib/send-action-button'
 {Actions, Message, ComposerExtension, ExtensionRegistry} = require 'nylas-exports'
@@ -131,7 +132,7 @@ describe "SendActionButton", ->
 
   it "sends a draft by default", ->
     @sendActionButton = render(@draft)
-    button = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithTag(@sendActionButton, "button"))
+    button = ReactTestUtils.findRenderedDOMComponentWithTag(@sendActionButton, "button")
     ReactTestUtils.Simulate.click(button)
     expect(isValidDraft).toHaveBeenCalled()
     expect(Actions.sendDraft).toHaveBeenCalled()
@@ -139,7 +140,7 @@ describe "SendActionButton", ->
 
   it "doesn't send a draft if the isValidDraft fails", ->
     @sendActionButton = render(@draft, false)
-    button = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithTag(@sendActionButton, "button"))
+    button = ReactTestUtils.findRenderedDOMComponentWithTag(@sendActionButton, "button")
     ReactTestUtils.Simulate.click(button)
     expect(isValidDraft).toHaveBeenCalled()
     expect(Actions.sendDraft).not.toHaveBeenCalled()
@@ -156,7 +157,7 @@ describe "SendActionButton", ->
 
     @sendActionButton = render(@draft)
 
-    button = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(@sendActionButton, "primary-item"))
+    button = ReactDOM.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(@sendActionButton, "primary-item"))
     ReactTestUtils.Simulate.click(button)
     expect(clicked).toBe "onSend fired"
 
@@ -172,7 +173,7 @@ describe "SendActionButton", ->
 
     @sendActionButton = render(@draft)
 
-    button = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(@sendActionButton, "primary-item"))
+    button = ReactDOM.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(@sendActionButton, "primary-item"))
     ReactTestUtils.Simulate.click(button)
     expect(clicked).toBe false
     expect(NylasEnv.reportError).toHaveBeenCalled()
@@ -181,5 +182,5 @@ describe "SendActionButton", ->
   it "initializes with the default and shows the standard Send option", ->
     spyOn(NylasEnv.config, 'get').andReturn(null)
     @sendActionButton = render(@draft)
-    button = React.findDOMNode(@sendActionButton)
+    button = ReactDOM.findDOMNode(@sendActionButton)
     expect(button.innerText).toEqual('Send')

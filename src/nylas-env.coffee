@@ -828,8 +828,9 @@ class NylasEnvConstructor extends Model
     @item.setAttribute("tabIndex", "-1")
 
     React = require "react"
+    ReactDOM = require "react-dom"
     SheetContainer = require './sheet-container'
-    React.render(React.createElement(SheetContainer), @item)
+    ReactDOM.render(React.createElement(SheetContainer), @item)
     document.querySelector(@workspaceViewParentSelector).appendChild(@item)
 
   deserializePackageStates: ->

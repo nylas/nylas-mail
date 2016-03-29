@@ -1,5 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
+ReactDOM = require 'react-dom'
 
 {Actions,
  AccountStore,
@@ -38,7 +39,7 @@ class CategoryPicker extends React.Component
   _onOpenCategoryPopover: =>
     return unless @props.items.length > 0
     return unless @context.sheetDepth is WorkspaceStore.sheetStack().length - 1
-    buttonRect = React.findDOMNode(@refs.button).getBoundingClientRect()
+    buttonRect = ReactDOM.findDOMNode(@refs.button).getBoundingClientRect()
     Actions.openPopover(
       <CategoryPickerPopover
         threads={@props.items}
