@@ -1,4 +1,5 @@
-React = require 'react/addons'
+React = require 'react'
+ReactDOM = require 'react-dom'
 {RegExpUtils} = require 'nylas-exports'
 
 class LinkEditor extends React.Component
@@ -24,7 +25,7 @@ class LinkEditor extends React.Component
 
   componentDidMount: ->
     if @props.focusOnMount
-      React.findDOMNode(@refs["urlInput"]).focus()
+      ReactDOM.findDOMNode(@refs["urlInput"]).focus()
 
   render: =>
     widthCorrection = 32 # width of padding and leading icon space
@@ -66,9 +67,9 @@ class LinkEditor extends React.Component
   _onBlur: (event) =>
     targets = []
     if @refs["saveBtn"]
-      targets.push React.findDOMNode(@refs["saveBtn"])
+      targets.push ReactDOM.findDOMNode(@refs["saveBtn"])
     if @refs["removeBtn"]
-      targets.push React.findDOMNode(@refs["removeBtn"])
+      targets.push ReactDOM.findDOMNode(@refs["removeBtn"])
 
     if event.relatedTarget in targets
       event.preventDefault()

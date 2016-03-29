@@ -1,6 +1,6 @@
 import {Utils} from 'nylas-exports'
 import React, {Component, PropTypes} from 'react'
-import TimeoutTransitionGroup from './timeout-transition-group'
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
 
 /**
@@ -63,14 +63,14 @@ class MultiselectToolbar extends Component {
   render() {
     const {selectionCount} = this.props
     return (
-      <TimeoutTransitionGroup
+      <ReactCSSTransitionGroup
         className={"selection-bar"}
         transitionName="selection-bar-absolute"
         component="div"
-        leaveTimeout={200}
-        enterTimeout={200}>
+        transitionLeaveTimeout={200}
+        transitionEnterTimeout={200}>
         {selectionCount > 0 ? this.renderToolbar() : undefined}
-      </TimeoutTransitionGroup>
+      </ReactCSSTransitionGroup>
     )
   }
 }

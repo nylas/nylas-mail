@@ -1,4 +1,5 @@
-React = require 'react/addons'
+React = require 'react'
+ReactDOM = require 'react-dom'
 classNames = require 'classnames'
 _ = require 'underscore'
 {CompositeDisposable} = require 'event-kit'
@@ -20,8 +21,8 @@ class SizeToFitInput extends React.Component
   _sizeToFit: =>
     # Measure the width of the text in the input and
     # resize the input field to fit.
-    input = React.findDOMNode(@refs.input)
-    measure = React.findDOMNode(@refs.measure)
+    input = ReactDOM.findDOMNode(@refs.input)
+    measure = ReactDOM.findDOMNode(@refs.measure)
     measure.innerText = input.value
     measure.style.top = input.offsetTop + "px"
     measure.style.left = input.offsetLeft + "px"
@@ -36,10 +37,10 @@ class SizeToFitInput extends React.Component
     </span>
 
   select: =>
-    React.findDOMNode(@refs.input).select()
+    ReactDOM.findDOMNode(@refs.input).select()
 
   focus: =>
-    React.findDOMNode(@refs.input).focus()
+    ReactDOM.findDOMNode(@refs.input).focus()
 
 class Token extends React.Component
   @displayName: "Token"
@@ -357,7 +358,7 @@ class TokenizingTextField extends React.Component
   _onClick: (event) =>
     # Don't focus if the focus is already on an input within our field,
     # like an editable token's input
-    if event.target.tagName is 'INPUT' and React.findDOMNode(@).contains(event.target)
+    if event.target.tagName is 'INPUT' and ReactDOM.findDOMNode(@).contains(event.target)
       return
     @focus()
 
@@ -414,7 +415,7 @@ class TokenizingTextField extends React.Component
     # this happens we want to leave the field as-is
     return unless event.relatedTarget
 
-    if event.relatedTarget is React.findDOMNode(@)
+    if event.relatedTarget is ReactDOM.findDOMNode(@)
       return
 
     @_addInputValue()

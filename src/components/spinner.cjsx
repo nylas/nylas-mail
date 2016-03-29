@@ -1,4 +1,5 @@
 React = require 'react'
+ReactDOM = require 'react-dom'
 _ = require 'underscore'
 classNames = require 'classnames'
 
@@ -76,7 +77,7 @@ class Spinner extends React.Component
       "spinner-cover": true
       "hidden": @state.hidden
 
-    style = _.extend {}, (@props.style ? {}),
+    style = Object.assign {}, (@props.style ? {}),
       'position':'absolute'
       'display': if @state.hidden then "none" else "block"
       'top': '0'
@@ -84,7 +85,7 @@ class Spinner extends React.Component
       'width': '100%'
       'height': '100%'
       'background': 'rgba(255,255,255,0.9)'
-      'zIndex': @props.zIndex ? 1000
+      'zIndex': 1000
 
     <div className={coverClasses} style={style}>
       {@_renderSpinnerDots()}
@@ -100,7 +101,7 @@ class Spinner extends React.Component
       'position':'absolute'
       'left': '50%'
       'top': '50%'
-      'zIndex': @props.zIndex+1 ? 1001
+      'zIndex': 1001
       'transform':'translate(-50%,-50%)'
 
     otherProps = _.omit(@props, Object.keys(@constructor.propTypes))

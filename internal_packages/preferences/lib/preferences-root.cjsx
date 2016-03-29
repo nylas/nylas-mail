@@ -1,4 +1,5 @@
 React = require 'react'
+ReactDOM = require 'react-dom'
 _ = require 'underscore'
 {RetinaImg,
  Flexbox,
@@ -17,7 +18,7 @@ class PreferencesRoot extends React.Component
     @state = @getStateFromStores()
 
   componentDidMount: =>
-    React.findDOMNode(@).focus()
+    ReactDOM.findDOMNode(@).focus()
     @unlisteners = []
     @unlisteners.push PreferencesUIStore.listen =>
       @setState(@getStateFromStores())
@@ -83,7 +84,7 @@ class PreferencesRoot extends React.Component
   # Focus the first thing with a tabindex when we update.
   # inside the content area. This makes it way easier to interact with prefs.
   _focusContent: =>
-    React.findDOMNode(@refs.content).querySelector('[tabindex]')?.focus()
+    ReactDOM.findDOMNode(@refs.content).querySelector('[tabindex]')?.focus()
 
 
 module.exports = PreferencesRoot

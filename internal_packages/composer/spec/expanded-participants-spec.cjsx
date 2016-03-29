@@ -1,7 +1,7 @@
 _ = require "underscore"
-React = require "react/addons"
+React = require "react"
 Fields = require '../lib/fields'
-ReactTestUtils = React.addons.TestUtils
+ReactTestUtils = require('react-addons-test-utils')
 AccountContactField = require '../lib/account-contact-field'
 ExpandedParticipants = require '../lib/expanded-participants'
 {Actions} = require 'nylas-exports'

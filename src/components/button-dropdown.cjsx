@@ -3,6 +3,7 @@ RetinaImg = require './retina-img'
 classnames = require 'classnames'
 
 React = require 'react'
+ReactDOM = require 'react-dom'
 class ButtonDropdown extends React.Component
   @displayName: "ButtonDropdown"
   @propTypes:
@@ -57,8 +58,8 @@ class ButtonDropdown extends React.Component
     if @state.open isnt false
       @setState(open: false)
     else
-      buttonBottom = React.findDOMNode(@).getBoundingClientRect().bottom
-      openHeight = React.findDOMNode(@refs.secondaryItems).getBoundingClientRect().height
+      buttonBottom = ReactDOM.findDOMNode(@).getBoundingClientRect().bottom
+      openHeight = ReactDOM.findDOMNode(@refs.secondaryItems).getBoundingClientRect().height
       if buttonBottom + openHeight > window.innerHeight
         @setState(open: 'up')
       else
@@ -70,7 +71,7 @@ class ButtonDropdown extends React.Component
 
   _onBlur: (event) =>
     target = event.nativeEvent.relatedTarget
-    if target? and React.findDOMNode(@refs.button).contains(target)
+    if target? and ReactDOM.findDOMNode(@refs.button).contains(target)
       return
     @setState(open: false)
 

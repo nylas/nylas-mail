@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import React from 'react'
+import ReactDOM from 'react-dom'
 import Utils from '../flux/models/utils'
 import VirtualDOMParser from './virtual-dom-parser'
 import SearchableComponentStore from '../flux/stores/searchable-component-store'
@@ -9,7 +9,7 @@ class SearchableComponent {
     if (superMethod) superMethod.apply(this, args);
     this.__regionId = Utils.generateTempId();
     this._searchableListener = SearchableComponentStore.listen(() => {this._onSearchableComponentStoreChange()})
-    SearchableComponentStore.registerSearchRegion(this.__regionId, React.findDOMNode(this))
+    SearchableComponentStore.registerSearchRegion(this.__regionId, ReactDOM.findDOMNode(this))
   }
 
   _onSearchableComponentStoreChange() {
@@ -40,7 +40,7 @@ class SearchableComponent {
 
   componentDidUpdate(superMethod, ...args) {
     if (superMethod) superMethod.apply(this, args);
-    SearchableComponentStore.registerSearchRegion(this.__regionId, React.findDOMNode(this))
+    SearchableComponentStore.registerSearchRegion(this.__regionId, ReactDOM.findDOMNode(this))
   }
 
   render(superMethod, ...args) {
@@ -80,4 +80,3 @@ export default class SearchableComponentMaker {
     return contentDocument;
   }
 }
-

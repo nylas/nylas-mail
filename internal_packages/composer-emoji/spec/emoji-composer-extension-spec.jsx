@@ -1,9 +1,10 @@
-import React, {addons} from 'react/addons';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import ReactTestUtils from 'react-addons-test-utils';
+
 import {renderIntoDocument} from '../../../spec/nylas-test-utils';
 import Contenteditable from '../../../src/components/contenteditable/contenteditable';
 import EmojiComposerExtension from '../lib/emoji-composer-extension';
-
-const ReactTestUtils = addons.TestUtils;
 
 describe('EmojiComposerExtension', ()=> {
   beforeEach(()=> {
@@ -14,7 +15,7 @@ describe('EmojiComposerExtension', ()=> {
     this.component = renderIntoDocument(
       <Contenteditable html={html} onChange={onChange} extensions={[EmojiComposerExtension]}/>
     )
-    this.editableNode = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(this.component, 'contentEditable'));
+    this.editableNode = ReactDOM.findDOMNode(this.component).querySelector('[contenteditable]');
   })
 
   describe('when emoji trigger is typed', ()=> {
@@ -44,7 +45,7 @@ describe('EmojiComposerExtension', ()=> {
         return ReactTestUtils.scryRenderedDOMComponentsWithClass(this.component, 'emoji-option').length > 0
       });
       runs(()=> {
-        expect(React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(this.component, 'emoji-option')).textContent === "💇 :haircut:").toBe(true);
+        expect(ReactDOM.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(this.component, 'emoji-option')).textContent === "💇 :haircut:").toBe(true);
       });
     })
 
@@ -74,7 +75,7 @@ describe('EmojiComposerExtension', ()=> {
         return ReactTestUtils.scryRenderedDOMComponentsWithClass(this.component, 'emoji-picker').length > 0
       });
       runs(()=> {
-        const button = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(this.component, 'emoji-option'))
+        const button = ReactDOM.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(this.component, 'emoji-option'))
         ReactTestUtils.Simulate.mouseDown(button);
         expect(EmojiComposerExtension._onSelectEmoji).toHaveBeenCalled()
       });
@@ -100,7 +101,7 @@ describe('EmojiComposerExtension', ()=> {
         return EmojiComposerExtension.onContentChanged.calls.length > 1
       });
       runs(()=> {
-        expect(React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(this.component, 'emoji-option')).textContent).toEqual("🍔 :hamburger:");
+        expect(ReactDOM.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(this.component, 'emoji-option')).textContent).toEqual("🍔 :hamburger:");
       });
     })
 

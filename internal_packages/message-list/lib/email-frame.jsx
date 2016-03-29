@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import _ from "underscore";
 import {EventedIFrame} from 'nylas-component-kit';
 import {Utils, QuotedHTMLTransformer} from 'nylas-exports';
@@ -47,7 +48,7 @@ export default class EmailFrame extends React.Component {
 
   _writeContent = () => {
     this._lastComputedHeight = 0;
-    const domNode = React.findDOMNode(this);
+    const domNode = ReactDOM.findDOMNode(this);
     const doc = domNode.contentDocument;
     if (!doc) { return; }
     doc.open();
@@ -89,7 +90,7 @@ export default class EmailFrame extends React.Component {
       return;
     }
 
-    const domNode = React.findDOMNode(this);
+    const domNode = ReactDOM.findDOMNode(this);
     const height = this._getFrameHeight(domNode.contentDocument);
 
     // Why 5px? Some emails have elements with a height of 100%, and then put

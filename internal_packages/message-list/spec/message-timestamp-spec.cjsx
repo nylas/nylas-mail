@@ -1,6 +1,7 @@
 moment = require 'moment'
-React = require 'react/addons'
-TestUtils = React.addons.TestUtils
+React = require "react"
+ReactDOM = require "react-dom"
+ReactTestUtils = require 'react-addons-test-utils'
 MessageTimestamp = require '../lib/message-timestamp'
 
 msgTime = ->
@@ -8,7 +9,7 @@ msgTime = ->
 
 describe "MessageTimestamp", ->
   beforeEach ->
-    @item = TestUtils.renderIntoDocument(
+    @item = ReactTestUtils.renderIntoDocument(
       <MessageTimestamp date={msgTime()} />
     )
 

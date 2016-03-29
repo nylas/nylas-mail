@@ -1,5 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
+ReactDOM = require 'react-dom'
 classNames = require 'classnames'
 ListTabular = require './list-tabular'
 Spinner = require './spinner'
@@ -50,8 +51,8 @@ class MultiselectList extends React.Component
     if prevProps.focusedId isnt @props.focusedId or
        prevProps.keyboardCursorId isnt @props.keyboardCursorId
 
-      item = React.findDOMNode(@).querySelector(".focused")
-      item ?= React.findDOMNode(@).querySelector(".keyboard-cursor")
+      item = ReactDOM.findDOMNode(@).querySelector(".focused")
+      item ?= ReactDOM.findDOMNode(@).querySelector(".keyboard-cursor")
       return unless item instanceof Node
       @refs.list.scrollTo(item)
 

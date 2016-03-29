@@ -1,14 +1,15 @@
-import React, {addons} from 'react/addons';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import {
+  Simulate,
+  findRenderedDOMComponentWithClass,
+} from 'react-addons-test-utils';
+
 import {DateUtils} from 'nylas-exports'
 import DateInput from '../../src/components/date-input';
 import {renderIntoDocument} from '../nylas-test-utils'
 
-const {findDOMNode} = React;
-const {TestUtils: {
-  findRenderedDOMComponentWithTag,
-  findRenderedDOMComponentWithClass,
-  Simulate,
-}} = addons;
+const {findDOMNode} = ReactDOM;
 
 const makeInput = (props = {})=> {
   const input = renderIntoDocument(<DateInput {...props} dateFormat="blah" />);
@@ -18,17 +19,12 @@ const makeInput = (props = {})=> {
   return input
 };
 
-const getInputNode = (reactElement)=> {
-  return findDOMNode(findRenderedDOMComponentWithTag(reactElement, 'input'))
-};
-
-
 describe('DateInput', ()=> {
   describe('onInputKeyDown', ()=> {
     it('should submit the input if Enter or Escape pressed', ()=> {
       const onSubmitDate = jasmine.createSpy('onSubmitDate')
       const dateInput = makeInput({onSubmitDate: onSubmitDate})
-      const inputNode = getInputNode(dateInput)
+      const inputNode = ReactDOM.findDOMNode(dateInput).querySelector('input')
       const stopPropagation = jasmine.createSpy('stopPropagation')
       const keys = ['Enter', 'Return']
       inputNode.value = 'tomorrow'

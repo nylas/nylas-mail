@@ -1,4 +1,4 @@
-import {React} from 'nylas-exports';
+import {React, ReactDOM} from 'nylas-exports';
 import EmojiActions from './emoji-actions';
 import emoji from 'node-emoji';
 import missingEmojiList from './missing-emoji';
@@ -17,7 +17,7 @@ class EmojiPicker extends React.Component {
   }
 
   componentDidUpdate() {
-    const selectedButton = React.findDOMNode(this).querySelector(".emoji-option");
+    const selectedButton = ReactDOM.findDOMNode(this).querySelector(".emoji-option");
     if (selectedButton) {
       selectedButton.scrollIntoViewIfNeeded();
     }

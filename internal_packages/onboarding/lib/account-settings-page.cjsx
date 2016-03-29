@@ -1,4 +1,5 @@
 React = require 'react'
+ReactDOM = require 'react-dom'
 _ = require 'underscore'
 {ipcRenderer, dialog, remote} = require 'electron'
 {RetinaImg} = require 'nylas-component-kit'
@@ -88,7 +89,7 @@ class AccountSettingsPage extends React.Component
     @_applyFocus()
 
   _applyFocus: =>
-    firstInput = React.findDOMNode(@).querySelector('input')
+    firstInput = ReactDOM.findDOMNode(@).querySelector('input')
     anyInputFocused = document.activeElement and document.activeElement.nodeName is 'INPUT'
 
     if firstInput and not anyInputFocused

@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactDOM from 'react-dom'
 
 export default class ScrollbarTicks extends React.Component {
   static displayName = "ScrollbarTicks";
@@ -27,7 +28,7 @@ export default class ScrollbarTicks extends React.Component {
       }
       return `<div class="t${className}" style="top: ${percent * 100}%"></div>`
     }).join("")
-    React.findDOMNode(this).innerHTML = html
+    ReactDOM.findDOMNode(this).innerHTML = html
   }
 
   render() {

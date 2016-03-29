@@ -1,3 +1,6 @@
+React = require 'react'
+ReactDOM = require 'react-dom'
+
 {PreferencesUIStore,
  Actions,
  WorkspaceStore,
@@ -7,8 +10,6 @@
 module.exports =
 
   activate: ->
-    React = require 'react'
-
     Cfg = PreferencesUIStore.TabItem
 
     PreferencesUIStore.registerPreferencesTab(new Cfg {

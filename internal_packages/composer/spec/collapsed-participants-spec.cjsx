@@ -1,7 +1,9 @@
 _ = require "underscore"
-React = require "react/addons"
+React = require "react"
+ReactDOM = require 'react-dom'
+ReactTestUtils = require 'react-addons-test-utils'
+
 Fields = require '../lib/fields'
-ReactTestUtils = React.addons.TestUtils
 CollapsedParticipants = require '../lib/collapsed-participants'
 
 {Contact} = require 'nylas-exports'
@@ -16,12 +18,12 @@ describe "CollapsedParticipants", ->
 
   it "fires callback when clicked", ->
     makeField.call(@)
-    ReactTestUtils.Simulate.click React.findDOMNode(@fields)
+    ReactTestUtils.Simulate.click ReactDOM.findDOMNode(@fields)
     expect(@onClick).toHaveBeenCalled()
     expect(@onClick.calls.length).toBe 1
 
   numStr = ->
-    React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(@fields, "num-remaining")).innerHTML
+    ReactDOM.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(@fields, "num-remaining")).innerHTML
 
   it "doesn't render num remaining when nothing remains", ->
     makeField.call(@)

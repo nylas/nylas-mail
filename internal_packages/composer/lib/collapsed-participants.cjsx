@@ -1,4 +1,5 @@
 React = require 'react'
+ReactDOM = require 'react-dom'
 {Utils} = require 'nylas-exports'
 {InjectedComponentSet} = require 'nylas-component-kit'
 
@@ -91,7 +92,7 @@ class CollapsedParticipants extends React.Component
           className="collapsed-contact bcc-contact">{name}</span>
 
   _setNumHiddenParticipants: ->
-    $wrap = React.findDOMNode(@refs.participantsWrap)
+    $wrap = ReactDOM.findDOMNode(@refs.participantsWrap)
     $regulars = $wrap.getElementsByClassName("regular-contact")
     $bccs = $wrap.getElementsByClassName("bcc-contact")
 

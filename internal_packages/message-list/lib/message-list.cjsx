@@ -1,5 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
+ReactDOM = require 'react-dom'
 classNames = require 'classnames'
 FindInThread = require './find-in-thread'
 MessageItemContainer = require './message-item-container'
@@ -235,7 +236,7 @@ class MessageList extends React.Component
     Actions.toggleAllMessagesExpanded()
 
   _onPrintThread: =>
-    node = React.findDOMNode(@)
+    node = ReactDOM.findDOMNode(@)
     Actions.printThread(@state.currentThread, node.innerHTML)
 
   _onClickReplyArea: =>
@@ -358,7 +359,7 @@ class MessageList extends React.Component
       throw new Error("onChildScrollRequest: expected clientId or rect")
 
   _onScrollByPage: (direction) =>
-    height = React.findDOMNode(@refs.messageWrap).clientHeight
+    height = ReactDOM.findDOMNode(@refs.messageWrap).clientHeight
     @refs.messageWrap.scrollTop += height * direction
 
   _onChange: =>

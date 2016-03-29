@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactDOM from 'react-dom'
 import classnames from 'classnames'
 import {Actions, MessageStore, SearchableComponentStore} from 'nylas-exports'
 import {RetinaImg, KeyCommandsRegion} from 'nylas-component-kit'
@@ -50,7 +51,7 @@ export default class FindInThread extends React.Component {
       return event.shiftKey ? this._onPrevResult() : this._onNextResult()
     } else if (event.key === "Escape") {
       this._clearSearch()
-      React.findDOMNode(this.refs.searchBox).blur()
+      ReactDOM.findDOMNode(this.refs.searchBox).blur()
     }
   }
 
@@ -78,9 +79,9 @@ export default class FindInThread extends React.Component {
   }
 
   _focusSearch = (event) => {
-    const cw = React.findDOMNode(this.refs.controlsWrap)
+    const cw = ReactDOM.findDOMNode(this.refs.controlsWrap)
     if (!event || !(cw && cw.contains(event.target))) {
-      React.findDOMNode(this.refs.searchBox).focus()
+      ReactDOM.findDOMNode(this.refs.searchBox).focus()
     }
   }
 
@@ -135,4 +136,3 @@ export default class FindInThread extends React.Component {
   }
 
 }
-

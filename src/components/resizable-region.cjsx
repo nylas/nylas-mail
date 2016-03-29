@@ -1,4 +1,5 @@
 React = require 'react'
+ReactDOM = require 'react-dom'
 _ = require 'underscore'
 {Utils,
  Actions,
@@ -123,7 +124,7 @@ class ResizableRegion extends React.Component
 
   _mouseDown: (event) =>
     return if event.button != 0
-    bcr = React.findDOMNode(@).getBoundingClientRect()
+    bcr = ReactDOM.findDOMNode(@).getBoundingClientRect()
     @setState
       dragging: true
       bcr: bcr

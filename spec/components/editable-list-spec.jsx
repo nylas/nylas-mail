@@ -1,15 +1,15 @@
-import React, {addons} from 'react/addons';
-import EditableList from '../../src/components/editable-list';
-import {renderIntoDocument} from '../nylas-test-utils'
-
-const {findDOMNode} = React;
-const {TestUtils: {
-  findRenderedDOMComponentWithTag,
+import React from 'react';
+import ReactDOM from 'react-dom';
+import {
   findRenderedDOMComponentWithClass,
   scryRenderedDOMComponentsWithClass,
   Simulate,
-}} = addons;
+} from 'react-addons-test-utils';
 
+import EditableList from '../../src/components/editable-list';
+import {renderIntoDocument} from '../nylas-test-utils'
+
+const {findDOMNode} = ReactDOM;
 
 const makeList = (items = [], props = {})=> {
   const list = renderIntoDocument(<EditableList {...props} items={items} />);
@@ -60,7 +60,7 @@ describe('EditableList', ()=> {
       const list = makeList(['1', '2'], {selected: '1', onSelectItem});
       const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
 
-      NylasEnv.commands.dispatch(React.findDOMNode(innerList), 'core:next-item');
+      NylasEnv.commands.dispatch(ReactDOM.findDOMNode(innerList), 'core:next-item');
 
       expect(onSelectItem).toHaveBeenCalledWith('2', 1);
     });
@@ -70,7 +70,7 @@ describe('EditableList', ()=> {
       const list = makeList(['1', '2'], {selected: '2', onSelectItem});
       const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
 
-      NylasEnv.commands.dispatch(React.findDOMNode(innerList), 'core:next-item');
+      NylasEnv.commands.dispatch(ReactDOM.findDOMNode(innerList), 'core:next-item');
 
       expect(onSelectItem).not.toHaveBeenCalled();
     });
@@ -80,7 +80,7 @@ describe('EditableList', ()=> {
       const list = makeList(['1', '2'], {selected: '1', onSelectItem});
       const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
 
-      NylasEnv.commands.dispatch(React.findDOMNode(innerList), 'core:previous-item');
+      NylasEnv.commands.dispatch(ReactDOM.findDOMNode(innerList), 'core:previous-item');
 
       expect(onSelectItem).not.toHaveBeenCalled();
     });
@@ -101,7 +101,7 @@ describe('EditableList', ()=> {
       const onItemCreated = jasmine.createSpy('onItemCreated');
       const list = makeList(['1', '2'], {initialState: {creatingItem: true}, onItemCreated});
       const createItem = findRenderedDOMComponentWithClass(list, 'create-item-input');
-      const input = findRenderedDOMComponentWithTag(createItem, 'input');
+      const input = createItem.querySelector('input');
       findDOMNode(input).value = 'New Item';
 
       Simulate.keyDown(input, {key: 'Enter'});
@@ -113,7 +113,7 @@ describe('EditableList', ()=> {
       const onItemCreated = jasmine.createSpy('onItemCreated');
       const list = makeList(['1', '2'], {initialState: {creatingItem: true}, onItemCreated});
       const createItem = findRenderedDOMComponentWithClass(list, 'create-item-input');
-      const input = findRenderedDOMComponentWithTag(createItem, 'input');
+      const input = createItem.querySelector('input');
       findDOMNode(input).value = '';
 
       Simulate.keyDown(input, {key: 'Enter'});
@@ -186,7 +186,7 @@ describe('EditableList', ()=> {
       const onInputKeyDown = jasmine.createSpy('onInputKeyDown');
 
       const item = makeItem('item 1', 0, {editingIndex: 0}, {onInputBlur, onInputFocus, onInputKeyDown});
-      const input = findRenderedDOMComponentWithTag(item, 'input');
+      const input = item.querySelector('input')
 
       Simulate.focus(input);
       Simulate.keyDown(input);

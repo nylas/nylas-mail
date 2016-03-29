@@ -1,5 +1,5 @@
 _ = require 'underscore'
-React = require "react/addons"
+React = require "react"
 classNames = require 'classnames'
 ThreadListStore = require './thread-list-store'
 {RetinaImg} = require 'nylas-component-kit'

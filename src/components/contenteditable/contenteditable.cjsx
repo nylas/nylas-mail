@@ -1,5 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
+ReactDOM = require 'react-dom'
 
 {Utils, DOMUtils} = require 'nylas-exports'
 {KeyCommandsRegion} = require 'nylas-component-kit'
@@ -212,7 +213,7 @@ class Contenteditable extends React.Component
         extensions={@_extensions()} />
 
   _editableNode: =>
-    React.findDOMNode(@refs.contenteditable)
+    ReactDOM.findDOMNode(@refs.contenteditable)
 
 
   ######################################################################

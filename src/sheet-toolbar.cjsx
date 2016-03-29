@@ -1,4 +1,5 @@
-React = require 'react/addons'
+React = require 'react'
+ReactDOM = require 'react-dom'
 Sheet = require './sheet'
 Flexbox = require './components/flexbox'
 RetinaImg = require './components/retina-img'
@@ -197,7 +198,7 @@ class Toolbar extends React.Component
     return unless @mounted
 
     # Find our item containers that are tied to specific columns
-    columnToolbarEls = React.findDOMNode(@).querySelectorAll('[data-column]')
+    columnToolbarEls = ReactDOM.findDOMNode(@).querySelectorAll('[data-column]')
 
     # Find the top sheet in the stack
     sheet = document.querySelectorAll("[name='Sheet']")[@props.depth]

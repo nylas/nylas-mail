@@ -4,8 +4,9 @@
 #
 _ = require "underscore"
 fs = require 'fs'
-React = require "react/addons"
-ReactTestUtils = React.addons.TestUtils
+React = require "react"
+ReactDOM = require 'react-dom'
+ReactTestUtils = require('react-addons-test-utils')
 Contenteditable = require "../../src/components/contenteditable/contenteditable",
 
 describe "Contenteditable", ->
@@ -15,8 +16,7 @@ describe "Contenteditable", ->
     @component = ReactTestUtils.renderIntoDocument(
       <Contenteditable html={html} onChange={@onChange}/>
     )
-
-    @editableNode = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(@component, 'contentEditable'))
+    @editableNode = ReactDOM.findDOMNode(@component).querySelector('[contenteditable]')
 
   describe "render", ->
     it 'should render into the document', ->
@@ -71,7 +71,7 @@ describe "Contenteditable", ->
         @component = ReactTestUtils.renderIntoDocument(
           <Contenteditable html={''} onChange={@onChange} onFilePaste={onPaste} />
         )
-        @editableNode = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(@component, 'contentEditable'))
+        @editableNode = ReactDOM.findDOMNode(@component).querySelector('[contenteditable]')
         runs ->
           ReactTestUtils.Simulate.paste(@editableNode, @mockEvent)
         waitsFor ->
@@ -82,4 +82,3 @@ describe "Contenteditable", ->
           expect(path.basename(file)).toEqual('Pasted File.png')
           contents = fs.readFileSync(file)
           expect(contents.toString()).toEqual('12341352312411')
-

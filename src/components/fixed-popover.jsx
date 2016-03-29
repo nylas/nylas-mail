@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import React, {Component, PropTypes} from 'react';
+import ReactDOM from 'react-dom';
 import Actions from '../flux/actions';
 
 
@@ -114,7 +115,7 @@ class FixedPopover extends Component {
 
   onBlur = (event)=> {
     const target = event.nativeEvent.relatedTarget;
-    if (!target || (!React.findDOMNode(this).contains(target))) {
+    if (!target || (!ReactDOM.findDOMNode(this).contains(target))) {
       Actions.closePopover();
     }
   };
@@ -126,7 +127,7 @@ class FixedPopover extends Component {
   };
 
   getCurrentRect = ()=> {
-    return React.findDOMNode(this.refs.popover).getBoundingClientRect();
+    return ReactDOM.findDOMNode(this.refs.popover).getBoundingClientRect();
   };
 
   getWindowDimensions = ()=> {
@@ -140,7 +141,7 @@ class FixedPopover extends Component {
 
   focusElementWithTabIndex = ()=> {
     // Automatically focus the element inside us with the lowest tab index
-    const popoverNode = React.findDOMNode(this);
+    const popoverNode = ReactDOM.findDOMNode(this);
 
     // _.sortBy ranks in ascending numerical order.
     const focusable = popoverNode.querySelectorAll("[tabIndex], input");

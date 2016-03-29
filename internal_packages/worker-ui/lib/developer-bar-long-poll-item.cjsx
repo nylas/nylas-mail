@@ -1,4 +1,4 @@
-React = require 'react/addons'
+React = require 'react'
 moment = require 'moment'
 {Utils} = require 'nylas-exports'
 

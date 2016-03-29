@@ -1,6 +1,7 @@
 proxyquire = require 'proxyquire'
-React = require "react/addons"
-ReactTestUtils = React.addons.TestUtils
+React = require "react"
+ReactDOM = require "react-dom"
+ReactTestUtils = require 'react-addons-test-utils'
 
 {Contact,
  Message,
@@ -143,7 +144,7 @@ describe "MessageItem", ->
   #     expect( -> ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub)).toThrow()
   #
   #   it "should have the `collapsed` class", ->
-  #     expect(React.findDOMNode(@component).className.indexOf('collapsed') >= 0).toBe(true)
+  #     expect(ReactDOM.findDOMNode(@component).className.indexOf('collapsed') >= 0).toBe(true)
 
   describe "when displaying detailed headers", ->
     beforeEach ->
@@ -168,7 +169,7 @@ describe "MessageItem", ->
       expect(frame).toBeDefined()
 
     it "should not have the `collapsed` class", ->
-      expect(React.findDOMNode(@component).className.indexOf('collapsed') >= 0).toBe(false)
+      expect(ReactDOM.findDOMNode(@component).className.indexOf('collapsed') >= 0).toBe(false)
 
   describe "when the message contains attachments", ->
     beforeEach ->

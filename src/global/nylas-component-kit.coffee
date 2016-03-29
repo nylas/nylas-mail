@@ -43,7 +43,6 @@ class NylasComponentKit
   @loadDeprecated "MultiselectActionBar", 'multiselect-action-bar', instead: 'MultiselectToolbar'
   @load "MultiselectToolbar", 'multiselect-toolbar'
   @load "InjectedComponentSet", 'injected-component-set'
-  @load "TimeoutTransitionGroup", 'timeout-transition-group'
   @load "MetadataComposerToggleButton", 'metadata-composer-toggle-button'
   @load "ConfigPropContainer", "config-prop-container"
   @load "DisclosureTriangle", "disclosure-triangle"

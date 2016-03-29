@@ -1,7 +1,7 @@
 import Rx from 'rx-lite'
 import React, {Component, PropTypes} from 'react'
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 import {FocusedContentStore} from 'nylas-exports'
-import {TimeoutTransitionGroup} from 'nylas-component-kit'
 import ThreadListStore from './thread-list-store'
 import InjectsToolbarButtons, {ToolbarRole} from './injects-toolbar-buttons'
 
@@ -35,13 +35,13 @@ class MessageListToolbar extends Component {
     const shouldRender = items.length > 0
 
     return (
-      <TimeoutTransitionGroup
+      <ReactCSSTransitionGroup
         className="message-toolbar-items"
-        leaveTimeout={125}
-        enterTimeout={125}
+        transitionLeaveTimeout={125}
+        transitionEnterTimeout={125}
         transitionName="opacity-125ms">
         {shouldRender ? injectedButtons : undefined}
-      </TimeoutTransitionGroup>
+      </ReactCSSTransitionGroup>
     )
   }
 }

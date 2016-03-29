@@ -1,5 +1,5 @@
 _ = require 'underscore'
-React = require 'react/addons'
+React = require 'react'
 classNames = require 'classnames'
 
 {Actions,
@@ -85,7 +85,7 @@ class SearchBar extends React.Component
     </KeyCommandsRegion>
 
   _onFocusSearch: =>
-    React.findDOMNode(@refs.searchInput).focus()
+    ReactDOM.findDOMNode(@refs.searchInput).focus()
 
   _containerClasses: =>
     classNames
@@ -110,7 +110,7 @@ class SearchBar extends React.Component
 
   _clearAndBlur: =>
     @_onClearSearch()
-    React.findDOMNode(@refs.searchInput)?.blur()
+    ReactDOM.findDOMNode(@refs.searchInput)?.blur()
 
   _onFocus: =>
     @setState(focused: true)

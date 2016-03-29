@@ -1,4 +1,4 @@
-import {Actions, React} from 'nylas-exports';
+import {Actions, React, ReactDOM} from 'nylas-exports';
 import {Menu, RetinaImg} from 'nylas-component-kit';
 import TemplateStore from './template-store';
 
@@ -63,7 +63,7 @@ class TemplatePicker extends React.Component {
   };
 
   _onClickButton = ()=> {
-    const buttonRect = React.findDOMNode(this).getBoundingClientRect()
+    const buttonRect = ReactDOM.findDOMNode(this).getBoundingClientRect()
     Actions.openPopover(
       this._renderPopover(),
       {originRect: buttonRect, direction: 'up'}

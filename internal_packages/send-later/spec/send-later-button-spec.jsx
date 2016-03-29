@@ -1,13 +1,11 @@
-import React, {addons} from 'react/addons';
+import React from 'react';
+import {findDOMNode} from 'react-dom';
+import {findRenderedDOMComponentWithClass} from 'react-addons-test-utils';
+
 import {Rx, DatabaseStore, DateUtils} from 'nylas-exports'
 import SendLaterButton from '../lib/send-later-button';
 import SendLaterActions from '../lib/send-later-actions';
 import {renderIntoDocument} from '../../../spec/nylas-test-utils'
-
-const {findDOMNode} = React;
-const {TestUtils: {
-  findRenderedDOMComponentWithClass,
-}} = addons;
 
 const makeButton = (props = {})=> {
   const button = renderIntoDocument(<SendLaterButton {...props} draftClientId="1" />);

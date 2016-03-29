@@ -1,5 +1,6 @@
 /** @babel */
 import React, {Component, PropTypes} from 'react';
+import ReactDOM from 'react-dom';
 import {Actions, FocusedPerspectiveStore} from 'nylas-exports';
 import {RetinaImg} from 'nylas-component-kit';
 import SnoozePopover from './snooze-popover';
@@ -36,7 +37,7 @@ class SnoozeButton extends Component {
     if (this.props.getBoundingClientRect) {
       return this.props.getBoundingClientRect()
     }
-    return React.findDOMNode(this).getBoundingClientRect()
+    return ReactDOM.findDOMNode(this).getBoundingClientRect()
   };
 
   render() {
@@ -70,7 +71,7 @@ export class QuickActionSnooze extends Component {
   getBoundingClientRect = ()=> {
     // Grab the parent node because of the zoom applied to this button. If we
     // took this element directly, we'd have to divide everything by 2
-    const element = React.findDOMNode(this).parentNode;
+    const element = ReactDOM.findDOMNode(this).parentNode;
     const {height, width, top, bottom, left, right} = element.getBoundingClientRect()
 
     // The parent node is a bit too much to the left, lets adjust this.

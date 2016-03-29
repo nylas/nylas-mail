@@ -1,4 +1,4 @@
-React = require 'react/addons'
+React = require 'react'
 classNames = require 'classnames'
 _ = require 'underscore'
 {Utils} = require 'nylas-exports'
