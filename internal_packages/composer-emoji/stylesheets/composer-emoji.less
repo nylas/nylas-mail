@@ -40,7 +40,11 @@
   }
   .emoji-finder-container {
     height: 232px;
-    overflow: auto;
+    .scrollbar-track {
+      background: transparent;
+      border-left: none;
+      width: 10px;
+    }
     .emoji-search-container {
       padding: @padding-base-vertical * 1.5 @padding-base-horizontal 0;
     }
