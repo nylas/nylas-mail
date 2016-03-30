@@ -28,7 +28,7 @@ We're working on building a plugin index that makes it super easy to add them to
 - [Dark](https://github.com/nylas/N1/tree/master/internal_packages/ui-dark)
 - [Darkside](https://github.com/nylas/N1/tree/master/internal_packages/ui-darkside) (designed by [Jamie Wilson](https://github.com/jamiewilson))
 - [Taiga](https://github.com/nylas/N1/tree/master/internal_packages/ui-taiga) (designed by [Noah Buscher](https://github.com/noahbuscher))
-- [Ubuntu](https://github.com/nylas/N1/tree/master/internal_packages/ui-ubuntu) (designed by [Ahmed Elhanafy](https://github.com/ahmedlhanafy)
+- [Ubuntu](https://github.com/nylas/N1/tree/master/internal_packages/ui-ubuntu) (designed by [Ahmed Elhanafy](https://github.com/ahmedlhanafy))
 
 #### Community Themes
 [Create your own theme!](http://github.com/nylas/N1-theme-starter)
