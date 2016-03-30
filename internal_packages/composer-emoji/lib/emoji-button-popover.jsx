@@ -1,6 +1,6 @@
 import React from 'react';
 import {Actions} from 'nylas-exports';
-import {RetinaImg} from 'nylas-component-kit';
+import {RetinaImg, ScrollRegion} from 'nylas-component-kit';
 
 import EmojiStore from './emoji-store';
 import EmojiActions from './emoji-actions';
@@ -296,7 +296,7 @@ class EmojiButtonPopover extends React.Component {
         <div className="emoji-tabs">
           {this.renderTabs()}
         </div>
-        <div
+        <ScrollRegion
           className="emoji-finder-container"
           onScroll={this.onScroll}>
           <div className="emoji-search-container">
@@ -309,14 +309,14 @@ class EmojiButtonPopover extends React.Component {
           </div>
           <canvas
             id="emoji-canvas"
-            width="420"
+            width="400"
             height="2000"
             onMouseDown={this.onMouseDown}
             onMouseOut={this.onMouseOut}
             onMouseMove={this.onHover}
             style={{zoom: "0.5"}}>
           </canvas>
-        </div>
+        </ScrollRegion>
         <div className="emoji-name">
           {this.state.emojiName}
         </div>
