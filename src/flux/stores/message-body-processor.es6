@@ -1,6 +1,5 @@
 import _ from 'underscore';
 import Message from '../models/message';
-import MessageUtils from '../models/message-utils';
 import MessageStore from './message-store';
 import DatabaseStore from './database-store';
 

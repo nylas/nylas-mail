@@ -1,4 +1,5 @@
 import React from 'react';
+import {findDOMNode} from 'react-dom';
 import {Actions} from 'nylas-exports';
 import {RetinaImg, ScrollRegion} from 'nylas-component-kit';
 
@@ -234,7 +235,7 @@ class EmojiButtonPopover extends React.Component {
   }
 
   renderCanvas() {
-    const canvas = React.findDOMNode(this.refs.emojiCanvas);
+    const canvas = findDOMNode(this.refs.emojiCanvas);
     const keys = Object.keys(this.state.categoryPositions);
     canvas.height = this.state.categoryPositions[keys[keys.length - 1]].bottom * 2;
     const ctx = canvas.getContext("2d");
