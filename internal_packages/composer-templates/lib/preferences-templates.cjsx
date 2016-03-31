@@ -208,7 +208,7 @@ class PreferencesTemplates extends React.Component
   # MAIN RENDER
   render: =>
     deleteBtn =
-      <button className="btn template-name-btn" title="Delete template" onClick={@_deleteTemplate}>
+      <button className="btn" title="Delete template" onClick={@_deleteTemplate}>
         <RetinaImg name="icon-composer-trash.png" mode={RetinaImg.Mode.ContentIsMask} />
       </button>
 
@@ -217,49 +217,49 @@ class PreferencesTemplates extends React.Component
         <div className="template-wrap">
           {if @state.editAsHTML then @_renderHTMLTemplate() else @_renderEditableTemplate()}
         </div>
-        <span className="editor-note">
-          { if _.size(@_templateSaveQueue) > 0 then "Saving changes..." else "Changes saved." }
-        </span>
-        <span style={float:"right"}>{if @state.editState == null then deleteBtn else ""}</span>
+        <div style={marginTop: "5px"}>
+          <span className="editor-note">
+            { if _.size(@_templateSaveQueue) > 0 then "Saving changes..." else "Changes saved." }
+          </span>
+          <span style={float:"right"}>{if @state.editState == null then deleteBtn else ""}</span>
+        </div>
         <div className="toggle-mode" style={marginTop: "1em"}>
           {@_renderModeToggle()}
         </div>
       </div>
 
     noTemplatesMessage =
-    <div className="template-status-bar no-templates-message">
-      You don't have any templates! Enter a template name and press Save to create one.
-    </div>
+      <div className="template-status-bar no-templates-message">
+        You don't have any templates! Enter a template name and press Save to create one.
+      </div>
 
-    <div>
-    <section className="container-templates" style={if @state.editState is "new" then {marginBottom:50}}>
-      <h2>Quick Replies</h2>
-      {
-        switch @state.editState
-          when "name" then @_renderEditName()
-          when "new" then @_renderCreateNew()
-          else @_renderName()
-      }
-      {if @state.editState isnt "new" then editor}
-      {if @state.templates.length==0 then noTemplatesMessage}
-    </section>
+    <div className="container-templates">
+      <section style={if @state.editState is "new" then {marginBottom:50}}>
+        {
+          switch @state.editState
+            when "name" then @_renderEditName()
+            when "new" then @_renderCreateNew()
+            else @_renderName()
+        }
+        {if @state.editState isnt "new" then editor}
+        {if @state.templates.length==0 then noTemplatesMessage}
+      </section>
 
-    <section className="templates-instructions">
-    <p>
-      The Quick Replies plugin allows you to create templated email replies, with variables that
-      you can quickly fill in before sending your email message. To create a variable, type a set of double curly
-      brackets wrapping the variable's name, like this: <strong>{"{{"}variable_name{"}}"}</strong>
-    </p>
-    <p>
-      Reply templates are saved in the <strong>~/.nylas/templates</strong> directory on your computer. Each template
-      is an HTML file - the name of the file is the name of the template, and its contents are the default message body.
-    </p>
-    <p>
-      In raw HTML, variables are defined as HTML &lt;code&gt; tags with class "var empty". Typing curly brackets creates a tag
-      automatically. The code tags are colored yellow to show the variable regions, but will be stripped out before the message is sent.
-    </p>
-
-    </section>
+      <section className="templates-instructions">
+        <p>
+          The Quick Replies plugin allows you to create templated email replies, with variables that
+          you can quickly fill in before sending your email message. To create a variable, type a set of double curly
+          brackets wrapping the variable's name, like this: <strong>{"{{"}variable_name{"}}"}</strong>
+        </p>
+        <p>
+          Reply templates are saved in the <strong>~/.nylas/templates</strong> directory on your computer. Each template
+          is an HTML file - the name of the file is the name of the template, and its contents are the default message body.
+        </p>
+        <p>
+          In raw HTML, variables are defined as HTML &lt;code&gt; tags with class "var empty". Typing curly brackets creates a tag
+          automatically. The code tags are colored yellow to show the variable regions, but will be stripped out before the message is sent.
+        </p>
+      </section>
     </div>
 
 module.exports = PreferencesTemplates

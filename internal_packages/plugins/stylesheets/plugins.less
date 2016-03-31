@@ -5,10 +5,10 @@
   color:  @text-color-subtle;
   list-style-type: none;
   padding-left:0;
-  cursor:default;
+  cursor: default;
 
   li {
-    padding:@padding-large-vertical @padding-large-horizontal @padding-large-vertical @padding-large-horizontal;
+    padding: @padding-large-vertical @padding-large-horizontal;
     border-bottom: 1px solid @border-color-divider;
 
     &.active {
@@ -22,41 +22,54 @@
 }
 
 .plugins-view {
+  width: 60%;
+  margin: 0 auto;
   .new-package {
-    margin-bottom:50px;
+    margin-bottom: 50px;
   }
 
   .installed, .explore {
-    overflow-y:scroll;
+    overflow-y: scroll;
     padding-left: @padding-large-horizontal;
-    height:100%;
+    height: 100%;
 
     .inner {
-      max-width:600px;
+      max-width: 800px;
+      .search-container {
+        margin: @padding-large-vertical 0;
+        justify-content: space-between;
+      }
     }
 
     input {
-      margin-top:@padding-large-vertical;
-      margin-bottom:@padding-large-vertical;
-      padding:4px;
       box-sizing: border-box;
+      width: 30%;
+    }
+    .search {
+      padding-left: 0;
+      background-repeat: no-repeat;
+      background-image: url("../static/images/search/searchloupe@2x.png");
+      background-size: 15px 15px;
+      background-position: 7px 7px;
+      text-indent: 31px;
     }
     .empty {
       color: @text-color-very-subtle;
-      margin-bottom:@padding-large-vertical * 2;
+      margin-bottom: @padding-large-vertical * 2;
     }
   }
 
   .package-set {
-    margin-top:35px;
+    margin-top: 35px;
   }
   .package {
     align-items: center;
     background: @background-primary;
     border: 1px solid @border-color-divider;
-    margin-top:@padding-large-vertical;
-    margin-bottom:@padding-large-vertical;
-    padding:@padding-large-vertical @padding-large-horizontal;
+    border-radius: @border-radius-large;
+    margin-top: @padding-large-vertical;
+    margin-bottom: @padding-large-vertical;
+    padding: @padding-large-vertical @padding-large-horizontal;
 
     .icon-container {
       width: 52px;
