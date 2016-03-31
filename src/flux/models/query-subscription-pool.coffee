@@ -1,5 +1,4 @@
 _ = require 'underscore'
-DatabaseChangeRecord = require '../stores/database-change-record'
 QuerySubscription = require './query-subscription'
 
 ###

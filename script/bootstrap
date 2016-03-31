@@ -48,7 +48,7 @@ function makeSqlite3Command() {
 
   // Use our local version of npm (npm 3x) to build sqlite
   var npmPath = '"' + path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'npm') + '"';
-  return npmPath + " install https://github.com/bengotow/node-sqlite3/archive/bengotow/usleep.tar.gz --ignore-scripts && cd node_modules/sqlite3 && "+nodeGypPath+" configure rebuild --target="+targetElectronVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell --module_name=node_sqlite3 --module_path=../lib/binding/electron-v0.36-"+targetPlatform+"-"+targetArch
+  return npmPath + " install https://github.com/bengotow/node-sqlite3/archive/bengotow/fts5.tar.gz --ignore-scripts && cd node_modules/sqlite3 && "+nodeGypPath+" configure rebuild --target="+targetElectronVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell --module_name=node_sqlite3 --module_path=../lib/binding/electron-v0.36-"+targetPlatform+"-"+targetArch
 }
 
 function bootstrap() {

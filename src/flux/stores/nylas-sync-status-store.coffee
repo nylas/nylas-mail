@@ -38,6 +38,14 @@ class NylasSyncStatusStore extends NylasStore
       return false if not @isSyncCompleteForAccount(acctId)
     return true
 
+  whenSyncComplete: =>
+    return Promise.resolve() if @isSyncComplete()
+    return new Promise (resolve) =>
+      unsubscribe = @listen =>
+        if @isSyncComplete()
+          unsubscribe()
+          resolve()
+
   busy: =>
     for accountId, states of @_statesByAccount
       for key, state of states

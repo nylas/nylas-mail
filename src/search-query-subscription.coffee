@@ -1,6 +1,5 @@
 _ = require 'underscore'
 Rx = require 'rx-lite'
-
 NylasAPI = require './flux/nylas-api'
 AccountStore = require './flux/stores/account-store'
 DatabaseStore = require './flux/stores/database-store'
@@ -8,29 +7,41 @@ Thread = require './flux/models/thread'
 Actions = require './flux/actions'
 MutableQuerySubscription = require './flux/models/mutable-query-subscription'
 
-class SearchSubscription extends MutableQuerySubscription
 
-  constructor: (@_terms, @_accountIds) ->
+class SearchQuerySubscription extends MutableQuerySubscription
+
+  constructor: (@_searchQuery, @_accountIds) ->
     super(null, {asResultSet: true})
+    @_searchQueryVersion = 0
+    _.defer => @performSearch()
 
-    @_termsVersion = 0
-    _.defer => @retrievePage(0)
+  searchQuery: =>
+    @_searchQuery
 
-  terms: =>
-    @_terms
-
-  setTerms: (terms) =>
-    @_terms = terms
-    @_termsVersion += 1
-    @retrievePage(0)
+  setSearchQuery: (searchQuery) =>
+    @_searchQuery = searchQuery
+    @_searchQueryVersion += 1
+    @performSearch()
 
   replaceRange: (range) =>
     # TODO
 
-  # Accessing Data
+  performSearch: =>
+    @performLocalSearch()
+    @performRemoteSearch()
 
-  retrievePage: (idx) =>
-    termsVersion = @_termsVersion += 1
+  performLocalSearch: =>
+    dbQuery = DatabaseStore.findAll(Thread)
+    if @_accountIds.length is 1
+      dbQuery = dbQuery.where(accountId: @_accountIds[0])
+    dbQuery = dbQuery.search(@_searchQuery).limit(20)
+    dbQuery.then((results) =>
+      if results.length > 0
+        @replaceQuery(dbQuery)
+    )
+
+  performRemoteSearch: (idx) =>
+    searchQueryVersion = @_searchQueryVersion += 1
     resultCount = 0
     resultIds = []
 
@@ -38,8 +49,11 @@ class SearchSubscription extends MutableQuerySubscription
       # Don't emit a "result" until we have at least one thread to display.
       # Otherwise it will show "No Results Found"
       if resultIds.length > 0 or resultCount is @_accountIds.length
-        query = DatabaseStore.findAll(Thread).where(id: resultIds).order(Thread.attributes.lastMessageReceivedTimestamp.descending())
-        @replaceQuery(query)
+        if @_set?.ids().length > 0
+          currentResultIds = @_set.ids()
+          resultIds = _.uniq(currentResultIds.concat(resultIds))
+        dbQuery = DatabaseStore.findAll(Thread).where(id: resultIds).order(Thread.attributes.lastMessageReceivedTimestamp.descending())
+        @replaceQuery(dbQuery)
 
     @_accountsFailed = []
     @_updateSearchError()
@@ -47,14 +61,14 @@ class SearchSubscription extends MutableQuerySubscription
     @_accountIds.forEach (aid) =>
       NylasAPI.makeRequest
         method: 'GET'
-        path: "/threads/search?q=#{encodeURIComponent(@_terms)}"
+        path: "/threads/search?q=#{encodeURIComponent(@_searchQuery)}"
         accountId: aid
         json: true
         timeout: 45000
         returnsModel: true
 
       .then (threads) =>
-        return unless @_termsVersion is termsVersion
+        return unless @_searchQueryVersion is searchQueryVersion
         resultCount += 1
         resultIds = resultIds.concat _.pluck(threads, 'id')
         resultReturned()
@@ -88,4 +102,4 @@ class SearchSubscription extends MutableQuerySubscription
             id: 'search-error:dismiss'
           }]
 
-module.exports = SearchSubscription
+module.exports = SearchQuerySubscription

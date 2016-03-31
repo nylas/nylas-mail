@@ -22,6 +22,12 @@ Utils =
         window.requestAnimationFrame(attempt)
       attempt()
 
+  extractTextFromHtml: (html, {maxLength} = {}) ->
+    if (html ? "").trim().length is 0 then return ""
+    if maxLength and html.length > maxLength
+      html = html.slice(0, maxLength)
+    (new DOMParser()).parseFromString(html, "text/html").body.innerText
+
   registeredObjectReviver: (k,v) ->
     type = v?.__constructorName
     return v unless type
