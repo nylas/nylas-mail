@@ -51,6 +51,11 @@ class DatabaseSetupQueryBuilder
 
     if klass.additionalSQLiteConfig?.setup?
       queries = queries.concat(klass.additionalSQLiteConfig.setup())
-    queries
+
+    if klass.searchable is true
+      DatabaseStore = require './database-store'
+      queries.push(DatabaseStore.createSearchIndexSql(klass))
+
+    return queries
 
 module.exports = DatabaseSetupQueryBuilder

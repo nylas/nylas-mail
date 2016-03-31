@@ -6,7 +6,7 @@ AccountStore = require './flux/stores/account-store'
 CategoryStore = require './flux/stores/category-store'
 DatabaseStore = require './flux/stores/database-store'
 OutboxStore = require './flux/stores/outbox-store'
-SearchSubscription = require './search-subscription'
+SearchQuerySubscription = require './search-query-subscription'
 ThreadCountsStore = require './flux/stores/thread-counts-store'
 MutableQuerySubscription = require './flux/models/mutable-query-subscription'
 Thread = require './flux/models/thread'
@@ -170,7 +170,7 @@ class SearchMailboxPerspective extends MailboxPerspective
     super(other) and other.searchQuery is @searchQuery
 
   threads: =>
-    new SearchSubscription(@searchQuery, @accountIds)
+    new SearchQuerySubscription(@searchQuery, @accountIds)
 
   canReceiveThreadsFromAccountIds: =>
     false

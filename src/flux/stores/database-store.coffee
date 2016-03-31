@@ -267,6 +267,7 @@ class DatabaseStore extends NylasStore
             str = results.map((row) -> row.detail).join('\n') + " for " + query
             return if str.indexOf("SCAN") is -1
             return if str.indexOf('Thread-Counts') > 0
+            return if str.indexOf('ThreadSearch') > 0
             @_prettyConsoleLog(str)
 
       # Important: once the user begins a transaction, queries need to run
@@ -509,6 +510,77 @@ class DatabaseStore extends NylasStore
       set(change)
 
     return @_triggerPromise
+
+  createSearchIndexSql: (klass) =>
+    throw new Error("DatabaseStore::createSearchIndex - You must provide a class") unless klass
+    throw new Error("DatabaseStore::createSearchIndex - #{klass.name} must expose an array of `searchFields`") unless klass
+    searchTableName = "#{klass.name}Search"
+    searchFields = klass.searchFields
+    return (
+      "CREATE VIRTUAL TABLE IF NOT EXISTS `#{searchTableName}` " +
+      "USING fts5(
+        tokenize='porter unicode61',
+        content_id UNINDEXED,
+        #{searchFields.join(', ')}
+      )"
+    )
+
+  createSearchIndex: (klass) =>
+    sql = @createSearchIndexSql(klass)
+    @_query(sql)
+
+  searchIndexSize: (klass) =>
+    searchTableName = "#{klass.name}Search"
+    sql = "SELECT COUNT(content_id) as count from `#{searchTableName}`"
+    return @_query(sql).then((result) => result[0].count)
+
+  dropSearchIndex: (klass) =>
+    throw new Error("DatabaseStore::createSearchIndex - You must provide a class") unless klass
+    searchTableName = "#{klass.name}Search"
+    sql = "DROP TABLE IF EXISTS `#{searchTableName}`"
+    @_query(sql)
+
+  indexModel: (model, indexData) =>
+    searchTableName = "#{model.constructor.name}Search"
+    indexFields = Object.keys(indexData)
+    keysSql = 'content_id, ' + indexFields.join(", ")
+    valsSql = '?, ' + indexFields.map(=> '?').join(", ")
+    values = [model.id].concat(indexFields.map((k) => indexData[k]))
+    sql = (
+      "INSERT INTO `#{searchTableName}`(#{keysSql}) VALUES (#{valsSql})"
+    )
+    return @_query(sql, values)
+
+  updateModelIndex: (model, indexData) =>
+    searchTableName = "#{model.constructor.name}Search"
+    exists = (
+      "SELECT rowid FROM `#{searchTableName}` WHERE `#{searchTableName}`.`content_id` = ?"
+    )
+    return @_query(exists, [model.id])
+    .then((results) =>
+      isIndexed = results.length > 0
+      if (not isIndexed)
+        return @indexModel(model, indexData)
+
+      indexFields = Object.keys(indexData)
+      values = indexFields.map((key) => indexData[key]).concat([model.id])
+      setSql = (
+        indexFields
+        .map((key) => "`#{key}` = ?")
+        .join(', ')
+      )
+      sql = (
+        "UPDATE `#{searchTableName}` SET #{setSql} WHERE `#{searchTableName}`.`content_id` = ?"
+      )
+      return @_query(sql, values)
+    )
+
+  unindexModel: (model) =>
+    searchTableName = "#{model.constructor.name}Search"
+    sql = (
+      "DELETE FROM `#{searchTableName}` WHERE `#{searchTableName}`.`content_id` = ?"
+    )
+    return @_query(sql, [model.id])
 
 
 module.exports = new DatabaseStore()

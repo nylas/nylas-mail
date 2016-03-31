@@ -118,6 +118,7 @@ class NylasSyncWorker
 
     needed = [
       {model: 'threads'},
+      {model: 'messages', maxFetchCount: 5000}
       {model: @_account.categoryCollection(), initialPageSize: 1000}
       {model: 'drafts'},
       {model: 'contacts'},
@@ -129,8 +130,8 @@ class NylasSyncWorker
     return if needed.length is 0
 
     @fetchAllMetadata =>
-      needed.forEach ({model, initialPageSize}) =>
-        @fetchCollection(model, initialPageSize)
+      needed.forEach ({model, initialPageSize, maxFetchCount}) =>
+        @fetchCollection(model, {initialPageSize, maxFetchCount})
 
   fetchAllMetadata: (finished) ->
     @_metadata = {}
@@ -162,7 +163,8 @@ class NylasSyncWorker
     return false if state.busy
     return true
 
-  fetchCollection: (model, initialPageSize = INITIAL_PAGE_SIZE) ->
+  fetchCollection: (model, {initialPageSize, maxFetchCount} = {}) ->
+    initialPageSize ?= INITIAL_PAGE_SIZE
     state = @_state[model] ? {}
     state.complete = false
     state.error = null
@@ -171,52 +173,63 @@ class NylasSyncWorker
 
     if not state.count
       state.count = 0
-      @fetchCollectionCount(model)
+      @fetchCollectionCount(model, maxFetchCount)
 
     if state.errorRequestRange
       {limit, offset} = state.errorRequestRange
+      if state.fetched + limit > maxFetchCount
+        limit = maxFetchCount - state.fetched
       state.errorRequestRange = null
-      @fetchCollectionPage(model, {limit, offset})
+      @fetchCollectionPage(model, {limit, offset}, {maxFetchCount})
     else
+      limit = initialPageSize
+      if state.fetched + limit > maxFetchCount
+        limit = maxFetchCount - state.fetched
       @fetchCollectionPage(model, {
-        limit: initialPageSize,
+        limit: limit,
         offset: 0
-      })
+      }, {maxFetchCount})
 
     @_state[model] = state
     @writeState()
 
-  fetchCollectionCount: (model) ->
+  fetchCollectionCount: (model, maxFetchCount) ->
     @_fetchWithErrorHandling
       path: "/#{model}"
       qs: {view: 'count'}
       success: (response) =>
-        @updateTransferState(model, count: response.count)
+        @updateTransferState(model, count: Math.min(response.count, maxFetchCount ? response.count))
 
-  fetchCollectionPage: (model, params = {}) ->
+  fetchCollectionPage: (model, params = {}, options = {}) ->
     requestStartTime = Date.now()
     requestOptions =
       metadataToAttach: @_metadata
 
       error: (err) =>
         return if @_terminated
-        @_fetchCollectionPageError(model, params, err)
+        @_onFetchCollectionPageError(model, params, err)
 
       success: (json) =>
         return if @_terminated
 
         if model in ["labels", "folders"] and @_hasNoInbox(json)
-          @_fetchCollectionPageError(model, params, "No inbox in #{model}")
+          @_onFetchCollectionPageError(model, params, "No inbox in #{model}")
           return
 
         lastReceivedIndex = params.offset + json.length
-        moreToFetch = json.length is params.limit
+        moreToFetch = if options.maxFetchCount
+          json.length is params.limit and lastReceivedIndex < options.maxFetchCount
+        else
+          json.length is params.limit
 
         if moreToFetch
           nextParams = _.extend({}, params, {offset: lastReceivedIndex})
-          nextParams.limit = Math.min(Math.round(params.limit * 1.5), MAX_PAGE_SIZE)
+          limit = Math.min(Math.round(params.limit * 1.5), MAX_PAGE_SIZE)
+          if options.maxFetchCount
+            limit = Math.min(limit, options.maxFetchCount - lastReceivedIndex)
+          nextParams.limit = limit
           nextDelay = Math.max(0, 1500 - (Date.now() - requestStartTime))
-          setTimeout(( => @fetchCollectionPage(model, nextParams)), nextDelay)
+          setTimeout(( => @fetchCollectionPage(model, nextParams, options)), nextDelay)
 
         @updateTransferState(model, {
           fetched: lastReceivedIndex,
@@ -252,7 +265,7 @@ class NylasSyncWorker
         @_backoff()
         error(err) if error
 
-  _fetchCollectionPageError: (model, params, err) ->
+  _onFetchCollectionPageError: (model, params, err) ->
     @_backoff()
     @updateTransferState(model, {
       busy: false,

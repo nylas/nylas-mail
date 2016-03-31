@@ -47,7 +47,7 @@ class SearchSuggestionStore extends NylasStore
       next = MailboxPerspective.forSearch(current.accountIds, @_searchQuery.trim())
       Actions.focusMailboxPerspective(next)
 
-    else if FocusedPerspectiveStore.current().searchQuery
+    else if current.isSearch()
       if @_perspectiveBeforeSearch
         Actions.focusMailboxPerspective(@_perspectiveBeforeSearch)
         @_perspectiveBeforeSearch = null

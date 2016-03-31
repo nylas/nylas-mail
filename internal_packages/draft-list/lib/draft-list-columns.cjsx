@@ -1,15 +1,13 @@
 _ = require 'underscore'
 React = require 'react'
-{Actions} = require 'nylas-exports'
+{Actions, Utils} = require 'nylas-exports'
 {InjectedComponentSet, ListTabular} = require 'nylas-component-kit'
 
 
 snippet = (html) =>
   return "" unless html and typeof(html) is 'string'
   try
-    @draftSanitizer ?= document.createElement('div')
-    @draftSanitizer.innerHTML = html[0..400]
-    text = @draftSanitizer.innerText
+    text = Utils.extractTextFromHtml(html, maxLength: 400)
     text[0..200]
   catch
     return ""

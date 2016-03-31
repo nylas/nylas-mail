@@ -60,16 +60,16 @@ describe "NylasSyncWorker", ->
     it "should start querying for model collections and counts that haven't been fully cached", ->
       @worker.start()
       advanceClock()
-      expect(@apiRequests.length).toBe(10)
+      expect(@apiRequests.length).toBe(12)
       modelsRequested = _.compact _.map @apiRequests, ({model}) -> model
-      expect(modelsRequested).toEqual(['threads', 'labels', 'drafts', 'contacts', 'events'])
+      expect(modelsRequested).toEqual(['threads', 'messages', 'labels', 'drafts', 'contacts', 'events'])
 
       countsRequested = _.compact _.map @apiRequests, ({requestOptions}) ->
         if requestOptions.qs?.view is 'count'
           return requestOptions.path
 
-      expect(modelsRequested).toEqual(['threads', 'labels', 'drafts', 'contacts', 'events'])
-      expect(countsRequested).toEqual(['/threads', '/labels', '/drafts', '/contacts', '/events'])
+      expect(modelsRequested).toEqual(['threads', 'messages', 'labels', 'drafts', 'contacts', 'events'])
+      expect(countsRequested).toEqual(['/threads', '/messages', '/labels', '/drafts', '/contacts', '/events'])
 
     it "should fetch 1000 labels and folders, to prevent issues where Inbox is not in the first page", ->
       labelsRequest = _.find @apiRequests, (r) -> r.model is 'labels'
@@ -294,6 +294,55 @@ describe "NylasSyncWorker", ->
         expect(@worker._state.threads.fetched).toBe(100)
         expect(@worker._state.threads.count).toBe(1200)
         expect(@apiRequests.length).toBe(1)
+
+    describe 'when maxFetchCount option is specified', ->
+      it "should only fetch maxFetch count on the first request if it is less than initialPageSize", ->
+        @worker._state.messages =
+          count: 1000
+          fetched: 0
+        @worker.fetchCollection('messages', {initialPageSize: 30, maxFetchCount: 25})
+        expect(@apiRequests[0].params.offset).toBe 0
+        expect(@apiRequests[0].params.limit).toBe 25
+
+      it "sould only fetch the maxFetchCount when restoring from saved state", ->
+        @worker._state.messages =
+          count: 1000
+          fetched: 470
+          errorRequestRange: {
+            limit: 50,
+            offset: 470,
+          }
+        @worker.fetchCollection('messages', {maxFetchCount: 500})
+        expect(@apiRequests[0].params.offset).toBe 470
+        expect(@apiRequests[0].params.limit).toBe 30
+
+  describe "fetchCollectionPage", ->
+    beforeEach ->
+      @apiRequests = []
+
+    describe 'when maxFetchCount option is specified', ->
+      it 'should not fetch next page if maxFetchCount has been reached', ->
+        @worker._state.messages =
+          count: 1000
+          fetched: 470
+        @worker.fetchCollectionPage('messages', {limit: 30, offset: 470}, {maxFetchCount: 500})
+        {success} = @apiRequests[0].requestOptions
+        success({length: 30})
+        expect(@worker._state.messages.fetched).toBe 500
+        advanceClock(2000)
+        expect(@apiRequests.length).toBe 1
+
+      it 'should limit by maxFetchCount when requesting the next page', ->
+        @worker._state.messages =
+          count: 1000
+          fetched: 450
+        @worker.fetchCollectionPage('messages', {limit: 30, offset: 450 }, {maxFetchCount: 500})
+        {success} = @apiRequests[0].requestOptions
+        success({length: 30})
+        expect(@worker._state.messages.fetched).toBe 480
+        advanceClock(2000)
+        expect(@apiRequests[1].params.offset).toBe 480
+        expect(@apiRequests[1].params.limit).toBe 20
 
   describe "when an API request completes", ->
     beforeEach ->
