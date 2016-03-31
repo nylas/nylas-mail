@@ -15,7 +15,10 @@ RegExpUtils =
   emailRegex: -> new RegExp(/([a-z.A-Z0-9!#$%&'*+\-/=?^_`{|}~;:]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63})/g)
 
   # http://stackoverflow.com/questions/16631571/javascript-regular-expression-detect-all-the-phone-number-from-the-page-source
-  phoneRegex: -> new RegExp(/(?:\+?(\d{1,3}))?[- (]*(\d{3})[- )]*(\d{3})[- ]*(\d{4})(?: *x(\d+))?\b/g)
+  # http://www.regexpal.com/?fam=94521
+  # NOTE: This is not exhaustive, and balances what is technically a phone number
+  # with what would be annoying to linkify. eg: 12223334444 does not match.
+  phoneRegex: -> new RegExp(/([\+\(]+|\b)(?:(\d{1,3}[- ()]*)?)(\d{3})[- )]+(\d{3})[- ]+(\d{4})(?: *x(\d+))?\b/g)
 
   # http://stackoverflow.com/a/16463966
   # http://www.regexpal.com/?fam=93928
@@ -77,6 +80,9 @@ RegExpUtils =
             ')'
           ')'
 
+          # :port (optional)
+          '(?::\d*)?'
+
           '|'
 
           # mailto:username@password.com
@@ -87,10 +93,11 @@ RegExpUtils =
         '('
           # URL components
           # (last character must not be puncation, hence two groups)
-          '(?:[\\+~%\\/\\.\\w\\-_]*[\\+~%\\/\\w\\-_]+)?'
-          # optionally followed by a query string
+          '(?:[\\+~%\\/\\.\\w\\-_@]*[\\+~%\\/\\w\\-_]+)?'
+
+          # optionally followed by: a query string and/or a #location
           # (last character must not be puncation, hence two groups)
-          '(?:(\\?[\\-\\+=&;%@\\.\\w_]*[\\-\\+=&;%@\\w_\\/]+)#?(?:[\\.\\!\\/\\\\\\w]*[\\/\\\\\\w]+)?)?'
+          '(?:(\\?[\\-\\+=&;%@\\.\\w_]*[\\-\\+=&;%@\\w_\\/]+)?#?(?:[\\.\\!\\/\\\\\\w]*[\\/\\\\\\w]+)?)?'
         ')?'
       ')'
     ]
