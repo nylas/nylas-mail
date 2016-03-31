@@ -47,9 +47,8 @@ export default class EmailFrame extends React.Component {
   }
 
   _writeContent = () => {
-    this._lastComputedHeight = 0;
-    const domNode = ReactDOM.findDOMNode(this);
-    const doc = domNode.contentDocument;
+    const iframeNode = ReactDOM.findDOMNode(this.refs.iframe);
+    const doc = iframeNode.contentDocument;
     if (!doc) { return; }
     doc.open();
 
@@ -71,7 +70,13 @@ export default class EmailFrame extends React.Component {
     // Notify the EventedIFrame that we've replaced it's document (with `open`)
     // so it can attach event listeners again.
     this.refs.iframe.documentWasReplaced();
-    domNode.height = '0px';
+    this._onMustRecalculateFrameHeight();
+  }
+
+  _onMustRecalculateFrameHeight = () => {
+    const iframeNode = ReactDOM.findDOMNode(this.refs.iframe);
+    iframeNode.height = `0px`;
+    this._lastComputedHeight = 0;
     this._setFrameHeight();
   }
 
@@ -90,31 +95,42 @@ export default class EmailFrame extends React.Component {
       return;
     }
 
-    const domNode = ReactDOM.findDOMNode(this);
-    const height = this._getFrameHeight(domNode.contentDocument);
+    // Q: What's up with this holder?
+    // A: If you resize the window, or do something to trigger setFrameHeight
+    // on an already-loaded message view, all the heights go to zero for a brief
+    // second while the heights are recomputed. This causes the ScrollRegion to
+    // reset it's scrollTop to ~0 (the new combined heiht of all children).
+    // To prevent this, the holderNode holds the last computed height until
+    // the new height is computed.
+    const holderNode = ReactDOM.findDOMNode(this.refs.iframeHeightHolder);
+    const iframeNode = ReactDOM.findDOMNode(this.refs.iframe);
+    const height = this._getFrameHeight(iframeNode.contentDocument);
 
     // Why 5px? Some emails have elements with a height of 100%, and then put
     // tracking pixels beneath that. In these scenarios, the scrollHeight of the
     // message is always <100% + 1px>, which leads us to resize them constantly.
     // This is a hack, but I'm not sure of a better solution.
     if (Math.abs(height - this._lastComputedHeight) > 5) {
-      domNode.height = `${height}px`;
+      this.refs.iframe.setHeightQuietly(height);
+      holderNode.height = `${height}px`;
       this._lastComputedHeight = height;
     }
 
-    if (domNode.contentDocument.readyState !== 'complete') {
+    if (iframeNode.contentDocument.readyState !== 'complete') {
       _.defer(()=> this._setFrameHeight());
     }
   }
 
   render() {
     return (
-      <EventedIFrame
-        ref="iframe"
-        seamless="seamless"
-        searchable
-        onResize={this._setFrameHeight}
-      />
+      <div ref="iframeHeightHolder" style={{height: this._lastComputedHeight}}>
+        <EventedIFrame
+          ref="iframe"
+          seamless="seamless"
+          searchable
+          onResize={this._onResize}
+        />
+      </div>
     );
   }
 }
