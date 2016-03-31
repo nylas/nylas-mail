@@ -4,6 +4,7 @@ import _ from "underscore";
 import {EventedIFrame} from 'nylas-component-kit';
 import {Utils, QuotedHTMLTransformer} from 'nylas-exports';
 import {autolink} from './autolinker';
+import {autoscaleImages} from './autoscale-images';
 import EmailFrameStylesStore from './email-frame-styles-store';
 
 export default class EmailFrame extends React.Component {
@@ -66,16 +67,16 @@ export default class EmailFrame extends React.Component {
     doc.close();
 
     autolink(doc, {async: true});
+    autoscaleImages(doc);
 
     // Notify the EventedIFrame that we've replaced it's document (with `open`)
     // so it can attach event listeners again.
-    this.refs.iframe.documentWasReplaced();
+    this.refs.iframe.didReplaceDocument();
     this._onMustRecalculateFrameHeight();
   }
 
   _onMustRecalculateFrameHeight = () => {
-    const iframeNode = ReactDOM.findDOMNode(this.refs.iframe);
-    iframeNode.height = `0px`;
+    this.refs.iframe.setHeightQuietly(0);
     this._lastComputedHeight = 0;
     this._setFrameHeight();
   }
@@ -128,7 +129,7 @@ export default class EmailFrame extends React.Component {
           ref="iframe"
           seamless="seamless"
           searchable
-          onResize={this._onResize}
+          onResize={this._onMustRecalculateFrameHeight}
         />
       </div>
     );
