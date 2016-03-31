@@ -56,9 +56,13 @@ class EventedIFrame extends React.Component
   Public: Call this method if you replace the contents of the iframe's document.
   This allows {EventedIframe} to re-attach it's event listeners.
   ###
-  documentWasReplaced: =>
+  didReplaceDocument: =>
     @_unsubscribeFromIFrameEvents()
     @_subscribeToIFrameEvents()
+
+  setHeightQuietly: (height) =>
+    @_ignoreNextResize = true
+    ReactDOM.findDOMNode(@).height = "#{height}px"
 
   _onSearchableStoreChange: =>
     return unless @props.searchable
@@ -116,6 +120,9 @@ class EventedIFrame extends React.Component
     window.getSelection().empty()
 
   _onIFrameResize: (event) =>
+    if @_ignoreNextResize
+      @_ignoreNextResize = false
+      return
     @props.onResize?(event)
 
   # The iFrame captures events that take place over it, which causes some
