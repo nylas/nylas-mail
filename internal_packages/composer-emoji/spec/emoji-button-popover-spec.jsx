@@ -1,4 +1,5 @@
 import React, {addons} from 'react/addons';
+import {findDOMNode} from 'react-dom';
 import {renderIntoDocument} from '../../../spec/nylas-test-utils';
 import Contenteditable from '../../../src/components/contenteditable/contenteditable';
 import EmojiButtonPopover from '../lib/emoji-button-popover';
@@ -21,12 +22,12 @@ describe('EmojiButtonPopover', ()=> {
         onChange={jasmine.createSpy('onChange')}
         extensions={[EmojiComposerExtension]} />
     );
-    this.editableNode = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(this.composer, 'contentEditable'));
+    this.editableNode = findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(this.composer, 'contentEditable'));
     this.editableNode.innerHTML = "Testing!";
     const sel = document.getSelection()
     const textNode = this.editableNode.childNodes[0];
     sel.setBaseAndExtent(textNode, textNode.nodeValue.length, textNode, textNode.nodeValue.length);
-    this.canvas = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithTag(this.component, 'canvas'));
+    this.canvas = findDOMNode(ReactTestUtils.findRenderedDOMComponentWithTag(this.component, 'canvas'));
   });
 
   describe('when inserting emoji', ()=> {
@@ -54,7 +55,7 @@ describe('EmojiButtonPopover', ()=> {
 
   describe('when searching for emoji', ()=> {
     it('should filter for matches', ()=> {
-      this.searchNode = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(this.component, 'search'))
+      this.searchNode = findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(this.component, 'search'))
       const event = {
         target: {
           value: "heart",

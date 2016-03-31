@@ -120,7 +120,7 @@ class FixedPopover extends Component {
 
   onBlur = (event)=> {
     const target = event.nativeEvent.relatedTarget;
-    if (!target || (!React.findDOMNode(this).contains(target))) {
+    if (!target || (!findDOMNode(this).contains(target))) {
       Actions.closePopover();
     }
   };
@@ -142,12 +142,14 @@ class FixedPopover extends Component {
     }
   };
 
+  static Directions = Directions;
+
   focusElementWithTabIndex = ()=> {
     if (!this.mounted) {
       return;
     }
     // Automatically focus the element inside us with the lowest tab index
-    const popoverNode = React.findDOMNode(this);
+    const popoverNode = findDOMNode(this);
 
     // _.sortBy ranks in ascending numerical order.
     const focusable = popoverNode.querySelectorAll("[tabIndex], input");
