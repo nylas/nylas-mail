@@ -1,5 +1,6 @@
 proxyquire = require 'proxyquire'
 React = require "react"
+ReactDOM = require "react-dom"
 ReactTestUtils = require('react-addons-test-utils')
 
 {Contact,
@@ -143,33 +144,16 @@ describe "MessageItem", ->
         @createComponent()
 
       it "should never leave src=cid:// in the message body", ->
-        body = @component.state.processedBody
+        body = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub).props.content
         expect(body.indexOf('cid')).toEqual(-1)
 
       it "should replace cid://<file.contentId> with the FileDownloadStore's path for the file", ->
-        body = @component.state.processedBody
+        body = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub).props.content
         expect(body.indexOf('alt="A" src="/fake/path-inline.png"')).toEqual(@message.body.indexOf('alt="A"'))
 
       it "should not replace cid://<file.contentId> with the FileDownloadStore's path if the download is in progress", ->
-        body = @component.state.processedBody
+        body = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub).props.content
         expect(body.indexOf('/fake/path-downloading.png')).toEqual(-1)
-
-      it "should give images a fixed height when height and width are set as html attributes", ->
-        @message.body = """
-          <img src=\"cid:#{file_inline.contentId}\"/>
-          <img src='cid:#{file_inline.contentId}'/>
-          <img src=\"cid:#{file_inline.contentId}\" width="50"/>
-          <img src=\"cid:#{file_inline.contentId}\" width="50" height="40"/>
-          <img src=\"cid:#{file_inline.contentId}\" width="1000" height="800"/>
-          """
-        @createComponent()
-        body = @component.state.processedBody
-        expect(body).toEqual """<img src="/fake/path-inline.png"/>
-<img src='/fake/path-inline.png'/>
-<img src="/fake/path-inline.png" width="50"/>
-<img src="/fake/path-inline.png" width="50" height="40" style="height:40px;" />
-<img src="/fake/path-inline.png" width="1000" height="800" style="height:592px;" />
-"""
 
   describe "showQuotedText", ->
     it "should be initialized to false", ->

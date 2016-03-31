@@ -4,8 +4,6 @@ import MessageUtils from '../models/message-utils';
 import MessageStore from './message-store';
 import DatabaseStore from './database-store';
 
-const MessageBodyWidth = 740;
-
 class MessageBodyProcessor {
   constructor() {
     this._subscriptions = [];
@@ -120,32 +118,6 @@ class MessageBodyProcessor {
         NylasEnv.reportError(err);
         body = previousBody;
       }
-    }
-
-    // Find inline images and give them a calculated CSS height based on
-    // html width and height, when available. This means nothing changes size
-    // as the image is loaded, and we can estimate final height correctly.
-    // Note that MessageBodyWidth must be updated if the UI is changed!
-    let result = MessageUtils.cidRegex.exec(body);
-
-    while (result !== null) {
-      const imgstart = body.lastIndexOf('<', result.index);
-      const imgend = body.indexOf('/>', result.index);
-
-      if ((imgstart !== -1) && (imgend > imgstart)) {
-        const imgtag = body.substr(imgstart, imgend - imgstart);
-        const widthMatch = imgtag.match(/width[ ]?=[ ]?['"]?(\d*)['"]?/);
-        const width = widthMatch ? widthMatch[1] : null;
-        const heightMatch = imgtag.match(/height[ ]?=[ ]?['"]?(\d*)['"]?/);
-        const height = heightMatch ? heightMatch[1] : null;
-        if (width && height) {
-          const scale = Math.min(1, MessageBodyWidth / width);
-          const style = ` style="height:${height * scale}px;" `
-          body = body.substr(0, imgend) + style + body.substr(imgend);
-        }
-      }
-
-      result = MessageUtils.cidRegex.exec(body);
     }
 
     return body;
