@@ -1,6 +1,29 @@
 @import "ui-variables";
 
 .container-mail-rules {
+  width: 80%;
+  margin: 0 auto;
+
+  .empty-list {
+    height: 376px;
+    width: inherit;
+    background-color: @background-secondary;
+    border: 1px solid @border-color-divider;
+    text-align: center;
+
+    .icon-mail-rules {
+      margin-top: 80px;
+    }
+
+    h2 {
+      color: @text-color-very-subtle;
+    }
+
+    .btn {
+      margin-top: 10px;
+    }
+  }
+
   .rule-list {
     position: relative;
     height: inherit;
