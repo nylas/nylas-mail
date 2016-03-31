@@ -179,7 +179,7 @@ class EmojiButtonPopover extends React.Component {
     return searchMatches;
   }
 
-  calcPosition = (event) => {
+  calcPosition(event) {
     const rect = event.target.getBoundingClientRect();
     const position = {
       x: event.pageX - rect.left / 2,
@@ -234,7 +234,7 @@ class EmojiButtonPopover extends React.Component {
   }
 
   renderCanvas() {
-    const canvas = document.getElementById("emoji-canvas");
+    const canvas = React.findDOMNode(this.refs.emojiCanvas);
     const keys = Object.keys(this.state.categoryPositions);
     canvas.height = this.state.categoryPositions[keys[keys.length - 1]].bottom * 2;
     const ctx = canvas.getContext("2d");
@@ -308,7 +308,7 @@ class EmojiButtonPopover extends React.Component {
             />
           </div>
           <canvas
-            id="emoji-canvas"
+            ref="emojiCanvas"
             width="400"
             height="2000"
             onMouseDown={this.onMouseDown}
