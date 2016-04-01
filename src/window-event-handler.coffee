@@ -2,7 +2,7 @@ path = require 'path'
 {$} = require './space-pen-extensions'
 _ = require 'underscore'
 {Disposable} = require 'event-kit'
-{shell, ipcRenderer} = require 'electron'
+{shell, ipcRenderer, remote} = require 'electron'
 {Subscriber} = require 'emissary'
 fs = require 'fs-plus'
 url = require 'url'
@@ -192,7 +192,8 @@ class WindowEventHandler
       # We sometimes get mailto URIs that are not escaped properly, or have been only partially escaped.
       # (T1927) Be sure to escape them once, and completely, before we try to open them. This logic
       # *might* apply to http/https as well but it's unclear.
-      shell.openExternal(encodeURI(decodeURI(href)))
+      href = encodeURI(decodeURI(href))
+      remote.getGlobal('application').openUrl(href)
     else if schema in ['http:', 'https:', 'tel:']
       shell.openExternal(href)
 
