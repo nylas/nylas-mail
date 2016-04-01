@@ -43,6 +43,7 @@ We're working on building a plugin index that makes it super easy to add them to
 - [Less Is More](https://github.com/P0WW0W/less-is-more/)
 - [ToogaBooga](https://github.com/brycedorn/N1-ToogaBooga)
 - [Material](https://github.com/jackiehluo/n1-material)
+- [Monokai](https://github.com/jamiehenson/n1-monokai)
 
 #### Bundled Plugins
 Great starting points for creating your own plugins!
