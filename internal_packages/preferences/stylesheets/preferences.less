@@ -51,6 +51,12 @@
         cursor: default;
         margin: 0 auto;
 
+        &:active {
+          img {
+            -webkit-filter: brightness(40%);
+          }
+        }
+
         &.active {
           background: darken(@background-primary, 10%);
           border-radius: @border-radius-large @border-radius-large 0 0;
