@@ -39,7 +39,7 @@ class EmojiButtonPopover extends React.Component {
   onMouseDown = (event) => {
     const emojiName = this.calcEmojiByPosition(this.calcPosition(event));
     if (!emojiName) return null;
-    EmojiActions.selectEmoji({emojiName, replaceSelection: false});
+    EmojiActions.selectEmoji({emojiName: emojiName, replaceSelection: false});
     Actions.closePopover();
   }
 
