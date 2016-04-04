@@ -27,7 +27,7 @@ class TabGroupRegion extends React.Component
 
       continue if nodes[idx].tabIndex is -1
       nodes[idx].focus()
-      if nodes[idx].nodeName is 'INPUT'
+      if nodes[idx].nodeName is 'INPUT' and nodes[idx].type is "text"
         nodes[idx].setSelectionRange(nodes[idx].value.length, nodes[idx].value.length)
       return
 

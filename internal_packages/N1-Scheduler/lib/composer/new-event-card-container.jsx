@@ -1,5 +1,4 @@
 import React, {Component, PropTypes} from 'react';
-import ReactDOM from 'react-dom'
 import NewEventCard from './new-event-card'
 import {PLUGIN_ID} from '../scheduler-constants'
 import {Utils, Event, Actions, DraftStore} from 'nylas-exports';
@@ -40,13 +39,6 @@ export default class NewEventCardContainer extends Component {
   componentDidMount() {
     this._mounted = true;
     this._loadDraft(this.props.draftClientId);
-
-    // TODO FIXME: We need to manually block the keydown event before it
-    // hits the React event system. This is because the DAMN FOCUS
-    // handlers of the composer will catch the tab and mnaully set the
-    // focus elsewhere instead of letting us naturally tab through our
-    // form fields.
-    ReactDOM.findDOMNode(this).addEventListener("keydown", this._interceptTab);
   }
 
   componentWillReceiveProps(newProps) {
@@ -56,11 +48,6 @@ export default class NewEventCardContainer extends Component {
   componentWillUnmount() {
     this._mounted = false;
     this._usub()
-    ReactDOM.findDOMNode(this).removeEventListener("keydown", this._interceptTab);
-  }
-
-  _interceptTab(e) {
-    e.stopPropagation()
   }
 
   _loadDraft(draftClientId) {

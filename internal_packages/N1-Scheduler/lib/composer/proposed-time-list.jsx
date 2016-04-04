@@ -1,9 +1,12 @@
 import _ from 'underscore'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import React from 'react'
+import {Utils} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
 import b64Imgs from './email-b64-images'
 import {PLUGIN_URL} from '../scheduler-constants'
+
+const TZ = moment.tz(Utils.timeZone).format("z");
 
 export default class ProposedTimeList extends React.Component {
   static propTypes = {
@@ -201,7 +204,9 @@ export default class ProposedTimeList extends React.Component {
   _renderProposalTimeText(proposal) {
     const start = moment.unix(proposal.start).format("LT")
     const end = moment.unix(proposal.end).add(1, 'second').format("LT")
-    return `${start} — ${end}`
+    const tz = <span style={{fontSize: "10px", color: "#aaa"}}>{TZ}</span>
+    const timestr = `${start} — ${end}`
+    return <span>{timestr}&nbsp;&nbsp;{tz}</span>
   }
 
   _headerTextFromDay(dayNum) {
