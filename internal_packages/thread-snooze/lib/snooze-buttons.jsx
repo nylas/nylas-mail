@@ -47,6 +47,7 @@ class SnoozeButton extends Component {
     return (
       <button
         title="Snooze"
+        tabIndex={-1}
         className={"snooze-button " + this.props.className}
         onClick={this.onClick}>
         {this.props.renderImage ?

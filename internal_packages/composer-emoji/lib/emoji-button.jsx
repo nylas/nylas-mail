@@ -21,7 +21,7 @@ class EmojiButton extends React.Component {
 
   render() {
     return (
-      <button className="btn btn-toolbar" title="Insert emoji…" onClick={this.onClick}>
+      <button tabIndex={-1} className="btn btn-toolbar" title="Insert emoji…" onClick={this.onClick}>
         <RetinaImg name="icon-composer-emoji.png" mode={RetinaImg.Mode.ContentIsMask}/>
       </button>
     );

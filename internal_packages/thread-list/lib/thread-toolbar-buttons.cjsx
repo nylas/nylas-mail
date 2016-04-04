@@ -21,10 +21,12 @@ class ArchiveButton extends React.Component
     canArchiveThreads = FocusedPerspectiveStore.current().canArchiveThreads(@props.items)
     return <span /> unless canArchiveThreads
 
-    <button style={order:-107}
-            className="btn btn-toolbar"
-            title="Archive"
-            onClick={@_onArchive}>
+    <button
+      tabIndex={-1}
+      style={order:-107}
+      className="btn btn-toolbar"
+      title="Archive"
+      onClick={@_onArchive}>
       <RetinaImg name="toolbar-archive.png" mode={RetinaImg.Mode.ContentIsMask} />
     </button>
 
@@ -47,7 +49,8 @@ class TrashButton extends React.Component
     canTrashThreads = FocusedPerspectiveStore.current().canTrashThreads(@props.items)
     return <span /> unless canTrashThreads
 
-    <button style={order:-106}
+    <button tabIndex={-1}
+            style={order:-106}
             className="btn btn-toolbar"
             title="Move to Trash"
             onClick={@_onRemove}>
@@ -79,7 +82,8 @@ class ToggleStarredButton extends React.Component
       title = "Star all"
       imageName = "toolbar-star.png"
 
-    <button style={order:-104}
+    <button tabIndex={-1}
+            style={order:-104}
             className="btn btn-toolbar"
             title={title}
             onClick={@_onStar}>
@@ -104,7 +108,8 @@ class ToggleUnreadButton extends React.Component
     postClickUnreadState = _.every @props.items, (t) -> _.isMatch(t, {unread: false})
     fragment = if postClickUnreadState then "unread" else "read"
 
-    <button style={order:-105}
+    <button tabIndex={-1}
+            style={order:-105}
             className="btn btn-toolbar"
             title="Mark as #{fragment}"
             onClick={@_onClick}>

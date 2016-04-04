@@ -63,6 +63,7 @@ class CategoryPicker extends React.Component
     return (
       <KeyCommandsRegion style={order: -103} globalHandlers={@_keymapHandlers()}>
         <button
+          tabIndex={-1}
           ref="button"
           title={tooltip}
           onClick={@_onOpenCategoryPopover}

@@ -10,17 +10,9 @@ CollapsedParticipants = require '../lib/collapsed-participants'
 
 describe "CollapsedParticipants", ->
   makeField = (props={}) ->
-    @onClick = jasmine.createSpy("onClick")
-    props.onClick = @onClick
     @fields = ReactTestUtils.renderIntoDocument(
       <CollapsedParticipants {...props} />
     )
-
-  it "fires callback when clicked", ->
-    makeField.call(@)
-    ReactTestUtils.Simulate.click ReactDOM.findDOMNode(@fields)
-    expect(@onClick).toHaveBeenCalled()
-    expect(@onClick.calls.length).toBe 1
 
   numStr = ->
     ReactDOM.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(@fields, "num-remaining")).innerHTML

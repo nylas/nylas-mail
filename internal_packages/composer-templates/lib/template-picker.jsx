@@ -102,6 +102,7 @@ class TemplatePicker extends React.Component {
   render() {
     return (
       <button
+        tabIndex={-1}
         className="btn btn-toolbar narrow pull-right"
         onClick={this._onClickButton}
         title="Insert email template…">

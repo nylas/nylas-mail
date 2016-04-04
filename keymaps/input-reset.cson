@@ -181,22 +181,3 @@
   '* u': 'native!'
   '* s': 'native!'
   '* t': 'native!'
-
-# Tabs are a bit different because simple elements (like text inputs) we
-# want to use our custom `core:focus-next`. Other more complex ones, like
-# `contenteditable`, we want to have a more controlled effect over.
-'body input, body textarea':
-  'tab': 'core:focus-next'
-  'shift-tab': 'core:focus-previous'
-
-# So our contenteditable control can do its own thing
-'body webview, body *[contenteditable]':
-  'tab': 'native!'
-  'shift-tab': 'native!'
-
-# For menus
-'body .menu, body .menu, body .menu input':
-  # and by "native!" I actually mean for it to just let React deal with
-  # it.
-  'tab': 'native!'
-  'shift-tab': 'native!'

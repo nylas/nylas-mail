@@ -70,10 +70,10 @@ class ComposerEditor extends Component {
     body: PropTypes.string.isRequired,
     draftClientId: PropTypes.string,
     initialSelectionSnapshot: PropTypes.object,
-    onFocus: PropTypes.func.isRequired,
-    onBlur: PropTypes.func.isRequired,
-    onFilePaste: PropTypes.func.isRequired,
-    onBodyChanged: PropTypes.func.isRequired,
+    onFocus: PropTypes.func,
+    onBlur: PropTypes.func,
+    onFilePaste: PropTypes.func,
+    onBodyChanged: PropTypes.func,
     parentActions: PropTypes.shape({
       scrollTo: PropTypes.func,
       getComposerBoundingRect: PropTypes.func,
@@ -88,10 +88,14 @@ class ComposerEditor extends Component {
 
     class ComposerFocusManager extends ContenteditableExtension {
       static onFocus() {
-        return props.onFocus();
+        if (props.onFocus) {
+          return props.onFocus();
+        }
       }
       static onBlur() {
-        return props.onBlur();
+        if (props.onBlur) {
+          return props.onBlur();
+        }
       }
     }
 

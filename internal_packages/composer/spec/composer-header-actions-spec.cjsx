@@ -7,81 +7,77 @@ ReactTestUtils = require('react-addons-test-utils')
 
 describe "ComposerHeaderActions", ->
   makeField = (props = {}) ->
-    @onChangeParticipants = jasmine.createSpy("onChangeParticipants")
-    @onAdjustEnabledFields = jasmine.createSpy("onAdjustEnabledFields")
-    props.onChangeParticipants = @onChangeParticipants
-    props.onAdjustEnabledFields = @onAdjustEnabledFields
+    @onShowAndFocusField = jasmine.createSpy("onShowAndFocusField")
+    props.onShowAndFocusField = @onShowAndFocusField
     props.enabledFields ?= []
     props.draftClientId = 'a'
     @component = ReactTestUtils.renderIntoDocument(
       <ComposerHeaderActions {...props} />
     )
 
-  it "renders all 'show' fields when the focused field is one of the participant fields", ->
-    makeField.call(@, {focusedField: Fields.To})
+  it "renders the 'show' buttons for 'cc', 'bcc' when participantsFocused", ->
+    makeField.call(@, {enabledFields: [Fields.To], participantsFocused: true})
     showCc = ReactTestUtils.findRenderedDOMComponentWithClass(@component, "show-cc")
     showBcc = ReactTestUtils.findRenderedDOMComponentWithClass(@component, "show-bcc")
     showSubject = ReactTestUtils.findRenderedDOMComponentWithClass(@component, "show-subject")
     expect(showCc).toBeDefined()
     expect(showBcc).toBeDefined()
-    expect(showSubject).toBeDefined()
 
-  it "does not render the 'show' fields when the focused field is outside the participant fields", ->
-    makeField.call(@, {focusedField: Fields.Subject})
+  it "does not render the 'show' buttons for 'cc', 'bcc' when participantsFocused is false", ->
+    makeField.call(@, {enabledFields: [Fields.To], participantsFocused: false})
     showCc = ReactTestUtils.scryRenderedDOMComponentsWithClass(@component, "show-cc")
     showBcc = ReactTestUtils.scryRenderedDOMComponentsWithClass(@component, "show-bcc")
     showSubject = ReactTestUtils.scryRenderedDOMComponentsWithClass(@component, "show-subject")
     expect(showCc.length).toBe 0
     expect(showBcc.length).toBe 0
-    expect(showSubject.length).toBe 0
 
   it "hides show cc if it's enabled", ->
-    makeField.call(@, {focusedField: Fields.To, enabledFields: [Fields.Cc]})
+    makeField.call(@, {enabledFields: [Fields.To, Fields.Cc], participantsFocused: true})
     els = ReactTestUtils.scryRenderedDOMComponentsWithClass(@component, "show-cc")
     expect(els.length).toBe 0
 
   it "hides show bcc if it's enabled", ->
-    makeField.call(@, {focusedField: Fields.To, enabledFields: [Fields.Bcc]})
+    makeField.call(@, {enabledFields: [Fields.To, Fields.Bcc], participantsFocused: true})
     els = ReactTestUtils.scryRenderedDOMComponentsWithClass(@component, "show-bcc")
     expect(els.length).toBe 0
 
   it "hides show subject if it's enabled", ->
-    makeField.call(@, {focusedField: Fields.To, enabledFields: [Fields.Subject]})
+    makeField.call(@, {enabledFields: [Fields.To, Fields.Subject], participantsFocused: true})
     els = ReactTestUtils.scryRenderedDOMComponentsWithClass(@component, "show-subject")
     expect(els.length).toBe 0
 
   it "renders 'popout composer' in the inline mode", ->
-    makeField.call(@, {focusedField: Fields.To})
+    makeField.call(@, {enabledFields: [Fields.To], participantsFocused: true})
     els = ReactTestUtils.scryRenderedDOMComponentsWithClass(@component, "show-popout")
     expect(els.length).toBe 1
 
   it "doesn't render 'popout composer' if in a composer window", ->
     spyOn(NylasEnv, 'isComposerWindow').andReturn(true)
-    makeField.call(@, {focusedField: Fields.To})
+    makeField.call(@, {enabledFields: [Fields.To], participantsFocused: true})
     els = ReactTestUtils.scryRenderedDOMComponentsWithClass(@component, "show-popout")
     expect(els.length).toBe 0
 
   it "pops out the composer when clicked", ->
     spyOn(Actions, "composePopoutDraft")
-    makeField.call(@, {focusedField: Fields.To})
+    makeField.call(@, {enabledFields: [Fields.To], participantsFocused: true})
     el = ReactTestUtils.findRenderedDOMComponentWithClass(@component, "show-popout")
     ReactTestUtils.Simulate.click(ReactDOM.findDOMNode(el))
     expect(Actions.composePopoutDraft).toHaveBeenCalled()
 
   it "shows and focuses cc when clicked", ->
-    makeField.call(@, {focusedField: Fields.To})
+    makeField.call(@, {enabledFields: [Fields.To], participantsFocused: true})
     el = ReactTestUtils.findRenderedDOMComponentWithClass(@component, "show-cc")
     ReactTestUtils.Simulate.click(ReactDOM.findDOMNode(el))
-    expect(@onAdjustEnabledFields).toHaveBeenCalledWith show: [Fields.Cc]
+    expect(@onShowAndFocusField).toHaveBeenCalledWith Fields.Cc
 
   it "shows and focuses bcc when clicked", ->
-    makeField.call(@, {focusedField: Fields.To})
+    makeField.call(@, {enabledFields: [Fields.To], participantsFocused: true})
     el = ReactTestUtils.findRenderedDOMComponentWithClass(@component, "show-bcc")
     ReactTestUtils.Simulate.click(ReactDOM.findDOMNode(el))
-    expect(@onAdjustEnabledFields).toHaveBeenCalledWith show: [Fields.Bcc]
+    expect(@onShowAndFocusField).toHaveBeenCalledWith Fields.Bcc
 
   it "shows subject when clicked", ->
-    makeField.call(@, {focusedField: Fields.To})
+    makeField.call(@, {enabledFields: [Fields.To], participantsFocused: false})
     el = ReactTestUtils.findRenderedDOMComponentWithClass(@component, "show-subject")
     ReactTestUtils.Simulate.click(ReactDOM.findDOMNode(el))
-    expect(@onAdjustEnabledFields).toHaveBeenCalledWith show: [Fields.Subject]
+    expect(@onShowAndFocusField).toHaveBeenCalledWith Fields.Subject

@@ -78,9 +78,9 @@ class MessageList extends React.Component
     @_unsubscribers = []
     @_unsubscribers.push MessageStore.listen @_onChange
     @_unsubscribers.push Actions.focusDraft.listen ({draftClientId}) =>
-      draftEl = @_getMessageContainer(draftClientId)
-      return unless draftEl
-      @_focusDraft(draftEl)
+      Utils.waitFor( => @_getMessageContainer(draftClientId)?).then =>
+        @_focusDraft(@_getMessageContainer(draftClientId))
+      .catch =>
 
   componentWillUnmount: =>
     unsubscribe() for unsubscribe in @_unsubscribers
@@ -90,11 +90,6 @@ class MessageList extends React.Component
     not Utils.isEqualReact(nextState, @state)
 
   componentDidUpdate: (prevProps, prevState) =>
-    return if @state.loading
-
-    newDraftClientIds = @_newDraftClientIds(prevState)
-    if newDraftClientIds.length > 0
-      @_focusDraft(@_getMessageContainer(newDraftClientIds[0]))
 
   _globalKeymapHandlers: ->
     'application:reply': =>
@@ -115,11 +110,6 @@ class MessageList extends React.Component
     'application:print-thread': => @_onPrintThread()
     'core:messages-page-up': => @_onScrollByPage(-1)
     'core:messages-page-down': => @_onScrollByPage(1)
-
-  _newDraftClientIds: (prevState) =>
-    oldDraftIds = _.map(_.filter((prevState.messages ? []), (m) -> m.draft), (m) -> m.clientId)
-    newDraftIds = _.map(_.filter((@state.messages ? []), (m) -> m.draft), (m) -> m.clientId)
-    return _.difference(newDraftIds, oldDraftIds) ? []
 
   _getMessageContainer: (clientId) =>
     @refs["message-container-#{clientId}"]

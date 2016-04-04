@@ -252,8 +252,10 @@ class DraftStore
     DatabaseStore.inTransaction (t) =>
       t.persistModel(draft)
     .then =>
-      @_onPopoutDraftClientId(draft.clientId) if popout
-      Actions.focusDraft({draftClientId: draft.clientId})
+      if popout
+        @_onPopoutDraftClientId(draft.clientId)
+      else
+        Actions.focusDraft({draftClientId: draft.clientId})
     .thenReturn({draftClientId: draft.clientId, draft: draft})
 
   _onPopoutBlankDraft: =>

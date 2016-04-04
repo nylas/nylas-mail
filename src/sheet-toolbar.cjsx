@@ -89,9 +89,9 @@ class ToolbarWindowControls extends React.Component
 
   render: =>
     <div name="ToolbarWindowControls" className="toolbar-window-controls alt-#{@state.alt}">
-      <button className="close" onClick={ -> NylasEnv.close()}></button>
-      <button className="minimize" onClick={ -> NylasEnv.minimize()}></button>
-      <button className="maximize" onClick={@_onMaximize}></button>
+      <button tabIndex={-1} className="close" onClick={ -> NylasEnv.close()}></button>
+      <button tabIndex={-1} className="minimize" onClick={ -> NylasEnv.minimize()}></button>
+      <button tabIndex={-1} className="maximize" onClick={@_onMaximize}></button>
     </div>
 
   _onAlt: (event) =>
@@ -107,7 +107,7 @@ class ToolbarMenuControl extends React.Component
   @displayName: 'ToolbarMenuControl'
   render: =>
     <div className="toolbar-menu-control">
-      <button className="btn btn-toolbar" onClick={@_openMenu}>
+      <button tabIndex={-1} className="btn btn-toolbar" onClick={@_openMenu}>
         <RetinaImg name="windows-menu-icon.png" mode={RetinaImg.Mode.ContentIsMask} />
       </button>
     </div>

@@ -28,7 +28,7 @@ class ButtonDropdown extends React.Component
       'bordered': @props.bordered isnt false
 
     if @props.primaryClick
-      <div ref="button" onBlur={@_onBlur} tabIndex={999} className={"#{classes} #{@props.className ? ''}"} style={@props.style}>
+      <div ref="button" onBlur={@_onBlur} tabIndex={-1} className={"#{classes} #{@props.className ? ''}"} style={@props.style}>
         <div className="primary-item"
              title={@props.primaryTitle ? ""}
              onClick={@props.primaryClick}>
@@ -42,7 +42,7 @@ class ButtonDropdown extends React.Component
         </div>
       </div>
     else
-      <div ref="button" onBlur={@_onBlur} tabIndex={999} className={"#{classes} #{@props.className ? ''}"} style={@props.style}>
+      <div ref="button" onBlur={@_onBlur} tabIndex={-1} className={"#{classes} #{@props.className ? ''}"} style={@props.style}>
         <div className="only-item"
              title={@props.primaryTitle ? ""}
              onClick={@toggleDropdown}>

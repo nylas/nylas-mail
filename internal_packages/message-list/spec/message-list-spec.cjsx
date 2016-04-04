@@ -18,21 +18,9 @@ ReactTestUtils = require 'react-addons-test-utils'
  NylasTestUtils,
  ComponentRegistry} = require "nylas-exports"
 
-{InjectedComponent} = require 'nylas-component-kit'
-
 MessageParticipants = require "../lib/message-participants"
-
-MessageItem = proxyquire("../lib/message-item", {
-  "./email-frame": React.createClass({render: -> <div></div>})
-})
-
-MessageItemContainer = proxyquire("../lib/message-item-container", {
-  "./message-item": MessageItem
-  "./pending-message-item": MessageItem
-})
-
-MessageList = proxyquire '../lib/message-list',
-  "./message-item-container": MessageItemContainer
+MessageItemContainer = require "../lib/message-item-container"
+MessageList = require '../lib/message-list'
 
 # User_1 needs to be "me" so that when we calculate who we should reply
 # to, it properly matches the AccountStore
@@ -191,7 +179,6 @@ describe "MessageList", ->
       MessageStore._expandItemsToDefault()
       MessageStore.trigger(MessageStore)
       @messageList.setState(currentThread: test_thread)
-
       NylasTestUtils.loadKeymap("keymaps/base")
 
     it "renders all the correct number of messages", ->
@@ -208,16 +195,6 @@ describe "MessageList", ->
               MessageParticipants)
       expect(items.length).toBe 2
 
-    it "focuses new composers when a draft is added", ->
-      spyOn(@messageList, "_focusDraft")
-      msgs = @messageList.state.messages
-
-      @messageList.setState
-        messages: msgs.concat(draftMessages)
-
-      expect(@messageList._focusDraft).toHaveBeenCalled()
-      expect(@messageList._focusDraft.mostRecentCall.args[0].props.draftClientId).toEqual(draftMessages[0].draftClientId)
-
     it "includes drafts as message item containers", ->
       msgs = @messageList.state.messages
       @messageList.setState
@@ -225,21 +202,6 @@ describe "MessageList", ->
       items = ReactTestUtils.scryRenderedComponentsWithType(@messageList,
               MessageItemContainer)
       expect(items.length).toBe 6
-
-  describe "MessageList with draft", ->
-    beforeEach ->
-      MessageStore._items = testMessages.concat draftMessages
-      MessageStore._thread = test_thread
-      MessageStore.trigger(MessageStore)
-      spyOn(@messageList, "_focusDraft")
-
-    it "renders the composer", ->
-      items = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@messageList, InjectedComponent, matching: {role:"Composer"})
-      expect(@messageList.state.messages.length).toBe 6
-      expect(items.length).toBe 1
-
-    it "doesn't focus on initial load", ->
-      expect(@messageList._focusDraft).not.toHaveBeenCalled()
 
   describe "reply type", ->
     it "prompts for a reply when there's only one participant", ->

@@ -96,7 +96,7 @@ class Token extends React.Component
          draggable="true"
          onDoubleClick={@_onDoubleClick}
          onClick={@_onSelect}>
-      <button className="action" onClick={@_onAction}>
+      <button className="action" onClick={@_onAction} tabIndex={-1}>
         <RetinaImg mode={RetinaImg.Mode.ContentIsMask} name="composer-caret.png" />
       </button>
       {@props.children}
@@ -245,12 +245,6 @@ class TokenizingTextField extends React.Component
     # Called when the input is focused
     onFocus: React.PropTypes.func
 
-    # The tabIndex of the input item
-    tabIndex: React.PropTypes.oneOfType([
-      React.PropTypes.number
-      React.PropTypes.string
-    ])
-
     # A Prompt used in the head of the menu
     menuPrompt: React.PropTypes.string
 
@@ -305,7 +299,7 @@ class TokenizingTextField extends React.Component
       onFocus: @_onInputFocused
       onChange: @_onInputChanged
       disabled: @props.disabled
-      tabIndex: @props.tabIndex
+      tabIndex: 0
       value: @state.inputValue
 
     # If we can't accept additional tokens, override the events that would
@@ -387,14 +381,21 @@ class TokenizingTextField extends React.Component
     else if event.key in ["Escape"]
       @_refreshCompletions("", clear: true)
 
-    else if event.key in ["Tab", "Enter"] or event.keyCode is 188 # comma
-      event.preventDefault()
-      return if (@state.inputValue ? "").trim().length is 0
-      event.stopPropagation()
-      if @state.completions.length > 0
-        @_addToken(@refs.completions.getSelectedItem() || @state.completions[0])
-      else
-        @_addInputValue()
+    else if event.key in ["Tab", "Enter"]
+      @_onInputTrySubmit(event)
+
+    else if event.keyCode is 188 # comma
+      event.preventDefault() # never allow commas in the field
+      @_onInputTrySubmit(event)
+
+  _onInputTrySubmit: (event) =>
+    return if (@state.inputValue ? "").trim().length is 0
+    event.preventDefault()
+    event.stopPropagation()
+    if @state.completions.length > 0
+      @_addToken(@refs.completions.getSelectedItem() || @state.completions[0])
+    else
+      @_addInputValue()
 
   _onInputChanged: (event) =>
     val = event.target.value.trimLeft()

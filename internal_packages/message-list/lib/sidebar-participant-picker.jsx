@@ -62,7 +62,7 @@ export default class SidebarParticipantPicker extends React.Component {
   render() {
     return (
       <div className="sidebar-participant-picker">
-        <select onChange={this._onSelectContact}>
+        <select tabIndex={-1} onChange={this._onSelectContact}>
         {this._renderSortedContacts()}
         </select>
       </div>
@@ -71,4 +71,3 @@ export default class SidebarParticipantPicker extends React.Component {
 
 
 }
-
