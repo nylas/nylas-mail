@@ -377,7 +377,7 @@ class ComposerView extends React.Component
     @setState showQuotedText: not @state.showQuotedText
 
   _renderFooterRegions: =>
-    return <div></div> unless @props.draftClientId
+    return false unless @props.draftClientId
 
     <div className="composer-footer-region">
       <InjectedComponentSet
@@ -484,7 +484,8 @@ class ComposerView extends React.Component
       # We don't set state directly here because we want the native
       # contenteditable focus behavior. When the contenteditable gets focused
       # the focused field state will be properly set via editor.onFocus
-      @refs[Fields.Body].focusAbsoluteEnd()
+      if not event.target.closest(".composer-footer-region")
+        @refs[Fields.Body].focusAbsoluteEnd()
     @_mouseDownTarget = null
 
   # When a user focuses the composer, it's possible that no input is

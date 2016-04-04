@@ -1,5 +1,0 @@
-{
-  "name": "N1 QuickSchedule Backend",
-  "description": "Server supporting the N1 QuickSchedule plugin",
-  "addons": [ "cleardb:ignite" ]
-}

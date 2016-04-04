@@ -148,6 +148,6 @@ const DateUtils = {
     }
     return moment(date)
   },
-}
+};
 
 export default DateUtils

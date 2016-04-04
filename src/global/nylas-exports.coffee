@@ -50,16 +50,19 @@ class NylasExports
   @load "Actions", 'flux/actions'
 
   # API Endpoints
+  @load "nylasRequest", 'nylas-request' # An extend `request` module
   @load "NylasAPI", 'flux/nylas-api'
   @load "NylasSyncStatusStore", 'flux/stores/nylas-sync-status-store'
   @load "EdgehillAPI", 'flux/edgehill-api'
 
   # The Database
+  @load "Matcher", 'flux/attributes/matcher'
   @load "DatabaseStore", 'flux/stores/database-store'
   @load "DatabaseTransaction", 'flux/stores/database-transaction'
   @load "QueryResultSet", 'flux/models/query-result-set'
   @load "MutableQueryResultSet", 'flux/models/mutable-query-result-set'
   @load "ObservableListDataSource", 'flux/stores/observable-list-data-source'
+  @load "CalendarDataSource", 'components/nylas-calendar/calendar-data-source'
   @load "QuerySubscription", 'flux/models/query-subscription'
   @load "MutableQuerySubscription", 'flux/models/mutable-query-subscription'
   @load "QuerySubscriptionPool", 'flux/models/query-subscription-pool'
@@ -112,6 +115,7 @@ class NylasExports
   @require "SyncbackModelTask", 'flux/tasks/syncback-model-task'
   @require "SyncbackMetadataTask", 'flux/tasks/syncback-metadata-task'
   @require "ReprocessMailRulesTask", 'flux/tasks/reprocess-mail-rules-task'
+  @require "RegisterDraftForPluginTask", 'flux/tasks/register-draft-for-plugin-task'
 
   # Stores
   # These need to be required immediately since some Stores are

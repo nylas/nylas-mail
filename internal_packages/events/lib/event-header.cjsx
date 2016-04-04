@@ -54,11 +54,11 @@ class EventHeader extends React.Component
         <div className="event-body">
           <div className="event-date">
             <div className="event-day">
-              {moment(@state.event.when['start_time']*1000).tz(Utils.timeZone).format("dddd, MMMM Do")}
+              {moment(@state.event.start*1000).tz(Utils.timeZone).format("dddd, MMMM Do")}
             </div>
             <div>
               <div className="event-time">
-                {moment(@state.event.when['start_time']*1000).tz(Utils.timeZone).format("h:mm a z")}
+                {moment(@state.event.start*1000).tz(Utils.timeZone).format("h:mm a z")}
               </div>
               {@_renderEventActions()}
             </div>

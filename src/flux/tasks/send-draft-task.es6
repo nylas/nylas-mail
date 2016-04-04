@@ -96,7 +96,7 @@ export default class SendDraftTask extends BaseDraftTask {
       Actions.queueTask(task);
     });
 
-    Actions.sendDraftSuccess({message: this.message, messageClientId: this.message.clientId});
+    Actions.sendDraftSuccess({message: this.message, messageClientId: this.message.clientId, draftClientId: this.draftClientId});
     NylasAPI.makeDraftDeletionRequest(this.draft);
 
     // Play the sending sound

@@ -256,7 +256,7 @@ describe("SyncbackDraftTask", () => {
       });
     });
 
-    [NylasAPI.TimeoutErrorCode].forEach((code) => {
+    NylasAPI.TimeoutErrorCodes.forEach((code) => {
       it(`retries on status code ${code}`, () => {
         stubAPI(code, "PUT");
         waitsForPromise(() => this.task.performRemote().then((status) => {

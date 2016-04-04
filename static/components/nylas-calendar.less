@@ -1,0 +1,257 @@
+@import 'ui-variables';
+
+.nylas-calendar {
+
+  height: 100%;
+
+  background: @background-off-primary;
+  .calendar-view {
+    height: 100%;
+  }
+
+  .calendar-event {
+    @interval-height: 21px;
+    position: absolute;
+    padding: 4px 5px 5px 6px;
+    font-size: 11px;
+    line-height: 11px;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: @interval-height;
+
+    border-top: 0;
+    border-right: 2px solid @background-primary;
+    border-bottom: 2px solid @background-primary;
+    border-left: 0;
+
+    display: flex;
+    .default-header {
+      flex: 1;
+    }
+
+    &:before {
+      content: "";
+      position: absolute;
+      width: 2px;
+      height: 100%;
+      left: 0;
+      top: 0;
+      background: rgba(0,0,0,0.1);
+    }
+
+    &.horizontal {
+      white-space: nowrap;
+    }
+  }
+
+  .calendar-mouse-handler {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .week-view {
+    height: 100%;
+
+    @legend-width: 75px;
+
+    .calendar-area-wrap {
+      &::-webkit-scrollbar {
+        display: none;
+      }
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      width: calc(~"100% - 75px");
+      margin-left: @legend-width;
+      overflow-x: auto;
+      overflow-y: hidden;
+      position: relative;
+    }
+
+    .calendar-legend {
+      width: @legend-width;
+      position: absolute;
+      box-shadow: 1px 0 0 rgba(177,177,177,0.15);
+      z-index: 2;
+    }
+
+    .week-header {
+      position: relative;
+      padding-top: 75px;
+      border-bottom: 1px solid @border-color-divider;
+      flex-shrink: 0;
+    }
+
+    .date-labels {
+      position: absolute;
+      width: 100%;
+      top: 0;
+      left: 0;
+      height: 100%;
+      display: flex;
+    }
+
+    .all-day-events {
+      position: relative;
+      width: auto;
+      z-index: 2;
+      overflow: hidden;
+      transition: height ease-in-out 200ms;
+    }
+
+    .all-day-legend {
+      width: @legend-width;
+      position: relative;
+    }
+
+    .legend-text {
+      font-size: 11px;
+      position: absolute;
+      color: #bfbfbf;
+      right: 10px;
+    }
+
+    .date-label-legend {
+      width: @legend-width;
+      position: relative;
+      border-bottom: 1px solid #dddddd;
+      box-shadow: 0 1px 2.5px rgba(0, 0, 0, 0.15);
+      z-index: 3;
+      .legend-text {
+        bottom: 7px;
+      }
+    }
+
+    .day-label-wrap {
+      padding: 15px;
+      text-align: center;
+      flex: 1;
+      box-shadow: inset 1px 0 0 rgba(177,177,177,0.15);
+      &.is-today {
+        .date-label { color: @accent-primary; }
+        .weekday-label {
+          color: @accent-primary;
+        }
+      }
+    }
+    .date-label {
+      display: block;
+      font-size: 16px;
+      font-weight: 300;
+      color: #808080;
+    }
+    .weekday-label {
+      display: block;
+      font-weight: 500;
+      text-transform: uppercase;
+      margin-top: 3px;
+      font-size: 12px;
+      color: #ccd4d8;
+    }
+
+    .event-grid-wrap {
+      flex: 1;
+      overflow: auto;
+      background: @background-primary;
+      box-shadow: inset 0 1px 2.5px rgba(0,0,0,0.15);
+    }
+    .event-grid {
+      display: flex;
+      position: relative;
+    }
+    .event-grid-legend-wrap {
+      overflow: hidden;
+      box-shadow: 1px 0 0 rgba(177,177,177,0.15);
+    }
+    .event-grid-legend {
+      position: relative;
+      background: @background-primary;
+      z-index: 2;
+    }
+    .event-grid-bg-wrap {
+      .event-grid-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      .cursor {
+        background: rgba(0,0,0,0.04);
+        position: absolute;
+      }
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 0;
+    }
+
+    .event-column {
+      flex: 1;
+      position: relative;
+      height: 100%;
+      z-index: 1;
+      overflow: hidden;
+      box-shadow: 1px 0 0 rgba(177,177,177,0.15);
+      &.weekend {
+        background: rgba(0,0,0,0.02);
+      }
+    }
+  }
+
+  .month-view {
+
+  }
+
+  .top-banner {
+    color: rgba(33,99,146,0.6);
+    background: #e0eff6;
+    font-size: 12px;
+    line-height: 25px;
+    text-align: center;
+    box-shadow: inset 0 -1px 1px rgba(0,0,0,0.07);
+  }
+
+  .header-controls {
+    padding: 10px;
+    display: flex;
+    color: #808080;
+    border-bottom: 1px solid @border-color-divider;
+    box-shadow: inset 0 -1px 1px rgba(191,191,191,0.12);
+    flex-shrink: 0;
+
+    .title {
+      display: inline-block;
+      width: 275px;
+    }
+    .title, .btn-icon {
+      font-size: 15px;
+      line-height: 25px;
+    }
+
+    .btn-icon {
+      margin: 0;
+      height: auto;
+      img {
+        vertical-align: baseline;
+      }
+    }
+  }
+
+  .footer-controls {
+    padding: 10px;
+    display: flex;
+    color: #808080;
+    background: @background-primary;
+    border-top: @border-color-divider;
+    box-shadow: 0 -3px 16px rgba(0,0,0,0.11);
+    z-index: 2;
+  }
+
+  .center-controls {
+    text-align: center;
+    flex: 1;
+    order: 0;
+  }
+}

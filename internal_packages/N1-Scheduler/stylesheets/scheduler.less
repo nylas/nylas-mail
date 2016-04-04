@@ -1,0 +1,210 @@
+@import 'ui-variables';
+@import "ui-mixins";
+
+.calendar-event {
+  .rm-time {
+    font-size: 13px;
+    padding: 5px 5px 10px 10px;
+    margin-right: -4px;
+    margin-top: -4px;
+    cursor: default;
+    color: @text-color-very-subtle;
+    &:hover {
+      color: @text-color-subtle;
+    }
+  }
+}
+
+.new-event-card-container {
+  .new-event-card {
+    border-radius: 4px;
+    box-shadow: 0 0 0.5px rgba(0, 0, 0, 0.28), 0 1px 1.5px rgba(0, 0, 0, 0.08);
+    padding: 10px 0;
+    padding-right: 30px;
+    margin: 5px 14px 14px 14px;
+
+    .remove-button {
+      position: absolute;
+      right: 25px;
+      top: 10px;
+      color: #CCC;
+    }
+    .remove-button:hover {
+      color: @text-color;
+    }
+    .row {
+      display: flex;
+      align-items: baseline;
+      padding: 10px 0;
+    }
+    .row.title {
+      font-size: @font-size-h3;
+    }
+    .suggest-times {
+      padding-left: 56px;
+      color: #A9A9A9;
+      padding-bottom: 10px;
+      a {
+        &:hover {
+          cursor: default;
+        }
+        margin-left: 0.5em;
+      }
+    }
+    .row.expand, .row.time {
+      color: #A9A9A9;
+
+      .timezone {
+        font-size: @font-size-smaller;
+      }
+    }
+    .datetime-input-container {
+      padding: 0 5px;
+      display: inline-block;
+      input {
+        margin: 0;
+      }
+    }
+    .datetime-input-container:first-child {
+      padding-left: 0;
+      input[type=date] {
+        padding-left: 0;
+      }
+    }
+
+    .row textarea {
+      border-bottom: 1px solid #EEE;
+      &:focus {
+        box-shadow: 0 0 0;
+      }
+    }
+
+
+    input[type=date], input[type=time] {
+      display: inline-block;
+      width: initial;
+      margin: 0 3px;
+      margin-right: -9px;
+      padding: 0;
+      border: 1px solid rgba(0,0,0,0);
+      color: @text-color;
+    }
+
+
+    input[type=date]::-webkit-clear-button {
+      display: none;
+    }
+    input[type=date]::-webkit-inner-spin-button {
+      padding: 0;
+      margin: 0;
+      margin-left: -12px;
+    }
+    input[type=date]::-webkit-calendar-picker-indicator {
+      padding-left: 0;
+      padding-right: 0;
+      margin: 0;
+      display: none;
+    }
+    input[type=date]::-webkit-datetime-edit {
+      margin-right: -10px;
+    }
+    input[type=date]::-webkit-datetime-edit-fields-wrapper {
+      border: 1px solid #EEE;
+      border-radius: 3px;
+      padding: 0 2px;
+    }
+
+    input[type=date]:hover,
+    input[type=date]:active,
+    input[type=date]:focus {
+      background: #FFF;
+      border: 1px solid #EEE;
+    }
+    input[type=date]:hover::-webkit-datetime-edit-fields-wrapper,
+    input[type=date]:active::-webkit-datetime-edit-fields-wrapper,
+    input[type=date]:focus::-webkit-datetime-edit-fields-wrapper {
+      border: 1px solid rgba(0,0,0,0);
+    }
+
+    input[type=time]::-webkit-datetime-edit {
+      padding-right: 5px;
+    }
+    input[type=time]::-webkit-clear-button {
+      display: none;
+    }
+    input[type=time]::-webkit-inner-spin-button {
+      padding: 0;
+      margin: 0;
+      margin-left: -3px;
+    }
+    input[type=time]::-webkit-datetime-edit-fields-wrapper {
+      border: 1px solid #EEE;
+      border-radius: 3px;
+      padding: 0 2px;
+    }
+
+    input[type=time]:hover,
+    input[type=time]:focus {
+      background: #FFF;
+      border: 1px solid #EEE;
+    }
+    input[type=time]:hover::-webkit-datetime-edit-fields-wrapper,
+    input[type=time]:focus::-webkit-datetime-edit-fields-wrapper {
+      border: 1px solid rgba(0,0,0,0);
+    }
+
+
+    input[type=text] {
+      border-radius: 0;
+      display: inline-block;
+      flex: 1;
+      border-bottom: 1px solid #EEE;
+    }
+    input[type=text]:focus {
+      border: none;
+      box-shadow: none;
+      border-bottom: 1px solid #EEE;
+    }
+
+    .field-icon {
+      padding: 0 20px;
+
+      img.content-mask {
+        background: #CCC;
+      }
+    }
+
+    .proposals-wrap {
+      margin-top: 10px;
+      display: flex;
+      padding-left: 58px;
+    }
+    .proposal-day {
+      flex: 1;
+      border: 1px solid @border-color-divider;
+      border-radius: @border-radius-base;
+      margin-right: 15px;
+      text-align: center;
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+
+    .day-header {
+      padding: 10px;
+      border-bottom: 1px solid @border-color-divider;
+    }
+    .proposal {
+      padding: 10px;
+      border-bottom: 1px solid @border-color-divider;
+      &:last-child {
+        border-bottom: 0;
+      }
+    }
+
+    .day-header {
+      text-transform: uppercase;
+      color: @text-color-very-subtle;
+    }
+  }
+}

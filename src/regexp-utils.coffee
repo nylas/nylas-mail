@@ -159,4 +159,14 @@ RegExpUtils =
     #https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
     /[\\\/:|?*><"]/g
 
+  # https://regex101.com/r/nC0qL2/2
+  signatureRegex: ->
+    new RegExp(/(<br\/>){0,2}<signature>[^]*<\/signature>/)
+
+  # Finds the start of a quoted text region as inserted by N1. This is not
+  # a general-purpose quote detection scheme and only works for
+  # N1-composed emails.
+  n1QuoteStartRegex: ->
+    new RegExp(/<\w+[^>]*gmail_quote/i)
+
 module.exports = RegExpUtils

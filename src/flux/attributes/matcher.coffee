@@ -63,6 +63,8 @@ class Matcher
       when '=' then return modelValue == matcherValue
       when '<' then return modelValue < matcherValue
       when '>' then return modelValue > matcherValue
+      when '<=' then return modelValue <= matcherValue
+      when '>=' then return modelValue >= matcherValue
       when 'in' then return modelValue in matcherValue
       when 'contains'
         !!modelArrayContainsValue(modelValue, matcherValue)
@@ -177,8 +179,35 @@ class AndCompositeMatcher extends Matcher
       wheres.push(matcher.whereSQL(klass))
     return "(" + wheres.join(" AND ") + ")"
 
+class NotCompositeMatcher extends Matcher
+  constructor: (@children) ->
+    @
+
+  attribute: =>
+    null
+
+  value: =>
+    null
+
+  evaluate: (model) =>
+    not _.every(@children, (matcher) -> matcher.evaluate(model))
+
+  joinSQL: (klass) =>
+    joins = []
+    for matcher in @children
+      join = matcher.joinSQL(klass)
+      joins.push(join) if join
+    return joins
+
+  whereSQL: (klass) =>
+    wheres = []
+    for matcher in @children
+      wheres.push(matcher.whereSQL(klass))
+    return "NOT (" + wheres.join(" AND ") + ")"
+
 Matcher.muid = 0
 Matcher.Or = OrCompositeMatcher
 Matcher.And = AndCompositeMatcher
+Matcher.Not = NotCompositeMatcher
 
 module.exports = Matcher
