@@ -1,4 +1,5 @@
 import React, {Component, PropTypes} from 'react';
+import ReactDOM from 'react-dom'
 import NewEventCard from './new-event-card'
 import {PLUGIN_ID} from '../scheduler-constants'
 import {Utils, Event, Actions, DraftStore} from 'nylas-exports';
@@ -45,7 +46,7 @@ export default class NewEventCardContainer extends Component {
     // handlers of the composer will catch the tab and mnaully set the
     // focus elsewhere instead of letting us naturally tab through our
     // form fields.
-    React.findDOMNode(this).addEventListener("keydown", this._interceptTab);
+    ReactDOM.findDOMNode(this).addEventListener("keydown", this._interceptTab);
   }
 
   componentWillReceiveProps(newProps) {
@@ -55,7 +56,7 @@ export default class NewEventCardContainer extends Component {
   componentWillUnmount() {
     this._mounted = false;
     this._usub()
-    React.findDOMNode(this).removeEventListener("keydown", this._interceptTab);
+    ReactDOM.findDOMNode(this).removeEventListener("keydown", this._interceptTab);
   }
 
   _interceptTab(e) {

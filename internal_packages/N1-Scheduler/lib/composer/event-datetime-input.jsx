@@ -26,15 +26,6 @@ export default class EventDatetimeInput extends React.Component {
     this._datePartStrings = {time: "", date: ""};
   }
 
-  /*
-  componentDidMount() {
-    const dateInputNode = React.findDOMNode(this.refs.date);
-    dateInputNode.addEventListener("mousedown", () => {
-      dateInputNode.querySelector("::-webkit-calendar-picker-indicator")
-    });
-  }
-  */
-
   _onDateChange() {
     const {date, time} = this._datePartStrings;
     const format = `${getDateFormat("date")} ${getDateFormat("time")}`;
