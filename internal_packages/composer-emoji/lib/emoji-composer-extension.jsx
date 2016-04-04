@@ -133,7 +133,7 @@ class EmojiComposerExtension extends ComposerExtension {
 
   static applyTransformsToDraft = ({draft}) => {
     const nextDraft = draft.clone();
-    nextDraft.body = nextDraft.body.replace(/<span class="missing-emoji ([a-zA-Z0-9-_]*)">.*<\/span>/g, (match, emojiName) =>
+    nextDraft.body = nextDraft.body.replace(/<img class="missing-emoji ([a-zA-Z0-9-_]*)" [^<]+>/g, (match, emojiName) =>
       `<span class="broken-emoji ${emojiName}">${emoji.get(emojiName)}</span>`
     );
     return nextDraft;
@@ -141,8 +141,8 @@ class EmojiComposerExtension extends ComposerExtension {
 
   static unapplyTransformsToDraft = ({draft}) => {
     const nextDraft = draft.clone();
-    nextDraft.body = nextDraft.body.replace(/<span class="broken-emoji ([a-zA-Z0-9-_]*)">.*<\/span>/g, (match, emojiName) =>
-      `<span class="missing-emoji ${emojiName}"><img src="images/composer-emoji/missing-emoji/${emojiName}.png" width="14" height="14" style="margin-top: -5px;" /></span>`
+    nextDraft.body = nextDraft.body.replace(/<span class="broken-emoji ([a-zA-Z0-9-_]*)">[^<]+<\/span>/g, (match, emojiName) =>
+      `<img class="missing-emoji ${emojiName}" src="images/composer-emoji/missing-emoji/${emojiName}.png" width="14" height="14" style="margin-top: -5px;">`
     );
     return nextDraft;
   }
@@ -206,11 +206,12 @@ class EmojiComposerExtension extends ComposerExtension {
     }
     const emojiChar = emoji.get(emojiName);
     if (process.platform === "darwin" && missingEmojiList.indexOf(emojiName) !== -1) {
-      const html = `<span class="missing-emoji ${emojiName}"><img
+      const html = `<img
+                      class="missing-emoji ${emojiName}"
                       src="images/composer-emoji/missing-emoji/${emojiName}.png"
                       width="14"
                       height="14"
-                      style="margin-top: -5px;" /></span>`;
+                      style="margin-top: -5px;">`;
       editor.insertHTML(html, {selectInsertion: false});
     } else {
       editor.insertText(emojiChar);
