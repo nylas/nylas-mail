@@ -2,6 +2,7 @@
 import moment from 'moment'
 
 import React from 'react'
+import ReactDOM from 'react-dom'
 
 export default class CalendarEventContainer extends React.Component {
   static displayName = "CalendarEventContainer";
@@ -80,7 +81,7 @@ export default class CalendarEventContainer extends React.Component {
   }
 
   _onWindowMouseUp = (event) => {
-    if (React.findDOMNode(this).contains(event.target)) {
+    if (ReactDOM.findDOMNode(this).contains(event.target)) {
       return
     }
     this._onCalendarMouseUp(event)

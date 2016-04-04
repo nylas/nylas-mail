@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import moment from 'moment'
 import {RetinaImg} from 'nylas-component-kit'
 import {PLUGIN_ID} from '../scheduler-constants'
@@ -154,7 +155,7 @@ export default class NewEventCard extends React.Component {
 
   _updateTextarea() {
     if (!this.refs.description) { return }
-    const el = React.findDOMNode(this.refs.description);
+    const el = ReactDOM.findDOMNode(this.refs.description);
     el.style.height = `auto`;
     el.style.height = `${Math.max(el.scrollHeight, 67)}px`;
     document.activeElement.scrollIntoViewIfNeeded()

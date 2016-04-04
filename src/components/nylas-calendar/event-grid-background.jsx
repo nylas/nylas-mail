@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactDOM from 'react-dom'
 import {Utils} from 'nylas-exports'
 
 export default class EventGridBackground extends React.Component {
@@ -30,7 +31,7 @@ export default class EventGridBackground extends React.Component {
   }
 
   _renderEventGridBackground() {
-    const canvas = React.findDOMNode(this.refs.canvas);
+    const canvas = ReactDOM.findDOMNode(this.refs.canvas);
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const height = this.props.height;
@@ -65,7 +66,7 @@ export default class EventGridBackground extends React.Component {
       return
     }
     this._lastHoverRect = r;
-    const cursor = React.findDOMNode(this.refs.cursor);
+    const cursor = ReactDOM.findDOMNode(this.refs.cursor);
     cursor.style.left = `${r.x}px`;
     cursor.style.top = `${r.y}px`;
     cursor.style.width = `${r.width}px`;

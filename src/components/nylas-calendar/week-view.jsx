@@ -1,5 +1,6 @@
 import _ from 'underscore'
 import React from 'react'
+import ReactDOM from 'react-dom'
 import moment from 'moment'
 import classnames from 'classnames'
 import {RetinaImg} from 'nylas-component-kit'
@@ -258,7 +259,7 @@ export default class WeekView extends React.Component {
   }
 
   _centerScrollRegion() {
-    const wrap = React.findDOMNode(this.refs.eventGridWrap);
+    const wrap = ReactDOM.findDOMNode(this.refs.eventGridWrap);
     wrap.scrollTop = (this._gridHeight() / 2) - (wrap.getBoundingClientRect().height / 2);
   }
 
@@ -295,17 +296,17 @@ export default class WeekView extends React.Component {
   }
 
   _setIntervalHeight = () => {
-    const wrap = React.findDOMNode(this.refs.eventGridWrap);
+    const wrap = ReactDOM.findDOMNode(this.refs.eventGridWrap);
     const wrapHeight = wrap.getBoundingClientRect().height;
     const numIntervals = Math.floor(DAY_DUR / INTERVAL_TIME);
-    React.findDOMNode(this.refs.eventGridLegendWrap).style.height = `${wrapHeight}px`;
+    ReactDOM.findDOMNode(this.refs.eventGridLegendWrap).style.height = `${wrapHeight}px`;
     this.setState({
       intervalHeight: Math.max(wrapHeight / numIntervals, MIN_INTERVAL_HEIGHT),
     });
   }
 
   _onGridScroll = (event) => {
-    React.findDOMNode(this.refs.eventGridLegendWrap).scrollTop = event.target.scrollTop
+    ReactDOM.findDOMNode(this.refs.eventGridLegendWrap).scrollTop = event.target.scrollTop
   }
 
   _onScrollCalWrap = (event) => {
@@ -327,7 +328,7 @@ export default class WeekView extends React.Component {
     const weekEnd = this.state.endMoment.unix()
     let percent = (this._scrollTime - weekStart) / (weekEnd - weekStart)
     percent = Math.min(Math.max(percent, 0), 1)
-    const wrap = React.findDOMNode(this.refs.calendarAreaWrap)
+    const wrap = ReactDOM.findDOMNode(this.refs.calendarAreaWrap)
     wrap.scrollLeft = wrap.scrollWidth * percent
   }
 
