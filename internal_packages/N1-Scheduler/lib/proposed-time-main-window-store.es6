@@ -47,7 +47,6 @@ class ProposedTimeMainWindowStore extends NylasStore {
   }
 
   _convertToPendingEvent(draft, proposals) {
-    console.log("CONVERTING TO PENDING EVENT")
     const metadata = draft.metadataForPluginId(PLUGIN_ID) || {};
     metadata.proposals = proposals;
 
@@ -58,10 +57,8 @@ class ProposedTimeMainWindowStore extends NylasStore {
     if (draft.events.length > 0) {
       return DraftStore.sessionForClientId(draft.clientId).then((session) => {
         metadata.pendingEvent = draft.events[0].toJSON();
-        console.log("Setting pendingEvent", metadata.pendingEvent);
         session.changes.add({events: []});
         return session.changes.commit().then(() => {
-          console.log("SET METADATA", metadata);
           Actions.setMetadata(draft, PLUGIN_ID, metadata);
         })
       });
