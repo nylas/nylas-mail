@@ -359,8 +359,12 @@ export default class ComposerView extends React.Component {
     }
   }
 
+  _inFooterRegion(el) {
+    return el.closest && el.closest(".composer-footer-region")
+  }
+
   _onMouseUpComposerBody = (event) => {
-    if (event.target === this._mouseDownTarget) {
+    if (event.target === this._mouseDownTarget && !this._inFooterRegion(event.target)) {
       // We don't set state directly here because we want the native
       // contenteditable focus behavior. When the contenteditable gets focused
       // the focused field state will be properly set via editor.onFocus
