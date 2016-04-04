@@ -16,30 +16,18 @@ ComposerEditor = require '../lib/composer-editor'
 
 describe "Composer Quoted Text", ->
   beforeEach ->
-    # TODO
-    # Extract ComposerEditor tests instead of rendering injected component
-    # here
-    ComposerEditor.containerRequired = false
     ComponentRegistry.register(ComposerEditor, role: "Composer:Editor")
 
     @onChange = jasmine.createSpy('onChange')
     @htmlNoQuote = 'Test <strong>HTML</strong><br>'
     @htmlWithQuote = 'Test <strong>HTML</strong><br><blockquote class="gmail_quote">QUOTE</blockquote>'
 
-    spyOn(Composer.prototype, "_prepareForDraft")
-
     @draft = new Message(draft: true, clientId: "client-123")
-
-    @composer = ReactTestUtils.renderIntoDocument(<Composer draftClientId="unused"/>)
-    @composer._proxy =
+    @session =
       trigger: ->
+      changes:
+        add: ->
       draft: => @draft
-    spyOn(@composer, "_addToProxy")
-
-    spyOn(@composer, "_setupSession")
-    spyOn(@composer, "_teardownForDraft")
-    spyOn(@composer, "_deleteDraftIfEmpty")
-    spyOn(@composer, "_renderAttachments")
 
   afterEach ->
     DraftStore._cleanupAllSessions()
@@ -55,8 +43,11 @@ describe "Composer Quoted Text", ->
 
   describe "when there's no quoted text", ->
     beforeEach ->
+      @draft.body = @htmlNoQuote
+      @composer = ReactTestUtils.renderIntoDocument(
+        <Composer draft={@draft} session={@session}/>
+      )
       @composer.setState
-        body: @htmlNoQuote
         showQuotedText: true
       @contentEditable = @composer.refs[Fields.Body]
       @$contentEditable = ReactDOM.findDOMNode(@contentEditable).querySelector('[contenteditable]')
@@ -67,6 +58,7 @@ describe "Composer Quoted Text", ->
 
     it "allows the text to update", ->
       textToAdd = "MORE <strong>TEXT</strong>!"
+      spyOn(@composer, "_addToProxy")
       expect(@$contentEditable.innerHTML).toBe @htmlNoQuote
       setHTML.call(@, textToAdd + @htmlNoQuote)
       ev = @composer._addToProxy.mostRecentCall.args[0].body
@@ -77,10 +69,13 @@ describe "Composer Quoted Text", ->
       expect(toggles.length).toBe 0
 
 
-  describe 'when showQuotedText is true', ->
+  describe 'when there is quoted text, and showQuotedText is true', ->
     beforeEach ->
+      @draft.body = @htmlWithQuote
+      @composer = ReactTestUtils.renderIntoDocument(
+        <Composer draft={@draft} session={@session}/>
+      )
       @composer.setState
-        body: @htmlWithQuote
         showQuotedText: true
       @contentEditable = @composer.refs[Fields.Body]
       @$contentEditable = ReactDOM.findDOMNode(@contentEditable).querySelector('[contenteditable]')
@@ -91,6 +86,7 @@ describe "Composer Quoted Text", ->
 
     it "should call `_addToProxy` with the entire HTML string", ->
       textToAdd = "MORE <strong>TEXT</strong>!"
+      spyOn(@composer, "_addToProxy")
       expect(@$contentEditable.innerHTML).toBe @htmlWithQuote
       setHTML.call(@, textToAdd + @htmlWithQuote)
       ev = @composer._addToProxy.mostRecentCall.args[0].body
@@ -98,6 +94,7 @@ describe "Composer Quoted Text", ->
 
     it "should allow the quoted text to be changed", ->
       newText = 'Test <strong>NEW 1 HTML</strong><blockquote class="gmail_quote">QUOTE CHANGED!!!</blockquote>'
+      spyOn(@composer, "_addToProxy")
       expect(@$contentEditable.innerHTML).toBe @htmlWithQuote
       setHTML.call(@, newText)
       ev = @composer._addToProxy.mostRecentCall.args[0].body
@@ -110,10 +107,13 @@ describe "Composer Quoted Text", ->
       it 'should be rendered', ->
         expect(@toggle).toBeDefined()
 
-  describe 'when showQuotedText is false', ->
+  describe 'when there is quoted text, an showQuotedText is false', ->
     beforeEach ->
+      @draft.body = @htmlWithQuote
+      @composer = ReactTestUtils.renderIntoDocument(
+        <Composer draft={@draft} session={@session}/>
+      )
       @composer.setState
-        body: @htmlWithQuote
         showQuotedText: false
       @contentEditable = @composer.refs[Fields.Body]
       @$contentEditable = ReactDOM.findDOMNode(@contentEditable).querySelector('[contenteditable]')
@@ -127,6 +127,7 @@ describe "Composer Quoted Text", ->
 
     it "should let you change the text, and then append the quoted text part to the end before firing `_addToProxy`", ->
       textToAdd = "MORE <strong>TEXT</strong>!"
+      spyOn(@composer, "_addToProxy")
       expect(@$contentEditable.innerHTML).toBe @htmlNoQuote
       setHTML.call(@, textToAdd + @htmlNoQuote)
       ev = @composer._addToProxy.mostRecentCall.args[0].body
@@ -136,6 +137,7 @@ describe "Composer Quoted Text", ->
 
     it "should let you add more html that looks like quoted text, and still properly appends the old quoted text", ->
       textToAdd = "Yo <blockquote class=\"gmail_quote\">I'm a fake quote</blockquote>"
+      spyOn(@composer, "_addToProxy")
       expect(@$contentEditable.innerHTML).toBe @htmlNoQuote
       setHTML.call(@, textToAdd + @htmlNoQuote)
       ev = @composer._addToProxy.mostRecentCall.args[0].body

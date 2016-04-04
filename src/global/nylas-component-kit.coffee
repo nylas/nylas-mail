@@ -39,6 +39,7 @@ class NylasComponentKit
   @load "Contenteditable", 'contenteditable/contenteditable'
   @load "MultiselectList", 'multiselect-list'
   @load "KeyCommandsRegion", 'key-commands-region'
+  @load "TabGroupRegion", 'tab-group-region'
   @load "InjectedComponent", 'injected-component'
   @load "TokenizingTextField", 'tokenizing-text-field'
   @loadDeprecated "MultiselectActionBar", 'multiselect-action-bar', instead: 'MultiselectToolbar'

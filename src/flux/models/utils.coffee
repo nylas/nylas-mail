@@ -10,6 +10,17 @@ DefaultResourcePath = null
 
 module.exports =
 Utils =
+  waitFor: (latch, options = {}) ->
+    timeout = options.timeout || 400
+    expire = Date.now() + timeout
+    return new Promise (resolve, reject) ->
+      attempt = ->
+        if Date.now() > expire
+          return reject(new Error("Utils.waitFor hit timeout (#{timeout}ms) without firing."))
+        if latch()
+          return resolve()
+        window.requestAnimationFrame(attempt)
+      attempt()
 
   registeredObjectReviver: (k,v) ->
     type = v?.__constructorName

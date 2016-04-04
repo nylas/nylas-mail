@@ -107,7 +107,8 @@ export default class FindInThread extends React.Component {
             <div className="selection-progress">{this._selectionText()}</div>
 
             <div className="btn-wrap">
-              <button className={btnCls}
+              <button tabIndex={-1}
+                      className={btnCls}
                       disabled={!this._navEnabled()}
                       onClick={this._onPrevResult}>
                 <RetinaImg name="ic-findinthread-previous.png"
@@ -115,6 +116,7 @@ export default class FindInThread extends React.Component {
               </button>
 
               <button className={btnCls}
+                      tabIndex={-1}
                       disabled={!this._navEnabled()}
                       onClick={this._onNextResult}>
                 <RetinaImg name="ic-findinthread-next.png"

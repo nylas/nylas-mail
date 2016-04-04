@@ -98,54 +98,51 @@ class KeyCommandsRegion extends React.Component
     onFocusOut: ->
 
   constructor: ->
-    @state = {focused: false}
-    @_goingout = false
+    @_lostFocusToElement = null
+    @state =
+      focused: false
 
     @_in = (event) =>
-      @_goingout = false
+      @_lastFocusElement = event.target
+      @_losingFocusToElement = null
       @props.onFocusIn(event) if @state.focused is false
       @setState(focused: true)
 
+    @_processOutDebounced = _.debounce =>
+      return unless @_losingFocusToElement
+      return unless @state.focused
+
+      # This happens when component that used to have the focus is
+      # unmounted. An example is the url input field of the
+      # FloatingToolbar in the Composer's Contenteditable
+      return if ReactDOM.findDOMNode(@).contains(document.activeElement)
+
+      # This prevents the strange effect of an input appearing to have focus
+      # when the element receiving focus does not support selection (like a
+      # div with tabIndex=-1)
+      if @_losingFocusToElement.tagName isnt 'INPUT'
+        document.getSelection().empty()
+
+      @props.onFocusOut(@_lastFocusElement)
+      @setState({focused: false})
+      @_losingFocusToElement = null
+    , 100
+
     @_out = (event) =>
-      @_goingout = true
-      setTimeout =>
-        return unless @_goingout
-
-        # If we're unmounted the `@_goingout` flag will catch the unmount
-        # @_goingout is set to true when we umount
-        #
-        # It's posible for a focusout event to fire from within a region
-        # that we're actually focsued on.
-        #
-        # This happens when component that used to have the focus is
-        # unmounted. An example is the url input field of the
-        # FloatingToolbar in the Composer's Contenteditable
-        el = ReactDOM.findDOMNode(@)
-        return if el.contains document.activeElement
-
-        # This prevents the strange effect of an input appearing to have focus
-        # when the element receiving focus does not support selection (like a
-        # div with tabIndex=-1)
-        if event.relatedTarget and event.relatedTarget.tagName isnt 'INPUT'
-          document.getSelection().empty()
-
-        @props.onFocusOut() if @state.focused is true
-        @setState(focused: false)
-        @_goingout = false
-      , 100
-
+      @_lastFocusElement = event.target
+      @_losingFocusToElement = event.relatedTarget
+      @_processOutDebounced()
 
   componentWillReceiveProps: (newProps) ->
     @_unmountListeners()
     @_setupListeners(newProps)
 
   componentDidMount: ->
-    @_mounted = true
     @_setupListeners(@props)
 
   componentWillUnmount: ->
+    @_losingFocusToElement = null
     @_unmountListeners()
-    @_mounted = false
 
   # When the {KeymapManager} finds a valid keymap in a `.cson` file, it
   # will create a CustomEvent with the command name as its type. That
@@ -158,7 +155,6 @@ class KeyCommandsRegion extends React.Component
   # here for all commands coming in.
   _setupListeners: (props) ->
     @_globalDisposable = NylasEnv.commands.add('body', props.globalHandlers)
-    return unless @_mounted
     $el = ReactDOM.findDOMNode(@)
     @_localDisposable = NylasEnv.commands.add($el, props.localHandlers)
     $el.addEventListener('focusin', @_in)

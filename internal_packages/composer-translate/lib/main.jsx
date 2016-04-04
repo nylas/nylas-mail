@@ -135,6 +135,7 @@ class TranslateButton extends React.Component {
   render() {
     return (
       <button
+        tabIndex={-1}
         className="btn btn-toolbar pull-right"
         onClick={this._onClickTranslateButton}
         title="Translate email body…">

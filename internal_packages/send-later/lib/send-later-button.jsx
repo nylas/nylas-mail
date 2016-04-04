@@ -76,7 +76,7 @@ class SendLaterButton extends Component {
 
     if (scheduledDate === 'saving') {
       return (
-        <button className={className} title="Saving send date...">
+        <button className={className} title="Saving send date..." tabIndex={-1}>
           <RetinaImg
             name="inline-loading-spinner.gif"
             mode={RetinaImg.Mode.ContentDark}
@@ -95,7 +95,7 @@ class SendLaterButton extends Component {
       }
     }
     return (
-      <button className={className} title="Send later…" onClick={this.onClick}>
+      <button className={className} title="Send later…" onClick={this.onClick} tabIndex={-1}>
         <RetinaImg name="icon-composer-sendlater.png" mode={RetinaImg.Mode.ContentIsMask} />
         {dateInterpretation}
         <span>&nbsp;</span>

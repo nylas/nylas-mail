@@ -55,7 +55,6 @@ describe 'TokenizingTextField', ->
     spyOn(@, 'propCompletionNode').andCallThrough()
     spyOn(@, 'propCompletionsForInput').andCallThrough()
 
-    @tabIndex = 100
     @tokens = [participant1, participant2, participant3]
 
     @rebuildRenderedField = (tokens) =>
@@ -86,9 +85,6 @@ describe 'TokenizingTextField', ->
 
   it 'should render an input field', ->
     expect(@renderedInput).toBeDefined()
-
-  it 'applies the tabIndex provided to the inner input', ->
-    expect(@renderedInput.tabIndex).toBe(@tabIndex)
 
   it 'shows the tokens provided by the tokenNode method', ->
     @renderedTokens = ReactTestUtils.scryRenderedComponentsWithType(@renderedField, CustomToken)
@@ -271,11 +267,9 @@ describe 'TokenizingTextField', ->
 
     it "shouldn't handle the event in the input is empty", ->
       # We ignore on empty input values
-      # NOTE, we still preventDefault
       ReactTestUtils.Simulate.change(@renderedInput, {target: {value: ' '}})
       ReactTestUtils.Simulate.keyDown(@renderedInput, @tabDownEvent)
       expect(@propAdd).not.toHaveBeenCalled()
-      expect(@tabDownEvent.preventDefault).toHaveBeenCalled()
 
     it "should NOT stop the propagation if the input is empty.", ->
       # This is to allow tabs to propagate up to controls that might want
