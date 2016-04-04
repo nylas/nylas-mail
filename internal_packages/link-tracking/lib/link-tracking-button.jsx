@@ -16,7 +16,7 @@ export default class LinkTrackingButton extends React.Component {
   }
 
   _errorMessage(error) {
-    if (error instanceof APIError && error.statusCode === NylasAPI.TimeoutErrorCode) {
+    if (error instanceof APIError && NylasAPI.TimeoutErrorCodes.includes(error.statusCode)) {
       return `Link tracking does not work offline. Please re-enable when you come back online.`
     }
     return `Unfortunately, link tracking servers are currently not available. Please try again later. Error: ${error.message}`

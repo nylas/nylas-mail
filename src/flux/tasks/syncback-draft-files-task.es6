@@ -8,6 +8,7 @@ import NylasAPI from '../nylas-api';
 import BaseDraftTask from './base-draft-task';
 import DatabaseStore from '../stores/database-store';
 import MultiRequestProgressMonitor from '../../multi-request-progress-monitor';
+import Event from '../models/event';
 
 export default class SyncbackDraftFilesTask extends BaseDraftTask {
 
@@ -15,6 +16,7 @@ export default class SyncbackDraftFilesTask extends BaseDraftTask {
     super(draftClientId);
     this._appliedUploads = null;
     this._appliedFiles = null;
+    this._appliedEvents = null;
   }
 
   label() {
@@ -24,6 +26,7 @@ export default class SyncbackDraftFilesTask extends BaseDraftTask {
   performRemote() {
     return this.refreshDraftReference()
     .then(this.uploadAttachments)
+    .then(this.uploadEvents)
     .then(this.applyChangesToDraft)
     .thenReturn(Task.Status.Success)
     .catch((err) => {
@@ -35,6 +38,42 @@ export default class SyncbackDraftFilesTask extends BaseDraftTask {
       }
       return Promise.resolve([Task.Status.Failed, err]);
     });
+  }
+
+  uploadEvents = () => {
+    const events = this.draft.events;
+    if (events && events.length) {
+      const event = events[0];  // only upload one
+      return this.uploadEvent(event).then((savedEvent) => {
+        if (savedEvent) {
+          this._appliedEvents = [savedEvent];
+        }
+        Promise.resolve();
+      });
+    }
+    return Promise.resolve()
+  };
+
+  uploadEvent = (event) => {
+    return NylasAPI.makeRequest({
+      path: "/events",
+      accountId: this.draft.accountId,
+      method: "POST",
+      body: this._prepareEventJson(event),
+      returnsModel: true,
+    }).then(json =>{
+      return (new Event()).fromJSON(json);
+    });
+  };
+
+  _prepareEventJson(event) {
+    const json = event.toJSON();
+    delete json.id;
+    json.when = {
+      start_time: json._start,
+      end_time: json._end,
+    };
+    return json;
   }
 
   uploadAttachments = () => {
@@ -50,8 +89,8 @@ export default class SyncbackDraftFilesTask extends BaseDraftTask {
       // Note: We don't actually delete uploaded files until send completes,
       // because it's possible for the app to quit without saving state and
       // need to re-upload the file.
-      this._appliedUploads = uploaded
-      this._appliedFiles = files
+      this._appliedUploads = uploaded;
+      this._appliedFiles = files;
     });
   }
 
@@ -91,6 +130,7 @@ export default class SyncbackDraftFilesTask extends BaseDraftTask {
     return DatabaseStore.inTransaction((t) => {
       return this.refreshDraftReference().then(() => {
         this.draft.files = this.draft.files.concat(this._appliedFiles);
+        this.draft.events = this._appliedEvents;
         if (this.draft.uploads instanceof Array) {
           const uploadedPaths = this._appliedUploads.map((upload) => upload.targetPath);
           this.draft.uploads = this.draft.uploads.filter((upload) =>

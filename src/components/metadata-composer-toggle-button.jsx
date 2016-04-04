@@ -87,7 +87,7 @@ export default class MetadataComposerToggleButton extends React.Component {
           NylasEnv.reportError(error);
         } else if (error.statusCode === 400) {
           NylasEnv.reportError(error);
-        } else if (error.statusCode === NylasAPI.TimeoutErrorCode) {
+        } else if (NylasAPI.TimeoutErrorCodes.includes(error.statusCode)) {
           title = "Offline"
         }
 

@@ -17,7 +17,7 @@ export default class OpenTrackingButton extends React.Component {
   }
 
   _errorMessage(error) {
-    if (error instanceof APIError && error.statusCode === NylasAPI.TimeoutErrorCode) {
+    if (error instanceof APIError && NylasAPI.TimeoutErrorCodes.includes(error.statusCode)) {
       return `Read receipts do not work offline. Please re-enable when you come back online.`
     }
     return `Unfortunately, read receipts are currently not available. Please try again later. Error: ${error.message}`

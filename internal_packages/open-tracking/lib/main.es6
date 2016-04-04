@@ -1,17 +1,42 @@
-
-import {ComponentRegistry, ExtensionRegistry, Actions} from 'nylas-exports';
+import {
+  Actions,
+  ComponentRegistry,
+  ExtensionRegistry,
+  RegisterDraftForPluginTask,
+} from 'nylas-exports';
 import OpenTrackingButton from './open-tracking-button';
 import OpenTrackingIcon from './open-tracking-icon';
 import OpenTrackingMessageStatus from './open-tracking-message-status';
-import OpenTrackingAfterSend from './open-tracking-after-send';
 import OpenTrackingComposerExtension from './open-tracking-composer-extension';
+import {PLUGIN_ID, PLUGIN_URL} from './open-tracking-constants'
 
 export function activate() {
-  ComponentRegistry.register(OpenTrackingButton, {role: 'Composer:ActionButton'});
-  ComponentRegistry.register(OpenTrackingIcon, {role: 'ThreadListIcon'});
-  ComponentRegistry.register(OpenTrackingMessageStatus, {role: 'MessageHeaderStatus'});
+  ComponentRegistry.register(OpenTrackingButton,
+    {role: 'Composer:ActionButton'});
+
+  ComponentRegistry.register(OpenTrackingIcon,
+    {role: 'ThreadListIcon'});
+
+  ComponentRegistry.register(OpenTrackingMessageStatus,
+    {role: 'MessageHeaderStatus'});
+
   ExtensionRegistry.Composer.register(OpenTrackingComposerExtension);
-  this._unlistenSendDraftSuccess = Actions.sendDraftSuccess.listen(OpenTrackingAfterSend.afterDraftSend);
+
+  const errorMessage = `There was a problem saving your read receipt \
+settings. You will not get a read receipt for this message.`
+
+  this._usub = Actions.sendDraftSuccess.listen(({message, draftClientId}) => {
+    if (!NylasEnv.isMainWindow()) return;
+    if (message.metadataForPluginId(PLUGIN_ID)) {
+      const task = new RegisterDraftForPluginTask({
+        errorMessage,
+        draftClientId,
+        messageId: message.id,
+        pluginServerUrl: `${PLUGIN_URL}/plugins/register-message`,
+      });
+      Actions.queueTask(task);
+    }
+  })
 }
 
 export function serialize() {}
@@ -21,5 +46,5 @@ export function deactivate() {
   ComponentRegistry.unregister(OpenTrackingIcon);
   ComponentRegistry.unregister(OpenTrackingMessageStatus);
   ExtensionRegistry.Composer.unregister(OpenTrackingComposerExtension);
-  this._unlistenSendDraftSuccess()
+  this._usub()
 }

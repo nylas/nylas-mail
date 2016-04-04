@@ -344,8 +344,11 @@ class NylasEnvConstructor extends Model
   # content trace visualizer (chrome://tracing). It's like Chromium Developer
   # Tools Profiler, but for all processes and threads.
   trace: ->
-    tracing = remote.require('content-tracing')
-    tracing.startRecording '*', 'record-until-full,enable-sampling,enable-systrace', ->
+    tracing = remote.require('electron').contentTracing
+    opts =
+      categoryFilter: '*',
+      traceOptions: 'record-until-full,enable-sampling,enable-systrace',
+    tracing.startRecording opts, ->
       console.log('Tracing started')
       setTimeout ->
         tracing.stopRecording '', (path) ->
@@ -863,7 +866,7 @@ class NylasEnvConstructor extends Model
     options.title ?= 'Save File'
     callback(remote.dialog.showSaveDialog(@getCurrentWindow(), options))
 
-  showErrorDialog: (messageData) ->
+  showErrorDialog: (messageData, {showInMainWindow}={}) ->
     if _.isString(messageData) or _.isNumber(messageData)
       message = messageData
       title = "Error"
@@ -873,7 +876,11 @@ class NylasEnvConstructor extends Model
     else
       throw new Error("Must pass a valid message to show dialog", message)
 
-    remote.dialog.showMessageBox null, {
+    winToShow = null
+    if showInMainWindow
+      winToShow = remote.getGlobal('application').getMainWindow()
+
+    remote.dialog.showMessageBox winToShow, {
       type: 'warning'
       buttons: ['Okay'],
       message: title

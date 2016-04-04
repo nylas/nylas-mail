@@ -1,0 +1,29 @@
+{
+  "name": "N1-Scheduler",
+  "title":"N1 Scheduler",
+  "description": "The easiest way to schedule events",
+  "main": "./lib/main",
+  "version": "0.1.0",
+  "appId": {
+    "staging": "c5dis00do2vki9ib6hngrjs18",
+    "production": "b8zturjyfg2b568czdcanxm63"
+  },
+  "serverUrl": {
+    "staging": "https://edgehill-staging.nylas.com",
+    "production": "https://edgehill.nylas.com"
+  },
+  "engines": {
+    "nylas": ">=0.4.0"
+  },
+  "icon": "./icon.png",
+  "isOptional": true,
+  "dependencies": {
+    "moment-round": "^1.0"
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true,
+    "calendar": true
+  },
+  "license": "GPL-3.0"
+}

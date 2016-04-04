@@ -48,7 +48,7 @@ We're working on building a plugin index that makes it super easy to add them to
 #### Bundled Plugins
 Great starting points for creating your own plugins!
 - [Translate](https://github.com/nylas/N1/tree/master/internal_packages/composer-translate) — Works with 10 languages
-- [Quick Schedule](https://github.com/nylas/N1/tree/master/internal_packages/quick-schedule) — Show your availability to schedule a meeting with someone
+- [Scheduler](https://github.com/nylas/N1/tree/master/internal_packages/N1-Scheduler) — Show your availability to schedule a meeting with someone
 - [Quick Replies](https://github.com/nylas/N1/tree/master/internal_packages/composer-templates) — Send emails faster with templates
 - [Send Later](https://github.com/nylas/N1/tree/master/internal_packages/send-later) — Schedule your emails to be sent at a later time
 - [Open Tracking](https://github.com/nylas/N1/tree/master/internal_packages/open-tracking) — See if your emails have been read

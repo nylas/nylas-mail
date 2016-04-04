@@ -12,9 +12,9 @@ async = require 'async'
 
 # A 0 code is when an error returns without a status code. These are
 # things like "ESOCKETTIMEDOUT"
-TimeoutErrorCode = 0
-PermanentErrorCodes = [400, 401, 402, 403, 404, 405, 500]
-CancelledErrorCode = -123
+TimeoutErrorCodes = [0, "ETIMEDOUT", "ESOCKETTIMEDOUT", "ECONNRESET", "ENETDOWN", "ENETUNREACH"]
+PermanentErrorCodes = [400, 401, 402, 403, 404, 405, 500, "ENOTFOUND", "ECONNREFUSED", "EHOSTDOWN", "EHOSTUNREACH"]
+CancelledErrorCode = [-123, "ECONNABORTED"]
 SampleTemporaryErrorCode = 504
 
 # This is lazy-loaded
@@ -98,7 +98,7 @@ class NylasAPIRequest
             # the line can have a more consistent interface.
             if not response?.statusCode
               response ?= {}
-              response.statusCode = TimeoutErrorCode
+              response.statusCode = TimeoutErrorCodes[0]
             apiError = new APIError({error, response, body, requestOptions: @options})
             NylasEnv.errorLogger.apiDebug(apiError)
             @options.error?(apiError)
@@ -117,7 +117,7 @@ class NylasAPIRequest
 
 class NylasAPI
 
-  TimeoutErrorCode: TimeoutErrorCode
+  TimeoutErrorCodes: TimeoutErrorCodes
   PermanentErrorCodes: PermanentErrorCodes
   CancelledErrorCode: CancelledErrorCode
   SampleTemporaryErrorCode: SampleTemporaryErrorCode
@@ -398,24 +398,43 @@ class NylasAPI
     AccountStore ?= require './stores/account-store'
     AccountStore.tokenForAccountId(aid)
 
-  # Returns a promise that will resolve if the user is successfully authed
-  # to the plugin backend, and will reject if the auth fails for any reason.
+  # IMPORTANT: In order to auth a plugin, you must have first:
+  #
+  # 1. Have an application registered on developer.nylas.com
+  # 2. Have someone on the Nylas platform team mark that application as a
+  #    "plugin" by flipping a bit on Redwood.
+  # 3. Have that application's API ID and API Secret registered in the
+  #    edgehill-sever config (etc/config.yaml and the corresponding prod
+  #    ansible setup) under APP_IDS and APP_SECRETS respectfully. The key
+  #    you use is the `appName`
+  # 4. On developer.nylas.com, you must create a callback url that points
+  #    to: https://edgehill.nylas.com/plugins/auth/<appName> where
+  #    `appName` is the heading used in the edgehill-server deploy config.
+  #
+  # This method Returns a promise that will resolve if the user is
+  # successfully authed to the plugin backend, and will reject if the auth
+  # fails for any reason.
   #
   # Inside the promise, we:
-  # 1. Ask the API whether this plugin is authed to this account already, and resolve
-  #    if true.
-  # 2. If not, we display a dialog to the user asking whether to auth this plugin.
-  # 3. If the user says yes to the dialog, then we send an auth request to the API to
-  #    auth this plugin.
   #
-  # The returned promise will reject on the failure of any of these 3 steps, namely:
-  # 1. The API request to check that the account is authed failed. This may mean
-  #    that the plugin's Nylas Application is invalid, or that the Nylas API couldn't
-  #    be reached.
+  # 1. Ask the API whether this plugin is authed to this account already,
+  #    and resolve if true.
+  # 2. If not, we display a dialog to the user asking whether to auth this
+  #    plugin.
+  # 3. If the user says yes to the dialog, then we send an auth request to
+  #    the API to auth this plugin.
+  #
+  # The returned promise will reject on the failure of any of these 3
+  # steps, namely:
+  #
+  # 1. The API request to check that the account is authed failed. This
+  #    may mean that the plugin's Nylas Application is invalid, or that the
+  #    Nylas API couldn't be reached.
   # 2. The user declined the plugin auth prompt.
-  # 3. The API request to auth this account to the plugin failed. This may mean that
-  #    the plugin server couldn't be reached or failed to respond properly when authing
-  #    the account, or that the Nylas API couldn't be reached.
+  # 3. The API request to auth this account to the plugin failed. This may
+  #    mean that the plugin server couldn't be reached or failed to respond
+  #    properly when authing the account, or that the Nylas API couldn't be
+  #    reached.
   authPlugin: (pluginId, pluginName, accountOrId) ->
     unless @pluginsSupported
       return Promise.reject(new Error('Sorry, this feature is only available when N1 is running against the hosted version of the Nylas Sync Engine.'))
@@ -444,8 +463,11 @@ class NylasAPI
         NylasEnv.config.set(cacheKey, Date.now())
         return Promise.resolve()
 
-      # Enable to show a prompt to the user
+      # NOTE: Uncomment this line if we want to prompt the users to
+      # explicitly allow permission for each of these plugins:
+      #
       # return @_requestPluginAuth(pluginName, account).then =>
+
       return @makeRequest({
         returnsModel: false,
         method: "POST",

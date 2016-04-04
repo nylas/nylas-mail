@@ -350,7 +350,7 @@ describe("SendDraftTask", () => {
         });
 
         it("retries on timeouts", () => {
-          const thrownError = new APIError({statusCode: NylasAPI.TimeoutErrorCode, body: "err"});
+          const thrownError = new APIError({statusCode: NylasAPI.TimeoutErrorCodes[0], body: "err"});
           spyOn(NylasAPI, 'makeRequest').andReturn(Promise.reject(thrownError));
 
           waitsForPromise(() => this.task.performRemote().then((status) => {
