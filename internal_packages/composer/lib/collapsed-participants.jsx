@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 import {Utils} from 'nylas-exports';
 import {InjectedComponentSet} from 'nylas-component-kit';
 
+const NUM_TO_DISPLAY_MAX = 999;
+
 export default class CollapsedParticipants extends React.Component {
   static displayName = "CollapsedParticipants";
 
@@ -21,9 +23,8 @@ export default class CollapsedParticipants extends React.Component {
 
   constructor(props = {}) {
     super(props);
-    this._keyPrefix = Utils.generateTempId();
     this.state = {
-      numToDisplay: 999,
+      numToDisplay: NUM_TO_DISPLAY_MAX,
       numRemaining: 0,
       numBccRemaining: 0,
     }
@@ -33,13 +34,15 @@ export default class CollapsedParticipants extends React.Component {
     this._setNumHiddenParticipants();
   }
 
-  componentWillReceiveProps() {
-    // Always re-evaluate the hidden participant count when the participant set changes
-    this.setState({
-      numToDisplay: 999,
-      numRemaining: 0,
-      numBccRemaining: 0,
-    });
+  componentWillReceiveProps(nextProps) {
+    if (!Utils.isEqualReact(nextProps, this.props)) {
+      // Always re-evaluate the hidden participant count when the participant set changes
+      this.setState({
+        numToDisplay: NUM_TO_DISPLAY_MAX,
+        numRemaining: 0,
+        numBccRemaining: 0,
+      });
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -47,11 +50,13 @@ export default class CollapsedParticipants extends React.Component {
   }
 
   componentDidUpdate() {
-    this._setNumHiddenParticipants();
+    if (this.state.numToDisplay === NUM_TO_DISPLAY_MAX) {
+      this._setNumHiddenParticipants();
+    }
   }
 
   _setNumHiddenParticipants() {
-    const $wrap = ReactDOM.findDOMNode(this.refs.participantsWrap)
+    const $wrap = ReactDOM.findDOMNode(this.refs.participantsWrap);
     const $regulars = Array.from($wrap.getElementsByClassName("regular-contact"));
     const $bccs = Array.from($wrap.getElementsByClassName("bcc-contact"));
 
@@ -104,7 +109,7 @@ export default class CollapsedParticipants extends React.Component {
 
   _collapsedContact = (contact) => {
     const name = contact.displayName();
-    const key = this._keyPrefix + contact.email + contact.name;
+    const key = contact.email + contact.name;
 
     return (
       <span
@@ -123,7 +128,7 @@ export default class CollapsedParticipants extends React.Component {
 
   _collapsedBccContact = (contact, i) => {
     let name = contact.displayName();
-    const key = this._keyPrefix + contact.email + contact.name;
+    const key = contact.email + contact.name;
     if (i === 0) {
       name = `Bcc: ${name}`;
     }
@@ -137,7 +142,7 @@ export default class CollapsedParticipants extends React.Component {
     const bcc = this.props.bcc.map(this._collapsedBccContact);
 
     let toDisplay = contacts.concat(bcc);
-    toDisplay = toDisplay.splice(0, this.state.numToDisplay - 1);
+    toDisplay = toDisplay.splice(0, this.state.numToDisplay);
     if (toDisplay.length === 0) {
       toDisplay = "Recipients";
     }
