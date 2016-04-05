@@ -7,7 +7,7 @@ class PackageSet extends React.Component {
 
   static propTypes = {
     title: React.PropTypes.string.isRequired,
-    packages: React.PropTypes.array.isRequired,
+    packages: React.PropTypes.array,
     emptyText: React.PropTypes.element,
   }
 

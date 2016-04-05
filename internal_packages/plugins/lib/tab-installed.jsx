@@ -65,7 +65,7 @@ class TabInstalled extends React.Component {
     let devCTA = (<div className="btn btn-large" onClick={this._onEnableDevMode}>Enable Debug Flags</div>);
 
     if (NylasEnv.inDevMode()) {
-      devPackages = this.state.packages.dev;
+      devPackages = this.state.packages.dev || [];
       devEmpty = (<span>
         {`You don't have any packages installed in ~/.nylas/dev/packages. `}
         These plugins are only loaded when you run the app with debug flags

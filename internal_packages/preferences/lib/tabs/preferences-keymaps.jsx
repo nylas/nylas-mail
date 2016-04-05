@@ -168,7 +168,7 @@ class PreferencesKeymaps extends React.Component {
 
   _renderBindingsSection = (section) => {
     return (
-      <section>
+      <section key={`section-${section.title}`}>
         <div className="shortcut-section-title">{section.title}</div>
         {section.items.map(this._renderBindingFor)}
       </section>
@@ -196,14 +196,14 @@ class PreferencesKeymaps extends React.Component {
     );
   }
 
-  _renderKeystrokes = (keystrokes) => {
+  _renderKeystrokes = (keystrokes, idx) => {
     const elements = [];
     const splitKeystrokes = keystrokes.split(' ');
     splitKeystrokes.forEach((keystroke) => {
-      elements.push(<span>{this._formatKeystrokes(keystroke)}</span>);
+      elements.push(<span key={keystroke}>{this._formatKeystrokes(keystroke)}</span>);
     });
     return (
-      <span className="shortcut-value">{elements}</span>
+      <span key={`keystrokes-${idx}`} className="shortcut-value">{elements}</span>
     );
   }
 
