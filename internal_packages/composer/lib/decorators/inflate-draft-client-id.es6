@@ -75,8 +75,10 @@ export default ComposedComponent => class extends React.Component {
     }
   }
 
+  // Returns a promise for use in composer/main.es6, to show the window
+  // once the composer is rendered and focused.
   focus() {
-    Utils.waitFor(() => this.refs.composed).then(() =>
+    return Utils.waitFor(() => this.refs.composed).then(() =>
       this.refs.composed.focus()
     ).catch(() => {
     });

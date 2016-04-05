@@ -4,6 +4,8 @@ import React from 'react';
 import {remote} from 'electron';
 
 import {
+  Message,
+  DraftStore,
   ComponentRegistry,
   WorkspaceStore,
 } from 'nylas-exports';
@@ -24,13 +26,19 @@ class ComposerWithWindowProps extends React.Component {
 
   componentDidMount() {
     if (this.state.draftClientId) {
-      this.focusComposer();
+      this.ready();
     }
 
     this.unlisten = NylasEnv.onWindowPropsReceived((windowProps) => {
-      const {errorMessage} = windowProps;
-      this.setState(windowProps);
-      this.focusComposer();
+      const {errorMessage, draftJSON, draftClientId} = windowProps;
+
+      if (draftJSON) {
+        const draft = new Message().fromJSON(draftJSON);
+        DraftStore._createSession(draftClientId, draft);
+      }
+
+      this.setState({draftClientId});
+      this.ready();
       if (errorMessage) {
         this._showInitialErrorDialog(errorMessage);
       }
@@ -43,8 +51,11 @@ class ComposerWithWindowProps extends React.Component {
     }
   }
 
-  focusComposer = () => {
-    this.refs.composer.focus();
+  ready = () => {
+    this.refs.composer.focus().then(() => {
+      NylasEnv.getCurrentWindow().show()
+      NylasEnv.getCurrentWindow().focus()
+    });
   }
 
   render() {
