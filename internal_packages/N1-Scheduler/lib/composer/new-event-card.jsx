@@ -82,7 +82,7 @@ export default class NewEventCard extends React.Component {
       return false;
     }
     const calOpts = this.state.calendars.map(cal =>
-      <option value={cal.serverId}>{cal.name}</option>
+      <option key={cal.serverId} value={cal.serverId}>{cal.name}</option>
     );
     const onChange = (e) => {this.props.onChange({calendarId: e.target.value})}
     return (
