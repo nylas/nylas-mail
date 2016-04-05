@@ -331,7 +331,7 @@ class ScrollRegion extends React.Component
 
   recomputeDimensions: (options = {}) =>
     scrollbar = @props.getScrollbar?() ? @refs.scrollbar
-    scrollbar._recomputeDimensions(options)
+    scrollbar._recomputeDimensions(options) if scrollbar
     @_recomputeDimensions(options)
 
   _recomputeDimensions: ({useCachedValues}) =>
