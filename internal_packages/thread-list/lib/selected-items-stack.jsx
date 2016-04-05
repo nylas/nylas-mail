@@ -56,7 +56,7 @@ class SelectedItemsStack extends Component {
                 transform,
                 zIndex: 5 - idx,
               }
-              return <div style={style} className="card"/>
+              return <div key={`card-${idx}`} style={style} className="card"/>
             })}
           </div>
           <div className="count-info">
