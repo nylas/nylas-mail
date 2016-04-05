@@ -95,15 +95,15 @@ class PreferencesMailRules extends React.Component {
     this.setState({selectedRule: rule});
   }
 
-  _onReorderRule(rule, newIdx) {
+  _onReorderRule = (rule, newIdx) => {
     Actions.reorderMailRule(rule.id, newIdx);
   }
 
-  _onDeleteRule(rule) {
+  _onDeleteRule = (rule) => {
     Actions.deleteMailRule(rule.id);
   }
 
-  _onRuleNameEdited(newName, rule) {
+  _onRuleNameEdited = (newName, rule) => {
     Actions.updateMailRule(rule.id, {name: newName});
   }
 
@@ -271,9 +271,9 @@ class PreferencesMailRules extends React.Component {
 
           {this._renderMailRules()}
 
-          <Flexbox style={{marginTop: 10, maxWidth: 600}}>
+          <Flexbox style={{marginTop: 40, maxWidth: 600}}>
             <div>
-              <button className="btn" style={{float: 'right', marginTop: 30}} onClick={this._onReprocessRules}>
+              <button className="btn" style={{float: 'right'}} onClick={this._onReprocessRules}>
                 Process all mail
               </button>
             </div>
