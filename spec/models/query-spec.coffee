@@ -150,15 +150,15 @@ describe "ModelQuery", ->
       @runScenario Thread,
         builder: (q) -> q.where(Thread.attributes.categories.contains('category-id')).where({id: '1234'})
         sql: "SELECT `Thread`.`data` FROM `Thread` \
-              INNER JOIN `Thread-Category` AS `M1` ON `M1`.`id` = `Thread`.`id` \
+              INNER JOIN `ThreadCategory` AS `M1` ON `M1`.`id` = `Thread`.`id` \
               WHERE `M1`.`value` = 'category-id' AND `Thread`.`id` = '1234'  \
               ORDER BY `Thread`.`last_message_received_timestamp` DESC"
 
       @runScenario Thread,
         builder: (q) -> q.where([Thread.attributes.categories.contains('l-1'), Thread.attributes.categories.contains('l-2')])
         sql: "SELECT `Thread`.`data` FROM `Thread` \
-              INNER JOIN `Thread-Category` AS `M1` ON `M1`.`id` = `Thread`.`id` \
-              INNER JOIN `Thread-Category` AS `M2` ON `M2`.`id` = `Thread`.`id` \
+              INNER JOIN `ThreadCategory` AS `M1` ON `M1`.`id` = `Thread`.`id` \
+              INNER JOIN `ThreadCategory` AS `M2` ON `M2`.`id` = `Thread`.`id` \
               WHERE `M1`.`value` = 'l-1' AND `M2`.`value` = 'l-2'  \
               ORDER BY `Thread`.`last_message_received_timestamp` DESC"
 

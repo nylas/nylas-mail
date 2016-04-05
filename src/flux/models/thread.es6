@@ -110,8 +110,8 @@ class Thread extends ModelWithMetadata {
 
   static additionalSQLiteConfig = {
     setup: () => [
-      'CREATE TABLE IF NOT EXISTS `Thread-Counts` (`category_id` TEXT PRIMARY KEY, `unread` INTEGER, `total` INTEGER)',
-      'CREATE UNIQUE INDEX IF NOT EXISTS ThreadCountsIndex ON `Thread-Counts` (category_id DESC)',
+      'CREATE TABLE IF NOT EXISTS `ThreadCounts` (`category_id` TEXT PRIMARY KEY, `unread` INTEGER, `total` INTEGER)',
+      'CREATE UNIQUE INDEX IF NOT EXISTS ThreadCountsIndex ON `ThreadCounts` (category_id DESC)',
       'CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(last_message_received_timestamp DESC, id)',
       'CREATE INDEX IF NOT EXISTS ThreadListSentIndex ON Thread(last_message_sent_timestamp DESC, id)',
       'CREATE INDEX IF NOT EXISTS ThreadStarIndex ON Thread(account_id, starred)',

@@ -8,6 +8,7 @@ class Event extends Model
 
   @attributes: _.extend {}, Model.attributes,
     'calendarId': Attributes.String
+      queryable: true
       modelKey: 'calendarId'
       jsonKey: 'calendar_id'
 

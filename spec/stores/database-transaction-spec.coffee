@@ -174,7 +174,7 @@ describe "DatabaseTransaction", ->
           .then =>
             expect(@performed.length).toBe(4)
             expect(@performed[0].query).toBe("BEGIN IMMEDIATE TRANSACTION")
-            expect(@performed[2].query).toBe("DELETE FROM `TestModel-Category` WHERE `id` = ?")
+            expect(@performed[2].query).toBe("DELETE FROM `TestModelCategory` WHERE `id` = ?")
             expect(@performed[2].values[0]).toBe('1234')
             expect(@performed[3].query).toBe("COMMIT")
 
@@ -233,10 +233,10 @@ describe "DatabaseTransaction", ->
         @transaction._writeModels([@m])
 
       it "should delete all association records for the model from join tables", ->
-        expect(@performed[1].query).toBe('DELETE FROM `TestModel-Category` WHERE `id` IN (\'local-6806434c-b0cd\')')
+        expect(@performed[1].query).toBe('DELETE FROM `TestModelCategory` WHERE `id` IN (\'local-6806434c-b0cd\')')
 
       it "should insert new association records into join tables in a single query", ->
-        expect(@performed[2].query).toBe('INSERT OR IGNORE INTO `TestModel-Category` (`id`, `value`) VALUES (?,?),(?,?)')
+        expect(@performed[2].query).toBe('INSERT OR IGNORE INTO `TestModelCategory` (`id`, `value`) VALUES (?,?),(?,?)')
         expect(@performed[2].values).toEqual(['local-6806434c-b0cd', 'a','local-6806434c-b0cd', 'b'])
 
     describe "model collection attributes query building", ->
@@ -250,7 +250,7 @@ describe "DatabaseTransaction", ->
         @transaction._writeModels([@m])
 
         collectionAttributeQueries = _.filter @performed, (i) ->
-          i.query.indexOf('INSERT OR IGNORE INTO `TestModel-Category`') == 0
+          i.query.indexOf('INSERT OR IGNORE INTO `TestModelCategory`') == 0
 
         expect(collectionAttributeQueries.length).toBe(1)
         expect(collectionAttributeQueries[0].values[399]).toEqual('id-199')
@@ -260,7 +260,7 @@ describe "DatabaseTransaction", ->
         @transaction._writeModels([@m])
 
         collectionAttributeQueries = _.filter @performed, (i) ->
-          i.query.indexOf('INSERT OR IGNORE INTO `TestModel-Category`') == 0
+          i.query.indexOf('INSERT OR IGNORE INTO `TestModelCategory`') == 0
 
         expect(collectionAttributeQueries.length).toBe(2)
         expect(collectionAttributeQueries[0].values[399]).toEqual('id-199')
@@ -271,7 +271,7 @@ describe "DatabaseTransaction", ->
         @transaction._writeModels([@m])
 
         collectionAttributeQueries = _.filter @performed, (i) ->
-          i.query.indexOf('INSERT OR IGNORE INTO `TestModel-Category`') == 0
+          i.query.indexOf('INSERT OR IGNORE INTO `TestModelCategory`') == 0
 
         expect(collectionAttributeQueries.length).toBe(2)
         expect(collectionAttributeQueries[0].values[399]).toEqual('id-199')

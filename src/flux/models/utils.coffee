@@ -175,7 +175,7 @@ Utils =
     id[0..5] is 'local-'
 
   tableNameForJoin: (primaryKlass, secondaryKlass) ->
-    "#{primaryKlass.name}-#{secondaryKlass.name}"
+    "#{primaryKlass.name}#{secondaryKlass.name}"
 
   imageNamed: (fullname, resourcePath) ->
     [name, ext] = fullname.split('.')
