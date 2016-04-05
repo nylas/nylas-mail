@@ -4,7 +4,19 @@ AccountStore = require './account-store'
 DatabaseStore = require './database-store'
 NylasStore = require 'nylas-store'
 
+ModelsForSync = [
+  'threads',
+  'messages',
+  'labels',
+  'folders',
+  'drafts',
+  'contacts',
+  'calendars',
+  'events'
+]
+
 class NylasSyncStatusStore extends NylasStore
+  ModelsForSync: ModelsForSync
 
   constructor: ->
     @_statesByAccount = {}
@@ -29,12 +41,13 @@ class NylasSyncStatusStore extends NylasStore
     return false unless @_statesByAccount[acctId]
     if model
       return @_statesByAccount[acctId][model]?.complete ? false
-    for _model, modelState of @_statesByAccount[acctId]
-      continue if _model in ['longConnectionStatus', 'nextRetryTimestamp']
-      return false if not modelState.complete
+    for _model in ModelsForSync
+      modelState = @_statesByAccount[_model]
+      return false if not modelState?.complete
     return true
 
   isSyncComplete: =>
+    return false if _.isEmpty(@_statesByAccount)
     for acctId of @_statesByAccount
       return false if not @isSyncCompleteForAccount(acctId)
     return true

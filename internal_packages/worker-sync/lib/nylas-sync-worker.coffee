@@ -1,5 +1,5 @@
 _ = require 'underscore'
-{Actions, DatabaseStore} = require 'nylas-exports'
+{Actions, DatabaseStore, NylasSyncStatusStore} = require 'nylas-exports'
 NylasLongConnection = require './nylas-long-connection'
 ContactRankingsCache = require './contact-rankings-cache'
 
@@ -71,7 +71,7 @@ class NylasSyncWorker
     DatabaseStore.findJSONBlob("NylasSyncWorker:#{@_account.id}").then (json) =>
       @_state = json ? {}
       @_state.longConnectionStatus = NylasLongConnection.Status.Idle
-      for key in ['threads', 'labels', 'folders', 'drafts', 'contacts', 'calendars', 'events']
+      for key in NylasSyncStatusStore.ModelsForSync
         @_state[key].busy = false if @_state[key]
       @resume()
 
