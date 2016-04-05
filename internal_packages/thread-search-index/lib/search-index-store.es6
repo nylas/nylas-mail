@@ -18,15 +18,15 @@ const MESSAGE_BODY_LENGTH = 50000
 class SearchIndexStore {
 
   constuctor() {
+    this.accountIds = _.pluck(AccountStore.accounts(), 'id')
     this.unsubscribers = []
   }
 
   activate() {
     NylasSyncStatusStore.whenSyncComplete().then(() => {
       const date = Date.now()
-      const accountIds = AccountStore.accounts().map(acc => acc.id)
       console.log('ThreadSearch: Initializing thread search index...')
-      this.initializeIndex(accountIds)
+      this.initializeIndex(this.accountIds)
       .then(() => {
         console.log('ThreadSearch: Index built successfully in ' + ((Date.now() - date) / 1000) + 's')
         this.unsubscribers = [
@@ -56,9 +56,14 @@ class SearchIndexStore {
 
   onAccountsChanged() {
     const date = Date.now()
-    const accountIds = AccountStore.accounts().map(acc => acc.id)
-    return this.clearIndex()
-    .then(() => this.buildIndex(accountIds))
+    const newIds = _.pluck(AccountStore.accounts(), 'id')
+    if (newIds.length === this.accountIds.length) {
+      return;
+    }
+
+    this.accountIds = newIds
+    this.clearIndex()
+    .then(() => this.buildIndex(this.accountIds))
     .then(() => {
       console.log('ThreadSearch: Index rebuilt successfully in ' + ((Date.now() - date) / 1000) + 's')
     })
