@@ -4,7 +4,6 @@ TaskQueue = require '../../src/flux/stores/task-queue'
 Task = require '../../src/flux/tasks/task'
 
 {APIError,
- OfflineError,
  TimeoutError} = require '../../src/flux/errors'
 
 class TaskSubclassA extends Task

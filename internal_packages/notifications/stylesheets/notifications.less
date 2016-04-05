@@ -126,7 +126,6 @@
   opacity:0;
 }
 
-
 .notifications-sticky {
   width:100%;
 
@@ -143,6 +142,10 @@
   }
   .notification-success {
     border-color: @background-color-success;
+  }
+  .notification-offline {
+    background-color: #CC9900;
+    border-color: darken(#CC9900, 5%);
   }
 
   .notifications-sticky-item {
@@ -173,11 +176,23 @@
     i {
       margin-right:@padding-base-horizontal;
     }
-    div {
+    .icon {
+      display: inline-block;
+      align-self: center;
+      line-height: 16px;
+      margin-right:@padding-base-horizontal;
+
+      img {
+        vertical-align: initial;
+      }
+    }
+
+    div.message {
       flex: 1;
       overflow: hidden;
       text-overflow: ellipsis;
       line-height: @line-height-base * 1.1;
+      padding: @padding-small-vertical 0;
     }
 
     &.has-default-action:hover {
@@ -186,6 +201,9 @@
     }
   }
 }
+
+// Windows Changes
+
 body.platform-win32 {
   .notifications-sticky {
     .notifications-sticky-item {
@@ -194,4 +212,13 @@ body.platform-win32 {
       }
     }
   }
+}
+
+// Activity Error Header
+
+.account-error-header.notifications-sticky {
+ .notifications-sticky-item {
+   background-color: initial;
+   background: linear-gradient(to top, #ca2541 0%, #d55268 100%);
+ }
 }

@@ -1,5 +1,5 @@
 NylasStore = require 'nylas-store'
-{Actions} = require 'nylas-exports'
+{Actions, NylasSyncStatusStore} = require 'nylas-exports'
 qs = require 'querystring'
 _ = require 'underscore'
 moment = require 'moment'
@@ -55,11 +55,11 @@ class DeveloperBarStore extends NylasStore
     @_longPollState = {}
 
   _registerListeners: ->
+    @listenTo NylasSyncStatusStore, @_onSyncStatusChanged
     @listenTo Actions.willMakeAPIRequest, @_onWillMakeAPIRequest
     @listenTo Actions.didMakeAPIRequest, @_onDidMakeAPIRequest
     @listenTo Actions.longPollReceivedRawDeltas, @_onLongPollDeltas
     @listenTo Actions.longPollProcessedDeltas, @_onLongPollProcessedDeltas
-    @listenTo Actions.longPollStateChanged, @_onLongPollStateChange
     @listenTo Actions.clearDeveloperConsole, @_onClear
 
   _onClear: ->
@@ -67,6 +67,12 @@ class DeveloperBarStore extends NylasStore
     @_curlHistory = []
     @_longPollHistory = []
     @trigger(@)
+
+  _onSyncStatusChanged: ->
+    @_longPollState = {}
+    _.forEach NylasSyncStatusStore.state(), (state, accountId) =>
+      @_longPollState[accountId] = state.longConnectionStatus
+    @trigger()
 
   _onLongPollDeltas: (deltas) ->
     # Add a local timestamp to deltas so we can display it

@@ -4,21 +4,21 @@ _ = require 'underscore'
 
 class NylasLongConnection
 
-  @State =
-    Idle: 'idle'
-    Ended: 'ended'
+  @Status =
+    None: 'none'
     Connecting: 'connecting'
     Connected: 'connected'
-    Retrying: 'retrying'
+    Closed: 'closed' # Socket has been closed for any reason
+    Ended: 'ended' # We have received 'end()' and will never open again.
 
   constructor: (api, accountId, config) ->
     @_api = api
     @_accountId = accountId
     @_config = config
     @_emitter = new Emitter
-    @_state = 'idle'
+    @_status = NylasLongConnection.Status.None
     @_req = null
-    @_reqForceReconnectInterval = null
+    @_pingTimeout = null
     @_buffer = null
 
     @_deltas = []
@@ -54,15 +54,13 @@ class NylasLongConnection
         @_config.setCursor(cursor)
         callback(cursor)
 
-  state: ->
-    @state
+  status: ->
+    @status
 
-  setState: (state) ->
-    @_state = state
-    @_emitter.emit('state-change', state)
-
-  onStateChange: (callback) ->
-    @_emitter.on('state-change', callback)
+  setStatus: (status) ->
+    return if @_status is status
+    @_status = status
+    @_config.setStatus(status)
 
   onDeltas: (callback) ->
     @_emitter.on('deltas-stopped-arriving', callback)
@@ -89,15 +87,15 @@ class NylasLongConnection
 
   start: ->
     return unless @_config.ready()
+    return unless @_status in [NylasLongConnection.Status.None, NylasLongConnection.Status.Closed]
 
     token = @_api.accessTokenForAccountId(@_accountId)
     return if not token?
-    return if @_state is NylasLongConnection.State.Ended
     return if @_req
 
     @withCursor (cursor) =>
-      return if @state is NylasLongConnection.State.Ended
-      console.log("Delta Connection: Starting for account #{@_accountId}, token #{token}, with cursor #{cursor}")
+      return if @status is NylasLongConnection.Status.Ended
+
       options = url.parse("#{@_api.APIRoot}/delta/streaming?cursor=#{cursor}&exclude_folders=false&exclude_metadata=false&exclude_account=false")
       options.auth = "#{token}:"
 
@@ -107,62 +105,58 @@ class NylasLongConnection
         options.port = 443
         lib = require 'https'
 
-      req = lib.request options, (res) =>
+      @_req = lib.request options, (res) =>
         if res.statusCode isnt 200
           res.on 'data', (chunk) =>
             if chunk.toString().indexOf('Invalid cursor') > 0
               console.log('Delta Connection: Cursor is invalid. Need to blow away local cache.')
               # TODO THIS!
             else
-              @retry()
+              @close()
           return
 
         @_buffer = ''
         processBufferThrottled = _.throttle(@onProcessBuffer, 400, {leading: false})
         res.setEncoding('utf8')
-        res.on 'close', => @retry()
+        res.on 'close', => @close()
         res.on 'data', (chunk) =>
+          @closeIfDataStops()
           # Ignore redundant newlines sent as pings. Want to avoid
           # calls to @onProcessBuffer that contain no actual updates
           return if chunk is '\n' and (@_buffer.length is 0 or @_buffer[-1] is '\n')
           @_buffer += chunk
           processBufferThrottled()
 
-      req.setTimeout(60*60*1000)
-      req.setSocketKeepAlive(true)
-      req.on 'error', => @retry()
-      req.on 'socket', (socket) =>
-        @setState(NylasLongConnection.State.Connecting)
+      @_req.setTimeout(60*60*1000)
+      @_req.setSocketKeepAlive(true)
+      @_req.on 'error', => @close()
+      @_req.on 'socket', (socket) =>
+        @setStatus(NylasLongConnection.Status.Connecting)
         socket.on 'connect', =>
-          @setState(NylasLongConnection.State.Connected)
-      req.write("1")
+          @setStatus(NylasLongConnection.Status.Connected)
+          @closeIfDataStops()
+      @_req.write("1")
 
-      @_req = req
 
-      # Currently we have trouble identifying when the connection has closed.
-      # Instead of trying to fix that, just reconnect every 120 seconds.
-      @_reqForceReconnectInterval = setInterval =>
-        @retry(true)
-      ,30000
-
-  retry: (immediate = false) ->
-    return if @_state is NylasLongConnection.State.Ended
-    @setState(NylasLongConnection.State.Retrying)
+  close: ->
+    return if @_status is NylasLongConnection.Status.Closed
+    @setStatus(NylasLongConnection.Status.Closed)
     @cleanup()
 
-    startDelay = if immediate then 0 else 10000
-    setTimeout =>
-      @start()
-    , startDelay
+  closeIfDataStops: =>
+    clearTimeout(@_pingTimeout) if @_pingTimeout
+    @_pingTimeout = setTimeout =>
+      @_pingTimeout = null
+      @close()
+    , 15 * 1000
 
   end: ->
-    console.log("Delta Connection: Closed.")
-    @setState(NylasLongConnection.State.Ended)
+    @setStatus(NylasLongConnection.Status.Ended)
     @cleanup()
 
   cleanup: ->
-    clearInterval(@_reqForceReconnectInterval) if @_reqForceReconnectInterval
-    @_reqForceReconnectInterval = null
+    clearInterval(@_pingTimeout) if @_pingTimeout
+    @_pingTimeout = null
     @_buffer = ''
     if @_req
       @_req.end()

@@ -59,8 +59,4 @@ export default class EventRSVPTask extends Task {
   onTimeoutError() {
     return Promise.resolve();
   }
-
-  onOfflineError() {
-    return Promise.resolve();
-  }
 }

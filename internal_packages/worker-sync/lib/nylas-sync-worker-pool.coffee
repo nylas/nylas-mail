@@ -41,16 +41,6 @@ class NylasSyncWorkerPool
 
     worker = new NylasSyncWorker(NylasAPI, account)
     connection = worker.connection()
-
-    connection.onStateChange (state) ->
-      Actions.longPollStateChanged({accountId: account.id, state: state})
-      if state == NylasLongConnection.State.Connected
-        ## TODO use OfflineStatusStore
-        Actions.longPollConnected()
-      else
-        ## TODO use OfflineStatusStore
-        Actions.longPollOffline()
-
     connection.onDeltas (deltas) =>
       @_handleDeltas(deltas)
 
