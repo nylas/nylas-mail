@@ -194,7 +194,7 @@ body.platform-win32 {
 
     .num-remaining-wrap {
       position: absolute;
-      right: 0;
+      right: -3px;
       z-index: 2;
       top: 6px;
       .show-more-fade {
@@ -308,12 +308,6 @@ body.platform-win32 {
       min-height: @line-height-computed;
     }
   }
-
-  .from-picker {
-    &:hover {
-      cursor: default;
-    }
-  }
 }
 
 // Overrides for the composer in a message-list
@@ -362,6 +356,9 @@ body.platform-win32 {
     padding-top: 11px;
     vertical-align: -webkit-baseline-middle;
 
+    .primary-item, .only-item {
+      line-height: 2em;
+    }
     &:hover {
       .primary-item,
       .only-item {

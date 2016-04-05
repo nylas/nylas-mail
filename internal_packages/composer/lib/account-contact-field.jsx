@@ -44,7 +44,7 @@ export default class AccountContactField extends React.Component {
 
   _renderAccountSpan = (label) => {
     return (
-      <span className="from-picker" style={{position: "relative", top: 13, left: "0.5em"}}>
+      <span style={{position: "relative", top: 13, left: "0.5em"}}>
         {label}
       </span>
     );
