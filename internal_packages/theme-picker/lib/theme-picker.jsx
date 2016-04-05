@@ -38,12 +38,12 @@ class ThemePicker extends React.Component {
   }
 
   _rewriteIFrame(prevActiveTheme, activeTheme) {
-    const prevActiveThemeDoc = document.querySelector(`.theme-preview-${prevActiveTheme}`).contentDocument;
+    const prevActiveThemeDoc = document.querySelector(`.theme-preview-${prevActiveTheme.replace(/\./g, '-')}`).contentDocument;
     const prevActiveElement = prevActiveThemeDoc.querySelector(".theme-option.active-true");
-    prevActiveElement.className = "theme-option active-false";
-    const activeThemeDoc = document.querySelector(`.theme-preview-${activeTheme}`).contentDocument;
+    if (prevActiveElement) prevActiveElement.className = "theme-option active-false";
+    const activeThemeDoc = document.querySelector(`.theme-preview-${activeTheme.replace(/\./g, '-')}`).contentDocument;
     const activeElement = activeThemeDoc.querySelector(".theme-option.active-false");
-    activeElement.className = "theme-option active-true";
+    if (activeElement) activeElement.className = "theme-option active-true";
   }
 
   _renderThemeOptions() {
