@@ -14,8 +14,10 @@ import {Flexbox,
   ScrollRegion,
   ScenarioEditor} from 'nylas-component-kit';
 
-const {ActionTemplatesForAccount,
-  ConditionTemplatesForAccount} = MailRulesTemplates;
+const {
+  ActionTemplatesForAccount,
+  ConditionTemplatesForAccount,
+} = MailRulesTemplates;
 
 
 class PreferencesMailRules extends React.Component {
@@ -65,7 +67,7 @@ class PreferencesMailRules extends React.Component {
     });
   }
 
-  _onReprocessRules() {
+  _onReprocessRules = () => {
     const needsMessageBodies = () => {
       for (const rule of this.state.rules) {
         for (const condition of rule.conditions) {
