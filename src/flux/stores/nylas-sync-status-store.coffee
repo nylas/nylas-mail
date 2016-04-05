@@ -30,6 +30,7 @@ class NylasSyncStatusStore extends NylasStore
     if model
       return @_statesByAccount[acctId][model]?.complete ? false
     for _model, modelState of @_statesByAccount[acctId]
+      continue if _model in ['longConnectionStatus', 'nextRetryTimestamp']
       return false if not modelState.complete
     return true
 
