@@ -1,6 +1,7 @@
 _ = require 'underscore'
 Model = require './model'
 Attributes = require '../attributes'
+AccountStore = null
 
 # We look for a few standard categories and display them in the Mailboxes
 # portion of the left sidebar. Note that these may not all be present on
@@ -97,7 +98,7 @@ class Category extends Model
     @
 
   displayType: =>
-    AccountStore = require '../stores/account-store'
+    AccountStore ?= require '../stores/account-store'
     if AccountStore.accountForId(@accountId).usesLabels()
       return 'label'
     else

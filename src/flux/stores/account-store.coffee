@@ -83,7 +83,7 @@ class AccountStore extends NylasStore
     return unless NylasEnv.isMainWindow()
     idx = _.findIndex @_accounts, (a) -> a.id is id
     account = @_accounts[idx]
-    return if !account
+    return if !account or _.isEqual(account, updated)
     account = _.extend(account, updated)
     @_caches = {}
     @_accounts[idx] = account

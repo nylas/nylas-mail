@@ -8,16 +8,29 @@ class ContactRankingStore extends NylasStore
   constructor: ->
     @_values = {}
     @_valuesAllAccounts = null
-    @_disposables = []
+    @_disposables = {}
     @listenTo AccountStore, @_onAccountsChanged
     @_registerObservables(AccountStore.accounts())
 
   _registerObservables: (accounts) =>
-    @_disposables.forEach (disp) -> disp.dispose()
-    @_disposables = accounts.map ({accountId}) =>
-      query = DatabaseStore.findJSONBlob("ContactRankingsFor#{accountId}")
-      return Rx.Observable.fromQuery(query)
-        .subscribe @_onRankingsChanged.bind(@, accountId)
+    nextDisposables = {}
+
+    # Create new observables, reusing existing ones when possible
+    # (so they don't trigger with initial state unnecesarily)
+    for acct in accounts
+      if @_disposables[acct.id]
+        nextDisposables[acct.id] = @_disposables[acct.id]
+        delete @_disposables[acct.id]
+      else
+        query = DatabaseStore.findJSONBlob("ContactRankingsFor#{acct.id}")
+        callback = @_onRankingsChanged.bind(@, acct.id)
+        nextDisposables[acct.id] = Rx.Observable.fromQuery(query).subscribe(callback)
+
+    # Remove unused observables in the old set
+    for key, disposable of @_disposables
+      disposable.dispose()
+
+    @_disposables = nextDisposables
 
   _onRankingsChanged: (accountId, json) =>
     @_values[accountId] = if json then json.value else null
