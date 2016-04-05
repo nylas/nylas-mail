@@ -99,7 +99,7 @@ class ThemeOption extends React.Component {
       <div className="clickable-theme-option" onMouseDown={this.props.onSelect}>
         <EventedIFrame
           ref="iframe"
-          className={`theme-preview-${this.props.theme.name}`}
+          className={`theme-preview-${this.props.theme.name.replace(/\./g, '-')}`}
           frameBorder="0"
           width="115px"
           height="70px"
