@@ -17,7 +17,7 @@ const MESSAGE_BODY_LENGTH = 50000
 
 class SearchIndexStore {
 
-  constuctor() {
+  constructor() {
     this.accountIds = _.pluck(AccountStore.accounts(), 'id')
     this.unsubscribers = []
   }
@@ -174,4 +174,4 @@ class SearchIndexStore {
   }
 }
 
-export default new SearchIndexStore();
+export default new SearchIndexStore()
