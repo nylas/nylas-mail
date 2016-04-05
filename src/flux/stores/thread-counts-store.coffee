@@ -13,36 +13,36 @@ Note: SUM(unread) works because unread is represented as an int: 0 or 1.
 ###
 
 ReadCountsQuery = ->
-  "SELECT * FROM `Thread-Counts`"
+  "SELECT * FROM `ThreadCounts`"
 
 SetCountsQuery = ->
   """
-  REPLACE INTO `Thread-Counts` (category_id, unread, total)
+  REPLACE INTO `ThreadCounts` (category_id, unread, total)
   SELECT
-    `Thread-Category`.`value` as category_id,
+    `ThreadCategory`.`value` as category_id,
     SUM(unread) as unread,
     COUNT(*) as total
   FROM `Thread`
-  INNER JOIN `Thread-Category` ON `Thread`.`id` = `Thread-Category`.`id`
+  INNER JOIN `ThreadCategory` ON `Thread`.`id` = `ThreadCategory`.`id`
   WHERE
     `Thread`.in_all_mail = 1
-  GROUP BY `Thread-Category`.`value`;
+  GROUP BY `ThreadCategory`.`value`;
   """
 
 UpdateCountsQuery = (objectIds, operator) ->
   objectIdsString = "'" + objectIds.join("','") +  "'"
   """
-  REPLACE INTO `Thread-Counts` (category_id, unread, total)
+  REPLACE INTO `ThreadCounts` (category_id, unread, total)
   SELECT
-    `Thread-Category`.`value` as category_id,
-    COALESCE((SELECT unread FROM `Thread-Counts` WHERE category_id = `Thread-Category`.`value`), 0) #{operator} SUM(unread) as unread,
-    COALESCE((SELECT total  FROM `Thread-Counts` WHERE category_id = `Thread-Category`.`value`), 0) #{operator} COUNT(*) as total
+    `ThreadCategory`.`value` as category_id,
+    COALESCE((SELECT unread FROM `ThreadCounts` WHERE category_id = `ThreadCategory`.`value`), 0) #{operator} SUM(unread) as unread,
+    COALESCE((SELECT total  FROM `ThreadCounts` WHERE category_id = `ThreadCategory`.`value`), 0) #{operator} COUNT(*) as total
   FROM `Thread`
-  INNER JOIN `Thread-Category` ON `Thread`.`id` = `Thread-Category`.`id`
+  INNER JOIN `ThreadCategory` ON `Thread`.`id` = `ThreadCategory`.`id`
   WHERE
     `Thread`.id IN (#{objectIdsString}) AND
     `Thread`.in_all_mail = 1
-  GROUP BY `Thread-Category`.`value`
+  GROUP BY `ThreadCategory`.`value`
   """
 
 class CategoryDatabaseMutationObserver

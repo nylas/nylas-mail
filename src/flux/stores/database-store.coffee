@@ -266,7 +266,7 @@ class DatabaseStore extends NylasStore
           @_db.all "EXPLAIN QUERY PLAN #{query}", values, (err, results=[]) =>
             str = results.map((row) -> row.detail).join('\n') + " for " + query
             return if str.indexOf("SCAN") is -1
-            return if str.indexOf('Thread-Counts') > 0
+            return if str.indexOf('ThreadCounts') > 0
             return if str.indexOf('ThreadSearch') > 0
             @_prettyConsoleLog(str)
 
