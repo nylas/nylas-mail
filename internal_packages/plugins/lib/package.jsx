@@ -55,21 +55,21 @@ class Package extends React.Component {
     if (this.props.package.installed) {
       if (['user', 'dev', 'example'].indexOf(this.props.package.category) !== -1 && !this.props.package.theme) {
         if (this.props.package.enabled) {
-          actions.push(<Switch checked onChange={this._onDisablePackage}>Disable</Switch>);
+          actions.push(<Switch key="disable" checked onChange={this._onDisablePackage}>Disable</Switch>);
         } else {
-          actions.push(<Switch onChange={this._onEnablePackage}>Enable</Switch>);
+          actions.push(<Switch key="enable" onChange={this._onEnablePackage}>Enable</Switch>);
         }
       }
       if (this.props.package.category === 'user') {
         uninstallButton = <div className="uninstall-plugin" onClick={this._onUninstallPackage}>Uninstall</div>
       }
       if (this.props.package.category === 'dev') {
-        actions.push(<div className="btn" onClick={this._onShowPackage}>Show...</div>);
+        actions.push(<div key="show-package" className="btn" onClick={this._onShowPackage}>Show...</div>);
       }
     } else if (this.props.package.installing) {
-      actions.push(<div className="btn">Installing...</div>);
+      actions.push(<div key="installing" className="btn">Installing...</div>);
     } else {
-      actions.push(<div className="btn" onClick={this._onInstallPackage}>Install</div>);
+      actions.push(<div key="install" className="btn" onClick={this._onInstallPackage}>Install</div>);
     }
 
     const {name, description, title} = this.props.package;
