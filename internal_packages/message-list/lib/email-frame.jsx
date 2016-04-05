@@ -113,7 +113,7 @@ export default class EmailFrame extends React.Component {
     // This is a hack, but I'm not sure of a better solution.
     if (Math.abs(height - this._lastComputedHeight) > 5) {
       this.refs.iframe.setHeightQuietly(height);
-      holderNode.height = `${height}px`;
+      holderNode.style.height = `${height}px`;
       this._lastComputedHeight = height;
     }
 
@@ -124,7 +124,10 @@ export default class EmailFrame extends React.Component {
 
   render() {
     return (
-      <div ref="iframeHeightHolder" style={{height: this._lastComputedHeight}}>
+      <div
+        className="iframe-container"
+        ref="iframeHeightHolder"
+        style={{height: this._lastComputedHeight}}>
         <EventedIFrame
           ref="iframe"
           seamless="seamless"
