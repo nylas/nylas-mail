@@ -197,7 +197,6 @@ class NylasExports
 
   # Errors
   @get "APIError", -> require('../flux/errors').APIError
-  @get "OfflineError", -> require('../flux/errors').OfflineError
   @get "TimeoutError", -> require('../flux/errors').TimeoutError
 
   # Process Internals

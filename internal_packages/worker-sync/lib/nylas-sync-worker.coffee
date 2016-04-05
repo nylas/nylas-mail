@@ -11,15 +11,11 @@ MAX_PAGE_SIZE = 200
 #
 class BackoffTimer
   constructor: (@fn) ->
-    @reset()
+    @resetDelay()
 
   cancel: =>
     clearTimeout(@_timeout) if @_timeout
     @_timeout = null
-
-  reset: =>
-    @cancel()
-    @_delay = 20 * 1000
 
   backoff: =>
     @_delay = Math.min(@_delay * 1.4, 5 * 1000 * 60) # Cap at 5 minutes
@@ -33,6 +29,12 @@ class BackoffTimer
       @fn()
     , @_delay
 
+  resetDelay: =>
+    @_delay = 20 * 1000
+
+  getCurrentDelay: =>
+    @_delay
+
 
 module.exports =
 class NylasSyncWorker
@@ -41,31 +43,37 @@ class NylasSyncWorker
     @_api = api
     @_account = account
 
+    # indirection needed so resumeFetches can be spied on
+    @_resumeTimer = new BackoffTimer => @resume()
+    @_refreshingCaches = [new ContactRankingsCache(account.id)]
+
     @_terminated = false
     @_connection = new NylasLongConnection(api, account.id, {
       ready: => @_state isnt null
       getCursor: =>
         return null if @_state is null
-        @_state['cursor'] || NylasEnv.config.get("nylas.#{@_account.id}.cursor")
+        @_state.cursor || NylasEnv.config.get("nylas.#{@_account.id}.cursor")
       setCursor: (val) =>
-        @_state['cursor'] = val
+        @_state.cursor = val
+        @writeState()
+      setStatus: (status) =>
+        @_state.longConnectionStatus = status
+        if status is NylasLongConnection.Status.Closed
+          @_backoff()
+        if status is NylasLongConnection.Status.Connected
+          @_resumeTimer.resetDelay()
         @writeState()
     })
 
-    @_refreshingCaches = [new ContactRankingsCache(account.id)]
-    @_resumeTimer = new BackoffTimer =>
-      # indirection needed so resumeFetches can be spied on
-      @resumeFetches()
-
-    @_unlisten = Actions.retryInitialSync.listen(@_onRetryInitialSync, @)
+    @_unlisten = Actions.retrySync.listen(@_onRetrySync, @)
 
     @_state = null
     DatabaseStore.findJSONBlob("NylasSyncWorker:#{@_account.id}").then (json) =>
       @_state = json ? {}
+      @_state.longConnectionStatus = NylasLongConnection.Status.Idle
       for key in ['threads', 'labels', 'folders', 'drafts', 'contacts', 'calendars', 'events']
         @_state[key].busy = false if @_state[key]
-      @resumeFetches()
-      @_connection.start()
+      @resume()
 
     @
 
@@ -89,7 +97,7 @@ class NylasSyncWorker
     @_resumeTimer.start()
     @_connection.start()
     @_refreshingCaches.map (c) -> c.start()
-    @resumeFetches()
+    @resume()
 
   cleanup: ->
     @_unlisten?()
@@ -99,8 +107,10 @@ class NylasSyncWorker
     @_terminated = true
     @
 
-  resumeFetches: =>
+  resume: =>
     return unless @_state
+
+    @_connection.start()
 
     # Stop the timer. If one or more network requests fails during the fetch process
     # we'll backoff and restart the timer.
@@ -239,19 +249,22 @@ class NylasSyncWorker
         success(response) if success
       error: (err) =>
         return if @_terminated
-        @_resumeTimer.backoff()
-        @_resumeTimer.start()
+        @_backoff()
         error(err) if error
 
   _fetchCollectionPageError: (model, params, err) ->
-    @_resumeTimer.backoff()
-    @_resumeTimer.start()
+    @_backoff()
     @updateTransferState(model, {
       busy: false,
       complete: false,
       error: err.toString()
       errorRequestRange: {offset: params.offset, limit: params.limit}
     })
+
+  _backoff: =>
+    @_resumeTimer.backoff()
+    @_resumeTimer.start()
+    @_state.nextRetryTimestamp = Date.now() + @_resumeTimer.getCurrentDelay()
 
   updateTransferState: (model, updatedKeys) ->
     @_state[model] = _.extend(@_state[model], updatedKeys)
@@ -264,8 +277,9 @@ class NylasSyncWorker
     ,100
     @_writeState()
 
-  _onRetryInitialSync: =>
-    @resumeFetches()
+  _onRetrySync: =>
+    @_resumeTimer.resetDelay()
+    @resume()
 
 NylasSyncWorker.BackoffTimer = BackoffTimer
 NylasSyncWorker.INITIAL_PAGE_SIZE = INITIAL_PAGE_SIZE

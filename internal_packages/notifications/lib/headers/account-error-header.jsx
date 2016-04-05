@@ -38,15 +38,16 @@ export default class AccountErrorHeader extends React.Component {
 
   renderErrorHeader(message, buttonName, actionCallback) {
     return (
-      <div className="sync-issue notifications-sticky">
+      <div className="account-error-header notifications-sticky">
         <div className={"notifications-sticky-item notification-error has-default-action"}
              onClick={actionCallback}>
-          <div>
-            <div className="icon">
-              <RetinaImg
-                name="icon-alert-onred.png"
-                mode={RetinaImg.Mode.ContentPreserve} />
-            </div>{message}</div>
+         <RetinaImg
+           className="icon"
+           name="icon-alert-onred.png"
+           mode={RetinaImg.Mode.ContentPreserve} />
+          <div className="message">
+            {message}
+          </div>
           <a className="action default" onClick={actionCallback}>
             {buttonName}
           </a>

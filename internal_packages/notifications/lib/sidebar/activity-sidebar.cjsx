@@ -4,15 +4,15 @@ ReactCSSTransitionGroup = require 'react-addons-css-transition-group'
 _ = require 'underscore'
 classNames = require 'classnames'
 
-NotificationStore = require './notifications-store'
+NotificationStore = require '../notifications-store'
+StreamingSyncActivity = require './streaming-sync-activity'
 InitialSyncActivity = require './initial-sync-activity'
+
 {Actions,
  TaskQueue,
  AccountStore,
  NylasSyncStatusStore,
  TaskQueueStatusStore} = require 'nylas-exports'
-ActivitySidebarLongPollStore = require './activity-sidebar-long-poll-store'
-{RetinaImg} = require 'nylas-component-kit'
 
 class ActivitySidebar extends React.Component
   @displayName: 'ActivitySidebar'
@@ -30,7 +30,6 @@ class ActivitySidebar extends React.Component
     @_unlisteners.push TaskQueueStatusStore.listen @_onDataChanged
     @_unlisteners.push NotificationStore.listen @_onDataChanged
     @_unlisteners.push NylasSyncStatusStore.listen @_onDataChanged
-    @_unlisteners.push ActivitySidebarLongPollStore.listen @_onDeltaReceived
 
   componentWillUnmount: =>
     unlisten() for unlisten in @_unlisteners
@@ -39,11 +38,9 @@ class ActivitySidebar extends React.Component
     items = [@_renderNotificationActivityItems(), @_renderTaskActivityItems()]
 
     if @state.isInitialSyncComplete
-      if @state.receivingDelta
-        items.push @_renderDeltaSyncActivityItem()
+      items.push <StreamingSyncActivity key="streaming-sync" />
     else
       items.push <InitialSyncActivity key="initial-sync" />
-
 
     names = classNames
       "sidebar-activity": true
@@ -87,16 +84,6 @@ class ActivitySidebar extends React.Component
         </div>
       </div>
 
-  _renderDeltaSyncActivityItem: =>
-    <div className="item" key="delta-sync-item">
-      <div style={padding: "9px 9px 0 12px", float: "left"}>
-        <RetinaImg name="sending-spinner.gif" width={18} mode={RetinaImg.Mode.ContentPreserve} />
-      </div>
-      <div className="inner">
-        Syncing your mailbox&hellip;
-      </div>
-    </div>
-
   _renderNotificationActivityItems: =>
     @state.notifications.map (notification) ->
       <div className="item" key={notification.id}>
@@ -112,20 +99,5 @@ class ActivitySidebar extends React.Component
     notifications: NotificationStore.notifications()
     tasks: TaskQueueStatusStore.queue()
     isInitialSyncComplete: NylasSyncStatusStore.isSyncComplete()
-
-  _onDeltaReceived: (countDeltas) =>
-    tooSmallForNotification = countDeltas <= 10
-    return if tooSmallForNotification
-
-    if @_timeoutId
-      clearTimeout @_timeoutId
-
-    @_timeoutId = setTimeout(( =>
-      delete @_timeoutId
-      @setState receivingDelta: false
-    ), 30000)
-
-    @setState receivingDelta: true
-
 
 module.exports = ActivitySidebar

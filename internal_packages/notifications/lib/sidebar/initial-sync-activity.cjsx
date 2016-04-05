@@ -108,6 +108,6 @@ class InitialSyncActivity extends React.Component
     </div>
 
   _onTryAgain: =>
-    Actions.retryInitialSync()
+    Actions.retrySync()
 
 module.exports = InitialSyncActivity

@@ -118,12 +118,9 @@ class Actions
   ###
   @dequeueMatchingTask: ActionScopeWorkWindow
 
-  @longPollStateChanged: ActionScopeWorkWindow
   @longPollReceivedRawDeltas: ActionScopeWorkWindow
   @longPollReceivedRawDeltasPing: ActionScopeGlobal
   @longPollProcessedDeltas: ActionScopeWorkWindow
-  @longPollConnected: ActionScopeWorkWindow
-  @longPollOffline: ActionScopeWorkWindow
   @willMakeAPIRequest: ActionScopeWorkWindow
   @didMakeAPIRequest: ActionScopeWorkWindow
 
@@ -132,7 +129,7 @@ class Actions
 
   *Scope: Work Window*
   ###
-  @retryInitialSync: ActionScopeWorkWindow
+  @retrySync: ActionScopeWorkWindow
 
   ###
   Public: Open the preferences view.
