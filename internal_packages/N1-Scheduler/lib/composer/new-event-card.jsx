@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import moment from 'moment'
+import moment from 'moment-timezone'
 import {RetinaImg} from 'nylas-component-kit'
 import {PLUGIN_ID} from '../scheduler-constants'
 
