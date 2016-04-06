@@ -552,8 +552,6 @@ class Contenteditable extends React.Component
   # 2. A sister-component that used to have the selection was unmounted
   # causing the selection to be null or the document
   _shouldRestoreSelectionOnUpdate: ->
-    (not @innerState.dragging) and
-    (document.activeElement is @_editableNode() or
-    not @_editableNode().parentNode.contains(document.activeElement))
+    !@innerState.dragging and document.activeElement is @_editableNode()
 
 module.exports = Contenteditable
