@@ -1,0 +1,23 @@
+@import 'ui-variables';
+
+.date-picker {
+  display: inline-block;
+  position: relative;
+  z-index: 999;
+  .day-text {
+    &:hover {
+      color: @text-color-link-hover;
+    }
+    &.focused {
+      color: @text-color-link-hover;
+    }
+    color: @text-color-link;
+  }
+  .mini-month-view-wrap {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    width: 225px;
+    height: 225px;
+  }
+}

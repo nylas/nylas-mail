@@ -10,6 +10,10 @@ import {
 import {RetinaImg} from 'nylas-component-kit'
 import {PLUGIN_ID, PLUGIN_NAME} from '../scheduler-constants'
 
+import moment from 'moment'
+// moment-round upon require patches `moment` with new functions.
+require('moment-round')
+
 export default class SchedulerComposerButton extends React.Component {
   static displayName = "SchedulerComposerButton";
 
@@ -78,8 +82,15 @@ editable calendar with your account provider.`);
             return;
           }
 
+          const start = moment().ceil(30, 'minutes');
+          const end = moment(start).add(1, 'hour');
+
           // TODO Have a default calendar config
-          const event = new Event({calendarId: cals[0].id});
+          const event = new Event({
+            end: end.unix(),
+            start: start.unix(),
+            calendarId: cals[0].id,
+          });
           this._session.changes.add({events: [event]});
           this._session.changes.commit()
         })

@@ -14,7 +14,7 @@ class TabGroupRegion extends React.Component
     return
 
   shiftFocus: (dir) =>
-    nodes = ReactDOM.findDOMNode(@).querySelectorAll('input, [contenteditable], [tabIndex]')
+    nodes = ReactDOM.findDOMNode(@).querySelectorAll('input, textarea, [contenteditable], [tabIndex]')
     current = document.activeElement
     idx = Array.from(nodes).indexOf(current)
 
@@ -27,9 +27,14 @@ class TabGroupRegion extends React.Component
 
       continue if nodes[idx].tabIndex is -1
       nodes[idx].focus()
-      if nodes[idx].nodeName is 'INPUT' and nodes[idx].type is "text"
+      if @_shouldSelectEnd(nodes[idx])
         nodes[idx].setSelectionRange(nodes[idx].value.length, nodes[idx].value.length)
       return
+
+  _shouldSelectEnd: (node) ->
+    node.nodeName is "INPUT" and
+    node.type is "text" and
+    "no-select-end" not in node.classList
 
   getChildContext: =>
     parentTabGroup: @
