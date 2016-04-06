@@ -118,18 +118,6 @@ and an event on a draft at the same time!`);
     }
   }
 
-  _removeDraftEvent() {
-    this._session.changes.add({events: []});
-    return this._session.changes.commit();
-  }
-
-  _removePendingEvent() {
-    const draft = this._session.draft()
-    const metadata = draft.metadataForPluginId(PLUGIN_ID);
-    delete metadata.pendingEvent
-    Actions.setMetadata(draft, PLUGIN_ID, metadata);
-  }
-
   _onEventChange = (newData) => {
     const eventType = this._eventType(this._session.draft());
     if (eventType === MEETING_REQUEST) {
@@ -140,11 +128,14 @@ and an event on a draft at the same time!`);
   }
 
   _onEventRemove = () => {
-    const eventType = this._eventType(this._session.draft());
-    if (eventType === MEETING_REQUEST) {
-      this._removeDraftEvent()
-    } else if (eventType === PENDING_EVENT) {
-      this._removePendingEvent()
+    this._session.changes.add({events: []});
+    this._session.changes.commit();
+    const draft = this._session.draft()
+    const metadata = draft.metadataForPluginId(PLUGIN_ID);
+    if (metadata) {
+      delete metadata.pendingEvent
+      delete metadata.proposals
+      Actions.setMetadata(draft, PLUGIN_ID, metadata);
     }
   }
 
