@@ -64,7 +64,7 @@
         }
 
         .tab-icon {
-          padding-top: 15px;
+          padding-top: 8px;
           display: block;
           margin: auto;
         }
@@ -96,7 +96,7 @@
   }
 
   .container-appearance {
-    width: 40%;
+    width: 400px;
     margin: 0 auto;
 
     .appearance-mode-switch {
@@ -208,6 +208,14 @@ body.platform-linux {
   .preferences-wrap {
     .platform-linux-only {
       display: block;
+    }
+  }
+}
+
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .preferences-tabs {
+    .tab-icon {
+      padding-top: 15px !important;
     }
   }
 }
