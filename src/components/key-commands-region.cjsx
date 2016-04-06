@@ -126,7 +126,7 @@ class KeyCommandsRegion extends React.Component
       @props.onFocusOut(@_lastFocusElement)
       @setState({focused: false})
       @_losingFocusToElement = null
-    , 100
+    , 150
 
     @_out = (event) =>
       @_lastFocusElement = event.target

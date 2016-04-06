@@ -140,7 +140,10 @@ body.platform-win32 {
       color: @text-color-very-subtle;
       img.content-mask { background-color: @text-color-very-subtle; }
       font-size: @font-size-small;
-      padding-left: 1em;
+      padding: 10px 6px;
+      &:last-child {
+        padding-right: 0;
+      }
       &:hover {
         color: @text-color-link;
         img.content-mask { background-color: @text-color-link; }
