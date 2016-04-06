@@ -37,7 +37,7 @@ class EmojiPicker extends React.Component {
         const emojiClass = emojiIndex === i ? "btn btn-icon emoji-option" : "btn btn-icon";
         let emojiChar = emoji.get(emojiOption);
         emojiChar = (<img
-                      src={EmojiStore.getImagePath(emojiName)}
+                      src={EmojiStore.getImagePath(emojiOption)}
                       width="16"
                       height="16"
                       style={{marginTop: "-4px", marginRight: "3px"}} />);

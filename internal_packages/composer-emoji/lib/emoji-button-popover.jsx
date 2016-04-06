@@ -5,7 +5,6 @@ import {RetinaImg, ScrollRegion} from 'nylas-component-kit';
 
 import EmojiStore from './emoji-store';
 import EmojiActions from './emoji-actions';
-import emoji from 'node-emoji';
 import categorizedEmojiList from './categorized-emoji';
 
 class EmojiButtonPopover extends React.Component {

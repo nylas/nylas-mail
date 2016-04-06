@@ -42,11 +42,11 @@ class EmojiStore extends NylasStore {
 
   getImagePath(emojiName) {
     for (const emoji of emojiData) {
-      if (emoji["short_names"].indexOf(emojiName) !== -1) {
+      if (emoji.short_names.indexOf(emojiName) !== -1) {
         if (process.platform === "darwin") {
-          return `images/composer-emoji/apple/${emoji["image"]}`;
+          return `images/composer-emoji/apple/${emoji.image}`;
         }
-        return `images/composer-emoji/twitter/${emoji["image"]}`;
+        return `images/composer-emoji/twitter/${emoji.image}`;
       }
     }
   }
