@@ -50,8 +50,7 @@ class ProposedTimeCalendarStore extends NylasStore {
 
   timeBlocks() {
     return _.groupBy(this._proposedTimes, (t) => {
-      const blockSize = this._duration.slice(0, 2)
-      return moment(t).floor(blockSize[0], blockSize[1]).valueOf()
+      return moment(t).floor(30, 'minutes').valueOf()
     })
   }
 
@@ -84,11 +83,10 @@ class ProposedTimeCalendarStore extends NylasStore {
     this.trigger()
   }
 
-  _onRemoveProposedTime = ({start, end}) => {
+  _onRemoveProposedTime = ({start}) => {
     const startInt = parseInt(start, 10);
-    const endInt = parseInt(end, 10);
     this._proposedTimes = _.filter(this._proposedTimes, (p) =>
-      p.unix() < startInt || p.unix() > endInt
+      p.unix() < startInt || p.unix() > startInt + (30 * 60)
     )
     this.trigger()
   }
