@@ -3,6 +3,7 @@ import Task from './task';
 import Thread from '../models/thread';
 import Message from '../models/message';
 import DatabaseStore from '../stores/database-store';
+import CategoryStore from '../stores/category-store';
 import MailRulesProcessor from '../../mail-rules-processor';
 import async from 'async';
 
@@ -12,6 +13,7 @@ export default class ReprocessMailRulesTask extends Task {
     this.accountId = accountId;
     this._processed = this._processed || 0;
     this._offset = this._offset || 0;
+    this._lastTimestamp = this._lastTimestamp || null;
     this._finished = false;
   }
 
@@ -36,13 +38,25 @@ export default class ReprocessMailRulesTask extends Task {
   }
 
   _processSomeMessages = (callback) => {
+    const inboxCategory = CategoryStore.getStandardCategory(this.accountId, 'inbox');
+    if (!inboxCategory) {
+      return callback(new Error("ReprocessMailRulesTask: No inbox category found."));
+    }
+
     // Fetching threads first, and then getting their messages allows us to use
     // The same indexes as the thread list / message list in the app
+
+    // Note that we look for "50 after X" rather than "offset 150", because
+    // running mail rules can move things out of the inbox!
     const query = DatabaseStore
       .findAll(Thread, {accountId: this.accountId})
+      .where(Thread.attributes.categories.contains(inboxCategory.id))
       .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
-      .offset(this._offset)
       .limit(50)
+
+    if (this._lastTimestamp !== null) {
+      query.where(Thread.attributes.lastMessageReceivedTimestamp.lessThan(this._lastTimestamp))
+    }
 
     return query.then((threads) => {
       if (threads.length === 0) {
@@ -61,6 +75,7 @@ export default class ReprocessMailRulesTask extends Task {
         return MailRulesProcessor.processMessages(messages).finally(() => {
           this._processed += messages.length;
           this._offset += threads.length;
+          this._lastTimestamp = threads.pop().lastMessageReceivedTimestamp;
         });
       });
     })

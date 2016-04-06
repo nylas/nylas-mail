@@ -260,6 +260,10 @@ class PreferencesMailRules extends React.Component {
   }
 
   render() {
+    const processDisabled = _.any(this.state.tasks, (task) => {
+      return (task.accountId === this.state.currentAccount.id);
+    });
+
     return (
       <div className="container-mail-rules">
         <section>
@@ -273,8 +277,8 @@ class PreferencesMailRules extends React.Component {
 
           <Flexbox style={{marginTop: 40, maxWidth: 600}}>
             <div>
-              <button className="btn" style={{float: 'right'}} onClick={this._onReprocessRules}>
-                Process all mail
+              <button disabled={processDisabled} className="btn" style={{float: 'right'}} onClick={this._onReprocessRules}>
+                Process entire inbox
               </button>
             </div>
             {this._renderTasks()}
@@ -282,7 +286,7 @@ class PreferencesMailRules extends React.Component {
 
           <p style={{marginTop: 10}}>
             By default, mail rules are only applied to new mail as it arrives.
-            Applying rules to your entire mailbox may take a long time and
+            Applying rules to your entire inbox may take a long time and
             degrade performance.
           </p>
         </section>
