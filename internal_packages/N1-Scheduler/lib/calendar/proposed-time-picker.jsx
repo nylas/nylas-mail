@@ -45,6 +45,12 @@ export default class ProposedTimePicker extends React.Component {
     return new ProposedTimeCalendarDataSource()
   }
 
+  _bannerComponents = () => {
+    return {
+      week: "Click and drag to propose times."
+    }
+  }
+
   _footerComponents = () => {
     return {
       week: [this._leftFooterComponents(), this._rightFooterComponents()],
@@ -114,6 +120,7 @@ export default class ProposedTimePicker extends React.Component {
     return (
       <NylasCalendar
         dataSource={this._dataSource()}
+        bannerComponents={this._bannerComponents()}
         footerComponents={this._footerComponents()}
         onCalendarMouseUp={this._onCalendarMouseUp}
         onCalendarMouseDown={this._onCalendarMouseDown}
