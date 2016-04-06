@@ -44,7 +44,7 @@ class EmojiButtonPopover extends React.Component {
   }
 
   onScroll = () => {
-    const emojiContainer = document.querySelector(".emoji-finder-container");
+    const emojiContainer = document.querySelector(".emoji-finder-container .scroll-region-content");
     const tabContainer = document.querySelector(".emoji-tabs");
     tabContainer.className = emojiContainer.scrollTop ? "emoji-tabs shadow" : "emoji-tabs";
     if (emojiContainer.scrollTop === 0) {
@@ -154,7 +154,7 @@ class EmojiButtonPopover extends React.Component {
   }
 
   scrollToCategory(category) {
-    const container = document.querySelector(".emoji-finder-container");
+    const container = document.querySelector(".emoji-finder-container .scroll-region-content");
     if (this.state.searchValue.length > 0) {
       this.setState({searchValue: ""});
       this.setState(this.getStateFromStore, () => {
