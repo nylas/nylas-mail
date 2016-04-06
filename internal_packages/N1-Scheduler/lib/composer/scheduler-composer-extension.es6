@@ -82,16 +82,15 @@ export default class SchedulerComposerExtension extends ComposerExtension {
     let nextDraft = draft.clone();
     const metadata = draft.metadataForPluginId(PLUGIN_ID)
 
-    nextDraft = self._insertProposalsIntoBody(nextDraft, metadata)
-
     if (nextDraft.events.length > 0) {
-      if (metadata.pendingEvent) {
+      if (metadata && metadata.pendingEvent) {
         throw new Error(`Assertion Failure. Can't have both a pendingEvent \
 and an event on a draft at the same time!`);
       }
       const event = self._prepareEvent(nextDraft.events[0].clone(), draft)
       nextDraft.events = [event]
     } else if (metadata && metadata.pendingEvent) {
+      nextDraft = self._insertProposalsIntoBody(nextDraft, metadata)
       const event = self._prepareEvent(_.clone(metadata.pendingEvent), draft);
       metadata.pendingEvent = event;
       Actions.setMetadata(nextDraft, PLUGIN_ID, metadata);

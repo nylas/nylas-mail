@@ -159,6 +159,18 @@ class Event extends Model
         return @
     return @
 
+  fromDraft: (draft) ->
+    if !@title? or @title.length is 0
+      @title = draft.subject
+
+    if !@participants? or @participants.length is 0
+      @participants = draft.participants().map (contact) ->
+        name: contact.name
+        email: contact.email
+        status: "noreply"
+
+    return @
+
   isAllDay: ->
     daySpan = 86400 - 1
     (@end - @start) >= daySpan
