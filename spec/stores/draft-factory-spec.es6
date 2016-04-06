@@ -338,7 +338,7 @@ describe("DraftFactory", () => {
     describe("onComposeForward", () => {
       beforeEach(() => {
         waitsForPromise(() => {
-          return DraftFactory.createDraftForForward({thread: fakeThread, message: fakeMessage2}).then((draft) => {
+          return DraftFactory.createDraftForForward({thread: fakeThread, message: fakeMessage1}).then((draft) => {
             this.model = draft;
           });
         });
@@ -347,13 +347,17 @@ describe("DraftFactory", () => {
       it("should include forwarded message text, in a div rather than a blockquote", () => {
         expect(this.model.body.indexOf('gmail_quote') > 0).toBe(true);
         expect(this.model.body.indexOf('blockquote') > 0).toBe(false);
-        expect(this.model.body.indexOf(fakeMessage2.body) > 0).toBe(true);
+        expect(this.model.body.indexOf(fakeMessage1.body) > 0).toBe(true);
         expect(this.model.body.indexOf('---------- Forwarded message ---------') > 0).toBe(true);
-        expect(this.model.body.indexOf('From: ben@nylas.com') > 0).toBe(true);
-        expect(this.model.body.indexOf('Subject: Re: Fake Subject') > 0).toBe(true);
-        expect(this.model.body.indexOf('To: customer@example.com') > 0).toBe(true);
+        expect(this.model.body.indexOf('From: Customer &lt;customer@example.com&gt;') > 0).toBe(true);
+        expect(this.model.body.indexOf('Subject: Fake Subject') > 0).toBe(true);
+        expect(this.model.body.indexOf('To: ben@nylas.com, evan@nylas.com') > 0).toBe(true);
+        expect(this.model.body.indexOf('Cc: mg@nylas.com, Nylas Test &lt;tester@nylas.com&gt;') > 0).toBe(true);
       });
 
+      it("should not mention BCC'd recipients in the forwarded message header", () => {
+        expect(this.model.body.indexOf('recruiting@nylas.com') > 0).toBe(false);
+      });
       it("should not address the message to anyone", () => {
         expect(this.model.to).toEqual([]);
         expect(this.model.cc).toEqual([]);
