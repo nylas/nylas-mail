@@ -74,6 +74,8 @@ export default class WeekView extends React.Component {
   }
 
   componentDidUpdate() {
+    const weekStart = moment(this.state.startMoment).add(BUFFER_DAYS, 'days').unix()
+    this._scrollTime = weekStart
     this._ensureHorizontalScrollPos()
   }
 
@@ -230,7 +232,7 @@ export default class WeekView extends React.Component {
 
   _headerComponents() {
     const left = (
-      <button key="today" className="btn" onClick={this._onClickToday} style={{order: -100}}>
+      <button key="today" className="btn" onClick={this._onClickToday} style={{position: 'absolute', left: 10}}>
         Today
       </button>
     );
