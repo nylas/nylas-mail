@@ -49,7 +49,6 @@ export default class ComposerHeaderActions extends React.Component {
           className="action show-popout"
           key="popout"
           title="Popout composer…"
-          style={{paddingLeft: "1.5em"}}
           onClick={this._onPopoutComposer}>
           <RetinaImg
             name="composer-popout.png"
