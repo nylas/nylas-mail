@@ -17,9 +17,7 @@ require('moment-round')
  */
 class ProposedTimeCalendarStore extends NylasStore {
   DURATIONS = [
-    [15, 'minutes', '15 min'],
     [30, 'minutes', '30 min'],
-    [50, 'minutes', '50 min'],
     [1, 'hour', '1 hr'],
     [1.5, 'hours', '1½ hr'],
     [2, 'hours', '2 hr'],
@@ -30,8 +28,7 @@ class ProposedTimeCalendarStore extends NylasStore {
   activate() {
     this._proposedTimes = []
     this._pendingSave = false;
-    // this.triggerLater = _.throttle(this.trigger, 32)
-    this._duration = this.DURATIONS[3] // 1 hr
+    this._duration = this.DURATIONS[1] // 1 hr
     this.unsubscribers = [
       SchedulerActions.changeDuration.listen(this._onChangeDuration),
       SchedulerActions.addProposedTime.listen(this._onAddProposedTime),
@@ -88,8 +85,10 @@ class ProposedTimeCalendarStore extends NylasStore {
   }
 
   _onRemoveProposedTime = ({start, end}) => {
+    const startInt = parseInt(start, 10);
+    const endInt = parseInt(end, 10);
     this._proposedTimes = _.filter(this._proposedTimes, (p) =>
-      p.unix() < start || p.unix() > end
+      p.unix() < startInt || p.unix() > endInt
     )
     this.trigger()
   }

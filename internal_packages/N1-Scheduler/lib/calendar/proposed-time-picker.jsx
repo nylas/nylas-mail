@@ -86,7 +86,7 @@ export default class ProposedTimePicker extends React.Component {
   }
 
   _onChangeDuration = (event) => {
-    SchedulerActions.changeDuration(event.target.value.split(","))
+    SchedulerActions.changeDuration(event.target.value.split("|"))
   }
 
   _onDone = () => {
