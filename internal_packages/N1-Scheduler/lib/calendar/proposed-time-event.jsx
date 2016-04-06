@@ -8,6 +8,10 @@ import {CALENDAR_ID} from '../scheduler-constants'
 export default class ProposedTimeEvent extends React.Component {
   static displayName = "ProposedTimeEvent";
 
+  static propTypes = {
+    event: React.PropTypes.object,
+  }
+
   // Since ProposedTimeEvent is part of an Injected Component set, by
   // default it's placed in its own container that's rendered separately.
   //
@@ -19,10 +23,6 @@ export default class ProposedTimeEvent extends React.Component {
   // within injected component sets unless the `containerRequired` is set
   // to `false`
   static containerRequired = false;
-
-  static propTypes = {
-    event: React.PropTypes.object,
-  }
 
   _onMouseDown(event) {
     event.stopPropagation();

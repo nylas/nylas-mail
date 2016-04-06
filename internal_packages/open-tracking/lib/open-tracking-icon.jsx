@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import {React} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
 import {PLUGIN_ID} from './open-tracking-constants'

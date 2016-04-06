@@ -47,7 +47,7 @@ export default class ProposedTimePicker extends React.Component {
 
   _bannerComponents = () => {
     return {
-      week: "Click and drag to propose times."
+      week: "Click and drag to propose times.",
     }
   }
 
