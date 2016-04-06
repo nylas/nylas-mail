@@ -76,6 +76,7 @@ export default class WeekView extends React.Component {
   componentDidUpdate() {
     const weekStart = moment(this.state.startMoment).add(BUFFER_DAYS, 'days').unix()
     this._scrollTime = weekStart
+    this._setIntervalHeight()
     this._ensureHorizontalScrollPos()
   }
 
@@ -143,6 +144,9 @@ export default class WeekView extends React.Component {
   }
 
   _allDayEventHeight(allDayOverlap) {
+    if (_.size(allDayOverlap) === 0) {
+      return 0
+    }
     return (this._maxConcurrentEvents(allDayOverlap) * MIN_INTERVAL_HEIGHT) + 1
   }
 
@@ -298,6 +302,10 @@ export default class WeekView extends React.Component {
   _setIntervalHeight = () => {
     const wrap = ReactDOM.findDOMNode(this.refs.eventGridWrap);
     const wrapHeight = wrap.getBoundingClientRect().height;
+    if (this._lastWrapHeight === wrapHeight) {
+      return
+    }
+    this._lastWrapHeight = wrapHeight;
     const numIntervals = Math.floor(DAY_DUR / INTERVAL_TIME);
     ReactDOM.findDOMNode(this.refs.eventGridLegendWrap).style.height = `${wrapHeight}px`;
     this.setState({
