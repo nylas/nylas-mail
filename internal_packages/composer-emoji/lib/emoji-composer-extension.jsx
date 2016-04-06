@@ -143,7 +143,7 @@ class EmojiComposerExtension extends ComposerExtension {
   static unapplyTransformsToDraft = ({draft}) => {
     const nextDraft = draft.clone();
     nextDraft.body = nextDraft.body.replace(/<span class="emoji ([a-zA-Z0-9-_]*)">[^<]+<\/span>/g, (match, emojiName) =>
-      `<img class="emoji ${emojiName}" src="images/composer-emoji/twitter/${emojiName}.png" width="14" height="14" style="margin-top: -5px;">`
+      `<img class="emoji ${emojiName}" src="${EmojiStore.getImagePath()}" width="14" height="14" style="margin-top: -5px;">`
     );
     return nextDraft;
   }
