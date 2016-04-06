@@ -31,6 +31,7 @@ export default class WeekView extends React.Component {
   static propTypes = {
     dataSource: React.PropTypes.instanceOf(CalendarDataSource).isRequired,
     currentMoment: React.PropTypes.instanceOf(moment).isRequired,
+    bannerComponents: React.PropTypes.node,
     headerComponents: React.PropTypes.node,
     footerComponents: React.PropTypes.node,
     changeCurrentView: React.PropTypes.func,
@@ -42,6 +43,7 @@ export default class WeekView extends React.Component {
 
   static defaultProps = {
     changeCurrentView: () => {},
+    bannerComponents: false,
     headerComponents: false,
     footerComponents: false,
   }
@@ -232,11 +234,7 @@ export default class WeekView extends React.Component {
         Today
       </button>
     );
-    const right = (
-      <button key="month" className="btn" style={{order: 100}}>
-        <RetinaImg name="ic-calendar-month.png" mode={RetinaImg.Mode.ContentIsMask} />
-      </button>
-    );
+    const right = false
     return [left, right, this.props.headerComponents]
   }
 
@@ -396,7 +394,7 @@ export default class WeekView extends React.Component {
           onCalendarMouseDown={this.props.onCalendarMouseDown}
           onCalendarMouseMove={this.props.onCalendarMouseMove}
         >
-          <TopBanner />
+          <TopBanner bannerComponents={this.props.bannerComponents} />
 
           <HeaderControls title={this._currentWeekText()}
             headerComponents={this._headerComponents()}

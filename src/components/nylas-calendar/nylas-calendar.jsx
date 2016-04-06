@@ -18,6 +18,17 @@ export default class NylasCalendar extends React.Component {
     dataSource: React.PropTypes.instanceOf(CalendarDataSource).isRequired,
 
     /**
+     * Any extra info you want to display on the top banner of calendar
+     * components
+     */
+    bannerComponents: React.PropTypes.shape({
+      day: React.PropTypes.node,
+      week: React.PropTypes.node,
+      month: React.PropTypes.node,
+      year: React.PropTypes.node,
+    }),
+
+    /**
      * Any extra header components for each of the supported View types of
      * the NylasCalendar
      */
@@ -52,6 +63,7 @@ export default class NylasCalendar extends React.Component {
   }
 
   static defaultProps = {
+    bannerComponents: {day: false, week: false, month: false, year: false},
     headerComponents: {day: false, week: false, month: false, year: false},
     footerComponents: {day: false, week: false, month: false, year: false},
   }
@@ -90,6 +102,7 @@ export default class NylasCalendar extends React.Component {
         <CurrentView
           dataSource={this.props.dataSource}
           currentMoment={this.state.currentMoment}
+          bannerComponents={this.props.bannerComponents[this.state.currentView]}
           headerComponents={this.props.headerComponents[this.state.currentView]}
           footerComponents={this.props.footerComponents[this.state.currentView]}
           changeCurrentView={this._changeCurrentView}
