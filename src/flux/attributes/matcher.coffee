@@ -103,6 +103,8 @@ class Matcher
       escaped = 1
     else if val is false
       escaped = 0
+    else if val instanceof Date
+      escaped = val.getTime() / 1000
     else if val instanceof Array
       escapedVals = []
       for v in val
