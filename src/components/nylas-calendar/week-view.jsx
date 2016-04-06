@@ -3,7 +3,6 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import moment from 'moment'
 import classnames from 'classnames'
-import {RetinaImg} from 'nylas-component-kit'
 import {Utils} from 'nylas-exports'
 
 import TopBanner from './top-banner'
