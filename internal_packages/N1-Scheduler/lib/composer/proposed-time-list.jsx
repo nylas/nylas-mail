@@ -198,7 +198,7 @@ export default class ProposedTimeList extends React.Component {
       )
     }
 
-    return <table style={this._sProposalTable()}>{trs}</table>
+    return <table style={this._sProposalTable()}><tbody>{trs}</tbody></table>
   }
 
   _renderProposalTimeText(proposal) {
