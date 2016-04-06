@@ -1,4 +1,9 @@
-import {NylasSyncStatusStore, React, Actions} from 'nylas-exports';
+import {
+  NylasAPI,
+  NylasSyncStatusStore,
+  React,
+  Actions,
+} from 'nylas-exports';
 import {RetinaImg} from 'nylas-component-kit';
 
 export default class ConnectionStatusHeader extends React.Component {
@@ -81,6 +86,8 @@ export default class ConnectionStatusHeader extends React.Component {
       return (<span/>);
     }
 
+    const apiDomain = NylasAPI.APIRoot.split('//').pop();
+
     return (
       <div className="connection-status-header notifications-sticky">
         <div className={"notifications-sticky-item notification-offline"}>
@@ -89,7 +96,7 @@ export default class ConnectionStatusHeader extends React.Component {
             name="icon-alert-onred.png"
             mode={RetinaImg.Mode.ContentPreserve} />
           <div className="message">
-            Nylas N1 isn't able to reach api.nylas.com. Retrying {nextRetryText}.
+            Nylas N1 isn't able to reach {apiDomain}. Retrying {nextRetryText}.
           </div>
           <a className="action default" onClick={this.onTryAgain}>
             Try Again Now
