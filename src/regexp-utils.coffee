@@ -30,7 +30,7 @@ RegExpUtils =
 
   # Test cases: https://regex101.com/r/pD7iS5/3
   urlRegex: ({matchEntireString} = {}) ->
-    commonTlds = ['com', 'org', 'edu', 'gov', 'uk', 'net', 'ca', 'de', 'jp', 'fr', 'au', 'us', 'ru', 'ch', 'it', 'nl', 'se', 'no', 'es', 'mil']
+    commonTlds = ['com', 'org', 'edu', 'gov', 'uk', 'net', 'ca', 'de', 'jp', 'fr', 'au', 'us', 'ru', 'ch', 'it', 'nl', 'se', 'no', 'es', 'mil', 'ly']
 
     parts = [
       '('
@@ -97,7 +97,7 @@ RegExpUtils =
 
           # optionally followed by: a query string and/or a #location
           # (last character must not be puncation, hence two groups)
-          '(?:(\\?[\\-\\+=&;%@\\.\\w_]*[\\-\\+=&;%@\\w_\\/]+)?#?(?:[\\.\\!\\/\\\\\\w]*[\\/\\\\\\w]+)?)?'
+          '(?:(\\?[\\-\\+=&;%@\\.\\w_]*[\\-\\+=&;%@\\w_\\/]+)?#?(?:[\'\\$\\&\\(\\)\\*\\+,;=\\.\\!\\/\\\\\\w%-]*[\\/\\\\\\w]+)?)?'
         ')?'
       ')'
     ]
