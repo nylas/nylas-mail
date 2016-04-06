@@ -55,7 +55,16 @@
       color: #A9A9A9;
 
       .timezone {
-        font-size: @font-size-smaller;
+        font-size: 10px;
+        font-weight: 600;
+      }
+    }
+    .row.time {
+      .time-picker {
+        text-align: center;
+      }
+      .time-picker-wrap {
+        margin-right: 5px;
       }
     }
     .datetime-input-container {
@@ -78,81 +87,6 @@
         box-shadow: 0 0 0;
       }
     }
-
-
-    input[type=date], input[type=time] {
-      display: inline-block;
-      width: initial;
-      margin: 0 3px;
-      margin-right: -9px;
-      padding: 0;
-      border: 1px solid rgba(0,0,0,0);
-      color: @text-color;
-    }
-
-
-    input[type=date]::-webkit-clear-button {
-      display: none;
-    }
-    input[type=date]::-webkit-inner-spin-button {
-      padding: 0;
-      margin: 0;
-      margin-left: -12px;
-    }
-    input[type=date]::-webkit-calendar-picker-indicator {
-      padding-left: 0;
-      padding-right: 0;
-      margin: 0;
-      display: none;
-    }
-    input[type=date]::-webkit-datetime-edit {
-      margin-right: -10px;
-    }
-    input[type=date]::-webkit-datetime-edit-fields-wrapper {
-      border: 1px solid #EEE;
-      border-radius: 3px;
-      padding: 0 2px;
-    }
-
-    input[type=date]:hover,
-    input[type=date]:active,
-    input[type=date]:focus {
-      background: #FFF;
-      border: 1px solid #EEE;
-    }
-    input[type=date]:hover::-webkit-datetime-edit-fields-wrapper,
-    input[type=date]:active::-webkit-datetime-edit-fields-wrapper,
-    input[type=date]:focus::-webkit-datetime-edit-fields-wrapper {
-      border: 1px solid rgba(0,0,0,0);
-    }
-
-    input[type=time]::-webkit-datetime-edit {
-      padding-right: 5px;
-    }
-    input[type=time]::-webkit-clear-button {
-      display: none;
-    }
-    input[type=time]::-webkit-inner-spin-button {
-      padding: 0;
-      margin: 0;
-      margin-left: -3px;
-    }
-    input[type=time]::-webkit-datetime-edit-fields-wrapper {
-      border: 1px solid #EEE;
-      border-radius: 3px;
-      padding: 0 2px;
-    }
-
-    input[type=time]:hover,
-    input[type=time]:focus {
-      background: #FFF;
-      border: 1px solid #EEE;
-    }
-    input[type=time]:hover::-webkit-datetime-edit-fields-wrapper,
-    input[type=time]:focus::-webkit-datetime-edit-fields-wrapper {
-      border: 1px solid rgba(0,0,0,0);
-    }
-
 
     input[type=text] {
       border-radius: 0;

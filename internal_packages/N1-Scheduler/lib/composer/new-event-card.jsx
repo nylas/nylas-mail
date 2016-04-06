@@ -1,11 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import moment from 'moment-timezone'
-import {RetinaImg} from 'nylas-component-kit'
+import {
+  RetinaImg,
+  DatePicker,
+  TimePicker,
+  TabGroupRegion,
+} from 'nylas-component-kit'
 import {PLUGIN_ID} from '../scheduler-constants'
 
 import ProposedTimeList from './proposed-time-list'
-import EventDatetimeInput from './event-datetime-input'
 
 import {
   Utils,
@@ -103,28 +107,79 @@ export default class NewEventCard extends React.Component {
     });
   }
 
+  _eventStart() {
+    return moment.unix(this.props.event.start || moment().unix())
+  }
+
+  _eventEnd() {
+    return moment.unix(this.props.event.end || moment().unix())
+  }
+
+  _onChangeDay = (newTimestamp) => {
+    const newDay = moment(newTimestamp)
+    const start = this._eventStart()
+    const end = this._eventEnd()
+    start.year(newDay.year())
+    end.year(newDay.year())
+    start.dayOfYear(newDay.dayOfYear())
+    end.dayOfYear(newDay.dayOfYear())
+    this.props.onChange({start: start.unix(), end: end.unix()})
+  }
+
+  _onChangeStartTime = (newTimestamp) => {
+    const newTime = moment(newTimestamp)
+    const start = this._eventStart()
+    const end = this._eventEnd()
+    start.hour(newTime.hour())
+    start.minute(newTime.minute())
+    let newEnd = moment(end)
+    if (end.isSameOrBefore(start)) {
+      const leftInDay = moment(start).endOf('day').diff(start)
+      const move = Math.min(leftInDay, moment.duration(1, 'hour').asMilliseconds());
+      newEnd = moment(start).add(move, 'ms')
+    }
+    this.props.onChange({start: start.unix(), end: newEnd.unix()})
+  }
+
+  _onChangeEndTime = (newTimestamp) => {
+    const newTime = moment(newTimestamp)
+    const start = this._eventStart()
+    const end = this._eventEnd()
+    end.hour(newTime.hour())
+    end.minute(newTime.minute())
+    let newStart = moment(start)
+    if (start.isSameOrAfter(end)) {
+      const sinceDay = end.diff(moment(end).startOf('day'))
+      const move = Math.min(sinceDay, moment.duration(1, 'hour').asMilliseconds());
+      newStart = moment(end).subtract(move, 'ms');
+    }
+    this.props.onChange({end: end.unix(), start: newStart.unix()})
+  }
+
   _renderTimePicker() {
     const metadata = this.props.draft.metadataForPluginId(PLUGIN_ID);
     if (metadata && metadata.proposals) {
       return <ProposedTimeList event={this.props.event} proposals={metadata.proposals} />
     }
+
+    const startVal = (this.props.event.start) * 1000;
+    const endVal = (this.props.event.end) * 1000;
     return (
       <div className="row time">
         {this._renderIcon("ic-eventcard-time@2x.png")}
         <span>
-          <EventDatetimeInput name="start"
-            value={this.props.event.start}
-            onChange={ date => this.props.onChange({start: date}) }
-          />
-          -
-          <EventDatetimeInput name="end"
-            reversed
-            value={this.props.event.end}
-            onChange={ date => this.props.onChange({end: date}) }
+          <TimePicker value={startVal} onChange={this._onChangeStartTime} />
+          to
+          <TimePicker value={endVal} relativeTo={startVal}
+            onChange={this._onChangeEndTime}
           />
           <span className="timezone">
             {moment().tz(Utils.timeZone).format("z")}
           </span>
+          &nbsp;
+          on
+          &nbsp;
+          <DatePicker value={startVal} onChange={this._onChangeDay} />
         </span>
       </div>
     )
@@ -169,51 +224,53 @@ export default class NewEventCard extends React.Component {
 
     return (
       <div className="new-event-card">
-        <div className="remove-button" onClick={this.props.onRemove}>✕</div>
-        <div className="row title">
-          {this._renderIcon("ic-eventcard-description@2x.png")}
-          <input type="text"
-            name="title"
-            placeholder="Add an event title"
-            value={title}
-            onFocus={() => {this._focusedTitle = true}}
-            onBlur={this._onBlurTitle}
-            onChange={e => this.props.onChange({title: e.target.value}) }
-          />
-        </div>
+        <TabGroupRegion>
+          <div className="remove-button" onClick={this.props.onRemove}>✕</div>
+          <div className="row title">
+            {this._renderIcon("ic-eventcard-description@2x.png")}
+            <input type="text"
+              name="title"
+              placeholder="Add an event title"
+              value={title}
+              onFocus={() => {this._focusedTitle = true}}
+              onBlur={this._onBlurTitle}
+              onChange={e => this.props.onChange({title: e.target.value}) }
+            />
+          </div>
 
-        {this._renderTimePicker()}
+          {this._renderTimePicker()}
 
-        {this._renderSuggestPrompt()}
+          {this._renderSuggestPrompt()}
 
-        {this._renderCalendarPicker()}
+          {this._renderCalendarPicker()}
 
-        <div className="row recipients">
-          {this._renderIcon("ic-eventcard-people@2x.png")}
-          <div onClick={this.props.onParticipantsClick()}>{this._renderParticipants()}</div>
-        </div>
+          <div className="row recipients">
+            {this._renderIcon("ic-eventcard-people@2x.png")}
+            <div onClick={this.props.onParticipantsClick()}>{this._renderParticipants()}</div>
+          </div>
 
-        <div className="row location">
-          {this._renderIcon("ic-eventcard-location@2x.png")}
-          <input type="text"
-            name="location"
-            placeholder="Add a location"
-            value={this.props.event.location}
-            onChange={e => this.props.onChange({location: e.target.value}) }
-          />
-        </div>
+          <div className="row location">
+            {this._renderIcon("ic-eventcard-location@2x.png")}
+            <input type="text"
+              name="location"
+              placeholder="Add a location"
+              value={this.props.event.location}
+              onChange={e => this.props.onChange({location: e.target.value}) }
+            />
+          </div>
 
-        <div className="row description">
-          {this._renderIcon("ic-eventcard-notes@2x.png")}
+          <div className="row description">
+            {this._renderIcon("ic-eventcard-notes@2x.png")}
 
-          <textarea
-            ref="description"
-            name="description"
-            placeholder="Add notes"
-            value={this.props.event.description}
-            onChange={ e => this.props.onChange({description: e.target.value}) }
-          />
-        </div>
+            <textarea
+              ref="description"
+              name="description"
+              placeholder="Add notes"
+              value={this.props.event.description}
+              onChange={ e => this.props.onChange({description: e.target.value}) }
+            />
+          </div>
+        </TabGroupRegion>
       </div>
     )
   }

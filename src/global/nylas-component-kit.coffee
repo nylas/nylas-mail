@@ -34,6 +34,7 @@ class NylasComponentKit
   @load "ListTabular", 'list-tabular'
   @load "DraggableImg", 'draggable-img'
   @load "NylasCalendar", 'nylas-calendar/nylas-calendar'
+  @load "MiniMonthView", 'nylas-calendar/mini-month-view'
   @load "EventedIFrame", 'evented-iframe'
   @load "ButtonDropdown", 'button-dropdown'
   @load "Contenteditable", 'contenteditable/contenteditable'
@@ -52,6 +53,8 @@ class NylasComponentKit
   @load "OutlineViewItem", "outline-view-item"
   @load "OutlineView", "outline-view"
   @load "DateInput", "date-input"
+  @load "DatePicker", "date-picker"
+  @load "TimePicker", "time-picker"
 
   @load "ScrollRegion", 'scroll-region'
   @load "ResizableRegion", 'resizable-region'

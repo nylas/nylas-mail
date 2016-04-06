@@ -82,6 +82,8 @@ const DateUtils = {
   // Localized format: MMM D, h:mmA
   DATE_FORMAT_SHORT: moment.localeData().longDateFormat('lll').replace(yearRegex, ''),
 
+  DATE_FORMAT_llll_NO_TIME: moment.localeData().longDateFormat("llll").replace(/h:mm/, "").replace(" A", ""),
+
   format(momentDate, formatString) {
     if (!momentDate) return null;
     return momentDate.format(formatString);
