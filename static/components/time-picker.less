@@ -3,10 +3,50 @@
 .time-picker-wrap {
   display: inline-block;
   width: 5.5em;
+  position: relative;
   input {
     width: 5.5em;
     &.invalid {
       background: fade(@color-error, 10%);
+    }
+  }
+
+  .time-options {
+    max-height: 158px;
+    overflow: auto;
+    border: 1px solid #eee;
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    background: @background-primary;
+    border-top: 0;
+    border-radius: 0 0 @border-radius-base @border-radius-base;
+    box-shadow: 0 0 3px rgba(0,0,0,0.1);
+
+    &.relative-to {
+      width: 120px;
+      text-align: left;
+
+      .option {
+        padding-left: 12px;
+      }
+    }
+
+    .option {
+      line-height: 1.75;
+      &.selected {
+        color: @text-color;
+        &:hover {
+          background: transparent;
+        }
+      }
+      &.focused, &:hover {
+        background: rgba(0,0,0,0.05);
+      }
+      .rel-text {
+        font-size: 0.8em;
+        margin-left: 4px;
+      }
     }
   }
 }

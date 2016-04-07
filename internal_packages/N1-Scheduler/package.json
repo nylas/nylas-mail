@@ -17,9 +17,6 @@
   },
   "icon": "./icon.png",
   "isOptional": true,
-  "dependencies": {
-    "moment-round": "^1.0"
-  },
   "windowTypes": {
     "default": true,
     "composer": true,

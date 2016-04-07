@@ -1,7 +1,10 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import moment from 'moment'
+require('moment-round') // overrides moment
 import classnames from 'classnames'
+
+const INTERVAL = [30, 'minutes']
 
 export default class TimePicker extends React.Component {
   static displayName = "TimePicker";
@@ -29,8 +32,18 @@ export default class TimePicker extends React.Component {
     }
   }
 
+  componentDidMount() {
+    this._fixTimeOptionScroll()
+  }
+
   componentWillReceiveProps(newProps) {
     this.setState({rawText: this._valToTimeString(newProps.value)})
+  }
+
+  componentDidUpdate() {
+    if (this._gotoScrollStartOnUpdate) {
+      this._fixTimeOptionScroll()
+    }
   }
 
   _valToTimeString(value) {
@@ -39,16 +52,34 @@ export default class TimePicker extends React.Component {
 
   _onKeyDown = (event) => {
     if (event.key === "ArrowUp") {
-      // TODO: When `renderTimeOptions` is implemented
+      event.preventDefault()
+      this._onArrow(event.key)
     } else if (event.key === "ArrowDown") {
-      // TODO: When `renderTimeOptions` is implemented
+      event.preventDefault()
+      this._onArrow(event.key)
     } else if (event.key === "Enter") {
       this.context.parentTabGroup.shiftFocus(1);
     }
   }
 
+  _onArrow(key) {
+    let newT = moment(this.props.value);
+    newT = newT.round.apply(newT, INTERVAL);
+    if (key === "ArrowUp") {
+      newT = newT.subtract.apply(newT, INTERVAL);
+    } else if (key === "ArrowDown") {
+      newT = newT.add.apply(newT, INTERVAL);
+    }
+    if (moment(this.props.value).day() !== newT.day()) {
+      return
+    }
+    this._gotoScrollStartOnUpdate = true
+    this.props.onChange(newT);
+  }
+
   _onFocus = () => {
     this.setState({focused: true});
+    this._gotoScrollStartOnUpdate = true
     const el = ReactDOM.findDOMNode(this.refs.input);
     el.setSelectionRange(0, el.value.length)
   }
@@ -83,26 +114,86 @@ export default class TimePicker extends React.Component {
     if (simpleDigitMatch && simpleDigitMatch.length > 0) {
       const hr = parseInt(simpleDigitMatch[1], 10);
       if (hr <= 7) {
-        // If you're going to punch in "2" into the time field, you
-        // probably mean 2pm, not 2am.
         return true
       }
     }
     return false
   }
 
-  // TODO
-  _renderTimeOptions() {
-    // TODO: When you select a time a dropdown will additionally show
-    // letting you pick from preset times. The `relativeTo` prop will give
-    // you relative times
-    const opts = []
-    if (this.state.focused) {
-      return (
-        <div className="time-options">{opts}</div>
-      )
+  _fixTimeOptionScroll() {
+    this._gotoScrollStartOnUpdate = false
+    const el = ReactDOM.findDOMNode(this);
+    const scrollTo = el.querySelector(".scroll-start");
+    const scrollWrap = el.querySelector(".time-options");
+    if (scrollTo && scrollWrap) {
+      scrollWrap.scrollTop = scrollTo.offsetTop
     }
-    return false
+  }
+
+  _onSelectOption(val) {
+    this.props.onChange(val)
+  }
+
+  _renderTimeOptions() {
+    if (!this.state.focused) {
+      return false
+    }
+
+    const enteredMoment = moment(this.props.value);
+
+    const roundedMoment = moment(enteredMoment);
+    roundedMoment.ceil.apply(roundedMoment, INTERVAL);
+
+    const firstVisibleMoment = moment(roundedMoment);
+    firstVisibleMoment.add.apply(firstVisibleMoment, INTERVAL);
+
+    let startVal = moment(this.props.value).startOf('day').valueOf();
+    startVal = Math.max(startVal, (this.props.relativeTo || 0));
+
+    const startMoment = moment(startVal)
+    if (this.props.relativeTo) {
+      startMoment.ceil.apply(startMoment, INTERVAL).add.apply(startMoment, INTERVAL)
+    }
+    const endMoment = moment(startVal).endOf('day');
+    const opts = []
+
+    const relStart = moment(this.props.relativeTo);
+    const timeIter = moment(startMoment)
+    while (timeIter.isSameOrBefore(endMoment)) {
+      const val = timeIter.valueOf();
+      const className = classnames({
+        option: true,
+        selected: timeIter.isSame(enteredMoment),
+        "scroll-start": timeIter.isSame(firstVisibleMoment),
+      })
+
+      let relTxt = false
+      if (this.props.relativeTo) {
+        relTxt = (
+          <span className="rel-text">
+            {`(${timeIter.diff(relStart, 'hours', true)}hr)`}
+          </span>
+        )
+      }
+
+      opts.push(
+        <div className={className} key={val}
+          onMouseDown={() => this._onSelectOption(val)}
+        >
+          {timeIter.format("LT")}{relTxt}
+        </div>
+      )
+      timeIter.add.apply(timeIter, INTERVAL)
+    }
+
+    const className = classnames({
+      "time-options": true,
+      "relative-to": this.props.relativeTo,
+    })
+
+    return (
+      <div className={className}>{opts}</div>
+    )
   }
 
   render() {

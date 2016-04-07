@@ -33,6 +33,7 @@
       color: @text-color;
     }
     .row {
+      position: relative;
       display: flex;
       align-items: baseline;
       padding: 10px 0;
@@ -60,6 +61,7 @@
       }
     }
     .row.time {
+      z-index: 10; // So the time pickers show over
       .time-picker {
         text-align: center;
       }
