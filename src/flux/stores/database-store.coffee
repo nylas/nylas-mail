@@ -511,6 +511,9 @@ class DatabaseStore extends NylasStore
 
     return @_triggerPromise
 
+
+  # Search Index Operations
+
   createSearchIndexSql: (klass) =>
     throw new Error("DatabaseStore::createSearchIndex - You must provide a class") unless klass
     throw new Error("DatabaseStore::createSearchIndex - #{klass.name} must expose an array of `searchFields`") unless klass
@@ -531,8 +534,18 @@ class DatabaseStore extends NylasStore
 
   searchIndexSize: (klass) =>
     searchTableName = "#{klass.name}Search"
-    sql = "SELECT COUNT(content_id) as count from `#{searchTableName}`"
+    sql = "SELECT COUNT(content_id) as count FROM `#{searchTableName}`"
     return @_query(sql).then((result) => result[0].count)
+
+  isIndexEmptyForAccount: (accountId, modelKlass) =>
+    modelTable = modelKlass.name
+    searchTable = "#{modelTable}Search"
+    sql = (
+      "SELECT `#{searchTable}`.`content_id` FROM `#{searchTable}` INNER JOIN `#{modelTable}`
+      ON `#{modelTable}`.id = `#{searchTable}`.`content_id` WHERE `#{modelTable}`.`account_id` = ?
+      LIMIT 1"
+    )
+    return @_query(sql, [accountId]).then((result) => result.length is 0)
 
   dropSearchIndex: (klass) =>
     throw new Error("DatabaseStore::createSearchIndex - You must provide a class") unless klass
@@ -582,6 +595,14 @@ class DatabaseStore extends NylasStore
     )
     return @_query(sql, [model.id])
 
+  unindexModelsForAccount: (accountId, modelKlass) =>
+    modelTable = modelKlass.name
+    searchTableName = "#{modelTable}Search"
+    sql = (
+      "DELETE FROM `#{searchTableName}` WHERE `#{searchTableName}`.`content_id` IN
+      (SELECT `id` FROM `#{modelTable}` WHERE `#{modelTable}`.`account_id` = ?)"
+    )
+    return @_query(sql, [accountId])
 
 module.exports = new DatabaseStore()
 module.exports.ChangeRecord = DatabaseChangeRecord

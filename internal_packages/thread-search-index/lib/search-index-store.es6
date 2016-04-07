@@ -9,7 +9,7 @@ import {
 } from 'nylas-exports'
 
 const INDEX_SIZE = 10000
-const MAX_INDEX_SIZE = 25000
+const MAX_INDEX_SIZE = 30000
 const CHUNKS_PER_ACCOUNT = 10
 const INDEXING_WAIT = 1000
 const MESSAGE_BODY_LENGTH = 50000
@@ -18,69 +18,130 @@ const MESSAGE_BODY_LENGTH = 50000
 class SearchIndexStore {
 
   constructor() {
-    this.accountIds = _.pluck(AccountStore.accounts(), 'id')
     this.unsubscribers = []
   }
 
   activate() {
     NylasSyncStatusStore.whenSyncComplete().then(() => {
       const date = Date.now()
-      console.log('ThreadSearch: Initializing thread search index...')
-      this.initializeIndex(this.accountIds)
+      console.log('Thread Search: Initializing thread search index...')
+
+      this.accountIds = _.pluck(AccountStore.accounts(), 'id')
+      this.initializeIndex()
       .then(() => {
-        console.log('ThreadSearch: Index built successfully in ' + ((Date.now() - date) / 1000) + 's')
+        console.log('Thread Search: Index built successfully in ' + ((Date.now() - date) / 1000) + 's')
         this.unsubscribers = [
-          DatabaseStore.listen(::this.onDataChanged),
           AccountStore.listen(::this.onAccountsChanged),
+          DatabaseStore.listen(::this.onDataChanged),
         ]
       })
     })
   }
 
-  initializeIndex(accountIds) {
+  /**
+   * We only want to build the entire index if:
+   * - It doesn't exist yet
+   * - It is too big
+   *
+   * Otherwise, we just want to index accounts that haven't been indexed yet.
+   * An account may not have been indexed if it is added and the app is closed
+   * before sync completes
+   */
+  initializeIndex() {
     return DatabaseStore.searchIndexSize(Thread)
     .then((size) => {
-      console.log('ThreadSearch: Current index size is ' + (size || 0) + ' threads')
+      console.log('Thread Search: Current index size is ' + (size || 0) + ' threads')
       if (!size || size >= MAX_INDEX_SIZE || size === 0) {
-        return this.clearIndex().thenReturn(true)
+        return this.clearIndex().thenReturn(this.accountIds)
       }
-      return Promise.resolve(false)
+      return this.getUnindexedAccounts()
     })
-    .then((shouldRebuild) => {
-      if (shouldRebuild) {
+    .then((accountIds) => {
+      if (accountIds.length > 0) {
         return this.buildIndex(accountIds)
       }
       return Promise.resolve()
     })
   }
 
+  /**
+   * When accounts change, we are only interested in knowing if an account has
+   * been added or removed
+   *
+   * - If an account has been added, we want to index its threads, but wait
+   *   until that account has been successfully synced
+   *
+   * - If an account has been removed, we want to remove its threads from the
+   *   index
+   *
+   * If the application is closed before sync is completed, the new account will
+   * be indexed via `initializeIndex`
+   */
   onAccountsChanged() {
-    const date = Date.now()
-    const newIds = _.pluck(AccountStore.accounts(), 'id')
-    if (newIds.length === this.accountIds.length) {
-      return;
-    }
+    _.defer(() => {
+      NylasSyncStatusStore.whenSyncComplete().then(() => {
+        const latestIds = _.pluck(AccountStore.accounts(), 'id')
+        if (_.isEqual(this.accountIds, latestIds)) {
+          return;
+        }
+        const date = Date.now()
+        console.log('Thread Search: Updating thread search index for accounts: ' + latestIds)
 
-    this.accountIds = newIds
-    this.clearIndex()
-    .then(() => this.buildIndex(this.accountIds))
-    .then(() => {
-      console.log('ThreadSearch: Index rebuilt successfully in ' + ((Date.now() - date) / 1000) + 's')
+        const newIds = _.difference(latestIds, this.accountIds)
+        const removedIds = _.difference(this.accountIds, latestIds)
+        const promises = []
+        if (newIds.length > 0) {
+          promises.push(this.buildIndex(newIds))
+        }
+
+        if (removedIds.length > 0) {
+          promises.push(
+            Promise.all(removedIds.map(id => DatabaseStore.unindexModelsForAccount(id, Thread)))
+          )
+        }
+        this.accountIds = latestIds
+        Promise.all(promises)
+        .then(() => {
+          console.log('Thread Search: Index updated successfully in ' + ((Date.now() - date) / 1000) + 's')
+        })
+      })
     })
   }
 
+  /**
+   * When a thread gets updated we will update the search index with the data
+   * from that thread if the account it belongs to is not being currently
+   * synced.
+   *
+   * When the account is successfully synced, its threads will be added to the
+   * index either via `onAccountsChanged` or via `initializeIndex` when the app
+   * starts
+   */
   onDataChanged(change) {
     if (change.objectClass !== Thread.name) {
       return;
     }
-    const {objects, type} = change
-    let promises = []
-    if (type === 'persist') {
-      promises = objects.map(thread => this.updateThreadIndex(thread))
-    } else if (type === 'unpersist') {
-      promises = objects.map(thread => DatabaseStore.unindexModel(thread))
-    }
-    Promise.all(promises)
+    _.defer(() => {
+      const {objects, type} = change
+      const {isSyncCompleteForAccount} = NylasSyncStatusStore
+      const threads = objects.filter(({accountId}) => isSyncCompleteForAccount(accountId))
+
+      let promises = []
+      if (type === 'persist') {
+        promises = threads.map(::this.updateThreadIndex)
+      } else if (type === 'unpersist') {
+        promises = threads.map(::this.unindexThread)
+      }
+      Promise.all(promises)
+    })
+  }
+
+  buildIndex = (accountIds) => {
+    const sizePerAccount = Math.floor(INDEX_SIZE / accountIds.length)
+    return Promise.resolve(accountIds)
+    .each((accountId) => (
+      this.indexThreadsForAccount(accountId, sizePerAccount)
+    ))
   }
 
   clearIndex() {
@@ -90,11 +151,10 @@ class SearchIndexStore {
     )
   }
 
-  buildIndex(accountIds) {
-    const numAccounts = accountIds.length
-    return Promise.resolve(accountIds)
-    .each((accountId) => (
-      this.indexThreadsForAccount(accountId, Math.floor(INDEX_SIZE / numAccounts))
+  getUnindexedAccounts() {
+    return Promise.resolve(this.accountIds)
+    .filter((accId) => (
+      DatabaseStore.isIndexEmptyForAccount(accId, Thread)
     ))
   }
 
@@ -110,7 +170,7 @@ class SearchIndexStore {
       .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
       .then((threads) => {
         return Promise.all(
-          threads.map(thread => this.indexThread(thread))
+          threads.map(::this.indexThread)
         ).then(() => {
           return new Promise((resolve) => setTimeout(resolve, INDEXING_WAIT))
         })
@@ -134,6 +194,10 @@ class SearchIndexStore {
         DatabaseStore.updateModelIndex(thread, indexData)
       ))
     )
+  }
+
+  unindexThread(thread) {
+    return DatabaseStore.unindexModel(thread)
   }
 
   getIndexData(thread) {
