@@ -1,6 +1,11 @@
 _ = require 'underscore'
 {tableNameForJoin} = require '../models/utils'
 
+# https://www.sqlite.org/faq.html#q14
+# That's right. Two single quotes in a row…
+singleQuoteEscapeSequence = "''"
+
+
 ###
 Public: The Matcher class encapsulates a particular comparison clause on an {Attribute}.
 Matchers can evaluate whether or not an object matches them, and also compose
@@ -87,11 +92,6 @@ class Matcher
         return false
 
   whereSQL: (klass) ->
-
-    # https://www.sqlite.org/faq.html#q14
-    # That's right. Two single quotes in a row…
-    singleQuoteEscapeSequence = "''"
-
     if @comparator is "like"
       val = "%#{@val}%"
     else
@@ -214,6 +214,7 @@ class SearchMatcher extends Matcher
       searchQuery.trim()
       .replace(/^['"]/, "")
       .replace(/['"]$/, "")
+      .replace(/'/g, singleQuoteEscapeSequence)
     )
     @
 
