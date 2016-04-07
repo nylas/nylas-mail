@@ -51,10 +51,15 @@
   .template-wrap {
     position: relative;
     border: 1px solid @input-border-color;
+    background-color: @white;
     padding: 10px;
     margin-top: 20px;
     min-height: 200px;
     display: flex;
+
+    .contenteditable-container {
+      min-height: 200px;
+    }
 
     textarea {
       border: 0;
