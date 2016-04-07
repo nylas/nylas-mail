@@ -37,19 +37,20 @@
 
   .container-preference-tabs {
     width: 100%;
-    height: 90px;
     background-color: @source-list-bg;
     border-bottom: 1px solid @border-color-divider;
 
     .preferences-tabs {
       padding-top: 10px;
       background-color: @source-list-bg;
-      width: 70%;
-      margin: 0 auto;
 
       .item {
         cursor: default;
         margin: 0 auto;
+        flex: 1.3;
+        min-width: 54px;
+        max-width: 120px;
+        text-align: center;
 
         &:active {
           img {
@@ -65,12 +66,19 @@
 
         .tab-icon {
           padding-top: 8px;
+          padding-bottom: 8px;
           display: block;
           margin: auto;
         }
 
         .name {
-          padding: @padding-base-vertical @padding-large-horizontal;
+          padding: 0 @padding-base-horizontal * 0.3;
+          padding-bottom: @padding-large-vertical;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          font-size: @font-size-small;
+          line-height: @font-size-small;
         }
       }
     }
@@ -92,6 +100,7 @@
 
   .container-general {
     width: 40%;
+    min-width: 400px;
     margin: 0 auto;
   }
 
@@ -137,6 +146,7 @@
 
   .container-keymaps {
     width: 40%;
+    min-width: 400px;
     margin: 0 auto;
 
     .col-left {
@@ -217,5 +227,15 @@ body.platform-linux {
     .tab-icon {
       padding-top: 15px !important;
     }
+  }
+}
+
+@media (max-width: 600px) {
+  .preferences-tabs .item .name {
+    display:none;
+  }
+  .preferences-wrap .preferences-content > .scroll-region-content {
+    padding-left: @padding-large-horizontal * 1;
+    padding-right: @padding-large-horizontal * 1;
   }
 }
