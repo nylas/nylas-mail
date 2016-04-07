@@ -62,7 +62,7 @@ class TabInstalled extends React.Component {
 
     let devPackages = []
     let devEmpty = (<span>Run with debug flags enabled to load ~/.nylas/dev/packages.</span>);
-    let devCTA = (<div className="btn btn-large" onClick={this._onEnableDevMode}>Enable Debug Flags</div>);
+    let devCTA = (<div className="btn btn-small" onClick={this._onEnableDevMode}>Enable Debug Flags</div>);
 
     if (NylasEnv.inDevMode()) {
       devPackages = this.state.packages.dev || [];
@@ -72,14 +72,14 @@ class TabInstalled extends React.Component {
         enabled (via the Developer menu).<br/><br/>Learn more about building
         plugins with <a href="https://nylas.com/N1/docs">our docs</a>.
       </span>);
-      devCTA = (<div className="btn btn-large" onClick={this._onCreatePackage}>Create New Plugin...</div>);
+      devCTA = (<div className="btn btn-small" onClick={this._onCreatePackage}>Create New Plugin...</div>);
     }
 
     return (
       <div className="installed">
         <div className="inner">
           <Flexbox className="search-container">
-            <div className="btn btn-large" onClick={this._onInstallPackage}>Install Plugin...</div>
+            <div className="btn btn-small" onClick={this._onInstallPackage}>Install Plugin...</div>
             <input
               type="text"
               className="search"
