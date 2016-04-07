@@ -208,8 +208,13 @@ class NotCompositeMatcher extends Matcher
     return "NOT (" + wheres.join(" AND ") + ")"
 
 class SearchMatcher extends Matcher
-  constructor: (@searchQuery) ->
+  constructor: (searchQuery) ->
     super(null, null, null)
+    @searchQuery = (
+      searchQuery.trim()
+      .replace(/^['"]/, "")
+      .replace(/['"]$/, "")
+    )
     @
 
   attribute: =>
