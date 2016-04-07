@@ -11,8 +11,6 @@ export default class SidebarParticipantPicker extends React.Component {
 
   constructor(props) {
     super(props);
-    this.props = props;
-    this._onSelectContact = this._onSelectContact.bind(this);
     this.state = this._getStateFromStores();
   }
 
@@ -66,8 +64,11 @@ export default class SidebarParticipantPicker extends React.Component {
   }
 
   render() {
-    const {focusedContact} = this.state
+    const {sortedContacts, focusedContact} = this.state
     const value = this._getKeyForContact(focusedContact)
+    if (sortedContacts.length === 0) {
+      return false
+    }
     return (
       <div className="sidebar-participant-picker">
         <select tabIndex={-1} value={value} onChange={this._onSelectContact}>
