@@ -70,6 +70,6 @@ class ThreadListDataSource extends ObservableListDataSource
   constructor: (subscription) ->
     $resultSetObservable = Rx.Observable.fromNamedQuerySubscription('thread-list', subscription)
     $resultSetObservable = _flatMapJoiningMessages($resultSetObservable)
-    super($resultSetObservable, subscription.replaceRange)
+    super($resultSetObservable, subscription.replaceRange.bind(subscription))
 
 module.exports = ThreadListDataSource

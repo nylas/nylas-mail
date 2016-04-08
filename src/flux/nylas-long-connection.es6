@@ -127,6 +127,9 @@ class NylasLongConnection {
         this.close()
       })
       responseStream.on('data', (chunk) => {
+        if (this.isClosed()) {
+          return;
+        }
         this.closeIfDataStops()
 
         // Ignore redundant newlines sent as pings. Want to avoid
@@ -156,6 +159,7 @@ class NylasLongConnection {
     if (this._pingTimeout) {
       clearTimeout(this._pingTimeout)
     }
+    this._emitter.dispose()
     this._pingTimeout = null
     this._buffer = ''
     if (this._req) {
