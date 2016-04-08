@@ -47,8 +47,13 @@ export default class ConnectionStatusHeader extends React.Component {
   }
 
   getStateFromStores() {
+    const nextRetryDelay = NylasSyncStatusStore.nextRetryDelay();
     const nextRetryTimestamp = NylasSyncStatusStore.nextRetryTimestamp();
-    const connected = NylasSyncStatusStore.connected();
+    let connected = NylasSyncStatusStore.connected();
+
+    if (nextRetryDelay < 5000) {
+      connected = true;
+    }
 
     let nextRetryText = null;
     if (!connected) {

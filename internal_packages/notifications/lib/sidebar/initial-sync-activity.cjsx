@@ -27,12 +27,10 @@ class InitialSyncActivity extends React.Component
     fetched = 0
     totalProgress = 0
     incomplete = 0
-    error = null
 
     for acctId, state of @state.sync
       for model, modelState of state
         incomplete += 1 unless modelState.complete
-        error ?= modelState.error
         if modelState.count
           count += modelState.count / 1
           fetched += modelState.fetched / 1
@@ -45,13 +43,6 @@ class InitialSyncActivity extends React.Component
 
     if incomplete is 0
       return false
-    else if error
-      <div className={classSet} key="initial-sync">
-        <div className="inner">An error occurred while syncing your mailbox. Sync will resume in a moment&hellip;
-          <div className="btn" style={marginTop:10} onClick={@_onTryAgain}>Try Again Now</div>
-        </div>
-        {@_expandedSyncState()}
-      </div>
     else
       <div className={classSet} key="initial-sync" onClick={=> @setState expandedSync: !@state.expandedSync}>
         {@_renderProgressBar(totalProgress)}

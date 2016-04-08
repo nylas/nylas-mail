@@ -256,7 +256,7 @@ class NylasAPI
       type: 'error'
       tag: '401'
       sticky: true
-      message: "Action failed: There was an error syncing with #{email}. You
+      message: "An mailbox action for #{email} could not be completed. You
                 may not be able to send or receive mail.",
       icon: 'fa-sign-out'
       actions: [{

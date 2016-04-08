@@ -136,7 +136,7 @@
     background-color: #615396;
   }
   .notification-error {
-    background-color: @background-color-error;
+    background: linear-gradient(to top, darken(@background-color-error, 4%) 0%, @background-color-error 100%);
     border-color: @background-color-error;
     color: @color-error;
   }
@@ -144,7 +144,7 @@
     border-color: @background-color-success;
   }
   .notification-offline {
-    background-color: #CC9900;
+    background: linear-gradient(to top, darken(#CC9900, 4%) 0%, #CC9900 100%);
     border-color: darken(#CC9900, 5%);
   }
 
@@ -152,7 +152,6 @@
     display:flex;
     font-size: @font-size-base;
     color:@text-color-inverse;
-    border-top:1px solid rgba(0,0,0,0.25);
     border-bottom:1px solid rgba(0,0,0,0.25);
     padding-left: @padding-base-horizontal;
     line-height: @line-height-base * 1.5;
@@ -212,13 +211,4 @@ body.platform-win32 {
       }
     }
   }
-}
-
-// Activity Error Header
-
-.account-error-header.notifications-sticky {
- .notifications-sticky-item {
-   background-color: initial;
-   background: linear-gradient(to top, #ca2541 0%, #d55268 100%);
- }
 }
