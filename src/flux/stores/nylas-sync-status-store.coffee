@@ -86,4 +86,9 @@ class NylasSyncStatusStore extends NylasStore
       state.nextRetryTimestamp
     _.compact(retryDates).sort((a, b) => a < b).pop()
 
+  nextRetryDelay: =>
+    retryDelays = _.values(@_statesByAccount).map (state) ->
+      state.nextRetryDelay
+    _.compact(retryDelays).sort((a, b) => a < b).pop()
+
 module.exports = new NylasSyncStatusStore()

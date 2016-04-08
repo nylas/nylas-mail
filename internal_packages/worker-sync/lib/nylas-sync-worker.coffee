@@ -18,7 +18,7 @@ class BackoffTimer
     @_timeout = null
 
   backoff: =>
-    @_delay = Math.min(@_delay * 1.4, 5 * 1000 * 60) # Cap at 5 minutes
+    @_delay = Math.min(@_delay * 1.7, 5 * 1000 * 60) # Cap at 5 minutes
     if not NylasEnv.inSpecMode()
       console.log("Backing off after sync failure. Will retry in #{Math.floor(@_delay / 1000)} seconds.")
 
@@ -30,7 +30,7 @@ class BackoffTimer
     , @_delay
 
   resetDelay: =>
-    @_delay = 20 * 1000
+    @_delay = 2 * 1000
 
   getCurrentDelay: =>
     @_delay
@@ -277,7 +277,8 @@ class NylasSyncWorker
   _backoff: =>
     @_resumeTimer.backoff()
     @_resumeTimer.start()
-    @_state.nextRetryTimestamp = Date.now() + @_resumeTimer.getCurrentDelay()
+    @_state.nextRetryDelay = @_resumeTimer.getCurrentDelay()
+    @_state.nextRetryTimestamp = Date.now() + @_state.nextRetryDelay
 
   updateTransferState: (model, updatedKeys) ->
     @_state[model] = _.extend(@_state[model], updatedKeys)
