@@ -28,8 +28,12 @@ function _runOnImageNode(node) {
   if (width && height && (widthUnits === heightUnits)) {
     node.style.maxWidth = '100vw';
     node.style.maxHeight = `${100 * height / width}vw`;
-  } else if (width && !height) {
+  } else if (!height) {
     node.style.maxWidth = '100vw';
+  } else {
+    // If your image has a width and height in different units, or a height and
+    // no width, we don't want to screw with it because it would change the
+    // aspect ratio.
   }
 }
 
