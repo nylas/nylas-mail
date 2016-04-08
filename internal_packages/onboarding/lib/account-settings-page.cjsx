@@ -3,7 +3,7 @@ ReactDOM = require 'react-dom'
 _ = require 'underscore'
 {ipcRenderer, dialog, remote} = require 'electron'
 {RetinaImg} = require 'nylas-component-kit'
-{RegExpUtils, EdgehillAPI, NylasAPI, APIError, Actions} = require 'nylas-exports'
+{RegExpUtils, EdgehillAPI, NylasAPI, APIError, Actions, AccountStore} = require 'nylas-exports'
 
 OnboardingActions = require './onboarding-actions'
 NylasApiEnvironmentStore = require './nylas-api-environment-store'
@@ -318,6 +318,10 @@ class AccountSettingsPage extends React.Component
       data.settings[k] = v
     data.provider = @state.provider.name
 
+    # if there's an account with this email, get the ID for it to notify the backend of re-auth
+    account = AccountStore.accountForEmail(email)
+    reauthParam = if account then "&reauth=#{account.id}" else ""
+
     # handle special case for exchange/outlook/hotmail username field
     if data.provider in ['exchange','outlook','hotmail'] and not data.settings.username?.trim().length
       data.settings.username = data.email
@@ -328,7 +332,7 @@ class AccountSettingsPage extends React.Component
     # If this succeeds, send the received code to N1 server to register the account
     # Otherwise process the error message from the server and highlight UI as needed
     NylasAPI.makeRequest
-      path: "/auth?client_id=#{NylasAPI.AppID}&n1_id=#{NylasEnv.config.get('updateIdentity')}"
+      path: "/auth?client_id=#{NylasAPI.AppID}&n1_id=#{NylasEnv.config.get('updateIdentity')}#{reauthParam}"
       method: 'POST'
       body: data
       returnsModel: false
@@ -388,6 +392,15 @@ class AccountSettingsPage extends React.Component
 
     pageNumber = @state.pageNumber
     errorFieldNames = err.body?.missing_fields || err.body?.missing_settings
+
+    if err.errorTitle is "setting_update_error"
+      choice = dialog.showMessageBox(remote.getCurrentWindow(), {
+        type: 'info',
+        buttons: ['Okay'],
+        title: 'Confirm',
+        message: 'The IMAP/SMTP servers for this account do not match our records. Please verify that any server names you entered are correct. If your IMAP/SMTP server has changed, first remove this account from N1, then try logging in again.'
+      })
+      OnboardingActions.moveToPage("account-settings")
 
     if errorFieldNames
       {pageNumber, errorMessage} = @_stateForMissingFieldNames(errorFieldNames)
