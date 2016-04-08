@@ -57,7 +57,7 @@ export default class QuerySubscription {
     return (this._callbacks.indexOf(callback) !== -1);
   }
 
-  removeCallback = (callback) => {
+  removeCallback(callback) {
     if (!(callback instanceof Function)) {
       throw new Error("QuerySubscription:removeCallback - expects a function, received #{callback}")
     }

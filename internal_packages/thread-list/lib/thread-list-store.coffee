@@ -31,12 +31,6 @@ class ThreadListStore extends NylasStore
       @_dataSource = new ThreadListDataSource(threadsSubscription)
       @_dataSourceUnlisten = @_dataSource.listen(@_onDataChanged, @)
 
-      # Set up a one-time listener to focus an item in the new view
-      if WorkspaceStore.layoutMode() is 'split'
-        unlisten = @_dataSource.listen =>
-          if @_dataSource.loaded()
-            Actions.setFocus(collection: 'thread', item: @_dataSource.get(0))
-            unlisten()
     else
       @_dataSource = new ListTabular.DataSource.Empty()
 
