@@ -1,6 +1,7 @@
 _ = require 'underscore'
 {remote} = require 'electron'
 request = require 'request'
+NylasLongConnection = require './nylas-long-connection'
 Utils = require './models/utils'
 Account = require './models/account'
 Message = require './models/message'
@@ -205,6 +206,14 @@ class NylasAPI
 
     req = new NylasAPIRequest(@, options)
     req.run().then(success, error)
+
+  longConnection: (opts) ->
+    connection = new NylasLongConnection(@, opts.accountId, opts)
+    connection.onResults(opts.onResults)
+    return connection
+
+  startLongConnection: (opts) ->
+    @longConnection(opts).start()
 
   # If we make a request that `returnsModel` and we get a 404, we want to handle
   # it intelligently and in a centralized way. This method identifies the object
