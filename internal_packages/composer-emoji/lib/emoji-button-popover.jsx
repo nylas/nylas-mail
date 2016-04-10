@@ -264,11 +264,19 @@ class EmojiButtonPopover extends React.Component {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
       ctx.fillText(category, position.x, position.y);
     }
+
     position.x = 18;
     position.y += 48;
-    ctx.font = "32px Arial";
+
+    if (process.platform === "linux") {
+      ctx.font = "32px Noto Color Emoji";
+    } else {
+      ctx.font = "32px Arial";
+    }
     ctx.fillStyle = 'black';
+
     if (this.state.categorizedEmoji[category].length === 0) return;
+
     this.state.categorizedEmoji[category].forEach((emojiName, j) => {
       if (process.platform === "darwin" && missingEmojiList.indexOf(emojiName) !== -1) {
         const img = new Image();

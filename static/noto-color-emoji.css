@@ -1,0 +1,9 @@
+@font-face {
+  font-family: 'Noto Color Emoji';
+  font-weight: normal;
+  font-style: normal;
+
+  src: local('Noto Color Emoji'),
+       local('Noto-Color-Emoji'),
+       url('fonts/NotoColorEmoji/NotoColorEmoji.ttf') format('truetype');
+}
