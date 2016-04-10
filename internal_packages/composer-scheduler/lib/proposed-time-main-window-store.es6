@@ -37,6 +37,8 @@ class ProposedTimeMainWindowStore extends NylasStore {
       const metadata = draft.metadataForPluginId(PLUGIN_ID) || {};
       if (proposals.length === 0) {
         delete metadata.proposals
+      } else {
+        metadata.proposals = proposals;
       }
       Actions.setMetadata(draft, PLUGIN_ID, metadata);
     })
