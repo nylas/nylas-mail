@@ -72,8 +72,8 @@ export default class SchedulerComposerExtension extends ComposerExtension {
     delete json.client_id;
     delete json.id;
     json.when = {
-      start_date: json._start,
-      end_date: json._end,
+      start_time: json._start,
+      end_time: json._end,
     }
     delete json._start
     delete json._end
