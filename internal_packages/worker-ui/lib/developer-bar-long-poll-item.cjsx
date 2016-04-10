@@ -1,6 +1,6 @@
 React = require 'react'
 moment = require 'moment'
-{Utils} = require 'nylas-exports'
+{DateUtils, Utils} = require 'nylas-exports'
 
 class DeveloperBarLongPollItem extends React.Component
   @displayName: 'DeveloperBarLongPollItem'
@@ -21,7 +21,8 @@ class DeveloperBarLongPollItem extends React.Component
     itemVersion = @props.item.version || @props.item.attributes?.version
     itemId += " (version #{itemVersion})" if itemVersion
 
-    timestamp = moment(@props.item.timestamp).format("h:mm:ss")
+    timeFormat = DateUtils.getTimeFormat { seconds: true }
+    timestamp = moment(@props.item.timestamp).format(timeFormat)
 
     classname = "item"
     right = @props.item.cursor

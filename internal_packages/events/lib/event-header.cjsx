@@ -3,6 +3,7 @@ path = require 'path'
 React = require 'react'
 {RetinaImg} = require 'nylas-component-kit'
 {Actions,
+ DateUtils,
  Message,
  Event,
  Utils,
@@ -44,6 +45,7 @@ class EventHeader extends React.Component
     @_unlisten?()
 
   render: =>
+    timeFormat = DateUtils.getTimeFormat({timeZone: true})
     if @state.event?
       <div className="event-wrapper">
         <div className="event-header">
@@ -58,7 +60,7 @@ class EventHeader extends React.Component
             </div>
             <div>
               <div className="event-time">
-                {moment(@state.event.start*1000).tz(Utils.timeZone).format("h:mm a z")}
+                {moment(@state.event.start*1000).tz(Utils.timeZone).format(timeFormat)}
               </div>
               {@_renderEventActions()}
             </div>
