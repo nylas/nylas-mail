@@ -4,6 +4,7 @@ SearchActions = Reflux.createActions [
   "querySubmitted"
   "queryChanged"
   "searchBlurred"
+  "searchCompleted"
 ]
 
 for key, action of SearchActions

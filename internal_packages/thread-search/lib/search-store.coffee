@@ -1,32 +1,50 @@
 _ = require 'underscore'
 NylasStore = require 'nylas-store'
-{Contact,
- Thread,
+{Thread,
+ Contact,
  Actions,
- DatabaseStore,
+ ContactStore,
  AccountStore,
- FocusedPerspectiveStore,
- MailboxPerspective,
- ContactStore} = require 'nylas-exports'
+ DatabaseStore,
+ FocusedPerspectiveStore} = require 'nylas-exports'
 
 SearchActions = require './search-actions'
+SearchMailboxPerspective = require './search-mailbox-perspective'
 
 # Stores should closely match the needs of a particular part of the front end.
 # For example, we might create a "MessageStore" that observes this store
 # for changes in selectedThread, "DatabaseStore" for changes to the underlying database,
 # and vends up the array used for that view.
 
-class SearchSuggestionStore extends NylasStore
+class SearchStore extends NylasStore
 
   constructor: ->
     @_searchQuery = FocusedPerspectiveStore.current().searchQuery ? ""
     @_searchSuggestionsVersion = 1
+    @_isSearching = false
     @_clearResults()
 
     @listenTo FocusedPerspectiveStore, @_onPerspectiveChanged
     @listenTo SearchActions.querySubmitted, @_onQuerySubmitted
     @listenTo SearchActions.queryChanged, @_onQueryChanged
     @listenTo SearchActions.searchBlurred, @_onSearchBlurred
+    @listenTo SearchActions.searchCompleted, @_onSearchCompleted
+
+  query: =>
+    @_searchQuery
+
+  queryPopulated: =>
+    @_searchQuery and @_searchQuery.trim().length > 0
+
+  suggestions: =>
+    @_suggestions
+
+  isSearching: =>
+    @_isSearching
+
+  _onSearchCompleted: =>
+    @_isSearching = false
+    @trigger()
 
   _onPerspectiveChanged: =>
     @_searchQuery = FocusedPerspectiveStore.current().searchQuery ? ""
@@ -43,11 +61,12 @@ class SearchSuggestionStore extends NylasStore
 
     if @queryPopulated()
       Actions.recordUserEvent("Commit Search Query", {})
+      @_isSearching = true
       @_perspectiveBeforeSearch ?= current
-      next = MailboxPerspective.forSearch(current.accountIds, @_searchQuery.trim())
+      next = new SearchMailboxPerspective(current.accountIds, @_searchQuery.trim())
       Actions.focusMailboxPerspective(next)
 
-    else if current.isSearch()
+    else if current instanceof SearchMailboxPerspective
       if @_perspectiveBeforeSearch
         Actions.focusMailboxPerspective(@_perspectiveBeforeSearch)
         @_perspectiveBeforeSearch = null
@@ -127,12 +146,4 @@ class SearchSuggestionStore extends NylasStore
 
     @trigger()
 
-  # Exposed Data
-
-  query: => @_searchQuery
-
-  queryPopulated: => @_searchQuery and @_searchQuery.trim().length > 0
-
-  suggestions: => @_suggestions
-
-module.exports = new SearchSuggestionStore()
+module.exports = new SearchStore()

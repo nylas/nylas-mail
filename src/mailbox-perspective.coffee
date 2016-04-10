@@ -6,7 +6,6 @@ AccountStore = require './flux/stores/account-store'
 CategoryStore = require './flux/stores/category-store'
 DatabaseStore = require './flux/stores/database-store'
 OutboxStore = require './flux/stores/outbox-store'
-SearchQuerySubscription = require './search-query-subscription'
 ThreadCountsStore = require './flux/stores/thread-counts-store'
 MutableQuerySubscription = require './flux/models/mutable-query-subscription'
 Thread = require './flux/models/thread'
@@ -35,14 +34,12 @@ class MailboxPerspective
     new CategoryMailboxPerspective(categories)
 
   @forStandardCategories: (accountsOrIds, names...) ->
+    # TODO this method is broken
     categories = CategoryStore.getStandardCategories(accountsOrIds, names...)
     @forCategories(categories)
 
   @forStarred: (accountsOrIds) ->
     new StarredMailboxPerspective(accountsOrIds)
-
-  @forSearch: (accountsOrIds, query) ->
-    new SearchMailboxPerspective(accountsOrIds, query)
 
   @forInbox: (accountsOrIds) =>
     @forStandardCategories(accountsOrIds, 'inbox')
@@ -52,14 +49,12 @@ class MailboxPerspective
       if json.type is CategoryMailboxPerspective.name
         categories = JSON.parse(json.serializedCategories, Utils.registeredObjectReviver)
         return @forCategories(categories)
-      else if json.type is SearchMailboxPerspective.name
-        return @forSearch(json.accountIds, json.searchQuery)
       else if json.type is StarredMailboxPerspective.name
         return @forStarred(json.accountIds)
       else if json.type is DraftsMailboxPerspective.name
         return @forDrafts(json.accountIds)
       else
-        return null
+        return @forInbox(json.accountIds)
     catch error
       NylasEnv.reportError(new Error("Could not restore mailbox perspective: #{error}"))
       return null
@@ -92,8 +87,8 @@ class MailboxPerspective
   isArchive: =>
     false
 
-  isSearch: =>
-    @ instanceof SearchMailboxPerspective
+  emptyMessage: =>
+    "Nothing to display"
 
   categories: =>
     []
@@ -151,38 +146,6 @@ class MailboxPerspective
     []
 
 
-class SearchMailboxPerspective extends MailboxPerspective
-  constructor: (@accountIds, @searchQuery) ->
-    super(@accountIds)
-    @name = 'Search'
-
-    unless _.isString(@searchQuery)
-      throw new Error("SearchMailboxPerspective: Expected a `string` search query")
-
-    @
-
-  toJSON: =>
-    json = super
-    json.searchQuery = @searchQuery
-    json
-
-  isEqual: (other) =>
-    super(other) and other.searchQuery is @searchQuery
-
-  threads: =>
-    new SearchQuerySubscription(@searchQuery, @accountIds)
-
-  canReceiveThreadsFromAccountIds: =>
-    false
-
-  tasksForRemovingItems: (threads) =>
-    TaskFactory.tasksForApplyingCategories(
-      threads: threads,
-      categoriesToAdd: (accountId) =>
-        account = AccountStore.accountForId(accountId)
-        return [account.defaultFinishedCategory()]
-    )
-
 class DraftsMailboxPerspective extends MailboxPerspective
   constructor: (@accountIds) ->
     super(@accountIds)
@@ -190,9 +153,6 @@ class DraftsMailboxPerspective extends MailboxPerspective
     @iconName = "drafts.png"
     @drafts = true # The DraftListStore looks for this
     @
-
-  fromJSON: =>
-    {type: @constructor.name, accountIds: @accountIds}
 
   threads: =>
     null

@@ -4,7 +4,6 @@ ReactTestUtils = require('react-addons-test-utils')
 
 SearchBar = require '../lib/search-bar'
 SearchActions = require '../lib/search-actions'
-SearchSuggestionStore = require '../lib/search-suggestion-store'
 
 describe 'SearchBar', ->
   beforeEach ->

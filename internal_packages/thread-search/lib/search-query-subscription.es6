@@ -1,18 +1,18 @@
 import _ from 'underscore'
-import Actions from './flux/actions'
-import NylasAPI from './flux/nylas-api'
-import Thread from './flux/models/thread'
-import DatabaseStore from './flux/stores/database-store'
-import MutableQuerySubscription from './flux/models/mutable-query-subscription'
-
-let FocusedPerspectiveStore = null
+import {
+  Actions,
+  NylasAPI,
+  Thread,
+  DatabaseStore,
+  FocusedContentStore,
+  MutableQuerySubscription,
+} from 'nylas-exports'
+import SearchActions from './search-actions'
 
 
 class SearchQuerySubscription extends MutableQuerySubscription {
 
   constructor(searchQuery, accountIds) {
-    FocusedPerspectiveStore = require('./flux/stores/focused-content-store')
-
     super(null, {asResultSet: true})
     this._searchQuery = searchQuery
     this._accountIds = accountIds
@@ -21,9 +21,13 @@ class SearchQuerySubscription extends MutableQuerySubscription {
 
     this._connections = []
     this._unsubscribers = [
-      FocusedPerspectiveStore.listen(::this.onFocusedContentChanged),
+      FocusedContentStore.listen(::this.onFocusedContentChanged),
     ]
     _.defer(() => this.performSearch())
+  }
+
+  replaceRange = () => {
+    // TODO
   }
 
   resetData() {
@@ -32,10 +36,6 @@ class SearchQuerySubscription extends MutableQuerySubscription {
     this._firstThreadSelectedAt = null
     this._lastFocusedThread = null
     this._focusedThreadCount = 0
-  }
-
-  replaceRange = () => {
-    // TODO
   }
 
   performSearch() {
@@ -62,10 +62,11 @@ class SearchQuerySubscription extends MutableQuerySubscription {
     const accountsSearched = new Set()
     let resultIds = []
 
+    const allAccountsSearched = () => accountsSearched.size === this._accountIds.length
     const resultsReturned = () => {
       // Don't emit a "result" until we have at least one thread to display.
       // Otherwise it will show "No Results Found"
-      if (resultIds.length > 0 || accountsSearched.size === this._accountIds.length) {
+      if (resultIds.length > 0 || allAccountsSearched()) {
         const currentResults = this._set && this._set.ids().length > 0
         if (currentResults) {
           const currentResultIds = this._set.ids()
@@ -95,6 +96,9 @@ class SearchQuerySubscription extends MutableQuerySubscription {
         onStatusChanged: (conn) => {
           if (conn.isClosed()) {
             accountsSearched.add(accountId)
+            if (allAccountsSearched()) {
+              SearchActions.searchCompleted()
+            }
             resultsReturned()
           }
         },
@@ -103,7 +107,7 @@ class SearchQuerySubscription extends MutableQuerySubscription {
   }
 
   onFocusedContentChanged() {
-    const thread = FocusedPerspectiveStore.focused('thread')
+    const thread = FocusedContentStore.focused('thread')
     const shouldRecordChange = (
       thread &&
       (this._lastFocusedThread || {}).id !== thread.id
@@ -163,4 +167,4 @@ class SearchQuerySubscription extends MutableQuerySubscription {
   }
 }
 
-module.exports = SearchQuerySubscription
+export default SearchQuerySubscription
