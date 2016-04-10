@@ -22,6 +22,10 @@ module.exports =
             type: 'boolean'
             default: false
             title: "Show unread counts for all folders / labels"
+          use24HourClock:
+            type: 'boolean'
+            default: false
+            title: "Use 24-hour clock"
           interfaceZoom:
             title: "Override standard interface scaling"
             type: 'number'
