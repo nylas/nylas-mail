@@ -12,7 +12,7 @@ import {
   SyncbackMetadataTask,
 } from 'nylas-exports';
 
-import NotifyPluginsOfSendTask from '../../src/flux/tasks/notify-plugis-of-send-task'
+import NotifyPluginsOfSendTask from '../../src/flux/tasks/notify-plugins-of-send-task'
 
 const DBt = DatabaseTransaction.prototype;
 const withoutWhitespace = (s) => s.replace(/[\n\r\s]/g, '');
