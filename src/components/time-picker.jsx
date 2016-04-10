@@ -84,8 +84,11 @@ export default class TimePicker extends React.Component {
     el.setSelectionRange(0, el.value.length)
   }
 
-  _onBlur = () => {
-    this.setState({focused: false})
+  _onBlur = (event) => {
+    this.setState({focused: false});
+    if (Array.from(event.relatedTarget.classList).includes("time-options")) {
+      return
+    }
     this._saveIfValid(this.state.rawText)
   }
 
@@ -192,7 +195,7 @@ export default class TimePicker extends React.Component {
     })
 
     return (
-      <div className={className}>{opts}</div>
+      <div className={className} tabIndex={-1}>{opts}</div>
     )
   }
 

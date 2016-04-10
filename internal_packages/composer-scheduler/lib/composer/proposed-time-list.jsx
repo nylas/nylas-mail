@@ -11,6 +11,7 @@ const TZ = moment.tz(Utils.timeZone).format("z");
 export default class ProposedTimeList extends React.Component {
   static propTypes = {
     draft: React.PropTypes.object,
+    event: React.PropTypes.object,
     inEmail: React.PropTypes.bool,
     proposals: React.PropTypes.array.isRequired,
   }
@@ -49,7 +50,7 @@ export default class ProposedTimeList extends React.Component {
       <div>
         <h2 style={styles}>
           {this._renderB64Img("description")}
-          {((this.props.draft.events || [])[0] || {}).title || this.props.draft.subject}
+          {this.props.event.title || this.props.draft.subject}
         </h2>
         <span style={{margin: "0 10px"}}>
           {this._renderB64Img("time")}

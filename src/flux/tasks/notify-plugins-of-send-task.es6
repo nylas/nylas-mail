@@ -1,10 +1,8 @@
 import Task from './task'
 import {APIError} from '../errors'
 import NylasAPI from '../nylas-api'
-
-// We use our local `request` so we can track the outgoing calls and
-// generate consistent error objects
-import nylasRequest from '../../nylas-request'
+import EdgehillAPI from '../edgehill-api'
+import SyncbackMetadataTask from './syncback-metadata-task'
 
 /**
  * If a plugin:
@@ -50,45 +48,56 @@ import nylasRequest from '../../nylas-request'
  * The task will POST to your backend url the draftClientId and the
  * coresponding messageId
  */
-export default class RegisterDraftForPluginTask extends Task {
+export default class NotifyPluginsOfSendTask extends Task {
   constructor(opts = {}) {
     super(opts)
+    this.accountId = opts.accountId
     this.messageId = opts.messageId
-    this.errorMessage = opts.errorMessage
-    this.draftClientId = opts.draftClientId
-    this.pluginServerUrl = opts.pluginServerUrl
+    this.messageClientId = opts.messageClientId
+    this.errorMessage = `We had trouble connecting to the plugin server. \
+Any plugins you used in your sent message will not be available.`
+  }
+
+  isDependentOnTask(other) {
+    return (other instanceof SyncbackMetadataTask) && (other.clientId === this.messageClientId)
   }
 
   performLocal() {
     this.validateRequiredFields([
       "messageId",
-      "draftClientId",
-      "pluginServerUrl",
+      "accountId",
+      "messageClientId",
     ]);
     return Promise.resolve()
   }
 
   performRemote() {
     return new Promise((resolve) => {
-      nylasRequest.post({url: this.pluginServerUrl, body: {
-        message_id: this.messageId,
-        uid: this.draftClientId,
-      }}, (err) => {
-        if (err instanceof APIError) {
-          const msg = `${this.errorMessage}\n\n${err.message}`
-          if (NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
-            NylasEnv.showErrorDialog(msg, {showInMainWindow: true})
-            return resolve([Task.Status.Failed, err])
+      EdgehillAPI.request({
+        method: "POST",
+        path: "/plugins/send-successful",
+        body: {
+          message_id: this.messageId,
+          account_id: this.accountId,
+        },
+        success: () => {
+          return resolve(Task.Status.Success)
+        },
+        error: (err) => {
+          if (err instanceof APIError) {
+            const msg = `${this.errorMessage}\n\n${err.message}`
+            if (NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
+              NylasEnv.showErrorDialog(msg, {showInMainWindow: true})
+              return resolve([Task.Status.Failed, err])
+            }
+            return resolve(Task.Status.Retry)
           }
-          return resolve(Task.Status.Retry)
-        } else if (err) {
           const msg = `${this.errorMessage}\n\n${err.message}`
           NylasEnv.reportError(err);
           NylasEnv.showErrorDialog(msg, {showInMainWindow: true})
           return resolve([Task.Status.Failed, err])
-        }
-        return resolve(Task.Status.Success)
+        },
       });
-    })
+    });
   }
 }

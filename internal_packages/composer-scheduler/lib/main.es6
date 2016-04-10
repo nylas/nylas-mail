@@ -6,14 +6,10 @@ import ProposedTimeCalendarStore from './proposed-time-calendar-store'
 import ProposedTimeMainWindowStore from './proposed-time-main-window-store'
 import SchedulerComposerExtension from './composer/scheduler-composer-extension';
 
-import {PLUGIN_ID, PLUGIN_URL} from './scheduler-constants'
-
 import {
-  Actions,
   WorkspaceStore,
   ComponentRegistry,
   ExtensionRegistry,
-  RegisterDraftForPluginTask,
 } from 'nylas-exports'
 
 export function activate() {
@@ -40,22 +36,6 @@ export function activate() {
       {role: 'Composer:ActionButton'});
 
     ExtensionRegistry.Composer.register(SchedulerComposerExtension)
-
-    const errorMessage = `There was a temporary problem setting up \
-these proposed times. Please manually follow up to schedule your event.`
-
-    this._usub = Actions.sendDraftSuccess.listen(({message, draftClientId}) => {
-      if (!NylasEnv.isMainWindow()) return;
-      if (message.metadataForPluginId(PLUGIN_ID)) {
-        const task = new RegisterDraftForPluginTask({
-          errorMessage,
-          draftClientId,
-          messageId: message.id,
-          pluginServerUrl: `${PLUGIN_URL}/plugins/register-message`,
-        });
-        Actions.queueTask(task);
-      }
-    })
   }
 }
 
@@ -72,6 +52,5 @@ export function deactivate() {
     ComponentRegistry.unregister(NewEventCardContainer);
     ComponentRegistry.unregister(SchedulerComposerButton);
     ExtensionRegistry.Composer.unregister(SchedulerComposerExtension);
-    this._usub()
   }
 }

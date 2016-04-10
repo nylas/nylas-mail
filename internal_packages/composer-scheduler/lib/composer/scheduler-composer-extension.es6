@@ -1,8 +1,7 @@
-import _ from 'underscore'
 import React from 'react'
 import {PLUGIN_ID} from '../scheduler-constants'
 import ProposedTimeList from './proposed-time-list'
-import {Actions, RegExpUtils, ComposerExtension} from 'nylas-exports'
+import {Event, Actions, RegExpUtils, ComposerExtension} from 'nylas-exports'
 
 /**
  * Inserts the set of Proposed Times into the body of the HTML email.
@@ -45,7 +44,7 @@ export default class SchedulerComposerExtension extends ComposerExtension {
     return contentBefore + wrapS + markup + wrapE + contentAfter
   }
 
-  static _prepareEvent(inEvent, draft) {
+  static _prepareEvent(inEvent, draft, metadata) {
     const event = inEvent
     if (!event.title || event.title.length === 0) {
       event.title = draft.subject;
@@ -58,7 +57,28 @@ export default class SchedulerComposerExtension extends ComposerExtension {
         status: "noreply",
       }
     })
+
+    if (metadata.proposals) {
+      event.end = null
+      event.start = null
+    }
     return event;
+  }
+
+  // We must set the `preparedEvent` to be exactly what could be posted to
+  // the /events endpoint of the API.
+  static _cleanEventJSON(rawJSON) {
+    const json = rawJSON;
+    delete json.client_id;
+    delete json.id;
+    json.when = {
+      object: "timespan",
+      start: json._start,
+      end: json._end,
+    }
+    delete json._start
+    delete json._end
+    return json
   }
 
   static _insertProposalsIntoBody(draft, metadata) {
@@ -67,6 +87,7 @@ export default class SchedulerComposerExtension extends ComposerExtension {
       const el = React.createElement(ProposedTimeList,
         {
           draft: nextDraft,
+          event: metadata.pendingEvent,
           inEmail: true,
           proposals: metadata.proposals,
         });
@@ -81,18 +102,11 @@ export default class SchedulerComposerExtension extends ComposerExtension {
     const self = SchedulerComposerExtension
     let nextDraft = draft.clone();
     const metadata = draft.metadataForPluginId(PLUGIN_ID)
-
-    if (nextDraft.events.length > 0) {
-      if (metadata && metadata.pendingEvent) {
-        throw new Error(`Assertion Failure. Can't have both a pendingEvent \
-and an event on a draft at the same time!`);
-      }
-      const event = self._prepareEvent(nextDraft.events[0].clone(), draft)
-      nextDraft.events = [event]
-    } else if (metadata && metadata.pendingEvent) {
-      nextDraft = self._insertProposalsIntoBody(nextDraft, metadata)
-      const event = self._prepareEvent(_.clone(metadata.pendingEvent), draft);
-      metadata.pendingEvent = event;
+    if (metadata && metadata.pendingEvent) {
+      nextDraft = self._insertProposalsIntoBody(nextDraft, metadata);
+      const nextEvent = new Event().fromJSON(metadata.pendingEvent);
+      const nextEventPrepared = self._prepareEvent(nextEvent, draft, metadata);
+      metadata.pendingEvent = self._cleanEventJSON(nextEventPrepared.toJSON());
       Actions.setMetadata(nextDraft, PLUGIN_ID, metadata);
     }
 
