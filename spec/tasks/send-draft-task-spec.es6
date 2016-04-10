@@ -9,7 +9,10 @@ import {
   SendDraftTask,
   NylasAPI,
   SoundRegistry,
+  SyncbackMetadataTask,
 } from 'nylas-exports';
+
+import NotifyPluginsOfSendTask from '../../src/flux/tasks/notify-plugis-of-send-task'
 
 const DBt = DatabaseTransaction.prototype;
 const withoutWhitespace = (s) => s.replace(/[\n\r\s]/g, '');
@@ -169,13 +172,35 @@ describe("SendDraftTask", () => {
       it("should queue tasks to sync back the metadata on the new message", () => {
         spyOn(Actions, 'queueTask')
         waitsForPromise(() => this.task.performRemote().then(() => {
-          const metadataTasks = Actions.queueTask.calls.map((call) => call.args[0]);
+          let metadataTasks = Actions.queueTask.calls.map((call) => call.args[0]);
+          metadataTasks = metadataTasks.filter((task) => task instanceof SyncbackMetadataTask)
           expect(metadataTasks.length).toEqual(this.draft.pluginMetadata.length);
           this.draft.pluginMetadata.forEach((pluginMetadatum, idx) => {
             expect(metadataTasks[idx].clientId).toEqual(this.draft.clientId);
             expect(metadataTasks[idx].modelClassName).toEqual('Message');
             expect(metadataTasks[idx].pluginId).toEqual(pluginMetadatum.pluginId);
           });
+        }));
+      });
+
+      it("should queue a task to register the messageID with the plugin server", () => {
+        spyOn(Actions, 'queueTask')
+        waitsForPromise(() => this.task.performRemote().then(() => {
+          let tasks = Actions.queueTask.calls.map((call) => call.args[0]);
+          tasks = tasks.filter((task) => task instanceof NotifyPluginsOfSendTask)
+          expect(tasks.length).toEqual(1);
+          expect(tasks[0].accountId).toEqual(this.draft.accountId);
+          expect(tasks[0].messageId).toEqual(this.response.id);
+        }));
+      });
+
+      it("shouldn't queue a NotifyPluginsOfSendTask if there's no metadata", () => {
+        spyOn(Actions, 'queueTask');
+        this.draft.pluginMetadata = []
+        waitsForPromise(() => this.task.performRemote().then(() => {
+          let tasks = Actions.queueTask.calls.map((call) => call.args[0]);
+          tasks = tasks.filter((task) => task instanceof NotifyPluginsOfSendTask)
+          expect(tasks.length).toEqual(0);
         }));
       });
 

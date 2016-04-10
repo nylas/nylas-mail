@@ -1,6 +1,7 @@
 import React from 'react'
 import {
   Event,
+  Actions,
   Calendar,
   APIError,
   NylasAPI,
@@ -54,61 +55,59 @@ export default class SchedulerComposerButton extends React.Component {
   }
 
   _onDraftChange() {
-    const draft = this._session.draft();
-    this.setState({
-      enabled: draft.events && draft.events.length > 0,
-    });
+    this.setState({enabled: this._hasPendingEvent()});
+  }
+
+  _hasPendingEvent() {
+    const metadata = this._session.draft().metadataForPluginId(PLUGIN_ID);
+    return metadata && metadata.pendingEvent
   }
 
   _onClick = () => {
     if (!this._session) { return }
     const draft = this._session.draft()
-    if (draft.events.length === 0) {  // API can only handle one event
-      NylasAPI.authPlugin(PLUGIN_ID, PLUGIN_NAME, draft.accountId)
-      .then(() => {
-        DatabaseStore.findAll(Calendar, {accountId: draft.accountId})
-        .then((allCalendars) => {
-          if (allCalendars.length === 0) {
-            throw new Error(`Can't create an event. The Account \
-  ${draft.accountId} has no calendars.`);
-          }
+    NylasAPI.authPlugin(PLUGIN_ID, PLUGIN_NAME, draft.accountId)
+    .then(() => {
+      DatabaseStore.findAll(Calendar, {accountId: draft.accountId})
+      .then((allCalendars) => {
+        if (allCalendars.length === 0) {
+          throw new Error(`Can't create an event. The Account \
+${draft.accountId} has no calendars.`);
+        }
 
-          const cals = allCalendars.filter(c => !c.readOnly);
+        const cals = allCalendars.filter(c => !c.readOnly);
 
-          if (cals.length === 0) {
-            NylasEnv.showErrorDialog(`This account has no editable \
+        if (cals.length === 0) {
+          NylasEnv.showErrorDialog(`This account has no editable \
 calendars. We can't create an event for you. Please make sure you have an \
 editable calendar with your account provider.`);
-            return;
-          }
-
-          const start = moment().ceil(30, 'minutes');
-          const end = moment(start).add(1, 'hour');
-
-          // TODO Have a default calendar config
-          const event = new Event({
-            end: end.unix(),
-            start: start.unix(),
-            calendarId: cals[0].id,
-          });
-          this._session.changes.add({events: [event]});
-          this._session.changes.commit()
-        })
-      }).catch((error) => {
-        let title = "Error"
-        let msg = `Unfortunately scheduling is not currently available. \
-Please try again later.\n\nError: ${error}`
-        if (!(error instanceof APIError)) {
-          NylasEnv.reportError(error);
-        } else if (error.statusCode === 400) {
-          NylasEnv.reportError(error);
-        } else if (NylasAPI.TimeoutErrorCodes.includes(error.statusCode)) {
-          title = "Offline"
-          msg = `Scheduling does not work offline. Please try again when you come back online.`
+          return;
         }
-        NylasEnv.showErrorDialog({title, message: msg});
+
+        const start = moment().ceil(30, 'minutes');
+        const metadata = draft.metadataForPluginId(PLUGIN_ID) || {};
+        metadata.uid = draft.clientId;
+        metadata.pendingEvent = new Event({
+          calendarId: cals[0].id,
+          start: start.unix(),
+          end: moment(start).add(1, 'hour').unix(),
+        }).toJSON();
+        Actions.setMetadata(draft, PLUGIN_ID, metadata);
       })
-    }
+    }).catch((error) => {
+      let title = "Error"
+      let msg = `Unfortunately scheduling is not currently available. \
+Please try again later.\n\nError: ${error}`
+      if (!(error instanceof APIError)) {
+        NylasEnv.reportError(error);
+      } else if (error.statusCode === 400) {
+        NylasEnv.reportError(error);
+      } else if (NylasAPI.TimeoutErrorCodes.includes(error.statusCode)) {
+        title = "Offline"
+        msg = `Scheduling does not work offline. Please try again when you come back online.`
+      }
+      NylasEnv.showErrorDialog({title, message: msg});
+    })
   }
 
   render() {
@@ -117,7 +116,7 @@ Please try again later.\n\nError: ${error}`
         onClick={this._onClick}
         title="Add an event…"
       >
-      <RetinaImg url="nylas://N1-Scheduler/assets/ic-composer-scheduler@2x.png"
+      <RetinaImg url="nylas://composer-scheduler/assets/ic-composer-scheduler@2x.png"
         mode={RetinaImg.Mode.ContentIsMask}
       />
     </button>)

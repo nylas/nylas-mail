@@ -50,7 +50,6 @@ class NylasExports
   @load "Actions", 'flux/actions'
 
   # API Endpoints
-  @load "nylasRequest", 'nylas-request' # An extend `request` module
   @load "NylasAPI", 'flux/nylas-api'
   @load "NylasSyncStatusStore", 'flux/stores/nylas-sync-status-store'
   @load "EdgehillAPI", 'flux/edgehill-api'
@@ -109,14 +108,12 @@ class NylasExports
   @require "DestroyCategoryTask", 'flux/tasks/destroy-category-task'
   @require "ChangeUnreadTask", 'flux/tasks/change-unread-task'
   @require "SyncbackDraftFilesTask", 'flux/tasks/syncback-draft-files-task'
-  @require "SyncbackDraftEventsTask", 'flux/tasks/syncback-draft-events-task'
   @require "SyncbackDraftTask", 'flux/tasks/syncback-draft-task'
   @require "ChangeStarredTask", 'flux/tasks/change-starred-task'
   @require "DestroyModelTask", 'flux/tasks/destroy-model-task'
   @require "SyncbackModelTask", 'flux/tasks/syncback-model-task'
   @require "SyncbackMetadataTask", 'flux/tasks/syncback-metadata-task'
   @require "ReprocessMailRulesTask", 'flux/tasks/reprocess-mail-rules-task'
-  @require "RegisterDraftForPluginTask", 'flux/tasks/register-draft-for-plugin-task'
 
   # Stores
   # These need to be required immediately since some Stores are

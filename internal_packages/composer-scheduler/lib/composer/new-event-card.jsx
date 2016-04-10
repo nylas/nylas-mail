@@ -159,7 +159,12 @@ export default class NewEventCard extends React.Component {
   _renderTimePicker() {
     const metadata = this.props.draft.metadataForPluginId(PLUGIN_ID);
     if (metadata && metadata.proposals) {
-      return <ProposedTimeList event={this.props.event} proposals={metadata.proposals} />
+      return (
+        <ProposedTimeList event={this.props.event}
+          draft={this.props.draft}
+          proposals={metadata.proposals}
+        />
+      )
     }
 
     const startVal = (this.props.event.start) * 1000;

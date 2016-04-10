@@ -1,6 +1,6 @@
 {
-  "name": "N1-Scheduler",
-  "title":"N1 Scheduler",
+  "name": "composer-scheduler",
+  "title":"Scheduler",
   "description": "The easiest way to schedule events",
   "main": "./lib/main",
   "version": "0.1.0",

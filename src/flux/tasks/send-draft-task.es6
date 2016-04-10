@@ -8,6 +8,7 @@ import DatabaseStore from '../stores/database-store';
 import AccountStore from '../stores/account-store';
 import BaseDraftTask from './base-draft-task';
 import SyncbackMetadataTask from './syncback-metadata-task';
+import NotifyPluginsOfSendTask from './notify-plugins-of-send-task';
 
 export default class SendDraftTask extends BaseDraftTask {
 
@@ -38,6 +39,7 @@ export default class SendDraftTask extends BaseDraftTask {
         )
       );
     })
+    .then(this.updatePluginMetadata)
     .then(this.onSuccess)
     .catch(this.onError);
   }
@@ -89,13 +91,26 @@ export default class SendDraftTask extends BaseDraftTask {
     });
   }
 
-  onSuccess = () => {
-    // Queue a task to save metadata on the message
+  updatePluginMetadata = () => {
     this.message.pluginMetadata.forEach((m) => {
-      const task = new SyncbackMetadataTask(this.message.clientId, this.message.constructor.name, m.pluginId);
-      Actions.queueTask(task);
+      const t1 = new SyncbackMetadataTask(this.message.clientId,
+          this.message.constructor.name, m.pluginId);
+      Actions.queueTask(t1);
     });
 
+    if (this.message.pluginMetadata.length > 0) {
+      const t2 = new NotifyPluginsOfSendTask({
+        accountId: this.message.accountId,
+        messageId: this.message.id,
+        messageClientId: this.message.clientId,
+      });
+      Actions.queueTask(t2);
+    }
+
+    return Promise.resolve()
+  }
+
+  onSuccess = () => {
     Actions.sendDraftSuccess({message: this.message, messageClientId: this.message.clientId, draftClientId: this.draftClientId});
     NylasAPI.makeDraftDeletionRequest(this.draft);
 

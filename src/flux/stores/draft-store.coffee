@@ -13,7 +13,6 @@ FocusedContentStore = require './focused-content-store'
 BaseDraftTask = require '../tasks/base-draft-task'
 SendDraftTask = require '../tasks/send-draft-task'
 SyncbackDraftFilesTask = require '../tasks/syncback-draft-files-task'
-SyncbackDraftEventsTask = require '../tasks/syncback-draft-events-task'
 SyncbackDraftTask = require '../tasks/syncback-draft-task'
 DestroyDraftTask = require '../tasks/destroy-draft-task'
 
@@ -342,8 +341,6 @@ class DraftStore
   _queueDraftAssetTasks: (draft) =>
     if draft.files.length > 0 or draft.uploads.length > 0
       Actions.queueTask(new SyncbackDraftFilesTask(draft.clientId))
-    if draft.events.length
-      Actions.queueTask(new SyncbackDraftEventsTask(draft.clientId))
 
   _isPopout: ->
     NylasEnv.getWindowType() is "composer"
