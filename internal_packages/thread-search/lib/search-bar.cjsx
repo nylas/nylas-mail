@@ -8,7 +8,7 @@ classNames = require 'classnames'
  FocusedPerspectiveStore} = require 'nylas-exports'
 {Menu, RetinaImg, KeyCommandsRegion} = require 'nylas-component-kit'
 
-SearchSuggestionStore = require './search-suggestion-store'
+SearchStore = require './search-store'
 SearchActions = require './search-actions'
 
 class SearchBar extends React.Component
@@ -21,7 +21,7 @@ class SearchBar extends React.Component
 
   componentDidMount: =>
     @usub = []
-    @usub.push SearchSuggestionStore.listen @_onChange
+    @usub.push SearchStore.listen @_onChange
     @usub.push WorkspaceStore.listen =>
       @setState(focused: false) if @state.focused
 
@@ -39,6 +39,22 @@ class SearchBar extends React.Component
     inputClass = classNames
       'empty': @state.query.length is 0
 
+    loupeImg = if @state.isSearching
+      <RetinaImg
+        className="search-accessory search loading"
+        name="inline-loading-spinner.gif"
+        key="accessory"
+        mode={RetinaImg.Mode.ContentPreserve}
+      />
+    else
+      <RetinaImg
+        className="search-accessory search"
+        name="searchloupe.png"
+        key="accessory"
+        mode={RetinaImg.Mode.ContentDark}
+        onClick={@_doSearch}
+      />
+
     headerComponents = [
       <input type="text"
              ref="searchInput"
@@ -48,18 +64,13 @@ class SearchBar extends React.Component
              value={@state.query}
              onChange={@_onValueChange}
              onFocus={@_onFocus}
-             onBlur={@_onBlur} />
-
-      <RetinaImg className="search-accessory search"
-                 name="searchloupe.png"
-                 key="accessory"
-                 mode={RetinaImg.Mode.ContentDark}
-                 onClick={@_doSearch} />
+             onBlur={@_onBlur} />,
+      loupeImg,
       <RetinaImg className="search-accessory clear"
                  name="searchclear.png"
                  key="clear"
                  mode={RetinaImg.Mode.ContentDark}
-                 onClick={@_onClearSearch} />
+                 onClick={@_onClearSearch} />,
     ]
 
     itemContentFunc = (item) =>
@@ -128,10 +139,12 @@ class SearchBar extends React.Component
   _doSearch: =>
     SearchActions.querySubmitted(@state.query)
 
-  _onChange: => @setState @_getStateFromStores()
+  _onChange: =>
+    @setState @_getStateFromStores()
 
   _getStateFromStores: =>
-    query: SearchSuggestionStore.query()
-    suggestions: SearchSuggestionStore.suggestions()
+    query: SearchStore.query()
+    suggestions: SearchStore.suggestions()
+    isSearching: SearchStore.isSearching()
 
 module.exports = SearchBar

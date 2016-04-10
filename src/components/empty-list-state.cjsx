@@ -119,14 +119,10 @@ class EmptyListState extends React.Component
     ContentComponent = EmptyPerspectiveState
     current = FocusedPerspectiveStore.current()
 
-    messageOverride = if current.isSearch()
-      "No search results available"
-    else
-      "Nothing to display"
-
+    messageOverride = current.emptyMessage()
     if @state.syncing
       messageOverride = "Please wait while we prepare your mailbox."
-    else if FocusedPerspectiveStore.current().isInbox()
+    else if current.isInbox()
       ContentComponent = EmptyInboxState
 
     classes = classNames

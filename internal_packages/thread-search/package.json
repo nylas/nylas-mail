@@ -1,8 +1,8 @@
 {
-  "name": "search-bar",
+  "name": "thread-search",
   "version": "0.1.0",
   "main": "./lib/main",
-  "description": "Search bar using React",
+  "description": "Search for threads",
   "license": "GPL-3.0",
   "private": true,
   "engines": {
