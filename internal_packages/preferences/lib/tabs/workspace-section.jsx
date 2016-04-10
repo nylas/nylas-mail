@@ -110,7 +110,6 @@ class LaunchSystemStartItem extends React.Component {
 
 }
 
-
 const WorkspaceSection = (props) => {
   return (
     <section>
@@ -134,6 +133,12 @@ const WorkspaceSection = (props) => {
         configSchema={props.configSchema.properties.workspace.properties.showUnreadForAllCategories}
         keyPath="core.workspace.showUnreadForAllCategories"
         config={props.config}
+      />
+
+      <ConfigSchemaItem
+        configSchema={this.props.configSchema.properties.workspace.properties.use24HourClock}
+        keyPath="core.workspace.use24HourClock"
+        config={this.props.config}
       />
 
       <ConfigSchemaItem

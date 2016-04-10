@@ -155,6 +155,22 @@ const DateUtils = {
     }
     return moment(date)
   },
+
+  getTimeFormat(opts) {
+    const use24HourClock = NylasEnv.config.get('core.workspace.use24HourClock')
+    let timeFormat = use24HourClock ? "HH:mm" : "h:mm"
+    if (opts && opts.seconds) {
+      timeFormat += ":ss"
+    }
+    if (!use24HourClock && opts && opts.upperCase) {
+      timeFormat += " A"
+    }
+    if (opts && opts.timeZone) {
+      timeFormat += " z"
+    }
+
+    return timeFormat
+  },
 };
 
 export default DateUtils
