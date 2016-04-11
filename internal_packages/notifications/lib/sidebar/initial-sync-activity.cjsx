@@ -29,7 +29,7 @@ class InitialSyncActivity extends React.Component
     incomplete = 0
 
     for acctId, state of @state.sync
-      for modelName of NylasSyncStatusStore.ModelsForSync
+      for modelName in NylasSyncStatusStore.ModelsForSync
         modelState = state[modelName]
         continue unless modelState
 
