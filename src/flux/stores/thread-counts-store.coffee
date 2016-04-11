@@ -20,12 +20,11 @@ SetCountsQuery = ->
   REPLACE INTO `ThreadCounts` (category_id, unread, total)
   SELECT
     `ThreadCategory`.`value` as category_id,
-    SUM(unread) as unread,
+    SUM(`ThreadCategory`.`unread`) as unread,
     COUNT(*) as total
-  FROM `Thread`
-  INNER JOIN `ThreadCategory` ON `Thread`.`id` = `ThreadCategory`.`id`
+  FROM `ThreadCategory`
   WHERE
-    `Thread`.in_all_mail = 1
+    `ThreadCategory`.in_all_mail = 1
   GROUP BY `ThreadCategory`.`value`;
   """
 
@@ -35,13 +34,12 @@ UpdateCountsQuery = (objectIds, operator) ->
   REPLACE INTO `ThreadCounts` (category_id, unread, total)
   SELECT
     `ThreadCategory`.`value` as category_id,
-    COALESCE((SELECT unread FROM `ThreadCounts` WHERE category_id = `ThreadCategory`.`value`), 0) #{operator} SUM(unread) as unread,
+    COALESCE((SELECT unread FROM `ThreadCounts` WHERE category_id = `ThreadCategory`.`value`), 0) #{operator} SUM(`ThreadCategory`.`unread`) as unread,
     COALESCE((SELECT total  FROM `ThreadCounts` WHERE category_id = `ThreadCategory`.`value`), 0) #{operator} COUNT(*) as total
-  FROM `Thread`
-  INNER JOIN `ThreadCategory` ON `Thread`.`id` = `ThreadCategory`.`id`
+  FROM `ThreadCategory`
   WHERE
-    `Thread`.id IN (#{objectIdsString}) AND
-    `Thread`.in_all_mail = 1
+    `ThreadCategory`.id IN (#{objectIdsString}) AND
+    `ThreadCategory`.in_all_mail = 1
   GROUP BY `ThreadCategory`.`value`
   """
 
