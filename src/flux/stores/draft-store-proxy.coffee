@@ -8,6 +8,8 @@ CoffeeHelpers = require '../coffee-helpers'
 
 _ = require 'underscore'
 
+MetadataChangePrefix = 'metadata.'
+
 ###
 Public: As the user interacts with the draft, changes are accumulated in the
 DraftChangeSet associated with the store proxy. The DraftChangeSet does two things:
@@ -44,6 +46,12 @@ class DraftChangeSet
     clearTimeout(@_timer) if @_timer
     @_timer = setTimeout(@commit, 10000)
 
+  addPluginMetadata: (pluginId, metadata) =>
+    changes = {}
+    console.log("Add plugin metadata: #{JSON.stringify(metadata)}")
+    changes["#{MetadataChangePrefix}#{pluginId}"] = metadata
+    @add(changes)
+
   commit: ({noSyncback}={}) =>
     @_commitChain = @_commitChain.finally =>
       if Object.keys(@_pending).length is 0
@@ -58,8 +66,12 @@ class DraftChangeSet
 
   applyToModel: (model) =>
     if model
-      model[key] = val for key, val of @_saving
-      model[key] = val for key, val of @_pending
+      changesToApply = _.pairs(@_saving).concat(_.pairs(@_pending))
+      for [key, val] in changesToApply
+        if key.startsWith(MetadataChangePrefix)
+          model.applyPluginMetadata(key.split(MetadataChangePrefix).pop(), val)
+        else
+          model[key] = val
     model
 
 ###
