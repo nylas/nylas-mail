@@ -4,15 +4,31 @@
 .calendar-event {
   .rm-time {
     font-size: 13px;
-    padding: 5px 5px 10px 10px;
-    margin-right: -4px;
-    margin-top: -4px;
+    padding: 3px 5px 10px 10px;
+    position: absolute;
+    right: 0;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    text-align: right;
     cursor: default;
     color: @text-color-very-subtle;
     &:hover {
       color: @text-color-subtle;
     }
   }
+
+  .event-injected-components {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+  }
+}
+
+.scheduler-picker {
+  min-width: 175px;
 }
 
 .new-event-card-container {

@@ -46,8 +46,8 @@ export default class SchedulerComposerExtension extends ComposerExtension {
 
   static _prepareEvent(inEvent, draft, metadata) {
     const event = inEvent
-    if (!event.title || event.title.length === 0) {
-      event.title = draft.subject;
+    if (!event.title) {
+      event.title = "";
     }
 
     event.participants = draft.participants().map((contact) => {

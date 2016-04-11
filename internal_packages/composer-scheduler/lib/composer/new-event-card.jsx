@@ -206,13 +206,6 @@ export default class NewEventCard extends React.Component {
     )
   }
 
-  _onBlurTitle = (event) => {
-    this._focusedTitle = false;
-    if ((event.target.value || '').length === 0) {
-      this.props.onChange({title: this.props.draft.subject});
-    }
-  }
-
   _updateTextarea() {
     if (!this.refs.description) { return }
     const el = ReactDOM.findDOMNode(this.refs.description);
@@ -222,11 +215,6 @@ export default class NewEventCard extends React.Component {
   }
 
   render() {
-    let title = this.props.event.title;
-    if ((title || '').length === 0 && !this._focusedTitle) {
-      title = this.props.draft.subject;
-    }
-
     return (
       <div className="new-event-card">
         <TabGroupRegion>
@@ -236,9 +224,7 @@ export default class NewEventCard extends React.Component {
             <input type="text"
               name="title"
               placeholder="Add an event title"
-              value={title}
-              onFocus={() => {this._focusedTitle = true}}
-              onBlur={this._onBlurTitle}
+              value={this.props.event.title || ""}
               onChange={e => this.props.onChange({title: e.target.value}) }
             />
           </div>

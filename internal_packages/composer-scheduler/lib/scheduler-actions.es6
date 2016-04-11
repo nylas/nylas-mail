@@ -3,8 +3,11 @@ import {Reflux} from 'nylas-exports'
 const SchedulerActions = Reflux.createActions([
   'confirmChoices',
   'changeDuration',
+  'clearProposals',
   'removeProposedTime',
-  'addProposedTime',
+  'addToProposedTimeBlock',
+  'startProposedTimeBlock',
+  'endProposedTimeBlock',
 ])
 
 for (const key in SchedulerActions) {

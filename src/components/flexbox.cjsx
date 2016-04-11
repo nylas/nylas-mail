@@ -27,11 +27,12 @@ class Flexbox extends React.Component
     height: '100%'
 
   render: ->
-    style = _.extend {}, (@props.style || {}),
+    style = _.extend {},
       'flexDirection': @props.direction,
       'position':'relative'
       'display': 'flex'
       'height': @props.height
+    , (@props.style || {})
 
     if @props.inline is true
       style.display = 'inline-flex'

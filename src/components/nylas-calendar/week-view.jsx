@@ -73,8 +73,6 @@ export default class WeekView extends React.Component {
   }
 
   componentDidUpdate() {
-    const weekStart = moment(this.state.startMoment).add(BUFFER_DAYS, 'days').unix()
-    this._scrollTime = weekStart
     this._setIntervalHeight()
     this._ensureHorizontalScrollPos()
   }
@@ -244,16 +242,22 @@ export default class WeekView extends React.Component {
   }
 
   _onClickToday = () => {
-    this.props.changeCurrentMoment(moment())
+    this._onChangeCurrentMoment(moment())
   }
 
   _onClickNextWeek = () => {
     const newMoment = moment(this.props.currentMoment).add(1, 'week')
-    this.props.changeCurrentMoment(newMoment)
+    this._onChangeCurrentMoment(newMoment)
   }
 
   _onClickPrevWeek = () => {
     const newMoment = moment(this.props.currentMoment).subtract(1, 'week')
+    this._onChangeCurrentMoment(newMoment)
+  }
+
+  _onChangeCurrentMoment(newMoment) {
+    const weekStart = moment(newMoment).startOf('day').weekday(0).unix()
+    this._scrollTime = weekStart
     this.props.changeCurrentMoment(newMoment)
   }
 

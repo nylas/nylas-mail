@@ -6,7 +6,7 @@ export default class ProposedTimeCalendarDataSource extends CalendarDataSource {
   buildObservable({startTime, endTime}) {
     const $events = super.buildObservable({startTime, endTime});
     const $proposedTimes = Rx.Observable.fromStore(ProposedTimeCalendarStore)
-      .map((store) => store.timeBlocksAsEvents())
+      .map((store) => store.proposalsAsEvents())
     const $obs = Rx.Observable.combineLatest([$events, $proposedTimes])
       .map(([calEvents, proposedTimes]) => {
         return {events: calEvents.concat(proposedTimes)}
