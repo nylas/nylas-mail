@@ -29,8 +29,12 @@ class InitialSyncActivity extends React.Component
     incomplete = 0
 
     for acctId, state of @state.sync
-      for model, modelState of state
-        incomplete += 1 unless modelState.complete
+      for modelName of NylasSyncStatusStore.ModelsForSync
+        modelState = state[modelName]
+        continue unless modelState
+
+        if not modelState.complete
+          incomplete += 1
         if modelState.count
           count += modelState.count / 1
           fetched += modelState.fetched / 1
