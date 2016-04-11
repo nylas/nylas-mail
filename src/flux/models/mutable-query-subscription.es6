@@ -26,7 +26,11 @@ class MutableQuerySubscription extends QuerySubscription {
     if (!this._query) {
       return
     }
-    this.replaceQuery(this._query.clone().page(start, end))
+
+    const next = this._query.clone().page(start, end);
+    if (!next.range().isEqual(this._query.range())) {
+      this.replaceQuery(next);
+    }
   }
 }
 

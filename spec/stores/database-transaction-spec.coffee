@@ -195,7 +195,7 @@ describe "DatabaseTransaction", ->
     it "should compose a REPLACE INTO query to save the model", ->
       TestModel.configureWithCollectionAttribute()
       @transaction._writeModels([testModelInstance])
-      expect(@performed[0].query).toBe("REPLACE INTO `TestModel` (id,data,client_id,server_id) VALUES (?,?,?,?)")
+      expect(@performed[0].query).toBe("REPLACE INTO `TestModel` (id,data,client_id,server_id,other) VALUES (?,?,?,?,?)")
 
     it "should save the model JSON into the data column", ->
       @transaction._writeModels([testModelInstance])
@@ -228,21 +228,21 @@ describe "DatabaseTransaction", ->
     describe "when the model has collection attributes", ->
       beforeEach ->
         TestModel.configureWithCollectionAttribute()
-        @m = new TestModel(id: 'local-6806434c-b0cd')
+        @m = new TestModel(id: 'local-6806434c-b0cd', other: 'other')
         @m.categories = [new Category(id: 'a'),new Category(id: 'b')]
         @transaction._writeModels([@m])
 
       it "should delete all association records for the model from join tables", ->
         expect(@performed[1].query).toBe('DELETE FROM `TestModelCategory` WHERE `id` IN (\'local-6806434c-b0cd\')')
 
-      it "should insert new association records into join tables in a single query", ->
-        expect(@performed[2].query).toBe('INSERT OR IGNORE INTO `TestModelCategory` (`id`, `value`) VALUES (?,?),(?,?)')
-        expect(@performed[2].values).toEqual(['local-6806434c-b0cd', 'a','local-6806434c-b0cd', 'b'])
+      it "should insert new association records into join tables in a single query, and include queryableBy columns", ->
+        expect(@performed[2].query).toBe('INSERT OR IGNORE INTO `TestModelCategory` (`id`,`value`,`other`) VALUES (?,?,?),(?,?,?)')
+        expect(@performed[2].values).toEqual(['local-6806434c-b0cd', 'a', 'other','local-6806434c-b0cd', 'b', 'other'])
 
     describe "model collection attributes query building", ->
       beforeEach ->
         TestModel.configureWithCollectionAttribute()
-        @m = new TestModel(id: 'local-6806434c-b0cd')
+        @m = new TestModel(id: 'local-6806434c-b0cd', other: 'other')
         @m.categories = []
 
       it "should page association records into multiple queries correctly", ->
@@ -253,7 +253,7 @@ describe "DatabaseTransaction", ->
           i.query.indexOf('INSERT OR IGNORE INTO `TestModelCategory`') == 0
 
         expect(collectionAttributeQueries.length).toBe(1)
-        expect(collectionAttributeQueries[0].values[399]).toEqual('id-199')
+        expect(collectionAttributeQueries[0].values[200*3-2]).toEqual('id-199')
 
       it "should page association records into multiple queries correctly", ->
         @m.categories.push(new Category(id: "id-#{i}")) for i in [0..200]
@@ -263,7 +263,7 @@ describe "DatabaseTransaction", ->
           i.query.indexOf('INSERT OR IGNORE INTO `TestModelCategory`') == 0
 
         expect(collectionAttributeQueries.length).toBe(2)
-        expect(collectionAttributeQueries[0].values[399]).toEqual('id-199')
+        expect(collectionAttributeQueries[0].values[200*3-2]).toEqual('id-199')
         expect(collectionAttributeQueries[1].values[1]).toEqual('id-200')
 
       it "should page association records into multiple queries correctly", ->
@@ -274,9 +274,9 @@ describe "DatabaseTransaction", ->
           i.query.indexOf('INSERT OR IGNORE INTO `TestModelCategory`') == 0
 
         expect(collectionAttributeQueries.length).toBe(2)
-        expect(collectionAttributeQueries[0].values[399]).toEqual('id-199')
+        expect(collectionAttributeQueries[0].values[200*3-2]).toEqual('id-199')
         expect(collectionAttributeQueries[1].values[1]).toEqual('id-200')
-        expect(collectionAttributeQueries[1].values[3]).toEqual('id-201')
+        expect(collectionAttributeQueries[1].values[4]).toEqual('id-201')
 
     describe "when the model has joined data attributes", ->
       beforeEach ->

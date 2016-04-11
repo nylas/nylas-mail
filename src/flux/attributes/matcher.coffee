@@ -83,11 +83,15 @@ class Matcher
       else
         throw new Error("Matcher.evaulate() not sure how to evaluate @{@attr.modelKey} with comparator #{@comparator}")
 
+  joinTableRef: ->
+    "M#{@muid}"
+
   joinSQL: (klass) ->
     switch @comparator
       when 'contains', 'containsAny'
         joinTable = tableNameForJoin(klass, @attr.itemClass)
-        return "INNER JOIN `#{joinTable}` AS `M#{@muid}` ON `M#{@muid}`.`id` = `#{klass.name}`.`id`"
+        joinTableRef = @joinTableRef()
+        return "INNER JOIN `#{joinTable}` AS `#{joinTableRef}` ON `#{joinTableRef}`.`id` = `#{klass.name}`.`id`"
       else
         return false
 
@@ -118,9 +122,9 @@ class Matcher
       when 'startsWith'
         return " RAISE `TODO`; "
       when 'contains'
-        return "`M#{@muid}`.`value` = #{escaped}"
+        return "`#{@joinTableRef()}`.`value` = #{escaped}"
       when 'containsAny'
-        return "`M#{@muid}`.`value` IN #{escaped}"
+        return "`#{@joinTableRef()}`.`value` IN #{escaped}"
       else
         return "`#{klass.name}`.`#{@attr.jsonKey}` #{@comparator} #{escaped}"
 
@@ -233,7 +237,8 @@ class SearchMatcher extends Matcher
 
   joinSQL: (klass) =>
     searchTable = "#{klass.name}Search"
-    return "INNER JOIN `#{searchTable}` AS `M#{@muid}` ON `M#{@muid}`.`content_id` = `#{klass.name}`.`id`"
+    joinTableRef = @joinTableRef()
+    return "INNER JOIN `#{searchTable}` AS `#{joinTableRef}` ON `#{joinTableRef}`.`content_id` = `#{klass.name}`.`id`"
 
   whereSQL: (klass) =>
     searchTable = "#{klass.name}Search"

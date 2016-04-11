@@ -67,6 +67,8 @@ class Thread extends ModelWithMetadata {
     'categories': Attributes.Collection({
       queryable: true,
       modelKey: 'categories',
+      joinOnField: 'id',
+      joinQueryableBy: ['inAllMail', 'lastMessageReceivedTimestamp', 'lastMessageSentTimestamp', 'unread'],
       itemClass: Category,
     }),
 
@@ -112,8 +114,9 @@ class Thread extends ModelWithMetadata {
     setup: () => [
       'CREATE TABLE IF NOT EXISTS `ThreadCounts` (`category_id` TEXT PRIMARY KEY, `unread` INTEGER, `total` INTEGER)',
       'CREATE UNIQUE INDEX IF NOT EXISTS ThreadCountsIndex ON `ThreadCounts` (category_id DESC)',
-      'CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(last_message_received_timestamp DESC, id)',
-      'CREATE INDEX IF NOT EXISTS ThreadListSentIndex ON Thread(last_message_sent_timestamp DESC, id)',
+
+      'CREATE INDEX IF NOT EXISTS ThreadListCategoryIndex ON `ThreadCategory`(last_message_received_timestamp DESC, value, in_all_mail, unread, id)',
+      'CREATE INDEX IF NOT EXISTS ThreadListCategorySentIndex ON `ThreadCategory`(last_message_sent_timestamp DESC, value, in_all_mail, unread, id)',
       'CREATE INDEX IF NOT EXISTS ThreadStarIndex ON Thread(account_id, starred)',
     ],
   }

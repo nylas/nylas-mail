@@ -29,9 +29,9 @@ describe "DatabaseSetupQueryBuilder", ->
       TestModel.configureWithCollectionAttribute()
       queries = @builder.setupQueriesForTable(TestModel)
       expected = [
-        'CREATE TABLE IF NOT EXISTS `TestModel` (id TEXT PRIMARY KEY,data BLOB,client_id TEXT,server_id TEXT)',
+        'CREATE TABLE IF NOT EXISTS `TestModel` (id TEXT PRIMARY KEY,data BLOB,client_id TEXT,server_id TEXT,other TEXT)',
         'CREATE UNIQUE INDEX IF NOT EXISTS `TestModel_id` ON `TestModel` (`id`)',
-        'CREATE TABLE IF NOT EXISTS `TestModelCategory` (id TEXT KEY, `value` TEXT)'
+        'CREATE TABLE IF NOT EXISTS `TestModelCategory` (id TEXT KEY,`value` TEXT,other TEXT)'
         'CREATE INDEX IF NOT EXISTS `TestModelCategory_id` ON `TestModelCategory` (`id` ASC)'
         'CREATE UNIQUE INDEX IF NOT EXISTS `TestModelCategory_val_id` ON `TestModelCategory` (`value` ASC, `id` ASC)',
       ]

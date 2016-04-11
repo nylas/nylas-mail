@@ -1,4 +1,4 @@
-{Matcher, AttributeJoinedData} = require '../attributes'
+{Matcher, AttributeJoinedData, AttributeCollection} = require '../attributes'
 QueryRange = require './query-range'
 Utils = require './utils'
 _ = require 'underscore'
@@ -271,7 +271,43 @@ class ModelQuery
       limit += " OFFSET #{@_range.offset}"
 
     distinct = if @_distinct then ' DISTINCT' else ''
-    "SELECT#{distinct} #{result} FROM `#{@_klass.name}` #{@_whereClause()} #{order} #{limit}"
+
+    joins = @_matchers.filter (matcher) -> matcher.attr instanceof AttributeCollection
+    if joins.length is 1 and @_canSubselectForJoin(joins[0])
+      subSql = @_subselectSQL(joins[0], @_matchers, order, limit)
+      return "SELECT#{distinct} #{result} FROM `#{@_klass.name}` WHERE `id` IN (#{subSql}) #{order}"
+    else
+      return "SELECT#{distinct} #{result} FROM `#{@_klass.name}` #{@_whereClause()} #{order} #{limit}"
+
+  # If one of our matchers requires a join, and the attribute configuration lists
+  # all of the other order and matcher attributes in `joinQueryableBy`, it means
+  # we can make the entire WHERE and ORDER BY on a sub-query, which improves
+  # performance considerably vs. finding all results from the join table and then
+  # doing the ordering after pulling the results in the main table.
+  #
+  # Note: This is currently only intended for use in the thread list
+  #
+  _canSubselectForJoin: (matcher) ->
+    joinAttribute = matcher.attribute()
+    return false unless joinAttribute.joinOnField is 'id'
+
+    allMatchersOnJoinTable = _.every @_matchers, (m) ->
+      m is matcher or joinAttribute.joinQueryableBy.indexOf(m.attr.modelKey) isnt -1
+    allOrdersOnJoinTable = _.every @_orders, (o) ->
+      joinAttribute.joinQueryableBy.indexOf(o.attr.modelKey) isnt -1
+
+    return allMatchersOnJoinTable and allOrdersOnJoinTable
+
+  _subselectSQL: (returningMatcher, subselectMatchers, order, limit) ->
+    returningAttribute = returningMatcher.attribute()
+
+    table = Utils.tableNameForJoin(@_klass, returningAttribute.itemClass)
+    wheres = _.compact subselectMatchers.map (c) => c.whereSQL(@_klass)
+
+    innerSQL = "SELECT `id` FROM `#{table}` WHERE #{wheres.join(' AND ')} #{order} #{limit}"
+    innerSQL = innerSQL.replace(new RegExp("`#{@_klass.name}`", 'g'), "`#{table}`")
+    innerSQL = innerSQL.replace(new RegExp("`#{returningMatcher.joinTableRef()}`", 'g'), "`#{table}`")
+    innerSQL
 
   _whereClause: ->
     joins = []
