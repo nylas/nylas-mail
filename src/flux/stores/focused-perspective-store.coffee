@@ -9,15 +9,12 @@ class FocusedPerspectiveStore extends NylasStore
   constructor: ->
     @_current = MailboxPerspective.forNothing()
 
-    CategoryStore.whenCategoriesReady().then =>
-      @listenTo CategoryStore, @_onCategoryStoreChanged
-      @listenTo Actions.focusMailboxPerspective, @_onFocusPerspective
-      @listenTo Actions.focusDefaultMailboxPerspectiveForAccounts, @_onFocusAccounts
+    @listenTo CategoryStore, @_onCategoryStoreChanged
+    @listenTo Actions.focusMailboxPerspective, @_onFocusPerspective
+    @listenTo Actions.focusDefaultMailboxPerspectiveForAccounts, @_onFocusAccounts
 
-      perspective = @_initCurrentPerspective(NylasEnv.savedState.perspective)
-      @_setPerspective(perspective)
 
-  _initCurrentPerspective: (savedPerspective, accounts = AccountStore.accounts()) =>
+  _createDefaultPerspective: (savedPerspective, accounts = AccountStore.accounts()) =>
     if savedPerspective
       perspective = MailboxPerspective.fromJSON(savedPerspective)
       if perspective
@@ -32,7 +29,8 @@ class FocusedPerspectiveStore extends NylasStore
 
   _onCategoryStoreChanged: ->
     if @_current.isEqual(MailboxPerspective.forNothing())
-      @_setPerspective(@_defaultPerspective())
+      perspective = @_createDefaultPerspective(NylasEnv.savedState.perspective)
+      @_setPerspective(perspective)
     else
       accountIds = @_current.accountIds
       categories = @_current.categories()
