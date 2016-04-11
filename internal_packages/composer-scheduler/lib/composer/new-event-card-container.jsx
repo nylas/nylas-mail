@@ -69,13 +69,13 @@ export default class NewEventCardContainer extends Component {
   }
 
   _updateEvent = (newData) => {
-    const draft = this._session.draft()
-    const metadata = draft.metadataForPluginId(PLUGIN_ID)
     const newEvent = Object.assign(this._getEvent().clone(), newData)
-    const pendingEventJSON = newEvent.toJSON()
-    if (!Utils.isEqual(pendingEventJSON, metadata.pendingEvent)) {
-      metadata.pendingEvent = pendingEventJSON;
-      Actions.setMetadata(draft, PLUGIN_ID, metadata);
+    const newEventJSON = newEvent.toJSON();
+
+    const metadata = this._session.draft().metadataForPluginId(PLUGIN_ID);
+    if (!Utils.isEqual(metadata.pendingEvent, newEventJSON)) {
+      metadata.pendingEvent = newEventJSON;
+      this._session.changes.addPluginMetadata(PLUGIN_ID, metadata);
     }
   }
 
@@ -108,4 +108,3 @@ export default class NewEventCardContainer extends Component {
     )
   }
 }
-

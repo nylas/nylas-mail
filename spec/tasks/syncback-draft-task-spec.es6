@@ -191,7 +191,7 @@ describe("SyncbackDraftTask", () => {
       }));
     });
 
-    it("should not save metadata associated to the draft when the draft has been already saved to the api", () => {
+    it("should save metadata associated with the draft when the draft has been already saved to the api", () => {
       const draft = remoteDraft();
       draft.pluginMetadata = [{pluginId: 1, value: {a: 1}}];
       const task = new SyncbackDraftTask(draft.clientId);
@@ -201,11 +201,11 @@ describe("SyncbackDraftTask", () => {
       });
       spyOn(Actions, 'queueTask');
       waitsForPromise(() => task.applyResponseToDraft(draft).then(() => {
-        expect(Actions.queueTask).not.toHaveBeenCalled();
+        expect(Actions.queueTask).toHaveBeenCalled();
       }));
     });
 
-    it("should save metadata associated to the draft when the draft is syncbacked for the first time", () => {
+    it("should save metadata associated with the draft when the draft is syncbacked for the first time", () => {
       const draft = localDraft();
       draft.pluginMetadata = [{pluginId: 1, value: {a: 1}}];
       const task = new SyncbackDraftTask(draft.clientId);

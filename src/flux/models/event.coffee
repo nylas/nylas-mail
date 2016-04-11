@@ -102,61 +102,31 @@ class Event extends Model
       modelKey: 'end'
       jsonKey: '_end'
 
-  _convertTime: ({time}) ->
-    return {start: time, end: time}
-
-  _convertTimespan: ({start_time, end_time}) ->
-    DEFAULT_DURATION = 60*60 # 60 minutes
-    if start_time and end_time
-      return {start: start_time, end: end_time}
-    else if start_time and not end_time
-      return {start: start_time, end: start_time + DEFAULT_DURATION}
-    else if not start_time and end_time
-      return {start: end_time - DEFAULT_DURATION, end: end_time}
-    else
-      return {start: 0, end: DEFAULT_DURATION}
-
   # We use moment to parse the date so we can more easily pick up the
   # current timezone of the current locale.
   #
   # We also create a start and end times that span the full day without
   # bleeding into the next.
-  _convertDate: ({date}) ->
+  _unixRangeForDatespan: (start_date, end_date) ->
     return {
-      start: moment(date).unix()
-      end: moment(date).add(1, 'day').subtract(1, 'second').unix()
+      start: moment(start_date).unix()
+      end: moment(end_date).add(1, 'day').subtract(1, 'second').unix()
     }
-
-  _convertDatespan: ({start_date, end_date}) ->
-    DEFAULT_DAY = 60*60*24
-    if start_date and end_date
-      return {
-        start: moment(start_date).unix()
-        end: moment(end_date).add(1, 'day').subtract(1, 'second').unix()
-      }
-    else if start_date and not end_date
-      return @_convertDate({date: start_date})
-    else if not start_date and end_date
-      return @_convertDate({date: end_date})
-    else
-      return {start: 0, end: DEFAULT_DAY}
 
   fromJSON: (json) ->
     super(json)
 
     return @ unless @when
 
-    switch @when.object
-      when "time"
-        {@start, @end} = @_convertTime(@when)
-      when "timespan"
-        {@start, @end} = @_convertTimespan(@when)
-      when "date"
-        {@start, @end} = @_convertDate(@when)
-      when "datespan"
-        {@start, @end} = @_convertDatespan(@when)
-      else
-        return @
+    if @when.time
+      {@start, @end} = {start: @when.time, end: @when.time}
+    else if @when.start_time and @when.end_time
+      {@start, @end} = {start: @when.start_time, end: @when.end_time}
+    else if @when.date
+      {@start, @end} = @_unixRangeForDatespan(@when.date, @when.date)
+    else if @when.start_date and @when.end_date
+      {@start, @end} = @_unixRangeForDatespan(@when.start_date, @when.end_date)
+
     return @
 
   fromDraft: (draft) ->
