@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactDOM from 'react-dom'
 import {
   Event,
   Actions,
@@ -8,12 +9,15 @@ import {
   DraftStore,
   DatabaseStore,
 } from 'nylas-exports'
-import {RetinaImg} from 'nylas-component-kit'
+import {Menu, RetinaImg} from 'nylas-component-kit'
 import {PLUGIN_ID, PLUGIN_NAME} from '../scheduler-constants'
 
 import moment from 'moment'
 // moment-round upon require patches `moment` with new functions.
 require('moment-round')
+
+const MEETING_REQUEST = "Send a meeting request…"
+const PROPOSAL = "Propose times to meet…"
 
 export default class SchedulerComposerButton extends React.Component {
   static displayName = "SchedulerComposerButton";
@@ -63,38 +67,50 @@ export default class SchedulerComposerButton extends React.Component {
     return metadata && metadata.pendingEvent
   }
 
+  // Helper method that will render the contents of our popover.
+  _renderPopover() {
+    const headerComponents = [
+      <span>Would you like to:</span>,
+    ];
+    const items = [
+      MEETING_REQUEST,
+      PROPOSAL,
+    ];
+    const idFn = (item) => item
+    return (
+      <Menu
+        className="scheduler-picker"
+        items={items}
+        itemKey={idFn}
+        itemContent={idFn}
+        headerComponents={headerComponents}
+        defaultSelectedIndex={-1}
+        onSelect={this._onSelectItem}
+      />
+    )
+  }
+
+  _onSelectItem = (item) => {
+    this._onCreateEventCard();
+    const draft = this._session.draft()
+    if (item === PROPOSAL) {
+      NylasEnv.newWindow({
+        title: "Calendar",
+        windowType: "calendar",
+        windowProps: {
+          draftClientId: draft.clientId,
+        },
+      });
+    }
+    Actions.closePopover()
+  }
+
   _onClick = () => {
     if (!this._session) { return }
     const draft = this._session.draft()
+    const buttonRect = ReactDOM.findDOMNode(this).getBoundingClientRect()
     NylasAPI.authPlugin(PLUGIN_ID, PLUGIN_NAME, draft.accountId)
-    .then(() => {
-      DatabaseStore.findAll(Calendar, {accountId: draft.accountId})
-      .then((allCalendars) => {
-        if (allCalendars.length === 0) {
-          throw new Error(`Can't create an event. The Account \
-${draft.accountId} has no calendars.`);
-        }
-
-        const cals = allCalendars.filter(c => !c.readOnly);
-
-        if (cals.length === 0) {
-          NylasEnv.showErrorDialog(`This account has no editable \
-calendars. We can't create an event for you. Please make sure you have an \
-editable calendar with your account provider.`);
-          return;
-        }
-
-        const start = moment().ceil(30, 'minutes');
-        const metadata = draft.metadataForPluginId(PLUGIN_ID) || {};
-        metadata.uid = draft.clientId;
-        metadata.pendingEvent = new Event({
-          calendarId: cals[0].id,
-          start: start.unix(),
-          end: moment(start).add(1, 'hour').unix(),
-        }).toJSON();
-        Actions.setMetadata(draft, PLUGIN_ID, metadata);
-      })
-    }).catch((error) => {
+    .catch((error) => {
       let title = "Error"
       let msg = `Unfortunately scheduling is not currently available. \
 Please try again later.\n\nError: ${error}`
@@ -106,7 +122,43 @@ Please try again later.\n\nError: ${error}`
         title = "Offline"
         msg = `Scheduling does not work offline. Please try again when you come back online.`
       }
+      Actions.closePopover()
       NylasEnv.showErrorDialog({title, message: msg});
+    });
+    Actions.openPopover(
+      this._renderPopover(),
+      {originRect: buttonRect, direction: 'up'}
+    )
+  }
+
+  _onCreateEventCard = () => {
+    if (!this._session) { return }
+    const draft = this._session.draft()
+    DatabaseStore.findAll(Calendar, {accountId: draft.accountId})
+    .then((allCalendars) => {
+      if (allCalendars.length === 0) {
+        throw new Error(`Can't create an event. The Account \
+${draft.accountId} has no calendars.`);
+      }
+
+      const cals = allCalendars.filter(c => !c.readOnly);
+
+      if (cals.length === 0) {
+        NylasEnv.showErrorDialog(`This account has no editable \
+calendars. We can't create an event for you. Please make sure you have an \
+editable calendar with your account provider.`);
+        return;
+      }
+
+      const start = moment().ceil(30, 'minutes');
+      const metadata = draft.metadataForPluginId(PLUGIN_ID) || {};
+      metadata.uid = draft.clientId;
+      metadata.pendingEvent = new Event({
+        calendarId: cals[0].id,
+        start: start.unix(),
+        end: moment(start).add(1, 'hour').unix(),
+      }).toJSON();
+      Actions.setMetadata(draft, PLUGIN_ID, metadata);
     })
   }
 
@@ -117,6 +169,11 @@ Please try again later.\n\nError: ${error}`
         title="Add an event…"
       >
       <RetinaImg url="nylas://composer-scheduler/assets/ic-composer-scheduler@2x.png"
+        mode={RetinaImg.Mode.ContentIsMask}
+      />
+      &nbsp;
+      <RetinaImg
+        name="icon-composer-dropdown.png"
         mode={RetinaImg.Mode.ContentIsMask}
       />
     </button>)

@@ -89,6 +89,8 @@ export default class CalendarEvent extends React.Component {
           {this.props.event.title}
         </span>
         <InjectedComponentSet
+          className="event-injected-components"
+          style={{position: "absolute"}}
           matching={{role: "Calendar:Event"}}
           exposedProps={{event: this.props.event}}
           direction="row"

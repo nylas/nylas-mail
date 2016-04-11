@@ -3,7 +3,7 @@ import moment from 'moment'
 import Proposal from './proposal'
 import NylasStore from 'nylas-store'
 import SchedulerActions from './scheduler-actions'
-import {Event} from 'nylas-exports'
+import {Event, Utils} from 'nylas-exports'
 import {CALENDAR_ID} from './scheduler-constants'
 
 // moment-round upon require patches `moment` with new functions.
@@ -26,12 +26,16 @@ class ProposedTimeCalendarStore extends NylasStore {
   ]
 
   activate() {
-    this._proposedTimes = []
+    this._proposals = []
+    this._resetDragBuffer();
     this._pendingSave = false;
-    this._duration = this.DURATIONS[1] // 1 hr
+    this._duration = this.DURATIONS[0] // 30 min
     this.unsubscribers = [
       SchedulerActions.changeDuration.listen(this._onChangeDuration),
-      SchedulerActions.addProposedTime.listen(this._onAddProposedTime),
+      SchedulerActions.clearProposals.listen(this._onClearProposals),
+      SchedulerActions.addToProposedTimeBlock.listen(this._onAddToBlock),
+      SchedulerActions.startProposedTimeBlock.listen(this._onStartBlock),
+      SchedulerActions.endProposedTimeBlock.listen(this._onEndBlock),
       SchedulerActions.removeProposedTime.listen(this._onRemoveProposedTime),
     ]
   }
@@ -48,33 +52,95 @@ class ProposedTimeCalendarStore extends NylasStore {
     return this._duration
   }
 
-  timeBlocks() {
-    return _.groupBy(this._proposedTimes, (t) => {
-      return moment(t).floor(30, 'minutes').valueOf()
-    })
+  _dragBufferAsEvent() {
+    if (!this._dragBuffer.anchor) {
+      return []
+    }
+    const {start, end} = this._dragBuffer
+    return [new Event().fromJSON({
+      title: "Availability Block",
+      calendar_id: CALENDAR_ID,
+      when: {
+        object: "timespan",
+        start_time: start,
+        end_time: end,
+      },
+    })];
   }
 
-  timeBlocksAsEvents() {
-    const blockSize = this._duration.slice(0, 2)
-    return _.map(this.timeBlocks(), (data, start) =>
+  proposalsAsEvents() {
+    return _.map(this._proposals, (p) =>
       new Event().fromJSON({
         title: "Proposed Time",
         calendar_id: CALENDAR_ID,
         when: {
           object: "timespan",
-          start_time: moment(+start).unix(),
-          end_time: moment(+start).add(blockSize[0], blockSize[1]).subtract(1, 'second').unix(),
+          start_time: p.start,
+          end_time: p.end,
         },
       })
-    );
+    ).concat(this._dragBufferAsEvent());
   }
 
-  /**
-   * Gets called with a new time as the user drags their mouse across the
-   * event grid. This gets called on every mouse move and mouseup.
-   */
-  _onAddProposedTime = (newMoment) => {
-    this._proposedTimes.push(newMoment);
+  _convertBufferToProposedTimes() {
+    const bounds = this._dragBuffer;
+    const minMoment = moment.unix(bounds.start);
+    minMoment.floor(30, 'minutes');
+
+    const maxMoment = moment.unix(bounds.end);
+    maxMoment.ceil(30, 'minutes');
+
+    if (maxMoment.isSameOrBefore(minMoment)) { return }
+
+    this._proposals = _.reject(this._proposals, (p) =>
+      Utils.overlapsBounds(bounds, p)
+    )
+
+    const blockSize = this._duration.slice(0, 2)
+    blockSize[0] = parseInt(blockSize[0], 10);
+    const isMinBlockSize = (bounds.end - bounds.start) >= moment.duration.apply(moment, blockSize).as('seconds');
+    while (minMoment.isSameOrBefore(maxMoment)) {
+      const start = minMoment.unix();
+      minMoment.add(blockSize[0], blockSize[1]);
+      const end = minMoment.unix() - 1;
+      if (end >= bounds.end && isMinBlockSize) { break; }
+      this._proposals.push(new Proposal({start, end}))
+    }
+  }
+
+  _resetDragBuffer() {
+    this._dragBuffer = {
+      anchor: null,
+      start: Number.MAX_SAFE_INTEGER,
+      end: 0,
+    }
+  }
+
+  _updateDragBuffer(newT) {
+    const {anchor, start, end} = this._dragBuffer
+    this._dragBuffer = {
+      anchor,
+      start: Math.min(newT.unix(), anchor),
+      end: Math.max(newT.unix(), anchor),
+    }
+    if (this._dragBuffer.start !== start || this._dragBuffer.end !== end) {
+      this.trigger()
+    }
+  }
+
+  _onStartBlock = (newT) => {
+    this._resetDragBuffer();
+    this._dragBuffer.anchor = newT.floor(30, 'minutes').unix()
+  }
+
+  _onAddToBlock = (newT) => {
+    this._updateDragBuffer(newT.round(30, 'minutes'));
+  }
+
+  _onEndBlock = (newT) => {
+    this._updateDragBuffer(newT.ceil(30, 'minutes'));
+    this._convertBufferToProposedTimes()
+    this._resetDragBuffer();
     this.trigger()
   }
 
@@ -83,21 +149,21 @@ class ProposedTimeCalendarStore extends NylasStore {
     this.trigger()
   }
 
+  _onClearProposals = () => {
+    this._proposals = [];
+    this.trigger();
+  }
+
   _onRemoveProposedTime = ({start}) => {
     const startInt = parseInt(start, 10);
-    this._proposedTimes = _.filter(this._proposedTimes, (p) =>
-      p.unix() < startInt || p.unix() > startInt + (30 * 60)
+    this._proposals = _.reject(this._proposals, (p) =>
+      p.start <= startInt && p.end > startInt
     )
     this.trigger()
   }
 
-  timeBlocksAsProposals() {
-    return this.timeBlocksAsEvents().map((e) =>
-      new Proposal({
-        start: e.start,
-        end: e.end,
-      })
-    )
+  proposals() {
+    return this._proposals
   }
 }
 
