@@ -12,4 +12,4 @@ set -e
 echo "---> $(npm --version)"
 echo "---> $(node --version)"
 script/bootstrap
-build/node_modules/.bin/grunt ci --gruntfile build/Gruntfile.coffee --stack --no-color;
+build/node_modules/.bin/grunt ci --verbose --gruntfile build/Gruntfile.coffee --stack --no-color;
