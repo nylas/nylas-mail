@@ -175,8 +175,10 @@ class DatabaseTransaction
     values = []
     marks = []
     ids = []
+    modelsJSONs = []
     for model in models
       json = model.toJSON(joined: false)
+      modelsJSONs.push(json)
       ids.push(model.id)
       values.push(model.id, JSON.stringify(json, Utils.registeredObjectReplacer))
       columnAttributes.forEach (attr) ->
@@ -199,24 +201,36 @@ class DatabaseTransaction
 
       joinMarks = []
       joinedValues = []
-      for model in models
+      joinMarkUnit = "(" + ["?", "?"].concat(attr.joinQueryableBy.map( -> '?')).join(',') + ")"
+      joinQueryableByJSONKeys = attr.joinQueryableBy.map (joinedModelKey) ->
+        klass.attributes[joinedModelKey].jsonKey
+      joinColumns = ['id', 'value'].concat(joinQueryableByJSONKeys)
+
+      # https://www.sqlite.org/limits.html: SQLITE_MAX_VARIABLE_NUMBER
+      valuesPerRow = joinColumns.length
+      rowsPerInsert = Math.floor(600 / valuesPerRow)
+      valuesPerInsert = rowsPerInsert * valuesPerRow
+
+      for model, idx in models
         joinedModels = model[attr.modelKey]
         if joinedModels
           for joined in joinedModels
-            joinMarks.push('(?,?)')
-            joinValue = joined[attr.joinOnField ? "id"]
+            joinValue = joined[attr.joinOnField]
+            joinMarks.push(joinMarkUnit)
             joinedValues.push(model.id, joinValue)
+            for joinedJsonKey in joinQueryableByJSONKeys
+              joinedValues.push(modelsJSONs[idx][joinedJsonKey])
 
       unless joinedValues.length is 0
         # Write no more than 200 items (400 values) at once to avoid sqlite limits
         # 399 values: slices:[0..0]
         # 400 values: slices:[0..0]
         # 401 values: slices:[0..1]
-        slicePageCount = Math.ceil(joinedValues.length / 400) - 1
+        slicePageCount = Math.ceil(joinMarks.length / rowsPerInsert) - 1
         for slice in [0..slicePageCount] by 1
-          [ms, me] = [slice*200, slice*200 + 199]
-          [vs, ve] = [slice*400, slice*400 + 399]
-          promises.push @_query("INSERT OR IGNORE INTO `#{joinTable}` (`id`, `value`) VALUES #{joinMarks[ms..me].join(',')}", joinedValues[vs..ve])
+          [ms, me] = [slice * rowsPerInsert, slice * rowsPerInsert + (rowsPerInsert - 1)]
+          [vs, ve] = [slice * valuesPerInsert, slice * valuesPerInsert + (valuesPerInsert - 1)]
+          promises.push @_query("INSERT OR IGNORE INTO `#{joinTable}` (`#{joinColumns.join('`,`')}`) VALUES #{joinMarks[ms..me].join(',')}", joinedValues[vs..ve])
 
     # For each joined data property stored in another table...
     values = []

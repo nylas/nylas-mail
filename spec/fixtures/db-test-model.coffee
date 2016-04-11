@@ -66,11 +66,15 @@ TestModel.configureWithCollectionAttribute = ->
       queryable: true
       modelKey: 'serverId'
       jsonKey: 'server_id'
+    'other': Attributes.String
+      queryable: true,
+      modelKey: 'other'
     'categories': Attributes.Collection
-      queryable: true
+      queryable: true,
       modelKey: 'categories'
-      itemClass: Category
-
+      itemClass: Category,
+      joinOnField: 'id',
+      joinQueryableBy: ['other'],
 
 TestModel.configureWithJoinedDataAttribute = ->
   TestModel.additionalSQLiteConfig = undefined

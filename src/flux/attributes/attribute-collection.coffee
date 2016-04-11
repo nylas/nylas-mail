@@ -32,10 +32,11 @@ The value of this attribute is always an array of other model objects.
 Section: Database
 ###
 class AttributeCollection extends Attribute
-  constructor: ({modelKey, jsonKey, itemClass, joinOnField}) ->
+  constructor: ({modelKey, jsonKey, itemClass, joinOnField, joinQueryableBy}) ->
     super
     @itemClass = itemClass
     @joinOnField = joinOnField
+    @joinQueryableBy = joinQueryableBy || []
     @
 
   toJSON: (vals) ->

@@ -16,6 +16,19 @@ class DatabaseSetupQueryBuilder
       queries = queries.concat @setupQueriesForTable(klass)
     return queries
 
+  analyzeQueries: ->
+    queries = []
+    for key, klass of DatabaseObjectRegistry.classMap()
+      attributes = _.values(klass.attributes)
+      collectionAttributes = _.filter attributes, (attr) ->
+        attr.queryable && attr instanceof AttributeCollection
+
+      queries.push("ANALYZE `#{klass.name}`")
+      collectionAttributes.forEach (attribute) ->
+        queries.push("ANALYZE `#{tableNameForJoin(klass, attribute.itemClass)}`")
+
+    return queries
+
   setupQueriesForTable: (klass) =>
     attributes = _.values(klass.attributes)
     queries = []
@@ -40,12 +53,17 @@ class DatabaseSetupQueryBuilder
       attr.queryable && attr instanceof AttributeCollection
     collectionAttributes.forEach (attribute) ->
       joinTable = tableNameForJoin(klass, attribute.itemClass)
-      queries.push("CREATE TABLE IF NOT EXISTS `#{joinTable}` (id TEXT KEY, `value` TEXT)")
+      joinColumns = attribute.joinQueryableBy.map (name) ->
+        klass.attributes[name].columnSQL()
+      joinColumns.unshift('id TEXT KEY', '`value` TEXT')
+
+      queries.push("CREATE TABLE IF NOT EXISTS `#{joinTable}` (#{joinColumns.join(',')})")
       queries.push("CREATE INDEX IF NOT EXISTS `#{joinTable.replace('-', '_')}_id` ON `#{joinTable}` (`id` ASC)")
       queries.push("CREATE UNIQUE INDEX IF NOT EXISTS `#{joinTable.replace('-', '_')}_val_id` ON `#{joinTable}` (`value` ASC, `id` ASC)")
 
     joinedDataAttributes = _.filter attributes, (attr) ->
       attr instanceof AttributeJoinedData
+
     joinedDataAttributes.forEach (attribute) ->
       queries.push("CREATE TABLE IF NOT EXISTS `#{attribute.modelTable}` (id TEXT PRIMARY KEY, `value` TEXT)")
 

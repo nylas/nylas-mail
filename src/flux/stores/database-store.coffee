@@ -16,7 +16,7 @@ DatabaseTransaction = require './database-transaction'
 
 {ipcRenderer} = require 'electron'
 
-DatabaseVersion = 22
+DatabaseVersion = 23
 DatabasePhase =
   Setup: 'setup'
   Ready: 'ready'
@@ -115,6 +115,7 @@ class DatabaseStore extends NylasStore
         @_checkDatabaseVersion {allowNotSet: true}, =>
           @_runDatabaseSetup =>
             app.setDatabasePhase(DatabasePhase.Ready)
+            setTimeout(@_runDatabaseAnalyze, 60 * 1000)
 
     else if phase is DatabasePhase.Ready
       @_openDatabase =>
@@ -203,6 +204,13 @@ class DatabaseStore extends NylasStore
             catch err
               console.log("Could not re-import mail rules: #{err}")
           ready()
+
+  _runDatabaseAnalyze: =>
+    builder = new DatabaseSetupQueryBuilder()
+    async.each builder.analyzeQueries(), (query, callback) =>
+      @_db.run(query, [], callback)
+    , (err) =>
+      console.log("Completed ANALYZE of database")
 
   _handleSetupError: (err) =>
     NylasEnv.reportError(err)
