@@ -56,6 +56,7 @@ Utils =
   timeZone: tz
 
   shortTimeString: (time) ->
+    return "" unless time
     diff = moment().diff(time, 'days', true)
     if diff <= 1
       format = "h:mm a"
@@ -66,6 +67,7 @@ Utils =
     moment(time).format(format)
 
   fullTimeString: (time) ->
+    return "" unless time
     moment(time).tz(Utils.timeZone).format("dddd, MMMM Do YYYY, h:mm:ss a z")
 
   fastOmit: (props, without) ->
