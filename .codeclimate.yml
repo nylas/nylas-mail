@@ -1,0 +1,24 @@
+engines:
+  brakeman:
+    enabled: true
+  bundler-audit:
+    enabled: true
+  csslint:
+    enabled: true
+  coffeelint:
+    enabled: true
+  duplication:
+    enabled: false
+  eslint:
+    enabled: true
+  fixme:
+    enabled: true
+  phpmd:
+    enabled: false
+  radon:
+    enabled: false
+  rubocop:
+    enabled: false
+exclude_paths:
+- docs/**/*
+- examples/**/*
