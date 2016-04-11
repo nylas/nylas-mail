@@ -319,7 +319,7 @@ class AccountSettingsPage extends React.Component
     data.provider = @state.provider.name
 
     # if there's an account with this email, get the ID for it to notify the backend of re-auth
-    account = AccountStore.accountForEmail(email)
+    account = AccountStore.accountForEmail(data.email)
     reauthParam = if account then "&reauth=#{account.id}" else ""
 
     # handle special case for exchange/outlook/hotmail username field
