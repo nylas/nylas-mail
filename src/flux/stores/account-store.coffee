@@ -80,10 +80,9 @@ class AccountStore extends NylasStore
   # Inbound Events
 
   _onUpdateAccount: (id, updated) =>
-    return unless NylasEnv.isMainWindow()
     idx = _.findIndex @_accounts, (a) -> a.id is id
     account = @_accounts[idx]
-    return if !account or _.isEqual(account, updated)
+    return unless account
     account = _.extend(account, updated)
     @_caches = {}
     @_accounts[idx] = account
