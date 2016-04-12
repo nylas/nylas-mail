@@ -122,8 +122,11 @@ export default class ProposedTimePicker extends React.Component {
   }
 
   _onCalendarMouseUp({time, currentView}) {
-    if (!time || currentView !== NylasCalendar.WEEK_VIEW) { return }
-    SchedulerActions.endProposedTimeBlock(time);
+    if (currentView !== NylasCalendar.WEEK_VIEW) { return }
+    if (time) {
+      SchedulerActions.addToProposedTimeBlock(time);
+    }
+    SchedulerActions.endProposedTimeBlock();
     return
   }
 
