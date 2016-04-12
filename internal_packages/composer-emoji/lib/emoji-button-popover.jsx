@@ -137,9 +137,7 @@ class EmojiButtonPopover extends React.Component {
         categoryPositions[category].top = verticalPos;
         verticalPos += height;
         categoryPositions[category].bottom = verticalPos;
-        if (category !== 'People') {
-          verticalPos += 24;
-        }
+        verticalPos += 24;
       }
     }
     return {
