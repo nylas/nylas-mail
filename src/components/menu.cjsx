@@ -24,7 +24,6 @@ class MenuItem extends React.Component
   ###
   @propTypes:
     divider: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.bool])
-    key: React.PropTypes.string
     selected: React.PropTypes.bool
     checked: React.PropTypes.bool
 
@@ -39,7 +38,7 @@ class MenuItem extends React.Component
         "item": true
         "selected": @props.selected
         "checked": @props.checked
-      <div className={className} key={@props.key} onMouseDown={@props.onMouseDown}>
+      <div className={className} onMouseDown={@props.onMouseDown}>
         {@props.content}
       </div>
 

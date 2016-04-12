@@ -170,7 +170,7 @@ describe('EditableList', ()=> {
       const item = findDOMNode(makeItem('item 1', 0));
       expect(item.className.indexOf('selected')).toEqual(-1);
       expect(item.className.indexOf('editable-item')).not.toEqual(-1);
-      expect(item.childNodes[0].textContent).toEqual('item 1');
+      expect(item.innerText).toEqual('item 1');
     });
 
     it('renders correctly when item is component', ()=> {
