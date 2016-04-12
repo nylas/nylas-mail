@@ -56,9 +56,7 @@ export default categorizedEmojiList = {
     'cold_sweat',
     'hushed',
     'frowning',
-    'anguished'
-  ],
-  'More People': [
+    'anguished',
     'cry',
     'disappointed_relieved',
     'sleepy',
