@@ -4,6 +4,7 @@ import _ from 'underscore';
 
 import {DatabaseStore} from 'nylas-exports';
 import EmojiActions from './emoji-actions';
+import emojiData from './emoji-data';
 
 const EmojiJSONBlobKey = 'emoji';
 
@@ -37,6 +38,17 @@ class EmojiStore extends NylasStore {
       return sortedEmojiNames.slice(0, 32);
     }
     return sortedEmojiNames;
+  }
+
+  getImagePath(emojiName) {
+    for (const emoji of emojiData) {
+      if (emoji.short_names.indexOf(emojiName) !== -1) {
+        if (process.platform === "darwin") {
+          return `images/composer-emoji/apple/${emoji.image}`;
+        }
+        return `images/composer-emoji/twitter/${emoji.image}`;
+      }
+    }
   }
 
   _onUseEmoji = (emoji) => {

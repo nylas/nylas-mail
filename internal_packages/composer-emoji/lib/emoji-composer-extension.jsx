@@ -1,8 +1,9 @@
-import {DOMUtils, ComposerExtension} from 'nylas-exports';
+import {DOMUtils, ComposerExtension, RegExpUtils} from 'nylas-exports';
+
+import EmojiStore from './emoji-store';
 import EmojiActions from './emoji-actions';
 import EmojiPicker from './emoji-picker';
 import emoji from 'node-emoji';
-import missingEmojiList from './missing-emoji';
 
 
 class EmojiComposerExtension extends ComposerExtension {
@@ -133,16 +134,16 @@ class EmojiComposerExtension extends ComposerExtension {
 
   static applyTransformsToDraft = ({draft}) => {
     const nextDraft = draft.clone();
-    nextDraft.body = nextDraft.body.replace(/<img class="missing-emoji ([a-zA-Z0-9-_]*)" [^<]+>/g, (match, emojiName) =>
-      `<span class="broken-emoji ${emojiName}">${emoji.get(emojiName)}</span>`
+    nextDraft.body = nextDraft.body.replace(/<img class="emoji ([a-zA-Z0-9-_]*)" [^<]+>/g, (match, emojiName) =>
+      emoji.get(emojiName)
     );
     return nextDraft;
   }
 
   static unapplyTransformsToDraft = ({draft}) => {
     const nextDraft = draft.clone();
-    nextDraft.body = nextDraft.body.replace(/<span class="broken-emoji ([a-zA-Z0-9-_]*)">[^<]+<\/span>/g, (match, emojiName) =>
-      `<img class="missing-emoji ${emojiName}" src="images/composer-emoji/missing-emoji/${emojiName}.png" width="14" height="14" style="margin-top: -5px;">`
+    nextDraft.body = nextDraft.body.replace(RegExpUtils.emojiRegex(), (match) =>
+      `<img class="emoji ${emoji.which(match)}" src="${EmojiStore.getImagePath(emoji.which(match))}" width="14" height="14" style="margin-top: -5px;">`
     );
     return nextDraft;
   }
@@ -205,17 +206,13 @@ class EmojiComposerExtension extends ComposerExtension {
       }
     }
     const emojiChar = emoji.get(emojiName);
-    if (process.platform === "darwin" && missingEmojiList.indexOf(emojiName) !== -1) {
-      const html = `<img
-                      class="missing-emoji ${emojiName}"
-                      src="images/composer-emoji/missing-emoji/${emojiName}.png"
-                      width="14"
-                      height="14"
-                      style="margin-top: -5px;">`;
-      editor.insertHTML(html, {selectInsertion: false});
-    } else {
-      editor.insertText(emojiChar);
-    }
+    const html = `<img
+                    class="emoji ${emojiName}"
+                    src="${EmojiStore.getImagePath(emojiName)}"
+                    width="14"
+                    height="14"
+                    style="margin-top: -5px;">`;
+    editor.insertHTML(html, {selectInsertion: false});
     EmojiActions.useEmoji({emojiName: emojiName, emojiChar: emojiChar});
   };
 
