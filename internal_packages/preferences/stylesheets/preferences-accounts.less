@@ -2,15 +2,19 @@
 
 // Preferences Specific
 .preferences-wrap {
-  .preferences-accounts {
+  .container-accounts {
+    width: 70%;
+    min-width: 360px;
+    margin: 0 auto;
     .accounts-content {
       display: flex;
+      justify-content: center;
 
       .account-list {
         width: 400px;
 
         .items-wrapper {
-          height: 525px;
+          height: 440px;
         }
 
         .account {
@@ -24,7 +28,7 @@
 
         .account-name {
           font-size: @font-size-large;
-          cursor:default;
+          cursor: default;
           overflow: hidden;
           text-overflow: ellipsis;
           vertical-align: middle;
@@ -32,7 +36,7 @@
 
         .account-subtext {
           font-size: @font-size-small;
-          cursor:default;
+          cursor: default;
         }
 
         .btn-editable-list {

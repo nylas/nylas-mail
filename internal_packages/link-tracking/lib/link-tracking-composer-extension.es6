@@ -1,4 +1,3 @@
-import uuid from 'node-uuid';
 import {
   ComposerExtension,
   Actions,
@@ -23,7 +22,7 @@ export default class LinkTrackingComposerExtension extends ComposerExtension {
     if (metadata) {
       const draftBody = new DraftBody(draft);
       const links = [];
-      const messageUid = uuid.v4().replace(/-/g, "");
+      const messageUid = draft.clientId;
 
       // loop through all <a href> elements, replace with redirect links and save
       // mappings. The links component of the path is an index of the link array.

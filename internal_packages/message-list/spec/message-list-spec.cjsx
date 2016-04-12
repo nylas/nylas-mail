@@ -3,8 +3,9 @@ moment = require "moment"
 proxyquire = require("proxyquire").noPreserveCache()
 
 CSON = require "season"
-React = require "react/addons"
-TestUtils = React.addons.TestUtils
+React = require "react"
+ReactDOM = require "react-dom"
+ReactTestUtils = require 'react-addons-test-utils'
 
 {Thread,
  Contact,
@@ -17,21 +18,9 @@ TestUtils = React.addons.TestUtils
  NylasTestUtils,
  ComponentRegistry} = require "nylas-exports"
 
-{InjectedComponent} = require 'nylas-component-kit'
-
 MessageParticipants = require "../lib/message-participants"
-
-MessageItem = proxyquire("../lib/message-item", {
-  "./email-frame": React.createClass({render: -> <div></div>})
-})
-
-MessageItemContainer = proxyquire("../lib/message-item-container", {
-  "./message-item": MessageItem
-  "./pending-message-item": MessageItem
-})
-
-MessageList = proxyquire '../lib/message-list',
-  "./message-item-container": MessageItemContainer
+MessageItemContainer = require "../lib/message-item-container"
+MessageList = require '../lib/message-list'
 
 # User_1 needs to be "me" so that when we calculate who we should reply
 # to, it properly matches the AccountStore
@@ -171,15 +160,15 @@ describe "MessageList", ->
     spyOn(MessageStore, "itemsLoading").andCallFake ->
       false
 
-    @messageList = TestUtils.renderIntoDocument(<MessageList />)
-    @messageList_node = React.findDOMNode(@messageList)
+    @messageList = ReactTestUtils.renderIntoDocument(<MessageList />)
+    @messageList_node = ReactDOM.findDOMNode(@messageList)
 
   it "renders into the document", ->
-    expect(TestUtils.isCompositeComponentWithType(@messageList,
+    expect(ReactTestUtils.isCompositeComponentWithType(@messageList,
            MessageList)).toBe true
 
   it "by default has zero children", ->
-    items = TestUtils.scryRenderedComponentsWithType(@messageList,
+    items = ReactTestUtils.scryRenderedComponentsWithType(@messageList,
             MessageItemContainer)
 
     expect(items.length).toBe 0
@@ -190,55 +179,29 @@ describe "MessageList", ->
       MessageStore._expandItemsToDefault()
       MessageStore.trigger(MessageStore)
       @messageList.setState(currentThread: test_thread)
-
       NylasTestUtils.loadKeymap("keymaps/base")
 
     it "renders all the correct number of messages", ->
-      items = TestUtils.scryRenderedComponentsWithType(@messageList,
+      items = ReactTestUtils.scryRenderedComponentsWithType(@messageList,
               MessageItemContainer)
       expect(items.length).toBe 5
 
     it "renders the correct number of expanded messages", ->
-      msgs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "collapsed message-item-wrap")
+      msgs = ReactTestUtils.scryRenderedDOMComponentsWithClass(@messageList, "collapsed message-item-wrap")
       expect(msgs.length).toBe 4
 
     it "displays lists of participants on the page", ->
-      items = TestUtils.scryRenderedComponentsWithType(@messageList,
+      items = ReactTestUtils.scryRenderedComponentsWithType(@messageList,
               MessageParticipants)
       expect(items.length).toBe 2
-
-    it "focuses new composers when a draft is added", ->
-      spyOn(@messageList, "_focusDraft")
-      msgs = @messageList.state.messages
-
-      @messageList.setState
-        messages: msgs.concat(draftMessages)
-
-      expect(@messageList._focusDraft).toHaveBeenCalled()
-      expect(@messageList._focusDraft.mostRecentCall.args[0].props.draftClientId).toEqual(draftMessages[0].draftClientId)
 
     it "includes drafts as message item containers", ->
       msgs = @messageList.state.messages
       @messageList.setState
         messages: msgs.concat(draftMessages)
-      items = TestUtils.scryRenderedComponentsWithType(@messageList,
+      items = ReactTestUtils.scryRenderedComponentsWithType(@messageList,
               MessageItemContainer)
       expect(items.length).toBe 6
-
-  describe "MessageList with draft", ->
-    beforeEach ->
-      MessageStore._items = testMessages.concat draftMessages
-      MessageStore._thread = test_thread
-      MessageStore.trigger(MessageStore)
-      spyOn(@messageList, "_focusDraft")
-
-    it "renders the composer", ->
-      items = TestUtils.scryRenderedComponentsWithTypeAndProps(@messageList, InjectedComponent, matching: {role:"Composer"})
-      expect(@messageList.state.messages.length).toBe 6
-      expect(items.length).toBe 1
-
-    it "doesn't focus on initial load", ->
-      expect(@messageList._focusDraft).not.toHaveBeenCalled()
 
   describe "reply type", ->
     it "prompts for a reply when there's only one participant", ->
@@ -246,7 +209,7 @@ describe "MessageList", ->
       MessageStore._thread = test_thread
       MessageStore.trigger()
       expect(@messageList._replyType()).toBe "reply"
-      cs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
+      cs = ReactTestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
       expect(cs.length).toBe 1
 
     it "prompts for a reply-all when there's more than one participant and the default is reply-all", ->
@@ -255,7 +218,7 @@ describe "MessageList", ->
       MessageStore._thread = test_thread
       MessageStore.trigger()
       expect(@messageList._replyType()).toBe "reply-all"
-      cs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
+      cs = ReactTestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
       expect(cs.length).toBe 1
 
     it "prompts for a reply-all when there's more than one participant and the default is reply", ->
@@ -264,14 +227,14 @@ describe "MessageList", ->
       MessageStore._thread = test_thread
       MessageStore.trigger()
       expect(@messageList._replyType()).toBe "reply"
-      cs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
+      cs = ReactTestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
       expect(cs.length).toBe 1
 
     it "hides the reply type if the last message is a draft", ->
       MessageStore._items = [m5, m3, draftMessages[0]]
       MessageStore._thread = test_thread
       MessageStore.trigger()
-      cs = TestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
+      cs = ReactTestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
       expect(cs.length).toBe 0
 
   describe "Message minification", ->

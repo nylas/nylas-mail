@@ -1,4 +1,5 @@
 React = require 'react'
+ReactDOM = require 'react-dom'
 
 ###
 Public: Images are supposed to by default show a ghost image when dragging and
@@ -15,7 +16,7 @@ class DraggableImg extends React.Component
     <img ref="img" draggable="true" onDragStart={@_onDragStart} {...@props} />
 
   _onDragStart: (event) =>
-    img = React.findDOMNode(@refs.img)
+    img = ReactDOM.findDOMNode(@refs.img)
     rect = img.getBoundingClientRect()
     y = event.clientY - rect.top
     x = event.clientX - rect.left

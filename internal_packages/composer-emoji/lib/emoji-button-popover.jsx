@@ -1,12 +1,11 @@
 import React from 'react';
+import {findDOMNode} from 'react-dom';
 import {Actions} from 'nylas-exports';
-import {RetinaImg} from 'nylas-component-kit';
+import {RetinaImg, ScrollRegion} from 'nylas-component-kit';
 
 import EmojiStore from './emoji-store';
 import EmojiActions from './emoji-actions';
-import emoji from 'node-emoji';
 import categorizedEmojiList from './categorized-emoji';
-import missingEmojiList from './missing-emoji';
 
 class EmojiButtonPopover extends React.Component {
   static displayName = 'EmojiButtonPopover';
@@ -28,22 +27,25 @@ class EmojiButtonPopover extends React.Component {
 
   componentDidMount() {
     this._mounted = true;
+    this._emojiPreloadImage = new Image();
     this.renderCanvas();
   }
 
   componentWillUnmount() {
+    this._emojiPreloadImage.onload = null;
+    this._emojiPreloadImage = null;
     this._mounted = false;
   }
 
   onMouseDown = (event) => {
     const emojiName = this.calcEmojiByPosition(this.calcPosition(event));
     if (!emojiName) return null;
-    EmojiActions.selectEmoji({emojiName, replaceSelection: false});
+    EmojiActions.selectEmoji({emojiName: emojiName, replaceSelection: false});
     Actions.closePopover();
   }
 
   onScroll = () => {
-    const emojiContainer = document.querySelector(".emoji-finder-container");
+    const emojiContainer = document.querySelector(".emoji-finder-container .scroll-region-content");
     const tabContainer = document.querySelector(".emoji-tabs");
     tabContainer.className = emojiContainer.scrollTop ? "emoji-tabs shadow" : "emoji-tabs";
     if (emojiContainer.scrollTop === 0) {
@@ -53,11 +55,7 @@ class EmojiButtonPopover extends React.Component {
         if (this.state.categoryPositions.hasOwnProperty(category)) {
           if (emojiContainer.scrollTop >= this.state.categoryPositions[category].top &&
             emojiContainer.scrollTop <= this.state.categoryPositions[category].bottom) {
-            if (category === 'More People') {
-              this.setState({activeTab: 'People'});
-            } else {
-              this.setState({activeTab: category});
-            }
+            this.setState({activeTab: category});
           }
         }
       }
@@ -109,7 +107,6 @@ class EmojiButtonPopover extends React.Component {
     const categoryPositions = {};
     let categoryNames = [
       'People',
-      'More People',
       'Nature',
       'Food and Drink',
       'Activity',
@@ -140,9 +137,7 @@ class EmojiButtonPopover extends React.Component {
         categoryPositions[category].top = verticalPos;
         verticalPos += height;
         categoryPositions[category].bottom = verticalPos;
-        if (category !== 'People') {
-          verticalPos += 24;
-        }
+        verticalPos += 24;
       }
     }
     return {
@@ -153,7 +148,7 @@ class EmojiButtonPopover extends React.Component {
   }
 
   scrollToCategory(category) {
-    const container = document.querySelector(".emoji-finder-container");
+    const container = document.querySelector(".emoji-finder-container .scroll-region-content");
     if (this.state.searchValue.length > 0) {
       this.setState({searchValue: ""});
       this.setState(this.getStateFromStore, () => {
@@ -179,7 +174,7 @@ class EmojiButtonPopover extends React.Component {
     return searchMatches;
   }
 
-  calcPosition = (event) => {
+  calcPosition(event) {
     const rect = event.target.getBoundingClientRect();
     const position = {
       x: event.pageX - rect.left / 2,
@@ -213,81 +208,92 @@ class EmojiButtonPopover extends React.Component {
   renderTabs() {
     const tabs = [];
     this.state.categoryNames.forEach((category) => {
-      if (category !== 'More People') {
-        let className = `emoji-tab ${(category.replace(/ /g, '-')).toLowerCase()}`
-        if (category === this.state.activeTab) {
-          className += " active";
-        }
-        tabs.push(
-          <div key={`${category} container`} style={{flex: 1}}>
-            <RetinaImg
-              key={`${category} tab`}
-              className={className}
-              name={`icon-emojipicker-${(category.replace(/ /g, '-')).toLowerCase()}.png`}
-              mode={RetinaImg.Mode.ContentIsMask}
-              onMouseDown={() => this.scrollToCategory(category)} />
-          </div>
-        );
+      let className = `emoji-tab ${(category.replace(/ /g, '-')).toLowerCase()}`
+      if (category === this.state.activeTab) {
+        className += " active";
       }
+      tabs.push(
+        <div key={`${category} container`} style={{flex: 1}}>
+          <RetinaImg
+            key={`${category} tab`}
+            className={className}
+            name={`icon-emojipicker-${(category.replace(/ /g, '-')).toLowerCase()}.png`}
+            mode={RetinaImg.Mode.ContentIsMask}
+            onMouseDown={() => this.scrollToCategory(category)} />
+        </div>
+      );
     });
     return tabs;
   }
 
   renderCanvas() {
-    const canvas = document.getElementById("emoji-canvas");
+    const canvas = findDOMNode(this.refs.emojiCanvas);
     const keys = Object.keys(this.state.categoryPositions);
     canvas.height = this.state.categoryPositions[keys[keys.length - 1]].bottom * 2;
     const ctx = canvas.getContext("2d");
+    ctx.font = "24px Nylas-Pro";
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const position = {
       x: 15,
       y: 45,
     }
-    Object.keys(this.state.categorizedEmoji).forEach((category, i) => {
-      if (i > 0) {
-        setTimeout(() => this.renderCategory(category, i, ctx, position), i * 50);
-      } else {
-        this.renderCategory(category, i, ctx, position);
-      }
-    });
+
+    let idx = 0;
+    const categoryNames = Object.keys(this.state.categorizedEmoji);
+    const renderNextCategory = () => {
+      if (!categoryNames[idx]) return;
+      if (!this._mounted) return;
+      this.renderCategory(categoryNames[idx], idx, ctx, position, renderNextCategory);
+      idx += 1;
+    }
+    renderNextCategory();
   }
 
-  renderCategory(category, i, ctx, position) {
-    if (!this._mounted) return;
-    if (category !== "More People") {
-      if (i > 0) {
-        position.x = 18;
-        position.y += 48;
-      }
-      ctx.font = "24px Nylas-Pro";
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-      ctx.fillText(category, position.x, position.y);
+  renderCategory(category, i, ctx, position, callback) {
+    if (i > 0) {
+      position.x = 18;
+      position.y += 48;
     }
+    ctx.fillText(category, position.x, position.y);
     position.x = 18;
     position.y += 48;
-    ctx.font = "32px Arial";
-    ctx.fillStyle = 'black';
-    if (this.state.categorizedEmoji[category].length === 0) return;
-    this.state.categorizedEmoji[category].forEach((emojiName, j) => {
-      if (process.platform === "darwin" && missingEmojiList.indexOf(emojiName) === -1) {
-        const emojiChar = emoji.get(emojiName);
-        ctx.fillText(emojiChar, position.x, position.y);
-      } else {
-        const img = new Image();
-        img.src = `images/composer-emoji/missing-emoji/${emojiName}.png`;
-        const x = position.x;
-        const y = position.y;
-        img.onload = () => {
-          ctx.drawImage(img, x, y - 30, 32, 32);
-        }
-      }
+
+    const emojiNames = this.state.categorizedEmoji[category];
+    if (!emojiNames || emojiNames.length === 0) return;
+
+    const emojiToDraw = emojiNames.map((emojiName, j) => {
+      const x = position.x;
+      const y = position.y;
+      const src = EmojiStore.getImagePath(emojiName);
+
       if (position.x > 325 && j < this.state.categorizedEmoji[category].length - 1) {
         position.x = 18;
         position.y += 48;
       } else {
         position.x += 50;
       }
-    })
+
+      return {src, x, y};
+    });
+
+    const drawEmojiAt = ({src, x, y} = {}) => {
+      if (!src) {
+        return;
+      }
+      this._emojiPreloadImage.onload = () => {
+        this._emojiPreloadImage.onload = null;
+        ctx.drawImage(this._emojiPreloadImage, x, y - 30, 32, 32);
+        if (emojiToDraw.length === 0) {
+          callback();
+        } else {
+          drawEmojiAt(emojiToDraw.shift());
+        }
+      }
+      this._emojiPreloadImage.src = src;
+    }
+
+    drawEmojiAt(emojiToDraw.shift());
   }
 
   render() {
@@ -296,7 +302,7 @@ class EmojiButtonPopover extends React.Component {
         <div className="emoji-tabs">
           {this.renderTabs()}
         </div>
-        <div
+        <ScrollRegion
           className="emoji-finder-container"
           onScroll={this.onScroll}>
           <div className="emoji-search-container">
@@ -308,15 +314,15 @@ class EmojiButtonPopover extends React.Component {
             />
           </div>
           <canvas
-            id="emoji-canvas"
-            width="420"
+            ref="emojiCanvas"
+            width="400"
             height="2000"
             onMouseDown={this.onMouseDown}
             onMouseOut={this.onMouseOut}
             onMouseMove={this.onHover}
             style={{zoom: "0.5"}}>
           </canvas>
-        </div>
+        </ScrollRegion>
         <div className="emoji-name">
           {this.state.emojiName}
         </div>

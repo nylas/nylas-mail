@@ -13,14 +13,11 @@ class APIError extends Error
     @requestOptions ?= @response?.requestOptions
     @name = "APIError"
     @message = @body?.message ? @body ? @error?.toString?()
-
-class OfflineError extends Error
-  constructor: ->
+    @errorTitle = @error?.toString?()
 
 class TimeoutError extends Error
   constructor: ->
 
 module.exports =
   "APIError": APIError
-  "OfflineError": OfflineError
   "TimeoutError": TimeoutError

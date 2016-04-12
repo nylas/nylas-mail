@@ -1,5 +1,5 @@
 _ = require 'underscore'
-React = require 'react/addons'
+React = require 'react'
 {DatabaseStore,
  AccountStore,
  TaskQueue,

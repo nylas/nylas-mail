@@ -1,6 +1,7 @@
 _ = require 'underscore'
-React = require 'react/addons'
-ReactTestUtils = React.addons.TestUtils
+React = require 'react'
+ReactDOM = require 'react-dom'
+ReactTestUtils = require('react-addons-test-utils')
 proxyquire = require 'proxyquire'
 
 {NylasTestUtils,
@@ -39,7 +40,6 @@ describe 'ParticipantsTextField', ->
     @propChange = jasmine.createSpy('change')
 
     @fieldName = 'to'
-    @tabIndex = '100'
     @participants =
       to: [participant1, participant2]
       cc: [participant3]
@@ -48,13 +48,11 @@ describe 'ParticipantsTextField', ->
     @renderedField = ReactTestUtils.renderIntoDocument(
       <ParticipantsTextField
         field={@fieldName}
-        tabIndex={@tabIndex}
         visible={true}
-        draftReady={true}
         participants={@participants}
         change={@propChange} />
     )
-    @renderedInput = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithTag(@renderedField, 'input'))
+    @renderedInput = ReactDOM.findDOMNode(@renderedField).querySelector('input')
 
     @expectInputToYield = (input, expected) ->
       reviver = (k,v) ->
@@ -81,9 +79,6 @@ describe 'ParticipantsTextField', ->
 
   it 'renders into the document', ->
     expect(ReactTestUtils.isCompositeComponentWithType @renderedField, ParticipantsTextField).toBe(true)
-
-  it 'applies the tabIndex provided to the inner input', ->
-    expect(@renderedInput.tabIndex/1).toBe(@tabIndex/1)
 
   describe "inserting participant text", ->
     it "should fire onChange with an updated participants hash", ->

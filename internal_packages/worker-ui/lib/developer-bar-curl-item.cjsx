@@ -1,5 +1,5 @@
 classNames = require 'classnames'
-React = require 'react/addons'
+React = require 'react'
 
 class DeveloperBarCurlItem extends React.Component
   @displayName: 'DeveloperBarCurlItem'

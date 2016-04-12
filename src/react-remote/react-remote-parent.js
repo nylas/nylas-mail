@@ -1,5 +1,11 @@
+/*
+
+This code stopped working when we moved from React `0.13.2` to `0.14.7`.
+It would most likely still work, but some of the internal modules have moved.
+
 var ipcRenderer = require("electron").ipcRenderer;
 var React = require('react');
+var ReactDOM = require('react-dom');
 var _ = require('underscore');
 var LinkedValueUtils = require('react/lib/LinkedValueUtils');
 var ReactDOMComponent = require('react/lib/ReactDOMComponent');
@@ -281,7 +287,7 @@ var openWindowForComponent = function(Component, options) {
       }
     }
 
-    React.render(React.createElement('div'), container, function() {
+    ReactDOM.render(React.createElement('div'), container, function() {
       reactRemoteContainer.removeChild(container);
     });
     container = null;
@@ -366,7 +372,7 @@ var openWindowForComponent = function(Component, options) {
   // the browser window. When both of these things finish, we send the html
   // css, and any observed method invocations that occurred during the first
   // React cycle (componentDidMount).
-  React.render(React.createElement(Component, options.props), container, function() {
+  ReactDOM.render(React.createElement(Component, options.props), container, function() {
     target.reactid = container.firstChild.dataset.reactid,
     target.containerReady = true;
     target.sendHTMLIfReady();
@@ -396,3 +402,4 @@ module.exports = {
   openWindowForComponent: openWindowForComponent,
   toggleContainerVisible: toggleContainerVisible
 };
+*/

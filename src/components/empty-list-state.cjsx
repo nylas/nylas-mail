@@ -1,5 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
+ReactDOM = require 'react-dom'
 classNames = require 'classnames'
 RetinaImg = require './retina-img'
 EventedIFrame = require './evented-iframe'
@@ -68,7 +69,7 @@ class EmptyInboxState extends React.Component
 
     <div className="inbox-zero-animation">
       <div className="animation-wrapper" style={style}>
-        <iframe src={"animations/#{animationName}/#{animationName}.html"}/>
+        <iframe src={"animations/inbox-zero/#{animationName}/#{animationName}.html"}/>
         <div className="message">Hooray! You’re done.</div>
       </div>
     </div>
@@ -118,14 +119,10 @@ class EmptyListState extends React.Component
     ContentComponent = EmptyPerspectiveState
     current = FocusedPerspectiveStore.current()
 
-    messageOverride = if current.isSearch()
-      "No search results available"
-    else
-      "Nothing to display"
-
+    messageOverride = current.emptyMessage()
     if @state.syncing
       messageOverride = "Please wait while we prepare your mailbox."
-    else if FocusedPerspectiveStore.current().isInbox()
+    else if current.isInbox()
       ContentComponent = EmptyInboxState
 
     classes = classNames
@@ -142,7 +139,7 @@ class EmptyListState extends React.Component
 
   _getDimensions: =>
     return null unless @_mounted
-    node = React.findDOMNode(@)
+    node = ReactDOM.findDOMNode(@)
     rect = node.getBoundingClientRect()
     return {width: rect.width, height: rect.height}
 

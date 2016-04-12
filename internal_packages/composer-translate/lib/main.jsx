@@ -8,6 +8,7 @@ import request from 'request'
 
 import {
   React,
+  ReactDOM,
   ComponentRegistry,
   QuotedHTMLTransformer,
   DraftStore,
@@ -93,7 +94,7 @@ class TranslateButton extends React.Component {
   };
 
   _onClickTranslateButton = ()=> {
-    const buttonRect = React.findDOMNode(this).getBoundingClientRect()
+    const buttonRect = ReactDOM.findDOMNode(this).getBoundingClientRect()
     Actions.openPopover(
       this._renderPopover(),
       {originRect: buttonRect, direction: 'up'}
@@ -134,6 +135,7 @@ class TranslateButton extends React.Component {
   render() {
     return (
       <button
+        tabIndex={-1}
         className="btn btn-toolbar pull-right"
         onClick={this._onClickTranslateButton}
         title="Translate email body…">

@@ -1,5 +1,6 @@
 import React from 'react';
-const ReactTestUtils = React.addons.TestUtils;
+import ReactDOM from 'react-dom';
+import ReactTestUtils from 'react-addons-test-utils';
 
 import ThemePackage from '../../../src/theme-package';
 import ThemePicker from '../lib/theme-picker';
@@ -18,7 +19,7 @@ describe('ThemePicker', ()=> {
   it('changes the active theme when a theme is clicked', ()=> {
     spyOn(ThemePicker.prototype, '_setActiveTheme').andCallThrough();
     spyOn(ThemePicker.prototype, '_rewriteIFrame');
-    const themeOption = React.findDOMNode(ReactTestUtils.scryRenderedDOMComponentsWithClass(this.component, 'clickable-theme-option')[1]);
+    const themeOption = ReactDOM.findDOMNode(ReactTestUtils.scryRenderedDOMComponentsWithClass(this.component, 'clickable-theme-option')[1]);
     ReactTestUtils.Simulate.mouseDown(themeOption);
     expect(ThemePicker.prototype._setActiveTheme).toHaveBeenCalled();
   });

@@ -1,5 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
+ReactDOM = require 'react-dom'
 classNames = require 'classnames'
 FindInThread = require './find-in-thread'
 MessageItemContainer = require './message-item-container'
@@ -77,9 +78,9 @@ class MessageList extends React.Component
     @_unsubscribers = []
     @_unsubscribers.push MessageStore.listen @_onChange
     @_unsubscribers.push Actions.focusDraft.listen ({draftClientId}) =>
-      draftEl = @_getMessageContainer(draftClientId)
-      return unless draftEl
-      @_focusDraft(draftEl)
+      Utils.waitFor( => @_getMessageContainer(draftClientId)?).then =>
+        @_focusDraft(@_getMessageContainer(draftClientId))
+      .catch =>
 
   componentWillUnmount: =>
     unsubscribe() for unsubscribe in @_unsubscribers
@@ -89,11 +90,6 @@ class MessageList extends React.Component
     not Utils.isEqualReact(nextState, @state)
 
   componentDidUpdate: (prevProps, prevState) =>
-    return if @state.loading
-
-    newDraftClientIds = @_newDraftClientIds(prevState)
-    if newDraftClientIds.length > 0
-      @_focusDraft(@_getMessageContainer(newDraftClientIds[0]))
 
   _globalKeymapHandlers: ->
     'application:reply': =>
@@ -114,11 +110,6 @@ class MessageList extends React.Component
     'application:print-thread': => @_onPrintThread()
     'core:messages-page-up': => @_onScrollByPage(-1)
     'core:messages-page-down': => @_onScrollByPage(1)
-
-  _newDraftClientIds: (prevState) =>
-    oldDraftIds = _.map(_.filter((prevState.messages ? []), (m) -> m.draft), (m) -> m.clientId)
-    newDraftIds = _.map(_.filter((@state.messages ? []), (m) -> m.draft), (m) -> m.clientId)
-    return _.difference(newDraftIds, oldDraftIds) ? []
 
   _getMessageContainer: (clientId) =>
     @refs["message-container-#{clientId}"]
@@ -235,7 +226,7 @@ class MessageList extends React.Component
     Actions.toggleAllMessagesExpanded()
 
   _onPrintThread: =>
-    node = React.findDOMNode(@)
+    node = ReactDOM.findDOMNode(@)
     Actions.printThread(@state.currentThread, node.innerHTML)
 
   _onClickReplyArea: =>
@@ -358,7 +349,7 @@ class MessageList extends React.Component
       throw new Error("onChildScrollRequest: expected clientId or rect")
 
   _onScrollByPage: (direction) =>
-    height = React.findDOMNode(@refs.messageWrap).clientHeight
+    height = ReactDOM.findDOMNode(@refs.messageWrap).clientHeight
     @refs.messageWrap.scrollTop += height * direction
 
   _onChange: =>

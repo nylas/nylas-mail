@@ -1,4 +1,5 @@
 React = require 'react'
+ReactDOM = require 'react-dom'
 {Utils,
  RegExpUtils,
  SearchableComponentMaker,
@@ -34,7 +35,7 @@ class EventedIFrame extends React.Component
     if @props.searchable
       @_regionId = Utils.generateTempId()
       @_searchUsub = SearchableComponentStore.listen @_onSearchableStoreChange
-      SearchableComponentStore.registerSearchRegion(@_regionId, React.findDOMNode(this))
+      SearchableComponentStore.registerSearchRegion(@_regionId, ReactDOM.findDOMNode(this))
     @_subscribeToIFrameEvents()
 
   componentWillUnmount: =>
@@ -45,7 +46,7 @@ class EventedIFrame extends React.Component
 
   componentDidUpdate: ->
     if @props.searchable
-      SearchableComponentStore.registerSearchRegion(@_regionId, React.findDOMNode(this))
+      SearchableComponentStore.registerSearchRegion(@_regionId, ReactDOM.findDOMNode(this))
 
   shouldComponentUpdate: (nextProps, nextState) =>
     not Utils.isEqualReact(nextProps, @props) or
@@ -55,13 +56,17 @@ class EventedIFrame extends React.Component
   Public: Call this method if you replace the contents of the iframe's document.
   This allows {EventedIframe} to re-attach it's event listeners.
   ###
-  documentWasReplaced: =>
+  didReplaceDocument: =>
     @_unsubscribeFromIFrameEvents()
     @_subscribeToIFrameEvents()
 
+  setHeightQuietly: (height) =>
+    @_ignoreNextResize = true
+    ReactDOM.findDOMNode(@).height = "#{height}px"
+
   _onSearchableStoreChange: =>
     return unless @props.searchable
-    node = React.findDOMNode(@)
+    node = ReactDOM.findDOMNode(@)
     doc = node.contentDocument?.body ? node.contentDocument
     searchIndex = SearchableComponentStore.getCurrentRegionIndex(@_regionId)
     {searchTerm} = SearchableComponentStore.getCurrentSearchData()
@@ -71,7 +76,7 @@ class EventedIFrame extends React.Component
     @lastSearchTerm = searchTerm
 
   _unsubscribeFromIFrameEvents: =>
-    node = React.findDOMNode(@)
+    node = ReactDOM.findDOMNode(@)
     doc = node.contentDocument
     return unless doc
     doc.removeEventListener('click', @_onIFrameClick)
@@ -86,7 +91,7 @@ class EventedIFrame extends React.Component
       node.contentWindow.removeEventListener('resize', @_onIFrameResize)
 
   _subscribeToIFrameEvents: =>
-    node = React.findDOMNode(@)
+    node = ReactDOM.findDOMNode(@)
     doc = node.contentDocument
     _.defer =>
       doc.addEventListener("click", @_onIFrameClick)
@@ -108,13 +113,16 @@ class EventedIFrame extends React.Component
     return null
 
   _onIFrameBlur: (event) =>
-    node = React.findDOMNode(@)
+    node = ReactDOM.findDOMNode(@)
     node.contentWindow.getSelection().empty()
 
   _onIFrameFocus: (event) =>
     window.getSelection().empty()
 
   _onIFrameResize: (event) =>
+    if @_ignoreNextResize
+      @_ignoreNextResize = false
+      return
     @props.onResize?(event)
 
   # The iFrame captures events that take place over it, which causes some
@@ -149,7 +157,7 @@ class EventedIFrame extends React.Component
     return (new RegExp(/^file:/i)).test(href)
 
   _onIFrameMouseEvent: (event) =>
-    node = React.findDOMNode(@)
+    node = ReactDOM.findDOMNode(@)
     nodeRect = node.getBoundingClientRect()
 
     eventAttrs = {}
@@ -166,7 +174,7 @@ class EventedIFrame extends React.Component
 
   _onIFrameKeydown: (event) =>
     return if event.metaKey or event.altKey or event.ctrlKey
-    React.findDOMNode(@).dispatchEvent(new KeyboardEvent(event.type, event))
+    ReactDOM.findDOMNode(@).dispatchEvent(new KeyboardEvent(event.type, event))
 
   _onIFrameContextualMenu: (event) =>
     # Build a standard-looking contextual menu with options like "Copy Link",
@@ -229,7 +237,7 @@ class EventedIFrame extends React.Component
 
     # Menu actions for text
     text = ""
-    selection = React.findDOMNode(@).contentDocument.getSelection()
+    selection = ReactDOM.findDOMNode(@).contentDocument.getSelection()
     if selection.rangeCount > 0
       range = selection.getRangeAt(0)
       text = range.toString()

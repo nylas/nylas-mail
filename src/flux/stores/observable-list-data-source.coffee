@@ -44,7 +44,7 @@ class ObservableListDataSource extends ListTabular.DataSource
     @_countEstimate
 
   loaded: ->
-    @_resultSet isnt null
+    @_resultSet isnt null and @_resultDesiredLast > 0
 
   empty: =>
     not @_resultSet or @_resultSet.empty()

@@ -7,36 +7,38 @@ Actions = require '../actions'
 
 class FocusedPerspectiveStore extends NylasStore
   constructor: ->
-    @_current = @_initCurrentPerspective(NylasEnv.savedState.perspective)
+    @_current = MailboxPerspective.forNothing()
 
     @listenTo CategoryStore, @_onCategoryStoreChanged
     @listenTo Actions.focusMailboxPerspective, @_onFocusPerspective
     @listenTo Actions.focusDefaultMailboxPerspectiveForAccounts, @_onFocusAccounts
 
-  _initCurrentPerspective: (savedPerspective, accounts = AccountStore.accounts()) =>
-    if savedPerspective
-      current = MailboxPerspective.fromJSON(savedPerspective)
-      if current
-        accountIds = _.pluck(accounts, 'id')
-        accountIdsNotPresent = _.difference(current.accountIds, accountIds)
-        current = null if accountIdsNotPresent.length > 0
 
-    current ?= @_defaultPerspective()
-    return current
+  _loadSavedPerspective: (savedPerspective, accounts = AccountStore.accounts()) =>
+    if savedPerspective
+      perspective = MailboxPerspective.fromJSON(savedPerspective)
+      if perspective
+        accountIds = _.pluck(accounts, 'id')
+        accountIdsNotPresent = _.difference(perspective.accountIds, accountIds)
+        perspective = null if accountIdsNotPresent.length > 0
+
+    perspective ?= @_defaultPerspective()
+    return perspective
 
   # Inbound Events
 
   _onCategoryStoreChanged: ->
     if @_current.isEqual(MailboxPerspective.forNothing())
-      @_setPerspective(@_defaultPerspective())
+      perspective = @_loadSavedPerspective(NylasEnv.savedState.perspective)
+      @_setPerspective(perspective)
     else
       accountIds = @_current.accountIds
       categories = @_current.categories()
       catExists  = (cat) -> CategoryStore.byId(cat.accountId, cat.id)
       categoryHasBeenDeleted = categories and not _.every(categories, catExists)
 
-    if categoryHasBeenDeleted
-      @_setPerspective(@_defaultPerspective(accountIds))
+      if categoryHasBeenDeleted
+        @_setPerspective(@_defaultPerspective(accountIds))
 
   _onFocusPerspective: (perspective) =>
     return if perspective.isEqual(@_current)

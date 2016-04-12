@@ -1,4 +1,5 @@
 import React, {Component, PropTypes} from 'react';
+import ReactDOM from 'react-dom';
 import _ from 'underscore';
 import {exec} from 'child_process';
 import {Utils} from 'nylas-exports';
@@ -152,7 +153,7 @@ export default class SwipeContainer extends Component {
     let {fullDistance, thresholdDistance} = this.state;
 
     if (fullDistance === 'unknown') {
-      fullDistance = React.findDOMNode(this).clientWidth;
+      fullDistance = ReactDOM.findDOMNode(this).clientWidth;
       thresholdDistance = 110;
     }
 

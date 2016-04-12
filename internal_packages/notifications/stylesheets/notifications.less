@@ -126,7 +126,6 @@
   opacity:0;
 }
 
-
 .notifications-sticky {
   width:100%;
 
@@ -137,19 +136,22 @@
     background-color: #615396;
   }
   .notification-error {
-    background-color: @background-color-error;
+    background: linear-gradient(to top, darken(@background-color-error, 4%) 0%, @background-color-error 100%);
     border-color: @background-color-error;
     color: @color-error;
   }
   .notification-success {
     border-color: @background-color-success;
   }
+  .notification-offline {
+    background: linear-gradient(to top, darken(#CC9900, 4%) 0%, #CC9900 100%);
+    border-color: darken(#CC9900, 5%);
+  }
 
   .notifications-sticky-item {
     display:flex;
     font-size: @font-size-base;
     color:@text-color-inverse;
-    border-top:1px solid rgba(0,0,0,0.25);
     border-bottom:1px solid rgba(0,0,0,0.25);
     padding-left: @padding-base-horizontal;
     line-height: @line-height-base * 1.5;
@@ -173,11 +175,23 @@
     i {
       margin-right:@padding-base-horizontal;
     }
-    div {
+    .icon {
+      display: inline-block;
+      align-self: center;
+      line-height: 16px;
+      margin-right:@padding-base-horizontal;
+
+      img {
+        vertical-align: initial;
+      }
+    }
+
+    div.message {
       flex: 1;
       overflow: hidden;
       text-overflow: ellipsis;
       line-height: @line-height-base * 1.1;
+      padding: @padding-small-vertical 0;
     }
 
     &.has-default-action:hover {
@@ -186,6 +200,9 @@
     }
   }
 }
+
+// Windows Changes
+
 body.platform-win32 {
   .notifications-sticky {
     .notifications-sticky-item {

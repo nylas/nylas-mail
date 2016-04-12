@@ -70,13 +70,12 @@ const TaskDebugStatus = {
 // All tasks should gracefully handle the case when there is no network
 // connection.
 //
-// if (we're offline the common behavior is for a task to:)
+// if we're offline the common behavior is for a task to:
 //
 // 1. Perform its local change
-// 2. Attempt the remote request and get a timeout or offline code
+// 2. Attempt the remote request, which will fail
 // 3. Have `performRemote` resolve a `Task.Status.Retry`
 // 3. Sit queued up waiting to be retried
-// 4. Wait for {Actions::longPollConnected} to restart the {TaskQueue}
 //
 // Remember that a user may be offline for hours and perform thousands of
 // tasks in the meantime. It's important that your tasks implement
@@ -444,10 +443,6 @@ export default class Task {
   // if (you resolve `Task.Status.Retry`, the task will remain on the queue)
   // and tried again later. Any other task dependent on the current one
   // will also continue waiting.
-  //
-  // The queue is re-processed whenever a new task is enqueued, dequeued,
-  // or the internet connection comes back online via
-  // {Actions::longPollConnected}.
   //
   // `Task.Status.Retry` is useful if (it looks like we're offline, or you)
   // get an API error code that indicates temporary failure.

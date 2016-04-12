@@ -5,6 +5,11 @@ DragCanvas = document.createElement("canvas")
 DragCanvas.style.position = "absolute"
 document.body.appendChild(DragCanvas)
 
+PercentLoadedCache = {}
+PercentLoadedCanvas = document.createElement("canvas")
+PercentLoadedCanvas.style.position = "absolute"
+document.body.appendChild(PercentLoadedCanvas)
+
 SystemTrayCanvas = document.createElement("canvas")
 
 CanvasUtils =
@@ -23,6 +28,28 @@ CanvasUtils =
     ctx.stroke() if stroke
     ctx.fill() if fill
 
+  dataURIForLoadedPercent: (percent) ->
+    percent = Math.floor(percent / 5.0) * 5.0
+    cacheKey = "#{percent}%"
+    if not PercentLoadedCache[cacheKey]
+      canvas = PercentLoadedCanvas
+      scale = window.devicePixelRatio
+      canvas.width = 20 * scale
+      canvas.height = 20 * scale
+      canvas.style.width = "30px"
+      canvas.style.height = "30px"
+
+      half = 10 * scale
+      ctx = canvas.getContext('2d')
+      ctx.strokeStyle = "#AAA"
+      ctx.lineWidth = 3 * scale
+      ctx.clearRect(0, 0, 20 * scale, 20 * scale)
+      ctx.beginPath()
+      ctx.arc(half, half, half - ctx.lineWidth, -0.5 * Math.PI, (-0.5 * Math.PI) + (2 * Math.PI) * percent / 100.0)
+      ctx.stroke()
+      PercentLoadedCache[cacheKey] = canvas.toDataURL()
+    return PercentLoadedCache[cacheKey]
+
   canvasWithThreadDragImage: (count) ->
     canvas = DragCanvas
 
@@ -33,7 +60,6 @@ CanvasUtils =
     canvas.style.width = "58px"
     canvas.style.height = "55px"
 
-    # necessary for setDragImage to work
     ctx = canvas.getContext('2d')
 
     # mail background image

@@ -1,5 +1,5 @@
-React = require "react/addons"
-ReactTestUtils = React.addons.TestUtils
+React = require "react"
+ReactTestUtils = require('react-addons-test-utils')
 EventedIFrame = require '../../src/components/evented-iframe'
 
 describe 'EventedIFrame', ->

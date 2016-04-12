@@ -4,7 +4,19 @@ AccountStore = require './account-store'
 DatabaseStore = require './database-store'
 NylasStore = require 'nylas-store'
 
+ModelsForSync = [
+  'threads',
+  'messages',
+  'labels',
+  'folders',
+  'drafts',
+  'contacts',
+  'calendars',
+  'events'
+]
+
 class NylasSyncStatusStore extends NylasStore
+  ModelsForSync: ModelsForSync
 
   constructor: ->
     @_statesByAccount = {}
@@ -29,14 +41,26 @@ class NylasSyncStatusStore extends NylasStore
     return false unless @_statesByAccount[acctId]
     if model
       return @_statesByAccount[acctId][model]?.complete ? false
+
+    return false if _.isEmpty(@_statesByAccount[acctId])
     for _model, modelState of @_statesByAccount[acctId]
+      continue unless _model in ModelsForSync
       return false if not modelState.complete
     return true
 
   isSyncComplete: =>
+    return false if _.isEmpty(@_statesByAccount)
     for acctId of @_statesByAccount
       return false if not @isSyncCompleteForAccount(acctId)
     return true
+
+  whenSyncComplete: =>
+    return Promise.resolve() if @isSyncComplete()
+    return new Promise (resolve) =>
+      unsubscribe = @listen =>
+        if @isSyncComplete()
+          unsubscribe()
+          resolve()
 
   busy: =>
     for accountId, states of @_statesByAccount
@@ -44,5 +68,27 @@ class NylasSyncStatusStore extends NylasStore
         if state.busy
           return true
       false
+
+  connected: =>
+    # Return true if any account is in a state other than `retrying`.
+    # When data isn't received, NylasLongConnection closes the socket and
+    # goes into `retrying` state.
+    statuses = _.values(@_statesByAccount).map (state) ->
+      state.longConnectionStatus
+
+    if statuses.length is 0
+      return true
+
+    return _.any statuses, (status) -> status isnt 'closed'
+
+  nextRetryTimestamp: =>
+    retryDates = _.values(@_statesByAccount).map (state) ->
+      state.nextRetryTimestamp
+    _.compact(retryDates).sort((a, b) => a < b).pop()
+
+  nextRetryDelay: =>
+    retryDelays = _.values(@_statesByAccount).map (state) ->
+      state.nextRetryDelay
+    _.compact(retryDelays).sort((a, b) => a < b).pop()
 
 module.exports = new NylasSyncStatusStore()

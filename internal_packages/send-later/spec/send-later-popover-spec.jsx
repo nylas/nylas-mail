@@ -1,13 +1,10 @@
-import React, {addons} from 'react/addons';
+import React from 'react';
+import {findDOMNode} from 'react-dom';
+import {Simulate, findRenderedDOMComponentWithClass} from 'react-addons-test-utils';
+
 import {DateUtils} from 'nylas-exports'
 import SendLaterPopover from '../lib/send-later-popover';
 import {renderIntoDocument} from '../../../spec/nylas-test-utils'
-
-const {findDOMNode} = React;
-const {TestUtils: {
-  Simulate,
-  findRenderedDOMComponentWithClass,
-}} = addons;
 
 const makePopover = (props = {})=> {
   return renderIntoDocument(

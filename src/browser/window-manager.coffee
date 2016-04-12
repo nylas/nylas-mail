@@ -359,8 +359,6 @@ class WindowManager
       if options.bounds
         win.browserWindow.setBounds options.bounds
 
-      win.showWhenLoaded()
-
     @_replenishHotWindows()
 
     return win

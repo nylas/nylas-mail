@@ -41,7 +41,7 @@
 
 .container-templates {
   max-width: 640px;
-
+  margin: 0 auto;
 
   .no-templates-message {
     text-align: center;
@@ -51,10 +51,15 @@
   .template-wrap {
     position: relative;
     border: 1px solid @input-border-color;
+    background-color: @white;
     padding: 10px;
     margin-top: 20px;
     min-height: 200px;
     display: flex;
+
+    .contenteditable-container {
+      min-height: 200px;
+    }
 
     textarea {
       border: 0;
@@ -147,10 +152,12 @@
   .editor-note {
     color: #AAA;
     font-size: small;
+    margin-top: 5px;
   }
-}
-.templates-instructions {
-  color: #333;
-  font-size: small;
-  margin-top: 20px;
+
+  .templates-instructions {
+    color: #333;
+    font-size: small;
+    margin-top: 20px;
+  }
 }

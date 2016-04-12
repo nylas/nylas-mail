@@ -4,6 +4,7 @@ import ScrollRegion from './scroll-region';
 import KeyCommandsRegion from './key-commands-region';
 import RetinaImg from './retina-img';
 import React, {Component, PropTypes} from 'react';
+import ReactDOM from 'react-dom';
 
 /**
  * Renders a list of items and renders controls to add/edit/remove items.
@@ -168,7 +169,7 @@ class EditableList extends Component {
   };
 
   _focusSelf = ()=> {
-    React.findDOMNode(this).focus();
+    ReactDOM.findDOMNode(this).focus();
   };
 
   /**
@@ -178,7 +179,7 @@ class EditableList extends Component {
   _scrollTo = (idx)=> {
     if (!idx) return;
     const list = this.refs.itemsWrapper;
-    const nodes = React.findDOMNode(list).querySelectorAll('.list-item');
+    const nodes = ReactDOM.findDOMNode(list).querySelectorAll('.list-item');
     list.scrollTo(nodes[idx]);
   };
 
@@ -279,7 +280,7 @@ class EditableList extends Component {
     }
 
     const row = event.target.closest('[data-item-idx]') || event.target;
-    const wrapperId = React.findDOMNode(this.refs.itemsWrapper).dataset.reactid;
+    const wrapperId = ReactDOM.findDOMNode(this.refs.itemsWrapper).dataset.reactid;
 
     if (!row.dataset.itemIdx) {
       return;
@@ -297,7 +298,7 @@ class EditableList extends Component {
   };
 
   _onDragOver = (event)=> {
-    const wrapperNode = React.findDOMNode(this.refs.itemsWrapper);
+    const wrapperNode = ReactDOM.findDOMNode(this.refs.itemsWrapper);
     const originWrapperId = event.dataTransfer.getData('editablelist-reactid')
     const originSameList = (originWrapperId === wrapperNode.dataset.reactid);
     let dropInsertionIndex = 0;

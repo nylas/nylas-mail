@@ -1,20 +1,22 @@
-import React, {addons} from 'react/addons';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import ReactTestUtils from 'react-addons-test-utils';
+
 import {renderIntoDocument} from '../../../spec/nylas-test-utils';
 import Contenteditable from '../../../src/components/contenteditable/contenteditable';
 import EmojiComposerExtension from '../lib/emoji-composer-extension';
-
-const ReactTestUtils = addons.TestUtils;
 
 describe('EmojiComposerExtension', ()=> {
   beforeEach(()=> {
     spyOn(EmojiComposerExtension, 'onContentChanged').andCallThrough()
     spyOn(EmojiComposerExtension, '_onSelectEmoji').andCallThrough()
-    const html = 'Testing!'
-    const onChange = jasmine.createSpy('onChange')
     this.component = renderIntoDocument(
-      <Contenteditable html={html} onChange={onChange} extensions={[EmojiComposerExtension]}/>
+      <Contenteditable
+        html={''}
+        onChange={jasmine.createSpy('onChange')}
+        extensions={[EmojiComposerExtension]} />
     )
-    this.editableNode = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithAttr(this.component, 'contentEditable'));
+    this.editableNode = ReactDOM.findDOMNode(this.component).querySelector('[contenteditable]');
   })
 
   describe('when emoji trigger is typed', ()=> {
@@ -28,30 +30,24 @@ describe('EmojiComposerExtension', ()=> {
     })
 
     it('should show the emoji picker', ()=> {
-      runs(()=> {
-        this._performEdit('Testing! :h');
-      });
+      this._performEdit('Testing! :h');
       waitsFor(()=> {
         return ReactTestUtils.scryRenderedDOMComponentsWithClass(this.component, 'emoji-picker').length > 0
       });
     })
 
     it('should be focused on the first emoji in the list', ()=> {
-      runs(()=> {
-        this._performEdit('Testing! :h');
-      });
+      this._performEdit('Testing! :h');
       waitsFor(()=> {
         return ReactTestUtils.scryRenderedDOMComponentsWithClass(this.component, 'emoji-option').length > 0
       });
       runs(()=> {
-        expect(React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(this.component, 'emoji-option')).textContent === "💇 :haircut:").toBe(true);
+        expect(ReactDOM.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(this.component, 'emoji-option')).textContent.indexOf(":haircut:") !== -1).toBe(true);
       });
     })
 
     it('should insert an emoji on enter', ()=> {
-      runs(()=> {
-        this._performEdit('Testing! :h');
-      });
+      this._performEdit('Testing! :h');
       waitsFor(()=> {
         return ReactTestUtils.scryRenderedDOMComponentsWithClass(this.component, 'emoji-picker').length > 0
       });
@@ -62,19 +58,17 @@ describe('EmojiComposerExtension', ()=> {
         return EmojiComposerExtension._onSelectEmoji.calls.length > 0
       })
       runs(()=> {
-        expect(this.editableNode.textContent === "Testing! 💇").toBe(true);
+        expect(this.editableNode.innerHTML).toEqual(`Testing!&nbsp;<img class="emoji haircut" src="images/composer-emoji/apple/1f487.png" width="14" height="14" style="margin-top: -5px;">`);
       });
     })
 
     it('should insert an emoji on click', ()=> {
-      runs(()=> {
-        this._performEdit('Testing! :h');
-      });
+      this._performEdit('Testing! :h');
       waitsFor(()=> {
         return ReactTestUtils.scryRenderedDOMComponentsWithClass(this.component, 'emoji-picker').length > 0
       });
       runs(()=> {
-        const button = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(this.component, 'emoji-option'))
+        const button = ReactDOM.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(this.component, 'emoji-option'))
         ReactTestUtils.Simulate.mouseDown(button);
         expect(EmojiComposerExtension._onSelectEmoji).toHaveBeenCalled()
       });
@@ -82,14 +76,12 @@ describe('EmojiComposerExtension', ()=> {
         return EmojiComposerExtension._onSelectEmoji.calls.length > 0
       })
       runs(()=> {
-        expect(this.editableNode.textContent).toEqual("Testing! 💇");
+        expect(this.editableNode.innerHTML).toEqual(`Testing!&nbsp;<img class="emoji haircut" src="images/composer-emoji/apple/1f487.png" width="14" height="14" style="margin-top: -5px;">`);
       });
     })
 
     it('should move to the next emoji on arrow down', ()=> {
-      runs(()=> {
-        this._performEdit('Testing! :h');
-      });
+      this._performEdit('Testing! :h');
       waitsFor(()=> {
         return ReactTestUtils.scryRenderedDOMComponentsWithClass(this.component, 'emoji-option').length > 0
       });
@@ -100,16 +92,7 @@ describe('EmojiComposerExtension', ()=> {
         return EmojiComposerExtension.onContentChanged.calls.length > 1
       });
       runs(()=> {
-        expect(React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(this.component, 'emoji-option')).textContent).toEqual("🍔 :hamburger:");
-      });
-    })
-
-    it('should be able to insert two emoji next to each other', ()=> {
-      runs(()=> {
-        this._performEdit('Testing! 🍔 :h');
-      });
-      waitsFor(()=> {
-        return ReactTestUtils.scryRenderedDOMComponentsWithClass(this.component, 'emoji-picker').length > 0
+        expect(ReactDOM.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(this.component, 'emoji-option')).textContent.indexOf(":hamburger:") !== -1).toBe(true);
       });
     })
   })

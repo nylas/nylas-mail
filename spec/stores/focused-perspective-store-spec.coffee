@@ -15,9 +15,9 @@ describe "FocusedPerspectiveStore", ->
     @account = AccountStore.accounts()[0]
 
     @inboxCategory = new Category(id: 'id-123', name: 'inbox', displayName: "INBOX", accountId: @account.id)
-    @inboxFilter = MailboxPerspective.forCategory(@inboxCategory)
+    @inboxPerspective = MailboxPerspective.forCategory(@inboxCategory)
     @userCategory = new Category(id: 'id-456', name: null, displayName: "MyCategory", accountId: @account.id)
-    @userFilter = MailboxPerspective.forCategory(@userCategory)
+    @userPerspective = MailboxPerspective.forCategory(@userCategory)
 
     spyOn(CategoryStore, "getStandardCategory").andReturn @inboxCategory
     spyOn(CategoryStore, "byId").andCallFake (id) =>
@@ -25,7 +25,7 @@ describe "FocusedPerspectiveStore", ->
       return @userCategory if id is @userCategory.id
       return null
 
-  describe "_initCurrentPerspective", ->
+  describe "_loadSavedPerspective", ->
     beforeEach ->
       @default = 'default'
       @accounts = [{id: 1}, {id: 2}]
@@ -33,52 +33,50 @@ describe "FocusedPerspectiveStore", ->
       spyOn(FocusedPerspectiveStore, '_defaultPerspective').andReturn @default
 
     it "uses default perspective when no perspective has been saved", ->
-      current = FocusedPerspectiveStore._initCurrentPerspective(undefined, @accounts)
+      current = FocusedPerspectiveStore._loadSavedPerspective(undefined, @accounts)
       expect(current).toEqual @default
 
     it "uses default if saved perspective has more account ids not present in current accounts", ->
       saved = {accountIds: [1,2,3]}
-      current = FocusedPerspectiveStore._initCurrentPerspective(saved, @accounts)
+      current = FocusedPerspectiveStore._loadSavedPerspective(saved, @accounts)
       expect(current).toEqual @default
 
       saved = {accountIds: [3]}
-      current = FocusedPerspectiveStore._initCurrentPerspective(saved, @accounts)
+      current = FocusedPerspectiveStore._loadSavedPerspective(saved, @accounts)
       expect(current).toEqual @default
 
     it "uses saved perspective if all accounts in saved perspective are present in the current accounts", ->
       saved = {accountIds: [1,2]}
-      current = FocusedPerspectiveStore._initCurrentPerspective(saved, @accounts)
+      current = FocusedPerspectiveStore._loadSavedPerspective(saved, @accounts)
       expect(current).toEqual saved
 
       saved = {accountIds: [1]}
-      current = FocusedPerspectiveStore._initCurrentPerspective(saved, @accounts)
+      current = FocusedPerspectiveStore._loadSavedPerspective(saved, @accounts)
       expect(current).toEqual saved
 
   describe "_onCategoryStoreChanged", ->
-    it "should set the current category to unified inbox when it is unset", ->
-      FocusedPerspectiveStore._perspective = null
+    it "should load the saved perspective if the perspective has not been initialized", ->
+      spyOn(FocusedPerspectiveStore, '_loadSavedPerspective').andReturn(@inboxPerspective)
       FocusedPerspectiveStore._onCategoryStoreChanged()
-      expect(FocusedPerspectiveStore.current()).not.toBe(null)
+      expect(FocusedPerspectiveStore.current()).toEqual(@inboxPerspective)
 
-      # same because the stub above returns @inboxCategory for both accounts
-      expect(FocusedPerspectiveStore.current().categories()).toEqual([@inboxCategory, @inboxCategory])
-
-    it "should set the current category to Inbox when the current category no longer exists in the CategoryStore", ->
+    it "should set the current category to default when the current category no longer exists in the CategoryStore", ->
+      defaultPerspective = @inboxPerspective
+      spyOn(FocusedPerspectiveStore, '_defaultPerspective').andReturn(defaultPerspective)
       otherAccountInbox = @inboxCategory.clone()
       otherAccountInbox.serverId = 'other-id'
-      FocusedPerspectiveStore._perspective = MailboxPerspective.forCategory(otherAccountInbox)
+      FocusedPerspectiveStore._current = MailboxPerspective.forCategory(otherAccountInbox)
       FocusedPerspectiveStore._onCategoryStoreChanged()
-      # same because the stub above returns @inboxCategory for both accounts
-      expect(FocusedPerspectiveStore.current().categories()).toEqual([@inboxCategory, @inboxCategory])
+      expect(FocusedPerspectiveStore.current()).toEqual(defaultPerspective)
 
   describe "_onFocusPerspective", ->
     it "should focus the category and trigger", ->
-      FocusedPerspectiveStore._onFocusPerspective(@userFilter)
+      FocusedPerspectiveStore._onFocusPerspective(@userPerspective)
       expect(FocusedPerspectiveStore.trigger).toHaveBeenCalled()
       expect(FocusedPerspectiveStore.current().categories()).toEqual([@userCategory])
 
     it "should do nothing if the category is already focused", ->
-      FocusedPerspectiveStore._onFocusPerspective(@inboxFilter)
+      FocusedPerspectiveStore._onFocusPerspective(@inboxPerspective)
       spyOn(FocusedPerspectiveStore, '_setPerspective')
-      FocusedPerspectiveStore._onFocusPerspective(@inboxFilter)
+      FocusedPerspectiveStore._onFocusPerspective(@inboxPerspective)
       expect(FocusedPerspectiveStore._setPerspective).not.toHaveBeenCalled()

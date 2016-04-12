@@ -1,6 +1,7 @@
 _ = require 'underscore'
-React = require 'react/addons'
-ReactTestUtils = React.addons.TestUtils
+React = require 'react'
+ReactDOM = require 'react-dom'
+ReactTestUtils = require('react-addons-test-utils')
 
 {NylasTestUtils,
  Account,
@@ -54,7 +55,6 @@ describe 'TokenizingTextField', ->
     spyOn(@, 'propCompletionNode').andCallThrough()
     spyOn(@, 'propCompletionsForInput').andCallThrough()
 
-    @tabIndex = 100
     @tokens = [participant1, participant2, participant3]
 
     @rebuildRenderedField = (tokens) =>
@@ -75,7 +75,7 @@ describe 'TokenizingTextField', ->
           tabIndex={@tabIndex}
           />
       )
-      @renderedInput = React.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithTag(@renderedField, 'input'))
+      @renderedInput = ReactDOM.findDOMNode(@renderedField).querySelector('input')
       return @renderedField
 
     @rebuildRenderedField()
@@ -85,9 +85,6 @@ describe 'TokenizingTextField', ->
 
   it 'should render an input field', ->
     expect(@renderedInput).toBeDefined()
-
-  it 'applies the tabIndex provided to the inner input', ->
-    expect(@renderedInput.tabIndex).toBe(@tabIndex)
 
   it 'shows the tokens provided by the tokenNode method', ->
     @renderedTokens = ReactTestUtils.scryRenderedComponentsWithType(@renderedField, CustomToken)
@@ -211,7 +208,7 @@ describe 'TokenizingTextField', ->
       ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'abc'}})
       components = ReactTestUtils.scryRenderedComponentsWithType(@renderedField, Menu.Item)
       menuItem = components[0]
-      ReactTestUtils.Simulate.mouseDown(React.findDOMNode(menuItem))
+      ReactTestUtils.Simulate.mouseDown(ReactDOM.findDOMNode(menuItem))
       expect(@propAdd).toHaveBeenCalledWith([participant4])
 
     it "manually enters whatever's in the field when the user presses the space bar as long as it looks like an email", ->
@@ -270,11 +267,9 @@ describe 'TokenizingTextField', ->
 
     it "shouldn't handle the event in the input is empty", ->
       # We ignore on empty input values
-      # NOTE, we still preventDefault
       ReactTestUtils.Simulate.change(@renderedInput, {target: {value: ' '}})
       ReactTestUtils.Simulate.keyDown(@renderedInput, @tabDownEvent)
       expect(@propAdd).not.toHaveBeenCalled()
-      expect(@tabDownEvent.preventDefault).toHaveBeenCalled()
 
     it "should NOT stop the propagation if the input is empty.", ->
       # This is to allow tabs to propagate up to controls that might want
@@ -329,13 +324,13 @@ describe 'TokenizingTextField', ->
       it "should enter editing mode", ->
         tokens = ReactTestUtils.scryRenderedComponentsWithType(@renderedField, TokenizingTextField.Token)
         expect(tokens[0].state.editing).toBe(false)
-        ReactTestUtils.Simulate.doubleClick(React.findDOMNode(tokens[0]), {})
+        ReactTestUtils.Simulate.doubleClick(ReactDOM.findDOMNode(tokens[0]), {})
         expect(tokens[0].state.editing).toBe(true)
 
       it "should call onEdit to commit the new token value when the edit field is blurred", ->
         tokens = ReactTestUtils.scryRenderedComponentsWithType(@renderedField, TokenizingTextField.Token)
         token = tokens[0]
-        tokenEl = React.findDOMNode(token)
+        tokenEl = ReactDOM.findDOMNode(token)
 
         expect(token.state.editing).toBe(false)
         ReactTestUtils.Simulate.doubleClick(tokenEl, {})
@@ -350,7 +345,7 @@ describe 'TokenizingTextField', ->
         @rebuildRenderedField()
         tokens = ReactTestUtils.scryRenderedComponentsWithType(@renderedField, TokenizingTextField.Token)
         expect(tokens[0].state.editing).toBe(false)
-        ReactTestUtils.Simulate.doubleClick(React.findDOMNode(tokens[0]), {})
+        ReactTestUtils.Simulate.doubleClick(ReactDOM.findDOMNode(tokens[0]), {})
         expect(tokens[0].state.editing).toBe(false)
 
   describe "When the user removes a token", ->

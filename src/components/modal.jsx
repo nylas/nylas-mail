@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import Actions from '../flux/actions';
 
 
@@ -25,7 +26,7 @@ class Modal extends React.Component {
   }
 
   _focusImportantElement = ()=> {
-    const modalNode = React.findDOMNode(this);
+    const modalNode = ReactDOM.findDOMNode(this);
 
     const focusable = modalNode.querySelectorAll("[tabIndex], input");
     const matches = _.sortBy(focusable, (node)=> {
@@ -65,7 +66,7 @@ class Modal extends React.Component {
 
   _onBlur = (event)=> {
     const target = event.nativeEvent.relatedTarget;
-    if (!target || (!React.findDOMNode(this).contains(target))) {
+    if (!target || (!ReactDOM.findDOMNode(this).contains(target))) {
       Actions.closeModal();
     }
   };

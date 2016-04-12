@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import NylasStore from 'nylas-store'
 import Actions from '../actions'
 import {Modal} from 'nylas-component-kit';
@@ -18,7 +19,7 @@ class ModalStore extends NylasStore {
     super()
     this.isOpen = false;
     this.container = createContainer(containerId);
-    React.render(<span />, this.container);
+    ReactDOM.render(<span />, this.container);
 
     this.listenTo(Actions.openModal, this.openModal);
     this.listenTo(Actions.closeModal, this.closeModal);
@@ -33,7 +34,7 @@ class ModalStore extends NylasStore {
       <Modal {...props}>{child}</Modal>
     );
 
-    React.render(modal, this.container, ()=> {
+    ReactDOM.render(modal, this.container, ()=> {
       this.isOpen = true;
       this.trigger();
       callback();
@@ -56,7 +57,7 @@ class ModalStore extends NylasStore {
   };
 
   closeModal = (callback = ()=>{})=> {
-    React.render(<span/>, this.container, ()=> {
+    ReactDOM.render(<span/>, this.container, ()=> {
       this.isOpen = false;
       this.trigger();
       callback();

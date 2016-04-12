@@ -7,6 +7,7 @@ describe "NylasSyncWorker", ->
   beforeEach ->
     @apiRequests = []
     @api =
+      APIRoot: 'https://api.nylas.com'
       pluginsSupported: true
       accessTokenForAccountId: =>
         '123'
@@ -46,7 +47,7 @@ describe "NylasSyncWorker", ->
 
   it "should reset `busy` to false when reading state from disk", ->
     @worker = new NylasSyncWorker(@api, @account)
-    spyOn(@worker, 'resumeFetches')
+    spyOn(@worker, 'resume')
     advanceClock()
     expect(@worker.state().contacts.busy).toEqual(false)
 
@@ -59,16 +60,16 @@ describe "NylasSyncWorker", ->
     it "should start querying for model collections and counts that haven't been fully cached", ->
       @worker.start()
       advanceClock()
-      expect(@apiRequests.length).toBe(10)
+      expect(@apiRequests.length).toBe(12)
       modelsRequested = _.compact _.map @apiRequests, ({model}) -> model
-      expect(modelsRequested).toEqual(['threads', 'labels', 'drafts', 'contacts', 'events'])
+      expect(modelsRequested).toEqual(['threads', 'messages', 'labels', 'drafts', 'contacts', 'events'])
 
       countsRequested = _.compact _.map @apiRequests, ({requestOptions}) ->
         if requestOptions.qs?.view is 'count'
           return requestOptions.path
 
-      expect(modelsRequested).toEqual(['threads', 'labels', 'drafts', 'contacts', 'events'])
-      expect(countsRequested).toEqual(['/threads', '/labels', '/drafts', '/contacts', '/events'])
+      expect(modelsRequested).toEqual(['threads', 'messages', 'labels', 'drafts', 'contacts', 'events'])
+      expect(countsRequested).toEqual(['/threads', '/messages', '/labels', '/drafts', '/contacts', '/events'])
 
     it "should fetch 1000 labels and folders, to prevent issues where Inbox is not in the first page", ->
       labelsRequest = _.find @apiRequests, (r) -> r.model is 'labels'
@@ -96,42 +97,45 @@ describe "NylasSyncWorker", ->
         @apiRequests[1].requestOptions.error({statusCode: 400})
         @apiRequests = []
 
-      spyOn(@worker, 'resumeFetches').andCallThrough()
+      spyOn(@worker, 'resume').andCallThrough()
       @worker.start()
 
-      expect(@worker.resumeFetches.callCount).toBe(1)
-      simulateNetworkFailure(); expect(@worker.resumeFetches.callCount).toBe(1)
-      advanceClock(30000); expect(@worker.resumeFetches.callCount).toBe(2)
-      simulateNetworkFailure(); expect(@worker.resumeFetches.callCount).toBe(2)
-      advanceClock(30000); expect(@worker.resumeFetches.callCount).toBe(2)
-      advanceClock(30000); expect(@worker.resumeFetches.callCount).toBe(3)
-      simulateNetworkFailure(); expect(@worker.resumeFetches.callCount).toBe(3)
-      advanceClock(30000); expect(@worker.resumeFetches.callCount).toBe(3)
-      advanceClock(30000); expect(@worker.resumeFetches.callCount).toBe(4)
-      simulateNetworkFailure(); expect(@worker.resumeFetches.callCount).toBe(4)
-      advanceClock(30000); expect(@worker.resumeFetches.callCount).toBe(4)
-      advanceClock(30000); expect(@worker.resumeFetches.callCount).toBe(4)
-      advanceClock(30000); expect(@worker.resumeFetches.callCount).toBe(5)
+      expect(@worker.resume.callCount).toBe(1)
+      simulateNetworkFailure(); expect(@worker.resume.callCount).toBe(1)
+      advanceClock(4000); expect(@worker.resume.callCount).toBe(2)
+      simulateNetworkFailure(); expect(@worker.resume.callCount).toBe(2)
+      advanceClock(4000); expect(@worker.resume.callCount).toBe(2)
+      advanceClock(4000); expect(@worker.resume.callCount).toBe(3)
+      simulateNetworkFailure(); expect(@worker.resume.callCount).toBe(3)
+      advanceClock(4000); expect(@worker.resume.callCount).toBe(3)
+      advanceClock(4000); expect(@worker.resume.callCount).toBe(3)
+      advanceClock(4000); expect(@worker.resume.callCount).toBe(4)
+      simulateNetworkFailure(); expect(@worker.resume.callCount).toBe(4)
+      advanceClock(4000); expect(@worker.resume.callCount).toBe(4)
+      advanceClock(4000); expect(@worker.resume.callCount).toBe(4)
+      advanceClock(4000); expect(@worker.resume.callCount).toBe(4)
+      advanceClock(4000); expect(@worker.resume.callCount).toBe(4)
+      advanceClock(4000); expect(@worker.resume.callCount).toBe(5)
 
     it "handles the request as a failure if we try and grab labels or folders without an 'inbox'", ->
-      spyOn(@worker, 'resumeFetches').andCallThrough()
+      spyOn(@worker, 'resume').andCallThrough()
       @worker.start()
-      expect(@worker.resumeFetches.callCount).toBe(1)
+      expect(@worker.resume.callCount).toBe(1)
       request = _.findWhere(@apiRequests, model: 'labels')
       request.requestOptions.success([])
-      expect(@worker.resumeFetches.callCount).toBe(1)
+      expect(@worker.resume.callCount).toBe(1)
       advanceClock(30000)
-      expect(@worker.resumeFetches.callCount).toBe(2)
+      expect(@worker.resume.callCount).toBe(2)
 
     it "handles the request as a success if we try and grab labels or folders and it includes the 'inbox'", ->
-      spyOn(@worker, 'resumeFetches').andCallThrough()
+      spyOn(@worker, 'resume').andCallThrough()
       @worker.start()
-      expect(@worker.resumeFetches.callCount).toBe(1)
+      expect(@worker.resume.callCount).toBe(1)
       request = _.findWhere(@apiRequests, model: 'labels')
       request.requestOptions.success([{name: "inbox"}, {name: "archive"}])
-      expect(@worker.resumeFetches.callCount).toBe(1)
+      expect(@worker.resume.callCount).toBe(1)
       advanceClock(30000)
-      expect(@worker.resumeFetches.callCount).toBe(1)
+      expect(@worker.resume.callCount).toBe(1)
 
   describe "delta streaming cursor", ->
     it "should read the cursor from the database, and the old config format", ->
@@ -179,7 +183,7 @@ describe "NylasSyncWorker", ->
       nextState = @worker.state()
       expect(nextState.threads.count).toEqual(1001)
 
-  describe "resumeFetches", ->
+  describe "resume", ->
     it "should fetch metadata first and fetch other collections when metadata is ready", ->
       fetchAllMetadataCallback = null
       jasmine.unspy(NylasSyncWorker.prototype, 'fetchAllMetadata')
@@ -187,7 +191,7 @@ describe "NylasSyncWorker", ->
         fetchAllMetadataCallback = cb
       spyOn(@worker, 'fetchCollection')
       @worker._state = {}
-      @worker.resumeFetches()
+      @worker.resume()
       expect(@worker.fetchAllMetadata).toHaveBeenCalled()
       expect(@worker.fetchCollection.calls.length).toBe(0)
       fetchAllMetadataCallback()
@@ -198,7 +202,7 @@ describe "NylasSyncWorker", ->
       spyOn(NylasSyncWorker.prototype, '_fetchWithErrorHandling')
       spyOn(@worker, 'fetchCollection')
       @worker._state = {}
-      @worker.resumeFetches()
+      @worker.resume()
       expect(@worker._fetchWithErrorHandling).not.toHaveBeenCalled()
       expect(@worker.fetchCollection.calls.length).not.toBe(0)
 
@@ -206,13 +210,13 @@ describe "NylasSyncWorker", ->
       spyOn(@worker, 'fetchCollection')
       spyOn(@worker, 'shouldFetchCollection').andCallFake (collection) =>
         return collection in ['threads', 'labels', 'drafts']
-      @worker.resumeFetches()
+      @worker.resume()
       expect(@worker.fetchCollection.calls.map (call) -> call.args[0]).toEqual(['threads', 'labels', 'drafts'])
 
-    it "should be called when Actions.retryInitialSync is received", ->
-      spyOn(@worker, 'resumeFetches').andCallThrough()
-      Actions.retryInitialSync()
-      expect(@worker.resumeFetches).toHaveBeenCalled()
+    it "should be called when Actions.retrySync is received", ->
+      spyOn(@worker, 'resume').andCallThrough()
+      Actions.retrySync()
+      expect(@worker.resume).toHaveBeenCalled()
 
   describe "shouldFetchCollection", ->
     it "should return false if the collection sync is already in progress", ->
@@ -293,6 +297,55 @@ describe "NylasSyncWorker", ->
         expect(@worker._state.threads.fetched).toBe(100)
         expect(@worker._state.threads.count).toBe(1200)
         expect(@apiRequests.length).toBe(1)
+
+    describe 'when maxFetchCount option is specified', ->
+      it "should only fetch maxFetch count on the first request if it is less than initialPageSize", ->
+        @worker._state.messages =
+          count: 1000
+          fetched: 0
+        @worker.fetchCollection('messages', {initialPageSize: 30, maxFetchCount: 25})
+        expect(@apiRequests[0].params.offset).toBe 0
+        expect(@apiRequests[0].params.limit).toBe 25
+
+      it "sould only fetch the maxFetchCount when restoring from saved state", ->
+        @worker._state.messages =
+          count: 1000
+          fetched: 470
+          errorRequestRange: {
+            limit: 50,
+            offset: 470,
+          }
+        @worker.fetchCollection('messages', {maxFetchCount: 500})
+        expect(@apiRequests[0].params.offset).toBe 470
+        expect(@apiRequests[0].params.limit).toBe 30
+
+  describe "fetchCollectionPage", ->
+    beforeEach ->
+      @apiRequests = []
+
+    describe 'when maxFetchCount option is specified', ->
+      it 'should not fetch next page if maxFetchCount has been reached', ->
+        @worker._state.messages =
+          count: 1000
+          fetched: 470
+        @worker.fetchCollectionPage('messages', {limit: 30, offset: 470}, {maxFetchCount: 500})
+        {success} = @apiRequests[0].requestOptions
+        success({length: 30})
+        expect(@worker._state.messages.fetched).toBe 500
+        advanceClock(2000)
+        expect(@apiRequests.length).toBe 1
+
+      it 'should limit by maxFetchCount when requesting the next page', ->
+        @worker._state.messages =
+          count: 1000
+          fetched: 450
+        @worker.fetchCollectionPage('messages', {limit: 30, offset: 450 }, {maxFetchCount: 500})
+        {success} = @apiRequests[0].requestOptions
+        success({length: 30})
+        expect(@worker._state.messages.fetched).toBe 480
+        advanceClock(2000)
+        expect(@apiRequests[1].params.offset).toBe 480
+        expect(@apiRequests[1].params.limit).toBe 20
 
   describe "when an API request completes", ->
     beforeEach ->
@@ -398,7 +451,7 @@ describe "NylasSyncWorker", ->
 
     it "should stop trying to restart failed collection syncs", ->
       spyOn(console, 'log')
-      spyOn(@worker, 'resumeFetches').andCallThrough()
+      spyOn(@worker, 'resume').andCallThrough()
       @worker.cleanup()
       advanceClock(50000)
-      expect(@worker.resumeFetches.callCount).toBe(0)
+      expect(@worker.resume.callCount).toBe(0)

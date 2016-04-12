@@ -1,6 +1,7 @@
 /** @babel */
 import Rx from 'rx-lite'
 import React, {Component, PropTypes} from 'react'
+import ReactDOM from 'react-dom'
 import {Actions, DateUtils, Message, DatabaseStore} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
 import SendLaterPopover from './send-later-popover'
@@ -42,7 +43,7 @@ class SendLaterButton extends Component {
   };
 
   onClick = () => {
-    const buttonRect = React.findDOMNode(this).getBoundingClientRect()
+    const buttonRect = ReactDOM.findDOMNode(this).getBoundingClientRect()
     Actions.openPopover(
       <SendLaterPopover
         scheduledDate={this.state.scheduledDate}
@@ -75,7 +76,7 @@ class SendLaterButton extends Component {
 
     if (scheduledDate === 'saving') {
       return (
-        <button className={className} title="Saving send date...">
+        <button className={className} title="Saving send date..." tabIndex={-1}>
           <RetinaImg
             name="inline-loading-spinner.gif"
             mode={RetinaImg.Mode.ContentDark}
@@ -94,7 +95,7 @@ class SendLaterButton extends Component {
       }
     }
     return (
-      <button className={className} title="Send later…" onClick={this.onClick}>
+      <button className={className} title="Send later…" onClick={this.onClick} tabIndex={-1}>
         <RetinaImg name="icon-composer-sendlater.png" mode={RetinaImg.Mode.ContentIsMask} />
         {dateInterpretation}
         <span>&nbsp;</span>

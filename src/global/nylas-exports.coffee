@@ -55,11 +55,13 @@ class NylasExports
   @load "EdgehillAPI", 'flux/edgehill-api'
 
   # The Database
+  @load "Matcher", 'flux/attributes/matcher'
   @load "DatabaseStore", 'flux/stores/database-store'
   @load "DatabaseTransaction", 'flux/stores/database-transaction'
   @load "QueryResultSet", 'flux/models/query-result-set'
   @load "MutableQueryResultSet", 'flux/models/mutable-query-result-set'
   @load "ObservableListDataSource", 'flux/stores/observable-list-data-source'
+  @load "CalendarDataSource", 'components/nylas-calendar/calendar-data-source'
   @load "QuerySubscription", 'flux/models/query-subscription'
   @load "MutableQuerySubscription", 'flux/models/mutable-query-subscription'
   @load "QuerySubscriptionPool", 'flux/models/query-subscription-pool'
@@ -155,6 +157,7 @@ class NylasExports
 
   # Libraries
   @get "React", -> require 'react' # Our version of React for 3rd party use
+  @get "ReactDOM", -> require 'react-dom'
   @get "Reflux", -> require 'reflux'
   @get "Rx", -> require 'rx-lite'
   @get "Keytar", -> require 'keytar' # atom-keytar access through native module
@@ -192,7 +195,6 @@ class NylasExports
 
   # Errors
   @get "APIError", -> require('../flux/errors').APIError
-  @get "OfflineError", -> require('../flux/errors').OfflineError
   @get "TimeoutError", -> require('../flux/errors').TimeoutError
 
   # Process Internals

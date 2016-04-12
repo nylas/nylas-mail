@@ -1,5 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
+ReactDOM = require 'react-dom'
 
 {Utils, DOMUtils} = require 'nylas-exports'
 {KeyCommandsRegion} = require 'nylas-component-kit'
@@ -212,7 +213,7 @@ class Contenteditable extends React.Component
         extensions={@_extensions()} />
 
   _editableNode: =>
-    React.findDOMNode(@refs.contenteditable)
+    ReactDOM.findDOMNode(@refs.contenteditable)
 
 
   ######################################################################
@@ -551,8 +552,6 @@ class Contenteditable extends React.Component
   # 2. A sister-component that used to have the selection was unmounted
   # causing the selection to be null or the document
   _shouldRestoreSelectionOnUpdate: ->
-    (not @innerState.dragging) and
-    (document.activeElement is @_editableNode() or
-    not @_editableNode().parentNode.contains(document.activeElement))
+    !@innerState.dragging and document.activeElement is @_editableNode()
 
 module.exports = Contenteditable

@@ -1,7 +1,7 @@
 import React from 'react';
 import Actions from '../../../src/flux/actions'
 
-import {Flexbox, RetinaImg} from 'nylas-component-kit';
+import {Flexbox, RetinaImg, ScrollRegion} from 'nylas-component-kit';
 import ThemeOption from './theme-option';
 
 
@@ -38,12 +38,12 @@ class ThemePicker extends React.Component {
   }
 
   _rewriteIFrame(prevActiveTheme, activeTheme) {
-    const prevActiveThemeDoc = document.querySelector(`.theme-preview-${prevActiveTheme}`).contentDocument;
+    const prevActiveThemeDoc = document.querySelector(`.theme-preview-${prevActiveTheme.replace(/\./g, '-')}`).contentDocument;
     const prevActiveElement = prevActiveThemeDoc.querySelector(".theme-option.active-true");
-    prevActiveElement.className = "theme-option active-false";
-    const activeThemeDoc = document.querySelector(`.theme-preview-${activeTheme}`).contentDocument;
+    if (prevActiveElement) prevActiveElement.className = "theme-option active-false";
+    const activeThemeDoc = document.querySelector(`.theme-preview-${activeTheme.replace(/\./g, '-')}`).contentDocument;
     const activeElement = activeThemeDoc.querySelector(".theme-option.active-false");
-    activeElement.className = "theme-option active-true";
+    if (activeElement) activeElement.className = "theme-option active-true";
   }
 
   _renderThemeOptions() {
@@ -67,20 +67,20 @@ class ThemePicker extends React.Component {
         <Flexbox direction="column">
           <RetinaImg
             className="theme-picker-x"
-            style={{width: "14", height: "14", WebkitFilter: "none"}}
+            style={{width: "14", WebkitFilter: "none"}}
             name="picker-close.png"
             mode={RetinaImg.Mode.ContentDark}
             onMouseDown={() => Actions.closeModal()} />
           <h4 style={{color: "#434648"}}>Themes</h4>
           <div style={{color: "rgba(35, 31, 32, 0.5)", fontSize: "12px"}}>Click any theme to apply:</div>
-          <div style={{margin: "10px 5px 0 5px", height: "290px", overflow: "auto"}}>
+          <ScrollRegion style={{margin: "10px 5px 0 5px", height: "290px"}}>
             <Flexbox
               direction="row"
               height="auto"
               style={{alignItems: "flex-start", flexWrap: "wrap"}}>
               {this._renderThemeOptions()}
             </Flexbox>
-          </div>
+          </ScrollRegion>
           <div className="create-theme">
             <a
               href="https://github.com/nylas/N1-theme-starter"

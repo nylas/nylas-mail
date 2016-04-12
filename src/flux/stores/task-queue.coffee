@@ -87,8 +87,6 @@ class TaskQueue
     @listenTo Actions.dequeueAllTasks, @dequeueAll
     @listenTo Actions.dequeueMatchingTask, @dequeueMatching
     @listenTo Actions.clearDeveloperConsole,  @clearCompleted
-    @listenTo Actions.longPollConnected, =>
-      @_processQueue()
 
   queue: =>
     @_queue

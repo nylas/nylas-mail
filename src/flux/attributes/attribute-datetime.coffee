@@ -32,5 +32,17 @@ class AttributeDateTime extends Attribute
     throw (new Error "AttributeDateTime::lessThan (#{@modelKey}) - this field cannot be queried against") unless @queryable
     new Matcher(@, '<', val)
 
+  # Public: Returns a {Matcher} for objects greater than the provided value.
+  greaterThanOrEqualTo: (val) ->
+    throw (new Error "AttributeNumber::greaterThanOrEqualTo (#{@modelKey}) - you must provide a value") unless val?
+    throw (new Error "AttributeNumber::greaterThanOrEqualTo (#{@modelKey}) - this field cannot be queried against") unless @queryable
+    new Matcher(@, '>=', val)
+
+  # Public: Returns a {Matcher} for objects less than the provided value.
+  lessThanOrEqualTo: (val) ->
+    throw (new Error "AttributeNumber::lessThanOrEqualTo (#{@modelKey}) - you must provide a value") unless val?
+    throw (new Error "AttributeNumber::lessThanOrEqualTo (#{@modelKey}) - this field cannot be queried against") unless @queryable
+    new Matcher(@, '<=', val)
+
 
 module.exports = AttributeDateTime

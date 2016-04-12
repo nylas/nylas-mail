@@ -113,7 +113,7 @@ class DraftStore
   sessionForClientId: (clientId) =>
     if not clientId
       throw new Error("DraftStore::sessionForClientId requires a clientId")
-    @_draftSessions[clientId] ?= new DraftStoreProxy(clientId)
+    @_draftSessions[clientId] ?= @_createSession(clientId)
     @_draftSessions[clientId].prepare()
 
   # Public: Look up the sending state of the given draftClientId.
@@ -247,14 +247,19 @@ class DraftStore
 
     # Optimistically create a draft session and hand it the draft so that it
     # doesn't need to do a query for it a second from now when the composer wants it.
-    @_draftSessions[draft.clientId] = new DraftStoreProxy(draft.clientId, draft)
+    @_createSession(draft.clientId, draft)
 
     DatabaseStore.inTransaction (t) =>
       t.persistModel(draft)
     .then =>
-      @_onPopoutDraftClientId(draft.clientId) if popout
-      Actions.focusDraft({draftClientId: draft.clientId})
+      if popout
+        @_onPopoutDraftClientId(draft.clientId)
+      else
+        Actions.focusDraft({draftClientId: draft.clientId})
     .thenReturn({draftClientId: draft.clientId, draft: draft})
+
+  _createSession: (clientId, draft) =>
+    @_draftSessions[clientId] = new DraftStoreProxy(clientId, draft)
 
   _onPopoutBlankDraft: =>
     DraftFactory.createDraft().then (draft) =>
@@ -265,9 +270,11 @@ class DraftStore
     if not draftClientId?
       throw new Error("DraftStore::onPopoutDraftId - You must provide a draftClientId")
 
+    draftJSON = null
     save = Promise.resolve()
     if @_draftSessions[draftClientId]
       save = @_draftSessions[draftClientId].changes.commit()
+      draftJSON = @_draftSessions[draftClientId].draft().toJSON()
 
     title = if options.newDraft then "New Message" else "Message"
 
@@ -281,7 +288,7 @@ class DraftStore
         NylasEnv.newWindow
           title: title
           windowType: "composer"
-          windowProps: _.extend(options, {draftClientId})
+          windowProps: _.extend(options, {draftClientId, draftJSON})
 
   _onHandleMailtoLink: (event, urlString) =>
     DraftFactory.createDraftForMailto(urlString).then (draft) =>
@@ -314,8 +321,7 @@ class DraftStore
   _onEnsureDraftSynced: (draftClientId) =>
     @sessionForClientId(draftClientId).then (session) =>
       @_prepareForSyncback(session).then =>
-        if session.draft().files.length or session.draft().uploads.length
-          Actions.queueTask(new SyncbackDraftFilesTask(draftClientId))
+        @_queueDraftAssetTasks(session.draft())
         Actions.queueTask(new SyncbackDraftTask(draftClientId))
 
   _onSendDraft: (draftClientId) =>
@@ -325,13 +331,16 @@ class DraftStore
       @_prepareForSyncback(session).then =>
         if NylasEnv.config.get("core.sending.sounds")
           SoundRegistry.playSound('hit-send')
-        if session.draft().files.length or session.draft().uploads.length
-          Actions.queueTask(new SyncbackDraftFilesTask(draftClientId))
+        @_queueDraftAssetTasks(session.draft())
         Actions.queueTask(new SendDraftTask(draftClientId))
         @_doneWithSession(session)
 
         if @_isPopout()
           NylasEnv.close()
+
+  _queueDraftAssetTasks: (draft) =>
+    if draft.files.length > 0 or draft.uploads.length > 0
+      Actions.queueTask(new SyncbackDraftFilesTask(draft.clientId))
 
   _isPopout: ->
     NylasEnv.getWindowType() is "composer"

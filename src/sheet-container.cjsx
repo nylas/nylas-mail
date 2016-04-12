@@ -1,10 +1,10 @@
-React = require 'react/addons'
+React = require 'react'
+ReactCSSTransitionGroup = require 'react-addons-css-transition-group'
 Sheet = require './sheet'
 Toolbar = require './sheet-toolbar'
 Flexbox = require './components/flexbox'
 RetinaImg = require './components/retina-img'
 InjectedComponentSet = require './components/injected-component-set'
-TimeoutTransitionGroup = require './components/timeout-transition-group'
 _ = require 'underscore'
 
 {Actions,
@@ -42,11 +42,11 @@ class SheetContainer extends React.Component
 
       <div name="Center" style={order:2, flex: 1, position:'relative', zIndex: 1}>
         {sheetElements[0]}
-        <TimeoutTransitionGroup leaveTimeout={125}
-                                enterTimeout={125}
+        <ReactCSSTransitionGroup transitionLeaveTimeout={125}
+                                transitionEnterTimeout={125}
                                 transitionName="sheet-stack">
           {sheetElements[1..-1]}
-        </TimeoutTransitionGroup>
+        </ReactCSSTransitionGroup>
       </div>
 
       <div name="Footer" style={order:3, zIndex: 4}>
@@ -64,11 +64,11 @@ class SheetContainer extends React.Component
     toolbarElements = @_toolbarElements()
     <div name="Toolbar" style={order:0, zIndex: 3} className="sheet-toolbar">
       {toolbarElements[0]}
-      <TimeoutTransitionGroup  leaveTimeout={125}
-                               enterTimeout={125}
+      <ReactCSSTransitionGroup  transitionLeaveTimeout={125}
+                               transitionEnterTimeout={125}
                                transitionName="opacity-125ms">
         {toolbarElements[1..-1]}
-      </TimeoutTransitionGroup>
+      </ReactCSSTransitionGroup>
     </div>
 
   _toolbarElements: =>

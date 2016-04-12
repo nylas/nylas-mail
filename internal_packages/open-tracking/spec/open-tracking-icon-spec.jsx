@@ -1,19 +1,19 @@
-import React, {addons} from 'react/addons';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import {findRenderedDOMComponentWithClass} from 'react-addons-test-utils';
+
 import {Message} from 'nylas-exports'
 import {renderIntoDocument} from '../../../spec/nylas-test-utils'
 import OpenTrackingIcon from '../lib/open-tracking-icon'
 import {PLUGIN_ID} from '../lib/open-tracking-constants'
 
 
-const {findDOMNode} = React;
-const {TestUtils: {findRenderedDOMComponentWithClass}} = addons;
-
 function makeIcon(thread, props = {}) {
   return renderIntoDocument(<OpenTrackingIcon {...props} thread={thread} />);
 }
 
 function find(component, className) {
-  return findDOMNode(findRenderedDOMComponentWithClass(component, className))
+  return ReactDOM.findDOMNode(findRenderedDOMComponentWithClass(component, className))
 }
 
 function addOpenMetadata(obj, openCount) {
@@ -69,4 +69,3 @@ describe("Open tracking icon", () => {
     });
   });
 });
-

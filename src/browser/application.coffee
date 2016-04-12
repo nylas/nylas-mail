@@ -78,7 +78,6 @@ class Application
 
     if not @config.get('core.disabledPackagesInitialized')
       exampleNewNames = {
-        'N1-Quick-Schedule': 'quick-schedule',
         'N1-Composer-Templates': 'composer-templates',
         'N1-Composer-Translate': 'composer-translate',
         'N1-Message-View-on-Github':'message-view-on-github',
@@ -128,6 +127,12 @@ class Application
     @handleEvents()
 
     @launchWithOptions(options)
+
+  getMainNylasWindow: ->
+    @windowManager.mainWindow()
+
+  getMainWindow: ->
+    @getMainNylasWindow().browserWindow
 
   # Opens a new window based on the options provided.
   launchWithOptions: ({urlsToOpen, pathsToOpen, specMode, safeMode, specDirectory, specFilePattern, logFile, showSpecsInWindow}) ->

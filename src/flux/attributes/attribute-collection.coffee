@@ -22,7 +22,7 @@ This is equivalent to writing the following SQL:
 
 ```sql
 SELECT `Thread`.`data` FROM `Thread`
-INNER JOIN `Thread-Label` AS `M1` ON `M1`.`id` = `Thread`.`id`
+INNER JOIN `ThreadLabel` AS `M1` ON `M1`.`id` = `Thread`.`id`
 WHERE `M1`.`value` = 'inbox'
 ORDER BY `Thread`.`last_message_received_timestamp` DESC
 ```
@@ -32,10 +32,11 @@ The value of this attribute is always an array of other model objects.
 Section: Database
 ###
 class AttributeCollection extends Attribute
-  constructor: ({modelKey, jsonKey, itemClass, joinOnField}) ->
+  constructor: ({modelKey, jsonKey, itemClass, joinOnField, joinQueryableBy}) ->
     super
     @itemClass = itemClass
     @joinOnField = joinOnField
+    @joinQueryableBy = joinQueryableBy || []
     @
 
   toJSON: (vals) ->

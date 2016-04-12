@@ -1,8 +1,10 @@
 _ = require 'underscore'
 path = require 'path'
 React = require 'react'
+ReactDOM = require 'react-dom'
+ReactCSSTransitionGroup = require 'react-addons-css-transition-group'
 classNames = require 'classnames'
-{RetinaImg, TimeoutTransitionGroup} = require 'nylas-component-kit'
+{RetinaImg} = require 'nylas-component-kit'
 {Actions,
 Utils,
 ComponentRegistry,
@@ -50,13 +52,13 @@ class UndoRedoComponent extends React.Component
     classes = classNames
       "undo-redo-manager": true
 
-    <TimeoutTransitionGroup
+    <ReactCSSTransitionGroup
       className={classes}
-      leaveTimeout={150}
-      enterTimeout={150}
+      transitionLeaveTimeout={150}
+      transitionEnterTimeout={150}
       transitionName="undo-redo-item">
       {@_renderUndoRedoManager()}
-    </TimeoutTransitionGroup>
+    </ReactCSSTransitionGroup>
 
   _renderUndoRedoManager: =>
     return unless @state.show

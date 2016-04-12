@@ -47,6 +47,8 @@ class AutoUpdateManager
   setupAutoUpdater: ->
     if process.platform is 'win32'
       autoUpdater = require './windows-updater-squirrel-adapter'
+    else if process.platform is 'linux'
+      autoUpdater = require './linux-updater-adapter'
     else
       autoUpdater = require('electron').autoUpdater
 
@@ -77,11 +79,8 @@ class AutoUpdateManager
       @check(hidePopups: true)
     , (1000 * 60 * 30)
 
-    switch process.platform
-      when 'win32'
-        @setState(UnsupportedState) unless autoUpdater.supportsUpdates()
-      when 'linux'
-        @setState(UnsupportedState)
+    if autoUpdater.supportsUpdates?
+      @setState(UnsupportedState) unless autoUpdater.supportsUpdates()
 
   emitUpdateAvailableEvent: (windows...) ->
     return unless @releaseVersion

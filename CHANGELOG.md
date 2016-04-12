@@ -1,5 +1,45 @@
 # N1 Changelog
 
+### 0.4.25 (4/12/16)
+
+- Features:
+  + Search: N1 now performs client-side search and streams results from backend providers,
+    dramatically improving search performance.
+
+  + Quick Schedule: Create events and propose meeting times right from the composer. We've
+    overhauled the design and implementation of the old Quick Scheduler, and more calendar
+    features are coming soon.
+
+  + Offline Status: N1 now displays a notice when it's disconnected from the API, so it's easy
+    to tell if your mailbox is up-to-date.
+
+- Performance:
+  + We've redesigned the join tables that back the thread list, improving unified inbox
+    loading speed ~53%.
+
+- Bugs:
+  + N1 now ships with emoji artwork so emoji aren't missing or incomplete on many platforms.
+  + The thread list updates more quickly following rapid mailbox actions.
+  + Thread drag-and-drop now works properly in all scenarios.
+  + Messages with invalid dates no longer cause N1 to crash.
+  + The thread list no longer displays an empty state briefly when loading.
+  + Sync progress in the sidebar no longer appears in some scenarios after sync has finished.
+  + Images with no width or height are now correctly scaled to the viewport size in emails.
+  + BCC'd recipients are no longer listed in headers when forwarding a message.
+  + `.ly` links and many others are now automatically highlighted in emails correctly.
+  + Read receipts no longer throw exceptions when the only message on a thread is a draft.
+  + The "Process All Mail" option in mail rules preferences now only processes the inbox,
+    and never skips threads.
+  + Themes with dashes in their folder names no longer break the theme picker.
+  + N1 always handles mailto: links itself rather than launching the default client.
+  + Inline images now load properly in all scenarios and display a progress indicator as they download.
+  + The preferences interface has a brand new look!
+
+- Development:
+  + SQLite table names no longer contain dashes.
+  + N1 now uses React `0.14.7`, will be moving to 15 very soon.
+  + 12% fewer LOC in CoffeeScript than `0.4.19`! We are slowly moving N1 to ES2016.
+
 ### 0.4.19 (3/25/16)
 
 - Features:
@@ -25,7 +65,7 @@
   + Filesystem errors (no disk space, wrong permissions, etc.) are presented when uploading or downloading attachments.
   + Double-clicking image attachments now opens them.
   + When you receive email to an alias, replies are sent from that alias by default.
-  + Search works more reliably, waits loner for results, and displays errors when results cannot be loaded.
+  + Search works more reliably, waits longer for results, and displays errors when results cannot be loaded.
   + Read receipts are now visible in the narrow thread list.
   + The undo/redo bar no longer appears when returning to your mailbox from Drafts.
   + N1 no longer hangs while processing links in very large emails.

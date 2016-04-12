@@ -1,7 +1,7 @@
 _ = require 'underscore'
-React = require "react/addons"
-ReactTestUtils = React.addons.TestUtils
-TestUtils = React.addons.TestUtils
+React = require "react"
+ReactDOM = require "react-dom"
+ReactTestUtils = require 'react-addons-test-utils'
 {Contact, Message, DOMUtils} = require "nylas-exports"
 MessageParticipants = require "../lib/message-participants"
 
@@ -42,7 +42,7 @@ many_thread_users = [user_1].concat(many_users)
 describe "MessageParticipants", ->
   describe "when collapsed", ->
     makeParticipants = (props) ->
-      TestUtils.renderIntoDocument(
+      ReactTestUtils.renderIntoDocument(
         <MessageParticipants {...props} />
       )
 
@@ -54,7 +54,7 @@ describe "MessageParticipants", ->
     it "uses short names", ->
       actualOut = makeParticipants(to: test_message.to)
       to = ReactTestUtils.findRenderedDOMComponentWithClass(actualOut, "to-contact")
-      expect(React.findDOMNode(to).innerHTML).toBe "User"
+      expect(ReactDOM.findDOMNode(to).innerHTML).toBe "User"
 
     it "doesn't render any To nodes if To array is empty", ->
       actualOut = makeParticipants(to: [])
@@ -76,7 +76,7 @@ describe "MessageParticipants", ->
 
   describe "when expanded", ->
     beforeEach ->
-      @participants = TestUtils.renderIntoDocument(
+      @participants = ReactTestUtils.renderIntoDocument(
         <MessageParticipants to={test_message.to}
                              cc={test_message.cc}
                              from={test_message.from}
@@ -90,7 +90,7 @@ describe "MessageParticipants", ->
 
     it "uses full names", ->
       to = ReactTestUtils.findRenderedDOMComponentWithClass(@participants, "to-contact")
-      expect(React.findDOMNode(to).innerText.trim()).toEqual "User Two<user2@nylas.com>"
+      expect(ReactDOM.findDOMNode(to).innerText.trim()).toEqual "User Two<user2@nylas.com>"
 
 
   # TODO: We no longer display "to everyone"
