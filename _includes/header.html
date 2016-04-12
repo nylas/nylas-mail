@@ -1,44 +1,48 @@
-<div id="nav" class="nav {% if page.overview %}index-nav{% endif %}">
-  <div class="container">
-    <a class="logo" href="{{ site.baseurl }}/">
-      <span style="font-weight:400; padding-right:7px; font-size:25px; display:inline-block; float:left;">Nylas</span>
-      <span style="font-weight:300; font-size:25px; display:inline-block;">N1</span>
-    </a>
+<header id="page-header">
+  <nav id="nylas-navbar" class="navbar theme-light" role="navigation">
+    <div class="container">
 
-    <ul class="main-nav-actions">
-      <li class="{% if page.overview %}active{% endif %}">
-        <a href="{{ site.baseurl }}/">Home</a>
-      </li>
-      <li class="{% if page.url contains '/examples' %}active{% endif %}">
-        <a href="{{ site.baseurl }}/examples">Plugins</a>
-      </li>
-      <li class="">
-        <a href="https://support.nylas.com">FAQ</a>
-      </li>
-      <li class="{% if page.url contains '/getting-started' %}active{% endif %}">
-        <a href="{{ site.baseurl }}/getting-started/">Getting Started</a>
-      </li>
-      <li class="{% if page.url contains '/docs/' %}active{% endif %}">
-        <a href="{{ site.baseurl }}/docs/">Documentation</a>
-      </li>
-    </ul>
-    <div class="alt-nav-actions">
-      <ul>
-        <li><a href="http://slack-invite.nylas.com/" target="_blank">Support</a></li>
-        <li><a href="https://github.com/nylas/N1" target="_blank" rel="N1
-            Source on Github" style="padding: 0 15px 0 0"><img
-            src="{{ site.baseurl }}/images/GitHub-Mark-32px.png" style="width: 24px;
-            position: relative; top: 7px;"></a></li>
-        <li><a id="nav-download-button" class="btn btn-emphasis"
-               href="https://invite.nylas.com/download"
-               onclick="window.trackDownloadLink('navbar')">Download</a></li>
-      </ul>
+      <a class="navbar-logo-wrap" href="/" onclick="_gaq.push(['_trackEvent', 'Navigation', 'Home Page', 'Navbar'])">
+
+        <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+        <svg width="29px" height="30px" style="vertical-align: text-bottom" viewBox="0 0 29 30" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <title>Nylas Logo</title>
+            <desc>Nylas Logo</desc>
+            <defs></defs>
+            <g id="Mocks" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                <g class="logo-mark" transform="translate(-154.000000, -86.000000)" fill="#666">
+                    <path d="M154,99.04 L167.495845,107.52 L167.495845,101.44 L154,92.96 L154,99.04 Z M154,107.52 L167.495845,116 L167.495845,109.92 L154,101.44 L154,107.52 Z M169.504155,108.8 L179.090222,114.82336 C180.787886,115.89 183,114.67512 183,112.67616 L183,111.2 L169.504155,102.72 L169.504155,108.8 Z M169.504155,100.4 L183,108.88 L183,102.8 L169.504155,94.32 L169.504155,100.4 Z M154,90.64 L167.495845,99.12 L167.495845,93.04 L157.638898,86.84648 C156.05892,85.85368 154,86.9844 154,88.84488 L154,90.64 Z M169.504155,86 L169.504155,92.08 L183,100.56 L183,94.48 L169.504155,86 Z" id="Logo---single-color"></path>
+                </g>
+            </g>
+        </svg>
+
+        <span class="logo-text" >Nylas</span>
+      </a>
+
+      <div id="navbar-burger" class="navbar-burger">
+        <img src="/static/img/navbar/ic-burger@2x.png" width="19.5px" alt="">
+      </div>
+
+      <div class="navbar-wrap">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="https://nylas.com/features">Features</a></li>
+          <li><a href="https://nylas.com/developers">Developers</a></li>
+          <li><a href="https://nylas.zendesk.com/">Support</a></li>
+          <li class="has-submenu">
+            <a>More ⌄</a>
+            <ul>
+              <li><a href="https://nylas.com/cloud/">Nylas Cloud APIs</a></li>
+              <li><a href="https://nylas.com/security">Security</a></li>
+              <li><a href="https://nylas.com/pricing">Pricing</a></li>
+              <li><a href="https://github.com/nylas">Open Source</a></li>
+              <li><a href="https://nylas.com/blog">Blog</a></li>
+              <li><a href="https://nylas.com/team">Team</a></li>
+              <li><a href="https://nylas.com/jobs">Jobs</a></li>
+              <li><a href="https://nylas.com/about">About Nylas</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div><!--/.nav-collapse -->
     </div>
-  </div>
-  <div id="hamburger" class="hamburger"><hr><hr><hr></div>
-  <script>
-    $("#hamburger").on("click", function() {
-      $("#nav").toggleClass("open");
-    });
-  </script>
-</div>
+  </nav>
+</header>
