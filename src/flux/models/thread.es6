@@ -80,6 +80,7 @@ class Thread extends ModelWithMetadata {
       queryable: true,
       joinOnField: 'email',
       modelKey: 'participants',
+      joinQueryableBy: ['lastMessageReceivedTimestamp'],
       itemClass: Contact,
     }),
 
@@ -115,9 +116,13 @@ class Thread extends ModelWithMetadata {
       'CREATE TABLE IF NOT EXISTS `ThreadCounts` (`category_id` TEXT PRIMARY KEY, `unread` INTEGER, `total` INTEGER)',
       'CREATE UNIQUE INDEX IF NOT EXISTS ThreadCountsIndex ON `ThreadCounts` (category_id DESC)',
 
+      'CREATE INDEX IF NOT EXISTS ThreadContactDateIndex ON `ThreadContact`(last_message_received_timestamp DESC, value, id)',
+
+      'CREATE INDEX IF NOT EXISTS ThreadDateIndex ON `Thread`(last_message_received_timestamp DESC, id)',
+      'CREATE INDEX IF NOT EXISTS ThreadStarIndex ON Thread(account_id, starred)',
+
       'CREATE INDEX IF NOT EXISTS ThreadListCategoryIndex ON `ThreadCategory`(last_message_received_timestamp DESC, value, in_all_mail, unread, id)',
       'CREATE INDEX IF NOT EXISTS ThreadListCategorySentIndex ON `ThreadCategory`(last_message_sent_timestamp DESC, value, in_all_mail, unread, id)',
-      'CREATE INDEX IF NOT EXISTS ThreadStarIndex ON Thread(account_id, starred)',
     ],
   }
 
