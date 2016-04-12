@@ -152,9 +152,8 @@ RegExpUtils =
   hasValidSchemeRegex: -> new RegExp('^[a-z][a-z0-9+.-]*:', 'i')
 
   emojiRegex: -> FBS_REGEXP = new RegExp(
-      "(?:#{EmojiData.chars({include_variants: true}).join("|")})",
-      "g"
-    )
+    "(?:#{EmojiData.chars({include_variants: true}).join("|")})",
+    "g")
 
   looseStyleTag: -> /<style/gim
 
