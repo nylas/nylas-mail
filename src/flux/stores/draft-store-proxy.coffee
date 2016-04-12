@@ -48,7 +48,6 @@ class DraftChangeSet
 
   addPluginMetadata: (pluginId, metadata) =>
     changes = {}
-    console.log("Add plugin metadata: #{JSON.stringify(metadata)}")
     changes["#{MetadataChangePrefix}#{pluginId}"] = metadata
     @add(changes)
 
