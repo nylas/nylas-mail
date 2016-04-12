@@ -1,3 +1,4 @@
+_ = require 'underscore'
 Actions = require './actions'
 Model = require './models/model'
 DatabaseStore = require './stores/database-store'
@@ -37,6 +38,7 @@ class ActionBridge
   @TargetWindows: TargetWindows
 
   constructor: (ipc) ->
+    @globalActions = []
     @ipc = ipc
     @ipcLastSendTime = null
     @initiatorId = NylasEnv.getWindowType()
@@ -66,6 +68,21 @@ class ActionBridge
         callback = (args...) => @onRebroadcast(TargetWindows.WORK, name, args)
         Actions[name].listen(callback, @)
 
+  registerGlobalAction: ({scope, name, actionFn}) =>
+    @globalActions.push({scope, name, actionFn})
+    callback = (args...) =>
+      broadcastName = "#{scope}::#{name}"
+      @onRebroadcast(TargetWindows.ALL, broadcastName, args)
+    actionFn.listen(callback, @)
+
+  _isExtensionAction: (name) ->
+    name.split("::").length is 2
+
+  _globalExtensionAction: (broadcastName) ->
+    [scope, name] = broadcastName.split("::")
+    {actionFn} = _.findWhere(@globalActions, {scope, name}) ? {}
+    return actionFn
+
   onIPCMessage: (event, initiatorId, name, json) =>
     # There's something very strange about IPC event handlers. The ReactRemoteParent
     # threw React exceptions when calling setState from an IPC callback, and the debugger
@@ -87,12 +104,20 @@ class ActionBridge
       else if Actions[name]
         Actions[name].firing = true
         Actions[name](args...)
+      else if @_isExtensionAction(name)
+        fn = @_globalExtensionAction(name)
+        if fn
+          fn.firing = true
+          fn(args...)
       else
         throw new Error("#{@initiatorId} received unknown action-bridge event: #{name}")
 
   onRebroadcast: (target, name, args) =>
     if Actions[name]?.firing
       Actions[name].firing = false
+      return
+    else if @_globalExtensionAction(name)?.firing
+      @_globalExtensionAction(name).firing = false
       return
 
     params = []

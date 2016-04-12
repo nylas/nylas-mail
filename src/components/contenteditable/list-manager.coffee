@@ -13,24 +13,24 @@ class ListManager extends ContenteditableExtension
     @_collapseAdjacentLists(editor)
 
   @onKeyDown: ({editor, event}) ->
-    @_spaceEntered = event.key is " "
-    if DOMUtils.isInList()
-      if event.key is "Backspace" and DOMUtils.atStartOfList()
-        event.preventDefault()
-        @outdentListItem(editor)
-      else if event.key is "Tab" and editor.currentSelection().isCollapsed
-        event.preventDefault()
-        if event.shiftKey
-          @outdentListItem(editor)
-        else
-          editor.indent()
-      else
-        # Do nothing, let the event through.
-        @originalInput = null
-    else
-      @originalInput = null
-
-    return event
+    # @_spaceEntered = event.key is " "
+    # if DOMUtils.isInList()
+    #   if event.key is "Backspace" and DOMUtils.atStartOfList()
+    #     event.preventDefault()
+    #     @outdentListItem(editor)
+    #   else if event.key is "Tab" and editor.currentSelection().isCollapsed
+    #     event.preventDefault()
+    #     if event.shiftKey
+    #       @outdentListItem(editor)
+    #     else
+    #       editor.indent()
+    #   else
+    #     # Do nothing, let the event through.
+    #     @originalInput = null
+    # else
+    #   @originalInput = null
+    #
+    # return event
 
   @bulletRegex: -> /^[*-]\s/
 

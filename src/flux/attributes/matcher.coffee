@@ -1,6 +1,11 @@
 _ = require 'underscore'
 {tableNameForJoin} = require '../models/utils'
 
+# https://www.sqlite.org/faq.html#q14
+# That's right. Two single quotes in a row…
+singleQuoteEscapeSequence = "''"
+
+
 ###
 Public: The Matcher class encapsulates a particular comparison clause on an {Attribute}.
 Matchers can evaluate whether or not an object matches them, and also compose
@@ -63,6 +68,8 @@ class Matcher
       when '=' then return modelValue == matcherValue
       when '<' then return modelValue < matcherValue
       when '>' then return modelValue > matcherValue
+      when '<=' then return modelValue <= matcherValue
+      when '>=' then return modelValue >= matcherValue
       when 'in' then return modelValue in matcherValue
       when 'contains'
         !!modelArrayContainsValue(modelValue, matcherValue)
@@ -76,20 +83,19 @@ class Matcher
       else
         throw new Error("Matcher.evaulate() not sure how to evaluate @{@attr.modelKey} with comparator #{@comparator}")
 
+  joinTableRef: ->
+    "M#{@muid}"
+
   joinSQL: (klass) ->
     switch @comparator
       when 'contains', 'containsAny'
         joinTable = tableNameForJoin(klass, @attr.itemClass)
-        return "INNER JOIN `#{joinTable}` AS `M#{@muid}` ON `M#{@muid}`.`id` = `#{klass.name}`.`id`"
+        joinTableRef = @joinTableRef()
+        return "INNER JOIN `#{joinTable}` AS `#{joinTableRef}` ON `#{joinTableRef}`.`id` = `#{klass.name}`.`id`"
       else
         return false
 
   whereSQL: (klass) ->
-
-    # https://www.sqlite.org/faq.html#q14
-    # That's right. Two single quotes in a row…
-    singleQuoteEscapeSequence = "''"
-
     if @comparator is "like"
       val = "%#{@val}%"
     else
@@ -101,6 +107,8 @@ class Matcher
       escaped = 1
     else if val is false
       escaped = 0
+    else if val instanceof Date
+      escaped = val.getTime() / 1000
     else if val instanceof Array
       escapedVals = []
       for v in val
@@ -114,9 +122,9 @@ class Matcher
       when 'startsWith'
         return " RAISE `TODO`; "
       when 'contains'
-        return "`M#{@muid}`.`value` = #{escaped}"
+        return "`#{@joinTableRef()}`.`value` = #{escaped}"
       when 'containsAny'
-        return "`M#{@muid}`.`value` IN #{escaped}"
+        return "`#{@joinTableRef()}`.`value` IN #{escaped}"
       else
         return "`#{klass.name}`.`#{@attr.jsonKey}` #{@comparator} #{escaped}"
 
@@ -177,8 +185,69 @@ class AndCompositeMatcher extends Matcher
       wheres.push(matcher.whereSQL(klass))
     return "(" + wheres.join(" AND ") + ")"
 
+class NotCompositeMatcher extends Matcher
+  constructor: (@children) ->
+    @
+
+  attribute: =>
+    null
+
+  value: =>
+    null
+
+  evaluate: (model) =>
+    not _.every(@children, (matcher) -> matcher.evaluate(model))
+
+  joinSQL: (klass) =>
+    joins = []
+    for matcher in @children
+      join = matcher.joinSQL(klass)
+      joins.push(join) if join
+    return joins
+
+  whereSQL: (klass) =>
+    wheres = []
+    for matcher in @children
+      wheres.push(matcher.whereSQL(klass))
+    return "NOT (" + wheres.join(" AND ") + ")"
+
+class SearchMatcher extends Matcher
+  constructor: (searchQuery) ->
+    super(null, null, null)
+    @searchQuery = (
+      searchQuery.trim()
+      .replace(/^['"]/, "")
+      .replace(/['"]$/, "")
+      .replace(/'/g, singleQuoteEscapeSequence)
+    )
+    @
+
+  attribute: =>
+    null
+
+  value: =>
+    null
+
+  # The only way to truly check if a model matches this matcher is to run the query
+  # again and check if the model is in the results. This is too expensive, so we
+  # will always return true so models aren't excluded from the
+  # SearchQuerySubscription result set
+  evaluate: (model) =>
+    true
+
+  joinSQL: (klass) =>
+    searchTable = "#{klass.name}Search"
+    joinTableRef = @joinTableRef()
+    return "INNER JOIN `#{searchTable}` AS `#{joinTableRef}` ON `#{joinTableRef}`.`content_id` = `#{klass.name}`.`id`"
+
+  whereSQL: (klass) =>
+    searchTable = "#{klass.name}Search"
+    return "`#{searchTable}` MATCH '\"#{@searchQuery}\"'"
+
 Matcher.muid = 0
 Matcher.Or = OrCompositeMatcher
 Matcher.And = AndCompositeMatcher
+Matcher.Not = NotCompositeMatcher
+Matcher.Search = SearchMatcher
 
 module.exports = Matcher

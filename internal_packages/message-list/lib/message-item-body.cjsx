@@ -2,6 +2,7 @@ React = require 'react'
 _ = require 'underscore'
 EmailFrame = require './email-frame'
 {Utils,
+ CanvasUtils,
  NylasAPI,
  MessageUtils,
  MessageBodyProcessor,
@@ -25,7 +26,8 @@ class MessageItemBody extends React.Component
       error: null
 
   componentWillMount: =>
-    @_unsub = MessageBodyProcessor.subscribe(@props.message, @_onBodyProcessed)
+    @_unsub = MessageBodyProcessor.subscribe @props.message, (processedBody) =>
+      @setState({processedBody})
 
   componentDidMount: =>
     @_onFetchBody() if not _.isString(@props.message.body)
@@ -33,7 +35,8 @@ class MessageItemBody extends React.Component
   componentWillReceiveProps: (nextProps) ->
     if nextProps.message.id isnt @props.message.id
       @_unsub?()
-      @_unsub = MessageBodyProcessor.subscribe(nextProps.message, @_onBodyProcessed)
+      @_unsub = MessageBodyProcessor.subscribe nextProps.message, (processedBody) =>
+        @setState({processedBody})
 
   componentWillUnmount: =>
     @_unmounted = true
@@ -52,7 +55,9 @@ class MessageItemBody extends React.Component
 
   _renderBody: =>
     if _.isString(@props.message.body) and _.isString(@state.processedBody)
-      <EmailFrame showQuotedText={@state.showQuotedText} content={@state.processedBody}/>
+      finalBody = @_mergeBodyWithFiles(@state.processedBody)
+
+      <EmailFrame showQuotedText={@state.showQuotedText} content={finalBody}/>
     else if @state.error
       <div className="message-body-error">
         Sorry, this message could not be loaded. (Status code {@state.error.statusCode})
@@ -90,9 +95,7 @@ class MessageItemBody extends React.Component
       return if @_unmounted
       @setState({error})
 
-  _onBodyProcessed: (body) =>
-    downloadingSpinnerPath = Utils.imageNamed('inline-loading-spinner.gif')
-
+  _mergeBodyWithFiles: (body) =>
     # Replace cid:// references with the paths to downloaded files
     for file in @props.message.files
       download = @props.downloads[file.id]
@@ -101,7 +104,8 @@ class MessageItemBody extends React.Component
       if download and download.state isnt 'finished'
         # Render a spinner and inject a `style` tag that injects object-position / object-fit
         body = body.replace cidRegexp, (text, quoteCharacter) ->
-          "#{downloadingSpinnerPath}#{quoteCharacter} style=#{quoteCharacter} object-position: 50% 50%; object-fit: none; "
+          dataUri = CanvasUtils.dataURIForLoadedPercent(download.percent)
+          "#{dataUri}#{quoteCharacter} style=#{quoteCharacter} object-position: 50% 50%; object-fit: none; "
       else
         # Render the completed download
         body = body.replace cidRegexp, (text, quoteCharacter) ->
@@ -112,7 +116,6 @@ class MessageItemBody extends React.Component
     # no "missing image" region shown, just a space.
     body = body.replace(MessageUtils.cidRegex, "src=\"#{TransparentPixel}\"")
 
-    @setState
-      processedBody: body
+    return body
 
 module.exports = MessageItemBody

@@ -1,8 +1,9 @@
 _ = require 'underscore'
 React = require "react"
+ReactCSSTransitionGroup = require 'react-addons-css-transition-group'
 FullContactStore = require "./fullcontact-store"
 
-{InjectedComponentSet, TimeoutTransitionGroup} = require 'nylas-component-kit'
+{InjectedComponentSet} = require 'nylas-component-kit'
 
 SidebarFullContactDetails = require "./sidebar-fullcontact-details"
 

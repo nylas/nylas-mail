@@ -140,7 +140,10 @@ body.platform-win32 {
       color: @text-color-very-subtle;
       img.content-mask { background-color: @text-color-very-subtle; }
       font-size: @font-size-small;
-      padding-left: 1em;
+      padding: 10px 6px;
+      &:last-child {
+        padding-right: 0;
+      }
       &:hover {
         color: @text-color-link;
         img.content-mask { background-color: @text-color-link; }
@@ -162,7 +165,7 @@ body.platform-win32 {
   .composer-field-label {
     color: @text-color-very-subtle;
     float: left;
-    padding-top: 6px;
+    padding-top: 13px;
     display: block;
   }
 
@@ -194,7 +197,7 @@ body.platform-win32 {
 
     .num-remaining-wrap {
       position: absolute;
-      right: 0;
+      right: -3px;
       z-index: 2;
       top: 6px;
       .show-more-fade {
@@ -308,12 +311,6 @@ body.platform-win32 {
       min-height: @line-height-computed;
     }
   }
-
-  .from-picker {
-    &:hover {
-      cursor: default;
-    }
-  }
 }
 
 // Overrides for the composer in a message-list
@@ -351,7 +348,6 @@ body.platform-win32 {
 //////////////////////////////////
 .composer-participant-field {
   position: relative;
-  padding: 8px 0 0 0;
   margin: 0 8+@spacing-standard;
   flex-shrink: 0;
   border-bottom: 1px solid @border-color-divider;
@@ -360,8 +356,12 @@ body.platform-win32 {
 
   .button-dropdown {
     margin-left: 10px;
+    padding-top: 11px;
     vertical-align: -webkit-baseline-middle;
 
+    .primary-item, .only-item {
+      line-height: 2em;
+    }
     &:hover {
       .primary-item,
       .only-item {

@@ -1,0 +1,17 @@
+{
+  "name": "thread-search-index",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Keeps search index up to date",
+  "license": "GPL-3.0",
+  "private": true,
+  "engines": {
+    "nylas": "*"
+  },
+  "dependencies": {
+  },
+  "windowTypes": {
+    "work": true
+  }
+}
+

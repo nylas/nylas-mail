@@ -1,5 +1,5 @@
-React = require "react/addons"
-ReactTestUtils = React.addons.TestUtils
+React = require "react"
+ReactTestUtils = require('react-addons-test-utils')
 
 _ = require 'underscore'
 {AccountStore, Thread, Contact, Message} = require 'nylas-exports'

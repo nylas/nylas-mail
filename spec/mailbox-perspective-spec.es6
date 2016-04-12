@@ -186,13 +186,6 @@ describe('MailboxPerspective', ()=> {
       assertMoved('a2').from('label2').to('trash2')
     })
 
-    it('moves to default finished perspective if viewing search', ()=> {
-      const perspective = MailboxPerspective.forSearch(this.accountIds, '')
-      perspective.tasksForRemovingItems(this.threads, Default)
-      assertMoved('a1').to('archive')
-      assertMoved('a2').to('trash2')
-    });
-
     it('unstars if viewing starred', ()=> {
       spyOn(TaskFactory, 'taskForInvertingStarred').andReturn({some: 'task'})
       const perspective = MailboxPerspective.forStarred(this.accountIds)

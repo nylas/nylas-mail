@@ -1,5 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
+ReactDOM = require 'react-dom'
 classNames = require 'classnames'
 
 {MultiselectList,
@@ -41,12 +42,12 @@ class ThreadList extends React.Component
 
   componentDidMount: =>
     window.addEventListener('resize', @_onResize, true)
-    React.findDOMNode(@).addEventListener('contextmenu', @_onShowContextMenu)
+    ReactDOM.findDOMNode(@).addEventListener('contextmenu', @_onShowContextMenu)
     @_onResize()
 
   componentWillUnmount: =>
     window.removeEventListener('resize', @_onResize, true)
-    React.findDOMNode(@).removeEventListener('contextmenu', @_onShowContextMenu)
+    ReactDOM.findDOMNode(@).removeEventListener('contextmenu', @_onShowContextMenu)
 
   _shift: ({offset, afterRunning}) =>
     dataSource = ThreadListStore.dataSource()
@@ -202,7 +203,7 @@ class ThreadList extends React.Component
 
   _onResize: (event) =>
     current = @state.style
-    desired = if React.findDOMNode(@).offsetWidth < 540 then 'narrow' else 'wide'
+    desired = if ReactDOM.findDOMNode(@).offsetWidth < 540 then 'narrow' else 'wide'
     if current isnt desired
       @setState(style: desired)
 

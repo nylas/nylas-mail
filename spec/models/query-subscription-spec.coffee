@@ -81,7 +81,6 @@ describe "QuerySubscription", ->
         ]
         mustUpdate: false
         mustTrigger: true
-        mustRefetchAllIds: false
       },{
         name: 'Item in set saved - new sort value'
         change:
@@ -94,9 +93,8 @@ describe "QuerySubscription", ->
           new Thread(accountId: 'a', clientId: '3', lastMessageReceivedTimestamp: 3),
           new Thread(accountId: 'a', clientId: '2', lastMessageReceivedTimestamp: 2),
         ]
-        mustUpdate: false
+        mustUpdate: true
         mustTrigger: true
-        mustRefetchAllIds: true
       },{
         name: 'Item saved - does not match query clauses, offset > 0'
         change:
@@ -105,7 +103,6 @@ describe "QuerySubscription", ->
           type: 'persist'
         nextModels: 'unchanged'
         mustUpdate: true
-        mustRefetchAllIds: true
       },{
         name: 'Item saved - matches query clauses'
         change:
@@ -113,7 +110,6 @@ describe "QuerySubscription", ->
           objects: [new Thread(accountId: 'a', clientId: '5', lastMessageReceivedTimestamp: -2)]
           type: 'persist'
         mustUpdate: true
-        mustRefetchAllIds: true
       },{
         name: 'Item in set saved - no longer matches query clauses'
         change:
@@ -126,7 +122,6 @@ describe "QuerySubscription", ->
           new Thread(accountId: 'a', clientId: '1', lastMessageReceivedTimestamp: 1),
         ]
         mustUpdate: true
-        mustRefetchAllIds: false
       },{
         name: 'Item in set deleted'
         change:
@@ -139,7 +134,6 @@ describe "QuerySubscription", ->
           new Thread(accountId: 'a', clientId: '1', lastMessageReceivedTimestamp: 1),
         ]
         mustUpdate: true
-        mustRefetchAllIds: false
       },{
         name: 'Item not in set deleted'
         change:
@@ -148,7 +142,6 @@ describe "QuerySubscription", ->
           type: 'unpersist'
         nextModels: 'unchanged'
         mustUpdate: false
-        mustRefetchAllIds: false
       }]
 
     },{
@@ -174,7 +167,6 @@ describe "QuerySubscription", ->
           objects: [new Thread(accountId: 'a', clientId: '3', lastMessageReceivedTimestamp: 1, unread: true)]
           type: 'persist'
         mustUpdate: true
-        mustRefetchAllIds: true
       }]
     }]
 
@@ -193,31 +185,29 @@ describe "QuerySubscription", ->
             subscription._updateInFlight = false
             subscription.applyChangeRecord(test.change)
 
-            if test.mustRefetchAllIds
-              expect(subscription._set).toBe(null)
-            else if test.nextModels is 'unchanged'
-              expect(subscription._set.models()).toEqual(scenario.lastModels)
-            else
-              expect(subscription._set.models()).toEqual(test.nextModels)
-
             if test.mustUpdate
-              expect(subscription.update).toHaveBeenCalled()
+              expect(subscription.update).toHaveBeenCalledWith({mustRefetchEntireRange: true})
+            else
+              if test.nextModels is 'unchanged'
+                expect(subscription._set.models()).toEqual(scenario.lastModels)
+              else
+                expect(subscription._set.models()).toEqual(test.nextModels)
 
             if test.mustTriger
               expect(subscription._createResultAndTrigger).toHaveBeenCalled()
 
   describe "update", ->
     beforeEach ->
-      spyOn(QuerySubscription.prototype, '_fetchMissingRange').andCallFake ->
+      spyOn(QuerySubscription.prototype, '_fetchRange').andCallFake ->
         @_set ?= new MutableQueryResultSet()
         Promise.resolve()
 
     describe "when the query has an infinite range", ->
-      it "should call _fetchMissingRange for the entire range", ->
+      it "should call _fetchRange for the entire range", ->
         subscription = new QuerySubscription(DatabaseStore.findAll(Thread))
         subscription.update()
         advanceClock()
-        expect(subscription._fetchMissingRange).toHaveBeenCalledWith(QueryRange.infinite(), {fetchEntireModels: true, version: 1})
+        expect(subscription._fetchRange).toHaveBeenCalledWith(QueryRange.infinite(), {fetchEntireModels: true, version: 1})
 
       it "should fetch full full models only when the previous set is empty", ->
         subscription = new QuerySubscription(DatabaseStore.findAll(Thread))
@@ -225,23 +215,23 @@ describe "QuerySubscription", ->
         subscription._set.addModelsInRange([new Thread()], new QueryRange(start: 0, end: 1))
         subscription.update()
         advanceClock()
-        expect(subscription._fetchMissingRange).toHaveBeenCalledWith(QueryRange.infinite(), {fetchEntireModels: false, version: 1})
+        expect(subscription._fetchRange).toHaveBeenCalledWith(QueryRange.infinite(), {fetchEntireModels: false, version: 1})
 
     describe "when the query has a range", ->
       beforeEach ->
         @query = DatabaseStore.findAll(Thread).limit(10)
 
       describe "when we have no current range", ->
-        it "should call _fetchMissingRange for the entire range and fetch full models", ->
+        it "should call _fetchRange for the entire range and fetch full models", ->
           subscription = new QuerySubscription(@query)
           subscription._set = null
           subscription.update()
           advanceClock()
-          expect(subscription._fetchMissingRange).toHaveBeenCalledWith(@query.range(), {fetchEntireModels: true, version: 1})
+          expect(subscription._fetchRange).toHaveBeenCalledWith(@query.range(), {fetchEntireModels: true, version: 1})
 
       describe "when we have a previous range", ->
 
-        it "should call _fetchMissingRange with the missingRange", ->
+        it "should call _fetchRange with the missingRange", ->
           customRange = jasmine.createSpy('customRange1')
           spyOn(QueryRange, 'rangesBySubtracting').andReturn [customRange]
           subscription = new QuerySubscription(@query)
@@ -249,14 +239,14 @@ describe "QuerySubscription", ->
           subscription._set.addModelsInRange([new Thread()], new QueryRange(start: 0, end: 1))
 
           advanceClock()
-          subscription._fetchMissingRange.reset()
+          subscription._fetchRange.reset()
           subscription._updateInFlight = false
           subscription.update()
           advanceClock()
-          expect(subscription._fetchMissingRange.callCount).toBe(1)
-          expect(subscription._fetchMissingRange.calls[0].args).toEqual([customRange, {fetchEntireModels: true, version: 1}])
+          expect(subscription._fetchRange.callCount).toBe(1)
+          expect(subscription._fetchRange.calls[0].args).toEqual([customRange, {fetchEntireModels: true, version: 1}])
 
-        it "should call _fetchMissingRange for the entire query range when the missing range encompasses more than one range", ->
+        it "should call _fetchRange for the entire query range when the missing range encompasses more than one range", ->
           customRange1 = jasmine.createSpy('customRange1')
           customRange2 = jasmine.createSpy('customRange2')
           spyOn(QueryRange, 'rangesBySubtracting').andReturn [customRange1, customRange2]
@@ -267,9 +257,9 @@ describe "QuerySubscription", ->
           subscription._set.addModelsInRange([new Thread()], range)
 
           advanceClock()
-          subscription._fetchMissingRange.reset()
+          subscription._fetchRange.reset()
           subscription._updateInFlight = false
           subscription.update()
           advanceClock()
-          expect(subscription._fetchMissingRange.callCount).toBe(1)
-          expect(subscription._fetchMissingRange.calls[0].args).toEqual([@query.range(), {fetchEntireModels: true, version: 1}])
+          expect(subscription._fetchRange.callCount).toBe(1)
+          expect(subscription._fetchRange.calls[0].args).toEqual([@query.range(), {fetchEntireModels: true, version: 1}])

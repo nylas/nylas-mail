@@ -1,4 +1,4 @@
-React = require 'react/addons'
+React = require 'react'
 {RetinaImg} = require 'nylas-component-kit'
 
 # This component renders buttons and is the default view in the

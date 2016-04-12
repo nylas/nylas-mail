@@ -13,36 +13,34 @@ Note: SUM(unread) works because unread is represented as an int: 0 or 1.
 ###
 
 ReadCountsQuery = ->
-  "SELECT * FROM `Thread-Counts`"
+  "SELECT * FROM `ThreadCounts`"
 
 SetCountsQuery = ->
   """
-  REPLACE INTO `Thread-Counts` (category_id, unread, total)
+  REPLACE INTO `ThreadCounts` (category_id, unread, total)
   SELECT
-    `Thread-Category`.`value` as category_id,
-    SUM(unread) as unread,
+    `ThreadCategory`.`value` as category_id,
+    SUM(`ThreadCategory`.`unread`) as unread,
     COUNT(*) as total
-  FROM `Thread`
-  INNER JOIN `Thread-Category` ON `Thread`.`id` = `Thread-Category`.`id`
+  FROM `ThreadCategory`
   WHERE
-    `Thread`.in_all_mail = 1
-  GROUP BY `Thread-Category`.`value`;
+    `ThreadCategory`.in_all_mail = 1
+  GROUP BY `ThreadCategory`.`value`;
   """
 
 UpdateCountsQuery = (objectIds, operator) ->
   objectIdsString = "'" + objectIds.join("','") +  "'"
   """
-  REPLACE INTO `Thread-Counts` (category_id, unread, total)
+  REPLACE INTO `ThreadCounts` (category_id, unread, total)
   SELECT
-    `Thread-Category`.`value` as category_id,
-    COALESCE((SELECT unread FROM `Thread-Counts` WHERE category_id = `Thread-Category`.`value`), 0) #{operator} SUM(unread) as unread,
-    COALESCE((SELECT total  FROM `Thread-Counts` WHERE category_id = `Thread-Category`.`value`), 0) #{operator} COUNT(*) as total
-  FROM `Thread`
-  INNER JOIN `Thread-Category` ON `Thread`.`id` = `Thread-Category`.`id`
+    `ThreadCategory`.`value` as category_id,
+    COALESCE((SELECT unread FROM `ThreadCounts` WHERE category_id = `ThreadCategory`.`value`), 0) #{operator} SUM(`ThreadCategory`.`unread`) as unread,
+    COALESCE((SELECT total  FROM `ThreadCounts` WHERE category_id = `ThreadCategory`.`value`), 0) #{operator} COUNT(*) as total
+  FROM `ThreadCategory`
   WHERE
-    `Thread`.id IN (#{objectIdsString}) AND
-    `Thread`.in_all_mail = 1
-  GROUP BY `Thread-Category`.`value`
+    `ThreadCategory`.id IN (#{objectIdsString}) AND
+    `ThreadCategory`.in_all_mail = 1
+  GROUP BY `ThreadCategory`.`value`
   """
 
 class CategoryDatabaseMutationObserver

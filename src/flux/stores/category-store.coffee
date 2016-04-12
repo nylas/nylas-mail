@@ -134,15 +134,14 @@ class CategoryStore extends NylasStore
   # account have been loaded into the local cache
   #
   whenCategoriesReady: (accountOrId) =>
-    if not accountOrId
-      Promise.reject('whenCategoriesReady: must pass an account or accountId')
+    accounts = AccountStore.accounts()
+    accounts = [asAccount(accountOrId)] if accountOrId
 
-    account = asAccount(accountOrId)
-    categoryCollection = account.categoryCollection()
-    categoriesReady = => (
-      @categories(account).length > 0 and
-      NylasSyncStatusStore.isSyncCompleteForAccount(account.id, categoryCollection)
-    )
+    categoriesReady = =>
+      _.every accounts, (acc) =>
+        populated = @categories(acc).length > 0
+        fetched = NylasSyncStatusStore.isSyncCompleteForAccount(acc.id, acc.categoryCollection())
+        return populated and fetched
 
     if not categoriesReady()
       return new Promise (resolve) =>
@@ -158,7 +157,6 @@ class CategoryStore extends NylasStore
             resolve()
 
     return Promise.resolve()
-
 
   _onCategoriesChanged: (categories) =>
     @_categoryResult = categories

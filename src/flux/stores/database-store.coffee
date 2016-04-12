@@ -16,7 +16,7 @@ DatabaseTransaction = require './database-transaction'
 
 {ipcRenderer} = require 'electron'
 
-DatabaseVersion = 21
+DatabaseVersion = 23
 DatabasePhase =
   Setup: 'setup'
   Ready: 'ready'
@@ -115,6 +115,7 @@ class DatabaseStore extends NylasStore
         @_checkDatabaseVersion {allowNotSet: true}, =>
           @_runDatabaseSetup =>
             app.setDatabasePhase(DatabasePhase.Ready)
+            setTimeout(@_runDatabaseAnalyze, 60 * 1000)
 
     else if phase is DatabasePhase.Ready
       @_openDatabase =>
@@ -204,6 +205,13 @@ class DatabaseStore extends NylasStore
               console.log("Could not re-import mail rules: #{err}")
           ready()
 
+  _runDatabaseAnalyze: =>
+    builder = new DatabaseSetupQueryBuilder()
+    async.each builder.analyzeQueries(), (query, callback) =>
+      @_db.run(query, [], callback)
+    , (err) =>
+      console.log("Completed ANALYZE of database")
+
   _handleSetupError: (err) =>
     NylasEnv.reportError(err)
 
@@ -265,9 +273,10 @@ class DatabaseStore extends NylasStore
         if DEBUG_QUERY_PLANS
           @_db.all "EXPLAIN QUERY PLAN #{query}", values, (err, results=[]) =>
             str = results.map((row) -> row.detail).join('\n') + " for " + query
-            return if str.indexOf("SCAN") is -1
-            return if str.indexOf('Thread-Counts') > 0
-            @_prettyConsoleLog(str)
+            return if str.indexOf('ThreadCounts') > 0
+            return if str.indexOf('ThreadSearch') > 0
+            if str.indexOf('SCAN') isnt -1 and str.indexOf('COVERING INDEX') is -1
+              @_prettyConsoleLog(str)
 
       # Important: once the user begins a transaction, queries need to run
       # in serial.  This ensures that the subsequent "COMMIT" call
@@ -510,6 +519,98 @@ class DatabaseStore extends NylasStore
 
     return @_triggerPromise
 
+
+  # Search Index Operations
+
+  createSearchIndexSql: (klass) =>
+    throw new Error("DatabaseStore::createSearchIndex - You must provide a class") unless klass
+    throw new Error("DatabaseStore::createSearchIndex - #{klass.name} must expose an array of `searchFields`") unless klass
+    searchTableName = "#{klass.name}Search"
+    searchFields = klass.searchFields
+    return (
+      "CREATE VIRTUAL TABLE IF NOT EXISTS `#{searchTableName}` " +
+      "USING fts5(
+        tokenize='porter unicode61',
+        content_id UNINDEXED,
+        #{searchFields.join(', ')}
+      )"
+    )
+
+  createSearchIndex: (klass) =>
+    sql = @createSearchIndexSql(klass)
+    @_query(sql)
+
+  searchIndexSize: (klass) =>
+    searchTableName = "#{klass.name}Search"
+    sql = "SELECT COUNT(content_id) as count FROM `#{searchTableName}`"
+    return @_query(sql).then((result) => result[0].count)
+
+  isIndexEmptyForAccount: (accountId, modelKlass) =>
+    modelTable = modelKlass.name
+    searchTable = "#{modelTable}Search"
+    sql = (
+      "SELECT `#{searchTable}`.`content_id` FROM `#{searchTable}` INNER JOIN `#{modelTable}`
+      ON `#{modelTable}`.id = `#{searchTable}`.`content_id` WHERE `#{modelTable}`.`account_id` = ?
+      LIMIT 1"
+    )
+    return @_query(sql, [accountId]).then((result) => result.length is 0)
+
+  dropSearchIndex: (klass) =>
+    throw new Error("DatabaseStore::createSearchIndex - You must provide a class") unless klass
+    searchTableName = "#{klass.name}Search"
+    sql = "DROP TABLE IF EXISTS `#{searchTableName}`"
+    @_query(sql)
+
+  indexModel: (model, indexData) =>
+    searchTableName = "#{model.constructor.name}Search"
+    indexFields = Object.keys(indexData)
+    keysSql = 'content_id, ' + indexFields.join(", ")
+    valsSql = '?, ' + indexFields.map(=> '?').join(", ")
+    values = [model.id].concat(indexFields.map((k) => indexData[k]))
+    sql = (
+      "INSERT INTO `#{searchTableName}`(#{keysSql}) VALUES (#{valsSql})"
+    )
+    return @_query(sql, values)
+
+  updateModelIndex: (model, indexData) =>
+    searchTableName = "#{model.constructor.name}Search"
+    exists = (
+      "SELECT rowid FROM `#{searchTableName}` WHERE `#{searchTableName}`.`content_id` = ?"
+    )
+    return @_query(exists, [model.id])
+    .then((results) =>
+      isIndexed = results.length > 0
+      if (not isIndexed)
+        return @indexModel(model, indexData)
+
+      indexFields = Object.keys(indexData)
+      values = indexFields.map((key) => indexData[key]).concat([model.id])
+      setSql = (
+        indexFields
+        .map((key) => "`#{key}` = ?")
+        .join(', ')
+      )
+      sql = (
+        "UPDATE `#{searchTableName}` SET #{setSql} WHERE `#{searchTableName}`.`content_id` = ?"
+      )
+      return @_query(sql, values)
+    )
+
+  unindexModel: (model) =>
+    searchTableName = "#{model.constructor.name}Search"
+    sql = (
+      "DELETE FROM `#{searchTableName}` WHERE `#{searchTableName}`.`content_id` = ?"
+    )
+    return @_query(sql, [model.id])
+
+  unindexModelsForAccount: (accountId, modelKlass) =>
+    modelTable = modelKlass.name
+    searchTableName = "#{modelTable}Search"
+    sql = (
+      "DELETE FROM `#{searchTableName}` WHERE `#{searchTableName}`.`content_id` IN
+      (SELECT `id` FROM `#{modelTable}` WHERE `#{modelTable}`.`account_id` = ?)"
+    )
+    return @_query(sql, [accountId])
 
 module.exports = new DatabaseStore()
 module.exports.ChangeRecord = DatabaseChangeRecord

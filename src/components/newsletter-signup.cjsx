@@ -17,10 +17,18 @@ class NewsletterSignup extends React.Component
     @_onGetStatus(nextProps) if not _.isEqual(@props, nextProps)
 
   componentDidMount: =>
+    @_mounted = true
     @_onGetStatus()
 
+  componentWillUnmount: =>
+    @_mounted = false
+
+  _setState: (state) =>
+    return unless @_mounted
+    @setState(state)
+
   _onGetStatus: (props = @props) =>
-    @setState({status: 'Pending'})
+    @_setState({status: 'Pending'})
     EdgehillAPI.request
       method: 'GET'
       path: @_path(props)
@@ -28,29 +36,29 @@ class NewsletterSignup extends React.Component
         if status is 'Never Subscribed'
           @_onSubscribe()
         else
-          @setState({status})
+          @_setState({status})
       error: =>
-        @setState({status: "Error"})
+        @_setState({status: "Error"})
 
   _onSubscribe: =>
-    @setState({status: 'Pending'})
+    @_setState({status: 'Pending'})
     EdgehillAPI.request
       method: 'POST'
       path: @_path()
       success: (status) =>
-        @setState({status})
+        @_setState({status})
       error: =>
-        @setState({status: "Error"})
+        @_setState({status: "Error"})
 
   _onUnsubscribe: =>
-    @setState({status: 'Pending'})
+    @_setState({status: 'Pending'})
     EdgehillAPI.request
       method: 'DELETE'
       path: @_path()
       success: (status) =>
-        @setState({status})
+        @_setState({status})
       error: =>
-        @setState({status: "Error"})
+        @_setState({status: "Error"})
 
   _path: (props = @props) =>
     "/newsletter-subscription/#{encodeURIComponent(props.emailAddress)}?name=#{encodeURIComponent(props.name)}"

@@ -1,6 +1,8 @@
 React = require 'react'
+ReactDOM = require 'react-dom'
+ReactCSSTransitionGroup = require 'react-addons-css-transition-group'
 _ = require 'underscore'
-{RetinaImg, TimeoutTransitionGroup} = require 'nylas-component-kit'
+{RetinaImg} = require 'nylas-component-kit'
 {Utils} = require 'nylas-exports'
 
 TokenAuthAPI = require './token-auth-api'
@@ -36,9 +38,9 @@ class TokenAuthPage extends React.Component
   render: =>
     if @state.tokenAuthEnabled is "unknown"
       <div className="page token-auth">
-        <TimeoutTransitionGroup leaveTimeout={150} enterTimeout={150} transitionName="alpha-fade">
+        <ReactCSSTransitionGroup transitionLeaveTimeout={150} transitionEnterTimeout={150} transitionName="alpha-fade">
           {@_renderWaitingForTokenAuthAnswer()}
-        </TimeoutTransitionGroup>
+        </ReactCSSTransitionGroup>
       </div>
 
     else if @state.tokenAuthEnabled is "yes"

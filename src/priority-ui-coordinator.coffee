@@ -2,7 +2,7 @@
 
 # A small object that keeps track of the current animation state of the
 # application. You can use it to defer work until animations have finished.
-# Integrated with our fork of TimeoutTransitionGroup
+# Integrated with our fork of ReactCSSTransitionGroup
 #
 #  PriorityUICoordinator.settle.then ->
 #   # Do something expensive

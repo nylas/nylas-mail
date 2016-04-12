@@ -180,6 +180,7 @@ class Message extends ModelWithMetadata
     json = super(options)
     json.file_ids = @fileIds()
     json.object = 'draft' if @draft
+    json.event_id = @events[0].serverId if (@events and @events.length)
     json
 
   fromJSON: (json={}) ->

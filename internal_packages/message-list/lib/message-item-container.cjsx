@@ -5,9 +5,9 @@ MessageItem = require './message-item'
 
 {Utils,
  DraftStore,
+ ComponentRegistry,
  MessageStore} = require 'nylas-exports'
 
-{InjectedComponent} = require 'nylas-component-kit'
 
 class MessageItemContainer extends React.Component
   @displayName = 'MessageItemContainer'
@@ -38,7 +38,7 @@ class MessageItemContainer extends React.Component
     @_unlisten() if @_unlisten
 
   focus: =>
-    @refs.message.focus?()
+    @refs.message.focus()
 
   render: =>
     if @props.message.draft
@@ -60,17 +60,18 @@ class MessageItemContainer extends React.Component
       isLastMsg={@props.isLastMsg} />
 
   _renderComposer: =>
-    exposedProps =
-      mode: "inline"
-      draftClientId: @props.message.clientId
-      threadId: @props.thread.id
-      scrollTo: @props.scrollTo
+    Composer = ComponentRegistry.findComponentsMatching(role: 'Composer')[0]
+    if (!Composer)
+      return <span></span>
 
-    <InjectedComponent
+    <Composer
       ref="message"
-      matching={role: "Composer"}
+      draftClientId={@props.message.clientId}
       className={@_classNames()}
-      exposedProps={exposedProps}/>
+      mode={"inline"}
+      threadId={@props.thread.id}
+      scrollTo={@props.scrollTo}
+    />
 
   _classNames: => classNames
     "draft": @props.message.draft

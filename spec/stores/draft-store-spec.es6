@@ -50,6 +50,7 @@ describe("DraftStore", () => {
   describe("creating and opening drafts", () => {
     beforeEach(() => {
       const draft = new Message({id: "A", subject: "B", clientId: "A", body: "123"});
+      this.newDraft = draft;
       spyOn(DraftFactory, "createDraftForReply").andReturn(Promise.resolve(draft));
       spyOn(DraftFactory, "createOrUpdateDraftForReply").andReturn(Promise.resolve(draft));
       spyOn(DraftFactory, "createDraftForForward").andReturn(Promise.resolve(draft));
@@ -135,7 +136,7 @@ describe("DraftStore", () => {
           expect(NylasEnv.newWindow).toHaveBeenCalledWith({
             title: 'Message',
             windowType: "composer",
-            windowProps: { draftClientId: "A" },
+            windowProps: { draftClientId: "A", draftJSON: this.newDraft.toJSON() },
           });
         });
       });
@@ -155,7 +156,7 @@ describe("DraftStore", () => {
           expect(NylasEnv.newWindow).toHaveBeenCalledWith({
             title: 'Message',
             windowType: "composer",
-            windowProps: { draftClientId: "A" },
+            windowProps: { draftClientId: "A", draftJSON: this.newDraft.toJSON() },
           });
         });
       });

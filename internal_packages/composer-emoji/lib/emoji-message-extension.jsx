@@ -1,10 +1,13 @@
-import {MessageViewExtension} from 'nylas-exports';
+import {MessageViewExtension, RegExpUtils} from 'nylas-exports';
+
+import EmojiStore from './emoji-store';
+import emoji from 'node-emoji';
 
 
 class EmojiMessageExtension extends MessageViewExtension {
   static formatMessageBody({message}) {
-    message.body = message.body.replace(/<span class="broken-emoji ([a-zA-Z0-9-_]*)">.*<\/span>/g, (match, emojiName) =>
-      `<span class="missing-emoji ${emojiName}"><img src="images/composer-emoji/missing-emoji/${emojiName}.png" width="14" height="14" style="margin-top: -5px;" /></span>`
+    message.body = message.body.replace(RegExpUtils.emojiRegex(), (match) =>
+      `<img class="emoji ${emoji.which(match)}" src="${EmojiStore.getImagePath(emoji.which(match))}" width="14" height="14" style="margin-top: -5px;">`
     );
   }
 }

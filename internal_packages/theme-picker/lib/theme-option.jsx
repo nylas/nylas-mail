@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import fs from 'fs-plus';
 import path from 'path';
 
@@ -66,7 +67,7 @@ class ThemeOption extends React.Component {
   }
 
   _writeContent() {
-    const domNode = React.findDOMNode(this.refs.iframe);
+    const domNode = ReactDOM.findDOMNode(this.refs.iframe);
     const doc = domNode.contentDocument;
     if (!doc) return;
 
@@ -98,7 +99,7 @@ class ThemeOption extends React.Component {
       <div className="clickable-theme-option" onMouseDown={this.props.onSelect}>
         <EventedIFrame
           ref="iframe"
-          className={`theme-preview-${this.props.theme.name}`}
+          className={`theme-preview-${this.props.theme.name.replace(/\./g, '-')}`}
           frameBorder="0"
           width="115px"
           height="70px"

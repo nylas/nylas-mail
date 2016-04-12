@@ -2,7 +2,7 @@ path = require 'path'
 {$} = require './space-pen-extensions'
 _ = require 'underscore'
 {Disposable} = require 'event-kit'
-{shell, ipcRenderer} = require 'electron'
+{shell, ipcRenderer, remote} = require 'electron'
 {Subscriber} = require 'emissary'
 fs = require 'fs-plus'
 url = require 'url'
@@ -85,10 +85,6 @@ class WindowEventHandler
     @subscribeToCommand $(window), 'window:toggle-react-remote', ->
       ReactRemote = require './react-remote/react-remote-parent'
       ReactRemote.toggleContainerVisible()
-
-    @subscribeToCommand $(document), 'core:focus-next', @focusNext
-
-    @subscribeToCommand $(document), 'core:focus-previous', @focusPrevious
 
     document.addEventListener 'keydown', @onKeydown
 
@@ -192,7 +188,8 @@ class WindowEventHandler
       # We sometimes get mailto URIs that are not escaped properly, or have been only partially escaped.
       # (T1927) Be sure to escape them once, and completely, before we try to open them. This logic
       # *might* apply to http/https as well but it's unclear.
-      shell.openExternal(encodeURI(decodeURI(href)))
+      href = encodeURI(decodeURI(href))
+      remote.getGlobal('application').openUrl(href)
     else if schema in ['http:', 'https:', 'tel:']
       shell.openExternal(href)
 
@@ -243,58 +240,6 @@ class WindowEventHandler
       click: => document.execCommand('paste')
     }))
     menu.popup(remote.getCurrentWindow())
-
-  eachTabIndexedElement: (callback) ->
-    for element in $('[tabindex]')
-      element = $(element)
-      continue if element.isDisabled()
-
-      tabIndex = parseInt(element.attr('tabindex'))
-      continue unless tabIndex >= 0
-
-      callback(element, tabIndex)
-
-  focusNext: =>
-    focusedTabIndex = parseInt($(':focus').attr('tabindex')) or -Infinity
-
-    nextElement = null
-    nextTabIndex = Infinity
-    lowestElement = null
-    lowestTabIndex = Infinity
-    @eachTabIndexedElement (element, tabIndex) ->
-      if tabIndex < lowestTabIndex
-        lowestTabIndex = tabIndex
-        lowestElement = element
-
-      if focusedTabIndex < tabIndex < nextTabIndex
-        nextTabIndex = tabIndex
-        nextElement = element
-
-    if nextElement?
-      nextElement.focus()
-    else if lowestElement?
-      lowestElement.focus()
-
-  focusPrevious: =>
-    focusedTabIndex = parseInt($(':focus').attr('tabindex')) or Infinity
-
-    previousElement = null
-    previousTabIndex = -Infinity
-    highestElement = null
-    highestTabIndex = -Infinity
-    @eachTabIndexedElement (element, tabIndex) ->
-      if tabIndex > highestTabIndex
-        highestTabIndex = tabIndex
-        highestElement = element
-
-      if focusedTabIndex > tabIndex > previousTabIndex
-        previousTabIndex = tabIndex
-        previousElement = element
-
-    if previousElement?
-      previousElement.focus()
-    else if highestElement?
-      highestElement.focus()
 
   showDevModeMessages: ->
     return unless NylasEnv.isMainWindow()

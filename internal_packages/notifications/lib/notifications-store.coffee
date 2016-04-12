@@ -47,7 +47,9 @@ class NotificationStore extends NylasStore
     @listenTo Actions.postNotification, (data) =>
       @_postNotification(new Notification(data))
     @listenTo Actions.dismissNotificationsMatching, (criteria) =>
-      @_notifications = _.reject @_notifications, (n) -> _.isMatch(n, criteria)
+      for tag, notif of @_notifications
+        if _.isMatch(notif, criteria)
+          delete @_notifications[tag]
       @trigger()
 
   ######### PUBLIC #######################################################

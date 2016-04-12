@@ -40,25 +40,21 @@ export default class SyncbackDraftTask extends BaseDraftTask {
     // already changed more.
 
     // The only fields we want to update from the server are the `id` and `version`.
-    let draftWasCreated = false
 
     return DatabaseStore.inTransaction((t) => {
       return this.refreshDraftReference().then(() => {
         if (this.draft.serverId !== response.id) {
           this.draft.threadId = response.thread_id;
           this.draft.serverId = response.id;
-          draftWasCreated = true;
         }
         this.draft.version = response.version;
         return t.persistModel(this.draft);
       });
     })
     .then(() => {
-      if (draftWasCreated) {
-        for (const {pluginId} of this.draft.pluginMetadata) {
-          const task = new SyncbackMetadataTask(this.draftClientId, Message.name, pluginId);
-          Actions.queueTask(task);
-        }
+      for (const {pluginId} of this.draft.pluginMetadata) {
+        const task = new SyncbackMetadataTask(this.draftClientId, Message.name, pluginId);
+        Actions.queueTask(task);
       }
       return true;
     });

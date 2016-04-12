@@ -1,4 +1,5 @@
-React = require 'react/addons'
+React = require 'react'
+ReactDOM = require 'react-dom'
 classNames = require 'classnames'
 _ = require 'underscore'
 {CompositeDisposable} = require 'event-kit'
@@ -20,8 +21,8 @@ class SizeToFitInput extends React.Component
   _sizeToFit: =>
     # Measure the width of the text in the input and
     # resize the input field to fit.
-    input = React.findDOMNode(@refs.input)
-    measure = React.findDOMNode(@refs.measure)
+    input = ReactDOM.findDOMNode(@refs.input)
+    measure = ReactDOM.findDOMNode(@refs.measure)
     measure.innerText = input.value
     measure.style.top = input.offsetTop + "px"
     measure.style.left = input.offsetLeft + "px"
@@ -36,10 +37,10 @@ class SizeToFitInput extends React.Component
     </span>
 
   select: =>
-    React.findDOMNode(@refs.input).select()
+    ReactDOM.findDOMNode(@refs.input).select()
 
   focus: =>
-    React.findDOMNode(@refs.input).focus()
+    ReactDOM.findDOMNode(@refs.input).focus()
 
 class Token extends React.Component
   @displayName: "Token"
@@ -95,7 +96,7 @@ class Token extends React.Component
          draggable="true"
          onDoubleClick={@_onDoubleClick}
          onClick={@_onSelect}>
-      <button className="action" onClick={@_onAction}>
+      <button className="action" onClick={@_onAction} tabIndex={-1}>
         <RetinaImg mode={RetinaImg.Mode.ContentIsMask} name="composer-caret.png" />
       </button>
       {@props.children}
@@ -244,12 +245,6 @@ class TokenizingTextField extends React.Component
     # Called when the input is focused
     onFocus: React.PropTypes.func
 
-    # The tabIndex of the input item
-    tabIndex: React.PropTypes.oneOfType([
-      React.PropTypes.number
-      React.PropTypes.string
-    ])
-
     # A Prompt used in the head of the menu
     menuPrompt: React.PropTypes.string
 
@@ -304,7 +299,7 @@ class TokenizingTextField extends React.Component
       onFocus: @_onInputFocused
       onChange: @_onInputChanged
       disabled: @props.disabled
-      tabIndex: @props.tabIndex
+      tabIndex: 0
       value: @state.inputValue
 
     # If we can't accept additional tokens, override the events that would
@@ -357,7 +352,7 @@ class TokenizingTextField extends React.Component
   _onClick: (event) =>
     # Don't focus if the focus is already on an input within our field,
     # like an editable token's input
-    if event.target.tagName is 'INPUT' and React.findDOMNode(@).contains(event.target)
+    if event.target.tagName is 'INPUT' and ReactDOM.findDOMNode(@).contains(event.target)
       return
     @focus()
 
@@ -386,14 +381,21 @@ class TokenizingTextField extends React.Component
     else if event.key in ["Escape"]
       @_refreshCompletions("", clear: true)
 
-    else if event.key in ["Tab", "Enter"] or event.keyCode is 188 # comma
-      event.preventDefault()
-      return if (@state.inputValue ? "").trim().length is 0
-      event.stopPropagation()
-      if @state.completions.length > 0
-        @_addToken(@refs.completions.getSelectedItem() || @state.completions[0])
-      else
-        @_addInputValue()
+    else if event.key in ["Tab", "Enter"]
+      @_onInputTrySubmit(event)
+
+    else if event.keyCode is 188 # comma
+      event.preventDefault() # never allow commas in the field
+      @_onInputTrySubmit(event)
+
+  _onInputTrySubmit: (event) =>
+    return if (@state.inputValue ? "").trim().length is 0
+    event.preventDefault()
+    event.stopPropagation()
+    if @state.completions.length > 0
+      @_addToken(@refs.completions.getSelectedItem() || @state.completions[0])
+    else
+      @_addInputValue()
 
   _onInputChanged: (event) =>
     val = event.target.value.trimLeft()
@@ -414,7 +416,7 @@ class TokenizingTextField extends React.Component
     # this happens we want to leave the field as-is
     return unless event.relatedTarget
 
-    if event.relatedTarget is React.findDOMNode(@)
+    if event.relatedTarget is ReactDOM.findDOMNode(@)
       return
 
     @_addInputValue()

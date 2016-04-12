@@ -11,6 +11,8 @@
 }
 
 .fixed-popover-container {
+  visibility: hidden;
+  opacity: 0;
   position: absolute;
   z-index: 40;
 
@@ -81,8 +83,25 @@
     background-color: fade(@black, 22%);
   }
 
-  .fixed-popover,.fixed-popover-pointer,.fixed-popover-pointer.shadow {
-    transition: opacity 100ms ease-in-out;
+  &.popout  {
+    visibility: visible;
+    opacity: 1;
+    animation: popout-animation 300ms ease;
+  }
+  @keyframes popout-animation {
+    from {
+      visibility: hidden;
+      opacity: 0;
+      transform: scale(0);
+    }
+    80% {
+      transform: scale(1.1);
+    }
+    to {
+      visibility: visible;
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 }
 

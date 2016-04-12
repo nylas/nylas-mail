@@ -53,6 +53,7 @@ export default class ModelWithMetadata extends Model {
   static attributes = Object.assign({}, Model.attributes, {
     pluginMetadata: Attributes.Collection({
       queryable: true,
+      joinOnField: 'pluginId',
       itemClass: PluginMetadata,
       modelKey: 'pluginMetadata',
       jsonKey: 'metadata',

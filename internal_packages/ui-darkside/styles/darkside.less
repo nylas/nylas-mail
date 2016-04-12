@@ -81,21 +81,18 @@
 .toolbar-window-controls {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   margin: 0;
-  padding: 0;
-  min-width: 0;
+  min-width: 50px;
   width: 50px;
 }
 
 .toolbar-window-controls button {
   background-color: @sidebar-text;
   background-image: none !important;
-  width: 12px;
-  height: 12px;
   float: none;
   opacity: 0.5;
   margin: 0;
-  margin-right: 5px;
   transform: scaleY(0.5);
   border-radius: 2px;
   transition-duration: 150ms;
@@ -110,17 +107,14 @@
 
 .toolbar-window-controls .close {
   background-color: @danger;
-  background-image: none;
 }
 
 .toolbar-window-controls .minimize {
   background-color: @minimize;
-  background-image: none;
 }
 
 .toolbar-window-controls .maximize {
   background-color: @maximize;
-  background-image: none;
 }
 
 .is-blurred {
@@ -366,8 +360,16 @@ body.is-blurred .list-tabular .list-tabular-item.keyboard-cursor {
 }
 
 //====================================================
-//  Search & Suggestion Menu
+//  Inputs, Search & Suggestion Menu
 //====================================================
+
+textarea:focus,
+input[type="text"]:focus,
+input[type="email"]:focus,
+.search-bar .menu .header-container input:focus {
+  border-color: @accent;
+  box-shadow: 0 0 1.5px @accent;
+}
 
 .search-bar {
   margin: 7.5px;

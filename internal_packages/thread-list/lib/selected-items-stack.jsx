@@ -50,13 +50,13 @@ class SelectedItemsStack extends Component {
               }
               let transform = `rotate(${deg}deg)`
               if (idx === cardCount - 1) {
-                transform += ' translate(2px, 3px)'
+                transform += ' translate3d(2px, 3px, 0)'
               }
               const style = {
                 transform,
                 zIndex: 5 - idx,
               }
-              return <div style={style} className="card"/>
+              return <div key={`card-${idx}`} style={style} className="card"/>
             })}
           </div>
           <div className="count-info">

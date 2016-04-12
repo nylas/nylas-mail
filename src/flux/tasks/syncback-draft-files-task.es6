@@ -50,8 +50,8 @@ export default class SyncbackDraftFilesTask extends BaseDraftTask {
       // Note: We don't actually delete uploaded files until send completes,
       // because it's possible for the app to quit without saving state and
       // need to re-upload the file.
-      this._appliedUploads = uploaded
-      this._appliedFiles = files
+      this._appliedUploads = uploaded;
+      this._appliedFiles = files;
     });
   }
 

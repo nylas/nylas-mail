@@ -1,4 +1,4 @@
-React = require 'react/addons'
+React = require 'react'
 _ = require 'underscore'
 {CompositeDisposable} = require 'event-kit'
 
@@ -105,7 +105,7 @@ class Popover extends React.Component
   # browser window.
   _resetPositionState: =>
     return unless @state.showing
-    rect = React.findDOMNode(@refs.popover).getBoundingClientRect()
+    rect = ReactDOM.findDOMNode(@refs.popover).getBoundingClientRect()
     dimensions =
       left: rect.left
       right: rect.right
@@ -123,7 +123,7 @@ class Popover extends React.Component
 
   _focusImportantElement: =>
     # Automatically focus the element inside us with the lowest tab index
-    node = React.findDOMNode(@refs.popover)
+    node = ReactDOM.findDOMNode(@refs.popover)
 
     # _.sortBy ranks in ascending numerical order.
     matches = _.sortBy node.querySelectorAll("[tabIndex], input"), (node) =>
@@ -213,7 +213,7 @@ class Popover extends React.Component
 
   _onBlur: (event) =>
     target = event.nativeEvent.relatedTarget
-    if target? and React.findDOMNode(@refs.popoverContainer).contains(target)
+    if target? and ReactDOM.findDOMNode(@refs.popoverContainer).contains(target)
       return
     @setState
       showing:false

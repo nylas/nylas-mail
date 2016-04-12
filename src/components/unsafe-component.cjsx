@@ -1,4 +1,5 @@
 React = require 'react'
+ReactDOM = require 'react-dom'
 {Utils} = require 'nylas-exports'
 _ = require 'underscore'
 
@@ -57,13 +58,13 @@ class UnsafeComponent extends React.Component
     <div name="unsafe-component-wrapper" style={@props.component?.containerStyles}></div>
 
   renderInjected: =>
-    node = React.findDOMNode(@)
+    node = ReactDOM.findDOMNode(@)
     element = null
     try
       props = Utils.fastOmit(@props, Object.keys(@constructor.propTypes))
       component = @props.component
       element = <component key={name} {...props} />
-      @injected = React.render(element, node, @props.onComponentDidRender)
+      @injected = ReactDOM.render(element, node, @props.onComponentDidRender)
     catch err
       if NylasEnv.inDevMode()
         stack = err.stack
@@ -85,13 +86,13 @@ class UnsafeComponent extends React.Component
         #
         element = <div></div>
 
-        @injected = React.render(element, node)
+        @injected = ReactDOM.render(element, node)
       NylasEnv.reportError(err)
 
   unmountInjected: =>
     try
-      node = React.findDOMNode(@)
-      React.unmountComponentAtNode(node)
+      node = ReactDOM.findDOMNode(@)
+      ReactDOM.unmountComponentAtNode(node)
     catch err
 
   focus: =>
@@ -110,9 +111,9 @@ class UnsafeComponent extends React.Component
     if @injected and @injected[method]
       target = @injected
     else if @injected
-      target = React.findDOMNode(@injected)
+      target = ReactDOM.findDOMNode(@injected)
     else
-      target = React.findDOMNode(@)
+      target = ReactDOM.findDOMNode(@)
 
     target[method]?()
 

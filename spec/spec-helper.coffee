@@ -71,10 +71,12 @@ if specDirectory
 
 isCoreSpec = specDirectory == fs.realpathSync(__dirname)
 
-# Override React.addons.TestUtils.renderIntoDocument so that
+# Override ReactTestUtils.renderIntoDocument so that
 # we can remove all the created elements after the test completes.
-React = require "react/addons"
-ReactTestUtils = React.addons.TestUtils
+React = require "react"
+ReactDOM = require "react-dom"
+
+ReactTestUtils = require('react-addons-test-utils')
 ReactTestUtils.scryRenderedComponentsWithTypeAndProps = (root, type, props) ->
   if not root then throw new Error("Must supply a root to scryRenderedComponentsWithTypeAndProps")
   _.compact _.map ReactTestUtils.scryRenderedComponentsWithType(root, type), (el) ->
@@ -85,7 +87,7 @@ ReactTestUtils.scryRenderedComponentsWithTypeAndProps = (root, type, props) ->
 
 ReactTestUtils.scryRenderedDOMComponentsWithAttr = (root, attrName, attrValue) ->
   ReactTestUtils.findAllInRenderedTree root, (inst) ->
-    inst.props[attrName] and (!attrValue or inst.props[attrName] is attrValue)
+    inst[attrName] and (!attrValue or inst[attrName] is attrValue)
 
 ReactTestUtils.findRenderedDOMComponentWithAttr = (root, attrName, attrValue) ->
   all = ReactTestUtils.scryRenderedDOMComponentsWithAttr(root, attrName, attrValue)
@@ -97,11 +99,11 @@ ReactElementContainers = []
 ReactTestUtils.renderIntoDocument = (element) ->
   container = document.createElement('div')
   ReactElementContainers.push(container)
-  React.render(element, container)
+  ReactDOM.render(element, container)
 
 ReactTestUtils.unmountAll = ->
   for container in ReactElementContainers
-    React.unmountComponentAtNode(container)
+    ReactDOM.unmountComponentAtNode(container)
   ReactElementContainers = []
 
 # So it passes the Utils.isTempId test

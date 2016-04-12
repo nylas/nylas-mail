@@ -156,14 +156,14 @@ describe "NylasAPI", ->
       spyOn(Actions, 'postNotification')
       NylasAPI._handleAuthenticationFailure('/threads/1234', 'token')
       expect(Actions.postNotification).toHaveBeenCalled()
-      expect(Actions.postNotification.mostRecentCall.args[0].message.trim()).toEqual("Action failed: There was an error syncing with your mail provider. You may not be able to send or receive mail.")
+      expect(Actions.postNotification.mostRecentCall.args[0].message.trim()).toEqual("A mailbox action for your mail provider could not be completed. You may not be able to send or receive mail.")
 
     it "should include the email address if possible", ->
       spyOn(AccountStore, 'tokenForAccountId').andReturn('token')
       spyOn(Actions, 'postNotification')
       NylasAPI._handleAuthenticationFailure('/threads/1234', 'token')
       expect(Actions.postNotification).toHaveBeenCalled()
-      expect(Actions.postNotification.mostRecentCall.args[0].message.trim()).toEqual("Action failed: There was an error syncing with #{AccountStore.accounts()[0].emailAddress}. You may not be able to send or receive mail.")
+      expect(Actions.postNotification.mostRecentCall.args[0].message.trim()).toEqual("A mailbox action for #{AccountStore.accounts()[0].emailAddress} could not be completed. You may not be able to send or receive mail.")
 
   describe "handleModelResponse", ->
     beforeEach ->

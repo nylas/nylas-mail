@@ -1,6 +1,6 @@
-React = require "react/addons"
-ReactTestUtils = React.addons.TestUtils
-TestUtils = React.addons.TestUtils
+React = require "react"
+ReactDOM = require "react-dom"
+ReactTestUtils = require 'react-addons-test-utils'
 {Thread, FocusedContentStore, Actions, ChangeUnreadTask} = require "nylas-exports"
 {ToggleStarredButton, ToggleUnreadButton} = require '../lib/thread-toolbar-buttons'
 
@@ -23,18 +23,18 @@ describe "ThreadToolbarButtons", ->
   describe "Starring", ->
     it "stars a thread if the star button is clicked and thread is unstarred", ->
       spyOn(Actions, 'queueTask')
-      starButton = TestUtils.renderIntoDocument(<ToggleStarredButton items={[test_thread]}/>)
+      starButton = ReactTestUtils.renderIntoDocument(<ToggleStarredButton items={[test_thread]}/>)
 
-      TestUtils.Simulate.click React.findDOMNode(starButton)
+      ReactTestUtils.Simulate.click ReactDOM.findDOMNode(starButton)
 
       expect(Actions.queueTask.mostRecentCall.args[0].threads).toEqual([test_thread])
       expect(Actions.queueTask.mostRecentCall.args[0].starred).toEqual(true)
 
     it "unstars a thread if the star button is clicked and thread is starred", ->
       spyOn(Actions, 'queueTask')
-      starButton = TestUtils.renderIntoDocument(<ToggleStarredButton items={[test_thread_starred]}/>)
+      starButton = ReactTestUtils.renderIntoDocument(<ToggleStarredButton items={[test_thread_starred]}/>)
 
-      TestUtils.Simulate.click React.findDOMNode(starButton)
+      ReactTestUtils.Simulate.click ReactDOM.findDOMNode(starButton)
 
       expect(Actions.queueTask.mostRecentCall.args[0].threads).toEqual([test_thread_starred])
       expect(Actions.queueTask.mostRecentCall.args[0].starred).toEqual(false)
@@ -51,7 +51,7 @@ describe "ThreadToolbarButtons", ->
 
     it "queues a task to change unread status to true", ->
       spyOn Actions, "queueTask"
-      ReactTestUtils.Simulate.click React.findDOMNode(markUnreadBtn).childNodes[0]
+      ReactTestUtils.Simulate.click ReactDOM.findDOMNode(markUnreadBtn).childNodes[0]
 
       changeUnreadTask = Actions.queueTask.calls[0].args[0]
       expect(changeUnreadTask instanceof ChangeUnreadTask).toBe true
@@ -60,6 +60,6 @@ describe "ThreadToolbarButtons", ->
 
     it "returns to the thread list", ->
       spyOn Actions, "popSheet"
-      ReactTestUtils.Simulate.click React.findDOMNode(markUnreadBtn).childNodes[0]
+      ReactTestUtils.Simulate.click ReactDOM.findDOMNode(markUnreadBtn).childNodes[0]
 
       expect(Actions.popSheet).toHaveBeenCalled()

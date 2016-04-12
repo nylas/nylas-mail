@@ -1,5 +1,5 @@
 _ = require 'underscore'
-React = require 'react/addons'
+React = require 'react'
 SwipeContainer = require './swipe-container'
 {Utils} = require 'nylas-exports'
 

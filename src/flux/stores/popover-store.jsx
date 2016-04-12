@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import NylasStore from 'nylas-store'
 import Actions from '../actions'
 import FixedPopover from '../../components/fixed-popover'
@@ -18,22 +19,18 @@ class PopoverStore extends NylasStore {
     super()
     this.isOpen = false;
     this.container = createContainer(containerId);
-    React.render(<span />, this.container);
+    ReactDOM.render(<span />, this.container);
 
     this.listenTo(Actions.openPopover, this.openPopover);
     this.listenTo(Actions.closePopover, this.closePopover);
   }
-
-  isPopoverOpen = ()=> {
-    return this.isOpen;
-  };
 
   renderPopover = (child, props, callback)=> {
     const popover = (
       <FixedPopover {...props}>{child}</FixedPopover>
     );
 
-    React.render(popover, this.container, ()=> {
+    ReactDOM.render(popover, this.container, ()=> {
       this.isOpen = true;
       this.trigger();
       callback();
@@ -57,7 +54,7 @@ class PopoverStore extends NylasStore {
   };
 
   closePopover = (callback = ()=>{})=> {
-    React.render(<span/>, this.container, ()=> {
+    ReactDOM.render(<span/>, this.container, ()=> {
       this.isOpen = false;
       this.trigger();
       callback();

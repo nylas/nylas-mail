@@ -129,8 +129,7 @@ class DraftFactory
     fields.push("Subject: #{message.subject}")
     fields.push("Date: #{message.formattedDate()}")
     fields.push("To: #{contactsAsHtml(message.to)}") if message.to.length > 0
-    fields.push("CC: #{contactsAsHtml(message.cc)}") if message.cc.length > 0
-    fields.push("BCC: #{contactsAsHtml(message.bcc)}") if message.bcc.length > 0
+    fields.push("Cc: #{contactsAsHtml(message.cc)}") if message.cc.length > 0
     @_prepareBodyForQuoting(message.body).then (body) =>
       @createDraft(
         subject: subjectWithPrefix(message.subject, 'Fwd:')

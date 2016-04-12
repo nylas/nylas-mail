@@ -108,7 +108,6 @@ export default class PreferencesSignatures extends React.Component {
     const rawText = this.state.editAsHTML ? "Raw HTML " : "";
     return (
       <section className="container-signatures">
-        <h2>Signatures</h2>
         <div className="section-title">
           {rawText}Signature for: {this._renderAccountPicker()}
         </div>
