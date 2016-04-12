@@ -27,10 +27,13 @@ class EmojiButtonPopover extends React.Component {
 
   componentDidMount() {
     this._mounted = true;
+    this._emojiPreloadImage = new Image();
     this.renderCanvas();
   }
 
   componentWillUnmount() {
+    this._emojiPreloadImage.onload = null;
+    this._emojiPreloadImage = null;
     this._mounted = false;
   }
 
@@ -52,11 +55,7 @@ class EmojiButtonPopover extends React.Component {
         if (this.state.categoryPositions.hasOwnProperty(category)) {
           if (emojiContainer.scrollTop >= this.state.categoryPositions[category].top &&
             emojiContainer.scrollTop <= this.state.categoryPositions[category].bottom) {
-            if (category === 'More People') {
-              this.setState({activeTab: 'People'});
-            } else {
-              this.setState({activeTab: category});
-            }
+            this.setState({activeTab: category});
           }
         }
       }
@@ -108,7 +107,6 @@ class EmojiButtonPopover extends React.Component {
     const categoryPositions = {};
     let categoryNames = [
       'People',
-      'More People',
       'Nature',
       'Food and Drink',
       'Activity',
@@ -212,22 +210,20 @@ class EmojiButtonPopover extends React.Component {
   renderTabs() {
     const tabs = [];
     this.state.categoryNames.forEach((category) => {
-      if (category !== 'More People') {
-        let className = `emoji-tab ${(category.replace(/ /g, '-')).toLowerCase()}`
-        if (category === this.state.activeTab) {
-          className += " active";
-        }
-        tabs.push(
-          <div key={`${category} container`} style={{flex: 1}}>
-            <RetinaImg
-              key={`${category} tab`}
-              className={className}
-              name={`icon-emojipicker-${(category.replace(/ /g, '-')).toLowerCase()}.png`}
-              mode={RetinaImg.Mode.ContentIsMask}
-              onMouseDown={() => this.scrollToCategory(category)} />
-          </div>
-        );
+      let className = `emoji-tab ${(category.replace(/ /g, '-')).toLowerCase()}`
+      if (category === this.state.activeTab) {
+        className += " active";
       }
+      tabs.push(
+        <div key={`${category} container`} style={{flex: 1}}>
+          <RetinaImg
+            key={`${category} tab`}
+            className={className}
+            name={`icon-emojipicker-${(category.replace(/ /g, '-')).toLowerCase()}.png`}
+            mode={RetinaImg.Mode.ContentIsMask}
+            onMouseDown={() => this.scrollToCategory(category)} />
+        </div>
+      );
     });
     return tabs;
   }
@@ -237,51 +233,69 @@ class EmojiButtonPopover extends React.Component {
     const keys = Object.keys(this.state.categoryPositions);
     canvas.height = this.state.categoryPositions[keys[keys.length - 1]].bottom * 2;
     const ctx = canvas.getContext("2d");
+    ctx.font = "24px Nylas-Pro";
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const position = {
       x: 15,
       y: 45,
     }
-    Object.keys(this.state.categorizedEmoji).forEach((category, i) => {
-      if (i > 0) {
-        setTimeout(() => this.renderCategory(category, i, ctx, position), i * 50);
-      } else {
-        this.renderCategory(category, i, ctx, position);
-      }
-    });
+
+    let idx = 0;
+    const categoryNames = Object.keys(this.state.categorizedEmoji);
+    const renderNextCategory = () => {
+      if (!categoryNames[idx]) return;
+      if (!this._mounted) return;
+      this.renderCategory(categoryNames[idx], idx, ctx, position, renderNextCategory);
+      idx += 1;
+    }
+    renderNextCategory();
   }
 
-  renderCategory(category, i, ctx, position) {
-    if (!this._mounted) return;
-    if (category !== "More People") {
-      if (i > 0) {
-        position.x = 18;
-        position.y += 48;
-      }
-      ctx.font = "24px Nylas-Pro";
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-      ctx.fillText(category, position.x, position.y);
+  renderCategory(category, i, ctx, position, callback) {
+    if (i > 0) {
+      position.x = 18;
+      position.y += 48;
     }
+    ctx.fillText(category, position.x, position.y);
     position.x = 18;
     position.y += 48;
-    ctx.font = "32px Arial";
-    ctx.fillStyle = 'black';
-    if (this.state.categorizedEmoji[category].length === 0) return;
-    this.state.categorizedEmoji[category].forEach((emojiName, j) => {
-      const img = new Image();
-      img.src = EmojiStore.getImagePath(emojiName);
+
+    const emoji = this.state.categorizedEmoji[category];
+    if (!emoji || emoji.length === 0) return;
+
+    const remaining = emoji.map((emojiName, j) => {
       const x = position.x;
       const y = position.y;
-      img.onload = () => {
-        ctx.drawImage(img, x, y - 30, 32, 32);
-      }
+      const src = EmojiStore.getImagePath(emojiName);
+
       if (position.x > 325 && j < this.state.categorizedEmoji[category].length - 1) {
         position.x = 18;
         position.y += 48;
       } else {
         position.x += 50;
       }
-    })
+
+      return {src, x, y};
+    });
+
+    const drawEmojiAt = ({src, x, y} = {}) => {
+      if (!src) {
+        return;
+      }
+      this._emojiPreloadImage.onload = () => {
+        this._emojiPreloadImage.onload = null;
+        ctx.drawImage(this._emojiPreloadImage, x, y - 30, 32, 32);
+        if (remaining.length === 0) {
+          callback();
+        } else {
+          drawEmojiAt(remaining.shift());
+        }
+      }
+      this._emojiPreloadImage.src = src;
+    }
+
+    drawEmojiAt(remaining.shift());
   }
 
   render() {
