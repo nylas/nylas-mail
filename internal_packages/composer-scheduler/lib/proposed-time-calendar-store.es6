@@ -137,8 +137,7 @@ class ProposedTimeCalendarStore extends NylasStore {
     this._updateDragBuffer(newT.round(30, 'minutes'));
   }
 
-  _onEndBlock = (newT) => {
-    this._updateDragBuffer(newT.ceil(30, 'minutes'));
+  _onEndBlock = () => {
     this._convertBufferToProposedTimes()
     this._resetDragBuffer();
     this.trigger()
