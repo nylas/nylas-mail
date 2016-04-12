@@ -215,6 +215,8 @@ class DatabaseTransaction
         joinedModels = model[attr.modelKey]
         if joinedModels
           for joined in joinedModels
+            unless attr.joinOnField
+              throw new Error("Queryable collection attribute #{attr.modelKey} must specify a joinOnField")
             joinValue = joined[attr.joinOnField]
             joinMarks.push(joinMarkUnit)
             joinedValues.push(model.id, joinValue)
