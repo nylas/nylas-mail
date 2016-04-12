@@ -289,7 +289,8 @@ class ModelQuery
   #
   _canSubselectForJoin: (matcher) ->
     joinAttribute = matcher.attribute()
-    return false unless joinAttribute.joinOnField is 'id'
+
+    return unless @_range.limit?
 
     allMatchersOnJoinTable = _.every @_matchers, (m) ->
       m is matcher or joinAttribute.joinQueryableBy.indexOf(m.attr.modelKey) isnt -1
