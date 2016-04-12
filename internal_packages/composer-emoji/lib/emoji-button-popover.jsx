@@ -261,10 +261,10 @@ class EmojiButtonPopover extends React.Component {
     position.x = 18;
     position.y += 48;
 
-    const emoji = this.state.categorizedEmoji[category];
-    if (!emoji || emoji.length === 0) return;
+    const emojiNames = this.state.categorizedEmoji[category];
+    if (!emojiNames || emojiNames.length === 0) return;
 
-    const remaining = emoji.map((emojiName, j) => {
+    const emojiToDraw = emojiNames.map((emojiName, j) => {
       const x = position.x;
       const y = position.y;
       const src = EmojiStore.getImagePath(emojiName);
@@ -286,16 +286,16 @@ class EmojiButtonPopover extends React.Component {
       this._emojiPreloadImage.onload = () => {
         this._emojiPreloadImage.onload = null;
         ctx.drawImage(this._emojiPreloadImage, x, y - 30, 32, 32);
-        if (remaining.length === 0) {
+        if (emojiToDraw.length === 0) {
           callback();
         } else {
-          drawEmojiAt(remaining.shift());
+          drawEmojiAt(emojiToDraw.shift());
         }
       }
       this._emojiPreloadImage.src = src;
     }
 
-    drawEmojiAt(remaining.shift());
+    drawEmojiAt(emojiToDraw.shift());
   }
 
   render() {
