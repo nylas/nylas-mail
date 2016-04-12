@@ -1,4 +1,6 @@
 _ = require('underscore')
+EmojiData = require('emoji-data')
+
 RegExpUtils =
 
   # It's important that the regex be wrapped in parens, otherwise
@@ -148,6 +150,11 @@ RegExpUtils =
   # See RFC here: https://tools.ietf.org/html/rfc3986#section-3.1
   # SO discussion: http://stackoverflow.com/questions/10687099/how-to-test-if-a-url-string-is-absolute-or-relative/31991870#31991870
   hasValidSchemeRegex: -> new RegExp('^[a-z][a-z0-9+.-]*:', 'i')
+
+  emojiRegex: -> FBS_REGEXP = new RegExp(
+      "(?:#{EmojiData.chars({include_variants: true}).join("|")})",
+      "g"
+    )
 
   looseStyleTag: -> /<style/gim
 

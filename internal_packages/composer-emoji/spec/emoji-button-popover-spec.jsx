@@ -21,7 +21,7 @@ describe('EmojiButtonPopover', ()=> {
 
     this.composer = renderIntoDocument(
       <Contenteditable
-        value={'Testing!'}
+        value={''}
         onChange={jasmine.createSpy('onChange')}
         extensions={[EmojiComposerExtension]} />
     );
@@ -29,14 +29,6 @@ describe('EmojiButtonPopover', ()=> {
 
   describe('when inserting emoji', ()=> {
     it('should insert emoji on click', ()=> {
-      ReactTestUtils.Simulate.mouseDown(this.canvas);
-      expect(EmojiComposerExtension._onSelectEmoji).toHaveBeenCalled();
-    });
-
-    it('should insert an image for missing emoji', ()=> {
-      this.position.x = 140;
-      this.position.y = 60;
-      EmojiButtonPopover.prototype.calcPosition.andReturn(this.position);
       ReactTestUtils.Simulate.mouseDown(this.canvas);
       expect(EmojiComposerExtension._onSelectEmoji).toHaveBeenCalled();
     });
