@@ -1,5 +1,6 @@
 import React from 'react'
 import {PLUGIN_ID} from '../scheduler-constants'
+import NewEventPreview from './new-event-preview'
 import ProposedTimeList from './proposed-time-list'
 import {Event, Actions, RegExpUtils, ComposerExtension} from 'nylas-exports'
 
@@ -82,13 +83,21 @@ export default class SchedulerComposerExtension extends ComposerExtension {
 
   static _insertProposalsIntoBody(draft, metadata) {
     const nextDraft = draft;
-    if (metadata && metadata.proposals) {
+    if (metadata.proposals && metadata.proposals.length > 0) {
       const el = React.createElement(ProposedTimeList,
         {
           draft: nextDraft,
           event: metadata.pendingEvent,
           inEmail: true,
           proposals: metadata.proposals,
+        });
+      const markup = React.renderToStaticMarkup(el);
+      const nextBody = SchedulerComposerExtension._insertInBody(nextDraft.body, markup)
+      nextDraft.body = nextBody;
+    } else {
+      const el = React.createElement(NewEventPreview,
+        {
+          event: metadata.pendingEvent,
         });
       const markup = React.renderToStaticMarkup(el);
       const nextBody = SchedulerComposerExtension._insertInBody(nextDraft.body, markup)
