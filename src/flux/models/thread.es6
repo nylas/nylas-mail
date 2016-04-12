@@ -78,8 +78,8 @@ class Thread extends ModelWithMetadata {
 
     'participants': Attributes.Collection({
       queryable: true,
-      joinOnField: 'email',
       modelKey: 'participants',
+      joinOnField: 'email',
       joinQueryableBy: ['lastMessageReceivedTimestamp'],
       itemClass: Contact,
     }),
