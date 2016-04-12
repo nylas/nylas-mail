@@ -1,4 +1,5 @@
 {Emitter} = require 'event-kit'
+{DatabaseStore} = require 'nylas-exports'
 url = require 'url'
 _ = require 'underscore'
 
@@ -109,10 +110,9 @@ class NylasLongConnection
         if res.statusCode isnt 200
           res.on 'data', (chunk) =>
             if chunk.toString().indexOf('Invalid cursor') > 0
-              console.log('Delta Connection: Cursor is invalid. Need to blow away local cache.')
-              # TODO THIS!
-            else
-              @close()
+              error = new Error('Delta Connection: Cursor is invalid. Need to blow away local cache.')
+              DatabaseStore._handleSetupError(error)
+            @close()
           return
 
         @_buffer = ''
