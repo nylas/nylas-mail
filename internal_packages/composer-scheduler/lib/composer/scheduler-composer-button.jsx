@@ -70,7 +70,7 @@ export default class SchedulerComposerButton extends React.Component {
   // Helper method that will render the contents of our popover.
   _renderPopover() {
     const headerComponents = [
-      <span>Would you like to:</span>,
+      <span>I'd like to:</span>,
     ];
     const items = [
       MEETING_REQUEST,
