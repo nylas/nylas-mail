@@ -2,9 +2,11 @@ import React from 'react';
 import _ from 'underscore';
 import path from 'path';
 import fs from 'fs';
-import shell from 'shell';
+import { remote } from 'electron';
 
-import {Flexbox} from 'nylas-component-kit';
+import { Flexbox } from 'nylas-component-kit';
+
+const { shell } = remote;
 
 const displayedKeybindings = [
   {

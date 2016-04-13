@@ -9,6 +9,9 @@ window.eval = global.eval = function() {
 
 var path = require('path');
 
+var electron = require('electron');
+var remote = electron.remote;
+
 function setLoadTime (loadTime) {
   if (global.NylasEnv) {
     global.NylasEnv.loadTime = loadTime
@@ -17,7 +20,7 @@ function setLoadTime (loadTime) {
 }
 
 function handleSetupError (error) {
-  var currentWindow = require('remote').getCurrentWindow()
+  var currentWindow = remote.getCurrentWindow()
   currentWindow.setSize(800, 600)
   currentWindow.center()
   currentWindow.show()
