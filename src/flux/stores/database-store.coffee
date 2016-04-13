@@ -15,7 +15,7 @@ DatabaseChangeRecord = require './database-change-record'
 DatabaseTransaction = require './database-transaction'
 JSONBlob = null
 
-{ipcRenderer} = require 'electron'
+{remote, ipcRenderer} = require 'electron'
 
 DatabaseVersion = 23
 DatabasePhase =
@@ -108,7 +108,7 @@ class DatabaseStore extends NylasStore
   _onPhaseChange: (event) =>
     return if NylasEnv.inSpecMode()
 
-    app = require('remote').getGlobal('application')
+    app = remote.getGlobal('application')
     phase = app.databasePhase()
 
     if phase is DatabasePhase.Setup and NylasEnv.isWorkWindow()
@@ -135,7 +135,7 @@ class DatabaseStore extends NylasStore
   # extremely frequently as new models are added when packages load.
   refreshDatabaseSchema: ->
     return unless NylasEnv.isWorkWindow()
-    app = require('remote').getGlobal('application')
+    app = remote.getGlobal('application')
     phase = app.databasePhase()
     if phase isnt DatabasePhase.Setup
       app.setDatabasePhase(DatabasePhase.Setup)
