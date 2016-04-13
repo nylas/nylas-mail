@@ -33,9 +33,12 @@
             <ul>
               <li><a href="https://nylas.com/cloud/">Nylas Cloud APIs</a></li>
               <li><a href="https://nylas.com/security">Security</a></li>
-              <li><a href="https://nylas.com/pricing">Pricing</a></li>
-              <li><a href="https://github.com/nylas">Open Source</a></li>
               <li><a href="https://nylas.com/blog">Blog</a></li>
+              <li><a href="https://github.com/nylas" 
+                  target="_blank">Open Source&nbsp;
+                  <img src="/N1/images/github.svg" width=18
+                  style="margin-top:-3px; opacity:.4; vertical-align:
+                  middle;"></a></li>
               <li><a href="https://nylas.com/team">Team</a></li>
               <li><a href="https://nylas.com/jobs">Jobs</a></li>
               <li><a href="https://nylas.com/about">About Nylas</a></li>
@@ -46,3 +49,17 @@
     </div>
   </nav>
 </header>
+<script>
+$(function() {
+  $(".has-submenu > a").on("click", function(event) {
+    event.preventDefault();
+    $(".has-submenu").toggleClass("expanded")
+  });
+
+  $(window).on("click", function(event) {
+    if (!$(".has-submenu")[0].contains(event.target)) {
+      $(".has-submenu").removeClass("expanded")
+    }
+  })
+})
+</script>
