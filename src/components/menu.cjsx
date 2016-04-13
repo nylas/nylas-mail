@@ -250,11 +250,13 @@ class Menu extends React.Component
       event.preventDefault()
       @props.onSelect(item) if @props.onSelect
 
-    <MenuItem onMouseDown={onMouseDown}
-              key={@props.itemKey(item)}
-              checked={@props.itemChecked?(item)}
-              content={content}
-              selected={@state.selectedIndex is i} />
+    <MenuItem
+      onMouseDown={onMouseDown}
+      key={@props.itemKey(item)}
+      checked={@props.itemChecked?(item)}
+      content={content}
+      selected={@state.selectedIndex is i}
+    />
 
   _onShiftSelectedIndex: (delta) =>
     return if @props.items.length is 0

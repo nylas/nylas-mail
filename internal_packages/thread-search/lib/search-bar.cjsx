@@ -90,7 +90,7 @@ class SearchBar extends React.Component
           headerComponents={headerComponents}
           items={@state.suggestions}
           itemContent={itemContentFunc}
-          itemKey={ (item) -> item.id ? item.label }
+          itemKey={ (item) -> item.label || item.contact?.id || item.thread?.id}
           onSelect={@_onSelectSuggestion}
           />
       </div>
