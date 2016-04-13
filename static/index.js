@@ -30,7 +30,7 @@ function handleSetupError (error) {
 
 function copyEnvFromMainProcess() {
   var _ = require('underscore');
-  var remote = require('remote');
+  var remote = require('electron').remote;
   var newEnv = _.extend({}, process.env, remote.process.env);
   process.env = newEnv;
 }
@@ -60,7 +60,7 @@ function setupWindow (loadSettings) {
   //   productName: 'N1',
   //   companyName: 'Nylas',
   //   // By explicitly passing the app version here, we could save the call
-  //   // of "require('remote').require('app').getVersion()".
+  //   // of "require('electron').remote.require('app').getVersion()".
   //   extra: {_version: loadSettings.appVersion}
   // })
 

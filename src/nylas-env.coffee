@@ -627,8 +627,7 @@ class NylasEnvConstructor extends Model
     width > 0 and height > 0 and x + width > 0 and y + height > 0
 
   getDefaultWindowDimensions: ->
-    screen = remote.require('screen')
-    {width, height} = screen.getPrimaryDisplay().workAreaSize
+    {width, height} = remote.screen.getPrimaryDisplay().workAreaSize
     x = 0
     y = 0
 

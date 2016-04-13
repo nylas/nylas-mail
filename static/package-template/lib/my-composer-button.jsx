@@ -33,7 +33,7 @@ export default class MyComposerButton extends React.Component {
   }
 
   _getDialog() {
-    return require('remote').require('dialog');
+    return require('electron').remote.dialog;
   }
 
   render() {

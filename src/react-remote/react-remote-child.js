@@ -11,7 +11,7 @@ restoreSelection = exp.restoreSelection;
 getSelectionData = exp.getSelectionData;
 
 var receiveEvent = function (json) {
-  var remote = require('remote');
+  var remote = require('electron').remote;
 
   if (json.selectionData) {
     document.removeEventListener("selectionchange", selectionChange);
@@ -108,7 +108,7 @@ events.forEach(function(type) {
       representation.targetChecked = event.target.checked;
     }
 
-    var remote = require('remote');
+    var remote = require('electron').remote;
     ipc.send("from-react-remote-window", {windowId: remote.getCurrentWindow().id, event: representation});
     if ((event.type != 'keydown') && (event.type != 'keypress') && (event.type != 'keyup')) {
       event.preventDefault();
@@ -121,7 +121,7 @@ selectionChange = function() {
   selectionData = getSelectionData()
   if (_.isEqual(selectionData, lastSelectionData)) { return; }
   lastSelectionData = _.clone(selectionData)
-  var remote = require('remote');
+  var remote = require('electron').remote;
   remote.getCurrentWindow().id
   ipc.send("from-react-remote-window-selection", selectionData);
 }

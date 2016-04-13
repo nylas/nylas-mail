@@ -161,7 +161,7 @@ export default class ParticipantsTextField extends React.Component {
     const menu = new MenuClass();
     menu.append(new MenuItem({
       label: `Copy ${participant.email}`,
-      click: () => require('clipboard').writeText(participant.email),
+      click: () => require('electron').clipboard.writeText(participant.email),
     }))
     menu.append(new MenuItem({
       type: 'separator',

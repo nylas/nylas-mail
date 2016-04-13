@@ -182,11 +182,11 @@ class EventedIFrame extends React.Component
     event.preventDefault()
 
     {remote} = require('electron')
-    clipboard = require('clipboard')
+    clipboard = require('electron').clipboard
     Menu = remote.require('menu')
     MenuItem = remote.require('menu-item')
     NativeImage = require('native-image')
-    shell = require('shell')
+    shell = require('electron').shell
     path = require('path')
     fs = require('fs')
     menu = new Menu()
