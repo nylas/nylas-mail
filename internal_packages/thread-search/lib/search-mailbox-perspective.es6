@@ -33,7 +33,7 @@ class SearchMailboxPerspective extends MailboxPerspective {
   }
 
   tasksForRemovingItems(threads) {
-    TaskFactory.tasksForApplyingCategories({
+    return TaskFactory.tasksForApplyingCategories({
       threads: threads,
       categoriesToAdd: (accountId) => {
         const account = AccountStore.accountForId(accountId)
