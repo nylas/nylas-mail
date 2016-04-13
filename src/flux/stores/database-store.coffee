@@ -226,7 +226,7 @@ class DatabaseStore extends NylasStore
         catch err
           console.log("Could not write mail rules to file: #{err}")
 
-      app = require('remote').getGlobal('application')
+      app = require('electron').remote.getGlobal('application')
       app.rebuildDatabase()
 
   _prettyConsoleLog: (q) =>

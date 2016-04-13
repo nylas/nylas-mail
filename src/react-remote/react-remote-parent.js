@@ -223,7 +223,7 @@ var openWindowForComponent = function(Component, options) {
     }
   }
 
-  var remote = require('remote');
+  var remote = require('electron').remote;
   var url = require('url');
   var BrowserWindow = remote.require('browser-window');
 

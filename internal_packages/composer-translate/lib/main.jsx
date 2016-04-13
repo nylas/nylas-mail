@@ -49,7 +49,7 @@ class TranslateButton extends React.Component {
 
   _onError(error) {
     Actions.closePopover()
-    const dialog = require('remote').require('dialog');
+    const dialog = require('electron').remote.dialog;
     dialog.showErrorBox('Language Conversion Failed', error.toString());
   }
 
