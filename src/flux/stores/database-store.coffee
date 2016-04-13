@@ -13,6 +13,7 @@ PriorityUICoordinator = require '../../priority-ui-coordinator'
 DatabaseSetupQueryBuilder = require './database-setup-query-builder'
 DatabaseChangeRecord = require './database-change-record'
 DatabaseTransaction = require './database-transaction'
+JSONBlob = null
 
 {ipcRenderer} = require 'electron'
 
@@ -436,7 +437,7 @@ class DatabaseStore extends NylasStore
       Promise.resolve(result)
 
   findJSONBlob: (id) ->
-    JSONBlob = require '../models/json-blob'
+    JSONBlob ?= require '../models/json-blob'
     new JSONBlobQuery(JSONBlob, @).where({id}).one()
 
   # Private: Mutation hooks allow you to observe changes to the database and

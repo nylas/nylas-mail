@@ -5,6 +5,7 @@ ExtensionRegistry = require '../../extension-registry'
 {Listener, Publisher} = require '../modules/reflux-coffee'
 SyncbackDraftTask = require '../tasks/syncback-draft-task'
 CoffeeHelpers = require '../coffee-helpers'
+DraftStore = null
 
 _ = require 'underscore'
 
@@ -93,7 +94,7 @@ class DraftStoreProxy
   @include Listener
 
   constructor: (@draftClientId, draft = null) ->
-    DraftStore = require './draft-store'
+    DraftStore ?= require './draft-store'
     @listenTo DraftStore, @_onDraftChanged
 
     @_draft = false
@@ -144,8 +145,6 @@ class DraftStoreProxy
 
     # Reverse draft transformations performed by third-party plugins when the draft
     # was last saved to disk
-    DraftStore = require './draft-store'
-
     return Promise.each ExtensionRegistry.Composer.extensions(), (ext) ->
       if ext.applyTransformsToDraft and ext.unapplyTransformsToDraft
         Promise.resolve(ext.unapplyTransformsToDraft({draft})).then (untransformed) ->

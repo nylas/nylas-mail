@@ -305,7 +305,6 @@ class NylasAPI
 
     # Step 3: Retrieve any existing models from the database for the given IDs.
     ids = _.pluck(unlockedJSONs, 'id')
-    DatabaseStore = require './stores/database-store'
     DatabaseStore.findAll(klass).where(klass.attributes.id.in(ids)).then (models) ->
       existingModels = {}
       existingModels[model.id] = model for model in models

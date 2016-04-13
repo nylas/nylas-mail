@@ -1,5 +1,6 @@
 _ = require 'underscore'
 QuerySubscription = require './query-subscription'
+DatabaseStore = null
 
 ###
 Public: The QuerySubscriptionPool maintains a list of all of the query
@@ -75,7 +76,7 @@ class QuerySubscriptionPool
     return query.sql()
 
   _setup: =>
-    DatabaseStore = require '../stores/database-store'
+    DatabaseStore ?= require '../stores/database-store'
     DatabaseStore.listen @_onChange
 
   _onChange: (record) =>

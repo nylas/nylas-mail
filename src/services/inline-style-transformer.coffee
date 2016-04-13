@@ -2,6 +2,7 @@
 RegExpUtils = require '../regexp-utils'
 crypto = require 'crypto'
 _ = require 'underscore'
+userAgentDefault = null
 
 class InlineStyleTransformer
   constructor: ->
@@ -34,7 +35,7 @@ class InlineStyleTransformer
     i = body.search(RegExpUtils.looseStyleTag())
     return body if i is -1
 
-    userAgentDefault = require '../chrome-user-agent-stylesheet-string'
+    userAgentDefault ?= require '../chrome-user-agent-stylesheet-string'
     return "#{body[0...i]}<style>#{userAgentDefault}</style>#{body[i..-1]}"
 
   _onInlineStylesResult: (event, {html, key}) =>
