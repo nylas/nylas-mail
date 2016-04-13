@@ -6,6 +6,7 @@ AccountStore = require './account-store'
 ContactStore = require './contact-store'
 MessageStore = require './message-store'
 FocusedPerspectiveStore = require './focused-perspective-store'
+DraftStore = null
 
 InlineStyleTransformer = require '../../services/inline-style-transformer'
 SanitizeTransformer = require '../../services/sanitize-transformer'
@@ -166,7 +167,7 @@ class DraftFactory
         return Promise.resolve(candidateDrafts.pop())
 
       else if behavior is 'prefer-existing-if-pristine'
-        DraftStore = require './draft-store'
+        DraftStore ?= require './draft-store'
         return Promise.all(candidateDrafts.map (candidateDraft) =>
           DraftStore.sessionForClientId(candidateDraft.clientId)
         ).then (sessions) =>

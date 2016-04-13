@@ -3,6 +3,7 @@ Model = require './model'
 Actions = require '../actions'
 Attributes = require '../attributes'
 _ = require 'underscore'
+RegExpUtils = null
 
 ###
 Public: File model represents a File object served by the Nylas Platform API.
@@ -68,7 +69,7 @@ class File extends Model
       return "Unnamed Attachment"
 
   safeDisplayName: ->
-    RegExpUtils = require '../../regexp-utils'
+    RegExpUtils ?= require '../../regexp-utils'
     return @displayName().replace(RegExpUtils.illegalPathCharactersRegexp(), '-')
 
   # Public: Returns the file extension that should be used for this file.
