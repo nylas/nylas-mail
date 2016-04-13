@@ -13,7 +13,7 @@ class APIError extends Error
     @requestOptions ?= @response?.requestOptions
     @name = "APIError"
     @message = @body?.message ? @body ? @error?.toString?()
-    @errorTitle = @error?.toString?()
+    @errorTitle = @body?.error
 
 class TimeoutError extends Error
   constructor: ->
