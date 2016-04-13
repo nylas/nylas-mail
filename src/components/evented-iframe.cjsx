@@ -151,7 +151,7 @@ class EventedIFrame extends React.Component
           target.setAttribute('href', "http://#{rawHref}")
 
       e.preventDefault()
-      NylasEnv.windowEventHandler.openLink(target: target)
+      NylasEnv.windowEventHandler.openLink(target: target, metaKey: e.metaKey)
 
   _isBlacklistedHref: (href) ->
     return (new RegExp(/^file:/i)).test(href)
