@@ -158,6 +158,7 @@ class NylasExports
   # Libraries
   @get "React", -> require 'react' # Our version of React for 3rd party use
   @get "ReactDOM", -> require 'react-dom'
+  @get "ReactTestUtils", -> require 'react-addons-test-utils'
   @get "Reflux", -> require 'reflux'
   @get "Rx", -> require 'rx-lite'
   @get "Keytar", -> require 'keytar' # atom-keytar access through native module
