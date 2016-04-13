@@ -200,7 +200,11 @@ class EmptyMailboxPerspective extends MailboxPerspective
     @accountIds = []
 
   threads: =>
-    query = DatabaseStore.findAll(Thread).where(accountId: -1).limit(0)
+    # We need a Thread query that will not return any results and take no time.
+    # We use lastMessageReceivedTimestamp because it is the first column on an
+    # index so this returns zero items nearly instantly. In the future, we might
+    # want to make a Query.forNothing() to go along with MailboxPerspective.forNothing()
+    query = DatabaseStore.findAll(Thread).where(lastMessageReceivedTimestamp: -1).limit(0)
     return new MutableQuerySubscription(query, {asResultSet: true})
 
   canReceiveThreadsFromAccountIds: =>
