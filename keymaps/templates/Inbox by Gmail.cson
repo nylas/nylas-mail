@@ -11,7 +11,9 @@
   ### Navigation ###
   'u': 'application:pop-sheet'
   'k': 'core:previous-item'
+  'shift-k': 'core:select-up'
   'j': 'core:next-item'
+  'shift-j': 'core:select-down'
   'o': 'core:focus-item'
   'p': 'message-list:previous-message'
   'n': 'message-list:next-message'
