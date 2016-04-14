@@ -48,7 +48,7 @@ up or your package is manually activated.
 */
 export function activate() {
   ComponentRegistry.register(ViewOnGithubButton, {
-    role: 'MessageList:ThreadActionsToolbarButton',
+    role: 'ThreadActionsToolbarButton',
   });
 }
 
