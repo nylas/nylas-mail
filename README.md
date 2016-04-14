@@ -58,6 +58,7 @@ Great starting points for creating your own plugins!
 - [View on GitHub](https://github.com/nylas/N1/tree/master/internal_packages/message-view-on-github)
 - [Personal Level Indicators](https://github.com/nylas/N1/tree/master/internal_packages/personal-level-indicators)
 - [Phishing Detection](https://github.com/nylas/N1/tree/master/internal_packages/phishing-detection)
+- [Markdown](https://github.com/evenh/n1-markdown) - Markdown support in composing windows
 
 #### Community Plugins
 - [Jiffy](http://noahbuscher.github.io/N1-Jiffy/) — Insert animated GIFs
