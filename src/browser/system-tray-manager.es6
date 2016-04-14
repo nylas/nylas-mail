@@ -52,22 +52,28 @@ class SystemTrayManager {
     this._platform = platform;
     this._application = application;
     this._iconPath = null;
+    this._unreadString = null;
     this._tray = null;
-    this._initTray();
+    this.initTray();
 
-    this._application.config.onDidChange('core.workspace.systemTray', () => {
-      this.destroy()
-      this._initTray()
-    })
+    this._application.config.onDidChange('core.workspace.systemTray', ({newValue}) => {
+      if (newValue === false) {
+        this.destroyTray();
+      } else {
+        this.initTray();
+      }
+    });
   }
 
-  _initTray() {
-    if (this._application.config.get('core.workspace.systemTray') !== false) {
+  initTray() {
+    const enabled = (this._application.config.get('core.workspace.systemTray') !== false);
+    const created = (this._tray !== null);
+
+    if (enabled && !created) {
       this._tray = new Tray(_getIcon(this._iconPath));
-      this._tray.setToolTip(_getTooltip());
+      this._tray.setToolTip(_getTooltip(this._unreadString));
       this._tray.addListener('click', this._onClick);
       this._tray.setContextMenu(Menu.buildFromTemplate(_getMenuTemplate(this._platform, this._application)));
-      this._unsubscribe = ()=> this._tray.removeListener('click', this._onClick);
     }
   }
 
@@ -77,19 +83,26 @@ class SystemTrayManager {
     }
   };
 
-  updateTray(iconPath, unreadString, isTemplateImg) {
-    if (!this._tray) return;
-    this._iconPath = iconPath;
+  updateTraySettings(iconPath, unreadString, isTemplateImg) {
+    if ((this._iconPath === iconPath) && (this._unreadString === unreadString)) return;
 
-    const icon = _getIcon(this._iconPath, isTemplateImg);
-    const tooltip = _getTooltip(unreadString);
-    this._tray.setImage(icon);
-    this._tray.setToolTip(tooltip);
+    this._iconPath = iconPath;
+    this._unreadString = unreadString;
+
+    if (this._tray) {
+      const icon = _getIcon(this._iconPath, isTemplateImg);
+      const tooltip = _getTooltip(unreadString);
+      this._tray.setImage(icon);
+      this._tray.setToolTip(tooltip);
+    }
   }
 
-  destroy() {
-    if (this._tray) this._tray.destroy();
-    this._unsubscribe();
+  destroyTray() {
+    if (this._tray) {
+      this._tray.removeListener('click', this._onClick);
+      this._tray.destroy();
+      this._tray = null;
+    }
   }
 }
 
