@@ -75,11 +75,11 @@ class ToggleStarredButton extends React.Component
 
   render: ->
     postClickStarredState = _.every @props.items, (t) -> t.starred is false
-    title = "Remove stars from all"
+    title = "Unstar"
     imageName = "toolbar-star-selected.png"
 
     if postClickStarredState
-      title = "Star all"
+      title = "Star"
       imageName = "toolbar-star.png"
 
     <button tabIndex={-1}
