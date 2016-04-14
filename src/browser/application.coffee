@@ -335,7 +335,7 @@ class Application
       # Destroy hot windows so that they can't block the app from quitting.
       # (Electron will wait for them to finish loading before quitting.)
       @windowManager.unregisterAllHotWindows()
-      @systemTrayManager?.destroy()
+      @systemTrayManager.destroyTray()
 
     # Called after the app has closed all windows.
     app.on 'will-quit', =>
@@ -356,7 +356,7 @@ class Application
 
     # System Tray
     ipcMain.on 'update-system-tray', (event, args...) =>
-      @systemTrayManager?.updateTray(args...)
+      @systemTrayManager.updateTraySettings(args...)
 
     ipcMain.on 'set-badge-value', (event, value) =>
       app.dock?.setBadge?(value)
