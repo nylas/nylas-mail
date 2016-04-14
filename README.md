@@ -58,7 +58,6 @@ Great starting points for creating your own plugins!
 - [View on GitHub](https://github.com/nylas/N1/tree/master/internal_packages/message-view-on-github)
 - [Personal Level Indicators](https://github.com/nylas/N1/tree/master/internal_packages/personal-level-indicators)
 - [Phishing Detection](https://github.com/nylas/N1/tree/master/internal_packages/phishing-detection)
-- [Markdown](https://github.com/evenh/n1-markdown) - Markdown support in composing windows
 
 #### Community Plugins
 - [Jiffy](http://noahbuscher.github.io/N1-Jiffy/) — Insert animated GIFs
@@ -67,6 +66,7 @@ Great starting points for creating your own plugins!
 - [Unsubscribe](https://github.com/colinking/n1-unsubscribe)
 - [Squirt Speed Reader](https://github.com/HarleyKwyn/squirt-reader-N1-plugin/)
 - In Development: [Cypher](https://github.com/mbilker/cypher) (PGP Encryption)
+- [Markdown](https://github.com/evenh/n1-markdown) - Markdown support in composing windows
 
 # Running Locally
 By default the N1 source points to our hosted version of the Nylas Sync Engine; however, the Sync Engine is open source and you can [run it yourself](https://github.com/nylas/N1/blob/master/CONFIGURATION.md).
