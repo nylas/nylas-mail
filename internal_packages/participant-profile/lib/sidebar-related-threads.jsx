@@ -50,11 +50,17 @@ export default class RelatedThreads extends React.Component {
     const height = ((limit + (this._hasToggle() ? 1 : 0)) * 31);
     const shownThreads = this.props.contactThreads.slice(0, limit)
     const threads = shownThreads.map((thread) => {
+      const {snippet, subject, lastMessageReceivedTimestamp} = thread;
+      const snippetStyles = (subject && subject.length) ? {marginLeft: '1em'} : {};
       const onClick = () => { this._onClick(thread) }
+
       return (
         <div key={thread.id} className="related-thread" onClick={onClick} >
-          <span className="subject" title={thread.subject}>{thread.subject}</span>
-          <span className="timestamp" title={Utils.fullTimeString(thread.lastMessageReceivedTimestamp)}>{Utils.shortTimeString(thread.lastMessageReceivedTimestamp)}</span>
+          <span className="content" title={subject}>
+            {subject}
+            <span className="snippet" style={snippetStyles}>{snippet}</span>
+          </span>
+          <span className="timestamp" title={Utils.fullTimeString(lastMessageReceivedTimestamp)}>{Utils.shortTimeString(lastMessageReceivedTimestamp)}</span>
         </div>
       )
     })
