@@ -2,9 +2,8 @@ import _ from 'underscore';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import AccountContactField from './account-contact-field';
-import ParticipantsTextField from './participants-text-field';
 import {Utils, Actions, AccountStore} from 'nylas-exports';
-import {KeyCommandsRegion} from 'nylas-component-kit';
+import {KeyCommandsRegion, ParticipantsTextField} from 'nylas-component-kit';
 
 import CollapsedParticipants from './collapsed-participants';
 import ComposerHeaderActions from './composer-header-actions';

@@ -43,6 +43,7 @@ class NylasComponentKit
   @load "TabGroupRegion", 'tab-group-region'
   @load "InjectedComponent", 'injected-component'
   @load "TokenizingTextField", 'tokenizing-text-field'
+  @load "ParticipantsTextField", 'participants-text-field'
   @loadDeprecated "MultiselectActionBar", 'multiselect-action-bar', instead: 'MultiselectToolbar'
   @load "MultiselectToolbar", 'multiselect-toolbar'
   @load "InjectedComponentSet", 'injected-component-set'
