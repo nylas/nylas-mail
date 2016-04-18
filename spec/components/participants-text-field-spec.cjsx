@@ -11,7 +11,7 @@ proxyquire = require 'proxyquire'
  Utils,
 } = require 'nylas-exports'
 
-ParticipantsTextField = proxyquire '../lib/participants-text-field',
+ParticipantsTextField = proxyquire '../src/components/participants-text-field',
   'nylas-exports': {Contact, ContactStore}
 
 participant1 = new Contact

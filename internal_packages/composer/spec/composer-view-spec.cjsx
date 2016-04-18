@@ -19,11 +19,10 @@ ReactTestUtils = require('react-addons-test-utils')
  FocusedContentStore,
  ComponentRegistry} = require "nylas-exports"
 
-{InjectedComponent} = require 'nylas-component-kit'
+{InjectedComponent, ParticipantsTextField} = require 'nylas-component-kit'
 
 DraftStoreProxy = require '../../../src/flux/stores/draft-store-proxy'
 ComposerEditor = require '../lib/composer-editor'
-ParticipantsTextField = require '../lib/participants-text-field'
 Fields = require '../lib/fields'
 
 u1 = new Contact(name: "Christine Spang", email: "spang@nylas.com")
