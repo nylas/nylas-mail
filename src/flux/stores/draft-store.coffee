@@ -3,7 +3,7 @@ _ = require 'underscore'
 {ipcRenderer} = require 'electron'
 
 NylasAPI = require '../nylas-api'
-DraftStoreProxy = require './draft-store-proxy'
+DraftEditingSession = require './draft-editing-session'
 DraftFactory = require './draft-factory'
 DatabaseStore = require './database-store'
 AccountStore = require './account-store'
@@ -95,7 +95,7 @@ class DraftStore
 
   ######### PUBLIC #######################################################
 
-  # Public: Fetch a {DraftStoreProxy} for displaying and/or editing the
+  # Public: Fetch a {DraftEditingSession} for displaying and/or editing the
   # draft with `clientId`.
   #
   # Example:
@@ -108,7 +108,7 @@ class DraftStore
   #
   # - `clientId` The {String} clientId of the draft.
   #
-  # Returns a {Promise} that resolves to an {DraftStoreProxy} for the
+  # Returns a {Promise} that resolves to an {DraftEditingSession} for the
   # draft once it has been prepared:
   sessionForClientId: (clientId) =>
     if not clientId
@@ -259,7 +259,7 @@ class DraftStore
     .thenReturn({draftClientId: draft.clientId, draft: draft})
 
   _createSession: (clientId, draft) =>
-    @_draftSessions[clientId] = new DraftStoreProxy(clientId, draft)
+    @_draftSessions[clientId] = new DraftEditingSession(clientId, draft)
 
   _onPopoutBlankDraft: =>
     DraftFactory.createDraft().then (draft) =>

@@ -21,7 +21,7 @@ ReactTestUtils = require('react-addons-test-utils')
 
 {InjectedComponent, ParticipantsTextField} = require 'nylas-component-kit'
 
-DraftStoreProxy = require '../../../src/flux/stores/draft-store-proxy'
+DraftEditingSession = require '../../../src/flux/stores/draft-editing-session'
 ComposerEditor = require '../lib/composer-editor'
 Fields = require '../lib/fields'
 
@@ -46,8 +46,8 @@ DRAFT_CLIENT_ID = "local-123"
 useDraft = (draftAttributes={}) ->
   @draft = new Message _.extend({draft: true, body: ""}, draftAttributes)
   @draft.clientId = DRAFT_CLIENT_ID
-  @proxy = new DraftStoreProxy(DRAFT_CLIENT_ID, @draft)
-  DraftStore._draftSessions[DRAFT_CLIENT_ID] = @proxy
+  @session = new DraftEditingSession(DRAFT_CLIENT_ID, @draft)
+  DraftStore._draftSessions[DRAFT_CLIENT_ID] = @session
 
 useFullDraft = ->
   useDraft.call @,
@@ -62,7 +62,7 @@ useFullDraft = ->
 
 makeComposer = (props={}) ->
   @composer = NylasTestUtils.renderIntoDocument(
-    <ComposerView draft={@draft} session={@proxy} {...props} />
+    <ComposerView draft={@draft} session={@session} {...props} />
   )
   advanceClock()
 
@@ -73,7 +73,7 @@ describe "ComposerView", ->
 
     @isSending = false
     spyOn(DraftStore, "isSendingDraft").andCallFake => @isSending
-    spyOn(DraftStoreProxy.prototype, '_changeSetCommit').andCallFake (draft) =>
+    spyOn(DraftEditingSession.prototype, '_changeSetCommit').andCallFake (draft) =>
       @draft = draft
     spyOn(ContactStore, "searchContacts").andCallFake (email) =>
       return _.filter(users, (u) u.email.toLowerCase() is email.toLowerCase())
@@ -91,12 +91,12 @@ describe "ComposerView", ->
       useDraft.call(@)
       makeComposer.call(@)
       editableNode = ReactDOM.findDOMNode(@composer).querySelector('[contenteditable]')
-      spyOn(@proxy.changes, "add")
+      spyOn(@session.changes, "add")
       editableNode.innerHTML = "Hello <strong>world</strong>"
       @composer.refs[Fields.Body]._onDOMMutated(["mutated"])
-      expect(@proxy.changes.add).toHaveBeenCalled()
-      expect(@proxy.changes.add.calls.length).toBe 1
-      body = @proxy.changes.add.calls[0].args[0].body
+      expect(@session.changes.add).toHaveBeenCalled()
+      expect(@session.changes.add.calls.length).toBe 1
+      body = @session.changes.add.calls[0].args[0].body
       expect(body).toBe "<head></head><body>Hello <strong>world</strong></body>"
 
   describe "when sending a reply-to message", ->
@@ -111,7 +111,7 @@ describe "ComposerView", ->
 
       makeComposer.call @
       @editableNode = ReactDOM.findDOMNode(@composer).querySelector('[contenteditable]')
-      spyOn(@proxy.changes, "add")
+      spyOn(@session.changes, "add")
 
     it 'begins with the replying message collapsed', ->
       expect(@editableNode.innerHTML).toBe ""
@@ -119,9 +119,9 @@ describe "ComposerView", ->
     it 'saves the full new body, plus quoted text', ->
       @editableNode.innerHTML = "Hello <strong>world</strong>"
       @composer.refs[Fields.Body]._onDOMMutated(["mutated"])
-      expect(@proxy.changes.add).toHaveBeenCalled()
-      expect(@proxy.changes.add.calls.length).toBe 1
-      body = @proxy.changes.add.calls[0].args[0].body
+      expect(@session.changes.add).toHaveBeenCalled()
+      expect(@session.changes.add.calls.length).toBe 1
+      body = @session.changes.add.calls[0].args[0].body
       expect(body).toBe """<head></head><body>Hello <strong>world</strong>#{@replyBody}</body>"""
 
   describe "when sending a forwarded message message", ->
@@ -143,7 +143,7 @@ describe "ComposerView", ->
 
       makeComposer.call @
       @editableNode = ReactDOM.findDOMNode(@composer).querySelector('[contenteditable]')
-      spyOn(@proxy.changes, "add")
+      spyOn(@session.changes, "add")
 
     it 'begins with the forwarded message expanded', ->
       expect(@editableNode.innerHTML).toBe @fwdBody
@@ -151,9 +151,9 @@ describe "ComposerView", ->
     it 'saves the full new body, plus forwarded text', ->
       @editableNode.innerHTML = "Hello <strong>world</strong>#{@fwdBody}"
       @composer.refs[Fields.Body]._onDOMMutated(["mutated"])
-      expect(@proxy.changes.add).toHaveBeenCalled()
-      expect(@proxy.changes.add.calls.length).toBe 1
-      body = @proxy.changes.add.calls[0].args[0].body
+      expect(@session.changes.add).toHaveBeenCalled()
+      expect(@session.changes.add.calls.length).toBe 1
+      body = @session.changes.add.calls[0].args[0].body
       expect(body).toBe """Hello <strong>world</strong>#{@fwdBody}"""
 
   describe "When sending a message", ->
@@ -197,7 +197,7 @@ describe "ComposerView", ->
           body: pristineBody
         makeComposer.call(@)
 
-        spyOn(@proxy, 'draftPristineBody').andCallFake -> pristineBody
+        spyOn(@session, 'draftPristineBody').andCallFake -> pristineBody
 
         status = @composer._isValidDraft()
         expect(status).toBe false

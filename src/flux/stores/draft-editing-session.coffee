@@ -13,14 +13,14 @@ MetadataChangePrefix = 'metadata.'
 
 ###
 Public: As the user interacts with the draft, changes are accumulated in the
-DraftChangeSet associated with the store proxy. The DraftChangeSet does two things:
+DraftChangeSet associated with the store session. The DraftChangeSet does two things:
 
 1. It debounces changes and calls Actions.saveDraft() at a reasonable interval.
 
 2. It exposes `applyToModel`, which allows you to optimistically apply changes
-  to a draft object. When the proxy vends the draft, it passes it through this
+  to a draft object. When the session vends the draft, it passes it through this
   function to apply uncommitted changes. This means the Draft provided by the
-  DraftStoreProxy will always relfect recent changes, even though they're
+  DraftEditingSession will always relfect recent changes, even though they're
   written to the database intermittently.
 
 Section: Drafts
@@ -75,7 +75,7 @@ class DraftChangeSet
     model
 
 ###
-Public: DraftStoreProxy is a small class that makes it easy to implement components
+Public: DraftEditingSession is a small class that makes it easy to implement components
 that display Draft objects or allow for interactive editing of Drafts.
 
 1. It synchronously provides an instance of a draft via `draft()`, and
@@ -87,7 +87,7 @@ that display Draft objects or allow for interactive editing of Drafts.
 
 Section: Drafts
 ###
-class DraftStoreProxy
+class DraftEditingSession
   @include: CoffeeHelpers.includeModule
 
   @include Publisher
@@ -135,7 +135,7 @@ class DraftStoreProxy
 
   _setDraft: (draft) ->
     if !draft.body?
-      throw new Error("DraftStoreProxy._setDraft - new draft has no body!")
+      throw new Error("DraftEditingSession._setDraft - new draft has no body!")
 
     # We keep track of the draft's initial body if it's pristine when the editing
     # session begins. This initial value powers things like "are you sure you want
@@ -208,6 +208,6 @@ class DraftStoreProxy
       Actions.ensureDraftSynced(@draftClientId)
 
 
-DraftStoreProxy.DraftChangeSet = DraftChangeSet
+DraftEditingSession.DraftChangeSet = DraftChangeSet
 
-module.exports = DraftStoreProxy
+module.exports = DraftEditingSession

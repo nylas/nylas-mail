@@ -1344,7 +1344,7 @@
 5496551: src/flux/stores/draft-store.js
 3904826: src/global/nylas-exports.js
 3915554: src/flux/models/file.js
-5525126: src/flux/stores/draft-store-proxy.js
+5525126: src/flux/stores/draft-editing-session.js
 3918342: src/flux/tasks/task.js
 5544893: src/flux/stores/contact-store.js
 3926563: src/flux/models/event.js
@@ -1784,7 +1784,7 @@
 6736746: src/components/flexbox.js
 6738843: src/components/injected-component-set.js
 6746664: src/components/unsafe-component.js
-5525126: src/flux/stores/draft-store-proxy.js
+5525126: src/flux/stores/draft-editing-session.js
 6752536: src/components/injected-component-label.js
 6754516: src/components/resizable-region.js
 5544893: src/flux/stores/contact-store.js
@@ -3674,7 +3674,7 @@
 5487233: src/mail-rules-templates.js
 5491170: src/components/scenario-editor-models.js
 5496551: src/flux/stores/draft-store.js
-5525126: src/flux/stores/draft-store-proxy.js
+5525126: src/flux/stores/draft-editing-session.js
 5544893: src/flux/stores/contact-store.js
 5558283: src/flux/stores/contact-ranking-store.js
 5583627: src/flux/stores/focused-perspective-store.js
@@ -5166,7 +5166,7 @@
 5487233: src/mail-rules-templates.js
 5491170: src/components/scenario-editor-models.js
 5496551: src/flux/stores/draft-store.js
-5525126: src/flux/stores/draft-store-proxy.js
+5525126: src/flux/stores/draft-editing-session.js
 5544893: src/flux/stores/contact-store.js
 5558283: src/flux/stores/contact-ranking-store.js
 5583627: src/flux/stores/focused-perspective-store.js
