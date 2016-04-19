@@ -60,7 +60,7 @@ _flatMapJoiningMessages = ($threadsResultSet) =>
 
 _observableForThreadMessages = (id, initialModels) ->
   subscription = new QuerySubscription(DatabaseStore.findAll(Message, threadId: id), {
-    asResultSet: true,
+    emitResultSet: true,
     initialModels: initialModels
   })
   Rx.Observable.fromNamedQuerySubscription('message-'+id, subscription)

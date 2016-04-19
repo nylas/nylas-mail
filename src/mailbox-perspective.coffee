@@ -7,10 +7,14 @@ CategoryStore = require './flux/stores/category-store'
 DatabaseStore = require './flux/stores/database-store'
 OutboxStore = require './flux/stores/outbox-store'
 ThreadCountsStore = require './flux/stores/thread-counts-store'
+RecentlyReadStore = require './flux/stores/recently-read-store'
 MutableQuerySubscription = require './flux/models/mutable-query-subscription'
+UnreadQuerySubscription = require './flux/models/unread-query-subscription'
+Matcher = require './flux/attributes/matcher'
 Thread = require './flux/models/thread'
 Category = require './flux/models/category'
 Actions = require './flux/actions'
+ChangeUnreadTask = null
 
 # This is a class cluster. Subclasses are not for external use!
 # https://developer.apple.com/library/ios/documentation/General/Conceptual/CocoaEncyclopedia/ClassClusters/ClassClusters.html
@@ -41,6 +45,9 @@ class MailboxPerspective
   @forStarred: (accountsOrIds) ->
     new StarredMailboxPerspective(accountsOrIds)
 
+  @forUnread: (categories) ->
+    new UnreadMailboxPerspective(categories)
+
   @forInbox: (accountsOrIds) =>
     @forStandardCategories(accountsOrIds, 'inbox')
 
@@ -49,6 +56,9 @@ class MailboxPerspective
       if json.type is CategoryMailboxPerspective.name
         categories = JSON.parse(json.serializedCategories, Utils.registeredObjectReviver)
         return @forCategories(categories)
+      else if json.type is UnreadMailboxPerspective.name
+        categories = JSON.parse(json.serializedCategories, Utils.registeredObjectReviver)
+        return @forUnread(categories)
       else if json.type is StarredMailboxPerspective.name
         return @forStarred(json.accountIds)
       else if json.type is DraftsMailboxPerspective.name
@@ -131,14 +141,14 @@ class MailboxPerspective
     throw new Error("receiveThreads: Not implemented in base class.")
 
   canArchiveThreads: (threads) =>
+    return false if @isArchive()
     accounts = AccountStore.accountsForItems(threads)
-    accountsCanArchiveThreads = _.every(accounts, (acc) -> acc.canArchiveThreads())
-    return (not @isArchive()) and accountsCanArchiveThreads
+    return _.every(accounts, (acc) -> acc.canArchiveThreads())
 
-  canTrashThreads: (threads) =>
-    accounts = AccountStore.accountsForItems(threads)
-    accountCanTrashThreads = _.every(accounts, (acc) -> acc.canTrashThreads())
-    return (not @isTrash()) and accountCanTrashThreads
+  canMoveThreadsTo: (threads, standardCategoryName) =>
+    return false if @categoriesSharedName() is standardCategoryName
+    return _.every AccountStore.accountsForItems(threads), (acc) ->
+      CategoryStore.getStandardCategory(acc, standardCategoryName)?
 
   tasksForRemovingItems: (threads) =>
     if not threads instanceof Array
@@ -180,7 +190,7 @@ class StarredMailboxPerspective extends MailboxPerspective
       Thread.attributes.inAllMail.equal(true),
     ]).limit(0)
 
-    return new MutableQuerySubscription(query, {asResultSet: true})
+    return new MutableQuerySubscription(query, {emitResultSet: true})
 
   canReceiveThreadsFromAccountIds: =>
     super
@@ -205,7 +215,7 @@ class EmptyMailboxPerspective extends MailboxPerspective
     # index so this returns zero items nearly instantly. In the future, we might
     # want to make a Query.forNothing() to go along with MailboxPerspective.forNothing()
     query = DatabaseStore.findAll(Thread).where(lastMessageReceivedTimestamp: -1).limit(0)
-    return new MutableQuerySubscription(query, {asResultSet: true})
+    return new MutableQuerySubscription(query, {emitResultSet: true})
 
   canReceiveThreadsFromAccountIds: =>
     false
@@ -253,7 +263,7 @@ class CategoryMailboxPerspective extends MailboxPerspective
       # can be /much/ slower and we shouldn't do it if we know we don't need it.
       query.distinct()
 
-    return new MutableQuerySubscription(query, {asResultSet: true})
+    return new MutableQuerySubscription(query, {emitResultSet: true})
 
   unreadCount: =>
     sum = 0
@@ -342,6 +352,33 @@ class CategoryMailboxPerspective extends MailboxPerspective
         category = (ruleset[name] ? ruleset.other)(accId)
         return if category then [category] else []
     )
+
+
+class UnreadMailboxPerspective extends CategoryMailboxPerspective
+  constructor: (categories) ->
+    super(categories)
+    @name = "Unread"
+    @iconName = "unread.png"
+    @
+
+  threads: =>
+    return new UnreadQuerySubscription(_.pluck(@categories(), 'id'))
+
+  unreadCount: =>
+    0
+
+  receiveThreads: (threadsOrIds) =>
+    super(threadsOrIds)
+
+    ChangeUnreadTask ?= require './flux/tasks/change-unread-task'
+    task = new ChangeUnreadTask({threads:threadsOrIds, unread: true})
+    Actions.queueTask(task)
+
+  tasksForRemovingItems: (threads, ruleset) =>
+    ChangeUnreadTask ?= require './flux/tasks/change-unread-task'
+    tasks = super(threads, ruleset)
+    tasks.push new ChangeUnreadTask({threads, unread: false})
+    return tasks
 
 
 module.exports = MailboxPerspective

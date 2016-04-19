@@ -92,8 +92,8 @@ export default class ThreadListContextMenu {
 
   archiveItem() {
     const perspective = FocusedPerspectiveStore.current()
-    const canArchiveThreads = perspective.canArchiveThreads(this.threads)
-    if (!canArchiveThreads) {
+    const allowed = perspective.canArchiveThreads(this.threads)
+    if (!allowed) {
       return null
     }
     return {
@@ -109,8 +109,8 @@ export default class ThreadListContextMenu {
 
   trashItem() {
     const perspective = FocusedPerspectiveStore.current()
-    const canTrashThreads = perspective.canTrashThreads(this.threads)
-    if (!canTrashThreads) {
+    const allowed = perspective.canMoveThreadsTo(this.threads, 'trash')
+    if (!allowed) {
       return null
     }
     return {

@@ -235,7 +235,8 @@ FileDownloadStore = Reflux.createStore
     defaultPath = @_defaultSaveDir()
     options = {
       defaultPath,
-      properties: ['openDirectory'],
+      title: 'Save Into...',
+      properties: ['openDirectory', 'createDirectory'],
     }
 
     NylasEnv.showOpenDialog options, (selected) =>

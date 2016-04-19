@@ -38,7 +38,7 @@ class DraftListStore extends NylasStore
         .where(draft: true, accountId: mailboxPerspective.accountIds)
         .page(0, 1)
 
-      subscription = new MutableQuerySubscription(query, {asResultSet: true})
+      subscription = new MutableQuerySubscription(query, {emitResultSet: true})
       $resultSet = Rx.Observable.fromNamedQuerySubscription('draft-list', subscription)
       $resultSet = Rx.Observable.combineLatest [
         $resultSet,
