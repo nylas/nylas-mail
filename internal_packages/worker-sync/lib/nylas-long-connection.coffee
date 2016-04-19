@@ -135,7 +135,7 @@ class NylasLongConnection
         socket.on 'connect', =>
           @setStatus(NylasLongConnection.Status.Connected)
           @closeIfDataStops()
-      @_req.write("1")
+      @_req.end()
 
 
   close: ->
