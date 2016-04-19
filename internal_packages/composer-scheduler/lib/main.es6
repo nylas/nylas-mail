@@ -45,10 +45,10 @@ export function serialize() {
 export function deactivate() {
   if (NylasEnv.getWindowType() === 'calendar') {
     ProposedTimeCalendarStore.deactivate()
-    ProposedTimeMainWindowStore.deactivate()
     ComponentRegistry.unregister(ProposedTimeEvent);
     ComponentRegistry.unregister(ProposedTimePicker);
   } else {
+    ProposedTimeMainWindowStore.deactivate()
     ComponentRegistry.unregister(NewEventCardContainer);
     ComponentRegistry.unregister(SchedulerComposerButton);
     ExtensionRegistry.Composer.unregister(SchedulerComposerExtension);

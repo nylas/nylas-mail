@@ -1,16 +1,15 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import {
-  Event,
   Actions,
-  Calendar,
   APIError,
   NylasAPI,
   DraftStore,
-  DatabaseStore,
 } from 'nylas-exports'
 import {Menu, RetinaImg} from 'nylas-component-kit'
 import {PLUGIN_ID, PLUGIN_NAME} from '../scheduler-constants'
+
+import NewEventHelper from './new-event-helper'
 
 import moment from 'moment'
 // moment-round upon require patches `moment` with new functions.
@@ -70,7 +69,7 @@ export default class SchedulerComposerButton extends React.Component {
   // Helper method that will render the contents of our popover.
   _renderPopover() {
     const headerComponents = [
-      <span>I'd like to:</span>,
+      <span key="header">I'd like to:</span>,
     ];
     const items = [
       MEETING_REQUEST,
@@ -91,7 +90,7 @@ export default class SchedulerComposerButton extends React.Component {
   }
 
   _onSelectItem = (item) => {
-    this._onCreateEventCard();
+    NewEventHelper.addEventToSession(this._session)
     const draft = this._session.draft()
     if (item === PROPOSAL) {
       NylasEnv.newWindow({
@@ -131,42 +130,15 @@ Please try again later.\n\nError: ${error}`
     )
   }
 
-  _onCreateEventCard = () => {
-    if (!this._session) { return }
-    const draft = this._session.draft()
-    DatabaseStore.findAll(Calendar, {accountId: draft.accountId})
-    .then((allCalendars) => {
-      if (allCalendars.length === 0) {
-        throw new Error(`Can't create an event. The Account \
-${draft.accountId} has no calendars.`);
-      }
-
-      const cals = allCalendars.filter(c => !c.readOnly);
-
-      if (cals.length === 0) {
-        NylasEnv.showErrorDialog(`This account has no editable \
-calendars. We can't create an event for you. Please make sure you have an \
-editable calendar with your account provider.`);
-        return;
-      }
-
-      const start = moment().ceil(30, 'minutes');
-      const metadata = draft.metadataForPluginId(PLUGIN_ID) || {};
-      metadata.uid = draft.clientId;
-      metadata.pendingEvent = new Event({
-        calendarId: cals[0].id,
-        start: start.unix(),
-        end: moment(start).add(1, 'hour').unix(),
-      }).toJSON();
-      Actions.setMetadata(draft, PLUGIN_ID, metadata);
-    })
+  _now() {
+    return moment()
   }
 
   render() {
     return (
       <button className={`btn btn-toolbar ${this.state.enabled ? "btn-enabled" : ""}`}
         onClick={this._onClick}
-        title="Add an event…"
+        title="Schedule an event…"
       >
       <RetinaImg url="nylas://composer-scheduler/assets/ic-composer-scheduler@2x.png"
         mode={RetinaImg.Mode.ContentIsMask}

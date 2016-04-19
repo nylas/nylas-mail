@@ -56,8 +56,8 @@ class ProposedTimeCalendarStore extends NylasStore {
     if (!this._dragBuffer.anchor) {
       return []
     }
-    const {start, end} = this._dragBuffer
-    return [new Event().fromJSON({
+    const {start, end} = this._dragBuffer;
+    const event = new Event().fromJSON({
       title: "Availability Block",
       calendar_id: CALENDAR_ID,
       when: {
@@ -65,12 +65,14 @@ class ProposedTimeCalendarStore extends NylasStore {
         start_time: start,
         end_time: end,
       },
-    })];
+    })
+    event.proposalType = "availability"
+    return [event];
   }
 
   proposalsAsEvents() {
-    return _.map(this._proposals, (p) =>
-      new Event().fromJSON({
+    return _.map(this._proposals, (p) => {
+      const event = new Event().fromJSON({
         title: "Proposed Time",
         calendar_id: CALENDAR_ID,
         when: {
@@ -79,7 +81,9 @@ class ProposedTimeCalendarStore extends NylasStore {
           end_time: p.end,
         },
       })
-    ).concat(this._dragBufferAsEvent());
+      event.proposalType = "proposal";
+      return event
+    }).concat(this._dragBufferAsEvent());
   }
 
   _convertBufferToProposedTimes() {
@@ -90,16 +94,19 @@ class ProposedTimeCalendarStore extends NylasStore {
     const maxMoment = moment.unix(bounds.end);
     maxMoment.ceil(30, 'minutes');
 
-    if (maxMoment.isSameOrBefore(minMoment)) { return }
+    if (maxMoment.isSame(minMoment)) {
+      maxMoment.add(30, 'minutes')
+    }
 
+    const overlapBoundsTest = {start: bounds.start, end: bounds.end - 1}
     this._proposals = _.reject(this._proposals, (p) =>
-      Utils.overlapsBounds(bounds, p)
+      Utils.overlapsBounds(overlapBoundsTest, p)
     )
 
     const blockSize = this._duration.slice(0, 2)
     blockSize[0] = blockSize[0] / 1; // moment requires a number
     const isMinBlockSize = (bounds.end - bounds.start) >= moment.duration.apply(moment, blockSize).as('seconds');
-    while (minMoment.isSameOrBefore(maxMoment)) {
+    while (minMoment.isBefore(maxMoment)) {
       const start = minMoment.unix();
       minMoment.add(blockSize[0], blockSize[1]);
       const end = minMoment.unix() - 1;

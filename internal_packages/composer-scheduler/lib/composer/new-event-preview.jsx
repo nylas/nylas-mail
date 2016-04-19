@@ -40,7 +40,7 @@ export default class NewEventPreview extends React.Component {
       paddingLeft: "40px",
     }
     return (
-      <div>
+      <div className="new-event-preview">
         <h2 style={styles}>
           {this._renderB64Img("description", {verticalAlign: "middle"})}
           {this.props.event.title}

@@ -67,7 +67,7 @@ export default class ProposedTimePicker extends React.Component {
       <button key="clear"
         style={{order: -99, marginLeft: 20}}
         onClick={this._onClearProposals}
-        className="btn"
+        className="btn clear-proposed-times"
       >
         Clear Times
       </button>
@@ -86,7 +86,11 @@ export default class ProposedTimePicker extends React.Component {
     const durationPicker = (
       <div key="dp" className="duration-picker" style={{order: -100}}>
         <label style={{paddingRight: 10}}>Event Duration:</label>
-        <select value={this.state.duration.join("|")} onChange={this._onChangeDuration}>
+        <select
+          className="duration-picker-select"
+          value={this.state.duration.join("|")}
+          onChange={this._onChangeDuration}
+        >
           {optComponents}
         </select>
       </div>
