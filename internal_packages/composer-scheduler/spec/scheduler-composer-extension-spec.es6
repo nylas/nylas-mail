@@ -3,15 +3,13 @@ import {
   prepareDraft,
   setupCalendars,
   cleanupDraft,
-  DRAFT_CLIENT_ID,
 } from './composer-scheduler-spec-helper'
 import NewEventHelper from '../lib/composer/new-event-helper'
 import SchedulerComposerExtension from '../lib/composer/scheduler-composer-extension'
 
-import {DatabaseStore} from 'nylas-exports';
+import {Message, Event} from 'nylas-exports';
 
 import Proposal from '../lib/proposal'
-import SchedulerActions from '../lib/scheduler-actions'
 
 const now = window.testNowMoment;
 
@@ -57,35 +55,18 @@ describe("SchedulerComposerExtension", () => {
     });
   });
 
-  describe("Inserting proposed times", () => {
-    beforeEach(() => {
-      const draft = this.session.draft()
-      spyOn(DatabaseStore, "find").andReturn(Promise.resolve(draft));
+  describe("When proposals are prsent", () => {
+    it("inserts the proposals into the draft body", () => {
       const start = now().add(1, 'hour').unix();
       const end = now().add(2, 'hours').unix();
-      this.proposals = [new Proposal({start, end})]
 
-      runs(() => {
-        SchedulerActions.confirmChoices({
-          proposals: this.proposals,
-          draftClientId: DRAFT_CLIENT_ID,
-        });
+      const draft = new Message({body: ''})
+      draft.applyPluginMetadata(PLUGIN_ID, {
+        pendingEvent: new Event(),
+        proposals: [new Proposal({start, end})],
       })
-      waitsFor(() => {
-        const metadata = this.session.draft().metadataForPluginId(PLUGIN_ID);
-        return (metadata.proposals || []).length > 0;
-      })
-    });
 
-    it("inserts proposed times on metadata", () => {
-      const metadata = this.session.draft().metadataForPluginId(PLUGIN_ID);
-      expect(metadata.proposals).toBe(this.proposals);
-    });
-
-    it("inserts the proposals into the draft body", () => {
-      const nextDraft = SchedulerComposerExtension.applyTransformsToDraft({
-        draft: this.session.draft(),
-      });
+      const nextDraft = SchedulerComposerExtension.applyTransformsToDraft({draft});
       expect(nextDraft.body).not.toMatch(/new-event-preview/);
       expect(nextDraft.body).toMatch(/proposed-time-table/);
       expect(nextDraft.body).toMatch(/1:00 PM — 2:00 PM/);

@@ -1,52 +1,65 @@
 /** @babel */
-import Rx from 'rx-lite'
 import React, {Component, PropTypes} from 'react'
 import ReactDOM from 'react-dom'
-import {Actions, DateUtils, Message, DatabaseStore} from 'nylas-exports'
+import {Actions, DateUtils} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
 import SendLaterPopover from './send-later-popover'
 import SendLaterActions from './send-later-actions'
 import {PLUGIN_ID} from './send-later-constants'
 
 
-class SendLaterButton extends Component {
+export default class SendLaterButton extends Component {
   static displayName = 'SendLaterButton';
 
   static propTypes = {
-    draftClientId: PropTypes.string.isRequired,
+    draft: PropTypes.object.isRequired,
   };
 
   constructor() {
-    super()
+    super();
+
     this.state = {
-      scheduledDate: null,
+      saving: false,
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const isComposer = NylasEnv.isComposerWindow();
+    const next = this._sendLaterDateForDraft(nextProps.draft);
+    const isFinishedSelecting = ((this.state.saving) && (next !== null));
+    if (isFinishedSelecting) {
+      this.setState({saving: false});
+      if (isComposer) {
+        NylasEnv.close();
+      }
     }
   }
 
-  componentDidMount() {
-    this._subscription = Rx.Observable.fromQuery(
-      DatabaseStore.findBy(Message, {clientId: this.props.draftClientId})
-    ).subscribe(this.onMessageChanged);
-  }
-
-  componentWillUnmount() {
-    this._subscription.dispose();
+  shouldComponentUpdate(nextProps, nextState) {
+    if (nextState !== this.state) {
+      return true;
+    }
+    if (this._sendLaterDateForDraft(nextProps.draft) !== this._sendLaterDateForDraft(this.props.draft)) {
+      return true;
+    }
+    return false;
   }
 
   onSendLater = (formattedDate, dateLabel) => {
-    SendLaterActions.sendLater(this.props.draftClientId, formattedDate, dateLabel);
-    this.setState({scheduledDate: 'saving'});
+    SendLaterActions.sendLater(this.props.draft.clientId, formattedDate, dateLabel);
+    this.setState({saving: true});
   };
 
   onCancelSendLater = () => {
-    SendLaterActions.cancelSendLater(this.props.draftClientId);
+    SendLaterActions.cancelSendLater(this.props.draft.clientId);
+    Actions.closePopover();
   };
 
   onClick = () => {
     const buttonRect = ReactDOM.findDOMNode(this).getBoundingClientRect()
     Actions.openPopover(
       <SendLaterPopover
-        scheduledDate={this.state.scheduledDate}
+        sendLaterDate={this._sendLaterDateForDraft(this.props.draft)}
         onSendLater={this.onSendLater}
         onCancelSendLater={this.onCancelSendLater}
       />,
@@ -54,29 +67,20 @@ class SendLaterButton extends Component {
     )
   };
 
-  onMessageChanged = (message) => {
-    if (!message) return;
-    const {scheduledDate} = this.state;
-    const messageMetadata = message.metadataForPluginId(PLUGIN_ID) || {}
-    const nextScheduledDate = messageMetadata.sendLaterDate
-
-    if (nextScheduledDate !== scheduledDate) {
-      const isComposer = NylasEnv.isComposerWindow()
-      const isFinishedSelecting = ((scheduledDate === 'saving') && (nextScheduledDate !== null));
-      if (isComposer && isFinishedSelecting) {
-        NylasEnv.close();
-      }
-      this.setState({scheduledDate: nextScheduledDate});
+  _sendLaterDateForDraft(draft) {
+    if (!draft) {
+      return null;
     }
-  };
+    const messageMetadata = draft.metadataForPluginId(PLUGIN_ID) || {};
+    return messageMetadata.sendLaterDate;
+  }
 
   render() {
-    const {scheduledDate} = this.state;
     let className = 'btn btn-toolbar btn-send-later';
 
-    if (scheduledDate === 'saving') {
+    if (this.state.saving) {
       return (
-        <button className={className} title="Saving send date..." tabIndex={-1}>
+        <button className={className} title="Saving send date..." tabIndex={-1} style={{order: -99}}>
           <RetinaImg
             name="inline-loading-spinner.gif"
             mode={RetinaImg.Mode.ContentDark}
@@ -86,18 +90,20 @@ class SendLaterButton extends Component {
       );
     }
 
-    let dateInterpretation;
-    if (scheduledDate) {
+    let sendLaterLabel = false;
+    const sendLaterDate = this._sendLaterDateForDraft(this.props.draft);
+
+    if (sendLaterDate) {
       className += ' btn-enabled';
-      const momentDate = DateUtils.futureDateFromString(scheduledDate);
+      const momentDate = DateUtils.futureDateFromString(sendLaterDate);
       if (momentDate) {
-        dateInterpretation = <span className="at">Sending in {momentDate.fromNow(true)}</span>;
+        sendLaterLabel = <span className="at">Sending in {momentDate.fromNow(true)}</span>;
       }
     }
     return (
-      <button className={className} title="Send later…" onClick={this.onClick} tabIndex={-1}>
+      <button className={className} title="Send later…" onClick={this.onClick} tabIndex={-1} style={{order: -99}}>
         <RetinaImg name="icon-composer-sendlater.png" mode={RetinaImg.Mode.ContentIsMask} />
-        {dateInterpretation}
+        {sendLaterLabel}
         <span>&nbsp;</span>
         <RetinaImg name="icon-composer-dropdown.png" mode={RetinaImg.Mode.ContentIsMask} />
       </button>
@@ -105,8 +111,4 @@ class SendLaterButton extends Component {
   }
 }
 
-SendLaterButton.containerStyles = {
-  order: -99,
-};
-
-export default SendLaterButton;
+SendLaterButton.containerRequired = false

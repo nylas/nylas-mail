@@ -32,14 +32,8 @@ export const prepareDraft = function prepareDraft() {
   })
 
   spyOn(DatabaseStore, 'run').andReturn(Promise.resolve(draft));
-
-  this.session = null;
-  runs(() => {
-    DraftStore.sessionForClientId(DRAFT_CLIENT_ID).then((session) => {
-      this.session = session
-    });
-  })
-  waitsFor(() => this.session);
+  this.session = DraftStore._createSession(DRAFT_CLIENT_ID, draft);
+  advanceClock();
 }
 
 export const cleanupDraft = function cleanupDraft() {
@@ -59,4 +53,3 @@ export const setupCalendars = function setupCalendars() {
     return Promise.resolve(cals);
   })
 }
-

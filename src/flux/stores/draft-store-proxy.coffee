@@ -26,7 +26,7 @@ DraftChangeSet associated with the store proxy. The DraftChangeSet does two thin
 Section: Drafts
 ###
 class DraftChangeSet
-  constructor: (@_onTrigger, @_onCommit) ->
+  constructor: (@_onAltered, @_onCommit) ->
     @_commitChain = Promise.resolve()
     @_pending = {}
     @_saving = {}
@@ -39,10 +39,10 @@ class DraftChangeSet
       clearTimeout(@_timer)
       @_timer = null
 
-  add: (changes, {silent} = {}) =>
+  add: (changes) =>
     @_pending = _.extend(@_pending, changes)
     @_pending['pristine'] = false
-    @_onTrigger() unless silent
+    @_onAltered()
 
     clearTimeout(@_timer) if @_timer
     @_timer = setTimeout(@commit, 10000)
@@ -101,7 +101,7 @@ class DraftStoreProxy
     @_draftPristineBody = null
     @_destroyed = false
 
-    @changes = new DraftChangeSet(@_changeSetTrigger, @_changeSetCommit)
+    @changes = new DraftChangeSet(@_changeSetAltered, @_changeSetCommit)
 
     if draft
       @_draftPromise = @_setDraft(draft)
@@ -113,7 +113,7 @@ class DraftStoreProxy
   draft: ->
     return null if not @_draft
     @changes.applyToModel(@_draft)
-    @_draft
+    @_draft.clone()
 
   # Public: Returns the initial body of the draft when it was pristine, or null if the
   # draft was never pristine in this editing session. Useful for determining if the
@@ -163,13 +163,15 @@ class DraftStoreProxy
     # Is this change an update to our draft?
     myDrafts = _.filter(change.objects, (obj) => obj.clientId is @_draft.clientId)
     if myDrafts.length > 0
-      @_draft = _.extend @_draft, _.last(myDrafts)
+      @_draft = Object.assign(new Message(), @_draft, myDrafts.pop())
       @trigger()
 
-  _changeSetTrigger: =>
+  _changeSetAltered: =>
     return if @_destroyed
     if !@_draft
       throw new Error("DraftChangeSet was modified before the draft was prepared.")
+
+    @changes.applyToModel(@_draft)
     @trigger()
 
   _changeSetCommit: ({noSyncback}={}) =>

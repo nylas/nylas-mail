@@ -7,8 +7,13 @@ export default class LinkTrackingButton extends React.Component {
   static displayName = 'LinkTrackingButton';
 
   static propTypes = {
-    draftClientId: React.PropTypes.string.isRequired,
+    draft: React.PropTypes.object.isRequired,
+    session: React.PropTypes.object.isRequired,
   };
+
+  shouldComponentUpdate(nextProps) {
+    return (nextProps.draft.metadataForPluginId(PLUGIN_ID) !== this.props.draft.metadataForPluginId(PLUGIN_ID));
+  }
 
   _title(enabled) {
     const dir = enabled ? "Disable" : "Enable";
@@ -32,7 +37,10 @@ export default class LinkTrackingButton extends React.Component {
         metadataEnabledValue={{"tracked": true}}
         stickyToggle
         errorMessage={this._errorMessage}
-        draftClientId={this.props.draftClientId} />
+        draft={this.props.draft}
+        session={this.props.session} />
     )
   }
 }
+
+LinkTrackingButton.containerRequired = false;

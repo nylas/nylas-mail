@@ -1,7 +1,8 @@
 import React, {Component, PropTypes} from 'react';
+import SchedulerActions from '../scheduler-actions'
 import NewEventCard from './new-event-card'
 import {PLUGIN_ID} from '../scheduler-constants'
-import {Utils, Event, Actions, DraftStore} from 'nylas-exports';
+import {Utils, Event} from 'nylas-exports';
 
 /**
  * When you're creating an event you can either be creating:
@@ -18,84 +19,80 @@ export default class NewEventCardContainer extends Component {
   static displayName = 'NewEventCardContainer';
 
   static propTypes = {
-    draftClientId: PropTypes.string,
+    draft: PropTypes.object.isRequired,
+    session: PropTypes.object.isRequired,
   }
 
   constructor(props) {
     super(props);
-    this.state = {event: null};
-    this._session = null;
-    this._mounted = false;
-    this._usub = () => {}
   }
 
-  componentWillMount() {
-    this._mounted = true;
-    this._loadDraft(this.props.draftClientId);
-  }
-
-  componentWillReceiveProps(newProps) {
-    this._loadDraft(newProps.draftClientId);
+  componentDidMount() {
+    this._unlisten = SchedulerActions.confirmChoices.listen(this._onConfirmChoices);
   }
 
   componentWillUnmount() {
-    this._mounted = false;
-    this._usub()
+    if (this._unlisten) {
+      this._unlisten();
+    }
   }
 
-  _loadDraft(draftClientId) {
-    DraftStore.sessionForClientId(draftClientId).then(session => {
-      // Only run if things are still relevant: component is mounted
-      // and draftClientIds still match
-      if (this._mounted) {
-        this._session = session;
-        this._usub()
-        this._usub = session.listen(this._onDraftChange);
-        this._onDraftChange();
-      }
-    });
-  }
+  _onConfirmChoices = ({proposals = [], draftClientId}) => {
+    const {draft} = this.props;
 
-  _onDraftChange = () => {
-    this.setState({event: this._getEvent()});
+    if (draft.clientId !== draftClientId) {
+      return;
+    }
+
+    const metadata = draft.metadataForPluginId(PLUGIN_ID) || {};
+    if (proposals.length === 0) {
+      delete metadata.proposals;
+    } else {
+      metadata.proposals = proposals;
+    }
+    this.props.session.changes.addPluginMetadata(PLUGIN_ID, metadata);
   }
 
   _getEvent() {
-    const metadata = this._session.draft().metadataForPluginId(PLUGIN_ID);
+    const metadata = this.props.draft.metadataForPluginId(PLUGIN_ID);
     if (metadata && metadata.pendingEvent) {
-      return new Event().fromJSON(metadata.pendingEvent || {})
+      return new Event().fromJSON(metadata.pendingEvent || {});
     }
     return null
   }
 
   _updateEvent = (newData) => {
-    const newEvent = Object.assign(this._getEvent().clone(), newData)
+    const {draft, session} = this.props;
+
+    const newEvent = Object.assign(this._getEvent().clone(), newData);
     const newEventJSON = newEvent.toJSON();
 
-    const metadata = this._session.draft().metadataForPluginId(PLUGIN_ID);
+    const metadata = draft.metadataForPluginId(PLUGIN_ID);
     if (!Utils.isEqual(metadata.pendingEvent, newEventJSON)) {
       metadata.pendingEvent = newEventJSON;
-      this._session.changes.addPluginMetadata(PLUGIN_ID, metadata);
+      session.changes.addPluginMetadata(PLUGIN_ID, metadata);
     }
   }
 
   _removeEvent = () => {
-    const draft = this._session.draft()
+    const {draft, session} = this.props;
     const metadata = draft.metadataForPluginId(PLUGIN_ID);
     if (metadata) {
-      delete metadata.pendingEvent
+      delete metadata.pendingEvent;
       delete metadata.proposals
-      Actions.setMetadata(draft, PLUGIN_ID, metadata);
+      session.changes.addPluginMetadata(PLUGIN_ID, metadata);
     }
   }
 
   render() {
+    const event = this._getEvent();
     let card = false;
-    if (this._session && this.state.event) {
+
+    if (event) {
       card = (
-        <NewEventCard event={this.state.event}
+        <NewEventCard event={event}
           ref="newEventCard"
-          draft={this._session.draft()}
+          draft={this.props.draft}
           onRemove={this._removeEvent}
           onChange={this._updateEvent}
           onParticipantsClick={() => {}}

@@ -11,7 +11,6 @@ import {
   ReactDOM,
   ComponentRegistry,
   QuotedHTMLTransformer,
-  DraftStore,
   Actions,
 } from 'nylas-exports';
 
@@ -44,8 +43,15 @@ class TranslateButton extends React.Component {
   // we receive the local id of the current draft as a `prop` (a read-only
   // property). Since our code depends on this prop, we mark it as a requirement.
   static propTypes = {
-    draftClientId: React.PropTypes.string.isRequired,
+    draft: React.PropTypes.object.isRequired,
+    session: React.PropTypes.object.isRequired,
   };
+
+  shouldComponentUpdate(nextProps) {
+    // Our render method doesn't use the provided `draft`, and the draft changes
+    // constantly (on every keystroke!) `shouldComponentUpdate` helps keep N1 fast.
+    return nextProps.session !== this.props.session;
+  }
 
   _onError(error) {
     Actions.closePopover()
@@ -59,37 +65,35 @@ class TranslateButton extends React.Component {
     // Obtain the session for the current draft. The draft session provides us
     // the draft object and also manages saving changes to the local cache and
     // Nilas API as multiple parts of the application touch the draft.
-    DraftStore.sessionForClientId(this.props.draftClientId).then((session)=> {
-      const draftHtml = session.draft().body;
-      const text = QuotedHTMLTransformer.removeQuotedHTML(draftHtml);
+    const draftHtml = this.props.draft.body;
+    const text = QuotedHTMLTransformer.removeQuotedHTML(draftHtml);
 
-      const query = {
-        key: YandexTranslationKey,
-        lang: YandexLanguages[lang],
-        text: text,
-        format: 'html',
-      };
+    const query = {
+      key: YandexTranslationKey,
+      lang: YandexLanguages[lang],
+      text: text,
+      format: 'html',
+    };
 
-      // Use Node's `request` library to perform the translation using the Yandex API.
-      request({url: YandexTranslationURL, qs: query}, (error, resp, data)=> {
-        if (resp.statusCode !== 200) {
-          this._onError(error);
-          return;
-        }
+    // Use Node's `request` library to perform the translation using the Yandex API.
+    request({url: YandexTranslationURL, qs: query}, (error, resp, data)=> {
+      if (resp.statusCode !== 200) {
+        this._onError(error);
+        return;
+      }
 
-        const json = JSON.parse(data);
-        let translated = json.text.join('');
+      const json = JSON.parse(data);
+      let translated = json.text.join('');
 
-        // The new text of the draft is our translated response, plus any quoted text
-        // that we didn't process.
-        translated = QuotedHTMLTransformer.appendQuotedHTML(translated, draftHtml);
+      // The new text of the draft is our translated response, plus any quoted text
+      // that we didn't process.
+      translated = QuotedHTMLTransformer.appendQuotedHTML(translated, draftHtml);
 
-        // To update the draft, we add the new body to it's session. The session object
-        // automatically marshalls changes to the database and ensures that others accessing
-        // the same draft are notified of changes.
-        session.changes.add({body: translated});
-        session.changes.commit();
-      });
+      // To update the draft, we add the new body to it's session. The session object
+      // automatically marshalls changes to the database and ensures that others accessing
+      // the same draft are notified of changes.
+      this.props.session.changes.add({body: translated});
+      this.props.session.changes.commit();
     });
   };
 

@@ -118,7 +118,7 @@ describe "DraftStoreProxy", ->
 
       it "prepare should resolve without querying for the draft", ->
         waitsForPromise => @proxy.prepare().then =>
-          expect(@proxy.draft()).toEqual(@draft)
+          expect(@proxy.draft()).toBeDefined()
           expect(DatabaseStore.run).not.toHaveBeenCalled()
 
   describe "teardown", ->

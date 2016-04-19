@@ -1,6 +1,6 @@
 import LinkTrackingComposerExtension from '../lib/link-tracking-composer-extension'
 import {PLUGIN_ID, PLUGIN_URL} from '../lib/link-tracking-constants';
-import {Message, QuotedHTMLTransformer} from 'nylas-exports';
+import {Message, QuotedHTMLTransformer, Actions} from 'nylas-exports';
 
 const testContent = `TEST_BODY<br>
 <a href="www.replaced.com">test</a>
@@ -44,21 +44,26 @@ describe("Link tracking composer extension", () => {
       });
 
       it("replaces links in the unquoted portion of the body", () => {
+        spyOn(Actions, 'setMetadata')
+
         const out = LinkTrackingComposerExtension.applyTransformsToDraft({draft: this.draft});
         const outUnquoted = QuotedHTMLTransformer.removeQuotedHTML(out.body);
 
-        expect(outUnquoted).toContain(replacedBody(this.draft.accountId, this.metadata.uid, true));
-        expect(out.body).toContain(replacedBody(this.draft.accountId, this.metadata.uid, false));
+        const metadata = Actions.setMetadata.mostRecentCall.args[2];
+        expect(outUnquoted).toContain(replacedBody(this.draft.accountId, metadata.uid, true));
+        expect(out.body).toContain(replacedBody(this.draft.accountId, metadata.uid, false));
       });
 
       it("sets a uid and list of links on the metadata", () => {
+        spyOn(Actions, 'setMetadata')
         LinkTrackingComposerExtension.applyTransformsToDraft({draft: this.draft});
 
-        expect(this.metadata.uid).not.toBeUndefined();
-        expect(this.metadata.links).not.toBeUndefined();
-        expect(this.metadata.links.length).toEqual(2);
+        const metadata = Actions.setMetadata.mostRecentCall.args[2];
+        expect(metadata.uid).not.toBeUndefined();
+        expect(metadata.links).not.toBeUndefined();
+        expect(metadata.links.length).toEqual(2);
 
-        for (const link of this.metadata.links) {
+        for (const link of metadata.links) {
           expect(link.click_count).toEqual(0);
         }
       });
