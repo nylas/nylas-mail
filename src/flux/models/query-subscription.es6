@@ -17,7 +17,7 @@ export default class QuerySubscription {
 
     if (this._query) {
       if (this._query._count) {
-        throw new Error("QuerySubscriptionPool::add - You cannot listen to count queries.")
+        throw new Error("QuerySubscription::constructor - You cannot listen to count queries.")
       }
 
       this._query.finalize();
@@ -62,6 +62,13 @@ export default class QuerySubscription {
       throw new Error("QuerySubscription:removeCallback - expects a function, received #{callback}")
     }
     this._callbacks = _.without(this._callbacks, callback);
+    if (this.callbackCount() === 0) {
+      this.onLastCallbackRemoved()
+    }
+  }
+
+  onLastCallbackRemoved = () => {
+
   }
 
   callbackCount = () => {
@@ -270,7 +277,7 @@ export default class QuerySubscription {
       return;
     }
 
-    if (this._options.asResultSet) {
+    if (this._options.emitResultSet) {
       this._set.setQuery(this._query);
       this._lastResult = this._set.immutableClone();
     } else {

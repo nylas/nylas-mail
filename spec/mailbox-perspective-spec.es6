@@ -63,35 +63,38 @@ describe('MailboxPerspective', ()=> {
     });
   });
 
-  describe('canTrashThreads', ()=> {
-    it('returns false if the perspective is trash', ()=> {
+  describe('canMoveThreadsTo', ()=> {
+    it('returns false if the perspective is the target folder', ()=> {
       const accounts = [
-        {canTrashThreads: () => true},
-        {canTrashThreads: () => true},
+        {id: 'a'},
+        {id: 'b'},
       ]
       spyOn(AccountStore, 'accountsForItems').andReturn(accounts)
-      spyOn(this.perspective, 'isTrash').andReturn(true)
-      expect(this.perspective.canTrashThreads()).toBe(false)
+      spyOn(this.perspective, 'categoriesSharedName').andReturn('trash')
+      expect(this.perspective.canMoveThreadsTo([], 'trash')).toBe(false)
     });
 
-    it('returns false if one of the accounts associated with the threads cannot archive', ()=> {
+    it('returns false if one of the accounts associated with the threads does not have the folder', ()=> {
       const accounts = [
-        {canTrashThreads: () => true},
-        {canTrashThreads: () => false},
+        {id: 'a'},
+        {id: 'b'},
       ]
+      spyOn(CategoryStore, 'getStandardCategory').andReturn(null)
       spyOn(AccountStore, 'accountsForItems').andReturn(accounts)
-      spyOn(this.perspective, 'isTrash').andReturn(false)
-      expect(this.perspective.canTrashThreads()).toBe(false)
+      spyOn(this.perspective, 'categoriesSharedName').andReturn('inbox')
+      expect(this.perspective.canMoveThreadsTo([], 'trash')).toBe(false)
     });
 
     it('returns true otherwise', ()=> {
       const accounts = [
-        {canTrashThreads: () => true},
-        {canTrashThreads: () => true},
+        {id: 'a'},
+        {id: 'b'},
       ]
+      const category = {id: 'cat'};
+      spyOn(CategoryStore, 'getStandardCategory').andReturn(category)
       spyOn(AccountStore, 'accountsForItems').andReturn(accounts)
-      spyOn(this.perspective, 'isTrash').andReturn(false)
-      expect(this.perspective.canTrashThreads()).toBe(true)
+      spyOn(this.perspective, 'categoriesSharedName').andReturn('inbox')
+      expect(this.perspective.canMoveThreadsTo([], 'trash')).toBe(true)
     });
   });
 

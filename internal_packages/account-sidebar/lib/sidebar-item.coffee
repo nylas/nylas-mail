@@ -130,6 +130,14 @@ class SidebarItem
     id += "-#{opts.name}" if opts.name
     @forPerspective(id, perspective, opts)
 
+  @forUnread: (accountIds, opts = {}) ->
+    categories = accountIds.map (accId) =>
+      CategoryStore.getStandardCategory(accId, 'inbox')
+    perspective = MailboxPerspective.forUnread(categories)
+    id = 'Unread'
+    id += "-#{opts.name}" if opts.name
+    @forPerspective(id, perspective, opts)
+
   @forDrafts: (accountIds, opts = {}) ->
     perspective = MailboxPerspective.forDrafts(accountIds)
     id = "Drafts-#{opts.name}"
