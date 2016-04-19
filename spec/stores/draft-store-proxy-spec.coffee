@@ -2,8 +2,8 @@ Message = require '../../src/flux/models/message'
 Actions = require '../../src/flux/actions'
 DatabaseStore = require '../../src/flux/stores/database-store'
 DatabaseTransaction = require '../../src/flux/stores/database-transaction'
-DraftStoreProxy = require '../../src/flux/stores/draft-store-proxy'
-DraftChangeSet = DraftStoreProxy.DraftChangeSet
+DraftEditingSession = require '../../src/flux/stores/draft-editing-session'
+DraftChangeSet = DraftEditingSession.DraftChangeSet
 _ = require 'underscore'
 
 describe "DraftChangeSet", ->
@@ -99,60 +99,60 @@ describe "DraftChangeSet", ->
       expect(m.subject).toEqual('A')
       expect(m.body).toEqual('Basketball')
 
-describe "DraftStoreProxy", ->
+describe "DraftEditingSession", ->
   describe "constructor", ->
     it "should make a query to fetch the draft", ->
       spyOn(DatabaseStore, 'run').andCallFake =>
         new Promise (resolve, reject) =>
-      proxy = new DraftStoreProxy('client-id')
+      session = new DraftEditingSession('client-id')
       expect(DatabaseStore.run).toHaveBeenCalled()
 
     describe "when given a draft object", ->
       beforeEach ->
         spyOn(DatabaseStore, 'run')
         @draft = new Message(draft: true, body: '123')
-        @proxy = new DraftStoreProxy('client-id', @draft)
+        @session = new DraftEditingSession('client-id', @draft)
 
       it "should not make a query for the draft", ->
         expect(DatabaseStore.run).not.toHaveBeenCalled()
 
       it "prepare should resolve without querying for the draft", ->
-        waitsForPromise => @proxy.prepare().then =>
-          expect(@proxy.draft()).toBeDefined()
+        waitsForPromise => @session.prepare().then =>
+          expect(@session.draft()).toBeDefined()
           expect(DatabaseStore.run).not.toHaveBeenCalled()
 
   describe "teardown", ->
     it "should mark the session as destroyed", ->
-      spyOn(DraftStoreProxy.prototype, "prepare")
-      proxy = new DraftStoreProxy('client-id')
-      proxy.teardown()
-      expect(proxy._destroyed).toEqual(true)
+      spyOn(DraftEditingSession.prototype, "prepare")
+      session = new DraftEditingSession('client-id')
+      session.teardown()
+      expect(session._destroyed).toEqual(true)
 
   describe "prepare", ->
     beforeEach ->
       @draft = new Message(draft: true, body: '123', clientId: 'client-id')
-      spyOn(DraftStoreProxy.prototype, "prepare")
-      @proxy = new DraftStoreProxy('client-id')
-      spyOn(@proxy, '_setDraft').andCallThrough()
+      spyOn(DraftEditingSession.prototype, "prepare")
+      @session = new DraftEditingSession('client-id')
+      spyOn(@session, '_setDraft').andCallThrough()
       spyOn(DatabaseStore, 'run').andCallFake (modelQuery) =>
         Promise.resolve(@draft)
-      jasmine.unspy(DraftStoreProxy.prototype, "prepare")
+      jasmine.unspy(DraftEditingSession.prototype, "prepare")
 
     it "should call setDraft with the retrieved draft", ->
       waitsForPromise =>
-        @proxy.prepare().then =>
-          expect(@proxy._setDraft).toHaveBeenCalledWith(@draft)
+        @session.prepare().then =>
+          expect(@session._setDraft).toHaveBeenCalledWith(@draft)
 
-    it "should resolve with the DraftStoreProxy", ->
+    it "should resolve with the DraftEditingSession", ->
       waitsForPromise =>
-        @proxy.prepare().then (val) =>
-          expect(val).toBe(@proxy)
+        @session.prepare().then (val) =>
+          expect(val).toBe(@session)
 
     describe "error handling", ->
       it "should reject if the draft session has already been destroyed", ->
-        @proxy._destroyed = true
+        @session._destroyed = true
         waitsForPromise =>
-          @proxy.prepare().then =>
+          @session.prepare().then =>
             expect(false).toBe(true)
           .catch (val) =>
             expect(val instanceof Error).toBe(true)
@@ -160,7 +160,7 @@ describe "DraftStoreProxy", ->
       it "should reject if the draft cannot be found", ->
         @draft = null
         waitsForPromise =>
-          @proxy.prepare().then =>
+          @session.prepare().then =>
             expect(false).toBe(true)
           .catch (val) =>
             expect(val instanceof Error).toBe(true)
@@ -168,40 +168,40 @@ describe "DraftStoreProxy", ->
   describe "when a draft changes", ->
     beforeEach ->
       @draft = new Message(draft: true, clientId: 'client-id', body: 'A', subject: 'initial')
-      @proxy = new DraftStoreProxy('client-id', @draft)
+      @session = new DraftEditingSession('client-id', @draft)
       advanceClock()
 
       spyOn(DatabaseTransaction.prototype, "persistModel").andReturn Promise.resolve()
       spyOn(Actions, "queueTask").andReturn Promise.resolve()
 
     it "should ignore the update unless it applies to the current draft", ->
-      spyOn(@proxy, 'trigger')
-      @proxy._onDraftChanged(objectClass: 'message', objects: [new Message()])
-      expect(@proxy.trigger).not.toHaveBeenCalled()
-      @proxy._onDraftChanged(objectClass: 'message', objects: [@draft])
-      expect(@proxy.trigger).toHaveBeenCalled()
+      spyOn(@session, 'trigger')
+      @session._onDraftChanged(objectClass: 'message', objects: [new Message()])
+      expect(@session.trigger).not.toHaveBeenCalled()
+      @session._onDraftChanged(objectClass: 'message', objects: [@draft])
+      expect(@session.trigger).toHaveBeenCalled()
 
     it "should apply the update to the current draft", ->
       updatedDraft = @draft.clone()
       updatedDraft.subject = 'This is the new subject'
 
-      @proxy._onDraftChanged(objectClass: 'message', objects: [updatedDraft])
-      expect(@proxy.draft().subject).toEqual(updatedDraft.subject)
+      @session._onDraftChanged(objectClass: 'message', objects: [updatedDraft])
+      expect(@session.draft().subject).toEqual(updatedDraft.subject)
 
     it "atomically commits changes", ->
       spyOn(DatabaseStore, "run").andReturn(Promise.resolve(@draft))
       spyOn(DatabaseStore, 'inTransaction').andCallThrough()
-      @proxy.changes.add({body: "123"})
+      @session.changes.add({body: "123"})
       waitsForPromise =>
-        @proxy.changes.commit().then =>
+        @session.changes.commit().then =>
           expect(DatabaseStore.inTransaction).toHaveBeenCalled()
           expect(DatabaseStore.inTransaction.calls.length).toBe 1
 
     it "persist the applied changes", ->
       spyOn(DatabaseStore, "run").andReturn(Promise.resolve(@draft))
-      @proxy.changes.add({body: "123"})
+      @session.changes.add({body: "123"})
       waitsForPromise =>
-        @proxy.changes.commit().then =>
+        @session.changes.commit().then =>
           expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
           updated = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
           expect(updated.body).toBe "123"
@@ -210,9 +210,9 @@ describe "DraftStoreProxy", ->
     #
     # it "queues a SyncbackDraftTask", ->
     #   spyOn(DatabaseStore, "run").andReturn(Promise.resolve(@draft))
-    #   @proxy.changes.add({body: "123"})
+    #   @session.changes.add({body: "123"})
     #   waitsForPromise =>
-    #     @proxy.changes.commit().then =>
+    #     @session.changes.commit().then =>
     #       expect(Actions.queueTask).toHaveBeenCalled()
     #       task = Actions.queueTask.calls[0].args[0]
     #       expect(task.draftClientId).toBe "client-id"
@@ -220,15 +220,15 @@ describe "DraftStoreProxy", ->
     it "doesn't queues a SyncbackDraftTask if no Syncback is passed", ->
       spyOn(DatabaseStore, "run").andReturn(Promise.resolve(@draft))
       waitsForPromise =>
-        @proxy.changes.commit({noSyncback: true}).then =>
+        @session.changes.commit({noSyncback: true}).then =>
           expect(Actions.queueTask).not.toHaveBeenCalled()
 
     describe "when findBy does not return a draft", ->
       it "continues and persists it's local draft reference, so it is resaved and draft editing can continue", ->
         spyOn(DatabaseStore, "run").andReturn(Promise.resolve(null))
-        @proxy.changes.add({body: "123"})
+        @session.changes.add({body: "123"})
         waitsForPromise =>
-          @proxy.changes.commit().then =>
+          @session.changes.commit().then =>
             expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
             updated = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
             expect(updated.body).toBe "123"
@@ -237,9 +237,9 @@ describe "DraftStoreProxy", ->
       spyOn(DatabaseStore, "run").andReturn(Promise.resolve(@draft))
       spyOn(DatabaseStore, 'inTransaction').andCallThrough()
       waitsForPromise =>
-        @proxy._destroyed = true
-        @proxy.changes.add({body: "123"})
-        @proxy.changes.commit().then =>
+        @session._destroyed = true
+        @session.changes.add({body: "123"})
+        @session.changes.commit().then =>
           expect(DatabaseStore.inTransaction).not.toHaveBeenCalled()
 
   describe "draft pristine body", ->
@@ -250,12 +250,12 @@ describe "DraftStoreProxy", ->
         updatedDraft.body = '123444'
         updatedDraft.pristine = false
 
-        @proxy = new DraftStoreProxy('client-id', pristineDraft)
-        @proxy._onDraftChanged(objectClass: 'message', objects: [updatedDraft])
-        expect(@proxy.draftPristineBody()).toBe('Hiya')
+        @session = new DraftEditingSession('client-id', pristineDraft)
+        @session._onDraftChanged(objectClass: 'message', objects: [updatedDraft])
+        expect(@session.draftPristineBody()).toBe('Hiya')
 
     describe "when the draft given to the session is not pristine", ->
       it "should return null", ->
         dirtyDraft = new Message(draft: true, body: 'Hiya', pristine: false)
-        @proxy = new DraftStoreProxy('client-id', dirtyDraft)
-        expect(@proxy.draftPristineBody()).toBe(null)
+        @session = new DraftEditingSession('client-id', dirtyDraft)
+        expect(@session.draftPristineBody()).toBe(null)

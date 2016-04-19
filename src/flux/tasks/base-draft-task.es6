@@ -38,7 +38,7 @@ export default class BaseDraftTask extends Task {
 
   performLocal() {
     // SyncbackDraftTask does not do anything locally. You should persist your changes
-    // to the local database directly or using a DraftStoreProxy, and then queue a
+    // to the local database directly or using a DraftEditingSession, and then queue a
     // SyncbackDraftTask to send those changes to the server.
     if (!this.draftClientId) {
       const errMsg = `Attempt to call ${this.constructor.name}.performLocal without a draftClientId`;
