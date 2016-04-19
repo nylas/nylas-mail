@@ -223,6 +223,7 @@ export default class NewEventCard extends React.Component {
             {this._renderIcon("ic-eventcard-description@2x.png")}
             <input type="text"
               name="title"
+              className="event-title"
               placeholder="Add an event title"
               value={this.props.event.title || ""}
               onChange={e => this.props.onChange({title: e.target.value}) }

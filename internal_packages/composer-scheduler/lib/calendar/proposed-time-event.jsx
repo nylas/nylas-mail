@@ -1,4 +1,5 @@
 import React from 'react'
+import classnames from 'classnames'
 import SchedulerActions from '../scheduler-actions'
 import {CALENDAR_ID} from '../scheduler-constants'
 
@@ -30,9 +31,14 @@ export default class ProposedTimeEvent extends React.Component {
   }
 
   render() {
+    const className = classnames({
+      "rm-time": true,
+      proposal: this.props.event.proposalType === "proposal",
+      availability: this.props.event.proposalType === "availability",
+    });
     if (this.props.event.calendarId === CALENDAR_ID) {
       return (
-        <div className="rm-time"
+        <div className={className}
           data-end={this.props.event.end}
           data-start={this.props.event.start}
           onMouseDown={this._onMouseDown}

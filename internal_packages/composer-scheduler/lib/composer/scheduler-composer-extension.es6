@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactDOMServer from 'react-dom/server'
 import {PLUGIN_ID} from '../scheduler-constants'
 import NewEventPreview from './new-event-preview'
 import ProposedTimeList from './proposed-time-list'
@@ -91,7 +92,7 @@ export default class SchedulerComposerExtension extends ComposerExtension {
           inEmail: true,
           proposals: metadata.proposals,
         });
-      const markup = React.renderToStaticMarkup(el);
+      const markup = ReactDOMServer.renderToStaticMarkup(el);
       const nextBody = SchedulerComposerExtension._insertInBody(nextDraft.body, markup)
       nextDraft.body = nextBody;
     } else {
@@ -99,7 +100,7 @@ export default class SchedulerComposerExtension extends ComposerExtension {
         {
           event: metadata.pendingEvent,
         });
-      const markup = React.renderToStaticMarkup(el);
+      const markup = ReactDOMServer.renderToStaticMarkup(el);
       const nextBody = SchedulerComposerExtension._insertInBody(nextDraft.body, markup)
       nextDraft.body = nextBody;
     }

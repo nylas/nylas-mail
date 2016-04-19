@@ -94,6 +94,7 @@ export default class NewEventCardContainer extends Component {
     if (this._session && this.state.event) {
       card = (
         <NewEventCard event={this.state.event}
+          ref="newEventCard"
           draft={this._session.draft()}
           onRemove={this._removeEvent}
           onChange={this._updateEvent}

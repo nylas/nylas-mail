@@ -1,7 +1,7 @@
 import _ from 'underscore'
 import React from 'react'
 import ReactDOM from 'react-dom'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import classnames from 'classnames'
 import {Utils} from 'nylas-exports'
 
@@ -60,6 +60,7 @@ export default class WeekView extends React.Component {
   }
 
   componentDidMount() {
+    this._mounted = true;
     this._centerScrollRegion()
     this._setIntervalHeight()
     const weekStart = moment(this.state.startMoment).add(BUFFER_DAYS, 'days').unix()
@@ -78,13 +79,19 @@ export default class WeekView extends React.Component {
   }
 
   componentWillUnmount() {
+    this._mounted = false;
     this._sub.dispose();
     window.removeEventListener('resize', this._setIntervalHeight)
   }
 
+  // Indirection for testing purposes
+  _now() {
+    return moment()
+  }
+
   _initializeComponent(props) {
-    this.todayYear = moment().year()
-    this.todayDayOfYear = moment().dayOfYear()
+    this.todayYear = this._now().year()
+    this.todayDayOfYear = this._now().dayOfYear()
     if (this._sub) { this._sub.dispose() }
     const startMoment = this._calculateStartMoment(props)
     const endMoment = this._calculateEndMoment(props)
@@ -96,9 +103,21 @@ export default class WeekView extends React.Component {
   }
 
   _calculateStartMoment(props) {
-    const start = moment([props.currentMoment.year()])
-      .weekday(0)
-      .week(props.currentMoment.week())
+    let start;
+
+    // NOTE: Since we initialize a new time from one of the properties of
+    // the props.currentMomet, we need to check for the timezone!
+    //
+    // Other relative operations (like adding or subtracting time) are
+    // independent of a timezone.
+    const tz = props.currentMoment.tz()
+    if (tz) {
+      start = moment.tz([props.currentMoment.year()], tz)
+    } else {
+      start = moment([props.currentMoment.year()])
+    }
+
+    start = start.weekday(0).week(props.currentMoment.week())
       .subtract(BUFFER_DAYS, 'days')
     return start
   }
@@ -233,7 +252,10 @@ export default class WeekView extends React.Component {
 
   _headerComponents() {
     const left = (
-      <button key="today" className="btn" onClick={this._onClickToday} style={{position: 'absolute', left: 10}}>
+      <button key="today" className="btn" ref="todayBtn"
+        onClick={this._onClickToday}
+        style={{position: 'absolute', left: 10}}
+      >
         Today
       </button>
     );
@@ -242,7 +264,7 @@ export default class WeekView extends React.Component {
   }
 
   _onClickToday = () => {
-    this._onChangeCurrentMoment(moment())
+    this._onChangeCurrentMoment(this._now())
   }
 
   _onClickNextWeek = () => {
@@ -303,6 +325,7 @@ export default class WeekView extends React.Component {
   }
 
   _setIntervalHeight = () => {
+    if (!this._mounted) { return } // Resize unmounting is delayed in tests
     const wrap = ReactDOM.findDOMNode(this.refs.eventGridWrap);
     const wrapHeight = wrap.getBoundingClientRect().height;
     if (this._lastWrapHeight === wrapHeight) {
@@ -399,10 +422,12 @@ export default class WeekView extends React.Component {
     const days = this._daysInView();
     const eventsByDay = this._eventsByDay(days)
     const allDayOverlap = this._eventOverlap(eventsByDay.allDay);
-    const tickGen = this._tickGenerator.bind(this)
+    const tickGen = this._tickGenerator.bind(this);
+
     return (
       <div className="calendar-view week-view">
         <CalendarEventContainer
+          ref="calendarEventContainer"
           onCalendarMouseUp={this.props.onCalendarMouseUp}
           onCalendarMouseDown={this.props.onCalendarMouseDown}
           onCalendarMouseMove={this.props.onCalendarMouseMove}
@@ -410,6 +435,7 @@ export default class WeekView extends React.Component {
           <TopBanner bannerComponents={this.props.bannerComponents} />
 
           <HeaderControls title={this._currentWeekText()}
+            ref="headerControls"
             headerComponents={this._headerComponents()}
             nextAction={this._onClickNextWeek}
             prevAction={this._onClickPrevWeek}
@@ -437,6 +463,7 @@ export default class WeekView extends React.Component {
               </div>
 
               <WeekViewAllDayEvents
+                ref="weekViewAllDayEvents"
                 minorDim={MIN_INTERVAL_HEIGHT}
                 end={this.state.endMoment.unix()}
                 height={this._allDayEventHeight(allDayOverlap)}
