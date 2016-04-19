@@ -20,7 +20,7 @@ class SendLaterPopover extends Component {
   static displayName = 'SendLaterPopover';
 
   static propTypes = {
-    scheduledDate: PropTypes.string,
+    sendLaterDate: PropTypes.string,
     onSendLater: PropTypes.func.isRequired,
     onCancelSendLater: PropTypes.func.isRequired,
   };
@@ -71,7 +71,7 @@ class SendLaterPopover extends Component {
         onSubmitDate={this.onSelectCustomOption} />,
     ];
 
-    if (this.props.scheduledDate) {
+    if (this.props.sendLaterDate) {
       footerComponents.push(<div key="divider-unschedule" className="divider" />)
       footerComponents.push(
         <div className="cancel-section" key="cancel-section">

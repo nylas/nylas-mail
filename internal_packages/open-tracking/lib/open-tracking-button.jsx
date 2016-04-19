@@ -7,8 +7,13 @@ export default class OpenTrackingButton extends React.Component {
   static displayName = 'OpenTrackingButton';
 
   static propTypes = {
-    draftClientId: React.PropTypes.string.isRequired,
+    draft: React.PropTypes.object.isRequired,
+    session: React.PropTypes.object.isRequired,
   };
+
+  shouldComponentUpdate(nextProps) {
+    return (nextProps.draft.metadataForPluginId(PLUGIN_ID) !== this.props.draft.metadataForPluginId(PLUGIN_ID));
+  }
 
   _title(enabled) {
     const dir = enabled ? "Disable" : "Enable";
@@ -24,7 +29,7 @@ export default class OpenTrackingButton extends React.Component {
 
   render() {
     const enabledValue = {
-      uid: this.props.draftClientId,
+      uid: this.props.draft.clientId,
       open_count: 0,
       open_data: [],
     };
@@ -38,7 +43,10 @@ export default class OpenTrackingButton extends React.Component {
         metadataEnabledValue={enabledValue}
         stickyToggle
         errorMessage={this._errorMessage}
-        draftClientId={this.props.draftClientId} />
+        draft={this.props.draft}
+        session={this.props.session} />
     )
   }
 }
+
+OpenTrackingButton.containerRequired = false;

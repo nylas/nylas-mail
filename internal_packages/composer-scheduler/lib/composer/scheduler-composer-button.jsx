@@ -4,7 +4,6 @@ import {
   Actions,
   APIError,
   NylasAPI,
-  DraftStore,
 } from 'nylas-exports'
 import {Menu, RetinaImg} from 'nylas-component-kit'
 import {PLUGIN_ID, PLUGIN_NAME} from '../scheduler-constants'
@@ -22,47 +21,23 @@ export default class SchedulerComposerButton extends React.Component {
   static displayName = "SchedulerComposerButton";
 
   static propTypes = {
-    draftClientId: React.PropTypes.string,
+    draft: React.PropTypes.object.isRequired,
+    session: React.PropTypes.object.isRequired,
   };
 
   constructor(props) {
     super(props);
     this.state = {enabled: false};
-    this._session = null;
-    this._mounted = false;
     this._unsubscribes = [];
   }
 
-  componentDidMount() {
-    this._mounted = true;
-    this.handleProps()
+  shouldComponentUpdate(nextProps, nextState) {
+    return (this.state !== nextState) ||
+      (this._hasPendingEvent(nextProps) !== this._hasPendingEvent(this.props));
   }
 
-  componentWillReceiveProps(newProps) {
-    this.handleProps(newProps);
-  }
-
-  handleProps(newProps = null) {
-    const props = newProps || this.props;
-    DraftStore.sessionForClientId(props.draftClientId).then(session => {
-      // Only run if things are still relevant: component is mounted
-      // and draftClientIds still match
-      const idIsCurrent = newProps ? true : this.props.draftClientId === session.draftClientId;
-      if (this._mounted && idIsCurrent) {
-        this._session = session;
-        const unsub = session.listen(this._onDraftChange.bind(this));
-        this._unsubscribes.push(unsub);
-        this._onDraftChange();
-      }
-    });
-  }
-
-  _onDraftChange() {
-    this.setState({enabled: this._hasPendingEvent()});
-  }
-
-  _hasPendingEvent() {
-    const metadata = this._session.draft().metadataForPluginId(PLUGIN_ID);
+  _hasPendingEvent(props) {
+    const metadata = props.draft.metadataForPluginId(PLUGIN_ID);
     return metadata && metadata.pendingEvent
   }
 
@@ -90,14 +65,14 @@ export default class SchedulerComposerButton extends React.Component {
   }
 
   _onSelectItem = (item) => {
-    NewEventHelper.addEventToSession(this._session)
-    const draft = this._session.draft()
+    NewEventHelper.addEventToSession(this.props.session)
+
     if (item === PROPOSAL) {
       NylasEnv.newWindow({
         title: "Calendar",
         windowType: "calendar",
         windowProps: {
-          draftClientId: draft.clientId,
+          draftClientId: this.props.draft.clientId,
         },
       });
     }
@@ -105,10 +80,8 @@ export default class SchedulerComposerButton extends React.Component {
   }
 
   _onClick = () => {
-    if (!this._session) { return }
-    const draft = this._session.draft()
     const buttonRect = ReactDOM.findDOMNode(this).getBoundingClientRect()
-    NylasAPI.authPlugin(PLUGIN_ID, PLUGIN_NAME, draft.accountId)
+    NylasAPI.authPlugin(PLUGIN_ID, PLUGIN_NAME, this.props.draft.accountId)
     .catch((error) => {
       let title = "Error"
       let msg = `Unfortunately scheduling is not currently available. \
@@ -135,8 +108,9 @@ Please try again later.\n\nError: ${error}`
   }
 
   render() {
+    const hasEvent = this._hasPendingEvent(this.props);
     return (
-      <button className={`btn btn-toolbar ${this.state.enabled ? "btn-enabled" : ""}`}
+      <button className={`btn btn-toolbar ${hasEvent ? "btn-enabled" : ""}`}
         onClick={this._onClick}
         title="Schedule an event…"
       >
@@ -151,3 +125,5 @@ Please try again later.\n\nError: ${error}`
     </button>)
   }
 }
+
+SchedulerComposerButton.containerRequired = false;

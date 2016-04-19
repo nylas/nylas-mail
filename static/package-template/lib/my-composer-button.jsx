@@ -1,4 +1,4 @@
-import {DraftStore, React} from 'nylas-exports';
+import {React} from 'nylas-exports';
 
 export default class MyComposerButton extends React.Component {
 
@@ -10,26 +10,33 @@ export default class MyComposerButton extends React.Component {
   // reference to the draft, and you can look it up to perform
   // actions and retrieve data.
   static propTypes = {
-    draftClientId: React.PropTypes.string.isRequired,
+    draft: React.PropTypes.object.isRequired,
+    session: React.PropTypes.object.isRequired,
   };
 
+  shouldComponentUpdate(nextProps) {
+    // Our render method doesn't use the provided `draft`, and the draft changes
+    // constantly (on every keystroke!) `shouldComponentUpdate` helps keep N1 fast.
+    return nextProps.session !== this.props.session;
+  }
+
   _onClick = () => {
+    const {session, draft} = this.props;
+
     // To retrieve information about the draft, we fetch the current editing
     // session from the draft store. We can access attributes of the draft
     // and add changes to the session which will be appear immediately.
-    DraftStore.sessionForClientId(this.props.draftClientId).then((session) => {
-      const newSubject = `${session.draft().subject} - It Worked!`;
+    const newSubject = `${draft.subject} - It Worked!`;
 
-      const dialog = this._getDialog();
-      dialog.showMessageBox({
-        title: 'Here we go...',
-        detail: `Adjusting the subject line To "${newSubject}"`,
-        buttons: ['OK'],
-        type: 'info',
-      });
-
-      session.changes.add({subject: newSubject});
+    const dialog = this._getDialog();
+    dialog.showMessageBox({
+      title: 'Here we go...',
+      detail: `Adjusting the subject line To "${newSubject}"`,
+      buttons: ['OK'],
+      type: 'info',
     });
+
+    session.changes.add({subject: newSubject});
   }
 
   _getDialog() {

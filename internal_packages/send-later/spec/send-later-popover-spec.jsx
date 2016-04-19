@@ -9,7 +9,7 @@ import {renderIntoDocument} from '../../../spec/nylas-test-utils'
 const makePopover = (props = {})=> {
   return renderIntoDocument(
     <SendLaterPopover
-      scheduledDate={null}
+      sendLaterDate={null}
       onSendLater={()=>{}}
       onCancelSendLater={()=>{}}
       {...props} />
@@ -50,7 +50,7 @@ describe('SendLaterPopover', ()=> {
   describe('render', ()=> {
     it('renders cancel button if scheduled', ()=> {
       const onCancelSendLater = jasmine.createSpy('onCancelSendLater')
-      const popover = makePopover({onCancelSendLater, scheduledDate: 'date'})
+      const popover = makePopover({onCancelSendLater, sendLaterDate: 'date'})
       const button = findDOMNode(
         findRenderedDOMComponentWithClass(popover, 'btn-cancel')
       )

@@ -26,18 +26,11 @@ describe("SchedulerComposerButton", () => {
     spyOn(NylasEnv, "reportError")
     spyOn(NylasEnv, "showErrorDialog")
     spyOn(NewEventHelper, "now").andReturn(now())
-    // Will eventually fill this.session
+
     prepareDraft.call(this)
-
-    // Note: Needs to be in a `runs` block so it happens after the async
-    // activities of `prepareDraft`
-    runs(() => {
-      this.schedulerBtn = ReactTestUtils.renderIntoDocument(
-        <SchedulerComposerButton draftClientId={DRAFT_CLIENT_ID} />
-      );
-    })
-
-    waitsFor(() => this.schedulerBtn._session)
+    this.schedulerBtn = ReactTestUtils.renderIntoDocument(
+      <SchedulerComposerButton draft={this.session.draft()} session={this.session} />
+    );
   });
 
   afterEach(() => {

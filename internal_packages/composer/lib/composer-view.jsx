@@ -239,7 +239,12 @@ export default class ComposerView extends React.Component {
       <div className="composer-footer-region">
         <InjectedComponentSet
           matching={{role: "Composer:Footer"}}
-          exposedProps={{draftClientId: this.props.draft.clientId, threadId: this.props.draft.threadId}}
+          exposedProps={{
+            draft: this.props.draft,
+            threadId: this.props.draft.threadId,
+            draftClientId: this.props.draft.clientId,
+            session: this.props.session,
+          }}
           direction="column"/>
       </div>
     );
@@ -311,7 +316,13 @@ export default class ComposerView extends React.Component {
         <InjectedComponentSet
           className="composer-action-bar-plugins"
           matching={{role: "Composer:ActionButton"}}
-          exposedProps={{draftClientId: this.props.draft.clientId, threadId: this.props.draft.threadId}} />
+          exposedProps={{
+            draft: this.props.draft,
+            threadId: this.props.draft.threadId,
+            draftClientId: this.props.draft.clientId,
+            session: this.props.session,
+          }}
+        />
 
         <button
           tabIndex={-1}
