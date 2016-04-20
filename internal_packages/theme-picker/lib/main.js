@@ -1,10 +1,21 @@
 /** @babel */
-import ThemePickerStore from './theme-picker-store';
+import React from 'react';
+import {Actions, WorkspaceStore} from 'nylas-exports';
+
+import ThemePicker from './theme-picker';
+
 
 export function activate() {
-  ThemePickerStore.activate();
+  this.disposable = NylasEnv.commands.add("body", "window:launch-theme-picker", () => {
+    WorkspaceStore.popToRootSheet();
+    Actions.openModal({
+      component: (<ThemePicker />),
+      height: 390,
+      width: 250,
+    });
+  });
 }
 
 export function deactivate() {
-  ThemePickerStore.deactivate();
+  this.disposable.dispose();
 }
