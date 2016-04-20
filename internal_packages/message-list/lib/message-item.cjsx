@@ -54,7 +54,7 @@ class MessageItem extends React.Component
 
   _renderCollapsed: =>
     attachmentIcon = []
-    if @props.message.files.length > 0
+    if Utils.showIconForAttachments(@props.message.files)
       attachmentIcon = <div className="collapsed-attachment"></div>
 
     <div className={@props.className} onClick={@_toggleCollapsed}>
