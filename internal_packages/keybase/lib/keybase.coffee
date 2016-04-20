@@ -5,49 +5,35 @@ class KeybaseAPI
   constructor: ->
     @baseUrl = "https://keybase.io"
 
-  getUser: (key, keyType, cb) =>
+  getUser: (key, keyType, callback) =>
     if not keyType in ['usernames', 'domain', 'twitter', 'github', 'reddit',
                        'hackernews', 'coinbase', 'key_fingerprint']
       console.error 'keyType must be a supported Keybase query type.'
 
     this._keybaseRequest("/_/api/1.0/user/lookup.json?#{keyType}=#{key}", (err, resp, obj) =>
-      if err?
-        console.error(err)
-        cb(null)
+      return callback(err, null) if err
+      return callback(new Error(obj.status.desc), null) if obj.status.name != "OK"
 
-      if obj.status.name != "OK"
-        console.error obj.status.desc unless not obj.status.desc?
-        cb(null)
-
-      cb(_.map(obj.them, @_regularToAutocomplete))
+      callback(null, _.map(obj.them, @_regularToAutocomplete))
     )
 
-  getKey: (username, cb) =>
+  getKey: (username, callback) =>
     request({url: @baseUrl + "/#{username}/key.asc", headers: {'User-Agent': 'request'}}, (err, resp, obj) =>
-      if err?
-        console.error(err)
-        cb(null)
-
-      cb(obj)
+      return callback(err, null) if err
+      return callback(new Error("No key found for #{username}"), null) if not obj?
+      callback(null, obj)
     )
 
-  autocomplete: (query, cb) =>
+  autocomplete: (query, callback) =>
     url = "/_/api/1.0/user/autocomplete.json"
     request({url: @baseUrl + url, form: {q: query}, headers: {'User-Agent': 'request'}, json: true}, (err, resp, obj) =>
-      if err?
-        console.error(err)
-        cb(null)
-
-      if obj.status.name != "OK"
-        console.error obj.status.desc unless not obj.status.desc?
-        cb(null)
-
-      cb(obj.completions)
+      return callback(err, null) if err
+      return callback(new Error(obj.status.desc), null) if obj.status.name != "OK"
+      callback(null, obj.completions)
     )
 
-
-  _keybaseRequest: (url, cb) =>
-    return request({url: @baseUrl + url, headers: {'User-Agent': 'request'}, json: true}, cb)
+  _keybaseRequest: (url, callback) =>
+    return request({url: @baseUrl + url, headers: {'User-Agent': 'request'}, json: true}, callback)
 
   _regularToAutocomplete: (profile) ->
     # converts a keybase profile to the weird format used in the autocomplete

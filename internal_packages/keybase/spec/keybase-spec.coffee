@@ -5,7 +5,7 @@ describe "keybase lib", ->
   it "should be able to fetch an account by username", ->
     @them = null
     runs( =>
-      kb.getUser('dakota', 'usernames', (them) =>
+      kb.getUser('dakota', 'usernames', (err, them) =>
         @them = them
       )
     )
@@ -17,7 +17,7 @@ describe "keybase lib", ->
   it "should be able to fetch an account by key fingerprint", ->
     @them = null
     runs( =>
-      kb.getUser('7FA5A43BBF2BAD1845C8D0E8145FCCD989968E3B', 'key_fingerprint', (them) =>
+      kb.getUser('7FA5A43BBF2BAD1845C8D0E8145FCCD989968E3B', 'key_fingerprint', (err, them) =>
         @them = them
       )
     )
@@ -29,7 +29,7 @@ describe "keybase lib", ->
   it "should be able to fetch a user's key", ->
     @key = null
     runs( =>
-      kb.getKey('dakota', (key) =>
+      kb.getKey('dakota', (error, key) =>
         @key = key
       )
     )
@@ -41,7 +41,7 @@ describe "keybase lib", ->
   it "should be able to return an autocomplete query", ->
     @completions = null
     runs( =>
-      kb.autocomplete('dakota', (completions) =>
+      kb.autocomplete('dakota', (error, completions) =>
         @completions = completions
       )
     )

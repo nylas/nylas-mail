@@ -21,7 +21,7 @@ class KeybaseSearch extends React.Component
   _search: ->
     if @state.query != "" and @state.loading == false
       @setState({loading: true})
-      kb.autocomplete(@state.query, (profiles) =>
+      kb.autocomplete(@state.query, (error, profiles) =>
         if profiles?
           profiles = _.map(profiles, (profile) ->
             return {keybase_user: profile}

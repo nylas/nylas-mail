@@ -93,14 +93,14 @@ describe "PGPKeyStore", ->
     it 'should be able to retrieve and unlock a private key', ->
       spyOn(PGPKeyStore, 'trigger')
       runs( =>
-        expect(PGPKeyStore._pubKeys.some((cv, index, array) => 
+        expect(PGPKeyStore._pubKeys.some((cv, index, array) =>
           cv.hasOwnProperty("key"))).toBeFalsey
         key = PGPKeyStore.privKeys(address: "benbitdiddle@icloud.com", timed: false)[0]
         PGPKeyStore.getKeyContents(key: key, passphrase: "")
       )
       waitsFor((=> PGPKeyStore.trigger.callCount > 0 ), 1000, 'a key to be fetched')
       runs( =>
-        expect(PGPKeyStore._privKeys.some((cv, index, array) => 
+        expect(PGPKeyStore._privKeys.some((cv, index, array) =>
           cv.hasOwnProperty("key"))).toBeTruthy
       )
 
@@ -229,7 +229,7 @@ describe "PGPKeyStore", ->
       )
       waitsFor((=> PGPKeyStore.trigger.callCount > 0), 1000)
       runs( =>
-        expect(PGPKeyStore._pubKeys.some((cv, index, array) => 
+        expect(PGPKeyStore._pubKeys.some((cv, index, array) =>
           cv.hasOwnProperty("key"))).toBeTruthy
       )
 
