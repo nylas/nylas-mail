@@ -150,7 +150,7 @@ class PGPKeyStore extends NylasStore
       PGPKeyStore.getKeyContents(key: key)
     else
       fingerprint = key.key.get_pgp_fingerprint().toString('hex')
-      kb.getUser(fingerprint, 'key_fingerprint', (user) =>
+      kb.getUser(fingerprint, 'key_fingerprint', (err, user) =>
         if user?.length == 1
           key.keybase_user = user[0]
           @trigger(@)
@@ -344,7 +344,7 @@ class PGPKeyStore extends NylasStore
     # TODO pgp.unbox fails on generated keys with "no tailer found". I have no idea why.
     # Previously this was caused by a trailing whitespace issue but that doesn't appear
     # to be the problem here. Googling the error turns up two Github issues, both about
-    # the difference between single and triple quoted string literals in CoffeeScript - 
+    # the difference between single and triple quoted string literals in CoffeeScript -
     # maybe that's a place to start?
     #console.warn(@privKeys({})[0].key.armored_pgp_public)
     pgp.unbox { keyfetch: ring, armored: pgpMsg }, (err, literals, warnings, subkey) =>

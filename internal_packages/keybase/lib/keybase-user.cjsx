@@ -89,8 +89,8 @@ class KeybaseUser extends React.Component
 
   _save: (keybaseUsername, address) =>
     # save/import a key from keybase
-    kb.getKey(keybaseUsername, (key) =>
-      if not key?
+    kb.getKey(keybaseUsername, (error, key) =>
+      if error
         console.error "Unable to fetch key for #{keybaseUsername}"
       else
         PGPKeyStore.saveNewKey(address, key, true) # isPub = true
