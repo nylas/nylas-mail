@@ -1,3 +1,4 @@
+import moment from 'moment'
 import {PLUGIN_ID} from '../lib/scheduler-constants'
 import {
   prepareDraft,
@@ -47,7 +48,14 @@ describe("SchedulerComposerExtension", () => {
     });
 
     it("Has the correct start and end times in the body", () => {
-      expect(this.nextDraft.body).toMatch(/Tuesday, March 15, 2016 <br\/>12:00 PM – 1:00 PM/);
+      const startStr = moment.unix(now().unix()).format("LT")
+      const endStr = moment.unix(now().add(1, 'hour').unix()).format("LT")
+
+      const re = new RegExp(`Tuesday, March 15, 2016 <br\/>${startStr} – ${endStr}`)
+
+      // NOTE: These are supposed to render in local time. Make sure we
+      // test for the local timezone of the test setup.
+      expect(this.nextDraft.body).toMatch(re);
     });
 
     it("Doesn't include proposed times", () => {
@@ -60,6 +68,11 @@ describe("SchedulerComposerExtension", () => {
       const start = now().add(1, 'hour').unix();
       const end = now().add(2, 'hours').unix();
 
+      const startStr = moment.unix(start).format("LT")
+      const endStr = moment.unix(end).format("LT")
+
+      const re = new RegExp(`${startStr} — ${endStr}`)
+
       const draft = new Message({body: ''})
       draft.applyPluginMetadata(PLUGIN_ID, {
         pendingEvent: new Event(),
@@ -69,7 +82,7 @@ describe("SchedulerComposerExtension", () => {
       const nextDraft = SchedulerComposerExtension.applyTransformsToDraft({draft});
       expect(nextDraft.body).not.toMatch(/new-event-preview/);
       expect(nextDraft.body).toMatch(/proposed-time-table/);
-      expect(nextDraft.body).toMatch(/1:00 PM — 2:00 PM/);
+      expect(nextDraft.body).toMatch(re);
     });
   });
 
