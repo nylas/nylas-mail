@@ -65,7 +65,7 @@ class PGPKeyStore extends NylasStore
     if not (RegExpUtils.emailRegex().test(address))
       @_displayError('Invalid email address.')
       return false
-    keys = if isPub then @pubKeys(address) else @privKeys(address, timed=false)
+    keys = if isPub then @pubKeys(address) else @privKeys({address: address, timed: false})
     keystate = if isPub then 'public' else 'private'
     if (keys.length > 0)
       @_displayError("A PGP #{keystate} key for that email address already exists.")
@@ -163,6 +163,9 @@ class PGPKeyStore extends NylasStore
         keyPath = path.join(@_pubKeyDir, address)
       else
         keyPath = path.join(@_privKeyDir, address)
+      # Just say no to trailing whitespace.
+      if contents.charAt(contents.length - 1) != '-'
+        contents = contents.slice(0, -1)
       fs.writeFile(keyPath, contents, (err) =>
         if (err)
           @_displayError(err)
@@ -319,8 +322,9 @@ class PGPKeyStore extends NylasStore
     ring = new pgp.keyring.KeyRing
     # (the unbox function will use the right one)
 
-    for key in _.pluck(@privKeys(), "key")
-      ring.add_key_manager(key)
+    for key in @privKeys({timed:false})
+      if key.key?
+        ring.add_key_manager(key.key)
 
     # find a PGP block
     pgpStart = "-----BEGIN PGP MESSAGE-----"
@@ -337,6 +341,12 @@ class PGPKeyStore extends NylasStore
     # pgpMsg = pgpMsg.replace(/<[^>]*>/gm,'')
     # however, it appears the problem has disappeared
 
+    # TODO pgp.unbox fails on generated keys with "no tailer found". I have no idea why.
+    # Previously this was caused by a trailing whitespace issue but that doesn't appear
+    # to be the problem here. Googling the error turns up two Github issues, both about
+    # the difference between single and triple quoted string literals in CoffeeScript - 
+    # maybe that's a place to start?
+    #console.warn(@privKeys({})[0].key.armored_pgp_public)
     pgp.unbox { keyfetch: ring, armored: pgpMsg }, (err, literals, warnings, subkey) =>
       if err
         console.warn err

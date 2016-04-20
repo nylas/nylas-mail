@@ -1,8 +1,10 @@
-{React} = require 'nylas-exports'
+{React, RegExpUtils} = require 'nylas-exports'
 PGPKeyStore = require './pgp-key-store'
 KeybaseSearch = require './keybase-search'
 KeyManager = require './key-manager'
+KeyAdder = require './key-adder'
 _ = require 'underscore'
+pgp = require 'kbpgp'
 
 class PreferencesKeybase extends React.Component
   @displayName: 'PreferencesKeybase'
@@ -71,9 +73,9 @@ class PreferencesKeybase extends React.Component
 
     {pubKeys, privKeys, selectedPubKey, selectedPrivKey} = @_getStateFromStores()
     @state =
-      editState: if pubKeys.length==0 then "new" else null
       pubKeys: pubKeys
       privKeys: privKeys
+
       selectedPubKey: selectedPubKey
       selectedPrivKey: selectedPrivKey
 
@@ -118,15 +120,7 @@ class PreferencesKeybase extends React.Component
   componentDidMount: ->
     @usub = PGPKeyStore.listen @_onChange
 
-  ###
-  componentWillUnmount: ->
-    @usub()
-    if @state.selectedKey?
-      @_saveKeyNow(@state.selectedKey.name)
-  ###
-
   # Key Editing
-
   _onSelectPubKey: (event) =>
     selectedPubKey = null
     for pubKey in @state.pubKeys
@@ -150,7 +144,6 @@ class PreferencesKeybase extends React.Component
       PGPKeyStore.deleteKey(@state.selectedPubKey)
     if numKeys==1
       @setState
-        editState: "new"
         selectedPubKey: null
 
   _deletePrivKey: =>
@@ -159,18 +152,7 @@ class PreferencesKeybase extends React.Component
       PGPKeyStore.deleteKey(@state.selectedPrivKey)
     if numKeys==1
       @setState
-        editState: "new"
         selectedPrivKey: null
-
-  _startNewPubKey: =>
-    @setState
-      editState: "new"
-      selectedPubKey: null
-
-  _startNewPrivKey: =>
-    @setState
-      editState: "new"
-      selectedPrivKey: null
 
   _saveNewPubKey: =>
     PGPKeyStore.saveNewKey("benbitdiddle@icloud.com", TEST_KEY, isPub = true)
@@ -183,16 +165,6 @@ class PreferencesKeybase extends React.Component
 
   _removeOtherAddress: =>
     PGPKeyStore.removeAddressFromKey(@state.pubKeys[0], "logan@nylas.com")
-
-  ###
-  _renderCreateNew: ->
-    cancel = <button className="btn key-name-btn" onClick={@_cancelNewKey}>Cancel</button>
-    <div className="section-title">
-      Key Name: <input type="text" className="key-name-input" value={@state.selectedKeyName} onChange={@_onEditName}/>
-      <button className="btn btn-emphasis key-name-btn" onClick={@_saveNewKey}>Save</button>
-      {if @state.pubKeys.length then cancel}
-    </div>
-  ###
 
   _renderPublicKeyPicker: ->
     options = @state.pubKeys.map (pubKey) ->
@@ -230,12 +202,36 @@ class PreferencesKeybase extends React.Component
     keys = @state.pubKeys
     # TODO private key management
 
+    noKeysMessage =
+    <div className="key-status-bar no-keys-message">
+      You have no saved PGP keys! Use one of the options below to add one.
+    </div>
+
     <div>
-      <section className="keybase-instructions">
-        <h2>This is the Keybase Plugin.</h2>
-        {@_renderName()}
+      <section className="key-add">
+        {if @state.pubKeys.length == 0 and @state.privKeys.length == 0 then noKeysMessage}
+        <KeyAdder/>
+      </section>
+      <section className="keybase">
         <KeybaseSearch />
         <KeyManager keys={keys} />
+      </section>
+      <section className="key-instructions">
+        <p>
+          The Keybase plugin allows you to send and receive email messages encrypted using the PGP protocol.
+          Clicking the "Encrypt" button in the mail composer view will automatically encrypt the current draft
+          for all recipients for whom you have a saved PGP public key. You can decrypt messages encrypted for
+          your private key by entering your private key passphrase and clicking "Decrypt" in the message view.
+        </p>
+        <p>
+          PGP keys are saved in the <strong>~/.nylas/keys</strong> directory on your computer. The name of each key file 
+          in this directory is the same as the email address associated with the key. You can add keys through this
+          preferences tab by searching for them on Keybase, generating them from scratch, or copy/pasting them in.
+        </p>
+        <p>
+          Remember to share your PGP public key with your other N1-using friends so that they can send you encrypted
+          messages - but never, ever share your private key!
+        </p>
       </section>
     </div>
 
