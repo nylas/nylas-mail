@@ -24,7 +24,7 @@ Utils =
 
   showIconForAttachments: (files) ->
     return false unless files instanceof Array
-    return files.find (f) -> !f.contentId or f.size > 3 * 1024
+    return files.find (f) -> !f.contentId or f.size > 12 * 1024
 
   extractTextFromHtml: (html, {maxLength} = {}) ->
     if (html ? "").trim().length is 0 then return ""
