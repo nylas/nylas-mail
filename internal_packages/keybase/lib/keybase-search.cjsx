@@ -58,7 +58,7 @@ class KeybaseSearch extends React.Component
 
     <div className="keybase-search">
       <div className="searchbar">
-        <input type="text" placeholder="search keybase" ref="searchbar" onChange={@_queryChange} />
+        <input type="text" placeholder="...or, search Keybase" ref="searchbar" onChange={@_queryChange} />
       </div>
 
       { loading }
