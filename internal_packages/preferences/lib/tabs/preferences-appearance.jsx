@@ -97,11 +97,17 @@ class PreferencesAppearance extends React.Component {
     configSchema: React.PropTypes.object,
   }
 
+  onClick = () => {
+    NylasEnv.commands.dispatch(document.body, "window:launch-theme-picker");
+  }
+
+
   render() {
     return (
       <div className="container-appearance">
         <label>Change layout:</label>
         <AppearanceModeSwitch config={this.props.config} />
+        <button className="btn btn-large" onClick={this.onClick}>Change theme...</button>
       </div>
     );
   }
