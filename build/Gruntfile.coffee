@@ -241,6 +241,8 @@ module.exports = (grunt) ->
       src: [
         'internal_packages/**/*.cjsx'
         'internal_packages/**/*.coffee'
+        '!internal_packages/*/node_modules/**/*.cjsx'
+        '!internal_packages/*/node_modules/**/*.coffee'
         'dot-nylas/**/*.coffee'
         'src/**/*.coffee'
         'src/**/*.cjsx'

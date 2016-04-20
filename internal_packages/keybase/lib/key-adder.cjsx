@@ -9,7 +9,7 @@ class KeyAdder extends React.Component
   @displayName: 'KeyAdder'
 
   constructor: (props) ->
-    @state = 
+    @state =
       address: ""
       keyContents: ""
       passphrase: ""
@@ -28,11 +28,11 @@ class KeyAdder extends React.Component
       Add a PGP Key:
       <button className="btn key-creation-button" title="Paste in a Public Key" onClick={@_onPastePubButtonClick}>Paste in a Public Key</button>
       <button className="btn key-creation-button" title="Paste in a Private Key" onClick={@_onPastePrivButtonClick}>Paste in a Private Key</button>
-      <button className="btn key-creation-button" title="Generate a New Keypair" onClick={@_onGenerateButtonClick}>Generate a New Keypair</button> 
+      <button className="btn key-creation-button" title="Generate a New Keypair" onClick={@_onGenerateButtonClick}>Generate a New Keypair</button>
     </div>
 
   _onPastePubButtonClick: (event) =>
-    @setState 
+    @setState
       pubKey: !@state.pubKey
       generate: false
       privKey: false
@@ -40,7 +40,7 @@ class KeyAdder extends React.Component
       keyContents: ""
 
   _onPastePrivButtonClick: (event) =>
-    @setState 
+    @setState
       pubKey: false
       generate: false
       privKey: !@state.privKey
@@ -93,27 +93,27 @@ class KeyAdder extends React.Component
     valid = false
     if (address and address.length > 0 and RegExpUtils.emailRegex().test(address))
       valid = true
-    @setState 
+    @setState
       address: event.target.value
       validAddress: valid
 
   _onPassphraseChange: (event) =>
-    @setState 
+    @setState
       passphrase: event.target.value
 
   _onKeyChange: (event) =>
-    @setState 
+    @setState
       keyContents: event.target.value
     pgp.KeyManager.import_from_armored_pgp {
-        armored: event.target.value
-      }, (err, km) =>
-        if err
-          console.warn(err)
-          valid = false
-        else
-          valid = true
-        @setState
-          validKeyBody: valid
+      armored: event.target.value
+    }, (err, km) =>
+      if err
+        console.warn(err)
+        valid = false
+      else
+        valid = true
+      @setState
+        validKeyBody: valid
 
   _renderPasteKey: ->
     publicButton = <button className="btn key-add-btn" disabled={!(@state.validAddress & @state.validKeyBody)} title="Save" onClick={@_saveNewPubKey}>Save</button>
@@ -133,7 +133,7 @@ class KeyAdder extends React.Component
         {if @state.privKey then passphraseInput}
         {if @state.privKey then privateButton}
         {if @state.pubKey then publicButton}
-      </div>  
+      </div>
     </div>
 
   _renderGenerateKey: ->

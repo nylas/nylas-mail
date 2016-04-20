@@ -224,7 +224,7 @@ class PreferencesKeybase extends React.Component
           your private key by entering your private key passphrase and clicking "Decrypt" in the message view.
         </p>
         <p>
-          PGP keys are saved in the <strong>~/.nylas/keys</strong> directory on your computer. The name of each key file 
+          PGP keys are saved in the <strong>~/.nylas/keys</strong> directory on your computer. The name of each key file
           in this directory is the same as the email address associated with the key. You can add keys through this
           preferences tab by searching for them on Keybase, generating them from scratch, or copy/pasting them in.
         </p>

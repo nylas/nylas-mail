@@ -11,9 +11,9 @@ export function activate() {
     displayName: 'PGP Encryption',
     component: require('./preferences-keybase'),
   });
-  ComponentRegistry.register(EncryptMessageButton, {role:'Composer:ActionButton'});
-  ComponentRegistry.register(DecryptMessageButton, {role:'message:BodyHeader'});
-  ComponentRegistry.register(RecipientKeyChip, {role:'Composer:RecipientChip'});
+  ComponentRegistry.register(EncryptMessageButton, {role: 'Composer:ActionButton'});
+  ComponentRegistry.register(DecryptMessageButton, {role: 'message:BodyHeader'});
+  ComponentRegistry.register(RecipientKeyChip, {role: 'Composer:RecipientChip'});
   ExtensionRegistry.MessageView.register(DecryptPGPExtension);
   PreferencesUIStore.registerPreferencesTab(this.preferencesTab);
 }
