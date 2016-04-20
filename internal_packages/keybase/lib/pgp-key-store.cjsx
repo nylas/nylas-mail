@@ -12,7 +12,7 @@ class PGPKeyStore extends NylasStore
   constructor: ->
     super()
 
-    @_pubKeys = {}
+    @_pubKeys = []
     @_privKeys = []
 
     @_msgCache = []
