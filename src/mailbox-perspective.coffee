@@ -185,10 +185,14 @@ class StarredMailboxPerspective extends MailboxPerspective
 
   threads: =>
     query = DatabaseStore.findAll(Thread).where([
-      Thread.attributes.accountId.in(@accountIds),
       Thread.attributes.starred.equal(true),
       Thread.attributes.inAllMail.equal(true),
     ]).limit(0)
+
+    # Adding a "account_id IN (a,b,c)" clause to our query can result in a full
+    # table scan. Don't add the where clause if we know we want results from all.
+    if @accountIds.length < AccountStore.accounts().length
+      query.where(Thread.attributes.accountId.in(@accountIds))
 
     return new MutableQuerySubscription(query, {emitResultSet: true})
 

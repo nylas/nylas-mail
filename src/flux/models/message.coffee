@@ -157,10 +157,20 @@ class Message extends ModelWithMetadata
 
   @additionalSQLiteConfig:
     setup: ->
-      ['CREATE INDEX IF NOT EXISTS MessageListThreadIndex ON Message(thread_id, date ASC)',
-       'CREATE INDEX IF NOT EXISTS MessageListDraftIndex ON Message(account_id, draft)',
-       'CREATE UNIQUE INDEX IF NOT EXISTS MessageDraftIndex ON Message(client_id)',
-       'CREATE UNIQUE INDEX IF NOT EXISTS MessageBodyIndex ON MessageBody(id)']
+      [
+        # For thread view
+        'CREATE INDEX IF NOT EXISTS MessageListThreadIndex ON Message(thread_id, date ASC)',
+
+        # For draft lookups
+        'CREATE UNIQUE INDEX IF NOT EXISTS MessageDraftIndex ON Message(client_id)',
+
+        # Partial indexes for draft
+        'CREATE INDEX IF NOT EXISTS MessageListDraftIndex ON Message(account_id, date DESC) WHERE draft = 1',
+        'CREATE INDEX IF NOT EXISTS MessageListUnifiedDraftIndex ON Message(date DESC) WHERE draft = 1',
+
+        # MessageBody lookups
+        'CREATE UNIQUE INDEX IF NOT EXISTS MessageBodyIndex ON MessageBody(id)'
+      ]
 
   constructor: ->
     super

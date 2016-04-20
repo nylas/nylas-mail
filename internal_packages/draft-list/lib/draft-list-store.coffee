@@ -3,6 +3,7 @@ Rx = require 'rx-lite'
 _ = require 'underscore'
 {Message,
  OutboxStore,
+ AccountStore,
  MutableQueryResultSet,
  MutableQuerySubscription,
  ObservableListDataSource,
@@ -35,8 +36,13 @@ class DraftListStore extends NylasStore
       query = DatabaseStore.findAll(Message)
         .include(Message.attributes.body)
         .order(Message.attributes.date.descending())
-        .where(draft: true, accountId: mailboxPerspective.accountIds)
+        .where(draft: true)
         .page(0, 1)
+
+      # Adding a "account_id IN (a,b,c)" clause to our query can result in a full
+      # table scan. Don't add the where clause if we know we want results from all.
+      if mailboxPerspective.accountIds.length < AccountStore.accounts().length
+        query.where(accountId: mailboxPerspective.accountIds)
 
       subscription = new MutableQuerySubscription(query, {emitResultSet: true})
       $resultSet = Rx.Observable.fromNamedQuerySubscription('draft-list', subscription)

@@ -113,16 +113,27 @@ class Thread extends ModelWithMetadata {
 
   static additionalSQLiteConfig = {
     setup: () => [
+      // ThreadCounts
       'CREATE TABLE IF NOT EXISTS `ThreadCounts` (`category_id` TEXT PRIMARY KEY, `unread` INTEGER, `total` INTEGER)',
       'CREATE UNIQUE INDEX IF NOT EXISTS ThreadCountsIndex ON `ThreadCounts` (category_id DESC)',
 
-      'CREATE INDEX IF NOT EXISTS ThreadContactDateIndex ON `ThreadContact`(last_message_received_timestamp DESC, value, id)',
+      // ThreadContact
+      'CREATE INDEX IF NOT EXISTS ThreadContactDateIndex ON `ThreadContact` (last_message_received_timestamp DESC, value, id)',
 
-      'CREATE INDEX IF NOT EXISTS ThreadDateIndex ON `Thread`(last_message_received_timestamp DESC, id)',
-      'CREATE INDEX IF NOT EXISTS ThreadStarIndex ON Thread(account_id, starred)',
+      // ThreadCategory
+      'CREATE INDEX IF NOT EXISTS ThreadListCategoryIndex ON `ThreadCategory` (last_message_received_timestamp DESC, value, in_all_mail, unread, id)',
+      'CREATE INDEX IF NOT EXISTS ThreadListCategorySentIndex ON `ThreadCategory` (last_message_sent_timestamp DESC, value, in_all_mail, unread, id)',
 
-      'CREATE INDEX IF NOT EXISTS ThreadListCategoryIndex ON `ThreadCategory`(last_message_received_timestamp DESC, value, in_all_mail, unread, id)',
-      'CREATE INDEX IF NOT EXISTS ThreadListCategorySentIndex ON `ThreadCategory`(last_message_sent_timestamp DESC, value, in_all_mail, unread, id)',
+      // Thread: General index
+      'CREATE INDEX IF NOT EXISTS ThreadDateIndex ON `Thread` (last_message_received_timestamp DESC)',
+
+      // Thread: Partial indexes for specific views
+      'CREATE INDEX IF NOT EXISTS ThreadUnreadIndex ON `Thread` (account_id, last_message_received_timestamp DESC) WHERE unread = 1 AND in_all_mail = 1',
+      'CREATE INDEX IF NOT EXISTS ThreadUnifiedUnreadIndex ON `Thread` (last_message_received_timestamp DESC) WHERE unread = 1 AND in_all_mail = 1',
+
+      'DROP INDEX IF EXISTS `Thread`.ThreadStarIndex',
+      'CREATE INDEX IF NOT EXISTS ThreadStarredIndex ON `Thread` (account_id, last_message_received_timestamp DESC) WHERE starred = 1 AND in_all_mail = 1',
+      'CREATE INDEX IF NOT EXISTS ThreadUnifiedStarredIndex ON `Thread` (last_message_received_timestamp DESC) WHERE starred = 1 AND in_all_mail = 1',
     ],
   }
 
