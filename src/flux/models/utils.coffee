@@ -22,6 +22,10 @@ Utils =
         window.requestAnimationFrame(attempt)
       attempt()
 
+  showIconForAttachments: (files) ->
+    return false unless files instanceof Array
+    return files.find (f) -> !f.contentId or f.size > 3 * 1024
+
   extractTextFromHtml: (html, {maxLength} = {}) ->
     if (html ? "").trim().length is 0 then return ""
     if maxLength and html.length > maxLength
