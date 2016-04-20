@@ -1,0 +1,23 @@
+{
+  "name": "keybase",
+  "main": "./lib/main",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nylas/n1-keybase"
+  },
+  "engines": {
+    "nylas": ">=0.4.10-4e3595b"
+  },
+  "description": "PGP encryption for N1 using Keybase for public key exchange.",
+  "dependencies": {
+    "kbpgp": "^2.0.52",
+    "request": "^2.69.0",
+    "underscore": "^1.8.3"
+  },
+  "license": "MIT",
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  }
+}

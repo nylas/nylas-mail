@@ -1,0 +1,88 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+.keybase-profile {
+  border: 1px solid black;
+  margin-top: 10px;
+  overflow: auto;
+}
+
+.keybase-profile .user-picture {
+  width: 100px;
+  height: 100px;
+  margin: 5px;
+  float: left;
+}
+
+.keybase-profile .details {
+  float: left;
+}
+
+.keybase-profile button {
+  float: right;
+  margin: 10px;
+}
+
+.keybase-profile ul {
+  list-style-type: none;
+}
+
+.keybase-profile .email-list {
+  float: left;
+  padding-left: 10px;
+}
+
+.fixed-popover-container, .email-list {
+  .keybase-participant-field {
+    margin-bottom: 10px;
+
+    .n1-keybase-recipient-key-chip {
+      display: none;
+    }
+
+    .tokenizing-field-label {
+      display: none;
+      padding-top: 0;
+    }
+
+    .tokenizing-field-input {
+      padding-left: 0;
+      padding-top: 0;
+
+      input {
+        border: none;
+      }
+    }
+  }
+}
+
+.fixed-popover-container {
+  .keybase-participant-field {
+    width: 300px;
+    background: @input-bg;
+    border: 1px solid @input-border-color;
+
+      .menu .content-container {
+        background: @background-secondary;
+      }
+  }
+
+  .keybase-import-popover {
+    margin: 10px;
+
+    button {
+      width: 100%;
+    }
+
+    .title {
+      margin-left: auto;
+    }
+  }
+}
+
+.email-list {
+  .keybase-participant-field {
+    width: 200px;
+    border-bottom: 1px solid @gray-light;
+  }
+}
