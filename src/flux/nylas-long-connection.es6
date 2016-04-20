@@ -151,7 +151,7 @@ class NylasLongConnection {
         this.closeIfDataStops()
       })
     })
-    this._req.write("1")
+    this._req.end()
     return this
   }
 
