@@ -3,7 +3,7 @@
 
 EncryptMessageButton = require '../lib/encrypt-button'
 DecryptMessageButton = require '../lib/decrypt-button'
-DecryptPGPExtension = require '../lib/decryption-preprocess.coffee'
+DecryptPGPExtension = require '../lib/decryption-preprocess'
 
 describe "activate", ->
   it "should register the encryption button", ->

@@ -74,13 +74,13 @@ class PGPKeyStore extends NylasStore
 
   ### I/O and File Tracking ###
 
-  watch: () =>
+  watch: =>
     if (!@_pubWatcher)
-      @_pubWatcher = fs.watch(@_pubKeyDir, () => @_populate(isPub = true))
+      @_pubWatcher = fs.watch(@_pubKeyDir, => @_populate(isPub = true))
     if (!@_privWatcher)
-      @_privWatcher = fs.watch(@_privKeyDir, () => @_populate(isPub = false))
+      @_privWatcher = fs.watch(@_privKeyDir, => @_populate(isPub = false))
 
-  unwatch: () =>
+  unwatch: =>
     if (@_pubWatcher)
       @_pubWatcher.close()
     @_pubWatcher = null
@@ -173,9 +173,9 @@ class PGPKeyStore extends NylasStore
 
   deleteKey: (key) =>
     if this._displayDialog(
-        'Delete this key?',
-        'The key will be permanently deleted.',
-        ['Delete', 'Cancel']
+      'Delete this key?',
+      'The key will be permanently deleted.',
+      ['Delete', 'Cancel']
     )
       fs.unlink(key.path, (err) =>
         if (err)

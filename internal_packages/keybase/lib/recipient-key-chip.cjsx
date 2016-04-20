@@ -26,8 +26,8 @@ class RecipientKeyChip extends React.Component
     return {
       # true if there is at least one loaded key for the account
       keys: PGPKeyStore.pubKeys(@props.contact.email).some((cv, ind, arr) =>
-          cv.hasOwnProperty('key')
-        )
+        cv.hasOwnProperty('key')
+      )
     }
 
   _onKeystoreChange: ->
