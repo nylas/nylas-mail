@@ -220,10 +220,14 @@ class Message extends ModelWithMetadata
     to.length > 1 or cc.length > 0
 
   # Public: Returns a set of uniqued message participants by combining the
-  # `to`, `cc`, and `from` fields.
-  participants: ->
+  # `to`, `cc`, 'bcc', and (optionally) `from` fields.
+  participants: ({includeFrom, includeBcc} = {includeFrom: true, includeBcc: false}) ->
     participants = {}
-    contacts = _.union((@to ? []), (@cc ? []), (@from ? []))
+    contacts = _.union((@to ? []), (@cc ? []))
+    if includeFrom
+      contacts = _.union(contacts, (@from ? []))
+    if includeBcc
+      contacts = _.union(contacts, (@bcc ? []))
     for contact in contacts
       if contact? and contact.email?.length > 0
         participants["#{(contact?.email ? "").toLowerCase().trim()} #{(contact?.name ? "").toLowerCase().trim()}"] = contact if contact?
