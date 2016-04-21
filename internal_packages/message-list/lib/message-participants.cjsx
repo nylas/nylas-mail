@@ -62,7 +62,7 @@ class MessageParticipants extends React.Component
             {c.fullName()}
           </div>
           <div className="participant-secondary">
-            {"<"}<span onClick={@_selectText}>{c.email}</span>{">#{comma}"}
+            &nbsp;{"<"}<span onClick={@_selectText}>{c.email}</span>{">#{comma}"}
           </div>
         </div>
       else
