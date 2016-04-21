@@ -40,7 +40,8 @@ class MessageParticipants extends React.Component
     selection.addRange(range)
 
   _shortNames: (contacts = [], max = MAX_COLLAPSED) =>
-    names = _.map(contacts, (c) -> c.displayName(includeAccountLabel: true, compact: true))
+    isCompact = not NylasEnv.config.get('core.reading.useLongDisplayNames')
+    names = _.map(contacts, (c) -> c.displayName(includeAccountLabel: true, compact: isCompact))
     if names.length > max
       extra = names.length - max
       names = names.slice(0, max)
