@@ -12,7 +12,9 @@ class KeybaseAPI
 
     this._keybaseRequest("/_/api/1.0/user/lookup.json?#{keyType}=#{key}", (err, resp, obj) =>
       return callback(err, null) if err
-      return callback(new Error(obj.status.desc), null) if obj.status.name != "OK"
+      return callback(new Error("Empty response!"), null) if not obj? or not obj.them?
+      if obj.status?
+        return callback(new Error(obj.status.desc), null) if obj.status.name != "OK"
 
       callback(null, _.map(obj.them, @_regularToAutocomplete))
     )
@@ -28,7 +30,9 @@ class KeybaseAPI
     url = "/_/api/1.0/user/autocomplete.json"
     request({url: @baseUrl + url, form: {q: query}, headers: {'User-Agent': 'request'}, json: true}, (err, resp, obj) =>
       return callback(err, null) if err
-      return callback(new Error(obj.status.desc), null) if obj.status.name != "OK"
+      if obj.status?
+        return callback(new Error(obj.status.desc), null) if obj.status.name != "OK"
+
       callback(null, obj.completions)
     )
 

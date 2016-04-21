@@ -125,7 +125,6 @@ class PGPKeyStore extends NylasStore
         armored: data
       }, (err, km) =>
         if err
-          # TODO wtf is that 'no header found' error
           console.warn err
         else
           if km.is_pgp_locked()
@@ -147,7 +146,7 @@ class PGPKeyStore extends NylasStore
   getKeybaseData: (key) =>
     # Given a key, fetches metadata from keybase about that key
     if not key.key?
-      PGPKeyStore.getKeyContents(key: key)
+      @getKeyContents(key: key)
     else
       fingerprint = key.key.get_pgp_fingerprint().toString('hex')
       kb.getUser(fingerprint, 'key_fingerprint', (err, user) =>

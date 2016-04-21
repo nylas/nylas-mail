@@ -17,6 +17,11 @@ class RecipientKeyChip extends React.Component
     @state = @_getStateFromStores()
 
   componentDidMount: ->
+    # fetch the actual key(s) from disk
+    keys = PGPKeyStore.pubKeys(@props.contact.email)
+    _.each(keys, (key) ->
+      PGPKeyStore.getKeyContents(key: key)
+    )
     @unlistenKeystore = PGPKeyStore.listen(@_onKeystoreChange, @)
 
   componentWillUnmount: ->
