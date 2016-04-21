@@ -512,7 +512,7 @@ class PackageManager
 
       for pack in packages
         promise = @activatePackage(pack.name)
-        promises.push(promise) unless pack.hasActivationCommands()
+        promises.push(promise)
     @observeDisabledPackages()
     promises
 
