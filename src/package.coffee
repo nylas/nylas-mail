@@ -60,8 +60,6 @@ class Package
   menus: null
   stylesheets: null
   stylesheetDisposables: null
-  grammars: null
-  settings: null
   mainModulePath: null
   resolvedMainModulePath: false
   mainModule: null
@@ -145,7 +143,6 @@ class Package
         @loadKeymaps()
         @loadMenus()
         @loadStylesheets()
-        @settingsPromise = @loadSettings()
         if not @hasActivationCommands()
           mainModule = @requireMainModule()
           return unless mainModule
@@ -172,12 +169,8 @@ class Package
     @stylesheets = []
     @keymaps = []
     @menus = []
-    @grammars = []
-    @settings = []
 
   activate: ->
-    @grammarsPromise ?= @loadGrammars()
-
     unless @activationDeferred?
       @activationDeferred = Q.defer()
       @measure 'activateTime', =>
@@ -187,7 +180,7 @@ class Package
         else
           @activateNow()
 
-    Q.all([@grammarsPromise, @settingsPromise, @activationDeferred.promise])
+    Q.all([@activationDeferred.promise])
 
   activateNow: ->
     try
@@ -197,7 +190,6 @@ class Package
         localState = NylasEnv.packages.getPackageState(@name) ? {}
         @mainModule.activate(localState)
         @mainActivated = true
-        @activateServices()
     catch e
       console.log e.message
       console.log e.stack
@@ -238,22 +230,6 @@ class Package
     @activationDisposables = new CompositeDisposable
     @activationDisposables.add(NylasEnv.keymaps.add(keymapPath, map)) for [keymapPath, map] in @keymaps
     @activationDisposables.add(NylasEnv.menu.add(map['menu'])) for [menuPath, map] in @menus when map['menu']?
-
-    unless @grammarsActivated
-      grammar.activate() for grammar in @grammars
-      @grammarsActivated = true
-
-    settings.activate() for settings in @settings
-    @settingsActivated = true
-
-  activateServices: ->
-    for name, {versions} of @metadata.providedServices
-      for version, methodName of versions
-        @activationDisposables.add NylasEnv.packages.serviceHub.provide(name, version, @mainModule[methodName]())
-
-    for name, {versions} of @metadata.consumedServices
-      for version, methodName of versions
-        @activationDisposables.add NylasEnv.packages.serviceHub.consume(name, version, @mainModule[methodName].bind(@mainModule))
 
   loadKeymaps: ->
     if @bundledPackage and packagesCache[@name]?
@@ -304,66 +280,6 @@ class Package
       _.filter fs.listSync(stylesheetDirPath, ['css', 'less']), (file) ->
         path.basename(file)[0] isnt '.'
 
-  loadGrammarsSync: ->
-    return if @grammarsLoaded
-
-    grammarsDirPath = path.join(@path, 'grammars')
-    grammarPaths = fs.listSync(grammarsDirPath, ['json', 'cson'])
-    for grammarPath in grammarPaths
-      try
-        grammar = NylasEnv.grammars.readGrammarSync(grammarPath)
-        grammar.packageName = @name
-        @grammars.push(grammar)
-        grammar.activate()
-      catch error
-        console.warn("Failed to load grammar: #{grammarPath}", error.stack ? error)
-
-    @grammarsLoaded = true
-    @grammarsActivated = true
-
-  loadGrammars: ->
-    return Q() if @grammarsLoaded
-
-    loadGrammar = (grammarPath, callback) =>
-      NylasEnv.grammars.readGrammar grammarPath, (error, grammar) =>
-        if error?
-          console.warn("Failed to load grammar: #{grammarPath}", error.stack ? error)
-        else
-          grammar.packageName = @name
-          @grammars.push(grammar)
-          grammar.activate() if @grammarsActivated
-        callback()
-
-    deferred = Q.defer()
-    grammarsDirPath = path.join(@path, 'grammars')
-    fs.list grammarsDirPath, ['json', 'cson'], (error, grammarPaths=[]) ->
-      async.each grammarPaths, loadGrammar, -> deferred.resolve()
-    deferred.promise
-
-  loadSettings: ->
-    @settings = []
-
-    loadSettingsFile = (settingsPath, callback) =>
-      ScopedProperties.load settingsPath, (error, settings) =>
-        if error?
-          console.warn("Failed to load package settings: #{settingsPath}", error.stack ? error)
-        else
-          @settings.push(settings)
-          settings.activate() if @settingsActivated
-        callback()
-
-    deferred = Q.defer()
-
-    if fs.isDirectorySync(path.join(@path, 'scoped-properties'))
-      settingsDirPath = path.join(@path, 'scoped-properties')
-      deprecate("Store package settings files in the `settings/` directory instead of `scoped-properties/`", packageName: @name)
-    else
-      settingsDirPath = path.join(@path, 'settings')
-
-    fs.list settingsDirPath, ['json', 'cson'], (error, settingsPaths=[]) ->
-      async.each settingsPaths, loadSettingsFile, -> deferred.resolve()
-    deferred.promise
-
   serialize: ->
     if @mainActivated
       try
@@ -390,13 +306,9 @@ class Package
     @configActivated = false
 
   deactivateResources: ->
-    grammar.deactivate() for grammar in @grammars
-    settings.deactivate() for settings in @settings
     @stylesheetDisposables?.dispose()
     @activationDisposables?.dispose()
     @stylesheetsActivated = false
-    @grammarsActivated = false
-    @settingsActivated = false
 
   reloadStylesheets: ->
     oldSheets = _.clone(@stylesheets)
