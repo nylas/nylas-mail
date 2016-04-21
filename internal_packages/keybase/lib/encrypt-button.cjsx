@@ -10,77 +10,71 @@ class EncryptMessageButton extends React.Component
 
   # require that we have a draft object available
   @propTypes:
-    draftClientId: React.PropTypes.string.isRequired
+    draft: React.PropTypes.object.isRequired
+    session: React.PropTypes.object.isRequired
 
   constructor: (props) ->
     super(props)
-    @state = @_getStateFromStores()
 
-    # maintain the state of the button's toggle
-    @state.currentlyEncrypted = false
+    # plaintext: store the message's plaintext in case the user wants to edit
+    # further after hitting the "encrypt" button (i.e. so we can "undo" the
+    # encryption)
 
-    # store the message's plaintext in case the user wants to edit further after
-    # hitting the "encrypt" button (i.e. so we can "undo" the encryption)
-    @state.plaintext = ""
-
-    # store the message's body here, for comparison purposes (so that if the
-    # user edits an encrypted message, we can revert it)
-    @state.cryptotext = ""
+    # cryptotext: store the message's body here, for comparison purposes (so
+    # that if the user edits an encrypted message, we can revert it)
+    @state = {plaintext: "", cryptotext: "", currentlyEncrypted: false}
 
   componentDidMount: ->
     @unlistenKeystore = PGPKeyStore.listen(@_onKeystoreChange, @)
-    # periodically check to see if we should get any keys
-    @interval = setInterval(@_onTrigger, 100)
 
   componentWillUnmount: ->
     @unlistenKeystore()
-    clearInterval(@interval)
 
-  _getStateFromStores: ->
+  componentWillReceiveProps: (nextProps) ->
+    if @state.currentlyEncrypted and nextProps.draft.body != @props.draft.body and nextProps.draft.body != @state.cryptotext
+      # A) we're encrypted
+      # B) someone changed something
+      # C) the change was AWAY from the "correct" cryptotext
+      body = @state.cryptotext
+      @props.session.changes.add({body: body})
+
+  _getKeys: ->
     keys = []
-    DraftStore.sessionForClientId(@props.draftClientId).then (session) =>
-      for recipient in session.draft().to
-        publicKeys = PGPKeyStore.pubKeys(recipient.email)
-        if publicKeys.length < 1
-          # no key for this user:
-          # push a null so that @_encrypt can line this array up with the
-          # array of recipients
-          keys.push({address: recipient.email, key: null})
-        else
-          # note: this, by default, encrypts using every public key associated
-          # with the address
-          for publicKey in publicKeys
-            if not publicKey.key?
-              PGPKeyStore.getKeyContents(key: publicKey)
-            else
-              keys.push(publicKey)
+    for recipient in @props.draft.participants({includeFrom: false, includeBcc: true})
+      publicKeys = PGPKeyStore.pubKeys(recipient.email)
+      if publicKeys.length < 1
+        # no key for this user:
+        # push a null so that @_encrypt can line this array up with the
+        # array of recipients
+        keys.push({address: recipient.email, key: null})
+      else
+        # note: this, by default, encrypts using every public key associated
+        # with the address
+        for publicKey in publicKeys
+          if not publicKey.key?
+            PGPKeyStore.getKeyContents(key: publicKey)
+          else
+            keys.push(publicKey)
 
-    return {
-      keys: keys
-    }
+    return keys
 
   _onKeystoreChange: =>
+    # if something changes with the keys, check to make sure the recipients
+    # haven't changed (thus invalidating our encrypted message)
     if @state.currentlyEncrypted
-      # message is no longer encrypted with all keys - decrypt it!
-      @_toggleCrypt()
-    # now actually get the new keys
-    @setState(@_getStateFromStores())
+      newKeys = _.map(@props.draft.participants(), (participant) ->
+        return PGPKeyStore.pubKeys(participant.email)
+      )
+      newKeys = _.flatten(newKeys)
 
-  _onTrigger: =>
-    # Some sort of outside event has occured that we must respond to
-    DraftStore.sessionForClientId(@props.draftClientId).then (session) =>
-      if @state.currentlyEncrypted
-        # THERE CAN BE NO CHANGES
-        if @state.cryptotext? and @state.cryptotext != ""
-          # can't put HTML in or it will be sent with the message, confusing recipients
-          #body = '<div style="background-color: #D3D3D3; padding: 10px;">' + @state.cryptotext + '</div>'
-          body = @state.cryptotext
-          session.changes.add({body: body})
-      else
-        plaintext = session.draft().body
-        @setState({plaintext: plaintext})
+      oldKeys = _.map(@props.draft.participants(), (participant) ->
+        return PGPKeyStore.pubKeys(participant.email)
+      )
+      oldKeys = _.flatten(oldKeys)
 
-    @setState(@_getStateFromStores())
+      if newKeys.length != oldKeys.length
+        # someone added/removed a key - our encrypted body is now out of date
+        @_toggleCrypt()
 
   render: ->
     <div className="n1-keybase">
@@ -94,21 +88,32 @@ class EncryptMessageButton extends React.Component
 
   _toggleCrypt: =>
     # if decrypted, encrypt, and vice versa
-    DraftStore.sessionForClientId(@props.draftClientId).then (session) =>
-      if @state.currentlyEncrypted
-        # if the message is already encrypted, place the stored plaintext back
-        # in the draft (i.e. un-encrypt)
-        session.changes.add({body: @state.plaintext})
-        @setState({currentlyEncrypted: false})
-      else
-        # if not encrypted, save the plaintext, then encrypt
-        plaintext = session.draft().body
-        @_encrypt(plaintext, @state.keys)
-        @setState({currentlyEncrypted: true, plaintext: plaintext})
-
-  _encrypt: (text, keys) =>
     # addresses which don't have a key
-    nullAddrs = _.pluck(_.filter(@state.keys, (key) -> return key.key is null), "address")
+    if @state.currentlyEncrypted
+      # if the message is already encrypted, place the stored plaintext back
+      # in the draft (i.e. un-encrypt)
+      @props.session.changes.add({body: @state.plaintext})
+      @setState({currentlyEncrypted: false})
+    else
+      # if not encrypted, save the plaintext, then encrypt
+      plaintext = @props.draft.body
+      keys = @_getKeys()
+      @_encrypt(plaintext, keys, (err, cryptotext) =>
+        if err
+          console.warn err
+          NylasEnv.showErrorDialog(err)
+        if cryptotext? and cryptotext != ""
+          @setState({
+            currentlyEncrypted: true
+            plaintext: plaintext
+            cryptotext: cryptotext
+          })
+          @props.session.changes.add({body: cryptotext})
+      )
+
+  _encrypt: (text, keys, cb) =>
+    # addresses which don't have a key
+    nullAddrs = _.pluck(_.filter(keys, (key) -> return key.key is null), "address")
 
     # don't need this, because the message below already says the recipient won't be able to decrypt it
     # if keys.length < 1 or nullAddrs.length == keys.length
@@ -130,11 +135,6 @@ class EncryptMessageButton extends React.Component
     params =
       encrypt_for: kms
       msg: text
-    pgp.box params, (err, result_string, result_buffer) =>
-      if err
-        console.warn err
-      DraftStore.sessionForClientId(@props.draftClientId).then (session) =>
-        # update state with the new encrypted text
-        @setState({cryptotext: result_string})
+    pgp.box(params, cb)
 
 module.exports = EncryptMessageButton

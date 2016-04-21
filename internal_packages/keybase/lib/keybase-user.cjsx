@@ -135,6 +135,7 @@ class KeybaseUser extends React.Component
     @_removeEmail(email)
 
   _removeEmail: (email) =>
+    console.log @props.profile
     PGPKeyStore.removeAddressFromKey(@props.profile, email)
 
   render: =>
