@@ -377,55 +377,6 @@ describe "PackageManager", ->
 
           expect(count).toBe 4
 
-    describe "scoped-property loading", ->
-      it "loads the scoped properties", ->
-        waitsForPromise ->
-          NylasEnv.packages.activatePackage("package-with-settings")
-
-        runs ->
-          expect(NylasEnv.config.get 'editor.increaseIndentPattern', scope: ['.source.omg']).toBe '^a'
-
-    describe "service registration", ->
-      it "registers the package's provided and consumed services", ->
-        consumerModule = require "./fixtures/packages/package-with-consumed-services"
-        firstServiceV3Disposed = false
-        firstServiceV4Disposed = false
-        secondServiceDisposed = false
-        spyOn(consumerModule, 'consumeFirstServiceV3').andReturn(new Disposable -> firstServiceV3Disposed = true)
-        spyOn(consumerModule, 'consumeFirstServiceV4').andReturn(new Disposable -> firstServiceV4Disposed = true)
-        spyOn(consumerModule, 'consumeSecondService').andReturn(new Disposable -> secondServiceDisposed = true)
-
-        waitsForPromise ->
-          NylasEnv.packages.activatePackage("package-with-consumed-services")
-
-        waitsForPromise ->
-          NylasEnv.packages.activatePackage("package-with-provided-services")
-
-        runs ->
-          expect(consumerModule.consumeFirstServiceV3).toHaveBeenCalledWith('first-service-v3')
-          expect(consumerModule.consumeFirstServiceV4).toHaveBeenCalledWith('first-service-v4')
-          expect(consumerModule.consumeSecondService).toHaveBeenCalledWith('second-service')
-
-          consumerModule.consumeFirstServiceV3.reset()
-          consumerModule.consumeFirstServiceV4.reset()
-          consumerModule.consumeSecondService.reset()
-
-          NylasEnv.packages.deactivatePackage("package-with-provided-services")
-
-          expect(firstServiceV3Disposed).toBe true
-          expect(firstServiceV4Disposed).toBe true
-          expect(secondServiceDisposed).toBe true
-
-          NylasEnv.packages.deactivatePackage("package-with-consumed-services")
-
-        waitsForPromise ->
-          NylasEnv.packages.activatePackage("package-with-provided-services")
-
-        runs ->
-          expect(consumerModule.consumeFirstServiceV3).not.toHaveBeenCalled()
-          expect(consumerModule.consumeFirstServiceV4).not.toHaveBeenCalled()
-          expect(consumerModule.consumeSecondService).not.toHaveBeenCalled()
-
   describe "::deactivatePackage(id)", ->
     afterEach ->
       NylasEnv.packages.unloadPackages()
@@ -519,15 +470,6 @@ describe "PackageManager", ->
         expect(NylasEnv.themes.stylesheetElementForId(one)).not.toExist()
         expect(NylasEnv.themes.stylesheetElementForId(two)).not.toExist()
         expect(NylasEnv.themes.stylesheetElementForId(three)).not.toExist()
-
-    it "removes the package's scoped-properties", ->
-      waitsForPromise ->
-        NylasEnv.packages.activatePackage("package-with-settings")
-
-      runs ->
-        expect(NylasEnv.config.get 'editor.increaseIndentPattern', scope: ['.source.omg']).toBe '^a'
-        NylasEnv.packages.deactivatePackage("package-with-settings")
-        expect(NylasEnv.config.get 'editor.increaseIndentPattern', scope: ['.source.omg']).toBeUndefined()
 
     it "invokes ::onDidDeactivatePackage listeners with the deactivated package", ->
       waitsForPromise ->
