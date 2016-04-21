@@ -143,11 +143,10 @@ class Package
         @loadKeymaps()
         @loadMenus()
         @loadStylesheets()
-        if not @hasActivationCommands()
-          mainModule = @requireMainModule()
-          return unless mainModule
-          @registerModelConstructors(mainModule.modelConstructors)
-          @registerTaskConstructors(mainModule.taskConstructors)
+        mainModule = @requireMainModule()
+        return unless mainModule
+        @registerModelConstructors(mainModule.modelConstructors)
+        @registerTaskConstructors(mainModule.taskConstructors)
 
       catch error
         console.warn "Failed to load package named '#{@name}'"
@@ -175,10 +174,7 @@ class Package
       @activationDeferred = Q.defer()
       @measure 'activateTime', =>
         @activateResources()
-        if @hasActivationCommands()
-          @subscribeToActivationCommands()
-        else
-          @activateNow()
+        @activateNow()
 
     Q.all([@activationDeferred.promise])
 
@@ -348,70 +344,6 @@ class Package
           path.join(@path, 'index')
       @mainModulePath = fs.resolveExtension(mainModulePath, ["", Object.keys(require.extensions)...])
 
-  hasActivationCommands: ->
-    for selector, commands of @getActivationCommands()
-      return true if commands.length > 0
-    false
-
-  subscribeToActivationCommands: ->
-    @activationCommandSubscriptions = new CompositeDisposable
-    for selector, commands of @getActivationCommands()
-      for command in commands
-        do (selector, command) =>
-          # Add dummy command so it appears in menu.
-          # The real command will be registered on package activation
-          @activationCommandSubscriptions.add NylasEnv.commands.add selector, command, ->
-          @activationCommandSubscriptions.add NylasEnv.commands.onWillDispatch (event) =>
-            return unless event.type is command
-            currentTarget = event.target
-            while currentTarget
-              if currentTarget.webkitMatchesSelector(selector)
-                @activationCommandSubscriptions.dispose()
-                @activateNow()
-                break
-              currentTarget = currentTarget.parentElement
-
-  getActivationCommands: ->
-    return @activationCommands if @activationCommands?
-
-    @activationCommands = {}
-
-    if @metadata.activationCommands?
-      for selector, commands of @metadata.activationCommands
-        @activationCommands[selector] ?= []
-        if _.isString(commands)
-          @activationCommands[selector].push(commands)
-        else if _.isArray(commands)
-          @activationCommands[selector].push(commands...)
-
-    if @metadata.activationEvents?
-      deprecate """
-        Use `activationCommands` instead of `activationEvents` in your package.json
-        Commands should be grouped by selector as follows:
-        ```json
-          "activationCommands": {
-            "nylas-workspace": ["foo:bar", "foo:baz"],
-            "nylas-theme-wrap": ["foo:quux"]
-          }
-        ```
-      """
-      if _.isArray(@metadata.activationEvents)
-        for eventName in @metadata.activationEvents
-          @activationCommands['nylas-workspace'] ?= []
-          @activationCommands['nylas-workspace'].push(eventName)
-      else if _.isString(@metadata.activationEvents)
-        eventName = @metadata.activationEvents
-        @activationCommands['nylas-workspace'] ?= []
-        @activationCommands['nylas-workspace'].push(eventName)
-      else
-        for eventName, selector of @metadata.activationEvents
-          selector ?= 'nylas-workspace'
-          @activationCommands[selector] ?= []
-          @activationCommands[selector].push(eventName)
-
-    @activationCommands
-
-  # Does the given module path contain native code?
   isNativeModule: (modulePath) ->
     try
       fs.listSync(path.join(modulePath, 'build', 'Release'), ['.node']).length > 0
