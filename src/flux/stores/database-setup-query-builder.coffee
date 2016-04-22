@@ -12,13 +12,13 @@ class DatabaseSetupQueryBuilder
 
   setupQueries: ->
     queries = []
-    for key, klass of DatabaseObjectRegistry.classMap()
+    for klass in DatabaseObjectRegistry.getAllConstructors()
       queries = queries.concat @setupQueriesForTable(klass)
     return queries
 
   analyzeQueries: ->
     queries = []
-    for key, klass of DatabaseObjectRegistry.classMap()
+    for klass in DatabaseObjectRegistry.getAllConstructors()
       attributes = _.values(klass.attributes)
       collectionAttributes = _.filter attributes, (attr) ->
         attr.queryable && attr instanceof AttributeCollection

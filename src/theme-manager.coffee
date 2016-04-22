@@ -368,7 +368,9 @@ class ThemeManager
     NylasEnv.config.observe 'core.themes', =>
       @deactivateThemes()
 
-      @refreshLessCache() # Update cache for packages in core.themes config
+      # Refreshing the less cache is very expensive (hundreds of ms). It
+      # will be refreshed once the promise resolves after packages are
+      # activated.
 
       promises = []
       for themeName in @getEnabledThemeNames()

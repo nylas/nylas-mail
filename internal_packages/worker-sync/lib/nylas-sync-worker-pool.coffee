@@ -4,8 +4,7 @@ _ = require 'underscore'
  Actions,
  AccountStore,
  DatabaseStore,
- MailRulesProcessor,
- DatabaseObjectRegistry} = require 'nylas-exports'
+ MailRulesProcessor} = require 'nylas-exports'
 
 NylasLongConnection = require './nylas-long-connection'
 NylasSyncWorker = require './nylas-sync-worker'

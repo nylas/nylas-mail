@@ -9,6 +9,8 @@ import {
 } from 'nylas-component-kit'
 import {PLUGIN_ID} from '../scheduler-constants'
 
+import NewEventHelper from './new-event-helper'
+
 import ProposedTimeList from './proposed-time-list'
 
 import {
@@ -98,13 +100,7 @@ export default class NewEventCard extends React.Component {
   }
 
   _onProposeTimes = () => {
-    NylasEnv.newWindow({
-      title: "Calendar",
-      windowType: "calendar",
-      windowProps: {
-        draftClientId: this.props.draft.clientId,
-      },
-    });
+    NewEventHelper.launchCalendarWindow(this.props.draft.clientId);
   }
 
   _eventStart() {

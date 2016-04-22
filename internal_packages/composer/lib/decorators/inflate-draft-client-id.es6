@@ -5,6 +5,10 @@ export default ComposedComponent => class extends React.Component {
   static displayName = ComposedComponent.displayName;
   static propTypes = {
     draftClientId: React.PropTypes.string,
+    onDraftReady: React.PropTypes.func,
+  }
+  static defaultProps = {
+    onDraftReady: () => {},
   }
   static containerRequired = false;
 
@@ -54,6 +58,7 @@ export default ComposedComponent => class extends React.Component {
         session: session,
         draft: session.draft(),
       });
+      this.props.onDraftReady()
     });
   }
 

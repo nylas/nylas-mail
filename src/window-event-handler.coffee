@@ -82,10 +82,6 @@ class WindowEventHandler
       ComponentRegistry = require './component-registry'
       ComponentRegistry.toggleComponentRegions()
 
-    @subscribeToCommand $(window), 'window:toggle-react-remote', ->
-      ReactRemote = require './react-remote/react-remote-parent'
-      ReactRemote.toggleContainerVisible()
-
     document.addEventListener 'keydown', @onKeydown
 
     # "Pinch to zoom" on the Mac gets translated by the system into a

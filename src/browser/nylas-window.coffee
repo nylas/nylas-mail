@@ -6,6 +6,7 @@ _ = require 'underscore'
 {EventEmitter} = require 'events'
 
 WindowIconPath = null
+idNum = 0
 
 module.exports =
 class NylasWindow
@@ -27,12 +28,18 @@ class NylasWindow
      showSpecsInWindow,
      @isSpec,
      @devMode,
+     @windowKey,
      @safeMode,
      @neverClose,
      @mainWindow,
+     @windowType,
      @resourcePath,
      @exitWhenDone,
      @configDirPath} = settings
+
+    if !@windowKey
+      @windowKey = "#{@windowType}-#{idNum}"
+      idNum += 1
 
     # Normalize to make sure drive letter case is consistent on Windows
     @resourcePath = path.normalize(@resourcePath) if @resourcePath
@@ -81,7 +88,7 @@ class NylasWindow
       options.icon = WindowIconPath
 
     @browserWindow = new BrowserWindow(options)
-    global.application.windowManager.addWindow(this)
+    @browserWindow.updateLoadSettings = @updateLoadSettings
 
     @handleEvents()
 
@@ -104,7 +111,7 @@ class NylasWindow
     if fs.statSyncNoException(pathToOpen).isFile?()
       loadSettings.initialPath = path.dirname(pathToOpen)
 
-    @setLoadSettings(loadSettings)
+    @browserWindow.loadSettings = loadSettings
 
     @browserWindow.once 'window:loaded', =>
       @loaded = true
@@ -117,14 +124,27 @@ class NylasWindow
     @browserWindow.loadURL(@getURL(loadSettings))
     @browserWindow.focusOnWebView() if @isSpec
 
+    # Let the applicationMenu know that there's a new window available.
+    # The applicationMenu automatically listens to the `closed` event of
+    # the browserWindow to unregister itself
+    global.application.applicationMenu?.addWindow(@browserWindow)
+
+  updateLoadSettings: (newSettings={}) =>
+    @loaded = true
+    @setLoadSettings(Object.assign({}, @browserWindow.loadSettings, newSettings))
+
   loadSettings: ->
     @browserWindow.loadSettings
 
+  # This gets called when we want to turn a WindowLauncher.EMPTY_WINDOW
+  # into a new kind of custom popout window.
+  #
+  # The windowType will change which will cause a new set of plugins to
+  # load.
   setLoadSettings: (loadSettings) ->
     @browserWindow.loadSettings = loadSettings
     @browserWindow.loadSettingsChangedSinceGetURL = true
-    if @loaded
-      @browserWindow.webContents.send('load-settings-changed', loadSettings)
+    @browserWindow.webContents.send('load-settings-changed', loadSettings)
 
   getURL: (loadSettingsObj) ->
     # Ignore the windowState when passing loadSettings via URL, since it could
@@ -148,8 +168,17 @@ class NylasWindow
       new ContextMenu(menuTemplate, this)
 
   handleEvents: ->
+    # Also see logic in `NylasEnv::onBeforeUnload` and
+    # `WindowEventHandler::AddUnloadCallback`. Classes like the DraftStore
+    # and ActionBridge intercept the closing of windows and perform
+    # action.
+    #
+    # This uses the DOM's `beforeunload` event.
     @browserWindow.on 'close', (event) =>
       if @neverClose and !global.application.quitting
+
+        # For neverClose windows (like the main window) simply hide and
+        # take out of full screen.
         event.preventDefault()
         if @browserWindow.isFullScreen()
           @browserWindow.once 'leave-full-screen', =>
@@ -157,10 +186,12 @@ class NylasWindow
           @browserWindow.setFullScreen(false)
         else
           @browserWindow.hide()
-        @emit 'window:close-prevented'
 
-    @browserWindow.on 'closed', =>
-      global.application.windowManager.removeWindow(this)
+        # HOWEVER! If the neverClose window is the last window open, and
+        # it looks like there's no windows actually quit the application
+        # on Linux & Windows.
+        if not @isSpec
+          global.application.windowManager.quitWinLinuxIfNoWindows()
 
     @browserWindow.on 'scroll-touch-begin', =>
       @browserWindow.webContents.send('scroll-touch-begin')

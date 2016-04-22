@@ -214,7 +214,7 @@
 779612: package.json
 779612: package.json
 2197703: node_modules/season/lib/cson.js
-2798802: src/window-secondary-bootstrap.js
+2798802: src/secondary-window-bootstrap.js
 2799486: node_modules/bluebird/js/main/bluebird.js
 2799780: node_modules/bluebird/js/main/promise.js
 2197703: node_modules/season/lib/cson.js
@@ -596,7 +596,7 @@
 2834742: src/window-bootstrap.js
 3183165: src/package-manager.js
 2951334: src/nylas-env.js
-2798802: src/window-secondary-bootstrap.js
+2798802: src/secondary-window-bootstrap.js
 3268435: node_modules/service-hub/lib/service-hub.js
 3270068: node_modules/service-hub/node_modules/event-kit/lib/event-kit.js
 3270257: node_modules/service-hub/node_modules/event-kit/lib/emitter.js
@@ -3092,7 +3092,7 @@
 2765809: node_modules/semver/semver.js
 779612: package.json
 2197703: node_modules/season/lib/cson.js
-2798802: src/window-secondary-bootstrap.js
+2798802: src/secondary-window-bootstrap.js
 2799486: node_modules/bluebird/js/main/bluebird.js
 2799780: node_modules/bluebird/js/main/promise.js
 2824131: node_modules/bluebird/js/main/util.js
@@ -3282,7 +3282,7 @@
 3205643: node_modules/q/q.js
 3183165: src/package-manager.js
 2951334: src/nylas-env.js
-2798802: src/window-secondary-bootstrap.js
+2798802: src/secondary-window-bootstrap.js
 3268435: node_modules/service-hub/lib/service-hub.js
 3270068: node_modules/service-hub/node_modules/event-kit/lib/event-kit.js
 3270257: node_modules/service-hub/node_modules/event-kit/lib/emitter.js
@@ -4584,7 +4584,7 @@
 2765809: node_modules/semver/semver.js
 779612: package.json
 2197703: node_modules/season/lib/cson.js
-2798802: src/window-secondary-bootstrap.js
+2798802: src/secondary-window-bootstrap.js
 2799486: node_modules/bluebird/js/main/bluebird.js
 2799780: node_modules/bluebird/js/main/promise.js
 2824131: node_modules/bluebird/js/main/util.js
@@ -4774,7 +4774,7 @@
 3205643: node_modules/q/q.js
 3183165: src/package-manager.js
 2951334: src/nylas-env.js
-2798802: src/window-secondary-bootstrap.js
+2798802: src/secondary-window-bootstrap.js
 3268435: node_modules/service-hub/lib/service-hub.js
 3270068: node_modules/service-hub/node_modules/event-kit/lib/event-kit.js
 3270257: node_modules/service-hub/node_modules/event-kit/lib/emitter.js

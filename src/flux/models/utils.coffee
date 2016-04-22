@@ -4,9 +4,11 @@ path = require('path')
 moment = require('moment-timezone')
 tz = Intl.DateTimeFormat().resolvedOptions().timeZone
 
-TaskRegistry = null
-DatabaseObjectRegistry = null
 DefaultResourcePath = null
+TaskRegistry = require '../../task-registry'
+DatabaseObjectRegistry = require '../../database-object-registry'
+
+imageData = null
 
 module.exports =
 Utils =
@@ -36,9 +38,6 @@ Utils =
     type = v?.__constructorName
     return v unless type
 
-    TaskRegistry ?= require '../../task-registry'
-    DatabaseObjectRegistry ?= require '../../database-object-registry'
-
     if DatabaseObjectRegistry.isInRegistry(type)
       return DatabaseObjectRegistry.deserialize(type, v)
 
@@ -48,9 +47,6 @@ Utils =
     return v
 
   registeredObjectReplacer: (k, v) ->
-    TaskRegistry ?= require '../../task-registry'
-    DatabaseObjectRegistry ?= require '../../database-object-registry'
-
     if _.isObject(v)
       type = this[k].constructor.name
       if DatabaseObjectRegistry.isInRegistry(type) or TaskRegistry.isInRegistry(type)
@@ -189,17 +185,23 @@ Utils =
     DefaultResourcePath ?= NylasEnv.getLoadSettings().resourcePath
     resourcePath ?= DefaultResourcePath
 
-    Utils.images ?= {}
-    if not Utils.images[resourcePath]?
+    if not imageData
+      imageData = NylasEnv.fileListCache().imageData ? "{}"
+      Utils.images = JSON.parse(imageData) ? {}
+
+    if not Utils?.images?[resourcePath]
+      Utils.images ?= {}
+      Utils.images[resourcePath] ?= {}
       imagesPath = path.join(resourcePath, 'static', 'images')
       files = fs.listTreeSync(imagesPath)
-
-      Utils.images[resourcePath] ?= {}
       for file in files
-        # On Windows, we get paths like C:\images\compose.png, but Chromium doesn't
-        # accept the backward slashes. Convert to C:/images/compose.png
+        # On Windows, we get paths like C:\images\compose.png, but
+        # Chromium doesn't accept the backward slashes. Convert to
+        # C:/images/compose.png
         file = file.replace(/\\/g, '/')
+        basename = path.basename(file)
         Utils.images[resourcePath][path.basename(file)] = file
+      NylasEnv.fileListCache().imageData = JSON.stringify(Utils.images)
 
     plat = process.platform ? ""
     ratio = window.devicePixelRatio ? 1

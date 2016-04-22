@@ -157,12 +157,15 @@ class Package
   registerModelConstructors: (constructors=[]) ->
     if constructors.length > 0
       @declaresNewDatabaseObjects = true
-      for constructor in constructors
-        DatabaseObjectRegistry.register(constructor)
+
+      _.each constructors, (constructor) ->
+        constructorFactory = -> constructor
+        DatabaseObjectRegistry.register(constructor.name, constructorFactory)
 
   registerTaskConstructors: (constructors=[]) ->
-    for constructor in constructors
-      TaskRegistry.register(constructor)
+    _.each constructors, (constructor) ->
+      constructorFactory = -> constructor
+      TaskRegistry.register(constructor.name, constructorFactory)
 
   reset: ->
     @stylesheets = []

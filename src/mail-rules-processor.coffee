@@ -9,13 +9,13 @@ AccountStore = require './flux/stores/account-store'
 DatabaseStore = require './flux/stores/database-store'
 TaskQueueStatusStore = require './flux/stores/task-queue-status-store'
 
-MailRulesStore = require './flux/stores/mail-rules-store'
 {ConditionMode, ConditionTemplates} = require './mail-rules-templates'
 
 ChangeUnreadTask = require './flux/tasks/change-unread-task'
 ChangeFolderTask = require './flux/tasks/change-folder-task'
 ChangeStarredTask = require './flux/tasks/change-starred-task'
 ChangeLabelsTask = require './flux/tasks/change-labels-task'
+MailRulesStore = null
 
 ###
 Note: At first glance, it seems like these task factory methods should use the
@@ -78,6 +78,7 @@ class MailRulesProcessor
   constructor: ->
 
   processMessages: (messages) =>
+    MailRulesStore ?= require './flux/stores/mail-rules-store'
     return Promise.resolve() unless messages.length > 0
 
     enabledRules = MailRulesStore.rules().filter (r) -> not r.disabled
