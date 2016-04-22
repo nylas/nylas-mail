@@ -56,8 +56,6 @@ class PGPKeyStore extends NylasStore
         @_populate(isPub = false)
         @watch())
 
-    @unlisten = DraftStore.listen(@_onDraftChanged, @)
-
   validAddress: (address, isPub) =>
     if (!address || address.length == 0)
       @_displayError('You must provide an email address.')
@@ -385,16 +383,5 @@ class PGPKeyStore extends NylasStore
         else
           console.warn "Unable to decrypt message."
           @_msgStatus.push({"clientId": message.clientId, "time": Date.now(), "message": "Unable to decrypt message."})
-
-  _onDraftChanged: (changes) ->
-    # every time the draft changes, get keys for all the recipients
-    if !changes
-      return
-    for draft in changes.objects
-      for recipient in draft.to
-        recipientKeys = @pubKeys(recipient.email)
-        for recipientKey in recipientKeys
-          if 'key' not of recipientKey
-            @getKeyContents(key: recipientKey)
 
 module.exports = new PGPKeyStore()
