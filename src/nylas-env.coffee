@@ -661,10 +661,10 @@ class NylasEnvConstructor extends Model
     @savedState.columnWidths[id]
 
   startWindow: ->
+    @loadConfig()
     {packageLoadingDeferred, windowType} = @getLoadSettings()
     @extendRxObservables()
     StoreRegistry.activateAllStores()
-    @loadConfig()
     @keymaps.loadBundledKeymaps()
     @themes.loadBaseStylesheets()
     @packages.loadPackages(windowType) unless packageLoadingDeferred
