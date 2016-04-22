@@ -717,18 +717,21 @@ class NylasEnvConstructor extends Model
     @loadSettings = loadSettings
     @constructor.loadSettings = loadSettings
 
-    {width, height, windowProps, windowType, hidden} = loadSettings
-
-    @packages.loadPackages(windowType)
+    @packages.loadPackages(loadSettings.windowType)
     @deserializePackageStates()
     @packages.activate()
 
-    @emitter.emit('window-props-received', windowProps ? {})
+    @emitter.emit('window-props-received', loadSettings.windowProps ? {})
 
+    {width, height} = loadSettings
     if width and height
       @setWindowDimensions({width, height})
+    browserWindow = @getCurrentWindow()
+    if browserWindow.isResizable() isnt loadSettings.resizable
+      console.log(loadSettings.resizable)
+      browserWindow.setResizable(loadSettings.resizable)
 
-    @displayWindow() unless hidden
+    @displayWindow() unless loadSettings.hidden
 
   # We extend nylas observables with our own methods. This happens on
   # require of nylas-observables

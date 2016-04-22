@@ -19,7 +19,8 @@ class NylasWindow
   isSpec: null
 
   constructor: (settings={}) ->
-    {title,
+    {frame,
+     title,
      width,
      height,
      toolbar,
@@ -44,28 +45,13 @@ class NylasWindow
     # Normalize to make sure drive letter case is consistent on Windows
     @resourcePath = path.normalize(@resourcePath) if @resourcePath
 
-    # Mac: We'll render a CSS toolbar if `toolbar=true`. No frame required.
-    # Win / Linux: We don't render a toolbar in CSS - include frame if the
-    # window requests a toolbar. Remove this code once we have custom toolbars
-    # on win/linux.
-
-    toolbar ?= true
-    if process.platform is 'darwin'
-      frame = false
-    else
-      frame = toolbar
-
-    if @isSpec
-      frame = true
-      toolbar = false
-
-    options =
+    browserWindowOptions =
       show: false
       title: title ? 'Nylas N1'
       frame: frame
       width: width
       height: height
-      resizable: resizable ? true
+      resizable: resizable
       webPreferences:
         directWrite: true
 
@@ -76,7 +62,7 @@ class NylasWindow
       # This option is no longer working according to
       # https://github.com/atom/electron/issues/3225
       # Look into using option --disable-renderer-backgrounding
-      options.webPreferences.pageVisibility = true
+      browserWindowOptions.webPreferences.pageVisibility = true
 
     # Don't set icon on Windows so the exe's ico will be used as window and
     # taskbar's icon. See https://github.com/atom/atom/issues/4811 for more.
@@ -85,15 +71,14 @@ class NylasWindow
         WindowIconPath = path.resolve(__dirname, '..', '..', 'nylas.png')
         unless fs.existsSync(WindowIconPath)
           WindowIconPath = path.resolve(__dirname, '..', '..', 'build', 'resources', 'nylas.png')
-      options.icon = WindowIconPath
+      browserWindowOptions.icon = WindowIconPath
 
-    @browserWindow = new BrowserWindow(options)
+    @browserWindow = new BrowserWindow(browserWindowOptions)
     @browserWindow.updateLoadSettings = @updateLoadSettings
 
     @handleEvents()
 
     loadSettings = _.extend({}, settings)
-    loadSettings.toolbar = toolbar
     loadSettings.windowState ?= '{}'
     loadSettings.appVersion = app.getVersion()
     loadSettings.resourcePath = @resourcePath

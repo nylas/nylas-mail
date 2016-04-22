@@ -98,10 +98,10 @@ class WindowManager
       neverClose: true
       bootstrapScript: require.resolve("../window-bootstrap")
       mainWindow: true
-      width: 640
-      height: 396
-      center: true
-      resizable: false
+      width: 640 # Gets reset once app boots up
+      height: 396 # Gets reset once app boots up
+      center: true # Gets reset once app boots up
+      resizable: false # Gets reset once app boots up
       initializeInBackground: @initializeInBackground
 
     coreWinOpts[WindowManager.WORK_WINDOW] =
@@ -109,7 +109,6 @@ class WindowManager
       windowType: WindowManager.WORK_WINDOW
       coldStartOnly: true # It's a secondary window, but not a hot window
       title: "Activity"
-      toolbar: true
       hidden: true
       neverClose: true
       width: 800
@@ -118,17 +117,20 @@ class WindowManager
     coreWinOpts[WindowManager.ONBOARDING_WINDOW] =
       windowKey: WindowManager.ONBOARDING_WINDOW
       windowType: WindowManager.ONBOARDING_WINDOW
-      resizable: false
-      toolbar: false
       hidden: true # Displayed by PageRouter::_initializeWindowSize
+      frame: false # Always false on Mac, explicitly set for Win & Linux
+      toolbar: false
+      resizable: false
 
     # The SPEC_WINDOW gets passed its own bootstrapScript
     coreWinOpts[WindowManager.SPEC_WINDOW] =
       windowKey: WindowManager.SPEC_WINDOW
       windowType: WindowManager.SPEC_WINDOW
+      frame: true,
       hidden: true,
       isSpec: true,
       devMode: true,
+      toolbar: false
 
     defaultOptions = coreWinOpts[winId] ? {}
 
