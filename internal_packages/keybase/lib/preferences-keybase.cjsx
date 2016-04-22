@@ -166,38 +166,6 @@ class PreferencesKeybase extends React.Component
   _removeOtherAddress: =>
     PGPKeyStore.removeAddressFromKey(@state.pubKeys[0], "logan@nylas.com")
 
-  _renderPublicKeyPicker: ->
-    options = @state.pubKeys.map (pubKey) ->
-      <option value={pubKey.addresses[0]} key={pubKey.addresses[0]}>{pubKey.addresses[0]}</option>
-
-    <select value={@state.selectedPubKey?.addresses[0]} onChange={@_onSelectPubKey}>
-      {options}
-    </select>
-
-  _renderPrivateKeyPicker: ->
-    options = @state.privKeys.map (privKey) ->
-      <option value={privKey.addresses[0]} key={privKey.addresses[0]}>{privKey.addresses[0]}</option>
-
-    <select value={@state.selectedPrivKey?.addresses[0]} onChange={@_onSelectPrivKey}>
-      {options}
-    </select>
-
-  _renderName: ->
-    <div>
-      <section className="public-key-picker">
-        Public Key: {@_renderPublicKeyPicker()}
-        <button className="btn key-name-btn" title="New key" onClick={@_saveNewPubKey}>New</button>
-        <button className="btn key-name-btn" title="Delete" onClick={@_deletePubKey}>Delete</button>
-        <button className="btn key-name-btn" title="Add" onClick={@_addOtherAddress}>Add</button>
-        <button className="btn key-name-btn" title="Add" onClick={@_removeOtherAddress}>Remove</button>
-      </section>
-      <section className="private-key-picker">
-        Private Key: {@_renderPrivateKeyPicker()}
-        <button className="btn key-name-btn" title="New key" onClick={@_saveNewPrivKey}>New</button>
-        <button className="btn key-name-btn" title="Delete" onClick={@_deletePrivKey}>Delete</button>
-      </section>
-    </div>
-
   render: =>
     keys = @state.pubKeys
     # TODO private key management
