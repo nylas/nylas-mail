@@ -1,18 +1,26 @@
+# Effectively all secondary windows are empty hot windows. We spawn the
+# window and pre-load all of the basic javascript libraries (which takes a
+# full second or so).
+#
+# Eventually when `WindowManager::newWindow` gets called, instead of
+# actually spawning a new window, we'll call
+# `NylasWindow::setLoadSettings` on the window instead. This will replace
+# the window options, adjust params as necessary, and then re-load the
+# plugins. Once `NylasWindow::setLoadSettings` fires, the main NylasEnv in
+# the window will be notified via the `load-settings-changed` config
+
 # Swap out Node's native Promise for Bluebird, which allows us to
 # do fancy things like handle exceptions inside promise blocks
 global.Promise = require 'bluebird'
 Promise.setScheduler(global.setImmediate)
 
-# Like sands through the hourglass, so are the days of our lives.
 require './window'
-
-# Skip "?loadSettings=".
-# loadSettings = JSON.parse(decodeURIComponent(location.search.substr(14)))
-# {windowType} = loadSettings
 
 NylasEnvConstructor = require './nylas-env'
 window.NylasEnv = window.atom = NylasEnvConstructor.loadOrCreate()
+
 global.Promise.longStackTraces() if NylasEnv.inDevMode()
+
 NylasEnv.initialize()
 NylasEnv.startSecondaryWindow()
 

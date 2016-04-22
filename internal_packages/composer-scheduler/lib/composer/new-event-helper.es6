@@ -14,6 +14,15 @@ export default class NewEventHelper {
     return moment()
   }
 
+  static launchCalendarWindow(draftClientId) {
+    NylasEnv.newWindow({
+      title: "Calendar",
+      hidden: true, // Displayed by ProposedTimePicker::componentDidMount
+      windowType: "calendar",
+      windowProps: {draftClientId},
+    });
+  }
+
   static addEventToSession(session) {
     if (!session) { return }
     const draft = session.draft()

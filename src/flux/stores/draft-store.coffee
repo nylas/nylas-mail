@@ -279,16 +279,15 @@ class DraftStore
     title = if options.newDraft then "New Message" else "Message"
 
     save.then =>
-      app = require('electron').remote.getGlobal('application')
-      existing = app.windowManager.windowWithPropsMatching({draftClientId})
-      if existing
-        existing.restore() if existing.isMinimized()
-        existing.focus()
-      else
-        NylasEnv.newWindow
-          title: title
-          windowType: "composer"
-          windowProps: _.extend(options, {draftClientId, draftJSON})
+      # Since we pass a windowKey, if the popout composer draft already
+      # exists we'll simply show that one instead of spawning a whole new
+      # window.
+      NylasEnv.newWindow
+        title: title
+        hidden: true # We manually show in ComposerWithWindowProps::onDraftReady
+        windowKey: "composer-#{draftClientId}"
+        windowType: "composer-preload"
+        windowProps: _.extend(options, {draftClientId, draftJSON})
 
   _onHandleMailtoLink: (event, urlString) =>
     DraftFactory.createDraftForMailto(urlString).then (draft) =>

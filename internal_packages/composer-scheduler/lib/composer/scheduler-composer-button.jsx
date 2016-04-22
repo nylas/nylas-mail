@@ -68,13 +68,7 @@ export default class SchedulerComposerButton extends React.Component {
     NewEventHelper.addEventToSession(this.props.session)
 
     if (item === PROPOSAL) {
-      NylasEnv.newWindow({
-        title: "Calendar",
-        windowType: "calendar",
-        windowProps: {
-          draftClientId: this.props.draft.clientId,
-        },
-      });
+      NewEventHelper.launchCalendarWindow(this.props.draft.clientId)
     }
     Actions.closePopover()
   }

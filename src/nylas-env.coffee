@@ -14,6 +14,7 @@ fs = require 'fs-plus'
 
 WindowEventHandler = require './window-event-handler'
 StylesElement = require './styles-element'
+StoreRegistry = require './store-registry'
 
 Utils = require './flux/models/utils'
 {APIError} = require './flux/errors'
@@ -210,6 +211,15 @@ class NylasEnvConstructor extends Model
 
     unless @inSpecMode()
       @actionBridge = new ActionBridge(ipcRenderer)
+
+    # Nylas exports is designed to provide a lazy-loaded set of globally
+    # accessible objects to all packages. Upon require, nylas-exports will
+    # fill the TaskRegistry, StoreRegistry, and DatabaseObjectRegistries
+    # with various constructors.
+    #
+    # We initialize all of the stores loaded into the StoreRegistry once
+    # the window starts loading.
+    require('nylas-exports')
 
   # This ties window.onerror and Promise.onPossiblyUnhandledRejection to
   # the publically callable `reportError` method. This will take care of
@@ -535,19 +545,6 @@ class NylasEnvConstructor extends Model
   reload: ->
     ipcRenderer.send('call-webcontents-method', 'reload')
 
-  # Updates the window load settings - called when the app is ready to display
-  # a hot-loaded window. Causes listeners registered with `onWindowPropsReceived`
-  # to receive new window props.
-  loadSettingsChanged: (event, loadSettings) =>
-    @loadSettings = loadSettings
-    @constructor.loadSettings = loadSettings
-    {width, height, windowProps} = loadSettings
-
-    @emitter.emit('window-props-received', windowProps ? {})
-
-    if width and height
-      @setWindowDimensions({width, height})
-
   # Public: The windowProps passed when creating the window via `newWindow`.
   #
   getWindowProps: ->
@@ -663,9 +660,23 @@ class NylasEnvConstructor extends Model
     @savedState.columnWidths ?= {}
     @savedState.columnWidths[id]
 
+  startWindow: ->
+    {packageLoadingDeferred, windowType} = @getLoadSettings()
+    @extendRxObservables()
+    StoreRegistry.activateAllStores()
+    @loadConfig()
+    @keymaps.loadBundledKeymaps()
+    @themes.loadBaseStylesheets()
+    @packages.loadPackages(windowType) unless packageLoadingDeferred
+    @deserializePackageStates() unless packageLoadingDeferred
+    @initializeReactRoot()
+    @packages.activate() unless packageLoadingDeferred
+    @keymaps.loadUserKeymap()
+    @menu.update()
+
   # Call this method when establishing a real application window.
   startRootWindow: ->
-    {safeMode, windowType, initializeInBackground} = @getLoadSettings()
+    {safeMode, initializeInBackground} = @getLoadSettings()
 
     # Temporary. It takes five paint cycles for all the CSS in index.html to
     # be applied. Remove if https://github.com/atom/brightray/issues/196 fixed!
@@ -675,72 +686,65 @@ class NylasEnvConstructor extends Model
           window.requestAnimationFrame =>
             window.requestAnimationFrame =>
               @displayWindow() unless initializeInBackground
-
-              @loadConfig()
-              @keymaps.loadBundledKeymaps()
-              @themes.loadBaseStylesheets()
-              @packages.loadPackages(windowType)
-              @deserializePackageStates()
-              @deserializeSheetContainer()
-              @packages.activate()
-              @keymaps.loadUserKeymap()
+              @startWindow()
               @requireUserInitScript() unless safeMode
-              @menu.update()
-
-              @showRootWindow()
-
+              @showMainWindow()
               ipcRenderer.send('window-command', 'window:loaded')
 
-  showRootWindow: ->
+  # Initializes a secondary window.
+  # NOTE: If the `packageLoadingDeferred` option is set (which is true for
+  # hot windows), the packages won't be loaded until `populateHotWindow`
+  # gets fired.
+  startSecondaryWindow: ->
+    document.getElementById("application-loading-cover")?.remove()
+    @startWindow()
+    ipcRenderer.on("load-settings-changed", @populateHotWindow)
+    ipcRenderer.send('window-command', 'window:loaded')
+
+  showMainWindow: ->
     document.getElementById("application-loading-cover").remove()
     document.body.classList.add("window-loaded")
     @restoreWindowDimensions()
     @getCurrentWindow().setMinimumSize(875, 250)
 
-  # Call this method when establishing a secondary application window
-  # displaying a specific set of packages.
+  # Updates the window load settings - called when the app is ready to
+  # display a hot-loaded window. Causes listeners registered with
+  # `onWindowPropsReceived` to receive new window props.
   #
-  startSecondaryWindow: ->
-    {width,
-     height,
-     windowType,
-     windowPackages} = @getLoadSettings()
+  # This also means that the windowType has changed and a different set of
+  # plugins needs to be loaded.
+  populateHotWindow: (event, loadSettings) =>
+    @loadSettings = loadSettings
+    @constructor.loadSettings = loadSettings
 
-    cover = document.getElementById("application-loading-cover")
-    cover.remove() if cover
-
-    @loadConfig()
-
-    @keymaps.loadBundledKeymaps()
-    @themes.loadBaseStylesheets()
+    {width, height, windowProps, windowType, hidden} = loadSettings
 
     @packages.loadPackages(windowType)
-    @packages.loadPackage(pack) for pack in (windowPackages ? [])
-    @deserializeSheetContainer()
+    @deserializePackageStates()
     @packages.activate()
-    @keymaps.loadUserKeymap()
 
-    ipcRenderer.on("load-settings-changed", @loadSettingsChanged)
+    @emitter.emit('window-props-received', windowProps ? {})
 
-    @setWindowDimensions({width, height}) if width and height
+    if width and height
+      @setWindowDimensions({width, height})
 
-    @menu.update()
+    @displayWindow() unless hidden
 
-    ipcRenderer.send('window-command', 'window:loaded')
+  # We extend nylas observables with our own methods. This happens on
+  # require of nylas-observables
+  extendRxObservables: ->
+    require('nylas-observables')
 
-  # Requests that the backend browser bootup a new window with the given
-  # options.
-  # See the valid option types in Application::newWindow in
-  # src/browser/application.coffee
+  # Launches a new window via the browser/WindowLauncher.
+  #
+  # If you pass a `windowKey` in the options, and that windowKey already
+  # exists, it'll show that window instead of spawing a new one. This is
+  # useful for places like popout composer windows where you want to
+  # simply display the draft instead of spawning a whole new window for
+  # the same draft.
+  #
+  # `options` are documented in browser/WindowLauncher
   newWindow: (options={}) -> ipcRenderer.send('new-window', options)
-
-  # Registers a hot window for certain packages
-  # See the valid option types in Application::registerHotWindow in
-  # src/browser/application.coffee
-  registerHotWindow: (options={}) -> ipcRenderer.send('register-hot-window', options)
-
-  # Unregisters a hot window with the given windowType
-  unregisterHotWindow: (windowType) -> ipcRenderer.send('unregister-hot-window', windowType)
 
   saveStateAndUnloadWindow: ->
     @packages.deactivatePackages()
@@ -753,6 +757,7 @@ class NylasEnvConstructor extends Model
   ###
 
   displayWindow: ({maximize} = {}) ->
+    return if @inSpecMode()
     @show()
     @focus()
     @maximize() if maximize
@@ -821,7 +826,7 @@ class NylasEnvConstructor extends Model
   Section: Private
   ###
 
-  deserializeSheetContainer: ->
+  initializeReactRoot: ->
     startTime = Date.now()
     # Put state back into sheet-container? Restore app state here
     @item = document.createElement("nylas-workspace")
@@ -886,6 +891,10 @@ class NylasEnvConstructor extends Model
       detail: message
     }
 
+  # Delegate to the browser's process fileListCache
+  fileListCache: ->
+    return remote.getGlobal('application').fileListCache
+
   saveSync: ->
     stateString = JSON.stringify(@savedState)
     if statePath = @constructor.getStatePath()
@@ -944,6 +953,8 @@ class NylasEnvConstructor extends Model
   # work and then call finishUnload. We do not support cancelling quit!
   # https://phab.nylas.com/D1932#inline-11722
   #
+  # Also see logic in browser/NylasWindow::handleEvents where we listen
+  # to the browserWindow.on 'close' event to catch "unclosable" windows.
   onBeforeUnload: (callback) ->
     @windowEventHandler.addUnloadCallback(callback)
 

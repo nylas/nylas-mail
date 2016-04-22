@@ -15,6 +15,8 @@ ThemePackage = require './theme-package'
 DatabaseStore = require './flux/stores/database-store'
 APMWrapper = require './apm-wrapper'
 
+basePackagePaths = null
+
 # Extended: Package manager for coordinating the lifecycle of N1 packages.
 #
 # An instance of this class is always available as the `NylasEnv.packages` global.
@@ -296,13 +298,20 @@ class PackageManager
 
     loadPackagesWhenNoTypesSpecified = windowType is 'default'
 
-    for packageDirPath in @packageDirPaths
-      for packagePath in fs.listSync(packageDirPath)
-        # Ignore files in package directory
-        continue unless fs.isDirectorySync(packagePath)
-        # Ignore .git in package directory
-        continue if path.basename(packagePath)[0] is '.'
-        packagePaths.push(packagePath)
+    basePackagePaths ?= NylasEnv.fileListCache().basePackagePaths ? []
+    if basePackagePaths.length is 0
+      for packageDirPath in @packageDirPaths
+        for packagePath in fs.listSync(packageDirPath)
+          # Ignore files in package directory
+          continue unless fs.isDirectorySync(packagePath)
+          # Ignore .git in package directory
+          continue if path.basename(packagePath)[0] is '.'
+          packagePaths.push(packagePath)
+      basePackagePaths = packagePaths
+      cache = NylasEnv.fileListCache()
+      cache.basePackagePaths = basePackagePaths
+    else
+      packagePaths = basePackagePaths
 
     if windowType
       packagePaths = _.filter packagePaths, (packagePath) ->

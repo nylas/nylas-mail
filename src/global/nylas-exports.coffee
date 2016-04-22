@@ -1,211 +1,187 @@
-Task = null
-Model = null
-TaskRegistry = null
-DatabaseObjectRegistry = null
+TaskRegistry = require '../task-registry'
+StoreRegistry = require '../store-registry'
+DatabaseObjectRegistry = require '../database-object-registry'
 
 class NylasExports
-  @registerSerializable = (exported) ->
-    if exported.prototype
-      Task ?= require '../flux/tasks/task'
-      Model ?= require '../flux/models/model'
-      if exported.prototype instanceof Model
-        DatabaseObjectRegistry ?= require '../database-object-registry'
-        DatabaseObjectRegistry.register(exported)
-      else if exported.prototype instanceof Task
-        TaskRegistry ?= require '../task-registry'
-        TaskRegistry.register(exported)
+  # Will lazy load when requested
+  @lazyLoad = (prop, path) ->
+    Object.defineProperty @, prop,
+      get: -> require("../#{path}")
+      enumerable: true
 
-  @get = (prop, get) ->
+  @lazyLoadCustomGetter = (prop, get) ->
     Object.defineProperty @, prop, {get, enumerable: true}
 
-  # Will lazy load when requested
-  @load = (prop, path) ->
-    Object.defineProperty @, prop,
-      get: ->
-        exported = require "../#{path}"
-        NylasExports.registerSerializable(exported)
-        return exported
-      enumerable: true
+  @lazyLoadAndRegisterStore = (klassName, path) ->
+    constructorFactory = -> require("../flux/stores/#{path}")
+    StoreRegistry.register(klassName, constructorFactory)
+    @lazyLoad(klassName, "flux/stores/#{path}")
 
-  # Will require immediately
-  @require = (prop, path) ->
-    exported = require "../#{path}"
-    NylasExports.registerSerializable(exported)
-    @[prop] = exported
+  @lazyLoadAndRegisterModel = (klassName, path) ->
+    constructorFactory = -> require("../flux/models/#{path}")
+    DatabaseObjectRegistry.register(klassName, constructorFactory)
+    @lazyLoad(klassName, "flux/models/#{path}")
 
-  @requireDeprecated = (prop, path, {instead} = {}) ->
+  @lazyLoadAndRegisterTask = (klassName, path) ->
+    constructorFactory = -> require("../flux/tasks/#{path}")
+    TaskRegistry.register(klassName, constructorFactory)
+    @lazyLoad(klassName, "flux/tasks/#{path}")
+
+  @lazyLoadDeprecated = (prop, path, {instead} = {}) ->
     {deprecate} = require '../deprecate-utils'
     Object.defineProperty @, prop,
-      get: deprecate prop, instead, @, ->
-        exported = require "../#{path}"
-        NylasExports.registerSerializable(exported)
-        return exported
+      get: deprecate prop, instead, @, -> require("../#{path}")
       enumerable: true
 
-  # Make sure our custom observable helpers are defined immediately
-  # (fromStore, fromQuery, etc...)
-  require 'nylas-observables'
-
   # Actions
-  @load "Actions", 'flux/actions'
+  @lazyLoad "Actions", 'flux/actions'
 
   # API Endpoints
-  @load "NylasAPI", 'flux/nylas-api'
-  @load "NylasSyncStatusStore", 'flux/stores/nylas-sync-status-store'
-  @load "EdgehillAPI", 'flux/edgehill-api'
+  @lazyLoad "NylasAPI", 'flux/nylas-api'
+  @lazyLoad "EdgehillAPI", 'flux/edgehill-api'
+  @lazyLoad "NylasSyncStatusStore", 'flux/stores/nylas-sync-status-store'
 
   # The Database
-  @load "Matcher", 'flux/attributes/matcher'
-  @load "DatabaseStore", 'flux/stores/database-store'
-  @load "DatabaseTransaction", 'flux/stores/database-transaction'
-  @load "QueryResultSet", 'flux/models/query-result-set'
-  @load "MutableQueryResultSet", 'flux/models/mutable-query-result-set'
-  @load "ObservableListDataSource", 'flux/stores/observable-list-data-source'
-  @load "CalendarDataSource", 'components/nylas-calendar/calendar-data-source'
-  @load "QuerySubscription", 'flux/models/query-subscription'
-  @load "MutableQuerySubscription", 'flux/models/mutable-query-subscription'
-  @load "QuerySubscriptionPool", 'flux/models/query-subscription-pool'
+  @lazyLoad "Matcher", 'flux/attributes/matcher'
+  @lazyLoad "DatabaseStore", 'flux/stores/database-store'
+  @lazyLoad "QueryResultSet", 'flux/models/query-result-set'
+  @lazyLoad "QuerySubscription", 'flux/models/query-subscription'
+  @lazyLoad "CalendarDataSource", 'components/nylas-calendar/calendar-data-source'
+  @lazyLoad "DatabaseTransaction", 'flux/stores/database-transaction'
+  @lazyLoad "MutableQueryResultSet", 'flux/models/mutable-query-result-set'
+  @lazyLoad "QuerySubscriptionPool", 'flux/models/query-subscription-pool'
+  @lazyLoad "ObservableListDataSource", 'flux/stores/observable-list-data-source'
+  @lazyLoad "MutableQuerySubscription", 'flux/models/mutable-query-subscription'
 
   # Database Objects
-  # These need to be required immeidatley to populated the
-  # DatabaseObjectRegistry so we know what Database Tables to construct
-  @require "File", 'flux/models/file'
-  @require "Event", 'flux/models/event'
-  @require "Label", 'flux/models/label'
-  @require "Folder", 'flux/models/folder'
-  @require "Thread", 'flux/models/thread'
-  @require "Account", 'flux/models/account'
-  @require "Message", 'flux/models/message'
-  @require "Contact", 'flux/models/contact'
-  @require "Category", 'flux/models/category'
-  @require "Calendar", 'flux/models/calendar'
-  @require "JSONBlob", 'flux/models/json-blob'
-  @require "DatabaseObjectRegistry", "database-object-registry"
-  @require "MailboxPerspective", 'mailbox-perspective'
-
-  # Exported so 3rd party packages can subclass Model
-  @load "Model", 'flux/models/model'
-  @load "Attributes", 'flux/attributes'
-
-  # The Task Queue
-  @require "Task", 'flux/tasks/task'
-  @require "TaskRegistry", "task-registry"
-  @require "TaskQueue", 'flux/stores/task-queue'
-  @require "TaskFactory", 'flux/tasks/task-factory'
-  @load    "TaskQueueStatusStore", 'flux/stores/task-queue-status-store'
-  @require "UndoRedoStore", 'flux/stores/undo-redo-store'
+  @DatabaseObjectRegistry = DatabaseObjectRegistry
+  @lazyLoad "Model", 'flux/models/model'
+  @lazyLoad "Attributes", 'flux/attributes'
+  @lazyLoadAndRegisterModel "File", 'file'
+  @lazyLoadAndRegisterModel "Event", 'event'
+  @lazyLoadAndRegisterModel "Label", 'label'
+  @lazyLoadAndRegisterModel "Folder", 'folder'
+  @lazyLoadAndRegisterModel "Thread", 'thread'
+  @lazyLoadAndRegisterModel "Account", 'account'
+  @lazyLoadAndRegisterModel "Message", 'message'
+  @lazyLoadAndRegisterModel "Contact", 'contact'
+  @lazyLoadAndRegisterModel "Category", 'category'
+  @lazyLoadAndRegisterModel "Calendar", 'calendar'
+  @lazyLoadAndRegisterModel "JSONBlob", 'json-blob'
 
   # Tasks
-  # These need to be required immediately to populate the TaskRegistry so
-  # we know how to deserialized saved or IPC-sent tasks.
-  @require "EventRSVPTask", 'flux/tasks/event-rsvp-task'
-  @require "SendDraftTask", 'flux/tasks/send-draft-task'
-  @require "DestroyDraftTask", 'flux/tasks/destroy-draft-task'
-  @require "ChangeMailTask", 'flux/tasks/change-mail-task'
-  @require "ChangeLabelsTask", 'flux/tasks/change-labels-task'
-  @require "ChangeFolderTask", 'flux/tasks/change-folder-task'
-  @require "SyncbackCategoryTask", 'flux/tasks/syncback-category-task'
-  @require "DestroyCategoryTask", 'flux/tasks/destroy-category-task'
-  @require "ChangeUnreadTask", 'flux/tasks/change-unread-task'
-  @require "SyncbackDraftFilesTask", 'flux/tasks/syncback-draft-files-task'
-  @require "SyncbackDraftTask", 'flux/tasks/syncback-draft-task'
-  @require "ChangeStarredTask", 'flux/tasks/change-starred-task'
-  @require "DestroyModelTask", 'flux/tasks/destroy-model-task'
-  @require "SyncbackModelTask", 'flux/tasks/syncback-model-task'
-  @require "SyncbackMetadataTask", 'flux/tasks/syncback-metadata-task'
-  @require "ReprocessMailRulesTask", 'flux/tasks/reprocess-mail-rules-task'
+  @TaskRegistry = TaskRegistry
+  @lazyLoad "Task", 'flux/tasks/task'
+  @lazyLoad "TaskFactory", 'flux/tasks/task-factory'
+  @lazyLoadAndRegisterTask "EventRSVPTask", 'event-rsvp-task'
+  @lazyLoadAndRegisterTask "SendDraftTask", 'send-draft-task'
+  @lazyLoadAndRegisterTask "ChangeMailTask", 'change-mail-task'
+  @lazyLoadAndRegisterTask "DestroyDraftTask", 'destroy-draft-task'
+  @lazyLoadAndRegisterTask "ChangeLabelsTask", 'change-labels-task'
+  @lazyLoadAndRegisterTask "ChangeFolderTask", 'change-folder-task'
+  @lazyLoadAndRegisterTask "ChangeUnreadTask", 'change-unread-task'
+  @lazyLoadAndRegisterTask "DestroyModelTask", 'destroy-model-task'
+  @lazyLoadAndRegisterTask "SyncbackDraftTask", 'syncback-draft-task'
+  @lazyLoadAndRegisterTask "ChangeStarredTask", 'change-starred-task'
+  @lazyLoadAndRegisterTask "SyncbackModelTask", 'syncback-model-task'
+  @lazyLoadAndRegisterTask "DestroyCategoryTask", 'destroy-category-task'
+  @lazyLoadAndRegisterTask "SyncbackCategoryTask", 'syncback-category-task'
+  @lazyLoadAndRegisterTask "SyncbackMetadataTask", 'syncback-metadata-task'
+  @lazyLoadAndRegisterTask "SyncbackDraftFilesTask", 'syncback-draft-files-task'
+  @lazyLoadAndRegisterTask "ReprocessMailRulesTask", 'reprocess-mail-rules-task'
 
   # Stores
   # These need to be required immediately since some Stores are
   # listen-only and not explicitly required from anywhere. Stores
   # currently set themselves up on require.
-  @require "DraftStore", 'flux/stores/draft-store'
-  @require "OutboxStore", 'flux/stores/outbox-store'
-  @require "AccountStore", 'flux/stores/account-store'
-  @require "MessageStore", 'flux/stores/message-store'
-  @require "MetadataStore", 'flux/stores/metadata-store'
-  @require "ContactStore", 'flux/stores/contact-store'
-  @require "CategoryStore", 'flux/stores/category-store'
-  @require "WorkspaceStore", 'flux/stores/workspace-store'
-  @require "FileUploadStore", 'flux/stores/file-upload-store'
-  @require "MailRulesStore", 'flux/stores/mail-rules-store'
-  @require "ThreadCountsStore", 'flux/stores/thread-counts-store'
-  @require "BadgeStore", 'flux/stores/badge-store'
-  @require "FileDownloadStore", 'flux/stores/file-download-store'
-  @require "FocusedContentStore", 'flux/stores/focused-content-store'
-  @require "FocusedPerspectiveStore", 'flux/stores/focused-perspective-store'
-  @require "FocusedContactsStore", 'flux/stores/focused-contacts-store'
-  @require "PreferencesUIStore", 'flux/stores/preferences-ui-store'
-  @require "PopoverStore", 'flux/stores/popover-store'
-  @require "ModalStore", 'flux/stores/modal-store'
-  @require "SearchableComponentStore", 'flux/stores/searchable-component-store'
-  @require "MessageBodyProcessor", 'flux/stores/message-body-processor'
-  @require "MailRulesTemplates", 'mail-rules-templates'
-  @require "MailRulesProcessor", 'mail-rules-processor'
-
-  # Deprecated
-  @requireDeprecated "DraftStoreExtension", 'flux/stores/draft-store-extension',
-    instead: 'ComposerExtension'
-  @requireDeprecated "MessageStoreExtension", 'flux/stores/message-store-extension',
-    instead: 'MessageViewExtension'
+  @lazyLoadAndRegisterStore "TaskQueue", 'task-queue'
+  @lazyLoadAndRegisterStore "BadgeStore", 'badge-store'
+  @lazyLoadAndRegisterStore "DraftStore", 'draft-store'
+  @lazyLoadAndRegisterStore "ModalStore", 'modal-store'
+  @lazyLoadAndRegisterStore "OutboxStore", 'outbox-store'
+  @lazyLoadAndRegisterStore "PopoverStore", 'popover-store'
+  @lazyLoadAndRegisterStore "AccountStore", 'account-store'
+  @lazyLoadAndRegisterStore "MessageStore", 'message-store'
+  @lazyLoadAndRegisterStore "ContactStore", 'contact-store'
+  @lazyLoadAndRegisterStore "MetadataStore", 'metadata-store'
+  @lazyLoadAndRegisterStore "CategoryStore", 'category-store'
+  @lazyLoadAndRegisterStore "UndoRedoStore", 'undo-redo-store'
+  @lazyLoadAndRegisterStore "WorkspaceStore", 'workspace-store'
+  @lazyLoadAndRegisterStore "MailRulesStore", 'mail-rules-store'
+  @lazyLoadAndRegisterStore "FileUploadStore", 'file-upload-store'
+  @lazyLoadAndRegisterStore "ThreadCountsStore", 'thread-counts-store'
+  @lazyLoadAndRegisterStore "FileDownloadStore", 'file-download-store'
+  @lazyLoadAndRegisterStore "PreferencesUIStore", 'preferences-ui-store'
+  @lazyLoadAndRegisterStore "FocusedContentStore", 'focused-content-store'
+  @lazyLoadAndRegisterStore "MessageBodyProcessor", 'message-body-processor'
+  @lazyLoadAndRegisterStore "FocusedContactsStore", 'focused-contacts-store'
+  @lazyLoadAndRegisterStore "TaskQueueStatusStore", 'task-queue-status-store'
+  @lazyLoadAndRegisterStore "FocusedPerspectiveStore", 'focused-perspective-store'
+  @lazyLoadAndRegisterStore "SearchableComponentStore", 'searchable-component-store'
 
   # Extensions
-  @require "ExtensionRegistry", 'extension-registry'
-  @require "ContenteditableExtension", 'extensions/contenteditable-extension'
-  @require "ComposerExtension", 'extensions/composer-extension'
-  @require "MessageViewExtension", 'extensions/message-view-extension'
+  @lazyLoad "ExtensionRegistry", 'extension-registry'
+  @lazyLoad "ComposerExtension", 'extensions/composer-extension'
+  @lazyLoad "MessageViewExtension", 'extensions/message-view-extension'
+  @lazyLoad "ContenteditableExtension", 'extensions/contenteditable-extension'
 
-  # Libraries
-  @get "React", -> require 'react' # Our version of React for 3rd party use
-  @get "ReactDOM", -> require 'react-dom'
-  @get "ReactTestUtils", -> require 'react-addons-test-utils'
-  @get "Reflux", -> require 'reflux'
-  @get "Rx", -> require 'rx-lite'
-  @get "Keytar", -> require 'keytar' # atom-keytar access through native module
+  # 3rd party libraries
+  @lazyLoadCustomGetter "Rx", -> require 'rx-lite'
+  @lazyLoadCustomGetter "React", -> require 'react'
+  @lazyLoadCustomGetter "Reflux", -> require 'reflux'
+  @lazyLoadCustomGetter "ReactDOM", -> require 'react-dom'
+  @lazyLoadCustomGetter "ReactTestUtils", -> require 'react-addons-test-utils'
+  @lazyLoadCustomGetter "Keytar", -> require 'keytar' # atom-keytar access through native module
 
   # React Components
-  @load "ReactRemote", 'react-remote/react-remote-parent'
-  @load "ComponentRegistry", 'component-registry'
-  @load "PriorityUICoordinator", 'priority-ui-coordinator'
+  @lazyLoad "ComponentRegistry", 'component-registry'
+  @lazyLoad "PriorityUICoordinator", 'priority-ui-coordinator'
 
   # Utils
-  @load "DeprecateUtils", 'deprecate-utils'
-  @load "Utils", 'flux/models/utils'
-  @load "DOMUtils", 'dom-utils'
-  @load "VirtualDOMUtils", 'virtual-dom-utils'
-  @load "CanvasUtils", 'canvas-utils'
-  @load "RegExpUtils", 'regexp-utils'
-  @load "DateUtils", 'date-utils'
-  @load "MenuHelpers", 'menu-helpers'
-  @load "MessageUtils", 'flux/models/message-utils'
-  @load "NylasSpellchecker", 'nylas-spellchecker'
+  @lazyLoad "Utils", 'flux/models/utils'
+  @lazyLoad "DOMUtils", 'dom-utils'
+  @lazyLoad "DateUtils", 'date-utils'
+  @lazyLoad "CanvasUtils", 'canvas-utils'
+  @lazyLoad "RegExpUtils", 'regexp-utils'
+  @lazyLoad "MenuHelpers", 'menu-helpers'
+  @lazyLoad "MessageUtils", 'flux/models/message-utils'
+  @lazyLoad "DeprecateUtils", 'deprecate-utils'
+  @lazyLoad "VirtualDOMUtils", 'virtual-dom-utils'
+  @lazyLoad "NylasSpellchecker", 'nylas-spellchecker'
 
   # Services
-  @load "UndoManager", 'undo-manager'
-  @load "SoundRegistry", 'sound-registry'
-  @load "NativeNotifications", 'native-notifications'
-
-  @load "SearchableComponentMaker", 'searchable-components/searchable-component-maker'
-
-  @load "QuotedHTMLTransformer", 'services/quoted-html-transformer'
-  @load "QuotedPlainTextTransformer", 'services/quoted-plain-text-transformer'
-  @load "SanitizeTransformer", 'services/sanitize-transformer'
-  @load "InlineStyleTransformer", 'services/inline-style-transformer'
-  @requireDeprecated "QuotedHTMLParser", 'services/quoted-html-transformer',
-    instead: 'QuotedHTMLTransformer'
+  @lazyLoad "UndoManager", 'undo-manager'
+  @lazyLoad "SoundRegistry", 'sound-registry'
+  @lazyLoad "MailRulesTemplates", 'mail-rules-templates'
+  @lazyLoad "MailRulesProcessor", 'mail-rules-processor'
+  @lazyLoad "MailboxPerspective", 'mailbox-perspective'
+  @lazyLoad "NativeNotifications", 'native-notifications'
+  @lazyLoad "SanitizeTransformer", 'services/sanitize-transformer'
+  @lazyLoad "QuotedHTMLTransformer", 'services/quoted-html-transformer'
+  @lazyLoad "InlineStyleTransformer", 'services/inline-style-transformer'
+  @lazyLoad "SearchableComponentMaker", 'searchable-components/searchable-component-maker'
+  @lazyLoad "QuotedPlainTextTransformer", 'services/quoted-plain-text-transformer'
 
   # Errors
-  @get "APIError", -> require('../flux/errors').APIError
-  @get "TimeoutError", -> require('../flux/errors').TimeoutError
+  @lazyLoadCustomGetter "APIError", -> require('../flux/errors').APIError
+  @lazyLoadCustomGetter "TimeoutError", -> require('../flux/errors').TimeoutError
 
   # Process Internals
-  @load "LaunchServices", 'launch-services'
-  @load "SystemStartService", 'system-start-service'
-  @load "BufferedProcess", 'buffered-process'
-  @get "APMWrapper", -> require('../apm-wrapper')
+  @lazyLoad "LaunchServices", 'launch-services'
+  @lazyLoad "BufferedProcess", 'buffered-process'
+  @lazyLoad "SystemStartService", 'system-start-service'
+  @lazyLoadCustomGetter "APMWrapper", -> require('../apm-wrapper')
 
   # Testing
-  @get "NylasTestUtils", -> require '../../spec/nylas-test-utils'
+  @lazyLoadCustomGetter "NylasTestUtils", -> require '../../spec/nylas-test-utils'
+
+  # Deprecated
+  @lazyLoadDeprecated "QuotedHTMLParser", 'services/quoted-html-transformer',
+    instead: 'QuotedHTMLTransformer'
+  @lazyLoadDeprecated "DraftStoreExtension", 'flux/stores/draft-store-extension',
+    instead: 'ComposerExtension'
+  @lazyLoadDeprecated "MessageStoreExtension", 'flux/stores/message-store-extension',
+    instead: 'MessageViewExtension'
 
 window.$n = NylasExports
 module.exports = NylasExports

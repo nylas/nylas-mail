@@ -135,7 +135,9 @@ describe("DraftStore", () => {
         runs(() => {
           expect(NylasEnv.newWindow).toHaveBeenCalledWith({
             title: 'Message',
-            windowType: "composer",
+            hidden: true,
+            windowKey: `composer-A`,
+            windowType: "composer-preload",
             windowProps: { draftClientId: "A", draftJSON: this.newDraft.toJSON() },
           });
         });
@@ -155,7 +157,9 @@ describe("DraftStore", () => {
         runs(() => {
           expect(NylasEnv.newWindow).toHaveBeenCalledWith({
             title: 'Message',
-            windowType: "composer",
+            hidden: true,
+            windowKey: `composer-A`,
+            windowType: "composer-preload",
             windowProps: { draftClientId: "A", draftJSON: this.newDraft.toJSON() },
           });
         });
