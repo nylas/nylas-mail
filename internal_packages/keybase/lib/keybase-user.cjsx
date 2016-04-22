@@ -1,35 +1,9 @@
 {Utils, React, Actions, ReactDOM} = require 'nylas-exports'
 {ParticipantsTextField} = require 'nylas-component-kit'
 PGPKeyStore = require './pgp-key-store'
+EmailPopover = require './email-popover'
 kb = require './keybase'
 _ = require 'underscore'
-
-class EmailPopover extends React.Component
-  constructor: ->
-    @state = {to: [], cc: [], bcc: []}
-
-  render: ->
-    participants = @state
-
-    <div className="keybase-import-popover">
-      <span className="title">
-        Associate Emails with Key
-      </span>
-      <ParticipantsTextField
-        field="to"
-        className="keybase-participant-field"
-        participants={ participants }
-        change={ @_onRecipientFieldChange } />
-      <button className="btn btn-toolbar" onClick={ @_onDone }>Done</button>
-    </div>
-
-  _onRecipientFieldChange: (contacts) =>
-    @setState(contacts)
-
-  _onDone: =>
-    @props.onPopoverDone _.pluck(@state.to, 'email')
-    Actions.closePopover()
-
 
 module.exports =
 class KeybaseUser extends React.Component
@@ -97,21 +71,15 @@ class KeybaseUser extends React.Component
     )
     return
 
-  _delete: (event) =>
+  _delete: (email) =>
     # delete a locally saved key
-    email = event.target.attributes['data-email'].value
     keys = PGPKeyStore.pubKeys(email)
-    if keys? and keys.length == 1
-      key = keys[0]
-    else if keys.length > 1
-      # TODO key metadata objects need a unique ID
-      key = @_matchKeys(@props.profile.key, keys)
-      #console.error "Multiple keys associated with #{email}, unable to determine which to remove from"
-
+    key = @_matchKeys(@props.profile.key, keys)
     if key?
       PGPKeyStore.deleteKey(key)
     else
       console.error "Unable to fetch key for #{email}"
+      NylasEnv.showErrorDialog("Unable to fetch key for #{email}.")
 
   _addEmail: (email) =>
     # associate another email address with this key
@@ -130,12 +98,7 @@ class KeybaseUser extends React.Component
     # TODO focus on the new field
     # React.findDOMNode(@refs.addNewEmail).focus()
 
-  _removeEmailClick: (event) =>
-    email = event.target.attributes['data-email'].value
-    @_removeEmail(email)
-
   _removeEmail: (email) =>
-    console.log @props.profile
     PGPKeyStore.removeAddressFromKey(@props.profile, email)
 
   render: =>
@@ -187,20 +150,14 @@ class KeybaseUser extends React.Component
       </div>)
 
     # button to save/delete key
-    if profile.addresses?.length > 0
-      # TODO what about the other email(s) that might be in the list?
-      saved = PGPKeyStore.pubKeys(profile.addresses[0])
-    else
-      # can't possibly have them saved if we have no email for them
-      saved = false
-    if not saved
-      saveDeleteButton = (<button title="Import" className="btn btn-toolbar" onClick={ @_importKey } ref="button">
-        Import Key
+    if profile.key?
+      saveDeleteButton = (<button title="Delete" className="btn btn-toolbar btn-danger" onClick={ => @_delete(profile.addresses[0]) } ref="button">
+        Delete Key
       </button>
       )
     else
-      saveDeleteButton = (<button title="Delete" className="btn btn-toolbar btn-danger" data-email={ profile.addresses[0] } onClick={ @_delete } ref="button">
-        Delete Key
+      saveDeleteButton = (<button title="Import" className="btn btn-toolbar" onClick={ @_importKey } ref="button">
+        Import Key
       </button>
       )
 
@@ -208,7 +165,7 @@ class KeybaseUser extends React.Component
     if profile.addresses?.length > 0
       emails = _.map(profile.addresses, (email) =>
         # TODO make that remove button not terrible
-        return <li>{ email } <small><a onClick={ @_removeEmailClick } data-email={email}>(X)</a></small></li>)
+        return <li>{ email } <small><a onClick={ => @_removeEmail(email) }>(X)</a></small></li>)
 
       if @state.inputEmail
         participants = {to: [], cc: [], bcc: []}

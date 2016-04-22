@@ -17,7 +17,7 @@ class KeyManager extends React.Component
   render: ->
     {keys} = @props
 
-    keys = _.map(keys, (key) =>
+    keys = keys.map (key) =>
       if key.key?
         uid = "key-manager-" + key.key.get_pgp_fingerprint().toString('hex')
       else if key.keybase_user?
@@ -25,9 +25,8 @@ class KeyManager extends React.Component
       else
         uid = "key-manager-" + key.addresses.join('')
       return <KeybaseUser profile={key} key={uid} />
-    )
 
-    if not keys? or keys.length < 1
+    if keys.length < 1
       keys = (<span>No keys saved!</span>)
 
     <div className="key-manager">
