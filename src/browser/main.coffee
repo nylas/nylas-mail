@@ -14,7 +14,7 @@ start = ->
   return if handleStartupEventWithSquirrel()
 
   # This prevents Win10 from showing dupe items in the taskbar
-  app.setAppUserModelId('com.squirrel.nylas.nylas')
+  app.setAppUserModelId('com.nylas.nylas')
 
   addUrlToOpen = (event, urlToOpen) ->
     event.preventDefault()

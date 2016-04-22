@@ -178,7 +178,8 @@ class NylasExports
   @load "DateUtils", 'date-utils'
   @load "MenuHelpers", 'menu-helpers'
   @load "MessageUtils", 'flux/models/message-utils'
-  @load "NylasSpellchecker", 'nylas-spellchecker'
+  #@load "NylasSpellchecker", 'nylas-spellchecker'
+  @load "NylasSpellchecker", 'spellcheck/spell-check'
 
   # Services
   @load "UndoManager", 'undo-manager'
