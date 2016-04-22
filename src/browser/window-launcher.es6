@@ -17,9 +17,12 @@ export default class WindowLauncher {
 
   constructor(appOpts) {
     this.defaultWindowOpts = {
+      frame: process.platform !== "darwin",
       hidden: false,
+      toolbar: true,
       devMode: appOpts.devMode,
       safeMode: appOpts.safeMode,
+      resizable: true,
       windowType: WindowLauncher.EMPTY_WINDOW,
       resourcePath: appOpts.resourcePath,
       configDirPath: appOpts.configDirPath,
@@ -38,7 +41,7 @@ export default class WindowLauncher {
       win = new NylasWindow(opts)
     } else {
       opts.bootstrapScript = this._secondaryWindowBootstrap()
-      if (opts.coldStartOnly) {
+      if (this._unableToModifyHotWindow(opts) || opts.coldStartOnly) {
         // Useful for the Worker Window: A secondary window that shouldn't
         // be hot-loaded
         win = new NylasWindow(opts)
@@ -79,6 +82,13 @@ export default class WindowLauncher {
   // https://phab.nylas.com/T1282
   cleanupBeforeAppQuit() {
     this.hotWindow.browserWindow.destroy()
+  }
+
+  // Some properties, like the `frame` or `toolbar` can't be updated once
+  // a window has been setup. If we detect this case we have to bootup a
+  // plain NylasWindow instead of using a hot window.
+  _unableToModifyHotWindow(opts) {
+    return this.defaultWindowOpts.frame !== (!!opts.frame)
   }
 
   _secondaryWindowBootstrap() {
