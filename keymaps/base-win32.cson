@@ -6,3 +6,6 @@
 
 'body':
   'F11': 'window:toggle-full-screen'
+  'ctrl-shift-F10': 'window:show-work-window'
+  'ctrl-shift-F11': 'window:reload'
+  'ctrl-shift-F12': 'window:toggle-dev-tools'
