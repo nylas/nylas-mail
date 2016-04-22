@@ -131,7 +131,7 @@ class EncryptMessageButton extends React.Component
       NylasEnv.showErrorDialog("At least one key is missing - the following recipients won't be able to decrypt the message:\n- #{missingAddrs}\n\nYou can add keys for them from the preferences page.")
 
     # remove the nulls
-    kms = _.reject(kms, (key) -> key == null)
+    kms = _.compact(kms)
     params =
       encrypt_for: kms
       msg: text
