@@ -221,7 +221,7 @@ class WorkspaceStore extends NylasStore
       Header: {id: "Sheet:#{id}:Header"}
       Footer: {id: "Sheet:#{id}:Footer"}
 
-    if options.root and not @rootSheet()
+    if (options.root and not @rootSheet()) and not options.silent
       @_onSelectRootSheet(Sheet[id])
 
     @triggerDebounced()
