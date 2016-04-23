@@ -229,9 +229,7 @@ const PackagesStore = Reflux.createStore({
       NylasEnv.packages.installPackageFromPath(filenames[0], (err) => {
         if (err) return;
         const packageName = path.basename(filenames[0]);
-        const msg = `${packageName} has been installed and enabled. No need to
-               restart! If you don't see the plugin loaded, check the
-               console for errors.`
+        const msg = `${packageName} has been installed and enabled. No need to restart! If you don't see the plugin loaded, check the console for errors.`
         this._displayMessage("Plugin installed! 🎉", msg);
       });
     });
@@ -242,10 +240,7 @@ const PackagesStore = Reflux.createStore({
       const btn = dialog.showMessageBox({
         type: 'warning',
         message: "Run with debug flags?",
-        detail: `To develop plugins, you should run N1 with debug flags.
-                This gives you better error messages, the debug version of
-                React, and more. You can disable it at any time from the
-                Developer menu.`,
+        detail: `To develop plugins, you should run N1 with debug flags. This gives you better error messages, the debug version of React, and more. You can disable it at any time from the Developer menu.`,
         buttons: ["OK", "Cancel"],
       });
       if (btn === 0) {
