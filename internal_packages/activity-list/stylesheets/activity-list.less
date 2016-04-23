@@ -1,0 +1,83 @@
+@import "ui-variables";
+
+.activity-toolbar-icon {
+  margin-top: 20px;
+  background: @gray;
+}
+
+.activity-list-container {
+  height: 285px;
+  width: 264px;
+  overflow: hidden;
+  font-size: @font-size-small;
+  color: @text-color-subtle;
+  .spacer {
+    flex: 1 1 0;
+  }
+  .activity-list-item {
+    padding: @padding-small-vertical @padding-small-horizontal;
+    white-space: nowrap;
+    border-bottom: 1px solid @border-color-primary;
+    cursor: default;
+    &.unread {
+      color: @text-color;
+      background: @background-primary;
+      .action-message {
+        font-weight: 600;
+      }
+    }
+    .disclosure-triangle {
+      padding-top: 7px;
+    }
+    .activity-icon {
+      width: 30px;
+      height: 30px;
+      margin-top: 5px;
+    }
+    .action-message, .title {
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .timestamp {
+      color: @text-color-very-subtle;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      flex-shrink: 0;
+      padding-left: 5px;
+    }
+  }
+  .activity-list-toggle-item {
+    height: 30px;
+    white-space: nowrap;
+    background: @background-secondary;
+    cursor: default;
+    overflow-y: hidden;
+    transition-property: all;
+    transition-duration: .5s;
+    transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+    &:last-child {
+      border-bottom: 1px solid @border-color-primary;
+    }
+    .action-message {
+      padding: @padding-small-vertical @padding-small-horizontal;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .timestamp {
+      padding: @padding-small-vertical @padding-small-horizontal;
+      color: @text-color-very-subtle;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+  }
+  .activity-toggle-container {
+    &.hidden {
+      .activity-list-toggle-item {
+        height: 0;
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+    }
+  }
+}
