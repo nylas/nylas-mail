@@ -344,6 +344,12 @@ class Contenteditable extends React.Component
   _onKeyDown: (event) =>
     @dispatchEventToExtensions("onKeyDown", event)
 
+  _onDragOver: (event) =>
+    @dispatchEventToExtensions("onDragOver", event)
+
+  _onDrop: (event) =>
+    @dispatchEventToExtensions("onDrop", event)
+
   # We must set the `inCompositionEvent` flag in addition to tearing down
   # the selecton listeners. While the composition event is in progress, we
   # want to ignore any input events we get.

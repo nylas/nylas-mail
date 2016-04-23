@@ -5,13 +5,17 @@ class DropZone extends React.Component
   @propTypes:
     shouldAcceptDrop: React.PropTypes.func.isRequired
     onDrop: React.PropTypes.func.isRequired
+    onDragOver: React.PropTypes.func
     onDragStateChange: React.PropTypes.func
+
+  @defaultProps:
+    onDragOver: ->
 
   constructor: ->
 
   render: ->
     otherProps = _.omit(@props, Object.keys(@constructor.propTypes))
-    <div {...otherProps} onDragEnter={@_onDragEnter} onDragLeave={@_onDragLeave} onDrop={@_onDrop}>
+    <div {...otherProps} onDragOver={@props.onDragOver} onDragEnter={@_onDragEnter} onDragLeave={@_onDragLeave} onDrop={@_onDrop}>
       {@props.children}
     </div>
 

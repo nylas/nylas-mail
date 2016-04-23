@@ -3,15 +3,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import AccountContactField from './account-contact-field';
 import {Utils, Actions, AccountStore} from 'nylas-exports';
-import {KeyCommandsRegion, ParticipantsTextField} from 'nylas-component-kit';
+import {KeyCommandsRegion, ParticipantsTextField, ListensToFluxStore} from 'nylas-component-kit';
 
 import CollapsedParticipants from './collapsed-participants';
 import ComposerHeaderActions from './composer-header-actions';
 
-import ConnectToFlux from './decorators/connect-to-flux';
 import Fields from './fields';
 
-const ScopedFromField = ConnectToFlux(AccountContactField, {
+const ScopedFromField = ListensToFluxStore(AccountContactField, {
   stores: [AccountStore],
   getStateFromStores: (props) => {
     const savedOrReplyToThread = !!props.draft.threadId;
@@ -27,7 +26,6 @@ export default class ComposerHeader extends React.Component {
 
   static propTypes = {
     draft: React.PropTypes.object.isRequired,
-
     session: React.PropTypes.object.isRequired,
   }
 
@@ -148,6 +146,15 @@ export default class ComposerHeader extends React.Component {
     });
   }
 
+  _onDragCollapsedParticipants({isDropping}) {
+    if (isDropping) {
+      this.setState({
+        participantsFocused: true,
+        enabledFields: [...Fields.ParticipantFields, Fields.Subject],
+      })
+    }
+  }
+
   _renderParticipants = () => {
     let content = null;
     if (this.state.participantsFocused) {
@@ -158,6 +165,7 @@ export default class ComposerHeader extends React.Component {
           to={this.props.draft.to}
           cc={this.props.draft.cc}
           bcc={this.props.draft.bcc}
+          onDragChange={::this._onDragCollapsedParticipants}
         />
       )
     }
@@ -210,7 +218,10 @@ export default class ComposerHeader extends React.Component {
         field="to"
         change={this._onChangeParticipants}
         className="composer-participant-field to-field"
-        participants={{to, cc, bcc}} />
+        participants={{to, cc, bcc}}
+        draft={this.props.draft}
+        session={this.props.session}
+      />
     )
 
     if (this.state.enabledFields.includes(Fields.Cc)) {
@@ -222,7 +233,10 @@ export default class ComposerHeader extends React.Component {
           change={this._onChangeParticipants}
           onEmptied={ () => this.hideField(Fields.Cc) }
           className="composer-participant-field cc-field"
-          participants={{to, cc, bcc}} />
+          participants={{to, cc, bcc}}
+          draft={this.props.draft}
+          session={this.props.session}
+        />
       )
     }
 
@@ -235,7 +249,10 @@ export default class ComposerHeader extends React.Component {
           change={this._onChangeParticipants}
           onEmptied={ () => this.hideField(Fields.Bcc) }
           className="composer-participant-field bcc-field"
-          participants={{to, cc, bcc}} />
+          participants={{to, cc, bcc}}
+          draft={this.props.draft}
+          session={this.props.session}
+        />
       )
     }
 

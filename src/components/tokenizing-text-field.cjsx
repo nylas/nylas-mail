@@ -147,10 +147,14 @@ Section: Component Kit
 class TokenizingTextField extends React.Component
   @displayName: "TokenizingTextField"
 
+  @containerRequired: false
+
   # Exposed for tests
   @Token: Token
 
   @propTypes:
+    className: React.PropTypes.string
+
     # An array of current tokens.
     #
     # A token is usually an object type like a `Contact`. The set of
@@ -181,7 +185,7 @@ class TokenizingTextField extends React.Component
     #
     # A function that is passed an object and should return React elements
     # to display that individual token.
-    tokenNode: React.PropTypes.func.isRequired
+    tokenRenderer: React.PropTypes.func.isRequired
 
     # The function responsible for providing a list of possible options
     # given the current input.
@@ -251,6 +255,9 @@ class TokenizingTextField extends React.Component
     # A classSet hash applied to the Menu item
     menuClassSet: React.PropTypes.object
 
+  @defaultProps:
+    className: ''
+
   constructor: (@props) ->
     @state =
       inputValue: ""
@@ -263,21 +270,25 @@ class TokenizingTextField extends React.Component
   render: =>
     {Menu} = require 'nylas-component-kit'
 
-    classes = classNames _.extend {}, (@props.menuClassSet ? {}),
+    classSet = {}
+    classSet[@props.className] = true
+    classes = classNames _.extend {}, classSet, (@props.menuClassSet ? {}),
       "tokenizing-field": true
       "native-key-bindings": true
       "focused": @state.focus
       "empty": (@state.inputValue ? "").trim().length is 0
 
-    <Menu className={classes} ref="completions"
-          items={@state.completions}
-          itemKey={ (item) -> item.id }
-          itemContent={@props.completionNode}
-          headerComponents={[@_fieldComponent()]}
-          onFocus={@_onInputFocused}
-          onBlur={@_onInputBlurred}
-          onSelect={@_addToken}
-          />
+    <Menu
+      className={classes}
+      ref="completions"
+      items={@state.completions}
+      itemKey={ (item) -> item.id }
+      itemContent={@props.completionNode}
+      headerComponents={[@_fieldComponent()]}
+      onFocus={@_onInputFocused}
+      onBlur={@_onInputBlurred}
+      onSelect={@_addToken}
+    />
 
   _fieldComponent: =>
     <div key="field-component" ref="field-drop-target" onClick={@_onClick} onDrop={@_onDrop}>
@@ -337,6 +348,8 @@ class TokenizingTextField extends React.Component
       if @props.tokenIsValid
         valid = @props.tokenIsValid(item)
 
+      TokenRenderer = @props.tokenRenderer
+
       <Token item={item}
              key={key}
              valid={valid}
@@ -344,7 +357,7 @@ class TokenizingTextField extends React.Component
              onSelected={@_selectToken}
              onEdited={@props.onEdit}
              onAction={@props.onTokenAction || @_showDefaultTokenMenu}>
-        {@props.tokenNode(item)}
+        <TokenRenderer token={item} />
       </Token>
 
   # Maintaining Input State

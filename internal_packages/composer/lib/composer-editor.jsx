@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from 'react';
 import {ContenteditableExtension, ExtensionRegistry, DOMUtils} from 'nylas-exports';
-import {ScrollRegion, Contenteditable} from 'nylas-component-kit';
+import {DropZone, ScrollRegion, Contenteditable} from 'nylas-component-kit';
 
 /**
  * Renders the text editor for the composer
@@ -209,6 +209,13 @@ class ComposerEditor extends Component {
     this.refs.contenteditable._onDOMMutated(mutations);
   }
 
+  _onDrop(event) {
+    this.refs.contenteditable._onDrop(event)
+  }
+
+  _onDragOver(event) {
+    this.refs.contenteditable._onDragOver(event)
+  }
 
   // Helpers
 
@@ -291,17 +298,26 @@ class ComposerEditor extends Component {
 
   render() {
     return (
-      <Contenteditable
-        ref="contenteditable"
-        value={this.props.body}
-        onChange={this.props.onBodyChanged}
-        onFilePaste={this.props.onFilePaste}
-        onSelectionRestored={this._ensureSelectionVisible}
-        initialSelectionSnapshot={this.props.initialSelectionSnapshot}
-        extensions={[this._coreExtension].concat(this.state.extensions)} />
+      <DropZone
+        className="composer-inner-wrap"
+        onDrop={::this._onDrop}
+        onDragOver={::this._onDragOver}
+        shouldAcceptDrop={() => true}
+      >
+        <Contenteditable
+          ref="contenteditable"
+          value={this.props.body}
+          onChange={this.props.onBodyChanged}
+          onFilePaste={this.props.onFilePaste}
+          onSelectionRestored={this._ensureSelectionVisible}
+          initialSelectionSnapshot={this.props.initialSelectionSnapshot}
+          extensions={[this._coreExtension].concat(this.state.extensions)}
+        />
+      </DropZone>
     );
   }
 
 }
+ComposerEditor.containerRequired = false
 
 export default ComposerEditor;

@@ -135,6 +135,10 @@ class ContenteditableExtension
   ###
   @onKeyDown: ({editor, event}) ->
 
+  @onDrop: ({editor, event}) ->
+
+  @onDragOver: ({editor, event}) ->
+
   ###
   Public: Override onShowContextMenu to add new menu items to the right click menu
   inside the contenteditable.

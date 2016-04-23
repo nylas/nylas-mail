@@ -3,7 +3,33 @@ import _ from 'underscore';
 
 import {remote} from 'electron';
 import {Utils, Contact, ContactStore} from 'nylas-exports';
-import {TokenizingTextField, Menu, InjectedComponentSet} from 'nylas-component-kit';
+import {TokenizingTextField, Menu, InjectedComponent, InjectedComponentSet} from 'nylas-component-kit';
+
+class TokenRenderer extends React.Component {
+
+  static propTypes = {
+    token: React.PropTypes.object,
+  }
+
+  render() {
+    const {email, name} = this.props.token
+    let chipText = email;
+    if (name && (name.length > 0) && (name !== email)) {
+      chipText = name;
+    }
+    return (
+      <div className="participant">
+        <InjectedComponentSet
+          matching={{role: "Composer:RecipientChip"}}
+          exposedProps={{contact: this.props.token}}
+          direction="column"
+          inline
+        />
+        <span className="participant-primary">{chipText}</span>
+      </div>
+    );
+  }
+}
 
 export default class ParticipantsTextField extends React.Component {
   static displayName = 'ParticipantsTextField';
@@ -28,6 +54,10 @@ export default class ParticipantsTextField extends React.Component {
     onEmptied: React.PropTypes.func,
 
     onFocus: React.PropTypes.func,
+
+    draft: React.PropTypes.object,
+
+    session: React.PropTypes.object,
   }
 
   static defaultProps = {
@@ -47,24 +77,6 @@ export default class ParticipantsTextField extends React.Component {
   _completionNode = (p) => {
     return (
       <Menu.NameEmailItem name={p.name} email={p.email} />
-    );
-  }
-
-  _tokenNode = (p) => {
-    let chipText = p.email;
-    if (p.name && (p.name.length > 0) && (p.name !== p.email)) {
-      chipText = p.name;
-    }
-    return (
-      <div className="participant">
-        <InjectedComponentSet
-          matching={{role: "Composer:RecipientChip"}}
-          exposedProps={{contact: p}}
-          direction="column"
-          inline
-        />
-        <span className="participant-primary">{chipText}</span>
-      </div>
     );
   }
 
@@ -176,24 +188,34 @@ export default class ParticipantsTextField extends React.Component {
   render() {
     const classSet = {};
     classSet[this.props.field] = true;
+    // TODO Ahh now that this component is part of the component kit this
+    // injected region feels out of place
     return (
       <div className={this.props.className}>
-        <TokenizingTextField
+        <InjectedComponent
           ref="textField"
-          tokens={this.props.participants[this.props.field]}
-          tokenKey={ (p) => p.email }
-          tokenIsValid={ (p) => ContactStore.isValidContact(p) }
-          tokenNode={this._tokenNode}
-          onRequestCompletions={ (input) => ContactStore.searchContacts(input) }
-          completionNode={this._completionNode}
-          onAdd={this._add}
-          onRemove={this._remove}
-          onEdit={this._edit}
-          onEmptied={this.props.onEmptied}
-          onFocus={this.props.onFocus}
-          onTokenAction={this._onShowContextMenu}
-          menuClassSet={classSet}
-          menuPrompt={this.props.field}
+          matching={{role: 'Composer:ParticipantsTextField'}}
+          fallback={TokenizingTextField}
+          exposedProps={{
+            tokens: this.props.participants[this.props.field],
+            tokenKey: (p) => p.email,
+            tokenIsValid: (p) => ContactStore.isValidContact(p),
+            tokenRenderer: TokenRenderer,
+            onRequestCompletions: (input) => ContactStore.searchContacts(input),
+            completionNode: this._completionNode,
+            onAdd: this._add,
+            onRemove: this._remove,
+            onEdit: this._edit,
+            onEmptied: this.props.onEmptied,
+            onFocus: this.props.onFocus,
+            onTokenAction: this._onShowContextMenu,
+            menuClassSet: classSet,
+            menuPrompt: this.props.field,
+            field: this.props.field,
+            draft: this.props.draft,
+            draftClientId: this.props.draft.clientId,
+            session: this.props.session,
+          }}
         />
       </div>
     );

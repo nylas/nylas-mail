@@ -10,12 +10,7 @@ export default class SendActionButton extends React.Component {
 
   static propTypes = {
     draft: React.PropTypes.object,
-    style: React.PropTypes.object,
     isValidDraft: React.PropTypes.func,
-  };
-
-  static defaultProps = {
-    style: {},
   };
 
   constructor(props) {
@@ -37,7 +32,9 @@ export default class SendActionButton extends React.Component {
     this.unsub();
   }
 
-  primaryClick = () => {
+  static containerRequired = false
+
+  primaryClick() {
     this._onPrimaryClick();
   }
 
