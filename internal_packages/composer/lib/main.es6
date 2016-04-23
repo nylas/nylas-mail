@@ -5,6 +5,7 @@ import {remote} from 'electron';
 
 import {
   Message,
+  Actions,
   DraftStore,
   ComponentRegistry,
   WorkspaceStore,
@@ -32,7 +33,7 @@ class ComposerWithWindowProps extends React.Component {
 
   onDraftReady = () => {
     this.refs.composer.focus().then(() => {
-      NylasEnv.displayWindow()
+      NylasEnv.displayWindow();
       if (this.state.errorMessage) {
         this._showInitialErrorDialog(this.state.errorMessage);
       }
@@ -92,12 +93,18 @@ export function activate() {
   }
 
   NylasEnv.getCurrentWindow().setMinimumSize(480, 250);
-  WorkspaceStore.defineSheet('Main', {root: true}, {
+
+  const silent = !NylasEnv.isMainWindow()
+  WorkspaceStore.defineSheet('Main', {root: true, silent}, {
     popout: ['Center'],
   });
   ComponentRegistry.register(ComposerWithWindowProps, {
     location: WorkspaceStore.Location.Center,
   });
+
+  if (silent) {
+    Actions.selectRootSheet(WorkspaceStore.Sheet.Main)
+  }
 }
 
 export function deactivate() {

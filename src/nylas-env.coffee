@@ -728,7 +728,6 @@ class NylasEnvConstructor extends Model
       @setWindowDimensions({width, height})
     browserWindow = @getCurrentWindow()
     if browserWindow.isResizable() isnt loadSettings.resizable
-      console.log(loadSettings.resizable)
       browserWindow.setResizable(loadSettings.resizable)
 
     @displayWindow() unless loadSettings.hidden
