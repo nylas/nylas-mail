@@ -1,0 +1,46 @@
+@import 'ui-variables';
+
+.nylas-table {
+  height: 100%;
+  width: 100%;
+  overflow: scroll;
+
+  .table-row {
+    .table-cell {
+      &>div {
+        min-height: 20px;
+        min-width: 100px;
+      }
+      border: 1px solid lightgrey;
+
+      input {
+        border: none;
+        &:focus {
+          border: none;
+          outline: none;
+          box-shadow: none;
+        }
+      }
+
+      &.selected {
+        // TODO
+        background: green;
+        opacity: 0.5;
+      }
+
+      &.numbered-cell {
+        width: 20px;
+        min-width: 20px;
+        text-align: center;
+      }
+    }
+
+    &.selected {
+      background: fadeout(@accent-primary, 80%);
+      .table-cell input {
+        color: darken(@accent-primary-dark, 25%);
+      }
+    }
+  }
+
+}

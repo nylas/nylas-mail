@@ -56,6 +56,11 @@ class NylasComponentKit
   @load "DateInput", "date-input"
   @load "DatePicker", "date-picker"
   @load "TimePicker", "time-picker"
+  @load "Table", "table"
+  @loadFrom "TableRow", "table"
+  @loadFrom "TableCell", "table"
+  @load "SelectableTable", "selectable-table"
+  @load "EditableTable", "editable-table"
 
   @load "ScrollRegion", 'scroll-region'
   @load "ResizableRegion", 'resizable-region'
@@ -73,6 +78,8 @@ class NylasComponentKit
   @load "NewsletterSignup", 'newsletter-signup'
 
   # Higher order components
-  @load "ListensToObservable", 'listens-to-observable'
+  @load "ListensToObservable", 'decorators/listens-to-observable'
+  @load "ListensToFluxStore", 'decorators/listens-to-flux-store'
+  @load "ListensToMovementKeys", 'decorators/listens-to-movement-keys'
 
 module.exports = new NylasComponentKit()

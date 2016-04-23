@@ -59,9 +59,12 @@ class InjectedComponent extends React.Component
     exposedProps: React.PropTypes.object
     fallback: React.PropTypes.func
     onComponentDidRender: React.PropTypes.func
+    style: React.PropTypes.object
     requiredMethods: React.PropTypes.arrayOf(React.PropTypes.string)
 
   @defaultProps:
+    style: {}
+    exposedProps: {}
     requiredMethods: []
     onComponentDidRender: ->
 
@@ -89,7 +92,7 @@ class InjectedComponent extends React.Component
   render: =>
     return <div></div> unless @state.component
 
-    exposedProps = @props.exposedProps ? {}
+    exposedProps = Object.assign({}, @props.exposedProps, {fallback: @props.fallback})
     className = @props.className ? ""
     className += " registered-region-visible" if @state.visible
 
@@ -100,6 +103,8 @@ class InjectedComponent extends React.Component
       element = (
         <UnsafeComponent
           ref="inner"
+          style={@props.style}
+          className={className}
           key={component.displayName}
           component={component}
           onComponentDidRender={@props.onComponentDidRender}
@@ -107,13 +112,13 @@ class InjectedComponent extends React.Component
       )
 
     if @state.visible
-      <div className={className}>
+      <div className={className} style={@props.style}>
         {element}
         <InjectedComponentLabel matching={@props.matching} {...exposedProps} />
         <span style={clear:'both'}/>
       </div>
     else
-      <div className={className}>
+      <div className={className} style={@props.style}>
         {element}
       </div>
 
@@ -154,7 +159,7 @@ class InjectedComponent extends React.Component
     if @state.component?
       component = @state.component
       @props.requiredMethods.forEach (method) =>
-        isMethodDefined = @state.component.prototype[method]?
+        isMethodDefined = component.prototype[method]?
         unless isMethodDefined
           throw new Error(
             "#{component.name} must implement method `#{method}` when registering

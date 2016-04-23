@@ -1,7 +1,8 @@
-import React from 'react';
+import React, {Component} from 'react';
 
-export default (ComposedComponent, {stores, getStateFromStores}) => class extends React.Component {
+export default (ComposedComponent, {stores, getStateFromStores}) => class extends Component {
   static displayName = ComposedComponent.displayName;
+
   static containerRequired = false;
 
   constructor(props) {
@@ -30,6 +31,6 @@ export default (ComposedComponent, {stores, getStateFromStores}) => class extend
   }
 
   render() {
-    return <ComposedComponent ref="composed" {...this.props} {...this.state} />;
+    return <ComposedComponent {...this.props} {...this.state} />;
   }
 };

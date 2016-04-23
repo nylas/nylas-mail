@@ -81,9 +81,10 @@ export default class ComposerView extends React.Component {
   }
 
   focus() {
-    if (ReactDOM.findDOMNode(this).contains(document.activeElement)) {
-      return;
-    }
+    // TODO is it safe to remove this?
+    // if (ReactDOM.findDOMNode(this).contains(document.activeElement)) {
+    //   return;
+    // }
 
     if (this.props.draft.to.length === 0) {
       this.refs.header.showAndFocusField(Fields.To);
@@ -344,11 +345,22 @@ export default class ComposerView extends React.Component {
 
         <div style={{order: 0, flex: 1}} />
 
-        <SendActionButton
-          tabIndex={-1}
-          draft={this.props.draft}
+
+        <InjectedComponent
           ref="sendActionButton"
-          isValidDraft={this._isValidDraft}
+          tabIndex={-1}
+          style={{order: -100}}
+          matching={{role: "Composer:SendActionButton"}}
+          fallback={SendActionButton}
+          requiredMethods={[
+            'primaryClick',
+          ]}
+          exposedProps={{
+            draft: this.props.draft,
+            draftClientId: this.props.draft.clientId,
+            session: this.props.session,
+            isValidDraft: this._isValidDraft,
+          }}
         />
       </div>
     );

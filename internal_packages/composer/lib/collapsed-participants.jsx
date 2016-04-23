@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {Utils} from 'nylas-exports';
-import {InjectedComponentSet} from 'nylas-component-kit';
+import {DropZone, InjectedComponentSet} from 'nylas-component-kit';
 
 const NUM_TO_DISPLAY_MAX = 999;
 
@@ -13,12 +13,16 @@ export default class CollapsedParticipants extends React.Component {
     to: React.PropTypes.array,
     cc: React.PropTypes.array,
     bcc: React.PropTypes.array,
+    onDrop: React.PropTypes.func,
+    onDragChange: React.PropTypes.func,
   }
 
   static defaultProps = {
     to: [],
     cc: [],
     bcc: [],
+    onDrop: () => {},
+    onDragChange: () => {},
   }
 
   constructor(props = {}) {
@@ -148,13 +152,19 @@ export default class CollapsedParticipants extends React.Component {
     }
 
     return (
-      <div
-        tabIndex={0}
-        ref="participantsWrap"
-        className="collapsed-composer-participants">
-        {this._renderNumRemaining()}
-        {toDisplay}
-      </div>
+      <DropZone
+        shouldAcceptDrop={() => true}
+        onDragStateChange={this.props.onDragChange}
+        onDrop={this.props.onDrop}
+      >
+        <div
+          tabIndex={0}
+          ref="participantsWrap"
+          className="collapsed-composer-participants">
+          {this._renderNumRemaining()}
+          {toDisplay}
+        </div>
+      </DropZone>
     );
   }
 }

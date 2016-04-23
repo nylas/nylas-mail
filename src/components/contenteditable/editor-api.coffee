@@ -91,7 +91,7 @@ class EditorAPI
   indent: -> @_ec("indent", false)
   insertHorizontalRule: -> @_ec("insertHorizontalRule", false)
 
-  insertHTML: (html, {selectInsertion}) ->
+  insertHTML: (html, {selectInsertion} = {}) ->
     if selectInsertion
       wrappedHtml = """<span id="tmp-html-insertion-wrap">#{html}</span>"""
       @_ec("insertHTML", false, wrappedHtml)
