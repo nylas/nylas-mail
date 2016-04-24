@@ -20,15 +20,14 @@ yoursway-create-dmg
 /_site
 /.sass-cache
 .integration-test-config
+.idea/
+spec-saved-state.json
 
 !spec/fixtures/packages/package-with-incompatible-native-module/node_modules
 
 #emacs
 *~
 *#
-
-.idea/
-spec-saved-state.json
 
 *nylas-private-*
 internal_packages/activity-list
