@@ -1,80 +1,117 @@
 fs = require 'fs-plus'
 path = require 'path'
-CSON = require 'season'
-AtomKeymap = require 'atom-keymap'
-KeymapUtils = require './keymap-utils'
+mousetrap = require 'mousetrap'
+{ipcRenderer} = require 'electron'
+{Emitter, Disposable} = require 'event-kit'
 
-class KeymapManager extends AtomKeymap
+###
+By default, Mousetrap stops all hotkeys within text inputs. Override this to
+more specifically block only hotkeys that have no modifier keys (things like
+Gmail's "x", while allowing standard hotkeys.)
+###
+mousetrap.prototype.stopCallback = (e, element, combo, sequence) ->
+  withinTextInput = element.tagName == 'INPUT' || element.tagName == 'SELECT' || element.tagName == 'TEXTAREA' || element.isContentEditable
+  if withinTextInput
+    return /(mod|shift|command|ctrl)/.test(combo) is false
+  return false
 
-  constructor: ->
-    super
-    @subscribeToFileReadFailure()
+class KeymapManager
 
-  onDidLoadBundledKeymaps: (callback) ->
-    @emitter.on 'did-load-bundled-keymaps', callback
-
-  # N1 adds the `cmdctrl` extension. This will use `cmd` or `ctrl` on a
-  # mac, and `ctrl` only on windows and linux.
-  readKeymap: (args...) ->
-    return KeymapUtils.cmdCtrlPreprocessor super(args...)
+  constructor: ({@configDirPath, @resourcePath}) ->
+    @_emitter = new Emitter
+    @_bindings = {}
+    @_keystrokes = {}
+    @_keymapDisposables = {}
 
   loadBundledKeymaps: ->
     # Load the base keymap and the base.platform keymap
-    baseKeymap = fs.resolve(path.join(@resourcePath, 'keymaps'), 'base', ['cson', 'json'])
-    inputResetKeymap = fs.resolve(path.join(@resourcePath, 'keymaps'), 'input-reset', ['cson', 'json'])
-    basePlatformKeymap = fs.resolve(path.join(@resourcePath, 'keymaps'), "base-#{process.platform}", ['cson', 'json'])
+    baseKeymap = fs.resolve(path.join(@resourcePath, 'keymaps', 'base.json'))
+    basePlatformKeymap = fs.resolve(path.join(@resourcePath, 'keymaps', "base-#{process.platform}.json"))
     @loadKeymap(baseKeymap)
-    @loadKeymap(inputResetKeymap)
     @loadKeymap(basePlatformKeymap)
 
     # Load the template keymap (Gmail, Mail.app, etc.) the user has chosen
     templateConfigKey = 'core.keymapTemplate'
     templateKeymapPath = null
     reloadTemplateKeymap = =>
-      @removeBindingsFromSource(templateKeymapPath) if templateKeymapPath
+      @_keymapDisposables[templateKeymapPath].dispose() if templateKeymapPath
       templateFile = NylasEnv.config.get(templateConfigKey)?.replace("GoogleInbox", "Inbox by Gmail")
       if templateFile
-        templateKeymapPath = fs.resolve(path.join(@resourcePath, 'keymaps', 'templates'), templateFile, ['cson', 'json'])
+        templateKeymapPath = fs.resolve(path.join(@resourcePath, 'keymaps', 'templates', "#{templateFile}.json"))
         if fs.existsSync(templateKeymapPath)
           @loadKeymap(templateKeymapPath)
-          @emitter.emit('did-reload-keymap', {path: templateKeymapPath})
         else
           console.warn("Could not find #{templateKeymapPath}")
 
     NylasEnv.config.observe(templateConfigKey, reloadTemplateKeymap)
     reloadTemplateKeymap()
 
-    @emitter.emit 'did-load-bundled-keymaps'
-
-  getUserKeymapPath: ->
-    if userKeymapPath = CSON.resolve(path.join(@configDirPath, 'keymap'))
-      userKeymapPath
-    else
-      path.join(@configDirPath, 'keymap.cson')
-
   loadUserKeymap: ->
-    userKeymapPath = @getUserKeymapPath()
+    userKeymapPath = path.join(@configDirPath, 'keymap.json')
     return unless fs.isFileSync(userKeymapPath)
 
     try
-      @loadKeymap(userKeymapPath, watch: true, suppressErrors: true)
+      @loadKeymap(userKeymapPath)
+      fs.watch userKeymapPath, =>
+        @_keymapDisposables[userKeymapPath].dispose()
+        @loadKeymap(userKeymapPath)
     catch error
       message = """
         Unable to watch path: `#{path.basename(userKeymapPath)}`. Make sure you
         have permission to read `#{userKeymapPath}`.
       """
-      console.error(message, {dismissable: true})
+      console.error(message)
 
-  subscribeToFileReadFailure: ->
-    @onDidFailToReadFile (error) =>
-      userKeymapPath = @getUserKeymapPath()
-      message = "Failed to load `#{userKeymapPath}`"
+  loadKeymap: (path, keymaps = null) =>
+    try
+      keymaps ?= JSON.parse(fs.readFileSync(path))
+    catch e
+      return if e.code is 'ENOENT'
+      throw e
 
-      detail = if error.location?
-        error.stack
-      else
-        error.message
+    @forEachInKeymaps keymaps, (command, keystrokes) =>
+      @ensureKeystrokesRegistered(keystrokes)
+      @_keystrokes[keystrokes].push(command)
+      @_bindings[command] ?= []
+      @_bindings[command].push(keystrokes)
 
-      console.error(message, {detail: detail, dismissable: true})
+    @_emitter.emit('on-did-reload-keymap')
+
+    disposable = new Disposable =>
+      @forEachInKeymaps keymaps, (command, keystrokes) =>
+        @_keystrokes[keystrokes] = @_keystrokes[keystrokes].filter (c) ->
+          c isnt command
+        @_bindings[command] = @_bindings[command].filter (k) ->
+          k isnt keystrokes
+
+    @_keymapDisposables[path] = disposable
+    return disposable
+
+  forEachInKeymaps: (keymaps, cb) =>
+    Object.keys(keymaps).forEach (command) =>
+      keystrokesArray = keymaps[command]
+      keystrokesArray = [keystrokesArray] unless keystrokes instanceof Array
+      for keystrokes in keystrokesArray
+        cb(command, keystrokes)
+
+  ensureKeystrokesRegistered: (keystrokes) =>
+    return if @_keystrokes[keystrokes]
+    @_keystrokes[keystrokes] = []
+    Mousetrap.bind keystrokes, (event) =>
+      for command in @_keystrokes[keystrokes]
+        if command.startsWith('application:')
+          ipcRenderer.send('command', command)
+        else
+          NylasEnv.commands.dispatch(command)
+      return false
+
+  onDidReloadKeymap: (callback) =>
+    @_emitter.on('on-did-reload-keymap', callback)
+
+  getBindingsForAllCommands: ->
+    @_bindings
+
+  getBindingsForCommand: (command) ->
+    @_bindings[command] || []
 
 module.exports = KeymapManager

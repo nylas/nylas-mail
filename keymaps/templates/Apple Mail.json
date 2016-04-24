@@ -1,0 +1,25 @@
+{
+  "application:new-message": "mod+n",
+
+  "navigation:go-to-inbox": "command+ctrl+1",
+  "navigation:go-to-starred": "command+ctrl+2",
+  "navigation:go-to-sent": "command+ctrl+3",
+  "navigation:go-to-drafts": "command+ctrl+4",
+  "navigation:go-to-all": "command+ctrl+5",
+  "navigation:go-to-contacts": "command+ctrl+6",
+  "navigation:go-to-tasks": "command+ctrl+7",
+  "navigation:go-to-label": "command+ctrl+8",
+
+  "multiselect-list:select-all": "command+a",
+
+  "core:reply": "mod+r",
+  "core:reply-all": "mod+shift+r",
+  "core:forward": "mod+shift+f",
+  "core:report-as-spam": "mod+shift+j",
+  "core:mark-as-unread": "mod+shift+u",
+  "core:star-item": "mod+shift+l",
+  "core:focus-search": "mod+alt+f",
+  "core:archive-item": "command+ctrl+a",
+
+  "composer:send-message": "mod+shift+d"
+}

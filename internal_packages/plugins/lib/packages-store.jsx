@@ -29,12 +29,12 @@ const PackagesStore = Reflux.createStore({
     this.listenTo(PluginsActions.refreshFeaturedPackages, this._refreshFeatured);
     this.listenTo(PluginsActions.refreshInstalledPackages, this._refreshInstalled);
 
-    NylasEnv.commands.add('body',
+    NylasEnv.commands.add(document.body,
       'application:create-package',
       () => this._onCreatePackage()
     );
 
-    NylasEnv.commands.add('body',
+    NylasEnv.commands.add(document.body,
       'application:install-package',
       () => this._onInstallPackage()
     );

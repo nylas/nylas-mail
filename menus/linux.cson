@@ -7,7 +7,7 @@
       { label: 'Add Account...', command: 'application:add-account' }
       { label: 'Clos&e Window', command: 'window:close' }
       { type: 'separator' }
-      { label: 'Print Current Thread', command: 'application:print-thread' }
+      { label: 'Print Current Thread', command: 'core:print-thread' }
       { type: 'separator' }
       { label: 'Quit', command: 'application:quit' }
     ]
@@ -26,9 +26,9 @@
       { label: 'Select &All', command: 'core:select-all' }
       { type: 'separator' }
       { label: 'Find', submenu: [
-        { label: 'Find in Thread...', command: 'application:find-in-thread' }
-        { label: 'Find Next', command: 'application:find-in-thread-next' }
-        { label: 'Find Previous', command: 'application:find-in-thread-previous' }
+        { label: 'Find in Thread...', command: 'core:find-in-thread' }
+        { label: 'Find Next', command: 'core:find-in-thread-next' }
+        { label: 'Find Previous', command: 'core:find-in-thread-previous' }
       ] }
       { type: 'separator' }
       { label: 'Preferences', command: 'application:open-preferences' }

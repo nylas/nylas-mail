@@ -22,9 +22,9 @@ export default class FindInThread extends React.Component {
 
   _globalKeymapHandlers() {
     return {
-      'application:find-in-thread': this._onFindInThread,
-      'application:find-in-thread-next': this._onNextResult,
-      'application:find-in-thread-previous': this._onPrevResult,
+      'core:find-in-thread': this._onFindInThread,
+      'core:find-in-thread-next': this._onNextResult,
+      'core:find-in-thread-previous': this._onPrevResult,
     }
   }
 

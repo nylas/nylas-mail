@@ -34,7 +34,7 @@ class CategoryPicker extends React.Component
     @_account = AccountStore.accountForItems(nextProps.items)
 
   _keymapHandlers: ->
-    "application:change-category": @_onOpenCategoryPopover
+    "core:change-category": @_onOpenCategoryPopover
 
   _onOpenCategoryPopover: =>
     return unless @props.items.length > 0
@@ -61,7 +61,16 @@ class CategoryPicker extends React.Component
       tooltip = "Move to Folder"
 
     return (
-      <KeyCommandsRegion style={order: -103} globalHandlers={@_keymapHandlers()}>
+      <KeyCommandsRegion
+        style={order: -103}
+        globalHandlers={@_keymapHandlers()}
+        globalMenuItems={[
+          {
+            "label": "Thread",
+            "submenu": [{ "label": "#{tooltip}...", "command": "core:change-category", "position": "endof=thread-actions" }]
+          }
+        ]}
+        >
         <button
           tabIndex={-1}
           ref="button"

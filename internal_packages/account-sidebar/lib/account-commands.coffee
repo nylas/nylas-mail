@@ -21,16 +21,16 @@ class AccountCommands
     @_commandsDisposable?.dispose()
     commands = {}
 
-    allKey = "application:select-account-0"
+    allKey = "window:select-account-0"
     commands[allKey] = @_focusAccounts.bind(@, accounts)
 
     [1..8].forEach (index) =>
       account = accounts[index - 1]
       return unless account
-      key = "application:select-account-#{index}"
+      key = "window:select-account-#{index}"
       commands[key] = @_focusAccounts.bind(@, [account])
 
-    @_commandsDisposable = NylasEnv.commands.add('body', commands)
+    @_commandsDisposable = NylasEnv.commands.add(document.body, commands)
 
   @registerMenuItems: (accounts, focusedAccounts) ->
     windowMenu = _.find NylasEnv.menu.template, ({label}) ->
@@ -51,7 +51,7 @@ class AccountCommands
   @menuItem: (account, idx, {isSelected, clickHandlers} = {}) =>
     item = {
       label: account.label ? "All Accounts",
-      command: "application:select-account-#{idx}",
+      command: "window:select-account-#{idx}",
       account: true
     }
     if isSelected
@@ -74,7 +74,7 @@ class AccountCommands
       ]
 
     template = template.concat accounts.map((account, idx) =>
-      # If there's only one account, it should be mapped to Cmd+1, not Cmd+2
+      # If there's only one account, it should be mapped to command+1, not command+2
       accIdx = if multiAccount then idx + 1 else idx
       isSelected = @_isSelected(account, focusedAccounts)
       return @menuItem(account, accIdx, {isSelected, clickHandlers})

@@ -6,7 +6,7 @@ import ThemePicker from './theme-picker';
 
 
 export function activate() {
-  this.disposable = NylasEnv.commands.add("body", "window:launch-theme-picker", () => {
+  this.disposable = NylasEnv.commands.add(document.body, "window:launch-theme-picker", () => {
     WorkspaceStore.popToRootSheet();
     Actions.openModal({
       component: (<ThemePicker />),

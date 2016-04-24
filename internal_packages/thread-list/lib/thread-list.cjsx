@@ -58,21 +58,21 @@ class ThreadList extends React.Component
     Actions.setFocus(collection: 'thread', item: item)
 
   _keymapHandlers: ->
-    'application:remove-from-view': =>
+    'core:remove-from-view': =>
       @_onRemoveFromView()
-    'application:gmail-remove-from-view': =>
+    'core:gmail-remove-from-view': =>
       @_onRemoveFromView(CategoryRemovalTargetRulesets.Gmail)
-    'application:archive-item': @_onArchiveItem
-    'application:delete-item': @_onDeleteItem
-    'application:star-item': @_onStarItem
-    'application:mark-important': => @_onSetImportant(true)
-    'application:mark-unimportant': => @_onSetImportant(false)
-    'application:mark-as-unread': => @_onSetUnread(true)
-    'application:mark-as-read': => @_onSetUnread(false)
-    'application:report-as-spam': => @_onMarkAsSpam(false)
-    'application:remove-and-previous': =>
+    'core:archive-item': @_onArchiveItem
+    'core:delete-item': @_onDeleteItem
+    'core:star-item': @_onStarItem
+    'core:mark-important': => @_onSetImportant(true)
+    'core:mark-unimportant': => @_onSetImportant(false)
+    'core:mark-as-unread': => @_onSetUnread(true)
+    'core:mark-as-read': => @_onSetUnread(false)
+    'core:report-as-spam': => @_onMarkAsSpam(false)
+    'core:remove-and-previous': =>
       @_shift(offset: -1, afterRunning: @_onRemoveFromView)
-    'application:remove-and-next': =>
+    'core:remove-and-next': =>
       @_shift(offset: 1, afterRunning: @_onRemoveFromView)
     'thread-list:select-read': @_onSelectRead
     'thread-list:select-unread': @_onSelectUnread

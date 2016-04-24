@@ -19,8 +19,8 @@ class UndoRedoStore
     @listenTo(Actions.queueTask, @_onQueue)
     @listenTo(Actions.queueTasks, @_onQueue)
 
-    NylasEnv.commands.add('body', {'core:undo': @undo })
-    NylasEnv.commands.add('body', {'core:redo': @redo })
+    NylasEnv.commands.add(document.body, {'core:undo': @undo })
+    NylasEnv.commands.add(document.body, {'core:redo': @redo })
 
   _onQueue: (tasks) =>
     return unless tasks

@@ -182,18 +182,10 @@ class NylasEnvConstructor extends Model
     @config = new Config({configDirPath, resourcePath})
 
     @keymaps = new KeymapManager({configDirPath, resourcePath})
-    @keymaps.onDidMatchBinding (event) ->
-      # If the user fired a command with the application: prefix bound to
-      # the body, re-fire it up into the browser process. This prevents us
-      # from needing this crap, which has to be updated every time a new
-      # application: command is added:
-      if event.binding.command.indexOf('application:') is 0 and event.binding.selector.indexOf("body") is 0
-        ipcRenderer.send('command', event.binding.command)
-
-    @commands = new CommandRegistry
-    @commands.attach(window)
 
     specMode = @inSpecMode()
+
+    @commands = new CommandRegistry
     @packages = new PackageManager({devMode, configDirPath, resourcePath, safeMode, specMode})
     @styles = new StyleManager
     document.head.appendChild(new StylesElement)

@@ -1,25 +1,20 @@
 path = require 'path'
-{$} = require './space-pen-extensions'
 _ = require 'underscore'
 {Disposable} = require 'event-kit'
 {shell, ipcRenderer, remote} = require 'electron'
-{Subscriber} = require 'emissary'
 fs = require 'fs-plus'
 url = require 'url'
 
 # Handles low-level events related to the window.
 module.exports =
 class WindowEventHandler
-  Subscriber.includeInto(this)
-
   constructor: ->
-    @reloadRequested = false
     @unloadCallbacks = []
 
     _.defer =>
       @showDevModeMessages()
 
-    @subscribe ipcRenderer, 'open-path', (event, pathToOpen) ->
+    ipcRenderer.on 'open-path', (event, pathToOpen) ->
       unless NylasEnv.project?.getPaths().length
         if fs.existsSync(pathToOpen) or fs.existsSync(path.dirname(pathToOpen))
           NylasEnv.project?.setPaths([pathToOpen])
@@ -27,62 +22,62 @@ class WindowEventHandler
       unless fs.isDirectorySync(pathToOpen)
         NylasEnv.workspace?.open(pathToOpen, {})
 
-    @subscribe ipcRenderer, 'update-available', (event, detail) ->
+    ipcRenderer.on 'update-available', (event, detail) ->
       NylasEnv.updateAvailable(detail)
 
-    @subscribe ipcRenderer, 'browser-window-focus', ->
+    ipcRenderer.on 'browser-window-focus', ->
       document.body.classList.remove('is-blurred')
       window.dispatchEvent(new Event('browser-window-focus'))
 
-    @subscribe ipcRenderer, 'browser-window-blur', ->
+    ipcRenderer.on 'browser-window-blur', ->
       document.body.classList.add('is-blurred')
       window.dispatchEvent(new Event('browser-window-blur'))
 
-    @subscribe ipcRenderer, 'command', (event, command, args...) ->
-      activeElement = document.activeElement
-      # Use the workspace element view if body has focus
-      if activeElement is document.body and workspaceElement = document.getElementById("nylas-workspace")
-        activeElement = workspaceElement
-      NylasEnv.commands.dispatch(activeElement, command, args[0])
+    ipcRenderer.on 'command', (event, command, args...) ->
+      NylasEnv.commands.dispatch(command, args[0])
 
-    @subscribe ipcRenderer, 'scroll-touch-begin', ->
+    ipcRenderer.on 'scroll-touch-begin', ->
       window.dispatchEvent(new Event('scroll-touch-begin'))
 
-    @subscribe ipcRenderer, 'scroll-touch-end', ->
+    ipcRenderer.on 'scroll-touch-end', ->
       window.dispatchEvent(new Event('scroll-touch-end'))
 
-    @subscribe $(window), 'beforeunload', =>
+    window.addEventListener 'beforeunload', =>
       # Don't hide the window here if we don't want the renderer process to be
       # throttled in case more work needs to be done before closing
-      @reloadRequested = false
       return @runUnloadCallbacks()
 
-    @subscribe $(window), 'unload', =>
+    window.addEventListener 'unload', =>
       NylasEnv.storeWindowDimensions()
       NylasEnv.saveStateAndUnloadWindow()
-      NylasEnv.windowEventHandler?.unsubscribe()
 
-    @subscribeToCommand $(window), 'window:toggle-full-screen', ->
+    NylasEnv.commands.add document.body, 'window:toggle-full-screen', ->
       NylasEnv.toggleFullScreen()
 
-    @subscribeToCommand $(window), 'window:close', ->
+    NylasEnv.commands.add document.body, 'window:close', ->
       NylasEnv.close()
 
-    @subscribeToCommand $(window), 'window:reload', =>
-      @reloadRequested = true
+    NylasEnv.commands.add document.body, 'window:reload', =>
       NylasEnv.reload()
 
-    @subscribeToCommand $(window), 'window:toggle-dev-tools', ->
+    NylasEnv.commands.add document.body, 'window:toggle-dev-tools', ->
       NylasEnv.toggleDevTools()
 
-    @subscribeToCommand $(window), 'window:open-errorlogger-logs', ->
+    NylasEnv.commands.add document.body, 'window:open-errorlogger-logs', ->
       NylasEnv.errorLogger.openLogs()
 
-    @subscribeToCommand $(window), 'window:toggle-component-regions', ->
+    NylasEnv.commands.add document.body, 'window:toggle-component-regions', ->
       ComponentRegistry = require './component-registry'
       ComponentRegistry.toggleComponentRegions()
 
-    document.addEventListener 'keydown', @onKeydown
+    webContents = NylasEnv.getCurrentWindow().webContents
+    NylasEnv.commands.add(document.body, 'core:copy', => webContents.copy())
+    NylasEnv.commands.add(document.body, 'core:cut', => webContents.cut())
+    NylasEnv.commands.add(document.body, 'core:paste', => webContents.paste())
+    NylasEnv.commands.add(document.body, 'core:paste-and-match-style', => webContents.pasteAndMatchStyle())
+    NylasEnv.commands.add(document.body, 'core:undo', => webContents.undo())
+    NylasEnv.commands.add(document.body, 'core:redo', => webContents.redo())
+    NylasEnv.commands.add(document.body, 'core:select-all', => webContents.selectAll())
 
     # "Pinch to zoom" on the Mac gets translated by the system into a
     # "scroll with ctrl key down". To prevent the page from zooming in,
@@ -92,21 +87,22 @@ class WindowEventHandler
         event.preventDefault()
 
     document.addEventListener 'drop', @onDrop
-    @subscribe new Disposable =>
-      document.removeEventListener('drop', @onDrop)
 
     document.addEventListener 'dragover', @onDragOver
-    @subscribe new Disposable =>
-      document.removeEventListener('dragover', @onDragOver)
 
-    @subscribe $(document), 'click', 'a', @openLink
+    document.addEventListener 'click', (event) =>
+      if event.target.nodeName is 'A'
+        @openLink(event)
 
-    @subscribe $(document), 'contextmenu', 'input', @openContextualMenuForInput
+    document.addEventListener 'contextmenu', (event) =>
+      if event.target.nodeName is 'INPUT'
+        @openContextualMenuForInput(event)
 
     # Prevent form submits from changing the current window's URL
-    @subscribe $(document), 'submit', 'form', (e) -> e.preventDefault()
-
-    @handleNativeKeybindings()
+    document.addEventListener 'submit', (event) =>
+      if event.target.nodeName is 'FORM'
+        event.preventDefault()
+        @openContextualMenuForInput(event)
 
   addUnloadCallback: (callback) ->
     @unloadCallbacks.push(callback)
@@ -135,28 +131,6 @@ class WindowEventHandler
         remote.require('app').quit()
       else
         NylasEnv.close()
-
-  # Wire commands that should be handled by Chromium for elements with the
-  # `.override-key-bindings` class.
-  handleNativeKeybindings: ->
-    menu = null
-    webContents = NylasEnv.getCurrentWindow().webContents
-    bindCommandToAction = (command, action) =>
-      @subscribe $(document), command, (event) ->
-        unless event.target.webkitMatchesSelector('.override-key-bindings')
-          webContents[action]()
-        true
-
-    bindCommandToAction('core:copy', 'copy')
-    bindCommandToAction('core:cut', 'cut')
-    bindCommandToAction('core:paste', 'paste')
-    bindCommandToAction('core:paste-and-match-style', 'pasteAndMatchStyle')
-    bindCommandToAction('core:undo', 'undo')
-    bindCommandToAction('core:redo', 'redo')
-    bindCommandToAction('core:select-all', 'selectAll')
-
-  onKeydown: (event) ->
-    NylasEnv.keymaps.handleKeyboardEvent(event)
 
   # Important: even though we don't do anything here, we need to catch the
   # drop event to prevent the browser from navigating the to the "url" of the

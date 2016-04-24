@@ -24,9 +24,7 @@ class WorkspaceStore extends NylasStore
 
     @listenTo Actions.selectRootSheet, @_onSelectRootSheet
     @listenTo Actions.setFocus, @_onSetFocus
-
     @listenTo Actions.toggleWorkspaceLocationHidden, @_onToggleLocationHidden
-
     @listenTo Actions.popSheet, @popSheet
     @listenTo Actions.pushSheet, @pushSheet
     @listenTo Actions.focusMailboxPerspective, @popToRootSheet
@@ -37,50 +35,38 @@ class WorkspaceStore extends NylasStore
       NylasEnv.config.observe 'core.workspace.interfaceZoom', (z) =>
         require('electron').webFrame.setZoomFactor(z) if z and _.isNumber(z)
 
-    NylasEnv.commands.add 'body', @_navigationCommands()
+    if NylasEnv.isMainWindow()
+      @_rebuildMenu()
+      NylasEnv.commands.add(document.body, {
+        'core:pop-sheet': => @popSheet()
+        'application:select-list-mode' : => @_onSelectLayoutMode("list")
+        'application:select-split-mode' : => @_onSelectLayoutMode("split")
+      })
 
-  _navigationCommands: ->
-    'application:pop-sheet'    : => @popSheet()
-    'application:select-list-mode' : => @_selectViewMode("list")
-    'application:select-split-mode' : => @_selectViewMode("split")
-    'navigation:go-to-inbox'   : => @_setPerspectiveByName("inbox")
-    'navigation:go-to-starred' : => @_selectStarredPerspective()
-    'navigation:go-to-sent'    : => @_setPerspectiveByName("sent")
-    'navigation:go-to-drafts'  : => @_selectDraftsSheet()
-    'navigation:go-to-all'     : => @_selectAllPerspective()
-    'navigation:go-to-contacts': => ## TODO
-    'navigation:go-to-tasks'   : => ## TODO
-    'navigation:go-to-label'   : => ## TODO
 
-  _selectViewMode: (mode) =>
-    return if mode is @_preferredLayoutMode
-    @_preferredLayoutMode = mode
-    NylasEnv.config.set('core.workspace.mode', @_preferredLayoutMode)
-    @popToRootSheet()
-    @trigger()
-
-  _setPerspectiveByName: (categoryName) ->
-    accountIds = FocusedPerspectiveStore.current().accountIds
-    categories = accountIds.map (aid) -> CategoryStore.getStandardCategory(aid, categoryName)
-    categories = _.compact(categories)
-
-    if categories.length > 0
-      view = MailboxPerspective.forCategories(categories)
-      Actions.focusMailboxPerspective(view)
-
-  _selectDraftsSheet: ->
-    Actions.selectRootSheet(@Sheet.Drafts)
-
-  _selectAllPerspective: ->
-    accountIds = FocusedPerspectiveStore.current().accountIds
-    categories = accountIds.map (aid) -> CategoryStore.getArchiveCategory(aid)
-
-    view = MailboxPerspective.forCategories(categories)
-    Actions.focusMailboxPerspective(view)
-
-  _selectStarredPerspective: ->
-    accountIds = FocusedPerspectiveStore.current().accountIds
-    Actions.focusMailboxPerspective MailboxPerspective.forStarred(accountIds)
+  _rebuildMenu: =>
+    @_menuDisposable?.dispose()
+    @_menuDisposable = NylasEnv.menu.add([
+      {
+        "label": "View",
+        "submenu": [
+          {
+            "label": "Single Panel Mode",
+            "type": "radio",
+            "command": "application:select-list-mode",
+            "checked": @_preferredLayoutMode is 'list',
+            "position": "before=mailbox-navigation"
+          },
+          {
+            "label": "Two Panel Mode",
+            "type": "radio",
+            "command": "application:select-split-mode",
+            "checked": @_preferredLayoutMode is 'split'
+            "position": "before=mailbox-navigation"
+          }
+        ]
+      }
+    ])
 
   _resetInstanceVars: =>
     @Location = Location = {}
@@ -140,6 +126,14 @@ class WorkspaceStore extends NylasStore
           @pushSheet(Sheet.File)
         if not item and @topSheet() is Sheet.File
           @popSheet()
+
+  _onSelectLayoutMode: (mode) =>
+    return if mode is @_preferredLayoutMode
+    @_preferredLayoutMode = mode
+    NylasEnv.config.set('core.workspace.mode', @_preferredLayoutMode)
+    @_rebuildMenu()
+    @popToRootSheet()
+    @trigger()
 
   ###
   Accessing Data

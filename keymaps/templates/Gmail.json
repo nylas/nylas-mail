@@ -1,0 +1,60 @@
+{
+  "navigation:go-to-inbox": "g i",
+  "navigation:go-to-starred": "g s",
+  "navigation:go-to-sent": "g t",
+  "navigation:go-to-drafts": "g d",
+  "navigation:go-to-all": "g a",
+  "navigation:go-to-contacts": "g c",
+  "navigation:go-to-tasks": "g k",
+  "navigation:go-to-label": "g l",
+
+  "multiselect-list:select-all": "* a",
+  "multiselect-list:deselect-all": "* n",
+
+  "thread-list:select-read": "* r",
+  "thread-list:select-unread": "* u",
+  "thread-list:select-starred": "* s",
+  "thread-list:select-unstarred": "* t",
+
+  "core:pop-sheet": "u",
+  "core:previous-item": "k",
+  "core:select-up": "shift+k",
+  "core:next-item": "j",
+  "core:select-down": "shift+j",
+  "core:focus-item": "o",
+  "core:select-item": "x",
+  "core:undo": "z",
+
+  "message-list:previous-message": "p",
+  "message-list:next-message": "n",
+  "message-list:expand-all": ";",
+  "message-list:collapse-all": ":",
+
+  "application:new-message": "mod+n",
+  "application:more-actions": ".",
+  "application:open-help": "?",
+
+  "core:mute-conversation": "m",
+  "core:focus-search": "/",
+  "core:change-category": "v",
+  "core:focus-toolbar": ",",
+  "core:star-item": "s",
+  "core:gmail-remove-from-view": "y",
+  "core:archive-item": "e",
+  "core:report-as-spam": "!",
+  "core:delete-item": "#",
+
+  "core:reply": "mod+r",
+  "core:reply-new-window": "shift+r",
+  "core:reply-all": "mod+shift+r",
+  "core:reply-all-new-window": "shift+a",
+  "core:forward": "mod+shift+f",
+  "core:forward-new-window": "shift+f",
+  "core:remove-and-previous": "}",
+  "core:remove-and-next": "{",
+
+  "core:mark-as-read": "shift+i",
+  "core:mark-as-unread": "_",
+  "core:mark-important": "=",
+  "core:mark-unimportant": "-"
+}

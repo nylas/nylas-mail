@@ -7,9 +7,7 @@ EmitterMixin = require('emissary').Emitter
 fs = require 'fs-plus'
 Q = require 'q'
 Grim = require 'grim'
-CSON = require 'season'
 
-ServiceHub = require 'service-hub'
 Package = require './package'
 ThemePackage = require './theme-package'
 DatabaseStore = require './flux/stores/database-store'
@@ -54,7 +52,6 @@ class PackageManager
     @packagesWithDatabaseObjects = []
     @activePackages = {}
     @packageStates = {}
-    @serviceHub = new ServiceHub
 
     @packageActivators = []
     @registerPackageActivator(this, ['nylas'])
@@ -387,7 +384,7 @@ class PackageManager
             callback(null, packageTargetDir)
 
   verifyValidPackage: (packageSourceDir, callback) ->
-    if CSON.resolve(path.join(packageSourceDir, 'package'))
+    if fs.existsSync(path.join(packageSourceDir, 'package.json'))
       return true
     else
       errMsg = "The folder you selected doesn't look like a valid N1 plugin. All N1 plugins must have a package.json file in the top level of the folder. Check the contents of #{packageSourceDir} and try again"

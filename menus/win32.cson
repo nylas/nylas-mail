@@ -13,9 +13,9 @@
       { label: 'Select &All', command: 'core:select-all' }
       { type: 'separator' }
       { label: 'Find', submenu: [
-        { label: 'Find in Thread...', command: 'application:find-in-thread' }
-        { label: 'Find Next', command: 'application:find-in-thread-next' }
-        { label: 'Find Previous', command: 'application:find-in-thread-previous' }
+        { label: 'Find in Thread...', command: 'core:find-in-thread' }
+        { label: 'Find Next', command: 'core:find-in-thread-next' }
+        { label: 'Find Previous', command: 'core:find-in-thread-previous' }
       ] }
     ]
   }
@@ -66,7 +66,7 @@
   { label: 'Change Theme...', command: 'window:launch-theme-picker' }
   { label: 'Install Theme...', command: 'application:install-package' }
   { type: 'separator' }
-  { label: 'Print Current Thread', command: 'application:print-thread' }
+  { label: 'Print Current Thread', command: 'core:print-thread' }
   { type: 'separator' }
   { label: 'E&xit', command: 'application:quit' }
 ]

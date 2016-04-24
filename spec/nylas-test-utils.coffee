@@ -2,22 +2,15 @@
 CSON = require 'season'
 React = require 'react'
 ReactDOM = require 'react-dom'
-KeymapManager = require 'atom-keymap'
 ReactTestUtils = require('react-addons-test-utils')
 
 NylasTestUtils =
-  loadKeymap: (keymapPath) ->
-    {resourcePath} = NylasEnv.getLoadSettings()
-    basePath = CSON.resolve("#{resourcePath}/keymaps/base")
-    NylasEnv.keymaps.loadKeymap(basePath)
 
-    if keymapPath?
-      keymapPath = CSON.resolve("#{resourcePath}/#{keymapPath}")
-      NylasEnv.keymaps.loadKeymap(keymapPath)
+  loadKeymap: (path) =>
+    NylasEnv.keymaps.loadKeymap(path)
 
-  keyDown: (key, target) ->
-    event = KeymapManager.buildKeydownEvent(key, target: target)
-    NylasEnv.keymaps.handleKeyboardEvent(event)
+  simulateCommand: (target, command) =>
+    target.dispatchEvent(new CustomEvent(command, {bubbles: true}))
 
   # React's "renderIntoDocument" does not /actually/ attach the component
   # to the document. It's a sham: http://dragon.ak.fbcdn.net/hphotos-ak-xpf1/t39.3284-6/10956909_1423563877937976_838415501_n.js

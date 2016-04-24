@@ -1,0 +1,6 @@
+{
+  "window:toggle-full-screen": "F11",
+  "window:show-work-window": "ctrl-shift-F10",
+  "window:reload": "ctrl-shift-F11",
+  "window:toggle-dev-tools": "ctrl-shift-F12"
+}

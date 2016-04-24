@@ -77,7 +77,7 @@ class MultiselectList extends React.Component
       'core:select-up': => @_onShift(-1, {select: true})
       'core:list-page-up': => @_onScrollByPage(-1)
       'core:list-page-down': => @_onScrollByPage(1)
-      'application:pop-sheet': => @_onDeselect()
+      'core:pop-sheet': => @_onDeselect()
       'multiselect-list:select-all': => @_onSelectAll()
       'multiselect-list:deselect-all': => @_onDeselect()
     })
