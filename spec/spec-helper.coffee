@@ -113,6 +113,9 @@ window.TEST_ACCOUNT_ALIAS_EMAIL = "tester+alternative@nylas.com"
 
 window.TEST_TIME_ZONE = "America/Los_Angeles"
 moment = require('moment-timezone')
+# moment-round upon require patches `moment` with new functions.
+require('moment-round')
+
 # This date was chosen because it's close to a DST boundary
 window.testNowMoment = ->
   moment.tz("2016-03-15 12:00", TEST_TIME_ZONE)

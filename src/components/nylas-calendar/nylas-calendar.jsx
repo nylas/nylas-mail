@@ -121,3 +121,6 @@ export default class NylasCalendar extends React.Component {
     )
   }
 }
+
+
+NylasCalendar.WeekView = WeekView;

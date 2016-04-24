@@ -145,7 +145,10 @@ class WindowEventHandler
 
   openLink: ({href, target, currentTarget, metaKey}) ->
     if not href
-      href = target?.getAttribute('href') or currentTarget?.getAttribute('href')
+      if target instanceof Element
+        href = target.getAttribute('href')
+      else if currentTarget instanceof Element
+        href = currentTarget.getAttribute('href')
 
     return unless href
 
