@@ -87,13 +87,15 @@ class KeyCommandsRegion extends React.Component
     className: React.PropTypes.string
     localHandlers: React.PropTypes.object
     globalHandlers: React.PropTypes.object
+    globalMenuItems: React.PropTypes.array
     onFocusIn: React.PropTypes.func
     onFocusOut: React.PropTypes.func
 
   @defaultProps:
     className: ""
-    localHandlers: {}
-    globalHandlers: {}
+    localHandlers: null
+    globalHandlers: null
+    globalMenuItems: null
     onFocusIn: ->
     onFocusOut: ->
 
@@ -137,12 +139,21 @@ class KeyCommandsRegion extends React.Component
     @_unmountListeners()
     @_setupListeners(newProps)
 
+    # Updating menus in particular is expensive, so avoid teardown / re-add if identical
+    if not _.isEqual(newProps.globalMenuItems, @props.globalMenuItems)
+      @_menuDisposable?.dispose()
+      @_menuDisposable = NylasEnv.menu.add(newProps.globalMenuItems)
+
   componentDidMount: ->
     @_setupListeners(@props)
+    if @props.globalMenuItems
+      @_menuDisposable = NylasEnv.menu.add(@props.globalMenuItems)
 
   componentWillUnmount: ->
     @_losingFocusToElement = null
     @_unmountListeners()
+    @_menuDisposable?.dispose()
+    @_menuDisposable = null
 
   # When the {KeymapManager} finds a valid keymap in a `.cson` file, it
   # will create a CustomEvent with the command name as its type. That
@@ -154,11 +165,15 @@ class KeyCommandsRegion extends React.Component
   # particular scope, we simply need to listen at the root window level
   # here for all commands coming in.
   _setupListeners: (props) ->
-    @_globalDisposable = NylasEnv.commands.add('body', props.globalHandlers)
     $el = ReactDOM.findDOMNode(@)
-    @_localDisposable = NylasEnv.commands.add($el, props.localHandlers)
     $el.addEventListener('focusin', @_in)
     $el.addEventListener('focusout', @_out)
+
+    if props.globalHandlers
+      @_globalDisposable = NylasEnv.commands.add(document.body, props.globalHandlers)
+    if props.localHandlers
+      @_localDisposable = NylasEnv.commands.add($el, props.localHandlers)
+
     window.addEventListener('browser-window-blur', @_onWindowBlur)
 
   _unmountListeners: ->

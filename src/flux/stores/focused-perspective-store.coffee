@@ -12,7 +12,25 @@ class FocusedPerspectiveStore extends NylasStore
     @listenTo CategoryStore, @_onCategoryStoreChanged
     @listenTo Actions.focusMailboxPerspective, @_onFocusPerspective
     @listenTo Actions.focusDefaultMailboxPerspectiveForAccounts, @_onFocusAccounts
+    @_listenToCommands()
 
+  _listenToCommands: =>
+    NylasEnv.commands.add(document.body, {
+      'navigation:go-to-inbox'   : =>
+        @_setPerspectiveByName("inbox")
+      'navigation:go-to-sent'    : =>
+        @_setPerspectiveByName("sent")
+      'navigation:go-to-starred' : =>
+        @_setPerspective(MailboxPerspective.forStarred(@_current.accountIds))
+      'navigation:go-to-drafts'  : =>
+        @_setPerspective(MailboxPerspective.forDrafts(@_current.accountIds))
+      'navigation:go-to-all'     : =>
+        categories = @_current.accountIds.map (aid) -> CategoryStore.getArchiveCategory(aid)
+        @_setPerspective(MailboxPerspective.forCategories(categories))
+      'navigation:go-to-contacts': => ## TODO
+      'navigation:go-to-tasks'   : => ## TODO
+      'navigation:go-to-label'   : => ## TODO
+    })
 
   _loadSavedPerspective: (savedPerspective, accounts = AccountStore.accounts()) =>
     if savedPerspective
@@ -58,9 +76,17 @@ class FocusedPerspectiveStore extends NylasStore
     @_current = perspective
     @trigger()
 
+  _setPerspectiveByName: (categoryName) ->
+    categories = @_current.accountIds.map (aid) ->
+      CategoryStore.getStandardCategory(aid, categoryName)
+    categories = _.compact(categories)
+    return if categories.length is 0
+    @_setPerspective(MailboxPerspective.forCategories(categories))
+
   # Public Methods
 
   current: =>
     @_current
+
 
 module.exports = new FocusedPerspectiveStore()

@@ -34,7 +34,7 @@ class DraftList extends React.Component
     props
 
   _keymapHandlers: =>
-    'application:remove-from-view': @_onRemoveFromView
+    'core:remove-from-view': @_onRemoveFromView
 
   _onDoubleClick: (draft) =>
     unless draft.uploadTaskId

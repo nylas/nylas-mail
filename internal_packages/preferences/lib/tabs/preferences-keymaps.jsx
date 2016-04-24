@@ -13,27 +13,27 @@ const displayedKeybindings = [
     title: 'Application',
     items: [
       ['application:new-message', 'New Message'],
-      ['application:focus-search', 'Search'],
+      ['core:focus-search', 'Search'],
     ],
   },
   {
     title: 'Actions',
     items: [
-      ['application:reply', 'Reply'],
-      ['application:reply-all', 'Reply All'],
-      ['application:forward', 'Forward'],
-      ['application:archive-item', 'Archive'],
-      ['application:delete-item', 'Trash'],
-      ['application:remove-from-view', 'Remove from view'],
-      ['application:gmail-remove-from-view', 'Gmail Remove from view'],
-      ['application:star-item', 'Star'],
-      ['application:change-category', 'Change Folder / Labels'],
-      ['application:mark-as-read', 'Mark as read'],
-      ['application:mark-as-unread', 'Mark as unread'],
-      ['application:mark-important', 'Mark as important (Gmail)'],
-      ['application:mark-unimportant', 'Mark as unimportant (Gmail)'],
-      ['application:remove-and-previous', 'Remove from view and previous'],
-      ['application:remove-and-next', 'Remove from view and next'],
+      ['core:reply', 'Reply'],
+      ['core:reply-all', 'Reply All'],
+      ['core:forward', 'Forward'],
+      ['core:archive-item', 'Archive'],
+      ['core:delete-item', 'Trash'],
+      ['core:remove-from-view', 'Remove from view'],
+      ['core:gmail-remove-from-view', 'Gmail Remove from view'],
+      ['core:star-item', 'Star'],
+      ['core:change-category', 'Change Folder / Labels'],
+      ['core:mark-as-read', 'Mark as read'],
+      ['core:mark-as-unread', 'Mark as unread'],
+      ['core:mark-important', 'Mark as important (Gmail)'],
+      ['core:mark-unimportant', 'Mark as unimportant (Gmail)'],
+      ['core:remove-and-previous', 'Remove from view and previous'],
+      ['core:remove-and-next', 'Remove from view and next'],
     ],
   },
   {
@@ -48,7 +48,7 @@ const displayedKeybindings = [
   {
     title: 'Navigation',
     items: [
-      ['application:pop-sheet', 'Return to conversation list'],
+      ['core:pop-sheet', 'Return to conversation list'],
       ['core:focus-item', 'Open selected conversation'],
       ['core:previous-item', 'Move to newer conversation'],
       ['core:next-item', 'Move to older conversation'],
@@ -110,8 +110,7 @@ class PreferencesKeymaps extends React.Component {
     const bindings = {};
     for (const section of displayedKeybindings) {
       for (const [command] of section.items) {
-        const keyBinding = NylasEnv.keymaps.findKeyBindings({command: command});
-        bindings[command] = keyBinding ? keyBinding : [];
+        bindings[command] = NylasEnv.keymaps.getBindingsForCommand(command) || [];
       }
     }
     return bindings;
@@ -122,7 +121,7 @@ class PreferencesKeymaps extends React.Component {
     fs.readdir(templatesDir, (err, files) => {
       if (!files || !files instanceof Array) return;
       let templates = files.filter((filename) => {
-        return path.extname(filename) === '.cson' || path.extname(filename) === '.json';
+        return path.extname(filename) === '.json';
       });
       templates = templates.map((filename) => {
         return path.parse(filename).name;
@@ -137,11 +136,12 @@ class PreferencesKeymaps extends React.Component {
 
     // Replace "cmd" => ⌘, etc.
     const modifiers = [
-      [/-(?!$)/gi, ''],
-      [/cmd/gi, '⌘'],
+      [/\+(?!$)/gi, ''],
+      [/command/gi, '⌘'],
       [/alt/gi, '⌥'],
       [/shift/gi, '⇧'],
       [/ctrl/gi, '^'],
+      [/mod/gi, (process.platform === 'darwin' ? '⌘' : '^')],
     ];
     let clean = original;
     for (const [regexp, char] of modifiers) {
@@ -178,16 +178,11 @@ class PreferencesKeymaps extends React.Component {
   }
 
   _renderBindingFor = ([command, label]) => {
-    const descriptions = [];
-    if (this.state.bindings[command]) {
-      for (const binding of this.state.bindings[command]) {
-        descriptions.push(binding.keystrokes);
-      }
-    }
+    const keystrokesArray = this.state.bindings[command];
 
     let value = "None";
-    if (descriptions.length > 0) {
-      value = _.uniq(descriptions).map(this._renderKeystrokes);
+    if (keystrokesArray.length > 0) {
+      value = _.uniq(keystrokesArray).map(this._renderKeystrokes);
     }
 
     return (

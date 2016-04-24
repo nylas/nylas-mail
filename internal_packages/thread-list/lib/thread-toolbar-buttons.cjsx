@@ -197,7 +197,7 @@ DownButton = React.createClass
 
   _onClick: ->
     return if @state.disabled
-    NylasEnv.commands.dispatch(document.body, 'core:next-item')
+    NylasEnv.commands.dispatch('core:next-item')
     return
 
   _getStateFromStores: ->
@@ -221,7 +221,7 @@ UpButton = React.createClass
 
   _onClick: ->
     return if @state.disabled
-    NylasEnv.commands.dispatch(document.body, 'core:previous-item')
+    NylasEnv.commands.dispatch('core:previous-item')
     return
 
   _getStateFromStores: ->

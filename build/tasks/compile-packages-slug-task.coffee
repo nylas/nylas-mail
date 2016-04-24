@@ -2,7 +2,6 @@ path = require 'path'
 CSON = require 'season'
 fs = require 'fs-plus'
 _ = require 'underscore'
-KeymapUtils = require '../../src/keymap-utils'
 
 module.exports = (grunt) ->
   {spawn, rm} = require('./task-helpers')(grunt)
@@ -39,15 +38,14 @@ module.exports = (grunt) ->
         mainPath = require.resolve(path.resolve(moduleDirectory, metadata.main))
         pack.main = path.relative(appDir, mainPath)
 
-      for keymapPath in fs.listSync(path.join(moduleDirectory, 'keymaps'), ['.cson', '.json'])
+      for keymapPath in fs.listSync(path.join(moduleDirectory, 'keymaps'), ['.json'])
         relativePath = path.relative(appDir, keymapPath)
-        keymaps = CSON.readFileSync(keymapPath)
-        keymaps = KeymapUtils.cmdCtrlPreprocessor(keymaps)
+        keymaps = JSON.parse(fs.readFileSync(keymapPath))
         pack.keymaps[relativePath] = keymaps
 
-      for menuPath in fs.listSync(path.join(moduleDirectory, 'menus'), ['.cson', '.json'])
+      for menuPath in fs.listSync(path.join(moduleDirectory, 'menus'), ['.json'])
         relativePath = path.relative(appDir, menuPath)
-        pack.menus[relativePath] = CSON.readFileSync(menuPath)
+        pack.menus[relativePath] = JSON.parse(fs.readFileSync(menuPath))
 
       packages[metadata.name] = pack
 

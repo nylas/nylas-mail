@@ -203,7 +203,7 @@ class Menu extends React.Component
     fc = @props.footerComponents ? []
     if fc.length is 0 then fc = <span></span>
     <div onKeyDown={@_onKeyDown}
-         className={"native-key-bindings menu " + @props.className}
+         className={"menu " + @props.className}
          tabIndex="-1">
       <div className="header-container">
         {hc}

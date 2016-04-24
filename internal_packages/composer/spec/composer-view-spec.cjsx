@@ -305,33 +305,25 @@ describe "ComposerView", ->
       beforeEach ->
         useFullDraft.apply(@)
         makeComposer.call(@)
-        NylasTestUtils.loadKeymap("internal_packages/composer/keymaps/composer")
         @$composer = @composer.refs.composerWrap
 
       it "sends the draft on cmd-enter", ->
         if process.platform is "darwin"
-          cmdctrl = 'cmd'
+          mod = 'command'
         else
-          cmdctrl = 'ctrl'
-        NylasTestUtils.keyDown("#{cmdctrl}-enter", ReactDOM.findDOMNode(@$composer))
+          mod = 'ctrl'
+
+        ReactDOM.findDOMNode(@$composer).dispatchEvent(new CustomEvent('composer:send-message'))
         expect(Actions.sendDraft).toHaveBeenCalled()
         expect(Actions.sendDraft.calls.length).toBe 1
 
-      it "does not send the draft on enter if the button isn't in focus", ->
-        NylasTestUtils.keyDown("enter", ReactDOM.findDOMNode(@$composer))
-        expect(Actions.sendDraft).not.toHaveBeenCalled()
-
       it "doesn't let you send twice", ->
-        if process.platform is "darwin"
-          cmdctrl = 'cmd'
-        else
-          cmdctrl = 'ctrl'
-        NylasTestUtils.keyDown("#{cmdctrl}-enter", ReactDOM.findDOMNode(@$composer))
+        ReactDOM.findDOMNode(@$composer).dispatchEvent(new CustomEvent('composer:send-message'))
         expect(Actions.sendDraft).toHaveBeenCalled()
         expect(Actions.sendDraft.calls.length).toBe 1
         @isSending = true
         DraftStore.trigger()
-        NylasTestUtils.keyDown("#{cmdctrl}-enter", ReactDOM.findDOMNode(@$composer))
+        ReactDOM.findDOMNode(@$composer).dispatchEvent(new CustomEvent('composer:send-message'))
         expect(Actions.sendDraft).toHaveBeenCalled()
         expect(Actions.sendDraft.calls.length).toBe 1
 

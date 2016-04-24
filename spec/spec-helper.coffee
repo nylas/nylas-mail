@@ -17,7 +17,6 @@ KeymapManager = require '../src/keymap-manager'
 {$} = require '../src/space-pen-extensions'
 
 Config = require '../src/config'
-ServiceHub = require 'service-hub'
 pathwatcher = require 'pathwatcher'
 {clipboard} = require 'electron'
 
@@ -35,8 +34,6 @@ NylasEnv.themes.requireStylesheet '../static/jasmine'
 NylasEnv.themes.initialLoadComplete = true
 
 NylasEnv.keymaps.loadBundledKeymaps()
-keyBindingsToRestore = NylasEnv.keymaps.getKeyBindings()
-commandsToRestore = NylasEnv.commands.getSnapshot()
 styleElementsToRestore = NylasEnv.styles.getSnapshot()
 
 window.addEventListener 'core:close', -> window.close()
@@ -144,9 +141,6 @@ beforeEach ->
 
   $.fx.off = true
   documentTitle = null
-  NylasEnv.packages.serviceHub = new ServiceHub
-  NylasEnv.keymaps.keyBindings = _.clone(keyBindingsToRestore)
-  NylasEnv.commands.restoreSnapshot(commandsToRestore)
   NylasEnv.styles.restoreSnapshot(styleElementsToRestore)
   NylasEnv.workspaceViewParentSelector = '#jasmine-content'
 

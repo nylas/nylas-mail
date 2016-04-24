@@ -1,4 +1,3 @@
-{$, $$}  = require '../src/space-pen-extensions'
 Exec = require('child_process').exec
 {remote} = require 'electron'
 path = require 'path'

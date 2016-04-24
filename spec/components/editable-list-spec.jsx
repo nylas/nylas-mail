@@ -7,7 +7,7 @@ import {
 } from 'react-addons-test-utils';
 
 import EditableList from '../../src/components/editable-list';
-import {renderIntoDocument} from '../nylas-test-utils'
+import {renderIntoDocument, simulateCommand} from '../nylas-test-utils'
 
 const {findDOMNode} = ReactDOM;
 
@@ -60,7 +60,7 @@ describe('EditableList', ()=> {
       const list = makeList(['1', '2'], {selected: '1', onSelectItem});
       const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
 
-      NylasEnv.commands.dispatch(ReactDOM.findDOMNode(innerList), 'core:next-item');
+      simulateCommand(innerList, 'core:next-item')
 
       expect(onSelectItem).toHaveBeenCalledWith('2', 1);
     });
@@ -70,7 +70,7 @@ describe('EditableList', ()=> {
       const list = makeList(['1', '2'], {selected: '2', onSelectItem});
       const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
 
-      NylasEnv.commands.dispatch(ReactDOM.findDOMNode(innerList), 'core:next-item');
+      simulateCommand(innerList, 'core:next-item')
 
       expect(onSelectItem).not.toHaveBeenCalled();
     });
@@ -80,7 +80,7 @@ describe('EditableList', ()=> {
       const list = makeList(['1', '2'], {selected: '1', onSelectItem});
       const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
 
-      NylasEnv.commands.dispatch(ReactDOM.findDOMNode(innerList), 'core:previous-item');
+      simulateCommand(innerList, 'core:previous-item')
 
       expect(onSelectItem).not.toHaveBeenCalled();
     });

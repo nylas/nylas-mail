@@ -91,25 +91,44 @@ class MessageList extends React.Component
 
   componentDidUpdate: (prevProps, prevState) =>
 
+  _globalMenuItems: ->
+    toggleExpandedLabel = if @state.hasCollapsedItems then "Expand" else "Collapse"
+    [
+      {
+        "label": "Thread",
+        "submenu": [{
+          "label": "#{toggleExpandedLabel} conversation",
+          "command": "message-list:toggle-expanded",
+          "position": "endof=view-actions",
+        }]
+      }
+    ]
+
   _globalKeymapHandlers: ->
-    'application:reply': =>
-      Actions.composeReply({
-        thread: @state.currentThread,
-        message: @_lastMessage(),
-        type: 'reply',
-        behavior: 'prefer-existing',
-      })
-    'application:reply-all': =>
-      Actions.composeReply({
-        thread: @state.currentThread,
-        message: @_lastMessage(),
-        type: 'reply-all',
-        behavior: 'prefer-existing',
-      })
-    'application:forward': => @_onForward()
-    'application:print-thread': => @_onPrintThread()
-    'core:messages-page-up': => @_onScrollByPage(-1)
-    'core:messages-page-down': => @_onScrollByPage(1)
+    handlers =
+      'core:reply': =>
+        Actions.composeReply({
+          thread: @state.currentThread,
+          message: @_lastMessage(),
+          type: 'reply',
+          behavior: 'prefer-existing',
+        })
+      'core:reply-all': =>
+        Actions.composeReply({
+          thread: @state.currentThread,
+          message: @_lastMessage(),
+          type: 'reply-all',
+          behavior: 'prefer-existing',
+        })
+      'core:forward': => @_onForward()
+      'core:print-thread': => @_onPrintThread()
+      'core:messages-page-up': => @_onScrollByPage(-1)
+      'core:messages-page-down': => @_onScrollByPage(1)
+
+    if @state.canCollapse
+      handlers['message-list:toggle-expanded'] = => @_onToggleAllMessagesExpanded()
+
+    handlers
 
   _getMessageContainer: (clientId) =>
     @refs["message-container-#{clientId}"]
@@ -142,7 +161,9 @@ class MessageList extends React.Component
       "message-list": true
       "height-fix": SearchableComponentStore.searchTerm isnt null
 
-    <KeyCommandsRegion globalHandlers={@_globalKeymapHandlers()}>
+    <KeyCommandsRegion
+      globalHandlers={@_globalKeymapHandlers()}
+      globalMenuItems={@_globalMenuItems()}>
       <FindInThread ref="findInThread" />
       <div className={messageListClass} id="message-list">
         <ScrollRegion tabIndex="-1"
@@ -186,9 +207,9 @@ class MessageList extends React.Component
     </div>
 
   _renderExpandToggle: =>
-    if MessageStore.items().length < 2
-      <span></span>
-    else if MessageStore.hasCollapsedItems()
+    return <span/> unless @state.canCollapse
+
+    if @state.hasCollapsedItems
       <div onClick={@_onToggleAllMessagesExpanded}>
         <RetinaImg name={"expand.png"} title={"Expand All"} mode={RetinaImg.Mode.ContentIsMask}/>
       </div>
@@ -361,6 +382,8 @@ class MessageList extends React.Component
   _getStateFromStores: =>
     messages: (MessageStore.items() ? [])
     messagesExpandedState: MessageStore.itemsExpandedState()
+    canCollapse: MessageStore.items().length > 1
+    hasCollapsedItems: MessageStore.hasCollapsedItems()
     currentThread: MessageStore.thread()
     loading: MessageStore.itemsLoading()
 

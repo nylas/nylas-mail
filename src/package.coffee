@@ -10,7 +10,6 @@ Q = require 'q'
 {deprecate} = require 'grim'
 
 ModuleCache = require './module-cache'
-ScopedProperties = require './scoped-properties'
 
 TaskRegistry = require './task-registry'
 DatabaseObjectRegistry = require './database-object-registry'
@@ -227,20 +226,26 @@ class Package
 
   activateResources: ->
     @activationDisposables = new CompositeDisposable
-    @activationDisposables.add(NylasEnv.keymaps.add(keymapPath, map)) for [keymapPath, map] in @keymaps
+    @activationDisposables.add(NylasEnv.keymaps.loadKeymap(keymapPath, map)) for [keymapPath, map] in @keymaps
     @activationDisposables.add(NylasEnv.menu.add(map['menu'])) for [menuPath, map] in @menus when map['menu']?
 
   loadKeymaps: ->
-    if @bundledPackage and packagesCache[@name]?
-      @keymaps = (["#{NylasEnv.packages.resourcePath}#{path.sep}#{keymapPath}", keymapObject] for keymapPath, keymapObject of packagesCache[@name].keymaps)
-    else
-      @keymaps = @getKeymapPaths().map (keymapPath) -> [keymapPath, NylasEnv.keymaps.readKeymap(keymapPath) ? {}]
+    try
+      if @bundledPackage and packagesCache[@name]?
+        @keymaps = (["#{NylasEnv.packages.resourcePath}#{path.sep}#{keymapPath}", keymapObject] for keymapPath, keymapObject of packagesCache[@name].keymaps)
+      else
+        @keymaps = @getKeymapPaths().map (keymapPath) -> [keymapPath, JSON.parse(fs.readFileSync(keymapPath)) ? {}]
+    catch e
+      console.error "Error reading keymaps for package '#{@name}': #{e.message}", e.stack
 
   loadMenus: ->
-    if @bundledPackage and packagesCache[@name]?
-      @menus = (["#{NylasEnv.packages.resourcePath}#{path.sep}#{menuPath}", menuObject] for menuPath, menuObject of packagesCache[@name].menus)
-    else
-      @menus = @getMenuPaths().map (menuPath) -> [menuPath, CSON.readFileSync(menuPath) ? {}]
+    try
+      if @bundledPackage and packagesCache[@name]?
+        @menus = (["#{NylasEnv.packages.resourcePath}#{path.sep}#{menuPath}", menuObject] for menuPath, menuObject of packagesCache[@name].menus)
+      else
+        @menus = @getMenuPaths().map (menuPath) -> [menuPath, CSON.readFileSync(menuPath) ? {}]
+    catch e
+      console.error "Error reading keymaps for package '#{@name}': #{e.message}", e.stack
 
   getKeymapPaths: ->
     keymapsDirPath = path.join(@path, 'keymaps')

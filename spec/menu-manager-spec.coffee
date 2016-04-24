@@ -5,6 +5,7 @@ describe "MenuManager", ->
 
   beforeEach ->
     menu = new MenuManager(resourcePath: NylasEnv.getLoadSettings().resourcePath)
+    menu.template = []
 
   describe "::add(items)", ->
     it "can add new menus that can be removed with the returned disposable", ->

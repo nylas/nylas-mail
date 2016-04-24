@@ -24,7 +24,7 @@ class AppearanceModeSwitch extends React.Component {
   }
 
   _onApplyChanges = () => {
-    NylasEnv.commands.dispatch(document.body, `application:select-${this.state.value}-mode`);
+    NylasEnv.commands.dispatch(`application:select-${this.state.value}-mode`);
   }
 
   _renderModeOptions() {
@@ -98,7 +98,7 @@ class PreferencesAppearance extends React.Component {
   }
 
   onClick = () => {
-    NylasEnv.commands.dispatch(document.body, "window:launch-theme-picker");
+    NylasEnv.commands.dispatch("window:launch-theme-picker");
   }
 
 

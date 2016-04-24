@@ -274,7 +274,6 @@ class TokenizingTextField extends React.Component
     classSet[@props.className] = true
     classes = classNames _.extend {}, classSet, (@props.menuClassSet ? {}),
       "tokenizing-field": true
-      "native-key-bindings": true
       "focused": @state.focus
       "empty": (@state.inputValue ? "").trim().length is 0
 

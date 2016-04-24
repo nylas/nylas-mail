@@ -42,7 +42,7 @@ jQuery.fn.trigger = (eventName, data) ->
     data.jQueryTrigger = true
 
     for element in this
-      NylasEnv.commands.dispatch(element, eventName, data)
+      NylasEnv.commands.dispatch(eventName, data)
     this
 
 HandlersByOriginalHandler = new WeakMap

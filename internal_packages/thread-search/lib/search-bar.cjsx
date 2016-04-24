@@ -32,7 +32,7 @@ class SearchBar extends React.Component
     usub() for usub in @usub
 
   _keymapHandlers: ->
-    'application:focus-search': @_onFocusSearch
+    'core:focus-search': @_onFocusSearch
     'search-bar:escape-search': @_clearAndBlur
 
   render: =>
