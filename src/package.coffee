@@ -42,6 +42,8 @@ class Package
           metadata = JSON.parse(fs.readFileSync(metadataPath))
         catch error
           throw error unless ignoreErrors
+      else
+        return null
     metadata ?= {}
     metadata.name = packageName
 
