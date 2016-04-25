@@ -43,7 +43,6 @@ class PackageManager
       @packageDirPaths.push(path.join(@resourcePath, "spec", "fixtures", "packages"))
     else
       @packageDirPaths.push(path.join(@resourcePath, "internal_packages"))
-      @packageDirPaths.push(path.join(@resourcePath, "internal_packages", "pro"))
       if not safeMode
         if @devMode
           @packageDirPaths.push(path.join(configDirPath, "dev", "packages"))
@@ -316,9 +315,8 @@ class PackageManager
         try
           metadata = Package.loadMetadata(packagePath) ? {}
 
-          if not (metadata.engines?.nylas) and not (/pro/.test(packagePath))
+          if not (metadata.engines?.nylas)
             console.error("INVALID PACKAGE: Your package at #{packagePath} does not have a properly formatted `package.json`. You must include an {'engines': {'nylas': version}} property")
-            return false
 
           {windowTypes} = metadata
           if windowTypes
