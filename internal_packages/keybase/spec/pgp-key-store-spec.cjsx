@@ -120,7 +120,6 @@ describe "PGPKeyStore", ->
       spyOn(PGPKeyStore, 'trigger')
       runs( =>
         @numkeys = PGPKeyStore._privKeys.length
-        console.log PGPKeyStore._privKeys
         @timeout = _.find(PGPKeyStore._privKeys, (key) => "benbitdiddle@icloud.com" in key.addresses).timeout
         PGPKeyStore.getKeyContents(key: PGPKeyStore._privKeys[0], passphrase: "")
       )
@@ -223,7 +222,7 @@ describe "PGPKeyStore", ->
         key = PGPKeyStore.pubKeys("benbitdiddle@icloud.com")[0]
         # make sure we have the key metadata, but not an actual key yet
         expect(key.address).toEqual("benbitdiddle@icloud.com")
-        expect(key.key).not.toBeDefined()
+        expect(key.key).toEqual(null)
         # now go fetch the actual key
         PGPKeyStore.getKeyContents(key: key)
       )

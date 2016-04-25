@@ -1,6 +1,7 @@
 NylasStore = require 'nylas-store'
 {DraftStore, MessageBodyProcessor, RegExpUtils} = require 'nylas-exports'
 {remote} = require 'electron'
+Identity = require './identity'
 kb = require './keybase'
 pgp = require 'kbpgp'
 _ = require 'underscore'
@@ -105,14 +106,19 @@ class PGPKeyStore extends NylasStore
           if filename[0] == '.'
             continue
           absname = path.join(keyDirectory, filename)
-          key = {
-            path: absname,
+          # key = {
+          #   path: absname,
+          #   addresses: filename.split(" ")
+          # }
+          ident = new Identity({
+            path: absname
             addresses: filename.split(" ")
-          }
+            isPriv: !isPub
+          })
           if isPub
-            @_pubKeys.push(key)
+            @_pubKeys.push(ident)
           else
-            @_privKeys.push(key)
+            @_privKeys.push(ident)
           @trigger(@)
           i++)
 
@@ -132,11 +138,10 @@ class PGPKeyStore extends NylasStore
                   console.warn err
             else
               console.error "No passphrase provided, but key is private."
-          timeout = 1000 * 60 * 30 # 30 minutes in ms
           # NOTE this only allows for one priv key per address
           # if it's already there, update, else insert
           key.key = km
-          key.timeout = Date.now() + timeout
+          key.setTimeout()
           @getKeybaseData(key)
         @trigger(@)
     )
@@ -146,7 +151,7 @@ class PGPKeyStore extends NylasStore
     if not key.key?
       @getKeyContents(key: key)
     else
-      fingerprint = key.key.get_pgp_fingerprint().toString('hex')
+      fingerprint = key.fingerprint()
       kb.getUser(fingerprint, 'key_fingerprint', (err, user) =>
         if user?.length == 1
           key.keybase_user = user[0]
@@ -215,25 +220,22 @@ class PGPKeyStore extends NylasStore
         return address in key.addresses
     keys
 
-  privKeys: ({address, timed}) =>
+  privKeys: ({address, timed} = {timed: true}) =>
     # fetch private key(s) for an address (synchronous).
     # by default, only return non-timed-out keys
     # if no address, return them all
-    keys = []
-    if not address?
-      if timed
-        keys = _.filter @_privKeys, (key) ->
-          return key.timeout > Date.now()
-      else
-        keys = @_privKeys
-    else
-      address_keys = _.filter @_privKeys, (key) ->
-        return address in key.addresses
-      if timed
-        keys = _.filter address_keys, (key) ->
-          key.timeout > Date.now()
-      else
-        keys = address_keys
+    keys = @_privKeys
+
+    if address?
+      keys = _.filter(keys, (identity) ->
+        return address in identity.addresses
+      )
+
+    if timed
+      keys = _.reject(keys, (identity) ->
+        return identity.isTimedOut()
+      )
+
     return keys
 
   _displayError: (message) ->
