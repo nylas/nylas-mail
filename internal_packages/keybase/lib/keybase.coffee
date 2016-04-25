@@ -49,6 +49,11 @@ class KeybaseAPI
     if profile.pictures?.primary?
       cleanedProfile.thumbnail = profile.pictures.primary.url
     cleanedProfile.components = {username: {val: profile.basics.username}}
+    _.each(profile.proofs_summary.all, (connectedAccount) =>
+      component = {}
+      component[connectedAccount.proof_type] = {val: connectedAccount.nametag}
+      cleanedProfile.components = _.extend(cleanedProfile.components, component)
+    )
     return cleanedProfile
 
 module.exports = new KeybaseAPI()
