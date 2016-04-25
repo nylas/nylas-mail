@@ -20,7 +20,7 @@ catch error
   packagesCache = {}
 
 # Loads and activates a package's main module and resources such as
-# stylesheets, keymaps, grammar, editor properties, and menus.
+# stylesheets, keymaps, and menus.
 module.exports =
 class Package
   EmitterMixin.includeInto(this)
@@ -44,10 +44,6 @@ class Package
           throw error unless ignoreErrors
     metadata ?= {}
     metadata.name = packageName
-
-    if metadata.stylesheetMain?
-      deprecate("Use the `mainStyleSheet` key instead of `stylesheetMain` in the `package.json` of `#{packageName}`", {packageName})
-      metadata.mainStyleSheet = metadata.stylesheetMain
 
     if metadata.stylesheets?
       deprecate("Use the `styleSheets` key instead of `stylesheets` in the `package.json` of `#{packageName}`", {packageName})
@@ -250,9 +246,9 @@ class Package
   getKeymapPaths: ->
     keymapsDirPath = path.join(@path, 'keymaps')
     if @metadata.keymaps
-      @metadata.keymaps.map (name) -> fs.resolve(keymapsDirPath, name, ['json', 'cson', ''])
+      @metadata.keymaps.map (name) -> fs.resolve(keymapsDirPath, name, ['json', ''])
     else
-      fs.listSync(keymapsDirPath, ['cson', 'json'])
+      fs.listSync(keymapsDirPath, ['json'])
 
   getMenuPaths: ->
     menusDirPath = path.join(@path, 'menus')

@@ -171,6 +171,8 @@ module.exports = (grunt) ->
     cp 'spec', path.join(appDir, 'spec')
     cp 'src', path.join(appDir, 'src'), filter: /.+\.(cson|coffee|cjsx|jsx)$/
     cp 'static', path.join(appDir, 'static')
+    cp 'keymaps', path.join(appDir, 'keymaps')
+    cp 'menus', path.join(appDir, 'menus')
 
     # Move all of the node modules inside /apm/node_modules to new-app/apm/node_modules
     apmInstallDir = path.resolve(appDir, '..', 'new-app', 'apm')

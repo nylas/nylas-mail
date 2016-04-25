@@ -174,9 +174,6 @@ module.exports = (grunt) ->
     glob_to_multiple:
       expand: true
       src: [
-        'menus/*.cson'
-        'keymaps/*.cson'
-        'keymaps/templates/*.cson'
         'static/**/*.cson'
       ]
       dest: appDir
