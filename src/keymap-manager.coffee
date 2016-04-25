@@ -12,7 +12,7 @@ Gmail's "x", while allowing standard hotkeys.)
 mousetrap.prototype.stopCallback = (e, element, combo, sequence) ->
   withinTextInput = element.tagName == 'INPUT' || element.tagName == 'SELECT' || element.tagName == 'TEXTAREA' || element.isContentEditable
   if withinTextInput
-    return /(mod|shift|command|ctrl)/.test(combo) is false
+    return /(mod|command|ctrl)/.test(combo) is false
   return false
 
 class KeymapManager
