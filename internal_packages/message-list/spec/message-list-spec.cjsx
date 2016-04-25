@@ -2,7 +2,6 @@ _ = require "underscore"
 moment = require "moment"
 proxyquire = require("proxyquire").noPreserveCache()
 
-CSON = require "season"
 React = require "react"
 ReactDOM = require "react-dom"
 ReactTestUtils = require 'react-addons-test-utils'

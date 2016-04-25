@@ -1,5 +1,4 @@
 # Utils for testing.
-CSON = require 'season'
 React = require 'react'
 ReactDOM = require 'react-dom'
 ReactTestUtils = require('react-addons-test-utils')
