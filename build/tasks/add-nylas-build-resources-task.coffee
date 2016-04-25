@@ -18,9 +18,10 @@ module.exports = (grunt) ->
       from = path.join(rootDir, 'packages', plugin)
       to = path.join(path.resolve('internal_packages'), plugin)
 
-      if fs.lstatSync(to)
-        grunt.log.writeln "Removing old symlink at #{to}"
-        fs.unlinkSync(to)
+      try
+        if fs.lstatSync(to)
+          grunt.log.writeln "Removing old symlink at #{to}"
+          fs.unlinkSync(to)
 
       grunt.log.writeln "Adding '#{plugin}' to internal_packages"
       fs.symlinkSync(from, to, 'dir')
