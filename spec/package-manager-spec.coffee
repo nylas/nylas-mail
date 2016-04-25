@@ -267,8 +267,8 @@ describe "PackageManager", ->
 
           runs ->
             expect(NylasEnv.menu.template.length).toBe 2
-            expect(NylasEnv.menu.template[0].label).toBe "Second to Last"
-            expect(NylasEnv.menu.template[1].label).toBe "Last"
+            expect(NylasEnv.menu.template[1].label).toBe "Second to Last"
+            expect(NylasEnv.menu.template[0].label).toBe "Last"
 
       describe "when the metadata contains a 'menus' manifest", ->
         it "loads only the menus specified by the manifest, in the specified order", ->
