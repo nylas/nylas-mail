@@ -9,7 +9,7 @@ babelOptions = require '../static/babelrc'
 # packages in the root-level node_modules are compiled against Chrome's v8
 # headers.
 #
-# See build/resources/nylas/docs/ContinuousIntegration.md for more detailed
+# See src/pro/docs/ContinuousIntegration.md for more detailed
 # instructions on how we build N1.
 #
 # Some useful grunt options are:
