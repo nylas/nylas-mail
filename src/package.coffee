@@ -2,7 +2,6 @@ path = require 'path'
 
 _ = require 'underscore'
 async = require 'async'
-CSON = require 'season'
 fs = require 'fs-plus'
 EmitterMixin = require('emissary').Emitter
 {Emitter, CompositeDisposable} = require 'event-kit'
@@ -37,9 +36,10 @@ class Package
     if @isBundledPackagePath(packagePath)
       metadata = packagesCache[packageName]?.metadata
     unless metadata?
-      if metadataPath = CSON.resolve(path.join(packagePath, 'package'))
+      metadataPath = fs.resolve(path.join(packagePath, 'package.json'))
+      if fs.existsSync(metadataPath)
         try
-          metadata = CSON.readFileSync(metadataPath)
+          metadata = JSON.parse(fs.readFileSync(metadataPath))
         catch error
           throw error unless ignoreErrors
     metadata ?= {}
@@ -239,9 +239,9 @@ class Package
       if @bundledPackage and packagesCache[@name]?
         @menus = (["#{NylasEnv.packages.resourcePath}#{path.sep}#{menuPath}", menuObject] for menuPath, menuObject of packagesCache[@name].menus)
       else
-        @menus = @getMenuPaths().map (menuPath) -> [menuPath, CSON.readFileSync(menuPath) ? {}]
+        @menus = @getMenuPaths().map (menuPath) -> [menuPath, JSON.parse(fs.readFileSync(menuPath)) ? {}]
     catch e
-      console.error "Error reading keymaps for package '#{@name}': #{e.message}", e.stack
+      console.error "Error reading menus for package '#{@name}': #{e.message}", e.stack
 
   getKeymapPaths: ->
     keymapsDirPath = path.join(@path, 'keymaps')
@@ -253,9 +253,9 @@ class Package
   getMenuPaths: ->
     menusDirPath = path.join(@path, 'menus')
     if @metadata.menus
-      @metadata.menus.map (name) -> fs.resolve(menusDirPath, name, ['json', 'cson', ''])
+      @metadata.menus.map (name) -> fs.resolve(menusDirPath, name, ['json', ''])
     else
-      fs.listSync(menusDirPath, ['cson', 'json'])
+      fs.listSync(menusDirPath, ['json'])
 
   loadStylesheets: ->
     @stylesheets = @getStylesheetPaths().map (stylesheetPath) ->
