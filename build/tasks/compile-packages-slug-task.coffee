@@ -1,5 +1,4 @@
 path = require 'path'
-CSON = require 'season'
 fs = require 'fs-plus'
 _ = require 'underscore'
 
