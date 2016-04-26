@@ -205,8 +205,12 @@ class EventedIFrame extends React.Component
     linkTarget = @_getContainingTarget(event, {with: 'href'})
     if linkTarget
       href = linkTarget.getAttribute('href')
-      menu.append(new MenuItem({ label: "Open Link", click:( -> NylasEnv.windowEventHandler.openLink({href}) )}))
-      menu.append(new MenuItem({ label: "Copy Link", click:( -> clipboard.writeText(href) )}))
+      if href.startsWith('mailto')
+        menu.append(new MenuItem({ label: "Compose Message...", click:( -> NylasEnv.windowEventHandler.openLink({href}) )}))
+        menu.append(new MenuItem({ label: "Copy Email Address", click:( -> clipboard.writeText(href.split('mailto:').pop()) )}))
+      else
+        menu.append(new MenuItem({ label: "Open Link", click:( -> NylasEnv.windowEventHandler.openLink({href}) )}))
+        menu.append(new MenuItem({ label: "Copy Link", click:( -> clipboard.writeText(href) )}))
       menu.append(new MenuItem({ type: 'separator' }))
 
     # Menu actions for images
