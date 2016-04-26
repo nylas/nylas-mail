@@ -133,7 +133,6 @@ body.platform-win32 {
     z-index: 2;
     cursor: default;
     padding-right: @spacing-standard + @spacing-half;
-    padding-left: @spacing-standard;
     padding-top: 12px;
 
     .action {
@@ -141,6 +140,9 @@ body.platform-win32 {
       img.content-mask { background-color: @text-color-very-subtle; }
       font-size: @font-size-small;
       padding: 10px 6px;
+      &:first-child {
+        padding-left: @spacing-standard;
+      }
       &:last-child {
         padding-right: 0;
       }
