@@ -23,6 +23,9 @@ class KeymapManager
     @_keystrokes = {}
     @_keymapDisposables = {}
 
+  getUserKeymapPath: ->
+    path.join(@configDirPath, 'keymap.json')
+
   loadBundledKeymaps: ->
     # Load the base keymap and the base.platform keymap
     baseKeymap = fs.resolve(path.join(@resourcePath, 'keymaps', 'base.json'))
@@ -47,7 +50,7 @@ class KeymapManager
     reloadTemplateKeymap()
 
   loadUserKeymap: ->
-    userKeymapPath = path.join(@configDirPath, 'keymap.json')
+    userKeymapPath = @getUserKeymapPath()
     return unless fs.isFileSync(userKeymapPath)
 
     try
