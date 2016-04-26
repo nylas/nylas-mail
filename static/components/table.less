@@ -1,19 +1,27 @@
 @import 'ui-variables';
 
+@row-highlight-color: #e3effc;
+@row-highlight-text-color: #3a6fa7;
+@row-highlight-border-color: #c9dcf0;
+
 .nylas-table {
   height: 100%;
   width: 100%;
   overflow: scroll;
 
   .table-row {
+
     .table-cell {
+      border: 1px solid lighten(@border-color-secondary, 5%);
+      color: @text-color-very-subtle;
+
       &>div {
         min-height: 20px;
         min-width: 100px;
       }
-      border: 1px solid lightgrey;
 
       input {
+        color: inherit;
         border: none;
         &:focus {
           border: none;
@@ -24,8 +32,6 @@
 
       &.selected {
         // TODO
-        background: green;
-        opacity: 0.5;
       }
 
       &.numbered-cell {
@@ -36,9 +42,14 @@
     }
 
     &.selected {
-      background: fadeout(@accent-primary, 80%);
-      .table-cell input {
-        color: darken(@accent-primary-dark, 25%);
+      background: @row-highlight-color;
+
+      .table-cell {
+        color: @row-highlight-text-color;
+        border: 1px double @row-highlight-border-color;
+        input {
+          color: @row-highlight-text-color;
+        }
       }
     }
   }

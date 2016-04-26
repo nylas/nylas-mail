@@ -23,14 +23,20 @@ export class SelectableCell extends Component {
     className: '',
   }
 
+  shouldComponentUpdate(nextProps) {
+    return (
+      this.props.tableData.rows[this.props.rowIdx][this.props.colIdx] !== nextProps.tableData.rows[nextProps.rowIdx][nextProps.colIdx] ||
+      this.isSelected(this.props) !== this.isSelected(nextProps)
+    )
+  }
+
   onClickCell() {
     const {selection, rowIdx, colIdx, onSetSelection} = this.props
     if (_.isEqual(selection, {row: rowIdx, col: colIdx})) { return }
     onSetSelection({row: rowIdx, col: colIdx, key: null})
   }
 
-  isSelected() {
-    const {selection, rowIdx, colIdx} = this.props
+  isSelected({selection, rowIdx, colIdx}) {
     return (
       selection && selection.row === rowIdx && selection.col === colIdx
     )
@@ -38,7 +44,7 @@ export class SelectableCell extends Component {
 
   isSelectedUsingKey(key) {
     const {selection} = this.props
-    return this.isSelected() && selection.key === key
+    return this.isSelected(this.props) && selection.key === key
   }
 
   isInLastRow() {
@@ -50,7 +56,7 @@ export class SelectableCell extends Component {
     const {className} = this.props
     const classes = classnames({
       [className]: true,
-      'selected': this.isSelected(),
+      'selected': this.isSelected(this.props),
     })
     return (
       <TableCell
@@ -76,15 +82,22 @@ export class SelectableRow extends Component {
     className: '',
   }
 
+  shouldComponentUpdate(nextProps) {
+    return (
+      this.props.tableData.rows[this.props.rowIdx] !== nextProps.tableData.rows[nextProps.rowIdx] ||
+      this.isSelected(this.props) !== this.isSelected(nextProps) ||
+      this.props.selection.col !== nextProps.selection.col
+    )
+  }
+
   componentDidUpdate() {
-    if (this.isSelected()) {
+    if (this.isSelected(this.props)) {
       ReactDOM.findDOMNode(this)
       .scrollIntoViewIfNeeded(false)
     }
   }
 
-  isSelected() {
-    const {selection, rowIdx} = this.props
+  isSelected({selection, rowIdx}) {
     return selection && selection.row === rowIdx
   }
 
@@ -92,7 +105,7 @@ export class SelectableRow extends Component {
     const {className} = this.props
     const classes = classnames({
       [className]: true,
-      'selected': this.isSelected(),
+      'selected': this.isSelected(this.props),
     })
     return (
       <TableRow
@@ -126,6 +139,13 @@ class SelectableTable extends Component {
     CellRenderer: SelectableCell,
   }
 
+  shouldComponentUpdate(nextProps) {
+    return (
+      this.props.tableData !== nextProps.tableData ||
+      this.props.selection !== nextProps.selection
+    )
+  }
+
   onArrowUp({key}) {
     const {onShiftSelection} = this.props
     onShiftSelection({row: -1, key})
@@ -153,7 +173,7 @@ class SelectableTable extends Component {
 
   onTab({key}) {
     const {tableData, selection, onShiftSelection} = this.props
-    const colLen = tableData.columns.length
+    const colLen = tableData.rows[0].length
     if (selection.col === colLen - 1) {
       onShiftSelection({row: 1, col: -(colLen - 1), key})
     } else {
@@ -163,7 +183,7 @@ class SelectableTable extends Component {
 
   onShiftTab({key}) {
     const {tableData, selection, onShiftSelection} = this.props
-    const colLen = tableData.columns.length
+    const colLen = tableData.rows[0].length
     if (selection.col === 0) {
       onShiftSelection({row: -1, col: colLen - 1, key})
     } else {

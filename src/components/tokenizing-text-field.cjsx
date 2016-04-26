@@ -46,12 +46,16 @@ class Token extends React.Component
   @displayName: "Token"
 
   @propTypes:
+    className: React.PropTypes.string,
     selected: React.PropTypes.bool,
     valid: React.PropTypes.bool,
     item: React.PropTypes.object,
     onSelected: React.PropTypes.func.isRequired,
     onEdited: React.PropTypes.func,
     onAction: React.PropTypes.func
+
+  @defaultProps:
+    className: ''
 
   constructor: (@props) ->
     @state =
@@ -90,15 +94,17 @@ class Token extends React.Component
       "invalid": !@props.valid
       "selected": @props.selected
 
-    <div className={classes}
+    <div className={"#{classes} #{@props.className}"}
          onDragStart={@_onDragStart}
          onDragEnd={@_onDragEnd}
          draggable="true"
          onDoubleClick={@_onDoubleClick}
          onClick={@_onSelect}>
-      <button className="action" onClick={@_onAction} tabIndex={-1}>
-        <RetinaImg mode={RetinaImg.Mode.ContentIsMask} name="composer-caret.png" />
-      </button>
+      {if @props.onAction
+        <button className="action" onClick={@_onAction} tabIndex={-1}>
+          <RetinaImg mode={RetinaImg.Mode.ContentIsMask} name="composer-caret.png" />
+        </button>
+      }
       {@props.children}
     </div>
 
@@ -187,6 +193,8 @@ class TokenizingTextField extends React.Component
     # to display that individual token.
     tokenRenderer: React.PropTypes.func.isRequired
 
+    tokenClassNames: React.PropTypes.func
+
     # The function responsible for providing a list of possible options
     # given the current input.
     #
@@ -244,7 +252,10 @@ class TokenizingTextField extends React.Component
     onEmptied: React.PropTypes.func
 
     # Called when the secondary action of the token gets invoked.
-    onTokenAction: React.PropTypes.func
+    onTokenAction: React.PropTypes.oneOfType([
+      React.PropTypes.func,
+      React.PropTypes.bool,
+    ])
 
     # Called when the input is focused
     onFocus: React.PropTypes.func
@@ -257,6 +268,7 @@ class TokenizingTextField extends React.Component
 
   @defaultProps:
     className: ''
+    tokenClassNames: -> ''
 
   constructor: (@props) ->
     @state =
@@ -348,14 +360,19 @@ class TokenizingTextField extends React.Component
         valid = @props.tokenIsValid(item)
 
       TokenRenderer = @props.tokenRenderer
+      onAction = if @props.onTokenAction is false
+        null
+      else
+        @props.onTokenAction || @_showDefaultTokenMenu
 
-      <Token item={item}
+      <Token className={@props.tokenClassNames(item)}
+             item={item}
              key={key}
              valid={valid}
              selected={@state.selectedTokenKey is key}
              onSelected={@_selectToken}
              onEdited={@props.onEdit}
-             onAction={@props.onTokenAction || @_showDefaultTokenMenu}>
+             onAction={onAction}>
         <TokenRenderer token={item} />
       </Token>
 
