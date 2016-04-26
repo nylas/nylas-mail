@@ -275,6 +275,9 @@ class DraftStore
     if @_draftSessions[draftClientId]
       save = @_draftSessions[draftClientId].changes.commit()
       draftJSON = @_draftSessions[draftClientId].draft().toJSON()
+    else
+      save = @sessionForClientId(draftClientId).then (session) =>
+        draftJSON = session.draft().toJSON()
 
     title = if options.newDraft then "New Message" else "Message"
 
