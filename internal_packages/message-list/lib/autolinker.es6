@@ -58,7 +58,7 @@ export function autolink(doc, {async} = {}) {
   // Traverse the new DOM tree and make sure everything with an href has a title.
   const aTagWalker = document.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT, {
     acceptNode: (node) =>
-      (node.href && !node.title) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
+      node.href ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
     ,
   });
   while (aTagWalker.nextNode()) {
