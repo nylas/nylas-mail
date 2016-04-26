@@ -125,7 +125,9 @@ class OutlineView extends Component {
     const collapseLabel = collapsed ? 'Show' : 'Hide';
     return (
       <div className="heading">
-        {this.props.title}
+        <span className="text">
+          {this.props.title}
+        </span>
         {allowCreate ? this._renderCreateButton() : void 0}
         {collapsible ?
           <span
