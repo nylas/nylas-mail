@@ -51,7 +51,7 @@ describe 'ParticipantsTextField', ->
         visible={true}
         participants={@participants}
         draft={clientId: 'draft-1'}
-        sessio={{}}
+        session={{}}
         change={@propChange} />
     )
     @renderedInput = ReactDOM.findDOMNode(@renderedField).querySelector('input')

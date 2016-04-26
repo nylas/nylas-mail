@@ -311,6 +311,20 @@ export default class ComposerView extends React.Component {
     return _.reject(files, Utils.shouldDisplayAsImage);
   }
 
+  _renderActionsWorkspaceRegion() {
+    return (
+      <InjectedComponentSet
+        matching={{role: "Composer:ActionBarWorkspace"}}
+        exposedProps={{
+          draft: this.props.draft,
+          threadId: this.props.draft.threadId,
+          draftClientId: this.props.draft.clientId,
+          session: this.props.session,
+        }}
+      />
+    )
+  }
+
   _renderActionsRegion() {
     return (
       <div className="composer-action-bar-content">
@@ -646,6 +660,10 @@ export default class ComposerView extends React.Component {
 
               <div className="composer-content-wrap">
                 {this._renderContentScrollRegion()}
+              </div>
+
+              <div className="composer-action-bar-workspace-wrap">
+                {this._renderActionsWorkspaceRegion()}
               </div>
 
               <div className="composer-action-bar-wrap">

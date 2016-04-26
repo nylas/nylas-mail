@@ -66,6 +66,7 @@ class DraftStore
     # window.
     @listenTo Actions.ensureDraftSynced, @_onEnsureDraftSynced
     @listenTo Actions.sendDraft, @_onSendDraft
+    @listenTo Actions.sendDrafts, @_onSendDrafts
     @listenTo Actions.destroyDraft, @_onDestroyDraft
 
     @listenTo Actions.removeFile, @_onRemoveFile
@@ -327,6 +328,19 @@ class DraftStore
         Actions.queueTask(new SyncbackDraftTask(draftClientId))
 
   _onSendDraft: (draftClientId) =>
+    @_sendDraft(draftClientId)
+    .then =>
+      if @_isPopout()
+        NylasEnv.close()
+
+  _onSendDrafts: (draftClientIds) =>
+    Promise.each(draftClientIds, (draftClientId) =>
+      @_sendDraft(draftClientId)
+    ).then =>
+      if @_isPopout()
+        NylasEnv.close()
+
+  _sendDraft: (draftClientId) =>
     @_draftsSending[draftClientId] = true
 
     @sessionForClientId(draftClientId).then (session) =>
@@ -336,9 +350,7 @@ class DraftStore
         @_queueDraftAssetTasks(session.draft())
         Actions.queueTask(new SendDraftTask(draftClientId))
         @_doneWithSession(session)
-
-        if @_isPopout()
-          NylasEnv.close()
+        Promise.resolve()
 
   _queueDraftAssetTasks: (draft) =>
     if draft.files.length > 0 or draft.uploads.length > 0

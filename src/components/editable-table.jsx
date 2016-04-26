@@ -1,4 +1,5 @@
 import React, {Component, PropTypes} from 'react'
+import RetinaImg from './retina-img'
 import ReactDOM from 'react-dom'
 import SelectableTable, {SelectableCell} from './selectable-table'
 
@@ -66,19 +67,19 @@ class EditableCell extends Component {
 
   render() {
     const {rowIdx, colIdx, tableData: {rows}, isHeader, inputProps, InputRenderer} = this.props
-    const cellValue = rows[rowIdx][colIdx]
+    const cellValue = rows[rowIdx][colIdx] || ''
 
     return (
       <SelectableCell ref="cell" {...this.props}>
         <div ref="inputContainer" tabIndex="0">
           <InputRenderer
             type="text"
-            defaultValue={cellValue}
             rowIdx={rowIdx}
             colIdx={colIdx}
             isHeader={isHeader}
-            onKeyDown={::this.onInputKeyDown}
+            defaultValue={cellValue}
             onBlur={::this.onInputBlur}
+            onKeyDown={::this.onInputKeyDown}
             {...inputProps}
           />
         </div>
@@ -138,8 +139,18 @@ class EditableTable extends Component {
       <div className="editable-table-container">
         <SelectableTable {...tableProps} />
         <div className="column-actions">
-          <div className="btn btn-small" onClick={onAddColumn}>+</div>
-          <div className="btn btn-small" onClick={onRemoveColumn}>-</div>
+          <div className="btn btn-small" onClick={onAddColumn}>
+            <RetinaImg
+              name="icon-column-plus.png"
+              mode={RetinaImg.Mode.ContentPreserve}
+            />
+          </div>
+          <div className="btn btn-small" onClick={onRemoveColumn}>
+            <RetinaImg
+              name="icon-column-minus.png"
+              mode={RetinaImg.Mode.ContentPreserve}
+            />
+          </div>
         </div>
       </div>
     )

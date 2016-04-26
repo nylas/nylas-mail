@@ -12,7 +12,6 @@ const TablePropTypes = {
   renderer: RendererType,
   tableData: PropTypes.shape({
     rows: PropTypes.arrayOf(RowDataType),
-    columns: RowDataType,
   }),
 }
 
@@ -83,7 +82,7 @@ export class TableRow extends Component {
           </TableCell> :
           null
         }
-        {_.times(tableData.columns.length, (colIdx) => {
+        {_.times(tableData.rows[0].length, (colIdx) => {
           const cellProps = {tableData, rowIdx, colIdx, ...extraProps}
           return (
             <CellRenderer key={`cell-${rowIdx}-${colIdx}`} {...cellProps}>
