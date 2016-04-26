@@ -264,7 +264,7 @@ export default class QuerySubscription {
 
     let error = null;
     if (!allCompleteModels) {
-      error = new Error("QuerySubscription: Applied all changes and result set === missing models.");
+      error = new Error("QuerySubscription: Applied all changes and result set is missing models.");
     }
     if (!allUniqueIds) {
       error = new Error("QuerySubscription: Applied all changes and result set contains duplicate IDs.");

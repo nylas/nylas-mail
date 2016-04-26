@@ -201,8 +201,8 @@ FileDownloadStore = Reflux.createStore
     @_runDownload(file).then (download) ->
       shell.openItem(download.targetPath)
     .catch(@_catchFSErrors)
-    .catch =>
-      @_presentError(file)
+    .catch (error) =>
+      @_presentError({file, error})
 
   _saveDownload: (download, savePath) =>
     return new Promise (resolve, reject) =>
@@ -228,8 +228,8 @@ FileDownloadStore = Reflux.createStore
       .then (download) => @_saveDownload(download, savePath)
       .then => shell.showItemInFolder(savePath)
       .catch(@_catchFSErrors)
-      .catch =>
-        @_presentError(file)
+      .catch (error) =>
+        @_presentError({file, error})
 
   _fetchAndSaveAll: (files) ->
     defaultPath = @_defaultSaveDir()
@@ -257,8 +257,8 @@ FileDownloadStore = Reflux.createStore
       .then =>
         shell.showItemInFolder(lastSavePath) if lastSavePath
       .catch(@_catchFSErrors)
-      .catch =>
-        @_presentError(file)
+      .catch (error) =>
+        @_presentError({error})
 
   _abortFetchFile: (file) ->
     download = @_downloads[file.id]
@@ -290,12 +290,14 @@ FileDownloadStore = Reflux.createStore
     downloadDir = @_defaultSaveDir()
     path.join(downloadDir, file.safeDisplayName())
 
-  _presentError: (file) ->
+  _presentError: ({file, error} = {}) ->
+    name = if file then file.displayName() else "one or more files"
+    errorString = if error then error.toString() else ""
+
     remote.dialog.showMessageBox
       type: 'warning'
       message: "Download Failed"
-      detail: "Unable to download #{file.displayName()}.
-               Check your network connection and try again."
+      detail: "Unable to download #{name}. Check your network connection and try again. #{errorString}"
       buttons: ["OK"]
 
   _catchFSErrors: (error) ->
