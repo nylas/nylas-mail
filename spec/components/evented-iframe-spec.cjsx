@@ -40,7 +40,9 @@ describe 'EventedIFrame', ->
         expect(@setAttributeSpy).not.toHaveBeenCalled()
         expect(@openLinkSpy).toHaveBeenCalled()
         target = @openLinkSpy.calls[i].args[0].target
-        expect(target.getAttribute('href')).toBe href
+        targetHref = @openLinkSpy.calls[i].args[0].href
+        expect(target).not.toBeDefined()
+        expect(targetHref).toBe href
 
     it 'corrects relative uris', ->
       hrefs = [

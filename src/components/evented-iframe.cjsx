@@ -150,8 +150,18 @@ class EventedIFrame extends React.Component
         else
           target.setAttribute('href', "http://#{rawHref}")
 
+        rawHref = target.getAttribute('href')
+
       e.preventDefault()
-      NylasEnv.windowEventHandler.openLink(target: target, metaKey: e.metaKey)
+
+      # It's important to send the raw `href` here instead of the target.
+      # The `target` comes from the document context of the iframe, which
+      # as of Electron 0.36.9, has different constructor function objects
+      # in memory than the main execution context. This means that code
+      # like `e.target instanceof Element` will erroneously return false
+      # since the `e.target.constructor` and the `Element` function are
+      # created in different contexts.
+      NylasEnv.windowEventHandler.openLink(href: rawHref, metaKey: e.metaKey)
 
   _isBlacklistedHref: (href) ->
     return (new RegExp(/^file:/i)).test(href)
