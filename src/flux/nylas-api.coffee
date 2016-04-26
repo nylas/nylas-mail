@@ -140,7 +140,7 @@ class NylasAPI
 
     if not env
       env = 'production'
-      console.warn("NylasAPI: config.cson does not contain an environment \
+      console.warn("NylasAPI: config file does not contain an environment \
                      value. Defaulting to `production`.")
 
     if env in ['production']

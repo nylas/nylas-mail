@@ -7,7 +7,6 @@ path = require 'path'
 _ = require 'underscore'
 {deprecate} = require 'grim'
 {Emitter} = require 'event-kit'
-{Model} = require 'theorist'
 fs = require 'fs-plus'
 {convertStackTrace, convertLine} = require 'coffeestack'
 {mapSourcePosition} = require 'source-map-support'
@@ -28,7 +27,7 @@ ensureInteger = (f, fallback) ->
 #
 # The singleton of this class is always available as the `NylasEnv` global.
 module.exports =
-class NylasEnvConstructor extends Model
+class NylasEnvConstructor
   @version: 1  # Increment this when the serialization format changes
 
   assert: (bool, msg) ->
@@ -146,8 +145,6 @@ class NylasEnvConstructor extends Model
 
     @setupErrorLogger()
 
-    @unsubscribe()
-
     @loadTime = null
 
     Config = require './config'
@@ -198,7 +195,7 @@ class NylasEnvConstructor extends Model
     # initialize spell checking
     @spellchecker = require('./nylas-spellchecker')
 
-    @subscribe @packages.onDidActivateInitialPackages => @watchThemes()
+    @packages.onDidActivateInitialPackages => @watchThemes()
     @windowEventHandler = new WindowEventHandler()
 
     unless @inSpecMode()

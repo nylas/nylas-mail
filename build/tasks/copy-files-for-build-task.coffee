@@ -105,7 +105,6 @@ module.exports = (grunt) ->
 
       # These aren't needed since WeakMap is built-in
       path.join('emissary', 'node_modules', 'es6-weak-map')
-      path.join('property-accessors', 'node_modules', 'es6-weak-map')
 
       '.DS_Store'
       '.jshintrc'
