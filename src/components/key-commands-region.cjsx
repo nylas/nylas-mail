@@ -104,37 +104,6 @@ class KeyCommandsRegion extends React.Component
     @state =
       focused: false
 
-    @_in = (event) =>
-      @_lastFocusElement = event.target
-      @_losingFocusToElement = null
-      @props.onFocusIn(event) if @state.focused is false
-      @setState(focused: true)
-
-    @_processOutDebounced = _.debounce =>
-      return unless @_losingFocusToElement
-      return unless @state.focused
-
-      # This happens when component that used to have the focus is
-      # unmounted. An example is the url input field of the
-      # FloatingToolbar in the Composer's Contenteditable
-      return if ReactDOM.findDOMNode(@).contains(document.activeElement)
-
-      # This prevents the strange effect of an input appearing to have focus
-      # when the element receiving focus does not support selection (like a
-      # div with tabIndex=-1)
-      if @_losingFocusToElement.tagName isnt 'INPUT'
-        document.getSelection().empty()
-
-      @props.onFocusOut(@_lastFocusElement)
-      @setState({focused: false})
-      @_losingFocusToElement = null
-    , 150
-
-    @_out = (event) =>
-      @_lastFocusElement = event.target
-      @_losingFocusToElement = event.relatedTarget
-      @_processOutDebounced()
-
   componentWillReceiveProps: (newProps) ->
     @_unmountListeners()
     @_setupListeners(newProps)
@@ -166,8 +135,8 @@ class KeyCommandsRegion extends React.Component
   # here for all commands coming in.
   _setupListeners: (props) ->
     $el = ReactDOM.findDOMNode(@)
-    $el.addEventListener('focusin', @_in)
-    $el.addEventListener('focusout', @_out)
+    $el.addEventListener('focusin', @_onFocusIn)
+    $el.addEventListener('focusout', @_onFocusOut)
 
     if props.globalHandlers
       @_globalDisposable = NylasEnv.commands.add(document.body, props.globalHandlers)
@@ -182,13 +151,60 @@ class KeyCommandsRegion extends React.Component
     @_localDisposable?.dispose()
     @_localDisposable = null
     $el = ReactDOM.findDOMNode(@)
-    $el.removeEventListener('focusin', @_in)
-    $el.removeEventListener('focusout', @_out)
+    $el.removeEventListener('focusin', @_onFocusIn)
+    $el.removeEventListener('focusout', @_onDidFocusOut)
     window.removeEventListener('browser-window-blur', @_onWindowBlur)
     @_goingout = false
 
   _onWindowBlur: =>
     @setState(focused: false)
+
+  _onFocusIn: (event) =>
+    @_lastFocusElement = event.target
+    @_losingFocusToElement = null
+    @props.onFocusIn(event) if @state.focused is false
+    @setState(focused: true)
+
+  _onFocusOut: (event) =>
+    @_lastFocusElement = event.target
+    @_losingFocusToElement = event.relatedTarget
+
+    # Focus could be lost for a moment and programatically restored. To support
+    # old machines with slow CPUs, it's important we wait N frames rather than X
+    # msec to see if focus is restored before declaring it "out" for good.
+    attempt = =>
+      if not @_losingFocusToElement
+        @_losingFocusFrames = 0
+        return
+
+      @_losingFocusFrames -= 1
+      if @_losingFocusFrames is 0
+        @_onDefinitelyFocusedOut()
+      else
+        window.requestAnimationFrame(attempt)
+
+    if !@_losingFocusFrames
+      window.requestAnimationFrame(attempt)
+    @_losingFocusFrames = 10 # at 60fps, roughly 150ms
+
+  _onDefinitelyFocusedOut: =>
+    return unless @_losingFocusToElement
+    return unless @state.focused
+
+    # This happens when component that used to have the focus is
+    # unmounted. An example is the url input field of the
+    # FloatingToolbar in the Composer's Contenteditable
+    return if ReactDOM.findDOMNode(@).contains(document.activeElement)
+
+    # This prevents the strange effect of an input appearing to have focus
+    # when the element receiving focus does not support selection (like a
+    # div with tabIndex=-1)
+    if @_losingFocusToElement.tagName isnt 'INPUT'
+      document.getSelection().empty()
+
+    @props.onFocusOut(@_lastFocusElement)
+    @setState({focused: false})
+    @_losingFocusToElement = null
 
   render: ->
     classname = classNames
