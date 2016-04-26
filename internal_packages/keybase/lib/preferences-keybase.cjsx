@@ -79,7 +79,7 @@ class PreferencesKeybase extends React.Component
       selectedPubKey: selectedPubKey
       selectedPrivKey: selectedPrivKey
 
-  componentWillMount: =>
+  componentDidMount: =>
     @unlistenKeystore = PGPKeyStore.listen(@_onChange, @)
 
   componentWillUnmount: =>
@@ -98,27 +98,15 @@ class PreferencesKeybase extends React.Component
     )
 
     selectedPubKey = @state?.selectedPubKey
-    # deleted
-    ###
-    if selectedPubKey? and selectedPubKey.address not in _.pluck(pubKeys, "address")
-      selectedPubKey = null
-    ###
     # none selected
     if not selectedPubKey
       selectedPubKey = if pubKeys.length > 0 then pubKeys[0]
 
     selectedPrivKey = @state?.selectedPrivKey
-    ###
-    if selectedPrivKey? and selectedPrivKey.address not in _.pluck(privKeys, "address")
-      selectedPrivKey = null
-    ###
     if not selectedPrivKey
       selectedPrivKey = if privKeys.length > 0 then privKeys[0] else null
 
     return {pubKeys, privKeys, selectedPubKey, selectedPrivKey}
-
-  componentDidMount: ->
-    @usub = PGPKeyStore.listen @_onChange
 
   # Key Editing
   _onSelectPubKey: (event) =>

@@ -24,7 +24,6 @@ class KeybaseUser extends React.Component
       return null
 
     key = _.find(keys, (key) =>
-      # not sure if the toString is necessary?
       return key.key? and key.fingerprint() == targetKey.fingerprint()
     )
 
@@ -74,7 +73,7 @@ class KeybaseUser extends React.Component
   _delete: (email) =>
     # delete a locally saved key
     keys = PGPKeyStore.pubKeys(email)
-    key = @_matchKeys(@props.profile.key, keys)
+    key = @_matchKeys(@props.profile, keys)
     if key?
       PGPKeyStore.deleteKey(key)
     else
