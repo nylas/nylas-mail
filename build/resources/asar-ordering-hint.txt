@@ -3094,7 +3094,6 @@
 2998273: node_modules/theorist/lib/sequence.js
 3004878: node_modules/coffeestack/index.js
 3010047: src/window-event-handler.js
-3033233: node_modules/space-pen/lib/space-pen.js
 3054355: src/styles-element.js
 1995661: src/flux/models/utils.js
 3061775: src/flux/errors.js
@@ -4562,7 +4561,6 @@
 2998273: node_modules/theorist/lib/sequence.js
 3004878: node_modules/coffeestack/index.js
 3010047: src/window-event-handler.js
-3033233: node_modules/space-pen/lib/space-pen.js
 3054355: src/styles-element.js
 1995661: src/flux/models/utils.js
 3061775: src/flux/errors.js

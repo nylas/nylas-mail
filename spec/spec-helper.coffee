@@ -7,14 +7,10 @@ require '../src/window'
 NylasEnv.restoreWindowDimensions()
 
 require 'jasmine-json'
-require './jasmine-jquery'
 
 Grim = require 'grim'
 TimeOverride = require './time-override'
 KeymapManager = require '../src/keymap-manager'
-
-# FIXME: Remove jquery from this
-{$} = require '../src/space-pen-extensions'
 
 Config = require '../src/config'
 pathwatcher = require 'pathwatcher'
@@ -40,7 +36,9 @@ window.addEventListener 'core:close', -> window.close()
 window.addEventListener 'beforeunload', ->
   NylasEnv.storeWindowDimensions()
   NylasEnv.saveSync()
-$('html,body').css('overflow', 'auto')
+
+document.querySelector('html').style.overflow = 'initial'
+document.querySelector('body').style.overflow = 'initial'
 
 # Allow document.title to be assigned in specs without screwing up spec window title
 documentTitle = null
@@ -142,7 +140,6 @@ beforeEach ->
   TaskQueue._completed = []
   TaskQueue._onlineStatus = true
 
-  $.fx.off = true
   documentTitle = null
   NylasEnv.styles.restoreSnapshot(styleElementsToRestore)
   NylasEnv.workspaceViewParentSelector = '#jasmine-content'
@@ -243,8 +240,8 @@ afterEach ->
 
   delete NylasEnv.state?.packageStates
 
-  $('#jasmine-content').empty() unless window.debugContent
-
+  unless window.debugContent
+    document.getElementById('jasmine-content').innerHTML = ''
   ReactTestUtils.unmountAll()
 
   jasmine.unspy(NylasEnv, 'saveSync')
@@ -354,8 +351,8 @@ window.keydownEvent = (key, properties={}) ->
   originalEventProperties.target = properties.target?[0] ? properties.target
   originalEventProperties.which = properties.which
   originalEvent = KeymapManager.keydownEvent(key, originalEventProperties)
-  properties = $.extend({originalEvent}, properties)
-  $.Event("keydown", properties)
+  properties = _.extend({originalEvent}, properties)
+  new CustomEvent('keydown', properties)
 
 window.mouseEvent = (type, properties) ->
   if properties.point
@@ -364,7 +361,7 @@ window.mouseEvent = (type, properties) ->
     properties.pageX = left + 1
     properties.pageY = top + 1
   properties.originalEvent ?= {detail: 1}
-  $.Event type, properties
+  new CustomEvent(type, properties)
 
 window.clickEvent = (properties={}) ->
   window.mouseEvent("click", properties)

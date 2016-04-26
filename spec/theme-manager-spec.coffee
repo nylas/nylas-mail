@@ -1,6 +1,5 @@
 path = require 'path'
 
-{$, $$} = require '../src/space-pen-extensions'
 fs = require 'fs-plus'
 temp = require 'temp'
 
@@ -101,7 +100,7 @@ describe "ThemeManager", ->
 
       runs ->
         didChangeActiveThemesHandler.reset()
-        expect($('style.theme')).toHaveLength 0
+        expect(document.querySelectorAll('style.theme')).toHaveLength 0
         NylasEnv.config.set('core.themes', ['ui-dark'])
 
       waitsFor ->
@@ -109,8 +108,9 @@ describe "ThemeManager", ->
 
       runs ->
         didChangeActiveThemesHandler.reset()
-        expect($('style[priority=1]')).toHaveLength 1
-        expect($('style[priority=1]:eq(0)').attr('source-path')).toMatch /ui-dark/
+        sheets = Array.from(document.querySelectorAll('style[priority="1"]'))
+        expect(sheets).toHaveLength 1
+        expect(sheets[0].getAttribute('source-path')).toMatch /ui-dark/
         NylasEnv.config.set('core.themes', ['ui-light', 'ui-dark'])
 
       waitsFor ->
@@ -118,9 +118,10 @@ describe "ThemeManager", ->
 
       runs ->
         didChangeActiveThemesHandler.reset()
-        expect($('style[priority=1]')).toHaveLength 2
-        expect($('style[priority=1]:eq(0)').attr('source-path')).toMatch /ui-dark/
-        expect($('style[priority=1]:eq(1)').attr('source-path')).toMatch /ui-light/
+        sheets = Array.from(document.querySelectorAll('style[priority="1"]'))
+        expect(sheets).toHaveLength 2
+        expect(sheets[0].getAttribute('source-path')).toMatch /ui-dark/
+        expect(sheets[1].getAttribute('source-path')).toMatch /ui-light/
         NylasEnv.config.set('core.themes', [])
 
       waitsFor ->
@@ -128,7 +129,8 @@ describe "ThemeManager", ->
 
       runs ->
         didChangeActiveThemesHandler.reset()
-        expect($('style[priority=1]')).toHaveLength(1)
+        sheets = Array.from(document.querySelectorAll('style[priority="1"]'))
+        expect(sheets).toHaveLength(1)
         # ui-dark has an directory path, the syntax one doesn't
         NylasEnv.config.set('core.themes', ['theme-with-index-less', 'ui-light'])
 
@@ -136,7 +138,8 @@ describe "ThemeManager", ->
         didChangeActiveThemesHandler.callCount == 1
 
       runs ->
-        expect($('style[priority=1]')).toHaveLength 2
+        sheets = Array.from(document.querySelectorAll('style[priority="1"]'))
+        expect(sheets).toHaveLength 2
         importPaths = themeManager.getImportPaths()
         expect(importPaths.length).toBe 1
         expect(importPaths[0]).toContain 'ui-light'
@@ -151,7 +154,7 @@ describe "ThemeManager", ->
         themeManager.activateThemes()
 
       runs ->
-        expect(workspaceElement).toHaveClass 'theme-ui-light'
+        expect(workspaceElement.classList.contains('theme-ui-light')).toBe(true)
 
         themeManager.onDidChangeActiveThemes didChangeActiveThemesHandler = jasmine.createSpy()
         NylasEnv.config.set('core.themes', ['theme-with-ui-variables'])
@@ -161,8 +164,8 @@ describe "ThemeManager", ->
 
       runs ->
         # `theme-` twice as it prefixes the name with `theme-`
-        expect(workspaceElement).toHaveClass 'theme-theme-with-ui-variables'
-        expect(workspaceElement).not.toHaveClass 'theme-ui-dark'
+        expect(workspaceElement.classList.contains('theme-theme-with-ui-variables')).toBe(true)
+        expect(workspaceElement.classList.contains('theme-ui-dark')).toBe(false)
 
   describe "when a theme fails to load", ->
     it "logs a warning", ->
@@ -183,37 +186,37 @@ describe "ThemeManager", ->
       themeManager.onDidAddStylesheet stylesheetAddedHandler = jasmine.createSpy("stylesheetAddedHandler")
 
       cssPath = path.join(__dirname, 'fixtures', 'css.css')
-      lengthBefore = $('head style').length
+      lengthBefore = document.querySelectorAll('head style').length
 
       themeManager.requireStylesheet(cssPath)
-      expect($('head style').length).toBe lengthBefore + 1
+      expect(document.querySelectorAll('head style').length).toBe lengthBefore + 1
 
       expect(styleElementAddedHandler).toHaveBeenCalled()
       expect(stylesheetAddedHandler).toHaveBeenCalled()
       expect(stylesheetsChangedHandler).toHaveBeenCalled()
 
-      element = $('head style[source-path*="css.css"]')
-      expect(element.attr('source-path')).toBe themeManager.stringToId(cssPath)
-      expect(element.text()).toBe fs.readFileSync(cssPath, 'utf8')
-      expect(element[0].sheet).toBe stylesheetAddedHandler.argsForCall[0][0]
+      element = document.querySelector('head style[source-path*="css.css"]')
+      expect(element.getAttribute('source-path')).toBe themeManager.stringToId(cssPath)
+      expect(element.textContent).toBe fs.readFileSync(cssPath, 'utf8')
 
       # doesn't append twice
       styleElementAddedHandler.reset()
       themeManager.requireStylesheet(cssPath)
-      expect($('head style').length).toBe lengthBefore + 1
+      expect(document.querySelectorAll('head style').length).toBe lengthBefore + 1
       expect(styleElementAddedHandler).not.toHaveBeenCalled()
 
-      $('head style[id*="css.css"]').remove()
+      element .remove()
 
     it "synchronously loads and parses less files at the given path and installs a style tag for it in the head", ->
       lessPath = path.join(__dirname, 'fixtures', 'sample.less')
-      lengthBefore = $('head style').length
+      lengthBefore = document.querySelectorAll('head style').length
       themeManager.requireStylesheet(lessPath)
-      expect($('head style').length).toBe lengthBefore + 1
+      lengthAfter = document.querySelectorAll('head style').length
+      expect(lengthAfter).toBe lengthBefore + 1
 
-      element = $('head style[source-path*="sample.less"]')
-      expect(element.attr('source-path')).toBe themeManager.stringToId(lessPath)
-      expect(element.text()).toBe """
+      element = document.querySelector('head style[source-path*="sample.less"]')
+      expect(element.getAttribute('source-path')).toBe themeManager.stringToId(lessPath)
+      expect(element.textContent).toBe """
       #header {
         color: #4d926f;
       }
@@ -225,24 +228,24 @@ describe "ThemeManager", ->
 
       # doesn't append twice
       themeManager.requireStylesheet(lessPath)
-      expect($('head style').length).toBe lengthBefore + 1
-      $('head style[id*="sample.less"]').remove()
+      expect(document.querySelectorAll('head style').length).toBe lengthBefore + 1
+      element.remove()
 
     it "supports requiring css and less stylesheets without an explicit extension", ->
       themeManager.requireStylesheet path.join(__dirname, 'fixtures', 'css')
-      expect($('head style[source-path*="css.css"]').attr('source-path')).toBe themeManager.stringToId(path.join(__dirname, 'fixtures', 'css.css'))
+      expect(document.querySelector('head style[source-path*="css.css"]').getAttribute('source-path')).toBe themeManager.stringToId(path.join(__dirname, 'fixtures', 'css.css'))
       themeManager.requireStylesheet path.join(__dirname, 'fixtures', 'sample')
-      expect($('head style[source-path*="sample.less"]').attr('source-path')).toBe themeManager.stringToId(path.join(__dirname, 'fixtures', 'sample.less'))
+      expect(document.querySelector('head style[source-path*="sample.less"]').getAttribute('source-path')).toBe themeManager.stringToId(path.join(__dirname, 'fixtures', 'sample.less'))
 
-      $('head style[id*="css.css"]').remove()
-      $('head style[id*="sample.less"]').remove()
+      document.querySelector('head style[source-path*="css.css"]').remove()
+      document.querySelector('head style[source-path*="sample.less"]').remove()
 
     it "returns a disposable allowing styles applied by the given path to be removed", ->
       cssPath = require.resolve('./fixtures/css.css')
 
-      expect($(document.body).css('font-weight')).not.toBe("bold")
+      expect(window.getComputedStyle(document.body)['font-weight']).not.toBe("bold")
       disposable = themeManager.requireStylesheet(cssPath)
-      expect($(document.body).css('font-weight')).toBe("bold")
+      expect(window.getComputedStyle(document.body)['font-weight']).toBe("bold")
 
       NylasEnv.styles.onDidRemoveStyleElement styleElementRemovedHandler = jasmine.createSpy("styleElementRemovedHandler")
       themeManager.onDidRemoveStylesheet stylesheetRemovedHandler = jasmine.createSpy("stylesheetRemovedHandler")
@@ -250,7 +253,7 @@ describe "ThemeManager", ->
 
       disposable.dispose()
 
-      expect($(document.body).css('font-weight')).not.toBe("bold")
+      expect(window.getComputedStyle(document.body)['font-weight']).not.toBe("bold")
 
       expect(styleElementRemovedHandler).toHaveBeenCalled()
       expect(stylesheetRemovedHandler).toHaveBeenCalled()
@@ -291,9 +294,11 @@ describe "ThemeManager", ->
         expect(getComputedStyle(workspaceElement)["background-color"]).toBe "rgb(0, 0, 255)"
 
         # a value that is not overridden in the theme
-        expect($("nylas-theme-wrap").css("padding-top")).toBe "150px"
-        expect($("nylas-theme-wrap").css("padding-right")).toBe "150px"
-        expect($("nylas-theme-wrap").css("padding-bottom")).toBe "150px"
+        node = document.querySelector('nylas-theme-wrap')
+        nodeStyle = window.getComputedStyle(node)
+        expect(nodeStyle['padding-top']).toBe "150px"
+        expect(nodeStyle['padding-right']).toBe "150px"
+        expect(nodeStyle['padding-bottom']).toBe "150px"
 
     describe "when there is a theme with incomplete variables", ->
       it "loads the correct values from the fallback ui-variables", ->
@@ -304,8 +309,10 @@ describe "ThemeManager", ->
           # an override loaded in the base css of theme-with-incomplete-ui-variables
           expect(getComputedStyle(workspaceElement)["background-color"]).toBe "rgb(0, 0, 255)"
 
-          # a value that is not overridden in the theme
-          expect($("nylas-theme-wrap").css("background-color")).toBe "rgb(152, 123, 0)"
+            # a value that is not overridden in the theme
+          node = document.querySelector('nylas-theme-wrap')
+          nodeStyle = window.getComputedStyle(node)
+          expect(nodeStyle['background-color']).toBe "rgb(152, 123, 0)"
 
   describe "user stylesheet", ->
     userStylesheetPath = null
@@ -337,14 +344,16 @@ describe "ThemeManager", ->
               themeManager.onDidAddStylesheet stylesheetAddedHandler = jasmine.createSpy("stylesheetAddedHandler")
               spyOn(themeManager, 'loadUserStylesheet').andCallThrough()
 
-              expect($(document.body).css('border-style')).toBe 'dotted'
+              bodyStyle = window.getComputedStyle(document.body)
+              expect(bodyStyle['border-style']).toBe "dotted"
               fs.writeFileSync(userStylesheetPath, 'body {border-style: dashed}')
 
             waitsFor ->
               themeManager.loadUserStylesheet.callCount is 1
 
             runs ->
-              expect($(document.body).css('border-style')).toBe 'dashed'
+              bodyStyle = window.getComputedStyle(document.body)
+              expect(bodyStyle['border-style']).toBe "dashed"
 
               expect(styleElementRemovedHandler).toHaveBeenCalled()
               expect(styleElementRemovedHandler.argsForCall[0][0].textContent).toContain 'dotted'
@@ -382,7 +391,9 @@ describe "ThemeManager", ->
               match = null
               for rule in stylesheetRemovedHandler.argsForCall[0][0].cssRules
                 match = rule if rule.selectorText is 'body'
-              match.style.border is 'dashed' and $(document.body).css('border-style') is 'none'
+
+              bodyStyle = window.getComputedStyle(document.body)
+              match.style.border is 'dashed' and bodyStyle['border-style'] is 'none'
 
             runs ->
               expect(stylesheetsChangedHandler).toHaveBeenCalled()
