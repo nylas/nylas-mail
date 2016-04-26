@@ -26,6 +26,9 @@ class ComposerWithWindowProps extends React.Component {
     // We'll now always have windowProps by the time we construct this.
     const windowProps = NylasEnv.getWindowProps()
     const {draftJSON, draftClientId} = windowProps;
+    if (!draftJSON) {
+      throw new Error("Initialize popout composer windows with valid draftJSON")
+    }
     const draft = new Message().fromJSON(draftJSON);
     DraftStore._createSession(draftClientId, draft);
     this.state = windowProps
