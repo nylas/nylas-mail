@@ -152,7 +152,7 @@ class DraftFactory
     if behavior not in ['prefer-existing-if-pristine', 'prefer-existing']
       return Promise.resolve(null)
 
-    getMessages = DatabaseStore.findBy(Message, {threadId: message.threadId})
+    getMessages = DatabaseStore.findAll(Message, {threadId: message.threadId})
     if message.threadId is MessageStore.threadId()
       getMessages = Promise.resolve(MessageStore.items())
 
