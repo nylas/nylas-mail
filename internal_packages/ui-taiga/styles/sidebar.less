@@ -9,8 +9,17 @@
   background-color: @white !important;
 
   section {
+    &:first-child .heading {
+      padding-right: 40px;
+    }
+
     .heading {
       padding-bottom: 5px;
+      .text {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
     }
     .item-container {
       margin: 0 10px 0 0 !important;
