@@ -23,7 +23,7 @@ however, the Sync Engine is open source and you can run it yourself.
 3. Start the sync engine by running `bin/inbox-start` and the API via `bin/inbox-api`.
 
 4. After you've linked accounts to the Sync Engine, open or create a file at
-   `~/.nylas/config.cson`. This is the config file that N1 reads at launch.
+   `~/.nylas/config.json`. This is the config file that N1 reads at launch.
 
    Replace `env: "production"` with `env: "local"` at the top level of the config.
    This tells N1 to look at `localhost:5555` for the sync engine. If you've deployed
@@ -56,36 +56,41 @@ however, the Sync Engine is open source and you can run it yourself.
    For each account you've created, add an entry to `*.nylas.accountTokens`
    with the account ID as both the key and value.
 
-   The final `config.cson` file should look something like this:
+   The final `config.json` file should look something like this:
 
-        "*":
-          env: "local"
-          nylas:
-            accounts: [
-              {
-                server_id: "{ACCOUNT_ID_1}"
-                object: "account"
-                account_id: "{ACCOUNT_ID_1}"
-                name: "{YOUR NAME}"
-                provider: "{PROVIDER_NAME}"
-                email_address: "{YOUR_EMAIL_ADDRESS}"
-                organization_unit: "{folder or label}"
-                id: "{ACCOUNT_ID_1}"
-              }
-              {
-                server_id: "{ACCOUNT_ID_2}"
-                object: "account"
-                account_id: "{ACCOUNT_ID_2}"
-                name: "{YOUR_NAME}"
-                provider: "{PROVIDER_NAME}"
-                email_address: "{YOUR_EMAIL_ADDRESS}"
-                organization_unit: "{folder or label}"
-                id: "{ACCOUNT_ID_2}"
-              }
-            ]
-            accountTokens:
-              "{ACCOUNT_ID_1}": "{ACCOUNT_ID_1}"
-              "{ACCOUNT_ID_2}": "{ACCOUNT_ID_2}"
+       {
+         "*": {
+           "env": "local",
+           "nylas": {
+             "accounts": [
+               {
+                 "server_id": "{ACCOUNT_ID_1}",
+                 "object": "account",
+                 "account_id": "{ACCOUNT_ID_1}",
+                 "name": "{YOUR NAME}",
+                 "provider": "{PROVIDER_NAME}",
+                 "email_address": "{YOUR_EMAIL_ADDRESS}",
+                 "organization_unit": "{folder or label}",
+                 "id": "{ACCOUNT_ID_1}"
+               },
+               {
+                 "server_id": "{ACCOUNT_ID_2}",
+                 "object": "account",
+                 "account_id": "{ACCOUNT_ID_2}",
+                 "name": "{YOUR_NAME}",
+                 "provider": "{PROVIDER_NAME}",
+                 "email_address": "{YOUR_EMAIL_ADDRESS}",
+                 "organization_unit": "{folder or label}",
+                 "id": "{ACCOUNT_ID_2}"
+               }
+             ],
+             "accountTokens": {
+               "{ACCOUNT_ID_1}": "{ACCOUNT_ID_1}",
+               "{ACCOUNT_ID_2}": "{ACCOUNT_ID_2}"
+             }
+           }
+         }
+       }
 
 Note: `{ACCOUNT_ID_1}` refers to the database ID of the `Account` object
 you create when setting up the Sync Engine. The JSON above should match
