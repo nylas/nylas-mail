@@ -8,10 +8,6 @@ _ = require 'underscore'
 donna = require 'donna'
 tello = require 'tello'
 
-moduleBlacklist = [
-  'space-pen'
-]
-
 module.exports = (grunt) ->
   {cp, mkdir, rm} = require('./task-helpers')(grunt)
 
@@ -23,7 +19,6 @@ module.exports = (grunt) ->
       return false if modulePath.match(/node_modules/g)
 
       # Don't traverse blacklisted packages (that have docs, but we don't want to include)
-      return false if path.basename(modulePath) in moduleBlacklist
       return true unless path.basename(modulePath) is 'package.json'
       return true unless fs.isFileSync(modulePath)
 

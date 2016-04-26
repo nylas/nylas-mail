@@ -456,9 +456,9 @@ describe "PackageManager", ->
         one = require.resolve("./fixtures/packages/package-with-style-sheets-manifest/styles/1.css")
         two = require.resolve("./fixtures/packages/package-with-style-sheets-manifest/styles/2.less")
         three = require.resolve("./fixtures/packages/package-with-style-sheets-manifest/styles/3.css")
-        expect(NylasEnv.themes.stylesheetElementForId(one)).not.toExist()
-        expect(NylasEnv.themes.stylesheetElementForId(two)).not.toExist()
-        expect(NylasEnv.themes.stylesheetElementForId(three)).not.toExist()
+        expect(NylasEnv.themes.stylesheetElementForId(one)).toBe(null)
+        expect(NylasEnv.themes.stylesheetElementForId(two)).toBe(null)
+        expect(NylasEnv.themes.stylesheetElementForId(three)).toBe(null)
 
     it "invokes ::onDidDeactivatePackage listeners with the deactivated package", ->
       waitsForPromise ->

@@ -2,8 +2,6 @@ fs = require 'fs'
 {remote} = require 'electron'
 
 module.exports.runSpecSuite = (specSuite, logFile, logErrors=true) ->
-  {$, $$} = require '../src/space-pen-extensions'
-
   window[key] = value for key, value of require './jasmine'
 
   {TerminalReporter} = require 'jasmine-tagged'
@@ -21,8 +19,7 @@ module.exports.runSpecSuite = (specSuite, logFile, logErrors=true) ->
       remote.process.stdout.write(str)
 
   if NylasEnv.getLoadSettings().showSpecsInWindow
-    N1SpecReporter = require './n1-spec-reporter'
-    reporter = new N1SpecReporter()
+    reporter = require './n1-spec-reporter'
   else if NylasEnv.getLoadSettings().exitWhenDone
     reporter = new TerminalReporter
       color: true
@@ -38,8 +35,7 @@ module.exports.runSpecSuite = (specSuite, logFile, logErrors=true) ->
         else
           NylasEnv.exit(0)
   else
-    N1SpecReporter = require './n1-spec-reporter'
-    reporter = new N1SpecReporter()
+    reporter = require './n1-spec-reporter'
 
   NylasEnv.initialize()
 
@@ -50,7 +46,9 @@ module.exports.runSpecSuite = (specSuite, logFile, logErrors=true) ->
   jasmineEnv.addReporter(timeReporter)
   jasmineEnv.setIncludedTags([process.platform])
 
-  $('body').append $$ -> @div id: 'jasmine-content'
+  div = document.createElement('div')
+  div.id = 'jasmine-content'
+  document.body.appendChild(div)
 
   jasmineEnv.execute()
 
