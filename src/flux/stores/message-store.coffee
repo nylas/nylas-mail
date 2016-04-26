@@ -27,13 +27,16 @@ class MessageStore extends NylasStore
     return @_items if @_showingHiddenItems
 
     viewing = FocusedPerspectiveStore.current().categoriesSharedName()
-    viewingHidden = viewing in CategoryNamesHiddenByDefault
+    viewingHiddenCategory = viewing in CategoryNamesHiddenByDefault
 
-    return @_items.filter (item) ->
-      inHidden = _.any item.categories, (cat) -> cat.name in CategoryNamesHiddenByDefault
-      return false if viewingHidden and not inHidden
-      return false if not viewingHidden and inHidden
-      return true
+    if viewingHiddenCategory
+      return @_items.filter (item) ->
+        inHidden = _.any item.categories, (cat) -> cat.name in CategoryNamesHiddenByDefault
+        return inHidden or item.draft is true
+    else
+      return @_items.filter (item) ->
+        inHidden = _.any item.categories, (cat) -> cat.name in CategoryNamesHiddenByDefault
+        return not inHidden
 
   threadId: -> @_thread?.id
 

@@ -1,7 +1,9 @@
 _ = require 'underscore'
 Thread = require '../../src/flux/models/thread'
+Category = require '../../src/flux/models/category'
 Message = require '../../src/flux/models/message'
 FocusedContentStore = require '../../src/flux/stores/focused-content-store'
+FocusedPerspectiveStore = require '../../src/flux/stores/focused-perspective-store'
 MessageStore = require '../../src/flux/stores/message-store'
 DatabaseStore = require '../../src/flux/stores/database-store'
 ChangeUnreadTask = require '../../src/flux/tasks/change-unread-task'
@@ -52,6 +54,40 @@ describe "MessageStore", ->
         advanceClock(150)
         FocusedContentStore.trigger(impactsCollection: (c) -> true )
         expect(MessageStore._onApplyFocusChange.callCount).toBe(5)
+
+  describe "items", ->
+    beforeEach ->
+      MessageStore._showingHiddenItems = false
+      MessageStore._items = [
+        new Message(categories: [new Category(displayName: 'bla'), new Category(name: 'trash')]),
+        new Message(categories: [new Category(name: 'inbox')]),
+        new Message(categories: [new Category(name: 'bla'), new Category(name: 'spam')]),
+        new Message(categories: []),
+        new Message(categories: [], draft: true),
+      ]
+
+    describe "when showing hidden items", ->
+      it "should return the entire items array", ->
+        MessageStore._showingHiddenItems = true
+        expect(MessageStore.items().length).toBe(5)
+
+    describe "when in trash or spam", ->
+      it "should show only the message which are in trash or spam, and drafts", ->
+        spyOn(FocusedPerspectiveStore, 'current').andReturn({categoriesSharedName: => 'trash'})
+        expect(MessageStore.items()).toEqual([
+          MessageStore._items[0],
+          MessageStore._items[2],
+          MessageStore._items[4],
+        ])
+
+    describe "when in another folder", ->
+      it "should hide all of the messages which are in trash or spam", ->
+        spyOn(FocusedPerspectiveStore, 'current').andReturn({categoriesSharedName: => 'inbox'})
+        expect(MessageStore.items()).toEqual([
+          MessageStore._items[1],
+          MessageStore._items[3],
+          MessageStore._items[4],
+        ])
 
   describe "when applying focus changes", ->
     beforeEach ->
