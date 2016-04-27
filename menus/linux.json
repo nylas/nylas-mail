@@ -48,6 +48,19 @@
       ]
     },
     {
+      "label": "Thread",
+      "submenu": [
+        { "label": "Reply", "command": "core:reply" },
+        { "label": "Reply All", "command": "core:reply-all" },
+        { "label": "Forward", "command": "core:forward" },
+        { "type": "separator" },
+        { "label": "Star", "command": "core:star-item" },
+        { "type": "separator", "id": "thread-actions" },
+        { "label": "Remove from view", "command": "core:remove-from-view" },
+        { "type": "separator", "id": "view-actions" }
+      ]
+    },
+    {
       "label": "Developer",
       "submenu": [
         { "label": "Run with &Debug Flags", "type": "checkbox", "command": "application:toggle-dev" },
