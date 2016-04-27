@@ -12,7 +12,7 @@ module.exports =
           systemTray:
             type: 'boolean'
             default: true
-            title: "Show icon in menu bar"
+            title: "Show icon in menu bar / system tray"
             platforms: ['darwin', 'linux']
           showImportant:
             type: 'boolean'
