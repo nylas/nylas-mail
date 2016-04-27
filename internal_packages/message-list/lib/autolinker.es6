@@ -62,6 +62,6 @@ export function autolink(doc, {async} = {}) {
     ,
   });
   while (aTagWalker.nextNode()) {
-    aTagWalker.currentNode.title = aTagWalker.currentNode.href;
+    aTagWalker.currentNode.title = aTagWalker.currentNode.getAttribute('href');
   }
 }
