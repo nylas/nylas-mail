@@ -1,11 +1,15 @@
 {React, Actions} = require 'nylas-exports'
 {ParticipantsTextField} = require 'nylas-component-kit'
+Identity = require './identity'
 _ = require 'underscore'
 
 module.exports =
 class EmailPopover extends React.Component
   constructor: ->
     @state = {to: [], cc: [], bcc: []}
+
+  @propTypes:
+    profile: React.PropTypes.instanceOf(Identity).isRequired
 
   render: ->
     participants = @state
@@ -26,5 +30,5 @@ class EmailPopover extends React.Component
     @setState(contacts)
 
   _onDone: =>
-    @props.onPopoverDone _.pluck(@state.to, 'email')
+    @props.onPopoverDone(_.pluck(@state.to, 'email'), @props.profile)
     Actions.closePopover()

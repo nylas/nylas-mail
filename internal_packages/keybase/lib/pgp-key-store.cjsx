@@ -154,7 +154,7 @@ class PGPKeyStore extends NylasStore
       fingerprint = key.fingerprint()
       kb.getUser(fingerprint, 'key_fingerprint', (err, user) =>
         if user?.length == 1
-          key.keybase_user = user[0]
+          key.keybase_profile = user[0]
           @trigger(@)
       )
 
@@ -208,35 +208,36 @@ class PGPKeyStore extends NylasStore
 
   ### Internal Key Management ###
 
-  pubKeys: (address) =>
-    # TODO allow passing list of addresses
+  pubKeys: (addresses) =>
     # fetch public key(s) for an address (synchronous)
     # if no address, return them all
-    keys = []
-    if not address?
-      keys = @_pubKeys
-    else
-      keys = _.filter @_pubKeys, (key) ->
-        return address in key.addresses
-    keys
+    if not addresses?
+      return @_pubKeys
+
+    if typeof addresses is "string"
+      addresses = [addresses]
+
+    identities = _.filter @_pubKeys, (identity) ->
+      return _.intersection(addresses, identity.addresses).length > 0
+    return identities
 
   privKeys: ({address, timed} = {timed: true}) =>
     # fetch private key(s) for an address (synchronous).
     # by default, only return non-timed-out keys
     # if no address, return them all
-    keys = @_privKeys
+    identities = @_privKeys
 
     if address?
-      keys = _.filter(keys, (identity) ->
+      identities = _.filter(identities, (identity) ->
         return address in identity.addresses
       )
 
     if timed
-      keys = _.reject(keys, (identity) ->
+      identities = _.reject(identities, (identity) ->
         return identity.isTimedOut()
       )
 
-    return keys
+    return identities
 
   _displayError: (message) ->
     dialog = remote.require('dialog')
