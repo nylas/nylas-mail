@@ -136,6 +136,10 @@ class WorkspaceSection extends React.Component {
           configSchema={this.props.configSchema.properties.workspace.properties.interfaceZoom}
           keyPath="core.workspace.interfaceZoom"
           config={this.props.config} />
+
+        <div className="platform-note platform-linux-only">
+          N1 launch on system start only works in XDG-compliant desktop environments.
+        </div>
       </section>
     );
   }
