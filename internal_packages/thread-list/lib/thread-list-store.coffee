@@ -86,6 +86,5 @@ class ThreadListStore extends NylasStore
       if keyboard and notInSet(keyboard)
         Actions.setCursorPosition(collection: 'thread', item: nextItemFromIndex(keyboardIndex))
 
-    @trigger(@)
 
 module.exports = new ThreadListStore()
