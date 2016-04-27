@@ -80,7 +80,9 @@ class EventedIFrame extends React.Component
     doc = node.contentDocument
     return unless doc
     doc.removeEventListener('click', @_onIFrameClick)
-    doc.removeEventListener('keydown', @_onIFrameKeydown)
+    doc.removeEventListener('keydown', @_onIFrameKeyEvent)
+    doc.removeEventListener('keypress', @_onIFrameKeyEvent)
+    doc.removeEventListener('keyup', @_onIFrameKeyEvent)
     doc.removeEventListener('mousedown', @_onIFrameMouseEvent)
     doc.removeEventListener('mousemove', @_onIFrameMouseEvent)
     doc.removeEventListener('mouseup', @_onIFrameMouseEvent)
@@ -95,7 +97,9 @@ class EventedIFrame extends React.Component
     doc = node.contentDocument
     _.defer =>
       doc.addEventListener("click", @_onIFrameClick)
-      doc.addEventListener("keydown", @_onIFrameKeydown)
+      doc.addEventListener("keydown", @_onIFrameKeyEvent)
+      doc.addEventListener("keypress", @_onIFrameKeyEvent)
+      doc.addEventListener("keyup", @_onIFrameKeyEvent)
       doc.addEventListener("mousedown", @_onIFrameMouseEvent)
       doc.addEventListener("mousemove", @_onIFrameMouseEvent)
       doc.addEventListener("mouseup", @_onIFrameMouseEvent)
@@ -182,9 +186,16 @@ class EventedIFrame extends React.Component
       pageY: event.pageY + nodeRect.top
     })))
 
-  _onIFrameKeydown: (event) =>
+  _onIFrameKeyEvent: (event) =>
     return if event.metaKey or event.altKey or event.ctrlKey
-    ReactDOM.findDOMNode(@).dispatchEvent(new KeyboardEvent(event.type, event))
+
+    attrs = ['key', 'code','location', 'ctrlKey', 'shiftKey', 'altKey', 'metaKey', 'repeat', 'isComposing', 'charCode', 'keyCode', 'which']
+    eventInit = Object.assign({bubbles: true}, _.pick(event, attrs))
+    eventInParentDoc = new KeyboardEvent(event.type, eventInit)
+
+    Object.defineProperty(eventInParentDoc, 'which', {value: event.which})
+
+    ReactDOM.findDOMNode(@).dispatchEvent(eventInParentDoc)
 
   _onIFrameContextualMenu: (event) =>
     # Build a standard-looking contextual menu with options like "Copy Link",
