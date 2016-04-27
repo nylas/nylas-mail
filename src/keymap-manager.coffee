@@ -93,7 +93,7 @@ class KeymapManager
   forEachInKeymaps: (keymaps, cb) =>
     Object.keys(keymaps).forEach (command) =>
       keystrokesArray = keymaps[command]
-      keystrokesArray = [keystrokesArray] unless keystrokes instanceof Array
+      keystrokesArray = [keystrokesArray] unless keystrokesArray instanceof Array
       for keystrokes in keystrokesArray
         cb(command, keystrokes)
 

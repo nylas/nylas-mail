@@ -22,7 +22,7 @@
 
   "core:print-thread": "mod+p",
   "core:focus-item": "enter",
-  "core:remove-from-view": "backspace",
+  "core:remove-from-view": ["backspace", "delete"],
   "core:pop-sheet": "escape",
 
   "core:messages-page-up": "pageup",
@@ -54,9 +54,9 @@
   "contenteditable:quote": "mod+(",
   "contenteditable:outdent": "mod+[",
   "contenteditable:indent": "mod+]",
-  "contenteditable:align-left": "mod+L",
-  "contenteditable:align-center": "mod+E",
-  "contenteditable:align-right": "mod+R",
+  "contenteditable:align-left": "mod+shift+l",
+  "contenteditable:align-center": "mod+shift+e",
+  "contenteditable:align-right": "mod+shift+r",
   "contenteditable:set-left-to-right": "mod+.",
   "contenteditable:remove-formatting": "mod+\\",
   "contenteditable:previous-font": "mod+%",

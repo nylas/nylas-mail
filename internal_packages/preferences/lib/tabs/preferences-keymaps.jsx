@@ -196,8 +196,11 @@ class PreferencesKeymaps extends React.Component {
   _renderKeystrokes = (keystrokes, idx) => {
     const elements = [];
     const splitKeystrokes = keystrokes.split(' ');
-    splitKeystrokes.forEach((keystroke) => {
+    splitKeystrokes.forEach((keystroke, kidx) => {
       elements.push(<span key={keystroke}>{this._formatKeystrokes(keystroke)}</span>);
+      if (kidx < splitKeystrokes.length - 1) {
+        elements.push(<span className="then" key={kidx}> then </span>);
+      }
     });
     return (
       <span key={`keystrokes-${idx}`} className="shortcut-value">{elements}</span>

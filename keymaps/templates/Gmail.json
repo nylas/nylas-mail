@@ -30,13 +30,13 @@
   "message-list:expand-all": ";",
   "message-list:collapse-all": ":",
 
-  "application:new-message": "mod+n",
+  "application:new-message": ["c", "d", "mod+n"],
   "application:more-actions": ".",
   "application:open-help": "?",
 
   "core:mute-conversation": "m",
   "core:focus-search": "/",
-  "core:change-category": "v",
+  "core:change-category": ["l", "v"],
   "core:focus-toolbar": ",",
   "core:star-item": "s",
   "core:gmail-remove-from-view": "y",
@@ -44,17 +44,18 @@
   "core:report-as-spam": "!",
   "core:delete-item": "#",
 
-  "core:reply": "mod+r",
+  "core:reply": ["r", "mod+r"],
   "core:reply-new-window": "shift+r",
-  "core:reply-all": "mod+shift+r",
+  "core:reply-all": ["a", "mod+shift+r"],
   "core:reply-all-new-window": "shift+a",
-  "core:forward": "mod+shift+f",
+  "core:forward": ["f", "mod+shift+f"],
   "core:forward-new-window": "shift+f",
-  "core:remove-and-previous": "}",
-  "core:remove-and-next": "{",
+
+  "core:remove-and-previous": ["}", "]"],
+  "core:remove-and-next": ["{", "["],
 
   "core:mark-as-read": "shift+i",
-  "core:mark-as-unread": "_",
-  "core:mark-important": "=",
+  "core:mark-as-unread": ["shift+u", "_"],
+  "core:mark-important": ["+", "="],
   "core:mark-unimportant": "-"
 }

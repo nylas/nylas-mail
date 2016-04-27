@@ -1,5 +1,5 @@
 {
-  "application:new-message": "mod+n",
+  "application:new-message": ["c", "mod+n"],
 
   "navigation:go-to-inbox": "i",
   "multiselect-list:select-all": "shift+x",
@@ -21,14 +21,16 @@
   "core:gmail-remove-from-view": "y",
   "core:archive-item": "e",
   "core:report-as-spam": "!",
-  "core:delete-item": "//",
-  "core:reply": "mod+r",
+  "core:delete-item": "#",
+
+  "core:reply": ["r", "mod+r"],
   "core:reply-new-window": "shift+r",
-  "core:reply-all": "mod+shift+r",
+  "core:reply-all": ["a", "mod+shift+r"],
   "core:reply-all-new-window": "shift+a",
-  "core:forward": "mod+shift+f",
+  "core:forward": ["f", "mod+shift+f"],
   "core:forward-new-window": "shift+f",
-  "core:remove-and-previous": "}",
-  "core:remove-and-next": "{",
+
+  "core:remove-and-previous": ["}", "]"],
+  "core:remove-and-next": ["{", "["],
   "core:undo": "z"
 }
