@@ -58,7 +58,7 @@ class MenuManager
         if item.command and item.command.startsWith('application:') is false
           item.enabled = NylasEnv.commands.listenerCountForCommand(item.command) > 0
         if item.submenu?
-          item.enabled = _.every item.submenu, (item) -> item.enabled is false
+          item.enabled = not _.every item.submenu, (item) -> item.enabled is false
       @sendToBrowserProcess(@template, NylasEnv.keymaps.getBindingsForAllCommands())
 
   loadPlatformItems: ->
