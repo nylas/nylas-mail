@@ -9,7 +9,7 @@
   "core:reply-all": "mod+shift+r",
   "application:new-message": "mod+shift+m",
   "send": "mod+enter",
-  "core:find-in-thread": "F4",
-  "core:find-in-thread-next": "shift+F4",
-  "core:find-in-thread-previous": "ctrl+shift+F4"
+  "core:find-in-thread": "f4",
+  "core:find-in-thread-next": "shift+f4",
+  "core:find-in-thread-previous": "ctrl+shift+f4"
 }
