@@ -1,23 +1,22 @@
 # A single user identity: a key, a way to find that key, one or more email
-# addresses, and a keybase profile. Everything except for at least one address
-# and a path is optional
+# addresses, and a keybase profile
+
+{Utils} = require 'nylas-exports'
 
 module.exports =
 class Identity
   constructor: ({key, path, addresses, isPriv, keybase_profile}) ->
+    @clientId = Utils.generateTempId()
     @key = key ? null # keybase keymanager object
     @path = path ? null # path to the key's file on disk
     @isPriv = isPriv ? false # is this a private key?
     @timeout = null # the time after which this key (if private) needs to be
                     # unlocked again
-    @addresses = addresses # email addresses associated with this identity
-    @keybase_profile = null # a kb profile object associated with this identity
+    @addresses = addresses ? [] # email addresses associated with this identity
+    @keybase_profile = keybase_profile ? null # a kb profile object associated with this identity
 
     if @isPriv
       @setTimeout()
-
-    if not addresses?
-      console.error("Identity instantiated without an email address!", @)
 
   fingerprint: ->
     if @key?
@@ -30,3 +29,15 @@ class Identity
 
   isTimedOut: ->
     return @timeout < Date.now()
+
+  uid: ->
+    if key.key?
+      uid = key.key.get_pgp_fingerprint().toString('hex')
+    else if key.keybase_profile?
+      uid = key.keybase_profile.components.username.val
+    else if key.addresses.length > 0
+      uid = key.addresses.join('')
+    else
+      uid = @clientId
+
+    return uid

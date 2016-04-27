@@ -1,5 +1,7 @@
-{Utils, DraftStore, React} = require 'nylas-exports'
+{Utils, DraftStore, React, Actions, DatabaseStore, Contact} = require 'nylas-exports'
 PGPKeyStore = require './pgp-key-store'
+Identity = require './identity'
+ModalKeyRecommender = require './modal-key-recommender'
 {RetinaImg} = require 'nylas-component-kit'
 pgp = require 'kbpgp'
 _ = require 'underscore'
@@ -46,7 +48,7 @@ class EncryptMessageButton extends React.Component
         # no key for this user:
         # push a null so that @_encrypt can line this array up with the
         # array of recipients
-        keys.push({address: recipient.email, key: null})
+        keys.push(new Identity({addresses: [recipient.email]}))
       else
         # note: this, by default, encrypts using every public key associated
         # with the address
@@ -97,8 +99,8 @@ class EncryptMessageButton extends React.Component
     else
       # if not encrypted, save the plaintext, then encrypt
       plaintext = @props.draft.body
-      keys = @_getKeys()
-      @_encrypt(plaintext, keys, (err, cryptotext) =>
+      identities = @_getKeys()
+      @_encrypt(plaintext, identities, (err, cryptotext) =>
         if err
           console.warn err
           NylasEnv.showErrorDialog(err)
@@ -111,30 +113,33 @@ class EncryptMessageButton extends React.Component
           @props.session.changes.add({body: cryptotext})
       )
 
-  _encrypt: (text, keys, cb) =>
+  _encrypt: (text, identities, cb) =>
     # addresses which don't have a key
-    nullAddrs = _.pluck(_.filter(keys, (key) -> return key.key is null), "address")
 
-    # don't need this, because the message below already says the recipient won't be able to decrypt it
-    # if keys.length < 1 or nullAddrs.length == keys.length
-    #   NylasEnv.showErrorDialog('This message is being encrypted with no keys - nobody will be able to decrypt it!')
+    emails = _.chain(identities)
+      .pluck("addresses")
+      .flatten()
+      .uniq()
+      .value()
 
-    # get the actual key objects
-    kms = _.pluck(keys, "key")
+    if emails.length > 0
+      DatabaseStore.findAll(Contact, {email: emails}).then((contacts) =>
+        component = (<ModalKeyRecommender contacts={contacts} />)
+        Actions.openModal({
+          component: component,
+          height: 500,
+          width: 400
+        })
+      )
+    else
+      # get the actual key objects
+      kms = _.pluck(identities, "key")
 
-    if nullAddrs.length > 0
-      missingAddrs = nullAddrs.join('\n- ')
-      # TODO this message is annoying, needs some work
-      # - link to preferences page
-      # - formatting, probably an error dialog is the wrong way to do this
-      # - potentially an option to disable this warning in the pref. page?
-      NylasEnv.showErrorDialog("At least one key is missing - the following recipients won't be able to decrypt the message:\n- #{missingAddrs}\n\nYou can add keys for them from the preferences page.")
-
-    # remove the nulls
-    kms = _.compact(kms)
-    params =
-      encrypt_for: kms
-      msg: text
-    pgp.box(params, cb)
+      # remove the nulls
+      kms = _.compact(kms)
+      params =
+        encrypt_for: kms
+        msg: text
+      pgp.box(params, cb)
 
 module.exports = EncryptMessageButton
