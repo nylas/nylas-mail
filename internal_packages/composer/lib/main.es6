@@ -40,19 +40,24 @@ class ComposerWithWindowProps extends React.Component {
       if (this.state.errorMessage) {
         this._showInitialErrorDialog(this.state.errorMessage);
       }
-      NylasEnv.getCurrentWindow().updateLoadSettings({
-        windowType: "composer",
-      })
 
-      // The call to updateLoadSettings will start loading the remaining
-      // packages. Once those packages load it'll cause a change in the
-      // root Sheet-level InjectedComponentSet, which will cause
-      // everything to re-render losing our focus. We have to manually
-      // refocus it but defer it so the event loop of the package
-      // activation happens first.
-      _.defer(() => {
-        this.refs.composer.focus()
-      })
+      // Give the composer some time to render before hitting another wall
+      // of javascript.
+      window.setTimeout(() => {
+        NylasEnv.getCurrentWindow().updateLoadSettings({
+          windowType: "composer",
+        })
+
+        // The call to updateLoadSettings will start loading the remaining
+        // packages. Once those packages load it'll cause a change in the
+        // root Sheet-level InjectedComponentSet, which will cause
+        // everything to re-render losing our focus. We have to manually
+        // refocus it but defer it so the event loop of the package
+        // activation happens first.
+        window.setTimeout(() => {
+          this.refs.composer.focus()
+        }, 32)
+      }, 32)
     });
   }
 
