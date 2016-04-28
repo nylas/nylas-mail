@@ -4,7 +4,7 @@
   "core:cut": "mod+x",
   "core:copy": "mod+c",
   "core:paste": "mod+v",
-  "core:paste-and-match-style": "mod+shift+v",
+  "core:paste-and-match-style": "mod+alt+shift+v",
   "core:select-all": "mod+a",
   "core:previous-item": "up",
   "core:next-item": "down",
