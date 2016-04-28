@@ -78,7 +78,7 @@ class Task
     taskPath = require.resolve(taskPath)
     taskPath = taskPath.replace(/\\/g, "\\\\")
 
-    env = _.extend({}, process.env, {taskPath, userAgent: navigator.userAgent})
+    env = _.extend({}, process.env, {taskPath, userAgent: 'NylasN1'})
     @childProcess = ChildProcess.fork '--eval', [bootstrap], {env, silent: true}
 
     @on "task:log", -> console.log(arguments...)
