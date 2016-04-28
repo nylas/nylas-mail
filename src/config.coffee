@@ -331,12 +331,7 @@ class Config
     @defaultSettings = {}
     @configFileHasErrors = false
 
-    # Temporary as we move away from cson
-    oldConfigFilePath = fs.resolve(@configDirPath, 'config.cson')
-    newConfigFilePath = path.join(@configDirPath, 'config.json')
-    if oldConfigFilePath
-      fs.renameSync(oldConfigFilePath, newConfigFilePath)
-    @configFilePath = newConfigFilePath
+    @configFilePath = path.join(@configDirPath, 'config.json')
 
     @transactDepth = 0
     @savePending = false
