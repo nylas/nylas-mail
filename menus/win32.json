@@ -1,6 +1,5 @@
 {
   "menu": [
-    { "label": "Add Account...", "command": "application:add-account" },
     {
       "label": "&Edit",
       "submenu": [
@@ -64,21 +63,21 @@
         { "label": "Open Detailed Logs", "command": "window:open-errorlogger-logs" }
       ]
     },
+    { "type": "separator" },
     {
-      "label": "&Help",
-      "submenu": [
-        { "label": "VERSION", "enabled": false },
-        { "label": "Restart and Install Update", "command": "application:install-update", "visible": false},
-        { "label": "Check for Update", "command": "application:check-for-update", "visible": false},
-        { "label": "Downloading Update", "enabled": false, "visible": false},
-        { "type": "separator" },
-        { "label": "Nylas N1 Help", "command": "application:view-help" }
-      ]
+      "label": "&Help...",
+      "command": "application:view-help"
     },
     { "type": "separator" },
     { "label": "Preferences", "command": "application:open-preferences" },
+    { "label": "Add Account...", "command": "application:add-account" },
     { "label": "Change Theme...", "command": "window:launch-theme-picker" },
     { "label": "Install Theme...", "command": "application:install-package" },
+    { "type": "separator" },
+    { "label": "VERSION", "enabled": false },
+    { "label": "Restart and Install Update", "command": "application:install-update", "visible": false},
+    { "label": "Check for Update", "command": "application:check-for-update", "visible": false},
+    { "label": "Downloading Update", "enabled": false, "visible": false},
     { "type": "separator" },
     { "label": "Print Current Thread", "command": "core:print-thread" },
     { "type": "separator" },
