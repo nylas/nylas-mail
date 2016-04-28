@@ -13,8 +13,7 @@ class PGPKeyStore extends NylasStore
   constructor: ->
     super()
 
-    @_pubKeys = []
-    @_privKeys = []
+    @_identities = {}
 
     @_msgCache = []
     @_msgStatus = []
@@ -53,8 +52,7 @@ class PGPKeyStore extends NylasStore
             fs.mkdir(@_privKeyDir, (err) =>
               if err
                 console.warn err))
-        @_populate(isPub = true)
-        @_populate(isPub = false)
+        @_populate()
         @watch())
 
   validAddress: (address, isPub) =>
@@ -75,9 +73,9 @@ class PGPKeyStore extends NylasStore
 
   watch: =>
     if (!@_pubWatcher)
-      @_pubWatcher = fs.watch(@_pubKeyDir, => @_populate(isPub = true))
+      @_pubWatcher = fs.watch(@_pubKeyDir, @_populate)
     if (!@_privWatcher)
-      @_privWatcher = fs.watch(@_privKeyDir, => @_populate(isPub = false))
+      @_privWatcher = fs.watch(@_privKeyDir, @_populate)
 
   unwatch: =>
     if (@_pubWatcher)
@@ -87,40 +85,31 @@ class PGPKeyStore extends NylasStore
       @_privWatcher.close()
     @_privWatcher = null
 
-  _populate: (isPub) =>
-    # add metadata elements (sans keys) to later be populated with actual keys
-    # from disk
-    if isPub
-      keyDirectory = @_pubKeyDir
-      @_pubKeys = []
-    else
-      keyDirectory = @_privKeyDir
-      @_privKeys = []
-    fs.readdir(keyDirectory, (err, filenames) =>
-      i = 0
-      if filenames.length == 0
-        @trigger(@)
-      else
-        while i < filenames.length
-          filename = filenames[i]
-          if filename[0] == '.'
-            continue
-          absname = path.join(keyDirectory, filename)
-          # key = {
-          #   path: absname,
-          #   addresses: filename.split(" ")
-          # }
-          ident = new Identity({
-            path: absname
-            addresses: filename.split(" ")
-            isPriv: !isPub
-          })
-          if isPub
-            @_pubKeys.push(ident)
-          else
-            @_privKeys.push(ident)
-          @trigger(@)
-          i++)
+  _populate: () =>
+    # add identity elements to later be populated with keys from disk
+    # TODO if this function is called multiple times in quick succession it
+    # will duplicate keys - need to do deduplication on add
+    @_identities = {}
+    _.each([@_pubKeyDir, @_privKeyDir], (keyDirectory) =>
+      fs.readdir(keyDirectory, (err, filenames) =>
+        i = 0
+        if filenames.length == 0
+          return
+        else
+          while i < filenames.length
+            filename = filenames[i]
+            if filename[0] == '.'
+              continue
+            absname = path.join(keyDirectory, filename)
+            ident = new Identity({
+              path: absname
+              addresses: filename.split(" ")
+              isPriv: keyDirectory == @_privKeyDir
+            })
+            @_identities[ident.clientId] = ident
+            @trigger(@)
+            i++)
+    )
 
   getKeyContents: ({key, passphrase}) =>
     # Reads an actual PGP key from disk and adds it to the preexisting metadata
@@ -137,7 +126,7 @@ class PGPKeyStore extends NylasStore
                 if err
                   console.warn err
             else
-              console.error "No passphrase provided, but key is private."
+              console.error "No passphrase provided, but key is encrypted."
           # NOTE this only allows for one priv key per address
           # if it's already there, update, else insert
           key.key = km
@@ -146,15 +135,15 @@ class PGPKeyStore extends NylasStore
         @trigger(@)
     )
 
-  getKeybaseData: (key) =>
+  getKeybaseData: (identity) =>
     # Given a key, fetches metadata from keybase about that key
-    if not key.key?
-      @getKeyContents(key: key)
+    if not identity.key?
+      @getKeyContents(key: identity)
     else
-      fingerprint = key.fingerprint()
+      fingerprint = identity.fingerprint()
       kb.getUser(fingerprint, 'key_fingerprint', (err, user) =>
         if user?.length == 1
-          key.keybase_profile = user[0]
+          identity.keybase_profile = user[0]
           @trigger(@)
       )
 
@@ -211,21 +200,24 @@ class PGPKeyStore extends NylasStore
   pubKeys: (addresses) =>
     # fetch public key(s) for an address (synchronous)
     # if no address, return them all
+    identities = _.where(_.values(@_identities), {isPriv: false})
+
     if not addresses?
-      return @_pubKeys
+      return identities
 
     if typeof addresses is "string"
       addresses = [addresses]
 
-    identities = _.filter @_pubKeys, (identity) ->
+    identities = _.filter(identities, (identity) ->
       return _.intersection(addresses, identity.addresses).length > 0
+    )
     return identities
 
   privKeys: ({address, timed} = {timed: true}) =>
     # fetch private key(s) for an address (synchronous).
     # by default, only return non-timed-out keys
     # if no address, return them all
-    identities = @_privKeys
+    identities = _.where(_.values(@_identities), {isPriv: true})
 
     if address?
       identities = _.filter(identities, (identity) ->

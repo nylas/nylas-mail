@@ -24,19 +24,19 @@ class Identity
     return null
 
   setTimeout: ->
-    timeout = 1000 * 60 * 30 # 30 minutes in ms
-    @timeout = Date.now() + timeout
+    delay = 1000 * 60 * 30 # 30 minutes in ms
+    @timeout = Date.now() + delay
 
   isTimedOut: ->
     return @timeout < Date.now()
 
   uid: ->
-    if key.key?
-      uid = key.key.get_pgp_fingerprint().toString('hex')
-    else if key.keybase_profile?
-      uid = key.keybase_profile.components.username.val
-    else if key.addresses.length > 0
-      uid = key.addresses.join('')
+    if @key?
+      uid = @key.get_pgp_fingerprint().toString('hex')
+    else if @keybase_profile?
+      uid = @keybase_profile.components.username.val
+    else if @addresses.length > 0
+      uid = @addresses.join('')
     else
       uid = @clientId
 
