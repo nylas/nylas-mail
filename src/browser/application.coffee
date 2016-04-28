@@ -75,6 +75,17 @@ class Application
     @sharedFileManager = new SharedFileManager()
     @nylasProtocolHandler = new NylasProtocolHandler(@resourcePath, @safeMode)
 
+
+    # Temporary as we move away from cson
+    CSON = require 'season'
+    oldConfigFilePath = fs.resolve(@configDirPath, 'config.cson')
+    newConfigFilePath = path.join(@configDirPath, 'config.json')
+    if oldConfigFilePath
+      userConfig = CSON.readFileSync(oldConfigFilePath)
+      fs.writeFileSync(newConfigFilePath, JSON.stringify(userConfig, null, 2))
+      fs.unlinkSync(oldConfigFilePath)
+    # End temporary
+
     Config = require '../config'
     @config = new Config({@configDirPath, @resourcePath})
     @config.load()
