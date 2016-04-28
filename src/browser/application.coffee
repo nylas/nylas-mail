@@ -260,7 +260,7 @@ class Application
     # for this function to finish so it can get the return value via ipc.
     # Unfortunately since this function destroys the main window
     # immediately, an error will be thrown.
-    setTimeout(() =>
+    setTimeout( =>
       return if @_databasePhase is 'close'
       @setDatabasePhase('close')
       @windowManager.destroyAllWindows()
