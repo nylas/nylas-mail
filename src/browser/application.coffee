@@ -377,8 +377,9 @@ class Application
       app.dock?.setBadge?(value)
 
     ipcMain.on 'new-window', (event, options) =>
-      if options.windowKey
-        @windowManager.ensureWindow(options.windowKey, options)
+      if options.windowKey and win = @windowManager.get(options.windowKey)
+        win.show()
+        win.focus()
       else
         @windowManager.newWindow(options)
 
