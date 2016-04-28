@@ -98,8 +98,8 @@ class WindowManager
       continue unless win.browserWindow.webContents
       win.browserWindow.webContents.send(msg, args...)
 
-  closeAllWindows: ->
-    win.close() for windowKey, win of @_windows
+  destroyAllWindows: ->
+    win.browserWindow.destroy() for windowKey, win of @_windows
 
   cleanupBeforeAppQuit: -> @windowLauncher.cleanupBeforeAppQuit()
 

@@ -1,10 +1,8 @@
-Reflux = require 'reflux'
 OnboardingActions = require './onboarding-actions'
 TokenAuthAPI = require './token-auth-api'
 {AccountStore, Actions} = require 'nylas-exports'
 {ipcRenderer} = require 'electron'
 NylasStore = require 'nylas-store'
-url = require 'url'
 
 return unless NylasEnv.getWindowType() is "onboarding"
 
@@ -31,6 +29,11 @@ class PageRouterStore extends NylasStore
     if isFirstAccount
       @_onMoveToPage('initial-preferences', {account: json})
       Actions.recordUserEvent('First Account Linked')
+      account = AccountStore.accounts()[0]
+      n1_id = NylasEnv.config.get("updateIdentity")
+      params = "?n1_id=#{n1_id}&email_address=#{account.emailAddress}&provider=#{account.provider}"
+      {shell} = require('electron')
+      shell.openExternal("https://nylas.com/welcome#{params}", activate: false)
     else
       # When account JSON is received, we want to notify external services
       # that it succeeded. Unfortunately in this case we're likely to

@@ -214,7 +214,7 @@ class DatabaseStore extends NylasStore
       console.log("Completed ANALYZE of database")
 
   _handleSetupError: (err) =>
-    NylasEnv.reportError(err)
+    NylasEnv.reportError(err, {}, noWindows: true)
 
     # Temporary: export mail rules. They're the only bit of data in the cache
     # we can't rebuild. Should be moved to cloud metadata store soon.
