@@ -23,8 +23,9 @@ class WindowManager
     # window to not work and may even prevent window closure (like in the
     # case of the composer)
     @_registerWindow(@windowLauncher.hotWindow)
+    @_didCreateNewWindow(@windowLauncher.hotWindow)
 
-  get: (winId) -> @_windows[winId]
+  get: (windowKey) -> @_windows[windowKey]
 
   getOpenWindows: ->
     values = []
@@ -37,12 +38,26 @@ class WindowManager
 
   newWindow: (options={}) ->
     win = @windowLauncher.newWindow(options)
+
+    existingKey = @_registeredKeyForWindow(win)
+    delete @_windows[existingKey] if existingKey
     @_registerWindow(win)
+
+    if not existingKey
+      @_didCreateNewWindow(win)
+
     return win
 
   _registerWindow: (win) =>
+    unless win.windowKey
+      throw new Error("WindowManager: You must provide a windowKey")
+
+    if @_windows[win.windowKey]
+      throw new Error("WindowManager: Attempting to register a new window for an existing windowKey (#{win.windowKey}). Use `get()` to retrieve the existing window instead.")
+
     @_windows[win.windowKey] = win
 
+  _didCreateNewWindow: (win) =>
     win.browserWindow.on "closed", =>
       delete @_windows[win.windowKey]
       @quitWinLinuxIfNoWindows()
@@ -52,8 +67,14 @@ class WindowManager
     # the browserWindow to unregister itself
     global.application.applicationMenu.addWindow(win.browserWindow)
 
-  ensureWindow: (winId, extraOpts) ->
-    win = @_windows[winId]
+  _registeredKeyForWindow: (win) =>
+    for key, otherWin of @_windows
+      if win is otherWin
+        return key
+    return null
+
+  ensureWindow: (windowKey, extraOpts) ->
+    win = @_windows[windowKey]
     if win
       return if win.loadSettings().hidden
       if win.isMinimized()
@@ -64,21 +85,21 @@ class WindowManager
       else
         win.focus()
     else
-      @newWindow(@_coreWindowOpts(winId, extraOpts))
+      @newWindow(@_coreWindowOpts(windowKey, extraOpts))
 
-  sendToWindow: (winId, args...) ->
-    if not @_windows[winId]
-      throw new Error("Can't find window: #{winId}")
-    @_windows[winId].sendMessage(args...)
+  sendToWindow: (windowKey, args...) ->
+    if not @_windows[windowKey]
+      throw new Error("Can't find window: #{windowKey}")
+    @_windows[windowKey].sendMessage(args...)
 
   sendToAllWindows: (msg, {except}, args...) ->
-    for winId, win of @_windows
+    for windowKey, win of @_windows
       continue if win.browserWindow == except
       continue unless win.browserWindow.webContents
       win.browserWindow.webContents.send(msg, args...)
 
   closeAllWindows: ->
-    win.close() for winId, win of @_windows
+    win.close() for windowKey, win of @_windows
 
   cleanupBeforeAppQuit: -> @windowLauncher.cleanupBeforeAppQuit()
 
@@ -104,7 +125,7 @@ class WindowManager
 
   focusedWindow: -> _.find(@_windows, (win) -> win.isFocused())
 
-  _coreWindowOpts: (winId, extraOpts={}) ->
+  _coreWindowOpts: (windowKey, extraOpts={}) ->
     coreWinOpts = {}
     coreWinOpts[WindowManager.MAIN_WINDOW] =
       windowKey: WindowManager.MAIN_WINDOW
@@ -149,7 +170,7 @@ class WindowManager
       devMode: true,
       toolbar: false
 
-    defaultOptions = coreWinOpts[winId] ? {}
+    defaultOptions = coreWinOpts[windowKey] ? {}
 
     return Object.assign({}, defaultOptions, extraOpts)
 

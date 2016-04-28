@@ -24,47 +24,35 @@ export default class WindowLauncher {
       safeMode: appOpts.safeMode,
       resizable: true,
       windowType: WindowLauncher.EMPTY_WINDOW,
+      bootstrapScript: require.resolve("../secondary-window-bootstrap"),
       resourcePath: appOpts.resourcePath,
       configDirPath: appOpts.configDirPath,
     }
-    this.hotWindow = new NylasWindow(this._hotWindowOpts());
-
-    if (DEBUG_SHOW_HOT_WINDOW) {
-      this.hotWindow.showWhenLoaded()
-    }
+    this.createHotWindow();
   }
 
   newWindow(options) {
     const opts = Object.assign({}, this.defaultWindowOpts, options);
+
     let win;
-    if (opts.bootstrapScript) {
+    if (this._mustUseColdWindow(opts)) {
       win = new NylasWindow(opts)
     } else {
-      opts.bootstrapScript = this._secondaryWindowBootstrap()
-      if (this._unableToModifyHotWindow(opts) || opts.coldStartOnly) {
-        // Useful for the Worker Window: A secondary window that shouldn't
-        // be hot-loaded
-        win = new NylasWindow(opts)
-      } else {
-        win = this.hotWindow;
+      win = this.hotWindow;
+      this.createHotWindow();
 
-        // Regenerate the hot window.
-        this.hotWindow = new NylasWindow(this._hotWindowOpts());
-        if (DEBUG_SHOW_HOT_WINDOW) {
-          this.hotWindow.showWhenLoaded()
-        }
-
-        const newLoadSettings = Object.assign({}, win.loadSettings(), opts)
-        if (newLoadSettings.windowType === WindowLauncher.EMPTY_WINDOW) {
-          throw new Error("Must specify a windowType")
-        }
-
-        // Reset the loaded state and update the load settings.
-        // This will fire `NylasEnv::populateHotWindow` and reload the
-        // packages.
-        win.setLoadSettings(newLoadSettings);
+      const newLoadSettings = Object.assign({}, win.loadSettings(), opts)
+      if (newLoadSettings.windowType === WindowLauncher.EMPTY_WINDOW) {
+        throw new Error("Must specify a windowType")
       }
+
+      // Reset the loaded state and update the load settings.
+      // This will fire `NylasEnv::populateHotWindow` and reload the
+      // packages.
+      win.windowKey = opts.windowKey;
+      win.setLoadSettings(newLoadSettings);
     }
+
     if (!opts.hidden) {
       // NOTE: In the case of a cold window, this will show it once
       // loaded. If it's a hotWindow, since hotWindows have a
@@ -74,6 +62,13 @@ export default class WindowLauncher {
       win.showWhenLoaded()
     }
     return win
+  }
+
+  createHotWindow() {
+    this.hotWindow = new NylasWindow(this._hotWindowOpts());
+    if (DEBUG_SHOW_HOT_WINDOW) {
+      this.hotWindow.showWhenLoaded()
+    }
   }
 
   // Note: This method calls `browserWindow.destroy()` which closes
@@ -87,21 +82,19 @@ export default class WindowLauncher {
   // Some properties, like the `frame` or `toolbar` can't be updated once
   // a window has been setup. If we detect this case we have to bootup a
   // plain NylasWindow instead of using a hot window.
-  _unableToModifyHotWindow(opts) {
-    return this.defaultWindowOpts.frame !== (!!opts.frame)
-  }
+  _mustUseColdWindow(opts) {
+    const {bootstrapScript, frame} = this.defaultWindowOpts;
 
-  _secondaryWindowBootstrap() {
-    if (!this._bootstrap) {
-      this._bootstrap = require.resolve("../secondary-window-bootstrap")
-    }
-    return this._bootstrap
+    const usesOtherBootstrap = opts.bootstrapScript !== bootstrapScript;
+    const usesOtherFrame = (!!opts.frame) !== frame;
+    const requestsColdStart = opts.coldStartOnly;
+
+    return usesOtherBootstrap || usesOtherFrame || requestsColdStart;
   }
 
   _hotWindowOpts() {
     const hotWindowOpts = Object.assign({}, this.defaultWindowOpts);
     hotWindowOpts.packageLoadingDeferred = true;
-    hotWindowOpts.bootstrapScript = this._secondaryWindowBootstrap();
     hotWindowOpts.hidden = DEBUG_SHOW_HOT_WINDOW;
     return hotWindowOpts
   }
