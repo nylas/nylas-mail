@@ -267,7 +267,7 @@ class NylasEnvConstructor
   # The difference between this and `ErrorLogger.reportError` is that
   # `NylasEnv.reportError` will hook into the event callbacks and handle
   # test failures and dev tool popups.
-  reportError: (error, extra={}) ->
+  reportError: (error, extra={}, {noWindows}={}) ->
     event = @_createErrorCallbackEvent(error, extra)
     @emitter.emit('will-throw-error', event)
     return if event.defaultPrevented
@@ -279,7 +279,7 @@ class NylasEnvConstructor
 
     if @inSpecMode()
       jasmine.getEnv().currentSpec.fail(error)
-    else if @inDevMode()
+    else if @inDevMode() and not noWindows
       @openDevTools()
       @executeJavaScriptInDevTools('InspectorFrontendAPI.showConsole()')
 
