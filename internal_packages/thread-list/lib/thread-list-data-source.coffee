@@ -18,13 +18,15 @@ _flatMapJoiningMessages = ($threadsResultSet) =>
   #    we make a single database query and load /all/ the message metadata for
   #    the new threads at once. (This is a performance optimization -it's about
   #    ~80msec faster than making 100 queries for 100 new thread ids separately.)
-  Rx.Observable.zip([
-    $threadsResultSet,
-    $threadsResultSet.flatMapLatest (threadsResultSet) =>
+  $threadsResultSet.flatMapLatest (threadsResultSet) =>
       missingIds = threadsResultSet.ids().filter (id) -> not $messagesResultSets[id]
-      return Rx.Observable.from([[]]) if missingIds.length is 0
-      Rx.Observable.fromPromise(DatabaseStore.findAll(Message, threadId: missingIds))
-  ])
+      if missingIds.length is 0
+        promise = Promise.resolve([threadsResultSet, []])
+      else
+        promise = DatabaseStore.findAll(Message, threadId: missingIds).then (messages) =>
+          Promise.resolve([threadsResultSet, messages])
+
+      return Rx.Observable.fromPromise(promise)
 
   # 3. when that finishes, we group the loaded messsages by threadId and create
   #    the missing observables. Creating a query subscription would normally load
