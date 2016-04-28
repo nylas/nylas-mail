@@ -4,7 +4,6 @@ _ = _.extend(_, require('./config-utils'))
 fs = require 'fs-plus'
 EmitterMixin = require('emissary').Emitter
 {CompositeDisposable, Disposable, Emitter} = require 'event-kit'
-CSON = require 'season'
 path = require 'path'
 pathWatcher = require 'pathwatcher'
 
@@ -555,7 +554,7 @@ class Config
 
     try
       unless @savePending
-        userConfig = CSON.readFileSync(@configFilePath)
+        userConfig = JSON.parse(fs.readFileSync(@configFilePath))
         @resetUserSettings(userConfig)
         @configFileHasErrors = false
     catch error
@@ -563,7 +562,7 @@ class Config
       message = "Failed to load `#{path.basename(@configFilePath)}`"
 
       detail = if error.location?
-        # stack is the output from CSON in this case
+        # stack is the output from JSON in this case
         error.stack
       else
         # message will be EACCES permission denied, et al
