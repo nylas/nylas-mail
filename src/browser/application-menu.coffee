@@ -30,13 +30,15 @@ class ApplicationMenu
   setActiveTemplate: (template) ->
     unless _.isEqual(template, @activeTemplate)
       @activeTemplate = template
-      fullMenuTemplate = Utils.deepClone(template)
+      @rebuildMenuWithActiveTemplate()
 
-      @extendTemplateWithVersion(fullMenuTemplate)
-      @extendTemplateWithWindowMenu(fullMenuTemplate)
+  rebuildMenuWithActiveTemplate: ->
+    fullTemplate = Utils.deepClone(@activeTemplate)
+    @extendTemplateWithVersion(fullTemplate)
+    @extendTemplateWithWindowMenu(fullTemplate)
 
-      @menu = Menu.buildFromTemplate(fullMenuTemplate)
-      Menu.setApplicationMenu(@menu)
+    @menu = Menu.buildFromTemplate(fullTemplate)
+    Menu.setApplicationMenu(@menu)
 
     @updateAutoupdateMenuItem(global.application.autoUpdateManager.getState())
     @updateFullscreenMenuItem(@lastFocusedWindow?.isFullScreen())
@@ -57,10 +59,12 @@ class ApplicationMenu
     window.once 'closed', =>
       @lastFocusedWindow = null if window is @lastFocusedWindow
       @windowTemplates.delete(window)
+      @rebuildMenuWithActiveTemplate()
       window.removeListener 'focus', focusHandler
       window.removeListener 'enter-full-screen', focusHandler
       window.removeListener 'leave-full-screen', focusHandler
 
+    @rebuildMenuWithActiveTemplate()
     @enableWindowSpecificItems(true)
 
   # Flattens the given menu and submenu items into an single Array.
@@ -104,14 +108,13 @@ class ApplicationMenu
     windowMenu = _.find(template, ({label}) -> label is 'Window')
     return unless windowMenu
     idx = _.findIndex(windowMenu.submenu, ({id}) -> id is 'window-list-separator')
-    windows = BrowserWindow.getAllWindows()
-      .filter (b) -> b.isVisible()
-      .sort (b) -> b.id
-    windowsItems = windows.map (b) -> {
-      label: b.getTitle() || "Unnamed Window"
+
+    windows = global.application.windowManager.getOpenWindows()
+    windowsItems = windows.map (w) => {
+      label: w.loadSettings().title || "Window"
       click: ->
-        b.show()
-        b.focus()
+        w.show()
+        w.focus()
       }
     windowMenu.submenu.splice(idx, 0, {type: 'separator'}, windowsItems...)
 

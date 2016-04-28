@@ -118,9 +118,9 @@ class Application
       @devMode = true
 
     initializeInBackground = options.background ? false
-    @windowManager = new WindowManager({@resourcePath, @configDirPath, @config, @devMode, @safeMode, initializeInBackground})
     @autoUpdateManager = new AutoUpdateManager(@version, @config, @specMode)
     @applicationMenu = new ApplicationMenu(@version)
+    @windowManager = new WindowManager({@resourcePath, @configDirPath, @config, @devMode, @safeMode, initializeInBackground})
     @_databasePhase = 'setup'
 
     @systemTrayManager = new SystemTrayManager(process.platform, @)

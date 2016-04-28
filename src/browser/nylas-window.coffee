@@ -109,11 +109,6 @@ class NylasWindow
     @browserWindow.loadURL(@getURL(loadSettings))
     @browserWindow.focusOnWebView() if @isSpec
 
-    # Let the applicationMenu know that there's a new window available.
-    # The applicationMenu automatically listens to the `closed` event of
-    # the browserWindow to unregister itself
-    global.application.applicationMenu?.addWindow(@browserWindow)
-
   updateLoadSettings: (newSettings={}) =>
     @loaded = true
     @setLoadSettings(Object.assign({}, @browserWindow.loadSettings, newSettings))
