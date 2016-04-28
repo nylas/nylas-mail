@@ -26,6 +26,15 @@ class WindowManager
 
   get: (winId) -> @_windows[winId]
 
+  getOpenWindows: ->
+    values = []
+    for key, win of @_windows
+      continue unless win.isVisible() || win.isMinimized()
+      values.push(win)
+
+    score = (win) -> if win.loadSettings().mainWindow then 1000 else win.browserWindow.id
+    return values.sort (a, b) -> score(b) - score(a)
+
   newWindow: (options={}) ->
     win = @windowLauncher.newWindow(options)
     @_registerWindow(win)
@@ -33,9 +42,15 @@ class WindowManager
 
   _registerWindow: (win) =>
     @_windows[win.windowKey] = win
+
     win.browserWindow.on "closed", =>
       delete @_windows[win.windowKey]
       @quitWinLinuxIfNoWindows()
+
+    # Let the applicationMenu know that there's a new window available.
+    # The applicationMenu automatically listens to the `closed` event of
+    # the browserWindow to unregister itself
+    global.application.applicationMenu.addWindow(win.browserWindow)
 
   ensureWindow: (winId, extraOpts) ->
     win = @_windows[winId]
@@ -94,7 +109,7 @@ class WindowManager
     coreWinOpts[WindowManager.MAIN_WINDOW] =
       windowKey: WindowManager.MAIN_WINDOW
       windowType: WindowManager.MAIN_WINDOW
-      title: "Nylas N1"
+      title: "Message Viewer"
       neverClose: true
       bootstrapScript: require.resolve("../window-bootstrap")
       mainWindow: true
@@ -117,6 +132,7 @@ class WindowManager
     coreWinOpts[WindowManager.ONBOARDING_WINDOW] =
       windowKey: WindowManager.ONBOARDING_WINDOW
       windowType: WindowManager.ONBOARDING_WINDOW
+      title: "Account Setup"
       hidden: true # Displayed by PageRouter::_initializeWindowSize
       frame: false # Always false on Mac, explicitly set for Win & Linux
       toolbar: false
@@ -126,6 +142,7 @@ class WindowManager
     coreWinOpts[WindowManager.SPEC_WINDOW] =
       windowKey: WindowManager.SPEC_WINDOW
       windowType: WindowManager.SPEC_WINDOW
+      title: "Specs"
       frame: true,
       hidden: true,
       isSpec: true,
