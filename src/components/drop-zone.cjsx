@@ -31,6 +31,7 @@ class DropZone extends React.Component
     @_dragCounter += 1
     if @_dragCounter is 1 and @props.onDragStateChange
       @props.onDragStateChange(isDropping: true)
+    e.stopPropagation()
     return
 
   _onDragLeave: (e) =>
@@ -38,6 +39,7 @@ class DropZone extends React.Component
     @_dragCounter -= 1
     if @_dragCounter is 0 and @props.onDragStateChange
       @props.onDragStateChange(isDropping: false)
+    e.stopPropagation()
     return
 
   _onDrop: (e) =>
@@ -46,6 +48,7 @@ class DropZone extends React.Component
       @props.onDragStateChange(isDropping: false)
     @_dragCounter = 0
     @props.onDrop(e)
+    e.stopPropagation()
     return
 
 module.exports = DropZone
