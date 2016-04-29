@@ -8,8 +8,6 @@ MessageListHiddenMessagesToggle = require './message-list-hidden-messages-toggle
 SidebarPluginContainer = require "./sidebar-plugin-container"
 SidebarParticipantPicker = require './sidebar-participant-picker'
 
-TrackingPixelsExtension = require './plugins/tracking-pixels-extension'
-
 module.exports =
   activate: ->
     # Register Message List Actions we provide globally
@@ -25,10 +23,7 @@ module.exports =
     ComponentRegistry.register MessageListHiddenMessagesToggle,
       role: 'MessageListHeaders'
 
-    ExtensionRegistry.MessageView.register TrackingPixelsExtension
-
   deactivate: ->
     ComponentRegistry.unregister MessageList
     ComponentRegistry.unregister SidebarPluginContainer
     ComponentRegistry.unregister SidebarParticipantPicker
-    ExtensionRegistry.MessageView.unregister TrackingPixelsExtension
