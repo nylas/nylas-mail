@@ -13,8 +13,8 @@ export class SelectableCell extends Component {
   static propTypes = {
     className: PropTypes.string,
     tableData: Table.propTypes.tableData,
-    rowIdx: TableCell.propTypes.rowIdx,
-    colIdx: TableCell.propTypes.colIdx,
+    rowIdx: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    colIdx: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     selection: PropTypes.object,
     onSetSelection: PropTypes.func.isRequired,
   }
