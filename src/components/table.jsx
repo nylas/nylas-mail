@@ -1,46 +1,27 @@
 import _ from 'underscore'
 import classnames from 'classnames'
 import React, {Component, PropTypes} from 'react'
+import LazyRenderedList from './lazy-rendered-list'
 
 
-// TODO Ugh gross. Use flow
-const RowDataType = PropTypes.arrayOf(PropTypes.node)
 const RendererType = PropTypes.oneOfType([PropTypes.func, PropTypes.string])
 const IndexType = PropTypes.oneOfType([PropTypes.number, PropTypes.string])
 const TablePropTypes = {
   idx: IndexType,
   renderer: RendererType,
   tableData: PropTypes.shape({
-    rows: PropTypes.arrayOf(RowDataType),
+    rows: PropTypes.array,
   }),
 }
 
-
-export class TableCell extends Component {
-
-  static propTypes = {
-    className: PropTypes.string,
-    isHeader: PropTypes.bool,
-    tableData: TablePropTypes.tableData.isRequired,
-    rowIdx: TablePropTypes.idx.isRequired,
-    colIdx: TablePropTypes.idx.isRequired,
-  }
-
-  static defaultProps = {
-    className: '',
-  }
-
-  render() {
-    const {className, isHeader, children, ...props} = this.props
-    const CellTag = isHeader ? 'th' : 'td'
-    return (
-      <CellTag {...props} className={`table-cell ${className}`} >
-        {children}
-      </CellTag>
-    )
-  }
+export function TableCell({className = '', isHeader, children, ...props}) {
+  const CellTag = isHeader ? 'th' : 'td'
+  return (
+    <CellTag {...props} className={`table-cell ${className}`} >
+      {children}
+    </CellTag>
+  )
 }
-
 
 export class TableRow extends Component {
 
@@ -102,6 +83,8 @@ export default class Table extends Component {
     className: PropTypes.string,
     displayHeader: PropTypes.bool,
     displayNumbers: PropTypes.bool,
+    rowHeight: PropTypes.number,
+    bodyHeight: PropTypes.number,
     tableData: TablePropTypes.tableData.isRequired,
     extraProps: PropTypes.object,
     RowRenderer: TablePropTypes.renderer,
@@ -116,10 +99,10 @@ export default class Table extends Component {
   }
 
   renderBody() {
-    const {tableData, displayNumbers, displayHeader, extraProps, RowRenderer, CellRenderer} = this.props
+    const {tableData, rowHeight, bodyHeight, displayNumbers, displayHeader, extraProps, RowRenderer, CellRenderer} = this.props
     const rows = displayHeader ? tableData.rows.slice(1) : tableData.rows
 
-    const rowElements = rows.map((row, idx) => {
+    const itemRenderer = ({idx}) => {
       const rowIdx = displayHeader ? idx + 1 : idx;
       return (
         <RowRenderer
@@ -132,12 +115,17 @@ export default class Table extends Component {
           {...extraProps}
         />
       )
-    })
+    }
 
     return (
-      <tbody>
-        {rowElements}
-      </tbody>
+      <LazyRenderedList
+        items={rows}
+        itemHeight={rowHeight}
+        containerHeight={bodyHeight}
+        BufferTag="tr"
+        ItemRenderer={itemRenderer}
+        RootRenderer="tbody"
+      />
     )
   }
 
@@ -161,10 +149,10 @@ export default class Table extends Component {
   }
 
   render() {
-    const {className} = this.props
+    const {className, ...otherProps} = this.props
 
     return (
-      <div className={`nylas-table ${className}`}>
+      <div className={`nylas-table ${className}`} {...otherProps}>
         <table>
           {this.renderHeader()}
           {this.renderBody()}
