@@ -145,6 +145,7 @@ export default class ComposerView extends React.Component {
           ref="header"
           draft={this.props.draft}
           session={this.props.session}
+          initiallyFocused={this.props.draft.to.length === 0}
         />
         <div
           className="compose-body"

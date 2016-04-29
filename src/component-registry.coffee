@@ -160,7 +160,19 @@ class ComponentRegistry
 
     return [].concat(results)
 
-  triggerDebounced: _.debounce(( -> @trigger(@)), 1)
+  # We debounce because a single plugin may activate many components in
+  # their `activate` methods. Furthermore, when the window loads several
+  # plugins may load in sequence. Plugin loading takes a while (dozens of
+  # ms) since javascript is being read and `require` trees are being
+  # traversed.
+  #
+  # Triggering the ComponentRegistry is fairly expensive since many very
+  # high-level components (like the <Sheet />) listen and re-render when
+  # this triggers.
+  #
+  # We set the debouce interval to 2 "frames" (33ms) to balance
+  # responsiveness and efficient batching.
+  triggerDebounced: _.debounce(( -> @trigger(@)), 33)
 
   _removeDeprecatedRoles: (displayName, roles) ->
     newRoles = _.clone(roles)

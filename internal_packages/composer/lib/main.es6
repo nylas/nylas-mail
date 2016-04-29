@@ -24,7 +24,7 @@ class ComposerWithWindowProps extends React.Component {
     super(props);
 
     // We'll now always have windowProps by the time we construct this.
-    const windowProps = NylasEnv.getWindowProps()
+    const windowProps = NylasEnv.getWindowProps();
     const {draftJSON, draftClientId} = windowProps;
     if (!draftJSON) {
       throw new Error("Initialize popout composer windows with valid draftJSON")
@@ -34,30 +34,34 @@ class ComposerWithWindowProps extends React.Component {
     this.state = windowProps
   }
 
-  onDraftReady = () => {
+  componentWillUnmount() {
+    if (this._usub) {this._usub()}
+  }
+
+  componentDidUpdate() {
+    this.refs.composer.focus()
+  }
+
+  _onDraftReady = () => {
     this.refs.composer.focus().then(() => {
       NylasEnv.displayWindow();
+
       if (this.state.errorMessage) {
         this._showInitialErrorDialog(this.state.errorMessage);
       }
 
-      // Give the composer some time to render before hitting another wall
-      // of javascript.
-      window.setTimeout(() => {
-        NylasEnv.getCurrentWindow().updateLoadSettings({
-          windowType: "composer",
+      // This will start loading the rest of the composer's plugins. This
+      // may take a while (hundreds of ms) depending on how many plugins
+      // you have installed. For some reason it takes two frames to
+      // reliably get the basic composer (Send button, etc) painted
+      // properly.
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          NylasEnv.getCurrentWindow().updateLoadSettings({
+            windowType: "composer",
+          })
         })
-
-        // The call to updateLoadSettings will start loading the remaining
-        // packages. Once those packages load it'll cause a change in the
-        // root Sheet-level InjectedComponentSet, which will cause
-        // everything to re-render losing our focus. We have to manually
-        // refocus it but defer it so the event loop of the package
-        // activation happens first.
-        window.setTimeout(() => {
-          this.refs.composer.focus()
-        }, 32)
-      }, 32)
+      })
     });
   }
 
@@ -65,7 +69,7 @@ class ComposerWithWindowProps extends React.Component {
     return (
       <ComposerViewForDraftClientId
         ref="composer"
-        onDraftReady={this.onDraftReady}
+        onDraftReady={this._onDraftReady}
         draftClientId={this.state.draftClientId}
         className="composer-full-window"
       />

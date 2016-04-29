@@ -27,6 +27,7 @@ export default class ComposerHeader extends React.Component {
   static propTypes = {
     draft: React.PropTypes.object.isRequired,
     session: React.PropTypes.object.isRequired,
+    initiallyFocused: React.PropTypes.bool,
   }
 
   static contextTypes = {
@@ -35,12 +36,12 @@ export default class ComposerHeader extends React.Component {
 
   constructor(props = {}) {
     super(props)
-    this.state = this._initialStateForDraft(this.props.draft);
+    this.state = this._initialStateForDraft(this.props.draft, props);
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.session !== nextProps.session) {
-      this.setState(this._initialStateForDraft(nextProps.draft));
+      this.setState(this._initialStateForDraft(nextProps.draft, nextProps));
     } else {
       this._ensureFilledFieldsEnabled(nextProps.draft);
     }
@@ -80,7 +81,7 @@ export default class ComposerHeader extends React.Component {
     }
   }
 
-  _initialStateForDraft(draft) {
+  _initialStateForDraft(draft, props) {
     const enabledFields = [Fields.To];
     if (!_.isEmpty(draft.cc)) {
       enabledFields.push(Fields.Cc);
@@ -94,8 +95,8 @@ export default class ComposerHeader extends React.Component {
     }
 
     return {
-      enabledFields: enabledFields,
-      participantsFocused: false,
+      enabledFields,
+      participantsFocused: props.initiallyFocused,
     };
   }
 
