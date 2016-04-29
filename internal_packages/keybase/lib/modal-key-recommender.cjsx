@@ -34,13 +34,13 @@ class ModalKeyRecommender extends React.Component
   _selectProfile: (address, identity) =>
     # TODO this is an almost exact duplicate of keybase-search.cjsx:_save
     keybaseUsername = identity.keybase_profile.components.username.val
+    identity.addresses.push(address)
     kb.getKey(keybaseUsername, (error, key) =>
       if error
         console.error error
       else
-        PGPKeyStore.saveNewKey(address, key, true) # isPub = true
+        PGPKeyStore.saveNewKey(identity, key, true) # isPub = true
     )
-
 
   render: ->
     contact = @state.currentContact
@@ -49,7 +49,6 @@ class ModalKeyRecommender extends React.Component
     )
 
     if contactIdentity?
-      console.log contactIdentity
       <div>
         <KeybaseUser profile={ contactIdentity } />
 

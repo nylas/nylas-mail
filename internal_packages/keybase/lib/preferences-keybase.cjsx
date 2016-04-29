@@ -143,10 +143,12 @@ class PreferencesKeybase extends React.Component
         selectedPrivKey: null
 
   _saveNewPubKey: =>
-    PGPKeyStore.saveNewKey("benbitdiddle@icloud.com", TEST_KEY, isPub = true)
+    ident = new Identity()
+    PGPKeyStore.saveNewKey(ident, TEST_KEY, isPub = true)
 
   _saveNewPrivKey: =>
-    PGPKeyStore.saveNewKey("benbitdiddle@icloud.com", TEST_KEY, isPub = false)
+    ident = new Identity()
+    PGPKeyStore.saveNewKey(ident, TEST_KEY, isPub = false)
 
   _addOtherAddress: =>
     PGPKeyStore.addAddressToKey(@state.pubKeys[0], "logan@nylas.com")

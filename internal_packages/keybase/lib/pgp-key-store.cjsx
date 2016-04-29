@@ -147,13 +147,24 @@ class PGPKeyStore extends NylasStore
           @trigger(@)
       )
 
-  saveNewKey: (address, contents, isPub) =>
-    # Validate the email address, then write to file.
-    if @validAddress(address, isPub)
+  saveNewKey: (identity, contents, isPub) =>
+    # Validate the email address(es), then write to file.
+    if not identity instanceof Identity
+      console.error "saveNewKey requires an identity object"
+      return
+    addresses = identity.addresses
+    if addresses.length < 1
+      console.error "Identity must have at least one email address to save key"
+      return
+    if _.every(addresses, (address) => @validAddress(address, isPub))
+      filename = addresses.join(" ")
       if isPub
-        keyPath = path.join(@_pubKeyDir, address)
+        keyPath = path.join(@_pubKeyDir, filename)
+        identity.isPriv = false
       else
-        keyPath = path.join(@_privKeyDir, address)
+        keyPath = path.join(@_privKeyDir, filename)
+        identity.isPriv = true
+      identity.path = keyPath
       # Just say no to trailing whitespace.
       if contents.charAt(contents.length - 1) != '-'
         contents = contents.slice(0, -1)
@@ -198,7 +209,7 @@ class PGPKeyStore extends NylasStore
   ### Internal Key Management ###
 
   pubKeys: (addresses) =>
-    # fetch public key(s) for an address (synchronous)
+    # fetch public identity/ies for an address (synchronous)
     # if no address, return them all
     identities = _.where(_.values(@_identities), {isPriv: false})
 
@@ -214,7 +225,7 @@ class PGPKeyStore extends NylasStore
     return identities
 
   privKeys: ({address, timed} = {timed: true}) =>
-    # fetch private key(s) for an address (synchronous).
+    # fetch private identity/ies for an address (synchronous).
     # by default, only return non-timed-out keys
     # if no address, return them all
     identities = _.where(_.values(@_identities), {isPriv: true})
