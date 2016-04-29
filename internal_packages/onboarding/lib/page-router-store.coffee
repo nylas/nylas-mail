@@ -49,7 +49,8 @@ class PageRouterStore extends NylasStore
     n1_id = encode(NylasEnv.config.get("updateIdentity"))
     email = encode(account.emailAddress)
     provider = encode(account.provider)
-    params = "?n=#{n1_id}&e=#{email}&p=#{provider}"
+    accountId = encode(account.id)
+    params = "?n=#{n1_id}&e=#{email}&p=#{provider}&a=#{accountId}"
     {shell} = require('electron')
     shell.openExternal("https://nylas.com/welcome#{params}", activate: false)
 
