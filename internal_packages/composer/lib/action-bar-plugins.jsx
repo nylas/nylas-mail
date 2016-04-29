@@ -3,14 +3,14 @@ import classnames from 'classnames'
 import {ComponentRegistry} from 'nylas-exports'
 import {InjectedComponentSet} from 'nylas-component-kit'
 
+const ROLE = "Composer:ActionButton";
+
 export default class ActionBarPlugins extends React.Component {
   static displayName = "ActionBarPlugins";
 
-  static ROLE = "Composer:ActionButton"
-
   static propTypes = {
     draft: React.PropTypes.object,
-    session: React.PropTypes.session,
+    session: React.PropTypes.object,
   }
 
   constructor(props) {
@@ -43,8 +43,7 @@ export default class ActionBarPlugins extends React.Component {
   }
 
   _getPluginsLength() {
-    const role = ActionBarPlugins.ROLE
-    return ComponentRegistry.findComponentsMatching({role}).length;
+    return ComponentRegistry.findComponentsMatching({role: ROLE}).length;
   }
 
   _getStateFromStores() {
@@ -64,7 +63,7 @@ export default class ActionBarPlugins extends React.Component {
         <div className="action-bar-cover"></div>
         <InjectedComponentSet
           className="composer-action-bar-plugins"
-          matching={{role: ActionBarPlugins.ROLE}}
+          matching={{role: ROLE}}
           exposedProps={{
             draft: this.props.draft,
             threadId: this.props.draft.threadId,
