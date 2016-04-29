@@ -72,20 +72,24 @@ class KeyAdder extends React.Component
           # Remove trailing whitespace, if necessary.
           #if pgp_private.charAt(pgp_private.length - 1) != '-'
           #  pgp_private = pgp_private.slice(0, -1)
+          # TODO saveNewKey now requires an Identity object as the first param
           PGPKeyStore.saveNewKey(@state.address, pgp_private, isPub = false)
         km.export_pgp_public {}, (err, pgp_public) =>
           # Remove trailing whitespace, if necessary.
           #if pgp_public.charAt(pgp_public.length - 1) != '-'
           #  pgp_public = pgp_public.slice(0, -1)
+          # TODO saveNewKey now requires an Identity object as the first param
           PGPKeyStore.saveNewKey(@state.address, pgp_public, isPub = true)
           @setState
             keyContents: pgp_public
             placeholder: "Your generated public key will appear here. Share it with your friends!"
 
   _saveNewPubKey: =>
+    # TODO saveNewKey now requires an Identity object as the first param
     PGPKeyStore.saveNewKey(@state.address, @state.keyContents, isPub = true)
 
   _saveNewPrivKey: =>
+    # TODO saveNewKey now requires an Identity object as the first param
     PGPKeyStore.saveNewKey(@state.address, @state.keyContents, isPub = false)
 
   _onAddressChange: (event) =>
