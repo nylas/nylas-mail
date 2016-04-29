@@ -12,9 +12,14 @@ class KeybaseSearch extends React.Component
 
   @propTypes:
     initialSearch: React.PropTypes.string
+    # importFunc: a alternate function to execute when the "import" button is
+    # clicked instead of the "please specify an email" popover
+    importFunc: React.PropTypes.function
+    # TODO consider just passing in a pre-specified email instead of a func?
 
   @defaultProps:
     initialSearch: ""
+    importFunc: false
 
   constructor: (props) ->
     super(props)
@@ -75,7 +80,7 @@ class KeybaseSearch extends React.Component
     # save/import a key from keybase
     kb.getKey(keybaseUsername, (error, key) =>
       if error
-        console.error "Unable to fetch key for #{keybaseUsername}"
+        console.error error
       else
         PGPKeyStore.saveNewKey(address, key, true) # isPub = true
     )
@@ -87,7 +92,14 @@ class KeybaseSearch extends React.Component
   render: ->
     profiles = _.map(@state.results, (profile) =>
       # TODO filter out or (better) merge in people that we already have keys for
-      saveButton = (<button title="Import" className="btn btn-toolbar" onClick={ => @_importKey(profile) } ref="button">
+
+      # allow for overriding the import function
+      if @props.importFunc?
+        boundFunc = @props.importFunc
+      else
+        boundFunc = @_importKey
+
+      saveButton = (<button title="Import" className="btn btn-toolbar" onClick={ => boundFunc(profile) } ref="button">
         Import Key
       </button>
       )

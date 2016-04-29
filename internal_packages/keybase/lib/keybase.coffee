@@ -23,6 +23,7 @@ class KeybaseAPI
     request({url: @baseUrl + "/#{username}/key.asc", headers: {'User-Agent': 'request'}}, (err, resp, obj) =>
       return callback(err, null) if err
       return callback(new Error("No key found for #{username}"), null) if not obj?
+      return callback(new Error("No key returned from keybase for #{username}"), null) if not obj.startsWith("-----BEGIN PGP PUBLIC KEY BLOCK-----")
       callback(null, obj)
     )
 
