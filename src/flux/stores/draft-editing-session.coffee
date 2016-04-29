@@ -39,9 +39,9 @@ class DraftChangeSet
       clearTimeout(@_timer)
       @_timer = null
 
-  add: (changes) =>
+  add: (changes, {doesNotAffectPristine}) =>
     @_pending = _.extend(@_pending, changes)
-    @_pending['pristine'] = false
+    @_pending['pristine'] = false unless doesNotAffectPristine
     @_onAltered()
 
     clearTimeout(@_timer) if @_timer
@@ -50,7 +50,7 @@ class DraftChangeSet
   addPluginMetadata: (pluginId, metadata) =>
     changes = {}
     changes["#{MetadataChangePrefix}#{pluginId}"] = metadata
-    @add(changes)
+    @add(changes, {doesNotAffectPristine: true})
 
   commit: ({noSyncback}={}) =>
     @_commitChain = @_commitChain.finally =>
