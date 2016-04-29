@@ -133,7 +133,7 @@ export function removeTrackingImagesFromBody(body) {
 }
 
 class TrackingPixelsMessageExtension extends MessageViewExtension {
-  formatMessageBody({message}) {
+  static formatMessageBody = ({message}) => {
     if (message.isFromMe()) {
       message.body = removeTrackingImagesFromBody(message.body);
     }
