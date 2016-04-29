@@ -29,11 +29,7 @@ class PageRouterStore extends NylasStore
     if isFirstAccount
       @_onMoveToPage('initial-preferences', {account: json})
       Actions.recordUserEvent('First Account Linked')
-      account = AccountStore.accounts()[0]
-      n1_id = NylasEnv.config.get("updateIdentity")
-      params = "?n1_id=#{n1_id}&email_address=#{account.emailAddress}&provider=#{account.provider}"
-      {shell} = require('electron')
-      shell.openExternal("https://nylas.com/welcome#{params}", activate: false)
+      @openWelcomePage()
     else
       # When account JSON is received, we want to notify external services
       # that it succeeded. Unfortunately in this case we're likely to
@@ -46,6 +42,16 @@ class PageRouterStore extends NylasStore
 
   _onWindowPropsChanged: ({page, pageData}={}) =>
     @_onMoveToPage(page, pageData)
+
+  openWelcomePage: ->
+    encode = (str) -> encodeURIComponent(new Buffer(str).toString('base64'))
+    account = AccountStore.accounts()[0]
+    n1_id = encode(NylasEnv.config.get("updateIdentity"))
+    email = encode(account.emailAddress)
+    provider = encode(account.provider)
+    params = "?n=#{n1_id}&e=#{email}&p=#{provider}"
+    {shell} = require('electron')
+    shell.openExternal("https://nylas.com/welcome#{params}", activate: false)
 
   page: -> @_page
 
