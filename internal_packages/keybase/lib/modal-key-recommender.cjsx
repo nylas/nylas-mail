@@ -32,10 +32,11 @@ class ModalKeyRecommender extends React.Component
     identities: PGPKeyStore.pubKeys(_.pluck(@props.contacts, 'email'))
 
   _selectProfile: (address, identity) =>
+    # TODO this is an almost exact duplicate of keybase-search.cjsx:_save
     keybaseUsername = identity.keybase_profile.components.username.val
     kb.getKey(keybaseUsername, (error, key) =>
       if error
-        console.error "Unable to fetch key for #{keybaseUsername}"
+        console.error error
       else
         PGPKeyStore.saveNewKey(address, key, true) # isPub = true
     )
@@ -48,16 +49,20 @@ class ModalKeyRecommender extends React.Component
     )
 
     if contactIdentity?
-      <KeybaseUser profile={ contactIdentity[0] } />
+      console.log contactIdentity
+      <div>
+        <KeybaseUser profile={ contactIdentity } />
+
+        <button onClick={ => Actions.closeModal() }>Looks good!</button>
+      </div>
     else
       query = contact.fullName()
+      importFunc = ((identity) => @_selectProfile(contact.email, identity))
 
-      # TODO each KeybaseUser should have:
-      # onClick={ => @_selectProfile(contact.email, contactIdentity[0]) }
       <div>
         <div>Associate a key for: <b>{ contact.toString() }</b></div>
 
-        <KeybaseSearch initialSearch={ query } />
+        <KeybaseSearch initialSearch={ query }, importFunc={ importFunc } />
 
-        <button onClick={ => Actions.closeModal() }>Skip</button>
+        <button onClick={ => Actions.closeModal() }>Skip adding key</button>
       </div>
