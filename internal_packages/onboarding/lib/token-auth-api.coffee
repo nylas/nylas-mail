@@ -11,7 +11,7 @@ class TokenAuthAPI
   _onConfigChanged: =>
     env = NylasEnv.config.get('env')
     if env is 'development'
-      @APIRoot = "http://localhost:6001"
+      @APIRoot = "http://localhost:5000"
     else if env in ['experimental', 'staging']
       @APIRoot = "https://invite-staging.nylas.com"
     else
