@@ -27,8 +27,9 @@ import FileUpload from './file-upload';
 import ImageFileUpload from './image-file-upload';
 
 import ComposerEditor from './composer-editor';
-import SendActionButton from './send-action-button';
 import ComposerHeader from './composer-header';
+import SendActionButton from './send-action-button';
+import ActionBarPlugins from './action-bar-plugins'
 
 import Fields from './fields';
 
@@ -329,16 +330,7 @@ export default class ComposerView extends React.Component {
   _renderActionsRegion() {
     return (
       <div className="composer-action-bar-content">
-        <InjectedComponentSet
-          className="composer-action-bar-plugins"
-          matching={{role: "Composer:ActionButton"}}
-          exposedProps={{
-            draft: this.props.draft,
-            threadId: this.props.draft.threadId,
-            draftClientId: this.props.draft.clientId,
-            session: this.props.session,
-          }}
-        />
+        <ActionBarPlugins draft={this.props.draft} session={this.props.session} />
 
         <button
           tabIndex={-1}

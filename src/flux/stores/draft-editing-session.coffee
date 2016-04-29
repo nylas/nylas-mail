@@ -39,7 +39,7 @@ class DraftChangeSet
       clearTimeout(@_timer)
       @_timer = null
 
-  add: (changes, {doesNotAffectPristine}) =>
+  add: (changes, {doesNotAffectPristine}={}) =>
     @_pending = _.extend(@_pending, changes)
     @_pending['pristine'] = false unless doesNotAffectPristine
     @_onAltered()
