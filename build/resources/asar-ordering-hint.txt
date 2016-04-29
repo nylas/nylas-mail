@@ -2445,7 +2445,6 @@
 9847458: internal_packages/message-list/lib/plugins/autolinker-extension.js
 9849560: internal_packages/message-list/node_modules/autolinker/package.json
 9852413: internal_packages/message-list/node_modules/autolinker/dist/Autolinker.js
-9972803: internal_packages/message-list/lib/plugins/tracking-pixels-extension.js
 3810966: static/variables/ui-variables.less
 9977447: internal_packages/message-view-on-github/lib/main.js
 9983560: internal_packages/message-view-on-github/lib/view-on-github-button.js
