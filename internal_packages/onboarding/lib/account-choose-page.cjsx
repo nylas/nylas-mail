@@ -94,7 +94,7 @@ class AccountChoosePage extends React.Component
     env = NylasEnv.config.get('env') || 'production'
     google_client_id = '372024217839-cdsnrrqfr4d6b4gmlqepd7v0n0l0ip9q.apps.googleusercontent.com'
     if env != 'production'
-        google_client_id = '529928329786-e5foulo1g9kiej2h9st9sb0f4dt96s6v.apps.googleusercontent.com'
+      google_client_id = '529928329786-e5foulo1g9kiej2h9st9sb0f4dt96s6v.apps.googleusercontent.com'
 
     googleUrl = url.format({
       protocol: 'https'
