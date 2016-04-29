@@ -350,6 +350,11 @@ class Contenteditable extends React.Component
   _onDrop: (event) =>
     @dispatchEventToExtensions("onDrop", event)
 
+  _shouldAcceptDrop: (event) =>
+    for extension in [].concat(@props.extensions, @coreExtensions)
+      return true if extension.shouldAcceptDrop?.call(extension, {event})
+    return false
+
   # We must set the `inCompositionEvent` flag in addition to tearing down
   # the selecton listeners. While the composition event is in progress, we
   # want to ignore any input events we get.
