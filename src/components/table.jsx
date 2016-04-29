@@ -124,8 +124,8 @@ export default class Table extends Component {
         itemHeight={rowHeight}
         containerHeight={bodyHeight}
         BufferTag="tr"
-        ItemRenderer={this.renderRow}
         RootRenderer="tbody"
+        ItemRenderer={this.renderRow}
       />
     )
   }
