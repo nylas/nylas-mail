@@ -98,24 +98,25 @@ export default class Table extends Component {
     CellRenderer: TableCell,
   }
 
-  renderBody() {
-    const {tableData, rowHeight, bodyHeight, displayNumbers, displayHeader, extraProps, RowRenderer, CellRenderer} = this.props
-    const rows = displayHeader ? tableData.rows.slice(1) : tableData.rows
+  renderRow = ({idx}) => {
+    const {tableData, displayNumbers, displayHeader, extraProps, RowRenderer, CellRenderer} = this.props
+    const rowIdx = displayHeader ? idx + 1 : idx;
+    return (
+      <RowRenderer
+        key={`row-${rowIdx}`}
+        rowIdx={rowIdx}
+        displayNumbers={displayNumbers}
+        tableData={tableData}
+        extraProps={extraProps}
+        CellRenderer={CellRenderer}
+        {...extraProps}
+      />
+    )
+  }
 
-    const itemRenderer = ({idx}) => {
-      const rowIdx = displayHeader ? idx + 1 : idx;
-      return (
-        <RowRenderer
-          key={`row-${rowIdx}`}
-          rowIdx={rowIdx}
-          displayNumbers={displayNumbers}
-          tableData={tableData}
-          extraProps={extraProps}
-          CellRenderer={CellRenderer}
-          {...extraProps}
-        />
-      )
-    }
+  renderBody() {
+    const {tableData, rowHeight, bodyHeight, displayHeader} = this.props
+    const rows = displayHeader ? tableData.rows.slice(1) : tableData.rows
 
     return (
       <LazyRenderedList
@@ -123,7 +124,7 @@ export default class Table extends Component {
         itemHeight={rowHeight}
         containerHeight={bodyHeight}
         BufferTag="tr"
-        ItemRenderer={itemRenderer}
+        ItemRenderer={this.renderRow}
         RootRenderer="tbody"
       />
     )
