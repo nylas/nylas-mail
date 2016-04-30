@@ -4,8 +4,6 @@
   "composer:show-and-focus-bcc": "mod+shift+b",
   "composer:show-and-focus-from": "mod+shift+f",
   "composer:send-message": "mod+enter",
-  "composer:undo": "mod+z",
-  "composer:redo": "mod+y",
   "composer:no-op": "delete",
   "composer:delete-empty-draft": "escape"
 }
