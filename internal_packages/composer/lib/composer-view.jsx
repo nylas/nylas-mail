@@ -108,8 +108,8 @@ export default class ComposerView extends React.Component {
       'composer:show-and-focus-cc': () => this.refs.header.showAndFocusField(Fields.Cc),
       'composer:focus-to': () => this.refs.header.showAndFocusField(Fields.To),
       "composer:show-and-focus-from": () => {}, // todo
-      "composer:undo": this.undo,
-      "composer:redo": this.redo,
+      "core:undo": this.undo,
+      "core:redo": this.redo,
     };
   }
 

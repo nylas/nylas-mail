@@ -1,6 +1,6 @@
 {
   "core:undo": "mod+z",
-  "core:redo": "mod+y",
+  "core:redo": ["mod+shift+z", "mod+y"],
   "core:cut": "mod+x",
   "core:copy": "mod+c",
   "core:paste": "mod+v",
