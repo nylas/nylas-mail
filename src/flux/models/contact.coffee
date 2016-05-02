@@ -91,6 +91,9 @@ class Contact extends Model
     json['name'] ||= json['email']
     json
 
+  isValid: ->
+    @email.match(RegExpUtils.emailRegex()) != null
+
   # Public: Returns true if the contact is the current user, false otherwise.
   # You should use this method instead of comparing the user's email address to
   # the account email, since it is case-insensitive and future-proof.
