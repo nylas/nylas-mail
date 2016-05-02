@@ -12,6 +12,7 @@ export default class EmailFrame extends React.Component {
 
   static propTypes = {
     content: React.PropTypes.string.isRequired,
+    message: React.PropTypes.object,
     showQuotedText: React.PropTypes.bool,
   };
 
@@ -74,7 +75,10 @@ export default class EmailFrame extends React.Component {
         continue;
       }
       try {
-        extension.renderedMessageBodyIntoDocument({document: doc});
+        extension.renderedMessageBodyIntoDocument({
+          document: doc,
+          message: this.props.message,
+        });
       } catch (e) {
         NylasEnv.reportError(e);
       }
