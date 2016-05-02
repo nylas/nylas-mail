@@ -16,7 +16,7 @@ class ModalKeyRecommender extends React.Component
   constructor: (props) ->
     super(props)
     @state = Object.assign({
-      currentContact: props.contacts[0]},
+      currentContact: 0},
       @_getStateFromStores())
 
   componentWillMount: ->
@@ -42,26 +42,68 @@ class ModalKeyRecommender extends React.Component
         PGPKeyStore.saveNewKey(identity, key, true) # isPub = true
     )
 
+  _onNext: =>
+    # NOTE: this doesn't do bounds checks! you must do that in render()!
+    @setState({currentContact: @state.currentContact + 1})
+
+  _onPrev: =>
+    # NOTE: this doesn't do bounds checks! you must do that in render()!
+    @setState({currentContact: @state.currentContact - 1})
+
+  _setPage: (page) =>
+    # NOTE: this doesn't do bounds checks! you must do that in render()!
+    @setState({currentContact: page})
+    # indexes from 0 because what kind of monster doesn't
+
+  _onDone: =>
+    Actions.closeModal()
+
   render: ->
-    contact = @state.currentContact
-    contactIdentity = _.find(@state.identities, (identity) ->
-      return contact.email in identity.addresses
+    # dedupe the contacts, since we deal with addresses and not contacts
+    uniqEmails = _.uniq(_.pluck(@props.contacts, 'email'))
+    # find the email we're dealing with now
+    email = uniqEmails[@state.currentContact]
+    # and a corresponding contact
+    contact = _.findWhere(@props.contacts, {'email': email})
+    # find the identity object that goes with this email (if any)
+    identity = _.find(@state.identities, (identity) ->
+      return email in identity.addresses
     )
 
-    if contactIdentity?
-      <div>
-        <KeybaseUser profile={ contactIdentity } />
+    if @state.currentContact == (uniqEmails.length - 1)
+      # last one
+      backButton = <button onClick={ @_onPrev }>Back</button>
+      nextButton = <button onClick={ @_onDone }>Looks good!</button>
+    else if @state.currentContact == 0
+      # first one
+      backButton = false
+      nextButton = <button onClick={ @_onNext }>Next</button>
+    else
+      # somewhere in the middle
+      backButton = <button onClick={ @_onPrev }>Back</button>
+      nextButton = <button onClick={ @_onNext }>Next</button>
 
-        <button onClick={ => Actions.closeModal() }>Looks good!</button>
-      </div>
+    pages = uniqEmails.map((email, index) =>
+      # TODO indicate if a key is loaded for each of the pages
+      return <span onClick={ => @_setPage(index) }>({ index })</span>
+      # TODO buttons here instead of terrible text
+    )
+
+    if identity?
+      return (<div>
+        <KeybaseUser profile={ identity } />
+        <span>{ backButton } { pages } { nextButton }</span>
+
+      </div>)
     else
       query = contact.fullName()
-      importFunc = ((identity) => @_selectProfile(contact.email, identity))
+      importFunc = ((identity) => @_selectProfile(email, identity))
+      # TODO add skip button?
 
       <div>
         <div>Associate a key for: <b>{ contact.toString() }</b></div>
 
         <KeybaseSearch initialSearch={ query }, importFunc={ importFunc } />
 
-        <button onClick={ => Actions.closeModal() }>Skip adding key</button>
+        <span>{ backButton } { pages } { nextButton }</span>
       </div>
