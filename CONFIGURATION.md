@@ -57,7 +57,7 @@ however, the Sync Engine is open source and you can run it yourself.
    with the account ID as both the key and value.
 
    The final `config.json` file should look something like this:
-
+   ```javascript
        {
          "*": {
            "env": "local",
@@ -91,7 +91,7 @@ however, the Sync Engine is open source and you can run it yourself.
            }
          }
        }
-
+    ```
 Note: `{ACCOUNT_ID_1}` refers to the database ID of the `Account` object
 you create when setting up the Sync Engine. The JSON above should match
 fairly closely with the Sync Engine `Account` object.
