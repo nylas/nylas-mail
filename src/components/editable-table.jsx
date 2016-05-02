@@ -66,8 +66,8 @@ class EditableCell extends Component {
   }
 
   render() {
-    const {rowIdx, colIdx, tableData: {rows}, isHeader, inputProps, InputRenderer} = this.props
-    const cellValue = rows[rowIdx][colIdx] || ''
+    const {rowIdx, colIdx, tableData, isHeader, inputProps, InputRenderer} = this.props
+    const cellValue = tableData.rows[rowIdx][colIdx] || ''
 
     return (
       <SelectableCell ref="cell" {...this.props}>
@@ -76,6 +76,7 @@ class EditableCell extends Component {
             type="text"
             rowIdx={rowIdx}
             colIdx={colIdx}
+            tableData={tableData}
             isHeader={isHeader}
             defaultValue={cellValue}
             onBlur={::this.onInputBlur}
