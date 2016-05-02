@@ -1,5 +1,65 @@
 # N1 Changelog
 
+### 0.4.32 (5/2/16)
+
+- Features:
+  + Mail Merge: Sending a lot of email? Compose a message, enable mail merge, and use
+    a CSV file to send it to many recipients. Note that mail is still sent from your
+    personal address, and provider rate limits may apply.
+
+  + Activity View: Receive notifications as recipients interact with messages you send
+    with read receipts and link tracking enabled. More activity improvements are coming soon!
+
+  + Unread: A new view in the sidebar allows you to view all unread emails in your inbox.
+
+  + Menus: N1's menus now include many more of the available keyboard shortcuts.
+
+- Performance:
+  + Secondary windows, like the calendar picker, open faster.
+  + N1 uses ~20% less RAM, thanks to hot window optimizations.
+  + Unified Starred, Drafts, and Unread views load faster thanks to SQLite partial indexes.
+
+- Improvements:
+  + The thread list no longer becomes detached in some scenarios, causing archive
+    and other actions not to take effect.
+  + Fixes a regression, allowing you to create lists by typing `- `.
+  + Fixes a hard loop when trying to launch with a very old sync cursor.
+  + A unified "spam" folder is now available alongside Inbox, Sent, etc.
+  + Shift+J and Shift+K now allow you to select multiple threads in the Gmail and Inbox shortcut sets.
+  + Command-clicking links on Mac OS X opens them behind N1.
+  + Names like "Gotow, Ben (USA)" are now properly parsed into first and last names.
+  + "Launch on System Start" is now compatible with XDG-compliant Linux desktops.
+  + Inline image attachments less than 12k no longer cause the attachments icon
+    to be shown, since they are almost always signatures.
+  + You can now open the theme picker from the appearance preferences panel.
+  + When viewing messages, URLs that contain email addresses are now "linkified" properly.
+  + URLs always show their target on hover, even if overridden in the message HTML.
+  + Trying to open CC or BCC no longer collapses the participants fields on slow computers.
+  + On Mac OS X, open and save dialogs are attached to the window toolbar correctly.
+  + On Mac OS X, the status bar icon for N1 now inverts correctly when clicked.
+  + Opening N1 to the Drafts view now works as expected.
+  + Viewing Outlook emails with emoji no longer results in bad HTML styling.
+  + Empty emails with open or link tracking enabled are no longer saved when closed.
+  + Read receipts are no longer included in quoted text when creating new messages.
+  + Paste and match style now uses the correct shortcut on Mac OS X.
+  + The Window menu now lists all the open windows.
+  + The GitHub sidebar now correctly shows repos with the most stars when the user
+    has many pages of repositories.
+  +
+
+- Developer:
+  + N1 now uses React `0.15` and Electron `0.37.7`
+  + Composer React components can now access the `session` and `draft` as props,
+    rather than just the `draftClientId`.
+  + We've removed `space-pen`, `jQuery` and several other dependencies.
+  + Keymaps and menus in packages must now be in `JSON` format rather than `CSON`
+  + The `KeymapManager` and `MenuManager` have been re-written to remove unwanted
+    features and weight we inherited from Atom and improve compatibility with our
+    React-based stack. CSS selectors are no longer used to scope anything.
+  + Menus are now specified using Mousetrap syntax. `CmdOrCtrl-A` => `mod+shift+a`
+  + This update transitions `config.cson` to `config.json`. We will be removing
+    `CSON` support in an upcoming release.
+
 ### 0.4.25 (4/12/16)
 
 - Features:
