@@ -197,6 +197,29 @@ module.exports = (grunt) ->
         csonConfig.glob_to_multiple.src.push("#{directory}/**/*.cson")
         pegConfig.glob_to_multiple.src.push("#{directory}/**/*.pegjs")
 
+  COFFEE_SRC = [
+    'internal_packages/**/*.cjsx'
+    'internal_packages/**/*.coffee'
+    'dot-nylas/**/*.coffee'
+    'src/**/*.coffee'
+    'src/**/*.cjsx'
+    'spec/**/*.cjsx'
+    'spec/**/*.coffee'
+  ]
+  ES_SRC = [
+    'internal_packages/**/*.jsx'
+    'internal_packages/**/*.es6'
+    'internal_packages/**/*.es'
+    'dot-nylas/**/*.es6'
+    'dot-nylas/**/*.es'
+    'src/**/*.es6'
+    'src/**/*.es'
+    'src/**/*.jsx'
+    'spec/**/*.es6'
+    'spec/**/*.es'
+    'spec/**/*.jsx'
+  ]
+
   grunt.initConfig
     pkg: grunt.file.readJSON('package.json')
 
@@ -219,26 +242,12 @@ module.exports = (grunt) ->
     peg: pegConfig
 
     nylaslint:
-      src: [
-        'internal_packages/**/*.cjsx'
-        'internal_packages/**/*.coffee'
-        'dot-nylas/**/*.coffee'
-        'src/**/*.coffee'
-        'src/**/*.cjsx'
-        'spec/**/*.cjsx'
-        'spec/**/*.coffee'
-      ]
+      src: COFFEE_SRC.concat(ES_SRC)
 
     coffeelint:
       options:
         configFile: 'build/config/coffeelint.json'
-      src: [
-        'internal_packages/**/*.cjsx'
-        'internal_packages/**/*.coffee'
-        'dot-nylas/**/*.coffee'
-        'src/**/*.coffee'
-        'src/**/*.cjsx'
-      ]
+      src: COFFEE_SRC
       build: [
         'build/tasks/**/*.coffee'
         'build/Gruntfile.coffee'
@@ -258,16 +267,7 @@ module.exports = (grunt) ->
       options:
         ignore: false
         configFile: 'build/config/eslint.json'
-      target: [
-        'internal_packages/**/*.jsx'
-        'internal_packages/**/*.es6'
-        'internal_packages/**/*.es'
-        'dot-nylas/**/*.es6'
-        'dot-nylas/**/*.es'
-        'src/**/*.es6'
-        'src/**/*.es'
-        'src/**/*.jsx'
-      ]
+      target: ES_SRC
 
     csslint:
       options:
