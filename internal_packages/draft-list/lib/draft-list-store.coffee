@@ -63,7 +63,7 @@ class DraftListStore extends NylasStore
               draft = draft.clone()
               draft.uploadTaskId = task.id
               draft.uploadProgress = task.progress
-              resultSetWithTasks.replaceModel(draft)
+              resultSetWithTasks.updateModel(draft)
 
         return resultSetWithTasks.immutableClone()
 
