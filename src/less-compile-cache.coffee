@@ -2,8 +2,6 @@ _ = require 'underscore'
 path = require 'path'
 LessCache = require 'less-cache'
 
-fileCacheImportPaths = null
-
 # {LessCache} wrapper used by {ThemeManager} to read stylesheets.
 module.exports =
 class LessCompileCache
