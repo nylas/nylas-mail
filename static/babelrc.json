@@ -1,7 +1,8 @@
 {
-  "breakConfig": true,
-  "sourceMap": "inline",
-  "blacklist": ["es6.forOf", "useStrict"],
-  "optional": ["asyncToGenerator"],
-  "stage": 0
+  "presets": [
+    "es2015",
+    "react",
+    "stage-0"
+  ],
+  "sourceMaps": "inline"
 }
