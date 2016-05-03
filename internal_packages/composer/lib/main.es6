@@ -5,6 +5,7 @@ import {remote} from 'electron';
 
 import {
   Message,
+  Actions,
   DraftStore,
   ComponentRegistry,
   WorkspaceStore,
@@ -21,40 +22,46 @@ class ComposerWithWindowProps extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = NylasEnv.getWindowProps()
-  }
 
-  componentDidMount() {
-    if (this.state.draftClientId) {
-      this.ready();
+    // We'll now always have windowProps by the time we construct this.
+    const windowProps = NylasEnv.getWindowProps();
+    const {draftJSON, draftClientId} = windowProps;
+    if (!draftJSON) {
+      throw new Error("Initialize popout composer windows with valid draftJSON")
     }
-
-    this.unlisten = NylasEnv.onWindowPropsReceived((windowProps) => {
-      const {errorMessage, draftJSON, draftClientId} = windowProps;
-
-      if (draftJSON) {
-        const draft = new Message().fromJSON(draftJSON);
-        DraftStore._createSession(draftClientId, draft);
-      }
-
-      this.setState({draftClientId});
-      this.ready();
-      if (errorMessage) {
-        this._showInitialErrorDialog(errorMessage);
-      }
-    });
+    const draft = new Message().fromJSON(draftJSON);
+    DraftStore._createSession(draftClientId, draft);
+    this.state = windowProps
   }
 
   componentWillUnmount() {
-    if (this.unlisten) {
-      this.unlisten();
-    }
+    if (this._usub) {this._usub()}
   }
 
-  ready = () => {
+  componentDidUpdate() {
+    this.refs.composer.focus()
+  }
+
+  _onDraftReady = () => {
     this.refs.composer.focus().then(() => {
-      NylasEnv.getCurrentWindow().show()
-      NylasEnv.getCurrentWindow().focus()
+      NylasEnv.displayWindow();
+
+      if (this.state.errorMessage) {
+        this._showInitialErrorDialog(this.state.errorMessage);
+      }
+
+      // This will start loading the rest of the composer's plugins. This
+      // may take a while (hundreds of ms) depending on how many plugins
+      // you have installed. For some reason it takes two frames to
+      // reliably get the basic composer (Send button, etc) painted
+      // properly.
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          NylasEnv.getCurrentWindow().updateLoadSettings({
+            windowType: "composer",
+          })
+        })
+      })
     });
   }
 
@@ -62,6 +69,7 @@ class ComposerWithWindowProps extends React.Component {
     return (
       <ComposerViewForDraftClientId
         ref="composer"
+        onDraftReady={this._onDraftReady}
         draftClientId={this.state.draftClientId}
         className="composer-full-window"
       />
@@ -91,28 +99,27 @@ export function activate() {
   });
 
   if (NylasEnv.isMainWindow()) {
-    NylasEnv.registerHotWindow({
-      windowType: 'composer',
-      replenishNum: 2,
-    });
     ComponentRegistry.register(ComposeButton, {
       location: WorkspaceStore.Location.RootSidebar.Toolbar,
     });
-  } else {
-    NylasEnv.getCurrentWindow().setMinimumSize(480, 250);
-    WorkspaceStore.defineSheet('Main', {root: true}, {
-      popout: ['Center'],
-    });
-    ComponentRegistry.register(ComposerWithWindowProps, {
-      location: WorkspaceStore.Location.Center,
-    });
+  }
+
+  NylasEnv.getCurrentWindow().setMinimumSize(480, 250);
+
+  const silent = !NylasEnv.isMainWindow()
+  WorkspaceStore.defineSheet('Main', {root: true, silent}, {
+    popout: ['Center'],
+  });
+  ComponentRegistry.register(ComposerWithWindowProps, {
+    location: WorkspaceStore.Location.Center,
+  });
+
+  if (silent) {
+    Actions.selectRootSheet(WorkspaceStore.Sheet.Main)
   }
 }
 
 export function deactivate() {
-  if (NylasEnv.isMainWindow()) {
-    NylasEnv.unregisterHotWindow('composer');
-  }
   ComponentRegistry.unregister(ComposerViewForDraftClientId);
   ComponentRegistry.unregister(ComposeButton);
   ComponentRegistry.unregister(ComposerWithWindowProps);

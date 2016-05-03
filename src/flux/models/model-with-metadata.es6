@@ -76,7 +76,7 @@ export default class ModelWithMetadata extends Model {
     if (!metadata) {
       return null;
     }
-    return metadata.value;
+    return JSON.parse(JSON.stringify(metadata.value));
   }
 
   // Private helpers

@@ -64,5 +64,5 @@ module.exports =
       ipcRenderer.send 'command', 'application:install-update'
       true
     if action.id is 'release-bar:view-changelog'
-      require('shell').openExternal('https://github.com/nylas/N1/blob/master/CHANGELOG.md')
+      require('electron').shell.openExternal('https://github.com/nylas/N1/blob/master/CHANGELOG.md')
       false

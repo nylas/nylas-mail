@@ -80,7 +80,9 @@ class EventedIFrame extends React.Component
     doc = node.contentDocument
     return unless doc
     doc.removeEventListener('click', @_onIFrameClick)
-    doc.removeEventListener('keydown', @_onIFrameKeydown)
+    doc.removeEventListener('keydown', @_onIFrameKeyEvent)
+    doc.removeEventListener('keypress', @_onIFrameKeyEvent)
+    doc.removeEventListener('keyup', @_onIFrameKeyEvent)
     doc.removeEventListener('mousedown', @_onIFrameMouseEvent)
     doc.removeEventListener('mousemove', @_onIFrameMouseEvent)
     doc.removeEventListener('mouseup', @_onIFrameMouseEvent)
@@ -95,7 +97,9 @@ class EventedIFrame extends React.Component
     doc = node.contentDocument
     _.defer =>
       doc.addEventListener("click", @_onIFrameClick)
-      doc.addEventListener("keydown", @_onIFrameKeydown)
+      doc.addEventListener("keydown", @_onIFrameKeyEvent)
+      doc.addEventListener("keypress", @_onIFrameKeyEvent)
+      doc.addEventListener("keyup", @_onIFrameKeyEvent)
       doc.addEventListener("mousedown", @_onIFrameMouseEvent)
       doc.addEventListener("mousemove", @_onIFrameMouseEvent)
       doc.addEventListener("mouseup", @_onIFrameMouseEvent)
@@ -150,8 +154,18 @@ class EventedIFrame extends React.Component
         else
           target.setAttribute('href', "http://#{rawHref}")
 
+        rawHref = target.getAttribute('href')
+
       e.preventDefault()
-      NylasEnv.windowEventHandler.openLink(target: target)
+
+      # It's important to send the raw `href` here instead of the target.
+      # The `target` comes from the document context of the iframe, which
+      # as of Electron 0.36.9, has different constructor function objects
+      # in memory than the main execution context. This means that code
+      # like `e.target instanceof Element` will erroneously return false
+      # since the `e.target.constructor` and the `Element` function are
+      # created in different contexts.
+      NylasEnv.windowEventHandler.openLink(href: rawHref, metaKey: e.metaKey)
 
   _isBlacklistedHref: (href) ->
     return (new RegExp(/^file:/i)).test(href)
@@ -172,9 +186,16 @@ class EventedIFrame extends React.Component
       pageY: event.pageY + nodeRect.top
     })))
 
-  _onIFrameKeydown: (event) =>
+  _onIFrameKeyEvent: (event) =>
     return if event.metaKey or event.altKey or event.ctrlKey
-    ReactDOM.findDOMNode(@).dispatchEvent(new KeyboardEvent(event.type, event))
+
+    attrs = ['key', 'code','location', 'ctrlKey', 'shiftKey', 'altKey', 'metaKey', 'repeat', 'isComposing', 'charCode', 'keyCode', 'which']
+    eventInit = Object.assign({bubbles: true}, _.pick(event, attrs))
+    eventInParentDoc = new KeyboardEvent(event.type, eventInit)
+
+    Object.defineProperty(eventInParentDoc, 'which', {value: event.which})
+
+    ReactDOM.findDOMNode(@).dispatchEvent(eventInParentDoc)
 
   _onIFrameContextualMenu: (event) =>
     # Build a standard-looking contextual menu with options like "Copy Link",
@@ -182,11 +203,11 @@ class EventedIFrame extends React.Component
     event.preventDefault()
 
     {remote} = require('electron')
-    clipboard = require('clipboard')
+    clipboard = require('electron').clipboard
     Menu = remote.require('menu')
     MenuItem = remote.require('menu-item')
     NativeImage = require('native-image')
-    shell = require('shell')
+    shell = require('electron').shell
     path = require('path')
     fs = require('fs')
     menu = new Menu()
@@ -195,8 +216,12 @@ class EventedIFrame extends React.Component
     linkTarget = @_getContainingTarget(event, {with: 'href'})
     if linkTarget
       href = linkTarget.getAttribute('href')
-      menu.append(new MenuItem({ label: "Open Link", click:( -> NylasEnv.windowEventHandler.openLink({href}) )}))
-      menu.append(new MenuItem({ label: "Copy Link", click:( -> clipboard.writeText(href) )}))
+      if href.startsWith('mailto')
+        menu.append(new MenuItem({ label: "Compose Message...", click:( -> NylasEnv.windowEventHandler.openLink({href}) )}))
+        menu.append(new MenuItem({ label: "Copy Email Address", click:( -> clipboard.writeText(href.split('mailto:').pop()) )}))
+      else
+        menu.append(new MenuItem({ label: "Open Link", click:( -> NylasEnv.windowEventHandler.openLink({href}) )}))
+        menu.append(new MenuItem({ label: "Copy Link", click:( -> clipboard.writeText(href) )}))
       menu.append(new MenuItem({ type: 'separator' }))
 
     # Menu actions for images

@@ -52,6 +52,8 @@ class QuotedHTMLTransformer
 
       @removeTrailingBr(doc)
       DOMUtils.Mutating.removeElements(quoteStringDetector(doc))
+
+      return "<head></head><body></body>" unless doc.children[0]
       return doc.children[0].innerHTML
 
   # Finds any trailing BR tags and removes them in place
@@ -88,6 +90,9 @@ class QuotedHTMLTransformer
       text = "HTML Parser Error: #{error.toString()}"
       doc = domParser.parseFromString(text, "text/html")
       NylasEnv.reportError(error)
+
+    # As far as we can tell, when this succeeds, doc /always/ has at least
+    # one child: an <html> node.
     return doc
 
   _wholeBodyIsQuote: (doc, quoteElements) ->

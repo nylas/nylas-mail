@@ -38,28 +38,60 @@ class AccountStore extends NylasStore
         Actions.focusDefaultMailboxPerspectiveForAccounts([newAccountIds[0]])
 
   _loadAccounts: =>
-    @_caches = {}
-    @_version = NylasEnv.config.get(configVersionKey) || 0
-
-    @_accounts = []
-    for json in NylasEnv.config.get(configAccountsKey) || []
-      @_accounts.push((new Account).fromJSON(json))
-
-    oldTokens = NylasEnv.config.get(configTokensKey)
-    if oldTokens
-      # Load tokens using the old config method and save them into the keychain
-      @_tokens = oldTokens
-      for key, val of oldTokens
-        account = @accountForId(key)
-        continue unless account
-        keytar.replacePassword(keytarServiceName, account.emailAddress, val)
-    else
-      # Load tokens using the new keytar method
+    try
+      @_caches = {}
       @_tokens = {}
-      for account in @_accounts
-        @_tokens[account.id] = keytar.getPassword(keytarServiceName, account.emailAddress)
+      @_version = NylasEnv.config.get(configVersionKey) || 0
+
+      @_accounts = []
+      for json in NylasEnv.config.get(configAccountsKey) || []
+        @_accounts.push((new Account).fromJSON(json))
+
+      # Run a few checks on account consistency. We want to display useful error
+      # messages and these can result in very strange exceptions downstream otherwise.
+      @_enforceAccountsValidity()
+
+      oldTokens = NylasEnv.config.get(configTokensKey)
+      if oldTokens
+        # Load tokens using the old config method and save them into the keychain
+        @_tokens = oldTokens
+        for key, val of oldTokens
+          account = @accountForId(key)
+          continue unless account
+          keytar.replacePassword(keytarServiceName, account.emailAddress, val)
+      else
+        # Load tokens using the new keytar method
+        @_tokens = {}
+        for account in @_accounts
+          @_tokens[account.id] = keytar.getPassword(keytarServiceName, account.emailAddress)
+
+    catch error
+      NylasEnv.reportError(error)
 
     @_trigger()
+
+  _enforceAccountsValidity: =>
+    seenIds = {}
+    seenEmails = {}
+    message = null
+
+    @_accounts = @_accounts.filter (account) =>
+      if not account.emailAddress
+        message = "Assertion failure: One of the accounts in config.json did not have an emailAddress, and was removed. You should re-link the account."
+        return false
+      if seenIds[account.id]
+        message = "Assertion failure: Two of the accounts in config.json had the same ID and one was removed. Please give each account a separate ID."
+        return false
+      if seenEmails[account.emailAddress]
+        message = "Assertion failure: Two of the accounts in config.json had the same email address and one was removed."
+        return false
+
+      seenIds[account.id] = true
+      seenEmails[account.emailAddress] = true
+      return true
+
+    if message and NylasEnv.isMainWindow()
+      NylasEnv.showErrorDialog("N1 was unable to load your account preferences.\n\n#{message}");
 
   _trigger: ->
     for account in @_accounts
@@ -123,7 +155,9 @@ class AccountStore extends NylasStore
     @_tokens[json.id] = json.auth_token
     keytar.replacePassword(keytarServiceName, json.email_address, json.auth_token)
 
-    existingIdx = _.findIndex @_accounts, (a) -> a.id is json.id
+    existingIdx = _.findIndex @_accounts, (a) ->
+      a.id is json.id or a.emailAddress is json.email_address
+
     if existingIdx is -1
       account = (new Account).fromJSON(json)
       @_accounts.push(account)

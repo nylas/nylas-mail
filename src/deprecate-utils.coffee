@@ -1,5 +1,3 @@
-_ = require 'underscore'
-
 class DeprecateUtils
   # See
   # http://www.codeovertones.com/2011/08/how-to-print-stack-trace-anywhere-in.html
@@ -26,7 +24,7 @@ class DeprecateUtils
         )
         warn = false
         return fn.apply(ctx, arguments)
-      return _.extend(newFn, fn)
+      return Object.assign(newFn, fn)
     return fn
 
 module.exports = DeprecateUtils

@@ -27,8 +27,9 @@ import FileUpload from './file-upload';
 import ImageFileUpload from './image-file-upload';
 
 import ComposerEditor from './composer-editor';
-import SendActionButton from './send-action-button';
 import ComposerHeader from './composer-header';
+import SendActionButton from './send-action-button';
+import ActionBarPlugins from './action-bar-plugins'
 
 import Fields from './fields';
 
@@ -81,9 +82,10 @@ export default class ComposerView extends React.Component {
   }
 
   focus() {
-    if (ReactDOM.findDOMNode(this).contains(document.activeElement)) {
-      return;
-    }
+    // TODO is it safe to remove this?
+    // if (ReactDOM.findDOMNode(this).contains(document.activeElement)) {
+    //   return;
+    // }
 
     if (this.props.draft.to.length === 0) {
       this.refs.header.showAndFocusField(Fields.To);
@@ -106,8 +108,8 @@ export default class ComposerView extends React.Component {
       'composer:show-and-focus-cc': () => this.refs.header.showAndFocusField(Fields.Cc),
       'composer:focus-to': () => this.refs.header.showAndFocusField(Fields.To),
       "composer:show-and-focus-from": () => {}, // todo
-      "composer:undo": this.undo,
-      "composer:redo": this.redo,
+      "core:undo": this.undo,
+      "core:redo": this.redo,
     };
   }
 
@@ -144,6 +146,7 @@ export default class ComposerView extends React.Component {
           ref="header"
           draft={this.props.draft}
           session={this.props.session}
+          initiallyFocused={this.props.draft.to.length === 0}
         />
         <div
           className="compose-body"
@@ -239,7 +242,12 @@ export default class ComposerView extends React.Component {
       <div className="composer-footer-region">
         <InjectedComponentSet
           matching={{role: "Composer:Footer"}}
-          exposedProps={{draftClientId: this.props.draft.clientId, threadId: this.props.draft.threadId}}
+          exposedProps={{
+            draft: this.props.draft,
+            threadId: this.props.draft.threadId,
+            draftClientId: this.props.draft.clientId,
+            session: this.props.session,
+          }}
           direction="column"/>
       </div>
     );
@@ -305,13 +313,24 @@ export default class ComposerView extends React.Component {
     return _.reject(files, Utils.shouldDisplayAsImage);
   }
 
+  _renderActionsWorkspaceRegion() {
+    return (
+      <InjectedComponentSet
+        matching={{role: "Composer:ActionBarWorkspace"}}
+        exposedProps={{
+          draft: this.props.draft,
+          threadId: this.props.draft.threadId,
+          draftClientId: this.props.draft.clientId,
+          session: this.props.session,
+        }}
+      />
+    )
+  }
+
   _renderActionsRegion() {
     return (
       <div className="composer-action-bar-content">
-        <InjectedComponentSet
-          className="composer-action-bar-plugins"
-          matching={{role: "Composer:ActionButton"}}
-          exposedProps={{draftClientId: this.props.draft.clientId, threadId: this.props.draft.threadId}} />
+        <ActionBarPlugins draft={this.props.draft} session={this.props.session} />
 
         <button
           tabIndex={-1}
@@ -333,11 +352,22 @@ export default class ComposerView extends React.Component {
 
         <div style={{order: 0, flex: 1}} />
 
-        <SendActionButton
-          tabIndex={-1}
-          draft={this.props.draft}
+
+        <InjectedComponent
           ref="sendActionButton"
-          isValidDraft={this._isValidDraft}
+          tabIndex={-1}
+          style={{order: -100}}
+          matching={{role: "Composer:SendActionButton"}}
+          fallback={SendActionButton}
+          requiredMethods={[
+            'primaryClick',
+          ]}
+          exposedProps={{
+            draft: this.props.draft,
+            draftClientId: this.props.draft.clientId,
+            session: this.props.session,
+            isValidDraft: this._isValidDraft,
+          }}
         />
       </div>
     );
@@ -428,11 +458,11 @@ export default class ComposerView extends React.Component {
   }
 
   _onBodyChanged = (event) => {
-    this._addToProxy({body: this._showQuotedText(event.target.value)});
+    this._applyChanges({body: this._showQuotedText(event.target.value)});
     return;
   }
 
-  _addToProxy = (changes = {}, source = {}) => {
+  _applyChanges = (changes = {}, source = {}) => {
     const selections = this._getSelections();
     this.props.session.changes.add(changes);
 
@@ -549,7 +579,7 @@ export default class ComposerView extends React.Component {
     }
 
     this._recoveredSelection = historyItem.currentSelection;
-    this._addToProxy(historyItem.state, {fromUndoManager: true});
+    this._applyChanges(historyItem.state, {fromUndoManager: true});
     this._recoveredSelection = null;
   }
 
@@ -561,7 +591,7 @@ export default class ComposerView extends React.Component {
       return;
     }
     this._recoveredSelection = historyItem.currentSelection;
-    this._addToProxy(historyItem.state, {fromUndoManager: true});
+    this._applyChanges(historyItem.state, {fromUndoManager: true});
     this._recoveredSelection = null;
   }
 
@@ -623,6 +653,10 @@ export default class ComposerView extends React.Component {
 
               <div className="composer-content-wrap">
                 {this._renderContentScrollRegion()}
+              </div>
+
+              <div className="composer-action-bar-workspace-wrap">
+                {this._renderActionsWorkspaceRegion()}
               </div>
 
               <div className="composer-action-bar-wrap">

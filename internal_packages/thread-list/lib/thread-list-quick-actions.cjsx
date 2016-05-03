@@ -11,8 +11,8 @@ class ThreadArchiveQuickAction extends React.Component
     thread: React.PropTypes.object
 
   render: =>
-    canArchiveThreads = FocusedPerspectiveStore.current().canArchiveThreads([@props.thread])
-    return <span /> unless canArchiveThreads
+    allowed = FocusedPerspectiveStore.current().canArchiveThreads([@props.thread])
+    return <span /> unless allowed
 
     <div
       key="archive"
@@ -38,8 +38,8 @@ class ThreadTrashQuickAction extends React.Component
     thread: React.PropTypes.object
 
   render: =>
-    canTrashThreads = FocusedPerspectiveStore.current().canTrashThreads([@props.thread])
-    return <span /> unless canTrashThreads
+    allowed = FocusedPerspectiveStore.current().canMoveThreadsTo([@props.thread], 'trash')
+    return <span /> unless allowed
 
     <div
       key="remove"

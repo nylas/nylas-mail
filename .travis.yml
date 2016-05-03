@@ -41,9 +41,9 @@ before_install:
   chmod 400 ~/.ssh/id_rsa;
   ssh-keyscan github.com >> ~/.ssh/known_hosts;
   git submodule update --init --recursive;
-  2>/dev/null 1>/dev/null openssl aes-256-cbc -K $encrypted_d583b56b822e_key -iv $encrypted_d583b56b822e_iv -in build/resources/nylas/encrypted_certificates/travis/travis-files.tar.enc -out build/resources/nylas/encrypted_certificates/travis/travis-files.tar -d;
+  2>/dev/null 1>/dev/null openssl aes-256-cbc -K $encrypted_d583b56b822e_key -iv $encrypted_d583b56b822e_iv -in src/pro/encrypted_certificates/travis/travis-files.tar.enc -out src/pro/encrypted_certificates/travis/travis-files.tar -d;
   mkdir build/resources/certs;
-  2>/dev/null 1>/dev/null tar xvf build/resources/nylas/encrypted_certificates/travis/travis-files.tar --directory=build/resources/certs/;
+  2>/dev/null 1>/dev/null tar xvf src/pro/encrypted_certificates/travis/travis-files.tar --directory=build/resources/certs/;
   2>/dev/null 1>/dev/null source build/resources/certs/set_unix_env.sh;
   fi
 

@@ -69,7 +69,6 @@
       background-color: darken(@file-icon-color, 20%);
     }
     &:active {
-      // box-shadow: inset 0 0 0 1px #27496d, inset 0 5px 30px #193047;
       background-color: darken(@btn-default-bg-color, 5%);
     }
   }
@@ -151,6 +150,11 @@
   .file-action-icon, .file-name-container, .file-name {
     display: none;
   }
+  .file-action-icon:active {
+    background: none;
+    -webkit-filter: brightness(95%);
+  }
+
   &:hover {
     .file-action-icon, .file-name-container, .file-name {
       display: block;

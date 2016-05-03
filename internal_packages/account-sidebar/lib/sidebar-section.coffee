@@ -37,12 +37,13 @@ class SidebarSection
       .reject(cats, (cat) -> cat.name is 'drafts')
       .map (cat) => SidebarItem.forCategories([cat], editable: false, deletable: false)
 
+    unreadItem = SidebarItem.forUnread([account.id])
     starredItem = SidebarItem.forStarred([account.id])
     draftsItem = SidebarItem.forDrafts([account.id])
     snoozedItem = SidebarItem.forSnoozed([account.id])
 
-    # Order correctly: Inbox, Starred, rest... , Drafts
-    items.splice(1, 0, starredItem, snoozedItem)
+    # Order correctly: Inbox, Unread, Starred, rest... , Drafts
+    items.splice(1, 0, unreadItem, starredItem, snoozedItem)
     items.push(draftsItem)
 
     return {
@@ -60,6 +61,7 @@ class SidebarSection
       'sent',
       ['archive', 'all'],
       'trash'
+      'spam'
     ]
     items = []
 
@@ -83,6 +85,9 @@ class SidebarSection
     starredItem = SidebarItem.forStarred(accountIds,
       children: accounts.map (acc) -> SidebarItem.forStarred([acc.id], name: acc.label)
     )
+    unreadItem = SidebarItem.forUnread(accountIds,
+      children: accounts.map (acc) -> SidebarItem.forUnread([acc.id], name: acc.label)
+    )
     draftsItem = SidebarItem.forDrafts(accountIds,
       children: accounts.map (acc) -> SidebarItem.forDrafts([acc.id], name: acc.label)
     )
@@ -90,8 +95,8 @@ class SidebarSection
       children: accounts.map (acc) -> SidebarItem.forSnoozed([acc.id], name: acc.label)
     )
 
-    # Order correctly: Inbox, Starred, rest... , Drafts
-    items.splice(1, 0, starredItem, snoozedItem)
+    # Order correctly: Inbox, Unread, Starred, rest... , Drafts
+    items.splice(1, 0, unreadItem, starredItem, snoozedItem)
     items.push(draftsItem)
 
     return {

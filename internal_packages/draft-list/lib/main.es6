@@ -1,4 +1,4 @@
-import {WorkspaceStore, ComponentRegistry} from 'nylas-exports'
+import {WorkspaceStore, ComponentRegistry, Actions} from 'nylas-exports'
 import DraftList from './draft-list'
 import DraftListToolbar from './draft-list-toolbar'
 import DraftListSendStatus from './draft-list-send-status'
@@ -10,7 +10,11 @@ export function activate() {
     'Drafts',
     {root: true},
     {list: ['RootSidebar', 'DraftList']}
-  )
+  );
+  if (NylasEnv.savedState.perspective &&
+    NylasEnv.savedState.perspective.type === "DraftsMailboxPerspective") {
+    Actions.selectRootSheet(WorkspaceStore.Sheet.Drafts);
+  }
 
   ComponentRegistry.register(DraftList, {location: WorkspaceStore.Location.DraftList})
   ComponentRegistry.register(DraftListToolbar, {location: WorkspaceStore.Location.DraftList.Toolbar})

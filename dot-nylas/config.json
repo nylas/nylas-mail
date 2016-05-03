@@ -1,0 +1,12 @@
+{
+  "*": {
+    "env": "production",
+    "core": {
+      "themes": [
+        "ui-light"
+      ],
+      "disabledPackages": [
+      ]
+    }
+  }
+}

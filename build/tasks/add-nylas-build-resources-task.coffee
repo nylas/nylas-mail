@@ -3,7 +3,7 @@ path = require 'path'
 
 module.exports = (grunt) ->
   {cp, mkdir, rm} = require('./task-helpers')(grunt)
-  rootDir = path.resolve(path.join('resources', 'nylas'))
+  rootDir = path.resolve(path.join('../', 'src', 'pro'))
 
   copyArcFiles = ->
     cp path.join(rootDir, 'arc-N1', '.arcconfig'), '.arcconfig'
@@ -17,9 +17,14 @@ module.exports = (grunt) ->
     for plugin in fs.readdirSync(path.join(rootDir, 'packages'))
       from = path.join(rootDir, 'packages', plugin)
       to = path.join(path.resolve('internal_packages'), plugin)
-      if not fs.existsSync(to)
-        grunt.log.writeln "Adding '#{plugin}' to internal_packages"
-        fs.symlinkSync(from, to, 'dir')
+
+      try
+        if fs.lstatSync(to)
+          grunt.log.writeln "Removing old symlink at #{to}"
+          fs.unlinkSync(to)
+
+      grunt.log.writeln "Adding '#{plugin}' to internal_packages"
+      fs.symlinkSync(from, to, 'dir')
 
   desc = 'Adds in proprietary Nylas packages, fonts, and sounds to N1'
   grunt.registerTask 'add-nylas-build-resources', desc, ->

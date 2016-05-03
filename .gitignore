@@ -17,10 +17,11 @@ docs/output
 docs/includes
 spec/fixtures/evil-files/
 yoursway-create-dmg
-*nylas-private-*
 /_site
 /.sass-cache
 .integration-test-config
+.idea/
+spec-saved-state.json
 
 !spec/fixtures/packages/package-with-incompatible-native-module/node_modules
 
@@ -28,5 +29,10 @@ yoursway-create-dmg
 *~
 *#
 
-.idea/
-spec-saved-state.json
+*nylas-private-*
+internal_packages/activity-list
+internal_packages/composer-mail-merge
+internal_packages/composer-scheduler
+internal_packages/link-tracking
+internal_packages/open-tracking
+internal_packages/send-later

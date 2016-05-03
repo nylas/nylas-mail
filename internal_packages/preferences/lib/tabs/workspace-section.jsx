@@ -6,7 +6,7 @@ class DefaultMailClientItem extends React.Component {
 
   constructor() {
     super();
-    this.state = {};
+    this.state = {defaultClient: false};
     this._services = new LaunchServices();
     if (this._services.available()) {
       this._services.isRegisteredForURLScheme('mailto', (registered) => {
@@ -136,6 +136,10 @@ class WorkspaceSection extends React.Component {
           configSchema={this.props.configSchema.properties.workspace.properties.interfaceZoom}
           keyPath="core.workspace.interfaceZoom"
           config={this.props.config} />
+
+        <div className="platform-note platform-linux-only">
+          N1 launch on system start only works in XDG-compliant desktop environments.
+        </div>
       </section>
     );
   }

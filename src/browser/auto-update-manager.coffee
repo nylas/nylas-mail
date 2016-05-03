@@ -69,7 +69,7 @@ class AutoUpdateManager
 
     autoUpdater.on 'update-downloaded', (event, @releaseNotes, @releaseVersion) =>
       @setState(UpdateAvailableState)
-      @emitUpdateAvailableEvent(@getWindows()...)
+      @emitUpdateAvailableEvent()
 
     @check(hidePopups: true)
     setInterval =>
@@ -82,10 +82,10 @@ class AutoUpdateManager
     if autoUpdater.supportsUpdates?
       @setState(UnsupportedState) unless autoUpdater.supportsUpdates()
 
-  emitUpdateAvailableEvent: (windows...) ->
+  emitUpdateAvailableEvent: ->
     return unless @releaseVersion
-    for nylasWindow in windows
-      nylasWindow.sendMessage('update-available', {@releaseVersion, @releaseNotes})
+    global.application.windowManager.sendToAllWindows("update-available",
+      {}, {@releaseVersion, @releaseNotes})
 
   setState: (state) ->
     return if @state is state
@@ -141,6 +141,3 @@ class AutoUpdateManager
       message: 'There was an error checking for updates.'
       title: 'Update Error'
       detail: message
-
-  getWindows: ->
-    global.application.windowManager.windows()

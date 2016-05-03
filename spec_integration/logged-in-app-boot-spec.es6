@@ -19,7 +19,7 @@ describe('Logged in app boot', () => {
 
   it("has the autoupdater pointing to the correct url", () => {
     this.app.client.execute(()=>{
-      app = require('remote').getGlobal('application')
+      app = require('electron').remote.getGlobal('application')
       return {
         platform: process.platform,
         arch: process.arch,

@@ -105,7 +105,6 @@ module.exports = (grunt) ->
 
       # These aren't needed since WeakMap is built-in
       path.join('emissary', 'node_modules', 'es6-weak-map')
-      path.join('property-accessors', 'node_modules', 'es6-weak-map')
 
       '.DS_Store'
       '.jshintrc'
@@ -171,6 +170,8 @@ module.exports = (grunt) ->
     cp 'spec', path.join(appDir, 'spec')
     cp 'src', path.join(appDir, 'src'), filter: /.+\.(cson|coffee|cjsx|jsx)$/
     cp 'static', path.join(appDir, 'static')
+    cp 'keymaps', path.join(appDir, 'keymaps')
+    cp 'menus', path.join(appDir, 'menus')
 
     # Move all of the node modules inside /apm/node_modules to new-app/apm/node_modules
     apmInstallDir = path.resolve(appDir, '..', 'new-app', 'apm')

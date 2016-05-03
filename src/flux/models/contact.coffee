@@ -91,6 +91,9 @@ class Contact extends Model
     json['name'] ||= json['email']
     json
 
+  isValid: ->
+    @email.match(RegExpUtils.emailRegex()) != null
+
   # Public: Returns true if the contact is the current user, false otherwise.
   # You should use this method instead of comparing the user's email address to
   # the account email, since it is case-insensitive and future-proof.
@@ -165,18 +168,34 @@ class Contact extends Model
     # Take care of whitespace
     name = name.trim()
 
+    # Handle last name, first name
+    parts = @_parseReverseNames(name)
+
     # Split the name into words and remove parts that are prefixes and suffixes
-    parts = []
-    parts = name.split(/\s+/)
-    parts = _.reject parts, (part) ->
-      part = part.toLowerCase().replace(/\./,'')
-      (part of name_prefixes) or (part of name_suffixes)
+    if parts.join('').length == 0
+      parts = []
+      parts = name.split(/\s+/)
+      parts = _.reject parts, (part) ->
+        part = part.toLowerCase().replace(/\./,'')
+        (part of name_prefixes) or (part of name_suffixes)
 
     # If we've removed all the parts, just return the whole name
     parts = [name] if parts.join('').length == 0
 
     # If all that failed, fall back to email
     parts = [@email] if parts.join('').length == 0
+
+    parts
+
+  _parseReverseNames: (name) ->
+    parts = []
+    [lastName, firstName] = name.split(',')
+    if firstName
+      [firstName, description] = firstName.split('(')
+
+      parts.push(firstName.trim())
+      parts.push(lastName.trim())
+      parts.push("(" + description.trim()) if description
 
     parts
 

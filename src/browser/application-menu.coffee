@@ -1,4 +1,4 @@
-{BrowserWindow, Menu, app} = require 'electron'
+{BrowserWindow, Menu, MenuItem, app} = require 'electron'
 _ = require 'underscore'
 Utils = require '../flux/models/utils'
 
@@ -12,11 +12,9 @@ class ApplicationMenu
     @windowTemplates = new WeakMap()
     @setActiveTemplate(@getDefaultTemplate())
     global.application.autoUpdateManager.on 'state-changed', (state) =>
-      @showUpdateMenuItem(state)
+      @updateAutoupdateMenuItem(state)
     global.application.config.observe 'devMode', (state) =>
-      @showDevModeItem()
-    global.application.config.observe 'core.workspace.mode', =>
-      @showViewModeItems()
+      @updateDevModeItem()
 
   # Public: Updates the entire menu with the given keybindings.
   #
@@ -26,20 +24,25 @@ class ApplicationMenu
   #                       are Arrays containing the keystroke.
   update: (window, template, keystrokesByCommand) ->
     @translateTemplate(template, keystrokesByCommand)
-    @substituteVersion(template)
     @windowTemplates.set(window, template)
     @setActiveTemplate(template) if window is @lastFocusedWindow
 
   setActiveTemplate: (template) ->
     unless _.isEqual(template, @activeTemplate)
       @activeTemplate = template
-      @menu = Menu.buildFromTemplate(Utils.deepClone(template))
-      Menu.setApplicationMenu(@menu)
+      @rebuildMenuWithActiveTemplate()
 
-    @showUpdateMenuItem(global.application.autoUpdateManager.getState())
-    @showFullscreenMenuItem(@lastFocusedWindow?.isFullScreen())
-    @showDevModeItem()
-    @showViewModeItems()
+  rebuildMenuWithActiveTemplate: ->
+    fullTemplate = Utils.deepClone(@activeTemplate)
+    @extendTemplateWithVersion(fullTemplate)
+    @extendTemplateWithWindowMenu(fullTemplate)
+
+    @menu = Menu.buildFromTemplate(fullTemplate)
+    Menu.setApplicationMenu(@menu)
+
+    @updateAutoupdateMenuItem(global.application.autoUpdateManager.getState())
+    @updateFullscreenMenuItem(@lastFocusedWindow?.isFullScreen())
+    @updateDevModeItem()
 
   # Register a BrowserWindow with this application menu.
   addWindow: (window) ->
@@ -56,10 +59,12 @@ class ApplicationMenu
     window.once 'closed', =>
       @lastFocusedWindow = null if window is @lastFocusedWindow
       @windowTemplates.delete(window)
+      @rebuildMenuWithActiveTemplate()
       window.removeListener 'focus', focusHandler
       window.removeListener 'enter-full-screen', focusHandler
       window.removeListener 'leave-full-screen', focusHandler
 
+    @rebuildMenuWithActiveTemplate()
     @enableWindowSpecificItems(true)
 
   # Flattens the given menu and submenu items into an single Array.
@@ -95,12 +100,26 @@ class ApplicationMenu
       item.enabled = enable if item.metadata?['windowSpecific']
 
   # Replaces VERSION with the current version.
-  substituteVersion: (template) ->
+  extendTemplateWithVersion: (template) ->
     if (item = _.find(@flattenMenuTemplate(template), ({label}) -> label == 'VERSION'))
       item.label = "Version #{@version}"
 
+  extendTemplateWithWindowMenu: (template) ->
+    windowMenu = _.find(template, ({label}) -> label is 'Window')
+    return unless windowMenu
+    idx = _.findIndex(windowMenu.submenu, ({id}) -> id is 'window-list-separator')
+
+    windows = global.application.windowManager.getOpenWindows()
+    windowsItems = windows.map (w) => {
+      label: w.loadSettings().title || "Window"
+      click: ->
+        w.show()
+        w.focus()
+      }
+    windowMenu.submenu.splice(idx, 0, {type: 'separator'}, windowsItems...)
+
   # Sets the proper visible state the update menu items
-  showUpdateMenuItem: (state) ->
+  updateAutoupdateMenuItem: (state) ->
     checkForUpdateItem = _.find(@flattenMenuItems(@menu), ({label}) -> label == 'Check for Update')
     downloadingUpdateItem = _.find(@flattenMenuItems(@menu), ({label}) -> label == 'Downloading Update')
     installUpdateItem = _.find(@flattenMenuItems(@menu), ({label}) -> label == 'Restart and Install Update')
@@ -119,25 +138,16 @@ class ApplicationMenu
       when 'update-available'
         installUpdateItem.visible = true
 
-  showFullscreenMenuItem: (fullscreen) ->
+  updateFullscreenMenuItem: (fullscreen) ->
     enterItem = _.find(@flattenMenuItems(@menu), ({label}) -> label == 'Enter Full Screen')
     exitItem = _.find(@flattenMenuItems(@menu), ({label}) -> label == 'Exit Full Screen')
     return unless enterItem and exitItem
     enterItem.visible = !fullscreen
     exitItem.visible = fullscreen
 
-  showDevModeItem: ->
+  updateDevModeItem: ->
     devModeItem = _.find(@flattenMenuItems(@menu), ({command}) -> command is 'application:toggle-dev')
     devModeItem?.checked = global.application.devMode
-
-  showViewModeItems: ->
-    selectedMode = global.application.config.get('core.workspace.mode')
-
-    splitModeItem = _.find(@flattenMenuItems(@menu), ({command}) -> command is 'application:select-split-mode')
-    listModeItem  = _.find(@flattenMenuItems(@menu), ({command}) -> command is 'application:select-list-mode')
-    splitModeItem?.checked = selectedMode is 'split'
-    listModeItem?.checked  = selectedMode isnt 'split'
-
 
   # Default list of menu items.
   #
@@ -147,15 +157,12 @@ class ApplicationMenu
       label: "N1"
       submenu: [
           { label: "Check for Update", metadata: {autoUpdate: true}}
-          { label: 'Reload', accelerator: 'Command+R', click: => @focusedWindow()?.reload() }
-          { label: 'Close Window', accelerator: 'Command+Shift+W', click: => @focusedWindow()?.close() }
-          { label: 'Toggle Dev Tools', accelerator: 'Command+Alt+I', click: => @focusedWindow()?.toggleDevTools() }
+          { label: 'Reload', accelerator: 'Command+R', click: => BrowserWindow.getFocusedWindow()?.reload() }
+          { label: 'Close Window', accelerator: 'Command+Shift+W', click: => BrowserWindow.getFocusedWindow()?.close() }
+          { label: 'Toggle Dev Tools', accelerator: 'Command+Alt+I', click: => BrowserWindow.getFocusedWindow()?.toggleDevTools() }
           { label: 'Quit', accelerator: 'Command+Q', click: -> app.quit() }
       ]
     ]
-
-  focusedWindow: ->
-    BrowserWindow.getFocusedWindow()
 
   # Combines a menu template with the appropriate keystroke.
   #
@@ -187,12 +194,14 @@ class ApplicationMenu
     firstKeystroke = keystrokesByCommand[command]?[0]
     return null unless firstKeystroke
 
-    modifiers = firstKeystroke.split('-')
+    modifiers = firstKeystroke.split('+')
+    modReplacement = if process.platform is "darwin" then "Command" else "Ctrl"
     key = modifiers.pop()
 
     modifiers = modifiers.map (modifier) ->
       modifier.replace(/shift/ig, "Shift")
-              .replace(/cmd/ig, "Command")
+              .replace(/command/ig, "Command")
+              .replace(/mod/ig, modReplacement)
               .replace(/ctrl/ig, "Ctrl")
               .replace(/alt/ig, "Alt")
 

@@ -1,6 +1,7 @@
-import {DraftStore, React, Actions, NylasAPI, APIError, DatabaseStore, Message, Rx} from 'nylas-exports'
+import {React, Actions, NylasAPI, APIError} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
 import classnames from 'classnames'
+import _ from 'underscore'
 
 export default class MetadataComposerToggleButton extends React.Component {
 
@@ -15,7 +16,9 @@ export default class MetadataComposerToggleButton extends React.Component {
     metadataEnabledValue: React.PropTypes.object.isRequired,
     stickyToggle: React.PropTypes.bool,
     errorMessage: React.PropTypes.func.isRequired,
-    draftClientId: React.PropTypes.string.isRequired,
+
+    draft: React.PropTypes.object.isRequired,
+    session: React.PropTypes.object.isRequired,
   };
 
   static defaultProps = {
@@ -24,99 +27,85 @@ export default class MetadataComposerToggleButton extends React.Component {
 
   constructor(props) {
     super(props);
+
     this.state = {
-      enabled: false,
-      isSetup: false,
+      pending: false,
     };
   }
 
-  componentDidMount() {
-    this._mounted = true;
-    const query = DatabaseStore.findBy(Message, {clientId: this.props.draftClientId});
-    this._subscription = Rx.Observable.fromQuery(query).subscribe(this._onDraftChange)
-  }
-
-  componentWillUnmount() {
-    this._mounted = false
-    this._subscription.dispose();
+  componentWillMount() {
+    if (this._isEnabledByDefault() && !this._isEnabled()) {
+      this._setEnabled(true);
+    }
   }
 
   _configKey() {
     return `plugins.${this.props.pluginId}.defaultOn`
   }
 
-  _isDefaultOn() {
+  _isEnabled() {
+    const {pluginId, draft, metadataEnabledValue} = this.props;
+    const value = draft.metadataForPluginId(pluginId);
+    return _.isEqual(value, metadataEnabledValue) || _.isMatch(value, metadataEnabledValue);
+  }
+
+  _isEnabledByDefault() {
     return NylasEnv.config.get(this._configKey())
   }
 
-  _onDraftChange = (draft)=> {
-    if (!this._mounted || !draft) { return; }
-    const metadata = draft.metadataForPluginId(this.props.pluginId);
-    if (!metadata) {
-      if (!this.state.isSetup) {
-        if (this._isDefaultOn()) {
-          this._setEnabled(true)
-        }
-        this.setState({isSetup: true})
-      }
-    } else {
-      this.setState({enabled: true, isSetup: true});
-    }
-  };
-
   _setEnabled(enabled) {
-    const metadataValue = enabled ? this.props.metadataEnabledValue : null;
-    this.setState({enabled, pending: true});
+    const {pluginId, pluginName, draft, session, metadataEnabledValue} = this.props;
 
-    return DraftStore.sessionForClientId(this.props.draftClientId).then((session)=> {
-      const draft = session.draft();
+    const metadataValue = enabled ? metadataEnabledValue : null;
+    this.setState({pending: true});
 
-      return NylasAPI.authPlugin(this.props.pluginId, this.props.pluginName, draft.accountId)
-      .then(() => {
-        Actions.setMetadata(draft, this.props.pluginId, metadataValue);
-      })
-      .catch((error) => {
-        this.setState({enabled: false});
+    NylasAPI.authPlugin(pluginId, pluginName, draft.accountId)
+    .then(() => {
+      session.changes.addPluginMetadata(pluginId, metadataValue);
+    })
+    .catch((error) => {
+      const {stickyToggle, errorMessage} = this.props;
 
-        if (this.props.stickyToggle) {
-          NylasEnv.config.set(this._configKey(), false)
-        }
+      if (stickyToggle) {
+        NylasEnv.config.set(this._configKey(), false)
+      }
 
-        let title = "Error"
-        if (!(error instanceof APIError)) {
-          NylasEnv.reportError(error);
-        } else if (error.statusCode === 400) {
-          NylasEnv.reportError(error);
-        } else if (NylasAPI.TimeoutErrorCodes.includes(error.statusCode)) {
-          title = "Offline"
-        }
+      let title = "Error"
+      if (!(error instanceof APIError)) {
+        NylasEnv.reportError(error);
+      } else if (error.statusCode === 400) {
+        NylasEnv.reportError(error);
+      } else if (NylasAPI.TimeoutErrorCodes.includes(error.statusCode)) {
+        title = "Offline"
+      }
 
-        NylasEnv.showErrorDialog({title, message: this.props.errorMessage(error)});
-      })
+      NylasEnv.showErrorDialog({title, message: errorMessage(error)});
     }).finally(() => {
       this.setState({pending: false})
     });
   }
 
   _onClick = () => {
-    // Toggle.
     if (this.state.pending) { return; }
-    const dir = this.state.enabled ? "Disabled" : "Enabled"
+
+    const enabled = this._isEnabled();
+    const dir = enabled ? "Disabled" : "Enabled"
     Actions.recordUserEvent(`${this.props.pluginName} ${dir}`)
     if (this.props.stickyToggle) {
       NylasEnv.config.set(this._configKey(), !this.state.enabled)
     }
-    this._setEnabled(!this.state.enabled)
+    this._setEnabled(!enabled);
   };
 
   render() {
-    const title = this.props.title(this.state.enabled)
+    const enabled = this._isEnabled();
+    const title = this.props.title(enabled);
 
     const className = classnames({
       "btn": true,
       "btn-toolbar": true,
       "btn-pending": this.state.pending,
-      "btn-enabled": this.state.enabled,
+      "btn-enabled": enabled,
     });
 
     const attrs = {}

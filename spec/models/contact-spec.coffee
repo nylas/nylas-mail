@@ -116,6 +116,22 @@ describe "Contact", ->
     expect(c8.firstName()).toBe "Mike"
     expect(c8.lastName()).toBe "K@ylor"
 
+  it "properly parses names with last, first (description)", ->
+    c1 = new Contact {name: "Smith, Bob"}
+    expect(c1.firstName()).toBe "Bob"
+    expect(c1.lastName()).toBe "Smith"
+    expect(c1.fullName()).toBe "Bob Smith"
+
+    c2 = new Contact {name: "von Smith, Ricky Bobby"}
+    expect(c2.firstName()).toBe "Ricky Bobby"
+    expect(c2.lastName()).toBe "von Smith"
+    expect(c2.fullName()).toBe "Ricky Bobby von Smith"
+
+    c3 = new Contact {name: "von Smith, Ricky Bobby (Awesome Employee)"}
+    expect(c3.firstName()).toBe "Ricky Bobby"
+    expect(c3.lastName()).toBe "von Smith (Awesome Employee)"
+    expect(c3.fullName()).toBe "Ricky Bobby von Smith (Awesome Employee)"
+
   it "should properly return `You` as the display name for the current user", ->
     c1 = new Contact {name: " Test Monkey", email: @account.emailAddress}
     expect(c1.displayName()).toBe "You"

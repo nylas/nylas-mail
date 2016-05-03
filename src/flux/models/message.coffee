@@ -157,10 +157,20 @@ class Message extends ModelWithMetadata
 
   @additionalSQLiteConfig:
     setup: ->
-      ['CREATE INDEX IF NOT EXISTS MessageListThreadIndex ON Message(thread_id, date ASC)',
-       'CREATE INDEX IF NOT EXISTS MessageListDraftIndex ON Message(account_id, draft)',
-       'CREATE UNIQUE INDEX IF NOT EXISTS MessageDraftIndex ON Message(client_id)',
-       'CREATE UNIQUE INDEX IF NOT EXISTS MessageBodyIndex ON MessageBody(id)']
+      [
+        # For thread view
+        'CREATE INDEX IF NOT EXISTS MessageListThreadIndex ON Message(thread_id, date ASC)',
+
+        # For draft lookups
+        'CREATE UNIQUE INDEX IF NOT EXISTS MessageDraftIndex ON Message(client_id)',
+
+        # Partial indexes for draft
+        'CREATE INDEX IF NOT EXISTS MessageListDraftIndex ON Message(account_id, date DESC) WHERE draft = 1',
+        'CREATE INDEX IF NOT EXISTS MessageListUnifiedDraftIndex ON Message(date DESC) WHERE draft = 1',
+
+        # MessageBody lookups
+        'CREATE UNIQUE INDEX IF NOT EXISTS MessageBodyIndex ON MessageBody(id)'
+      ]
 
   constructor: ->
     super
@@ -212,12 +222,15 @@ class Message extends ModelWithMetadata
   # Public: Returns a set of uniqued message participants by combining the
   # `to`, `cc`, and `from` fields.
   participants: ->
-    participants = {}
-    contacts = _.union((@to ? []), (@cc ? []), (@from ? []))
-    for contact in contacts
-      if contact? and contact.email?.length > 0
-        participants["#{(contact?.email ? "").toLowerCase().trim()} #{(contact?.name ? "").toLowerCase().trim()}"] = contact if contact?
-    return _.values(participants)
+    seen = {}
+    all = []
+    for contact in [].concat(@to, @cc, @from)
+      continue unless contact.email
+      key = contact.toString().trim().toLowerCase()
+      continue if seen[key]
+      seen[key] = true
+      all.push(contact)
+    all
 
   # Public: Returns a hash with `to` and `cc` keys for authoring a new draft in
   # "reply all" to this message. This method takes into account whether the

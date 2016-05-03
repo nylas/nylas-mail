@@ -367,6 +367,7 @@ class Actions
   ```
   ###
   @sendDraft: ActionScopeWindow
+  @sendDrafts: ActionScopeWindow
   @ensureDraftSynced: ActionScopeWindow
 
   ###

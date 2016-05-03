@@ -86,16 +86,13 @@
   &.popout  {
     visibility: visible;
     opacity: 1;
-    animation: popout-animation 300ms ease;
+    animation: popout-animation 240ms cubic-bezier(.56,.25,.25,1.56);
   }
   @keyframes popout-animation {
     from {
       visibility: hidden;
       opacity: 0;
-      transform: scale(0);
-    }
-    80% {
-      transform: scale(1.1);
+      transform: scale(0.87);
     }
     to {
       visibility: visible;

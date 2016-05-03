@@ -123,9 +123,9 @@ class PreferencesAccountDetails extends Component {
     if (aliases.length > 0) {
       return (
         <div className="default-alias-selector">
-          <span>Default alias: </span>
+          <div>Default for new messages:</div>
           <select value={defaultAlias} onChange={this._onDefaultAliasSelected}>
-            <option>None</option>
+            <option value="None">{`${account.name} <${account.emailAddress}>`}</option>
             {aliases.map((alias, idx)=> <option key={`alias-${idx}`} value={alias}>{alias}</option>)}
           </select>
         </div>

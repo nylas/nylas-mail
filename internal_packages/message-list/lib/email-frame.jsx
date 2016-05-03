@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from "underscore";
 import {EventedIFrame} from 'nylas-component-kit';
-import {Utils, QuotedHTMLTransformer} from 'nylas-exports';
+import {Utils, QuotedHTMLTransformer, MessageStore} from 'nylas-exports';
 import {autolink} from './autolinker';
 import {autoscaleImages} from './autoscale-images';
 import EmailFrameStylesStore from './email-frame-styles-store';
@@ -12,6 +12,7 @@ export default class EmailFrame extends React.Component {
 
   static propTypes = {
     content: React.PropTypes.string.isRequired,
+    message: React.PropTypes.object,
     showQuotedText: React.PropTypes.bool,
   };
 
@@ -68,6 +69,20 @@ export default class EmailFrame extends React.Component {
 
     autolink(doc, {async: true});
     autoscaleImages(doc);
+
+    for (const extension of MessageStore.extensions()) {
+      if (!extension.renderedMessageBodyIntoDocument) {
+        continue;
+      }
+      try {
+        extension.renderedMessageBodyIntoDocument({
+          document: doc,
+          message: this.props.message,
+        });
+      } catch (e) {
+        NylasEnv.reportError(e);
+      }
+    }
 
     // Notify the EventedIFrame that we've replaced it's document (with `open`)
     // so it can attach event listeners again.

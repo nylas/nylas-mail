@@ -18,8 +18,8 @@ class ArchiveButton extends React.Component
     items: React.PropTypes.array.isRequired
 
   render: ->
-    canArchiveThreads = FocusedPerspectiveStore.current().canArchiveThreads(@props.items)
-    return <span /> unless canArchiveThreads
+    allowed = FocusedPerspectiveStore.current().canArchiveThreads(@props.items)
+    return <span /> unless allowed
 
     <button
       tabIndex={-1}
@@ -38,6 +38,7 @@ class ArchiveButton extends React.Component
     event.stopPropagation()
     return
 
+
 class TrashButton extends React.Component
   @displayName: 'TrashButton'
   @containerRequired: false
@@ -46,8 +47,8 @@ class TrashButton extends React.Component
     items: React.PropTypes.array.isRequired
 
   render: ->
-    canTrashThreads = FocusedPerspectiveStore.current().canTrashThreads(@props.items)
-    return <span /> unless canTrashThreads
+    allowed = FocusedPerspectiveStore.current().canMoveThreadsTo(@props.items, 'trash')
+    return <span /> unless allowed
 
     <button tabIndex={-1}
             style={order:-106}
@@ -66,6 +67,34 @@ class TrashButton extends React.Component
     return
 
 
+class MarkAsSpamButton extends React.Component
+  @displayName: 'MarkAsSpamButton'
+  @containerRequired: false
+
+  @propTypes:
+    items: React.PropTypes.array.isRequired
+
+  render: ->
+    allowed = FocusedPerspectiveStore.current().canMoveThreadsTo(@props.items, 'spam')
+    return <span /> unless allowed
+
+    <button tabIndex={-1}
+            style={order:-105}
+            className="btn btn-toolbar"
+            title="Mark as Spam"
+            onClick={@_onClick}>
+      <RetinaImg name="toolbar-spam.png" mode={RetinaImg.Mode.ContentIsMask} />
+    </button>
+
+  _onClick: (event) =>
+    tasks = TaskFactory.tasksForMarkingAsSpam
+      threads: @props.items
+    Actions.queueTasks(tasks)
+    Actions.popSheet()
+    event.stopPropagation()
+    return
+
+
 class ToggleStarredButton extends React.Component
   @displayName: 'ToggleStarredButton'
   @containerRequired: false
@@ -75,15 +104,15 @@ class ToggleStarredButton extends React.Component
 
   render: ->
     postClickStarredState = _.every @props.items, (t) -> t.starred is false
-    title = "Remove stars from all"
+    title = "Unstar"
     imageName = "toolbar-star-selected.png"
 
     if postClickStarredState
-      title = "Star all"
+      title = "Star"
       imageName = "toolbar-star.png"
 
     <button tabIndex={-1}
-            style={order:-104}
+            style={order:-103}
             className="btn btn-toolbar"
             title={title}
             onClick={@_onStar}>
@@ -109,7 +138,7 @@ class ToggleUnreadButton extends React.Component
     fragment = if postClickUnreadState then "unread" else "read"
 
     <button tabIndex={-1}
-            style={order:-105}
+            style={order:-104}
             className="btn btn-toolbar"
             title="Mark as #{fragment}"
             onClick={@_onClick}>
@@ -168,7 +197,7 @@ DownButton = React.createClass
 
   _onClick: ->
     return if @state.disabled
-    NylasEnv.commands.dispatch(document.body, 'core:next-item')
+    NylasEnv.commands.dispatch('core:next-item')
     return
 
   _getStateFromStores: ->
@@ -192,7 +221,7 @@ UpButton = React.createClass
 
   _onClick: ->
     return if @state.disabled
-    NylasEnv.commands.dispatch(document.body, 'core:previous-item')
+    NylasEnv.commands.dispatch('core:previous-item')
     return
 
   _getStateFromStores: ->
@@ -205,6 +234,7 @@ module.exports = {
   UpButton,
   DownButton,
   TrashButton,
+  MarkAsSpamButton,
   ArchiveButton,
   ToggleStarredButton,
   ToggleUnreadButton

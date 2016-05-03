@@ -1,5 +1,4 @@
 path = require 'path'
-{$, $$} = require '../src/space-pen-extensions'
 Package = require '../src/package'
 DatabaseStore = require '../src/flux/stores/database-store'
 {Disposable} = require 'event-kit'
@@ -225,40 +224,32 @@ describe "PackageManager", ->
 
     describe "keymap loading", ->
       describe "when the metadata does not contain a 'keymaps' manifest", ->
-        it "loads all the .cson/.json files in the keymaps directory", ->
-          element1 = $$ -> @div class: 'test-1'
-          element2 = $$ -> @div class: 'test-2'
-          element3 = $$ -> @div class: 'test-3'
-
-          expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element1[0])).toHaveLength 0
-          expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element2[0])).toHaveLength 0
-          expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element3[0])).toHaveLength 0
+        it "loads all the .json files in the keymaps directory", ->
+          expect(NylasEnv.keymaps.getBindingsForCommand('my-package:command-a')).toHaveLength 0
+          expect(NylasEnv.keymaps.getBindingsForCommand('my-package:command-b')).toHaveLength 0
 
           waitsForPromise ->
             NylasEnv.packages.activatePackage("package-with-keymaps")
 
           runs ->
-            expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element1[0])[0].command).toBe "test-1"
-            expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element2[0])[0].command).toBe "test-2"
-            expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element3[0])).toHaveLength 0
+            expect(NylasEnv.keymaps.getBindingsForCommand('my-package:command-a')).toHaveLength 1
+            expect(NylasEnv.keymaps.getBindingsForCommand('my-package:command-b')).toHaveLength 1
 
       describe "when the metadata contains a 'keymaps' manifest", ->
         it "loads only the keymaps specified by the manifest, in the specified order", ->
-          element1 = $$ -> @div class: 'test-1'
-          element3 = $$ -> @div class: 'test-3'
-
-          expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element1[0])).toHaveLength 0
+          expect(NylasEnv.keymaps.getBindingsForCommand('my-package:command-a')).toHaveLength 0
+          expect(NylasEnv.keymaps.getBindingsForCommand('my-package:command-b')).toHaveLength 0
 
           waitsForPromise ->
             NylasEnv.packages.activatePackage("package-with-keymaps-manifest")
 
           runs ->
-            expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-z', target:element1[0])[0].command).toBe 'keymap-1'
-            expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-n', target:element1[0])[0].command).toBe 'keymap-2'
-            expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-y', target:element3[0])).toHaveLength 0
+            expect(NylasEnv.keymaps.getBindingsForCommand('my-package:command-a')).toHaveLength 1
+            expect(NylasEnv.keymaps.getBindingsForCommand('my-package:command-b')).toHaveLength 1
 
       describe "when the keymap file is empty", ->
         it "does not throw an error on activation", ->
+          spyOn(console, 'error')
           waitsForPromise ->
             NylasEnv.packages.activatePackage("package-with-empty-keymap")
 
@@ -270,21 +261,17 @@ describe "PackageManager", ->
         NylasEnv.menu.template = []
 
       describe "when the metadata does not contain a 'menus' manifest", ->
-        it "loads all the .cson/.json files in the menus directory", ->
-          element = ($$ -> @div class: 'test-1')[0]
-
+        it "loads all the .json files in the menus directory", ->
           waitsForPromise ->
             NylasEnv.packages.activatePackage("package-with-menus")
 
           runs ->
             expect(NylasEnv.menu.template.length).toBe 2
-            expect(NylasEnv.menu.template[0].label).toBe "Second to Last"
-            expect(NylasEnv.menu.template[1].label).toBe "Last"
+            expect(NylasEnv.menu.template[1].label).toBe "Second to Last"
+            expect(NylasEnv.menu.template[0].label).toBe "Last"
 
       describe "when the metadata contains a 'menus' manifest", ->
         it "loads only the menus specified by the manifest, in the specified order", ->
-          element = ($$ -> @div class: 'test-1')[0]
-
           waitsForPromise ->
             NylasEnv.packages.activatePackage("package-with-menus-manifest")
 
@@ -322,7 +309,7 @@ describe "PackageManager", ->
             expect(NylasEnv.themes.stylesheetElementForId(one)).not.toBeNull()
             expect(NylasEnv.themes.stylesheetElementForId(two)).not.toBeNull()
             expect(NylasEnv.themes.stylesheetElementForId(three)).toBeNull()
-            expect($('#jasmine-content').css('font-size')).toBe '1px'
+            expect(window.getComputedStyle(document.getElementById('jasmine-content')).fontSize).toBe '1px'
 
       describe "when the metadata does not contain a 'styleSheets' manifest", ->
         it "loads all style sheets from the styles directory", ->
@@ -349,7 +336,7 @@ describe "PackageManager", ->
             expect(NylasEnv.themes.stylesheetElementForId(two)).not.toBeNull()
             expect(NylasEnv.themes.stylesheetElementForId(three)).not.toBeNull()
             expect(NylasEnv.themes.stylesheetElementForId(four)).not.toBeNull()
-            expect($('#jasmine-content').css('font-size')).toBe '3px'
+            expect(window.getComputedStyle(document.getElementById('jasmine-content')).fontSize).toBe '3px'
 
       it "assigns the stylesheet's context based on the filename", ->
         waitsForPromise ->
@@ -376,55 +363,6 @@ describe "PackageManager", ->
               count++
 
           expect(count).toBe 4
-
-    describe "scoped-property loading", ->
-      it "loads the scoped properties", ->
-        waitsForPromise ->
-          NylasEnv.packages.activatePackage("package-with-settings")
-
-        runs ->
-          expect(NylasEnv.config.get 'editor.increaseIndentPattern', scope: ['.source.omg']).toBe '^a'
-
-    describe "service registration", ->
-      it "registers the package's provided and consumed services", ->
-        consumerModule = require "./fixtures/packages/package-with-consumed-services"
-        firstServiceV3Disposed = false
-        firstServiceV4Disposed = false
-        secondServiceDisposed = false
-        spyOn(consumerModule, 'consumeFirstServiceV3').andReturn(new Disposable -> firstServiceV3Disposed = true)
-        spyOn(consumerModule, 'consumeFirstServiceV4').andReturn(new Disposable -> firstServiceV4Disposed = true)
-        spyOn(consumerModule, 'consumeSecondService').andReturn(new Disposable -> secondServiceDisposed = true)
-
-        waitsForPromise ->
-          NylasEnv.packages.activatePackage("package-with-consumed-services")
-
-        waitsForPromise ->
-          NylasEnv.packages.activatePackage("package-with-provided-services")
-
-        runs ->
-          expect(consumerModule.consumeFirstServiceV3).toHaveBeenCalledWith('first-service-v3')
-          expect(consumerModule.consumeFirstServiceV4).toHaveBeenCalledWith('first-service-v4')
-          expect(consumerModule.consumeSecondService).toHaveBeenCalledWith('second-service')
-
-          consumerModule.consumeFirstServiceV3.reset()
-          consumerModule.consumeFirstServiceV4.reset()
-          consumerModule.consumeSecondService.reset()
-
-          NylasEnv.packages.deactivatePackage("package-with-provided-services")
-
-          expect(firstServiceV3Disposed).toBe true
-          expect(firstServiceV4Disposed).toBe true
-          expect(secondServiceDisposed).toBe true
-
-          NylasEnv.packages.deactivatePackage("package-with-consumed-services")
-
-        waitsForPromise ->
-          NylasEnv.packages.activatePackage("package-with-provided-services")
-
-        runs ->
-          expect(consumerModule.consumeFirstServiceV3).not.toHaveBeenCalled()
-          expect(consumerModule.consumeFirstServiceV4).not.toHaveBeenCalled()
-          expect(consumerModule.consumeSecondService).not.toHaveBeenCalled()
 
   describe "::deactivatePackage(id)", ->
     afterEach ->
@@ -503,9 +441,11 @@ describe "PackageManager", ->
         NylasEnv.packages.activatePackage('package-with-keymaps')
 
       runs ->
+        expect(NylasEnv.keymaps.getBindingsForCommand('my-package:command-a')).toHaveLength 1
+        expect(NylasEnv.keymaps.getBindingsForCommand('my-package:command-b')).toHaveLength 1
         NylasEnv.packages.deactivatePackage('package-with-keymaps')
-        expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-z', target: ($$ -> @div class: 'test-1')[0])).toHaveLength 0
-        expect(NylasEnv.keymaps.findKeyBindings(keystrokes:'ctrl-z', target: ($$ -> @div class: 'test-2')[0])).toHaveLength 0
+        expect(NylasEnv.keymaps.getBindingsForCommand('my-package:command-a')).toHaveLength 0
+        expect(NylasEnv.keymaps.getBindingsForCommand('my-package:command-b')).toHaveLength 0
 
     it "removes the package's stylesheets", ->
       waitsForPromise ->
@@ -516,18 +456,9 @@ describe "PackageManager", ->
         one = require.resolve("./fixtures/packages/package-with-style-sheets-manifest/styles/1.css")
         two = require.resolve("./fixtures/packages/package-with-style-sheets-manifest/styles/2.less")
         three = require.resolve("./fixtures/packages/package-with-style-sheets-manifest/styles/3.css")
-        expect(NylasEnv.themes.stylesheetElementForId(one)).not.toExist()
-        expect(NylasEnv.themes.stylesheetElementForId(two)).not.toExist()
-        expect(NylasEnv.themes.stylesheetElementForId(three)).not.toExist()
-
-    it "removes the package's scoped-properties", ->
-      waitsForPromise ->
-        NylasEnv.packages.activatePackage("package-with-settings")
-
-      runs ->
-        expect(NylasEnv.config.get 'editor.increaseIndentPattern', scope: ['.source.omg']).toBe '^a'
-        NylasEnv.packages.deactivatePackage("package-with-settings")
-        expect(NylasEnv.config.get 'editor.increaseIndentPattern', scope: ['.source.omg']).toBeUndefined()
+        expect(NylasEnv.themes.stylesheetElementForId(one)).toBe(null)
+        expect(NylasEnv.themes.stylesheetElementForId(two)).toBe(null)
+        expect(NylasEnv.themes.stylesheetElementForId(three)).toBe(null)
 
     it "invokes ::onDidDeactivatePackage listeners with the deactivated package", ->
       waitsForPromise ->

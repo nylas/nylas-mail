@@ -7,17 +7,12 @@ require '../src/window'
 NylasEnv.restoreWindowDimensions()
 
 require 'jasmine-json'
-require './jasmine-jquery'
 
 Grim = require 'grim'
 TimeOverride = require './time-override'
 KeymapManager = require '../src/keymap-manager'
 
-# FIXME: Remove jquery from this
-{$} = require '../src/space-pen-extensions'
-
 Config = require '../src/config'
-ServiceHub = require 'service-hub'
 pathwatcher = require 'pathwatcher'
 {clipboard} = require 'electron'
 
@@ -35,15 +30,15 @@ NylasEnv.themes.requireStylesheet '../static/jasmine'
 NylasEnv.themes.initialLoadComplete = true
 
 NylasEnv.keymaps.loadBundledKeymaps()
-keyBindingsToRestore = NylasEnv.keymaps.getKeyBindings()
-commandsToRestore = NylasEnv.commands.getSnapshot()
 styleElementsToRestore = NylasEnv.styles.getSnapshot()
 
 window.addEventListener 'core:close', -> window.close()
 window.addEventListener 'beforeunload', ->
   NylasEnv.storeWindowDimensions()
   NylasEnv.saveSync()
-$('html,body').css('overflow', 'auto')
+
+document.querySelector('html').style.overflow = 'initial'
+document.querySelector('body').style.overflow = 'initial'
 
 # Allow document.title to be assigned in specs without screwing up spec window title
 documentTitle = null
@@ -114,6 +109,15 @@ window.TEST_ACCOUNT_NAME = "Nylas Test"
 window.TEST_PLUGIN_ID = "test-plugin-id-123"
 window.TEST_ACCOUNT_ALIAS_EMAIL = "tester+alternative@nylas.com"
 
+window.TEST_TIME_ZONE = "America/Los_Angeles"
+moment = require('moment-timezone')
+# moment-round upon require patches `moment` with new functions.
+require('moment-round')
+
+# This date was chosen because it's close to a DST boundary
+window.testNowMoment = ->
+  moment.tz("2016-03-15 12:00", TEST_TIME_ZONE)
+
 beforeEach ->
   NylasEnv.testOrganizationUnit = null
   Grim.clearDeprecations() if isCoreSpec
@@ -136,11 +140,7 @@ beforeEach ->
   TaskQueue._completed = []
   TaskQueue._onlineStatus = true
 
-  $.fx.off = true
   documentTitle = null
-  NylasEnv.packages.serviceHub = new ServiceHub
-  NylasEnv.keymaps.keyBindings = _.clone(keyBindingsToRestore)
-  NylasEnv.commands.restoreSnapshot(commandsToRestore)
   NylasEnv.styles.restoreSnapshot(styleElementsToRestore)
   NylasEnv.workspaceViewParentSelector = '#jasmine-content'
 
@@ -240,8 +240,8 @@ afterEach ->
 
   delete NylasEnv.state?.packageStates
 
-  $('#jasmine-content').empty() unless window.debugContent
-
+  unless window.debugContent
+    document.getElementById('jasmine-content').innerHTML = ''
   ReactTestUtils.unmountAll()
 
   jasmine.unspy(NylasEnv, 'saveSync')
@@ -351,8 +351,8 @@ window.keydownEvent = (key, properties={}) ->
   originalEventProperties.target = properties.target?[0] ? properties.target
   originalEventProperties.which = properties.which
   originalEvent = KeymapManager.keydownEvent(key, originalEventProperties)
-  properties = $.extend({originalEvent}, properties)
-  $.Event("keydown", properties)
+  properties = _.extend({originalEvent}, properties)
+  new CustomEvent('keydown', properties)
 
 window.mouseEvent = (type, properties) ->
   if properties.point
@@ -361,7 +361,7 @@ window.mouseEvent = (type, properties) ->
     properties.pageX = left + 1
     properties.pageY = top + 1
   properties.originalEvent ?= {detail: 1}
-  $.Event type, properties
+  new CustomEvent(type, properties)
 
 window.clickEvent = (properties={}) ->
   window.mouseEvent("click", properties)

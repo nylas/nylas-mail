@@ -2,17 +2,15 @@ import _ from 'underscore';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import AccountContactField from './account-contact-field';
-import ParticipantsTextField from './participants-text-field';
 import {Utils, Actions, AccountStore} from 'nylas-exports';
-import {KeyCommandsRegion} from 'nylas-component-kit';
+import {KeyCommandsRegion, ParticipantsTextField, ListensToFluxStore} from 'nylas-component-kit';
 
 import CollapsedParticipants from './collapsed-participants';
 import ComposerHeaderActions from './composer-header-actions';
 
-import ConnectToFlux from './decorators/connect-to-flux';
 import Fields from './fields';
 
-const ScopedFromField = ConnectToFlux(AccountContactField, {
+const ScopedFromField = ListensToFluxStore(AccountContactField, {
   stores: [AccountStore],
   getStateFromStores: (props) => {
     const savedOrReplyToThread = !!props.draft.threadId;
@@ -28,8 +26,8 @@ export default class ComposerHeader extends React.Component {
 
   static propTypes = {
     draft: React.PropTypes.object.isRequired,
-
     session: React.PropTypes.object.isRequired,
+    initiallyFocused: React.PropTypes.bool,
   }
 
   static contextTypes = {
@@ -38,12 +36,12 @@ export default class ComposerHeader extends React.Component {
 
   constructor(props = {}) {
     super(props)
-    this.state = this._initialStateForDraft(this.props.draft);
+    this.state = this._initialStateForDraft(this.props.draft, props);
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.session !== nextProps.session) {
-      this.setState(this._initialStateForDraft(nextProps.draft));
+      this.setState(this._initialStateForDraft(nextProps.draft, nextProps));
     } else {
       this._ensureFilledFieldsEnabled(nextProps.draft);
     }
@@ -83,7 +81,7 @@ export default class ComposerHeader extends React.Component {
     }
   }
 
-  _initialStateForDraft(draft) {
+  _initialStateForDraft(draft, props) {
     const enabledFields = [Fields.To];
     if (!_.isEmpty(draft.cc)) {
       enabledFields.push(Fields.Cc);
@@ -97,8 +95,8 @@ export default class ComposerHeader extends React.Component {
     }
 
     return {
-      enabledFields: enabledFields,
-      participantsFocused: false,
+      enabledFields,
+      participantsFocused: props.initiallyFocused,
     };
   }
 
@@ -149,6 +147,15 @@ export default class ComposerHeader extends React.Component {
     });
   }
 
+  _onDragCollapsedParticipants({isDropping}) {
+    if (isDropping) {
+      this.setState({
+        participantsFocused: true,
+        enabledFields: [...Fields.ParticipantFields, Fields.Subject],
+      })
+    }
+  }
+
   _renderParticipants = () => {
     let content = null;
     if (this.state.participantsFocused) {
@@ -159,6 +166,7 @@ export default class ComposerHeader extends React.Component {
           to={this.props.draft.to}
           cc={this.props.draft.cc}
           bcc={this.props.draft.bcc}
+          onDragChange={::this._onDragCollapsedParticipants}
         />
       )
     }
@@ -211,7 +219,10 @@ export default class ComposerHeader extends React.Component {
         field="to"
         change={this._onChangeParticipants}
         className="composer-participant-field to-field"
-        participants={{to, cc, bcc}} />
+        participants={{to, cc, bcc}}
+        draft={this.props.draft}
+        session={this.props.session}
+      />
     )
 
     if (this.state.enabledFields.includes(Fields.Cc)) {
@@ -223,7 +234,10 @@ export default class ComposerHeader extends React.Component {
           change={this._onChangeParticipants}
           onEmptied={ () => this.hideField(Fields.Cc) }
           className="composer-participant-field cc-field"
-          participants={{to, cc, bcc}} />
+          participants={{to, cc, bcc}}
+          draft={this.props.draft}
+          session={this.props.session}
+        />
       )
     }
 
@@ -236,7 +250,10 @@ export default class ComposerHeader extends React.Component {
           change={this._onChangeParticipants}
           onEmptied={ () => this.hideField(Fields.Bcc) }
           className="composer-participant-field bcc-field"
-          participants={{to, cc, bcc}} />
+          participants={{to, cc, bcc}}
+          draft={this.props.draft}
+          session={this.props.session}
+        />
       )
     }
 

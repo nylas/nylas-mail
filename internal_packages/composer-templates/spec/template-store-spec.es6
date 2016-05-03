@@ -1,7 +1,9 @@
 import fs from 'fs';
-import shell from 'shell';
+import { remote } from 'electron';
 import {Message, DraftStore} from 'nylas-exports';
 import TemplateStore from '../lib/template-store';
+
+const { shell } = remote;
 
 const stubTemplatesDir = '~/.nylas/templates';
 

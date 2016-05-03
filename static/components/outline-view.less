@@ -79,6 +79,10 @@
     line-height: @line-height-large;
     clear: both;
 
+    // The overflow needs to be `hidden` in order for the name to flex
+    // fit within the contained space.
+    overflow: hidden;
+
     img.content-mask {
       background-color: @text-color-subtle;
       vertical-align: text-bottom;

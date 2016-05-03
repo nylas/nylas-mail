@@ -1,6 +1,7 @@
 SystemTrayManager = require './system-tray-manager'
 NylasWindow = require './nylas-window'
 WindowManager = require './window-manager'
+FileListCache = require './file-list-cache'
 ApplicationMenu = require './application-menu'
 AutoUpdateManager = require './auto-update-manager'
 NylasProtocolHandler = require './nylas-protocol-handler'
@@ -64,6 +65,8 @@ class Application
   constructor: (options) ->
     {@resourcePath, @configDirPath, @version, @devMode, @specMode, @safeMode} = options
 
+    @fileListCache = new FileListCache(options)
+
     # Normalize to make sure drive letter case is consistent on Windows
     @resourcePath = path.normalize(@resourcePath) if @resourcePath
 
@@ -71,6 +74,17 @@ class Application
 
     @sharedFileManager = new SharedFileManager()
     @nylasProtocolHandler = new NylasProtocolHandler(@resourcePath, @safeMode)
+
+
+    # Temporary as we move away from cson
+    CSON = require 'season'
+    oldConfigFilePath = fs.resolve(@configDirPath, 'config.cson')
+    newConfigFilePath = path.join(@configDirPath, 'config.json')
+    if oldConfigFilePath
+      userConfig = CSON.readFileSync(oldConfigFilePath)
+      fs.writeFileSync(newConfigFilePath, JSON.stringify(userConfig, null, 2))
+      fs.unlinkSync(oldConfigFilePath)
+    # End temporary
 
     Config = require '../config'
     @config = new Config({@configDirPath, @resourcePath})
@@ -115,9 +129,9 @@ class Application
       @devMode = true
 
     initializeInBackground = options.background ? false
-    @windowManager = new WindowManager({@resourcePath, @configDirPath, @config, @devMode, @safeMode, initializeInBackground})
     @autoUpdateManager = new AutoUpdateManager(@version, @config, @specMode)
     @applicationMenu = new ApplicationMenu(@version)
+    @windowManager = new WindowManager({@resourcePath, @configDirPath, @config, @devMode, @safeMode, initializeInBackground})
     @_databasePhase = 'setup'
 
     @systemTrayManager = new SystemTrayManager(process.platform, @)
@@ -129,7 +143,7 @@ class Application
     @launchWithOptions(options)
 
   getMainNylasWindow: ->
-    @windowManager.mainWindow()
+    @windowManager.get(WindowManager.MAIN_WINDOW)
 
   getMainWindow: ->
     @getMainNylasWindow().browserWindow
@@ -202,20 +216,26 @@ class Application
   openWindowsForTokenState: (loadingMessage) =>
     hasAccount = @config.get('nylas.accounts')?.length > 0
     if hasAccount
-      @windowManager.showMainWindow(loadingMessage)
-      @windowManager.ensureWorkWindow()
+      @windowManager.ensureWindow(WindowManager.MAIN_WINDOW, {loadingMessage})
+      @windowManager.ensureWindow(WindowManager.WORK_WINDOW)
     else
-      @windowManager.ensureOnboardingWindow(welcome: true)
+      @windowManager.ensureWindow(WindowManager.ONBOARDING_WINDOW, {
+        title: "Welcome to N1"
+        windowProps: page: "welcome"
+      })
       # The onboarding window automatically shows when it's ready
 
   _resetConfigAndRelaunch: =>
     @setDatabasePhase('close')
-    @windowManager.closeAllWindows()
+    @windowManager.destroyAllWindows()
     @_deleteDatabase =>
       @config.set('nylas', null)
       @config.set('edgehill', null)
       @setDatabasePhase('setup')
-      @windowManager.ensureOnboardingWindow(welcome: true)
+      @windowManager.ensureWindow(WindowManager.ONBOARDING_WINDOW, {
+        title: "Welcome to N1"
+        windowProps: page: "welcome"
+      })
 
   _deleteDatabase: (callback) ->
     @deleteFileWithRetry path.join(@configDirPath,'edgehill.db'), callback
@@ -232,19 +252,23 @@ class Application
     return if phase is @_databasePhase
 
     @_databasePhase = phase
-    @windowManager.windows().forEach (nylasWindow) ->
-      return unless nylasWindow.browserWindow.webContents
-      nylasWindow.browserWindow.webContents.send('database-phase-change', phase)
+    @windowManager.sendToAllWindows("database-phase-change", {}, phase)
 
   rebuildDatabase: =>
-    return if @_databasePhase is 'close'
-    @setDatabasePhase('close')
-    @windowManager.closeAllWindows()
-
-    loadingMessage = "Please wait while we prepare new features."
-    @_deleteDatabase =>
-      @setDatabasePhase('setup')
-      @openWindowsForTokenState(loadingMessage)
+    # We need to set a timeout so `rebuildDatabases` immediately returns.
+    # If we don't immediately return the main window caller wants to wait
+    # for this function to finish so it can get the return value via ipc.
+    # Unfortunately since this function destroys the main window
+    # immediately, an error will be thrown.
+    setTimeout( =>
+      return if @_databasePhase is 'close'
+      @setDatabasePhase('close')
+      @windowManager.destroyAllWindows()
+      loadingMessage = "Please wait while we prepare new features."
+      @_deleteDatabase =>
+        @setDatabasePhase('setup')
+        @openWindowsForTokenState(loadingMessage)
+    , 0)
 
   # Registers basic application commands, non-idempotent.
   # Note: If these events are triggered while an application window is open, the window
@@ -279,18 +303,26 @@ class Application
       nylasWindow?.browserWindow.inspectElement(x, y)
 
     @on 'application:add-account', (provider) =>
-      @windowManager.ensureOnboardingWindow({provider})
-    @on 'application:new-message', => @windowManager.sendToMainWindow('new-message')
+      @windowManager.ensureWindow(WindowManager.ONBOARDING_WINDOW, {
+        title: "Add an Account"
+        windowProps:
+          page: "account-choose"
+          pageData: {provider}
+      })
+    @on 'application:new-message', => @windowManager.sendToWindow(WindowManager.MAIN_WINDOW, 'new-message')
     @on 'application:view-help', =>
       url = 'https://nylas.zendesk.com/hc/en-us/sections/203638587-N1'
       require('electron').shell.openExternal(url)
-    @on 'application:open-preferences', => @windowManager.sendToMainWindow('open-preferences')
+    @on 'application:open-preferences', => @windowManager.sendToWindow(WindowManager.MAIN_WINDOW, 'open-preferences')
     @on 'application:show-main-window', => @openWindowsForTokenState()
-    @on 'application:show-work-window', => @windowManager.showWorkWindow()
+    @on 'application:show-work-window', =>
+      win = @windowManager.get(WindowManager.WORK_WINDOW)
+      win.show()
+      win.focus()
     @on 'application:check-for-update', => @autoUpdateManager.check()
     @on 'application:install-update', =>
       @quitting = true
-      @windowManager.unregisterAllHotWindows()
+      @windowManager.cleanupBeforeAppQuit()
       @autoUpdateManager.install()
 
     @on 'application:toggle-dev', =>
@@ -301,7 +333,7 @@ class Application
       else
         @config.set('devMode', undefined)
 
-      @windowManager.closeAllWindows()
+      @windowManager.destroyAllWindows()
       @windowManager.devMode = @devMode
       @openWindowsForTokenState()
 
@@ -326,7 +358,7 @@ class Application
       @on 'application:zoom', -> @windowManager.focusedWindow()?.maximize()
 
     app.on 'window-all-closed', =>
-      @windowManager.windowClosedOrHidden()
+      @windowManager.quitWinLinuxIfNoWindows()
 
     # Called before the app tries to close any windows.
     app.on 'before-quit', =>
@@ -334,8 +366,8 @@ class Application
       @quitting = true
       # Destroy hot windows so that they can't block the app from quitting.
       # (Electron will wait for them to finish loading before quitting.)
-      @windowManager.unregisterAllHotWindows()
-      @systemTrayManager?.destroy()
+      @windowManager.cleanupBeforeAppQuit()
+      @systemTrayManager.destroyTray()
 
     # Called after the app has closed all windows.
     app.on 'will-quit', =>
@@ -356,25 +388,17 @@ class Application
 
     # System Tray
     ipcMain.on 'update-system-tray', (event, args...) =>
-      @systemTrayManager?.updateTray(args...)
+      @systemTrayManager.updateTraySettings(args...)
 
     ipcMain.on 'set-badge-value', (event, value) =>
       app.dock?.setBadge?(value)
 
     ipcMain.on 'new-window', (event, options) =>
-      @windowManager.newWindow(options)
-
-    ipcMain.on 'register-hot-window', (event, options) =>
-      @windowManager.registerHotWindow(options)
-
-    ipcMain.on 'unregister-hot-window', (event, windowType) =>
-      @windowManager.unregisterHotWindow(windowType)
-
-    ipcMain.on 'from-react-remote-window', (event, json) =>
-      @windowManager.sendToMainWindow('from-react-remote-window', json)
-
-    ipcMain.on 'from-react-remote-window-selection', (event, json) =>
-      @windowManager.sendToMainWindow('from-react-remote-window-selection', json)
+      if options.windowKey and win = @windowManager.get(options.windowKey)
+        win.show()
+        win.focus()
+      else
+        @windowManager.newWindow(options)
 
     ipcMain.on 'inline-style-parse', (event, {html, key}) =>
       juice = require 'juice'
@@ -420,13 +444,10 @@ class Application
 
     ipcMain.on 'action-bridge-rebroadcast-to-all', (event, args...) =>
       win = BrowserWindow.fromWebContents(event.sender)
-      @windowManager.windows().forEach (nylasWindow) ->
-        return if nylasWindow.browserWindow == win
-        return unless nylasWindow.browserWindow.webContents
-        nylasWindow.browserWindow.webContents.send('action-bridge-message', args...)
+      @windowManager.sendToAllWindows('action-bridge-message', {except: win}, args...)
 
     ipcMain.on 'action-bridge-rebroadcast-to-work', (event, args...) =>
-      workWindow = @windowManager.workWindow()
+      workWindow = @windowManager.get(WindowManager.WORK_WINDOW)
       return if not workWindow or not workWindow.browserWindow.webContents
       return if BrowserWindow.fromWebContents(event.sender) is workWindow
       workWindow.browserWindow.webContents.send('action-bridge-message', args...)
@@ -437,21 +458,21 @@ class Application
       clipboard.writeText(selectedText, 'selection')
 
     ipcMain.on 'account-setup-successful', (event) =>
-      @windowManager.showMainWindow()
-      @windowManager.ensureWorkWindow()
-      @windowManager.onboardingWindow()?.close()
+      @windowManager.ensureWindow(WindowManager.MAIN_WINDOW)
+      @windowManager.ensureWindow(WindowManager.WORK_WINDOW)
+      @windowManager.get(WindowManager.ONBOARDING_WINDOW)?.close()
 
     ipcMain.on 'new-account-added', (event) =>
-      @windowManager.ensureWorkWindow()
+      @windowManager.ensureWindow(WindowManager.WORK_WINDOW)
 
     ipcMain.on 'run-in-window', (event, params) =>
       @_sourceWindows ?= {}
       sourceWindow = BrowserWindow.fromWebContents(event.sender)
       @_sourceWindows[params.taskId] = sourceWindow
       if params.window is "work"
-        targetWindow = @windowManager.workWindow()
+        targetWindow = @windowManager.get(WindowManager.WORK_WINDOW)
       else if params.window is "main"
-        targetWindow = @windowManager.mainWindow()
+        targetWindow = @windowManager.get(WindowManager.MAIN_WINDOW)
       else throw new Error("We don't support running in that window")
       return if not targetWindow or not targetWindow.browserWindow.webContents
       targetWindow.browserWindow.webContents.send('run-in-window', params)
@@ -478,7 +499,7 @@ class Application
       else
         unless @sendCommandToFirstResponder(command)
           focusedBrowserWindow = BrowserWindow.getFocusedWindow()
-          mainWindow = @windowManager.mainWindow()
+          mainWindow = @windowManager.get(WindowManager.MAIN_WINDOW)
           if focusedBrowserWindow
             switch command
               when 'window:reload' then focusedBrowserWindow.reload()
@@ -519,12 +540,12 @@ class Application
   openUrl: (urlToOpen) ->
     {protocol} = url.parse(urlToOpen)
     if protocol is 'mailto:'
-      @windowManager.sendToMainWindow('mailto', urlToOpen)
+      @windowManager.sendToWindow(WindowManager.MAIN_WINDOW, 'mailto', urlToOpen)
     else
       console.log "Ignoring unknown URL type: #{urlToOpen}"
 
   openComposerWithFiles: (pathsToOpen) ->
-    @windowManager.sendToMainWindow('mailfiles', pathsToOpen)
+    @windowManager.sendToWindow(WindowManager.MAIN_WINDOW, 'mailfiles', pathsToOpen)
 
   # Opens up a new {NylasWindow} to run specs within.
   #
@@ -538,7 +559,9 @@ class Application
   #   :specPath - The directory to load specs from.
   #   :safeMode - A Boolean that, if true, won't run specs from ~/.nylas/packages
   #               and ~/.nylas/dev/packages, defaults to false.
-  runSpecs: ({exitWhenDone, showSpecsInWindow, resourcePath, specDirectory, specFilePattern, logFile, safeMode}) ->
+  runSpecs: (specWindowOptions) ->
+    {resourcePath} = specWindowOptions
+
     if resourcePath isnt @resourcePath and not fs.existsSync(resourcePath)
       resourcePath = @resourcePath
 
@@ -547,12 +570,12 @@ class Application
     catch error
       bootstrapScript = require.resolve(path.resolve(__dirname, '..', '..', 'spec', 'spec-bootstrap'))
 
-    isSpec = true
-    devMode = true
-    safeMode ?= false
-
     # Important: Use .nylas-spec instead of .nylas to avoid overwriting the
     # user's real email config!
     configDirPath = path.join(app.getPath('home'), '.nylas-spec')
 
-    new NylasWindow({bootstrapScript, configDirPath, resourcePath, exitWhenDone, isSpec, devMode, specDirectory, specFilePattern, logFile, safeMode, showSpecsInWindow})
+    specWindowOptions.resourcePath = resourcePath
+    specWindowOptions.configDirPath = configDirPath
+    specWindowOptions.bootstrapScript = bootstrapScript
+
+    @windowManager.ensureWindow(WindowManager.SPEC_WINDOW, specWindowOptions)

@@ -44,9 +44,15 @@ normalizeLabel = (label) ->
     label.replace(/\&/g, '')
 
 cloneMenuItem = (item) ->
-  item = _.pick(item, 'type', 'label', 'enabled', 'visible', 'command', 'submenu', 'commandDetail')
+  item = Object.assign({}, item)
   if item.submenu?
     item.submenu = item.submenu.map (submenuItem) -> cloneMenuItem(submenuItem)
   item
 
-module.exports = {merge, unmerge, normalizeLabel, cloneMenuItem}
+forEachMenuItem = (menu, callback) ->
+  for item in menu
+    if item.submenu?
+      forEachMenuItem(item.submenu, callback)
+    callback(item)
+
+module.exports = {merge, unmerge, normalizeLabel, cloneMenuItem, forEachMenuItem}

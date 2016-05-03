@@ -20,7 +20,7 @@ class DeveloperBarCurlItem extends React.Component
     return @props.item isnt nextProps.item
 
   _onCopyCommand: =>
-    clipboard = require('clipboard')
+    clipboard = require('electron').clipboard
     clipboard.writeText(@props.item.command)
 
   _isError: ->

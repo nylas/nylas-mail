@@ -22,7 +22,7 @@ describe('Clean app boot', ()=> {
 
   it("has the autoupdater pointing to the correct url when there's no config loaded", () => {
     this.app.client.execute(()=>{
-      const app = require('remote').getGlobal('application');
+      const app = require('electron').remote.getGlobal('application');
       return {
         platform: process.platform,
         arch: process.arch,

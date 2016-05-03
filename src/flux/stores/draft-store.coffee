@@ -3,7 +3,7 @@ _ = require 'underscore'
 {ipcRenderer} = require 'electron'
 
 NylasAPI = require '../nylas-api'
-DraftStoreProxy = require './draft-store-proxy'
+DraftEditingSession = require './draft-editing-session'
 DraftFactory = require './draft-factory'
 DatabaseStore = require './database-store'
 AccountStore = require './account-store'
@@ -66,6 +66,7 @@ class DraftStore
     # window.
     @listenTo Actions.ensureDraftSynced, @_onEnsureDraftSynced
     @listenTo Actions.sendDraft, @_onSendDraft
+    @listenTo Actions.sendDrafts, @_onSendDrafts
     @listenTo Actions.destroyDraft, @_onDestroyDraft
 
     @listenTo Actions.removeFile, @_onRemoveFile
@@ -95,7 +96,7 @@ class DraftStore
 
   ######### PUBLIC #######################################################
 
-  # Public: Fetch a {DraftStoreProxy} for displaying and/or editing the
+  # Public: Fetch a {DraftEditingSession} for displaying and/or editing the
   # draft with `clientId`.
   #
   # Example:
@@ -108,7 +109,7 @@ class DraftStore
   #
   # - `clientId` The {String} clientId of the draft.
   #
-  # Returns a {Promise} that resolves to an {DraftStoreProxy} for the
+  # Returns a {Promise} that resolves to an {DraftEditingSession} for the
   # draft once it has been prepared:
   sessionForClientId: (clientId) =>
     if not clientId
@@ -259,7 +260,7 @@ class DraftStore
     .thenReturn({draftClientId: draft.clientId, draft: draft})
 
   _createSession: (clientId, draft) =>
-    @_draftSessions[clientId] = new DraftStoreProxy(clientId, draft)
+    @_draftSessions[clientId] = new DraftEditingSession(clientId, draft)
 
   _onPopoutBlankDraft: =>
     DraftFactory.createDraft().then (draft) =>
@@ -275,20 +276,22 @@ class DraftStore
     if @_draftSessions[draftClientId]
       save = @_draftSessions[draftClientId].changes.commit()
       draftJSON = @_draftSessions[draftClientId].draft().toJSON()
+    else
+      save = @sessionForClientId(draftClientId).then (session) =>
+        draftJSON = session.draft().toJSON()
 
     title = if options.newDraft then "New Message" else "Message"
 
     save.then =>
-      app = require('electron').remote.getGlobal('application')
-      existing = app.windowManager.windowWithPropsMatching({draftClientId})
-      if existing
-        existing.restore() if existing.isMinimized()
-        existing.focus()
-      else
-        NylasEnv.newWindow
-          title: title
-          windowType: "composer"
-          windowProps: _.extend(options, {draftClientId, draftJSON})
+      # Since we pass a windowKey, if the popout composer draft already
+      # exists we'll simply show that one instead of spawning a whole new
+      # window.
+      NylasEnv.newWindow
+        title: title
+        hidden: true # We manually show in ComposerWithWindowProps::onDraftReady
+        windowKey: "composer-#{draftClientId}"
+        windowType: "composer-preload"
+        windowProps: _.extend(options, {draftClientId, draftJSON})
 
   _onHandleMailtoLink: (event, urlString) =>
     DraftFactory.createDraftForMailto(urlString).then (draft) =>
@@ -325,6 +328,19 @@ class DraftStore
         Actions.queueTask(new SyncbackDraftTask(draftClientId))
 
   _onSendDraft: (draftClientId) =>
+    @_sendDraft(draftClientId)
+    .then =>
+      if @_isPopout()
+        NylasEnv.close()
+
+  _onSendDrafts: (draftClientIds) =>
+    Promise.each(draftClientIds, (draftClientId) =>
+      @_sendDraft(draftClientId)
+    ).then =>
+      if @_isPopout()
+        NylasEnv.close()
+
+  _sendDraft: (draftClientId) =>
     @_draftsSending[draftClientId] = true
 
     @sessionForClientId(draftClientId).then (session) =>
@@ -334,9 +350,7 @@ class DraftStore
         @_queueDraftAssetTasks(session.draft())
         Actions.queueTask(new SendDraftTask(draftClientId))
         @_doneWithSession(session)
-
-        if @_isPopout()
-          NylasEnv.close()
+        Promise.resolve()
 
   _queueDraftAssetTasks: (draft) =>
     if draft.files.length > 0 or draft.uploads.length > 0
@@ -367,31 +381,34 @@ class DraftStore
     # Run draft transformations registered by third-party plugins
     allowedFields = ['to', 'from', 'cc', 'bcc', 'subject', 'body']
 
-    Promise.each @extensions(), (ext) ->
-      extApply = ext.applyTransformsToDraft
-      extUnapply = ext.unapplyTransformsToDraft
-      unless extApply and extUnapply
-        return Promise.resolve()
-
+    session.changes.commit(noSyncback: true).then =>
       draft = session.draft().clone()
-      Promise.resolve(extUnapply({draft})).then (cleaned) =>
-        cleaned = draft if cleaned is 'unnecessary'
-        Promise.resolve(extApply({draft: cleaned})).then (transformed) =>
-          Promise.resolve(extUnapply({draft: transformed.clone()})).then (untransformed) =>
-            untransformed = cleaned if untransformed is 'unnecessary'
 
-            if not _.isEqual(_.pick(untransformed, allowedFields), _.pick(cleaned, allowedFields))
-              console.log("-- BEFORE --")
-              console.log(draft.body)
-              console.log("-- TRANSFORMED --")
-              console.log(transformed.body)
-              console.log("-- UNTRANSFORMED (should match BEFORE) --")
-              console.log(untransformed.body)
-              NylasEnv.reportError(new Error("An extension applied a tranform to the draft that it could not reverse."))
-            session.changes.add(_.pick(transformed, allowedFields))
+      Promise.each @extensions(), (ext) ->
+        extApply = ext.applyTransformsToDraft
+        extUnapply = ext.unapplyTransformsToDraft
+        unless extApply and extUnapply
+          return Promise.resolve()
 
-    .then =>
-      session.changes.commit(noSyncback: true)
+        Promise.resolve(extUnapply({draft})).then (cleaned) =>
+          cleaned = draft if cleaned is 'unnecessary'
+          Promise.resolve(extApply({draft: cleaned})).then (transformed) =>
+            Promise.resolve(extUnapply({draft: transformed.clone()})).then (untransformed) =>
+              untransformed = cleaned if untransformed is 'unnecessary'
+
+              if not _.isEqual(_.pick(untransformed, allowedFields), _.pick(cleaned, allowedFields))
+                console.log("-- BEFORE --")
+                console.log(draft.body)
+                console.log("-- TRANSFORMED --")
+                console.log(transformed.body)
+                console.log("-- UNTRANSFORMED (should match BEFORE) --")
+                console.log(untransformed.body)
+                NylasEnv.reportError(new Error("An extension applied a tranform to the draft that it could not reverse."))
+              draft = transformed
+
+      .then =>
+        DatabaseStore.inTransaction (t) =>
+          t.persistModel(draft)
 
   _onRemoveFile: ({file, messageClientId}) =>
     @sessionForClientId(messageClientId).then (session) ->

@@ -15,8 +15,8 @@ class ThreadTrashButton extends React.Component
     thread: React.PropTypes.object.isRequired
 
   render: =>
-    canTrashThreads = FocusedPerspectiveStore.current().canTrashThreads([@props.thread])
-    return <span /> unless canTrashThreads
+    allowed = FocusedPerspectiveStore.current().canMoveThreadsTo([@props.thread], 'trash')
+    return <span /> unless allowed
 
     <button className="btn btn-toolbar"
             style={order: -106}

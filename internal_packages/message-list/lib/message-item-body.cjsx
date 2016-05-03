@@ -55,9 +55,11 @@ class MessageItemBody extends React.Component
 
   _renderBody: =>
     if _.isString(@props.message.body) and _.isString(@state.processedBody)
-      finalBody = @_mergeBodyWithFiles(@state.processedBody)
-
-      <EmailFrame showQuotedText={@state.showQuotedText} content={finalBody}/>
+      <EmailFrame
+        showQuotedText={@state.showQuotedText}
+        content={@_mergeBodyWithFiles(@state.processedBody)}
+        message={@props.message}
+      />
     else if @state.error
       <div className="message-body-error">
         Sorry, this message could not be loaded. (Status code {@state.error.statusCode})

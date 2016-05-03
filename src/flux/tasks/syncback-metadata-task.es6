@@ -10,7 +10,7 @@ export default class SyncbackMetadataTask extends SyncbackModelTask {
   }
 
   getModelConstructor() {
-    return DatabaseObjectRegistry.classMap()[this.modelClassName];
+    return DatabaseObjectRegistry.get(this.modelClassName);
   }
 
   getRequestData = (model) => {

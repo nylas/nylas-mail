@@ -13,7 +13,7 @@ import SearchActions from './search-actions'
 class SearchQuerySubscription extends MutableQuerySubscription {
 
   constructor(searchQuery, accountIds) {
-    super(null, {asResultSet: true})
+    super(null, {emitResultSet: true})
     this._searchQuery = searchQuery
     this._accountIds = accountIds
 
@@ -152,18 +152,10 @@ class SearchQuerySubscription extends MutableQuerySubscription {
     this.resetData()
   }
 
-  cleanup() {
+  onLastCallbackRemoved() {
+    this.reportSearchMetrics();
     this._connections.forEach((conn) => conn.end())
     this._unsubscribers.forEach((unsub) => unsub())
-  }
-
-  removeCallback(callback) {
-    super.removeCallback(callback)
-
-    if (this.callbackCount() === 0) {
-      this.reportSearchMetrics()
-      this.cleanup()
-    }
   }
 }
 
