@@ -56,12 +56,13 @@ class AttributeCollection extends Attribute
     return [] unless json && json instanceof Array
     objs = []
 
-    # Note: It's possible for a malformed API request to return an array
-    # of null values. N1 is tolerant to this type of error, but shouldn't
-    # happen on the API end.
-    json = _.compact(json)
-
     for objJSON in json
+      # Note: It's possible for a malformed API request to return an array
+      # of null values. N1 is tolerant to this type of error, but shouldn't
+      # happen on the API end.
+      if not objJSON
+        continue
+
       if @itemClass.prototype.fromJSON?
         obj = new @itemClass
         # Important: if no ids are in the JSON, don't make them up
