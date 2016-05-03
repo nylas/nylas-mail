@@ -12,6 +12,8 @@ describe "ThemeManager", ->
   configDirPath = NylasEnv.getConfigDirPath()
 
   beforeEach ->
+    cache = NylasEnv.fileListCache()
+    cache.lessCacheImportPaths = null
     spyOn(console, "log")
     spyOn(console, "warn")
     spyOn(console, "error")
