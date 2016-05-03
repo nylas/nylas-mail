@@ -42,12 +42,12 @@ class WindowEventHandler
     ipcRenderer.on 'scroll-touch-end', ->
       window.dispatchEvent(new Event('scroll-touch-end'))
 
-    window.addEventListener 'beforeunload', =>
+    window.onbeforeunload = =>
       # Don't hide the window here if we don't want the renderer process to be
       # throttled in case more work needs to be done before closing
       return @runUnloadCallbacks()
 
-    window.addEventListener 'unload', =>
+    window.onunload = =>
       NylasEnv.storeWindowDimensions()
       NylasEnv.saveStateAndUnloadWindow()
 
@@ -108,10 +108,12 @@ class WindowEventHandler
     @unloadCallbacks.push(callback)
 
   runUnloadCallbacks: ->
+    hasReturned = false
+
     unloadCallbacksRunning = 0
     unloadCallbackComplete = =>
       unloadCallbacksRunning -= 1
-      if unloadCallbacksRunning is 0
+      if unloadCallbacksRunning is 0 and hasReturned
         @runUnloadFinished()
 
     for callback in @unloadCallbacks
@@ -122,6 +124,7 @@ class WindowEventHandler
         console.warn "You registered an `onBeforeUnload` callback that does not return either exactly `true` or `false`. It returned #{returnValue}", callback
 
     # In Electron, returning false cancels the close.
+    hasReturned = true
     return (unloadCallbacksRunning is 0)
 
   runUnloadFinished: ->
