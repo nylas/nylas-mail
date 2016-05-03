@@ -1,26 +1,9 @@
 exec = require('child_process').exec
+app = require('electron').remote.app
 fs = require('fs')
-
 bundleIdentifier = 'com.nylas.nylas-mail'
 
-class LaunchServicesUnavailable
-  available: ->
-    false
-
-  isRegisteredForURLScheme: (scheme, callback) ->
-    throw new Error "isRegisteredForURLScheme is not available"
-
-  resetURLScheme: (scheme, callback) ->
-    throw new Error "resetURLScheme is not available"
-
-  registerForURLScheme: (scheme, callback) ->
-    throw new Error "registerForURLScheme is not available"
-
 class LaunchServicesLinux
-
-  available: ->
-    true
-
   isRegisteredForURLScheme: (scheme, callback) ->
     throw new Error "isRegisteredForURLScheme is async, provide a callback" unless callback
     exec "xdg-mime query default x-scheme-handler/#{scheme}", (err, stdout, stderr) ->
@@ -30,19 +13,16 @@ class LaunchServicesLinux
   resetURLScheme: (scheme, callback) ->
     exec "xdg-mime default thunderbird.desktop x-scheme-handler/#{scheme}", (err, stdout, stderr) ->
       return callback(err) if callback and err
-      callback(null, null)
+      callback(null, null) if callback
 
   registerForURLScheme: (scheme, callback) ->
     exec "xdg-mime default nylas.desktop x-scheme-handler/#{scheme}", (err, stdout, stderr) ->
       return callback(err) if callback and err
-      callback(null, null)
+      callback(null, null) if callback
 
 class LaunchServicesMac
   constructor: ->
     @secure = false
-
-  available: ->
-    true
 
   getLaunchServicesPlistPath: (callback) ->
     secure = "#{process.env.HOME}/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist"
@@ -118,7 +98,24 @@ class LaunchServicesMac
       @writeDefaults(defaults, callback)
 
 
-module.exports = LaunchServicesUnavailable
+class LaunchServicesElectron
+  constructor: ->
+
+  isRegisteredForURLScheme: (scheme, callback) ->
+    process.nextTick =>
+      callback(app.isDefaultProtocolClient(scheme))
+
+  resetURLScheme: (scheme, callback) ->
+    process.nextTick =>
+      app.removeAsDefaultProtocolClient(scheme)
+      callback(null, null) if callback
+
+  registerForURLScheme: (scheme, callback) ->
+    process.nextTick =>
+      app.setAsDefaultProtocolClient(scheme)
+      callback(null, null) if callback
+
+module.exports = LaunchServicesElectron
 if process.platform is 'darwin'
   module.exports = LaunchServicesMac
 else if process.platform is 'linux'
@@ -126,4 +123,4 @@ else if process.platform is 'linux'
 
 module.exports.LaunchServicesMac = LaunchServicesMac
 module.exports.LaunchServicesLinux = LaunchServicesLinux
-module.exports.LaunchServicesUnavailable = LaunchServicesUnavailable
+module.exports.LaunchServicesElectron = LaunchServicesElectron
