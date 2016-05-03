@@ -146,6 +146,9 @@ class MailboxPerspective
     accounts = AccountStore.accountsForItems(threads)
     return _.every(accounts, (acc) -> acc.canArchiveThreads())
 
+  canTrashThreads: (threads) =>
+    @canMoveThreadsTo(threads, 'trash')
+
   canMoveThreadsTo: (threads, standardCategoryName) =>
     return false if @categoriesSharedName() is standardCategoryName
     return _.every AccountStore.accountsForItems(threads), (acc) ->
