@@ -1,12 +1,12 @@
 _ = require 'underscore'
-Thread = require '../../src/flux/models/thread'
+Thread = require('../../src/flux/models/thread').default
 Category = require '../../src/flux/models/category'
 Message = require '../../src/flux/models/message'
 FocusedContentStore = require '../../src/flux/stores/focused-content-store'
 FocusedPerspectiveStore = require '../../src/flux/stores/focused-perspective-store'
 MessageStore = require '../../src/flux/stores/message-store'
 DatabaseStore = require '../../src/flux/stores/database-store'
-ChangeUnreadTask = require '../../src/flux/tasks/change-unread-task'
+ChangeUnreadTask = require('../../src/flux/tasks/change-unread-task').default
 Actions = require '../../src/flux/actions'
 
 testThread = new Thread(id: '123', accountId: TEST_ACCOUNT_ID)

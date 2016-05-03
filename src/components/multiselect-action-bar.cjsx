@@ -4,7 +4,7 @@ _ = require 'underscore'
 
 {Utils, Actions} = require "nylas-exports"
 InjectedComponentSet = require './injected-component-set'
-RetinaImg = require './retina-img'
+RetinaImg = requir(('./retina-img').default).default
 Flexbox = require './flexbox'
 
 ###

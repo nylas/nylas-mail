@@ -1,9 +1,9 @@
 _ = require 'underscore'
 
-Task = require './flux/tasks/task'
+Task = require('./flux/tasks/task').default
 Actions = require './flux/actions'
 Category = require './flux/models/category'
-Thread = require './flux/models/thread'
+Thread = require('./flux/models/thread').default
 Message = require './flux/models/message'
 AccountStore = require './flux/stores/account-store'
 DatabaseStore = require './flux/stores/database-store'
@@ -11,10 +11,10 @@ TaskQueueStatusStore = require './flux/stores/task-queue-status-store'
 
 {ConditionMode, ConditionTemplates} = require './mail-rules-templates'
 
-ChangeUnreadTask = require './flux/tasks/change-unread-task'
-ChangeFolderTask = require './flux/tasks/change-folder-task'
-ChangeStarredTask = require './flux/tasks/change-starred-task'
-ChangeLabelsTask = require './flux/tasks/change-labels-task'
+ChangeUnreadTask = require('./flux/tasks/change-unread-task').default
+ChangeFolderTask = require('./flux/tasks/change-folder-task').default
+ChangeStarredTask = require('./flux/tasks/change-starred-task').default
+ChangeLabelsTask = require('./flux/tasks/change-labels-task').default
 MailRulesStore = null
 
 ###

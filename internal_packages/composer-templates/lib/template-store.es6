@@ -280,4 +280,5 @@ class TemplateStore extends NylasStore {
   }
 }
 
-module.exports = new TemplateStore();
+const store = new TemplateStore();
+export default store

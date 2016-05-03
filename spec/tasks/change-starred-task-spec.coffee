@@ -1,6 +1,6 @@
-Task = require '../../src/flux/tasks/task'
-Thread = require '../../src/flux/models/thread'
-ChangeStarredTask = require '../../src/flux/tasks/change-starred-task'
+Task = require('../../src/flux/tasks/task').default
+Thread = require('../../src/flux/models/thread').default
+ChangeStarredTask = require('../../src/flux/tasks/change-starred-task').default
 
 describe 'ChangeStarredTask', ->
   describe "description", ->

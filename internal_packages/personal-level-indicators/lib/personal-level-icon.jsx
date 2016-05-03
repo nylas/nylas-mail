@@ -43,5 +43,3 @@ export default class PersonalLevelIcon extends React.Component {
     );
   }
 }
-
-module.exports = PersonalLevelIcon

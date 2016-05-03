@@ -2,7 +2,7 @@ _ = require 'underscore'
 fs = require 'fs'
 Actions = require '../src/flux/actions'
 NylasAPI = require '../src/flux/nylas-api'
-Thread = require '../src/flux/models/thread'
+Thread = require('../src/flux/models/thread').default
 Message = require '../src/flux/models/message'
 AccountStore = require '../src/flux/stores/account-store'
 DatabaseStore = require '../src/flux/stores/database-store'
@@ -304,7 +304,7 @@ describe "NylasAPI", ->
         "event": require('../src/flux/models/event')
         "label": require('../src/flux/models/label')
         "folder": require('../src/flux/models/folder')
-        "thread": require('../src/flux/models/thread')
+        "thread": require('../src/flux/models/thread').default
         "draft": require('../src/flux/models/message')
         "account": require('../src/flux/models/account')
         "message": require('../src/flux/models/message')

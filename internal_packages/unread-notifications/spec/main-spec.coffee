@@ -1,7 +1,7 @@
 _ = require 'underscore'
 Contact = require '../../../src/flux/models/contact'
 Message = require '../../../src/flux/models/message'
-Thread = require '../../../src/flux/models/thread'
+Thread = require('../../../src/flux/models/thread').default
 Category = require '../../../src/flux/models/category'
 CategoryStore = require '../../../src/flux/stores/category-store'
 DatabaseStore = require '../../../src/flux/stores/database-store'

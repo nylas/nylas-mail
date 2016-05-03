@@ -1,6 +1,6 @@
-Task = require '../../src/flux/tasks/task'
-Thread = require '../../src/flux/models/thread'
-ChangeUnreadTask = require '../../src/flux/tasks/change-unread-task'
+Task = require('../../src/flux/tasks/task').default
+Thread = require('../../src/flux/models/thread').default
+ChangeUnreadTask = require('../../src/flux/tasks/change-unread-task').default
 
 describe 'ChangeUnreadTask', ->
   describe "description", ->

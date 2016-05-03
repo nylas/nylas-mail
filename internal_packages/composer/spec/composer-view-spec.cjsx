@@ -22,8 +22,8 @@ ReactTestUtils = require('react-addons-test-utils')
 {InjectedComponent, ParticipantsTextField} = require 'nylas-component-kit'
 
 DraftEditingSession = require '../../../src/flux/stores/draft-editing-session'
-ComposerEditor = require '../lib/composer-editor'
-Fields = require '../lib/fields'
+ComposerEditor = require('../lib/composer-editor').default
+Fields = require('../lib/fields').default
 
 u1 = new Contact(name: "Christine Spang", email: "spang@nylas.com")
 u2 = new Contact(name: "Michael Grinich", email: "mg@nylas.com")
@@ -36,7 +36,7 @@ f2 = new File(id: 'file_2_id', filename: 'b.pdf', contentType: '', size: 999999,
 
 users = [u1, u2, u3, u4, u5]
 
-ComposerView = require "../lib/composer-view",
+ComposerView = require("../lib/composer-view").default
 
 # This will setup the mocks necessary to make the composer element (once
 # mounted) think it's attached to the given draft. This mocks out the

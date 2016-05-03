@@ -1,6 +1,6 @@
 _ = require 'underscore'
 {Actions, DatabaseStore, DatabaseTransaction, Account, Thread} = require 'nylas-exports'
-DeltaStreamingConnection = require '../lib/delta-streaming-connection'
+DeltaStreamingConnection = require('../lib/delta-streaming-connection').default
 NylasSyncWorker = require '../lib/nylas-sync-worker'
 
 describe "NylasSyncWorker", ->

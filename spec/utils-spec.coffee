@@ -1,6 +1,6 @@
 _ = require('underscore')
 Utils = require '../src/flux/models/utils'
-Thread = require '../src/flux/models/thread'
+Thread = require('../src/flux/models/thread').default
 Contact = require '../src/flux/models/contact'
 JSONBlob = require '../src/flux/models/json-blob'
 

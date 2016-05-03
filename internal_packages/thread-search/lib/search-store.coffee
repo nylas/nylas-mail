@@ -9,7 +9,7 @@ NylasStore = require 'nylas-store'
  FocusedPerspectiveStore} = require 'nylas-exports'
 
 SearchActions = require './search-actions'
-SearchMailboxPerspective = require './search-mailbox-perspective'
+SearchMailboxPerspective = require('./search-mailbox-perspective').default
 
 # Stores should closely match the needs of a particular part of the front end.
 # For example, we might create a "MessageStore" that observes this store

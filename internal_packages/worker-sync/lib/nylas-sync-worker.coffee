@@ -1,6 +1,6 @@
 _ = require 'underscore'
 {Actions, DatabaseStore, NylasSyncStatusStore} = require 'nylas-exports'
-DeltaStreamingConnection = require './delta-streaming-connection'
+DeltaStreamingConnection = require('./delta-streaming-connection').default
 ContactRankingsCache = require './contact-rankings-cache'
 
 INITIAL_PAGE_SIZE = 30

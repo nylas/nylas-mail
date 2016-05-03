@@ -2,7 +2,7 @@ _ = require 'underscore'
 React = require "react"
 ReactDOM = require 'react-dom'
 ReactTestUtils = require 'react-addons-test-utils'
-CategoryPickerPopover = require '../lib/category-picker-popover'
+CategoryPickerPopover = require('../lib/category-picker-popover').default
 
 {Utils,
  Category,

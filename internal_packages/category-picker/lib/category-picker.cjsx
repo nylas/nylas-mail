@@ -9,7 +9,7 @@ ReactDOM = require 'react-dom'
 {RetinaImg,
  KeyCommandsRegion} = require 'nylas-component-kit'
 
-CategoryPickerPopover = require './category-picker-popover'
+CategoryPickerPopover = require('./category-picker-popover').default
 
 
 # This changes the category on one or more threads.

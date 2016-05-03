@@ -1,5 +1,5 @@
 _ = require 'underscore'
-Thread = require '../../src/flux/models/thread'
+Thread = require('../../src/flux/models/thread').default
 FocusedContentStore = require '../../src/flux/stores/focused-content-store'
 Actions = require '../../src/flux/actions'
 

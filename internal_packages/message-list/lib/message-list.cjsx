@@ -2,7 +2,7 @@ _ = require 'underscore'
 React = require 'react'
 ReactDOM = require 'react-dom'
 classNames = require 'classnames'
-FindInThread = require './find-in-thread'
+FindInThread = require('./find-in-thread').default
 MessageItemContainer = require './message-item-container'
 
 {Utils,

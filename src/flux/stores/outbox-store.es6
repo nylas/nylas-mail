@@ -26,4 +26,6 @@ class OutboxStore extends NylasStore {
     return this._tasks.filter((task) => task.draftAccountId === accountId);
   }
 }
-module.exports = new OutboxStore();
+
+const store = new OutboxStore()
+export default store

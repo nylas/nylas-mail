@@ -1,6 +1,6 @@
 React = require 'react'
 _ = require 'underscore'
-EmailFrame = require './email-frame'
+EmailFrame = require('./email-frame').default
 {Utils,
  CanvasUtils,
  NylasAPI,

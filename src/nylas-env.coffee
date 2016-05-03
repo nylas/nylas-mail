@@ -13,7 +13,7 @@ fs = require 'fs-plus'
 
 WindowEventHandler = require './window-event-handler'
 StylesElement = require './styles-element'
-StoreRegistry = require './store-registry'
+StoreRegistry = require('./store-registry').default
 
 Utils = require './flux/models/utils'
 {APIError} = require './flux/errors'

@@ -1,5 +1,5 @@
 {shell} = require 'electron'
-GithubStore = require './github-store'
+GithubStore = require('./github-store').default
 {React} = require 'nylas-exports'
 {RetinaImg, KeyCommandsRegion} = require 'nylas-component-kit'
 

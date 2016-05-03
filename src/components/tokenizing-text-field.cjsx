@@ -6,7 +6,7 @@ _ = require 'underscore'
 {Utils,
  Contact,
  RegExpUtils} = require 'nylas-exports'
-RetinaImg = require './retina-img'
+RetinaImg = require('./retina-img').default
 
 class SizeToFitInput extends React.Component
   constructor: (@props) ->

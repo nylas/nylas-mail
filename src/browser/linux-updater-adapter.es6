@@ -28,4 +28,5 @@ class LinuxUpdaterAdapter {
 }
 
 _.extend(LinuxUpdaterAdapter.prototype, EventEmitter.prototype);
-module.exports = new LinuxUpdaterAdapter()
+const adapter = new LinuxUpdaterAdapter();
+export default adapter

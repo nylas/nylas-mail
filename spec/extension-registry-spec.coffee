@@ -1,4 +1,4 @@
-ExtensionRegistry = require '../src/extension-registry'
+ExtensionRegistry = require('../src/extension-registry').default
 
 class TestExtension
   @name: 'TestExtension'

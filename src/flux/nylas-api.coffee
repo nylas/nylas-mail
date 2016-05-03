@@ -1,7 +1,7 @@
 _ = require 'underscore'
 {remote} = require 'electron'
 request = require 'request'
-NylasLongConnection = require './nylas-long-connection'
+NylasLongConnection = require('./nylas-long-connection').default
 Utils = require './models/utils'
 Account = require './models/account'
 Message = require './models/message'
@@ -349,7 +349,7 @@ class NylasAPI
     "event": require('./models/event')
     "label": require('./models/label')
     "folder": require('./models/folder')
-    "thread": require('./models/thread')
+    "thread": require('./models/thread').default
     "draft": require('./models/message')
     "account": require('./models/account')
     "message": require('./models/message')

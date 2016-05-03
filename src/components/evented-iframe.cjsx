@@ -4,7 +4,7 @@ ReactDOM = require 'react-dom'
  RegExpUtils,
  SearchableComponentMaker,
  SearchableComponentStore}= require 'nylas-exports'
-IFrameSearcher = require '../searchable-components/iframe-searcher'
+IFrameSearcher = require('../searchable-components/iframe-searcher').default
 url = require 'url'
 _ = require "underscore"
 
