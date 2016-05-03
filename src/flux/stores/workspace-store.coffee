@@ -1,7 +1,6 @@
 _ = require 'underscore'
 Actions = require '../actions'
 AccountStore = require './account-store'
-FocusedPerspectiveStore = require './focused-perspective-store'
 CategoryStore = require './category-store'
 MailboxPerspective = require '../../mailbox-perspective'
 NylasStore = require 'nylas-store'
