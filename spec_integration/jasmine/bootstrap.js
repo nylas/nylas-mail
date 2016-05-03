@@ -3,7 +3,7 @@
 // argv[2] = JASMINE_CONFIG_PATH=./jasmine/config.json
 // argv[3] = NYLAS_ROOT_PATH=/path/to/nylas/root
 var babelOptions = require('../../static/babelrc.json');
-require('babel-core/register')(babelOptions);
+require('babel-register')(babelOptions);
 
 var chalk = require('chalk')
 var util = require('util')

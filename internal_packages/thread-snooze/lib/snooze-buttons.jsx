@@ -1,4 +1,3 @@
-/** @babel */
 import React, {Component, PropTypes} from 'react';
 import ReactDOM from 'react-dom';
 import {Actions, FocusedPerspectiveStore} from 'nylas-exports';

@@ -1,7 +1,6 @@
 fs = require 'fs'
 path = require 'path'
 os = require 'os'
-babelOptions = require '../static/babelrc'
 
 # This is the main Gruntfile that manages building N1 distributions.
 # The reason it's inisde of the build/ folder is so everything can be
@@ -51,12 +50,10 @@ _.extend(global, require('harmony-collections')) unless global.WeakMap?
 module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-coffeelint-cjsx')
   grunt.loadNpmTasks('grunt-lesslint')
-  grunt.loadNpmTasks('grunt-babel')
   grunt.loadNpmTasks('grunt-cson')
   grunt.loadNpmTasks('grunt-contrib-csslint')
   grunt.loadNpmTasks('grunt-coffee-react')
   grunt.loadNpmTasks('grunt-contrib-coffee')
-  grunt.loadNpmTasks('grunt-eslint')
   grunt.loadNpmTasks('grunt-contrib-less')
   grunt.loadNpmTasks('grunt-shell')
   grunt.loadNpmTasks('grunt-markdown')
@@ -129,7 +126,7 @@ module.exports = (grunt) ->
       ext: '.js'
 
   babelConfig =
-    options: babelOptions
+    options: require("../static/babelrc")
     dist:
       files: [{
         expand: true

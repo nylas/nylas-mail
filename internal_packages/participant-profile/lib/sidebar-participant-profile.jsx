@@ -1,4 +1,3 @@
-/** @babel */
 import _ from 'underscore'
 import React from 'react'
 import {shell} from 'electron'

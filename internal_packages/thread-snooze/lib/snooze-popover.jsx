@@ -1,4 +1,3 @@
-/** @babel */
 import _ from 'underscore';
 import React, {Component, PropTypes} from 'react';
 import {DateUtils, Actions} from 'nylas-exports'

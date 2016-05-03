@@ -1,4 +1,5 @@
 {
+  "parser": "babel-eslint",
   "extends": "airbnb",
   "globals": {
     "NylasEnv": false,
@@ -28,6 +29,5 @@
     "no-shadow": [1],
     "quotes": [0],
     "semi": [0]
-  },
-  "parser": "babel-eslint"
+  }
 }
