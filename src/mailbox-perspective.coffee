@@ -46,6 +46,7 @@ class MailboxPerspective
     new StarredMailboxPerspective(accountsOrIds)
 
   @forUnread: (categories) ->
+    return @forNothing() if categories.length is 0
     new UnreadMailboxPerspective(categories)
 
   @forInbox: (accountsOrIds) =>

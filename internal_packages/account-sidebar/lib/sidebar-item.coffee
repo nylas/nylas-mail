@@ -132,6 +132,14 @@ class SidebarItem
   @forUnread: (accountIds, opts = {}) ->
     categories = accountIds.map (accId) =>
       CategoryStore.getStandardCategory(accId, 'inbox')
+
+    # NOTE: It's possible for an account to not yet have an `inbox`
+    # category. Since the `SidebarStore` triggers on `AccountStore`
+    # changes, it'll trigger the exact moment an account is added to the
+    # config. However, the API has not yet come back with the list of
+    # `categories` for that account.
+    categories = _.compact(categories)
+
     perspective = MailboxPerspective.forUnread(categories)
     id = 'Unread'
     id += "-#{opts.name}" if opts.name
