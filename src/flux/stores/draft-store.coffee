@@ -381,31 +381,34 @@ class DraftStore
     # Run draft transformations registered by third-party plugins
     allowedFields = ['to', 'from', 'cc', 'bcc', 'subject', 'body']
 
-    Promise.each @extensions(), (ext) ->
-      extApply = ext.applyTransformsToDraft
-      extUnapply = ext.unapplyTransformsToDraft
-      unless extApply and extUnapply
-        return Promise.resolve()
-
+    session.changes.commit(noSyncback: true).then =>
       draft = session.draft().clone()
-      Promise.resolve(extUnapply({draft})).then (cleaned) =>
-        cleaned = draft if cleaned is 'unnecessary'
-        Promise.resolve(extApply({draft: cleaned})).then (transformed) =>
-          Promise.resolve(extUnapply({draft: transformed.clone()})).then (untransformed) =>
-            untransformed = cleaned if untransformed is 'unnecessary'
 
-            if not _.isEqual(_.pick(untransformed, allowedFields), _.pick(cleaned, allowedFields))
-              console.log("-- BEFORE --")
-              console.log(draft.body)
-              console.log("-- TRANSFORMED --")
-              console.log(transformed.body)
-              console.log("-- UNTRANSFORMED (should match BEFORE) --")
-              console.log(untransformed.body)
-              NylasEnv.reportError(new Error("An extension applied a tranform to the draft that it could not reverse."))
-            session.changes.add(_.pick(transformed, allowedFields))
+      Promise.each @extensions(), (ext) ->
+        extApply = ext.applyTransformsToDraft
+        extUnapply = ext.unapplyTransformsToDraft
+        unless extApply and extUnapply
+          return Promise.resolve()
 
-    .then =>
-      session.changes.commit(noSyncback: true)
+        Promise.resolve(extUnapply({draft})).then (cleaned) =>
+          cleaned = draft if cleaned is 'unnecessary'
+          Promise.resolve(extApply({draft: cleaned})).then (transformed) =>
+            Promise.resolve(extUnapply({draft: transformed.clone()})).then (untransformed) =>
+              untransformed = cleaned if untransformed is 'unnecessary'
+
+              if not _.isEqual(_.pick(untransformed, allowedFields), _.pick(cleaned, allowedFields))
+                console.log("-- BEFORE --")
+                console.log(draft.body)
+                console.log("-- TRANSFORMED --")
+                console.log(transformed.body)
+                console.log("-- UNTRANSFORMED (should match BEFORE) --")
+                console.log(untransformed.body)
+                NylasEnv.reportError(new Error("An extension applied a tranform to the draft that it could not reverse."))
+              draft = transformed
+
+      .then =>
+        DatabaseStore.inTransaction (t) =>
+          t.persistModel(draft)
 
   _onRemoveFile: ({file, messageClientId}) =>
     @sessionForClientId(messageClientId).then (session) ->
