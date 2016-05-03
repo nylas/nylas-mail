@@ -1,5 +1,3 @@
-/** @babel */
-
 import _ from 'underscore'
 import React from 'react';
 import {Actions, FocusedContactsStore} from 'nylas-exports'

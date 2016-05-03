@@ -1,4 +1,3 @@
-/** @babel */
 import moment from 'moment'
 import chrono from 'chrono-node'
 import _ from 'underscore'

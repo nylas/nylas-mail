@@ -14,7 +14,7 @@
   "electronVersion": "0.37.8",
   "dependencies": {
     "async": "^0.9",
-    "babel-core": "^5.8.21",
+    "babel-core": "6.8.x",
     "bluebird": "^2.9",
     "chrono-node": "^1.1.2",
     "classnames": "1.2.1",
