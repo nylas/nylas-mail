@@ -136,6 +136,7 @@ class OutlineViewItem extends Component {
 
   constructor(props) {
     super(props);
+    this._expandTimeout = null;
     this.state = {
       isDropping: false,
       editing: props.item.editing || false,
@@ -160,6 +161,7 @@ class OutlineViewItem extends Component {
   }
 
   componentWillUnmount() {
+    clearTimeout(this._expandTimeout);
     if (this._shouldShowContextMenu()) {
       ReactDOM.findDOMNode(this).removeEventListener('contextmenu', this._onShowContextMenu);
     }
@@ -196,6 +198,14 @@ class OutlineViewItem extends Component {
 
   _onDragStateChange = ({isDropping})=> {
     this.setState({isDropping});
+
+    const {item} = this.props;
+    if ((isDropping === true) && (item.children.length > 0) && (item.collapsed)) {
+      this._expandTimeout = setTimeout(this._onCollapseToggled, 650);
+    } else if (isDropping === false && this._expandTimeout) {
+      clearTimeout(this._expandTimeout);
+      this._expandTimeout = null;
+    }
   };
 
   _onDrop = (event)=> {
