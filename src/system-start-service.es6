@@ -1,5 +1,6 @@
 import path from 'path'
 import fs from 'fs'
+import os from 'os'
 import {exec} from 'child_process'
 import ws from 'windows-shortcuts'
 
@@ -113,7 +114,43 @@ class SystemStartServiceWin32 extends SystemStartServiceBase {
 }
 
 class SystemStartServiceLinux extends SystemStartServiceBase {
+  checkAvailability() {
+    return new Promise((resolve) => {
+      fs.access(this._launcherPath(), fs.R_OK, (err) => {
+        if (err) { resolve(false) } else { resolve(true) }
+      });
+    });
+  }
 
+  doesLaunchOnSystemStart() {
+    return new Promise((resolve) => {
+      fs.access(this._shortcutPath(), fs.R_OK | fs.W_OK, (err) => {
+        if (err) { resolve(false) } else { resolve(true) }
+      });
+    });
+  }
+
+  configureToLaunchOnSystemStart() {
+    fs.readFile(this._launcherPath(), 'utf8', (error, data) => {
+      // Append the --background flag before the Exec key
+      const parsedData = data.replace('%U', '--background %U');
+
+      fs.writeFile(this._shortcutPath(), parsedData, () => {});
+    });
+  }
+
+  dontLaunchOnSystemStart() {
+    return fs.unlink(this._shortcutPath())
+  }
+
+  _launcherPath() {
+    return path.join('/', 'usr', 'share', 'applications', 'nylas.desktop');
+  }
+
+  _shortcutPath() {
+    const configDir = process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config');
+    return path.join(configDir, 'autostart', 'nylas-n1.desktop');
+  }
 }
 
 

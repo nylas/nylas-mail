@@ -1,0 +1,9 @@
+{
+  "composer:focus-to": "mod+shift+t",
+  "composer:show-and-focus-cc": "mod+shift+c",
+  "composer:show-and-focus-bcc": "mod+shift+b",
+  "composer:show-and-focus-from": "mod+shift+f",
+  "composer:send-message": "mod+enter",
+  "composer:no-op": "delete",
+  "composer:delete-empty-draft": "escape"
+}

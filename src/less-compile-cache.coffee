@@ -1,3 +1,4 @@
+_ = require 'underscore'
 path = require 'path'
 LessCache = require 'less-cache'
 
@@ -21,8 +22,17 @@ class LessCompileCache
       resourcePath: resourcePath
       fallbackDir: path.join(resourcePath, 'less-compile-cache')
 
+  # Setting the import paths is a VERY expensive operation (200ms +)
+  # because it walks the entire file tree and does a file state for each
+  # and every importPath. If we already have the imports, then load it
+  # from our backend FileListCache.
   setImportPaths: (importPaths=[]) ->
-    @cache.setImportPaths(importPaths.concat(@lessSearchPaths))
+    fileCache = NylasEnv.fileListCache()
+    fileCacheImportPaths = fileCache.lessCacheImportPaths ? []
+    fullImportPaths = importPaths.concat(@lessSearchPaths)
+    if not _.isEqual(fullImportPaths, fileCacheImportPaths)
+      @cache.setImportPaths(fullImportPaths)
+      fileCache.lessCacheImportPaths = fullImportPaths
 
   read: (stylesheetPath) ->
     @cache.readFileSync(stylesheetPath)

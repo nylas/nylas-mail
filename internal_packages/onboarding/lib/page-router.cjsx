@@ -36,7 +36,7 @@ class PageRouter extends React.Component
     {width, height} = ReactDOM.findDOMNode(@refs.activePage).getBoundingClientRect()
     NylasEnv.setSize(width, height)
     NylasEnv.center()
-    NylasEnv.show()
+    NylasEnv.displayWindow()
 
   _updateWindowSize: =>
     return if @_unmounted

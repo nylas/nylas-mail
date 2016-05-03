@@ -11,6 +11,7 @@ SelectedItemsStack = require './selected-items-stack'
  DownButton,
  TrashButton,
  ArchiveButton,
+ MarkAsSpamButton,
  ToggleUnreadButton,
  ToggleStarredButton} = require "./thread-toolbar-buttons"
 
@@ -45,6 +46,9 @@ module.exports =
     ComponentRegistry.register TrashButton,
       role: 'ThreadActionsToolbarButton'
 
+    ComponentRegistry.register MarkAsSpamButton,
+      role: 'ThreadActionsToolbarButton'
+
     ComponentRegistry.register ToggleStarredButton,
       role: 'ThreadActionsToolbarButton'
 
@@ -58,6 +62,7 @@ module.exports =
     ComponentRegistry.unregister MessageListToolbar
     ComponentRegistry.unregister ArchiveButton
     ComponentRegistry.unregister TrashButton
+    ComponentRegistry.unregister MarkAsSpamButton
     ComponentRegistry.unregister ToggleUnreadButton
     ComponentRegistry.unregister ToggleStarredButton
     ComponentRegistry.unregister UpButton

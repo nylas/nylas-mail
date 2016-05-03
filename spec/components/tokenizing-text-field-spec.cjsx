@@ -12,7 +12,7 @@ ReactTestUtils = require('react-addons-test-utils')
 
 CustomToken = React.createClass
   render: ->
-    <span>{@props.item.email}</span>
+    <span>{@props.token.email}</span>
 
 CustomSuggestion = React.createClass
   render: ->
@@ -47,7 +47,7 @@ describe 'TokenizingTextField', ->
     @propEmptied = jasmine.createSpy 'emptied'
     @propTokenKey = jasmine.createSpy("tokenKey").andCallFake (p) -> p.email
     @propTokenIsValid = jasmine.createSpy("tokenIsValid").andReturn(true)
-    @propTokenNode = (p) -> <CustomToken item={p} />
+    @propTokenRenderer = CustomToken
     @propOnTokenAction = jasmine.createSpy 'tokenAction'
     @propCompletionNode = (p) -> <CustomSuggestion item={p} />
     @propCompletionsForInput = (input) => @completions
@@ -63,7 +63,7 @@ describe 'TokenizingTextField', ->
         <TokenizingTextField
           tokens={@tokens}
           tokenKey={@propTokenKey}
-          tokenNode={@propTokenNode}
+          tokenRenderer={@propTokenRenderer}
           tokenIsValid={@propTokenIsValid}
           onRequestCompletions={@propCompletionsForInput}
           completionNode={@propCompletionNode}
@@ -86,14 +86,14 @@ describe 'TokenizingTextField', ->
   it 'should render an input field', ->
     expect(@renderedInput).toBeDefined()
 
-  it 'shows the tokens provided by the tokenNode method', ->
+  it 'shows the tokens provided by the tokenRenderer', ->
     @renderedTokens = ReactTestUtils.scryRenderedComponentsWithType(@renderedField, CustomToken)
     expect(@renderedTokens.length).toBe(@tokens.length)
 
   it 'shows the tokens in the correct order', ->
     @renderedTokens = ReactTestUtils.scryRenderedComponentsWithType(@renderedField, CustomToken)
     for i in [0..@tokens.length-1]
-      expect(@renderedTokens[i].props.item).toBe(@tokens[i])
+      expect(@renderedTokens[i].props.token).toBe(@tokens[i])
 
   describe "prop: tokenIsValid", ->
     it "should be evaluated for each token when it's provided", ->

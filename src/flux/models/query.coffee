@@ -271,9 +271,10 @@ class ModelQuery
       limit += " OFFSET #{@_range.offset}"
 
     distinct = if @_distinct then ' DISTINCT' else ''
+    allMatchers = @matchersFlattened()
 
-    joins = @_matchers.filter (matcher) -> matcher.attr instanceof AttributeCollection
-    if joins.length is 1 and @_canSubselectForJoin(joins[0])
+    joins = allMatchers.filter (matcher) -> matcher.attr instanceof AttributeCollection
+    if joins.length is 1 and @_canSubselectForJoin(joins[0], allMatchers)
       subSql = @_subselectSQL(joins[0], @_matchers, order, limit)
       return "SELECT#{distinct} #{result} FROM `#{@_klass.name}` WHERE `id` IN (#{subSql}) #{order}"
     else
@@ -287,13 +288,13 @@ class ModelQuery
   #
   # Note: This is currently only intended for use in the thread list
   #
-  _canSubselectForJoin: (matcher) ->
+  _canSubselectForJoin: (matcher, allMatchers) ->
     joinAttribute = matcher.attribute()
 
     return unless @_range.limit?
 
-    allMatchersOnJoinTable = _.every @_matchers, (m) ->
-      m is matcher or joinAttribute.joinQueryableBy.indexOf(m.attr.modelKey) isnt -1
+    allMatchersOnJoinTable = _.every allMatchers, (m) ->
+      m is matcher or joinAttribute.joinQueryableBy.indexOf(m.attr.modelKey) isnt -1 or m.attr.modelKey is 'id'
     allOrdersOnJoinTable = _.every @_orders, (o) ->
       joinAttribute.joinQueryableBy.indexOf(o.attr.modelKey) isnt -1
 
@@ -363,6 +364,18 @@ class ModelQuery
 
   matchers: ->
     @_matchers
+
+  matchersFlattened: ->
+    all = []
+    traverse = (matchers) ->
+      return unless matchers instanceof Array
+      for m in matchers
+        if m.children
+          traverse(m.children)
+        else
+          all.push(m)
+    traverse(@_matchers)
+    all
 
   matcherValueForModelKey: (key) ->
     matcher = _.find @_matchers, (m) -> m.attr.modelKey = key

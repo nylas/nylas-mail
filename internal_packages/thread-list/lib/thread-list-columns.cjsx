@@ -76,8 +76,11 @@ c3 = new ListTabular.Column
   name: "Message"
   flex: 4
   resolver: (thread) =>
-    attachment = []
-    if thread.hasAttachments
+    attachment = false
+    metadata = (thread.metadata ? [])
+
+    hasAttachments = thread.hasAttachments and metadata.find (m) -> Utils.showIconForAttachments(m.files)
+    if hasAttachments
       attachment = <div className="thread-icon thread-icon-attachment"></div>
 
     <span className="details">
@@ -114,11 +117,15 @@ cNarrow = new ListTabular.Column
   name: "Item"
   flex: 1
   resolver: (thread) =>
-    pencil = []
-    attachment = []
-    hasDraft = _.find (thread.metadata ? []), (m) -> m.draft
-    if thread.hasAttachments
+    pencil = false
+    attachment = false
+    metadata = (thread.metadata ? [])
+
+    hasAttachments = thread.hasAttachments and metadata.find (m) -> Utils.showIconForAttachments(m.files)
+    if hasAttachments
       attachment = <div className="thread-icon thread-icon-attachment"></div>
+
+    hasDraft = _.find metadata, (m) -> m.draft
     if hasDraft
       pencil = <RetinaImg name="icon-draft-pencil.png" className="draft-icon" mode={RetinaImg.Mode.ContentPreserve} />
 

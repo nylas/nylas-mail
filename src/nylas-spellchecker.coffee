@@ -48,7 +48,7 @@ class NylasSpellchecker
 
   # Separate method for testing
   _setWebframeSpellchecker: (lang, spellCheck) ->
-    require('web-frame').setSpellCheckProvider(lang, false, {spellCheck})
+    require('electron').webFrame.setSpellCheckProvider(lang, false, {spellCheck})
 
   # node-spellchecker's method for resolving the builtin hunspell
   # dictionaries for Linux (From

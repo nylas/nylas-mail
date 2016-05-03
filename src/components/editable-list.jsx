@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import uuid from 'node-uuid';
 import classNames from 'classnames';
 import ScrollRegion from './scroll-region';
 import KeyCommandsRegion from './key-commands-region';
@@ -115,6 +116,7 @@ class EditableList extends Component {
 
   constructor(props) {
     super(props);
+    this.listId = uuid.v4();
     this.state = {
       dropInsertionIndex: -1,
       editingIndex: -1,
@@ -280,8 +282,6 @@ class EditableList extends Component {
     }
 
     const row = event.target.closest('[data-item-idx]') || event.target;
-    const wrapperId = ReactDOM.findDOMNode(this.refs.itemsWrapper).dataset.reactid;
-
     if (!row.dataset.itemIdx) {
       return;
     }
@@ -293,14 +293,14 @@ class EditableList extends Component {
     }
 
     event.dataTransfer.setData('editablelist-index', row.dataset.itemIdx);
-    event.dataTransfer.setData('editablelist-reactid', wrapperId);
+    event.dataTransfer.setData('editablelist-listid', this.listId);
     event.dataTransfer.effectAllowed = "move";
   };
 
   _onDragOver = (event)=> {
     const wrapperNode = ReactDOM.findDOMNode(this.refs.itemsWrapper);
-    const originWrapperId = event.dataTransfer.getData('editablelist-reactid')
-    const originSameList = (originWrapperId === wrapperNode.dataset.reactid);
+    const originListId = event.dataTransfer.getData('editablelist-listid')
+    const originSameList = (originListId === this.listId);
     let dropInsertionIndex = 0;
 
     if ((event.currentTarget === wrapperNode) && originSameList) {

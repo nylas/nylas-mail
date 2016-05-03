@@ -17,6 +17,7 @@ describe("ComposerHeader", () => {
       this.component = ReactTestUtils.renderIntoDocument(
         <ComposerHeader
           draft={draft}
+          initiallyFocused={false}
           session={session}
         />
       )

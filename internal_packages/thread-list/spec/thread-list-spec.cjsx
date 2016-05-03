@@ -12,7 +12,6 @@ return
 
 moment = require "moment"
 _ = require 'underscore'
-CSON = require 'season'
 React = require "react"
 ReactTestUtils = require('react-addons-test-utils')
 ReactTestUtils = _.extend ReactTestUtils, require "jasmine-react-helpers"

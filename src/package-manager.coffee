@@ -7,13 +7,13 @@ EmitterMixin = require('emissary').Emitter
 fs = require 'fs-plus'
 Q = require 'q'
 Grim = require 'grim'
-CSON = require 'season'
 
-ServiceHub = require 'service-hub'
 Package = require './package'
 ThemePackage = require './theme-package'
 DatabaseStore = require './flux/stores/database-store'
 APMWrapper = require './apm-wrapper'
+
+basePackagePaths = null
 
 # Extended: Package manager for coordinating the lifecycle of N1 packages.
 #
@@ -52,7 +52,6 @@ class PackageManager
     @packagesWithDatabaseObjects = []
     @activePackages = {}
     @packageStates = {}
-    @serviceHub = new ServiceHub
 
     @packageActivators = []
     @registerPackageActivator(this, ['nylas'])
@@ -175,7 +174,7 @@ class PackageManager
     return packagePath if fs.isDirectorySync(packagePath)
 
     packagePath = path.join(@resourcePath, 'node_modules', name)
-    return packagePath if @nasNylasEngine(packagePath)
+    return packagePath if @hasNylasEngine(packagePath)
 
   # Public: Is the package with the given name bundled with Nylas?
   #
@@ -296,18 +295,30 @@ class PackageManager
 
     loadPackagesWhenNoTypesSpecified = windowType is 'default'
 
-    for packageDirPath in @packageDirPaths
-      for packagePath in fs.listSync(packageDirPath)
-        # Ignore files in package directory
-        continue unless fs.isDirectorySync(packagePath)
-        # Ignore .git in package directory
-        continue if path.basename(packagePath)[0] is '.'
-        packagePaths.push(packagePath)
+    basePackagePaths ?= NylasEnv.fileListCache().basePackagePaths ? []
+    if basePackagePaths.length is 0
+      for packageDirPath in @packageDirPaths
+        for packagePath in fs.listSync(packageDirPath)
+          # Ignore files in package directory
+          continue unless fs.isDirectorySync(packagePath)
+          # Ignore .git in package directory
+          continue if path.basename(packagePath)[0] is '.'
+          packagePaths.push(packagePath)
+      basePackagePaths = packagePaths
+      cache = NylasEnv.fileListCache()
+      cache.basePackagePaths = basePackagePaths
+    else
+      packagePaths = basePackagePaths
 
     if windowType
       packagePaths = _.filter packagePaths, (packagePath) ->
         try
-          {windowTypes} = Package.loadMetadata(packagePath) ? {}
+          metadata = Package.loadMetadata(packagePath) ? {}
+
+          if not (metadata.engines?.nylas)
+            console.error("INVALID PACKAGE: Your package at #{packagePath} does not have a properly formatted `package.json`. You must include an {'engines': {'nylas': version}} property")
+
+          {windowTypes} = metadata
           if windowTypes
             return windowTypes[windowType]? or windowTypes["all"]?
           else if loadPackagesWhenNoTypesSpecified
@@ -378,7 +389,7 @@ class PackageManager
             callback(null, packageTargetDir)
 
   verifyValidPackage: (packageSourceDir, callback) ->
-    if CSON.resolve(path.join(packageSourceDir, 'package'))
+    if fs.existsSync(path.join(packageSourceDir, 'package.json'))
       return true
     else
       errMsg = "The folder you selected doesn't look like a valid N1 plugin. All N1 plugins must have a package.json file in the top level of the folder. Check the contents of #{packageSourceDir} and try again"
@@ -411,7 +422,7 @@ class PackageManager
 
     @packageDependencies
 
-  nasNylasEngine: (packagePath) ->
+  hasNylasEngine: (packagePath) ->
     metadata = Package.loadMetadata(packagePath, true)
     metadata?.engines?.nylas?
 
@@ -512,7 +523,7 @@ class PackageManager
 
       for pack in packages
         promise = @activatePackage(pack.name)
-        promises.push(promise) unless pack.hasActivationCommands()
+        promises.push(promise)
     @observeDisabledPackages()
     promises
 

@@ -1,6 +1,8 @@
 ModelWithMetadata = require './model-with-metadata'
 Attributes = require '../attributes'
 _ = require 'underscore'
+CategoryStore = null
+Contact = null
 
 ###
 Public: The Account model represents a Account served by the Nylas Platform API.
@@ -80,14 +82,14 @@ class Account extends ModelWithMetadata
 
   # Returns a {Contact} model that represents the current user.
   me: ->
-    Contact = require './contact'
+    Contact ?= require './contact'
     return new Contact
       accountId: @id
       name: @name
       email: @emailAddress
 
   meUsingAlias: (alias) ->
-    Contact = require './contact'
+    Contact ?= require './contact'
     return @me() unless alias
     return Contact.fromString(alias, accountId: @id)
 
@@ -133,15 +135,15 @@ class Account extends ModelWithMetadata
       return @provider
 
   canArchiveThreads: ->
-    CategoryStore = require '../stores/category-store'
+    CategoryStore ?= require '../stores/category-store'
     CategoryStore.getArchiveCategory(@)?
 
   canTrashThreads: ->
-    CategoryStore = require '../stores/category-store'
+    CategoryStore ?= require '../stores/category-store'
     CategoryStore.getTrashCategory(@)?
 
   defaultFinishedCategory: ->
-    CategoryStore = require '../stores/category-store'
+    CategoryStore ?= require '../stores/category-store'
     preferDelete = NylasEnv.config.get('core.reading.backspaceDelete')
     archiveCategory = CategoryStore.getArchiveCategory(@)
     trashCategory = CategoryStore.getTrashCategory(@)

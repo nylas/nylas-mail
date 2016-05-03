@@ -198,7 +198,8 @@ class Toolbar extends React.Component
     return unless @mounted
 
     # Find our item containers that are tied to specific columns
-    columnToolbarEls = ReactDOM.findDOMNode(@).querySelectorAll('[data-column]')
+    el = ReactDOM.findDOMNode(@)
+    columnToolbarEls = el.querySelectorAll('[data-column]')
 
     # Find the top sheet in the stack
     sheet = document.querySelectorAll("[name='Sheet']")[@props.depth]
@@ -214,6 +215,9 @@ class Toolbar extends React.Component
       columnToolbarEl.style.display = 'inherit'
       columnToolbarEl.style.left = "#{columnEl.offsetLeft}px"
       columnToolbarEl.style.width = "#{columnEl.offsetWidth}px"
+
+    # Record our overall height for sheets
+    remote.getCurrentWindow().setSheetOffset(el.clientHeight)
 
   _onWindowResize: =>
     @recomputeLayout()

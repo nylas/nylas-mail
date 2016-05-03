@@ -58,7 +58,7 @@ class MessageParticipants extends React.Component
       if c.name?.length > 0 and c.name isnt c.email
         <div key={"#{c.email}-#{i}"} className="participant selectable">
           <div className="participant-primary" onClick={@_selectText}>
-            {c.name}
+            {c.fullName()}
           </div>
           <div className="participant-secondary">
             {"<"}<span onClick={@_selectText}>{c.email}</span>{">#{comma}"}

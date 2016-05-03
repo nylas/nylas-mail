@@ -7,6 +7,16 @@ mkdirp = require 'mkdirp'
 
 start = ->
   args = parseCommandLine()
+
+  # Note that HFS+ (the Mac filesystem) is case insensitive but case
+  # preserving. This means it's possible to erroneously set process.cwd
+  # to `/n1` instead of `/N1`. Since we use symlinks that have `N1`
+  # (uppercase) embedded in them, it's important the case matches. If it
+  # doesn't the require cache will fail for symlinked packages.
+  if args.devMode and /n1/.test(__dirname)
+    console.error("You must cd into `/N1` (uppercase) instead of `/n1` (lowercase).")
+    process.exit(1)
+
   global.errorLogger = setupErrorLogger(args)
   configDirPath = setupConfigDir(args)
   args.configDirPath = configDirPath

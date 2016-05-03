@@ -15,6 +15,10 @@
   start = function() {
     var addFileToOpen, addUrlToOpen, args, configDirPath;
     args = parseCommandLine();
+    if (args.devMode && /n1/.test(__dirname)) {
+      console.error("You must cd into `/N1` (uppercase) instead of `/n1` (lowercase).");
+      process.exit(1);
+    }
     global.errorLogger = setupErrorLogger(args);
     configDirPath = setupConfigDir(args);
     args.configDirPath = configDirPath;

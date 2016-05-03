@@ -135,7 +135,9 @@ describe("DraftStore", () => {
         runs(() => {
           expect(NylasEnv.newWindow).toHaveBeenCalledWith({
             title: 'Message',
-            windowType: "composer",
+            hidden: true,
+            windowKey: `composer-A`,
+            windowType: "composer-preload",
             windowProps: { draftClientId: "A", draftJSON: this.newDraft.toJSON() },
           });
         });
@@ -155,7 +157,9 @@ describe("DraftStore", () => {
         runs(() => {
           expect(NylasEnv.newWindow).toHaveBeenCalledWith({
             title: 'Message',
-            windowType: "composer",
+            hidden: true,
+            windowKey: `composer-A`,
+            windowType: "composer-preload",
             windowProps: { draftClientId: "A", draftJSON: this.newDraft.toJSON() },
           });
         });
@@ -298,9 +302,9 @@ describe("DraftStore", () => {
       DraftStore._draftSessions = {};
       DraftStore._draftsSending = {};
       this.forceCommit = false;
-      const proxy = {
+      const session = {
         prepare() {
-          return Promise.resolve(proxy);
+          return Promise.resolve(session);
         },
         teardown() {},
         draft: () => this.draft,
@@ -312,7 +316,7 @@ describe("DraftStore", () => {
         },
       };
 
-      DraftStore._draftSessions[this.draft.clientId] = proxy;
+      DraftStore._draftSessions[this.draft.clientId] = session;
       spyOn(DraftStore, "_doneWithSession").andCallThrough();
       spyOn(DraftStore, "_prepareForSyncback").andReturn(Promise.resolve());
       spyOn(DraftStore, "trigger");

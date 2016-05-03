@@ -9,7 +9,7 @@ babelOptions = require '../static/babelrc'
 # packages in the root-level node_modules are compiled against Chrome's v8
 # headers.
 #
-# See build/resources/nylas/docs/ContinuousIntegration.md for more detailed
+# See src/pro/docs/ContinuousIntegration.md for more detailed
 # instructions on how we build N1.
 #
 # Some useful grunt options are:
@@ -174,9 +174,6 @@ module.exports = (grunt) ->
     glob_to_multiple:
       expand: true
       src: [
-        'menus/*.cson'
-        'keymaps/*.cson'
-        'keymaps/templates/*.cson'
         'static/**/*.cson'
       ]
       dest: appDir
@@ -262,6 +259,7 @@ module.exports = (grunt) ->
 
     eslint:
       options:
+        ignore: false
         configFile: 'build/config/eslint.json'
       target: [
         'internal_packages/**/*.jsx'

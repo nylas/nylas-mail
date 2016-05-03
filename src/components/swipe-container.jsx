@@ -114,7 +114,7 @@ export default class SwipeContainer extends Component {
   }
 
   _isEnabled = ()=> {
-    if (!this.isEnabled) {
+    if (this.isEnabled === null) {
       // Cache this value so we don't have to recalculate on every swipe
       this.isEnabled = (
         (this.props.onSwipeLeft || this.props.onSwipeRight) &&

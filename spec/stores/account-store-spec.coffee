@@ -4,6 +4,7 @@ AccountStore = require '../../src/flux/stores/account-store'
 Account = require '../../src/flux/models/account'
 Actions = require '../../src/flux/actions'
 
+
 describe "AccountStore", ->
   beforeEach ->
     @instance = null
@@ -16,11 +17,7 @@ describe "AccountStore", ->
     spyOn(keytar, 'replacePassword').andCallFake (service, account, pass) =>
       @keys[account] = pass
 
-  afterEach ->
-    @instance.stopListeningToAll()
-
-  describe "initialization", ->
-    beforeEach ->
+    @spyOnConfig = =>
       @configTokens = null
       @configVersion = 1
       @configAccounts =
@@ -40,12 +37,19 @@ describe "AccountStore", ->
           "organization_unit": "label"
         }]
 
-      spyOn(NylasEnv.config, 'set')
       spyOn(NylasEnv.config, 'get').andCallFake (key) =>
         return @configAccounts if key is 'nylas.accounts'
         return @configVersion if key is 'nylas.accountsVersion'
         return @configTokens if key is 'nylas.accountTokens'
         return null
+
+  afterEach ->
+    @instance.stopListeningToAll()
+
+  describe "initialization", ->
+    beforeEach ->
+      spyOn(NylasEnv.config, 'set')
+      @spyOnConfig()
 
     it "should initialize the accounts and version from config", ->
       @instance = new @constructor
@@ -90,7 +94,6 @@ describe "AccountStore", ->
 
   describe "adding account from json", ->
     beforeEach ->
-      spyOn(NylasEnv.config, "set")
       @json =
         "id": "B",
         "client_id" : 'local-4f9d476a-c175',
@@ -101,6 +104,7 @@ describe "AccountStore", ->
         "auth_token": "B-NEW-TOKEN"
         "organization_unit": "label"
       @instance = new @constructor
+      spyOn(NylasEnv.config, "set")
       spyOn(Actions, 'focusDefaultMailboxPerspectiveForAccounts')
       spyOn(@instance, "trigger")
       @instance.addAccountFromJSON(@json)
@@ -122,3 +126,41 @@ describe "AccountStore", ->
 
     it "triggers", ->
       expect(@instance.trigger).toHaveBeenCalled()
+
+    describe "when an account with the same ID is already present", ->
+      it "should update it", ->
+        @json =
+          "id": "B",
+          "client_id" : 'local-4f9d476a-c175',
+          "server_id" : 'B',
+          "email_address":"ben@nylas.com",
+          "provider":"gmail",
+          "object":"account"
+          "auth_token": "B-NEW-TOKEN"
+          "organization_unit": "label"
+        @spyOnConfig()
+        @instance = new @constructor
+        spyOn(@instance, "trigger")
+        expect(@instance._accounts.length).toBe 2
+        @instance.addAccountFromJSON(@json)
+        expect(@instance._accounts.length).toBe 2
+
+    describe "when an account with the same email, but different ID, is already present", ->
+      it "should update it", ->
+        @json =
+          "id": "NEVER SEEN BEFORE",
+          "client_id" : 'local-4f9d476a-c175',
+          "server_id" : 'NEVER SEEN BEFORE',
+          "email_address":"ben@nylas.com",
+          "provider":"gmail",
+          "object":"account"
+          "auth_token": "B-NEW-TOKEN"
+          "organization_unit": "label"
+        @spyOnConfig()
+        @instance = new @constructor
+        spyOn(@instance, "trigger")
+        expect(@instance._accounts.length).toBe 2
+        @instance.addAccountFromJSON(@json)
+        expect(@instance._accounts.length).toBe 2
+        expect(@instance.accountForId('B')).toBe(undefined)
+        expect(@instance.accountForId('NEVER SEEN BEFORE')).not.toBe(undefined)

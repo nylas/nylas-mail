@@ -81,7 +81,7 @@ class UndoRedoComponent extends React.Component
     @_ensureTimeout(@state)
 
   _onClick: =>
-    NylasEnv.commands.dispatch(document.querySelector('body'), 'core:undo')
+    NylasEnv.commands.dispatch('core:undo')
     @_hide()
 
   _hide: =>

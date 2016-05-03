@@ -24,7 +24,10 @@ export default class HeaderControls extends React.Component {
   _renderNextAction() {
     if (!this.props.nextAction) { return false; }
     return (
-      <button className="btn btn-icon next" onClick={this.props.nextAction}>
+      <button className="btn btn-icon next"
+        ref="onNextAction"
+        onClick={this.props.nextAction}
+      >
         <RetinaImg name="ic-calendar-right-arrow.png"
           mode={RetinaImg.Mode.ContentIsMask}
         />
@@ -35,7 +38,10 @@ export default class HeaderControls extends React.Component {
   _renderPrevAction() {
     if (!this.props.prevAction) { return false; }
     return (
-      <button className="btn btn-icon prev" onClick={this.props.prevAction}>
+      <button className="btn btn-icon prev"
+        ref="onPreviousAction"
+        onClick={this.props.prevAction}
+      >
         <RetinaImg name="ic-calendar-left-arrow.png"
           mode={RetinaImg.Mode.ContentIsMask}
         />

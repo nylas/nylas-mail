@@ -13,8 +13,9 @@ PriorityUICoordinator = require '../../priority-ui-coordinator'
 DatabaseSetupQueryBuilder = require './database-setup-query-builder'
 DatabaseChangeRecord = require './database-change-record'
 DatabaseTransaction = require './database-transaction'
+JSONBlob = null
 
-{ipcRenderer} = require 'electron'
+{remote, ipcRenderer} = require 'electron'
 
 DatabaseVersion = 23
 DatabasePhase =
@@ -107,7 +108,7 @@ class DatabaseStore extends NylasStore
   _onPhaseChange: (event) =>
     return if NylasEnv.inSpecMode()
 
-    app = require('remote').getGlobal('application')
+    app = remote.getGlobal('application')
     phase = app.databasePhase()
 
     if phase is DatabasePhase.Setup and NylasEnv.isWorkWindow()
@@ -134,7 +135,7 @@ class DatabaseStore extends NylasStore
   # extremely frequently as new models are added when packages load.
   refreshDatabaseSchema: ->
     return unless NylasEnv.isWorkWindow()
-    app = require('remote').getGlobal('application')
+    app = remote.getGlobal('application')
     phase = app.databasePhase()
     if phase isnt DatabasePhase.Setup
       app.setDatabasePhase(DatabasePhase.Setup)
@@ -213,7 +214,7 @@ class DatabaseStore extends NylasStore
       console.log("Completed ANALYZE of database")
 
   _handleSetupError: (err) =>
-    NylasEnv.reportError(err)
+    NylasEnv.reportError(err, {}, noWindows: true)
 
     # Temporary: export mail rules. They're the only bit of data in the cache
     # we can't rebuild. Should be moved to cloud metadata store soon.
@@ -225,7 +226,7 @@ class DatabaseStore extends NylasStore
         catch err
           console.log("Could not write mail rules to file: #{err}")
 
-      app = require('remote').getGlobal('application')
+      app = require('electron').remote.getGlobal('application')
       app.rebuildDatabase()
 
   _prettyConsoleLog: (q) =>
@@ -436,7 +437,7 @@ class DatabaseStore extends NylasStore
       Promise.resolve(result)
 
   findJSONBlob: (id) ->
-    JSONBlob = require '../models/json-blob'
+    JSONBlob ?= require '../models/json-blob'
     new JSONBlobQuery(JSONBlob, @).where({id}).one()
 
   # Private: Mutation hooks allow you to observe changes to the database and

@@ -24,7 +24,6 @@ class MenuItem extends React.Component
   ###
   @propTypes:
     divider: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.bool])
-    key: React.PropTypes.string
     selected: React.PropTypes.bool
     checked: React.PropTypes.bool
 
@@ -39,7 +38,7 @@ class MenuItem extends React.Component
         "item": true
         "selected": @props.selected
         "checked": @props.checked
-      <div className={className} key={@props.key} onMouseDown={@props.onMouseDown}>
+      <div className={className} onMouseDown={@props.onMouseDown}>
         {@props.content}
       </div>
 
@@ -204,7 +203,7 @@ class Menu extends React.Component
     fc = @props.footerComponents ? []
     if fc.length is 0 then fc = <span></span>
     <div onKeyDown={@_onKeyDown}
-         className={"native-key-bindings menu " + @props.className}
+         className={"menu " + @props.className}
          tabIndex="-1">
       <div className="header-container">
         {hc}
@@ -251,11 +250,13 @@ class Menu extends React.Component
       event.preventDefault()
       @props.onSelect(item) if @props.onSelect
 
-    <MenuItem onMouseDown={onMouseDown}
-              key={@props.itemKey(item)}
-              checked={@props.itemChecked?(item)}
-              content={content}
-              selected={@state.selectedIndex is i} />
+    <MenuItem
+      onMouseDown={onMouseDown}
+      key={@props.itemKey(item)}
+      checked={@props.itemChecked?(item)}
+      content={content}
+      selected={@state.selectedIndex is i}
+    />
 
   _onShiftSelectedIndex: (delta) =>
     return if @props.items.length is 0

@@ -11,5 +11,8 @@
   "dependencies": {
     "clearbit": "^1.2"
   },
+  "engines": {
+    "nylas": "*"
+  },
   "license": "GPL-3.0"
 }

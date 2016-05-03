@@ -50,9 +50,6 @@ Great starting points for creating your own plugins!
 - [Translate](https://github.com/nylas/N1/tree/master/internal_packages/composer-translate) — Works with 10 languages
 - [Scheduler](https://github.com/nylas/N1/tree/master/internal_packages/composer-scheduler) — Show your availability to schedule a meeting with someone
 - [Quick Replies](https://github.com/nylas/N1/tree/master/internal_packages/composer-templates) — Send emails faster with templates
-- [Send Later](https://github.com/nylas/N1/tree/master/internal_packages/send-later) — Schedule your emails to be sent at a later time
-- [Open Tracking](https://github.com/nylas/N1/tree/master/internal_packages/open-tracking) — See if your emails have been read
-- [Link Tracking](https://github.com/nylas/N1/tree/master/internal_packages/link-tracking) — See if your links have been clicked
 - [Emoji Keyboard](https://github.com/nylas/N1/tree/master/internal_packages/composer-emoji) — Insert emoji by typing a colon (:) followed by the name of an emoji symbol
 - [GitHub Sidebar Info](https://github.com/nylas/N1/tree/master/internal_packages/github-contact-card)
 - [View on GitHub](https://github.com/nylas/N1/tree/master/internal_packages/message-view-on-github)

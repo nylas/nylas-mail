@@ -394,13 +394,12 @@ class AccountSettingsPage extends React.Component
     errorFieldNames = err.body?.missing_fields || err.body?.missing_settings
 
     if err.errorTitle is "setting_update_error"
-      choice = dialog.showMessageBox(remote.getCurrentWindow(), {
-        type: 'info',
-        buttons: ['Okay'],
-        title: 'Confirm',
-        message: 'The IMAP/SMTP servers for this account do not match our records. Please verify that any server names you entered are correct. If your IMAP/SMTP server has changed, first remove this account from N1, then try logging in again.'
-      })
+      @setState
+        tryingToAuthenticate: false
+        errorMessage: 'The IMAP/SMTP servers for this account do not match our records. Please verify that any server names you entered are correct. If your IMAP/SMTP server has changed, first remove this account from N1, then try logging in again.'
+      @_resize()
       OnboardingActions.moveToPage("account-settings")
+      return
 
     if errorFieldNames
       {pageNumber, errorMessage} = @_stateForMissingFieldNames(errorFieldNames)
