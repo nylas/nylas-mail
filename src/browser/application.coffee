@@ -223,7 +223,7 @@ class Application
         title: "Welcome to N1"
         windowProps: page: "welcome"
       })
-      # The onboarding window automatically shows when it's ready
+      @windowManager.ensureWindow(WindowManager.WORK_WINDOW)
 
   _resetConfigAndRelaunch: =>
     @setDatabasePhase('close')
@@ -232,10 +232,7 @@ class Application
       @config.set('nylas', null)
       @config.set('edgehill', null)
       @setDatabasePhase('setup')
-      @windowManager.ensureWindow(WindowManager.ONBOARDING_WINDOW, {
-        title: "Welcome to N1"
-        windowProps: page: "welcome"
-      })
+      @openWindowsForTokenState()
 
   _deleteDatabase: (callback) ->
     @deleteFileWithRetry path.join(@configDirPath,'edgehill.db'), callback
