@@ -10,13 +10,13 @@ AccountStore = require './account-store'
 TaskQueueStatusStore = require './task-queue-status-store'
 FocusedContentStore = require './focused-content-store'
 
-BaseDraftTask = require '../tasks/base-draft-task'
-SendDraftTask = require '../tasks/send-draft-task'
-SyncbackDraftFilesTask = require '../tasks/syncback-draft-files-task'
-SyncbackDraftTask = require '../tasks/syncback-draft-task'
-DestroyDraftTask = require '../tasks/destroy-draft-task'
+BaseDraftTask = require('../tasks/base-draft-task').default
+SendDraftTask = require('../tasks/send-draft-task').default
+SyncbackDraftFilesTask = require('../tasks/syncback-draft-files-task').default
+SyncbackDraftTask = require('../tasks/syncback-draft-task').default
+DestroyDraftTask = require('../tasks/destroy-draft-task').default
 
-Thread = require '../models/thread'
+Thread = require('../models/thread').default
 Contact = require '../models/contact'
 Message = require '../models/message'
 Actions = require '../actions'
@@ -27,7 +27,7 @@ SoundRegistry = require '../../sound-registry'
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'
 
-ExtensionRegistry = require '../../extension-registry'
+ExtensionRegistry = require('../../extension-registry').default
 {deprecate} = require '../../deprecate-utils'
 
 ###

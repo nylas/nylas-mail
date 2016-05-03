@@ -3,7 +3,7 @@ ReactCSSTransitionGroup = require 'react-addons-css-transition-group'
 Sheet = require './sheet'
 Toolbar = require './sheet-toolbar'
 Flexbox = require './components/flexbox'
-RetinaImg = require './components/retina-img'
+RetinaImg = require('./components/retina-img').default
 InjectedComponentSet = require './components/injected-component-set'
 _ = require 'underscore'
 

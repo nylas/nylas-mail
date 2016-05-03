@@ -4,7 +4,7 @@ AccountStore = require './account-store'
 WorkspaceStore = require './workspace-store'
 DatabaseStore = require './database-store'
 Actions = require '../actions'
-Thread = require '../models/thread'
+Thread = require('../models/thread').default
 Model = require '../models/model'
 
 {Listener, Publisher} = require '../modules/reflux-coffee'

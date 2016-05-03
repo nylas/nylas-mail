@@ -1,4 +1,4 @@
-ModelWithMetadata = require './model-with-metadata'
+ModelWithMetadata = require('./model-with-metadata').default
 Attributes = require '../attributes'
 _ = require 'underscore'
 CategoryStore = null

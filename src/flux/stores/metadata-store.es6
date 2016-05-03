@@ -42,4 +42,5 @@ class MetadataStore extends NylasStore {
   }
 }
 
-module.exports = new MetadataStore();
+const store = new MetadataStore();
+export default store

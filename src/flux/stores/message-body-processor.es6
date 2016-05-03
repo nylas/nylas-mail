@@ -133,4 +133,5 @@ class MessageBodyProcessor {
   }
 }
 
-module.exports = new MessageBodyProcessor();
+const store = new MessageBodyProcessor();
+export default store

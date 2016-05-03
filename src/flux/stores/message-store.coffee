@@ -1,14 +1,14 @@
 NylasStore = require "nylas-store"
 Actions = require "../actions"
 Message = require "../models/message"
-Thread = require "../models/thread"
+Thread = require("../models/thread").default
 Utils = require '../models/utils'
 DatabaseStore = require "./database-store"
 FocusedPerspectiveStore = require './focused-perspective-store'
 FocusedContentStore = require "./focused-content-store"
-ChangeUnreadTask = require '../tasks/change-unread-task'
+ChangeUnreadTask = require('../tasks/change-unread-task').default
 NylasAPI = require '../nylas-api'
-ExtensionRegistry = require '../../extension-registry'
+ExtensionRegistry = require('../../extension-registry').default
 {deprecate} = require '../../deprecate-utils'
 async = require 'async'
 _ = require 'underscore'
@@ -86,7 +86,7 @@ class MessageStore extends NylasStore
     ExtensionRegistry.MessageView.unregister(ext)
 
   _onExtensionsChanged: (role) ->
-    MessageBodyProcessor = require './message-body-processor'
+    MessageBodyProcessor = require('./message-body-processor').default
     MessageBodyProcessor.resetCache()
 
 

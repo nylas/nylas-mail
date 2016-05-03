@@ -238,7 +238,7 @@ class AccountStore extends NylasStore
     path = require 'path'
     Message = require '../models/message'
     Account = require '../models/account'
-    Thread = require '../models/thread'
+    Thread = require('../models/thread').default
     Label = require '../models/label'
 
     @_caches = {}

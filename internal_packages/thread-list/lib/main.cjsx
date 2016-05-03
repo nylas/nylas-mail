@@ -3,9 +3,9 @@ React = require "react"
 {ComponentRegistry, WorkspaceStore} = require "nylas-exports"
 
 ThreadList = require './thread-list'
-ThreadListToolbar = require './thread-list-toolbar'
-MessageListToolbar = require './message-list-toolbar'
-SelectedItemsStack = require './selected-items-stack'
+ThreadListToolbar = require('./thread-list-toolbar').default
+MessageListToolbar = require('./message-list-toolbar').default
+SelectedItemsStack = require('./selected-items-stack').default
 
 {UpButton,
  DownButton,

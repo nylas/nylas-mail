@@ -1,7 +1,7 @@
 _ = require 'underscore'
 
 Category = require '../../src/flux/models/category'
-Thread = require '../../src/flux/models/thread'
+Thread = require('../../src/flux/models/thread').default
 TestModel = require '../fixtures/db-test-model'
 ModelQuery = require '../../src/flux/models/query'
 DatabaseTransaction = require '../../src/flux/stores/database-transaction'

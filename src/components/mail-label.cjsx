@@ -1,5 +1,5 @@
 React = require 'react'
-RetinaImg = require './retina-img'
+RetinaImg = require('./retina-img').default
 CategoryStore = require '../flux/stores/category-store'
 
 LabelColorizer =

@@ -1,5 +1,5 @@
 _ = require 'underscore'
-QuerySubscription = require './query-subscription'
+QuerySubscription = require('./query-subscription').default
 DatabaseStore = null
 
 ###

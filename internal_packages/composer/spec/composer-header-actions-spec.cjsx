@@ -1,7 +1,7 @@
 React = require 'react'
 ReactDOM = require 'react-dom'
-ComposerHeaderActions = require '../lib/composer-header-actions'
-Fields = require '../lib/fields'
+ComposerHeaderActions = require('../lib/composer-header-actions').default
+Fields = require('../lib/fields').default
 ReactTestUtils = require('react-addons-test-utils')
 {Actions} = require 'nylas-exports'
 

@@ -1,12 +1,12 @@
 _ = require 'underscore'
 Label = require '../../src/flux/models/label'
-Thread = require '../../src/flux/models/thread'
+Thread = require('../../src/flux/models/thread').default
 Message = require '../../src/flux/models/message'
 Actions = require '../../src/flux/actions'
 NylasAPI = require '../../src/flux/nylas-api'
 DatabaseStore = require '../../src/flux/stores/database-store'
-ChangeLabelsTask = require '../../src/flux/tasks/change-labels-task'
-ChangeMailTask = require '../../src/flux/tasks/change-mail-task'
+ChangeLabelsTask = require('../../src/flux/tasks/change-labels-task').default
+ChangeMailTask = require('../../src/flux/tasks/change-mail-task').default
 
 {AccountStore, CategoryStore} = require 'nylas-exports'
 {APIError} = require '../../src/flux/errors'

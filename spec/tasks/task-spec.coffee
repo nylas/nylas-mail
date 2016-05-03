@@ -1,6 +1,6 @@
 Actions = require '../../src/flux/actions'
 TaskQueue = require '../../src/flux/stores/task-queue'
-Task = require '../../src/flux/tasks/task'
+Task = require('../../src/flux/tasks/task').default
 
 {APIError,
  TimeoutError} = require '../../src/flux/errors'

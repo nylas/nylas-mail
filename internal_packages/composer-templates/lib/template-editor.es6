@@ -69,5 +69,3 @@ export default class TemplateEditor extends ContenteditableExtension {
     }
   }
 }
-
-module.exports = TemplateEditor

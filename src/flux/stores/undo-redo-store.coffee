@@ -3,7 +3,7 @@ _ = require 'underscore'
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'
 
-Task = require "../tasks/task"
+Task = require("../tasks/task").default
 Actions = require '../actions'
 
 class UndoRedoStore

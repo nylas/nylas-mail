@@ -72,4 +72,5 @@ class BadgeStore extends NylasStore {
   }
 }
 
-module.exports = new BadgeStore()
+const badgeStore = new BadgeStore()
+export default badgeStore

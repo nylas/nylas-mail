@@ -1,6 +1,6 @@
-TaskRegistry = require '../task-registry'
-StoreRegistry = require '../store-registry'
-DatabaseObjectRegistry = require '../database-object-registry'
+TaskRegistry = require('../task-registry').default
+StoreRegistry = require('../store-registry').default
+DatabaseObjectRegistry = require('../database-object-registry').default
 
 class NylasExports
   # Will lazy load when requested

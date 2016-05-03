@@ -1,7 +1,7 @@
 React = require 'react'
 classNames = require 'classnames'
 _ = require 'underscore'
-EmailFrame = require './email-frame'
+EmailFrame = require('./email-frame').default
 MessageParticipants = require "./message-participants"
 MessageItemBody = require "./message-item-body"
 MessageTimestamp = require "./message-timestamp"

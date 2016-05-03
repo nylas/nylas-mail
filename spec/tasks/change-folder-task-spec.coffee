@@ -1,13 +1,13 @@
 _ = require 'underscore'
 Folder = require '../../src/flux/models/folder'
-Thread = require '../../src/flux/models/thread'
+Thread = require('../../src/flux/models/thread').default
 Message = require '../../src/flux/models/message'
 Actions = require '../../src/flux/actions'
 NylasAPI = require '../../src/flux/nylas-api'
 Query = require '../../src/flux/models/query'
 DatabaseStore = require '../../src/flux/stores/database-store'
-ChangeFolderTask = require '../../src/flux/tasks/change-folder-task'
-ChangeMailTask = require '../../src/flux/tasks/change-mail-task'
+ChangeFolderTask = require('../../src/flux/tasks/change-folder-task').default
+ChangeMailTask = require('../../src/flux/tasks/change-mail-task').default
 
 {APIError} = require '../../src/flux/errors'
 {Utils} = require '../../src/flux/models/utils'

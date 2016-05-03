@@ -1,5 +1,5 @@
 Label = require '../../src/flux/models/label'
-BadgeStore = require '../../src/flux/stores/badge-store'
+BadgeStore = require('../../src/flux/stores/badge-store').default
 
 describe "BadgeStore", ->
   describe "_setBadgeForCount", ->

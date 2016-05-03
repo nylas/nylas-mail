@@ -8,9 +8,9 @@ React = require "react"
 ReactDOM = require 'react-dom'
 ReactTestUtils = require('react-addons-test-utils')
 
-Fields = require '../lib/fields'
-Composer = require "../lib/composer-view"
-ComposerEditor = require '../lib/composer-editor'
+Fields = require('../lib/fields').default
+Composer = require("../lib/composer-view").default
+ComposerEditor = require('../lib/composer-editor').default
 
 {Message, DraftStore, ComponentRegistry} = require 'nylas-exports'
 
