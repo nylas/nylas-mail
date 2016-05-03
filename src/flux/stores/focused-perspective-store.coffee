@@ -1,6 +1,7 @@
 _ = require 'underscore'
 NylasStore = require 'nylas-store'
 AccountStore = require './account-store'
+WorkspaceStore = require './workspace-store'
 MailboxPerspective = require '../../mailbox-perspective'
 CategoryStore = require './category-store'
 Actions = require '../actions'
@@ -75,6 +76,14 @@ class FocusedPerspectiveStore extends NylasStore
     NylasEnv.savedState.perspective = perspective.toJSON()
     @_current = perspective
     @trigger()
+
+    if perspective.drafts
+      desired = WorkspaceStore.Sheet.Drafts
+    else
+      desired = WorkspaceStore.Sheet.Threads
+
+    if desired and WorkspaceStore.rootSheet() isnt desired
+      Actions.selectRootSheet(desired)
 
   _setPerspectiveByName: (categoryName) ->
     categories = @_current.accountIds.map (aid) ->

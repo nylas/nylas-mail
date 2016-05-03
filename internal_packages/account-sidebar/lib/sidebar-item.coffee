@@ -93,7 +93,6 @@ class SidebarItem
         return item.dataTransferType in event.dataTransfer.types
 
       onSelect: (item) ->
-        Actions.selectRootSheet(WorkspaceStore.Sheet.Threads)
         Actions.focusMailboxPerspective(item.perspective)
     }, opts)
 
@@ -141,9 +140,6 @@ class SidebarItem
   @forDrafts: (accountIds, opts = {}) ->
     perspective = MailboxPerspective.forDrafts(accountIds)
     id = "Drafts-#{opts.name}"
-    opts.onSelect = ->
-      Actions.focusMailboxPerspective(perspective)
-      Actions.selectRootSheet(WorkspaceStore.Sheet.Drafts)
     @forPerspective(id, perspective, opts)
 
 module.exports = SidebarItem
