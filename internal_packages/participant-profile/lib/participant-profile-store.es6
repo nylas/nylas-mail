@@ -66,4 +66,5 @@ class ParticipantProfileStore extends NylasStore {
     // no op
   }
 }
-module.exports = new ParticipantProfileStore()
+const store = new ParticipantProfileStore()
+export default store
