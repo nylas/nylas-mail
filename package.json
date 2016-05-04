@@ -74,7 +74,6 @@
     "windows-shortcuts": "emorikawa/windows-shortcuts#b0a0fc7"
   },
   "packageDependencies": {},
-  "private": true,
   "scripts": {
     "test": "./N1.sh --test"
   }
