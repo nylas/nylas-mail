@@ -1,4 +1,3 @@
-/** @babel */
 export default categorizedEmojiList = {
   'People': [
     'grinning',

@@ -1,4 +1,3 @@
-/** @babel */
 import {ComponentRegistry} from 'nylas-exports';
 import {ToolbarSnooze, QuickActionSnooze} from './snooze-buttons';
 import SnoozeMailLabel from './snooze-mail-label'

@@ -1,4 +1,3 @@
-/** @babel */
 import NylasStore from 'nylas-store'
 import ClearbitDataSource from './clearbit-data-source'
 import {Utils} from 'nylas-exports'

@@ -1,4 +1,3 @@
-/** @babel */
 import {ExtensionRegistry, ComponentRegistry} from 'nylas-exports';
 import EmojiStore from './emoji-store';
 import EmojiComposerExtension from './emoji-composer-extension';

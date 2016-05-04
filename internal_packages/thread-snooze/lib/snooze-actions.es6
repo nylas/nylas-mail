@@ -1,4 +1,3 @@
-/** @babel */
 import Reflux from 'reflux';
 
 const SnoozeActions = Reflux.createActions([
