@@ -122,6 +122,7 @@ class NylasAPI
   PermanentErrorCodes: PermanentErrorCodes
   CancelledErrorCode: CancelledErrorCode
   SampleTemporaryErrorCode: SampleTemporaryErrorCode
+  LongConnectionStatuses: NylasLongConnection.Statuses
 
   constructor: ->
     @_lockTracker = new NylasAPIChangeLockTracker()
