@@ -1,9 +1,25 @@
 exec = require('child_process').exec
-app = require('electron').remote.app
 fs = require('fs')
+
 bundleIdentifier = 'com.nylas.nylas-mail'
 
+class LaunchServicesUnavailable
+  available: ->
+    false
+
+  isRegisteredForURLScheme: (scheme, callback) ->
+    throw new Error "isRegisteredForURLScheme is not available"
+
+  resetURLScheme: (scheme, callback) ->
+    throw new Error "resetURLScheme is not available"
+
+  registerForURLScheme: (scheme, callback) ->
+    throw new Error "registerForURLScheme is not available"
+
 class LaunchServicesLinux
+  available: ->
+    true
+
   isRegisteredForURLScheme: (scheme, callback) ->
     throw new Error "isRegisteredForURLScheme is async, provide a callback" unless callback
     exec "xdg-mime query default x-scheme-handler/#{scheme}", (err, stdout, stderr) ->
@@ -23,6 +39,9 @@ class LaunchServicesLinux
 class LaunchServicesMac
   constructor: ->
     @secure = false
+
+  available: ->
+    true
 
   getLaunchServicesPlistPath: (callback) ->
     secure = "#{process.env.HOME}/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist"
@@ -98,24 +117,7 @@ class LaunchServicesMac
       @writeDefaults(defaults, callback)
 
 
-class LaunchServicesElectron
-  constructor: ->
-
-  isRegisteredForURLScheme: (scheme, callback) ->
-    process.nextTick =>
-      callback(app.isDefaultProtocolClient(scheme))
-
-  resetURLScheme: (scheme, callback) ->
-    process.nextTick =>
-      app.removeAsDefaultProtocolClient(scheme)
-      callback(null, null) if callback
-
-  registerForURLScheme: (scheme, callback) ->
-    process.nextTick =>
-      app.setAsDefaultProtocolClient(scheme)
-      callback(null, null) if callback
-
-module.exports = LaunchServicesElectron
+module.exports = LaunchServicesUnavailable
 if process.platform is 'darwin'
   module.exports = LaunchServicesMac
 else if process.platform is 'linux'
@@ -123,4 +125,4 @@ else if process.platform is 'linux'
 
 module.exports.LaunchServicesMac = LaunchServicesMac
 module.exports.LaunchServicesLinux = LaunchServicesLinux
-module.exports.LaunchServicesElectron = LaunchServicesElectron
+module.exports.LaunchServicesUnavailable = LaunchServicesUnavailable
