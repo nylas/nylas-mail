@@ -157,13 +157,20 @@ class DraftEditingSession
 
   _onDraftChanged: (change) ->
     return if not change?
+
     # We don't accept changes unless our draft object is loaded
     return unless @_draft
 
-    # Is this change an update to our draft?
-    myDrafts = _.filter(change.objects, (obj) => obj.clientId is @_draft.clientId)
-    if myDrafts.length > 0
-      @_draft = Object.assign(new Message(), @_draft, myDrafts.pop())
+    # If our draft has been changed, only accept values which are present.
+    # If `body` is undefined, assume it's not loaded. Do not overwrite old body.
+    nextDraft = _.filter(change.objects, (obj) => obj.clientId is @_draft.clientId).pop()
+    if nextDraft
+      nextValues = {}
+      for key, attr of Message.attributes
+        continue if key is 'id'
+        continue if nextDraft[key] is undefined
+        nextValues[key] = nextDraft[key]
+      @_draft = Object.assign(new Message(), @_draft, nextValues)
       @trigger()
 
   _changeSetAltered: =>
