@@ -10,7 +10,7 @@ import CategoryRemovalTargetRulesets from '../internal_packages/thread-list/lib/
 const {Default} = CategoryRemovalTargetRulesets;
 
 
-describe('MailboxPerspective', ()=> {
+describe('MailboxPerspective', function mailboxPerspective() {
   beforeEach(()=> {
     this.accountIds = ['a1', 'a2']
     this.accounts = {
