@@ -25,8 +25,8 @@ class WorkspaceStore extends NylasStore
     @listenTo Actions.setFocus, @_onSetFocus
     @listenTo Actions.toggleWorkspaceLocationHidden, @_onToggleLocationHidden
     @listenTo Actions.popSheet, @popSheet
+    @listenTo Actions.popToRootSheet, @popToRootSheet
     @listenTo Actions.pushSheet, @pushSheet
-    @listenTo Actions.focusMailboxPerspective, @popToRootSheet
 
     {windowType} = NylasEnv.getLoadSettings()
     unless windowType is 'onboarding'
