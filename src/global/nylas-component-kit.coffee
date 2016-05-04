@@ -1,20 +1,24 @@
 # Publically exposed Nylas UI Components
 class NylasComponentKit
+
+  @default = (requireValue) -> requireValue.default ? requireValue
+
   @load = (prop, path) ->
     Object.defineProperty @prototype, prop,
-      get: -> require "../components/#{path}"
+      get: ->
+        NylasComponentKit.default(require "../components/#{path}")
 
   @loadFrom = (prop, path) ->
     Object.defineProperty @prototype, prop,
       get: ->
-        exported = require "../components/#{path}"
+        exported = NylasComponentKit.default(require "../components/#{path}")
         return exported[prop]
 
   @loadDeprecated = (prop, path, {instead} = {}) ->
     {deprecate} = require '../deprecate-utils'
     Object.defineProperty @prototype, prop,
       get: deprecate prop, instead, @, ->
-        exported = require "../components/#{path}"
+        exported = NylasComponentKit.default(require "../components/#{path}")
         return exported
       enumerable: true
 
