@@ -125,6 +125,10 @@ describe "LaunchServices", ->
       execHitory = []
       @services = new LaunchServices.LaunchServicesMac()
 
+    describe "available", ->
+      it "should return true", ->
+        expect(@services.available()).toEqual(true)
+
     describe "readDefaults", ->
 
     describe "writeDefaults", ->
