@@ -7,24 +7,8 @@ var defaultOptions = require('../../static/babelrc.json')
 var babel = null
 var babelVersionDirectory = null
 
-var PREFIXES = [
-  '/** @babel */',
-  '"use babel"',
-  '\'use babel\''
-]
-
-var PREFIX_LENGTH = Math.max.apply(Math, PREFIXES.map(function (prefix) {
-  return prefix.length
-}))
-
 exports.shouldCompile = function (sourceCode, filePath) {
-  if (filePath.endsWith('.es6') || filePath.endsWith('.jsx')) {
-    return true;
-  }
-  var start = sourceCode.substr(0, PREFIX_LENGTH)
-  return PREFIXES.some(function (prefix) {
-    return start.indexOf(prefix) === 0
-  });
+  return (filePath.endsWith('.es6') || filePath.endsWith('.jsx'))
 }
 
 exports.getCachePath = function (sourceCode) {
