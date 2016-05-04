@@ -1,8 +1,7 @@
 {
   "presets": [
     "electron",
-    "react",
-    "stage-0"
+    "react"
   ],
   "sourceMaps": "inline"
 }
