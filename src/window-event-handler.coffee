@@ -14,14 +14,6 @@ class WindowEventHandler
     _.defer =>
       @showDevModeMessages()
 
-    ipcRenderer.on 'open-path', (event, pathToOpen) ->
-      unless NylasEnv.project?.getPaths().length
-        if fs.existsSync(pathToOpen) or fs.existsSync(path.dirname(pathToOpen))
-          NylasEnv.project?.setPaths([pathToOpen])
-
-      unless fs.isDirectorySync(pathToOpen)
-        NylasEnv.workspace?.open(pathToOpen, {})
-
     ipcRenderer.on 'update-available', (event, detail) ->
       NylasEnv.updateAvailable(detail)
 

@@ -103,9 +103,6 @@ class NylasEnvConstructor
   # Public: A {Config} instance
   config: null
 
-  # Public: A {Clipboard} instance
-  clipboard: null
-
   # Public: A {MenuManager} instance
   menu: null
 
@@ -151,7 +148,6 @@ class NylasEnvConstructor
     KeymapManager = require './keymap-manager'
     CommandRegistry = require './command-registry'
     PackageManager = require './package-manager'
-    Clipboard = require './clipboard'
     ThemeManager = require './theme-manager'
     StyleManager = require './style-manager'
     ActionBridge = require './flux/action-bridge'
@@ -187,7 +183,6 @@ class NylasEnvConstructor
     @styles = new StyleManager
     document.head.appendChild(new StylesElement)
     @themes = new ThemeManager({packageManager: @packages, configDirPath, resourcePath, safeMode})
-    @clipboard = new Clipboard()
     @menu = new MenuManager({resourcePath})
     if process.platform is 'win32'
       @getCurrentWindow().setMenuBarVisibility(false)

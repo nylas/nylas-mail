@@ -123,8 +123,5 @@
       { "label": "Nylas N1 Help", "command": "application:view-help" }
     ]
   }
-],
-
-"context-menu": [
-]
+  ]
 }

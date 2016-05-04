@@ -6,7 +6,6 @@ EmitterMixin = require('emissary').Emitter
 {Emitter} = require 'event-kit'
 fs = require 'fs-plus'
 Q = require 'q'
-Grim = require 'grim'
 
 Package = require './package'
 ThemePackage = require './theme-package'
@@ -67,11 +66,6 @@ class PackageManager
   # Returns a {Disposable} on which `.dispose()` can be called to unsubscribe.
   onDidLoadInitialPackages: (callback) ->
     @emitter.on 'did-load-initial-packages', callback
-    @emitter.on 'did-load-all', callback # TODO: Remove once deprecated pre-1.0 APIs are gone
-
-  onDidLoadAll: (callback) ->
-    Grim.deprecate("Use `::onDidLoadInitialPackages` instead.")
-    @onDidLoadInitialPackages(callback)
 
   # Public: Invoke the given callback when all packages have been activated.
   #
@@ -80,11 +74,6 @@ class PackageManager
   # Returns a {Disposable} on which `.dispose()` can be called to unsubscribe.
   onDidActivateInitialPackages: (callback) ->
     @emitter.on 'did-activate-initial-packages', callback
-    @emitter.on 'did-activate-all', callback # TODO: Remove once deprecated pre-1.0 APIs are gone
-
-  onDidActivateAll: (callback) ->
-    Grim.deprecate("Use `::onDidActivateInitialPackages` instead.")
-    @onDidActivateInitialPackages(callback)
 
   # Public: Invoke the given callback when a package is activated.
   #
@@ -121,16 +110,6 @@ class PackageManager
   # Returns a {Disposable} on which `.dispose()` can be called to unsubscribe.
   onDidUnloadPackage: (callback) ->
     @emitter.on 'did-unload-package', callback
-
-  on: (eventName) ->
-    switch eventName
-      when 'loaded'
-        Grim.deprecate 'Use PackageManager::onDidLoadInitialPackages instead'
-      when 'activated'
-        Grim.deprecate 'Use PackageManager::onDidActivateInitialPackages instead'
-      else
-        Grim.deprecate 'PackageManager::on is deprecated. Use event subscription methods instead.'
-    EmitterMixin::on.apply(this, arguments)
 
   ###
   Section: Package system data

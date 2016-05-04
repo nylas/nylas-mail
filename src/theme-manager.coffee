@@ -6,7 +6,6 @@ EmitterMixin = require('emissary').Emitter
 {File} = require 'pathwatcher'
 fs = require 'fs-plus'
 Q = require 'q'
-Grim = require 'grim'
 
 Package = require './package'
 
@@ -47,24 +46,17 @@ class ThemeManager
   styleElementAdded: (styleElement) ->
     {sheet} = styleElement
     @sheetsByStyleElement.set(styleElement, sheet)
-    @emit 'stylesheet-added', sheet
     @emitter.emit 'did-add-stylesheet', sheet
-    @emit 'stylesheets-changed'
     @emitter.emit 'did-change-stylesheets'
 
   styleElementRemoved: (styleElement) ->
     sheet = @sheetsByStyleElement.get(styleElement)
-    @emit 'stylesheet-removed', sheet
     @emitter.emit 'did-remove-stylesheet', sheet
-    @emit 'stylesheets-changed'
     @emitter.emit 'did-change-stylesheets'
 
   styleElementUpdated: ({sheet}) ->
-    @emit 'stylesheet-removed', sheet
     @emitter.emit 'did-remove-stylesheet', sheet
-    @emit 'stylesheet-added', sheet
     @emitter.emit 'did-add-stylesheet', sheet
-    @emit 'stylesheets-changed'
     @emitter.emit 'did-change-stylesheets'
 
   ###
@@ -77,65 +69,6 @@ class ThemeManager
   # * `callback` {Function}
   onDidChangeActiveThemes: (callback) ->
     @emitter.on 'did-change-active-themes', callback
-
-  onDidReloadAll: (callback) ->
-    Grim.deprecate("Use `::onDidChangeActiveThemes` instead.")
-    @onDidChangeActiveThemes(callback)
-
-  # Deprecated: Invoke `callback` when a stylesheet has been added to the dom.
-  #
-  # * `callback` {Function}
-  #   * `stylesheet` {StyleSheet} the style node
-  #
-  # Returns a {Disposable} on which `.dispose()` can be called to unsubscribe.
-  onDidAddStylesheet: (callback) ->
-    Grim.deprecate("Use NylasEnv.styles.onDidAddStyleElement instead")
-    @emitter.on 'did-add-stylesheet', callback
-
-  # Deprecated: Invoke `callback` when a stylesheet has been removed from the dom.
-  #
-  # * `callback` {Function}
-  #   * `stylesheet` {StyleSheet} the style node
-  #
-  # Returns a {Disposable} on which `.dispose()` can be called to unsubscribe.
-  onDidRemoveStylesheet: (callback) ->
-    Grim.deprecate("Use NylasEnv.styles.onDidRemoveStyleElement instead")
-    @emitter.on 'did-remove-stylesheet', callback
-
-  # Deprecated: Invoke `callback` when a stylesheet has been updated.
-  #
-  # * `callback` {Function}
-  #   * `stylesheet` {StyleSheet} the style node
-  #
-  # Returns a {Disposable} on which `.dispose()` can be called to unsubscribe.
-  onDidUpdateStylesheet: (callback) ->
-    Grim.deprecate("Use NylasEnv.styles.onDidUpdateStyleElement instead")
-    @emitter.on 'did-update-stylesheet', callback
-
-  # Deprecated: Invoke `callback` when any stylesheet has been updated, added, or removed.
-  #
-  # * `callback` {Function}
-  #
-  # Returns a {Disposable} on which `.dispose()` can be called to unsubscribe.
-  onDidChangeStylesheets: (callback) ->
-    Grim.deprecate("Use NylasEnv.styles.onDidAdd/RemoveStyleElement instead")
-    @emitter.on 'did-change-stylesheets', callback
-
-  on: (eventName) ->
-    switch eventName
-      when 'reloaded'
-        Grim.deprecate 'Use ThemeManager::onDidChangeActiveThemes instead'
-      when 'stylesheet-added'
-        Grim.deprecate 'Use ThemeManager::onDidAddStylesheet instead'
-      when 'stylesheet-removed'
-        Grim.deprecate 'Use ThemeManager::onDidRemoveStylesheet instead'
-      when 'stylesheet-updated'
-        Grim.deprecate 'Use ThemeManager::onDidUpdateStylesheet instead'
-      when 'stylesheets-changed'
-        Grim.deprecate 'Use ThemeManager::onDidChangeStylesheets instead'
-      else
-        Grim.deprecate 'ThemeManager::on is deprecated. Use event subscription methods instead.'
-    EmitterMixin::on.apply(this, arguments)
 
   ###
   Section: Accessing Available Themes
@@ -153,10 +86,6 @@ class ThemeManager
   getLoadedThemeNames: ->
     theme.name for theme in @getLoadedThemes()
 
-  getLoadedNames: ->
-    Grim.deprecate("Use `::getLoadedThemeNames` instead.")
-    @getLoadedThemeNames()
-
   # Public: Get an array of all the loaded themes.
   getLoadedThemes: ->
     pack for pack in @packageManager.getLoadedPackages() when pack.isTheme()
@@ -168,10 +97,6 @@ class ThemeManager
   # Public: Get an array of all the active theme names.
   getActiveThemeNames: ->
     theme.name for theme in @getActiveThemes()
-
-  getActiveNames: ->
-    Grim.deprecate("Use `::getActiveThemeNames` instead.")
-    @getActiveThemeNames()
 
   # Public: Get an array of all the active themes.
   getActiveThemes: ->
@@ -219,13 +144,6 @@ class ThemeManager
     # the first/top theme to override later themes in the stack.
     themeNames.reverse()
 
-  # Set the list of enabled themes.
-  #
-  # * `enabledThemeNames` An {Array} of {String} theme names.
-  setEnabledThemes: (enabledThemeNames) ->
-    Grim.deprecate("Use `NylasEnv.config.set('core.themes', arrayOfThemeNames)` instead")
-    NylasEnv.config.set('core.themes', enabledThemeNames)
-
   # Set the active theme.
   # Because of how theme-manager works, we always need to set the
   # base theme first, and the newly activated theme after it to override the
@@ -240,11 +158,6 @@ class ThemeManager
   ###
   Section: Private
   ###
-
-  # Returns the {String} path to the user's stylesheet under ~/.nylas
-  getUserStylesheetPath: ->
-    Grim.deprecate("Call NylasEnv.styles.getUserStyleSheetPath() instead")
-    NylasEnv.styles.getUserStyleSheetPath()
 
   # Resolve and apply the stylesheet specified by the path.
   #
@@ -261,42 +174,6 @@ class ThemeManager
       @applyStylesheet(fullPath, content)
     else
       throw new Error("Could not find a file at path '#{stylesheetPath}'")
-
-  unwatchUserStylesheet: ->
-    @userStylsheetSubscriptions?.dispose()
-    @userStylsheetSubscriptions = null
-    @userStylesheetFile = null
-    @userStyleSheetDisposable?.dispose()
-    @userStyleSheetDisposable = null
-
-  loadUserStylesheet: ->
-    @unwatchUserStylesheet()
-
-    userStylesheetPath = NylasEnv.styles.getUserStyleSheetPath()
-    return unless fs.isFileSync(userStylesheetPath)
-    try
-      @userStylesheetFile = new File(userStylesheetPath)
-      @userStylsheetSubscriptions = new CompositeDisposable()
-      reloadStylesheet = => @loadUserStylesheet()
-      @userStylsheetSubscriptions.add(@userStylesheetFile.onDidChange(reloadStylesheet))
-      @userStylsheetSubscriptions.add(@userStylesheetFile.onDidRename(reloadStylesheet))
-      @userStylsheetSubscriptions.add(@userStylesheetFile.onDidDelete(reloadStylesheet))
-    catch error
-      message = """
-        Unable to watch path: `#{path.basename(userStylesheetPath)}`. Make sure
-        you have permissions to `#{userStylesheetPath}`.
-
-        On linux there are currently problems with watch sizes.
-      """
-      console.error(message, dismissable: true)
-      console.error(error.toString())
-
-    try
-      userStylesheetContents = @loadStylesheet(userStylesheetPath, true)
-    catch
-      return
-
-    @userStyleSheetDisposable = NylasEnv.styles.addStyleSheet(userStylesheetContents, sourcePath: userStylesheetPath, priority: 2)
 
   loadBaseStylesheets: ->
     @reloadBaseStylesheets()
@@ -381,10 +258,8 @@ class ThemeManager
       Q.all(promises).then =>
         @addActiveThemeClasses()
         @refreshLessCache() # Update cache again now that @getActiveThemes() is populated
-        @loadUserStylesheet()
         @reloadBaseStylesheets()
         @initialLoadComplete = true
-        @emit 'reloaded'
         @emitter.emit 'did-change-active-themes'
         deferred.resolve()
 
@@ -392,24 +267,19 @@ class ThemeManager
 
   deactivateThemes: ->
     @removeActiveThemeClasses()
-    @unwatchUserStylesheet()
     @packageManager.deactivatePackage(pack.name) for pack in @getActiveThemes()
     null
 
   isInitialLoadComplete: -> @initialLoadComplete
 
   addActiveThemeClasses: ->
-    workspaceElement = document.getElementsByTagName('nylas-workspace')[0]
-    return unless workspaceElement
     for pack in @getActiveThemes()
-      workspaceElement.classList.add("theme-#{pack.name}")
+      document.body.classList.add("theme-#{pack.name}")
     return
 
   removeActiveThemeClasses: ->
-    workspaceElement = document.getElementsByTagName('nylas-workspace')[0]
-    return unless workspaceElement
     for pack in @getActiveThemes()
-      workspaceElement.classList.remove("theme-#{pack.name}")
+      document.body.classList.remove("theme-#{pack.name}")
     return
 
   refreshLessCache: ->
