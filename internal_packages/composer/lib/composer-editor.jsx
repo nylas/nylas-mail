@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from 'react';
-import {ContenteditableExtension, ExtensionRegistry, DOMUtils} from 'nylas-exports';
+import {ExtensionRegistry, DOMUtils} from 'nylas-exports';
 import {DropZone, ScrollRegion, Contenteditable} from 'nylas-component-kit';
 
 /**
@@ -297,7 +297,6 @@ class ComposerEditor extends Component {
       </DropZone>
     );
   }
-
 }
 ComposerEditor.containerRequired = false
 
