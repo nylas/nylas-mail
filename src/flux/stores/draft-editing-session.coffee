@@ -1,7 +1,7 @@
 Message = require '../models/message'
 Actions = require '../actions'
 DatabaseStore = require './database-store'
-ExtensionRegistry = require('../../extension-registry').default
+ExtensionRegistry = require('../../extension-registry')
 {Listener, Publisher} = require '../modules/reflux-coffee'
 SyncbackDraftTask = require('../tasks/syncback-draft-task').default
 CoffeeHelpers = require '../coffee-helpers'

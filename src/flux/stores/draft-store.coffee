@@ -27,7 +27,7 @@ SoundRegistry = require '../../sound-registry'
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'
 
-ExtensionRegistry = require('../../extension-registry').default
+ExtensionRegistry = require('../../extension-registry')
 {deprecate} = require '../../deprecate-utils'
 
 ###
