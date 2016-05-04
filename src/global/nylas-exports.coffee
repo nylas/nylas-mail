@@ -3,34 +3,42 @@ StoreRegistry = require('../store-registry').default
 DatabaseObjectRegistry = require('../database-object-registry').default
 
 class NylasExports
+
+  @default = (requireValue) -> requireValue.default ? requireValue
+
   # Will lazy load when requested
   @lazyLoad = (prop, path) ->
     Object.defineProperty @, prop,
-      get: -> require("../#{path}")
+      get: ->
+        NylasExports.default(require("../#{path}"))
       enumerable: true
 
   @lazyLoadCustomGetter = (prop, get) ->
     Object.defineProperty @, prop, {get, enumerable: true}
 
   @lazyLoadAndRegisterStore = (klassName, path) ->
-    constructorFactory = -> require("../flux/stores/#{path}")
+    constructorFactory = ->
+      NylasExports.default(require("../flux/stores/#{path}"))
     StoreRegistry.register(klassName, constructorFactory)
     @lazyLoad(klassName, "flux/stores/#{path}")
 
   @lazyLoadAndRegisterModel = (klassName, path) ->
-    constructorFactory = -> require("../flux/models/#{path}")
+    constructorFactory = ->
+      NylasExports.default(require("../flux/models/#{path}"))
     DatabaseObjectRegistry.register(klassName, constructorFactory)
     @lazyLoad(klassName, "flux/models/#{path}")
 
   @lazyLoadAndRegisterTask = (klassName, path) ->
-    constructorFactory = -> require("../flux/tasks/#{path}")
+    constructorFactory = ->
+      NylasExports.default(require("../flux/tasks/#{path}"))
     TaskRegistry.register(klassName, constructorFactory)
     @lazyLoad(klassName, "flux/tasks/#{path}")
 
   @lazyLoadDeprecated = (prop, path, {instead} = {}) ->
     {deprecate} = require '../deprecate-utils'
     Object.defineProperty @, prop,
-      get: deprecate prop, instead, @, -> require("../#{path}")
+      get: deprecate prop, instead, @, ->
+        NylasExports.default(require("../#{path}"))
       enumerable: true
 
   # Actions
