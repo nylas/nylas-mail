@@ -1,6 +1,6 @@
 {
   "presets": [
-    "es2015",
+    "electron",
     "react",
     "stage-0"
   ],
