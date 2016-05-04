@@ -5,7 +5,9 @@ import {
   Category,
   CategoryStore,
 } from 'nylas-exports'
-import {Default} from '../internal_packages/thread-list/lib/category-removal-target-rulesets'
+
+import CategoryRemovalTargetRulesets from '../internal_packages/thread-list/lib/category-removal-target-rulesets'
+const {Default} = CategoryRemovalTargetRulesets;
 
 
 describe('MailboxPerspective', ()=> {
