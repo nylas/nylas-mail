@@ -11,8 +11,8 @@ proxyquire = require 'proxyquire'
  Utils,
 } = require 'nylas-exports'
 
-ParticipantsTextField = proxyquire '../../src/components/participants-text-field',
-  'nylas-exports': {Contact, ContactStore}
+ParticipantsTextField = proxyquire('../../src/components/participants-text-field',
+  'nylas-exports': {Contact, ContactStore}).default
 
 participant1 = new Contact
   id: 'local-1'
