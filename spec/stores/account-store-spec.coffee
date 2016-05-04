@@ -1,7 +1,7 @@
 _ = require 'underscore'
 keytar = require 'keytar'
 AccountStore = require '../../src/flux/stores/account-store'
-Account = require '../../src/flux/models/account'
+Account = require('../../src/flux/models/account').default
 Actions = require '../../src/flux/actions'
 
 

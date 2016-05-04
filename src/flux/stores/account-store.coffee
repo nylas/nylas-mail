@@ -1,7 +1,7 @@
 _ = require 'underscore'
 NylasStore = require 'nylas-store'
 Actions = require '../actions'
-Account = require '../models/account'
+Account = require('../models/account').default
 Utils = require '../models/utils'
 DatabaseStore = require './database-store'
 keytar = require 'keytar'
@@ -237,7 +237,7 @@ class AccountStore extends NylasStore
     fs = require 'fs-plus'
     path = require 'path'
     Message = require '../models/message'
-    Account = require '../models/account'
+    Account = require('../models/account').default
     Thread = require('../models/thread').default
     Label = require '../models/label'
 

@@ -3,7 +3,7 @@ Rx = require 'rx-lite'
 NylasStore = require 'nylas-store'
 AccountStore = require './account-store'
 NylasSyncStatusStore = require './nylas-sync-status-store'
-Account = require '../models/account'
+Account = require('../models/account').default
 {StandardCategoryNames} = require '../models/category'
 {Categories} = require 'nylas-observables'
 
