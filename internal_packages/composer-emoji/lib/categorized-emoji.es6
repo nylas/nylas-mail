@@ -1,4 +1,4 @@
-export default categorizedEmojiList = {
+const categorizedEmojiList = {
   'People': [
     'grinning',
     'grimacing',
@@ -1308,3 +1308,4 @@ export default categorizedEmojiList = {
     'flag-zw'
   ]
 }
+export default categorizedEmojiList

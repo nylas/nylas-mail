@@ -7,6 +7,11 @@ var defaultOptions = require('../../static/babelrc.json')
 var babel = null
 var babelVersionDirectory = null
 
+// This adds in the regeneratorRuntime for generators to work properly
+// We manually insert it here instead of using the kitchen-sink
+// babel-polyfill.
+require('babel-regenerator-runtime');
+
 exports.shouldCompile = function (sourceCode, filePath) {
   return (filePath.endsWith('.es6') || filePath.endsWith('.jsx'))
 }
@@ -28,7 +33,7 @@ exports.getCachePath = function (sourceCode) {
 
 exports.compile = function (sourceCode, filePath) {
   if (!babel) {
-    babel = require('babel-core')
+    babel = require('babel-core');
   }
 
   var options = {filename: filePath}

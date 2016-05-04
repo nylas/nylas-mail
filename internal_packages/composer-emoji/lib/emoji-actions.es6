@@ -1,11 +1,11 @@
 import Reflux from 'reflux';
 
-EmojiActions = Reflux.createActions([
+const EmojiActions = Reflux.createActions([
   "selectEmoji",
-  "useEmoji"
+  "useEmoji",
 ]);
 
-for (key in EmojiActions) {
+for (const key in EmojiActions) {
   EmojiActions[key].sync = true;
 }
 
