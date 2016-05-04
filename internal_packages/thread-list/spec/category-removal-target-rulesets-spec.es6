@@ -1,5 +1,6 @@
 import {AccountStore, CategoryStore} from 'nylas-exports'
-import {Gmail} from '../lib/category-removal-target-rulesets'
+import CategoryRemovalTargetRulesets from '../lib/category-removal-target-rulesets'
+const {Gmail} = CategoryRemovalTargetRulesets;
 
 describe('CategoryRemovalTargetRulesets', ()=> {
   describe('Gmail', ()=> {
