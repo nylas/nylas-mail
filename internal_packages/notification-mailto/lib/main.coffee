@@ -9,6 +9,8 @@ module.exports =
   activate: (@state) ->
     @services = new LaunchServices()
 
+    return unless @services.available()
+
     # We shouldn't ask if they've already said No
     return if NylasEnv.config.get(NOTIF_SETTINGS_KEY) is true
 
