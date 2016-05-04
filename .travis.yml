@@ -63,7 +63,7 @@ before_script:
   sh -e /etc/init.d/xvfb start;
   fi
 
-script: script/cibuild --verbose
+script: script/cibuild
 
 cache:
   directories:
