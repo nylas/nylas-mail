@@ -84,6 +84,8 @@ describe "Model", ->
 
   describe "fromJSON", ->
     beforeEach ->
+      class SubmodelItem extends Model
+
       class Submodel extends Model
         @attributes: _.extend {}, Model.attributes,
           'testNumber': Attributes.Number
@@ -92,6 +94,10 @@ describe "Model", ->
           'testBoolean': Attributes.Boolean
             modelKey: 'testBoolean'
             jsonKey: 'test_boolean'
+          'testCollection': Attributes.Collection
+            modelKey: 'testCollection'
+            jsonKey: 'test_collection'
+            itemClass: SubmodelItem
 
       @json =
         'id': '1234'
@@ -134,6 +140,20 @@ describe "Model", ->
         @m.fromJSON('test_number': 0)
         expect(@m.testNumber).toBe(0)
 
+    describe "Attributes.Collection", ->
+      it "should parse and inflate items", ->
+        @m.fromJSON('test_collection': [{id: '123'}])
+        expect(@m.testCollection.length).toBe(1)
+        expect(@m.testCollection[0].id).toBe('123')
+        expect(@m.testCollection[0].constructor.name).toBe('SubmodelItem')
+
+      it "should be fine with malformed arrays", ->
+        @m.fromJSON('test_collection': [null])
+        expect(@m.testCollection.length).toBe(0)
+        @m.fromJSON('test_collection': [])
+        expect(@m.testCollection.length).toBe(0)
+        @m.fromJSON('test_collection': null)
+        expect(@m.testCollection.length).toBe(0)
 
     describe "Attributes.Boolean", ->
       it "should read `true` or true and coerce everything else to false", ->

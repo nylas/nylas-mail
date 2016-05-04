@@ -126,11 +126,11 @@ export default class QuerySubscription {
             this._set.removeModelAtOffset(item, offset)
             unknownImpacts += 1
           } else if (itemShouldBeInSet && !itemIsInSet) {
-            this._set.replaceModel(item)
+            this._set.updateModel(item)
             unknownImpacts += 1;
           } else if (itemIsInSet) {
             const oldItem = this._set.modelWithId(item.clientId);
-            this._set.replaceModel(item);
+            this._set.updateModel(item);
 
             if (this._itemSortOrderHasChanged(oldItem, item)) {
               unknownImpacts += 1
@@ -243,7 +243,7 @@ export default class QuerySubscription {
           return;
         }
         for (const m of models) {
-          this._set.replaceModel(m);
+          this._set.updateModel(m);
         }
         this._createResultAndTrigger();
       });

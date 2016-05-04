@@ -9,9 +9,6 @@ module.exports =
   activate: (@state) ->
     @services = new LaunchServices()
 
-    # We can't do anything unless they're on Mac OS X
-    return unless @services.available()
-
     # We shouldn't ask if they've already said No
     return if NylasEnv.config.get(NOTIF_SETTINGS_KEY) is true
 

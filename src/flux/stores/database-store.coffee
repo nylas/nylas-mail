@@ -498,6 +498,7 @@ class DatabaseStore extends NylasStore
       clearTimeout(@_changeFireTimer) if @_changeFireTimer
       @trigger(new DatabaseChangeRecord(@_changeAccumulated))
       @_changeAccumulated = null
+      @_changeAccumulatedLookup = null
       @_changeFireTimer = null
       @_resolve?()
       @_triggerPromise = null
@@ -505,10 +506,21 @@ class DatabaseStore extends NylasStore
     set = (change) =>
       clearTimeout(@_changeFireTimer) if @_changeFireTimer
       @_changeAccumulated = change
+      @_changeAccumulatedLookup = {}
+      for obj, idx in @_changeAccumulated.objects
+        @_changeAccumulatedLookup[obj.id] = idx
       @_changeFireTimer = setTimeout(flush, 10)
 
     concat = (change) =>
-      @_changeAccumulated.objects.push(change.objects...)
+      # When we join new models into our set, replace existing ones so the same
+      # model cannot exist in the change record set multiple times.
+      for obj in change.objects
+        idx = @_changeAccumulatedLookup[obj.id]
+        if idx
+          @_changeAccumulated.objects[idx] = obj
+        else
+          @_changeAccumulatedLookup[obj.id] = @_changeAccumulated.objects.length
+          @_changeAccumulated.objects.push(obj)
 
     if not @_changeAccumulated
       set(change)

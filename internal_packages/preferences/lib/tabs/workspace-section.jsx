@@ -8,11 +8,9 @@ class DefaultMailClientItem extends React.Component {
     super();
     this.state = {defaultClient: false};
     this._services = new LaunchServices();
-    if (this._services.available()) {
-      this._services.isRegisteredForURLScheme('mailto', (registered) => {
-        if (this._mounted) this.setState({defaultClient: registered});
-      });
-    }
+    this._services.isRegisteredForURLScheme('mailto', (registered) => {
+      if (this._mounted) this.setState({defaultClient: registered});
+    });
   }
 
   componentDidMount() {

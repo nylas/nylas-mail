@@ -46,6 +46,7 @@ class MailboxPerspective
     new StarredMailboxPerspective(accountsOrIds)
 
   @forUnread: (categories) ->
+    return @forNothing() if categories.length is 0
     new UnreadMailboxPerspective(categories)
 
   @forInbox: (accountsOrIds) =>
@@ -144,6 +145,9 @@ class MailboxPerspective
     return false if @isArchive()
     accounts = AccountStore.accountsForItems(threads)
     return _.every(accounts, (acc) -> acc.canArchiveThreads())
+
+  canTrashThreads: (threads) =>
+    @canMoveThreadsTo(threads, 'trash')
 
   canMoveThreadsTo: (threads, standardCategoryName) =>
     return false if @categoriesSharedName() is standardCategoryName
