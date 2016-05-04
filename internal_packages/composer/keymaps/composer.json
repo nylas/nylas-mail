@@ -4,6 +4,6 @@
   "composer:show-and-focus-bcc": "mod+shift+b",
   "composer:show-and-focus-from": "mod+shift+f",
   "composer:send-message": "mod+enter",
-  "composer:no-op": "delete",
+  "composer:no-op": "del",
   "composer:delete-empty-draft": "escape"
 }

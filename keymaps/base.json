@@ -22,7 +22,7 @@
 
   "core:print-thread": "mod+p",
   "core:focus-item": "enter",
-  "core:remove-from-view": ["backspace", "delete"],
+  "core:remove-from-view": ["backspace", "del"],
   "core:pop-sheet": "escape",
 
   "core:messages-page-up": "pageup",
