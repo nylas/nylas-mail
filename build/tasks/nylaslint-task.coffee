@@ -31,6 +31,25 @@ module.exports = (grunt) ->
       esNoExport = {}
       esExportDefault = {}
 
+      # Temp TODO. Fix spec files
+      for f in fileset.src
+        continue if not esExtensions[path.extname(f)]
+        continue if not /-spec/.test(f)
+        content = fs.readFileSync(f, encoding:'utf8')
+
+        # https://regex101.com/r/rQ3eD0/1
+        # Matches only the first describe block
+        describeRe = /[\n]describe\(['"](.*?)['"], ?\(\) ?=> ?/m
+        if describeRe.test(content)
+          errors.push("#{f}: Spec has to start with function")
+          ## NOTE: Comment me in if you want to fix these files.
+          # _str = require('underscore.string')
+          # replacer = (match, describeName, offset, string) ->
+          #   fnName = _str.camelize(describeName, true)
+          #   return "\ndescribe('#{describeName}', function #{fnName}() "
+          # newContent = content.replace(describeRe, replacer)
+          # fs.writeFileSync(f, newContent, encoding:'utf8')
+
       # Build the list of ES6 files that export things and categorize
       for f in fileset.src
         continue if not esExtensions[path.extname(f)]
@@ -125,6 +144,9 @@ You sholudn't manually assign module.exports anymore. Use proper ES6 module synt
 
 5. Don't destructure default export:
 If you're using `import {FOO} from './bar'` in ES6 files, it's important that `./bar` does NOT export a `default`. Instead, in './bar', do `export const FOO = 'foo'`
+
+6. Spec has to start with function
+Top-level `describe` blocks can no longer use the `() => {}` function syntax. This will incorrectly bind `this` to the `window` object instead of the jasmine object. The top-level `describe` block must use the `function describeName() {}` syntax
         """
         done(new Error(error))
 
