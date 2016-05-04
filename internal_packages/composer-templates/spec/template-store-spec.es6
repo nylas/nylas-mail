@@ -17,7 +17,7 @@ const stubTemplates = [
   {id: 'template2.html', name: 'template2', path: `${stubTemplatesDir}/template2.html`},
 ];
 
-describe('TemplateStore', ()=> {
+describe('TemplateStore', function templateStore() {
   beforeEach(()=> {
     spyOn(fs, 'mkdir');
     spyOn(shell, 'showItemInFolder').andCallFake(()=> {});

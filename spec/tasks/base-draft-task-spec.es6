@@ -5,7 +5,7 @@ import {
 
 import BaseDraftTask from '../../src/flux/tasks/base-draft-task';
 
-describe("BaseDraftTask", () => {
+describe('BaseDraftTask', function baseDraftTask() {
   describe("shouldDequeueOtherTask", () => {
     it("should dequeue instances of the same subclass for the same draft which are older", () => {
       class ATask extends BaseDraftTask {

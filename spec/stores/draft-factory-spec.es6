@@ -25,7 +25,7 @@ let fakeMessageWithFiles = null;
 let msgWithReplyToDuplicates = null;
 let account = null;
 
-describe("DraftFactory", () => {
+describe('DraftFactory', function draftFactory() {
   beforeEach(() => {
     // Out of the scope of these specs
     spyOn(InlineStyleTransformer, 'run').andCallFake((input) => Promise.resolve(input));

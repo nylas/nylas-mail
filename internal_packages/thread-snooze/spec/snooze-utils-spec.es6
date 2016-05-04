@@ -18,7 +18,7 @@ const {
 } = SnoozeUtils
 
 
-describe('Snooze Utils', ()=> {
+describe('Snooze Utils', function snoozeUtils() {
   beforeEach(()=> {
     this.name = 'Snoozed Folder'
     this.accId = 123

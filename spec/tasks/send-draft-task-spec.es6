@@ -17,7 +17,7 @@ import NotifyPluginsOfSendTask from '../../src/flux/tasks/notify-plugins-of-send
 const DBt = DatabaseTransaction.prototype;
 const withoutWhitespace = (s) => s.replace(/[\n\r\s]/g, '');
 
-describe("SendDraftTask", () => {
+describe('SendDraftTask', function sendDraftTask() {
   describe("assertDraftValidity", () => {
     it("rejects if there are still uploads on the draft", () => {
       const badTask = new SendDraftTask('1');

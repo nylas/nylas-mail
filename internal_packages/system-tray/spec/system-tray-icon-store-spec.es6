@@ -9,7 +9,7 @@ const {
 } = SystemTrayIconStore;
 
 
-describe('SystemTrayIconStore', ()=> {
+describe('SystemTrayIconStore', function systemTrayIconStore() {
   beforeEach(()=> {
     spyOn(ipcRenderer, 'send')
     this.iconStore = new SystemTrayIconStore()

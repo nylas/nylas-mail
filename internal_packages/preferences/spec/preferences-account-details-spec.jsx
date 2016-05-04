@@ -18,7 +18,7 @@ const account = new Account({
   defaultAlias: null,
 })
 
-describe('PreferencesAccountDetails', ()=> {
+describe('PreferencesAccountDetails', function preferencesAccountDetails() {
   beforeEach(()=> {
     this.account = account
     this.onAccountUpdated = jasmine.createSpy('onAccountUpdated')

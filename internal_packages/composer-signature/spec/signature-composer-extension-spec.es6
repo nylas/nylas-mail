@@ -4,7 +4,7 @@ import SignatureStore from '../lib/signature-store';
 
 const TEST_SIGNATURE = '<div class="something">This is my signature.</div>';
 
-describe("SignatureComposerExtension", () => {
+describe('SignatureComposerExtension', function signatureComposerExtension() {
   describe("applyTransformsToDraft", () => {
     it("should unwrap the signature and remove the custom DOM element", () => {
       const a = new Message({

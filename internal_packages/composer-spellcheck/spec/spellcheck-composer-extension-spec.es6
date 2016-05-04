@@ -11,7 +11,7 @@ const initialHTML = fs.readFileSync(initialPath).toString();
 const expectedPath = path.join(__dirname, 'fixtures', 'california-with-misspellings-after.html');
 const expectedHTML = fs.readFileSync(expectedPath).toString();
 
-describe("SpellcheckComposerExtension", () => {
+describe('SpellcheckComposerExtension', function spellcheckComposerExtension() {
   beforeEach(() => {
     // Avoid differences between node-spellcheck on different platforms
     const lookupPath = path.join(__dirname, 'fixtures', 'california-spelling-lookup.json');

@@ -19,7 +19,7 @@ const makeInput = (props = {})=> {
   return input
 };
 
-describe('DateInput', ()=> {
+describe('DateInput', function dateInput() {
   describe('onInputKeyDown', ()=> {
     it('should submit the input if Enter or Escape pressed', ()=> {
       const onSubmitDate = jasmine.createSpy('onSubmitDate')
