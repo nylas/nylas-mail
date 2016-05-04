@@ -21,7 +21,6 @@ import {DropZone, ScrollRegion, Contenteditable} from 'nylas-component-kit';
  * associated with the parent container
  * @param {props.parentActions.getComposerBoundingRect} props.parentActions.getComposerBoundingRect
  * @param {props.parentActions.scrollTo} props.parentActions.scrollTo
- * @param {props.onFocus} props.onFocus
  * @param {props.onFilePaste} props.onFilePaste
  * @param {props.onBodyChanged} props.onBodyChanged
  * @class ComposerEditor
@@ -48,10 +47,6 @@ class ComposerEditor extends Component {
    * @param {DOMRect} options.rect - Bounding rect we want to scroll to
    */
   /**
-   * This function should be called when the editing region is focused by the user
-   * @callback props.onFocus
-   */
-  /**
    * This function should be called when the user pastes a file into the editing
    * region
    * @callback props.onFilePaste
@@ -70,8 +65,6 @@ class ComposerEditor extends Component {
     body: PropTypes.string.isRequired,
     draftClientId: PropTypes.string,
     initialSelectionSnapshot: PropTypes.object,
-    onFocus: PropTypes.func,
-    onBlur: PropTypes.func,
     onFilePaste: PropTypes.func,
     onBodyChanged: PropTypes.func,
     parentActions: PropTypes.shape({
@@ -85,21 +78,6 @@ class ComposerEditor extends Component {
     this.state = {
       extensions: ExtensionRegistry.Composer.extensions(),
     };
-
-    class ComposerFocusManager extends ContenteditableExtension {
-      static onFocus() {
-        if (props.onFocus) {
-          return props.onFocus();
-        }
-      }
-      static onBlur() {
-        if (props.onBlur) {
-          return props.onBlur();
-        }
-      }
-    }
-
-    this._coreExtension = ComposerFocusManager;
   }
 
   componentDidMount() {
@@ -314,7 +292,7 @@ class ComposerEditor extends Component {
           onFilePaste={this.props.onFilePaste}
           onSelectionRestored={this._ensureSelectionVisible}
           initialSelectionSnapshot={this.props.initialSelectionSnapshot}
-          extensions={[this._coreExtension].concat(this.state.extensions)}
+          extensions={this.state.extensions}
         />
       </DropZone>
     );
