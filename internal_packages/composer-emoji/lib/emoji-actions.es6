@@ -1,4 +1,3 @@
-/** @babel */
 import Reflux from 'reflux';
 
 EmojiActions = Reflux.createActions([

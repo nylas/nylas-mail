@@ -1,4 +1,3 @@
-/** @babel */
 import _ from 'underscore';
 import {Actions, NylasAPI, AccountStore, CategoryStore} from 'nylas-exports';
 import {

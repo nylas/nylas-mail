@@ -1,4 +1,3 @@
-/** @babel */
 import React from 'react';
 import {Actions, WorkspaceStore} from 'nylas-exports';
 
