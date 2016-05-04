@@ -113,6 +113,8 @@ class PGPKeyStore extends NylasStore
 
   getKeyContents: ({key, passphrase}) =>
     # Reads an actual PGP key from disk and adds it to the preexisting metadata
+    if not key.path?
+      return
     fs.readFile(key.path, (err, data) =>
       pgp.KeyManager.import_from_armored_pgp {
         armored: data

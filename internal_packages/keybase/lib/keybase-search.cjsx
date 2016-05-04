@@ -94,7 +94,7 @@ class KeybaseSearch extends React.Component
       # TODO filter out or (better) merge in people that we already have keys for
 
       # allow for overriding the import function
-      if @props.importFunc?
+      if typeof @props.importFunc is "function"
         boundFunc = @props.importFunc
       else
         boundFunc = @_importKey

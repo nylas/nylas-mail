@@ -1,4 +1,4 @@
-{Utils, DraftStore, React, Actions, DatabaseStore, Contact} = require 'nylas-exports'
+{Utils, DraftStore, React, Actions, DatabaseStore, Contact, ReactDOM} = require 'nylas-exports'
 PGPKeyStore = require './pgp-key-store'
 Identity = require './identity'
 ModalKeyRecommender = require './modal-key-recommender'
@@ -45,9 +45,7 @@ class EncryptMessageButton extends React.Component
     for recipient in @props.draft.participants({includeFrom: false, includeBcc: true})
       publicKeys = PGPKeyStore.pubKeys(recipient.email)
       if publicKeys.length < 1
-        # no key for this user:
-        # push a null so that @_encrypt can line this array up with the
-        # array of recipients
+        # no key for this user
         keys.push(new Identity({addresses: [recipient.email]}))
       else
         # note: this, by default, encrypts using every public key associated
@@ -105,6 +103,7 @@ class EncryptMessageButton extends React.Component
           console.warn err
           NylasEnv.showErrorDialog(err)
         if cryptotext? and cryptotext != ""
+          cryptotext = "<pre>#{cryptotext}</pre>"
           @setState({
             currentlyEncrypted: true
             plaintext: plaintext
@@ -114,32 +113,32 @@ class EncryptMessageButton extends React.Component
       )
 
   _encrypt: (text, identities, cb) =>
-    # addresses which don't have a key
-
     emails = _.chain(identities)
       .pluck("addresses")
       .flatten()
       .uniq()
       .value()
 
-    if emails.length > 0
-      DatabaseStore.findAll(Contact, {email: emails}).then((contacts) =>
-        component = (<ModalKeyRecommender contacts={contacts} />)
-        Actions.openModal({
-          component: component,
-          height: 500,
-          width: 400
-        })
-      )
-    else
+    if _.every(identities, (identity) -> identity.key?)
       # get the actual key objects
       kms = _.pluck(identities, "key")
 
-      # remove the nulls
+      # remove the nulls (although there shouldn't be any for now)
       kms = _.compact(kms)
       params =
         encrypt_for: kms
         msg: text
       pgp.box(params, cb)
+    else
+      DatabaseStore.findAll(Contact, {email: emails}).then((contacts) =>
+        component = (<ModalKeyRecommender contacts={contacts} />)
+        Actions.openPopover(
+          component,
+        {
+          originRect: ReactDOM.findDOMNode(@).getBoundingClientRect(),
+          direction: 'up',
+        })
+        # TODO encrypt after the modal is closed
+      )
 
 module.exports = EncryptMessageButton
