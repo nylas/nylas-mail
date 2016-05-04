@@ -480,6 +480,13 @@ class Actions
   @popSheet: ActionScopeWindow
 
   ###
+  Public: Pop the to the root sheet currently selected.
+
+  *Scope: Window*
+  ###
+  @popToRootSheet: ActionScopeWindow
+
+  ###
   Public: Push a sheet of a specific type onto the Sheet stack maintained by the
   {WorkspaceStore}. Note that sheets have no state. To show a *specific* thread,
   you should push a Thread sheet and call `setFocus` to select the thread.
