@@ -27,7 +27,7 @@ module.exports = (grunt) ->
 
       for f in fileset.src
         continue if not esExtensions[path.extname(f)]
-        fname = path.basename(f, path.extname(f))
+        lookupPath = "#{path.dirname(f)}/#{path.basename(f, path.extname(f))}"
 
         content = fs.readFileSync(f, encoding:'utf8')
         if /module.exports\s?=\s?.+/gmi.test(content)
@@ -35,17 +35,17 @@ module.exports = (grunt) ->
 
         if /^export/gmi.test(content)
           if /^export\ default/gmi.test(content)
-            esExportDefault[fname] = true
+            esExportDefault[lookupPath] = true
           else
-            esExport[fname] = true
+            esExport[lookupPath] = true
         else
-          esNoExport[fname] = true
+          esNoExport[lookupPath] = true
 
-      blacklist = ["events", "main", "package", "task"]
-      for item in blacklist
-        delete esExportDefault[item]
-        delete esExport[item]
-        delete esNoExport[item]
+      # blacklist = ["events", "main", "package", "task"]
+      # for item in blacklist
+      #   delete esExportDefault[item]
+      #   delete esExport[item]
+      #   delete esNoExport[item]
 
       # file.src is the list of all matching file names.
       for f in fileset.src
@@ -60,21 +60,32 @@ module.exports = (grunt) ->
           while i < result.length
             requirePath = result[i]
             i += 1
+
+            if requirePath[0] is "."
+              lookupPath = path.normalize(path.join(path.dirname(f), requirePath))
+            else
+              lookupPath = requirePath
+
             baseRequirePath = path.basename(requirePath)
 
             plainRequireRe = new RegExp("require[ (]['\"].*#{baseRequirePath}['\"]\\)?$","gm")
             defaultRequireRe = new RegExp("require\\(['\"].*#{baseRequirePath}['\"]\\)\\.default","gm")
 
-            if esExport[baseRequirePath]
+            if esExport[lookupPath]
               if not plainRequireRe.test(content)
                 errors.push("#{f}: ES6 no `default` exported #{requirePath}")
 
-            if esNoExport[baseRequirePath]
+            else if esNoExport[lookupPath]
               errors.push("#{f}: nothing exported from #{requirePath}")
 
-            if esExportDefault[baseRequirePath]
+            else if esExportDefault[lookupPath]
               if not defaultRequireRe.test(content)
                 errors.push("#{f}: ES6 add `default` to require #{requirePath}")
+
+            else
+              # must be a coffeescript or core file
+              if defaultRequireRe.test(content)
+                errors.push("#{f}: don't ask for `default` from #{requirePath}")
 
       if errors.length > 0
         grunt.log.error(err) for err in errors
