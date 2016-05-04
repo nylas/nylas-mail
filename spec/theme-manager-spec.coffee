@@ -88,7 +88,6 @@ describe "ThemeManager", ->
   describe "when the core.themes config value changes", ->
     it "add/removes stylesheets to reflect the new config value", ->
       themeManager.onDidChangeActiveThemes didChangeActiveThemesHandler = jasmine.createSpy()
-      spyOn(NylasEnv.styles, 'getUserStyleSheetPath').andCallFake -> null
 
       waitsForPromise ->
         themeManager.activateThemes()
@@ -147,17 +146,13 @@ describe "ThemeManager", ->
         expect(importPaths[0]).toContain 'ui-light'
 
     it 'adds theme-* classes to the workspace for each active theme', ->
-      workspaceElement = document.createElement('nylas-workspace')
-      jasmine.attachToDOM(workspaceElement)
-
       themeManager.onDidChangeActiveThemes didChangeActiveThemesHandler = jasmine.createSpy()
 
       waitsForPromise ->
         themeManager.activateThemes()
 
       runs ->
-        expect(workspaceElement.classList.contains('theme-ui-light')).toBe(true)
-
+        expect(document.body.classList.contains('theme-ui-light')).toBe(true)
         themeManager.onDidChangeActiveThemes didChangeActiveThemesHandler = jasmine.createSpy()
         NylasEnv.config.set('core.themes', ['theme-with-ui-variables'])
 
@@ -166,8 +161,8 @@ describe "ThemeManager", ->
 
       runs ->
         # `theme-` twice as it prefixes the name with `theme-`
-        expect(workspaceElement.classList.contains('theme-theme-with-ui-variables')).toBe(true)
-        expect(workspaceElement.classList.contains('theme-ui-dark')).toBe(false)
+        expect(document.body.classList.contains('theme-theme-with-ui-variables')).toBe(true)
+        expect(document.body.classList.contains('theme-ui-dark')).toBe(false)
 
   describe "when a theme fails to load", ->
     it "logs a warning", ->
@@ -184,8 +179,6 @@ describe "ThemeManager", ->
 
     it "synchronously loads css at the given path and installs a style tag for it in the head", ->
       NylasEnv.styles.onDidAddStyleElement styleElementAddedHandler = jasmine.createSpy("styleElementAddedHandler")
-      themeManager.onDidChangeStylesheets stylesheetsChangedHandler = jasmine.createSpy("stylesheetsChangedHandler")
-      themeManager.onDidAddStylesheet stylesheetAddedHandler = jasmine.createSpy("stylesheetAddedHandler")
 
       cssPath = path.join(__dirname, 'fixtures', 'css.css')
       lengthBefore = document.querySelectorAll('head style').length
@@ -194,8 +187,6 @@ describe "ThemeManager", ->
       expect(document.querySelectorAll('head style').length).toBe lengthBefore + 1
 
       expect(styleElementAddedHandler).toHaveBeenCalled()
-      expect(stylesheetAddedHandler).toHaveBeenCalled()
-      expect(stylesheetsChangedHandler).toHaveBeenCalled()
 
       element = document.querySelector('head style[source-path*="css.css"]')
       expect(element.getAttribute('source-path')).toBe themeManager.stringToId(cssPath)
@@ -250,20 +241,10 @@ describe "ThemeManager", ->
       expect(window.getComputedStyle(document.body)['font-weight']).toBe("bold")
 
       NylasEnv.styles.onDidRemoveStyleElement styleElementRemovedHandler = jasmine.createSpy("styleElementRemovedHandler")
-      themeManager.onDidRemoveStylesheet stylesheetRemovedHandler = jasmine.createSpy("stylesheetRemovedHandler")
-      themeManager.onDidChangeStylesheets stylesheetsChangedHandler = jasmine.createSpy("stylesheetsChangedHandler")
-
       disposable.dispose()
 
       expect(window.getComputedStyle(document.body)['font-weight']).not.toBe("bold")
-
       expect(styleElementRemovedHandler).toHaveBeenCalled()
-      expect(stylesheetRemovedHandler).toHaveBeenCalled()
-      stylesheet = stylesheetRemovedHandler.argsForCall[0][0]
-      expect(stylesheet instanceof CSSStyleSheet).toBe true
-      expect(stylesheet.cssRules[0].selectorText).toBe 'body'
-
-      expect(stylesheetsChangedHandler).toHaveBeenCalled()
 
   describe "base style sheet loading", ->
     workspaceElement = null
@@ -315,118 +296,6 @@ describe "ThemeManager", ->
           node = document.querySelector('nylas-theme-wrap')
           nodeStyle = window.getComputedStyle(node)
           expect(nodeStyle['background-color']).toBe "rgb(152, 123, 0)"
-
-  describe "user stylesheet", ->
-    userStylesheetPath = null
-    beforeEach ->
-      userStylesheetPath = path.join(temp.mkdirSync("nylas-spec"), 'styles.less')
-      fs.writeFileSync(userStylesheetPath, 'body {border-style: dotted !important;}')
-      spyOn(NylasEnv.styles, 'getUserStyleSheetPath').andReturn userStylesheetPath
-
-    describe "when the user stylesheet changes", ->
-      beforeEach ->
-        jasmine.snapshotDeprecations()
-
-      afterEach ->
-        jasmine.restoreDeprecationsSnapshot()
-
-      it "reloads it", ->
-        [styleElementAddedHandler, styleElementRemovedHandler] = []
-        [stylesheetRemovedHandler, stylesheetAddedHandler, stylesheetsChangedHandler] = []
-
-        waitsForPromise ->
-          themeManager.activateThemes().then ->
-
-            runs ->
-              NylasEnv.styles.onDidRemoveStyleElement styleElementRemovedHandler = jasmine.createSpy("styleElementRemovedHandler")
-              NylasEnv.styles.onDidAddStyleElement styleElementAddedHandler = jasmine.createSpy("styleElementAddedHandler")
-
-              themeManager.onDidChangeStylesheets stylesheetsChangedHandler = jasmine.createSpy("stylesheetsChangedHandler")
-              themeManager.onDidRemoveStylesheet stylesheetRemovedHandler = jasmine.createSpy("stylesheetRemovedHandler")
-              themeManager.onDidAddStylesheet stylesheetAddedHandler = jasmine.createSpy("stylesheetAddedHandler")
-              spyOn(themeManager, 'loadUserStylesheet').andCallThrough()
-
-              bodyStyle = window.getComputedStyle(document.body)
-              expect(bodyStyle['border-style']).toBe "dotted"
-              fs.writeFileSync(userStylesheetPath, 'body {border-style: dashed}')
-
-            waitsFor ->
-              themeManager.loadUserStylesheet.callCount is 1
-
-            runs ->
-              bodyStyle = window.getComputedStyle(document.body)
-              expect(bodyStyle['border-style']).toBe "dashed"
-
-              expect(styleElementRemovedHandler).toHaveBeenCalled()
-              expect(styleElementRemovedHandler.argsForCall[0][0].textContent).toContain 'dotted'
-              expect(stylesheetRemovedHandler).toHaveBeenCalled()
-
-              match = null
-              for rule in stylesheetRemovedHandler.argsForCall[0][0].cssRules
-                match = rule if rule.selectorText is 'body'
-              expect(match.style.border).toBe 'dotted'
-
-              expect(styleElementAddedHandler).toHaveBeenCalled()
-              expect(styleElementAddedHandler.argsForCall[0][0].textContent).toContain 'dashed'
-              expect(stylesheetAddedHandler).toHaveBeenCalled()
-              match = null
-              for rule in stylesheetAddedHandler.argsForCall[0][0].cssRules
-                match = rule if rule.selectorText is 'body'
-              expect(match.style.border).toBe 'dashed'
-
-              expect(stylesheetsChangedHandler).toHaveBeenCalled()
-
-              styleElementRemovedHandler.reset()
-              stylesheetRemovedHandler.reset()
-              stylesheetsChangedHandler.reset()
-              fs.removeSync(userStylesheetPath)
-
-            waitsFor ->
-              themeManager.loadUserStylesheet.callCount is 2
-
-            runs ->
-              expect(styleElementRemovedHandler).toHaveBeenCalled()
-              expect(styleElementRemovedHandler.argsForCall[0][0].textContent).toContain 'dashed'
-              expect(stylesheetRemovedHandler).toHaveBeenCalled()
-
-            waitsFor ->
-              match = null
-              for rule in stylesheetRemovedHandler.argsForCall[0][0].cssRules
-                match = rule if rule.selectorText is 'body'
-
-              bodyStyle = window.getComputedStyle(document.body)
-              match.style.border is 'dashed' and bodyStyle['border-style'] is 'none'
-
-            runs ->
-              expect(stylesheetsChangedHandler).toHaveBeenCalled()
-
-    describe "when there is an error reading the stylesheet", ->
-      addErrorHandler = null
-      beforeEach ->
-        themeManager.loadUserStylesheet()
-        spyOn(themeManager.lessCache, 'cssForFile').andCallFake ->
-          throw new Error('EACCES permission denied "styles.less"')
-
-      it "creates an error notification and does not add the stylesheet", ->
-        themeManager.loadUserStylesheet()
-        expect(console.error).toHaveBeenCalled()
-        note = console.error.mostRecentCall.args[0]
-        expect(note).toEqual 'EACCES permission denied "styles.less"'
-        expect(NylasEnv.styles.styleElementsBySourcePath[NylasEnv.styles.getUserStyleSheetPath()]).toBeUndefined()
-
-    describe "when there is an error watching the user stylesheet", ->
-      addErrorHandler = null
-      beforeEach ->
-        {File} = require 'pathwatcher'
-        spyOn(File::, 'onDidChange').andCallFake (event) ->
-          throw new Error('Unable to watch path')
-        spyOn(themeManager, 'loadStylesheet').andReturn ''
-
-      it "creates an error notification", ->
-        themeManager.loadUserStylesheet()
-        expect(console.error).toHaveBeenCalled()
-        note = console.error.mostRecentCall.args[0]
-        expect(note).toEqual 'Error: Unable to watch path'
 
   describe "when a non-existent theme is present in the config", ->
     beforeEach ->

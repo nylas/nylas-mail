@@ -151,17 +151,3 @@ class StyleManager
     existingStyleElements = @getStyleElements()
     for styleElement in styleElementsToRestore
       @addStyleElement(styleElement) unless styleElement in existingStyleElements
-
-  ###
-  Section: Paths
-  ###
-
-  # Extended: Get the path of the user style sheet in `~/.nylas`.
-  #
-  # Returns a {String}.
-  getUserStyleSheetPath: ->
-    stylesheetPath = fs.resolve(path.join(NylasEnv.getConfigDirPath(), 'styles'), ['css', 'less'])
-    if fs.isFileSync(stylesheetPath)
-      stylesheetPath
-    else
-      path.join(NylasEnv.getConfigDirPath(), 'styles.less')
