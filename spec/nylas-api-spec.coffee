@@ -306,7 +306,7 @@ describe "NylasAPI", ->
         "folder": require('../src/flux/models/folder')
         "thread": require('../src/flux/models/thread').default
         "draft": require('../src/flux/models/message')
-        "account": require('../src/flux/models/account')
+        "account": require('../src/flux/models/account').default
         "message": require('../src/flux/models/message')
         "contact": require('../src/flux/models/contact')
         "calendar": require('../src/flux/models/calendar')

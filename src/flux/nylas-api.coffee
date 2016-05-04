@@ -3,7 +3,7 @@ _ = require 'underscore'
 request = require 'request'
 NylasLongConnection = require('./nylas-long-connection').default
 Utils = require './models/utils'
-Account = require './models/account'
+Account = require('./models/account').default
 Message = require './models/message'
 Actions = require './actions'
 {APIError} = require './errors'
@@ -351,7 +351,7 @@ class NylasAPI
     "folder": require('./models/folder')
     "thread": require('./models/thread').default
     "draft": require('./models/message')
-    "account": require('./models/account')
+    "account": require('./models/account').default
     "message": require('./models/message')
     "contact": require('./models/contact')
     "calendar": require('./models/calendar')
