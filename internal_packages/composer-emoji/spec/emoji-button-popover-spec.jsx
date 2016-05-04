@@ -7,7 +7,7 @@ import Contenteditable from '../../../src/components/contenteditable/contentedit
 import EmojiButtonPopover from '../lib/emoji-button-popover';
 import EmojiComposerExtension from '../lib/emoji-composer-extension';
 
-describe('EmojiButtonPopover', ()=> {
+describe('EmojiButtonPopover', function emojiButtonPopover() {
   beforeEach(()=> {
     this.position = {
       x: 20,

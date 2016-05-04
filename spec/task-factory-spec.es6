@@ -9,7 +9,7 @@ import {
 } from 'nylas-exports'
 
 
-describe('TaskFactory', ()=> {
+describe('TaskFactory', function taskFactory() {
   beforeEach(()=> {
     this.categories = {
       'ac-1': {

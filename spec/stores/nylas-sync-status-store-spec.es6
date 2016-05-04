@@ -2,7 +2,7 @@ import {NylasSyncStatusStore} from 'nylas-exports'
 
 const store = NylasSyncStatusStore
 
-describe('NylasSyncStatusStore', ()=> {
+describe('NylasSyncStatusStore', function nylasSyncStatusStore() {
   beforeEach(()=> {
     store._statesByAccount = {}
   });

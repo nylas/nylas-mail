@@ -19,7 +19,7 @@ const makeList = (items = [], props = {})=> {
   return list
 };
 
-describe('EditableList', ()=> {
+describe('EditableList', function editableList() {
   describe('_onItemClick', ()=> {
     it('calls onSelectItem', ()=> {
       const onSelectItem = jasmine.createSpy('onSelectItem');

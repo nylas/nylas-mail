@@ -6,7 +6,7 @@ import {renderIntoDocument} from '../../../spec/nylas-test-utils';
 import Contenteditable from '../../../src/components/contenteditable/contenteditable';
 import EmojiComposerExtension from '../lib/emoji-composer-extension';
 
-describe('EmojiComposerExtension', ()=> {
+describe('EmojiComposerExtension', function emojiComposerExtension() {
   beforeEach(()=> {
     spyOn(EmojiComposerExtension, 'onContentChanged').andCallThrough()
     spyOn(EmojiComposerExtension, '_onSelectEmoji').andCallThrough()

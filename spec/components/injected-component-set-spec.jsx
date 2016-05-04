@@ -10,7 +10,7 @@ const reactStub = (displayName)=> {
 };
 
 
-describe('InjectedComponentSet', ()=> {
+describe('InjectedComponentSet', function injectedComponentSet() {
   describe('render', ()=> {
     beforeEach(()=> {
       const components = [reactStub('comp1'), reactStub('comp2')];

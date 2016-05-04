@@ -10,7 +10,7 @@ import SnoozeUtils from '../lib/snooze-utils'
 import SnoozeStore from '../lib/snooze-store'
 
 
-describe('SnoozeStore', ()=> {
+describe('SnoozeStore', function snoozeStore() {
   beforeEach(()=> {
     this.store = new SnoozeStore('plug-id', 'plug-name')
     this.name = 'Snooze folder'

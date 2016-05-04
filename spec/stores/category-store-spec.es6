@@ -5,7 +5,7 @@ import {
   NylasSyncStatusStore,
 } from 'nylas-exports';
 
-describe('CategoryStore', ()=> {
+describe('CategoryStore', function categoryStore() {
   beforeEach(()=> {
     spyOn(AccountStore, 'accountForId').andReturn({categoryCollection: ()=> 'labels'})
   });

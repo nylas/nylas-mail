@@ -2,7 +2,7 @@ import moment from 'moment'
 import {DateUtils} from 'nylas-exports'
 
 
-describe('DateUtils', ()=> {
+describe('DateUtils', function dateUtils() {
   describe('nextWeek', ()=> {
     it('returns tomorrow if now is sunday', ()=> {
       const sunday = moment("03-06-2016", "MM-DD-YYYY")

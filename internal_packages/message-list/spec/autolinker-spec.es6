@@ -2,7 +2,7 @@ import {autolink} from '../lib/autolinker';
 import fs from 'fs';
 import path from 'path';
 
-describe("autolink", () => {
+describe('autolink', function autolink() {
   const fixturesDir = path.join(__dirname, 'autolinker-fixtures');
   fs.readdirSync(fixturesDir).filter(filename =>
     filename.indexOf('-in.html') !== -1

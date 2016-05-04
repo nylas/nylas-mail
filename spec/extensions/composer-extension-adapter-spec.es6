@@ -12,7 +12,7 @@ const editor = {
   },
 };
 
-describe('ComposerExtensionAdapter', ()=> {
+describe('ComposerExtensionAdapter', function composerExtensionAdapter() {
   describe('adaptOnInput', ()=> {
     it('adapts correctly if onContentChanged already defined', ()=> {
       const onInputSpy = jasmine.createSpy('onInput');

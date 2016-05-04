@@ -6,7 +6,7 @@ const readFixture = (name) => {
   return fs.readFileSync(`${__dirname}/fixtures/${name}`).toString().trim()
 }
 
-describe("TrackingPixelsExtension", () => {
+describe("TrackingPixelsExtension", function trackingPixelsExtension() {
   it("should splice all tracking pixels from emails I've sent", () => {
     const before = readFixture('a-before.txt');
     const expected = readFixture('a-after.txt');

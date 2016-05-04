@@ -2,7 +2,7 @@ import {AccountStore, CategoryStore} from 'nylas-exports'
 import CategoryRemovalTargetRulesets from '../lib/category-removal-target-rulesets'
 const {Gmail} = CategoryRemovalTargetRulesets;
 
-describe('CategoryRemovalTargetRulesets', ()=> {
+describe('CategoryRemovalTargetRulesets', function categoryRemovalTargetRulesets() {
   describe('Gmail', ()=> {
     it('is a no op in archive, all, spam and sent', ()=> {
       expect(Gmail.all).toBe(null)

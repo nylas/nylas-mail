@@ -10,7 +10,7 @@ import {
 
 const DBt = DatabaseTransaction.prototype;
 
-describe("SyncbackDraftFilesTask", () => {
+describe('SyncbackDraftFilesTask', function syncbackDraftFilesTask() {
   describe("with uploads", () => {
     beforeEach(() => {
       this.uploads = [
