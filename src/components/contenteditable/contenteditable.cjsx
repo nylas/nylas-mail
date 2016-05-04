@@ -158,6 +158,7 @@ class Contenteditable extends React.Component
       @_restoreSelection()
       @_notifyOfSelectionRestoration()
     @_refreshServices()
+    @_setupEditingActionListeners()
     @_mutationObserver.disconnect()
     @_mutationObserver.observe(@_editableNode(), @_mutationConfig())
     @setInnerState editableNode: @_editableNode()
