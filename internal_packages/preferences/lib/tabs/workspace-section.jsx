@@ -8,9 +8,11 @@ class DefaultMailClientItem extends React.Component {
     super();
     this.state = {defaultClient: false};
     this._services = new LaunchServices();
-    this._services.isRegisteredForURLScheme('mailto', (registered) => {
-      if (this._mounted) this.setState({defaultClient: registered});
-    });
+    if (this._services.available()) {
+      this._services.isRegisteredForURLScheme('mailto', (registered) => {
+        if (this._mounted) this.setState({defaultClient: registered});
+      });
+    }
   }
 
   componentDidMount() {
@@ -33,7 +35,7 @@ class DefaultMailClientItem extends React.Component {
   }
 
   render() {
-    if (process.platform !== "darwin") return false;
+    if (process.platform === "win32") return false;
     return (
       <div className="item">
         <input type="checkbox" id="default-client" checked={this.state.defaultClient} onChange={this.toggleDefaultMailClient}/>
