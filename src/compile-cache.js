@@ -9,6 +9,7 @@ var typescriptCompiler = require('./compile-support/typescript')
 var CSON = null
 
 var COMPILERS = {
+  '.js': babelCompiler,
   '.jsx': babelCompiler,
   '.es6': babelCompiler,
   '.ts': typescriptCompiler,
