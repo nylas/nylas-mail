@@ -65,7 +65,7 @@ module.exports =
           backspaceDelete:
             type: 'boolean'
             default: false
-            title: "Use backspace / delete to move messages to trash"
+            title: "Swipe gesture and backspace / delete move messages to trash"
       sending:
         type: 'object'
         properties:
