@@ -103,24 +103,17 @@ const TrackingBlacklist = [{
   name: 'Salesloft',
   pattern: 'sdr.salesloft.com/email_trackers',
   homepage: 'http://salesloft.com',
-}, {
-  name: 'Nylas',
-  pattern: 'nylas.com/open',
-  homepage: 'http://nylas.com/N1',
 }]
 
-export function removeTrackingImagesFromBody(body) {
+export function rejectImagesInBody(body, callback) {
   const spliceRegions = [];
   const regex = RegExpUtils.imageTagRegex();
 
   // Identify img tags that should be cut
   let result = null;
   while ((result = regex.exec(body)) !== null) {
-    for (const item of TrackingBlacklist) {
-      if (result[1].indexOf(item.pattern) > 0) {
-        spliceRegions.push({start: result.index, end: result.index + result[0].length})
-        continue;
-      }
+    if (callback(result[1])) {
+      spliceRegions.push({start: result.index, end: result.index + result[0].length})
     }
   }
   // Remove them all, from the end of the string to the start
@@ -132,17 +125,39 @@ export function removeTrackingImagesFromBody(body) {
   return updated;
 }
 
+export function removeTrackingPixels(message) {
+  const isFromMe = message.isFromMe();
+
+  message.body = rejectImagesInBody(message.body, (imageURL) => {
+    if (isFromMe) {
+      // If the image is sent by the user, remove all forms of tracking pixels.
+      // They could be viewing an email they sent with Salesloft, etc.
+      for (const item of TrackingBlacklist) {
+        if (imageURL.indexOf(item.pattern) >= 0) {
+          return true;
+        }
+      }
+    }
+
+    // Remove Nylas read receipt pixels for the current account. If this is a
+    // reply, our read receipt could still be in the body and could trigger
+    // additional opens. (isFromMe is not sufficient!)
+    if (imageURL.indexOf(`nylas.com/open/${message.accountId}`) >= 0) {
+      return true;
+    }
+    return false;
+  });
+}
+
 class TrackingPixelsMessageExtension extends MessageViewExtension {
   static formatMessageBody = ({message}) => {
-    if (message.isFromMe()) {
-      message.body = removeTrackingImagesFromBody(message.body);
-    }
+    removeTrackingPixels(message);
   }
 }
 
 class TrackingPixelsComposerExtension extends ComposerExtension {
   static prepareNewDraft = ({draft}) => {
-    draft.body = removeTrackingImagesFromBody(draft.body);
+    removeTrackingPixels(draft);
   }
 }
 
