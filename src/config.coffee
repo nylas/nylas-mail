@@ -11,8 +11,10 @@ Color = require './color'
 
 if global.application
   app = global.application
+  dialog = require('electron').dialog
 else
   app = remote.getGlobal('application')
+  dialog = remote.dialog
 
 # Essential: Used to access all of N1's configuration details.
 #
@@ -561,12 +563,13 @@ class Config
       @configFileHasErrors = true
       message = "Failed to load `#{path.basename(@configFilePath)}`"
 
-      detail = if error.location?
+      if error.location?
         # stack is the output from JSON in this case
-        error.stack
+        detail = error.stack
       else
         # message will be EACCES permission denied, et al
-        error.message
+        detail = error.message
+      detail += "\n\nMake sure the file (#{@configFilePath}) contains valid JSON, or delete it to reset N1."
 
       @notifyFailure(message, detail)
 
@@ -575,7 +578,7 @@ class Config
       @watchSubscription ?= pathWatcher.watch @configFilePath, (eventType) =>
         @requestLoad() if eventType is 'change' and @watchSubscription?
     catch error
-      @notifyFailure """
+      @notifyFailure "Configuration Error", """
         Unable to watch path: `#{path.basename(@configFilePath)}`. Make sure you have permissions to
         `#{@configFilePath}`. On linux there are currently problems with watch
         sizes.
@@ -586,7 +589,7 @@ class Config
     @watchSubscription = null
 
   notifyFailure: (errorMessage, detail) ->
-    console.log(errorMessage, detail)
+    dialog.showErrorBox(errorMessage, detail)
 
   save: ->
     manager = app.sharedFileManager
