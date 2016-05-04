@@ -75,8 +75,9 @@ describe "FocusedPerspectiveStore", ->
       expect(FocusedPerspectiveStore.trigger).toHaveBeenCalled()
       expect(FocusedPerspectiveStore.current().categories()).toEqual([@userCategory])
 
-    it "should do nothing if the category is already focused", ->
-      FocusedPerspectiveStore._onFocusPerspective(@inboxPerspective)
-      spyOn(FocusedPerspectiveStore, '_setPerspective')
-      FocusedPerspectiveStore._onFocusPerspective(@inboxPerspective)
-      expect(FocusedPerspectiveStore._setPerspective).not.toHaveBeenCalled()
+  describe "_setPerspective", ->
+    it "should not trigger if the perspective is already focused", ->
+      FocusedPerspectiveStore._setPerspective(@inboxPerspective)
+      FocusedPerspectiveStore.trigger.reset()
+      FocusedPerspectiveStore._setPerspective(@inboxPerspective)
+      expect(FocusedPerspectiveStore.trigger).not.toHaveBeenCalled()
