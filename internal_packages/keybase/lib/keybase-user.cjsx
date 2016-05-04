@@ -21,6 +21,9 @@ class KeybaseUser extends React.Component
     # should the "new email" list component be an input, or a button?
     @state = {inputEmail: false}
 
+  componentDidMount: ->
+    PGPKeyStore.getKeybaseData(@props.profile)
+
   _addEmail: (email) =>
     # associate another email address with this key
     PGPKeyStore.addAddressToKey(@props.profile, email)
@@ -73,7 +76,7 @@ class KeybaseUser extends React.Component
 
       if profiles.length > 0
         profiles =  _.map(profiles, (profile) ->
-          return <li>{ profile }</li>)
+          return <li key={ profile }>{ profile }</li>)
         profileList = (<ul>{ profiles }</ul>)
       else
         profileList = null
@@ -93,7 +96,7 @@ class KeybaseUser extends React.Component
     if profile.addresses?.length > 0
       emails = _.map(profile.addresses, (email) =>
         # TODO make that remove button not terrible
-        return <li>{ email } <small><a onClick={ => @_removeEmail(email) }>(X)</a></small></li>)
+        return <li key={ email }>{ email } <small><a onClick={ => @_removeEmail(email) }>(X)</a></small></li>)
 
       if @state.inputEmail
         participants = {to: [], cc: [], bcc: []}

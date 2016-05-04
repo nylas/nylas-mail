@@ -19,14 +19,14 @@ class ModalKeyRecommender extends React.Component
       currentContact: 0},
       @_getStateFromStores())
 
-  componentWillMount: ->
+  componentDidMount: ->
     @unlistenKeystore = PGPKeyStore.listen(@_onKeystoreChange)
 
   componentWillUnmount: ->
     @unlistenKeystore()
 
   _onKeystoreChange: () =>
-    @setState(@_getStateFromStores)
+    @setState(@_getStateFromStores())
 
   _getStateFromStores: () =>
     identities: PGPKeyStore.pubKeys(_.pluck(@props.contacts, 'email'))
@@ -56,7 +56,7 @@ class ModalKeyRecommender extends React.Component
     # indexes from 0 because what kind of monster doesn't
 
   _onDone: =>
-    Actions.closeModal()
+    Actions.closePopover()
 
   render: ->
     # dedupe the contacts, since we deal with addresses and not contacts
@@ -90,20 +90,18 @@ class ModalKeyRecommender extends React.Component
     )
 
     if identity?
-      return (<div>
-        <KeybaseUser profile={ identity } />
-        <span>{ backButton } { pages } { nextButton }</span>
-
-      </div>)
+      body = <KeybaseUser profile={ identity } />
     else
       query = contact.fullName()
       importFunc = ((identity) => @_selectProfile(email, identity))
-      # TODO add skip button?
 
-      <div>
-        <div>Associate a key for: <b>{ contact.toString() }</b></div>
+      body = [
+        <div key="title" className="picker-title">Associate a key for: <b>{ contact.toString() }</b></div>
+        <KeybaseSearch key="keybase-search" initialSearch={ query }, importFunc={ importFunc } />
+      ]
 
-        <KeybaseSearch initialSearch={ query }, importFunc={ importFunc } />
-
-        <span>{ backButton } { pages } { nextButton }</span>
-      </div>
+    <div className="key-picker-modal">
+      { body }
+      <div style={flex: 1}></div>
+      <div className="picker-controls">{ backButton } { pages } { nextButton }</div>
+    </div>
