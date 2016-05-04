@@ -14,7 +14,7 @@ const makePopover = (props = {})=> {
   return popover
 };
 
-describe('FixedPopover', ()=> {
+describe('FixedPopover', function fixedPopover() {
   describe('computeAdjustedOffsetAndDirection', ()=> {
     beforeEach(()=> {
       this.popover = makePopover()
