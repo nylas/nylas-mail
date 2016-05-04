@@ -92,7 +92,7 @@ export default class MetadataComposerToggleButton extends React.Component {
     const dir = enabled ? "Disabled" : "Enabled"
     Actions.recordUserEvent(`${this.props.pluginName} ${dir}`)
     if (this.props.stickyToggle) {
-      NylasEnv.config.set(this._configKey(), !this.state.enabled)
+      NylasEnv.config.set(this._configKey(), !enabled);
     }
     this._setEnabled(!enabled);
   };
