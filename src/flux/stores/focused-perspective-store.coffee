@@ -60,7 +60,6 @@ class FocusedPerspectiveStore extends NylasStore
         @_setPerspective(@_defaultPerspective(accountIds))
 
   _onFocusPerspective: (perspective) =>
-    return if perspective.isEqual(@_current)
     @_setPerspective(perspective)
 
   _onFocusAccounts: (accountsOrIds) =>
@@ -72,18 +71,20 @@ class FocusedPerspectiveStore extends NylasStore
     return MailboxPerspective.forInbox(accounts)
 
   _setPerspective: (perspective) ->
-    return if perspective?.isEqual(@_current)
-    NylasEnv.savedState.perspective = perspective.toJSON()
-    @_current = perspective
-    @trigger()
+    unless perspective.isEqual(@_current)
+      NylasEnv.savedState.perspective = perspective.toJSON()
+      @_current = perspective
+      @trigger()
 
     if perspective.drafts
       desired = WorkspaceStore.Sheet.Drafts
     else
       desired = WorkspaceStore.Sheet.Threads
 
+    # Always switch to the correct sheet and pop to root when perspective set
     if desired and WorkspaceStore.rootSheet() isnt desired
       Actions.selectRootSheet(desired)
+    Actions.popToRootSheet()
 
   _setPerspectiveByName: (categoryName) ->
     categories = @_current.accountIds.map (aid) ->
