@@ -1,6 +1,7 @@
 _ = require 'underscore'
 QueryRange = require './query-range'
 QueryResultSet = require './query-result-set'
+AttributeJoinedData = require '../attributes/attribute-joined-data'
 
 # TODO: Make mutator methods QueryResultSet.join(), QueryResultSet.clip...
 class MutableQueryResultSet extends QueryResultSet
@@ -30,11 +31,11 @@ class MutableQueryResultSet extends QueryResultSet
     models = @models()
     @_modelsHash = {}
     @_idToIndexHash = null
-    @replaceModel(m) for m in models
+    @updateModel(m) for m in models
 
   addModelsInRange: (rangeModels, range) ->
     @addIdsInRange(_.pluck(rangeModels, 'id'), range)
-    @replaceModel(m) for m in rangeModels
+    @updateModel(m) for m in rangeModels
 
   addIdsInRange: (rangeIds, range) ->
     if @_offset is null or range.isInfinite()
@@ -62,8 +63,18 @@ class MutableQueryResultSet extends QueryResultSet
       @_idToIndexHash = null
       @_offset = Math.min(@_offset, range.offset)
 
-  replaceModel: (item) ->
+  updateModel: (item) ->
     return unless item
+
+    # Sometimes the new copy of `item` doesn't contain the joined data present
+    # in the old one, since it's not provided by default and may not have changed.
+    # Make sure we never drop joined data by pulling it over.
+    existing = @_modelsHash[item.clientId]
+    if existing
+      for key, attr of existing.constructor.attributes
+        if attr instanceof AttributeJoinedData and item[attr.modelKey] is undefined
+          item[attr.modelKey] = existing[attr.modelKey]
+
     @_modelsHash[item.clientId] = item
     @_modelsHash[item.id] = item
     @_idToIndexHash = null
