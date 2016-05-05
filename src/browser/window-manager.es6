@@ -9,18 +9,15 @@ const ONBOARDING_WINDOW = "onboarding"
 
 export default class WindowManager {
 
-  constructor(appOpts) {
-    this.initializeInBackground = appOpts.initializeInBackground;
+  constructor({devMode, safeMode, resourcePath, configDirPath, initializeInBackground}) {
+    this.initializeInBackground = initializeInBackground;
     this._windows = {};
-    this.windowLauncher = new WindowLauncher(appOpts);
 
-    // Be sure to register the very first hot window! If you don't, then
-    // the first window (only) won't get window events (like being notified
-    // the database is setup), which causes components loaded in that
-    // window to not work and may even prevent window closure (like in the
-    // case of the composer)
-    this._registerWindow(this.windowLauncher.hotWindow);
-    this._didCreateNewWindow(this.windowLauncher.hotWindow);
+    const onCreatedHotWindow = (win) => {
+      this._registerWindow(win);
+      this._didCreateNewWindow(win);
+    }
+    this.windowLauncher = new WindowLauncher({devMode, safeMode, resourcePath, configDirPath, onCreatedHotWindow});
   }
 
   get(windowKey) {
