@@ -158,8 +158,8 @@ RegExpUtils =
   looseStyleTag: -> /<style/gim
 
   # Regular expression matching javasript function arguments:
-  # https://regex101.com/r/pZ6zF0/1
-  functionArgs: -> /\(\s*([^)]+?)\s*\)/
+  # https://regex101.com/r/pZ6zF0/2
+  functionArgs: -> /(?:\(\s*([^)]+?)\s*\)|(\w+)\s?=>)/
 
   illegalPathCharactersRegexp: ->
     #https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
