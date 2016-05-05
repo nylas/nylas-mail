@@ -13,7 +13,7 @@ SanitizeTransformer = require '../../services/sanitize-transformer'
 
 Thread = require('../models/thread').default
 Contact = require '../models/contact'
-Message = require '../models/message'
+Message = require('../models/message').default
 Utils = require '../models/utils'
 MessageUtils = require '../models/message-utils'
 

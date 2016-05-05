@@ -1,7 +1,7 @@
 _ = require 'underscore'
 Label = require '../../src/flux/models/label'
 Thread = require('../../src/flux/models/thread').default
-Message = require '../../src/flux/models/message'
+Message = require('../../src/flux/models/message').default
 Actions = require '../../src/flux/actions'
 NylasAPI = require '../../src/flux/nylas-api'
 DatabaseStore = require '../../src/flux/stores/database-store'

@@ -3,7 +3,7 @@ path = require 'path'
 {shell} = require 'electron'
 NylasAPI = require '../../src/flux/nylas-api'
 File = require '../../src/flux/models/file'
-Message = require '../../src/flux/models/message'
+Message = require('../../src/flux/models/message').default
 FileDownloadStore = require '../../src/flux/stores/file-download-store'
 AccountStore = require '../../src/flux/stores/account-store'
 

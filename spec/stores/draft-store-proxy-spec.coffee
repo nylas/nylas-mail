@@ -1,4 +1,4 @@
-Message = require '../../src/flux/models/message'
+Message = require('../../src/flux/models/message').default
 Actions = require '../../src/flux/actions'
 DatabaseStore = require '../../src/flux/stores/database-store'
 DatabaseTransaction = require '../../src/flux/stores/database-transaction'

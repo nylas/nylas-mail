@@ -1,4 +1,4 @@
-Message = require '../models/message'
+Message = require('../models/message').default
 Actions = require '../actions'
 DatabaseStore = require './database-store'
 ExtensionRegistry = require('../../extension-registry')
