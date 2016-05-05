@@ -1,12 +1,12 @@
 import _ from 'underscore'
-import React, {Component} from 'react'
+import React from 'react'
 import {findDOMNode} from 'react-dom'
 
 
 const FOCUSABLE_SELECTOR = 'input, textarea, [contenteditable], [tabIndex]'
 
 function AutoFocuses(ComposedComponent, {onMount = true, onUpdate = true} = {}) {
-  return class extends Component {
+  return class extends ComposedComponent {
     static displayName = ComposedComponent.displayName
 
     componentDidMount() {
