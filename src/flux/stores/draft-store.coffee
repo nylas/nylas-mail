@@ -299,10 +299,20 @@ class DraftStore
 
   _onHandleMailFiles: (event, paths) =>
     DraftFactory.createDraft().then (draft) =>
-      @_finalizeAndPersistNewMessage(draft, popout: true)
+      @_finalizeAndPersistNewMessage(draft)
     .then ({draftClientId}) =>
+      remaining = paths.length
+      callback = =>
+        remaining -= 1
+        if remaining is 0
+          @_onPopoutDraftClientId(draftClientId)
+
       for path in paths
-        Actions.addAttachment({filePath: path, messageClientId: draftClientId})
+        Actions.addAttachment({
+          filePath: path,
+          messageClientId: draftClientId,
+          callback: callback
+        })
 
   _onDestroyDraft: (draftClientId) =>
     session = @_draftSessions[draftClientId]

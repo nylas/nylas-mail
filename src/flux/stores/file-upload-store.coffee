@@ -59,7 +59,9 @@ class FileUploadStore extends NylasStore
       pathsToOpen.forEach (filePath) ->
         Actions.addAttachment({messageClientId, filePath})
 
-  _onAddAttachment: ({messageClientId, filePath}) ->
+  _onAddAttachment: ({messageClientId, filePath, callback}) ->
+    callback ?= ->
+
     @_verifyId(messageClientId)
     @_getFileStats({messageClientId, filePath})
     .then(@_makeUpload)
@@ -69,6 +71,7 @@ class FileUploadStore extends NylasStore
     .then (upload) =>
       @_applySessionChanges upload.messageClientId, (uploads) ->
         uploads.concat([upload])
+    .then(callback)
     .catch(@_onAttachFileError)
 
   _onRemoveAttachment: (upload) ->
@@ -144,11 +147,5 @@ class FileUploadStore extends NylasStore
     DraftStore.sessionForClientId(messageClientId).then (session) =>
       uploads = changeFunction(session.draft().uploads)
       session.changes.add({uploads})
-
-      # In some scenarios (like dropping attachments on the dock icon), files
-      # are added to drafts which may be open in another composer window.
-      # Committing here ensures the files appear immediately, no matter where the
-      # user is now viewing the draft.
-      session.changes.commit()
 
 module.exports = new FileUploadStore()
