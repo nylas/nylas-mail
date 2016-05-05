@@ -220,6 +220,13 @@ beforeEach ->
 
   TimeOverride.resetSpyData()
 
+util = require('util')
+console.inspect = (args...) ->
+  arg = args
+  if (args.length is 1)
+    arg = args[0]
+  console.log(util.inspect(arg))
+
 original_log = console.log
 original_warn = console.warn
 original_error = console.error
