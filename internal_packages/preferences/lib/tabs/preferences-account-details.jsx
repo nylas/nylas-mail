@@ -12,11 +12,11 @@ class PreferencesAccountDetails extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {account: _.clone(props.account)};
+    this.state = {account: props.account.clone()};
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({account: _.clone(nextProps.account)});
+    this.setState({account: nextProps.account.clone()});
   }
 
   componentWillUnmount() {

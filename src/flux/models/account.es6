@@ -77,7 +77,7 @@ export default class Account extends ModelWithMetadata {
       modelKey: 'syncState',
       jsonKey: 'sync_state',
     }),
-  })
+  });
 
   constructor(args) {
     super(args)
