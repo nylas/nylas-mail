@@ -8,7 +8,6 @@ import SharedFileManager from './shared-file-manager';
 
 import {BrowserWindow, Menu, app, ipcMain, dialog} from 'electron';
 
-import _ from 'underscore';
 import fs from 'fs-plus';
 import url from 'url';
 import path from 'path';
@@ -18,7 +17,7 @@ let clipboard = null;
 
 // The application's singleton class.
 //
-export default class Application {
+export default class Application extends EventEmitter {
   start(options) {
     const {resourcePath, configDirPath, version, devMode, specMode, safeMode} = options;
 
@@ -156,7 +155,7 @@ export default class Application {
   deleteFileWithRetry(filePath, callback = () => {}, retries = 5) {
     const callbackWithRetry = (err) => {
       if (err && (err.message.indexOf('no such file') === -1)) {
-        console.log("File Error: ${err.message} - retrying in 150msec");
+        console.log(`File Error: ${err.message} - retrying in 150msec`);
         setTimeout(() => {
           this.deleteFileWithRetry(filePath, callback, retries - 1);
         }, 150);
@@ -221,7 +220,7 @@ export default class Application {
 
   setDatabasePhase(phase) {
     if (!['setup', 'ready', 'close'].includes(phase)) {
-      throw new Error("setDatabasePhase: ${phase} is invalid.");
+      throw new Error(`setDatabasePhase: ${phase} is invalid.`);
     }
 
     if (phase === this._databasePhase) {
@@ -328,6 +327,7 @@ export default class Application {
       win.show()
       win.focus()
     });
+
     this.on('application:check-for-update', () => {
       this.autoUpdateManager.check();
     });
@@ -469,9 +469,9 @@ export default class Application {
     });
 
     ipcMain.on('call-window-method', (event, method, ...args) => {
-      const win = BrowserWindow.fromWebContents(event.sender)
+      const win = BrowserWindow.fromWebContents(event.sender);
       if (!win[method]) {
-        console.error("Method ${method} does not exist on BrowserWindow!");
+        console.error(`Method ${method} does not exist on BrowserWindow!`);
       }
       win[method](...args)
     });
@@ -485,9 +485,9 @@ export default class Application {
 
     ipcMain.on('call-webcontents-method', (event, method, ...args) => {
       if (!event.sender[method]) {
-        console.error("Method ${method} does not exist on WebContents!");
-        event.sender[method](...args);
+        console.error(`Method ${method} does not exist on WebContents!`);
       }
+      event.sender[method](...args);
     });
 
     ipcMain.on('action-bridge-rebroadcast-to-all', (event, ...args) => {
@@ -600,6 +600,8 @@ export default class Application {
   // nylasWindow - The {NylasWindow} to send the command to.
   // args - The optional arguments to pass along.
   sendCommandToWindow = (command, nylasWindow, ...args) => {
+    console.log('sendCommandToWindow');
+    console.log(command);
     if (this.emit(command, ...args)) {
       return;
     }
@@ -684,5 +686,3 @@ export default class Application {
     this.windowManager.ensureWindow(WindowManager.SPEC_WINDOW, specWindowOptions);
   }
 }
-
-_.extend(Application.prototype, EventEmitter.prototype);
