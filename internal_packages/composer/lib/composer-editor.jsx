@@ -26,6 +26,9 @@ import {DropZone, ScrollRegion, Contenteditable} from 'nylas-component-kit';
  * @class ComposerEditor
  */
 
+const NODE_END = false;
+const NODE_BEGINNING = true;
+
 class ComposerEditor extends Component {
   static displayName = 'ComposerEditor';
 
@@ -117,20 +120,32 @@ class ComposerEditor extends Component {
     // the body. Be sure to choose the last node /above/ the signature and any
     // quoted text that is visible. (as in forwarded messages.)
     //
-    this.refs.contenteditable.atomicEdit( ({editor})=> {
+    this.refs.contenteditable.atomicEdit(({editor}) => {
       editor.rootNode.focus();
       const lastNode = this._findLastNodeBeforeQuoteOrSignature(editor)
-      this._selectEndOfNode(lastNode)
+      if (lastNode) {
+        this._selectNode(lastNode, {collapseTo: NODE_END});
+      } else {
+        this._selectNode(editor.rootNode, {collapseTo: NODE_BEGINNING});
+      }
     });
   }
 
+  focusAbsoluteEnd() {
+    this.refs.contenteditable.atomicEdit(({editor}) => {
+      editor.rootNode.focus();
+      this._selectNode(editor.rootNode, {collapseTo: NODE_END});
+    });
+  }
+
+  // Note: This method returns null for new drafts, because the leading
+  // <br> tags contain no text nodes.
   _findLastNodeBeforeQuoteOrSignature(editor) {
     const walker = document.createTreeWalker(editor.rootNode, NodeFilter.SHOW_TEXT);
     const nodesBelowUserBody = editor.rootNode.querySelectorAll('signature, .gmail_quote, blockquote');
 
     let lastNode = null;
     let node = walker.nextNode();
-
     while (node != null) {
       let belowUserBody = false;
       for (let i = 0; i < nodesBelowUserBody.length; ++i) {
@@ -148,34 +163,13 @@ class ComposerEditor extends Component {
     return lastNode
   }
 
-  _findAbsoluteLastNode(editor) {
-    const walker = document.createTreeWalker(editor.rootNode, NodeFilter.SHOW_TEXT);
-    let lastNode = null;
-    let node = walker.nextNode();
-    while (node) {
-      lastNode = node;
-      node = walker.nextNode();
-    }
-    return lastNode;
-  }
-
-  _selectEndOfNode(node) {
-    if (node) {
-      const range = document.createRange();
-      range.selectNodeContents(node);
-      range.collapse(false);
-      const selection = window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }
-  }
-
-  focusAbsoluteEnd() {
-    this.refs.contenteditable.atomicEdit( ({editor})=> {
-      editor.rootNode.focus();
-      const lastNode = this._findAbsoluteLastNode(editor)
-      this._selectEndOfNode(lastNode)
-    });
+  _selectNode(node, {collapseTo} = {}) {
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    range.collapse(collapseTo);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
   }
 
   /**
