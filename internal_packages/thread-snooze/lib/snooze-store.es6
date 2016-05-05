@@ -1,20 +1,15 @@
 import _ from 'underscore';
 import {Actions, NylasAPI, AccountStore, CategoryStore} from 'nylas-exports';
-import {
-  moveThreadsToSnooze,
-  moveThreadsFromSnooze,
-  getSnoozeCategoriesByAccount,
-} from './snooze-utils';
+import SnoozeUtils from './snooze-utils'
 import {PLUGIN_ID, PLUGIN_NAME} from './snooze-constants';
 import SnoozeActions from './snooze-actions';
-
 
 class SnoozeStore {
 
   constructor(pluginId = PLUGIN_ID, pluginName = PLUGIN_NAME) {
     this.pluginId = pluginId
     this.pluginName = pluginName
-    this.snoozeCategoriesPromise = getSnoozeCategoriesByAccount(AccountStore.accounts())
+    this.snoozeCategoriesPromise = SnoozeUtils.getSnoozeCategoriesByAccount(AccountStore.accounts())
   }
 
   activate() {
@@ -58,7 +53,7 @@ class SnoozeStore {
   };
 
   onAccountsChanged = ()=> {
-    this.snoozeCategoriesPromise = getSnoozeCategoriesByAccount(AccountStore.accounts())
+    this.snoozeCategoriesPromise = SnoozeUtils.getSnoozeCategoriesByAccount(AccountStore.accounts())
   };
 
   onSnoozeThreads = (threads, snoozeDate, label) => {
@@ -70,7 +65,7 @@ class SnoozeStore {
     })
     return Promise.all(promises)
     .then(()=> {
-      return moveThreadsToSnooze(threads, this.snoozeCategoriesPromise, snoozeDate)
+      return SnoozeUtils.moveThreadsToSnooze(threads, this.snoozeCategoriesPromise, snoozeDate)
     })
     .then((updatedThreads)=> {
       return this.snoozeCategoriesPromise
@@ -83,7 +78,7 @@ class SnoozeStore {
       })
     })
     .catch((error)=> {
-      moveThreadsFromSnooze(threads, this.snoozeCategoriesPromise)
+      SnoozeUtils.moveThreadsFromSnooze(threads, this.snoozeCategoriesPromise)
       Actions.closePopover();
       NylasEnv.reportError(error);
       NylasEnv.showErrorDialog(`Sorry, we were unable to save your snooze settings. ${error.message}`);
