@@ -5,6 +5,8 @@ Task = require('../../src/flux/tasks/task').default
 {APIError,
  TimeoutError} = require '../../src/flux/errors'
 
+{APITestTask, OKTask, BadTask} = require('../stores/task-subclass')
+
 noop = ->
 
 describe "Task", ->
@@ -15,9 +17,6 @@ describe "Task", ->
 
   describe "runLocal", ->
     beforeEach ->
-      class APITestTask extends Task
-        performLocal: -> Promise.resolve()
-        performRemote: -> Promise.resolve(Task.Status.Success)
       @task = new APITestTask()
 
     describe "when performLocal is not complete", ->
@@ -117,9 +116,6 @@ describe "Task", ->
           result = null
           err = null
 
-          class OKTask extends Task
-            performRemote: -> Promise.resolve(Task.Status.Retry)
-
           @ok = new OKTask()
           @ok.queueState.localComplete = true
           @ok.runRemote().then (r) -> result = r
@@ -127,8 +123,6 @@ describe "Task", ->
           expect(@ok.queueState.status).toBe(Task.Status.Retry)
           expect(result).toBe(Task.Status.Retry)
 
-          class BadTask extends Task
-            performRemote: -> Promise.resolve('lalal')
           @bad = new BadTask()
           @bad.queueState.localComplete = true
           @bad.runRemote().catch (e) -> err = e

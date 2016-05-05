@@ -172,7 +172,7 @@ export default class Message extends ModelWithMetadata {
   });
 
   static naturalSortOrder() {
-    Message.attributes.date.ascending()
+    return Message.attributes.date.ascending()
   }
 
   static additionalSQLiteConfig() {
@@ -190,8 +190,8 @@ Message(date DESC) WHERE draft = 1`,
     }
   }
 
-  constructor() {
-    super();
+  constructor(args) {
+    super(args);
     this.subject = this.subject || ""
     this.to = this.to || []
     this.cc = this.cc || []
@@ -333,7 +333,7 @@ Message(date DESC) WHERE draft = 1`,
   // address. In the future, this method will take into account all of the
   // user's email addresses && accounts.
   isFromMe() {
-    return ((this.from[0] || {}).isMe || (() => {}))()
+    return this.from[0] ? this.from[0].isMe() : false
   }
 
   // Public: Returns a plaintext version of the message body using Chromium's
@@ -353,7 +353,7 @@ Message(date DESC) WHERE draft = 1`,
   // localized for the current user.
   // ie "On Dec. 12th, 2015 at 4:00PM, Ben Gotow wrote:"
   replyAttributionLine() {
-    return "On #{this.formattedDate()}, #{this.fromContact().toString()} wrote:"
+    return `On ${this.formattedDate()}, ${this.fromContact().toString()} wrote:`
   }
 
   formattedDate() {

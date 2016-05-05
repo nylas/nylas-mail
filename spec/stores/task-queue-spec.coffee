@@ -6,11 +6,15 @@ Task = require('../../src/flux/tasks/task').default
 {APIError,
  TimeoutError} = require '../../src/flux/errors'
 
-class TaskSubclassA extends Task
-  constructor: (val) -> @aProp = val; super
-
-class TaskSubclassB extends Task
-  constructor: (val) -> @bProp = val; super
+{
+  TaskSubclassA,
+  TaskSubclassB,
+  KillsTaskA,
+  BlockedByTaskA,
+  BlockingTask,
+  TaskAA,
+  TaskBB,
+} = require('./task-subclass')
 
 describe "TaskQueue", ->
 
@@ -119,10 +123,6 @@ describe "TaskQueue", ->
 
   describe "_dequeueObsoleteTasks", ->
     it "should dequeue tasks based on `shouldDequeueOtherTask`", ->
-      class KillsTaskA extends Task
-        shouldDequeueOtherTask: (other) -> other instanceof TaskSubclassA
-        performRemote: -> new Promise (resolve, reject) ->
-
       otherTask = new Task()
       otherTask.queueState.localComplete = true
       obsoleteTask = new TaskSubclassA()
@@ -178,9 +178,6 @@ describe "TaskQueue", ->
 
   describe "_processQueue", ->
     it "doesn't process blocked tasks", ->
-      class BlockedByTaskA extends Task
-        isDependentOnTask: (other) -> other instanceof TaskSubclassA
-
       taskA = new TaskSubclassA()
       otherTask = new Task()
       blockedByTaskA = new BlockedByTaskA()
@@ -202,9 +199,6 @@ describe "TaskQueue", ->
       expect(blockedByTaskA.runRemote).not.toHaveBeenCalled()
 
     it "doesn't block itself, even if the isDependentOnTask method is implemented naively", ->
-      class BlockingTask extends Task
-        isDependentOnTask: (other) -> other instanceof BlockingTask
-
       blockedTask = new BlockingTask()
       spyOn(blockedTask, "runRemote").andCallFake -> Promise.resolve()
 
@@ -270,22 +264,8 @@ describe "TaskQueue", ->
 
   describe "handling task runRemote task errors", ->
     spyBBRemote = jasmine.createSpy("performRemote")
-    spyCCRemote = jasmine.createSpy("performRemote")
 
     beforeEach ->
-      testError = new Error("Test Error")
-      @testError = testError
-      class TaskAA extends Task
-        performRemote: ->
-          # We reject instead of `throw` because jasmine thinks this
-          # `throw` is in the context of the test instead of the context
-          # of the calling promise in task-queue.coffee
-          return Promise.reject(testError)
-
-      class TaskBB extends Task
-        isDependentOnTask: (other) -> other instanceof TaskAA
-        performRemote: spyBBRemote
-
       @taskAA = new TaskAA
       @taskAA.queueState.localComplete = true
       @taskBB = new TaskBB

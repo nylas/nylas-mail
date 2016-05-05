@@ -79,8 +79,8 @@ export default class Account extends ModelWithMetadata {
     }),
   })
 
-  constructor() {
-    super()
+  constructor(args) {
+    super(args)
     this.aliases = this.aliases || [];
     this.label = this.label || this.emailAddress;
     this.syncState = this.syncState || "running";
@@ -135,7 +135,7 @@ export default class Account extends ModelWithMetadata {
   }
 
   categoryCollection() {
-    return "#{this.organizationUnit}s"
+    return `${this.organizationUnit}s`
   }
 
   categoryIcon() {
