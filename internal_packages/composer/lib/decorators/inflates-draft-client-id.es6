@@ -1,16 +1,19 @@
 import React from 'react';
 import {DraftStore, Actions, Utils} from 'nylas-exports';
 
-function InflateDraftClientId(ComposedComponent) {
-  return class extends React.Component {
+function InflatesDraftClientId(ComposedComponent) {
+  return class extends ComposedComponent {
     static displayName = ComposedComponent.displayName;
+
     static propTypes = {
       draftClientId: React.PropTypes.string,
       onDraftReady: React.PropTypes.func,
     }
+
     static defaultProps = {
       onDraftReady: () => {},
     }
+
     static containerRequired = false;
 
     constructor(props) {
@@ -84,18 +87,18 @@ function InflateDraftClientId(ComposedComponent) {
     // Returns a promise for use in composer/main.es6, to show the window
     // once the composer is rendered and focused.
     focus() {
-      return Utils.waitFor(() => this.refs.composed).then(() =>
-        this.refs.composed.focus()
-      ).catch(() => {
-      });
+      return Utils.waitFor(() => this.refs.composed)
+      .then(() => this.refs.composed.focus())
+      .catch(() => {});
     }
 
     render() {
       if (!this.state.draft) {
-        return <span />;
+        return <span/>;
       }
       return <ComposedComponent ref="composed" {...this.props} {...this.state} />;
     }
   };
 }
-export default InflateDraftClientId
+
+export default InflatesDraftClientId

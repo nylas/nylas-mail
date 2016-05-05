@@ -13,8 +13,8 @@ import {
 import ComposeButton from './compose-button';
 import ComposerView from './composer-view';
 
-import InflateDraftClientId from './decorators/inflate-draft-client-id';
-const ComposerViewForDraftClientId = InflateDraftClientId(ComposerView);
+import InflatesDraftClientId from './decorators/inflates-draft-client-id';
+const ComposerViewForDraftClientId = InflatesDraftClientId(ComposerView);
 
 class ComposerWithWindowProps extends React.Component {
   static displayName = 'ComposerWithWindowProps';

@@ -1,7 +1,7 @@
-import React, {Component} from 'react';
+import React from 'react';
 
 function ListensToFluxStore(ComposedComponent, {stores, getStateFromStores}) {
-  return class extends Component {
+  return class extends ComposedComponent {
     static displayName = ComposedComponent.displayName;
 
     static containerRequired = false;

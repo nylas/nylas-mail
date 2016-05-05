@@ -2,6 +2,8 @@ import _ from 'underscore';
 import React, {Component, PropTypes} from 'react';
 import {findDOMNode} from 'react-dom';
 import Actions from '../flux/actions';
+import compose from './decorators/compose'
+import AutoFocuses from './decorators/auto-focuses'
 
 
 const Directions = {
@@ -43,6 +45,7 @@ class FixedPopover extends Component {
       height: PropTypes.number,
       width: PropTypes.number,
     }),
+    focusElementWithTabIndex: PropTypes.func,
   };
 
   constructor(props) {
@@ -59,7 +62,6 @@ class FixedPopover extends Component {
 
   componentDidMount() {
     this.mounted = true;
-    this.focusElementWithTabIndex()
     findDOMNode(this.refs.popoverContainer).addEventListener('animationend', this.onAnimationEnd)
     window.addEventListener('resize', this.onWindowResize)
     _.defer(this.onPopoverRendered)
@@ -78,7 +80,6 @@ class FixedPopover extends Component {
   }
 
   componentDidUpdate() {
-    this.focusElementWithTabIndex()
     _.defer(this.onPopoverRendered)
   }
 
@@ -89,7 +90,7 @@ class FixedPopover extends Component {
   }
 
   onAnimationEnd = () => {
-    _.defer(this.focusElementWithTabIndex);
+    _.defer(this.props.focusElementWithTabIndex);
   }
 
   onWindowResize() {
@@ -141,28 +142,6 @@ class FixedPopover extends Component {
     return {
       width: document.body.clientWidth,
       height: document.body.clientHeight,
-    }
-  };
-
-  focusElementWithTabIndex = () => {
-    if (!this.mounted) {
-      return;
-    }
-    // Automatically focus the element inside us with the lowest tab index
-    const popoverNode = findDOMNode(this);
-
-    // _.sortBy ranks in ascending numerical order.
-    const focusable = popoverNode.querySelectorAll("[tabIndex], input");
-    const matches = _.sortBy(focusable, (node) => {
-      if (node.tabIndex > 0) {
-        return node.tabIndex;
-      } else if (node.nodeName === "INPUT") {
-        return 1000000
-      }
-      return 1000001
-    })
-    if (matches[0]) {
-      matches[0].focus();
     }
   };
 
@@ -343,4 +322,4 @@ class FixedPopover extends Component {
   }
 }
 
-export default FixedPopover;
+export default compose(FixedPopover, AutoFocuses);
