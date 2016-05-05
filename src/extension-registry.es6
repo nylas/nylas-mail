@@ -52,12 +52,6 @@ export class Registry {
 Registry.include(Publisher);
 Registry.include(Listener);
 
-export const Composer = new Registry(
-  'Composer',
-  composerExtAdapter
-);
+export const Composer = new Registry('Composer');
 
-export const MessageView = new Registry(
-  'MessageView',
-  messageViewExtAdapter
-);
+export const MessageView = new Registry('MessageView');
