@@ -15,19 +15,20 @@ const DEBUG_SHOW_HOT_WINDOW = false;
 export default class WindowLauncher {
   static EMPTY_WINDOW = "emptyWindow"
 
-  constructor(appOpts) {
+  constructor({devMode, safeMode, resourcePath, configDirPath, onCreatedHotWindow}) {
     this.defaultWindowOpts = {
       frame: process.platform !== "darwin",
       hidden: false,
       toolbar: true,
-      devMode: appOpts.devMode,
-      safeMode: appOpts.safeMode,
+      devMode: devMode,
+      safeMode: safeMode,
       resizable: true,
       windowType: WindowLauncher.EMPTY_WINDOW,
       bootstrapScript: require.resolve("../secondary-window-bootstrap"),
-      resourcePath: appOpts.resourcePath,
-      configDirPath: appOpts.configDirPath,
+      resourcePath: resourcePath,
+      configDirPath: configDirPath,
     }
+    this.onCreatedHotWindow = onCreatedHotWindow;
     this.createHotWindow();
   }
 
@@ -66,8 +67,9 @@ export default class WindowLauncher {
 
   createHotWindow() {
     this.hotWindow = new NylasWindow(this._hotWindowOpts());
+    this.onCreatedHotWindow(this.hotWindow);
     if (DEBUG_SHOW_HOT_WINDOW) {
-      this.hotWindow.showWhenLoaded()
+      this.hotWindow.showWhenLoaded();
     }
   }
 
