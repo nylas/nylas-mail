@@ -133,6 +133,11 @@ class WorkspaceSection extends React.Component {
           config={this.props.config} />
 
         <ConfigSchemaItem
+          configSchema={this.props.configSchema.properties.workspace.properties.use24HourClock}
+          keyPath="core.workspace.use24HourClock"
+          config={this.props.config} />
+
+        <ConfigSchemaItem
           configSchema={this.props.configSchema.properties.workspace.properties.interfaceZoom}
           keyPath="core.workspace.interfaceZoom"
           config={this.props.config} />
