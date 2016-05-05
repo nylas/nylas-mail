@@ -236,7 +236,7 @@ class AccountStore extends NylasStore
   _importFakeData: (dir) =>
     fs = require 'fs-plus'
     path = require 'path'
-    Message = require '../models/message'
+    Message = require('../models/message').default
     Account = require('../models/account').default
     Thread = require('../models/thread').default
     Label = require '../models/label'

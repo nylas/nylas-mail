@@ -1,6 +1,6 @@
 Reflux = require 'reflux'
 Actions = require '../src/flux/actions'
-Message = require '../src/flux/models/message'
+Message = require('../src/flux/models/message').default
 DatabaseStore = require '../src/flux/stores/database-store'
 AccountStore = require '../src/flux/stores/account-store'
 ActionBridge = require '../src/flux/action-bridge',

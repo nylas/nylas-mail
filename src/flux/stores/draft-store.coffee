@@ -18,7 +18,7 @@ DestroyDraftTask = require('../tasks/destroy-draft-task').default
 
 Thread = require('../models/thread').default
 Contact = require '../models/contact'
-Message = require '../models/message'
+Message = require('../models/message').default
 Actions = require '../actions'
 
 TaskQueue = require './task-queue'

@@ -3,7 +3,7 @@ fs = require 'fs'
 Actions = require '../src/flux/actions'
 NylasAPI = require '../src/flux/nylas-api'
 Thread = require('../src/flux/models/thread').default
-Message = require '../src/flux/models/message'
+Message = require('../src/flux/models/message').default
 AccountStore = require '../src/flux/stores/account-store'
 DatabaseStore = require '../src/flux/stores/database-store'
 DatabaseTransaction = require '../src/flux/stores/database-transaction'
@@ -247,7 +247,7 @@ describe "NylasAPI", ->
             expect(models[0].id).toBe 'b'
 
     describe "when updating models", ->
-      Message = require '../src/flux/models/message'
+      Message = require('../src/flux/models/message').default
       beforeEach ->
         @json = [
           {id: 'a', object: 'draft', unread: true}
@@ -305,9 +305,9 @@ describe "NylasAPI", ->
         "label": require('../src/flux/models/label')
         "folder": require('../src/flux/models/folder')
         "thread": require('../src/flux/models/thread').default
-        "draft": require('../src/flux/models/message')
+        "draft": require('../src/flux/models/message').default
         "account": require('../src/flux/models/account').default
-        "message": require('../src/flux/models/message')
+        "message": require('../src/flux/models/message').default
         "contact": require('../src/flux/models/contact')
         "calendar": require('../src/flux/models/calendar')
 

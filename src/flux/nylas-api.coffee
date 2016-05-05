@@ -4,7 +4,7 @@ request = require 'request'
 NylasLongConnection = require('./nylas-long-connection').default
 Utils = require './models/utils'
 Account = require('./models/account').default
-Message = require './models/message'
+Message = require('./models/message').default
 Actions = require './actions'
 {APIError} = require './errors'
 PriorityUICoordinator = require '../priority-ui-coordinator'
@@ -350,9 +350,9 @@ class NylasAPI
     "label": require('./models/label')
     "folder": require('./models/folder')
     "thread": require('./models/thread').default
-    "draft": require('./models/message')
+    "draft": require('./models/message').default
     "account": require('./models/account').default
-    "message": require('./models/message')
+    "message": require('./models/message').default
     "contact": require('./models/contact')
     "calendar": require('./models/calendar')
 

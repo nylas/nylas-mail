@@ -1,4 +1,4 @@
-Message = require '../../src/flux/models/message'
+Message = require('../../src/flux/models/message').default
 Thread = require('../../src/flux/models/thread').default
 Category = require '../../src/flux/models/category'
 {Utils} = require 'nylas-exports'

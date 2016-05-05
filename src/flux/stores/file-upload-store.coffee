@@ -5,7 +5,7 @@ mkdirp = require 'mkdirp'
 NylasStore = require 'nylas-store'
 Actions = require '../actions'
 Utils = require '../models/utils'
-Message = require '../models/message'
+Message = require('../models/message').default
 DraftStore = require './draft-store'
 DatabaseStore = require './database-store'
 
