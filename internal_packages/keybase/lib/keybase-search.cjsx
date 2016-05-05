@@ -61,23 +61,18 @@ class KeybaseSearch extends React.Component
     )
 
   _popoverDone: (addresses, identity) =>
-    # closes the popover, saves a key if an email was entered
-    keybaseUsername = identity.keybase_profile.components.username.val
-
     if addresses.length < 1
       # no email addresses added, nop
       return
     else
-      @_save(identity, addresses[0])
+      identity.addresses = addresses
+      # TODO validate the addresses?
+      @_save(identity)
 
-    if addresses.length > 1
-      # add any extra ddresses the user entered
-      _.each(addresses.slice(1), (address) =>
-        @_addEmail(address)
-      )
-
-  _save: (identity, address) =>
+  _save: (identity) =>
     # save/import a key from keybase
+    keybaseUsername = identity.keybase_profile.components.username.val
+
     kb.getKey(keybaseUsername, (error, key) =>
       if error
         console.error error
