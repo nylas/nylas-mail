@@ -1,5 +1,18 @@
 # N1 Changelog
 
+### 0.4.33 (5/4/16)
+
+- Fixes a critical issue with "Send Later" state not sticking.
+- Fixes an issue with the emoji popup menu in the composer not inserting emoji.
+- Fixes a bug where "Read Receipts" and "Link Tracking" would not default to off after being turned off.
+- Fixes the "delete" keyboard shortcut on Windows and Linux.
+- Fixes the "g i" and other shortcuts which should return you to the thread list.
+
+- The "archive or delete" option in preferences now mentions that it impacts swipe gestures.
+- Right click "Copy Link" is now "Copy Link Address"
+- Items in the sidebar auto-expand when you hover over them while dragging
+- Third party `N1-Unsubscribe` plugin should now work when re-downloaded
+
 ### 0.4.32 (5/2/16)
 
 - Features:
