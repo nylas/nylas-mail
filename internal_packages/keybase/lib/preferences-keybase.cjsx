@@ -92,10 +92,10 @@ class PreferencesKeybase extends React.Component
     pubKeys = PGPKeyStore.pubKeys()
     privKeys = PGPKeyStore.privKeys(timed: false)
 
-    _.each(pubKeys, (key) =>
-      if not key.key?
-        PGPKeyStore.getKeyContents(key: key)
-    )
+    # _.each(pubKeys, (key) =>
+    #   if not key.key?
+    #     PGPKeyStore.getKeyContents(key: key)
+    # )
 
     selectedPubKey = @state?.selectedPubKey
     # none selected
@@ -162,7 +162,7 @@ class PreferencesKeybase extends React.Component
 
     noKeysMessage =
     <div className="key-status-bar no-keys-message">
-      You have no saved PGP keys! Use one of the options below to add one.
+      You have no saved PGP keys!
     </div>
 
     <div>

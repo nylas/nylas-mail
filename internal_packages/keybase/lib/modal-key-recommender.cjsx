@@ -12,6 +12,10 @@ class ModalKeyRecommender extends React.Component
 
   @propTypes:
     contacts: React.PropTypes.array.isRequired
+    callback: React.PropTypes.function
+
+  @defaultProps:
+    callback: () -> return # NOP
 
   constructor: (props) ->
     super(props)
@@ -57,6 +61,7 @@ class ModalKeyRecommender extends React.Component
 
   _onDone: =>
     Actions.closePopover()
+    @props.callback()
 
   render: ->
     # dedupe the contacts, since we deal with addresses and not contacts

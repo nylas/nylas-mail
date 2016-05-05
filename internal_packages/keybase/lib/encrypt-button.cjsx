@@ -98,7 +98,7 @@ class EncryptMessageButton extends React.Component
       # if not encrypted, save the plaintext, then encrypt
       plaintext = @props.draft.body
       identities = @_getKeys()
-      @_encrypt(plaintext, identities, (err, cryptotext) =>
+      @_checkKeysAndEncrypt(plaintext, identities, (err, cryptotext) =>
         if err
           console.warn err
           NylasEnv.showErrorDialog(err)
@@ -113,6 +113,17 @@ class EncryptMessageButton extends React.Component
       )
 
   _encrypt: (text, identities, cb) =>
+    # get the actual key objects
+    kms = _.pluck(identities, "key")
+    # remove the nulls
+    kms = _.compact(kms)
+    params =
+      encrypt_for: kms
+      msg: text
+    pgp.box(params, cb)
+
+  _checkKeysAndEncrypt: (text, identities, cb) =>
+    # what a great function name, amirite?
     emails = _.chain(identities)
       .pluck("addresses")
       .flatten()
@@ -120,25 +131,18 @@ class EncryptMessageButton extends React.Component
       .value()
 
     if _.every(identities, (identity) -> identity.key?)
-      # get the actual key objects
-      kms = _.pluck(identities, "key")
-
-      # remove the nulls (although there shouldn't be any for now)
-      kms = _.compact(kms)
-      params =
-        encrypt_for: kms
-        msg: text
-      pgp.box(params, cb)
+      # every key is present and valid
+      @_encrypt(text, identities, cb)
     else
+      # open a popover to correct null keys
       DatabaseStore.findAll(Contact, {email: emails}).then((contacts) =>
-        component = (<ModalKeyRecommender contacts={contacts} />)
+        component = (<ModalKeyRecommender contacts={contacts} callback={ => @_encrypt(text, identities, cb) }/>)
         Actions.openPopover(
           component,
         {
           originRect: ReactDOM.findDOMNode(@).getBoundingClientRect(),
           direction: 'up',
         })
-        # TODO encrypt after the modal is closed
       )
 
 module.exports = EncryptMessageButton
