@@ -17,6 +17,8 @@
     "escope": "3.3.0",
     "eslint": "2.x.x",
     "eslint-config-airbnb": "8.x.x",
+    "eslint-plugin-import": "1.x.x",
+    "eslint-plugin-jsx-a11y": "1.x.x",
     "eslint-plugin-react": "5.x.x",
     "fs-plus": "2.x",
     "github-releases": "~0.3.0",
