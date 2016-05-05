@@ -1,14 +1,13 @@
-// Copied from https://github.com/sindresorhus/grunt-eslint
-// So we can use our own eslint instead of this tasks's dependency.
-const chalk = require('chalk');
-const eslint = require('eslint');
+'use strict';
+var chalk = require('chalk');
+var eslint = require('eslint');
 
-module.exports = function eslintTask(grunt) {
-  grunt.registerMultiTask('eslint', 'Validate files with ESLint', () => {
-    const opts = this.options({
+module.exports = function (grunt) {
+  grunt.registerMultiTask('eslint', 'Validate files with ESLint', function () {
+    var opts = this.options({
       outputFile: false,
       quiet: false,
-      maxWarnings: -1,
+      maxWarnings: -1
     });
 
     // legacy
@@ -25,16 +24,16 @@ module.exports = function eslintTask(grunt) {
       return true;
     }
 
-    const formatter = eslint.CLIEngine.getFormatter(opts.format);
+    var formatter = eslint.CLIEngine.getFormatter(opts.format);
 
     if (!formatter) {
-      grunt.warn(`Could not find formatter ${opts.format}'.`);
+      grunt.warn('Could not find formatter ' + opts.format + '\'.');
       return false;
     }
 
-    const engine = new eslint.CLIEngine(opts);
+    var engine = new eslint.CLIEngine(opts);
 
-    let report;
+    var report;
     try {
       report = engine.executeOnFiles(this.filesSrc);
     } catch (err) {
@@ -46,13 +45,13 @@ module.exports = function eslintTask(grunt) {
       eslint.CLIEngine.outputFixes(report);
     }
 
-    let results = report.results;
+    var results = report.results;
 
     if (opts.quiet) {
       results = eslint.CLIEngine.getErrorResults(results);
     }
 
-    const output = formatter(results);
+    var output = formatter(results);
 
     if (opts.outputFile) {
       grunt.file.write(opts.outputFile, output);
@@ -60,10 +59,10 @@ module.exports = function eslintTask(grunt) {
       console.log(output);
     }
 
-    const tooManyWarnings = opts.maxWarnings >= 0 && report.warningCount > opts.maxWarnings;
+    var tooManyWarnings = opts.maxWarnings >= 0 && report.warningCount > opts.maxWarnings;
 
     if (report.errorCount === 0 && tooManyWarnings) {
-      grunt.warn(`ESLint found too many warnings (maximum:${opts.maxWarnings})`);
+      grunt.warn('ESLint found too many warnings (maximum:' + opts.maxWarnings + ')');
     }
 
     return report.errorCount === 0;
