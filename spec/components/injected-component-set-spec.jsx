@@ -1,9 +1,15 @@
+/* eslint react/prefer-es6-class: "off" */
+/* eslint react/prefer-stateless-function: "off" */
+
 import {React, ComponentRegistry, NylasTestUtils} from 'nylas-exports';
 import {InjectedComponentSet} from 'nylas-component-kit';
 const {renderIntoDocument} = NylasTestUtils;
 
 const reactStub = (displayName) => {
-  return <div className={displayName}></div>;
+  return React.createClass({
+    displayName,
+    render() { return <div className={displayName}></div>; },
+  });
 };
 
 
