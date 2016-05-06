@@ -649,13 +649,12 @@ class NylasEnvConstructor
     {packageLoadingDeferred, windowType} = @getLoadSettings()
     @extendRxObservables()
     StoreRegistry.activateAllStores()
-    @keymaps.loadBundledKeymaps()
+    @keymaps.loadKeymaps()
     @themes.loadBaseStylesheets()
     @packages.loadPackages(windowType) unless packageLoadingDeferred
     @deserializePackageStates() unless packageLoadingDeferred
     @initializeReactRoot()
     @packages.activate() unless packageLoadingDeferred
-    @keymaps.loadUserKeymap()
     @menu.update()
 
   # Call this method when establishing a real application window.
