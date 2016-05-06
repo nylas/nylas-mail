@@ -7,10 +7,10 @@ import {Utils} from 'nylas-exports';
 // This is a stripped down version of
 // https://github.com/michaelvillar/dynamics.js/blob/master/src/dynamics.coffee#L1179,
 //
-const SpringBounceFactory = (options)=> {
+const SpringBounceFactory = (options) => {
   const frequency = Math.max(1, options.frequency / 20);
   const friction = Math.pow(20, options.friction / 100);
-  return (t)=> {
+  return (t) => {
     return 1 - (Math.pow(friction / 10, -t) * (1 - t) * Math.cos(frequency * t));
   };
 };
@@ -36,7 +36,7 @@ const Phase = {
 let SwipeInverted = false;
 
 if (process.platform === 'darwin') {
-  exec("defaults read -g com.apple.swipescrolldirection", (err, stdout)=> {
+  exec("defaults read -g com.apple.swipescrolldirection", (err, stdout) => {
     SwipeInverted = (stdout.toString().trim() !== '0');
   });
 } else if (process.platform === 'win32') {
@@ -98,7 +98,7 @@ export default class SwipeContainer extends Component {
 
   componentDidUpdate() {
     if (this.phase === Phase.Settling) {
-      window.requestAnimationFrame(()=> {
+      window.requestAnimationFrame(() => {
         if (this.phase === Phase.Settling) {
           this._settle();
         }
@@ -113,7 +113,7 @@ export default class SwipeContainer extends Component {
     window.removeEventListener('scroll-touch-end', this._onScrollTouchEnd);
   }
 
-  _isEnabled = ()=> {
+  _isEnabled = () => {
     if (this.isEnabled === null) {
       // Cache this value so we don't have to recalculate on every swipe
       this.isEnabled = (
@@ -124,7 +124,7 @@ export default class SwipeContainer extends Component {
     return this.isEnabled;
   };
 
-  _onWheel = (e)=> {
+  _onWheel = (e) => {
     let velocity = e.deltaX / 3;
     if (SwipeInverted) {
       velocity = -velocity;
@@ -136,7 +136,7 @@ export default class SwipeContainer extends Component {
     }
   };
 
-  _onDragWithVelocity = (velocity)=> {
+  _onDragWithVelocity = (velocity) => {
     if ((this.tracking === false) || !this._isEnabled()) {
       return;
     }
@@ -157,7 +157,7 @@ export default class SwipeContainer extends Component {
       thresholdDistance = 110;
     }
 
-    const clipToMax = (v)=> Math.max(-fullDistance, Math.min(fullDistance, v))
+    const clipToMax = (v) => Math.max(-fullDistance, Math.min(fullDistance, v))
     const currentX = clipToMax(this.state.currentX + velocity);
     const estimatedSettleX = clipToMax(currentX + velocity * 8);
     const lastDragX = currentX;
@@ -186,12 +186,12 @@ export default class SwipeContainer extends Component {
     this.setState({thresholdDistance, fullDistance, currentX, targetX, lastDragX});
   };
 
-  _onScrollTouchBegin = ()=> {
+  _onScrollTouchBegin = () => {
     this.tracking = true;
     this.trackingInitialTargetX = this.state.targetX;
   };
 
-  _onScrollTouchEnd = ()=> {
+  _onScrollTouchEnd = () => {
     this.tracking = false;
     if ((this.phase !== Phase.None) && (this.phase !== Phase.Settling)) {
       this.phase = Phase.Settling;
@@ -202,7 +202,7 @@ export default class SwipeContainer extends Component {
     }
   };
 
-  _onTouchStart = (e)=> {
+  _onTouchStart = (e) => {
     if ((this.trackingTouchIdentifier === null) && (e.targetTouches.length > 0)) {
       const touch = e.targetTouches.item(0);
       this.trackingTouchIdentifier = touch.identifier;
@@ -211,7 +211,7 @@ export default class SwipeContainer extends Component {
     }
   };
 
-  _onTouchMove = (e)=> {
+  _onTouchMove = (e) => {
     if (this.trackingTouchIdentifier === null) {
       return;
     }
@@ -239,7 +239,7 @@ export default class SwipeContainer extends Component {
     }
   };
 
-  _onTouchEnd = (e)=> {
+  _onTouchEnd = (e) => {
     if (this.trackingTouchIdentifier === null) {
       return;
     }
@@ -252,13 +252,13 @@ export default class SwipeContainer extends Component {
     }
   };
 
-  _onSwipeActionCompleted = (rowWillDisappear)=> {
+  _onSwipeActionCompleted = (rowWillDisappear) => {
     let delay = 0;
     if (rowWillDisappear) {
       delay = 550;
     }
 
-    setTimeout(()=> {
+    setTimeout(() => {
       if (this.mounted === true) {
         this._onReset();
       }

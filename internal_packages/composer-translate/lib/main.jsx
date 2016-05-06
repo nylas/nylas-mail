@@ -76,7 +76,7 @@ class TranslateButton extends React.Component {
     };
 
     // Use Node's `request` library to perform the translation using the Yandex API.
-    request({url: YandexTranslationURL, qs: query}, (error, resp, data)=> {
+    request({url: YandexTranslationURL, qs: query}, (error, resp, data) => {
       if (resp.statusCode !== 200) {
         this._onError(error);
         return;
@@ -97,7 +97,7 @@ class TranslateButton extends React.Component {
     });
   };
 
-  _onClickTranslateButton = ()=> {
+  _onClickTranslateButton = () => {
     const buttonRect = ReactDOM.findDOMNode(this).getBoundingClientRect()
     Actions.openPopover(
       this._renderPopover(),
@@ -114,8 +114,8 @@ class TranslateButton extends React.Component {
       <Menu
         className="translate-language-picker"
         items={ Object.keys(YandexLanguages) }
-        itemKey={ (item)=> item }
-        itemContent={ (item)=> item }
+        itemKey={ (item) => item }
+        itemContent={ (item) => item }
         headerComponents={headerComponents}
         defaultSelectedIndex={-1}
         onSelect={this._onTranslate}

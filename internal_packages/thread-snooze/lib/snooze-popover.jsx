@@ -48,7 +48,7 @@ class SnoozePopover extends Component {
   };
 
   static defaultProps = {
-    swipeCallback: ()=> {},
+    swipeCallback: () => {},
   };
 
   constructor() {
@@ -72,7 +72,7 @@ class SnoozePopover extends Component {
     Actions.popSheet();
   }
 
-  onSelectCustomDate = (date, inputValue)=> {
+  onSelectCustomDate = (date, inputValue) => {
     if (date) {
       this.onSnooze(date, "Custom");
     } else {
@@ -80,7 +80,7 @@ class SnoozePopover extends Component {
     }
   };
 
-  renderItem = (itemLabel)=> {
+  renderItem = (itemLabel) => {
     const date = SnoozeDatesFactory[itemLabel]();
     const iconName = SnoozeIconNames[itemLabel];
     const iconPath = `nylas://thread-snooze/assets/ic-snoozepopover-${iconName}@2x.png`;
@@ -97,7 +97,7 @@ class SnoozePopover extends Component {
     )
   };
 
-  renderRow = (options, idx)=> {
+  renderRow = (options, idx) => {
     const items = _.map(options, this.renderItem);
     return (
       <div key={`snooze-popover-row-${idx}`} className="snooze-row">

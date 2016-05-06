@@ -38,7 +38,7 @@ class GithubProfile extends React.Component {
     const {profile} = this.props;
 
     // Transform the profile's array of repos into an array of React <GithubRepo> elements
-    const repoElements = _.map(profile.repos, (repo)=> {
+    const repoElements = _.map(profile.repos, (repo) => {
       return <GithubRepo key={repo.id} repo={repo} />
     });
 
@@ -74,7 +74,7 @@ export default class GithubContactCardSection extends React.Component {
     this._unsubscribe();
   }
 
-  _getStateFromStores = ()=> {
+  _getStateFromStores = () => {
     return {
       profile: GithubUserStore.profileForFocusedContact(),
       loading: GithubUserStore.loading(),
@@ -83,7 +83,7 @@ export default class GithubContactCardSection extends React.Component {
 
   // The data vended by the GithubUserStore has changed. Calling `setState:`
   // will cause React to re-render our view to reflect the new values.
-  _onChange = ()=> {
+  _onChange = () => {
     this.setState(this._getStateFromStores())
   }
 

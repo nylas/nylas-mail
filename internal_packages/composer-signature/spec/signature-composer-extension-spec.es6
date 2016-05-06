@@ -23,7 +23,7 @@ describe('SignatureComposerExtension', function signatureComposerExtension() {
         spyOn(NylasEnv.config, 'get').andCallFake(() => TEST_SIGNATURE);
       });
 
-      it("should insert the signature at the end of the message or before the first quoted text block and have a newline", ()=> {
+      it("should insert the signature at the end of the message or before the first quoted text block and have a newline", () => {
         const a = new Message({
           draft: true,
           accountId: TEST_ACCOUNT_ID,
@@ -78,7 +78,7 @@ describe('SignatureComposerExtension', function signatureComposerExtension() {
     });
 
     describe("when no signature is present in the config file", () => {
-      beforeEach(()=> {
+      beforeEach(() => {
         spyOn(NylasEnv.config, 'get').andCallFake(() => undefined);
       });
 

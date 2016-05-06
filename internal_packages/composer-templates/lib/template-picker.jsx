@@ -30,7 +30,7 @@ class TemplatePicker extends React.Component {
 
     if (!search.length) { return items; }
 
-    return items.filter((t)=> {
+    return items.filter((t) => {
       return t.name.toLowerCase().indexOf(search.toLowerCase()) === 0;
     });
   }
@@ -62,7 +62,7 @@ class TemplatePicker extends React.Component {
     Actions.createTemplate({draftClientId: this.props.draftClientId});
   };
 
-  _onClickButton = ()=> {
+  _onClickButton = () => {
     const buttonRect = ReactDOM.findDOMNode(this).getBoundingClientRect()
     Actions.openPopover(
       this._renderPopover(),
@@ -92,8 +92,8 @@ class TemplatePicker extends React.Component {
         headerComponents={headerComponents}
         footerComponents={footerComponents}
         items={this.state.templates}
-        itemKey={ (item)=> item.id }
-        itemContent={ (item)=> item.name }
+        itemKey={ (item) => item.id }
+        itemContent={ (item) => item.name }
         onSelect={this._onChooseTemplate.bind(this)}
       />
     );

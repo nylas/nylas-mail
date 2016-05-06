@@ -96,7 +96,7 @@ describe('DestroyModelTask', function destroyModelTask() {
       window.waitsForPromise(() => {
         return this.task.performLocal().then(() => {
           this.task.serverId = null
-          return this.task.performRemote().then((status)=> {
+          return this.task.performRemote().then((status) => {
             expect(status).toEqual(Task.Status.Continue)
           })
         });

@@ -13,7 +13,7 @@ class DateInput extends Component {
   };
 
   static defaultProps = {
-    onSubmitDate: ()=> {},
+    onSubmitDate: () => {},
   };
 
   constructor(props) {
@@ -28,7 +28,7 @@ class DateInput extends Component {
     this.unmounted = true
   }
 
-  onInputKeyDown = (event)=> {
+  onInputKeyDown = (event) => {
     const {key, target: {value}} = event;
     if (value.length > 0 && ["Enter", "Return"].includes(key)) {
       // This prevents onInputChange from being fired
@@ -43,7 +43,7 @@ class DateInput extends Component {
     }
   };
 
-  onInputChange = (event)=> {
+  onInputChange = (event) => {
     this.setState({inputDate: DateUtils.futureDateFromString(event.target.value)});
   };
 

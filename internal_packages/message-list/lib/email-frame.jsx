@@ -133,7 +133,7 @@ export default class EmailFrame extends React.Component {
     }
 
     if (iframeNode.contentDocument.readyState !== 'complete') {
-      _.defer(()=> this._setFrameHeight());
+      _.defer(() => this._setFrameHeight());
     }
   }
 

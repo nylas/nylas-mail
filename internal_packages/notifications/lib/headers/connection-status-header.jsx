@@ -16,7 +16,7 @@ export default class ConnectionStatusHeader extends React.Component {
   }
 
   componentDidMount() {
-    this.unsubscribe = NylasSyncStatusStore.listen(()=> {
+    this.unsubscribe = NylasSyncStatusStore.listen(() => {
       const nextState = this.getStateFromStores();
       if ((nextState.connected !== this.state.connected) || (nextState.nextRetryText !== this.state.nextRetryText)) {
         this.setState(nextState);

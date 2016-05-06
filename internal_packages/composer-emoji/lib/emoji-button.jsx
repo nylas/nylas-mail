@@ -11,7 +11,7 @@ class EmojiButton extends React.Component {
     super();
   }
 
-  onClick = ()=> {
+  onClick = () => {
     const buttonRect = ReactDOM.findDOMNode(this).getBoundingClientRect();
     Actions.openPopover(
       <EmojiButtonPopover />,

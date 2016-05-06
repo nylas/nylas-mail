@@ -20,7 +20,7 @@ describe('AutoloadImagesExtension', function autoloadImagesExtension() {
       }
     });
 
-    scenarios.forEach((scenario)=> {
+    scenarios.forEach((scenario) => {
       it(`should process ${scenario.name}`, () => {
         spyOn(AutoloadImagesStore, 'shouldBlockImagesIn').andReturn(true);
 

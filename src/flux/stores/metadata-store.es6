@@ -17,22 +17,22 @@ class MetadataStore extends NylasStore {
     if (!models.every(m => m.constructor === modelClass)) {
       throw new Error('Actions.setMetadata - All models provided must be of the same type')
     }
-    DatabaseStore.inTransaction((t)=> {
+    DatabaseStore.inTransaction((t) => {
       // Get the latest version of the models from the datbaase before applying
       // metadata in case other plugins also saved metadata, and we don't want
       // to overwrite it
       return (
         t.modelify(modelClass, _.pluck(models, 'clientId'))
-        .then((latestModels)=> {
+        .then((latestModels) => {
           const updatedModels = _.compact(latestModels).map(m => m.applyPluginMetadata(pluginId, metadataValue));
           return (
             t.persistModels(updatedModels)
-            .then(()=> Promise.resolve(updatedModels))
+            .then(() => Promise.resolve(updatedModels))
           )
         })
       )
-    }).then((updatedModels)=> {
-      updatedModels.forEach((updated)=> {
+    }).then((updatedModels) => {
+      updatedModels.forEach((updated) => {
         if (updated.isSavedRemotely()) {
           const task = new SyncbackMetadataTask(updated.clientId, updated.constructor.name, pluginId);
           Actions.queueTask(task);

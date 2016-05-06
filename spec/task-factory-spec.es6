@@ -10,7 +10,7 @@ import {
 
 
 describe('TaskFactory', function taskFactory() {
-  beforeEach(()=> {
+  beforeEach(() => {
     this.categories = {
       'ac-1': {
         'archive': new Category({name: 'archive'}),
@@ -26,13 +26,13 @@ describe('TaskFactory', function taskFactory() {
     this.accounts = {
       'ac-1': {
         id: 'ac-1',
-        usesFolders: ()=> true,
-        defaultFinishedCategory: ()=> this.categories['ac-1'].archive,
+        usesFolders: () => true,
+        defaultFinishedCategory: () => this.categories['ac-1'].archive,
       },
       'ac-2': {
         id: 'ac-2',
-        usesFolders: ()=> false,
-        defaultFinishedCategory: ()=> this.categories['ac-2'].trash,
+        usesFolders: () => false,
+        defaultFinishedCategory: () => this.categories['ac-2'].trash,
       },
     }
     this.threads = [
@@ -40,29 +40,29 @@ describe('TaskFactory', function taskFactory() {
       new Thread({accountId: 'ac-2'}),
     ]
 
-    spyOn(CategoryStore, 'getArchiveCategory').andCallFake((acc)=> {
+    spyOn(CategoryStore, 'getArchiveCategory').andCallFake((acc) => {
       return this.categories[acc.id].archive
     })
-    spyOn(CategoryStore, 'getInboxCategory').andCallFake((acc)=> {
+    spyOn(CategoryStore, 'getInboxCategory').andCallFake((acc) => {
       return this.categories[acc.id].inbox
     })
-    spyOn(CategoryStore, 'getTrashCategory').andCallFake((acc)=> {
+    spyOn(CategoryStore, 'getTrashCategory').andCallFake((acc) => {
       return this.categories[acc.id].trash
     })
-    spyOn(AccountStore, 'accountForId').andCallFake((accId)=> {
+    spyOn(AccountStore, 'accountForId').andCallFake((accId) => {
       return this.accounts[accId];
     })
   });
 
-  describe('tasksForApplyingCategories', ()=> {
-    it('creates the correct tasks', ()=> {
-      const categoriesToRemove = (accId)=> {
+  describe('tasksForApplyingCategories', () => {
+    it('creates the correct tasks', () => {
+      const categoriesToRemove = (accId) => {
         if (accId === 'ac-1') {
           return [new Category({displayName: 'folder1', accountId: 'ac-1'})]
         }
         return [new Category({displayName: 'label2', accountId: 'ac-2'})]
       }
-      const categoriesToAdd = (accId)=> [this.categories[accId].inbox]
+      const categoriesToAdd = (accId) => [this.categories[accId].inbox]
       const taskDescription = 'dope'
 
       const tasks = TaskFactory.tasksForApplyingCategories({
@@ -88,18 +88,18 @@ describe('TaskFactory', function taskFactory() {
       expect(taskGmail.taskDescription).toEqual(taskDescription)
     });
 
-    it('throws if threads are not instances of Thread', ()=> {
+    it('throws if threads are not instances of Thread', () => {
       const threads = [
         {accountId: 'ac-1'},
         {accountId: 'ac-2'},
       ]
-      expect(()=> {
+      expect(() => {
         TaskFactory.tasksForApplyingCategories({threads})
       }).toThrow()
     });
 
-    it('throws if categoriesToAdd does not return an array', ()=> {
-      expect(()=> {
+    it('throws if categoriesToAdd does not return an array', () => {
+      expect(() => {
         TaskFactory.tasksForApplyingCategories({
           threads: this.threads,
           categoriesToAdd: {displayName: 'cat1'},
@@ -107,8 +107,8 @@ describe('TaskFactory', function taskFactory() {
       }).toThrow()
     });
 
-    it('throws if categoriesToAdd does not return an array', ()=> {
-      expect(()=> {
+    it('throws if categoriesToAdd does not return an array', () => {
+      expect(() => {
         TaskFactory.tasksForApplyingCategories({
           threads: this.threads,
           categoriesToRemove: {displayName: 'cat1'},
@@ -116,8 +116,8 @@ describe('TaskFactory', function taskFactory() {
       }).toThrow()
     });
 
-    it('does not create folder tasks if categoriesToAdd not present', ()=> {
-      const categoriesToRemove = (accId)=> {
+    it('does not create folder tasks if categoriesToAdd not present', () => {
+      const categoriesToRemove = (accId) => {
         if (accId === 'ac-1') {
           return [new Category({displayName: 'folder1', accountId: 'ac-1'})]
         }
@@ -136,8 +136,8 @@ describe('TaskFactory', function taskFactory() {
       expect(taskGmail.labelsToRemove.length).toEqual(1)
     });
 
-    it('does not create label tasks if both categoriesToAdd and categoriesToRemove return empty', ()=> {
-      const categoriesToAdd = (accId)=> {
+    it('does not create label tasks if both categoriesToAdd and categoriesToRemove return empty', () => {
+      const categoriesToAdd = (accId) => {
         return accId === 'ac-1' ? [this.categories[accId].inbox] : [];
       }
       const taskDescription = 'dope'
@@ -154,9 +154,9 @@ describe('TaskFactory', function taskFactory() {
       expect(taskExchange.folder.name).toEqual('inbox1')
     });
 
-    describe('exchange accounts', ()=> {
-      it('throws if folder is not a category', ()=> {
-        expect(()=> {
+    describe('exchange accounts', () => {
+      it('throws if folder is not a category', () => {
+        expect(() => {
           TaskFactory.tasksForApplyingCategories({
             threads: this.threads,
             categoriesToAdd: () => [{accountId: 'ac-1', name: 'inbox'}],
@@ -164,8 +164,8 @@ describe('TaskFactory', function taskFactory() {
         }).toThrow()
       });
 
-      it('throws if attempting to add more than one folder', ()=> {
-        expect(()=> {
+      it('throws if attempting to add more than one folder', () => {
+        expect(() => {
           TaskFactory.tasksForApplyingCategories({
             threads: this.threads,
             categoriesToAdd: () => [{accountId: 'ac-1', name: 'inbox'}, {}],
@@ -175,11 +175,11 @@ describe('TaskFactory', function taskFactory() {
     });
   });
 
-  describe('taskForInvertingUnread', ()=> {
+  describe('taskForInvertingUnread', () => {
 
   });
 
-  describe('taskForInvertingStarred', ()=> {
+  describe('taskForInvertingStarred', () => {
 
   });
 });

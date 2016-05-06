@@ -17,7 +17,7 @@ class Printer {
     // focused
     const iframes = document.getElementsByTagName('iframe');
     // Grab the html inside the iframes
-    const messagesHtml = [].slice.call(iframes).map((iframe)=> {
+    const messagesHtml = [].slice.call(iframes).map((iframe) => {
       return iframe.contentDocument.documentElement.innerHTML;
     });
 

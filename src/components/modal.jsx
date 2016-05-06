@@ -25,11 +25,11 @@ class Modal extends React.Component {
     this._focusImportantElement();
   }
 
-  _focusImportantElement = ()=> {
+  _focusImportantElement = () => {
     const modalNode = ReactDOM.findDOMNode(this);
 
     const focusable = modalNode.querySelectorAll("[tabIndex], input");
-    const matches = _.sortBy(focusable, (node)=> {
+    const matches = _.sortBy(focusable, (node) => {
       if (node.tabIndex > 0) {
         return node.tabIndex;
       } else if (node.nodeName === "INPUT") {
@@ -42,7 +42,7 @@ class Modal extends React.Component {
     }
   };
 
-  _computeModalStyles = (height, width)=> {
+  _computeModalStyles = (height, width) => {
     const modalStyle = {
       top: "50%",
       left: "50%",
@@ -64,14 +64,14 @@ class Modal extends React.Component {
     return {containerStyle, modalStyle};
   };
 
-  _onBlur = (event)=> {
+  _onBlur = (event) => {
     const target = event.nativeEvent.relatedTarget;
     if (!target || (!ReactDOM.findDOMNode(this).contains(target))) {
       Actions.closeModal();
     }
   };
 
-  _onKeyDown = (event)=> {
+  _onKeyDown = (event) => {
     if (event.key === "Escape") {
       Actions.closeModal();
     }

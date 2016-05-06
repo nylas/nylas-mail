@@ -42,13 +42,13 @@ class SystemTrayIconStore {
       {iconPath: INBOX_UNREAD_ICON, isTemplateImg: true};
   }
 
-  _onWindowBlur = ()=> {
+  _onWindowBlur = () => {
     // Set state to blurred, but don't trigger a change. The icon should only be
     // updated when the count changes
     this._windowBlurred = true;
   };
 
-  _onWindowFocus = ()=> {
+  _onWindowFocus = () => {
     // Make sure that as long as the window is focused we never use the alt icon
     this._windowBlurred = false;
     this._updateIcon();

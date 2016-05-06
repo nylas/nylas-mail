@@ -246,7 +246,7 @@ class TemplateStore extends NylasStore {
 
   _onInsertTemplateId({templateId, draftClientId} = {}) {
     this.getTemplateContents(templateId, (templateBody) => {
-      DraftStore.sessionForClientId(draftClientId).then((session)=> {
+      DraftStore.sessionForClientId(draftClientId).then((session) => {
         let proceed = true;
         if (!session.draft().pristine) {
           proceed = this._displayDialog(
@@ -273,7 +273,7 @@ class TemplateStore extends NylasStore {
     const template = this._getTemplate(null, templateId);
     if (!template) { return; }
 
-    fs.readFile(template.path, (err, data)=> {
+    fs.readFile(template.path, (err, data) => {
       const body = data.toString();
       callback(body);
     });
