@@ -42,7 +42,7 @@ class EmojiStore extends NylasStore {
   }
 
   getImagePath(emojiName) {
-    emojiData = emojiData || JSON.parse(fs.readFileSync('./emoji-data', {encoding: "utf8"}));
+    emojiData = emojiData || require('./emoji-data').emojiData
     for (const emoji of emojiData) {
       if (emoji.short_names.indexOf(emojiName) !== -1) {
         if (process.platform === "darwin") {
