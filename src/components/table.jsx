@@ -14,10 +14,12 @@ const TablePropTypes = {
   }),
 }
 
-export function TableCell({className = '', isHeader, children, ...props}) {
+export function TableCell(props) {
+  const {className, isHeader, children} = props;
+  const continuedProps = _.omit(props, "className", "isHeader", "children")
   const CellTag = isHeader ? 'th' : 'td'
   return (
-    <CellTag {...props} className={`table-cell ${className}`} >
+    <CellTag {...continuedProps} className={`table-cell ${className}`} >
       {children}
     </CellTag>
   )
