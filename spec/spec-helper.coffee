@@ -29,7 +29,7 @@ NylasEnv.themes.loadBaseStylesheets()
 NylasEnv.themes.requireStylesheet '../static/jasmine'
 NylasEnv.themes.initialLoadComplete = true
 
-NylasEnv.keymaps.loadBundledKeymaps()
+NylasEnv.keymaps.loadKeymaps()
 styleElementsToRestore = NylasEnv.styles.getSnapshot()
 
 window.addEventListener 'core:close', -> window.close()

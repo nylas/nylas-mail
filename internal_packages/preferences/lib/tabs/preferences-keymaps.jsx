@@ -1,83 +1,11 @@
 import React from 'react';
-import _ from 'underscore';
 import path from 'path';
 import fs from 'fs';
 import { remote } from 'electron';
-
 import { Flexbox } from 'nylas-component-kit';
 
-const { shell } = remote;
-
-const displayedKeybindings = [
-  {
-    title: 'Application',
-    items: [
-      ['application:new-message', 'New Message'],
-      ['core:focus-search', 'Search'],
-    ],
-  },
-  {
-    title: 'Actions',
-    items: [
-      ['core:reply', 'Reply'],
-      ['core:reply-all', 'Reply All'],
-      ['core:forward', 'Forward'],
-      ['core:archive-item', 'Archive'],
-      ['core:delete-item', 'Trash'],
-      ['core:remove-from-view', 'Remove from view'],
-      ['core:gmail-remove-from-view', 'Gmail Remove from view'],
-      ['core:star-item', 'Star'],
-      ['core:change-category', 'Change Folder / Labels'],
-      ['core:mark-as-read', 'Mark as read'],
-      ['core:mark-as-unread', 'Mark as unread'],
-      ['core:mark-important', 'Mark as important (Gmail)'],
-      ['core:mark-unimportant', 'Mark as unimportant (Gmail)'],
-      ['core:remove-and-previous', 'Remove from view and previous'],
-      ['core:remove-and-next', 'Remove from view and next'],
-    ],
-  },
-  {
-    title: 'Composer',
-    items: [
-      ['composer:send-message', 'Send Message'],
-      ['composer:focus-to', 'Focus the To field'],
-      ['composer:show-and-focus-cc', 'Focus the Cc field'],
-      ['composer:show-and-focus-bcc', 'Focus the Bcc field'],
-    ],
-  },
-  {
-    title: 'Navigation',
-    items: [
-      ['core:pop-sheet', 'Return to conversation list'],
-      ['core:focus-item', 'Open selected conversation'],
-      ['core:previous-item', 'Move to newer conversation'],
-      ['core:next-item', 'Move to older conversation'],
-    ],
-  },
-  {
-    title: 'Selection',
-    items: [
-      ['core:select-item', 'Select conversation'],
-      ['multiselect-list:select-all', 'Select all conversations'],
-      ['multiselect-list:deselect-all', 'Deselect all conversations'],
-      ['thread-list:select-read', 'Select all read conversations'],
-      ['thread-list:select-unread', 'Select all unread conversations'],
-      ['thread-list:select-starred', 'Select all starred conversations'],
-      ['thread-list:select-unstarred', 'Select all unstarred conversations'],
-    ],
-  },
-  {
-    title: 'Jumping',
-    items: [
-      ['navigation:go-to-inbox', 'Go to "Inbox"'],
-      ['navigation:go-to-starred', 'Go to "Starred"'],
-      ['navigation:go-to-sent', 'Go to "Sent Mail"'],
-      ['navigation:go-to-drafts', 'Go to "Drafts"'],
-      ['navigation:go-to-all', 'Go to "All Mail"'],
-    ],
-  },
-]
-
+import displayedKeybindings from './keymaps/displayed-keybindings';
+import CommandItem from './keymaps/command-item';
 
 class PreferencesKeymaps extends React.Component {
 
@@ -130,80 +58,45 @@ class PreferencesKeymaps extends React.Component {
     });
   }
 
-  _formatKeystrokes(original) {
-    // On Windows, display cmd-shift-c
-    if (process.platform === "win32") return original;
-
-    // Replace "cmd" => ⌘, etc.
-    const modifiers = [
-      [/\+(?!$)/gi, ''],
-      [/command/gi, '⌘'],
-      [/alt/gi, '⌥'],
-      [/shift/gi, '⇧'],
-      [/ctrl/gi, '^'],
-      [/mod/gi, (process.platform === 'darwin' ? '⌘' : '^')],
-    ];
-    let clean = original;
-    for (const [regexp, char] of modifiers) {
-      clean = clean.replace(regexp, char);
-    }
-
-    // ⌘⇧c => ⌘⇧C
-    if (clean !== original) {
-      clean = clean.toUpperCase();
-    }
-
-    // backspace => Backspace
-    if (original.length > 1 && clean === original) {
-      clean = clean[0].toUpperCase() + clean.slice(1);
-    }
-    return clean;
-  }
-
   _onShowUserKeymaps() {
     const keymapsFile = NylasEnv.keymaps.getUserKeymapPath();
     if (!fs.existsSync(keymapsFile)) {
-      fs.writeSync(fs.openSync(keymapsFile, 'w'), '');
+      fs.writeFileSync(keymapsFile, '{}');
     }
-    shell.showItemInFolder(keymapsFile);
+    remote.shell.showItemInFolder(keymapsFile);
+  }
+
+  _onDeleteUserKeymap() {
+    const chosen = remote.dialog.showMessageBox(NylasEnv.getCurrentWindow(), {
+      type: 'info',
+      message: "Are you sure?",
+      detail: "Delete your custom key bindings and reset to the template defaults?",
+      buttons: ['Cancel', 'Reset'],
+    });
+
+    if (chosen === 1) {
+      const keymapsFile = NylasEnv.keymaps.getUserKeymapPath();
+      fs.writeFileSync(keymapsFile, '{}');
+    }
   }
 
   _renderBindingsSection = (section) => {
     return (
       <section key={`section-${section.title}`}>
         <div className="shortcut-section-title">{section.title}</div>
-        {section.items.map(this._renderBindingFor)}
+        {
+          section.items.map(([command, label]) => {
+            return (
+              <CommandItem
+                key={command}
+                command={command}
+                label={label}
+                bindings={this.state.bindings[command]}
+              />
+            );
+          })
+        }
       </section>
-    );
-  }
-
-  _renderBindingFor = ([command, label]) => {
-    const keystrokesArray = this.state.bindings[command];
-
-    let value = "None";
-    if (keystrokesArray.length > 0) {
-      value = _.uniq(keystrokesArray).map(this._renderKeystrokes);
-    }
-
-    return (
-      <Flexbox className="shortcut" key={command}>
-        <div className="col-left shortcut-name">{label}</div>
-        <div className="col-right">{value}</div>
-      </Flexbox>
-    );
-  }
-
-  _renderKeystrokes = (keystrokes, idx) => {
-    const elements = [];
-    const splitKeystrokes = keystrokes.split(' ');
-    splitKeystrokes.forEach((keystroke, kidx) => {
-      elements.push(<span key={keystroke}>{this._formatKeystrokes(keystroke)}</span>);
-      if (kidx < splitKeystrokes.length - 1) {
-        elements.push(<span className="then" key={kidx}> then </span>);
-      }
-    });
-    return (
-      <span key={`keystrokes-${idx}`} className="shortcut-value">{elements}</span>
     );
   }
 
@@ -216,6 +109,7 @@ class PreferencesKeymaps extends React.Component {
             <div className="dropdown">
               <select
                 style={{margin: 0}}
+                tabIndex={-1}
                 value={this.props.config.get('core.keymapTemplate')}
                 onChange={(event) => this.props.config.set('core.keymapTemplate', event.target.value)}>
                 {this.state.templates.map((template) => {
@@ -223,13 +117,18 @@ class PreferencesKeymaps extends React.Component {
                 })}
               </select>
             </div>
+            <div style={{flex: 1}}></div>
+            <button className="btn" onClick={this._onDeleteUserKeymap}>Reset to Defaults</button>
           </Flexbox>
-          <p>You can choose a shortcut set to use keyboard shortcuts of familiar email clients.</p>
+          <p>
+            You can choose a shortcut set to use keyboard shortcuts of familiar email clients.
+            To edit a shortcut, click it in the list below.
+          </p>
           {displayedKeybindings.map(this._renderBindingsSection)}
         </section>
         <section>
           <h2>Customization</h2>
-          <p>Define additional shortcuts by adding them to your shortcuts file.</p>
+          <p>You can manage your custom shortcuts directly by editing your shortcuts file.</p>
           <button className="btn" onClick={this._onShowUserKeymaps}>Edit custom shortcuts</button>
         </section>
       </div>
