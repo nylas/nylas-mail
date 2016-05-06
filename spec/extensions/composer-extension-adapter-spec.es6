@@ -13,8 +13,8 @@ const editor = {
 };
 
 describe('ComposerExtensionAdapter', function composerExtensionAdapter() {
-  describe('adaptOnInput', ()=> {
-    it('adapts correctly if onContentChanged already defined', ()=> {
+  describe('adaptOnInput', () => {
+    it('adapts correctly if onContentChanged already defined', () => {
       const onInputSpy = jasmine.createSpy('onInput');
       const extension = {
         onContentChanged() {},
@@ -27,7 +27,7 @@ describe('ComposerExtensionAdapter', function composerExtensionAdapter() {
       expect(onInputSpy).not.toHaveBeenCalled();
     });
 
-    it('adapts correctly when signature is (event, ...)', ()=> {
+    it('adapts correctly when signature is (event, ...)', () => {
       const onInputSpy = jasmine.createSpy('onInput');
       const extension = {
         onInput(ev, editableNode, sel) {
@@ -40,7 +40,7 @@ describe('ComposerExtensionAdapter', function composerExtensionAdapter() {
       expect(onInputSpy).toHaveBeenCalledWith([], node, selection);
     });
 
-    it('adapts correctly when signature is (editableNode, selection, ...)', ()=> {
+    it('adapts correctly when signature is (editableNode, selection, ...)', () => {
       const onInputSpy = jasmine.createSpy('onInput');
       const extension = {
         onInput(editableNode, sel, ev) {
@@ -54,8 +54,8 @@ describe('ComposerExtensionAdapter', function composerExtensionAdapter() {
     });
   });
 
-  describe('adaptOnTabDown', ()=> {
-    it('adapts onTabDown correctly', ()=> {
+  describe('adaptOnTabDown', () => {
+    it('adapts onTabDown correctly', () => {
       const onTabDownSpy = jasmine.createSpy('onTabDownSpy');
       const mockEvent = {key: 'Tab'};
       const range = 'range';
@@ -72,8 +72,8 @@ describe('ComposerExtensionAdapter', function composerExtensionAdapter() {
     });
   });
 
-  describe('adaptContenteditableMethod', ()=> {
-    it('adapts correctly when signature is (editor, ...)', ()=> {
+  describe('adaptContenteditableMethod', () => {
+    it('adapts correctly when signature is (editor, ...)', () => {
       const methodSpy = jasmine.createSpy('methodSpy');
       const extension = {
         method(editor, ev, other) {
@@ -85,7 +85,7 @@ describe('ComposerExtensionAdapter', function composerExtensionAdapter() {
       expect(methodSpy).toHaveBeenCalledWith(editor, event, extra);
     });
 
-    it('adapts correctly when signature is (event, ...)', ()=> {
+    it('adapts correctly when signature is (event, ...)', () => {
       const methodSpy = jasmine.createSpy('methodSpy');
       const extension = {
         method(ev, editableNode, sel, other) {
@@ -97,7 +97,7 @@ describe('ComposerExtensionAdapter', function composerExtensionAdapter() {
       expect(methodSpy).toHaveBeenCalledWith(event, node, selection, extra);
     });
 
-    it('adapts correctly when signature is (editableNode, selection, ...)', ()=> {
+    it('adapts correctly when signature is (editableNode, selection, ...)', () => {
       const methodSpy = jasmine.createSpy('methodSpy');
       const extension = {
         method(editableNode, sel, ev, other) {
@@ -109,7 +109,7 @@ describe('ComposerExtensionAdapter', function composerExtensionAdapter() {
       expect(methodSpy).toHaveBeenCalledWith(node, selection, event, extra);
     });
 
-    it('adapts correctly when using mutations instead of an event', ()=> {
+    it('adapts correctly when using mutations instead of an event', () => {
       const methodSpy = jasmine.createSpy('methodSpy');
       const extension = {
         method(editor, mutations) {
@@ -122,8 +122,8 @@ describe('ComposerExtensionAdapter', function composerExtensionAdapter() {
     });
   });
 
-  describe('adaptComposerMethod', ()=> {
-    it('adapts correctly for other composer extension methods', ()=> {
+  describe('adaptComposerMethod', () => {
+    it('adapts correctly for other composer extension methods', () => {
       const methodSpy = jasmine.createSpy('methodSpy');
       const draft = 'draft';
       const extension = {

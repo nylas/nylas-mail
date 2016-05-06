@@ -25,30 +25,30 @@ class ModalStore extends NylasStore {
     this.listenTo(Actions.closeModal, this.closeModal);
   }
 
-  isModalOpen = ()=> {
+  isModalOpen = () => {
     return this.isOpen;
   };
 
-  renderModal = (child, props, callback)=> {
+  renderModal = (child, props, callback) => {
     const modal = (
       <Modal {...props}>{child}</Modal>
     );
 
-    ReactDOM.render(modal, this.container, ()=> {
+    ReactDOM.render(modal, this.container, () => {
       this.isOpen = true;
       this.trigger();
       callback();
     });
   };
 
-  openModal = ({component, height, width}, callback = ()=> {})=> {
+  openModal = ({component, height, width}, callback = ()=> {}) => {
     const props = {
       height: height,
       width: width,
     };
 
     if (this.isOpen) {
-      this.closeModal(()=> {
+      this.closeModal(() => {
         this.renderModal(component, props, callback);
       })
     } else {
@@ -56,8 +56,8 @@ class ModalStore extends NylasStore {
     }
   };
 
-  closeModal = (callback = ()=>{})=> {
-    ReactDOM.render(<span/>, this.container, ()=> {
+  closeModal = (callback = ()=>{}) => {
+    ReactDOM.render(<span/>, this.container, () => {
       this.isOpen = false;
       this.trigger();
       callback();

@@ -36,7 +36,7 @@ export default class SpellcheckComposerExtension extends ComposerExtension {
   // Note: This is different from ExposedSelection because the nodes are not cloned.
   // In the callback functions, we need to check whether the anchor/focus nodes
   // are INSIDE the nodes we're adjusting.
-  static _whileApplyingSelectionChanges = (cb)=> {
+  static _whileApplyingSelectionChanges = (cb) => {
     const selection = document.getSelection();
     const selectionSnapshot = {
       anchorNode: selection.anchorNode,
@@ -56,8 +56,8 @@ export default class SpellcheckComposerExtension extends ComposerExtension {
   // Removes all of the <spelling> nodes found in the provided `editor`.
   // It normalizes the DOM after removing spelling nodes to ensure that words
   // are not split between text nodes. (ie: doesn, 't => doesn't)
-  static _unwrapWords = (editor)=> {
-    SpellcheckComposerExtension._whileApplyingSelectionChanges((selectionSnapshot)=> {
+  static _unwrapWords = (editor) => {
+    SpellcheckComposerExtension._whileApplyingSelectionChanges((selectionSnapshot) => {
       const spellingNodes = editor.rootNode.querySelectorAll('spelling');
       for (let ii = 0; ii < spellingNodes.length; ii++) {
         const node = spellingNodes[ii];
@@ -83,7 +83,7 @@ export default class SpellcheckComposerExtension extends ComposerExtension {
   // text node with a misspelled word, it splits it, wraps the misspelled word
   // with a <spelling> node and updates the selection to account for the change.
   static _wrapMisspelledWords = (editor) => {
-    SpellcheckComposerExtension._whileApplyingSelectionChanges((selectionSnapshot)=> {
+    SpellcheckComposerExtension._whileApplyingSelectionChanges((selectionSnapshot) => {
       const treeWalker = document.createTreeWalker(editor.rootNode, NodeFilter.SHOW_TEXT);
       const nodeList = [];
 

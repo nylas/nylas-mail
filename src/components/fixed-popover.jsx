@@ -94,7 +94,7 @@ class FixedPopover extends Component {
     Actions.closePopover()
   }
 
-  onPopoverRendered = ()=> {
+  onPopoverRendered = () => {
     if (!this.mounted) {
       return;
     }
@@ -118,24 +118,24 @@ class FixedPopover extends Component {
     }
   };
 
-  onBlur = (event)=> {
+  onBlur = (event) => {
     const target = event.nativeEvent.relatedTarget;
     if (!target || (!findDOMNode(this).contains(target))) {
       Actions.closePopover();
     }
   };
 
-  onKeyDown = (event)=> {
+  onKeyDown = (event) => {
     if (event.key === "Escape") {
       Actions.closePopover();
     }
   };
 
-  getCurrentRect = ()=> {
+  getCurrentRect = () => {
     return findDOMNode(this.refs.popover).getBoundingClientRect();
   };
 
-  getWindowDimensions = ()=> {
+  getWindowDimensions = () => {
     return {
       width: document.body.clientWidth,
       height: document.body.clientHeight,
@@ -144,7 +144,7 @@ class FixedPopover extends Component {
 
   static Directions = Directions;
 
-  focusElementWithTabIndex = ()=> {
+  focusElementWithTabIndex = () => {
     if (!this.mounted) {
       return;
     }
@@ -153,7 +153,7 @@ class FixedPopover extends Component {
 
     // _.sortBy ranks in ascending numerical order.
     const focusable = popoverNode.querySelectorAll("[tabIndex], input");
-    const matches = _.sortBy(focusable, (node)=> {
+    const matches = _.sortBy(focusable, (node) => {
       if (node.tabIndex > 0) {
         return node.tabIndex;
       } else if (node.nodeName === "INPUT") {
@@ -166,7 +166,7 @@ class FixedPopover extends Component {
     }
   };
 
-  computeOverflows = ({currentRect, windowDimensions})=> {
+  computeOverflows = ({currentRect, windowDimensions}) => {
     const overflows = {
       top: currentRect.top < 0,
       left: currentRect.left < 0,
@@ -182,9 +182,9 @@ class FixedPopover extends Component {
     return {overflows, overflowValues}
   };
 
-  computeAdjustedOffsetAndDirection = ({direction, currentRect, windowDimensions, fallback = this.fallback, offsetPadding = OFFSET_PADDING})=> {
+  computeAdjustedOffsetAndDirection = ({direction, currentRect, windowDimensions, fallback = this.fallback, offsetPadding = OFFSET_PADDING}) => {
     const {overflows, overflowValues} = this.computeOverflows({currentRect, windowDimensions})
-    const overflowCount = Object.keys(_.pick(overflows, (val)=> val === true)).length
+    const overflowCount = Object.keys(_.pick(overflows, (val) => val === true)).length
 
     if (overflowCount > 0) {
       if (fallback) {
@@ -223,7 +223,7 @@ class FixedPopover extends Component {
     return null;
   };
 
-  computePopoverStyles = ({originRect, direction, offset})=> {
+  computePopoverStyles = ({originRect, direction, offset}) => {
     const {Up, Down, Left, Right} = Directions
     let containerStyle = {};
     let popoverStyle = {};

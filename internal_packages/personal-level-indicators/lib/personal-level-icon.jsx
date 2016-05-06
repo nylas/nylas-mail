@@ -20,8 +20,8 @@ export default class PersonalLevelIcon extends React.Component {
 
   // Some more application logic which is specific to this package to decide
   // what level of personalness is related to the `thread`.
-  _calculateLevel = (thread)=> {
-    const hasMe = thread.participants.filter(p=> p.isMe()).length > 0;
+  _calculateLevel = (thread) => {
+    const hasMe = thread.participants.filter(p => p.isMe()).length > 0;
     const numOthers = hasMe ? thread.participants.length - 1 : thread.participants.length;
 
     if (!hasMe) { return 0; }

@@ -11,26 +11,26 @@ import {
 import SnoozeUtils from '../lib/snooze-utils'
 
 describe('Snooze Utils', function snoozeUtils() {
-  beforeEach(()=> {
+  beforeEach(() => {
     this.name = 'Snoozed Folder'
     this.accId = 123
     spyOn(CategoryStore, 'whenCategoriesReady').andReturn(Promise.resolve())
   })
 
-  describe('snoozedUntilMessage', ()=> {
-    it('returns correct message if no snooze date provided', ()=> {
+  describe('snoozedUntilMessage', () => {
+    it('returns correct message if no snooze date provided', () => {
       expect(SnoozeUtils.snoozedUntilMessage()).toEqual('Snoozed')
     });
 
-    describe('when less than 24 hours from now', ()=> {
-      it('returns correct message if snoozeDate is on the hour of the clock', ()=> {
+    describe('when less than 24 hours from now', () => {
+      it('returns correct message if snoozeDate is on the hour of the clock', () => {
         const now9AM = moment().hour(9).minute(0)
         const tomorrowAt8 = moment(now9AM).add(1, 'day').hour(8)
         const result = SnoozeUtils.snoozedUntilMessage(tomorrowAt8, now9AM)
         expect(result).toEqual('Snoozed until 8 AM')
       });
 
-      it('returns correct message if snoozeDate otherwise', ()=> {
+      it('returns correct message if snoozeDate otherwise', () => {
         const now9AM = moment().hour(9).minute(0)
         const snooze10AM = moment(now9AM).hour(10).minute(5)
         const result = SnoozeUtils.snoozedUntilMessage(snooze10AM, now9AM)
@@ -38,8 +38,8 @@ describe('Snooze Utils', function snoozeUtils() {
       });
     });
 
-    describe('when more than 24 hourse from now', ()=> {
-      it('returns correct message if snoozeDate is on the hour of the clock', ()=> {
+    describe('when more than 24 hourse from now', () => {
+      it('returns correct message if snoozeDate is on the hour of the clock', () => {
         // Jan 1
         const now9AM = moment().month(0).date(1).hour(9).minute(0)
         const tomorrowAt10 = moment(now9AM).add(1, 'day').hour(10)
@@ -47,7 +47,7 @@ describe('Snooze Utils', function snoozeUtils() {
         expect(result).toEqual('Snoozed until Jan 2, 10 AM')
       });
 
-      it('returns correct message if snoozeDate otherwise', ()=> {
+      it('returns correct message if snoozeDate otherwise', () => {
         // Jan 1
         const now9AM = moment().month(0).date(1).hour(9).minute(0)
         const tomorrowAt930 = moment(now9AM).add(1, 'day').minute(30)
@@ -57,8 +57,8 @@ describe('Snooze Utils', function snoozeUtils() {
     });
   });
 
-  describe('createSnoozeCategory', ()=> {
-    beforeEach(()=> {
+  describe('createSnoozeCategory', () => {
+    beforeEach(() => {
       this.category = new Category({
         displayName: this.name,
         accountId: this.accId,
@@ -70,7 +70,7 @@ describe('Snooze Utils', function snoozeUtils() {
       spyOn(DatabaseStore, 'findBy').andReturn(Promise.resolve(this.category))
     })
 
-    it('creates category with correct snooze name', ()=> {
+    it('creates category with correct snooze name', () => {
       SnoozeUtils.createSnoozeCategory(this.accId, this.name)
       expect(Actions.queueTask).toHaveBeenCalled()
       const task = Actions.queueTask.calls[0].args[0]
@@ -78,40 +78,40 @@ describe('Snooze Utils', function snoozeUtils() {
       expect(task.category.accountId).toEqual(this.accId)
     });
 
-    it('resolves with the updated category that has been saved to the server', ()=> {
-      waitsForPromise(()=> {
-        return SnoozeUtils.createSnoozeCategory(this.accId, this.name).then((result)=> {
+    it('resolves with the updated category that has been saved to the server', () => {
+      waitsForPromise(() => {
+        return SnoozeUtils.createSnoozeCategory(this.accId, this.name).then((result) => {
           expect(DatabaseStore.findBy).toHaveBeenCalled()
           expect(result).toBe(this.category)
         })
       })
     });
 
-    it('rejects if the category could not be found in the database', ()=> {
+    it('rejects if the category could not be found in the database', () => {
       this.category.serverId = null
       jasmine.unspy(DatabaseStore, 'findBy')
       spyOn(DatabaseStore, 'findBy').andReturn(Promise.resolve(this.category))
-      waitsForPromise(()=> {
+      waitsForPromise(() => {
         return SnoozeUtils.createSnoozeCategory(this.accId, this.name)
-        .then(()=> {
+        .then(() => {
           throw new Error('SnoozeUtils.createSnoozeCategory should not resolve in this case!')
         })
-        .catch((error)=> {
+        .catch((error) => {
           expect(DatabaseStore.findBy).toHaveBeenCalled()
           expect(error.message).toEqual('Could not create Snooze category')
         })
       })
     });
 
-    it('rejects if the category could not be saved to the server', ()=> {
+    it('rejects if the category could not be saved to the server', () => {
       jasmine.unspy(DatabaseStore, 'findBy')
       spyOn(DatabaseStore, 'findBy').andReturn(Promise.resolve(undefined))
-      waitsForPromise(()=> {
+      waitsForPromise(() => {
         return SnoozeUtils.createSnoozeCategory(this.accId, this.name)
-        .then(()=> {
+        .then(() => {
           throw new Error('SnoozeUtils.createSnoozeCategory should not resolve in this case!')
         })
-        .catch((error)=> {
+        .catch((error) => {
           expect(DatabaseStore.findBy).toHaveBeenCalled()
           expect(error.message).toEqual('Could not create Snooze category')
         })
@@ -119,8 +119,8 @@ describe('Snooze Utils', function snoozeUtils() {
     });
   });
 
-  describe('getSnoozeCategory', ()=> {
-    it('resolves category if it exists in the category store', ()=> {
+  describe('getSnoozeCategory', () => {
+    it('resolves category if it exists in the category store', () => {
       const categories = [
         new Category({accountId: this.accId, name: 'inbox'}),
         new Category({accountId: this.accId, displayName: this.name}),
@@ -128,16 +128,16 @@ describe('Snooze Utils', function snoozeUtils() {
       spyOn(CategoryStore, 'categories').andReturn(categories)
       spyOn(SnoozeUtils, 'createSnoozeCategory')
 
-      waitsForPromise(()=> {
+      waitsForPromise(() => {
         return SnoozeUtils.getSnoozeCategory(this.accountId, this.name)
-        .then((result)=> {
+        .then((result) => {
           expect(SnoozeUtils.createSnoozeCategory).not.toHaveBeenCalled()
           expect(result).toBe(categories[1])
         })
       })
     });
 
-    it('creates category if it does not exist', ()=> {
+    it('creates category if it does not exist', () => {
       const categories = [
         new Category({accountId: this.accId, name: 'inbox'}),
       ]
@@ -145,9 +145,9 @@ describe('Snooze Utils', function snoozeUtils() {
       spyOn(CategoryStore, 'categories').andReturn(categories)
       spyOn(SnoozeUtils, 'createSnoozeCategory').andReturn(Promise.resolve(snoozeCat))
 
-      waitsForPromise(()=> {
+      waitsForPromise(() => {
         return SnoozeUtils.getSnoozeCategory(this.accId, this.name)
-        .then((result)=> {
+        .then((result) => {
           expect(SnoozeUtils.createSnoozeCategory).toHaveBeenCalledWith(this.accId, this.name)
           expect(result).toBe(snoozeCat)
         })
@@ -155,8 +155,8 @@ describe('Snooze Utils', function snoozeUtils() {
     });
   });
 
-  describe('moveThreads', ()=> {
-    beforeEach(()=> {
+  describe('moveThreads', () => {
+    beforeEach(() => {
       this.description = 'Snoozin';
       this.snoozeCatsByAccount = {
         '123': new Category({accountId: 123, displayName: this.name, serverId: 'sr-1'}),
@@ -180,13 +180,13 @@ describe('Snooze Utils', function snoozeUtils() {
       spyOn(Actions, 'queueTasks')
     })
 
-    it('creates the tasks to move threads correctly when snoozing', ()=> {
+    it('creates the tasks to move threads correctly when snoozing', () => {
       const snooze = true
       const description = this.description
 
-      waitsForPromise(()=> {
+      waitsForPromise(() => {
         return SnoozeUtils.moveThreads(this.threads, {snooze, description, getInboxCategory: this.getInboxCat, getSnoozeCategory: this.getSnoozeCat})
-        .then(()=> {
+        .then(() => {
           expect(TaskFactory.tasksForApplyingCategories).toHaveBeenCalled()
           expect(Actions.queueTasks).toHaveBeenCalled()
           const {threads, categoriesToAdd, categoriesToRemove, taskDescription} = TaskFactory.tasksForApplyingCategories.calls[0].args[0]
@@ -200,13 +200,13 @@ describe('Snooze Utils', function snoozeUtils() {
       })
     });
 
-    it('creates the tasks to move threads correctly when unsnoozing', ()=> {
+    it('creates the tasks to move threads correctly when unsnoozing', () => {
       const snooze = false
       const description = this.description
 
-      waitsForPromise(()=> {
+      waitsForPromise(() => {
         return SnoozeUtils.moveThreads(this.threads, {snooze, description, getInboxCategory: this.getInboxCat, getSnoozeCategory: this.getSnoozeCat})
-        .then(()=> {
+        .then(() => {
           expect(TaskFactory.tasksForApplyingCategories).toHaveBeenCalled()
           expect(Actions.queueTasks).toHaveBeenCalled()
           const {threads, categoriesToAdd, categoriesToRemove, taskDescription} = TaskFactory.tasksForApplyingCategories.calls[0].args[0]

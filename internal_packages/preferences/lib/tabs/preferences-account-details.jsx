@@ -51,17 +51,17 @@ class PreferencesAccountDetails extends Component {
     return `${name} <${email}>`;
   }
 
-  _saveChanges = ()=> {
+  _saveChanges = () => {
     this.props.onAccountUpdated(this.props.account, this.state.account);
   };
 
-  _setState = (updates, callback = ()=>{})=> {
+  _setState = (updates, callback = ()=>{}) => {
     const updated = _.extend({}, this.state.account, updates);
     this.setState({account: updated}, callback);
   };
 
-  _setStateAndSave = (updates)=> {
-    this._setState(updates, ()=> {
+  _setStateAndSave = (updates) => {
+    this._setState(updates, () => {
       this._saveChanges();
     });
   };
@@ -69,17 +69,17 @@ class PreferencesAccountDetails extends Component {
 
   // Handlers
 
-  _onAccountLabelUpdated = (event)=> {
+  _onAccountLabelUpdated = (event) => {
     this._setState({label: event.target.value});
   };
 
-  _onAccountAliasCreated = (newAlias)=> {
+  _onAccountAliasCreated = (newAlias) => {
     const coercedAlias = this._makeAlias(newAlias);
     const aliases = this.state.account.aliases.concat([coercedAlias]);
     this._setStateAndSave({aliases})
   };
 
-  _onAccountAliasUpdated = (newAlias, alias, idx)=> {
+  _onAccountAliasUpdated = (newAlias, alias, idx) => {
     const coercedAlias = this._makeAlias(newAlias);
     const aliases = this.state.account.aliases.slice();
     let defaultAlias = this.state.account.defaultAlias;
@@ -90,7 +90,7 @@ class PreferencesAccountDetails extends Component {
     this._setStateAndSave({aliases, defaultAlias});
   };
 
-  _onAccountAliasRemoved = (alias, idx)=> {
+  _onAccountAliasRemoved = (alias, idx) => {
     const aliases = this.state.account.aliases.slice();
     let defaultAlias = this.state.account.defaultAlias;
     if (defaultAlias === alias) {
@@ -100,7 +100,7 @@ class PreferencesAccountDetails extends Component {
     this._setStateAndSave({aliases, defaultAlias});
   };
 
-  _onDefaultAliasSelected = (event)=> {
+  _onDefaultAliasSelected = (event) => {
     const defaultAlias = event.target.value === 'None' ? null : event.target.value;
     this._setStateAndSave({defaultAlias});
   };
@@ -126,7 +126,7 @@ class PreferencesAccountDetails extends Component {
           <div>Default for new messages:</div>
           <select value={defaultAlias} onChange={this._onDefaultAliasSelected}>
             <option value="None">{`${account.name} <${account.emailAddress}>`}</option>
-            {aliases.map((alias, idx)=> <option key={`alias-${idx}`} value={alias}>{alias}</option>)}
+            {aliases.map((alias, idx) => <option key={`alias-${idx}`} value={alias}>{alias}</option>)}
           </select>
         </div>
       );

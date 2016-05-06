@@ -32,7 +32,7 @@ const CategoryRemovalTargetRulesets = {
     sent: null,
 
     // + In inbox, move to [Archive or Trash]
-    inbox: (accountId)=> {
+    inbox: (accountId) => {
       const account = AccountStore.accountForId(accountId)
       return account.defaultFinishedCategory()
     },
@@ -46,7 +46,7 @@ const CategoryRemovalTargetRulesets = {
     trash: null,
 
     // + In label or folder, move to [Archive or Trash]
-    other: (accountId)=> {
+    other: (accountId) => {
       const account = AccountStore.accountForId(accountId)
       return account.defaultFinishedCategory()
     },
@@ -60,7 +60,7 @@ const CategoryRemovalTargetRulesets = {
     archive: null,
 
     // + In inbox, move to [Archive or Trash].
-    inbox: (accountId)=> {
+    inbox: (accountId) => {
       const account = AccountStore.accountForId(accountId)
       return account.defaultFinishedCategory()
     },
@@ -70,7 +70,7 @@ const CategoryRemovalTargetRulesets = {
 
     // + In label, remove label
     // + In folder, move to archive
-    other: (accountId)=> {
+    other: (accountId) => {
       const account = AccountStore.accountForId(accountId)
       if (account.usesFolders()) {
         // If we are removing threads from a folder, it means we are move the

@@ -25,19 +25,19 @@ class PopoverStore extends NylasStore {
     this.listenTo(Actions.closePopover, this.closePopover);
   }
 
-  renderPopover = (child, props, callback)=> {
+  renderPopover = (child, props, callback) => {
     const popover = (
       <FixedPopover {...props}>{child}</FixedPopover>
     );
 
-    ReactDOM.render(popover, this.container, ()=> {
+    ReactDOM.render(popover, this.container, () => {
       this.isOpen = true;
       this.trigger();
       callback();
     });
   };
 
-  openPopover = (element, {originRect, direction, fallbackDirection, callback = ()=> {}})=> {
+  openPopover = (element, {originRect, direction, fallbackDirection, callback = ()=> {}}) => {
     const props = {
       direction,
       originRect,
@@ -45,7 +45,7 @@ class PopoverStore extends NylasStore {
     };
 
     if (this.isOpen) {
-      this.closePopover(()=> {
+      this.closePopover(() => {
         this.renderPopover(element, props, callback);
       })
     } else {
@@ -53,8 +53,8 @@ class PopoverStore extends NylasStore {
     }
   };
 
-  closePopover = (callback = ()=>{})=> {
-    ReactDOM.render(<span/>, this.container, ()=> {
+  closePopover = (callback = ()=>{}) => {
+    ReactDOM.render(<span/>, this.container, () => {
       this.isOpen = false;
       this.trigger();
       callback();

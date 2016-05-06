@@ -48,7 +48,7 @@ const SnoozeUtils = {
     Actions.queueTask(task)
     return TaskQueueStatusStore.waitForPerformRemote(task).then(()=>{
       return DatabaseStore.findBy(Category, {clientId: category.clientId})
-      .then((updatedCat)=> {
+      .then((updatedCat) => {
         if (updatedCat && updatedCat.isSavedRemotely()) {
           return Promise.resolve(updatedCat)
         }
@@ -59,7 +59,7 @@ const SnoozeUtils = {
 
   getSnoozeCategory(accountId, categoryName = SNOOZE_CATEGORY_NAME) {
     return CategoryStore.whenCategoriesReady(accountId)
-    .then(()=> {
+    .then(() => {
       const allCategories = CategoryStore.categories(accountId)
       const category = _.findWhere(allCategories, {displayName: categoryName})
       if (category) {
@@ -71,7 +71,7 @@ const SnoozeUtils = {
 
   getSnoozeCategoriesByAccount(accounts = AccountStore.accounts()) {
     const snoozeCategoriesByAccountId = {}
-    accounts.forEach(({id})=> {
+    accounts.forEach(({id}) => {
       if (snoozeCategoriesByAccountId[id] != null) return;
       snoozeCategoriesByAccountId[id] = SnoozeUtils.getSnoozeCategory(id)
     })
@@ -90,7 +90,7 @@ const SnoozeUtils = {
     const promises = tasks.map(task => TaskQueueStatusStore.waitForPerformRemote(task))
     // Resolve with the updated threads
     return (
-      Promise.all(promises).then(()=> {
+      Promise.all(promises).then(() => {
         return DatabaseStore.modelify(Thread, _.pluck(threads, 'clientId'))
       })
     )
@@ -98,7 +98,7 @@ const SnoozeUtils = {
 
   moveThreadsToSnooze(threads, snoozeCategoriesByAccountPromise, snoozeDate) {
     return snoozeCategoriesByAccountPromise
-    .then((snoozeCategoriesByAccountId)=> {
+    .then((snoozeCategoriesByAccountId) => {
       const getSnoozeCategory = (accId) => [snoozeCategoriesByAccountId[accId]]
       const getInboxCategory = (accId) => [CategoryStore.getInboxCategory(accId)]
       const description = SnoozeUtils.snoozedUntilMessage(snoozeDate)
@@ -111,7 +111,7 @@ const SnoozeUtils = {
 
   moveThreadsFromSnooze(threads, snoozeCategoriesByAccountPromise) {
     return snoozeCategoriesByAccountPromise
-    .then((snoozeCategoriesByAccountId)=> {
+    .then((snoozeCategoriesByAccountId) => {
       const getSnoozeCategory = (accId) => [snoozeCategoriesByAccountId[accId]]
       const getInboxCategory = (accId) => [CategoryStore.getInboxCategory(accId)]
       const description = 'Unsnoozed';

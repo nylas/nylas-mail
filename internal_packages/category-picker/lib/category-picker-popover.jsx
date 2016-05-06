@@ -47,24 +47,24 @@ export default class CategoryPickerPopover extends Component {
     this._unregisterObservables()
   }
 
-  _registerObservables = (props = this.props)=> {
+  _registerObservables = (props = this.props) => {
     this._unregisterObservables()
     this.disposables = [
       Categories.forAccount(props.account).subscribe(this._onCategoriesChanged),
     ]
   };
 
-  _unregisterObservables = ()=> {
+  _unregisterObservables = () => {
     if (this.disposables) {
       this.disposables.forEach(disp => disp.dispose())
     }
   };
 
-  _isInSearch = (searchValue, category)=> {
+  _isInSearch = (searchValue, category) => {
     return Utils.wordSearchRegExp(searchValue).test(category.displayName)
   };
 
-  _isUserFacing = (allInInbox, category)=> {
+  _isUserFacing = (allInInbox, category) => {
     const currentCategories = FocusedPerspectiveStore.current().categories() || []
     const currentCategoryIds = _.pluck(currentCategories, 'id')
     const {account} = this.props
@@ -90,7 +90,7 @@ export default class CategoryPickerPopover extends Component {
     )
   };
 
-  _itemForCategory = ({usageCount, numThreads}, category)=> {
+  _itemForCategory = ({usageCount, numThreads}, category) => {
     if (category.divider) {
       return category
     }
@@ -102,7 +102,7 @@ export default class CategoryPickerPopover extends Component {
     return item
   };
 
-  _allInInbox = (usageCount, numThreads)=> {
+  _allInInbox = (usageCount, numThreads) => {
     const {account} = this.props
     const inbox = CategoryStore.getStandardCategory(account, "inbox")
     if (!inbox) return false
@@ -112,14 +112,14 @@ export default class CategoryPickerPopover extends Component {
   _categoryUsageCount = (props) => {
     const {threads} = props
     const categoryUsageCount = {}
-    _.flatten(_.pluck(threads, 'categories')).forEach((category)=> {
+    _.flatten(_.pluck(threads, 'categories')).forEach((category) => {
       categoryUsageCount[category.id] = categoryUsageCount[category.id] || 0
       categoryUsageCount[category.id] += 1
     })
     return categoryUsageCount;
   };
 
-  _recalculateState = (props = this.props, {searchValue = (this.state.searchValue || "")} = {})=> {
+  _recalculateState = (props = this.props, {searchValue = (this.state.searchValue || "")} = {}) => {
     const {account, threads} = props
 
     const numThreads = threads.length
@@ -158,18 +158,18 @@ export default class CategoryPickerPopover extends Component {
     return {categoryData, searchValue}
   };
 
-  _onCategoriesChanged = (categories)=> {
+  _onCategoriesChanged = (categories) => {
     this._categories = categories
     this._standardCategories = categories.filter((cat) => cat.isStandardCategory())
     this._userCategories = categories.filter((cat) => cat.isUserCategory())
     this.setState(this._recalculateState())
   };
 
-  _onEscape = ()=> {
+  _onEscape = () => {
     Actions.closePopover()
   };
 
-  _onSelectCategory = (item)=> {
+  _onSelectCategory = (item) => {
     const {account, threads} = this.props
 
     if (threads.length === 0) return;
@@ -182,7 +182,7 @@ export default class CategoryPickerPopover extends Component {
       })
       const syncbackTask = new SyncbackCategoryTask({category})
 
-      TaskQueueStatusStore.waitForPerformRemote(syncbackTask).then(()=> {
+      TaskQueueStatusStore.waitForPerformRemote(syncbackTask).then(() => {
         DatabaseStore.findBy(category.constructor, {clientId: category.clientId})
         .then((cat) => {
           const applyTask = TaskFactory.taskForApplyingCategory({
@@ -213,13 +213,13 @@ export default class CategoryPickerPopover extends Component {
     Actions.closePopover()
   };
 
-  _onSearchValueChange = (event)=> {
+  _onSearchValueChange = (event) => {
     this.setState(
       this._recalculateState(this.props, {searchValue: event.target.value})
     )
   };
 
-  _renderBoldedSearchResults = (item)=> {
+  _renderBoldedSearchResults = (item) => {
     const name = item.display_name
     const searchTerm = (this.state.searchValue || "").trim()
 
@@ -241,7 +241,7 @@ export default class CategoryPickerPopover extends Component {
     return <span>{parts}</span>;
   };
 
-  _renderFolderIcon = (item)=> {
+  _renderFolderIcon = (item) => {
     return (
       <RetinaImg
         name={`${item.name}.png`}
@@ -250,7 +250,7 @@ export default class CategoryPickerPopover extends Component {
     )
   };
 
-  _renderCheckbox = (item)=> {
+  _renderCheckbox = (item) => {
     const styles = {}
     let checkStatus;
     styles.backgroundColor = item.backgroundColor
@@ -287,7 +287,7 @@ export default class CategoryPickerPopover extends Component {
     )
   };
 
-  _renderCreateNewItem = ({searchValue})=> {
+  _renderCreateNewItem = ({searchValue}) => {
     const {account} = this.props
     let picName = ''
     if (account) {
@@ -307,7 +307,7 @@ export default class CategoryPickerPopover extends Component {
     )
   };
 
-  _renderItem = (item)=> {
+  _renderItem = (item) => {
     if (item.divider) {
       return <Menu.Item key={item.id} divider={item.divider} />
     } else if (item.newCategoryItem) {

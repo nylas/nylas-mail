@@ -11,30 +11,30 @@ const {Default} = CategoryRemovalTargetRulesets;
 
 
 describe('MailboxPerspective', function mailboxPerspective() {
-  beforeEach(()=> {
+  beforeEach(() => {
     this.accountIds = ['a1', 'a2']
     this.accounts = {
       'a1': {
         id: 'a1',
         defaultFinishedCategory: () => ({displayName: 'archive'}),
-        categoryIcon: ()=> null,
+        categoryIcon: () => null,
       },
       'a2': {
         id: 'a2',
         defaultFinishedCategory: () => ({displayName: 'trash2'}),
-        categoryIcon: ()=> null,
+        categoryIcon: () => null,
       },
     }
     this.perspective = new MailboxPerspective(this.accountIds)
     spyOn(AccountStore, 'accountForId').andCallFake((accId) => this.accounts[accId])
   });
 
-  describe('isEqual', ()=> {
+  describe('isEqual', () => {
     // TODO
   });
 
-  describe('canArchiveThreads', ()=> {
-    it('returns false if the perspective is archive', ()=> {
+  describe('canArchiveThreads', () => {
+    it('returns false if the perspective is archive', () => {
       const accounts = [
         {canArchiveThreads: () => true},
         {canArchiveThreads: () => true},
@@ -44,7 +44,7 @@ describe('MailboxPerspective', function mailboxPerspective() {
       expect(this.perspective.canArchiveThreads()).toBe(false)
     });
 
-    it('returns false if one of the accounts associated with the threads cannot archive', ()=> {
+    it('returns false if one of the accounts associated with the threads cannot archive', () => {
       const accounts = [
         {canArchiveThreads: () => true},
         {canArchiveThreads: () => false},
@@ -54,7 +54,7 @@ describe('MailboxPerspective', function mailboxPerspective() {
       expect(this.perspective.canArchiveThreads()).toBe(false)
     });
 
-    it('returns true otherwise', ()=> {
+    it('returns true otherwise', () => {
       const accounts = [
         {canArchiveThreads: () => true},
         {canArchiveThreads: () => true},
@@ -65,8 +65,8 @@ describe('MailboxPerspective', function mailboxPerspective() {
     });
   });
 
-  describe('canMoveThreadsTo', ()=> {
-    it('returns false if the perspective is the target folder', ()=> {
+  describe('canMoveThreadsTo', () => {
+    it('returns false if the perspective is the target folder', () => {
       const accounts = [
         {id: 'a'},
         {id: 'b'},
@@ -76,7 +76,7 @@ describe('MailboxPerspective', function mailboxPerspective() {
       expect(this.perspective.canMoveThreadsTo([], 'trash')).toBe(false)
     });
 
-    it('returns false if one of the accounts associated with the threads does not have the folder', ()=> {
+    it('returns false if one of the accounts associated with the threads does not have the folder', () => {
       const accounts = [
         {id: 'a'},
         {id: 'b'},
@@ -87,7 +87,7 @@ describe('MailboxPerspective', function mailboxPerspective() {
       expect(this.perspective.canMoveThreadsTo([], 'trash')).toBe(false)
     });
 
-    it('returns true otherwise', ()=> {
+    it('returns true otherwise', () => {
       const accounts = [
         {id: 'a'},
         {id: 'b'},
@@ -100,20 +100,20 @@ describe('MailboxPerspective', function mailboxPerspective() {
     });
   });
 
-  describe('canReceiveThreadsFromAccountIds', ()=> {
-    it('returns true if the thread account ids are included in the current account ids', ()=> {
+  describe('canReceiveThreadsFromAccountIds', () => {
+    it('returns true if the thread account ids are included in the current account ids', () => {
       expect(this.perspective.canReceiveThreadsFromAccountIds(['a1'])).toBe(true)
     });
 
-    it('returns false otherwise', ()=> {
+    it('returns false otherwise', () => {
       expect(this.perspective.canReceiveThreadsFromAccountIds(['a4'])).toBe(false)
       expect(this.perspective.canReceiveThreadsFromAccountIds([])).toBe(false)
       expect(this.perspective.canReceiveThreadsFromAccountIds()).toBe(false)
     });
   });
 
-  describe('tasksForRemovingItems', ()=> {
-    beforeEach(()=> {
+  describe('tasksForRemovingItems', () => {
+    beforeEach(() => {
       this.categories = {
         'a1': {
           'archive': new Category({name: 'archive', displayName: 'archive', accountId: 'a1'}),
@@ -133,7 +133,7 @@ describe('MailboxPerspective', function mailboxPerspective() {
         {accountId: 'a2'},
       ]
       spyOn(TaskFactory, 'tasksForApplyingCategories')
-      spyOn(CategoryStore, 'getTrashCategory').andCallFake((accId)=> {
+      spyOn(CategoryStore, 'getTrashCategory').andCallFake((accId) => {
         return this.categories[accId].trash
       })
     });
@@ -156,7 +156,7 @@ describe('MailboxPerspective', function mailboxPerspective() {
       return assertor
     }
 
-    it('moves to finished category if viewing inbox', ()=> {
+    it('moves to finished category if viewing inbox', () => {
       const perspective = MailboxPerspective.forCategories([
         this.categories.a1.inbox,
         this.categories.a2.inbox,
@@ -166,7 +166,7 @@ describe('MailboxPerspective', function mailboxPerspective() {
       assertMoved('a2').from('inbox2').to('trash2')
     });
 
-    it('moves to trash if viewing archive', ()=> {
+    it('moves to trash if viewing archive', () => {
       const perspective = MailboxPerspective.forCategories([
         this.categories.a1.archive,
         this.categories.a2.archive,
@@ -176,12 +176,12 @@ describe('MailboxPerspective', function mailboxPerspective() {
       assertMoved('a2').from('all').to('trash2')
     })
 
-    it('deletes permanently if viewing trash', ()=> {
+    it('deletes permanently if viewing trash', () => {
       // TODO
       // Not currently possible
     });
 
-    it('moves to default finished category if viewing category', ()=> {
+    it('moves to default finished category if viewing category', () => {
       const perspective = MailboxPerspective.forCategories([
         this.categories.a1.category,
         this.categories.a2.category,
@@ -191,15 +191,15 @@ describe('MailboxPerspective', function mailboxPerspective() {
       assertMoved('a2').from('label2').to('trash2')
     })
 
-    it('unstars if viewing starred', ()=> {
+    it('unstars if viewing starred', () => {
       spyOn(TaskFactory, 'taskForInvertingStarred').andReturn({some: 'task'})
       const perspective = MailboxPerspective.forStarred(this.accountIds)
       const tasks = perspective.tasksForRemovingItems(this.threads, Default)
       expect(tasks).toEqual([{some: 'task'}])
     });
 
-    it('does nothing when viewing spam or sent', ()=> {
-      ['spam', 'sent'].forEach((invalid)=> {
+    it('does nothing when viewing spam or sent', () => {
+      ['spam', 'sent'].forEach((invalid) => {
         const perspective = MailboxPerspective.forCategories([
           new Category({name: invalid, accountId: 'a1'}),
           new Category({name: invalid, accountId: 'a2'}),
@@ -210,10 +210,10 @@ describe('MailboxPerspective', function mailboxPerspective() {
       })
     });
 
-    describe('when perspective is category perspective', ()=> {
-      it('overrides default ruleset', ()=> {
+    describe('when perspective is category perspective', () => {
+      it('overrides default ruleset', () => {
         const customRuleset = {
-          all: ()=> ({displayName: 'my category'}),
+          all: () => ({displayName: 'my category'}),
         }
         const perspective = MailboxPerspective.forCategories([
           this.categories.a1.category,
@@ -223,7 +223,7 @@ describe('MailboxPerspective', function mailboxPerspective() {
         assertMoved('a1').to('my category')
       });
 
-      it('does not create tasks if any name in the ruleset is null', ()=> {
+      it('does not create tasks if any name in the ruleset is null', () => {
         const customRuleset = {
           all: null,
         }
@@ -237,8 +237,8 @@ describe('MailboxPerspective', function mailboxPerspective() {
     });
   });
 
-  describe('CategoryMailboxPerspective', ()=> {
-    beforeEach(()=> {
+  describe('CategoryMailboxPerspective', () => {
+    beforeEach(() => {
       this.categories = [
         new Category({displayName: 'c1', accountId: 'a1'}),
         new Category({displayName: 'c2', accountId: 'a2'}),
@@ -247,18 +247,18 @@ describe('MailboxPerspective', function mailboxPerspective() {
       this.perspective = MailboxPerspective.forCategories(this.categories)
     });
 
-    describe('canReceiveThreadsFromAccountIds', ()=> {
-      it('returns true if the thread account ids are included in the current account ids', ()=> {
+    describe('canReceiveThreadsFromAccountIds', () => {
+      it('returns true if the thread account ids are included in the current account ids', () => {
         expect(this.perspective.canReceiveThreadsFromAccountIds(['a1'])).toBe(true)
       });
 
-      it('returns false otherwise', ()=> {
+      it('returns false otherwise', () => {
         expect(this.perspective.canReceiveThreadsFromAccountIds(['a4'])).toBe(false)
         expect(this.perspective.canReceiveThreadsFromAccountIds([])).toBe(false)
         expect(this.perspective.canReceiveThreadsFromAccountIds()).toBe(false)
       });
 
-      it('returns false if it is a locked category', ()=> {
+      it('returns false if it is a locked category', () => {
         this.perspective._categories.push(
           new Category({name: 'sent', displayName: 'c4', accountId: 'a1'})
         )
@@ -266,7 +266,7 @@ describe('MailboxPerspective', function mailboxPerspective() {
       });
     });
 
-    describe('receiveThreads', ()=> {
+    describe('receiveThreads', () => {
       // TODO
     });
   });

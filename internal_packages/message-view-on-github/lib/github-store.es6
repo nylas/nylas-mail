@@ -64,7 +64,7 @@ class GithubStore extends NylasStore {
   _isRelevantThread() {
     const participants = MessageStore.thread().participants || [];
     const githubDomainRegex = /@github\.com/gi;
-    return _.any(participants, contact=> githubDomainRegex.test(contact.email));
+    return _.any(participants, contact => githubDomainRegex.test(contact.email));
   }
 }
 

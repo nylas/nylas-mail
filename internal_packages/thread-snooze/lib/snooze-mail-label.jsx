@@ -43,8 +43,8 @@ class SnoozeMailLabel extends Component {
         )
         const label = {
           displayName: content,
-          isLockedCategory: ()=> true,
-          hue: ()=> 259,
+          isLockedCategory: () => true,
+          hue: () => 259,
         }
         return <MailLabel label={label} key={'snooze-message-' + thread.id} />;
       }

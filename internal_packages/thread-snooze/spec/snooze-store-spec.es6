@@ -11,7 +11,7 @@ import SnoozeStore from '../lib/snooze-store'
 
 
 describe('SnoozeStore', function snoozeStore() {
-  beforeEach(()=> {
+  beforeEach(() => {
     this.store = new SnoozeStore('plug-id', 'plug-name')
     this.name = 'Snooze folder'
     this.accounts = [{id: 123}, {id: 321}]
@@ -55,13 +55,13 @@ describe('SnoozeStore', function snoozeStore() {
     spyOn(NylasEnv, 'showErrorDialog')
   })
 
-  describe('groupUpdatedThreads', ()=> {
-    it('groups the threads correctly by account id, with their snooze and inbox categories', ()=> {
+  describe('groupUpdatedThreads', () => {
+    it('groups the threads correctly by account id, with their snooze and inbox categories', () => {
       spyOn(CategoryStore, 'getInboxCategory').andCallFake(accId => this.inboxCatsByAccount[accId])
 
-      waitsForPromise(()=> {
+      waitsForPromise(() => {
         return this.store.groupUpdatedThreads(this.threads, this.snoozeCatsByAccount)
-        .then((result)=> {
+        .then((result) => {
           expect(result['123']).toEqual({
             threads: [this.threads[0], this.threads[1]],
             snoozeCategoryId: 'sn-1',
@@ -77,11 +77,11 @@ describe('SnoozeStore', function snoozeStore() {
     });
   });
 
-  describe('onSnoozeThreads', ()=> {
-    it('auths plugin against all present accounts', ()=> {
-      waitsForPromise(()=> {
+  describe('onSnoozeThreads', () => {
+    it('auths plugin against all present accounts', () => {
+      waitsForPromise(() => {
         return this.store.onSnoozeThreads(this.threads, 'date', 'label')
-        .then(()=> {
+        .then(() => {
           expect(NylasAPI.authPlugin).toHaveBeenCalled()
           expect(NylasAPI.authPlugin.calls[0].args[2]).toEqual(this.accounts[0])
           expect(NylasAPI.authPlugin.calls[1].args[2]).toEqual(this.accounts[1])
@@ -89,10 +89,10 @@ describe('SnoozeStore', function snoozeStore() {
       })
     });
 
-    it('calls Actions.setMetadata with the correct metadata', ()=> {
-      waitsForPromise(()=> {
+    it('calls Actions.setMetadata with the correct metadata', () => {
+      waitsForPromise(() => {
         return this.store.onSnoozeThreads(this.threads, 'date', 'label')
-        .then(()=> {
+        .then(() => {
           expect(Actions.setMetadata).toHaveBeenCalled()
           expect(Actions.setMetadata.calls[0].args).toEqual([
             this.updatedThreadsByAccountId['123'].threads,
@@ -116,13 +116,13 @@ describe('SnoozeStore', function snoozeStore() {
       })
     });
 
-    it('displays dialog on error', ()=> {
+    it('displays dialog on error', () => {
       jasmine.unspy(SnoozeUtils, 'moveThreadsToSnooze')
       spyOn(SnoozeUtils, 'moveThreadsToSnooze').andReturn(Promise.reject(new Error('Oh no!')))
 
-      waitsForPromise(()=> {
+      waitsForPromise(() => {
         return this.store.onSnoozeThreads(this.threads, 'date', 'label')
-        .finally(()=> {
+        .finally(() => {
           expect(SnoozeUtils.moveThreadsFromSnooze).toHaveBeenCalled()
           expect(NylasEnv.reportError).toHaveBeenCalled()
           expect(NylasEnv.showErrorDialog).toHaveBeenCalled()

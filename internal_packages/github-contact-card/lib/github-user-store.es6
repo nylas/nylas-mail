@@ -37,7 +37,7 @@ class GithubUserStore extends NylasStore {
 
   // Called when the FocusedContactStore `triggers`, notifying us that the data
   // it vends has changed.
-  _onFocusedContactChanged = ()=> {
+  _onFocusedContactChanged = () => {
     // Grab the new focused contact
     const contact = FocusedContactsStore.focusedContact();
 
@@ -60,7 +60,7 @@ class GithubUserStore extends NylasStore {
 
   _githubFetchProfile(email) {
     this._loading = true
-    this._githubRequest(`https://api.github.com/search/users?q=${email}`, (err, resp, data)=> {
+    this._githubRequest(`https://api.github.com/search/users?q=${email}`, (err, resp, data) => {
       if (err || !data) {
         return;
       }
@@ -80,9 +80,9 @@ class GithubUserStore extends NylasStore {
       // repositories.
       if (profile !== false) {
         profile.repos = [];
-        this._githubRequest(`https://api.github.com/search/repositories?q=user:${profile.login}&sort=stars&order=desc`, (reposErr, reposResp, repos)=> {
+        this._githubRequest(`https://api.github.com/search/repositories?q=user:${profile.login}&sort=stars&order=desc`, (reposErr, reposResp, repos) => {
           // Sort the repositories by their stars (`-` for descending order)
-          profile.repos = _.sortBy(repos.items, (repo)=> -repo.stargazers_count);
+          profile.repos = _.sortBy(repos.items, (repo) => -repo.stargazers_count);
           // Trigger so that our React components refresh their state and display
           // the updated data.
           this.trigger(this);

@@ -27,7 +27,7 @@ export function adaptComposerMethod(extension, method) {
   const original = extension[method];
   if (!original || !isUsingOutdatedComposerApi(original)) return;
 
-  extension[method] = (argsObj)=> {
+  extension[method] = (argsObj) => {
     return original(argsObj.draft);
   };
 }
@@ -37,7 +37,7 @@ export function adaptContenteditableMethod(extension, method, original = extensi
   if (!original || !isUsingOutdatedContenteditableApi(original)) return;
 
   let deprecatedArgs = '';
-  extension[method] = (argsObj)=> {
+  extension[method] = (argsObj) => {
     const {editor, event, mutations} = argsObj;
     const eventOrMutations = event || mutations || {};
     const extraArgs = Object.keys(_.omit(argsObj, ['editor', 'event', 'mutations'])).map(
@@ -73,7 +73,7 @@ export function adaptOnInput(extension) {
 export function adaptOnTabDown(extension) {
   if (!extension.onTabDown) return;
   const origOnKeyDown = extension.onKeyDown;
-  extension.onKeyDown = ({editor, event})=> {
+  extension.onKeyDown = ({editor, event}) => {
     if (event.key === 'Tab') {
       const range = DOMUtils.getRangeInScope(editor.rootNode);
       extension.onTabDown(editor.rootNode, range, event);
@@ -94,7 +94,7 @@ export function adaptOnTabDown(extension) {
 export function adaptOnMouseUp(extension) {
   if (!extension.onMouseUp) return;
   const origOnClick = extension.onClick;
-  extension.onClick = ({editor, event})=> {
+  extension.onClick = ({editor, event}) => {
     const range = DOMUtils.getRangeInScope(editor.rootNode);
     extension.onMouseUp(editor.rootNode, range, event);
     // At this point, onClick should have already been adapted

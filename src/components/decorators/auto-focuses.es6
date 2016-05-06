@@ -48,7 +48,7 @@ function AutoFocuses(ComposedComponent, {onMount = true, onUpdate = true} = {}) 
 
       // _.sortBy ranks in ascending numerical order.
       const focusable = currentNode.querySelectorAll(FOCUSABLE_SELECTOR);
-      const matches = _.sortBy(focusable, (node)=> {
+      const matches = _.sortBy(focusable, (node) => {
         if (node.tabIndex > 0) {
           return node.tabIndex;
         } else if (node.nodeName === "INPUT") {

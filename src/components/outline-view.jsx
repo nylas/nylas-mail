@@ -63,27 +63,27 @@ class OutlineView extends Component {
 
   // Handlers
 
-  _onCreateButtonMouseDown = ()=> {
+  _onCreateButtonMouseDown = () => {
     this._clickingCreateButton = true;
   };
 
-  _onCreateButtonClicked = ()=> {
+  _onCreateButtonClicked = () => {
     this._clickingCreateButton = false;
     this.setState({showCreateInput: !this.state.showCreateInput});
   };
 
-  _onCollapseToggled = ()=> {
+  _onCollapseToggled = () => {
     if (this.props.onCollapseToggled) {
       this.props.onCollapseToggled(this.props);
     }
   };
 
-  _onItemCreated = (item, value)=> {
+  _onItemCreated = (item, value) => {
     this.setState({showCreateInput: false});
     this.props.onItemCreated(value)
   };
 
-  _onCreateInputCleared = ()=> {
+  _onCreateInputCleared = () => {
     if (!this._clickingCreateButton) {
       this.setState({showCreateInput: false});
     }

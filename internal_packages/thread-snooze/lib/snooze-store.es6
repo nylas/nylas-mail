@@ -33,11 +33,11 @@ class SnoozeStore {
   }
 
   groupUpdatedThreads = (threads, snoozeCategoriesByAccount) => {
-    const getSnoozeCategory = (accId)=> snoozeCategoriesByAccount[accId]
+    const getSnoozeCategory = (accId) => snoozeCategoriesByAccount[accId]
     const {getInboxCategory} = CategoryStore
     const threadsByAccountId = {}
 
-    threads.forEach((thread)=> {
+    threads.forEach((thread) => {
       const accId = thread.accountId
       if (!threadsByAccountId[accId]) {
         threadsByAccountId[accId] = {
@@ -52,7 +52,7 @@ class SnoozeStore {
     return Promise.resolve(threadsByAccountId);
   };
 
-  onAccountsChanged = ()=> {
+  onAccountsChanged = () => {
     this.snoozeCategoriesPromise = SnoozeUtils.getSnoozeCategoriesByAccount(AccountStore.accounts())
   };
 
@@ -60,24 +60,24 @@ class SnoozeStore {
     this.recordSnoozeEvent(threads, label)
 
     const accounts = AccountStore.accountsForItems(threads)
-    const promises = accounts.map((acc)=> {
+    const promises = accounts.map((acc) => {
       return NylasAPI.authPlugin(this.pluginId, this.pluginName, acc)
     })
     return Promise.all(promises)
-    .then(()=> {
+    .then(() => {
       return SnoozeUtils.moveThreadsToSnooze(threads, this.snoozeCategoriesPromise, snoozeDate)
     })
-    .then((updatedThreads)=> {
+    .then((updatedThreads) => {
       return this.snoozeCategoriesPromise
       .then(snoozeCategories => this.groupUpdatedThreads(updatedThreads, snoozeCategories))
     })
-    .then((updatedThreadsByAccountId)=> {
-      _.each(updatedThreadsByAccountId, (update)=> {
+    .then((updatedThreadsByAccountId) => {
+      _.each(updatedThreadsByAccountId, (update) => {
         const {snoozeCategoryId, returnCategoryId} = update;
         Actions.setMetadata(update.threads, this.pluginId, {snoozeDate, snoozeCategoryId, returnCategoryId})
       })
     })
-    .catch((error)=> {
+    .catch((error) => {
       SnoozeUtils.moveThreadsFromSnooze(threads, this.snoozeCategoriesPromise)
       Actions.closePopover();
       NylasEnv.reportError(error);

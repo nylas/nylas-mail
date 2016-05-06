@@ -8,7 +8,7 @@ export class Registry {
 
   static include = includeModule;
 
-  constructor(name, deprecationAdapter = (ext)=> ext) {
+  constructor(name, deprecationAdapter = (ext) => ext) {
     this.name = name;
     this._deprecationAdapter = deprecationAdapter;
     this._registry = new Map();

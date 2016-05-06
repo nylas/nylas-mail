@@ -5,25 +5,25 @@ function _getMenuTemplate(platform, application) {
   const template = [
     {
       label: 'New Message',
-      click: ()=> application.emit('application:new-message'),
+      click: () => application.emit('application:new-message'),
     },
     {
       label: 'Preferences',
-      click: ()=> application.emit('application:open-preferences'),
+      click: () => application.emit('application:open-preferences'),
     },
     {
       type: 'separator',
     },
     {
       label: 'Quit N1',
-      click: ()=> application.emit('application:quit'),
+      click: () => application.emit('application:quit'),
     },
   ];
 
   if (platform !== 'win32') {
     template.unshift({
       label: 'Open Inbox',
-      click: ()=> application.emit('application:show-main-window'),
+      click: () => application.emit('application:show-main-window'),
     });
   }
 

@@ -2,7 +2,7 @@ import {DOMUtils, ContenteditableExtension} from 'nylas-exports';
 
 export default class TemplateEditor extends ContenteditableExtension {
 
-  static onContentChanged = ({editor})=> {
+  static onContentChanged = ({editor}) => {
     // Run through and remove all code nodes that are invalid
     const codeNodes = editor.rootNode.querySelectorAll("code.var.empty");
     for (let ii = 0; ii < codeNodes.length; ii++) {
@@ -13,11 +13,11 @@ export default class TemplateEditor extends ContenteditableExtension {
 
       // grab the text content and the indexable text content
       const codeNodeText = codeNode.textContent;
-      const indexText = DOMUtils.getIndexedTextContent(codeNode).map(({text})=> text).join("");
+      const indexText = DOMUtils.getIndexedTextContent(codeNode).map(({text}) => text).join("");
 
       // unwrap any code nodes that don't start/end with {{}}, and any with line breaks inside
       if ((!codeNodeText.startsWith("{{")) || (!codeNodeText.endsWith("}}")) || (indexText.indexOf("\n") > -1)) {
-        editor.whilePreservingSelection(()=> {
+        editor.whilePreservingSelection(() => {
           DOMUtils.unwrapNode(codeNode);
         });
       }
@@ -33,7 +33,7 @@ export default class TemplateEditor extends ContenteditableExtension {
     for (let ii = 0; ii < starNodes.length; ii++) {
       const node = starNodes[ii];
       if ((!node.className) && (node.style.color === "#c79b11")) {
-        editor.whilePreservingSelection(()=> {
+        editor.whilePreservingSelection(() => {
           DOMUtils.unwrapNode(node);
         });
       }
@@ -43,7 +43,7 @@ export default class TemplateEditor extends ContenteditableExtension {
     for (let ii = 0; ii < fontNodes.length; ii++) {
       const node = fontNodes[ii];
       if (node.color === "#c79b11") {
-        editor.whilePreservingSelection(()=> {
+        editor.whilePreservingSelection(() => {
           DOMUtils.unwrapNode(node);
         });
       }

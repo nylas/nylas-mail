@@ -45,8 +45,8 @@ function isPastDate(inputDateObj, currentDate) {
 }
 
 const EnforceFutureDate = new chrono.Refiner();
-EnforceFutureDate.refine = (text, results)=> {
-  results.forEach((result)=> {
+EnforceFutureDate.refine = (text, results) => {
+  results.forEach((result) => {
     const current = _.extend({}, result.start.knownValues, result.start.impliedValues);
 
     if (result.start.isCertain('weekday') && !result.start.isCertain('day')) {

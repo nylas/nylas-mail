@@ -21,7 +21,7 @@ class SnoozeButton extends Component {
     renderImage: true,
   };
 
-  onClick = (event)=> {
+  onClick = (event) => {
     event.stopPropagation()
     const buttonRect = this.getBoundingClientRect()
     Actions.openPopover(
@@ -32,7 +32,7 @@ class SnoozeButton extends Component {
     )
   };
 
-  getBoundingClientRect = ()=> {
+  getBoundingClientRect = () => {
     if (this.props.getBoundingClientRect) {
       return this.props.getBoundingClientRect()
     }
@@ -68,7 +68,7 @@ export class QuickActionSnooze extends Component {
     thread: PropTypes.object,
   };
 
-  getBoundingClientRect = ()=> {
+  getBoundingClientRect = () => {
     // Grab the parent node because of the zoom applied to this button. If we
     // took this element directly, we'd have to divide everything by 2
     const element = ReactDOM.findDOMNode(this).parentNode;

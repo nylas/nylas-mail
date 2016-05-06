@@ -15,7 +15,7 @@ const TaskFactory = {
     const byAccount = {}
     const tasks = []
 
-    threads.forEach((thread)=> {
+    threads.forEach((thread) => {
       if (!(thread instanceof Thread)) {
         throw new Error("tasksForApplyingCategories: `threads` must be instances of Thread")
       }
