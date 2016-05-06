@@ -1,3 +1,5 @@
+/* eslint global-require: "off" */
+
 // // Translation Plugin
 // Last Revised: Feb. 29, 2016 by Ben Gotow
 
@@ -22,16 +24,16 @@ import {
 const YandexTranslationURL = 'https://translate.yandex.net/api/v1.5/tr.json/translate';
 const YandexTranslationKey = 'trnsl.1.1.20150415T044616Z.24814c314120d022.0a339e2bc2d2337461a98d5ec9863fc46e42735e';
 const YandexLanguages = {
-  'English': 'en',
-  'Spanish': 'es',
-  'Russian': 'ru',
-  'Chinese': 'zh',
-  'French': 'fr',
-  'German': 'de',
-  'Italian': 'it',
-  'Japanese': 'ja',
-  'Portuguese': 'pt',
-  'Korean': 'ko',
+  English: 'en',
+  Spanish: 'es',
+  Russian: 'ru',
+  Chinese: 'zh',
+  French: 'fr',
+  German: 'de',
+  Italian: 'it',
+  Japanese: 'ja',
+  Portuguese: 'pt',
+  Korean: 'ko',
 };
 
 class TranslateButton extends React.Component {
