@@ -15,7 +15,7 @@
   "dependencies": {
     "async": "^0.9",
     "babel-core": "6.8.0",
-    "babel-preset-electron": "file:///Users/evanmorikawa/Code/babel-preset-electron",
+    "babel-preset-electron": "0.37.8",
     "babel-preset-react": "6.5.0",
     "babel-regenerator-runtime": "6.5.0",
     "bluebird": "^2.9",
