@@ -23,7 +23,8 @@ describe('EmojiButtonPopover', function emojiButtonPopover() {
       <Contenteditable
         value={''}
         onChange={jasmine.createSpy('onChange')}
-        extensions={[EmojiComposerExtension]} />
+        extensions={[EmojiComposerExtension]}
+      />
     );
   });
 

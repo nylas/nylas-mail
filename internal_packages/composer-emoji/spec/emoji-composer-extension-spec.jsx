@@ -14,7 +14,8 @@ describe('EmojiComposerExtension', function emojiComposerExtension() {
       <Contenteditable
         html={''}
         onChange={jasmine.createSpy('onChange')}
-        extensions={[EmojiComposerExtension]} />
+        extensions={[EmojiComposerExtension]}
+      />
     )
     this.editableNode = ReactDOM.findDOMNode(this.component).querySelector('[contenteditable]');
   })
