@@ -146,7 +146,7 @@ class SearchableComponentStore extends NylasStore {
         // We save the position relative to the top of the scrollAncestor
         // instead of the current getBoudingClientRect (which is dependent
         // on the current scroll position)
-        this.matches.map((match) => {
+        this.matches.forEach((match) => {
           match.top -= scrollTop
         });
       }

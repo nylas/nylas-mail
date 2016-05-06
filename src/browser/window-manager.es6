@@ -34,7 +34,7 @@ export default class WindowManager {
     });
 
     const score = (win) =>
-      win.loadSettings().mainWindow ? 1000 : win.browserWindow.id;
+      (win.loadSettings().mainWindow ? 1000 : win.browserWindow.id);
 
     return values.sort((a, b) => score(b) - score(a));
   }

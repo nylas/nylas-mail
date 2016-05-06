@@ -159,12 +159,12 @@ describe('Snooze Utils', function snoozeUtils() {
     beforeEach(() => {
       this.description = 'Snoozin';
       this.snoozeCatsByAccount = {
-        '123': new Category({accountId: 123, displayName: this.name, serverId: 'sr-1'}),
-        '321': new Category({accountId: 321, displayName: this.name, serverId: 'sr-2'}),
+        123: new Category({accountId: 123, displayName: this.name, serverId: 'sr-1'}),
+        321: new Category({accountId: 321, displayName: this.name, serverId: 'sr-2'}),
       }
       this.inboxCatsByAccount = {
-        '123': new Category({accountId: 123, name: 'inbox', serverId: 'sr-3'}),
-        '321': new Category({accountId: 321, name: 'inbox', serverId: 'sr-4'}),
+        123: new Category({accountId: 123, name: 'inbox', serverId: 'sr-3'}),
+        321: new Category({accountId: 321, name: 'inbox', serverId: 'sr-4'}),
       }
       this.threads = [
         new Thread({accountId: 123}),

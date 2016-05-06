@@ -38,7 +38,12 @@ class DefaultMailClientItem extends React.Component {
     if (process.platform === "win32") return false;
     return (
       <div className="item">
-        <input type="checkbox" id="default-client" checked={this.state.defaultClient} onChange={this.toggleDefaultMailClient}/>
+        <input
+          type="checkbox"
+          id="default-client"
+          checked={this.state.defaultClient}
+          onChange={this.toggleDefaultMailClient}
+        />
         <label htmlFor="default-client">Use Nylas as default mail client</label>
       </div>
     );
@@ -92,7 +97,12 @@ class LaunchSystemStartItem extends React.Component {
     if (!this.state.available) return false;
     return (
       <div className="item">
-        <input type="checkbox" id="launch-on-start" checked={this.state.launchOnStart} onChange={this._toggleLaunchOnStart}/>
+        <input
+          type="checkbox"
+          id="launch-on-start"
+          checked={this.state.launchOnStart}
+          onChange={this._toggleLaunchOnStart}
+        />
         <label htmlFor="launch-on-start">Launch on system start</label>
       </div>
       );

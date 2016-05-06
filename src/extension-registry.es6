@@ -1,8 +1,6 @@
 import _ from 'underscore';
 import {Listener, Publisher} from './flux/modules/reflux-coffee';
 import {includeModule} from './flux/coffee-helpers';
-import composerExtAdapter from './extensions/composer-extension-adapter';
-import messageViewExtAdapter from './extensions/message-view-extension-adapter';
 
 export class Registry {
 

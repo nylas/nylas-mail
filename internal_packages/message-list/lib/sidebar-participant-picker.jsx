@@ -7,6 +7,11 @@ const SPLIT_KEY = "---splitvalue---"
 export default class SidebarParticipantPicker extends React.Component {
   static displayName = 'SidebarParticipantPicker';
 
+  static containerStyles = {
+    order: 0,
+    flexShrink: 0,
+  };
+
   constructor(props) {
     super(props);
     this.state = this._getStateFromStores();
@@ -21,11 +26,6 @@ export default class SidebarParticipantPicker extends React.Component {
   componentWillUnmount() {
     this._usub();
   }
-
-  static containerStyles = {
-    order: 0,
-    flexShrink: 0,
-  };
 
   _getStateFromStores() {
     return {

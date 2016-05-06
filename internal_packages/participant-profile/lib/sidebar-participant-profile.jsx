@@ -13,6 +13,10 @@ export default class SidebarParticipantProfile extends React.Component {
     contactThreads: React.PropTypes.array,
   }
 
+  static containerStyles = {
+    order: 0,
+  }
+
   constructor(props) {
     super(props);
 
@@ -42,16 +46,12 @@ export default class SidebarParticipantProfile extends React.Component {
     this.usub()
   }
 
-  static containerStyles = {
-    order: 0,
-  }
-
   _renderProfilePhoto() {
     if (this.state.profilePhotoUrl) {
       return (
         <div className="profile-photo-wrap">
           <div className="profile-photo">
-            <img src={this.state.profilePhotoUrl}/>
+            <img alt="Profile" src={this.state.profilePhotoUrl} />
           </div>
         </div>
       )
@@ -66,8 +66,11 @@ export default class SidebarParticipantProfile extends React.Component {
     return (
       <div className="profile-photo-wrap">
         <div className="profile-photo">
-          <div className="default-profile-image"
-               style={{backgroundColor: bgColor}}>{abv}
+          <div
+            className="default-profile-image"
+            style={{backgroundColor: bgColor}}
+          >
+            {abv}
           </div>
         </div>
       </div>
@@ -92,11 +95,13 @@ export default class SidebarParticipantProfile extends React.Component {
   _renderSocialProfiles() {
     if (!this.state.socialProfiles) { return false }
     const profiles = _.map(this.state.socialProfiles, (profile, type) => {
-      const linkFn = () => {shell.openExternal(profile.url)}
+      const linkFn = () => { shell.openExternal(profile.url) }
       return (
         <a className="social-profile-item" onClick={linkFn} key={type} title={profile.url}>
-          <RetinaImg url={`nylas://participant-profile/assets/${type}-sidebar-icon@2x.png`}
-                     mode={RetinaImg.Mode.ContentPreserve} />
+          <RetinaImg
+            url={`nylas://participant-profile/assets/${type}-sidebar-icon@2x.png`}
+            mode={RetinaImg.Mode.ContentPreserve}
+          />
         </a>
       )
     });
@@ -135,9 +140,11 @@ export default class SidebarParticipantProfile extends React.Component {
     if (!this.state.location) { return false; }
     return (
       <p className="location">
-        <RetinaImg url={`nylas://participant-profile/assets/location-icon@2x.png`}
-                   mode={RetinaImg.Mode.ContentPreserve}
-                   style={{float: "left"}} />
+        <RetinaImg
+          url={`nylas://participant-profile/assets/location-icon@2x.png`}
+          mode={RetinaImg.Mode.ContentPreserve}
+          style={{"float": "left"}}
+        />
         <span className="selectable" style={{display: "block", marginLeft: 20}}>{this.state.location}</span>
       </p>
     )

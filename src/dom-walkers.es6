@@ -13,7 +13,7 @@ const DOMWalkers = {
     if (!node) { return; }
     if (node.childNodes.length > 0) {
       for (let i = node.childNodes.length - 1; i >= 0; i--) {
-        yield *this.walkBackwards(node.childNodes[i]);
+        yield* this.walkBackwards(node.childNodes[i]);
       }
     }
     yield node;

@@ -1,3 +1,4 @@
+/* eslint global-require:0 */
 import _ from 'underscore'
 import Task from './task'
 import NylasAPI from '../nylas-api'

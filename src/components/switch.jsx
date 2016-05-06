@@ -8,30 +8,22 @@ import React from 'react';
   ```
 */
 
-class Switch extends React.Component {
-
-  static propTypes = {
-    checked: React.PropTypes.bool,
-    onChange: React.PropTypes.func.isRequired,
+const Switch = (props) => {
+  let classnames = "slide-switch";
+  if (props.checked) {
+    classnames += " active";
   }
 
-  constructor() {
-    super();
-  }
-
-  render() {
-    let classnames = "slide-switch";
-    if (this.props.checked) {
-      classnames += " active";
-    }
-
-    return (
-      <div className={classnames} onClick={this.props.onChange}>
-        <div className="handle"></div>
-      </div>
-    );
-  }
-
+  return (
+    <div className={classnames} onClick={props.onChange}>
+      <div className="handle"></div>
+    </div>
+  );
 }
+
+Switch.propTypes = {
+  checked: React.PropTypes.bool,
+  onChange: React.PropTypes.func.isRequired,
+};
 
 export default Switch;

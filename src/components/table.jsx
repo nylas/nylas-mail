@@ -25,6 +25,12 @@ export function TableCell(props) {
   )
 }
 
+TableCell.propTypes = {
+  isHeader: PropTypes.bool,
+  className: PropTypes.string,
+  children: PropTypes.children,
+};
+
 export class TableRow extends Component {
 
   static propTypes = {

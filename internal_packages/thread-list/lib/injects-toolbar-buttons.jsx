@@ -36,7 +36,8 @@ function InjectsToolbarButtons(ToolbarComponent, {getObservable, extraRoles = []
         <InjectedComponentSet
           key="injected"
           matching={{roles}}
-          exposedProps={exposedProps} />
+          exposedProps={exposedProps}
+        />
       )
       return (
         <ToolbarComponent

@@ -56,7 +56,7 @@ export class SelectableCell extends Component {
     const {className} = this.props
     const classes = classnames({
       [className]: true,
-      'selected': this.isSelected(this.props),
+      selected: this.isSelected(this.props),
     })
     return (
       <TableCell
@@ -105,7 +105,7 @@ export class SelectableRow extends Component {
     const {className} = this.props
     const classes = classnames({
       [className]: true,
-      'selected': this.isSelected(this.props),
+      selected: this.isSelected(this.props),
     })
     return (
       <TableRow

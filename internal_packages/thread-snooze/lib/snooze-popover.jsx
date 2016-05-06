@@ -88,10 +88,12 @@ class SnoozePopover extends Component {
       <div
         key={itemLabel}
         className="snooze-item"
-        onClick={this.onSnooze.bind(this, date, itemLabel)}>
+        onClick={this.onSnooze.bind(this, date, itemLabel)}
+      >
         <RetinaImg
           url={iconPath}
-          mode={RetinaImg.Mode.ContentIsMask} />
+          mode={RetinaImg.Mode.ContentIsMask}
+        />
         {itemLabel}
       </div>
     )
@@ -115,7 +117,8 @@ class SnoozePopover extends Component {
         <DateInput
           className="snooze-input"
           dateFormat={DATE_FORMAT_LONG}
-          onSubmitDate={this.onSelectCustomDate} />
+          onSubmitDate={this.onSelectCustomDate}
+        />
       </div>
     );
   }

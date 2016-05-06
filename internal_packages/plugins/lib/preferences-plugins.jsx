@@ -8,6 +8,11 @@ class PluginsView extends React.Component {
 
   static displayName = 'PluginsView';
 
+  static containerStyles = {
+    minWidth: 500,
+    maxWidth: 99999,
+  }
+
   constructor() {
     super();
     this.state = this._getStateFromStores();
@@ -20,11 +25,6 @@ class PluginsView extends React.Component {
 
   componentWillUnmount() {
     this._unsubscribers.forEach(unsubscribe => unsubscribe());
-  }
-
-  static containerStyles = {
-    minWidth: 500,
-    maxWidth: 99999,
   }
 
   _getStateFromStores() {

@@ -1,35 +1,32 @@
 import React from 'react';
 import _ from 'underscore';
 
-import {remote} from 'electron';
+import {remote, clipboard} from 'electron';
 import {Utils, Contact, ContactStore} from 'nylas-exports';
 import {TokenizingTextField, Menu, InjectedComponent, InjectedComponentSet} from 'nylas-component-kit';
 
-class TokenRenderer extends React.Component {
-
-  static propTypes = {
-    token: React.PropTypes.object,
+const TokenRenderer = (props) => {
+  const {email, name} = props.token
+  let chipText = email;
+  if (name && (name.length > 0) && (name !== email)) {
+    chipText = name;
   }
+  return (
+    <div className="participant">
+      <InjectedComponentSet
+        matching={{role: "Composer:RecipientChip"}}
+        exposedProps={{contact: props.token}}
+        direction="column"
+        inline
+      />
+      <span className="participant-primary">{chipText}</span>
+    </div>
+  );
+};
 
-  render() {
-    const {email, name} = this.props.token
-    let chipText = email;
-    if (name && (name.length > 0) && (name !== email)) {
-      chipText = name;
-    }
-    return (
-      <div className="participant">
-        <InjectedComponentSet
-          matching={{role: "Composer:RecipientChip"}}
-          exposedProps={{contact: this.props.token}}
-          direction="column"
-          inline
-        />
-        <span className="participant-primary">{chipText}</span>
-      </div>
-    );
-  }
-}
+TokenRenderer.propTypes = {
+  token: React.PropTypes.object,
+};
 
 export default class ParticipantsTextField extends React.Component {
   static displayName = 'ParticipantsTextField';
@@ -173,7 +170,7 @@ export default class ParticipantsTextField extends React.Component {
     const menu = new MenuClass();
     menu.append(new MenuItem({
       label: `Copy ${participant.email}`,
-      click: () => require('electron').clipboard.writeText(participant.email),
+      click: () => clipboard.writeText(participant.email),
     }))
     menu.append(new MenuItem({
       type: 'separator',

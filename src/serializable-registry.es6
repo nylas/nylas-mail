@@ -26,12 +26,10 @@ export default class SerializableRegistry {
 
   getAllConstructors() {
     const constructors = []
-    for (const name in this._constructorFactories) {
-      if (this._constructorFactories.hasOwnProperty(name)) {
-        constructors.push(this.get(name))
-      }
+    for (const name of Object.keys(this._constructorFactories)) {
+      constructors.push(this.get(name))
     }
-    return constructors
+    return constructors;
   }
 
   isInRegistry(name) {

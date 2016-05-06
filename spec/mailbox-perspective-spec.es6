@@ -14,12 +14,12 @@ describe('MailboxPerspective', function mailboxPerspective() {
   beforeEach(() => {
     this.accountIds = ['a1', 'a2']
     this.accounts = {
-      'a1': {
+      a1: {
         id: 'a1',
         defaultFinishedCategory: () => ({displayName: 'archive'}),
         categoryIcon: () => null,
       },
-      'a2': {
+      a2: {
         id: 'a2',
         defaultFinishedCategory: () => ({displayName: 'trash2'}),
         categoryIcon: () => null,
@@ -115,17 +115,17 @@ describe('MailboxPerspective', function mailboxPerspective() {
   describe('tasksForRemovingItems', () => {
     beforeEach(() => {
       this.categories = {
-        'a1': {
-          'archive': new Category({name: 'archive', displayName: 'archive', accountId: 'a1'}),
-          'inbox': new Category({name: 'inbox', displayName: 'inbox1', accountId: 'a1'}),
-          'trash': new Category({name: 'trash', displayName: 'trash1', accountId: 'a1'}),
-          'category': new Category({name: null, displayName: 'folder1', accountId: 'a1'}),
+        a1: {
+          archive: new Category({name: 'archive', displayName: 'archive', accountId: 'a1'}),
+          inbox: new Category({name: 'inbox', displayName: 'inbox1', accountId: 'a1'}),
+          trash: new Category({name: 'trash', displayName: 'trash1', accountId: 'a1'}),
+          category: new Category({name: null, displayName: 'folder1', accountId: 'a1'}),
         },
-        'a2': {
-          'archive': new Category({name: 'all', displayName: 'all', accountId: 'a2'}),
-          'inbox': new Category({name: 'inbox', displayName: 'inbox2', accountId: 'a2'}),
-          'trash': new Category({name: 'trash', displayName: 'trash2', accountId: 'a2'}),
-          'category': new Category({name: null, displayName: 'label2', accountId: 'a2'}),
+        a2: {
+          archive: new Category({name: 'all', displayName: 'all', accountId: 'a2'}),
+          inbox: new Category({name: 'inbox', displayName: 'inbox2', accountId: 'a2'}),
+          trash: new Category({name: 'trash', displayName: 'trash2', accountId: 'a2'}),
+          category: new Category({name: null, displayName: 'label2', accountId: 'a2'}),
         },
       }
       this.threads = [

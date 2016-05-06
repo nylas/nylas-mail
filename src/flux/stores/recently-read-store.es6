@@ -31,7 +31,7 @@ class RecentlyReadStore extends NylasStore {
     tasks.filter(task =>
       task instanceof ChangeUnreadTask
     ).forEach(({threads}) => {
-      const threadIds = threads.map(t => t.id ? t.id : t);
+      const threadIds = threads.map(t => (t.id ? t.id : t));
       this.ids = this.ids.concat(threadIds);
       changed = true;
     });
@@ -39,7 +39,7 @@ class RecentlyReadStore extends NylasStore {
     tasks.filter(task =>
       task instanceof ChangeLabelsTask || task instanceof ChangeFolderTask
     ).forEach(({threads}) => {
-      const threadIds = threads.map(t => t.id ? t.id : t);
+      const threadIds = threads.map(t => (t.id ? t.id : t));
       this.ids = this.ids.filter(id => !threadIds.includes(id));
       changed = true;
     });
