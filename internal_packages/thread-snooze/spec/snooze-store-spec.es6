@@ -17,12 +17,12 @@ describe('SnoozeStore', function snoozeStore() {
     this.accounts = [{id: 123}, {id: 321}]
 
     this.snoozeCatsByAccount = {
-      '123': new Category({accountId: 123, displayName: this.name, serverId: 'sn-1'}),
-      '321': new Category({accountId: 321, displayName: this.name, serverId: 'sn-2'}),
+      123: new Category({accountId: 123, displayName: this.name, serverId: 'sn-1'}),
+      321: new Category({accountId: 321, displayName: this.name, serverId: 'sn-2'}),
     }
     this.inboxCatsByAccount = {
-      '123': new Category({accountId: 123, name: 'inbox', serverId: 'in-1'}),
-      '321': new Category({accountId: 321, name: 'inbox', serverId: 'in-2'}),
+      123: new Category({accountId: 123, name: 'inbox', serverId: 'in-1'}),
+      321: new Category({accountId: 321, name: 'inbox', serverId: 'in-2'}),
     }
     this.threads = [
       new Thread({accountId: 123, serverId: 's-1'}),
@@ -30,12 +30,12 @@ describe('SnoozeStore', function snoozeStore() {
       new Thread({accountId: 321, serverId: 's-3'}),
     ]
     this.updatedThreadsByAccountId = {
-      '123': {
+      123: {
         threads: [this.threads[0], this.threads[1]],
         snoozeCategoryId: 'sn-1',
         returnCategoryId: 'in-1',
       },
-      '321': {
+      321: {
         threads: [this.threads[2]],
         snoozeCategoryId: 'sn-2',
         returnCategoryId: 'in-2',

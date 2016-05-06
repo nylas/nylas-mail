@@ -15,11 +15,17 @@ class PreferencesAccountList extends Component {
 
   _renderAccountStateIcon(account) {
     if (account.syncState !== "running") {
-      return (<div className="sync-error-icon"><RetinaImg
-        className="sync-error-icon"
-        name="ic-settings-account-error.png"
-        mode={RetinaImg.Mode.ContentIsMask} /></div>)
+      return (
+        <div className="sync-error-icon">
+          <RetinaImg
+            className="sync-error-icon"
+            name="ic-settings-account-error.png"
+            mode={RetinaImg.Mode.ContentIsMask}
+          />
+        </div>
+      )
     }
+    return null;
   }
 
   _renderAccount = (account) => {
@@ -29,14 +35,16 @@ class PreferencesAccountList extends Component {
 
     return (
       <div
-        className={classnames({account: true, "sync-error": syncError})}
-        key={account.id} >
+        className={classnames({"account": true, "sync-error": syncError})}
+        key={account.id}
+      >
         <Flexbox direction="row" style={{alignItems: 'middle'}}>
           <div style={{textAlign: 'center'}}>
             <RetinaImg
               name={syncError ? "ic-settings-account-error.png" : `ic-settings-account-${account.provider}.png`}
               fallback="ic-settings-account-imap.png"
-              mode={RetinaImg.Mode.ContentPreserve} />
+              mode={RetinaImg.Mode.ContentPreserve}
+            />
           </div>
           <div style={{flex: 1, marginLeft: 10}}>
             <div className="account-name">
@@ -62,7 +70,8 @@ class PreferencesAccountList extends Component {
           onReorderItem={this.props.onReorderAccount}
           onCreateItem={this.props.onAddAccount}
           onSelectItem={this.props.onSelectAccount}
-          onDeleteItem={this.props.onRemoveAccount} />
+          onDeleteItem={this.props.onRemoveAccount}
+        />
       </div>
     );
   }

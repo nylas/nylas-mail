@@ -13,9 +13,9 @@ describe('AutoloadImagesExtension', function autoloadImagesExtension() {
         const name = filename.replace('-in.html', '');
 
         scenarios.push({
-          name: name,
-          in: fs.readFileSync(path.join(fixtures, filename)).toString(),
-          out: fs.readFileSync(path.join(fixtures, `${name}-out.html`)).toString(),
+          'name': name,
+          'in': fs.readFileSync(path.join(fixtures, filename)).toString(),
+          'out': fs.readFileSync(path.join(fixtures, `${name}-out.html`)).toString(),
         });
       }
     });

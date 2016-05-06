@@ -64,10 +64,12 @@ class PreferencesAccounts extends React.Component {
             onAddAccount={this._onAddAccount}
             onReorderAccount={this._onReorderAccount}
             onSelectAccount={this._onSelectAccount}
-            onRemoveAccount={this._onRemoveAccount} />
+            onRemoveAccount={this._onRemoveAccount}
+          />
           <PreferencesAccountDetails
             account={this.state.selected}
-            onAccountUpdated={this._onAccountUpdated} />
+            onAccountUpdated={this._onAccountUpdated}
+          />
         </div>
       </div>
     );

@@ -46,7 +46,7 @@ const SnoozeUtils = {
     const task = new SyncbackCategoryTask({category})
 
     Actions.queueTask(task)
-    return TaskQueueStatusStore.waitForPerformRemote(task).then(()=>{
+    return TaskQueueStatusStore.waitForPerformRemote(task).then(() => {
       return DatabaseStore.findBy(Category, {clientId: category.clientId})
       .then((updatedCat) => {
         if (updatedCat && updatedCat.isSavedRemotely()) {

@@ -5,7 +5,7 @@ const EmojiActions = Reflux.createActions([
   "useEmoji",
 ]);
 
-for (const key in EmojiActions) {
+for (const key of Object.keys(EmojiActions)) {
   EmojiActions[key].sync = true;
 }
 
