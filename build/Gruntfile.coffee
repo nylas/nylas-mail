@@ -269,6 +269,9 @@ module.exports = (grunt) ->
         configFile: 'build/config/eslint.json'
       target: ES_SRC
 
+    eslintFixer:
+      src: ES_SRC
+
     csslint:
       options:
         'adjoining-classes': false

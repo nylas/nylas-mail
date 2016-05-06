@@ -44,7 +44,7 @@ module.exports = (grunt) ->
           errors.push("#{f}: Spec has to start with function")
           ## NOTE: Comment me in if you want to fix these files.
           # _str = require('underscore.string')
-          # replacer = (match, describeName, offset, string) ->
+          # replacer = (match, describeName) ->
           #   fnName = _str.camelize(describeName, true)
           #   return "\ndescribe('#{describeName}', function #{fnName}() "
           # newContent = content.replace(describeRe, replacer)
