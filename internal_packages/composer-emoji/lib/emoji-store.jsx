@@ -1,13 +1,14 @@
 import NylasStore from 'nylas-store';
 import Rx from 'rx-lite';
 import _ from 'underscore';
+import fs from 'fs';
 
 import {DatabaseStore} from 'nylas-exports';
 import EmojiActions from './emoji-actions';
-import emojiData from './emoji-data';
 
 const EmojiJSONBlobKey = 'emoji';
 
+let emojiData;
 
 class EmojiStore extends NylasStore {
   constructor(props) {
@@ -41,6 +42,7 @@ class EmojiStore extends NylasStore {
   }
 
   getImagePath(emojiName) {
+    emojiData = emojiData || JSON.parse(fs.readFileSync('./emoji-data', {encoding: "utf8"}));
     for (const emoji of emojiData) {
       if (emoji.short_names.indexOf(emojiName) !== -1) {
         if (process.platform === "darwin") {
@@ -49,6 +51,7 @@ class EmojiStore extends NylasStore {
         return `images/composer-emoji/twitter/${emoji.image}`;
       }
     }
+    return ''
   }
 
   _onUseEmoji = (emoji) => {
