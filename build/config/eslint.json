@@ -32,5 +32,8 @@
     "react/no-multi-comp": "off",
     "react/prop-types": ["error", {"ignore": ["children"]}],
     "react/sort-comp": "error"
+  },
+  "settings": {
+    "import/resolver": {"node": {"extensions": [".es6", ".coffee"]}}
   }
 }
