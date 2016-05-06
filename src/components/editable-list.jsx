@@ -163,7 +163,7 @@ class EditableList extends Component {
     this._setStateAndFocus({creatingItem: false}, callback);
   };
 
-  _setStateAndFocus = (state, callback = ()=> {}) => {
+  _setStateAndFocus = (state, callback = () => {}) => {
     this.setState(state, () => {
       this._focusSelf();
       callback();

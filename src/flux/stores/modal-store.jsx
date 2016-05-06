@@ -41,7 +41,7 @@ class ModalStore extends NylasStore {
     });
   };
 
-  openModal = ({component, height, width}, callback = ()=> {}) => {
+  openModal = ({component, height, width}, callback = () => {}) => {
     const props = {
       height: height,
       width: width,
