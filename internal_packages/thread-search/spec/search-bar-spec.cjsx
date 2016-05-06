@@ -3,7 +3,7 @@ ReactDOM = require 'react-dom'
 ReactTestUtils = require('react-addons-test-utils')
 
 SearchBar = require '../lib/search-bar'
-SearchActions = require '../lib/search-actions'
+SearchActions = require('../lib/search-actions').default
 
 describe 'SearchBar', ->
   beforeEach ->

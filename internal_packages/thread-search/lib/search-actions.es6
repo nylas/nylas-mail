@@ -11,4 +11,4 @@ for (const key of Object.keys(SearchActions)) {
   SearchActions[key].sync = true;
 }
 
-module.exports = SearchActions;
+export default SearchActions

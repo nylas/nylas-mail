@@ -145,7 +145,7 @@ class NylasEnvConstructor
     @loadTime = null
 
     Config = require './config'
-    KeymapManager = require './keymap-manager'
+    KeymapManager = require('./keymap-manager').default
     CommandRegistry = require './command-registry'
     PackageManager = require './package-manager'
     ThemeManager = require './theme-manager'
