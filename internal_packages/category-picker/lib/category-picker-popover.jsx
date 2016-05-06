@@ -246,7 +246,8 @@ export default class CategoryPickerPopover extends Component {
       <RetinaImg
         name={`${item.name}.png`}
         fallback={'folder.png'}
-        mode={RetinaImg.Mode.ContentIsMask} />
+        mode={RetinaImg.Mode.ContentIsMask}
+      />
     )
   };
 
@@ -263,7 +264,8 @@ export default class CategoryPickerPopover extends Component {
           className="check-img dash"
           name="tagging-conflicted.png"
           mode={RetinaImg.Mode.ContentPreserve}
-          onClick={() => this._onSelectCategory(item)}/>
+          onClick={() => this._onSelectCategory(item)}
+        />
       )
     } else {
       checkStatus = (
@@ -271,7 +273,8 @@ export default class CategoryPickerPopover extends Component {
           className="check-img check"
           name="tagging-checkmark.png"
           mode={RetinaImg.Mode.ContentPreserve}
-          onClick={() => this._onSelectCategory(item)}/>
+          onClick={() => this._onSelectCategory(item)}
+        />
       )
     }
 
@@ -281,7 +284,8 @@ export default class CategoryPickerPopover extends Component {
           className="check-img check"
           name="tagging-checkbox.png"
           mode={RetinaImg.Mode.ContentPreserve}
-          onClick={() => this._onSelectCategory(item)}/>
+          onClick={() => this._onSelectCategory(item)}
+        />
         {checkStatus}
       </div>
     )
@@ -299,7 +303,8 @@ export default class CategoryPickerPopover extends Component {
         <RetinaImg
           name={`${picName}.png`}
           className={`category-create-new-${picName}`}
-          mode={RetinaImg.Mode.ContentIsMask} />
+          mode={RetinaImg.Mode.ContentIsMask}
+        />
         <div className="category-display-name">
           <strong>&ldquo;{searchValue}&rdquo;</strong> (create new)
         </div>
@@ -348,7 +353,8 @@ export default class CategoryPickerPopover extends Component {
         className="search"
         placeholder={placeholder}
         value={this.state.searchValue}
-        onChange={this._onSearchValueChange} />,
+        onChange={this._onSearchValueChange}
+      />,
     ]
 
     return (

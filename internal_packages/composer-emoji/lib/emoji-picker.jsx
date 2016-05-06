@@ -36,20 +36,25 @@ class EmojiPicker extends React.Component {
       this.props.emojiOptions.forEach((emojiOption, i) => {
         const emojiClass = emojiIndex === i ? "btn btn-icon emoji-option" : "btn btn-icon";
         let emojiChar = emoji.get(emojiOption);
-        emojiChar = (<img
-                      src={EmojiStore.getImagePath(emojiOption)}
-                      width="16"
-                      height="16"
-                      style={{marginTop: "-4px", marginRight: "3px"}} />);
+        emojiChar = (
+          <img
+            alt={emojiOption}
+            src={EmojiStore.getImagePath(emojiOption)}
+            width="16"
+            height="16"
+            style={{marginTop: "-4px", marginRight: "3px"}}
+          />
+        );
         emojiButtons.push(
           <button
             key={emojiOption}
             onMouseDown={() => this.onMouseDown(emojiOption)}
-            className={emojiClass}>
+            className={emojiClass}
+          >
             {emojiChar} :{emojiOption}:
           </button>
         );
-        emojiButtons.push(<br key={emojiOption + " br"} />);
+        emojiButtons.push(<br key={`${emojiOption} br`} />);
       });
     }
     return (
