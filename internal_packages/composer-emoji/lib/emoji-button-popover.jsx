@@ -42,6 +42,7 @@ class EmojiButtonPopover extends React.Component {
     if (!emojiName) return null;
     EmojiActions.selectEmoji({emojiName: emojiName, replaceSelection: false});
     Actions.closePopover();
+    return null
   }
 
   onScroll = () => {
@@ -51,12 +52,10 @@ class EmojiButtonPopover extends React.Component {
     if (emojiContainer.scrollTop === 0) {
       this.setState({activeTab: Object.keys(this.state.categorizedEmoji)[0]});
     } else {
-      for (const category in this.state.categoryPositions) {
-        if (this.state.categoryPositions.hasOwnProperty(category)) {
-          if (emojiContainer.scrollTop >= this.state.categoryPositions[category].top &&
-            emojiContainer.scrollTop <= this.state.categoryPositions[category].bottom) {
-            this.setState({activeTab: category});
-          }
+      for (const category of Object.keys(this.state.categoryPositions)) {
+        if (emojiContainer.scrollTop >= this.state.categoryPositions[category].top &&
+          emojiContainer.scrollTop <= this.state.categoryPositions[category].bottom) {
+          this.setState({activeTab: category});
         }
       }
     }
@@ -118,10 +117,8 @@ class EmojiButtonPopover extends React.Component {
     const frequentlyUsedEmoji = EmojiStore.frequentlyUsedEmoji();
     if (frequentlyUsedEmoji.length > 0) {
       categorizedEmoji = {'Frequently Used': frequentlyUsedEmoji};
-      for (const category in categorizedEmojiList) {
-        if (categorizedEmojiList.hasOwnProperty(category)) {
-          categorizedEmoji[category] = categorizedEmojiList[category];
-        }
+      for (const category of Object.keys(categorizedEmojiList)) {
+        categorizedEmoji[category] = categorizedEmojiList[category];
       }
       categoryNames = ["Frequently Used"].concat(categoryNames);
     }
@@ -131,14 +128,12 @@ class EmojiButtonPopover extends React.Component {
       categoryPositions[name] = {top: 0, bottom: 0};
     }
     let verticalPos = 25;
-    for (const category in categoryPositions) {
-      if (categoryPositions.hasOwnProperty(category)) {
-        const height = Math.ceil(categorizedEmoji[category].length / 8) * 24;
-        categoryPositions[category].top = verticalPos;
-        verticalPos += height;
-        categoryPositions[category].bottom = verticalPos;
-        verticalPos += 24;
-      }
+    for (const category of Object.keys(categoryPositions)) {
+      const height = Math.ceil(categorizedEmoji[category].length / 8) * 24;
+      categoryPositions[category].top = verticalPos;
+      verticalPos += height;
+      categoryPositions[category].bottom = verticalPos;
+      verticalPos += 24;
     }
     return {
       categoryNames: categoryNames,
@@ -184,22 +179,20 @@ class EmojiButtonPopover extends React.Component {
   }
 
   calcEmojiByPosition = (position) => {
-    for (const category in this.state.categoryPositions) {
-      if (this.state.categoryPositions.hasOwnProperty(category)) {
-        const LEFT_BOUNDARY = 8;
-        const RIGHT_BOUNDARY = 204;
-        const EMOJI_WIDTH = 24.5;
-        const EMOJI_HEIGHT = 24;
-        const EMOJI_PER_ROW = 8;
-        if (position.x >= LEFT_BOUNDARY &&
-            position.x <= RIGHT_BOUNDARY &&
-            position.y >= this.state.categoryPositions[category].top &&
-            position.y <= this.state.categoryPositions[category].bottom) {
-          const x = Math.round((position.x + 5) / EMOJI_WIDTH);
-          const y = Math.round((position.y - this.state.categoryPositions[category].top + 10) / EMOJI_HEIGHT);
-          const index = x + (y - 1) * EMOJI_PER_ROW - 1;
-          return this.state.categorizedEmoji[category][index];
-        }
+    for (const category of Object.keys(this.state.categoryPositions)) {
+      const LEFT_BOUNDARY = 8;
+      const RIGHT_BOUNDARY = 204;
+      const EMOJI_WIDTH = 24.5;
+      const EMOJI_HEIGHT = 24;
+      const EMOJI_PER_ROW = 8;
+      if (position.x >= LEFT_BOUNDARY &&
+          position.x <= RIGHT_BOUNDARY &&
+          position.y >= this.state.categoryPositions[category].top &&
+          position.y <= this.state.categoryPositions[category].bottom) {
+        const x = Math.round((position.x + 5) / EMOJI_WIDTH);
+        const y = Math.round((position.y - this.state.categoryPositions[category].top + 10) / EMOJI_HEIGHT);
+        const index = x + (y - 1) * EMOJI_PER_ROW - 1;
+        return this.state.categorizedEmoji[category][index];
       }
     }
     return null;
@@ -219,7 +212,8 @@ class EmojiButtonPopover extends React.Component {
             className={className}
             name={`icon-emojipicker-${(category.replace(/ /g, '-')).toLowerCase()}.png`}
             mode={RetinaImg.Mode.ContentIsMask}
-            onMouseDown={() => this.scrollToCategory(category)} />
+            onMouseDown={() => this.scrollToCategory(category)}
+          />
         </div>
       );
     });
@@ -250,7 +244,8 @@ class EmojiButtonPopover extends React.Component {
     renderNextCategory();
   }
 
-  renderCategory(category, i, ctx, position, callback) {
+  renderCategory(category, i, ctx, pos, callback) {
+    const position = pos
     if (i > 0) {
       position.x = 18;
       position.y += 48;
@@ -304,7 +299,8 @@ class EmojiButtonPopover extends React.Component {
         </div>
         <ScrollRegion
           className="emoji-finder-container"
-          onScroll={this.onScroll}>
+          onScroll={this.onScroll}
+        >
           <div className="emoji-search-container">
             <input
               type="text"
@@ -320,7 +316,8 @@ class EmojiButtonPopover extends React.Component {
             onMouseDown={this.onMouseDown}
             onMouseOut={this.onMouseOut}
             onMouseMove={this.onHover}
-            style={{zoom: "0.5"}}>
+            style={{zoom: "0.5"}}
+          >
           </canvas>
         </ScrollRegion>
         <div className="emoji-name">
