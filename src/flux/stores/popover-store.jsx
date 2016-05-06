@@ -53,8 +53,8 @@ class PopoverStore extends NylasStore {
     }
   };
 
-  closePopover = (callback = ()=>{}) => {
-    ReactDOM.render(<span/>, this.container, () => {
+  closePopover = (callback = () => {}) => {
+    ReactDOM.render(<span />, this.container, () => {
       this.isOpen = false;
       this.trigger();
       callback();

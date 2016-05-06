@@ -11,7 +11,7 @@ import Category from '../models/category'
 
 const TaskFactory = {
 
-  tasksForApplyingCategories({threads, categoriesToRemove = ()=>[], categoriesToAdd = ()=>[], taskDescription} = {}) {
+  tasksForApplyingCategories({threads, categoriesToRemove = () => [], categoriesToAdd = () => [], taskDescription} = {}) {
     const byAccount = {}
     const tasks = []
 

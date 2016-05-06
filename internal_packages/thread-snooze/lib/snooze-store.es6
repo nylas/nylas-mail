@@ -57,7 +57,7 @@ class SnoozeStore {
   };
 
   onSnoozeThreads = (threads, snoozeDate, label) => {
-    this.recordSnoozeEvent(threads, label)
+    this.recordSnoozeEvent(threads, snoozeDate, label)
 
     const accounts = AccountStore.accountsForItems(threads)
     const promises = accounts.map((acc) => {

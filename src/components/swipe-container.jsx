@@ -319,7 +319,7 @@ export default class SwipeContainer extends Component {
       const {onSwipeLeftClass} = this.props
       const swipeLeftClass = _.isFunction(onSwipeLeftClass) ? onSwipeLeftClass() : onSwipeLeftClass || ''
 
-      backingClass += ' ' + swipeLeftClass;
+      backingClass += ` ${swipeLeftClass}`;
       backingStyles.right = 0;
       backingStyles.width = -currentX + 1;
       if (targetX < 0) {
@@ -329,7 +329,7 @@ export default class SwipeContainer extends Component {
       const {onSwipeRightClass} = this.props
       const swipeRightClass = _.isFunction(onSwipeRightClass) ? onSwipeRightClass() : onSwipeRightClass || ''
 
-      backingClass += ' ' + swipeRightClass;
+      backingClass += ` ${swipeRightClass}`;
       backingStyles.left = 0;
       backingStyles.width = currentX + 1;
       if (targetX > 0) {
@@ -337,14 +337,16 @@ export default class SwipeContainer extends Component {
       }
     }
     return (
-      <div onWheel={this._onWheel}
-           onTouchStart={this._onTouchStart}
-           onTouchMove={this._onTouchMove}
-           onTouchEnd={this._onTouchEnd}
-           onTouchCancel={this._onTouchEnd}
-           {...otherProps}>
+      <div
+        onWheel={this._onWheel}
+        onTouchStart={this._onTouchStart}
+        onTouchMove={this._onTouchMove}
+        onTouchEnd={this._onTouchEnd}
+        onTouchCancel={this._onTouchEnd}
+        {...otherProps}
+      >
         <div style={backingStyles} className={backingClass}></div>
-        <div style={{transform: 'translate3d(' + currentX + 'px, 0, 0)'}}>
+        <div style={{transform: `translate3d(${currentX}px, 0, 0)`}}>
           {this.props.children}
         </div>
       </div>

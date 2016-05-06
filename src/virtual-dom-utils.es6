@@ -2,7 +2,7 @@ import _ from 'underscore'
 import React from 'react'
 
 const VirtualDOMUtils = {
-  *walk({element, parentNode, childOffset, pruneFn = ()=>{}}) {
+  *walk({element, parentNode, childOffset, pruneFn = () => {}}) {
     yield {element, parentNode, childOffset};
     if (React.isValidElement(element) && !pruneFn(element)) {
       const children = element.props.children;

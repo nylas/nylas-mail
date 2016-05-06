@@ -56,8 +56,8 @@ class ModalStore extends NylasStore {
     }
   };
 
-  closeModal = (callback = ()=>{}) => {
-    ReactDOM.render(<span/>, this.container, () => {
+  closeModal = (callback = () => {}) => {
+    ReactDOM.render(<span />, this.container, () => {
       this.isOpen = false;
       this.trigger();
       callback();
