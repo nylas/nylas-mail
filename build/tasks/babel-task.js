@@ -2,14 +2,14 @@
 // use the `babel-core` defined in our own package.json as opposed to the
 // grunt-babel dependency's
 
-const path = require('path');
-const babel = require('babel-core');
+var path = require('path');
+var babel = require('babel-core');
 
-module.exports = function babelTask(grunt) {
-  grunt.registerMultiTask('babel', 'Use next generation JavaScript, today', () => {
-    const options = this.options();
+module.exports = function (grunt) {
+  grunt.registerMultiTask('babel', 'Use next generation JavaScript, today', function () {
+    var options = this.options();
 
-    this.files.forEach((el) => {
+    this.files.forEach(function (el) {
       delete options.filename;
       delete options.filenameRelative;
 
@@ -21,17 +21,17 @@ module.exports = function babelTask(grunt) {
 
       options.sourceMapTarget = path.basename(el.dest);
 
-      const res = babel.transformFileSync(el.src[0], options);
-      let sourceMappingURL = '';
+      var res = babel.transformFileSync(el.src[0], options);
+      var sourceMappingURL = '';
 
       if (res.map) {
-        sourceMappingURL = `\n//# sourceMappingURL=${path.basename(el.dest)}.map`;
+        sourceMappingURL = '\n//# sourceMappingURL=' + path.basename(el.dest) + '.map';
       }
 
-      grunt.file.write(el.dest, `${res.code}${sourceMappingURL}\n`);
+      grunt.file.write(el.dest, res.code + sourceMappingURL + '\n');
 
       if (res.map) {
-        grunt.file.write(`${el.dest}.map`, JSON.stringify(res.map));
+        grunt.file.write(el.dest + '.map', JSON.stringify(res.map));
       }
     });
   });
