@@ -120,5 +120,6 @@ export default class ChangeFolderTask extends ChangeMailTask {
     if (model instanceof Message) {
       return {folder: model.folder ? model.folder.id : null};
     }
+    return null;
   }
 }

@@ -70,16 +70,16 @@ export default class NylasCalendar extends React.Component {
     footerComponents: {day: false, week: false, month: false, year: false},
   }
 
+  static containerStyles = {
+    height: "100%",
+  }
+
   constructor(props) {
     super(props);
     this.state = {
       currentView: WEEK_VIEW,
       currentMoment: props.currentMoment || this._now(),
     };
-  }
-
-  static containerStyles = {
-    height: "100%",
   }
 
   _now() {

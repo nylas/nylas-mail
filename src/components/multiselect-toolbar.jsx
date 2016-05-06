@@ -52,7 +52,8 @@ class MultiselectToolbar extends Component {
           <button
             style={{order: 100}}
             className="btn btn-toolbar"
-            onClick={onClearSelection}>
+            onClick={onClearSelection}
+          >
             Clear Selection
           </button>
         </div>
@@ -68,7 +69,8 @@ class MultiselectToolbar extends Component {
         transitionName="selection-bar-absolute"
         component="div"
         transitionLeaveTimeout={200}
-        transitionEnterTimeout={200}>
+        transitionEnterTimeout={200}
+      >
         {selectionCount > 0 ? this.renderToolbar() : undefined}
       </ReactCSSTransitionGroup>
     )

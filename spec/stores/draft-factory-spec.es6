@@ -266,7 +266,7 @@ describe('DraftFactory', function draftFactory() {
         waitsForPromise(() => {
           return DraftFactory.createDraftForReply({thread: fakeThread, message: fakeMessage1, type: 'reply-all'}).then((draft) => {
             const ccEmails = draft.cc.map(cc => cc.email);
-            expect(ccEmails.sort()).toEqual([ 'ben@nylas.com', 'evan@nylas.com', 'mg@nylas.com']);
+            expect(ccEmails.sort()).toEqual(['ben@nylas.com', 'evan@nylas.com', 'mg@nylas.com']);
           });
         });
       });
@@ -576,7 +576,7 @@ describe('DraftFactory', function draftFactory() {
 
       it("works for lowercase", () => {
         waitsForPromise(() => {
-          return DraftFactory.createDraftForMailto('mailto:asdf@asdf.com?subject=' + this.expected).then((draft) => {
+          return DraftFactory.createDraftForMailto(`mailto:asdf@asdf.com?subject=${this.expected}`).then((draft) => {
             expect(draft.subject).toBe(this.expected);
           });
         });
@@ -584,7 +584,7 @@ describe('DraftFactory', function draftFactory() {
 
       it("works for title case", () => {
         waitsForPromise(() => {
-          return DraftFactory.createDraftForMailto('mailto:asdf@asdf.com?Subject=' + this.expected).then((draft) => {
+          return DraftFactory.createDraftForMailto(`mailto:asdf@asdf.com?Subject=${this.expected}`).then((draft) => {
             expect(draft.subject).toBe(this.expected);
           });
         });
@@ -592,7 +592,7 @@ describe('DraftFactory', function draftFactory() {
 
       it("works for uppercase", () => {
         waitsForPromise(() => {
-          return DraftFactory.createDraftForMailto('mailto:asdf@asdf.com?SUBJECT=' + this.expected).then((draft) => {
+          return DraftFactory.createDraftForMailto(`mailto:asdf@asdf.com?SUBJECT=${this.expected}`).then((draft) => {
             expect(draft.subject).toBe(this.expected);
           });
         });

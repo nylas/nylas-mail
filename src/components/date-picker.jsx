@@ -76,13 +76,15 @@ export default class DatePicker extends React.Component {
   render() {
     const className = classnames({
       'day-text': true,
-      focused: this.state.focused,
+      'focused': this.state.focused,
     })
 
     const dayTxt = moment(this.props.value).format(DateUtils.DATE_FORMAT_llll_NO_TIME)
 
     return (
-      <div tabIndex={0} className="date-picker"
+      <div
+        tabIndex={0}
+        className="date-picker"
         onKeyDown={this._onKeyDown} onFocus={this._onFocus}
         onBlur={this._onBlur}
       >

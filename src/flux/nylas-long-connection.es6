@@ -1,3 +1,4 @@
+/* eslint global-require:0 */
 import _ from 'underscore'
 import url from 'url'
 import {Emitter} from 'event-kit'

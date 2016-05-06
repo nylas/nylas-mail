@@ -88,7 +88,7 @@ export default class ConnectionStatusHeader extends React.Component {
     const {connected, nextRetryText} = this.state;
 
     if (connected) {
-      return (<span/>);
+      return (<span />);
     }
 
     const apiDomain = NylasAPI.APIRoot.split('//').pop();
@@ -99,7 +99,8 @@ export default class ConnectionStatusHeader extends React.Component {
           <RetinaImg
             className="icon"
             name="icon-alert-onred.png"
-            mode={RetinaImg.Mode.ContentPreserve} />
+            mode={RetinaImg.Mode.ContentPreserve}
+          />
           <div className="message">
             Nylas N1 isn't able to reach {apiDomain}. Retrying {nextRetryText}.
           </div>

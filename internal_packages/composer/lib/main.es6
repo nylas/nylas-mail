@@ -35,7 +35,7 @@ class ComposerWithWindowProps extends React.Component {
   }
 
   componentWillUnmount() {
-    if (this._usub) {this._usub()}
+    if (this._usub) { this._usub() }
   }
 
   componentDidUpdate() {

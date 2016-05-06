@@ -1,5 +1,5 @@
 import Rx from 'rx-lite'
-import React, {Component, PropTypes} from 'react'
+import React, {PropTypes} from 'react'
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 import {FocusedContentStore} from 'nylas-exports'
 import ThreadListStore from './thread-list-store'
@@ -22,29 +22,25 @@ function getObservable() {
   )
 }
 
-class MessageListToolbar extends Component {
-  static displayName = 'MessageListToolbar';
+const MessageListToolbar = ({items, injectedButtons}) => {
+  const shouldRender = items.length > 0
 
-  static propTypes = {
-    items: PropTypes.array,
-    injectedButtons: PropTypes.element,
-  };
-
-  render() {
-    const {items, injectedButtons} = this.props
-    const shouldRender = items.length > 0
-
-    return (
-      <ReactCSSTransitionGroup
-        className="message-toolbar-items"
-        transitionLeaveTimeout={125}
-        transitionEnterTimeout={125}
-        transitionName="opacity-125ms">
-        {shouldRender ? injectedButtons : undefined}
-      </ReactCSSTransitionGroup>
-    )
-  }
+  return (
+    <ReactCSSTransitionGroup
+      className="message-toolbar-items"
+      transitionLeaveTimeout={125}
+      transitionEnterTimeout={125}
+      transitionName="opacity-125ms"
+    >
+      {shouldRender ? injectedButtons : undefined}
+    </ReactCSSTransitionGroup>
+  )
 }
+
+MessageListToolbar.propTypes = {
+  items: PropTypes.array,
+  injectedButtons: PropTypes.element,
+};
 
 const toolbarProps = {
   getObservable,

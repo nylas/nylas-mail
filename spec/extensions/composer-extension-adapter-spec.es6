@@ -76,8 +76,8 @@ describe('ComposerExtensionAdapter', function composerExtensionAdapter() {
     it('adapts correctly when signature is (editor, ...)', () => {
       const methodSpy = jasmine.createSpy('methodSpy');
       const extension = {
-        method(editor, ev, other) {
-          methodSpy(editor, ev, other);
+        method(e, ev, other) {
+          methodSpy(e, ev, other);
         },
       };
       adapter.adaptContenteditableMethod(extension, 'method');
@@ -112,8 +112,8 @@ describe('ComposerExtensionAdapter', function composerExtensionAdapter() {
     it('adapts correctly when using mutations instead of an event', () => {
       const methodSpy = jasmine.createSpy('methodSpy');
       const extension = {
-        method(editor, mutations) {
-          methodSpy(editor, mutations);
+        method(e, mutations) {
+          methodSpy(e, mutations);
         },
       };
       adapter.adaptContenteditableMethod(extension, 'method');

@@ -1,3 +1,5 @@
+/* eslint global-require:0 */
+
 import _ from 'underscore';
 import classnames from 'classnames';
 import React, {Component, PropTypes} from 'react';
@@ -133,6 +135,7 @@ class OutlineViewItem extends Component {
     }).isRequired,
   };
 
+  static CounterStyles = CounterStyles;
 
   constructor(props) {
     super(props);
@@ -166,9 +169,6 @@ class OutlineViewItem extends Component {
       ReactDOM.findDOMNode(this).removeEventListener('contextmenu', this._onShowContextMenu);
     }
   }
-
-  static CounterStyles = CounterStyles;
-
 
   // Helpers
 
@@ -296,7 +296,8 @@ class OutlineViewItem extends Component {
         <RetinaImg
           name={item.iconName}
           fallback={'folder.png'}
-          mode={RetinaImg.Mode.ContentIsMask} />
+          mode={RetinaImg.Mode.ContentIsMask}
+        />
       </div>
     );
   }
@@ -314,7 +315,8 @@ class OutlineViewItem extends Component {
           defaultValue={item.name}
           onBlur={this._onInputBlur}
           onFocus={this._onInputFocus}
-          onKeyDown={this._onInputKeyDown} />
+          onKeyDown={this._onInputKeyDown}
+        />
       );
     }
     return <div className="name">{item.name}</div>;
@@ -322,9 +324,9 @@ class OutlineViewItem extends Component {
 
   _renderItem(item = this.props.item, state = this.state) {
     const containerClass = classnames({
-      'item': true,
-      'selected': item.selected,
-      'editing': state.editing,
+      item: true,
+      selected: item.selected,
+      editing: state.editing,
       [item.className]: item.className,
     });
 
@@ -336,7 +338,8 @@ class OutlineViewItem extends Component {
         onClick={this._onClick}
         onDoubleClick={this._onEdit}
         shouldAcceptDrop={this._shouldAcceptDrop}
-        onDragStateChange={this._onDragStateChange} >
+        onDragStateChange={this._onDragStateChange}
+      >
         {this._renderCount()}
         {this._renderIcon()}
         {this._renderItemContent()}
@@ -369,7 +372,8 @@ class OutlineViewItem extends Component {
           <DisclosureTriangle
             collapsed={item.collapsed}
             visible={item.children.length > 0}
-            onCollapseToggled={this._onCollapseToggled} />
+            onCollapseToggled={this._onCollapseToggled}
+          />
           {this._renderItem()}
         </span>
         {this._renderChildren()}

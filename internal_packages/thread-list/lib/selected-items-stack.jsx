@@ -25,11 +25,11 @@ class SelectedItemsStack extends Component {
     selectionCount: PropTypes.number,
   };
 
+  static containerRequired = false;
+
   onClearSelection = () => {
     ThreadListStore.dataSource().selection.clear()
   };
-
-  static containerRequired = false;
 
   render() {
     const {selectionCount} = this.props
@@ -56,7 +56,7 @@ class SelectedItemsStack extends Component {
                 transform,
                 zIndex: 5 - idx,
               }
-              return <div key={`card-${idx}`} style={style} className="card"/>
+              return <div key={`card-${idx}`} style={style} className="card" />
             })}
           </div>
           <div className="count-info">

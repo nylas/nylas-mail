@@ -95,11 +95,11 @@ class RetinaImg extends React.Component {
     resourcePath: React.PropTypes.string,
   }
 
+  static Mode = Mode;
+
   shouldComponentUpdate = (nextProps) => {
     return !(_.isEqual(this.props, nextProps));
   }
-
-  static Mode = Mode;
 
   _pathFor = (name) => {
     if (!name || !_.isString(name)) return null;
@@ -141,18 +141,16 @@ class RetinaImg extends React.Component {
       className += " content-light";
     }
 
-    for (const key in style) {
-      if (style.hasOwnProperty(key)) {
-        const val = style[key].toString();
-        if (StylesImpactedByZoom.indexOf(key) !== -1 && val.indexOf("%") === -1) {
-          style[key] = val.replace('px', '') / style.zoom;
-        }
+    for (const key of Object.keys(style)) {
+      const val = style[key].toString();
+      if (StylesImpactedByZoom.indexOf(key) !== -1 && val.indexOf("%") === -1) {
+        style[key] = val.replace('px', '') / style.zoom;
       }
     }
 
     const otherProps = Utils.fastOmit(this.props, Object.keys(this.constructor.propTypes));
     return (
-      <img className={className} src={path} style={style} {...otherProps} />
+      <img alt={this.props.name} className={className} src={path} style={style} {...otherProps} />
     );
   }
 

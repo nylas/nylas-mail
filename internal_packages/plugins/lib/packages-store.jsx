@@ -277,8 +277,10 @@ const PackagesStore = Reflux.createStore({
       }
 
       fs.mkdir(packageDir, (err) => {
-        if (err) return this._displayMessage('Could not create plugin', err.toString());
-
+        if (err) {
+          this._displayMessage('Could not create plugin', err.toString());
+          return;
+        }
         const {resourcePath} = NylasEnv.getLoadSettings();
         const packageTemplatePath = path.join(resourcePath, 'static', 'package-template');
         const packageJSON = {
@@ -293,8 +295,8 @@ const PackagesStore = Reflux.createStore({
             nylas: `>=${NylasEnv.getVersion().split('-')[0]}`,
           },
           windowTypes: {
-            default: true,
-            composer: true,
+            'default': true,
+            'composer': true,
           },
           description: "Enter a description of your package!",
           dependencies: {},

@@ -359,7 +359,8 @@ class EditableList extends Component {
         defaultValue={itemContent}
         onBlur={_.partial(onInputBlur, _, item, idx)}
         onFocus={onInputFocus}
-        onKeyDown={_.partial(onInputKeyDown, _, item, idx)} />
+        onKeyDown={_.partial(onInputKeyDown, _, item, idx)}
+      />
     );
   };
 
@@ -378,7 +379,7 @@ class EditableList extends Component {
 
     return (
       <div className="create-item-input" key="create-item-input">
-        <input {...props}/>
+        <input {...props} />
       </div>
     );
   };
@@ -411,14 +412,16 @@ class EditableList extends Component {
         draggable
         onDragStart={this._onItemDragStart}
         onClick={_.partial(onClick, _, item, idx)}
-        onDoubleClick={_.partial(onEdit, _, item, idx)}>
+        onDoubleClick={_.partial(onEdit, _, item, idx)}
+      >
         {itemContent}
         <RetinaImg
           className="edit-icon"
           name="edit-icon.png"
           title="Edit Item"
           mode={RetinaImg.Mode.ContentIsMask}
-          onClick={_.partial(onEdit, _, item, idx)} />
+          onClick={_.partial(onEdit, _, item, idx)}
+        />
       </div>
     );
   };
@@ -447,7 +450,7 @@ class EditableList extends Component {
   };
 
   render() {
-    let items = this.props.items.map( (item, idx) => this._renderItem(item, idx));
+    let items = this.props.items.map((item, idx) => this._renderItem(item, idx));
     if (this.state.creatingItem === true) {
       items = items.concat(this._renderCreateInput());
     }
@@ -460,13 +463,15 @@ class EditableList extends Component {
       <KeyCommandsRegion
         tabIndex="1"
         localHandlers={this._listKeymapHandlers()}
-        className={`nylas-editable-list ${this.props.className}`}>
+        className={`nylas-editable-list ${this.props.className}`}
+      >
         <ScrollRegion
           className="items-wrapper"
           ref="itemsWrapper"
           onDragOver={this._onDragOver}
           onDragLeave={this._onDragLeave}
-          onDrop={this._onDrop}>
+          onDrop={this._onDrop}
+        >
           {items}
         </ScrollRegion>
         {this._renderButtons()}

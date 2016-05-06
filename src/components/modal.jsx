@@ -86,7 +86,8 @@ class Modal extends React.Component {
         style={containerStyle}
         className="modal-container"
         onKeyDown={this._onKeyDown}
-        onBlur={this._onBlur}>
+        onBlur={this._onBlur}
+      >
         <div className="modal" style={modalStyle}>
           {children}
         </div>

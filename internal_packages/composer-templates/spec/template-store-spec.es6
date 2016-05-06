@@ -31,7 +31,7 @@ describe('TemplateStore', function templateStore() {
   });
 
   it('should create the templates folder if it does not exist', () => {
-    spyOn(fs, 'exists').andCallFake((path, callback) => callback(false) );
+    spyOn(fs, 'exists').andCallFake((path, callback) => callback(false));
     TemplateStore._init(stubTemplatesDir);
     expect(fs.mkdir).toHaveBeenCalled();
   });
@@ -39,7 +39,7 @@ describe('TemplateStore', function templateStore() {
   it('should expose templates in the templates directory', () => {
     let watchCallback;
     spyOn(fs, 'exists').andCallFake((path, callback) => { callback(true); });
-    spyOn(fs, 'watch').andCallFake((path, callback) => watchCallback = callback);
+    spyOn(fs, 'watch').andCallFake((path, callback) => { watchCallback = callback });
     spyOn(fs, 'readdir').andCallFake((path, callback) => { callback(null, Object.keys(stubTemplateFiles)); });
     TemplateStore._init(stubTemplatesDir);
     watchCallback();
@@ -51,7 +51,7 @@ describe('TemplateStore', function templateStore() {
     let watchFired = false;
 
     spyOn(fs, 'exists').andCallFake((path, callback) => callback(true));
-    spyOn(fs, 'watch').andCallFake((path, callback) => watchCallback = callback);
+    spyOn(fs, 'watch').andCallFake((path, callback) => { watchCallback = callback });
     spyOn(fs, 'readdir').andCallFake((path, callback) => {
       if (watchFired) {
         callback(null, Object.keys(stubTemplateFiles));
@@ -71,7 +71,7 @@ describe('TemplateStore', function templateStore() {
     xit('should insert the template with the given id into the draft with the given id', () => {
       let watchCallback;
       spyOn(fs, 'exists').andCallFake((path, callback) => { callback(true); });
-      spyOn(fs, 'watch').andCallFake((path, callback) => watchCallback = callback);
+      spyOn(fs, 'watch').andCallFake((path, callback) => { watchCallback = callback });
       spyOn(fs, 'readdir').andCallFake((path, callback) => { callback(null, Object.keys(stubTemplateFiles)); });
       TemplateStore._init(stubTemplatesDir);
       watchCallback();
@@ -151,7 +151,7 @@ describe('TemplateStore', function templateStore() {
         runs(() => {
           TemplateStore._onCreateTemplate({draftClientId: 'localid-b'});
         });
-        waitsFor(() => TemplateStore.trigger.callCount > 0 );
+        waitsFor(() => TemplateStore.trigger.callCount > 0);
         runs(() => {
           expect(TemplateStore.items().length).toEqual(1);
         });
@@ -163,7 +163,7 @@ describe('TemplateStore', function templateStore() {
         runs(() => {
           TemplateStore._onCreateTemplate({draftClientId: 'localid-nosubject'});
         });
-        waitsFor(() => TemplateStore._displayError.callCount > 0 );
+        waitsFor(() => TemplateStore._displayError.callCount > 0);
         runs(() => {
           expect(TemplateStore._displayError).toHaveBeenCalled();
         });

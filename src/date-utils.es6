@@ -17,8 +17,8 @@ const Hours = {
 const Days = {
   // The value for next monday and next weekend varies depending if the current
   // day is saturday or sunday. See http://momentjs.com/docs/#/get-set/day/
-  NextMonday: day => day === 0 ? 1 : 8,
-  ThisWeekend: day => day === 6 ? 13 : 6,
+  NextMonday: day => (day === 0 ? 1 : 8),
+  ThisWeekend: day => (day === 6 ? 13 : 6),
 }
 
 function oclock(momentDate) {

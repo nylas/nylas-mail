@@ -120,16 +120,17 @@ class OutlineView extends Component {
   }
 
   _renderCreateButton() {
-    const title = this.props.title;
     return (
       <span
         className="add-item-button"
         onMouseDown={this._onCreateButtonMouseDown}
-        onMouseUp={this._onCreateButtonClicked.bind(this, title)}>
+        onMouseUp={this._onCreateButtonClicked}
+      >
         <RetinaImg
           url="nylas://account-sidebar/assets/icon-sidebar-addcategory@2x.png"
           style={{height: 14, width: 14}}
-          mode={RetinaImg.Mode.ContentIsMask} />
+          mode={RetinaImg.Mode.ContentIsMask}
+        />
       </span>
     );
   }
@@ -139,9 +140,10 @@ class OutlineView extends Component {
     return (
       <DropZone
         className="heading"
-        onDrop={() => true }
+        onDrop={() => true}
         onDragStateChange={this._onDragStateChange}
-        shouldAcceptDrop={() => true}>
+        shouldAcceptDrop={() => true}
+      >
         <span className="text">
           {this.props.title}
         </span>
@@ -149,7 +151,8 @@ class OutlineView extends Component {
         {collapsible ?
           <span
             className="collapse-button"
-            onClick={this._onCollapseToggled}>
+            onClick={this._onCollapseToggled}
+          >
             {collapseLabel}
           </span>
           : void 0

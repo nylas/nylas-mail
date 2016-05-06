@@ -91,7 +91,8 @@ export default class CalendarEventContainer extends React.Component {
 
   render() {
     return (
-      <div className="calendar-mouse-handler"
+      <div
+        className="calendar-mouse-handler"
         onMouseUp={this._onCalendarMouseUp}
         onMouseDown={this._onCalendarMouseDown}
         onMouseMove={this._onCalendarMouseMove}

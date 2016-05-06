@@ -37,7 +37,8 @@ class SnoozeMailLabel extends Component {
           <span className="snooze-mail-label">
             <RetinaImg
               name="icon-snoozed.png"
-              mode={RetinaImg.Mode.ContentIsMask} />
+              mode={RetinaImg.Mode.ContentIsMask}
+            />
             <span className="date-message">{message}</span>
           </span>
         )
@@ -46,7 +47,7 @@ class SnoozeMailLabel extends Component {
           isLockedCategory: () => true,
           hue: () => 259,
         }
-        return <MailLabel label={label} key={'snooze-message-' + thread.id} />;
+        return <MailLabel label={label} key={`snooze-message-${thread.id}`} />;
       }
       return <span />
     }

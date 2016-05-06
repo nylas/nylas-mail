@@ -1,3 +1,4 @@
+/* eslint global-require:0 */
 import Attributes from '../attributes'
 import ModelWithMetadata from './model-with-metadata'
 

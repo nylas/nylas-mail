@@ -69,7 +69,8 @@ class DateInput extends Component {
           type="text"
           placeholder="Or, 'next Monday at 2PM'"
           onKeyDown={this.onInputKeyDown}
-          onChange={this.onInputChange}/>
+          onChange={this.onInputChange}
+        />
         {dateInterpretation}
       </div>
     )

@@ -7,10 +7,6 @@ export default class MonthView extends React.Component {
     changeView: React.PropTypes.func,
   }
 
-  constructor(props) {
-    super(props);
-  }
-
   _onClick = () => {
     this.props.changeView("WeekView");
   }
