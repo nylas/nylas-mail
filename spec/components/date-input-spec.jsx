@@ -23,22 +23,22 @@ describe('DateInput', function dateInput() {
   describe('onInputKeyDown', () => {
     it('should submit the input if Enter or Escape pressed', () => {
       const onSubmitDate = jasmine.createSpy('onSubmitDate')
-      const dateInput = makeInput({onSubmitDate: onSubmitDate})
-      const inputNode = ReactDOM.findDOMNode(dateInput).querySelector('input')
+      const component = makeInput({onSubmitDate: onSubmitDate})
+      const inputNode = ReactDOM.findDOMNode(component).querySelector('input')
       const stopPropagation = jasmine.createSpy('stopPropagation')
       const keys = ['Enter', 'Return']
       inputNode.value = 'tomorrow'
       spyOn(DateUtils, 'futureDateFromString').andReturn('someday')
-      spyOn(dateInput, 'setState')
+      spyOn(component, 'setState')
 
       keys.forEach((key) => {
         Simulate.keyDown(inputNode, {key, stopPropagation})
         expect(stopPropagation).toHaveBeenCalled()
         expect(onSubmitDate).toHaveBeenCalledWith('someday', 'tomorrow')
-        expect(dateInput.setState).toHaveBeenCalledWith({inputDate: null})
+        expect(component.setState).toHaveBeenCalledWith({inputDate: null})
         stopPropagation.reset()
         onSubmitDate.reset()
-        dateInput.setState.reset()
+        component.setState.reset()
       })
     });
   });
@@ -49,18 +49,18 @@ describe('DateInput', function dateInput() {
     });
 
     it('should render a date interpretation if a date has been inputted', () => {
-      const dateInput = makeInput({initialState: {inputDate: 'something!'}})
-      spyOn(dateInput, 'setState')
-      const dateInterpretation = findDOMNode(findRenderedDOMComponentWithClass(dateInput, 'date-interpretation'))
+      const component = makeInput({initialState: {inputDate: 'something!'}})
+      spyOn(component, 'setState')
+      const dateInterpretation = findDOMNode(findRenderedDOMComponentWithClass(component, 'date-interpretation'))
 
       expect(dateInterpretation.textContent).toEqual('formatted')
     });
 
     it('should not render a date interpretation if no input date available', () => {
-      const dateInput = makeInput({initialState: {inputDate: null}})
-      spyOn(dateInput, 'setState')
+      const component = makeInput({initialState: {inputDate: null}})
+      spyOn(component, 'setState')
       expect(() => {
-        findRenderedDOMComponentWithClass(dateInput, 'date-interpretation')
+        findRenderedDOMComponentWithClass(component, 'date-interpretation')
       }).toThrow()
     });
   });

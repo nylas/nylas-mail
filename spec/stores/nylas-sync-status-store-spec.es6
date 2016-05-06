@@ -65,7 +65,7 @@ describe('NylasSyncStatusStore', function nylasSyncStatusStore() {
     });
 
     it('returns false otherwise', () => {
-      spyOn(store, 'isSyncCompleteForAccount').andCallFake((acctId) => acctId === 'a1' ? true : false)
+      spyOn(store, 'isSyncCompleteForAccount').andCallFake(acctId => acctId === 'a1')
       store._statesByAccount = {
         a1: {},
         a2: {},

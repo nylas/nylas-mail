@@ -22,7 +22,7 @@ export class APITestTask extends Task {
 }
 
 export class KillsTaskA extends Task {
-  shouldDequeueOtherTask(other) {return other instanceof TaskSubclassA}
+  shouldDequeueOtherTask(other) { return other instanceof TaskSubclassA }
   performRemote() { return new Promise(() => {}) }
 }
 
@@ -50,10 +50,9 @@ export class TaskBB extends Task {
 }
 
 export class OKTask extends Task {
-  performRemote() {return Promise.resolve(Task.Status.Retry)}
+  performRemote() { return Promise.resolve(Task.Status.Retry) }
 }
 
 export class BadTask extends Task {
-  performRemote() {return Promise.resolve('lalal')}
+  performRemote() { return Promise.resolve('lalal') }
 }
-

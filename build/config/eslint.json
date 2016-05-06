@@ -8,6 +8,7 @@
     "advanceClock": false,
     "TEST_ACCOUNT_ID": false,
     "TEST_ACCOUNT_NAME": false,
+    "TEST_ACCOUNT_EMAIL": false,
     "TEST_ACCOUNT_ALIAS_EMAIL": false
   },
   "env": {
@@ -17,6 +18,7 @@
   },
   "rules": {
     "arrow-body-style": "off",
+    "prefer-arrow-callback": ["error", {"allowNamedFunctions": true}],
     "eqeqeq": ["error", "smart"],
     "id-length": "off",
     "object-curly-spacing": "off",
@@ -30,6 +32,7 @@
     "object-shorthand": "off",
     "quotes": "off",
     "quote-props": ["error", "consistent-as-needed", { "keywords": true }],
+    "no-param-reassign": ["error", { "props": false }],
     "semi": "off",
     "import/no-unresolved": ["error", {"ignore": ["nylas-exports", "nylas-component-kit", "electron", "nylas-store", "react-dom/server"]}],
     "react/no-multi-comp": "off",

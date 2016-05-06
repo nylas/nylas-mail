@@ -6,8 +6,13 @@ import {renderIntoDocument} from '../nylas-test-utils'
 const {Directions: {Up, Down, Left, Right}} = FixedPopover
 
 const makePopover = (props = {}) => {
-  props.originRect = props.originRect ? props.originRect : {};
-  const popover = renderIntoDocument(<FixedPopover {...props}/>);
+  const originRect = props.originRect ? props.originRect : {};
+  const popover = renderIntoDocument(
+    <FixedPopover
+      {...props}
+      originRect={originRect}
+    />
+  );
   if (props.initialState) {
     popover.setState(props.initialState)
   }

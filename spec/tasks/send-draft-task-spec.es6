@@ -248,10 +248,9 @@ describe('SendDraftTask', function sendDraftTask() {
             if (options.body.reply_to_message_id) {
               const err = new APIError({body: "Invalid message public id"});
               return Promise.reject(err);
-            } else {
-              if (options.success) { options.success(this.response) }
-              return Promise.resolve(this.response);
             }
+            if (options.success) { options.success(this.response) }
+            return Promise.resolve(this.response);
           });
 
           this.draft.replyToMessageId = "reply-123";
@@ -273,10 +272,9 @@ describe('SendDraftTask', function sendDraftTask() {
           spyOn(NylasAPI, 'makeRequest').andCallFake((options) => {
             if (options.body.reply_to_message_id) {
               return Promise.reject(new APIError({body: "Invalid thread"}));
-            } else {
-              if (options.success) { options.success(this.response) }
-              return Promise.resolve(this.response);
             }
+            if (options.success) { options.success(this.response) }
+            return Promise.resolve(this.response);
           });
 
           this.draft.replyToMessageId = "reply-123";
@@ -356,7 +354,7 @@ describe('SendDraftTask', function sendDraftTask() {
             body: {
               message: "Sending to at least one recipient failed.",
               server_error: "<<Don't know what this looks like >>",
-              type: "api_error"
+              type: "api_error",
             },
           })
 

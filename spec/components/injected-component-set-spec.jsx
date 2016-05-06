@@ -3,10 +3,7 @@ import {InjectedComponentSet} from 'nylas-component-kit';
 const {renderIntoDocument} = NylasTestUtils;
 
 const reactStub = (displayName) => {
-  return React.createClass({
-    displayName,
-    render() { return <div className={displayName}></div>; },
-  });
+  return <div className={displayName}></div>;
 };
 
 
@@ -26,7 +23,8 @@ describe('InjectedComponentSet', function injectedComponentSet() {
         renderIntoDocument(
           <InjectedComponentSet
             matching={{}}
-            onComponentsDidRender={onComponentsDidRender} />
+            onComponentsDidRender={onComponentsDidRender}
+          />
         );
       });
 
