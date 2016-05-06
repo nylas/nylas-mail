@@ -4,7 +4,7 @@ const SnoozeActions = Reflux.createActions([
   'snoozeThreads',
 ])
 
-for (const key in SnoozeActions) {
+for (const key of Object.keys(SnoozeActions)) {
   SnoozeActions[key].sync = true
 }
 

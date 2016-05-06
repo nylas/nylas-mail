@@ -23,23 +23,29 @@ export default class ComposerHeaderActions extends React.Component {
     if (this.props.participantsFocused) {
       if (!this.props.enabledFields.includes(Fields.Cc)) {
         items.push(
-          <span className="action show-cc" key="cc"
-                onClick={ () => this.props.onShowAndFocusField(Fields.Cc) }>Cc</span>
+          <span
+            className="action show-cc" key="cc"
+            onClick={() => this.props.onShowAndFocusField(Fields.Cc)}
+          >Cc</span>
         );
       }
 
       if (!this.props.enabledFields.includes(Fields.Bcc)) {
         items.push(
-          <span className="action show-bcc" key="bcc"
-                onClick={ () => this.props.onShowAndFocusField(Fields.Bcc) }>Bcc</span>
+          <span
+            className="action show-bcc" key="bcc"
+            onClick={() => this.props.onShowAndFocusField(Fields.Bcc)}
+          >Bcc</span>
         );
       }
     }
 
     if (!this.props.enabledFields.includes(Fields.Subject)) {
       items.push(
-        <span className="action show-subject" key="subject"
-              onClick={ () => this.props.onShowAndFocusField(Fields.Subject) }>Subject</span>
+        <span
+          className="action show-subject" key="subject"
+          onClick={() => this.props.onShowAndFocusField(Fields.Subject)}
+        >Subject</span>
       );
     }
 
@@ -49,7 +55,8 @@ export default class ComposerHeaderActions extends React.Component {
           className="action show-popout"
           key="popout"
           title="Popout composer…"
-          onClick={this._onPopoutComposer}>
+          onClick={this._onPopoutComposer}
+        >
           <RetinaImg
             name="composer-popout.png"
             mode={RetinaImg.Mode.ContentIsMask}

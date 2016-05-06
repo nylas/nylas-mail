@@ -118,7 +118,8 @@ export default class CollapsedParticipants extends React.Component {
     return (
       <span
         key={key}
-        className="collapsed-contact regular-contact">
+        className="collapsed-contact regular-contact"
+      >
         <InjectedComponentSet
           matching={{role: "Composer:RecipientChip"}}
           exposedProps={{contact: contact}}
@@ -160,7 +161,8 @@ export default class CollapsedParticipants extends React.Component {
         <div
           tabIndex={0}
           ref="participantsWrap"
-          className="collapsed-composer-participants">
+          className="collapsed-composer-participants"
+        >
           {this._renderNumRemaining()}
           {toDisplay}
         </div>

@@ -21,7 +21,7 @@ export default class AccountContactField extends React.Component {
   _renderAccountSelector() {
     if (!this.props.value) {
       return (
-        <span/>
+        <span />
       );
     }
 

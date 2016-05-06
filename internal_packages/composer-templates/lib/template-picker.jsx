@@ -52,7 +52,7 @@ class TemplatePicker extends React.Component {
   _onChooseTemplate = (template) => {
     Actions.insertTemplateId({templateId: template.id, draftClientId: this.props.draftClientId});
     Actions.closePopover()
-  };
+  }
 
   _onManageTemplates = () => {
     Actions.showTemplates();
@@ -95,7 +95,7 @@ class TemplatePicker extends React.Component {
         items={this.state.templates}
         itemKey={(item) => item.id}
         itemContent={(item) => item.name}
-        onSelect={this._onChooseTemplate.bind(this)}
+        onSelect={this._onChooseTemplate}
       />
     );
   }

@@ -42,11 +42,11 @@ export default class AutoloadImagesHeader extends React.Component {
 
     return (
       <div className="autoload-images-header">
-        <a className="option" onClick={ () => Actions.temporarilyEnableImages(message) }>
+        <a className="option" onClick={() => Actions.temporarilyEnableImages(message)}>
           Show Images
         </a>
         <span style={{paddingLeft: 10, paddingRight: 10}}>|</span>
-        <a className="option" onClick={ () => Actions.permanentlyEnableImages(message) }>
+        <a className="option" onClick={() => Actions.permanentlyEnableImages(message)}>
           Always show images from {message.fromContact().toString()}
         </a>
       </div>

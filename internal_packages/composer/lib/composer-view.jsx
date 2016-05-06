@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import {remote} from 'electron'
 
 import {
   Utils,
@@ -152,7 +153,8 @@ export default class ComposerView extends React.Component {
           className="compose-body"
           ref="composeBody"
           onMouseUp={this._onMouseUpComposerBody}
-          onMouseDown={this._onMouseDownComposerBody}>
+          onMouseDown={this._onMouseDownComposerBody}
+        >
           {this._renderBodyRegions()}
           {this._renderFooterRegions()}
         </div>
@@ -248,7 +250,8 @@ export default class ComposerView extends React.Component {
             draftClientId: this.props.draft.clientId,
             session: this.props.session,
           }}
-          direction="column"/>
+          direction="column"
+        />
       </div>
     );
   }
@@ -337,7 +340,8 @@ export default class ComposerView extends React.Component {
           className="btn btn-toolbar btn-trash"
           style={{order: 100}}
           title="Delete draft"
-          onClick={this._onDestroyDraft}>
+          onClick={this._onDestroyDraft}
+        >
           <RetinaImg name="icon-composer-trash.png" mode={RetinaImg.Mode.ContentIsMask} />
         </button>
 
@@ -346,7 +350,8 @@ export default class ComposerView extends React.Component {
           className="btn btn-toolbar btn-attach"
           style={{order: 50}}
           title="Attach file"
-          onClick={this._onSelectAttachment}>
+          onClick={this._onSelectAttachment}
+        >
           <RetinaImg name="icon-composer-attachment.png" mode={RetinaImg.Mode.ContentIsMask} />
         </button>
 
@@ -480,7 +485,6 @@ export default class ComposerView extends React.Component {
       return false;
     }
 
-    const {remote} = require('electron');
     const dialog = remote.require('dialog');
 
     const {to, cc, bcc, body, files, uploads} = this.props.draft;
@@ -635,18 +639,21 @@ export default class ComposerView extends React.Component {
           localHandlers={this._keymapHandlers()}
           className={"message-item-white-wrap composer-outer-wrap"}
           tabIndex="-1"
-          ref="composerWrap">
+          ref="composerWrap"
+        >
           <TabGroupRegion className="composer-inner-wrap">
             <DropZone
               className="composer-inner-wrap"
               shouldAcceptDrop={this._shouldAcceptDrop}
-              onDragStateChange={ ({isDropping}) => this.setState({isDropping}) }
-              onDrop={this._onDrop}>
+              onDragStateChange={({isDropping}) => this.setState({isDropping})}
+              onDrop={this._onDrop}
+            >
               <div className="composer-drop-cover" style={{display: dropCoverDisplay}}>
                 <div className="centered">
                   <RetinaImg
                     name="composer-drop-to-attach.png"
-                    mode={RetinaImg.Mode.ContentIsMask}/>
+                    mode={RetinaImg.Mode.ContentIsMask}
+                  />
                   Drop to attach
                 </div>
               </div>
