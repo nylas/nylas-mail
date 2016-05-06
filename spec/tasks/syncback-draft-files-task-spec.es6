@@ -67,8 +67,8 @@ describe('SyncbackDraftFilesTask', function syncbackDraftFilesTask() {
 
       // uploads should be queued, but not the send
       expect(NylasAPI.makeRequest.callCount).toEqual(2);
-      expect(NylasAPI.makeRequest.calls[0].args[0].formData).toEqual({ file : { value : 'stub', options : { filename : 'test-file-1.png' } } });
-      expect(NylasAPI.makeRequest.calls[1].args[0].formData).toEqual({ file : { value : 'stub', options : { filename : 'test-file-2.png' } } });
+      expect(NylasAPI.makeRequest.calls[0].args[0].formData).toEqual({file: {value: 'stub', options: { filename: 'test-file-1.png' } } });
+      expect(NylasAPI.makeRequest.calls[1].args[0].formData).toEqual({file: {value: 'stub', options: { filename: 'test-file-2.png' } } });
 
       // finish all uploads
       expect(taskPromise.isFulfilled()).toBe(false);

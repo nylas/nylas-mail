@@ -165,8 +165,8 @@ export default class TimePicker extends React.Component {
     while (timeIter.isSameOrBefore(endMoment)) {
       const val = timeIter.valueOf();
       const className = classnames({
-        option: true,
-        selected: timeIter.isSame(enteredMoment),
+        "option": true,
+        "selected": timeIter.isSame(enteredMoment),
         "scroll-start": timeIter.isSame(firstVisibleMoment),
       })
 
@@ -180,7 +180,8 @@ export default class TimePicker extends React.Component {
       }
 
       opts.push(
-        <div className={className} key={val}
+        <div
+          className={className} key={val}
           onMouseDown={() => this._onSelectOption(val)}
         >
           {timeIter.format("LT")}{relTxt}
@@ -203,11 +204,12 @@ export default class TimePicker extends React.Component {
     const className = classnames({
       "time-picker": true,
       "no-select-end": true,
-      invalid: !moment(this.state.rawText, "h:ma").isValid(),
+      "invalid": !moment(this.state.rawText, "h:ma").isValid(),
     })
     return (
       <div className="time-picker-wrap">
-        <input className={className}
+        <input
+          className={className}
           type="text"
           ref="input"
           value={this.state.rawText}

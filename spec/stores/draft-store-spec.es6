@@ -16,11 +16,12 @@ import {
   SyncbackDraftFilesTask,
 } from 'nylas-exports';
 
+import {remote} from 'electron';
 import DraftFactory from '../../src/flux/stores/draft-factory';
 
 class TestExtension extends ComposerExtension {
   static prepareNewDraft({draft}) {
-    draft.body = "Edited by TestExtension!" + draft.body;
+    draft.body = `Edited by TestExtension! ${draft.body}`;
   }
 }
 
@@ -180,7 +181,7 @@ describe('DraftStore', function draftStore() {
           },
         teardown: this.draftSessionTeardown,
         };
-      DraftStore._draftSessions = {"abc": this.session};
+      DraftStore._draftSessions = {abc: this.session};
       spyOn(Actions, 'queueTask');
     });
 
@@ -222,12 +223,14 @@ describe('DraftStore', function draftStore() {
 
   describe("before unloading", () => {
     it("should destroy pristine drafts", () => {
-      DraftStore._draftSessions = {"abc": {
-        changes: {},
-        draft() {
-          return {pristine: true};
+      DraftStore._draftSessions = {
+        abc: {
+          changes: {},
+          draft() {
+            return {pristine: true};
+          },
         },
-      }};
+      };
 
       spyOn(Actions, 'queueTask');
       DraftStore._onBeforeUnload();
@@ -239,9 +242,9 @@ describe('DraftStore', function draftStore() {
       beforeEach(() => {
         this.resolve = null;
         DraftStore._draftSessions = {
-          "abc": {
+          abc: {
             changes: {
-              commit: () => new Promise((resolve) => this.resolve = resolve),
+              commit: () => new Promise((resolve) => { this.resolve = resolve }),
             },
             draft() {
               return {pristine: false};
@@ -262,13 +265,15 @@ describe('DraftStore', function draftStore() {
 
     describe("when drafts return immediately fulfilled commit promises", () => {
       beforeEach(() => {
-        DraftStore._draftSessions = {"abc": {
-          changes:
-            {commit: () => Promise.resolve()},
-          draft() {
-            return {pristine: false};
+        DraftStore._draftSessions = {
+          abc: {
+            changes:
+              {commit: () => Promise.resolve()},
+            draft() {
+              return {pristine: false};
+            },
           },
-        }};
+        };
       });
 
       it("should still wait one tick before firing NylasEnv.close again", () => {
@@ -429,7 +434,6 @@ describe('DraftStore', function draftStore() {
     it("displays a popup in the main window if there's an error", () => {
       spyOn(NylasEnv, "isMainWindow").andReturn(true);
       spyOn(FocusedContentStore, "focused").andReturn({id: "t1"});
-      const {remote} = require('electron');
       spyOn(remote.dialog, "showMessageBox");
       spyOn(Actions, "composePopoutDraft");
       DraftStore._draftsSending[this.draft.clientId] = true;
@@ -485,7 +489,7 @@ describe('DraftStore', function draftStore() {
         },
         teardown: this.draftTeardown,
       };
-      DraftStore._draftSessions = {"abc": this.session};
+      DraftStore._draftSessions = {abc: this.session};
       DraftStore._doneWithSession(this.session);
     });
 

@@ -121,10 +121,8 @@ describe("Nylas Calendar Week View", function weekViewSpec() {
 
     // See fixtures/events
     expect(eventsByDay.allDay.length).toBe(numAllDayEvents);
-    for (const day in numByDay) {
-      if (numByDay.hasOwnProperty(day)) {
-        expect(eventsByDay[day].length).toBe(numByDay[day])
-      }
+    for (const day of Object.keys(numByDay)) {
+      expect(eventsByDay[day].length).toBe(numByDay[day])
     }
   });
 

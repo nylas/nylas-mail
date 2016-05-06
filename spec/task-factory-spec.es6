@@ -13,14 +13,14 @@ describe('TaskFactory', function taskFactory() {
   beforeEach(() => {
     this.categories = {
       'ac-1': {
-        'archive': new Category({name: 'archive'}),
-        'inbox': new Category({name: 'inbox1'}),
-        'trash': new Category({name: 'trash1'}),
+        archive: new Category({name: 'archive'}),
+        inbox: new Category({name: 'inbox1'}),
+        trash: new Category({name: 'trash1'}),
       },
       'ac-2': {
-        'archive': new Category({name: 'all'}),
-        'inbox': new Category({name: 'inbox2'}),
-        'trash': new Category({name: 'trash2'}),
+        archive: new Category({name: 'all'}),
+        inbox: new Category({name: 'inbox2'}),
+        trash: new Category({name: 'trash2'}),
       },
     }
     this.accounts = {
