@@ -142,7 +142,8 @@ export default class EmailFrame extends React.Component {
       <div
         className="iframe-container"
         ref="iframeHeightHolder"
-        style={{height: this._lastComputedHeight}}>
+        style={{height: this._lastComputedHeight}}
+      >
         <EventedIFrame
           ref="iframe"
           seamless="seamless"

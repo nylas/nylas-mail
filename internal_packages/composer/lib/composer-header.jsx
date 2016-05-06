@@ -138,8 +138,9 @@ export default class ComposerHeader extends React.Component {
   }
 
   _onFocusOutParticipants = (lastFocusedEl) => {
-    const active = Fields.ParticipantFields.find((fieldName) =>
-      this.refs[fieldName] ? ReactDOM.findDOMNode(this.refs[fieldName]).contains(lastFocusedEl) : false
+    const active = Fields.ParticipantFields.find((fieldName) => {
+      return this.refs[fieldName] ? ReactDOM.findDOMNode(this.refs[fieldName]).contains(lastFocusedEl) : false
+    }
     );
     this.setState({
       participantsFocused: false,
@@ -180,7 +181,8 @@ export default class ComposerHeader extends React.Component {
         ref="participantsContainer"
         className="expanded-participants"
         onFocusIn={this._onFocusInParticipants}
-        onFocusOut={this._onFocusOutParticipants}>
+        onFocusOut={this._onFocusOutParticipants}
+      >
         {content}
       </KeyCommandsRegion>
     );
@@ -193,14 +195,16 @@ export default class ComposerHeader extends React.Component {
     return (
       <div
         key="subject-wrap"
-        className="compose-subject-wrap">
+        className="compose-subject-wrap"
+      >
         <input
           type="text"
           name="subject"
           ref={Fields.Subject}
           placeholder="Subject"
           value={this.props.draft.subject}
-          onChange={this._onChangeSubject}/>
+          onChange={this._onChangeSubject}
+        />
       </div>
     );
   }
@@ -232,7 +236,7 @@ export default class ComposerHeader extends React.Component {
           key="cc"
           field="cc"
           change={this._onChangeParticipants}
-          onEmptied={ () => this.hideField(Fields.Cc) }
+          onEmptied={() => this.hideField(Fields.Cc)}
           className="composer-participant-field cc-field"
           participants={{to, cc, bcc}}
           draft={this.props.draft}
@@ -248,7 +252,7 @@ export default class ComposerHeader extends React.Component {
           key="bcc"
           field="bcc"
           change={this._onChangeParticipants}
-          onEmptied={ () => this.hideField(Fields.Bcc) }
+          onEmptied={() => this.hideField(Fields.Bcc)}
           className="composer-participant-field bcc-field"
           participants={{to, cc, bcc}}
           draft={this.props.draft}

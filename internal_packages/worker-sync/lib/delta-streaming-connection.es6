@@ -28,7 +28,7 @@ class DeltaStreamingConnection {
     if (cursor) {
       return callback(cursor)
     }
-    this.api.makeRequest({
+    return this.api.makeRequest({
       path: "/delta/latest_cursor",
       accountId: this.accountId,
       method: 'POST',

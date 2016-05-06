@@ -7,10 +7,6 @@ class TemplateStatusBar extends React.Component {
     draft: React.PropTypes.object.isRequired,
   };
 
-  constructor() {
-    super();
-  }
-
   shouldComponentUpdate(nextProps) {
     return (this._usingTemplate(nextProps) !== this._usingTemplate(this.props));
   }

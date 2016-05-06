@@ -3,60 +3,54 @@ import GithubUserStore from "./github-user-store";
 import {React} from 'nylas-exports';
 
 // Small React component that renders a single Github repository
-class GithubRepo extends React.Component {
-  static displayName = 'GithubRepo';
+const GithubRepo = function GithubRepo(props) {
+  const {repo} = props;
 
-  static propTypes = {
-    // This component takes a `repo` object as a prop. Listing props is optional
-    // but enables nice React warnings when our expectations aren't met
-    repo: React.PropTypes.object.isRequired,
-  };
-
-  render() {
-    const {repo} = this.props;
-
-    return (
-      <div className="repo">
-        <div className="stars">{repo.stargazers_count}</div>
-        <a href={repo.html_url}>{repo.full_name}</a>
-      </div>
-    );
-  }
+  return (
+    <div className="repo">
+      <div className="stars">{repo.stargazers_count}</div>
+      <a href={repo.html_url}>{repo.full_name}</a>
+    </div>
+  );
 }
+GithubRepo.propTypes = {
+  // This component takes a `repo` object as a prop. Listing props is optional
+  // but enables nice React warnings when our expectations aren't met
+  repo: React.PropTypes.object.isRequired,
+};
 
 // Small React component that renders the user's Github profile.
-class GithubProfile extends React.Component {
-  static displayName = 'GithubProfile';
+const GithubProfile = function GithubProfile(props) {
+  const {profile} = props;
 
-  static propTypes = {
-    // This component takes a `profile` object as a prop. Listing props is optional
-    // but enables nice React warnings when our expectations aren't met.
-    profile: React.PropTypes.object.isRequired,
-  }
+  // Transform the profile's array of repos into an array of React <GithubRepo> elements
+  const repoElements = _.map(profile.repos, (repo) => {
+    return <GithubRepo key={repo.id} repo={repo} />
+  });
 
-  render() {
-    const {profile} = this.props;
-
-    // Transform the profile's array of repos into an array of React <GithubRepo> elements
-    const repoElements = _.map(profile.repos, (repo) => {
-      return <GithubRepo key={repo.id} repo={repo} />
-    });
-
-    // Remember - this looks like HTML, but it's actually CJSX, which is converted into
-    // Coffeescript at transpile-time. We're actually creating a nested tree of Javascript
-    // objects here that *represent* the DOM we want.
-    return (
-      <div className="profile">
-        <img className="logo" src="nylas://github-contact-card/assets/github.png"/>
-        <a href={profile.html_url}>{profile.login}</a>
-        <div>{repoElements}</div>
-      </div>
-    );
-  }
+  // Remember - this looks like HTML, but it's actually CJSX, which is converted into
+  // Coffeescript at transpile-time. We're actually creating a nested tree of Javascript
+  // objects here that *represent* the DOM we want.
+  return (
+    <div className="profile">
+      <img className="logo" alt="github logo" src="nylas://github-contact-card/assets/github.png" />
+      <a href={profile.html_url}>{profile.login}</a>
+      <div>{repoElements}</div>
+    </div>
+  );
+}
+GithubProfile.propTypes = {
+  // This component takes a `profile` object as a prop. Listing props is optional
+  // but enables nice React warnings when our expectations aren't met.
+  profile: React.PropTypes.object.isRequired,
 }
 
 export default class GithubContactCardSection extends React.Component {
   static displayName = 'GithubContactCardSection';
+
+  static containerStyles = {
+    order: 10,
+  }
 
   constructor(props) {
     super(props);
@@ -100,10 +94,6 @@ export default class GithubContactCardSection extends React.Component {
     return (
       <GithubProfile profile={this.state.profile} />
     );
-  }
-
-  static containerStyles = {
-    order: 10,
   }
 
   render() {

@@ -4,7 +4,7 @@ import _ from 'underscore';
 import { Flexbox } from 'nylas-component-kit';
 import fs from 'fs';
 
-import {keyAndModifiersForEvent} from './mousestrap-keybinding-helpers';
+import {keyAndModifiersForEvent} from './mousetrap-keybinding-helpers';
 
 export default class CommandKeybinding extends React.Component {
   static propTypes = {
@@ -67,7 +67,7 @@ export default class CommandKeybinding extends React.Component {
     splitKeystrokes.forEach((keystroke, kidx) => {
       elements.push(<span key={kidx}>{this._formatKeystrokes(keystroke)}</span>);
       if (kidx < splitKeystrokes.length - 1) {
-        elements.push(<span className="then" key={'then' + kidx}> then </span>);
+        elements.push(<span className="then" key={`then${kidx}`}> then </span>);
       }
     });
     return (
@@ -143,7 +143,8 @@ export default class CommandKeybinding extends React.Component {
         onKeyDown={this._onKey}
         onKeyPress={this._onKey}
         onFocus={this._onEdit}
-        onBlur={this._onFinishedEditing}>
+        onBlur={this._onFinishedEditing}
+      >
         <div className="col-left shortcut-name">
           {this.props.label}
         </div>

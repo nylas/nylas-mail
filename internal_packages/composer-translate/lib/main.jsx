@@ -115,9 +115,9 @@ class TranslateButton extends React.Component {
     return (
       <Menu
         className="translate-language-picker"
-        items={ Object.keys(YandexLanguages) }
-        itemKey={ (item) => item }
-        itemContent={ (item) => item }
+        items={Object.keys(YandexLanguages)}
+        itemKey={(item) => item}
+        itemContent={(item) => item}
         headerComponents={headerComponents}
         defaultSelectedIndex={-1}
         onSelect={this._onTranslate}
@@ -144,14 +144,17 @@ class TranslateButton extends React.Component {
         tabIndex={-1}
         className="btn btn-toolbar pull-right"
         onClick={this._onClickTranslateButton}
-        title="Translate email body…">
+        title="Translate email body…"
+      >
         <RetinaImg
           mode={RetinaImg.Mode.ContentIsMask}
-          url="nylas://composer-translate/assets/icon-composer-translate@2x.png" />
+          url="nylas://composer-translate/assets/icon-composer-translate@2x.png"
+        />
         &nbsp;
         <RetinaImg
           name="icon-composer-dropdown.png"
-          mode={RetinaImg.Mode.ContentIsMask}/>
+          mode={RetinaImg.Mode.ContentIsMask}
+        />
       </button>
     );
   }

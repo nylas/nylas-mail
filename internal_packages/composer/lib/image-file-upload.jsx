@@ -17,7 +17,7 @@ export default class ImageFileUpload extends FileUpload {
     return (
       <div className="file-wrap file-image-wrap file-upload">
         <div className="file-action-icon" onClick={this._onClickRemove}>
-          <RetinaImg name="image-cancel-button.png" mode={RetinaImg.Mode.ContentPreserve}/>
+          <RetinaImg name="image-cancel-button.png" mode={RetinaImg.Mode.ContentPreserve} />
         </div>
 
         <div className="file-preview">
@@ -25,7 +25,7 @@ export default class ImageFileUpload extends FileUpload {
             <div className="file-name">{this.props.upload.filename}</div>
           </div>
 
-          <img src={this.props.upload.targetPath} onDragStart={this._onDragStart}/>
+          <img src={this.props.upload.targetPath} alt="drag start" onDragStart={this._onDragStart} />
         </div>
       </div>
     );
