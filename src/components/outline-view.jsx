@@ -1,4 +1,5 @@
 import React, {Component, PropTypes} from 'react';
+import DropZone from './drop-zone';
 import RetinaImg from './retina-img';
 import OutlineViewItem from './outline-view-item';
 
@@ -60,6 +61,9 @@ class OutlineView extends Component {
     showCreateInput: false,
   };
 
+  componentWillUnmount() {
+    clearTimeout(this._expandTimeout);
+  }
 
   // Handlers
 
@@ -77,6 +81,15 @@ class OutlineView extends Component {
       this.props.onCollapseToggled(this.props);
     }
   };
+
+  _onDragStateChange = ({isDropping}) => {
+    if (this.props.collapsed && !this._expandTimeout && isDropping) {
+      this._expandTimeout = setTimeout(this._onCollapseToggled, 650);
+    } else if (this._expandTimeout && !isDropping) {
+      clearTimeout(this._expandTimeout);
+      this._expandTimeout = null;
+    }
+  }
 
   _onItemCreated = (item, value) => {
     this.setState({showCreateInput: false});
@@ -124,7 +137,11 @@ class OutlineView extends Component {
   _renderHeading(allowCreate, collapsed, collapsible) {
     const collapseLabel = collapsed ? 'Show' : 'Hide';
     return (
-      <div className="heading">
+      <DropZone
+        className="heading"
+        onDrop={() => true }
+        onDragStateChange={this._onDragStateChange}
+        shouldAcceptDrop={() => true}>
         <span className="text">
           {this.props.title}
         </span>
@@ -137,7 +154,7 @@ class OutlineView extends Component {
           </span>
           : void 0
         }
-      </div>
+      </DropZone>
     );
   }
 
