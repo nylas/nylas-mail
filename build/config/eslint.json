@@ -27,9 +27,11 @@
     "no-loop-func": "off",
     "no-shadow": "error",
     "no-underscore-dangle": "off",
+    "object-shorthand": "off",
     "quotes": "off",
+    "quote-props": ["error", "consistent-as-needed", { "keywords": true }],
     "semi": "off",
-    "import/no-unresolved": ["error", {"ignore": ["nylas-exports"]}],
+    "import/no-unresolved": ["error", {"ignore": ["nylas-exports", "nylas-component-kit"]}],
     "react/no-multi-comp": "off",
     "react/prop-types": ["error", {"ignore": ["children"]}],
     "react/sort-comp": "error"
