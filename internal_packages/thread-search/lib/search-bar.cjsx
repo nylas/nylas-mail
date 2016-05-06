@@ -9,7 +9,7 @@ classNames = require 'classnames'
 {Menu, RetinaImg, KeyCommandsRegion} = require 'nylas-component-kit'
 
 SearchStore = require './search-store'
-SearchActions = require './search-actions'
+SearchActions = require('./search-actions').default
 
 class SearchBar extends React.Component
   @displayName = 'SearchBar'

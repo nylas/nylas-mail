@@ -10,7 +10,7 @@ require 'jasmine-json'
 
 Grim = require 'grim'
 TimeOverride = require './time-override'
-KeymapManager = require '../src/keymap-manager'
+KeymapManager = require('../src/keymap-manager').default
 
 Config = require '../src/config'
 pathwatcher = require 'pathwatcher'

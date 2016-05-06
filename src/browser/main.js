@@ -162,7 +162,7 @@ const start = () => {
   app.on('ready', () => {
     app.removeListener('open-file', onOpenFileBeforeReady);
     app.removeListener('open-url', onOpenUrlBeforeReady);
-    const Application = require(path.join(options.resourcePath, 'src', 'browser', 'application'));
+    const Application = require(path.join(options.resourcePath, 'src', 'browser', 'application')).default;
     global.application = new Application();
     global.application.start(options);
     if (!options.specMode) {
