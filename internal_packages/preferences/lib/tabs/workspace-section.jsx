@@ -111,49 +111,47 @@ class LaunchSystemStartItem extends React.Component {
 }
 
 
-class WorkspaceSection extends React.Component {
+const WorkspaceSection = (props) => {
+  return (
+    <section>
+      <DefaultMailClientItem />
 
-  static displayName = 'WorkspaceSection';
+      <LaunchSystemStartItem />
 
-  static propTypes = {
-    config: React.PropTypes.object,
-    configSchema: React.PropTypes.object,
-  }
+      <ConfigSchemaItem
+        configSchema={props.configSchema.properties.workspace.properties.systemTray}
+        keyPath="core.workspace.systemTray"
+        config={props.config}
+      />
 
-  render() {
-    return (
-      <section>
-        <DefaultMailClientItem />
+      <ConfigSchemaItem
+        configSchema={props.configSchema.properties.workspace.properties.showImportant}
+        keyPath="core.workspace.showImportant"
+        config={props.config}
+      />
 
-        <LaunchSystemStartItem />
+      <ConfigSchemaItem
+        configSchema={props.configSchema.properties.workspace.properties.showUnreadForAllCategories}
+        keyPath="core.workspace.showUnreadForAllCategories"
+        config={props.config}
+      />
 
-        <ConfigSchemaItem
-          configSchema={this.props.configSchema.properties.workspace.properties.systemTray}
-          keyPath="core.workspace.systemTray"
-          config={this.props.config} />
+      <ConfigSchemaItem
+        configSchema={props.configSchema.properties.workspace.properties.interfaceZoom}
+        keyPath="core.workspace.interfaceZoom"
+        config={props.config}
+      />
 
-        <ConfigSchemaItem
-          configSchema={this.props.configSchema.properties.workspace.properties.showImportant}
-          keyPath="core.workspace.showImportant"
-          config={this.props.config} />
+      <div className="platform-note platform-linux-only">
+        N1 launch on system start only works in XDG-compliant desktop environments.
+      </div>
+    </section>
+  );
+}
 
-        <ConfigSchemaItem
-          configSchema={this.props.configSchema.properties.workspace.properties.showUnreadForAllCategories}
-          keyPath="core.workspace.showUnreadForAllCategories"
-          config={this.props.config} />
-
-        <ConfigSchemaItem
-          configSchema={this.props.configSchema.properties.workspace.properties.interfaceZoom}
-          keyPath="core.workspace.interfaceZoom"
-          config={this.props.config} />
-
-        <div className="platform-note platform-linux-only">
-          N1 launch on system start only works in XDG-compliant desktop environments.
-        </div>
-      </section>
-    );
-  }
-
+WorkspaceSection.propTypes = {
+  config: React.PropTypes.object,
+  configSchema: React.PropTypes.object,
 }
 
 export default WorkspaceSection;

@@ -88,7 +88,7 @@ class SnoozePopover extends Component {
       <div
         key={itemLabel}
         className="snooze-item"
-        onClick={this.onSnooze.bind(this, date, itemLabel)}
+        onClick={() => this.onSnooze(date, itemLabel)}
       >
         <RetinaImg
           url={iconPath}

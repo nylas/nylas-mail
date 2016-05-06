@@ -16,19 +16,19 @@ class SendingSection extends React.Component {
   _getExtendedSchema(configSchema) {
     const accounts = AccountStore.accounts();
 
-    let values = accounts.map((acc) => {return acc.id});
-    let labels = accounts.map((acc) => {return acc.me().toString()});
+    let values = accounts.map(acc => acc.id);
+    let labels = accounts.map(acc => acc.me().toString());
 
     values = ['selected-mailbox'].concat(values);
     labels = ['Account of selected mailbox'].concat(labels);
 
     _.extend(configSchema.properties.sending.properties, {
       defaultAccountIdForSend: {
-        type: 'string',
-        title: 'Send new messages from',
-        default: 'selected-mailbox',
-        enum: values,
-        enumLabels: labels,
+        'type': 'string',
+        'title': 'Send new messages from',
+        'default': 'selected-mailbox',
+        'enum': values,
+        'enumLabels': labels,
       },
     });
 
@@ -43,7 +43,8 @@ class SendingSection extends React.Component {
         config={this.props.config}
         configSchema={sendingSchema}
         keyName="Sending"
-        keyPath="core.sending" />
+        keyPath="core.sending"
+      />
     );
   }
 

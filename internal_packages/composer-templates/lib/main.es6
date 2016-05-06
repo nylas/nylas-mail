@@ -1,3 +1,4 @@
+/* eslint global-require: 0 */
 import {PreferencesUIStore, ComponentRegistry, ExtensionRegistry} from 'nylas-exports';
 import TemplatePicker from './template-picker';
 import TemplateStatusBar from './template-status-bar';

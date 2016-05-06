@@ -40,31 +40,31 @@ import ModelWithMetadata from './model-with-metadata'
 class Thread extends ModelWithMetadata {
 
   static attributes = _.extend({}, ModelWithMetadata.attributes, {
-    'snippet': Attributes.String({
+    snippet: Attributes.String({
       modelKey: 'snippet',
     }),
 
-    'subject': Attributes.String({
+    subject: Attributes.String({
       queryable: true,
       modelKey: 'subject',
     }),
 
-    'unread': Attributes.Boolean({
+    unread: Attributes.Boolean({
       queryable: true,
       modelKey: 'unread',
     }),
 
-    'starred': Attributes.Boolean({
+    starred: Attributes.Boolean({
       queryable: true,
       modelKey: 'starred',
     }),
 
-    'version': Attributes.Number({
+    version: Attributes.Number({
       queryable: true,
       modelKey: 'version',
     }),
 
-    'categories': Attributes.Collection({
+    categories: Attributes.Collection({
       queryable: true,
       modelKey: 'categories',
       joinOnField: 'id',
@@ -72,11 +72,11 @@ class Thread extends ModelWithMetadata {
       itemClass: Category,
     }),
 
-    'categoriesType': Attributes.String({
+    categoriesType: Attributes.String({
       modelKey: 'categoriesType',
     }),
 
-    'participants': Attributes.Collection({
+    participants: Attributes.Collection({
       queryable: true,
       modelKey: 'participants',
       joinOnField: 'email',
@@ -84,23 +84,23 @@ class Thread extends ModelWithMetadata {
       itemClass: Contact,
     }),
 
-    'hasAttachments': Attributes.Boolean({
+    hasAttachments: Attributes.Boolean({
       modelKey: 'has_attachments',
     }),
 
-    'lastMessageReceivedTimestamp': Attributes.DateTime({
+    lastMessageReceivedTimestamp: Attributes.DateTime({
       queryable: true,
       modelKey: 'lastMessageReceivedTimestamp',
       jsonKey: 'last_message_received_timestamp',
     }),
 
-    'lastMessageSentTimestamp': Attributes.DateTime({
+    lastMessageSentTimestamp: Attributes.DateTime({
       queryable: true,
       modelKey: 'lastMessageSentTimestamp',
       jsonKey: 'last_message_sent_timestamp',
     }),
 
-    'inAllMail': Attributes.Boolean({
+    inAllMail: Attributes.Boolean({
       queryable: true,
       modelKey: 'inAllMail',
       jsonKey: 'in_all_mail',

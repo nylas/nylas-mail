@@ -111,7 +111,8 @@ class PreferencesKeymaps extends React.Component {
                 style={{margin: 0}}
                 tabIndex={-1}
                 value={this.props.config.get('core.keymapTemplate')}
-                onChange={(event) => this.props.config.set('core.keymapTemplate', event.target.value)}>
+                onChange={(event) => this.props.config.set('core.keymapTemplate', event.target.value)}
+              >
                 {this.state.templates.map((template) => {
                   return <option key={template} value={template}>{template}</option>
                 })}

@@ -10,12 +10,12 @@ const Fields = {
 Fields.ParticipantFields = [Fields.To, Fields.Cc, Fields.Bcc];
 
 Fields.Order = {
-  "textFieldTo": 1,
-  "textFieldCc": 2,
-  "textFieldBcc": 3,
-  "fromField": -1, // Not selectable
-  "textFieldSubject": 5,
-  "contentBody": 6,
+  textFieldTo: 1,
+  textFieldCc: 2,
+  textFieldBcc: 3,
+  fromField: -1, // Not selectable
+  textFieldSubject: 5,
+  contentBody: 6,
 };
 
 export default Fields
