@@ -34,6 +34,6 @@
     "react/sort-comp": "error"
   },
   "settings": {
-    "import/resolver": {"node": {"extensions": [".es6", ".coffee"]}}
+    "import/resolver": {"node": {"extensions": [".es6", ".jsx", ".coffee", ".json"]}}
   }
 }
