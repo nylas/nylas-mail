@@ -203,7 +203,7 @@ const categorizedEmojiList = {
     'eyeglasses',
     'dark_sunglasses',
     'ring',
-    'closed_umbrella'
+    'closed_umbrella',
   ],
   'Nature': [
     'dog',
@@ -351,7 +351,7 @@ const categorizedEmojiList = {
     'umbrella',
     'droplet',
     'sweat_drops',
-    'ocean'
+    'ocean',
   ],
   'Food and Drink': [
     'green_apple',
@@ -420,7 +420,7 @@ const categorizedEmojiList = {
     'coffee',
     'baby_bottle',
     'fork_and_knife',
-    'knife_fork_plate'
+    'knife_fork_plate',
   ],
   'Activity': [
     'soccer',
@@ -479,7 +479,7 @@ const categorizedEmojiList = {
     'dart',
     'game_die',
     'slot_machine',
-    'bowling'
+    'bowling',
   ],
   'Travel and Places': [
     'car',
@@ -596,7 +596,7 @@ const categorizedEmojiList = {
     'mosque',
     'synagogue',
     'kaaba',
-    'shinto_shrine'
+    'shinto_shrine',
   ],
   'Objects': [
     'watch',
@@ -775,7 +775,7 @@ const categorizedEmojiList = {
     'lower_left_crayon',
     'lower_left_paintbrush',
     'mag',
-    'mag_right'
+    'mag_right',
   ],
   'Symbols': [
     'heart',
@@ -1046,7 +1046,7 @@ const categorizedEmojiList = {
     'clock930',
     'clock1030',
     'clock1130',
-    'clock1230'
+    'clock1230',
   ],
   'Flags': [
     'flag-ac',
@@ -1305,7 +1305,7 @@ const categorizedEmojiList = {
     'flag-yt',
     'flag-za',
     'flag-zm',
-    'flag-zw'
-  ]
+    'flag-zw',
+  ],
 }
 export default categorizedEmojiList

@@ -1,3 +1,5 @@
+/* eslint global-require: "off" */
+
 import SystemTrayManager from './system-tray-manager';
 import WindowManager from './window-manager';
 import FileListCache from './file-list-cache';
@@ -165,7 +167,8 @@ export default class Application extends EventEmitter {
     }
 
     if (!fs.existsSync(filePath)) {
-      return callback(null);
+      callback(null);
+      return
     }
 
     if (retries > 0) {
@@ -530,8 +533,8 @@ export default class Application extends EventEmitter {
       this._sourceWindows[params.taskId] = sourceWindow
 
       const targetWindowKey = {
-        "work": WindowManager.WORK_WINDOW,
-        "main": WindowManager.MAIN_WINDOW,
+        work: WindowManager.WORK_WINDOW,
+        main: WindowManager.MAIN_WINDOW,
       }[params.window];
       if (!targetWindowKey) {
         throw new Error("We don't support running in that window");
@@ -576,17 +579,17 @@ export default class Application extends EventEmitter {
       const mainWindow = this.windowManager.get(WindowManager.MAIN_WINDOW)
       if (focusedBrowserWindow) {
         switch (command) {
-        case 'window:reload':
-          focusedBrowserWindow.reload();
-          break;
-        case 'window:toggle-dev-tools':
-          focusedBrowserWindow.toggleDevTools();
-          break;
-        case 'window:close':
-          focusedBrowserWindow.close();
-          break;
-        default:
-          break;
+          case 'window:reload':
+            focusedBrowserWindow.reload();
+            break;
+          case 'window:toggle-dev-tools':
+            focusedBrowserWindow.toggleDevTools();
+            break;
+          case 'window:close':
+            focusedBrowserWindow.close();
+            break;
+          default:
+            break;
         }
       } else if (mainWindow) {
         mainWindow.sendCommand(command, ...args);
@@ -662,7 +665,8 @@ export default class Application extends EventEmitter {
   //   :specPath - The directory to load specs from.
   //   :safeMode - A Boolean that, if true, won't run specs from ~/.nylas/packages
   //               and ~/.nylas/dev/packages, defaults to false.
-  runSpecs(specWindowOptions) {
+  runSpecs(specWindowOptionsArg) {
+    const specWindowOptions = specWindowOptionsArg;
     let {resourcePath} = specWindowOptions;
     if ((resourcePath !== this.resourcePath) && (!fs.existsSync(resourcePath))) {
       resourcePath = this.resourcePath;
