@@ -16,6 +16,7 @@
     "jasmine": true
   },
   "rules": {
+    "arrow-body-style": "off",
     "eqeqeq": ["error", "smart"],
     "id-length": "off",
     "object-curly-spacing": "off",
