@@ -3,6 +3,7 @@
 //====================================================
 //  Theme Variables
 //  Window Controls
+//  Sheet Toolbars
 //  Sidebar & Account Switcher
 //  Sidebar Count Badges
 //  Scrollbars & Resize Handles
@@ -10,7 +11,6 @@
 //  Message List
 //  Message List Sidebar
 //  Swiping
-//  Sheet Toolbars
 //  Preferences
 //  Form Inputs & Search Bar
 //  Menu Dropdowns
@@ -26,6 +26,7 @@
 @less-background:       #FFFFFF; //white
 @less-text:             #566C75; //gray
 @less-highlight:        #FAFAFA; //lightest-gray
+@less-divider:          #DDDDDD; //lighter-gray
 @minimize:              #FBD852; //yellow
 @maximize:              #8DD07D; //green
 @close:                 #FF5F56; //red
@@ -43,13 +44,18 @@
 // Padding and Color for Account Sidebar, Message List, Message Sidebar,
 // Preference Sidebar and Draft List.
 .column-RootSidebar,
-.column-MessageList,
 .column-MessageListSidebar,
 .preferences-sidebar,
 .column-DraftList {
-  padding: 5em 0 2em 2em;
+  padding: 5em 0em 2em 2em;
   background: @less-background;
 }
+
+// Message List padding
+.column-MessageList {
+  padding: 3em 2em;
+}
+
 
 // Window Control Button transforms
 .toolbar-window-controls button {
@@ -60,7 +66,7 @@
   float: none;
   opacity: 0.5;
   transform: scaleY(0.5);
-  border-radius: 0;
+  border-radius: 0px;
   transition-duration: 150ms;
   transition-property: border-radius, opacity, transform;
 }
@@ -92,6 +98,43 @@
   background: transparent;
   border: none;
   box-shadow: none;
+}
+
+
+//====================================================
+//  Sheet Toolbars
+//====================================================
+
+// Create white background mask on message list sidebar toolbar
+.toolbar-MessageListSidebar,
+.sheet-toolbar-container {
+  background-color: @less-background;
+}
+
+// Create divider line for message list sidebar toolbar
+.toolbar-MessageListSidebar {
+  border-left: 1px solid @less-divider;
+  height: 40px;
+  margin-left: -0.5px;
+}
+
+// Make top toolbar mask our searchbar with white background
+.sheet-toolbar-container [data-column='0'] .item-container {
+  background-color: @less-background;
+}
+
+// Correctly position and remove border on the top toolbar
+.sheet-toolbar {
+  border: none;
+  height: 0;
+  min-height: 0;
+  .selection-bar .absolute {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    border-left: none;
+    border-right: none;
+  }
 }
 
 
@@ -194,6 +237,11 @@
   box-shadow: none;
 }
 
+// Position scrollbar on message list on divider
+#message-list .scrollbar-track {
+  margin-right: -2em;
+}
+
 
 //====================================================
 //  Thread List
@@ -270,14 +318,45 @@ body.is-blurred .thread-list.handler-split .list-item.selected {
 //  Message List
 //====================================================
 
-// Remove box shadow, border-radius and background color from default message list
+// Theme message list
 #message-list {
-  background: @less-background;
-  .message-item-wrap .message-item-white-wrap,
-  .footer-reply-area-wrap {
-    box-shadow: none;
-    border-radius: 0;
-  }
+  background-color: @less-background;
+}
+
+// Theme collapsed message item
+#message-list .message-item-wrap .message-item-white-wrap {
+  box-shadow: none;
+  border-radius: 0;
+}
+
+// Theme message list composer footer
+#message-list .footer-reply-area-wrap {
+  box-shadow: none;
+  border-radius: 0;
+  border-top: none;
+  background: @less-highlight;
+}
+
+// Draft message background color
+#message-list .message-item-wrap .message-item-white-wrap.composer-outer-wrap,
+#message-list .message-item-wrap .message-item-white-wrap.composer-outer-wrap .composer-action-bar-wrap {
+  background-color: @less-highlight;
+  border-top: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+// Draft message background color on focus
+#message-list .message-item-wrap .message-item-white-wrap.composer-outer-wrap.focused {
+  background-color: @less-background;
+  box-shadow: none;
+  border: 1px solid @less-divider;
+  border-radius: 0;
+}
+
+// Draft message background action bar theme on focus
+#message-list .message-item-wrap .message-item-white-wrap.composer-outer-wrap.focused .composer-action-bar-wrap {
+  background-color: @less-background;
 }
 
 
@@ -300,6 +379,7 @@ body.is-blurred .thread-list.handler-split .list-item.selected {
   border-radius: 0;
 }
 
+// Message list sidebar headings to match account sidebar headings
 .sidebar-section h2 {
   font-size: 12px;
   text-transform: uppercase;
@@ -367,30 +447,6 @@ body.is-blurred .thread-list.handler-split .list-item.selected {
 
 
 //====================================================
-//  Sheet Toolbars
-//====================================================
-
-// Correctly position and remove border on the top toolbar
-.sheet-toolbar {
-  border: none;
-  height: 0;
-  min-height: 0;
-  .selection-bar .absolute {
-    position: absolute;
-    left: 0;
-    right: 0;
-    border-left: none;
-    border-right: none;
-  }
-}
-
-// Make top toolbar mask our searchbar with white background
-.sheet-toolbar-container [data-column='0'] .item-container {
-  background-color: @less-background;
-}
-
-
-//====================================================
 //  Preferences
 //====================================================
 
@@ -424,7 +480,7 @@ input[type="search"],
 input[type="tel"],
 input[type="time"],
 input[type="url"] {
-    border-radius: 0;
+    border-radius: 0px;
     border: none !important;
 }
 
@@ -434,7 +490,7 @@ input[type="text"]:focus,
 input[type="email"]:focus,
 .search-bar .menu .header-container input:focus {
   border: none !important;
-  border-radius: 0;
+  border-radius: 0px;
   border-bottom: 2px solid @less-text !important;
   box-shadow: none;
 }
@@ -526,8 +582,8 @@ input[type="text"]:focus,
 input[type="email"]:focus {
   border: 1px solid @less-text;
   box-shadow: none;
-  padding-left: 0;
-  padding-right: 0;
+  padding-left: 0px;
+  padding-right: 0px;
   min-width: 30px;
 }
 
