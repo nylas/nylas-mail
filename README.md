@@ -29,7 +29,7 @@ We're working on building a plugin index that makes it super easy to add them to
 - [Darkside](https://github.com/nylas/N1/tree/master/internal_packages/ui-darkside) (designed by [Jamie Wilson](https://github.com/jamiewilson))
 - [Taiga](https://github.com/nylas/N1/tree/master/internal_packages/ui-taiga) (designed by [Noah Buscher](https://github.com/noahbuscher))
 - [Ubuntu](https://github.com/nylas/N1/tree/master/internal_packages/ui-ubuntu) (designed by [Ahmed Elhanafy](https://github.com/ahmedlhanafy))
-- [Less Is More](https://github.com/nylas/N1/tree/master/internal_packages/ui-less-is-more) by [Alexander Adkins](https://github.com/P0WW0W))
+- [Less Is More](https://github.com/nylas/N1/tree/master/internal_packages/ui-less-is-more) (designed by [Alexander Adkins](https://github.com/P0WW0W))
 
 
 #### Community Themes
