@@ -54,7 +54,7 @@ export default class WindowLauncher {
       win.setLoadSettings(newLoadSettings);
     }
 
-    if (!opts.hidden) {
+    if (!opts.hidden && !opts.initializeInBackground) {
       // NOTE: In the case of a cold window, this will show it once
       // loaded. If it's a hotWindow, since hotWindows have a
       // `hidden:true` flag, nothing will show. When `setLoadSettings`
