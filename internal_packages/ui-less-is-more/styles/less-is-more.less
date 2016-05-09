@@ -1,0 +1,616 @@
+//====================================================
+//  Less Is More Index
+//====================================================
+//  Theme Variables
+//  Window Controls
+//  Sheet Toolbars
+//  Sidebar & Account Switcher
+//  Sidebar Count Badges
+//  Scrollbars & Resize Handles
+//  Thread List
+//  Message List
+//  Message List Sidebar
+//  Swiping
+//  Preferences
+//  Form Inputs & Search Bar
+//  Menu Dropdowns
+//  Notifications
+//  Drafts
+//  Composer
+
+
+//====================================================
+//  Theme Variables
+//====================================================
+
+@less-background:       #FFFFFF; //white
+@less-text:             #566C75; //gray
+@less-highlight:        #FAFAFA; //lightest-gray
+@less-divider:          #DDDDDD; //lighter-gray
+@minimize:              #FBD852; //yellow
+@maximize:              #8DD07D; //green
+@close:                 #FF5F56; //red
+@swipe-archive:         @maximize; //green
+@swipe-snooze:          @minimize; //yellow
+@swipe-trash:           @close; //red
+@invalid:               @close; //red
+@sidebar-text:          lighten(@less-text, 20%); //light-gray
+
+
+//====================================================
+//  Window Controls
+//====================================================
+
+// Padding and Color for Account Sidebar, Message List, Message Sidebar,
+// Preference Sidebar and Draft List.
+.column-RootSidebar,
+.column-MessageListSidebar,
+.preferences-sidebar,
+.column-DraftList {
+  padding: 5em 0em 2em 2em;
+  background: @less-background;
+}
+
+// Message List padding
+.column-MessageList {
+  padding: 3em 2em;
+}
+
+
+// Window Control Button transforms
+.toolbar-window-controls button {
+  background-color: @sidebar-text;
+  background-image: none !important;
+  width: 12px;
+  height: 12px;
+  float: none;
+  opacity: 0.5;
+  transform: scaleY(0.5);
+  border-radius: 0px;
+  transition-duration: 150ms;
+  transition-property: border-radius, opacity, transform;
+}
+
+// Window Control Button transforms on hover
+.toolbar-window-controls:hover button {
+  opacity: 1;
+  border-radius: 50%;
+  transform: scaleY(1);
+}
+
+// Window Control close Button color
+.toolbar-window-controls .close {
+  background-color: @close;
+}
+
+// Window Control minimize Button color
+.toolbar-window-controls .minimize {
+  background-color: @minimize;
+}
+
+// Window Control maximize Button color
+.toolbar-window-controls .maximize {
+  background-color: @maximize;
+}
+
+// Remove underline and dropshadow on compose button
+.sheet-toolbar .btn-toolbar {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+
+//====================================================
+//  Sheet Toolbars
+//====================================================
+
+// Create white background mask on message list sidebar toolbar
+.toolbar-MessageListSidebar,
+.sheet-toolbar-container {
+  background-color: @less-background;
+}
+
+// Create divider line for message list sidebar toolbar
+.toolbar-MessageListSidebar {
+  border-left: 1px solid @less-divider;
+  height: 40px;
+  margin-left: -0.5px;
+}
+
+// Make top toolbar mask our searchbar with white background
+.sheet-toolbar-container [data-column='0'] .item-container {
+  background-color: @less-background;
+}
+
+// Correctly position and remove border on the top toolbar
+.sheet-toolbar {
+  border: none;
+  height: 0;
+  min-height: 0;
+  .selection-bar .absolute {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    border-left: none;
+    border-right: none;
+  }
+}
+
+
+//====================================================
+//  Sidebar & Account Switcher
+//====================================================
+
+// Change default account sidebar color from default gray to white
+.column-RootSidebar,
+.account-sidebar {
+  background-color: @less-background;
+}
+
+// Account sidebar label controls
+.account-sidebar .item {
+  color: @sidebar-text;
+  font-size: 14px;
+  font-weight: 400;
+  padding-left: 20px;
+  margin-bottom: 6px;
+}
+
+// Account sidebar headings overrides
+.account-sidebar .heading {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: @sidebar-text;
+  margin-bottom: 12px;
+}
+
+// Keep account sidebar icons from flashing on click
+.account-sidebar .item img.content-mask,
+.account-sidebar .add-item-button img {
+  background-color: transparent;
+  -webkit-mask-image: none;
+}
+
+// Account sidebar selected label overrides
+.account-sidebar {
+  // Fix padding jump
+  .item .name {
+    padding-left: 0;
+    margin-left: -10px;
+  }
+  // Change label color and font weight
+  .item.selected {
+    background: transparent;
+    color: @less-text;
+    font-weight: 600;
+  }
+}
+
+// Account sidebar label triangle bullet overrides
+.disclosure-triangle {
+  padding-top: 7px;
+  & div {
+    border-left-color: @sidebar-text;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+    border-left-width: 5px;
+    transform-origin: 2px;
+  }
+}
+
+// Remove default nylas icon images
+.nylas-outline-view .item .icon img {
+  display: none;
+}
+
+// Account sidebar add folder icon color overrides
+.nylas-outline-view .heading .add-item-button img {
+  background: @sidebar-text;
+}
+
+
+//====================================================
+//  Sidebar Count Badges
+//====================================================
+
+// Sidebar unread email count color overrides
+.nylas-outline-view .item .item-count-box.alt-count {
+  background: @less-text;
+  color: @less-background;
+}
+
+
+//====================================================
+//  Scrollbars & Resize Handles
+//====================================================
+
+.scrollbar-track {
+  background-color: transparent;
+  width: 10px;
+  border-left: none;
+}
+
+.flexbox-handle-horizontal div {
+  border-right: none;
+  box-shadow: none;
+}
+
+// Position scrollbar on message list on divider
+#message-list .scrollbar-track {
+  margin-right: -2em;
+}
+
+
+//====================================================
+//  Thread List
+//====================================================
+
+// Thread list overrides
+.column-ThreadList,
+.list-container .list-item,
+.list-container .list-item:hover {
+  cursor: pointer !important;
+  box-sizing: border-box;
+  border: 0 !important;
+  background-color: @less-background;
+  color: @less-text;
+}
+
+// Thread list padding overrides
+.column-ThreadList {
+  padding: 5em 2em 1em;
+}
+
+// Selected thread list items overrides
+body.is-blurred .list-container .list-item.focused,
+body.is-blurred .list-container .list-item.selected,
+body.is-blurred .thread-list.handler-split .list-item.selected {
+  background-color: @less-highlight;
+  color: darken(@less-text, 50%);
+  font-weight: bold;
+}
+
+// Thread list turns gray on hover
+.list-container .list-item.selected,
+.list-container .list-item:hover {
+  background: @less-highlight;
+  color: @less-text;
+}
+
+// Remove gradient on thread list during quick action hover
+.thread-list .list-item.selected:hover .list-column-HoverActions .inner,
+.thread-list .list-item:hover .list-column-HoverActions .inner {
+  background-image: -webkit-linear-gradient(left, fade(@less-highlight, 0%) 0%, @less-highlight 40%, @less-highlight 100%);
+}
+
+// Remove box-shadow on thread list quick action buttons
+.thread-injected-quick-actions .btn {
+  box-shadow: none;
+}
+
+// Remove gradients quick action buttons
+.thread-list .list-item .list-column-HoverActions .action.action-trash {
+  background: url("../static/images/thread-list-quick-actions/ic-quick-button-trash@2x.png")
+  center no-repeat, @less-highlight;
+}
+
+// Remove gradients quick action buttons
+.thread-list .list-item .list-column-HoverActions .action.action-archive {
+  background: url("../static/images/thread-list-quick-actions/ic-quick-button-archive@2x.png")
+  center no-repeat, @less-highlight;
+}
+
+// Remove gradients quick action buttons
+.thread-list .list-item .list-column-HoverActions .action.action-snooze {
+  background: url("../static/images/thread-list-quick-actions/ic-quickaction-snooze@2x.png")
+  center no-repeat, @less-highlight;
+}
+
+// Change default color of star to gray
+.thread-list .thread-icon.thread-icon-star, .draft-list .thread-icon.thread-icon-star {
+  -webkit-filter: grayscale(100%);
+}
+
+
+//====================================================
+//  Message List
+//====================================================
+
+// Theme message list
+#message-list {
+  background-color: @less-background;
+}
+
+// Theme collapsed message item
+#message-list .message-item-wrap .message-item-white-wrap {
+  box-shadow: none;
+  border-radius: 0;
+}
+
+// Theme message list composer footer
+#message-list .footer-reply-area-wrap {
+  box-shadow: none;
+  border-radius: 0;
+  border-top: none;
+  background: @less-highlight;
+}
+
+// Draft message background color
+#message-list .message-item-wrap .message-item-white-wrap.composer-outer-wrap,
+#message-list .message-item-wrap .message-item-white-wrap.composer-outer-wrap .composer-action-bar-wrap {
+  background-color: @less-highlight;
+  border-top: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+// Draft message background color on focus
+#message-list .message-item-wrap .message-item-white-wrap.composer-outer-wrap.focused {
+  background-color: @less-background;
+  box-shadow: none;
+  border: 1px solid @less-divider;
+  border-radius: 0;
+}
+
+// Draft message background action bar theme on focus
+#message-list .message-item-wrap .message-item-white-wrap.composer-outer-wrap.focused .composer-action-bar-wrap {
+  background-color: @less-background;
+}
+
+
+//====================================================
+//  Message List Sidebar
+//====================================================
+
+// Re-center message list in sidebar with padding
+.column-MessageListSidebar {
+  padding: 5em 1em;
+}
+
+.sidebar-participant-picker {
+  padding-bottom: 50px;
+}
+
+// Remove border line surrounding on message list sidebar
+.sidebar-section {
+  border: none;
+  border-radius: 0;
+}
+
+// Message list sidebar headings to match account sidebar headings
+.sidebar-section h2 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: @sidebar-text;
+  border-bottom: none;
+}
+
+// Theme related threads tabs
+.related-threads {
+  background: transparent;
+  border-top: none;
+  border-radius: 0;
+  overflow: visible;
+}
+
+// Theme related threads tabs items
+.related-threads .related-thread {
+  border-top: none;
+  background-color: @less-highlight;
+  color: @less-text;
+  margin-bottom: 8px;
+  padding: 15px 10px;
+}
+
+// Theme related threads "Show More" label overrides
+.related-threads .toggle {
+  border-top: none;
+  color: @less-text;
+}
+
+
+//====================================================
+//  Swiping
+//====================================================
+
+// Adjust color of archive swipe to green
+.thread-list .swipe-backing.swipe-all,
+.thread-list .swipe-backing.swipe-archive,
+.draft-list .swipe-backing.swipe-all,
+.draft-list .swipe-backing.swipe-archive {
+  background: @swipe-archive;
+  &.confirmed {
+    background: saturate(@swipe-archive, 10%);
+  }
+}
+
+// Adjust color of snooze swipe to yellow
+.thread-list .swipe-backing.swipe-snooze,
+.draft-list .swipe-backing.swipe-snooze {
+  background: @swipe-snooze;
+  &.confirmed {
+    background: saturate(@swipe-snooze, 10%);
+  }
+}
+
+// Adjust color of trash swipe to red
+.thread-list .swipe-backing.swipe-trash,
+.draft-list .swipe-backing.swipe-trash {
+  background: @swipe-trash;
+  &.confirmed {
+    background: saturate(@swipe-trash, 10%);
+  }
+}
+
+
+//====================================================
+//  Preferences
+//====================================================
+
+// Extra padding and color adjust needed for preferences top panel
+.preferences-wrap .container-preference-tabs .preferences-tabs {
+  padding-top: 40px;
+  background-color: @less-background;
+}
+
+// Padding for bottom of preferences panel
+.preferences-wrap .preferences-content > .scroll-region-content {
+  padding-bottom: 100px;
+}
+
+
+//====================================================
+//  Form Inputs & Search Bar
+//====================================================
+
+// Input style overrides
+input[type="text"],
+input[type="email"],
+input[type="date"],
+input[type="datetime"],
+input[type="datetime-local"],
+input[type="month"],
+input[type="number"],
+input[type="password"],
+input[type="range"],
+input[type="search"],
+input[type="tel"],
+input[type="time"],
+input[type="url"] {
+    border-radius: 0px;
+    border: none !important;
+}
+
+// Input style overrides on hover
+textarea:focus,
+input[type="text"]:focus,
+input[type="email"]:focus,
+.search-bar .menu .header-container input:focus {
+  border: none !important;
+  border-radius: 0px;
+  border-bottom: 2px solid @less-text !important;
+  box-shadow: none;
+}
+
+// Search bar overrides
+.search-bar {
+  background-color: transparent;
+  width: 400px;
+  margin-right: 7.5px;
+}
+
+// Remove box-shadow on search bar
+body.is-blurred .search-bar .menu .header-container input,
+body.is-blurred .sheet-toolbar-container .btn.btn-toolbar,
+.search-bar .menu .header-container input {
+  box-shadow: none;
+}
+
+
+//====================================================
+//  Notifications
+//====================================================
+
+.notifications-sticky .notifications-sticky-item {
+  background-color: @close;
+  line-height: 50px;
+  border: none;
+}
+
+.sidebar-activity {
+  background: @less-background;
+  color: @less-text;
+  box-shadow: none;
+}
+
+.sidebar-activity .item {
+  border: none;
+}
+
+
+//====================================================
+//  Composer
+//====================================================
+
+// make top of composer window uniform in color
+.sheet-toolbar-container,
+body.is-blurred .sheet-toolbar-container {
+  background-color: @less-background;
+  background-image: none;
+  box-shadow: none;
+}
+
+// make bottom of composer window uniform in color
+.composer-full-window .composer-inner-wrap .composer-action-bar-wrap {
+  background: @less-background;
+  border-top: none;
+  box-shadow: none;
+  padding-bottom: .8em;
+}
+
+// Border at bottom of composer subject field
+.composer-inner-wrap .compose-subject-wrap {
+  border-bottom: 1px solid @sidebar-text;
+}
+
+.tokenizing-field .token.invalid {
+  border: 1px solid lighten(@close,25%);
+}
+
+.tokenizing-field .token.selected,
+.tokenizing-field .token.dragging {
+  background: @less-text;
+  box-shadow: none;
+  border: none;
+}
+
+.tokenizing-field .token.invalid.selected,
+.tokenizing-field .token.invalid.dragging {
+  background: lighten(@close,25%);
+}
+
+.tokenizing-field .tokenizing-field-input input[type="text"],
+.tokenizing-field .tokenizing-field-input input[type="text"]:focus {
+  border-bottom: none !important;
+}
+
+textarea:focus,
+input[type="text"]:focus,
+input[type="email"]:focus {
+  border: 1px solid @less-text;
+  box-shadow: none;
+  padding-left: 0px;
+  padding-right: 0px;
+  min-width: 30px;
+}
+
+.button-dropdown .primary-item, .button-dropdown .only-item {
+  box-shadow: none;
+}
+
+.button-dropdown.btn-emphasis .primary-item,
+.button-dropdown.btn-emphasis .secondary-picker,
+.button-dropdown.btn-emphasis .only-item
+.button-dropdown.btn-emphasis .primary-item:active,
+.button-dropdown.btn-emphasis .secondary-picker:active,
+.button-dropdown.btn-emphasis .only-item:active,
+.button-dropdown.bordered .primary-item,
+.button-dropdown:hover .primary-item,
+.button-dropdown.bordered .only-item,
+.button-dropdown:hover .only-item,
+.button-dropdown .secondary-picker,
+.btn.btn-emphasis {
+  background-color: lighten(@less-text, 30%);
+  background: lighten(@less-text, 30%);
+  box-shadow: none;
+  border: 1px solid lighten(@less-text, 25%);
+}
+
+.button-dropdown .primary-item img.content-mask,
+.button-dropdown .only-item img.content-mask,
+.button-dropdown .secondary-picker img.content-mask {
+  background-color: @less-background;
+}
