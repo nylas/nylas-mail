@@ -1,6 +1,4 @@
-import {ipcRenderer} from 'electron';
 import {PreferencesUIStore,
-  Actions,
   WorkspaceStore,
   ComponentRegistry} from 'nylas-exports';
 
@@ -52,16 +50,6 @@ export function activate() {
   ComponentRegistry.register(PreferencesRoot, {
     location: WorkspaceStore.Location.Preferences,
   });
-
-  Actions.openPreferences.listen(this._openPreferences);
-  ipcRenderer.on('open-preferences', () => this._openPreferences());
-}
-
-export function _openPreferences() {
-  ipcRenderer.send('command', 'application:show-main-window');
-  if (WorkspaceStore.topSheet() !== WorkspaceStore.Sheet.Preferences) {
-    Actions.pushSheet(WorkspaceStore.Sheet.Preferences);
-  }
 }
 
 export function deactivate() {

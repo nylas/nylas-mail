@@ -24,6 +24,7 @@
   "core:focus-item": "enter",
   "core:remove-from-view": ["backspace", "del"],
   "core:pop-sheet": "escape",
+  "core:show-keybindings": "?",
 
   "core:messages-page-up": "pageup",
   "core:messages-page-down": "pagedown",
