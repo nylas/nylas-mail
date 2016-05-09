@@ -36,7 +36,7 @@ const MessageListToolbar = ({items, injectedButtons}) => {
     </ReactCSSTransitionGroup>
   )
 }
-
+MessageListToolbar.displayName = 'MessageListToolbar';
 MessageListToolbar.propTypes = {
   items: PropTypes.array,
   injectedButtons: PropTypes.element,
