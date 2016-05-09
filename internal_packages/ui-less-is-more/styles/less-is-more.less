@@ -47,7 +47,7 @@
 .column-MessageListSidebar,
 .preferences-sidebar,
 .column-DraftList {
-  padding: 5em 0em 2em 2em;
+  padding: 5em 0 2em 2em;
   background: @less-background;
 }
 
@@ -66,7 +66,7 @@
   float: none;
   opacity: 0.5;
   transform: scaleY(0.5);
-  border-radius: 0px;
+  border-radius: 0;
   transition-duration: 150ms;
   transition-property: border-radius, opacity, transform;
 }
@@ -130,8 +130,8 @@
   min-height: 0;
   .selection-bar .absolute {
     position: absolute;
-    left: 0px;
-    right: 0px;
+    left: 0;
+    right: 0;
     border-left: none;
     border-right: none;
   }
@@ -480,7 +480,7 @@ input[type="search"],
 input[type="tel"],
 input[type="time"],
 input[type="url"] {
-    border-radius: 0px;
+    border-radius: 0;
     border: none !important;
 }
 
@@ -490,7 +490,7 @@ input[type="text"]:focus,
 input[type="email"]:focus,
 .search-bar .menu .header-container input:focus {
   border: none !important;
-  border-radius: 0px;
+  border-radius: 0;
   border-bottom: 2px solid @less-text !important;
   box-shadow: none;
 }
@@ -582,8 +582,8 @@ input[type="text"]:focus,
 input[type="email"]:focus {
   border: 1px solid @less-text;
   box-shadow: none;
-  padding-left: 0px;
-  padding-right: 0px;
+  padding-left: 0;
+  padding-right: 0;
   min-width: 30px;
 }
 
