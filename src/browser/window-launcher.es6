@@ -15,7 +15,7 @@ const DEBUG_SHOW_HOT_WINDOW = false;
 export default class WindowLauncher {
   static EMPTY_WINDOW = "emptyWindow"
 
-  constructor({devMode, safeMode, resourcePath, configDirPath, onCreatedHotWindow}) {
+  constructor({devMode, safeMode, resourcePath, configDirPath, onCreatedHotWindow, config}) {
     this.defaultWindowOpts = {
       frame: process.platform !== "darwin",
       hidden: false,
@@ -28,12 +28,18 @@ export default class WindowLauncher {
       resourcePath: resourcePath,
       configDirPath: configDirPath,
     }
+    this.config = config;
     this.onCreatedHotWindow = onCreatedHotWindow;
     this.createHotWindow();
   }
 
   newWindow(options) {
-    const opts = Object.assign({}, this.defaultWindowOpts, options);
+    // Normally, you enter dev mode by passing the --dev command line flag.
+    // But for developers using the compiled app, it's easier to toggle dev
+    // mode from the menu and have it persist through relaunch.
+    const devOpt = this.config.get('devMode') ? {devMode: true} : {};
+
+    const opts = Object.assign({}, this.defaultWindowOpts, devOpt, options);
 
     let win;
     if (this._mustUseColdWindow(opts)) {

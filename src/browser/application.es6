@@ -44,20 +44,20 @@ export default class Application extends EventEmitter {
 
     this.temporaryInitializeDisabledPackages();
 
-    // Normally, you enter dev mode by passing the --dev command line flag.
-    // But for developers using the compiled app, it's easier to toggle dev
-    // mode from the menu and have it persist through relaunch.
-    if (this.config.get('devMode')) {
-      this.devMode = true;
-    }
-
     let initializeInBackground = options.background;
     if (initializeInBackground === undefined) {
       initializeInBackground = false;
     }
     this.autoUpdateManager = new AutoUpdateManager(version, config, specMode);
     this.applicationMenu = new ApplicationMenu(version);
-    this.windowManager = new WindowManager({resourcePath, configDirPath, config, devMode, safeMode, initializeInBackground});
+    this.windowManager = new WindowManager({
+      resourcePath: this.resourcePath,
+      configDirPath: this.configDirPath,
+      config: this.config,
+      devMode: this.devMode,
+      safeMode: this.safeMode,
+      initializeInBackground: initializeInBackground,
+    });
     this.systemTrayManager = new SystemTrayManager(process.platform, this);
     this._databasePhase = 'setup';
 
