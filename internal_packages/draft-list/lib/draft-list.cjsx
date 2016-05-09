@@ -34,6 +34,8 @@ class DraftList extends React.Component
     props
 
   _keymapHandlers: =>
+    'core:delete-item': @_onRemoveFromView
+    'core:gmail-remove-from-view': @_onRemoveFromView
     'core:remove-from-view': @_onRemoveFromView
 
   _onDoubleClick: (draft) =>

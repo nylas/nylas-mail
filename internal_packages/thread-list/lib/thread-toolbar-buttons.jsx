@@ -231,7 +231,9 @@ class ThreadArrowButton extends React.Component {
     command: React.PropTypes.string,
     title: React.PropTypes.string,
   }
-  constructor() {
+
+  constructor(props) {
+    super(props);
     this.state = this.props.getStateFromStores();
   }
 
@@ -245,7 +247,7 @@ class ThreadArrowButton extends React.Component {
     this._unsubscribe_focus();
   }
 
-  _onClick() {
+  _onClick = () => {
     if (this.state.disabled) {
       return;
     }
@@ -253,7 +255,7 @@ class ThreadArrowButton extends React.Component {
     return;
   }
 
-  _onStoreChange() {
+  _onStoreChange = () => {
     this.setState(this.props.getStateFromStores());
   }
 
