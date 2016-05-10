@@ -32,7 +32,7 @@ class AccountStore extends NylasStore
       oldAccountIds = _.pluck(@_accounts, 'id')
       @_loadAccounts()
       newAccountIds = _.pluck(@_accounts, 'id')
-      newAccountIds = _.without(newAccountIds, oldAccountIds)
+      newAccountIds = _.difference(newAccountIds, oldAccountIds)
 
       if newAccountIds.length > 0
         Actions.focusDefaultMailboxPerspectiveForAccounts([newAccountIds[0]])
