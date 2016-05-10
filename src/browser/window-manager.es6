@@ -28,7 +28,7 @@ export default class WindowManager {
     const values = [];
     Object.keys(this._windows).forEach((key) => {
       const win = this._windows[key];
-      if (win.isVisible() || win.isMinimized()) {
+      if (win.windowType !== WindowLauncher.EMPTY_WINDOW) {
         values.push(win);
       }
     });

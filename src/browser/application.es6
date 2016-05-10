@@ -325,12 +325,6 @@ export default class Application extends EventEmitter {
       this.openWindowsForTokenState();
     });
 
-    this.on('application:show-work-window', () => {
-      const win = this.windowManager.get(WindowManager.WORK_WINDOW)
-      win.show()
-      win.focus()
-    });
-
     this.on('application:check-for-update', () => {
       this.autoUpdateManager.check();
     });

@@ -4,7 +4,6 @@
   "window:toggle-full-screen": "f11",
   "window:reload": "mod+alt+l",
   "window:toggle-dev-tools": "mod+alt+i",
-  "application:show-work-window": "mod+alt+w",
   "application:run-all-specs": "mod+alt+s",
   "application:run-package-specs": "mod+alt+p"
 }
