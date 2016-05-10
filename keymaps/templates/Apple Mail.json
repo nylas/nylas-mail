@@ -12,6 +12,11 @@
 
   "multiselect-list:select-all": "command+a",
 
+  "core:previous-item": "command+[",
+  "core:select-up": "shift+command+[",
+  "core:next-item": "command+]",
+  "core:select-down": "shift+command+]",
+
   "core:reply": "mod+r",
   "core:reply-all": "mod+shift+r",
   "core:forward": "mod+shift+f",
