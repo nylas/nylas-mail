@@ -23,6 +23,7 @@ let fakeMessage2 = null;
 let msgWithReplyTo = null;
 let fakeMessageWithFiles = null;
 let msgWithReplyToDuplicates = null;
+let msgWithReplyToFromMe = null;
 let account = null;
 
 describe('DraftFactory', function draftFactory() {
@@ -103,6 +104,14 @@ describe('DraftFactory', function draftFactory() {
       subject: 'Re: Fake Subject',
       date: new Date(1415814587),
     });
+
+    msgWithReplyToFromMe = new Message({
+      accountId: account.id,
+      threadId: 'fake-thread-id',
+      from: [account.me()],
+      to: [new Contact({email: 'tiffany@popular.com', name: 'Tiffany'})],
+      replyTo: [new Contact({email: 'danco@gmail.com', name: 'danco@gmail.com'})],
+    })
 
     msgWithReplyToDuplicates = new Message({
       id: 'fake-message-reply-to-duplicates',
@@ -246,6 +255,16 @@ describe('DraftFactory', function draftFactory() {
             });
           });
         });
+
+        it("addresses the draft to all of the message's 'ReplyTo' recipients, even if the message is 'From' you", () => {
+          waitsForPromise(() => {
+            return DraftFactory.createDraftForReply({thread: fakeThread, message: msgWithReplyToFromMe, type: 'reply'}).then((draft) => {
+              expect(draft.to).toEqual(msgWithReplyToFromMe.replyTo);
+              expect(draft.cc.length).toBe(0);
+              expect(draft.bcc.length).toBe(0);
+            });
+          });
+        });
       });
 
       describe("when the message provided as context was sent by the current user", () => {
@@ -294,6 +313,14 @@ describe('DraftFactory', function draftFactory() {
           waitsForPromise(() => {
             return DraftFactory.createDraftForReply({thread: fakeThread, message: msgWithReplyTo, type: 'reply-all'}).then((draft) => {
               expect(draft.to).toEqual(msgWithReplyTo.replyTo);
+            });
+          });
+        });
+
+        it("addresses the draft to all of the message's 'ReplyTo' recipients, even if the message is 'From' you", () => {
+          waitsForPromise(() => {
+            return DraftFactory.createDraftForReply({thread: fakeThread, message: msgWithReplyToFromMe, type: 'reply-all'}).then((draft) => {
+              expect(draft.to).toEqual(msgWithReplyToFromMe.replyTo);
             });
           });
         });

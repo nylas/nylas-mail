@@ -288,15 +288,14 @@ Message(date DESC) WHERE draft = 1`,
     let to = null
     let cc = null
 
-    if (this.isFromMe()) {
+    if (this.replyTo.length) {
+      to = this.replyTo
+      cc = excludeMeAndFroms([].concat(this.to, this.cc))
+    } else if (this.isFromMe()) {
       to = this.to
       cc = excludeMeAndFroms(this.cc)
     } else {
-      if (this.replyTo.length) {
-        to = this.replyTo
-      } else {
-        to = this.from
-      }
+      to = this.from
       cc = excludeMeAndFroms([].concat(this.to, this.cc))
     }
 
@@ -312,10 +311,10 @@ Message(date DESC) WHERE draft = 1`,
     let to = []
     const cc = []
 
-    if (this.isFromMe()) {
+    if (this.replyTo.length) {
+      to = this.replyTo;
+    } else if (this.isFromMe()) {
       to = this.to
-    } else if (this.replyTo.length) {
-      to = this.replyTo
     } else {
       to = this.from
     }
@@ -360,4 +359,3 @@ Message(date DESC) WHERE draft = 1`,
     return moment(this.date).format("MMM D YYYY, [at] h:mm a")
   }
 }
-
