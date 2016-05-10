@@ -57,6 +57,7 @@ export default class WindowLauncher {
       // This will fire `NylasEnv::populateHotWindow` and reload the
       // packages.
       win.windowKey = opts.windowKey;
+      win.windowType = opts.windowType;
       win.setLoadSettings(newLoadSettings);
     }
 
