@@ -1,7 +1,7 @@
 import {testData, testDataSource} from '../../fixtures/table-data'
 
 
-describe('TableDataSource', () => {
+describe('TableDataSource', function describeBlock() {
   describe('colAt', () => {
     it('returns the correct value for column', () => {
       expect(testDataSource.colAt(1)).toEqual('col2')

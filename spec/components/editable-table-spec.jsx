@@ -5,7 +5,7 @@ import {SelectableTable, EditableTableCell, EditableTable} from 'nylas-component
 import {selection, cellProps, tableProps, testDataSource} from '../fixtures/table-data'
 
 
-describe('EditableTable Components', () => {
+describe('EditableTable Components', function describeBlock() {
   describe('EditableTableCell', () => {
     function renderCell(props) {
       // This node is used so that React does not issue DOM tree warnings when running
