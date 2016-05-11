@@ -67,7 +67,7 @@ export default class QuerySubscription {
     }
   }
 
-  onLastCallbackRemoved = () => {
+  onLastCallbackRemoved() {
 
   }
 
