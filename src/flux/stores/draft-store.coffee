@@ -413,7 +413,7 @@ class DraftStore
                 console.log(transformed.body)
                 console.log("-- UNTRANSFORMED (should match BEFORE) --")
                 console.log(untransformed.body)
-                NylasEnv.reportError(new Error("An extension applied a tranform to the draft that it could not reverse."))
+                NylasEnv.reportError(new Error("Extension #{ext.name} applied a tranform to the draft that it could not reverse."))
               draft = transformed
 
       .then =>
