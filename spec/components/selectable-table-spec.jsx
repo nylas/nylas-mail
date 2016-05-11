@@ -4,7 +4,7 @@ import {Table, SelectableTableCell, SelectableTableRow, SelectableTable} from 'n
 import {selection, cellProps, rowProps, tableProps, testDataSource} from '../fixtures/table-data'
 
 
-describe('SelectableTable Components', () => {
+describe('SelectableTable Components', function describeBlock() {
   describe('SelectableTableCell', () => {
     function renderCell(props) {
       return shallow(

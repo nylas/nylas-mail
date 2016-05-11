@@ -4,7 +4,7 @@ import {Table, TableRow, TableCell, LazyRenderedList} from 'nylas-component-kit'
 import {testDataSource} from '../../fixtures/table-data'
 
 
-describe('Table Components', () => {
+describe('Table Components', function describeBlock() {
   describe('TableCell', () => {
     it('renders children correctly', () => {
       const element = shallow(<TableCell>Cell</TableCell>)
