@@ -66,7 +66,7 @@ class DeltaStreamingConnection {
           onError: (err) => {
             if (err.message.indexOf('Invalid cursor') > 0) {
               const error = new Error('Delta Connection: Cursor is invalid. Need to blow away local cache.')
-              NylasEnv.config.removeAtKeyPath("nylas.#{@_account.id}.cursor")
+              NylasEnv.config.removeAtKeyPath(`nylas.${this.accountId}.cursor`)
               DatabaseStore._handleSetupError(error)
             }
           },
