@@ -254,26 +254,28 @@ FileDownloadStore = Reflux.createStore
       properties: ['openDirectory', 'createDirectory'],
     }
 
-    NylasEnv.showOpenDialog options, (selected) =>
-      return unless selected
-      dirPath = selected[0]
-      return unless dirPath
-      NylasEnv.savedState.lastDownloadDirectory = dirPath
+    return new Promise (resolve, reject) =>
+      NylasEnv.showOpenDialog options, (selected) =>
+        return unless selected
+        dirPath = selected[0]
+        return unless dirPath
+        NylasEnv.savedState.lastDownloadDirectory = dirPath
 
-      lastSavePath = null
-      savePromises = files.map (file) =>
-        savePath = path.join(dirPath, file.safeDisplayName())
-        @_runDownload(file)
-        .then (download) => @_saveDownload(download, savePath)
-        .then ->
-          lastSavePath = savePath
+        lastSavePaths = []
+        savePromises = files.map (file) =>
+          savePath = path.join(dirPath, file.safeDisplayName())
+          @_runDownload(file)
+          .then (download) => @_saveDownload(download, savePath)
+          .then ->
+            lastSavePaths.push(savePath)
 
-      Promise.all(savePromises)
-      .then =>
-        shell.showItemInFolder(lastSavePath) if lastSavePath
-      .catch(@_catchFSErrors)
-      .catch (error) =>
-        @_presentError({error})
+        Promise.all(savePromises)
+        .then =>
+          shell.showItemInFolder(lastSavePaths[0]) if lastSavePaths.length > 0
+          resolve(lastSavePaths)
+        .catch(@_catchFSErrors)
+        .catch =>
+          @_presentError(file)
 
   _abortFetchFile: (file) ->
     download = @_downloads[file.id]

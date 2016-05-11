@@ -1,4 +1,4 @@
-{MessageStore, React, ReactDOM} = require 'nylas-exports'
+{MessageStore, React, ReactDOM, FileDownloadStore, MessageBodyProcessor} = require 'nylas-exports'
 PGPKeyStore = require './pgp-key-store'
 pgp = require 'kbpgp'
 
@@ -17,6 +17,7 @@ class DecryptMessageButton extends React.Component
     return {
       isDecrypted: PGPKeyStore.isDecrypted(@props.message)
       wasEncrypted: PGPKeyStore.hasEncryptedComponent(@props.message)
+      encryptedAttachments: PGPKeyStore.fetchEncryptedAttachments(@props.message)
       status: PGPKeyStore.msgStatus(@props.message)
     }
 
@@ -28,31 +29,39 @@ class DecryptMessageButton extends React.Component
 
   _onKeystoreChange: ->
     @setState(@_getStateFromStores())
-
     # every time a new key gets unlocked/fetched, try to decrypt this message
     if not @state.isDecrypted
       PGPKeyStore.decrypt(@props.message)
 
   render: =>
+    # TODO inform user of errors/etc. instead of failing without showing it
+
+    decryptBody = false
     if @state.wasEncrypted and !@state.isDecrypted
-      <div className="keybase-decrypt">
-        <span className="decryption-interface">
-          <input type="password" ref="passphrase" placeholder="Private key passphrase"></input>
-          <button title="Decrypt email body" className="btn btn-toolbar pull-right" onClick={ => @_onClick()} ref="button">
-            Decrypt
-          </button>
-        </span>
-        <div className="message" ref="message">{@state.status}</div>
-      </div>
-    else if @state.wasEncrypted and @state.isDecrypted
+      decryptBody = <button title="Decrypt email body" className="btn btn-toolbar pull-right" onClick={ => @_onClick()} ref="button">Decrypt</button>
+
+    decryptAttachments = false
+    if @state.encryptedAttachments?.length == 1
+      decryptAttachments = <button onClick={ @_decryptAttachments }>Decrypt Attachment</button>
+    else if @state.encryptedAttachments?.length > 1
+      decryptAttachments = <button onClick={ @_decryptAttachments }>Decrypt Attachments</button>
+
+    if decryptAttachments or decryptBody
+      decryptionInterface = (<span className="decryption-interface">
+        <input type="password" ref="passphrase" placeholder="Private key passphrase"></input>
+        { decryptBody }
+        { decryptAttachments }
+      </span>)
+
+    message = <div className="message" ref="message">{@state.status}</div>
+    if @state.wasEncrypted and @state.isDecrypted
       # TODO a message saying "this was decrypted with the key for ___@___.com"
-      <div className="n1-keybase">
-        <div className="decrypted" ref="decrypted">{@state.status}</div>
-      </div>
-    else
-      # TODO inform user of errors/etc. instead of failing without showing it
-      <div className="n1-keybase">
-      </div>
+      message = <div className="decrypted" ref="decrypted">{@state.status}</div>
+
+    <div className="keybase-decrypt">
+      { message }
+      { decryptionInterface }
+    </div>
 
   _onClick: =>
     {message} = @props
@@ -64,5 +73,8 @@ class DecryptMessageButton extends React.Component
       for privateKey in privateKeys
         PGPKeyStore.getKeyContents(key: privateKey, passphrase: passphrase)
 
+  _decryptAttachments: =>
+    @_onClick() # unlock keys
+    PGPKeyStore.decryptAttachments(@state.encryptedAttachments) # do the needful
 
 module.exports = DecryptMessageButton

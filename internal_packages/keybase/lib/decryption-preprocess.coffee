@@ -1,4 +1,4 @@
-{MessageViewExtension} = require 'nylas-exports'
+{MessageViewExtension, Actions} = require 'nylas-exports'
 PGPKeyStore = require './pgp-key-store'
 
 class DecryptPGPExtension extends MessageViewExtension
