@@ -148,66 +148,66 @@ export class EditableTableCell extends Component {
   }
 }
 
-export default class EditableTable extends Component {
-  static displayName = 'EditableTable'
+function EditableTable(props) {
+  const {
+    inputProps,
+    InputRenderer,
+    onCellEdited,
+    onAddRow,
+    onRemoveRow,
+    onAddColumn,
+    onRemoveColumn,
+    ...otherProps,
+  } = props
 
-  static propTypes = {
-    tableDataSource: SelectableTable.propTypes.tableDataSource,
-    inputProps: PropTypes.object,
-    InputRenderer: PropTypes.any,
-    onCellEdited: PropTypes.func.isRequired,
-    onAddColumn: PropTypes.func,
-    onRemoveColumn: PropTypes.func,
-    onAddRow: PropTypes.func,
-    onRemoveRow: PropTypes.func,
-  }
-
-  render() {
-    const {
-      inputProps,
-      InputRenderer,
-      onCellEdited,
+  const tableProps = {
+    ...otherProps,
+    className: "editable-table",
+    extraProps: {
       onAddRow,
       onRemoveRow,
-      onAddColumn,
-      onRemoveColumn,
-      ...otherProps,
-    } = this.props
+      onCellEdited,
+      inputProps,
+      InputRenderer,
+    },
+    CellRenderer: EditableTableCell,
+  }
 
-    const tableProps = {
-      ...otherProps,
-      className: "editable-table",
-      extraProps: {
-        onAddRow,
-        onRemoveRow,
-        onCellEdited,
-        inputProps,
-        InputRenderer,
-      },
-      CellRenderer: EditableTableCell,
-    }
-
-    if (!onAddColumn || !onRemoveColumn) {
-      return <SelectableTable {...tableProps} />
-    }
-    return (
-      <div className="editable-table-container">
-        <SelectableTable {...tableProps} />
-        <div className="column-actions">
-          <div className="btn btn-small" onClick={onAddColumn}>
-            <RetinaImg
-              name="icon-column-plus.png"
-              mode={RetinaImg.Mode.ContentPreserve}
-            />
-          </div>
-          <div className="btn btn-small" onClick={onRemoveColumn}>
-            <RetinaImg
-              name="icon-column-minus.png"
-              mode={RetinaImg.Mode.ContentPreserve}
-            />
-          </div>
+  if (!onAddColumn || !onRemoveColumn) {
+    return <SelectableTable {...tableProps} />
+  }
+  return (
+    <div className="editable-table-container">
+      <SelectableTable {...tableProps} />
+      <div className="column-actions">
+        <div className="btn btn-small" onClick={onAddColumn}>
+          <RetinaImg
+            name="icon-column-plus.png"
+            mode={RetinaImg.Mode.ContentPreserve}
+          />
+        </div>
+        <div className="btn btn-small" onClick={onRemoveColumn}>
+          <RetinaImg
+            name="icon-column-minus.png"
+            mode={RetinaImg.Mode.ContentPreserve}
+          />
         </div>
       </div>
-    )
-  }
+    </div>
+  )
 }
+
+EditableTable.displayName = 'EditableTable'
+
+EditableTable.propTypes = {
+  tableDataSource: SelectableTable.propTypes.tableDataSource,
+  inputProps: PropTypes.object,
+  InputRenderer: PropTypes.any,
+  onCellEdited: PropTypes.func.isRequired,
+  onAddColumn: PropTypes.func,
+  onRemoveColumn: PropTypes.func,
+  onAddRow: PropTypes.func,
+  onRemoveRow: PropTypes.func,
+}
+
+export default EditableTable

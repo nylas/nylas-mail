@@ -12,23 +12,23 @@ describe('Table Components', () => {
     });
 
     it('renders a th when is header', () => {
-      const element = shallow(<TableCell isHeader/>)
+      const element = shallow(<TableCell isHeader />)
       expect(element.type()).toEqual('th')
     });
 
     it('renders a td when is not header', () => {
-      const element = shallow(<TableCell isHeader={false}/>)
+      const element = shallow(<TableCell isHeader={false} />)
       expect(element.type()).toEqual('td')
     });
 
     it('renders extra classNames', () => {
-      const element = shallow(<TableCell className="my-cell"/>)
+      const element = shallow(<TableCell className="my-cell" />)
       expect(element.hasClass('my-cell')).toBe(true)
     });
 
     it('passes additional props to cell', () => {
       const handler = () => {}
-      const element = shallow(<TableCell className="my-cell" onClick={handler}/>)
+      const element = shallow(<TableCell className="my-cell" onClick={handler} />)
       expect(element.prop('onClick')).toBe(handler)
     });
   });
@@ -116,7 +116,7 @@ describe('Table Components', () => {
 
   describe('Table', () => {
     function renderTable(props = {}) {
-      return shallow(<Table {...props} tableDataSource={testDataSource}/>)
+      return shallow(<Table {...props} tableDataSource={testDataSource} />)
     }
 
     it('renders extra classNames', () => {
@@ -163,7 +163,7 @@ describe('Table Components', () => {
 
     describe('renderRow', () => {
       it('renders row with the given RowRenderer', () => {
-        const RowRenderer = (props) => <div {...props}/>
+        const RowRenderer = (props) => <div {...props} />
         const table = renderTable({RowRenderer})
         const Renderer = table.instance().renderRow
         const row = shallow(<Renderer idx={5} />)
@@ -171,7 +171,7 @@ describe('Table Components', () => {
       });
 
       it('passes the correct props to the row when displayHeader is true', () => {
-        const CellRenderer = (props) => <div {...props}/>
+        const CellRenderer = (props) => <div {...props} />
         const extraProps = {p1: 'p1'}
         const table = renderTable({displayHeader: true, displayNumbers: true, extraProps, CellRenderer})
         const Renderer = table.instance().renderRow

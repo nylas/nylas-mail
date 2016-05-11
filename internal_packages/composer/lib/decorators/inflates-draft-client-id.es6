@@ -94,7 +94,7 @@ function InflatesDraftClientId(ComposedComponent) {
 
     render() {
       if (!this.state.draft) {
-        return <span/>;
+        return <span />;
       }
       return <ComposedComponent ref="composed" {...this.props} {...this.state} />;
     }

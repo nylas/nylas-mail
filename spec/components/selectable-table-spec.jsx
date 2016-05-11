@@ -231,8 +231,8 @@ describe('SelectableTable Components', () => {
     });
 
     it('renders with the correct props', () => {
-      const RowRenderer = () => <tr/>
-      const CellRenderer = () => <td/>
+      const RowRenderer = () => <tr />
+      const CellRenderer = () => <td />
       const onSetSelection = () => {}
       const onShiftSelection = () => {}
       const extraProps = {p1: 'p1'}

@@ -11,7 +11,7 @@ class NylasComponentKit
   @loadFrom = (prop, path) ->
     Object.defineProperty @prototype, prop,
       get: ->
-        exported = NylasComponentKit.default(require "../components/#{path}")
+        exported = require "../components/#{path}"
         return exported[prop]
 
   @loadDeprecated = (prop, path, {instead} = {}) ->
@@ -60,13 +60,13 @@ class NylasComponentKit
   @load "DateInput", "date-input"
   @load "DatePicker", "date-picker"
   @load "TimePicker", "time-picker"
-  @loadFrom "Table", "table/table"
+  @load "Table", "table/table"
   @loadFrom "TableRow", "table/table"
   @loadFrom "TableCell", "table/table"
-  @loadFrom "SelectableTable", "selectable-table"
+  @load "SelectableTable", "selectable-table"
   @loadFrom "SelectableTableRow", "selectable-table"
   @loadFrom "SelectableTableCell", "selectable-table"
-  @loadFrom "EditableTable", "editable-table"
+  @load "EditableTable", "editable-table"
   @loadFrom "EditableTableCell", "editable-table"
   @load "LazyRenderedList", "lazy-rendered-list"
 

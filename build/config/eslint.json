@@ -34,7 +34,7 @@
     "quote-props": ["error", "consistent-as-needed", { "keywords": true }],
     "no-param-reassign": ["error", { "props": false }],
     "semi": "off",
-    "import/no-unresolved": ["error", {"ignore": ["nylas-exports", "nylas-component-kit", "electron", "nylas-store", "react-dom/server", "nylas-observables", "windows-shortcuts", "moment-round", "chrono-node", "event-kit"]}],
+    "import/no-unresolved": ["error", {"ignore": ["nylas-exports", "nylas-component-kit", "electron", "nylas-store", "react-dom/server", "nylas-observables", "windows-shortcuts", "moment-round", "chrono-node", "event-kit", "enzyme"]}],
     "react/no-multi-comp": "off",
     "react/prop-types": ["error", {"ignore": ["children"]}],
     "react/sort-comp": "error"

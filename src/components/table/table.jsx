@@ -60,11 +60,10 @@ const TablePropTypes = {
 }
 
 export function TableCell(props) {
-  const {className, isHeader, children} = props;
-  const continuedProps = _.omit(props, "className", "isHeader", "children")
+  const {className, isHeader, children, ...extraProps} = props;
   const CellTag = isHeader ? 'th' : 'td'
   return (
-    <CellTag {...continuedProps} className={`table-cell ${className}`} >
+    <CellTag {...extraProps} className={`table-cell ${className}`} >
       {children}
     </CellTag>
   )
@@ -73,7 +72,6 @@ export function TableCell(props) {
 TableCell.propTypes = {
   isHeader: PropTypes.bool,
   className: PropTypes.string,
-  children: PropTypes.children,
 };
 
 export class TableRow extends Component {
