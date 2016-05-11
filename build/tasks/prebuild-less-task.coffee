@@ -1,10 +1,9 @@
 path = require 'path'
 fs = require 'fs'
 
-LessCache = require 'less-cache'
-
 module.exports = (grunt) ->
   grunt.registerMultiTask 'prebuild-less', 'Prebuild cached of compiled LESS files', ->
+    LessCache = require 'less-cache'
     prebuiltConfigurations = [
       ['ui-light', 'ui-dark']
     ]

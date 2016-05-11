@@ -1,12 +1,10 @@
 // Copied from https://github.com/babel/grunt-babel to ensure we always
 // use the `babel-core` defined in our own package.json as opposed to the
 // grunt-babel dependency's
-
-var path = require('path');
-var babel = require('babel-core');
-
 module.exports = function (grunt) {
   grunt.registerMultiTask('babel', 'Use next generation JavaScript, today', function () {
+    var path = require('path');
+    var babel = require('babel-core');
     var options = this.options();
 
     this.files.forEach(function (el) {
