@@ -1,5 +1,5 @@
 NylasStore = require 'nylas-store'
-{DraftStore, MessageBodyProcessor, RegExpUtils} = require 'nylas-exports'
+{Actions, FileDownloadStore, DraftStore, MessageBodyProcessor, RegExpUtils} = require 'nylas-exports'
 {remote} = require 'electron'
 Identity = require './identity'
 kb = require './keybase'
@@ -311,6 +311,21 @@ class PGPKeyStore extends NylasStore
     # if they're both present, assume an encrypted block
     return (blockStart >= 0 and blockEnd >= 0)
 
+  fetchEncryptedAttachments: (message) ->
+    encrypted = _.map(message.files, (file) =>
+      tokenized = file.filename.split('.')
+      extension = tokenized[tokenized.length - 1]
+      if extension == "asc" or extension == "pgp"
+        # something.asc or something.pgp -> assume encrypted attachment
+        return file
+      else
+        return null
+    )
+    # NOTE for now we don't verify that the .asc/.pgp files actually have a PGP
+    # block inside
+
+    return _.compact(encrypted)
+
   decrypt: (message) =>
     # decrypt a message, cache the result
     # (asynchronous)
@@ -328,7 +343,7 @@ class PGPKeyStore extends NylasStore
     ring = new pgp.keyring.KeyRing
     # (the unbox function will use the right one)
 
-    for key in @privKeys({timed:false})
+    for key in @privKeys({timed: true})
       if key.key?
         ring.add_key_manager(key.key)
 
@@ -338,6 +353,9 @@ class PGPKeyStore extends NylasStore
 
     pgpEnd = "-----END PGP MESSAGE-----"
     blockEnd = message.body.indexOf(pgpEnd) + pgpEnd.length
+
+    # if we don't find those, it isn't encrypted
+    return unless (blockStart >= 0 and blockEnd >= 0)
 
     pgpMsg = message.body.slice(blockStart, blockEnd)
 
@@ -392,5 +410,56 @@ class PGPKeyStore extends NylasStore
         else
           console.warn "Unable to decrypt message."
           @_msgStatus.push({"clientId": message.clientId, "time": Date.now(), "message": "Unable to decrypt message."})
+
+  decryptAttachments: (files) =>
+    # fill our keyring with all possible private keys
+    keyring = new pgp.keyring.KeyRing
+    # (the unbox function will use the right one)
+
+    for key in @privKeys({timed: true})
+      if key.key?
+        keyring.add_key_manager(key.key)
+
+    FileDownloadStore._fetchAndSaveAll(files).then((filepaths) ->
+      # open, decrypt, and resave each of the newly-downloaded files in place
+      _.each(filepaths, (filepath) =>
+        fs.readFile(filepath, (err, data) =>
+          # find a PGP block
+          pgpStart = "-----BEGIN PGP MESSAGE-----"
+          blockStart = data.indexOf(pgpStart)
+
+          pgpEnd = "-----END PGP MESSAGE-----"
+          blockEnd = data.indexOf(pgpEnd) + pgpEnd.length
+
+          # if we don't find those, it isn't encrypted
+          return unless (blockStart >= 0 and blockEnd >= 0)
+
+          pgpMsg = data.slice(blockStart, blockEnd)
+
+          # decrypt the file
+          pgp.unbox({ keyfetch: keyring, armored: pgpMsg }, (err, literals, warnings, subkey) =>
+            if err
+              console.warn err
+            else
+              if warnings._w.length > 0
+                console.warn warnings._w
+
+            literalLen = literals?.length
+            # if we have no literals, failed to decrypt and should abort
+            return unless literalLen?
+
+            if literalLen == 1
+              # success! replace old encrypted file with awesome decrypted file
+              fs.writeFile(filepath, literals[0].toBuffer(), (err) =>
+                if err
+                  console.warn err
+              )
+            else
+              console.warn "Attempt to decrypt attachment failed: #{literalLen} literals found, expected 1."
+          )
+        )
+      )
+    )
+
 
 module.exports = new PGPKeyStore()
