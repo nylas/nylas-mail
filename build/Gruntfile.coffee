@@ -184,6 +184,9 @@ module.exports = (grunt) ->
       ext: '.js'
 
   for folder in ['node_modules', 'internal_packages']
+    if not fs.existsSync(folder)
+      console.log("Ignoring #{folder}, which is missing.")
+      continue
     for child in fs.readdirSync(folder) when child isnt '.bin'
       directory = path.join(folder, child)
       metadataPath = path.join(directory, 'package.json')
