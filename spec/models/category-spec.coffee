@@ -19,8 +19,14 @@ describe 'Category', ->
         new Category({name: 'c2', accountId: 'a2'}),
       ])).toEqual(null)
 
-  describe 'category types', ->
+  describe 'fromJSON', ->
+    it "should strip the INBOX. prefix from FastMail folders", ->
+      foo = (new Category()).fromJSON({display_name: 'INBOX.Foo'})
+      expect(foo.displayName).toEqual('Foo')
+      foo = (new Category()).fromJSON({display_name: 'INBOX'})
+      expect(foo.displayName).toEqual('Inbox')
 
+  describe 'category types', ->
     it 'assigns type correctly when it is a user category', ->
       cat = new Label
       cat.name = undefined
