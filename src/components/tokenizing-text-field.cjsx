@@ -502,8 +502,7 @@ class TokenizingTextField extends React.Component
 
   _showDefaultTokenMenu: (token) =>
     {remote} = require('electron')
-    Menu = remote.require('menu')
-    MenuItem = remote.require('menu-item')
+    {Menu, MenuItem} = remote
 
     menu = new Menu()
     menu.append(new MenuItem(

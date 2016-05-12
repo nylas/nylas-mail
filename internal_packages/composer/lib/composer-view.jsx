@@ -486,7 +486,7 @@ export default class ComposerView extends React.Component {
       return false;
     }
 
-    const dialog = remote.require('dialog');
+    const dialog = remote.dialog;
 
     const {to, cc, bcc, body, files, uploads} = this.props.draft;
     const allRecipients = [].concat(to, cc, bcc);

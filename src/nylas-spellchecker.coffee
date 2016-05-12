@@ -1,7 +1,7 @@
 path = require('path')
 spellchecker = require('spellchecker')
 {remote} = require('electron')
-MenuItem = remote.require('menu-item')
+MenuItem = remote.MenuItem
 
 class NylasSpellchecker
   constructor: ->

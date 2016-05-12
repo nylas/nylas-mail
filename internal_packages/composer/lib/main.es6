@@ -77,7 +77,7 @@ class ComposerWithWindowProps extends React.Component {
   }
 
   _showInitialErrorDialog(msg) {
-    const dialog = remote.require('dialog');
+    const dialog = remote.dialog;
     // We delay so the view has time to update the restored draft. If we
     // don't delay the modal may come up in a state where the draft looks
     // like it hasn't been restored or has been lost.
