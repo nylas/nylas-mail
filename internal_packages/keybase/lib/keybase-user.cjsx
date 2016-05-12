@@ -47,7 +47,7 @@ class KeybaseUser extends React.Component
   render: =>
     {profile} = @props
 
-    keybaseDetails = null
+    keybaseDetails = <div className="details"></div>
     if profile.keybase_profile?
       keybase = profile.keybase_profile
       # username
@@ -58,6 +58,7 @@ class KeybaseUser extends React.Component
         fullname = keybase.components.full_name.val
       else
         fullname = username
+        username = false
 
       # profile picture
       if keybase.thumbnail?
@@ -70,24 +71,22 @@ class KeybaseUser extends React.Component
       possible_profiles = ["twitter", "github", "coinbase"]
       profiles = _.map(possible_profiles, (possible) =>
         if keybase.components[possible]?.val?
-          return "#{possible}: #{keybase.components[possible].val}"
+          # TODO icon instead of weird "service: username" text
+          return (<span key={ possible }><b>{ possible }</b>: { keybase.components[possible].val }</span>)
       )
       profiles = _.reject(profiles, (profile) -> profile is undefined)
 
-      if profiles.length > 0
-        profiles =  _.map(profiles, (profile) ->
-          return <li key={ profile }>{ profile }</li>)
-        profileList = (<ul>{ profiles }</ul>)
-      else
-        profileList = null
+      profiles =  _.map(profiles, (profile) ->
+        return <span key={ profile.key }>{ profile } </span>)
+      profileList = (<span>{ profiles }</span>)
 
       keybaseDetails = (<div className="details">
-        <h2>
-          { fullname }&nbsp;
-          <small className="profile-username">
-            ({ username })
-          </small>
-        </h2>
+        <div className="profile-name">
+        { fullname }
+        </div>
+        <div className="profile-username">
+          { username }
+        </div>
 
         { profileList }
       </div>)

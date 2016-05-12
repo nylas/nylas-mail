@@ -7,8 +7,8 @@ import RecipientKeyChip from './recipient-key-chip';
 
 export function activate() {
   this.preferencesTab = new PreferencesUIStore.TabItem({
-    tabId: 'PGP Encryption',
-    displayName: 'PGP Encryption',
+    tabId: 'Encryption',
+    displayName: 'Encryption',
     component: require('./preferences-keybase'),
   });
   ComponentRegistry.register(EncryptMessageButton, {role: 'Composer:ActionButton'});

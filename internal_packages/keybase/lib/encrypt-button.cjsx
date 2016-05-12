@@ -77,9 +77,13 @@ class EncryptMessageButton extends React.Component
         @_toggleCrypt()
 
   render: ->
+    classnames = "btn btn-toolbar"
+    if @state.currentlyEncrypted
+      classnames += " btn-enabled"
+
     <div className="n1-keybase">
-      <button title="Encrypt email body" className="btn btn-toolbar" onClick={ => @_onClick()} ref="button">
-        Encrypt
+      <button title="Encrypt email body" className={ classnames } onClick={ => @_onClick()} ref="button">
+        <RetinaImg url="nylas://keybase/encrypt-composer-button@2x.png" mode={RetinaImg.Mode.ContentIsMask} />
       </button>
     </div>
 

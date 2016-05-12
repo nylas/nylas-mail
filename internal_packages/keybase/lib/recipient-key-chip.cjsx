@@ -1,4 +1,5 @@
 {MessageStore, React} = require 'nylas-exports'
+{RetinaImg} = require 'nylas-component-kit'
 PGPKeyStore = require './pgp-key-store'
 pgp = require 'kbpgp'
 _ = require 'underscore'
@@ -41,7 +42,7 @@ class RecipientKeyChip extends React.Component
   render: ->
     if @state.keys
       <div className="n1-keybase-recipient-key-chip">
-        <span ref="keyIcon">KEY&nbsp;&nbsp;</span>
+        <RetinaImg url="nylas://keybase/key-present@2x.png" mode={RetinaImg.Mode.ContentPreserve} ref="keyIcon" />
       </div>
     else
       <div className="n1-keybase-recipient-key-chip">

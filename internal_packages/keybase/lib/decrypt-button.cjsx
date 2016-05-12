@@ -35,32 +35,43 @@ class DecryptMessageButton extends React.Component
 
   render: =>
     # TODO inform user of errors/etc. instead of failing without showing it
+    if not (@state.wasEncrypted or @state.encryptedAttachments.length > 0)
+      return
 
     decryptBody = false
-    if @state.wasEncrypted and !@state.isDecrypted
-      decryptBody = <button title="Decrypt email body" className="btn btn-toolbar pull-right" onClick={ => @_onClick()} ref="button">Decrypt</button>
+    if !@state.isDecrypted
+      decryptBody = <button title="Decrypt email body" className="btn btn-toolbar" onClick={ => @_onClick()} ref="button">Decrypt</button>
 
     decryptAttachments = false
     if @state.encryptedAttachments?.length == 1
-      decryptAttachments = <button onClick={ @_decryptAttachments }>Decrypt Attachment</button>
+      decryptAttachments = <button onClick={ @_decryptAttachments } className="btn btn-toolbar">Decrypt Attachment</button>
     else if @state.encryptedAttachments?.length > 1
-      decryptAttachments = <button onClick={ @_decryptAttachments }>Decrypt Attachments</button>
+      decryptAttachments = <button onClick={ @_decryptAttachments } className="btn btn-toolbar">Decrypt Attachments</button>
 
     if decryptAttachments or decryptBody
-      decryptionInterface = (<span className="decryption-interface">
+      decryptionInterface = (<div className="decryption-interface">
         <input type="password" ref="passphrase" placeholder="Private key passphrase"></input>
         { decryptBody }
         { decryptAttachments }
-      </span>)
+      </div>)
 
     message = <div className="message" ref="message">{@state.status}</div>
-    if @state.wasEncrypted and @state.isDecrypted
+    title = "Message Encrypted"
+    if @state.isDecrypted
       # TODO a message saying "this was decrypted with the key for ___@___.com"
-      message = <div className="decrypted" ref="decrypted">{@state.status}</div>
+      #message = <div className="decrypted" ref="decrypted">{@state.status}</div>
+      title = "Message Decrypted"
+      message = null
+
 
     <div className="keybase-decrypt">
       { message }
       { decryptionInterface }
+      <div className="line-w-label">
+        <div className="border"></div>
+        <div className="title-text">{ title }</div>
+        <div className="border"></div>
+      </div>
     </div>
 
   _onClick: =>

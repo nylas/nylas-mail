@@ -174,23 +174,6 @@ class PreferencesKeybase extends React.Component
         <KeybaseSearch />
         <KeyManager keys={keys} />
       </section>
-      <section className="key-instructions">
-        <p>
-          The Keybase plugin allows you to send and receive email messages encrypted using the PGP protocol.
-          Clicking the "Encrypt" button in the mail composer view will automatically encrypt the current draft
-          for all recipients for whom you have a saved PGP public key. You can decrypt messages encrypted for
-          your private key by entering your private key passphrase and clicking "Decrypt" in the message view.
-        </p>
-        <p>
-          PGP keys are saved in the <strong>~/.nylas/keys</strong> directory on your computer. The name of each key file
-          in this directory is the same as the email address associated with the key. You can add keys through this
-          preferences tab by searching for them on Keybase, generating them from scratch, or copy/pasting them in.
-        </p>
-        <p>
-          Remember to share your PGP public key with your other N1-using friends so that they can send you encrypted
-          messages - but never, ever share your private key!
-        </p>
-      </section>
     </div>
 
 module.exports = PreferencesKeybase

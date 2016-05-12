@@ -1,4 +1,5 @@
 {Utils, React, ReactDOM, Actions} = require 'nylas-exports'
+{RetinaImg} = require 'nylas-component-kit'
 EmailPopover = require './email-popover'
 PGPKeyStore = require './pgp-key-store'
 KeybaseUser = require '../lib/keybase-user'
@@ -106,16 +107,16 @@ class KeybaseSearch extends React.Component
       profiles = []
 
     if @state.loading
-      loading = "LOADING"
+      loading = <RetinaImg style={width: 20, height: 20, marginTop: 2} name="inline-loading-spinner.gif" mode={RetinaImg.Mode.ContentPreserve} />
     else
       loading = null
 
     <div className="keybase-search">
       <div className="searchbar">
         <input type="text" value={ @state.query } placeholder="...or, search Keybase" ref="searchbar" onChange={@_queryChange} />
+      <div className="loading">{ loading }</div>
       </div>
 
-      { loading }
       <div className="results" ref="results">
         { profiles }
       </div>
