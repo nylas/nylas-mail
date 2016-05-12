@@ -58,17 +58,11 @@ export class Notifier {
           NylasEnv.displayWindow()
         }
 
-        const currentCategories = FocusedPerspectiveStore.current().categories();
-        const desiredCategory = thread.categoryNamed('inbox');
-
-        if (!desiredCategory) {
-          return;
-        }
-        if (!_.pluck(currentCategories, 'id').includes(desiredCategory.id)) {
-          const filter = MailboxPerspective.forCategory(desiredCategory);
-          Actions.focusMailboxPerspective(filter);
-        }
-        Actions.setFocus({collection: 'thread', item: thread});
+        Actions.setFocus({
+          collection: 'thread',
+          item: thread,
+          desiredCategoryName: 'inbox',
+        });
       },
     });
   }
