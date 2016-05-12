@@ -156,6 +156,7 @@ class NylasExports
   @lazyLoad "DeprecateUtils", 'deprecate-utils'
   @lazyLoad "VirtualDOMUtils", 'virtual-dom-utils'
   @lazyLoad "NylasSpellchecker", 'nylas-spellchecker'
+  @lazyLoad "EditorAPI", 'components/contenteditable/editor-api'
 
   # Services
   @lazyLoad "UndoManager", 'undo-manager'

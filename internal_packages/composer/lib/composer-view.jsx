@@ -192,6 +192,7 @@ export default class ComposerView extends React.Component {
     return (
       <InjectedComponent
         ref={Fields.Body}
+        className="body-field"
         matching={{role: "Composer:Editor"}}
         fallback={ComposerEditor}
         requiredMethods={[
