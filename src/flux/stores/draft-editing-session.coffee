@@ -170,7 +170,7 @@ class DraftEditingSession
         continue if key is 'id'
         continue if nextDraft[key] is undefined
         nextValues[key] = nextDraft[key]
-      @_draft = Object.assign(new Message(), @_draft, nextValues)
+      @_setDraft(Object.assign(new Message(), @_draft, nextValues))
       @trigger()
 
   _changeSetAltered: =>
