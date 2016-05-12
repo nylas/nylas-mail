@@ -389,8 +389,7 @@ class Contenteditable extends React.Component
     event.preventDefault()
 
     {remote} = require('electron')
-    Menu = remote.require('menu')
-    MenuItem = remote.require('menu-item')
+    {Menu, MenuItem} = remote
 
     menu = new Menu()
 

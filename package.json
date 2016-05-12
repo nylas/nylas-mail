@@ -11,7 +11,7 @@
   "bugs": {
     "url": "https://github.com/nylas/N1/issues"
   },
-  "electronVersion": "0.37.8",
+  "electronVersion": "1.0.1",
   "dependencies": {
     "async": "^0.9",
     "babel-core": "6.8.0",

@@ -123,7 +123,7 @@ class WindowEventHandler
     {remote} = require('electron')
     _.defer ->
       if remote.getGlobal('application').quitting
-        remote.require('app').quit()
+        remote.app.quit()
       else
         NylasEnv.close()
 
@@ -180,8 +180,7 @@ class WindowEventHandler
     word = event.target.value.substr(wordStart, wordEnd - wordStart)
 
     {remote} = require('electron')
-    Menu = remote.require('menu')
-    MenuItem = remote.require('menu-item')
+    {Menu, MenuItem} = remote
     menu = new Menu()
 
     NylasSpellchecker = require('./nylas-spellchecker')

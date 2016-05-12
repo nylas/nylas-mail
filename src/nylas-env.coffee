@@ -338,7 +338,7 @@ class NylasEnvConstructor
   # content trace visualizer (chrome://tracing). It's like Chromium Developer
   # Tools Profiler, but for all processes and threads.
   trace: ->
-    tracing = remote.require('electron').contentTracing
+    tracing = remote.contentTracing
     opts =
       categoryFilter: '*',
       traceOptions: 'record-until-full,enable-sampling,enable-systrace',
@@ -411,7 +411,7 @@ class NylasEnvConstructor
     @getCurrentWindow().close()
 
   quit: ->
-    remote.require('app').quit()
+    remote.app.quit()
 
   # Essential: Get the size of current window.
   #
@@ -844,7 +844,7 @@ class NylasEnvConstructor
       null
 
   exit: (status) ->
-    app = remote.require('app')
+    app = remote.app
     app.emit('will-exit')
     remote.process.exit(status)
 
