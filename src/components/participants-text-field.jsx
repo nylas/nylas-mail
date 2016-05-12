@@ -193,6 +193,7 @@ export default class ParticipantsTextField extends React.Component {
           ref="textField"
           matching={{role: 'Composer:ParticipantsTextField'}}
           fallback={TokenizingTextField}
+          requiredMethods={['focus']}
           exposedProps={{
             tokens: this.props.participants[this.props.field],
             tokenKey: (p) => p.email,

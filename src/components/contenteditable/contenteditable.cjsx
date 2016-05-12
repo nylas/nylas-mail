@@ -100,7 +100,7 @@ class Contenteditable extends React.Component
 
     editor = new EditorAPI(@_editableNode())
 
-    if not editor.currentSelection().isInScope()
+    if not editor.currentSelection().isInScope() and extraArgsObj.methodName isnt 'onBlur'
       @_restoreSelection()
 
     argsObj = _.extend(extraArgsObj, {editor})
@@ -202,6 +202,7 @@ class Contenteditable extends React.Component
            ref="contenteditable"
            contentEditable
            spellCheck={false}
+           placeholder={@props.placeholder}
            dangerouslySetInnerHTML={__html: @props.value}
            {...@_eventHandlers()}></div>
     </KeyCommandsRegion>
@@ -439,6 +440,7 @@ class Contenteditable extends React.Component
     return if @_inCompositionEvent
     return if not extension[method]?
     editingFunction = extension[method].bind(extension)
+    argsObj = _.extend(argsObj, {methodName: method})
     @atomicEdit(editingFunction, argsObj)
 
 
