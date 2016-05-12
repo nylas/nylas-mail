@@ -4,34 +4,41 @@
 @code-bg-color: #fcf4db;
 
 .keybase-profile {
-  border: 1px solid black;
-  margin-top: 10px;
+  border: 1px solid @border-color-primary;
+  border-top: 0px;
+  background: @background-primary;
+  padding: 10px;
   overflow: auto;
+  display: flex;
+
+  .user-picture {
+    background: @background-secondary;
+    width: 45px;
+    height: 45px;
+    margin: 5px;
+    border-radius: 4px;
+  }
+
+  .details {
+    flex: 1;
+  }
+
+  button {
+    margin: 10px;
+  }
+
+  ul {
+    list-style-type: none;
+  }
+
+  .email-list {
+    flex: 1;
+    padding-left: 10px;
+  }
 }
 
-.keybase-profile .user-picture {
-  width: 100px;
-  height: 100px;
-  margin: 5px;
-  float: left;
-}
-
-.keybase-profile .details {
-  float: left;
-}
-
-.keybase-profile button {
-  float: right;
-  margin: 10px;
-}
-
-.keybase-profile ul {
-  list-style-type: none;
-}
-
-.keybase-profile .email-list {
-  float: left;
-  padding-left: 10px;
+.keybase-profile:first-child {
+  border-top: 1px solid @border-color-primary;
 }
 
 .fixed-popover-container, .email-list {
@@ -91,7 +98,8 @@
 
 .keybase-decrypt {
   .decryption-interface {
-    float: right;
+    padding-top: 20px;
+    padding-bottom: 20px;
 
     input {
       width: 250px;
@@ -99,8 +107,21 @@
 
     button {
       margin-left: 10px;
-      margin-right: 20px;
     }
+  }
+
+  div.line-w-label {
+    display: flex;
+    align-items: center;
+    color: rgba(128, 128, 128, 0.5);
+  }
+  div.title-text {
+    padding: 0px 10px;
+  }
+  div.border {
+    height: 1px;
+    background: rgba(128, 128, 128, 0.5);
+    flex: 1;
   }
 }
 
@@ -177,8 +198,21 @@
 }
 
 .keybase-search {
-  margin-top: 10px;
+  margin-top: 15px;
+  margin-bottom: 15px;
   overflow: scroll;
+  position: relative;
+
+  input {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .loading {
+    position: absolute;
+    right: 10px;
+    top: 8px; // lol I wonder how long until this is a problem
+  }
 }
 
 .key-picker-modal {

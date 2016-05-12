@@ -381,23 +381,9 @@ class PGPKeyStore extends NylasStore
 
         if literals.length > 0
           plaintext = literals[0].toString('utf8')
-          pre = """
-                <style>
-                  div.decrypted {
-                    border: 3px solid rgb(121, 212, 91);
-                    border-radius: 4px;
-                    padding: 8px 12px;
-                    box-sizing: border-box;
-                  }
-                </style>
-                <div class="decrypted">
-                """
 
-          post = """
-                 </div>
-                 """
           # can't use _.template :(
-          body = message.body.slice(0, blockStart) + pre + plaintext + post + message.body.slice(blockEnd)
+          body = message.body.slice(0, blockStart) + plaintext + message.body.slice(blockEnd)
 
           # TODO if message is already in the cache, consider updating its TTL
           timeout = 1000 * 60 * 30 # 30 minutes in ms
@@ -453,6 +439,8 @@ class PGPKeyStore extends NylasStore
               fs.writeFile(filepath, literals[0].toBuffer(), (err) =>
                 if err
                   console.warn err
+
+                # TODO mv the file -> remove .asc extension
               )
             else
               console.warn "Attempt to decrypt attachment failed: #{literalLen} literals found, expected 1."

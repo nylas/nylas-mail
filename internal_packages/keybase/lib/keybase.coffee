@@ -49,7 +49,7 @@ class KeybaseAPI
     cleanedProfile.thumbnail = null
     if profile.pictures?.primary?
       cleanedProfile.thumbnail = profile.pictures.primary.url
-    cleanedProfile.components = {username: {val: profile.basics.username}}
+    cleanedProfile.components = {full_name: {val: profile.profile.full_name }, username: {val: profile.basics.username}}
     _.each(profile.proofs_summary.all, (connectedAccount) =>
       component = {}
       component[connectedAccount.proof_type] = {val: connectedAccount.nametag}
