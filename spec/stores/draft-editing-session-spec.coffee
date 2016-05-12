@@ -7,7 +7,7 @@ DraftChangeSet = DraftEditingSession.DraftChangeSet
 _ = require 'underscore'
 
 
-fdescribe "DraftEditingSession Specs", ->
+describe "DraftEditingSession Specs", ->
 
   describe "DraftChangeSet", ->
     beforeEach ->
