@@ -2,9 +2,7 @@ import _ from 'underscore'
 import {
   Thread,
   Actions,
-  MailboxPerspective,
   SoundRegistry,
-  FocusedPerspectiveStore,
   NativeNotifications,
   DatabaseStore,
 } from 'nylas-exports';
