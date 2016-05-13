@@ -43,7 +43,7 @@ class ModalKeyRecommender extends React.Component
       if error
         console.error error
       else
-        PGPKeyStore.saveNewKey(identity, key, true) # isPub = true
+        PGPKeyStore.saveNewKey(identity, key)
     )
 
   _onNext: =>

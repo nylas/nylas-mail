@@ -1,5 +1,6 @@
 {Utils, React, RegExpUtils} = require 'nylas-exports'
 PGPKeyStore = require './pgp-key-store'
+Identity = require './identity'
 kb = require './keybase'
 pgp = require 'kbpgp'
 _ = require 'underscore'
@@ -69,28 +70,34 @@ class KeyAdder extends React.Component
           console.warn(err)
         # todo: add passphrase input
         km.export_pgp_private {passphrase: @state.passphrase}, (err, pgp_private) =>
-          # Remove trailing whitespace, if necessary.
-          #if pgp_private.charAt(pgp_private.length - 1) != '-'
-          #  pgp_private = pgp_private.slice(0, -1)
-          # TODO saveNewKey now requires an Identity object as the first param
-          PGPKeyStore.saveNewKey(@state.address, pgp_private, isPub = false)
+          ident = new Identity({
+            addresses: [@state.address]
+            isPriv: true
+          })
+          PGPKeyStore.saveNewKey(ident, pgp_private)
         km.export_pgp_public {}, (err, pgp_public) =>
-          # Remove trailing whitespace, if necessary.
-          #if pgp_public.charAt(pgp_public.length - 1) != '-'
-          #  pgp_public = pgp_public.slice(0, -1)
-          # TODO saveNewKey now requires an Identity object as the first param
-          PGPKeyStore.saveNewKey(@state.address, pgp_public, isPub = true)
+          ident = new Identity({
+            addresses: [@state.address]
+            isPriv: false
+          })
+          PGPKeyStore.saveNewKey(ident, pgp_public)
           @setState
             keyContents: pgp_public
             placeholder: "Your generated public key will appear here. Share it with your friends!"
 
   _saveNewPubKey: =>
-    # TODO saveNewKey now requires an Identity object as the first param
-    PGPKeyStore.saveNewKey(@state.address, @state.keyContents, isPub = true)
+    ident = new Identity({
+      addresses: [@state.address]
+      isPriv: false
+    })
+    PGPKeyStore.saveNewKey(ident, @state.keyContents)
 
   _saveNewPrivKey: =>
-    # TODO saveNewKey now requires an Identity object as the first param
-    PGPKeyStore.saveNewKey(@state.address, @state.keyContents, isPub = false)
+    ident = new Identity({
+      addresses: [@state.address]
+      isPriv: true
+    })
+    PGPKeyStore.saveNewKey(ident, @state.keyContents)
 
   _onAddressChange: (event) =>
     address = event.target.value

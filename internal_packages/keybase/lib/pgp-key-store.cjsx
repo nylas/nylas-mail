@@ -18,6 +18,7 @@ class PGPKeyStore extends NylasStore
     @_msgCache = []
     @_msgStatus = []
 
+    # Recursive subdir watching only works on OSX / Windows. annoying
     @_pubWatcher = null
     @_privWatcher = null
 
@@ -100,9 +101,7 @@ class PGPKeyStore extends NylasStore
             filename = filenames[i]
             if filename[0] == '.'
               continue
-            absname = path.join(keyDirectory, filename)
             ident = new Identity({
-              path: absname
               addresses: filename.split(" ")
               isPriv: keyDirectory == @_privKeyDir
             })
@@ -113,10 +112,10 @@ class PGPKeyStore extends NylasStore
 
   getKeyContents: ({key, passphrase}) =>
     # Reads an actual PGP key from disk and adds it to the preexisting metadata
-    if not key.path?
+    if not key.keyPath?
       console.error "Identity has no path for key!", key
       return
-    fs.readFile(key.path, (err, data) =>
+    fs.readFile(key.keyPath, (err, data) =>
       pgp.KeyManager.import_from_armored_pgp {
         armored: data
       }, (err, km) =>
@@ -150,7 +149,7 @@ class PGPKeyStore extends NylasStore
           @trigger(@)
       )
 
-  saveNewKey: (identity, contents, isPub) =>
+  saveNewKey: (identity, contents) =>
     # Validate the email address(es), then write to file.
     if not identity instanceof Identity
       console.error "saveNewKey requires an identity object"
@@ -159,19 +158,11 @@ class PGPKeyStore extends NylasStore
     if addresses.length < 1
       console.error "Identity must have at least one email address to save key"
       return
-    if _.every(addresses, (address) => @validAddress(address, isPub))
-      filename = addresses.join(" ")
-      if isPub
-        keyPath = path.join(@_pubKeyDir, filename)
-        identity.isPriv = false
-      else
-        keyPath = path.join(@_privKeyDir, filename)
-        identity.isPriv = true
-      identity.path = keyPath
+    if _.every(addresses, (address) => @validAddress(address, !identity.isPriv))
       # Just say no to trailing whitespace.
       if contents.charAt(contents.length - 1) != '-'
         contents = contents.slice(0, -1)
-      fs.writeFile(keyPath, contents, (err) =>
+      fs.writeFile(identity.keyPath, contents, (err) =>
         if (err)
           @_displayError(err)
       )
@@ -182,7 +173,7 @@ class PGPKeyStore extends NylasStore
       'The key will be permanently deleted.',
       ['Delete', 'Cancel']
     )
-      fs.unlink(key.path, (err) =>
+      fs.unlink(key.keyPath, (err) =>
         if (err)
           @_displayError(err)
       )
@@ -192,7 +183,7 @@ class PGPKeyStore extends NylasStore
     if @validAddress(address, true)
       profile.addresses.push(address)
       newPath = path.join(@_pubKeyDir, profile.addresses.join(" "))
-      fs.rename(profile.path, newPath, (err) =>
+      fs.rename(profile.keyPath, newPath, (err) =>
         if (err)
           @_displayError(err)
         )
@@ -202,7 +193,7 @@ class PGPKeyStore extends NylasStore
     if profile.addresses.length > 1
       profile.addresses = _.without(profile.addresses, address)
       newPath = path.join(@_pubKeyDir, profile.addresses.join(" "))
-      fs.rename(profile.path, newPath, (err) =>
+      fs.rename(profile.keyPath, newPath, (err) =>
         if (err)
           @_displayError(err)
         )

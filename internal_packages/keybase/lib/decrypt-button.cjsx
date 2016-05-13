@@ -86,6 +86,6 @@ class DecryptMessageButton extends React.Component
 
   _decryptAttachments: =>
     @_onClick() # unlock keys
-    PGPKeyStore.decryptAttachments(@state.encryptedAttachments) # do the needful
+    PGPKeyStore.decryptAttachments(@state.encryptedAttachments)
 
 module.exports = DecryptMessageButton

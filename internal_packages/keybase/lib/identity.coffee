@@ -2,18 +2,28 @@
 # addresses, and a keybase profile
 
 {Utils} = require 'nylas-exports'
+path = require 'path'
 
 module.exports =
 class Identity
-  constructor: ({key, path, addresses, isPriv, keybase_profile}) ->
+  constructor: ({key, addresses, isPriv, keybase_profile}) ->
     @clientId = Utils.generateTempId()
     @key = key ? null # keybase keymanager object
-    @path = path ? null # path to the key's file on disk
     @isPriv = isPriv ? false # is this a private key?
-    @timeout = null # the time after which this key (if private) needs to be
-                    # unlocked again
+    @timeout = null # the time after which this key (if private) needs to be unlocked again
     @addresses = addresses ? [] # email addresses associated with this identity
     @keybase_profile = keybase_profile ? null # a kb profile object associated with this identity
+
+    Object.defineProperty(@, 'keyPath', {
+      get: ->
+        if @addresses.length > 0
+          keyDir = path.join(NylasEnv.getConfigDirPath(), 'keys')
+          thisDir = if @isPriv then path.join(keyDir, 'private') else path.join(keyDir, 'public')
+          keyPath = path.join(thisDir, @addresses.join(" "))
+        else
+          keyPath = null
+        return keyPath
+    })
 
     if @isPriv
       @setTimeout()
