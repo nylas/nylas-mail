@@ -152,18 +152,17 @@ describe "NylasAPI", ->
         expect(DatabaseTransaction.prototype.unpersistModel).not.toHaveBeenCalled()
 
   describe "handleAuthenticationFailure", ->
-    it "should post a notification", ->
-      spyOn(Actions, 'postNotification')
-      NylasAPI._handleAuthenticationFailure('/threads/1234', 'token')
-      expect(Actions.postNotification).toHaveBeenCalled()
-      expect(Actions.postNotification.mostRecentCall.args[0].message.trim()).toEqual("A mailbox action for your mail provider could not be completed. You may not be able to send or receive mail.")
-
-    it "should include the email address if possible", ->
+    it "should put the account in an `invalid` state", ->
+      spyOn(Actions, 'updateAccount')
       spyOn(AccountStore, 'tokenForAccountId').andReturn('token')
-      spyOn(Actions, 'postNotification')
       NylasAPI._handleAuthenticationFailure('/threads/1234', 'token')
-      expect(Actions.postNotification).toHaveBeenCalled()
-      expect(Actions.postNotification.mostRecentCall.args[0].message.trim()).toEqual("A mailbox action for #{AccountStore.accounts()[0].emailAddress} could not be completed. You may not be able to send or receive mail.")
+      expect(Actions.updateAccount).toHaveBeenCalled()
+      expect(Actions.updateAccount.mostRecentCall.args).toEqual([AccountStore.accounts()[0].id, {syncState: 'invalid'}])
+
+    it "should not throw an exception if the account cannot be found", ->
+      spyOn(Actions, 'updateAccount')
+      NylasAPI._handleAuthenticationFailure('/threads/1234', 'token')
+      expect(Actions.updateAccount).not.toHaveBeenCalled()
 
   describe "handleModelResponse", ->
     beforeEach ->

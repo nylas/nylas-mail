@@ -250,24 +250,8 @@ class NylasAPI
     account = AccountStore.accounts().find (account) ->
       AccountStore.tokenForAccountId(account.id) is apiToken
 
-    email = "your mail provider"
-    email = account.emailAddress if account
-
-    Actions.postNotification
-      type: 'error'
-      tag: '401'
-      sticky: true
-      message: "A mailbox action for #{email} could not be completed. You
-                may not be able to send or receive mail.",
-      icon: 'fa-sign-out'
-      actions: [{
-          default: true
-          dismisses: true
-          label: 'Dismiss'
-          provider: account?.provider ? ""
-          id: '401:dismiss'
-        }]
-
+    if account
+      Actions.updateAccount(account.id, {syncState: Account.SYNC_STATE_AUTH_FAILED})
     return Promise.resolve()
 
   # Returns a Promise that resolves when any parsed out models (if any)

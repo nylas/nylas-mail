@@ -10,17 +10,16 @@ url = require 'url'
 class AccountChoosePage extends React.Component
   @displayName: "AccountChoosePage"
 
-  constructor: (@props) ->
-    @state =
-      email: ""
-      provider: ""
-
-  componentWillUnmount: ->
-    @_usub?()
-
   componentDidMount: ->
-    if @props.pageData.provider
-      providerData = _.findWhere(Providers, name: @props.pageData.provider)
+    {existingAccount} = @props.pageData
+    if existingAccount and not existingAccount.routed
+      # Hack to prevent coming back to this page from drilling you back in.
+      # This should all get re-written soon.
+      existingAccount.routed = true
+
+      providerName = existingAccount.provider
+      providerName = 'exchange' if providerName is 'eas'
+      providerData = _.findWhere(Providers, {name: providerName})
       if providerData
         @_onChooseProvider(providerData)
 
@@ -46,16 +45,6 @@ class AccountChoosePage extends React.Component
         <span className="provider-name">{provider.displayName}</span>
       </div>
 
-  _renderError: ->
-    if @state.error
-      <div className="alert alert-danger" role="alert">
-        {@state.error}
-      </div>
-    else <div></div>
-
-  _onEmailChange: (event) =>
-    @setState email: event.target.value
-
   _onChooseProvider: (provider) =>
     Actions.recordUserEvent('Auth Flow Started', {
       provider: provider.name
@@ -67,7 +56,7 @@ class AccountChoosePage extends React.Component
       _.delay =>
         @_onBounceToGmail(provider)
       , 600
-    OnboardingActions.moveToPage("account-settings", {provider})
+    OnboardingActions.moveToPage("account-settings", Object.assign({provider}, @props.pageData))
 
   _base64url: (buf) ->
     # Python-style urlsafe_b64encode

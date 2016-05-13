@@ -5,6 +5,7 @@ Account = require('../models/account').default
 Utils = require '../models/utils'
 DatabaseStore = require './database-store'
 keytar = require 'keytar'
+NylasAPI = null
 
 configAccountsKey = "nylas.accounts"
 configVersionKey = "nylas.accountsVersion"
@@ -24,6 +25,11 @@ class AccountStore extends NylasStore
     @listenTo Actions.removeAccount, @_onRemoveAccount
     @listenTo Actions.updateAccount, @_onUpdateAccount
     @listenTo Actions.reorderAccount, @_onReorderAccount
+
+    if NylasEnv.isWorkWindow() and ['staging', 'production'].includes(NylasEnv.config.get('env'))
+      setTimeout( =>
+        @refreshHealthOfAccounts(@_accounts.map((a) -> a.id))
+      , 2000)
 
     NylasEnv.config.onDidChange configVersionKey, (change) =>
       # If we already have this version of the accounts config, it means we
@@ -167,6 +173,20 @@ class AccountStore extends NylasStore
 
     @_save()
     Actions.focusDefaultMailboxPerspectiveForAccounts([account.id])
+
+  refreshHealthOfAccounts: (accountIds) =>
+    NylasAPI ?= require '../nylas-api'
+    Promise.all(accountIds.map (accountId) =>
+      return NylasAPI.makeRequest({
+        path: '/account',
+        accountId: accountId,
+      }).then (json) =>
+        existing = @accountForId(accountId)
+        return unless existing # user may have deleted
+        existing.fromJSON(json)
+    ).finally =>
+      @_caches = {}
+      @_save()
 
   # Exposed Data
 

@@ -26,6 +26,10 @@ class AccountSettingsPage extends React.Component
       if field.default?
         @state.settings[field.name] = field.default
 
+    if @props.pageData.existingAccount
+      @state.fields.name = @props.pageData.existingAccount.name
+      @state.fields.email = @props.pageData.existingAccount.emailAddress
+
     # Special case for gmail. Rather than showing a form, we poll in the
     # background for completion of the gmail auth on the server.
     if @state.provider.name is 'gmail'
@@ -56,6 +60,10 @@ class AccountSettingsPage extends React.Component
       )
       poll(pollAttemptId,5000)
 
+  componentWillUnmount: =>
+    clearTimeout(@_resizeTimer) if @_resizeTimer
+    @_resizeTimer = null
+
   render: ->
     <div className="page account-setup">
       <div className="logo-container">
@@ -67,7 +75,7 @@ class AccountSettingsPage extends React.Component
 
       {@_renderTitle()}
 
-      <div className="back" onClick={@_fireMoveToPrevPage}>
+      <div className="back" onClick={@_onMoveToPrevPage}>
         <RetinaImg
           name="onboarding-back.png"
           mode={RetinaImg.Mode.ContentPreserve}/>
@@ -447,11 +455,12 @@ class AccountSettingsPage extends React.Component
         callback()
 
   _resize: =>
-    setTimeout( =>
+    clearTimeout(@_resizeTimer) if @_resizeTimer
+    @_resizeTimer = setTimeout( =>
       @props.onResize?()
     , 10)
 
-  _fireMoveToPrevPage: =>
+  _onMoveToPrevPage: =>
     if @state.pageNumber > 0
       @setState(pageNumber: @state.pageNumber - 1)
       @_resize()

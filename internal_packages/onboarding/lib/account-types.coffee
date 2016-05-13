@@ -119,13 +119,13 @@ Providers = [
       }
     ]
     settings: [{
-        name: 'password'
-        type: 'password'
-        placeholder: 'Password'
-        label: 'Password'
-        required: true
-        page: 0
-      }]
+      name: 'password'
+      type: 'password'
+      placeholder: 'Password'
+      label: 'Password'
+      required: true
+      page: 0
+    }]
   }, {
     name: 'yahoo'
     displayName: 'Yahoo'
@@ -158,7 +158,7 @@ Providers = [
       required: true
     }]
   }, {
-    name: 'imap'
+    name: 'custom'
     displayName: 'IMAP / SMTP Setup'
     icon: 'ic-settings-account-imap.png'
     header_icon: 'setup-icon-provider-imap.png'
@@ -260,37 +260,6 @@ Providers = [
         required: true
       }
     ]
-#  }, {
-#    name: 'default'
-#    displayName: ''
-#    icon: ''
-#    color: ''
-#    fields: [
-#      {
-#        name: 'name'
-#        type: 'text'
-#        placeholder: 'Ashton Letterman'
-#        label: 'Name'
-#      }, {
-#        name: 'email'
-#        type: 'text'
-#        placeholder: 'you@example.com'
-#        label: 'Email'
-#      }
-#    ]
-#    settings: [
-#      {
-#        name: 'username'
-#        type: 'text'
-#        placeholder: 'Username'
-#        label: 'Username'
-#      }, {
-#        name: 'password'
-#        type: 'password'
-#        placeholder: 'Password'
-#        label: 'Password'
-#      }
-#    ]
   }
 ]
 
