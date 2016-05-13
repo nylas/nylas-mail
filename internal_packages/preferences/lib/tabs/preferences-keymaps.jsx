@@ -123,7 +123,7 @@ class PreferencesKeymaps extends React.Component {
           </Flexbox>
           <p>
             You can choose a shortcut set to use keyboard shortcuts of familiar email clients.
-            To edit a shortcut, click it in the list below.
+            To edit a shortcut, click it in the list below and enter a replacement on the keyboard.
           </p>
           {displayedKeybindings.map(this._renderBindingsSection)}
         </section>

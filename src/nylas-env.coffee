@@ -276,7 +276,7 @@ class NylasEnvConstructor
       jasmine.getEnv().currentSpec.fail(error)
     else if @inDevMode() and not noWindows
       @openDevTools()
-      @executeJavaScriptInDevTools('InspectorFrontendAPI.showConsole()')
+      @executeJavaScriptInDevTools('DevToolsAPI.showConsole()')
 
     @errorLogger.reportError(error, extra)
 
