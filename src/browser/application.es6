@@ -300,12 +300,12 @@ export default class Application extends EventEmitter {
       win.browserWindow.inspectElement(x, y);
     });
 
-    this.on('application:add-account', (provider) => {
+    this.on('application:add-account', ({existingAccount} = {}) => {
       this.windowManager.ensureWindow(WindowManager.ONBOARDING_WINDOW, {
         title: "Add an Account",
         windowProps: {
           page: "account-choose",
-          pageData: {provider},
+          pageData: {existingAccount},
         },
       })
     });

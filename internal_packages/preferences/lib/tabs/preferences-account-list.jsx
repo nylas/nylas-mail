@@ -62,17 +62,16 @@ class PreferencesAccountList extends Component {
       return <div className="account-list"></div>;
     }
     return (
-      <div className="account-list">
-        <EditableList
-          items={this.props.accounts}
-          itemContent={this._renderAccount}
-          selected={this.props.selected}
-          onReorderItem={this.props.onReorderAccount}
-          onCreateItem={this.props.onAddAccount}
-          onSelectItem={this.props.onSelectAccount}
-          onDeleteItem={this.props.onRemoveAccount}
-        />
-      </div>
+      <EditableList
+        className="account-list"
+        items={this.props.accounts}
+        itemContent={this._renderAccount}
+        selected={this.props.selected}
+        onReorderItem={this.props.onReorderAccount}
+        onCreateItem={this.props.onAddAccount}
+        onSelectItem={this.props.onSelectAccount}
+        onDeleteItem={this.props.onRemoveAccount}
+      />
     );
   }
 

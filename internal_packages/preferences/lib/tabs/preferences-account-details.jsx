@@ -1,5 +1,4 @@
 /* eslint global-require: 0 */
-import _ from 'underscore';
 import React, {Component, PropTypes} from 'react';
 import {EditableList, NewsletterSignup} from 'nylas-component-kit';
 import {RegExpUtils, Account} from 'nylas-exports';
@@ -57,8 +56,8 @@ class PreferencesAccountDetails extends Component {
   };
 
   _setState = (updates, callback = () => {}) => {
-    const updated = _.extend({}, this.state.account, updates);
-    this.setState({account: updated}, callback);
+    const account = Object.assign(this.state.account.clone(), updates);
+    this.setState({account}, callback);
   };
 
   _setStateAndSave = (updates) => {
@@ -106,12 +105,12 @@ class PreferencesAccountDetails extends Component {
     this._setStateAndSave({defaultAlias});
   };
 
-  _reconnect() {
-    const {account} = this.state;
+  _onReconnect = () => {
     const ipc = require('electron').ipcRenderer;
-    ipc.send('command', 'application:add-account', account.provider);
+    ipc.send('command', 'application:add-account', {existingAccount: this.state.account});
   }
-  _contactSupport() {
+
+  _onContactSupport = () => {
     const {shell} = require("electron");
     shell.openExternal("https://support.nylas.com/hc/en-us/requests/new");
   }
@@ -152,17 +151,17 @@ class PreferencesAccountDetails extends Component {
             `Nylas N1 can no longer authenticate with ${account.emailAddress}. The password or
             authentication may have changed.`,
             "Reconnect",
-            () => this._reconnect());
+            this._onReconnect);
         case Account.SYNC_STATE_STOPPED:
           return this._renderErrorDetail(
             `The cloud sync for ${account.emailAddress} has been disabled. Please contact Nylas support.`,
             "Contact support",
-            () => this._contactSupport());
+            this._onContactSupport);
         default:
           return this._renderErrorDetail(
             `Nylas encountered an error while syncing mail for ${account.emailAddress}. Contact Nylas support for details.`,
             "Contact support",
-            () => this._contactSupport());
+            this._onContactSupport);
       }
     }
     return null;
@@ -176,7 +175,7 @@ class PreferencesAccountDetails extends Component {
 
     return (
       <div className="account-details">
-        {this._renderSyncErrorDetails(account)}
+        {this._renderSyncErrorDetails()}
         <h3>Account Label</h3>
         <input
           type="text"
@@ -184,6 +183,12 @@ class PreferencesAccountDetails extends Component {
           onBlur={this._saveChanges}
           onChange={this._onAccountLabelUpdated}
         />
+
+        <h3>Account Settings</h3>
+
+        <div className="btn" onClick={this._onReconnect}>
+          {account.provider === 'gmail' ? 'Re-authenticate with Gmail...' : 'Update Connection Settings...'}
+        </div>
 
         <h3>Aliases</h3>
 
@@ -206,7 +211,6 @@ class PreferencesAccountDetails extends Component {
         <div className="newsletter">
           <NewsletterSignup emailAddress={account.emailAddress} name={account.name} />
         </div>
-
 
       </div>
     );

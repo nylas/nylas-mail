@@ -11,7 +11,16 @@ export default class AccountErrorHeader extends React.Component {
   }
 
   componentDidMount() {
+    this.mounted = true;
     this.unsubscribe = AccountStore.listen(() => this._onAccountsChanged());
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+    if (this.unsubscribe) {
+      this.unsubscribe();
+      this.unsubscribe = null;
+    }
   }
 
   getStateFromStores() {
@@ -22,9 +31,9 @@ export default class AccountErrorHeader extends React.Component {
     this.setState(this.getStateFromStores())
   }
 
-  _reconnect(account) {
+  _reconnect(existingAccount) {
     const ipc = require('electron').ipcRenderer;
-    ipc.send('command', 'application:add-account', account.provider);
+    ipc.send('command', 'application:add-account', {existingAccount});
   }
 
   _openPreferences() {
@@ -35,6 +44,18 @@ export default class AccountErrorHeader extends React.Component {
   _contactSupport() {
     const {shell} = require("electron");
     shell.openExternal("https://support.nylas.com/hc/en-us/requests/new");
+  }
+
+  _onCheckAgain = (event) => {
+    const errorAccounts = this.state.accounts.filter(a => a.hasSyncStateError());
+    this.setState({refreshing: true});
+
+    event.stopPropagation();
+
+    AccountStore.refreshHealthOfAccounts(errorAccounts.map(a => a.id)).finally(() => {
+      if (!this.mounted) { return; }
+      this.setState({refreshing: false});
+    });
   }
 
   renderErrorHeader(message, buttonName, actionCallback) {
@@ -52,11 +73,15 @@ export default class AccountErrorHeader extends React.Component {
           <div className="message">
             {message}
           </div>
+          <a className="action refresh" onClick={this._onCheckAgain}>
+            {this.state.refreshing ? "Checking..." : "Check Again"}
+          </a>
           <a className="action default" onClick={actionCallback}>
             {buttonName}
           </a>
         </div>
-      </div>)
+      </div>
+    )
   }
 
   render() {
@@ -93,6 +118,6 @@ export default class AccountErrorHeader extends React.Component {
         "Open preferences",
         () => this._openPreferences());
     }
-    return false;
+    return <span />;
   }
 }
