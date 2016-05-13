@@ -193,7 +193,7 @@ export default class ComposerHeader extends React.Component {
     if (!this.state.enabledFields.includes(Fields.Subject)) {
       return false;
     }
-    const {draft} = this.props
+    const {draft, session} = this.props
     return (
       <InjectedComponent
         ref={Fields.Subject}
@@ -201,6 +201,7 @@ export default class ComposerHeader extends React.Component {
         matching={{role: 'Composer:SubjectTextField'}}
         exposedProps={{
           draft,
+          session,
           value: draft.subject,
           draftClientId: draft.clientId,
           onSubjectChange: this._onSubjectChange,
