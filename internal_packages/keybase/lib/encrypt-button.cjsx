@@ -107,6 +107,7 @@ class EncryptMessageButton extends React.Component
           console.warn err
           NylasEnv.showErrorDialog(err)
         if cryptotext? and cryptotext != ""
+          # <pre> tag prevents gross HTML formatting in-flight
           cryptotext = "<pre>#{cryptotext}</pre>"
           @setState({
             currentlyEncrypted: true
@@ -127,7 +128,6 @@ class EncryptMessageButton extends React.Component
     pgp.box(params, cb)
 
   _checkKeysAndEncrypt: (text, identities, cb) =>
-    # what a great function name, amirite?
     emails = _.chain(identities)
       .pluck("addresses")
       .flatten()

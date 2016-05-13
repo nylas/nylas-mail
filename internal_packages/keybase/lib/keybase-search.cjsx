@@ -41,7 +41,7 @@ class KeybaseSearch extends React.Component
       kb.autocomplete(@state.query, (error, profiles) =>
         if profiles?
           profiles = _.map(profiles, (profile) ->
-            return new Identity({keybase_profile: profile})
+            return new Identity({keybase_profile: profile, isPriv: false})
           )
           @setState({results: profiles, loading: false})
         else
@@ -63,7 +63,7 @@ class KeybaseSearch extends React.Component
 
   _popoverDone: (addresses, identity) =>
     if addresses.length < 1
-      # no email addresses added, nop
+      # no email addresses added, noop
       return
     else
       identity.addresses = addresses
@@ -78,7 +78,7 @@ class KeybaseSearch extends React.Component
       if error
         console.error error
       else
-        PGPKeyStore.saveNewKey(identity, key, true) # isPub = true
+        PGPKeyStore.saveNewKey(identity, key)
     )
 
   _queryChange: (event) =>
