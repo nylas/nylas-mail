@@ -47,7 +47,7 @@ class ListTabular extends React.Component
     @_unlisten?()
     @_unlisten = dataSource.listen =>
       @setState(@buildStateForRange())
-    @setState(@buildStateForRange(dataSource: dataSource))
+    @setState(@buildStateForRange(start: -1, end: -1, dataSource: dataSource))
 
   buildStateForRange: ({dataSource, start, end} = {}) =>
     start ?= @state.renderedRangeStart
