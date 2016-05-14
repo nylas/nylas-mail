@@ -1,6 +1,6 @@
 import {DOMUtils, ComposerExtension} from 'nylas-exports';
 
-class TemplatesComposerExtension extends ComposerExtension {
+export default class TemplatesComposerExtension extends ComposerExtension {
 
   static warningsForSending({draft}) {
     const warnings = [];
@@ -115,6 +115,3 @@ class TemplatesComposerExtension extends ComposerExtension {
     }
   }
 }
-
-
-module.exports = TemplatesComposerExtension;

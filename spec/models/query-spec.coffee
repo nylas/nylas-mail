@@ -1,8 +1,8 @@
 ModelQuery = require '../../src/flux/models/query'
 {Matcher} = require '../../src/flux/attributes'
-Message = require '../../src/flux/models/message'
-Thread = require '../../src/flux/models/thread'
-Account = require '../../src/flux/models/account'
+Message = require('../../src/flux/models/message').default
+Thread = require('../../src/flux/models/thread').default
+Account = require('../../src/flux/models/account').default
 
 describe "ModelQuery", ->
   beforeEach ->

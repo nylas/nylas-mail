@@ -8,9 +8,9 @@ fs = require('fs-plus');
 path = require('path');
 if (process.type === 'renderer') {
   remote = require('electron').remote;
-  app = remote.require('app');
+  app = remote.app;
 } else {
-  app = require('app');
+  app = require('electron').app;
 }
 
 // A globally available ErrorLogger that can report errors to various

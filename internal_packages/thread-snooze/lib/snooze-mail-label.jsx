@@ -3,7 +3,7 @@ import React, {Component, PropTypes} from 'react';
 import {FocusedPerspectiveStore} from 'nylas-exports';
 import {RetinaImg, MailLabel} from 'nylas-component-kit';
 import {SNOOZE_CATEGORY_NAME, PLUGIN_ID} from './snooze-constants';
-import {snoozedUntilMessage} from './snooze-utils';
+import SnoozeUtils from './snooze-utils';
 
 
 class SnoozeMailLabel extends Component {
@@ -32,21 +32,22 @@ class SnoozeMailLabel extends Component {
       if (metadata) {
         // TODO this is such a hack
         const {snoozeDate} = metadata;
-        const message = snoozedUntilMessage(snoozeDate).replace('Snoozed', '')
+        const message = SnoozeUtils.snoozedUntilMessage(snoozeDate).replace('Snoozed', '')
         const content = (
           <span className="snooze-mail-label">
             <RetinaImg
               name="icon-snoozed.png"
-              mode={RetinaImg.Mode.ContentIsMask} />
+              mode={RetinaImg.Mode.ContentIsMask}
+            />
             <span className="date-message">{message}</span>
           </span>
         )
         const label = {
           displayName: content,
-          isLockedCategory: ()=> true,
-          hue: ()=> 259,
+          isLockedCategory: () => true,
+          hue: () => 259,
         }
-        return <MailLabel label={label} key={'snooze-message-' + thread.id} />;
+        return <MailLabel label={label} key={`snooze-message-${thread.id}`} />;
       }
       return <span />
     }

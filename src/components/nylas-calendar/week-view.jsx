@@ -98,7 +98,7 @@ export default class WeekView extends React.Component {
     this._sub = this.props.dataSource.buildObservable({
       startTime: startMoment.unix(),
       endTime: endMoment.unix(),
-    }).subscribe((state) => {this.setState(state)})
+    }).subscribe((state) => { this.setState(state) })
     this.setState({startMoment, endMoment})
   }
 
@@ -150,7 +150,9 @@ export default class WeekView extends React.Component {
     const dayUnix = day.unix();
     const events = eventsByDay[dayUnix]
     return (
-      <WeekViewEventColumn day={day} dayEnd={dayUnix + DAY_DUR - 1}
+      <WeekViewEventColumn
+        day={day}
+        dayEnd={dayUnix + DAY_DUR - 1}
         key={day.valueOf()}
         events={events}
         eventOverlap={this._eventOverlap(events)}
@@ -252,7 +254,10 @@ export default class WeekView extends React.Component {
 
   _headerComponents() {
     const left = (
-      <button key="today" className="btn" ref="todayBtn"
+      <button
+        key="today"
+        className="btn"
+        ref="todayBtn"
         onClick={this._onClickToday}
         style={{position: 'absolute', left: 10}}
       >
@@ -434,7 +439,8 @@ export default class WeekView extends React.Component {
         >
           <TopBanner bannerComponents={this.props.bannerComponents} />
 
-          <HeaderControls title={this._currentWeekText()}
+          <HeaderControls
+            title={this._currentWeekText()}
             ref="headerControls"
             headerComponents={this._headerComponents()}
             nextAction={this._onClickNextWeek}
@@ -442,7 +448,8 @@ export default class WeekView extends React.Component {
           />
 
           <div className="calendar-legend">
-            <div className="date-label-legend"
+            <div
+              className="date-label-legend"
               style={{height: this._allDayEventHeight(allDayOverlap) + 75 + 1}}
             >
               <span className="legend-text">All Day</span>
@@ -454,7 +461,9 @@ export default class WeekView extends React.Component {
             </div>
           </div>
 
-          <div className="calendar-area-wrap" ref="calendarAreaWrap"
+          <div
+            className="calendar-area-wrap"
+            ref="calendarAreaWrap"
             onScroll={this._onScrollCalWrap}
           >
             <div className="week-header" style={{width: `${this._bufferRatio() * 100}%`}}>
@@ -472,13 +481,16 @@ export default class WeekView extends React.Component {
                 allDayOverlap={allDayOverlap}
               />
             </div>
-            <div className="event-grid-wrap" ref="eventGridWrap"
+            <div
+              className="event-grid-wrap"
+              ref="eventGridWrap"
               onScroll={this._onGridScroll}
               style={{width: `${this._bufferRatio() * 100}%`}}
             >
               <div className="event-grid" style={{height: this._gridHeight()}}>
                 {days.map(_.partial(this._renderEventColumn, eventsByDay))}
-                <EventGridBackground height={this._gridHeight()}
+                <EventGridBackground
+                  height={this._gridHeight()}
                   intervalHeight={this.state.intervalHeight}
                   numColumns={BUFFER_DAYS * 2 + DAYS_IN_VIEW}
                   ref="eventGridBg"

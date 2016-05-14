@@ -1,4 +1,4 @@
-RetinaImg = require './retina-img'
+RetinaImg = require('./retina-img').default
 {Utils} = require 'nylas-exports'
 classnames = require 'classnames'
 

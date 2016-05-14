@@ -2,7 +2,7 @@ _ = require 'underscore'
 React = require 'react'
 ReactDOM = require 'react-dom'
 classNames = require 'classnames'
-RetinaImg = require './retina-img'
+RetinaImg = require('./retina-img').default
 EventedIFrame = require './evented-iframe'
 {NylasSyncStatusStore,
  FocusedPerspectiveStore} = require 'nylas-exports'

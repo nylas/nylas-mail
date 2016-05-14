@@ -4,7 +4,7 @@ import SignatureStore from '../lib/signature-store';
 
 const TEST_SIGNATURE = '<div class="something">This is my signature.</div>';
 
-describe("SignatureComposerExtension", () => {
+describe('SignatureComposerExtension', function signatureComposerExtension() {
   describe("applyTransformsToDraft", () => {
     it("should unwrap the signature and remove the custom DOM element", () => {
       const a = new Message({
@@ -23,7 +23,7 @@ describe("SignatureComposerExtension", () => {
         spyOn(NylasEnv.config, 'get').andCallFake(() => TEST_SIGNATURE);
       });
 
-      it("should insert the signature at the end of the message or before the first quoted text block and have a newline", ()=> {
+      it("should insert the signature at the end of the message or before the first quoted text block and have a newline", () => {
         const a = new Message({
           draft: true,
           accountId: TEST_ACCOUNT_ID,
@@ -78,7 +78,7 @@ describe("SignatureComposerExtension", () => {
     });
 
     describe("when no signature is present in the config file", () => {
-      beforeEach(()=> {
+      beforeEach(() => {
         spyOn(NylasEnv.config, 'get').andCallFake(() => undefined);
       });
 

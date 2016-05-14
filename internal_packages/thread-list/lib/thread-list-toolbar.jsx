@@ -14,7 +14,7 @@ class ThreadListToolbar extends Component {
     injectedButtons: PropTypes.element,
   };
 
-  onClearSelection = ()=> {
+  onClearSelection = () => {
     this.props.selection.clear()
   };
 

@@ -23,9 +23,10 @@ let fakeMessage2 = null;
 let msgWithReplyTo = null;
 let fakeMessageWithFiles = null;
 let msgWithReplyToDuplicates = null;
+let msgWithReplyToFromMe = null;
 let account = null;
 
-describe("DraftFactory", () => {
+describe('DraftFactory', function draftFactory() {
   beforeEach(() => {
     // Out of the scope of these specs
     spyOn(InlineStyleTransformer, 'run').andCallFake((input) => Promise.resolve(input));
@@ -103,6 +104,14 @@ describe("DraftFactory", () => {
       subject: 'Re: Fake Subject',
       date: new Date(1415814587),
     });
+
+    msgWithReplyToFromMe = new Message({
+      accountId: account.id,
+      threadId: 'fake-thread-id',
+      from: [account.me()],
+      to: [new Contact({email: 'tiffany@popular.com', name: 'Tiffany'})],
+      replyTo: [new Contact({email: 'danco@gmail.com', name: 'danco@gmail.com'})],
+    })
 
     msgWithReplyToDuplicates = new Message({
       id: 'fake-message-reply-to-duplicates',
@@ -246,6 +255,16 @@ describe("DraftFactory", () => {
             });
           });
         });
+
+        it("addresses the draft to all of the message's 'ReplyTo' recipients, even if the message is 'From' you", () => {
+          waitsForPromise(() => {
+            return DraftFactory.createDraftForReply({thread: fakeThread, message: msgWithReplyToFromMe, type: 'reply'}).then((draft) => {
+              expect(draft.to).toEqual(msgWithReplyToFromMe.replyTo);
+              expect(draft.cc.length).toBe(0);
+              expect(draft.bcc.length).toBe(0);
+            });
+          });
+        });
       });
 
       describe("when the message provided as context was sent by the current user", () => {
@@ -266,7 +285,7 @@ describe("DraftFactory", () => {
         waitsForPromise(() => {
           return DraftFactory.createDraftForReply({thread: fakeThread, message: fakeMessage1, type: 'reply-all'}).then((draft) => {
             const ccEmails = draft.cc.map(cc => cc.email);
-            expect(ccEmails.sort()).toEqual([ 'ben@nylas.com', 'evan@nylas.com', 'mg@nylas.com']);
+            expect(ccEmails.sort()).toEqual(['ben@nylas.com', 'evan@nylas.com', 'mg@nylas.com']);
           });
         });
       });
@@ -294,6 +313,14 @@ describe("DraftFactory", () => {
           waitsForPromise(() => {
             return DraftFactory.createDraftForReply({thread: fakeThread, message: msgWithReplyTo, type: 'reply-all'}).then((draft) => {
               expect(draft.to).toEqual(msgWithReplyTo.replyTo);
+            });
+          });
+        });
+
+        it("addresses the draft to all of the message's 'ReplyTo' recipients, even if the message is 'From' you", () => {
+          waitsForPromise(() => {
+            return DraftFactory.createDraftForReply({thread: fakeThread, message: msgWithReplyToFromMe, type: 'reply-all'}).then((draft) => {
+              expect(draft.to).toEqual(msgWithReplyToFromMe.replyTo);
             });
           });
         });
@@ -576,7 +603,7 @@ describe("DraftFactory", () => {
 
       it("works for lowercase", () => {
         waitsForPromise(() => {
-          return DraftFactory.createDraftForMailto('mailto:asdf@asdf.com?subject=' + this.expected).then((draft) => {
+          return DraftFactory.createDraftForMailto(`mailto:asdf@asdf.com?subject=${this.expected}`).then((draft) => {
             expect(draft.subject).toBe(this.expected);
           });
         });
@@ -584,7 +611,7 @@ describe("DraftFactory", () => {
 
       it("works for title case", () => {
         waitsForPromise(() => {
-          return DraftFactory.createDraftForMailto('mailto:asdf@asdf.com?Subject=' + this.expected).then((draft) => {
+          return DraftFactory.createDraftForMailto(`mailto:asdf@asdf.com?Subject=${this.expected}`).then((draft) => {
             expect(draft.subject).toBe(this.expected);
           });
         });
@@ -592,7 +619,7 @@ describe("DraftFactory", () => {
 
       it("works for uppercase", () => {
         waitsForPromise(() => {
-          return DraftFactory.createDraftForMailto('mailto:asdf@asdf.com?SUBJECT=' + this.expected).then((draft) => {
+          return DraftFactory.createDraftForMailto(`mailto:asdf@asdf.com?SUBJECT=${this.expected}`).then((draft) => {
             expect(draft.subject).toBe(this.expected);
           });
         });

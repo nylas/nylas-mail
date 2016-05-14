@@ -1,10 +1,11 @@
 _ = require 'underscore'
 NylasStore = require 'nylas-store'
 Actions = require '../actions'
-Account = require '../models/account'
+Account = require('../models/account').default
 Utils = require '../models/utils'
 DatabaseStore = require './database-store'
 keytar = require 'keytar'
+NylasAPI = null
 
 configAccountsKey = "nylas.accounts"
 configVersionKey = "nylas.accountsVersion"
@@ -25,6 +26,11 @@ class AccountStore extends NylasStore
     @listenTo Actions.updateAccount, @_onUpdateAccount
     @listenTo Actions.reorderAccount, @_onReorderAccount
 
+    if NylasEnv.isWorkWindow() and ['staging', 'production'].includes(NylasEnv.config.get('env'))
+      setTimeout( =>
+        @refreshHealthOfAccounts(@_accounts.map((a) -> a.id))
+      , 2000)
+
     NylasEnv.config.onDidChange configVersionKey, (change) =>
       # If we already have this version of the accounts config, it means we
       # are the ones who saved the change, and we don't need to reload.
@@ -32,7 +38,7 @@ class AccountStore extends NylasStore
       oldAccountIds = _.pluck(@_accounts, 'id')
       @_loadAccounts()
       newAccountIds = _.pluck(@_accounts, 'id')
-      newAccountIds = _.without(newAccountIds, oldAccountIds)
+      newAccountIds = _.difference(newAccountIds, oldAccountIds)
 
       if newAccountIds.length > 0
         Actions.focusDefaultMailboxPerspectiveForAccounts([newAccountIds[0]])
@@ -168,6 +174,20 @@ class AccountStore extends NylasStore
     @_save()
     Actions.focusDefaultMailboxPerspectiveForAccounts([account.id])
 
+  refreshHealthOfAccounts: (accountIds) =>
+    NylasAPI ?= require '../nylas-api'
+    Promise.all(accountIds.map (accountId) =>
+      return NylasAPI.makeRequest({
+        path: '/account',
+        accountId: accountId,
+      }).then (json) =>
+        existing = @accountForId(accountId)
+        return unless existing # user may have deleted
+        existing.fromJSON(json)
+    ).finally =>
+      @_caches = {}
+      @_save()
+
   # Exposed Data
 
   # Private: Helper which caches the results of getter functions often needed
@@ -236,9 +256,9 @@ class AccountStore extends NylasStore
   _importFakeData: (dir) =>
     fs = require 'fs-plus'
     path = require 'path'
-    Message = require '../models/message'
-    Account = require '../models/account'
-    Thread = require '../models/thread'
+    Message = require('../models/message').default
+    Account = require('../models/account').default
+    Thread = require('../models/thread').default
     Label = require '../models/label'
 
     @_caches = {}

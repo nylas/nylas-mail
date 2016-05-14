@@ -1,3 +1,5 @@
+/* eslint global-require: "off" */
+
 // // Translation Plugin
 // Last Revised: Feb. 29, 2016 by Ben Gotow
 
@@ -22,16 +24,16 @@ import {
 const YandexTranslationURL = 'https://translate.yandex.net/api/v1.5/tr.json/translate';
 const YandexTranslationKey = 'trnsl.1.1.20150415T044616Z.24814c314120d022.0a339e2bc2d2337461a98d5ec9863fc46e42735e';
 const YandexLanguages = {
-  'English': 'en',
-  'Spanish': 'es',
-  'Russian': 'ru',
-  'Chinese': 'zh',
-  'French': 'fr',
-  'German': 'de',
-  'Italian': 'it',
-  'Japanese': 'ja',
-  'Portuguese': 'pt',
-  'Korean': 'ko',
+  English: 'en',
+  Spanish: 'es',
+  Russian: 'ru',
+  Chinese: 'zh',
+  French: 'fr',
+  German: 'de',
+  Italian: 'it',
+  Japanese: 'ja',
+  Portuguese: 'pt',
+  Korean: 'ko',
 };
 
 class TranslateButton extends React.Component {
@@ -76,7 +78,7 @@ class TranslateButton extends React.Component {
     };
 
     // Use Node's `request` library to perform the translation using the Yandex API.
-    request({url: YandexTranslationURL, qs: query}, (error, resp, data)=> {
+    request({url: YandexTranslationURL, qs: query}, (error, resp, data) => {
       if (resp.statusCode !== 200) {
         this._onError(error);
         return;
@@ -97,7 +99,7 @@ class TranslateButton extends React.Component {
     });
   };
 
-  _onClickTranslateButton = ()=> {
+  _onClickTranslateButton = () => {
     const buttonRect = ReactDOM.findDOMNode(this).getBoundingClientRect()
     Actions.openPopover(
       this._renderPopover(),
@@ -113,9 +115,9 @@ class TranslateButton extends React.Component {
     return (
       <Menu
         className="translate-language-picker"
-        items={ Object.keys(YandexLanguages) }
-        itemKey={ (item)=> item }
-        itemContent={ (item)=> item }
+        items={Object.keys(YandexLanguages)}
+        itemKey={(item) => item}
+        itemContent={(item) => item}
         headerComponents={headerComponents}
         defaultSelectedIndex={-1}
         onSelect={this._onTranslate}
@@ -142,14 +144,17 @@ class TranslateButton extends React.Component {
         tabIndex={-1}
         className="btn btn-toolbar pull-right"
         onClick={this._onClickTranslateButton}
-        title="Translate email body…">
+        title="Translate email body…"
+      >
         <RetinaImg
           mode={RetinaImg.Mode.ContentIsMask}
-          url="nylas://composer-translate/assets/icon-composer-translate@2x.png" />
+          url="nylas://composer-translate/assets/icon-composer-translate@2x.png"
+        />
         &nbsp;
         <RetinaImg
           name="icon-composer-dropdown.png"
-          mode={RetinaImg.Mode.ContentIsMask}/>
+          mode={RetinaImg.Mode.ContentIsMask}
+        />
       </button>
     );
   }

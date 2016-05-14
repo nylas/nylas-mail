@@ -109,9 +109,14 @@ class ApplicationMenu
     return unless windowMenu
     idx = _.findIndex(windowMenu.submenu, ({id}) -> id is 'window-list-separator')
 
+    accelerators = {
+      'default': 'CmdOrCtrl+0',
+      'work': 'CmdOrCtrl+alt+w',
+    }
     windows = global.application.windowManager.getOpenWindows()
     windowsItems = windows.map (w) => {
       label: w.loadSettings().title || "Window"
+      accelerator: accelerators[w.windowType]
       click: ->
         w.show()
         w.focus()

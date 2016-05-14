@@ -1,14 +1,12 @@
 import _ from 'underscore';
 import {Listener, Publisher} from './flux/modules/reflux-coffee';
 import {includeModule} from './flux/coffee-helpers';
-import composerExtAdapter from './extensions/composer-extension-adapter';
-import messageViewExtAdapter from './extensions/message-view-extension-adapter';
 
 export class Registry {
 
   static include = includeModule;
 
-  constructor(name, deprecationAdapter = (ext)=> ext) {
+  constructor(name, deprecationAdapter = (ext) => ext) {
     this.name = name;
     this._deprecationAdapter = deprecationAdapter;
     this._registry = new Map();
@@ -52,12 +50,6 @@ export class Registry {
 Registry.include(Publisher);
 Registry.include(Listener);
 
-export const Composer = new Registry(
-  'Composer',
-  composerExtAdapter
-);
+export const Composer = new Registry('Composer');
 
-export const MessageView = new Registry(
-  'MessageView',
-  messageViewExtAdapter
-);
+export const MessageView = new Registry('MessageView');

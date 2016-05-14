@@ -53,7 +53,8 @@ export default class BaseDraftTask extends Task {
     .include(Message.attributes.body)
     .then((message) => {
       if (!message || !message.draft) {
-        return Promise.reject(new DraftNotFoundError());
+        const err = new DraftNotFoundError()
+        return Promise.reject(err);
       }
       this.draft = message;
       return Promise.resolve(message);

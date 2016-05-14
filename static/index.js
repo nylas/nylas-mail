@@ -60,7 +60,7 @@ function setupWindow (loadSettings) {
   //   productName: 'N1',
   //   companyName: 'Nylas',
   //   // By explicitly passing the app version here, we could save the call
-  //   // of "require('electron').remote.require('app').getVersion()".
+  //   // of "require('electron').remote.app.getVersion()".
   //   extra: {_version: loadSettings.appVersion}
   // })
 

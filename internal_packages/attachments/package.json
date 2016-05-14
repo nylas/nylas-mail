@@ -12,6 +12,7 @@
   },
   "windowTypes": {
     "default": true,
-    "composer": true
+    "composer": true,
+    "composer-preload": true
   }
 }

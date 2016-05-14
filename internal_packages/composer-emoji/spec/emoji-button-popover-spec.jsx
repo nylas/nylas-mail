@@ -7,8 +7,8 @@ import Contenteditable from '../../../src/components/contenteditable/contentedit
 import EmojiButtonPopover from '../lib/emoji-button-popover';
 import EmojiComposerExtension from '../lib/emoji-composer-extension';
 
-describe('EmojiButtonPopover', ()=> {
-  beforeEach(()=> {
+describe('EmojiButtonPopover', function emojiButtonPopover() {
+  beforeEach(() => {
     this.position = {
       x: 20,
       y: 40,
@@ -23,19 +23,20 @@ describe('EmojiButtonPopover', ()=> {
       <Contenteditable
         value={''}
         onChange={jasmine.createSpy('onChange')}
-        extensions={[EmojiComposerExtension]} />
+        extensions={[EmojiComposerExtension]}
+      />
     );
   });
 
-  describe('when inserting emoji', ()=> {
-    it('should insert emoji on click', ()=> {
+  describe('when inserting emoji', () => {
+    it('should insert emoji on click', () => {
       ReactTestUtils.Simulate.mouseDown(this.canvas);
       expect(EmojiComposerExtension._onSelectEmoji).toHaveBeenCalled();
     });
   });
 
-  describe('when searching for emoji', ()=> {
-    it('should filter for matches', ()=> {
+  describe('when searching for emoji', () => {
+    it('should filter for matches', () => {
       this.searchNode = findDOMNode(ReactTestUtils.findRenderedDOMComponentWithClass(this.component, 'search'))
       const event = {
         target: {

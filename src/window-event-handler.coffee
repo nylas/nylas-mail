@@ -14,14 +14,6 @@ class WindowEventHandler
     _.defer =>
       @showDevModeMessages()
 
-    ipcRenderer.on 'open-path', (event, pathToOpen) ->
-      unless NylasEnv.project?.getPaths().length
-        if fs.existsSync(pathToOpen) or fs.existsSync(path.dirname(pathToOpen))
-          NylasEnv.project?.setPaths([pathToOpen])
-
-      unless fs.isDirectorySync(pathToOpen)
-        NylasEnv.workspace?.open(pathToOpen, {})
-
     ipcRenderer.on 'update-available', (event, detail) ->
       NylasEnv.updateAvailable(detail)
 
@@ -131,7 +123,7 @@ class WindowEventHandler
     {remote} = require('electron')
     _.defer ->
       if remote.getGlobal('application').quitting
-        remote.require('app').quit()
+        remote.app.quit()
       else
         NylasEnv.close()
 
@@ -188,8 +180,7 @@ class WindowEventHandler
     word = event.target.value.substr(wordStart, wordEnd - wordStart)
 
     {remote} = require('electron')
-    Menu = remote.require('menu')
-    MenuItem = remote.require('menu-item')
+    {Menu, MenuItem} = remote
     menu = new Menu()
 
     NylasSpellchecker = require('./nylas-spellchecker')

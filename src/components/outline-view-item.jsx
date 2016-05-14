@@ -1,3 +1,5 @@
+/* eslint global-require:0 */
+
 import _ from 'underscore';
 import classnames from 'classnames';
 import React, {Component, PropTypes} from 'react';
@@ -133,6 +135,7 @@ class OutlineViewItem extends Component {
     }).isRequired,
   };
 
+  static CounterStyles = CounterStyles;
 
   constructor(props) {
     super(props);
@@ -167,12 +170,9 @@ class OutlineViewItem extends Component {
     }
   }
 
-  static CounterStyles = CounterStyles;
-
-
   // Helpers
 
-  _runCallback = (method, ...args)=> {
+  _runCallback = (method, ...args) => {
     const item = this.props.item;
     if (item[method]) {
       return item[method](item, ...args);
@@ -180,15 +180,15 @@ class OutlineViewItem extends Component {
     return undefined;
   };
 
-  _shouldShowContextMenu = ()=> {
+  _shouldShowContextMenu = () => {
     return this.props.item.onDelete != null || this.props.item.onEdited != null;
   };
 
-  _shouldAcceptDrop = (event)=> {
+  _shouldAcceptDrop = (event) => {
     return this._runCallback('shouldAcceptDrop', event);
   };
 
-  _clearEditingState = (event)=> {
+  _clearEditingState = (event) => {
     this.setState({editing: false});
     this._runCallback('onInputCleared', event);
   };
@@ -196,7 +196,7 @@ class OutlineViewItem extends Component {
 
   // Handlers
 
-  _onDragStateChange = ({isDropping})=> {
+  _onDragStateChange = ({isDropping}) => {
     this.setState({isDropping});
 
     const {item} = this.props;
@@ -208,43 +208,43 @@ class OutlineViewItem extends Component {
     }
   };
 
-  _onDrop = (event)=> {
+  _onDrop = (event) => {
     this._runCallback('onDrop', event);
   };
 
-  _onCollapseToggled = ()=> {
+  _onCollapseToggled = () => {
     this._runCallback('onCollapseToggled');
   };
 
-  _onClick = (event)=> {
+  _onClick = (event) => {
     event.preventDefault();
     this._runCallback('onSelect');
   };
 
-  _onDelete = ()=> {
+  _onDelete = () => {
     this._runCallback('onDelete');
   };
 
-  _onEdited = (value)=> {
+  _onEdited = (value) => {
     this._runCallback('onEdited', value);
   };
 
-  _onEdit = ()=> {
+  _onEdit = () => {
     if (this.props.item.onEdited) {
       this.setState({editing: true});
     }
   };
 
-  _onInputFocus = (event)=> {
+  _onInputFocus = (event) => {
     const input = event.target;
     input.selectionStart = input.selectionEnd = input.value.length;
   };
 
-  _onInputBlur = (event)=> {
+  _onInputBlur = (event) => {
     this._clearEditingState(event);
   };
 
-  _onInputKeyDown = (event)=> {
+  _onInputKeyDown = (event) => {
     if (event.key === 'Escape') {
       this._clearEditingState(event);
     }
@@ -254,7 +254,7 @@ class OutlineViewItem extends Component {
     }
   };
 
-  _onShowContextMenu = (event)=> {
+  _onShowContextMenu = (event) => {
     event.stopPropagation()
     const item = this.props.item;
     const contextMenuLabel = item.contextMenuLabel || item.name
@@ -296,7 +296,8 @@ class OutlineViewItem extends Component {
         <RetinaImg
           name={item.iconName}
           fallback={'folder.png'}
-          mode={RetinaImg.Mode.ContentIsMask} />
+          mode={RetinaImg.Mode.ContentIsMask}
+        />
       </div>
     );
   }
@@ -314,7 +315,8 @@ class OutlineViewItem extends Component {
           defaultValue={item.name}
           onBlur={this._onInputBlur}
           onFocus={this._onInputFocus}
-          onKeyDown={this._onInputKeyDown} />
+          onKeyDown={this._onInputKeyDown}
+        />
       );
     }
     return <div className="name">{item.name}</div>;
@@ -322,9 +324,9 @@ class OutlineViewItem extends Component {
 
   _renderItem(item = this.props.item, state = this.state) {
     const containerClass = classnames({
-      'item': true,
-      'selected': item.selected,
-      'editing': state.editing,
+      item: true,
+      selected: item.selected,
+      editing: state.editing,
       [item.className]: item.className,
     });
 
@@ -336,7 +338,8 @@ class OutlineViewItem extends Component {
         onClick={this._onClick}
         onDoubleClick={this._onEdit}
         shouldAcceptDrop={this._shouldAcceptDrop}
-        onDragStateChange={this._onDragStateChange} >
+        onDragStateChange={this._onDragStateChange}
+      >
         {this._renderCount()}
         {this._renderIcon()}
         {this._renderItemContent()}
@@ -369,7 +372,8 @@ class OutlineViewItem extends Component {
           <DisclosureTriangle
             collapsed={item.collapsed}
             visible={item.children.length > 0}
-            onCollapseToggled={this._onCollapseToggled} />
+            onCollapseToggled={this._onCollapseToggled}
+          />
           {this._renderItem()}
         </span>
         {this._renderChildren()}

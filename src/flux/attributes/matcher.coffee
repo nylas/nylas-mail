@@ -5,6 +5,9 @@ _ = require 'underscore'
 # That's right. Two single quotes in a row…
 singleQuoteEscapeSequence = "''"
 
+# https://www.sqlite.org/fts5.html#section_3
+doubleQuoteEscapeSequence = '""'
+
 
 ###
 Public: The Matcher class encapsulates a particular comparison clause on an {Attribute}.
@@ -219,6 +222,7 @@ class SearchMatcher extends Matcher
       .replace(/^['"]/, "")
       .replace(/['"]$/, "")
       .replace(/'/g, singleQuoteEscapeSequence)
+      .replace(/"/g, doubleQuoteEscapeSequence)
     )
     @
 

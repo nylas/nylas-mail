@@ -1,0 +1,8 @@
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"><p>Hey Ben,</p><p>
+This is the reply! This tracking pixel should not be removed.
+<img src="https://nylas.com/open/abcd/zza1231231" />
+<blockquote>
+This is the email I sent!
+<img src="https://nylas.com/open/1234/12zxczxc123" />
+</blockquote>
+</div>

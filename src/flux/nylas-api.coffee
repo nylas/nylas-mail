@@ -1,10 +1,10 @@
 _ = require 'underscore'
 {remote} = require 'electron'
 request = require 'request'
-NylasLongConnection = require './nylas-long-connection'
+NylasLongConnection = require('./nylas-long-connection').default
 Utils = require './models/utils'
-Account = require './models/account'
-Message = require './models/message'
+Account = require('./models/account').default
+Message = require('./models/message').default
 Actions = require './actions'
 {APIError} = require './errors'
 PriorityUICoordinator = require '../priority-ui-coordinator'
@@ -122,6 +122,7 @@ class NylasAPI
   PermanentErrorCodes: PermanentErrorCodes
   CancelledErrorCode: CancelledErrorCode
   SampleTemporaryErrorCode: SampleTemporaryErrorCode
+  LongConnectionStatuses: NylasLongConnection.Statuses
 
   constructor: ->
     @_lockTracker = new NylasAPIChangeLockTracker()
@@ -249,24 +250,8 @@ class NylasAPI
     account = AccountStore.accounts().find (account) ->
       AccountStore.tokenForAccountId(account.id) is apiToken
 
-    email = "your mail provider"
-    email = account.emailAddress if account
-
-    Actions.postNotification
-      type: 'error'
-      tag: '401'
-      sticky: true
-      message: "A mailbox action for #{email} could not be completed. You
-                may not be able to send or receive mail.",
-      icon: 'fa-sign-out'
-      actions: [{
-          default: true
-          dismisses: true
-          label: 'Dismiss'
-          provider: account?.provider ? ""
-          id: '401:dismiss'
-        }]
-
+    if account
+      Actions.updateAccount(account.id, {syncState: Account.SYNC_STATE_AUTH_FAILED})
     return Promise.resolve()
 
   # Returns a Promise that resolves when any parsed out models (if any)
@@ -348,10 +333,10 @@ class NylasAPI
     "event": require('./models/event')
     "label": require('./models/label')
     "folder": require('./models/folder')
-    "thread": require('./models/thread')
-    "draft": require('./models/message')
-    "account": require('./models/account')
-    "message": require('./models/message')
+    "thread": require('./models/thread').default
+    "draft": require('./models/message').default
+    "account": require('./models/account').default
+    "message": require('./models/message').default
     "contact": require('./models/contact')
     "calendar": require('./models/calendar')
 

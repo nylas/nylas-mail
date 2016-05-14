@@ -2,8 +2,8 @@ DatabaseStore = require '../../src/flux/stores/database-store'
 
 QueryRange = require '../../src/flux/models/query-range'
 MutableQueryResultSet = require '../../src/flux/models/mutable-query-result-set'
-QuerySubscription = require '../../src/flux/models/query-subscription'
-Thread = require '../../src/flux/models/thread'
+QuerySubscription = require('../../src/flux/models/query-subscription').default
+Thread = require('../../src/flux/models/thread').default
 Label = require '../../src/flux/models/label'
 Utils = require '../../src/flux/models/utils'
 

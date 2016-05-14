@@ -4,7 +4,7 @@ import Task from './task';
 import NylasAPI from '../nylas-api';
 import {APIError} from '../errors';
 
-module.exports = class SyncbackCategoryTask extends Task {
+export default class SyncbackCategoryTask extends Task {
 
   constructor({category, displayName} = {}) {
     super()

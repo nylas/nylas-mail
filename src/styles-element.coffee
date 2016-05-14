@@ -18,9 +18,6 @@ class StylesElement extends HTMLElement
     @styleElementClonesByOriginalElement = new WeakMap
 
   attachedCallback: ->
-    if @context is 'nylas-theme-wrap'
-      for styleElement in @children
-        @upgradeDeprecatedSelectors(styleElement)
     @initialize()
 
   detachedCallback: ->
@@ -64,10 +61,6 @@ class StylesElement extends HTMLElement
           break
 
     @insertBefore(styleElementClone, insertBefore)
-
-    if @context is 'nylas-theme-wrap'
-      @upgradeDeprecatedSelectors(styleElementClone)
-
     @emitter.emit 'did-add-style-element', styleElementClone
 
   styleElementRemoved: (styleElement) ->
@@ -86,32 +79,5 @@ class StylesElement extends HTMLElement
 
   styleElementMatchesContext: (styleElement) ->
     not @context? or styleElement.context is @context
-
-  upgradeDeprecatedSelectors: (styleElement) ->
-    return unless styleElement.sheet?
-
-    upgradedSelectors = []
-
-    for rule in styleElement.sheet.cssRules
-      continue unless rule.selectorText?
-      continue if /\:host/.test(rule.selectorText)
-
-      inputSelector = rule.selectorText
-      outputSelector = rule.selectorText
-        .replace(/\.editor-colors($|[ >])/g, ':host$1')
-        .replace(/\.editor([:.][^ ,>]+)/g, ':host($1)')
-        .replace(/\.editor($|[ ,>])/g, ':host$1')
-
-      unless inputSelector is outputSelector
-        rule.selectorText = outputSelector
-        upgradedSelectors.push({inputSelector, outputSelector})
-
-    if upgradedSelectors.length > 0
-      warning = "Upgraded the following syntax theme selectors in `#{styleElement.sourcePath}` for shadow DOM compatibility:\n\n"
-      for {inputSelector, outputSelector} in upgradedSelectors
-        warning += "`#{inputSelector}` => `#{outputSelector}`\n"
-
-      warning += "\nSee the upgrade guide for information on removing this warning."
-      console.warn(warning)
 
 module.exports = StylesElement = document.registerElement 'nylas-styles', prototype: StylesElement.prototype

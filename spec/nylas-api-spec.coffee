@@ -2,8 +2,8 @@ _ = require 'underscore'
 fs = require 'fs'
 Actions = require '../src/flux/actions'
 NylasAPI = require '../src/flux/nylas-api'
-Thread = require '../src/flux/models/thread'
-Message = require '../src/flux/models/message'
+Thread = require('../src/flux/models/thread').default
+Message = require('../src/flux/models/message').default
 AccountStore = require '../src/flux/stores/account-store'
 DatabaseStore = require '../src/flux/stores/database-store'
 DatabaseTransaction = require '../src/flux/stores/database-transaction'
@@ -152,18 +152,17 @@ describe "NylasAPI", ->
         expect(DatabaseTransaction.prototype.unpersistModel).not.toHaveBeenCalled()
 
   describe "handleAuthenticationFailure", ->
-    it "should post a notification", ->
-      spyOn(Actions, 'postNotification')
-      NylasAPI._handleAuthenticationFailure('/threads/1234', 'token')
-      expect(Actions.postNotification).toHaveBeenCalled()
-      expect(Actions.postNotification.mostRecentCall.args[0].message.trim()).toEqual("A mailbox action for your mail provider could not be completed. You may not be able to send or receive mail.")
-
-    it "should include the email address if possible", ->
+    it "should put the account in an `invalid` state", ->
+      spyOn(Actions, 'updateAccount')
       spyOn(AccountStore, 'tokenForAccountId').andReturn('token')
-      spyOn(Actions, 'postNotification')
       NylasAPI._handleAuthenticationFailure('/threads/1234', 'token')
-      expect(Actions.postNotification).toHaveBeenCalled()
-      expect(Actions.postNotification.mostRecentCall.args[0].message.trim()).toEqual("A mailbox action for #{AccountStore.accounts()[0].emailAddress} could not be completed. You may not be able to send or receive mail.")
+      expect(Actions.updateAccount).toHaveBeenCalled()
+      expect(Actions.updateAccount.mostRecentCall.args).toEqual([AccountStore.accounts()[0].id, {syncState: 'invalid'}])
+
+    it "should not throw an exception if the account cannot be found", ->
+      spyOn(Actions, 'updateAccount')
+      NylasAPI._handleAuthenticationFailure('/threads/1234', 'token')
+      expect(Actions.updateAccount).not.toHaveBeenCalled()
 
   describe "handleModelResponse", ->
     beforeEach ->
@@ -247,7 +246,7 @@ describe "NylasAPI", ->
             expect(models[0].id).toBe 'b'
 
     describe "when updating models", ->
-      Message = require '../src/flux/models/message'
+      Message = require('../src/flux/models/message').default
       beforeEach ->
         @json = [
           {id: 'a', object: 'draft', unread: true}
@@ -304,10 +303,10 @@ describe "NylasAPI", ->
         "event": require('../src/flux/models/event')
         "label": require('../src/flux/models/label')
         "folder": require('../src/flux/models/folder')
-        "thread": require('../src/flux/models/thread')
-        "draft": require('../src/flux/models/message')
-        "account": require('../src/flux/models/account')
-        "message": require('../src/flux/models/message')
+        "thread": require('../src/flux/models/thread').default
+        "draft": require('../src/flux/models/message').default
+        "account": require('../src/flux/models/account').default
+        "message": require('../src/flux/models/message').default
         "contact": require('../src/flux/models/contact')
         "calendar": require('../src/flux/models/calendar')
 

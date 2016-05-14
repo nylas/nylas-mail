@@ -1,6 +1,6 @@
 Contact = require "../../src/flux/models/contact"
 AccountStore = require "../../src/flux/stores/account-store"
-Account = require "../../src/flux/models/account"
+Account = require("../../src/flux/models/account").default
 
 contact_1 =
   name: "Evan Morikawa"

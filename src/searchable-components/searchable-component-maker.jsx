@@ -8,7 +8,7 @@ class SearchableComponent {
   componentDidMount(superMethod, ...args) {
     if (superMethod) superMethod.apply(this, args);
     this.__regionId = Utils.generateTempId();
-    this._searchableListener = SearchableComponentStore.listen(() => {this._onSearchableComponentStoreChange()})
+    this._searchableListener = SearchableComponentStore.listen(() => { this._onSearchableComponentStoreChange() })
     SearchableComponentStore.registerSearchRegion(this.__regionId, ReactDOM.findDOMNode(this))
   }
 
@@ -53,8 +53,9 @@ class SearchableComponent {
         const matchNodeMap = parser.getElementsWithNewMatchNodes(normalizedDOM, searchTerm, this.state.__searchIndex);
         return parser.highlightSearch(normalizedDOM, matchNodeMap)
       }
-      return vDOM
+      return vDOM;
     }
+    return null;
   }
 }
 

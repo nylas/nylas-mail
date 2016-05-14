@@ -130,6 +130,7 @@ class EmojiComposerExtension extends ComposerExtension {
         EmojiComposerExtension._onSelectEmoji(args);
       }
     }
+    return null;
   };
 
   static applyTransformsToDraft = ({draft}) => {
@@ -214,6 +215,7 @@ class EmojiComposerExtension extends ComposerExtension {
                     style="margin-top: -5px;">`;
     editor.insertHTML(html, {selectInsertion: false});
     EmojiActions.useEmoji({emojiName: emojiName, emojiChar: emojiChar});
+    return null;
   };
 
   static _emojiPickerWidth(emojiOptions) {

@@ -3,10 +3,10 @@
  WorkspaceStore} = require 'nylas-exports'
 
 MessageList = require "./message-list"
-MessageListHiddenMessagesToggle = require './message-list-hidden-messages-toggle'
+MessageListHiddenMessagesToggle = require('./message-list-hidden-messages-toggle').default
 
 SidebarPluginContainer = require "./sidebar-plugin-container"
-SidebarParticipantPicker = require './sidebar-participant-picker'
+SidebarParticipantPicker = require('./sidebar-participant-picker').default
 
 module.exports =
   activate: ->

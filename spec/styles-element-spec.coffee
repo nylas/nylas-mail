@@ -76,39 +76,3 @@ describe "StylesElement", ->
     expect(element.children.length).toBe 2
     expect(element.children[0].textContent).toBe "a {color: red;}"
     expect(element.children[1].textContent).toBe "a {color: blue;}"
-
-  describe "nylas-theme-wrap shadow DOM selector upgrades", ->
-    beforeEach ->
-      element.setAttribute('context', 'nylas-theme-wrap')
-      spyOn(console, 'warn')
-
-    it "upgrades selectors containing .editor-colors", ->
-      NylasEnv.styles.addStyleSheet(".editor-colors {background: black;}", context: 'nylas-theme-wrap')
-      expect(element.firstChild.sheet.cssRules[0].selectorText).toBe ':host'
-
-    it "upgrades selectors containing .editor", ->
-      NylasEnv.styles.addStyleSheet """
-        .editor {background: black;}
-        .editor.mini {background: black;}
-        .editor:focus {background: black;}
-      """, context: 'nylas-theme-wrap'
-
-      expect(element.firstChild.sheet.cssRules[0].selectorText).toBe ':host'
-      expect(element.firstChild.sheet.cssRules[1].selectorText).toBe ':host(.mini)'
-      expect(element.firstChild.sheet.cssRules[2].selectorText).toBe ':host(:focus)'
-
-    it "defers selector upgrade until the element is attached", ->
-      element = new StylesElement
-      element.setAttribute('context', 'nylas-theme-wrap')
-      element.initialize()
-
-      NylasEnv.styles.addStyleSheet ".editor {background: black;}", context: 'nylas-theme-wrap'
-      expect(element.firstChild.sheet).toBeNull()
-
-      document.querySelector('#jasmine-content').appendChild(element)
-      expect(element.firstChild.sheet.cssRules[0].selectorText).toBe ':host'
-
-    it "does not throw exceptions on rules with no selectors", ->
-      NylasEnv.styles.addStyleSheet """
-        @media screen {font-size: 10px;}
-      """, context: 'nylas-theme-wrap'

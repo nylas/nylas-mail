@@ -1,12 +1,12 @@
 import _ from 'underscore'
-import React, {Component} from 'react'
+import React from 'react'
 import {findDOMNode} from 'react-dom'
 
 
 const FOCUSABLE_SELECTOR = 'input, textarea, [contenteditable], [tabIndex]'
 
 function AutoFocuses(ComposedComponent, {onMount = true, onUpdate = true} = {}) {
-  return class extends Component {
+  return class extends ComposedComponent {
     static displayName = ComposedComponent.displayName
 
     componentDidMount() {
@@ -48,7 +48,7 @@ function AutoFocuses(ComposedComponent, {onMount = true, onUpdate = true} = {}) 
 
       // _.sortBy ranks in ascending numerical order.
       const focusable = currentNode.querySelectorAll(FOCUSABLE_SELECTOR);
-      const matches = _.sortBy(focusable, (node)=> {
+      const matches = _.sortBy(focusable, (node) => {
         if (node.tabIndex > 0) {
           return node.tabIndex;
         } else if (node.nodeName === "INPUT") {

@@ -6,7 +6,7 @@ import {
   DestroyModelTask,
   DatabaseTransaction} from 'nylas-exports'
 
-describe("DestroyModelTask", () => {
+describe('DestroyModelTask', function destroyModelTask() {
   beforeEach(() => {
     this.existingModel = new Model()
     this.existingModel.clientId = "local-123"
@@ -96,7 +96,7 @@ describe("DestroyModelTask", () => {
       window.waitsForPromise(() => {
         return this.task.performLocal().then(() => {
           this.task.serverId = null
-          return this.task.performRemote().then((status)=> {
+          return this.task.performRemote().then((status) => {
             expect(status).toEqual(Task.Status.Continue)
           })
         });

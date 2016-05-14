@@ -69,7 +69,7 @@ class TabInstalled extends React.Component {
       devEmpty = (<span>
         {`You don't have any packages installed in ~/.nylas/dev/packages. `}
         These plugins are only loaded when you run the app with debug flags
-        enabled (via the Developer menu).<br/><br/>Learn more about building
+        enabled (via the Developer menu).<br /><br />Learn more about building
         plugins with <a href="https://nylas.com/N1/docs">our docs</a>.
       </span>);
       devCTA = (<div className="btn btn-small" onClick={this._onCreatePackage}>Create New Plugin...</div>);
@@ -85,19 +85,23 @@ class TabInstalled extends React.Component {
               className="search"
               value={this.state.search}
               onChange={this._onSearchChange}
-              placeholder="Search Installed Plugins" />
+              placeholder="Search Installed Plugins"
+            />
           </Flexbox>
           <PackageSet
             packages={this.state.packages.user}
             title="Installed plugins"
-            emptyText={searchEmpty || <span>{`You don't have any plugins installed in ~/.nylas/packages.`}</span>} />
+            emptyText={searchEmpty || <span>{`You don't have any plugins installed in ~/.nylas/packages.`}</span>}
+          />
           <PackageSet
             title="Built-in plugins"
-            packages={this.state.packages.example} />
+            packages={this.state.packages.example}
+          />
           <PackageSet
             title="Development plugins"
             packages={devPackages}
-            emptyText={searchEmpty || devEmpty} />
+            emptyText={searchEmpty || devEmpty}
+          />
           <div className="new-package">
             {devCTA}
           </div>

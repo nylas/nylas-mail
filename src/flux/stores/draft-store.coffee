@@ -10,15 +10,15 @@ AccountStore = require './account-store'
 TaskQueueStatusStore = require './task-queue-status-store'
 FocusedContentStore = require './focused-content-store'
 
-BaseDraftTask = require '../tasks/base-draft-task'
-SendDraftTask = require '../tasks/send-draft-task'
-SyncbackDraftFilesTask = require '../tasks/syncback-draft-files-task'
-SyncbackDraftTask = require '../tasks/syncback-draft-task'
-DestroyDraftTask = require '../tasks/destroy-draft-task'
+BaseDraftTask = require('../tasks/base-draft-task').default
+SendDraftTask = require('../tasks/send-draft-task').default
+SyncbackDraftFilesTask = require('../tasks/syncback-draft-files-task').default
+SyncbackDraftTask = require('../tasks/syncback-draft-task').default
+DestroyDraftTask = require('../tasks/destroy-draft-task').default
 
-Thread = require '../models/thread'
+Thread = require('../models/thread').default
 Contact = require '../models/contact'
-Message = require '../models/message'
+Message = require('../models/message').default
 Actions = require '../actions'
 
 TaskQueue = require './task-queue'
@@ -27,7 +27,7 @@ SoundRegistry = require '../../sound-registry'
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'
 
-ExtensionRegistry = require '../../extension-registry'
+ExtensionRegistry = require('../../extension-registry')
 {deprecate} = require '../../deprecate-utils'
 
 ###
@@ -299,10 +299,20 @@ class DraftStore
 
   _onHandleMailFiles: (event, paths) =>
     DraftFactory.createDraft().then (draft) =>
-      @_finalizeAndPersistNewMessage(draft, popout: true)
+      @_finalizeAndPersistNewMessage(draft)
     .then ({draftClientId}) =>
+      remaining = paths.length
+      callback = =>
+        remaining -= 1
+        if remaining is 0
+          @_onPopoutDraftClientId(draftClientId)
+
       for path in paths
-        Actions.addAttachment({filePath: path, messageClientId: draftClientId})
+        Actions.addAttachment({
+          filePath: path,
+          messageClientId: draftClientId,
+          callback: callback
+        })
 
   _onDestroyDraft: (draftClientId) =>
     session = @_draftSessions[draftClientId]
@@ -403,7 +413,7 @@ class DraftStore
                 console.log(transformed.body)
                 console.log("-- UNTRANSFORMED (should match BEFORE) --")
                 console.log(untransformed.body)
-                NylasEnv.reportError(new Error("An extension applied a tranform to the draft that it could not reverse."))
+                NylasEnv.reportError(new Error("Extension #{ext.name} applied a tranform to the draft that it could not reverse."))
               draft = transformed
 
       .then =>

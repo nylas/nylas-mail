@@ -19,10 +19,8 @@ const Actions = Reflux.createActions([
   'refreshInstalledPackages',
 ]);
 
-for (const key in Actions) {
-  if (Actions.hasOwnProperty(key)) {
-    Actions[key].sync = true;
-  }
+for (const key of Object.keys(Actions)) {
+  Actions[key].sync = true;
 }
 
 export default Actions;

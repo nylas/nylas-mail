@@ -1,17 +1,17 @@
 _ = require 'underscore'
 
 Utils = require './flux/models/utils'
-TaskFactory = require './flux/tasks/task-factory'
+TaskFactory = require('./flux/tasks/task-factory').default
 AccountStore = require './flux/stores/account-store'
 CategoryStore = require './flux/stores/category-store'
 DatabaseStore = require './flux/stores/database-store'
-OutboxStore = require './flux/stores/outbox-store'
+OutboxStore = require('./flux/stores/outbox-store').default
 ThreadCountsStore = require './flux/stores/thread-counts-store'
-RecentlyReadStore = require './flux/stores/recently-read-store'
-MutableQuerySubscription = require './flux/models/mutable-query-subscription'
-UnreadQuerySubscription = require './flux/models/unread-query-subscription'
+RecentlyReadStore = require('./flux/stores/recently-read-store').default
+MutableQuerySubscription = require('./flux/models/mutable-query-subscription').default
+UnreadQuerySubscription = require('./flux/models/unread-query-subscription').default
 Matcher = require './flux/attributes/matcher'
-Thread = require './flux/models/thread'
+Thread = require('./flux/models/thread').default
 Category = require './flux/models/category'
 Actions = require './flux/actions'
 ChangeUnreadTask = null
@@ -204,7 +204,7 @@ class StarredMailboxPerspective extends MailboxPerspective
     super
 
   receiveThreads: (threadsOrIds) =>
-    ChangeStarredTask = require './flux/tasks/change-starred-task'
+    ChangeStarredTask = require('./flux/tasks/change-starred-task').default
     task = new ChangeStarredTask({threads:threadsOrIds, starred: true})
     Actions.queueTask(task)
 
@@ -378,12 +378,12 @@ class UnreadMailboxPerspective extends CategoryMailboxPerspective
   receiveThreads: (threadsOrIds) =>
     super(threadsOrIds)
 
-    ChangeUnreadTask ?= require './flux/tasks/change-unread-task'
+    ChangeUnreadTask ?= require('./flux/tasks/change-unread-task').default
     task = new ChangeUnreadTask({threads:threadsOrIds, unread: true})
     Actions.queueTask(task)
 
   tasksForRemovingItems: (threads, ruleset) =>
-    ChangeUnreadTask ?= require './flux/tasks/change-unread-task'
+    ChangeUnreadTask ?= require('./flux/tasks/change-unread-task').default
     tasks = super(threads, ruleset)
     tasks.push new ChangeUnreadTask({threads, unread: false})
     return tasks

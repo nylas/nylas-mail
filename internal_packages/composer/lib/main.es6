@@ -13,8 +13,8 @@ import {
 import ComposeButton from './compose-button';
 import ComposerView from './composer-view';
 
-import InflateDraftClientId from './decorators/inflate-draft-client-id';
-const ComposerViewForDraftClientId = InflateDraftClientId(ComposerView);
+import InflatesDraftClientId from './decorators/inflates-draft-client-id';
+const ComposerViewForDraftClientId = InflatesDraftClientId(ComposerView);
 
 class ComposerWithWindowProps extends React.Component {
   static displayName = 'ComposerWithWindowProps';
@@ -35,7 +35,7 @@ class ComposerWithWindowProps extends React.Component {
   }
 
   componentWillUnmount() {
-    if (this._usub) {this._usub()}
+    if (this._usub) { this._usub() }
   }
 
   componentDidUpdate() {
@@ -77,7 +77,7 @@ class ComposerWithWindowProps extends React.Component {
   }
 
   _showInitialErrorDialog(msg) {
-    const dialog = remote.require('dialog');
+    const dialog = remote.dialog;
     // We delay so the view has time to update the restored draft. If we
     // don't delay the modal may come up in a state where the draft looks
     // like it hasn't been restored or has been lost.

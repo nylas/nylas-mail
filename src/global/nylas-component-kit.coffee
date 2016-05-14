@@ -1,8 +1,12 @@
 # Publically exposed Nylas UI Components
 class NylasComponentKit
+
+  @default = (requireValue) -> requireValue.default ? requireValue
+
   @load = (prop, path) ->
     Object.defineProperty @prototype, prop,
-      get: -> require "../components/#{path}"
+      get: ->
+        NylasComponentKit.default(require "../components/#{path}")
 
   @loadFrom = (prop, path) ->
     Object.defineProperty @prototype, prop,
@@ -14,7 +18,7 @@ class NylasComponentKit
     {deprecate} = require '../deprecate-utils'
     Object.defineProperty @prototype, prop,
       get: deprecate prop, instead, @, ->
-        exported = require "../components/#{path}"
+        exported = NylasComponentKit.default(require "../components/#{path}")
         return exported
       enumerable: true
 
@@ -56,11 +60,15 @@ class NylasComponentKit
   @load "DateInput", "date-input"
   @load "DatePicker", "date-picker"
   @load "TimePicker", "time-picker"
-  @load "Table", "table"
-  @loadFrom "TableRow", "table"
-  @loadFrom "TableCell", "table"
+  @load "Table", "table/table"
+  @loadFrom "TableRow", "table/table"
+  @loadFrom "TableCell", "table/table"
   @load "SelectableTable", "selectable-table"
+  @loadFrom "SelectableTableRow", "selectable-table"
+  @loadFrom "SelectableTableCell", "selectable-table"
   @load "EditableTable", "editable-table"
+  @loadFrom "EditableTableCell", "editable-table"
+  @load "LazyRenderedList", "lazy-rendered-list"
 
   @load "ScrollRegion", 'scroll-region'
   @load "ResizableRegion", 'resizable-region'

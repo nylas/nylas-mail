@@ -28,11 +28,14 @@ export default class WeekViewEventColumn extends React.Component {
   _eventComponents() {
     return this.props.events.map((e) => {
       return (
-        <CalendarEvent event={e} order={this.props.eventOverlap[e.id].order}
+        <CalendarEvent
+          event={e}
+          order={this.props.eventOverlap[e.id].order}
           key={e.id}
           scopeEnd={this.props.dayEnd}
           scopeStart={this.props.day.unix()}
-          concurrentEvents={this.props.eventOverlap[e.id].concurrentEvents}/>
+          concurrentEvents={this.props.eventOverlap[e.id].concurrentEvents}
+        />
       );
     });
   }
@@ -44,8 +47,12 @@ export default class WeekViewEventColumn extends React.Component {
     });
     const end = moment(this.props.day).add(1, 'day').subtract(1, 'millisecond').valueOf()
     return (
-      <div className={className} key={this.props.day.valueOf()}
-           data-start={this.props.day.valueOf()} data-end={end}>
+      <div
+        className={className}
+        key={this.props.day.valueOf()}
+        data-start={this.props.day.valueOf()}
+        data-end={end}
+      >
         {this._eventComponents()}
       </div>
     )

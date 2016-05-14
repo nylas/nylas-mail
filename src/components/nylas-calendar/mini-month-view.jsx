@@ -79,13 +79,14 @@ export default class MiniMonthView extends React.Component {
         dayIter.weekday(weekday); // Locale aware!
         const dayStr = dayIter.format("D");
         const className = classnames({
-          day: true,
-          today: this._isSameDay(dayIter, this.today),
+          "day": true,
+          "today": this._isSameDay(dayIter, this.today),
           "cur-day": this._isSameDay(dayIter, valDay),
           "cur-month": dayIter.month() === curMonth,
         })
         dayEls.push(
-          <div className={className} key={`${week}-${weekday}`}
+          <div
+            className={className} key={`${week}-${weekday}`}
             data-timestamp={dayIter.valueOf()}
           >{dayStr}</div>
         )
@@ -101,11 +102,13 @@ export default class MiniMonthView extends React.Component {
     return (
       <div className="mini-month-view">
         <div className="header">
-          <div className="btn btn-icon"
+          <div
+            className="btn btn-icon"
             onClick={_.partial(this._changeMonth, -1)}
           >&lsaquo;</div>
           <span className="title">{this._shownMonthMoment().format("MMMM YYYY")}</span>
-          <div className="btn btn-icon"
+          <div
+            className="btn btn-icon"
             onClick={_.partial(this._changeMonth, 1)}
           >&rsaquo;</div>
         </div>

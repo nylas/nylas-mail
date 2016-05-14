@@ -2,7 +2,17 @@
 @import "ui-mixins";
 
 div.personal-level-icon {
-  width: 15px;
   display: inline-block;
-  margin-top: 1px;
+  margin: 0 3px;
+  img {
+    vertical-align: initial;
+  }
+}
+
+.list-item.focused, .list-item.selected {
+  div.personal-level-icon {
+    img {
+      -webkit-filter: brightness(600%) grayscale(100%);
+    }
+  }
 }

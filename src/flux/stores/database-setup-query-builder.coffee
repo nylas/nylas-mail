@@ -1,7 +1,7 @@
 _ = require 'underscore'
 {AttributeCollection, AttributeJoinedData} = require '../attributes'
 
-DatabaseObjectRegistry = require '../../database-object-registry'
+DatabaseObjectRegistry = require('../../database-object-registry').default
 {tableNameForJoin} = require '../models/utils'
 
 # The DatabaseConnection dispatches queries to the Browser process via IPC and listens

@@ -11,10 +11,13 @@
       justify-content: center;
 
       .account-list {
+        display: flex;
+        flex-direction: column;
+        height: auto;
         width: 400px;
 
         .items-wrapper {
-          height: 440px;
+          flex: 1;
         }
 
         .account {
@@ -49,7 +52,7 @@
 
       .account-details {
         width: 400px;
-        padding-top: 20px;
+        padding: 20px;
         padding-left: @spacing-standard * 2.25;
         padding-right: @spacing-standard * 2.25;
         background-color: @gray-lighter;

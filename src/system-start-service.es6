@@ -63,10 +63,10 @@ class SystemStartServiceDarwin extends SystemStartServiceBase {
 
   _launchdPlist() {
     return {
-      "Label": "com.nylas.n1",
-      "Program": this._launcherPath(),
-      "ProgramArguments": ["--background"],
-      "RunAtLoad": true,
+      Label: "com.nylas.n1",
+      Program: this._launcherPath(),
+      ProgramArguments: ["--background"],
+      RunAtLoad: true,
     }
   }
 }

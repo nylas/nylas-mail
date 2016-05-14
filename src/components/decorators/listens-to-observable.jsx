@@ -1,7 +1,7 @@
-import React, {Component} from 'react'
+import React from 'react'
 
 function ListensToObservable(ComposedComponent, {getObservable, getStateFromObservable}) {
-  return class extends Component {
+  return class extends ComposedComponent {
     static displayName = ComposedComponent.displayName;
 
     static containerRequired = ComposedComponent.containerRequired;

@@ -169,22 +169,39 @@
     .shortcut {
       padding: 3px 0;
       color: @text-color-very-subtle;
-      .shortcut-value {
+      .values {
         font-family: monospace;
         font-weight: 600;
         color: @text-color;
-
-        .then {
-          font-size:0.9em;
-          color: @text-color-very-subtle;
-        }
-        &:after {
-          content: ", "
-        }
-        &:last-child:after {
-          content: "";
+        display: inline-block;
+        padding-left: @padding-small-horizontal;
+        padding-right: @padding-small-horizontal;
+        cursor: text;
+        
+        .shortcut-value {
+          .then {
+            font-size:0.9em;
+            color: @text-color-very-subtle;
+          }
+          &:after {
+            content: ", "
+          }
+          &:last-child:after {
+            content: "";
+          }
         }
       }
+
+      &.editing {
+        .values {
+          background: @input-bg;
+          color: @component-active-color;
+
+          border-radius: @border-radius-base;
+          outline: 1px solid @input-border-color;
+        }
+      }
+
     }
   }
 

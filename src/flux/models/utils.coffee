@@ -5,8 +5,8 @@ moment = require('moment-timezone')
 tz = Intl.DateTimeFormat().resolvedOptions().timeZone
 
 DefaultResourcePath = null
-TaskRegistry = require '../../task-registry'
-DatabaseObjectRegistry = require '../../database-object-registry'
+TaskRegistry = require('../../task-registry').default
+DatabaseObjectRegistry = require('../../database-object-registry').default
 
 imageData = null
 

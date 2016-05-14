@@ -10,7 +10,7 @@ require 'jasmine-json'
 
 Grim = require 'grim'
 TimeOverride = require './time-override'
-KeymapManager = require '../src/keymap-manager'
+KeymapManager = require('../src/keymap-manager').default
 
 Config = require '../src/config'
 pathwatcher = require 'pathwatcher'
@@ -29,7 +29,7 @@ NylasEnv.themes.loadBaseStylesheets()
 NylasEnv.themes.requireStylesheet '../static/jasmine'
 NylasEnv.themes.initialLoadComplete = true
 
-NylasEnv.keymaps.loadBundledKeymaps()
+NylasEnv.keymaps.loadKeymaps()
 styleElementsToRestore = NylasEnv.styles.getSnapshot()
 
 window.addEventListener 'core:close', -> window.close()
@@ -219,6 +219,13 @@ beforeEach ->
   addCustomMatchers(this)
 
   TimeOverride.resetSpyData()
+
+util = require('util')
+console.inspect = (args...) ->
+  arg = args
+  if (args.length is 1)
+    arg = args[0]
+  console.log(util.inspect(arg))
 
 original_log = console.log
 original_warn = console.warn

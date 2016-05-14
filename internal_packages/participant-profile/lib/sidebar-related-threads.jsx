@@ -9,14 +9,14 @@ export default class RelatedThreads extends React.Component {
     contactThreads: React.PropTypes.array,
   }
 
+  static containerStyles = {
+    order: 99,
+  }
+
   constructor(props) {
     super(props)
     this.state = {expanded: false}
     this.DEFAULT_NUM = 3
-  }
-
-  static containerStyles = {
-    order: 99,
   }
 
   _onClick(thread) {

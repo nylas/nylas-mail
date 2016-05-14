@@ -109,7 +109,8 @@ class SidebarItem
 
   @forSnoozed: (accountIds, opts = {}) ->
     # TODO This constant should be available elsewhere
-    displayName = require('../../thread-snooze/lib/snooze-constants').SNOOZE_CATEGORY_NAME
+    constants = require('../../thread-snooze/lib/snooze-constants')
+    displayName = constants.SNOOZE_CATEGORY_NAME
     id = displayName
     id += "-#{opts.name}" if opts.name
     opts.name = "Snoozed" unless opts.name

@@ -10,8 +10,8 @@ Q = require 'q'
 
 ModuleCache = require './module-cache'
 
-TaskRegistry = require './task-registry'
-DatabaseObjectRegistry = require './database-object-registry'
+TaskRegistry = require('./task-registry').default
+DatabaseObjectRegistry = require('./database-object-registry').default
 
 try
   packagesCache = require('../package.json')?._N1Packages ? {}
@@ -99,14 +99,6 @@ class Package
   # Returns a {Disposable} on which `.dispose()` can be called to unsubscribe.
   onDidDeactivate: (callback) ->
     @emitter.on 'did-deactivate', callback
-
-  on: (eventName) ->
-    switch eventName
-      when 'deactivated'
-        deprecate 'Use Package::onDidDeactivate instead'
-      else
-        deprecate 'Package::on is deprecated. Use event subscription methods instead.'
-    EmitterMixin::on.apply(this, arguments)
 
   ###
   Section: Instance Methods
@@ -212,8 +204,6 @@ class Package
     for [sourcePath, source] in @stylesheets
       if match = path.basename(sourcePath).match(/[^.]*\.([^.]*)\./)
         context = match[1]
-      else if @metadata.theme is 'syntax'
-        context = 'nylas-theme-wrap'
       else
         context = undefined
 
@@ -290,7 +280,6 @@ class Package
   deactivate: ->
     @activationDeferred?.reject()
     @activationDeferred = null
-    @activationCommandSubscriptions?.dispose()
     @deactivateResources()
     @deactivateConfig()
     if @mainActivated

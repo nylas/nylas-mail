@@ -77,8 +77,8 @@ class MessageControls extends React.Component
     Actions.composeForward(thread: @props.thread, message: @props.message)
 
   _onShowActionsMenu: =>
-    SystemMenu = remote.require('menu')
-    SystemMenuItem = remote.require('menu-item')
+    SystemMenu = remote.Menu
+    SystemMenuItem = remote.MenuItem
 
     # Todo: refactor this so that message actions are provided
     # dynamically. Waiting to see if this will be used often.
@@ -108,7 +108,7 @@ class MessageControls extends React.Component
     .then =>
       Actions.sendDraft(draft.clientId)
 
-      dialog = remote.require('dialog')
+      dialog = remote.dialog
       dialog.showMessageBox remote.getCurrentWindow(), {
         type: 'warning'
         buttons: ['OK'],
@@ -119,8 +119,8 @@ class MessageControls extends React.Component
   _onShowOriginal: =>
     fs = require 'fs'
     path = require 'path'
-    BrowserWindow = remote.require('browser-window')
-    app = remote.require('app')
+    BrowserWindow = remote.BrowserWindow
+    app = remote.app
     tmpfile = path.join(app.getPath('temp'), @props.message.id)
 
     NylasAPI.makeRequest

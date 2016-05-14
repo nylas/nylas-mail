@@ -29,7 +29,7 @@ class SearchIndexStore {
       this.accountIds = _.pluck(AccountStore.accounts(), 'id')
       this.initializeIndex()
       .then(() => {
-        console.log('Thread Search: Index built successfully in ' + ((Date.now() - date) / 1000) + 's')
+        console.log(`Thread Search: Index built successfully in ${((Date.now() - date) / 1000)}s`)
         this.unsubscribers = [
           AccountStore.listen(::this.onAccountsChanged),
           DatabaseStore.listen(::this.onDataChanged),
@@ -50,7 +50,7 @@ class SearchIndexStore {
   initializeIndex() {
     return DatabaseStore.searchIndexSize(Thread)
     .then((size) => {
-      console.log('Thread Search: Current index size is ' + (size || 0) + ' threads')
+      console.log(`Thread Search: Current index size is ${(size || 0)} threads`)
       if (!size || size >= MAX_INDEX_SIZE || size === 0) {
         return this.clearIndex().thenReturn(this.accountIds)
       }
@@ -85,7 +85,7 @@ class SearchIndexStore {
           return;
         }
         const date = Date.now()
-        console.log('Thread Search: Updating thread search index for accounts: ' + latestIds)
+        console.log(`Thread Search: Updating thread search index for accounts ${latestIds}`)
 
         const newIds = _.difference(latestIds, this.accountIds)
         const removedIds = _.difference(this.accountIds, latestIds)
@@ -102,7 +102,7 @@ class SearchIndexStore {
         this.accountIds = latestIds
         Promise.all(promises)
         .then(() => {
-          console.log('Thread Search: Index updated successfully in ' + ((Date.now() - date) / 1000) + 's')
+          console.log(`Thread Search: Index updated successfully in ${((Date.now() - date) / 1000)}s`)
         })
       })
     })
@@ -212,9 +212,7 @@ class SearchIndexStore {
               {body: QuotedHTMLTransformer.removeQuotedHTML(body)}
           ))
           .map(({body, snippet}) => (
-            snippet ?
-              snippet :
-              Utils.extractTextFromHtml(body, {maxLength: MESSAGE_BODY_LENGTH}).replace(/(\s)+/g, ' ')
+            snippet || Utils.extractTextFromHtml(body, {maxLength: MESSAGE_BODY_LENGTH}).replace(/(\s)+/g, ' ')
           ))
           .join(' ')
         )

@@ -9,7 +9,7 @@ export default class RealDOMParser extends UnifiedDOMParser {
     }
     if (node && !pruneFn(node) && node.childNodes.length > 0) {
       for (let i = 0; i < node.childNodes.length; i++) {
-        yield *this._pruningDOMWalker({node: node.childNodes[i], pruneFn, filterFn});
+        yield* this._pruningDOMWalker({node: node.childNodes[i], pruneFn, filterFn});
       }
     }
     return;
