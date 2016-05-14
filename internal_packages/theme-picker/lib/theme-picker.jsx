@@ -1,6 +1,6 @@
 import React from 'react';
-import Actions from '../../../src/flux/actions'
 
+import {Actions} from 'nylas-exports';
 import {Flexbox, RetinaImg, ScrollRegion} from 'nylas-component-kit';
 import ThemeOption from './theme-option';
 
