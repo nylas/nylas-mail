@@ -32,14 +32,16 @@ class PreferencesUIStore extends NylasStore {
   }
 
   setupListeners() {
-    this.listenTo(Actions.openPreferences, this.openPreferences);
-    ipcRenderer.on('open-preferences', this.openPreferences);
+    if (NylasEnv.isMainWindow()) {
+      this.listenTo(Actions.openPreferences, this.openPreferences);
+      ipcRenderer.on('open-preferences', this.openPreferences);
 
-    this.listenTo(Actions.switchPreferencesTab, this.switchPreferencesTab);
+      this.listenTo(Actions.switchPreferencesTab, this.switchPreferencesTab);
+    }
 
     NylasEnv.commands.add(document.body, 'core:show-keybindings', () => {
-      this.openPreferences();
-      this.switchPreferencesTab('Shortcuts');
+      Actions.openPreferences();
+      Actions.switchPreferencesTab('Shortcuts');
     });
   }
 

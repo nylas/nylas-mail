@@ -2,8 +2,8 @@ import {Actions, React, ReactDOM} from 'nylas-exports';
 import {Menu, RetinaImg} from 'nylas-component-kit';
 import TemplateStore from './template-store';
 
-class TemplatePicker extends React.Component {
-  static displayName = 'TemplatePicker';
+class TemplatePopover extends React.Component {
+  static displayName = 'TemplatePopover';
 
   static propTypes = {
     draftClientId: React.PropTypes.string,
@@ -18,40 +18,34 @@ class TemplatePicker extends React.Component {
   }
 
   componentDidMount() {
-    this.unsubscribe = TemplateStore.listen(this._onStoreChange.bind(this));
+    this.unsubscribe = TemplateStore.listen(() => {
+      this.setState({templates: TemplateStore.items()});
+    });
   }
 
   componentWillUnmount() {
-    if (this.unsubscribe) this.unsubscribe();
+    if (this.unsubscribe) {
+      this.unsubscribe();
+    }
   }
 
-  _filteredTemplates(search = this.state.searchValue) {
-    const items = TemplateStore.items();
+  _filteredTemplates() {
+    const {searchValue, templates} = this.state;
 
-    if (!search.length) { return items; }
+    if (!searchValue.length) { return templates; }
 
-    return items.filter((t) => {
-      return t.name.toLowerCase().indexOf(search.toLowerCase()) === 0;
+    return templates.filter((t) => {
+      return t.name.toLowerCase().indexOf(searchValue.toLowerCase()) === 0;
     });
   }
 
-  _onStoreChange() {
-    return this.setState({
-      templates: this._filteredTemplates(),
-    });
-  }
-
-  _onSearchValueChange = () => {
-    const newSearch = event.target.value;
-    return this.setState({
-      searchValue: newSearch,
-      templates: this._filteredTemplates(newSearch),
-    });
+  _onSearchValueChange = (event) => {
+    this.setState({searchValue: event.target.value});
   };
 
   _onChooseTemplate = (template) => {
     Actions.insertTemplateId({templateId: template.id, draftClientId: this.props.draftClientId});
-    Actions.closePopover()
+    Actions.closePopover();
   }
 
   _onManageTemplates = () => {
@@ -70,7 +64,9 @@ class TemplatePicker extends React.Component {
     )
   };
 
-  _renderPopover() {
+  render() {
+    const filteredTemplates = this._filteredTemplates();
+
     const headerComponents = [
       <input
         type="text"
@@ -92,13 +88,30 @@ class TemplatePicker extends React.Component {
         className="template-picker"
         headerComponents={headerComponents}
         footerComponents={footerComponents}
-        items={this.state.templates}
+        items={filteredTemplates}
         itemKey={(item) => item.id}
         itemContent={(item) => item.name}
         onSelect={this._onChooseTemplate}
       />
     );
   }
+
+}
+
+class TemplatePicker extends React.Component {
+  static displayName = 'TemplatePicker';
+
+  static propTypes = {
+    draftClientId: React.PropTypes.string,
+  };
+
+  _onClickButton = () => {
+    const buttonRect = ReactDOM.findDOMNode(this).getBoundingClientRect()
+    Actions.openPopover(
+      <TemplatePopover draftClientId={this.props.draftClientId} />,
+      {originRect: buttonRect, direction: 'up'}
+    )
+  };
 
   render() {
     return (
@@ -108,9 +121,15 @@ class TemplatePicker extends React.Component {
         onClick={this._onClickButton}
         title="Insert email template…"
       >
-        <RetinaImg url="nylas://composer-templates/assets/icon-composer-templates@2x.png" mode={RetinaImg.Mode.ContentIsMask} />
+        <RetinaImg
+          url="nylas://composer-templates/assets/icon-composer-templates@2x.png"
+          mode={RetinaImg.Mode.ContentIsMask}
+        />
         &nbsp;
-        <RetinaImg name="icon-composer-dropdown.png" mode={RetinaImg.Mode.ContentIsMask} />
+        <RetinaImg
+          name="icon-composer-dropdown.png"
+          mode={RetinaImg.Mode.ContentIsMask}
+        />
       </button>
     );
   }

@@ -9,7 +9,7 @@ export function activate(state = {}) {
   this.preferencesTab = new PreferencesUIStore.TabItem({
     tabId: 'Quick Replies',
     displayName: 'Quick Replies',
-    component: require('./preferences-templates'),
+    component: require('./preferences-templates').default,
   });
   ComponentRegistry.register(TemplatePicker, {role: 'Composer:ActionButton'});
   ComponentRegistry.register(TemplateStatusBar, {role: 'Composer:Footer'});
