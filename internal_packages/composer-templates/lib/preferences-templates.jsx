@@ -70,7 +70,7 @@ class PreferencesTemplates extends React.Component {
   _getStateFromStores() {
     const templates = TemplateStore.items();
     let selectedTemplate = this.state ? this.state.selectedTemplate : null;
-    if (selectedTemplate && _.pluck(templates, "id").indexOf(selectedTemplate.id) === -1) {
+    if (selectedTemplate && !_.pluck(templates, "id").includes(selectedTemplate.id)) {
       selectedTemplate = null;
     } else if (!selectedTemplate) {
       selectedTemplate = templates.length > 0 ? templates[0] : null;
@@ -97,12 +97,12 @@ class PreferencesTemplates extends React.Component {
     if (this.state.selectedTemplate) {
       this._saveTemplateNow(this.state.selectedTemplate.name, this.state.contents);
     }
-    let selectedTemplate = null;
-    for (const template of Object.keys(this.state.templates)) {
-      if (template.id === event.target.value) {
-        selectedTemplate = template;
-      }
-    }
+
+    const selectedId = event.target.value;
+    const selectedTemplate = this.state.templates.find((template) =>
+      template.id === selectedId
+    );
+
     this.setState({
       selectedTemplate: selectedTemplate,
       selectedTemplateName: selectedTemplate ? selectedTemplate.name : null,
@@ -270,7 +270,8 @@ class PreferencesTemplates extends React.Component {
         </div>
         <div style={{marginTop: "5px"}}>
           <span className="editor-note">
-            {_.size(this._templateSaveQueue) > 0 ? "Saving changes..." : "Changes saved."}
+            {_.size(this._templateSaveQueue) === 0 ? "Changes saved." : ""}
+            &nbsp;
           </span>
           <span style={{"float": "right"}}>{this.state.editState === null ? deleteBtn : ""}</span>
         </div>
