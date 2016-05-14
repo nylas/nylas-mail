@@ -2,7 +2,7 @@ Reflux = require 'reflux'
 _ = require 'underscore'
 NylasStore = require 'nylas-store'
 DatabaseStore = require './database-store'
-Thread = require '../models/thread'
+Thread = require('../models/thread').default
 
 ###
 Are running two nested SELECT statements really the best option? Yup.

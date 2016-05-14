@@ -141,7 +141,8 @@ class PreferencesMailRules extends React.Component {
       <select
         value={this.state.currentAccount.accountId}
         onChange={this._onSelectAccount}
-        style={{margin: 0}} >
+        style={{margin: 0}}
+      >
         {options}
       </select>
     );
@@ -154,7 +155,8 @@ class PreferencesMailRules extends React.Component {
           <RetinaImg
             className="icon-mail-rules"
             name="rules-big.png"
-            mode={RetinaImg.Mode.ContentDark} />
+            mode={RetinaImg.Mode.ContentDark}
+          />
           <h2>No rules</h2>
           <button className="btn btn-small" onMouseDown={this._onAddRule}>
             Create a new rule
@@ -174,7 +176,8 @@ class PreferencesMailRules extends React.Component {
           onDeleteItem={this._onDeleteRule}
           onItemEdited={this._onRuleNameEdited}
           selected={this.state.selectedRule}
-          onSelectItem={this._onSelectRule} />
+          onSelectItem={this._onSelectRule}
+        />
         {this._renderDetail()}
       </Flexbox>
     );
@@ -204,14 +207,16 @@ class PreferencesMailRules extends React.Component {
             <ScenarioEditor
               instances={rule.conditions}
               templates={this.state.conditionTemplates}
-              onChange={ (conditions) => Actions.updateMailRule(rule.id, {conditions}) }
-              className="well well-matchers"/>
+              onChange={(conditions) => Actions.updateMailRule(rule.id, {conditions})}
+              className="well well-matchers"
+            />
             <span>Perform the following actions:</span>
             <ScenarioEditor
               instances={rule.actions}
               templates={this.state.actionTemplates}
-              onChange={ (actions) => Actions.updateMailRule(rule.id, {actions}) }
-              className="well well-actions"/>
+              onChange={(actions) => Actions.updateMailRule(rule.id, {actions})}
+              className="well well-actions"
+            />
           </div>
         </ScrollRegion>
       );
@@ -251,7 +256,9 @@ class PreferencesMailRules extends React.Component {
                 {` — ${Number(task.numberOfImpactedItems()).toLocaleString()} processed...`}
               </div>
               <div style={{flex: 1}}></div>
-              <button className="btn btn-sm" onClick={() => Actions.dequeueTask(task.id) }>Cancel</button>
+              <button className="btn btn-sm" onClick={() => Actions.dequeueTask(task.id)}>
+                Cancel
+              </button>
             </Flexbox>
           );
         })}
@@ -277,7 +284,7 @@ class PreferencesMailRules extends React.Component {
 
           <Flexbox style={{marginTop: 40, maxWidth: 600}}>
             <div>
-              <button disabled={processDisabled} className="btn" style={{float: 'right'}} onClick={this._onReprocessRules}>
+              <button disabled={processDisabled} className="btn" style={{'float': 'right'}} onClick={this._onReprocessRules}>
                 Process entire inbox
               </button>
             </div>

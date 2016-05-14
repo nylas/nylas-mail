@@ -140,13 +140,6 @@ class NylasWindow
       slashes: true
       query: {loadSettings: JSON.stringify(loadSettings)}
 
-  setupContextMenu: ->
-    ContextMenu = null
-
-    @browserWindow.on 'context-menu', (menuTemplate) =>
-      ContextMenu ?= require './context-menu'
-      new ContextMenu(menuTemplate, this)
-
   handleEvents: ->
     # Also see logic in `NylasEnv::onBeforeUnload` and
     # `WindowEventHandler::AddUnloadCallback`. Classes like the DraftStore
@@ -216,8 +209,6 @@ class NylasWindow
         switch chosen
           when 0 then @browserWindow.destroy()
           when 1 then @browserWindow.reload()
-
-    @setupContextMenu()
 
     if @isSpec
       # Workaround for https://github.com/atom/electron/issues/380

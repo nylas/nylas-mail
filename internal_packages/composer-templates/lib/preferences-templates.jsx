@@ -54,10 +54,8 @@ class PreferencesTemplates extends React.Component {
   }
 
   __saveTemplatesFromCache() {
-    for (const name in this._templateSaveQueue) {
-      if (this._templateSaveQueue.hasOwnProperty(name)) {
-        this._saveTemplateNow(name, this._templateSaveQueue[name]);
-      }
+    for (const name of Object.keys(this._templateSaveQueue)) {
+      this._saveTemplateNow(name, this._templateSaveQueue[name]);
     }
     this._templateSaveQueue = {};
   }
@@ -72,7 +70,7 @@ class PreferencesTemplates extends React.Component {
   _getStateFromStores() {
     const templates = TemplateStore.items();
     let selectedTemplate = this.state ? this.state.selectedTemplate : null;
-    if (selectedTemplate && _.pluck(templates, "id").indexOf(selectedTemplate.id) === -1) {
+    if (selectedTemplate && !_.pluck(templates, "id").includes(selectedTemplate.id)) {
       selectedTemplate = null;
     } else if (!selectedTemplate) {
       selectedTemplate = templates.length > 0 ? templates[0] : null;
@@ -99,12 +97,12 @@ class PreferencesTemplates extends React.Component {
     if (this.state.selectedTemplate) {
       this._saveTemplateNow(this.state.selectedTemplate.name, this.state.contents);
     }
-    let selectedTemplate = null;
-    for (const template in this.state.templates) {
-      if (template.id === event.target.value) {
-        selectedTemplate = template;
-      }
-    }
+
+    const selectedId = event.target.value;
+    const selectedTemplate = this.state.templates.find((template) =>
+      template.id === selectedId
+    );
+
     this.setState({
       selectedTemplate: selectedTemplate,
       selectedTemplateName: selectedTemplate ? selectedTemplate.name : null,
@@ -128,34 +126,37 @@ class PreferencesTemplates extends React.Component {
   _renderEditableTemplate() {
     return (
       <Contenteditable
-         ref="templateInput"
-         value={this.state.contents || ""}
-         onChange={this._onEditTemplate}
-         extensions={[TemplateEditor]}
-         spellcheck={false} />
+        ref="templateInput"
+        value={this.state.contents || ""}
+        onChange={this._onEditTemplate}
+        extensions={[TemplateEditor]}
+        spellcheck={false}
+      />
     );
   }
 
   _renderHTMLTemplate() {
     return (
-      <textarea ref="templateHTMLInput"
-                value={this.state.contents || ""}
-                onChange={this._onEditTemplate}/>
+      <textarea
+        ref="templateHTMLInput"
+        value={this.state.contents || ""}
+        onChange={this._onEditTemplate}
+      />
     );
   }
 
   _renderModeToggle() {
     if (this.state.editAsHTML) {
-      return (<a onClick={() => {this.setState({editAsHTML: false});}}>Edit live preview</a>);
+      return (<a onClick={() => { this.setState({editAsHTML: false}); }}>Edit live preview</a>);
     }
-    return (<a onClick={() => {this.setState({editAsHTML: true});}}>Edit raw HTML</a>);
+    return (<a onClick={() => { this.setState({editAsHTML: true}); }}>Edit raw HTML</a>);
   }
 
   // TEMPLATE NAME EDITING
   _renderEditName() {
     return (
       <div className="section-title">
-        Template Name: <input type="text" className="template-name-input" value={this.state.selectedTemplateName} onChange={this._onEditName}/>
+        Template Name: <input type="text" className="template-name-input" value={this.state.selectedTemplateName} onChange={this._onEditName} />
         <button className="btn template-name-btn" onClick={this._saveName}>Save Name</button>
         <button className="btn template-name-btn" onClick={this._cancelEditName}>Cancel</button>
       </div>
@@ -168,7 +169,7 @@ class PreferencesTemplates extends React.Component {
       <div className="section-title">
         {rawText}Template: {this._renderTemplatePicker()}
         <button className="btn template-name-btn" title="New template" onClick={this._startNewTemplate}>New</button>
-        <button className="btn template-name-btn" onClick={() => {this.setState({editState: "name"});}}>Rename</button>
+        <button className="btn template-name-btn" onClick={() => { this.setState({editState: "name"}); }}>Rename</button>
       </div>
     );
   }
@@ -247,7 +248,7 @@ class PreferencesTemplates extends React.Component {
     const cancel = (<button className="btn template-name-btn" onClick={this._cancelNewTemplate}>Cancel</button>);
     return (
       <div className="section-title">
-        Template Name: <input type="text" className="template-name-input" value={this.state.selectedTemplateName} onChange={this._onEditName}/>
+        Template Name: <input type="text" className="template-name-input" value={this.state.selectedTemplateName} onChange={this._onEditName} />
         <button className="btn btn-emphasis template-name-btn" onClick={this._saveNewTemplate}>Save</button>
         {this.state.templates.length ? cancel : null}
       </div>
@@ -269,9 +270,10 @@ class PreferencesTemplates extends React.Component {
         </div>
         <div style={{marginTop: "5px"}}>
           <span className="editor-note">
-            {_.size(this._templateSaveQueue) > 0 ? "Saving changes..." : "Changes saved."}
+            {_.size(this._templateSaveQueue) === 0 ? "Changes saved." : ""}
+            &nbsp;
           </span>
-          <span style={{float: "right"}}>{this.state.editState === null ? deleteBtn : ""}</span>
+          <span style={{"float": "right"}}>{this.state.editState === null ? deleteBtn : ""}</span>
         </div>
         <div className="toggle-mode" style={{marginTop: "1em"}}>
           {this._renderModeToggle()}

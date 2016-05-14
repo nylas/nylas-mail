@@ -29,7 +29,9 @@ export default class WeekViewAllDayEvents extends React.Component {
   render() {
     const eventComponents = this.props.allDayEvents.map((e) => {
       return (
-        <CalendarEvent event={e} order={this.props.allDayOverlap[e.id].order}
+        <CalendarEvent
+          event={e}
+          order={this.props.allDayOverlap[e.id].order}
           key={e.id}
           scopeStart={this.props.start}
           scopeEnd={this.props.end}

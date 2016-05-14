@@ -15,24 +15,31 @@ const DEBUG_SHOW_HOT_WINDOW = false;
 export default class WindowLauncher {
   static EMPTY_WINDOW = "emptyWindow"
 
-  constructor(appOpts) {
+  constructor({devMode, safeMode, resourcePath, configDirPath, onCreatedHotWindow, config}) {
     this.defaultWindowOpts = {
       frame: process.platform !== "darwin",
       hidden: false,
       toolbar: true,
-      devMode: appOpts.devMode,
-      safeMode: appOpts.safeMode,
+      devMode: devMode,
+      safeMode: safeMode,
       resizable: true,
       windowType: WindowLauncher.EMPTY_WINDOW,
       bootstrapScript: require.resolve("../secondary-window-bootstrap"),
-      resourcePath: appOpts.resourcePath,
-      configDirPath: appOpts.configDirPath,
+      resourcePath: resourcePath,
+      configDirPath: configDirPath,
     }
+    this.config = config;
+    this.onCreatedHotWindow = onCreatedHotWindow;
     this.createHotWindow();
   }
 
   newWindow(options) {
-    const opts = Object.assign({}, this.defaultWindowOpts, options);
+    // Normally, you enter dev mode by passing the --dev command line flag.
+    // But for developers using the compiled app, it's easier to toggle dev
+    // mode from the menu and have it persist through relaunch.
+    const devOpt = this.config.get('devMode') ? {devMode: true} : {};
+
+    const opts = Object.assign({}, this.defaultWindowOpts, devOpt, options);
 
     let win;
     if (this._mustUseColdWindow(opts)) {
@@ -50,10 +57,11 @@ export default class WindowLauncher {
       // This will fire `NylasEnv::populateHotWindow` and reload the
       // packages.
       win.windowKey = opts.windowKey;
+      win.windowType = opts.windowType;
       win.setLoadSettings(newLoadSettings);
     }
 
-    if (!opts.hidden) {
+    if (!opts.hidden && !opts.initializeInBackground) {
       // NOTE: In the case of a cold window, this will show it once
       // loaded. If it's a hotWindow, since hotWindows have a
       // `hidden:true` flag, nothing will show. When `setLoadSettings`
@@ -66,8 +74,9 @@ export default class WindowLauncher {
 
   createHotWindow() {
     this.hotWindow = new NylasWindow(this._hotWindowOpts());
+    this.onCreatedHotWindow(this.hotWindow);
     if (DEBUG_SHOW_HOT_WINDOW) {
-      this.hotWindow.showWhenLoaded()
+      this.hotWindow.showWhenLoaded();
     }
   }
 

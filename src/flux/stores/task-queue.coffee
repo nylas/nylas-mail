@@ -5,7 +5,7 @@ path = require 'path'
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'
 
-Task = require "../tasks/task"
+Task = require("../tasks/task").default
 Utils = require "../models/utils"
 Reflux = require 'reflux'
 Actions = require '../actions'

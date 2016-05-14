@@ -7,24 +7,13 @@ var defaultOptions = require('../../static/babelrc.json')
 var babel = null
 var babelVersionDirectory = null
 
-var PREFIXES = [
-  '/** @babel */',
-  '"use babel"',
-  '\'use babel\''
-]
-
-var PREFIX_LENGTH = Math.max.apply(Math, PREFIXES.map(function (prefix) {
-  return prefix.length
-}))
+// This adds in the regeneratorRuntime for generators to work properly
+// We manually insert it here instead of using the kitchen-sink
+// babel-polyfill.
+require('babel-regenerator-runtime');
 
 exports.shouldCompile = function (sourceCode, filePath) {
-  if (filePath.endsWith('.es6') || filePath.endsWith('.jsx')) {
-    return true;
-  }
-  var start = sourceCode.substr(0, PREFIX_LENGTH)
-  return PREFIXES.some(function (prefix) {
-    return start.indexOf(prefix) === 0
-  });
+  return (filePath.endsWith('.es6') || filePath.endsWith('.jsx'))
 }
 
 exports.getCachePath = function (sourceCode) {
@@ -44,7 +33,7 @@ exports.getCachePath = function (sourceCode) {
 
 exports.compile = function (sourceCode, filePath) {
   if (!babel) {
-    babel = require('babel-core')
+    babel = require('babel-core');
   }
 
   var options = {filename: filePath}

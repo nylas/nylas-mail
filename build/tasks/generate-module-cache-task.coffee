@@ -1,9 +1,9 @@
 path = require 'path'
 fs = require 'fs-plus'
-ModuleCache = require '../../src/module-cache'
 
 module.exports = (grunt) ->
   grunt.registerTask 'generate-module-cache', 'Generate a module cache for all core modules and packages', ->
+    ModuleCache = require '../../src/module-cache'
     appDir = grunt.config.get('nylasGruntConfig.appDir')
 
     {packageDependencies} = grunt.file.readJSON('package.json')

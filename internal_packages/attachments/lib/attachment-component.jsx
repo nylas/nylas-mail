@@ -16,12 +16,12 @@ class AttachmentComponent extends Component {
     messageClientId: PropTypes.string,
   };
 
+  static containerRequired = false;
+
   constructor() {
     super()
     this.state = {progressPercent: 0}
   }
-
-  static containerRequired = false;
 
   _isDownloading() {
     const {download} = this.props

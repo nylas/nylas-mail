@@ -3,7 +3,7 @@ React = require 'react'
 ReactDOM = require 'react-dom'
 {Utils} = require 'nylas-exports'
 classNames = require 'classnames'
-ScrollbarTicks = require './scrollbar-ticks'
+ScrollbarTicks = require('./scrollbar-ticks').default
 
 class Scrollbar extends React.Component
   @displayName: 'Scrollbar'

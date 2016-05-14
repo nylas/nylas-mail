@@ -1,6 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
-SwipeContainer = require './swipe-container'
+SwipeContainer = require('./swipe-container').default
 {Utils} = require 'nylas-exports'
 
 class ListTabularItem extends React.Component

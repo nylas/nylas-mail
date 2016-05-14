@@ -3,8 +3,10 @@ Reflux = require 'reflux'
 AccountStore = require './account-store'
 WorkspaceStore = require './workspace-store'
 DatabaseStore = require './database-store'
+FocusedPerspectiveStore = require './focused-perspective-store'
+MailboxPerspective = require '../../mailbox-perspective'
 Actions = require '../actions'
-Thread = require '../models/thread'
+Thread = require('../models/thread').default
 Model = require '../models/model'
 
 {Listener, Publisher} = require '../modules/reflux-coffee'
@@ -90,10 +92,19 @@ class FocusedContentStore
     @_keyboardCursor[collection] = item
     @triggerAfterAnimationFrame({ impactsCollection: (c) -> c is collection })
 
-  _onFocus: ({collection, item, usingClick}) =>
+  _onFocus: ({collection, item, usingClick, desiredCategoryName}) =>
     throw new Error("focus() requires a Model or null") if item and not (item instanceof Model)
     throw new Error("focus() requires a collection") unless collection
     return if @_focused[collection]?.id is item?.id
+
+    if desiredCategoryName
+      currentCategories = FocusedPerspectiveStore.current().categories()
+      desiredCategory = item.categoryNamed(desiredCategoryName)
+
+      if desiredCategory
+        unless desiredCategory.id in _.pluck(currentCategories, 'id')
+          filter = MailboxPerspective.forCategory(desiredCategory)
+          Actions.focusMailboxPerspective(filter)
 
     @_focused[collection] = item
     @_focusedUsingClick[collection] = usingClick

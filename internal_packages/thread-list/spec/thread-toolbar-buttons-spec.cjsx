@@ -1,8 +1,16 @@
 React = require "react"
 ReactDOM = require "react-dom"
 ReactTestUtils = require 'react-addons-test-utils'
-{Thread, FocusedContentStore, Actions, ChangeUnreadTask} = require "nylas-exports"
-{ToggleStarredButton, ToggleUnreadButton} = require '../lib/thread-toolbar-buttons'
+{
+  Thread,
+  FocusedContentStore,
+  Actions,
+  CategoryStore,
+  ChangeUnreadTask,
+  TaskFactory,
+  MailboxPerspective
+} = require "nylas-exports"
+{ToggleStarredButton, ToggleUnreadButton, MarkAsSpamButton} = require '../lib/thread-toolbar-buttons'
 
 test_thread = (new Thread).fromJSON({
   "id" : "thread_12345"
@@ -63,3 +71,45 @@ describe "ThreadToolbarButtons", ->
       ReactTestUtils.Simulate.click ReactDOM.findDOMNode(markUnreadBtn).childNodes[0]
 
       expect(Actions.popSheet).toHaveBeenCalled()
+
+  describe "Marking as spam", ->
+    thread = null
+    markSpamButton = null
+
+    describe "when the thread is already in spam", ->
+      beforeEach ->
+        thread = new Thread({
+          id: "thread-id-lol-123",
+          accountId: TEST_ACCOUNT_ID,
+          categories: [{name: 'spam'}]
+        })
+        markSpamButton = ReactTestUtils.renderIntoDocument(
+          <MarkAsSpamButton items={[thread]} />
+        )
+
+      it "queues a task to remove spam", ->
+        spyOn(Actions, 'queueTasks')
+        spyOn(CategoryStore, 'getSpamCategory').andReturn(thread.categories[0])
+        ReactTestUtils.Simulate.click(ReactDOM.findDOMNode(markSpamButton))
+        {labelsToAdd, labelsToRemove} = Actions.queueTasks.mostRecentCall.args[0][0]
+        expect(labelsToAdd).toEqual([])
+        expect(labelsToRemove).toEqual([thread.categories[0]])
+
+    describe "when the thread can be moved to spam", ->
+      beforeEach ->
+        spyOn(Actions, 'queueTasks')
+        spyOn(MailboxPerspective.prototype, 'canMoveThreadsTo').andReturn(true)
+        thread = new Thread(id: "thread-id-lol-123", accountId: TEST_ACCOUNT_ID, categories: [])
+        markSpamButton = ReactTestUtils.renderIntoDocument(
+          <MarkAsSpamButton items={[thread]} />
+        )
+
+      it "queues a task to mark as spam", ->
+        spyOn(TaskFactory, 'tasksForMarkingAsSpam')
+        ReactTestUtils.Simulate.click(ReactDOM.findDOMNode(markSpamButton))
+        expect(TaskFactory.tasksForMarkingAsSpam).toHaveBeenCalledWith({threads: [thread]})
+
+      it "returns to the thread list", ->
+        spyOn(Actions, 'popSheet')
+        ReactTestUtils.Simulate.click(ReactDOM.findDOMNode(markSpamButton))
+        expect(Actions.popSheet).toHaveBeenCalled()

@@ -33,7 +33,8 @@ class DraftListToolbar extends Component {
     const toolbarElement = (
       <InjectedComponentSet
         matching={{role: "DraftActionsToolbarButton"}}
-        exposedProps={{selection, items}} />
+        exposedProps={{selection, items}}
+      />
     )
 
     return (

@@ -2,7 +2,7 @@ React = require "react"
 ReactDOM = require 'react-dom'
 ReactTestUtils = require('react-addons-test-utils')
 
-SendActionButton = require '../lib/send-action-button'
+SendActionButton = require('../lib/send-action-button').default
 {Actions, Message, ComposerExtension, ExtensionRegistry} = require 'nylas-exports'
 {ButtonDropdown, RetinaImg} = require 'nylas-component-kit'
 

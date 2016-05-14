@@ -57,7 +57,8 @@ class ThemePicker extends React.Component {
         key={theme.name}
         theme={theme}
         active={this.state.activeTheme === theme.name}
-        onSelect={() => this._setActiveTheme(theme.name)} />
+        onSelect={() => this._setActiveTheme(theme.name)}
+      />
     );
   }
 
@@ -70,21 +71,24 @@ class ThemePicker extends React.Component {
             style={{width: "14", WebkitFilter: "none"}}
             name="picker-close.png"
             mode={RetinaImg.Mode.ContentDark}
-            onMouseDown={() => Actions.closeModal()} />
+            onMouseDown={() => Actions.closeModal()}
+          />
           <h4 style={{color: "#434648"}}>Themes</h4>
           <div style={{color: "rgba(35, 31, 32, 0.5)", fontSize: "12px"}}>Click any theme to apply:</div>
           <ScrollRegion style={{margin: "10px 5px 0 5px", height: "290px"}}>
             <Flexbox
               direction="row"
               height="auto"
-              style={{alignItems: "flex-start", flexWrap: "wrap"}}>
+              style={{alignItems: "flex-start", flexWrap: "wrap"}}
+            >
               {this._renderThemeOptions()}
             </Flexbox>
           </ScrollRegion>
           <div className="create-theme">
             <a
               href="https://github.com/nylas/N1-theme-starter"
-              style={{color: "#3187e1"}}>
+              style={{color: "#3187e1"}}
+            >
               Create a Theme
             </a>
           </div>

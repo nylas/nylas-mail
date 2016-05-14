@@ -13,7 +13,7 @@ fs = require 'fs-plus'
 
 WindowEventHandler = require './window-event-handler'
 StylesElement = require './styles-element'
-StoreRegistry = require './store-registry'
+StoreRegistry = require('./store-registry').default
 
 Utils = require './flux/models/utils'
 {APIError} = require './flux/errors'
@@ -103,9 +103,6 @@ class NylasEnvConstructor
   # Public: A {Config} instance
   config: null
 
-  # Public: A {Clipboard} instance
-  clipboard: null
-
   # Public: A {MenuManager} instance
   menu: null
 
@@ -148,10 +145,9 @@ class NylasEnvConstructor
     @loadTime = null
 
     Config = require './config'
-    KeymapManager = require './keymap-manager'
+    KeymapManager = require('./keymap-manager').default
     CommandRegistry = require './command-registry'
     PackageManager = require './package-manager'
-    Clipboard = require './clipboard'
     ThemeManager = require './theme-manager'
     StyleManager = require './style-manager'
     ActionBridge = require './flux/action-bridge'
@@ -187,7 +183,6 @@ class NylasEnvConstructor
     @styles = new StyleManager
     document.head.appendChild(new StylesElement)
     @themes = new ThemeManager({packageManager: @packages, configDirPath, resourcePath, safeMode})
-    @clipboard = new Clipboard()
     @menu = new MenuManager({resourcePath})
     if process.platform is 'win32'
       @getCurrentWindow().setMenuBarVisibility(false)
@@ -281,7 +276,7 @@ class NylasEnvConstructor
       jasmine.getEnv().currentSpec.fail(error)
     else if @inDevMode() and not noWindows
       @openDevTools()
-      @executeJavaScriptInDevTools('InspectorFrontendAPI.showConsole()')
+      @executeJavaScriptInDevTools('DevToolsAPI.showConsole()')
 
     @errorLogger.reportError(error, extra)
 
@@ -343,7 +338,7 @@ class NylasEnvConstructor
   # content trace visualizer (chrome://tracing). It's like Chromium Developer
   # Tools Profiler, but for all processes and threads.
   trace: ->
-    tracing = remote.require('electron').contentTracing
+    tracing = remote.contentTracing
     opts =
       categoryFilter: '*',
       traceOptions: 'record-until-full,enable-sampling,enable-systrace',
@@ -416,7 +411,7 @@ class NylasEnvConstructor
     @getCurrentWindow().close()
 
   quit: ->
-    remote.require('app').quit()
+    remote.app.quit()
 
   # Essential: Get the size of current window.
   #
@@ -654,13 +649,12 @@ class NylasEnvConstructor
     {packageLoadingDeferred, windowType} = @getLoadSettings()
     @extendRxObservables()
     StoreRegistry.activateAllStores()
-    @keymaps.loadBundledKeymaps()
+    @keymaps.loadKeymaps()
     @themes.loadBaseStylesheets()
     @packages.loadPackages(windowType) unless packageLoadingDeferred
     @deserializePackageStates() unless packageLoadingDeferred
     @initializeReactRoot()
     @packages.activate() unless packageLoadingDeferred
-    @keymaps.loadUserKeymap()
     @menu.update()
 
   # Call this method when establishing a real application window.
@@ -850,7 +844,7 @@ class NylasEnvConstructor
       null
 
   exit: (status) ->
-    app = remote.require('app')
+    app = remote.app
     app.emit('will-exit')
     remote.process.exit(status)
 

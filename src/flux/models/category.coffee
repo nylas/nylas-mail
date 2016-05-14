@@ -95,6 +95,10 @@ class Category extends Model
 
   fromJSON: (json) ->
     super
+    if @displayName and @displayName.startsWith('INBOX.')
+      @displayName = @displayName[6..-1]
+    if @displayName and @displayName is 'INBOX'
+      @displayName = 'Inbox'
     @
 
   displayType: =>

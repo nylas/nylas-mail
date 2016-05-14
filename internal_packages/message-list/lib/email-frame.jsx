@@ -97,13 +97,18 @@ export default class EmailFrame extends React.Component {
   }
 
   _getFrameHeight = (doc) => {
+    let height = 0;
+
     if (doc && doc.body) {
-      return doc.body.scrollHeight;
+      height = doc.body.scrollHeight;
     }
+
     if (doc && doc.documentElement) {
-      return doc.documentElement.scrollHeight;
+      height = doc.documentElement.scrollHeight;
     }
-    return 0;
+
+    // scrollHeight does not include space required by scrollbar
+    return height + 25;
   }
 
   _setFrameHeight = () => {
@@ -133,7 +138,7 @@ export default class EmailFrame extends React.Component {
     }
 
     if (iframeNode.contentDocument.readyState !== 'complete') {
-      _.defer(()=> this._setFrameHeight());
+      _.defer(() => this._setFrameHeight());
     }
   }
 
@@ -142,7 +147,8 @@ export default class EmailFrame extends React.Component {
       <div
         className="iframe-container"
         ref="iframeHeightHolder"
-        style={{height: this._lastComputedHeight}}>
+        style={{height: this._lastComputedHeight}}
+      >
         <EventedIFrame
           ref="iframe"
           seamless="seamless"

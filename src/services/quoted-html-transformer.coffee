@@ -1,7 +1,7 @@
 _ = require 'underscore'
 crypto = require 'crypto'
 DOMUtils = require '../dom-utils'
-quoteStringDetector = require './quote-string-detector'
+quoteStringDetector = require('./quote-string-detector').default
 
 class QuotedHTMLTransformer
 

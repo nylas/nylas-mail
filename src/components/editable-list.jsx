@@ -105,13 +105,13 @@ class EditableList extends Component {
 
   static defaultProps = {
     items: [],
-    itemContent: (item)=> item,
+    itemContent: (item) => item,
     className: '',
     createInputProps: {},
     showEditIcon: false,
-    onDeleteItem: ()=> {},
-    onItemEdited: ()=> {},
-    onItemCreated: ()=> {},
+    onDeleteItem: () => {},
+    onItemEdited: () => {},
+    onItemCreated: () => {},
   };
 
   constructor(props) {
@@ -126,28 +126,28 @@ class EditableList extends Component {
 
   // Helpers
 
-  _createItem = (value)=> {
-    this._clearCreatingState(()=> {
+  _createItem = (value) => {
+    this._clearCreatingState(() => {
       if (value) {
         this.props.onItemCreated(value);
       }
     });
   };
 
-  _updateItem = (value, originalItem, idx)=> {
-    this._clearEditingState(()=> {
+  _updateItem = (value, originalItem, idx) => {
+    this._clearEditingState(() => {
       this.props.onItemEdited(value, originalItem, idx);
     });
   };
 
-  _getSelectedItem = ()=> {
+  _getSelectedItem = () => {
     if (this.props.onSelectItem) {
       return this.props.selected;
     }
     return this.state.selected;
   };
 
-  _selectItem = (item, idx)=> {
+  _selectItem = (item, idx) => {
     if (this.props.onSelectItem) {
       this.props.onSelectItem(item, idx);
     } else {
@@ -155,22 +155,22 @@ class EditableList extends Component {
     }
   };
 
-  _clearEditingState = (callback)=> {
+  _clearEditingState = (callback) => {
     this._setStateAndFocus({editingIndex: -1}, callback);
   };
 
-  _clearCreatingState = (callback)=> {
+  _clearCreatingState = (callback) => {
     this._setStateAndFocus({creatingItem: false}, callback);
   };
 
-  _setStateAndFocus = (state, callback = ()=> {})=> {
-    this.setState(state, ()=> {
+  _setStateAndFocus = (state, callback = () => {}) => {
+    this.setState(state, () => {
       this._focusSelf();
       callback();
     });
   };
 
-  _focusSelf = ()=> {
+  _focusSelf = () => {
     ReactDOM.findDOMNode(this).focus();
   };
 
@@ -178,7 +178,7 @@ class EditableList extends Component {
    * @private Scrolls to the dom node of the item at the provided index
    * @param {number} idx - Index of item inside the list to scroll to
    */
-  _scrollTo = (idx)=> {
+  _scrollTo = (idx) => {
     if (!idx) return;
     const list = this.refs.itemsWrapper;
     const nodes = ReactDOM.findDOMNode(list).querySelectorAll('.list-item');
@@ -188,17 +188,17 @@ class EditableList extends Component {
 
   // Handlers
 
-  _onEditInputBlur = (event, item, idx)=> {
+  _onEditInputBlur = (event, item, idx) => {
     this._updateItem(event.target.value, item, idx);
   };
 
-  _onEditInputFocus = (event)=> {
+  _onEditInputFocus = (event) => {
     const input = event.target;
     // Move cursor to the end of the input
     input.selectionStart = input.selectionEnd = input.value.length;
   };
 
-  _onEditInputKeyDown = (event, item, idx)=> {
+  _onEditInputKeyDown = (event, item, idx) => {
     event.stopPropagation();
     if (_.includes(['Enter', 'Return'], event.key)) {
       this._updateItem(event.target.value, item, idx);
@@ -207,11 +207,11 @@ class EditableList extends Component {
     }
   };
 
-  _onCreateInputBlur = (event)=> {
+  _onCreateInputBlur = (event) => {
     this._createItem(event.target.value);
   };
 
-  _onCreateInputKeyDown = (event)=> {
+  _onCreateInputKeyDown = (event) => {
     event.stopPropagation();
     if (_.includes(['Enter', 'Return'], event.key)) {
       this._createItem(event.target.value);
@@ -220,15 +220,15 @@ class EditableList extends Component {
     }
   };
 
-  _onItemClick = (event, item, idx)=> {
+  _onItemClick = (event, item, idx) => {
     this._selectItem(item, idx);
   };
 
-  _onItemEdit = (event, item, idx)=> {
+  _onItemEdit = (event, item, idx) => {
     this.setState({editingIndex: idx});
   };
 
-  _listKeymapHandlers = ()=> {
+  _listKeymapHandlers = () => {
     const _shift = (dir) => {
       const len = this.props.items.length;
       const index = this.props.items.indexOf(this._getSelectedItem());
@@ -240,18 +240,18 @@ class EditableList extends Component {
       this._selectItem(this.props.items[newIndex], newIndex);
     };
     return {
-      'core:previous-item': (event)=> {
+      'core:previous-item': (event) => {
         event.stopPropagation();
         _shift(-1);
       },
-      'core:next-item': (event)=> {
+      'core:next-item': (event) => {
         event.stopPropagation();
         _shift(1);
       },
     };
   };
 
-  _onCreateItem = ()=> {
+  _onCreateItem = () => {
     if (this.props.onCreateItem) {
       this.props.onCreateItem();
     } else {
@@ -259,7 +259,7 @@ class EditableList extends Component {
     }
   };
 
-  _onDeleteItem = ()=> {
+  _onDeleteItem = () => {
     const selectedItem = this._getSelectedItem();
     const index = this.props.items.indexOf(selectedItem);
 
@@ -275,7 +275,7 @@ class EditableList extends Component {
     }
   };
 
-  _onItemDragStart = (event)=> {
+  _onItemDragStart = (event) => {
     if (!this.props.onReorderItem) {
       event.preventDefault();
       return;
@@ -297,7 +297,7 @@ class EditableList extends Component {
     event.dataTransfer.effectAllowed = "move";
   };
 
-  _onDragOver = (event)=> {
+  _onDragOver = (event) => {
     const wrapperNode = ReactDOM.findDOMNode(this.refs.itemsWrapper);
     const originListId = event.dataTransfer.getData('editablelist-listid')
     const originSameList = (originListId === this.listId);
@@ -323,11 +323,11 @@ class EditableList extends Component {
     }
   };
 
-  _onDragLeave = ()=> {
+  _onDragLeave = () => {
     this.setState({dropInsertionIndex: -1});
   };
 
-  _onDrop = (event)=> {
+  _onDrop = (event) => {
     if (this.state.dropInsertionIndex !== -1) {
       const startIdx = event.dataTransfer.getData('editablelist-index');
       if (startIdx && (this.state.dropInsertionIndex !== startIdx)) {
@@ -346,7 +346,7 @@ class EditableList extends Component {
 
   // Renderers
 
-  _renderEditInput = (item, itemContent, idx, handlers = {})=> {
+  _renderEditInput = (item, itemContent, idx, handlers = {}) => {
     const onInputBlur = handlers.onInputBlur || this._onEditInputBlur;
     const onInputFocus = handlers.onInputFocus || this._onEditInputFocus;
     const onInputKeyDown = handlers.onInputKeyDown || this._onEditInputKeyDown;
@@ -359,7 +359,8 @@ class EditableList extends Component {
         defaultValue={itemContent}
         onBlur={_.partial(onInputBlur, _, item, idx)}
         onFocus={onInputFocus}
-        onKeyDown={_.partial(onInputKeyDown, _, item, idx)} />
+        onKeyDown={_.partial(onInputKeyDown, _, item, idx)}
+      />
     );
   };
 
@@ -368,7 +369,7 @@ class EditableList extends Component {
    * Provided props will be overriden with the props that EditableList needs to
    * pass to the input.
    */
-  _renderCreateInput = ()=> {
+  _renderCreateInput = () => {
     const props = _.extend(this.props.createInputProps, {
       autoFocus: true,
       type: 'text',
@@ -378,13 +379,13 @@ class EditableList extends Component {
 
     return (
       <div className="create-item-input" key="create-item-input">
-        <input {...props}/>
+        <input {...props} />
       </div>
     );
   };
 
   // handlers object for testing
-  _renderItem = (item, idx, {editingIndex} = this.state, handlers = {})=> {
+  _renderItem = (item, idx, {editingIndex} = this.state, handlers = {}) => {
     const onClick = handlers.onClick || this._onItemClick;
     const onEdit = handlers.onEdit || this._onItemEdit;
 
@@ -411,19 +412,21 @@ class EditableList extends Component {
         draggable
         onDragStart={this._onItemDragStart}
         onClick={_.partial(onClick, _, item, idx)}
-        onDoubleClick={_.partial(onEdit, _, item, idx)}>
+        onDoubleClick={_.partial(onEdit, _, item, idx)}
+      >
         {itemContent}
         <RetinaImg
           className="edit-icon"
           name="edit-icon.png"
           title="Edit Item"
           mode={RetinaImg.Mode.ContentIsMask}
-          onClick={_.partial(onEdit, _, item, idx)} />
+          onClick={_.partial(onEdit, _, item, idx)}
+        />
       </div>
     );
   };
 
-  _renderButtons = ()=> {
+  _renderButtons = () => {
     const deleteClasses = classNames({
       'btn-editable-list': true,
       'btn-disabled': !this._getSelectedItem(),
@@ -440,14 +443,14 @@ class EditableList extends Component {
     );
   };
 
-  _renderDropInsertion = ()=> {
+  _renderDropInsertion = () => {
     return (
       <div className="insertion-point"><div></div></div>
     )
   };
 
   render() {
-    let items = this.props.items.map( (item, idx)=> this._renderItem(item, idx));
+    let items = this.props.items.map((item, idx) => this._renderItem(item, idx));
     if (this.state.creatingItem === true) {
       items = items.concat(this._renderCreateInput());
     }
@@ -460,13 +463,15 @@ class EditableList extends Component {
       <KeyCommandsRegion
         tabIndex="1"
         localHandlers={this._listKeymapHandlers()}
-        className={`nylas-editable-list ${this.props.className}`}>
+        className={`nylas-editable-list ${this.props.className}`}
+      >
         <ScrollRegion
           className="items-wrapper"
           ref="itemsWrapper"
           onDragOver={this._onDragOver}
           onDragLeave={this._onDragLeave}
-          onDrop={this._onDrop}>
+          onDrop={this._onDrop}
+        >
           {items}
         </ScrollRegion>
         {this._renderButtons()}

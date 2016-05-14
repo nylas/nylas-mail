@@ -74,7 +74,12 @@ class ConfigSchemaItem extends React.Component {
     } else if (this.props.configSchema.type === 'boolean') {
       return (
         <div className="item">
-          <input id={this.props.keyPath} type="checkbox" onChange={this._onChangeChecked} checked={ this.props.config.get(this.props.keyPath) }/>
+          <input
+            id={this.props.keyPath}
+            type="checkbox"
+            onChange={this._onChangeChecked}
+            checked={this.props.config.get(this.props.keyPath)}
+          />
           <label htmlFor={this.props.keyPath}>{this.props.configSchema.title}</label>
         </div>
       );

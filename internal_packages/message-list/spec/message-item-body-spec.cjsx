@@ -77,7 +77,7 @@ user_4 = new Contact
   email: "user4@nylas.com"
 
 MessageItemBody = proxyquire '../lib/message-item-body',
-  './email-frame': EmailFrameStub
+  './email-frame': {default: EmailFrameStub}
 
 
 describe "MessageItem", ->

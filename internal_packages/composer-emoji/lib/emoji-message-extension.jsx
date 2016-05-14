@@ -4,7 +4,8 @@ import {MessageViewExtension, RegExpUtils} from 'nylas-exports';
 import EmojiStore from './emoji-store';
 import emoji from 'node-emoji';
 
-function makeIntoEmojiTag(node, emojiName) {
+function makeIntoEmojiTag(nodeArg, emojiName) {
+  const node = nodeArg;
   node.src = EmojiStore.getImagePath(emojiName);
   node.className = `emoji ${emojiName}`;
   node.width = 14;

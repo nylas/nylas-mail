@@ -1,4 +1,3 @@
-/** @babel */
 import moment from 'moment'
 import chrono from 'chrono-node'
 import _ from 'underscore'
@@ -18,8 +17,8 @@ const Hours = {
 const Days = {
   // The value for next monday and next weekend varies depending if the current
   // day is saturday or sunday. See http://momentjs.com/docs/#/get-set/day/
-  NextMonday: day => day === 0 ? 1 : 8,
-  ThisWeekend: day => day === 6 ? 13 : 6,
+  NextMonday: day => (day === 0 ? 1 : 8),
+  ThisWeekend: day => (day === 6 ? 13 : 6),
 }
 
 function oclock(momentDate) {
@@ -46,8 +45,8 @@ function isPastDate(inputDateObj, currentDate) {
 }
 
 const EnforceFutureDate = new chrono.Refiner();
-EnforceFutureDate.refine = (text, results)=> {
-  results.forEach((result)=> {
+EnforceFutureDate.refine = (text, results) => {
+  results.forEach((result) => {
     const current = _.extend({}, result.start.knownValues, result.start.impliedValues);
 
     if (result.start.isCertain('weekday') && !result.start.isCertain('day')) {

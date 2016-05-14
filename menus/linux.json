@@ -70,8 +70,6 @@
         { "label": "Toggle Component Regions", "command": "window:toggle-component-regions" },
         { "label": "Toggle Screenshot Mode", "command": "window:toggle-screenshot-mode" },
         { "type": "separator" },
-        { "label": "Open Activity Window", "command": "application:show-work-window" },
-        { "type": "separator" },
         { "label": "Create a Plugin...", "command": "application:create-package" },
         { "label": "Install a Plugin...", "command": "application:install-package" },
         { "type": "separator" },

@@ -9,11 +9,7 @@ class Package extends React.Component {
   static displayName = 'Package';
 
   static propTypes = {
-    package: React.PropTypes.object.isRequired,
-  }
-
-  constructor() {
-    super();
+    'package': React.PropTypes.object.isRequired,
   }
 
   _onDisablePackage = () => {
@@ -47,7 +43,7 @@ class Package extends React.Component {
     let uninstallButton = null;
 
     if (this.props.package.icon) {
-      icon = (<img src={`nylas://${this.props.package.name}/${this.props.package.icon}`} style={{width: 27, alignContent: "center", objectFit: "scale-down"}} />);
+      icon = (<img src={`nylas://${this.props.package.name}/${this.props.package.icon}`} role="presentation" style={{width: 27, alignContent: "center", objectFit: "scale-down"}} />);
     } else if (this.props.package.theme) {
       icon = (<RetinaImg name="theme-icon-default.png" mode="ContentPreserve" />);
     }

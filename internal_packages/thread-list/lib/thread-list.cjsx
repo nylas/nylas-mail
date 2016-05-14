@@ -24,8 +24,8 @@ classNames = require 'classnames'
 ThreadListColumns = require './thread-list-columns'
 ThreadListScrollTooltip = require './thread-list-scroll-tooltip'
 ThreadListStore = require './thread-list-store'
-ThreadListContextMenu = require './thread-list-context-menu'
-CategoryRemovalTargetRulesets = require './category-removal-target-rulesets'
+ThreadListContextMenu = require('./thread-list-context-menu').default
+CategoryRemovalTargetRulesets = require('./category-removal-target-rulesets').default
 
 
 class ThreadList extends React.Component
@@ -146,7 +146,7 @@ class ThreadList extends React.Component
         Actions.closePopover()
       props.onSwipeLeft = (callback) =>
         # TODO this should be grabbed from elsewhere
-        SnoozePopover = require '../../thread-snooze/lib/snooze-popover'
+        SnoozePopover = require('../../thread-snooze/lib/snooze-popover').default
 
         element = document.querySelector("[data-item-id=\"#{item.id}\"]")
         originRect = element.getBoundingClientRect()

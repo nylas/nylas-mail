@@ -39,7 +39,7 @@ export default class MailLabelSet extends React.Component {
         current = [];
       }
 
-      const ignoredIds = [].concat(hidden, current).map(l=> l.id);
+      const ignoredIds = [].concat(hidden, current).map(l => l.id);
       const ignoredNames = MessageStore.CategoryNamesHiddenByDefault;
 
       for (const label of thread.sortedCategories()) {
@@ -52,7 +52,8 @@ export default class MailLabelSet extends React.Component {
             <MailLabel
               label={label}
               key={label.id}
-              onRemove={()=> this._onRemoveLabel(label)} />
+              onRemove={() => this._onRemoveLabel(label)}
+            />
           )
         } else {
           if (LabelComponentCache[label.id] === undefined) {
@@ -71,7 +72,8 @@ export default class MailLabelSet extends React.Component {
         children={labels}
         matching={{role: "Thread:MailLabel"}}
         className="thread-injected-mail-labels"
-        exposedProps={{thread: thread}}/>
+        exposedProps={{thread: thread}}
+      />
     );
   }
 }

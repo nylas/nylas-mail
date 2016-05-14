@@ -38,7 +38,12 @@ class DefaultMailClientItem extends React.Component {
     if (process.platform === "win32") return false;
     return (
       <div className="item">
-        <input type="checkbox" id="default-client" checked={this.state.defaultClient} onChange={this.toggleDefaultMailClient}/>
+        <input
+          type="checkbox"
+          id="default-client"
+          checked={this.state.defaultClient}
+          onChange={this.toggleDefaultMailClient}
+        />
         <label htmlFor="default-client">Use Nylas as default mail client</label>
       </div>
     );
@@ -92,7 +97,12 @@ class LaunchSystemStartItem extends React.Component {
     if (!this.state.available) return false;
     return (
       <div className="item">
-        <input type="checkbox" id="launch-on-start" checked={this.state.launchOnStart} onChange={this._toggleLaunchOnStart}/>
+        <input
+          type="checkbox"
+          id="launch-on-start"
+          checked={this.state.launchOnStart}
+          onChange={this._toggleLaunchOnStart}
+        />
         <label htmlFor="launch-on-start">Launch on system start</label>
       </div>
       );
@@ -101,49 +111,47 @@ class LaunchSystemStartItem extends React.Component {
 }
 
 
-class WorkspaceSection extends React.Component {
+const WorkspaceSection = (props) => {
+  return (
+    <section>
+      <DefaultMailClientItem />
 
-  static displayName = 'WorkspaceSection';
+      <LaunchSystemStartItem />
 
-  static propTypes = {
-    config: React.PropTypes.object,
-    configSchema: React.PropTypes.object,
-  }
+      <ConfigSchemaItem
+        configSchema={props.configSchema.properties.workspace.properties.systemTray}
+        keyPath="core.workspace.systemTray"
+        config={props.config}
+      />
 
-  render() {
-    return (
-      <section>
-        <DefaultMailClientItem />
+      <ConfigSchemaItem
+        configSchema={props.configSchema.properties.workspace.properties.showImportant}
+        keyPath="core.workspace.showImportant"
+        config={props.config}
+      />
 
-        <LaunchSystemStartItem />
+      <ConfigSchemaItem
+        configSchema={props.configSchema.properties.workspace.properties.showUnreadForAllCategories}
+        keyPath="core.workspace.showUnreadForAllCategories"
+        config={props.config}
+      />
 
-        <ConfigSchemaItem
-          configSchema={this.props.configSchema.properties.workspace.properties.systemTray}
-          keyPath="core.workspace.systemTray"
-          config={this.props.config} />
+      <ConfigSchemaItem
+        configSchema={props.configSchema.properties.workspace.properties.interfaceZoom}
+        keyPath="core.workspace.interfaceZoom"
+        config={props.config}
+      />
 
-        <ConfigSchemaItem
-          configSchema={this.props.configSchema.properties.workspace.properties.showImportant}
-          keyPath="core.workspace.showImportant"
-          config={this.props.config} />
+      <div className="platform-note platform-linux-only">
+        N1 launch on system start only works in XDG-compliant desktop environments.
+      </div>
+    </section>
+  );
+}
 
-        <ConfigSchemaItem
-          configSchema={this.props.configSchema.properties.workspace.properties.showUnreadForAllCategories}
-          keyPath="core.workspace.showUnreadForAllCategories"
-          config={this.props.config} />
-
-        <ConfigSchemaItem
-          configSchema={this.props.configSchema.properties.workspace.properties.interfaceZoom}
-          keyPath="core.workspace.interfaceZoom"
-          config={this.props.config} />
-
-        <div className="platform-note platform-linux-only">
-          N1 launch on system start only works in XDG-compliant desktop environments.
-        </div>
-      </section>
-    );
-  }
-
+WorkspaceSection.propTypes = {
+  config: React.PropTypes.object,
+  configSchema: React.PropTypes.object,
 }
 
 export default WorkspaceSection;

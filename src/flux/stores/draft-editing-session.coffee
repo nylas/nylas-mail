@@ -1,9 +1,9 @@
-Message = require '../models/message'
+Message = require('../models/message').default
 Actions = require '../actions'
 DatabaseStore = require './database-store'
-ExtensionRegistry = require '../../extension-registry'
+ExtensionRegistry = require('../../extension-registry')
 {Listener, Publisher} = require '../modules/reflux-coffee'
-SyncbackDraftTask = require '../tasks/syncback-draft-task'
+SyncbackDraftTask = require('../tasks/syncback-draft-task').default
 CoffeeHelpers = require '../coffee-helpers'
 DraftStore = null
 
@@ -170,7 +170,7 @@ class DraftEditingSession
         continue if key is 'id'
         continue if nextDraft[key] is undefined
         nextValues[key] = nextDraft[key]
-      @_draft = Object.assign(new Message(), @_draft, nextValues)
+      @_setDraft(Object.assign(new Message(), @_draft, nextValues))
       @trigger()
 
   _changeSetAltered: =>

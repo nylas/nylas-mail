@@ -42,7 +42,7 @@ export default class UnreadQuerySubscription extends MutableQuerySubscription {
     this._query = buildQuery(this._categoryIds).limit(limit).offset(offset);
   }
 
-  onLastCallbackRemoved = () => {
+  onLastCallbackRemoved() {
     this._unlisten();
   }
 }

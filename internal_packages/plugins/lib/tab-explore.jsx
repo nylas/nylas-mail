@@ -67,16 +67,19 @@ class TabExplore extends React.Component {
             type="text"
             className="search"
             value={this.state.search}
-            onChange={this._onSearchChange }
-            placeholder="Search Packages and Themes"/>
+            onChange={this._onSearchChange}
+            placeholder="Search Packages and Themes"
+          />
           <PackageSet
             title={`${collectionPrefix} Themes`}
             emptyText={emptyText || "There are no featured themes yet."}
-            packages={collection.themes} />
+            packages={collection.themes}
+          />
           <PackageSet
             title={`${collectionPrefix} Packages`}
             emptyText={emptyText || "There are no featured packages yet."}
-            packages={collection.packages} />
+            packages={collection.packages}
+          />
         </div>
       </div>
     );

@@ -3,8 +3,8 @@ React = require "react"
 ReactDOM = require 'react-dom'
 ReactTestUtils = require 'react-addons-test-utils'
 
-Fields = require '../lib/fields'
-CollapsedParticipants = require '../lib/collapsed-participants'
+Fields = require('../lib/fields').default
+CollapsedParticipants = require('../lib/collapsed-participants').default
 
 {Contact} = require 'nylas-exports'
 

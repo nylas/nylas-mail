@@ -54,9 +54,25 @@ class Download
     # initiate multiple downloads for the same file
     return @promise if @promise
 
+    # Note: we must resolve or reject with `this`
     @promise = new Promise (resolve, reject) =>
       stream = fs.createWriteStream(@targetPath)
       @state = State.Downloading
+
+      onFailed = (err) =>
+        @request = null
+        stream.end()
+        @state = State.Failed
+        if fs.existsSync(@targetPath)
+          fs.unlinkSync(@targetPath)
+        reject(err)
+
+      onSuccess = =>
+        @request = null
+        stream.end()
+        @state = State.Finished
+        @percent = 100
+        resolve(@)
 
       NylasAPI.makeRequest
         json: false
@@ -70,21 +86,19 @@ class Download
             @percent = progress.percent
             @progressCallback()
 
-          .on "error", (err) =>
-            @request = null
-            @state = State.Failed
-            stream.end()
-            if fs.existsSync(@targetPath)
-              fs.unlinkSync(@targetPath)
-            reject(@)
+          # This is a /socket/ error event, not an HTTP error event. It fires
+          # when the conn is dropped, user if offline, but not on HTTP status codes.
+          # It is sometimes called in place of "end", not before or after.
+          .on("error", onFailed)
 
           .on "end", =>
             return if @state is State.Failed
-            @request = null
-            @state = State.Finished
-            @percent = 100
-            stream.end()
-            resolve(@) # Note: we must resolve with this
+
+            statusCode = @request.response?.statusCode
+            if [200, 202, 204].includes(statusCode)
+              onSuccess()
+            else
+              onFailed(new Error("Server returned a #{statusCode}"))
 
           .pipe(stream)
 

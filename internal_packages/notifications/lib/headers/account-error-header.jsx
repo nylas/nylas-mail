@@ -1,3 +1,4 @@
+/* eslint global-require: 0 */
 import {AccountStore, Account, Actions, React} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
 
@@ -10,7 +11,16 @@ export default class AccountErrorHeader extends React.Component {
   }
 
   componentDidMount() {
+    this.mounted = true;
     this.unsubscribe = AccountStore.listen(() => this._onAccountsChanged());
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+    if (this.unsubscribe) {
+      this.unsubscribe();
+      this.unsubscribe = null;
+    }
   }
 
   getStateFromStores() {
@@ -21,9 +31,9 @@ export default class AccountErrorHeader extends React.Component {
     this.setState(this.getStateFromStores())
   }
 
-  _reconnect(account) {
+  _reconnect(existingAccount) {
     const ipc = require('electron').ipcRenderer;
-    ipc.send('command', 'application:add-account', account.provider);
+    ipc.send('command', 'application:add-account', {existingAccount});
   }
 
   _openPreferences() {
@@ -36,23 +46,42 @@ export default class AccountErrorHeader extends React.Component {
     shell.openExternal("https://support.nylas.com/hc/en-us/requests/new");
   }
 
+  _onCheckAgain = (event) => {
+    const errorAccounts = this.state.accounts.filter(a => a.hasSyncStateError());
+    this.setState({refreshing: true});
+
+    event.stopPropagation();
+
+    AccountStore.refreshHealthOfAccounts(errorAccounts.map(a => a.id)).finally(() => {
+      if (!this.mounted) { return; }
+      this.setState({refreshing: false});
+    });
+  }
+
   renderErrorHeader(message, buttonName, actionCallback) {
     return (
       <div className="account-error-header notifications-sticky">
-        <div className={"notifications-sticky-item notification-error has-default-action"}
-             onClick={actionCallback}>
-         <RetinaImg
-           className="icon"
-           name="icon-alert-onred.png"
-           mode={RetinaImg.Mode.ContentPreserve} />
+        <div
+          className={"notifications-sticky-item notification-error has-default-action"}
+          onClick={actionCallback}
+        >
+          <RetinaImg
+            className="icon"
+            name="icon-alert-onred.png"
+            mode={RetinaImg.Mode.ContentPreserve}
+          />
           <div className="message">
             {message}
           </div>
+          <a className="action refresh" onClick={this._onCheckAgain}>
+            {this.state.refreshing ? "Checking..." : "Check Again"}
+          </a>
           <a className="action default" onClick={actionCallback}>
             {buttonName}
           </a>
         </div>
-      </div>)
+      </div>
+    )
   }
 
   render() {
@@ -62,33 +91,33 @@ export default class AccountErrorHeader extends React.Component {
 
       switch (account.syncState) {
 
-      case Account.SYNC_STATE_AUTH_FAILED:
-        return this.renderErrorHeader(
-          `Nylas N1 can no longer authenticate with ${account.emailAddress}. Click here to reconnect.`,
-          "Reconnect",
-          ()=>this._reconnect(account));
+        case Account.SYNC_STATE_AUTH_FAILED:
+          return this.renderErrorHeader(
+            `Nylas N1 can no longer authenticate with ${account.emailAddress}. Click here to reconnect.`,
+            "Reconnect",
+            () => this._reconnect(account));
 
-      case Account.SYNC_STATE_STOPPED:
-        return this.renderErrorHeader(
-          `The cloud sync for ${account.emailAddress} has been disabled. You will
-          not be able to send or receive mail. Please contact Nylas support.`,
-          "Contact support",
-          ()=>this._contactSupport());
+        case Account.SYNC_STATE_STOPPED:
+          return this.renderErrorHeader(
+            `The cloud sync for ${account.emailAddress} has been disabled. You will
+            not be able to send or receive mail. Please contact Nylas support.`,
+            "Contact support",
+            () => this._contactSupport());
 
-      default:
-        return this.renderErrorHeader(
-          `Nylas encountered an error while syncing mail for ${account.emailAddress} - we're
-          looking into it. Contact Nylas support for details.`,
-          "Contact support",
-          ()=>this._contactSupport());
+        default:
+          return this.renderErrorHeader(
+            `Nylas encountered an error while syncing mail for ${account.emailAddress} - we're
+            looking into it. Contact Nylas support for details.`,
+            "Contact support",
+            () => this._contactSupport());
       }
     }
     if (errorAccounts.length > 1) {
       return this.renderErrorHeader("Several of your accounts are having issues. " +
         "You will not be able to send or receive mail. Click here to manage your accounts.",
         "Open preferences",
-        ()=>this._openPreferences());
+        () => this._openPreferences());
     }
-    return false;
+    return <span />;
   }
 }

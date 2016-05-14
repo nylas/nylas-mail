@@ -4,7 +4,7 @@ Rx = require 'rx-lite'
 AccountStore = require './account-store'
 DatabaseStore = require './database-store'
 TaskQueueStatusStore = require './task-queue-status-store'
-ReprocessMailRulesTask = require '../tasks/reprocess-mail-rules-task'
+ReprocessMailRulesTask = require('../tasks/reprocess-mail-rules-task').default
 Utils = require '../models/utils'
 Actions = require '../actions'
 

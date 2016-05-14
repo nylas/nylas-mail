@@ -1,4 +1,5 @@
 import React, {Component, PropTypes} from 'react';
+import DropZone from './drop-zone';
 import RetinaImg from './retina-img';
 import OutlineViewItem from './outline-view-item';
 
@@ -60,30 +61,42 @@ class OutlineView extends Component {
     showCreateInput: false,
   };
 
+  componentWillUnmount() {
+    clearTimeout(this._expandTimeout);
+  }
 
   // Handlers
 
-  _onCreateButtonMouseDown = ()=> {
+  _onCreateButtonMouseDown = () => {
     this._clickingCreateButton = true;
   };
 
-  _onCreateButtonClicked = ()=> {
+  _onCreateButtonClicked = () => {
     this._clickingCreateButton = false;
     this.setState({showCreateInput: !this.state.showCreateInput});
   };
 
-  _onCollapseToggled = ()=> {
+  _onCollapseToggled = () => {
     if (this.props.onCollapseToggled) {
       this.props.onCollapseToggled(this.props);
     }
   };
 
-  _onItemCreated = (item, value)=> {
+  _onDragStateChange = ({isDropping}) => {
+    if (this.props.collapsed && !this._expandTimeout && isDropping) {
+      this._expandTimeout = setTimeout(this._onCollapseToggled, 650);
+    } else if (this._expandTimeout && !isDropping) {
+      clearTimeout(this._expandTimeout);
+      this._expandTimeout = null;
+    }
+  }
+
+  _onItemCreated = (item, value) => {
     this.setState({showCreateInput: false});
     this.props.onItemCreated(value)
   };
 
-  _onCreateInputCleared = ()=> {
+  _onCreateInputCleared = () => {
     if (!this._clickingCreateButton) {
       this.setState({showCreateInput: false});
     }
@@ -107,16 +120,17 @@ class OutlineView extends Component {
   }
 
   _renderCreateButton() {
-    const title = this.props.title;
     return (
       <span
         className="add-item-button"
         onMouseDown={this._onCreateButtonMouseDown}
-        onMouseUp={this._onCreateButtonClicked.bind(this, title)}>
+        onMouseUp={this._onCreateButtonClicked}
+      >
         <RetinaImg
           url="nylas://account-sidebar/assets/icon-sidebar-addcategory@2x.png"
           style={{height: 14, width: 14}}
-          mode={RetinaImg.Mode.ContentIsMask} />
+          mode={RetinaImg.Mode.ContentIsMask}
+        />
       </span>
     );
   }
@@ -124,7 +138,12 @@ class OutlineView extends Component {
   _renderHeading(allowCreate, collapsed, collapsible) {
     const collapseLabel = collapsed ? 'Show' : 'Hide';
     return (
-      <div className="heading">
+      <DropZone
+        className="heading"
+        onDrop={() => true}
+        onDragStateChange={this._onDragStateChange}
+        shouldAcceptDrop={() => true}
+      >
         <span className="text">
           {this.props.title}
         </span>
@@ -132,12 +151,13 @@ class OutlineView extends Component {
         {collapsible ?
           <span
             className="collapse-button"
-            onClick={this._onCollapseToggled}>
+            onClick={this._onCollapseToggled}
+          >
             {collapseLabel}
           </span>
           : void 0
         }
-      </div>
+      </DropZone>
     );
   }
 

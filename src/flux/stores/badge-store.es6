@@ -1,3 +1,4 @@
+/* eslint global-require:0 */
 import NylasStore from 'nylas-store';
 import FocusedPerspectiveStore from './focused-perspective-store';
 import ThreadCountsStore from './thread-counts-store';
@@ -72,4 +73,5 @@ class BadgeStore extends NylasStore {
   }
 }
 
-module.exports = new BadgeStore()
+const badgeStore = new BadgeStore()
+export default badgeStore

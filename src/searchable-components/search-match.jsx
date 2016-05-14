@@ -1,20 +1,21 @@
 import React from 'react'
 
-export default class SearchMatch extends React.Component {
-  static displayName = "SearchMatch";
-
-  static propTypes = {
-    regionId: React.PropTypes.string,
-    className: React.PropTypes.string,
-    renderIndex: React.PropTypes.number,
-  }
-
-  render() {
-    return (
-      <span data-region-id={this.props.regionId}
-            data-render-index={this.props.renderIndex}
-            className={`search-match ${this.props.className}`}>{this.props.children}</span>
-    )
-  }
+const SearchMatch = (props) => {
+  return (
+    <span
+      data-region-id={props.regionId}
+      data-render-index={props.renderIndex}
+      className={`search-match ${props.className}`}
+    >
+      {props.children}
+    </span>
+  )
 }
 
+SearchMatch.propTypes = {
+  regionId: React.PropTypes.string,
+  className: React.PropTypes.string,
+  renderIndex: React.PropTypes.number,
+};
+
+export default SearchMatch;

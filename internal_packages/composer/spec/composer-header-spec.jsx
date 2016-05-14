@@ -6,7 +6,7 @@ import {Contact, Message} from 'nylas-exports';
 import ComposerHeader from '../lib/composer-header';
 import Fields from '../lib/fields';
 
-describe("ComposerHeader", () => {
+describe('ComposerHeader', function composerHeader() {
   beforeEach(() => {
     this.createWithDraft = (draft) => {
       const session = {

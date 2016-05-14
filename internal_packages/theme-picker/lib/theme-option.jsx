@@ -103,7 +103,8 @@ class ThemeOption extends React.Component {
           frameBorder="0"
           width="115px"
           height="70px"
-          flex="1" />
+          flex="1"
+        />
       </div>
     );
   }

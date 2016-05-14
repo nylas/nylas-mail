@@ -1,3 +1,4 @@
+/* eslint global-require: 0*/
 import _ from 'underscore'
 import {
   Thread,
@@ -58,8 +59,11 @@ export default class ThreadListContextMenu {
   }
 
   replyAllItem() {
-    if (this.threadIds.length !== 1) { return null }
-    DatabaseStore.findBy(Message, {threadId: this.threadIds[0]})
+    if (this.threadIds.length !== 1) {
+      return null;
+    }
+
+    return DatabaseStore.findBy(Message, {threadId: this.threadIds[0]})
     .order(Message.attributes.date.descending())
     .limit(1)
     .then((message) => {
@@ -76,7 +80,7 @@ export default class ThreadListContextMenu {
           },
         }
       }
-      return null
+      return null;
     })
   }
 

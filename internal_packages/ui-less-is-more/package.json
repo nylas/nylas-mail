@@ -1,0 +1,13 @@
+{
+  "name": "less-is-more",
+  "displayName": "Less Is More",
+  "theme": "ui-less-is-more",
+  "version": "1.0.7",
+  "description": "A minimal approach to email in Nylas N1",
+  "license": "MIT",
+  "engines": {
+    "nylas": "*"
+  },
+  "styleSheets": ["less-is-more"],
+  "private": true
+}

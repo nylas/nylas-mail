@@ -1,4 +1,3 @@
-/** @babel */
 import React, {Component, PropTypes} from 'react';
 import ReactDOM from 'react-dom';
 import {Actions, FocusedPerspectiveStore} from 'nylas-exports';
@@ -22,18 +21,19 @@ class SnoozeButton extends Component {
     renderImage: true,
   };
 
-  onClick = (event)=> {
+  onClick = (event) => {
     event.stopPropagation()
     const buttonRect = this.getBoundingClientRect()
     Actions.openPopover(
       <SnoozePopover
         threads={this.props.threads}
-        closePopover={Actions.closePopover} />,
+        closePopover={Actions.closePopover}
+      />,
       {originRect: buttonRect, direction: this.props.direction}
     )
   };
 
-  getBoundingClientRect = ()=> {
+  getBoundingClientRect = () => {
     if (this.props.getBoundingClientRect) {
       return this.props.getBoundingClientRect()
     }
@@ -48,12 +48,14 @@ class SnoozeButton extends Component {
       <button
         title="Snooze"
         tabIndex={-1}
-        className={"snooze-button " + this.props.className}
-        onClick={this.onClick}>
+        className={`snooze-button ${this.props.className}`}
+        onClick={this.onClick}
+      >
         {this.props.renderImage ?
           <RetinaImg
             name="toolbar-snooze.png"
-            mode={RetinaImg.Mode.ContentIsMask} /> :
+            mode={RetinaImg.Mode.ContentIsMask}
+          /> :
           void 0
         }
       </button>
@@ -69,7 +71,9 @@ export class QuickActionSnooze extends Component {
     thread: PropTypes.object,
   };
 
-  getBoundingClientRect = ()=> {
+  static containerRequired = false;
+
+  getBoundingClientRect = () => {
     // Grab the parent node because of the zoom applied to this button. If we
     // took this element directly, we'd have to divide everything by 2
     const element = ReactDOM.findDOMNode(this).parentNode;
@@ -78,8 +82,6 @@ export class QuickActionSnooze extends Component {
     // The parent node is a bit too much to the left, lets adjust this.
     return {height, width, top, bottom, right, left: left + 5}
   };
-
-  static containerRequired = false;
 
   render() {
     if (!FocusedPerspectiveStore.current().isInbox()) {
@@ -91,7 +93,8 @@ export class QuickActionSnooze extends Component {
         renderImage={false}
         threads={[this.props.thread]}
         className="btn action action-snooze"
-        getBoundingClientRect={this.getBoundingClientRect} />
+        getBoundingClientRect={this.getBoundingClientRect}
+      />
     );
   }
 }
@@ -111,7 +114,7 @@ export class ToolbarSnooze extends Component {
       return <span />;
     }
     return (
-      <SnoozeButton threads={this.props.items}/>
+      <SnoozeButton threads={this.props.items} />
     );
   }
 }

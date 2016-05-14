@@ -10,14 +10,12 @@ class StoreRegistry extends SerializableRegistry {
    * takes considerable time to process.
    */
   activateAllStores() {
-    for (const name in this._constructorFactories) {
-      if (this._constructorFactories.hasOwnProperty(name)) {
-        // All we need to do is hit `require` on the store. This will
-        // construct the object an initialize the require cache. The
-        // stores are now available in nylas-exports or from the node
-        // require cache.
-        this.get(name)
-      }
+    for (const name of Object.keys(this._constructorFactories)) {
+      // All we need to do is hit `require` on the store. This will
+      // construct the object an initialize the require cache. The
+      // stores are now available in nylas-exports or from the node
+      // require cache.
+      this.get(name)
     }
   }
 }

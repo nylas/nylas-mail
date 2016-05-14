@@ -6,20 +6,20 @@
 @gray-lighter: darken(@gray-base, 92.5%);
 @white:        #0a0b0c;
 
-@accent-primary:            #5AA8FA;
-@accent-primary-dark:       lighten(#3087E1, 10%);
+@accent-primary:            #5e6a77;
+@accent-primary-dark:       #5e6a77;
 
-@background-primary:     #313131;
+@background-primary:     #333539;
 @background-off-primary: #282828;
-@background-secondary:   #222;
-@background-tertiary:    #6d7987;
+@background-secondary:   #333539;
+@background-tertiary:    #333539;
 
-@border-color-primary:   lighten(@background-primary, 10%);
-@border-color-secondary: lighten(@background-secondary, 10%);
-@border-color-tertiary:  lighten(@background-tertiary, 10%);
+@border-color-primary:   darken(@background-primary, 1%);
+@border-color-secondary: darken(@background-secondary, 1%);
+@border-color-tertiary:  darken(@background-tertiary, 1%);
 @border-color-divider:   @border-color-secondary;
 
-@text-color:                      #C2C2C2;
+@text-color:                      #c0c6cb;
 @text-color-subtle:               fadeout(@text-color, 20%);
 @text-color-very-subtle:          fadeout(@text-color, 40%);
 @text-color-inverse:              white;
@@ -27,7 +27,7 @@
 @text-color-inverse-very-subtle:  fadeout(@text-color-inverse, 50%);
 @text-color-heading:              #FFF;
 
-@btn-default-bg-color:      #404040;
+@btn-default-bg-color:    lighten(@background-primary, 5%);
 @dropdown-default-bg-color: #404040;
 
 @input-bg:              #242424;
@@ -36,8 +36,15 @@
 @list-bg:               #333;
 @list-border:           #383838;
 @list-selected-color:   @text-color-inverse;
+@list-focused-color: @text-color;
 
 @toolbar-background-color: @background-secondary;
+@panel-background-color: #282b30;
+
+.sheet-toolbar {
+  border-bottom: none;
+  box-shadow: 0 0 0.5px @border-color-primary, 0 1px 1.5px @border-color-primary, 0 0 3px @border-color-primary;
+}
 
 .thread-icon:not(.thread-icon-unread):not(.thread-icon-star) {
   -webkit-filter: invert(100%);

@@ -53,6 +53,7 @@ export default class FindInThread extends React.Component {
       this._clearSearch()
       ReactDOM.findDOMNode(this.refs.searchBox).blur()
     }
+    return null
   }
 
   _selectionText() {
@@ -94,44 +95,55 @@ export default class FindInThread extends React.Component {
     return (
       <div className={rootCls} onClick={this._focusSearch}>
         <KeyCommandsRegion globalHandlers={this._globalKeymapHandlers()}>
-        <div className="controls-wrap" ref="controlsWrap">
-          <div className="input-wrap">
+          <div className="controls-wrap" ref="controlsWrap">
+            <div className="input-wrap">
 
-            <input type="text"
-                   ref="searchBox"
-                   placeholder="Find in thread"
-                   onChange={this._onFindChange}
-                   onKeyDown={this._onFindKeyDown}
-                   value={this.state.searchTerm || ""}/>
+              <input
+                type="text"
+                ref="searchBox"
+                placeholder="Find in thread"
+                onChange={this._onFindChange}
+                onKeyDown={this._onFindKeyDown}
+                value={this.state.searchTerm || ""}
+              />
 
-            <div className="selection-progress">{this._selectionText()}</div>
+              <div className="selection-progress">{this._selectionText()}</div>
 
-            <div className="btn-wrap">
-              <button tabIndex={-1}
-                      className={btnCls}
-                      disabled={!this._navEnabled()}
-                      onClick={this._onPrevResult}>
-                <RetinaImg name="ic-findinthread-previous.png"
-                           mode={RetinaImg.Mode.ContentIsMask}/>
-              </button>
+              <div className="btn-wrap">
+                <button
+                  tabIndex={-1}
+                  className={btnCls}
+                  disabled={!this._navEnabled()}
+                  onClick={this._onPrevResult}
+                >
+                  <RetinaImg
+                    name="ic-findinthread-previous.png"
+                    mode={RetinaImg.Mode.ContentIsMask}
+                  />
+                </button>
 
-              <button className={btnCls}
-                      tabIndex={-1}
-                      disabled={!this._navEnabled()}
-                      onClick={this._onNextResult}>
-                <RetinaImg name="ic-findinthread-next.png"
-                           mode={RetinaImg.Mode.ContentIsMask}/>
-              </button>
+                <button
+                  className={btnCls}
+                  tabIndex={-1}
+                  disabled={!this._navEnabled()}
+                  onClick={this._onNextResult}
+                >
+                  <RetinaImg
+                    name="ic-findinthread-next.png"
+                    mode={RetinaImg.Mode.ContentIsMask}
+                  />
+                </button>
+              </div>
+
             </div>
 
+            <button className={btnCls} onClick={this._clearSearch} >
+              <RetinaImg
+                name="ic-findinthread-close.png"
+                mode={RetinaImg.Mode.ContentIsMask}
+              />
+            </button>
           </div>
-
-          <button className={btnCls}
-                  onClick={this._clearSearch}>
-            <RetinaImg name="ic-findinthread-close.png"
-                       mode={RetinaImg.Mode.ContentIsMask}/>
-          </button>
-        </div>
         </KeyCommandsRegion>
       </div>
     )
