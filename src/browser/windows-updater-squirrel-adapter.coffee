@@ -9,7 +9,7 @@ class WindowsUpdaterSquirrelAdapter
 
   restartN1: ->
     if WindowsUpdater.existsSync()
-      WindowsUpdater.restartN1(require('app'))
+      WindowsUpdater.restartN1(require('electron').app)
     else
       NylasEnv.reportError(new Error("SquirrellUpdate does not exist"))
 

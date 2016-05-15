@@ -41,12 +41,18 @@
     {
       "label": "&View",
       "submenu": [
-        { "label": "Single Panel Mode", "type": "checkbox", "command": "application:select-list-mode" },
-        { "label": "Two Panel Mode", "type": "checkbox", "command": "application:select-split-mode" },
+        { "type": "separator", "id": "mailbox-navigation"},
+        { "label": "Go to Inbox", "command": "navigation:go-to-inbox" },
+        { "label": "Go to Starred", "command": "navigation:go-to-starred" },
+        { "label": "Go to Sent", "command": "navigation:go-to-sent" },
+        { "label": "Go to Drafts", "command": "navigation:go-to-drafts" },
+        { "label": "Go to All mail", "command": "navigation:go-to-all" },
         { "type": "separator" },
-        { "label": "Toggle &Full Screen", "command": "window:toggle-full-screen" }
+        { "label": "Enter Full Screen", "command": "window:toggle-full-screen" },
+        { "label": "Exit Full Screen", "command": "window:toggle-full-screen", "visible": false }
       ]
     },
+
     {
       "label": "Thread",
       "submenu": [

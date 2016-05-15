@@ -8,6 +8,5 @@
   "engines": {
     "nylas": "*"
   },
-  "styleSheets": ["email-frame"],
   "private": true
 }

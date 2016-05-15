@@ -11,13 +11,16 @@ go away!
 ###
 class ObservableListDataSource extends ListTabular.DataSource
 
-  constructor: ($resultSetObservable, @_setRetainedRange) ->
+  constructor: (@$resultSetObservable, @_setRetainedRange) ->
     super
     @_countEstimate = -1
     @_resultSet = null
     @_resultDesiredLast = null
 
-    @_subscription = $resultSetObservable.subscribe (nextResultSet) =>
+    # Wait until a retained range is set before subscribing to result sets
+
+  _attach: =>
+    @_subscription = @$resultSetObservable.subscribe (nextResultSet) =>
       if nextResultSet.range().end is @_resultDesiredLast
         @_countEstimate = Math.max(@_countEstimate, nextResultSet.range().end + 1)
       else
@@ -37,6 +40,7 @@ class ObservableListDataSource extends ListTabular.DataSource
   setRetainedRange: ({start, end}) ->
     @_resultDesiredLast = end
     @_setRetainedRange({start, end})
+    @_attach() if not @_subscription
 
   # Retrieving Data
 
@@ -44,7 +48,7 @@ class ObservableListDataSource extends ListTabular.DataSource
     @_countEstimate
 
   loaded: ->
-    @_resultSet isnt null and @_resultDesiredLast > 0
+    @_resultSet isnt null
 
   empty: =>
     not @_resultSet or @_resultSet.empty()
