@@ -1,6 +1,6 @@
 # N1 Changelog
 
-### 0.4.36 (5/13/16)
+### 0.4.37 (5/15/16)
 
 - Features:
   + Keyboard Shortcuts: Edit your keyboard shortcuts directly from the keyboard
@@ -17,12 +17,15 @@
   + The INBOX. folder prefix is hidden for FastMail accounts.
   + When viewing your spam folder, you can now "Unmark" something as spam.
   + When resuming from sleep, N1 no longer plays the "new mail" sound repeatedly / loudly.
+  + The empty animation no longer plays briefly when the app launches.
   + Search queries with double quotes (") now work as expected.
   + Changes to your accounts no longer cause the account's inbox to become focused.
   + Replies honor the ReplyTo field, even if the message is from one of your accounts.
   + Using the Apple Mail keyboard layout, Cmd+[ and Cmd+] move between threads.
   + The Message Viewer always appears in the Window menu and is bound to Cmd/Ctrl+0.
   + `?` now shows your keyboard shortcuts.
+  + On Linux, N1 now notes that `libappindicator1` is required for the system tray.
+  + Function-key keyboard shortcuts are shown in the menu.
 
 - Design:
   + The confusing spam icon has been replaced with "thumbs down".
