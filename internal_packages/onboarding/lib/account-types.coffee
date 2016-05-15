@@ -158,7 +158,7 @@ Providers = [
       required: true
     }]
   }, {
-    name: 'custom'
+    name: 'imap'
     displayName: 'IMAP / SMTP Setup'
     icon: 'ic-settings-account-imap.png'
     header_icon: 'setup-icon-provider-imap.png'
