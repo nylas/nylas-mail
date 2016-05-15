@@ -162,10 +162,10 @@ class ApplicationMenu
       label: "N1"
       submenu: [
           { label: "Check for Update", metadata: {autoUpdate: true}}
-          { label: 'Reload', accelerator: 'Command+R', click: => BrowserWindow.getFocusedWindow()?.reload() }
-          { label: 'Close Window', accelerator: 'Command+Shift+W', click: => BrowserWindow.getFocusedWindow()?.close() }
-          { label: 'Toggle Dev Tools', accelerator: 'Command+Alt+I', click: => BrowserWindow.getFocusedWindow()?.toggleDevTools() }
-          { label: 'Quit', accelerator: 'Command+Q', click: -> app.quit() }
+          { label: 'Reload', accelerator: 'CmdOrCtrl+R', click: => BrowserWindow.getFocusedWindow()?.reload() }
+          { label: 'Close Window', accelerator: 'CmdOrCtrl+Shift+W', click: => BrowserWindow.getFocusedWindow()?.close() }
+          { label: 'Toggle Dev Tools', accelerator: 'CmdOrCtrl+Alt+I', click: => BrowserWindow.getFocusedWindow()?.toggleDevTools() }
+          { label: 'Quit', accelerator: 'CmdOrCtrl+Q', click: -> app.quit() }
       ]
     ]
 
