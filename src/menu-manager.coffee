@@ -82,8 +82,8 @@ class MenuManager
     filtered = {}
     for key, bindings of keystrokesByCommand
       for binding in bindings
-        continue if binding.indexOf(' ') != -1
-        continue unless /(cmd|ctrl|shift|alt|mod)/.test(binding)
+        continue unless binding.indexOf(' ') is -1
+        continue unless /(cmd|ctrl|shift|alt|mod)/.test(binding) or /f\d+/.test(binding)
         filtered[key] ?= []
         filtered[key].push(binding)
     filtered

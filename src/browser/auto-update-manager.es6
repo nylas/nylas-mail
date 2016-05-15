@@ -57,7 +57,7 @@ export default class AutoUpdateManager extends EventEmitter {
     if (process.platform === 'win32') {
       autoUpdater = require('./windows-updater-squirrel-adapter');
     } else if (process.platform === 'linux') {
-      autoUpdater = require('./linux-updater-adapter');
+      autoUpdater = require('./linux-updater-adapter').default;
     } else {
       autoUpdater = require('electron').autoUpdater;
     }
