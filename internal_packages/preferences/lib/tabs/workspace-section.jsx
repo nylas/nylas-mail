@@ -143,7 +143,9 @@ const WorkspaceSection = (props) => {
       />
 
       <div className="platform-note platform-linux-only">
-        N1 launch on system start only works in XDG-compliant desktop environments.
+        "Launch on system start" only works in XDG-compliant desktop environments.
+        To enable the N1 icon in the system tray, you may need to install libappindicator1.
+        (i.e., <code>sudo apt-get install libappindicator1</code>)
       </div>
     </section>
   );
