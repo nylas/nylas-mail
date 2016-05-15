@@ -83,11 +83,20 @@ export default class CommandKeybinding extends React.Component {
   _onFinishedEditing = () => {
     if (this.state.editingBinding) {
       const keymapPath = NylasEnv.keymaps.getUserKeymapPath();
+      let keymaps = {};
 
       try {
         const exists = fs.existsSync(keymapPath);
-        const keymaps = exists ? JSON.parse(fs.readFileSync(keymapPath)) : {};
-        keymaps[this.props.command] = this.state.editingBinding;
+        if (exists) {
+          keymaps = JSON.parse(fs.readFileSync(keymapPath));
+        }
+      } catch (err) {
+        console.error(err);
+      }
+
+      keymaps[this.props.command] = this.state.editingBinding;
+
+      try {
         fs.writeFileSync(keymapPath, JSON.stringify(keymaps, null, 2));
       } catch (err) {
         NylasEnv.showErrorDialog(`Nylas was unable to modify your keymaps at ${keymapPath}. ${err.toString()}`);
