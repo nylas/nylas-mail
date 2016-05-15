@@ -41,7 +41,8 @@ class KeymapFile {
       if (e.code === 'ENOENT') {
         return;
       }
-      throw e;
+      console.error(e);
+      return;
     }
 
     this._bindings = {};
