@@ -199,14 +199,16 @@ class ApplicationMenu
     firstKeystroke = keystrokesByCommand[command]?[0]
     return null unless firstKeystroke
 
+    if /f\d+/.test(firstKeystroke)
+      firstKeystroke = firstKeystroke.toUpperCase()
+
     modifiers = firstKeystroke.split('+')
-    modReplacement = if process.platform is "darwin" then "Command" else "Ctrl"
     key = modifiers.pop()
 
     modifiers = modifiers.map (modifier) ->
       modifier.replace(/shift/ig, "Shift")
               .replace(/command/ig, "Command")
-              .replace(/mod/ig, modReplacement)
+              .replace(/mod/ig, "CmdOrCtrl")
               .replace(/ctrl/ig, "Ctrl")
               .replace(/alt/ig, "Alt")
 
