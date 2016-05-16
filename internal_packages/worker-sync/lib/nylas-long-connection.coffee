@@ -111,7 +111,7 @@ class NylasLongConnection
           res.on 'data', (chunk) =>
             if chunk.toString().indexOf('Invalid cursor') > 0
               error = new Error('Delta Connection: Cursor is invalid. Need to blow away local cache.')
-              NylasEnv.config.removeAtKeyPath("nylas.#{@_account.id}.cursor")
+              NylasEnv.config.removeAtKeyPath("nylas.#{@_accountId}.cursor")
               DatabaseStore._handleSetupError(error)
             @close()
           return
