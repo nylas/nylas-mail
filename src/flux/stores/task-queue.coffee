@@ -208,7 +208,7 @@ class TaskQueue
       @trigger()
     .then (status) =>
       if status is Task.Status.Retry
-        task.queueState.retryDelay = Math.round(Math.min((task.queueState.retryDelay ? 1000) * 1.2, 30000))
+        task.queueState.retryDelay = Math.round(Math.min((task.queueState.retryDelay ? 1000) * 2, 30000))
         task.queueState.retryAfter = Date.now() + task.queueState.retryDelay
       else
         @dequeue(task)
