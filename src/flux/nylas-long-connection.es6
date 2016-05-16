@@ -182,7 +182,6 @@ export default class NylasLongConnection {
   }
 
   dispose(status) {
-    this._emitter.dispose()
     this._buffer = ''
     if (this._req) {
       this._req.end()
