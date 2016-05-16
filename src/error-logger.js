@@ -6,7 +6,9 @@ var ErrorLogger, _, fs, path, app, os, remote;
 os = require('os');
 fs = require('fs-plus');
 path = require('path');
+ipcRenderer = null;
 if (process.type === 'renderer') {
+  ipcRenderer = require('electron').ipcRenderer;
   remote = require('electron').remote;
   app = remote.app;
 } else {
@@ -54,12 +56,30 @@ module.exports = ErrorLogger = (function() {
   /////////////////////////////////////////////////////////////////////
 
   ErrorLogger.prototype.reportError = function(error, extra) {
-    var nslog = require('nslog');
     if (!error) { error = {stack: ""} }
     this._appendLog(error.stack)
     if (extra) { this._appendLog(extra) }
-    this._notifyExtensions("reportError", error, extra)
-    if (process.type === 'browser') { nslog(error.stack) }
+    if (process.type === "renderer") {
+      var errorJSON = JSON.stringify(error);
+
+      /**
+       * We synchronously send all errors to the backend main process.
+       *
+       * This is important because errors can frequently happen right
+       * before a renderer window is closing. Since error reporting hits
+       * APIs and is asynchronous it's possible for the window to be
+       * destroyed before the report makes it.
+       *
+       * This is a rare use of `sendSync` to ensure the command has made
+       * it before the window closes.
+       */
+      ipcRenderer.sendSync("report-error", {errorJSON: errorJSON, extra: extra})
+
+    } else {
+      var nslog = require('nslog');
+      this._notifyExtensions("reportError", error, extra)
+      nslog(error.stack)
+    }
   }
 
   ErrorLogger.prototype.openLogs = function() {
