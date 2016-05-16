@@ -87,10 +87,12 @@ export default class Account extends ModelWithMetadata {
     this.syncState = this.syncState || "running";
   }
 
-  fromJSON(inJSON) {
-    const json = inJSON;
-    json.label = json.label || json[Account.attributes.emailAddress.jsonKey]
-    return super.fromJSON(json)
+  fromJSON(json) {
+    super.fromJSON(json);
+    if (!this.label) {
+      this.label = this.emailAddress;
+    }
+    return this;
   }
 
   // Returns a {Contact} model that represents the current user.
