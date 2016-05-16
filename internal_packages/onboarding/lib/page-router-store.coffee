@@ -44,7 +44,7 @@ class PageRouterStore extends NylasStore
     @_onMoveToPage(page, pageData)
 
   openWelcomePage: ->
-    encode = (str) -> encodeURIComponent(new Buffer(str).toString('base64'))
+    encode = (str) -> encodeURIComponent(new Buffer(str || "").toString('base64'))
     account = AccountStore.accounts()[0]
     n1_id = encode(NylasEnv.config.get("updateIdentity"))
     email = encode(account.emailAddress)

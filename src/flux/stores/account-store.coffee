@@ -109,10 +109,9 @@ class AccountStore extends NylasStore
 
   _save: =>
     @_version += 1
-    NylasEnv.config.set(configVersionKey, @_version)
-    NylasEnv.config.set(configAccountsKey, @_accounts)
     NylasEnv.config.set(configTokensKey, null)
-    NylasEnv.config.save()
+    NylasEnv.config.set(configAccountsKey, @_accounts)
+    NylasEnv.config.set(configVersionKey, @_version)
     @_trigger()
 
   # Inbound Events

@@ -6,7 +6,7 @@ import FileListCache from './file-list-cache';
 import ApplicationMenu from './application-menu';
 import AutoUpdateManager from './auto-update-manager';
 import NylasProtocolHandler from './nylas-protocol-handler';
-import SharedFileManager from './shared-file-manager';
+import ConfigPersistenceManager from './config-persistence-manager';
 
 import {BrowserWindow, Menu, app, ipcMain, dialog} from 'electron';
 
@@ -32,15 +32,15 @@ export default class Application extends EventEmitter {
     this.safeMode = safeMode;
 
     this.fileListCache = new FileListCache();
-    this.sharedFileManager = new SharedFileManager();
     this.nylasProtocolHandler = new NylasProtocolHandler(this.resourcePath, this.safeMode);
 
     this.temporaryMigrateConfig();
 
     const Config = require('../config');
-    const config = new Config({configDirPath, resourcePath});
-    config.load();
+    const config = new Config();
     this.config = config;
+    this.configPersistenceManager = new ConfigPersistenceManager({configDirPath, resourcePath});
+    config.load();
 
     this.temporaryInitializeDisabledPackages();
 
