@@ -1,37 +1,36 @@
-/* eslint global-require:0 */
+/* eslint global-require: 0 */
 import _ from 'underscore'
 import url from 'url'
 import {Emitter} from 'event-kit'
 
-const CONNECTION_TIMEOUT = 60 * 60 * 1000
-const RESULTS_THROTTLE = 400
 
-export default class NylasLongConnection {
-  static Statuses = {
+class NylasLongConnection {
+
+  static Status = {
     None: 'none',
-    Idle: 'idle',
     Connecting: 'connecting',
     Connected: 'connected',
     Closed: 'closed', // Socket has been closed for any reason
     Ended: 'ended', // We have received 'end()' and will never open again.
   }
 
-  constructor(api, accountId, {path, timeout, debounceInterval, throttleInterval, onStatusChanged, onError} = {}) {
+  constructor(api, accountId, {path, debounceInterval, throttleInterval, closeIfDataStopsTimeout, onStatusChanged} = {}) {
     this._api = api
     this._accountId = accountId
-    this._status = NylasLongConnection.Statuses.None
+    this._status = NylasLongConnection.Status.None
     this._req = null
+    this._pingTimeout = null
     this._emitter = new Emitter()
     this._buffer = ''
     this._results = []
 
     // Options
     this._path = path
-    this._timeout = timeout || CONNECTION_TIMEOUT
     this._debounceInterval = debounceInterval
-    this._throttleInterval = throttleInterval || RESULTS_THROTTLE
+    this._throttleInterval = throttleInterval || 400
+    this._closeIfDataStopsTimeout = closeIfDataStopsTimeout || (15 * 1000)
     this._onStatusChanged = onStatusChanged || (() => {})
-    this._onError = onError || (() => {})
+
 
     this._resultsReceived = () => {
       if (this._results.length === 0) {
@@ -92,16 +91,16 @@ export default class NylasLongConnection {
   }
 
   start() {
-    const canStart = (
-      [NylasLongConnection.Statuses.None, NylasLongConnection.Statuses.Closed].includes(this._status)
+    const isValidStatus = (
+      [NylasLongConnection.Status.None, NylasLongConnection.Status.Closed].includes(this._status)
     )
-    if (!canStart) {
+    if (!isValidStatus) {
       return this;
     }
 
     const token = this._api.accessTokenForAccountId(this._accountId)
     if (!token || this._req) {
-      return this;
+      return null;
     }
 
     const options = url.parse(`${this._api.APIRoot}${this._path}`)
@@ -118,10 +117,7 @@ export default class NylasLongConnection {
     const processBufferThrottled = _.throttle(this.processBuffer, this._throttleInterval, {leading: false})
     this._req = lib.request(options, (responseStream) => {
       if (responseStream.statusCode !== 200) {
-        responseStream.on('data', (chunk) => {
-          const message = chunk.toString('utf8')
-          console.error(message)
-          this._onError({message})
+        responseStream.on('data', () => {
           this.close()
         })
         return;
@@ -135,9 +131,10 @@ export default class NylasLongConnection {
         if (this.isClosed()) {
           return;
         }
+        this.closeIfDataStops()
 
         // Ignore redundant newlines sent as pings. Want to avoid
-        // calls to this.onProcessBuffer that contain no actual updates
+        // calls to @onProcessBuffer that contain no actual updates
         if (chunk === '\n' && (this._buffer.length === 0 || this._buffer[-1] === '\n')) {
           return
         }
@@ -145,52 +142,65 @@ export default class NylasLongConnection {
         processBufferThrottled()
       })
     })
-    this._req.setTimeout(this._timeout)
+    this._req.setTimeout(60 * 60 * 1000)
     this._req.setSocketKeepAlive(true)
-    this._req.on('error', (err) => {
-      this._onError(err)
-      this.close()
-    })
+    this._req.on('error', () => this.close())
     this._req.on('socket', (socket) => {
-      this.setStatus(NylasLongConnection.Statuses.Connecting)
+      this.setStatus(NylasLongConnection.Status.Connecting)
       socket.on('connect', () => {
-        this.setStatus(NylasLongConnection.Statuses.Connected)
+        this.setStatus(NylasLongConnection.Status.Connected)
+        this.closeIfDataStops()
       })
     })
     this._req.end()
     return this
   }
 
-  hasEnded() {
-    return this._status === NylasLongConnection.Statuses.Ended
-  }
-
-  isClosed() {
-    return [
-      NylasLongConnection.Statuses.None,
-      NylasLongConnection.Statuses.Closed,
-      NylasLongConnection.Statuses.Ended,
-    ].includes(this._status)
-  }
-
-  close() {
-    return this.dispose(NylasLongConnection.Statuses.Closed)
-  }
-
-  end() {
-    return this.dispose(NylasLongConnection.Statuses.Ended)
-  }
-
-  dispose(status) {
+  cleanup() {
+    if (this._pingTimeout) {
+      clearTimeout(this._pingTimeout)
+    }
+    this._emitter.dispose()
+    this._pingTimeout = null
     this._buffer = ''
     if (this._req) {
       this._req.end()
       this._req.abort()
       this._req = null
     }
-    if (this._status !== status) {
-      this.setStatus(status)
-    }
     return this
   }
+
+  isClosed() {
+    return [
+      NylasLongConnection.Status.None,
+      NylasLongConnection.Status.Closed,
+      NylasLongConnection.Status.Ended,
+    ].includes(this._status)
+  }
+
+  close() {
+    if (this._status === NylasLongConnection.Status.Closed) {
+      return
+    }
+    this.setStatus(NylasLongConnection.Status.Closed)
+    this.cleanup()
+  }
+
+  closeIfDataStops() {
+    if (this._pingTimeout) {
+      clearTimeout(this._pingTimeout)
+    }
+    this._pingTimeout = setTimeout(() => {
+      this._pingTimeout = null
+      this.close()
+    }, this._closeIfDataStopsTimeout)
+  }
+
+  end() {
+    this.setStatus(NylasLongConnection.Status.Ended)
+    this.cleanup()
+  }
 }
+
+export default NylasLongConnection
