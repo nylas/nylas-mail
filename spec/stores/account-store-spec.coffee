@@ -135,8 +135,9 @@ describe "AccountStore", ->
       expect(@instance._accounts.length).toBe 1
       expect(@instance._accounts[0]).toEqual account
       expect(NylasEnv.config.set.calls.length).toBe 3
-      expect(NylasEnv.config.set.calls[2].args).toEqual(['nylas.accountTokens', null])
-      expect(NylasEnv.config.save).toHaveBeenCalled()
+      expect(NylasEnv.config.set.calls[0].args).toEqual(['nylas.accountTokens', null])
+      # Version must be updated last since it will trigger other windows to load nylas.accounts
+      expect(NylasEnv.config.set.calls[2].args).toEqual(['nylas.accountsVersion', 1])
 
     it "selects the account", ->
       expect(Actions.focusDefaultMailboxPerspectiveForAccounts).toHaveBeenCalledWith(["B"])

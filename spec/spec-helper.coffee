@@ -1,5 +1,7 @@
 _ = require 'underscore'
 _str = require 'underscore.string'
+_ = _.extend(_, require('../src/config-utils'));
+
 fs = require 'fs-plus'
 path = require 'path'
 
@@ -194,28 +196,26 @@ beforeEach ->
   FocusedPerspectiveStore._current = MailboxPerspective.forNothing()
 
   # reset config before each spec; don't load or save from/to `config.json`
-  spyOn(Config::, 'load')
-  spyOn(Config::, 'save')
-  config = new Config({resourcePath, configDirPath: NylasEnv.getConfigDirPath()})
-  NylasEnv.config = config
+  fakePersistedConfig = {}
+  spyOn(Config::, 'getRawValues').andCallFake () =>
+    fakePersistedConfig
+  spyOn(Config::, 'setRawValue').andCallFake (keyPath, value) =>
+    if (keyPath)
+      _.setValueForKeyPath(fakePersistedConfig, keyPath, value)
+    else
+      fakePersistedConfig = value
+    return fakePersistedConfig
+  NylasEnv.config = new Config()
   NylasEnv.loadConfig()
-  config.set "core.destroyEmptyPanes", false
-  config.set "editor.fontFamily", "Courier"
-  config.set "editor.fontSize", 16
-  config.set "editor.autoIndent", false
-  config.set "core.disabledPackages", ["package-that-throws-an-exception",
-    "package-with-broken-package-json", "package-with-broken-keymap"]
-  config.set "editor.useShadowDOM", true
-  advanceClock(1000)
-  config.load.reset()
-  config.save.reset()
 
-  spyOn(pathwatcher.File.prototype, "detectResurrectionAfterDelay").andCallFake -> @detectResurrection()
+  spyOn(pathwatcher.File.prototype, "detectResurrectionAfterDelay").andCallFake ->
+    @detectResurrection()
 
   clipboardContent = 'initial clipboard content'
   spyOn(clipboard, 'writeText').andCallFake (text) -> clipboardContent = text
   spyOn(clipboard, 'readText').andCallFake -> clipboardContent
 
+  advanceClock(1000)
   addCustomMatchers(this)
 
   TimeOverride.resetSpyData()

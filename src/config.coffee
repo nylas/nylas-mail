@@ -4,17 +4,13 @@ _ = _.extend(_, require('./config-utils'))
 fs = require 'fs-plus'
 EmitterMixin = require('emissary').Emitter
 {CompositeDisposable, Disposable, Emitter} = require 'event-kit'
-path = require 'path'
-pathWatcher = require 'pathwatcher'
 
 Color = require './color'
 
 if global.application
   app = global.application
-  dialog = require('electron').dialog
 else
   app = remote.getGlobal('application')
-  dialog = remote.dialog
 
 # Essential: Used to access all of N1's configuration details.
 #
@@ -322,7 +318,7 @@ class Config
     value
 
   # Created during initialization, available as `NylasEnv.config`
-  constructor: ({@configDirPath, @resourcePath}={}) ->
+  constructor: ->
     @emitter = new Emitter
     @schema =
       type: 'object'
@@ -330,22 +326,15 @@ class Config
 
     @settings = {}
     @defaultSettings = {}
-    @configFileHasErrors = false
-
-    @configFilePath = path.join(@configDirPath, 'config.json')
-
     @transactDepth = 0
-    @savePending = false
 
-    @requestLoad = _.debounce(@loadUserConfig, 100)
-    @debouncedLoad = _.debounce(@loadUserConfig, 100)
-    @requestSave = =>
-      @savePending = true
-      debouncedSave.call(this)
-    save = =>
-      @savePending = false
-      @save()
-    debouncedSave = _.debounce(save, 100)
+    if process.type is 'renderer'
+      {ipcRenderer} = require 'electron'
+      ipcRenderer.on 'on-config-reloaded', (event, settings) =>
+        @updateSettings(settings)
+
+  load: ->
+    @updateSettings(@getRawValues())
 
   ###
   Section: Config Subscription
@@ -434,17 +423,22 @@ class Config
   # Returns a {Boolean}
   # * `true` if the value was set.
   # * `false` if the value was not able to be coerced to the type specified in the setting's schema.
-  set: (keyPath, value, options = {}) ->
-    shouldSave = options.save ? true
-
+  set: (keyPath, value) ->
     unless value is undefined
       try
         value = @makeValueConformToSchema(keyPath, value)
       catch e
         return false
 
-    @setRawValue(keyPath, value)
-    @requestSave() if shouldSave and not @configFileHasErrors
+    defaultValue = _.valueForKeyPath(this.defaultSettings, keyPath)
+    if (_.isEqual(defaultValue, value))
+      value = undefined
+
+    # Ensure that we never send anything but plain javascript objects through remote.
+    if _.isObject(value)
+      value = JSON.parse(JSON.stringify(value))
+
+    @updateSettings(@setRawValue(keyPath, value))
     true
 
   # Essential: Restore the setting at `keyPath` to its default value.
@@ -469,10 +463,6 @@ class Config
       break unless schema?
       schema = schema.properties?[key]
     schema
-
-  # Extended: Get the {String} path to the config file being used.
-  getUserConfigPath: ->
-    @configFilePath
 
   # Extended: Suppress calls to handler functions registered with {::onDidChange}
   # and {::observe} for the duration of `callback`. After `callback` executes,
@@ -529,90 +519,13 @@ class Config
     @setDefaults(keyPath, @extractDefaultsFromSchema(schema))
     @resetSettingsForSchemaChange()
 
-  load: ->
-    @initializeConfigDirectory()
-    @loadUserConfig()
-    @observeUserConfig()
-
-  ###
-  Section: Private methods managing the user's config file
-  ###
-
-  initializeConfigDirectory: (done) ->
-    return if fs.existsSync(@configDirPath)
-    fs.makeTreeSync(@configDirPath)
-    templateConfigDirPath = fs.resolve(@resourcePath, 'dot-nylas')
-    fs.copySync(templateConfigDirPath, @configDirPath)
-
-  loadUserConfig: ->
-    manager = app.sharedFileManager
-    if not manager.processCanReadFile(@configFilePath)
-      @requestLoad()
-      return
-
-    unless fs.existsSync(@configFilePath)
-      fs.makeTreeSync(path.dirname(@configFilePath))
-      fs.writeFileSync(@configFilePath, '{}')
-
-    try
-      unless @savePending
-        userConfig = JSON.parse(fs.readFileSync(@configFilePath))
-        @resetUserSettings(userConfig)
-        @configFileHasErrors = false
-    catch error
-      @configFileHasErrors = true
-      message = "Failed to load `#{path.basename(@configFilePath)}`"
-
-      if error.location?
-        # stack is the output from JSON in this case
-        detail = error.stack
-      else
-        # message will be EACCES permission denied, et al
-        detail = error.message
-      detail += "\n\nMake sure the file (#{@configFilePath}) contains valid JSON, or delete it to reset N1."
-
-      @notifyFailure(message, detail)
-
-  observeUserConfig: ->
-    try
-      @watchSubscription ?= pathWatcher.watch @configFilePath, (eventType) =>
-        @requestLoad() if eventType is 'change' and @watchSubscription?
-    catch error
-      @notifyFailure "Configuration Error", """
-        Unable to watch path: `#{path.basename(@configFilePath)}`. Make sure you have permissions to
-        `#{@configFilePath}`. On linux there are currently problems with watch
-        sizes.
-      """
-
-  unobserveUserConfig: ->
-    @watchSubscription?.close()
-    @watchSubscription = null
-
-  notifyFailure: (errorMessage, detail) ->
-    dialog.showErrorBox(errorMessage, detail)
-
-  save: ->
-    manager = app.sharedFileManager
-    manager.processWillWriteFile(@configFilePath)
-    allSettings = {'*': @settings}
-    allSettingsJSON = JSON.stringify(allSettings, null, 2)
-    fs.writeFileSync(@configFilePath, allSettingsJSON)
-    manager.processDidWriteFile(@configFilePath)
-
   ###
   Section: Private methods managing global settings
   ###
 
-  resetUserSettings: (newSettings) ->
-    unless isPlainObject(newSettings)
-      @settings = {}
-      @emitChangeEvent()
-      return
-
-    @transact =>
-      @settings = {}
-      for key, value of newSettings['*']
-        @set(key, value, save: false)
+  updateSettings: (newSettings) =>
+    @settings = newSettings || {}
+    @emitChangeEvent()
 
   getRawValue: (keyPath) ->
     value = _.valueForKeyPath(@settings, keyPath)
@@ -625,16 +538,6 @@ class Config
       value = @deepClone(defaultValue)
 
     value
-
-  setRawValue: (keyPath, value) ->
-    defaultValue = _.valueForKeyPath(@defaultSettings, keyPath)
-    value = undefined if _.isEqual(defaultValue, value)
-
-    if keyPath?
-      _.setValueForKeyPath(@settings, keyPath, value)
-    else
-      @settings = value
-    @emitChangeEvent()
 
   onDidChangeKeyPath: (keyPath, callback) ->
     oldValue = @get(keyPath)
@@ -701,11 +604,19 @@ class Config
   # that do not conform to the schema. This will reset make them conform.
   resetSettingsForSchemaChange: ->
     @transact =>
-      @settings = @makeValueConformToSchema(null, @settings, suppressException: true)
+      settings = @getRawValues()
+      settings = @makeValueConformToSchema(null, settings, suppressException: true)
+      @updateSettings(@setRawValue(null, settings))
       return
 
   emitChangeEvent: ->
     @emitter.emit 'did-change' unless @transactDepth > 0
+
+  getRawValues: ->
+    return app.configPersistenceManager.getRawValues()
+
+  setRawValue: (keyPath, value) ->
+    return app.configPersistenceManager.setRawValue(keyPath, value)
 
 # Base schema enforcers. These will coerce raw input into the specified type,
 # and will throw an error when the value cannot be coerced. Throwing the error
