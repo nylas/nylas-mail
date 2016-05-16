@@ -546,6 +546,14 @@ export default class Application extends EventEmitter {
       sourceWindow.webContents.send('remote-run-results', params);
       delete this._sourceWindows[params.taskId];
     });
+
+    ipcMain.on("report-error", (event, params = {}) => {
+      const errorParams = JSON.parse(params.errorJSON || "");
+      let err = new Error();
+      err = Object.assign(err, errorParams);
+      global.errorLogger.reportError(err, params.extra)
+      event.returnValue = true
+    })
   }
 
   // Public: Executes the given command.
