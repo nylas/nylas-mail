@@ -1,6 +1,6 @@
 _ = require 'underscore'
 {Actions, DatabaseStore, NylasSyncStatusStore} = require 'nylas-exports'
-DeltaStreamingConnection = require('./delta-streaming-connection').default
+NylasLongConnection = require './nylas-long-connection'
 ContactRankingsCache = require './contact-rankings-cache'
 
 INITIAL_PAGE_SIZE = 30
@@ -48,7 +48,7 @@ class NylasSyncWorker
     @_refreshingCaches = [new ContactRankingsCache(account.id)]
 
     @_terminated = false
-    @_connection = new DeltaStreamingConnection(api, account.id, {
+    @_connection = new NylasLongConnection(api, account.id, {
       ready: => @_state isnt null
       getCursor: =>
         return null if @_state is null
@@ -58,9 +58,9 @@ class NylasSyncWorker
         @writeState()
       setStatus: (status) =>
         @_state.longConnectionStatus = status
-        if status is @_api.LongConnectionStatuses.Closed
+        if status is NylasLongConnection.Status.Closed
           @_backoff()
-        if status is @_api.LongConnectionStatuses.Connected
+        if status is NylasLongConnection.Status.Connected
           @_resumeTimer.resetDelay()
         @writeState()
     })
@@ -70,7 +70,7 @@ class NylasSyncWorker
     @_state = null
     DatabaseStore.findJSONBlob("NylasSyncWorker:#{@_account.id}").then (json) =>
       @_state = json ? {}
-      @_state.longConnectionStatus = @_api.LongConnectionStatuses.Idle
+      @_state.longConnectionStatus = NylasLongConnection.Status.Idle
       for key in NylasSyncStatusStore.ModelsForSync
         @_state[key].busy = false if @_state[key]
       @resume()

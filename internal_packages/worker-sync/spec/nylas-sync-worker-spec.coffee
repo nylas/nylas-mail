@@ -1,6 +1,6 @@
 _ = require 'underscore'
 {Actions, DatabaseStore, DatabaseTransaction, Account, Thread} = require 'nylas-exports'
-DeltaStreamingConnection = require('../lib/delta-streaming-connection').default
+NylasLongConnection = require '../lib/nylas-long-connection'
 NylasSyncWorker = require '../lib/nylas-sync-worker'
 
 describe "NylasSyncWorker", ->
@@ -8,7 +8,6 @@ describe "NylasSyncWorker", ->
     @apiRequests = []
     @api =
       APIRoot: 'https://api.nylas.com'
-      LongConnectionStatuses: {'Closed', 'Connected', 'Idle'}
       pluginsSupported: true
       accessTokenForAccountId: =>
         '123'
@@ -18,10 +17,6 @@ describe "NylasSyncWorker", ->
         @apiRequests.push({account, model, params, requestOptions})
       getThreads: (account, params, requestOptions) =>
         @apiRequests.push({account, model:'threads', params, requestOptions})
-      longConnection: -> {
-        start: ->
-        hasEnded: -> false
-      }
 
     @apiCursorStub = undefined
     spyOn(NylasSyncWorker.prototype, 'fetchAllMetadata').andCallFake (cb) -> cb()
@@ -144,7 +139,7 @@ describe "NylasSyncWorker", ->
 
   describe "delta streaming cursor", ->
     it "should read the cursor from the database, and the old config format", ->
-      spyOn(DeltaStreamingConnection.prototype, 'withCursor').andCallFake =>
+      spyOn(NylasLongConnection.prototype, 'withCursor').andCallFake =>
 
       @apiCursorStub = undefined
 
@@ -164,7 +159,7 @@ describe "NylasSyncWorker", ->
       connection = worker.connection()
       advanceClock()
       expect(connection.hasCursor()).toBe(true)
-      expect(connection.getCursor()).toEqual('old-school')
+      expect(connection._config.getCursor()).toEqual('old-school')
 
       # cursor present in database, overrides cursor in config
       @apiCursorStub = "new-school"
@@ -174,7 +169,7 @@ describe "NylasSyncWorker", ->
       expect(connection.hasCursor()).toBe(false)
       advanceClock()
       expect(connection.hasCursor()).toBe(true)
-      expect(connection.getCursor()).toEqual('new-school')
+      expect(connection._config.getCursor()).toEqual('new-school')
 
   describe "when a count request completes", ->
     beforeEach ->
