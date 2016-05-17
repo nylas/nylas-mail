@@ -24,7 +24,7 @@ function InflatesDraftClientId(ComposedComponent) {
       };
     }
 
-    componentWillMount() {
+    componentDidMount() {
       this._unmounted = false;
       this._prepareForDraft(this.props.draftClientId);
     }

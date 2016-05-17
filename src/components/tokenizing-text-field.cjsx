@@ -19,6 +19,7 @@ class SizeToFitInput extends React.Component
     @_sizeToFit()
 
   _sizeToFit: =>
+    return if @props.value.length is 0
     # Measure the width of the text in the input and
     # resize the input field to fit.
     input = ReactDOM.findDOMNode(@refs.input)
@@ -33,7 +34,7 @@ class SizeToFitInput extends React.Component
   render: =>
     <span>
       <span ref="measure" style={visibility:'hidden', position: 'absolute'}></span>
-      <input ref="input" type="text" {...@props}/>
+      <input ref="input" type="text" style={width: 1} {...@props}/>
     </span>
 
   select: =>
