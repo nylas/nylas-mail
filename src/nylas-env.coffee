@@ -193,6 +193,8 @@ class NylasEnvConstructor
     @packages.onDidActivateInitialPackages => @watchThemes()
     @windowEventHandler = new WindowEventHandler()
 
+    @perf = remote.getGlobal('application').perf
+
     unless @inSpecMode()
       @actionBridge = new ActionBridge(ipcRenderer)
 
@@ -708,6 +710,8 @@ class NylasEnvConstructor
   # This also means that the windowType has changed and a different set of
   # plugins needs to be loaded.
   populateHotWindow: (event, loadSettings) =>
+    if /composer/.test(loadSettings.windowType)
+      NylasEnv.perf.split("Popout Draft")
     @loadSettings = loadSettings
     @constructor.loadSettings = loadSettings
 

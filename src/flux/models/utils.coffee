@@ -602,3 +602,14 @@ Utils =
 
     # Spans entire boundary
     (test.end >= bounds.end and test.start <= bounds.start)
+
+  mean: (values = []) ->
+    if values.length is 0 then throw new Error("Can't average zero values")
+    sum = values.reduce(((sum, value) -> sum + value), 0)
+    return sum / values.length
+
+  stdev: (values = []) ->
+    if values.length is 0 then throw new Error("Can't stdev zero values")
+    avg = Utils.mean(values)
+    squareDiffs = values.map((val) -> Math.pow((val - avg), 2))
+    return Math.sqrt(Utils.mean(squareDiffs))

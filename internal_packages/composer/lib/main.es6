@@ -44,6 +44,10 @@ class ComposerWithWindowProps extends React.Component {
 
   _onDraftReady = () => {
     this.refs.composer.focus().then(() => {
+      const totalTime = NylasEnv.perf.stop("Popout Draft");
+      if (!NylasEnv.inDevMode() && !NylasEnv.inSpecMode()) {
+        Actions.recordUserEvent("Popout Composer Time", {totalTime})
+      }
       NylasEnv.displayWindow();
 
       if (this.state.errorMessage) {
