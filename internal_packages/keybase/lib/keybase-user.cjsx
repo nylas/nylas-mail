@@ -62,10 +62,12 @@ class KeybaseUser extends React.Component
 
       # profile picture
       if keybase.thumbnail?
-        picture = keybase.thumbnail
+        picture = <img className="user-picture" src={ keybase.thumbnail }/>
       else
-        picture = "#"
-        # TODO default picture
+        hue = Utils.hueForString("Keybase")
+        bgColor = "hsl(#{hue}, 50%, 45%)"
+        abv = "K"
+        picture = <div className="default-profile-image" style={{backgroundColor: bgColor}}>{abv}</div>
 
       # various web accounts/profiles
       possible_profiles = ["twitter", "github", "coinbase"]
@@ -87,15 +89,19 @@ class KeybaseUser extends React.Component
         <div className="profile-username">
           { username }
         </div>
-
         { profileList }
       </div>)
+    else
+      hue = Utils.hueForString(@props.profile.addresses[0])
+      bgColor = "hsl(#{hue}, 50%, 45%)"
+      abv = @props.profile.addresses[0][0].toUpperCase()
+      picture = <div className="default-profile-image" style={{backgroundColor: bgColor}}>{abv}</div>
 
     # email addresses
     if profile.addresses?.length > 0
       emails = _.map(profile.addresses, (email) =>
         # TODO make that remove button not terrible
-        return <li key={ email }>{ email } <small><a onClick={ => @_removeEmail(email) }>(X)</a></small></li>)
+        return <li key={ email }>{ email }<small><a onClick={ => @_removeEmail(email) }>(X)</a></small></li>)
 
       if @state.inputEmail
         participants = {to: [], cc: [], bcc: []}
@@ -108,12 +114,14 @@ class KeybaseUser extends React.Component
               change={ @_addEmailInput } />
             </ul>)
       else
-        emailList = (<ul> { emails }
-            <a ref="addEmail" onClick={ @_addEmailClick }>+ Add Email</a>
-            </ul>)
+        emailList = (<ul> { emails } <a ref="addEmail" onClick={ @_addEmailClick }>+ Add Email</a> </ul>)
 
     <div className="keybase-profile">
-      <img className="user-picture" src={ picture }/>
+      <div className="profile-photo-wrap">
+        <div className="profile-photo">
+        { picture }
+        </div>
+      </div>
       { keybaseDetails }
       <div className="email-list">
         <ul>

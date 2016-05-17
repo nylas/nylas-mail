@@ -9,50 +9,44 @@ class KeyManager extends React.Component
   @displayName: 'KeyManager'
 
   @propTypes:
-    keys: React.PropTypes.array.isRequired
+    pubKeys: React.PropTypes.array.isRequired
+    privKeys: React.PropTypes.array.isRequired
 
   constructor: (props) ->
     super(props)
 
-  _matchKeys: (targetIdentity, keys) =>
-    # given a single key to match, and an array of keys to match from, returns
-    # a key from the array with the same fingerprint as the target key, or null
-    if not targetIdentity.key?
-      return null
-
-    key = _.find(keys, (key) =>
-      return key.key? and key.fingerprint() == targetIdentity.fingerprint()
-    )
-
-    if key == undefined
-      return null
-    else
-      return key
-
-  _delete: (email, identity) =>
-    # delete a locally saved key
-    keys = PGPKeyStore.pubKeys(email)
-    key = @_matchKeys(identity, keys)
-    if key?
-      PGPKeyStore.deleteKey(key)
-    else
-      console.error "Unable to fetch key for #{email}"
-      NylasEnv.showErrorDialog("Unable to fetch key for #{email}.")
-
   render: ->
-    {keys} = @props
+    {pubKeys, privKeys} = @props
 
-    keys = keys.map (identity) =>
-      deleteButton = (<button title="Delete" className="btn btn-toolbar btn-danger" onClick={ => @_delete(identity.addresses[0], identity) } ref="button">
+    pubKeys = pubKeys.map (identity) =>
+      deleteButton = (<button title="Delete Public" className="btn btn-toolbar btn-danger" onClick={ => PGPKeyStore.deleteKey(identity) } ref="button">
         Delete Key
       </button>
       )
-      return <KeybaseUser profile={identity} key={identity.clientId} actionButton={ deleteButton }/>
+      return <KeybaseUser profile={identity} key={identity.clientId} actionButton={deleteButton}/>
 
-    if keys.length < 1
-      #keys = (<span>No keys saved!</span>)
-      keys = false
+    privKeys = privKeys.map (identity) =>
+      deleteButton = (<button title="Delete Private" className="btn btn-toolbar btn-danger" onClick={ => PGPKeyStore.deleteKey(identity) } ref="button">
+        Delete Key
+      </button>
+      )
+      return <KeybaseUser profile={identity} key={identity.clientId} actionButton={deleteButton}/>
 
     <div className="key-manager">
-      { keys }
+      <div className="line-w-label">
+        <div className="border"></div>
+        <div className="title-text">Saved Public Keys</div>
+        <div className="border"></div>
+      </div>
+      <div>
+        { pubKeys }
+      </div>
+      <div className="line-w-label">
+        <div className="border"></div>
+        <div className="title-text">Saved Private Keys</div>
+        <div className="border"></div>
+      </div>
+      <div>
+        { privKeys }
+      </div>
     </div>
