@@ -31,7 +31,7 @@ function executeCommands(commands, done, index) {
 function printArgs(args) {
   out = "";
   for(key in args) {
-    out += "--"+key+"="+args[key]+" ";
+    out += "--"+key+"="+JSON.stringify(args[key])+" ";
   }
   return out;
 }
@@ -64,8 +64,6 @@ function bootstrap() {
   var npmFlags = ' --userconfig=' + '"' + path.resolve('.npmrc') + '" ';
 
   var gruntPath = '"' + path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'grunt') + '"';
-
-  var packagesToDedupe = ['fs-plus', 'humanize-plus', 'roaster', 'season', 'grim'];
 
   // use the system version of npm to install build folder dependencies, including our
   // own copy of NPM 3.x, which we'll use for subsequent commands
@@ -140,7 +138,7 @@ function bootstrap() {
   m4 += "     $ "+apmInstallCommand+"\n"
 
   m5  = "\n\n---> De-duping packages `apm dedupe`\n\n"
-  m5 += "     $ "+apmDedupeCommand+" "+packagesToDedupe.join(' ')+"\n"
+  m5 += "     $ "+apmDedupeCommand+"\n"
 
   m6  = "\n\n---> Request version `apm dedupe`\n\n"
   m6 += "     $ "+apmDedupeCommand+" request semver "+printArgs(semverOptions)+"\n"
@@ -217,7 +215,7 @@ function bootstrap() {
         message: m4
       },
       {
-        command: apmDedupeCommand + ' ' + packagesToDedupe.join(' '),
+        command: apmDedupeCommand,
         options: { env: apmEnv },
         message: m5
       },
