@@ -1,6 +1,6 @@
 _ = require 'underscore'
 _str = require 'underscore.string'
-_ = _.extend(_, require('../src/config-utils'));
+_ = _.extend(_, require('../src/config-utils'))
 
 fs = require 'fs-plus'
 path = require 'path'
@@ -197,7 +197,7 @@ beforeEach ->
 
   # reset config before each spec; don't load or save from/to `config.json`
   fakePersistedConfig = {}
-  spyOn(Config::, 'getRawValues').andCallFake () =>
+  spyOn(Config::, 'getRawValues').andCallFake =>
     fakePersistedConfig
   spyOn(Config::, 'setRawValue').andCallFake (keyPath, value) =>
     if (keyPath)
