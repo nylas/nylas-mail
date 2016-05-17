@@ -162,7 +162,7 @@ class Toolbar extends React.Component
   shouldComponentUpdate: (nextProps, nextState) =>
     # This is very important. Because toolbar uses ReactCSSTransitionGroup,
     # repetitive unnecessary updates can break animations and cause performance issues.
-    not _.isEqual(nextProps, @props) or not _.isEqual(nextState, @state)
+    not Utils.isEqualReact(nextProps, @props) or not Utils.isEqualReact(nextState, @state)
 
   render: =>
     style =

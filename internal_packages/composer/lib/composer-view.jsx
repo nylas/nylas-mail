@@ -55,7 +55,7 @@ export default class ComposerView extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      showQuotedText: false,
+      showQuotedText: Utils.isForwardedMessage(props.draft),
     }
   }
 
@@ -68,6 +68,11 @@ export default class ComposerView extends React.Component {
   componentWillReceiveProps(newProps) {
     if (newProps.session !== this.props.session) {
       this._receivedNewSession();
+    }
+    if (Utils.isForwardedMessage(this.props.draft) !== Utils.isForwardedMessage(newProps.draft)) {
+      this.setState({
+        showQuotedText: Utils.isForwardedMessage(newProps.draft),
+      });
     }
   }
 
@@ -117,10 +122,6 @@ export default class ComposerView extends React.Component {
   _receivedNewSession() {
     this.undoManager = new UndoManager();
     this._saveToHistory();
-
-    this.setState({
-      showQuotedText: Utils.isForwardedMessage(this.props.draft),
-    });
 
     this.props.draft.files.forEach((file) => {
       if (Utils.shouldDisplayAsImage(file)) {
