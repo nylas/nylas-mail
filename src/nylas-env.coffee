@@ -681,8 +681,19 @@ class NylasEnvConstructor
   startSecondaryWindow: ->
     document.getElementById("application-loading-cover")?.remove()
     @startWindow()
+    @initializeBasicSheet()
     ipcRenderer.on("load-settings-changed", @populateHotWindow)
     ipcRenderer.send('window-command', 'window:loaded')
+
+  # We setup the initial Sheet for hot windows. This is the default title
+  # bar, stoplights, etc. This saves ~100ms when populating the hot
+  # windows.
+  initializeBasicSheet: ->
+    WorkspaceStore = require('../src/flux/stores/workspace-store')
+    if not WorkspaceStore.Sheet.Main
+      WorkspaceStore.defineSheet('Main', {root: true}, {
+        popout: ['Center'],
+      })
 
   showMainWindow: ->
     document.getElementById("application-loading-cover").remove()
