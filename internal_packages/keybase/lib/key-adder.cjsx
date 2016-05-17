@@ -68,7 +68,6 @@ class KeyAdder extends React.Component
       km.sign {}, (err) =>
         if err
           console.warn(err)
-        # todo: add passphrase input
         km.export_pgp_private {passphrase: @state.passphrase}, (err, pgp_private) =>
           ident = new Identity({
             addresses: [@state.address]

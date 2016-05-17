@@ -90,24 +90,26 @@ class PGPKeyStore extends NylasStore
     # add identity elements to later be populated with keys from disk
     # TODO if this function is called multiple times in quick succession it
     # will duplicate keys - need to do deduplication on add
-    @_identities = {}
-    _.each([@_pubKeyDir, @_privKeyDir], (keyDirectory) =>
-      fs.readdir(keyDirectory, (err, filenames) =>
-        i = 0
-        if filenames.length == 0
-          return
-        else
+    fs.readdir(@_pubKeyDir, (err, pubFilenames) =>
+      fs.readdir(@_privKeyDir, (err, privFilenames) =>
+        @_identities = {}
+        _.each([[pubFilenames, false], [privFilenames, true]], (readresults) =>
+          filenames = readresults[0]
+          i = 0
+          if filenames.length == 0
+            @trigger(@)
           while i < filenames.length
             filename = filenames[i]
             if filename[0] == '.'
               continue
             ident = new Identity({
               addresses: filename.split(" ")
-              isPriv: keyDirectory == @_privKeyDir
+              isPriv: readresults[1]
             })
             @_identities[ident.clientId] = ident
             @trigger(@)
             i++)
+      )
     )
 
   getKeyContents: ({key, passphrase}) =>
@@ -139,7 +141,8 @@ class PGPKeyStore extends NylasStore
 
   getKeybaseData: (identity) =>
     # Given a key, fetches metadata from keybase about that key
-    if not identity.key?
+    # TODO private keys need passphrases
+    if not identity.key? and not identity.isPriv
       @getKeyContents(key: identity)
     else
       fingerprint = identity.fingerprint()
@@ -236,12 +239,12 @@ class PGPKeyStore extends NylasStore
 
     return identities
 
-  _displayError: (message) ->
-    dialog = remote.require('dialog')
-    dialog.showErrorBox('Key Management Error', message)
+  _displayError: (err) ->
+    dialog = remote.dialog
+    dialog.showErrorBox('Key Management Error', err.toString())
 
   _displayDialog: (title, message, buttons) ->
-    dialog = remote.require('dialog')
+    dialog = remote.dialog
     return (dialog.showMessageBox({
       title: title,
       message: title,

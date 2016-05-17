@@ -30,22 +30,20 @@ class PreferencesKeybase extends React.Component
     return {pubKeys, privKeys}
 
   render: =>
-    keys = @state.pubKeys
-    # TODO private key management
-
     noKeysMessage =
     <div className="key-status-bar no-keys-message">
       You have no saved PGP keys!
     </div>
 
-    <div>
+    keyManager = <KeyManager pubKeys={@state.pubKeys} privKeys={@state.privKeys}/>
+
+    <div className="container-keybase">
       <section className="key-add">
-        {if @state.pubKeys.length == 0 and @state.privKeys.length == 0 then noKeysMessage}
         <KeyAdder/>
       </section>
       <section className="keybase">
         <KeybaseSearch />
-        <KeyManager keys={keys} />
+        {if @state.pubKeys.length == 0 and @state.privKeys.length == 0 then noKeysMessage else keyManager}
       </section>
     </div>
 
