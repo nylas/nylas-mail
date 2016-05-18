@@ -327,10 +327,20 @@ class PackageManager
     packages
 
   installPackageFromPath: (packageSourceDir, callback) ->
-    return unless @verifyValidPackage(packageSourceDir, callback)
+    jsonPath = path.join(packageSourceDir, 'package.json');
+    if not fs.existsSync(jsonPath)
+      return callback(new Error("The folder you selected doesn't look like a valid N1 plugin. All N1 plugins must have a package.json file in the top level of the folder. Check the contents of #{packageSourceDir} and try again."), null)
+
+    try
+      json = JSON.parse(fs.readFileSync(jsonPath))
+    catch e
+      return callback(e, null)
+
+    if not json.name
+      return callback(new Error("The package.json file must contain a valid `name` value."), null)
 
     packagesDir = path.join(NylasEnv.getConfigDirPath(), 'packages')
-    packageName = path.basename(packageSourceDir)
+    packageName = json.name
     packageTargetDir = path.join(packagesDir, packageName)
 
     fs.makeTree packagesDir, (err) =>
@@ -338,50 +348,17 @@ class PackageManager
 
       fs.exists packageTargetDir, (packageAlreadyExists) =>
         if packageAlreadyExists
-          message = "A package named '#{packageName}' is already installed
-                 in ~/.nylas/packages."
-          remote.dialog.showMessageBox({
-            type: 'warning'
-            buttons: ['OK']
-            title: 'Package already installed'
-            detail: 'Remove it before trying to install another package of the same name.'
-            message: message
-          })
-          callback(new Error(message), null)
-          return
+          return callback(new Error("A package named '#{packageName}' is already installed in ~/.nylas/packages."), null)
 
         fs.copySync(packageSourceDir, packageTargetDir)
 
         apm = new APMWrapper()
         apm.installDependenciesInPackageDirectory packageTargetDir, (err) =>
-          if err
-            remote.dialog.showMessageBox({
-              type: 'warning'
-              buttons: ['OK']
-              title: 'Package installation failed'
-              message: err.toString()
-            })
-            callback(err, packageTargetDir)
-          else
-            @enablePackage(packageTargetDir)
-            @activatePackage(packageName)
-            callback(null, packageTargetDir)
+          return callback(err, packageTargetDir) if err
+          @enablePackage(packageTargetDir)
+          @activatePackage(packageName)
+          callback(null, packageName)
 
-  verifyValidPackage: (packageSourceDir, callback) ->
-    if fs.existsSync(path.join(packageSourceDir, 'package.json'))
-      return true
-    else
-      errMsg = "The folder you selected doesn't look like a valid N1 plugin. All N1 plugins must have a package.json file in the top level of the folder. Check the contents of #{packageSourceDir} and try again"
-
-      remote.dialog.showMessageBox({
-        type: 'warning'
-        buttons: ['OK']
-        title: 'Not a valid plugin folder'
-        message: errMsg
-      })
-
-      callback(errMsg)
-      return false
   ###
   Section: Private
   ###
