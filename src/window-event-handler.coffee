@@ -37,6 +37,8 @@ class WindowEventHandler
     window.onbeforeunload = =>
       # Don't hide the window here if we don't want the renderer process to be
       # throttled in case more work needs to be done before closing
+
+      # In Electron, returning false cancels the close.
       return @runUnloadCallbacks()
 
     window.onunload = =>
@@ -122,7 +124,7 @@ class WindowEventHandler
   runUnloadFinished: ->
     {remote} = require('electron')
     _.defer ->
-      if remote.getGlobal('application').quitting
+      if remote.getGlobal('application').isQuitting()
         remote.app.quit()
       else
         NylasEnv.close()
