@@ -27,9 +27,10 @@ class UndoRedoStore
     tasks = [tasks] unless tasks instanceof Array
     return unless tasks.length > 0
     undoable = _.every tasks, (t) -> t.canBeUndone()
+    isRedoTask = _.every tasks, (t) -> t.isRedoTask
 
     if undoable
-      @_redo = []
+      @_redo = [] unless isRedoTask
       @_undo.push(tasks)
       @trigger()
 
@@ -41,7 +42,10 @@ class UndoRedoStore
     for task in topTasks
       Actions.undoTaskId(task.id)
 
-    redoTasks = topTasks.map (t) -> t.createIdenticalTask()
+    redoTasks = topTasks.map (t) ->
+      redoTask = t.createIdenticalTask()
+      redoTask.isRedoTask = true
+      return redoTask
     @_redo.push(redoTasks)
 
   redo: =>
