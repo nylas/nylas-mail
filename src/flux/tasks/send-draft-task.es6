@@ -24,11 +24,12 @@ try {
 
 export default class SendDraftTask extends BaseDraftTask {
 
-  constructor(draftClientId) {
+  constructor(draftClientId, {playSound = true, emitError = true} = {}) {
     super(draftClientId);
-    this.uploaded = [];
     this.draft = null;
     this.message = null;
+    this.emitError = emitError
+    this.playSound = playSound
   }
 
   label() {
@@ -183,7 +184,7 @@ export default class SendDraftTask extends BaseDraftTask {
     NylasAPI.makeDraftDeletionRequest(this.draft);
 
     // Play the sending sound
-    if (NylasEnv.config.get("core.sending.sounds")) {
+    if (this.playSound && NylasEnv.config.get("core.sending.sounds")) {
       SoundRegistry.playSound('send');
     }
 
@@ -215,11 +216,13 @@ export default class SendDraftTask extends BaseDraftTask {
       }
     }
 
-    Actions.draftSendingFailed({
-      threadId: this.draft.threadId,
-      draftClientId: this.draft.clientId,
-      errorMessage: message,
-    });
+    if (this.emitError) {
+      Actions.sendDraftFailed({
+        threadId: this.draft.threadId,
+        draftClientId: this.draft.clientId,
+        errorMessage: message,
+      });
+    }
     NylasEnv.reportError(err);
 
     return Promise.resolve([Task.Status.Failed, err]);

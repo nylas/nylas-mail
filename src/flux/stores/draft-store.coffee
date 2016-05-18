@@ -4,6 +4,7 @@ _ = require 'underscore'
 
 NylasAPI = require '../nylas-api'
 DraftEditingSession = require './draft-editing-session'
+DraftHelpers = require './draft-helpers'
 DraftFactory = require './draft-factory'
 DatabaseStore = require './database-store'
 AccountStore = require './account-store'
@@ -17,7 +18,6 @@ SyncbackDraftTask = require('../tasks/syncback-draft-task').default
 DestroyDraftTask = require('../tasks/destroy-draft-task').default
 
 Thread = require('../models/thread').default
-Contact = require '../models/contact'
 Message = require('../models/message').default
 Actions = require '../actions'
 
@@ -55,7 +55,7 @@ class DraftStore
     @listenTo Actions.sendDraftSuccess, => @trigger()
     @listenTo Actions.composePopoutDraft, @_onPopoutDraftClientId
     @listenTo Actions.composeNewBlankDraft, @_onPopoutBlankDraft
-    @listenTo Actions.draftSendingFailed, @_onDraftSendingFailed
+    @listenTo Actions.sendDraftFailed, @_onSendDraftFailed
     @listenTo Actions.sendQuickReply, @_onSendQuickReply
 
     if NylasEnv.isMainWindow()
@@ -66,7 +66,6 @@ class DraftStore
     # window.
     @listenTo Actions.ensureDraftSynced, @_onEnsureDraftSynced
     @listenTo Actions.sendDraft, @_onSendDraft
-    @listenTo Actions.sendDrafts, @_onSendDrafts
     @listenTo Actions.destroyDraft, @_onDestroyDraft
 
     @listenTo Actions.removeFile, @_onRemoveFile
@@ -335,92 +334,21 @@ class DraftStore
 
   _onEnsureDraftSynced: (draftClientId) =>
     @sessionForClientId(draftClientId).then (session) =>
-      @_prepareForSyncback(session).then =>
-        @_queueDraftAssetTasks(session.draft())
+      DraftHelpers.prepareDraftForSyncback(session)
+      .then (preparedDraft) =>
         Actions.queueTask(new SyncbackDraftTask(draftClientId))
 
   _onSendDraft: (draftClientId) =>
-    @_sendDraft(draftClientId)
-    .then =>
-      if @_isPopout()
-        NylasEnv.close()
-
-  _onSendDrafts: (draftClientIds) =>
-    Promise.each(draftClientIds, (draftClientId) =>
-      @_sendDraft(draftClientId)
-    ).then =>
-      if @_isPopout()
-        NylasEnv.close()
-
-  _sendDraft: (draftClientId) =>
     @_draftsSending[draftClientId] = true
-
     @sessionForClientId(draftClientId).then (session) =>
-      @_prepareForSyncback(session).then =>
-        if NylasEnv.config.get("core.sending.sounds")
-          SoundRegistry.playSound('hit-send')
-        @_queueDraftAssetTasks(session.draft())
+      DraftHelpers.prepareDraftForSyncback(session)
+      .then (preparedDraft) =>
         Actions.queueTask(new SendDraftTask(draftClientId))
         @_doneWithSession(session)
-        Promise.resolve()
-
-  _queueDraftAssetTasks: (draft) =>
-    if draft.files.length > 0 or draft.uploads.length > 0
-      Actions.queueTask(new SyncbackDraftFilesTask(draft.clientId))
-
-  _isPopout: ->
-    NylasEnv.getWindowType() is "composer"
-
-  _prepareForSyncback: (session) =>
-    draft = session.draft()
-
-    # Make sure the draft is attached to a valid account, and change it's
-    # accountId if the from address does not match the current account.
-    account = AccountStore.accountForEmail(draft.from[0].email)
-    unless account
-      return Promise.reject(new Error("DraftStore::_prepareForSyncback - you can only send drafts from a configured account."))
-
-    if account.id isnt draft.accountId
-      NylasAPI.makeDraftDeletionRequest(draft)
-      session.changes.add({
-        accountId: account.id
-        version: null
-        serverId: null
-        threadId: null
-        replyToMessageId: null
-      })
-
-    # Run draft transformations registered by third-party plugins
-    allowedFields = ['to', 'from', 'cc', 'bcc', 'subject', 'body']
-
-    session.changes.commit(noSyncback: true).then =>
-      draft = session.draft().clone()
-
-      Promise.each @extensions(), (ext) ->
-        extApply = ext.applyTransformsToDraft
-        extUnapply = ext.unapplyTransformsToDraft
-        unless extApply and extUnapply
-          return Promise.resolve()
-
-        Promise.resolve(extUnapply({draft})).then (cleaned) =>
-          cleaned = draft if cleaned is 'unnecessary'
-          Promise.resolve(extApply({draft: cleaned})).then (transformed) =>
-            Promise.resolve(extUnapply({draft: transformed.clone()})).then (untransformed) =>
-              untransformed = cleaned if untransformed is 'unnecessary'
-
-              if not _.isEqual(_.pick(untransformed, allowedFields), _.pick(cleaned, allowedFields))
-                console.log("-- BEFORE --")
-                console.log(draft.body)
-                console.log("-- TRANSFORMED --")
-                console.log(transformed.body)
-                console.log("-- UNTRANSFORMED (should match BEFORE) --")
-                console.log(untransformed.body)
-                NylasEnv.reportError(new Error("Extension #{ext.name} applied a tranform to the draft that it could not reverse."))
-              draft = transformed
-
-      .then =>
-        DatabaseStore.inTransaction (t) =>
-          t.persistModel(draft)
+        if NylasEnv.config.get("core.sending.sounds")
+          SoundRegistry.playSound('hit-send')
+        if @_isPopout()
+          NylasEnv.close()
 
   __testExtensionTransforms: ->
     clientId = NylasEnv.getWindowProps().draftClientId
@@ -436,7 +364,7 @@ class DraftStore
       session.changes.add({files})
       session.changes.commit()
 
-  _onDraftSendingFailed: ({draftClientId, threadId, errorMessage}) ->
+  _onSendDraftFailed: ({draftClientId, threadId, errorMessage}) ->
     @_draftsSending[draftClientId] = false
     @trigger(draftClientId)
     if NylasEnv.isMainWindow()
@@ -446,6 +374,9 @@ class DraftStore
       _.delay =>
         @_notifyUserOfError({draftClientId, threadId, errorMessage})
       , 100
+
+  _isPopout: ->
+    NylasEnv.getWindowType() is "composer"
 
   _notifyUserOfError: ({draftClientId, threadId, errorMessage}) ->
     focusedThread = FocusedContentStore.focused('thread')

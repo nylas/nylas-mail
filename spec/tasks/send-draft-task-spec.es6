@@ -222,7 +222,7 @@ describe('SendDraftTask', function sendDraftTask() {
 
       describe("when there are errors", () => {
         beforeEach(() => {
-          spyOn(Actions, 'draftSendingFailed');
+          spyOn(Actions, 'sendDraftFailed');
           jasmine.unspy(NylasAPI, "makeRequest");
         });
 
@@ -238,7 +238,7 @@ describe('SendDraftTask', function sendDraftTask() {
           waitsForPromise(() => this.task.performRemote().then((status) => {
             expect(status[0]).toBe(Task.Status.Failed);
             expect(status[1]).toBe(thrownError);
-            expect(Actions.draftSendingFailed).toHaveBeenCalled();
+            expect(Actions.sendDraftFailed).toHaveBeenCalled();
             expect(NylasEnv.reportError).toHaveBeenCalled();
           }));
         });
@@ -300,7 +300,7 @@ describe('SendDraftTask', function sendDraftTask() {
           waitsForPromise(() => this.task.performRemote().then((status) => {
             expect(status[0]).toBe(Task.Status.Failed);
             expect(status[1]).toBe(thrownError);
-            expect(Actions.draftSendingFailed).toHaveBeenCalled();
+            expect(Actions.sendDraftFailed).toHaveBeenCalled();
           }));
         });
 
@@ -312,7 +312,7 @@ describe('SendDraftTask', function sendDraftTask() {
           waitsForPromise(() => this.task.performRemote().then((status) => {
             expect(status[0]).toBe(Task.Status.Failed);
             expect(status[1]).toBe(thrownError);
-            expect(Actions.draftSendingFailed).toHaveBeenCalled();
+            expect(Actions.sendDraftFailed).toHaveBeenCalled();
           }));
         });
 
@@ -341,9 +341,9 @@ describe('SendDraftTask', function sendDraftTask() {
           waitsForPromise(() => this.task.performRemote().then((status) => {
             expect(status[0]).toBe(Task.Status.Failed);
             expect(status[1]).toBe(thrownError);
-            expect(Actions.draftSendingFailed).toHaveBeenCalled();
+            expect(Actions.sendDraftFailed).toHaveBeenCalled();
 
-            const msg = Actions.draftSendingFailed.calls[0].args[0].errorMessage;
+            const msg = Actions.sendDraftFailed.calls[0].args[0].errorMessage;
             expect(withoutWhitespace(msg)).toEqual(withoutWhitespace(expectedMessage));
           }));
         });
@@ -365,9 +365,9 @@ describe('SendDraftTask', function sendDraftTask() {
           waitsForPromise(() => this.task.performRemote().then((status) => {
             expect(status[0]).toBe(Task.Status.Failed);
             expect(status[1]).toBe(thrownError);
-            expect(Actions.draftSendingFailed).toHaveBeenCalled();
+            expect(Actions.sendDraftFailed).toHaveBeenCalled();
 
-            const msg = Actions.draftSendingFailed.calls[0].args[0].errorMessage;
+            const msg = Actions.sendDraftFailed.calls[0].args[0].errorMessage;
             expect(withoutWhitespace(msg)).toEqual(withoutWhitespace(expectedMessage));
           }));
         });

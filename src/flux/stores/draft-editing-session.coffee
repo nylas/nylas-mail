@@ -1,13 +1,16 @@
 Message = require('../models/message').default
 Actions = require '../actions'
+NylasAPI = require '../nylas-api'
+AccountStore = require './account-store'
+ContactStore = require './contact-store'
 DatabaseStore = require './database-store'
 UndoStack = require '../../undo-stack'
-ExtensionRegistry = require('../../extension-registry')
+DraftHelpers = require '../stores/draft-helpers'
+ExtensionRegistry = require '../../extension-registry'
 {Listener, Publisher} = require '../modules/reflux-coffee'
 SyncbackDraftTask = require('../tasks/syncback-draft-task').default
 CoffeeHelpers = require '../coffee-helpers'
 DraftStore = null
-
 _ = require 'underscore'
 
 MetadataChangePrefix = 'metadata.'
@@ -142,6 +145,64 @@ class DraftEditingSession
     @stopListeningToAll()
     @changes.teardown()
     @_destroyed = true
+
+  validateDraftForSending: =>
+    warnings = []
+    errors = []
+    allRecipients = [].concat(@_draft.to, @_draft.cc, @_draft.bcc)
+    bodyIsEmpty = @_draft.body is @draftPristineBody()
+    forwarded = DraftHelpers.isForwardedMessage(@_draft)
+    hasAttachment = @_draft.files?.length > 0 or @_draft.uploads?.length > 0
+
+    for contact in allRecipients
+      if not ContactStore.isValidContact(contact)
+        errors.push("#{contact.email} is not a valid email address - please remove or edit it before sending.")
+
+    if allRecipients.length is 0
+      errors.push('You need to provide one or more recipients before sending the message.')
+
+    if errors.length > 0
+      return {errors, warnings}
+
+    if @_draft.subject.length is 0
+      warnings.push('without a subject line')
+
+    if DraftHelpers.messageMentionsAttachment(@_draft) and not hasAttachment
+      warnings.push('without an attachment')
+
+    if bodyIsEmpty and not forwarded and not hasAttachment
+      warnings.push('without a body')
+
+    ## Check third party warnings added via Composer extensions
+    for extension in ExtensionRegistry.Composer.extensions()
+      continue if not extension.warningsForSending
+      warnings = warnings.concat(extension.warningsForSending({draft: @_draft}))
+
+    return {errors, warnings}
+
+  # This function makes sure the draft is attached to a valid account, and changes
+  # it's accountId if the from address does not match the account for the from
+  # address
+  #
+  # If the account is updated it makes a request to delete the draft with the
+  # old accountId
+  ensureCorrectAccount: ({noSyncback} = {}) =>
+    account = AccountStore.accountForEmail(@_draft.from[0].email)
+    if !account
+      return Promise.reject(new Error("DraftEditingSession::ensureCorrectAccount - you can only send drafts from a configured account."))
+
+    if account.id isnt @_draft.accountId
+      NylasAPI.makeDraftDeletionRequest(@_draft)
+      @changes.add({
+        accountId: account.id,
+        version: null,
+        serverId: null,
+        threadId: null,
+        replyToMessageId: null,
+      })
+      return @changes.commit({noSyncback})
+      .thenReturn(@)
+    return Promise.resolve(@)
 
   _setDraft: (draft) ->
     if !draft.body?

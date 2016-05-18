@@ -154,3 +154,24 @@ describe "Contact", ->
       spyOn(AccountStore, 'accountForEmail').andReturn(acct)
       expect(c1.isMe()).toBe(true)
       expect(AccountStore.accountForEmail).toHaveBeenCalled()
+
+  describe 'isValid', ->
+    it "should return true for a variety of valid contacts", ->
+      expect((new Contact(name: 'Ben', email: 'ben@nylas.com')).isValid()).toBe(true)
+      expect((new Contact(email: 'ben@nylas.com')).isValid()).toBe(true)
+      expect((new Contact(email: 'ben+123@nylas.com')).isValid()).toBe(true)
+
+    it "should return false if the contact has no email", ->
+      expect((new Contact(name: 'Ben')).isValid()).toBe(false)
+
+    it "should return false if the contact has an email that is not valid", ->
+      expect((new Contact(name: 'Ben', email:'Ben <ben@nylas.com>')).isValid()).toBe(false)
+      expect((new Contact(name: 'Ben', email:'<ben@nylas.com>')).isValid()).toBe(false)
+      expect((new Contact(name: 'Ben', email:'"ben@nylas.com"')).isValid()).toBe(false)
+
+    it "returns false if the email doesn't satisfy the regex", ->
+      expect((new Contact(name: "test", email: "foo")).isValid()).toBe false
+
+    it "returns false if the email doesn't match", ->
+      expect((new Contact(name: "test", email: "foo@")).isValid()).toBe false
+
