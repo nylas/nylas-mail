@@ -1,4 +1,5 @@
 /* eslint dot-notation: 0 */
+/* eslint global-require: 0 */
 global.shellStartTime = Date.now();
 
 const app = require('electron').app;
@@ -81,7 +82,7 @@ const parseCommandLine = (argv) => {
   const pathsToOpen = [];
 
   // On Windows and Linux, mailto and file opens are passed as the last argv
-  if (argv.length > 1) {
+  if (argv.length > 1 && !argv.join(' ').includes('--squirrel')) {
     const lastArg = argv[argv.length - 1];
     if (lastArg.startsWith('mailto:')) {
       urlsToOpen.push(lastArg);
