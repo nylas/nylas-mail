@@ -327,7 +327,7 @@ class PackageManager
     packages
 
   installPackageFromPath: (packageSourceDir, callback) ->
-    jsonPath = path.join(packageSourceDir, 'package.json');
+    jsonPath = path.join(packageSourceDir, 'package.json')
     if not fs.existsSync(jsonPath)
       return callback(new Error("The folder you selected doesn't look like a valid N1 plugin. All N1 plugins must have a package.json file in the top level of the folder. Check the contents of #{packageSourceDir} and try again."), null)
 
