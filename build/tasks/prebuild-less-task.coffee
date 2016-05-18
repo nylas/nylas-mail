@@ -4,9 +4,7 @@ fs = require 'fs'
 module.exports = (grunt) ->
   grunt.registerMultiTask 'prebuild-less', 'Prebuild cached of compiled LESS files', ->
     LessCache = require 'less-cache'
-    prebuiltConfigurations = [
-      ['ui-light', 'ui-dark']
-    ]
+    prebuiltConfigurations = [['ui-light']]
 
     directory = path.join(grunt.config.get('nylasGruntConfig.appDir'), 'less-compile-cache')
 
