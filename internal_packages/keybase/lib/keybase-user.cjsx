@@ -101,7 +101,7 @@ class KeybaseUser extends React.Component
     if profile.addresses?.length > 0
       emails = _.map(profile.addresses, (email) =>
         # TODO make that remove button not terrible
-        return <li key={ email }>{ email }<small><a onClick={ => @_removeEmail(email) }>(X)</a></small></li>)
+        return <li key={ email }>{ email } <small><a onClick={ => @_removeEmail(email) }>(X)</a></small></li>)
 
       if @state.inputEmail
         participants = {to: [], cc: [], bcc: []}
@@ -114,7 +114,9 @@ class KeybaseUser extends React.Component
               change={ @_addEmailInput } />
             </ul>)
       else
-        emailList = (<ul> { emails } <a ref="addEmail" onClick={ @_addEmailClick }>+ Add Email</a> </ul>)
+        emailList = (<ul> { emails }
+            <a ref="addEmail" onClick={ @_addEmailClick }>+ Add Email</a>
+            </ul>)
 
     <div className="keybase-profile">
       <div className="profile-photo-wrap">

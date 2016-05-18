@@ -87,7 +87,6 @@ class KeybaseSearch extends React.Component
 
   render: ->
     profiles = _.map(@state.results, (profile) =>
-      # TODO filter out or (better) merge in people that we already have keys for
 
       # allow for overriding the import function
       if typeof @props.importFunc is "function"
@@ -100,7 +99,9 @@ class KeybaseSearch extends React.Component
       </button>
       )
 
-      return <KeybaseUser profile={profile} key={profile.clientId} actionButton={ saveButton } />
+      # TODO improved deduping? tricky because of the kbprofile - email association
+      if not profile.keyPath?
+        return <KeybaseUser profile={profile} actionButton={ saveButton } />
     )
 
     if not profiles? or profiles.length < 1

@@ -182,21 +182,19 @@ class PGPKeyStore extends NylasStore
       )
 
   addAddressToKey: (profile, address) =>
-    # NOTE: this is ONLY for public keys
     if @validAddress(address, true)
+      oldPath = profile.keyPath
       profile.addresses.push(address)
-      newPath = path.join(@_pubKeyDir, profile.addresses.join(" "))
-      fs.rename(profile.keyPath, newPath, (err) =>
+      fs.rename(oldPath, profile.keyPath, (err) =>
         if (err)
           @_displayError(err)
         )
 
   removeAddressFromKey: (profile, address) =>
-    # NOTE: this is ONLY for public keys
     if profile.addresses.length > 1
+      oldPath = profile.keyPath
       profile.addresses = _.without(profile.addresses, address)
-      newPath = path.join(@_pubKeyDir, profile.addresses.join(" "))
-      fs.rename(profile.keyPath, newPath, (err) =>
+      fs.rename(oldPath, profile.keyPath, (err) =>
         if (err)
           @_displayError(err)
         )
@@ -353,18 +351,13 @@ class PGPKeyStore extends NylasStore
 
     pgpMsg = message.body.slice(blockStart, blockEnd)
 
-    # There seemed to be a problem where '+' was being encoded, and there are
-    # some potential issues with HTML tags being added to the message
-    # pgpMsg = pgpMsg.replace(/&#43;/gm,'+')
-    # pgpMsg = pgpMsg.replace(/<[^>]*>/gm,'')
-    # however, it appears the problem has disappeared
+    # Don't let '+' get encoded
+    pgpMsg = pgpMsg.replace(/&#43;/gm,'+')
 
-    # TODO pgp.unbox fails on generated keys with "no tailer found". I have no idea why.
-    # Previously this was caused by a trailing whitespace issue but that doesn't appear
-    # to be the problem here. Googling the error turns up two Github issues, both about
-    # the difference between single and triple quoted string literals in CoffeeScript -
-    # maybe that's a place to start?
-    #console.warn(@privKeys({})[0].key.armored_pgp_public)
+    # There seemed to be issues with HTML tags being added to the message.
+    # Hopefully the <pre> tag fixed this, but just in case, here's a line to safeguard:
+    # pgpMsg = pgpMsg.replace(/<[^>]*>/gm,'')
+
     pgp.unbox { keyfetch: ring, armored: pgpMsg }, (err, literals, warnings, subkey) =>
       if err
         console.warn err
