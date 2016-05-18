@@ -51,10 +51,10 @@ class KeybaseSearch extends React.Component
       # no query - empty out the results
       @setState({results: []})
 
-  _importKey: (profile) =>
+  _importKey: (profile, event) =>
     # opens a popover requesting user to enter 1+ emails to associate with a
     # key - a button in the popover then calls _save to actually import the key
-    popoverTarget = ReactDOM.findDOMNode(@refs.button).getBoundingClientRect()
+    popoverTarget = event.target.getBoundingClientRect()
 
     Actions.openPopover(
       <EmailPopover profile={profile} onPopoverDone={ @_popoverDone } />,
@@ -94,7 +94,7 @@ class KeybaseSearch extends React.Component
       else
         boundFunc = @_importKey
 
-      saveButton = (<button title="Import" className="btn btn-toolbar" onClick={ => boundFunc(profile) } ref="button">
+      saveButton = (<button title="Import" className="btn btn-toolbar" onClick={ (event) => boundFunc(profile, event) } ref="button">
         Import Key
       </button>
       )

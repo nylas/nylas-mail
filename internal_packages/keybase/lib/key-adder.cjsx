@@ -129,7 +129,7 @@ class KeyAdder extends React.Component
     publicButton = <button className="btn key-add-btn" disabled={!(@state.validAddress & @state.validKeyBody)} title="Save" onClick={@_saveNewPubKey}>Save</button>
     privateButton = <button className="btn key-add-btn" disabled={!(@state.validAddress & @state.validKeyBody)} title="Save" onClick={@_saveNewPrivKey}>Save</button>
 
-    passphraseInput = <input type="text" value={@state.passphrase} placeholder="Input a password for the private key." className="key-passphrase-input" onChange={@_onPassphraseChange} />
+    passphraseInput = <input type="password" value={@state.passphrase} placeholder="Input a password for the private key." className="key-passphrase-input" onChange={@_onPassphraseChange} />
 
     <div className="key-adder">
       <div className="key-text">
@@ -150,7 +150,7 @@ class KeyAdder extends React.Component
     <div className="key-adder">
       <div>
         <input type="text" value={@state.address} placeholder="Which email address is this key for?" className="key-email-input" onChange={@_onAddressChange} />
-        <input type="text" value={@state.passphrase} placeholder="Input a password for the private key." className="key-passphrase-input" onChange={@_onPassphraseChange} />
+        <input type="password" value={@state.passphrase} placeholder="Input a password for the private key." className="key-passphrase-input" onChange={@_onPassphraseChange} />
         <button className="btn key-add-btn" disabled={!(@state.validAddress)} title="Generate" onClick={@_onInnerGenerateButtonClick}>Generate</button>
       </div>
       <div className="key-text">
