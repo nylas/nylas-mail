@@ -77,8 +77,8 @@ describe "ComposerView", ->
       @draft = draft
     spyOn(ContactStore, "searchContacts").andCallFake (email) =>
       return _.filter(users, (u) u.email.toLowerCase() is email.toLowerCase())
-    spyOn(ContactStore, "isValidContact").andCallFake (contact) =>
-      return contact.email.indexOf('@') > 0
+    spyOn(Contact.prototype, "isValid").andCallFake (contact) ->
+      return @email.indexOf('@') > 0
 
   afterEach ->
     ComposerEditor.containerRequired = undefined

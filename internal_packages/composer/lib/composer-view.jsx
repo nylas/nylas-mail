@@ -7,10 +7,10 @@ import {
   Utils,
   Actions,
   DraftStore,
-  ContactStore,
-  QuotedHTMLTransformer,
+  UndoManager,
+  DraftHelpers,
   FileDownloadStore,
-  ExtensionRegistry,
+  QuotedHTMLTransformer,
 } from 'nylas-exports';
 
 import {
@@ -55,7 +55,7 @@ export default class ComposerView extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      showQuotedText: Utils.isForwardedMessage(props.draft),
+      showQuotedText: DraftHelpers.isForwardedMessage(props.draft),
     }
   }
 
@@ -65,14 +65,14 @@ export default class ComposerView extends React.Component {
     }
   }
 
-  componentWillReceiveProps(newProps) {
-    if (newProps.session !== this.props.session) {
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.session !== this.props.session) {
       this._teardownForProps();
-      this._setupForProps(newProps);
+      this._setupForProps(nextProps);
     }
-    if (Utils.isForwardedMessage(this.props.draft) !== Utils.isForwardedMessage(newProps.draft)) {
+    if (DraftHelpers.isForwardedMessage(this.props.draft) !== DraftHelpers.isForwardedMessage(nextProps.draft)) {
       this.setState({
-        showQuotedText: Utils.isForwardedMessage(newProps.draft),
+        showQuotedText: DraftHelpers.isForwardedMessage(nextProps.draft),
       });
     }
   }
@@ -507,54 +507,17 @@ export default class ComposerView extends React.Component {
     }
 
     const dialog = remote.dialog;
+    const {session} = this.props
+    const {errors, warnings} = session.validateDraftForSending()
 
-    const {to, cc, bcc, body, files, uploads} = this.props.draft;
-    const allRecipients = [].concat(to, cc, bcc);
-    let dealbreaker = null;
-
-    for (const contact of allRecipients) {
-      if (!ContactStore.isValidContact(contact)) {
-        dealbreaker = `${contact.email} is not a valid email address - please remove or edit it before sending.`
-      }
-    }
-    if (allRecipients.length === 0) {
-      dealbreaker = 'You need to provide one or more recipients before sending the message.';
-    }
-
-    if (dealbreaker) {
+    if (errors.length > 0) {
       dialog.showMessageBox(remote.getCurrentWindow(), {
         type: 'warning',
         buttons: ['Edit Message', 'Cancel'],
         message: 'Cannot Send',
-        detail: dealbreaker,
+        detail: errors[0],
       });
       return false;
-    }
-
-    const bodyIsEmpty = body === this.props.session.draftPristineBody();
-    const forwarded = Utils.isForwardedMessage(this.props.draft);
-    const hasAttachment = (files || []).length > 0 || (uploads || []).length > 0;
-
-    let warnings = [];
-
-    if (this.props.draft.subject.length === 0) {
-      warnings.push('without a subject line');
-    }
-
-    if (this._mentionsAttachment(this.props.draft.body) && !hasAttachment) {
-      warnings.push('without an attachment');
-    }
-
-    if (bodyIsEmpty && !forwarded && !hasAttachment) {
-      warnings.push('without a body');
-    }
-
-    // Check third party warnings added via Composer extensions
-    for (const extension of ExtensionRegistry.Composer.extensions()) {
-      if (!extension.warningsForSending) {
-        continue;
-      }
-      warnings = warnings.concat(extension.warningsForSending({draft: this.props.draft}));
     }
 
     if ((warnings.length > 0) && (!options.force)) {
@@ -569,7 +532,6 @@ export default class ComposerView extends React.Component {
       }
       return false;
     }
-
     return true;
   }
 
@@ -585,15 +547,62 @@ export default class ComposerView extends React.Component {
     Actions.selectAttachment({messageClientId: this.props.draft.clientId});
   }
 
-  _mentionsAttachment = (body) => {
-    let cleaned = QuotedHTMLTransformer.removeQuotedHTML(body.toLowerCase().trim());
-    const signatureIndex = cleaned.indexOf('<signature>');
-    if (signatureIndex !== -1) {
-      cleaned = cleaned.substr(0, signatureIndex - 1);
+  undo = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const historyItem = this.undoManager.undo() || {};
+    if (!historyItem.state) {
+      return;
     }
-    return (cleaned.indexOf("attach") >= 0);
+
+    this._recoveredSelection = historyItem.currentSelection;
+    this._applyChanges(historyItem.state, {fromUndoManager: true});
+    this._recoveredSelection = null;
   }
 
+  redo = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const historyItem = this.undoManager.redo() || {}
+    if (!historyItem.state) {
+      return;
+    }
+    this._recoveredSelection = historyItem.currentSelection;
+    this._applyChanges(historyItem.state, {fromUndoManager: true});
+    this._recoveredSelection = null;
+  }
+
+  _getSelections = () => {
+    const bodyComponent = this.refs[Fields.Body];
+    return {
+      currentSelection: bodyComponent.getCurrentSelection ? bodyComponent.getCurrentSelection() : null,
+      previousSelection: bodyComponent.getPreviousSelection ? bodyComponent.getPreviousSelection() : null,
+    }
+  }
+
+  _saveToHistory = (selections) => {
+    const {previousSelection, currentSelection} = selections || this._getSelections();
+
+    const historyItem = {
+      previousSelection,
+      currentSelection,
+      state: {
+        body: _.clone(this.props.draft.body),
+        subject: _.clone(this.props.draft.subject),
+        to: _.clone(this.props.draft.to),
+        cc: _.clone(this.props.draft.cc),
+        bcc: _.clone(this.props.draft.bcc),
+      },
+    }
+
+    const lastState = this.undoManager.current()
+    if (lastState) {
+      lastState.currentSelection = historyItem.previousSelection;
+    }
+
+    this.undoManager.saveToHistory(historyItem);
+  }
 
   render() {
     const dropCoverDisplay = this.state.isDropping ? 'block' : 'none';

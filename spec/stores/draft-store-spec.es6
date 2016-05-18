@@ -5,15 +5,14 @@ import {
   Message,
   Account,
   DraftStore,
+  DraftHelpers,
   DatabaseStore,
   SoundRegistry,
-  SendDraftTask,
   DestroyDraftTask,
   ComposerExtension,
   ExtensionRegistry,
   FocusedContentStore,
   DatabaseTransaction,
-  SyncbackDraftFilesTask,
 } from 'nylas-exports';
 
 import {remote} from 'electron';
@@ -323,7 +322,7 @@ describe('DraftStore', function draftStore() {
 
       DraftStore._draftSessions[this.draft.clientId] = session;
       spyOn(DraftStore, "_doneWithSession").andCallThrough();
-      spyOn(DraftStore, "_prepareForSyncback").andReturn(Promise.resolve());
+      spyOn(DraftHelpers, "prepareDraftForSyncback").andReturn(Promise.resolve());
       spyOn(DraftStore, "trigger");
       spyOn(SoundRegistry, "playSound");
       spyOn(Actions, "queueTask");
@@ -408,25 +407,10 @@ describe('DraftStore', function draftStore() {
       });
     });
 
-    it("queues tasks to upload files and send the draft", () => {
-      runs(() => {
-        DraftStore._onSendDraft(this.draft.clientId);
-      });
-      waitsFor(() => Actions.queueTask.calls.length > 0);
-      runs(() => {
-        const saveAttachments = Actions.queueTask.calls[0].args[0];
-        expect(saveAttachments instanceof SyncbackDraftFilesTask).toBe(true);
-        expect(saveAttachments.draftClientId).toBe(this.draft.clientId);
-        const sendDraft = Actions.queueTask.calls[1].args[0];
-        expect(sendDraft instanceof SendDraftTask).toBe(true);
-        expect(sendDraft.draftClientId).toBe(this.draft.clientId);
-      });
-    });
-
     it("resets the sending state if there's an error", () => {
       spyOn(NylasEnv, "isMainWindow").andReturn(false);
       DraftStore._draftsSending[this.draft.clientId] = true;
-      Actions.draftSendingFailed({errorMessage: "boohoo", draftClientId: this.draft.clientId});
+      Actions.sendDraftFailed({errorMessage: "boohoo", draftClientId: this.draft.clientId});
       expect(DraftStore.isSendingDraft(this.draft.clientId)).toBe(false);
       expect(DraftStore.trigger).toHaveBeenCalledWith(this.draft.clientId);
     });
@@ -437,7 +421,7 @@ describe('DraftStore', function draftStore() {
       spyOn(remote.dialog, "showMessageBox");
       spyOn(Actions, "composePopoutDraft");
       DraftStore._draftsSending[this.draft.clientId] = true;
-      Actions.draftSendingFailed({threadId: 't1', errorMessage: "boohoo", draftClientId: this.draft.clientId});
+      Actions.sendDraftFailed({threadId: 't1', errorMessage: "boohoo", draftClientId: this.draft.clientId});
       advanceClock(200);
       expect(DraftStore.isSendingDraft(this.draft.clientId)).toBe(false);
       expect(DraftStore.trigger).toHaveBeenCalledWith(this.draft.clientId);
@@ -452,7 +436,7 @@ describe('DraftStore', function draftStore() {
       spyOn(FocusedContentStore, "focused").andReturn({id: "t1"});
       spyOn(Actions, "composePopoutDraft");
       DraftStore._draftsSending[this.draft.clientId] = true;
-      Actions.draftSendingFailed({threadId: 't2', errorMessage: "boohoo", draftClientId: this.draft.clientId});
+      Actions.sendDraftFailed({threadId: 't2', errorMessage: "boohoo", draftClientId: this.draft.clientId});
       advanceClock(200);
       expect(Actions.composePopoutDraft).toHaveBeenCalled();
       const call = Actions.composePopoutDraft.calls[0];
@@ -465,7 +449,7 @@ describe('DraftStore', function draftStore() {
       spyOn(Actions, "composePopoutDraft");
       DraftStore._draftsSending[this.draft.clientId] = true;
       spyOn(FocusedContentStore, "focused").andReturn(null);
-      Actions.draftSendingFailed({errorMessage: "boohoo", draftClientId: this.draft.clientId});
+      Actions.sendDraftFailed({errorMessage: "boohoo", draftClientId: this.draft.clientId});
       advanceClock(200);
       expect(Actions.composePopoutDraft).toHaveBeenCalled();
       const call = Actions.composePopoutDraft.calls[0];

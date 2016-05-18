@@ -80,18 +80,9 @@ class ContactStore extends NylasStore
 
       return Promise.resolve(results)
 
-  # Public: Returns true if the contact provided is a {Contact} instance and
-  # contains a properly formatted email address.
-  #
   isValidContact: (contact) =>
     return false unless contact instanceof Contact
-    return false unless contact.email
-
-    # The email regexp must match the /entire/ email address
-    result = RegExpUtils.emailRegex().exec(contact.email)
-    if result and result instanceof Array
-      return result[0] is contact.email
-    else return false
+    return contact.isValid()
 
   parseContactsInString: (contactString, options={}) =>
     {skipNameLookup} = options

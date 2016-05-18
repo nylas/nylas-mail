@@ -121,6 +121,15 @@ export default class TableDataSource {
     return {...this._tableData}
   }
 
+  filterRows(filterFn) {
+    const rows = this.rows()
+    const nextRows = rows.filter(filterFn)
+    return new TableDataSource({
+      ...this._tableData,
+      rows: nextRows,
+    })
+  }
+
   /**
    * Adds column
    *

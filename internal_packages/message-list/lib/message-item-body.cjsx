@@ -1,7 +1,7 @@
 React = require 'react'
 _ = require 'underscore'
 EmailFrame = require('./email-frame').default
-{Utils,
+{DraftHelpers,
  CanvasUtils,
  NylasAPI,
  MessageUtils,
@@ -21,7 +21,7 @@ class MessageItemBody extends React.Component
   constructor: (@props) ->
     @_unmounted = false
     @state =
-      showQuotedText: Utils.isForwardedMessage(@props.message)
+      showQuotedText: DraftHelpers.isForwardedMessage(@props.message)
       processedBody: null
       error: null
 

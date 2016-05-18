@@ -223,25 +223,6 @@ Utils =
     else
       return "#{prefix} #{subject}"
 
-  # Returns true if the message contains "Forwarded" or "Fwd" in the first
-  # 250 characters.  A strong indicator that the quoted text should be
-  # shown. Needs to be limited to first 250 to prevent replies to
-  # forwarded messages from also being expanded.
-  isForwardedMessage: ({body, subject} = {}) ->
-    bodyForwarded = false
-    bodyFwd = false
-    subjectFwd = false
-
-    if body
-      indexForwarded = body.search(/forwarded/i)
-      bodyForwarded = indexForwarded >= 0 and indexForwarded < 250
-      indexFwd = body.search(/fwd/i)
-      bodyFwd = indexFwd >= 0 and indexFwd < 250
-    if subject
-      subjectFwd = subject[0...3].toLowerCase() is "fwd"
-
-    return bodyForwarded or bodyFwd or subjectFwd
-
   # True of all arguments have the same domains
   emailsHaveSameDomain: (args...) ->
     return false if args.length < 2

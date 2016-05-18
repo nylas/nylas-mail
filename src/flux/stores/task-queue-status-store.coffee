@@ -18,16 +18,16 @@ class TaskQueueStatusStore extends NylasStore
     query = DatabaseStore.findJSONBlob(TaskQueue.JSONBlobStorageKey)
     Rx.Observable.fromQuery(query).subscribe (json) =>
       @_queue = json || []
-      @_waitingLocals = @_waitingLocals.filter ({taskId, resolve}) =>
-        task = _.findWhere(@_queue, {id: taskId})
-        if not task or task.queueState.localComplete
-          resolve()
+      @_waitingLocals = @_waitingLocals.filter ({task, resolve}) =>
+        queuedTask = _.findWhere(@_queue, {id: task.id})
+        if not queuedTask or queuedTask.queueState.localComplete
+          resolve(task)
           return false
         return true
-      @_waitingRemotes = @_waitingRemotes.filter ({taskId, resolve}) =>
-        task = _.findWhere(@_queue, {id: taskId})
-        if not task
-          resolve()
+      @_waitingRemotes = @_waitingRemotes.filter ({task, resolve}) =>
+        queuedTask = _.findWhere(@_queue, {id: task.id})
+        if not queuedTask
+          resolve(task)
           return false
         return true
       @trigger()
@@ -37,11 +37,11 @@ class TaskQueueStatusStore extends NylasStore
 
   waitForPerformLocal: (task) =>
     new Promise (resolve, reject) =>
-      @_waitingLocals.push({taskId: task.id, resolve: resolve})
+      @_waitingLocals.push({task, resolve})
 
   waitForPerformRemote: (task) =>
     new Promise (resolve, reject) =>
-      @_waitingRemotes.push({taskId: task.id, resolve: resolve})
+      @_waitingRemotes.push({task, resolve})
 
   tasksMatching: (type, matching = {}) ->
     type = type.name unless _.isString(type)

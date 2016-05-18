@@ -89,6 +89,7 @@ class NylasExports
   @lazyLoad "Task", 'flux/tasks/task'
   @lazyLoad "TaskFactory", 'flux/tasks/task-factory'
   @lazyLoadAndRegisterTask "EventRSVPTask", 'event-rsvp-task'
+  @lazyLoadAndRegisterTask "BaseDraftTask", 'base-draft-task'
   @lazyLoadAndRegisterTask "SendDraftTask", 'send-draft-task'
   @lazyLoadAndRegisterTask "MultiSendToIndividualTask", 'multi-send-to-individual-task'
   @lazyLoadAndRegisterTask "MultiSendSessionCloseTask", 'multi-send-session-close-task'
@@ -166,10 +167,11 @@ class NylasExports
   @lazyLoad "CanvasUtils", 'canvas-utils'
   @lazyLoad "RegExpUtils", 'regexp-utils'
   @lazyLoad "MenuHelpers", 'menu-helpers'
-  @lazyLoad "MessageUtils", 'flux/models/message-utils'
   @lazyLoad "DeprecateUtils", 'deprecate-utils'
   @lazyLoad "VirtualDOMUtils", 'virtual-dom-utils'
   @lazyLoad "NylasSpellchecker", 'nylas-spellchecker'
+  @lazyLoad "DraftHelpers", 'flux/stores/draft-helpers'
+  @lazyLoad "MessageUtils", 'flux/models/message-utils'
   @lazyLoad "EditorAPI", 'components/contenteditable/editor-api'
 
   # Services

@@ -2,7 +2,7 @@ import _ from 'underscore';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import AccountContactField from './account-contact-field';
-import {Utils, Actions, AccountStore} from 'nylas-exports';
+import {Utils, DraftHelpers, Actions, AccountStore} from 'nylas-exports';
 import {InjectedComponent, KeyCommandsRegion, ParticipantsTextField, ListensToFluxStore} from 'nylas-component-kit';
 
 import CollapsedParticipants from './collapsed-participants';
@@ -105,7 +105,7 @@ export default class ComposerHeader extends React.Component {
     if (_.isEmpty(this.props.draft.subject)) {
       return true;
     }
-    if (Utils.isForwardedMessage(this.props.draft)) {
+    if (DraftHelpers.isForwardedMessage(this.props.draft)) {
       return true;
     }
     if (this.props.draft.replyToMessageId) {
@@ -153,7 +153,7 @@ export default class ComposerHeader extends React.Component {
     if (isDropping) {
       this.setState({
         participantsFocused: true,
-        enabledFields: [...Fields.ParticipantFields, Fields.Subject],
+        enabledFields: [...Fields.ParticipantFields, Fields.From, Fields.Subject],
       })
     }
   }
