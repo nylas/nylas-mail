@@ -230,6 +230,7 @@ const PackagesStore = Reflux.createStore({
         if (err) {
           this._displayMessage("Could not install plugin", err.message);
         } else {
+          this._onPackagesChanged();
           const msg = `${packageName} has been installed and enabled. No need to restart! If you don't see the plugin loaded, check the console for errors.`
           this._displayMessage("Plugin installed! 🎉", msg);
         }
