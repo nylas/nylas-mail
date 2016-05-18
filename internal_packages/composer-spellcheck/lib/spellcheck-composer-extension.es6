@@ -1,5 +1,21 @@
 import {DOMUtils, ComposerExtension, NylasSpellchecker} from 'nylas-exports';
 
+const recycled = [];
+
+function getSpellingNodeForText(text) {
+  let node = recycled.pop();
+  if (!node) {
+    node = document.createElement('spelling');
+    node.classList.add('misspelled');
+  }
+  node.textContent = text;
+  return node;
+}
+
+function recycleSpellingNode(node) {
+  recycled.push(node);
+}
+
 export default class SpellcheckComposerExtension extends ComposerExtension {
 
   static onContentChanged({editor}) {
@@ -71,6 +87,7 @@ export default class SpellcheckComposerExtension extends ComposerExtension {
         while (node.firstChild) {
           node.parentNode.insertBefore(node.firstChild, node);
         }
+        recycleSpellingNode(node);
         node.parentNode.removeChild(node);
       }
     });
@@ -97,7 +114,7 @@ export default class SpellcheckComposerExtension extends ComposerExtension {
 
       while (true) {
         const node = nodeList.shift();
-        if ((node === undefined) || (nodeMisspellingsFound > 30)) {
+        if ((node === undefined) || (nodeMisspellingsFound > 15)) {
           break;
         }
 
@@ -106,7 +123,7 @@ export default class SpellcheckComposerExtension extends ComposerExtension {
 
         while (true) {
           const match = nodeWordRegexp.exec(nodeContent);
-          if ((match === null) || (nodeMisspellingsFound > 30)) {
+          if ((match === null) || (nodeMisspellingsFound > 15)) {
             break;
           }
 
@@ -120,9 +137,7 @@ export default class SpellcheckComposerExtension extends ComposerExtension {
             const matchNode = (match.index === 0) ? node : node.splitText(match.index);
             const afterMatchNode = matchNode.splitText(match[0].length);
 
-            const spellingSpan = document.createElement('spelling');
-            spellingSpan.classList.add('misspelled');
-            spellingSpan.innerText = match[0];
+            const spellingSpan = getSpellingNodeForText(match[0]);
             matchNode.parentNode.replaceChild(spellingSpan, matchNode);
 
             for (const prop of ['anchor', 'focus']) {
