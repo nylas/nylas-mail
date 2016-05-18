@@ -213,18 +213,18 @@ class DatabaseStore extends NylasStore
     , (err) =>
       console.log("Completed ANALYZE of database")
 
-  _handleSetupError: (err) =>
+  _handleSetupError: (err = (new Error("Manually called _handleSetupError"))) =>
     NylasEnv.reportError(err, {}, noWindows: true)
 
     # Temporary: export mail rules. They're the only bit of data in the cache
     # we can't rebuild. Should be moved to cloud metadata store soon.
-    @_db.all "SELECT * FROM JSONBlob WHERE id = 'MailRules-V2' LIMIT 1", [], (err, results = []) =>
-      if not err and results.length is 1
+    @_db.all "SELECT * FROM JSONBlob WHERE id = 'MailRules-V2' LIMIT 1", [], (mailsRulesErr, results = []) =>
+      if not mailsRulesErr and results.length is 1
         exportPath = path.join(NylasEnv.getConfigDirPath(), 'mail-rules-export.json')
         try
           fs.writeFileSync(exportPath, results[0]['data'])
-        catch err
-          console.log("Could not write mail rules to file: #{err}")
+        catch writeErr
+          console.log("Could not write mail rules to file: #{writeErr}")
 
       app = require('electron').remote.getGlobal('application')
       app.rebuildDatabase()
