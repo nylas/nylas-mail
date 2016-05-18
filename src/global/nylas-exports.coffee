@@ -2,6 +2,11 @@ TaskRegistry = require('../task-registry').default
 StoreRegistry = require('../store-registry').default
 DatabaseObjectRegistry = require('../database-object-registry').default
 
+# Calling require() repeatedly isn't free! Even though it has it's own cache,
+# it still needs to resolve the path to a file based on the current __dirname,
+# match it against it's cache, etc. We can shortcut all this work.
+RequireCache = {}
+
 class NylasExports
 
   @default = (requireValue) -> requireValue.default ? requireValue
@@ -10,7 +15,9 @@ class NylasExports
   @lazyLoad = (prop, path) ->
     Object.defineProperty @, prop,
       get: ->
-        NylasExports.default(require("../#{path}"))
+        key = "#{prop}#{path}"
+        RequireCache[key] = RequireCache[key] || NylasExports.default(require("../#{path}"))
+        return RequireCache[key]
       enumerable: true
 
   @lazyLoadCustomGetter = (prop, get) ->
