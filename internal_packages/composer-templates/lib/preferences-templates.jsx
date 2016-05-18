@@ -304,18 +304,12 @@ class PreferencesTemplates extends React.Component {
 
         <section className="templates-instructions">
           <p>
-            The Quick Replies plugin allows you to create templated email replies, with variables that
-            you can quickly replace before sending your email message. {`To create a variable, type a set of double curly
-            brackets wrapping the variable's name, like this`}: <strong>{"{{"}variable_name{"}}"}</strong>
-          </p>
-          <p>
-            Reply templates are saved in the <strong>~/.nylas/templates</strong> directory on your computer. Each template
-            is an HTML file—the name of the file is the name of the template, and its contents are the default message body.
-          </p>
-          <p>
-            In raw HTML, variables are defined as HTML &lt;code&gt; tags with class "var empty". Typing curly brackets creates a tag
-            automatically. The code tags are colored yellow to show the variable regions but will be removed before the message is
+            {`To create a variable, type a set of double curly
+            brackets wrapping the variable's name, like this`}: <strong>{"{{"}variable_name{"}}"}</strong>. The highlighting in the variable regions will be removed before the message is
             sent.
+          </p>
+          <p>
+            Reply templates are saved as HTML files in the <strong>~/.nylas/templates</strong> directory on your computer. In raw HTML, variables are defined as HTML &lt;code&gt; tags with class "var empty".
           </p>
         </section>
       </div>
