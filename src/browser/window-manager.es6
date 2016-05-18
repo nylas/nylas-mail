@@ -160,7 +160,7 @@ export default class WindowManager {
         if (visibleWindows.length === 0 && noMainWindowLoaded) {
           app.quit();
         }
-      }, 10000);
+      }, 25000);
       this.quitCheck();
     }
   }
