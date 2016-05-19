@@ -21,6 +21,7 @@ class SidebarStore extends NylasStore
 
   constructor: ->
     NylasEnv.savedState.sidebarKeysCollapsed ?= {}
+    NylasEnv.savedState.shouldRefocusSidebarAccounts ?= true
 
     @_sections = {}
     @_sections[Sections.Standard] = {}
@@ -87,8 +88,8 @@ class SidebarStore extends NylasStore
   _onFocusedPerspectiveChanged: =>
     currentIds = _.pluck(@_focusedAccounts, 'id')
     newIds = FocusedPerspectiveStore.current().accountIds
-    newIdsNotInCurrent = _.difference(newIds, currentIds).length > 0
-    if newIdsNotInCurrent
+    # TODO get rid of this nasty global state
+    if NylasEnv.savedState.shouldRefocusSidebarAccounts is true
       @_focusedAccounts = newIds.map (id) -> AccountStore.accountForId(id)
       @_registerMenuItems()
     @_updateSections()
