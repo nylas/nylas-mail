@@ -2,19 +2,18 @@ Actions = require '../../src/flux/actions'
 DatabaseStore = require '../../src/flux/stores/database-store'
 TaskQueue = require '../../src/flux/stores/task-queue'
 Task = require('../../src/flux/tasks/task').default
+TaskRegistry = require('../../src/task-registry').default
 
 {APIError,
  TimeoutError} = require '../../src/flux/errors'
 
-{
-  TaskSubclassA,
-  TaskSubclassB,
-  KillsTaskA,
-  BlockedByTaskA,
-  BlockingTask,
-  TaskAA,
-  TaskBB,
-} = require('./task-subclass')
+{TaskSubclassA,
+ TaskSubclassB,
+ KillsTaskA,
+ BlockedByTaskA,
+ BlockingTask,
+ TaskAA,
+ TaskBB} = require('./task-subclass')
 
 describe "TaskQueue", ->
 
@@ -31,6 +30,7 @@ describe "TaskQueue", ->
     task
 
   beforeEach ->
+    spyOn(TaskRegistry, 'isInRegistry').andReturn(true)
     @task              = new Task()
     @unstartedTask     = makeUnstartedTask(new Task())
     @processingTask    = makeProcessing(new Task())
@@ -53,6 +53,14 @@ describe "TaskQueue", ->
           expect(@retryInFutureTask.queueState.retryAfter).toEqual(undefined)
           expect(@retryInFutureTask.queueState.retryDelay).toEqual(undefined)
           expect(TaskQueue._updateSoon).toHaveBeenCalled()
+
+    it "should remove any items in the queue which were not deserialized as tasks", ->
+      queue = [@processingTask, {type: 'bla'}, @retryInFutureTask]
+      spyOn(DatabaseStore, 'findJSONBlob').andCallFake => Promise.resolve(queue)
+      spyOn(TaskQueue, '_updateSoon')
+      waitsForPromise =>
+        TaskQueue._restoreQueue().then =>
+          expect(TaskQueue._queue).toEqual([@processingTask, @retryInFutureTask])
 
   describe "findTask", ->
     beforeEach ->

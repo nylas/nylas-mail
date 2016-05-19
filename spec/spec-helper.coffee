@@ -199,12 +199,12 @@ beforeEach ->
   fakePersistedConfig = {}
   spyOn(Config::, 'getRawValues').andCallFake =>
     fakePersistedConfig
-  spyOn(Config::, 'setRawValue').andCallFake (keyPath, value) =>
+  spyOn(Config::, 'setRawValue').andCallFake (keyPath, value) ->
     if (keyPath)
       _.setValueForKeyPath(fakePersistedConfig, keyPath, value)
     else
       fakePersistedConfig = value
-    return fakePersistedConfig
+    this.load()
   NylasEnv.config = new Config()
   NylasEnv.loadConfig()
 

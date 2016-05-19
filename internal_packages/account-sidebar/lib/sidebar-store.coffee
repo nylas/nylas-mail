@@ -1,5 +1,5 @@
-NylasStore = require 'nylas-store'
 _ = require 'underscore'
+NylasStore = require 'nylas-store'
 {Actions,
  AccountStore,
  ThreadCountsStore,
@@ -21,6 +21,7 @@ class SidebarStore extends NylasStore
 
   constructor: ->
     NylasEnv.savedState.sidebarKeysCollapsed ?= {}
+    NylasEnv.savedState.shouldRefocusSidebarAccounts ?= true
 
     @_sections = {}
     @_sections[Sections.Standard] = {}
@@ -45,8 +46,9 @@ class SidebarStore extends NylasStore
     @_sections[Sections.User]
 
   _registerListeners: ->
+    @listenTo Actions.setCollapsedSidebarItem, @_onSetCollapsedByName
+    @listenTo SidebarActions.setKeyCollapsed, @_onSetCollapsedByKey
     @listenTo SidebarActions.focusAccounts, @_onAccountsFocused
-    @listenTo SidebarActions.setKeyCollapsed, @_onSetCollapsed
     @listenTo AccountStore, @_onAccountsChanged
     @listenTo FocusedPerspectiveStore, @_onFocusedPerspectiveChanged
     @listenTo WorkspaceStore, @_updateSections
@@ -61,9 +63,20 @@ class SidebarStore extends NylasStore
 
     return
 
-  _onSetCollapsed: (key, collapsed) =>
-    NylasEnv.savedState.sidebarKeysCollapsed[key] = collapsed
-    @_updateSections()
+  _onSetCollapsedByKey: (itemKey, collapsed) =>
+    currentValue = NylasEnv.savedState.sidebarKeysCollapsed[itemKey]
+    if currentValue isnt collapsed
+      NylasEnv.savedState.sidebarKeysCollapsed[itemKey] = collapsed
+      @_updateSections()
+
+  _onSetCollapsedByName: (itemName, collapsed) =>
+    item = _.findWhere(@standardSection().items, {name: itemName})
+    if not item
+      for section in @userSections()
+        item = _.findWhere(section.items, {name: itemName})
+        break if item
+    return unless item
+    @_onSetCollapsedByKey(item.id, collapsed)
 
   _registerCommands: (accounts = AccountStore.accounts()) =>
     AccountCommands.registerCommands(accounts)
@@ -87,8 +100,8 @@ class SidebarStore extends NylasStore
   _onFocusedPerspectiveChanged: =>
     currentIds = _.pluck(@_focusedAccounts, 'id')
     newIds = FocusedPerspectiveStore.current().accountIds
-    newIdsNotInCurrent = _.difference(newIds, currentIds).length > 0
-    if newIdsNotInCurrent
+    # TODO get rid of this nasty global state
+    if NylasEnv.savedState.shouldRefocusSidebarAccounts is true
       @_focusedAccounts = newIds.map (id) -> AccountStore.accountForId(id)
       @_registerMenuItems()
     @_updateSections()
