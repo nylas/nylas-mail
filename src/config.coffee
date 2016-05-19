@@ -7,10 +7,12 @@ EmitterMixin = require('emissary').Emitter
 
 Color = require './color'
 
-if global.application
-  app = global.application
-else
+if process.type is 'renderer'
   app = remote.getGlobal('application')
+  webContentsId = remote.getCurrentWebContents().id
+else
+  app = global.application
+  webContentsId = null
 
 # Essential: Used to access all of N1's configuration details.
 #
@@ -438,7 +440,7 @@ class Config
     if _.isObject(value)
       value = JSON.parse(JSON.stringify(value))
 
-    @updateSettings(@setRawValue(keyPath, value))
+    @setRawValue(keyPath, value)
     true
 
   # Essential: Restore the setting at `keyPath` to its default value.
@@ -606,17 +608,21 @@ class Config
     @transact =>
       settings = @getRawValues()
       settings = @makeValueConformToSchema(null, settings, suppressException: true)
-      @updateSettings(@setRawValue(null, settings))
+      @setRawValue(null, settings)
       return
 
   emitChangeEvent: ->
     @emitter.emit 'did-change' unless @transactDepth > 0
 
   getRawValues: ->
-    return app.configPersistenceManager.getRawValues()
+    try
+      return JSON.parse(app.configPersistenceManager.getRawValuesString())
+    catch
+      return {}
 
   setRawValue: (keyPath, value) ->
-    return app.configPersistenceManager.setRawValue(keyPath, value)
+    app.configPersistenceManager.setRawValue(keyPath, value, webContentsId)
+    @load()
 
 # Base schema enforcers. These will coerce raw input into the specified type,
 # and will throw an error when the value cannot be coerced. Throwing the error
