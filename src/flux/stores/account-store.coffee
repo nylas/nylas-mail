@@ -131,14 +131,17 @@ class AccountStore extends NylasStore
     keytar.deletePassword(keytarServiceName, account.emailAddress)
 
     @_caches = {}
-    @_accounts = _.without(@_accounts, account)
+
+    remainingAccounts = _.without(@_accounts, account)
+    if remainingAccounts.length > 0
+      Actions.focusDefaultMailboxPerspectiveForAccounts(remainingAccounts)
+
+    @_accounts = remainingAccounts
     @_save()
 
-    if @_accounts.length is 0
+    if remainingAccounts.length is 0
       ipc = require('electron').ipcRenderer
       ipc.send('command', 'application:reset-config-and-relaunch')
-    else
-      Actions.focusDefaultMailboxPerspectiveForAccounts(@_accounts)
 
   _onReorderAccount: (id, newIdx) =>
     existingIdx = _.findIndex @_accounts, (a) -> a.id is id
@@ -171,7 +174,6 @@ class AccountStore extends NylasStore
       account.fromJSON(json)
 
     @_save()
-    Actions.focusDefaultMailboxPerspectiveForAccounts([account.id])
 
   refreshHealthOfAccounts: (accountIds) =>
     NylasAPI ?= require '../nylas-api'
