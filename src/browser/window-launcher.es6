@@ -90,7 +90,9 @@ export default class WindowLauncher {
   // events.  This is necessary for the app to quit promptly on Linux.
   // https://phab.nylas.com/T1282
   cleanupBeforeAppQuit() {
-    this.hotWindow.browserWindow.destroy()
+    if (this.hotWindow != null) {
+      this.hotWindow.browserWindow.destroy()
+    }
     this.hotWindow = null
   }
 
