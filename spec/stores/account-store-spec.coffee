@@ -122,7 +122,6 @@ describe "AccountStore", ->
         "organization_unit": "label"
       @instance = new @constructor
       spyOn(NylasEnv.config, "set")
-      spyOn(Actions, 'focusDefaultMailboxPerspectiveForAccounts')
       spyOn(@instance, "trigger")
       @instance.addAccountFromJSON(@json)
 
@@ -138,9 +137,6 @@ describe "AccountStore", ->
       expect(NylasEnv.config.set.calls[0].args).toEqual(['nylas.accountTokens', null])
       # Version must be updated last since it will trigger other windows to load nylas.accounts
       expect(NylasEnv.config.set.calls[2].args).toEqual(['nylas.accountsVersion', 1])
-
-    it "selects the account", ->
-      expect(Actions.focusDefaultMailboxPerspectiveForAccounts).toHaveBeenCalledWith(["B"])
 
     it "triggers", ->
       expect(@instance.trigger).toHaveBeenCalled()
