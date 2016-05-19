@@ -104,6 +104,7 @@ class NylasExports
   @lazyLoadAndRegisterTask "SyncbackMetadataTask", 'syncback-metadata-task'
   @lazyLoadAndRegisterTask "SyncbackDraftFilesTask", 'syncback-draft-files-task'
   @lazyLoadAndRegisterTask "ReprocessMailRulesTask", 'reprocess-mail-rules-task'
+  @lazyLoadAndRegisterTask "NotifyPluginsOfSendTask", 'notify-plugins-of-send-task'
 
   # Stores
   # These need to be required immediately since some Stores are
