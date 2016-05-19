@@ -335,7 +335,11 @@ export default class ComposerView extends React.Component {
   _renderActionsRegion() {
     return (
       <div className="composer-action-bar-content">
-        <ActionBarPlugins draft={this.props.draft} session={this.props.session} />
+        <ActionBarPlugins
+          draft={this.props.draft}
+          session={this.props.session}
+          isValidDraft={this._isValidDraft}
+        />
 
         <button
           tabIndex={-1}

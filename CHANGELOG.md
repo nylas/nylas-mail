@@ -6,6 +6,8 @@
   + `Config.json` is no longer mangled at launch in some scenarios, which caused
     the app to log you out. JSON parsing errors are also handled more gracefully.
   + Clicking "Propose Times" in a composer window no longer crashes N1.
+  + When using Mail Merge, N1 still warns you about missing body, subject line, etc.
+  + "Sending in X minutes" is no longer displayed for Snooze / Send Later dates in the past.
   + Message indexes are now created properly, resolving issues where incorrect drafts
     could be synced or sent in some scenarios.
   + On Windows, installing the update no longer displays a dialog "`app-0.4.X` is a folder."
