@@ -132,9 +132,11 @@ export default class WindowManager {
   }
 
   destroyAllWindows() {
+    this.windowLauncher.cleanupBeforeAppQuit();
     for (const windowKey of Object.keys(this._windows)) {
       this._windows[windowKey].browserWindow.destroy();
     }
+    this._windows = {}
   }
 
   cleanupBeforeAppQuit() {
