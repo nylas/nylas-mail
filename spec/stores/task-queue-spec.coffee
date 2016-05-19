@@ -2,19 +2,18 @@ Actions = require '../../src/flux/actions'
 DatabaseStore = require '../../src/flux/stores/database-store'
 TaskQueue = require '../../src/flux/stores/task-queue'
 Task = require('../../src/flux/tasks/task').default
+TaskRegistry = require('../../src/task-registry').default
 
 {APIError,
  TimeoutError} = require '../../src/flux/errors'
 
-{
-  TaskSubclassA,
-  TaskSubclassB,
-  KillsTaskA,
-  BlockedByTaskA,
-  BlockingTask,
-  TaskAA,
-  TaskBB,
-} = require('./task-subclass')
+{TaskSubclassA,
+ TaskSubclassB,
+ KillsTaskA,
+ BlockedByTaskA,
+ BlockingTask,
+ TaskAA,
+ TaskBB} = require('./task-subclass')
 
 describe "TaskQueue", ->
 
@@ -31,6 +30,7 @@ describe "TaskQueue", ->
     task
 
   beforeEach ->
+    spyOn(TaskRegistry, 'isInRegistry').andReturn(true)
     @task              = new Task()
     @unstartedTask     = makeUnstartedTask(new Task())
     @processingTask    = makeProcessing(new Task())
