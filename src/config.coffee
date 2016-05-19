@@ -9,7 +9,7 @@ Color = require './color'
 
 if process.type is 'renderer'
   app = remote.getGlobal('application')
-  webContentsId = remote.getCurrentWebContents().id
+  webContentsId = remote.getCurrentWebContents().getId()
 else
   app = global.application
   webContentsId = null
