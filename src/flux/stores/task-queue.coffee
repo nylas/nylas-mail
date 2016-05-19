@@ -6,6 +6,7 @@ path = require 'path'
 CoffeeHelpers = require '../coffee-helpers'
 
 Task = require("../tasks/task").default
+TaskRegistry = require('../../task-registry').default
 Utils = require "../models/utils"
 Reflux = require 'reflux'
 Actions = require '../actions'
@@ -112,6 +113,8 @@ class TaskQueue
   enqueue: (task) =>
     if not (task instanceof Task)
       throw new Error("You must queue a `Task` instance")
+    if not (TaskRegistry.isInRegistry(task.constructor.name))
+      throw new Error("You must queue a `Task` instance which is registred with the TaskRegistry")
     if not task.id
       throw new Error("Tasks must have an ID prior to being queued. Check that your Task constructor is calling `super`")
     if not task.queueState
@@ -296,6 +299,11 @@ class TaskQueue
         task.queueState.isProcessing = false
         delete task.queueState['retryAfter']
         delete task.queueState['retryDelay']
+
+      # The Task queue is completely wrecked if an item in the queue is not a
+      # task instance. This can happen if we removed or renamed the Task class,
+      # or if it was not registred with the TaskRegistry properly.
+      queue = queue.filter (task) => task instanceof Task
 
       @_queue = queue
       @_updateSoon()

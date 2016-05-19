@@ -446,6 +446,9 @@ class Actions
   @createTemplate: ActionScopeWindow
   @showTemplates: ActionScopeWindow
 
+  # Account Sidebar
+  @setCollapsedSidebarItem: ActionScopeWindow
+
   ###
   Public: Remove a file from a draft.
 

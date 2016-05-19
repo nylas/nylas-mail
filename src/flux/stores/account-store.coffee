@@ -41,7 +41,12 @@ class AccountStore extends NylasStore
       newAccountIds = _.difference(newAccountIds, oldAccountIds)
 
       if newAccountIds.length > 0
-        Actions.focusDefaultMailboxPerspectiveForAccounts([newAccountIds[0]])
+        newId = newAccountIds[0]
+        CategoryStore = require './category-store'
+        CategoryStore.whenCategoriesReady(newId).then =>
+          # TODO this Action is a hack, get rid of it in sidebar refactor
+          Actions.setCollapsedSidebarItem('Inbox', false)
+          Actions.focusDefaultMailboxPerspectiveForAccounts([newAccountIds[0]])
 
   _loadAccounts: =>
     try
@@ -134,6 +139,7 @@ class AccountStore extends NylasStore
 
     remainingAccounts = _.without(@_accounts, account)
     if remainingAccounts.length > 0
+      Actions.setCollapsedSidebarItem('Inbox', true)
       Actions.focusDefaultMailboxPerspectiveForAccounts(remainingAccounts)
 
     @_accounts = remainingAccounts
