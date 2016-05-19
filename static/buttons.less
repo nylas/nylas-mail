@@ -99,6 +99,14 @@ body.platform-win32 {
     img.content-mask { background-color:@btn-action-text-color; }
   }
 
+  &.btn-disabled {
+    color:      fadeout(@btn-default-text-color, 40%);
+    background: fadeout(@btn-default-bg-color, 15%);
+    &:active {
+      background: fadeout(@btn-default-bg-color, 15%);
+    }
+  }
+
   &.btn-emphasis {
     position: relative;
     color: @btn-emphasis-text-color;
@@ -109,6 +117,10 @@ body.platform-win32 {
     background: linear-gradient(to bottom, #6bb1f9 0%, #0a80ff 100%);
     box-shadow: none;
     border: 1px solid darken(@btn-emphasis-bg-color, 7%);
+
+    &.btn-disabled {
+      opacity: 0.4;
+    }
 
     &:before {
       content: ' ';
@@ -148,13 +160,6 @@ body.platform-win32 {
 }
 .btn-gradient:active {
   background: -webkit-gradient(linear, left top, left bottom, from(darken(@btn-default-bg-color, 9%)), to(darken(@btn-default-bg-color, 13.5%)));
-}
-.btn-disabled {
-  color:      fadeout(@btn-default-text-color, 40%);
-  background: fadeout(@btn-default-bg-color, 15%);
-  &:active {
-    background: fadeout(@btn-default-bg-color, 15%);
-  }
 }
 
 .btn-icon {
