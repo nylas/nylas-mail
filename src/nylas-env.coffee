@@ -193,6 +193,8 @@ class NylasEnvConstructor
     @packages.onDidActivateInitialPackages => @watchThemes()
     @windowEventHandler = new WindowEventHandler()
 
+    @perf = remote.getGlobal('application').perf
+
     unless @inSpecMode()
       @actionBridge = new ActionBridge(ipcRenderer)
 
@@ -681,8 +683,19 @@ class NylasEnvConstructor
   startSecondaryWindow: ->
     document.getElementById("application-loading-cover")?.remove()
     @startWindow()
+    @initializeBasicSheet()
     ipcRenderer.on("load-settings-changed", @populateHotWindow)
     ipcRenderer.send('window-command', 'window:loaded')
+
+  # We setup the initial Sheet for hot windows. This is the default title
+  # bar, stoplights, etc. This saves ~100ms when populating the hot
+  # windows.
+  initializeBasicSheet: ->
+    WorkspaceStore = require('../src/flux/stores/workspace-store')
+    if not WorkspaceStore.Sheet.Main
+      WorkspaceStore.defineSheet('Main', {root: true}, {
+        popout: ['Center'],
+      })
 
   showMainWindow: ->
     document.getElementById("application-loading-cover").remove()
@@ -697,6 +710,8 @@ class NylasEnvConstructor
   # This also means that the windowType has changed and a different set of
   # plugins needs to be loaded.
   populateHotWindow: (event, loadSettings) =>
+    if /composer/.test(loadSettings.windowType)
+      NylasEnv.perf.split("Popout Draft")
     @loadSettings = loadSettings
     @constructor.loadSettings = loadSettings
 

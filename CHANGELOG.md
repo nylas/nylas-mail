@@ -1,5 +1,27 @@
 # N1 Changelog
 
+### 0.4.40 (5/19/16)
+
+- Fixes:
+  + `Config.json` is no longer mangled at launch in some scenarios, which caused
+    the app to log you out. JSON parsing errors are also handled more gracefully.
+  + Clicking "Propose Times" in a composer window no longer crashes N1.
+  + Message indexes are now created properly, resolving issues where incorrect drafts
+    could be synced or sent in some scenarios.
+  + On Windows, installing the update no longer displays a dialog "`app-0.4.X` is a folder."
+  + Undoing and then redoing many operations now works as expected.
+  + When removing accounts, N1 focuses the remaining accounts properly.
+  + The templates
+  + N1 no longer fails to quit in some scenarios.
+  + N1 is now ~60MB smaller and launches faster thanks to proper precompiling of assets.
+  + Spellcheck now runs faster.
+
+- Development:
+  + When installing third party plugins, we now use the `name` from your package.json
+    rather than the folder name, resolving an issue where plugins would be installed
+    as `my-plugin-master` when downloaded from GitHub.
+
+
 ### 0.4.37 (5/15/16)
 
 - Features:

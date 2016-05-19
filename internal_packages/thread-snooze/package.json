@@ -9,7 +9,7 @@
 
   "title": "Thread Snooze",
   "description": "Snooze mail!",
-  "main": "lib/main.js",
+  "main": "lib/main",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

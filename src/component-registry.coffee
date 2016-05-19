@@ -170,9 +170,9 @@ class ComponentRegistry
   # high-level components (like the <Sheet />) listen and re-render when
   # this triggers.
   #
-  # We set the debouce interval to 2 "frames" (33ms) to balance
+  # We set the debouce interval to 1 "frame" (16ms) to balance
   # responsiveness and efficient batching.
-  triggerDebounced: _.debounce(( -> @trigger(@)), 33)
+  triggerDebounced: _.debounce(( -> @trigger(@)), 16)
 
   _removeDeprecatedRoles: (displayName, roles) ->
     newRoles = _.clone(roles)

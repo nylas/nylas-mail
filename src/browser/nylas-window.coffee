@@ -148,8 +148,7 @@ class NylasWindow
     #
     # This uses the DOM's `beforeunload` event.
     @browserWindow.on 'close', (event) =>
-      if @neverClose and !global.application.quitting
-
+      if @neverClose and !global.application.isQuitting()
         # For neverClose windows (like the main window) simply hide and
         # take out of full screen.
         event.preventDefault()

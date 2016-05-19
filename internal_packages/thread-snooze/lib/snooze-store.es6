@@ -9,6 +9,7 @@ class SnoozeStore {
   constructor(pluginId = PLUGIN_ID, pluginName = PLUGIN_NAME) {
     this.pluginId = pluginId
     this.pluginName = pluginName
+    this.accountIds = _.pluck(AccountStore.accounts(), 'id')
     this.snoozeCategoriesPromise = SnoozeUtils.getSnoozeCategoriesByAccount(AccountStore.accounts())
   }
 
@@ -53,7 +54,15 @@ class SnoozeStore {
   };
 
   onAccountsChanged = () => {
-    this.snoozeCategoriesPromise = SnoozeUtils.getSnoozeCategoriesByAccount(AccountStore.accounts())
+    const nextIds = _.pluck(AccountStore.accounts(), 'id')
+    const isSameAccountIds = (
+      this.accountIds.length === nextIds.length &&
+      this.accountIds.length === _.intersection(this.accountIds, nextIds).length
+    )
+    if (!isSameAccountIds) {
+      this.accountIds = nextIds
+      this.snoozeCategoriesPromise = SnoozeUtils.getSnoozeCategoriesByAccount(AccountStore.accounts())
+    }
   };
 
   onSnoozeThreads = (threads, snoozeDate, label) => {

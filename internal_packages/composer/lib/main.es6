@@ -44,6 +44,10 @@ class ComposerWithWindowProps extends React.Component {
 
   _onDraftReady = () => {
     this.refs.composer.focus().then(() => {
+      const totalTime = NylasEnv.perf.stop("Popout Draft");
+      if (!NylasEnv.inDevMode() && !NylasEnv.inSpecMode()) {
+        Actions.recordUserEvent("Popout Composer Time", {totalTime})
+      }
       NylasEnv.displayWindow();
 
       if (this.state.errorMessage) {
@@ -93,36 +97,28 @@ class ComposerWithWindowProps extends React.Component {
 }
 
 export function activate() {
-  // Register our composer as the window-wide Composer
-  ComponentRegistry.register(ComposerViewForDraftClientId, {
-    role: 'Composer',
-  });
-
   if (NylasEnv.isMainWindow()) {
+    ComponentRegistry.register(ComposerViewForDraftClientId, {
+      role: 'Composer',
+    });
     ComponentRegistry.register(ComposeButton, {
       location: WorkspaceStore.Location.RootSidebar.Toolbar,
     });
-  }
-
-  NylasEnv.getCurrentWindow().setMinimumSize(480, 250);
-
-  const silent = !NylasEnv.isMainWindow()
-  WorkspaceStore.defineSheet('Main', {root: true, silent}, {
-    popout: ['Center'],
-  });
-  ComponentRegistry.register(ComposerWithWindowProps, {
-    location: WorkspaceStore.Location.Center,
-  });
-
-  if (silent) {
-    Actions.selectRootSheet(WorkspaceStore.Sheet.Main)
+  } else {
+    NylasEnv.getCurrentWindow().setMinimumSize(480, 250);
+    ComponentRegistry.register(ComposerWithWindowProps, {
+      location: WorkspaceStore.Location.Center,
+    });
   }
 }
 
 export function deactivate() {
-  ComponentRegistry.unregister(ComposerViewForDraftClientId);
-  ComponentRegistry.unregister(ComposeButton);
-  ComponentRegistry.unregister(ComposerWithWindowProps);
+  if (NylasEnv.isMainWindow()) {
+    ComponentRegistry.unregister(ComposerViewForDraftClientId);
+    ComponentRegistry.unregister(ComposeButton);
+  } else {
+    ComponentRegistry.unregister(ComposerWithWindowProps);
+  }
 }
 
 export function serialize() {

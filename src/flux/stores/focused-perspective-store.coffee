@@ -64,7 +64,7 @@ class FocusedPerspectiveStore extends NylasStore
 
   _onFocusAccounts: (accountsOrIds) =>
     return unless accountsOrIds
-    @_setPerspective(MailboxPerspective.forInbox(accountsOrIds))
+    @_setPerspective(@_defaultPerspective(accountsOrIds))
 
   _defaultPerspective: (accounts = AccountStore.accounts()) ->
     return MailboxPerspective.forNothing() unless accounts.length > 0

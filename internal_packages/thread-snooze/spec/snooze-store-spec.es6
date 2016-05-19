@@ -77,6 +77,57 @@ describe('SnoozeStore', function snoozeStore() {
     });
   });
 
+  describe('onAccountsChanged', () => {
+    it('updates categories promise if an account has been added', () => {
+      const nextAccounts = [
+        {id: 'ac1'},
+        {id: 'ac2'},
+        {id: 'ac3'},
+      ]
+      this.store.accountIds = ['ac1', 'ac2']
+      spyOn(SnoozeUtils, 'getSnoozeCategoriesByAccount')
+      spyOn(AccountStore, 'accounts').andReturn(nextAccounts)
+      this.store.onAccountsChanged()
+      expect(SnoozeUtils.getSnoozeCategoriesByAccount).toHaveBeenCalledWith(nextAccounts)
+    });
+
+    it('updates categories promise if an account has been removed', () => {
+      const nextAccounts = [
+        {id: 'ac1'},
+        {id: 'ac3'},
+      ]
+      this.store.accountIds = ['ac1', 'ac2', 'ac3']
+      spyOn(SnoozeUtils, 'getSnoozeCategoriesByAccount')
+      spyOn(AccountStore, 'accounts').andReturn(nextAccounts)
+      this.store.onAccountsChanged()
+      expect(SnoozeUtils.getSnoozeCategoriesByAccount).toHaveBeenCalledWith(nextAccounts)
+    });
+
+    it('updates categories promise if an account is added and another removed', () => {
+      const nextAccounts = [
+        {id: 'ac1'},
+        {id: 'ac3'},
+      ]
+      this.store.accountIds = ['ac1', 'ac2']
+      spyOn(SnoozeUtils, 'getSnoozeCategoriesByAccount')
+      spyOn(AccountStore, 'accounts').andReturn(nextAccounts)
+      this.store.onAccountsChanged()
+      expect(SnoozeUtils.getSnoozeCategoriesByAccount).toHaveBeenCalledWith(nextAccounts)
+    });
+
+    it('does not update categories promise if accounts have not changed', () => {
+      const nextAccounts = [
+        {id: 'ac1'},
+        {id: 'ac2'},
+      ]
+      this.store.accountIds = ['ac1', 'ac2']
+      spyOn(SnoozeUtils, 'getSnoozeCategoriesByAccount')
+      spyOn(AccountStore, 'accounts').andReturn(nextAccounts)
+      this.store.onAccountsChanged()
+      expect(SnoozeUtils.getSnoozeCategoriesByAccount).not.toHaveBeenCalled()
+    });
+  });
+
   describe('onSnoozeThreads', () => {
     it('auths plugin against all present accounts', () => {
       waitsForPromise(() => {
