@@ -13,7 +13,6 @@
   + On Windows, installing the update no longer displays a dialog "`app-0.4.X` is a folder."
   + Undoing and then redoing many operations now works as expected.
   + When removing accounts, N1 focuses the remaining accounts properly.
-  + The templates
   + N1 no longer fails to quit in some scenarios.
   + N1 is now ~60MB smaller and launches faster thanks to proper precompiling of assets.
   + Spellcheck now runs faster.
