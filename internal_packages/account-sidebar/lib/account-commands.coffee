@@ -6,6 +6,7 @@ SidebarActions = require './sidebar-actions'
 class AccountCommands
 
   @_focusAccounts: (accounts) ->
+    NylasEnv.savedState.shouldRefocusSidebarAccounts = true
     SidebarActions.focusAccounts(accounts)
     NylasEnv.show() unless NylasEnv.isVisible()
 

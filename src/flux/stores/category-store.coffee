@@ -86,7 +86,7 @@ class CategoryStore extends NylasStore
         res = res.concat(_.compact(cats))
       res
     else
-      names.map((name) => @getStandardCategory(accountsOrIds, name))
+      _.compact(names.map((name) => @getStandardCategory(accountsOrIds, name)))
 
   # Public: Returns the Folder or Label object that should be used for "Archive"
   # actions. On Gmail, this is the "all" label. On providers using folders, it

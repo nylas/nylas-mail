@@ -1,5 +1,5 @@
-NylasStore = require 'nylas-store'
 _ = require 'underscore'
+NylasStore = require 'nylas-store'
 {Actions,
  AccountStore,
  ThreadCountsStore,
@@ -46,8 +46,9 @@ class SidebarStore extends NylasStore
     @_sections[Sections.User]
 
   _registerListeners: ->
+    @listenTo Actions.setCollapsedSidebarItem, @_onSetCollapsedByName
+    @listenTo SidebarActions.setKeyCollapsed, @_onSetCollapsedByKey
     @listenTo SidebarActions.focusAccounts, @_onAccountsFocused
-    @listenTo SidebarActions.setKeyCollapsed, @_onSetCollapsed
     @listenTo AccountStore, @_onAccountsChanged
     @listenTo FocusedPerspectiveStore, @_onFocusedPerspectiveChanged
     @listenTo WorkspaceStore, @_updateSections
@@ -62,9 +63,20 @@ class SidebarStore extends NylasStore
 
     return
 
-  _onSetCollapsed: (key, collapsed) =>
-    NylasEnv.savedState.sidebarKeysCollapsed[key] = collapsed
-    @_updateSections()
+  _onSetCollapsedByKey: (itemKey, collapsed) =>
+    currentValue = NylasEnv.savedState.sidebarKeysCollapsed[itemKey]
+    if currentValue isnt collapsed
+      NylasEnv.savedState.sidebarKeysCollapsed[itemKey] = collapsed
+      @_updateSections()
+
+  _onSetCollapsedByName: (itemName, collapsed) =>
+    item = _.findWhere(@standardSection().items, {name: itemName})
+    if not item
+      for section in @userSections()
+        item = _.findWhere(section.items, {name: itemName})
+        break if item
+    return unless item
+    @_onSetCollapsedByKey(item.id, collapsed)
 
   _registerCommands: (accounts = AccountStore.accounts()) =>
     AccountCommands.registerCommands(accounts)
