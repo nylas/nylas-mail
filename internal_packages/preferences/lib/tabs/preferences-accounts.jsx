@@ -1,7 +1,7 @@
+import _ from 'underscore';
 import React from 'react';
 import {ipcRenderer} from 'electron';
 import {AccountStore, Actions} from 'nylas-exports';
-
 import PreferencesAccountList from './preferences-account-list';
 import PreferencesAccountDetails from './preferences-account-details';
 
@@ -13,7 +13,6 @@ class PreferencesAccounts extends React.Component {
   constructor() {
     super();
     this.state = this.getStateFromStores();
-    this.state.selected = this.state.accounts[0];
   }
 
   componentDidMount() {
@@ -24,12 +23,16 @@ class PreferencesAccounts extends React.Component {
     this.unsubscribe();
   }
 
-  getStateFromStores() {
-    return {accounts: AccountStore.accounts()};
+  getStateFromStores({selected} = {}) {
+    const accounts = AccountStore.accounts()
+    return {
+      accounts,
+      selected: selected ? _.findWhere(accounts, {id: selected.id}) : accounts[0],
+    };
   }
 
   _onAccountsChanged = () => {
-    this.setState(this.getStateFromStores());
+    this.setState(this.getStateFromStores(this.state));
   }
 
   // Update account list actions

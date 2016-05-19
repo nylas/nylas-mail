@@ -236,7 +236,7 @@ describe "TaskQueue", ->
         TaskQueue._processTask(task)
         advanceClock()
         expect(task.queueState.retryAfter).toBeDefined()
-        expect(task.queueState.retryDelay).toEqual(1000 * 1.2)
+        expect(task.queueState.retryDelay).toEqual(1000 * 2)
 
       it "increases retryDelay", ->
         task = @retryTaskWith({retryAfter: Date.now() - 1000, retryDelay: 2000})
@@ -244,7 +244,7 @@ describe "TaskQueue", ->
         TaskQueue._processTask(task)
         advanceClock()
         expect(task.queueState.retryAfter).toBeDefined()
-        expect(task.queueState.retryDelay).toEqual(2000 * 1.2)
+        expect(task.queueState.retryDelay).toEqual(2000 * 2)
 
       it "caps retryDelay", ->
         task = @retryTaskWith({retryAfter: Date.now() - 1000, retryDelay: 30000})

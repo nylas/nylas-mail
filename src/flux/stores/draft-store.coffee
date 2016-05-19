@@ -263,6 +263,7 @@ class DraftStore
     @_draftSessions[clientId] = new DraftEditingSession(clientId, draft)
 
   _onPopoutBlankDraft: =>
+    NylasEnv.perf.start("Popout Draft")
     DraftFactory.createDraft().then (draft) =>
       @_finalizeAndPersistNewMessage(draft).then ({draftClientId}) =>
         @_onPopoutDraftClientId(draftClientId, {newDraft: true})
@@ -270,6 +271,7 @@ class DraftStore
   _onPopoutDraftClientId: (draftClientId, options = {}) =>
     if not draftClientId?
       throw new Error("DraftStore::onPopoutDraftId - You must provide a draftClientId")
+    NylasEnv.perf.start("Popout Draft")
 
     draftJSON = null
     save = Promise.resolve()

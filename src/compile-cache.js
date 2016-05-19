@@ -102,8 +102,10 @@ function readCachedJavascript (relativeCachePath) {
 }
 
 function writeCachedJavascript (relativeCachePath, code) {
+  var cacheTmpPath = path.join(cacheDirectory, relativeCachePath + '.' + process.pid)
   var cachePath = path.join(cacheDirectory, relativeCachePath)
-  fs.writeFileSync(cachePath, code, 'utf8')
+  fs.writeFileSync(cacheTmpPath, code, 'utf8')
+  fs.renameSync(cacheTmpPath, cachePath)
 }
 
 function addSourceURL (jsCode, filePath) {

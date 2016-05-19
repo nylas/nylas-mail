@@ -78,7 +78,6 @@
 3271782: src/database-object-registry.js
 2228693: src/browser/auto-update-manager.js
 2235663: src/browser/nylas-protocol-handler.js
-2237578: src/browser/shared-file-manager.js
 2396007: node_modules/season/package.json
 2397840: node_modules/season/lib/cson.js
 2238228: src/config.js

@@ -175,19 +175,16 @@ export default class Message extends ModelWithMetadata {
     return Message.attributes.date.ascending()
   }
 
-  static additionalSQLiteConfig() {
-    return {
-      setup: () =>
-        [
-          `CREATE INDEX IF NOT EXISTS MessageListThreadIndex ON Message(thread_id, date ASC)`,
-          `CREATE UNIQUE INDEX IF NOT EXISTS MessageDraftIndex ON Message(client_id)`,
-          `CREATE INDEX IF NOT EXISTS MessageListDraftIndex ON \
+  static additionalSQLiteConfig = {
+    setup: () => [
+      `CREATE INDEX IF NOT EXISTS MessageListThreadIndex ON Message(thread_id, date ASC)`,
+      `CREATE UNIQUE INDEX IF NOT EXISTS MessageDraftIndex ON Message(client_id)`,
+      `CREATE INDEX IF NOT EXISTS MessageListDraftIndex ON \
 Message(account_id, date DESC) WHERE draft = 1`,
-          `CREATE INDEX IF NOT EXISTS MessageListUnifiedDraftIndex ON \
+      `CREATE INDEX IF NOT EXISTS MessageListUnifiedDraftIndex ON \
 Message(date DESC) WHERE draft = 1`,
-          `CREATE UNIQUE INDEX IF NOT EXISTS MessageBodyIndex ON MessageBody(id)`,
-        ],
-    }
+      `CREATE UNIQUE INDEX IF NOT EXISTS MessageBodyIndex ON MessageBody(id)`,
+    ],
   }
 
   constructor(args) {
