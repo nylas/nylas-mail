@@ -149,6 +149,10 @@ const DateUtils = {
     if (!date) {
       return null
     }
+    const inThePast = date.valueOf() < Date.now()
+    if (inThePast) {
+      return null
+    }
     return moment(date)
   },
 };
