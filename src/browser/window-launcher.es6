@@ -45,8 +45,12 @@ export default class WindowLauncher {
     if (this._mustUseColdWindow(opts)) {
       win = new NylasWindow(opts)
     } else {
-      win = this.hotWindow;
-      this.createHotWindow();
+      // Check if the hot window has been deleted. This may happen when we are
+      // relaunching the app
+      if (!this.hotWindow) {
+        this.createHotWindow()
+      }
+      win = this.hotWindow
 
       const newLoadSettings = Object.assign({}, win.loadSettings(), opts)
       if (newLoadSettings.windowType === WindowLauncher.EMPTY_WINDOW) {
@@ -69,6 +73,10 @@ export default class WindowLauncher {
       // hide based on the windowOpts
       win.showWhenLoaded()
     }
+
+    // Create a new hot window to keep in store for the next time we call
+    // newWindow()
+    this.createHotWindow();
     return win
   }
 
@@ -86,6 +94,7 @@ export default class WindowLauncher {
   // https://phab.nylas.com/T1282
   cleanupBeforeAppQuit() {
     this.hotWindow.browserWindow.destroy()
+    this.hotWindow = null
   }
 
   // Some properties, like the `frame` or `toolbar` can't be updated once
