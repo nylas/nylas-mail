@@ -23,12 +23,12 @@ export default class ConfigPersistenceManager {
   initializeConfigDirectory() {
     if (!fs.existsSync(this.configDirPath)) {
       fs.makeTreeSync(this.configDirPath);
-      const templateConfigDirPath = fs.resolve(this.resourcePath, 'dot-nylas');
+      const templateConfigDirPath = path.join(this.resourcePath, 'dot-nylas');
       fs.copySync(templateConfigDirPath, this.configDirPath);
     }
 
     if (!fs.existsSync(this.configFilePath)) {
-      const templateConfigPath = fs.resolve(this.resourcePath, 'dot-nylas', 'config.json');
+      const templateConfigPath = path.join(this.resourcePath, 'dot-nylas', 'config.json');
       const templateConfig = fs.readFileSync(templateConfigPath);
       fs.writeFileSync(this.configFilePath, templateConfig);
     }
