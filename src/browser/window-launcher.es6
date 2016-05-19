@@ -50,7 +50,8 @@ export default class WindowLauncher {
       if (!this.hotWindow) {
         this.createHotWindow()
       }
-      win = this.hotWindow
+      win = this.hotWindow;
+      this.createHotWindow();
 
       const newLoadSettings = Object.assign({}, win.loadSettings(), opts)
       if (newLoadSettings.windowType === WindowLauncher.EMPTY_WINDOW) {
@@ -73,10 +74,6 @@ export default class WindowLauncher {
       // hide based on the windowOpts
       win.showWhenLoaded()
     }
-
-    // Create a new hot window to keep in store for the next time we call
-    // newWindow()
-    this.createHotWindow();
     return win
   }
 
