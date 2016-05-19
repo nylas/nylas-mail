@@ -2,7 +2,7 @@ _ = require 'underscore'
 fs = require('fs-plus')
 path = require('path')
 moment = require('moment-timezone')
-tz = Intl.DateTimeFormat().resolvedOptions().timeZone
+tz = Intl.DateTimeFormat().resolvedOptions().timeZone ? moment.tz.guess()
 
 DefaultResourcePath = null
 TaskRegistry = require('../../task-registry').default
