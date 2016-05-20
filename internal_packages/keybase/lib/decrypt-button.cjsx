@@ -36,7 +36,7 @@ class DecryptMessageButton extends React.Component
   render: =>
     # TODO inform user of errors/etc. instead of failing without showing it
     if not (@state.wasEncrypted or @state.encryptedAttachments.length > 0)
-      return
+      return false
 
     decryptBody = false
     if !@state.isDecrypted

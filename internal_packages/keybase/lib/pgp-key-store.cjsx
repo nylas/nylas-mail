@@ -305,14 +305,18 @@ class PGPKeyStore extends NylasStore
 
   fetchEncryptedAttachments: (message) ->
     encrypted = _.map(message.files, (file) =>
-      tokenized = file.filename.split('.')
-      extension = tokenized[tokenized.length - 1]
-      if extension == "asc" or extension == "pgp"
-        # something.asc or something.pgp -> assume encrypted attachment
-        return file
+      # calendars don't have filenames
+      if file.filename?
+        tokenized = file.filename.split('.')
+        extension = tokenized[tokenized.length - 1]
+        if extension == "asc" or extension == "pgp"
+          # something.asc or something.pgp -> assume encrypted attachment
+          return file
+        else
+          return null
       else
         return null
-    )
+      )
     # NOTE for now we don't verify that the .asc/.pgp files actually have a PGP
     # block inside
 

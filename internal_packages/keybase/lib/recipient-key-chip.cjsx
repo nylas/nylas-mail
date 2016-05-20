@@ -43,6 +43,7 @@ class RecipientKeyChip extends React.Component
     if @state.keys
       <div className="n1-keybase-recipient-key-chip">
         <RetinaImg url="nylas://keybase/key-present@2x.png" mode={RetinaImg.Mode.ContentPreserve} ref="keyIcon" />
+        <span> </span>
       </div>
     else
       <div className="n1-keybase-recipient-key-chip">
