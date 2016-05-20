@@ -3,6 +3,7 @@ PGPKeyStore = require './pgp-key-store'
 Identity = require './identity'
 ModalKeyRecommender = require './modal-key-recommender'
 {RetinaImg} = require 'nylas-component-kit'
+{remote} = require 'electron'
 pgp = require 'kbpgp'
 _ = require 'underscore'
 
@@ -119,9 +120,13 @@ class EncryptMessageButton extends React.Component
 
   _encrypt: (text, identities, cb) =>
     # get the actual key objects
-    kms = _.pluck(identities, "key")
+    keys = _.pluck(identities, "key")
     # remove the nulls
-    kms = _.compact(kms)
+    kms = _.compact(keys)
+    if kms.length == 0
+      NylasEnv.showErrorDialog("There are no PGP public keys loaded, so the message cannot be
+       encrypted. Compose a message, add recipients in the To: field, and try again.")
+      return
     params =
       encrypt_for: kms
       msg: text
@@ -140,12 +145,13 @@ class EncryptMessageButton extends React.Component
     else
       # open a popover to correct null keys
       DatabaseStore.findAll(Contact, {email: emails}).then((contacts) =>
-        component = (<ModalKeyRecommender contacts={contacts} callback={ => @_encrypt(text, identities, cb) }/>)
+        component = (<ModalKeyRecommender contacts={contacts} callback={ (newIdentities) => @_encrypt(text, newIdentities, cb) }/>)
         Actions.openPopover(
           component,
         {
           originRect: ReactDOM.findDOMNode(@).getBoundingClientRect(),
           direction: 'up',
+          closeOnAppBlur: false,
         })
       )
 

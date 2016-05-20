@@ -62,12 +62,19 @@
   }
 
   .details {
-    flex: 1;
     margin-left: 10px;
+    flex: 1;
   }
 
   button {
     margin: 10px;
+    white-space: nowrap;
+    display: inline-block;
+    float: right;
+  }
+
+  keybase-participant-field {
+    float: right;
   }
 
   ul {
@@ -75,8 +82,10 @@
   }
 
   .email-list {
-    flex: 1;
     padding-left: 10px;
+    word-break: break-all;
+    flex-grow: 3;
+    text-align: right;
   }
 }
 
@@ -277,8 +286,8 @@
 }
 
 .key-picker-modal {
-  width: 500px;
-  height: 500px;
+  width: 400px;
+  height: 400px;
   display: flex;
   flex-direction: column;
 
@@ -286,23 +295,59 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-  }
+    margin-bottom: 0px;
+    margin-top: 10px;
 
-  .results {
-    overflow: scroll;
-    height: 100%;
+    .searchbar {
+      width: 380px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .loading {
+      right: 20px;
+    }
+
+    .results {
+      overflow: scroll;
+      height: 100%;
+      width: 100%;
+    }
   }
 
   .picker-controls {
-    margin-top: 10px;
+    width: 380px;
+    margin-top: 5px;
     margin-bottom: 10px;
     margin-left: auto;
     margin-right: auto;
+    display: flex;
+    flex-shrink: 0;
+    flex-direction: row;
+
+    .modal-back-button {
+      float: left;
+    }
+
+    .modal-prefs-button {
+      flex: 1;
+      margin: 0px 35px;
+    }
+
+    .modal-next-button {
+      float: right;
+    }
+  }
+
+  .keybase-profile-solo {
+    border: 1px solid @border-color-primary;
+    margin-top: 10px;
   }
 
   .picker-title {
     margin-top: 10px;
     margin-left: auto;
     margin-right: auto;
+    text-align: center;
   }
 }
