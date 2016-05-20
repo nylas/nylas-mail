@@ -12,9 +12,11 @@ class KeybaseUser extends React.Component
   @propTypes:
     profile: React.PropTypes.instanceOf(Identity).isRequired
     actionButton: React.PropTypes.node
+    displayEmailList: React.PropTypes.bool
 
   @defaultProps:
     actionButton: false
+    displayEmailList: true
 
   constructor: (props) ->
     super(props)
@@ -50,15 +52,6 @@ class KeybaseUser extends React.Component
     keybaseDetails = <div className="details"></div>
     if profile.keybase_profile?
       keybase = profile.keybase_profile
-      # username
-      username = keybase.components.username.val
-
-      # full name
-      if keybase.components.full_name?.val?
-        fullname = keybase.components.full_name.val
-      else
-        fullname = username
-        username = false
 
       # profile picture
       if keybase.thumbnail?
@@ -69,7 +62,23 @@ class KeybaseUser extends React.Component
         abv = "K"
         picture = <div className="default-profile-image" style={{backgroundColor: bgColor}}>{abv}</div>
 
-      # various web accounts/profiles
+      # full name
+      if keybase.components.full_name?.val?
+        fullname = keybase.components.full_name.val
+      else
+        fullname = username
+        username = false
+
+      # link to keybase profile
+      keybase_url = "keybase.io/#{keybase.components.username.val}"
+      if keybase_url.length > 25
+        keybase_string = keybase_url.slice(0, 23).concat('...')
+      else
+        keybase_string = keybase_url
+      username = <a href="https://#{keybase_url}">{keybase_string}</a>
+
+      # TODO: potentially display confirmation on keybase-user objects
+      ###
       possible_profiles = ["twitter", "github", "coinbase"]
       profiles = _.map(possible_profiles, (possible) =>
         if keybase.components[possible]?.val?
@@ -81,6 +90,7 @@ class KeybaseUser extends React.Component
       profiles =  _.map(profiles, (profile) ->
         return <span key={ profile.key }>{ profile } </span>)
       profileList = (<span>{ profiles }</span>)
+      ###
 
       keybaseDetails = (<div className="details">
         <div className="profile-name">
@@ -89,9 +99,9 @@ class KeybaseUser extends React.Component
         <div className="profile-username">
           { username }
         </div>
-        { profileList }
       </div>)
     else
+      # if no keybase profile, default image is based on email address
       hue = Utils.hueForString(@props.profile.addresses[0])
       bgColor = "hsl(#{hue}, 50%, 45%)"
       abv = @props.profile.addresses[0][0].toUpperCase()
@@ -118,6 +128,12 @@ class KeybaseUser extends React.Component
             <a ref="addEmail" onClick={ @_addEmailClick }>+ Add Email</a>
             </ul>)
 
+    emailListDiv = (<div className="email-list">
+        <ul>
+          { emailList }
+        </ul>
+      </div>)
+
     <div className="keybase-profile">
       <div className="profile-photo-wrap">
         <div className="profile-photo">
@@ -125,11 +141,6 @@ class KeybaseUser extends React.Component
         </div>
       </div>
       { keybaseDetails }
-      <div className="email-list">
-        <ul>
-          { emailList }
-        </ul>
-      </div>
-
+      {if @props.displayEmailList then emailListDiv}
       { @props.actionButton }
     </div>

@@ -35,6 +35,9 @@ class KeybaseSearch extends React.Component
   componentDidMount: ->
     @_search()
 
+  componentWillReceiveProps: (props) ->
+    @setState({query: props.initialSearch})
+
   _search: ->
     if @state.query != "" and @state.loading == false
       @setState({loading: true})
@@ -114,7 +117,7 @@ class KeybaseSearch extends React.Component
 
     <div className="keybase-search">
       <div className="searchbar">
-        <input type="text" value={ @state.query } placeholder="...or, search Keybase" ref="searchbar" onChange={@_queryChange} />
+        <input type="text" value={ @state.query } placeholder="Search for PGP public keys on Keybase" ref="searchbar" onChange={@_queryChange} />
       <div className="loading">{ loading }</div>
       </div>
 

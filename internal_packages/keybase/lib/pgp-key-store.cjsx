@@ -141,8 +141,8 @@ class PGPKeyStore extends NylasStore
 
   getKeybaseData: (identity) =>
     # Given a key, fetches metadata from keybase about that key
-    # TODO private keys need passphrases
-    if not identity.key? and not identity.isPriv
+    # TODO currently only works for public keys
+    if not identity.key? and not identity.isPriv and not identity.keybase_profile
       @getKeyContents(key: identity)
     else
       fingerprint = identity.fingerprint()

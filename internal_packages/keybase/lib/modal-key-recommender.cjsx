@@ -60,8 +60,19 @@ class ModalKeyRecommender extends React.Component
     # indexes from 0 because what kind of monster doesn't
 
   _onDone: =>
+    if @state.identities.length < @props.contacts.length
+      if !PGPKeyStore._displayDialog(
+        'Encrypt without keys for all recipients?',
+        'Some recipients are missing PGP public keys. They will not be able to decrypt this message.',
+        ['Encrypt', 'Cancel']
+      )
+        return
     Actions.closePopover()
-    @props.callback()
+    @props.callback(@state.identities)
+
+  _onManageKeys: =>
+    Actions.switchPreferencesTab('Encryption')
+    Actions.openPreferences()
 
   render: ->
     # dedupe the contacts, since we deal with addresses and not contacts
@@ -77,36 +88,62 @@ class ModalKeyRecommender extends React.Component
 
     if @state.currentContact == (uniqEmails.length - 1)
       # last one
-      backButton = <button onClick={ @_onPrev }>Back</button>
-      nextButton = <button onClick={ @_onDone }>Looks good!</button>
+      if uniqEmails.length == 1
+        # only one
+        backButton = false
+      else
+        backButton = <button className="btn modal-back-button" onClick={ @_onPrev }>Back</button>
+      nextButton = <button className="btn modal-next-button" onClick={ @_onDone }>Done</button>
     else if @state.currentContact == 0
       # first one
       backButton = false
-      nextButton = <button onClick={ @_onNext }>Next</button>
+      nextButton = <button className="btn modal-next-button" onClick={ @_onNext }>Next</button>
     else
       # somewhere in the middle
-      backButton = <button onClick={ @_onPrev }>Back</button>
-      nextButton = <button onClick={ @_onNext }>Next</button>
+      backButton = <button className="btn modal-back-button" onClick={ @_onPrev }>Back</button>
+      nextButton = <button className="btn modal-next-button" onClick={ @_onNext }>Next</button>
 
+    # TODO quickly hop between pages?
+    ###
     pages = uniqEmails.map((email, index) =>
       # TODO indicate if a key is loaded for each of the pages
       return <span onClick={ => @_setPage(index) }>({ index })</span>
       # TODO buttons here instead of terrible text
     )
+    ###
 
     if identity?
-      body = <KeybaseUser profile={ identity } />
+      deleteButton = (<button title="Delete Public" className="btn btn-toolbar btn-danger" onClick={ => PGPKeyStore.deleteKey(identity) } ref="button">
+        Delete Key
+      </button>
+      )
+      body = [
+        <div key="title" className="picker-title">This PGP public key has been saved for <br/><b>{ contact.toString() }.</b></div>
+        <div className="keybase-profile-solo">
+          <KeybaseUser key="keybase-user" profile={ identity }, displayEmailList={false}, actionButton={deleteButton}/>
+        </div>
+      ]
     else
       query = contact.fullName()
+      # don't search Keybase for emails, won't work anyways
+      if not query.match(/\s/)?
+        query = ""
       importFunc = ((identity) => @_selectProfile(email, identity))
 
       body = [
-        <div key="title" className="picker-title">Associate a key for: <b>{ contact.toString() }</b></div>
+        <div key="title" className="picker-title">There is no PGP public key saved for <br/><b>{ contact.toString() }.</b></div>
         <KeybaseSearch key="keybase-search" initialSearch={ query }, importFunc={ importFunc } />
       ]
 
+    prefsButton = <button className="btn modal-prefs-button" onClick={@_onManageKeys}>Advanced Key Management</button>
+    prefsLink = <a className="preferences-references" onClick={@_onManageKeys}>Advanced Key Management</a>
+
     <div className="key-picker-modal">
       { body }
-      <div style={flex: 1}></div>
-      <div className="picker-controls">{ backButton } { pages } { nextButton }</div>
+      <div style={{flex:1}}></div>
+      <div className="picker-controls">
+        <div style={{width: 60}}> { backButton } </div>
+        { prefsButton }
+        <div style={{width: 60}}> { nextButton } </div>
+      </div>
     </div>
