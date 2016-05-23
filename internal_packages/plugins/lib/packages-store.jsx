@@ -222,6 +222,7 @@ const PackagesStore = Reflux.createStore({
   _onInstallPackage: function _onInstallPackage() {
     NylasEnv.showOpenDialog({
       title: "Choose a Plugin Directory",
+      buttonLabel: 'Choose',
       properties: ['openDirectory'],
     },
     (filenames) => {

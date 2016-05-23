@@ -278,6 +278,7 @@ export default class Application extends EventEmitter {
       dialog.showOpenDialog({
         title: 'Choose a Package Directory',
         defaultPath: this.configDirPath,
+        buttonLabel: 'Choose',
         properties: ['openDirectory'],
       }, (filenames) => {
         if (!filenames || filenames.length === 0) {

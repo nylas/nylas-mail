@@ -250,6 +250,7 @@ FileDownloadStore = Reflux.createStore
     options = {
       defaultPath,
       title: 'Save Into...',
+      buttonLabel: 'Download All',
       properties: ['openDirectory', 'createDirectory'],
     }
 
