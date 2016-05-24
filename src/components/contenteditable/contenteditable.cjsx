@@ -46,9 +46,6 @@ class Contenteditable extends React.Component
     # The current html state, as a string, of the contenteditable.
     value: React.PropTypes.string
 
-    # Initial content selection that was previously saved
-    initialSelectionSnapshot: React.PropTypes.object,
-
     # Handlers
     onChange: React.PropTypes.func.isRequired
     onFilePaste: React.PropTypes.func
@@ -114,6 +111,11 @@ class Contenteditable extends React.Component
 
   focus: => @_editableNode().focus()
 
+  setSelection: (selection) =>
+    @setInnerState
+      exportedSelection: selection
+      previousExportedSelection: @innerState.exportedSelection
+    @_restoreSelection()
 
   ######################################################################
   ########################## React Lifecycle ###########################
@@ -146,12 +148,6 @@ class Contenteditable extends React.Component
     not @_inCompositionEvent and
     (not Utils.isEqualReact(nextProps, @props) or
      not Utils.isEqualReact(nextState, @state))
-
-  componentWillReceiveProps: (nextProps) =>
-    if nextProps.initialSelectionSnapshot?
-      @setInnerState
-        exportedSelection: nextProps.initialSelectionSnapshot
-        previousExportedSelection: @innerState.exportedSelection
 
   componentDidUpdate: =>
     if @_shouldRestoreSelectionOnUpdate()

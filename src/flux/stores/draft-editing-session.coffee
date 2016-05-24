@@ -1,6 +1,7 @@
 Message = require('../models/message').default
 Actions = require '../actions'
 DatabaseStore = require './database-store'
+UndoStack = require '../../undo-stack'
 ExtensionRegistry = require('../../extension-registry')
 {Listener, Publisher} = require '../modules/reflux-coffee'
 SyncbackDraftTask = require('../tasks/syncback-draft-task').default
@@ -26,7 +27,10 @@ DraftChangeSet associated with the store session. The DraftChangeSet does two th
 Section: Drafts
 ###
 class DraftChangeSet
-  constructor: (@_onAltered, @_onCommit) ->
+  @include: CoffeeHelpers.includeModule
+  @include Publisher
+
+  constructor: (@callbacks) ->
     @_commitChain = Promise.resolve()
     @_pending = {}
     @_saving = {}
@@ -40,9 +44,10 @@ class DraftChangeSet
       @_timer = null
 
   add: (changes, {doesNotAffectPristine}={}) =>
+    @callbacks.onWillAddChanges(changes)
     @_pending = _.extend(@_pending, changes)
-    @_pending['pristine'] = false unless doesNotAffectPristine
-    @_onAltered()
+    @_pending.pristine = false unless doesNotAffectPristine
+    @callbacks.onDidAddChanges(changes)
 
     clearTimeout(@_timer) if @_timer
     @_timer = setTimeout(@commit, 10000)
@@ -59,7 +64,7 @@ class DraftChangeSet
 
       @_saving = @_pending
       @_pending = {}
-      return @_onCommit({noSyncback}).then =>
+      return @callbacks.onCommit({noSyncback}).then =>
         @_saving = {}
 
     return @_commitChain
@@ -100,8 +105,13 @@ class DraftEditingSession
     @_draft = false
     @_draftPristineBody = null
     @_destroyed = false
+    @_undoStack = new UndoStack()
 
-    @changes = new DraftChangeSet(@_changeSetAltered, @_changeSetCommit)
+    @changes = new DraftChangeSet({
+      onWillAddChanges: @changeSetWillAddChanges
+      onDidAddChanges: @changeSetDidAddChanges
+      onCommit: @changeSetCommit
+    })
 
     if draft
       @_draftPromise = @_setDraft(draft)
@@ -137,12 +147,6 @@ class DraftEditingSession
     if !draft.body?
       throw new Error("DraftEditingSession._setDraft - new draft has no body!")
 
-    # We keep track of the draft's initial body if it's pristine when the editing
-    # session begins. This initial value powers things like "are you sure you want
-    # to send with an empty body?"
-    if draft.pristine
-      @_draftPristineBody = draft.body
-
     # Reverse draft transformations performed by third-party plugins when the draft
     # was last saved to disk
     return Promise.each ExtensionRegistry.Composer.extensions(), (ext) ->
@@ -152,6 +156,14 @@ class DraftEditingSession
             draft = untransformed
     .then =>
       @_draft = draft
+
+      # We keep track of the draft's initial body if it's pristine when the editing
+      # session begins. This initial value powers things like "are you sure you want
+      # to send with an empty body?"
+      if draft.pristine
+        @_draftPristineBody = draft.body
+        @_undoStack.save(@_snapshot())
+
       @trigger()
       Promise.resolve(@)
 
@@ -173,15 +185,7 @@ class DraftEditingSession
       @_setDraft(Object.assign(new Message(), @_draft, nextValues))
       @trigger()
 
-  _changeSetAltered: =>
-    return if @_destroyed
-    if !@_draft
-      throw new Error("DraftChangeSet was modified before the draft was prepared.")
-
-    @changes.applyToModel(@_draft)
-    @trigger()
-
-  _changeSetCommit: ({noSyncback}={}) =>
+  changeSetCommit: ({noSyncback}={}) =>
     if @_destroyed or not @_draft
       return Promise.resolve(true)
 
@@ -213,6 +217,51 @@ class DraftEditingSession
       #
       return unless @_draft.serverId
       Actions.ensureDraftSynced(@draftClientId)
+
+
+  # Undo / Redo
+
+  changeSetWillAddChanges: (changes) =>
+    return if @_restoring
+    hasBeen300ms = Date.now() - @_lastAddTimestamp > 300
+    hasChangedFields = !_.isEqual(Object.keys(changes), @_lastChangedFields)
+
+    @_lastChangedFields = Object.keys(changes)
+    @_lastAddTimestamp = Date.now()
+    if hasBeen300ms || hasChangedFields
+      @_undoStack.save(@_snapshot())
+
+  changeSetDidAddChanges: =>
+    return if @_destroyed
+    if !@_draft
+      throw new Error("DraftChangeSet was modified before the draft was prepared.")
+
+    @changes.applyToModel(@_draft)
+    @trigger()
+
+  restoreSnapshot: (snapshot) =>
+    return unless snapshot
+    @_restoring = true
+    @changes.add(snapshot.draft)
+    if @_composerViewSelectionRestore
+      @_composerViewSelectionRestore(snapshot.selection)
+    @_restoring = false
+
+  undo: =>
+    @restoreSnapshot(@_undoStack.saveAndUndo(@_snapshot()))
+
+  redo: =>
+    @restoreSnapshot(@_undoStack.redo())
+
+  _snapshot: =>
+    snapshot = {
+      selection: @_composerViewSelectionRetrieve?()
+      draft: Object.assign({}, @draft())
+    }
+    for {pluginId, value} in snapshot.draft.pluginMetadata
+      snapshot.draft["#{MetadataChangePrefix}#{pluginId}"] = value
+    delete snapshot.draft.pluginMetadata
+    return snapshot
 
 
 DraftEditingSession.DraftChangeSet = DraftChangeSet
