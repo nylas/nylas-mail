@@ -167,6 +167,10 @@ body.platform-win32 {
     top: -3px;
   }
 
+  .composer-body-wrap {
+    padding: 20px 14px 5px 14px;
+  }
+
   .composer-header-actions {
     position: relative;
     float: right;
@@ -301,7 +305,6 @@ body.platform-win32 {
 
     div[contenteditable] {
       min-height: @compose-min-height;
-      padding: 20px @spacing-standard 10px @spacing-standard;
     }
   }
 
@@ -440,5 +443,35 @@ body.platform-win32 {
     .participant-secondary {
       color: @text-color-very-subtle;
     }
+  }
+}
+
+
+//////////////////////////////////
+//      Overlaid Components     //
+//////////////////////////////////
+.overlaid-components {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  overflow: visible;
+  z-index: 10;
+}
+img.n1-overlaid-component-anchor-container {
+  display: block;
+  border: 0;
+}
+.toggle-serialized {
+  position: absolute;
+  top: -17px;
+  right: 0;
+  font-size: @font-size-smaller;
+  opacity: 0.3;
+  cusor: pointer;
+  &:hover {
+    cusor: pointer;
+    opacity: 1;
   }
 }
