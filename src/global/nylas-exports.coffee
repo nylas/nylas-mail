@@ -90,6 +90,8 @@ class NylasExports
   @lazyLoad "TaskFactory", 'flux/tasks/task-factory'
   @lazyLoadAndRegisterTask "EventRSVPTask", 'event-rsvp-task'
   @lazyLoadAndRegisterTask "SendDraftTask", 'send-draft-task'
+  @lazyLoadAndRegisterTask "MultiSendToIndividualTask", 'multi-send-to-individual-task'
+  @lazyLoadAndRegisterTask "MultiSendSessionCloseTask", 'multi-send-session-close-task'
   @lazyLoadAndRegisterTask "ChangeMailTask", 'change-mail-task'
   @lazyLoadAndRegisterTask "DestroyDraftTask", 'destroy-draft-task'
   @lazyLoadAndRegisterTask "ChangeLabelsTask", 'change-labels-task'
