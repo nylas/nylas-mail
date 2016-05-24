@@ -1,3 +1,5 @@
+/* eslint global-require: 0 */
+import {RegExpUtils} from 'nylas-exports';
 import Task from './task';
 import Actions from '../actions';
 import Message from '../models/message';
@@ -7,8 +9,18 @@ import SoundRegistry from '../../sound-registry';
 import DatabaseStore from '../stores/database-store';
 import AccountStore from '../stores/account-store';
 import BaseDraftTask from './base-draft-task';
+import MultiSendToIndividualTask from './multi-send-to-individual-task';
+import MultiSendSessionCloseTask from './multi-send-session-close-task';
 import SyncbackMetadataTask from './syncback-metadata-task';
 import NotifyPluginsOfSendTask from './notify-plugins-of-send-task';
+let OPEN_TRACKING_ID = null;
+let LINK_TRACKING_ID = null;
+try {
+  OPEN_TRACKING_ID = require('../../../internal_packages/open-tracking/lib/open-tracking-constants').PLUGIN_ID;
+  LINK_TRACKING_ID = require('../../../internal_packages/link-tracking/lib/link-tracking-constants').PLUGIN_ID;
+} catch (err) {
+  console.log(err)
+}
 
 export default class SendDraftTask extends BaseDraftTask {
 
@@ -27,18 +39,6 @@ export default class SendDraftTask extends BaseDraftTask {
     return this.refreshDraftReference()
     .then(this.assertDraftValidity)
     .then(this.sendMessage)
-    .then((responseJSON) => {
-      this.message = new Message().fromJSON(responseJSON)
-      this.message.clientId = this.draft.clientId
-      this.message.draft = false
-      this.message.clonePluginMetadataFrom(this.draft)
-
-      return DatabaseStore.inTransaction((t) =>
-        this.refreshDraftReference().then(() =>
-          t.persistModel(this.message)
-        )
-      );
-    })
     .then(this.updatePluginMetadata)
     .then(this.onSuccess)
     .catch(this.onError);
@@ -62,9 +62,55 @@ export default class SendDraftTask extends BaseDraftTask {
     return Promise.resolve();
   }
 
+  sendMessage = () => {
+    if (OPEN_TRACKING_ID && LINK_TRACKING_ID &&
+      (this.draft.metadataForPluginId(OPEN_TRACKING_ID) ||
+      this.draft.metadataForPluginId(LINK_TRACKING_ID)) &&
+      AccountStore.accountForId(this.draft.accountId).provider !== "eas") {
+      return this.sendWithMultipleBodies();
+    }
+    return this.sendWithSingleBody();
+  }
+
+  sendWithMultipleBodies = () => {
+    const draft = this.draft.clone();
+    draft.body = this.stripTrackingFromBody(draft.body);
+    return NylasAPI.makeRequest({
+      path: "/send-multiple",
+      accountId: this.draft.accountId,
+      method: 'POST',
+      body: draft.toJSON(),
+      timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
+      returnsModel: false,
+    })
+    .catch((err) => {
+      this.onSendError(err, this.sendWithMultipleBodies);
+    })
+    .then((responseJSON) => {
+      return this.createMessageFromResponse(responseJSON);
+    })
+    .then(() => {
+      const recipients = this.message.to.concat(this.message.cc, this.message.bcc);
+      recipients.forEach((recipient) => {
+        const t1 = new MultiSendToIndividualTask({
+          message: this.message,
+          recipient: recipient,
+        });
+        Actions.queueTask(t1);
+      });
+      const t2 = new MultiSendSessionCloseTask({
+        message: this.message,
+      });
+      Actions.queueTask(t2);
+    })
+    .catch((err) => {
+      return Promise.reject(err);
+    });
+  }
+
   // This function returns a promise that resolves to the draft when the draft has
   // been sent successfully.
-  sendMessage = () => {
+  sendWithSingleBody = () => {
     return NylasAPI.makeRequest({
       path: "/send",
       accountId: this.draft.accountId,
@@ -74,20 +120,13 @@ export default class SendDraftTask extends BaseDraftTask {
       returnsModel: false,
     })
     .catch((err) => {
-      // If the message you're "replying to" were deleted
-      if (err.message && err.message.indexOf('Invalid message public id') === 0) {
-        this.draft.replyToMessageId = null
-        return this.sendMessage()
-      }
-
-      // If the thread was deleted
-      if (err.message && err.message.indexOf('Invalid thread') === 0) {
-        this.draft.threadId = null;
-        this.draft.replyToMessageId = null;
-        return this.sendMessage();
-      }
-
-      return Promise.reject(err)
+      this.onSendError(err, this.sendWithSingleBody);
+    })
+    .then((responseJSON) => {
+      return this.createMessageFromResponse(responseJSON);
+    })
+    .catch((err) => {
+      return Promise.reject(err);
     });
   }
 
@@ -107,7 +146,36 @@ export default class SendDraftTask extends BaseDraftTask {
       Actions.queueTask(t2);
     }
 
-    return Promise.resolve()
+    return Promise.resolve();
+  }
+
+  createMessageFromResponse = (responseJSON) => {
+    this.message = new Message().fromJSON(responseJSON);
+    this.message.clientId = this.draft.clientId;
+    this.message.body = this.draft.body;
+    this.message.draft = false;
+    this.message.clonePluginMetadataFrom(this.draft);
+
+    return DatabaseStore.inTransaction((t) =>
+      this.refreshDraftReference().then(() => {
+        return t.persistModel(this.message);
+      })
+    );
+  }
+
+  stripTrackingFromBody(text) {
+    let body = text.replace(/<img class="n1-open"[^<]+src="([a-zA-Z0-9-_:\/.]*)">/g, () => {
+      return "";
+    });
+    body = body.replace(RegExpUtils.urlLinkTagRegex(), (match, prefix, url, suffix, content, closingTag) => {
+      const param = url.split("?")[1];
+      if (param) {
+        const link = decodeURIComponent(param.split("=")[1]);
+        return `${prefix}${link}${suffix}${content}${closingTag}`;
+      }
+      return match;
+    });
+    return body;
   }
 
   onSuccess = () => {
@@ -155,5 +223,22 @@ export default class SendDraftTask extends BaseDraftTask {
     NylasEnv.reportError(err);
 
     return Promise.resolve([Task.Status.Failed, err]);
+  }
+
+  onSendError = (err, retrySend) => {
+    // If the message you're "replying to" has been deleted
+    if (err.message && err.message.indexOf('Invalid message public id') === 0) {
+      this.draft.replyToMessageId = null;
+      return retrySend();
+    }
+
+    // If the thread has been deleted
+    if (err.message && err.message.indexOf('Invalid thread') === 0) {
+      this.draft.threadId = null;
+      this.draft.replyToMessageId = null;
+      return retrySend();
+    }
+
+    return Promise.reject(err);
   }
 }
