@@ -278,7 +278,7 @@ class Contenteditable extends React.Component
             @atomicEdit(callback, {actionArg})
           ))
       catch error
-        NylasEnv.emitError(error)
+        NylasEnv.reportError(error)
 
   _teardownEditingActionListeners: =>
     for editingActionUnsubscriber in @editingActionUnsubscribers

@@ -12,9 +12,10 @@ export class Registry {
     this._registry = new Map();
   }
 
-  register(extension) {
-    this.validateExtension(extension, 'register');
-    this._registry.set(extension.name, this._deprecationAdapter(extension));
+  register(ext, {priority = 0} = {}) {
+    this.validateExtension(ext, 'register');
+    const extension = this._deprecationAdapter(ext)
+    this._registry.set(ext.name, {extension, priority});
     this.triggerDebounced();
     return this;
   }
@@ -26,7 +27,7 @@ export class Registry {
   }
 
   extensions() {
-    return Array.from(this._registry.values());
+    return _.pluck(_.sortBy(Array.from(this._registry.values()), "priority"), "extension").reverse()
   }
 
   clear() {

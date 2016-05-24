@@ -422,6 +422,13 @@ class DraftStore
         DatabaseStore.inTransaction (t) =>
           t.persistModel(draft)
 
+  __testExtensionTransforms: ->
+    clientId = NylasEnv.getWindowProps().draftClientId
+    @sessionForClientId(clientId).then (session) =>
+      @_prepareForSyncback(session).then =>
+        window.__draft = session.draft()
+        console.log("Done transforming draft. Available at window.__draft")
+
   _onRemoveFile: ({file, messageClientId}) =>
     @sessionForClientId(messageClientId).then (session) ->
       files = _.clone(session.draft().files) ? []

@@ -20,6 +20,7 @@ import {
   TabGroupRegion,
   InjectedComponent,
   KeyCommandsRegion,
+  OverlaidComponents,
   InjectedComponentSet,
 } from 'nylas-component-kit';
 
@@ -186,12 +187,18 @@ export default class ComposerView extends React.Component {
   }
 
   _renderBodyRegions() {
+    const exposedProps = {
+      draft: this.props.draft,
+      session: this.props.session,
+    }
     return (
-      <span ref="composerBodyWrap">
-        {this._renderEditor()}
+      <div ref="composerBodyWrap" className="composer-body-wrap">
+        <OverlaidComponents exposedProps={exposedProps}>
+          {this._renderEditor()}
+        </OverlaidComponents>
         {this._renderQuotedTextControl()}
         {this._renderAttachments()}
-      </span>
+      </div>
     );
   }
 
@@ -418,7 +425,7 @@ export default class ComposerView extends React.Component {
   }
 
   _inFooterRegion(el) {
-    return el.closest && el.closest(".composer-footer-region")
+    return el.closest && el.closest(".composer-footer-region, .overlaid-components")
   }
 
   _onMouseUpComposerBody = (event) => {
