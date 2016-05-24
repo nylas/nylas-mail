@@ -3,7 +3,7 @@ path = require 'path'
 os = require 'os'
 
 # This is the main Gruntfile that manages building N1 distributions.
-# The reason it's inisde of the build/ folder is so everything can be
+# The reason it's inside of the build/ folder is so everything can be
 # compiled against Node's v8 headers instead of Chrome's v8 headers. All
 # packages in the root-level node_modules are compiled against Chrome's v8
 # headers.
