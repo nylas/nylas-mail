@@ -73,7 +73,7 @@ describe "ComposerView", ->
 
     @isSending = false
     spyOn(DraftStore, "isSendingDraft").andCallFake => @isSending
-    spyOn(DraftEditingSession.prototype, '_changeSetCommit').andCallFake (draft) =>
+    spyOn(DraftEditingSession.prototype, 'changeSetCommit').andCallFake (draft) =>
       @draft = draft
     spyOn(ContactStore, "searchContacts").andCallFake (email) =>
       return _.filter(users, (u) u.email.toLowerCase() is email.toLowerCase())
