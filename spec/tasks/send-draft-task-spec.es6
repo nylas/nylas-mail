@@ -34,6 +34,7 @@ describe('SendDraftTask', function sendDraftTask() {
         expect(err.message).toBe("Files have been added since you started sending this draft. Double-check the draft and click 'Send' again..");
       });
     });
+
     it("rejects if no from address is specified", () => {
       const badTask = new SendDraftTask('1');
       badTask.draft = new Message({from: [],
@@ -255,17 +256,20 @@ describe('SendDraftTask', function sendDraftTask() {
 
           this.draft.replyToMessageId = "reply-123";
           this.draft.threadId = "thread-123";
-          waitsForPromise(() => this.task.performRemote(this.draft).then(() => {
-            expect(NylasAPI.makeRequest).toHaveBeenCalled();
-            expect(NylasAPI.makeRequest.callCount).toEqual(2);
-            const req1 = NylasAPI.makeRequest.calls[0].args[0];
-            const req2 = NylasAPI.makeRequest.calls[1].args[0];
-            expect(req1.body.reply_to_message_id).toBe("reply-123");
-            expect(req1.body.thread_id).toBe("thread-123");
+          waitsForPromise(() => {
+            return this.task.performRemote(this.draft)
+            .then(() => {
+              expect(NylasAPI.makeRequest).toHaveBeenCalled();
+              expect(NylasAPI.makeRequest.callCount).toEqual(2);
+              const req1 = NylasAPI.makeRequest.calls[0].args[0];
+              const req2 = NylasAPI.makeRequest.calls[1].args[0];
+              expect(req1.body.reply_to_message_id).toBe("reply-123");
+              expect(req1.body.thread_id).toBe("thread-123");
 
-            expect(req2.body.reply_to_message_id).toBe(null);
-            expect(req2.body.thread_id).toBe("thread-123");
-          }));
+              expect(req2.body.reply_to_message_id).toBe(null);
+              expect(req2.body.thread_id).toBe("thread-123");
+            })
+          });
         });
 
         it("retries the task if 'Invalid message public id'", () => {

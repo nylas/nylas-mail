@@ -84,9 +84,6 @@ export default class SendDraftTask extends BaseDraftTask {
       timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
       returnsModel: false,
     })
-    .catch((err) => {
-      this.onSendError(err, this.sendWithMultipleBodies);
-    })
     .then((responseJSON) => {
       return this.createMessageFromResponse(responseJSON);
     })
@@ -105,8 +102,8 @@ export default class SendDraftTask extends BaseDraftTask {
       Actions.queueTask(t2);
     })
     .catch((err) => {
-      return Promise.reject(err);
-    });
+      return this.onSendError(err, this.sendWithMultipleBodies);
+    })
   }
 
   // This function returns a promise that resolves to the draft when the draft has
@@ -120,15 +117,12 @@ export default class SendDraftTask extends BaseDraftTask {
       timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
       returnsModel: false,
     })
-    .catch((err) => {
-      this.onSendError(err, this.sendWithSingleBody);
-    })
     .then((responseJSON) => {
-      return this.createMessageFromResponse(responseJSON);
+      return this.createMessageFromResponse(responseJSON)
     })
     .catch((err) => {
-      return Promise.reject(err);
-    });
+      return this.onSendError(err, this.sendWithSingleBody);
+    })
   }
 
   updatePluginMetadata = () => {
