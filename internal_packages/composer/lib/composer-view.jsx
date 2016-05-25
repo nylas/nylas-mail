@@ -7,7 +7,6 @@ import {
   Utils,
   Actions,
   DraftStore,
-  UndoManager,
   DraftHelpers,
   FileDownloadStore,
   QuotedHTMLTransformer,
