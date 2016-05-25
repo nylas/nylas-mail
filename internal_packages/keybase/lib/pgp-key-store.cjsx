@@ -172,25 +172,36 @@ class PGPKeyStore extends NylasStore
           @_displayError(err)
       )
 
-  exportKey: (identity) =>
+  exportKey: ({identity, passphrase}) =>
     atIndex = identity.addresses[0].indexOf("@")
     shortName = identity.addresses[0].slice(0, atIndex).concat(".asc")
     savePath = path.join(NylasEnv.savedState.lastDownloadDirectory, shortName)
-    @getKeyContents(key: identity, callback: ( =>
+    @getKeyContents(key: identity, passphrase: passphrase, callback: ( =>
       NylasEnv.showSaveDialog({
         title: "Export PGP Key",
         defaultPath: savePath,
       }, (keyPath) =>
         if (!keyPath)
           return
-        identity.key.export_pgp_public {}, (err, pgp_public) =>
-          fs.writeFile(keyPath, pgp_public, (err) =>
+        if passphrase?
+          identity.key.export_pgp_private {passphrase: passphrase}, (err, pgp_private) =>
             if (err)
               @_displayError(err)
-              shell.showItemInFolder(packageDir)
-          )
+            fs.writeFile(keyPath, pgp_private, (err) =>
+              if (err)
+                @_displayError(err)
+                shell.showItemInFolder(keyPath)
+            )
+        else
+          identity.key.export_pgp_public {}, (err, pgp_public) =>
+            fs.writeFile(keyPath, pgp_public, (err) =>
+              if (err)
+                @_displayError(err)
+                shell.showItemInFolder(keyPath)
+            )
       )
-    ))
+    )
+    )
 
   deleteKey: (key) =>
     if this._displayDialog(
