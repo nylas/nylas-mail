@@ -23,11 +23,24 @@ class KeyManager extends React.Component
         Delete Key
       </button>
       )
-      return <KeybaseUser profile={identity} key={identity.clientId} actionButton={deleteButton}/>
+      exportButton = (<button title="Export Public" className="btn btn-toolbar" onClick={ => PGPKeyStore.exportKey(identity) } ref="button">
+        Export Key
+      </button>
+      )
+      actionButton = (<div className="key-actions">
+        {exportButton}
+        {deleteButton}
+      </div>
+      )
+      return <KeybaseUser profile={identity} key={identity.clientId} actionButton={actionButton}/>
 
     privKeys = privKeys.map (identity) =>
       deleteButton = (<button title="Delete Private" className="btn btn-toolbar btn-danger" onClick={ => PGPKeyStore.deleteKey(identity) } ref="button">
         Delete Key
+      </button>
+      )
+      exportButton = (<button title="Export Private" className="btn btn-toolbar" onClick={ => PGPKeyStore.exportKey(identity) } ref="button">
+        Export Key
       </button>
       )
       return <KeybaseUser profile={identity} key={identity.clientId} actionButton={deleteButton}/>

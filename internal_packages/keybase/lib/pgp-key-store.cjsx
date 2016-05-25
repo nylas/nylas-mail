@@ -1,6 +1,6 @@
 NylasStore = require 'nylas-store'
 {Actions, FileDownloadStore, DraftStore, MessageBodyProcessor, RegExpUtils} = require 'nylas-exports'
-{remote} = require 'electron'
+{remote, shell} = require 'electron'
 Identity = require './identity'
 kb = require './keybase'
 pgp = require 'kbpgp'
@@ -112,7 +112,7 @@ class PGPKeyStore extends NylasStore
       )
     )
 
-  getKeyContents: ({key, passphrase}) =>
+  getKeyContents: ({key, passphrase, callback}) =>
     # Reads an actual PGP key from disk and adds it to the preexisting metadata
     if not key.keyPath?
       console.error "Identity has no path for key!", key
@@ -137,6 +137,8 @@ class PGPKeyStore extends NylasStore
           key.setTimeout()
           @getKeybaseData(key)
         @trigger(@)
+        if callback?
+          callback()
     )
 
   getKeybaseData: (identity) =>
@@ -169,6 +171,26 @@ class PGPKeyStore extends NylasStore
         if (err)
           @_displayError(err)
       )
+
+  exportKey: (identity) =>
+    atIndex = identity.addresses[0].indexOf("@")
+    shortName = identity.addresses[0].slice(0, atIndex).concat(".asc")
+    savePath = path.join(NylasEnv.savedState.lastDownloadDirectory, shortName)
+    @getKeyContents(key: identity, callback: ( =>
+      NylasEnv.showSaveDialog({
+        title: "Export PGP Key",
+        defaultPath: savePath,
+      }, (keyPath) =>
+        if (!keyPath)
+          return
+        identity.key.export_pgp_public {}, (err, pgp_public) =>
+          fs.writeFile(keyPath, pgp_public, (err) =>
+            if (err)
+              @_displayError(err)
+              shell.showItemInFolder(packageDir)
+          )
+      )
+    ))
 
   deleteKey: (key) =>
     if this._displayDialog(
