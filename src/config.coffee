@@ -485,18 +485,24 @@ class Config
 
   pushAtKeyPath: (keyPath, value) ->
     arrayValue = @get(keyPath) ? []
+    unless arrayValue instanceof Array
+      throw new Error("Config.pushAtKeyPath is intended for array values. Value #{JSON.stringify(arrayValue)} is not an array.")
     result = arrayValue.push(value)
     @set(keyPath, arrayValue)
     result
 
   unshiftAtKeyPath: (keyPath, value) ->
     arrayValue = @get(keyPath) ? []
+    unless arrayValue instanceof Array
+      throw new Error("Config.unshiftAtKeyPath is intended for array values. Value #{JSON.stringify(arrayValue)} is not an array.")
     result = arrayValue.unshift(value)
     @set(keyPath, arrayValue)
     result
 
   removeAtKeyPath: (keyPath, value) ->
     arrayValue = @get(keyPath) ? []
+    unless arrayValue instanceof Array
+      throw new Error("Config.removeAtKeyPath is intended for array values. Value #{JSON.stringify(arrayValue)} is not an array.")
     result = _.remove(arrayValue, value)
     @set(keyPath, arrayValue)
     result
