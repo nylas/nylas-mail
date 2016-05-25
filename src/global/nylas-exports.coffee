@@ -175,7 +175,6 @@ class NylasExports
   @lazyLoad "EditorAPI", 'components/contenteditable/editor-api'
 
   # Services
-  @lazyLoad "UndoManager", 'undo-manager'
   @lazyLoad "SoundRegistry", 'sound-registry'
   @lazyLoad "MailRulesTemplates", 'mail-rules-templates'
   @lazyLoad "MailRulesProcessor", 'mail-rules-processor'
