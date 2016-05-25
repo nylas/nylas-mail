@@ -117,7 +117,7 @@ export default class ComposerView extends React.Component {
 
   _setupForProps({draft, session}) {
     this.setState({
-      showQuotedText: Utils.isForwardedMessage(draft),
+      showQuotedText: DraftHelpers.isForwardedMessage(draft),
     });
 
     // TODO: This is a dirty hack to save selection state into the undo/redo
@@ -544,63 +544,6 @@ export default class ComposerView extends React.Component {
 
   _onSelectAttachment = () => {
     Actions.selectAttachment({messageClientId: this.props.draft.clientId});
-  }
-
-  undo = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const historyItem = this.undoManager.undo() || {};
-    if (!historyItem.state) {
-      return;
-    }
-
-    this._recoveredSelection = historyItem.currentSelection;
-    this._applyChanges(historyItem.state, {fromUndoManager: true});
-    this._recoveredSelection = null;
-  }
-
-  redo = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    const historyItem = this.undoManager.redo() || {}
-    if (!historyItem.state) {
-      return;
-    }
-    this._recoveredSelection = historyItem.currentSelection;
-    this._applyChanges(historyItem.state, {fromUndoManager: true});
-    this._recoveredSelection = null;
-  }
-
-  _getSelections = () => {
-    const bodyComponent = this.refs[Fields.Body];
-    return {
-      currentSelection: bodyComponent.getCurrentSelection ? bodyComponent.getCurrentSelection() : null,
-      previousSelection: bodyComponent.getPreviousSelection ? bodyComponent.getPreviousSelection() : null,
-    }
-  }
-
-  _saveToHistory = (selections) => {
-    const {previousSelection, currentSelection} = selections || this._getSelections();
-
-    const historyItem = {
-      previousSelection,
-      currentSelection,
-      state: {
-        body: _.clone(this.props.draft.body),
-        subject: _.clone(this.props.draft.subject),
-        to: _.clone(this.props.draft.to),
-        cc: _.clone(this.props.draft.cc),
-        bcc: _.clone(this.props.draft.bcc),
-      },
-    }
-
-    const lastState = this.undoManager.current()
-    if (lastState) {
-      lastState.currentSelection = historyItem.previousSelection;
-    }
-
-    this.undoManager.saveToHistory(historyItem);
   }
 
   render() {

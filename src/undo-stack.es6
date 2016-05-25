@@ -31,7 +31,7 @@ export default class UndoStack {
     Object.assign(this._accumulated, state);
     const shouldSnapshot = this._options.shouldSnapshot && this._options.shouldSnapshot(this.current(), this._accumulated);
     if (!this.current() || shouldSnapshot) {
-      this.saveToHistory(this._accumulated);
+      this.save(this._accumulated);
       this._accumulated = {};
     }
   }
