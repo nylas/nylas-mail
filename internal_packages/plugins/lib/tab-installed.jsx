@@ -90,6 +90,7 @@ class TabInstalled extends React.Component {
           </Flexbox>
           <PackageSet
             packages={this.state.packages.user}
+            showVersions
             title="Installed plugins"
             emptyText={searchEmpty || <span>{`You don't have any plugins installed in ~/.nylas/packages.`}</span>}
           />

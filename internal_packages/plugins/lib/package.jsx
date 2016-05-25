@@ -9,7 +9,8 @@ class Package extends React.Component {
   static displayName = 'Package';
 
   static propTypes = {
-    'package': React.PropTypes.object.isRequired,
+    "package": React.PropTypes.object.isRequired,
+    "showVersions": React.PropTypes.bool,
   }
 
   _onDisablePackage = () => {
@@ -68,7 +69,7 @@ class Package extends React.Component {
       actions.push(<div key="install" className="btn" onClick={this._onInstallPackage}>Install</div>);
     }
 
-    const {name, description, title} = this.props.package;
+    const {name, description, title, version} = this.props.package;
 
     if (this.props.package.newerVersionAvailable) {
       extras.push(
@@ -79,6 +80,8 @@ class Package extends React.Component {
       )
     }
 
+    const versionLabel = this.props.showVersions ? `v${version}` : null;
+
     return (
       <Flexbox className="package" direction="row">
         <div className="icon-container">
@@ -86,7 +89,7 @@ class Package extends React.Component {
         </div>
         <div className="info">
           <div style={{display: "flex", flexDirection: "row"}}>
-            <div className="title">{title || name}</div>
+            <div className="title">{title || name} <span className="version">{versionLabel}</span></div>
             {uninstallButton}
           </div>
           <div className="description">{description}</div>
