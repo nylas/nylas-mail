@@ -26,7 +26,7 @@ describe "Composer Quoted Text", ->
     @session =
       trigger: ->
       changes:
-        add: ->
+        add: jasmine.createSpy('changes.add')
       draft: => @draft
 
   afterEach ->
@@ -58,10 +58,9 @@ describe "Composer Quoted Text", ->
 
     it "allows the text to update", ->
       textToAdd = "MORE <strong>TEXT</strong>!"
-      spyOn(@composer, "_applyChanges")
       expect(@$contentEditable.innerHTML).toBe @htmlNoQuote
       setHTML.call(@, textToAdd + @htmlNoQuote)
-      ev = @composer._applyChanges.mostRecentCall.args[0].body
+      ev = @session.changes.add.mostRecentCall.args[0].body
       expect(ev).toEqual(textToAdd + @htmlNoQuote)
 
     it 'should not render the quoted-text-control toggle', ->
@@ -84,20 +83,18 @@ describe "Composer Quoted Text", ->
     it 'should display the quoted text', ->
       expect(@$contentEditable.innerHTML).toBe @htmlWithQuote
 
-    it "should call `_applyChanges` with the entire HTML string", ->
+    it "should call add changes with the entire HTML string", ->
       textToAdd = "MORE <strong>TEXT</strong>!"
-      spyOn(@composer, "_applyChanges")
       expect(@$contentEditable.innerHTML).toBe @htmlWithQuote
       setHTML.call(@, textToAdd + @htmlWithQuote)
-      ev = @composer._applyChanges.mostRecentCall.args[0].body
+      ev = @session.changes.add.mostRecentCall.args[0].body
       expect(ev).toEqual(textToAdd + @htmlWithQuote)
 
     it "should allow the quoted text to be changed", ->
       newText = 'Test <strong>NEW 1 HTML</strong><blockquote class="gmail_quote">QUOTE CHANGED!!!</blockquote>'
-      spyOn(@composer, "_applyChanges")
       expect(@$contentEditable.innerHTML).toBe @htmlWithQuote
       setHTML.call(@, newText)
-      ev = @composer._applyChanges.mostRecentCall.args[0].body
+      ev = @session.changes.add.mostRecentCall.args[0].body
       expect(ev).toEqual(newText)
 
     describe 'quoted text control toggle button', ->
@@ -125,22 +122,20 @@ describe "Composer Quoted Text", ->
     it 'should not display any quoted text', ->
       expect(@$contentEditable.innerHTML).toBe @htmlNoQuote
 
-    it "should let you change the text, and then append the quoted text part to the end before firing `_applyChanges`", ->
+    it "should let you change the text, and then append the quoted text part to the end before firing adding changes", ->
       textToAdd = "MORE <strong>TEXT</strong>!"
-      spyOn(@composer, "_applyChanges")
       expect(@$contentEditable.innerHTML).toBe @htmlNoQuote
       setHTML.call(@, textToAdd + @htmlNoQuote)
-      ev = @composer._applyChanges.mostRecentCall.args[0].body
+      ev = @session.changes.add.mostRecentCall.args[0].body
       # Note that we expect the version WITH a quote while setting the
       # version withOUT a quote.
       expect(ev).toEqual(wrapBody(textToAdd + @htmlWithQuote))
 
     it "should let you add more html that looks like quoted text, and still properly appends the old quoted text", ->
       textToAdd = "Yo <blockquote class=\"gmail_quote\">I'm a fake quote</blockquote>"
-      spyOn(@composer, "_applyChanges")
       expect(@$contentEditable.innerHTML).toBe @htmlNoQuote
       setHTML.call(@, textToAdd + @htmlNoQuote)
-      ev = @composer._applyChanges.mostRecentCall.args[0].body
+      ev = @session.changes.add.mostRecentCall.args[0].body
       # Note that we expect the version WITH a quote while setting the
       # version withOUT a quote.
       expect(ev).toEqual(wrapBody(textToAdd + @htmlWithQuote))
