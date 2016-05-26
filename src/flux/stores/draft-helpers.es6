@@ -82,7 +82,7 @@ export function applyExtensionTransformsToDraft(draft) {
     })
   )
   return transformPromise
-  .thenReturn(latestTransformed)
+  .then(() => Promise.resolve(latestTransformed))
 }
 
 export function prepareDraftForSyncback(session) {
