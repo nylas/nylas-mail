@@ -189,6 +189,7 @@ class EventedIFrame extends React.Component
       eventAttrs[key] = event[key]
 
     node.dispatchEvent(new MouseEvent(event.type, _.extend({}, eventAttrs, {
+      bubbles: true
       clientX: event.clientX + nodeRect.left
       clientY: event.clientY + nodeRect.top
       pageX: event.pageX + nodeRect.left

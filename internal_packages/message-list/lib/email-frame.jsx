@@ -78,6 +78,7 @@ export default class EmailFrame extends React.Component {
         extension.renderedMessageBodyIntoDocument({
           document: doc,
           message: this.props.message,
+          iframe: iframeNode,
         });
       } catch (e) {
         NylasEnv.reportError(e);
