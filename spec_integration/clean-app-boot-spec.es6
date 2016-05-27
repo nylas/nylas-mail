@@ -67,11 +67,11 @@ describe('Clean app boot', ()=> {
       // Monkeypatch NylasAPI and EdgehillAPI
       const json = JSON.parse(jsonStr);
       $n._nylasApiMakeRequest = $n.NylasAPI.makeRequest;
-      $n._edgehillRequest = $n.EdgehillAPI.request;
+      $n._edgehillRequest = $n.EdgehillAPI.makeRequest;
       $n.NylasAPI.makeRequest = ()=> {
         return Promise.resolve(json);
       };
-      $n.EdgehillAPI.request = ({success})=> {
+      $n.EdgehillAPI.makeRequest = ({success})=> {
         success(json);
       };
     }, fakeAccountJson)

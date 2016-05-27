@@ -7,7 +7,6 @@ import PreferencesAccountDetails from './preferences-account-details';
 
 
 class PreferencesAccounts extends React.Component {
-
   static displayName = 'PreferencesAccounts';
 
   constructor() {

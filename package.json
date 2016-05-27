@@ -19,6 +19,7 @@
     "babel-preset-react": "6.5.0",
     "babel-regenerator-runtime": "6.5.0",
     "bluebird": "^2.9",
+    "chromium-net-errors": "1.0.3",
     "chrono-node": "^1.1.2",
     "classnames": "1.2.1",
     "coffee-react": "^2.0.0",

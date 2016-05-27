@@ -1,0 +1,187 @@
+@import "ui-variables";
+
+/* The Onboarding window should never adopt theme styles. This re-assigns UI
+variables and resets commonly overridden styles to ensure the onboarding window
+always looks good. Previously we tried to make the theme just not load in the
+window, but it uses a hot window which makes that difficult now. */
+
+@black:        #231f20;
+@gray-base:    #0a0b0c;
+@gray-darker:  lighten(@gray-base, 13.5%); // #222
+@gray-dark:    lighten(@gray-base, 20%);   // #333
+@gray:         lighten(@gray-base, 33.5%); // #555
+@gray-light:   lighten(@gray-base, 46.7%); // #777
+@gray-lighter: lighten(@gray-base, 92.5%); // #eee
+@white:        #ffffff;
+
+@blue-dark:    #3187e1;
+@blue:         #419bf9;
+
+//== Color Descriptors
+@accent-primary:      @blue;
+@accent-primary-dark: @blue-dark;
+
+@background-primary:     @white;
+@background-off-primary: #fdfdfd;
+@background-secondary:   #f6f6f6;
+@background-tertiary:    #6d7987;
+
+@text-color:                     @black;
+@text-color-subtle:              fadeout(@text-color, 20%);
+@text-color-very-subtle:         fadeout(@text-color, 50%);
+@text-color-inverse:             @white;
+@text-color-inverse-subtle:      fadeout(@text-color-inverse, 20%);
+@text-color-inverse-very-subtle: fadeout(@text-color-inverse, 50%);
+
+@text-color-heading:      #434648;
+@font-family-sans-serif:  "Nylas-Pro", "Helvetica", sans-serif;
+@font-family-serif:       Georgia, "Times New Roman", Times, serif;
+@font-family-monospace:   Menlo, Monaco, Consolas, "Courier New", monospace;
+
+@font-family:             @font-family-sans-serif;
+@font-family-heading:     @font-family-sans-serif;
+@font-size-base:          14px;
+
+@line-height-base:         1.5; // 22.5/15
+@line-height-computed:     floor((@font-size-base * @line-height-base)); // ~20px
+@line-height-heading:      1.1;
+
+@component-active-color: @accent-primary-dark;
+@component-active-bg:    @background-primary;
+
+@input-bg:                       @white;
+@input-bg-disabled:              @gray-lighter;
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: @font-family-heading;
+  line-height: @line-height-heading;
+  color: @text-color-heading;
+
+  small,
+  .small {
+    line-height: 1;
+  }
+}
+
+h1 {
+  font-size:   @font-size-h1;
+  font-weight: @font-weight-semi-bold;
+}
+h2 {
+  font-size:   @font-size-h2;
+  font-weight: @font-weight-blond;
+}
+h3 {
+  font-size:   @font-size-h3;
+  font-weight: @font-weight-blond;
+}
+h4 { font-size: @font-size-h4; }
+h5 { font-size: @font-size-h5; }
+h6 { font-size: @font-size-h6; }
+
+h1, h2, h3{
+  margin-top: @line-height-computed;
+  margin-bottom: (@line-height-computed / 2);
+
+  small,
+  .small {
+    font-size: 65%;
+  }
+}
+h4, h5, h6 {
+  margin-top: (@line-height-computed / 2);
+  margin-bottom: (@line-height-computed / 2);
+
+  small,
+  .small {
+    font-size: 75%;
+  }
+}
+
+
+.btn {
+  padding: 0 0.8em;
+  border-radius: @border-radius-base;
+  border: 0;
+  cursor: default;
+  display:inline-block;
+  color: @btn-default-text-color;
+  background: @background-primary;
+
+  img.content-mask { background-color: @btn-default-text-color; }
+
+  // Use 4 box shadows to create a 0.5px hairline around the button, and another
+  // for the actual shadow. Pending https://code.google.com/p/chromium/issues/detail?id=236371
+  // Yes, 1px border looks really bad on retina.
+  box-shadow: 0 0.5px 0 rgba(0,0,0,0.15), 0 -0.5px 0 rgba(0,0,0,0.15), 0.5px 0 0 rgba(0,0,0,0.15), -0.5px 0 0 rgba(0,0,0,0.15), 0 0.5px 1px rgba(0, 0, 0, 0.15);
+
+  height: 1.9em;
+  line-height: 1.9em;
+
+  .text {
+    margin-left: 6px;
+  }
+
+  &:active {
+    cursor: default;
+    background: darken(@btn-default-bg-color, 9%);
+  }
+  &:focus {
+    outline: none
+  }
+
+  font-size: @font-size-small;
+
+  &.btn-small {
+    font-size: @font-size-smaller;
+  }
+  &.btn-large {
+    font-size: @font-size-base;
+    padding: 0 1.3em;
+    line-height: 2.2em;
+    height: 2.3em;
+  }
+  &.btn-larger {
+    font-size: @font-size-large;
+    padding: 0 1.6em;
+  }
+
+  &.btn-disabled {
+    color:      fadeout(@btn-default-text-color, 40%);
+    background: fadeout(@btn-default-bg-color, 15%);
+    &:active {
+      background: fadeout(@btn-default-bg-color, 15%);
+    }
+  }
+
+  &.btn-emphasis {
+    position: relative;
+    color: @btn-emphasis-text-color;
+    font-weight: @font-weight-medium;
+
+    img.content-mask { background-color:@btn-emphasis-text-color; }
+
+    background: linear-gradient(to bottom, #6bb1f9 0%, #0a80ff 100%);
+    box-shadow: none;
+    border: 1px solid darken(@btn-emphasis-bg-color, 7%);
+
+    &.btn-disabled {
+      opacity: 0.4;
+    }
+
+    &:before {
+      content: ' ';
+      width: calc(~"100% + 2px");
+      height: calc(~"100% + 2px");
+      border-radius: @border-radius-base + 1;
+      top: -1px;
+      left: -1px;
+      position: absolute;
+      z-index: -1;
+      background: linear-gradient(to bottom, #4ca2f9 0%, #015cff 100%);
+    }
+    &:active {
+      background: -webkit-gradient(linear, left top, left bottom, from(darken(@btn-emphasis-bg-color,10%)), to(darken(@btn-emphasis-bg-color, 4%)));
+    }
+  }
+}

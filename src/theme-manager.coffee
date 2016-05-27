@@ -125,11 +125,6 @@ class ThemeManager
         console.warn("Enabled theme '#{themeName}' is not installed.")
       false
 
-    # Do not load user themes into the onboarding window, because it uses
-    # a wide range of hard-coded colors and assets and should always be on-brand.
-    if NylasEnv.getWindowType() is 'onboarding'
-      themeNames = []
-
     # Use a built-in theme any time the configured themes are not
     # available.
     if themeNames.length is 0

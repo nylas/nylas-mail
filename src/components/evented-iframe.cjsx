@@ -2,6 +2,7 @@ React = require 'react'
 ReactDOM = require 'react-dom'
 {Utils,
  RegExpUtils,
+ IdentityStore,
  SearchableComponentMaker,
  SearchableComponentStore}= require 'nylas-exports'
 IFrameSearcher = require('../searchable-components/iframe-searcher').default
@@ -157,6 +158,14 @@ class EventedIFrame extends React.Component
         rawHref = target.getAttribute('href')
 
       e.preventDefault()
+
+      # If this is a link to our billing site, attempt single sign on instead of
+      # just following the link directly
+      if rawHref.startsWith(IdentityStore.URLRoot)
+        path = rawHref.split(IdentityStore.URLRoot).pop()
+        IdentityStore.fetchSingleSignOnURL(IdentityStore.identity(), path).then (href) =>
+          NylasEnv.windowEventHandler.openLink(href: href, metaKey: e.metaKey)
+        return
 
       # It's important to send the raw `href` here instead of the target.
       # The `target` comes from the document context of the iframe, which
