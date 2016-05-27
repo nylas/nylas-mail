@@ -21,7 +21,7 @@ class InitialLoadingCover extends React.Component {
   componentDidMount() {
     this._slowTimeout = setTimeout(() => {
       this.setState({slow: true});
-    }, 2500);
+    }, 3500);
   }
 
   componentWillUnmount() {
