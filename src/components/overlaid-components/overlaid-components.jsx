@@ -3,6 +3,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import Utils from '../../flux/models/utils'
 import CustomContenteditableComponents from './custom-contenteditable-components'
+import {IgnoreMutationClassName} from '../contenteditable/contenteditable'
 import {ANCHOR_CLASS, IMG_SRC} from './anchor-constants'
 
 const MUTATION_CONFIG = {
@@ -19,6 +20,7 @@ export default class OverlaidComponents extends React.Component {
 
   static propTypes = {
     children: React.PropTypes.node,
+    className: React.PropTypes.string,
     exposedProps: React.PropTypes.object,
   }
 
@@ -34,11 +36,17 @@ export default class OverlaidComponents extends React.Component {
   }
 
   static buildAnchorTag(componentKey, props = {}, existingId = null, style = "") {
-    const id = existingId || Utils.generateTempId()
-    let className = ANCHOR_CLASS
-    if (props.className) { className = `${className} ${props.className}` }
+    const overlayId = existingId || Utils.generateTempId()
+    let className = `${IgnoreMutationClassName} ${ANCHOR_CLASS}`
+    if (props.className) {
+      className = `${className} ${props.className}`
+    }
     const propsStr = OverlaidComponents.propsToDOMAttr(props);
-    return `<img class="${className}" src="${IMG_SRC}" data-overlay-id="${id}" data-component-props="${propsStr}" data-component-key="${componentKey}" style="${style}">`
+    return {
+      anchorId: overlayId,
+      anchorTag:
+        `<img class="${className}" src="${IMG_SRC}" data-overlay-id="${overlayId}" data-component-props="${propsStr}" data-component-key="${componentKey}" style="${style}">`,
+    }
   }
 
   constructor(props) {
@@ -168,7 +176,7 @@ export default class OverlaidComponents extends React.Component {
       const data = this._anchorData[id];
       if (!data) { throw new Error("No mounted rect for #{id}") }
 
-      const style = {left: data.left, top: data.top, position: "relative"}
+      const style = {left: data.left, top: data.top, position: 'absolute'}
       const componentData = CustomContenteditableComponents.get(data.componentKey);
 
       if (!componentData) {
@@ -189,13 +197,14 @@ export default class OverlaidComponents extends React.Component {
       const el = React.createElement(component, props)
 
       const wrap = (
-        <div
+        <span
+          key={id}
           className={OverlaidComponents.WRAP_CLASS}
           style={style}
           data-overlay-id={id}
         >
           {el}
-        </div>
+        </span>
       )
 
       els.push(wrap)
@@ -210,8 +219,9 @@ export default class OverlaidComponents extends React.Component {
   }
 
   render() {
+    const {className} = this.props
     return (
-      <div className="overlaid-components-wrap" style={{position: "relative"}}>
+      <div className={`overlaid-components-wrap ${className}`} style={{position: "relative"}}>
         <div className="anchor-container" ref="anchorContainer">
           {this.props.children}
         </div>

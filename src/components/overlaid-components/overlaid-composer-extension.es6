@@ -75,7 +75,7 @@ export default class OverlaidComposerExtension extends ComposerExtension {
     const matcher = self.overlayMatches(self._serializedExtractRe(), outDraft.body);
 
     for (const match of matcher) {
-      const anchorTag = OverlaidComponents.buildAnchorTag(match.dataComponentKey, match.dataComponentProps, match.dataOverlayId, match.dataStyle);
+      const {anchorTag} = OverlaidComponents.buildAnchorTag(match.dataComponentKey, match.dataComponentProps, match.dataOverlayId, match.dataStyle);
 
       outBody = outBody.replace(OverlaidComposerExtension._serializedReplacerRe(match.dataOverlayId), anchorTag)
     }
