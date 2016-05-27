@@ -85,6 +85,9 @@ class IdentityStore extends NylasStore {
   }
 
   refreshStatus = () => {
+    if (!this._identity || !this._identity.token) {
+      return;
+    }
     request({
       method: 'GET',
       url: `${this.URLRoot}/n1/user`,
