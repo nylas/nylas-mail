@@ -147,7 +147,9 @@ class AccountStore extends NylasStore
 
     if remainingAccounts.length is 0
       ipc = require('electron').ipcRenderer
-      ipc.send('command', 'application:reset-config-and-relaunch')
+      ipc.send('command', 'application:relaunch-to-initial-windows', {
+        resetDatabase: true,
+      })
 
   _onReorderAccount: (id, newIdx) =>
     existingIdx = _.findIndex @_accounts, (a) -> a.id is id

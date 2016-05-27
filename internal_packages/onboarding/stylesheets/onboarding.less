@@ -1,29 +1,44 @@
-@import "ui-variables";
-
-@checkSize: 136px;
+@import "onboarding-reset";
 
 @-webkit-keyframes fadein {
   from { opacity: 0; }
     to { opacity: 1; }
 }
 
-@-webkit-keyframes bounce {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-  100% { transform: scale(1); }
+.alpha-fade-enter {
+  opacity: 0.01;
+  transition: all .15s ease-out;
 }
 
-@-webkit-keyframes fill {
-  0% { opacity: 0; border-width: @checkSize / 2; }
-  25% { opacity: 1; }
-  100% { opacity: 1; border-width: 0; }
+.alpha-fade-enter.alpha-fade-enter-active {
+  opacity: 1;
+}
+.alpha-fade-leave {
+  opacity: 1;
+  transition: all .15s ease-in;
+}
+
+.alpha-fade-leave.alpha-fade-leave-active {
+  opacity: 0.01;
 }
 
 .page-frame {
-  background-color: @gray-lighter;
-  -webkit-animation: fadein 0.8s;
   text-align: center;
-  display: inline-block;
+  flex: 1;
+
+  .page-container {
+    display: flex;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
+  .page {
+    background-color: #F3F3F3;
+    flex: 1;
+  }
 
   h1 {
     font-weight: 100;
@@ -33,6 +48,8 @@
 
   h2 {
     line-height: 1.3em;
+    font-size: 30pt;
+    font-weight: 200;
   }
 
   h4 {
@@ -40,31 +57,23 @@
     font-size: 20pt;
   }
 
-  iframe, webview {
-    position: absolute;
-    width:100%;
-    height:100%;
-    left:0;
-    top:0;
-    border:0;
-  }
-
   .logo-container {
     width: 117px;
     height: 117px;
     display: inline-block;
-    padding-top: 30px;
+    padding-top: 40px;
     box-sizing: content-box;
   }
 
   .btn-add-account {
-    width: 140px;
+    width: 170px;
+    margin-left: 10px;
     transition: width 150ms ease-in-out;
   }
-  .btn-add-account-spinning {
-    width: 200px;
+  .btn-add-account.spinning {
     img { vertical-align: middle; margin-right: 5px; margin-bottom: 2px; }
   }
+
   .prompt {
     color:#5D5D5D;
     font-size:1.07em;
@@ -73,254 +82,171 @@
     margin-bottom:14px;
   }
 
-  form {
-    padding-right:25px;
-    padding-left:25px;
-  }
-
-  input {
-    display:block;
-    padding:10px;
-    width:100%;
-    margin-bottom:20px;
-    background-color: #F5F5F5;
-    text-align: center;
-  }
-
-  .environment-selector {
-    opacity:0.1;
-    width:292px;
-    margin: 0 auto 20px auto;
-    select {
-      width:100%;
-    }
-  }
-
-  .page-container {
-    z-index: 10;
-    position: absolute;
-    top: 0;
-
-    // Before you `git blame`, hear me out. We want the .page to be
-    // centered in the window, even if the window is transitioning to a smaller
-    // size to show a smaller page. transform:translateX(-50%) would be perfect,
-    // but can result in text aliasing, so we need margin:auto. But that won't
-    // work if the necessary margin is less than zero. So we pad the container
-    // out, such that the .page inside can be centered with positive margin.
-
-    // (Please don't break, it looks bad when our logo goes to the top left
-    // when the user chooses a sign-in method.)
-    left: -50%;
-    width: 200%;
-  }
-
-  .page {
-    margin:auto;
-
-    &.account-setup {
-      padding: 0 15px;
-      width: 330px
-    }
-    &.opaque {
-      background-color: @gray-lighter;
-    }
-  }
-
-  .page-gradient {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    height: 200px;
-    z-index: 5;
-    transition: background 0.3s ease-in-out;
-    &.under {
-      z-index: 0;
-    }
-  }
-
-  .page-background {
-    height: 100%;
-    width: 100%;
-    position: absolute;
-    top: 0;
-  }
-
-  .quit {
+  .close {
     position: fixed;
     z-index: 100;
     top: 1px;
     left: 6px;
   }
 
-  .back,
-  .dismiss {
+  .back {
     position: fixed;
-    top:25px;
-    left:25px;
+    top: 15px;
+    left: 15px;
+    padding: 10px;
   }
 
-  .alpha-fade-enter {
-    opacity: 0.01;
-    transition: all .15s ease-out;
-  }
+  .message {
+    margin-bottom:15px;
+    max-width: 600px;
+    margin: auto;
 
-  .alpha-fade-enter.alpha-fade-enter-active {
-    opacity: 1;
-  }
-  .alpha-fade-leave {
-    opacity: 1;
-    transition: all .15s ease-in;
-  }
-
-  .alpha-fade-leave.alpha-fade-leave-active {
-    opacity: 0.01;
-  }
-
-  .check {
-    width: @checkSize;
-    height: @checkSize;
-    background: #e5e5e5;
-    border-radius:50%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translateX(-50%) translateY(-50%);
-    box-shadow: 0 -4px 4px 0 rgba(255, 255, 255, 0.75), inset 0 4px 4px 0 rgba(0, 0, 0, 0.08);
-
-    &:before {
-      content: "";
-      position: absolute;
-      border-radius:50%;
-      top: 9%;
-      left: 9%;
-      right: 9%;
-      bottom: 9%;
-      box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.08);
-    }
-
-    &:after {
-      content: "";
-      position: absolute;
-      border-radius:50%;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      opacity: 0;
-      background-color: #60b247;
-      border-width: 0;
-      border-color: #e5e5e5;
-      border-style: solid;
-      -webkit-animation: fill 0.5s forwards;
-      -webkit-animation-delay: 0.8s;
-    }
-
-    .check-icon {
-      position: absolute;
-      z-index: 3;
-      top: 31%;
-      left: 28%;
-      width: 45%;
-      fill: white;
-      -webkit-animation: bounce 0.4s forwards;
-      -webkit-animation-delay: 1.9s;
-    }
-  }
-
-  .errormsg {
-    color: #A33;
-    margin-bottom:5px;
-    a {
+    &.error {
       color: #A33;
+      -webkit-user-select: text;
+      a {
+        color: #A33;
+      }
+    }
+    &.empty {
+      color: gray;
     }
   }
 
   form.settings {
     padding: 0 20px;
     padding-bottom: 20px;
+  }
+  input {
+    display: inline-block;
+    width: 100%;
+    padding: 7px;
+    margin-bottom: 10px;
+    background: #FFF;
+    color: #333;
+    text-align: left;
+    border: 1px solid #AAA;
 
-    input {
-      padding: 8px;
-      display: inline-block;
-      width: 100%;
-      margin-bottom: 10px;
-      background: #FFF;
-      color: #333;
-      text-align: left;
-      border: 1px solid #AAA;
-
-      &::-webkit-input-placeholder {
-        color: #C6C6C6;
-      }
-
-      &:disabled {
-        background: fadeout(@input-bg, 40%);
-      }
+    &::-webkit-input-placeholder {
+      color: #C6C6C6;
     }
-    input[type=checkbox] {
+
+    &[type=checkbox] {
       width: initial;
       margin-right: 5px;
     }
 
-    input.error {
+    &:disabled {
+      background: fadeout(@input-bg, 40%);
+    }
+    &.error {
       border: 1px solid #A33;
     }
-
-    label {
-      display: inline-block;
-      width: 100%;
-      color: #888;
-      text-align: left;
-    }
-
-    label.half {
-      width: 50%;
-    }
-
-    label.checkbox {
-      text-align: center;
-    }
-
-    .btn {
-      margin-top:8px;
-    }
   }
 
-  .appearance-mode {
-    background-color:#f7f9f9;
-    border-radius: 10px;
-    border: 1px solid #c6c7c7;
-    text-align: center;
+  label {
+    display: inline-block;
+    white-space: nowrap;
+    width: 100%;
+    color: #888;
+    text-align: left;
+    padding:3px 0;
+  }
+
+  label[for=subscribe-check] {
+    color: black;
+    white-space: inherit;
+  }
+
+  label.checkbox {
+    width: inherit;
+  }
+
+  .toggle-advanced {
+    display: inline-block;
+    width: 100%;
+    font-size: 0.94em;
+    text-align: right;
+    padding: 0;
+  }
+
+  .btn {
+    margin-top:8px;
+  }
+}
+
+.page.authenticate {
+  flex: 1;
+  display: flex;
+
+  webview {
+    display: flex;
     flex: 1;
-    padding:9px;
-    padding-top:10px;
-    margin:10px;
-    margin-top:0;
-    img {
-      background-color: #c6c7c7;
-    }
-    div {
-      margin-top: 10px;
-      text-transform: capitalize;
-      cursor: default;
+  }
+
+  .webview-loading-spinner {
+    position: absolute;
+    right: 17px;
+    top: 17px;
+    opacity: 0;
+    transition: opacity 200ms ease-in-out;
+    transition-delay: 200ms;
+    &.loading-true {
+      opacity: 1;
     }
   }
-  .appearance-mode.active {
-    border:1px solid @component-active-color;
-    color: @component-active-color;
-    img { background-color: @component-active-color; }
+
+  .webview-cover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #F3F3F3;
+    opacity: 1;
+    transition: opacity 200ms ease-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    .message {
+      color: #444;
+      opacity: 0;
+      margin-top: 20px;
+      transition: opacity 200ms ease-out;
+    }
+    .try-again {
+      opacity: 0;
+      transition: opacity 200ms ease-out;
+    }
+  }
+  .webview-cover.slow,
+  .webview-cover.error {
+    .message {
+      opacity: 1;
+      max-width: 400px;
+    }
+  }
+  .webview-cover.error {
+    .spinner { visibility: hidden;}
+    .try-again {
+      opacity: 1;
+    }
+  }
+  .webview-cover.ready {
+    pointer-events: none;
+    opacity: 0;
   }
 }
 
 .page.account-choose {
-  width: 330px;
-  height: 478px;
-
-  .caption {
-    font-size: 19px;
-    color: rgba(0,0,0,0.56);
+  h2 {
+    margin-top: 70px;
   }
 
+  .provider-list {
+    margin:auto;
+    width: 400px;
+  }
   .provider-name {
     font-size: 18px;
     font-weight: 300;
@@ -329,7 +255,6 @@
 
   .provider {
     text-align: left;
-    border-top: 1px solid rgba(0,0,0,0.05);
     cursor: default;
     line-height: 63px;
 
@@ -348,113 +273,72 @@
   }
 }
 
-.page.token-auth.token-auth-enabled {
-  height: auto;
-  padding-bottom:25px;
+.page.account-setup {
+  form {
+    width: 400px;
+    padding-top: 20px;
+    margin: auto;
+  }
+  .twocol {
+    display: flex;
+    flex-direction: row;
+    width: 700px;
+    margin: auto;
+    transition: width 400ms ease-in-out;
+  }
+  .twocol.hide-second-column {
+    width: 400px;
+    .col:nth-child(2) {
+      opacity: 0;
+      flex: 0;
+      padding: 0;
+      flex-shrink: 1;
+    }
+    .col:first-child {
+    }
+  }
+  .col {
+    flex: 1;
+    padding: 0 20px;
+    opacity: 1;
+    border-left: 1px solid #ddd;
+    overflow: hidden;
+    transition: all 400ms ease-in-out;
+  }
+  .col:first-child {
+    border-left: none;
+  }
+  .col-heading {
+    text-align: left;
+    padding-bottom: 15px;
+  }
 }
-.page.token-auth {
-  width: 388px;
-  min-height: 478px;
-  position: relative;
 
-  padding-top: 40px;
-  img.logo.content-mask {
-    background-color: rgba(255,255,255,0.4);
+.page.account-setup.AccountExchangeSettingsForm {
+  .logo-container {
+    padding-top: 36px;
   }
-
-  .caption {
-    font-size: 17px;
-    color: rgba(0,0,0,0.56);
-  }
-
-  .token-label {
-    max-width: 75%;
-  }
-
-  input {
-    display:block;
-    padding:10px;
-    width:75%;
-    margin: 0 auto 20px auto;
-    background-color: #F5F5F5;
-    text-align: center;
-  }
-
-  input.error {
-    border: 1px solid #A33;
+  .twocol {
+    padding-top: 10px;
+    padding-bottom: 10px;
   }
 }
 
-.initial-package {
-  display:block;
-  margin:auto;
-  margin-top:10px;
-  margin-bottom:10px;
-  width:550px;
-  padding:15px;
-  border:1px solid #e1e1e1;
-  text-align:left;
-  cursor: default;
-
-  .icon-container {
-    float:left;
-    width: 52px;
-    height: 52px;
-    border-radius: 6px;
-    background: linear-gradient(to bottom, @background-primary 0%, @background-secondary 100%);
-    box-shadow: 0 0.5px 0 rgba(0,0,0,0.15), 0 -0.5px 0 rgba(0,0,0,0.15), 0.5px 0 0 rgba(0,0,0,0.15), -0.5px 0 0 rgba(0,0,0,0.15), 0 0.5px 1px rgba(0, 0, 0, 0.15);
-    flex-shrink: 0;
-    text-align: center;
-    line-height: 50px;
-    margin: 12px;
-    margin-left: 5px;
-    margin-right: 20px;
+.page.account-setup.AccountIMAPSettingsForm {
+  h2 {
+    padding-top: 36px;
   }
-  .name {
-    font-size:20px;
+  .logo-container {
+    display: none;
   }
-  .description {
-    font-size:14px;
-    max-width:500px;
+  .twocol {
+    padding-top: 20px;
+    padding-bottom: 10px;
   }
-
-  .install-container {
-    width: 90px;
-    float: right;
-    text-align: right;
-  }
-  .btn-install {
-    display:inline-block;
-    width: 56px;
-    margin: 24px;
-    margin-right: 7px;
-    margin-left: 14px;
-    height: 24px;
-    color: @text-color;
-    transition: width 150ms ease-in-out, color 150ms ease-in-out;
-  }
-  .btn-install:after {
-    content: "Install";
-  }
-  .btn-install.installing {
-    width: 32px;
-    color: transparent;
-    background: url('nylas://onboarding/assets/installing-spinner.gif') center no-repeat;
-    background-size: 18px;
-    box-shadow: none;
-  }
-  .btn-install.installed {
-    width: 32px;
-    height: 32px;
-    margin-top: 20px;
-    color: transparent;
-    background: url('nylas://onboarding/assets/green_check@2x.png') center no-repeat;
-    background-size: 27px;
-    box-shadow: none;
-  }
-  .btn-install.installed:after,
-  .btn-install.installing:after {
-    content: "";
+}
+.page.account-setup.gmail {
+  .logo-container {
+    padding-top: 160px;
   }
 }
 
@@ -468,11 +352,114 @@
   background-size: 16px;
 }
 
-.welcome-page {
-  width: 675px;
-  height: 470px;
+.page.tutorial {
   display: flex;
   flex-direction: column;
+
+  &.appeared-false {
+    .tutorial-container .left {
+      transform: translate3d(-30px, 0, 0);
+      opacity: 0;
+    }
+    .tutorial-container .right {
+      transform: translate3d(30px, 0, 0);
+      opacity: 0;
+    }
+  }
+
+  .tutorial-container {
+    background-color: #F9F9F9;
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+
+    .left {
+      align-self: center;
+      flex: 2;
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+      transition: all ease-in-out 400ms;
+
+      .screenshot {
+        width: 523px;
+        height: 385px;
+        background:url(nylas://onboarding/assets/app-screenshot@2x.png) top left no-repeat;
+        background-size: contain;
+        margin:auto;
+        position: relative;
+
+        .overlay {
+          position: absolute;
+          width:40px;
+          height:40px;
+          border: 2px solid rgba(0,0,0,0.7);
+          border-radius: 20px;
+          transform:translate3d(-50%, -50%, 0);
+          transition: all cubic-bezier(0.65, 0.05, 0.36, 1) 260ms;
+
+          .overlay-content {
+            transition: all cubic-bezier(0.65, 0.05, 0.36, 1) 260ms;
+            transform: translate3d(-67px,-67px,0) scale(0.21);
+            background:url(nylas://onboarding/assets/app-screenshot@2x.png) top left no-repeat;
+            background-position: 10% 20%;
+            border-radius: 73px;
+            width: 146px;
+            height: 146px;
+            opacity: 0;
+            display: block;
+            position: absolute;
+          }
+        }
+        .overlay.seen {
+          border: 2px solid rgba(0,0,0,0.3);
+        }
+        .overlay.expanded {
+          width:150px;
+          height:150px;
+          border: 2px solid rgba(0,0,0,0.7);
+          border-radius: 75px;
+          box-shadow: 0 0 15px fade(#2673D1, 50%);
+          z-index: 2;
+
+          .overlay-content {
+            transform:scale(1);
+            opacity: 1;
+          }
+        }
+      }
+    }
+
+    .right {
+      flex: 1;
+      padding: 30px;
+      padding-left: 0;
+      opacity: 1;
+      transform:translate3d(0, 0, 0);
+      transition: all ease-in-out 400ms;
+
+      h2 {
+        font-size: 31px;
+        font-weight: 300;
+        text-align: center;
+      }
+      p {
+        font-size: 16px;
+        line-height: 1.85em;
+        text-align: left;
+        padding: 10px 0;
+        color: #333;
+      }
+    }
+  }
+}
+
+.page.welcome {
+  display: flex;
+  flex-direction: column;
+
+  .footer {
+    background-image: linear-gradient(to right, rgba(167,214,134,1) 0%,rgba(122,201,201,1) 100%);
+  }
 
   @-webkit-keyframes slideIn {
     from {
@@ -486,259 +473,70 @@
   }
 
   a {
-    color: rgba(255,255,255,0.7);
-    border-bottom: 1px solid rgba(255,255,255,0.7);
+    color: white;
+    border-bottom: 1px solid white;
+    text-decoration: none;
+    font-weight: 300;
     &:hover {
-      cursor: default;
-      color: white;
-      border-bottom: 1px solid white;
+      background-color: rgba(255,255,255,0.1);
     }
   }
 
   .steps-container {
     position: relative;
     flex: 1;
+    background-image: linear-gradient(to right, rgba(149,205,107,1) 0%,rgba(60,176,176,1) 100%);
+    color: white;
   }
 
-  .step-wrap {
+  .hero-text {
+    font-size: 34px;
+    line-height: 41px;
+    font-weight: 200;
+    cursor: default;
+    -webkit-font-smoothing: subpixel-antialiased;
+  }
+
+  .sub-text {
+    font-size: 17px;
+    font-weight: 300;
+  }
+
+  img.icons {
     position: absolute;
-    overflow: hidden;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    transition: all 0.3s;
-    z-index: 1;
-
-    opacity: 0;
-    &.active {
-      opacity: 1;
-      z-index: 3;
-    }
+    pointer-events: none;
   }
+}
 
+.page.welcome.is-first-account-false {
+  .footer {
+    background-image: linear-gradient(to left, rgba(167,214,134,1) 0%,rgba(122,201,201,1) 100%);
+  }
+  .steps-container {
+    background-image: linear-gradient(to left, rgba(149,205,107,1) 0%,rgba(60,176,176,1) 100%);
+  }
+}
+.page.welcome,
+.page.tutorial {
   .footer {
     text-align: center;
-    background: #ececec;
+    background-color: #ececec;
     border-top: 1px solid rgba(0,0,0,0.10);
     box-shadow: 0 1px 1px solid rgba(255,255,255,0.25);
 
-    &.step-0 {
-      background-image: linear-gradient(to right, rgba(167,214,134,1) 0%,rgba(122,201,201,1) 100%);
+    .btn-next,
+    .btn-prev {
+      width: 160px;
+      margin: 20px 10px;
     }
-    &.step-1 {
-      background: #4e575c;
-    }
-    &.step-2 {
-      background-image: linear-gradient(to right, rgba(136,208,184,1) 0%,rgba(105,199,210,1) 100%);
-    }
-
     .btn-continue {
-      font-size: 17px;
       font-weight: 300;
       margin: 20px 0;
       width: 296px;
       line-height: 2.5em;
       height: 2.5em;
-    }
-    .btn-back {
-      color: rgba(0,0,0,0.4);
-      &:hover {
-        color: rgba(0,0,0,0.7);
-        cursor: default;
-      }
-      position: absolute;
-      left: 20px;
-      bottom: 30px;
-    }
-  }
-
-  p.hero-text {
-    font-weight: 200;
-    -webkit-font-smoothing: subpixel-antialiased;
-  }
-  p.sub-text {
-    font-size: 17px;
-    font-weight: 300;
-  }
-
-  .nylas-wash-light-bg {
-    background-image: linear-gradient(to bottom, rgba(236,236,236,0) 0%, rgba(236,236,236,1) 88%), linear-gradient(to right, rgba(213,224,0,0.47) 0%,rgba(88,182,63,0.47) 50%,rgba(12,162,163,0.47) 100%);
-    color: white;
-  }
-
-  .nylas-wash-bg {
-    background: rgba(101, 191, 191, 0.44);
-    background-image: linear-gradient(to right, rgba(213,224,0,0.35) 0%,rgba(88,182,63,0.35) 50%,rgba(12,162,163,0.35) 100%);
-    color: white;
-  }
-
-  .nylas-static-wash-bg {
-    background-image: linear-gradient(to right, rgba(149,205,107,1) 0%,rgba(60,176,176,1) 100%);
-    color: white;
-  }
-
-  .nylas-dark-bg {
-    background: rgba(58, 68, 74, 1);
-    color: rgba(255,255,255,0.7);
-    .sub-text {
-      color: rgba(255,255,255,0.5);
-    }
-  }
-
-  .nylas-blue-wash-bg {
-    background-image: linear-gradient(to right, rgba(79,186,151,1) 0%, rgba(34,172,187,1) 100%);
-    color: white;
-  }
-
-  .step-0-wrap {
-    .nylas-static-wash-bg;
-
-    .hero-text {
-      font-size: 34px;
-      line-height: 41px;
-    }
-
-    img.icons.content-mask {
-      background-color: rgba(255,255,255,0.7);
-    }
-  }
-
-  .step-1-wrap {
-    .nylas-dark-bg;
-
-    .hero-text {
-      font-size: 29px;
-    }
-    .gear-outer-container {
-      background: #69767f;
-      border: 1px solid #161f25;
-      width: 210px;
-      height: 210px;
-      margin: 20px auto 15px auto;
-      border-radius: 105px;
-    }
-    .gear-container {
-      position: relative;
-      background: #182025;
-      border: 4px solid #161f25;
-      width: 204px;
-      height: 204px;
-      margin: 3px auto;
-      border-radius: 102px;
-      overflow: hidden;
-      // http://stackoverflow.com/questions/5736503/how-to-make-css3-rounded-corners-hide-overflow-in-chrome-opera
-      -webkit-mask-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC);
-    }
-
-    &.active {
-      @keyframes rotate {
-        from { transform: rotate(0deg); }
-          to { transform: rotate(720deg); }
-      }
-      @keyframes rotate-2 {
-        from { transform: rotate(7deg); }
-          to { transform: rotate(727deg); }
-      }
-
-      .gear-large {
-        animation: rotate 20s ease-in-out;
-        animation-iteration-count: infinite;
-      }
-      .gear-large-0{
-        animation-name: rotate-2;
-        animation-direction: reverse;
-      }
-    }
-
-    .gear-large {
-      position: absolute;
-    }
-
-    .gear-large-0 {
-      left: 51%;
-      top: 51%;
-      margin-left: -148px;
-      margin-top: -149px;
-      transform: rotate(7deg);
-      zoom: 0.525 !important;
-    }
-    .gear-large-1 {
-      left: -147px;
-      top: -147px;
-    }
-    .gear-large-2 {
-      right: -147px;
-      top: -147px;
-    }
-    .gear-large-3 {
-      left: 50%;
-      margin-left: -143px;
-      bottom: -223px;
-    }
-
-    .gear-small {
-      position: absolute;
-      top: 470px;
-      left: 390px;
-    }
-    .wrench {
-      position: absolute;
-      right: 310px;
-      top: 370px;
-    }
-  }
-
-  .step-2-wrap {
-    .nylas-blue-wash-bg;
-    .cell-wrap {
-      width: 514px;
-      margin: 30px auto 0 auto;
-    }
-
-    .cell {
-      width: 242px;
-      background: rgba(247, 251, 251, 0.25);
-      border-radius: 10px;
-      box-shadow: 0 1px 1px rgba(0,0,0,0.09), inset 0 0 1px rgba(255,255,255,0.15);
-      padding: 30px 0;
-
-      p {
-        margin-top: 1em;
-        color: rgba(255,255,255,0.9);
-        font-size: 17px;
-        line-height: 24px;
-      }
-      a {
-        margin-top: 1em;
-      }
-    }
-
-    .hero-text {
-      font-size: 39px;
-      opacity: 0.7;
-    }
-  }
-
-  .nav-bubbles {
-    position: absolute;
-    bottom: 7px;
-    left: 50%;
-    margin-left: -24px;
-    display: flex;
-    width: 48px;
-  }
-  .nav-bubble {
-    margin: 4px;
-    width: 8px;
-    height: 8px;
-    border-radius: 4px;
-    background-color: rgba(255,255,255,0.2);
-    &:hover {
-      background-color: rgba(255,255,255,0.4);
-    }
-    &.active {
-      background-color: rgba(255,255,255,0.7);
     }
   }
 }
@@ -752,33 +550,32 @@ body.platform-win32 {
       transition: opacity .01s ease-in;
     }
   }
-  .initial-package {
-    .btn-install {
-      height: auto;
-    }
-    .btn-install:after {
-      content: "Install";
-    }
-    .btn-install.installing {
-      height: 32px;
-      border: 0;
-      &:hover {
-        background: url('nylas://onboarding/assets/installing-spinner.gif') center no-repeat;
-        background-size: 18px;
-      }
-    }
-    .btn-install.installed {
-      border: 0;
-      height: 32px;
-      &:hover {
-        background: url('nylas://onboarding/assets/green_check@2x.png') center no-repeat;
-        background-size: 27px;
-      }
-    }
-    .btn-install.installed:after,
-    .btn-install.installing:after {
-      content: "";
-    }
-  }
+}
 
+
+// Individual Components
+
+.appearance-mode {
+  background-color:#f7f9f9;
+  border-radius: 10px;
+  border: 1px solid #c6c7c7;
+  text-align: center;
+  flex: 1;
+  padding:9px;
+  padding-top:10px;
+  margin:10px;
+  margin-top:0;
+  img {
+    background-color: #c6c7c7;
+  }
+  div {
+    margin-top: 10px;
+    text-transform: capitalize;
+    cursor: default;
+  }
+}
+.appearance-mode.active {
+  border:1px solid @component-active-color;
+  color: @component-active-color;
+  img { background-color: @component-active-color; }
 }

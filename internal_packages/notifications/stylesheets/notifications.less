@@ -135,13 +135,14 @@
   .notification-developer {
     background-color: #615396;
   }
+  .notification-upgrade {
+    background-image: -webkit-linear-gradient(bottom, #429E91, #40b1ac);
+    img { background-color: @text-color-inverse; }
+  }
   .notification-error {
     background: linear-gradient(to top, darken(@background-color-error, 4%) 0%, @background-color-error 100%);
     border-color: @background-color-error;
     color: @color-error;
-  }
-  .notification-success {
-    border-color: @background-color-success;
   }
   .notification-offline {
     background: linear-gradient(to top, darken(#CC9900, 4%) 0%, #CC9900 100%);
@@ -151,7 +152,7 @@
   .notifications-sticky-item {
     display:flex;
     font-size: @font-size-base;
-    color:@text-color-inverse;
+    color: @text-color-inverse;
     border-bottom:1px solid rgba(0,0,0,0.25);
     padding-left: @padding-base-horizontal;
     line-height: @line-height-base * 1.5;

@@ -153,6 +153,12 @@ class Actions
   @clearDeveloperConsole: ActionScopeWindow
 
   ###
+  Public: Manage the Nylas identity
+  ###
+  @setNylasIdentity: ActionScopeWindow
+  @logoutNylasIdentity: ActionScopeWindow
+
+  ###
   Public: Remove the selected account
 
   *Scope: Window*

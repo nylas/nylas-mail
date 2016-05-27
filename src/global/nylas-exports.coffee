@@ -122,6 +122,7 @@ class NylasExports
   @lazyLoadAndRegisterStore "AccountStore", 'account-store'
   @lazyLoadAndRegisterStore "MessageStore", 'message-store'
   @lazyLoadAndRegisterStore "ContactStore", 'contact-store'
+  @lazyLoadAndRegisterStore "IdentityStore", 'identity-store'
   @lazyLoadAndRegisterStore "MetadataStore", 'metadata-store'
   @lazyLoadAndRegisterStore "CategoryStore", 'category-store'
   @lazyLoadAndRegisterStore "UndoRedoStore", 'undo-redo-store'

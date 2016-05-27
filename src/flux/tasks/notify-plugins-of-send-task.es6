@@ -73,7 +73,7 @@ Any plugins you used in your sent message will not be available.`
 
   performRemote() {
     return new Promise((resolve) => {
-      EdgehillAPI.request({
+      EdgehillAPI.makeRequest({
         method: "POST",
         path: "/plugins/send-successful",
         body: {

@@ -29,7 +29,7 @@ class NewsletterSignup extends React.Component
 
   _onGetStatus: (props = @props) =>
     @_setState({status: 'Pending'})
-    EdgehillAPI.request
+    EdgehillAPI.makeRequest
       method: 'GET'
       path: @_path(props)
       success: (status) =>
@@ -42,7 +42,7 @@ class NewsletterSignup extends React.Component
 
   _onSubscribe: =>
     @_setState({status: 'Pending'})
-    EdgehillAPI.request
+    EdgehillAPI.makeRequest
       method: 'POST'
       path: @_path()
       success: (status) =>
@@ -52,7 +52,7 @@ class NewsletterSignup extends React.Component
 
   _onUnsubscribe: =>
     @_setState({status: 'Pending'})
-    EdgehillAPI.request
+    EdgehillAPI.makeRequest
       method: 'DELETE'
       path: @_path()
       success: (status) =>
