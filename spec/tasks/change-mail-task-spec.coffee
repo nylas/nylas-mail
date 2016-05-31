@@ -48,8 +48,9 @@ describe "ChangeMailTask", ->
         models = models[0]
       Promise.resolve(models)
 
-    spyOn(DatabaseTransaction.prototype, 'persistModels').andReturn(Promise.resolve())
-    spyOn(DatabaseTransaction.prototype, 'persistModel').andReturn(Promise.resolve())
+    @transaction = new DatabaseTransaction()
+    spyOn(@transaction, 'persistModels').andReturn(Promise.resolve())
+    spyOn(@transaction, 'persistModel').andReturn(Promise.resolve())
 
   it "leaves subclasses to implement changesToModel", ->
     task = new ChangeMailTask()
@@ -100,15 +101,15 @@ describe "ChangeMailTask", ->
 
     it "calls _applyChanges and writes changed threads to the database", ->
       waitsForPromise =>
-        @task._performLocalThreads().then =>
+        @task._performLocalThreads(@transaction).then =>
           expect(@task._applyChanges).toHaveBeenCalledWith(@task.threads)
-          expect(DatabaseTransaction.prototype.persistModels).toHaveBeenCalledWith([@threadAChanged])
+          expect(@transaction.persistModels).toHaveBeenCalledWith([@threadAChanged])
 
     describe "when processNestedMessages is overridden to return true", ->
       it "fetches messages on changed threads and appends them to the messages to update", ->
         waitsForPromise =>
           @task.processNestedMessages = => true
-          @task._performLocalThreads().then =>
+          @task._performLocalThreads(@transaction).then =>
             expect(@task._applyChanges).toHaveBeenCalledWith(@task.threads)
             expect(@task.messages).toEqual([@threadAMesage1, @threadAMesage2])
 
@@ -121,9 +122,9 @@ describe "ChangeMailTask", ->
 
     it "calls _applyChanges and writes changed messages to the database", ->
       waitsForPromise =>
-        @task._performLocalMessages().then =>
+        @task._performLocalMessages(@transaction).then =>
           expect(@task._applyChanges).toHaveBeenCalledWith(@task.messages)
-          expect(DatabaseTransaction.prototype.persistModels).toHaveBeenCalledWith([@threadBMesage1])
+          expect(@transaction.persistModels).toHaveBeenCalledWith([@threadBMesage1])
 
   describe "_applyChanges", ->
     beforeEach ->

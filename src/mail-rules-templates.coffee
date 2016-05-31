@@ -107,6 +107,10 @@ module.exports =
         name: 'Apply Label'
         values: CategoryNamesObservable
       })
+      templates.unshift new Template('moveToLabel', Template.Type.Enum, {
+        name: 'Move to Label'
+        values: CategoryNamesObservable
+      })
 
     else
       templates.push new Template('changeFolder', Template.Type.Enum, {
