@@ -103,7 +103,7 @@ export function runAuthRequest(accountInfo) {
     method: 'POST',
     body: data,
     returnsModel: false,
-    timeout: 60000,
+    timeout: 150000,
     auth: {
       user: '',
       pass: '',
