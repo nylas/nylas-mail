@@ -106,25 +106,26 @@ describe "ChangeFolderTask", ->
         task.performLocal().then =>
           expect(task.__proto__.__proto__.performLocal).toHaveBeenCalled()
 
-    describe "when object IDs are provided", ->
-      beforeEach ->
-        @task = new ChangeFolderTask(folder: "f1", threads: ['t1'])
+    describe "retrieveModels", ->
+      describe "when object IDs are provided", ->
+        beforeEach ->
+          @task = new ChangeFolderTask(folder: "f1", threads: ['t1'])
 
-      it 'resolves the objects before calling super', ->
-        waitsForPromise =>
-          @task.performLocal().then =>
-            expect(@task.folder).toEqual(testFolders['f1'])
-            expect(@task.threads).toEqual([testThreads['t1']])
+        it 'resolves the objects before calling super', ->
+          waitsForPromise =>
+            @task.retrieveModels().then =>
+              expect(@task.folder).toEqual(testFolders['f1'])
+              expect(@task.threads).toEqual([testThreads['t1']])
 
-    describe "when objects are provided", ->
-      beforeEach ->
-        @task = new ChangeFolderTask(folder: testFolders['f1'], threads: [testThreads['t1'], testThreads['t2']])
+      describe "when objects are provided", ->
+        beforeEach ->
+          @task = new ChangeFolderTask(folder: testFolders['f1'], threads: [testThreads['t1'], testThreads['t2']])
 
-      it 'still has the objects when calling super', ->
-        waitsForPromise =>
-          @task.performLocal().then =>
-            expect(@task.folder).toEqual(testFolders['f1'])
-            expect(@task.threads).toEqual([testThreads['t1'],testThreads['t2']])
+        it 'still has the objects when calling super', ->
+          waitsForPromise =>
+            @task.retrieveModels().then =>
+              expect(@task.folder).toEqual(testFolders['f1'])
+              expect(@task.threads).toEqual([testThreads['t1'],testThreads['t2']])
 
     describe "change methods", ->
       beforeEach ->

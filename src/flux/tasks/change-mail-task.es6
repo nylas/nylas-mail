@@ -143,8 +143,6 @@ export default class ChangeMailTask extends Task {
 
   // See {Task::performLocal} for more usage info
 
-  // Note: Currently, *ALL* subclasses must use `DatabaseStore.modelify`
-  // to convert `threads` and `messages` from models or ids to models.
   performLocal() {
     if (this._isUndoTask && !this._restoreValues) {
       return Promise.reject(new Error("ChangeMailTask: No _restoreValues provided for undo task."))
@@ -155,12 +153,22 @@ export default class ChangeMailTask extends Task {
       this._lockAll();
     }
 
-    return this._performLocalThreads().then(() =>
-      this._performLocalMessages()
-    );
+    return DatabaseStore.inTransaction((t) => {
+      return this.retrieveModels().then(() => {
+        return this._performLocalThreads(t)
+      }).then(() => {
+        return this._performLocalMessages(t)
+      })
+    });
   }
 
-  _performLocalThreads() {
+  retrieveModels() {
+    // Note: Currently, *ALL* subclasses must use `DatabaseStore.modelify`
+    // to convert `threads` and `messages` from models or ids to models.
+    return Promise.resolve();
+  }
+
+  _performLocalThreads(transaction) {
     const changed = this._applyChanges(this.threads);
     const changedIds = _.pluck(changed, 'id');
 
@@ -168,9 +176,7 @@ export default class ChangeMailTask extends Task {
       return Promise.resolve();
     }
 
-    return DatabaseStore.inTransaction((t) =>
-      t.persistModels(changed)
-    ).then(() => {
+    return transaction.persistModels(changed).then(() => {
       if (!this.processNestedMessages()) {
         return Promise.resolve();
       }
@@ -181,16 +187,9 @@ export default class ChangeMailTask extends Task {
     });
   }
 
-  _performLocalMessages() {
+  _performLocalMessages(transaction) {
     const changed = this._applyChanges(this.messages);
-
-    if (changed.length === 0) {
-      return Promise.resolve();
-    }
-
-    return DatabaseStore.inTransaction((t) =>
-      t.persistModels(changed)
-    );
+    return (changed.length > 0) ? transaction.persistModels(changed) : Promise.resolve();
   }
 
   _applyChanges(modelArray) {

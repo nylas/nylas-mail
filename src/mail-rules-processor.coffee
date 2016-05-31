@@ -29,49 +29,54 @@ MailRulesActions =
       accountId: thread.accountId
     }).then (important) ->
       return Promise.reject(new Error("Could not find `important` label")) unless important
-      return new ChangeLabelsTask(labelsToAdd: [important], threads: [thread])
+      return new ChangeLabelsTask(labelsToAdd: [important], threads: [thread.id])
 
   moveToTrash: (message, thread) ->
     if AccountStore.accountForId(thread.accountId).usesLabels()
-      return MailRulesActions._applyStandardLabelRemovingInbox(message, thread, 'trash')
+      return MailRulesActions.moveToLabel(message, thread, 'trash')
     else
       DatabaseStore.findBy(Category, { name: 'trash', accountId: thread.accountId }).then (folder) ->
         return Promise.reject(new Error("The folder could not be found.")) unless folder
-        return new ChangeFolderTask(folder: folder, threads: [thread])
+        return new ChangeFolderTask(folder: folder, threads: [thread.id])
 
   markAsRead: (message, thread) ->
-    new ChangeUnreadTask(unread: false, threads: [thread])
+    new ChangeUnreadTask(unread: false, threads: [thread.id])
 
   star: (message, thread) ->
-    new ChangeStarredTask(starred: true, threads: [thread])
+    new ChangeStarredTask(starred: true, threads: [thread.id])
 
   changeFolder: (message, thread, value) ->
     return Promise.reject(new Error("A folder is required.")) unless value
     DatabaseStore.findBy(Category, { id: value, accountId: thread.accountId }).then (folder) ->
       return Promise.reject(new Error("The folder could not be found.")) unless folder
-      return new ChangeFolderTask(folder: folder, threads: [thread])
+      return new ChangeFolderTask(folder: folder, threads: [thread.id])
 
   applyLabel: (message, thread, value) ->
     return Promise.reject(new Error("A label is required.")) unless value
     DatabaseStore.findBy(Category, { id: value, accountId: thread.accountId }).then (label) ->
       return Promise.reject(new Error("The label could not be found.")) unless label
-      return new ChangeLabelsTask(labelsToAdd: [label], threads: [thread])
+      return new ChangeLabelsTask(labelsToAdd: [label], threads: [thread.id])
 
+  # Should really be moveToArchive but stuck with legacy name
   applyLabelArchive: (message, thread) ->
-    return MailRulesActions._applyStandardLabelRemovingInbox(message, thread, 'all')
+    return MailRulesActions.moveToLabel(message, thread, 'all')
 
-  # Helpers for other actions
+  moveToLabel: (message, thread, nameOrId) ->
+    return Promise.reject(new Error("A label is required.")) unless nameOrId
 
-  _applyStandardLabelRemovingInbox: (message, thread, value) ->
     Promise.props(
-      inbox: DatabaseStore.findBy(Category, { name: 'inbox', accountId: thread.accountId })
-      newLabel: DatabaseStore.findBy(Category, { name: value, accountId: thread.accountId })
-    ).then ({inbox, newLabel}) ->
-      return Promise.reject(new Error("Could not find `inbox` or `#{value}` label")) unless inbox and newLabel
-      return new ChangeLabelsTask
-        labelsToRemove: [inbox]
-        labelsToAdd: [newLabel]
-        threads: [thread]
+      withId: DatabaseStore.findBy(Category, { id: nameOrId, accountId: thread.accountId })
+      withName: DatabaseStore.findBy(Category, { name: nameOrId, accountId: thread.accountId })
+    ).then ({withId, withName}) ->
+      label = withId || withName
+      return Promise.reject(new Error("The label could not be found.")) unless label
+      return new ChangeLabelsTask({
+        labelsToRemove: [].concat(thread.labels).filter((l) =>
+          !l.isLockedCategory() and l.id isnt label.id
+        ),
+        labelsToAdd: [label],
+        threads: [thread.id]
+      })
 
 
 class MailRulesProcessor

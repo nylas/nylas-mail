@@ -62,7 +62,7 @@ export default class ChangeFolderTask extends ChangeMailTask {
   }
 
   isDependentOnTask(other) {
-    return (other instanceof SyncbackCategoryTask);
+    return super.isDependentOnTask(other) || (other instanceof SyncbackCategoryTask);
   }
 
   performLocal() {
@@ -76,8 +76,10 @@ export default class ChangeFolderTask extends ChangeMailTask {
       return Promise.reject(new Error("ChangeFolderTask: You must provide a `threads` or `messages` Array of models or IDs."))
     }
 
-    // Convert arrays of IDs or models to models.
-    // modelify returns immediately if (no work is required)
+    return super.performLocal();
+  }
+
+  retrieveModels() {
     return Promise.props({
       folder: DatabaseStore.modelify(Category, [this.folder]),
       threads: DatabaseStore.modelify(Thread, this.threads),
@@ -93,9 +95,7 @@ export default class ChangeFolderTask extends ChangeMailTask {
       if (!this.folder) {
         return Promise.reject(new Error("The specified folder could not be found."));
       }
-
-      // The base class does the heavy lifting and calls changesToModel
-      return super.performLocal();
+      return Promise.resolve();
     });
   }
 

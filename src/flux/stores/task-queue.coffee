@@ -276,11 +276,11 @@ class TaskQueue
 
   _tasksDependingOn: (task) ->
     _.filter @_queue, (otherTask) ->
-      otherTask.isDependentOnTask(task) and task isnt otherTask
+      task isnt otherTask and otherTask.isDependentOnTask(task)
 
   _taskIsBlocked: (task) =>
     _.any @_queue, (otherTask) ->
-      task.isDependentOnTask(otherTask) and task isnt otherTask
+      task isnt otherTask and task.isDependentOnTask(otherTask)
 
   _resolveTaskArgument: (taskOrId) =>
     if not taskOrId
