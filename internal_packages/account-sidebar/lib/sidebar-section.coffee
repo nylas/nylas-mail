@@ -58,10 +58,11 @@ class SidebarSection
 
     standardNames = [
       'inbox',
+      'important'
       'sent',
       ['archive', 'all'],
-      'trash'
       'spam'
+      'trash'
     ]
     items = []
 
