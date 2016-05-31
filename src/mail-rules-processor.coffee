@@ -91,7 +91,7 @@ class MailRulesProcessor
     # When messages arrive, we process all the messages in parallel, but one
     # rule at a time. This is important, because users can order rules which
     # may do and undo a change. Ie: "Star if from Ben, Unstar if subject is "Bla"
-    Promise.each enabledRules, (rule) =>
+    return Promise.each enabledRules, (rule) =>
       matching = messages.filter (message) =>
         @_checkRuleForMessage(rule, message)
 
@@ -101,12 +101,12 @@ class MailRulesProcessor
       matching = _.uniq matching, false, (message) ->
         message.threadId
 
-      Promise.map matching, (message) =>
+      return Promise.map matching, (message) =>
         # We always pull the thread from the database, even though it may be in
         # `incoming.thread`, because rules may be modifying it as they run!
         DatabaseStore.find(Thread, message.threadId).then (thread) =>
           return console.warn("Cannot find thread #{message.threadId} to process mail rules.") unless thread
-          @_applyRuleToMessage(rule, message, thread)
+          return @_applyRuleToMessage(rule, message, thread)
 
   _checkRuleForMessage: (rule, message) =>
     if rule.conditionMode is ConditionMode.All
@@ -136,7 +136,7 @@ class MailRulesProcessor
         performLocalPromises.push TaskQueueStatusStore.waitForPerformLocal(task)
         Actions.queueTask(task)
 
-      Promise.all(performLocalPromises)
+      return Promise.all(performLocalPromises)
 
     .catch (err) ->
       # Errors can occur if a mail rule specifies an invalid label or folder, etc.
