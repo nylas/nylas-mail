@@ -76,7 +76,7 @@ class PreferencesIdentity extends React.Component {
   _renderPaymentRow() {
     const {identity, trialDaysRemaining, subscriptionState} = this.state
 
-    if (subscriptionState === IdentityStore.SubscriptionState.Trialing) {
+    if (subscriptionState === IdentityStore.State.Trialing) {
       return (
         <div className="row payment-row">
           <div>
@@ -88,7 +88,7 @@ class PreferencesIdentity extends React.Component {
       )
     }
 
-    if (subscriptionState === IdentityStore.SubscriptionState.Lapsed) {
+    if (subscriptionState === IdentityStore.State.Lapsed) {
       return (
         <div className="row payment-row">
           <div>
