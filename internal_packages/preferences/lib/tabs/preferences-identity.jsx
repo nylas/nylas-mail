@@ -83,7 +83,7 @@ class PreferencesIdentity extends React.Component {
             There {(trialDaysRemaining > 1) ? `are ${trialDaysRemaining} days ` : `is one day `}
             remaining in your 30-day trial of Nylas Pro.
           </div>
-          <OpenIdentityPageButton img="ic-upgrade.png" label="Upgrade to Nylas Pro" path="/dashboard#subscription" />
+          <OpenIdentityPageButton img="ic-upgrade.png" label="Upgrade to Nylas Pro" path="/payment" />
         </div>
       )
     }

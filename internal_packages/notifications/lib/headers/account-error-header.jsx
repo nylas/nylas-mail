@@ -62,7 +62,7 @@ export default class AccountErrorHeader extends React.Component {
 
   _onUpgrade = () => {
     this.setState({buildingUpgradeURL: true});
-    IdentityStore.fetchSingleSignOnURL('/dashboard').then((url) => {
+    IdentityStore.fetchSingleSignOnURL('/payment').then((url) => {
       this.setState({buildingUpgradeURL: false});
       shell.openExternal(url);
     });
