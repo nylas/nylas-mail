@@ -28,10 +28,14 @@ export default class ConfigPersistenceManager {
     }
 
     if (!fs.existsSync(this.configFilePath)) {
-      const templateConfigPath = path.join(this.resourcePath, 'dot-nylas', 'config.json');
-      const templateConfig = fs.readFileSync(templateConfigPath);
-      fs.writeFileSync(this.configFilePath, templateConfig);
+      this.writeTemplateConfigFile();
     }
+  }
+
+  writeTemplateConfigFile() {
+    const templateConfigPath = path.join(this.resourcePath, 'dot-nylas', 'config.json');
+    const templateConfig = fs.readFileSync(templateConfigPath);
+    fs.writeFileSync(this.configFilePath, templateConfig);
   }
 
   load() {
@@ -59,8 +63,11 @@ export default class ConfigPersistenceManager {
       } else if (clickedIndex === 1) {
         this.load();
       } else {
-        this.settings = {};
-        this.emitChangeEvent();
+        if (fs.existsSync(this.configFilePath)) {
+          fs.unlinkSync(this.configFilePath);
+        }
+        this.writeTemplateConfigFile();
+        this.load();
       }
     }
   }
