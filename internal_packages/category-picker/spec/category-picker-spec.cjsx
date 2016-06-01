@@ -40,8 +40,8 @@ describe 'CategoryPickerPopover', ->
     @userCategory = new Category(id: 'id-789', name: null, displayName: "MyCategory", accountId: TEST_ACCOUNT_ID)
 
     observable = NylasTestUtils.mockObservable([@inboxCategory, @archiveCategory, @userCategory])
-    observable.sort = () => observable
-    
+    observable.sort = => observable
+
     spyOn(Categories, "forAccount").andReturn observable
     spyOn(CategoryStore, "getStandardCategory").andReturn @inboxCategory
     spyOn(AccountStore, "accountForItems").andReturn @account
