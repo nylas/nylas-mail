@@ -39,9 +39,7 @@ describe 'CategoryPickerPopover', ->
     @archiveCategory = new Category(id: 'id-456', name: 'archive', displayName: "ArCHIVe", accountId: TEST_ACCOUNT_ID)
     @userCategory = new Category(id: 'id-789', name: null, displayName: "MyCategory", accountId: TEST_ACCOUNT_ID)
 
-    spyOn(Categories, "forAccount").andReturn NylasTestUtils.mockObservable(
-      [@inboxCategory, @archiveCategory, @userCategory]
-    )
+    spyOn(Categories, "forAccount").andReturn NylasTestUtils.mockObservable([@inboxCategory, @archiveCategory, @userCategory])
     spyOn(CategoryStore, "getStandardCategory").andReturn @inboxCategory
     spyOn(AccountStore, "accountForItems").andReturn @account
     spyOn(Actions, "closePopover")
@@ -121,7 +119,7 @@ describe 'CategoryPickerPopover', ->
       count = ReactTestUtils.scryRenderedDOMComponentsWithClass(@picker, 'category-create-new-tag').length
       expect(count).toBe 1
 
-  describe "_onSelectCategory()", ->
+  describe "_onSelectCategory", ->
     beforeEach ->
       setupForCreateNew.call @, "folder"
       spyOn(TaskFactory, 'taskForRemovingCategory').andCallThrough()
