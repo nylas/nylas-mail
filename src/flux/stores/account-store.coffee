@@ -272,7 +272,7 @@ class AccountStore extends NylasStore
 
     @_caches = {}
 
-    labels = {}
+    labels = []
     threads = []
     messages = []
 
@@ -286,8 +286,9 @@ class AccountStore extends NylasStore
       account.aliases = []
       account.name = "Nora"
       account.provider = "gmail"
-      @_accounts.push(account)
-      @_tokens[account.id] = 'nope'
+      json = account.toJSON()
+      json.token = 'nope'
+      @addAccountFromJSON(json)
 
     filenames = fs.readdirSync(path.join(dir, 'threads'))
     for filename in filenames
@@ -300,12 +301,18 @@ class AccountStore extends NylasStore
 
       for m in threadMessages
         m.accountId = account.id
+        for l in m.categories
+          l.accountId = account.id
+        for l in m.files
+          l.accountId = account.id
         threadParticipants = threadParticipants.concat(m.participants())
+        threadLabels = threadLabels.concat(m.categories)
         threadAttachment ||= m.files.length > 0
         threadUnread ||= m.unread
 
       threadParticipants = _.uniq threadParticipants, (p) -> p.email
       threadLabels = _.uniq threadLabels, (l) -> l.id
+      labels = _.uniq labels.concat(threadLabels), (l) -> l.id
 
       lastMsg = _.last(threadMessages)
       thread = new Thread(
@@ -315,7 +322,7 @@ class AccountStore extends NylasStore
         subject: lastMsg.subject
         lastMessageReceivedTimestamp: lastMsg.date
         hasAttachment: threadAttachment
-        labels: threadLabels
+        categories: threadLabels
         participants: threadParticipants
         unread: threadUnread
         snippet: lastMsg.snippet
@@ -327,12 +334,14 @@ class AccountStore extends NylasStore
     downloadsDir = path.join(dir, 'downloads')
     if fs.existsSync(downloadsDir)
       for filename in fs.readdirSync(downloadsDir)
-        fs.copySync(path.join(downloadsDir, filename), path.join(NylasEnv.getConfigDirPath(), 'downloads', filename))
+        destPath = path.join(NylasEnv.getConfigDirPath(), 'downloads', filename)
+        fs.removeSync(destPath) if fs.existsSync(destPath)
+        fs.copySync(path.join(downloadsDir, filename), destPath)
 
     DatabaseStore.inTransaction (t) =>
       Promise.all([
         t.persistModel(account),
-        t.persistModels(_.values(labels)),
+        t.persistModels(labels),
         t.persistModels(messages),
         t.persistModels(threads)
       ])
