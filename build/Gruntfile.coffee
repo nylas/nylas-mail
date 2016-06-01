@@ -208,6 +208,7 @@ module.exports = (grunt) ->
     'src/**/*.cjsx'
     'spec/**/*.cjsx'
     'spec/**/*.coffee'
+    '!internal_packages/**/node_modules/**/*.coffee'
   ]
   ES_SRC = [
     'internal_packages/**/*.jsx'
