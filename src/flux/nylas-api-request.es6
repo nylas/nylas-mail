@@ -20,8 +20,11 @@ export default class NylasAPIRequest {
 
     this.api = api;
     this.options = Object.assign(defaults, options);
-    if (this.options.method !== 'GET' || this.options.formData) {
-      this.options.body = this.options.body || {};
+
+    const bodyIsRequired = (this.options.method !== 'GET' && !this.options.formData);
+    if (bodyIsRequired) {
+      const fallback = this.options.json ? {} : '';
+      this.options.body = this.options.body || fallback;
     }
   }
 
