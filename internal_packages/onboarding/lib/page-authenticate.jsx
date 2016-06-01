@@ -1,7 +1,7 @@
 import React from 'react';
 import classnames from 'classnames';
 import ReactDOM from 'react-dom';
-import {IdentityStore} from 'nylas-exports';
+// import {IdentityStore} from 'nylas-exports';
 import {RetinaImg} from 'nylas-component-kit';
 import OnboardingActions from './onboarding-actions';
 import networkErrors from 'chromium-net-errors';
@@ -79,14 +79,15 @@ export default class AuthenticatePage extends React.Component {
   }
 
   componentDidMount() {
-    const webview = ReactDOM.findDOMNode(this.refs.webview);
-    webview.src = `${IdentityStore.URLRoot}/onboarding`;
-    webview.addEventListener('did-start-loading', this.webviewDidStartLoading);
-    webview.addEventListener('did-fail-load', this.webviewDidFailLoad);
-    webview.addEventListener('did-finish-load', this.webviewDidFinishLoad);
-    webview.addEventListener('console-message', (e) => {
-      console.log('Guest page logged a message:', e.message);
-    });
+    // const webview = ReactDOM.findDOMNode(this.refs.webview);
+    // webview.src = `${IdentityStore.URLRoot}/onboarding`;
+    // webview.addEventListener('did-start-loading', this.webviewDidStartLoading);
+    // webview.addEventListener('did-fail-load', this.webviewDidFailLoad);
+    // webview.addEventListener('did-finish-load', this.webviewDidFinishLoad);
+    // webview.addEventListener('console-message', (e) => {
+    //   console.log('Guest page logged a message:', e.message);
+    // });
+    OnboardingActions.authenticationJSONReceived({firstname: "Test", lastname: "User", email_address: "example@nylas.com", id: "bla", token: "bla"});
   }
 
   onTryAgain = () => {
