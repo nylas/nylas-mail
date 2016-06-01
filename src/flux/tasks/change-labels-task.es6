@@ -54,7 +54,7 @@ export default class ChangeLabelsTask extends ChangeMailTask {
   }
 
   isDependentOnTask(other) {
-    return (other instanceof SyncbackCategoryTask);
+    return super.isDependentOnTask(other) || (other instanceof SyncbackCategoryTask);
   }
 
   // In Gmail all threads /must/ belong to either All Mail, Trash and Spam, and
@@ -127,6 +127,10 @@ export default class ChangeLabelsTask extends ChangeMailTask {
       return Promise.reject(new Error("ChangeLabelsTask: You must provide a `threads` or `messages` Array of models or IDs."))
     }
 
+    return super.performLocal();
+  }
+
+  retrieveModels() {
     // Convert arrays of IDs or models to models.
     // modelify returns immediately if (no work is required)
     return Promise.props({
@@ -156,7 +160,7 @@ export default class ChangeLabelsTask extends ChangeMailTask {
       this.messages = _.compact(messages);
 
       // The base class does the heavy lifting and calls changesToModel
-      return super.performLocal();
+      return Promise.resolve();
     });
   }
 

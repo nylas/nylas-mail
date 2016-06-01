@@ -150,33 +150,34 @@ describe "ChangeLabelsTask", ->
         task.performLocal().then =>
           expect(task.__proto__.__proto__.performLocal).toHaveBeenCalled()
 
-    describe "when object IDs are provided", ->
-      beforeEach ->
-        @task = new ChangeLabelsTask
-          labelsToAdd: ['l2']
-          labelsToRemove: ['l1']
-          threads: ['t1']
+    describe "retrieveModels", ->
+      describe "when object IDs are provided", ->
+        beforeEach ->
+          @task = new ChangeLabelsTask
+            labelsToAdd: ['l2']
+            labelsToRemove: ['l1']
+            threads: ['t1']
 
-      it 'resolves the objects before calling super', ->
-        waitsForPromise =>
-          @task.performLocal().then =>
-            expect(@task.labelsToAdd).toEqual([testLabels['l2']])
-            expect(@task.labelsToRemove).toEqual([testLabels['l1']])
-            expect(@task.threads).toEqual([testThreads['t1']])
+        it 'resolves the objects before calling super', ->
+          waitsForPromise =>
+            @task.retrieveModels().then =>
+              expect(@task.labelsToAdd).toEqual([testLabels['l2']])
+              expect(@task.labelsToRemove).toEqual([testLabels['l1']])
+              expect(@task.threads).toEqual([testThreads['t1']])
 
-    describe "when objects are provided", ->
-      beforeEach ->
-        @task = new ChangeLabelsTask
-          labelsToAdd: [testLabels['l2']]
-          labelsToRemove: [testLabels['l1']]
-          threads: [testThreads['t1']]
+      describe "when objects are provided", ->
+        beforeEach ->
+          @task = new ChangeLabelsTask
+            labelsToAdd: [testLabels['l2']]
+            labelsToRemove: [testLabels['l1']]
+            threads: [testThreads['t1']]
 
-      it 'still has the objects when calling super', ->
-        waitsForPromise =>
-          @task.performLocal().then =>
-            expect(@task.labelsToAdd).toEqual([testLabels['l2']])
-            expect(@task.labelsToRemove).toEqual([testLabels['l1']])
-            expect(@task.threads).toEqual([testThreads['t1']])
+        it 'still has the objects when calling super', ->
+          waitsForPromise =>
+            @task.retrieveModels().then =>
+              expect(@task.labelsToAdd).toEqual([testLabels['l2']])
+              expect(@task.labelsToRemove).toEqual([testLabels['l1']])
+              expect(@task.threads).toEqual([testThreads['t1']])
 
     describe 'change methods', ->
       describe "changesToModel", ->

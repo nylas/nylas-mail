@@ -95,8 +95,8 @@ class PreferencesMailRules extends React.Component {
     this.setState({selectedRule: rule});
   }
 
-  _onReorderRule = (rule, newIdx) => {
-    Actions.reorderMailRule(rule.id, newIdx);
+  _onReorderRule = (rule, startIdx, endIdx) => {
+    Actions.reorderMailRule(rule.id, endIdx);
   }
 
   _onDeleteRule = (rule) => {
