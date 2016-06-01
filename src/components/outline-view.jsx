@@ -128,7 +128,7 @@ class OutlineView extends Component {
       >
         <RetinaImg
           url="nylas://account-sidebar/assets/icon-sidebar-addcategory@2x.png"
-          style={{height: 14, width: 14}}
+          style={{height: 15, width: 14}}
           mode={RetinaImg.Mode.ContentIsMask}
         />
       </span>
