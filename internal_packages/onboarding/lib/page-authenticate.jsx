@@ -1,7 +1,7 @@
 import React from 'react';
 import classnames from 'classnames';
 import ReactDOM from 'react-dom';
-import {IdentityStore} from 'nylas-exports';
+// import {IdentityStore} from 'nylas-exports';
 import {RetinaImg} from 'nylas-component-kit';
 import OnboardingActions from './onboarding-actions';
 import networkErrors from 'chromium-net-errors';
