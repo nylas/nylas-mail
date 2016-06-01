@@ -96,8 +96,9 @@ module.exports =
             type: 'boolean'
             default: true
             title: "Play sound when receiving new mail"
-          unreadBadge:
-            type: 'boolean'
-            default: true
+          countBadge:
+            type: 'string'
+            default: 'unread'
+            enum: ['hide', 'unread', 'total']
+            enumLabels: ['Hide Badge', 'Show Unread Count', 'Show Total Count']
             title: "Show badge on the app icon"
-            platforms: ['darwin']
