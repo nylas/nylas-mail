@@ -4,39 +4,47 @@ import OnboardingActions from './onboarding-actions';
 const Steps = [
   {
     seen: false,
-    id: 'schedule',
-    title: 'Time is everything',
+    id: 'people',
+    title: 'Compose with context',
     image: 'feature-people@2x.png',
-    description: 'Snooze emails to any time that suits you. Schedule emails to be sent later. With Nylas Pro, you are in th control of email spacetime.',
-    x: 80,
-    y: 4.9,
+    description: 'N1 shows you everything about your contacts right inside your inbox. See LinkedIn profiles, Twitter bios, and more.',
+    x: 97,
+    y: -1.9,
+    xDot: 93,
+    yDot: 4.9,
   },
   {
     seen: false,
     id: 'read-receipts',
-    title: 'Time is everything',
+    title: 'Track activity',
     image: 'feature-snooze@2x.png',
-    description: 'Snooze emails to any time that suits you. Sechedule emails to be sent later. With Nylas Pro, you are in th control of email spacetime.',
-    x: 91,
-    y: 4.9,
+    description: "With activity tracking, you'll know as soon as someone reads your message. Sending to a group? We'll show which recipients opened your message, so you can follow up with precision. ",
+    x: 10,
+    y: -1.9,
+    xDot: 14.6,
+    yDot: 4.9,
   },
   {
     seen: false,
-    id: 'activity',
-    title: 'Track Activity',
+    id: 'snooze',
+    title: 'Time is everything',
     image: 'feature-activity@2x.png',
-    description: 'Snooze emails to any time that suits you. Schedule emails to be sent later. With Nylas Pro, you are in th control of email spacetime.',
-    x: 12.9,
-    y: 17,
+    description: 'Snooze emails to any time that suits you. Schedule emails to be sent at the ideal time. N1 makes it easy to control the fabric of spacetime.',
+    x: 22,
+    y: 39.9,
+    xDot: 25,
+    yDot: 39.9,
   },
   {
     seen: false,
-    id: 'mail-merge',
+    id: 'composer-power',
     title: 'Composer Power',
     image: 'feature-composer@2x.png',
-    description: 'Snooze emails to any time that suits you. Sechedule emails to be sent later. With Nylas Pro, you are in th control of email spacetime.',
-    x: 57,
-    y: 82,
+    description: "Use N1's powerful composer to embed calendar invitations, propose times to meet with recipients, insert templates, and more.",
+    x: 82.5,
+    y: 93,
+    xDot: 78.7,
+    yDot: 82.5,
   },
 ];
 
@@ -105,12 +113,12 @@ export default class TutorialPage extends React.Component {
                   key={step.id}
                   id={step.id}
                   className={`overlay ${seen.includes(step) ? 'seen' : ''} ${current === step ? 'expanded' : ''}`}
-                  style={{left: `${step.x}%`, top: `${step.y}%`}}
+                  style={{left: `${step.xDot}%`, top: `${step.yDot}%`}}
                   onMouseOver={this._onMouseOverOverlay}
                 >
                   <div
                     className="overlay-content"
-                    style={{backgroundPosition: `${step.x - 3.0}% ${step.y - 3.0}%`}}
+                    style={{backgroundPosition: `${step.x}% ${step.y}%`}}
                   >
                   </div>
                 </div>
