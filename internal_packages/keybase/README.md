@@ -2,7 +2,6 @@
 
 TODO:
 -----
-
 * encrypt uploads
 * style the decrypt button
 * decryption error handling

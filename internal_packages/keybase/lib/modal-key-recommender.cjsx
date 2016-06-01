@@ -12,6 +12,7 @@ class ModalKeyRecommender extends React.Component
 
   @propTypes:
     contacts: React.PropTypes.array.isRequired
+    emails: React.PropTypes.array
     callback: React.PropTypes.function
 
   @defaultProps:
@@ -33,7 +34,7 @@ class ModalKeyRecommender extends React.Component
     @setState(@_getStateFromStores())
 
   _getStateFromStores: =>
-    identities: PGPKeyStore.pubKeys(_.pluck(@props.contacts, 'email'))
+    identities: PGPKeyStore.pubKeys(@props.emails)
 
   _selectProfile: (address, identity) =>
     # TODO this is an almost exact duplicate of keybase-search.cjsx:_save
@@ -60,7 +61,7 @@ class ModalKeyRecommender extends React.Component
     # indexes from 0 because what kind of monster doesn't
 
   _onDone: =>
-    if @state.identities.length < @props.contacts.length
+    if @state.identities.length < @props.emails.length
       if !PGPKeyStore._displayDialog(
         'Encrypt without keys for all recipients?',
         'Some recipients are missing PGP public keys. They will not be able to decrypt this message.',
@@ -75,20 +76,19 @@ class ModalKeyRecommender extends React.Component
     Actions.openPreferences()
 
   render: ->
-    # dedupe the contacts, since we deal with addresses and not contacts
-    uniqEmails = _.uniq(_.pluck(@props.contacts, 'email'))
     # find the email we're dealing with now
-    email = uniqEmails[@state.currentContact]
+    email = @props.emails[@state.currentContact]
     # and a corresponding contact
     contact = _.findWhere(@props.contacts, {'email': email})
+    contactString = if contact? then contact.toString() else email
     # find the identity object that goes with this email (if any)
     identity = _.find(@state.identities, (identity) ->
       return email in identity.addresses
     )
 
-    if @state.currentContact == (uniqEmails.length - 1)
+    if @state.currentContact == (@props.emails.length - 1)
       # last one
-      if uniqEmails.length == 1
+      if @props.emails.length == 1
         # only one
         backButton = false
       else
@@ -103,35 +103,29 @@ class ModalKeyRecommender extends React.Component
       backButton = <button className="btn modal-back-button" onClick={ @_onPrev }>Back</button>
       nextButton = <button className="btn modal-next-button" onClick={ @_onNext }>Next</button>
 
-    # TODO quickly hop between pages?
-    ###
-    pages = uniqEmails.map((email, index) =>
-      # TODO indicate if a key is loaded for each of the pages
-      return <span onClick={ => @_setPage(index) }>({ index })</span>
-      # TODO buttons here instead of terrible text
-    )
-    ###
-
     if identity?
       deleteButton = (<button title="Delete Public" className="btn btn-toolbar btn-danger" onClick={ => PGPKeyStore.deleteKey(identity) } ref="button">
         Delete Key
       </button>
       )
       body = [
-        <div key="title" className="picker-title">This PGP public key has been saved for <br/><b>{ contact.toString() }.</b></div>
+        <div key="title" className="picker-title">This PGP public key has been saved for <br/><b>{ contactString }.</b></div>
         <div className="keybase-profile-solo">
           <KeybaseUser key="keybase-user" profile={ identity }, displayEmailList={false}, actionButton={deleteButton}/>
         </div>
       ]
     else
-      query = contact.fullName()
-      # don't search Keybase for emails, won't work anyways
-      if not query.match(/\s/)?
+      if contact?
+        query = contact.fullName()
+        # don't search Keybase for emails, won't work anyways
+        if not query.match(/\s/)?
+          query = ""
+      else
         query = ""
       importFunc = ((identity) => @_selectProfile(email, identity))
 
       body = [
-        <div key="title" className="picker-title">There is no PGP public key saved for <br/><b>{ contact.toString() }.</b></div>
+        <div key="title" className="picker-title">There is no PGP public key saved for <br/><b>{ contactString }.</b></div>
         <KeybaseSearch key="keybase-search" initialSearch={ query }, importFunc={ importFunc } />
       ]
 

@@ -145,7 +145,7 @@ class EncryptMessageButton extends React.Component
     else
       # open a popover to correct null keys
       DatabaseStore.findAll(Contact, {email: emails}).then((contacts) =>
-        component = (<ModalKeyRecommender contacts={contacts} callback={ (newIdentities) => @_encrypt(text, newIdentities, cb) }/>)
+        component = (<ModalKeyRecommender contacts={contacts} emails={emails} callback={ (newIdentities) => @_encrypt(text, newIdentities, cb) }/>)
         Actions.openPopover(
           component,
         {
