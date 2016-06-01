@@ -18,7 +18,7 @@
 
 .keybase-profile {
   border: 1px solid @border-color-primary;
-  border-top: 0px;
+  border-top: 0;
   background: @background-primary;
   padding: 10px;
   overflow: auto;
@@ -66,7 +66,7 @@
     flex-direction: column;
 
     button {
-      margin: 2px 0px 2px 10px;
+      margin: 2px 0 2px 10px;
       white-space: nowrap;
       display: inline-block;
       float: right;
@@ -79,7 +79,7 @@
   }
 
   button {
-    margin: 10px 0px 10px 10px;
+    margin: 10px 0 10px 10px;
     white-space: nowrap;
     display: inline-block;
     float: right;
@@ -181,7 +181,8 @@
     color: rgba(128, 128, 128, 0.5);
   }
   div.title-text {
-    padding: 0px 10px;
+    padding: 0
+     10px;
   }
   div.border {
     height: 1px;
@@ -196,10 +197,10 @@
     display: flex;
     align-items: center;
     color: rgba(128, 128, 128, 0.5);
-    margin: 10px 0px;
+    margin: 10px 0;
   }
   div.title-text {
-    padding: 0px 10px;
+    padding: 0 10px;
   }
   div.border {
     height: 1px;
@@ -228,7 +229,7 @@
       position: relative;
       border: 1px solid @input-border-color;
       padding: 10px;
-      padding-top: 0px;
+      padding-top: 0;
       margin-bottom: 10px;
 
     .key-text {
@@ -247,25 +248,25 @@
 
   .key-add-btn {
     float: right;
-    margin: 10px 5px 0px 5px;
+    margin: 10px 5px 0 5px;
   }
 
   .key-email-input {
     display: inline-block;
     width: 250px;
     margin-top: 10px;
-    margin: 10px 5px 0px 0px;
+    margin: 10px 5px 0 0;
   }
 
   .key-passphrase-input {
     display: inline-block;
     width: 250px;
-    margin: 10px 5px 0px 0px;
+    margin: 10px 5px 0 0;
   }
 
   .key-creation-button {
     display: inline-block;
-    margin: 0px 5px 10px 5px;
+    margin: 0 5px 10px 5px;
   }
 
   .editor-note {
@@ -308,7 +309,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    margin-bottom: 0px;
+    margin-bottom: 0;
     margin-top: 10px;
 
     .searchbar {
@@ -330,10 +331,7 @@
 
   .picker-controls {
     width: 380px;
-    margin-top: 5px;
-    margin-bottom: 10px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 5px auto 10px auto;
     display: flex;
     flex-shrink: 0;
     flex-direction: row;
@@ -344,7 +342,7 @@
 
     .modal-prefs-button {
       flex: 1;
-      margin: 0px 35px;
+      margin: 0 35px;
     }
 
     .modal-next-button {

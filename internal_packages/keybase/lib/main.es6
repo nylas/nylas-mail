@@ -4,12 +4,13 @@ import EncryptMessageButton from './encrypt-button';
 import DecryptMessageButton from './decrypt-button';
 import DecryptPGPExtension from './decryption-preprocess';
 import RecipientKeyChip from './recipient-key-chip';
+import PreferencesKeybase from './preferences-keybase';
 
 export function activate() {
   this.preferencesTab = new PreferencesUIStore.TabItem({
     tabId: 'Encryption',
     displayName: 'Encryption',
-    component: require('./preferences-keybase'),
+    component: PreferencesKeybase,
   });
   ComponentRegistry.register(EncryptMessageButton, {role: 'Composer:ActionButton'});
   ComponentRegistry.register(DecryptMessageButton, {role: 'message:BodyHeader'});

@@ -15,7 +15,7 @@ class ModalKeyRecommender extends React.Component
     callback: React.PropTypes.function
 
   @defaultProps:
-    callback: () -> return # NOP
+    callback: -> return # NOP
 
   constructor: (props) ->
     super(props)
@@ -29,10 +29,10 @@ class ModalKeyRecommender extends React.Component
   componentWillUnmount: ->
     @unlistenKeystore()
 
-  _onKeystoreChange: () =>
+  _onKeystoreChange: =>
     @setState(@_getStateFromStores())
 
-  _getStateFromStores: () =>
+  _getStateFromStores: =>
     identities: PGPKeyStore.pubKeys(_.pluck(@props.contacts, 'email'))
 
   _selectProfile: (address, identity) =>

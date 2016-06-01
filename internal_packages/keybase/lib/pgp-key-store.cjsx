@@ -86,7 +86,7 @@ class PGPKeyStore extends NylasStore
       @_privWatcher.close()
     @_privWatcher = null
 
-  _populate: () =>
+  _populate: =>
     # add identity elements to later be populated with keys from disk
     # TODO if this function is called multiple times in quick succession it
     # will duplicate keys - need to do deduplication on add

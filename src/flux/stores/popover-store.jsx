@@ -37,7 +37,7 @@ class PopoverStore extends NylasStore {
     });
   };
 
-  openPopover = (element, {originRect, direction, fallbackDirection, closeOnAppBlur, callback = ()=> {}})=> {
+  openPopover = (element, {originRect, direction, fallbackDirection, closeOnAppBlur, callback = () => {}}) => {
     const props = {
       direction,
       originRect,
