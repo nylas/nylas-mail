@@ -40,17 +40,44 @@ export default class ChangeLabelsTask extends ChangeMailTask {
     if (this.taskDescription) {
       return this.taskDescription;
     }
-    let type = "thread";
+
+    let countString = "";
     if (this.threads.length > 1) {
-      type = "threads";
+      countString = ` ${this.threads.length} threads`;
     }
-    if (this.labelsToAdd.length === 1 && this.labelsToRemove.length === 0 && this.labelsToAdd[0] instanceof Category) {
-      return `Added ${this.labelsToAdd[0].displayName} to ${this.threads.length} ${type}`;
+
+    const removed = this.labelsToRemove[0];
+    const added = this.labelsToAdd[0];
+    const objectsAvailable = (added || removed) instanceof Category;
+
+    // Note: In the future, we could move this logic to the task
+    // factory and pass the string in as this.taskDescription (ala Snooze), but
+    // it's nice to have them declaratively based on the actual labels.
+    if (objectsAvailable) {
+      if (this.labelsToAdd.length === 1 && this.labelsToRemove.length > 0) {
+        if (added.name === 'all') {
+          return `Archived${countString}`;
+        } else if (removed.name === 'all') {
+          return `Unarchived${countString}`;
+        } else if (added.name === 'spam') {
+          return `Marked${countString} as Spam`;
+        } else if (removed.name === 'spam') {
+          return `Unmarked${countString} as Spam`;
+        } else if (added.name === 'trash') {
+          return `Trashed${countString}`;
+        } else if (removed.name === 'trash') {
+          return `Removed${countString} from Trash`;
+        }
+        return `Moved${countString} to ${added.displayName}`;
+      }
+      if (this.labelsToAdd.length === 1 && this.labelsToRemove.length === 0) {
+        return `Added ${added.displayName}${countString ? ' to' : ''}${countString}`;
+      }
+      if (this.labelsToAdd.length === 0 && this.labelsToRemove.length === 1) {
+        return `Removed ${removed.displayName}${countString ? ' from' : ''}${countString}`;
+      }
     }
-    if (this.labelsToAdd.length === 0 && this.labelsToRemove.length === 1 && this.labelsToRemove[0] instanceof Category) {
-      return `Removed ${this.labelsToRemove[0].displayName} from ${this.threads.length} ${type}`;
-    }
-    return `Changed labels on ${this.threads.length} ${type}`;
+    return `Changed labels${countString ? ' on' : ''}${countString}`;
   }
 
   isDependentOnTask(other) {
