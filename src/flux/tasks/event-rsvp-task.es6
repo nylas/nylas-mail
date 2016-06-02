@@ -35,6 +35,7 @@ export default class EventRSVPTask extends Task {
 
     return NylasAPI.makeRequest({
       accountId,
+      timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
       path: "/send-rsvp",
       method: "POST",
       body: {
