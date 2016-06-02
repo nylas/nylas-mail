@@ -35,7 +35,7 @@ class UndoRedoComponent extends React.Component
 
   _getStateFromStores: ->
     tasks = UndoRedoStore.getMostRecent()
-    show = tasks?
+    show = tasks and tasks.length > 0
     return {show, tasks}
 
   componentWillMount: ->

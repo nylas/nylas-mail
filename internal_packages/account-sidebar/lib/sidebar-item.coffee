@@ -91,7 +91,6 @@ class SidebarItem
         return false unless target.canReceiveThreadsFromAccountIds(data.accountIds)
         return item.dataTransferType in event.dataTransfer.types
       onSelect: (item) ->
-        NylasEnv.savedState.shouldRefocusSidebarAccounts = false
         Actions.focusMailboxPerspective(item.perspective)
     }, opts)
 

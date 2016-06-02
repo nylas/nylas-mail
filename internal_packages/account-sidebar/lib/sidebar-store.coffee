@@ -21,13 +21,11 @@ class SidebarStore extends NylasStore
 
   constructor: ->
     NylasEnv.savedState.sidebarKeysCollapsed ?= {}
-    NylasEnv.savedState.shouldRefocusSidebarAccounts ?= true
 
     @_sections = {}
     @_sections[Sections.Standard] = {}
     @_sections[Sections.User] = []
-    @_focusedAccounts = FocusedPerspectiveStore.current().accountIds.map (id) ->
-      AccountStore.accountForId(id)
+    @_focusedAccounts = FocusedPerspectiveStore.sidebarAccounts()
     @_registerCommands()
     @_registerMenuItems()
     @_registerListeners()
@@ -48,7 +46,6 @@ class SidebarStore extends NylasStore
   _registerListeners: ->
     @listenTo Actions.setCollapsedSidebarItem, @_onSetCollapsedByName
     @listenTo SidebarActions.setKeyCollapsed, @_onSetCollapsedByKey
-    @listenTo SidebarActions.focusAccounts, @_onAccountsFocused
     @listenTo AccountStore, @_onAccountsChanged
     @listenTo FocusedPerspectiveStore, @_onFocusedPerspectiveChanged
     @listenTo WorkspaceStore, @_updateSections
@@ -84,27 +81,29 @@ class SidebarStore extends NylasStore
   _registerMenuItems: (accounts = AccountStore.accounts()) =>
     AccountCommands.registerMenuItems(accounts, @_focusedAccounts)
 
-  _onAccountsFocused: (accounts) =>
-    Actions.focusDefaultMailboxPerspectiveForAccounts(accounts)
-    @_focusedAccounts = accounts
-    @_registerMenuItems()
-    @_updateSections()
-
+  # TODO Refactor this
+  # Listen to changes on the account store only for when the account label
+  # changes. When accounts or added or removed, those changes will come in
+  # through the FocusedPerspectiveStore
   _onAccountsChanged: =>
-    accounts = AccountStore.accounts()
-    @_focusedAccounts = accounts
-    @_registerCommands()
-    @_registerMenuItems()
     @_updateSections()
 
+  # TODO Refactor this
+  # The FocusedPerspectiveStore tells this store the accounts that should be
+  # displayed in the sidebar (i.e. unified inbox vs single account) and will
+  # trigger whenever an account is added or removed, as well as when a
+  # perspective is focused.
+  # However, when udpating the SidebarSections, we also depend on the actual
+  # accounts in the AccountStore. The problem is that the FocusedPerspectiveStore
+  # triggers before the AccountStore is actually updated, so we need to wait for
+  # the AccountStore to get updated (via `defer`) before updateing our sidebar
+  # sections
   _onFocusedPerspectiveChanged: =>
-    currentIds = _.pluck(@_focusedAccounts, 'id')
-    newIds = FocusedPerspectiveStore.current().accountIds
-    # TODO get rid of this nasty global state
-    if NylasEnv.savedState.shouldRefocusSidebarAccounts is true
-      @_focusedAccounts = newIds.map (id) -> AccountStore.accountForId(id)
+    _.defer =>
+      @_focusedAccounts = FocusedPerspectiveStore.sidebarAccounts()
+      @_registerCommands()
       @_registerMenuItems()
-    @_updateSections()
+      @_updateSections()
 
   _updateSections: =>
     accounts = @_focusedAccounts

@@ -37,16 +37,19 @@ class AccountStore extends NylasStore
       return if @_version / 1 is change.newValue / 1
       oldAccountIds = _.pluck(@_accounts, 'id')
       @_loadAccounts()
-      newAccountIds = _.pluck(@_accounts, 'id')
-      newAccountIds = _.difference(newAccountIds, oldAccountIds)
+      accountIds = _.pluck(@_accounts, 'id')
+      newAccountIds = _.difference(accountIds, oldAccountIds)
 
       if newAccountIds.length > 0
         newId = newAccountIds[0]
         CategoryStore = require './category-store'
         CategoryStore.whenCategoriesReady(newId).then =>
+          Actions.focusDefaultMailboxPerspectiveForAccounts([newId], sidebarAccountIds: accountIds)
           # TODO this Action is a hack, get rid of it in sidebar refactor
-          Actions.setCollapsedSidebarItem('Inbox', false)
-          Actions.focusDefaultMailboxPerspectiveForAccounts([newAccountIds[0]])
+          # Wait until the FocusedPerspectiveStore triggers and the sidebar is
+          # updated to uncollapse the inbox for the new account
+          _.defer =>
+            Actions.setCollapsedSidebarItem('Inbox', false)
 
   _loadAccounts: =>
     try
@@ -138,16 +141,24 @@ class AccountStore extends NylasStore
     @_caches = {}
 
     remainingAccounts = _.without(@_accounts, account)
+    # This action is called before saving because we need to unfocus the
+    # perspective of the account that is being removed before removing the
+    # account, otherwise when we trigger with the new set of accounts, the
+    # current perspective will still reference a stale accountId which will
+    # cause things to break
     if remainingAccounts.length > 0
-      Actions.setCollapsedSidebarItem('Inbox', true)
       Actions.focusDefaultMailboxPerspectiveForAccounts(remainingAccounts)
+      _.defer =>
+        Actions.setCollapsedSidebarItem('Inbox', true)
 
     @_accounts = remainingAccounts
     @_save()
 
     if remainingAccounts.length is 0
       ipc = require('electron').ipcRenderer
-      ipc.send('command', 'application:reset-config-and-relaunch')
+      ipc.send('command', 'application:relaunch-to-initial-windows', {
+        resetDatabase: true,
+      })
 
   _onReorderAccount: (id, newIdx) =>
     existingIdx = _.findIndex @_accounts, (a) -> a.id is id
@@ -270,7 +281,7 @@ class AccountStore extends NylasStore
 
     @_caches = {}
 
-    labels = {}
+    labels = []
     threads = []
     messages = []
 
@@ -284,8 +295,9 @@ class AccountStore extends NylasStore
       account.aliases = []
       account.name = "Nora"
       account.provider = "gmail"
-      @_accounts.push(account)
-      @_tokens[account.id] = 'nope'
+      json = account.toJSON()
+      json.token = 'nope'
+      @addAccountFromJSON(json)
 
     filenames = fs.readdirSync(path.join(dir, 'threads'))
     for filename in filenames
@@ -298,12 +310,18 @@ class AccountStore extends NylasStore
 
       for m in threadMessages
         m.accountId = account.id
+        for l in m.categories
+          l.accountId = account.id
+        for l in m.files
+          l.accountId = account.id
         threadParticipants = threadParticipants.concat(m.participants())
+        threadLabels = threadLabels.concat(m.categories)
         threadAttachment ||= m.files.length > 0
         threadUnread ||= m.unread
 
       threadParticipants = _.uniq threadParticipants, (p) -> p.email
       threadLabels = _.uniq threadLabels, (l) -> l.id
+      labels = _.uniq labels.concat(threadLabels), (l) -> l.id
 
       lastMsg = _.last(threadMessages)
       thread = new Thread(
@@ -313,7 +331,7 @@ class AccountStore extends NylasStore
         subject: lastMsg.subject
         lastMessageReceivedTimestamp: lastMsg.date
         hasAttachment: threadAttachment
-        labels: threadLabels
+        categories: threadLabels
         participants: threadParticipants
         unread: threadUnread
         snippet: lastMsg.snippet
@@ -325,12 +343,14 @@ class AccountStore extends NylasStore
     downloadsDir = path.join(dir, 'downloads')
     if fs.existsSync(downloadsDir)
       for filename in fs.readdirSync(downloadsDir)
-        fs.copySync(path.join(downloadsDir, filename), path.join(NylasEnv.getConfigDirPath(), 'downloads', filename))
+        destPath = path.join(NylasEnv.getConfigDirPath(), 'downloads', filename)
+        fs.removeSync(destPath) if fs.existsSync(destPath)
+        fs.copySync(path.join(downloadsDir, filename), destPath)
 
     DatabaseStore.inTransaction (t) =>
       Promise.all([
         t.persistModel(account),
-        t.persistModels(_.values(labels)),
+        t.persistModels(labels),
         t.persistModels(messages),
         t.persistModels(threads)
       ])

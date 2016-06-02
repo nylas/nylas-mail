@@ -9,13 +9,14 @@ class PackageSet extends React.Component {
     title: React.PropTypes.string.isRequired,
     packages: React.PropTypes.array,
     emptyText: React.PropTypes.element,
+    showVersions: React.PropTypes.bool,
   }
 
   render() {
     if (!this.props.packages) return false;
 
     const packages = this.props.packages.map((pkg) =>
-      <Package key={pkg.name} package={pkg} />
+      <Package key={pkg.name} package={pkg} showVersions={this.props.showVersions} />
     );
     let count = <span>({this.props.packages.length})</span>
 

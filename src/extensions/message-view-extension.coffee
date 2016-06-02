@@ -30,4 +30,11 @@ class MessageViewExtension
   ###
   @formatMessageBody: ({message}) ->
 
+  ###
+  Public: Modify the rendered message body using the DOM.
+  Runs after messages goes through `formatMessageBody` and is placed
+  into the DOM.
+  ###
+  @renderedMessageBodyIntoDocument: ({document, message, iframe}) ->
+
 module.exports = MessageViewExtension

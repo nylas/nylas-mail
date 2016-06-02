@@ -117,33 +117,16 @@ describe "ContactStore", ->
           expect(results.length).toBe 6
 
   describe 'isValidContact', ->
-    it "should return true for a variety of valid contacts", ->
-      expect(ContactStore.isValidContact(new Contact(name: 'Ben', email: 'ben@nylas.com'))).toBe(true)
-      expect(ContactStore.isValidContact(new Contact(email: 'ben@nylas.com'))).toBe(true)
-      expect(ContactStore.isValidContact(new Contact(email: 'ben+123@nylas.com'))).toBe(true)
+    it "should call contact.isValid", ->
+      contact = new Contact()
+      spyOn(contact, 'isValid').andReturn(true)
+      expect(ContactStore.isValidContact(contact)).toBe(true)
 
     it "should return false for non-Contact objects", ->
       expect(ContactStore.isValidContact({name: 'Ben', email: 'ben@nylas.com'})).toBe(false)
 
-    it "should return false if the contact has no email", ->
-      expect(ContactStore.isValidContact(new Contact(name: 'Ben'))).toBe(false)
-
-    it "should return false if the contact has an email that is not valid", ->
-      expect(ContactStore.isValidContact(new Contact(name: 'Ben', email:'Ben <ben@nylas.com>'))).toBe(false)
-      expect(ContactStore.isValidContact(new Contact(name: 'Ben', email:'<ben@nylas.com>'))).toBe(false)
-      expect(ContactStore.isValidContact(new Contact(name: 'Ben', email:'"ben@nylas.com"'))).toBe(false)
-
     it "returns false if we're not passed a contact", ->
       expect(ContactStore.isValidContact()).toBe false
-
-    it "returns false if the contact doesn't have an email", ->
-      expect(ContactStore.isValidContact(new Contact(name: "test"))).toBe false
-
-    it "returns false if the email doesn't satisfy the regex", ->
-      expect(ContactStore.isValidContact(new Contact(name: "test", email: "foo"))).toBe false
-
-    it "returns false if the email doesn't match", ->
-      expect(ContactStore.isValidContact(new Contact(name: "test", email: "foo@"))).toBe false
 
   describe 'parseContactsInString', ->
     testCases =

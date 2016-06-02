@@ -4,7 +4,7 @@ import {findDOMNode} from 'react-dom'
 
 const MIN_RANGE_SIZE = 2
 
-function getRange({total, itemHeight, containerHeight, scrollTop}) {
+function getRange({total, itemHeight, containerHeight, scrollTop = 0} = {}) {
   const itemsPerBody = Math.floor((containerHeight) / itemHeight);
   const start = Math.max(0, Math.floor(scrollTop / itemHeight) - (itemsPerBody * 2));
   const end = Math.max(MIN_RANGE_SIZE, Math.min(start + (4 * itemsPerBody), total));
@@ -22,6 +22,7 @@ class LazyRenderedList extends Component {
   }
 
   static defaultProps = {
+    items: [],
     itemHeight: 30,
     containerHeight: 150,
     BufferTag: 'div',
@@ -29,7 +30,7 @@ class LazyRenderedList extends Component {
 
   constructor(props) {
     super(props)
-    this.state = {start: 0, end: MIN_RANGE_SIZE}
+    this.state = this.getRangeState(props)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -40,9 +41,13 @@ class LazyRenderedList extends Component {
     this.updateRangeState(this.props)
   }
 
-  updateRangeState({itemHeight, items, containerHeight}) {
+  getRangeState({items, itemHeight, containerHeight, scrollTop}) {
+    return getRange({total: items.length, itemHeight, containerHeight, scrollTop})
+  }
+
+  updateRangeState(props) {
     const {scrollTop} = findDOMNode(this)
-    this.setState(getRange({total: items.length, itemHeight, containerHeight, scrollTop}))
+    this.setState(this.getRangeState({...props, scrollTop}))
   }
 
   renderItems() {

@@ -12,7 +12,7 @@ module.exports = class ClearbitDataSource
       return Promise.resolve(null)
     tok = AccountStore.tokenForAccountId(AccountStore.accounts()[0].id)
     new Promise (resolve, reject) =>
-      EdgehillAPI.request
+      EdgehillAPI.makeRequest
         auth:
           user: tok
           pass: ""

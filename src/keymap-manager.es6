@@ -17,6 +17,10 @@ mousetrap.prototype.stopCallback = (e, element, combo) => {
     return true;
   }
   const withinTextInput = element.tagName === 'INPUT' || element.tagName === 'SELECT' || element.tagName === 'TEXTAREA' || element.isContentEditable
+  const withinWebview = element.tagName === 'WEBVIEW';
+  if (withinWebview) {
+    return true;
+  }
   if (withinTextInput) {
     const isPlainKey = !/(mod|command|ctrl)/.test(combo);
     const isReservedTextEditingShortcut = /(mod|command|ctrl)\+(a|x|c|v)/.test(combo);

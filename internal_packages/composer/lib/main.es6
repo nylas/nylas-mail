@@ -7,13 +7,15 @@ import {
   Message,
   Actions,
   DraftStore,
-  ComponentRegistry,
   WorkspaceStore,
+  ComponentRegistry,
+  ExtensionRegistry,
+  InflatesDraftClientId,
 } from 'nylas-exports';
+import {OverlaidComposerExtension} from 'nylas-component-kit'
 import ComposeButton from './compose-button';
 import ComposerView from './composer-view';
 
-import InflatesDraftClientId from './decorators/inflates-draft-client-id';
 const ComposerViewForDraftClientId = InflatesDraftClientId(ComposerView);
 
 class ComposerWithWindowProps extends React.Component {
@@ -97,6 +99,7 @@ class ComposerWithWindowProps extends React.Component {
 }
 
 export function activate() {
+  ExtensionRegistry.Composer.register(OverlaidComposerExtension, {priority: 1})
   if (NylasEnv.isMainWindow()) {
     ComponentRegistry.register(ComposerViewForDraftClientId, {
       role: 'Composer',
@@ -119,6 +122,7 @@ export function deactivate() {
   } else {
     ComponentRegistry.unregister(ComposerWithWindowProps);
   }
+  ExtensionRegistry.Composer.unregister(OverlaidComposerExtension)
 }
 
 export function serialize() {

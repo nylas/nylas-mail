@@ -69,6 +69,8 @@ class NylasComponentKit
   @load "EditableTable", "editable-table"
   @loadFrom "EditableTableCell", "editable-table"
   @load "LazyRenderedList", "lazy-rendered-list"
+  @load "OverlaidComponents", "overlaid-components/overlaid-components"
+  @load "OverlaidComposerExtension", "overlaid-components/overlaid-composer-extension"
 
   @load "ScrollRegion", 'scroll-region'
   @load "ResizableRegion", 'resizable-region'

@@ -42,12 +42,11 @@ render: function() {
 class Contenteditable extends React.Component
   @displayName: "Contenteditable"
 
+  @IgnoreMutationClassName: 'ignore-mutations'
+
   @propTypes:
     # The current html state, as a string, of the contenteditable.
     value: React.PropTypes.string
-
-    # Initial content selection that was previously saved
-    initialSelectionSnapshot: React.PropTypes.object,
 
     # Handlers
     onChange: React.PropTypes.func.isRequired
@@ -114,6 +113,11 @@ class Contenteditable extends React.Component
 
   focus: => @_editableNode().focus()
 
+  setSelection: (selection) =>
+    @setInnerState
+      exportedSelection: selection
+      previousExportedSelection: @innerState.exportedSelection
+    @_restoreSelection()
 
   ######################################################################
   ########################## React Lifecycle ###########################
@@ -146,12 +150,6 @@ class Contenteditable extends React.Component
     not @_inCompositionEvent and
     (not Utils.isEqualReact(nextProps, @props) or
      not Utils.isEqualReact(nextState, @state))
-
-  componentWillReceiveProps: (nextProps) =>
-    if nextProps.initialSelectionSnapshot?
-      @setInnerState
-        exportedSelection: nextProps.initialSelectionSnapshot
-        previousExportedSelection: @innerState.exportedSelection
 
   componentDidUpdate: =>
     if @_shouldRestoreSelectionOnUpdate()
@@ -282,7 +280,7 @@ class Contenteditable extends React.Component
             @atomicEdit(callback, {actionArg})
           ))
       catch error
-        NylasEnv.emitError(error)
+        NylasEnv.reportError(error)
 
   _teardownEditingActionListeners: =>
     for editingActionUnsubscriber in @editingActionUnsubscribers
@@ -302,16 +300,27 @@ class Contenteditable extends React.Component
   ########################### Event Handlers ###########################
   ######################################################################
 
-  # Every time the contents of the contenteditable DOM node change, the
-  # `_onDOMMutated` event gets fired.
+  # Every time the contents of the contenteditable DOM node change due to a user
+  # action, the `_onDOMMutated` event gets fired.
   #
   # If we are in the middle of an `atomic` change transaction, we ignore
   # those changes.
   #
+  # If any target element of the mutations contains `IgnoreMutationClassName` in
+  # its className, we will also ignore the mutations. This is order to support
+  # extensions that might imperatively want to mutate the contenteditable
+  # wihtout it being due to a direct user action, i.e. without wanting to
+  # trigger this callback. For example, `OverlaidComponents` will mutate the
+  # dimensions of its anchor elements without the user explicitly doing so.
+  #
   # At all other times we take the change, apply various filters to the
   # new content, then notify our parent that the content has been updated.
+  #
   _onDOMMutated: (mutations) =>
     return unless mutations and mutations.length > 0
+    for mutation in mutations
+      if mutation.target?.className?.includes(Contenteditable.IgnoreMutationClassName)
+        return
 
     @_mutationObserver.disconnect()
     @setInnerState dragging: false if @innerState.dragging

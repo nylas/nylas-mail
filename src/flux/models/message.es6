@@ -4,10 +4,11 @@ import moment from 'moment'
 import File from './file'
 import Utils from './utils'
 import Event from './event'
-import Category from './category'
 import Contact from './contact'
+import Category from './category'
 import Attributes from '../attributes'
 import ModelWithMetadata from './model-with-metadata'
+
 
 /**
 Public: The Message model represents a Message object served by the Nylas Platform API.

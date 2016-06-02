@@ -8,18 +8,22 @@ _ = require 'underscore'
 
 
 describe "DraftEditingSession Specs", ->
-
   describe "DraftChangeSet", ->
     beforeEach ->
-      @triggerSpy = jasmine.createSpy('trigger')
+      @onDidAddChanges = jasmine.createSpy('onDidAddChanges')
+      @onWillAddChanges = jasmine.createSpy('onWillAddChanges')
       @commitResolve = null
       @commitResolves = []
-      @commitSpy = jasmine.createSpy('commit').andCallFake =>
+      @onCommit = jasmine.createSpy('commit').andCallFake =>
         new Promise (resolve, reject) =>
           @commitResolves.push(resolve)
           @commitResolve = resolve
 
-      @changeSet = new DraftChangeSet(@triggerSpy, @commitSpy)
+      @changeSet = new DraftChangeSet({
+        onDidAddChanges: @onDidAddChanges,
+        onWillAddChanges: @onWillAddChanges,
+        onCommit: @onCommit,
+      })
       @changeSet._pending =
         subject: 'Change to subject line'
 
@@ -51,7 +55,7 @@ describe "DraftEditingSession Specs", ->
         @changeSet._pending = {}
         waitsForPromise =>
           @changeSet.commit().then =>
-            expect(@commitSpy).not.toHaveBeenCalled()
+            expect(@onCommit).not.toHaveBeenCalled()
 
       it "should move changes to the saving set", ->
         pendingBefore = _.extend({}, @changeSet._pending)
@@ -257,8 +261,10 @@ describe "DraftEditingSession Specs", ->
           updatedDraft.pristine = false
 
           @session = new DraftEditingSession('client-id', pristineDraft)
-          @session._onDraftChanged(objectClass: 'message', objects: [updatedDraft])
-          expect(@session.draftPristineBody()).toBe('Hiya')
+          waitsForPromise =>
+            @session._draftPromise.then =>
+              @session._onDraftChanged(objectClass: 'message', objects: [updatedDraft])
+              expect(@session.draftPristineBody()).toBe('Hiya')
 
       describe "when the draft given to the session is not pristine", ->
         it "should return null", ->

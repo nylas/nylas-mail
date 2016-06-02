@@ -6,12 +6,10 @@ class UndoRedoStore extends NylasStore {
 
   constructor() {
     super()
-    this._onQueue = this._onQueue.bind(this);
-    this.undo = this.undo.bind(this);
-    this.redo = this.redo.bind(this);
-    this.getMostRecent = this.getMostRecent.bind(this);
     this._undo = [];
     this._redo = [];
+
+    this._mostRecentTasks = [];
 
     this.listenTo(Actions.queueTask, this._onQueue);
     this.listenTo(Actions.queueTasks, this._onQueue);
@@ -20,7 +18,7 @@ class UndoRedoStore extends NylasStore {
     NylasEnv.commands.add(document.body, {'core:redo': this.redo });
   }
 
-  _onQueue(taskArg) {
+  _onQueue = (taskArg) => {
     if (!taskArg) { return; }
     let tasks = taskArg;
     if (!(tasks instanceof Array)) { tasks = [tasks]; }
@@ -31,17 +29,19 @@ class UndoRedoStore extends NylasStore {
     if (undoable) {
       if (!isRedoTask) { this._redo = []; }
       this._undo.push(tasks);
+      this._mostRecentTasks = tasks;
       this.trigger();
     }
   }
 
-  undo() {
+  undo = () => {
     const topTasks = this._undo.pop();
     if (!topTasks) { return; }
+
+    this._mostRecentTasks = [];
     this.trigger();
 
-    for (let i = 0; i < topTasks.length; i++) {
-      const task = topTasks[i];
+    for (const task of topTasks) {
       Actions.undoTaskId(task.id);
     }
 
@@ -53,25 +53,21 @@ class UndoRedoStore extends NylasStore {
     this._redo.push(redoTasks);
   }
 
-  redo() {
+  redo = () => {
     const redoTasks = this._redo.pop();
     if (!redoTasks) { return; }
     Actions.queueTasks(redoTasks);
   }
 
-  getMostRecent() {
-    for (let i = this._undo.length - 1; i >= 0; i--) {
-      const allReverting = _.every(this._undo[i], t => t._isReverting);
-      if (!allReverting) { return this._undo[i]; }
-    }
-    return []
+  getMostRecent = () => {
+    return this._mostRecentTasks;
   }
 
   print() {
     console.log("Undo Stack");
     console.log(this._undo);
     console.log("Redo Stack");
-    return console.log(this._redo);
+    console.log(this._redo);
   }
 }
 

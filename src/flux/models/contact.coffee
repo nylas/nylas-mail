@@ -91,7 +91,17 @@ class Contact extends Model
     json['name'] ||= json['email']
     json
 
+  # Public: Returns true if the contact provided is a {Contact} instance and
+  # contains a properly formatted email address.
+  #
   isValid: ->
+    return false unless @email
+
+    # The email regexp must match the /entire/ email address
+    result = RegExpUtils.emailRegex().exec(@email)
+    if result and result instanceof Array
+      return result[0] is @email
+    else return false
     @email.match(RegExpUtils.emailRegex()) != null
 
   # Public: Returns true if the contact is the current user, false otherwise.

@@ -3,7 +3,7 @@ path = require 'path'
 os = require 'os'
 
 # This is the main Gruntfile that manages building N1 distributions.
-# The reason it's inisde of the build/ folder is so everything can be
+# The reason it's inside of the build/ folder is so everything can be
 # compiled against Node's v8 headers instead of Chrome's v8 headers. All
 # packages in the root-level node_modules are compiled against Chrome's v8
 # headers.
@@ -59,7 +59,6 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-markdown')
   grunt.loadNpmTasks('grunt-download-electron')
   grunt.loadNpmTasks('grunt-electron-installer')
-  grunt.loadNpmTasks('grunt-peg')
   grunt.loadTasks('tasks')
 
   # This allows all subsequent paths to the relative to the root of the repo
@@ -110,6 +109,8 @@ module.exports = (grunt) ->
       src: [
         'src/**/*.cjsx'
         'internal_packages/**/*.cjsx'
+        '!src/**/node_modules/**/*.cjsx'
+        '!internal_packages/**/node_modules/**/*.cjsx'
       ]
       dest: appDir
       ext: '.js'
@@ -121,6 +122,8 @@ module.exports = (grunt) ->
         'src/**/*.coffee'
         'internal_packages/**/*.coffee'
         'static/**/*.coffee'
+        '!src/**/node_modules/**/*.coffee'
+        '!internal_packages/**/node_modules/**/*.coffee'
       ]
       dest: appDir
       ext: '.js'
@@ -176,13 +179,6 @@ module.exports = (grunt) ->
       dest: appDir
       ext: '.json'
 
-  pegConfig =
-    glob_to_multiple:
-      expand: true
-      src: ['src/**/*.pegjs']
-      dest: appDir
-      ext: '.js'
-
   for folder in ['node_modules', 'internal_packages']
     if not fs.existsSync(folder)
       console.log("Ignoring #{folder}, which is missing.")
@@ -194,11 +190,9 @@ module.exports = (grunt) ->
 
       {engines, theme} = grunt.file.readJSON(metadataPath)
       if engines?.nylas?
-        coffeeConfig.glob_to_multiple.src.push("#{directory}/**/*.coffee")
         lessConfig.glob_to_multiple.src.push("#{directory}/**/*.less")
         prebuildLessConfig.src.push("#{directory}/**/*.less") unless theme
         csonConfig.glob_to_multiple.src.push("#{directory}/**/*.cson")
-        pegConfig.glob_to_multiple.src.push("#{directory}/**/*.pegjs")
 
   COFFEE_SRC = [
     'internal_packages/**/*.cjsx'
@@ -208,6 +202,8 @@ module.exports = (grunt) ->
     'src/**/*.cjsx'
     'spec/**/*.cjsx'
     'spec/**/*.coffee'
+    '!src/**/node_modules/**/*.coffee'
+    '!internal_packages/**/node_modules/**/*.coffee'
   ]
   ES_SRC = [
     'internal_packages/**/*.jsx'
@@ -221,6 +217,12 @@ module.exports = (grunt) ->
     'spec/**/*.es6'
     'spec/**/*.es'
     'spec/**/*.jsx'
+    '!src/**/node_modules/**/*.es6'
+    '!src/**/node_modules/**/*.es'
+    '!src/**/node_modules/**/*.jsx'
+    '!internal_packages/**/node_modules/**/*.es6'
+    '!internal_packages/**/node_modules/**/*.es'
+    '!internal_packages/**/node_modules/**/*.jsx'
   ]
 
   grunt.initConfig
@@ -241,8 +243,6 @@ module.exports = (grunt) ->
     'prebuild-less': prebuildLessConfig
 
     cson: csonConfig
-
-    peg: pegConfig
 
     nylaslint:
       src: COFFEE_SRC.concat(ES_SRC)
@@ -360,7 +360,7 @@ module.exports = (grunt) ->
           failOnError: false
 
   grunt.registerTask('compile',
-    ['coffee', 'cjsx', 'babel', 'prebuild-less', 'cson', 'peg'])
+    ['coffee', 'cjsx', 'babel', 'prebuild-less', 'cson'])
 
   grunt.registerTask('lint',
     ['eslint', 'lesslint', 'nylaslint', 'coffeelint', 'csslint'])

@@ -1,5 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
+{AccountStore} = require 'nylas-exports'
 {OutlineView, ScrollRegion, Flexbox} = require 'nylas-component-kit'
 AccountSwitcher = require './account-switcher'
 SidebarStore = require '../sidebar-store'
@@ -19,6 +20,7 @@ class AccountSidebar extends React.Component
   componentDidMount: =>
     @unsubscribers = []
     @unsubscribers.push SidebarStore.listen @_onStoreChange
+    @unsubscribers.push AccountStore.listen @_onStoreChange
 
   componentWillUnmount: =>
     unsubscribe() for unsubscribe in @unsubscribers
@@ -27,7 +29,7 @@ class AccountSidebar extends React.Component
     @setState @_getStateFromStores()
 
   _getStateFromStores: =>
-    accounts: SidebarStore.accounts()
+    accounts: AccountStore.accounts()
     focusedAccounts: SidebarStore.focusedAccounts()
     userSections: SidebarStore.userSections()
     standardSection: SidebarStore.standardSection()

@@ -12,9 +12,9 @@ class BadgeStore extends NylasStore {
     this.listenTo(FocusedPerspectiveStore, this._updateCounts);
     this.listenTo(ThreadCountsStore, this._updateCounts);
 
-    NylasEnv.config.onDidChange('core.notifications.unreadBadge', ({newValue}) => {
-      if (newValue === true) {
-        this._setBadgeForCount()
+    NylasEnv.config.onDidChange('core.notifications.countBadge', ({newValue}) => {
+      if (newValue !== 'hide') {
+        this._setBadgeForCount();
       } else {
         this._setBadge("");
       }
@@ -52,17 +52,19 @@ class BadgeStore extends NylasStore {
   }
 
   _setBadgeForCount = () => {
-    if (!NylasEnv.config.get('core.notifications.unreadBadge')) {
+    const badgePref = NylasEnv.config.get('core.notifications.countBadge');
+    if (!badgePref || badgePref === 'hide') {
       return;
     }
     if (!NylasEnv.isMainWindow() && !NylasEnv.inSpecMode()) {
       return;
     }
 
-    if (this._unread > 999) {
+    const count = badgePref === 'unread' ? this._unread : this._total;
+    if (count > 999) {
       this._setBadge("999+");
-    } else if (this._unread > 0) {
-      this._setBadge(`${this._unread}`);
+    } else if (count > 0) {
+      this._setBadge(`${count}`);
     } else {
       this._setBadge("");
     }

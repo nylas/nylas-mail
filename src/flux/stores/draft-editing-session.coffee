@@ -1,12 +1,16 @@
 Message = require('../models/message').default
 Actions = require '../actions'
+NylasAPI = require '../nylas-api'
+AccountStore = require './account-store'
+ContactStore = require './contact-store'
 DatabaseStore = require './database-store'
-ExtensionRegistry = require('../../extension-registry')
+UndoStack = require('../../undo-stack').default
+DraftHelpers = require '../stores/draft-helpers'
+ExtensionRegistry = require '../../extension-registry'
 {Listener, Publisher} = require '../modules/reflux-coffee'
 SyncbackDraftTask = require('../tasks/syncback-draft-task').default
 CoffeeHelpers = require '../coffee-helpers'
 DraftStore = null
-
 _ = require 'underscore'
 
 MetadataChangePrefix = 'metadata.'
@@ -26,7 +30,10 @@ DraftChangeSet associated with the store session. The DraftChangeSet does two th
 Section: Drafts
 ###
 class DraftChangeSet
-  constructor: (@_onAltered, @_onCommit) ->
+  @include: CoffeeHelpers.includeModule
+  @include Publisher
+
+  constructor: (@callbacks) ->
     @_commitChain = Promise.resolve()
     @_pending = {}
     @_saving = {}
@@ -40,9 +47,10 @@ class DraftChangeSet
       @_timer = null
 
   add: (changes, {doesNotAffectPristine}={}) =>
+    @callbacks.onWillAddChanges(changes)
     @_pending = _.extend(@_pending, changes)
-    @_pending['pristine'] = false unless doesNotAffectPristine
-    @_onAltered()
+    @_pending.pristine = false unless doesNotAffectPristine
+    @callbacks.onDidAddChanges(changes)
 
     clearTimeout(@_timer) if @_timer
     @_timer = setTimeout(@commit, 10000)
@@ -59,7 +67,7 @@ class DraftChangeSet
 
       @_saving = @_pending
       @_pending = {}
-      return @_onCommit({noSyncback}).then =>
+      return @callbacks.onCommit({noSyncback}).then =>
         @_saving = {}
 
     return @_commitChain
@@ -100,8 +108,13 @@ class DraftEditingSession
     @_draft = false
     @_draftPristineBody = null
     @_destroyed = false
+    @_undoStack = new UndoStack()
 
-    @changes = new DraftChangeSet(@_changeSetAltered, @_changeSetCommit)
+    @changes = new DraftChangeSet({
+      onWillAddChanges: @changeSetWillAddChanges
+      onDidAddChanges: @changeSetDidAddChanges
+      onCommit: @changeSetCommit
+    })
 
     if draft
       @_draftPromise = @_setDraft(draft)
@@ -133,15 +146,67 @@ class DraftEditingSession
     @changes.teardown()
     @_destroyed = true
 
+  validateDraftForSending: =>
+    warnings = []
+    errors = []
+    allRecipients = [].concat(@_draft.to, @_draft.cc, @_draft.bcc)
+    bodyIsEmpty = @_draft.body is @draftPristineBody()
+    forwarded = DraftHelpers.isForwardedMessage(@_draft)
+    hasAttachment = @_draft.files?.length > 0 or @_draft.uploads?.length > 0
+
+    for contact in allRecipients
+      if not ContactStore.isValidContact(contact)
+        errors.push("#{contact.email} is not a valid email address - please remove or edit it before sending.")
+
+    if allRecipients.length is 0
+      errors.push('You need to provide one or more recipients before sending the message.')
+
+    if errors.length > 0
+      return {errors, warnings}
+
+    if @_draft.subject.length is 0
+      warnings.push('without a subject line')
+
+    if DraftHelpers.messageMentionsAttachment(@_draft) and not hasAttachment
+      warnings.push('without an attachment')
+
+    if bodyIsEmpty and not forwarded and not hasAttachment
+      warnings.push('without a body')
+
+    ## Check third party warnings added via Composer extensions
+    for extension in ExtensionRegistry.Composer.extensions()
+      continue if not extension.warningsForSending
+      warnings = warnings.concat(extension.warningsForSending({draft: @_draft}))
+
+    return {errors, warnings}
+
+  # This function makes sure the draft is attached to a valid account, and changes
+  # it's accountId if the from address does not match the account for the from
+  # address
+  #
+  # If the account is updated it makes a request to delete the draft with the
+  # old accountId
+  ensureCorrectAccount: ({noSyncback} = {}) =>
+    account = AccountStore.accountForEmail(@_draft.from[0].email)
+    if !account
+      return Promise.reject(new Error("DraftEditingSession::ensureCorrectAccount - you can only send drafts from a configured account."))
+
+    if account.id isnt @_draft.accountId
+      NylasAPI.makeDraftDeletionRequest(@_draft)
+      @changes.add({
+        accountId: account.id,
+        version: null,
+        serverId: null,
+        threadId: null,
+        replyToMessageId: null,
+      })
+      return @changes.commit({noSyncback})
+      .thenReturn(@)
+    return Promise.resolve(@)
+
   _setDraft: (draft) ->
     if !draft.body?
       throw new Error("DraftEditingSession._setDraft - new draft has no body!")
-
-    # We keep track of the draft's initial body if it's pristine when the editing
-    # session begins. This initial value powers things like "are you sure you want
-    # to send with an empty body?"
-    if draft.pristine
-      @_draftPristineBody = draft.body
 
     # Reverse draft transformations performed by third-party plugins when the draft
     # was last saved to disk
@@ -152,6 +217,14 @@ class DraftEditingSession
             draft = untransformed
     .then =>
       @_draft = draft
+
+      # We keep track of the draft's initial body if it's pristine when the editing
+      # session begins. This initial value powers things like "are you sure you want
+      # to send with an empty body?"
+      if draft.pristine
+        @_draftPristineBody = draft.body
+        @_undoStack.save(@_snapshot())
+
       @trigger()
       Promise.resolve(@)
 
@@ -173,15 +246,7 @@ class DraftEditingSession
       @_setDraft(Object.assign(new Message(), @_draft, nextValues))
       @trigger()
 
-  _changeSetAltered: =>
-    return if @_destroyed
-    if !@_draft
-      throw new Error("DraftChangeSet was modified before the draft was prepared.")
-
-    @changes.applyToModel(@_draft)
-    @trigger()
-
-  _changeSetCommit: ({noSyncback}={}) =>
+  changeSetCommit: ({noSyncback}={}) =>
     if @_destroyed or not @_draft
       return Promise.resolve(true)
 
@@ -213,6 +278,51 @@ class DraftEditingSession
       #
       return unless @_draft.serverId
       Actions.ensureDraftSynced(@draftClientId)
+
+
+  # Undo / Redo
+
+  changeSetWillAddChanges: (changes) =>
+    return if @_restoring
+    hasBeen300ms = Date.now() - @_lastAddTimestamp > 300
+    hasChangedFields = !_.isEqual(Object.keys(changes), @_lastChangedFields)
+
+    @_lastChangedFields = Object.keys(changes)
+    @_lastAddTimestamp = Date.now()
+    if hasBeen300ms || hasChangedFields
+      @_undoStack.save(@_snapshot())
+
+  changeSetDidAddChanges: =>
+    return if @_destroyed
+    if !@_draft
+      throw new Error("DraftChangeSet was modified before the draft was prepared.")
+
+    @changes.applyToModel(@_draft)
+    @trigger()
+
+  restoreSnapshot: (snapshot) =>
+    return unless snapshot
+    @_restoring = true
+    @changes.add(snapshot.draft)
+    if @_composerViewSelectionRestore
+      @_composerViewSelectionRestore(snapshot.selection)
+    @_restoring = false
+
+  undo: =>
+    @restoreSnapshot(@_undoStack.saveAndUndo(@_snapshot()))
+
+  redo: =>
+    @restoreSnapshot(@_undoStack.redo())
+
+  _snapshot: =>
+    snapshot = {
+      selection: @_composerViewSelectionRetrieve?()
+      draft: Object.assign({}, @draft())
+    }
+    for {pluginId, value} in snapshot.draft.pluginMetadata
+      snapshot.draft["#{MetadataChangePrefix}#{pluginId}"] = value
+    delete snapshot.draft.pluginMetadata
+    return snapshot
 
 
 DraftEditingSession.DraftChangeSet = DraftChangeSet
