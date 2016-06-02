@@ -4,8 +4,16 @@ import crypto from 'crypto';
 import {EdgehillAPI, NylasAPI, AccountStore, RegExpUtils, IdentityStore} from 'nylas-exports';
 import url from 'url';
 
-function base64url(buf) {
-  return buf.toString('base64')
+function base64url(inBuffer) {
+  let buffer;
+  if (typeof inBuffer === "string") {
+    buffer = new Buffer(inBuffer);
+  } else if (inBuffer instanceof Buffer) {
+    buffer = inBuffer;
+  } else {
+    throw new Error(`${inBuffer} must be a string or Buffer`)
+  }
+  return buffer.toString('base64')
     .replace(/\+/g, '-')  // Convert '+' to '-'
     .replace(/\//g, '_'); // Convert '/' to '_'
 }
