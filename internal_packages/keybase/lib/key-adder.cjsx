@@ -4,6 +4,7 @@ Identity = require './identity'
 kb = require './keybase'
 pgp = require 'kbpgp'
 _ = require 'underscore'
+fs = require 'fs'
 
 module.exports =
 class KeyAdder extends React.Component
@@ -15,48 +16,63 @@ class KeyAdder extends React.Component
       keyContents: ""
       passphrase: ""
 
-      pubKey: false
-      privKey: false
       generate: false
+      paste: false
+      import: false
+
+      isPriv: false
 
       validAddress: false
       validKeyBody: false
 
       placeholder: "Your generated public key will appear here. Share it with your friends!"
 
-  _renderAddButtons: ->
-    <div>
-      Add a PGP Key:
-      <button className="btn key-creation-button" title="Paste in a Public Key" onClick={@_onPastePubButtonClick}>Paste in a Public Key</button>
-      <button className="btn key-creation-button" title="Paste in a Private Key" onClick={@_onPastePrivButtonClick}>Paste in a Private Key</button>
-      <button className="btn key-creation-button" title="Generate a New Keypair" onClick={@_onGenerateButtonClick}>Generate a New Keypair</button>
-    </div>
-
-  _onPastePubButtonClick: (event) =>
+  _onPasteButtonClick: (event) =>
     @setState
-      pubKey: !@state.pubKey
       generate: false
-      privKey: false
+      paste: !@state.paste
+      import: false
       address: ""
       keyContents: ""
-
-  _onPastePrivButtonClick: (event) =>
-    @setState
-      pubKey: false
-      generate: false
-      privKey: !@state.privKey
-      address: ""
-      keyContents: ""
-      passphrase: ""
 
   _onGenerateButtonClick: (event) =>
     @setState
       generate: !@state.generate
-      pubKey: false
-      privKey: false
+      paste: false
+      import: false
       address: ""
       keyContents: ""
       passphrase: ""
+
+  _onImportButtonClick: (event) =>
+    NylasEnv.showOpenDialog({
+        title: "Import PGP Key",
+        buttonLabel: "Import",
+        properties: ['openFile']
+      }, (filepath) =>
+        if filepath?
+          @setState
+            generate: false
+            paste: false
+            import: true
+            address: ""
+            passphrase: ""
+          fs.readFile(filepath[0], (err, data) =>
+            pgp.KeyManager.import_from_armored_pgp {
+              armored: data
+            }, (err, km) =>
+              if err
+                PGPKeyStore._displayError("The file you selected for import is not a valid PGP Key.")
+                return
+              else
+                privateStart = "-----BEGIN PGP PRIVATE KEY BLOCK-----"
+                keyBody = if km.armored_pgp_private? then km.armored_pgp_private else km.armored_pgp_public
+                @setState
+                  keyContents: keyBody
+                  isPriv: keyBody.indexOf(privateStart) >= 0
+                  validKeyBody: true
+        )
+    )
 
   _onInnerGenerateButtonClick: (event) =>
     @_generateKeypair()
@@ -84,17 +100,10 @@ class KeyAdder extends React.Component
             keyContents: pgp_public
             placeholder: "Your generated public key will appear here. Share it with your friends!"
 
-  _saveNewPubKey: =>
+  _saveNewKey: =>
     ident = new Identity({
       addresses: [@state.address]
-      isPriv: false
-    })
-    PGPKeyStore.saveNewKey(ident, @state.keyContents)
-
-  _saveNewPrivKey: =>
-    ident = new Identity({
-      addresses: [@state.address]
-      isPriv: true
+      isPriv: @state.isPriv
     })
     PGPKeyStore.saveNewKey(ident, @state.keyContents)
 
@@ -112,22 +121,31 @@ class KeyAdder extends React.Component
       passphrase: event.target.value
 
   _onKeyChange: (event) =>
+    privateStart = "-----BEGIN PGP PRIVATE KEY BLOCK-----"
     @setState
       keyContents: event.target.value
+      isPriv: event.target.value.indexOf(privateStart) >= 0
     pgp.KeyManager.import_from_armored_pgp {
       armored: event.target.value
     }, (err, km) =>
       if err
-        console.warn(err)
         valid = false
       else
         valid = true
       @setState
         validKeyBody: valid
 
-  _renderPasteKey: ->
-    publicButton = <button className="btn key-add-btn" disabled={!(@state.validAddress & @state.validKeyBody)} title="Save" onClick={@_saveNewPubKey}>Save</button>
-    privateButton = <button className="btn key-add-btn" disabled={!(@state.validAddress & @state.validKeyBody)} title="Save" onClick={@_saveNewPrivKey}>Save</button>
+  _renderAddButtons: ->
+    <div>
+      Add a PGP Key:
+      <button className="btn key-creation-button" title="Paste" onClick={@_onPasteButtonClick}>Paste in a New Key</button>
+      <button className="btn key-creation-button" title="Import" onClick={@_onImportButtonClick}>Import a Key From File</button>
+      <button className="btn key-creation-button" title="Generate" onClick={@_onGenerateButtonClick}>Generate a New Keypair</button>
+    </div>
+
+  _renderManualKey: ->
+    invalidInputs = !(@state.validAddress & @state.validKeyBody)
+    buttonClass = if invalidInputs then "btn key-add-btn btn-disabled" else "btn key-add-btn"
 
     passphraseInput = <input type="password" value={@state.passphrase} placeholder="Input a password for the private key." className="key-passphrase-input" onChange={@_onPassphraseChange} />
 
@@ -140,9 +158,8 @@ class KeyAdder extends React.Component
       </div>
       <div>
         <input type="text" value={@state.address} placeholder="Which email address is this key for?" className="key-email-input" onChange={@_onAddressChange} />
-        {if @state.privKey then passphraseInput}
-        {if @state.privKey then privateButton}
-        {if @state.pubKey then publicButton}
+        {if @state.isPriv then passphraseInput}
+        <button className={buttonClass} disabled={invalidInputs} title="Save" onClick={@_saveNewKey}>Save</button>
       </div>
     </div>
 
@@ -166,5 +183,5 @@ class KeyAdder extends React.Component
     <div>
       {@_renderAddButtons()}
       {if @state.generate then @_renderGenerateKey()}
-      {if @state.pubKey or @state.privKey then @_renderPasteKey()}
+      {if @state.paste or @state.import then @_renderManualKey()}
     </div>
