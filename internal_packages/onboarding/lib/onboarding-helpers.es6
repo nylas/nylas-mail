@@ -1,7 +1,7 @@
 /* eslint global-require: 0 */
 
 import crypto from 'crypto';
-import {EdgehillAPI, NylasAPI, AccountStore, RegExpUtils} from 'nylas-exports';
+import {EdgehillAPI, NylasAPI, AccountStore, RegExpUtils, IdentityStore} from 'nylas-exports';
 import url from 'url';
 
 function base64url(buf) {
@@ -59,15 +59,14 @@ export function buildGmailAuthURL(sessionKey) {
   });
 }
 
-export function buildWelcomeURL(account) {
+export function buildWelcomeURL() {
+  const identity = IdentityStore().identity();
+  if (!identity) { NylasEnv.reportError(new Error("Can't find Nylas ID")) }
   return url.format({
     protocol: 'https',
     host: 'nylas.com/welcome',
     query: {
-      n: base64url(NylasEnv.config.get("updateIdentity")),
-      e: base64url(account.emailAddress),
-      p: base64url(account.provider),
-      a: base64url(account.id),
+      n: base64url(id),
     },
   });
 }

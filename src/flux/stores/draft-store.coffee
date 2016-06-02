@@ -59,7 +59,8 @@ class DraftStore
     @listenTo Actions.sendQuickReply, @_onSendQuickReply
 
     if NylasEnv.isMainWindow()
-      ipcRenderer.on 'new-message', => @_onPopoutBlankDraft()
+      ipcRenderer.on 'new-message', =>
+        Actions.composeNewBlankDraft() # So Analytics can see it
 
     # Remember that these two actions only fire in the current window and
     # are picked up by the instance of the DraftStore in the current
