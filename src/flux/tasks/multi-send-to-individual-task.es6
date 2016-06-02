@@ -14,6 +14,7 @@ export default class MultiSendToIndividualTask extends Task {
   performRemote() {
     return NylasAPI.makeRequest({
       method: "POST",
+      timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
       path: `/send-multiple/${this.message.id}`,
       accountId: this.message.accountId,
       body: {
