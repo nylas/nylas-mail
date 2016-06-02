@@ -29,49 +29,54 @@ MailRulesActions =
       accountId: thread.accountId
     }).then (important) ->
       return Promise.reject(new Error("Could not find `important` label")) unless important
-      return new ChangeLabelsTask(labelsToAdd: [important], threads: [thread])
+      return new ChangeLabelsTask(labelsToAdd: [important], threads: [thread.id])
 
   moveToTrash: (message, thread) ->
     if AccountStore.accountForId(thread.accountId).usesLabels()
-      return MailRulesActions._applyStandardLabelRemovingInbox(message, thread, 'trash')
+      return MailRulesActions.moveToLabel(message, thread, 'trash')
     else
       DatabaseStore.findBy(Category, { name: 'trash', accountId: thread.accountId }).then (folder) ->
         return Promise.reject(new Error("The folder could not be found.")) unless folder
-        return new ChangeFolderTask(folder: folder, threads: [thread])
+        return new ChangeFolderTask(folder: folder, threads: [thread.id])
 
   markAsRead: (message, thread) ->
-    new ChangeUnreadTask(unread: false, threads: [thread])
+    new ChangeUnreadTask(unread: false, threads: [thread.id])
 
   star: (message, thread) ->
-    new ChangeStarredTask(starred: true, threads: [thread])
+    new ChangeStarredTask(starred: true, threads: [thread.id])
 
   changeFolder: (message, thread, value) ->
     return Promise.reject(new Error("A folder is required.")) unless value
     DatabaseStore.findBy(Category, { id: value, accountId: thread.accountId }).then (folder) ->
       return Promise.reject(new Error("The folder could not be found.")) unless folder
-      return new ChangeFolderTask(folder: folder, threads: [thread])
+      return new ChangeFolderTask(folder: folder, threads: [thread.id])
 
   applyLabel: (message, thread, value) ->
     return Promise.reject(new Error("A label is required.")) unless value
     DatabaseStore.findBy(Category, { id: value, accountId: thread.accountId }).then (label) ->
       return Promise.reject(new Error("The label could not be found.")) unless label
-      return new ChangeLabelsTask(labelsToAdd: [label], threads: [thread])
+      return new ChangeLabelsTask(labelsToAdd: [label], threads: [thread.id])
 
+  # Should really be moveToArchive but stuck with legacy name
   applyLabelArchive: (message, thread) ->
-    return MailRulesActions._applyStandardLabelRemovingInbox(message, thread, 'all')
+    return MailRulesActions.moveToLabel(message, thread, 'all')
 
-  # Helpers for other actions
+  moveToLabel: (message, thread, nameOrId) ->
+    return Promise.reject(new Error("A label is required.")) unless nameOrId
 
-  _applyStandardLabelRemovingInbox: (message, thread, value) ->
     Promise.props(
-      inbox: DatabaseStore.findBy(Category, { name: 'inbox', accountId: thread.accountId })
-      newLabel: DatabaseStore.findBy(Category, { name: value, accountId: thread.accountId })
-    ).then ({inbox, newLabel}) ->
-      return Promise.reject(new Error("Could not find `inbox` or `#{value}` label")) unless inbox and newLabel
-      return new ChangeLabelsTask
-        labelsToRemove: [inbox]
-        labelsToAdd: [newLabel]
-        threads: [thread]
+      withId: DatabaseStore.findBy(Category, { id: nameOrId, accountId: thread.accountId })
+      withName: DatabaseStore.findBy(Category, { name: nameOrId, accountId: thread.accountId })
+    ).then ({withId, withName}) ->
+      label = withId || withName
+      return Promise.reject(new Error("The label could not be found.")) unless label
+      return new ChangeLabelsTask({
+        labelsToRemove: [].concat(thread.labels).filter((l) =>
+          !l.isLockedCategory() and l.id isnt label.id
+        ),
+        labelsToAdd: [label],
+        threads: [thread.id]
+      })
 
 
 class MailRulesProcessor
@@ -86,7 +91,7 @@ class MailRulesProcessor
     # When messages arrive, we process all the messages in parallel, but one
     # rule at a time. This is important, because users can order rules which
     # may do and undo a change. Ie: "Star if from Ben, Unstar if subject is "Bla"
-    Promise.each enabledRules, (rule) =>
+    return Promise.each enabledRules, (rule) =>
       matching = messages.filter (message) =>
         @_checkRuleForMessage(rule, message)
 
@@ -96,12 +101,12 @@ class MailRulesProcessor
       matching = _.uniq matching, false, (message) ->
         message.threadId
 
-      Promise.map matching, (message) =>
+      return Promise.map matching, (message) =>
         # We always pull the thread from the database, even though it may be in
         # `incoming.thread`, because rules may be modifying it as they run!
         DatabaseStore.find(Thread, message.threadId).then (thread) =>
           return console.warn("Cannot find thread #{message.threadId} to process mail rules.") unless thread
-          @_applyRuleToMessage(rule, message, thread)
+          return @_applyRuleToMessage(rule, message, thread)
 
   _checkRuleForMessage: (rule, message) =>
     if rule.conditionMode is ConditionMode.All
@@ -131,7 +136,7 @@ class MailRulesProcessor
         performLocalPromises.push TaskQueueStatusStore.waitForPerformLocal(task)
         Actions.queueTask(task)
 
-      Promise.all(performLocalPromises)
+      return Promise.all(performLocalPromises)
 
     .catch (err) ->
       # Errors can occur if a mail rule specifies an invalid label or folder, etc.

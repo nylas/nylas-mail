@@ -49,12 +49,15 @@ export default class SyncbackModelTask extends Task {
   };
 
   makeRequest = (model) => {
-    const options = _.extend({
-      accountId: model.accountId,
-      returnsModel: false,
-    }, this.getRequestData(model));
-
-    return NylasAPI.makeRequest(options);
+    try {
+      const options = _.extend({
+        accountId: model.accountId,
+        returnsModel: false,
+      }, this.getRequestData(model));
+      return NylasAPI.makeRequest(options);
+    } catch (error) {
+      return Promise.reject(error)
+    }
   };
 
   getRequestData = (model) => {

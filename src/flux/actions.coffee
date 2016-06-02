@@ -83,8 +83,8 @@ class Actions
   Recieves the clientId of the message that was sent
   ###
   @sendDraftSuccess: ActionScopeGlobal
+  @sendDraftFailed: ActionScopeGlobal
   @sendToAllWindows: ActionScopeGlobal
-  @draftSendingFailed: ActionScopeGlobal
 
   ###
   Public: Queue a {Task} object to the {TaskQueue}.
@@ -151,6 +151,12 @@ class Actions
   *Scope: Window*
   ###
   @clearDeveloperConsole: ActionScopeWindow
+
+  ###
+  Public: Manage the Nylas identity
+  ###
+  @setNylasIdentity: ActionScopeWindow
+  @logoutNylasIdentity: ActionScopeWindow
 
   ###
   Public: Remove the selected account
@@ -367,7 +373,7 @@ class Actions
   ```
   ###
   @sendDraft: ActionScopeWindow
-  @sendDrafts: ActionScopeWindow
+  @sendManyDrafts: ActionScopeWindow
   @ensureDraftSynced: ActionScopeWindow
 
   ###

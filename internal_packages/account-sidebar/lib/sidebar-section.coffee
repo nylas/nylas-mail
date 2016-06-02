@@ -1,6 +1,5 @@
 _ = require 'underscore'
 {Actions,
- AccountStore,
  SyncbackCategoryTask,
  DestroyCategoryTask,
  CategoryStore,
@@ -58,10 +57,11 @@ class SidebarSection
 
     standardNames = [
       'inbox',
+      'important'
       'sent',
       ['archive', 'all'],
-      'trash'
       'spam'
+      'trash'
     ]
     items = []
 

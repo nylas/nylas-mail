@@ -1,7 +1,7 @@
 _ = require 'underscore'
 React = require 'react'
-{Actions,
- Utils,
+{DraftHelpers,
+ Actions,
  Thread,
  ChangeStarredTask,
  AccountStore} = require 'nylas-exports'
@@ -25,7 +25,7 @@ class ThreadListIcon extends React.Component
     last = msgs[msgs.length - 1]
 
     if msgs.length > 1 and last.from[0]?.isMe()
-      if Utils.isForwardedMessage(last)
+      if DraftHelpers.isForwardedMessage(last)
         return 'thread-icon-forwarded thread-icon-star-on-hover'
       else
         return 'thread-icon-replied thread-icon-star-on-hover'

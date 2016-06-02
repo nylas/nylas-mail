@@ -33,13 +33,15 @@ export default class ChangeStarredTask extends ChangeMailTask {
     if (this.threads.length === 0) {
       return Promise.reject(new Error("ChangeStarredTask: You must provide a `threads` Array of models or IDs."));
     }
-    // Convert arrays of IDs or models to models.
-    // modelify returns immediately if (no work is required)
+    return super.performLocal();
+  }
+
+  retrieveModels() {
     return Promise.props({
       threads: DatabaseStore.modelify(Thread, this.threads),
     }).then(({threads}) => {
       this.threads = _.compact(threads);
-      return super.performLocal();
+      return Promise.resolve();
     })
   }
 

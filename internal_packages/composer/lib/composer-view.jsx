@@ -7,11 +7,9 @@ import {
   Utils,
   Actions,
   DraftStore,
-  UndoManager,
-  ContactStore,
-  QuotedHTMLTransformer,
+  DraftHelpers,
   FileDownloadStore,
-  ExtensionRegistry,
+  QuotedHTMLTransformer,
 } from 'nylas-exports';
 
 import {
@@ -21,6 +19,7 @@ import {
   TabGroupRegion,
   InjectedComponent,
   KeyCommandsRegion,
+  OverlaidComponents,
   InjectedComponentSet,
 } from 'nylas-component-kit';
 
@@ -55,44 +54,33 @@ export default class ComposerView extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      showQuotedText: Utils.isForwardedMessage(props.draft),
+      showQuotedText: DraftHelpers.isForwardedMessage(props.draft),
     }
   }
 
   componentDidMount() {
     if (this.props.session) {
-      this._receivedNewSession();
+      this._setupForProps(this.props);
     }
   }
 
-  componentWillReceiveProps(newProps) {
-    if (newProps.session !== this.props.session) {
-      this._receivedNewSession();
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.session !== this.props.session) {
+      this._teardownForProps();
+      this._setupForProps(nextProps);
     }
-    if (Utils.isForwardedMessage(this.props.draft) !== Utils.isForwardedMessage(newProps.draft)) {
+    if (DraftHelpers.isForwardedMessage(this.props.draft) !== DraftHelpers.isForwardedMessage(nextProps.draft)) {
       this.setState({
-        showQuotedText: Utils.isForwardedMessage(newProps.draft),
+        showQuotedText: DraftHelpers.isForwardedMessage(nextProps.draft),
       });
     }
   }
 
-  componentDidUpdate() {
-    // We want to use a temporary variable instead of putting this into the
-    // state. This is because the selection is a transient property that
-    // only needs to be applied once. It's not a long-living property of
-    // the state. We could call `setState` here, but this saves us from a
-    // re-rendering.
-    if (this._recoveredSelection) {
-      this._recoveredSelection = null;
-    }
+  componentWillUnmount() {
+    this._teardownForProps();
   }
 
   focus() {
-    // TODO is it safe to remove this?
-    // if (ReactDOM.findDOMNode(this).contains(document.activeElement)) {
-    //   return;
-    // }
-
     if (this.props.draft.to.length === 0) {
       this.refs.header.showAndFocusField(Fields.To);
     } else if ((this.props.draft.subject || "").trim().length === 0) {
@@ -113,21 +101,55 @@ export default class ComposerView extends React.Component {
       'composer:show-and-focus-bcc': () => this.refs.header.showAndFocusField(Fields.Bcc),
       'composer:show-and-focus-cc': () => this.refs.header.showAndFocusField(Fields.Cc),
       'composer:focus-to': () => this.refs.header.showAndFocusField(Fields.To),
-      "composer:show-and-focus-from": () => {}, // todo
-      "core:undo": this.undo,
-      "core:redo": this.redo,
+      "composer:show-and-focus-from": () => {},
+      "core:undo": (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        this.props.session.undo();
+      },
+      "core:redo": (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        this.props.session.redo();
+      },
     };
   }
 
-  _receivedNewSession() {
-    this.undoManager = new UndoManager();
-    this._saveToHistory();
+  _setupForProps({draft, session}) {
+    this.setState({
+      showQuotedText: DraftHelpers.isForwardedMessage(draft),
+    });
 
-    this.props.draft.files.forEach((file) => {
+    // TODO: This is a dirty hack to save selection state into the undo/redo
+    // history. Remove it if / when selection is written into the body with
+    // marker tags, or when selection is moved from `contenteditable.innerState`
+    // into a first-order part of the session state.
+
+    session._composerViewSelectionRetrieve = () => {
+      // Selection updates /before/ the contenteditable emits it's change event,
+      // so the selection that goes with the snapshot state is the previous one.
+      if (this.refs[Fields.Body].getPreviousSelection) {
+        return this.refs[Fields.Body].getPreviousSelection();
+      }
+      return null;
+    }
+
+    session._composerViewSelectionRestore = (selection) => {
+      this.refs[Fields.Body].setSelection(selection);
+    }
+
+    draft.files.forEach((file) => {
       if (Utils.shouldDisplayAsImage(file)) {
         Actions.fetchFile(file);
       }
     });
+  }
+
+  _teardownForProps() {
+    if (this.props.session) {
+      this.props.session._composerViewSelectionRestore = null;
+      this.props.session._composerViewSelectionRetrieve = null;
+    }
   }
 
   _renderContentScrollRegion() {
@@ -164,12 +186,18 @@ export default class ComposerView extends React.Component {
   }
 
   _renderBodyRegions() {
+    const exposedProps = {
+      draft: this.props.draft,
+      session: this.props.session,
+    }
     return (
-      <span ref="composerBodyWrap">
-        {this._renderEditor()}
+      <div ref="composerBodyWrap" className="composer-body-wrap">
+        <OverlaidComponents exposedProps={exposedProps}>
+          {this._renderEditor()}
+        </OverlaidComponents>
         {this._renderQuotedTextControl()}
         {this._renderAttachments()}
-      </span>
+      </div>
     );
   }
 
@@ -181,15 +209,10 @@ export default class ComposerView extends React.Component {
         getComposerBoundingRect: this._getComposerBoundingRect,
         scrollTo: this.props.scrollTo,
       },
-      initialSelectionSnapshot: this._recoveredSelection,
       onFilePaste: this._onFilePaste,
       onBodyChanged: this._onBodyChanged,
     };
 
-    // TODO Get rid of the unecessary required methods:
-    // getCurrentSelection and getPreviousSelection shouldn't be needed and
-    // undo/redo functionality should be refactored into ComposerEditor
-    // _onDOMMutated === just for testing purposes, refactor the tests
     return (
       <InjectedComponent
         ref={Fields.Body}
@@ -199,8 +222,8 @@ export default class ComposerView extends React.Component {
         requiredMethods={[
           'focus',
           'focusAbsoluteEnd',
-          'getCurrentSelection',
           'getPreviousSelection',
+          'setSelection',
           '_onDOMMutated',
         ]}
         exposedProps={exposedProps}
@@ -401,7 +424,7 @@ export default class ComposerView extends React.Component {
   }
 
   _inFooterRegion(el) {
-    return el.closest && el.closest(".composer-footer-region")
+    return el.closest && el.closest(".composer-footer-region, .overlaid-components")
   }
 
   _onMouseUpComposerBody = (event) => {
@@ -469,17 +492,8 @@ export default class ComposerView extends React.Component {
   }
 
   _onBodyChanged = (event) => {
-    this._applyChanges({body: this._showQuotedText(event.target.value)});
+    this.props.session.changes.add({body: this._showQuotedText(event.target.value)});
     return;
-  }
-
-  _applyChanges = (changes = {}, source = {}) => {
-    const selections = this._getSelections();
-    this.props.session.changes.add(changes);
-
-    if (!source.fromUndoManager) {
-      this._saveToHistory(selections);
-    }
   }
 
   _isValidDraft = (options = {}) => {
@@ -492,54 +506,17 @@ export default class ComposerView extends React.Component {
     }
 
     const dialog = remote.dialog;
+    const {session} = this.props
+    const {errors, warnings} = session.validateDraftForSending()
 
-    const {to, cc, bcc, body, files, uploads} = this.props.draft;
-    const allRecipients = [].concat(to, cc, bcc);
-    let dealbreaker = null;
-
-    for (const contact of allRecipients) {
-      if (!ContactStore.isValidContact(contact)) {
-        dealbreaker = `${contact.email} is not a valid email address - please remove or edit it before sending.`
-      }
-    }
-    if (allRecipients.length === 0) {
-      dealbreaker = 'You need to provide one or more recipients before sending the message.';
-    }
-
-    if (dealbreaker) {
+    if (errors.length > 0) {
       dialog.showMessageBox(remote.getCurrentWindow(), {
         type: 'warning',
         buttons: ['Edit Message', 'Cancel'],
         message: 'Cannot Send',
-        detail: dealbreaker,
+        detail: errors[0],
       });
       return false;
-    }
-
-    const bodyIsEmpty = body === this.props.session.draftPristineBody();
-    const forwarded = Utils.isForwardedMessage(this.props.draft);
-    const hasAttachment = (files || []).length > 0 || (uploads || []).length > 0;
-
-    let warnings = [];
-
-    if (this.props.draft.subject.length === 0) {
-      warnings.push('without a subject line');
-    }
-
-    if (this._mentionsAttachment(this.props.draft.body) && !hasAttachment) {
-      warnings.push('without an attachment');
-    }
-
-    if (bodyIsEmpty && !forwarded && !hasAttachment) {
-      warnings.push('without a body');
-    }
-
-    // Check third party warnings added via Composer extensions
-    for (const extension of ExtensionRegistry.Composer.extensions()) {
-      if (!extension.warningsForSending) {
-        continue;
-      }
-      warnings = warnings.concat(extension.warningsForSending({draft: this.props.draft}));
     }
 
     if ((warnings.length > 0) && (!options.force)) {
@@ -554,7 +531,6 @@ export default class ComposerView extends React.Component {
       }
       return false;
     }
-
     return true;
   }
 
@@ -568,72 +544,6 @@ export default class ComposerView extends React.Component {
 
   _onSelectAttachment = () => {
     Actions.selectAttachment({messageClientId: this.props.draft.clientId});
-  }
-
-  _mentionsAttachment = (body) => {
-    let cleaned = QuotedHTMLTransformer.removeQuotedHTML(body.toLowerCase().trim());
-    const signatureIndex = cleaned.indexOf('<signature>');
-    if (signatureIndex !== -1) {
-      cleaned = cleaned.substr(0, signatureIndex - 1);
-    }
-    return (cleaned.indexOf("attach") >= 0);
-  }
-
-  undo = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const historyItem = this.undoManager.undo() || {};
-    if (!historyItem.state) {
-      return;
-    }
-
-    this._recoveredSelection = historyItem.currentSelection;
-    this._applyChanges(historyItem.state, {fromUndoManager: true});
-    this._recoveredSelection = null;
-  }
-
-  redo = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    const historyItem = this.undoManager.redo() || {}
-    if (!historyItem.state) {
-      return;
-    }
-    this._recoveredSelection = historyItem.currentSelection;
-    this._applyChanges(historyItem.state, {fromUndoManager: true});
-    this._recoveredSelection = null;
-  }
-
-  _getSelections = () => {
-    const bodyComponent = this.refs[Fields.Body];
-    return {
-      currentSelection: bodyComponent.getCurrentSelection ? bodyComponent.getCurrentSelection() : null,
-      previousSelection: bodyComponent.getPreviousSelection ? bodyComponent.getPreviousSelection() : null,
-    }
-  }
-
-  _saveToHistory = (selections) => {
-    const {previousSelection, currentSelection} = selections || this._getSelections();
-
-    const historyItem = {
-      previousSelection,
-      currentSelection,
-      state: {
-        body: _.clone(this.props.draft.body),
-        subject: _.clone(this.props.draft.subject),
-        to: _.clone(this.props.draft.to),
-        cc: _.clone(this.props.draft.cc),
-        bcc: _.clone(this.props.draft.bcc),
-      },
-    }
-
-    const lastState = this.undoManager.current()
-    if (lastState) {
-      lastState.currentSelection = historyItem.previousSelection;
-    }
-
-    this.undoManager.saveToHistory(historyItem);
   }
 
   render() {

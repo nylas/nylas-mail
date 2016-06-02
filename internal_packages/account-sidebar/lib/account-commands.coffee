@@ -1,13 +1,11 @@
 _ = require 'underscore'
-{AccountStore, MenuHelpers} = require 'nylas-exports'
-SidebarActions = require './sidebar-actions'
+{Actions, AccountStore, MenuHelpers} = require 'nylas-exports'
 
 
 class AccountCommands
 
   @_focusAccounts: (accounts) ->
-    NylasEnv.savedState.shouldRefocusSidebarAccounts = true
-    SidebarActions.focusAccounts(accounts)
+    Actions.focusDefaultMailboxPerspectiveForAccounts(accounts)
     NylasEnv.show() unless NylasEnv.isVisible()
 
   @_isSelected: (account, focusedAccounts) =>

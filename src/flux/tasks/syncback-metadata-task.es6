@@ -14,10 +14,14 @@ export default class SyncbackMetadataTask extends SyncbackModelTask {
   }
 
   getRequestData = (model) => {
+    if (!model.serverId) {
+      throw new Error(`Can't syncback metadata for a ${this.modelClassName} instance that doesn't have a serverId`)
+    }
+
     const metadata = model.metadataObjectForPluginId(this.pluginId);
 
     return {
-      path: `/metadata/${model.id}?client_id=${this.pluginId}`,
+      path: `/metadata/${model.serverId}?client_id=${this.pluginId}`,
       method: 'POST',
       body: {
         object_id: model.serverId,

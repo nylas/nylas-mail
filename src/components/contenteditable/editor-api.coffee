@@ -1,6 +1,8 @@
 _ = require 'underscore'
 {DOMUtils} = require 'nylas-exports'
+React = require 'react'
 ExtendedSelection = require './extended-selection'
+OverlaidComponents = null
 
 # An extended interface of execCommand
 #
@@ -69,6 +71,17 @@ class EditorAPI
     @_extendedSelection.restoreSelectionByTextIndex(args...); @
 
   normalize: -> @rootNode.normalize(); @
+
+  insertCustomComponent: (componentKey, props = {}) ->
+    OverlaidComponents ?= require('../overlaid-components/overlaid-components').default
+    {anchorId, anchorTag} = OverlaidComponents.buildAnchorTag(componentKey, props)
+    @insertHTML(anchorTag)
+    return anchorId
+
+  removeCustomComponentByAnchorId: (anchorId) ->
+    return unless anchorId
+    node = @rootNode.querySelector("img[data-overlay-id=\"#{anchorId}\"]")
+    node?.parentNode.removeChild(node)
 
   ########################################################################
   ####################### execCommand Delegation #########################

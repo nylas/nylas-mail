@@ -89,7 +89,10 @@ class NylasExports
   @lazyLoad "Task", 'flux/tasks/task'
   @lazyLoad "TaskFactory", 'flux/tasks/task-factory'
   @lazyLoadAndRegisterTask "EventRSVPTask", 'event-rsvp-task'
+  @lazyLoadAndRegisterTask "BaseDraftTask", 'base-draft-task'
   @lazyLoadAndRegisterTask "SendDraftTask", 'send-draft-task'
+  @lazyLoadAndRegisterTask "MultiSendToIndividualTask", 'multi-send-to-individual-task'
+  @lazyLoadAndRegisterTask "MultiSendSessionCloseTask", 'multi-send-session-close-task'
   @lazyLoadAndRegisterTask "ChangeMailTask", 'change-mail-task'
   @lazyLoadAndRegisterTask "DestroyDraftTask", 'destroy-draft-task'
   @lazyLoadAndRegisterTask "ChangeLabelsTask", 'change-labels-task'
@@ -119,6 +122,7 @@ class NylasExports
   @lazyLoadAndRegisterStore "AccountStore", 'account-store'
   @lazyLoadAndRegisterStore "MessageStore", 'message-store'
   @lazyLoadAndRegisterStore "ContactStore", 'contact-store'
+  @lazyLoadAndRegisterStore "IdentityStore", 'identity-store'
   @lazyLoadAndRegisterStore "MetadataStore", 'metadata-store'
   @lazyLoadAndRegisterStore "CategoryStore", 'category-store'
   @lazyLoadAndRegisterStore "UndoRedoStore", 'undo-redo-store'
@@ -134,6 +138,10 @@ class NylasExports
   @lazyLoadAndRegisterStore "TaskQueueStatusStore", 'task-queue-status-store'
   @lazyLoadAndRegisterStore "FocusedPerspectiveStore", 'focused-perspective-store'
   @lazyLoadAndRegisterStore "SearchableComponentStore", 'searchable-component-store'
+  @lazyLoad "CustomContenteditableComponents", 'components/overlaid-components/custom-contenteditable-components'
+
+  # Decorators
+  @lazyLoad "InflatesDraftClientId", 'decorators/inflates-draft-client-id'
 
   # Extensions
   @lazyLoad "ExtensionRegistry", 'extension-registry'
@@ -160,14 +168,14 @@ class NylasExports
   @lazyLoad "CanvasUtils", 'canvas-utils'
   @lazyLoad "RegExpUtils", 'regexp-utils'
   @lazyLoad "MenuHelpers", 'menu-helpers'
-  @lazyLoad "MessageUtils", 'flux/models/message-utils'
   @lazyLoad "DeprecateUtils", 'deprecate-utils'
   @lazyLoad "VirtualDOMUtils", 'virtual-dom-utils'
   @lazyLoad "NylasSpellchecker", 'nylas-spellchecker'
+  @lazyLoad "DraftHelpers", 'flux/stores/draft-helpers'
+  @lazyLoad "MessageUtils", 'flux/models/message-utils'
   @lazyLoad "EditorAPI", 'components/contenteditable/editor-api'
 
   # Services
-  @lazyLoad "UndoManager", 'undo-manager'
   @lazyLoad "SoundRegistry", 'sound-registry'
   @lazyLoad "MailRulesTemplates", 'mail-rules-templates'
   @lazyLoad "MailRulesProcessor", 'mail-rules-processor'

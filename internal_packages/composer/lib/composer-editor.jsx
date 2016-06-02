@@ -15,8 +15,6 @@ import {DropZone, ScrollRegion, Contenteditable} from 'nylas-component-kit';
  * @param {string} props.body - Html string with the draft content to be
  * rendered by the editor
  * @param {string} props.draftClientId - Id of the draft being currently edited
- * @param {object} props.initialSelectionSnapshot - Initial content selection
- * that was previously saved
  * @param {object} props.parentActions - Object containg helper actions
  * associated with the parent container
  * @param {props.parentActions.getComposerBoundingRect} props.parentActions.getComposerBoundingRect
@@ -67,7 +65,6 @@ class ComposerEditor extends Component {
   static propTypes = {
     body: PropTypes.string.isRequired,
     draftClientId: PropTypes.string,
-    initialSelectionSnapshot: PropTypes.object,
     onFilePaste: PropTypes.func,
     onBodyChanged: PropTypes.func,
     parentActions: PropTypes.shape({
@@ -94,18 +91,6 @@ class ComposerEditor extends Component {
 
   // Public methods
 
-  /**
-   * @private
-   * Methods in ES6 classes should be defined using object method shorthand
-   * syntax (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Method_definitions),
-   * as opposed to arrow function syntax, if we want them to be enumerated
-   * on the prototype. Arrow function syntax is used to lexically bind the `this`
-   * value, and are specialized for non-method callbacks, where them picking up
-   * the this of their surrounding method or constructor is an advantage.
-   * See https://goo.gl/9ZMOGl for an example
-   * and http://www.2ality.com/2015/02/es6-classes-final.html for more info.
-   */
-
   // TODO Get rid of these selection methods
   getCurrentSelection() {
     return this.refs.contenteditable.getCurrentSelection();
@@ -113,6 +98,10 @@ class ComposerEditor extends Component {
 
   getPreviousSelection() {
     return this.refs.contenteditable.getPreviousSelection();
+  }
+
+  setSelection(selection) {
+    this.refs.contenteditable.setSelection(selection);
   }
 
   focus() {
@@ -285,7 +274,6 @@ class ComposerEditor extends Component {
           onChange={this.props.onBodyChanged}
           onFilePaste={this.props.onFilePaste}
           onSelectionRestored={this._ensureSelectionVisible}
-          initialSelectionSnapshot={this.props.initialSelectionSnapshot}
           extensions={this.state.extensions}
         />
       </DropZone>

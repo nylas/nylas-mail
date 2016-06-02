@@ -1,0 +1,63 @@
+@import "ui-variables";
+
+.container-identity {
+  width: 50%;
+  margin: auto;
+  padding-top: @padding-base-vertical * 2;
+
+  .id-header {
+    color: @text-color-very-subtle;
+    margin-bottom: @padding-base-vertical * 2;
+  }
+
+  .identity-content-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    color: @text-color-subtle;
+    border-radius: @border-radius-large;
+    border: 1px solid @border-color-primary;
+    background-color: @background-secondary;
+
+    .row {
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .payment-row {
+      flex-direction: column;
+      align-items: flex-start;
+      border-top: 1px solid @border-color-primary;
+      padding: 20px;
+      padding-left: 137px;
+      &>div:first-child {
+        margin-bottom: @padding-base-vertical * 2;
+      }
+    }
+
+    .info-row {
+      padding: 30px;
+      .logo {
+        margin-right: 30px;
+      }
+      .identity-info {
+        line-height: 1.9em;
+        .name {
+          font-size: 1.2em;
+        }
+        .identity-actions {
+          margin-top: @padding-small-vertical + 1;
+          .btn {
+            width: 150px;
+            text-align: center;
+            &:first-child {
+              margin-right: @padding-base-horizontal;
+            }
+          }
+        }
+      }
+    }
+  }
+
+}
