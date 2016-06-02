@@ -1,5 +1,5 @@
 import React from 'react';
-import {Actions, AccountStore} from 'nylas-exports';
+import {AccountStore} from 'nylas-exports';
 import {RetinaImg} from 'nylas-component-kit';
 import OnboardingActions from './onboarding-actions';
 
