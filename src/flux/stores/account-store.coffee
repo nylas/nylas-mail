@@ -37,16 +37,19 @@ class AccountStore extends NylasStore
       return if @_version / 1 is change.newValue / 1
       oldAccountIds = _.pluck(@_accounts, 'id')
       @_loadAccounts()
-      newAccountIds = _.pluck(@_accounts, 'id')
-      newAccountIds = _.difference(newAccountIds, oldAccountIds)
+      accountIds = _.pluck(@_accounts, 'id')
+      newAccountIds = _.difference(accountIds, oldAccountIds)
 
       if newAccountIds.length > 0
         newId = newAccountIds[0]
         CategoryStore = require './category-store'
         CategoryStore.whenCategoriesReady(newId).then =>
+          Actions.focusDefaultMailboxPerspectiveForAccounts([newId], sidebarAccountIds: accountIds)
           # TODO this Action is a hack, get rid of it in sidebar refactor
-          Actions.setCollapsedSidebarItem('Inbox', false)
-          Actions.focusDefaultMailboxPerspectiveForAccounts([newAccountIds[0]])
+          # Wait until the FocusedPerspectiveStore triggers and the sidebar is
+          # updated to uncollapse the inbox for the new account
+          _.defer =>
+            Actions.setCollapsedSidebarItem('Inbox', false)
 
   _loadAccounts: =>
     try
@@ -138,9 +141,15 @@ class AccountStore extends NylasStore
     @_caches = {}
 
     remainingAccounts = _.without(@_accounts, account)
+    # This action is called before saving because we need to unfocus the
+    # perspective of the account that is being removed before removing the
+    # account, otherwise when we trigger with the new set of accounts, the
+    # current perspective will still reference a stale accountId which will
+    # cause things to break
     if remainingAccounts.length > 0
-      Actions.setCollapsedSidebarItem('Inbox', true)
       Actions.focusDefaultMailboxPerspectiveForAccounts(remainingAccounts)
+      _.defer =>
+        Actions.setCollapsedSidebarItem('Inbox', true)
 
     @_accounts = remainingAccounts
     @_save()
