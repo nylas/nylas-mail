@@ -208,6 +208,8 @@ module.exports = (grunt) ->
     'src/**/*.cjsx'
     'spec/**/*.cjsx'
     'spec/**/*.coffee'
+    '!src/pro/**/node_modules/**/*.coffee'
+    '!internal_packages/**/node_modules/**/*.coffee'
   ]
   ES_SRC = [
     'internal_packages/**/*.jsx'
@@ -221,6 +223,12 @@ module.exports = (grunt) ->
     'spec/**/*.es6'
     'spec/**/*.es'
     'spec/**/*.jsx'
+    '!src/pro/**/node_modules/**/*.es6'
+    '!src/pro/**/node_modules/**/*.es'
+    '!src/pro/**/node_modules/**/*.jsx'
+    '!internal_packages/**/node_modules/**/*.es6'
+    '!internal_packages/**/node_modules/**/*.es'
+    '!internal_packages/**/node_modules/**/*.jsx'
   ]
 
   grunt.initConfig
