@@ -10,8 +10,6 @@ const configIdentityKey = "nylas.identity";
 const keytarServiceName = 'Nylas';
 const keytarIdentityKey = 'Nylas Account';
 
-const URLRoot = "https://billing-staging.nylas.com";
-
 const State = {
   Trialing: 'Trialing',
   Valid: 'Valid',
@@ -22,6 +20,9 @@ class IdentityStore extends NylasStore {
 
   constructor() {
     super();
+
+    NylasEnv.config.onDidChange('env', this._onEnvChanged);
+    this._onEnvChanged();
 
     this.listenTo(AccountStore, () => { this.trigger() });
     this.listenTo(Actions.setNylasIdentity, this._onSetNylasIdentity);
@@ -40,6 +41,19 @@ class IdentityStore extends NylasStore {
     }
   }
 
+  _onEnvChanged = () => {
+    const env = NylasEnv.config.get('env')
+    if (['development', 'local'].includes(env)) {
+      this.URLRoot = "http://localhost:5009";
+    } else if (env === 'experimental') {
+      this.URLRoot = "https://billing-experimental.nylas.com";
+    } else if (env === 'staging') {
+      this.URLRoot = "https://billing-staging.nylas.com";
+    } else {
+      this.URLRoot = "https://billing.nylas.com";
+    }
+  }
+
   _loadIdentity() {
     this._identity = NylasEnv.config.get(configIdentityKey);
     if (this._identity) {
@@ -49,10 +63,6 @@ class IdentityStore extends NylasStore {
 
   get State() {
     return State;
-  }
-
-  get URLRoot() {
-    return URLRoot;
   }
 
   identity() {

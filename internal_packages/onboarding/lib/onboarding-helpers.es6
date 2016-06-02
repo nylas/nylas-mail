@@ -67,16 +67,10 @@ export function buildGmailAuthURL(sessionKey) {
   });
 }
 
-export function buildWelcomeURL() {
+export function buildWelcomeURL(welcomeRoot) {
   const identity = IdentityStore.identity();
   if (!identity) { NylasEnv.reportError(new Error("Can't find Nylas ID")) }
-  return url.format({
-    protocol: 'https',
-    host: 'nylas.com/welcome',
-    query: {
-      n: base64url(identity.id),
-    },
-  });
+  return `${welcomeRoot}/welcome?n=${base64url(identity.id)}`
 }
 
 export function runAuthRequest(accountInfo) {
