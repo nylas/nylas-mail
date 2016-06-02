@@ -113,6 +113,9 @@ class FocusedPerspectiveStore extends NylasStore
 
   sidebarAccounts: =>
     {sidebarAccountIds} = NylasEnv.savedState
-    sidebarAccountIds.map((id) => AccountStore.accountForId(id))
+    if  sidebarAccountIds
+      sidebarAccountIds.map((id) => AccountStore.accountForId(id))
+    else
+      AccountStore.accounts()
 
 module.exports = new FocusedPerspectiveStore()
