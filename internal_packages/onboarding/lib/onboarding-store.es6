@@ -51,6 +51,20 @@ class OnboardingStore extends NylasStore {
     }
   }
 
+  /**
+   * User hits nylas.com for the first time and is given cookieId
+   * All events must now be associated with cookieId or its current
+   * alias.
+   *
+   * When this page is opened we pass our new Nylas ID. This will get
+   * aliased to the current cookie on the page.
+   */
+  _openWelcomePage() {
+    // open the external welcome page
+    const url = buildWelcomeURL(this._accountFromAuth);
+    shell.openExternal(url, {activate: false});
+  }
+
   _onOnboardingComplete = () => {
     // When account JSON is received, we want to notify external services
     // that it succeeded. Unfortunately in this case we're likely to
@@ -93,6 +107,8 @@ class OnboardingStore extends NylasStore {
     const isFirstAccount = AccountStore.accounts().length === 0;
 
     Actions.setNylasIdentity(json);
+    this._openWelcomePage();
+    Actions.recordUserEvent('Nylas Identity Set');
 
     setTimeout(() => {
       if (isFirstAccount) {
@@ -123,10 +139,6 @@ class OnboardingStore extends NylasStore {
       if (isFirstAccount) {
         this._onMoveToPage('initial-preferences');
         Actions.recordUserEvent('First Account Linked');
-
-        // open the external welcome page
-        const url = buildWelcomeURL(this._accountFromAuth);
-        shell.openExternal(url, {activate: false});
       } else {
         this._onOnboardingComplete();
       }
