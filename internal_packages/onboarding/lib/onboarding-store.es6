@@ -18,6 +18,9 @@ class OnboardingStore extends NylasStore {
   constructor() {
     super();
 
+    NylasEnv.config.onDidChange('env', this._onEnvChanged);
+    this._onEnvChanged();
+
     this.listenTo(OnboardingActions.moveToPreviousPage, this._onMoveToPreviousPage)
     this.listenTo(OnboardingActions.moveToPage, this._onMoveToPage)
     this.listenTo(OnboardingActions.accountJSONReceived, this._onAccountJSONReceived)
@@ -51,6 +54,19 @@ class OnboardingStore extends NylasStore {
     }
   }
 
+  _onEnvChanged = () => {
+    const env = NylasEnv.config.get('env')
+    if (['development', 'local'].includes(env)) {
+      this.welcomeRoot = "http://0.0.0.0:5555";
+    } else if (env === 'experimental') {
+      this.welcomeRoot = "https://www-experimental.nylas.com";
+    } else if (env === 'staging') {
+      this.welcomeRoot = "https://www-staging.nylas.com";
+    } else {
+      this.welcomeRoot = "https://nylas.com";
+    }
+  }
+
   /**
    * User hits nylas.com for the first time and is given cookieId
    * All events must now be associated with cookieId or its current
@@ -61,7 +77,7 @@ class OnboardingStore extends NylasStore {
    */
   _openWelcomePage() {
     // open the external welcome page
-    const url = buildWelcomeURL(this._accountFromAuth);
+    const url = buildWelcomeURL(this.welcomeRoot);
     shell.openExternal(url, {activate: false});
   }
 
