@@ -38,8 +38,10 @@ class WindowEventHandler
       # Don't hide the window here if we don't want the renderer process to be
       # throttled in case more work needs to be done before closing
 
-      # In Electron, returning false cancels the close.
-      return @runUnloadCallbacks()
+      # In Electron, returning any value other than undefined cancels the close.
+      canCloseWindow = @runUnloadCallbacks()
+      return undefined if canCloseWindow
+      return false
 
     window.onunload = =>
       NylasEnv.storeWindowDimensions()
