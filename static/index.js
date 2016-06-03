@@ -1,14 +1,8 @@
-// This is to prevent React from displaying an annoying message about
-// installing their dev tools. The React dev tools put a variable on the
-// global scope. We need to do it here before React loads.
-window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = {}
-
 window.eval = global.eval = function() {
   throw new Error("Sorry, N1 does not support window.eval() for security reasons.");
 }
 
 var path = require('path');
-
 var electron = require('electron');
 var remote = electron.remote;
 
