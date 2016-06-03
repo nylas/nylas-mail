@@ -318,16 +318,19 @@ class Contenteditable extends React.Component
   #
   _onDOMMutated: (mutations) =>
     return unless mutations and mutations.length > 0
+
+    runCallbacks = true
     for mutation in mutations
       if mutation.target?.className?.includes(Contenteditable.IgnoreMutationClassName)
-        return
+        runCallbacks = false
 
     @_mutationObserver.disconnect()
     @setInnerState dragging: false if @innerState.dragging
     @setInnerState doubleDown: false if @innerState.doubleDown
     @_broadcastInnerStateToToolbar = false
 
-    @_runCallbackOnExtensions("onContentChanged", {mutations})
+    if runCallbacks
+      @_runCallbackOnExtensions("onContentChanged", {mutations})
 
     # NOTE: The DOMNormalizer should be the last extension to run. This
     # will ensure that when we extract our innerHTML and re-set it during

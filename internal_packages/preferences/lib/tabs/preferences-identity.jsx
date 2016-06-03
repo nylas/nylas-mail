@@ -67,7 +67,7 @@ class PreferencesIdentity extends React.Component {
 
   getStateFromStores() {
     return {
-      identity: IdentityStore.identity(),
+      identity: IdentityStore.identity() || {},
       subscriptionState: IdentityStore.subscriptionState(),
       trialDaysRemaining: IdentityStore.trialDaysRemaining(),
     };
@@ -110,8 +110,9 @@ class PreferencesIdentity extends React.Component {
   }
 
   render() {
-    const {identity} = this.state
-    const {firstname, lastname, email} = identity
+    const {identity} = this.state;
+    const {firstname, lastname, email} = identity;
+
     return (
       <div className="container-identity">
         <div className="id-header">Nylas ID:</div>
