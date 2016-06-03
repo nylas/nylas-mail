@@ -25,10 +25,9 @@ export default class AutoUpdateManager extends EventEmitter {
     this.config = config;
     this.specMode = specMode;
 
-    let updaterId = this.config.get("updateIdentity");
+    let updaterId = this.config.get("nylas.identity.id");
     if (!updaterId) {
-      updaterId = uuid.v4();
-      this.config.set("updateIdentity", updaterId);
+      updaterId = "anonymous";
     }
 
     const emails = [];

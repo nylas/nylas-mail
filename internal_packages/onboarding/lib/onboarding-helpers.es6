@@ -68,9 +68,9 @@ export function buildGmailAuthURL(sessionKey) {
 }
 
 export function buildWelcomeURL(welcomeRoot) {
-  const identity = IdentityStore.identity();
-  if (!identity) { NylasEnv.reportError(new Error("Can't find Nylas ID")) }
-  return `${welcomeRoot}/welcome?n=${base64url(identity.id)}`
+  const identityId = IdentityStore.identityId();
+  if (!identityId) { NylasEnv.reportError(new Error("buildWelcomeURL: Can't find Nylas ID")) }
+  return `${welcomeRoot}/welcome?n=${base64url(identityId)}`
 }
 
 export function runAuthRequest(accountInfo) {
@@ -100,7 +100,7 @@ export function runAuthRequest(accountInfo) {
   // If this succeeds, send the received code to N1 server to register the account
   // Otherwise process the error message from the server and highlight UI as needed
   return NylasAPI.makeRequest({
-    path: `/auth?client_id=${NylasAPI.AppID}&n1_id=${NylasEnv.config.get('updateIdentity')}${reauthParam}`,
+    path: `/auth?client_id=${NylasAPI.AppID}&n1_id=${IdentityStore.identityId()}${reauthParam}`,
     method: 'POST',
     body: data,
     returnsModel: false,

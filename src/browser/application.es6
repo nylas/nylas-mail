@@ -190,7 +190,7 @@ export default class Application extends EventEmitter {
   openWindowsForTokenState(loadingMessage) {
     const accounts = this.config.get('nylas.accounts');
     const hasAccount = accounts && accounts.length > 0;
-    const hasN1ID = this.config.get('nylas.identity');
+    const hasN1ID = this.config.get('nylas.identity.id');
 
     if (hasAccount && hasN1ID) {
       this.windowManager.ensureWindow(WindowManager.MAIN_WINDOW, {loadingMessage});
