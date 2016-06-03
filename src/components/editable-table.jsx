@@ -96,7 +96,7 @@ export class EditableTableCell extends Component {
     const {target: {value}} = event
     const {tableDataSource, isHeader, rowIdx, colIdx, onCellEdited} = this.props
     const currentValue = tableDataSource.cellAt({rowIdx, colIdx})
-    if (value && value !== currentValue) {
+    if (value != null && value !== currentValue) {
       onCellEdited({rowIdx, colIdx, isHeader, value})
     }
   }
