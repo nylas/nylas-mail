@@ -69,6 +69,13 @@ class IdentityStore extends NylasStore {
     return this._identity;
   }
 
+  identityId() {
+    if (!this._identity) {
+      return null;
+    }
+    return this._identity.id;
+  }
+
   subscriptionState() {
     if (!this._identity || (this._identity.valid_until === null)) {
       return State.Trialing;

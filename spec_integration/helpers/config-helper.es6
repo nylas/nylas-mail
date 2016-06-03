@@ -20,7 +20,7 @@ export function clearConfig() {
 export function currentConfig(){
   version = JSON.parse(fs.readFileSync(path.join(root, '..', 'package.json'))).version;
   config = CSON.readFileSync(path.join(DEFAULT_CONFIG_DIR, 'config.json'))["*"]
-  id = config.updateIdentity
+  id = config.nylas.identity.id
   email = config.nylas.accounts[0].email_address
 
   return {id, email, version}
