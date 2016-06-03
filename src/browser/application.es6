@@ -49,6 +49,7 @@ export default class Application extends EventEmitter {
     if (initializeInBackground === undefined) {
       initializeInBackground = false;
     }
+
     this.autoUpdateManager = new AutoUpdateManager(version, config, specMode);
     this.applicationMenu = new ApplicationMenu(version);
     this.windowManager = new WindowManager({
@@ -62,6 +63,12 @@ export default class Application extends EventEmitter {
     this.systemTrayManager = new SystemTrayManager(process.platform, this);
     this._databasePhase = 'setup';
     this.perf = new PerformanceMonitor()
+
+    if (this.devMode) {
+      console.log("In Dev Mode: Installing React Developer Tools...");
+      const reactPath = path.resolve('./static/devtools-extensions/react-devtools-0.14.11');
+      BrowserWindow.addDevToolsExtension(reactPath);
+    }
 
     this.setupJavaScriptArguments();
     this.handleEvents();
