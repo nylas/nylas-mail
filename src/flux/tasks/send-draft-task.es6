@@ -22,14 +22,17 @@ try {
   console.log(err)
 }
 
+// TODO
+// Refactor this to consolidate error handling across all Sending tasks
 export default class SendDraftTask extends BaseDraftTask {
 
-  constructor(draftClientId, {playSound = true, emitError = true} = {}) {
+  constructor(draftClientId, {playSound = true, emitError = true, multiSend = true} = {}) {
     super(draftClientId);
     this.draft = null;
     this.message = null;
     this.emitError = emitError
     this.playSound = playSound
+    this.multiSend = multiSend
   }
 
   label() {
@@ -64,10 +67,12 @@ export default class SendDraftTask extends BaseDraftTask {
   }
 
   sendMessage = () => {
-    if (OPEN_TRACKING_ID && LINK_TRACKING_ID &&
-      (this.draft.metadataForPluginId(OPEN_TRACKING_ID) ||
-      this.draft.metadataForPluginId(LINK_TRACKING_ID)) &&
-      AccountStore.accountForId(this.draft.accountId).provider !== "eas") {
+    const shouldMultiSend = (
+      this.multiSend && OPEN_TRACKING_ID && LINK_TRACKING_ID &&
+      (this.draft.metadataForPluginId(OPEN_TRACKING_ID) || this.draft.metadataForPluginId(LINK_TRACKING_ID)) &&
+      AccountStore.accountForId(this.draft.accountId).provider !== "eas"
+    )
+    if (shouldMultiSend) {
       return this.sendWithMultipleBodies();
     }
     return this.sendWithSingleBody();
@@ -185,6 +190,23 @@ export default class SendDraftTask extends BaseDraftTask {
     return Promise.resolve(Task.Status.Success);
   }
 
+  onSendError = (err, retrySend) => {
+    // If the message you're "replying to" has been deleted
+    if (err.message && err.message.indexOf('Invalid message public id') === 0) {
+      this.draft.replyToMessageId = null;
+      return retrySend();
+    }
+
+    // If the thread has been deleted
+    if (err.message && err.message.indexOf('Invalid thread') === 0) {
+      this.draft.threadId = null;
+      this.draft.replyToMessageId = null;
+      return retrySend();
+    }
+
+    return Promise.reject(err);
+  }
+
   onError = (err) => {
     if (err instanceof BaseDraftTask.DraftNotFoundError) {
       return Promise.resolve(Task.Status.Continue);
@@ -220,22 +242,5 @@ export default class SendDraftTask extends BaseDraftTask {
     NylasEnv.reportError(err);
 
     return Promise.resolve([Task.Status.Failed, err]);
-  }
-
-  onSendError = (err, retrySend) => {
-    // If the message you're "replying to" has been deleted
-    if (err.message && err.message.indexOf('Invalid message public id') === 0) {
-      this.draft.replyToMessageId = null;
-      return retrySend();
-    }
-
-    // If the thread has been deleted
-    if (err.message && err.message.indexOf('Invalid thread') === 0) {
-      this.draft.threadId = null;
-      this.draft.replyToMessageId = null;
-      return retrySend();
-    }
-
-    return Promise.reject(err);
   }
 }

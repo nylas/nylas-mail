@@ -29,7 +29,7 @@ export default class MultiSendToIndividualTask extends Task {
       return Promise.resolve(Task.Status.Success);
     })
     .catch((err) => {
-      const errorMessage = `We had trouble sending this message. ${this.recipient.displayName()} may not have received this email.\n\n${err.message}`;
+      const errorMessage = `We had trouble sending this message to all recipients. ${this.recipient.displayName()} may not have received this email.\n\n${err.message}`;
       if (err instanceof APIError) {
         if (NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
           NylasEnv.showErrorDialog(errorMessage, {showInMainWindow: true});
