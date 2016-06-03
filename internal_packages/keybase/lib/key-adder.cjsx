@@ -1,4 +1,5 @@
 {Utils, React, RegExpUtils} = require 'nylas-exports'
+{RetinaImg} = require 'nylas-component-kit'
 PGPKeyStore = require './pgp-key-store'
 Identity = require './identity'
 kb = require './keybase'
@@ -21,11 +22,10 @@ class KeyAdder extends React.Component
       import: false
 
       isPriv: false
+      loading: false
 
       validAddress: false
       validKeyBody: false
-
-      placeholder: "Your generated public key will appear here. Share it with your friends!"
 
   _onPasteButtonClick: (event) =>
     @setState
@@ -33,6 +33,7 @@ class KeyAdder extends React.Component
       paste: !@state.paste
       import: false
       address: ""
+      validAddress: false
       keyContents: ""
 
   _onGenerateButtonClick: (event) =>
@@ -41,6 +42,7 @@ class KeyAdder extends React.Component
       paste: false
       import: false
       address: ""
+      validAddress: false
       keyContents: ""
       passphrase: ""
 
@@ -56,6 +58,7 @@ class KeyAdder extends React.Component
             paste: false
             import: true
             address: ""
+            validAddress: false
             passphrase: ""
           fs.readFile(filepath[0], (err, data) =>
             pgp.KeyManager.import_from_armored_pgp {
@@ -75,11 +78,11 @@ class KeyAdder extends React.Component
     )
 
   _onInnerGenerateButtonClick: (event) =>
+    @setState
+      loading: true
     @_generateKeypair()
 
   _generateKeypair: =>
-    @setState
-      placeholder: "Generating your key now..."
     pgp.KeyManager.generate_rsa { userid : @state.address }, (err, km) =>
       km.sign {}, (err) =>
         if err
@@ -98,7 +101,7 @@ class KeyAdder extends React.Component
           PGPKeyStore.saveNewKey(ident, pgp_public)
           @setState
             keyContents: pgp_public
-            placeholder: "Your generated public key will appear here. Share it with your friends!"
+            loading: false
 
   _saveNewKey: =>
     ident = new Identity({
@@ -144,10 +147,17 @@ class KeyAdder extends React.Component
     </div>
 
   _renderManualKey: ->
-    invalidInputs = !(@state.validAddress & @state.validKeyBody)
+    if !@state.validAddress and @state.address.length > 0
+      invalidMsg = <span className="invalid-msg">Invalid email address</span>
+    else if !@state.validKeyBody and @state.keyContents.length > 0
+      invalidMsg = <span className="invalid-msg">Invalid key body</span>
+    else
+      invalidMsg = <span className="invalid-msg"> </span>
+    invalidInputs = !(@state.validAddress and @state.validKeyBody)
+
     buttonClass = if invalidInputs then "btn key-add-btn btn-disabled" else "btn key-add-btn"
 
-    passphraseInput = <input type="password" value={@state.passphrase} placeholder="Input a password for the private key." className="key-passphrase-input" onChange={@_onPassphraseChange} />
+    passphraseInput = <input type="password" value={@state.passphrase} placeholder="Private Key Password" className="key-passphrase-input" onChange={@_onPassphraseChange} />
 
     <div className="key-adder">
       <div className="key-text">
@@ -156,25 +166,41 @@ class KeyAdder extends React.Component
                 onChange={@_onKeyChange}
                 placeholder="Paste in your PGP key here!"/>
       </div>
-      <div>
-        <input type="text" value={@state.address} placeholder="Which email address is this key for?" className="key-email-input" onChange={@_onAddressChange} />
+      <div className="credentials">
+        <input type="text" value={@state.address} placeholder="Email Address" className="key-email-input" onChange={@_onAddressChange} />
         {if @state.isPriv then passphraseInput}
+        {invalidMsg}
         <button className={buttonClass} disabled={invalidInputs} title="Save" onClick={@_saveNewKey}>Save</button>
       </div>
     </div>
 
   _renderGenerateKey: ->
+    if !@state.validAddress and @state.address.length > 0
+      invalidMsg = <span className="invalid-msg">Invalid email address</span>
+    else
+      invalidMsg = <span className="invalid-msg"> </span>
+  
+    loading = <RetinaImg style={width: 20, height: 20} name="inline-loading-spinner.gif" mode={RetinaImg.Mode.ContentPreserve} />
+    if @state.loading
+      keyPlaceholder = "Generating your key now. This could take a while."
+    else
+      keyPlaceholder = "Your generated public key will appear here. Share it with your friends!"
+
+    buttonClass = if !@state.validAddress then "btn key-add-btn btn-disabled" else "btn key-add-btn"
+
     <div className="key-adder">
-      <div>
-        <input type="text" value={@state.address} placeholder="Which email address is this key for?" className="key-email-input" onChange={@_onAddressChange} />
-        <input type="password" value={@state.passphrase} placeholder="Input a password for the private key." className="key-passphrase-input" onChange={@_onPassphraseChange} />
-        <button className="btn key-add-btn" disabled={!(@state.validAddress)} title="Generate" onClick={@_onInnerGenerateButtonClick}>Generate</button>
+      <div className="credentials">
+        <input type="text" value={@state.address} placeholder="Email Address" className="key-email-input" onChange={@_onAddressChange} />
+        <input type="password" value={@state.passphrase} placeholder="Private Key Password" className="key-passphrase-input" onChange={@_onPassphraseChange} />
+        {invalidMsg}
+        <button className={buttonClass} disabled={!(@state.validAddress)} title="Generate" onClick={@_onInnerGenerateButtonClick}>Generate</button>
       </div>
       <div className="key-text">
+        <div className="loading">{if @state.loading then loading}</div>
         <textarea ref="key-output"
               value={@state.keyContents || ""}
               disabled
-              placeholder={@state.placeholder}/>
+              placeholder={keyPlaceholder}/>
       </div>
     </div>
 

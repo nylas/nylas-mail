@@ -237,6 +237,13 @@
       min-height: 200px;
       display: flex;
 
+      .loading {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, 50%);
+      }
+
       textarea {
         border: 0;
         padding: 0;
@@ -246,22 +253,32 @@
     }
   }
 
-  .key-add-btn {
-    float: right;
-    margin: 10px 5px 0 5px;
-  }
+  .credentials {
+    display: flex;
+    flex-direction: horizontal;
 
-  .key-email-input {
-    display: inline-block;
-    width: 250px;
-    margin-top: 10px;
-    margin: 10px 5px 0 0;
-  }
+    .key-add-btn {
+      margin: 10px 5px 0 0;
+      flex: 0;
+    }
 
-  .key-passphrase-input {
-    display: inline-block;
-    width: 250px;
-    margin: 10px 5px 0 0;
+    .key-email-input {
+      margin: 10px 5px 0 0;
+      flex: 1;
+    }
+
+    .key-passphrase-input {
+      margin: 10px 5px 0 0;
+      flex: 1;
+    }
+
+    .invalid-msg {
+      color: #AAA;
+      white-space: nowrap;
+      text-align: right;
+      margin: 12px 5px 0 0;
+      flex: 1;
+    }
   }
 
   .key-creation-button {
@@ -271,7 +288,6 @@
 
   .editor-note {
     color: #AAA;
-    font-size: small;
   }
 }
 
