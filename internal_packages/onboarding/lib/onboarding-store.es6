@@ -123,7 +123,9 @@ class OnboardingStore extends NylasStore {
     const isFirstAccount = AccountStore.accounts().length === 0;
 
     Actions.setNylasIdentity(json);
-    this._openWelcomePage();
+    if (!json.seen_welcome_page) {
+      this._openWelcomePage();
+    }
     Actions.recordUserEvent('Nylas Identity Set');
 
     setTimeout(() => {
