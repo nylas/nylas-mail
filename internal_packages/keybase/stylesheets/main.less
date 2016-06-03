@@ -297,6 +297,17 @@
     right: 10px;
     top: 8px; // lol I wonder how long until this is a problem
   }
+
+  .bad-search-msg {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    color: rgba(128, 128, 128, 0.5);
+
+    br {
+      display: none;
+    }
+  }
 }
 
 .key-picker-modal {
@@ -326,6 +337,12 @@
       overflow: scroll;
       height: 100%;
       width: 100%;
+    }
+
+    .bad-search-msg {
+      br {
+        display: inline;
+      }
     }
   }
 

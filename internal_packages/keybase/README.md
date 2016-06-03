@@ -5,7 +5,6 @@ TODO:
 * encrypt uploads
 * style the decrypt button
 * decryption error handling
-* import keys from file
 * remove the .asc extension from decrypted downloads
 * final refactor
 * tests

@@ -1,4 +1,4 @@
-{Utils, React, ReactDOM, Actions} = require 'nylas-exports'
+{Utils, React, ReactDOM, Actions, RegExpUtils} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
 EmailPopover = require './email-popover'
 PGPKeyStore = require './pgp-key-store'
@@ -28,9 +28,10 @@ class KeybaseSearch extends React.Component
       query: props.initialSearch
       results: []
       loading: false
+      searchedByEmail: false
     }
 
-    @debouncedSearch =  _.debounce(@_search, 200)
+    @debouncedSearch =  _.debounce(@_search, 300)
 
   componentDidMount: ->
     @_search()
@@ -39,6 +40,7 @@ class KeybaseSearch extends React.Component
     @setState({query: props.initialSearch})
 
   _search: ->
+    oldquery = @state.query
     if @state.query != "" and @state.loading == false
       @setState({loading: true})
       kb.autocomplete(@state.query, (error, profiles) =>
@@ -49,6 +51,8 @@ class KeybaseSearch extends React.Component
           @setState({results: profiles, loading: false})
         else
           @setState({results: [], loading: false})
+        if @state.query != oldquery
+          @debouncedSearch()
       )
     else
       # no query - empty out the results
@@ -85,7 +89,8 @@ class KeybaseSearch extends React.Component
     )
 
   _queryChange: (event) =>
-    @setState({query: event.target.value})
+    emailQuery = RegExpUtils.emailRegex().test(event.target.value)
+    @setState({query: event.target.value, searchedByEmail: emailQuery})
     @debouncedSearch()
 
   render: ->
@@ -110,6 +115,11 @@ class KeybaseSearch extends React.Component
     if not profiles? or profiles.length < 1
       profiles = []
 
+    if profiles.length < 1 and @state.searchedByEmail
+      badSearch = <span className="bad-search-msg">Keybase cannot be searched by email address. <br/>Try entering a name or Keybase username.</span>
+    else
+      badSearch = false
+
     if @state.loading
       loading = <RetinaImg style={width: 20, height: 20, marginTop: 2} name="inline-loading-spinner.gif" mode={RetinaImg.Mode.ContentPreserve} />
     else
@@ -123,5 +133,6 @@ class KeybaseSearch extends React.Component
 
       <div className="results" ref="results">
         { profiles }
+        { badSearch }
       </div>
     </div>
