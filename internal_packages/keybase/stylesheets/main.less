@@ -140,6 +140,21 @@
       }
   }
 
+  .passphrase-popover {
+    margin: 10px;
+    display: flex;
+
+    button {
+      margin-left: 5px;
+      flex: 0;
+    }
+
+    input {
+      min-width: 180px;
+      flex: 1;
+    }
+  }
+
   .keybase-import-popover {
     margin: 10px;
 
@@ -163,15 +178,8 @@
 
 .keybase-decrypt {
   .decryption-interface {
-    padding-top: 20px;
-    padding-bottom: 20px;
-
-    input {
-      width: 250px;
-    }
-
     button {
-      margin-left: 10px;
+      margin-right: 10px;
     }
   }
 
@@ -180,10 +188,11 @@
     align-items: center;
     color: rgba(128, 128, 128, 0.5);
   }
+
   div.title-text {
-    padding: 0
-     10px;
+    padding: 0 10px;
   }
+
   div.border {
     height: 1px;
     background: rgba(128, 128, 128, 0.5);

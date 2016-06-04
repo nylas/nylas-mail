@@ -18,7 +18,7 @@ class KeyManager extends React.Component
   constructor: (props) ->
     super(props)
 
-  _exportPopoverDone: (identity, passphrase) =>
+  _exportPopoverDone: (passphrase, identity) =>
     # check the passphrase before opening the save dialog
     fs.readFile(identity.keyPath, (err, data) =>
       pgp.KeyManager.import_from_armored_pgp {

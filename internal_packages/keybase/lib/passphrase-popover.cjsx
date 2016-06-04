@@ -8,16 +8,12 @@ class PassphrasePopover extends React.Component
     @state = {passphrase: ""}
 
   @propTypes:
-    identity: React.PropTypes.instanceOf(Identity).isRequired
+    identity: React.PropTypes.instanceOf(Identity)
 
   render: ->
     passphrase = @state
-
-    <div className="keybase-import-popover">
-      <span className="title">
-        Enter Password for Private Key
-      </span>
-      <input type="password" value={@state.passphrase} className="key-passphrase-input" onChange={@_onPassphraseChange} />
+    <div className="passphrase-popover">
+      <input type="password" value={@state.passphrase} placeholder="PGP private key password" className="key-passphrase-input form-control" onChange={@_onPassphraseChange} />
       <button className="btn btn-toolbar" onClick={ @_onDone }>Done</button>
     </div>
 
@@ -26,5 +22,8 @@ class PassphrasePopover extends React.Component
       passphrase: event.target.value
 
   _onDone: =>
-    @props.onPopoverDone(@props.identity, @state.passphrase)
+    if @props.identity?
+      @props.onPopoverDone(@state.passphrase, @props.identity)
+    else
+      @props.onPopoverDone(@state.passphrase)
     Actions.closePopover()
