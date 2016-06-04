@@ -129,10 +129,15 @@ class InitialPreferencesPage extends React.Component
       <ConfigPropContainer>
         <InitialPreferencesOptions account={@state.account} />
       </ConfigPropContainer>
-      <button className="btn btn-large" style={marginBottom:60} onClick={@_onNextPage}>Looks Good!</button>
+      <button
+        className="btn btn-large btn-get-started"
+        style={marginBottom:60}
+        onClick={@_onFinished}>
+        Looks Good!
+        </button>
     </div>
 
-  _onNextPage: =>
+  _onFinished: =>
     require('electron').ipcRenderer.send('account-setup-successful')
 
 module.exports = InitialPreferencesPage
