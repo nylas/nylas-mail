@@ -6,7 +6,7 @@
   "isOptional": true,
 
   "title": "GitHub Sidebar Info",
-  "description": "Extends the contact card in the sidebar to show public repos of the people you email.",
+  "description": "Extend the contact card in the sidebar to show public repos of the people you email.",
   "icon": "./icon.png",
 
   "license": "GPL-3.0",
