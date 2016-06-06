@@ -12,9 +12,9 @@
 
   "isOptional": true,
 
-  "title":"Emoji Keyboard",
+  "title":"Emoji Picker",
   "icon":"./assets/icon.png",
-  "description": "Type a colon (:) followed by the name of an emoji symbol to insert it into your message!",
+  "description": "Insert emoji into messages by typing a colon (:) and the emoji name or choosing one from the composer toolbar!",
 
   "dependencies": {
     "node-emoji": "^1.2.1"
