@@ -60,7 +60,7 @@ class FocusedPerspectiveStore extends NylasStore
 
   _onFocusPerspective: (perspective) =>
     # If looking at unified inbox, don't attempt to change the sidebar accounts
-    sidebarIsUnifiedInbox = NylasEnv.savedState.sidebarAccountIds.length > 1
+    sidebarIsUnifiedInbox = NylasEnv.savedState.sidebarAccountIds?.length > 1
     if sidebarIsUnifiedInbox
       @_setPerspective(perspective)
     else
