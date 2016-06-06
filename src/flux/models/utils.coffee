@@ -2,7 +2,12 @@ _ = require 'underscore'
 fs = require('fs-plus')
 path = require('path')
 moment = require('moment-timezone')
-tz = Intl.DateTimeFormat().resolvedOptions().timeZone ? moment.tz.guess()
+
+# Attempts to use  Intl.DateTimeFormat().resolvedOptions().timeZone, falls back
+# to intelligently guessing based on how key dates over one year are formatted.
+tz = moment.tz.guess()
+if not tz
+  console.error("Utils:TimeZone could not be determined. This should not happen!")
 
 DefaultResourcePath = null
 TaskRegistry = require('../../task-registry').default
