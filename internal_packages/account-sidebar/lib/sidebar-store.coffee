@@ -25,7 +25,6 @@ class SidebarStore extends NylasStore
     @_sections = {}
     @_sections[Sections.Standard] = {}
     @_sections[Sections.User] = []
-    @_sidebarAccountIds = FocusedPerspectiveStore.sidebarAccountIds()
     @_registerCommands()
     @_registerMenuItems()
     @_registerListeners()
@@ -35,7 +34,7 @@ class SidebarStore extends NylasStore
     AccountStore.accounts()
 
   sidebarAccountIds: ->
-    @_sidebarAccountIds
+    FocusedPerspectiveStore.sidebarAccountIds()
 
   standardSection: ->
     @_sections[Sections.Standard]
@@ -79,7 +78,7 @@ class SidebarStore extends NylasStore
     AccountCommands.registerCommands(accounts)
 
   _registerMenuItems: (accounts = AccountStore.accounts()) =>
-    AccountCommands.registerMenuItems(accounts, @_sidebarAccountIds)
+    AccountCommands.registerMenuItems(accounts, FocusedPerspectiveStore.sidebarAccountIds())
 
   # TODO Refactor this
   # Listen to changes on the account store only for when the account label
@@ -100,13 +99,15 @@ class SidebarStore extends NylasStore
   # sections
   _onFocusedPerspectiveChanged: =>
     _.defer =>
-      @_sidebarAccountIds = FocusedPerspectiveStore.sidebarAccountIds()
       @_registerCommands()
       @_registerMenuItems()
       @_updateSections()
 
   _updateSections: =>
-    accounts = @_sidebarAccountIds.map((id) => AccountStore.accountForId(id))
+    accounts = _.compact(
+      FocusedPerspectiveStore.sidebarAccountIds().map((id) => AccountStore.accountForId(id))
+    )
+    return if accounts.length is 0
     multiAccount = accounts.length > 1
 
     @_sections[Sections.Standard] = SidebarSection.standardSectionForAccounts(accounts)
