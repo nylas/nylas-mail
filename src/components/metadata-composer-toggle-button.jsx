@@ -50,7 +50,7 @@ export default class MetadataComposerToggleButton extends React.Component {
   }
 
   _isEnabledByDefault() {
-    return NylasEnv.config.get(this._configKey())
+    return NylasEnv.config.get(this._configKey()) !== false;
   }
 
   _setEnabled(enabled) {
