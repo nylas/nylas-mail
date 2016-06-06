@@ -136,9 +136,9 @@ const WorkspaceSection = (props) => {
       />
 
       <ConfigSchemaItem
-        configSchema={this.props.configSchema.properties.workspace.properties.use24HourClock}
+        configSchema={props.configSchema.properties.workspace.properties.use24HourClock}
         keyPath="core.workspace.use24HourClock"
-        config={this.props.config}
+        config={props.config}
       />
 
       <ConfigSchemaItem
