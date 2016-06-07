@@ -13,14 +13,7 @@ import MultiSendToIndividualTask from './multi-send-to-individual-task';
 import MultiSendSessionCloseTask from './multi-send-session-close-task';
 import SyncbackMetadataTask from './syncback-metadata-task';
 import NotifyPluginsOfSendTask from './notify-plugins-of-send-task';
-let OPEN_TRACKING_ID = null;
-let LINK_TRACKING_ID = null;
-try {
-  OPEN_TRACKING_ID = require('../../../internal_packages/open-tracking/lib/open-tracking-constants').PLUGIN_ID;
-  LINK_TRACKING_ID = require('../../../internal_packages/link-tracking/lib/link-tracking-constants').PLUGIN_ID;
-} catch (err) {
-  console.log(err)
-}
+
 
 // TODO
 // Refactor this to consolidate error handling across all Sending tasks
@@ -67,9 +60,11 @@ export default class SendDraftTask extends BaseDraftTask {
   }
 
   sendMessage = () => {
+    const openTrackingId = NylasEnv.packages.pluginIdFor('open-tracking')
+    const linkTrackingId = NylasEnv.packages.pluginIdFor('link-tracking')
     const shouldMultiSend = (
-      this.multiSend && OPEN_TRACKING_ID && LINK_TRACKING_ID &&
-      (this.draft.metadataForPluginId(OPEN_TRACKING_ID) || this.draft.metadataForPluginId(LINK_TRACKING_ID)) &&
+      this.multiSend && openTrackingId && linkTrackingId &&
+      (this.draft.metadataForPluginId(openTrackingId) || this.draft.metadataForPluginId(linkTrackingId)) &&
       AccountStore.accountForId(this.draft.accountId).provider !== "eas"
     )
     if (shouldMultiSend) {

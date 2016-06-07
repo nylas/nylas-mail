@@ -17,6 +17,7 @@ module.exports = [
       ['core:remove-from-view', 'Remove from view'],
       ['core:gmail-remove-from-view', 'Gmail Remove from view'],
       ['core:star-item', 'Star'],
+      ['core:snooze-item', 'Snooze'],
       ['core:change-category', 'Change Folder / Labels'],
       ['core:mark-as-read', 'Mark as read'],
       ['core:mark-as-unread', 'Mark as unread'],

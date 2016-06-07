@@ -132,6 +132,7 @@ class ViewOnGithubButton extends React.Component
   # also queue a {Task} to eventually perform a mutating API POST or PUT
   # request.
   _openLink: =>
+    Actions.recordUserEvent("Github Thread Opened", {pageUrl: @state.link})
     shell.openExternal(@state.link) if @state.link
 
 module.exports = ViewOnGithubButton

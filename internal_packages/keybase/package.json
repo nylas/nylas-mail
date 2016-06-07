@@ -1,0 +1,22 @@
+{
+  "name": "keybase",
+  "main": "./lib/main",
+  "version": "0.1.0",
+  "engines": {
+    "nylas": ">=0.4.10-4e3595b"
+  },
+  "isOptional": true,
+
+  "title": "Keybase PGP Encryption",
+  "description": "PGP encryption for N1 using Keybase for public key exchange.",
+  "icon": "./icon.png",
+
+  "dependencies": {
+    "kbpgp": "^2.0.52"
+  },
+  "license": "GPL-3.0",
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  }
+}

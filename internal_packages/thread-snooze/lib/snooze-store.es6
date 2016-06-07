@@ -22,11 +22,12 @@ class SnoozeStore {
 
   recordSnoozeEvent(threads, snoozeDate, label) {
     try {
-      const min = Math.round(((new Date(snoozeDate)).valueOf() - Date.now()) / 1000 / 60);
-      Actions.recordUserEvent("Snooze Threads", {
-        numThreads: threads.length,
-        snoozeTime: min,
-        buttonType: label,
+      const timeInSec = Math.round(((new Date(snoozeDate)).valueOf() - Date.now()) / 1000);
+      Actions.recordUserEvent("Threads Snoozed", {
+        timeInSec: timeInSec,
+        timeInLog10Sec: Math.log10(timeInSec),
+        label: label,
+        numItems: threads.length,
       });
     } catch (e) {
       // Do nothing

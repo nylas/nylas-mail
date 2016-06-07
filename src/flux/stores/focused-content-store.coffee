@@ -103,8 +103,8 @@ class FocusedContentStore
 
       if desiredCategory
         unless desiredCategory.id in _.pluck(currentCategories, 'id')
-          filter = MailboxPerspective.forCategory(desiredCategory)
-          Actions.focusMailboxPerspective(filter)
+          perspective = MailboxPerspective.forCategory(desiredCategory)
+          Actions.focusMailboxPerspective(perspective)
 
     @_focused[collection] = item
     @_focusedUsingClick[collection] = usingClick

@@ -1,7 +1,7 @@
 _ = require 'underscore'
 moment = require 'moment-timezone'
 React = require 'react'
-{Utils} = require 'nylas-exports'
+{DateUtils, Utils} = require 'nylas-exports'
 
 class MessageTimestamp extends React.Component
   @displayName: 'MessageTimestamp'
@@ -23,16 +23,17 @@ class MessageTimestamp extends React.Component
          onClick={@props.onClick}>{formattedDate}</div>
 
   _formattedDate: (msgDate, now, isDetailed) =>
+    timeFormat = DateUtils.getTimeFormat upperCase: true
     if isDetailed
-      return msgDate.format "MMMM D, YYYY [at] h:mm A"
+      return msgDate.format "MMMM D, YYYY [at] #{timeFormat}"
     else
       diff = now.diff(msgDate, 'days', true)
       isSameDay = now.isSame(msgDate, 'days')
       if diff < 1 and isSameDay
-        return msgDate.format "h:mm A"
+        return msgDate.format timeFormat
       if diff < 1.5 and not isSameDay
         timeAgo = msgDate.from now
-        monthAndDay = msgDate.format "h:mm A"
+        monthAndDay = msgDate.format timeFormat
         return monthAndDay + " (" + timeAgo + ")"
       if diff >= 1.5 and diff < 365
         return msgDate.format "MMM D"

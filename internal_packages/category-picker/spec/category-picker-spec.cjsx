@@ -122,7 +122,7 @@ describe 'CategoryPickerPopover', ->
       count = ReactTestUtils.scryRenderedDOMComponentsWithClass(@picker, 'category-create-new-tag').length
       expect(count).toBe 1
 
-  describe "_onSelectCategory()", ->
+  describe "_onSelectCategory", ->
     beforeEach ->
       setupForCreateNew.call @, "folder"
       spyOn(TaskFactory, 'taskForRemovingCategory').andCallThrough()

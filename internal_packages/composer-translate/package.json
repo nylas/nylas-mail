@@ -4,7 +4,6 @@
   "main": "./lib/main",
 
   "isOptional": true,
-  "isStarterPackage": true,
 
   "title": "Translation",
   "description": "Translate your drafts in the composer into other languages using the Yandex Translation API.",
@@ -21,8 +20,5 @@
   "windowTypes": {
     "default": true,
     "composer": true
-  },
-  "dependencies": {
-    "request": "^2.53"
   }
 }

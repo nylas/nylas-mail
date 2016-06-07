@@ -30,7 +30,7 @@ class AccountSidebar extends React.Component
 
   _getStateFromStores: =>
     accounts: AccountStore.accounts()
-    focusedAccounts: SidebarStore.focusedAccounts()
+    sidebarAccountIds: SidebarStore.sidebarAccountIds()
     userSections: SidebarStore.userSections()
     standardSection: SidebarStore.standardSection()
 
@@ -39,11 +39,11 @@ class AccountSidebar extends React.Component
       <OutlineView key={section.title} {...section} />
 
   render: =>
-    {accounts, focusedAccounts, userSections, standardSection} = @state
+    {accounts, sidebarAccountIds, userSections, standardSection} = @state
 
     <Flexbox direction="column" style={order: 0, flexShrink: 1, flex: 1}>
       <ScrollRegion className="account-sidebar" style={order: 2}>
-        <AccountSwitcher accounts={accounts} focusedAccounts={focusedAccounts} />
+        <AccountSwitcher accounts={accounts} sidebarAccountIds={sidebarAccountIds} />
         <div className="account-sidebar-sections">
           <OutlineView {...standardSection} />
           {@_renderUserSections(userSections)}
