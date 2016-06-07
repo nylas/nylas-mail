@@ -1,6 +1,5 @@
 _ = require 'underscore'
 {Actions,
- AccountStore,
  SyncbackCategoryTask,
  DestroyCategoryTask,
  CategoryStore,

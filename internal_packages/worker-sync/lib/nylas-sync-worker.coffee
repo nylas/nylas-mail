@@ -4,7 +4,7 @@ NylasLongConnection = require './nylas-long-connection'
 ContactRankingsCache = require './contact-rankings-cache'
 
 INITIAL_PAGE_SIZE = 30
-MAX_PAGE_SIZE = 200
+MAX_PAGE_SIZE = 100
 
 # BackoffTimer is a small helper class that wraps setTimeout. It fires the function
 # you provide at a regular interval, but backs off each time you call `backoff`.
@@ -175,11 +175,11 @@ class NylasSyncWorker
       state.count = 0
       @fetchCollectionCount(model, maxFetchCount)
 
-    if state.errorRequestRange
-      {limit, offset} = state.errorRequestRange
+    if state.lastRequestRange
+      {limit, offset} = state.lastRequestRange
       if state.fetched + limit > maxFetchCount
         limit = maxFetchCount - state.fetched
-      state.errorRequestRange = null
+      state.lastRequestRange = null
       @fetchCollectionPage(model, {limit, offset}, {maxFetchCount})
     else
       limit = initialPageSize
@@ -235,8 +235,8 @@ class NylasSyncWorker
           fetched: lastReceivedIndex,
           busy: moreToFetch,
           complete: !moreToFetch,
+          lastRequestRange: {offset: params.offset, limit: params.limit}
           error: null,
-          errorRequestRange: null
         })
 
     if model is 'threads'
@@ -271,7 +271,7 @@ class NylasSyncWorker
       busy: false,
       complete: false,
       error: err.toString()
-      errorRequestRange: {offset: params.offset, limit: params.limit}
+      lastRequestRange: {offset: params.offset, limit: params.limit}
     })
 
   _backoff: =>

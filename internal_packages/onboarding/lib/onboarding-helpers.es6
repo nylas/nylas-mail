@@ -1,11 +1,19 @@
 /* eslint global-require: 0 */
 
 import crypto from 'crypto';
-import {EdgehillAPI, NylasAPI, AccountStore, RegExpUtils} from 'nylas-exports';
+import {EdgehillAPI, NylasAPI, AccountStore, RegExpUtils, IdentityStore} from 'nylas-exports';
 import url from 'url';
 
-function base64url(buf) {
-  return buf.toString('base64')
+function base64url(inBuffer) {
+  let buffer;
+  if (typeof inBuffer === "string") {
+    buffer = new Buffer(inBuffer);
+  } else if (inBuffer instanceof Buffer) {
+    buffer = inBuffer;
+  } else {
+    throw new Error(`${inBuffer} must be a string or Buffer`)
+  }
+  return buffer.toString('base64')
     .replace(/\+/g, '-')  // Convert '+' to '-'
     .replace(/\//g, '_'); // Convert '/' to '_'
 }
@@ -59,17 +67,10 @@ export function buildGmailAuthURL(sessionKey) {
   });
 }
 
-export function buildWelcomeURL(account) {
-  return url.format({
-    protocol: 'https',
-    host: 'nylas.com/welcome',
-    query: {
-      n: base64url(NylasEnv.config.get("updateIdentity")),
-      e: base64url(account.emailAddress),
-      p: base64url(account.provider),
-      a: base64url(account.id),
-    },
-  });
+export function buildWelcomeURL(welcomeRoot) {
+  const identityId = IdentityStore.identityId();
+  if (!identityId) { NylasEnv.reportError(new Error("buildWelcomeURL: Can't find Nylas ID")) }
+  return `${welcomeRoot}/welcome?n=${base64url(identityId)}`
 }
 
 export function runAuthRequest(accountInfo) {
@@ -99,7 +100,7 @@ export function runAuthRequest(accountInfo) {
   // If this succeeds, send the received code to N1 server to register the account
   // Otherwise process the error message from the server and highlight UI as needed
   return NylasAPI.makeRequest({
-    path: `/auth?client_id=${NylasAPI.AppID}&n1_id=${NylasEnv.config.get('updateIdentity')}${reauthParam}`,
+    path: `/auth?client_id=${NylasAPI.AppID}&n1_id=${IdentityStore.identityId()}${reauthParam}`,
     method: 'POST',
     body: data,
     returnsModel: false,

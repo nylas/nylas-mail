@@ -16,6 +16,7 @@ export default class MultiSendSessionCloseTask extends Task {
 
   performRemote() {
     return NylasAPI.makeRequest({
+      timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
       method: "DELETE",
       path: `/send-multiple/${this.message.id}`,
       accountId: this.message.accountId,

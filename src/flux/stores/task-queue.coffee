@@ -92,6 +92,12 @@ class TaskQueue
   queue: =>
     @_queue
 
+  completed: =>
+    @_completed
+
+  allTasks: =>
+    [].concat(@_queue, @_completed)
+
   ###
   Public: Returns an existing task in the queue that matches the type you provide,
   and any other match properties. Useful for checking to see if something, like

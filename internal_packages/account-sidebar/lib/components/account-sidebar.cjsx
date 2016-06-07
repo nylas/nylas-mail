@@ -1,5 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
+{AccountStore} = require 'nylas-exports'
 {OutlineView, ScrollRegion, Flexbox} = require 'nylas-component-kit'
 AccountSwitcher = require './account-switcher'
 SidebarStore = require '../sidebar-store'
@@ -19,6 +20,7 @@ class AccountSidebar extends React.Component
   componentDidMount: =>
     @unsubscribers = []
     @unsubscribers.push SidebarStore.listen @_onStoreChange
+    @unsubscribers.push AccountStore.listen @_onStoreChange
 
   componentWillUnmount: =>
     unsubscribe() for unsubscribe in @unsubscribers
@@ -27,8 +29,8 @@ class AccountSidebar extends React.Component
     @setState @_getStateFromStores()
 
   _getStateFromStores: =>
-    accounts: SidebarStore.accounts()
-    focusedAccounts: SidebarStore.focusedAccounts()
+    accounts: AccountStore.accounts()
+    sidebarAccountIds: SidebarStore.sidebarAccountIds()
     userSections: SidebarStore.userSections()
     standardSection: SidebarStore.standardSection()
 
@@ -37,11 +39,11 @@ class AccountSidebar extends React.Component
       <OutlineView key={section.title} {...section} />
 
   render: =>
-    {accounts, focusedAccounts, userSections, standardSection} = @state
+    {accounts, sidebarAccountIds, userSections, standardSection} = @state
 
     <Flexbox direction="column" style={order: 0, flexShrink: 1, flex: 1}>
       <ScrollRegion className="account-sidebar" style={order: 2}>
-        <AccountSwitcher accounts={accounts} focusedAccounts={focusedAccounts} />
+        <AccountSwitcher accounts={accounts} sidebarAccountIds={sidebarAccountIds} />
         <div className="account-sidebar-sections">
           <OutlineView {...standardSection} />
           {@_renderUserSections(userSections)}

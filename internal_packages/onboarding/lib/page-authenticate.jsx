@@ -79,15 +79,15 @@ export default class AuthenticatePage extends React.Component {
   }
 
   componentDidMount() {
-    // const webview = ReactDOM.findDOMNode(this.refs.webview);
-    // webview.src = `${IdentityStore.URLRoot}/onboarding`;
-    // webview.addEventListener('did-start-loading', this.webviewDidStartLoading);
-    // webview.addEventListener('did-fail-load', this.webviewDidFailLoad);
-    // webview.addEventListener('did-finish-load', this.webviewDidFinishLoad);
-    // webview.addEventListener('console-message', (e) => {
-    //   console.log('Guest page logged a message:', e.message);
-    // });
-    OnboardingActions.authenticationJSONReceived({firstname: "Test", lastname: "User", email_address: "example@nylas.com", id: "bla", token: "bla"});
+    const webview = ReactDOM.findDOMNode(this.refs.webview);
+    webview.src = `${IdentityStore.URLRoot}/onboarding`;
+    webview.addEventListener('did-start-loading', this.webviewDidStartLoading);
+    webview.addEventListener('did-get-response-details', this.webviewDidGetResponseDetails);
+    webview.addEventListener('did-fail-load', this.webviewDidFailLoad);
+    webview.addEventListener('did-finish-load', this.webviewDidFinishLoad);
+    webview.addEventListener('console-message', (e) => {
+      console.log('Guest page logged a message:', e.message);
+    });
   }
 
   onTryAgain = () => {
@@ -99,17 +99,25 @@ export default class AuthenticatePage extends React.Component {
     this.setState({error: null, webviewLoading: true});
   }
 
-  webviewDidFailLoad = ({errorCode, errorDescription, validatedURL}) => {
+  webviewDidGetResponseDetails = ({httpResponseCode, originalURL}) => {
+    if (httpResponseCode >= 400) {
+      const error = `
+        Could not reach Nylas to sign in. Please try again or contact
+        support@nylas.com if the issue persists.
+        (${originalURL}: ${httpResponseCode})
+      `;
+      this.setState({ready: false, error: error, webviewLoading: false});
+    }
+  };
+
+  webviewDidFailLoad = ({errorCode, validatedURL}) => {
     // "Operation was aborted" can be fired when we move between pages quickly.
     if (errorCode === -3) {
       return;
     }
 
-    let error = errorDescription;
-    if (!error) {
-      const e = networkErrors.createByCode(errorCode);
-      error = `Could not reach ${validatedURL}. ${e ? e.message : errorCode}`;
-    }
+    const e = networkErrors.createByCode(errorCode);
+    const error = `Could not reach ${validatedURL}. ${e ? e.message : errorCode}`;
     this.setState({ready: false, error: error, webviewLoading: false});
   }
 

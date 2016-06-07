@@ -52,23 +52,41 @@ describe "ChangeLabelsTask", ->
   describe "description", ->
     it "should include the name of the added label if it's the only mutation and it was provided as an object", ->
       task = new ChangeLabelsTask(labelsToAdd: ["l1"], labelsToRemove: [], threads: ['t1'])
-      expect(task.description()).toEqual("Changed labels on 1 thread")
+      expect(task.description()).toEqual("Changed labels")
       task = new ChangeLabelsTask(labelsToAdd: [new Label(id: 'l1', displayName: 'LABEL')], labelsToRemove: [], threads: ['t1'])
-      expect(task.description()).toEqual("Added LABEL to 1 thread")
-      task = new ChangeLabelsTask(labelsToAdd: [new Label(id: 'l1', displayName: 'LABEL')], labelsToRemove: ['l2'], threads: ['t1'])
-      expect(task.description()).toEqual("Changed labels on 1 thread")
+      expect(task.description()).toEqual("Added LABEL")
+      task = new ChangeLabelsTask(labelsToAdd: [new Label(id: 'l1', displayName: 'LABEL')], labelsToRemove: ['l2'], threads: ['t1', 't2'])
+      expect(task.description()).toEqual("Moved 2 threads to LABEL")
 
     it "should include the name of the removed label if it's the only mutation and it was provided as an object", ->
       task = new ChangeLabelsTask(labelsToAdd: [], labelsToRemove: ["l1"], threads: ['t1'])
-      expect(task.description()).toEqual("Changed labels on 1 thread")
+      expect(task.description()).toEqual("Changed labels")
       task = new ChangeLabelsTask(labelsToAdd: [], labelsToRemove: [new Label(id: 'l1', displayName: 'LABEL')], threads: ['t1'])
-      expect(task.description()).toEqual("Removed LABEL from 1 thread")
+      expect(task.description()).toEqual("Removed LABEL")
       task = new ChangeLabelsTask(labelsToAdd: ['l2'], labelsToRemove: [new Label(id: 'l1', displayName: 'LABEL')], threads: ['t1'])
-      expect(task.description()).toEqual("Changed labels on 1 thread")
+      expect(task.description()).toEqual("Changed labels")
 
     it "should pluralize properly", ->
       task = new ChangeLabelsTask(labelsToAdd: ["l2"], labelsToRemove: ["l1"], threads: ['t1', 't2', 't3'])
       expect(task.description()).toEqual("Changed labels on 3 threads")
+      task = new ChangeLabelsTask(labelsToAdd: [new Label(id: 'l1', displayName: 'LABEL')], labelsToRemove: [], threads: ['t1', 't2'])
+      expect(task.description()).toEqual("Added LABEL to 2 threads")
+
+    it "should include special cases for some common cases", ->
+      task = new ChangeLabelsTask(labelsToAdd: [new Label(name: "all")], labelsToRemove: [new Label(name: 'inbox')], threads: ['t1', 't2', 't3'])
+      expect(task.description()).toEqual("Archived 3 threads")
+      task = new ChangeLabelsTask(labelsToAdd: [new Label(name: "trash")], labelsToRemove: [new Label(name: 'inbox')], threads: ['t1', 't2', 't3'])
+      expect(task.description()).toEqual("Trashed 3 threads")
+      task = new ChangeLabelsTask(labelsToAdd: [new Label(name: "spam")], labelsToRemove: [new Label(name: 'inbox')], threads: ['t1', 't2', 't3'])
+      expect(task.description()).toEqual("Marked 3 threads as Spam")
+      task = new ChangeLabelsTask(labelsToAdd: [new Label(name: "inbox")], labelsToRemove: [new Label(name: 'spam')], threads: ['t1', 't2', 't3'])
+      expect(task.description()).toEqual("Unmarked 3 threads as Spam")
+      task = new ChangeLabelsTask(labelsToAdd: [new Label(name: "inbox")], labelsToRemove: [new Label(name: 'all')], threads: ['t1', 't2', 't3'])
+      expect(task.description()).toEqual("Unarchived 3 threads")
+      task = new ChangeLabelsTask(labelsToAdd: [new Label(name: "inbox")], labelsToRemove: [new Label(name: 'trash')], threads: ['t1', 't2', 't3'])
+      expect(task.description()).toEqual("Removed 3 threads from Trash")
+      task = new ChangeLabelsTask(labelsToAdd: [new Label(name: "inbox")], labelsToRemove: [new Label(name: 'trash')], threads: ['t1'])
+      expect(task.description()).toEqual("Removed from Trash")
 
   describe "_ensureAndUpdateLabels", ->
     beforeEach ->

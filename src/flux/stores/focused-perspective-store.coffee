@@ -12,7 +12,7 @@ class FocusedPerspectiveStore extends NylasStore
 
     @listenTo CategoryStore, @_onCategoryStoreChanged
     @listenTo Actions.focusMailboxPerspective, @_onFocusPerspective
-    @listenTo Actions.focusDefaultMailboxPerspectiveForAccounts, @_onFocusAccounts
+    @listenTo Actions.focusDefaultMailboxPerspectiveForAccounts, @_onFocusPerspectiveForAccounts
     @_listenToCommands()
 
   _listenToCommands: =>
@@ -45,11 +45,10 @@ class FocusedPerspectiveStore extends NylasStore
     return perspective
 
   # Inbound Events
-
   _onCategoryStoreChanged: ->
     if @_current.isEqual(MailboxPerspective.forNothing())
       perspective = @_loadSavedPerspective(NylasEnv.savedState.perspective)
-      @_setPerspective(perspective)
+      @_setPerspective(perspective, NylasEnv.savedState.sidebarAccountIds ? perspective.accountIds)
     else
       accountIds = @_current.accountIds
       categories = @_current.categories()
@@ -60,21 +59,39 @@ class FocusedPerspectiveStore extends NylasStore
         @_setPerspective(@_defaultPerspective(accountIds))
 
   _onFocusPerspective: (perspective) =>
-    @_setPerspective(perspective)
+    # If looking at unified inbox, don't attempt to change the sidebar accounts
+    sidebarIsUnifiedInbox = NylasEnv.savedState.sidebarAccountIds?.length > 1
+    if sidebarIsUnifiedInbox
+      @_setPerspective(perspective)
+    else
+      @_setPerspective(perspective, perspective.accountIds)
 
-  _onFocusAccounts: (accountsOrIds) =>
+  # Takes an optional array of `sidebarAccountIds`. By default, this method will
+  # set the sidebarAccountIds to the perspective's accounts if no value is
+  # provided
+  _onFocusPerspectiveForAccounts: (accountsOrIds, {sidebarAccountIds} = {}) =>
     return unless accountsOrIds
-    @_setPerspective(@_defaultPerspective(accountsOrIds))
+    perspective = @_defaultPerspective(accountsOrIds)
+    sidebarAccountIds ?= perspective.accountIds
+    @_setPerspective(perspective, sidebarAccountIds)
 
   _defaultPerspective: (accounts = AccountStore.accounts()) ->
     return MailboxPerspective.forNothing() unless accounts.length > 0
     return MailboxPerspective.forInbox(accounts)
 
-  _setPerspective: (perspective) ->
-    unless perspective.isEqual(@_current)
+  _setPerspective: (perspective, sidebarAccountIds) ->
+    shouldTrigger = false
+
+    if not perspective.isEqual(@_current)
       NylasEnv.savedState.perspective = perspective.toJSON()
       @_current = perspective
-      @trigger()
+      shouldTrigger = true
+
+    if sidebarAccountIds and not _.isEqual(NylasEnv.savedState.sidebarAccountIds, sidebarAccountIds)
+      NylasEnv.savedState.sidebarAccountIds = sidebarAccountIds
+      shouldTrigger = true
+
+    @trigger() if shouldTrigger
 
     if perspective.drafts
       desired = WorkspaceStore.Sheet.Drafts
@@ -98,5 +115,8 @@ class FocusedPerspectiveStore extends NylasStore
   current: =>
     @_current
 
+  sidebarAccountIds: =>
+    NylasEnv.savedState.sidebarAccountIds ?= AccountStore.accounts().map((acc) => acc.id)
+    return NylasEnv.savedState.sidebarAccountIds
 
 module.exports = new FocusedPerspectiveStore()

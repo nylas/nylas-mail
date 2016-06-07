@@ -117,19 +117,6 @@ export default class TableDataSource {
     return this._tableData.columns
   }
 
-  toJSON() {
-    return {...this._tableData}
-  }
-
-  filterRows(filterFn) {
-    const rows = this.rows()
-    const nextRows = rows.filter(filterFn)
-    return new TableDataSource({
-      ...this._tableData,
-      rows: nextRows,
-    })
-  }
-
   /**
    * Adds column
    *
@@ -230,6 +217,19 @@ export default class TableDataSource {
    */
   clear() {
     return new TableDataSource()
+  }
+
+  filterRows(filterFn) {
+    const rows = this.rows()
+    const nextRows = rows.filter(filterFn)
+    return new TableDataSource({
+      ...this._tableData,
+      rows: nextRows,
+    })
+  }
+
+  toJSON() {
+    return {...this._tableData}
   }
 }
 

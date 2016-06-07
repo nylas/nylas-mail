@@ -41,24 +41,17 @@ export default class ChangeFolderTask extends ChangeMailTask {
       return this.taskDescription;
     }
 
-    let folderText = "";
+    let folderText = " to folder";
     if (this.folder instanceof Category) {
       folderText = ` to ${this.folder.displayName}`;
     }
 
-    if (this.threads.length > 0) {
-      if (this.threads.length > 1) {
-        return `Moved ${this.threads.length} threads${folderText}`;
-      }
-      return `Moved 1 thread${folderText}`;
+    if (this.threads.length > 1) {
+      return `Moved ${this.threads.length} threads${folderText}`;
+    } else if (this.messages.length > 1) {
+      return `Moved ${this.messages.length} messages${folderText}`;
     }
-    if (this.messages.length > 0) {
-      if (this.messages.length > 1) {
-        return `Moved ${this.messages.length} messages${folderText}`;
-      }
-      return `Moved 1 message${folderText}`;
-    }
-    return `Moved objects${folderText}`;
+    return `Moved${folderText}`;
   }
 
   isDependentOnTask(other) {

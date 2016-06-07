@@ -50,21 +50,21 @@ describe "ChangeFolderTask", ->
       taskWithFolderId = new ChangeFolderTask
         folder: 'f2'
         messages: ['m1']
-      expect(taskWithFolderId.description()).toEqual("Moved 1 message")
+      expect(taskWithFolderId.description()).toEqual("Moved to folder")
       taskWithFolder = new ChangeFolderTask
         folder: @testFolders['f2']
         messages: ['m1']
-      expect(taskWithFolder.description()).toEqual("Moved 1 message to MyDrafts")
+      expect(taskWithFolder.description()).toEqual("Moved to MyDrafts")
 
     it "should correctly mention threads and messages", ->
       taskWithFolderId = new ChangeFolderTask
         folder: 'f2'
         threads: ['t1']
-      expect(taskWithFolderId.description()).toEqual("Moved 1 thread")
+      expect(taskWithFolderId.description()).toEqual("Moved to folder")
       taskWithFolder = new ChangeFolderTask
         folder: @testFolders['f2']
-        messages: ['m1']
-      expect(taskWithFolder.description()).toEqual("Moved 1 message to MyDrafts")
+        messages: ['m1', 'm2']
+      expect(taskWithFolder.description()).toEqual("Moved 2 messages to MyDrafts")
 
   describe "performLocal", ->
     it "should check that a single folder is provided, and that we have threads or messages", ->

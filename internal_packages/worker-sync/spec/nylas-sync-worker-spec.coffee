@@ -264,7 +264,7 @@ describe "NylasSyncWorker", ->
       expect(@apiRequests[1].model).toBe('threads')
       expect(@apiRequests[1].requestOptions.metadataToAttach).toBe(@worker._metadata)
 
-    describe "when there is not a previous page failure (`errorRequestRange`)", ->
+    describe "when there is no request history (`lastRequestRange`)", ->
       it "should start the first request for models", ->
         @worker._state.threads = {
           'busy': false
@@ -274,7 +274,7 @@ describe "NylasSyncWorker", ->
         expect(@apiRequests[1].model).toBe('threads')
         expect(@apiRequests[1].params.offset).toBe(0)
 
-    describe "when there is a previous page failure (`errorRequestRange`)", ->
+    describe "when it was previously trying to fetch a page (`lastRequestRange`)", ->
       beforeEach ->
         @worker._state.threads =
           'count': 1200
@@ -282,11 +282,11 @@ describe "NylasSyncWorker", ->
           'busy': false
           'complete': false
           'error': new Error("Something bad")
-          'errorRequestRange':
+          'lastRequestRange':
             offset: 100
             limit: 50
 
-      it "should start paginating from the request that failed", ->
+      it "should start paginating from the request that was interrupted", ->
         @worker.fetchCollection('threads')
         expect(@apiRequests[0].model).toBe('threads')
         expect(@apiRequests[0].params.offset).toBe(100)
@@ -311,7 +311,7 @@ describe "NylasSyncWorker", ->
         @worker._state.messages =
           count: 1000
           fetched: 470
-          errorRequestRange: {
+          lastRequestRange: {
             limit: 50,
             offset: 470,
           }
@@ -426,7 +426,7 @@ describe "NylasSyncWorker", ->
         expect(@worker.state().threads.busy).toEqual(false)
         expect(@worker.state().threads.complete).toEqual(false)
         expect(@worker.state().threads.error).toEqual(err.toString())
-        expect(@worker.state().threads.errorRequestRange).toEqual({offset: 0, limit: 30})
+        expect(@worker.state().threads.lastRequestRange).toEqual({offset: 0, limit: 30})
 
       it "should not request another page", ->
         @request.requestOptions.error(new Error("Oh no a network error"))
@@ -435,13 +435,13 @@ describe "NylasSyncWorker", ->
     describe "succeeds after a previous error", ->
       beforeEach ->
         @worker._state.threads.error = new Error("Something bad happened")
-        @worker._state.threads.errorRequestRange = {limit: 10, offset: 10}
+        @worker._state.threads.lastRequestRange = {limit: 10, offset: 10}
         @request.requestOptions.success([])
         advanceClock(1)
 
-      it "should clear any previous error", ->
+      it "should clear any previous error and updates lastRequestRange", ->
         expect(@worker.state().threads.error).toEqual(null)
-        expect(@worker.state().threads.errorRequestRange).toEqual(null)
+        expect(@worker.state().threads.lastRequestRange).toEqual({offset: 0, limit: 30})
 
   describe "cleanup", ->
     it "should termiate the delta connection", ->

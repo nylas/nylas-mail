@@ -9,13 +9,13 @@ class AccountSwitcher extends React.Component
 
   @propTypes:
     accounts: React.PropTypes.array.isRequired
-    focusedAccounts: React.PropTypes.array.isRequired
+    sidebarAccountIds: React.PropTypes.array.isRequired
 
 
   _makeMenuTemplate: =>
     template = AccountCommands.menuTemplate(
       @props.accounts,
-      @props.focusedAccounts,
+      @props.sidebarAccountIds,
       clickHandlers: true
     )
     template = template.concat [
