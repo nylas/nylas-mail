@@ -1,0 +1,420 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+@code-bg-color: #fcf4db;
+
+.keybase {
+
+  .no-keys-message {
+    text-align: center;
+  }
+
+}
+
+.container-keybase {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.keybase-profile {
+  border: 1px solid @border-color-primary;
+  border-top: 0;
+  background: @background-primary;
+  padding: 10px;
+  overflow: auto;
+  display: flex;
+
+  .profile-photo-wrap {
+    width: 50px;
+    height: 50px;
+    border-radius: @border-radius-base;
+    padding: 3px;
+    box-shadow: 0 0 1px rgba(0,0,0,0.5);
+    background: @background-primary;
+
+    .profile-photo {
+      border-radius: @border-radius-small;
+      overflow: hidden;
+      text-align: center;
+      width: 44px;
+      height: 44px;
+
+      img, .default-profile-image {
+        width: 44px;
+        height: 44px;
+      }
+
+      .default-profile-image {
+        line-height: 44px;
+        font-size: 18px;
+        font-weight: 500;
+        color: white;
+        box-shadow: inset 0 0 1px rgba(0,0,0,0.18);
+        background-image: linear-gradient(to bottom, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%);
+      }
+
+      .user-picture {
+        background: @background-secondary;
+        width: 44px;
+        height: 44px;
+      }
+    }
+  }
+
+  .key-actions {
+    display: flex;
+    flex-direction: column;
+
+    button {
+      margin: 2px 0 2px 10px;
+      white-space: nowrap;
+      display: inline-block;
+      float: right;
+    }
+  }
+
+  .details {
+    margin-left: 10px;
+    flex: 1;
+  }
+
+  button {
+    margin: 10px 0 10px 10px;
+    white-space: nowrap;
+    display: inline-block;
+    float: right;
+  }
+
+  keybase-participant-field {
+    float: right;
+  }
+
+  ul {
+    list-style-type: none;
+  }
+
+  .email-list {
+    padding-left: 10px;
+    word-break: break-all;
+    flex-grow: 3;
+    text-align: right;
+  }
+}
+
+.keybase-profile:first-child {
+  border-top: 1px solid @border-color-primary;
+}
+
+.fixed-popover-container, .email-list {
+  .keybase-participant-field {
+    margin-bottom: 10px;
+
+    .n1-keybase-recipient-key-chip {
+      display: none;
+    }
+
+    .tokenizing-field-label {
+      display: none;
+      padding-top: 0;
+    }
+
+    .tokenizing-field-input {
+      padding-left: 0;
+      padding-top: 0;
+
+      input {
+        border: none;
+      }
+    }
+  }
+}
+
+.fixed-popover-container {
+  .keybase-participant-field {
+    width: 300px;
+    background: @input-bg;
+    border: 1px solid @input-border-color;
+
+      .menu .content-container {
+        background: @background-secondary;
+      }
+  }
+
+  .passphrase-popover {
+    margin: 10px;
+    display: flex;
+
+    button {
+      margin-left: 5px;
+      flex: 0;
+    }
+
+    input {
+      min-width: 180px;
+      flex: 1;
+    }
+  }
+
+  .keybase-import-popover {
+    margin: 10px;
+
+    button {
+      width: 100%;
+    }
+
+    .title {
+      margin: 0 auto;
+      white-space: nowrap;
+    }
+  }
+}
+
+.email-list {
+  .keybase-participant-field {
+    width: 200px;
+    border-bottom: 1px solid @gray-light;
+  }
+}
+
+.keybase-decrypt {
+  .decryption-interface {
+    button {
+      margin-right: 10px;
+    }
+  }
+
+  div.line-w-label {
+    display: flex;
+    align-items: center;
+    color: rgba(128, 128, 128, 0.5);
+  }
+
+  div.title-text {
+    padding: 0 10px;
+  }
+
+  div.border {
+    height: 1px;
+    background: rgba(128, 128, 128, 0.5);
+    flex: 1;
+  }
+}
+
+.key-manager {
+
+  div.line-w-label {
+    display: flex;
+    align-items: center;
+    color: rgba(128, 128, 128, 0.5);
+    margin: 10px 0;
+  }
+  div.title-text {
+    padding: 0 10px;
+  }
+  div.border {
+    height: 1px;
+    background: rgba(128, 128, 128, 0.5);
+    flex: 1;
+  }
+}
+
+.key-status-bar {
+  background-color: @code-bg-color;
+  color: darken(@code-bg-color, 70%);
+  border: 1.5px solid darken(@code-bg-color, 10%);
+  border-radius: @border-radius-small;
+  font-size: @font-size-small;
+  margin-bottom: 10px;
+}
+
+.key-add {
+    padding-top:10px;
+
+    .no-keys-message {
+      text-align: center;
+    }
+
+    .key-adder {
+      position: relative;
+      border: 1px solid @input-border-color;
+      padding: 10px;
+      padding-top: 0;
+      margin-bottom: 10px;
+
+    .key-text {
+      margin-top: 10px;
+      min-height: 200px;
+      display: flex;
+
+      .loading {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, 50%);
+      }
+
+      textarea {
+        border: 0;
+        padding: 0;
+        font-size: 0.9em;
+        flex: 1;
+      }
+    }
+  }
+
+  .credentials {
+    display: flex;
+    flex-direction: horizontal;
+
+    .key-add-btn {
+      margin: 10px 5px 0 0;
+      flex: 0;
+    }
+
+    .key-email-input {
+      margin: 10px 5px 0 0;
+      flex: 1;
+    }
+
+    .key-passphrase-input {
+      margin: 10px 5px 0 0;
+      flex: 1;
+    }
+
+    .invalid-msg {
+      color: #AAA;
+      white-space: nowrap;
+      text-align: right;
+      margin: 12px 5px 0 0;
+      flex: 1;
+    }
+  }
+
+  .key-creation-button {
+    display: inline-block;
+    margin: 0 5px 10px 5px;
+  }
+
+  .editor-note {
+    color: #AAA;
+  }
+}
+
+.key-instructions {
+  color: #333;
+  font-size: small;
+  margin-top: 20px;
+}
+
+.keybase-search {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  overflow: scroll;
+  position: relative;
+
+  input {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .loading {
+    position: absolute;
+    right: 10px;
+    top: 8px; // lol I wonder how long until this is a problem
+  }
+
+  .bad-search-msg {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    color: rgba(128, 128, 128, 0.5);
+
+    br {
+      display: none;
+    }
+  }
+}
+
+.key-picker-modal {
+  width: 400px;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+
+  .keybase-search {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin-bottom: 0;
+    margin-top: 10px;
+
+    .searchbar {
+      width: 380px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .loading {
+      right: 20px;
+    }
+
+    .results {
+      overflow: scroll;
+      height: 100%;
+      width: 100%;
+    }
+
+    .bad-search-msg {
+      br {
+        display: inline;
+      }
+    }
+  }
+
+  .picker-controls {
+    width: 380px;
+    margin: 5px auto 10px auto;
+    display: flex;
+    flex-shrink: 0;
+    flex-direction: row;
+
+    .modal-back-button {
+      float: left;
+    }
+
+    .modal-prefs-button {
+      flex: 1;
+      margin: 0 35px;
+    }
+
+    .modal-next-button {
+      float: right;
+    }
+  }
+
+  .keybase-profile-solo {
+    border: 1px solid @border-color-primary;
+    margin-top: 10px;
+  }
+
+  .picker-title {
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+}
+
+.decrypted {
+  display: block;
+  box-sizing: border-box;
+  -webkit-print-color-adjust: exact;
+  padding: 8px 12px;
+  margin-bottom: 5px;
+  border: 1px solid rgb(235, 204, 209);
+  border-radius: 4px;
+  background-color: rgb(121, 212, 91);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
