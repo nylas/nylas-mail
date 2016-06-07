@@ -6,8 +6,7 @@ fs = require 'fs'
 Identity = require '../lib/identity'
 PGPKeyStore = require '../lib/pgp-key-store'
 
-fdescribe "PGPKeyStore", ->
-
+describe "PGPKeyStore", ->
   beforeEach ->
     @TEST_KEY = """-----BEGIN PGP PRIVATE KEY BLOCK-----
       Version: GnuPG v1
