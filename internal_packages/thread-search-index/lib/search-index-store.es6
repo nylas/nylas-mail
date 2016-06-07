@@ -13,7 +13,7 @@ const MAX_INDEX_SIZE = 30000
 const CHUNKS_PER_ACCOUNT = 10
 const INDEXING_WAIT = 1000
 const MESSAGE_BODY_LENGTH = 50000
-
+const INDEX_VERSION = 1
 
 class SearchIndexStore {
 
@@ -28,6 +28,10 @@ class SearchIndexStore {
 
       this.accountIds = _.pluck(AccountStore.accounts(), 'id')
       this.initializeIndex()
+      .then(() => {
+        NylasEnv.config.set('threadSearchIndexVersion', INDEX_VERSION)
+        return Promise.resolve()
+      })
       .then(() => {
         console.log(`Thread Search: Index built successfully in ${((Date.now() - date) / 1000)}s`)
         this.unsubscribers = [
@@ -48,6 +52,11 @@ class SearchIndexStore {
    * before sync completes
    */
   initializeIndex() {
+    if (NylasEnv.config.get('threadSearchIndexVersion') !== INDEX_VERSION) {
+      return this.clearIndex()
+      .then(() => this.buildIndex(this.accountIds))
+    }
+
     return DatabaseStore.searchIndexSize(Thread)
     .then((size) => {
       console.log(`Thread Search: Current index size is ${(size || 0)} threads`)
@@ -56,12 +65,7 @@ class SearchIndexStore {
       }
       return this.getUnindexedAccounts()
     })
-    .then((accountIds) => {
-      if (accountIds.length > 0) {
-        return this.buildIndex(accountIds)
-      }
-      return Promise.resolve()
-    })
+    .then((accountIds) => this.buildIndex(accountIds))
   }
 
   /**
@@ -137,6 +141,7 @@ class SearchIndexStore {
   }
 
   buildIndex = (accountIds) => {
+    if (!accountIds || accountIds.length === 0) { return Promise.resolve() }
     const sizePerAccount = Math.floor(INDEX_SIZE / accountIds.length)
     return Promise.resolve(accountIds)
     .each((accountId) => (
