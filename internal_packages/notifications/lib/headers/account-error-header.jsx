@@ -9,6 +9,7 @@ export default class AccountErrorHeader extends React.Component {
   constructor() {
     super();
     this.state = this.getStateFromStores();
+    this.upgradeLabel = ""
   }
 
   componentDidMount() {
@@ -62,7 +63,12 @@ export default class AccountErrorHeader extends React.Component {
 
   _onUpgrade = () => {
     this.setState({buildingUpgradeURL: true});
-    IdentityStore.fetchSingleSignOnURL('/payment').then((url) => {
+    const isSubscription = this.state.subscriptionState === IdentityStore.State.Lapsed
+    const utm = {
+      source: "UpgradeBanner",
+      campaign: isSubscription ? "SubscriptionExpired" : "TrialExpired",
+    }
+    IdentityStore.fetchSingleSignOnURL('/payment', utm).then((url) => {
       this.setState({buildingUpgradeURL: false});
       shell.openExternal(url);
     });

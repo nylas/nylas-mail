@@ -146,10 +146,9 @@ class AccountStore extends NylasStore
     # account, otherwise when we trigger with the new set of accounts, the
     # current perspective will still reference a stale accountId which will
     # cause things to break
-    if remainingAccounts.length > 0
-      Actions.focusDefaultMailboxPerspectiveForAccounts(remainingAccounts)
-      _.defer =>
-        Actions.setCollapsedSidebarItem('Inbox', true)
+    Actions.focusDefaultMailboxPerspectiveForAccounts(remainingAccounts)
+    _.defer =>
+      Actions.setCollapsedSidebarItem('Inbox', true)
 
     @_accounts = remainingAccounts
     @_save()
