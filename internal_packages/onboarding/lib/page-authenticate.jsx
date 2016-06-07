@@ -80,7 +80,7 @@ export default class AuthenticatePage extends React.Component {
 
   componentDidMount() {
     const webview = ReactDOM.findDOMNode(this.refs.webview);
-    webview.src = `${IdentityStore.URLRoot}/onboarding`;
+    webview.src = `${IdentityStore.URLRoot}/onboarding?utm_medium=N1&utm_source=OnboardingPage`;
     webview.addEventListener('did-start-loading', this.webviewDidStartLoading);
     webview.addEventListener('did-get-response-details', this.webviewDidGetResponseDetails);
     webview.addEventListener('did-fail-load', this.webviewDidFailLoad);

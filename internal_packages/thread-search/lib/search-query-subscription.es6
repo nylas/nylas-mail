@@ -130,8 +130,8 @@ class SearchQuerySubscription extends MutableQuerySubscription {
     let timeToFirstThreadSelected = null;
     const searchQuery = this._searchQuery
     const timeInsideSearch = Math.round((Date.now() - this._searchStartedAt) / 1000)
-    const selectedThreads = this._focusedThreadCount
-    const didSelectAnyThreads = selectedThreads > 0
+    const numItems = this._focusedThreadCount
+    const didSelectAnyThreads = numItems > 0
 
     if (this._firstThreadSelectedAt) {
       timeToFirstThreadSelected = Math.round((this._firstThreadSelectedAt - this._searchStartedAt) / 1000)
@@ -142,7 +142,7 @@ class SearchQuerySubscription extends MutableQuerySubscription {
 
     const data = {
       searchQuery,
-      selectedThreads,
+      numItems,
       timeInsideSearch,
       didSelectAnyThreads,
       timeToFirstServerResults,

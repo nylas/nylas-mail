@@ -60,7 +60,6 @@ class SearchStore extends NylasStore
     current = FocusedPerspectiveStore.current()
 
     if @queryPopulated()
-      Actions.recordUserEvent("Commit Search Query", {})
       @_isSearching = true
       @_perspectiveBeforeSearch ?= current
       next = new SearchMailboxPerspective(current.accountIds, @_searchQuery.trim())

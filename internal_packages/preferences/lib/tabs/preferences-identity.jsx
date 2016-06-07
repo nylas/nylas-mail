@@ -7,6 +7,8 @@ class OpenIdentityPageButton extends React.Component {
   static propTypes = {
     path: React.PropTypes.string,
     label: React.PropTypes.string,
+    source: React.PropTypes.string,
+    campaign: React.PropTypes.string,
     img: React.PropTypes.string,
   }
 
@@ -18,7 +20,12 @@ class OpenIdentityPageButton extends React.Component {
   }
 
   _onClick = () => {
-    IdentityStore.fetchSingleSignOnURL(this.props.path).then((url) => {
+    this.setState({loading: true});
+    IdentityStore.fetchSingleSignOnURL(this.props.path, {
+      source: this.props.source,
+      campaign: this.props.campaign,
+      content: this.props.label,
+    }).then((url) => {
       this.setState({loading: false});
       shell.openExternal(url);
     });
@@ -83,7 +90,7 @@ class PreferencesIdentity extends React.Component {
             There {(trialDaysRemaining > 1) ? `are ${trialDaysRemaining} days ` : `is one day `}
             remaining in your 30-day trial of Nylas Pro.
           </div>
-          <OpenIdentityPageButton img="ic-upgrade.png" label="Upgrade to Nylas Pro" path="/payment" />
+          <OpenIdentityPageButton img="ic-upgrade.png" label="Upgrade to Nylas Pro" path="/payment" campaign="Upgrade" source="Preferences" />
         </div>
       )
     }
@@ -95,7 +102,7 @@ class PreferencesIdentity extends React.Component {
             Your subscription has been cancelled or your billing information has expired.
             We've paused your mailboxes! Re-new your subscription to continue using N1.
           </div>
-          <OpenIdentityPageButton img="ic-upgrade.png" label="Update Subscription" path="/dashboard#subscription" />
+          <OpenIdentityPageButton img="ic-upgrade.png" label="Update Subscription" path="/dashboard#subscription" campaign="Renew" source="Preferences" />
         </div>
       )
     }
@@ -128,7 +135,7 @@ class PreferencesIdentity extends React.Component {
               <div className="name">{firstname} {lastname}</div>
               <div className="email">{email}</div>
               <div className="identity-actions">
-                <OpenIdentityPageButton label="Account Details" path="/dashboard" />
+                <OpenIdentityPageButton label="Account Details" path="/dashboard" source="Preferences" campaign="Dashboard" />
                 <div className="btn" onClick={() => Actions.logoutNylasIdentity()}>Sign Out</div>
               </div>
             </div>
