@@ -142,8 +142,12 @@ class IdentityStore extends NylasStore {
     if (campaign) { qs.utm_campaign = campaign }
     if (content) { qs.utm_content = content }
 
-    const pathWithUtm = url.parse(path);
-    pathWithUtm.query = Object.assign({}, qs, (pathWithUtm.query || {}))
+    let pathWithUtm = url.parse(path, true);
+    pathWithUtm.query = Object.assign({}, qs, (pathWithUtm.query || {}));
+    pathWithUtm = url.format({
+      pathname: pathWithUtm.pathname,
+      query: pathWithUtm.query,
+    })
 
     if (!pathWithUtm.startsWith('/')) {
       return Promise.reject(new Error("fetchSingleSignOnURL: path must start with a leading slash."));
@@ -156,7 +160,7 @@ class IdentityStore extends NylasStore {
         qs: qs,
         json: true,
         body: {
-          next_path: pathWithUtm.format(),
+          next_path: pathWithUtm,
           account_token: this._identity.token,
         },
       }, (error, response = {}, body) => {
