@@ -92,7 +92,6 @@ class PreferencesTemplates extends React.Component {
     }
   }
 
-
   _onSelectTemplate = (event) => {
     if (this.state.selectedTemplate) {
       this._saveTemplateNow(this.state.selectedTemplate.name, this.state.contents);

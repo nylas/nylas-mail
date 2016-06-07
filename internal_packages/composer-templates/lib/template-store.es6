@@ -7,7 +7,9 @@ import fs from 'fs';
 
 class TemplateStore extends NylasStore {
 
-  static INVALID_TEMPLATE_NAME_REGEX = /[^a-zA-Z0-9_\- ]+/g;
+  // Support accented characters in template names
+  // https://regex101.com/r/nD3eY8/1
+  static INVALID_TEMPLATE_NAME_REGEX = /[^a-zA-Z\u00C0-\u017F0-9_\- ]+/g;
 
   constructor() {
     super();
