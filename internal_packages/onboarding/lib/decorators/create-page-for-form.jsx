@@ -90,7 +90,7 @@ const CreatePageForForm = (FormComponent) => {
         OnboardingActions.accountJSONReceived(json)
       })
       .catch((err) => {
-        Actions.recordUserEvent('Auth Failed', {
+        Actions.recordUserEvent('Email Account Auth Failed', {
           errorMessage: err.message,
           provider: accountInfo.type,
         })

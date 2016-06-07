@@ -267,6 +267,7 @@ class TemplateStore extends NylasStore {
           const signature = sigIndex > -1 ? draftContents.slice(sigIndex) : '';
 
           const draftHtml = QuotedHTMLTransformer.appendQuotedHTML(templateBody + signature, session.draft().body);
+          Actions.recordUserEvent("Email Template Inserted")
           session.changes.add({body: draftHtml});
         }
       });

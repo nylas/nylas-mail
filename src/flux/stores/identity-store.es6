@@ -2,6 +2,7 @@ import NylasStore from 'nylas-store';
 import keytar from 'keytar';
 import {ipcRenderer} from 'electron';
 import request from 'request';
+import url from 'url'
 
 import Actions from '../actions';
 import AccountStore from './account-store';
@@ -125,12 +126,26 @@ class IdentityStore extends NylasStore {
     });
   }
 
-  fetchSingleSignOnURL(path) {
+  /**
+   * This passes utm_source, utm_campaign, and utm_content params to the
+   * N1 billing site. Please reference:
+   * https://paper.dropbox.com/doc/Analytics-ID-Unification-oVDTkakFsiBBbk9aeuiA3
+   * for the full list of utm_ labels.
+   */
+  fetchSingleSignOnURL(path, {source, campaign, content}) {
     if (!this._identity) {
       return Promise.reject(new Error("fetchSingleSignOnURL: no identity set."));
     }
 
-    if (!path.startsWith('/')) {
+    const qs = {utm_medium: "N1"}
+    if (source) { qs.utm_source = source }
+    if (campaign) { qs.utm_campaign = campaign }
+    if (content) { qs.utm_content = content }
+
+    const pathWithUtm = url.parse(path);
+    pathWithUtm.query = Object.assign({}, qs, (pathWithUtm.query || {}))
+
+    if (!pathWithUtm.startsWith('/')) {
       return Promise.reject(new Error("fetchSingleSignOnURL: path must start with a leading slash."));
     }
 
@@ -138,9 +153,10 @@ class IdentityStore extends NylasStore {
       request({
         method: 'POST',
         url: `${this.URLRoot}/n1/login-link`,
+        qs: qs,
         json: true,
         body: {
-          next_path: path,
+          next_path: pathWithUtm.format(),
           account_token: this._identity.token,
         },
       }, (error, response = {}, body) => {

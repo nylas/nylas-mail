@@ -163,7 +163,7 @@ class EventedIFrame extends React.Component
       # just following the link directly
       if rawHref.startsWith(IdentityStore.URLRoot)
         path = rawHref.split(IdentityStore.URLRoot).pop()
-        IdentityStore.fetchSingleSignOnURL(IdentityStore.identity(), path).then (href) =>
+        IdentityStore.fetchSingleSignOnURL(path, {source: "SingleSignOnEmail"}).then (href) =>
           NylasEnv.windowEventHandler.openLink(href: href, metaKey: e.metaKey)
         return
 
