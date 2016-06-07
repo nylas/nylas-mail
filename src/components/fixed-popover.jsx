@@ -37,6 +37,7 @@ class FixedPopover extends Component {
     children: PropTypes.element,
     direction: PropTypes.string,
     fallbackDirection: PropTypes.string,
+    closeOnAppBlur: PropTypes.bool,
     originRect: PropTypes.shape({
       bottom: PropTypes.number,
       top: PropTypes.number,
@@ -47,6 +48,10 @@ class FixedPopover extends Component {
     }),
     focusElementWithTabIndex: PropTypes.func,
   };
+
+  static defaultProps = {
+    closeOnAppBlur: true,
+  }
 
   constructor(props) {
     super(props);
@@ -123,6 +128,9 @@ class FixedPopover extends Component {
 
   onBlur = (event) => {
     const target = event.nativeEvent.relatedTarget;
+    if (!this.props.closeOnAppBlur && target === null) {
+      return
+    }
     if (!target || (!findDOMNode(this).contains(target))) {
       Actions.closePopover();
     }
