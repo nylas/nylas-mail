@@ -48,33 +48,33 @@ class KeyAdder extends React.Component
 
   _onImportButtonClick: (event) =>
     NylasEnv.showOpenDialog({
-        title: "Import PGP Key",
-        buttonLabel: "Import",
-        properties: ['openFile']
-      }, (filepath) =>
-        if filepath?
-          @setState
-            generate: false
-            paste: false
-            import: true
-            address: ""
-            validAddress: false
-            passphrase: ""
-          fs.readFile(filepath[0], (err, data) =>
-            pgp.KeyManager.import_from_armored_pgp {
-              armored: data
-            }, (err, km) =>
-              if err
-                PGPKeyStore._displayError("The file you selected for import is not a valid PGP Key.")
-                return
-              else
-                privateStart = "-----BEGIN PGP PRIVATE KEY BLOCK-----"
-                keyBody = if km.armored_pgp_private? then km.armored_pgp_private else km.armored_pgp_public
-                @setState
-                  keyContents: keyBody
-                  isPriv: keyBody.indexOf(privateStart) >= 0
-                  validKeyBody: true
-        )
+      title: "Import PGP Key",
+      buttonLabel: "Import",
+      properties: ['openFile']
+    }, (filepath) =>
+      if filepath?
+        @setState
+          generate: false
+          paste: false
+          import: true
+          address: ""
+          validAddress: false
+          passphrase: ""
+        fs.readFile(filepath[0], (err, data) =>
+          pgp.KeyManager.import_from_armored_pgp {
+            armored: data
+          }, (err, km) =>
+            if err
+              PGPKeyStore._displayError("The file you selected for import is not a valid PGP Key.")
+              return
+            else
+              privateStart = "-----BEGIN PGP PRIVATE KEY BLOCK-----"
+              keyBody = if km.armored_pgp_private? then km.armored_pgp_private else km.armored_pgp_public
+              @setState
+                keyContents: keyBody
+                isPriv: keyBody.indexOf(privateStart) >= 0
+                validKeyBody: true
+      )
     )
 
   _onInnerGenerateButtonClick: (event) =>
@@ -179,7 +179,7 @@ class KeyAdder extends React.Component
       invalidMsg = <span className="invalid-msg">Invalid email address</span>
     else
       invalidMsg = <span className="invalid-msg"> </span>
-  
+
     loading = <RetinaImg style={width: 20, height: 20} name="inline-loading-spinner.gif" mode={RetinaImg.Mode.ContentPreserve} />
     if @state.loading
       keyPlaceholder = "Generating your key now. This could take a while."
