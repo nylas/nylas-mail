@@ -574,27 +574,39 @@ class DatabaseStore extends NylasStore
     sql = "DROP TABLE IF EXISTS `#{searchTableName}`"
     @_query(sql)
 
-  indexModel: (model, indexData) =>
-    searchTableName = "#{model.constructor.name}Search"
-    indexFields = Object.keys(indexData)
-    keysSql = 'content_id, ' + indexFields.join(", ")
-    valsSql = '?, ' + indexFields.map(=> '?').join(", ")
-    values = [model.id].concat(indexFields.map((k) => indexData[k]))
-    sql = (
-      "INSERT INTO `#{searchTableName}`(#{keysSql}) VALUES (#{valsSql})"
-    )
-    return @_query(sql, values)
-
-  updateModelIndex: (model, indexData) =>
+  isModelIndexed: (model, isIndexed) =>
+    return Promise.resolve(true) if isIndexed is true
     searchTableName = "#{model.constructor.name}Search"
     exists = (
       "SELECT rowid FROM `#{searchTableName}` WHERE `#{searchTableName}`.`content_id` = ?"
     )
-    return @_query(exists, [model.id])
-    .then((results) =>
-      isIndexed = results.length > 0
+    return @_query(exists, [model.id]).then((results) =>
+      return Promise.resolve(results.length > 0)
+    )
+
+  indexModel: (model, indexData, isModelIndexed) =>
+    searchTableName = "#{model.constructor.name}Search"
+    @isModelIndexed(model, isModelIndexed)
+    .then((isIndexed) =>
+      if (isIndexed)
+        return @updateModelIndex(model, indexData, isIndexed)
+
+      indexFields = Object.keys(indexData)
+      keysSql = 'content_id, ' + indexFields.join(", ")
+      valsSql = '?, ' + indexFields.map(=> '?').join(", ")
+      values = [model.id].concat(indexFields.map((k) => indexData[k]))
+      sql = (
+        "INSERT INTO `#{searchTableName}`(#{keysSql}) VALUES (#{valsSql})"
+      )
+      return @_query(sql, values)
+    )
+
+  updateModelIndex: (model, indexData, isModelIndexed) =>
+    searchTableName = "#{model.constructor.name}Search"
+    @isModelIndexed(model, isModelIndexed)
+    .then((isIndexed) =>
       if (not isIndexed)
-        return @indexModel(model, indexData)
+        return @indexModel(model, indexData, isIndexed)
 
       indexFields = Object.keys(indexData)
       values = indexFields.map((key) => indexData[key]).concat([model.id])

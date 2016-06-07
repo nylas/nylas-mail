@@ -75,11 +75,11 @@ class Matcher
       when '>=' then return modelValue >= matcherValue
       when 'in' then return modelValue in matcherValue
       when 'contains'
-        !!modelArrayContainsValue(modelValue, matcherValue)
+        modelArrayContainsValue(modelValue, matcherValue)
 
       when 'containsAny'
         _.any matcherValue, (submatcherValue) ->
-          !!modelArrayContainsValue(modelValue, submatcherValue)
+          modelArrayContainsValue(modelValue, submatcherValue)
 
       when 'startsWith' then return modelValue.startsWith(matcherValue)
       when 'like' then modelValue.search(new RegExp(".*#{matcherValue}.*", "gi")) >= 0
