@@ -69,7 +69,7 @@ fdescribe "PGPKeyStore", ->
       -----END PGP PRIVATE KEY BLOCK-----"""
 
     # mock getKeyContents to get rid of all the fs.readFiles
-    spyOn(PGPKeyStore, "getKeyContents").andCallFake( ({key, passphrase, callback}) => 
+    spyOn(PGPKeyStore, "getKeyContents").andCallFake( ({key, passphrase, callback}) =>
       data = @TEST_KEY
       pgp.KeyManager.import_from_armored_pgp {
         armored: data
@@ -84,7 +84,7 @@ fdescribe "PGPKeyStore", ->
         if callback?
           callback()
     )
-    
+
     # define an encrypted and an unencrypted message
     @unencryptedMsg = new Message({clientId: 'test', subject: 'Subject', body: '<p>Body</p>'})
     body = """-----BEGIN PGP MESSAGE-----
@@ -98,14 +98,14 @@ fdescribe "PGPKeyStore", ->
     # blow away the saved identities and set up a test pub/priv keypair
     PGPKeyStore._identities = {}
     pubIdent = new Identity({
-              addresses: ["benbitdiddle@icloud.com"]
-              isPriv: false
-            })
+      addresses: ["benbitdiddle@icloud.com"]
+      isPriv: false
+    })
     PGPKeyStore._identities[pubIdent.clientId] = pubIdent
     privIdent = new Identity({
-              addresses: ["benbitdiddle@icloud.com"]
-              isPriv: true
-            })
+      addresses: ["benbitdiddle@icloud.com"]
+      isPriv: true
+    })
     PGPKeyStore._identities[privIdent.clientId] = privIdent
 
   describe "when handling private keys", ->
