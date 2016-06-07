@@ -1,7 +1,7 @@
 {
   "name": "nylas",
   "productName": "Nylas N1",
-  "version": "0.4.42",
+  "version": "0.4.43",
   "description": "An extensible, open-source mail client built on the modern web.",
   "main": "./src/browser/main.js",
   "repository": {
@@ -80,7 +80,6 @@
     "windows-shortcuts": "emorikawa/windows-shortcuts#b0a0fc7"
   },
   "packageDependencies": {},
-  "private": true,
   "scripts": {
     "test": "./N1.sh --test"
   }
