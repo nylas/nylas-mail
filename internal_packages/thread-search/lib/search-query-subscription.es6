@@ -128,7 +128,6 @@ class SearchQuerySubscription extends MutableQuerySubscription {
 
     let timeToFirstServerResults = null;
     let timeToFirstThreadSelected = null;
-    const searchQuery = this._searchQuery
     const timeInsideSearch = Math.round((Date.now() - this._searchStartedAt) / 1000)
     const numItems = this._focusedThreadCount
     const didSelectAnyThreads = numItems > 0
@@ -141,7 +140,6 @@ class SearchQuerySubscription extends MutableQuerySubscription {
     }
 
     const data = {
-      searchQuery,
       numItems,
       timeInsideSearch,
       didSelectAnyThreads,
