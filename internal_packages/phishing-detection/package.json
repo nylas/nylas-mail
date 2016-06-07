@@ -17,7 +17,5 @@
     "composer": true
   },
   "dependencies": {
-    "request": "^2.53",
-    "underscore": "*"
   }
 }

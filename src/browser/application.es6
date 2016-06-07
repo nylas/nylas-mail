@@ -93,6 +93,7 @@ export default class Application extends EventEmitter {
       'N1-Personal-Level-Indicators': 'personal-level-indicators',
       'N1-Phishing-Detection': 'phishing-detection',
       'N1-Github-Contact-Card-Section': 'github-contact-card',
+      'N1-Keybase': 'keybase',
     }
     const exampleOldNames = Object.keys(exampleNewNames);
     let examplesEnabled = [];

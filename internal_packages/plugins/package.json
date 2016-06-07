@@ -9,6 +9,5 @@
     "nylas": "*"
   },
   "dependencies": {
-    "moment": "^2.8"
   }
 }
