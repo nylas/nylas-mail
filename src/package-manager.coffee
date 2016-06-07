@@ -55,6 +55,11 @@ class PackageManager
     @packageActivators = []
     @registerPackageActivator(this, ['nylas'])
 
+
+  pluginIdFor: (pluginName) =>
+    env = NylasEnv.config.get("env")
+    return @loadedPackages[pluginName]?.metadata.appId?[env]
+
   ###
   Section: Event Subscription
   ###
