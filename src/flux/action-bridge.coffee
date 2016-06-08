@@ -137,8 +137,8 @@ class ActionBridge
     # Electron won't actually send the message. To work around this, we wait an
     # arbitrary amount of time before closing the window after the last IPC event
     # was sent. https://github.com/atom/electron/issues/4366
-    if @ipcLastSendTime and Date.now() - @ipcLastSendTime < 50
-      setTimeout(readyToUnload, 50)
+    if @ipcLastSendTime and Date.now() - @ipcLastSendTime < 100
+      setTimeout(readyToUnload, 100)
       return false
     return true
 
