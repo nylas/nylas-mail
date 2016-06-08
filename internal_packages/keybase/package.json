@@ -7,8 +7,8 @@
   },
   "isOptional": true,
 
-  "title": "Keybase PGP Encryption",
-  "description": "PGP encryption for N1 using Keybase for public key exchange.",
+  "title": "Encryption",
+  "description": "Send and receive encrypted messages using Keybase for public key exchange.",
   "icon": "./icon.png",
 
   "dependencies": {
