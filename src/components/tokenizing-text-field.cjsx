@@ -467,6 +467,7 @@ class TokenizingTextField extends React.Component
   _addInputValue: (input, options={}) =>
     return if @_atMaxTokens()
     input ?= @state.inputValue
+    return if input.length is 0
     @props.onAdd(input, options)
     @_clearInput()
 
