@@ -6,7 +6,7 @@
   "license": "GPL-3.0",
 
   "title":"View on GitHub",
-  "description": "Adds a 'View On GitHub' button that appears when viewing GitHub emails.",
+  "description": "Add a \"View On GitHub\" button that appears when viewing GitHub emails.",
   "icon": "./icon.png",
   "isOptional": true,
 
