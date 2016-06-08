@@ -328,15 +328,18 @@ export default class Application extends EventEmitter {
     });
 
     this.on('application:new-message', () => {
-      this.windowManager.sendToWindow(WindowManager.MAIN_WINDOW, 'new-message');
+      const main = this.windowManager.get(WindowManager.MAIN_WINDOW);
+      if (main) { main.sendMessage('new-message') }
     });
+
     this.on('application:view-help', () => {
       const helpUrl = 'https://nylas.zendesk.com/hc/en-us/sections/203638587-N1';
       require('electron').shell.openExternal(helpUrl);
     });
 
     this.on('application:open-preferences', () => {
-      this.windowManager.sendToWindow(WindowManager.MAIN_WINDOW, 'open-preferences');
+      const main = this.windowManager.get(WindowManager.MAIN_WINDOW);
+      if (main) { main.sendMessage('open-preferences') }
     });
 
     this.on('application:show-main-window', () => {
@@ -663,14 +666,16 @@ export default class Application extends EventEmitter {
   openUrl(urlToOpen) {
     const {protocol} = url.parse(urlToOpen);
     if (protocol === 'mailto:') {
-      this.windowManager.sendToWindow(WindowManager.MAIN_WINDOW, 'mailto', urlToOpen);
+      const main = this.windowManager.get(WindowManager.MAIN_WINDOW);
+      if (main) { main.sendMessage('mailto', urlToOpen) }
     } else {
       console.log(`Ignoring unknown URL type: ${urlToOpen}`);
     }
   }
 
   openComposerWithFiles(pathsToOpen) {
-    this.windowManager.sendToWindow(WindowManager.MAIN_WINDOW, 'mailfiles', pathsToOpen);
+    const main = this.windowManager.get(WindowManager.MAIN_WINDOW);
+    if (main) { main.sendMessage('mailfiles', pathsToOpen) }
   }
 
   // Opens up a new {NylasWindow} to run specs within.

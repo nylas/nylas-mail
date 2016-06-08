@@ -111,13 +111,6 @@ export default class WindowManager {
     }
   }
 
-  sendToWindow(windowKey, ...args) {
-    if (!this._windows[windowKey]) {
-      throw new Error(`Can't find window: ${windowKey}`);
-    }
-    this._windows[windowKey].sendMessage(...args);
-  }
-
   sendToAllWindows(msg, {except}, ...args) {
     for (const windowKey of Object.keys(this._windows)) {
       const win = this._windows[windowKey];
