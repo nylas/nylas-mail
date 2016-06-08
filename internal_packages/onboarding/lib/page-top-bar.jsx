@@ -23,6 +23,15 @@ const PageTopBar = (props) => {
     }
   }
 
+  let backButton = (
+    <div className={closeClass} onClick={closeAction}>
+      <RetinaImg name={closeIcon} mode={RetinaImg.Mode.ContentPreserve} />
+    </div>
+  )
+  if (props.pageDepth > 1 && !props.allowMoveBack) {
+    backButton = null;
+  }
+
   return (
     <div
       className="dragRegion"
@@ -36,15 +45,14 @@ const PageTopBar = (props) => {
         WebkitAppRegion: "drag",
       }}
     >
-      <div className={closeClass} onClick={closeAction}>
-        <RetinaImg name={closeIcon} mode={RetinaImg.Mode.ContentPreserve} />
-      </div>
+      {backButton}
     </div>
   )
 }
 
 PageTopBar.propTypes = {
   pageDepth: React.PropTypes.number,
+  allowMoveBack: React.PropTypes.bool,
 };
 
 export default PageTopBar;

@@ -66,7 +66,10 @@ export default class OnboardingRoot extends React.Component {
 
     return (
       <div className="page-frame">
-        <PageTopBar pageDepth={this.state.pageDepth} />
+        <PageTopBar
+          pageDepth={this.state.pageDepth}
+          allowMoveBack={this.state.page !== 'account-choose'}
+        />
         <ReactCSSTransitionGroup
           transitionName="alpha-fade"
           transitionLeaveTimeout={150}
