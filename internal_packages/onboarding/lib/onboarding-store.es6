@@ -77,7 +77,7 @@ class OnboardingStore extends NylasStore {
    */
   _openWelcomePage() {
     // open the external welcome page
-    const url = buildWelcomeURL(this.welcomeRoot);
+    const url = buildWelcomeURL(this.welcomeRoot, {source: "OnboardingStore"});
     shell.openExternal(url, {activate: false});
   }
 
