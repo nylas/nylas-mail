@@ -64,12 +64,6 @@ export default class Application extends EventEmitter {
     this._databasePhase = 'setup';
     this.perf = new PerformanceMonitor()
 
-    if (this.devMode) {
-      console.log("In Dev Mode: Installing React Developer Tools...");
-      const reactPath = path.resolve('./static/devtools-extensions/react-devtools-0.14.11');
-      BrowserWindow.addDevToolsExtension(reactPath);
-    }
-
     this.setupJavaScriptArguments();
     this.handleEvents();
     this.handleLaunchOptions(options);
