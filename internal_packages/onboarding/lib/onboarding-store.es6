@@ -14,16 +14,6 @@ function accountTypeForProvider(provider) {
   return provider;
 }
 
-function providerForAccountType(type) {
-  if (type === 'exchange') {
-    return 'eas';
-  }
-  if (type === 'imap') {
-    return 'custom';
-  }
-  return type;
-}
-
 class OnboardingStore extends NylasStore {
   constructor() {
     super();
@@ -109,8 +99,6 @@ class OnboardingStore extends NylasStore {
     } else if (type === 'exchange') {
       nextPage = "account-settings-exchange";
     }
-    const provider = providerForAccountType(type)
-    Actions.recordUserEvent('Email Account Auth Started', {provider});
     this._onSetAccountInfo(Object.assign({}, this._accountInfo, {type}));
     this._onMoveToPage(nextPage);
   }
