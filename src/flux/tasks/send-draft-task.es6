@@ -174,6 +174,7 @@ export default class SendDraftTask extends BaseDraftTask {
   }
 
   onSuccess = () => {
+    Actions.recordUserEvent("Draft Sent")
     Actions.sendDraftSuccess({message: this.message, messageClientId: this.message.clientId, draftClientId: this.draftClientId});
     NylasAPI.makeDraftDeletionRequest(this.draft);
 
@@ -186,17 +187,27 @@ export default class SendDraftTask extends BaseDraftTask {
   }
 
   onSendError = (err, retrySend) => {
+    let shouldRetry = false;
     // If the message you're "replying to" has been deleted
     if (err.message && err.message.indexOf('Invalid message public id') === 0) {
       this.draft.replyToMessageId = null;
-      return retrySend();
+      shouldRetry = true
     }
 
     // If the thread has been deleted
     if (err.message && err.message.indexOf('Invalid thread') === 0) {
       this.draft.threadId = null;
       this.draft.replyToMessageId = null;
-      return retrySend();
+      shouldRetry = true
+    }
+
+    Actions.recordUserEvent("Draft Sending Errored", {
+      error: err.message,
+      shouldRetry: shouldRetry,
+    })
+
+    if (shouldRetry) {
+      return retrySend()
     }
 
     return Promise.reject(err);
