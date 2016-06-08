@@ -42,11 +42,11 @@ export default class PreferencesSignatures extends React.Component {
 
   _renderAccountPicker() {
     const options = this.state.accounts.map(account =>
-      <option value={account.id} key={account.id}>{account.emailAddress}</option>
+      <option value={account.id} key={account.id}>{account.label}</option>
     );
 
     return (
-      <select value={this.state.currentAccountId} onChange={this._onSelectAccount}>
+      <select value={this.state.currentAccountId} onChange={this._onSelectAccount} style={{minWidth: 200}}>
         {options}
       </select>
     );

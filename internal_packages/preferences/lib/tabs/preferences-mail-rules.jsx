@@ -134,14 +134,14 @@ class PreferencesMailRules extends React.Component {
 
   _renderAccountPicker() {
     const options = this.state.accounts.map(account =>
-      <option value={account.accountId} key={account.accountId}>{account.emailAddress}</option>
+      <option value={account.accountId} key={account.accountId}>{account.label}</option>
     );
 
     return (
       <select
         value={this.state.currentAccount.accountId}
         onChange={this._onSelectAccount}
-        style={{margin: 0}}
+        style={{margin: 0, minWidth: 200}}
       >
         {options}
       </select>
