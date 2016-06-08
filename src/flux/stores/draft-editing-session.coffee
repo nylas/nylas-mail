@@ -61,6 +61,7 @@ class DraftChangeSet
     @add(changes, {doesNotAffectPristine: true})
 
   commit: ({noSyncback}={}) =>
+    clearTimeout(@_timer) if @_timer
     @_commitChain = @_commitChain.finally =>
       if Object.keys(@_pending).length is 0
         return Promise.resolve(true)
