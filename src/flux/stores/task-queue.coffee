@@ -247,7 +247,7 @@ class TaskQueue
 
   # Recursively notifies tasks of dependent errors
   _notifyOfDependentError: (failedTask, err) ->
-    downstream = @_tasksDependingOn(failedTask) ? []
+    downstream = @_tasksToDequeueOnFailure(failedTask) ? []
     Promise.map downstream, (downstreamTask) =>
 
       return Promise.resolve(null) unless downstreamTask
@@ -280,9 +280,11 @@ class TaskQueue
       otherTask.queueState.debugStatus = Task.DebugStatus.DequeuedObsolete
       @dequeue(otherTask)
 
-  _tasksDependingOn: (task) ->
+  _tasksToDequeueOnFailure: (failedTask) ->
     _.filter @_queue, (otherTask) ->
-      task isnt otherTask and otherTask.isDependentOnTask(task)
+      failedTask isnt otherTask and
+      otherTask.isDependentOnTask(failedTask) and
+      otherTask.shouldBeDequeuedOnDependencyFailure()
 
   _taskIsBlocked: (task) =>
     _.any @_queue, (otherTask) ->
