@@ -142,7 +142,7 @@ export default class AuthenticatePage extends React.Component {
   render() {
     return (
       <div className="page authenticate">
-        <webview ref="webview"></webview>
+        <webview ref="webview" partition="in-memory-only"></webview>
         <div className={`webview-loading-spinner loading-${this.state.webviewLoading}`}>
           <RetinaImg
             style={{width: 20, height: 20}}
