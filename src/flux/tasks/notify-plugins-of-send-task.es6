@@ -62,6 +62,10 @@ Any plugins you used in your sent message will not be available.`
     return (other instanceof SyncbackMetadataTask) && (other.clientId === this.messageClientId)
   }
 
+  shouldBeDequeuedOnDependencyFailure() {
+    return false
+  }
+
   performLocal() {
     this.validateRequiredFields([
       "messageId",

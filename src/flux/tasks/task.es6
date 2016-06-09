@@ -513,6 +513,14 @@ export default class Task {
     return false;
   }
 
+  // Public: determines if the current task should be dequeued if one of the
+  // tasks it depends on fails.
+  //
+  // Returns `true` (should dequeue) or `false` (should not dequeue)
+  shouldBeDequeuedOnDependencyFailure() {
+    return true;
+  }
+
   onDependentTaskError(other, error) {
 
   }
