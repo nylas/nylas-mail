@@ -119,7 +119,7 @@ class TemplatePicker extends React.Component {
         tabIndex={-1}
         className="btn btn-toolbar narrow pull-right"
         onClick={this._onClickButton}
-        title="Insert email template…"
+        title="Insert quick reply…"
       >
         <RetinaImg
           url="nylas://composer-templates/assets/icon-composer-templates@2x.png"

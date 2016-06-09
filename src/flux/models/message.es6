@@ -363,4 +363,12 @@ Message(date DESC) WHERE draft = 1`,
   formattedDate() {
     return moment(this.date).format("MMM D YYYY, [at] h:mm a")
   }
+
+  hasEmptyBody() {
+    if (!this.body) { return true }
+
+    // https://regex101.com/r/hR7zN3/1
+    const re = /(?:<signature>.*<\/signature>)|(?:<.+?>)|\s/gmi;
+    return this.body.replace(re, "").length === 0;
+  }
 }
