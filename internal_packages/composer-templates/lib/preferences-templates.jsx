@@ -151,11 +151,19 @@ class PreferencesTemplates extends React.Component {
     return (<a onClick={() => { this.setState({editAsHTML: true}); }}>Edit raw HTML</a>);
   }
 
+  _onEnter(action) {
+    return (event) => {
+      if (event.key === "Enter") {
+        action()
+      }
+    }
+  }
+
   // TEMPLATE NAME EDITING
   _renderEditName() {
     return (
       <div className="section-title">
-        Template Name: <input type="text" className="template-name-input" value={this.state.selectedTemplateName} onChange={this._onEditName} />
+        Template Name: <input type="text" className="template-name-input" value={this.state.selectedTemplateName} onChange={this._onEditName} onKeyDown={this._onEnter(this._saveName)} />
         <button className="btn template-name-btn" onClick={this._saveName}>Save Name</button>
         <button className="btn template-name-btn" onClick={this._cancelEditName}>Cancel</button>
       </div>
@@ -247,7 +255,7 @@ class PreferencesTemplates extends React.Component {
     const cancel = (<button className="btn template-name-btn" onClick={this._cancelNewTemplate}>Cancel</button>);
     return (
       <div className="section-title">
-        Template Name: <input type="text" className="template-name-input" value={this.state.selectedTemplateName} onChange={this._onEditName} />
+        Template Name: <input type="text" className="template-name-input" value={this.state.selectedTemplateName} onChange={this._onEditName} onKeyDown={this._onEnter(this._saveNewTemplate)} />
         <button className="btn btn-emphasis template-name-btn" onClick={this._saveNewTemplate}>Save</button>
         {this.state.templates.length ? cancel : null}
       </div>
