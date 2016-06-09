@@ -25,6 +25,61 @@ almost_me = new Contact
   email: "tester+12345@nylas.com"
 
 describe "Message", ->
+
+  describe "detecting empty bodies", ->
+    cases = [
+      {
+        itMsg: "has plain br's and a signature"
+        body: """
+        <div class="contenteditable no-open-link-events" contenteditable="true" spellcheck="false"><br><br><signature>Sent from <a href="https://nylas.com/n1?ref=n1">Nylas N1</a>, the extensible, open source mail client.</signature></div>
+      """
+        isEmpty: true
+      },
+      {
+        itMsg: "is an empty string"
+        body: ""
+        isEmpty: true
+      },
+      {
+        itMsg: "has plain text"
+        body: "Hi"
+        isEmpty: false
+      },
+      {
+        itMsg: "is null"
+        body: null
+        isEmpty: true
+      },
+      {
+        itMsg: "has empty tags"
+        body: """
+        <div class="contenteditable no-open-link-events" contenteditable="true" spellcheck="false"><br><div><p>  </p></div>\n\n\n\n<br><signature>Sent from <a href="https://nylas.com/n1?ref=n1">Nylas N1</a>, the extensible, open source mail client.</signature></div>
+      """
+        isEmpty: true
+      },
+      {
+        itMsg: "has nested characters"
+        body: """
+        <div class="contenteditable no-open-link-events" contenteditable="true" spellcheck="false"><br><div><p> 1</p></div>\n\n\n\n<br><signature>Sent from <a href="https://nylas.com/n1?ref=n1">Nylas N1</a>, the extensible, open source mail client.</signature></div>
+      """
+        isEmpty: false
+      },
+      {
+        itMsg: "has just a signature"
+        body: "<signature>Yo</signature>"
+        isEmpty: true
+      },
+      {
+        itMsg: "has content after a signature"
+        body: "<signature>Yo</signature>Yo"
+        isEmpty: false
+      },
+    ]
+    cases.forEach ({itMsg, body, isEmpty}) ->
+      it itMsg, ->
+        msg = new Message(body: body, pristine: false, draft: true)
+        expect(msg.hasEmptyBody()).toBe(isEmpty)
+
   it "correctly aggregates participants", ->
     m1 = new Message
       to: []

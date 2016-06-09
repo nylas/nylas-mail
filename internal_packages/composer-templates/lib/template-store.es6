@@ -252,7 +252,7 @@ class TemplateStore extends NylasStore {
     this.getTemplateContents(templateId, (templateBody) => {
       DraftStore.sessionForClientId(draftClientId).then((session) => {
         let proceed = true;
-        if (!session.draft().pristine) {
+        if (!session.draft().pristine && !session.draft().hasEmptyBody()) {
           proceed = this._displayDialog(
               'Replace draft contents?',
               'It looks like your draft already has some content. Loading this template will ' +
