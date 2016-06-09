@@ -272,7 +272,7 @@ const PackagesStore = Reflux.createStore({
 
       if (NylasEnv.packages.resolvePackagePath(packageName)) {
         this._displayMessage('Invalid plugin name',
-          'Sorry, you must give your plugin a unqiue name.');
+          'Sorry, you must give your plugin a unique name.');
       }
 
       if (packageName.indexOf(' ') !== -1) {
