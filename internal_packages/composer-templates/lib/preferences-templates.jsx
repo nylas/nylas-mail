@@ -233,7 +233,8 @@ class PreferencesTemplates extends React.Component {
   }
 
   _saveNewTemplate = () => {
-    TemplateStore.saveNewTemplate(this.state.selectedTemplateName, this.state.contents || "", (template) => {
+    this.setState({contents: ""})
+    TemplateStore.saveNewTemplate(this.state.selectedTemplateName, "", (template) => {
       this.setState({
         selectedTemplate: template,
         editState: null,

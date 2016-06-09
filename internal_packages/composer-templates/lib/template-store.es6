@@ -197,7 +197,7 @@ class TemplateStore extends NylasStore {
           name: name,
           path: templatePath,
         };
-        this._items.push(template);
+        this._items.unshift(template);
       }
       if (callback) {
         callback(template);
