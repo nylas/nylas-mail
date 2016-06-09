@@ -61,7 +61,7 @@ class FocusedContentStore
 
   constructor: ->
     @_resetInstanceVars()
-    @listenTo AccountStore, @_onClear
+    @listenTo AccountStore, @_onAccountsChange
     @listenTo WorkspaceStore, @_onWorkspaceChange
     @listenTo DatabaseStore, @_onDataChange
     @listenTo Actions.setFocus, @_onFocus
@@ -79,10 +79,19 @@ class FocusedContentStore
 
   # Inbound Events
 
-  _onClear: =>
-    @_focused = {}
-    @_keyboardCursor = {}
-    @trigger({ impactsCollection: -> true })
+  _onAccountsChange: =>
+    # Ensure internal consistency by removing any focused items that belong
+    # to accounts which no longer exist.
+    changed = []
+
+    for dict in [@_focused, @_keyboardCursor]
+      for collection, item of dict
+        if item and item.accountId and !AccountStore.accountForId(item.accountId)
+          delete dict[collection]
+          changed.push(collection)
+
+    if changed.length > 0
+      @trigger({ impactsCollection: (c) -> changed.includes(c) })
 
   _onFocusKeyboard: ({collection, item}) =>
     throw new Error("focusKeyboard() requires a Model or null") if item and not (item instanceof Model)
