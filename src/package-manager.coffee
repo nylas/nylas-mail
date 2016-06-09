@@ -48,6 +48,7 @@ class PackageManager
         @packageDirPaths.push(path.join(configDirPath, "packages"))
 
     @loadedPackages = {}
+    @cachedPackagePluginIds = {}
     @packagesWithDatabaseObjects = []
     @activePackages = {}
     @packageStates = {}
@@ -56,9 +57,24 @@ class PackageManager
     @registerPackageActivator(this, ['nylas'])
 
 
-  pluginIdFor: (pluginName) =>
+  pluginIdFor: (packageName) =>
     env = NylasEnv.config.get("env")
-    return @loadedPackages[pluginName]?.metadata.appId?[env]
+    cacheKey = "#{packageName}:#{env}"
+
+    if @cachedPackagePluginIds[cacheKey] is undefined
+      @cachedPackagePluginIds[cacheKey] = @_resolvePluginIdFor(packageName, env)
+    return @cachedPackagePluginIds[cacheKey]
+
+  _resolvePluginIdFor: (packageName, env) =>
+    metadata = @loadedPackages[packageName]?.metadata
+
+    unless metadata
+      packagePath = @resolvePackagePath(packageName)
+      return null unless packagePath
+      metadata = Package.loadMetadata(packagePath)
+
+    return metadata.appId[env] if metadata and metadata.appId instanceof Object
+    return null
 
   ###
   Section: Event Subscription
