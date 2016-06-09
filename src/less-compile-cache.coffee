@@ -27,12 +27,9 @@ class LessCompileCache
   # and every importPath. If we already have the imports, then load it
   # from our backend FileListCache.
   setImportPaths: (importPaths=[]) ->
-    fileCache = NylasEnv.fileListCache()
-    fileCacheImportPaths = fileCache.lessCacheImportPaths ? []
     fullImportPaths = importPaths.concat(@lessSearchPaths)
-    if not _.isEqual(fullImportPaths, fileCacheImportPaths)
+    if not _.isEqual(fullImportPaths, @cache.importPaths)
       @cache.setImportPaths(fullImportPaths)
-      fileCache.lessCacheImportPaths = fullImportPaths
 
   read: (stylesheetPath) ->
     @cache.readFileSync(stylesheetPath)
