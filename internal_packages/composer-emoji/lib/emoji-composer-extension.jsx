@@ -244,11 +244,14 @@ class EmojiComposerExtension extends ComposerExtension {
     if (!prevTextNode) return {text: text, textNode: node};
     while (prevTextNode) {
       if (prevTextNode.nodeValue.indexOf(" ") === -1 &&
-          prevTextNode.nodeValue.indexOf(":") === -1) {
+        prevTextNode.nodeValue.indexOf(":") === -1) {
         text = prevTextNode.nodeValue + text;
         prevTextNode = DOMUtils.previousTextNode(prevTextNode);
-      } else {
+      } else if (prevTextNode.nextSibling &&
+        prevTextNode.nextSibling.nodeName !== "DIV") {
         text = prevTextNode.nodeValue.trim() + text;
+        break;
+      } else {
         break;
       }
     }
