@@ -6,7 +6,5 @@ export default class FileListCache {
   constructor() {
     this.imageData = "{}" // A JSON stringified hash
     this.packagePaths = []
-    this.lessCacheImportPaths = []
-    this.lessCacheImportedFiles = []
   }
 }
