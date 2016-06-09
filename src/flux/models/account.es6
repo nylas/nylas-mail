@@ -77,7 +77,7 @@ export default class Account extends ModelWithMetadata {
 
     subscriptionRequiredAfter: Attributes.DateTime({
       modelKey: 'subscriptionRequiredAfter',
-      jsonKey: 'pro_subscription_required_after',
+      jsonKey: 'n1_subscription_required_after',
     }),
   });
 
