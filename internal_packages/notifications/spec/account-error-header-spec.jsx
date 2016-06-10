@@ -1,6 +1,6 @@
 import {mount} from 'enzyme';
 import AccountErrorHeader from '../lib/headers/account-error-header';
-import {AccountStore, Account, Actions, React} from 'nylas-exports'
+import {IdentityStore, AccountStore, Account, Actions, React} from 'nylas-exports'
 import {ipcRenderer} from 'electron';
 
 describe("AccountErrorHeader", function AccountErrorHeaderTests() {
@@ -20,8 +20,11 @@ describe("AccountErrorHeader", function AccountErrorHeaderTests() {
 
     it("allows the user to refresh the account", () => {
       const header = mount(<AccountErrorHeader />);
+      spyOn(IdentityStore, 'refreshStatus').andReturn(Promise.resolve());
       spyOn(AccountStore, 'refreshHealthOfAccounts').andReturn(Promise.resolve());
       header.find('.action.refresh').simulate('click');
+      expect(IdentityStore.refreshStatus).toHaveBeenCalled();
+      advanceClock();
       expect(AccountStore.refreshHealthOfAccounts).toHaveBeenCalledWith(['A']);
     });
 
@@ -50,8 +53,11 @@ describe("AccountErrorHeader", function AccountErrorHeaderTests() {
 
     it("allows the user to refresh the accounts", () => {
       const header = mount(<AccountErrorHeader />);
+      spyOn(IdentityStore, 'refreshStatus').andReturn(Promise.resolve());
       spyOn(AccountStore, 'refreshHealthOfAccounts').andReturn(Promise.resolve());
       header.find('.action.refresh').simulate('click');
+      expect(IdentityStore.refreshStatus).toHaveBeenCalled();
+      advanceClock();
       expect(AccountStore.refreshHealthOfAccounts).toHaveBeenCalledWith(['A', 'B']);
     });
 

@@ -76,20 +76,23 @@ class PreferencesIdentity extends React.Component {
     return {
       identity: IdentityStore.identity() || {},
       subscriptionState: IdentityStore.subscriptionState(),
-      trialDaysRemaining: IdentityStore.trialDaysRemaining(),
+      daysUntilSubscriptionRequired: IdentityStore.daysUntilSubscriptionRequired(),
     };
   }
 
   _renderPaymentRow() {
-    const {identity, trialDaysRemaining, subscriptionState} = this.state
+    const {identity, daysUntilSubscriptionRequired, subscriptionState} = this.state
 
     if (subscriptionState === IdentityStore.State.Trialing) {
+      let msg = "You have not upgraded to Nylas Pro.";
+      if (daysUntilSubscriptionRequired > 1) {
+        msg = `There are ${daysUntilSubscriptionRequired} days remaining in your 30-day trial of Nylas Pro.`;
+      } else if (daysUntilSubscriptionRequired === 1) {
+        msg = `There is one day remaining in your trial of Nylas Pro. Upgrade today!`;
+      }
       return (
         <div className="row payment-row">
-          <div>
-            There {(trialDaysRemaining > 1) ? `are ${trialDaysRemaining} days ` : `is one day `}
-            remaining in your 30-day trial of Nylas Pro.
-          </div>
+          <div>{msg}</div>
           <OpenIdentityPageButton img="ic-upgrade.png" label="Upgrade to Nylas Pro" path="/payment" campaign="Upgrade" source="Preferences" />
         </div>
       )
