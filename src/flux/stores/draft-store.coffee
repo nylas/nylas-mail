@@ -372,9 +372,12 @@ class DraftStore
       # We delay so the view has time to update the restored draft. If we
       # don't delay the modal may come up in a state where the draft looks
       # like it hasn't been restored or has been lost.
+      #
+      # We also need to delay because the old draft window needs to fully
+      # close. It takes windows currently (June 2016) 100ms to close by
       _.delay =>
         @_notifyUserOfError({draftClientId, threadId, errorMessage})
-      , 100
+      , 300
 
   _isPopout: ->
     NylasEnv.getWindowType() is "composer"
