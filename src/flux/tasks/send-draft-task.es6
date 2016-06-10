@@ -19,13 +19,13 @@ import NotifyPluginsOfSendTask from './notify-plugins-of-send-task';
 // Refactor this to consolidate error handling across all Sending tasks
 export default class SendDraftTask extends BaseDraftTask {
 
-  constructor(draftClientId, {playSound = true, emitError = true, multiSend = true} = {}) {
+  constructor(draftClientId, {playSound = true, emitError = true, allowMultiSend = true} = {}) {
     super(draftClientId);
     this.draft = null;
     this.message = null;
     this.emitError = emitError
     this.playSound = playSound
-    this.multiSend = multiSend
+    this.allowMultiSend = allowMultiSend
   }
 
   label() {
@@ -59,23 +59,31 @@ export default class SendDraftTask extends BaseDraftTask {
     return Promise.resolve();
   }
 
-  sendMessage = () => {
+  usingMultiSend = () => {
+    if (!this.allowMultiSend) {
+      return false;
+    }
+
     const openTrackingId = NylasEnv.packages.pluginIdFor('open-tracking')
     const linkTrackingId = NylasEnv.packages.pluginIdFor('link-tracking')
-    const shouldMultiSend = (
-      this.multiSend && openTrackingId && linkTrackingId &&
-      (this.draft.metadataForPluginId(openTrackingId) || this.draft.metadataForPluginId(linkTrackingId)) &&
-      AccountStore.accountForId(this.draft.accountId).provider !== "eas"
-    )
-    if (shouldMultiSend) {
-      return this.sendWithMultipleBodies();
+
+    const pluinsAvailable = (openTrackingId && linkTrackingId);
+    if (!pluinsAvailable) {
+      return false;
     }
-    return this.sendWithSingleBody();
+    const pluginsInUse = (this.draft.metadataForPluginId(openTrackingId) || this.draft.metadataForPluginId(linkTrackingId));
+    const providerCompatible = (AccountStore.accountForId(this.draft.accountId).provider !== "eas");
+    return pluginsInUse && providerCompatible;
+  }
+
+  sendMessage = () => {
+    return this.usingMultiSend() ? this.sendWithMultipleBodies() : this.sendWithSingleBody();
   }
 
   sendWithMultipleBodies = () => {
     const draft = this.draft.clone();
     draft.body = this.stripTrackingFromBody(draft.body);
+
     return NylasAPI.makeRequest({
       path: "/send-multiple",
       accountId: this.draft.accountId,
@@ -98,6 +106,7 @@ export default class SendDraftTask extends BaseDraftTask {
       });
       const t2 = new MultiSendSessionCloseTask({
         message: this.message,
+        draft: draft,
       });
       Actions.queueTask(t2);
     })
@@ -174,15 +183,18 @@ export default class SendDraftTask extends BaseDraftTask {
   }
 
   onSuccess = () => {
-    Actions.recordUserEvent("Draft Sent")
-    Actions.sendDraftSuccess({message: this.message, messageClientId: this.message.clientId, draftClientId: this.draftClientId});
-    NylasAPI.makeDraftDeletionRequest(this.draft);
+    // TODO: This code is duplicated into the MultiSendSessionCloseTask!
+    // We should create a Task that always runs when send is complete.
+    if (!this.usingMultiSend()) {
+      Actions.recordUserEvent("Draft Sent")
+      Actions.sendDraftSuccess({message: this.message, messageClientId: this.message.clientId, draftClientId: this.draft.clientId});
+      NylasAPI.makeDraftDeletionRequest(this.draft);
 
-    // Play the sending sound
-    if (this.playSound && NylasEnv.config.get("core.sending.sounds")) {
-      SoundRegistry.playSound('send');
+      // Play the sending sound
+      if (this.playSound && NylasEnv.config.get("core.sending.sounds")) {
+        SoundRegistry.playSound('send');
+      }
     }
-
     return Promise.resolve(Task.Status.Success);
   }
 

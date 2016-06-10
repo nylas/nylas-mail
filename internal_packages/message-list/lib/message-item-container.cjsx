@@ -41,11 +41,10 @@ class MessageItemContainer extends React.Component
     @refs.message.focus()
 
   render: =>
-    if @props.message.draft
-      if @state.isSending
-        @_renderMessage(pending: true)
-      else
-        @_renderComposer()
+    if @state.isSending
+      @_renderMessage(pending: true)
+    else if @props.message.draft
+      @_renderComposer()
     else
       @_renderMessage(pending: false)
 
