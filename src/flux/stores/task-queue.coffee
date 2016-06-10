@@ -112,9 +112,18 @@ class TaskQueue
   Returns a matching {Task}, or null.
   ###
   findTask: (type, matching = {}) ->
+    @findTasks(type, matching)[0]
+
+  findTasks: (type, matching = {}, {includeCompleted}={}) ->
     type = type.name unless _.isString(type)
-    match = _.find @_queue, (task) -> task.constructor.name is type and _.isMatch(task, matching)
-    match ? null
+    tasks = if includeCompleted then @_queue.concat(@_completed) else @_queue
+    matches = _.filter tasks, (task) ->
+      return false if task.constructor.name isnt type
+      isMatch = false
+      if _.isFunction(matching) then isMatch = matching(task)
+      else isMatch = _.isMatch(task, matching)
+      return isMatch
+    return matches ? []
 
   enqueue: (task) =>
     if not (task instanceof Task)
