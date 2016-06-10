@@ -32,6 +32,7 @@ export default class AccountErrorHeader extends React.Component {
     return {
       accounts: AccountStore.accounts(),
       subscriptionState: IdentityStore.subscriptionState(),
+      daysUntilSubscriptionRequired: IdentityStore.daysUntilSubscriptionRequired(),
     }
   }
 
@@ -55,9 +56,11 @@ export default class AccountErrorHeader extends React.Component {
 
     event.stopPropagation();
 
-    AccountStore.refreshHealthOfAccounts(errorAccounts.map(a => a.id)).finally(() => {
-      if (!this.mounted) { return; }
-      this.setState({refreshing: false});
+    IdentityStore.refreshStatus().finally(() => {
+      AccountStore.refreshHealthOfAccounts(errorAccounts.map(a => a.id)).finally(() => {
+        if (!this.mounted) { return; }
+        this.setState({refreshing: false});
+      });
     });
   }
 
@@ -133,13 +136,13 @@ export default class AccountErrorHeader extends React.Component {
   }
 
   render() {
-    const {accounts, subscriptionState} = this.state;
-    const subscriptionNeeded = accounts.find(a =>
-      a.subscriptionRequiredAfter && (a.subscriptionRequiredAfter < new Date())
-    )
+    const {accounts, subscriptionState, daysUntilSubscriptionRequired} = this.state;
 
-    if (subscriptionNeeded && (subscriptionState !== IdentityStore.State.Valid)) {
-      return this._renderUpgradeHeader()
+    const subscriptionInvalid = (subscriptionState !== IdentityStore.State.Valid);
+    const subscriptionRequired = (daysUntilSubscriptionRequired !== null) && (daysUntilSubscriptionRequired <= 1);
+
+    if (subscriptionInvalid && subscriptionRequired) {
+      return this._renderUpgradeHeader();
     }
 
     const errorAccounts = accounts.filter(a => a.hasSyncStateError());

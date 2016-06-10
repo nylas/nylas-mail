@@ -74,11 +74,6 @@ export default class Account extends ModelWithMetadata {
       modelKey: 'syncState',
       jsonKey: 'sync_state',
     }),
-
-    subscriptionRequiredAfter: Attributes.DateTime({
-      modelKey: 'subscriptionRequiredAfter',
-      jsonKey: 'n1_subscription_required_after',
-    }),
   });
 
   constructor(args) {
