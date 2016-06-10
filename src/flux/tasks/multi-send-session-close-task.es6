@@ -1,6 +1,8 @@
+import _ from 'underscore'
 import Task from './task';
 import {APIError} from '../errors';
 import NylasAPI from '../nylas-api';
+import TaskQueue from '../../flux/stores/task-queue';
 import MultiSendToIndividualTask from './multi-send-to-individual-task';
 
 
@@ -12,6 +14,29 @@ export default class MultiSendSessionCloseTask extends Task {
 
   isDependentOnTask(other) {
     return (other instanceof MultiSendToIndividualTask) && (other.message.clientId === this.message.clientId);
+  }
+
+  shouldBeDequeuedOnDependencyFailure() {
+    return false
+  }
+
+  showDependentErrors = () => {
+    const failedTasks = TaskQueue.findTasks(MultiSendToIndividualTask, (task) => {
+      return (task.queueState.status === Task.Status.Failed &&
+        task.message.id === this.message.id)
+    }, {includeCompleted: true})
+    if (failedTasks.length > 0) {
+      let errorMessages = failedTasks.map((task) => {
+        return (task.queueState.remoteError || {}).message
+      })
+      errorMessages = _.uniq(_.compact(errorMessages)).join("\n\n")
+
+      const emails = failedTasks.map(t => t.recipient.email).join(", ")
+
+      const errorMessage = `We had trouble sending this message to all recipients. ${emails} may not have received this email.\n\n${errorMessages}`;
+
+      NylasEnv.showErrorDialog(errorMessage, {showInMainWindow: true});
+    }
   }
 
   performRemote() {
@@ -36,6 +61,6 @@ export default class MultiSendSessionCloseTask extends Task {
       NylasEnv.reportError(err);
       NylasEnv.showErrorDialog(errorMessage, {showInMainWindow: true});
       return Promise.resolve([Task.Status.Failed, err]);
-    });
+    }).finally(this.showDependentErrors);
   }
 }
