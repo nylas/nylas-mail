@@ -81,7 +81,7 @@ describe "TaskQueue", ->
     it "only returns a task that matches the criteria", ->
       expect(TaskQueue.findTask(TaskSubclassB, {bProp: 'B1'})).toEqual(@subclassB1)
       expect(TaskQueue.findTask(TaskSubclassB, {bProp: 'B2'})).toEqual(@subclassB2)
-      expect(TaskQueue.findTask(TaskSubclassB, {bProp: 'B3'})).toEqual(null)
+      expect(TaskQueue.findTask(TaskSubclassB, {bProp: 'B3'})).toEqual(undefined)
 
   describe "enqueue", ->
     beforeEach ->
