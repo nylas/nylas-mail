@@ -54,19 +54,25 @@ export default class ChangeLabelsTask extends ChangeMailTask {
     // factory and pass the string in as this.taskDescription (ala Snooze), but
     // it's nice to have them declaratively based on the actual labels.
     if (objectsAvailable) {
-      if (this.labelsToAdd.length === 1 && this.labelsToRemove.length > 0) {
+      const looksLikeMove = (this.labelsToAdd.length === 1 && this.labelsToRemove.length > 0);
+
+      // Spam / trash interactions are always "moves" because they're the three
+      // folders of Gmail. If another folder is involved, we need to decide to
+      // return either "Moved to Bla" or "Added Bla".
+      if (added && added.name === 'spam') {
+        return `Marked${countString} as Spam`;
+      } else if (removed && removed.name === 'spam') {
+        return `Unmarked${countString} as Spam`;
+      } else if (added && added.name === 'trash') {
+        return `Trashed${countString}`;
+      } else if (removed && removed.name === 'trash') {
+        return `Removed${countString} from Trash`;
+      }
+      if (looksLikeMove) {
         if (added.name === 'all') {
           return `Archived${countString}`;
         } else if (removed.name === 'all') {
           return `Unarchived${countString}`;
-        } else if (added.name === 'spam') {
-          return `Marked${countString} as Spam`;
-        } else if (removed.name === 'spam') {
-          return `Unmarked${countString} as Spam`;
-        } else if (added.name === 'trash') {
-          return `Trashed${countString}`;
-        } else if (removed.name === 'trash') {
-          return `Removed${countString} from Trash`;
         }
         return `Moved${countString} to ${added.displayName}`;
       }
