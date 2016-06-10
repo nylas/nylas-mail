@@ -86,6 +86,14 @@
       ]
     },
     {
+      "label": "Window",
+      "submenu": [
+        { "label": "Minimize", "command": "application:minimize" },
+        { "label": "Zoom", "command": "application:zoom" },
+        { "type": "separator", "id": "window-list-separator" }
+      ]
+    },
+    {
       "label": "&Help",
       "submenu": [
         { "label": "VERSION", "enabled": false },
