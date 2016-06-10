@@ -96,7 +96,7 @@ export default class SendDraftTask extends BaseDraftTask {
       return this.createMessageFromResponse(responseJSON);
     })
     .then(() => {
-      const recipients = this.message.to.concat(this.message.cc, this.message.bcc);
+      const recipients = this.message.participants({includeFrom: false, includeBcc: true})
       recipients.forEach((recipient) => {
         const t1 = new MultiSendToIndividualTask({
           message: this.message,

@@ -253,7 +253,7 @@ Message(date DESC) WHERE draft = 1`,
 
   // Public: Returns a set of uniqued message participants by combining the
   // `to`, `cc`, `bcc` && (optionally) `from` fields.
-  participants({includeFrom, includeBcc} = {includeFrom: true, includeBcc: false}) {
+  participants({includeFrom = true, includeBcc = false} = {}) {
     const seen = {}
     const all = []
     let contacts = [].concat(this.to, this.cc)
