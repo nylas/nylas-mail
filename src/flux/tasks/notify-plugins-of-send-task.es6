@@ -42,9 +42,6 @@ import SyncbackMetadataTask from './syncback-metadata-task'
  *
  * https://mycustombackend.com/track/<draftClientId>
  *
- * Then, by listening to for `Actions.sendDraftSuccess`, we queue this
- * task
- *
  * The task will POST to your backend url the draftClientId and the
  * coresponding messageId
  */
