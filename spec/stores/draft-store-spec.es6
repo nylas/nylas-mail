@@ -422,7 +422,7 @@ describe('DraftStore', function draftStore() {
       spyOn(Actions, "composePopoutDraft");
       DraftStore._draftsSending[this.draft.clientId] = true;
       Actions.sendDraftFailed({threadId: 't1', errorMessage: "boohoo", draftClientId: this.draft.clientId});
-      advanceClock(200);
+      advanceClock(400);
       expect(DraftStore.isSendingDraft(this.draft.clientId)).toBe(false);
       expect(DraftStore.trigger).toHaveBeenCalledWith(this.draft.clientId);
       expect(remote.dialog.showMessageBox).toHaveBeenCalled();
@@ -437,7 +437,7 @@ describe('DraftStore', function draftStore() {
       spyOn(Actions, "composePopoutDraft");
       DraftStore._draftsSending[this.draft.clientId] = true;
       Actions.sendDraftFailed({threadId: 't2', errorMessage: "boohoo", draftClientId: this.draft.clientId});
-      advanceClock(200);
+      advanceClock(400);
       expect(Actions.composePopoutDraft).toHaveBeenCalled();
       const call = Actions.composePopoutDraft.calls[0];
       expect(call.args[0]).toBe(this.draft.clientId);
@@ -450,7 +450,7 @@ describe('DraftStore', function draftStore() {
       DraftStore._draftsSending[this.draft.clientId] = true;
       spyOn(FocusedContentStore, "focused").andReturn(null);
       Actions.sendDraftFailed({errorMessage: "boohoo", draftClientId: this.draft.clientId});
-      advanceClock(200);
+      advanceClock(400);
       expect(Actions.composePopoutDraft).toHaveBeenCalled();
       const call = Actions.composePopoutDraft.calls[0];
       expect(call.args[0]).toBe(this.draft.clientId);
