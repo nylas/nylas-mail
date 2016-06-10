@@ -29,16 +29,15 @@ export default class MultiSendToIndividualTask extends Task {
       return Promise.resolve(Task.Status.Success);
     })
     .catch((err) => {
-      const errorMessage = `We had trouble sending this message to all recipients. ${this.recipient.displayName()} may not have received this email.\n\n${err.message}`;
+      // NOTE: We do NOT show any error messages here since there may be
+      // dozens of these tasks. The `MultieSendSessionCloseTask`
+      // accumulates and shows the errors.
       if (err instanceof APIError) {
         if (NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
-          NylasEnv.showErrorDialog(errorMessage, {showInMainWindow: true});
           return Promise.resolve([Task.Status.Failed, err]);
         }
         return Promise.resolve(Task.Status.Retry);
       }
-      NylasEnv.reportError(err);
-      NylasEnv.showErrorDialog(errorMessage, {showInMainWindow: true});
       return Promise.resolve([Task.Status.Failed, err]);
     });
   }
