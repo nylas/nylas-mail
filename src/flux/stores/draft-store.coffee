@@ -52,10 +52,10 @@ class DraftStore
 
     @listenTo Actions.composeReply, @_onComposeReply
     @listenTo Actions.composeForward, @_onComposeForward
-    @listenTo Actions.sendDraftSuccess, => @trigger()
     @listenTo Actions.composePopoutDraft, @_onPopoutDraftClientId
     @listenTo Actions.composeNewBlankDraft, @_onPopoutBlankDraft
     @listenTo Actions.sendDraftFailed, @_onSendDraftFailed
+    @listenTo Actions.sendDraftSuccess, @_onSendDraftSuccess
     @listenTo Actions.sendQuickReply, @_onSendQuickReply
 
     if NylasEnv.isMainWindow()
@@ -364,6 +364,10 @@ class DraftStore
       files = _.reject files, (f) -> f.id is file.id
       session.changes.add({files})
       session.changes.commit()
+
+  _onSendDraftSuccess: ({draftClientId}) =>
+    delete @_draftsSending[draftClientId]
+    @trigger(draftClientId)
 
   _onSendDraftFailed: ({draftClientId, threadId, errorMessage}) ->
     @_draftsSending[draftClientId] = false

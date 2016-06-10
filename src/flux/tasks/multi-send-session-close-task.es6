@@ -1,14 +1,17 @@
 import _ from 'underscore'
 import Task from './task';
+import Actions from '../actions';
 import {APIError} from '../errors';
 import NylasAPI from '../nylas-api';
 import TaskQueue from '../../flux/stores/task-queue';
+import SoundRegistry from '../../sound-registry';
 import MultiSendToIndividualTask from './multi-send-to-individual-task';
 
 
 export default class MultiSendSessionCloseTask extends Task {
   constructor(opts = {}) {
     super(opts);
+    this.draft = opts.draft;
     this.message = opts.message;
   }
 
@@ -47,6 +50,16 @@ export default class MultiSendSessionCloseTask extends Task {
       accountId: this.message.accountId,
     })
     .then(() => {
+      // TODO: This is duplicated from SendDraftTask!
+      Actions.recordUserEvent("Draft Sent")
+      Actions.sendDraftSuccess({message: this.message, messageClientId: this.message.clientId, draftClientId: this.draft.clientId});
+      NylasAPI.makeDraftDeletionRequest(this.draft);
+
+      // Play the sending sound
+      if (NylasEnv.config.get("core.sending.sounds")) {
+        SoundRegistry.playSound('send');
+      }
+
       return Promise.resolve(Task.Status.Success);
     })
     .catch((err) => {
