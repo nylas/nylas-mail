@@ -67,6 +67,14 @@
         { "label": "Open Detailed Logs", "command": "window:open-errorlogger-logs" }
       ]
     },
+    {
+      "label": "Window",
+      "submenu": [
+        { "label": "Minimize", "command": "application:minimize" },
+        { "label": "Zoom", "command": "application:zoom" },
+        { "type": "separator", "id": "window-list-separator" }
+      ]
+    },
     { "type": "separator" },
     {
       "label": "&Help...",
