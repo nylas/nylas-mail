@@ -17,5 +17,6 @@
     "composer": true
   },
   "dependencies": {
+    "tld": "^0.0.2"
   }
 }
