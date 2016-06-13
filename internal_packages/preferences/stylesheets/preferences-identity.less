@@ -1,5 +1,7 @@
 @import "ui-variables";
 
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
 .container-identity {
   width: 50%;
   min-width: 530px;
@@ -9,6 +11,16 @@
   .id-header {
     color: @text-color-very-subtle;
     margin-bottom: @padding-base-vertical * 2;
+  }
+
+  .refresh {
+    float: right;
+    color: @text-color-very-subtle;
+    margin-bottom: @padding-base-vertical * 2;
+    img { background-color: @text-color-very-subtle; }
+  }
+  .refresh.spinning img {
+    animation:spin 1.4s linear infinite;
   }
 
   .identity-content-box {
