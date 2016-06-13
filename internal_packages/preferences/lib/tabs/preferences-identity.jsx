@@ -60,6 +60,7 @@ class PreferencesIdentity extends React.Component {
   constructor() {
     super();
     this.state = this.getStateFromStores();
+    this.state.refreshing = false;
   }
 
   componentDidMount() {
@@ -78,6 +79,13 @@ class PreferencesIdentity extends React.Component {
       subscriptionState: IdentityStore.subscriptionState(),
       daysUntilSubscriptionRequired: IdentityStore.daysUntilSubscriptionRequired(),
     };
+  }
+
+  _onRefresh = () => {
+    this.setState({refreshing: true});
+    IdentityStore.refreshStatus().finally(() => {
+      this.setState({refreshing: false});
+    });
   }
 
   _renderPaymentRow() {
@@ -120,12 +128,30 @@ class PreferencesIdentity extends React.Component {
   }
 
   render() {
-    const {identity} = this.state;
+    const {identity, refreshing} = this.state;
     const {firstname, lastname, email} = identity;
+
+    let refresh = null;
+    if (refreshing) {
+      refresh = (
+        <a className="refresh spinning" onClick={this._onRefresh}>
+          Refreshing... <RetinaImg style={{verticalAlign: 'sub'}} name="ic-refresh.png" mode={RetinaImg.Mode.ContentIsMask} />
+        </a>
+      )
+    } else {
+      refresh = (
+        <a className="refresh" onClick={this._onRefresh}>
+          Refresh <RetinaImg style={{verticalAlign: 'sub'}} name="ic-refresh.png" mode={RetinaImg.Mode.ContentIsMask} />
+        </a>
+      )
+    }
 
     return (
       <div className="container-identity">
-        <div className="id-header">Nylas ID:</div>
+        <div className="id-header">
+          Nylas ID:
+          {refresh}
+        </div>
         <div className="identity-content-box">
           <div className="row info-row">
             <div className="logo">
