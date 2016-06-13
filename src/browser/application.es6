@@ -189,13 +189,13 @@ export default class Application extends EventEmitter {
     app.commandLine.appendSwitch('js-flags', '--harmony');
   }
 
-  openWindowsForTokenState(loadingMessage) {
+  openWindowsForTokenState() {
     const accounts = this.config.get('nylas.accounts');
     const hasAccount = accounts && accounts.length > 0;
     const hasN1ID = this.config.get('nylas.identity.id');
 
     if (hasAccount && hasN1ID) {
-      this.windowManager.ensureWindow(WindowManager.MAIN_WINDOW, {loadingMessage});
+      this.windowManager.ensureWindow(WindowManager.MAIN_WINDOW);
       this.windowManager.ensureWindow(WindowManager.WORK_WINDOW);
     } else {
       this.windowManager.ensureWindow(WindowManager.ONBOARDING_WINDOW, {
@@ -261,7 +261,7 @@ export default class Application extends EventEmitter {
       this.windowManager.destroyAllWindows();
       this._deleteDatabase(() => {
         this.setDatabasePhase('setup');
-        this.openWindowsForTokenState("Please wait while we prepare new features.");
+        this.openWindowsForTokenState();
       });
     }, 0);
   }
