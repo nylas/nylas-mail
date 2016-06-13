@@ -1,4 +1,11 @@
-{Utils, React, ReactDOM, Actions, RegExpUtils} = require 'nylas-exports'
+{Utils,
+ React,
+ ReactDOM,
+ Actions,
+ RegExpUtils,
+ IdentityStore,
+ AccountStore,
+ EdgehillAPI} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
 EmailPopover = require './email-popover'
 PGPKeyStore = require './pgp-key-store'
@@ -6,6 +13,46 @@ KeybaseUser = require '../lib/keybase-user'
 Identity = require './identity'
 kb = require './keybase'
 _ = require 'underscore'
+
+class KeybaseInviteButton extends React.Component
+
+  constructor: (@props) ->
+    @state = {
+      loading: false,
+    }
+
+  _onGetKeybaseInvite: =>
+    @setState({loading: true})
+
+    token = AccountStore.tokenForAccountId(AccountStore.accounts()[0].id)
+    errorHandler = (err) =>
+      @setState({loading: false})
+      NylasEnv.showErrorDialog(err.message)
+
+    EdgehillAPI.makeRequest
+      auth:
+        user: token
+        pass: ""
+      path: "/keybase-invite",
+      method: "POST",
+      body:
+        n1_id: IdentityStore.identityId(),
+      error: errorHandler,
+      success: (body, response) =>
+        @setState({loading: false})
+        try
+          {invite_url} = JSON.parse(body)
+          if not invite_url
+            throw new Error("We were unable to retrieve an invitation.")
+        catch err
+          errorHandler(err)
+        require('electron').shell.openExternal(invite_url)
+
+  render: =>
+    if @state.loading
+      <a>Processing...</a>
+    else
+      <a onClick={@_onGetKeybaseInvite}>We've got an invite for you!</a>
 
 module.exports =
 class KeybaseSearch extends React.Component
@@ -17,10 +64,12 @@ class KeybaseSearch extends React.Component
     # clicked instead of the "please specify an email" popover
     importFunc: React.PropTypes.function
     # TODO consider just passing in a pre-specified email instead of a func?
+    inPreferences: React.PropTypes.bool
 
   @defaultProps:
     initialSearch: ""
     importFunc: false
+    inPreferences: false
 
   constructor: (props) ->
     super(props)
@@ -115,22 +164,25 @@ class KeybaseSearch extends React.Component
     if not profiles? or profiles.length < 1
       profiles = []
 
+    badSearch = null
+    loading = null
+    empty = null
+
     if profiles.length < 1 and @state.searchedByEmail
-      badSearch = <span className="bad-search-msg">Keybase cannot be searched by email address. <br/>Try entering a name or Keybase username.</span>
-    else
-      badSearch = false
+      badSearch = <span className="bad-search-msg">Keybase cannot be searched by email address. <br/>Try entering a name, or a username from GitHub, Keybase or Twitter.</span>
 
     if @state.loading
       loading = <RetinaImg style={width: 20, height: 20, marginTop: 2} name="inline-loading-spinner.gif" mode={RetinaImg.Mode.ContentPreserve} />
-    else
-      loading = null
+
+    if @props.inPreferences and not loading and not badSearch and profiles.length is 0
+      empty = <p className="empty">Not a Keybase user yet? <KeybaseInviteButton /></p>
 
     <div className="keybase-search">
       <div className="searchbar">
         <input type="text" value={ @state.query } placeholder="Search for PGP public keys on Keybase" ref="searchbar" onChange={@_queryChange} />
-      <div className="loading">{ loading }</div>
+        {empty}
+        <div className="loading">{ loading }</div>
       </div>
-
       <div className="results" ref="results">
         { profiles }
         { badSearch }
