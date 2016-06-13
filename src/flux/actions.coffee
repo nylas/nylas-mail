@@ -516,7 +516,7 @@ class Actions
   ###
   Public: Publish a user event to any analytics services linked to N1.
   ###
-  @recordUserEvent: ActionScopeWindow
+  @recordUserEvent: ActionScopeWorkWindow
 
   @addMailRule: ActionScopeWindow
   @reorderMailRule: ActionScopeWindow
