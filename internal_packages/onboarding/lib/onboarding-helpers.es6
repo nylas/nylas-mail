@@ -68,10 +68,12 @@ export function buildGmailAuthURL(sessionKey) {
 }
 
 export function buildWelcomeURL(welcomeRoot, {source}) {
-  const identityId = IdentityStore.identityId();
-  if (!identityId) { NylasEnv.reportError(new Error("buildWelcomeURL: Can't find Nylas ID")) }
+  const identity = IdentityStore.identity();
+  if (!identity || !identity.id) { NylasEnv.reportError(new Error("buildWelcomeURL: Can't find Nylas ID")) }
   const query = {
-    n: base64url(identityId),
+    f: base64url(identity.firstname),
+    l: base64url(identity.lastname),
+    n: base64url(identity.id),
     utm_medium: "N1",
   }
   if (source) { query.utm_source = source }
