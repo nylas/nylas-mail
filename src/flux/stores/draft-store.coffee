@@ -204,6 +204,7 @@ class DraftStore
         Actions.sendDraft(draft.clientId)
 
   _onComposeReply: ({thread, threadId, message, messageId, popout, type, behavior}) =>
+    Actions.recordUserEvent("Draft Created", {type})
     Promise.props(@_modelifyContext({thread, threadId, message, messageId}))
     .then ({message, thread}) =>
       DraftFactory.createOrUpdateDraftForReply({message, thread, type, behavior})
@@ -211,6 +212,7 @@ class DraftStore
       @_finalizeAndPersistNewMessage(draft, {popout})
 
   _onComposeForward: ({thread, threadId, message, messageId, popout}) =>
+    Actions.recordUserEvent("Draft Created", {type: "forward"})
     Promise.props(@_modelifyContext({thread, threadId, message, messageId}))
     .then(DraftFactory.createDraftForForward)
     .then (draft) =>
@@ -263,6 +265,7 @@ class DraftStore
     @_draftSessions[clientId] = new DraftEditingSession(clientId, draft)
 
   _onPopoutBlankDraft: =>
+    Actions.recordUserEvent("Draft Created", {type: "new"})
     NylasEnv.perf.start("Popout Draft")
     DraftFactory.createDraft().then (draft) =>
       @_finalizeAndPersistNewMessage(draft).then ({draftClientId}) =>
