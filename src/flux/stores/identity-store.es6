@@ -38,7 +38,7 @@ class IdentityStore extends NylasStore {
 
     this._loadIdentity();
 
-    if (NylasEnv.isWorkWindow() && ['staging', 'production'].includes(NylasEnv.config.get('env'))) {
+    if (NylasEnv.isMainWindow() && ['staging', 'production'].includes(NylasEnv.config.get('env'))) {
       setInterval(this.refreshStatus, 1000 * 60 * 60);
       this.refreshStatus();
     }
@@ -101,8 +101,9 @@ class IdentityStore extends NylasStore {
       this.fetchIdentity(),
       Promise.all(AccountStore.accounts().map((a) =>
         this.fetchSubscriptionRequiredDate(a))
-      ).then((subscriptionRequriedDates) => {
-        this._subscriptionRequiredAfter = subscriptionRequriedDates.sort().shift();
+      ).then((subscriptionRequiredDates) => {
+        this._subscriptionRequiredAfter = subscriptionRequiredDates.sort().shift();
+        this.trigger();
       }),
     ]).catch((err) => {
       console.error(`Unable to refresh IdentityStore status: ${err.message}`)
@@ -161,8 +162,7 @@ class IdentityStore extends NylasStore {
 
   fetchSubscriptionRequiredDate = (account) => {
     return this.fetchPath(`/n1/account/${account.id}`).then((json) => {
-      const date = json.subscription_required_after ? new Date(json.subscription_required_after) : null;
-      Promise.resolve(date);
+      return json.subscription_required_after ? new Date(json.subscription_required_after * 1000) : null;
     });
   }
 
@@ -172,7 +172,7 @@ class IdentityStore extends NylasStore {
     }
     return this.fetchPath('/n1/user').then((json) => {
       const nextIdentity = Object.assign({}, this._identity, json);
-      this._onSetNylasIdentity(nextIdentity)
+      this._onSetNylasIdentity(nextIdentity);
     });
   }
 
@@ -206,8 +206,10 @@ class IdentityStore extends NylasStore {
   }
 
   _onSetNylasIdentity = (identity) => {
-    keytar.replacePassword(keytarServiceName, keytarIdentityKey, identity.token);
-    delete identity.token;
+    if (identity.token) {
+      keytar.replacePassword(keytarServiceName, keytarIdentityKey, identity.token);
+      delete identity.token;
+    }
     NylasEnv.config.set(configIdentityKey, identity);
   }
 }
