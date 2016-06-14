@@ -126,20 +126,26 @@ class PGPKeyStore extends NylasStore
           console.warn err
         else
           if km.is_pgp_locked()
-            if passphrase?
-              km.unlock_pgp { passphrase: passphrase }, (err) =>
-                if err
-                  console.warn err
-            else
-              console.error "No passphrase provided, but key is encrypted."
-          # NOTE this only allows for one priv key per address
-          # if it's already there, update, else insert
-          key.key = km
-          key.setTimeout()
-          @getKeybaseData(key)
+            # private key - check passphrase
+            passphrase ?= ""
+            km.unlock_pgp { passphrase: passphrase }, (err) =>
+              if err
+                # decrypt checks all keys, so DON'T open an error dialog
+                console.warn err
+                return
+              else
+                key.key = km
+                key.setTimeout()
+                if callback?
+                  callback(key)
+          else
+            # public key - get keybase data
+            key.key = km
+            key.setTimeout()
+            @getKeybaseData(key)
+            if callback?
+              callback(key)
         @trigger(@)
-        if callback?
-          callback()
     )
 
   getKeybaseData: (identity) =>
@@ -179,7 +185,7 @@ class PGPKeyStore extends NylasStore
     shortName = identity.addresses[0].slice(0, atIndex).concat(suffix)
     NylasEnv.savedState.lastKeybaseDownloadDirectory ?= os.homedir()
     savePath = path.join(NylasEnv.savedState.lastKeybaseDownloadDirectory, shortName)
-    @getKeyContents(key: identity, passphrase: passphrase, callback: ( =>
+    @getKeyContents(key: identity, passphrase: passphrase, callback: ( (identity) =>
       NylasEnv.showSaveDialog({
         title: "Export PGP Key",
         defaultPath: savePath,
@@ -426,14 +432,13 @@ class PGPKeyStore extends NylasStore
           console.warn "Unable to decrypt message."
           @_msgStatus.push({"clientId": message.clientId, "time": Date.now(), "message": "Unable to decrypt message."})
 
-  decryptAttachments: (files) =>
+  decryptAttachments: (identity, files) =>
     # fill our keyring with all possible private keys
     keyring = new pgp.keyring.KeyRing
     # (the unbox function will use the right one)
 
-    for key in @privKeys({timed: true})
-      if key.key?
-        keyring.add_key_manager(key.key)
+    if identity.key?
+      keyring.add_key_manager(identity.key)
 
     FileDownloadStore._fetchAndSaveAll(files).then((filepaths) ->
       # open, decrypt, and resave each of the newly-downloaded files in place
@@ -465,11 +470,10 @@ class PGPKeyStore extends NylasStore
 
             if literalLen == 1
               # success! replace old encrypted file with awesome decrypted file
+              filepath = filepath.slice(0, filepath.length-3).concat("txt")
               fs.writeFile(filepath, literals[0].toBuffer(), (err) =>
                 if err
                   console.warn err
-
-                # TODO mv the file -> remove .asc extension
               )
             else
               console.warn "Attempt to decrypt attachment failed: #{literalLen} literals found, expected 1."
