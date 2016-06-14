@@ -42,6 +42,14 @@ class DecryptMessageButton extends React.Component
       {originRect: popoverTarget, direction: 'down'}
     )
 
+  _onClickDecryptAttachments: (event) =>
+    popoverTarget = event.target.getBoundingClientRect()
+
+    Actions.openPopover(
+      <PassphrasePopover onPopoverDone={ @_decryptAttachmentsPopoverDone } />,
+      {originRect: popoverTarget, direction: 'down'}
+    )
+
   _decryptPopoverDone: (passphrase) =>
     {message} = @props
     for recipient in message.to
@@ -51,31 +59,33 @@ class DecryptMessageButton extends React.Component
       for privateKey in privateKeys
         PGPKeyStore.getKeyContents(key: privateKey, passphrase: passphrase)
 
-  _onDecryptAttachments: =>
-    console.warn("decrypt attachments")
-
-  ###
-  _decryptAttachments: =>
-    @_onClick() # unlock keys
-    PGPKeyStore.decryptAttachments(@state.encryptedAttachments)
-  ###
+  _decryptAttachmentsPopoverDone: (passphrase) =>
+    {message} = @props
+    for recipient in message.to
+      privateKeys = PGPKeyStore.privKeys(address: recipient.email, timed: false)
+      for privateKey in privateKeys
+        PGPKeyStore.getKeyContents(key: privateKey, passphrase: passphrase, callback: (identity) => PGPKeyStore.decryptAttachments(identity, @state.encryptedAttachments))
 
   render: =>
     # TODO inform user of errors/etc. instead of failing without showing it
     if not (@state.wasEncrypted or @state.encryptedAttachments.length > 0)
       return false
 
+    # TODO a message saying "this was decrypted with the key for ___@___.com"
+    title = if @state.isDecrypted then "Message Decrypted" else "Message Encrypted"
+
     decryptBody = false
     if !@state.isDecrypted
       decryptBody = <button title="Decrypt email body" className="btn btn-toolbar" onClick={@_onClickDecrypt} ref="button">Decrypt</button>
 
     decryptAttachments = false
-    ###
     if @state.encryptedAttachments?.length == 1
-      decryptAttachments = <button onClick={ @_decryptAttachments } className="btn btn-toolbar">Decrypt Attachment</button>
+      decryptAttachments = <button onClick={ @_onClickDecryptAttachments } className="btn btn-toolbar">Decrypt Attachment</button>
+      title = "Attachment Encrypted"
     else if @state.encryptedAttachments?.length > 1
-      decryptAttachments = <button onClick={ @_decryptAttachments } className="btn btn-toolbar">Decrypt Attachments</button>
-    ###
+      decryptAttachments = <button onClick={ @_onClickDecryptAttachments } className="btn btn-toolbar">Decrypt Attachments</button>
+      title = "Attachments Encrypted"
+
 
     if decryptAttachments or decryptBody
       decryptionInterface = (<div className="decryption-interface">
@@ -83,14 +93,15 @@ class DecryptMessageButton extends React.Component
         { decryptAttachments }
       </div>)
 
-    # TODO a message saying "this was decrypted with the key for ___@___.com"
-    title = if @state.isDecrypted then "Message Decrypted" else "Message Encrypted"
-
     <div className="keybase-decrypt">
       <div className="line-w-label">
         <div className="border"></div>
-        <div className="title-text">{ title }</div>
-        {decryptionInterface}
+          <div className="decrypt-bar">
+            <div className="title-text">
+              { title }
+            </div>
+            { decryptionInterface }
+          </div>
         <div className="border"></div>
       </div>
     </div>
