@@ -89,8 +89,12 @@ class DecryptMessageButton extends React.Component
     <div className="keybase-decrypt">
       <div className="line-w-label">
         <div className="border"></div>
-        <div className="title-text">{ title }</div>
-        {decryptionInterface}
+          <div className="decrypt-bar">
+            <div className="title-text">
+              { title }
+            </div>
+            { decryptionInterface }
+          </div>
         <div className="border"></div>
       </div>
     </div>
