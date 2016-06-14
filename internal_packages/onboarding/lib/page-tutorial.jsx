@@ -7,7 +7,7 @@ const Steps = [
     id: 'people',
     title: 'Compose with context',
     image: 'feature-people@2x.png',
-    description: "N1 shows you everything about your contacts right inside your inbox. See LinkedIn profiles, Twitter bios, and more.",
+    description: "N1 shows you everything about your contacts right inside your inbox. See LinkedIn profiles, Twitter bios, message history, and more.",
     x: 96.6,
     y: 1.3,
     xDot: 93.5,
@@ -16,9 +16,9 @@ const Steps = [
   {
     seen: false,
     id: 'activity',
-    title: 'Track activity',
+    title: 'Track opens and clicks',
     image: 'feature-activity@2x.png',
-    description: "With activity tracking, you'll know as soon as someone reads your message. Sending to a group? We'll show which recipients opened your email, so you can follow up with precision.",
+    description: "With activity tracking, you’ll know as soon as someone reads your message. Sending to a group? N1 shows you which recipients opened your email so you can follow up with precision.",
     x: 12.8,
     y: 1,
     xDot: 15,
@@ -27,23 +27,23 @@ const Steps = [
   {
     seen: false,
     id: 'snooze',
-    title: 'Time is everything',
+    title: 'Send on your own schedule',
     image: 'feature-snooze@2x.png',
-    description: "Snooze emails to any time that suits you. Schedule emails to be sent at the ideal time. N1 makes it easy to control the fabric of spacetime.",
+    description: "Snooze emails to any time that suits you. Schedule messages to send at the ideal time. N1 makes it easy to control the fabric of spacetime!",
     x: 5.5,
     y: 23.3,
-    xDot: 8,
+    xDot: 10,
     yDot: 25.9,
   },
   {
     seen: false,
     id: 'composer',
-    title: 'Composer Power',
+    title: 'Eliminate hacky extensions',
     image: 'feature-composer@2x.png',
-    description: "Use N1's powerful composer to embed calendar invitations, propose times to meet with recipients, insert templates, and more.",
-    x: 76.6,
+    description: "Embed calendar invitations, propose meeting times, use quick reply templates, send mass emails with mail merge, and more—all directly from N1’s powerful composer.",
+    x: 60.95,
     y: 66,
-    xDot: 74.9,
+    xDot: 60.3,
     yDot: 65.0,
   },
 ];
@@ -126,7 +126,7 @@ export default class TutorialPage extends React.Component {
             </div>
           </div>
           <div className="right">
-            <img src={`nylas://onboarding/assets/${current.image}`} style={{zoom: 0.6, margin: 'auto'}} role="presentation" />
+            <img src={`nylas://onboarding/assets/${current.image}`} style={{zoom: 0.5, margin: 'auto'}} role="presentation" />
             <h2>{current.title}</h2>
             <p>{current.description}</p>
           </div>
