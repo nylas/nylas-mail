@@ -65,6 +65,7 @@ Great starting points for creating your own plugins!
 - [Todoist](https://github.com/anopensourceguy/TodoistN1)
 - [Unsubscribe](https://github.com/colinking/n1-unsubscribe)
 - [Squirt Speed Reader](https://github.com/HarleyKwyn/squirt-reader-N1-plugin/)
+- [Website Launcher](https://github.com/adriangrantdotorg/nylas-n1-background-webpage)—Opens a URL in separate window
 - In Development: [Cypher](https://github.com/mbilker/cypher) (PGP Encryption)
 
 # Running Locally
