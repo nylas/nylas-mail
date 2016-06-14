@@ -1,6 +1,6 @@
 kb = require '../lib/keybase'
 
-describe "keybase lib", ->
+xdescribe "keybase lib", ->
   # TODO stub keybase calls?
   it "should be able to fetch an account by username", ->
     @them = null
