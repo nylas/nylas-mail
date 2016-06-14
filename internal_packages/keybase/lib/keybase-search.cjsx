@@ -41,12 +41,11 @@ class KeybaseInviteButton extends React.Component
       success: (body, response) =>
         @setState({loading: false})
         try
-          {invite_url} = JSON.parse(body)
-          if not invite_url
+          if not (body instanceof Object) or not body.invite_url
             throw new Error("We were unable to retrieve an invitation.")
         catch err
           errorHandler(err)
-        require('electron').shell.openExternal(invite_url)
+        require('electron').shell.openExternal(body.invite_url)
 
   render: =>
     if @state.loading
