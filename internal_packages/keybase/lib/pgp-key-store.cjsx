@@ -7,6 +7,7 @@ pgp = require 'kbpgp'
 _ = require 'underscore'
 path = require 'path'
 fs = require 'fs'
+os = require 'os'
 
 class PGPKeyStore extends NylasStore
 
@@ -174,8 +175,10 @@ class PGPKeyStore extends NylasStore
 
   exportKey: ({identity, passphrase}) =>
     atIndex = identity.addresses[0].indexOf("@")
-    shortName = identity.addresses[0].slice(0, atIndex).concat(".asc")
-    savePath = path.join(NylasEnv.savedState.lastDownloadDirectory, shortName)
+    suffix = if identity.isPriv then "-private.asc" else ".asc"
+    shortName = identity.addresses[0].slice(0, atIndex).concat(suffix)
+    NylasEnv.savedState.lastKeybaseDownloadDirectory ?= os.homedir()
+    savePath = path.join(NylasEnv.savedState.lastKeybaseDownloadDirectory, shortName)
     @getKeyContents(key: identity, passphrase: passphrase, callback: ( =>
       NylasEnv.showSaveDialog({
         title: "Export PGP Key",
@@ -183,6 +186,7 @@ class PGPKeyStore extends NylasStore
       }, (keyPath) =>
         if (!keyPath)
           return
+        NylasEnv.savedState.lastKeybaseDownloadDirectory = keyPath.slice(0, keyPath.length - shortName.length)
         if passphrase?
           identity.key.export_pgp_private {passphrase: passphrase}, (err, pgp_private) =>
             if (err)
@@ -190,14 +194,14 @@ class PGPKeyStore extends NylasStore
             fs.writeFile(keyPath, pgp_private, (err) =>
               if (err)
                 @_displayError(err)
-                shell.showItemInFolder(keyPath)
+              shell.showItemInFolder(keyPath)
             )
         else
           identity.key.export_pgp_public {}, (err, pgp_public) =>
             fs.writeFile(keyPath, pgp_public, (err) =>
               if (err)
                 @_displayError(err)
-                shell.showItemInFolder(keyPath)
+              shell.showItemInFolder(keyPath)
             )
       )
     )
