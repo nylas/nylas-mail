@@ -177,11 +177,6 @@
 }
 
 .keybase-decrypt {
-  .decryption-interface {
-    button {
-      margin-right: 10px;
-    }
-  }
 
   div.line-w-label {
     display: flex;
@@ -189,8 +184,24 @@
     color: rgba(128, 128, 128, 0.5);
   }
 
-  div.title-text {
-    padding: 0 10px;
+  div.decrypt-bar {
+    padding: 5px;
+    border: 1.5px solid rgba(128, 128, 128, 0.5);
+    border-radius: @border-radius-large;
+    align-items: center;
+    display: flex;
+
+    .title-text {
+      flex: 1;
+      margin: auto 0;
+    }
+
+    .decryption-interface {
+      button {
+        margin-left: 5px;
+      }
+    }
+
   }
 
   div.border {
@@ -315,6 +326,10 @@
   input {
     padding: 10px;
     margin-bottom: 10px;
+  }
+
+  .empty {
+    text-align: center;
   }
 
   .loading {

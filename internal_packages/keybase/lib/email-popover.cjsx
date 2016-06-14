@@ -15,15 +15,12 @@ class EmailPopover extends React.Component
     participants = @state
 
     <div className="keybase-import-popover">
-      <span className="title">
-        Associate Emails with Key
-      </span>
       <ParticipantsTextField
         field="to"
         className="keybase-participant-field"
         participants={ participants }
         change={ @_onRecipientFieldChange } />
-      <button className="btn btn-toolbar" onClick={ @_onDone }>Done</button>
+      <button className="btn btn-toolbar" onClick={ @_onDone }>Associate Emails with Key</button>
     </div>
 
   _onRecipientFieldChange: (contacts) =>
