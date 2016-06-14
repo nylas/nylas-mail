@@ -1,5 +1,61 @@
 # N1 Changelog
 
+### 0.4.45 (6/14/16)
+
+- Features:
+  + Nylas Identity: This month we're [launching Nylas Pro](https://nylas.com/blog/nylas-pro/).
+    As an existing user, you'll receive a coupon for your first year free.
+    Create a Nylas ID to continue using N1, and look out for a coupon email!
+
+  + Read Receipts: You can now see which recipients read your emails and clicked
+    links (Gmail and IMAP only!) Click the purple eye on an email, or look in the
+    Activity view for details.
+
+  + Encryption powered by Keybase: Enable the new Encryption plugin to quickly and
+    easily encrypt messages in the composer using public keys found on Keybase.
+
+  + Account Management: A new, refined authentication process makes it easy to
+    link accounts and auto-completes settings for hundreds of email services.
+
+  + QuickSchedule: You can now place “Propose Times” and “Meeting Request”
+    event cards anywhere in your message body.
+
+  + Mail Merge: You can now preview emails as a recipient, drag and drop tokens
+    within the message body, and more. Mail merge is also more robust at sending
+    large sets of emails.
+
+  + Unified “Important” is now displayed in Unified Inbox when one or more Gmail
+    accounts are present.
+
+- Fixes:
+  + A new option allows you to use a 24-hour clock within N1.
+  + A new option allows you to show the total number of messages on the app’s badge icon.
+  + N1 no longer tries to adapt Outlook emoji, fixing a bug where images would become
+    emoji in some cases.
+  + N1 no longer hangs after restarting when it was in the middle of sending an email.
+  + N1 waits longer for Exchange AutoDiscovery to complete (2+ minutes).
+  + When editing a draft queued for sending in the past, times no longer indicate the future.
+  + The Activity view only shows activity from the currently focused email account(s).
+  + A "Window" menu is now present on Linux and Windows so you can open the Developer Tools.
+  + When changing labels, the toasts at the bottom of the window are more succinct.
+  + After switching themes, the next composer opens with the correct theme.
+  + Updates to your accounts no longer cause your selected thread to be de-selected.
+  + The search index no longer contains duplicates in some scenarios, which
+    made it impossible to view search results.
+  + Messages no longer fail to render when using N1 in some specific timezones.
+  + Accented characters are now supported in template names.
+  + A new hotkey (default: z) allows you to Snooze mail with the keyboard.
+  + "Add Folder / Label" is shown in the sidebar when you hover anywhere in a
+    section, making it more discoverable.
+  + Labels / folders shown in the picker are now sorted the way they appear in the sidebar.
+  + Empty state images are now included for important and spam views.
+  + Re-ordering of mail rules now works as expected.
+  + The RPM linux version of N1 now links against the correctly named keyring dependency.
+  + Trying to connect to the Nylas API with a very old cursor no longer results
+    in an infinite loading loop in some scenarios.
+
+
+
 ### 0.4.40 (5/19/16)
 
 - Fixes:

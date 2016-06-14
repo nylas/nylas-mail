@@ -42,7 +42,7 @@ class PreferencesKeybase extends React.Component
         <KeyAdder/>
       </section>
       <section className="keybase">
-        <KeybaseSearch />
+        <KeybaseSearch inPreferences={true} />
         {if @state.pubKeys.length == 0 and @state.privKeys.length == 0 then noKeysMessage else keyManager}
       </section>
     </div>
