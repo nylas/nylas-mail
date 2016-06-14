@@ -121,7 +121,7 @@ class PreferencesIdentity extends React.Component {
     return (
       <div className="row payment-row">
         <div>
-          Your subscription will renew on {new Date(identity.valid_until).toLocaleDateString()}. Enjoy N1!
+          Your subscription will renew on {new Date(identity.valid_until * 1000).toLocaleDateString()}. Enjoy N1!
         </div>
       </div>
     )
