@@ -142,6 +142,7 @@ class IdentityStore extends NylasStore {
         url: `${this.URLRoot}/n1/login-link`,
         qs: qs,
         json: true,
+        timeout: 1500,
         body: {
           next_path: pathWithUtm,
           account_token: this._identity.token,
