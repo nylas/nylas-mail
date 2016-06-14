@@ -216,6 +216,7 @@ class PGPKeyStore extends NylasStore
       fs.unlink(key.keyPath, (err) =>
         if (err)
           @_displayError(err)
+        @_populate()
       )
 
   addAddressToKey: (profile, address) =>
