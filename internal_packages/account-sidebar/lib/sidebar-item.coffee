@@ -7,7 +7,8 @@ _str = require 'underscore.string'
  DestroyCategoryTask,
  CategoryStore,
  Actions,
- Utils} = require 'nylas-exports'
+ Utils,
+ RegExpUtils} = require 'nylas-exports'
 {OutlineViewItem} = require 'nylas-component-kit'
 
 SidebarActions = require './sidebar-actions'
@@ -51,7 +52,19 @@ onEditItem = (item, value) ->
   return if item.deleted is true
   category = item.perspective.category()
   return unless category
-  Actions.queueTask(new SyncbackCategoryTask({category, displayName: value}))
+  re = RegExpUtils.subcategorySplitRegex()
+  match = re.exec(category.displayName)
+  lastMatch = match
+  while match
+    lastMatch = match
+    match = re.exec(category.displayName)
+  if lastMatch
+    newDisplayName = category.displayName.slice(0, lastMatch.index + 1) + value
+  else
+    newDisplayName = value
+  if newDisplayName is category.displayName
+    return
+  Actions.queueTask(new SyncbackCategoryTask({category, displayName: newDisplayName}))
 
 
 class SidebarItem
