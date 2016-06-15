@@ -20,7 +20,7 @@ First, clone and build N1 from source:
     cd N1
     script/bootstrap
 
-Read the [getting started guides](http://nylas.com/N1/docs/).
+Read the [getting started guides](https://nylas.github.io/N1/getting-started/).
 
 See [Windows instructions here](https://github.com/nylas/N1/blob/master/docs/Windows.md)
 

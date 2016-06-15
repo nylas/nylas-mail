@@ -16,7 +16,7 @@ You can download compiled versions of N1 for Windows, Mac OS X, and Linux (.deb)
 
 # Build A Plugin
 
-Plugins lie at the heart of N1 and give it its powerful features. Building your own plugins allows you to integrate the app with other tools, experiment with new workflows, and more. Follow the [Getting Started guide](http://nylas.com/N1/getting-started/) to write your first plugin in five minutes. To create your own theme, go to our [Theme Starter guide](http://github.com/nylas/N1-theme-starter).
+Plugins lie at the heart of N1 and give it its powerful features. Building your own plugins allows you to integrate the app with other tools, experiment with new workflows, and more. Follow the [Getting Started guide](https://nylas.github.io/N1/getting-started/) to write your first plugin in five minutes. To create your own theme, go to our [Theme Starter guide](https://github.com/nylas/N1-theme-starter).
 
 If you would like to run the N1 source and contribute, check out our [contributing
 guide](https://github.com/nylas/N1/blob/master/CONTRIBUTING.md).
@@ -33,7 +33,7 @@ We're working on building a plugin index that makes it super easy to add them to
 
 
 #### Community Themes
-[Create your own theme!](http://github.com/nylas/N1-theme-starter)
+[Create your own theme!](https://github.com/nylas/N1-theme-starter)
 - [Arc Dark](https://github.com/varlesh/Nylas-Arc-Dark-Theme)
 - [Predawn](https://github.com/adambmedia/N1-Predawn)
 - [ElementaryOS](https://github.com/edipox/elementary-nylas)

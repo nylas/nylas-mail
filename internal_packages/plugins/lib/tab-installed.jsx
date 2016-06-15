@@ -70,7 +70,7 @@ class TabInstalled extends React.Component {
         {`You don't have any packages installed in ~/.nylas/dev/packages. `}
         These plugins are only loaded when you run the app with debug flags
         enabled (via the Developer menu).<br /><br />Learn more about building
-        plugins with <a href="https://nylas.com/N1/docs">our docs</a>.
+        plugins with <a href="https://nylas.github.io/N1/docs/">our docs</a>.
       </span>);
       devCTA = (<div className="btn btn-small" onClick={this._onCreatePackage}>Create New Plugin...</div>);
     }
