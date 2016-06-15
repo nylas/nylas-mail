@@ -175,4 +175,8 @@ RegExpUtils =
   n1QuoteStartRegex: ->
     new RegExp(/<\w+[^>]*gmail_quote/i)
 
+  # https://regex101.com/r/jK8cC2/1
+  subcategorySplitRegex: ->
+    /[./\\]/g
+
 module.exports = RegExpUtils
