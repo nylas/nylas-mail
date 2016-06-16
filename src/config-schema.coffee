@@ -70,6 +70,10 @@ module.exports =
             type: 'boolean'
             default: false
             title: "Swipe gesture and backspace / delete move messages to trash"
+          useLongDisplayNames:
+            type: 'boolean'
+            default: false
+            title: "Use full contact names instead of compact"
       sending:
         type: 'object'
         properties:

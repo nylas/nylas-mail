@@ -54,6 +54,7 @@ class MessageItem extends React.Component
 
   _renderCollapsed: =>
     attachmentIcon = []
+    isCompact = not NylasEnv.config.get('core.reading.useLongDisplayNames')
     if Utils.showIconForAttachments(@props.message.files)
       attachmentIcon = <div className="collapsed-attachment"></div>
 
@@ -61,7 +62,7 @@ class MessageItem extends React.Component
       <div className="message-item-white-wrap">
         <div className="message-item-area">
           <div className="collapsed-from">
-            {@props.message.from?[0]?.displayName(compact: true)}
+            {@props.message.from?[0]?.displayName(compact: isCompact)}
           </div>
           <div className="collapsed-snippet">
             {@props.message.snippet}
