@@ -110,8 +110,8 @@ class PreferencesIdentity extends React.Component {
       return (
         <div className="row payment-row">
           <div>
-            Your subscription has been cancelled or your billing information has expired.
-            We've paused your mailboxes! Re-new your subscription to continue using N1.
+            Your subscription has been canceled or your billing information has expired.
+            We've paused your mailboxes! Renew your subscription to continue using N1.
           </div>
           <OpenIdentityPageButton img="ic-upgrade.png" label="Update Subscription" path="/dashboard#subscription" campaign="Renew" source="Preferences" />
         </div>
@@ -121,7 +121,7 @@ class PreferencesIdentity extends React.Component {
     return (
       <div className="row payment-row">
         <div>
-          Your subscription will renew on {new Date(identity.valid_until * 1000).toLocaleDateString()}. Enjoy N1!
+          Your subscription is valid until {new Date(identity.valid_until * 1000).toLocaleDateString()}. Enjoy N1!
         </div>
       </div>
     )
