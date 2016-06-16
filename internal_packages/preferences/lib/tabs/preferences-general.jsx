@@ -29,6 +29,13 @@ const PreferencesGeneral = (props) => {
         config={props.config}
       />
 
+      <ConfigSchemaItem
+        configSchema={props.configSchema.properties.composing}
+        keyName="Composing"
+        keyPath="core.composing"
+        config={props.config}
+      />
+
       <SendingSection config={props.config} configSchema={props.configSchema} />
 
       <ConfigSchemaItem
