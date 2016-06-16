@@ -254,6 +254,13 @@ export default class ComposerView extends React.Component {
       return (
         <a className="quoted-text-control" onClick={this._onToggleQuotedText}>
           <span className="dots">&bull;&bull;&bull;</span>
+          <span className="remove-quoted-text" onClick={this._onRemoveQuotedText}>
+            <RetinaImg
+              title="Remove quoted text"
+              name="image-cancel-button.png"
+              mode={RetinaImg.Mode.ContentPreserve}
+            />
+          </span>
         </a>
       );
     }
@@ -262,6 +269,15 @@ export default class ComposerView extends React.Component {
 
   _onToggleQuotedText = () => {
     this.setState({showQuotedText: !this.state.showQuotedText});
+  }
+
+  _onRemoveQuotedText = (event) => {
+    event.stopPropagation()
+    const {session, draft} = this.props
+    session.changes.add({
+      body: QuotedHTMLTransformer.removeQuotedHTML(draft.body),
+    })
+    this.setState({showQuotedText: false})
   }
 
   _renderFooterRegions() {
