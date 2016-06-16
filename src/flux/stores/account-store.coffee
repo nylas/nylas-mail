@@ -218,6 +218,9 @@ class AccountStore extends NylasStore
   accounts: =>
     @_accounts
 
+  accountIds: =>
+    _.pluck(@_accounts, 'id')
+
   accountsForItems: (items) =>
     accounts = {}
     items.forEach ({accountId}) =>
