@@ -52,10 +52,6 @@ export function activate() {
   });
 }
 
-export function serialize() {
-  return {};
-}
-
 export function deactivate() {
   ComponentRegistry.unregister(ViewOnGithubButton);
 }
