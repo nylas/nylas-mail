@@ -1,0 +1,46 @@
+{
+  "parser": "babel-eslint",
+  "extends": "airbnb",
+  "globals": {
+    "NylasEnv": false,
+    "$n": false,
+    "waitsForPromise": false,
+    "advanceClock": false,
+    "TEST_ACCOUNT_ID": false,
+    "TEST_ACCOUNT_NAME": false,
+    "TEST_ACCOUNT_EMAIL": false,
+    "__base": false
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "jasmine": true
+  },
+  "rules": {
+    "arrow-body-style": "off",
+    "prefer-arrow-callback": ["error", {"allowNamedFunctions": true}],
+    "eqeqeq": ["error", "smart"],
+    "id-length": "off",
+    "object-curly-spacing": "off",
+    "max-len": "off",
+    "new-cap": ["error", {"capIsNew": false}],
+    "no-console": "off",
+    "no-constant-condition": "off",
+    "no-loop-func": "off",
+    "no-shadow": "error",
+    "no-underscore-dangle": "off",
+    "object-shorthand": "off",
+    "quotes": "off",
+    "global-require": "off",
+    "quote-props": ["error", "consistent-as-needed", { "keywords": true }],
+    "no-param-reassign": ["error", { "props": false }],
+    "semi": "off",
+    "import/no-unresolved": ["error", {"ignore": ["nylas-exports", "nylas-component-kit", "electron", "nylas-store", "react-dom/server", "nylas-observables", "windows-shortcuts", "moment-round", "chrono-node", "event-kit", "enzyme"]}],
+    "react/no-multi-comp": "off",
+    "react/prop-types": ["error", {"ignore": ["children"]}],
+    "react/sort-comp": "error"
+  },
+  "settings": {
+    "import/resolver": {"node": {"extensions": [".es6", ".jsx", ".coffee", ".json", ".cjsx", ".js"]}}
+  }
+}

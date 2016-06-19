@@ -1,0 +1,11 @@
+{
+  "storage": {
+    "database": "account-$ACCOUNTID",
+    "username": null,
+    "password": null,
+    "options": {
+      "dialect": "sqlite",
+      "storage": "./account-$ACCOUNTID.sqlite"
+    }
+  }
+}
