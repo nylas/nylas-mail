@@ -1,5 +1,12 @@
 # K2 - Sync Engine Experiment
 
+# Initial Setup
+```
+nvm use 6
+cd core
+npm instal
+```
+
 # Running the API
 
 ```
