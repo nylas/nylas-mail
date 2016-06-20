@@ -65,9 +65,8 @@ class RefreshMailboxesOperation {
 
   run(db, imap) {
     this._db = db;
-    this._imap = imap;
 
-    return imap.getBoxesAsync().then((boxes) => {
+    return imap.getBoxes().then((boxes) => {
       const {Category, sequelize} = this._db;
 
       return sequelize.transaction((transaction) => {

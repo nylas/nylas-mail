@@ -33,6 +33,7 @@ class DatabaseConnectionFactory {
     const sequelize = new Sequelize(accountId, '', '', {
       storage: path.join(STORAGE_DIR, `a-${accountId}.sqlite`),
       dialect: "sqlite",
+      logging: false,
     });
 
     const modelsPath = path.join(__dirname, 'models/account');
@@ -55,6 +56,7 @@ class DatabaseConnectionFactory {
     const sequelize = new Sequelize('shared', '', '', {
       storage: path.join(STORAGE_DIR, 'shared.sqlite'),
       dialect: "sqlite",
+      logging: false,
     });
 
     const modelsPath = path.join(__dirname, 'models/shared');
@@ -72,7 +74,6 @@ class DatabaseConnectionFactory {
     this._pools.shared = this._pools.shared || this._sequelizeForShared();
     return this._pools.shared;
   }
-
 }
 
 module.exports = new DatabaseConnectionFactory()

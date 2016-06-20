@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 module.exports = (sequelize, Sequelize) => {
   const Message = sequelize.define('Message', {
     subject: Sequelize.STRING,
@@ -13,6 +15,9 @@ module.exports = (sequelize, Sequelize) => {
         // is this really a good idea?
         // Message.hasMany(Contact, {as: 'from'})
         Message.hasMany(MessageUID, {as: 'uids'})
+      },
+      hashForHeaders: (headers) => {
+        return crypto.createHash('sha256').update(headers, 'utf8').digest('hex');
       },
     },
   });

@@ -5,7 +5,8 @@
   "main": "app.js",
   "dependencies": {
     "bluebird": "^3.4.1",
-    "imap": "^0.8.17"
+    "imap": "^0.8.17",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {},
   "scripts": {

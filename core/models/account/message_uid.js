@@ -1,6 +1,7 @@
 module.exports = (sequelize, Sequelize) => {
   const MessageUID = sequelize.define('MessageUID', {
     uid: Sequelize.STRING,
+    messageHash: Sequelize.STRING,
     flags: {
       type: Sequelize.STRING,
       get: function get() {
@@ -14,13 +15,12 @@ module.exports = (sequelize, Sequelize) => {
     indexes: [
       {
         unique: true,
-        fields: ['uid', 'MessageId', 'CategoryId']
-      }
+        fields: ['uid', 'CategoryId', 'messageHash'],
+      },
     ],
     classMethods: {
-      associate: ({Category, Message}) => {
+      associate: ({Category}) => {
         MessageUID.belongsTo(Category)
-        MessageUID.belongsTo(Message)
       },
     },
   });
