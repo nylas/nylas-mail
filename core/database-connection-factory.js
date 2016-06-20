@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const fs = require('fs');
 const path = require('path');
+const TransactionLog = require('./transaction-log')
 
 const STORAGE_DIR = path.join(__base, 'storage');
 if (!fs.existsSync(STORAGE_DIR)) {
@@ -68,6 +69,9 @@ class DatabaseConnectionFactory {
 
     db.sequelize = sequelize;
     db.Sequelize = Sequelize;
+
+    const transactionLog = new TransactionLog(db);
+    transactionLog.setupSQLHooks(sequelize)
 
     return sequelize.authenticate().then(() =>
       sequelize.sync()
