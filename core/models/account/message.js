@@ -5,6 +5,7 @@ module.exports = (sequelize, Sequelize) => {
     subject: Sequelize.STRING,
     snippet: Sequelize.STRING,
     body: Sequelize.STRING,
+    hash: Sequelize.STRING,
     headers: Sequelize.STRING,
     date: Sequelize.DATE,
     unread: Sequelize.BOOLEAN,

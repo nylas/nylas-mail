@@ -30,6 +30,9 @@ class DatabaseConnectionFactory {
   }
 
   _sequelizeForAccount(accountId) {
+    if (!accountId) {
+      throw new Error(`You need to pass an accountId to init the database!`)
+    }
     const sequelize = new Sequelize(accountId, '', '', {
       storage: path.join(STORAGE_DIR, `a-${accountId}.sqlite`),
       dialect: "sqlite",
@@ -41,6 +44,7 @@ class DatabaseConnectionFactory {
 
     db.sequelize = sequelize;
     db.Sequelize = Sequelize;
+    db.accountId = accountId;
 
     return sequelize.authenticate().then(() =>
       sequelize.sync()

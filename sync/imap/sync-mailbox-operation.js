@@ -1,4 +1,6 @@
 const _ = require('underscore');
+const { processMessage } = require(`${__base}/message-processor`)
+
 
 class SyncMailboxOperation {
   constructor(category) {
@@ -68,14 +70,7 @@ class SyncMailboxOperation {
       flags: attributes.flags,
       uid: attributes.uid,
     });
-
-    return Message.create({
-      unread: attributes.flags.includes('\\Unseen'),
-      starred: attributes.flags.includes('\\Flagged'),
-      date: attributes.date,
-      headers: headers,
-      body: body,
-    });
+    return processMessage({accountId, attributes, headers, body, hash})
   }
 
   _openMailboxAndCheckValidity() {

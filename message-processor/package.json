@@ -1,0 +1,11 @@
+{
+  "name": "message-processor",
+  "version": "1.0.0",
+  "description": "Message processing pipeline",
+  "main": "y",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Juan Tejada <juans.tejada@gmail.com>",
+  "license": "ISC"
+}
