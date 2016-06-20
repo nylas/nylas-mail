@@ -47,6 +47,9 @@ class DatabaseConnectionFactory {
     db.Sequelize = Sequelize;
     db.accountId = accountId;
 
+    const transactionLog = new TransactionLog(db);
+    transactionLog.setupSQLHooks(sequelize)
+
     return sequelize.authenticate().then(() =>
       sequelize.sync()
     ).thenReturn(db);

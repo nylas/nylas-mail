@@ -60,7 +60,7 @@ class SyncMailboxOperation {
   }
 
   _processMessage(attributes, headers, body) {
-    const {Message, MessageUID} = this._db;
+    const {Message, MessageUID, accountId} = this._db;
 
     const hash = Message.hashForHeaders(headers);
 
