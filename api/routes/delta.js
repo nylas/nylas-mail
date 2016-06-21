@@ -1,29 +1,23 @@
 const DeltaStreamQueue = require(`${__base}/core/delta-stream-queue`);
 
+function findParams(queryParams = {}) {
+  const since = new Date(queryParams.since || Date.now())
+  return {where: {createdAt: {$gte: since}}}
+}
+
 module.exports = (server) => {
   server.route({
     method: 'GET',
     path: '/delta/streaming',
-    config: {
-      description: 'Returns deltas since timestamp then streams deltas',
-      notes: 'Returns deltas since timestamp then streams deltas',
-      tags: ['threads'],
-      validate: {
-        params: {
-        },
-      },
-      response: {
-        schema: null,
-      },
-    },
     handler: (request, reply) => {
       const outputStream = require('stream').Readable();
       outputStream._read = () => { return };
-      const pushMsg = (msg = "\n") => outputStream.push(msg)
+      const pushMsg = (msg = "\n") => outputStream.push(msg);
 
       request.getAccountDatabase()
       .then((db) => {
-        return db.Transaction.findAll().then((transactions = []) => {
+        return db.Transaction.findAll(findParams(request.query))
+        .then((transactions = []) => {
           transactions.map(JSON.stringify).forEach(pushMsg);
           DeltaStreamQueue.subscribe(db.accountId, pushMsg)
         })
