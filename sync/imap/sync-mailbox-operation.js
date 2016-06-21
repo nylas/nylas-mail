@@ -1,6 +1,7 @@
-const _ = require('underscore');
-const { processMessage } = require(`${__base}/message-processor`)
+const {processMessage} = require(`${__base}/message-processor`);
+const {Capabilities} = require('./connection.js');
 
+const MessageFlagAttributes = ['id', 'CategoryUID', 'unread', 'starred']
 
 class SyncMailboxOperation {
   constructor(category, options) {
@@ -15,79 +16,120 @@ class SyncMailboxOperation {
     return `SyncMailboxOperation (${this._category.name} - ${this._category.id})\n  Options: ${JSON.stringify(this._options)}`;
   }
 
-  _getLowerBoundUID() {
-    const {count} = this._options.limit;
+  _getLowerBoundUID(count) {
     return count ? Math.max(1, this._box.uidnext - count) : 1;
   }
 
   _recoverFromUIDInvalidity() {
-    // UID invalidity means the server has asked us  to delete all the UIDs for
+    // UID invalidity means the server has asked us to delete all the UIDs for
     // this folder and start from scratch. We let a garbage collector clean up
     // actual Messages, because we may just get new UIDs pointing to the same
     // messages.
-    const {MessageUID} = this._db;
+    const {Message} = this._db;
     return this._db.sequelize.transaction((transaction) =>
-      MessageUID.destroy({
+      Message.update({
+        CategoryUID: null,
+        CategoryId: null,
+      }, {
+        transaction: transaction,
         where: {
           CategoryId: this._category.id,
         },
-      }, {transaction})
+      })
     )
   }
 
-  _removeDeletedMessageUIDs(removedUIDs) {
-    const {MessageUID} = this._db;
+  _createAndUpdateMessages(remoteUIDAttributes, localMessageAttributes) {
+    const messageAttributesMap = {};
+    for (const msg of localMessageAttributes) {
+      messageAttributesMap[msg.CategoryUID] = msg;
+    }
+
+    const createdUIDs = [];
+    const changedMessages = [];
+
+    Object.keys(remoteUIDAttributes).forEach((uid) => {
+      const msg = messageAttributesMap[uid];
+      const flags = remoteUIDAttributes[uid].flags;
+
+      if (!msg) {
+        createdUIDs.push(uid);
+        return;
+      }
+
+      const unread = !flags.includes('\\Seen');
+      const starred = flags.includes('\\Flagged');
+
+      if (msg.unread !== unread || msg.starred !== starred) {
+        msg.unread = unread;
+        msg.starred = starred;
+        changedMessages.push(msg);
+      }
+    })
+
+    console.log(` -- found ${createdUIDs.length} new messages`)
+    console.log(` -- found ${changedMessages.length} flag changes`)
+
+    return Promise.props({
+      creates: this._imap.fetchMessages(createdUIDs, this._processMessage.bind(this)),
+      updates: this._db.sequelize.transaction((transaction) =>
+        Promise.all(changedMessages.map(m => m.save({
+          fields: MessageFlagAttributes,
+          transaction,
+        })))
+      ),
+    })
+  }
+
+  _removeDeletedMessages(remoteUIDAttributes, localMessageAttributes) {
+    const {Message} = this._db;
+
+    const removedUIDs = localMessageAttributes
+      .filter(msg => !remoteUIDAttributes[msg.CategoryUID])
+      .map(msg => msg.CategoryUID)
+
+    console.log(` -- found ${removedUIDs.length} messages no longer in the folder`)
 
     if (removedUIDs.length === 0) {
       return Promise.resolve();
     }
     return this._db.sequelize.transaction((transaction) =>
-       MessageUID.destroy({
+       Message.update({
+         CategoryUID: null,
+         CategoryId: null,
+       }, {
+         transaction,
          where: {
            CategoryId: this._category.id,
-           uid: removedUIDs,
+           CategoryUID: removedUIDs,
          },
-       }, {transaction})
+       })
     );
   }
 
-  _deltasInUIDsAndFlags(latestUIDAttributes, knownUIDs) {
-    const removedUIDs = [];
-    const neededUIDs = [];
-
-    for (const known of knownUIDs) {
-      if (!latestUIDAttributes[known.uid]) {
-        removedUIDs.push(known.uid);
-        continue;
-      }
-      if (!_.isEqual(latestUIDAttributes[known.uid].flags, known.flags)) {
-        known.flags = latestUIDAttributes[known.uid].flags;
-        neededUIDs.push(known.uid);
-      }
-
-      // delete entries from the attributes hash as we go. At the end,
-      // remaining keys will be the ones that we don't have locally.
-      delete latestUIDAttributes[known.uid];
-    }
-
-    return {
-      neededUIDs: neededUIDs.concat(Object.keys(latestUIDAttributes)),
-      removedUIDs: removedUIDs,
-    };
-  }
-
   _processMessage(attributes, headers, body) {
-    const {Message, MessageUID, accountId} = this._db;
+    const {Message, accountId} = this._db;
 
     const hash = Message.hashForHeaders(headers);
-
-    MessageUID.create({
-      messageHash: hash,
+    const values = {
+      hash: hash,
+      rawHeaders: headers,
+      rawBody: body,
+      unread: !attributes.flags.includes('\\Seen'),
+      starred: attributes.flags.includes('\\Flagged'),
+      date: attributes.date,
+      CategoryUID: attributes.uid,
       CategoryId: this._category.id,
-      flags: attributes.flags,
-      uid: attributes.uid,
-    });
-    return processMessage({accountId, attributes, headers, body, hash})
+    }
+    Message.find({where: {hash}}).then((existing) => {
+      if (existing) {
+        Object.assign(existing, values);
+        return existing.save();
+      }
+      return Message.create(values).then((created) => {
+        processMessage({accountId, messageId: created.id, messageBody: body})
+      })
+    })
   }
 
   _openMailboxAndEnsureValidity() {
@@ -106,47 +148,94 @@ class SyncMailboxOperation {
 
   _fetchUnseenMessages() {
     const savedSyncState = this._category.syncState;
-    const currentSyncState = {
+    const boxSyncState = {
       uidnext: this._box.uidnext,
       uidvalidity: this._box.uidvalidity,
     }
 
-    let range = `${this._getLowerBoundUID()}:*`;
+    const {limit} = this._options;
+    let range = `${this._getLowerBoundUID(limit)}:*`;
+
+    console.log(` - fetching unseen messages ${range}`)
+
     if (savedSyncState.uidnext) {
-      if (savedSyncState.uidnext === currentSyncState.uidnext) {
-        console.log(" --- nothing more to fetch")
+      if (savedSyncState.uidnext === boxSyncState.uidnext) {
+        console.log(" --- uidnext matches, nothing more to fetch")
         return Promise.resolve();
       }
       range = `${savedSyncState.uidnext}:*`
     }
 
-    console.log(` - fetching unseen messages ${range}`)
-
     return this._imap.fetch(range, this._processMessage.bind(this)).then(() => {
-      this._category.syncState = currentSyncState;
+      console.log(` - finished fetching unseen messages`);
+      this._category.syncState = Object.assign(this._category.syncState, {
+        uidnext: boxSyncState.uidnext,
+        uidvalidity: boxSyncState.uidvalidity,
+        timeFetchedUnseen: Date.now(),
+      });
       return this._category.save();
     });
   }
 
   _fetchChangesToMessages() {
-    const {MessageUID} = this._db;
-    const range = `${this._getLowerBoundUID()}:*`;
+    const {highestmodseq, timeDeepScan} = this._category.syncState;
+    const nextHighestmodseq = this._box.highestmodseq;
+
+    const {Message} = this._db;
+    const {limit} = this._options;
+    const range = `${this._getLowerBoundUID(limit)}:*`;
 
     console.log(` - fetching changes to messages ${range}`)
 
-    return this._imap.fetchUIDAttributes(range).then((latestUIDAttributes) => {
-      return MessageUID.findAll({where: {CategoryId: this._category.id}}).then((knownUIDs) => {
-        const {removedUIDs, neededUIDs} = this._deltasInUIDsAndFlags(latestUIDAttributes, knownUIDs);
+    const shouldRunDeepScan = Date.now() - (timeDeepScan || 0) > this._options.deepFolderScan
 
-        console.log(` - found changed / new UIDs: ${neededUIDs.join(', ') || 'none'}`)
-        console.log(` - found removed UIDs: ${removedUIDs.join(', ') || 'none'}`)
+    if (shouldRunDeepScan) {
+      return this._imap.fetchUIDAttributes(range).then((remoteUIDAttributes) =>
+        Message.findAll({
+          where: {CategoryId: this._category.id},
+          attributes: MessageFlagAttributes,
+        }).then((localMessageAttributes) =>
+          Promise.props({
+            upserts: this._createAndUpdateMessages(remoteUIDAttributes, localMessageAttributes),
+            deletes: this._removeDeletedMessages(remoteUIDAttributes, localMessageAttributes),
+          })
+        ).then(() => {
+          this._category.syncState = Object.assign(this._category.syncState, {
+            highestmodseq: nextHighestmodseq,
+            timeDeepScan: Date.now(),
+            timeShallowScan: Date.now(),
+          });
+          return this._category.save();
+        })
+      );
+    }
 
-        return Promise.props({
-          deletes: this._removeDeletedMessageUIDs(removedUIDs),
-          changes: this._imap.fetchMessages(neededUIDs, this._processMessage.bind(this)),
+    let shallowFetch = null;
+
+    if (this._imap.serverSupports(Capabilities.Condstore)) {
+      if (nextHighestmodseq === highestmodseq) {
+        console.log(" --- highestmodseq matches, nothing more to fetch")
+        return Promise.resolve();
+      }
+      shallowFetch = this._imap.fetchUIDAttributes(range, {changedsince: highestmodseq});
+    } else {
+      shallowFetch = this._imap.fetchUIDAttributes(`${this._getLowerBoundUID(1000)}:*`);
+    }
+
+    return shallowFetch.then((remoteUIDAttributes) =>
+      Message.findAll({
+        where: {CategoryId: this._category.id},
+        attributes: MessageFlagAttributes,
+      }).then((localMessageAttributes) =>
+        this._createAndUpdateMessages(remoteUIDAttributes, localMessageAttributes)
+      ).then(() => {
+        this._category.syncState = Object.assign(this._category.syncState, {
+          highestmodseq: nextHighestmodseq,
+          timeShallowScan: Date.now(),
         });
-      });
-    });
+        return this._category.save();
+      })
+    )
   }
 
   run(db, imap) {

@@ -1,5 +1,4 @@
 const fs = require('fs')
-const path = require('path')
 
 const processors = fs.readdirSync(__dirname)
 .filter((file) => file !== 'index.js')

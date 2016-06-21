@@ -8,11 +8,9 @@ const SyncMailboxOperation = require('./imap/sync-mailbox-operation')
 //     after: Date.now() - 7 * 24 * 60 * 60 * 1000,
 //     count: 10000,
 //   },
-//   folderRecentSync: {
-//     every: 60 * 1000,
-//   },
-//   folderDeepSync: {
-//     every: 5 * 60 * 1000,
+//   interval: 60 * 1000,
+//   folderSyncOptions: {
+//     deepFolderScan: 5 * 60 * 1000,
 //   },
 //   expiration: Date.now() + 60 * 60 * 1000,
 // }
@@ -23,8 +21,7 @@ class SyncWorker {
     this._db = db;
     this._conn = null;
     this._account = account;
-    this._lastFolderRecentSync = null;
-    this._lastFolderDeepSync = null;
+    this._lastSyncTime = null;
 
     this._syncTimer = null;
     this._expirationTimer = null;
@@ -63,46 +60,18 @@ class SyncWorker {
   }
 
   onConnectionIdleUpdate() {
-    this.getInboxCategory((inboxCategory) => {
-      this._conn.runOperation(new SyncMailboxOperation(inboxCategory, {
-        scanAllUIDs: false,
-        limit: this.account.syncPolicy.options,
-      }));
-    });
+    this.syncNow();
   }
 
   getInboxCategory() {
     return this._db.Category.find({where: {role: 'inbox'}})
   }
 
-  getCurrentFolderSyncOptionsForPolicy() {
-    const {folderRecentSync, folderDeepSync, limit} = this._account.syncPolicy;
-
-    if (Date.now() - this._lastFolderDeepSync > folderDeepSync.every) {
-      return {
-        mode: 'deep',
-        options: {
-          scanAllUIDs: true,
-          limit: limit,
-        },
-      };
-    }
-    if (Date.now() - this._lastFolderRecentSync > folderRecentSync.every) {
-      return {
-        mode: 'shallow',
-        options: {
-          scanAllUIDs: false,
-          limit: limit,
-        },
-      };
-    }
-    return {
-      mode: 'none',
-    };
-  }
-
   ensureConnection() {
-    if (!this._conn) {
+    if (this._conn) {
+      return this._conn.connect();
+    }
+    return new Promise((resolve) => {
       const conn = new IMAPConnection(this._db, {
         user: 'inboxapptest1@fastmail.fm',
         password: 'trar2e',
@@ -120,9 +89,8 @@ class SyncWorker {
       });
 
       this._conn = conn;
-    }
-
-    return this._conn.connect();
+      resolve(this._conn.connect());
+    });
   }
 
   queueOperationsForUpdates() {
@@ -132,26 +100,22 @@ class SyncWorker {
 
   queueOperationsForFolderSyncs() {
     const {Category} = this._db;
-    const {mode, options} = this.getCurrentFolderSyncOptionsForPolicy();
-
-    if (mode === 'none') {
-      return Promise.resolve();
-    }
+    const {folderSyncOptions} = this._account.syncPolicy;
 
     return Category.findAll().then((categories) => {
-      const priority = ['inbox', 'drafts', 'sent'];
-      const sorted = categories.sort((a, b) =>
-        priority.indexOf(b.role) - priority.indexOf(a.role)
+      const priority = ['inbox', 'drafts', 'sent'].reverse();
+      const categoriesToSync = categories.sort((a, b) =>
+        (priority.indexOf(a.role) - priority.indexOf(b.role)) * -1
       )
-      return Promise.all(sorted.map((cat) =>
-        this._conn.runOperation(new SyncMailboxOperation(cat, options))
+
+      // const filtered = sorted.filter(cat =>
+      //   ['[Gmail]/All Mail', '[Gmail]/Trash', '[Gmail]/Spam'].includes(cat.name)
+      // )
+
+      return Promise.all(categoriesToSync.map((cat) =>
+        this._conn.runOperation(new SyncMailboxOperation(cat, folderSyncOptions))
       )).then(() => {
-        if (mode === 'deep') {
-          this._lastFolderDeepSync = Date.now();
-          this._lastFolderRecentSync = Date.now();
-        } else if (mode === 'shallow') {
-          this._lastFolderRecentSync = Date.now();
-        }
+        this._lastSyncTime = Date.now();
       });
     });
   }
@@ -180,22 +144,15 @@ class SyncWorker {
   }
 
   scheduleNextSync() {
-    const {folderRecentSync, folderDeepSync} = this._account.syncPolicy;
+    const {interval} = this._account.syncPolicy;
 
-    let target = Number.MAX_SAFE_INTEGER;
-
-    if (folderRecentSync) {
-      target = Math.min(target, this._lastFolderRecentSync + folderRecentSync.every);
+    if (interval) {
+      const target = this._lastSyncTime + interval;
+      console.log(`Next sync scheduled for ${new Date(target).toLocaleString()}`);
+      this._syncTimer = setTimeout(() => {
+        this.syncNow();
+      }, target - Date.now());
     }
-    if (folderDeepSync) {
-      target = Math.min(target, this._lastFolderDeepSync + folderDeepSync.every);
-    }
-
-    console.log(`Next sync scheduled for ${new Date(target).toLocaleString()}`);
-
-    this._syncTimer = setTimeout(() => {
-      this.syncNow();
-    }, target - Date.now());
   }
 }
 

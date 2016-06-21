@@ -8,7 +8,8 @@
     "imap": "^0.8.17",
     "redis": "2.x.x",
     "redis-server": "0.x.x",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "xoauth2": "^1.1.0"
   },
   "devDependencies": {},
   "scripts": {

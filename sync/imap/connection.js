@@ -11,13 +11,13 @@ const Capabilities = {
 }
 
 class IMAPConnection extends EventEmitter {
+
   constructor(db, settings) {
     super();
 
     this._db = db;
     this._queue = [];
     this._current = null;
-    this._capabilities = [];
     this._imap = Promise.promisifyAll(new Imap(settings));
 
     this._imap.once('error', (err) => {
@@ -50,23 +50,14 @@ class IMAPConnection extends EventEmitter {
     this._imap.on('update', () => this.emit('update'))
   }
 
-  populateCapabilities() {
-    this._capabilities = [];
-    for (const key of Object.keys(Capabilities)) {
-      const val = Capabilities[key];
-      if (this._imap.serverSupports(val)) {
-        this._capabilities.push(val);
-      }
-    }
+  serverSupports(cap) {
+    this._imap.serverSupports(cap);
   }
 
   connect() {
     if (!this._connectPromise) {
       this._connectPromise = new Promise((resolve) => {
-        this._imap.once('ready', () => {
-          this.populateCapabilities();
-          resolve();
-        });
+        this._imap.once('ready', resolve);
         this._imap.connect();
       });
     }
@@ -86,32 +77,33 @@ class IMAPConnection extends EventEmitter {
     return this._imap.getBoxesAsync();
   }
 
-  fetch(range, messageReadyCallback) {
+  fetch(range, messageCallback) {
     return new Promise((resolve, reject) => {
       const f = this._imap.fetch(range, {
         bodies: ['HEADER', 'TEXT'],
       });
-      f.on('message', (msg, uid) =>
-        this._receiveMessage(msg, uid, messageReadyCallback));
+      f.on('message', (msg) =>
+        this._receiveMessage(msg, messageCallback)
+      )
       f.once('error', reject);
       f.once('end', resolve);
     });
   }
 
-  fetchMessages(uids, messageReadyCallback) {
+  fetchMessages(uids, messageCallback) {
     if (uids.length === 0) {
       return Promise.resolve();
     }
-    return this.fetch(uids, messageReadyCallback);
+    return this.fetch(uids, messageCallback);
   }
 
   fetchUIDAttributes(range) {
     return new Promise((resolve, reject) => {
       const latestUIDAttributes = {};
       const f = this._imap.fetch(range, {});
-      f.on('message', (msg, uid) => {
+      f.on('message', (msg) => {
         msg.on('attributes', (attrs) => {
-          latestUIDAttributes[uid] = attrs;
+          latestUIDAttributes[attrs.uid] = attrs;
         })
       });
       f.once('error', reject);
@@ -121,7 +113,7 @@ class IMAPConnection extends EventEmitter {
     });
   }
 
-  _receiveMessage(msg, uid, callback) {
+  _receiveMessage(msg, callback) {
     let attributes = null;
     let body = null;
     let headers = null;
@@ -146,7 +138,7 @@ class IMAPConnection extends EventEmitter {
       });
     });
     msg.once('end', () => {
-      callback(attributes, headers, body, uid);
+      callback(attributes, headers, body);
     });
   }
 
@@ -191,5 +183,7 @@ class IMAPConnection extends EventEmitter {
     });
   }
 }
+
+IMAPConnection.Capabilities = Capabilities;
 
 module.exports = IMAPConnection

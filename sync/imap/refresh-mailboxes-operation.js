@@ -9,6 +9,9 @@ class RefreshMailboxesOperation {
         '\\Sent': 'sent',
         '\\Drafts': 'drafts',
         '\\Junk': 'junk',
+        '\\Trash': 'trash',
+        '\\All': 'all',
+        '\\Important': 'important',
         '\\Flagged': 'flagged',
       }[attrib];
       if (role) {

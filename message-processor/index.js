@@ -1,17 +1,11 @@
 const DatabaseConnectionFactory = require(`${__base}/core/database-connection-factory`)
-const processors = require('./processors')
+const {processors} = require('./processors')
 
-function createMessage({headers, body, attributes, hash, db}) {
-  const {Message} = db
-  return Message.create({
-    hash: hash,
-    unread: attributes.flags.includes('\\Unseen'),
-    starred: attributes.flags.includes('\\Flagged'),
-    date: attributes.date,
-    headers: headers,
-    body: body,
-  })
-}
+// List of the attributes of Message that the processor should b allowed to change.
+// The message may move between folders, get starred, etc. while it's being
+// processed, and it shouldn't overwrite changes to those fields.
+const MessageAttributes = ['body', 'processed']
+const MessageProcessorVersion = 1;
 
 function runPipeline(message) {
   return processors.reduce((prevPromise, processor) => {
@@ -19,12 +13,24 @@ function runPipeline(message) {
   }, Promise.resolve(message))
 }
 
-function processMessage({headers, body, attributes, hash, accountId}) {
-  return DatabaseConnectionFactory.forAccount(accountId)
-  .then((db) => createMessage({headers, body, attributes, hash, db}))
-  .then((message) => runPipeline(message))
-  .then((processedMessage) => processedMessage)
-  .catch((err) => console.log('oh no'))
+function processMessage({messageId, accountId}) {
+  DatabaseConnectionFactory.forAccount(accountId).then((db) =>
+    db.Message.find({where: {id: messageId}}).then((message) =>
+      runPipeline(message)
+      .then((transformedMessage) => {
+        transformedMessage.processed = MessageProcessorVersion;
+        return transformedMessage.save({
+          fields: MessageAttributes,
+        });
+      })
+      .catch((err) =>
+        console.error(`MessageProcessor Failed: ${err}`)
+      )
+    )
+    .catch((err) =>
+      console.error(`MessageProcessor: Couldn't find message id ${messageId} in accountId: ${accountId}: ${err}`)
+    )
+  )
 }
 
 module.exports = {

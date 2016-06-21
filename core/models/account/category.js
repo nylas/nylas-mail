@@ -14,8 +14,8 @@ module.exports = (sequelize, Sequelize) => {
     },
   }, {
     classMethods: {
-      associate: ({MessageUID}) => {
-        Category.hasMany(MessageUID)
+      associate: ({Message}) => {
+        Category.hasMany(Message)
       },
     },
   });
