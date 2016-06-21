@@ -3,6 +3,7 @@ PGPKeyStore = require './pgp-key-store'
 {remote} = require 'electron'
 PassphrasePopover = require './passphrase-popover'
 pgp = require 'kbpgp'
+_ = require 'underscore'
 
 class DecryptMessageButton extends React.Component
 
@@ -46,7 +47,7 @@ class DecryptMessageButton extends React.Component
     else
       popoverTarget = event.target.getBoundingClientRect()
       Actions.openPopover(
-        <PassphrasePopover onPopoverDone={ @_decryptPopoverDone } />,
+        <PassphrasePopover addresses={_.pluck(message.to, "email")} onPopoverDone={ @decryptPopoverDone } />,
         {originRect: popoverTarget, direction: 'down'}
       )
 
@@ -65,11 +66,11 @@ class DecryptMessageButton extends React.Component
     else
       popoverTarget = event.target.getBoundingClientRect()
       Actions.openPopover(
-        <PassphrasePopover onPopoverDone={ @_decryptAttachmentsPopoverDone } />,
+        <PassphrasePopover addresses={_.pluck(message.to, "email")} onPopoverDone={ @decryptAttachmentsPopoverDone } />,
         {originRect: popoverTarget, direction: 'down'}
       )
 
-  _decryptPopoverDone: (passphrase) =>
+  decryptPopoverDone: (passphrase) =>
     {message} = @props
     for recipient in message.to
       # right now, just try to unlock all possible keys
@@ -78,7 +79,7 @@ class DecryptMessageButton extends React.Component
       for privateKey in privateKeys
         PGPKeyStore.getKeyContents(key: privateKey, passphrase: passphrase)
 
-  _decryptAttachmentsPopoverDone: (passphrase) =>
+  decryptAttachmentsPopoverDone: (passphrase) =>
     {message} = @props
     for recipient in message.to
       privateKeys = PGPKeyStore.privKeys(address: recipient.email, timed: false)
