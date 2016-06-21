@@ -14,15 +14,16 @@ class DeltaStreamQueue {
     return `delta-${accountId}`
   }
 
-  hasSubscribers(accountId) {
-    return this.client.existsAsync(this.key(accountId))
+  notify(accountId, data) {
+    this.client.publish(this.key(accountId), JSON.stringify(data))
   }
 
-  notify(accountId, data) {
-    return this.hasSubscribers(accountId).then((hasSubscribers) => {
-      if (!hasSubscribers) return Promise.resolve()
-      return this.client.rpushAsync(this.key(accountId), JSON.stringify(data))
+  subscribe(accountId, callback) {
+    this.client.on("message", (channel, message) => {
+      if (channel !== this.key(accountId)) { return }
+      callback(message)
     })
+    this.client.subscribe(this.key(accountId))
   }
 }
 
