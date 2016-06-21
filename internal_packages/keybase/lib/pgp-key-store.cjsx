@@ -155,11 +155,14 @@ class PGPKeyStore extends NylasStore
       @getKeyContents(key: identity)
     else
       fingerprint = identity.fingerprint()
-      kb.getUser(fingerprint, 'key_fingerprint', (err, user) =>
-        if user?.length == 1
-          identity.keybase_profile = user[0]
+      if fingerprint?
+        kb.getUser(fingerprint, 'key_fingerprint', (err, user) =>
+          if err
+            console.error(err)
+          if user?.length == 1
+            identity.keybase_profile = user[0]
           @trigger(@)
-      )
+        )
 
   saveNewKey: (identity, contents) =>
     # Validate the email address(es), then write to file.
@@ -226,7 +229,7 @@ class PGPKeyStore extends NylasStore
       )
 
   addAddressToKey: (profile, address) =>
-    if @validAddress(address, true)
+    if @validAddress(address, !profile.isPriv)
       oldPath = profile.keyPath
       profile.addresses.push(address)
       fs.rename(oldPath, profile.keyPath, (err) =>

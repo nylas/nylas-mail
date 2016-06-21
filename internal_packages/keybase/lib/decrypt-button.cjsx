@@ -1,5 +1,6 @@
 {MessageStore, React, ReactDOM, FileDownloadStore, MessageBodyProcessor, Actions} = require 'nylas-exports'
 PGPKeyStore = require './pgp-key-store'
+{remote} = require 'electron'
 PassphrasePopover = require './passphrase-popover'
 pgp = require 'kbpgp'
 
@@ -35,20 +36,38 @@ class DecryptMessageButton extends React.Component
       PGPKeyStore.decrypt(@props.message)
 
   _onClickDecrypt: (event) =>
-    popoverTarget = event.target.getBoundingClientRect()
+    {message} = @props
+    numKeys = 0
+    for recipient in message.to
+      numKeys = numKeys + PGPKeyStore.privKeys(address: recipient.email, timed: false).length
+    if numKeys < 1
+      @_displayError("No PGP private keys saved for recipient email address. Go to the Encryption
+        Preferences page to add a private key.")
+    else
+      popoverTarget = event.target.getBoundingClientRect()
+      Actions.openPopover(
+        <PassphrasePopover onPopoverDone={ @_decryptPopoverDone } />,
+        {originRect: popoverTarget, direction: 'down'}
+      )
 
-    Actions.openPopover(
-      <PassphrasePopover onPopoverDone={ @_decryptPopoverDone } />,
-      {originRect: popoverTarget, direction: 'down'}
-    )
+  _displayError: (err) ->
+    dialog = remote.dialog
+    dialog.showErrorBox('Decryption Error', err.toString())
 
   _onClickDecryptAttachments: (event) =>
-    popoverTarget = event.target.getBoundingClientRect()
-
-    Actions.openPopover(
-      <PassphrasePopover onPopoverDone={ @_decryptAttachmentsPopoverDone } />,
-      {originRect: popoverTarget, direction: 'down'}
-    )
+    {message} = @props
+    numKeys = 0
+    for recipient in message.to
+      numKeys = numKeys + PGPKeyStore.privKeys(address: recipient.email, timed: false).length
+    if numKeys < 1
+      @_displayError("No PGP private keys saved for recipient email address. Go to the Encryption
+        Preferences page to add a private key.")
+    else
+      popoverTarget = event.target.getBoundingClientRect()
+      Actions.openPopover(
+        <PassphrasePopover onPopoverDone={ @_decryptAttachmentsPopoverDone } />,
+        {originRect: popoverTarget, direction: 'down'}
+      )
 
   _decryptPopoverDone: (passphrase) =>
     {message} = @props
