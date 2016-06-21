@@ -20,16 +20,6 @@ class IMAPConnection extends EventEmitter {
     this._capabilities = [];
     this._imap = Promise.promisifyAll(new Imap(settings));
 
-    this._imap.once('ready', () => {
-      for (const key of Object.keys(Capabilities)) {
-        const val = Capabilities[key];
-        if (this._imap.serverSupports(val)) {
-          this._capabilities.push(val);
-        }
-      }
-      this.emit('ready');
-    });
-
     this._imap.once('error', (err) => {
       console.log(err);
     });
@@ -58,8 +48,34 @@ class IMAPConnection extends EventEmitter {
 
     // Emitted when message metadata (e.g. flags) changes externally.
     this._imap.on('update', () => this.emit('update'))
+  }
 
-    this._imap.connect();
+  populateCapabilities() {
+    this._capabilities = [];
+    for (const key of Object.keys(Capabilities)) {
+      const val = Capabilities[key];
+      if (this._imap.serverSupports(val)) {
+        this._capabilities.push(val);
+      }
+    }
+  }
+
+  connect() {
+    if (!this._connectPromise) {
+      this._connectPromise = new Promise((resolve) => {
+        this._imap.once('ready', () => {
+          this.populateCapabilities();
+          resolve();
+        });
+        this._imap.connect();
+      });
+    }
+    return this._connectPromise;
+  }
+
+  end() {
+    this._queue = [];
+    this._imap.end();
   }
 
   openBox(box) {

@@ -3,24 +3,36 @@ const { processMessage } = require(`${__base}/message-processor`)
 
 
 class SyncMailboxOperation {
-  constructor(category) {
+  constructor(category, options) {
     this._category = category;
+    this._options = options;
     if (!this._category) {
       throw new Error("SyncMailboxOperation requires a category")
     }
   }
 
   description() {
-    return `SyncMailboxOperation (${this._category.name} - ${this._category.id})`;
+    return `SyncMailboxOperation (${this._category.name} - ${this._category.id})\n  Options: ${JSON.stringify(this._options)}`;
   }
 
-  _unlinkAllMessages() {
+  _getLowerBoundUID() {
+    const {count} = this._options.limit;
+    return count ? Math.max(1, this._box.uidnext - count) : 1;
+  }
+
+  _recoverFromUIDInvalidity() {
+    // UID invalidity means the server has asked us  to delete all the UIDs for
+    // this folder and start from scratch. We let a garbage collector clean up
+    // actual Messages, because we may just get new UIDs pointing to the same
+    // messages.
     const {MessageUID} = this._db;
-    return MessageUID.destroy({
-      where: {
-        CategoryId: this._category.id,
-      },
-    })
+    return this._db.sequelize.transaction((transaction) =>
+      MessageUID.destroy({
+        where: {
+          CategoryId: this._category.id,
+        },
+      }, {transaction})
+    )
   }
 
   _removeDeletedMessageUIDs(removedUIDs) {
@@ -30,7 +42,12 @@ class SyncMailboxOperation {
       return Promise.resolve();
     }
     return this._db.sequelize.transaction((transaction) =>
-       MessageUID.destroy({where: {uid: removedUIDs}}, {transaction})
+       MessageUID.destroy({
+         where: {
+           CategoryId: this._category.id,
+           uid: removedUIDs,
+         },
+       }, {transaction})
     );
   }
 
@@ -73,7 +90,7 @@ class SyncMailboxOperation {
     return processMessage({accountId, attributes, headers, body, hash})
   }
 
-  _openMailboxAndCheckValidity() {
+  _openMailboxAndEnsureValidity() {
     return this._imap.openBox(this._category.name, true).then((box) => {
       this._box = box;
 
@@ -81,7 +98,7 @@ class SyncMailboxOperation {
         throw new Error("Mailbox does not support persistentUIDs.")
       }
       if (box.uidvalidity !== this._category.syncState.uidvalidity) {
-        return this._unlinkAllMessages();
+        return this._recoverFromUIDInvalidity();
       }
       return Promise.resolve();
     })
@@ -94,18 +111,18 @@ class SyncMailboxOperation {
       uidvalidity: this._box.uidvalidity,
     }
 
-    console.log(" - fetching unseen messages")
-
-    let fetchRange = `1:*`;
+    let range = `${this._getLowerBoundUID()}:*`;
     if (savedSyncState.uidnext) {
       if (savedSyncState.uidnext === currentSyncState.uidnext) {
         console.log(" --- nothing more to fetch")
         return Promise.resolve();
       }
-      fetchRange = `${savedSyncState.uidnext}:*`
+      range = `${savedSyncState.uidnext}:*`
     }
 
-    return this._imap.fetch(fetchRange, this._processMessage.bind(this)).then(() => {
+    console.log(` - fetching unseen messages ${range}`)
+
+    return this._imap.fetch(range, this._processMessage.bind(this)).then(() => {
       this._category.syncState = currentSyncState;
       return this._category.save();
     });
@@ -113,15 +130,16 @@ class SyncMailboxOperation {
 
   _fetchChangesToMessages() {
     const {MessageUID} = this._db;
+    const range = `${this._getLowerBoundUID()}:*`;
 
-    console.log(" - fetching changes to messages")
+    console.log(` - fetching changes to messages ${range}`)
 
-    return this._imap.fetchUIDAttributes(`1:*`).then((latestUIDAttributes) => {
+    return this._imap.fetchUIDAttributes(range).then((latestUIDAttributes) => {
       return MessageUID.findAll({where: {CategoryId: this._category.id}}).then((knownUIDs) => {
         const {removedUIDs, neededUIDs} = this._deltasInUIDsAndFlags(latestUIDAttributes, knownUIDs);
 
-        console.log(` - found changed / new UIDs: ${neededUIDs.join(', ')}`)
-        console.log(` - found removed UIDs: ${removedUIDs.join(', ')}`)
+        console.log(` - found changed / new UIDs: ${neededUIDs.join(', ') || 'none'}`)
+        console.log(` - found removed UIDs: ${removedUIDs.join(', ') || 'none'}`)
 
         return Promise.props({
           deletes: this._removeDeletedMessageUIDs(removedUIDs),
@@ -135,7 +153,7 @@ class SyncMailboxOperation {
     this._db = db;
     this._imap = imap;
 
-    return this._openMailboxAndCheckValidity()
+    return this._openMailboxAndEnsureValidity()
     .then(() =>
       this._fetchUnseenMessages()
     ).then(() =>
