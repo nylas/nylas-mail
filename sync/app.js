@@ -8,13 +8,27 @@ const DatabaseConnectionFactory = require(`${__base}/core/database-connection-fa
 const SyncWorkerPool = require('./sync-worker-pool');
 const workerPool = new SyncWorkerPool();
 
-DatabaseConnectionFactory.forShared().then((db) => {
-  const {Account} = db
-  Account.findAll().then((accounts) => {
-    accounts.forEach((account) => {
-      workerPool.addWorkerForAccount(account);
+const RedisServer = require('redis-server');
+const redisServerInstance = new RedisServer(6379);
+
+const start = () => {
+  DatabaseConnectionFactory.setup()
+  DatabaseConnectionFactory.forShared().then((db) => {
+    const {Account} = db
+    Account.findAll().then((accounts) => {
+      accounts.forEach((account) => {
+        workerPool.addWorkerForAccount(account);
+      });
     });
   });
+}
+
+redisServerInstance.open((error) => {
+  if (error) {
+    console.error(error)
+    process.exit(1);
+  }
+  start()
 });
 
 global.workerPool = workerPool;

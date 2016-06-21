@@ -1,3 +1,5 @@
+const DeltaStreamQueue = require('./delta-stream-queue')
+
 class TransactionLog {
   constructor(db) {
     this.db = db;
@@ -18,9 +20,11 @@ class TransactionLog {
   transactionLogger(type) {
     return (sequelizeHookData) => {
       if (this.isTransaction(sequelizeHookData)) return;
-      this.db.Transaction.create(Object.assign({type: type},
+      const transactionData = Object.assign({type: type},
         this.parseHookData(sequelizeHookData)
-      ));
+      );
+      this.db.Transaction.create(transactionData);
+      DeltaStreamQueue.notify(this.db.accountId, transactionData)
     }
   }
 

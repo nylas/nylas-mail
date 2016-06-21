@@ -6,10 +6,13 @@
   "dependencies": {
     "bluebird": "^3.4.1",
     "imap": "^0.8.17",
+    "redis": "2.x.x",
+    "redis-server": "0.x.x",
     "underscore": "^1.8.3"
   },
   "devDependencies": {},
   "scripts": {
+    "postinstall": "brew install redis",
     "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
