@@ -7,6 +7,7 @@
     "bluebird": "3.x.x",
     "mysql": "^2.10.2",
     "redis": "2.x.x",
+    "rxjs": "5.0.0-beta.9",
     "sequelize": "^3.23.3",
     "sqlite3": "^3.1.4"
   },

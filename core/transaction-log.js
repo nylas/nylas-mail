@@ -24,6 +24,7 @@ class TransactionLog {
         this.parseHookData(sequelizeHookData)
       );
       this.db.Transaction.create(transactionData);
+      transactionData.object = sequelizeHookData.dataValues
       DeltaStreamQueue.notify(this.db.accountId, transactionData)
     }
   }

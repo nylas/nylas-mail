@@ -4,6 +4,8 @@ const path = require('path');
 const TransactionLog = require('./transaction-log')
 const DeltaStreamQueue = require('./delta-stream-queue.js')
 
+require('./database-extensions'); // Extends Sequelize on require
+
 const STORAGE_DIR = path.join(__base, 'storage');
 if (!fs.existsSync(STORAGE_DIR)) {
   fs.mkdirSync(STORAGE_DIR);
