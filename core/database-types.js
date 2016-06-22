@@ -1,12 +1,14 @@
-module.exports = (Sequelize) => ({
-  JSONTYPE: (fieldName) => ({
+const Sequelize = require('sequelize');
+
+module.exports = {
+  JSONType: (fieldName) => ({
     type: Sequelize.STRING,
     defaultValue: '{}',
     get: function get() {
-      return JSON.parse(this.getDataValue('syncState'))
+      return JSON.parse(this.getDataValue(fieldName))
     },
     set: function set(val) {
-      this.setDataValue('syncState', JSON.stringify(val));
+      this.setDataValue(fieldName, JSON.stringify(val));
     },
   }),
-})
+}

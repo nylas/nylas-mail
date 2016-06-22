@@ -1,8 +1,10 @@
+const {JSONType} = require('../../database-types');
+
 module.exports = (sequelize, Sequelize) => {
   const Category = sequelize.define('Category', {
     name: Sequelize.STRING,
     role: Sequelize.STRING,
-    syncState: Sequelize.JSONTYPE('syncState'),
+    syncState: JSONType('syncState'),
   }, {
     classMethods: {
       associate: ({Message}) => {

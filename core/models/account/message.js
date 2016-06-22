@@ -1,11 +1,12 @@
 const crypto = require('crypto');
+const {JSONType} = require('../../database-types');
 
 module.exports = (sequelize, Sequelize) => {
   const Message = sequelize.define('Message', {
     messageId: Sequelize.STRING,
     body: Sequelize.STRING,
     rawBody: Sequelize.STRING,
-    headers: Sequelize.JSONTYPE('headers'),
+    headers: JSONType('headers'),
     rawHeaders: Sequelize.STRING,
     subject: Sequelize.STRING,
     snippet: Sequelize.STRING,
@@ -14,10 +15,10 @@ module.exports = (sequelize, Sequelize) => {
     unread: Sequelize.BOOLEAN,
     starred: Sequelize.BOOLEAN,
     processed: Sequelize.INTEGER,
-    to: Sequelize.JSONTYPE('to'),
-    from: Sequelize.JSONTYPE('from'),
-    cc: Sequelize.JSONTYPE('cc'),
-    bcc: Sequelize.JSONTYPE('bcc'),
+    to: JSONType('to'),
+    from: JSONType('from'),
+    cc: JSONType('cc'),
+    bcc: JSONType('bcc'),
     CategoryUID: { type: Sequelize.STRING, allowNull: true},
   }, {
     indexes: [

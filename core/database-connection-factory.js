@@ -8,7 +8,6 @@ const STORAGE_DIR = path.join(__base, 'storage');
 if (!fs.existsSync(STORAGE_DIR)) {
   fs.mkdirSync(STORAGE_DIR);
 }
-Object.assign(Sequelize, require('./database-connection-types')(Sequelize))
 
 class DatabaseConnectionFactory {
   constructor() {
