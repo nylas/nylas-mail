@@ -24,7 +24,7 @@
     "lerna": "2.0.0-beta.20"
   },
   "scripts": {
-    "start": "heroku local -f Procfile.dev"
+    "start": "foreman start -f Procfile.dev"
   },
   "repository": {
     "type": "git",
