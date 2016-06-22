@@ -10,5 +10,6 @@ const processors = fs.readdirSync(__dirname)
   }
 })
 .sort(({order: o1}, {order: o2}) => o1 - o2)
+.map(({processMessage}) => processMessage)
 
 module.exports = {processors}
