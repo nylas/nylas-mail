@@ -8,8 +8,7 @@
     "advanceClock": false,
     "TEST_ACCOUNT_ID": false,
     "TEST_ACCOUNT_NAME": false,
-    "TEST_ACCOUNT_EMAIL": false,
-    "__base": false
+    "TEST_ACCOUNT_EMAIL": false
   },
   "env": {
     "browser": true,

@@ -6,7 +6,6 @@ const Vision = require('vision');
 const Package = require('./package');
 const fs = require('fs');
 const path = require('path');
-global.__base = path.join(__dirname, '..')
 
 const server = new Hapi.Server();
 console.log(process.env.PORT)
@@ -23,7 +22,7 @@ const plugins = [Inert, Vision, HapiBasicAuth, {
 }];
 
 let sharedDb = null;
-const DatabaseConnectionFactory = require(`${__base}/core/database-connection-factory`)
+const {DatabaseConnectionFactory} = require(`nylas-core`)
 DatabaseConnectionFactory.forShared().then((db) => {
   sharedDb = db;
 });

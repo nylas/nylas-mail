@@ -1,4 +1,4 @@
-const DatabaseConnectionFactory = require(`${__base}/core/database-connection-factory`)
+const {DatabaseConnectionFactory} = require(`nylas-core`)
 const {processors} = require('./processors')
 
 // List of the attributes of Message that the processor should be allowed to change.

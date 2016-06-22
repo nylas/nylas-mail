@@ -1,13 +1,17 @@
 {
   "name": "k2",
   "version": "0.0.1",
-  "description": "Sync Engine ++",
+  "description": "k2",
   "main": "",
   "dependencies": {
-    "imap-experiment": "./sync",
-    "core": "./core",
-    "api": "./api",
-    "message-processor": "./message-processor"
+    "bluebird": "3.x.x",
+    "nylas-core": "0.x.x",
+    "nylas-api": "0.x.x",
+    "nylas-sync": "0.x.x",
+    "redis": "2.x.x",
+    "rx": "4.x.x",
+    "sequelize": "3.x.x",
+    "underscore": "1.x.x"
   },
   "devDependencies": {
     "babel-eslint": "6.x",
@@ -16,17 +20,17 @@
     "eslint-plugin-import": "1.x",
     "eslint-plugin-jsx-a11y": "1.x",
     "eslint-plugin-react": "5.x",
-    "eslint_d": "3.x"
+    "eslint_d": "3.x",
+    "lerna": "2.0.0-beta.20"
   },
   "scripts": {
-    "start": "heroku local -f Procfile.dev",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "heroku local -f Procfile.dev"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nylas/K2.git"
   },
-  "author": "",
+  "author": "Nylas",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/nylas/K2/issues"

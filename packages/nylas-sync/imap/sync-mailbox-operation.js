@@ -1,5 +1,5 @@
 const _ = require('underscore');
-const {processMessage} = require(`${__base}/message-processor`);
+const {processMessage} = require(`nylas-message-processor`);
 const {Capabilities} = require('./connection.js');
 
 const MessageFlagAttributes = ['id', 'CategoryUID', 'unread', 'starred']

@@ -1,6 +1,6 @@
 const Rx = require('rx')
 const _ = require('underscore');
-const DeltaStreamQueue = require(`${__base}/core/delta-stream-queue`);
+const {DeltaStreamQueue} = require(`nylas-core`);
 
 function keepAlive(request) {
   const until = Rx.Observable.fromCallback(request.on)("disconnect")

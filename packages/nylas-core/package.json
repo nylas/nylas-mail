@@ -1,0 +1,11 @@
+{
+  "name": "nylas-core",
+  "version": "0.0.1",
+  "description": "Core shared packages",
+  "main": "index.js",
+  "dependencies": {
+    "sqlite3": "3.1.4"
+  },
+  "author": "Nylas",
+  "license": "ISC"
+}

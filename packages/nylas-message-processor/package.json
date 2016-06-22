@@ -1,0 +1,12 @@
+{
+  "name": "nylas-message-processor",
+  "version": "0.0.1",
+  "description": "Message processing pipeline",
+  "main": "index.js",
+  "author": "Nylas",
+  "license": "ISC",
+  "dependencies": {
+    "mailparser": "0.6.0",
+    "nylas-core": "0.x.x"
+  }
+}

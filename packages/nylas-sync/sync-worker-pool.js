@@ -1,5 +1,5 @@
 const SyncWorker = require('./sync-worker');
-const DatabaseConnectionFactory = require(`${__base}/core/database-connection-factory`)
+const {DatabaseConnectionFactory} = require(`nylas-core`)
 
 class SyncWorkerPool {
   constructor() {

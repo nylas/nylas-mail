@@ -1,6 +1,6 @@
 /* eslint func-names:0 */
 
-const DatabaseConnectionFactory = require(`${__base}/core/database-connection-factory`);
+const {DatabaseConnectionFactory} = require(`nylas-core`);
 
 module.exports = (server) => {
   server.decorate('request', 'getAccountDatabase', function () {

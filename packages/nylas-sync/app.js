@@ -1,10 +1,6 @@
-const path = require('path');
-
-global.__base = path.join(__dirname, '..')
-global.config = require(`${__base}/core/config/${process.env.ENV || 'development'}.json`);
 global.Promise = require('bluebird');
 
-const DatabaseConnectionFactory = require(`${__base}/core/database-connection-factory`)
+const {DatabaseConnectionFactory} = require(`nylas-core`)
 const SyncWorkerPool = require('./sync-worker-pool');
 const workerPool = new SyncWorkerPool();
 
