@@ -6,7 +6,7 @@ const processors = fs.readdirSync(__dirname)
   const {processMessage, order} = require(`./${file}`)
   return {
     order,
-    processMessage: processMessage || (msg) => msg,
+    processMessage: processMessage || ((msg) => msg),
   }
 })
 .sort(({order: o1}, {order: o2}) => o1 - o2)
