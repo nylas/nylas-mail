@@ -7,8 +7,7 @@
 ```
 brew install redis
 nvm install 6
-npm install -g lerna@2.0.0-beta
-lerna bootstrap
+npm install
 ```
 
 # Running locally
