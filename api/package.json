@@ -14,7 +14,7 @@
     "hapi-swagger": "^6.1.0",
     "inert": "^4.0.0",
     "joi": "^8.4.2",
-    "rxjs": "5.0.0-beta.9",
+    "rx": "4.x.x",
     "underscore": "1.x.x",
     "vision": "^4.1.0"
   }

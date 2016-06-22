@@ -1,3 +1,4 @@
+const Rx = require('rx')
 const bluebird = require('bluebird')
 const redis = require("redis");
 bluebird.promisifyAll(redis.RedisClient.prototype);
@@ -17,12 +18,15 @@ class DeltaStreamQueue {
     this.client.publish(this.key(accountId), JSON.stringify(data))
   }
 
-  subscribe(accountId, callback) {
-    this.client.on("message", (channel, message) => {
-      if (channel !== this.key(accountId)) { return }
-      callback(message)
+  fromAccountId(accountId) {
+    return Rx.Observable.create((observer) => {
+      this.client.on("message", (channel, message) => {
+        if (channel !== this.key(accountId)) { return }
+        observer.onNext(message)
+      });
+      this.client.subscribe(this.key(accountId));
+      return () => { this.client.unsubscribe() }
     })
-    this.client.subscribe(this.key(accountId))
   }
 }
 

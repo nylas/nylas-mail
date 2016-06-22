@@ -1,4 +1,4 @@
-const Rx = require('rxjs/Rx')
+const Rx = require('rx')
 const _ = require('underscore');
 const DeltaStreamQueue = require(`${__base}/core/delta-stream-queue`);
 
@@ -47,14 +47,16 @@ module.exports = (server) => {
     method: 'GET',
     path: '/delta/streaming',
     handler: (request, reply) => {
-      const outputStream = createOutputStream()
+      const outputStream = createOutputStream();
 
       request.getAccountDatabase().then((db) => {
-        Rx.Observable.merge(
+        const source = Rx.Observable.merge(
           DeltaStreamQueue.fromAccountId(db.accountId),
           initialTransactions(db, request),
           keepAlive(request)
         ).subscribe(outputStream.pushJSON)
+
+        request.on("disconnect", () => source.dispose());
       });
 
       reply(outputStream)
