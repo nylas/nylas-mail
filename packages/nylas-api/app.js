@@ -8,7 +8,6 @@ const fs = require('fs');
 const path = require('path');
 
 const server = new Hapi.Server();
-console.log(process.env.PORT)
 server.connection({ port: process.env.PORT || 5100 });
 
 const plugins = [Inert, Vision, HapiBasicAuth, {
