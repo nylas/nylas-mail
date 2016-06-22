@@ -9,7 +9,8 @@ const path = require('path');
 global.__base = path.join(__dirname, '..')
 
 const server = new Hapi.Server();
-server.connection({ port: process.env.PORT || 3000 });
+console.log(process.env.PORT)
+server.connection({ port: process.env.PORT || 5100 });
 
 const plugins = [Inert, Vision, HapiBasicAuth, {
   register: HapiSwagger,
