@@ -7,7 +7,8 @@ function keepAlive(request) {
   return Rx.Observable.interval(1000).map(() => "\n").takeUntil(until)
 }
 
-function inflateTransactions(db, transactions = []) {
+function inflateTransactions(db, transactionModels = []) {
+  const transactions = _.pluck(transactionModels, "dataValues")
   const byModel = _.groupBy(transactions, "modelName");
   const byObjectIds = _.groupBy(transactions, "objectId");
 
