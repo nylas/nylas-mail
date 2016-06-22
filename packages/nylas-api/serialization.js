@@ -10,6 +10,18 @@ function jsonSchema(modelName) {
     return Joi.object().keys({
       id: Joi.number(),
       email_address: Joi.string(),
+      connection_settings: Joi.object(),
+      sync_policy: Joi.object(),
+    })
+  }
+  if (modelName === 'Message') {
+    return Joi.object();
+  }
+  if (modelName === 'Category') {
+    return Joi.object().keys({
+      id: Joi.number(),
+      name: Joi.string().allow(null),
+      display_name: Joi.string(),
     })
   }
   return null;

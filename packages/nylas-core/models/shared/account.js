@@ -21,6 +21,8 @@ module.exports = (sequelize, Sequelize) => {
         return {
           id: this.id,
           email_address: this.emailAddress,
+          connection_settings: this.connectionSettings,
+          sync_policy: this.syncPolicy,
         }
       },
 

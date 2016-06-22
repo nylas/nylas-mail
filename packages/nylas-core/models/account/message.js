@@ -35,6 +35,20 @@ module.exports = (sequelize, Sequelize) => {
         return crypto.createHash('sha256').update(headers, 'utf8').digest('hex');
       },
     },
+    instanceMethods: {
+      toJSON: function toJSON() {
+        return {
+          id: this.id,
+          body: this.body,
+          subject: this.subject,
+          snippet: this.snippet,
+          date: this.date.getTime() / 1000.0,
+          unread: this.unread,
+          starred: this.starred,
+          category_id: this.CategoryId,
+        };
+      },
+    },
   });
 
   return Message;

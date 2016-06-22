@@ -11,6 +11,15 @@ module.exports = (sequelize, Sequelize) => {
         Category.hasMany(Message)
       },
     },
+    instanceMethods: {
+      toJSON: function toJSON() {
+        return {
+          id: this.id,
+          name: this.role,
+          display_name: this.name,
+        };
+      },
+    },
   });
 
   return Category;
