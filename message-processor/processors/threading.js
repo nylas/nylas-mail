@@ -1,3 +1,4 @@
 module.exports = {
-  processMessage: (message) => message,
+  order: 1,
+  processMessage: ({message}) => message,
 }

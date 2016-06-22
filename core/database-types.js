@@ -11,4 +11,14 @@ module.exports = {
       this.setDataValue(fieldName, JSON.stringify(val));
     },
   }),
+  JSONARRAYType: (fieldName) => ({
+    type: Sequelize.STRING,
+    defaultValue: '[]',
+    get: function get() {
+      return JSON.parse(this.getDataValue(fieldName))
+    },
+    set: function set(val) {
+      this.setDataValue(fieldName, JSON.stringify(val));
+    },
+  }),
 }

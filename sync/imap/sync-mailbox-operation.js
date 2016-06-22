@@ -127,9 +127,8 @@ class SyncMailboxOperation {
         Object.assign(existing, values);
         return existing.save();
       }
-      return Message.create(values).then((created) => {
-        processMessage({accountId, messageId: created.id, messageBody: body})
-      })
+      return Message.create(values)
+      .then((created) => processMessage({accountId, messageId: created.id}))
     })
   }
 
