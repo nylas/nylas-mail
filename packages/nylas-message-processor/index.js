@@ -7,7 +7,6 @@ const {processors} = require('./processors')
 const MessageAttributes = ['body', 'processed']
 const MessageProcessorVersion = 1;
 
-
 function runPipeline(accountId, message) {
   return processors.reduce((prevPromise, processor) => (
     prevPromise.then((msg) => processor({message: msg, accountId}))
