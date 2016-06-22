@@ -12,17 +12,17 @@ module.exports = (server) => {
     handler: (request, reply) => {
       const outputStream = require('stream').Readable();
       outputStream._read = () => { return };
-      const pushMsg = (msg = "\n") => outputStream.push(msg);
+      const sendMsg = (msg = "\n") => outputStream.push(msg);
 
       request.getAccountDatabase()
       .then((db) => {
         return db.Transaction.findAll(findParams(request.query))
         .then((transactions = []) => {
-          transactions.map(JSON.stringify).forEach(pushMsg);
-          DeltaStreamQueue.subscribe(db.accountId, pushMsg)
+          transactions.map(JSON.stringify).forEach(sendMsg);
+          DeltaStreamQueue.subscribe(db.accountId, sendMsg)
         })
       }).then(() => {
-        const keepAlive = setInterval(pushMsg, 1000);
+        const keepAlive = setInterval(sendMsg, 1000);
         request.on("disconnect", () => { clearTimeout(keepAlive) })
         return reply(outputStream)
       })

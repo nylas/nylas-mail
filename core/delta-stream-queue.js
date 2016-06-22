@@ -5,7 +5,7 @@ bluebird.promisifyAll(redis.Multi.prototype);
 
 class DeltaStreamQueue {
   setup() {
-    this.client = redis.createClient();
+    this.client = redis.createClient(process.env.REDIS_URL);
     this.client.on("error", console.error);
     this.client.on("ready", () => console.log("Redis ready"));
   }

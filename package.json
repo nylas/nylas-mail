@@ -1,0 +1,30 @@
+{
+  "name": "k2",
+  "version": "0.0.1",
+  "description": "Sync Engine ++",
+  "main": "",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "start": "heroku local",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "imap-experiment": "./sync",
+    "api": "./api"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nylas/K2.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nylas/K2/issues"
+  },
+  "homepage": "https://github.com/nylas/K2#readme",
+  "engines": {
+    "node": "6.2.2",
+    "npm": "3.9.5"
+  }
+}

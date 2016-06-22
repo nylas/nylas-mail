@@ -12,7 +12,6 @@
   },
   "devDependencies": {},
   "scripts": {
-    "postinstall": "brew install redis",
     "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
