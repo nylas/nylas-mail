@@ -72,13 +72,17 @@ class SyncWorker {
       return this._conn.connect();
     }
     return new Promise((resolve) => {
-      const conn = new IMAPConnection(this._db, {
-        user: 'inboxapptest1@fastmail.fm',
-        password: 'trar2e',
-        host: 'mail.messagingengine.com',
-        port: 993,
-        tls: true,
-      });
+      const settings = this._account.connectionSettings;
+      const credentials = this._account.decryptedCredentials();
+
+      if (!settings || !settings.imap) {
+        throw new Error("ensureConnection: There are no IMAP connection settings for this account.")
+      }
+      if (!credentials || !credentials.imap) {
+        throw new Error("ensureConnection: There are no IMAP connection credentials for this account.")
+      }
+
+      const conn = new IMAPConnection(this._db, Object.assign({}, settings.imap, credentials.imap));
       conn.on('mail', () => {
         this.onConnectionIdleUpdate();
       })

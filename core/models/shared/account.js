@@ -1,15 +1,15 @@
+const crypto = require('crypto');
+const {JSONType} = require('../../database-types');
+
+const algorithm = 'aes-256-ctr';
+const password = 'd6F3Efeq';
+
 module.exports = (sequelize, Sequelize) => {
   const Account = sequelize.define('Account', {
     emailAddress: Sequelize.STRING,
-    syncPolicy: {
-      type: Sequelize.STRING,
-      get: function get() {
-        return JSON.parse(this.getDataValue('syncPolicy'))
-      },
-      set: function set(val) {
-        this.setDataValue('syncPolicy', JSON.stringify(val));
-      },
-    },
+    connectionSettings: JSONType('connectionSettings'),
+    connectionCredentials: Sequelize.STRING,
+    syncPolicy: JSONType('syncPolicy'),
   }, {
     classMethods: {
       associate: ({AccountToken}) => {
@@ -21,6 +21,29 @@ module.exports = (sequelize, Sequelize) => {
         return {
           id: this.id,
           email_address: this.emailAddress,
+        }
+      },
+
+      setCredentials: function setCredentials(json) {
+        if (!(json instanceof Object)) {
+          throw new Error("Call setCredentials with JSON!")
+        }
+        const cipher = crypto.createCipher(algorithm, password)
+        let crypted = cipher.update(JSON.stringify(json), 'utf8', 'hex')
+        crypted += cipher.final('hex');
+
+        this.connectionCredentials = crypted;
+      },
+
+      decryptedCredentials: function decryptedCredentials() {
+        const decipher = crypto.createDecipher(algorithm, password)
+        let dec = decipher.update(this.connectionCredentials, 'hex', 'utf8')
+        dec += decipher.final('utf8');
+
+        try {
+          return JSON.parse(dec);
+        } catch (err) {
+          return null;
         }
       },
     },

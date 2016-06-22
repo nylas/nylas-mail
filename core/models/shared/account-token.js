@@ -1,6 +1,9 @@
 module.exports = (sequelize, Sequelize) => {
   const AccountToken = sequelize.define('AccountToken', {
-    value: Sequelize.STRING,
+    value: {
+      type: Sequelize.UUID,
+      defaultValue: Sequelize.UUIDV4,
+    },
   }, {
     classMethods: {
       associate: ({Account}) => {
