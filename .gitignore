@@ -1,6 +1,6 @@
 .DS_Store
 node_modules
-storage/a-1.sqlite
 .env
 dump.rdb
 *npm-debug.log
+storage/

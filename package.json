@@ -6,19 +6,20 @@
   "dependencies": {
     "imap-experiment": "./sync",
     "core": "./core",
-    "api": "./api"
+    "api": "./api",
+    "message-processor": "./message-processor"
   },
   "devDependencies": {
-    "babel-eslint": "^6.0.5",
-    "eslint": "^2.13.1",
-    "eslint-config-airbnb": "8.0.0",
-    "eslint-plugin-import": "1.7.0",
-    "eslint-plugin-jsx-a11y": "1.0.4",
-    "eslint-plugin-react": "5.0.1",
-    "eslint_d": "^3.1.1"
+    "babel-eslint": "6.x",
+    "eslint": "2.x",
+    "eslint-config-airbnb": "8.x",
+    "eslint-plugin-import": "1.x",
+    "eslint-plugin-jsx-a11y": "1.x",
+    "eslint-plugin-react": "5.x",
+    "eslint_d": "3.x"
   },
   "scripts": {
-    "start": "heroku local",
+    "start": "heroku local -f Procfile.dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
