@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "imap-experiment": "./sync",
+    "core": "./core",
     "api": "./api"
   },
   "repository": {
