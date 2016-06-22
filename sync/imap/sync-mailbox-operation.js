@@ -1,3 +1,4 @@
+const _ = require('underscore');
 const {processMessage} = require(`${__base}/message-processor`);
 const {Capabilities} = require('./connection.js');
 
@@ -168,12 +169,11 @@ class SyncMailboxOperation {
 
     return this._imap.fetch(range, this._processMessage.bind(this)).then(() => {
       console.log(` - finished fetching unseen messages`);
-      this._category.syncState = Object.assign(this._category.syncState, {
+      return this.updateCategorySyncState({
         uidnext: boxSyncState.uidnext,
         uidvalidity: boxSyncState.uidvalidity,
         timeFetchedUnseen: Date.now(),
       });
-      return this._category.save();
     });
   }
 
@@ -200,12 +200,11 @@ class SyncMailboxOperation {
             deletes: this._removeDeletedMessages(remoteUIDAttributes, localMessageAttributes),
           })
         ).then(() => {
-          this._category.syncState = Object.assign(this._category.syncState, {
+          return this.updateCategorySyncState({
             highestmodseq: nextHighestmodseq,
             timeDeepScan: Date.now(),
             timeShallowScan: Date.now(),
           });
-          return this._category.save();
         })
       );
     }
@@ -229,13 +228,20 @@ class SyncMailboxOperation {
       }).then((localMessageAttributes) =>
         this._createAndUpdateMessages(remoteUIDAttributes, localMessageAttributes)
       ).then(() => {
-        this._category.syncState = Object.assign(this._category.syncState, {
+        return this.updateCategorySyncState({
           highestmodseq: nextHighestmodseq,
           timeShallowScan: Date.now(),
         });
-        return this._category.save();
       })
     )
+  }
+
+  updateCategorySyncState(newState) {
+    if (_.isMatch(this._category.syncState, newState)) {
+      return Promise.resolve();
+    }
+    this._category.syncState = Object.assign(this._category.syncState, newState);
+    return this._category.save();
   }
 
   run(db, imap) {
