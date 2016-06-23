@@ -1,4 +1,4 @@
-const DatabaseConnectionFactory = require(`${__base}/core/database-connection-factory`)
+const {DatabaseConnectionFactory} = require('nylas-core')
 
 function processMessage({message, accountId}) {
   return DatabaseConnectionFactory.forAccount(accountId)
