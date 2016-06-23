@@ -21,11 +21,8 @@ function addMessageToThread({db, accountId, message}) {
 
 function matchThread({db, accountId, message}) {
   const {Thread} = db
-
-  // TODO: Add once we have some test data with this header
-  /*
-  if (message.headers['in-reply-to']) {
-    return getThreadFromHeader() // Doesn't exist yet
+  if (message.headers.references) {
+    return getThreadFromReferences()
     .then((thread) => {
       if (thread) {
         return thread
@@ -36,10 +33,19 @@ function matchThread({db, accountId, message}) {
       })
     })
   }
-  */
+
   return Thread.create({
     subject: message.subject,
     cleanedSubject: cleanSubject(message.subject),
+  })
+}
+
+function getThreadFromReferences({db, references}) {
+  const {Message} = db
+  const messageId = references.split()[references.length - 1]
+  return Message.find({where: {messageId: messageId}})
+  .then((message) => {
+    return message.getThread()
   })
 }
 
