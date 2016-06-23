@@ -2,7 +2,12 @@ const Joi = require('Joi');
 const _ = require('underscore');
 
 const Serialization = require('../serialization');
-const {IMAPConnection, PubsubConnector, DatabaseConnector} = require('nylas-core');
+const {
+  IMAPConnection,
+  PubsubConnector,
+  DatabaseConnector,
+  SyncPolicy
+} = require('nylas-core');
 
 const imapSmtpSettings = Joi.object().keys({
   imap_host: [Joi.string().ip().required(), Joi.string().hostname().required()],
@@ -21,15 +26,6 @@ const exchangeSettings = Joi.object().keys({
   password: Joi.string().required(),
   eas_server_host: [Joi.string().ip().required(), Joi.string().hostname().required()],
 }).required();
-
-const defaultSyncPolicy = {
-  afterSync: 'idle',
-  interval: 30 * 1000,
-  folderSyncOptions: {
-    deepFolderScan: 5 * 60 * 1000,
-  },
-  expiration: Date.now() + 60 * 60 * 1000,
-};
 
 module.exports = (server) => {
   server.route({
@@ -75,7 +71,7 @@ module.exports = (server) => {
           const account = Account.build({
             name: name,
             emailAddress: email,
-            syncPolicy: defaultSyncPolicy,
+            syncPolicy: SyncPolicy.defaultPolicy(),
             connectionSettings: _.pick(settings, [
               'imap_host', 'imap_port',
               'smtp_host', 'smtp_port',

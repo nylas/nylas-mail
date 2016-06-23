@@ -1,6 +1,6 @@
 const Rx = require('rx')
 const _ = require('underscore');
-const {PubsubConnector} = require(`nylas-core`);
+const {PubsubConnector, SyncPolicy} = require(`nylas-core`);
 
 function keepAlive(request) {
   const until = Rx.Observable.fromCallback(request.on)("disconnect")
@@ -49,15 +49,20 @@ module.exports = (server) => {
     path: '/delta/streaming',
     handler: (request, reply) => {
       const outputStream = createOutputStream();
+      const account = request.auth.credentials;
+      PubsubConnector.incrementActivePolicyLockForAccount(account.id)
 
       request.getAccountDatabase().then((db) => {
         const source = Rx.Observable.merge(
-          PubsubConnector.observableForAccountDeltas(db.accountId),
+          PubsubConnector.observableForAccountDeltas(account.id),
           initialTransactions(db, request),
           keepAlive(request)
         ).subscribe(outputStream.pushJSON)
 
-        request.on("disconnect", () => source.dispose());
+        request.on("disconnect", () => {
+          PubsubConnector.decrementActivePolicyLockForAccount(account.id)
+          source.dispose()
+        });
       });
 
       reply(outputStream)
