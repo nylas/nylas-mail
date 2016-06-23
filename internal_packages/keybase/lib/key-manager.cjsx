@@ -38,7 +38,7 @@ class KeyManager extends React.Component
     popoverTarget = event.target.getBoundingClientRect()
 
     Actions.openPopover(
-      <PassphrasePopover identity={identity} onPopoverDone={ @_exportPopoverDone } />,
+      <PassphrasePopover identity={identity} addresses={identity.addresses} onPopoverDone={ @_exportPopoverDone } />,
       {originRect: popoverTarget, direction: 'left'}
     )
 

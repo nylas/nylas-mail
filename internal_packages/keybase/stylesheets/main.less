@@ -171,6 +171,68 @@
       white-space: nowrap;
     }
   }
+
+  .private-key-popover {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    margin: 5px 10px;
+
+    .picker-title {
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+
+    textarea {
+      margin-top: 5px;
+    }
+
+    .invalid-key-body {
+      background-color: @code-bg-color;
+      color: darken(@code-bg-color, 70%);
+      border: 1.5px solid darken(@code-bg-color, 10%);
+      border-radius: @border-radius-small;
+      font-size: @font-size-small;
+      margin: 5px 0 0 0;
+      text-align: center;
+    }
+
+    .key-add-buttons {
+      display: flex;
+      flex-direction: row;
+
+      button {
+        width: 147px;
+        margin: 5px 0 0 0;
+      }
+
+      .paste-btn {
+        margin-right: 6px;
+      }
+    }
+
+    .picker-controls {
+      width: 100%;
+      margin: 5px auto;
+      display: flex;
+      flex-shrink: 0;
+      flex-direction: row;
+
+      .modal-cancel-button {
+        float: left;
+      }
+
+      .modal-prefs-button {
+        flex: 1;
+        margin: 0 35px;
+      }
+
+      .modal-done-button {
+        float: right;
+      }
+    }
+  }
 }
 
 .email-list {
@@ -279,7 +341,7 @@
 
   .credentials {
     display: flex;
-    flex-direction: horizontal;
+    flex-direction: row;
 
     .key-add-btn {
       margin: 10px 5px 0 0;

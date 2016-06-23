@@ -130,7 +130,6 @@ class ModalKeyRecommender extends React.Component
       ]
 
     prefsButton = <button className="btn modal-prefs-button" onClick={@_onManageKeys}>Advanced Key Management</button>
-    prefsLink = <a className="preferences-references" onClick={@_onManageKeys}>Advanced Key Management</a>
 
     <div className="key-picker-modal">
       { body }

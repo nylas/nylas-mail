@@ -2,6 +2,7 @@
 PGPKeyStore = require './pgp-key-store'
 {remote} = require 'electron'
 PassphrasePopover = require './passphrase-popover'
+PrivateKeyPopover = require './private-key-popover'
 pgp = require 'kbpgp'
 _ = require 'underscore'
 
@@ -38,18 +39,16 @@ class DecryptMessageButton extends React.Component
 
   _onClickDecrypt: (event) =>
     {message} = @props
-    numKeys = 0
-    for recipient in message.to
-      numKeys = numKeys + PGPKeyStore.privKeys(address: recipient.email, timed: false).length
-    if numKeys < 1
-      @_displayError("No PGP private keys saved for recipient email address. Go to the Encryption
-        Preferences page to add a private key.")
-    else
-      popoverTarget = event.target.getBoundingClientRect()
+    popoverTarget = event.target.getBoundingClientRect()
+    if @_noPrivateKeys()
       Actions.openPopover(
-        <PassphrasePopover addresses={_.pluck(message.to, "email")} onPopoverDone={ @decryptPopoverDone } />,
+        <PrivateKeyPopover
+          addresses={_.pluck(message.to, "email")}
+          callback={() => @_openPassphrasePopover(popoverTarget, @decryptPopoverDone)}/>,
         {originRect: popoverTarget, direction: 'down'}
       )
+    else
+      @_openPassphrasePopover(popoverTarget, @decryptPopoverDone)
 
   _displayError: (err) ->
     dialog = remote.dialog
@@ -57,18 +56,16 @@ class DecryptMessageButton extends React.Component
 
   _onClickDecryptAttachments: (event) =>
     {message} = @props
-    numKeys = 0
-    for recipient in message.to
-      numKeys = numKeys + PGPKeyStore.privKeys(address: recipient.email, timed: false).length
-    if numKeys < 1
-      @_displayError("No PGP private keys saved for recipient email address. Go to the Encryption
-        Preferences page to add a private key.")
-    else
-      popoverTarget = event.target.getBoundingClientRect()
+    popoverTarget = event.target.getBoundingClientRect()
+    if @_noPrivateKeys()
       Actions.openPopover(
-        <PassphrasePopover addresses={_.pluck(message.to, "email")} onPopoverDone={ @decryptAttachmentsPopoverDone } />,
+        <PrivateKeyPopover
+          addresses={_.pluck(message.to, "email")}
+          callback={() => @_openPassphrasePopover(popoverTarget, @decryptAttachmentsPopoverDone)}/>,
         {originRect: popoverTarget, direction: 'down'}
       )
+    else
+      @_openPassphrasePopover(popoverTarget, @decryptAttachmentsPopoverDone)
 
   decryptPopoverDone: (passphrase) =>
     {message} = @props
@@ -85,6 +82,20 @@ class DecryptMessageButton extends React.Component
       privateKeys = PGPKeyStore.privKeys(address: recipient.email, timed: false)
       for privateKey in privateKeys
         PGPKeyStore.getKeyContents(key: privateKey, passphrase: passphrase, callback: (identity) => PGPKeyStore.decryptAttachments(identity, @state.encryptedAttachments))
+
+  _openPassphrasePopover: (target, callback) =>
+    {message} = @props
+    Actions.openPopover(
+        <PassphrasePopover addresses={_.pluck(message.to, "email")} onPopoverDone={callback} />,
+        {originRect: target, direction: 'down'}
+      )
+
+  _noPrivateKeys: =>
+    {message} = @props
+    numKeys = 0
+    for recipient in message.to
+      numKeys = numKeys + PGPKeyStore.privKeys(address: recipient.email, timed: false).length
+    return numKeys < 1
 
   render: =>
     # TODO inform user of errors/etc. instead of failing without showing it
