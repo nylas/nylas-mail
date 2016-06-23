@@ -10,7 +10,7 @@ if (!fs.existsSync(STORAGE_DIR)) {
   fs.mkdirSync(STORAGE_DIR);
 }
 
-class DatabaseConnectionFactory {
+class DatabaseConnector {
   constructor() {
     this._pools = {};
   }
@@ -86,4 +86,4 @@ class DatabaseConnectionFactory {
   }
 }
 
-module.exports = new DatabaseConnectionFactory()
+module.exports = new DatabaseConnector()

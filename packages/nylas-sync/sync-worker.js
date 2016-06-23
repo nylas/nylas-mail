@@ -1,4 +1,8 @@
-const {IMAPConnection} = require('nylas-core');
+const {
+  IMAPConnection,
+  PubsubConnector,
+  DatabaseConnector,
+} = require('nylas-core');
 const RefreshMailboxesOperation = require('./imap/refresh-mailboxes-operation')
 const SyncMailboxOperation = require('./imap/sync-mailbox-operation')
 //
@@ -28,17 +32,28 @@ class SyncWorker {
 
     this.syncNow();
     this.scheduleExpiration();
+
+    this._listener = PubsubConnector.observableForAccountChanges(account.id).subscribe(() => {
+      this.onAccountChanged();
+    });
   }
 
-  // TODO: How does this get called?
+  cleanup() {
+    this._listener.dispose();
+  }
+
   onAccountChanged() {
-    this.syncNow();
-    this.scheduleExpiration();
+    DatabaseConnector.forShared().then(({Account}) => {
+      Account.find({where: {id: this._account.id}}).then((account) => {
+        this._account = account;
+        this.syncNow();
+        this.scheduleExpiration();
+      })
+    });
   }
 
   onExpired() {
-    // Returning syncs to the unclaimed queue every so often is healthy.
-    // TODO: That.
+    this.cleanup();
   }
 
   onSyncDidComplete() {

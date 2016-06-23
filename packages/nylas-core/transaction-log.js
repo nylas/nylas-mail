@@ -1,4 +1,4 @@
-const AccountPubsub = require('./account-pubsub')
+const PubsubConnector = require('./pubsub-connector')
 
 class TransactionLog {
   constructor(db) {
@@ -25,7 +25,8 @@ class TransactionLog {
       );
       this.db.Transaction.create(transactionData);
       transactionData.object = sequelizeHookData.dataValues;
-      AccountPubsub.notify(this.db.accountId, transactionData);
+
+      PubsubConnector.notifyAccountDeltas(this.db.accountId, transactionData);
     }
   }
 

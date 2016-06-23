@@ -1,4 +1,4 @@
-const {DatabaseConnectionFactory} = require(`nylas-core`)
+const {DatabaseConnector} = require(`nylas-core`)
 const {processors} = require('./processors')
 
 // List of the attributes of Message that the processor should be allowed to change.
@@ -21,7 +21,7 @@ function saveMessage(message) {
 }
 
 function processMessage({messageId, accountId}) {
-  DatabaseConnectionFactory.forAccount(accountId)
+  DatabaseConnector.forAccount(accountId)
   .then(({Message}) =>
     Message.find({where: {id: messageId}}).then((message) =>
       runPipeline(accountId, message)

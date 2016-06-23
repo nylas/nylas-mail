@@ -21,8 +21,8 @@ const plugins = [Inert, Vision, HapiBasicAuth, {
 }];
 
 let sharedDb = null;
-const {DatabaseConnectionFactory} = require(`nylas-core`)
-DatabaseConnectionFactory.forShared().then((db) => {
+const {DatabaseConnector} = require(`nylas-core`)
+DatabaseConnector.forShared().then((db) => {
   sharedDb = db;
 });
 

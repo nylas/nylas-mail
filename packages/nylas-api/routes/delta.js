@@ -1,6 +1,6 @@
 const Rx = require('rx')
 const _ = require('underscore');
-const {AccountPubsub} = require(`nylas-core`);
+const {PubsubConnector} = require(`nylas-core`);
 
 function keepAlive(request) {
   const until = Rx.Observable.fromCallback(request.on)("disconnect")
@@ -52,7 +52,7 @@ module.exports = (server) => {
 
       request.getAccountDatabase().then((db) => {
         const source = Rx.Observable.merge(
-          AccountPubsub.observableForAccountId(db.accountId),
+          PubsubConnector.observableForAccountDeltas(db.accountId),
           initialTransactions(db, request),
           keepAlive(request)
         ).subscribe(outputStream.pushJSON)

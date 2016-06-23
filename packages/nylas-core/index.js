@@ -1,6 +1,6 @@
 module.exports = {
-  DatabaseConnectionFactory: require('./database-connection-factory'),
-  AccountPubsub: require('./account-pubsub'),
+  DatabaseConnector: require('./database-connector'),
+  PubsubConnector: require('./pubsub-connector'),
   IMAPConnection: require('./imap-connection'),
   Config: require(`./config/${process.env.ENV || 'development'}`),
 }

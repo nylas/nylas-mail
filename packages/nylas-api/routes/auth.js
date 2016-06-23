@@ -2,7 +2,7 @@ const Joi = require('Joi');
 const _ = require('underscore');
 
 const Serialization = require('../serialization');
-const {IMAPConnection, DatabaseConnectionFactory} = require('nylas-core');
+const {IMAPConnection, PubsubConnector, DatabaseConnector} = require('nylas-core');
 
 const imapSmtpSettings = Joi.object().keys({
   imap_host: [Joi.string().ip().required(), Joi.string().hostname().required()],
@@ -69,7 +69,7 @@ module.exports = (server) => {
       }
 
       Promise.all(connectionChecks).then(() => {
-        DatabaseConnectionFactory.forShared().then((db) => {
+        DatabaseConnector.forShared().then((db) => {
           const {AccountToken, Account} = db;
 
           const account = Account.build({
@@ -90,6 +90,11 @@ module.exports = (server) => {
             AccountToken.create({
               AccountId: saved.id,
             }).then((accountToken) => {
+              const client = PubsubConnector.broadcastClient();
+              client.lpushAsync('accounts:unclaimed', saved.id).catch((err) => {
+                console.error(`Auth: Could not queue account sync! ${err.message}`)
+              });
+
               const response = saved.toJSON();
               response.token = accountToken.value;
               reply(Serialization.jsonStringify(response));
