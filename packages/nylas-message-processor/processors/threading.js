@@ -43,7 +43,7 @@ function addMessageToThread({db, accountId, message}) {
   const {Thread} = db
   // Check for Gmail's own thread ID
   if (message.headers['X-GM-THRID']) {
-    return Thread.find({where: {threadId: message.headers['X-GM-THRID']})
+    return Thread.find({where: {threadId: message.headers['X-GM-THRID']}})
   }
   return matchThread({db, accountId, message})
   .then((thread) => (thread))
