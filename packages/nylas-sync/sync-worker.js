@@ -3,6 +3,7 @@ const {
   PubsubConnector,
   DatabaseConnector,
 } = require('nylas-core');
+
 const RefreshMailboxesOperation = require('./imap/refresh-mailboxes-operation')
 const SyncMailboxOperation = require('./imap/sync-mailbox-operation')
 //
@@ -29,9 +30,9 @@ class SyncWorker {
 
     this._syncTimer = null;
     this._expirationTimer = null;
+    this._destroyed = false;
 
     this.syncNow();
-    this.scheduleExpiration();
 
     this._listener = PubsubConnector.observableForAccountChanges(account.id).subscribe(() => {
       this.onAccountChanged();
@@ -39,21 +40,19 @@ class SyncWorker {
   }
 
   cleanup() {
+    this._destroyed = true;
     this._listener.dispose();
+    this._conn.end();
   }
 
   onAccountChanged() {
+    console.log("SyncWorker: Detected change to account. Reloading and syncing now.")
     DatabaseConnector.forShared().then(({Account}) => {
       Account.find({where: {id: this._account.id}}).then((account) => {
         this._account = account;
         this.syncNow();
-        this.scheduleExpiration();
       })
     });
-  }
-
-  onExpired() {
-    this.cleanup();
   }
 
   onSyncDidComplete() {
@@ -62,11 +61,11 @@ class SyncWorker {
     if (afterSync === 'idle') {
       this.getInboxCategory().then((inboxCategory) => {
         this._conn.openBox(inboxCategory.name, true).then(() => {
-          console.log(" - Idling on inbox category");
+          console.log("SyncWorker: - Idling on inbox category");
         });
       });
     } else if (afterSync === 'close') {
-      console.log(" - Closing connection");
+      console.log("SyncWorker: - Closing connection");
       this._conn.end();
       this._conn = null;
     } else {
@@ -155,19 +154,12 @@ class SyncWorker {
     });
   }
 
-  scheduleExpiration() {
-    const {expiration} = this._account.syncPolicy;
-
-    clearTimeout(this._expirationTimer);
-    this._expirationTimer = setTimeout(() => this.onExpired(), expiration);
-  }
-
   scheduleNextSync() {
     const {interval} = this._account.syncPolicy;
 
     if (interval) {
       const target = this._lastSyncTime + interval;
-      console.log(`Next sync scheduled for ${new Date(target).toLocaleString()}`);
+      console.log(`SyncWorker: Next sync scheduled for ${new Date(target).toLocaleString()}`);
       this._syncTimer = setTimeout(() => {
         this.syncNow();
       }, target - Date.now());

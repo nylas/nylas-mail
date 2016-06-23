@@ -75,6 +75,17 @@ class DatabaseConnector {
     db.sequelize = sequelize;
     db.Sequelize = Sequelize;
 
+    const changeObserver = ({dataValues, $modelOptions}) => {
+      if ($modelOptions.name.singular === 'Account') {
+        const PubsubConnector = require('./pubsub-connector');
+        PubsubConnector.notifyAccountChange(dataValues.id);
+      }
+    }
+
+    sequelize.addHook("afterCreate", changeObserver)
+    sequelize.addHook("afterUpdate", changeObserver)
+    sequelize.addHook("afterDelete", changeObserver)
+
     return sequelize.authenticate().then(() =>
       sequelize.sync()
     ).thenReturn(db);

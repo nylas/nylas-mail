@@ -10,6 +10,7 @@ const ACCOUNTS_CLAIMED_PREFIX = 'accounts:id-';
 const ACCOUNTS_FOR = (id) => `${ACCOUNTS_CLAIMED_PREFIX}${id}`;
 const HEARTBEAT_FOR = (id) => `heartbeat:${id}`;
 const HEARTBEAT_EXPIRES = 30; // 2 min in prod?
+const CLAIM_DURATION = 10 * 60 * 1000; // 2 hours on prod?
 
 /*
 Accounts ALWAYS exist in either `accounts:unclaimed` or an `accounts:{id}` list.
@@ -31,7 +32,7 @@ class SyncProcessManager {
   }
 
   start() {
-    console.log(`SyncWorkerPool: Starting with ID ${IDENTITY}`)
+    console.log(`ProcessManager: Starting with ID ${IDENTITY}`)
 
     this.unassignAccountsAssignedTo(IDENTITY).then(() => {
       this.unassignAccountsMissingHeartbeats();
@@ -50,12 +51,12 @@ class SyncProcessManager {
     client.setAsync(key, Date.now()).then(() =>
       client.expireAsync(key, HEARTBEAT_EXPIRES)
     ).then(() =>
-      console.log("SyncWorkerPool: Published heartbeat.")
+      console.log("ProcessManager: Published heartbeat.")
     )
   }
 
   onSigInt() {
-    console.log(`SyncWorkerPool: Exiting...`)
+    console.log(`ProcessManager: Exiting...`)
     this._exiting = true;
 
     this.unassignAccountsAssignedTo(IDENTITY).then(() =>
@@ -80,7 +81,7 @@ class SyncProcessManager {
       if (unseenIds.length === 0) {
         return;
       }
-      console.log(`SyncWorkerPool: Adding account IDs ${unseenIds.join(',')} to redis.`)
+      console.log(`ProcessManager: Adding account IDs ${unseenIds.join(',')} to ${ACCOUNTS_UNCLAIMED}.`)
       unseenIds.map((id) => client.lpushAsync(ACCOUNTS_UNCLAIMED, id));
     });
   }
@@ -88,7 +89,7 @@ class SyncProcessManager {
   unassignAccountsMissingHeartbeats() {
     const client = PubsubConnector.broadcastClient();
 
-    console.log("SyncWorkerPool: Starting unassignment for processes missing heartbeats.")
+    console.log("ProcessManager: Starting unassignment for processes missing heartbeats.")
 
     Promise.each(client.keysAsync(`${ACCOUNTS_CLAIMED_PREFIX}*`), (key) => {
       const id = key.replace(ACCOUNTS_CLAIMED_PREFIX, '');
@@ -111,19 +112,19 @@ class SyncProcessManager {
       )
 
     return unassignOne(0).then((returned) => {
-      console.log(`SyncWorkerPool: Returned ${returned} accounts assigned to ${identity}.`)
+      console.log(`ProcessManager: Returned ${returned} accounts assigned to ${identity}.`)
     });
   }
 
   update() {
     this.ensureCapacity().then(() => {
-      console.log(`SyncWorkerPool: Voluntering to sync additional account.`)
+      console.log(`ProcessManager: Voluntering to sync additional account.`)
       this.acceptUnclaimedAccount().finally(() => {
         this.update();
       });
     })
     .catch((err) => {
-      console.log(`SyncWorkerPool: No capacity for additional accounts. ${err.message}`)
+      console.log(`ProcessManager: Decided not to sync additional account. ${err.message}`)
       setTimeout(() => this.update(), 5000)
     });
   }
@@ -139,7 +140,7 @@ class SyncProcessManager {
     }
 
     if (this._exiting) {
-      return Promise.reject(new Error('Quitting...'))
+      return Promise.reject(new Error('Process is exiting.'))
     }
 
     return Promise.resolve();
@@ -153,11 +154,10 @@ class SyncProcessManager {
     const src = ACCOUNTS_UNCLAIMED;
     const dst = ACCOUNTS_FOR(IDENTITY);
 
-    return this._waitForAccountClient.brpoplpushAsync(src, dst, 10000)
-    .then((accountId) => {
-      if (accountId) {
-        this.addWorkerForAccountId(accountId);
-      }
+    return this._waitForAccountClient.brpoplpushAsync(src, dst, 10000).then((accountId) => {
+      if (!accountId) { return }
+      this.addWorkerForAccountId(accountId);
+      setTimeout(() => this.removeWorker(), CLAIM_DURATION);
     });
   }
 
@@ -168,10 +168,31 @@ class SyncProcessManager {
           return;
         }
         DatabaseConnector.forAccount(account.id).then((db) => {
-          console.log(`SyncWorkerPool: Starting worker for Account ${accountId}`)
+          if (this._exiting) {
+            return;
+          }
+          console.log(`ProcessManager: Starting worker for Account ${accountId}`)
           this._workers[account.id] = new SyncWorker(account, db);
         });
       });
+    });
+  }
+
+  removeWorker() {
+    const src = ACCOUNTS_FOR(IDENTITY);
+    const dst = ACCOUNTS_UNCLAIMED;
+
+    return PubsubConnector.broadcastClient().rpoplpushAsync(src, dst).then((accountId) => {
+      if (!accountId) {
+        return;
+      }
+
+      console.log(`ProcessManager: Returning account ${accountId} to unclaimed pool.`)
+
+      if (this._workers[accountId]) {
+        this._workers[accountId].cleanup();
+      }
+      this._workers[accountId] = null;
     });
   }
 }
