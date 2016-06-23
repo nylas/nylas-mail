@@ -36,33 +36,6 @@ class PubsubConnector {
 
   // Shared channel
 
-  assignPolicy(accountId, policy) {
-    console.log(`Changing policy for ${accountId} to ${JSON.stringify(policy)}`)
-    const DatabaseConnector = require('./database-connector');
-    DatabaseConnector.forShared().then(({Account}) => {
-      Account.find({where: {id: accountId}}).then((account) => {
-        account.syncPolicy = policy;
-        account.save()
-      })
-    });
-  }
-
-  incrementActivePolicyLockForAccount(accountId) {
-    this.broadcastClient().incrAsync(`connections-${accountId}`).then((val) => {
-      if (val === 1) {
-        this.assignPolicy(accountId, SyncPolicy.activeUserPolicy())
-      }
-    })
-  }
-
-  decrementActivePolicyLockForAccount(accountId) {
-    this.broadcastClient().decrAsync(`connections-${accountId}`).then((val) => {
-      if (val === 0) {
-        this.assignPolicy(accountId, SyncPolicy.defaultPolicy())
-      }
-    });
-  }
-
   notifyAccountChange(accountId) {
     const channel = this.channelForAccount(accountId);
     this.broadcastClient().publish(channel, 'modified');

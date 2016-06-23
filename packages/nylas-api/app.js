@@ -23,7 +23,7 @@ const plugins = [Inert, Vision, HapiBasicAuth, {
 }];
 
 let sharedDb = null;
-const {DatabaseConnector} = require(`nylas-core`)
+const {DatabaseConnector, SchedulerUtils} = require(`nylas-core`)
 DatabaseConnector.forShared().then((db) => {
   sharedDb = db;
 });
@@ -41,6 +41,7 @@ const validate = (request, username, password, callback) => {
       return
     }
     token.getAccount().then((account) => {
+      SchedulerUtils.notifyAccountIsActive(account.id)
       callback(null, true, account);
     });
   });

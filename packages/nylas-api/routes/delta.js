@@ -1,6 +1,6 @@
 const Rx = require('rx')
 const _ = require('underscore');
-const {PubsubConnector, SyncPolicy} = require(`nylas-core`);
+const {PubsubConnector} = require(`nylas-core`);
 
 function keepAlive(request) {
   const until = Rx.Observable.fromCallback(request.on)("disconnect")
@@ -50,7 +50,6 @@ module.exports = (server) => {
     handler: (request, reply) => {
       const outputStream = createOutputStream();
       const account = request.auth.credentials;
-      PubsubConnector.incrementActivePolicyLockForAccount(account.id)
 
       request.getAccountDatabase().then((db) => {
         const source = Rx.Observable.merge(
@@ -60,7 +59,6 @@ module.exports = (server) => {
         ).subscribe(outputStream.pushJSON)
 
         request.on("disconnect", () => {
-          PubsubConnector.decrementActivePolicyLockForAccount(account.id)
           source.dispose()
         });
       });

@@ -1,4 +1,5 @@
 const {
+  SchedulerUtils,
   IMAPConnection,
   PubsubConnector,
   DatabaseConnector,
@@ -7,22 +8,8 @@ const {
 const FetchCategoryList = require('./imap/fetch-category-list')
 const FetchMessagesInCategory = require('./imap/fetch-messages-in-category')
 const SyncbackTaskFactory = require('./syncback-task-factory')
-//
-// account.syncPolicy = {
-//   afterSync: 'idle',
-//   limit: {
-//     after: Date.now() - 7 * 24 * 60 * 60 * 1000,
-//     count: 10000,
-//   },
-//   interval: 60 * 1000,
-//   folderSyncOptions: {
-//     deepFolderScan: 5 * 60 * 1000,
-//   },
-//   expiration: Date.now() + 60 * 60 * 1000,
-// }
 
 class SyncWorker {
-
   constructor(account, db) {
     this._db = db;
     this._conn = null;
@@ -167,15 +154,18 @@ class SyncWorker {
   }
 
   scheduleNextSync() {
-    const {interval} = this._account.syncPolicy;
+    SchedulerUtils.checkIfAccountIsActive(this._account.id).then((active) => {
+      const {intervals} = this._account.syncPolicy;
+      const interval = active ? intervals.active : intervals.inactive;
 
-    if (interval) {
-      const target = this._lastSyncTime + interval;
-      console.log(`SyncWorker: Next sync scheduled for ${new Date(target).toLocaleString()}`);
-      this._syncTimer = setTimeout(() => {
-        this.syncNow();
-      }, target - Date.now());
-    }
+      if (interval) {
+        const target = this._lastSyncTime + interval;
+        console.log(`SyncWorker: Account ${active ? 'active' : 'inactive'}. Next sync scheduled for ${new Date(target).toLocaleString()}`);
+        this._syncTimer = setTimeout(() => {
+          this.syncNow();
+        }, target - Date.now());
+      }
+    });
   }
 }
 

@@ -12,8 +12,7 @@ class Account extends React.Component {
       <div className="account">
         <h3>{account.email_address}</h3>
         <strong>{assignment}</strong>
-        <div>Sync Interval: {account.sync_policy.interval}ms</div>
-        <div>Sync Idle Behavior: {account.sync_policy.afterSync}</div>
+        <pre>{JSON.stringify(account.sync_policy, null, 2)}</pre>
       </div>
     );
   }
