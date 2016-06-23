@@ -1,6 +1,8 @@
 const {DatabaseConnector} = require(`nylas-core`)
 const {processors} = require('./processors')
 
+global.Promise = require('bluebird');
+
 // List of the attributes of Message that the processor should be allowed to change.
 // The message may move between folders, get starred, etc. while it's being
 // processed, and it shouldn't overwrite changes to those fields.

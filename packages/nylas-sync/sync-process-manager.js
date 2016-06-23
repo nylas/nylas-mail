@@ -1,16 +1,18 @@
 const os = require('os');
 const SyncWorker = require('./sync-worker');
-const {DatabaseConnector, PubsubConnector} = require(`nylas-core`)
+const {DatabaseConnector, PubsubConnector, SchedulerUtils} = require(`nylas-core`)
 
-const CPU_COUNT = os.cpus().length;
 const IDENTITY = `${os.hostname()}-${process.pid}`;
 
-const ACCOUNTS_UNCLAIMED = 'accounts:unclaimed';
-const ACCOUNTS_CLAIMED_PREFIX = 'accounts:id-';
-const ACCOUNTS_FOR = (id) => `${ACCOUNTS_CLAIMED_PREFIX}${id}`;
-const HEARTBEAT_FOR = (id) => `heartbeat:${id}`;
-const HEARTBEAT_EXPIRES = 30; // 2 min in prod?
-const CLAIM_DURATION = 10 * 60 * 1000; // 2 hours on prod?
+const {
+  ACCOUNTS_FOR,
+  ACCOUNTS_UNCLAIMED,
+  ACCOUNTS_CLAIMED_PREFIX,
+  HEARTBEAT_FOR,
+  HEARTBEAT_EXPIRES,
+  CLAIM_DURATION,
+  forEachAccountList,
+} = SchedulerUtils;
 
 /*
 Accounts ALWAYS exist in either `accounts:unclaimed` or an `accounts:{id}` list.
@@ -61,7 +63,7 @@ class SyncProcessManager {
     client.setAsync(key, Date.now()).then(() =>
       client.expireAsync(key, HEARTBEAT_EXPIRES)
     ).then(() =>
-      console.log("ProcessManager: Published heartbeat.")
+      console.log("ProcessManager: ❤")
     )
   }
 
@@ -85,11 +87,10 @@ class SyncProcessManager {
 
     console.log("ProcessManager: Starting scan for accountIds in database that are not present in Redis.")
 
-    return Promise.each(client.keysAsync(`accounts:*`), (key) =>
-      client.lrangeAsync(key, 0, 20000).then((foundIds) => {
-        unseenIds = unseenIds.filter((a) => !foundIds.includes(`${a}`))
-      })
-    ).finally(() => {
+    return forEachAccountList((foundProcessIdentity, foundIds) => {
+      unseenIds = unseenIds.filter((a) => !foundIds.includes(`${a}`))
+    })
+    .finally(() => {
       if (unseenIds.length === 0) {
         return;
       }

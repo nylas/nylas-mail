@@ -1,11 +1,10 @@
 const Rx = require('rx')
-const bluebird = require('bluebird')
 const redis = require("redis");
 
 const SyncPolicy = require('./sync-policy');
 
-bluebird.promisifyAll(redis.RedisClient.prototype);
-bluebird.promisifyAll(redis.Multi.prototype);
+Promise.promisifyAll(redis.RedisClient.prototype);
+Promise.promisifyAll(redis.Multi.prototype);
 
 class PubsubConnector {
   constructor() {
@@ -32,7 +31,7 @@ class PubsubConnector {
   }
 
   channelForAccountDeltas(accountId) {
-    return `a-${accountId}-deltas`;
+    return `deltas-${accountId}`;
   }
 
   // Shared channel

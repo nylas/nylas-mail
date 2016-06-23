@@ -158,9 +158,9 @@ class SyncWorker {
     .then(this.fetchCategoryList.bind(this))
     .then(this.syncbackMessageActions.bind(this))
     .then(this.fetchMessagesInCategory.bind(this))
-    .then(() => { this._lastSyncTime = Date.now() })
     .catch(console.error)
     .finally(() => {
+      this._lastSyncTime = Date.now()
       this.onSyncDidComplete();
       this.scheduleNextSync();
     });

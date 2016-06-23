@@ -1,6 +1,5 @@
 const Imap = require('imap');
 const EventEmitter = require('events');
-const Promise = require('bluebird');
 
 const Capabilities = {
   Gmail: 'X-GM-EXT-1',
