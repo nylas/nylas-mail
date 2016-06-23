@@ -402,12 +402,12 @@ class PGPKeyStore extends NylasStore
 
     pgpMsg = message.body.slice(blockStart, blockEnd)
 
-    # Don't let '+' get encoded
+    # Some users may send messages from sources that pollute the encrypted block.
     pgpMsg = pgpMsg.replace(/&#43;/gm,'+')
-
-    # There seemed to be issues with HTML tags being added to the message.
-    # Hopefully the <pre> tag fixed this, but just in case, here's a line to safeguard:
-    # pgpMsg = pgpMsg.replace(/<[^>]*>/gm,'')
+    pgpMsg = pgpMsg.replace(/(<br>)/g, '\n')
+    pgpMsg = pgpMsg.replace(/<\/(blockquote|div|dl|dt|dd|form|h1|h2|h3|h4|h5|h6|hr|ol|p|pre|table|tr|td|ul|li|section|header|footer)>/g, '\n')
+    pgpMsg = pgpMsg.replace(/<(.+?)>/g, '')
+    pgpMsg = pgpMsg.replace(/&nbsp;/g, ' ')
 
     pgp.unbox { keyfetch: ring, armored: pgpMsg }, (err, literals, warnings, subkey) =>
       if err
@@ -419,6 +419,10 @@ class PGPKeyStore extends NylasStore
 
         if literals.length > 0
           plaintext = literals[0].toString('utf8')
+
+          # <pre> tag for consistent styling
+          if plaintext.indexOf("<pre>") == -1
+            plaintext = "<pre>\n" + plaintext + "\n</pre>"
 
           # can't use _.template :(
           body = message.body.slice(0, blockStart) + plaintext + message.body.slice(blockEnd)
