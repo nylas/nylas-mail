@@ -44,8 +44,9 @@ function matchThread({db, accountId, message}) {
 }
 
 function cleanSubject(subject) {
-  if (subject === null)
+  if (subject === null) {
     return ""
+  }
   const regex = new RegExp(/^((re|fw|fwd|aw|wg|undeliverable|undelivered):\s*)+/ig)
   const cleanedSubject = subject.replace(regex, (match) => "")
   return cleanedSubject
@@ -148,6 +149,6 @@ function isSentToSelf({message, match}) {
 */
 
 module.exports = {
-  order: 0,
+  order: 1,
   processMessage,
 }
