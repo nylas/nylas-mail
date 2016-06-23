@@ -1,6 +1,6 @@
-class RefreshMailboxesOperation {
+class FetchCategoryList {
   description() {
-    return `RefreshMailboxesOperation`;
+    return `FetchCategoryList`;
   }
 
   _roleForMailbox(boxName, box) {
@@ -86,4 +86,4 @@ class RefreshMailboxesOperation {
   }
 }
 
-module.exports = RefreshMailboxesOperation;
+module.exports = FetchCategoryList;

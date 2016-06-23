@@ -4,8 +4,8 @@ const {
   DatabaseConnector,
 } = require('nylas-core');
 
-const RefreshMailboxesOperation = require('./imap/refresh-mailboxes-operation')
-const SyncMailboxOperation = require('./imap/sync-mailbox-operation')
+const FetchCategoryList = require('./imap/fetch-category-list')
+const FetchMessagesInCategory = require('./imap/fetch-messages-in-category')
 //
 // account.syncPolicy = {
 //   afterSync: 'idle',
@@ -111,12 +111,12 @@ class SyncWorker {
     });
   }
 
-  queueOperationsForUpdates() {
+  fetchCategoryList() {
     // todo: syncback operations belong here!
-    return this._conn.runOperation(new RefreshMailboxesOperation())
+    return this._conn.runOperation(new FetchCategoryList())
   }
 
-  queueOperationsForFolderSyncs() {
+  fetchMessagesInCategory() {
     const {Category} = this._db;
     const {folderSyncOptions} = this._account.syncPolicy;
 
@@ -131,24 +131,21 @@ class SyncWorker {
       // )
 
       return Promise.all(categoriesToSync.map((cat) =>
-        this._conn.runOperation(new SyncMailboxOperation(cat, folderSyncOptions))
-      )).then(() => {
-        this._lastSyncTime = Date.now();
-      });
+        this._conn.runOperation(new FetchMessagesInCategory(cat, folderSyncOptions))
+      ))
     });
   }
 
   syncNow() {
     clearTimeout(this._syncTimer);
 
-    this.ensureConnection().then(() =>
-      this.queueOperationsForUpdates().then(() =>
-        this.queueOperationsForFolderSyncs()
-      )
-    ).catch((err) => {
-      // Sync has failed for some reason. What do we do?!
-      console.error(err);
-    }).finally(() => {
+    this.ensureConnection()
+    .then(this.fetchCategoryList.bind(this))
+    .then(this.syncbackMessageActions.bind(this))
+    .then(this.fetchMessagesInCategory.bind(this))
+    .then(() => { this._lastSyncTime = Date.now() })
+    .catch(console.error)
+    .finally(() => {
       this.onSyncDidComplete();
       this.scheduleNextSync();
     });

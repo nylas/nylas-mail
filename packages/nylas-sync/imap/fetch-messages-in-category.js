@@ -5,17 +5,17 @@ const {Capabilities} = IMAPConnection;
 
 const MessageFlagAttributes = ['id', 'CategoryUID', 'unread', 'starred']
 
-class SyncMailboxOperation {
+class FetchMessagesInCategory {
   constructor(category, options) {
     this._category = category;
     this._options = options;
     if (!this._category) {
-      throw new Error("SyncMailboxOperation requires a category")
+      throw new Error("FetchMessagesInCategory requires a category")
     }
   }
 
   description() {
-    return `SyncMailboxOperation (${this._category.name} - ${this._category.id})\n  Options: ${JSON.stringify(this._options)}`;
+    return `FetchMessagesInCategory (${this._category.name} - ${this._category.id})\n  Options: ${JSON.stringify(this._options)}`;
   }
 
   _getLowerBoundUID(count) {
@@ -177,36 +177,42 @@ class SyncMailboxOperation {
     });
   }
 
+  _shouldRunDeepScan() {
+    const {timeDeepScan} = this._category.syncState;
+    return Date.now() - (timeDeepScan || 0) > this._options.deepFolderScan
+  }
+
+  _runDeepScan(range) {
+    const {Message} = this.db;
+    return this._imap.fetchUIDAttributes(range).then((remoteUIDAttributes) =>
+      Message.findAll({
+        where: {CategoryId: this._category.id},
+        attributes: MessageFlagAttributes,
+      }).then((localMessageAttributes) =>
+        Promise.props({
+          upserts: this._createAndUpdateMessages(remoteUIDAttributes, localMessageAttributes),
+          deletes: this._removeDeletedMessages(remoteUIDAttributes, localMessageAttributes),
+        })
+      ).then(() => {
+        return this.updateCategorySyncState({
+          highestmodseq: this._box.highestmodseq,
+          timeDeepScan: Date.now(),
+          timeShallowScan: Date.now(),
+        });
+      })
+    );
+  }
+
   _fetchChangesToMessages() {
-    const {highestmodseq, timeDeepScan} = this._category.syncState;
+    const {highestmodseq} = this._category.syncState;
     const nextHighestmodseq = this._box.highestmodseq;
 
-    const {Message} = this._db;
-    const {limit} = this._options;
-    const range = `${this._getLowerBoundUID(limit)}:*`;
+    const range = `${this._getLowerBoundUID(this._options.limit)}:*`;
 
     console.log(` - fetching changes to messages ${range}`)
 
-    const shouldRunDeepScan = Date.now() - (timeDeepScan || 0) > this._options.deepFolderScan
-
-    if (shouldRunDeepScan) {
-      return this._imap.fetchUIDAttributes(range).then((remoteUIDAttributes) =>
-        Message.findAll({
-          where: {CategoryId: this._category.id},
-          attributes: MessageFlagAttributes,
-        }).then((localMessageAttributes) =>
-          Promise.props({
-            upserts: this._createAndUpdateMessages(remoteUIDAttributes, localMessageAttributes),
-            deletes: this._removeDeletedMessages(remoteUIDAttributes, localMessageAttributes),
-          })
-        ).then(() => {
-          return this.updateCategorySyncState({
-            highestmodseq: nextHighestmodseq,
-            timeDeepScan: Date.now(),
-            timeShallowScan: Date.now(),
-          });
-        })
-      );
+    if (this._shouldRunDeepScan()) {
+      return this._runDeepScan(range)
     }
 
     let shallowFetch = null;
@@ -222,7 +228,7 @@ class SyncMailboxOperation {
     }
 
     return shallowFetch.then((remoteUIDAttributes) =>
-      Message.findAll({
+      this._db.Message.findAll({
         where: {CategoryId: this._category.id},
         attributes: MessageFlagAttributes,
       }).then((localMessageAttributes) =>
@@ -257,4 +263,4 @@ class SyncMailboxOperation {
   }
 }
 
-module.exports = SyncMailboxOperation;
+module.exports = FetchMessagesInCategory;
