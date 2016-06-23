@@ -4,9 +4,8 @@ const _ = require('underscore');
 const Serialization = require('../serialization');
 const {
   IMAPConnection,
-  PubsubConnector,
   DatabaseConnector,
-  SyncPolicy
+  SyncPolicy,
 } = require('nylas-core');
 
 const imapSmtpSettings = Joi.object().keys({
@@ -86,11 +85,6 @@ module.exports = (server) => {
             AccountToken.create({
               AccountId: saved.id,
             }).then((accountToken) => {
-              const client = PubsubConnector.broadcastClient();
-              client.lpushAsync('accounts:unclaimed', saved.id).catch((err) => {
-                console.error(`Auth: Could not queue account sync! ${err.message}`)
-              });
-
               const response = saved.toJSON();
               response.token = accountToken.value;
               reply(Serialization.jsonStringify(response));

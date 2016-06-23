@@ -1,7 +1,8 @@
 const Sequelize = require('sequelize');
 const fs = require('fs');
 const path = require('path');
-const TransactionLog = require('./transaction-log')
+const HookTransactionLog = require('./hook-transaction-log');
+const HookAccountCRUD = require('./hook-account-crud');
 
 require('./database-extensions'); // Extends Sequelize on require
 
@@ -49,8 +50,7 @@ class DatabaseConnector {
     db.Sequelize = Sequelize;
     db.accountId = accountId;
 
-    const transactionLog = new TransactionLog(db);
-    transactionLog.setupSQLHooks(sequelize)
+    HookTransactionLog(db, sequelize);
 
     return sequelize.authenticate().then(() =>
       sequelize.sync()
@@ -75,16 +75,7 @@ class DatabaseConnector {
     db.sequelize = sequelize;
     db.Sequelize = Sequelize;
 
-    const changeObserver = ({dataValues, $modelOptions}) => {
-      if ($modelOptions.name.singular === 'Account') {
-        const PubsubConnector = require('./pubsub-connector');
-        PubsubConnector.notifyAccountChange(dataValues.id);
-      }
-    }
-
-    sequelize.addHook("afterCreate", changeObserver)
-    sequelize.addHook("afterUpdate", changeObserver)
-    sequelize.addHook("afterDelete", changeObserver)
+    HookAccountCRUD(db, sequelize);
 
     return sequelize.authenticate().then(() =>
       sequelize.sync()
