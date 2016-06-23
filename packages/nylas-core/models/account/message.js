@@ -28,8 +28,9 @@ module.exports = (sequelize, Sequelize) => {
       },
     ],
     classMethods: {
-      associate: ({Category}) => {
+      associate: ({Category, Thread}) => {
         Message.belongsTo(Category)
+        Message.belongsTo(Thread)
       },
       hashForHeaders: (headers) => {
         return crypto.createHash('sha256').update(headers, 'utf8').digest('hex');
