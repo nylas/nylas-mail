@@ -4,6 +4,7 @@
   "description": "Core shared packages",
   "main": "index.js",
   "dependencies": {
+    "imap": "0.8.x",
     "sqlite3": "3.1.4"
   },
   "author": "Nylas",
