@@ -19,7 +19,6 @@ const start = () => {
   });
 }
 
-DatabaseConnectionFactory.setup()
 start();
 
 global.workerPool = workerPool;

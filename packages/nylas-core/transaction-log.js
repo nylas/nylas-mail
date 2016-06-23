@@ -1,4 +1,4 @@
-const DeltaStreamQueue = require('./delta-stream-queue')
+const AccountPubsub = require('./account-pubsub')
 
 class TransactionLog {
   constructor(db) {
@@ -24,8 +24,8 @@ class TransactionLog {
         this.parseHookData(sequelizeHookData)
       );
       this.db.Transaction.create(transactionData);
-      transactionData.object = sequelizeHookData.dataValues
-      DeltaStreamQueue.notify(this.db.accountId, transactionData)
+      transactionData.object = sequelizeHookData.dataValues;
+      AccountPubsub.notify(this.db.accountId, transactionData);
     }
   }
 

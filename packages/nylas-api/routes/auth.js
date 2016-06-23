@@ -89,10 +89,10 @@ module.exports = (server) => {
           account.save().then((saved) =>
             AccountToken.create({
               AccountId: saved.id,
-            }).then((token) => {
-              const response = Serialization.jsonStringify(saved);
-              response.token = token;
-              reply(response);
+            }).then((accountToken) => {
+              const response = saved.toJSON();
+              response.token = accountToken.value;
+              reply(Serialization.jsonStringify(response));
             })
           );
         })

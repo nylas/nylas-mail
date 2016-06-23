@@ -2,7 +2,6 @@ const Sequelize = require('sequelize');
 const fs = require('fs');
 const path = require('path');
 const TransactionLog = require('./transaction-log')
-const DeltaStreamQueue = require('./delta-stream-queue.js')
 
 require('./database-extensions'); // Extends Sequelize on require
 
@@ -14,10 +13,6 @@ if (!fs.existsSync(STORAGE_DIR)) {
 class DatabaseConnectionFactory {
   constructor() {
     this._pools = {};
-  }
-
-  setup() {
-    DeltaStreamQueue.setup()
   }
 
   _readModelsInDirectory(sequelize, dirname) {

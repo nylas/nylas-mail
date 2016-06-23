@@ -63,8 +63,6 @@ server.register(plugins, (err) => {
   server.auth.strategy('api-consumer', 'basic', { validateFunc: validate });
   server.auth.default('api-consumer');
 
-  DatabaseConnectionFactory.setup()
-
   server.start((startErr) => {
     if (startErr) { throw startErr; }
     console.log('Server running at:', server.info.uri);
