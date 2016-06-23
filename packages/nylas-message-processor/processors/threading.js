@@ -1,66 +1,5 @@
 const {DatabaseConnector} = require('nylas-core')
 
-function cleanSubject(subject) {
-  if (subject === null) {
-    return ""
-  }
-  const regex = new RegExp(/^((re|fw|fwd|aw|wg|undeliverable|undelivered):\s*)+/ig)
-  const cleanedSubject = subject.replace(regex, () => "")
-  return cleanedSubject
-}
-
-function getThreadFromReferences({db, references}) {
-  const {Message} = db
-  const messageId = references.split()[references.length - 1]
-  return Message.find({where: {messageId: messageId}})
-  .then((message) => {
-    return message.getThread()
-  })
-}
-
-function matchThread({db, message}) {
-  const {Thread} = db
-  if (message.headers.references) {
-    return getThreadFromReferences()
-    .then((thread) => {
-      if (thread) {
-        return thread
-      }
-      return Thread.create({
-        subject: message.subject,
-        cleanedSubject: cleanSubject(message.subject),
-      })
-    })
-  }
-
-  return Thread.create({
-    subject: message.subject,
-    cleanedSubject: cleanSubject(message.subject),
-  })
-}
-
-function addMessageToThread({db, accountId, message}) {
-  const {Thread} = db
-  // Check for Gmail's own thread ID
-  if (message.headers['X-GM-THRID']) {
-    return Thread.find({where: {threadId: message.headers['X-GM-THRID']}})
-  }
-  return matchThread({db, accountId, message})
-  .then((thread) => (thread))
-}
-
-function processMessage({message, accountId}) {
-  return DatabaseConnector.forAccount(accountId)
-  .then((db) => addMessageToThread({db, accountId, message}))
-  .then((thread) => {
-    thread.addMessage(message)
-    message.setThread(thread)
-    return message
-  })
-}
-
-// TODO: Incorporate this more elaborate threading algorithm
-/*
 function fetchCorrespondingThread({db, accountId, message}) {
   const cleanedSubject = cleanSubject(message.subject)
   return getThreads({db, message, cleanedSubject})
@@ -153,7 +92,77 @@ function isSentToSelf({message, match}) {
     matchFrom === matchTo &&
     messageTo === matchFrom)
 }
-*/
+
+function cleanSubject(subject) {
+  if (subject === null) {
+    return ""
+  }
+  const regex = new RegExp(/^((re|fw|fwd|aw|wg|undeliverable|undelivered):\s*)+/ig)
+  const cleanedSubject = subject.replace(regex, () => "")
+  return cleanedSubject
+}
+
+function getThreadFromReferences({db, references}) {
+  const {Message} = db
+  const messageId = references.split()[references.length - 1]
+  return Message.find({where: {messageId: messageId}})
+  .then((message) => {
+    return message.getThread()
+  })
+}
+
+function matchThread({db, accountId, message}) {
+  const {Thread} = db
+  if (message.headers.references) {
+    return getThreadFromReferences()
+    .then((thread) => {
+      if (thread) {
+        return thread
+      }
+      return fetchCorrespondingThread({db, accountId, message})
+      .then((thread) => {
+        if (thread) {
+          return thread
+        }
+        return Thread.create({
+          subject: message.subject,
+          cleanedSubject: cleanSubject(message.subject),
+        })
+      })
+    })
+  }
+
+  return fetchCorrespondingThread({db, accountId, message})
+  .then((thread) => {
+    if (thread) {
+      return thread
+    }
+    return Thread.create({
+      subject: message.subject,
+      cleanedSubject: cleanSubject(message.subject),
+    })
+  })
+}
+
+function addMessageToThread({db, accountId, message}) {
+  const {Thread} = db
+  // Check for Gmail's own thread ID
+  if (message.headers['X-GM-THRID']) {
+    return Thread.find({where: {threadId: message.headers['X-GM-THRID']}})
+  }
+  return matchThread({db, accountId, message})
+  .then((thread) => (thread))
+}
+
+function processMessage({message, accountId}) {
+  return DatabaseConnector.forAccount(accountId)
+  .then((db) => addMessageToThread({db, accountId, message}))
+  .then((thread) => {
+    thread.addMessage(message)
+    message.setThread(thread)
+    return message
+  })
+}
 
 module.exports = {
   order: 1,
