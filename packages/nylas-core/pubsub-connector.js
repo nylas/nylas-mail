@@ -116,6 +116,11 @@ class PubsubConnector {
       }
     })
   }
+
+  queueSyncbackTask({taskName, props}) {
+    const channel = this.channelForSyncbackTaskQueue(accountId);
+    this.broadcastClient().publish(channel, JSON.stringify(data))
+  }
 }
 
 module.exports = new PubsubConnector()

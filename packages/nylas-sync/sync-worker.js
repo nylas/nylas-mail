@@ -6,6 +6,7 @@ const {
 
 const FetchCategoryList = require('./imap/fetch-category-list')
 const FetchMessagesInCategory = require('./imap/fetch-messages-in-category')
+const SyncbackTaskFactory = require('./syncback-task-factory')
 //
 // account.syncPolicy = {
 //   afterSync: 'idle',
@@ -116,7 +117,18 @@ class SyncWorker {
   }
 
   syncbackMessageActions() {
-    return Promise.resolve()
+    return Promise.resolve();
+    // TODO
+    const {SyncbackRequest, accountId, Account} = this._db;
+
+    return Account.find({where: {id: accountId}}).then((account) => {
+      return Promise.each(SyncbackRequest.findAll().then((reqs = []) =>
+        reqs.map((request) => {
+          const task = SyncbackTaskFactory.create(account, request);
+          return this._conn.runOperation(task)
+        })
+      ));
+    });
   }
 
   fetchMessagesInCategory() {

@@ -17,6 +17,9 @@ function jsonSchema(modelName) {
   if (modelName === 'Message') {
     return Joi.object();
   }
+  if (modelName === 'Thread') {
+    return Joi.object();
+  }
   if (modelName === 'Error') {
     return Joi.object();
   }

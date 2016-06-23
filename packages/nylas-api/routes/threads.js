@@ -15,7 +15,7 @@ module.exports = (server) => {
       },
       response: {
         schema: Joi.array().items(
-          Serialization.jsonSchema('Account')
+          Serialization.jsonSchema('Thread')
         ),
       },
     },
@@ -24,6 +24,41 @@ module.exports = (server) => {
         const {Thread} = db;
         Thread.findAll({limit: 50}).then((threads) => {
           reply(Serialization.jsonStringify(threads));
+        })
+      })
+    },
+  });
+
+  server.route({
+    method: 'PUT',
+    path: '/threads/${id}',
+    config: {
+      description: 'Update a thread',
+      notes: 'Can move between folders',
+      tags: ['threads'],
+      validate: {
+        params: {
+          payload: {
+            folder_id: Joi.string(),
+          },
+        },
+      },
+      response: {
+        schema: Joi.array().items(
+          Serialization.jsonSchema('Thread')
+        ),
+      },
+    },
+    handler: (request, reply) => {
+      request.getAccountDatabase().then((db) => {
+        db.SyncbackRequest.create({
+          type: "MoveToFolder",
+          props: {
+            folderId: request.params.folder_id,
+            threadId: request.params.id,
+          },
+        }).then((syncbackRequest) => {
+          reply(Serialization.jsonStringify(syncbackRequest))
         })
       })
     },
