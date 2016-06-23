@@ -1,6 +1,7 @@
 const _ = require('underscore');
 const {processMessage} = require(`nylas-message-processor`);
-const {Capabilities} = require('./connection.js');
+const {IMAPConnection} = require('nylas-core');
+const {Capabilities} = IMAPConnection;
 
 const MessageFlagAttributes = ['id', 'CategoryUID', 'unread', 'starred']
 

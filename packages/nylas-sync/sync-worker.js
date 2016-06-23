@@ -1,4 +1,4 @@
-const IMAPConnection = require('./imap/connection');
+const {IMAPConnection} = require('nylas-core');
 const RefreshMailboxesOperation = require('./imap/refresh-mailboxes-operation')
 const SyncMailboxOperation = require('./imap/sync-mailbox-operation')
 //
@@ -75,14 +75,14 @@ class SyncWorker {
       const settings = this._account.connectionSettings;
       const credentials = this._account.decryptedCredentials();
 
-      if (!settings || !settings.imap) {
+      if (!settings || !settings.imap_host) {
         throw new Error("ensureConnection: There are no IMAP connection settings for this account.")
       }
-      if (!credentials || !credentials.imap) {
+      if (!credentials || !credentials.imap_username) {
         throw new Error("ensureConnection: There are no IMAP connection credentials for this account.")
       }
 
-      const conn = new IMAPConnection(this._db, Object.assign({}, settings.imap, credentials.imap));
+      const conn = new IMAPConnection(this._db, Object.assign({}, settings, credentials));
       conn.on('mail', () => {
         this.onConnectionIdleUpdate();
       })

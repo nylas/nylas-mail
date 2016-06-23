@@ -6,6 +6,7 @@ const password = 'd6F3Efeq';
 
 module.exports = (sequelize, Sequelize) => {
   const Account = sequelize.define('Account', {
+    name: Sequelize.STRING,
     emailAddress: Sequelize.STRING,
     connectionSettings: JSONType('connectionSettings'),
     connectionCredentials: Sequelize.STRING,

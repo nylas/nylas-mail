@@ -1,5 +1,6 @@
 const Imap = require('imap');
 const EventEmitter = require('events');
+const Promise = require('bluebird');
 
 const Capabilities = {
   Gmail: 'X-GM-EXT-1',
@@ -18,11 +19,13 @@ class IMAPConnection extends EventEmitter {
     this._db = db;
     this._queue = [];
     this._current = null;
-    this._imap = Promise.promisifyAll(new Imap(settings));
-
-    this._imap.once('error', (err) => {
-      console.log(err);
-    });
+    this._imap = Promise.promisifyAll(new Imap({
+      host: settings.imap_host,
+      port: settings.imap_port,
+      user: settings.imap_username,
+      password: settings.imap_password,
+      tls: settings.ssl_required,
+    }));
 
     this._imap.once('end', () => {
       console.log('Connection ended');
@@ -56,8 +59,9 @@ class IMAPConnection extends EventEmitter {
 
   connect() {
     if (!this._connectPromise) {
-      this._connectPromise = new Promise((resolve) => {
+      this._connectPromise = new Promise((resolve, reject) => {
         this._imap.once('ready', resolve);
+        this._imap.once('error', reject);
         this._imap.connect();
       });
     }
