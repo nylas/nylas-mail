@@ -183,7 +183,7 @@ class FetchMessagesInCategory {
   }
 
   _runDeepScan(range) {
-    const {Message} = this.db;
+    const {Message} = this._db;
     return this._imap.fetchUIDAttributes(range).then((remoteUIDAttributes) =>
       Message.findAll({
         where: {CategoryId: this._category.id},

@@ -1,25 +1,24 @@
-const {DatabaseConnectionFactory} = require('nylas-core')
+const {DatabaseConnector} = require('nylas-core')
 
-function processMessage({message, accountId}) {
-  return DatabaseConnectionFactory.forAccount(accountId)
-  .then((db) => addMessageToThread({db, accountId, message}))
-  .then((thread) => {
-    thread.addMessage(message)
-    message.setThread(thread)
-    return message
+function cleanSubject(subject) {
+  if (subject === null) {
+    return ""
+  }
+  const regex = new RegExp(/^((re|fw|fwd|aw|wg|undeliverable|undelivered):\s*)+/ig)
+  const cleanedSubject = subject.replace(regex, () => "")
+  return cleanedSubject
+}
+
+function getThreadFromReferences({db, references}) {
+  const {Message} = db
+  const messageId = references.split()[references.length - 1]
+  return Message.find({where: {messageId: messageId}})
+  .then((message) => {
+    return message.getThread()
   })
 }
 
-function addMessageToThread({db, accountId, message}) {
-  const {Thread, Message} = db
-  if (message.threadId) {
-    return Thread.find({where: {threadId: message.threadId}})
-  }
-  return matchThread({db, accountId, message})
-  .then((thread) => (thread))
-}
-
-function matchThread({db, accountId, message}) {
+function matchThread({db, message}) {
   const {Thread} = db
   if (message.headers.references) {
     return getThreadFromReferences()
@@ -40,22 +39,23 @@ function matchThread({db, accountId, message}) {
   })
 }
 
-function getThreadFromReferences({db, references}) {
-  const {Message} = db
-  const messageId = references.split()[references.length - 1]
-  return Message.find({where: {messageId: messageId}})
-  .then((message) => {
-    return message.getThread()
-  })
+function addMessageToThread({db, accountId, message}) {
+  const {Thread} = db
+  if (message.threadId) {
+    return Thread.find({where: {threadId: message.threadId}})
+  }
+  return matchThread({db, accountId, message})
+  .then((thread) => (thread))
 }
 
-function cleanSubject(subject) {
-  if (subject === null) {
-    return ""
-  }
-  const regex = new RegExp(/^((re|fw|fwd|aw|wg|undeliverable|undelivered):\s*)+/ig)
-  const cleanedSubject = subject.replace(regex, (match) => "")
-  return cleanedSubject
+function processMessage({message, accountId}) {
+  return DatabaseConnector.forAccount(accountId)
+  .then((db) => addMessageToThread({db, accountId, message}))
+  .then((thread) => {
+    thread.addMessage(message)
+    message.setThread(thread)
+    return message
+  })
 }
 
 // TODO: Incorporate this more elaborate threading algorithm

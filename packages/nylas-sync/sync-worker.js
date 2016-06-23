@@ -112,8 +112,11 @@ class SyncWorker {
   }
 
   fetchCategoryList() {
-    // todo: syncback operations belong here!
     return this._conn.runOperation(new FetchCategoryList())
+  }
+
+  syncbackMessageActions() {
+    return Promise.resolve()
   }
 
   fetchMessagesInCategory() {
