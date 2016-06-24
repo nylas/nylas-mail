@@ -158,7 +158,7 @@ class SyncProcessManager {
   addWorkerForAccountId(accountId) {
     DatabaseConnector.forShared().then(({Account}) => {
       Account.find({where: {id: accountId}}).then((account) => {
-        if (!account) {
+        if (!account || this._workers[account.id]) {
           return;
         }
         DatabaseConnector.forAccount(account.id).then((db) => {

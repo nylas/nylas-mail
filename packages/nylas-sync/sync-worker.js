@@ -80,7 +80,7 @@ class SyncWorker {
       if (!settings || !settings.imap_host) {
         throw new Error("ensureConnection: There are no IMAP connection settings for this account.")
       }
-      if (!credentials || !credentials.imap_username) {
+      if (!credentials) {
         throw new Error("ensureConnection: There are no IMAP connection credentials for this account.")
       }
 
