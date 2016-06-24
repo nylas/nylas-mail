@@ -10,7 +10,6 @@ const HEARTBEAT_EXPIRES = 30; // 2 min in prod?
 const CLAIM_DURATION = 10 * 60 * 1000; // 2 hours on prod?
 
 const PubsubConnector = require('./pubsub-connector');
-const SyncPolicy = require('./sync-policy');
 
 const forEachAccountList = (forEachCallback) => {
   const client = PubsubConnector.broadcastClient();

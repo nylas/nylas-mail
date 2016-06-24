@@ -7,7 +7,7 @@ const {forEachAccountList} = SchedulerUtils;
 global.Promise = require('bluebird');
 
 const server = new Hapi.Server();
-server.connection({ port: process.env.PORT || 5101 });
+server.connection({ port: process.env.PORT / 1 + 1 || 5101 });
 
 DatabaseConnector.forShared().then(({Account}) => {
   server.register([HapiWebSocket, Inert], () => {
@@ -62,14 +62,14 @@ DatabaseConnector.forShared().then(({Account}) => {
       path: '/{param*}',
       handler: {
         directory: {
-          path: 'public',
+          path: require('path').join(__dirname, 'public'),
         },
       },
     });
 
     server.start((startErr) => {
       if (startErr) { throw startErr; }
-      console.log('Server running at:', server.info.uri);
+      console.log('Dashboard running at:', server.info.uri);
     });
   });
 });
