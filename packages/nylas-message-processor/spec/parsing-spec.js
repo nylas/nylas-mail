@@ -14,7 +14,6 @@ it('parses the message correctly', (done) => {
   const bodyPart = `<p>In <a href="https://github.com/electron/electron.atom.io/pull/352#discussion_r67715160">_data/apps.yml</a>:</p>`
 
   processMessage({message}).then((processed) => {
-    expect(true).toBe(false)
     expect(processed.headers['in-reply-to']).toEqual('<electron/electron.atom.io/pull/352@github.com>')
     expect(processed.messageId).toEqual('<electron/electron.atom.io/pull/352/r67715160@github.com>')
     expect(processed.subject).toEqual('Re: [electron/electron.atom.io] Add Jasper app (#352)')
