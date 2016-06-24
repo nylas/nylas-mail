@@ -3,6 +3,7 @@ module.exports = (sequelize, Sequelize) => {
     threadId: Sequelize.STRING,
     subject: Sequelize.STRING,
     cleanedSubject: Sequelize.STRING,
+    unreadCount: Sequelize.INTEGER,
   }, {
     classMethods: {
       associate: ({Message}) => {

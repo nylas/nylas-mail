@@ -127,6 +127,7 @@ function matchThread({db, accountId, message}) {
         return Thread.create({
           subject: message.subject,
           cleanedSubject: cleanSubject(message.subject),
+          unreadCount: 0,
         })
       })
     })
@@ -140,6 +141,7 @@ function matchThread({db, accountId, message}) {
     return Thread.create({
       subject: message.subject,
       cleanedSubject: cleanSubject(message.subject),
+      unreadCount: 0,
     })
   })
 }
@@ -154,12 +156,22 @@ function addMessageToThread({db, accountId, message}) {
   .then((thread) => (thread))
 }
 
+function updateThreadProperties({thread, message}) {
+  // Update the thread's unread count
+  if (message.unread) {
+    thread.unreadCount++;
+    thread.save();
+  }
+}
+
+
 function processMessage({message, accountId}) {
   return DatabaseConnector.forAccount(accountId)
   .then((db) => addMessageToThread({db, accountId, message}))
   .then((thread) => {
     thread.addMessage(message)
     message.setThread(thread)
+    updateThreadProperties({thread, message})
     return message
   })
 }

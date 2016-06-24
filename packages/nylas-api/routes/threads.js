@@ -10,7 +10,8 @@ module.exports = (server) => {
       notes: 'Notes go here',
       tags: ['threads'],
       validate: {
-        params: {
+        query: {
+          unread: Joi.boolean().allow(''),
         },
       },
       response: {
@@ -22,9 +23,19 @@ module.exports = (server) => {
     handler: (request, reply) => {
       request.getAccountDatabase().then((db) => {
         const {Thread} = db;
-        Thread.findAll({limit: 50}).then((threads) => {
-          reply(Serialization.jsonStringify(threads));
-        })
+        // the unread value will be '' if the url was just '/threads?unread'
+        if (request.query.unread || request.query.unread === '') {
+          Thread.findAll({
+            where: {unreadCount: {gt: 0}},
+            limit: 50,
+          }).then((threads) => {
+            reply(Serialization.jsonStringify(threads));
+          })
+        } else {
+          Thread.findAll({limit: 50}).then((threads) => {
+            reply(Serialization.jsonStringify(threads));
+          })
+        }
       })
     },
   });
