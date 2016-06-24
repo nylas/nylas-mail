@@ -5,8 +5,19 @@
   "main": "index.js",
   "author": "Nylas",
   "license": "ISC",
+  "scripts": {
+    "test": "babel-node spec/run.js"
+  },
   "dependencies": {
     "mailparser": "0.6.0",
     "nylas-core": "0.x.x"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.10.1",
+    "babel-preset-es2015": "^6.9.0",
+    "jasmine": "^2.4.1"
+  },
+  "babel": {
+    "presets": ["es2015"]
   }
 }
