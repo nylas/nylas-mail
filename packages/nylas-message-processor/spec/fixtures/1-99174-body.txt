@@ -1,0 +1,51 @@
+----==_mimepart_576812149912_70c83ff638d112bc812dd
+Content-Type: text/plain;
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+> @@ -1298,3 +1298,15 @@
+>      - "Unity"
+>      - "Scratch"
+>    icon: "gausssense.png"
+> +-
+> +  name: "Jasper"
+> +  description: "The GitHub Issue Reader"
+> +  website: "https://jasperapp.io"
+> +  repository: "https://github.com/jasperapp/jasper"
+> +  license: ""
+
+Oh oops, one more thing, you can also just remove this line rather than leave it empty. 
+
+---
+You are receiving this because you are subscribed to this thread.
+Reply to this email directly or view it on GitHub:
+https://github.com/electron/electron.atom.io/pull/352/files/c3af72fe5aea0add912cd5afe153a626619de222#r67715160
+----==_mimepart_576812149912_70c83ff638d112bc812dd
+Content-Type: text/html;
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<p>In <a href="https://github.com/electron/electron.atom.io/pull/352#discussion_r67715160">_data/apps.yml</a>:</p>
+<pre style='color:#555'>&gt; @@ -1298,3 +1298,15 @@
+&gt;      - &quot;Unity&quot;
+&gt;      - &quot;Scratch&quot;
+&gt;    icon: &quot;gausssense.png&quot;
+&gt; +-
+&gt; +  name: &quot;Jasper&quot;
+&gt; +  description: &quot;The GitHub Issue Reader&quot;
+&gt; +  website: &quot;https://jasperapp.io&quot;
+&gt; +  repository: &quot;https://github.com/jasperapp/jasper&quot;
+&gt; +  license: &quot;&quot;
+</pre>
+<p>Oh oops, one more thing, you can also just remove this line rather than leave it empty. </p>
+
+<p style="font-size:small;-webkit-text-size-adjust:none;color:#666;">&mdash;<br />You are receiving this because you are subscribed to this thread.<br />Reply to this email directly, <a href="https://github.com/electron/electron.atom.io/pull/352/files/c3af72fe5aea0add912cd5afe153a626619de222#r67715160">view it on GitHub</a>, or <a href="https://github.com/notifications/unsubscribe/AA_TnJLmsKfR4hNuUZ3uUkv2iQ-_LjhEks5qNrgUgaJpZM4I5F90">mute the thread</a>.<img alt="" height="1" src="https://github.com/notifications/beacon/AA_TnBFImPbNv9RyTxshvjiT_cZCsVwCks5qNrgUgaJpZM4I5F90.gif" width="1" /></p>
+<div itemscope itemtype="http://schema.org/EmailMessage">
+<div itemprop="action" itemscope itemtype="http://schema.org/ViewAction">
+  <link itemprop="url" href="https://github.com/electron/electron.atom.io/pull/352/files/c3af72fe5aea0add912cd5afe153a626619de222#r67715160"></link>
+  <meta itemprop="name" content="View Pull Request"></meta>
+</div>
+<meta itemprop="description" content="View this Pull Request on GitHub"></meta>
+</div>
+
+----==_mimepart_576812149912_70c83ff638d112bc812dd--

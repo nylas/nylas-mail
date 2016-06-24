@@ -2,7 +2,7 @@ const path = require('path')
 const fs = require('fs')
 const {processMessage} = require('../processors/parsing')
 
-const BASE_PATH = path.join('/', 'Users', 'juan', 'Downloads', 'sample data')
+const BASE_PATH = path.join(__dirname, 'fixtures')
 
 
 it('parses the message correctly', (done) => {
