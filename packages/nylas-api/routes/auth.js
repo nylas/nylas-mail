@@ -1,4 +1,4 @@
-const Joi = require('Joi');
+const Joi = require('joi');
 const _ = require('underscore');
 
 const Serialization = require('../serialization');
