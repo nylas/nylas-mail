@@ -226,7 +226,7 @@ describe("UnreadNotifications", function UnreadNotifications() {
     });
   });
 
-  it("should not create a Notification if the new messages are not unread", () => {
+  it("should not create a Notification if the new messages are read", () => {
     waitsForPromise(() => {
       return this.notifier._onNewMailReceived({message: [this.msgRead]})
       .then(() => {
