@@ -1,5 +1,7 @@
 const crypto = require('crypto');
+const IMAPConnection = require('../../imap-connection')
 const {JSONType, JSONARRAYType} = require('../../database-types');
+
 
 module.exports = (sequelize, Sequelize) => {
   const Message = sequelize.define('Message', {
@@ -37,6 +39,26 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
     instanceMethods: {
+      fetchRaw({account, db}) {
+        return this.getCategory()
+        .then((category) => {
+          const settings = Object.assign({}, account.connectionSettings, account.decryptedCredentials())
+          const conn = new IMAPConnection(db, settings)
+          return conn.connect()
+          .then(() => conn.openBox(category.name))
+          .then(() => {
+            return new Promise((resolve) => {
+              conn.fetchMessages([this.CategoryUID], (attributes, headers, body) => {
+                resolve(`${headers}${body}`)
+              })
+            })
+          })
+          .then((raw) => {
+            conn.end()
+            return raw
+          })
+        })
+      },
       toJSON: function toJSON() {
         return {
           id: this.id,
