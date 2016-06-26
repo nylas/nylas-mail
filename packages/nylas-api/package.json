@@ -12,6 +12,7 @@
     "hapi": "13.4.1",
     "hapi-auth-basic": "4.2.0",
     "hapi-swagger": "6.1.0",
+    "hapi-boom-decorators": "1.1.3",
     "inert": "4.0.0",
     "joi": "8.4.2",
     "nylas-core": "0.x.x",

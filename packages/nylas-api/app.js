@@ -1,5 +1,6 @@
 const Hapi = require('hapi');
 const HapiSwagger = require('hapi-swagger');
+const HapiBoom = require('hapi-boom-decorators')
 const HapiBasicAuth = require('hapi-auth-basic');
 const Inert = require('inert');
 const Vision = require('vision');
@@ -12,7 +13,7 @@ global.Promise = require('bluebird');
 const server = new Hapi.Server();
 server.connection({ port: process.env.PORT || 5100 });
 
-const plugins = [Inert, Vision, HapiBasicAuth, {
+const plugins = [Inert, Vision, HapiBasicAuth, HapiBoom, {
   register: HapiSwagger,
   options: {
     info: {
