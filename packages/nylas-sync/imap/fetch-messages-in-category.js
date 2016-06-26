@@ -114,6 +114,7 @@ class FetchMessagesInCategory {
 
   _fetchMessagesAndQueueForProcessing(range) {
     const messagesObservable = this._box.fetch(range)
+    // TODO Error handling here
     messagesObservable.subscribe(this._processMessage.bind(this))
     return messagesObservable.toPromise()
   }

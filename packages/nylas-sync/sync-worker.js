@@ -22,9 +22,8 @@ class SyncWorker {
 
     this.syncNow();
 
-    this._listener = PubsubConnector.observableForAccountChanges(account.id).subscribe(() => {
-      this.onAccountChanged();
-    });
+    this._listener = PubsubConnector.observableForAccountChanges(account.id)
+    .subscribe(() => this.onAccountChanged())
   }
 
   cleanup() {
@@ -47,18 +46,19 @@ class SyncWorker {
     const {afterSync} = this._account.syncPolicy;
 
     if (afterSync === 'idle') {
-      this.getInboxCategory().then((inboxCategory) => {
-        this._conn.openBox(inboxCategory.name, true).then(() => {
+      return this.getInboxCategory()
+      .then((inboxCategory) => {
+        this._conn.openBox(inboxCategory.name).then(() => {
           console.log("SyncWorker: - Idling on inbox category");
-        });
+        })
       });
     } else if (afterSync === 'close') {
       console.log("SyncWorker: - Closing connection");
       this._conn.end();
       this._conn = null;
-    } else {
-      throw new Error(`onSyncDidComplete: Unknown afterSync behavior: ${afterSync}`)
+      return Promise.resolve()
     }
+    return Promise.reject(new Error(`onSyncDidComplete: Unknown afterSync behavior: ${afterSync}`))
   }
 
   onConnectionIdleUpdate() {
@@ -73,15 +73,15 @@ class SyncWorker {
     if (this._conn) {
       return this._conn.connect();
     }
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const settings = this._account.connectionSettings;
       const credentials = this._account.decryptedCredentials();
 
       if (!settings || !settings.imap_host) {
-        throw new Error("ensureConnection: There are no IMAP connection settings for this account.")
+        return reject(new Error("ensureConnection: There are no IMAP connection settings for this account."))
       }
       if (!credentials) {
-        throw new Error("ensureConnection: There are no IMAP connection credentials for this account.")
+        return reject(new Error("ensureConnection: There are no IMAP connection credentials for this account."))
       }
 
       const conn = new IMAPConnection(this._db, Object.assign({}, settings, credentials));
@@ -145,11 +145,13 @@ class SyncWorker {
     .then(this.fetchCategoryList.bind(this))
     .then(this.syncbackMessageActions.bind(this))
     .then(this.fetchMessagesInCategory.bind(this))
+    // TODO Update account sync state in this error handler
     .catch(console.error)
     .finally(() => {
       this._lastSyncTime = Date.now()
-      this.onSyncDidComplete();
-      this.scheduleNextSync();
+      this.onSyncDidComplete()
+      .catch((error) => console.error('SyncWorker.syncNow: Unhandled error while cleaning up sync: ', error))
+      .finally(() => this.scheduleNextSync())
     });
   }
 

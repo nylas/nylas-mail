@@ -166,7 +166,7 @@ class IMAPConnection extends EventEmitter {
     if (this._settings.refresh_token) {
       const xoauthFields = ['client_id', 'client_secret', 'imap_username', 'refresh_token'];
       if (Object.keys(_.pick(this._settings, xoauthFields)).length !== 4) {
-        throw new Error(`IMAPConnection: Expected ${xoauthFields.join(',')} when given refresh_token`)
+        return Promise.reject(new Error(`IMAPConnection: Expected ${xoauthFields.join(',')} when given refresh_token`))
       }
       return new Promise((resolve, reject) => {
         xoauth2.createXOAuth2Generator({
@@ -223,6 +223,7 @@ class IMAPConnection extends EventEmitter {
   end() {
     this._queue = [];
     this._imap.end();
+    this._imap = null;
   }
 
   serverSupports(capability) {
@@ -251,28 +252,29 @@ class IMAPConnection extends EventEmitter {
   }
 
   processNextOperation() {
-    if (this._currentOperation) { return; }
+    if (this._currentOperation) { return }
     this._currentOperation = this._queue.shift();
     if (!this._currentOperation) {
       this.emit('queue-empty');
-      return;
+      return
     }
 
     const {operation, resolve, reject} = this._currentOperation;
     console.log(`Starting task ${operation.description()}`)
     const result = operation.run(this._db, this);
     if (result instanceof Promise === false) {
-      throw new Error(`Expected ${operation.constructor.name} to return promise.`);
+      reject(new Error(`Expected ${operation.constructor.name} to return promise.`))
     }
-    result.catch((err) => {
-      this._currentOperation = null;
-      console.error(err);
-      reject();
-    })
+    result
     .then(() => {
       this._currentOperation = null;
       console.log(`Finished task ${operation.description()}`)
       resolve();
+    })
+    .catch((err) => {
+      this._currentOperation = null;
+      console.error(err);
+      reject(err);
     })
     .finally(() => {
       this.processNextOperation();
