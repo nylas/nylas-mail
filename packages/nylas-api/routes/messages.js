@@ -64,9 +64,13 @@ module.exports = (server) => {
 
         if (accept === 'message/rfc822') {
           query.then((message) => {
+            // TODO message not found
             message.fetchRaw({account, db})
-            .then((raw) => reply(raw))
-            .catch((error) => console.log(error))
+            .then((rawMessage) => reply(rawMessage))
+            .catch((error) => {
+              console.log('Error fetching raw message: ', error)
+              reply(error)
+            })
           })
         } else {
           query.then((message) => {

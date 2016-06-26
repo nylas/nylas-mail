@@ -100,7 +100,7 @@ module.exports = (server) => {
       }
 
       Promise.all(connectionChecks).then(() => {
-        buildAccountWith({
+        return buildAccountWith({
           name,
           email,
           settings: _.pick(settings, [
@@ -121,6 +121,7 @@ module.exports = (server) => {
       })
       .catch((err) => {
         // TODO: Lots more of this
+        console.log(err)
         reply({error: err.toString()});
       })
     },
