@@ -12,8 +12,8 @@ export class Notifier {
     this.unlisteners = [];
     this.unlisteners.push(Actions.didPassivelyReceiveNewModels.listen(this._onNewMailReceived, this));
     this.activationTime = Date.now();
-    this.stack = [];
-    this.stackProcessTimer = null;
+    this.unnotifiedQueue = [];
+    this.hasScheduledNotify = false;
   }
 
   unlisten() {
@@ -24,10 +24,10 @@ export class Notifier {
 
   _notifyAll() {
     NativeNotifications.displayNotification({
-      title: `${this.stack.length} Unread Messages`,
+      title: `${this.unnotifiedQueue.length} Unread Messages`,
       tag: 'unread-update',
     });
-    this.stack = [];
+    this.unnotifiedQueue = [];
   }
 
   _notifyOne({message, thread}) {
@@ -66,15 +66,16 @@ export class Notifier {
   }
 
   _notifyMessages() {
-    if (this.stack.length >= 5) {
+    if (this.unnotifiedQueue.length >= 5) {
       this._notifyAll()
-    } else if (this.stack.length > 0) {
-      this._notifyOne(this.stack.pop());
+    } else if (this.unnotifiedQueue.length > 0) {
+      this._notifyOne(this.unnotifiedQueue.shift());
     }
 
-    this.stackProcessTimer = null;
-    if (this.stack.length > 0) {
-      this.stackProcessTimer = setTimeout(() => this._notifyMessages(), 2000);
+    this.hasScheduledNotify = false;
+    if (this.unnotifiedQueue.length > 0) {
+      setTimeout(() => this._notifyMessages(), 2000);
+      this.hasScheduledNotify = true;
     }
   }
 
@@ -150,9 +151,9 @@ export class Notifier {
         }
 
         for (const msg of newUnreadInInbox) {
-          this.stack.push({message: msg, thread: resolvedThreads[msg.threadId]});
+          this.unnotifiedQueue.push({message: msg, thread: resolvedThreads[msg.threadId]});
         }
-        if (!this.stackProcessTimer) {
+        if (!this.hasScheduledNotify) {
           if (NylasEnv.config.get("core.notifications.sounds")) {
             SoundRegistry.playSound('new-mail');
           }
