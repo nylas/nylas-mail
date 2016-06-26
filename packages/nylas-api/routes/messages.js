@@ -60,23 +60,22 @@ module.exports = (server) => {
         const {headers: {accept}} = request
         const {params: {id}} = request
         const account = request.auth.credentials
-        const query = db.Message.findOne({where: {id}})
 
-        if (accept === 'message/rfc822') {
-          query.then((message) => {
-            // TODO message not found
-            message.fetchRaw({account, db})
+        db.Message.findOne({where: {id}})
+        .then((message) => {
+          if (!message) {
+            return reply.notFound(`Message ${id} not found`)
+          }
+          if (accept === 'message/rfc822') {
+            return message.fetchRaw({account, db})
             .then((rawMessage) => reply(rawMessage))
-            .catch((error) => {
-              console.log('Error fetching raw message: ', error)
-              reply(error)
-            })
-          })
-        } else {
-          query.then((message) => {
-            reply(Serialization.jsonStringify(message));
-          })
-        }
+          }
+          return reply(Serialization.jsonStringify(message));
+        })
+        .catch((error) => {
+          console.log('Error fetching message: ', error)
+          reply(error)
+        })
       })
     },
   })

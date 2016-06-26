@@ -7,6 +7,9 @@ const MessageFlagAttributes = ['id', 'CategoryUID', 'unread', 'starred']
 
 class FetchMessagesInCategory {
   constructor(category, options) {
+    this._imap = null
+    this._box = null
+    this._db = null
     this._category = category;
     this._options = options;
     if (!this._category) {
@@ -73,7 +76,7 @@ class FetchMessagesInCategory {
     console.log(` -- found ${changedMessages.length} flag changes`)
 
     return Promise.props({
-      creates: this._imap.fetchMessages(createdUIDs, this._processMessage.bind(this)),
+      creates: this._fetchMessagesAndQueueForProcessing(createdUIDs),
       updates: this._db.sequelize.transaction((transaction) =>
         Promise.all(changedMessages.map(m => m.save({
           fields: MessageFlagAttributes,
@@ -109,9 +112,14 @@ class FetchMessagesInCategory {
     );
   }
 
-  _processMessage(attributes, headers, body) {
-    const {Message, accountId} = this._db;
+  _fetchMessagesAndQueueForProcessing(range) {
+    const messagesObservable = this._box.fetch(range)
+    messagesObservable.subscribe(this._processMessage.bind(this))
+    return messagesObservable.toPromise()
+  }
 
+  _processMessage({attributes, headers, body}) {
+    const {Message, accountId} = this._db;
     const hash = Message.hashForHeaders(headers);
     const values = {
       hash: hash,
@@ -134,16 +142,16 @@ class FetchMessagesInCategory {
   }
 
   _openMailboxAndEnsureValidity() {
-    return this._imap.openBox(this._category.name, true).then((box) => {
-      this._box = box;
-
+    return this._imap.openBox(this._category.name)
+    .then((box) => {
       if (box.persistentUIDs === false) {
-        throw new Error("Mailbox does not support persistentUIDs.")
+        return Promise.reject(new Error("Mailbox does not support persistentUIDs."))
       }
       if (box.uidvalidity !== this._category.syncState.uidvalidity) {
-        return this._recoverFromUIDInvalidity();
+        return this._recoverFromUIDInvalidity()
+        .then(() => Promise.resolve(box))
       }
-      return Promise.resolve();
+      return Promise.resolve(box);
     })
   }
 
@@ -167,14 +175,14 @@ class FetchMessagesInCategory {
       range = `${savedSyncState.uidnext}:*`
     }
 
-    return this._imap.fetch(range, this._processMessage.bind(this)).then(() => {
+    return this._fetchMessagesAndQueueForProcessing(range).then(() => {
       console.log(` - finished fetching unseen messages`);
       return this.updateCategorySyncState({
         uidnext: boxSyncState.uidnext,
         uidvalidity: boxSyncState.uidvalidity,
         timeFetchedUnseen: Date.now(),
       });
-    });
+    })
   }
 
   _shouldRunDeepScan() {
@@ -184,21 +192,25 @@ class FetchMessagesInCategory {
 
   _runDeepScan(range) {
     const {Message} = this._db;
-    return this._imap.fetchUIDAttributes(range).then((remoteUIDAttributes) =>
+    return this._box.fetchUIDAttributes(range)
+    .then((remoteUIDAttributes) =>
       Message.findAll({
         where: {CategoryId: this._category.id},
         attributes: MessageFlagAttributes,
-      }).then((localMessageAttributes) =>
+      })
+      .then((localMessageAttributes) => (
         Promise.props({
           upserts: this._createAndUpdateMessages(remoteUIDAttributes, localMessageAttributes),
           deletes: this._removeDeletedMessages(remoteUIDAttributes, localMessageAttributes),
         })
-      ).then(() => {
+      ))
+      .then(() => {
+        console.log(` - finished fetching changes to messages ${range}`);
         return this.updateCategorySyncState({
           highestmodseq: this._box.highestmodseq,
           timeDeepScan: Date.now(),
           timeShallowScan: Date.now(),
-        });
+        })
       })
     );
   }
@@ -206,7 +218,6 @@ class FetchMessagesInCategory {
   _fetchChangesToMessages() {
     const {highestmodseq} = this._category.syncState;
     const nextHighestmodseq = this._box.highestmodseq;
-
     const range = `${this._getLowerBoundUID(this._options.limit)}:*`;
 
     console.log(` - fetching changes to messages ${range}`)
@@ -216,30 +227,33 @@ class FetchMessagesInCategory {
     }
 
     let shallowFetch = null;
-
     if (this._imap.serverSupports(Capabilities.Condstore)) {
       if (nextHighestmodseq === highestmodseq) {
         console.log(" --- highestmodseq matches, nothing more to fetch")
         return Promise.resolve();
       }
-      shallowFetch = this._imap.fetchUIDAttributes(range, {changedsince: highestmodseq});
+      shallowFetch = this._box.fetchUIDAttributes(range, {changedsince: highestmodseq});
     } else {
-      shallowFetch = this._imap.fetchUIDAttributes(`${this._getLowerBoundUID(1000)}:*`);
+      shallowFetch = this._box.fetchUIDAttributes(`${this._getLowerBoundUID(1000)}:*`);
     }
 
-    return shallowFetch.then((remoteUIDAttributes) =>
+    return shallowFetch
+    .then((remoteUIDAttributes) => (
       this._db.Message.findAll({
         where: {CategoryId: this._category.id},
         attributes: MessageFlagAttributes,
-      }).then((localMessageAttributes) =>
+      })
+      .then((localMessageAttributes) => (
         this._createAndUpdateMessages(remoteUIDAttributes, localMessageAttributes)
-      ).then(() => {
+      ))
+      .then(() => {
+        console.log(` - finished fetching changes to messages ${range}`);
         return this.updateCategorySyncState({
           highestmodseq: nextHighestmodseq,
           timeShallowScan: Date.now(),
-        });
+        })
       })
-    )
+    ))
   }
 
   updateCategorySyncState(newState) {
@@ -255,11 +269,11 @@ class FetchMessagesInCategory {
     this._imap = imap;
 
     return this._openMailboxAndEnsureValidity()
-    .then(() =>
-      this._fetchUnseenMessages()
-    ).then(() =>
-      this._fetchChangesToMessages()
-    )
+    .then((box) => {
+      this._box = box
+      return this._fetchUnseenMessages()
+      .then(() => this._fetchChangesToMessages())
+    })
   }
 }
 
