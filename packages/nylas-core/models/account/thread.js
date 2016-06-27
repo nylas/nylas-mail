@@ -5,6 +5,9 @@ module.exports = (sequelize, Sequelize) => {
     cleanedSubject: Sequelize.STRING,
     unreadCount: Sequelize.INTEGER,
     starredCount: Sequelize.INTEGER,
+    firstMessageTimestamp: Sequelize.DATE,
+    lastMessageTimestamp: Sequelize.DATE,
+    lastMessageReceivedTimestamp: Sequelize.DATE,
   }, {
     classMethods: {
       associate: ({Message}) => {

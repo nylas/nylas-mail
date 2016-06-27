@@ -127,6 +127,7 @@ function matchThread({db, accountId, message}) {
         return Thread.create({
           subject: message.subject,
           cleanedSubject: cleanSubject(message.subject),
+          firstMessageTimestamp: message.date,
           unreadCount: 0,
           starredCount: 0,
         })
@@ -142,6 +143,7 @@ function matchThread({db, accountId, message}) {
     return Thread.create({
       subject: message.subject,
       cleanedSubject: cleanSubject(message.subject),
+      firstMessageTimestamp: message.date,
       unreadCount: 0,
       starredCount: 0,
     })
@@ -155,10 +157,19 @@ function addMessageToThread({db, accountId, message}) {
     return Thread.find({where: {threadId: message.headers['X-GM-THRID']}})
   }
   return matchThread({db, accountId, message})
-  .then((thread) => (thread))
+  .then((thread) => ({db, thread}))
 }
 
-function updateThreadProperties({thread, message}) {
+function updateThreadProperties({db, thread, message}) {
+  const {Category} = db;
+  Category.findById(message.CategoryId).then((category) => {
+    if (category.role !== 'sent') {
+      thread.lastMessageReceivedTimestamp = message.date;
+      thread.save();
+    }
+  })
+  thread.lastMessageTimestamp = message.date;
+
   if (message.unread) {
     thread.unreadCount++;
   }
@@ -172,10 +183,10 @@ function updateThreadProperties({thread, message}) {
 function processMessage({message, accountId}) {
   return DatabaseConnector.forAccount(accountId)
   .then((db) => addMessageToThread({db, accountId, message}))
-  .then((thread) => {
+  .then(({db, thread}) => {
     thread.addMessage(message)
     message.setThread(thread)
-    updateThreadProperties({thread, message})
+    updateThreadProperties({db, thread, message})
     return message
   })
 }

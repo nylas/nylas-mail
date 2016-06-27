@@ -11,9 +11,13 @@ module.exports = (server) => {
       tags: ['threads'],
       validate: {
         query: {
+          id: Joi.number().integer().min(0),
           unread: Joi.boolean(),
           starred: Joi.boolean(),
-          id: Joi.number().integer().min(0),
+          startedBefore: Joi.date().timestamp(),
+          startedAfter: Joi.date().timestamp(),
+          lastMessageBefore: Joi.date().timestamp(),
+          lastMessageAfter: Joi.date().timestamp(),
         },
       },
       response: {
@@ -25,20 +29,45 @@ module.exports = (server) => {
     handler: (request, reply) => {
       request.getAccountDatabase().then((db) => {
         const {Thread} = db;
+        const query = request.query;
         const where = {};
 
-        if (request.query.id) {
-          where.id = request.query.id;
+        if (query.id) {
+          where.id = query.id;
         }
-        if (request.query.unread) {
+
+        // Boolean queries
+        if (query.unread) {
           where.unreadCount = {gt: 0};
-        } else if (request.query.unread !== undefined) {
+        } else if (query.unread !== undefined) {
           where.unreadCount = 0;
         }
-        if (request.query.starred) {
+        if (query.starred) {
           where.starredCount = {gt: 0};
-        } else if (request.query.starred !== undefined) {
+        } else if (query.starred !== undefined) {
           where.starredCount = 0;
+        }
+
+        // Timestamp queries
+        if (query.lastMessageBefore) {
+          where.lastMessageReceivedTimestamp = {lt: query.lastMessageBefore};
+        }
+        if (query.lastMessageAfter) {
+          if (where.lastMessageReceivedTimestamp) {
+            where.lastMessageReceivedTimestamp.gt = query.lastMessageAfter;
+          } else {
+            where.lastMessageReceivedTimestamp = {gt: query.lastMessageAfter};
+          }
+        }
+        if (query.startedBefore) {
+          where.firstMessageTimestamp = {lt: query.startedBefore};
+        }
+        if (query.startedAfter) {
+          if (where.firstMessageTimestamp) {
+            where.firstMessageTimestamp.gt = query.startedAfter;
+          } else {
+            where.firstMessageTimestamp = {gt: query.startedAfter};
+          }
         }
 
         Thread.findAll({
