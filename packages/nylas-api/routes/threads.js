@@ -13,6 +13,7 @@ module.exports = (server) => {
         query: {
           unread: Joi.boolean(),
           starred: Joi.boolean(),
+          id: Joi.number().integer().min(0),
         },
       },
       response: {
@@ -26,6 +27,9 @@ module.exports = (server) => {
         const {Thread} = db;
         const where = {};
 
+        if (request.query.id) {
+          where.id = request.query.id;
+        }
         if (request.query.unread) {
           where.unreadCount = {gt: 0};
         } else if (request.query.unread !== undefined) {
