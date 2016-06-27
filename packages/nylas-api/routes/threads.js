@@ -12,6 +12,7 @@ module.exports = (server) => {
       validate: {
         query: {
           id: Joi.number().integer().min(0),
+          subject: Joi.string(),
           unread: Joi.boolean(),
           starred: Joi.boolean(),
           startedBefore: Joi.date().timestamp(),
@@ -34,6 +35,11 @@ module.exports = (server) => {
 
         if (query.id) {
           where.id = query.id;
+        }
+        if (query.subject) {
+          // the 'like' operator is case-insenstive in sequelite and for
+          // non-binary strings in mysql
+          where.subject = {like: query.subject};
         }
 
         // Boolean queries
