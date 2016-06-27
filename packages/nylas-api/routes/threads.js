@@ -11,7 +11,8 @@ module.exports = (server) => {
       tags: ['threads'],
       validate: {
         query: {
-          unread: Joi.boolean().allow(''),
+          unread: Joi.boolean(),
+          starred: Joi.boolean(),
         },
       },
       response: {
@@ -23,19 +24,25 @@ module.exports = (server) => {
     handler: (request, reply) => {
       request.getAccountDatabase().then((db) => {
         const {Thread} = db;
-        // the unread value will be '' if the url was just '/threads?unread'
-        if (request.query.unread || request.query.unread === '') {
-          Thread.findAll({
-            where: {unreadCount: {gt: 0}},
-            limit: 50,
-          }).then((threads) => {
-            reply(Serialization.jsonStringify(threads));
-          })
-        } else {
-          Thread.findAll({limit: 50}).then((threads) => {
-            reply(Serialization.jsonStringify(threads));
-          })
+        const where = {};
+
+        if (request.query.unread) {
+          where.unreadCount = {gt: 0};
+        } else if (request.query.unread !== undefined) {
+          where.unreadCount = 0;
         }
+        if (request.query.starred) {
+          where.starredCount = {gt: 0};
+        } else if (request.query.starred !== undefined) {
+          where.starredCount = 0;
+        }
+
+        Thread.findAll({
+          where: where,
+          limit: 50,
+        }).then((threads) => {
+          reply(Serialization.jsonStringify(threads));
+        })
       })
     },
   });

@@ -128,6 +128,7 @@ function matchThread({db, accountId, message}) {
           subject: message.subject,
           cleanedSubject: cleanSubject(message.subject),
           unreadCount: 0,
+          starredCount: 0,
         })
       })
     })
@@ -142,6 +143,7 @@ function matchThread({db, accountId, message}) {
       subject: message.subject,
       cleanedSubject: cleanSubject(message.subject),
       unreadCount: 0,
+      starredCount: 0,
     })
   })
 }
@@ -157,11 +159,13 @@ function addMessageToThread({db, accountId, message}) {
 }
 
 function updateThreadProperties({thread, message}) {
-  // Update the thread's unread count
   if (message.unread) {
     thread.unreadCount++;
-    thread.save();
   }
+  if (message.starred) {
+    thread.starredCount++;
+  }
+  thread.save();
 }
 
 

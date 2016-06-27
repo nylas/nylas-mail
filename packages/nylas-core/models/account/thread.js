@@ -4,6 +4,7 @@ module.exports = (sequelize, Sequelize) => {
     subject: Sequelize.STRING,
     cleanedSubject: Sequelize.STRING,
     unreadCount: Sequelize.INTEGER,
+    starredCount: Sequelize.INTEGER,
   }, {
     classMethods: {
       associate: ({Message}) => {
