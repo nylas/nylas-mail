@@ -28,7 +28,6 @@ function processMessage({message}) {
   }
 
   // extract data from the raw headers object
-  message.messageId = message.headers['message-id'];
   for (const field of ['to', 'from', 'cc', 'bcc']) {
     message[field] = extractContacts(message.headers[field]);
   }

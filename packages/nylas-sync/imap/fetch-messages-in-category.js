@@ -188,6 +188,9 @@ class FetchMessagesInCategory {
       headers: Imap.parseHeader(headers),
     }
 
+    values.messageId = values.headers['message-id'][0];
+    values.subject = values.headers.subject[0];
+
     Message.find({where: {hash}}).then((existing) => {
       if (existing) {
         Object.assign(existing, values);
