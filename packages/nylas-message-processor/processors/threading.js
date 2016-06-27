@@ -104,10 +104,9 @@ function cleanSubject(subject) {
   return cleanedSubject
 }
 
-function getThreadFromReferences({db, references}) {
+function getThreadFromHeader({db, inReplyTo}) {
   const {Message} = db
-  const messageId = references.split()[references.length - 1]
-  return Message.find({where: {messageId: messageId}})
+  return Message.find({where: {messageId: inReplyTo}})
   .then((message) => {
     return message.getThread()
   })
@@ -115,8 +114,8 @@ function getThreadFromReferences({db, references}) {
 
 function matchThread({db, accountId, message}) {
   const {Thread} = db
-  if (message.headers.references) {
-    return getThreadFromReferences()
+  if (message.headers['In-Reply-To']) {
+    return getThreadFromHeader({db, inReplyTo: message.headers['In-Reply-To']})
     .then((thread) => {
       if (thread) {
         return thread
