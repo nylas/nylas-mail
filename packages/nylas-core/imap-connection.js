@@ -1,7 +1,7 @@
 const Rx = require('rx')
 const Imap = require('imap');
 const _ = require('underscore');
-const xoauth2 = require("xoauth2");
+const xoauth2 = require('xoauth2');
 const EventEmitter = require('events');
 
 
@@ -273,7 +273,7 @@ class IMAPConnection extends EventEmitter {
     })
     .catch((err) => {
       this._currentOperation = null;
-      console.error(err);
+      console.log(`Task errored: ${operation.description()}`)
       reject(err);
     })
     .finally(() => {

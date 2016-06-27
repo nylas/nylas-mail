@@ -7,4 +7,5 @@ module.exports = {
   SyncPolicy: require('./sync-policy'),
   SchedulerUtils: require('./scheduler-utils'),
   Config: require(`./config/${process.env.ENV || 'development'}`),
+  ExtendableError: require('./extendable-error'),
 }

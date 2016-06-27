@@ -3,11 +3,19 @@ const {
   IMAPConnection,
   PubsubConnector,
   DatabaseConnector,
+  ExtendableError,
 } = require('nylas-core');
 
 const FetchCategoryList = require('./imap/fetch-category-list')
 const FetchMessagesInCategory = require('./imap/fetch-messages-in-category')
 const SyncbackTaskFactory = require('./syncback-task-factory')
+
+class SyncAllCategoriesError extends ExtendableError {
+  constructor(message, failures) {
+    super(message)
+    this.failures = failures
+  }
+}
 
 class SyncWorker {
   constructor(account, db) {
@@ -47,11 +55,8 @@ class SyncWorker {
 
     if (afterSync === 'idle') {
       return this.getInboxCategory()
-      .then((inboxCategory) => {
-        this._conn.openBox(inboxCategory.name).then(() => {
-          console.log("SyncWorker: - Idling on inbox category");
-        })
-      });
+      .then((inboxCategory) => this._conn.openBox(inboxCategory.name))
+      .then(() => console.log("SyncWorker: - Idling on inbox category"))
     } else if (afterSync === 'close') {
       console.log("SyncWorker: - Closing connection");
       this._conn.end();
@@ -95,7 +100,7 @@ class SyncWorker {
       });
 
       this._conn = conn;
-      resolve(this._conn.connect());
+      return resolve(this._conn.connect());
     });
   }
 
@@ -118,7 +123,7 @@ class SyncWorker {
     });
   }
 
-  fetchMessagesInCategory() {
+  syncAllCategories() {
     const {Category} = this._db;
     const {folderSyncOptions} = this._account.syncPolicy;
 
@@ -132,25 +137,47 @@ class SyncWorker {
       //   ['[Gmail]/All Mail', '[Gmail]/Trash', '[Gmail]/Spam'].includes(cat.name)
       // )
 
+      // TODO Don't accumulate errors, just bail on the first error and clear
+      // the queue and the connection
+      const failures = []
       return Promise.all(categoriesToSync.map((cat) =>
         this._conn.runOperation(new FetchMessagesInCategory(cat, folderSyncOptions))
+        .catch((error) => failures.push({error, category: cat.name}))
       ))
+      .then(() => {
+        if (failures.length > 0) {
+          const error = new SyncAllCategoriesError(
+            `Failed to sync all categories for ${this._account.emailAddress}`, failures
+          )
+          return Promise.reject(error)
+        }
+        return Promise.resolve()
+      })
     });
   }
 
   syncNow() {
     clearTimeout(this._syncTimer);
-
     this.ensureConnection()
     .then(this.fetchCategoryList.bind(this))
     .then(this.syncbackMessageActions.bind(this))
-    .then(this.fetchMessagesInCategory.bind(this))
-    // TODO Update account sync state in this error handler
-    .catch(console.error)
+    .then(this.syncAllCategories.bind(this))
+    .catch((error) => {
+      // TODO
+      // Distinguish between temporary and critical errors
+      // Update account sync state for critical errors
+      // Handle connection errors separately
+      console.log('----------------------------------')
+      console.log('Erroring where you are supposed to')
+      console.log(error)
+      console.log('----------------------------------')
+    })
     .finally(() => {
       this._lastSyncTime = Date.now()
       this.onSyncDidComplete()
-      .catch((error) => console.error('SyncWorker.syncNow: Unhandled error while cleaning up sync: ', error))
+      .catch((error) => (
+        console.error('SyncWorker.syncNow: Unhandled error while cleaning up after sync: ', error)
+      ))
       .finally(() => this.scheduleNextSync())
     });
   }

@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const {JSONType} = require('../../database-types');
+const {JSONType, JSONARRAYType} = require('../../database-types');
 
 const algorithm = 'aes-256-ctr';
 const password = 'd6F3Efeq';
@@ -11,6 +11,7 @@ module.exports = (sequelize, Sequelize) => {
     connectionSettings: JSONType('connectionSettings'),
     connectionCredentials: Sequelize.STRING,
     syncPolicy: JSONType('syncPolicy'),
+    syncErrors: JSONARRAYType('syncErrors'),
   }, {
     classMethods: {
       associate: ({AccountToken}) => {
@@ -24,7 +25,12 @@ module.exports = (sequelize, Sequelize) => {
           email_address: this.emailAddress,
           connection_settings: this.connectionSettings,
           sync_policy: this.syncPolicy,
+          sync_errors: this.syncErrors,
         }
+      },
+
+      errored: function errored() {
+        return this.syncErrors.length > 0
       },
 
       setCredentials: function setCredentials(json) {

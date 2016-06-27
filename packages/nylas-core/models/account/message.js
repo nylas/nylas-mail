@@ -39,7 +39,7 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
     instanceMethods: {
-      fetchRaw({account, db}) {
+      fetchRaw: function fetchRaw({account, db}) {
         const settings = Object.assign({}, account.connectionSettings, account.decryptedCredentials())
         return Promise.props({
           category: this.getCategory(),
@@ -57,6 +57,7 @@ module.exports = (sequelize, Sequelize) => {
           .finally(() => connection.end())
         })
       },
+
       toJSON: function toJSON() {
         return {
           id: this.id,
