@@ -63,7 +63,7 @@ class SyncProcessManager {
     client.setAsync(key, Date.now()).then(() =>
       client.expireAsync(key, HEARTBEAT_EXPIRES)
     ).then(() =>
-      console.log("ProcessManager: ❤")
+      console.log("ProcessManager: 💘")
     )
   }
 

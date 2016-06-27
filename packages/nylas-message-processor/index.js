@@ -9,9 +9,9 @@ global.Promise = require('bluebird');
 const MessageAttributes = ['body', 'processed']
 const MessageProcessorVersion = 1;
 
-function runPipeline(accountId, message) {
+function runPipeline({db, accountId, message}) {
   return processors.reduce((prevPromise, processor) => (
-    prevPromise.then((msg) => processor({message: msg, accountId}))
+    prevPromise.then((msg) => processor({db, accountId, message: msg}))
   ), Promise.resolve(message))
 }
 
@@ -24,9 +24,10 @@ function saveMessage(message) {
 
 function processMessage({messageId, accountId}) {
   DatabaseConnector.forAccount(accountId)
-  .then(({Message}) =>
+  .then((db) => {
+    const {Message} = db
     Message.find({where: {id: messageId}}).then((message) =>
-      runPipeline(accountId, message)
+      runPipeline({db, accountId, message})
       .then((processedMessage) => saveMessage(processedMessage))
       .catch((err) =>
         console.error(`MessageProcessor Failed: ${err}`)
@@ -35,7 +36,7 @@ function processMessage({messageId, accountId}) {
     .catch((err) =>
       console.error(`MessageProcessor: Couldn't find message id ${messageId} in accountId: ${accountId}: ${err}`)
     )
-  )
+  })
 }
 
 module.exports = {
