@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "mailparser": "0.6.0",
+    "mimelib": "^0.2.19",
     "nylas-core": "0.x.x"
   },
   "devDependencies": {
@@ -18,6 +19,8 @@
     "jasmine": "^2.4.1"
   },
   "babel": {
-    "presets": ["es2015"]
+    "presets": [
+      "es2015"
+    ]
   }
 }

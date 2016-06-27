@@ -128,7 +128,7 @@ class SyncWorker {
     const {folderSyncOptions} = this._account.syncPolicy;
 
     return Category.findAll().then((categories) => {
-      const priority = ['inbox', 'drafts', 'sent'].reverse();
+      const priority = ['inbox', 'all', 'drafts', 'sent', 'spam', 'trash'].reverse();
       let categoriesToSync = categories.sort((a, b) =>
         (priority.indexOf(a.role) - priority.indexOf(b.role)) * -1
       )
@@ -137,7 +137,6 @@ class SyncWorker {
         categoriesToSync = categoriesToSync.filter(cat =>
           ['[Gmail]/All Mail', '[Gmail]/Trash', '[Gmail]/Spam'].includes(cat.name)
         )
-
         if (categoriesToSync.length !== 3) {
           throw new Error(`Account is missing a core Gmail folder: ${categoriesToSync.join(',')}`)
         }

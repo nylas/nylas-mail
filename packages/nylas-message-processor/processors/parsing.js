@@ -1,4 +1,4 @@
-const {MailParser} = require('mailparser')
+const mimelib = require('mimelib');
 const SNIPPET_SIZE = 100
 
 function Contact({name, address}) {
@@ -8,43 +8,32 @@ function Contact({name, address}) {
   }
 }
 
-const extractContacts = (field) => (field ? field.map(Contact) : [])
+const extractContacts = (values) =>
+  (values || []).map(v => Contact(mimelib.parseAddresses(v).pop()))
 
 function processMessage({message}) {
-  return new Promise((resolve, reject) => {
-    const {rawHeaders, rawBody} = message
-    const parser = new MailParser()
-    parser.on('error', reject)
-    parser.on('end', (mailObject) => {
-      const {
-        html,
-        text,
-        subject,
-        from,
-        to,
-        cc,
-        bcc,
-        headers,
-      } = mailObject
+  if (message.snippet) {
+    // trim and clean snippet which is alreay present (from message plaintext)
+    message.snippet = message.snippet.replace(/[\n\r]/g, ' ')
+    const loc = message.snippet.indexOf(' ', SNIPPET_SIZE);
+    if (loc !== -1) {
+      message.snippet = message.snippet.substr(0, loc);
+    }
+  } else if (message.body) {
+    // create snippet from body, which is most likely html
+    // TODO: Fanciness
+    message.snippet = message.body.substr(0, Math.min(message.body.length, SNIPPET_SIZE));
+  } else {
+    console.log("Received message has no body or snippet.")
+  }
 
-      // TODO pull attachments
-      Object.assign(message, {
-        subject,
-        body: html,
-        headers,
-        from: extractContacts(from),
-        to: extractContacts(to),
-        cc: extractContacts(cc),
-        bcc: extractContacts(bcc),
-        messageId: headers['message-id'],
-        snippet: text.slice(0, SNIPPET_SIZE),
-      })
-      resolve(message)
-    });
-    parser.write(rawHeaders)
-    parser.write(rawBody);
-    parser.end();
-  })
+  // extract data from the raw headers object
+  message.messageId = message.headers['message-id'];
+  for (const field of ['to', 'from', 'cc', 'bcc']) {
+    message[field] = extractContacts(message.headers[field]);
+  }
+
+  return Promise.resolve(message);
 }
 
 module.exports = {

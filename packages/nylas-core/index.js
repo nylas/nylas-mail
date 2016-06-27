@@ -11,6 +11,5 @@ module.exports = {
   IMAPConnection: require('./imap-connection'),
   SyncPolicy: require('./sync-policy'),
   SchedulerUtils: require('./scheduler-utils'),
-  Config: require(`./config/${process.env.ENV || 'development'}`),
   NylasError,
 }

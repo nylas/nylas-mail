@@ -1,4 +1,6 @@
 const _ = require('underscore');
+const Imap = require('imap');
+
 const {processMessage} = require(`nylas-message-processor`);
 const {IMAPConnection} = require('nylas-core');
 const {Capabilities} = IMAPConnection;
@@ -27,9 +29,9 @@ class FetchMessagesInCategory {
 
   _recoverFromUIDInvalidity() {
     // UID invalidity means the server has asked us to delete all the UIDs for
-    // this folder and start from scratch. We let a garbage collector clean up
-    // actual Messages, because we may just get new UIDs pointing to the same
-    // messages.
+    // this folder and start from scratch. Instead of deleting all the messages,
+    // we just remove the category ID and UID. We may re-assign the same message
+    // the same UID. Otherwise they're eventually garbage collected.
     const {Message} = this._db;
     return this._db.sequelize.transaction((transaction) =>
       Message.update({
@@ -112,33 +114,95 @@ class FetchMessagesInCategory {
     );
   }
 
+  _getDesiredMIMEParts(struct) {
+    const desired = [];
+    const available = [];
+    const unseen = [struct];
+    while (unseen.length > 0) {
+      const part = unseen.shift();
+      if (part instanceof Array) {
+        unseen.push(...part);
+      } else {
+        const mimetype = `${part.type}/${part.subtype}`;
+        available.push(mimetype);
+        if (['text/plain', 'text/html', 'application/pgp-encrypted'].includes(mimetype)) {
+          desired.push({id: part.partID, mimetype});
+        }
+      }
+    }
+
+    if (desired.length === 0) {
+      console.warn(`Could not find good part. Options are: ${available.join(', ')}`)
+    }
+
+    return desired;
+  }
+
   _fetchMessagesAndQueueForProcessing(range) {
-    const messagesObservable = this._box.fetch(range)
-    messagesObservable.subscribe(this._processMessage.bind(this))
-    return messagesObservable.toPromise()
+    const uidsByPart = {};
+
+    const $structs = this._box.fetch(range, {struct: true})
+    $structs.subscribe(({attributes}) => {
+      const desiredParts = this._getDesiredMIMEParts(attributes.struct);
+      if (desiredParts.length === 0) {
+        return;
+      }
+      const key = JSON.stringify(desiredParts);
+      uidsByPart[key] = uidsByPart[key] || [];
+      uidsByPart[key].push(attributes.uid);
+    });
+
+    return $structs.toPromise().then(() => {
+      return Promise.each(Object.keys(uidsByPart), (key) => {
+        const uids = uidsByPart[key];
+        const desiredParts = JSON.parse(key);
+        const bodies = ['HEADER'].concat(desiredParts.map(p => p.id));
+        console.log(`Fetching parts ${key} for ${uids.length} messages`)
+
+        const $body = this._box.fetch(uids, {bodies, struct: true})
+        $body.subscribe((msg) => {
+          msg.body = {};
+          for (const {id, mimetype} of desiredParts) {
+            msg.body[mimetype] = msg.parts[id];
+          }
+          this._processMessage(msg);
+        });
+        return $body.toPromise();
+      })
+    });
   }
 
   _processMessage({attributes, headers, body}) {
     const {Message, accountId} = this._db;
     const hash = Message.hashForHeaders(headers);
+
     const values = {
       hash: hash,
-      rawHeaders: headers,
-      rawBody: body,
+      body: body['text/html'] || body['text/plain'] || body['application/pgp-encrypted'] || '',
+      snippet: body['text/plain'] || null,
       unread: !attributes.flags.includes('\\Seen'),
       starred: attributes.flags.includes('\\Flagged'),
       date: attributes.date,
       CategoryUID: attributes.uid,
       CategoryId: this._category.id,
+      headers: Imap.parseHeader(headers),
     }
+
     Message.find({where: {hash}}).then((existing) => {
       if (existing) {
         Object.assign(existing, values);
-        return existing.save();
+        existing.save();
+        return;
       }
-      return Message.create(values)
-      .then((created) => processMessage({accountId, messageId: created.id}))
+
+      // create files from attributes.struct?
+
+      Message.create(values).then((created) =>
+        processMessage({accountId, messageId: created.id})
+      )
     })
+
+    return null;
   }
 
   _openMailboxAndEnsureValidity() {
@@ -192,9 +256,11 @@ class FetchMessagesInCategory {
 
   _runDeepScan(range) {
     const {Message} = this._db;
+    console.log("fetchUIDAttributes START")
     return this._box.fetchUIDAttributes(range)
-    .then((remoteUIDAttributes) =>
-      Message.findAll({
+    .then((remoteUIDAttributes) => {
+      console.log(`fetchUIDAttributes FINISHED - ${Object.keys(remoteUIDAttributes).length} items returned`)
+      return Message.findAll({
         where: {CategoryId: this._category.id},
         attributes: MessageFlagAttributes,
       })
@@ -212,7 +278,7 @@ class FetchMessagesInCategory {
           timeShallowScan: Date.now(),
         })
       })
-    );
+    });
   }
 
   _fetchChangesToMessages() {

@@ -36,18 +36,12 @@ class PubsubConnector {
 
   // Shared channel
 
-  notifyAccountChange(accountId) {
-    const channel = this.channelForAccount(accountId);
-    this.broadcastClient().publish(channel, 'modified');
-  }
-
-  observableForAccountChanges(accountId) {
+  _observableForChannelOnSharedListener(channel) {
     if (!this._listenClient) {
       this._listenClient = this.buildClient();
       this._listenClientSubs = {};
     }
 
-    const channel = this.channelForAccount(accountId);
     return Rx.Observable.create((observer) => {
       this._listenClient.on("message", (msgChannel, message) => {
         if (msgChannel !== channel) { return }
@@ -66,9 +60,26 @@ class PubsubConnector {
           this._listenClient.unsubscribe(channel);
         }
       }
-    })
+    });
   }
 
+  notifyAccountChange(accountId) {
+    const channel = this.channelForAccount(accountId);
+    this.broadcastClient().publish(channel, 'modified');
+  }
+
+  observableForAccountChanges(accountId) {
+    const channel = this.channelForAccount(accountId);
+    return this._observableForChannelOnSharedListener(channel);
+  }
+
+  notifyMessageCreated(payload) {
+    this.broadcastClient().publish('message-created', payload);
+  }
+
+  observableForMessageCreation(accountId) {
+    return this._observableForChannelOnSharedListener('message-created');
+  }
 
   // Account (delta streaming) channels
 

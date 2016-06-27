@@ -32,18 +32,19 @@ class IMAPBox {
    * an array of message identifiers, or an array of message identifier ranges.
    * @return {Observable} that will feed each message as it becomes ready
    */
-  fetch(range) {
+  fetch(range, options) {
     if (range.length === 0) {
       return Rx.Observable.empty()
     }
+    if (!options) {
+      throw new Error("IMAPConnection.fetch now requires an options object.")
+    }
     return Rx.Observable.create((observer) => {
-      const f = this._imap.fetch(range, {
-        bodies: ['HEADER', 'TEXT'],
-      });
+      const f = this._imap.fetch(range, options);
       f.on('message', (imapMessage) => {
-        let attributes = null;
-        let body = null;
+        const parts = {};
         let headers = null;
+        let attributes = null;
         imapMessage.on('attributes', (attrs) => {
           attributes = attrs;
         });
@@ -53,18 +54,18 @@ class IMAPBox {
           stream.on('data', (chunk) => {
             chunks.push(chunk);
           });
+
           stream.once('end', () => {
             const full = Buffer.concat(chunks).toString('utf8');
             if (info.which === 'HEADER') {
               headers = full;
-            }
-            if (info.which === 'TEXT') {
-              body = full;
+            } else {
+              parts[info.which] = full;
             }
           });
         });
         imapMessage.once('end', () => {
-          observer.onNext({attributes, headers, body});
+          observer.onNext({attributes, headers, parts});
         });
       })
       f.once('error', (error) => observer.onError(error))
@@ -76,7 +77,9 @@ class IMAPBox {
    * @return {Promise} that resolves to requested message
    */
   fetchMessage(uid) {
-    return this.fetch([uid]).toPromise()
+    return this.fetch([uid], {
+      bodies: ['HEADER', 'TEXT'],
+    }).toPromise()
   }
 
   /**
@@ -111,14 +114,6 @@ const Capabilities = {
   Sort: 'SORT',
 }
 
-const EnsureConnected = [
-  'openBox',
-  'getBoxes',
-  'serverSupports',
-  'runOperation',
-  'end',
-]
-
 class IMAPConnection extends EventEmitter {
 
   static connect(...args) {
@@ -132,17 +127,6 @@ class IMAPConnection extends EventEmitter {
     this._currentOperation = null;
     this._settings = settings;
     this._imap = null
-
-    return new Proxy(this, {
-      get(target, name) {
-        if (EnsureConnected.includes(name) && !target._imap) {
-          return () => Promise.reject(
-            new NylasError(`IMAPConnection::${name} - You need to call connect() first.`)
-          )
-        }
-        return Reflect.get(target, name)
-      },
-    })
   }
 
   connect() {
@@ -226,6 +210,9 @@ class IMAPConnection extends EventEmitter {
   }
 
   serverSupports(capability) {
+    if (!this._imap) {
+      throw new Error(`IMAPConnection::serverSupports - You need to call connect() first.`)
+    }
     this._imap.serverSupports(capability);
   }
 
@@ -233,15 +220,25 @@ class IMAPConnection extends EventEmitter {
    * @return {Promise} that resolves to instance of IMAPBox
    */
   openBox(categoryName, {readOnly = true} = {}) {
-    return this._imap.openBoxAsync(categoryName, readOnly)
-    .then((box) => new IMAPBox(this._imap, box))
+    if (!this._imap) {
+      throw new Error(`IMAPConnection::openBox - You need to call connect() first.`)
+    }
+    return this._imap.openBoxAsync(categoryName, readOnly).then((box) =>
+      new IMAPBox(this._imap, box)
+    )
   }
 
   getBoxes() {
+    if (!this._imap) {
+      throw new Error(`IMAPConnection::getBoxes - You need to call connect() first.`)
+    }
     return this._imap.getBoxesAsync()
   }
 
   runOperation(operation) {
+    if (!this._imap) {
+      throw new Error(`IMAPConnection::runOperation - You need to call connect() first.`)
+    }
     return new Promise((resolve, reject) => {
       this._queue.push({operation, resolve, reject});
       if (this._imap.state === 'authenticated' && !this._currentOperation) {

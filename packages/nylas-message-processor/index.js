@@ -12,7 +12,18 @@ const MessageProcessorVersion = 1;
 
 function runPipeline({db, accountId, message}) {
   return processors.reduce((prevPromise, processor) => (
-    prevPromise.then((msg) => processor({db, accountId, message: msg}))
+    prevPromise.then((prevMessage) => {
+      const processed = processor({message: prevMessage, accountId, db});
+      if (!(processed instanceof Promise)) {
+        throw new Error(`processor ${processor} did not return a promise.`)
+      }
+      return processed.then((nextMessage) => {
+        if (!nextMessage.body) {
+          throw new Error("processor did not resolve with a valid message object.")
+        }
+        return Promise.resolve(nextMessage);
+      })
+    })
   ), Promise.resolve(message))
 }
 
@@ -31,7 +42,7 @@ function processMessage({messageId, accountId}) {
       runPipeline({db, accountId, message})
       .then((processedMessage) => saveMessage(processedMessage))
       .catch((err) =>
-        console.error(`MessageProcessor Failed: ${err}`)
+        console.error(`MessageProcessor Failed: ${err} ${err.stack}`)
       )
     )
     .catch((err) =>

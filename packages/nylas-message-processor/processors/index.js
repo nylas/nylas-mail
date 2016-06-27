@@ -4,12 +4,12 @@ const processors = fs.readdirSync(__dirname)
 .filter((file) => file !== 'index.js')
 .map((file) => {
   const {processMessage, order} = require(`./${file}`)
-  return {
-    order,
-    processMessage: processMessage || ((msg) => msg),
+  if (!processMessage) {
+    throw new Error(`${file} does not export a method named processMessage.`)
   }
+  return {processMessage, order}
 })
-.sort(({order: o1}, {order: o2}) => o1 - o2)
-.map(({processMessage}) => processMessage)
+.sort((p1, p2) => p1.order - p2.order)
+.map((p) => p.processMessage)
 
 module.exports = {processors}

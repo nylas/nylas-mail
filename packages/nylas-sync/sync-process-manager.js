@@ -162,7 +162,7 @@ class SyncProcessManager {
           return;
         }
         DatabaseConnector.forAccount(account.id).then((db) => {
-          if (this._exiting) {
+          if (this._exiting || this._workers[account.id]) {
             return;
           }
           console.log(`ProcessManager: Starting worker for Account ${accountId}`)
