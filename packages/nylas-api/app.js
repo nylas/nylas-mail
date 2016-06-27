@@ -69,6 +69,6 @@ server.register(plugins, (err) => {
 
   server.start((startErr) => {
     if (startErr) { throw startErr; }
-    console.log('Server running at:', server.info.uri);
+    console.log('API running at:', server.info.uri);
   });
 });

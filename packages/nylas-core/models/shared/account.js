@@ -1,12 +1,12 @@
 const crypto = require('crypto');
 const {JSONType, JSONARRAYType} = require('../../database-types');
 
-const algorithm = 'aes-256-ctr';
-const password = 'd6F3Efeq';
+const {DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD} = process.env;
 
 module.exports = (sequelize, Sequelize) => {
   const Account = sequelize.define('Account', {
     name: Sequelize.STRING,
+    provider: Sequelize.STRING,
     emailAddress: Sequelize.STRING,
     connectionSettings: JSONType('connectionSettings'),
     connectionCredentials: Sequelize.STRING,
@@ -37,7 +37,7 @@ module.exports = (sequelize, Sequelize) => {
         if (!(json instanceof Object)) {
           throw new Error("Call setCredentials with JSON!")
         }
-        const cipher = crypto.createCipher(algorithm, password)
+        const cipher = crypto.createCipher(DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD)
         let crypted = cipher.update(JSON.stringify(json), 'utf8', 'hex')
         crypted += cipher.final('hex');
 
@@ -45,7 +45,7 @@ module.exports = (sequelize, Sequelize) => {
       },
 
       decryptedCredentials: function decryptedCredentials() {
-        const decipher = crypto.createDecipher(algorithm, password)
+        const decipher = crypto.createDecipher(DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD)
         let dec = decipher.update(this.connectionCredentials, 'hex', 'utf8')
         dec += decipher.final('utf8');
 
