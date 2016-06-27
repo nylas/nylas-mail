@@ -18,7 +18,7 @@ class IMAPBox {
         }
         if (_.isFunction(prop) && target._imap._box.name !== target._box.name) {
           return () => Promise.reject(
-            new Error(`IMAPBox::${name} - Can't operate on a mailbox that is no longer open on the current IMAPConnection.`)
+            new NylasError(`IMAPBox::${name} - Can't operate on a mailbox that is no longer open on the current IMAPConnection.`)
           )
         }
         return prop
@@ -116,7 +116,6 @@ const EnsureConnected = [
   'getBoxes',
   'serverSupports',
   'runOperation',
-  'processNextOperation',
   'end',
 ]
 
@@ -138,7 +137,7 @@ class IMAPConnection extends EventEmitter {
       get(target, name) {
         if (EnsureConnected.includes(name) && !target._imap) {
           return () => Promise.reject(
-            new Error(`IMAPConnection::${name} - You need to call connect() first.`)
+            new NylasError(`IMAPConnection::${name} - You need to call connect() first.`)
           )
         }
         return Reflect.get(target, name)
@@ -166,7 +165,7 @@ class IMAPConnection extends EventEmitter {
     if (this._settings.refresh_token) {
       const xoauthFields = ['client_id', 'client_secret', 'imap_username', 'refresh_token'];
       if (Object.keys(_.pick(this._settings, xoauthFields)).length !== 4) {
-        return Promise.reject(new Error(`IMAPConnection: Expected ${xoauthFields.join(',')} when given refresh_token`))
+        return Promise.reject(new NylasError(`IMAPConnection: Expected ${xoauthFields.join(',')} when given refresh_token`))
       }
       return new Promise((resolve, reject) => {
         xoauth2.createXOAuth2Generator({
@@ -263,22 +262,20 @@ class IMAPConnection extends EventEmitter {
     console.log(`Starting task ${operation.description()}`)
     const result = operation.run(this._db, this);
     if (result instanceof Promise === false) {
-      reject(new Error(`Expected ${operation.constructor.name} to return promise.`))
+      reject(new NylasError(`Expected ${operation.constructor.name} to return promise.`))
     }
     result
     .then(() => {
       this._currentOperation = null;
       console.log(`Finished task ${operation.description()}`)
       resolve();
+      this.processNextOperation();
     })
     .catch((err) => {
       this._currentOperation = null;
       console.log(`Task errored: ${operation.description()}`)
       reject(err);
     })
-    .finally(() => {
-      this.processNextOperation();
-    });
   }
 }
 IMAPConnection.Capabilities = Capabilities;

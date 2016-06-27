@@ -9,6 +9,7 @@ const fs = require('fs');
 const path = require('path');
 
 global.Promise = require('bluebird');
+global.NylasError = require('nylas-core').NylasError;
 
 const server = new Hapi.Server();
 server.connection({ port: process.env.PORT || 5100 });

@@ -2,13 +2,7 @@
   "parser": "babel-eslint",
   "extends": "airbnb",
   "globals": {
-    "NylasEnv": false,
-    "$n": false,
-    "waitsForPromise": false,
-    "advanceClock": false,
-    "TEST_ACCOUNT_ID": false,
-    "TEST_ACCOUNT_NAME": false,
-    "TEST_ACCOUNT_EMAIL": false
+    "NylasError": false,
   },
   "env": {
     "browser": true,

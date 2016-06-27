@@ -1,4 +1,4 @@
-class ExtendableError extends Error {
+class NylasError extends Error {
   constructor(message) {
     super(message);
     this.name = this.constructor.name;
@@ -15,4 +15,4 @@ class ExtendableError extends Error {
   }
 }
 
-module.exports = ExtendableError
+module.exports = NylasError

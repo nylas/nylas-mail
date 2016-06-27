@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const {JSONType, JSONARRAYType} = require('../../database-types');
+const {JSONType} = require('../../database-types');
 
 const {DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD} = process.env;
 
@@ -11,7 +11,7 @@ module.exports = (sequelize, Sequelize) => {
     connectionSettings: JSONType('connectionSettings'),
     connectionCredentials: Sequelize.STRING,
     syncPolicy: JSONType('syncPolicy'),
-    syncErrors: JSONARRAYType('syncErrors'),
+    syncError: JSONType('syncError', {defaultValue: null}),
   }, {
     classMethods: {
       associate: ({AccountToken}) => {
@@ -25,17 +25,17 @@ module.exports = (sequelize, Sequelize) => {
           email_address: this.emailAddress,
           connection_settings: this.connectionSettings,
           sync_policy: this.syncPolicy,
-          sync_errors: this.syncErrors,
+          sync_error: this.syncError,
         }
       },
 
       errored: function errored() {
-        return this.syncErrors.length > 0
+        return this.syncError != null
       },
 
       setCredentials: function setCredentials(json) {
         if (!(json instanceof Object)) {
-          throw new Error("Call setCredentials with JSON!")
+          throw new NylasError("Call setCredentials with JSON!")
         }
         const cipher = crypto.createCipher(DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD)
         let crypted = cipher.update(JSON.stringify(json), 'utf8', 'hex')

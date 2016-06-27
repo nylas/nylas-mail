@@ -4,19 +4,12 @@ const {
   IMAPConnection,
   PubsubConnector,
   DatabaseConnector,
-  ExtendableError,
 } = require('nylas-core');
 
 const FetchCategoryList = require('./imap/fetch-category-list')
 const FetchMessagesInCategory = require('./imap/fetch-messages-in-category')
 const SyncbackTaskFactory = require('./syncback-task-factory')
 
-class SyncAllCategoriesError extends ExtendableError {
-  constructor(message, failures) {
-    super(message)
-    this.failures = failures
-  }
-}
 
 class SyncWorker {
   constructor(account, db) {
@@ -38,7 +31,12 @@ class SyncWorker {
   cleanup() {
     this._destroyed = true;
     this._listener.dispose();
+    this.closeConnection()
+  }
+
+  closeConnection() {
     this._conn.end();
+    this._conn = null
   }
 
   onAccountChanged() {
@@ -57,14 +55,18 @@ class SyncWorker {
     if (afterSync === 'idle') {
       return this.getInboxCategory()
       .then((inboxCategory) => this._conn.openBox(inboxCategory.name))
-      .then(() => console.log("SyncWorker: - Idling on inbox category"))
+      .then(() => console.log('SyncWorker: - Idling on inbox category'))
+      .catch((error) => {
+        this.closeConnection()
+        console.error('SyncWorker: - Unhandled error while attempting to idle on Inbox after sync: ', error)
+      })
     } else if (afterSync === 'close') {
-      console.log("SyncWorker: - Closing connection");
-      this._conn.end();
-      this._conn = null;
-      return Promise.resolve()
+      console.log('SyncWorker: - Closing connection');
+    } else {
+      console.warn(`SyncWorker: - Unknown afterSync behavior: ${afterSync}. Closing connection`)
     }
-    return Promise.reject(new Error(`onSyncDidComplete: Unknown afterSync behavior: ${afterSync}`))
+    this.closeConnection()
+    return Promise.resolve()
   }
 
   onConnectionIdleUpdate() {
@@ -79,30 +81,28 @@ class SyncWorker {
     if (this._conn) {
       return this._conn.connect();
     }
-    return new Promise((resolve, reject) => {
-      const settings = this._account.connectionSettings;
-      const credentials = this._account.decryptedCredentials();
+    const settings = this._account.connectionSettings;
+    const credentials = this._account.decryptedCredentials();
 
-      if (!settings || !settings.imap_host) {
-        return reject(new Error("ensureConnection: There are no IMAP connection settings for this account."))
-      }
-      if (!credentials) {
-        return reject(new Error("ensureConnection: There are no IMAP connection credentials for this account."))
-      }
+    if (!settings || !settings.imap_host) {
+      return Promise.reject(new NylasError("ensureConnection: There are no IMAP connection settings for this account."))
+    }
+    if (!credentials) {
+      return Promise.reject(new NylasError("ensureConnection: There are no IMAP connection credentials for this account."))
+    }
 
-      const conn = new IMAPConnection(this._db, Object.assign({}, settings, credentials));
-      conn.on('mail', () => {
-        this.onConnectionIdleUpdate();
-      })
-      conn.on('update', () => {
-        this.onConnectionIdleUpdate();
-      })
-      conn.on('queue-empty', () => {
-      });
-
-      this._conn = conn;
-      return resolve(this._conn.connect());
+    const conn = new IMAPConnection(this._db, Object.assign({}, settings, credentials));
+    conn.on('mail', () => {
+      this.onConnectionIdleUpdate();
+    })
+    conn.on('update', () => {
+      this.onConnectionIdleUpdate();
+    })
+    conn.on('queue-empty', () => {
     });
+
+    this._conn = conn;
+    return this._conn.connect();
   }
 
   fetchCategoryList() {
@@ -113,7 +113,6 @@ class SyncWorker {
     return Promise.resolve();
     // TODO
     const {SyncbackRequest, accountId, Account} = this._db;
-
     return Account.find({where: {id: accountId}}).then((account) => {
       return Promise.each(SyncbackRequest.findAll().then((reqs = []) =>
         reqs.map((request) => {
@@ -144,52 +143,49 @@ class SyncWorker {
         }
       }
 
-      // TODO Don't accumulate errors, just bail on the first error and clear
-      // the queue and the connection
-      const failures = []
       return Promise.all(categoriesToSync.map((cat) =>
         this._conn.runOperation(new FetchMessagesInCategory(cat, folderSyncOptions))
-        .catch((error) => failures.push({error, category: cat.name}))
       ))
-      .then(() => {
-        if (failures.length > 0) {
-          const error = new SyncAllCategoriesError(
-            `Failed to sync all categories for ${this._account.emailAddress}`, failures
-          )
-          return Promise.reject(error)
-        }
-        return Promise.resolve()
-      })
     });
+  }
+
+  performSync() {
+    return this.fetchCategoryList()
+    .then(() => this.syncbackMessageActions())
+    .then(() => this.syncAllCategories())
   }
 
   syncNow() {
     clearTimeout(this._syncTimer);
+
+    if (this._account.errored()) {
+      console.log(`SyncWorker: Account ${this._account.emailAddress} is in error state - Skipping sync`)
+      return
+    }
+
     this.ensureConnection()
-    .then(this.fetchCategoryList.bind(this))
-    .then(this.syncbackMessageActions.bind(this))
-    .then(this.syncAllCategories.bind(this))
-    .catch((error) => {
-      // TODO
-      // Distinguish between temporary and critical errors
-      // Update account sync state for critical errors
-      // Handle connection errors separately
-      console.log('----------------------------------')
-      console.log('Erroring where you are supposed to')
-      console.log(error)
-      console.log('----------------------------------')
-    })
+    .then(() => this.performSync())
+    .then(() => this.onSyncDidComplete())
+    .catch((error) => this.onSyncError(error))
     .finally(() => {
       this._lastSyncTime = Date.now()
-      this.onSyncDidComplete()
-      .catch((error) => (
-        console.error('SyncWorker.syncNow: Unhandled error while cleaning up after sync: ', error)
-      ))
-      .finally(() => this.scheduleNextSync())
-    });
+      this.scheduleNextSync()
+    })
+  }
+
+  onSyncError(error) {
+    console.error(`SyncWorker: Error while syncing account ${this._account.emailAddress} `, error)
+    this.closeConnection()
+    if (error.source === 'socket') {
+      // Continue to retry if it was a network error
+      return Promise.resolve()
+    }
+    this._account.syncError = error
+    return this._account.save()
   }
 
   scheduleNextSync() {
+    if (this._account.errored()) { return }
     SchedulerUtils.checkIfAccountIsActive(this._account.id).then((active) => {
       const {intervals} = this._account.syncPolicy;
       const interval = active ? intervals.active : intervals.inactive;

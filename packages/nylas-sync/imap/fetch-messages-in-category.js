@@ -13,7 +13,7 @@ class FetchMessagesInCategory {
     this._category = category;
     this._options = options;
     if (!this._category) {
-      throw new Error("FetchMessagesInCategory requires a category")
+      throw new NylasError("FetchMessagesInCategory requires a category")
     }
   }
 
@@ -145,7 +145,7 @@ class FetchMessagesInCategory {
     return this._imap.openBox(this._category.name)
     .then((box) => {
       if (box.persistentUIDs === false) {
-        return Promise.reject(new Error("Mailbox does not support persistentUIDs."))
+        return Promise.reject(new NylasError("Mailbox does not support persistentUIDs."))
       }
       if (box.uidvalidity !== this._category.syncState.uidvalidity) {
         return this._recoverFromUIDInvalidity()
