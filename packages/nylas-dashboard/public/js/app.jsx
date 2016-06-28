@@ -2,12 +2,6 @@
 const React = window.React;
 const ReactDOM = window.ReactDOM;
 
-class ErrorsRoot extends React.Component {
-  render() {
-    return <div />
-  }
-}
-
 class Account extends React.Component {
   renderError() {
     const {account} = this.props;
