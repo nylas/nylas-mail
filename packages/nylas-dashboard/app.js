@@ -20,8 +20,8 @@ DatabaseConnector.forShared().then(({Account}) => {
           websocket: {
             only: true,
             connect: (wss, ws) => {
-              Account.findAll().then((accts) => {
-                accts.forEach((acct) => {
+              Account.findAll().then((accounts) => {
+                accounts.forEach((acct) => {
                   ws.send(JSON.stringify({ cmd: "ACCOUNT", payload: acct }));
                 });
               });
