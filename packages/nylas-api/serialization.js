@@ -6,6 +6,10 @@ function replacer(key, value) {
 }
 
 function jsonSchema(modelName) {
+  const models = ['Message', 'Thread', 'File', 'Error']
+  if (models.includes(modelName)) {
+    return Joi.object();
+  }
   if (modelName === 'Account') {
     return Joi.object().keys({
       id: Joi.number(),
@@ -13,15 +17,6 @@ function jsonSchema(modelName) {
       connection_settings: Joi.object(),
       sync_policy: Joi.object(),
     })
-  }
-  if (modelName === 'Message') {
-    return Joi.object();
-  }
-  if (modelName === 'Thread') {
-    return Joi.object();
-  }
-  if (modelName === 'Error') {
-    return Joi.object();
   }
   if (modelName === 'Category') {
     return Joi.object().keys({

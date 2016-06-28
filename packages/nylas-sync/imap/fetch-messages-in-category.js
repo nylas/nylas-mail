@@ -183,12 +183,10 @@ class FetchMessagesInCategory {
          filename = part.disposition.params.filename
         }
         File.create({
-          partId: part.partID,
-          type: part.type,
-          subtype: part.subtype,
-          dispositionType: part.disposition.type,
+          filename: filename,
+          contentId: part.partID,
+          contentType: `${part.type}/${part.subtype}`,
           size: part.size,
-          name: filename,
         })
         .then((file) => {
           file.setMessage(message)
