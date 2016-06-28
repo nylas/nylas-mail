@@ -10,6 +10,7 @@ const HEARTBEAT_EXPIRES = 30; // 2 min in prod?
 const CLAIM_DURATION = 10 * 60 * 1000; // 2 hours on prod?
 
 const PubsubConnector = require('./pubsub-connector');
+const MessageTypes = require('./message-types')
 
 const forEachAccountList = (forEachCallback) => {
   const client = PubsubConnector.broadcastClient();
@@ -44,7 +45,10 @@ const notifyAccountIsActive = (accountId) => {
   client.incrAsync(key).then((val) => {
     client.expireAsync(key, 15 * 60 * 1000); // 15 min
     if (val === 1) {
-      PubsubConnector.notifyAccountChange(accountId);
+      PubsubConnector.notify({
+        accountId: accountId,
+        type: MessageTypes.ACCOUNT_UPDATED
+      });
     }
   });
 }

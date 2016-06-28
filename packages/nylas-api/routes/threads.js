@@ -1,5 +1,6 @@
 const Joi = require('joi');
 const Serialization = require('../serialization');
+const {createSyncbackRequest} = require('../route-helpers')
 
 module.exports = (server) => {
   server.route({
@@ -50,16 +51,12 @@ module.exports = (server) => {
       },
     },
     handler: (request, reply) => {
-      request.getAccountDatabase().then((db) => {
-        db.SyncbackRequest.create({
-          type: "MoveToFolder",
-          props: {
-            folderId: request.params.folder_id,
-            threadId: request.params.id,
-          },
-        }).then((syncbackRequest) => {
-          reply(Serialization.jsonStringify(syncbackRequest))
-        })
+      createSyncbackRequest(request, reply, {
+        type: "MoveToFolder",
+        props: {
+          folderId: request.params.folder_id,
+          threadId: requres.params.id,
+        }
       })
     },
   });

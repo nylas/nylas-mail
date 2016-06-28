@@ -4,6 +4,7 @@ const {
   IMAPConnection,
   PubsubConnector,
   DatabaseConnector,
+  MessageTypes,
 } = require('nylas-core');
 
 const FetchCategoryList = require('./imap/fetch-category-list')
@@ -24,8 +25,8 @@ class SyncWorker {
 
     this.syncNow();
 
-    this._listener = PubsubConnector.observableForAccountChanges(account.id)
-    .subscribe(() => this.onAccountChanged())
+    this._onMessage = this._onMessage.bind(this)
+    this._listener = PubsubConnector.observe(account.id).subscribe(this._onMessage)
   }
 
   cleanup() {
@@ -39,7 +40,18 @@ class SyncWorker {
     this._conn = null
   }
 
-  onAccountChanged() {
+  _onMessage(msg = {}) {
+    switch(msg.type) {
+      case MessageTypes.ACCOUNT_UPDATED:
+        this._onAccountUpdated(); break;
+      case MessageTypes.SYNCBACK_REQUESTED:
+        this.syncNow(); break;
+      default:
+        throw new Error(`Invalid message: ${JSON.stringify(msg)}`)
+    }
+  }
+
+  _onAccountUpdated() {
     console.log("SyncWorker: Detected change to account. Reloading and syncing now.")
     DatabaseConnector.forShared().then(({Account}) => {
       Account.find({where: {id: this._account.id}}).then((account) => {

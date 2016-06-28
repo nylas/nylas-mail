@@ -22,7 +22,7 @@ module.exports = (db, sequelize) => {
       db.Transaction.create(transactionData);
       transactionData.object = sequelizeHookData.dataValues;
 
-      PubsubConnector.notifyAccountDeltas(db.accountId, transactionData);
+      PubsubConnector.notifyDelta(db.accountId, transactionData);
     }
   }
 
