@@ -52,13 +52,17 @@ class SyncWorker {
   }
 
   _onAccountUpdated() {
-    console.log("SyncWorker: Detected change to account. Reloading and syncing now.")
-    DatabaseConnector.forShared().then(({Account}) => {
-      Account.find({where: {id: this._account.id}}).then((account) => {
-        this._account = account;
-        this.syncNow();
-      })
-    });
+    console.log("SyncWorker: Detected change to account. Reloading and syncing now.");
+    this._getAccount().then((account) => {
+      this._account = account;
+      this.syncNow();
+    })
+  }
+
+  _getAccount() {
+    return DatabaseConnector.forShared().then(({Account}) =>
+      Account.find({where: {id: this._account.id}})
+    );
   }
 
   onSyncDidComplete() {
@@ -122,16 +126,15 @@ class SyncWorker {
   }
 
   syncbackMessageActions() {
-    const {SyncbackRequest, accountId, Account} = this._db;
-    return this._db.Account.find({where: {id: accountId}}).then((account) => {
-      return Promise.each(SyncbackRequest.findAll().then((reqs = []) =>
+    return this._getAccount((account) =>
+      Promise.each(this._db.SyncbackRequest.findAll().then((reqs = []) =>
         reqs.map((request) => {
           const task = SyncbackTaskFactory.create(account, request);
           if (!task) return Promise.reject("No Task")
           return this._conn.runOperation(task)
         })
-      ));
-    });
+      ))
+    )
   }
 
   syncAllCategories() {
