@@ -1,5 +1,6 @@
 const Joi = require('joi');
 const Serialization = require('../serialization');
+const {createSyncbackRequest} = require('../route-helpers')
 
 module.exports = (server) => {
   server.route({
@@ -41,7 +42,7 @@ module.exports = (server) => {
         if (query.subject) {
           // the 'like' operator is case-insenstive in sequelite and for
           // non-binary strings in mysql
-          where.subject = {like: query.subject};
+          where.cleanedSubject = {like: query.subject};
         }
 
         // Boolean queries
@@ -122,16 +123,12 @@ module.exports = (server) => {
       },
     },
     handler: (request, reply) => {
-      request.getAccountDatabase().then((db) => {
-        db.SyncbackRequest.create({
-          type: "MoveToFolder",
-          props: {
-            folderId: request.params.folder_id,
-            threadId: request.params.id,
-          },
-        }).then((syncbackRequest) => {
-          reply(Serialization.jsonStringify(syncbackRequest))
-        })
+      createSyncbackRequest(request, reply, {
+        type: "MoveToFolder",
+        props: {
+          folderId: request.params.folder_id,
+          threadId: requres.params.id,
+        }
       })
     },
   });

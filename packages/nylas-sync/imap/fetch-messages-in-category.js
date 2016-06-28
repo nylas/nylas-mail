@@ -1,4 +1,6 @@
 const _ = require('underscore');
+const Imap = require('imap');
+
 const {processMessage} = require(`nylas-message-processor`);
 const {IMAPConnection} = require('nylas-core');
 const {Capabilities} = IMAPConnection;
@@ -7,10 +9,13 @@ const MessageFlagAttributes = ['id', 'CategoryUID', 'unread', 'starred']
 
 class FetchMessagesInCategory {
   constructor(category, options) {
+    this._imap = null
+    this._box = null
+    this._db = null
     this._category = category;
     this._options = options;
     if (!this._category) {
-      throw new Error("FetchMessagesInCategory requires a category")
+      throw new NylasError("FetchMessagesInCategory requires a category")
     }
   }
 
@@ -24,9 +29,9 @@ class FetchMessagesInCategory {
 
   _recoverFromUIDInvalidity() {
     // UID invalidity means the server has asked us to delete all the UIDs for
-    // this folder and start from scratch. We let a garbage collector clean up
-    // actual Messages, because we may just get new UIDs pointing to the same
-    // messages.
+    // this folder and start from scratch. Instead of deleting all the messages,
+    // we just remove the category ID and UID. We may re-assign the same message
+    // the same UID. Otherwise they're eventually garbage collected.
     const {Message} = this._db;
     return this._db.sequelize.transaction((transaction) =>
       Message.update({
@@ -41,7 +46,7 @@ class FetchMessagesInCategory {
     )
   }
 
-  _createAndUpdateMessages(remoteUIDAttributes, localMessageAttributes) {
+  _updateMessageAttributes(remoteUIDAttributes, localMessageAttributes) {
     const messageAttributesMap = {};
     for (const msg of localMessageAttributes) {
       messageAttributesMap[msg.CategoryUID] = msg;
@@ -69,18 +74,17 @@ class FetchMessagesInCategory {
       }
     })
 
-    console.log(` -- found ${createdUIDs.length} new messages`)
-    console.log(` -- found ${changedMessages.length} flag changes`)
+    console.log(` --- found ${changedMessages.length || 'no'} flag changes`)
+    if (createdUIDs.length > 0) {
+      console.log(` --- found ${createdUIDs.length} new messages. These will not be processed because we assume that they will be assigned uid = uidnext, and will be picked up in the next sync when we discover unseen messages.`)
+    }
 
-    return Promise.props({
-      creates: this._imap.fetchMessages(createdUIDs, this._processMessage.bind(this)),
-      updates: this._db.sequelize.transaction((transaction) =>
-        Promise.all(changedMessages.map(m => m.save({
-          fields: MessageFlagAttributes,
-          transaction,
-        })))
-      ),
-    })
+    return this._db.sequelize.transaction((transaction) =>
+      Promise.all(changedMessages.map(m => m.save({
+        fields: MessageFlagAttributes,
+        transaction,
+      })))
+    );
   }
 
   _removeDeletedMessages(remoteUIDAttributes, localMessageAttributes) {
@@ -90,7 +94,7 @@ class FetchMessagesInCategory {
       .filter(msg => !remoteUIDAttributes[msg.CategoryUID])
       .map(msg => msg.CategoryUID)
 
-    console.log(` -- found ${removedUIDs.length} messages no longer in the folder`)
+    console.log(` --- found ${removedUIDs.length} messages no longer in the folder`)
 
     if (removedUIDs.length === 0) {
       return Promise.resolve();
@@ -109,137 +113,269 @@ class FetchMessagesInCategory {
     );
   }
 
-  _processMessage(attributes, headers, body) {
-    const {Message, accountId} = this._db;
+  _getDesiredMIMEParts(struct) {
+    const desired = [];
+    const available = [];
+    const unseen = [struct];
+    while (unseen.length > 0) {
+      const part = unseen.shift();
+      if (part instanceof Array) {
+        unseen.push(...part);
+      } else {
+        const mimetype = `${part.type}/${part.subtype}`;
+        available.push(mimetype);
+        if (['text/plain', 'text/html', 'application/pgp-encrypted'].includes(mimetype)) {
+          desired.push({id: part.partID, mimetype});
+        }
+      }
+    }
 
+    if (desired.length === 0) {
+      console.warn(`Could not find good part. Options are: ${available.join(', ')}`)
+    }
+
+    return desired;
+  }
+
+  _fetchMessagesAndQueueForProcessing(range) {
+    const uidsByPart = {};
+
+    const $structs = this._box.fetch(range, {struct: true})
+    $structs.subscribe(({attributes}) => {
+      const desiredParts = this._getDesiredMIMEParts(attributes.struct);
+      if (desiredParts.length === 0) {
+        return;
+      }
+      const key = JSON.stringify(desiredParts);
+      console.log(key);
+      uidsByPart[key] = uidsByPart[key] || [];
+      uidsByPart[key].push(attributes.uid);
+    });
+
+    return $structs.toPromise().then(() => {
+      return Promise.each(Object.keys(uidsByPart), (key) => {
+        const uids = uidsByPart[key];
+        const desiredParts = JSON.parse(key);
+        const bodies = ['HEADER'].concat(desiredParts.map(p => p.id));
+        console.log(`Fetching parts ${key} for ${uids.length} messages`)
+
+        // note: the order of UIDs in the array doesn't matter, Gmail always
+        // returns them in ascending (oldest => newest) order.
+
+        const $body = this._box.fetch(uids, {bodies, struct: true})
+        $body.subscribe((msg) => {
+          console.log(`Fetched message ${msg.attributes.uid}`)
+          msg.body = {};
+          for (const {id, mimetype} of desiredParts) {
+            msg.body[mimetype] = msg.parts[id];
+          }
+          this._processMessage(msg);
+        });
+
+        return $body.toPromise();
+      })
+    });
+  }
+
+  _createFilesFromStruct({message, struct}) {
+    const {File} = this._db
+    for (const part of struct) {
+      if (part.constructor === Array) {
+        this._createFilesFromStruct({message, struct: part})
+      } else if (part.disposition) {
+        let filename = null
+        if (part.disposition.params) {
+          filename = part.disposition.params.filename
+        }
+        File.create({
+          filename: filename,
+          contentId: part.partID,
+          contentType: `${part.type}/${part.subtype}`,
+          size: part.size,
+        })
+        .then((file) => {
+          file.setMessage(message)
+          message.addFile(file)
+        })
+      }
+    }
+  }
+
+  _processMessage({attributes, headers, body}) {
+    const {Message, accountId} = this._db;
     const hash = Message.hashForHeaders(headers);
+
     const values = {
       hash: hash,
-      rawHeaders: headers,
-      rawBody: body,
+      body: body['text/html'] || body['text/plain'] || body['application/pgp-encrypted'] || '',
+      snippet: body['text/plain'] || null,
       unread: !attributes.flags.includes('\\Seen'),
       starred: attributes.flags.includes('\\Flagged'),
       date: attributes.date,
       CategoryUID: attributes.uid,
       CategoryId: this._category.id,
+      headers: Imap.parseHeader(headers),
     }
+
+    values.messageId = values.headers['message-id'][0];
+    values.subject = values.headers.subject[0];
+
     Message.find({where: {hash}}).then((existing) => {
       if (existing) {
         Object.assign(existing, values);
-        return existing.save();
+        existing.save();
+        return;
       }
-      return Message.create(values)
-      .then((created) => processMessage({accountId, messageId: created.id}))
+
+      Message.create(values).then((created) => {
+        this._createFilesFromStruct({message: created, struct: attributes.struct})
+        processMessage({accountId, messageId: created.id})
+      })
     })
+
+    return null;
   }
 
   _openMailboxAndEnsureValidity() {
-    return this._imap.openBox(this._category.name, true).then((box) => {
-      this._box = box;
-
+    return this._imap.openBox(this._category.name)
+    .then((box) => {
       if (box.persistentUIDs === false) {
-        throw new Error("Mailbox does not support persistentUIDs.")
+        return Promise.reject(new NylasError("Mailbox does not support persistentUIDs."))
       }
       if (box.uidvalidity !== this._category.syncState.uidvalidity) {
-        return this._recoverFromUIDInvalidity();
+        return this._recoverFromUIDInvalidity()
+        .then(() => Promise.resolve(box))
       }
-      return Promise.resolve();
+      return Promise.resolve(box);
     })
   }
 
-  _fetchUnseenMessages() {
+  _fetchUnsyncedMessages() {
     const savedSyncState = this._category.syncState;
-    const boxSyncState = {
-      uidnext: this._box.uidnext,
-      uidvalidity: this._box.uidvalidity,
-    }
+    const isFirstSync = !savedSyncState.fetchedmax;
+    const boxUidnext = this._box.uidnext;
+    const boxUidvalidity = this._box.uidvalidity;
 
-    const {limit} = this._options;
-    let range = `${this._getLowerBoundUID(limit)}:*`;
+    const desiredRanges = [];
 
-    console.log(` - fetching unseen messages ${range}`)
+    console.log(` - Fetching messages. Currently have range: ${savedSyncState.fetchedmin}:${savedSyncState.fetchedmax}`)
 
-    if (savedSyncState.uidnext) {
-      if (savedSyncState.uidnext === boxSyncState.uidnext) {
-        console.log(" --- uidnext matches, nothing more to fetch")
-        return Promise.resolve();
+    // Todo: In the future, this is where logic should go that limits
+    // sync based on number of messages / age of messages.
+
+    if (isFirstSync) {
+      const lowerbound = Math.max(1, boxUidnext - 150);
+      desiredRanges.push({min: lowerbound, max: boxUidnext})
+    } else {
+      if (savedSyncState.fetchedmax < boxUidnext) {
+        desiredRanges.push({min: savedSyncState.fetchedmax, max: boxUidnext})
+      } else {
+        console.log(" --- fetchedmax == uidnext, nothing more recent to fetch.")
       }
-      range = `${savedSyncState.uidnext}:*`
+      if (savedSyncState.fetchedmin > 1) {
+        const lowerbound = Math.max(1, savedSyncState.fetchedmin - 1000);
+        desiredRanges.push({min: lowerbound, max: savedSyncState.fetchedmin})
+      } else {
+        console.log(" --- fetchedmin == 1, nothing older to fetch.")
+      }
     }
 
-    return this._imap.fetch(range, this._processMessage.bind(this)).then(() => {
-      console.log(` - finished fetching unseen messages`);
-      return this.updateCategorySyncState({
-        uidnext: boxSyncState.uidnext,
-        uidvalidity: boxSyncState.uidvalidity,
-        timeFetchedUnseen: Date.now(),
-      });
+    return Promise.each(desiredRanges, ({min, max}) => {
+      console.log(` --- fetching range: ${min}:${max}`);
+
+      return this._fetchMessagesAndQueueForProcessing(`${min}:${max}`).then(() => {
+        const {fetchedmin, fetchedmax} = this._category.syncState;
+        return this.updateCategorySyncState({
+          fetchedmin: fetchedmin ? Math.min(fetchedmin, min) : min,
+          fetchedmax: fetchedmax ? Math.max(fetchedmax, max) : max,
+          uidvalidity: boxUidvalidity,
+          timeFetchedUnseen: Date.now(),
+        });
+      })
+    }).then(() => {
+      console.log(` - Fetching messages finished`);
     });
+  }
+
+  _runScan() {
+    const {fetchedmin, fetchedmax} = this._category.syncState;
+    if (!fetchedmin || !fetchedmax) {
+      throw new Error("Unseen messages must be fetched at least once before the first update/delete scan.")
+    }
+    return this._shouldRunDeepScan() ? this._runDeepScan() : this._runShallowScan()
   }
 
   _shouldRunDeepScan() {
     const {timeDeepScan} = this._category.syncState;
-    return Date.now() - (timeDeepScan || 0) > this._options.deepFolderScan
+    return Date.now() - (timeDeepScan || 0) > this._options.deepFolderScan;
   }
 
-  _runDeepScan(range) {
-    const {Message} = this._db;
-    return this._imap.fetchUIDAttributes(range).then((remoteUIDAttributes) =>
-      Message.findAll({
-        where: {CategoryId: this._category.id},
-        attributes: MessageFlagAttributes,
-      }).then((localMessageAttributes) =>
-        Promise.props({
-          upserts: this._createAndUpdateMessages(remoteUIDAttributes, localMessageAttributes),
-          deletes: this._removeDeletedMessages(remoteUIDAttributes, localMessageAttributes),
-        })
-      ).then(() => {
-        return this.updateCategorySyncState({
-          highestmodseq: this._box.highestmodseq,
-          timeDeepScan: Date.now(),
-          timeShallowScan: Date.now(),
-        });
-      })
-    );
-  }
-
-  _fetchChangesToMessages() {
+  _runShallowScan() {
     const {highestmodseq} = this._category.syncState;
     const nextHighestmodseq = this._box.highestmodseq;
-
-    const range = `${this._getLowerBoundUID(this._options.limit)}:*`;
-
-    console.log(` - fetching changes to messages ${range}`)
-
-    if (this._shouldRunDeepScan()) {
-      return this._runDeepScan(range)
-    }
 
     let shallowFetch = null;
 
     if (this._imap.serverSupports(Capabilities.Condstore)) {
+      console.log(` - Shallow attribute scan (using CONDSTORE)`)
       if (nextHighestmodseq === highestmodseq) {
         console.log(" --- highestmodseq matches, nothing more to fetch")
         return Promise.resolve();
       }
-      shallowFetch = this._imap.fetchUIDAttributes(range, {changedsince: highestmodseq});
+      shallowFetch = this._box.fetchUIDAttributes(`1:*`, {changedsince: highestmodseq});
     } else {
-      shallowFetch = this._imap.fetchUIDAttributes(`${this._getLowerBoundUID(1000)}:*`);
+      const range = `${this._getLowerBoundUID(1000)}:*`;
+      console.log(` - Shallow attribute scan (using range: ${range})`)
+      shallowFetch = this._box.fetchUIDAttributes(range);
     }
 
-    return shallowFetch.then((remoteUIDAttributes) =>
+    return shallowFetch
+    .then((remoteUIDAttributes) => (
       this._db.Message.findAll({
         where: {CategoryId: this._category.id},
         attributes: MessageFlagAttributes,
-      }).then((localMessageAttributes) =>
-        this._createAndUpdateMessages(remoteUIDAttributes, localMessageAttributes)
-      ).then(() => {
+      })
+      .then((localMessageAttributes) => (
+        this._updateMessageAttributes(remoteUIDAttributes, localMessageAttributes)
+      ))
+      .then(() => {
+        console.log(` - finished fetching changes to messages`);
         return this.updateCategorySyncState({
           highestmodseq: nextHighestmodseq,
           timeShallowScan: Date.now(),
-        });
+        })
       })
-    )
+    ))
+  }
+
+  _runDeepScan() {
+    const {Message} = this._db;
+    const {fetchedmin, fetchedmax} = this._category.syncState;
+    const range = `${fetchedmin}:${fetchedmax}`;
+
+    console.log(` - Deep attribute scan: fetching attributes in range: ${range}`)
+
+    return this._box.fetchUIDAttributes(range)
+    .then((remoteUIDAttributes) => {
+      return Message.findAll({
+        where: {CategoryId: this._category.id},
+        attributes: MessageFlagAttributes,
+      })
+      .then((localMessageAttributes) => (
+        Promise.props({
+          updates: this._updateMessageAttributes(remoteUIDAttributes, localMessageAttributes),
+          deletes: this._removeDeletedMessages(remoteUIDAttributes, localMessageAttributes),
+        })
+      ))
+      .then(() => {
+        console.log(` - Deep scan finished.`);
+        return this.updateCategorySyncState({
+          highestmodseq: this._box.highestmodseq,
+          timeDeepScan: Date.now(),
+          timeShallowScan: Date.now(),
+        })
+      })
+    });
   }
 
   updateCategorySyncState(newState) {
@@ -254,12 +390,12 @@ class FetchMessagesInCategory {
     this._db = db;
     this._imap = imap;
 
-    return this._openMailboxAndEnsureValidity()
-    .then(() =>
-      this._fetchUnseenMessages()
-    ).then(() =>
-      this._fetchChangesToMessages()
-    )
+    return this._openMailboxAndEnsureValidity().then((box) => {
+      this._box = box
+      return this._fetchUnsyncedMessages().then(() =>
+        this._runScan()
+      )
+    })
   }
 }
 

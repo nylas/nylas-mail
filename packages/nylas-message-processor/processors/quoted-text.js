@@ -1,4 +1,4 @@
 module.exports = {
   order: 2,
-  processMessage: ({message}) => message,
+  processMessage: ({message}) => Promise.resolve(message),
 }

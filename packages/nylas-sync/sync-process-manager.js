@@ -63,7 +63,7 @@ class SyncProcessManager {
     client.setAsync(key, Date.now()).then(() =>
       client.expireAsync(key, HEARTBEAT_EXPIRES)
     ).then(() =>
-      console.log("ProcessManager: ❤")
+      console.log("ProcessManager: 💘")
     )
   }
 
@@ -158,11 +158,11 @@ class SyncProcessManager {
   addWorkerForAccountId(accountId) {
     DatabaseConnector.forShared().then(({Account}) => {
       Account.find({where: {id: accountId}}).then((account) => {
-        if (!account) {
+        if (!account || this._workers[account.id]) {
           return;
         }
         DatabaseConnector.forAccount(account.id).then((db) => {
-          if (this._exiting) {
+          if (this._exiting || this._workers[account.id]) {
             return;
           }
           console.log(`ProcessManager: Starting worker for Account ${accountId}`)

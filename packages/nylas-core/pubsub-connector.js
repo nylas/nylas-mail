@@ -26,28 +26,13 @@ class PubsubConnector {
     return this._broadcastClient;
   }
 
-  channelForAccount(accountId) {
-    return `a-${accountId}`;
-  }
-
-  channelForAccountDeltas(accountId) {
-    return `deltas-${accountId}`;
-  }
-
   // Shared channel
-
-  notifyAccountChange(accountId) {
-    const channel = this.channelForAccount(accountId);
-    this.broadcastClient().publish(channel, 'modified');
-  }
-
-  observableForAccountChanges(accountId) {
+  _observableForChannelOnSharedListener(channel) {
     if (!this._listenClient) {
       this._listenClient = this.buildClient();
       this._listenClientSubs = {};
     }
 
-    const channel = this.channelForAccount(accountId);
     return Rx.Observable.create((observer) => {
       this._listenClient.on("message", (msgChannel, message) => {
         if (msgChannel !== channel) { return }
@@ -66,32 +51,31 @@ class PubsubConnector {
           this._listenClient.unsubscribe(channel);
         }
       }
-    })
+    });
   }
 
-
-  // Account (delta streaming) channels
-
-  notifyAccountDeltas(accountId, data) {
-    const channel = this.channelForAccountDeltas(accountId);
-    this.broadcastClient().publish(channel, JSON.stringify(data))
+  notify({accountId, type, data}) {
+    this.broadcastClient().publish(`channel-${accountId}`, {type, data});
   }
 
-  observableForAccountDeltas(accountId) {
+  observe(accountId) {
+    return this._observableForChannelOnSharedListener(`channel-${accountId}`);
+  }
+
+  notifyDelta(accountId, data) {
+    this.broadcastClient().publish(`channel-${accountId}-deltas`, JSON.stringify(data))
+  }
+
+  observeDeltas(accountId) {
     return Rx.Observable.create((observer) => {
       const sub = this.buildClient();
       sub.on("message", (channel, message) => observer.onNext(message));
-      sub.subscribe(this.channelForAccountDeltas(accountId));
+      sub.subscribe(`channel-${accountId}-deltas`);
       return () => {
         sub.unsubscribe();
         sub.quit();
       }
     })
-  }
-
-  queueSyncbackTask({taskName, props}) {
-    const channel = this.channelForSyncbackTaskQueue(accountId);
-    this.broadcastClient().publish(channel, JSON.stringify(data))
   }
 }
 

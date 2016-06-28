@@ -1,10 +1,11 @@
 const Hapi = require('hapi');
 const HapiWebSocket = require('hapi-plugin-websocket');
 const Inert = require('inert');
-const {DatabaseConnector, PubsubConnector, SchedulerUtils} = require(`nylas-core`);
+const {DatabaseConnector, PubsubConnector, SchedulerUtils, NylasError} = require(`nylas-core`);
 const {forEachAccountList} = SchedulerUtils;
 
 global.Promise = require('bluebird');
+global.NylasError = NylasError;
 
 const server = new Hapi.Server();
 server.connection({ port: process.env.PORT / 1 + 1 || 5101 });
@@ -19,8 +20,8 @@ DatabaseConnector.forShared().then(({Account}) => {
           websocket: {
             only: true,
             connect: (wss, ws) => {
-              Account.findAll().then((accts) => {
-                accts.forEach((acct) => {
+              Account.findAll().then((accounts) => {
+                accounts.forEach((acct) => {
                   ws.send(JSON.stringify({ cmd: "ACCOUNT", payload: acct }));
                 });
               });

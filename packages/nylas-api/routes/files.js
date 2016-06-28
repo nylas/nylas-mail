@@ -5,11 +5,11 @@ const Serialization = require('../serialization');
 module.exports = (server) => {
   server.route({
     method: 'GET',
-    path: '/messages',
+    path: '/files',
     config: {
-      description: 'Returns all your messages.',
+      description: 'Returns an array of file metadata.',
       notes: 'Notes go here',
-      tags: ['messages'],
+      tags: ['files'],
       validate: {
         query: {
           limit: Joi.number().integer().min(1).max(2000).default(100),
@@ -18,18 +18,18 @@ module.exports = (server) => {
       },
       response: {
         schema: Joi.array().items(
-          Serialization.jsonSchema('Message')
+          Serialization.jsonSchema('File')
         ),
       },
     },
     handler: (request, reply) => {
       request.getAccountDatabase().then((db) => {
-        const {Message} = db;
-        Message.findAll({
+        const {File} = db;
+        File.findAll({
           limit: request.query.limit,
           offset: request.query.offset,
-        }).then((messages) => {
-          reply(Serialization.jsonStringify(messages));
+        }).then((files) => {
+          reply(Serialization.jsonStringify(files));
         })
       })
     },
@@ -37,11 +37,11 @@ module.exports = (server) => {
 
   server.route({
     method: 'GET',
-    path: '/messages/{id}',
+    path: '/files/{id}',
     config: {
-      description: 'Returns message for specified id.',
+      description: 'Returns file with specified id.',
       notes: 'Notes go here',
-      tags: ['messages'],
+      tags: ['files'],
       validate: {
         params: {
           id: Joi.string(),
@@ -49,7 +49,7 @@ module.exports = (server) => {
       },
       response: {
         schema: Joi.alternatives().try(
-          Serialization.jsonSchema('Message'),
+          Serialization.jsonSchema('File'),
           Joi.string()
         ),
       },
@@ -61,19 +61,15 @@ module.exports = (server) => {
         const {params: {id}} = request
         const account = request.auth.credentials
 
-        db.Message.findOne({where: {id}})
-        .then((message) => {
-          if (!message) {
-            return reply.notFound(`Message ${id} not found`)
+        db.File.findOne({where: {id}})
+        .then((file) => {
+          if (!file) {
+            return reply.notFound(`File ${id} not found`)
           }
-          if (accept === 'message/rfc822') {
-            return message.fetchRaw({account, db})
-            .then((rawMessage) => reply(rawMessage))
-          }
-          return reply(Serialization.jsonStringify(message));
+          return reply(Serialization.jsonStringify(file));
         })
         .catch((error) => {
-          console.log('Error fetching message: ', error)
+          console.log('Error fetching file: ', error)
           reply(error)
         })
       })

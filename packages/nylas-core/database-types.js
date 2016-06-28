@@ -1,9 +1,9 @@
 const Sequelize = require('sequelize');
 
 module.exports = {
-  JSONType: (fieldName) => ({
+  JSONType: (fieldName, {defaultValue = '{}'} = {}) => ({
     type: Sequelize.STRING,
-    defaultValue: '{}',
+    defaultValue,
     get: function get() {
       return JSON.parse(this.getDataValue(fieldName))
     },
@@ -11,9 +11,9 @@ module.exports = {
       this.setDataValue(fieldName, JSON.stringify(val));
     },
   }),
-  JSONARRAYType: (fieldName) => ({
+  JSONARRAYType: (fieldName, {defaultValue = '[]'} = {}) => ({
     type: Sequelize.STRING,
-    defaultValue: '[]',
+    defaultValue,
     get: function get() {
       return JSON.parse(this.getDataValue(fieldName))
     },

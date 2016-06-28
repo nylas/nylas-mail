@@ -1,5 +1,6 @@
 const Hapi = require('hapi');
 const HapiSwagger = require('hapi-swagger');
+const HapiBoom = require('hapi-boom-decorators')
 const HapiBasicAuth = require('hapi-auth-basic');
 const Inert = require('inert');
 const Vision = require('vision');
@@ -8,11 +9,19 @@ const fs = require('fs');
 const path = require('path');
 
 global.Promise = require('bluebird');
+global.NylasError = require('nylas-core').NylasError;
 
-const server = new Hapi.Server();
+const server = new Hapi.Server({
+  connections: {
+    router: {
+      stripTrailingSlash: true,
+    },
+  },
+});
+
 server.connection({ port: process.env.PORT || 5100 });
 
-const plugins = [Inert, Vision, HapiBasicAuth, {
+const plugins = [Inert, Vision, HapiBasicAuth, HapiBoom, {
   register: HapiSwagger,
   options: {
     info: {
@@ -68,6 +77,6 @@ server.register(plugins, (err) => {
 
   server.start((startErr) => {
     if (startErr) { throw startErr; }
-    console.log('Server running at:', server.info.uri);
+    console.log('API running at:', server.info.uri);
   });
 });

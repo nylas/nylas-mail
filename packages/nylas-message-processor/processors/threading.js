@@ -50,13 +50,15 @@ function findCorrespondingThread({message, threads}) {
 function removeBccParticipants({message, match}) {
   const matchBcc = match.bcc ? match.bcc : []
   const messageBcc = message.bcc ? message.bcc : []
-  let matchEmails = match.participants.filter((participant) => {
+  const matchParticipants = [...match.from, ...match.to, ...match.cc, ...match.bcc]
+  const messageParticipants = [...message.from, ...message.to, ...message.cc, ...message.bcc]
+  let matchEmails = matchParticipants.filter((participant) => {
     return matchBcc.find(bcc => bcc === participant)
   })
   matchEmails.map((email) => {
     return email[1]
   })
-  let messageEmails = message.participants.filter((participant) => {
+  let messageEmails = messageParticipants.filter((participant) => {
     return messageBcc.find(bcc => bcc === participant)
   })
   messageEmails.map((email) => {
@@ -102,10 +104,9 @@ function cleanSubject(subject) {
   return cleanedSubject
 }
 
-function getThreadFromReferences({db, references}) {
+function getThreadFromHeader({db, inReplyTo}) {
   const {Message} = db
-  const messageId = references.split()[references.length - 1]
-  return Message.find({where: {messageId: messageId}})
+  return Message.find({where: {messageId: inReplyTo}})
   .then((message) => {
     return message.getThread()
   })
@@ -113,8 +114,8 @@ function getThreadFromReferences({db, references}) {
 
 function matchThread({db, accountId, message}) {
   const {Thread} = db
-  if (message.headers.references) {
-    return getThreadFromReferences()
+  if (message.headers['In-Reply-To']) {
+    return getThreadFromHeader({db, inReplyTo: message.headers['In-Reply-To']})
     .then((thread) => {
       if (thread) {
         return thread
@@ -125,7 +126,6 @@ function matchThread({db, accountId, message}) {
           return thread
         }
         return Thread.create({
-          subject: message.subject,
           cleanedSubject: cleanSubject(message.subject),
           firstMessageTimestamp: message.date,
           unreadCount: 0,
@@ -141,7 +141,6 @@ function matchThread({db, accountId, message}) {
       return thread
     }
     return Thread.create({
-      subject: message.subject,
       cleanedSubject: cleanSubject(message.subject),
       firstMessageTimestamp: message.date,
       unreadCount: 0,
@@ -154,10 +153,20 @@ function addMessageToThread({db, accountId, message}) {
   const {Thread} = db
   // Check for Gmail's own thread ID
   if (message.headers['X-GM-THRID']) {
-    return Thread.find({where: {threadId: message.headers['X-GM-THRID']}})
+    const thread = Thread.find({where: {threadId: message.headers['X-GM-THRID']}})
+    if (thread) {
+      return thread
+    }
+    return Thread.create({
+      cleanedSubject: cleanSubject(message.subject),
+      threadId: message.headers['X-GM-THRID'],
+      firstMessageTimestamp: message.date,
+      unreadCount: 0,
+      starredCount: 0,
+    })
   }
   return matchThread({db, accountId, message})
-  .then((thread) => ({db, thread}))
+  .then((thread) => (thread))
 }
 
 function updateThreadProperties({db, thread, message}) {
@@ -185,11 +194,9 @@ function updateThreadProperties({db, thread, message}) {
   thread.save();
 }
 
-
-function processMessage({message, accountId}) {
-  return DatabaseConnector.forAccount(accountId)
-  .then((db) => addMessageToThread({db, accountId, message}))
-  .then(({db, thread}) => {
+function processMessage({db, accountId, message}) {
+  return addMessageToThread({db, accountId, message})
+  .then((thread) => {
     thread.addMessage(message)
     message.setThread(thread)
     updateThreadProperties({db, thread, message})

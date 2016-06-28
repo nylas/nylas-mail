@@ -53,7 +53,7 @@ module.exports = (server) => {
 
       request.getAccountDatabase().then((db) => {
         const source = Rx.Observable.merge(
-          PubsubConnector.observableForAccountDeltas(account.id),
+          PubsubConnector.observeDeltas(account.id),
           initialTransactions(db, request),
           keepAlive(request)
         ).subscribe(outputStream.pushJSON)
