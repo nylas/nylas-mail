@@ -168,7 +168,7 @@ class SyncWorker {
   syncNow() {
     clearTimeout(this._syncTimer);
 
-    if (this._account.errored()) {
+    if (!process.env.SYNC_AFTER_ERRORS && this._account.errored()) {
       console.log(`SyncWorker: Account ${this._account.emailAddress} is in error state - Skipping sync`)
       return
     }
