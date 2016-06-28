@@ -29,8 +29,9 @@ module.exports = (sequelize, Sequelize) => {
       },
     ],
     classMethods: {
-      associate: ({Category, Thread}) => {
+      associate: ({Category, File, Thread}) => {
         Message.belongsTo(Category)
+        Message.hasMany(File, {as: 'files'})
         Message.belongsTo(Thread)
       },
       hashForHeaders: (headers) => {

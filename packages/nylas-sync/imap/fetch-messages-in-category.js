@@ -172,6 +172,32 @@ class FetchMessagesInCategory {
     });
   }
 
+  _createFilesFromStruct({message, struct}) {
+    const {File} = this._db
+    for (const part of struct) {
+      if (part.constructor === Array) {
+        this._createFilesFromStruct({message, struct: part})
+      } else if (part.disposition) {
+        let filename = null
+        if (part.disposition.params) {
+         filename = part.disposition.params.filename
+        }
+        File.create({
+          partId: part.partID,
+          type: part.type,
+          subtype: part.subtype,
+          dispositionType: part.disposition.type,
+          size: part.size,
+          name: filename,
+        })
+        .then((file) => {
+          file.setMessage(message)
+          message.addFile(file)
+        })
+      }
+    }
+  }
+
   _processMessage({attributes, headers, body}) {
     const {Message, accountId} = this._db;
     const hash = Message.hashForHeaders(headers);
@@ -198,11 +224,10 @@ class FetchMessagesInCategory {
         return;
       }
 
-      // create files from attributes.struct?
-
-      Message.create(values).then((created) =>
+      Message.create(values).then((created) => {
+        this._createFilesFromStruct({message: created, struct: attributes.struct})
         processMessage({accountId, messageId: created.id})
-      )
+      })
     })
 
     return null;
