@@ -110,13 +110,12 @@ class SyncWorker {
   }
 
   syncbackMessageActions() {
-    return Promise.resolve();
-    // TODO
     const {SyncbackRequest, accountId, Account} = this._db;
-    return Account.find({where: {id: accountId}}).then((account) => {
+    return this._db.Account.find({where: {id: accountId}}).then((account) => {
       return Promise.each(SyncbackRequest.findAll().then((reqs = []) =>
         reqs.map((request) => {
           const task = SyncbackTaskFactory.create(account, request);
+          if (!task) return Promise.reject("No Task")
           return this._conn.runOperation(task)
         })
       ));

@@ -9,9 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "hapi": "^13.4.1",
-    "hapi-plugin-websocket": "^0.9.2",
-    "inert": "^4.0.0",
+    "hapi": "13.4.1",
+    "hapi-plugin-websocket": "0.9.2",
+    "inert": "4.0.0",
     "nylas-core": "0.x.x"
   }
 }
