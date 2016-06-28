@@ -180,7 +180,7 @@ class FetchMessagesInCategory {
       } else if (part.disposition) {
         let filename = null
         if (part.disposition.params) {
-         filename = part.disposition.params.filename
+          filename = part.disposition.params.filename
         }
         File.create({
           filename: filename,

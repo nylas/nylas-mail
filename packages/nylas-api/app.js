@@ -11,7 +11,14 @@ const path = require('path');
 global.Promise = require('bluebird');
 global.NylasError = require('nylas-core').NylasError;
 
-const server = new Hapi.Server();
+const server = new Hapi.Server({
+  connections: {
+    router: {
+      stripTrailingSlash: true,
+    },
+  },
+});
+
 server.connection({ port: process.env.PORT || 5100 });
 
 const plugins = [Inert, Vision, HapiBasicAuth, HapiBoom, {
