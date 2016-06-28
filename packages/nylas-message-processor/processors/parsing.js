@@ -1,7 +1,7 @@
 const mimelib = require('mimelib');
 const SNIPPET_SIZE = 100
 
-function Contact({name, address}) {
+function Contact({name, address} = {}) {
   return {
     name,
     email: address,
