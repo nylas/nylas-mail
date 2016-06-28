@@ -10,7 +10,8 @@ module.exports = (sequelize, Sequelize) => {
     lastMessageReceivedTimestamp: Sequelize.DATE,
   }, {
     classMethods: {
-      associate: ({Message}) => {
+      associate: ({Category, Message, ThreadCategory}) => {
+        Thread.belongsToMany(Category, {through: ThreadCategory})
         Thread.hasMany(Message, {as: 'messages'})
       },
     },

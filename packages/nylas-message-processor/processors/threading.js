@@ -170,6 +170,12 @@ function updateThreadProperties({db, thread, message}) {
   })
   thread.lastMessageTimestamp = message.date;
 
+  thread.hasCategory(message.CategoryId).then((hasCategory) => {
+    if (!hasCategory) {
+      thread.addCategory(message.CategoryId)
+    }
+  });
+
   if (message.unread) {
     thread.unreadCount++;
   }

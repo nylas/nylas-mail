@@ -11,14 +11,15 @@ module.exports = (server) => {
       tags: ['threads'],
       validate: {
         query: {
-          id: Joi.number().integer().min(0),
-          subject: Joi.string(),
-          unread: Joi.boolean(),
-          starred: Joi.boolean(),
-          startedBefore: Joi.date().timestamp(),
-          startedAfter: Joi.date().timestamp(),
-          lastMessageBefore: Joi.date().timestamp(),
-          lastMessageAfter: Joi.date().timestamp(),
+          'id': Joi.number().integer().min(0),
+          'subject': Joi.string(),
+          'unread': Joi.boolean(),
+          'starred': Joi.boolean(),
+          'startedBefore': Joi.date().timestamp(),
+          'startedAfter': Joi.date().timestamp(),
+          'lastMessageBefore': Joi.date().timestamp(),
+          'lastMessageAfter': Joi.date().timestamp(),
+          'in': Joi.string().allow(Joi.number()),
         },
       },
       response: {
@@ -29,9 +30,10 @@ module.exports = (server) => {
     },
     handler: (request, reply) => {
       request.getAccountDatabase().then((db) => {
-        const {Thread} = db;
+        const {Thread, Category} = db;
         const query = request.query;
         const where = {};
+        const include = [];
 
         if (query.id) {
           where.id = query.id;
@@ -76,8 +78,21 @@ module.exports = (server) => {
           }
         }
 
+        // Association queries
+        if (query.in) {
+          include.push({
+            model: Category,
+            where: { $or: [
+              { id: query.in },
+              { name: query.in },
+              { role: query.in },
+            ]},
+          });
+        }
+
         Thread.findAll({
           where: where,
+          include: include,
           limit: 50,
         }).then((threads) => {
           reply(Serialization.jsonStringify(threads));

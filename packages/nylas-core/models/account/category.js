@@ -7,8 +7,9 @@ module.exports = (sequelize, Sequelize) => {
     syncState: JSONType('syncState'),
   }, {
     classMethods: {
-      associate: ({Message}) => {
+      associate: ({Message, Thread, ThreadCategory}) => {
         Category.hasMany(Message)
+        Category.belongsToMany(Thread, {through: ThreadCategory})
       },
     },
     instanceMethods: {
