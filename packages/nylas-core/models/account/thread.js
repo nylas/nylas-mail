@@ -23,6 +23,7 @@ module.exports = (sequelize, Sequelize) => {
       toJSON: function toJSON() {
         return {
           id: this.id,
+          object: 'thread',
           participants: this.participants,
           subject: this.subject,
           snippet: this.snippet,
