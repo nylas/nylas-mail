@@ -4,8 +4,8 @@ const TaskHelpers = {
 
     return db.Thread.findById(threadId).then((thread) =>
       thread.getMessages().each((message) => {
-        if (!msgsInCategories[message.CategoryId]) {
-          msgsInCategories[message.CategoryId] = [message];
+        if (!msgsInCategories[message.categoryId]) {
+          msgsInCategories[message.categoryId] = [message];
         } else {
           msgsInCategories.push(message);
         }

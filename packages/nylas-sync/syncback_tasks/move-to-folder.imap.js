@@ -12,7 +12,7 @@ class MoveToFolderIMAP extends SyncbackTask {
 
     const eachMsg = ({message}) => {
       return db.Category.findById(toFolderId).then((category) => {
-        return imap.move(message.CategoryId, category.name)
+        return imap.move(message.categoryId, category.name)
       })
     }
 
