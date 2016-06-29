@@ -219,7 +219,7 @@ class IMAPConnection extends EventEmitter {
   /**
    * @return {Promise} that resolves to instance of IMAPBox
    */
-  openBox(categoryName, {readOnly = true} = {}) {
+  openBox(categoryName, {readOnly = false} = {}) {
     if (!this._imap) {
       throw new Error(`IMAPConnection::openBox - You need to call connect() first.`)
     }
