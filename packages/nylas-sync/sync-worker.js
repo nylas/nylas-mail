@@ -40,7 +40,7 @@ class SyncWorker {
   }
 
   _onMessage(msg) {
-    const {type, data} = JSON.parse(msg)
+    const {type} = JSON.parse(msg)
     switch (type) {
       case MessageTypes.ACCOUNT_UPDATED:
         this._onAccountUpdated(); break;
@@ -127,7 +127,19 @@ class SyncWorker {
     const where = {where: {status: "NEW"}, limit: 100};
     return this._db.SyncbackRequest.findAll(where)
       .map((req) => SyncbackTaskFactory.create(this._account, req))
-      .each(this._conn.runOperation)
+      .each(this.runSyncbackTask.bind(this))
+  }
+
+  runSyncbackTask(task) {
+    return this._conn.runOperation(task)
+    .then(() => {
+      task.syncbackRequest.status = "SUCCEEDED"
+    }).catch((error) => {
+      task.syncbackRequest.error = error
+      task.syncbackRequest.status = "FAILED"
+    }).finally(() => {
+      return task.syncbackRequest.save()
+    })
   }
 
   syncAllCategories() {
