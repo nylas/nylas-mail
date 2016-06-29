@@ -1,4 +1,5 @@
 const SyncbackTask = require('./syncback-task')
+const TaskHelpers = require('./task-helpers')
 
 class MoveToFolderIMAP extends SyncbackTask {
   description() {
@@ -6,9 +7,16 @@ class MoveToFolderIMAP extends SyncbackTask {
   }
 
   run(db, imap) {
-    console.log("----------------------- RUNNING MOVE TO FOLDER IMAP");
-    imap.getBoxes().then(console.log)
-    return Promise.resolve();
+    const threadId = this.syncbackRequestObject().props.threadId
+    const toFolderId = this.syncbackRequestObject().props.folderId
+
+    const eachMsg = ({message}) => {
+      return db.Category.findById(toFolderId).then((category) => {
+        return imap.move(message.CategoryId, category.name)
+      })
+    }
+
+    return TaskHelpers.forEachMessageInThread({threadId, db, imap, callback: eachMsg})
   }
 }
 module.exports = MoveToFolderIMAP

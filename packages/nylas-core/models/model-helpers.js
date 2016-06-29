@@ -24,8 +24,8 @@ module.exports = {
             valToSet = val;
           }
         }
-        return this.setDataValue(valToSet)
+        return this.setDataValue(key, valToSet)
       },
     }
-  }
+  },
 }
