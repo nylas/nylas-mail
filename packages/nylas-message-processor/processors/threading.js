@@ -24,9 +24,8 @@ class ThreadingProcessor {
   }
 
   cleanSubject(subject = "") {
-    const regex = new RegExp(/^((re|fw|fwd|aw|wg|undeliverable|undelivered):\s*)+/ig)
-    const cleanedSubject = subject.replace(regex, () => "")
-    return cleanedSubject
+    const regex = new RegExp(/^((re|fw|fwd|aw|wg|undeliverable|undelivered):\s*)+/ig);
+    return subject.replace(regex, () => "");
   }
 
   findOrCreateByMatching(db, message) {

@@ -42,7 +42,7 @@ module.exports = (server) => {
         if (query.subject) {
           // the 'like' operator is case-insenstive in sequelite and for
           // non-binary strings in mysql
-          where.cleanedSubject = {like: query.subject};
+          where.subject = {like: query.subject};
         }
 
         // Boolean queries
