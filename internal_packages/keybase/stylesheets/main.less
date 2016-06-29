@@ -267,13 +267,36 @@
         margin-left: 5px;
       }
     }
+  }
 
+  div.error-decrypt-bar {
+    border: 1.5px solid @color-error;
+
+    .title-text {
+      color: @color-error;
+    }
+  }
+
+  div.done-decrypt-bar {
+    border: 1.5px solid @color-success;
+
+    .title-text {
+      color: @color-success;
+    }
   }
 
   div.border {
     height: 1px;
     background: rgba(128, 128, 128, 0.5);
     flex: 1;
+  }
+
+  div.error-border {
+    background: @color-error;
+  }
+
+  div.done-border {
+    background: @color-success;
   }
 }
 

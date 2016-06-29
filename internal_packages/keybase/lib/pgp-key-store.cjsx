@@ -300,8 +300,6 @@ class PGPKeyStore extends NylasStore
 
   msgStatus: (msg) ->
     # fetch the latest status of a message
-    # (synchronous)
-
     if not msg?
       return null
     else
@@ -310,14 +308,12 @@ class PGPKeyStore extends NylasStore
         return status.clientId == clientId
       status = _.max statuses, (stat) ->
         return stat.time
-
     return status.message
 
   isDecrypted: (message) ->
     # if the message is already decrypted, return true
     # if the message has no encrypted component, return true
-    # if the message has an encrypted component that is not yet decrypted,
-    # return false
+    # if the message has an encrypted component that is not yet decrypted, return false
     if not @hasEncryptedComponent(message)
       return true
     else if @getDecrypted(message)?
@@ -412,7 +408,14 @@ class PGPKeyStore extends NylasStore
     pgp.unbox { keyfetch: ring, armored: pgpMsg }, (err, literals, warnings, subkey) =>
       if err
         console.warn err
-        @_msgStatus.push({"clientId": message.clientId, "time": Date.now(), "message": "Unable to decrypt message."})
+        errMsg = "Unable to decrypt message."
+        if err.toString().indexOf("tailer found") >= 0 or err.toString().indexOf("checksum mismatch") >= 0
+          errMsg = "Unable to decrypt message. Encrypted block is malformed."
+        else if err.toString().indexOf("key not found:") >= 0
+          errMsg = "Unable to decrypt message. Private key does not match encrypted block."
+          if !@msgStatus(message)?
+            errMsg = "Decryption preprocessing failed."
+        @_msgStatus.push({"clientId": message.clientId, "time": Date.now(), "message": errMsg})
       else
         if warnings._w.length > 0
           console.warn warnings._w
@@ -431,7 +434,7 @@ class PGPKeyStore extends NylasStore
           timeout = 1000 * 60 * 30 # 30 minutes in ms
           @_msgCache.push({clientId: message.clientId, body: body, timeout: Date.now() + timeout})
           keyprint = subkey.get_fingerprint().toString('hex')
-          @_msgStatus.push({"clientId": message.clientId, "time": Date.now(), "message": "Message decrypted with key #{keyprint}!"})
+          @_msgStatus.push({"clientId": message.clientId, "time": Date.now(), "message": "Message decrypted with key #{keyprint}"})
           # re-render messages
           MessageBodyProcessor.resetCache()
           @trigger(@)
