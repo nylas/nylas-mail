@@ -24,10 +24,11 @@ module.exports = (server) => {
     },
     handler: (request, reply) => {
       request.getAccountDatabase().then((db) => {
-        const {Message} = db;
+        const {Message, Category} = db;
         Message.findAll({
           limit: request.query.limit,
           offset: request.query.offset,
+          include: {model: Category},
         }).then((messages) => {
           reply(Serialization.jsonStringify(messages));
         })
@@ -55,20 +56,20 @@ module.exports = (server) => {
       },
     },
     handler: (request, reply) => {
-      request.getAccountDatabase()
-      .then((db) => {
-        const {headers: {accept}} = request
-        const {params: {id}} = request
-        const account = request.auth.credentials
+      request.getAccountDatabase().then((db) => {
+        const {Message, Category} = db;
+        const {headers: {accept}} = request;
+        const {params: {id}} = request;
+        const account = request.auth.credentials;
 
-        db.Message.findOne({where: {id}})
-        .then((message) => {
+        Message.findOne({where: {id}, include: {model: Category}}).then((message) => {
           if (!message) {
             return reply.notFound(`Message ${id} not found`)
           }
           if (accept === 'message/rfc822') {
-            return message.fetchRaw({account, db})
-            .then((rawMessage) => reply(rawMessage))
+            return message.fetchRaw({account, db}).then((rawMessage) =>
+              reply(rawMessage)
+            )
           }
           return reply(Serialization.jsonStringify(message));
         })

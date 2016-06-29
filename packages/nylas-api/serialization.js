@@ -15,6 +15,8 @@ function jsonSchema(modelName) {
       id: Joi.number(),
       object: Joi.string(),
       email_address: Joi.string(),
+      provider: Joi.string(),
+      organization_unit: Joi.string(),
       connection_settings: Joi.object(),
       sync_policy: Joi.object(),
       sync_error: Joi.object(),

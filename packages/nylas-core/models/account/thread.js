@@ -23,16 +23,18 @@ module.exports = (sequelize, Sequelize) => {
     },
     instanceMethods: {
       toJSON: function toJSON() {
-        if (!this.categories) {
+        if (!(this.categories instanceof Array)) {
           throw new Error("Thread.toJSON called on a thread where categories were not eagerly loaded.")
         }
-        const folders = this.categories.filter(c => c.type === 'folder');
-        const labels = this.categories.filter(c => c.type === 'label');
-        return {
+        if (!(this.messages instanceof Array)) {
+          throw new Error("Thread.toJSON called on a thread where messages were not eagerly loaded. (Only need the IDs!)")
+        }
+
+        const response = {
           id: this.id,
           object: 'thread',
-          folders: folders,
-          labels: labels,
+          folders: this.categories.filter(c => c.type === 'folder'),
+          labels: this.categories.filter(c => c.type === 'label'),
           account_id: this.accountId,
           participants: this.participants,
           subject: this.subject,
@@ -43,6 +45,15 @@ module.exports = (sequelize, Sequelize) => {
           last_message_sent_timestamp: this.lastMessageSentDate ? this.lastMessageSentDate.getTime() / 1000.0 : null,
           last_message_received_timestamp: this.lastMessageReceivedDate ? this.lastMessageReceivedDate.getTime() / 1000.0 : null,
         };
+
+        const expanded = this.messages[0] ? !!this.messages[0].accountId : false;
+        if (expanded) {
+          response.messages = this.messages;
+        } else {
+          response.message_ids = this.messages.map(m => m.id);
+        }
+
+        return response;
       },
     },
   });

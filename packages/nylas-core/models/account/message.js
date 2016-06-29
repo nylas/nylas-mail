@@ -61,17 +61,21 @@ module.exports = (sequelize, Sequelize) => {
       },
 
       toJSON: function toJSON() {
+        if (this.category_id && !this.category) {
+          throw new Error("Message.toJSON called on a message where category were not eagerly loaded.")
+        }
+
         return {
           id: this.id,
-          object: 'message',
           account_id: this.accountId,
+          object: 'message',
           body: this.body,
           subject: this.subject,
           snippet: this.snippet,
           date: this.date.getTime() / 1000.0,
           unread: this.unread,
           starred: this.starred,
-          category_id: this.categoryId,
+          folder: this.category,
         };
       },
     },

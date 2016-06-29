@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const _ = require('underscore');
 const Serialization = require('../serialization');
 const {createSyncbackRequest} = require('../route-helpers')
 
@@ -13,6 +14,7 @@ module.exports = (server) => {
       validate: {
         query: {
           'id': Joi.number().integer().min(0),
+          'view': Joi.string().valid('expanded', 'count'),
           'subject': Joi.string(),
           'unread': Joi.boolean(),
           'starred': Joi.boolean(),
@@ -21,17 +23,24 @@ module.exports = (server) => {
           'lastMessageBefore': Joi.date().timestamp(),
           'lastMessageAfter': Joi.date().timestamp(),
           'in': Joi.string().allow(Joi.number()),
+          'limit': Joi.number().integer().min(1).max(2000).default(100),
+          'offset': Joi.number().integer().min(0).default(0),
         },
       },
       response: {
-        schema: Joi.array().items(
-          Serialization.jsonSchema('Thread')
-        ),
+        schema: Joi.alternatives().try([
+          Joi.array().items(
+            Serialization.jsonSchema('Thread')
+          ),
+          Joi.object().keys({
+            count: Joi.number().integer().min(0),
+          }),
+        ]),
       },
     },
     handler: (request, reply) => {
       request.getAccountDatabase().then((db) => {
-        const {Thread, Category} = db;
+        const {Thread, Category, Message} = db;
         const query = request.query;
         const where = {};
         const include = [];
@@ -93,11 +102,45 @@ module.exports = (server) => {
           include.push({model: Category})
         }
 
+        if (query.view === 'expanded') {
+          include.push({
+            model: Message,
+            as: 'messages',
+            attributes: _.without(Object.keys(Message.attributes), 'body'),
+          })
+        } else {
+          include.push({
+            model: Message,
+            as: 'messages',
+            attributes: ['id'],
+          })
+        }
+
+        if (query.view === 'count') {
+          Thread.count({
+            where: where,
+            include: include,
+          }).then((count) => {
+            reply(Serialization.jsonStringify({count: count}));
+          });
+          return;
+        }
+
         Thread.findAll({
+          limit: request.query.limit,
+          offset: request.query.offset,
           where: where,
           include: include,
-          limit: 50,
         }).then((threads) => {
+          // if the user requested the expanded viw, fill message.category using
+          // thread.category, since it must be a superset.
+          if (query.view === 'expanded') {
+            for (const thread of threads) {
+              for (const msg of thread.messages) {
+                msg.category = thread.categories.find(c => c.id === msg.categoryId);
+              }
+            }
+          }
           reply(Serialization.jsonStringify(threads));
         })
       })

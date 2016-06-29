@@ -23,6 +23,8 @@ module.exports = (sequelize, Sequelize) => {
         return {
           id: this.id,
           object: 'account',
+          organization_unit: (this.provider === 'gmail') ? 'label' : 'folder',
+          provider: this.provider,
           email_address: this.emailAddress,
           connection_settings: this.connectionSettings,
           sync_policy: this.syncPolicy,
