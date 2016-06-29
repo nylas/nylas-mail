@@ -83,6 +83,7 @@ class ModalKeyRecommender extends React.Component
           PGPKeyStore.getKeyContents(key: identity, callback: (identity) =>
             newIdents.push(identity)
             @props.callback(newIdents)
+            Actions.closePopover()
           )
 
   _onManageKeys: =>
