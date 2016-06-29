@@ -6,7 +6,7 @@ function replacer(key, value) {
 }
 
 function jsonSchema(modelName) {
-  const models = ['Message', 'Thread', 'File', 'Error']
+  const models = ['Message', 'Thread', 'File', 'Error', 'SyncbackRequest']
   if (models.includes(modelName)) {
     return Joi.object();
   }

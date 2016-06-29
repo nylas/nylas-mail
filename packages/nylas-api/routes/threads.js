@@ -104,31 +104,30 @@ module.exports = (server) => {
 
   server.route({
     method: 'PUT',
-    path: '/threads/${id}',
+    path: '/threads/{id}',
     config: {
       description: 'Update a thread',
       notes: 'Can move between folders',
       tags: ['threads'],
       validate: {
         params: {
+          id: Joi.string(),
           payload: {
             folder_id: Joi.string(),
           },
         },
       },
       response: {
-        schema: Joi.array().items(
-          Serialization.jsonSchema('Thread')
-        ),
+        schema: Serialization.jsonSchema('SyncbackRequest'),
       },
     },
     handler: (request, reply) => {
       createSyncbackRequest(request, reply, {
         type: "MoveToFolder",
         props: {
-          folderId: request.params.folder_id,
+          folderId: request.payload.folder_id,
           threadId: request.params.id,
-        },
+        }
       })
     },
   });

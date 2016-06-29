@@ -1,3 +1,4 @@
+const Serialization = require('./serialization');
 const {PubsubConnector, MessageTypes} = require('nylas-core')
 
 module.exports = {
