@@ -249,6 +249,13 @@ class IMAPConnection extends EventEmitter {
     return this._imap.addFlagsAsync(messageSrc, flags)
   }
 
+  move(messageSrc, categoryName) {
+    if (!this._imap) {
+      throw new Error(`IMAPConnection::move - You need to call connect() first.`)
+    }
+    return this._imap.moveAsync(messageSrc, categoryName)
+  }
+
   runOperation(operation) {
     console.log("Running operation")
     console.log(operation.constructor.name)

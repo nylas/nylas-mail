@@ -21,7 +21,7 @@ const TaskHelpers = {
       console.log(`Messages in categories: ${cids}`)
       return db.Category.findAll({where: {id: cids}})
       .each((category) =>
-        imap.openBoxAsync(category.name).then(() => {
+        imap.openBox(category.name).then(() => {
           console.log(`Category Box open: ${category.id} | ${category.name}`);
           Promise.all(msgsInCategories[category.id].map((message) =>
             callback({message, category})
