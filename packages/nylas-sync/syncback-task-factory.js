@@ -4,12 +4,14 @@
  */
 class SyncbackTaskFactory {
   static create(account, syncbackRequest) {
-    if (syncbackRequest.type === "MoveToFolder") {
-      // TODO: Know it's IMAP from the account object.
-      const Task = require('./syncback_tasks/move-to-folder.imap');
-      return new Task(account, syncbackRequest)
+    let Task = null;
+    switch(syncbackRequest.type) {
+      case "MoveToFolder":
+        Task = require('./syncback_tasks/move-to-folder.imap'); break;
+      default:
+        throw new Error(`Invalid Task Type: ${syncbackRequest.type}`)
     }
-    return null
+    return new Task(account, syncbackRequest)
   }
 }
 

@@ -9,6 +9,8 @@ class MoveToFolderIMAP {
   }
 
   run(db, imap) {
+    console.log("RUNNING MOVE TO FOLDER IMAP");
+    return Promise.resolve();
   }
 }
 module.exports = MoveToFolderIMAP
