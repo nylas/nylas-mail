@@ -47,7 +47,7 @@ const notifyAccountIsActive = (accountId) => {
     if (val === 1) {
       PubsubConnector.notify({
         accountId: accountId,
-        type: MessageTypes.ACCOUNT_UPDATED
+        type: MessageTypes.ACCOUNT_UPDATED,
       });
     }
   });

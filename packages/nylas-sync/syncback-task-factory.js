@@ -5,7 +5,7 @@
 class SyncbackTaskFactory {
   static create(account, syncbackRequest) {
     let Task = null;
-    switch(syncbackRequest.type) {
+    switch (syncbackRequest.type) {
       case "MoveToFolder":
         Task = require('./syncback_tasks/move-to-folder.imap'); break;
       default:

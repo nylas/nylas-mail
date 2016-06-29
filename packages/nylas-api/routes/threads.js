@@ -42,7 +42,7 @@ module.exports = (server) => {
         if (query.subject) {
           // the 'like' operator is case-insenstive in sequelite and for
           // non-binary strings in mysql
-          where.cleanedSubject = {like: query.subject};
+          where.subject = {like: query.subject};
         }
 
         // Boolean queries
@@ -59,23 +59,23 @@ module.exports = (server) => {
 
         // Timestamp queries
         if (query.lastMessageBefore) {
-          where.lastMessageReceivedTimestamp = {lt: query.lastMessageBefore};
+          where.lastMessageReceivedDate = {lt: query.lastMessageBefore};
         }
         if (query.lastMessageAfter) {
-          if (where.lastMessageReceivedTimestamp) {
-            where.lastMessageReceivedTimestamp.gt = query.lastMessageAfter;
+          if (where.lastMessageReceivedDate) {
+            where.lastMessageReceivedDate.gt = query.lastMessageAfter;
           } else {
-            where.lastMessageReceivedTimestamp = {gt: query.lastMessageAfter};
+            where.lastMessageReceivedDate = {gt: query.lastMessageAfter};
           }
         }
         if (query.startedBefore) {
-          where.firstMessageTimestamp = {lt: query.startedBefore};
+          where.firstMessageDate = {lt: query.startedBefore};
         }
         if (query.startedAfter) {
-          if (where.firstMessageTimestamp) {
-            where.firstMessageTimestamp.gt = query.startedAfter;
+          if (where.firstMessageDate) {
+            where.firstMessageDate.gt = query.startedAfter;
           } else {
-            where.firstMessageTimestamp = {gt: query.startedAfter};
+            where.firstMessageDate = {gt: query.startedAfter};
           }
         }
 
@@ -104,29 +104,28 @@ module.exports = (server) => {
 
   server.route({
     method: 'PUT',
-    path: '/threads/${id}',
+    path: '/threads/{id}',
     config: {
       description: 'Update a thread',
       notes: 'Can move between folders',
       tags: ['threads'],
       validate: {
         params: {
+          id: Joi.string(),
           payload: {
             folder_id: Joi.string(),
           },
         },
       },
       response: {
-        schema: Joi.array().items(
-          Serialization.jsonSchema('Thread')
-        ),
+        schema: Serialization.jsonSchema('SyncbackRequest'),
       },
     },
     handler: (request, reply) => {
       createSyncbackRequest(request, reply, {
         type: "MoveToFolder",
         props: {
-          folderId: request.params.folder_id,
+          folderId: request.payload.folder_id,
           threadId: request.params.id,
         },
       })

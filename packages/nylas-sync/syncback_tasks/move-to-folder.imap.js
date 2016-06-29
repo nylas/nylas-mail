@@ -9,7 +9,8 @@ class MoveToFolderIMAP {
   }
 
   run(db, imap) {
-    console.log("RUNNING MOVE TO FOLDER IMAP");
+    console.log("----------------------- RUNNING MOVE TO FOLDER IMAP");
+    imap.getBoxes().then(console.log)
     return Promise.resolve();
   }
 }

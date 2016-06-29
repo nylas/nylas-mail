@@ -14,6 +14,7 @@ module.exports = (sequelize, Sequelize) => {
       toJSON: function toJSON() {
         return {
           id: this.id,
+          object: 'file',
           messageId: this.MessageId,
           filename: this.filename,
           contentId: this.contentId,

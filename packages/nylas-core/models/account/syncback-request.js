@@ -1,3 +1,5 @@
+const {typeJSON} = require('../model-helpers')
+
 module.exports = (sequelize, Sequelize) => {
   const SyncbackRequest = sequelize.define('SyncbackRequest', {
     type: Sequelize.STRING,
@@ -6,24 +8,8 @@ module.exports = (sequelize, Sequelize) => {
       defaultValue: "NEW",
       allowNull: false,
     },
-    error: {
-      type: Sequelize.STRING,
-      get: function get() {
-        return JSON.parse(this.getDataValue('error'))
-      },
-      set: function set(val) {
-        this.setDataValue('error', JSON.stringify(val));
-      },
-    },
-    props: {
-      type: Sequelize.STRING,
-      get: function get() {
-        return JSON.parse(this.getDataValue('props'))
-      },
-      set: function set(val) {
-        this.setDataValue('props', JSON.stringify(val));
-      },
-    },
+    error: typeJSON('error'),
+    props: typeJSON('props'),
   });
 
   return SyncbackRequest;

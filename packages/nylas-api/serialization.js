@@ -6,21 +6,24 @@ function replacer(key, value) {
 }
 
 function jsonSchema(modelName) {
-  const models = ['Message', 'Thread', 'File', 'Error']
+  const models = ['Message', 'Thread', 'File', 'Error', 'SyncbackRequest']
   if (models.includes(modelName)) {
     return Joi.object();
   }
   if (modelName === 'Account') {
     return Joi.object().keys({
       id: Joi.number(),
+      object: Joi.string(),
       email_address: Joi.string(),
       connection_settings: Joi.object(),
       sync_policy: Joi.object(),
+      sync_error: Joi.object(),
     })
   }
   if (modelName === 'Category') {
     return Joi.object().keys({
       id: Joi.number(),
+      object: Joi.string(),
       name: Joi.string().allow(null),
       display_name: Joi.string(),
     })

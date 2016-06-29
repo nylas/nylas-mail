@@ -22,6 +22,7 @@ module.exports = (sequelize, Sequelize) => {
       toJSON: function toJSON() {
         return {
           id: this.id,
+          object: 'account',
           email_address: this.emailAddress,
           connection_settings: this.connectionSettings,
           sync_policy: this.syncPolicy,

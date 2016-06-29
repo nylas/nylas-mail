@@ -4,6 +4,7 @@ module.exports = (sequelize, Sequelize) => {
   const Category = sequelize.define('Category', {
     name: Sequelize.STRING,
     role: Sequelize.STRING,
+    type: Sequelize.ENUM('folder', 'label'),
     syncState: JSONType('syncState'),
   }, {
     classMethods: {
@@ -16,6 +17,7 @@ module.exports = (sequelize, Sequelize) => {
       toJSON: function toJSON() {
         return {
           id: this.id,
+          object: this.type,
           name: this.role,
           display_name: this.name,
         };

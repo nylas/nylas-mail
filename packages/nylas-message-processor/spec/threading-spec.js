@@ -15,7 +15,7 @@ it('adds the message to the thread', (done) => {
         return Promise.resolve([
         {
           id: 1,
-          cleanedSubject: "Loved your work and interests",
+          subject: "Loved your work and interests",
           messages: [message],
         }])
       },

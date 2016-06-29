@@ -1,6 +1,21 @@
+const {Provider} = require('nylas-core');
+
+const GMAIL_FOLDERS = ['[Gmail]/All Mail', '[Gmail]/Trash', '[Gmail]/Spam'];
+
 class FetchCategoryList {
+  constructor(provider) {
+    this._provider = provider;
+  }
+
   description() {
     return `FetchCategoryList`;
+  }
+
+  _typeForMailbox(boxName) {
+    if (this._provider === Provider.Gmail) {
+      return GMAIL_FOLDERS.includes(boxName) ? 'folder' : 'label';
+    }
+    return 'folder';
   }
 
   _roleForMailbox(boxName, box) {
@@ -53,6 +68,7 @@ class FetchCategoryList {
       if (!category) {
         category = Category.build({
           name: boxName,
+          type: this._typeForMailbox(boxName, box),
           role: this._roleForMailbox(boxName, box),
         });
         created.push(category);
