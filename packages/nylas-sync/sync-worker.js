@@ -131,12 +131,13 @@ class SyncWorker {
   }
 
   runSyncbackTask(task) {
+    const syncbackRequest = task.syncbackRequestObject()
     return this._conn.runOperation(task)
-    .then(() => { task.syncbackRequest.status = "SUCCEEDED" })
+    .then(() => { syncbackRequest.status = "SUCCEEDED" })
     .catch((error) => {
-      task.syncbackRequest.error = error
-      task.syncbackRequest.status = "FAILED"
-    }).finally(() => task.syncbackRequest.save())
+      syncbackRequest.error = error
+      syncbackRequest.status = "FAILED"
+    }).finally(() => syncbackRequest.save())
   }
 
   syncAllCategories() {

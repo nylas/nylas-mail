@@ -4,6 +4,10 @@ class MoveToFolderIMAP {
     this._syncbackRequest = syncbackRequest;
   }
 
+  syncbackRequestObject() {
+    return this._syncbackRequest;
+  }
+
   description() {
     return `MoveToFolder`;
   }
