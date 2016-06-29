@@ -15,6 +15,10 @@ module.exports = (sequelize, Sequelize) => {
     lastMessageSentDate: Sequelize.DATE,
     participants: JSONARRAYType('participants'),
   }, {
+    indexes: [
+      { fields: ['subject'] },
+      { fields: ['threadId'] },
+    ],
     classMethods: {
       associate: ({Category, Message, ThreadCategory}) => {
         Thread.belongsToMany(Category, {through: ThreadCategory})
