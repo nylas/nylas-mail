@@ -1,13 +1,6 @@
-class MoveToFolderIMAP {
-  constructor(account, syncbackRequest) {
-    this._account = account;
-    this._syncbackRequest = syncbackRequest;
-  }
+const SyncbackTask = require('./syncback-task')
 
-  syncbackRequestObject() {
-    return this._syncbackRequest;
-  }
-
+class MoveToFolderIMAP extends SyncbackTask {
   description() {
     return `MoveToFolder`;
   }
