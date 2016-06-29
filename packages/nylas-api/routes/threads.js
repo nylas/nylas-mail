@@ -127,9 +127,26 @@ module.exports = (server) => {
         type: "MoveToFolder",
         props: {
           folderId: request.params.folder_id,
-          threadId: requres.params.id,
-        }
+          threadId: request.params.id,
+        },
       })
     },
   });
+
+  server.route({
+    method: 'POST',
+    path: '/threads/{id}/markread',
+    config: {
+      description: 'Mark a thread as read.',
+      tags: ['threads'],
+      handler: (request, reply) => {
+        createSyncbackRequest(request, reply, {
+          type: "MarkThreadAsRead",
+          props: {
+            threadId: request.params.id,
+          },
+        })
+      },
+    },
+  })
 };
