@@ -14,7 +14,7 @@ const extractContacts = (values) =>
 function processMessage({message}) {
   if (message.snippet) {
     // trim and clean snippet which is alreay present (from message plaintext)
-    message.snippet = message.snippet.replace(/[\n\r]/g, ' ')
+    message.snippet = message.snippet.replace(/[\n\r]/g, ' ').replace(/\s\s+/g, ' ')
     const loc = message.snippet.indexOf(' ', SNIPPET_SIZE);
     if (loc !== -1) {
       message.snippet = message.snippet.substr(0, loc);

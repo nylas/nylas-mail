@@ -1,8 +1,6 @@
 const Rx = require('rx')
 const redis = require("redis");
 
-const SyncPolicy = require('./sync-policy');
-
 Promise.promisifyAll(redis.RedisClient.prototype);
 Promise.promisifyAll(redis.Multi.prototype);
 
@@ -24,6 +22,16 @@ class PubsubConnector {
       this._broadcastClient = this.buildClient();
     }
     return this._broadcastClient;
+  }
+
+  queueProcessMessage({messageId, accountId}) {
+    if (!messageId) {
+      throw new Error("queueProcessMessage: The message body processor expects a messageId")
+    }
+    if (!accountId) {
+      throw new Error("queueProcessMessage: The message body processor expects a accountId")
+    }
+    this.broadcastClient().lpush(`message-processor-queue`, JSON.stringify({messageId, accountId}));
   }
 
   // Shared channel

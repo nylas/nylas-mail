@@ -59,23 +59,23 @@ module.exports = (server) => {
 
         // Timestamp queries
         if (query.lastMessageBefore) {
-          where.lastMessageReceivedTimestamp = {lt: query.lastMessageBefore};
+          where.lastMessageReceivedDate = {lt: query.lastMessageBefore};
         }
         if (query.lastMessageAfter) {
-          if (where.lastMessageReceivedTimestamp) {
-            where.lastMessageReceivedTimestamp.gt = query.lastMessageAfter;
+          if (where.lastMessageReceivedDate) {
+            where.lastMessageReceivedDate.gt = query.lastMessageAfter;
           } else {
-            where.lastMessageReceivedTimestamp = {gt: query.lastMessageAfter};
+            where.lastMessageReceivedDate = {gt: query.lastMessageAfter};
           }
         }
         if (query.startedBefore) {
-          where.firstMessageTimestamp = {lt: query.startedBefore};
+          where.firstMessageDate = {lt: query.startedBefore};
         }
         if (query.startedAfter) {
-          if (where.firstMessageTimestamp) {
-            where.firstMessageTimestamp.gt = query.startedAfter;
+          if (where.firstMessageDate) {
+            where.firstMessageDate.gt = query.startedAfter;
           } else {
-            where.firstMessageTimestamp = {gt: query.startedAfter};
+            where.firstMessageDate = {gt: query.startedAfter};
           }
         }
 
@@ -127,8 +127,8 @@ module.exports = (server) => {
         type: "MoveToFolder",
         props: {
           folderId: request.params.folder_id,
-          threadId: requres.params.id,
-        }
+          threadId: request.params.id,
+        },
       })
     },
   });

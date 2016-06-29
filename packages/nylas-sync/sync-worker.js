@@ -42,7 +42,7 @@ class SyncWorker {
 
   _onMessage(msg) {
     const {type, data} = JSON.parse(msg)
-    switch(type) {
+    switch (type) {
       case MessageTypes.ACCOUNT_UPDATED:
         this._onAccountUpdated(); break;
       case MessageTypes.SYNCBACK_REQUESTED:

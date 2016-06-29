@@ -16,6 +16,7 @@ function jsonSchema(modelName) {
       email_address: Joi.string(),
       connection_settings: Joi.object(),
       sync_policy: Joi.object(),
+      sync_error: Joi.object(),
     })
   }
   if (modelName === 'Category') {

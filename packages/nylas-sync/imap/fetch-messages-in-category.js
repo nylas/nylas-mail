@@ -1,8 +1,7 @@
 const _ = require('underscore');
 const Imap = require('imap');
 
-const {processMessage} = require(`nylas-message-processor`);
-const {IMAPConnection} = require('nylas-core');
+const {IMAPConnection, PubsubConnector} = require('nylas-core');
 const {Capabilities} = IMAPConnection;
 
 const MessageFlagAttributes = ['id', 'CategoryUID', 'unread', 'starred']
@@ -205,6 +204,11 @@ class FetchMessagesInCategory {
     const {Message, accountId} = this._db;
     const hash = Message.hashForHeaders(headers);
 
+    const parsedHeaders = Imap.parseHeader(headers);
+    for (const key of ['x-gm-thrid', 'x-gm-msgid', 'x-gm-labels']) {
+      parsedHeaders[key] = attributes[key];
+    }
+
     const values = {
       hash: hash,
       body: body['text/html'] || body['text/plain'] || body['application/pgp-encrypted'] || '',
@@ -214,11 +218,10 @@ class FetchMessagesInCategory {
       date: attributes.date,
       CategoryUID: attributes.uid,
       CategoryId: this._category.id,
-      headers: Imap.parseHeader(headers),
+      headers: parsedHeaders,
+      messageId: parsedHeaders['message-id'][0],
+      subject: parsedHeaders.subject[0],
     }
-
-    values.messageId = values.headers['message-id'][0];
-    values.subject = values.headers.subject[0];
 
     Message.find({where: {hash}}).then((existing) => {
       if (existing) {
@@ -229,7 +232,7 @@ class FetchMessagesInCategory {
 
       Message.create(values).then((created) => {
         this._createFilesFromStruct({message: created, struct: attributes.struct})
-        processMessage({accountId, messageId: created.id})
+        PubsubConnector.queueProcessMessage({accountId, messageId: created.id});
       })
     })
 

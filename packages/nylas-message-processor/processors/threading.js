@@ -1,210 +1,130 @@
-const {DatabaseConnector} = require('nylas-core')
+// const _ = require('underscore');
 
-function fetchCorrespondingThread({db, accountId, message}) {
-  const cleanedSubject = cleanSubject(message.subject)
-  return getThreads({db, message, cleanedSubject})
-  .then((threads) => {
-    return findCorrespondingThread({message, threads})
-  })
-}
+class ThreadingProcessor {
+  pickMatchingThread(message, threads) {
+    return threads.pop();
 
-function getThreads({db, message, cleanedSubject}) {
-  const {Thread} = db
-  return Thread.findAll({
-    where: {
-      threadId: message.headers.threadId,
-      cleanedSubject: cleanedSubject,
-    },
-    order: [
-      ['id', 'DESC']
-    ],
-  })
-}
+    // This logic is tricky... Used to say that threads with >2 participants in common
+    // should be treated as the same, plus special cases for when it's a 1<>1
+    // conversation. Put it back soonish.
 
-function findCorrespondingThread({message, threads}) {
-  for (const thread of threads) {
-    for (const match of thread.messages) {
-      // Ignore BCC
-      const {matchEmails, messageEmails} = removeBccParticipants({message, match})
+    // const messageEmails = _.uniq([].concat(message.to, message.cc, message.from).map(p => p.email));
+    // console.log(`Found ${threads.length} candidate threads for message with subject: ${message.subject}`)
+    //
+    // for (const thread of threads) {
+    //   const threadEmails = _.uniq([].concat(thread.participants).map(p => p.email));
+    //   console.log(`Intersection: ${_.intersection(threadEmails, messageEmails).join(',')}`)
+    //
+    //   if (_.intersection(threadEmails, messageEmails) >= threadEmails.length * 0.9) {
+    //     return thread;
+    //   }
+    // }
+    //
+    // return null;
+  }
 
-      // A thread is probably related if it has more than two common participants
-      const intersectingParticipants = getIntersectingParticipants({messageEmails, matchEmails})
-      if (intersectingParticipants.length >= 2) {
-        if (thread.messages.length >= MAX_THREAD_LENGTH)
-          break
-        return match.thread
-      }
+  cleanSubject(subject = "") {
+    const regex = new RegExp(/^((re|fw|fwd|aw|wg|undeliverable|undelivered):\s*)+/ig)
+    const cleanedSubject = subject.replace(regex, () => "")
+    return cleanedSubject
+  }
 
-      // Handle case for self-sent emails
-      if (!message.from || !message.to)
-        return
-      if (isSentToSelf({message, match})) {
-        if (thread.messages.length >= MAX_THREAD_LENGTH)
-          break
-        return match.thread
-      }
+  findOrCreateByMatching(db, message) {
+    const {Thread} = db
+
+    // in the future, we should look at In-reply-to. Problem is it's a single-
+    // directional linked list, and we don't scan the mailbox from oldest=>newest,
+    // but from newest->oldest, so when we ingest a message it's very unlikely
+    // we have the "In-reply-to" message yet.
+
+    return Thread.findAll({
+      where: {
+        subject: this.cleanSubject(message.subject),
+      },
+      order: [
+        ['id', 'DESC'],
+      ],
+      limit: 50,
+    }).then((threads) =>
+      this.pickMatchingThread(message, threads) || Thread.build({})
+    )
+  }
+
+  findOrCreateByThreadId({Thread}, threadId) {
+    return Thread.find({where: {threadId}}).then((thread) => {
+      return thread || Thread.build({threadId});
+    })
+  }
+
+  processMessage({db, message}) {
+    let findOrCreateThread = null;
+    if (message.headers['x-gm-thrid']) {
+      findOrCreateThread = this.findOrCreateByThreadId(db, message.headers['x-gm-thrid'])
+    } else {
+      findOrCreateThread = this.findOrCreateByMatching(db, message)
     }
-  }
-}
 
-function removeBccParticipants({message, match}) {
-  const matchBcc = match.bcc ? match.bcc : []
-  const messageBcc = message.bcc ? message.bcc : []
-  const matchParticipants = [...match.from, ...match.to, ...match.cc, ...match.bcc]
-  const messageParticipants = [...message.from, ...message.to, ...message.cc, ...message.bcc]
-  let matchEmails = matchParticipants.filter((participant) => {
-    return matchBcc.find(bcc => bcc === participant)
-  })
-  matchEmails.map((email) => {
-    return email[1]
-  })
-  let messageEmails = messageParticipants.filter((participant) => {
-    return messageBcc.find(bcc => bcc === participant)
-  })
-  messageEmails.map((email) => {
-    return email[1]
-  })
-  return {messageEmails, matchEmails}
-}
+    return Promise.props({
+      thread: findOrCreateThread,
+      sentCategory: db.Category.find({where: {role: 'sent'}}),
+    })
+    .then(({thread, sentCategory}) => {
+      thread.addMessage(message);
 
-function getIntersectingParticipants({messageEmails, matchEmails}) {
-  const matchParticipants = new Set(matchEmails)
-  const messageParticipants = new Set(messageEmails)
-  const intersectingParticipants = new Set([...matchParticipants]
-    .filter(participant => messageParticipants.has(participant)))
-  return intersectingParticipants
-}
+      // update the subject on the thread
+      thread.subject = this.cleanSubject(message.subject);
+      thread.snippet = message.snippet;
 
-function isSentToSelf({message, match}) {
-  const matchFrom = match.from.map((participant) => {
-    return participant[1]
-  })
-  const matchTo = match.to.map((participant) => {
-    return participant[1]
-  })
-  const messageFrom = message.from.map((participant) => {
-    return participant[1]
-  })
-  const messageTo = message.to.map((participant) => {
-    return participant[1]
-  })
+      // update the participants on the thread
+      const threadParticipants = [].concat(thread.participants);
+      const threadEmails = thread.participants.map(p => p.email);
 
-  return (messageTo.length === 1 &&
-    messageFrom === messageTo &&
-    matchFrom === matchTo &&
-    messageTo === matchFrom)
-}
-
-function cleanSubject(subject) {
-  if (subject === null) {
-    return ""
-  }
-  const regex = new RegExp(/^((re|fw|fwd|aw|wg|undeliverable|undelivered):\s*)+/ig)
-  const cleanedSubject = subject.replace(regex, () => "")
-  return cleanedSubject
-}
-
-function getThreadFromHeader({db, inReplyTo}) {
-  const {Message} = db
-  return Message.find({where: {messageId: inReplyTo}})
-  .then((message) => {
-    return message.getThread()
-  })
-}
-
-function matchThread({db, accountId, message}) {
-  const {Thread} = db
-  if (message.headers['In-Reply-To']) {
-    return getThreadFromHeader({db, inReplyTo: message.headers['In-Reply-To']})
-    .then((thread) => {
-      if (thread) {
-        return thread
-      }
-      return fetchCorrespondingThread({db, accountId, message})
-      .then((thread) => {
-        if (thread) {
-          return thread
+      for (const p of [].concat(message.to, message.cc, message.from)) {
+        if (!threadEmails.includes(p.email)) {
+          threadParticipants.push(p);
+          threadEmails.push(p.email);
         }
-        return Thread.create({
-          cleanedSubject: cleanSubject(message.subject),
-          firstMessageTimestamp: message.date,
-          unreadCount: 0,
-          starredCount: 0,
-        })
-      })
-    })
-  }
+      }
+      thread.participants = threadParticipants;
 
-  return fetchCorrespondingThread({db, accountId, message})
-  .then((thread) => {
-    if (thread) {
-      return thread
-    }
-    return Thread.create({
-      cleanedSubject: cleanSubject(message.subject),
-      firstMessageTimestamp: message.date,
-      unreadCount: 0,
-      starredCount: 0,
-    })
-  })
+      // update starred and unread
+      if (thread.starredCount == null) { thread.starredCount = 0; }
+      thread.starredCount += message.starred ? 1 : 0;
+      if (thread.unreadCount == null) { thread.unreadCount = 0; }
+      thread.unreadCount += message.unread ? 1 : 0;
+
+      // update dates
+      if (!thread.lastMessageDate || (message.date > thread.lastMessageDate)) {
+        thread.lastMessageDate = message.date;
+      }
+      if (!thread.firstMessageDate || (message.date < thread.firstMessageDate)) {
+        thread.firstMessageDate = message.date;
+      }
+      const sentCategoryId = sentCategory ? sentCategory.id : null;
+      if ((message.CategoryId === sentCategoryId) && (message.date > thread.lastMessageSentDate)) {
+        thread.lastMessageSentDate = message.date;
+      }
+      if ((message.CategoryId !== sentCategoryId) && (message.date > thread.lastMessageReceivedDate)) {
+        thread.lastMessageReceivedDate = message.date;
+      }
+
+      // update categories and sav
+      return thread.hasCategory(message.CategoryId).then((hasCategory) => {
+        if (!hasCategory) {
+          thread.addCategory(message.CategoryId)
+        }
+        return thread.save().then((saved) => {
+          message.ThreadId = saved.id;
+          return message;
+        });
+      });
+    });
+  }
 }
 
-function addMessageToThread({db, accountId, message}) {
-  const {Thread} = db
-  // Check for Gmail's own thread ID
-  if (message.headers['X-GM-THRID']) {
-    const thread = Thread.find({where: {threadId: message.headers['X-GM-THRID']}})
-    if (thread) {
-      return thread
-    }
-    return Thread.create({
-      cleanedSubject: cleanSubject(message.subject),
-      threadId: message.headers['X-GM-THRID'],
-      firstMessageTimestamp: message.date,
-      unreadCount: 0,
-      starredCount: 0,
-    })
-  }
-  return matchThread({db, accountId, message})
-  .then((thread) => (thread))
-}
-
-function updateThreadProperties({db, thread, message}) {
-  const {Category} = db;
-  Category.findById(message.CategoryId).then((category) => {
-    if (category.role !== 'sent') {
-      thread.lastMessageReceivedTimestamp = message.date;
-      thread.save();
-    }
-  })
-  thread.lastMessageTimestamp = message.date;
-
-  thread.hasCategory(message.CategoryId).then((hasCategory) => {
-    if (!hasCategory) {
-      thread.addCategory(message.CategoryId)
-    }
-  });
-
-  if (message.unread) {
-    thread.unreadCount++;
-  }
-  if (message.starred) {
-    thread.starredCount++;
-  }
-  thread.save();
-}
-
-function processMessage({db, accountId, message}) {
-  return addMessageToThread({db, accountId, message})
-  .then((thread) => {
-    thread.addMessage(message)
-    message.setThread(thread)
-    updateThreadProperties({db, thread, message})
-    return message
-  })
-}
+const processor = new ThreadingProcessor();
 
 module.exports = {
+  processMessage: processor.processMessage.bind(processor),
   order: 1,
-  processMessage,
-}
+};
