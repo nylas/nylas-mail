@@ -54,7 +54,7 @@ const buildAccountWith = ({name, email, provider, settings, credentials}) => {
 
     return account.save().then((saved) =>
       AccountToken.create({
-        AccountId: saved.id,
+        accountId: saved.id,
       }).then((token) =>
         Promise.resolve({account: saved, token: token})
       )
