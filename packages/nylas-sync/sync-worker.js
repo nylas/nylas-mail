@@ -1,5 +1,4 @@
 const {
-  Provider,
   SchedulerUtils,
   IMAPConnection,
   PubsubConnector,
@@ -74,16 +73,18 @@ class SyncWorker {
       .then((inboxCategory) => this._conn.openBox(inboxCategory.name))
       .then(() => console.log('SyncWorker: - Idling on inbox category'))
       .catch((error) => {
-        this.closeConnection()
         console.error('SyncWorker: - Unhandled error while attempting to idle on Inbox after sync: ', error)
+        this.closeConnection()
       })
-    } else if (afterSync === 'close') {
-      console.log('SyncWorker: - Closing connection');
-    } else {
-      console.warn(`SyncWorker: - Unknown afterSync behavior: ${afterSync}. Closing connection`)
     }
-    this.closeConnection()
-    return Promise.resolve()
+
+    if (afterSync === 'close') {
+      console.log('SyncWorker: - Closing connection');
+      this.closeConnection()
+      return Promise.resolve()
+    }
+
+    throw new Error(`SyncWorker.onSyncDidComplete: Unknown afterSync behavior: ${afterSync}. Closing connection`)
   }
 
   onConnectionIdleUpdate() {

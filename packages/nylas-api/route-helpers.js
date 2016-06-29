@@ -13,5 +13,5 @@ module.exports = {
         reply(Serialization.jsonStringify(syncbackRequest))
       })
     })
-  }
+  },
 }
