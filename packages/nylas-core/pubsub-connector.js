@@ -55,7 +55,7 @@ class PubsubConnector {
   }
 
   notify({accountId, type, data}) {
-    this.broadcastClient().publish(`channel-${accountId}`, {type, data});
+    this.broadcastClient().publish(`channel-${accountId}`, JSON.stringify({type, data}));
   }
 
   observe(accountId) {

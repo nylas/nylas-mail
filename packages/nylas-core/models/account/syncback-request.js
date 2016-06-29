@@ -1,7 +1,11 @@
 module.exports = (sequelize, Sequelize) => {
   const SyncbackRequest = sequelize.define('SyncbackRequest', {
     type: Sequelize.STRING,
-    status: Sequelize.STRING,
+    status: {
+      type: Sequelize.ENUM("NEW", "SUCCEEDED", "FAILED"),
+      defaultValue: "NEW",
+      allowNull: false,
+    },
     error: {
       type: Sequelize.STRING,
       get: function get() {

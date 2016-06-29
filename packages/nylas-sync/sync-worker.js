@@ -40,14 +40,15 @@ class SyncWorker {
     this._conn = null
   }
 
-  _onMessage(msg = {}) {
-    switch(msg.type) {
+  _onMessage(msg) {
+    const {type, data} = JSON.parse(msg)
+    switch(type) {
       case MessageTypes.ACCOUNT_UPDATED:
         this._onAccountUpdated(); break;
       case MessageTypes.SYNCBACK_REQUESTED:
         this.syncNow(); break;
       default:
-        throw new Error(`Invalid message: ${JSON.stringify(msg)}`)
+        throw new Error(`Invalid message: ${msg}`)
     }
   }
 
@@ -121,20 +122,11 @@ class SyncWorker {
     return this._conn.connect();
   }
 
-  fetchCategoryList() {
-    return this._conn.runOperation(new FetchCategoryList())
-  }
-
   syncbackMessageActions() {
-    return this._getAccount((account) =>
-      Promise.each(this._db.SyncbackRequest.findAll().then((reqs = []) =>
-        reqs.map((request) => {
-          const task = SyncbackTaskFactory.create(account, request);
-          if (!task) return Promise.reject("No Task")
-          return this._conn.runOperation(task)
-        })
-      ))
-    )
+    const where = {where: {status: "NEW"}, limit: 100};
+    return this._db.SyncbackRequest.findAll(where)
+      .map((req) => SyncbackTaskFactory.create(this._account, req))
+      .each(this._conn.runOperation)
   }
 
   syncAllCategories() {
@@ -163,7 +155,7 @@ class SyncWorker {
   }
 
   performSync() {
-    return this.fetchCategoryList()
+    return this._conn.runOperation(new FetchCategoryList())
     .then(() => this.syncbackMessageActions())
     .then(() => this.syncAllCategories())
   }
