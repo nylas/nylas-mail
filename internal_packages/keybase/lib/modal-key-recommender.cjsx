@@ -68,8 +68,22 @@ class ModalKeyRecommender extends React.Component
         ['Encrypt', 'Cancel']
       )
         return
-    Actions.closePopover()
-    @props.callback(@state.identities)
+
+    if _.every(@state.identities, (identity) -> identity.key?)
+      Actions.closePopover()
+      @props.callback(@state.identities)
+    else
+      emptyIdents = _.filter(@state.identities, (identity) -> !identity.key?)
+      newIdents = []
+      for idIndex of emptyIdents
+        identity = emptyIdents[idIndex]
+        if idIndex < emptyIdents.length - 1
+          PGPKeyStore.getKeyContents(key: identity, callback: (identity) => newIdents.push(identity))
+        else
+          PGPKeyStore.getKeyContents(key: identity, callback: (identity) =>
+            newIdents.push(identity)
+            @props.callback(newIdents)
+          )
 
   _onManageKeys: =>
     Actions.switchPreferencesTab('Encryption')
