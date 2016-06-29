@@ -55,14 +55,12 @@ module.exports = (server) => {
       },
     },
     handler: (request, reply) => {
-      request.getAccountDatabase()
-      .then((db) => {
+      request.getAccountDatabase().then(({File}) => {
         const {headers: {accept}} = request
         const {params: {id}} = request
         const account = request.auth.credentials
 
-        db.File.findOne({where: {id}})
-        .then((file) => {
+        File.findOne({where: {id}}).then((file) => {
           if (!file) {
             return reply.notFound(`File ${id} not found`)
           }

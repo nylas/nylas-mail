@@ -4,7 +4,7 @@ const Imap = require('imap');
 const {IMAPConnection, PubsubConnector} = require('nylas-core');
 const {Capabilities} = IMAPConnection;
 
-const MessageFlagAttributes = ['id', 'CategoryUID', 'unread', 'starred']
+const MessageFlagAttributes = ['id', 'categoryUID', 'unread', 'starred']
 
 class FetchMessagesInCategory {
   constructor(category, options) {
@@ -34,12 +34,12 @@ class FetchMessagesInCategory {
     const {Message} = this._db;
     return this._db.sequelize.transaction((transaction) =>
       Message.update({
-        CategoryUID: null,
-        CategoryId: null,
+        categoryUID: null,
+        categoryId: null,
       }, {
         transaction: transaction,
         where: {
-          CategoryId: this._category.id,
+          categoryId: this._category.id,
         },
       })
     )
@@ -48,7 +48,7 @@ class FetchMessagesInCategory {
   _updateMessageAttributes(remoteUIDAttributes, localMessageAttributes) {
     const messageAttributesMap = {};
     for (const msg of localMessageAttributes) {
-      messageAttributesMap[msg.CategoryUID] = msg;
+      messageAttributesMap[msg.categoryUID] = msg;
     }
 
     const createdUIDs = [];
@@ -90,8 +90,8 @@ class FetchMessagesInCategory {
     const {Message} = this._db;
 
     const removedUIDs = localMessageAttributes
-      .filter(msg => !remoteUIDAttributes[msg.CategoryUID])
-      .map(msg => msg.CategoryUID)
+      .filter(msg => !remoteUIDAttributes[msg.categoryUID])
+      .map(msg => msg.categoryUID)
 
     console.log(` --- found ${removedUIDs.length} messages no longer in the folder`)
 
@@ -100,13 +100,13 @@ class FetchMessagesInCategory {
     }
     return this._db.sequelize.transaction((transaction) =>
        Message.update({
-         CategoryUID: null,
-         CategoryId: null,
+         categoryUID: null,
+         categoryId: null,
        }, {
          transaction,
          where: {
-           CategoryId: this._category.id,
-           CategoryUID: removedUIDs,
+           categoryId: this._category.id,
+           categoryUID: removedUIDs,
          },
        })
     );
@@ -190,6 +190,7 @@ class FetchMessagesInCategory {
           filename: filename,
           contentId: part.partID,
           contentType: `${part.type}/${part.subtype}`,
+          accountId: this._db.accountId,
           size: part.size,
         })
         .then((file) => {
@@ -211,13 +212,14 @@ class FetchMessagesInCategory {
 
     const values = {
       hash: hash,
+      accountId: this._db.accountId,
       body: body['text/html'] || body['text/plain'] || body['application/pgp-encrypted'] || '',
       snippet: body['text/plain'] || null,
       unread: !attributes.flags.includes('\\Seen'),
       starred: attributes.flags.includes('\\Flagged'),
       date: attributes.date,
-      CategoryUID: attributes.uid,
-      CategoryId: this._category.id,
+      categoryUID: attributes.uid,
+      categoryId: this._category.id,
       headers: parsedHeaders,
       messageId: parsedHeaders['message-id'][0],
       subject: parsedHeaders.subject[0],
@@ -335,7 +337,7 @@ class FetchMessagesInCategory {
     return shallowFetch
     .then((remoteUIDAttributes) => (
       this._db.Message.findAll({
-        where: {CategoryId: this._category.id},
+        where: {categoryId: this._category.id},
         attributes: MessageFlagAttributes,
       })
       .then((localMessageAttributes) => (
@@ -361,7 +363,7 @@ class FetchMessagesInCategory {
     return this._box.fetchUIDAttributes(range)
     .then((remoteUIDAttributes) => {
       return Message.findAll({
-        where: {CategoryId: this._category.id},
+        where: {categoryId: this._category.id},
         attributes: MessageFlagAttributes,
       })
       .then((localMessageAttributes) => (

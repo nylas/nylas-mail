@@ -5,7 +5,8 @@ const {JSONType, JSONARRAYType} = require('../../database-types');
 
 
 module.exports = (sequelize, Sequelize) => {
-  const Message = sequelize.define('Message', {
+  const Message = sequelize.define('message', {
+    accountId: { type: Sequelize.STRING, allowNull: false },
     messageId: Sequelize.STRING,
     body: Sequelize.STRING,
     headers: JSONType('headers'),
@@ -20,7 +21,7 @@ module.exports = (sequelize, Sequelize) => {
     from: JSONARRAYType('from'),
     cc: JSONARRAYType('cc'),
     bcc: JSONARRAYType('bcc'),
-    CategoryUID: { type: Sequelize.STRING, allowNull: true},
+    categoryUID: { type: Sequelize.STRING, allowNull: true},
   }, {
     indexes: [
       {
@@ -47,7 +48,7 @@ module.exports = (sequelize, Sequelize) => {
         })
         .then(({category, connection}) => {
           return connection.openBox(category.name)
-          .then((imapBox) => imapBox.fetchMessage(this.CategoryUID))
+          .then((imapBox) => imapBox.fetchMessage(this.categoryUID))
           .then((message) => {
             if (message) {
               return Promise.resolve(`${message.headers}${message.body}`)
@@ -62,13 +63,14 @@ module.exports = (sequelize, Sequelize) => {
         return {
           id: this.id,
           object: 'message',
+          account_id: this.accountId,
           body: this.body,
           subject: this.subject,
           snippet: this.snippet,
           date: this.date.getTime() / 1000.0,
           unread: this.unread,
           starred: this.starred,
-          category_id: this.CategoryId,
+          category_id: this.categoryId,
         };
       },
     },

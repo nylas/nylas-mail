@@ -7,7 +7,7 @@ global.NylasError = NylasError;
 // List of the attributes of Message that the processor should be allowed to change.
 // The message may move between folders, get starred, etc. while it's being
 // processed, and it shouldn't overwrite changes to those fields.
-const MessageAttributes = ['body', 'processed', 'to', 'from', 'cc', 'bcc', 'snippet', 'ThreadId']
+const MessageAttributes = ['body', 'processed', 'to', 'from', 'cc', 'bcc', 'snippet', 'threadId']
 const MessageProcessorVersion = 1;
 
 function runPipeline({db, accountId, message}) {

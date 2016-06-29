@@ -1,7 +1,8 @@
 const {JSONType} = require('../../database-types');
 
 module.exports = (sequelize, Sequelize) => {
-  const Category = sequelize.define('Category', {
+  const Category = sequelize.define('category', {
+    accountId: { type: Sequelize.STRING, allowNull: false },
     name: Sequelize.STRING,
     role: Sequelize.STRING,
     type: Sequelize.ENUM('folder', 'label'),
@@ -17,6 +18,7 @@ module.exports = (sequelize, Sequelize) => {
       toJSON: function toJSON() {
         return {
           id: this.id,
+          account_id: this.accountId,
           object: this.type,
           name: this.role,
           display_name: this.name,

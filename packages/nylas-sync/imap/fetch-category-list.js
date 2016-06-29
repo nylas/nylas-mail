@@ -68,6 +68,7 @@ class FetchCategoryList {
       if (!category) {
         category = Category.build({
           name: boxName,
+          accountId: this._db.accountId,
           type: this._typeForMailbox(boxName, box),
           role: this._roleForMailbox(boxName, box),
         });

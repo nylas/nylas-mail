@@ -21,7 +21,7 @@ class DatabaseConnector {
     for (const filename of fs.readdirSync(dirname)) {
       if (filename.endsWith('.js')) {
         const model = sequelize.import(path.join(dirname, filename));
-        db[model.name] = model;
+        db[model.name[0].toUpperCase() + model.name.substr(1)] = model;
       }
     }
     Object.keys(db).forEach((modelName) => {

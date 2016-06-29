@@ -1,7 +1,8 @@
 const {JSONARRAYType} = require('../../database-types');
 
 module.exports = (sequelize, Sequelize) => {
-  const Thread = sequelize.define('Thread', {
+  const Thread = sequelize.define('thread', {
+    accountId: { type: Sequelize.STRING, allowNull: false },
     threadId: Sequelize.STRING,
     subject: Sequelize.STRING,
     snippet: Sequelize.STRING,
@@ -24,6 +25,7 @@ module.exports = (sequelize, Sequelize) => {
         return {
           id: this.id,
           object: 'thread',
+          account_id: this.accountId,
           participants: this.participants,
           subject: this.subject,
           snippet: this.snippet,

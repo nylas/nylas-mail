@@ -24,6 +24,7 @@ function jsonSchema(modelName) {
     return Joi.object().keys({
       id: Joi.number(),
       object: Joi.string(),
+      account_id: Joi.string(),
       name: Joi.string().allow(null),
       display_name: Joi.string(),
     })

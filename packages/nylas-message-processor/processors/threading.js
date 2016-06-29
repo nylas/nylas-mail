@@ -70,9 +70,8 @@ class ThreadingProcessor {
     .then(({thread, sentCategory}) => {
       thread.addMessage(message);
 
-      // update the subject on the thread
-      thread.subject = this.cleanSubject(message.subject);
-      thread.snippet = message.snippet;
+      // update the basic properties of the thread
+      thread.accountId = message.accountId;
 
       // update the participants on the thread
       const threadParticipants = [].concat(thread.participants);
@@ -95,25 +94,27 @@ class ThreadingProcessor {
       // update dates
       if (!thread.lastMessageDate || (message.date > thread.lastMessageDate)) {
         thread.lastMessageDate = message.date;
+        thread.snippet = message.snippet;
+        thread.subject = this.cleanSubject(message.subject);
       }
       if (!thread.firstMessageDate || (message.date < thread.firstMessageDate)) {
         thread.firstMessageDate = message.date;
       }
       const sentCategoryId = sentCategory ? sentCategory.id : null;
-      if ((message.CategoryId === sentCategoryId) && (message.date > thread.lastMessageSentDate)) {
+      if ((message.categoryId === sentCategoryId) && (message.date > thread.lastMessageSentDate)) {
         thread.lastMessageSentDate = message.date;
       }
-      if ((message.CategoryId !== sentCategoryId) && (message.date > thread.lastMessageReceivedDate)) {
+      if ((message.categoryId !== sentCategoryId) && (message.date > thread.lastMessageReceivedDate)) {
         thread.lastMessageReceivedDate = message.date;
       }
 
       // update categories and sav
-      return thread.hasCategory(message.CategoryId).then((hasCategory) => {
+      return thread.hasCategory(message.categoryId).then((hasCategory) => {
         if (!hasCategory) {
-          thread.addCategory(message.CategoryId)
+          thread.addCategory(message.categoryId)
         }
         return thread.save().then((saved) => {
-          message.ThreadId = saved.id;
+          message.threadId = saved.id;
           return message;
         });
       });
