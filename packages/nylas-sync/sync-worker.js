@@ -133,20 +133,11 @@ class SyncWorker {
     const {Category} = this._db;
     const {folderSyncOptions} = this._account.syncPolicy;
 
-    return Category.findAll().then((categories) => {
+    return Category.findAll({where: {type: 'folder'}}).then((categories) => {
       const priority = ['inbox', 'all', 'drafts', 'sent', 'spam', 'trash'].reverse();
-      let categoriesToSync = categories.sort((a, b) =>
+      const categoriesToSync = categories.sort((a, b) =>
         (priority.indexOf(a.role) - priority.indexOf(b.role)) * -1
       )
-
-      if (this._account.provider === Provider.Gmail) {
-        categoriesToSync = categoriesToSync.filter(cat =>
-          ['[Gmail]/All Mail', '[Gmail]/Trash', '[Gmail]/Spam'].includes(cat.name)
-        )
-        if (categoriesToSync.length !== 3) {
-          throw new Error(`Account is missing a core Gmail folder: ${categoriesToSync.join(',')}`)
-        }
-      }
 
       return Promise.all(categoriesToSync.map((cat) =>
         this._conn.runOperation(new FetchMessagesInCategory(cat, folderSyncOptions))
@@ -155,7 +146,7 @@ class SyncWorker {
   }
 
   performSync() {
-    return this._conn.runOperation(new FetchCategoryList())
+    return this._conn.runOperation(new FetchCategoryList(this._account.provider))
     .then(() => this.syncbackMessageActions())
     .then(() => this.syncAllCategories())
   }

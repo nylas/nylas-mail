@@ -13,6 +13,7 @@ function jsonSchema(modelName) {
   if (modelName === 'Account') {
     return Joi.object().keys({
       id: Joi.number(),
+      object: Joi.string(),
       email_address: Joi.string(),
       connection_settings: Joi.object(),
       sync_policy: Joi.object(),
@@ -22,6 +23,7 @@ function jsonSchema(modelName) {
   if (modelName === 'Category') {
     return Joi.object().keys({
       id: Joi.number(),
+      object: Joi.string(),
       name: Joi.string().allow(null),
       display_name: Joi.string(),
     })
