@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-  const ThreadCategory = sequelize.define('ThreadCategory', {
+  const ThreadCategory = sequelize.define('threadCategory', {
     role: Sequelize.STRING,
   });
 

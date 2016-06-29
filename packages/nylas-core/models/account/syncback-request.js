@@ -1,7 +1,7 @@
 const {typeJSON} = require('../model-helpers')
 
 module.exports = (sequelize, Sequelize) => {
-  const SyncbackRequest = sequelize.define('SyncbackRequest', {
+  const SyncbackRequest = sequelize.define('syncbackRequest', {
     type: Sequelize.STRING,
     status: {
       type: Sequelize.ENUM("NEW", "SUCCEEDED", "FAILED"),

@@ -4,7 +4,7 @@ const {JSONType} = require('../../database-types');
 const {DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD} = process.env;
 
 module.exports = (sequelize, Sequelize) => {
-  const Account = sequelize.define('Account', {
+  const Account = sequelize.define('account', {
     name: Sequelize.STRING,
     provider: Sequelize.STRING,
     emailAddress: Sequelize.STRING,
