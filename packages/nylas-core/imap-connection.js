@@ -257,15 +257,11 @@ class IMAPConnection extends EventEmitter {
   }
 
   runOperation(operation) {
-    console.log("Running operation")
-    console.log(operation.constructor.name)
     if (!this._imap) {
       throw new Error(`IMAPConnection::runOperation - You need to call connect() first.`)
     }
     return new Promise((resolve, reject) => {
       this._queue.push({operation, resolve, reject});
-      console.log("Pushing onto queue")
-      console.log(this._currentOperation)
       if (this._imap.state === 'authenticated' && !this._currentOperation) {
         this.processNextOperation();
       }
@@ -273,33 +269,29 @@ class IMAPConnection extends EventEmitter {
   }
 
   processNextOperation() {
-    console.log("Process next operation")
-    console.log(this._currentOperation)
     if (this._currentOperation) { return }
     this._currentOperation = this._queue.shift();
     if (!this._currentOperation) {
-      console.log("queue empty")
       this.emit('queue-empty');
       return
     }
 
     const {operation, resolve, reject} = this._currentOperation;
-    console.log(`Starting task ${operation.description()}`)
     const result = operation.run(this._db, this);
-    console.log(`have operation promise`)
     if (result instanceof Promise === false) {
       reject(new NylasError(`Expected ${operation.constructor.name} to return promise.`))
     }
     result
     .then(() => {
       this._currentOperation = null;
-      console.log(`Finished task ${operation.description()}`)
+      console.log(`Finished task: ${operation.description()}`)
       resolve();
       this.processNextOperation();
     })
     .catch((err) => {
       this._currentOperation = null;
       console.log(`Task errored: ${operation.description()}`)
+      console.error(err)
       reject(err);
     })
   }

@@ -25,7 +25,6 @@ class SyncWorker {
     this.syncNow();
 
     this._onMessage = this._onMessage.bind(this);
-    console.log("SYNC WORKER -------------------")
     this._listener = PubsubConnector.observe(account.id).subscribe(this._onMessage)
   }
 
@@ -41,10 +40,7 @@ class SyncWorker {
   }
 
   _onMessage(msg) {
-    console.log("============= ON MESSAGE")
-    console.log(msg)
     const {type} = JSON.parse(msg);
-    console.log(type)
     switch (type) {
       case MessageTypes.ACCOUNT_UPDATED:
         this._onAccountUpdated(); break;
@@ -100,7 +96,6 @@ class SyncWorker {
   }
 
   ensureConnection() {
-    console.log("ENSURING CONNECTION")
     if (this._conn) {
       return this._conn.connect();
     }
@@ -129,7 +124,6 @@ class SyncWorker {
   }
 
   syncbackMessageActions() {
-    console.log("SYNCBACK MESSAGE ACTIONS")
     const where = {where: {status: "NEW"}, limit: 100};
     return this._db.SyncbackRequest.findAll(where)
       .map((req) => SyncbackTaskFactory.create(this._account, req))
@@ -140,20 +134,15 @@ class SyncWorker {
     const syncbackRequest = task.syncbackRequestObject()
     return this._conn.runOperation(task)
     .then(() => {
-      console.log(`Task succeeded: ${task.constructor.name}`)
       syncbackRequest.status = "SUCCEEDED"
     })
     .catch((error) => {
-      console.log(`Task errored`)
-      console.error(error)
-      console.error(error.message)
       syncbackRequest.error = error
       syncbackRequest.status = "FAILED"
     }).finally(() => syncbackRequest.save())
   }
 
   syncAllCategories() {
-    console.log("Syncing all categories")
     const {Category} = this._db;
     const {folderSyncOptions} = this._account.syncPolicy;
 
@@ -170,18 +159,14 @@ class SyncWorker {
   }
 
   performSync() {
-    console.log("Performing sync")
     return this._conn.runOperation(new FetchCategoryList(this._account.provider))
     .then(() => this.syncbackMessageActions())
     .then(() => this.syncAllCategories())
   }
 
   syncNow() {
-    console.log("SYNCING NOW")
     clearTimeout(this._syncTimer);
 
-    console.log(process.env.SYNC_AFTER_ERRORS)
-    console.log(this._account.errored())
     if (!process.env.SYNC_AFTER_ERRORS && this._account.errored()) {
       console.log(`SyncWorker: Account ${this._account.emailAddress} is in error state - Skipping sync`)
       return

@@ -7,12 +7,10 @@ class MoveToFolderIMAP extends SyncbackTask {
   }
 
   run(db, imap) {
-    console.log("------------------ RUNNING MOVE TO FOLDER IMAP")
     const threadId = this.syncbackRequestObject().props.threadId
     const toFolderId = this.syncbackRequestObject().props.folderId
 
     const eachMsg = ({message}) => {
-      console.log(`For message ${message.messageId}. Moving`)
       return imap.move(message.messageId, toFolderId)
     }
 
