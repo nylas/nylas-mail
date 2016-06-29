@@ -7,7 +7,7 @@ module.exports = (db, sequelize) => {
       PubsubConnector.broadcastClient().lpushAsync('accounts:unclaimed', dataValues.id);
       PubsubConnector.notify({
         accountId: dataValues.id,
-        type: MessageTypes.ACCOUNT_UPDATED
+        type: MessageTypes.ACCOUNT_UPDATED,
       });
     }
   })
@@ -15,7 +15,7 @@ module.exports = (db, sequelize) => {
     if ($modelOptions.name.singular === 'Account') {
       PubsubConnector.notify({
         accountId: dataValues.id,
-        type: MessageTypes.ACCOUNT_UPDATED
+        type: MessageTypes.ACCOUNT_UPDATED,
       });
     }
   })

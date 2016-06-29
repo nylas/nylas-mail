@@ -89,6 +89,8 @@ module.exports = (server) => {
               { role: query.in },
             ]},
           });
+        } else {
+          include.push({model: Category})
         }
 
         Thread.findAll({

@@ -3,6 +3,7 @@ const {JSONType} = require('../../database-types');
 module.exports = (sequelize, Sequelize) => {
   const Category = sequelize.define('category', {
     accountId: { type: Sequelize.STRING, allowNull: false },
+    version: Sequelize.INTEGER,
     name: Sequelize.STRING,
     role: Sequelize.STRING,
     type: Sequelize.ENUM('folder', 'label'),

@@ -3,6 +3,7 @@ const {JSONARRAYType} = require('../../database-types');
 module.exports = (sequelize, Sequelize) => {
   const Thread = sequelize.define('thread', {
     accountId: { type: Sequelize.STRING, allowNull: false },
+    version: Sequelize.INTEGER,
     threadId: Sequelize.STRING,
     subject: Sequelize.STRING,
     snippet: Sequelize.STRING,
@@ -22,9 +23,16 @@ module.exports = (sequelize, Sequelize) => {
     },
     instanceMethods: {
       toJSON: function toJSON() {
+        if (!this.categories) {
+          throw new Error("Thread.toJSON called on a thread where categories were not eagerly loaded.")
+        }
+        const folders = this.categories.filter(c => c.type === 'folder');
+        const labels = this.categories.filter(c => c.type === 'label');
         return {
           id: this.id,
           object: 'thread',
+          folders: folders,
+          labels: labels,
           account_id: this.accountId,
           participants: this.participants,
           subject: this.subject,

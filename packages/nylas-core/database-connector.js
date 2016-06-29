@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const HookTransactionLog = require('./hook-transaction-log');
 const HookAccountCRUD = require('./hook-account-crud');
+const HookIncrementVersionOnSave = require('./hook-increment-version-on-save');
 
 require('./database-extensions'); // Extends Sequelize on require
 
@@ -46,11 +47,12 @@ class DatabaseConnector {
     const modelsPath = path.join(__dirname, 'models/account');
     const db = this._readModelsInDirectory(sequelize, modelsPath)
 
+    HookTransactionLog(db, sequelize);
+    HookIncrementVersionOnSave(db, sequelize);
+
     db.sequelize = sequelize;
     db.Sequelize = Sequelize;
     db.accountId = accountId;
-
-    HookTransactionLog(db, sequelize);
 
     return sequelize.authenticate().then(() =>
       sequelize.sync()
@@ -72,10 +74,10 @@ class DatabaseConnector {
     const modelsPath = path.join(__dirname, 'models/shared');
     const db = this._readModelsInDirectory(sequelize, modelsPath)
 
+    HookAccountCRUD(db, sequelize);
+
     db.sequelize = sequelize;
     db.Sequelize = Sequelize;
-
-    HookAccountCRUD(db, sequelize);
 
     return sequelize.authenticate().then(() =>
       sequelize.sync()

@@ -7,6 +7,7 @@ const {JSONType, JSONARRAYType} = require('../../database-types');
 module.exports = (sequelize, Sequelize) => {
   const Message = sequelize.define('message', {
     accountId: { type: Sequelize.STRING, allowNull: false },
+    version: Sequelize.INTEGER,
     messageId: Sequelize.STRING,
     body: Sequelize.STRING,
     headers: JSONType('headers'),

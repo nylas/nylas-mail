@@ -1,6 +1,7 @@
 module.exports = (sequelize, Sequelize) => {
   const File = sequelize.define('file', {
     accountId: { type: Sequelize.STRING, allowNull: false },
+    version: Sequelize.INTEGER,
     filename: Sequelize.STRING,
     contentId: Sequelize.STRING,
     contentType: Sequelize.STRING,
