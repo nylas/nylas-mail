@@ -24,7 +24,8 @@ class SyncWorker {
 
     this.syncNow();
 
-    this._onMessage = this._onMessage.bind(this)
+    this._onMessage = this._onMessage.bind(this);
+    console.log("SYNC WORKER -------------------")
     this._listener = PubsubConnector.observe(account.id).subscribe(this._onMessage)
   }
 
@@ -40,7 +41,10 @@ class SyncWorker {
   }
 
   _onMessage(msg) {
-    const {type} = JSON.parse(msg)
+    console.log("============= ON MESSAGE")
+    console.log(msg)
+    const {type} = JSON.parse(msg);
+    console.log(type)
     switch (type) {
       case MessageTypes.ACCOUNT_UPDATED:
         this._onAccountUpdated(); break;
@@ -133,8 +137,14 @@ class SyncWorker {
   runSyncbackTask(task) {
     const syncbackRequest = task.syncbackRequestObject()
     return this._conn.runOperation(task)
-    .then(() => { syncbackRequest.status = "SUCCEEDED" })
+    .then(() => {
+      console.log(`Task succeeded: ${task.constructor.name}`)
+      syncbackRequest.status = "SUCCEEDED"
+    })
     .catch((error) => {
+      console.log(`Task errored`)
+      console.error(error)
+      console.error(error.message)
       syncbackRequest.error = error
       syncbackRequest.status = "FAILED"
     }).finally(() => syncbackRequest.save())

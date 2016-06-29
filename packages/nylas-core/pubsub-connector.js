@@ -63,10 +63,12 @@ class PubsubConnector {
   }
 
   notify({accountId, type, data}) {
+    console.log(`Broadcasting on channel-${accountId} ${JSON.stringify({type, data})}`)
     this.broadcastClient().publish(`channel-${accountId}`, JSON.stringify({type, data}));
   }
 
   observe(accountId) {
+    console.log(`Listening to channel-${accountId}`)
     return this._observableForChannelOnSharedListener(`channel-${accountId}`);
   }
 
