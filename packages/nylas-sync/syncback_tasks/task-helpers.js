@@ -23,7 +23,7 @@ const TaskHelpers = {
       .each((category) =>
         imap.openBox(category.name).then(() => {
           console.log(`Category Box open: ${category.id} | ${category.name}`);
-          Promise.all(msgsInCategories[category.id].map((message) =>
+          return Promise.all(msgsInCategories[category.id].map((message) =>
             callback({message, category})
           )).then(() => imap.closeBoxAsync())
         })
