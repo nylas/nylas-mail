@@ -10,7 +10,7 @@ module.exports = (db, sequelize) => {
   }
 
   const isTransaction = ({$modelOptions}) => {
-    return $modelOptions.name.singular === "Transaction"
+    return $modelOptions.name.singular === "transaction"
   }
 
   const transactionLogger = (type) => {
