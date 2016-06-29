@@ -55,6 +55,7 @@ class SyncProcessManager {
     this.updateHeartbeat();
 
     process.on('SIGINT', () => this.onSigInt());
+    process.on('SIGTERM', () => this.onSigInt());
   }
 
   updateHeartbeat() {
