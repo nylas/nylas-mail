@@ -27,10 +27,11 @@ function processMessage({message}) {
     console.log("Received message has no body or snippet.")
   }
 
-  // extract data from the raw headers object
-  for (const field of ['to', 'from', 'cc', 'bcc']) {
-    message[field] = extractContacts(message.headers[field]);
-  }
+  message.to = extractContacts(message.headers.to);
+  message.cc = extractContacts(message.headers.cc);
+  message.bcc = extractContacts(message.headers.bcc);
+  message.from = extractContacts(message.headers.from);
+  message.replyTo = extractContacts(message.headers['reply-to']);
 
   return Promise.resolve(message);
 }

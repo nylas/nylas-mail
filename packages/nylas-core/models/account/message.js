@@ -22,6 +22,7 @@ module.exports = (sequelize, Sequelize) => {
     from: JSONARRAYType('from'),
     cc: JSONARRAYType('cc'),
     bcc: JSONARRAYType('bcc'),
+    replyTo: JSONARRAYType('replyTo'),
     categoryUID: { type: Sequelize.STRING, allowNull: true},
   }, {
     indexes: [
@@ -72,6 +73,11 @@ module.exports = (sequelize, Sequelize) => {
           body: this.body,
           subject: this.subject,
           snippet: this.snippet,
+          to: this.to,
+          from: this.from,
+          cc: this.cc,
+          bcc: this.bcc,
+          reply_to: this.replyTo,
           date: this.date.getTime() / 1000.0,
           unread: this.unread,
           starred: this.starred,
