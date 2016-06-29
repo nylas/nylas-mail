@@ -11,7 +11,7 @@ class MoveToFolderIMAP extends SyncbackTask {
     const toFolderId = this.syncbackRequestObject().props.folderId
 
     const eachMsg = ({message}) => {
-      return imap.move(message.messageId, toFolderId)
+      return imap.move(message.CategoryId, toFolderId)
     }
 
     return TaskHelpers.forEachMessageInThread({threadId, db, imap, callback: eachMsg})
