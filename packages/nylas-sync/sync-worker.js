@@ -132,14 +132,11 @@ class SyncWorker {
 
   runSyncbackTask(task) {
     return this._conn.runOperation(task)
-    .then(() => {
-      task.syncbackRequest.status = "SUCCEEDED"
-    }).catch((error) => {
+    .then(() => { task.syncbackRequest.status = "SUCCEEDED" })
+    .catch((error) => {
       task.syncbackRequest.error = error
       task.syncbackRequest.status = "FAILED"
-    }).finally(() => {
-      return task.syncbackRequest.save()
-    })
+    }).finally(() => task.syncbackRequest.save())
   }
 
   syncAllCategories() {
