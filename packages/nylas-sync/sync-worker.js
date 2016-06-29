@@ -100,6 +100,7 @@ class SyncWorker {
   }
 
   ensureConnection() {
+    console.log("ENSURING CONNECTION")
     if (this._conn) {
       return this._conn.connect();
     }
@@ -128,6 +129,7 @@ class SyncWorker {
   }
 
   syncbackMessageActions() {
+    console.log("SYNCBACK MESSAGE ACTIONS")
     const where = {where: {status: "NEW"}, limit: 100};
     return this._db.SyncbackRequest.findAll(where)
       .map((req) => SyncbackTaskFactory.create(this._account, req))
@@ -151,6 +153,7 @@ class SyncWorker {
   }
 
   syncAllCategories() {
+    console.log("Syncing all categories")
     const {Category} = this._db;
     const {folderSyncOptions} = this._account.syncPolicy;
 
@@ -167,14 +170,18 @@ class SyncWorker {
   }
 
   performSync() {
+    console.log("Performing sync")
     return this._conn.runOperation(new FetchCategoryList(this._account.provider))
     .then(() => this.syncbackMessageActions())
     .then(() => this.syncAllCategories())
   }
 
   syncNow() {
+    console.log("SYNCING NOW")
     clearTimeout(this._syncTimer);
 
+    console.log(process.env.SYNC_AFTER_ERRORS)
+    console.log(this._account.errored())
     if (!process.env.SYNC_AFTER_ERRORS && this._account.errored()) {
       console.log(`SyncWorker: Account ${this._account.emailAddress} is in error state - Skipping sync`)
       return
