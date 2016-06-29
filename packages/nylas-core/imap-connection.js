@@ -102,6 +102,22 @@ class IMAPBox {
       f.once('end', () => resolve(attributesByUID));
     });
   }
+
+  moveFromBox(range, categoryName) {
+    if (!this._imap) {
+      throw new Error(`IMAPConnection::move - You need to call connect() first.`)
+    }
+    return this._imap.moveAsync(range, categoryName)
+  }
+
+  closeBox({expunge = true} = {}) {
+    if (!this._imap) {
+      throw new Error(`IMAPConnection::closeBox - You need to call connect() first.`)
+    }
+    return this._imap.closeBoxAsync(expunge)
+  }
+
+
 }
 
 
@@ -228,13 +244,6 @@ class IMAPConnection extends EventEmitter {
     )
   }
 
-  closeBox({expunge = true} = {}) {
-    if (!this._imap) {
-      throw new Error(`IMAPConnection::closeBox - You need to call connect() first.`)
-    }
-    return this._imap.closeBoxAsync(expunge)
-  }
-
   getBoxes() {
     if (!this._imap) {
       throw new Error(`IMAPConnection::getBoxes - You need to call connect() first.`)
@@ -247,13 +256,6 @@ class IMAPConnection extends EventEmitter {
       throw new Error(`IMAPConnection::addFlags - You need to call connect() first.`)
     }
     return this._imap.addFlagsAsync(messageSrc, flags)
-  }
-
-  move(messageSrc, categoryName) {
-    if (!this._imap) {
-      throw new Error(`IMAPConnection::move - You need to call connect() first.`)
-    }
-    return this._imap.moveAsync(messageSrc, categoryName)
   }
 
   runOperation(operation) {
