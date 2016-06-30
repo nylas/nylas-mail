@@ -47,14 +47,13 @@ const listActiveAccounts = () => {
   );
 }
 
-const notifyAccountIsActive = (accountId) => {
+const markAccountIsActive = (accountId) => {
   const client = PubsubConnector.broadcastClient();
   const key = ACTIVE_KEY_FOR(accountId);
   client.incrAsync(key).then((val) => {
     client.expireAsync(key, 5 * 60 * 1000); // 5 min
     if (val === 1) {
-      PubsubConnector.notify({
-        accountId: accountId,
+      PubsubConnector.notifyAccount(accountId, {
         type: MessageTypes.ACCOUNT_UPDATED,
       });
     }
@@ -72,6 +71,6 @@ module.exports = {
   assignPolicy,
   forEachAccountList,
   listActiveAccounts,
-  notifyAccountIsActive,
+  markAccountIsActive,
   checkIfAccountIsActive,
 }

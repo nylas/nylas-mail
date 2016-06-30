@@ -99,6 +99,7 @@ class Root extends React.Component {
   onReceivedActiveAccountIds(accountIds) {
     this.setState({activeAccountIds: accountIds})
   }
+
   onReceivedAccount(account) {
     const accounts = Object.assign({}, this.state.accounts);
     accounts[account.id] = account;

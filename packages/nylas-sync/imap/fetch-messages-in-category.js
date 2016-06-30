@@ -238,7 +238,7 @@ class FetchMessagesInFolder {
       folderImapUID: attributes.uid,
       folderId: this._category.id,
       headers: parsedHeaders,
-      headerMessageId: parsedHeaders['message-id'][0],
+      headerMessageId: parsedHeaders['message-id'] ? parsedHeaders['message-id'][0] : '',
       subject: parsedHeaders.subject[0],
     }
 

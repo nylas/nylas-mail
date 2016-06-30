@@ -25,7 +25,7 @@ class SyncWorker {
     this.syncNow();
 
     this._onMessage = this._onMessage.bind(this);
-    this._listener = PubsubConnector.observe(account.id).subscribe(this._onMessage)
+    this._listener = PubsubConnector.observeAccount(account.id).subscribe(this._onMessage)
   }
 
   cleanup() {

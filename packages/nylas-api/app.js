@@ -54,7 +54,7 @@ const validate = (request, username, password, callback) => {
         callback(null, false, {});
         return;
       }
-      SchedulerUtils.notifyAccountIsActive(account.id)
+      SchedulerUtils.markAccountIsActive(account.id)
       callback(null, true, account);
     });
   });
