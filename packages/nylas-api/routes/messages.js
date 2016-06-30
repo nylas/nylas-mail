@@ -13,6 +13,13 @@ module.exports = (server) => {
       tags: ['messages'],
       validate: {
         query: {
+          unread: Joi.boolean(),
+          starred: Joi.boolean(),
+          subject: Joi.string(),
+          thread_id: Joi.number().integer().min(0),
+          received_before: Joi.date(),
+          received_after: Joi.date(),
+          filename: Joi.string(),
           limit: Joi.number().integer().min(1).max(2000).default(100),
           offset: Joi.number().integer().min(0).default(0),
         },
@@ -25,11 +32,45 @@ module.exports = (server) => {
     },
     handler: (request, reply) => {
       request.getAccountDatabase().then((db) => {
-        const {Message, Folder, Label} = db;
+        const {Message, Folder, Label, File} = db;
+        const query = request.query;
+        const where = {};
+        const include = [{model: Folder}, {model: Label}];
+
+        if (query.unread != null) {
+          where.unread = query.unread;
+        }
+        if (query.starred != null) {
+          where.starred = query.starred;
+        }
+        if (query.subject) {
+          where.subject = query.subject;
+        }
+        if (query.thread_id != null) {
+          where.threadId = query.threadId;
+        }
+        if (query.received_before) {
+          where.date = {lt: query.received_before};
+        }
+        if (query.received_after) {
+          if (where.date) {
+            where.date.gt = query.received_after;
+          } else {
+            where.date = {gt: query.received_after};
+          }
+        }
+        if (query.filename) {
+          include.push({
+            model: File,
+            where: {filename: query.filename},
+          })
+        }
+
         Message.findAll({
-          limit: request.query.limit,
-          offset: request.query.offset,
-          include: [{model: Folder}, {model: Label}],
+          where: where,
+          limit: query.limit,
+          offset: query.offset,
+          include: include,
         }).then((messages) => {
           reply(Serialization.jsonStringify(messages));
         })
