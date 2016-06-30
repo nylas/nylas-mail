@@ -37,7 +37,7 @@ class IMAPBox {
       return Rx.Observable.empty()
     }
     if (!options) {
-      throw new Error("IMAPConnection.fetch now requires an options object.")
+      throw new Error("IMAPBox.fetch now requires an options object.")
     }
     return Rx.Observable.create((observer) => {
       const f = this._imap.fetch(range, options);
@@ -103,16 +103,30 @@ class IMAPBox {
     });
   }
 
+  addFlags(range, flags) {
+    if (!this._imap) {
+      throw new Error(`IMAPBox::addFlags - You need to call connect() first.`)
+    }
+    return this._imap.addFlagsAsync(range, flags)
+  }
+
+  delFlags(range, flags) {
+    if (!this._imap) {
+      throw new Error(`IMAPBox::delFlags - You need to call connect() first.`)
+    }
+    return this._imap.delFlagsAsync(range, flags)
+  }
+
   moveFromBox(range, categoryName) {
     if (!this._imap) {
-      throw new Error(`IMAPConnection::move - You need to call connect() first.`)
+      throw new Error(`IMAPBox::moveFromBox - You need to call connect() first.`)
     }
     return this._imap.moveAsync(range, categoryName)
   }
 
   closeBox({expunge = true} = {}) {
     if (!this._imap) {
-      throw new Error(`IMAPConnection::closeBox - You need to call connect() first.`)
+      throw new Error(`IMAPBox::closeBox - You need to call connect() first.`)
     }
     return this._imap.closeBoxAsync(expunge)
   }
@@ -249,13 +263,6 @@ class IMAPConnection extends EventEmitter {
       throw new Error(`IMAPConnection::getBoxes - You need to call connect() first.`)
     }
     return this._imap.getBoxesAsync()
-  }
-
-  addFlags(messageSrc, flags) {
-    if (!this._imap) {
-      throw new Error(`IMAPConnection::addFlags - You need to call connect() first.`)
-    }
-    return this._imap.addFlagsAsync(messageSrc, flags)
   }
 
   runOperation(operation) {

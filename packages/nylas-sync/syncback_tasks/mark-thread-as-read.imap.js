@@ -1,36 +1,19 @@
-class MarkThreadAsRead {
-  constructor(account, syncbackRequest) {
-    this._account = account;
-    this._syncbackRequest = syncbackRequest;
-  }
+const SyncbackTask = require('./syncback-task')
+const TaskHelpers = require('./task-helpers')
 
+class MarkThreadAsRead extends SyncbackTask {
   description() {
     return `MarkThreadAsRead`;
   }
 
   run(db, imap) {
-    const {Category, Thread} = db;
-    const thread = Thread.findById(this._syncbackRequest.threadId);
-    const msgsInCategories = {};
+    const threadId = this.syncbackRequestObject().props.threadId
 
-    thread.getMessages((messages) => {
-      for (const message of messages) {
-        if (!msgsInCategories[messages.CategoryId]) {
-          msgsInCategories[messages.CategoryId] = [message.messageId];
-        } else {
-          msgsInCategories.push(message.messageId);
-        }
-      }
-      for (const categoryId of Object.keys(msgsInCategories)) {
-        Category.findById(categoryId).then((category) => {
-          imap.openBox(category, false);
-          for (const messageId of msgsInCategories[categoryId]) {
-            imap.addFlags(messageId, 'Seen', (err) => { throw err; });
-          }
-          imap.closeBox();
-        })
-      }
-    })
+    const eachMsg = ({message, box}) => {
+      return box.addFlags(message.categoryUID, 'SEEN')
+    }
+
+    return TaskHelpers.forEachMessageInThread({threadId, db, imap, callback: eachMsg})
   }
 }
 module.exports = MarkThreadAsRead;

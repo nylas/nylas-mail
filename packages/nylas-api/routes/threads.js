@@ -167,30 +167,24 @@ module.exports = (server) => {
       },
     },
     handler: (request, reply) => {
-      createSyncbackRequest(request, reply, {
-        type: "MoveToFolder",
-        props: {
-          folderId: request.payload.folder_id,
-          threadId: request.params.id,
-        },
-      })
-    },
-  });
-
-  server.route({
-    method: 'POST',
-    path: '/threads/{id}/markread',
-    config: {
-      description: 'Mark a thread as read.',
-      tags: ['threads'],
-      handler: (request, reply) => {
+      const payload = request.payload
+      if (payload.folder_id) {
+        createSyncbackRequest(request, reply, {
+          type: "MoveToFolder",
+          props: {
+            folderId: request.payload.folder_id,
+            threadId: request.params.id,
+          },
+        })
+      }
+      if (payload.unread === false) {
         createSyncbackRequest(request, reply, {
           type: "MarkThreadAsRead",
           props: {
             threadId: request.params.id,
           },
         })
-      },
+      }
     },
-  })
+  });
 };
