@@ -51,7 +51,6 @@ We're working on building a plugin index that makes it super easy to add them to
 #### Bundled Plugins
 Great starting points for creating your own plugins!
 - [Translate](https://github.com/nylas/N1/tree/master/internal_packages/composer-translate)—Works with 10 languages
-- [Scheduler](https://github.com/nylas/N1/tree/master/internal_packages/composer-scheduler)—Show your availability to schedule a meeting with someone
 - [Quick Replies](https://github.com/nylas/N1/tree/master/internal_packages/composer-templates)—Send emails faster with templates
 - [Emoji Keyboard](https://github.com/nylas/N1/tree/master/internal_packages/composer-emoji)—Insert emoji by typing a colon (:) followed by the name of an emoji symbol
 - [GitHub Sidebar Info](https://github.com/nylas/N1/tree/master/internal_packages/github-contact-card)
