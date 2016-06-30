@@ -159,8 +159,8 @@ class SyncWorker {
   }
 
   performSync() {
-    return this._conn.runOperation(new FetchFolderList(this._account.provider))
-    .then(() => this.syncbackMessageActions())
+    return this.syncbackMessageActions()
+    .then(() => this._conn.runOperation(new FetchFolderList(this._account.provider)))
     .then(() => this.syncAllCategories())
   }
 

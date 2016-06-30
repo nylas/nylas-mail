@@ -26,6 +26,12 @@ class SyncbackTaskFactory {
         Task = require('./syncback_tasks/star-message.imap'); break;
       case "UnstarMessage":
         Task = require('./syncback_tasks/unstar-message.imap'); break;
+      case "CreateFolder":
+        Task = require('./syncback_tasks/create-folder.imap'); break;
+      case "RenameFolder":
+        Task = require('./syncback_tasks/rename-folder.imap'); break;
+      case "DeleteFolder":
+        Task = require('./syncback_tasks/delete-folder.imap'); break;
       default:
         throw new Error(`Invalid Task Type: ${syncbackRequest.type}`)
     }

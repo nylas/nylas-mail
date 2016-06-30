@@ -283,6 +283,27 @@ class IMAPConnection extends EventEmitter {
     return this._imap.getBoxesAsync()
   }
 
+  addBox(folderName) {
+    if (!this._imap) {
+      throw new Error(`IMAPConnection::addBox - You need to call connect() first.`)
+    }
+    return this._imap.addBoxAsync(folderName)
+  }
+
+  renameBox(oldFolderName, newFolderName) {
+    if (!this._imap) {
+      throw new Error(`IMAPConnection::renameBox - You need to call connect() first.`)
+    }
+    return this._imap.renameBoxAsync(oldFolderName, newFolderName)
+  }
+
+  delBox(folderName) {
+    if (!this._imap) {
+      throw new Error(`IMAPConnection::delBox - You need to call connect() first.`)
+    }
+    return this._imap.delBoxAsync(folderName)
+  }
+
   runOperation(operation) {
     if (!this._imap) {
       throw new Error(`IMAPConnection::runOperation - You need to call connect() first.`)
