@@ -10,7 +10,7 @@ class MarkThreadAsUnread extends SyncbackTask {
     const threadId = this.syncbackRequestObject().props.threadId
 
     const eachMsg = ({message, box}) => {
-      return box.delFlags(message.categoryUID, 'SEEN')
+      return box.delFlags(message.categoryImapUID, 'SEEN')
     }
 
     return TaskHelpers.forEachMessageInThread({threadId, db, imap, callback: eachMsg})

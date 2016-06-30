@@ -1,19 +1,19 @@
 const SyncbackTask = require('./syncback-task')
 const TaskHelpers = require('./task-helpers')
 
-class MarkThreadAsRead extends SyncbackTask {
+class StarThread extends SyncbackTask {
   description() {
-    return `MarkThreadAsRead`;
+    return `StarThread`;
   }
 
   run(db, imap) {
     const threadId = this.syncbackRequestObject().props.threadId
 
     const eachMsg = ({message, box}) => {
-      return box.addFlags(message.categoryImapUID, 'SEEN')
+      return box.addFlags(message.categoryImapUID, 'FLAGGED')
     }
 
     return TaskHelpers.forEachMessageInThread({threadId, db, imap, callback: eachMsg})
   }
 }
-module.exports = MarkThreadAsRead;
+module.exports = StarThread;

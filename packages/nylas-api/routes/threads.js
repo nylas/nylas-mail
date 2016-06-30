@@ -192,6 +192,21 @@ module.exports = (server) => {
           },
         })
       }
+      if (payload.starred === false) {
+        createSyncbackRequest(request, reply, {
+          type: "UnstarThread",
+          props: {
+            threadId: request.params.id,
+          },
+        })
+      } else if (payload.starred === true) {
+        createSyncbackRequest(request, reply, {
+          type: "StarThread",
+          props: {
+            threadId: request.params.id,
+          },
+        })
+      }
     },
   });
 };
