@@ -16,6 +16,16 @@ class SyncbackTaskFactory {
         Task = require('./syncback_tasks/star-thread.imap'); break;
       case "UnstarThread":
         Task = require('./syncback_tasks/unstar-thread.imap'); break;
+      case "MoveMessageToFolder":
+        Task = require('./syncback_tasks/move-message-to-folder.imap'); break;
+      case "MarkMessageAsRead":
+        Task = require('./syncback_tasks/mark-message-as-read.imap'); break;
+      case "MarkMessageAsUnread":
+        Task = require('./syncback_tasks/mark-message-as-unread.imap'); break;
+      case "StarMessage":
+        Task = require('./syncback_tasks/star-message.imap'); break;
+      case "UnstarMessage":
+        Task = require('./syncback_tasks/unstar-message.imap'); break;
       default:
         throw new Error(`Invalid Task Type: ${syncbackRequest.type}`)
     }

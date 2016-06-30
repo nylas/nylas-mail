@@ -23,5 +23,15 @@ const TaskHelpers = {
       )
     })
   },
+
+  openMessageBox: function openMessageBox({messageId, db, imap}) {
+    return db.Message.findById(messageId).then((message) => {
+      return db.Category.findById(message.categoryId).then((category) => {
+        return imap.openBox(category.name).then((box) => {
+          return Promise.resolve({box, message})
+        })
+      })
+    })
+  },
 }
 module.exports = TaskHelpers

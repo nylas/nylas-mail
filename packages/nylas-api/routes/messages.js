@@ -1,5 +1,6 @@
 const Joi = require('joi');
 const Serialization = require('../serialization');
+const {createSyncbackRequest} = require('../route-helpers');
 
 
 module.exports = (server) => {
@@ -80,4 +81,66 @@ module.exports = (server) => {
       })
     },
   })
+
+  server.route({
+    method: 'PUT',
+    path: '/messages/{id}',
+    config: {
+      description: 'Update a message',
+      tags: ['messages'],
+      validate: {
+        params: {
+          id: Joi.string(),
+          payload: {
+            folder_id: Joi.string(),
+          },
+        },
+      },
+      response: {
+        schema: Serialization.jsonSchema('SyncbackRequest'),
+      },
+    },
+    handler: (request, reply) => {
+      const payload = request.payload
+      if (payload.folder_id) {
+        createSyncbackRequest(request, reply, {
+          type: "MoveMessageToFolder",
+          props: {
+            folderId: request.payload.folder_id,
+            messageId: request.params.id,
+          },
+        })
+      }
+      if (payload.unread === false) {
+        createSyncbackRequest(request, reply, {
+          type: "MarkMessageAsRead",
+          props: {
+            messageId: request.params.id,
+          },
+        })
+      } else if (payload.unread === true) {
+        createSyncbackRequest(request, reply, {
+          type: "MarkMessageAsUnread",
+          props: {
+            messageId: request.params.id,
+          },
+        })
+      }
+      if (payload.starred === false) {
+        createSyncbackRequest(request, reply, {
+          type: "UnstarMessage",
+          props: {
+            messageId: request.params.id,
+          },
+        })
+      } else if (payload.starred === true) {
+        createSyncbackRequest(request, reply, {
+          type: "StarMessage",
+          props: {
+            messageId: request.params.id,
+          },
+        })
+      }
+    },
+  });
 };
