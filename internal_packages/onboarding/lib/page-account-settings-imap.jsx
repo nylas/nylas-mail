@@ -73,7 +73,7 @@ class AccountIMAPSettingsForm extends React.Component {
             onKeyPress={onFieldKeyPress}
             onChange={onFieldChange}
           />
-          <label forHtml={`ssl_required`} className="checkbox">Require SSL</label>
+          <label htmlFor={`ssl_required`} className="checkbox">Require SSL</label>
         </div>
         <FormField field={`${type}_username`} title={"Username"} {...this.props} />
         <FormField field={`${type}_password`} title={"Password"} type="password" {...this.props} />

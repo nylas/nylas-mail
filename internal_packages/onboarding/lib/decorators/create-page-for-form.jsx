@@ -56,7 +56,11 @@ const CreatePageForForm = (FormComponent) => {
 
     onFieldChange = (event) => {
       const changes = {};
-      changes[event.target.id] = event.target.value;
+      if (event.target.type === 'checkbox') {
+        changes[event.target.id] = event.target.checked;
+      } else {
+        changes[event.target.id] = event.target.value;
+      }
 
       const accountInfo = Object.assign({}, this.state.accountInfo, changes);
       const {errorFieldNames, errorMessage, populated} = FormComponent.validateAccountInfo(accountInfo);
