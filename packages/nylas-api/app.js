@@ -51,7 +51,7 @@ const validate = (request, username, password, callback) => {
     }
     token.getAccount().then((account) => {
       if (!account) {
-        callback(new Error("Could not find Account referenced by AccountToken"), false, {});
+        callback(null, false, {});
         return;
       }
       SchedulerUtils.notifyAccountIsActive(account.id)
