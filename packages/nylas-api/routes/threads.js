@@ -23,6 +23,7 @@ module.exports = (server) => {
           'lastMessageBefore': Joi.date().timestamp(),
           'lastMessageAfter': Joi.date().timestamp(),
           'in': Joi.string().allow(Joi.number()),
+          'filename': Joi.string(),
           'limit': Joi.number().integer().min(1).max(2000).default(100),
           'offset': Joi.number().integer().min(0).default(0),
         },
@@ -40,7 +41,7 @@ module.exports = (server) => {
     },
     handler: (request, reply) => {
       request.getAccountDatabase().then((db) => {
-        const {Thread, Folder, Label, Message} = db;
+        const {Thread, Folder, Label, Message, File} = db;
         const query = request.query;
         const where = {};
         const include = [];
@@ -104,17 +105,26 @@ module.exports = (server) => {
           include.push({model: Label})
         }
 
+        const messagesInclude = [];
+        if (query.filename) {
+          messagesInclude.push({
+            model: File,
+            where: {filename: query.filename},
+          })
+        }
         if (query.view === 'expanded') {
           include.push({
             model: Message,
             as: 'messages',
             attributes: _.without(Object.keys(Message.attributes), 'body'),
+            include: messagesInclude,
           })
         } else {
           include.push({
             model: Message,
             as: 'messages',
             attributes: ['id'],
+            include: messagesInclude,
           })
         }
 
