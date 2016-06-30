@@ -2,7 +2,6 @@ const Hapi = require('hapi');
 const HapiWebSocket = require('hapi-plugin-websocket');
 const Inert = require('inert');
 const {DatabaseConnector, PubsubConnector, SchedulerUtils, NylasError} = require(`nylas-core`);
-const {forEachAccountList} = SchedulerUtils;
 
 global.Promise = require('bluebird');
 global.NylasError = NylasError;
@@ -25,16 +24,19 @@ DatabaseConnector.forShared().then(({Account}) => {
                   ws.send(JSON.stringify({ cmd: "ACCOUNT", payload: acct }));
                 });
               });
-              this.redis = PubsubConnector.buildClient();
-              this.redis.on('pmessage', (pattern, channel) => {
-                Account.find({where: {id: channel.replace('a-', '')}}).then((acct) => {
+
+              this.observable = PubsubConnector.observeAllAccounts().subscribe((accountId) => {
+                Account.find({where: {id: accountId}}).then((acct) => {
                   ws.send(JSON.stringify({ cmd: "ACCOUNT", payload: acct }));
                 });
               });
-              this.redis.psubscribe(PubsubConnector.channelForAccount('*'));
-              this.assignmentsInterval = setInterval(() => {
+
+              this.pollInterval = setInterval(() => {
+                SchedulerUtils.listActiveAccounts().then((accountIds) => {
+                  ws.send(JSON.stringify({ cmd: "ACTIVE", payload: accountIds}))
+                });
                 const assignments = {};
-                forEachAccountList((identity, accountIds) => {
+                SchedulerUtils.forEachAccountList((identity, accountIds) => {
                   for (const accountId of accountIds) {
                     assignments[accountId] = identity;
                   }
@@ -44,8 +46,8 @@ DatabaseConnector.forShared().then(({Account}) => {
               }, 1000);
             },
             disconnect: () => {
-              clearInterval(this.assignmentsInterval);
-              this.redis.quit();
+              clearInterval(this.pollInterval);
+              this.observable.dispose();
             },
           },
         },

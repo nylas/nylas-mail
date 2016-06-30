@@ -9,6 +9,8 @@ body {
   width: 300px;
   background-color: white;
   padding:15px;
+  margin:5px;
+  vertical-align: top;
 }
 
 .account h3 {

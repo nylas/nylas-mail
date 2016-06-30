@@ -1,8 +1,7 @@
 const ACCOUNTS_UNCLAIMED = 'accounts:unclaimed';
 const ACCOUNTS_CLAIMED_PREFIX = 'accounts:id-';
 const ACCOUNTS_FOR = (id) => `${ACCOUNTS_CLAIMED_PREFIX}${id}`;
-
-const CONNECTION_COUNT_FOR = (id) => `connections:${id}`
+const ACTIVE_KEY_FOR = (id) => `active:${id}`
 
 const HEARTBEAT_FOR = (id) => `heartbeat:${id}`;
 const HEARTBEAT_EXPIRES = 30; // 2 min in prod?
@@ -35,15 +34,24 @@ const assignPolicy = (accountId, policy) => {
 
 const checkIfAccountIsActive = (accountId) => {
   const client = PubsubConnector.broadcastClient();
-  const key = CONNECTION_COUNT_FOR(accountId);
-  return client.getAsync(key).then((val) => val && val > 0)
+  const key = ACTIVE_KEY_FOR(accountId);
+  return client.getAsync(key).then((val) => val !== null)
+}
+
+const listActiveAccounts = () => {
+  const client = PubsubConnector.broadcastClient();
+  const keyBase = ACTIVE_KEY_FOR('');
+
+  return client.keysAsync(`${keyBase}*`).then((keys) =>
+    keys.map(k => k.replace(keyBase, ''))
+  );
 }
 
 const notifyAccountIsActive = (accountId) => {
   const client = PubsubConnector.broadcastClient();
-  const key = CONNECTION_COUNT_FOR(accountId);
+  const key = ACTIVE_KEY_FOR(accountId);
   client.incrAsync(key).then((val) => {
-    client.expireAsync(key, 15 * 60 * 1000); // 15 min
+    client.expireAsync(key, 5 * 60 * 1000); // 5 min
     if (val === 1) {
       PubsubConnector.notify({
         accountId: accountId,
@@ -63,6 +71,7 @@ module.exports = {
 
   assignPolicy,
   forEachAccountList,
+  listActiveAccounts,
   notifyAccountIsActive,
   checkIfAccountIsActive,
 }
