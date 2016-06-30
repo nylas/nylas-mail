@@ -10,6 +10,8 @@ global.NylasError = NylasError;
 const MessageAttributes = ['body', 'processed', 'to', 'from', 'cc', 'replyTo', 'bcc', 'snippet', 'threadId']
 const MessageProcessorVersion = 1;
 
+const redis = PubsubConnector.buildClient();
+
 function runPipeline({db, accountId, message}) {
   console.log(`Processing message ${message.id}`)
   return processors.reduce((prevPromise, processor) => (
@@ -36,8 +38,7 @@ function saveMessage(message) {
 }
 
 function dequeueJob() {
-  const conn = PubsubConnector.buildClient()
-  conn.brpopAsync('message-processor-queue', 10).then((item) => {
+  redis.brpopAsync('message-processor-queue', 10).then((item) => {
     if (!item) {
       return dequeueJob();
     }
