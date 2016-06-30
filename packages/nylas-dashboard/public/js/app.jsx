@@ -1,4 +1,6 @@
 /* eslint react/react-in-jsx-scope: 0*/
+const React = window.React;
+const ReactDOM = window.ReactDOM;
 
 class ErrorsRoot extends React.Component {
   render() {
@@ -7,17 +9,13 @@ class ErrorsRoot extends React.Component {
 }
 
 class Account extends React.Component {
-  propTypes: {
-    account: React.PropTypes.object,
-    assignment: React.PropTypes.string,
-  }
-
   renderError() {
-    const {account} = this.props
+    const {account} = this.props;
+
     if (account.sync_error != null) {
       const error = {
         message: account.sync_error.message,
-        stack: account.sync_error.stack.split('\n').slice(0, 4),
+        stack: account.sync_error.stack ? account.sync_error.stack.split('\n').slice(0, 4) : [],
       }
       return (
         <div className="error">
@@ -32,17 +30,23 @@ class Account extends React.Component {
   }
 
   render() {
-    const {account, assignment} = this.props;
+    const {account, assignment, active} = this.props;
     const errorClass = account.sync_error ? ' errored' : ''
     return (
       <div className={`account${errorClass}`}>
-        <h3>{account.email_address}</h3>
+        <h3>{account.email_address} {active ? '🌕' : '🌑'}</h3>
         <strong>{assignment}</strong>
         <pre>{JSON.stringify(account.sync_policy, null, 2)}</pre>
         {this.renderError()}
       </div>
     );
   }
+}
+
+Account.propTypes = {
+  account: React.PropTypes.object,
+  active: React.PropTypes.bool,
+  assignment: React.PropTypes.string,
 }
 
 class Root extends React.Component {
@@ -52,6 +56,7 @@ class Root extends React.Component {
     this.state = {
       accounts: {},
       assignments: {},
+      activeAccountIds: [],
     };
   }
 
@@ -75,6 +80,9 @@ class Root extends React.Component {
         if (msg.cmd === 'ASSIGNMENTS') {
           this.onReceivedAssignments(msg.payload);
         }
+        if (msg.cmd === 'ACTIVE') {
+          this.onReceivedActiveAccountIds(msg.payload);
+        }
       } catch (err) {
         console.error(err);
       }
@@ -88,6 +96,10 @@ class Root extends React.Component {
     this.setState({assignments})
   }
 
+  onReceivedActiveAccountIds(accountIds) {
+    this.setState({activeAccountIds: accountIds})
+  }
+
   onReceivedAccount(account) {
     const accounts = Object.assign({}, this.state.accounts);
     accounts[account.id] = account;
@@ -98,11 +110,12 @@ class Root extends React.Component {
     return (
       <div>
         {
-          Object.keys(this.state.accounts).sort((a, b) => a.compare(b)).map((key) =>
+          Object.keys(this.state.accounts).sort((a, b) => a.localeCompare(b)).map((id) =>
             <Account
-              key={key}
-              assignment={this.state.assignments[key]}
-              account={this.state.accounts[key]}
+              key={id}
+              active={this.state.activeAccountIds.includes(id)}
+              assignment={this.state.assignments[id]}
+              account={this.state.accounts[id]}
             />
           )
         }

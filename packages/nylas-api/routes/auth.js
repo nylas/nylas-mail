@@ -9,6 +9,8 @@ const {
   DatabaseConnector,
   SyncPolicy,
   Provider,
+  PubsubConnector,
+  MessageTypes,
 } = require('nylas-core');
 
 const {GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL} = process.env;

@@ -19,7 +19,7 @@ function jsonSchema(modelName) {
       organization_unit: Joi.string(),
       connection_settings: Joi.object(),
       sync_policy: Joi.object(),
-      sync_error: Joi.object(),
+      sync_error: Joi.object().allow(null),
     })
   }
   if (modelName === 'Folder') {

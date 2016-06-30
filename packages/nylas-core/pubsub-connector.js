@@ -62,23 +62,36 @@ class PubsubConnector {
     });
   }
 
-  notify({accountId, type, data}) {
-    this.broadcastClient().publish(`channel-${accountId}`, JSON.stringify({type, data}));
+  notifyAccount(accountId, {type, data}) {
+    this.broadcastClient().publish(`account-${accountId}`, JSON.stringify({type, data}));
   }
 
-  observe(accountId) {
-    return this._observableForChannelOnSharedListener(`channel-${accountId}`);
+  observeAccount(accountId) {
+    return this._observableForChannelOnSharedListener(`account-${accountId}`);
   }
 
   notifyDelta(accountId, data) {
-    this.broadcastClient().publish(`channel-${accountId}-deltas`, JSON.stringify(data))
+    this.broadcastClient().publish(`deltas-${accountId}`, JSON.stringify(data))
+  }
+
+  observeAllAccounts() {
+    return Rx.Observable.create((observer) => {
+      const sub = this.buildClient();
+      sub.on("pmessage", (pattern, channel, message) =>
+        observer.onNext(channel.replace('account-', ''), message));
+      sub.psubscribe(`account-*`);
+      return () => {
+        sub.unsubscribe();
+        sub.quit();
+      }
+    })
   }
 
   observeDeltas(accountId) {
     return Rx.Observable.create((observer) => {
       const sub = this.buildClient();
       sub.on("message", (channel, message) => observer.onNext(message));
-      sub.subscribe(`channel-${accountId}-deltas`);
+      sub.subscribe(`deltas-${accountId}`);
       return () => {
         sub.unsubscribe();
         sub.quit();

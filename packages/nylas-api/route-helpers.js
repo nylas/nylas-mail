@@ -5,8 +5,7 @@ module.exports = {
   createSyncbackRequest: function createSyncbackRequest(request, reply, syncRequestArgs) {
     request.getAccountDatabase().then((db) => {
       db.SyncbackRequest.create(syncRequestArgs).then((syncbackRequest) => {
-        PubsubConnector.notify({
-          accountId: db.accountId,
+        PubsubConnector.notifyAccount(db.accountId, {
           type: MessageTypes.SYNCBACK_REQUESTED,
           data: syncbackRequest.id,
         });

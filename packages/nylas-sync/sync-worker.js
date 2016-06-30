@@ -25,7 +25,7 @@ class SyncWorker {
     this.syncNow();
 
     this._onMessage = this._onMessage.bind(this);
-    this._listener = PubsubConnector.observe(account.id).subscribe(this._onMessage)
+    this._listener = PubsubConnector.observeAccount(account.id).subscribe(this._onMessage)
   }
 
   cleanup() {
@@ -59,39 +59,17 @@ class SyncWorker {
     })
   }
 
+  _onConnectionIdleUpdate() {
+    this.syncNow();
+  }
+
   _getAccount() {
     return DatabaseConnector.forShared().then(({Account}) =>
       Account.find({where: {id: this._account.id}})
     );
   }
 
-  onSyncDidComplete() {
-    const {afterSync} = this._account.syncPolicy;
-
-    if (afterSync === 'idle') {
-      return this.getIdleFolder()
-      .then((idleFolder) => this._conn.openBox(idleFolder.name))
-      .then(() => console.log('SyncWorker: - Idling on inbox category'))
-      .catch((error) => {
-        console.error('SyncWorker: - Unhandled error while attempting to idle on Inbox after sync: ', error)
-        this.closeConnection()
-      })
-    }
-
-    if (afterSync === 'close') {
-      console.log('SyncWorker: - Closing connection');
-      this.closeConnection()
-      return Promise.resolve()
-    }
-
-    throw new Error(`SyncWorker.onSyncDidComplete: Unknown afterSync behavior: ${afterSync}. Closing connection`)
-  }
-
-  onConnectionIdleUpdate() {
-    this.syncNow();
-  }
-
-  getIdleFolder() {
+  _getIdleFolder() {
     return this._db.Folder.find({where: {role: ['all', 'inbox']}})
   }
 
@@ -111,10 +89,10 @@ class SyncWorker {
 
     const conn = new IMAPConnection(this._db, Object.assign({}, settings, credentials));
     conn.on('mail', () => {
-      this.onConnectionIdleUpdate();
+      this._onConnectionIdleUpdate();
     })
     conn.on('update', () => {
-      this.onConnectionIdleUpdate();
+      this._onConnectionIdleUpdate();
     })
     conn.on('queue-empty', () => {
     });
@@ -173,6 +151,7 @@ class SyncWorker {
     }
 
     this.ensureConnection()
+    .then(() => this._account.update({syncError: null}))
     .then(() => this.performSync())
     .then(() => this.onSyncDidComplete())
     .catch((error) => this.onSyncError(error))
@@ -185,6 +164,7 @@ class SyncWorker {
   onSyncError(error) {
     console.error(`SyncWorker: Error while syncing account ${this._account.emailAddress} `, error)
     this.closeConnection()
+
     if (error.source === 'socket') {
       // Continue to retry if it was a network error
       return Promise.resolve()
@@ -193,8 +173,25 @@ class SyncWorker {
     return this._account.save()
   }
 
+  onSyncDidComplete() {
+    const {afterSync} = this._account.syncPolicy;
+
+    if (afterSync === 'idle') {
+      return this._getIdleFolder()
+      .then((idleFolder) => this._conn.openBox(idleFolder.name))
+      .then(() => console.log('SyncWorker: - Idling on inbox category'))
+    }
+
+    if (afterSync === 'close') {
+      console.log('SyncWorker: - Closing connection');
+      this.closeConnection()
+      return Promise.resolve()
+    }
+
+    throw new Error(`SyncWorker.onSyncDidComplete: Unknown afterSync behavior: ${afterSync}. Closing connection`)
+  }
+
   scheduleNextSync() {
-    if (this._account.errored()) { return }
     SchedulerUtils.checkIfAccountIsActive(this._account.id).then((active) => {
       const {intervals} = this._account.syncPolicy;
       const interval = active ? intervals.active : intervals.inactive;
