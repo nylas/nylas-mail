@@ -51,7 +51,7 @@ const markAccountIsActive = (accountId) => {
   const client = PubsubConnector.broadcastClient();
   const key = ACTIVE_KEY_FOR(accountId);
   client.incrAsync(key).then((val) => {
-    client.expireAsync(key, 5 * 60 * 1000); // 5 min
+    client.expireAsync(key, 5 * 60); // 5 min in seconds
     if (val === 1) {
       PubsubConnector.notifyAccount(accountId, {
         type: MessageTypes.ACCOUNT_UPDATED,
