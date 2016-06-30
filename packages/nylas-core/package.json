@@ -5,7 +5,6 @@
   "main": "index.js",
   "dependencies": {
     "imap": "0.8.x",
-    "sqlite3": "3.1.4",
     "xoauth2": "1.x.x"
   },
   "author": "Nylas",
