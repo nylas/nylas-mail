@@ -12,6 +12,9 @@ module.exports = (server) => {
       tags: ['files'],
       validate: {
         query: {
+          filename: Joi.string(),
+          message_id: Joi.number().integer().min(0),
+          content_type: Joi.string(),
           limit: Joi.number().integer().min(1).max(2000).default(100),
           offset: Joi.number().integer().min(0).default(0),
         },
@@ -25,7 +28,21 @@ module.exports = (server) => {
     handler: (request, reply) => {
       request.getAccountDatabase().then((db) => {
         const {File} = db;
+        const query = request.query;
+        const where = {};
+
+        if (query.filename) {
+          where.filename = query.filename;
+        }
+        if (query.message_id) {
+          where.messageId = query.message_id;
+        }
+        if (query.content_type) {
+          where.contentType = query.content_type;
+        }
+
         File.findAll({
+          where: where,
           limit: request.query.limit,
           offset: request.query.offset,
         }).then((files) => {
