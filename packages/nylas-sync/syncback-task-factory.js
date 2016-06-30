@@ -10,6 +10,8 @@ class SyncbackTaskFactory {
         Task = require('./syncback_tasks/move-to-folder.imap'); break;
       case "MarkThreadAsRead":
         Task = require('./syncback_tasks/mark-thread-as-read.imap'); break;
+      case "MarkThreadAsUnread":
+        Task = require('./syncback_tasks/mark-thread-as-unread.imap'); break;
       default:
         throw new Error(`Invalid Task Type: ${syncbackRequest.type}`)
     }

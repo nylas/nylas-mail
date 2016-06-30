@@ -184,6 +184,13 @@ module.exports = (server) => {
             threadId: request.params.id,
           },
         })
+      } else if (payload.unread === true) {
+        createSyncbackRequest(request, reply, {
+          type: "MarkThreadAsUnread",
+          props: {
+            threadId: request.params.id,
+          },
+        })
       }
     },
   });
