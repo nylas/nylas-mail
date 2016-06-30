@@ -48,7 +48,7 @@ module.exports = (server) => {
           where.subject = query.subject;
         }
         if (query.thread_id != null) {
-          where.threadId = query.threadId;
+          where.threadId = query.thread_id;
         }
         if (query.received_before) {
           where.date = {lt: query.received_before};

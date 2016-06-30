@@ -18,10 +18,10 @@ module.exports = (server) => {
           'subject': Joi.string(),
           'unread': Joi.boolean(),
           'starred': Joi.boolean(),
-          'startedBefore': Joi.date().timestamp(),
-          'startedAfter': Joi.date().timestamp(),
-          'lastMessageBefore': Joi.date().timestamp(),
-          'lastMessageAfter': Joi.date().timestamp(),
+          'started_before': Joi.date().timestamp(),
+          'started_after': Joi.date().timestamp(),
+          'last_message_before': Joi.date().timestamp(),
+          'last_message_after': Joi.date().timestamp(),
           'in': Joi.string().allow(Joi.number()),
           'filename': Joi.string(),
           'limit': Joi.number().integer().min(1).max(2000).default(100),
@@ -68,24 +68,24 @@ module.exports = (server) => {
         }
 
         // Timestamp queries
-        if (query.lastMessageBefore) {
-          where.lastMessageReceivedDate = {lt: query.lastMessageBefore};
+        if (query.last_message_before) {
+          where.lastMessageReceivedDate = {lt: query.last_message_before};
         }
-        if (query.lastMessageAfter) {
+        if (query.last_message_after) {
           if (where.lastMessageReceivedDate) {
-            where.lastMessageReceivedDate.gt = query.lastMessageAfter;
+            where.lastMessageReceivedDate.gt = query.last_message_after;
           } else {
-            where.lastMessageReceivedDate = {gt: query.lastMessageAfter};
+            where.lastMessageReceivedDate = {gt: query.last_message_after};
           }
         }
-        if (query.startedBefore) {
-          where.firstMessageDate = {lt: query.startedBefore};
+        if (query.started_before) {
+          where.firstMessageDate = {lt: query.started_before};
         }
-        if (query.startedAfter) {
+        if (query.started_after) {
           if (where.firstMessageDate) {
-            where.firstMessageDate.gt = query.startedAfter;
+            where.firstMessageDate.gt = query.started_after;
           } else {
-            where.firstMessageDate = {gt: query.startedAfter};
+            where.firstMessageDate = {gt: query.started_after};
           }
         }
 
