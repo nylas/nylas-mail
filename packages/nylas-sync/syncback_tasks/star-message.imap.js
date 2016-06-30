@@ -11,7 +11,7 @@ class StarMessageIMAP extends SyncbackTask {
 
     return TaskHelpers.openMessageBox({messageId, db, imap})
       .then(({box, message}) => {
-        return box.addFlags(message.categoryImapUID, 'FLAGGED')
+        return box.addFlags(message.folderImapUID, 'FLAGGED')
       })
   }
 }

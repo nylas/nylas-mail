@@ -40,7 +40,7 @@ module.exports = (server) => {
     },
     handler: (request, reply) => {
       request.getAccountDatabase().then((db) => {
-        const {Thread, Category, Message} = db;
+        const {Thread, Folder, Label, Message} = db;
         const query = request.query;
         const where = {};
         const include = [];
@@ -90,16 +90,18 @@ module.exports = (server) => {
 
         // Association queries
         if (query.in) {
-          include.push({
-            model: Category,
-            where: { $or: [
-              { id: query.in },
-              { name: query.in },
-              { role: query.in },
-            ]},
-          });
+          // BEN TODO FIX BEFORE COMMITTING
+          // include.push({
+          //   model: Folder,
+          //   where: { $or: [
+          //     { id: query.in },
+          //     { name: query.in },
+          //     { role: query.in },
+          //   ]},
+          // });
         } else {
-          include.push({model: Category})
+          include.push({model: Folder})
+          include.push({model: Label})
         }
 
         if (query.view === 'expanded') {
@@ -132,12 +134,12 @@ module.exports = (server) => {
           where: where,
           include: include,
         }).then((threads) => {
-          // if the user requested the expanded viw, fill message.category using
-          // thread.category, since it must be a superset.
+          // if the user requested the expanded viw, fill message.folder using
+          // thread.folders, since it must be a superset.
           if (query.view === 'expanded') {
             for (const thread of threads) {
               for (const msg of thread.messages) {
-                msg.category = thread.categories.find(c => c.id === msg.categoryId);
+                msg.folder = thread.folders.find(c => c.id === msg.folderId);
               }
             }
           }

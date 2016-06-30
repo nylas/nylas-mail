@@ -11,7 +11,7 @@ class UnstarMessageIMAP extends SyncbackTask {
 
     return TaskHelpers.openMessageBox({messageId, db, imap})
       .then(({box, message}) => {
-        return box.delFlags(message.categoryImapUID, 'FLAGGED')
+        return box.delFlags(message.folderImapUID, 'FLAGGED')
       })
   }
 }

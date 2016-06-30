@@ -11,7 +11,7 @@ class MarkMessageAsReadIMAP extends SyncbackTask {
 
     return TaskHelpers.openMessageBox({messageId, db, imap})
       .then(({box, message}) => {
-        return box.addFlags(message.categoryImapUID, 'SEEN')
+        return box.addFlags(message.folderImapUID, 'SEEN')
       })
   }
 }

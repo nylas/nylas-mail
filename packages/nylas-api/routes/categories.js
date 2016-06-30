@@ -2,7 +2,9 @@ const Joi = require('joi');
 const Serialization = require('../serialization');
 
 module.exports = (server) => {
-  ['folders', 'labels'].forEach((term) => {
+  ['Folder', 'Label'].forEach((klass) => {
+    const term = `${klass.toLowerCase()}s`;
+
     server.route({
       method: 'GET',
       path: `/${term}`,
@@ -18,18 +20,18 @@ module.exports = (server) => {
         },
         response: {
           schema: Joi.array().items(
-            Serialization.jsonSchema('Category')
+            Serialization.jsonSchema(klass)
           ),
         },
       },
       handler: (request, reply) => {
         request.getAccountDatabase().then((db) => {
-          const {Category} = db;
-          Category.findAll({
+          const Klass = db[klass];
+          Klass.findAll({
             limit: request.query.limit,
             offset: request.query.offset,
-          }).then((categories) => {
-            reply(Serialization.jsonStringify(categories));
+          }).then((items) => {
+            reply(Serialization.jsonStringify(items));
           })
         })
       },

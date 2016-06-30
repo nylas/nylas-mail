@@ -25,11 +25,11 @@ module.exports = (server) => {
     },
     handler: (request, reply) => {
       request.getAccountDatabase().then((db) => {
-        const {Message, Category} = db;
+        const {Message, Folder, Label} = db;
         Message.findAll({
           limit: request.query.limit,
           offset: request.query.offset,
-          include: {model: Category},
+          include: [{model: Folder}, {model: Label}],
         }).then((messages) => {
           reply(Serialization.jsonStringify(messages));
         })
@@ -58,12 +58,12 @@ module.exports = (server) => {
     },
     handler: (request, reply) => {
       request.getAccountDatabase().then((db) => {
-        const {Message, Category} = db;
+        const {Message, Folder, Label} = db;
         const {headers: {accept}} = request;
         const {params: {id}} = request;
         const account = request.auth.credentials;
 
-        Message.findOne({where: {id}, include: {model: Category}}).then((message) => {
+        Message.findOne({where: {id}, include: [{model: Folder}, {model: Label}]}).then((message) => {
           if (!message) {
             return reply.notFound(`Message ${id} not found`)
           }

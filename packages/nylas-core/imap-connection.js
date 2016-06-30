@@ -135,11 +135,11 @@ class IMAPBox {
     return this._imap.delFlagsAsync(range, flags)
   }
 
-  moveFromBox(range, categoryName) {
+  moveFromBox(range, folderName) {
     if (!this._imap) {
       throw new Error(`IMAPBox::moveFromBox - You need to call connect() first.`)
     }
-    return this._imap.moveAsync(range, categoryName)
+    return this._imap.moveAsync(range, folderName)
   }
 
   closeBox({expunge = true} = {}) {
@@ -267,11 +267,11 @@ class IMAPConnection extends EventEmitter {
   /**
    * @return {Promise} that resolves to instance of IMAPBox
    */
-  openBox(categoryName, {readOnly = false} = {}) {
+  openBox(folderName, {readOnly = false} = {}) {
     if (!this._imap) {
       throw new Error(`IMAPConnection::openBox - You need to call connect() first.`)
     }
-    return this._imap.openBoxAsync(categoryName, readOnly).then((box) =>
+    return this._imap.openBoxAsync(folderName, readOnly).then((box) =>
       new IMAPBox(this._imap, box)
     )
   }

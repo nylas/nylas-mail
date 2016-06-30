@@ -2,20 +2,20 @@ const {Provider} = require('nylas-core');
 
 const GMAIL_FOLDERS = ['[Gmail]/All Mail', '[Gmail]/Trash', '[Gmail]/Spam'];
 
-class FetchCategoryList {
+class FetchFolderList {
   constructor(provider) {
     this._provider = provider;
   }
 
   description() {
-    return `FetchCategoryList`;
+    return `FetchFolderList`;
   }
 
-  _typeForMailbox(boxName) {
+  _classForMailbox(boxName, box, {Folder, Label}) {
     if (this._provider === Provider.Gmail) {
-      return GMAIL_FOLDERS.includes(boxName) ? 'folder' : 'label';
+      return GMAIL_FOLDERS.includes(boxName) ? Folder : Label;
     }
-    return 'folder';
+    return Folder;
   }
 
   _roleForMailbox(boxName, box) {
@@ -40,8 +40,6 @@ class FetchCategoryList {
   }
 
   _updateCategoriesWithBoxes(categories, boxes) {
-    const {Category} = this._db;
-
     const stack = [];
     const created = [];
     const next = [];
@@ -66,10 +64,10 @@ class FetchCategoryList {
 
       let category = categories.find((cat) => cat.name === boxName);
       if (!category) {
-        category = Category.build({
+        const Klass = this._classForMailbox(boxName, box, this._db);
+        category = Klass.build({
           name: boxName,
           accountId: this._db.accountId,
-          type: this._typeForMailbox(boxName, box),
           role: this._roleForMailbox(boxName, box),
         });
         created.push(category);
@@ -87,11 +85,15 @@ class FetchCategoryList {
     this._db = db;
 
     return imap.getBoxes().then((boxes) => {
-      const {Category, sequelize} = this._db;
+      const {Folder, Label, sequelize} = this._db;
 
       return sequelize.transaction((transaction) => {
-        return Category.findAll({transaction}).then((categories) => {
-          const {created, deleted} = this._updateCategoriesWithBoxes(categories, boxes);
+        return Promise.props({
+          folders: Folder.findAll({transaction}),
+          labels: Label.findAll({transaction}),
+        }).then(({folders, labels}) => {
+          const all = [].concat(folders, labels);
+          const {created, deleted} = this._updateCategoriesWithBoxes(all, boxes);
 
           let promises = [Promise.resolve()]
           promises = promises.concat(created.map(cat => cat.save({transaction})))
@@ -103,4 +105,4 @@ class FetchCategoryList {
   }
 }
 
-module.exports = FetchCategoryList;
+module.exports = FetchFolderList;

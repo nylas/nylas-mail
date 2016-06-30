@@ -10,7 +10,7 @@ class UnstarThread extends SyncbackTask {
     const threadId = this.syncbackRequestObject().props.threadId
 
     const eachMsg = ({message, box}) => {
-      return box.delFlags(message.categoryImapUID, 'FLAGGED')
+      return box.delFlags(message.folderImapUID, 'FLAGGED')
     }
 
     return TaskHelpers.forEachMessageInThread({threadId, db, imap, callback: eachMsg})

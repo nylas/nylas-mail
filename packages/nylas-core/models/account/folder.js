@@ -1,18 +1,17 @@
 const {JSONType} = require('../../database-types');
 
 module.exports = (sequelize, Sequelize) => {
-  const Category = sequelize.define('category', {
+  const Folder = sequelize.define('folder', {
     accountId: { type: Sequelize.STRING, allowNull: false },
     version: Sequelize.INTEGER,
     name: Sequelize.STRING,
     role: Sequelize.STRING,
-    type: Sequelize.ENUM('folder', 'label'),
     syncState: JSONType('syncState'),
   }, {
     classMethods: {
-      associate: ({Message, Thread, ThreadCategory}) => {
-        Category.hasMany(Message)
-        Category.belongsToMany(Thread, {through: ThreadCategory})
+      associate: ({Message, Thread}) => {
+        Folder.hasMany(Message)
+        Folder.belongsToMany(Thread, {through: 'thread_folders'})
       },
     },
     instanceMethods: {
@@ -20,7 +19,7 @@ module.exports = (sequelize, Sequelize) => {
         return {
           id: this.id,
           account_id: this.accountId,
-          object: this.type,
+          object: 'folder',
           name: this.role,
           display_name: this.name,
         };
@@ -28,5 +27,5 @@ module.exports = (sequelize, Sequelize) => {
     },
   });
 
-  return Category;
+  return Folder;
 };

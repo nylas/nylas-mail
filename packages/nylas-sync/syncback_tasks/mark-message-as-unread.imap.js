@@ -11,7 +11,7 @@ class MarkMessageAsUnreadIMAP extends SyncbackTask {
 
     return TaskHelpers.openMessageBox({messageId, db, imap})
       .then(({box, message}) => {
-        return box.delFlags(message.categoryImapUID, 'SEEN')
+        return box.delFlags(message.folderImapUID, 'SEEN')
       })
   }
 }

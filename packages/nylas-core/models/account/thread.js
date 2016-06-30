@@ -20,15 +20,19 @@ module.exports = (sequelize, Sequelize) => {
       { fields: ['threadId'] },
     ],
     classMethods: {
-      associate: ({Category, Message, ThreadCategory}) => {
-        Thread.belongsToMany(Category, {through: ThreadCategory})
-        Thread.hasMany(Message, {as: 'messages'})
+      associate: ({Folder, Label, Message}) => {
+        Thread.belongsToMany(Folder, {through: 'thread_folders'})
+        Thread.belongsToMany(Label, {through: 'thread_labels'})
+        Thread.hasMany(Message)
       },
     },
     instanceMethods: {
       toJSON: function toJSON() {
-        if (!(this.categories instanceof Array)) {
-          throw new Error("Thread.toJSON called on a thread where categories were not eagerly loaded.")
+        if (!(this.labels instanceof Array)) {
+          throw new Error("Thread.toJSON called on a thread where labels were not eagerly loaded.")
+        }
+        if (!(this.folders instanceof Array)) {
+          throw new Error("Thread.toJSON called on a thread where folders were not eagerly loaded.")
         }
         if (!(this.messages instanceof Array)) {
           throw new Error("Thread.toJSON called on a thread where messages were not eagerly loaded. (Only need the IDs!)")
@@ -37,8 +41,8 @@ module.exports = (sequelize, Sequelize) => {
         const response = {
           id: this.id,
           object: 'thread',
-          folders: this.categories.filter(c => c.type === 'folder'),
-          labels: this.categories.filter(c => c.type === 'label'),
+          folders: this.folders,
+          labels: this.labels,
           account_id: this.accountId,
           participants: this.participants,
           subject: this.subject,

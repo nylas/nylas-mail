@@ -22,7 +22,16 @@ function jsonSchema(modelName) {
       sync_error: Joi.object(),
     })
   }
-  if (modelName === 'Category') {
+  if (modelName === 'Folder') {
+    return Joi.object().keys({
+      id: Joi.number(),
+      object: Joi.string(),
+      account_id: Joi.string(),
+      name: Joi.string().allow(null),
+      display_name: Joi.string(),
+    })
+  }
+  if (modelName === 'Label') {
     return Joi.object().keys({
       id: Joi.number(),
       object: Joi.string(),

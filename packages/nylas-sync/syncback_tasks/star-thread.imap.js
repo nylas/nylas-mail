@@ -10,7 +10,7 @@ class StarThread extends SyncbackTask {
     const threadId = this.syncbackRequestObject().props.threadId
 
     const eachMsg = ({message, box}) => {
-      return box.addFlags(message.categoryImapUID, 'FLAGGED')
+      return box.addFlags(message.folderImapUID, 'FLAGGED')
     }
 
     return TaskHelpers.forEachMessageInThread({threadId, db, imap, callback: eachMsg})

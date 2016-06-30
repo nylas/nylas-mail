@@ -12,8 +12,8 @@ class MoveMessageToFolderIMAP extends SyncbackTask {
 
     return TaskHelpers.openMessageBox({messageId, db, imap})
       .then(({box, message}) => {
-        return db.Category.findById(toFolderId).then((newCategory) => {
-          return box.moveFromBox(message.categoryImapUID, newCategory.name)
+        return db.Folder.findById(toFolderId).then((newFolder) => {
+          return box.moveFromBox(message.folderImapUID, newFolder.name)
         })
       })
   }

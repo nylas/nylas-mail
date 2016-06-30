@@ -11,10 +11,6 @@ const MessageAttributes = ['body', 'processed', 'to', 'from', 'cc', 'replyTo', '
 const MessageProcessorVersion = 1;
 
 function runPipeline({db, accountId, message}) {
-  if (!message) {
-    return Promise.reject(new Error(`Message not found: ${message.id}`))
-  }
-
   console.log(`Processing message ${message.id}`)
   return processors.reduce((prevPromise, processor) => (
     prevPromise.then((prevMessage) => {
@@ -41,7 +37,7 @@ function saveMessage(message) {
 
 function dequeueJob() {
   const conn = PubsubConnector.buildClient()
-  conn.brpopAsync('message-processor-queue', 10000).then((item) => {
+  conn.brpopAsync('message-processor-queue', 10).then((item) => {
     if (!item) {
       return dequeueJob();
     }
@@ -56,13 +52,19 @@ function dequeueJob() {
     const {messageId, accountId} = json;
 
     DatabaseConnector.forAccount(accountId).then((db) =>
-      db.Message.find({where: {id: messageId}}).then((message) =>
-        runPipeline({db, accountId, message}).then((processedMessage) =>
+      db.Message.find({
+        where: {id: messageId},
+        include: [{model: db.Folder}, {model: db.Label}],
+      }).then((message) => {
+        if (!message) {
+          return Promise.reject(new Error(`Message not found (${messageId}). Maybe account was deleted?`))
+        }
+        return runPipeline({db, accountId, message}).then((processedMessage) =>
           saveMessage(processedMessage)
         ).catch((err) =>
           console.error(`MessageProcessor Failed: ${err} ${err.stack}`)
         )
-      )
+      })
     ).finally(() => {
       dequeueJob()
     });

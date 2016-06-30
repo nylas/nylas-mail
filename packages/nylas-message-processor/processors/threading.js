@@ -28,8 +28,15 @@ class ThreadingProcessor {
     return subject.replace(regex, () => "");
   }
 
+  emptyThread(Thread, options = {}) {
+    const t = Thread.build(options)
+    t.folders = [];
+    t.labels = [];
+    return t;
+  }
+
   findOrCreateByMatching(db, message) {
-    const {Thread} = db
+    const {Thread, Label, Folder} = db
 
     // in the future, we should look at In-reply-to. Problem is it's a single-
     // directional linked list, and we don't scan the mailbox from oldest=>newest,
@@ -43,19 +50,31 @@ class ThreadingProcessor {
       order: [
         ['id', 'DESC'],
       ],
-      limit: 50,
+      limit: 10,
+      include: [{model: Label}, {model: Folder}],
     }).then((threads) =>
-      this.pickMatchingThread(message, threads) || Thread.build({})
+      this.pickMatchingThread(message, threads) || this.emptyThread(Thread)
     )
   }
 
-  findOrCreateByThreadId({Thread}, threadId) {
-    return Thread.find({where: {threadId}}).then((thread) => {
-      return thread || Thread.build({threadId});
+  findOrCreateByThreadId({Thread, Label, Folder}, threadId) {
+    return Thread.find({
+      where: {threadId},
+      include: [{model: Label}, {model: Folder}],
+    }).then((thread) => {
+      return thread || this.emptyThread(Thread, {threadId})
     })
   }
 
   processMessage({db, message}) {
+    if (!(message.labels instanceof Array)) {
+      throw new Error("Threading processMessage expects labels to be an inflated array.");
+    }
+    if (message.folder === undefined) {
+      throw new Error("Threading processMessage expects folder value to be present.");
+    }
+
+    const {Folder, Label} = db;
     let findOrCreateThread = null;
     if (message.headers['x-gm-thrid']) {
       findOrCreateThread = this.findOrCreateByThreadId(db, message.headers['x-gm-thrid'])
@@ -65,10 +84,18 @@ class ThreadingProcessor {
 
     return Promise.props({
       thread: findOrCreateThread,
-      sentCategory: db.Category.find({where: {role: 'sent'}}),
+      sentFolder: Folder.find({where: {role: 'sent'}}),
+      sentLabel: Label.find({where: {role: 'sent'}}),
     })
-    .then(({thread, sentCategory}) => {
+    .then(({thread, sentFolder, sentLabel}) => {
       thread.addMessage(message);
+
+      if (!(thread.labels instanceof Array)) {
+        throw new Error("Threading processMessage expects thread.labels to be an inflated array.");
+      }
+      if (!(thread.folders instanceof Array)) {
+        throw new Error("Threading processMessage expects thread.folders to be an inflated array.");
+      }
 
       // update the basic properties of the thread
       thread.accountId = message.accountId;
@@ -100,23 +127,34 @@ class ThreadingProcessor {
       if (!thread.firstMessageDate || (message.date < thread.firstMessageDate)) {
         thread.firstMessageDate = message.date;
       }
-      const sentCategoryId = sentCategory ? sentCategory.id : null;
-      if ((message.categoryId === sentCategoryId) && (message.date > thread.lastMessageSentDate)) {
+
+      let isSent = false;
+      if (sentFolder) {
+        isSent = message.folderId === sentFolder.id
+      } else if (sentLabel) {
+        isSent = !!message.labels.find(l => l.id === sentLabel.id)
+      }
+
+      if (isSent && (message.date > thread.lastMessageSentDate)) {
         thread.lastMessageSentDate = message.date;
       }
-      if ((message.categoryId !== sentCategoryId) && (message.date > thread.lastMessageReceivedDate)) {
+      if (!isSent && (message.date > thread.lastMessageReceivedDate)) {
         thread.lastMessageReceivedDate = message.date;
       }
 
-      // update categories and sav
-      return thread.hasCategory(message.categoryId).then((hasCategory) => {
-        if (!hasCategory) {
-          thread.addCategory(message.categoryId)
+      // update folders and labels
+      if (!thread.folders.find(f => f.id === message.folderId)) {
+        thread.addFolder(message.folder)
+      }
+      for (const label of message.labels) {
+        if (!thread.labels.find(l => l.id === label)) {
+          thread.addLabel(label)
         }
-        return thread.save().then((saved) => {
-          message.threadId = saved.id;
-          return message;
-        });
+      }
+
+      return thread.save().then((saved) => {
+        message.threadId = saved.id;
+        return message;
       });
     });
   }

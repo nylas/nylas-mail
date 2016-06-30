@@ -6,8 +6,8 @@ const {
   MessageTypes,
 } = require('nylas-core');
 
-const FetchCategoryList = require('./imap/fetch-category-list')
-const FetchMessagesInCategory = require('./imap/fetch-messages-in-category')
+const FetchFolderList = require('./imap/fetch-category-list')
+const FetchMessagesInFolder = require('./imap/fetch-messages-in-category')
 const SyncbackTaskFactory = require('./syncback-task-factory')
 
 
@@ -69,8 +69,8 @@ class SyncWorker {
     const {afterSync} = this._account.syncPolicy;
 
     if (afterSync === 'idle') {
-      return this.getInboxCategory()
-      .then((inboxCategory) => this._conn.openBox(inboxCategory.name))
+      return this.getIdleFolder()
+      .then((idleFolder) => this._conn.openBox(idleFolder.name))
       .then(() => console.log('SyncWorker: - Idling on inbox category'))
       .catch((error) => {
         console.error('SyncWorker: - Unhandled error while attempting to idle on Inbox after sync: ', error)
@@ -91,8 +91,8 @@ class SyncWorker {
     this.syncNow();
   }
 
-  getInboxCategory() {
-    return this._db.Category.find({where: {role: 'inbox'}})
+  getIdleFolder() {
+    return this._db.Folder.find({where: {role: ['all', 'inbox']}})
   }
 
   ensureConnection() {
@@ -143,23 +143,23 @@ class SyncWorker {
   }
 
   syncAllCategories() {
-    const {Category} = this._db;
+    const {Folder} = this._db;
     const {folderSyncOptions} = this._account.syncPolicy;
 
-    return Category.findAll({where: {type: 'folder'}}).then((categories) => {
+    return Folder.findAll().then((categories) => {
       const priority = ['inbox', 'all', 'drafts', 'sent', 'spam', 'trash'].reverse();
       const categoriesToSync = categories.sort((a, b) =>
         (priority.indexOf(a.role) - priority.indexOf(b.role)) * -1
       )
 
       return Promise.all(categoriesToSync.map((cat) =>
-        this._conn.runOperation(new FetchMessagesInCategory(cat, folderSyncOptions))
+        this._conn.runOperation(new FetchMessagesInFolder(cat, folderSyncOptions))
       ))
     });
   }
 
   performSync() {
-    return this._conn.runOperation(new FetchCategoryList(this._account.provider))
+    return this._conn.runOperation(new FetchFolderList(this._account.provider))
     .then(() => this.syncbackMessageActions())
     .then(() => this.syncAllCategories())
   }

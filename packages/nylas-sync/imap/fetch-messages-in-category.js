@@ -4,9 +4,9 @@ const Imap = require('imap');
 const {IMAPConnection, PubsubConnector} = require('nylas-core');
 const {Capabilities} = IMAPConnection;
 
-const MessageFlagAttributes = ['id', 'categoryImapUID', 'unread', 'starred']
+const MessageFlagAttributes = ['id', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']
 
-class FetchMessagesInCategory {
+class FetchMessagesInFolder {
   constructor(category, options) {
     this._imap = null
     this._box = null
@@ -14,12 +14,12 @@ class FetchMessagesInCategory {
     this._category = category;
     this._options = options;
     if (!this._category) {
-      throw new NylasError("FetchMessagesInCategory requires a category")
+      throw new NylasError("FetchMessagesInFolder requires a category")
     }
   }
 
   description() {
-    return `FetchMessagesInCategory (${this._category.name} - ${this._category.id})\n  Options: ${JSON.stringify(this._options)}`;
+    return `FetchMessagesInFolder (${this._category.name} - ${this._category.id})\n  Options: ${JSON.stringify(this._options)}`;
   }
 
   _getLowerBoundUID(count) {
@@ -34,64 +34,78 @@ class FetchMessagesInCategory {
     const {Message} = this._db;
     return this._db.sequelize.transaction((transaction) =>
       Message.update({
-        categoryImapUID: null,
-        categoryId: null,
+        folderImapUID: null,
+        folderId: null,
       }, {
         transaction: transaction,
         where: {
-          categoryId: this._category.id,
+          folderId: this._category.id,
         },
       })
     )
   }
 
   _updateMessageAttributes(remoteUIDAttributes, localMessageAttributes) {
+    const {sequelize, Label} = this._db;
+
     const messageAttributesMap = {};
     for (const msg of localMessageAttributes) {
-      messageAttributesMap[msg.categoryImapUID] = msg;
+      messageAttributesMap[msg.folderImapUID] = msg;
     }
 
     const createdUIDs = [];
-    const changedMessages = [];
+    const flagChangeMessages = [];
 
-    Object.keys(remoteUIDAttributes).forEach((uid) => {
-      const msg = messageAttributesMap[uid];
-      const flags = remoteUIDAttributes[uid].flags;
+    return Label.findAll().then((preloadedLabels) => {
+      Object.keys(remoteUIDAttributes).forEach((uid) => {
+        const msg = messageAttributesMap[uid];
+        const attrs = remoteUIDAttributes[uid];
 
-      if (!msg) {
-        createdUIDs.push(uid);
-        return;
+        if (!msg) {
+          createdUIDs.push(uid);
+          return;
+        }
+
+        const unread = !attrs.flags.includes('\\Seen');
+        const starred = attrs.flags.includes('\\Flagged');
+        const xGmLabels = attrs['x-gm-labels'];
+        const xGmLabelsJSON = xGmLabels ? JSON.stringify(xGmLabels) : null;
+
+        if (msg.folderImapXGMLabels !== xGmLabelsJSON) {
+          msg.setLabelsFromXGM(xGmLabels, {preloadedLabels});
+        }
+
+        if (msg.unread !== unread || msg.starred !== starred) {
+          msg.unread = unread;
+          msg.starred = starred;
+          flagChangeMessages.push(msg);
+        }
+      })
+
+      console.log(` --- found ${flagChangeMessages.length || 'no'} flag changes`)
+      if (createdUIDs.length > 0) {
+        console.log(` --- found ${createdUIDs.length} new messages. These will not be processed because we assume that they will be assigned uid = uidnext, and will be picked up in the next sync when we discover unseen messages.`)
       }
 
-      const unread = !flags.includes('\\Seen');
-      const starred = flags.includes('\\Flagged');
-
-      if (msg.unread !== unread || msg.starred !== starred) {
-        msg.unread = unread;
-        msg.starred = starred;
-        changedMessages.push(msg);
+      if (flagChangeMessages.length === 0) {
+        return Promise.resolve();
       }
-    })
 
-    console.log(` --- found ${changedMessages.length || 'no'} flag changes`)
-    if (createdUIDs.length > 0) {
-      console.log(` --- found ${createdUIDs.length} new messages. These will not be processed because we assume that they will be assigned uid = uidnext, and will be picked up in the next sync when we discover unseen messages.`)
-    }
-
-    return this._db.sequelize.transaction((transaction) =>
-      Promise.all(changedMessages.map(m => m.save({
-        fields: MessageFlagAttributes,
-        transaction,
-      })))
-    );
+      return sequelize.transaction((transaction) =>
+        Promise.all(flagChangeMessages.map(m => m.save({
+          fields: MessageFlagAttributes,
+          transaction,
+        })))
+      );
+    });
   }
 
   _removeDeletedMessages(remoteUIDAttributes, localMessageAttributes) {
     const {Message} = this._db;
 
     const removedUIDs = localMessageAttributes
-      .filter(msg => !remoteUIDAttributes[msg.categoryImapUID])
-      .map(msg => msg.categoryImapUID)
+      .filter(msg => !remoteUIDAttributes[msg.folderImapUID])
+      .map(msg => msg.folderImapUID)
 
     console.log(` --- found ${removedUIDs.length} messages no longer in the folder`)
 
@@ -100,13 +114,13 @@ class FetchMessagesInCategory {
     }
     return this._db.sequelize.transaction((transaction) =>
        Message.update({
-         categoryImapUID: null,
-         categoryId: null,
+         folderImapUID: null,
+         folderId: null,
        }, {
          transaction,
          where: {
-           categoryId: this._category.id,
-           categoryImapUID: removedUIDs,
+           folderId: this._category.id,
+           folderImapUID: removedUIDs,
          },
        })
     );
@@ -146,7 +160,6 @@ class FetchMessagesInCategory {
         return;
       }
       const key = JSON.stringify(desiredParts);
-      console.log(key);
       uidsByPart[key] = uidsByPart[key] || [];
       uidsByPart[key].push(attributes.uid);
     });
@@ -163,7 +176,6 @@ class FetchMessagesInCategory {
 
         const $body = this._box.fetch(uids, {bodies, struct: true})
         $body.subscribe((msg) => {
-          console.log(`Fetched message ${msg.attributes.uid}`)
           msg.body = {};
           for (const {id, mimetype} of desiredParts) {
             msg.body[mimetype] = msg.parts[id];
@@ -223,24 +235,31 @@ class FetchMessagesInCategory {
       unread: !attributes.flags.includes('\\Seen'),
       starred: attributes.flags.includes('\\Flagged'),
       date: attributes.date,
-      categoryImapUID: attributes.uid,
-      categoryId: this._category.id,
+      folderImapUID: attributes.uid,
+      folderId: this._category.id,
       headers: parsedHeaders,
       headerMessageId: parsedHeaders['message-id'][0],
       subject: parsedHeaders.subject[0],
     }
 
-    Message.find({where: {hash}}).then((existing) => {
-      if (existing) {
-        Object.assign(existing, values);
-        existing.save();
-        return;
-      }
+    let created = false;
 
-      Message.create(values).then((created) => {
-        this._createFilesFromStruct({message: created, struct: attributes.struct})
-        PubsubConnector.queueProcessMessage({accountId, messageId: created.id});
-      })
+    Message.find({where: {hash}})
+    .then((existing) => {
+      created = existing != null;
+      return existing ? existing.update(values) : Message.create(values);
+    })
+    .then((message) =>
+      message.setLabelsFromXGM(attributes['x-gm-labels']).thenReturn(message)
+    )
+    .then((message) => {
+      if (created) {
+        console.log(`Created message ID: ${message.id}, UID: ${attributes.uid}`)
+        this._createFilesFromStruct({message, struct: attributes.struct})
+        PubsubConnector.queueProcessMessage({accountId, messageId: message.id});
+      } else {
+        console.log(`Updated message ID: ${message.id}, UID: ${attributes.uid}`)
+      }
     })
 
     return null;
@@ -295,7 +314,7 @@ class FetchMessagesInCategory {
 
       return this._fetchMessagesAndQueueForProcessing(`${min}:${max}`).then(() => {
         const {fetchedmin, fetchedmax} = this._category.syncState;
-        return this.updateCategorySyncState({
+        return this.updateFolderSyncState({
           fetchedmin: fetchedmin ? Math.min(fetchedmin, min) : min,
           fetchedmax: fetchedmax ? Math.max(fetchedmax, max) : max,
           uidvalidity: boxUidvalidity,
@@ -342,7 +361,7 @@ class FetchMessagesInCategory {
     return shallowFetch
     .then((remoteUIDAttributes) => (
       this._db.Message.findAll({
-        where: {categoryId: this._category.id},
+        where: {folderId: this._category.id},
         attributes: MessageFlagAttributes,
       })
       .then((localMessageAttributes) => (
@@ -350,7 +369,7 @@ class FetchMessagesInCategory {
       ))
       .then(() => {
         console.log(` - finished fetching changes to messages`);
-        return this.updateCategorySyncState({
+        return this.updateFolderSyncState({
           highestmodseq: nextHighestmodseq,
           timeShallowScan: Date.now(),
         })
@@ -368,7 +387,7 @@ class FetchMessagesInCategory {
     return this._box.fetchUIDAttributes(range)
     .then((remoteUIDAttributes) => {
       return Message.findAll({
-        where: {categoryId: this._category.id},
+        where: {folderId: this._category.id},
         attributes: MessageFlagAttributes,
       })
       .then((localMessageAttributes) => (
@@ -379,7 +398,7 @@ class FetchMessagesInCategory {
       ))
       .then(() => {
         console.log(` - Deep scan finished.`);
-        return this.updateCategorySyncState({
+        return this.updateFolderSyncState({
           highestmodseq: this._box.highestmodseq,
           timeDeepScan: Date.now(),
           timeShallowScan: Date.now(),
@@ -388,7 +407,7 @@ class FetchMessagesInCategory {
     });
   }
 
-  updateCategorySyncState(newState) {
+  updateFolderSyncState(newState) {
     if (_.isMatch(this._category.syncState, newState)) {
       return Promise.resolve();
     }
@@ -409,4 +428,4 @@ class FetchMessagesInCategory {
   }
 }
 
-module.exports = FetchMessagesInCategory;
+module.exports = FetchMessagesInFolder;

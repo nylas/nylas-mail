@@ -23,14 +23,14 @@ module.exports = (sequelize, Sequelize) => {
           connection: IMAPConnection.connect(db, settings),
         })
         .then(({message, connection}) => {
-          return message.getCategory()
-          .then((category) => connection.openBox(category.name))
+          return message.getFolder()
+          .then((folder) => connection.openBox(folder.name))
           .then((imapBox) => imapBox.fetchStream({
-            messageId: message.categoryUID,
+            messageId: message.folderUID,
             options: {
               bodies: [this.partId],
               struct: true,
-            }
+            },
           }))
           .then((stream) => {
             if (stream) {

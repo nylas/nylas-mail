@@ -10,7 +10,7 @@ class MarkThreadAsRead extends SyncbackTask {
     const threadId = this.syncbackRequestObject().props.threadId
 
     const eachMsg = ({message, box}) => {
-      return box.addFlags(message.categoryImapUID, 'SEEN')
+      return box.addFlags(message.folderImapUID, 'SEEN')
     }
 
     return TaskHelpers.forEachMessageInThread({threadId, db, imap, callback: eachMsg})

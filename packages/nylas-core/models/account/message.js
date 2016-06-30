@@ -23,7 +23,8 @@ module.exports = (sequelize, Sequelize) => {
     cc: JSONARRAYType('cc'),
     bcc: JSONARRAYType('bcc'),
     replyTo: JSONARRAYType('replyTo'),
-    categoryImapUID: { type: Sequelize.STRING, allowNull: true},
+    folderImapUID: { type: Sequelize.STRING, allowNull: true},
+    folderImapXGMLabels: { type: Sequelize.STRING, allowNull: true},
   }, {
     indexes: [
       {
@@ -32,25 +33,52 @@ module.exports = (sequelize, Sequelize) => {
       },
     ],
     classMethods: {
-      associate: ({Category, File, Thread}) => {
-        Message.belongsTo(Category)
-        Message.hasMany(File, {as: 'files'})
+      associate: ({Folder, Label, File, Thread}) => {
         Message.belongsTo(Thread)
+        Message.belongsTo(Folder)
+        Message.belongsToMany(Label, {through: 'message_labels'})
+        Message.hasMany(File)
       },
       hashForHeaders: (headers) => {
         return crypto.createHash('sha256').update(headers, 'utf8').digest('hex');
       },
     },
     instanceMethods: {
+      setLabelsFromXGM(xGmLabels, {preloadedLabels} = {}) {
+        if (!xGmLabels) {
+          return Promise.resolve();
+        }
+        const labelNames = xGmLabels.filter(l => l[0] !== '\\')
+        const labelRoles = xGmLabels.filter(l => l[0] === '\\').map(l => l.substr(1).toLowerCase())
+        const Label = sequelize.models.label;
+
+        let getLabels = null;
+        if (preloadedLabels) {
+          getLabels = Promise.resolve(preloadedLabels.filter(l => labelNames.includes(l.name) || labelRoles.includes(l.role)));
+        } else {
+          getLabels = Label.findAll({
+            where: sequelize.or({name: labelNames}, {role: labelRoles}),
+          })
+        }
+
+        this.folderImapXGMLabels = JSON.stringify(xGmLabels);
+
+        return getLabels.then((labels) =>
+          this.save().then(() =>
+            this.setLabels(labels)
+          )
+        )
+      },
+
       fetchRaw: function fetchRaw({account, db}) {
         const settings = Object.assign({}, account.connectionSettings, account.decryptedCredentials())
         return Promise.props({
-          category: this.getCategory(),
+          folder: this.getFolder(),
           connection: IMAPConnection.connect(db, settings),
         })
-        .then(({category, connection}) => {
-          return connection.openBox(category.name)
-          .then((imapBox) => imapBox.fetchMessage(this.categoryImapUID))
+        .then(({folder, connection}) => {
+          return connection.openBox(folder.name)
+          .then((imapBox) => imapBox.fetchMessage(this.folderImapUID))
           .then((message) => {
             if (message) {
               return Promise.resolve(`${message.headers}${message.body}`)
@@ -62,8 +90,8 @@ module.exports = (sequelize, Sequelize) => {
       },
 
       toJSON: function toJSON() {
-        if (this.category_id && !this.category) {
-          throw new Error("Message.toJSON called on a message where category were not eagerly loaded.")
+        if (this.folder_id && !this.folder) {
+          throw new Error("Message.toJSON called on a message where folder were not eagerly loaded.")
         }
 
         return {
@@ -81,7 +109,7 @@ module.exports = (sequelize, Sequelize) => {
           date: this.date.getTime() / 1000.0,
           unread: this.unread,
           starred: this.starred,
-          folder: this.category,
+          folder: this.folder,
         };
       },
     },
