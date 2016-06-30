@@ -246,7 +246,7 @@ class FetchMessagesInFolder {
 
     Message.find({where: {hash}})
     .then((existing) => {
-      created = existing != null;
+      created = !existing;
       return existing ? existing.update(values) : Message.create(values);
     })
     .then((message) =>
