@@ -73,4 +73,40 @@ module.exports = (server) => {
       })
     },
   })
+
+  server.route({
+    method: 'GET',
+    path: '/files/{id}/download',
+    config: {
+      description: 'Returns binary data for file with specified id.',
+      notes: 'Notes go here',
+      tags: ['files'],
+      validate: {
+        params: {
+          id: Joi.string(),
+        },
+      },
+    },
+    handler: (request, reply) => {
+      request.getAccountDatabase()
+      .then((db) => {
+        const {headers: {accept}} = request
+        const {params: {id}} = request
+        const account = request.auth.credentials
+
+        db.File.findOne({where: {id}})
+        .then((file) => {
+          if (!file) {
+            return reply.notFound(`File ${id} not found`)
+          }
+          return file.fetch({account, db})
+          .then((stream) => reply(stream))
+        })
+        .catch((error) => {
+          console.log('Error fetching file: ', error)
+          reply(error)
+        })
+      })
+    },
+  })
 };

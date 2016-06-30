@@ -181,14 +181,19 @@ class FetchMessagesInCategory {
     for (const part of struct) {
       if (part.constructor === Array) {
         this._createFilesFromStruct({message, struct: part})
-      } else if (part.disposition) {
+      } else if (part.type !== 'text' && part.disposition) {
         let filename = null
         if (part.disposition.params) {
           filename = part.disposition.params.filename
         }
+        // Only exposes partId for inline attachments
+        let partId = null
+        if (part.disposition.type === 'inline') {
+          partId = part.partID
+        }
         File.create({
           filename: filename,
-          contentId: part.partID,
+          partId: partId,
           contentType: `${part.type}/${part.subtype}`,
           accountId: this._db.accountId,
           size: part.size,

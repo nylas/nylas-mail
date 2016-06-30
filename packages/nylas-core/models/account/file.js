@@ -1,9 +1,12 @@
+const IMAPConnection = require('../../imap-connection')
+const NylasError = require('../../nylas-error')
+
 module.exports = (sequelize, Sequelize) => {
   const File = sequelize.define('file', {
     accountId: { type: Sequelize.STRING, allowNull: false },
     version: Sequelize.INTEGER,
     filename: Sequelize.STRING,
-    contentId: Sequelize.STRING,
+    partId: Sequelize.STRING,
     contentType: Sequelize.STRING,
     size: Sequelize.INTEGER,
   }, {
@@ -13,6 +16,31 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
     instanceMethods: {
+      fetch: function fetch({account, db}) {
+        const settings = Object.assign({}, account.connectionSettings, account.decryptedCredentials())
+        return Promise.props({
+          message: this.getMessage(),
+          connection: IMAPConnection.connect(db, settings),
+        })
+        .then(({message, connection}) => {
+          return message.getCategory()
+          .then((category) => connection.openBox(category.name))
+          .then((imapBox) => imapBox.fetchStream({
+            messageId: message.categoryUID,
+            options: {
+              bodies: [this.partId],
+              struct: true,
+            }
+          }))
+          .then((stream) => {
+            if (stream) {
+              return Promise.resolve(stream)
+            }
+            return Promise.reject(new NylasError(`Unable to fetch binary data for File ${this.id}`))
+          })
+          .finally(() => connection.end())
+        })
+      },
       toJSON: function toJSON() {
         return {
           id: this.id,
@@ -20,7 +48,7 @@ module.exports = (sequelize, Sequelize) => {
           account_id: this.accountId,
           message_id: this.messageId,
           filename: this.filename,
-          content_id: this.contentId,
+          part_id: this.partId,
           content_type: this.contentType,
           size: this.size,
         };
