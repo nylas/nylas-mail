@@ -15,7 +15,7 @@ it('parses the message correctly', (done) => {
 
   processMessage({message}).then((processed) => {
     expect(processed.headers['in-reply-to']).toEqual('<electron/electron.atom.io/pull/352@github.com>')
-    expect(processed.messageId).toEqual('<electron/electron.atom.io/pull/352/r67715160@github.com>')
+    expect(processed.headerMessageId).toEqual('<electron/electron.atom.io/pull/352/r67715160@github.com>')
     expect(processed.subject).toEqual('Re: [electron/electron.atom.io] Add Jasper app (#352)')
     expect(processed.body.includes(bodyPart)).toBe(true)
     done()
