@@ -4,7 +4,7 @@ const Imap = require('imap');
 const {IMAPConnection, PubsubConnector} = require('nylas-core');
 const {Capabilities} = IMAPConnection;
 
-const MessageFlagAttributes = ['id', 'categoryUID', 'unread', 'starred']
+const MessageFlagAttributes = ['id', 'categoryImapUID', 'unread', 'starred']
 
 class FetchMessagesInCategory {
   constructor(category, options) {
@@ -34,7 +34,7 @@ class FetchMessagesInCategory {
     const {Message} = this._db;
     return this._db.sequelize.transaction((transaction) =>
       Message.update({
-        categoryUID: null,
+        categoryImapUID: null,
         categoryId: null,
       }, {
         transaction: transaction,
@@ -48,7 +48,7 @@ class FetchMessagesInCategory {
   _updateMessageAttributes(remoteUIDAttributes, localMessageAttributes) {
     const messageAttributesMap = {};
     for (const msg of localMessageAttributes) {
-      messageAttributesMap[msg.categoryUID] = msg;
+      messageAttributesMap[msg.categoryImapUID] = msg;
     }
 
     const createdUIDs = [];
@@ -90,8 +90,8 @@ class FetchMessagesInCategory {
     const {Message} = this._db;
 
     const removedUIDs = localMessageAttributes
-      .filter(msg => !remoteUIDAttributes[msg.categoryUID])
-      .map(msg => msg.categoryUID)
+      .filter(msg => !remoteUIDAttributes[msg.categoryImapUID])
+      .map(msg => msg.categoryImapUID)
 
     console.log(` --- found ${removedUIDs.length} messages no longer in the folder`)
 
@@ -100,13 +100,13 @@ class FetchMessagesInCategory {
     }
     return this._db.sequelize.transaction((transaction) =>
        Message.update({
-         categoryUID: null,
+         categoryImapUID: null,
          categoryId: null,
        }, {
          transaction,
          where: {
            categoryId: this._category.id,
-           categoryUID: removedUIDs,
+           categoryImapUID: removedUIDs,
          },
        })
     );
@@ -218,10 +218,10 @@ class FetchMessagesInCategory {
       unread: !attributes.flags.includes('\\Seen'),
       starred: attributes.flags.includes('\\Flagged'),
       date: attributes.date,
-      categoryUID: attributes.uid,
+      categoryImapUID: attributes.uid,
       categoryId: this._category.id,
       headers: parsedHeaders,
-      messageId: parsedHeaders['message-id'][0],
+      headerMessageId: parsedHeaders['message-id'][0],
       subject: parsedHeaders.subject[0],
     }
 

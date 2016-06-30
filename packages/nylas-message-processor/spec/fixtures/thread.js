@@ -57,7 +57,7 @@ export const message = {
   }],
   cc: [],
   bcc: [],
-  messageId: "<82y7eq1ipmadaxwcy6kr072bw-2147483647@mailer.nylas.com>",
+  headerMessageId: "<82y7eq1ipmadaxwcy6kr072bw-2147483647@mailer.nylas.com>",
   snippet: "Hi Jackie, While browsing Nylas themes, I stumbled upon your website and looked at your work. Great ",
   setThread: (thread) => {
     message.thread = thread.id
@@ -86,7 +86,7 @@ export const reply = {
   }],
   cc: [],
   bcc: [],
-  messageId: "<cq08iqwatp00kai4qnff7zbaj-2147483647@mailer.nylas.com>",
+  headerMessageId: "<cq08iqwatp00kai4qnff7zbaj-2147483647@mailer.nylas.com>",
   snippet: "Sagar, Aw, glad to hear it! Thanks for getting in touch! Jackie Luo Software Engineer, Nylas",
   setThread: (thread) => {
     reply.thread = thread.id

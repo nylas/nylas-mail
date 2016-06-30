@@ -8,7 +8,7 @@ module.exports = (sequelize, Sequelize) => {
   const Message = sequelize.define('message', {
     accountId: { type: Sequelize.STRING, allowNull: false },
     version: Sequelize.INTEGER,
-    messageId: Sequelize.STRING,
+    headerMessageId: Sequelize.STRING,
     body: Sequelize.STRING,
     headers: JSONType('headers'),
     subject: Sequelize.STRING,
@@ -23,7 +23,7 @@ module.exports = (sequelize, Sequelize) => {
     cc: JSONARRAYType('cc'),
     bcc: JSONARRAYType('bcc'),
     replyTo: JSONARRAYType('replyTo'),
-    categoryUID: { type: Sequelize.STRING, allowNull: true},
+    categoryImapUID: { type: Sequelize.STRING, allowNull: true},
   }, {
     indexes: [
       {
@@ -50,7 +50,7 @@ module.exports = (sequelize, Sequelize) => {
         })
         .then(({category, connection}) => {
           return connection.openBox(category.name)
-          .then((imapBox) => imapBox.fetchMessage(this.categoryUID))
+          .then((imapBox) => imapBox.fetchMessage(this.categoryImapUID))
           .then((message) => {
             if (message) {
               return Promise.resolve(`${message.headers}${message.body}`)
