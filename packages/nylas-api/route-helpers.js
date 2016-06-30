@@ -14,4 +14,24 @@ module.exports = {
       })
     })
   },
+  findFolderOrLabel: function findFolderOrLabel({Folder, Label}, str) {
+    return Promise.props({
+      folder: Folder.find({
+        where: { $or: [
+          { id: str },
+          { name: str },
+          { role: str },
+        ]},
+      }),
+      label: Label.find({
+        where: { $or: [
+          { id: str },
+          { name: str },
+          { role: str },
+        ]},
+      }),
+    }).then(({folder, label}) =>
+      folder || label || null
+    )
+  },
 }

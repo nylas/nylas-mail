@@ -1,6 +1,6 @@
 const Joi = require('joi');
 const Serialization = require('../serialization');
-const {createSyncbackRequest} = require('../route-helpers');
+const {createSyncbackRequest, findFolderOrLabel} = require('../route-helpers');
 
 
 module.exports = (server) => {
@@ -13,15 +13,16 @@ module.exports = (server) => {
       tags: ['messages'],
       validate: {
         query: {
-          unread: Joi.boolean(),
-          starred: Joi.boolean(),
-          subject: Joi.string(),
-          thread_id: Joi.number().integer().min(0),
-          received_before: Joi.date(),
-          received_after: Joi.date(),
-          filename: Joi.string(),
-          limit: Joi.number().integer().min(1).max(2000).default(100),
-          offset: Joi.number().integer().min(0).default(0),
+          'unread': Joi.boolean(),
+          'starred': Joi.boolean(),
+          'subject': Joi.string(),
+          'thread_id': Joi.number().integer().min(0),
+          'received_before': Joi.date(),
+          'received_after': Joi.date(),
+          'filename': Joi.string(),
+          'in': Joi.string(),
+          'limit': Joi.number().integer().min(1).max(2000).default(100),
+          'offset': Joi.number().integer().min(0).default(0),
         },
       },
       response: {
@@ -35,7 +36,7 @@ module.exports = (server) => {
         const {Message, Folder, Label, File} = db;
         const query = request.query;
         const where = {};
-        const include = [{model: Folder}, {model: Label}];
+        const include = [];
 
         if (query.unread != null) {
           where.unread = query.unread;
@@ -66,13 +67,26 @@ module.exports = (server) => {
           })
         }
 
-        Message.findAll({
-          where: where,
-          limit: query.limit,
-          offset: query.offset,
-          include: include,
-        }).then((messages) => {
-          reply(Serialization.jsonStringify(messages));
+        let loadAssociatedModels = Promise.resolve();
+        if (query.in) {
+          loadAssociatedModels = findFolderOrLabel({Folder, Label}, query.in)
+          .then((container) => {
+            include.push({
+              model: container.Model,
+              where: {id: container.id},
+            })
+          })
+        }
+
+        loadAssociatedModels.then(() => {
+          Message.findAll({
+            where: where,
+            limit: query.limit,
+            offset: query.offset,
+            include: include,
+          }).then((messages) => {
+            reply(Serialization.jsonStringify(messages));
+          })
         })
       })
     },
