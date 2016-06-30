@@ -73,21 +73,21 @@ class IMAPBox {
     })
   }
 
-  fetchStream({messageId, options}) {
-    if (!messageId) {
-      throw new Error("IMAPConnection.fetchStream requires a message identifier.")
+  fetchStream({uid, options}) {
+    if (!uid) {
+      throw new Error("IMAPConnection.fetchStream requires a message uid.")
     }
     if (!options) {
       throw new Error("IMAPConnection.fetchStream requires an options object.")
     }
     return new Promise((resolve, reject) => {
-      const f = this._imap.fetch(messageId, options);
+      const f = this._imap.fetch(uid, options);
       f.on('message', (imapMessage) => {
         imapMessage.on('body', (stream) => {
           resolve(stream)
         })
       })
-      f.once('error', (error) => reject)
+      f.once('error', reject)
     })
   }
 

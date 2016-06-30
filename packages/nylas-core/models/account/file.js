@@ -26,7 +26,7 @@ module.exports = (sequelize, Sequelize) => {
           return message.getFolder()
           .then((folder) => connection.openBox(folder.name))
           .then((imapBox) => imapBox.fetchStream({
-            messageId: message.folderUID,
+            uid: message.folderImapUID,
             options: {
               bodies: [this.partId],
               struct: true,
