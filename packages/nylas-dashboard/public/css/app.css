@@ -2,11 +2,16 @@ body {
   background-image: -webkit-linear-gradient(top, rgba(232, 244, 250, 0.2), rgba(231, 231, 233, 1)), url(http://news.nationalgeographic.com/content/dam/news/2015/12/13/BookTalk%20K2/01BookTalkK2.jpg);
   background-size: cover;
   font-family: Roboto, sans-serif;
+  font-size: 12px;
 }
 
 h2 {
   padding-top: 10px;
   text-align: center;
+}
+
+pre {
+  margin: 0;
 }
 
 .account {
@@ -20,10 +25,14 @@ h2 {
 }
 
 .account h3 {
-  margin: 0; padding: 0;
+  font-size: 16px;
+  margin: 0;
+  padding: 0;
 }
 
 .account .section {
+  font-size: 14px;
+  padding: 10px 0;
   text-align: center;
 }
 

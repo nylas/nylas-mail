@@ -13,7 +13,6 @@ class Account extends React.Component {
       }
       return (
         <div className="error">
-          <strong> Sync Errored: </strong>
           <pre>
             {JSON.stringify(error, null, 2)}
           </pre>
@@ -26,9 +25,9 @@ class Account extends React.Component {
   render() {
     const {account, assignment, active} = this.props;
     const errorClass = account.sync_error ? ' errored' : ''
-    const syncCompletions = []
-    for (const time of account.lastSyncCompletions) {
-      syncCompletions.push(
+    const lastSyncCompletions = []
+    for (const time of account.last_sync_completions) {
+      lastSyncCompletions.push(
         <div key={time}>{new Date(time).toString()}</div>
       )
     }
@@ -36,9 +35,16 @@ class Account extends React.Component {
       <div className={`account${errorClass}`}>
         <h3>{account.email_address} {active ? '🌕' : '🌑'}</h3>
         <strong>{assignment}</strong>
+        <div className="section">Sync Policy</div>
         <pre>{JSON.stringify(account.sync_policy, null, 2)}</pre>
-        <div className="section">Last Sync Completions</div>
-        <pre>{syncCompletions}</pre>
+        <div className="section">Sync Cycles</div>
+        <div>
+          <b>First Sync Completion</b>:
+          <pre>{new Date(account.first_sync_completed_at).toString()}</pre>
+        </div>
+        <div><b>Last Sync Completions:</b></div>
+        <pre>{lastSyncCompletions}</pre>
+        <div className="section">Error</div>
         {this.renderError()}
       </div>
     );

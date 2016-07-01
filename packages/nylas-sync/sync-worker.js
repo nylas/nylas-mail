@@ -178,6 +178,10 @@ class SyncWorker {
   onSyncDidComplete() {
     const {afterSync} = this._account.syncPolicy;
 
+    if (!this._account.firstSyncCompletedAt) {
+      this._account.firstSyncCompletedAt = Date.now()
+    }
+
     let lastSyncCompletions = [...this._account.lastSyncCompletions]
     lastSyncCompletions = [Date.now(), ...lastSyncCompletions]
     if (lastSyncCompletions.length > 10) {
