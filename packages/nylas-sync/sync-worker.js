@@ -176,6 +176,15 @@ class SyncWorker {
   onSyncDidComplete() {
     const {afterSync} = this._account.syncPolicy;
 
+    let lastSyncCompletions = [...this._account.lastSyncCompletions]
+    lastSyncCompletions = [Date.now(), ...lastSyncCompletions]
+    if (lastSyncCompletions.length > 10) {
+      lastSyncCompletions.pop()
+    }
+    this._account.lastSyncCompletions = lastSyncCompletions
+    this._account.save()
+    console.log('Syncworker: Completed sync cycle')
+
     if (afterSync === 'idle') {
       return this._getIdleFolder()
       .then((idleFolder) => this._conn.openBox(idleFolder.name))

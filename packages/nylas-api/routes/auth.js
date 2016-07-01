@@ -49,8 +49,9 @@ const buildAccountWith = ({name, email, provider, settings, credentials}) => {
       name: name,
       provider: provider,
       emailAddress: email,
-      syncPolicy: SyncPolicy.defaultPolicy(),
       connectionSettings: settings,
+      syncPolicy: SyncPolicy.defaultPolicy(),
+      lastSyncCompletions: [],
     })
     account.setCredentials(credentials);
 
