@@ -1,20 +1,30 @@
 body {
-  background-image: -webkit-linear-gradient(top, rgba(232, 244, 250, 0.6), rgba(231, 231, 233, 1)), url(http://news.nationalgeographic.com/content/dam/news/2015/12/13/BookTalk%20K2/01BookTalkK2.jpg);
+  background-image: -webkit-linear-gradient(top, rgba(232, 244, 250, 0.2), rgba(231, 231, 233, 1)), url(http://news.nationalgeographic.com/content/dam/news/2015/12/13/BookTalk%20K2/01BookTalkK2.jpg);
   background-size: cover;
-  font-family: sans-serif;
+  font-family: Roboto, sans-serif;
+}
+
+h2 {
+  padding-top: 10px;
+  text-align: center;
 }
 
 .account {
-  display:inline-block;
+  display: inline-block;
+  border-radius: 5px;
   width: 300px;
-  background-color: white;
-  padding:15px;
-  margin:5px;
+  background-color: rgba(255, 255, 255, 0.6);
+  padding: 15px;
+  margin: 5px;
   vertical-align: top;
 }
 
 .account h3 {
   margin: 0; padding: 0;
+}
+
+.account .section {
+  text-align: center;
 }
 
 .account.errored {

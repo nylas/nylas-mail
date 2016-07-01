@@ -32,11 +32,19 @@ class Account extends React.Component {
   render() {
     const {account, assignment, active} = this.props;
     const errorClass = account.sync_error ? ' errored' : ''
+    const syncCompletions = []
+    for (const time of account.lastSyncCompletions) {
+      syncCompletions.push(
+        <div key={time}>{new Date(time).toString()}</div>
+      )
+    }
     return (
       <div className={`account${errorClass}`}>
         <h3>{account.email_address} {active ? '🌕' : '🌑'}</h3>
         <strong>{assignment}</strong>
         <pre>{JSON.stringify(account.sync_policy, null, 2)}</pre>
+        <div className="section">Last Sync Completions</div>
+        <pre>{syncCompletions}</pre>
         {this.renderError()}
       </div>
     );
