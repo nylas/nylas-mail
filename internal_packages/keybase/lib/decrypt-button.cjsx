@@ -100,7 +100,6 @@ class DecryptMessageButton extends React.Component
     borderClass = "border"
     decryptClass = "decrypt-bar"
     if @state.status?
-      console.warn(@state.status)
       if @state.status.indexOf("Message decrypted") >= 0
         title = @state.status
         borderClass = "border done-border"
@@ -117,8 +116,8 @@ class DecryptMessageButton extends React.Component
 
     decryptAttachments = false
     if @state.encryptedAttachments?.length >= 1
-      title = if @state.encryptedAttachments?.length == 1 then "Attachment Encrypted" else "Attachments Encrypted"
-      buttonLabel = if @state.encryptedAttachments?.length == 1 then "Decrypt Attachment" else "Decrypt Attachments"
+      title = if @state.encryptedAttachments.length == 1 then "Attachment Encrypted" else "Attachments Encrypted"
+      buttonLabel = if @state.encryptedAttachments.length == 1 then "Decrypt Attachment" else "Decrypt Attachments"
       decryptAttachments = <button onClick={ @_onClickDecryptAttachments } className="btn btn-toolbar">{buttonLabel}</button>
 
     if decryptAttachments or decryptBody

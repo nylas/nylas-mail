@@ -56,7 +56,7 @@ class PrivateKeyPopover extends React.Component
           {options}
         </select>
     else
-      console.error("How did you receive a message that you're not in the TO field for?")
+      throw new Error("How did you receive a message that you're not in the TO field for?")
 
   _onSelectAddress: (event) =>
     @setState

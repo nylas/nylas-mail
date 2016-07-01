@@ -11,16 +11,24 @@ class PassphrasePopover extends React.Component
     @state = {
       passphrase: ""
       placeholder: "PGP private key password"
-      classNames: "key-passphrase-input form-control"
+      error: false
+      mounted: true
     }
+
+  componentDidMount: -> 
+    @_mounted = true
+
+  componentWillUnmount: ->
+    @_mounted = false
 
   @propTypes:
     identity: React.PropTypes.instanceOf(Identity)
     addresses: React.PropTypes.array
 
   render: ->
+    classNames = if @state.error then "key-passphrase-input form-control bad-passphrase" else "key-passphrase-input form-control"
     <div className="passphrase-popover">
-      <input type="password" value={@state.passphrase} placeholder={@state.placeholder} className={@state.classNames} onChange={@_onPassphraseChange} onKeyUp={@_onCarriageReturn} />
+      <input type="password" value={@state.passphrase} placeholder={@state.placeholder} className={classNames} onChange={@_onPassphraseChange} onKeyUp={@_onKeyUp} />
       <button className="btn btn-toolbar" onClick={@_validatePassphrase}>Done</button>
     </div>
 
@@ -28,9 +36,9 @@ class PassphrasePopover extends React.Component
     @setState
       passphrase: event.target.value
       placeholder: "PGP private key password"
-      classNames: "key-passphrase-input form-control"
+      error: false
 
-  _onCarriageReturn: (event) =>
+  _onKeyUp: (event) =>
     if event.keyCode == 13
       @_validatePassphrase()
 
@@ -54,10 +62,11 @@ class PassphrasePopover extends React.Component
                   if parseInt(keyIndex, 10) == privateKeys.length - 1
                     if parseInt(emailIndex, 10) == @props.addresses.length - 1
                       # every key has been tried, the password failed on all of them
-                      @setState
-                        passphrase: ""
-                        placeholder: "Incorrect password"
-                        classNames: "key-passphrase-input form-control bad-passphrase"
+                      if @_mounted
+                        @setState
+                          passphrase: ""
+                          placeholder: "Incorrect password"
+                          error: true
                 else
                   # the password unlocked a key; that key should be used
                   @_onDone()

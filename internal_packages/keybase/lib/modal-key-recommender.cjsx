@@ -69,11 +69,11 @@ class ModalKeyRecommender extends React.Component
       )
         return
 
-    if _.every(@state.identities, (identity) -> identity.key?)
+    emptyIdents = _.filter(@state.identities, (identity) -> !identity.key?)
+    if emptyIdents.length == 0
       Actions.closePopover()
       @props.callback(@state.identities)
     else
-      emptyIdents = _.filter(@state.identities, (identity) -> !identity.key?)
       newIdents = []
       for idIndex of emptyIdents
         identity = emptyIdents[idIndex]
