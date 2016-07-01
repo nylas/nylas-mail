@@ -35,7 +35,9 @@ class SyncWorker {
   }
 
   closeConnection() {
-    this._conn.end();
+    if (this._conn) {
+      this._conn.end();
+    }
     this._conn = null
   }
 
