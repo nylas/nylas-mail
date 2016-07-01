@@ -36,10 +36,10 @@ class IMAPBox {
     if (range.length === 0) {
       return Rx.Observable.empty()
     }
-    if (!options) {
-      throw new Error("IMAPBox.fetch now requires an options object.")
-    }
     return Rx.Observable.create((observer) => {
+      if (!options) {
+        return observer.onError(new NylasError("IMAPBox.fetch now requires an options object."))
+      }
       const f = this._imap.fetch(range, options);
       f.on('message', (imapMessage) => {
         const parts = {};
@@ -75,10 +75,10 @@ class IMAPBox {
 
   fetchStream({uid, options}) {
     if (!uid) {
-      throw new Error("IMAPConnection.fetchStream requires a message uid.")
+      throw new NylasError("IMAPConnection.fetchStream requires a message uid.")
     }
     if (!options) {
-      throw new Error("IMAPConnection.fetchStream requires an options object.")
+      throw new NylasError("IMAPConnection.fetchStream requires an options object.")
     }
     return new Promise((resolve, reject) => {
       const f = this._imap.fetch(uid, options);
@@ -123,28 +123,28 @@ class IMAPBox {
 
   addFlags(range, flags) {
     if (!this._imap) {
-      throw new Error(`IMAPBox::addFlags - You need to call connect() first.`)
+      throw new NylasError(`IMAPBox::addFlags - You need to call connect() first.`)
     }
     return this._imap.addFlagsAsync(range, flags)
   }
 
   delFlags(range, flags) {
     if (!this._imap) {
-      throw new Error(`IMAPBox::delFlags - You need to call connect() first.`)
+      throw new NylasError(`IMAPBox::delFlags - You need to call connect() first.`)
     }
     return this._imap.delFlagsAsync(range, flags)
   }
 
   moveFromBox(range, folderName) {
     if (!this._imap) {
-      throw new Error(`IMAPBox::moveFromBox - You need to call connect() first.`)
+      throw new NylasError(`IMAPBox::moveFromBox - You need to call connect() first.`)
     }
     return this._imap.moveAsync(range, folderName)
   }
 
   closeBox({expunge = true} = {}) {
     if (!this._imap) {
-      throw new Error(`IMAPBox::closeBox - You need to call connect() first.`)
+      throw new NylasError(`IMAPBox::closeBox - You need to call connect() first.`)
     }
     return this._imap.closeBoxAsync(expunge)
   }
@@ -259,7 +259,7 @@ class IMAPConnection extends EventEmitter {
 
   serverSupports(capability) {
     if (!this._imap) {
-      throw new Error(`IMAPConnection::serverSupports - You need to call connect() first.`)
+      throw new NylasError(`IMAPConnection::serverSupports - You need to call connect() first.`)
     }
     this._imap.serverSupports(capability);
   }
@@ -269,7 +269,7 @@ class IMAPConnection extends EventEmitter {
    */
   openBox(folderName, {readOnly = false} = {}) {
     if (!this._imap) {
-      throw new Error(`IMAPConnection::openBox - You need to call connect() first.`)
+      throw new NylasError(`IMAPConnection::openBox - You need to call connect() first.`)
     }
     return this._imap.openBoxAsync(folderName, readOnly).then((box) =>
       new IMAPBox(this._imap, box)
@@ -278,35 +278,35 @@ class IMAPConnection extends EventEmitter {
 
   getBoxes() {
     if (!this._imap) {
-      throw new Error(`IMAPConnection::getBoxes - You need to call connect() first.`)
+      throw new NylasError(`IMAPConnection::getBoxes - You need to call connect() first.`)
     }
     return this._imap.getBoxesAsync()
   }
 
   addBox(folderName) {
     if (!this._imap) {
-      throw new Error(`IMAPConnection::addBox - You need to call connect() first.`)
+      throw new NylasError(`IMAPConnection::addBox - You need to call connect() first.`)
     }
     return this._imap.addBoxAsync(folderName)
   }
 
   renameBox(oldFolderName, newFolderName) {
     if (!this._imap) {
-      throw new Error(`IMAPConnection::renameBox - You need to call connect() first.`)
+      throw new NylasError(`IMAPConnection::renameBox - You need to call connect() first.`)
     }
     return this._imap.renameBoxAsync(oldFolderName, newFolderName)
   }
 
   delBox(folderName) {
     if (!this._imap) {
-      throw new Error(`IMAPConnection::delBox - You need to call connect() first.`)
+      throw new NylasError(`IMAPConnection::delBox - You need to call connect() first.`)
     }
     return this._imap.delBoxAsync(folderName)
   }
 
   runOperation(operation) {
     if (!this._imap) {
-      throw new Error(`IMAPConnection::runOperation - You need to call connect() first.`)
+      throw new NylasError(`IMAPConnection::runOperation - You need to call connect() first.`)
     }
     return new Promise((resolve, reject) => {
       this._queue.push({operation, resolve, reject});

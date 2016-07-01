@@ -329,7 +329,7 @@ class FetchMessagesInFolder {
   _runScan() {
     const {fetchedmin, fetchedmax} = this._category.syncState;
     if (!fetchedmin || !fetchedmax) {
-      throw new Error("Unseen messages must be fetched at least once before the first update/delete scan.")
+      throw new NylasError("Unseen messages must be fetched at least once before the first update/delete scan.")
     }
     return this._shouldRunDeepScan() ? this._runDeepScan() : this._runShallowScan()
   }

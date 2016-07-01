@@ -47,7 +47,7 @@ class SyncWorker {
       case MessageTypes.SYNCBACK_REQUESTED:
         this.syncNow(); break;
       default:
-        throw new Error(`Invalid message: ${msg}`)
+        throw new NylasError(`Invalid message: ${msg}`)
     }
   }
 
@@ -197,7 +197,7 @@ class SyncWorker {
       return Promise.resolve()
     }
 
-    throw new Error(`SyncWorker.onSyncDidComplete: Unknown afterSync behavior: ${afterSync}. Closing connection`)
+    throw new NylasError(`SyncWorker.onSyncDidComplete: Unknown afterSync behavior: ${afterSync}. Closing connection`)
   }
 
   scheduleNextSync() {
