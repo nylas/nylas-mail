@@ -20,6 +20,16 @@ module.exports = (sequelize, Sequelize) => {
       { fields: ['threadId'] },
     ],
     classMethods: {
+      requiredAssociationsForJSON: () => {
+        return [
+          {model: sequelize.models.folder},
+          {model: sequelize.models.label},
+          {
+            model: sequelize.models.message,
+            attributes: ['id'],
+          },
+        ]
+      },
       associate: ({Folder, Label, Message}) => {
         Thread.belongsToMany(Folder, {through: 'thread_folders'})
         Thread.belongsToMany(Label, {through: 'thread_labels'})

@@ -14,8 +14,14 @@ function inflateTransactions(db, transactionModels = []) {
 
   return Promise.all(Object.keys(byModel).map((modelName) => {
     const ids = _.pluck(byModel[modelName], "objectId");
-    const ModelKlass = db[modelName]
-    return ModelKlass.findAll({id: ids}).then((models = []) => {
+    const modelConstructorName = modelName.charAt(0).toUpperCase() + modelName.slice(1);
+    const ModelKlass = db[modelConstructorName]
+    let includes = [];
+    if (ModelKlass.requiredAssociationsForJSON) {
+      includes = ModelKlass.requiredAssociationsForJSON()
+    }
+    return ModelKlass.findAll({where: {id: ids}, include: includes})
+    .then((models = []) => {
       for (const model of models) {
         const tsForId = byObjectIds[model.id];
         if (!tsForId || tsForId.length === 0) { continue; }
