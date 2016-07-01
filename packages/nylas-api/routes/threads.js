@@ -1,7 +1,7 @@
 const Joi = require('joi');
 const _ = require('underscore');
 const Serialization = require('../serialization');
-const {createSyncbackRequest} = require('../route-helpers')
+const {createSyncbackRequest, findFolderOrLabel} = require('../route-helpers')
 
 module.exports = (server) => {
   server.route({
@@ -90,16 +90,16 @@ module.exports = (server) => {
         }
 
         // Association queries
+        let loadAssociatedModels = Promise.resolve();
         if (query.in) {
-          // BEN TODO FIX BEFORE COMMITTING
-          // include.push({
-          //   model: Folder,
-          //   where: { $or: [
-          //     { id: query.in },
-          //     { name: query.in },
-          //     { role: query.in },
-          //   ]},
-          // });
+          loadAssociatedModels = findFolderOrLabel({Folder, Label}, query.in)
+          .then((container) => {
+            include.push({
+              model: container.Model,
+              where: {id: container.id},
+            })
+            include.push({model: container.Model === Folder ? Label : Folder})
+          })
         } else {
           include.push({model: Folder})
           include.push({model: Label})
@@ -129,31 +129,35 @@ module.exports = (server) => {
         }
 
         if (query.view === 'count') {
-          Thread.count({
-            where: where,
-            include: include,
-          }).then((count) => {
-            reply(Serialization.jsonStringify({count: count}));
-          });
+          loadAssociatedModels.then(() => {
+            return Thread.count({
+              where: where,
+              include: include,
+            }).then((count) => {
+              reply(Serialization.jsonStringify({count: count}));
+            });
+          })
           return;
         }
 
-        Thread.findAll({
-          limit: request.query.limit,
-          offset: request.query.offset,
-          where: where,
-          include: include,
-        }).then((threads) => {
-          // if the user requested the expanded viw, fill message.folder using
-          // thread.folders, since it must be a superset.
-          if (query.view === 'expanded') {
-            for (const thread of threads) {
-              for (const msg of thread.messages) {
-                msg.folder = thread.folders.find(c => c.id === msg.folderId);
+        loadAssociatedModels.then(() => {
+          Thread.findAll({
+            limit: request.query.limit,
+            offset: request.query.offset,
+            where: where,
+            include: include,
+          }).then((threads) => {
+            // if the user requested the expanded viw, fill message.folder using
+            // thread.folders, since it must be a superset.
+            if (query.view === 'expanded') {
+              for (const thread of threads) {
+                for (const msg of thread.messages) {
+                  msg.folder = thread.folders.find(c => c.id === msg.folderId);
+                }
               }
             }
-          }
-          reply(Serialization.jsonStringify(threads));
+            reply(Serialization.jsonStringify(threads));
+          })
         })
       })
     },
