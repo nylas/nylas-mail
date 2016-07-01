@@ -1,6 +1,6 @@
 global.Promise = require('bluebird');
 
-const {DatabaseConnector, NylasError} = require(`nylas-core`)
+const {DatabaseConnector} = require(`nylas-core`)
 const SyncProcessManager = require('./sync-process-manager');
 
 const manager = new SyncProcessManager();
@@ -18,5 +18,4 @@ DatabaseConnector.forShared().then((db) => {
   });
 });
 
-global.NylasError = NylasError;
 global.manager = manager;

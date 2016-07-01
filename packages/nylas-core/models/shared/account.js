@@ -42,7 +42,7 @@ module.exports = (sequelize, Sequelize) => {
 
       setCredentials: function setCredentials(json) {
         if (!(json instanceof Object)) {
-          throw new NylasError("Call setCredentials with JSON!")
+          throw new Error("Call setCredentials with JSON!")
         }
         const cipher = crypto.createCipher(DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD)
         let crypted = cipher.update(JSON.stringify(json), 'utf8', 'hex')

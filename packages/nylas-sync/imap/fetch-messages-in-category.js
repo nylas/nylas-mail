@@ -18,7 +18,7 @@ class FetchMessagesInFolder {
     this._category = category;
     this._options = options;
     if (!this._category) {
-      throw new NylasError("FetchMessagesInFolder requires a category")
+      throw new Error("FetchMessagesInFolder requires a category")
     }
   }
 
@@ -273,7 +273,7 @@ class FetchMessagesInFolder {
     return this._imap.openBox(this._category.name)
     .then((box) => {
       if (box.persistentUIDs === false) {
-        return Promise.reject(new NylasError("Mailbox does not support persistentUIDs."))
+        return Promise.reject(new Error("Mailbox does not support persistentUIDs."))
       }
       if (box.uidvalidity !== this._category.syncState.uidvalidity) {
         return this._recoverFromUIDInvalidity()
@@ -333,7 +333,7 @@ class FetchMessagesInFolder {
   _runScan() {
     const {fetchedmin, fetchedmax} = this._category.syncState;
     if (!fetchedmin || !fetchedmax) {
-      throw new NylasError("Unseen messages must be fetched at least once before the first update/delete scan.")
+      throw new Error("Unseen messages must be fetched at least once before the first update/delete scan.")
     }
     return this._shouldRunDeepScan() ? this._runDeepScan() : this._runShallowScan()
   }

@@ -1,8 +1,7 @@
-const {PubsubConnector, DatabaseConnector, NylasError} = require(`nylas-core`)
+const {PubsubConnector, DatabaseConnector} = require(`nylas-core`)
 const {processors} = require('./processors')
 
 global.Promise = require('bluebird');
-global.NylasError = NylasError;
 
 // List of the attributes of Message that the processor should be allowed to change.
 // The message may move between folders, get starred, etc. while it's being

@@ -1,5 +1,4 @@
 const IMAPConnection = require('../../imap-connection')
-const NylasError = require('../../nylas-error')
 
 module.exports = (sequelize, Sequelize) => {
   const File = sequelize.define('file', {
@@ -36,7 +35,7 @@ module.exports = (sequelize, Sequelize) => {
             if (stream) {
               return Promise.resolve(stream)
             }
-            return Promise.reject(new NylasError(`Unable to fetch binary data for File ${this.id}`))
+            return Promise.reject(new Error(`Unable to fetch binary data for File ${this.id}`))
           })
           .finally(() => connection.end())
         })

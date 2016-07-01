@@ -1,5 +1,4 @@
 global.Promise = require('bluebird');
-global.NylasError = require('./nylas-error');
 
 module.exports = {
   Provider: {
@@ -12,5 +11,4 @@ module.exports = {
   SyncPolicy: require('./sync-policy'),
   SchedulerUtils: require('./scheduler-utils'),
   MessageTypes: require('./message-types'),
-  NylasError,
 }

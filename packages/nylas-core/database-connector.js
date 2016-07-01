@@ -36,7 +36,7 @@ class DatabaseConnector {
 
   _sequelizeForAccount(accountId) {
     if (!accountId) {
-      return Promise.reject(new NylasError(`You need to pass an accountId to init the database!`))
+      return Promise.reject(new Error(`You need to pass an accountId to init the database!`))
     }
     const sequelize = new Sequelize(accountId, '', '', {
       storage: path.join(STORAGE_DIR, `a-${accountId}.sqlite`),

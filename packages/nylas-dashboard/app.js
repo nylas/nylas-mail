@@ -1,10 +1,9 @@
 const Hapi = require('hapi');
 const HapiWebSocket = require('hapi-plugin-websocket');
 const Inert = require('inert');
-const {DatabaseConnector, PubsubConnector, SchedulerUtils, NylasError} = require(`nylas-core`);
+const {DatabaseConnector, PubsubConnector, SchedulerUtils} = require(`nylas-core`);
 
 global.Promise = require('bluebird');
-global.NylasError = NylasError;
 
 const server = new Hapi.Server();
 server.connection({ port: process.env.PORT / 1 + 1 || 5101 });

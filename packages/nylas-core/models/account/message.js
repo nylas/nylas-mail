@@ -1,6 +1,5 @@
 const crypto = require('crypto');
 const IMAPConnection = require('../../imap-connection')
-const NylasError = require('../../nylas-error')
 const {JSONType, JSONARRAYType} = require('../../database-types');
 
 
@@ -83,7 +82,7 @@ module.exports = (sequelize, Sequelize) => {
             if (message) {
               return Promise.resolve(`${message.headers}${message.body}`)
             }
-            return Promise.reject(new NylasError(`Unable to fetch raw message for Message ${this.id}`))
+            return Promise.reject(new Error(`Unable to fetch raw message for Message ${this.id}`))
           })
           .finally(() => connection.end())
         })

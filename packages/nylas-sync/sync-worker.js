@@ -5,6 +5,9 @@ const {
   DatabaseConnector,
   MessageTypes,
 } = require('nylas-core');
+const {
+  jsonError,
+} = require('./sync-utils')
 
 const {CLAIM_DURATION} = SchedulerUtils;
 
@@ -53,7 +56,7 @@ class SyncWorker {
       case MessageTypes.SYNCBACK_REQUESTED:
         this.syncNow(); break;
       default:
-        throw new NylasError(`Invalid message: ${msg}`)
+        throw new Error(`Invalid message: ${msg}`)
     }
   }
 
@@ -87,10 +90,10 @@ class SyncWorker {
     const credentials = this._account.decryptedCredentials();
 
     if (!settings || !settings.imap_host) {
-      return Promise.reject(new NylasError("ensureConnection: There are no IMAP connection settings for this account."))
+      return Promise.reject(new Error("ensureConnection: There are no IMAP connection settings for this account."))
     }
     if (!credentials) {
-      return Promise.reject(new NylasError("ensureConnection: There are no IMAP connection credentials for this account."))
+      return Promise.reject(new Error("ensureConnection: There are no IMAP connection credentials for this account."))
     }
 
     const conn = new IMAPConnection(this._db, Object.assign({}, settings, credentials));
@@ -175,7 +178,7 @@ class SyncWorker {
       // Continue to retry if it was a network error
       return Promise.resolve()
     }
-    this._account.syncError = error
+    this._account.syncError = jsonError(error)
     return this._account.save()
   }
 
@@ -207,7 +210,7 @@ class SyncWorker {
       return Promise.resolve()
     }
 
-    throw new NylasError(`SyncWorker.onSyncDidComplete: Unknown afterSync behavior: ${afterSync}. Closing connection`)
+    throw new Error(`SyncWorker.onSyncDidComplete: Unknown afterSync behavior: ${afterSync}. Closing connection`)
   }
 
   scheduleNextSync() {

@@ -7,9 +7,10 @@ class Account extends React.Component {
     const {account} = this.props;
 
     if (account.sync_error != null) {
+      const {message, stack} = account.sync_error
       const error = {
-        message: account.sync_error.message,
-        stack: account.sync_error.stack ? account.sync_error.stack.split('\n').slice(0, 4) : [],
+        message,
+        stack: stack.slice(0, 4),
       }
       return (
         <div className="error">
