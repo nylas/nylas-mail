@@ -6,6 +6,10 @@ const {Capabilities} = IMAPConnection;
 
 const MessageFlagAttributes = ['id', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']
 
+const SHALLOW_SCAN_UID_COUNT = 1000;
+const FETCH_MESSAGES_FIRST_COUNT = 100;
+const FETCH_MESSAGES_COUNT = 200;
+
 class FetchMessagesInFolder {
   constructor(category, options) {
     this._imap = null
@@ -293,7 +297,7 @@ class FetchMessagesInFolder {
     // sync based on number of messages / age of messages.
 
     if (isFirstSync) {
-      const lowerbound = Math.max(1, boxUidnext - 150);
+      const lowerbound = Math.max(1, boxUidnext - FETCH_MESSAGES_FIRST_COUNT);
       desiredRanges.push({min: lowerbound, max: boxUidnext})
     } else {
       if (savedSyncState.fetchedmax < boxUidnext) {
@@ -302,7 +306,7 @@ class FetchMessagesInFolder {
         console.log(" --- fetchedmax == uidnext, nothing more recent to fetch.")
       }
       if (savedSyncState.fetchedmin > 1) {
-        const lowerbound = Math.max(1, savedSyncState.fetchedmin - 1000);
+        const lowerbound = Math.max(1, savedSyncState.fetchedmin - FETCH_MESSAGES_COUNT);
         desiredRanges.push({min: lowerbound, max: savedSyncState.fetchedmin})
       } else {
         console.log(" --- fetchedmin == 1, nothing older to fetch.")
@@ -353,7 +357,7 @@ class FetchMessagesInFolder {
       }
       shallowFetch = this._box.fetchUIDAttributes(`1:*`, {changedsince: highestmodseq});
     } else {
-      const range = `${this._getLowerBoundUID(1000)}:*`;
+      const range = `${this._getLowerBoundUID(SHALLOW_SCAN_UID_COUNT)}:*`;
       console.log(` - Shallow attribute scan (using range: ${range})`)
       shallowFetch = this._box.fetchUIDAttributes(range);
     }

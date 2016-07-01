@@ -6,17 +6,21 @@ const {
   MessageTypes,
 } = require('nylas-core');
 
+const {CLAIM_DURATION} = SchedulerUtils;
+
 const FetchFolderList = require('./imap/fetch-category-list')
 const FetchMessagesInFolder = require('./imap/fetch-messages-in-category')
 const SyncbackTaskFactory = require('./syncback-task-factory')
 
 
 class SyncWorker {
-  constructor(account, db) {
+  constructor(account, db, onExpired) {
     this._db = db;
     this._conn = null;
     this._account = account;
+    this._startTime = Date.now();
     this._lastSyncTime = null;
+    this._onExpired = onExpired;
 
     this._syncTimer = null;
     this._expirationTimer = null;
@@ -203,6 +207,13 @@ class SyncWorker {
   }
 
   scheduleNextSync() {
+    if (Date.now() - this._startTime > CLAIM_DURATION) {
+      console.log("SyncWorker: - Has held account for more than CLAIM_DURATION, returning to pool.");
+      this.cleanup();
+      this._onExpired();
+      return;
+    }
+
     SchedulerUtils.checkIfAccountIsActive(this._account.id).then((active) => {
       const {intervals} = this._account.syncPolicy;
       const interval = active ? intervals.active : intervals.inactive;

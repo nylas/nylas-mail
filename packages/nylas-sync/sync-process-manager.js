@@ -10,7 +10,6 @@ const {
   ACCOUNTS_CLAIMED_PREFIX,
   HEARTBEAT_FOR,
   HEARTBEAT_EXPIRES,
-  CLAIM_DURATION,
   forEachAccountList,
 } = SchedulerUtils;
 
@@ -150,9 +149,14 @@ class SyncProcessManager {
     const dst = ACCOUNTS_FOR(IDENTITY);
 
     return this._waitForAccountClient.brpoplpushAsync(src, dst, 10000).then((accountId) => {
-      if (!accountId) { return }
+      if (!accountId) {
+        return Promise.resolve();
+      }
       this.addWorkerForAccountId(accountId);
-      setTimeout(() => this.removeWorker(), CLAIM_DURATION);
+
+      // If we've added an account, wait a second before asking for another one.
+      // Spacing them out is probably healthy.
+      return Promise.delay(2000);
     });
   }
 
@@ -167,25 +171,23 @@ class SyncProcessManager {
             return;
           }
           console.log(`ProcessManager: Starting worker for Account ${accountId}`)
-          this._workers[account.id] = new SyncWorker(account, db);
+          this._workers[account.id] = new SyncWorker(account, db, () => {
+            this.removeWorkerForAccountId(accountId)
+          });
         });
       });
     });
   }
 
-  removeWorker() {
+  removeWorkerForAccountId(accountId) {
     const src = ACCOUNTS_FOR(IDENTITY);
     const dst = ACCOUNTS_UNCLAIMED;
 
-    return PubsubConnector.broadcastClient().rpoplpushAsync(src, dst).then((accountId) => {
-      if (!accountId) {
-        return;
-      }
-
-      console.log(`ProcessManager: Returning account ${accountId} to unclaimed pool.`)
-
-      if (this._workers[accountId]) {
-        this._workers[accountId].cleanup();
+    return PubsubConnector.broadcastClient().lremAsync(src, 1, accountId).then((didRemove) => {
+      if (didRemove) {
+        PubsubConnector.broadcastClient().rpushAsync(dst, accountId)
+      } else {
+        throw new Error("Wanted to return item to pool, but didn't have claim on it.")
       }
       this._workers[accountId] = null;
     });
