@@ -37,13 +37,9 @@ pre {
 }
 
 .account.errored {
-  background-image: linear-gradient(to bottom,#f2dede 0,#e7c3c3 100%);
-  background-repeat: repeat-x;
-  border-color: #dca7a7;
-  border: 1px solid;
   color: #a94442;
   border-radius: 4px;
-  background-color: #f2dede;
+  background-color: rgba(231, 195, 195, 0.6);
 }
 
 .account .error pre {
