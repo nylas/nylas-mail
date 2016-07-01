@@ -14,11 +14,29 @@ export class Notifier {
     this.activationTime = Date.now();
     this.unnotifiedQueue = [];
     this.hasScheduledNotify = false;
+
+    this.activeNotifications = {};
+    this.unlisteners.push(DatabaseStore.listen(this._onDatabaseUpdated, this));
   }
 
   unlisten() {
     for (const unlisten of this.unlisteners) {
       unlisten();
+    }
+  }
+
+  _onDatabaseUpdated({objectClass, objects}) {
+    if (objectClass === 'Thread') {
+      objects
+        .filter((thread) => !thread.unread)
+        .forEach((thread) => this._onThreadIsRead(thread));
+    }
+  }
+
+  _onThreadIsRead({id: threadId}) {
+    if (threadId in this.activeNotifications) {
+      this.activeNotifications[threadId].forEach((n) => n.close());
+      delete this.activeNotifications[threadId];
     }
   }
 
@@ -43,7 +61,7 @@ export class Notifier {
       body = null
     }
 
-    NativeNotifications.displayNotification({
+    const notification = NativeNotifications.displayNotification({
       title: title,
       subtitle: subtitle,
       body: body,
@@ -63,6 +81,12 @@ export class Notifier {
         });
       },
     });
+
+    if (!this.activeNotifications[thread.id]) {
+      this.activeNotifications[thread.id] = [notification];
+    } else {
+      this.activeNotifications[thread.id].push(notification);
+    }
   }
 
   _notifyMessages() {

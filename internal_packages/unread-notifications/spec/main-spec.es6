@@ -21,9 +21,11 @@ describe("UnreadNotifications", function UnreadNotifications() {
     const account = AccountStore.accounts()[0];
 
     this.threadA = new Thread({
+      id: 'A',
       categories: [inbox],
     });
     this.threadB = new Thread({
+      id: 'B',
       categories: [archive],
     });
 
@@ -108,7 +110,9 @@ describe("UnreadNotifications", function UnreadNotifications() {
       return Promise.resolve(null);
     });
 
-    spyOn(NativeNotifications, 'displayNotification').andCallFake(() => false)
+    this.notification = jasmine.createSpyObj('notification', ['close']);
+    spyOn(NativeNotifications, 'displayNotification').andReturn(this.notification);
+
     spyOn(Promise, 'props').andCallFake((dict) => {
       const dictOut = {};
       for (const key of Object.keys(dict)) {
@@ -272,6 +276,27 @@ describe("UnreadNotifications", function UnreadNotifications() {
         expect(NativeNotifications.displayNotification).not.toHaveBeenCalled()
       });
     });
+  });
+
+  it("clears notifications when a thread is read", () => {
+    waitsForPromise(() => {
+      return this.notifier._onNewMailReceived({message: [this.msg1]})
+      .then(() => {
+        expect(NativeNotifications.displayNotification).toHaveBeenCalled();
+        expect(this.notification.close).not.toHaveBeenCalled();
+        this.notifier._onThreadIsRead(this.threadA);
+        expect(this.notification.close).toHaveBeenCalled();
+      });
+    });
+  });
+
+  it("detects changes that may be a thread being read", () => {
+    const unreadThread = { unread: true };
+    const readThread = { unread: false };
+    spyOn(this.notifier, '_onThreadIsRead');
+    this.notifier._onDatabaseUpdated({ objectClass: 'Thread', objects: [unreadThread, readThread]});
+    expect(this.notifier._onThreadIsRead.calls.length).toEqual(1);
+    expect(this.notifier._onThreadIsRead).toHaveBeenCalledWith(readThread);
   });
 
   it("should play a sound when it gets new mail", () => {
