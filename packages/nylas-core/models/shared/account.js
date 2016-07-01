@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const {JSONType} = require('../../database-types');
+const {JSONType, JSONARRAYType} = require('../../database-types');
 
 const {DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD} = process.env;
 
@@ -12,6 +12,7 @@ module.exports = (sequelize, Sequelize) => {
     connectionCredentials: Sequelize.STRING,
     syncPolicy: JSONType('syncPolicy'),
     syncError: JSONType('syncError', {defaultValue: null}),
+    lastSyncCompletions: JSONARRAYType('lastSyncCompletions'),
   }, {
     classMethods: {
       associate: ({AccountToken}) => {
@@ -29,6 +30,7 @@ module.exports = (sequelize, Sequelize) => {
           connection_settings: this.connectionSettings,
           sync_policy: this.syncPolicy,
           sync_error: this.syncError,
+          lastSyncCompletions: this.lastSyncCompletions,
         }
       },
 
