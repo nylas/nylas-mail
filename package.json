@@ -22,8 +22,8 @@
     "lerna": "2.0.0-beta.20"
   },
   "scripts": {
-    "start": "foreman start -f Procfile.dev",
-    "postinstall": "lerna bootstrap"
+    "start": "node packages/nylas-api/app.js",
+    "postinstall": ""
   },
   "repository": {
     "type": "git",
