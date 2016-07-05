@@ -2,14 +2,29 @@ const Hapi = require('hapi');
 const HapiWebSocket = require('hapi-plugin-websocket');
 const Inert = require('inert');
 const {DatabaseConnector, PubsubConnector, SchedulerUtils} = require(`nylas-core`);
+const fs = require('fs');
+const path = require('path');
 
 global.Promise = require('bluebird');
 
 const server = new Hapi.Server();
 server.connection({ port: process.env.PORT / 1 + 1 || 5101 });
 
+
+const attach = (directory) => {
+  const routesDir = path.join(__dirname, directory)
+  fs.readdirSync(routesDir).forEach((filename) => {
+    if (filename.endsWith('.js')) {
+      const routeFactory = require(path.join(routesDir, filename));
+      routeFactory(server);
+    }
+  });
+}
+
 DatabaseConnector.forShared().then(({Account}) => {
   server.register([HapiWebSocket, Inert], () => {
+    attach('./routes/')
+
     server.route({
       method: "POST",
       path: "/accounts",

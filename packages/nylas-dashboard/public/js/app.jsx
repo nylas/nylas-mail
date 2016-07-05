@@ -1,6 +1,7 @@
 /* eslint react/react-in-jsx-scope: 0*/
 const React = window.React;
 const ReactDOM = window.ReactDOM;
+const SyncPolicy = window.SyncPolicy;
 
 class Account extends React.Component {
   renderError() {
@@ -36,8 +37,10 @@ class Account extends React.Component {
       <div className={`account${errorClass}`}>
         <h3>{account.email_address} {active ? '🌕' : '🌑'}</h3>
         <strong>{assignment}</strong>
-        <div className="section">Sync Policy</div>
-        <pre>{JSON.stringify(account.sync_policy, null, 2)}</pre>
+        <SyncPolicy
+          accountId={account.id}
+          stringifiedSyncPolicy={JSON.stringify(account.sync_policy, null, 2)}
+        />
         <div className="section">Sync Cycles</div>
         <div>
           <b>First Sync Completion</b>:

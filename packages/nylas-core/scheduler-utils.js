@@ -24,7 +24,7 @@ const forEachAccountList = (forEachCallback) => {
 const assignPolicy = (accountId, policy) => {
   console.log(`Changing policy for ${accountId} to ${JSON.stringify(policy)}`)
   const DatabaseConnector = require('./database-connector');
-  DatabaseConnector.forShared().then(({Account}) => {
+  return DatabaseConnector.forShared().then(({Account}) => {
     Account.find({where: {id: accountId}}).then((account) => {
       account.syncPolicy = policy;
       account.save()
