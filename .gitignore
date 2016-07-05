@@ -3,3 +3,8 @@ node_modules
 dump.rdb
 *npm-debug.log
 storage/
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
