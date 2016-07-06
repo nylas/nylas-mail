@@ -3,6 +3,7 @@ node_modules
 dump.rdb
 *npm-debug.log
 storage/
+lerna-debug.log
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
