@@ -32,6 +32,19 @@ const assignPolicy = (accountId, policy) => {
   });
 }
 
+const assignPolicyToAcounts = (accountIds, policy) => {
+  console.log(`Changing policy for ${accountIds} to ${JSON.stringify(policy)}`)
+  const DatabaseConnector = require('./database-connector');
+  return DatabaseConnector.forShared().then(({Account}) => {
+    Account.findAll({where: {id: {$or: accountIds}}}).then((accounts) => {
+      for (const account of accounts) {
+        account.syncPolicy = policy;
+        account.save()
+      }
+    })
+  });
+}
+
 const checkIfAccountIsActive = (accountId) => {
   const client = PubsubConnector.broadcastClient();
   const key = ACTIVE_KEY_FOR(accountId);
@@ -69,6 +82,7 @@ module.exports = {
   CLAIM_DURATION,
 
   assignPolicy,
+  assignPolicyToAcounts,
   forEachAccountList,
   listActiveAccounts,
   markAccountIsActive,

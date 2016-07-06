@@ -1,7 +1,7 @@
 /* eslint react/react-in-jsx-scope: 0*/
 const React = window.React;
 const ReactDOM = window.ReactDOM;
-const SyncPolicy = window.SyncPolicy;
+const {SyncPolicy, SetAllSyncPolicies} = window;
 
 class Account extends React.Component {
   renderError() {
@@ -119,10 +119,12 @@ class Root extends React.Component {
   }
 
   render() {
+    const ids = Object.keys(this.state.accounts);
     return (
       <div>
+        <SetAllSyncPolicies accountIds={ids.map((id) => parseInt(id, 10))} />
         {
-          Object.keys(this.state.accounts).sort((a, b) => a.localeCompare(b)).map((id) =>
+          ids.sort((a, b) => a.localeCompare(b)).map((id) =>
             <Account
               key={id}
               active={this.state.activeAccountIds.includes(id)}

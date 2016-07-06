@@ -27,4 +27,28 @@ module.exports = (server) => {
       .then(() => reply("Success"));
     },
   });
+
+  server.route({
+    method: 'POST',
+    path: '/sync-policy',
+    config: {
+      description: 'Set the sync policy for several accounts',
+      notes: 'Notes go here',
+      tags: ['sync-policy'],
+      validate: {
+        payload: {
+          sync_policy: Joi.string(),
+          account_ids: Joi.array().items(Joi.number().integer().min(0)),
+        },
+      },
+      response: {
+        schema: Joi.string(),
+      },
+    },
+    handler: (request, reply) => {
+      const newPolicy = JSON.parse(request.payload.sync_policy);
+      SchedulerUtils.assignPolicyToAcounts(request.payload.account_ids, newPolicy)
+      .then(() => reply("Success"));
+    },
+  })
 };
