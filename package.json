@@ -9,7 +9,6 @@
     "redis": "2.x.x",
     "rx": "4.x.x",
     "sequelize": "3.x.x",
-    "sqlite3": "https://github.com/bengotow/node-sqlite3/archive/bengotow/usleep-v3.1.4.tar.gz",
     "underscore": "1.x.x"
   },
   "devDependencies": {
