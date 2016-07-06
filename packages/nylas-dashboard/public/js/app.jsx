@@ -1,7 +1,7 @@
 /* eslint react/react-in-jsx-scope: 0*/
 const React = window.React;
 const ReactDOM = window.ReactDOM;
-const {SyncPolicy, SetAllSyncPolicies} = window;
+const {SyncPolicy, SetAllSyncPolicies, AccountFilter} = window;
 
 class Account extends React.Component {
   renderError() {
@@ -69,6 +69,7 @@ class Root extends React.Component {
       accounts: {},
       assignments: {},
       activeAccountIds: [],
+      visibleAccounts: AccountFilter.states.all,
     };
   }
 
@@ -118,10 +119,27 @@ class Root extends React.Component {
     this.setState({accounts});
   }
 
+  onFilter() {
+    this.setState({visibleAccounts: document.getElementById('account-filter').value});
+  }
+
   render() {
-    const ids = Object.keys(this.state.accounts);
+    let ids = Object.keys(this.state.accounts);
+
+    switch (this.state.visibleAccounts) {
+      case AccountFilter.states.errored:
+        ids = ids.filter((id) => this.state.accounts[id].sync_error)
+        break;
+      case AccountFilter.states.notErrored:
+        ids = ids.filter((id) => !this.state.accounts[id].sync_error)
+        break;
+      default:
+        break;
+    }
+
     return (
       <div>
+        <AccountFilter id="account-filter" onChange={() => this.onFilter.call(this)} />
         <SetAllSyncPolicies accountIds={ids.map((id) => parseInt(id, 10))} />
         {
           ids.sort((a, b) => a.localeCompare(b)).map((id) =>

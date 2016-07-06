@@ -44,7 +44,7 @@ class SetAllSyncPolicies extends React.Component {
             <textarea id="sync-policy-all">
             </textarea>
             <button onClick={() => this.applyToAllAccounts.call(this, this.props.accountIds)}>
-              Apply To All Accounts
+              Apply To All Displayed Accounts
             </button>
             <span className="action-link" onClick={() => this.cancel.call(this)}> Cancel </span>
           </div>
@@ -52,7 +52,9 @@ class SetAllSyncPolicies extends React.Component {
       )
     }
     return (
-      <button id="set-all-sync" onClick={() => this.edit.call(this)}> Set All Sync Policies </button>
+      <span className="action-link" id="set-all-sync" onClick={() => this.edit.call(this)}>
+        Set sync policies for currently displayed accounts
+      </span>
     )
   }
 }
