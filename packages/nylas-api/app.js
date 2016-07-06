@@ -31,30 +31,38 @@ const plugins = [Inert, Vision, HapiBasicAuth, HapiBoom, {
 }];
 
 let sharedDb = null;
-const {DatabaseConnector, SchedulerUtils} = require(`nylas-core`)
-DatabaseConnector.forShared().then((db) => {
-  sharedDb = db;
-});
 
 const validate = (request, username, password, callback) => {
-  const {AccountToken} = sharedDb;
+  const {DatabaseConnector, SchedulerUtils} = require(`nylas-core`);
 
-  AccountToken.find({
-    where: {
-      value: username,
-    },
-  }).then((token) => {
-    if (!token) {
-      callback(null, false, {});
-      return
-    }
-    token.getAccount().then((account) => {
-      if (!account) {
+  let getSharedDb = null;
+  if (sharedDb) {
+    getSharedDb = Promise.resolve(sharedDb)
+  } else {
+    getSharedDb = DatabaseConnector.forShared()
+  }
+
+  getSharedDb.then((db) => {
+    sharedDb = db;
+    const {AccountToken} = db;
+
+    AccountToken.find({
+      where: {
+        value: username,
+      },
+    }).then((token) => {
+      if (!token) {
         callback(null, false, {});
-        return;
+        return
       }
-      SchedulerUtils.markAccountIsActive(account.id)
-      callback(null, true, account);
+      token.getAccount().then((account) => {
+        if (!account) {
+          callback(null, false, {});
+          return;
+        }
+        SchedulerUtils.markAccountIsActive(account.id)
+        callback(null, true, account);
+      });
     });
   });
 };
