@@ -24,7 +24,6 @@
   1. `ssh i ~/.ssh/k2-keypair.pem some-ec2-box-we-own.amazonaws.com`
 1. Connect to Elastic Beanstalk instances: `eb init`. Select correct region. Select correct application.
 
-
 # Developing Locally:
 
 ```
