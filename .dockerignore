@@ -1,0 +1,6 @@
+.git
+.gitignore
+README.md
+Procfile*
+*node_modules*
+docs
