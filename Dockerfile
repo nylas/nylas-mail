@@ -6,7 +6,7 @@ FROM node:6
 COPY . /home
 WORKDIR /home
 
-RUN npm install
+RUN npm install --production
 
 # This will do an `npm install` for each of our modules and then link them
 # all together. See more about Lerna here: https://github.com/lerna/lerna
