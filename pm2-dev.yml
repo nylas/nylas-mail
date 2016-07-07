@@ -1,0 +1,24 @@
+apps:
+  - script   : packages/nylas-api/app.js
+    name     : api
+    env      :
+      DB_ENCRYPTION_ALGORITHM : "aes-256-ctr"
+      DB_ENCRYPTION_PASSWORD : "d6F3Efeq"
+      GMAIL_CLIENT_ID : "271342407743-nibas08fua1itr1utq9qjladbkv3esdm.apps.googleusercontent.com"
+      GMAIL_CLIENT_SECRET : "WhmxErj-ei6vJXLocNhBbfBF"
+      GMAIL_REDIRECT_URL : "http://localhost:5100/auth/gmail/oauthcallback"
+  - script   : packages/nylas-sync/app.js
+    name     : sync
+    env      :
+      DB_ENCRYPTION_ALGORITHM : "aes-256-ctr"
+      DB_ENCRYPTION_PASSWORD : "d6F3Efeq"
+  - script   : packages/nylas-dashboard/app.js
+    name     : dashboard
+    env      :
+      DB_ENCRYPTION_ALGORITHM : "aes-256-ctr"
+      DB_ENCRYPTION_PASSWORD : "d6F3Efeq"
+  - script   : packages/nylas-message-processor/app.js
+    name     : processor
+    env      :
+      DB_ENCRYPTION_ALGORITHM : "aes-256-ctr"
+      DB_ENCRYPTION_PASSWORD : "d6F3Efeq"

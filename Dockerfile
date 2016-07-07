@@ -6,4 +6,4 @@ COPY package.json /usr/src/app/
 RUN npm install
 COPY . /usr/src/app
 EXPOSE 8080
-CMD [ "npm", "run", "start-aws"]
+CMD [ "./node_modules/pm2/bin/pm2", "start", "./pm2-prod-${AWS_SERVICE_NAME}.yml"]

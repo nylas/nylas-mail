@@ -1,0 +1,9 @@
+apps:
+  - script   : packages/nylas-api/app.js
+    name     : api
+    instances: 0
+    exec_mode: cluster
+  - script   : packages/nylas-dashboard/app.js
+    name     : dashboard
+    instances: 1
+    exec_mode: cluster

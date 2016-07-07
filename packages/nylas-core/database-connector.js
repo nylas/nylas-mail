@@ -43,7 +43,7 @@ class DatabaseConnector {
       });
     }
 
-    return Sequelize(dbname, '', '', {
+    return new Sequelize(dbname, '', '', {
       storage: path.join(STORAGE_DIR, `${dbname}.sqlite`),
       dialect: "sqlite",
       logging: false,
