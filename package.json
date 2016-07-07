@@ -26,7 +26,6 @@
   },
   "scripts": {
     "start": "./node_modules/pm2/bin/pm2 start ./pm2-dev.yml  --no-daemon",
-    "start-aws": "node start-aws.js",
     "postinstall": "node_modules/.bin/lerna bootstrap"
   },
   "repository": {
