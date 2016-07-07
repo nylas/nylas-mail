@@ -189,11 +189,14 @@ class SyncWorker {
       this._account.firstSyncCompletedAt = Date.now()
     }
 
+    const now = Date.now();
+    const syncGraphTimeLength = 60 * 30; // 30 minutes, should be the same as SyncGraph.config.timeLength
     let lastSyncCompletions = [...this._account.lastSyncCompletions]
-    lastSyncCompletions = [Date.now(), ...lastSyncCompletions]
-    if (lastSyncCompletions.length > 10) {
-      lastSyncCompletions.pop()
+    lastSyncCompletions = [now, ...lastSyncCompletions]
+    while (now - lastSyncCompletions[lastSyncCompletions.length - 1] > 1000 * syncGraphTimeLength) {
+      lastSyncCompletions.pop();
     }
+
     this._account.lastSyncCompletions = lastSyncCompletions
     this._account.save()
     console.log('Syncworker: Completed sync cycle')

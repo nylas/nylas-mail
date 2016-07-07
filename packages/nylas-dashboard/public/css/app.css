@@ -1,6 +1,9 @@
 body {
+  background-image: url(http://news.nationalgeographic.com/content/dam/news/2015/12/13/BookTalk%20K2/01BookTalkK2.jpg);
+  background-image: -moz-linear-gradient(top, rgba(232, 244, 250, 0.2), rgba(231, 231, 233, 1)), url(http://news.nationalgeographic.com/content/dam/news/2015/12/13/BookTalk%20K2/01BookTalkK2.jpg);
   background-image: -webkit-linear-gradient(top, rgba(232, 244, 250, 0.2), rgba(231, 231, 233, 1)), url(http://news.nationalgeographic.com/content/dam/news/2015/12/13/BookTalk%20K2/01BookTalkK2.jpg);
-  background-size: cover;
+  background-size: 100vw auto;
+  background-attachment: fixed;
   font-family: Roboto, sans-serif;
   font-size: 12px;
 }
@@ -51,6 +54,7 @@ pre {
 #set-all-sync {
   display: block;
   margin-bottom: 10px;
+  color: #ffffff;
 }
 
 .action-link {
@@ -82,4 +86,14 @@ pre {
   top: 0;
   background-color: rgba(0, 0, 0, 0.3);
   padding-top: 10%;
+}
+
+.sync-graph {
+  margin-top: 3px;
+}
+
+.stats b {
+  display: inline-block;
+  margin-top: 5px;
+  margin-bottom: 1px;
 }

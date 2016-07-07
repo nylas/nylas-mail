@@ -1,7 +1,12 @@
 /* eslint react/react-in-jsx-scope: 0*/
 const React = window.React;
 const ReactDOM = window.ReactDOM;
-const {SyncPolicy, SetAllSyncPolicies, AccountFilter} = window;
+const {
+  SyncPolicy,
+  SetAllSyncPolicies,
+  AccountFilter,
+  SyncGraph,
+} = window;
 
 class Account extends React.Component {
   renderError() {
@@ -14,10 +19,13 @@ class Account extends React.Component {
         stack: stack.slice(0, 4),
       }
       return (
-        <div className="error">
-          <pre>
-            {JSON.stringify(error, null, 2)}
-          </pre>
+        <div>
+          <div className="section">Error</div>
+          <div className="error">
+            <pre>
+              {JSON.stringify(error, null, 2)}
+            </pre>
+          </div>
         </div>
       )
     }
@@ -27,12 +35,18 @@ class Account extends React.Component {
   render() {
     const {account, assignment, active} = this.props;
     const errorClass = account.sync_error ? ' errored' : ''
-    const lastSyncCompletions = []
-    for (const time of account.last_sync_completions) {
-      lastSyncCompletions.push(
-        <div key={time}>{new Date(time).toString()}</div>
-      )
+
+    const numStoredSyncs = account.last_sync_completions.length;
+    const oldestSync = account.last_sync_completions[numStoredSyncs - 1];
+    const newestSync = account.last_sync_completions[0];
+    const avgBetweenSyncs = (newestSync - oldestSync) / (1000 * numStoredSyncs);
+    const timeSinceLastSync = (Date.now() - newestSync) / 1000;
+
+    let firstSyncDuration = "Incomplete";
+    if (account.first_sync_completed_at) {
+      firstSyncDuration = (new Date(account.first_sync_completed_at) - new Date(account.created_at)) / 1000;
     }
+
     return (
       <div className={`account${errorClass}`}>
         <h3>{account.email_address} {active ? '🌕' : '🌑'}</h3>
@@ -42,13 +56,16 @@ class Account extends React.Component {
           stringifiedSyncPolicy={JSON.stringify(account.sync_policy, null, 2)}
         />
         <div className="section">Sync Cycles</div>
-        <div>
-          <b>First Sync Completion</b>:
-          <pre>{new Date(account.first_sync_completed_at).toString()}</pre>
+        <div className="stats">
+          <b>First Sync Duration (seconds)</b>:
+          <pre>{firstSyncDuration}</pre>
+          <b> Average Time Between Syncs (seconds)</b>:
+          <pre>{avgBetweenSyncs}</pre>
+          <b>Time Since Last Sync (seconds)</b>:
+          <pre>{timeSinceLastSync}</pre>
+          <b>Recent Syncs</b>:
+          <SyncGraph id={account.last_sync_completions.length} syncTimestamps={account.last_sync_completions} />
         </div>
-        <div><b>Last Sync Completions:</b></div>
-        <pre>{lastSyncCompletions}</pre>
-        <div className="section">Error</div>
         {this.renderError()}
       </div>
     );

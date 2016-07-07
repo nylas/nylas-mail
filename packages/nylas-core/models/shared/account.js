@@ -33,6 +33,7 @@ module.exports = (sequelize, Sequelize) => {
           sync_error: this.syncError,
           first_sync_completed_at: this.firstSyncCompletedAt,
           last_sync_completions: this.lastSyncCompletions,
+          created_at: this.createdAt,
         }
       },
 
