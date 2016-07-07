@@ -8,8 +8,7 @@ const path = require('path');
 global.Promise = require('bluebird');
 
 const server = new Hapi.Server();
-server.connection({ port: process.env.PORT / 1 + 1 || 5101 });
-
+server.connection({ port: process.env.PORT });
 
 const attach = (directory) => {
   const routesDir = path.join(__dirname, directory)

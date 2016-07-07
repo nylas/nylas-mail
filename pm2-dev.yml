@@ -2,6 +2,7 @@ apps:
   - script   : packages/nylas-api/app.js
     name     : api
     env      :
+      PORT: 5100
       DB_ENCRYPTION_ALGORITHM : "aes-256-ctr"
       DB_ENCRYPTION_PASSWORD : "d6F3Efeq"
       GMAIL_CLIENT_ID : "271342407743-nibas08fua1itr1utq9qjladbkv3esdm.apps.googleusercontent.com"
@@ -15,6 +16,7 @@ apps:
   - script   : packages/nylas-dashboard/app.js
     name     : dashboard
     env      :
+      PORT: 5101
       DB_ENCRYPTION_ALGORITHM : "aes-256-ctr"
       DB_ENCRYPTION_PASSWORD : "d6F3Efeq"
   - script   : packages/nylas-message-processor/app.js
