@@ -3,6 +3,8 @@ apps:
     name     : api
     instances: 0
     exec_mode: cluster
+    env      :
+      PORT: 5100
   - script   : packages/nylas-dashboard/app.js
     name     : dashboard
     instances: 1
