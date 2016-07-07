@@ -9,8 +9,6 @@ const {
   DatabaseConnector,
   SyncPolicy,
   Provider,
-  PubsubConnector,
-  MessageTypes,
 } = require('nylas-core');
 
 const {GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL} = process.env;
@@ -56,10 +54,11 @@ const buildAccountWith = ({name, email, provider, settings, credentials}) => {
     account.setCredentials(credentials);
 
     return account.save().then((saved) =>
-      AccountToken.create({
-        accountId: saved.id,
-      }).then((token) =>
-        Promise.resolve({account: saved, token: token})
+      AccountToken.create({accountId: saved.id}).then((token) =>
+        DatabaseConnector.prepareAccountDatabase(saved.id).thenReturn({
+          account: saved,
+          token: token,
+        })
       )
     );
   });

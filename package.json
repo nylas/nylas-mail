@@ -5,6 +5,7 @@
   "main": "",
   "dependencies": {
     "bluebird": "3.x.x",
+    "mysql": "^2.11.1",
     "redis": "2.x.x",
     "rx": "4.x.x",
     "sequelize": "3.x.x",
