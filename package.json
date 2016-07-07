@@ -5,10 +5,11 @@
   "main": "",
   "dependencies": {
     "bluebird": "3.x.x",
+    "lerna": "2.0.0-beta.23",
+    "mysql": "^2.11.1",
     "redis": "2.x.x",
     "rx": "4.x.x",
     "sequelize": "3.x.x",
-    "sqlite3": "https://github.com/bengotow/node-sqlite3/archive/bengotow/usleep-v3.1.4.tar.gz",
     "underscore": "1.x.x"
   },
   "devDependencies": {
@@ -19,7 +20,7 @@
     "eslint-plugin-jsx-a11y": "1.x",
     "eslint-plugin-react": "5.x",
     "eslint_d": "3.x",
-    "lerna": "2.0.0-beta.23"
+    "sqlite3": "https://github.com/bengotow/node-sqlite3/archive/bengotow/usleep-v3.1.4.tar.gz"
   },
   "scripts": {
     "start": "foreman start -f Procfile.dev",

@@ -34,16 +34,27 @@ class DatabaseConnector {
     return db;
   }
 
+  _sequelizePoolForDatabase(dbname) {
+    if (process.env.DB_HOSTNAME) {
+      return new Sequelize(dbname, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
+        host: process.env.DB_HOSTNAME,
+        dialect: "mysql",
+        logging: false,
+      });
+    }
+
+    return Sequelize(dbname, '', '', {
+      storage: path.join(STORAGE_DIR, `${dbname}.sqlite`),
+      dialect: "sqlite",
+      logging: false,
+    })
+  }
+
   _sequelizeForAccount(accountId) {
     if (!accountId) {
       return Promise.reject(new Error(`You need to pass an accountId to init the database!`))
     }
-    const sequelize = new Sequelize(accountId, '', '', {
-      storage: path.join(STORAGE_DIR, `a-${accountId}.sqlite`),
-      dialect: "sqlite",
-      logging: false,
-    });
-
+    const sequelize = this._sequelizePoolForDatabase(`a-${accountId}`);
     const modelsPath = path.join(__dirname, 'models/account');
     const db = this._readModelsInDirectory(sequelize, modelsPath)
 
@@ -64,13 +75,24 @@ class DatabaseConnector {
     return this._pools[accountId];
   }
 
-  _sequelizeForShared() {
-    const sequelize = new Sequelize('shared', '', '', {
-      storage: path.join(STORAGE_DIR, 'shared.sqlite'),
-      dialect: "sqlite",
-      logging: false,
-    });
+  prepareAccountDatabase(accountId) {
+    const dbname = `a-${accountId}`;
 
+    if (process.env.DB_HOSTNAME) {
+      const sequelize = new Sequelize(null, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
+        host: process.env.DB_HOSTNAME,
+        dialect: "mysql",
+        logging: false,
+      })
+      return sequelize.authenticate().then(() =>
+        sequelize.query(`CREATE DATABASE \`${dbname}\``)
+      );
+    }
+    return Promise.resolve()
+  }
+
+  _sequelizeForShared() {
+    const sequelize = this._sequelizePoolForDatabase(`shared`);
     const modelsPath = path.join(__dirname, 'models/shared');
     const db = this._readModelsInDirectory(sequelize, modelsPath)
 
