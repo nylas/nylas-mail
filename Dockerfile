@@ -3,7 +3,7 @@
 FROM node:6
 
 # Copy everything (excluding what's in .dockerignore) into an empty dir
-COPY . /home
+COPY ../ /home
 WORKDIR /home
 
 RUN npm install
