@@ -4,3 +4,8 @@ dump.rdb
 *npm-debug.log
 storage/
 lerna-debug.log
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
