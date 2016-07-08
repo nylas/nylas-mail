@@ -7,6 +7,8 @@ import {
   MessageStore,
 } from 'nylas-exports';
 
+const tld = require('tld');
+
 // Notice that this file is `main.cjsx` rather than `main.coffee`. We use the
 // `.cjsx` filetype because we use the CJSX DSL to describe markup for React to
 // render. Without the CJSX, we could just name this file `main.coffee` instead.
@@ -49,9 +51,9 @@ class PhishingIndicator extends React.Component {
     // `Message` models from `MessageStore`.
     if (message && message.replyTo && message.replyTo.length !== 0) {
       const from = message.from[0].email
-      const fromDomain = from.split('@')[1];
+      const fromDomain = tld.registered(from.split('@')[1]);
       const replyTo = message.replyTo[0].email
-      const replyToDomain = replyTo.split('@')[1];
+      const replyToDomain = tld.registered(replyTo.split('@')[1]);
       if (replyToDomain !== fromDomain) {
         return (
           <div className="phishingIndicator">
