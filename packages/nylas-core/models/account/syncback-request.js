@@ -1,4 +1,4 @@
-const {typeJSON} = require('../model-helpers')
+const {JSONType} = require('../../database-types');
 
 module.exports = (sequelize, Sequelize) => {
   const SyncbackRequest = sequelize.define('syncbackRequest', {
@@ -8,8 +8,8 @@ module.exports = (sequelize, Sequelize) => {
       defaultValue: "NEW",
       allowNull: false,
     },
-    error: typeJSON('error'),
-    props: typeJSON('props'),
+    error: JSONType('error'),
+    props: JSONType('props'),
   });
 
   return SyncbackRequest;

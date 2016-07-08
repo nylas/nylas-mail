@@ -9,7 +9,7 @@ module.exports = (sequelize, Sequelize) => {
     provider: Sequelize.STRING,
     emailAddress: Sequelize.STRING,
     connectionSettings: JSONType('connectionSettings'),
-    connectionCredentials: Sequelize.STRING,
+    connectionCredentials: Sequelize.TEXT,
     syncPolicy: JSONType('syncPolicy'),
     syncError: JSONType('syncError', {defaultValue: null}),
     firstSyncCompletedAt: Sequelize.INTEGER,
