@@ -20,18 +20,18 @@ const attach = (directory) => {
   });
 }
 
-DatabaseConnector.forShared().then(({Account}) => {
-  server.register([HapiWebSocket, Inert], () => {
-    attach('./routes/')
+server.register([HapiWebSocket, Inert], () => {
+  attach('./routes/')
 
-    server.route({
-      method: "POST",
-      path: "/accounts",
-      config: {
-        plugins: {
-          websocket: {
-            only: true,
-            connect: (wss, ws) => {
+  server.route({
+    method: "POST",
+    path: "/accounts",
+    config: {
+      plugins: {
+        websocket: {
+          only: true,
+          connect: (wss, ws) => {
+            DatabaseConnector.forShared().then(({Account}) => {
               Account.findAll().then((accounts) => {
                 accounts.forEach((acct) => {
                   ws.send(JSON.stringify({ cmd: "ACCOUNT", payload: acct }));
@@ -57,35 +57,47 @@ DatabaseConnector.forShared().then(({Account}) => {
                   ws.send(JSON.stringify({ cmd: "ASSIGNMENTS", payload: assignments}))
                 )
               }, 1000);
-            },
-            disconnect: () => {
-              clearInterval(this.pollInterval);
-              this.observable.dispose();
-            },
+            });
+          },
+          disconnect: () => {
+            clearInterval(this.pollInterval);
+            this.observable.dispose();
           },
         },
       },
-      handler: (request, reply) => {
-        if (request.payload.cmd === "PING") {
-          reply(JSON.stringify({ result: "PONG" }));
-          return;
-        }
-      },
-    });
+    },
+    handler: (request, reply) => {
+      if (request.payload.cmd === "PING") {
+        reply(JSON.stringify({ result: "PONG" }));
+        return;
+      }
+    },
+  });
 
-    server.route({
-      method: 'GET',
-      path: '/{param*}',
-      handler: {
-        directory: {
-          path: require('path').join(__dirname, 'public'),
-        },
-      },
-    });
+  server.route({
+    method: 'GET',
+    path: '/ping',
+    config: {
+      auth: false,
+    },
+    handler: (request, reply) => {
+      console.log("---> Ping!")
+      reply("pong")
+    },
+  });
 
-    server.start((startErr) => {
-      if (startErr) { throw startErr; }
-      console.log('Dashboard running at:', server.info.uri);
-    });
+  server.route({
+    method: 'GET',
+    path: '/{param*}',
+    handler: {
+      directory: {
+        path: require('path').join(__dirname, 'public'),
+      },
+    },
+  });
+
+  server.start((startErr) => {
+    if (startErr) { throw startErr; }
+    console.log('Dashboard running at:', server.info.uri);
   });
 });
