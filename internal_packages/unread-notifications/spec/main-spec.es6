@@ -52,21 +52,21 @@ describe("UnreadNotifications", function UnreadNotifications() {
       unread: true,
       date: new Date(),
       from: [new Contact({name: 'Ben', email: 'benthis.example.com'})],
-      subject: "Hello World",
+      subject: "Hello World 3",
       threadId: "A",
     });
     this.msg4 = new Message({
       unread: true,
       date: new Date(),
       from: [new Contact({name: 'Ben', email: 'benthis.example.com'})],
-      subject: "Hello World",
+      subject: "Hello World 4",
       threadId: "A",
     });
     this.msg5 = new Message({
       unread: true,
       date: new Date(),
       from: [new Contact({name: 'Ben', email: 'benthis.example.com'})],
-      subject: "Hello World",
+      subject: "Hello World 5",
       threadId: "A",
     });
     this.msgUnreadButArchived = new Message({
@@ -158,6 +158,27 @@ describe("UnreadNotifications", function UnreadNotifications() {
     });
   });
 
+  it("should create Notifications in the order of messages received", () => {
+    waitsForPromise(() => {
+      return this.notifier._onNewMailReceived({message: [this.msg1, this.msg2]})
+      .then(() => {
+        advanceClock(2000);
+        return this.notifier._onNewMailReceived({message: [this.msg3, this.msg4]});
+      })
+      .then(() => {
+        advanceClock(2000);
+        advanceClock(2000);
+        expect(NativeNotifications.displayNotification.callCount).toEqual(4);
+        const subjects = NativeNotifications.displayNotification.calls.map((call) => {
+          return call.args[0].subtitle;
+        });
+        const expected = [this.msg1, this.msg2, this.msg3, this.msg4]
+          .map((msg) => msg.subject);
+        expect(subjects).toEqual(expected);
+      });
+    });
+  });
+
   it("should create a Notification if there are five or more unread messages", () => {
     waitsForPromise(() => {
       return this.notifier._onNewMailReceived({
@@ -226,7 +247,7 @@ describe("UnreadNotifications", function UnreadNotifications() {
     });
   });
 
-  it("should not create a Notification if the new messages are not unread", () => {
+  it("should not create a Notification if the new messages are read", () => {
     waitsForPromise(() => {
       return this.notifier._onNewMailReceived({message: [this.msgRead]})
       .then(() => {
