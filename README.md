@@ -9,6 +9,7 @@
 3. Install [Docker for Mac](https://docs.docker.com/docker-for-mac/)
 4. Install [NVM](https://github.com/creationix/nvm) `brew install nvm`
 5. Install Node 6+ via NVM: `nvm install 6`
+6. Install Redis locally `brew install redis`
 
 ## New to AWS:
 

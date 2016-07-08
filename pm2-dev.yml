@@ -1,4 +1,6 @@
 apps:
+  - script   : redis-server
+    name     : redis
   - script   : packages/nylas-api/app.js
     name     : api
     env      :
