@@ -155,11 +155,14 @@ class PGPKeyStore extends NylasStore
       @getKeyContents(key: identity)
     else
       fingerprint = identity.fingerprint()
-      kb.getUser(fingerprint, 'key_fingerprint', (err, user) =>
-        if user?.length == 1
-          identity.keybase_profile = user[0]
+      if fingerprint?
+        kb.getUser(fingerprint, 'key_fingerprint', (err, user) =>
+          if err
+            console.error(err)
+          if user?.length == 1
+            identity.keybase_profile = user[0]
           @trigger(@)
-      )
+        )
 
   saveNewKey: (identity, contents) =>
     # Validate the email address(es), then write to file.
@@ -226,7 +229,7 @@ class PGPKeyStore extends NylasStore
       )
 
   addAddressToKey: (profile, address) =>
-    if @validAddress(address, true)
+    if @validAddress(address, !profile.isPriv)
       oldPath = profile.keyPath
       profile.addresses.push(address)
       fs.rename(oldPath, profile.keyPath, (err) =>
@@ -297,8 +300,6 @@ class PGPKeyStore extends NylasStore
 
   msgStatus: (msg) ->
     # fetch the latest status of a message
-    # (synchronous)
-
     if not msg?
       return null
     else
@@ -307,14 +308,12 @@ class PGPKeyStore extends NylasStore
         return status.clientId == clientId
       status = _.max statuses, (stat) ->
         return stat.time
-
     return status.message
 
   isDecrypted: (message) ->
     # if the message is already decrypted, return true
     # if the message has no encrypted component, return true
-    # if the message has an encrypted component that is not yet decrypted,
-    # return false
+    # if the message has an encrypted component that is not yet decrypted, return false
     if not @hasEncryptedComponent(message)
       return true
     else if @getDecrypted(message)?
@@ -399,23 +398,34 @@ class PGPKeyStore extends NylasStore
 
     pgpMsg = message.body.slice(blockStart, blockEnd)
 
-    # Don't let '+' get encoded
+    # Some users may send messages from sources that pollute the encrypted block.
     pgpMsg = pgpMsg.replace(/&#43;/gm,'+')
-
-    # There seemed to be issues with HTML tags being added to the message.
-    # Hopefully the <pre> tag fixed this, but just in case, here's a line to safeguard:
-    # pgpMsg = pgpMsg.replace(/<[^>]*>/gm,'')
+    pgpMsg = pgpMsg.replace(/(<br>)/g, '\n')
+    pgpMsg = pgpMsg.replace(/<\/(blockquote|div|dl|dt|dd|form|h1|h2|h3|h4|h5|h6|hr|ol|p|pre|table|tr|td|ul|li|section|header|footer)>/g, '\n')
+    pgpMsg = pgpMsg.replace(/<(.+?)>/g, '')
+    pgpMsg = pgpMsg.replace(/&nbsp;/g, ' ')
 
     pgp.unbox { keyfetch: ring, armored: pgpMsg }, (err, literals, warnings, subkey) =>
       if err
         console.warn err
-        @_msgStatus.push({"clientId": message.clientId, "time": Date.now(), "message": "Unable to decrypt message."})
+        errMsg = "Unable to decrypt message."
+        if err.toString().indexOf("tailer found") >= 0 or err.toString().indexOf("checksum mismatch") >= 0
+          errMsg = "Unable to decrypt message. Encrypted block is malformed."
+        else if err.toString().indexOf("key not found:") >= 0
+          errMsg = "Unable to decrypt message. Private key does not match encrypted block."
+          if !@msgStatus(message)?
+            errMsg = "Decryption preprocessing failed."
+        @_msgStatus.push({"clientId": message.clientId, "time": Date.now(), "message": errMsg})
       else
         if warnings._w.length > 0
           console.warn warnings._w
 
         if literals.length > 0
           plaintext = literals[0].toString('utf8')
+
+          # <pre> tag for consistent styling
+          if plaintext.indexOf("<pre>") == -1
+            plaintext = "<pre>\n" + plaintext + "\n</pre>"
 
           # can't use _.template :(
           body = message.body.slice(0, blockStart) + plaintext + message.body.slice(blockEnd)
@@ -424,7 +434,7 @@ class PGPKeyStore extends NylasStore
           timeout = 1000 * 60 * 30 # 30 minutes in ms
           @_msgCache.push({clientId: message.clientId, body: body, timeout: Date.now() + timeout})
           keyprint = subkey.get_fingerprint().toString('hex')
-          @_msgStatus.push({"clientId": message.clientId, "time": Date.now(), "message": "Message decrypted with key #{keyprint}!"})
+          @_msgStatus.push({"clientId": message.clientId, "time": Date.now(), "message": "Message decrypted with key #{keyprint}"})
           # re-render messages
           MessageBodyProcessor.resetCache()
           @trigger(@)
