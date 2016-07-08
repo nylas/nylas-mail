@@ -9,13 +9,31 @@ module.exports = (db, sequelize) => {
     }
   }
 
-  const isTransaction = ({$modelOptions}) => {
-    return $modelOptions.name.singular === "transaction"
+  const isSilent = (data) => {
+    data._previousDataValues
+    data._changed
+
+    if (data.$modelOptions.name.singular === "transaction") {
+      return true
+    }
+
+    if (data._changed && data._changed.syncState) {
+      for (const key of Object.keys(data._changed)) {
+        if (key === "syncState") { continue }
+        if (data._changed[key] !== data._previousDataValues[key]) {
+          // SyncState changed, but so did something else
+          return false;
+        }
+      }
+      // Be silent due to nothing but sync state changing
+      return true;
+    }
   }
 
   const transactionLogger = (type) => {
     return (sequelizeHookData) => {
-      if (isTransaction(sequelizeHookData)) return;
+      if (isSilent(sequelizeHookData)) return;
+
       const transactionData = Object.assign({type: type},
         parseHookData(sequelizeHookData)
       );
