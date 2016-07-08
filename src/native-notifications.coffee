@@ -9,5 +9,6 @@ class NativeNotifications
       tag: tag
     })
     n.onclick = onActivate
+    n
 
 module.exports = new NativeNotifications
