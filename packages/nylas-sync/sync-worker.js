@@ -45,7 +45,6 @@ class SyncWorker {
     if (this._conn) {
       this._conn.end();
     }
-    this._conn = null
   }
 
   _onMessage(msg) {
@@ -61,15 +60,19 @@ class SyncWorker {
   }
 
   _onAccountUpdated() {
-    if (this.isNextSyncScheduled()) {
-      this._getAccount().then((account) => {
-        this._account = account;
-        this.syncNow({reason: 'Account Modification'});
-      });
+    if (!this.isWaitingForNextSync()) {
+      return;
     }
+    this._getAccount().then((account) => {
+      this._account = account;
+      this.syncNow({reason: 'Account Modification'});
+    });
   }
 
   _onConnectionIdleUpdate() {
+    if (!this.isWaitingForNextSync()) {
+      return;
+    }
     this.syncNow({reason: 'IMAP IDLE Fired'});
   }
 
@@ -127,7 +130,8 @@ class SyncWorker {
     .catch((error) => {
       syncbackRequest.error = error
       syncbackRequest.status = "FAILED"
-    }).finally(() => syncbackRequest.save())
+    })
+    .finally(() => syncbackRequest.save())
   }
 
   syncAllCategories() {
@@ -146,12 +150,6 @@ class SyncWorker {
     });
   }
 
-  performSync() {
-    return this.syncbackMessageActions()
-    .then(() => this._conn.runOperation(new FetchFolderList(this._account.provider)))
-    .then(() => this.syncAllCategories())
-  }
-
   syncNow({reason} = {}) {
     clearTimeout(this._syncTimer);
     this._syncTimer = null;
@@ -164,7 +162,9 @@ class SyncWorker {
 
     this.ensureConnection()
     .then(() => this._account.update({syncError: null}))
-    .then(() => this.performSync())
+    .then(() => this.syncbackMessageActions())
+    .then(() => this._conn.runOperation(new FetchFolderList(this._account.provider)))
+    .then(() => this.syncAllCategories())
     .then(() => this.onSyncDidComplete())
     .catch((error) => this.onSyncError(error))
     .finally(() => {
@@ -177,10 +177,11 @@ class SyncWorker {
     console.error(`SyncWorker: Error while syncing account ${this._account.emailAddress} (${this._account.id})`, error)
     this.closeConnection()
 
-    if (error.source === 'socket') {
+    if (error.source.includes('socket') || error.source.includes('timeout')) {
       // Continue to retry if it was a network error
       return Promise.resolve()
     }
+
     this._account.syncError = jsonError(error)
     return this._account.save()
   }
@@ -219,7 +220,7 @@ class SyncWorker {
     throw new Error(`SyncWorker.onSyncDidComplete: Unknown afterSync behavior: ${afterSync}. Closing connection`)
   }
 
-  isNextSyncScheduled() {
+  isWaitingForNextSync() {
     return this._syncTimer != null;
   }
 
