@@ -29,7 +29,7 @@ class SyncWorker {
     this._expirationTimer = null;
     this._destroyed = false;
 
-    this.syncNow();
+    this.syncNow({reason: 'Initial'});
 
     this._onMessage = this._onMessage.bind(this);
     this._listener = PubsubConnector.observeAccount(account.id).subscribe(this._onMessage)
@@ -54,22 +54,23 @@ class SyncWorker {
       case MessageTypes.ACCOUNT_UPDATED:
         this._onAccountUpdated(); break;
       case MessageTypes.SYNCBACK_REQUESTED:
-        this.syncNow(); break;
+        this.syncNow({reason: 'Syncback Action Queued'}); break;
       default:
         throw new Error(`Invalid message: ${msg}`)
     }
   }
 
   _onAccountUpdated() {
-    console.log("SyncWorker: Detected change to account. Reloading and syncing now.");
-    this._getAccount().then((account) => {
-      this._account = account;
-      this.syncNow();
-    })
+    if (this.isNextSyncScheduled()) {
+      this._getAccount().then((account) => {
+        this._account = account;
+        this.syncNow({reason: 'Account Modification'});
+      });
+    }
   }
 
   _onConnectionIdleUpdate() {
-    this.syncNow();
+    this.syncNow({reason: 'IMAP IDLE Fired'});
   }
 
   _getAccount() {
@@ -151,13 +152,15 @@ class SyncWorker {
     .then(() => this.syncAllCategories())
   }
 
-  syncNow() {
+  syncNow({reason} = {}) {
     clearTimeout(this._syncTimer);
+    this._syncTimer = null;
 
     if (!process.env.SYNC_AFTER_ERRORS && this._account.errored()) {
-      console.log(`SyncWorker: Account ${this._account.emailAddress} is in error state - Skipping sync`)
+      console.log(`SyncWorker: Account ${this._account.emailAddress} (${this._account.id}) is in error state - Skipping sync`)
       return
     }
+    console.log(`SyncWorker: Account ${this._account.emailAddress} (${this._account.id}) sync started (${reason})`)
 
     this.ensureConnection()
     .then(() => this._account.update({syncError: null}))
@@ -171,7 +174,7 @@ class SyncWorker {
   }
 
   onSyncError(error) {
-    console.error(`SyncWorker: Error while syncing account ${this._account.emailAddress} `, error)
+    console.error(`SyncWorker: Error while syncing account ${this._account.emailAddress} (${this._account.id})`, error)
     this.closeConnection()
 
     if (error.source === 'socket') {
@@ -216,6 +219,10 @@ class SyncWorker {
     throw new Error(`SyncWorker.onSyncDidComplete: Unknown afterSync behavior: ${afterSync}. Closing connection`)
   }
 
+  isNextSyncScheduled() {
+    return this._syncTimer != null;
+  }
+
   scheduleNextSync() {
     if (Date.now() - this._startTime > CLAIM_DURATION) {
       console.log("SyncWorker: - Has held account for more than CLAIM_DURATION, returning to pool.");
@@ -232,7 +239,7 @@ class SyncWorker {
         const target = this._lastSyncTime + interval;
         console.log(`SyncWorker: Account ${active ? 'active' : 'inactive'}. Next sync scheduled for ${new Date(target).toLocaleString()}`);
         this._syncTimer = setTimeout(() => {
-          this.syncNow();
+          this.syncNow({reason: 'Scheduled'});
         }, target - Date.now());
       }
     });
