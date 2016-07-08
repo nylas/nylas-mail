@@ -42,6 +42,8 @@ This will run the full suite of automated unit tests. We use [Jasmine 1.3](http:
 It runs all tests inside of the `/spec` folder and all tests inside of
 `/internal_packages/**/spec`
 
+You may skip certain tests (temporarily) with `xit` and `xdescribe`, or focus on only certain tests with `fit` and `fdescribe`.
+
 ### Creating binaries
 
 Once you've checked out N1 and run `script/bootstrap`, you can create a packaged
