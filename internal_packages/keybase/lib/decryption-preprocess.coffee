@@ -5,7 +5,6 @@ class DecryptPGPExtension extends MessageViewExtension
   @formatMessageBody: ({message}) =>
     if not PGPKeyStore.hasEncryptedComponent(message)
       return message
-
     if PGPKeyStore.isDecrypted(message)
       message.body = PGPKeyStore.getDecrypted(message)
     else
