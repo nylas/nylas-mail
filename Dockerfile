@@ -22,4 +22,4 @@ EXPOSE 5100
 
 # We use a start-aws command that automatically spawns the correct process
 # based on environment variables (which changes instance to instance)
-CMD [ "./node_modules/pm2/bin/pm2", "start", "./pm2-prod-${AWS_SERVICE_NAME}.yml"]
+CMD ./node_modules/pm2/bin/pm2 start --no-daemon ./pm2-prod-${AWS_SERVICE_NAME}.yml
