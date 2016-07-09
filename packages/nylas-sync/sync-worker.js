@@ -29,7 +29,7 @@ class SyncWorker {
     this._expirationTimer = null;
     this._destroyed = false;
 
-    this.syncNow();
+    this.syncNow({reason: 'Initial'});
 
     this._onMessage = this._onMessage.bind(this);
     this._listener = PubsubConnector.observeAccount(account.id).subscribe(this._onMessage)
@@ -45,7 +45,6 @@ class SyncWorker {
     if (this._conn) {
       this._conn.end();
     }
-    this._conn = null
   }
 
   _onMessage(msg) {
@@ -54,22 +53,27 @@ class SyncWorker {
       case MessageTypes.ACCOUNT_UPDATED:
         this._onAccountUpdated(); break;
       case MessageTypes.SYNCBACK_REQUESTED:
-        this.syncNow(); break;
+        this.syncNow({reason: 'Syncback Action Queued'}); break;
       default:
         throw new Error(`Invalid message: ${msg}`)
     }
   }
 
   _onAccountUpdated() {
-    console.log("SyncWorker: Detected change to account. Reloading and syncing now.");
+    if (!this.isWaitingForNextSync()) {
+      return;
+    }
     this._getAccount().then((account) => {
       this._account = account;
-      this.syncNow();
-    })
+      this.syncNow({reason: 'Account Modification'});
+    });
   }
 
   _onConnectionIdleUpdate() {
-    this.syncNow();
+    if (!this.isWaitingForNextSync()) {
+      return;
+    }
+    this.syncNow({reason: 'IMAP IDLE Fired'});
   }
 
   _getAccount() {
@@ -126,7 +130,8 @@ class SyncWorker {
     .catch((error) => {
       syncbackRequest.error = error
       syncbackRequest.status = "FAILED"
-    }).finally(() => syncbackRequest.save())
+    })
+    .finally(() => syncbackRequest.save())
   }
 
   syncAllCategories() {
@@ -145,23 +150,21 @@ class SyncWorker {
     });
   }
 
-  performSync() {
-    return this.syncbackMessageActions()
-    .then(() => this._conn.runOperation(new FetchFolderList(this._account.provider)))
-    .then(() => this.syncAllCategories())
-  }
-
-  syncNow() {
+  syncNow({reason} = {}) {
     clearTimeout(this._syncTimer);
+    this._syncTimer = null;
 
     if (!process.env.SYNC_AFTER_ERRORS && this._account.errored()) {
-      console.log(`SyncWorker: Account ${this._account.emailAddress} is in error state - Skipping sync`)
+      console.log(`SyncWorker: Account ${this._account.emailAddress} (${this._account.id}) is in error state - Skipping sync`)
       return
     }
+    console.log(`SyncWorker: Account ${this._account.emailAddress} (${this._account.id}) sync started (${reason})`)
 
     this.ensureConnection()
     .then(() => this._account.update({syncError: null}))
-    .then(() => this.performSync())
+    .then(() => this.syncbackMessageActions())
+    .then(() => this._conn.runOperation(new FetchFolderList(this._account.provider)))
+    .then(() => this.syncAllCategories())
     .then(() => this.onSyncDidComplete())
     .catch((error) => this.onSyncError(error))
     .finally(() => {
@@ -171,13 +174,14 @@ class SyncWorker {
   }
 
   onSyncError(error) {
-    console.error(`SyncWorker: Error while syncing account ${this._account.emailAddress} `, error)
+    console.error(`SyncWorker: Error while syncing account ${this._account.emailAddress} (${this._account.id})`, error)
     this.closeConnection()
 
-    if (error.source === 'socket') {
+    if (error.source.includes('socket') || error.source.includes('timeout')) {
       // Continue to retry if it was a network error
       return Promise.resolve()
     }
+
     this._account.syncError = jsonError(error)
     return this._account.save()
   }
@@ -216,6 +220,10 @@ class SyncWorker {
     throw new Error(`SyncWorker.onSyncDidComplete: Unknown afterSync behavior: ${afterSync}. Closing connection`)
   }
 
+  isWaitingForNextSync() {
+    return this._syncTimer != null;
+  }
+
   scheduleNextSync() {
     if (Date.now() - this._startTime > CLAIM_DURATION) {
       console.log("SyncWorker: - Has held account for more than CLAIM_DURATION, returning to pool.");
@@ -232,7 +240,7 @@ class SyncWorker {
         const target = this._lastSyncTime + interval;
         console.log(`SyncWorker: Account ${active ? 'active' : 'inactive'}. Next sync scheduled for ${new Date(target).toLocaleString()}`);
         this._syncTimer = setTimeout(() => {
-          this.syncNow();
+          this.syncNow({reason: 'Scheduled'});
         }, target - Date.now());
       }
     });

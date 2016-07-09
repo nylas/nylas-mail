@@ -4,9 +4,9 @@ module.exports = (sequelize, Sequelize) => {
   const File = sequelize.define('file', {
     accountId: { type: Sequelize.STRING, allowNull: false },
     version: Sequelize.INTEGER,
-    filename: Sequelize.STRING,
+    filename: Sequelize.STRING(500),
     partId: Sequelize.STRING,
-    contentType: Sequelize.STRING,
+    contentType: Sequelize.STRING(500),
     size: Sequelize.INTEGER,
   }, {
     classMethods: {

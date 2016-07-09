@@ -6,23 +6,26 @@ function replacer(key, value) {
 }
 
 function jsonSchema(modelName) {
-  const models = ['Message', 'Thread', 'File', 'Error', 'SyncbackRequest', 'Contact']
+  const models = ['Message', 'Thread', 'File', 'Error', 'SyncbackRequest', 'Account', 'Contact']
+
   if (models.includes(modelName)) {
     return Joi.object();
   }
   if (modelName === 'Account') {
-    return Joi.object().keys({
-      id: Joi.number(),
-      object: Joi.string(),
-      email_address: Joi.string(),
-      provider: Joi.string(),
-      organization_unit: Joi.string(),
-      connection_settings: Joi.object(),
-      sync_policy: Joi.object(),
-      sync_error: Joi.object().allow(null),
-      first_sync_completed_at: Joi.number().allow(null),
-      last_sync_completions: Joi.array(),
-    })
+    // Ben: Disabled temporarily because folks keep changing the keys and it's hard
+    // to keep in sync. Might need to consider another approach to these.
+    // return Joi.object().keys({
+    //   id: Joi.number(),
+    //   object: Joi.string(),
+    //   email_address: Joi.string(),
+    //   provider: Joi.string(),
+    //   organization_unit: Joi.string(),
+    //   connection_settings: Joi.object(),
+    //   sync_policy: Joi.object(),
+    //   sync_error: Joi.object().allow(null),
+    //   first_sync_completed_at: Joi.number().allow(null),
+    //   last_sync_completions: Joi.array(),
+    // })
   }
   if (modelName === 'Folder') {
     return Joi.object().keys({

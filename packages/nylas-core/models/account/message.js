@@ -8,11 +8,11 @@ module.exports = (sequelize, Sequelize) => {
     accountId: { type: Sequelize.STRING, allowNull: false },
     version: Sequelize.INTEGER,
     headerMessageId: Sequelize.STRING,
-    body: Sequelize.STRING,
+    body: Sequelize.TEXT,
     headers: JSONType('headers'),
-    subject: Sequelize.STRING,
-    snippet: Sequelize.STRING,
-    hash: Sequelize.STRING,
+    subject: Sequelize.STRING(500),
+    snippet: Sequelize.STRING(255),
+    hash: Sequelize.STRING(65),
     date: Sequelize.DATE,
     unread: Sequelize.BOOLEAN,
     starred: Sequelize.BOOLEAN,
@@ -23,7 +23,7 @@ module.exports = (sequelize, Sequelize) => {
     bcc: JSONARRAYType('bcc'),
     replyTo: JSONARRAYType('replyTo'),
     folderImapUID: { type: Sequelize.STRING, allowNull: true},
-    folderImapXGMLabels: { type: Sequelize.STRING, allowNull: true},
+    folderImapXGMLabels: { type: Sequelize.TEXT, allowNull: true},
   }, {
     indexes: [
       {

@@ -4,6 +4,14 @@ const _ = require('underscore');
 const xoauth2 = require('xoauth2');
 const EventEmitter = require('events');
 
+class IMAPConnectionNotReadyError extends Error {
+  constructor(funcName) {
+    super(`${funcName} - You must call connect() first.`);
+
+    // hack so that the error matches the ones used by node-imap
+    this.source = 'socket';
+  }
+}
 
 class IMAPBox {
 
@@ -123,28 +131,28 @@ class IMAPBox {
 
   addFlags(range, flags) {
     if (!this._imap) {
-      throw new Error(`IMAPBox::addFlags - You need to call connect() first.`)
+      throw new IMAPConnectionNotReadyError(`IMAPBox::addFlags`)
     }
     return this._imap.addFlagsAsync(range, flags)
   }
 
   delFlags(range, flags) {
     if (!this._imap) {
-      throw new Error(`IMAPBox::delFlags - You need to call connect() first.`)
+      throw new IMAPConnectionNotReadyError(`IMAPBox::delFlags`)
     }
     return this._imap.delFlagsAsync(range, flags)
   }
 
   moveFromBox(range, folderName) {
     if (!this._imap) {
-      throw new Error(`IMAPBox::moveFromBox - You need to call connect() first.`)
+      throw new IMAPConnectionNotReadyError(`IMAPBox::moveFromBox`)
     }
     return this._imap.moveAsync(range, folderName)
   }
 
   closeBox({expunge = true} = {}) {
     if (!this._imap) {
-      throw new Error(`IMAPBox::closeBox - You need to call connect() first.`)
+      throw new IMAPConnectionNotReadyError(`IMAPBox::closeBox`)
     }
     return this._imap.closeBoxAsync(expunge)
   }
@@ -174,7 +182,8 @@ class IMAPConnection extends EventEmitter {
     this._queue = [];
     this._currentOperation = null;
     this._settings = settings;
-    this._imap = null
+    this._imap = null;
+    this._connectPromise = null;
   }
 
   connect() {
@@ -222,7 +231,9 @@ class IMAPConnection extends EventEmitter {
       this._imap = Promise.promisifyAll(new Imap(settings));
 
       this._imap.once('end', () => {
-        console.log('Connection ended');
+        console.log('Underlying IMAP Connection ended');
+        this._connectPromise = null;
+        this._imap = null;
       });
 
       this._imap.on('alert', (msg) => {
@@ -255,11 +266,12 @@ class IMAPConnection extends EventEmitter {
     this._queue = [];
     this._imap.end();
     this._imap = null;
+    this._connectPromise = null;
   }
 
   serverSupports(capability) {
     if (!this._imap) {
-      throw new Error(`IMAPConnection::serverSupports - You need to call connect() first.`)
+      throw new IMAPConnectionNotReadyError(`IMAPConnection::serverSupports`)
     }
     this._imap.serverSupports(capability);
   }
@@ -269,7 +281,7 @@ class IMAPConnection extends EventEmitter {
    */
   openBox(folderName, {readOnly = false} = {}) {
     if (!this._imap) {
-      throw new Error(`IMAPConnection::openBox - You need to call connect() first.`)
+      throw new IMAPConnectionNotReadyError(`IMAPConnection::openBox`)
     }
     return this._imap.openBoxAsync(folderName, readOnly).then((box) =>
       new IMAPBox(this._imap, box)
@@ -278,35 +290,35 @@ class IMAPConnection extends EventEmitter {
 
   getBoxes() {
     if (!this._imap) {
-      throw new Error(`IMAPConnection::getBoxes - You need to call connect() first.`)
+      throw new IMAPConnectionNotReadyError(`IMAPConnection::getBoxes`)
     }
     return this._imap.getBoxesAsync()
   }
 
   addBox(folderName) {
     if (!this._imap) {
-      throw new Error(`IMAPConnection::addBox - You need to call connect() first.`)
+      throw new IMAPConnectionNotReadyError(`IMAPConnection::addBox`)
     }
     return this._imap.addBoxAsync(folderName)
   }
 
   renameBox(oldFolderName, newFolderName) {
     if (!this._imap) {
-      throw new Error(`IMAPConnection::renameBox - You need to call connect() first.`)
+      throw new IMAPConnectionNotReadyError(`IMAPConnection::renameBox`)
     }
     return this._imap.renameBoxAsync(oldFolderName, newFolderName)
   }
 
   delBox(folderName) {
     if (!this._imap) {
-      throw new Error(`IMAPConnection::delBox - You need to call connect() first.`)
+      throw new IMAPConnectionNotReadyError(`IMAPConnection::delBox`)
     }
     return this._imap.delBoxAsync(folderName)
   }
 
   runOperation(operation) {
     if (!this._imap) {
-      throw new Error(`IMAPConnection::runOperation - You need to call connect() first.`)
+      throw new IMAPConnectionNotReadyError(`IMAPConnection::runOperation`)
     }
     return new Promise((resolve, reject) => {
       this._queue.push({operation, resolve, reject});
@@ -317,11 +329,13 @@ class IMAPConnection extends EventEmitter {
   }
 
   processNextOperation() {
-    if (this._currentOperation) { return }
+    if (this._currentOperation) {
+      return;
+    }
     this._currentOperation = this._queue.shift();
     if (!this._currentOperation) {
       this.emit('queue-empty');
-      return
+      return;
     }
 
     const {operation, resolve, reject} = this._currentOperation;
@@ -329,8 +343,8 @@ class IMAPConnection extends EventEmitter {
     if (result instanceof Promise === false) {
       reject(new Error(`Expected ${operation.constructor.name} to return promise.`))
     }
-    result
-    .then(() => {
+
+    result.then(() => {
       this._currentOperation = null;
       console.log(`Finished task: ${operation.description()}`)
       resolve();
@@ -344,6 +358,6 @@ class IMAPConnection extends EventEmitter {
     })
   }
 }
-IMAPConnection.Capabilities = Capabilities;
 
+IMAPConnection.Capabilities = Capabilities;
 module.exports = IMAPConnection

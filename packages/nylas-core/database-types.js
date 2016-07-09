@@ -1,21 +1,23 @@
 const Sequelize = require('sequelize');
 
 module.exports = {
-  JSONType: (fieldName, {defaultValue = '{}'} = {}) => ({
-    type: Sequelize.STRING,
-    defaultValue,
+  JSONType: (fieldName, {defaultValue = {}} = {}) => ({
+    type: Sequelize.TEXT,
     get: function get() {
-      return JSON.parse(this.getDataValue(fieldName))
+      const val = this.getDataValue(fieldName);
+      if (!val) { return defaultValue }
+      return JSON.parse(val);
     },
     set: function set(val) {
       this.setDataValue(fieldName, JSON.stringify(val));
     },
   }),
-  JSONARRAYType: (fieldName, {defaultValue = '[]'} = {}) => ({
-    type: Sequelize.STRING,
-    defaultValue,
+  JSONARRAYType: (fieldName, {defaultValue = []} = {}) => ({
+    type: Sequelize.TEXT,
     get: function get() {
-      return JSON.parse(this.getDataValue(fieldName))
+      const val = this.getDataValue(fieldName);
+      if (!val) { return defaultValue }
+      return JSON.parse(val);
     },
     set: function set(val) {
       this.setDataValue(fieldName, JSON.stringify(val));
