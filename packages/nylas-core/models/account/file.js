@@ -15,11 +15,11 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
     instanceMethods: {
-      fetch: function fetch({account, db}) {
+      fetch: function fetch({account, db, logger}) {
         const settings = Object.assign({}, account.connectionSettings, account.decryptedCredentials())
         return Promise.props({
           message: this.getMessage(),
-          connection: IMAPConnection.connect(db, settings),
+          connection: IMAPConnection.connect({db, settings, logger}),
         })
         .then(({message, connection}) => {
           return message.getFolder()

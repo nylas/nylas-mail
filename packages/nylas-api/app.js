@@ -7,8 +7,10 @@ const Vision = require('vision');
 const Package = require('./package');
 const fs = require('fs');
 const path = require('path');
+const {DatabaseConnector, SchedulerUtils, Logger} = require(`nylas-core`);
 
 global.Promise = require('bluebird');
+global.Logger = Logger.createLogger('nylas-k2-api')
 
 const server = new Hapi.Server({
   connections: {
@@ -33,8 +35,6 @@ const plugins = [Inert, Vision, HapiBasicAuth, HapiBoom, {
 let sharedDb = null;
 
 const validate = (request, username, password, callback) => {
-  const {DatabaseConnector, SchedulerUtils} = require(`nylas-core`);
-
   let getSharedDb = null;
   if (sharedDb) {
     getSharedDb = Promise.resolve(sharedDb)
@@ -88,6 +88,6 @@ server.register(plugins, (err) => {
 
   server.start((startErr) => {
     if (startErr) { throw startErr; }
-    console.log('API running at:', server.info.uri);
+    global.Logger.info({url: server.info.uri}, 'API running');
   });
 });

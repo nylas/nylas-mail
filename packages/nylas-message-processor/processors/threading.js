@@ -9,11 +9,14 @@ class ThreadingProcessor {
     // conversation. Put it back soonish.
 
     // const messageEmails = _.uniq([].concat(message.to, message.cc, message.from).map(p => p.email));
-    // console.log(`Found ${threads.length} candidate threads for message with subject: ${message.subject}`)
+    // this.logger.info({
+    //   num_candidate_threads: threads.length,
+    //   message_subject: message.subject,
+    // }, `Found candidate threads for message`)
     //
     // for (const thread of threads) {
     //   const threadEmails = _.uniq([].concat(thread.participants).map(p => p.email));
-    //   console.log(`Intersection: ${_.intersection(threadEmails, messageEmails).join(',')}`)
+    //   this.logger.info(`Intersection: ${_.intersection(threadEmails, messageEmails).join(',')}`)
     //
     //   if (_.intersection(threadEmails, messageEmails) >= threadEmails.length * 0.9) {
     //     return thread;
@@ -66,13 +69,15 @@ class ThreadingProcessor {
     })
   }
 
-  processMessage({db, message}) {
+  processMessage({db, message, logger}) {
     if (!(message.labels instanceof Array)) {
       throw new Error("Threading processMessage expects labels to be an inflated array.");
     }
     if (message.folder === undefined) {
       throw new Error("Threading processMessage expects folder value to be present.");
     }
+
+    this.logger = logger
 
     const {Folder, Label} = db;
     let findOrCreateThread = null;

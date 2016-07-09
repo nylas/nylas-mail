@@ -73,9 +73,7 @@ module.exports = (server) => {
     },
     handler: (request, reply) => {
       request.getAccountDatabase().then(({File}) => {
-        const {headers: {accept}} = request
         const {params: {id}} = request
-        const account = request.auth.credentials
 
         File.findOne({where: {id}}).then((file) => {
           if (!file) {
@@ -83,9 +81,9 @@ module.exports = (server) => {
           }
           return reply(Serialization.jsonStringify(file));
         })
-        .catch((error) => {
-          console.log('Error fetching file: ', error)
-          reply(error)
+        .catch((err) => {
+          request.logger.error(err, 'Error fetching file')
+          reply(err)
         })
       })
     },
@@ -107,7 +105,6 @@ module.exports = (server) => {
     handler: (request, reply) => {
       request.getAccountDatabase()
       .then((db) => {
-        const {headers: {accept}} = request
         const {params: {id}} = request
         const account = request.auth.credentials
 
@@ -116,12 +113,12 @@ module.exports = (server) => {
           if (!file) {
             return reply.notFound(`File ${id} not found`)
           }
-          return file.fetch({account, db})
+          return file.fetch({account, db, logger: request.logger})
           .then((stream) => reply(stream))
         })
-        .catch((error) => {
-          console.log('Error fetching file: ', error)
-          reply(error)
+        .catch((err) => {
+          request.logger.error(err, 'Error downloading file')
+          reply(err)
         })
       })
     },

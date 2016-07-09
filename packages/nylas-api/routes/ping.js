@@ -6,8 +6,8 @@ module.exports = (server) => {
       auth: false,
     },
     handler: (request, reply) => {
-      console.log("---> Ping!")
-      reply("pong")
+      request.logger.info('----> Pong!')
+      reply("Pong")
     },
   });
 };

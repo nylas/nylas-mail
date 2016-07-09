@@ -17,7 +17,6 @@
     "object-curly-spacing": "off",
     "max-len": "off",
     "new-cap": ["error", {"capIsNew": false}],
-    "no-console": "off",
     "no-constant-condition": "off",
     "no-loop-func": "off",
     "no-shadow": "error",

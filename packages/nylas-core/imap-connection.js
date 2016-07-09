@@ -176,8 +176,9 @@ class IMAPConnection extends EventEmitter {
     return new IMAPConnection(...args).connect()
   }
 
-  constructor(db, settings) {
+  constructor({db, settings, logger = console} = {}) {
     super();
+    this._logger = logger;
     this._db = db;
     this._queue = [];
     this._currentOperation = null;
@@ -231,13 +232,13 @@ class IMAPConnection extends EventEmitter {
       this._imap = Promise.promisifyAll(new Imap(settings));
 
       this._imap.once('end', () => {
-        console.log('Underlying IMAP Connection ended');
+        this._logger.info('Underlying IMAP Connection ended');
         this._connectPromise = null;
         this._imap = null;
       });
 
       this._imap.on('alert', (msg) => {
-        console.log(`IMAP SERVER SAYS: ${msg}`)
+        this._logger.info({imap_server_msg: msg}, `IMAP server message`)
       })
 
       // Emitted when new mail arrives in the currently open mailbox.
@@ -346,14 +347,20 @@ class IMAPConnection extends EventEmitter {
 
     result.then(() => {
       this._currentOperation = null;
-      console.log(`Finished task: ${operation.description()}`)
+      this._logger.info({
+        operation_type: operation.constructor.name,
+        operation_description: operation.description(),
+      }, `Finished sync operation`)
       resolve();
       this.processNextOperation();
     })
     .catch((err) => {
       this._currentOperation = null;
-      console.log(`Task errored: ${operation.description()}`)
-      console.error(err)
+      this._logger.error({
+        err,
+        operation_type: operation.constructor.name,
+        operation_description: operation.description(),
+      }, `Sync operation errored`)
       reject(err);
     })
   }

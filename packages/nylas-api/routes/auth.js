@@ -97,7 +97,7 @@ module.exports = (server) => {
       const {settings, email, provider, name} = request.payload;
 
       if (provider === 'imap') {
-        connectionChecks.push(IMAPConnection.connect(dbStub, settings))
+        connectionChecks.push(IMAPConnection.connect({db: dbStub, settings}))
       }
 
       Promise.all(connectionChecks).then(() => {
@@ -188,7 +188,7 @@ module.exports = (server) => {
           }
 
           Promise.all([
-            IMAPConnection.connect({}, Object.assign({}, settings, credentials)),
+            IMAPConnection.connect({db: {}, settings: Object.assign({}, settings, credentials)}),
           ])
           .then(() =>
             buildAccountWith({
