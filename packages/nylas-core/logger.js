@@ -14,8 +14,8 @@ function getLogStreams(name, env) {
 
   const cloudwatchStream = {
     stream: createCWStream({
-      logGroup: `k2-${env}`,
-      logStream: `${name}-${env}`,
+      logGroupName: `k2-${env}`,
+      logStreamName: `${name}-${env}`,
       cloudWatchLogsOptions: {
         region: 'us-east-1',
       },
