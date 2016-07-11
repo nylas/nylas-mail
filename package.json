@@ -29,7 +29,7 @@
   "scripts": {
     "start": "pm2 start ./pm2-dev.yml --watch; pm2 logs --raw | bunyan -o short",
     "logs": "pm2 logs --raw | bunyan -o short",
-    "stop": "pm2 delete all",
+    "stop": "pm2 stop all",
     "postinstall": "lerna bootstrap"
   },
   "repository": {
