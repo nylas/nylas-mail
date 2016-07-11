@@ -12,6 +12,27 @@ const {
 } = window;
 
 class Account extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      accountId: props.account.id,
+    }
+  }
+  clearError() {
+    const req = new XMLHttpRequest();
+    const url = `${window.location.protocol}/accounts/${this.state.accountId}/clear-sync-error`;
+    req.open("PUT", url, true);
+    req.onreadystatechange = () => {
+      if (req.readyState === XMLHttpRequest.DONE) {
+        if (req.status === 200) {
+          // Would setState here, but external updates currently refresh the account
+        } else {
+          console.error(req.responseText);
+        }
+      }
+    }
+    req.send();
+  }
   renderError() {
     const {account} = this.props;
 
@@ -24,6 +45,7 @@ class Account extends React.Component {
       return (
         <div>
           <div className="section">Error</div>
+          <span className="action-link" onClick={() => this.clearError()}>Clear Error</span>
           <div className="error">
             <pre>
               {JSON.stringify(error, null, 2)}
