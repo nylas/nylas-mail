@@ -21,6 +21,7 @@ function getLogStreams(name, env) {
       },
     }),
     type: 'raw',
+    reemitErrorEvents: true,
   }
   return [stdoutStream, cloudwatchStream]
 }
