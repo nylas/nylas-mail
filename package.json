@@ -27,9 +27,9 @@
     "sqlite3": "https://github.com/bengotow/node-sqlite3/archive/bengotow/usleep-v3.1.4.tar.gz"
   },
   "scripts": {
-    "start": "pm2 start ./pm2-dev.yml --watch; pm2 logs --raw | bunyan -o short",
+    "start": "pm2 kill && pm2 start ./pm2-dev.yml --watch && pm2 logs --raw | bunyan -o short",
     "logs": "pm2 logs --raw | bunyan -o short",
-    "stop": "pm2 stop all",
+    "stop": "pm2 kill",
     "postinstall": "lerna bootstrap"
   },
   "repository": {
