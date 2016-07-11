@@ -1,8 +1,9 @@
 import React from 'react';
 import classnames from 'classnames';
-
-import {AccountStore} from 'nylas-exports';
-import {Menu, ButtonDropdown} from 'nylas-component-kit';
+import {
+  AccountStore,
+} from 'nylas-exports';
+import {Menu, ButtonDropdown, InjectedComponentSet} from 'nylas-component-kit';
 
 export default class AccountContactField extends React.Component {
   static displayName = 'AccountContactField';
@@ -10,11 +11,14 @@ export default class AccountContactField extends React.Component {
   static propTypes = {
     value: React.PropTypes.object,
     accounts: React.PropTypes.array.isRequired,
+    session: React.PropTypes.object.isRequired,
+    draft: React.PropTypes.object.isRequired,
     onChange: React.PropTypes.func.isRequired,
   };
 
   _onChooseContact = (contact) => {
     this.props.onChange({from: [contact]});
+    this.props.session.ensureCorrectAccount()
     this.refs.dropdown.toggleDropdown();
   }
 
@@ -72,11 +76,29 @@ export default class AccountContactField extends React.Component {
     );
   }
 
+
+  _renderFromFieldComponents = () => {
+    const {draft, session, accounts} = this.props
+    return (
+      <InjectedComponentSet
+        className="dropdown-component"
+        matching={{role: "Composer:FromFieldComponents"}}
+        exposedProps={{
+          draft,
+          session,
+          accounts,
+          currentAccount: draft.from[0],
+        }}
+      />
+    )
+  }
+
   render() {
     return (
       <div className="composer-participant-field">
         <div className="composer-field-label">From:</div>
         {this._renderAccountSelector()}
+        {this._renderFromFieldComponents()}
       </div>
     );
   }

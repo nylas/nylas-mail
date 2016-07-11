@@ -1,121 +1,210 @@
 import React from 'react';
-import {Contenteditable} from 'nylas-component-kit';
-import {AccountStore} from 'nylas-exports';
-import SignatureStore from './signature-store';
-import SignatureActions from './signature-actions';
+import _ from 'underscore';
+import {
+    Flexbox,
+    RetinaImg,
+    EditableList,
+    Contenteditable,
+    MultiselectDropdown,
+} from 'nylas-component-kit';
+import {AccountStore, SignatureStore, Actions} from 'nylas-exports';
+
 
 export default class PreferencesSignatures extends React.Component {
   static displayName = 'PreferencesSignatures';
 
-  constructor(props) {
-    super(props);
-    this.state = this._getStateFromStores();
+  constructor() {
+    super()
+    this.state = this._getStateFromStores()
   }
 
   componentDidMount() {
-    this.usub = AccountStore.listen(this._onChange);
+    this.unsubscribers = [
+      SignatureStore.listen(this._onChange),
+    ]
   }
 
   componentWillUnmount() {
-    this.usub();
+    this.unsubscribers.forEach(unsubscribe => unsubscribe());
   }
 
+
   _onChange = () => {
-    this.setState(this._getStateFromStores());
+    this.setState(this._getStateFromStores())
   }
 
   _getStateFromStores() {
-    const accounts = AccountStore.accounts();
-    const state = this.state || {};
-
-    let {currentAccountId} = state;
-    if (!accounts.find(acct => acct.id === currentAccountId)) {
-      currentAccountId = accounts[0].id;
-    }
+    const signatures = SignatureStore.getSignatures()
+    const accounts = AccountStore.accounts()
+    const selected = SignatureStore.selectedSignature()
+    const defaults = SignatureStore.getDefaults()
     return {
-      accounts,
-      currentAccountId,
-      currentSignature: SignatureStore.signatureForAccountId(currentAccountId),
-      editAsHTML: state.editAsHTML,
-    };
+      signatures: signatures,
+      selectedSignature: selected,
+      defaults: defaults,
+      accounts: accounts,
+      editAsHTML: this.state ? this.state.editAsHTML : false,
+    }
+  }
+
+
+  _onCreateButtonClick = () => {
+    this._onAddSignature()
+  }
+
+  _onAddSignature = () => {
+    Actions.addSignature()
+  }
+
+  _onDeleteSignature = (signature) => {
+    Actions.removeSignature(signature)
+  }
+
+  _onEditSignature = (edit) => {
+    let editedSig;
+    if (typeof edit === "object") {
+      editedSig = {
+        title: this.state.selectedSignature.title,
+        body: edit.target.value,
+      }
+    } else {
+      editedSig = {
+        title: edit,
+        body: this.state.selectedSignature.body,
+      }
+    }
+    Actions.updateSignature(editedSig, this.state.selectedSignature.id)
+  }
+
+  _onSelectSignature = (sig) => {
+    Actions.selectSignature(sig.id)
+  }
+
+  _onToggleAccount = (accountId) => {
+    Actions.toggleAccount(accountId)
+  }
+
+  _onToggleEditAsHTML = () => {
+    const toggled = !this.state.editAsHTML
+    this.setState({editAsHTML: toggled})
+  }
+
+  _renderListItemContent = (sig) => {
+    return sig.title
+  }
+
+  _renderSignatureToolbar() {
+    return (
+      <div className="editable-toolbar">
+        <div className="account-picker">
+          Default for: {this._renderAccountPicker()}
+        </div>
+        <div className="render-mode">
+          <input type="checkbox" id="render-mode" checked={this.state.editAsHTML} onClick={this._onToggleEditAsHTML} />
+          <label>Edit raw HTML</label>
+        </div>
+      </div>
+    )
+  }
+
+  _selectItemKey = (account) => {
+    return account.accountId
+  }
+
+  _isChecked = (account) => {
+    if (this.state.defaults[account.accountId] === this.state.selectedSignature.id) return true
+    return false
+  }
+
+  _numSelected() {
+    const sel = _.filter(this.state.accounts, (account) => {
+      return this._isChecked(account)
+    })
+    const numSelected = sel.length
+    return numSelected.toString() + (numSelected === 1 ? " Account" : " Accounts")
   }
 
   _renderAccountPicker() {
-    const options = this.state.accounts.map(account =>
-      <option value={account.id} key={account.id}>{account.label}</option>
-    );
-
+    const buttonText = this._numSelected()
     return (
-      <select value={this.state.currentAccountId} onChange={this._onSelectAccount} style={{minWidth: 200}}>
-        {options}
-      </select>
-    );
+      <MultiselectDropdown
+        className="account-dropdown"
+        items={this.state.accounts}
+        itemChecked={this._isChecked}
+        onToggleItem={this._onToggleAccount}
+        itemKey={this._selectItemKey}
+        current={this.selectedSignature}
+        buttonText={buttonText}
+      />
+    )
   }
 
   _renderEditableSignature() {
+    const selectedBody = this.state.selectedSignature ? this.state.selectedSignature.body : ""
     return (
       <Contenteditable
-        tabIndex={-1}
         ref="signatureInput"
-        value={this.state.currentSignature}
-        onChange={this._onEditSignature}
+        value={selectedBody}
         spellcheck={false}
+        onChange={this._onEditSignature}
       />
-     );
+    )
   }
 
   _renderHTMLSignature() {
     return (
       <textarea
-        ref="signatureHTMLInput"
-        value={this.state.currentSignature}
+        value={this.state.selectedSignature.body}
         onChange={this._onEditSignature}
       />
     );
   }
 
-  _onEditSignature = (event) => {
-    const html = event.target.value;
-    this.setState({currentSignature: html});
-
-    SignatureActions.setSignatureForAccountId({
-      accountId: this.state.currentAccountId,
-      signature: html,
-    });
-  }
-
-  _onSelectAccount = (event) => {
-    const accountId = event.target.value;
-    this.setState({
-      currentSignature: SignatureStore.signatureForAccountId(accountId),
-      currentAccountId: accountId,
-    });
-  }
-
-  _renderModeToggle() {
-    const label = this.state.editAsHTML ? "Edit live preview" : "Edit raw HTML";
-    const action = () => {
-      this.setState({editAsHTML: !this.state.editAsHTML});
-      return;
-    };
-
+  _renderSignatures() {
+    const sigArr = _.values(this.state.signatures)
+    if (sigArr.length === 0) {
+      return (
+        <div className="empty-list">
+          <RetinaImg
+            className="icon-signature"
+            name="signatures-big.png"
+            mode={RetinaImg.Mode.ContentDark}
+          />
+          <h2>No signatures</h2>
+          <button className="btn btn-small btn-create-signature" onMouseDown={this._onCreateButtonClick}>
+              Create a new signature
+          </button>
+        </div>
+      );
+    }
     return (
-      <a onClick={action}>{label}</a>
-    );
+      <Flexbox>
+        <EditableList
+          showEditIcon
+          className="signature-list"
+          items={sigArr}
+          itemContent={this._renderListItemContent}
+          onCreateItem={this._onAddSignature}
+          onDeleteItem={this._onDeleteSignature}
+          onItemEdited={this._onEditSignature}
+          onSelectItem={this._onSelectSignature}
+          selected={this.state.selectedSignature}
+        />
+        <div className="signature-wrap">
+            {this.state.editAsHTML ? this._renderHTMLSignature() : this._renderEditableSignature()}
+            {this._renderSignatureToolbar()}
+        </div>
+      </Flexbox>
+    )
   }
 
   render() {
-    const rawText = this.state.editAsHTML ? "Raw HTML " : "";
     return (
-      <section className="container-signatures">
-        <div className="section-title">
-          {rawText}Signature for: {this._renderAccountPicker()}
-        </div>
-        <div className="signature-wrap">
-          {this.state.editAsHTML ? this._renderHTMLSignature() : this._renderEditableSignature()}
-        </div>
-        <div className="toggle-mode" style={{marginTop: "1em"}}>{this._renderModeToggle()}</div>
-      </section>
+      <div className="preferences-signatures-container">
+        <section>
+          {this._renderSignatures()}
+        </section>
+      </div>
     )
   }
 }
