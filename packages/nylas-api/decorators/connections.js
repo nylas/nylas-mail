@@ -8,6 +8,9 @@ module.exports = (server) => {
     return DatabaseConnector.forAccount(account.id);
   });
   server.decorate('request', 'logger', (request) => {
-    return global.Logger.forAccount(request.auth.credentials)
+    if (request.auth.credentials) {
+      return global.Logger.forAccount(request.auth.credentials)
+    }
+    return global.Logger
   }, {apply: true});
 }
