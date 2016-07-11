@@ -185,7 +185,7 @@ class FetchMessagesInFolder {
         this._logger.info({
           key,
           num_messages: uids.length,
-        }`FetchMessagesInFolder: Fetching parts for messages`)
+        }, `FetchMessagesInFolder: Fetching parts for messages`)
 
         // note: the order of UIDs in the array doesn't matter, Gmail always
         // returns them in ascending (oldest => newest) order.

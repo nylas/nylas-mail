@@ -6,7 +6,8 @@ function replacer(key, value) {
 }
 
 function jsonSchema(modelName) {
-  const models = ['Message', 'Thread', 'File', 'Error', 'SyncbackRequest', 'Account']
+  const models = ['Message', 'Thread', 'File', 'Error', 'SyncbackRequest', 'Account', 'Contact']
+
   if (models.includes(modelName)) {
     return Joi.object();
   }
@@ -22,7 +23,7 @@ function jsonSchema(modelName) {
     //   connection_settings: Joi.object(),
     //   sync_policy: Joi.object(),
     //   sync_error: Joi.object().allow(null),
-    //   first_sync_completed_at: Joi.number().allow(null),
+    //   first_sync_completion: Joi.number().allow(null),
     //   last_sync_completions: Joi.array(),
     // })
   }
