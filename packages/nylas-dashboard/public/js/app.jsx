@@ -6,6 +6,7 @@ const {
   SetAllSyncPolicies,
   AccountFilter,
   SyncGraph,
+  SyncbackRequestDetails,
 } = window;
 
 class Account extends React.Component {
@@ -51,6 +52,7 @@ class Account extends React.Component {
       <div className={`account${errorClass}`}>
         <h3>{account.email_address} {active ? '🌕' : '🌑'}</h3>
         <strong>{assignment}</strong>
+        <SyncbackRequestDetails accountId={account.id} />
         <SyncPolicy
           accountId={account.id}
           stringifiedSyncPolicy={JSON.stringify(account.sync_policy, null, 2)}
