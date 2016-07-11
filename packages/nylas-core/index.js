@@ -11,4 +11,5 @@ module.exports = {
   SyncPolicy: require('./sync-policy'),
   SchedulerUtils: require('./scheduler-utils'),
   MessageTypes: require('./message-types'),
+  Logger: require('./logger'),
 }

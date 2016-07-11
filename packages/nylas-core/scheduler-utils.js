@@ -22,7 +22,9 @@ const forEachAccountList = (forEachCallback) => {
 }
 
 const assignPolicy = (accountId, policy) => {
-  console.log(`Changing policy for ${accountId} to ${JSON.stringify(policy)}`)
+  const log = global.Logger || console
+  log.info({policy, account_id: accountId}, `Changing single policy`)
+
   const DatabaseConnector = require('./database-connector');
   return DatabaseConnector.forShared().then(({Account}) => {
     Account.find({where: {id: accountId}}).then((account) => {
@@ -33,7 +35,9 @@ const assignPolicy = (accountId, policy) => {
 }
 
 const assignPolicyToAcounts = (accountIds, policy) => {
-  console.log(`Changing policy for ${accountIds} to ${JSON.stringify(policy)}`)
+  const log = global.Logger || console
+  log.info({policy, account_ids: accountIds}, `Changing multiple policies`)
+
   const DatabaseConnector = require('./database-connector');
   return DatabaseConnector.forShared().then(({Account}) => {
     Account.findAll({where: {id: {$or: accountIds}}}).then((accounts) => {

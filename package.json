@@ -5,6 +5,8 @@
   "main": "",
   "dependencies": {
     "bluebird": "3.x.x",
+    "bunyan": "^1.8.1",
+    "bunyan-cloudwatch": "^2.0.0",
     "lerna": "2.0.0-beta.23",
     "mysql": "^2.11.1",
     "newrelic": "^1.28.1",
@@ -25,8 +27,10 @@
     "sqlite3": "https://github.com/bengotow/node-sqlite3/archive/bengotow/usleep-v3.1.4.tar.gz"
   },
   "scripts": {
-    "start": "./node_modules/pm2/bin/pm2 start ./pm2-dev.yml  --no-daemon",
-    "postinstall": "node_modules/.bin/lerna bootstrap"
+    "start": "pm2 start ./pm2-dev.yml",
+    "logs": "pm2 logs --raw | bunyan -o short",
+    "stop": "pm2 delete all",
+    "postinstall": "lerna bootstrap"
   },
   "repository": {
     "type": "git",

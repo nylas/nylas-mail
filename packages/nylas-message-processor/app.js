@@ -1,7 +1,8 @@
-const {PubsubConnector, DatabaseConnector} = require(`nylas-core`)
+const {PubsubConnector, DatabaseConnector, Logger} = require(`nylas-core`)
 const {processors} = require('./processors')
 
 global.Promise = require('bluebird');
+global.Logger = Logger.createLogger('nylas-k2-message-processor')
 
 // List of the attributes of Message that the processor should be allowed to change.
 // The message may move between folders, get starred, etc. while it's being
@@ -11,15 +12,13 @@ const MessageProcessorVersion = 1;
 
 const redis = PubsubConnector.buildClient();
 
-function runPipeline({db, accountId, message}) {
-  console.log(`Processing message ${message.id}`)
+function runPipeline({db, accountId, message, logger}) {
+  logger.info(`MessageProcessor: Processing message`)
   return processors.reduce((prevPromise, processor) => (
     prevPromise.then((prevMessage) => {
-      const processed = processor({message: prevMessage, accountId, db});
-      if (!(processed instanceof Promise)) {
-        throw new Error(`processor ${processor} did not return a promise.`)
-      }
-      return processed.then((nextMessage) => {
+      const processed = processor({message: prevMessage, accountId, db, logger});
+      return Promise.resolve(processed)
+      .then((nextMessage) => {
         if (!nextMessage.body) {
           throw new Error("processor did not resolve with a valid message object.")
         }
@@ -46,26 +45,28 @@ function dequeueJob() {
     try {
       json = JSON.parse(item[1]);
     } catch (error) {
-      console.error(`MessageProcessor Failed: Found invalid JSON item in queue: ${item}`)
+      global.Logger.error({item}, `MessageProcessor: Found invalid JSON item in queue`)
       return dequeueJob();
     }
     const {messageId, accountId} = json;
+    const logger = global.Logger.forAccount({id: accountId}).child({message_id: messageId})
 
-    DatabaseConnector.forAccount(accountId).then((db) =>
-      db.Message.find({
+    DatabaseConnector.forAccount(accountId).then((db) => {
+      return db.Message.find({
         where: {id: messageId},
         include: [{model: db.Folder}, {model: db.Label}],
       }).then((message) => {
         if (!message) {
           return Promise.reject(new Error(`Message not found (${messageId}). Maybe account was deleted?`))
         }
-        return runPipeline({db, accountId, message}).then((processedMessage) =>
+        return runPipeline({db, accountId, message, logger}).then((processedMessage) =>
           saveMessage(processedMessage)
         ).catch((err) =>
-          console.error(`MessageProcessor Failed: ${err} ${err.stack}`)
+          logger.error(err, `MessageProcessor: Failed`)
         )
       })
-    ).finally(() => {
+    })
+    .finally(() => {
       dequeueJob()
     });
 

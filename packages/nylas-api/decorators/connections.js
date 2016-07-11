@@ -7,4 +7,7 @@ module.exports = (server) => {
     const account = this.auth.credentials;
     return DatabaseConnector.forAccount(account.id);
   });
+  server.decorate('request', 'logger', (request) => {
+    return global.Logger.forAccount(request.auth.credentials)
+  }, {apply: true});
 }

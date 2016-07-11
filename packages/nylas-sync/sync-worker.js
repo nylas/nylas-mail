@@ -11,8 +11,8 @@ const {
 
 const {CLAIM_DURATION} = SchedulerUtils;
 
-const FetchFolderList = require('./imap/fetch-category-list')
-const FetchMessagesInFolder = require('./imap/fetch-messages-in-category')
+const FetchFolderList = require('./imap/fetch-folder-list')
+const FetchMessagesInFolder = require('./imap/fetch-messages-in-folder')
 const SyncbackTaskFactory = require('./syncback-task-factory')
 
 
@@ -24,6 +24,7 @@ class SyncWorker {
     this._startTime = Date.now();
     this._lastSyncTime = null;
     this._onExpired = onExpired;
+    this._logger = global.Logger.forAccount(account)
 
     this._syncTimer = null;
     this._expirationTimer = null;
@@ -100,7 +101,7 @@ class SyncWorker {
       return Promise.reject(new Error("ensureConnection: There are no IMAP connection credentials for this account."))
     }
 
-    const conn = new IMAPConnection(this._db, Object.assign({}, settings, credentials));
+    const conn = new IMAPConnection({db: this._db, settings: Object.assign({}, settings, credentials), logger: this._logger});
     conn.on('mail', () => {
       this._onConnectionIdleUpdate();
     })
@@ -145,7 +146,7 @@ class SyncWorker {
       )
 
       return Promise.all(categoriesToSync.map((cat) =>
-        this._conn.runOperation(new FetchMessagesInFolder(cat, folderSyncOptions))
+        this._conn.runOperation(new FetchMessagesInFolder(cat, folderSyncOptions, this._logger))
       ))
     });
   }
@@ -155,10 +156,10 @@ class SyncWorker {
     this._syncTimer = null;
 
     if (!process.env.SYNC_AFTER_ERRORS && this._account.errored()) {
-      console.log(`SyncWorker: Account ${this._account.emailAddress} (${this._account.id}) is in error state - Skipping sync`)
+      this._logger.info(`SyncWorker: Account is in error state - Skipping sync`)
       return
     }
-    console.log(`SyncWorker: Account ${this._account.emailAddress} (${this._account.id}) sync started (${reason})`)
+    this._logger.info({reason}, `SyncWorker: Account sync started`)
 
     this.ensureConnection()
     .then(() => this._account.update({syncError: null}))
@@ -174,7 +175,7 @@ class SyncWorker {
   }
 
   onSyncError(error) {
-    console.error(`SyncWorker: Error while syncing account ${this._account.emailAddress} (${this._account.id})`, error)
+    this._logger.error(error, `SyncWorker: Error while syncing account`)
     this.closeConnection()
 
     if (error.source.includes('socket') || error.source.includes('timeout')) {
@@ -203,16 +204,16 @@ class SyncWorker {
 
     this._account.lastSyncCompletions = lastSyncCompletions
     this._account.save()
-    console.log('Syncworker: Completed sync cycle')
+    this._logger.info('Syncworker: Completed sync cycle')
 
     if (afterSync === 'idle') {
       return this._getIdleFolder()
       .then((idleFolder) => this._conn.openBox(idleFolder.name))
-      .then(() => console.log('SyncWorker: - Idling on inbox category'))
+      .then(() => this._logger.info('SyncWorker: - Idling on inbox category'))
     }
 
     if (afterSync === 'close') {
-      console.log('SyncWorker: - Closing connection');
+      this._logger.info('SyncWorker: - Closing connection');
       this.closeConnection()
       return Promise.resolve()
     }
@@ -226,7 +227,7 @@ class SyncWorker {
 
   scheduleNextSync() {
     if (Date.now() - this._startTime > CLAIM_DURATION) {
-      console.log("SyncWorker: - Has held account for more than CLAIM_DURATION, returning to pool.");
+      this._logger.info("SyncWorker: - Has held account for more than CLAIM_DURATION, returning to pool.");
       this.cleanup();
       this._onExpired();
       return;
@@ -238,7 +239,10 @@ class SyncWorker {
 
       if (interval) {
         const target = this._lastSyncTime + interval;
-        console.log(`SyncWorker: Account ${active ? 'active' : 'inactive'}. Next sync scheduled for ${new Date(target).toLocaleString()}`);
+        this._logger.info({
+          is_active: active,
+          next_sync: new Date(target).toLocaleString(),
+        }, `SyncWorker: Next sync scheduled`);
         this._syncTimer = setTimeout(() => {
           this.syncNow({reason: 'Scheduled'});
         }, target - Date.now());

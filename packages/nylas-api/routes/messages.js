@@ -123,15 +123,16 @@ module.exports = (server) => {
             return reply.notFound(`Message ${id} not found`)
           }
           if (accept === 'message/rfc822') {
-            return message.fetchRaw({account, db}).then((rawMessage) =>
+            return message.fetchRaw({account, db, logger: request.logger})
+            .then((rawMessage) =>
               reply(rawMessage)
             )
           }
           return reply(Serialization.jsonStringify(message));
         })
-        .catch((error) => {
-          console.log('Error fetching message: ', error)
-          reply(error)
+        .catch((err) => {
+          request.logger.error(err, 'Error fetching message')
+          reply(err)
         })
       })
     },

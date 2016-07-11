@@ -11,7 +11,7 @@ function Contact({name, address} = {}) {
 const extractContacts = (values) =>
   (values || []).map(v => Contact(mimelib.parseAddresses(v).pop()))
 
-function processMessage({message}) {
+function processMessage({message, logger}) {
   if (message.snippet) {
     // trim and clean snippet which is alreay present (from message plaintext)
     message.snippet = message.snippet.replace(/[\n\r]/g, ' ').replace(/\s\s+/g, ' ')
@@ -24,7 +24,7 @@ function processMessage({message}) {
     // TODO: Fanciness
     message.snippet = message.body.substr(0, Math.min(message.body.length, SNIPPET_SIZE));
   } else {
-    console.log("Received message has no body or snippet.")
+    logger.info("MessageProcessor: Parsing - Received message has no body or snippet.")
   }
 
   message.to = extractContacts(message.headers.to);

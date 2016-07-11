@@ -28,7 +28,9 @@
 # Developing Locally:
 
 ```
-npm start
+npm run start
+npm run logs
+npm run stop
 ```
 
 We use [pm2](http://pm2.keymetrics.io/) to launch a variety of processes

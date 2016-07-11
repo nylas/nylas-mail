@@ -3,8 +3,9 @@ const {Provider} = require('nylas-core');
 const GMAIL_FOLDERS = ['[Gmail]/All Mail', '[Gmail]/Trash', '[Gmail]/Spam'];
 
 class FetchFolderList {
-  constructor(provider) {
+  constructor(provider, logger = console) {
     this._provider = provider;
+    this._logger = logger;
   }
 
   description() {

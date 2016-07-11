@@ -1,11 +1,12 @@
 const Hapi = require('hapi');
 const HapiWebSocket = require('hapi-plugin-websocket');
 const Inert = require('inert');
-const {DatabaseConnector, PubsubConnector, SchedulerUtils} = require(`nylas-core`);
+const {DatabaseConnector, PubsubConnector, SchedulerUtils, Logger} = require(`nylas-core`);
 const fs = require('fs');
 const path = require('path');
 
 global.Promise = require('bluebird');
+global.Logger = Logger.createLogger('nylas-k2-dashboard')
 
 const server = new Hapi.Server();
 server.connection({ port: process.env.PORT });
@@ -98,6 +99,6 @@ server.register([HapiWebSocket, Inert], () => {
 
   server.start((startErr) => {
     if (startErr) { throw startErr; }
-    console.log('Dashboard running at:', server.info.uri);
+    global.Logger.info({uri: server.info.uri}, 'Dashboard running');
   });
 });

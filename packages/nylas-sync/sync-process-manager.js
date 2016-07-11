@@ -43,7 +43,7 @@ class SyncProcessManager {
   }
 
   start() {
-    console.log(`ProcessManager: Starting with ID ${IDENTITY}`)
+    global.Logger.info(`ProcessManager: Starting with ID ${IDENTITY}`)
 
     this.unassignAccountsAssignedTo(IDENTITY).then(() => {
       this.unassignAccountsMissingHeartbeats();
@@ -63,12 +63,12 @@ class SyncProcessManager {
     client.setAsync(key, Date.now()).then(() =>
       client.expireAsync(key, HEARTBEAT_EXPIRES)
     ).then(() =>
-      console.log("ProcessManager: 💘")
+      global.Logger.info("ProcessManager: 💘")
     )
   }
 
   onSigInt() {
-    console.log(`ProcessManager: Exiting...`)
+    global.Logger.info(`ProcessManager: Exiting...`)
     this._exiting = true;
 
     this.unassignAccountsAssignedTo(IDENTITY).then(() =>
@@ -85,7 +85,7 @@ class SyncProcessManager {
 
     let unseenIds = [].concat(accountIds);
 
-    console.log("ProcessManager: Starting scan for accountIds in database that are not present in Redis.")
+    global.Logger.info("ProcessManager: Starting scan for accountIds in database that are not present in Redis.")
 
     return forEachAccountList((foundProcessIdentity, foundIds) => {
       unseenIds = unseenIds.filter((a) => !foundIds.includes(`${a}`))
@@ -94,7 +94,7 @@ class SyncProcessManager {
       if (unseenIds.length === 0) {
         return;
       }
-      console.log(`ProcessManager: Adding account IDs ${unseenIds.join(',')} to ${ACCOUNTS_UNCLAIMED}.`)
+      global.Logger.info(`ProcessManager: Adding account IDs ${unseenIds.join(',')} to ${ACCOUNTS_UNCLAIMED}.`)
       unseenIds.map((id) => client.lpushAsync(ACCOUNTS_UNCLAIMED, id));
     });
   }
@@ -102,7 +102,7 @@ class SyncProcessManager {
   unassignAccountsMissingHeartbeats() {
     const client = PubsubConnector.broadcastClient();
 
-    console.log("ProcessManager: Starting unassignment for processes missing heartbeats.")
+    global.Logger.info("ProcessManager: Starting unassignment for processes missing heartbeats.")
 
     Promise.each(client.keysAsync(`${ACCOUNTS_CLAIMED_PREFIX}*`), (key) => {
       const id = key.replace(ACCOUNTS_CLAIMED_PREFIX, '');
@@ -125,12 +125,12 @@ class SyncProcessManager {
       )
 
     return unassignOne(0).then((returned) => {
-      console.log(`ProcessManager: Returned ${returned} accounts assigned to ${identity}.`)
+      global.Logger.info(`ProcessManager: Returned ${returned} accounts assigned to ${identity}.`)
     });
   }
 
   update() {
-    console.log(`ProcessManager: Searching for an unclaimed account to sync.`)
+    global.Logger.info(`ProcessManager: Searching for an unclaimed account to sync.`)
 
     this.acceptUnclaimedAccount().finally(() => {
       if (this._exiting) {
@@ -170,7 +170,7 @@ class SyncProcessManager {
           if (this._exiting || this._workers[account.id]) {
             return;
           }
-          console.log(`ProcessManager: Starting worker for Account ${accountId}`)
+          global.Logger.info(`ProcessManager: Starting worker for Account ${accountId}`)
           this._workers[account.id] = new SyncWorker(account, db, () => {
             this.removeWorkerForAccountId(accountId)
           });
