@@ -197,8 +197,8 @@ class SyncWorker {
   onSyncDidComplete() {
     const {afterSync} = this._account.syncPolicy;
 
-    if (!this._account.firstSyncCompletedAt) {
-      this._account.firstSyncCompletedAt = Date.now()
+    if (!this._account.firstSyncCompletion) {
+      this._account.firstSyncCompletion = Date.now()
     }
 
     const now = Date.now();

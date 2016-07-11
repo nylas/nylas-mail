@@ -12,7 +12,7 @@ module.exports = (sequelize, Sequelize) => {
     connectionCredentials: Sequelize.TEXT,
     syncPolicy: JSONType('syncPolicy'),
     syncError: JSONType('syncError', {defaultValue: null}),
-    firstSyncCompletedAt: Sequelize.INTEGER,
+    firstSyncCompletion: Sequelize.INTEGER(14),
     lastSyncCompletions: JSONARRAYType('lastSyncCompletions'),
   }, {
     classMethods: {
@@ -31,7 +31,7 @@ module.exports = (sequelize, Sequelize) => {
           connection_settings: this.connectionSettings,
           sync_policy: this.syncPolicy,
           sync_error: this.syncError,
-          first_sync_completed_at: this.firstSyncCompletedAt,
+          first_sync_completion: this.firstSyncCompletion,
           last_sync_completions: this.lastSyncCompletions,
           created_at: this.createdAt,
         }
