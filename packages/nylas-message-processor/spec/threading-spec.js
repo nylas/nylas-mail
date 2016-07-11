@@ -43,7 +43,6 @@ it('adds the message to the thread', (done) => {
       },
       create: (message) => {
         message.setThread = (thread) => {
-          console.log("setting")
           message.thread = thread.id
         }
         return Promise.resolve(message)

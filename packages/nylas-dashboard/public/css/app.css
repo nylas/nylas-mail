@@ -59,10 +59,14 @@ pre {
 
 .action-link {
   display: inline-block;
-  margin: 5px;
   color: rgba(16, 83, 161, 0.88);
   text-decoration: underline;
   cursor: pointer;
+  margin: 5px 0;
+}
+
+.action-link.cancel {
+  margin-left: 5px;
 }
 
 .sync-policy textarea {
@@ -76,6 +80,7 @@ pre {
   width: 50%;
   margin: auto;
   padding: 20px;
+  overflow: auto;
 }
 
 .modal-bg {
@@ -88,6 +93,15 @@ pre {
   padding-top: 10%;
 }
 
+.modal-close {
+  position: relative;
+  float: right;
+  top: -10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+}
+
 .sync-graph {
   margin-top: 3px;
 }
@@ -96,4 +110,66 @@ pre {
   display: inline-block;
   margin-top: 5px;
   margin-bottom: 1px;
+}
+
+#syncback-request-details {
+  font-size: 15px;
+  color: black;
+}
+
+#syncback-request-details .counts {
+  margin: 10px;
+}
+
+#syncback-request-details span {
+  margin: 10px;
+}
+
+#syncback-request-details table {
+  width: 100%;
+}
+
+#syncback-request-details tr:nth-child(even) {
+  background-color: #F1F1F1;
+}
+
+#syncback-request-details tr:not(:first-child):hover {
+  background-color: #C9C9C9;
+}
+
+#syncback-request-details td, #syncback-request-details th {
+  text-align: center;
+  padding: 10px 5px;
+}
+
+.dropdown-arrow {
+  margin: 0 5px;
+  height: 7px;
+  vertical-align: middle;
+}
+
+.dropdown-options {
+  border: solid black 1px;
+  position: absolute;
+  background-color: white;
+  text-align: left;
+}
+
+.dropdown-option {
+  padding: 0px 2px;
+}
+
+.dropdown-option:hover {
+  background-color: rgb(114, 163, 255);
+}
+
+.dropdown-selected {
+  display: inline;
+}
+
+.dropdown-wrapper {
+  display: inline;
+  cursor: pointer;
+  position: absolute;
+  font-weight: normal;
 }

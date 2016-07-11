@@ -43,24 +43,33 @@ const buildAccountWith = ({name, email, provider, settings, credentials}) => {
   return DatabaseConnector.forShared().then((db) => {
     const {AccountToken, Account} = db;
 
-    const account = Account.build({
-      name: name,
-      provider: provider,
-      emailAddress: email,
-      connectionSettings: settings,
-      syncPolicy: SyncPolicy.defaultPolicy(),
-      lastSyncCompletions: [],
-    })
-    account.setCredentials(credentials);
+    return Account.find({
+      where: {
+        emailAddress: email,
+        connectionSettings: JSON.stringify(settings),
+      },
+    }).then((existing) => {
+      const account = existing || Account.build({
+        name: name,
+        provider: provider,
+        emailAddress: email,
+        connectionSettings: settings,
+        syncPolicy: SyncPolicy.defaultPolicy(),
+        lastSyncCompletions: [],
+      })
 
-    return account.save().then((saved) =>
-      AccountToken.create({accountId: saved.id}).then((token) =>
-        DatabaseConnector.prepareAccountDatabase(saved.id).thenReturn({
-          account: saved,
-          token: token,
-        })
-      )
-    );
+      // always update with the latest credentials
+      account.setCredentials(credentials);
+
+      return account.save().then((saved) =>
+        AccountToken.create({accountId: saved.id}).then((token) =>
+          DatabaseConnector.prepareAccountDatabase(saved.id).thenReturn({
+            account: saved,
+            token: token,
+          })
+        )
+      );
+    });
   });
 }
 
@@ -97,7 +106,11 @@ module.exports = (server) => {
       const {settings, email, provider, name} = request.payload;
 
       if (provider === 'imap') {
-        connectionChecks.push(IMAPConnection.connect(dbStub, settings))
+        connectionChecks.push(IMAPConnection.connect({
+          logger: request.logger,
+          settings: settings,
+          db: dbStub,
+        }));
       }
 
       Promise.all(connectionChecks).then(() => {
@@ -186,9 +199,12 @@ module.exports = (server) => {
             client_id: GMAIL_CLIENT_ID,
             client_secret: GMAIL_CLIENT_SECRET,
           }
-
           Promise.all([
-            IMAPConnection.connect({}, Object.assign({}, settings, credentials)),
+            IMAPConnection.connect({
+              logger: request.logger,
+              settings: Object.assign({}, settings, credentials),
+              db: {},
+            }),
           ])
           .then(() =>
             buildAccountWith({

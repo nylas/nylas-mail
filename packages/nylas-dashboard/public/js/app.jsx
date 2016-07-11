@@ -1,4 +1,6 @@
 /* eslint react/react-in-jsx-scope: 0*/
+/* eslint no-console: 0*/
+
 const React = window.React;
 const ReactDOM = window.ReactDOM;
 const {
@@ -6,6 +8,7 @@ const {
   SetAllSyncPolicies,
   AccountFilter,
   SyncGraph,
+  SyncbackRequestDetails,
 } = window;
 
 class Account extends React.Component {
@@ -43,14 +46,15 @@ class Account extends React.Component {
     const timeSinceLastSync = (Date.now() - newestSync) / 1000;
 
     let firstSyncDuration = "Incomplete";
-    if (account.first_sync_completed_at) {
-      firstSyncDuration = (new Date(account.first_sync_completed_at) - new Date(account.created_at)) / 1000;
+    if (account.first_sync_completion) {
+      firstSyncDuration = (new Date(account.first_sync_completion) - new Date(account.created_at)) / 1000;
     }
 
     return (
       <div className={`account${errorClass}`}>
         <h3>{account.email_address} {active ? '🌕' : '🌑'}</h3>
         <strong>{assignment}</strong>
+        <SyncbackRequestDetails accountId={account.id} />
         <SyncPolicy
           accountId={account.id}
           stringifiedSyncPolicy={JSON.stringify(account.sync_policy, null, 2)}

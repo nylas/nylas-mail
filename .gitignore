@@ -4,6 +4,7 @@ dump.rdb
 *npm-debug.log
 storage/
 lerna-debug.log
+newrelic_agent.log
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

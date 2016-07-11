@@ -1,8 +1,10 @@
 const Rx = require('rx')
 const redis = require("redis");
+const log = global.Logger || console
 
 Promise.promisifyAll(redis.RedisClient.prototype);
 Promise.promisifyAll(redis.Multi.prototype);
+
 
 class PubsubConnector {
   constructor() {
@@ -13,7 +15,7 @@ class PubsubConnector {
 
   buildClient() {
     const client = redis.createClient(process.env.REDIS_URL || null);
-    client.on("error", console.error);
+    client.on("error", log.error);
     return client;
   }
 

@@ -69,11 +69,11 @@ module.exports = (sequelize, Sequelize) => {
         )
       },
 
-      fetchRaw: function fetchRaw({account, db}) {
+      fetchRaw: function fetchRaw({account, db, logger}) {
         const settings = Object.assign({}, account.connectionSettings, account.decryptedCredentials())
         return Promise.props({
           folder: this.getFolder(),
-          connection: IMAPConnection.connect(db, settings),
+          connection: IMAPConnection.connect({db, settings, logger}),
         })
         .then(({folder, connection}) => {
           return connection.openBox(folder.name)

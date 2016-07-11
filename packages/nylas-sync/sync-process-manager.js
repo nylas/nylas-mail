@@ -40,10 +40,11 @@ class SyncProcessManager {
     this._workers = {};
     this._listenForSyncsClient = null;
     this._exiting = false;
+    this._logger = global.Logger.child({identity: IDENTITY})
   }
 
   start() {
-    console.log(`ProcessManager: Starting with ID ${IDENTITY}`)
+    this._logger.info(`ProcessManager: Starting with ID`)
 
     this.unassignAccountsAssignedTo(IDENTITY).then(() => {
       this.unassignAccountsMissingHeartbeats();
@@ -63,12 +64,14 @@ class SyncProcessManager {
     client.setAsync(key, Date.now()).then(() =>
       client.expireAsync(key, HEARTBEAT_EXPIRES)
     ).then(() =>
-      console.log("ProcessManager: 💘")
+    this._logger.info({
+      accounts_syncing_count: Object.keys(this._workers).length,
+    }, "ProcessManager: 💘")
     )
   }
 
   onSigInt() {
-    console.log(`ProcessManager: Exiting...`)
+    this._logger.info(`ProcessManager: Exiting...`)
     this._exiting = true;
 
     this.unassignAccountsAssignedTo(IDENTITY).then(() =>
@@ -85,7 +88,7 @@ class SyncProcessManager {
 
     let unseenIds = [].concat(accountIds);
 
-    console.log("ProcessManager: Starting scan for accountIds in database that are not present in Redis.")
+    this._logger.info("ProcessManager: Starting scan for accountIds in database that are not present in Redis.")
 
     return forEachAccountList((foundProcessIdentity, foundIds) => {
       unseenIds = unseenIds.filter((a) => !foundIds.includes(`${a}`))
@@ -94,7 +97,10 @@ class SyncProcessManager {
       if (unseenIds.length === 0) {
         return;
       }
-      console.log(`ProcessManager: Adding account IDs ${unseenIds.join(',')} to ${ACCOUNTS_UNCLAIMED}.`)
+      this._logger.info({
+        unseen_ids: unseenIds.join(', '),
+        channel: ACCOUNTS_UNCLAIMED,
+      }, `ProcessManager: Adding unseen account IDs to ACCOUNTS_UNCLAIMED channel.`)
       unseenIds.map((id) => client.lpushAsync(ACCOUNTS_UNCLAIMED, id));
     });
   }
@@ -102,7 +108,7 @@ class SyncProcessManager {
   unassignAccountsMissingHeartbeats() {
     const client = PubsubConnector.broadcastClient();
 
-    console.log("ProcessManager: Starting unassignment for processes missing heartbeats.")
+    this._logger.info("ProcessManager: Starting unassignment for processes missing heartbeats.")
 
     Promise.each(client.keysAsync(`${ACCOUNTS_CLAIMED_PREFIX}*`), (key) => {
       const id = key.replace(ACCOUNTS_CLAIMED_PREFIX, '');
@@ -125,12 +131,15 @@ class SyncProcessManager {
       )
 
     return unassignOne(0).then((returned) => {
-      console.log(`ProcessManager: Returned ${returned} accounts assigned to ${identity}.`)
+      this._logger.info({
+        returned,
+        assigned_to: identity,
+      }, `ProcessManager: Returned accounts`)
     });
   }
 
   update() {
-    console.log(`ProcessManager: Searching for an unclaimed account to sync.`)
+    this._logger.info(`ProcessManager: Searching for an unclaimed account to sync.`)
 
     this.acceptUnclaimedAccount().finally(() => {
       if (this._exiting) {
@@ -170,7 +179,7 @@ class SyncProcessManager {
           if (this._exiting || this._workers[account.id]) {
             return;
           }
-          console.log(`ProcessManager: Starting worker for Account ${accountId}`)
+          this._logger.info({account_id: accountId}, `ProcessManager: Starting worker for Account`)
           this._workers[account.id] = new SyncWorker(account, db, () => {
             this.removeWorkerForAccountId(accountId)
           });
@@ -187,7 +196,8 @@ class SyncProcessManager {
       if (didRemove) {
         PubsubConnector.broadcastClient().rpushAsync(dst, accountId)
       } else {
-        throw new Error("Wanted to return item to pool, but didn't have claim on it.")
+        this._logger.error("Wanted to return item to pool, but didn't have claim on it.")
+        return
       }
       this._workers[accountId] = null;
     });

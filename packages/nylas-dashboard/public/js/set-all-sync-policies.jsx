@@ -38,15 +38,20 @@ class SetAllSyncPolicies extends React.Component {
   render() {
     if (this.state.editMode) {
       return (
-        <div className="modal-bg">
-          <div className="sync-policy modal">
-            <div className="section">Sync Policy</div>
-            <textarea id="sync-policy-all">
-            </textarea>
-            <button onClick={() => this.applyToAllAccounts.call(this, this.props.accountIds)}>
-              Apply To All Displayed Accounts
-            </button>
-            <span className="action-link" onClick={() => this.cancel.call(this)}> Cancel </span>
+        <div>
+          <span className="action-link" id="set-all-sync" onClick={() => this.edit.call(this)}>
+            Set sync policies for currently displayed accounts
+          </span>
+          <div className="modal-bg">
+            <div className="sync-policy modal">
+              <div className="section">Sync Policy</div>
+              <textarea id="sync-policy-all">
+              </textarea>
+              <button onClick={() => this.applyToAllAccounts.call(this, this.props.accountIds)}>
+                Apply To All Displayed Accounts
+              </button>
+              <span className="action-link cancel" onClick={() => this.cancel.call(this)}> Cancel </span>
+            </div>
           </div>
         </div>
       )

@@ -43,7 +43,7 @@ class SyncPolicy extends React.Component {
             {this.props.stringifiedSyncPolicy}
           </textarea>
           <button onClick={() => this.save.call(this)}> Save </button>
-          <span className="action-link" onClick={() => this.cancel.call(this)}> Cancel </span>
+          <span className="action-link cancel" onClick={() => this.cancel.call(this)}> Cancel </span>
         </div>
 
       )
