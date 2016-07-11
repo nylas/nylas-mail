@@ -1,4 +1,4 @@
-require('newrelic');
+// require('newrelic');
 global.Promise = require('bluebird');
 const {DatabaseConnector, Logger} = require(`nylas-core`)
 const SyncProcessManager = require('./sync-process-manager');

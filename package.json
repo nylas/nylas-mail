@@ -18,6 +18,7 @@
   },
   "devDependencies": {
     "babel-eslint": "6.x",
+    "bunyan-prettystream": "^0.1.3",
     "eslint": "2.x",
     "eslint-config-airbnb": "8.x",
     "eslint-plugin-import": "1.x",
@@ -27,8 +28,7 @@
     "sqlite3": "https://github.com/bengotow/node-sqlite3/archive/bengotow/usleep-v3.1.4.tar.gz"
   },
   "scripts": {
-    "start": "pm2 kill && pm2 start ./pm2-dev.yml --watch && pm2 logs --raw | bunyan -o short",
-    "logs": "pm2 logs --raw | bunyan -o short",
+    "start": "pm2 start ./pm2-dev.yml --no-daemon",
     "stop": "pm2 kill",
     "postinstall": "lerna bootstrap"
   },

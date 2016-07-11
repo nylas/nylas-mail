@@ -64,7 +64,9 @@ class SyncProcessManager {
     client.setAsync(key, Date.now()).then(() =>
       client.expireAsync(key, HEARTBEAT_EXPIRES)
     ).then(() =>
-      this._logger.info("ProcessManager: 💘")
+    this._logger.info({
+      accounts_syncing_count: Object.keys(this._workers).length,
+    }, "ProcessManager: 💘")
     )
   }
 
