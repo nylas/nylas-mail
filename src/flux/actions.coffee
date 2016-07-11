@@ -546,6 +546,15 @@ class Actions
   @nextSearchResult: ActionScopeWindow
   @previousSearchResult: ActionScopeWindow
 
+
+  # Actions for the signature preferences and shared with the composer
+  @addSignature: ActionScopeWindow
+  @removeSignature: ActionScopeWindow
+  @updateSignature: ActionScopeWindow
+  @selectSignature: ActionScopeWindow
+  @toggleAccount: ActionScopeWindow
+
+
 # Read the actions we declared on the dummy Actions object above
 # and translate them into Reflux Actions
 

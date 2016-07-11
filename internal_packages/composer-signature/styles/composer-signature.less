@@ -1,74 +1,188 @@
 @import "ui-variables";
 
-.container-signatures {
+@blurred-primary-color: mix(@background-primary, #ffbb00, 96%);
+// Styles for Preferences Signatures
+.preferences-signatures-container {
   max-width: 640px;
   margin: 0 auto;
+
+  .empty-list {
+    height: 300px;
+    width: inherit;
+    background-color: @background-primary;
+    border: 1px solid @border-color-divider;
+    text-align: center;
+    padding: 60px;
+
+    .icon-signature {
+      height: 120px;
+    }
+
+    h2 {
+      color: @text-color-very-subtle;
+    }
+
+    .btn {
+      margin-top: 10px;
+    }
+
+  }
+
+
+  .signature-list {
+    position: relative;
+    height: inherit;
+    width: inherit;
+
+    .items-wrapper {
+      min-width:200px;
+      height: 262px;
+    }
+    .item-rule-disabled {
+      color: @color-error;
+      padding: 4px 10px;
+      border-bottom: 1px solid @border-color-divider;
+    }
+    .selected .item-rule-disabled {
+      color: @component-active-bg;
+    }
+
+    .editable-item {
+      padding: 8px 10px;
+      border-bottom: none;
+    }
+
+    .btn-editable-list {
+      height: 37px;
+      width: 37px;
+      line-height: 37px;
+    }
+  }
 
   .signature-wrap {
     position: relative;
     border: 1px solid @input-border-color;
     background-color: @white;
-    padding: 10px;
-    margin-top: 20px;
     min-height: 200px;
+    height: 300px;
     display: flex;
     flex-direction: column;
+    width: 100%;
+    border-left: none;
 
     textarea {
+      padding: 10px;
       border: 0;
-      padding: 0;
       flex: 1;
       font-family: monospace;
       font-size: 0.9em;
     }
-  }
 
-  .section-body {
-    padding: 10px 0 0 0;
-
-    .menu {
-      border: solid thin #CCC;
-      margin-right: 5px;
-      min-height: 200px;
-      .menu-items {
-        margin:0;
-        padding:0;
-        list-style: none;
-
-        li { padding: 6px; }
-      }
+    .contenteditable {
+      padding: 10px;
     }
-    .menu-horizontal {
-      height: 100%;
-      .menu-items {
-        height:100%;
-        margin: 0;
-        padding: 0;
-        list-style: none;
-        li {
-          text-align:center;
-          width:40px;
-          display:inline-block;
-          padding:8px 16px 8px 16px;
-          border-right: solid thin #CCC;
+
+    .editable-toolbar {
+      border-top: 1px solid @input-border-color;
+      padding: 6px 10px;
+
+      .render-mode {
+        float: right;
+      }
+
+      .account-picker {
+        display: inline-block;
+        color: @text-color-subtle;
+
+        .button-dropdown {
+          .secondary-items {
+            .menu {
+              .item {
+                  padding: 5px 10px 5px 25px;
+              }
+              .item.checked {
+                background-image: url(images/menu/osx-checkmark@2x.svg);
+                background-position: left;
+                background-position-x: 5%;
+                background-size: 10px;
+                padding-right: 0;
+              }
+            }
+          }
         }
       }
     }
-    .signature-area {
-      border: solid thin #CCC;
-      min-height: 200px;
-    }
-    .menu-footer {
-      border: solid thin #CCC;
-      overflow: auto;
-    }
-    .signature-footer {
-      border: solid thin #CCC;
-      overflow: auto;
 
-      .edit-html-button {
-        float: right;
-        margin: 6px;
+  }
+
+}
+
+
+// Styles for account-contact-field signature selector
+.message-item-white-wrap.composer-outer-wrap{
+  .composer-participant-field {
+
+    .dropdown-component {
+      display: inline-block;
+      float: right;
+
+      .signature-button-dropdown {
+        .only-item {
+          background: @blurred-primary-color;
+          box-shadow: none;
+          padding-right: 0;
+        }
+
+        img.content-mask {
+          display: none;
+        }
+        img.signature-button{
+          display: inline-block;
+          background-color: #919191;
+        }
+
+
+        .button-dropdown {
+          &.open {
+            img.signature-button {
+              background-color: @component-active-color;
+            }
+          }
+          .secondary-items {
+            right:0;
+            left:auto;
+            .menu {
+              .header-container {
+                display:inline-block;
+                padding: 0;
+              }
+              .footer-container {
+                display: inline-block;
+                border-top: 1px solid #dddddd;
+              }
+              .item {
+                padding: 5px 20px 5px 20px;
+              }
+              .item.checked {
+                background-image: url(images/menu/osx-checkmark@2x.svg);
+                background-position: left;
+                background-position-x: 5%;
+                background-size: 10px;
+              }
+
+            }
+          }
+        }
+
+      }
+    }
+  }
+  &.focused {
+    .composer-participant-field {
+      .dropdown-component {
+        .only-item {
+          background: @background-primary;
+        }
       }
     }
   }

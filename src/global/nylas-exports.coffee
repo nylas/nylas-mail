@@ -120,6 +120,7 @@ class NylasExports
   @lazyLoadAndRegisterStore "OutboxStore", 'outbox-store'
   @lazyLoadAndRegisterStore "PopoverStore", 'popover-store'
   @lazyLoadAndRegisterStore "AccountStore", 'account-store'
+  @lazyLoadAndRegisterStore "SignatureStore", 'signature-store'
   @lazyLoadAndRegisterStore "MessageStore", 'message-store'
   @lazyLoadAndRegisterStore "ContactStore", 'contact-store'
   @lazyLoadAndRegisterStore "IdentityStore", 'identity-store'
