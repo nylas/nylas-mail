@@ -1,3 +1,5 @@
+require('newrelic');
+
 const Hapi = require('hapi');
 const HapiSwagger = require('hapi-swagger');
 const HapiBoom = require('hapi-boom-decorators')

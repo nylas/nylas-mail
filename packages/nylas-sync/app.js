@@ -1,3 +1,4 @@
+require('newrelic');
 global.Promise = require('bluebird');
 
 const {DatabaseConnector} = require(`nylas-core`)
