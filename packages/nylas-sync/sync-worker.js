@@ -27,7 +27,6 @@ class SyncWorker {
     this._logger = global.Logger.forAccount(account)
 
     this._syncTimer = null;
-    this._expirationTimer = null;
     this._destroyed = false;
 
     this.syncNow({reason: 'Initial'});
@@ -37,6 +36,8 @@ class SyncWorker {
   }
 
   cleanup() {
+    clearTimeout(this._syncTimer);
+    this._syncTimer = null;
     this._destroyed = true;
     this._listener.dispose();
     this.closeConnection()
@@ -51,12 +52,18 @@ class SyncWorker {
   _onMessage(msg) {
     const {type} = JSON.parse(msg);
     switch (type) {
-      case MessageTypes.ACCOUNT_UPDATED:
-        this._onAccountUpdated(); break;
-      case MessageTypes.SYNCBACK_REQUESTED:
-        this.syncNow({reason: 'Syncback Action Queued'}); break;
       case MessageTypes.ACCOUNT_CREATED:
         // No other processing currently required for account creation
+        break;
+      case MessageTypes.ACCOUNT_UPDATED:
+        this._onAccountUpdated();
+        break;
+      case MessageTypes.ACCOUNT_DELETED:
+        this.cleanup();
+        this._onExpired();
+        break;
+      case MessageTypes.SYNCBACK_REQUESTED:
+        this.syncNow({reason: 'Syncback Action Queued'});
         break;
       default:
         this._logger.error({message: msg}, 'SyncWorker: Invalid message')
@@ -208,7 +215,7 @@ class SyncWorker {
 
     const now = Date.now();
     const syncGraphTimeLength = 60 * 30; // 30 minutes, should be the same as SyncGraph.config.timeLength
-    let lastSyncCompletions = [...this._account.lastSyncCompletions]
+    let lastSyncCompletions = [].concat(this._account.lastSyncCompletions)
     lastSyncCompletions = [now, ...lastSyncCompletions]
     while (now - lastSyncCompletions[lastSyncCompletions.length - 1] > 1000 * syncGraphTimeLength) {
       lastSyncCompletions.pop();

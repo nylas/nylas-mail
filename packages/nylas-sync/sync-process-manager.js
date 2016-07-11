@@ -178,6 +178,7 @@ class SyncProcessManager {
             return;
           }
           this._logger.info({account_id: accountId}, `ProcessManager: Starting worker for Account`)
+
           this._workers[account.id] = new SyncWorker(account, db, () => {
             this.removeWorkerForAccountId(accountId)
           });
