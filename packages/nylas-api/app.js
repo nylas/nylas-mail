@@ -1,4 +1,4 @@
-require('newrelic');
+// require('newrelic');
 
 const Hapi = require('hapi');
 const HapiSwagger = require('hapi-swagger');
