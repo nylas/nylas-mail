@@ -56,7 +56,8 @@ class SyncWorker {
       case MessageTypes.SYNCBACK_REQUESTED:
         this.syncNow({reason: 'Syncback Action Queued'}); break;
       default:
-        throw new Error(`Invalid message: ${msg}`)
+        const err = new Error(`Invalid message`)
+        this._logger.error({message: msg, err}, 'Invalid message')
     }
   }
 
@@ -218,7 +219,9 @@ class SyncWorker {
       return Promise.resolve()
     }
 
-    throw new Error(`SyncWorker.onSyncDidComplete: Unknown afterSync behavior: ${afterSync}. Closing connection`)
+    this._logger.warn({after_sync: afterSync}, `SyncWorker.onSyncDidComplete: Unknown afterSync behavior`)
+    this.closeConnection()
+    return Promise.resolve()
   }
 
   isWaitingForNextSync() {
