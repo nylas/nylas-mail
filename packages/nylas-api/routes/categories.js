@@ -17,6 +17,7 @@ module.exports = (server) => {
           query: {
             limit: Joi.number().integer().min(1).max(2000).default(100),
             offset: Joi.number().integer().min(0).default(0),
+            view: Joi.string().valid('expanded', 'count'),
           },
         },
         response: {
