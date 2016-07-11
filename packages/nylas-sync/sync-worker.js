@@ -55,6 +55,9 @@ class SyncWorker {
         this._onAccountUpdated(); break;
       case MessageTypes.SYNCBACK_REQUESTED:
         this.syncNow({reason: 'Syncback Action Queued'}); break;
+      case MessageTypes.ACCOUNT_CREATED:
+        // No other processing currently required for account creation
+        break;
       default:
         this._logger.error({message: msg}, 'SyncWorker: Invalid message')
     }
