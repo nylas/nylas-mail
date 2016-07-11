@@ -74,8 +74,7 @@ module.exports = (server) => {
           return reply(Serialization.jsonStringify(contact))
         })
         .catch((error) => {
-          console.log('Error fetching contacts: ', error)
-          reply(error)
+          request.info(error, 'Error fetching contacts')
         })
       })
     },
