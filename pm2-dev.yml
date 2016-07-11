@@ -4,6 +4,7 @@ apps:
 
 
   - script   : packages/nylas-api/app.js
+    watch    : true
     name     : api
     env      :
       PORT: 5100
@@ -14,12 +15,14 @@ apps:
       GMAIL_REDIRECT_URL : "http://localhost:5100/auth/gmail/oauthcallback"
       NODE_ENV: 'development'
   - script   : packages/nylas-sync/app.js
+    watch    : true
     name     : sync
     env      :
       DB_ENCRYPTION_ALGORITHM : "aes-256-ctr"
       DB_ENCRYPTION_PASSWORD : "d6F3Efeq"
       NODE_ENV: 'development'
   - script   : packages/nylas-dashboard/app.js
+    watch    : true
     name     : dashboard
     env      :
       PORT: 5101
@@ -27,6 +30,7 @@ apps:
       DB_ENCRYPTION_PASSWORD : "d6F3Efeq"
       NODE_ENV: 'development'
   - script   : packages/nylas-message-processor/app.js
+    watch    : true
     name     : processor
     env      :
       DB_ENCRYPTION_ALGORITHM : "aes-256-ctr"
