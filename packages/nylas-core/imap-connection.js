@@ -174,11 +174,14 @@ class IMAPConnection extends EventEmitter {
     return new IMAPConnection(...args).connect()
   }
 
-  constructor({db, settings, logger = console} = {}) {
+  constructor({db, settings, logger} = {}) {
     super();
 
     if (!(settings instanceof Object)) {
       throw new Error("IMAPConnection: Must be instantiated with `settings`")
+    }
+    if (!logger) {
+      throw new Error("IMAPConnection: Must be instantiated with `logger`")
     }
 
     this._logger = logger;
