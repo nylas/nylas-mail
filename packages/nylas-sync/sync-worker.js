@@ -56,8 +56,7 @@ class SyncWorker {
       case MessageTypes.SYNCBACK_REQUESTED:
         this.syncNow({reason: 'Syncback Action Queued'}); break;
       default:
-        const err = new Error(`Invalid message`)
-        this._logger.error({message: msg, err}, 'Invalid message')
+        this._logger.error({message: msg}, 'SyncWorker: Invalid message')
     }
   }
 
@@ -65,10 +64,14 @@ class SyncWorker {
     if (!this.isWaitingForNextSync()) {
       return;
     }
-    this._getAccount().then((account) => {
+    this._getAccount()
+    .then((account) => {
       this._account = account;
       this.syncNow({reason: 'Account Modification'});
-    });
+    })
+    .catch((err) => {
+      this._logger.error(err, 'SyncWorker: Error getting account for update')
+    })
   }
 
   _onConnectionIdleUpdate() {
@@ -210,18 +213,17 @@ class SyncWorker {
     if (afterSync === 'idle') {
       return this._getIdleFolder()
       .then((idleFolder) => this._conn.openBox(idleFolder.name))
-      .then(() => this._logger.info('SyncWorker: - Idling on inbox category'))
+      .then(() => this._logger.info('SyncWorker: Idling on inbox category'))
     }
 
     if (afterSync === 'close') {
-      this._logger.info('SyncWorker: - Closing connection');
+      this._logger.info('SyncWorker: Closing connection');
       this.closeConnection()
       return Promise.resolve()
     }
 
-    this._logger.warn({after_sync: afterSync}, `SyncWorker.onSyncDidComplete: Unknown afterSync behavior`)
-    this.closeConnection()
-    return Promise.resolve()
+    this._logger.error({after_sync: afterSync}, `SyncWorker.onSyncDidComplete: Unknown afterSync behavior`)
+    throw new Error('SyncWorker.onSyncDidComplete: Unknown afterSync behavior')
   }
 
   isWaitingForNextSync() {
