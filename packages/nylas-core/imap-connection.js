@@ -156,8 +156,6 @@ class IMAPBox {
     }
     return this._imap.closeBoxAsync(expunge)
   }
-
-
 }
 
 
@@ -178,6 +176,11 @@ class IMAPConnection extends EventEmitter {
 
   constructor({db, settings, logger = console} = {}) {
     super();
+
+    if (!(settings instanceof Object)) {
+      throw new Error("IMAPConnection: Must be instantiated with `settings`")
+    }
+
     this._logger = logger;
     this._db = db;
     this._queue = [];

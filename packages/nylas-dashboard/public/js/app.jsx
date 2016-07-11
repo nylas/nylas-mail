@@ -1,4 +1,6 @@
 /* eslint react/react-in-jsx-scope: 0*/
+/* eslint no-console: 0*/
+
 const React = window.React;
 const ReactDOM = window.ReactDOM;
 const {

@@ -108,7 +108,12 @@ class SyncWorker {
       return Promise.reject(new Error("ensureConnection: There are no IMAP connection credentials for this account."))
     }
 
-    const conn = new IMAPConnection({db: this._db, settings: Object.assign({}, settings, credentials), logger: this._logger});
+    const conn = new IMAPConnection({
+      db: this._db,
+      settings: Object.assign({}, settings, credentials),
+      logger: this._logger,
+    });
+
     conn.on('mail', () => {
       this._onConnectionIdleUpdate();
     })
