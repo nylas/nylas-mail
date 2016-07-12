@@ -1,6 +1,6 @@
 const {Provider} = require('nylas-core');
 
-const GMAIL_FOLDERS = ['[Gmail]/All Mail', '[Gmail]/Trash', '[Gmail]/Spam'];
+const GMAIL_ROLES_WITH_FOLDERS = ['all', 'trash', 'junk'];
 
 class FetchFolderList {
   constructor(provider, logger = console) {
@@ -12,9 +12,9 @@ class FetchFolderList {
     return `FetchFolderList`;
   }
 
-  _classForMailbox(boxName, box, {Folder, Label}) {
+  _classForMailboxWithRole(role, {Folder, Label}) {
     if (this._provider === Provider.Gmail) {
-      return GMAIL_FOLDERS.includes(boxName) ? Folder : Label;
+      return GMAIL_ROLES_WITH_FOLDERS.includes(role) ? Folder : Label;
     }
     return Folder;
   }
@@ -65,11 +65,12 @@ class FetchFolderList {
 
       let category = categories.find((cat) => cat.name === boxName);
       if (!category) {
-        const Klass = this._classForMailbox(boxName, box, this._db);
+        const role = this._roleForMailbox(boxName, box);
+        const Klass = this._classForMailboxWithRole(role, this._db);
         category = Klass.build({
           name: boxName,
           accountId: this._db.accountId,
-          role: this._roleForMailbox(boxName, box),
+          role: role,
         });
         created.push(category);
       }
