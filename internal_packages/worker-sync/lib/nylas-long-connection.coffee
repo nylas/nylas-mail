@@ -103,7 +103,6 @@ class NylasLongConnection
       if @_api.APIRoot.indexOf('https') is -1
         lib = require 'http'
       else
-        options.port = 443
         lib = require 'https'
 
       @_req = lib.request options, (res) =>
