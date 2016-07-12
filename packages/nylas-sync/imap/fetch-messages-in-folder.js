@@ -166,8 +166,7 @@ class FetchMessagesInFolder {
   _fetchMessagesAndQueueForProcessing(range) {
     const uidsByPart = {};
 
-    const $structs = this._box.fetch(range, {struct: true})
-    $structs.subscribe(({attributes}) => {
+    return this._box.fetchEach(range, {struct: true}, ({attributes}) => {
       const desiredParts = this._getDesiredMIMEParts(attributes.struct);
       if (desiredParts.length === 0) {
         return;
@@ -175,13 +174,13 @@ class FetchMessagesInFolder {
       const key = JSON.stringify(desiredParts);
       uidsByPart[key] = uidsByPart[key] || [];
       uidsByPart[key].push(attributes.uid);
-    });
-
-    return $structs.toPromise().then(() => {
+    })
+    .then(() => {
       return Promise.each(Object.keys(uidsByPart), (key) => {
         const uids = uidsByPart[key];
         const desiredParts = JSON.parse(key);
         const bodies = ['HEADER'].concat(desiredParts.map(p => p.id));
+
         this._logger.info({
           key,
           num_messages: uids.length,
@@ -190,17 +189,14 @@ class FetchMessagesInFolder {
         // note: the order of UIDs in the array doesn't matter, Gmail always
         // returns them in ascending (oldest => newest) order.
 
-        const $body = this._box.fetch(uids, {bodies, struct: true})
-        $body.subscribe((msg) => {
+        return this._box.fetchEach(uids, {bodies, struct: true}, (msg) => {
           msg.body = {};
           for (const {id, mimetype} of desiredParts) {
             msg.body[mimetype] = msg.parts[id];
           }
           this._processMessage(msg);
         });
-
-        return $body.toPromise();
-      })
+      });
     });
   }
 
