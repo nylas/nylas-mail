@@ -40,6 +40,7 @@ class OnboardingStore extends NylasStore {
     }
 
     if (existingAccount) {
+      // Used when re-adding an account after re-connecting
       const accountType = accountTypeForProvider(existingAccount.provider);
       this._pageStack = ['account-choose']
       this._accountInfo = {
@@ -48,8 +49,18 @@ class OnboardingStore extends NylasStore {
       };
       this._onSetAccountType(accountType);
     } else if (addingAccount) {
+      // Adding a new, unknown account
+      this._pageStack = ['account-choose'];
+    } else if (identity) {
+      // Should only happen if config was edited to remove all accounts,
+      // but don't want to re-login to Nylas account. Very useful when
+      // switching environments.
       this._pageStack = ['account-choose'];
     } else {
+      // Standard new user onboarding flow.
+      // Note: If accounts are already connected, but no Nylas ID is, then
+      // the welcome page will show a separate page for returning users to
+      // create a Nylas Pro ID.
       this._pageStack = ['welcome'];
     }
   }
