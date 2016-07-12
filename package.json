@@ -7,6 +7,7 @@
     "bluebird": "3.x.x",
     "bunyan": "1.8.0",
     "bunyan-cloudwatch": "2.0.0",
+    "bunyan-prettystream": "^0.1.3",
     "lerna": "2.0.0-beta.23",
     "mysql": "^2.11.1",
     "newrelic": "^1.28.1",
@@ -18,7 +19,6 @@
   },
   "devDependencies": {
     "babel-eslint": "6.x",
-    "bunyan-prettystream": "^0.1.3",
     "eslint": "2.x",
     "eslint-config-airbnb": "8.x",
     "eslint-plugin-import": "1.x",

@@ -79,15 +79,23 @@ class DatabaseConnector {
     const dbname = `a-${accountId}`;
 
     if (process.env.DB_HOSTNAME) {
-      const sequelize = new Sequelize(null, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
-        host: process.env.DB_HOSTNAME,
-        dialect: "mysql",
-        logging: false,
-      })
+      const sequelize = this._sequelizePoolForDatabase(null);
       return sequelize.authenticate().then(() =>
         sequelize.query(`CREATE DATABASE \`${dbname}\``)
       );
     }
+    return Promise.resolve()
+  }
+
+  destroyAccountDatabase(accountId) {
+    const dbname = `a-${accountId}`;
+    if (process.env.DB_HOSTNAME) {
+      const sequelize = this._sequelizePoolForDatabase(null);
+      return sequelize.authenticate().then(() =>
+        sequelize.query(`CREATE DATABASE \`${dbname}\``)
+      );
+    }
+    fs.removeFileSync(path.join(STORAGE_DIR, `${dbname}.sqlite`));
     return Promise.resolve()
   }
 

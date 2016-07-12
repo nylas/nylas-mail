@@ -4,17 +4,36 @@ const ReactDOM = window.ReactDOM;
 class SyncGraph extends React.Component {
 
   componentDidMount() {
-    this.drawGraph();
-  }
-
-  componentDidUpdate() {
     this.drawGraph(true);
   }
 
-  drawGraph(isUpdate) {
+  componentDidUpdate() {
+    this.drawGraph(false);
+  }
+
+  drawGraph(isInitial) {
     const now = Date.now();
     const config = SyncGraph.config;
-    const context = ReactDOM.findDOMNode(this).getContext('2d');
+    const node = ReactDOM.findDOMNode(this);
+    const context = node.getContext('2d');
+
+    if (isInitial) {
+      const totalHeight = config.height + config.labelFontSize + config.labelTopMargin;
+      node.width = config.width * 2;
+      node.height = totalHeight * 2;
+      node.style.width = `${config.width}px`;
+      node.style.height = `${totalHeight}px`;
+      context.scale(2, 2);
+
+      // Axis labels
+      context.fillStyle = config.labelColor;
+      context.font = `${config.labelFontSize}px sans-serif`;
+      const fontY = config.height + config.labelFontSize + config.labelTopMargin;
+      const nowText = "now";
+      const nowWidth = context.measureText(nowText).width;
+      context.fillText(nowText, config.width - nowWidth - 1, fontY);
+      context.fillText("-30m", 1, fontY);
+    }
 
     // Background
     // (This hides any previous data points, so we don't have to clear the canvas)
@@ -25,6 +44,7 @@ class SyncGraph extends React.Component {
     const pxPerSec = config.width / config.timeLength;
     context.strokeStyle = config.dataColor;
     context.beginPath();
+
     for (const syncTimeMs of this.props.syncTimestamps) {
       const secsAgo = (now - syncTimeMs) / 1000;
       const pxFromRight = secsAgo * pxPerSec;
@@ -43,17 +63,6 @@ class SyncGraph extends React.Component {
       context.lineTo(px, config.height);
     }
     context.stroke();
-
-    // Axis labels
-    if (!isUpdate) { // only draw these on the initial render
-      context.fillStyle = config.labelColor;
-      context.font = `${config.labelFontSize}px sans-serif`;
-      const fontY = config.height + config.labelFontSize + config.labelTopMargin;
-      const nowText = "now";
-      const nowWidth = context.measureText(nowText).width;
-      context.fillText(nowText, config.width - nowWidth - 1, fontY);
-      context.fillText("-30m", 1, fontY);
-    }
   }
 
   render() {
@@ -82,7 +91,7 @@ SyncGraph.config = {
   labelTopMargin: 2,
   labelColor: 'black',
   backgroundColor: 'black',
-  dataColor: 'blue',
+  dataColor: '#43a1ff',
 }
 
 SyncGraph.propTypes = {

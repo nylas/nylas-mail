@@ -1,8 +1,4 @@
 apps:
-  - script   : redis-server
-    name     : redis
-
-
   - script   : packages/nylas-api/app.js
     watch    : ["packages"]
     name     : api

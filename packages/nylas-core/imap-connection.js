@@ -270,9 +270,11 @@ class IMAPConnection extends EventEmitter {
   }
 
   end() {
+    if (this._imap) {
+      this._imap.end();
+      this._imap = null;
+    }
     this._queue = [];
-    this._imap.end();
-    this._imap = null;
     this._connectPromise = null;
   }
 
