@@ -208,12 +208,12 @@ class SyncWorker {
 
   onSyncDidComplete() {
     const {afterSync} = this._account.syncPolicy;
+    const now = Date.now();
 
     if (!this._account.firstSyncCompletion) {
-      this._account.firstSyncCompletion = Date.now()
+      this._account.firstSyncCompletion = now;
     }
 
-    const now = Date.now();
     const syncGraphTimeLength = 60 * 30; // 30 minutes, should be the same as SyncGraph.config.timeLength
     let lastSyncCompletions = [].concat(this._account.lastSyncCompletions)
     lastSyncCompletions = [now, ...lastSyncCompletions]

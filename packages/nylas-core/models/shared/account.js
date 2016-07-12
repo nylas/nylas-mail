@@ -12,7 +12,11 @@ module.exports = (sequelize, Sequelize) => {
     connectionCredentials: Sequelize.TEXT,
     syncPolicy: JSONType('syncPolicy'),
     syncError: JSONType('syncError', {defaultValue: null}),
-    firstSyncCompletion: Sequelize.INTEGER(14),
+    firstSyncCompletion: {
+      type: Sequelize.INTEGER(14),
+      allowNull: true,
+      defaultValue: null,
+    },
     lastSyncCompletions: JSONARRAYType('lastSyncCompletions'),
   }, {
     classMethods: {
