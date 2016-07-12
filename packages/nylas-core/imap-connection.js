@@ -218,19 +218,19 @@ class IMAPConnection extends EventEmitter {
       };
       onErrored = (error) => {
         returned = true;
-        reject(error || new Error("Unspecified IMAP error."));
+        reject(error);
       };
 
-      this._imap.once('error', onEnded);
-      this._imap.once('end', onErrored);
+      this._imap.once('error', onErrored);
+      this._imap.once('end', onEnded);
 
       const cresolve = (...args) => (!returned ? resolve(...args) : null)
       const creject = (...args) => (!returned ? reject(...args) : null)
       return callback(cresolve, creject)
     }).finally(() => {
       if (this._imap) {
-        this._imap.removeListener('error', onEnded);
-        this._imap.removeListener('end', onErrored);
+        this._imap.removeListener('error', onErrored);
+        this._imap.removeListener('end', onEnded);
       }
     });
   }
