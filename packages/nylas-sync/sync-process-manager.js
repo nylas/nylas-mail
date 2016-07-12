@@ -61,13 +61,13 @@ class SyncProcessManager {
   updateHeartbeat() {
     const key = HEARTBEAT_FOR(IDENTITY);
     const client = PubsubConnector.broadcastClient();
-    client.setAsync(key, Date.now()).then(() =>
-      client.expireAsync(key, HEARTBEAT_EXPIRES)
-    ).then(() =>
-    this._logger.info({
-      accounts_syncing_count: Object.keys(this._workers).length,
-    }, "ProcessManager: 💘")
-    )
+    client.setAsync(key, Date.now())
+    .then(() => client.expireAsync(key, HEARTBEAT_EXPIRES))
+    .then(() => {
+      this._logger.info({
+        accounts_syncing_count: Object.keys(this._workers).length,
+      }, "ProcessManager: 💘")
+    })
   }
 
   onSigInt() {
@@ -180,6 +180,7 @@ class SyncProcessManager {
             return;
           }
           this._logger.info({account_id: accountId}, `ProcessManager: Starting worker for Account`)
+
           this._workers[account.id] = new SyncWorker(account, db, () => {
             this.removeWorkerForAccountId(accountId)
           });

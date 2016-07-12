@@ -5,6 +5,10 @@ const SyncProcessManager = require('./sync-process-manager');
 
 global.Logger = Logger.createLogger('nylas-k2-sync')
 
+const onUnhandledError = (err) => global.Logger.fatal(err, 'Unhandled error')
+process.on('uncaughtException', onUnhandledError)
+process.on('unhandledRejection', onUnhandledError)
+
 const manager = new SyncProcessManager();
 
 DatabaseConnector.forShared().then((db) => {

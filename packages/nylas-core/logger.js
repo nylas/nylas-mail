@@ -1,21 +1,30 @@
+const os = require('os');
 const bunyan = require('bunyan')
 const createCWStream = require('bunyan-cloudwatch')
+const PrettyStream = require('bunyan-prettystream');
 const NODE_ENV = process.env.NODE_ENV || 'unknown'
 
 
 function getLogStreams(name, env) {
+  if (env === 'development') {
+    const prettyStdOut = new PrettyStream();
+    prettyStdOut.pipe(process.stdout);
+    const stdoutStream = {
+      type: 'raw',
+      level: 'debug',
+      stream: prettyStdOut,
+    }
+    return [stdoutStream]
+  }
+
   const stdoutStream = {
     stream: process.stdout,
     level: 'info',
   }
-  if (env === 'development') {
-    return [stdoutStream]
-  }
-
   const cloudwatchStream = {
     stream: createCWStream({
       logGroupName: `k2-${env}`,
-      logStreamName: `${name}-${env}`,
+      logStreamName: `${name}-${env}-${os.hostname()}`,
       cloudWatchLogsOptions: {
         region: 'us-east-1',
       },

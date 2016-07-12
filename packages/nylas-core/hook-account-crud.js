@@ -17,7 +17,11 @@ module.exports = (db, sequelize) => {
       });
     }
   })
-  // TODO delete account from redis
-  // sequelize.addHook("afterDelete", ({dataValues, $modelOptions}) => {
-  // })
+  sequelize.addHook("afterDestroy", ({dataValues, $modelOptions}) => {
+    if ($modelOptions.name.singular === 'account') {
+      PubsubConnector.notifyAccount(dataValues.id, {
+        type: MessageTypes.ACCOUNT_DELETED,
+      });
+    }
+  })
 }
