@@ -1,12 +1,11 @@
 
 class ContactProcessor {
 
-  verified(logger, contact) {
+  verified(contact) {
     // some suggestions: http://stackoverflow.com/questions/6317714/apache-camel-mail-to-identify-auto-generated-messages
     const regex = new RegExp(/^(noreply|no-reply|donotreply|mailer|support|webmaster|news(letter)?@)/ig)
 
     if (regex.test(contact.email) || contact.email.length > 60) {
-      logger.info('Email address doesn\'t seem to be areal person')
       return false
     }
     return true
@@ -34,7 +33,7 @@ class ContactProcessor {
     fields.forEach((field) => {
       allContacts = allContacts.concat(message[field])
     })
-    const filtered = allContacts.filter(this.verified(logger))
+    const filtered = allContacts.filter(this.verified)
     const contactPromises = filtered.map((contact) => {
       return this.findOrCreateByContactId(Contact, contact, message.accountId)
     })
