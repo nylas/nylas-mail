@@ -174,19 +174,21 @@ class SyncWorker {
     clearTimeout(this._syncTimer);
     this._syncTimer = null;
 
-    if (!process.env.SYNC_AFTER_ERRORS && this._account.errored()) {
-      this._logger.info(`SyncWorker: Account is in error state - Skipping sync`)
-      return
-    }
-    this._logger.info({reason}, `SyncWorker: Account sync started`)
+    this._account.reload().then(() => {
+      if (!process.env.SYNC_AFTER_ERRORS && this._account.errored()) {
+        this._logger.info(`SyncWorker: Account is in error state - Skipping sync`)
+        return Promise.resolve();
+      }
+      this._logger.info({reason}, `SyncWorker: Account sync started`)
 
-    this.ensureConnection()
-    .then(() => this._account.update({syncError: null}))
-    .then(() => this.syncbackMessageActions())
-    .then(() => this._conn.runOperation(new FetchFolderList(this._account.provider)))
-    .then(() => this.syncAllCategories())
-    .then(() => this.onSyncDidComplete())
-    .catch((error) => this.onSyncError(error))
+      return this._account.update({syncError: null})
+      .then(() => this.ensureConnection())
+      .then(() => this.syncbackMessageActions())
+      .then(() => this._conn.runOperation(new FetchFolderList(this._account.provider)))
+      .then(() => this.syncAllCategories())
+      .then(() => this.onSyncDidComplete())
+      .catch((error) => this.onSyncError(error))
+    })
     .finally(() => {
       this._lastSyncTime = Date.now()
       this.scheduleNextSync()
