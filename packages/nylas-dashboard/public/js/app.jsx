@@ -52,7 +52,7 @@ class Account extends React.Component {
 
     return (
       <div className={`account${errorClass}`}>
-        <h3>{account.email_address} {active ? '🌕' : '🌑'}</h3>
+        <h3>{account.email_address} [{account.id}] {active ? '🌕' : '🌑'}</h3>
         <strong>{assignment}</strong>
         <SyncbackRequestDetails accountId={account.id} />
         <SyncPolicy

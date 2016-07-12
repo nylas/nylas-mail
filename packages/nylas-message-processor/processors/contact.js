@@ -5,6 +5,9 @@ class ContactProcessor {
     // some suggestions: http://stackoverflow.com/questions/6317714/apache-camel-mail-to-identify-auto-generated-messages
     const regex = new RegExp(/^(noreply|no-reply|donotreply|mailer|support|webmaster|news(letter)?@)/ig)
 
+    if (!contact.email) {
+      return false;
+    }
     if (regex.test(contact.email) || contact.email.length > 60) {
       return false
     }

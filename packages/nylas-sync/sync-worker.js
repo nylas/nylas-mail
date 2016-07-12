@@ -197,8 +197,8 @@ class SyncWorker {
     this._logger.error(error, `SyncWorker: Error while syncing account`)
     this.closeConnection()
 
-    if (error.source.includes('socket') || error.source.includes('timeout')) {
-      // Continue to retry if it was a network error
+    // Continue to retry if it was a network error
+    if (error.source && (error.source.includes('socket') || error.source.includes('timeout'))) {
       return Promise.resolve()
     }
 
