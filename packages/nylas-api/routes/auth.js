@@ -33,6 +33,12 @@ const imapSmtpSettings = Joi.object().keys({
   ssl_required: Joi.boolean().required(),
 }).required();
 
+const gmailSettings = Joi.object().keys({
+  google_client_id: Joi.string().required(),
+  google_client_secret: Joi.string().required(),
+  google_refresh_token: Joi.string().required(),
+});
+
 const exchangeSettings = Joi.object().keys({
   username: Joi.string().required(),
   password: Joi.string().required(),
@@ -90,8 +96,8 @@ module.exports = (server) => {
         payload: {
           email: Joi.string().email().required(),
           name: Joi.string().required(),
-          provider: Joi.string().required(),
-          settings: Joi.alternatives().try(imapSmtpSettings, exchangeSettings),
+          provider: Joi.string().valid('imap', 'gmail').required(),
+          settings: Joi.alternatives().try(imapSmtpSettings, exchangeSettings, gmailSettings),
         },
       },
       response: {
@@ -106,28 +112,48 @@ module.exports = (server) => {
       const connectionChecks = [];
       const {settings, email, provider, name} = request.payload;
 
+      let connectionSettings = null;
+      let connectionCredentials = null;
+
       if (provider === 'imap') {
-        connectionChecks.push(IMAPConnection.connect({
-          logger: request.logger,
-          settings: settings,
-          db: dbStub,
-        }));
+        connectionSettings = _.pick(settings, [
+          'imap_host', 'imap_port',
+          'smtp_host', 'smtp_port',
+          'ssl_required',
+        ]);
+        connectionCredentials = _.pick(settings, [
+          'imap_username', 'imap_password',
+          'smtp_username', 'smtp_password',
+        ]);
       }
+
+      if (provider === 'gmail') {
+        connectionSettings = {
+          imap_username: email,
+          imap_host: 'imap.gmail.com',
+          imap_port: 993,
+          ssl_required: true,
+        }
+        connectionCredentials = {
+          client_id: settings.google_client_id,
+          client_secret: settings.google_client_secret,
+          refresh_token: settings.google_refresh_token,
+        }
+      }
+
+      connectionChecks.push(IMAPConnection.connect({
+        settings: Object.assign({}, connectionSettings, connectionCredentials),
+        logger: request.logger,
+        db: dbStub,
+      }));
 
       Promise.all(connectionChecks).then(() => {
         return buildAccountWith({
-          name,
-          email,
-          provider: Provider.IMAP,
-          settings: _.pick(settings, [
-            'imap_host', 'imap_port',
-            'smtp_host', 'smtp_port',
-            'ssl_required',
-          ]),
-          credentials: _.pick(settings, [
-            'imap_username', 'imap_password',
-            'smtp_username', 'smtp_password',
-          ]),
+          name: name,
+          email: email,
+          provider: provider,
+          settings: connectionSettings,
+          credentials: connectionCredentials,
         })
       })
       .then(({account, token}) => {
@@ -195,7 +221,6 @@ module.exports = (server) => {
             ssl_required: true,
           }
           const credentials = {
-            access_token: tokens.access_token,
             refresh_token: tokens.refresh_token,
             client_id: GMAIL_CLIENT_ID,
             client_secret: GMAIL_CLIENT_SECRET,
