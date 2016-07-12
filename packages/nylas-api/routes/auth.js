@@ -63,7 +63,7 @@ const buildAccountWith = ({name, email, provider, settings, credentials}) => {
 
       return account.save().then((saved) =>
         AccountToken.create({accountId: saved.id}).then((token) =>
-          DatabaseConnector.prepareAccountDatabase(saved.id).thenReturn({
+          DatabaseConnector.ensureAccountDatabase(saved.id).thenReturn({
             account: saved,
             token: token,
           })

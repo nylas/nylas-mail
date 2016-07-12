@@ -75,13 +75,13 @@ class DatabaseConnector {
     return this._pools[accountId];
   }
 
-  prepareAccountDatabase(accountId) {
+  ensureAccountDatabase(accountId) {
     const dbname = `a-${accountId}`;
 
     if (process.env.DB_HOSTNAME) {
       const sequelize = this._sequelizePoolForDatabase(null);
       return sequelize.authenticate().then(() =>
-        sequelize.query(`CREATE DATABASE \`${dbname}\``)
+        sequelize.query(`CREATE DATABASE IF NOT EXISTS \`${dbname}\``)
       );
     }
     return Promise.resolve()
