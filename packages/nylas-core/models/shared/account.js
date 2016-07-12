@@ -13,7 +13,7 @@ module.exports = (sequelize, Sequelize) => {
     syncPolicy: JSONType('syncPolicy'),
     syncError: JSONType('syncError', {defaultValue: null}),
     firstSyncCompletion: {
-      type: Sequelize.INTEGER(14),
+      type: Sequelize.STRING(14),
       allowNull: true,
       defaultValue: null,
     },
@@ -35,7 +35,7 @@ module.exports = (sequelize, Sequelize) => {
           connection_settings: this.connectionSettings,
           sync_policy: this.syncPolicy,
           sync_error: this.syncError,
-          first_sync_completion: this.firstSyncCompletion,
+          first_sync_completion: this.firstSyncCompletion / 1,
           last_sync_completions: this.lastSyncCompletions,
           created_at: this.createdAt,
         }
