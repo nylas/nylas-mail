@@ -103,8 +103,12 @@ class WorkspaceStore extends NylasStore
       throw new Error("Actions.toggleWorkspaceLocationHidden - pass a WorkspaceStore.Location")
 
     if @_hiddenLocations[location.id]
+      if location is @Location.MessageListSidebar
+        Actions.recordUserEvent("Sidebar Opened")
       delete @_hiddenLocations[location.id]
     else
+      if location is @Location.MessageListSidebar
+        Actions.recordUserEvent("Sidebar Closed")
       @_hiddenLocations[location.id] = location
 
     NylasEnv.config.set('core.workspace.hiddenLocations', @_hiddenLocations)
