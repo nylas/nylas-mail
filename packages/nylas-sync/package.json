@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "description": "Nylas Sync Engine",
   "dependencies": {
-    "imap": "0.8.17",
     "nylas-core": "0.x.x",
     "nylas-message-processor": "0.x.x",
     "xoauth2": "1.1.0"

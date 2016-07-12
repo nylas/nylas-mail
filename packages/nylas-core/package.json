@@ -5,7 +5,6 @@
   "main": "index.js",
   "dependencies": {
     "bunyan": "^1.8.1",
-    "imap": "0.8.x",
     "xoauth2": "1.x.x"
   },
   "author": "Nylas",
