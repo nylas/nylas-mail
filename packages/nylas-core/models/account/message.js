@@ -109,6 +109,7 @@ module.exports = (sequelize, Sequelize) => {
           unread: this.unread,
           starred: this.starred,
           folder: this.folder,
+          thread_id: this.threadId,
         };
       },
     },
