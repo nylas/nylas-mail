@@ -14,6 +14,10 @@ const {DatabaseConnector, SchedulerUtils, Logger} = require(`nylas-core`);
 global.Promise = require('bluebird');
 global.Logger = Logger.createLogger('nylas-k2-api')
 
+const onUnhandledError = (err) => global.Logger.fatal(err, 'Unhandled error')
+process.on('uncaughtException', onUnhandledError)
+process.on('unhandledRejection', onUnhandledError)
+
 const server = new Hapi.Server({
   connections: {
     router: {

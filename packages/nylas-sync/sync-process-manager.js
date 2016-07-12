@@ -61,13 +61,13 @@ class SyncProcessManager {
   updateHeartbeat() {
     const key = HEARTBEAT_FOR(IDENTITY);
     const client = PubsubConnector.broadcastClient();
-    client.setAsync(key, Date.now()).then(() =>
-      client.expireAsync(key, HEARTBEAT_EXPIRES)
-    ).then(() =>
-    this._logger.info({
-      accounts_syncing_count: Object.keys(this._workers).length,
-    }, "ProcessManager: 💘")
-    )
+    client.setAsync(key, Date.now())
+    .then(() => client.expireAsync(key, HEARTBEAT_EXPIRES))
+    .then(() => {
+      this._logger.info({
+        accounts_syncing_count: Object.keys(this._workers).length,
+      }, "ProcessManager: 💘")
+    })
   }
 
   onSigInt() {
