@@ -42,7 +42,7 @@ module.exports = (sequelize, Sequelize) => {
       },
 
       errored: function errored() {
-        return this.syncError != null
+        return this.syncError != null;
       },
 
       setCredentials: function setCredentials(json) {

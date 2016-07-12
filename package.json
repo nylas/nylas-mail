@@ -16,7 +16,7 @@
     "rx": "4.x.x",
     "sequelize": "3.x.x",
     "underscore": "1.x.x",
-    "utf7": "git@github.com:truebit/utf7.git#1f753bac59b99d93b17a5ef11681e232465e2558",
+    "utf7": "https://github.com/truebit/utf7/archive/1f753bac59b99d93b17a5ef11681e232465e2558.tar.gz",
     "imap": "0.8.x"
   },
   "devDependencies": {
