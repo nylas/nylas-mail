@@ -4,23 +4,31 @@ const {
   IMAPConnectionNotReadyError,
 } = require('./imap-errors');
 
+/*
+IMAPBox uses Proxy to wrap the "box" exposed by node-imap. It provides higher-level
+primitives, but you can still call through to properties / methods of the node-imap
+box, ala `imapbox.uidvalidity`
+*/
 class IMAPBox {
   constructor(imapConn, box) {
     this._conn = imapConn
     this._box = box
 
     return new Proxy(this, {
-      get(target, name) {
-        const prop = Reflect.get(target, name)
-        if (!prop) {
-          return Reflect.get(target._box, name)
+      get(obj, prop) {
+        const val = (prop in obj) ? obj[prop] : obj._box[prop];
+
+        if (_.isFunction(val)) {
+          const myBox = obj._box.name;
+          const openBox = obj._conn.getOpenBoxName()
+          if (myBox !== openBox) {
+            return () => {
+              throw new Error(`IMAPBox::${prop} - Mailbox is no longer selected on the IMAPConnection (${myBox} != ${openBox}).`);
+            }
+          }
         }
-        if (_.isFunction(prop) && target._conn._imap._box.name !== target._box.name) {
-          return () => Promise.reject(
-            new Error(`IMAPBox::${name} - Can't operate on a mailbox that is no longer open on the current IMAPConnection.`)
-          )
-        }
-        return prop
+
+        return val;
       },
     })
   }

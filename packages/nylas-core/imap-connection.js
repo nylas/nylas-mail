@@ -184,6 +184,10 @@ class IMAPConnection extends EventEmitter {
     return this._imap.delBoxAsync(folderName)
   }
 
+  getOpenBoxName() {
+    return (this._imap && this._imap._box) ? this._imap._box.name : null;
+  }
+
   runOperation(operation) {
     if (!this._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPConnection::runOperation`)
