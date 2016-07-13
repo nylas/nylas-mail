@@ -39,10 +39,13 @@ module.exports = (db, sequelize) => {
       const transactionData = Object.assign({event},
         parseHookData(sequelizeHookData)
       );
-      db.Transaction.create(transactionData);
-      transactionData.attributes = sequelizeHookData.dataValues;
+      db.Transaction.create(transactionData).then((transaction) => {
+        const dataValues = transaction.dataValues
+        dataValues.attributes = sequelizeHookData.dataValues;
+        dataValues.cursor = transaction.id;
+        PubsubConnector.notifyDelta(db.accountId, dataValues);
+      })
 
-      PubsubConnector.notifyDelta(db.accountId, transactionData);
     }
   }
 

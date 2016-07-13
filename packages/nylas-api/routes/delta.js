@@ -9,6 +9,7 @@ function keepAlive(request) {
 
 function inflateTransactions(db, transactionModels = []) {
   const transactions = _.pluck(transactionModels, "dataValues")
+  transactions.forEach((t) => t.cursor = t.id);
   const byModel = _.groupBy(transactions, "object");
   const byObjectIds = _.groupBy(transactions, "objectId");
 
@@ -23,12 +24,13 @@ function inflateTransactions(db, transactionModels = []) {
     return ModelKlass.findAll({where: {id: ids}, include: includes})
     .then((models = []) => {
       for (const model of models) {
+        model.dataValues.object = object
         const tsForId = byObjectIds[model.id];
         if (!tsForId || tsForId.length === 0) { continue; }
-        for (const t of tsForId) { t.attributes = model; }
+        for (const t of tsForId) { t.attributes = model.dataValues; }
       }
     })
-  })).then(() => transactions)
+  })).then(() => transactions.map(JSON.stringify).join("\n"))
 }
 
 function createOutputStream() {
@@ -41,11 +43,15 @@ function createOutputStream() {
   return outputStream
 }
 
+function lastTransaction(db) {
+  return db.Transaction.findOne({order: [['id', 'DESC']]})
+}
+
 function initialTransactions(db, request) {
-  const getParams = request.query || {}
-  const since = new Date(getParams.since || Date.now())
+  let cursor = (request.query || {}).cursor;
+  const where = cursor ? {id: {$gt: cursor}} : {createdAt: {$gte: new Date()}}
   return db.Transaction
-           .streamAll({where: {createdAt: {$gte: since}}})
+           .streamAll({where})
            .flatMap((objs) => inflateTransactions(db, objs))
 }
 
@@ -55,21 +61,26 @@ module.exports = (server) => {
     path: '/delta/streaming',
     handler: (request, reply) => {
       const outputStream = createOutputStream();
-      const account = request.auth.credentials;
 
       request.getAccountDatabase().then((db) => {
         const source = Rx.Observable.merge(
-          PubsubConnector.observeDeltas(account.id),
+          PubsubConnector.observeDeltas(request.auth.credentials.id),
           initialTransactions(db, request),
           keepAlive(request)
         ).subscribe(outputStream.pushJSON)
 
-        request.on("disconnect", () => {
-          source.dispose()
-        });
+        request.on("disconnect", source.dispose.bind(source));
       });
 
       reply(outputStream)
     },
+  });
+
+  server.route({
+    method: 'POST',
+    path: '/delta/latest_cursor',
+    handler: (request, reply) => request.getAccountDatabase().then((db) =>
+      lastTransaction(db).then((t) => reply({cursor: t.id}))
+    ),
   });
 };
