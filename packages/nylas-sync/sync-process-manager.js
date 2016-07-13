@@ -1,6 +1,6 @@
 const os = require('os');
 const SyncWorker = require('./sync-worker');
-const {DatabaseConnector, PubsubConnector, SchedulerUtils} = require(`nylas-core`)
+const {DatabaseConnector, PubsubConnector, SchedulerUtils, PromiseUtils} = require(`nylas-core`)
 
 const IDENTITY = `${os.hostname()}-${process.pid}`;
 
@@ -110,12 +110,13 @@ class SyncProcessManager {
 
     this._logger.info("ProcessManager: Starting unassignment for processes missing heartbeats.")
 
-    Promise.each(client.keysAsync(`${ACCOUNTS_CLAIMED_PREFIX}*`), (key) => {
+    PromiseUtils.each(client.keysAsync(`${ACCOUNTS_CLAIMED_PREFIX}*`), (key) => {
       const id = key.replace(ACCOUNTS_CLAIMED_PREFIX, '');
       return client.existsAsync(HEARTBEAT_FOR(id)).then((exists) =>
         (exists ? Promise.resolve() : this.unassignAccountsAssignedTo(id))
       )
-    }).finally(() => {
+    })
+    .finally(() => {
       const delay = HEARTBEAT_EXPIRES * 1000;
       setTimeout(() => this.unassignAccountsMissingHeartbeats(), delay);
     });
@@ -165,7 +166,7 @@ class SyncProcessManager {
 
       // If we've added an account, wait a second before asking for another one.
       // Spacing them out is probably healthy.
-      return Promise.delay(2000);
+      return PromiseUtils.sleep(2000);
     });
   }
 

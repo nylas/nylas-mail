@@ -1,7 +1,6 @@
 const {PubsubConnector, DatabaseConnector, Logger} = require(`nylas-core`)
 const {processors} = require('./processors')
 
-global.Promise = require('bluebird');
 global.Logger = Logger.createLogger('nylas-k2-message-processor')
 
 // List of the attributes of Message that the processor should be allowed to change.

@@ -3,6 +3,7 @@ const _ = require('underscore');
 const xoauth2 = require('xoauth2');
 const EventEmitter = require('events');
 
+const PromiseUtils = require('./promise-utils')
 const IMAPBox = require('./imap-box');
 const {
   convertImapError,
@@ -87,7 +88,7 @@ class IMAPConnection extends EventEmitter {
 
   _buildUnderlyingConnection(settings) {
     return new Promise((resolve, reject) => {
-      this._imap = Promise.promisifyAll(new Imap(settings));
+      this._imap = PromiseUtils.promisifyAll(new Imap(settings));
 
       // Emitted when new mail arrives in the currently open mailbox.
       // Fix https://github.com/mscdex/node-imap/issues/445

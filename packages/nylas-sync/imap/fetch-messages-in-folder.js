@@ -1,7 +1,7 @@
 const _ = require('underscore');
 const Imap = require('imap');
 
-const {IMAPConnection, PubsubConnector} = require('nylas-core');
+const {IMAPConnection, PubsubConnector, PromiseUtils} = require('nylas-core');
 const {Capabilities} = IMAPConnection;
 
 const MessageFlagAttributes = ['id', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']
@@ -113,12 +113,12 @@ class FetchMessagesInFolder {
     const {Message} = this._db;
 
     const removedUIDs = localMessageAttributes
-      .filter(msg => !remoteUIDAttributes[msg.folderImapUID])
-      .map(msg => msg.folderImapUID)
+    .filter(msg => !remoteUIDAttributes[msg.folderImapUID])
+    .map(msg => msg.folderImapUID)
 
-      this._logger.info({
-        removed_messages: removedUIDs.length,
-      }, `FetchMessagesInFolder: found messages no longer in the folder`)
+    this._logger.info({
+      removed_messages: removedUIDs.length,
+    }, `FetchMessagesInFolder: found messages no longer in the folder`)
 
     if (removedUIDs.length === 0) {
       return Promise.resolve();
@@ -176,7 +176,7 @@ class FetchMessagesInFolder {
       uidsByPart[key].push(attributes.uid);
     })
     .then(() => {
-      return Promise.each(Object.keys(uidsByPart), (key) => {
+      return PromiseUtils.each(Object.keys(uidsByPart), (key) => {
         const uids = uidsByPart[key];
         const desiredParts = JSON.parse(key);
         const bodies = ['HEADER'].concat(desiredParts.map(p => p.id));
@@ -329,7 +329,7 @@ class FetchMessagesInFolder {
       }
     }
 
-    return Promise.each(desiredRanges, ({min, max}) => {
+    return PromiseUtils.each(desiredRanges, ({min, max}) => {
       this._logger.info({
         range: `${min}:${max}`,
       }, `FetchMessagesInFolder: Fetching range`);
@@ -343,7 +343,8 @@ class FetchMessagesInFolder {
           timeFetchedUnseen: Date.now(),
         });
       })
-    }).then(() => {
+    })
+    .then(() => {
       this._logger.info(`FetchMessagesInFolder: Fetching messages finished`);
     });
   }
