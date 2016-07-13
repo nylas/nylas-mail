@@ -4,6 +4,7 @@ const {
   PubsubConnector,
   DatabaseConnector,
   MessageTypes,
+  Errors,
 } = require('nylas-core');
 const {
   jsonError,
@@ -200,7 +201,7 @@ class SyncWorker {
     this.closeConnection()
 
     // Continue to retry if it was a network error
-    if (error.source && (error.source.includes('socket') || error.source.includes('timeout'))) {
+    if (error instanceof Errors.RetryableError) {
       return Promise.resolve()
     }
 

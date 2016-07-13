@@ -9,6 +9,7 @@ const {
   DatabaseConnector,
   SyncPolicy,
   Provider,
+  Errors,
 } = require('nylas-core');
 
 const {GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL} = process.env;
@@ -162,7 +163,8 @@ module.exports = (server) => {
         reply(Serialization.jsonStringify(response));
       })
       .catch((err) => {
-        reply({error: err.message}).code(400);
+        const code = err instanceof Errors.IMAPAuthenticationError ? 401 : 400
+        reply({message: err.message, type: "api_error"}).code(code);
       })
     },
   });
@@ -204,13 +206,13 @@ module.exports = (server) => {
       const oauthClient = new OAuth2(GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL);
       oauthClient.getToken(request.query.code, (err, tokens) => {
         if (err) {
-          reply({error: err.message}).code(400);
+          reply({message: err.message, type: "api_error"}).code(400);
           return;
         }
         oauthClient.setCredentials(tokens);
         google.oauth2({version: 'v2', auth: oauthClient}).userinfo.get((error, profile) => {
           if (error) {
-            reply({error: error.message}).code(400);
+            reply({message: error.message, type: "api_error"}).code(400);
             return;
           }
 
@@ -247,7 +249,7 @@ module.exports = (server) => {
             reply(Serialization.jsonStringify(response));
           })
           .catch((connectionErr) => {
-            reply({error: connectionErr.message}).code(400);
+            reply({message: connectionErr.message, type: "api_error"}).code(400);
           });
         });
       });

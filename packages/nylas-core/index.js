@@ -12,4 +12,5 @@ module.exports = {
   SchedulerUtils: require('./scheduler-utils'),
   MessageTypes: require('./message-types'),
   Logger: require('./logger'),
+  Errors: require('./imap-errors'),
 }

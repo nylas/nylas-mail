@@ -11,6 +11,12 @@ function jsonSchema(modelName) {
   if (models.includes(modelName)) {
     return Joi.object();
   }
+  if (modelName === 'Error') {
+    return Joi.object().keys({
+      message: Joi.string(),
+      type: Joi.string(),
+    })
+  }
   if (modelName === 'Account') {
     // Ben: Disabled temporarily because folks keep changing the keys and it's hard
     // to keep in sync. Might need to consider another approach to these.

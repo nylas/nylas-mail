@@ -5,6 +5,7 @@ const EventEmitter = require('events');
 
 const IMAPBox = require('./imap-box');
 const {
+  convertImapError,
   IMAPConnectionNotReadyError,
   IMAPConnectionEndedError,
 } = require('./imap-errors');
@@ -111,7 +112,7 @@ class IMAPConnection extends EventEmitter {
 
       this._imap.once('error', (err) => {
         this.end();
-        reject(err);
+        reject(convertImapError(err));
       });
 
       this._imap.once('end', () => {
