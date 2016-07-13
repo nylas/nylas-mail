@@ -57,6 +57,12 @@ class FetchFolderList {
         continue;
       }
 
+      this._logger.info({
+        box_name: boxName,
+        attributes: JSON.stringify(box.attribs),
+      }, `FetchFolderList: Box Information`)
+
+
       if (box.children && box.attribs.includes('\\HasChildren')) {
         Object.keys(box.children).forEach((subname) => {
           stack.push([`${boxName}${box.delimiter}${subname}`, box.children[subname]]);
