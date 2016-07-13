@@ -11,10 +11,17 @@
 5. Install Node 6+ via NVM: `nvm install 6`
 6. Install Redis locally `brew install redis`
 
+## New Computer (Linux - Debian/Ubuntu):
+1. Install Node 6+ via NodeSource (trusted):
+  1. `curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -`
+  1. `sudo apt-get install -y nodejs`
+2. Install Redis locally `sudo apt-get install -y redis-server redis-tools`
+
 ## New to AWS:
 
 1. Install [Elastic Beanstalk CLI](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-install.html#eb-cli3-install-osx): `sudo pip install awsebcli`
-2. Install [AWS CLI](https://aws.amazon.com/cli/): `brew install awscli`
+  1. On Linux, you may need to install Python 3's pip via `sudo apt-get install python3-pip` and then run `pip3 install --user awsebcli`. This installs to your home directory and you need to have `~/.local/bin` in your $PATH.
+2. Install [AWS CLI](https://aws.amazon.com/cli/): `brew install awscli` on Mac and `pip install --user awscli` on Linux.
   1. Add your AWS IAM Security Credentials to `aws configure`.
   1. These are at Console Home -> IAM -> Users -> {{Your Name}} -> Security
      Credentials. Note that your private key was only shown unpon creation. If
