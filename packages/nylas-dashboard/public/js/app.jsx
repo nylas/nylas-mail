@@ -11,6 +11,21 @@ const {
   SyncbackRequestDetails,
 } = window;
 
+function calcAcctPosition(count) {
+  const width = 340;
+  const height = 540;
+  const marginTop = 100;
+  const marginSide = 0;
+
+  const acctsPerRow = Math.floor((window.innerWidth - 2 * marginSide) / width);
+  const row = Math.floor(count / acctsPerRow)
+  const col = count - (row * acctsPerRow);
+  const top = marginTop + (row * height);
+  const left = marginSide + (width * col);
+
+  return {left: left, top: top};
+}
+
 class Account extends React.Component {
   constructor(props) {
     super(props);
@@ -72,8 +87,13 @@ class Account extends React.Component {
       firstSyncDuration = (new Date(account.first_sync_completion) - new Date(account.created_at)) / 1000;
     }
 
+    const position = calcAcctPosition(this.props.count);
+
     return (
-      <div className={`account${errorClass}`}>
+      <div
+        className={`account${errorClass}`}
+        style={{top: `${position.top}px`, left: `${position.left}px`}}
+      >
         <h3>{account.email_address} [{account.id}] {active ? '🌕' : '🌑'}</h3>
         <strong>{assignment}</strong>
         <SyncbackRequestDetails accountId={account.id} />
@@ -102,6 +122,7 @@ Account.propTypes = {
   account: React.PropTypes.object,
   active: React.PropTypes.bool,
   assignment: React.PropTypes.string,
+  count: React.PropTypes.number,
 }
 
 class Root extends React.Component {
@@ -130,14 +151,8 @@ class Root extends React.Component {
     this.websocket.onmessage = (evt) => {
       try {
         const msg = JSON.parse(evt.data);
-        if (msg.cmd === 'ACCOUNT') {
-          this.onReceivedAccount(msg.payload);
-        }
-        if (msg.cmd === 'ASSIGNMENTS') {
-          this.onReceivedAssignments(msg.payload);
-        }
-        if (msg.cmd === 'ACTIVE') {
-          this.onReceivedActiveAccountIds(msg.payload);
+        if (msg.cmd === 'UPDATE') {
+          this.onReceivedUpdate(msg.payload);
         }
       } catch (err) {
         console.error(err);
@@ -148,18 +163,17 @@ class Root extends React.Component {
     };
   }
 
-  onReceivedAssignments(assignments) {
-    this.setState({assignments})
-  }
-
-  onReceivedActiveAccountIds(accountIds) {
-    this.setState({activeAccountIds: accountIds})
-  }
-
-  onReceivedAccount(account) {
+  onReceivedUpdate(update) {
     const accounts = Object.assign({}, this.state.accounts);
-    accounts[account.id] = account;
-    this.setState({accounts});
+    for (const account of update.updatedAccounts) {
+      accounts[account.id] = account;
+    }
+
+    this.setState({
+      assignments: update.assignments || this.state.assignments,
+      activeAccountIds: update.activeAccountIds || this.state.activeAccountIds,
+      accounts: accounts,
+    })
   }
 
   onFilter() {
@@ -180,6 +194,8 @@ class Root extends React.Component {
         break;
     }
 
+    let count = 0;
+
     return (
       <div>
         <AccountFilter id="account-filter" onChange={() => this.onFilter.call(this)} />
@@ -191,6 +207,7 @@ class Root extends React.Component {
               active={this.state.activeAccountIds.includes(id)}
               assignment={this.state.assignments[id]}
               account={this.state.accounts[id]}
+              count={count++}
             />
           )
         }

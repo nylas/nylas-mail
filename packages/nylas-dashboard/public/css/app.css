@@ -18,13 +18,14 @@ pre {
 }
 
 .account {
-  display: inline-block;
+  position: absolute;
   border-radius: 5px;
   width: 300px;
-  background-color: rgba(255, 255, 255, 0.6);
+  height: 500px;
+  background-color: rgb(255, 255, 255);
   padding: 15px;
   margin: 5px;
-  vertical-align: top;
+  overflow: auto;
 }
 
 .account h3 {

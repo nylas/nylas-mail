@@ -5,31 +5,51 @@ const {
 } = require(`nylas-core`);
 
 function onWebsocketConnected(wss, ws) {
+  let toSend;
+  function resetToSend() {
+    toSend = {
+      updatedAccounts: [],
+      activeAccountIds: [],
+      assignments: {},
+    };
+  }
+  resetToSend();
+
+  function sendUpdate() {
+    ws.send(JSON.stringify({cmd: "UPDATE", payload: toSend}));
+    resetToSend();
+  }
+
   DatabaseConnector.forShared().then(({Account}) => {
     Account.findAll().then((accounts) => {
       accounts.forEach((acct) => {
-        ws.send(JSON.stringify({ cmd: "ACCOUNT", payload: acct }));
+        toSend.updatedAccounts.push(acct);
+        if (toSend.updatedAccounts.length >= 50) {
+          sendUpdate();
+        }
       });
+      sendUpdate();
     });
 
     this.observable = PubsubConnector.observeAllAccounts().subscribe((accountId) => {
       Account.find({where: {id: accountId}}).then((acct) => {
-        ws.send(JSON.stringify({ cmd: "ACCOUNT", payload: acct }));
+        toSend.updatedAccounts.push(acct);
       });
     });
 
     this.pollInterval = setInterval(() => {
-      SchedulerUtils.listActiveAccounts().then((accountIds) => {
-        ws.send(JSON.stringify({ cmd: "ACTIVE", payload: accountIds}))
+      const getActiveIds = SchedulerUtils.listActiveAccounts().then((accountIds) => {
+        toSend.activeAccountIds = accountIds;
       });
-      const assignments = {};
-      SchedulerUtils.forEachAccountList((identity, accountIds) => {
+      const getAssignments = SchedulerUtils.forEachAccountList((identity, accountIds) => {
         for (const accountId of accountIds) {
-          assignments[accountId] = identity;
+          toSend.assignments[accountId] = identity;
         }
-      }).then(() =>
-        ws.send(JSON.stringify({ cmd: "ASSIGNMENTS", payload: assignments}))
-      )
+      })
+
+      Promise.all([getActiveIds, getAssignments]).then(() => {
+        sendUpdate();
+      })
     }, 1000);
   });
 }
@@ -41,7 +61,7 @@ function onWebsocketDisconnected() {
 
 function onWebsocketConnectedFake(wss, ws) {
   const accts = [];
-  for (let ii = 0; ii < 300; ii++) {
+  for (let ii = 0; ii < 100; ii++) {
     const acct = {
       id: ii,
       email_address: `halla+${ii}@nylas.com`,
