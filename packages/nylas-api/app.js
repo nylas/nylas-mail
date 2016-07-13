@@ -11,7 +11,6 @@ const fs = require('fs');
 const path = require('path');
 const {DatabaseConnector, SchedulerUtils, Logger} = require(`nylas-core`);
 
-global.Promise = require('bluebird');
 global.Logger = Logger.createLogger('nylas-k2-api')
 
 const onUnhandledError = (err) => global.Logger.fatal(err, 'Unhandled error')

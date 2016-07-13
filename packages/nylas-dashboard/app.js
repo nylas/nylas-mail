@@ -5,7 +5,6 @@ const Hapi = require('hapi');
 const HapiWebSocket = require('hapi-plugin-websocket');
 const {Logger} = require(`nylas-core`);
 
-global.Promise = require('bluebird');
 global.Logger = Logger.createLogger('nylas-k2-dashboard')
 
 const server = new Hapi.Server();
