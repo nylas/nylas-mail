@@ -6,6 +6,7 @@ class Modal extends React.Component {
     this.state = {
       open: false,
       onOpen: props.onOpen || () => {},
+      onClose: props.onClose || () => {},
     }
   }
 
@@ -30,6 +31,7 @@ class Modal extends React.Component {
 
   close() {
     this.setState({open: false});
+    this.state.onClose();
   }
 
   // type can be 'button' or 'div'.
@@ -96,6 +98,7 @@ Modal.propTypes = {
   className: React.PropTypes.string,
   id: React.PropTypes.string,
   onOpen: React.PropTypes.func,
+  onClose: React.PropTypes.func,
   actionElems: React.PropTypes.arrayOf(React.PropTypes.object),
 }
 

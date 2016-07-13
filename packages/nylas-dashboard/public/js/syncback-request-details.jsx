@@ -9,6 +9,7 @@ class SyncbackRequestDetails extends React.Component {
       syncbackRequests: null,
       counts: null,
       statusFilter: 'all',
+      refreshInterval: null,
     };
   }
 
@@ -47,6 +48,19 @@ class SyncbackRequestDetails extends React.Component {
 
   setStatusFilter(statusFilter) {
     this.setState({statusFilter: statusFilter});
+  }
+
+  setAutoRefresh() {
+    if (document.getElementById('syncback-requests-auto')) {
+      const interval = setInterval(() => {
+        this.getCounts();
+        this.getDetails();
+      }, 3000);
+      this.setState({refreshInterval: interval});
+    } else {
+      clearInterval(this.state.refreshInterval);
+      this.setState({refreshInterval: null});
+    }
   }
 
   render() {
@@ -133,7 +147,16 @@ class SyncbackRequestDetails extends React.Component {
           this.getDetails();
           this.getCounts();
         }}
+        onClose={() => {
+          clearInterval(this.state.refreshInterval);
+        }}
       >
+        <input
+          id="syncback-requests-auto"
+          type="checkbox"
+          onChange={() => this.setAutoRefresh.call(this)}
+        />
+        Auto Refresh <br /><br />
         <h3>Recent Stats</h3>
         {counts}
         <br />
