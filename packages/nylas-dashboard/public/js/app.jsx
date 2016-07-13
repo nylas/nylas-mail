@@ -10,6 +10,7 @@ const {
   SyncGraph,
   SyncbackRequestDetails,
   ElapsedTime,
+  Modal,
 } = window;
 
 function calcAcctPosition(count) {
@@ -63,28 +64,32 @@ class Account extends React.Component {
     req.send();
   }
 
-  renderError() {
-    const {account} = this.props;
-
+  renderPolicyOrError() {
+    const account = this.props.account;
     if (account.sync_error != null) {
-      const {message, stack} = account.sync_error
-      const error = {
-        message,
-        stack: stack.slice(0, 4),
-      }
-      return (
-        <div>
-          <div className="section">Error</div>
-          <div className="action-link" onClick={() => this.clearError()}>Clear Error</div>
-          <div className="error">
-            <pre>
-              {JSON.stringify(error, null, 2)}
-            </pre>
-          </div>
-        </div>
-      )
+      return this.renderError();
     }
-    return <span />
+    return (
+      <SyncPolicy
+        accountId={account.id}
+        stringifiedSyncPolicy={JSON.stringify(account.sync_policy, null, 2)}
+      />
+    );
+  }
+
+  renderError() {
+    const {message, stack} = this.props.account.sync_error
+    return (
+      <div>
+        <div className="section">Error</div>
+        <Modal
+          openLink={{text: message, className: 'error-link'}}
+        >
+          <pre>{JSON.stringify(stack, null, 2)}</pre>
+        </Modal>
+        <div className="action-link" onClick={() => this.clearError()}>Clear Error</div>
+      </div>
+    )
   }
 
   render() {
@@ -111,10 +116,6 @@ class Account extends React.Component {
         <h3>{account.email_address} [{account.id}] {active ? '🌕' : '🌑'}</h3>
         <strong>{assignment}</strong>
         <SyncbackRequestDetails accountId={account.id} />
-        <SyncPolicy
-          accountId={account.id}
-          stringifiedSyncPolicy={JSON.stringify(account.sync_policy, null, 2)}
-        />
         <div className="section">Sync Cycles</div>
         <div className="stats">
           <b>First Sync Duration (seconds)</b>:
@@ -128,7 +129,7 @@ class Account extends React.Component {
           <b>Recent Syncs</b>:
           <SyncGraph id={account.last_sync_completions.length} syncTimestamps={account.last_sync_completions} />
         </div>
-        {this.renderError()}
+        {this.renderPolicyOrError()}
       </div>
     );
   }

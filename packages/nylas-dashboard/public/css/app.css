@@ -43,13 +43,16 @@ pre {
 .account.errored {
   color: #a94442;
   border-radius: 4px;
-  background-color: rgba(231, 195, 195, 0.6);
+  background-color: rgb(231, 195, 195);
 }
 
-.account .error pre {
-  text-overflow: ellipsis;
-  width: inherit;
-  overflow: hidden;
+.error-link {
+  font-weight: bold;
+}
+
+.error-link:hover {
+  cursor: pointer;
+  color: #702726;
 }
 
 #open-all-sync {
@@ -94,6 +97,7 @@ pre {
   left: 0;
   top: 0;
   background-color: rgba(0, 0, 0, 0.3);
+  z-index: 10;
 }
 
 .modal-close-wrapper {
