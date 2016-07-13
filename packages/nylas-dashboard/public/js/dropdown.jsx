@@ -38,7 +38,7 @@ class Dropdown extends React.Component {
 
     // All options, not shown if dropdown is closed
     let options = [];
-    let optionsWrapper = <span />;
+    let optionsWrapper = <span className="dropdown-options" />;
     if (!this.state.closed) {
       for (const opt of this.props.options) {
         options.push(
@@ -54,8 +54,8 @@ class Dropdown extends React.Component {
 
     return (
       <div className="dropdown-wrapper" tabIndex="0" onBlur={() => this.close.call(this)}>
-        {selected}
         {optionsWrapper}
+        {selected}
       </div>
     );
   }
