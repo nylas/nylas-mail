@@ -77,7 +77,6 @@ class ThreadingProcessor {
       throw new Error("Threading processMessage expects folder value to be present.");
     }
 
-    this.logger = logger
 
     const {Folder, Label} = db;
     let findOrCreateThread = null;
@@ -140,13 +139,12 @@ class ThreadingProcessor {
         isSent = !!message.labels.find(l => l.id === sentLabel.id)
       }
 
-      if (isSent && (message.date > thread.lastMessageSentDate)) {
+      if (isSent && ((message.date > thread.lastMessageSentDate) || !thread.lastMessageSentDate)) {
         thread.lastMessageSentDate = message.date;
       }
-      if (!isSent && (message.date > thread.lastMessageReceivedDate)) {
+      if (!isSent && ((message.date > thread.lastMessageReceivedDate) || !thread.lastMessageReceivedDate)) {
         thread.lastMessageReceivedDate = message.date;
       }
-
       // update folders and labels
       if (!thread.folders.find(f => f.id === message.folderId)) {
         thread.addFolder(message.folder)

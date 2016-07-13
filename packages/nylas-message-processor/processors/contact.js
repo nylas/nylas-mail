@@ -27,9 +27,8 @@ class ContactProcessor {
   }
 
 
-  processMessage({db, message, logger}) {
+  processMessage({db, message}) {
     const {Contact} = db;
-    this.logger = logger
 
     let allContacts = []
     const fields = ['to', 'from', 'bcc', 'cc']
