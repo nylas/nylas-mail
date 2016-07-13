@@ -119,9 +119,9 @@ class Root extends React.Component {
   componentDidMount() {
     let url = null;
     if (window.location.protocol === "https:") {
-      url = `wss://${window.location.host}/accounts`;
+      url = `wss://${window.location.host}/websocket`;
     } else {
-      url = `ws://${window.location.host}/accounts`;
+      url = `ws://${window.location.host}/websocket`;
     }
     this.websocket = new WebSocket(url);
     this.websocket.onopen = () => {
