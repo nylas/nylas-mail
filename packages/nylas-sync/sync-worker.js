@@ -225,6 +225,7 @@ class SyncWorker {
 
     this._account.lastSyncCompletions = lastSyncCompletions
     this._account.save()
+
     this._logger.info('Syncworker: Completed sync cycle')
 
     if (afterSync === 'idle') {

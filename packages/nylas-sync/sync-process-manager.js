@@ -194,13 +194,14 @@ class SyncProcessManager {
     const dst = ACCOUNTS_UNCLAIMED;
 
     return PubsubConnector.broadcastClient().lremAsync(src, 1, accountId).then((didRemove) => {
+      this._workers[accountId] = null;
+
       if (didRemove) {
         PubsubConnector.broadcastClient().rpushAsync(dst, accountId)
       } else {
         this._logger.error("Wanted to return item to pool, but didn't have claim on it.")
         return
       }
-      this._workers[accountId] = null;
     });
   }
 }
