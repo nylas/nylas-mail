@@ -148,7 +148,10 @@ module.exports = (server) => {
         db: dbStub,
       }));
 
-      Promise.all(connectionChecks).then(() => {
+      Promise.all(connectionChecks).then((conns) => {
+        for (const conn of conns) {
+          if (conn) { conn.end(); }
+        }
         return buildAccountWith({
           name: name,
           email: email,
@@ -234,15 +237,18 @@ module.exports = (server) => {
               db: {},
             }),
           ])
-          .then(() =>
-            buildAccountWith({
+          .then((conns) => {
+            for (const conn of conns) {
+              if (conn) { conn.end(); }
+            }
+            return buildAccountWith({
               name: profile.name,
               email: profile.email,
               provider: Provider.Gmail,
               settings,
               credentials,
             })
-          )
+          })
           .then(({account, token}) => {
             const response = account.toJSON();
             response.token = token.value;
