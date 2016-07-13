@@ -41,6 +41,10 @@ class DatabaseConnector {
         dialect: "mysql",
         charset: 'utf8',
         logging: false,
+        define: {
+          charset: 'utf8',
+          collate: 'utf8_general_ci',
+        },
       });
     }
 

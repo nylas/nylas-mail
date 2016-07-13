@@ -5,7 +5,6 @@ module.exports = (sequelize, Sequelize) => {
     name: Sequelize.STRING,
     role: Sequelize.STRING,
   }, {
-    charset: 'utf8',
     classMethods: {
       associate: ({Message, Thread}) => {
         Label.belongsToMany(Message, {through: 'message_labels'})

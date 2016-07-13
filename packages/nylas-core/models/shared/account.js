@@ -19,7 +19,6 @@ module.exports = (sequelize, Sequelize) => {
     },
     lastSyncCompletions: JSONARRAYType('lastSyncCompletions'),
   }, {
-    charset: 'utf8',
     classMethods: {
       associate: ({AccountToken}) => {
         Account.hasMany(AccountToken, {as: 'tokens'})

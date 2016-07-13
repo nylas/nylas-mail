@@ -9,7 +9,6 @@ module.exports = (sequelize, Sequelize) => {
     contentType: Sequelize.STRING(500),
     size: Sequelize.INTEGER,
   }, {
-    charset: 'utf8',
     classMethods: {
       associate: ({Message}) => {
         File.belongsTo(Message)

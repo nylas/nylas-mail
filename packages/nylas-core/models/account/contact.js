@@ -5,7 +5,6 @@ module.exports = (sequelize, Sequelize) => {
     name: Sequelize.STRING,
     email: Sequelize.STRING,
   }, {
-    charset: 'utf8',
     instanceMethods: {
       toJSON: function toJSON() {
         return {
