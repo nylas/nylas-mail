@@ -42,7 +42,7 @@ class Account extends React.Component {
 
   shouldComponentUpdate(nextProps) {
     return nextProps.account.version !== this.props.account.version ||
-      nextProps.active !== this.props.account.active ||
+      nextProps.active !== this.props.active ||
       nextProps.assignment !== this.props.assignment ||
       nextProps.count !== this.props.count;
   }

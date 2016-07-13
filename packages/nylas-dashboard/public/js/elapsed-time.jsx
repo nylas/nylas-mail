@@ -1,4 +1,10 @@
 const React = window.React;
+const ReactDOM = window.ReactDOM;
+
+setInterval(() => {
+  const event = new Event('tick');
+  window.dispatchEvent(event);
+}, 1000);
 
 class ElapsedTime extends React.Component {
   constructor(props) {
@@ -9,17 +15,20 @@ class ElapsedTime extends React.Component {
   }
 
   componentDidMount() {
-    this.interval = setInterval(() => {
-      this.setState({elapsed: Date.now() - this.props.refTimestamp})
-    }, 1000);
+    this.onTick = () => {
+      ReactDOM.findDOMNode(this.refs.timestamp).innerHTML = this.props.formatTime(
+        Date.now() - this.props.refTimestamp
+      );
+    };
+    window.addEventListener('tick', this.onTick);
   }
 
   componentWillUnmount() {
-    clearInterval(this.interval);
+    window.removeEventListener('tick', this.onTick);
   }
 
   render() {
-    return <span>{this.props.formatTime(this.state.elapsed)} </span>
+    return <span ref="timestamp"></span>
   }
 }
 

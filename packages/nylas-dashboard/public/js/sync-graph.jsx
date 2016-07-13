@@ -1,15 +1,21 @@
 const React = window.React;
 const ReactDOM = window.ReactDOM;
 
+setInterval(() => {
+  const event = new Event('graphtick')
+  window.dispatchEvent(event);
+}, 10000);
+
 class SyncGraph extends React.Component {
   componentDidMount() {
     this.drawGraph(true);
 
-    this.interval = setInterval(() => {
+    this.onGraphTick = () => {
       if (Date.now() - this.props.syncTimestamps[0] > 10000) {
         this.drawGraph(false);
       }
-    }, 10000);
+    }
+    window.addEventListener('graphtick', this.onGraphTick);
   }
 
   componentDidUpdate() {
@@ -17,7 +23,7 @@ class SyncGraph extends React.Component {
   }
 
   componentWillUnmount() {
-    clearInterval(this.interval);
+    window.removeEventListener('graphtick', this.onGraphTick);
   }
 
   drawGraph(isInitial) {
