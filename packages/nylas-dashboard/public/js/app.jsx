@@ -45,7 +45,7 @@ class Account extends React.Component {
       return (
         <div>
           <div className="section">Error</div>
-          <span className="action-link" onClick={() => this.clearError()}>Clear Error</span>
+          <div className="action-link" onClick={() => this.clearError()}>Clear Error</div>
           <div className="error">
             <pre>
               {JSON.stringify(error, null, 2)}

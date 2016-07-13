@@ -51,14 +51,16 @@ pre {
   overflow: hidden;
 }
 
-#set-all-sync {
-  display: block;
-  margin-bottom: 10px;
+#open-all-sync {
   color: #ffffff;
 }
 
+.right-action {
+  float: right;
+  margin-top: 10px;
+}
+
 .action-link {
-  display: inline-block;
   color: rgba(16, 83, 161, 0.88);
   text-decoration: underline;
   cursor: pointer;
@@ -66,7 +68,7 @@ pre {
 }
 
 .action-link.cancel {
-  margin-left: 5px;
+  margin-top: 10px;
 }
 
 .sync-policy textarea {
@@ -78,8 +80,9 @@ pre {
 .modal {
   background-color: white;
   width: 50%;
-  margin: auto;
+  margin: 10vh auto;
   padding: 20px;
+  max-height: calc(80vh - 40px); /* minus padding */
   overflow: auto;
 }
 
@@ -90,16 +93,27 @@ pre {
   left: 0;
   top: 0;
   background-color: rgba(0, 0, 0, 0.3);
-  padding-top: 10%;
+}
+
+.modal-close-wrapper {
+  position: relative;
+  height: 0;
+  width: 0;
+  float: right;
+  top: -10px;
 }
 
 .modal-close {
-  position: relative;
-  float: right;
-  top: -10px;
+  position: absolute;
   cursor: pointer;
   font-size: 14px;
   font-weight: bold;
+  background: url('../images/close.png') center center no-repeat;
+  background-size: 12px auto;
+  height: 12px;
+  width: 12px;
+  top: 12px;
+  right: 12px;
 }
 
 .sync-graph {
@@ -127,6 +141,10 @@ pre {
 
 #syncback-request-details table {
   width: 100%;
+  border: solid black 1px;
+  box-shadow: 1px 1px #333333;
+  margin: 10px 0;
+  border-collapse: collapse;
 }
 
 #syncback-request-details tr:nth-child(even) {
@@ -140,6 +158,7 @@ pre {
 #syncback-request-details td, #syncback-request-details th {
   text-align: center;
   padding: 10px 5px;
+  border: solid black 1px;
 }
 
 .dropdown-arrow {
@@ -153,9 +172,11 @@ pre {
   position: absolute;
   background-color: white;
   text-align: left;
+  display: inline;
 }
 
 .dropdown-option {
+  position: relative;
   padding: 0px 2px;
 }
 
@@ -170,6 +191,5 @@ pre {
 .dropdown-wrapper {
   display: inline;
   cursor: pointer;
-  position: absolute;
   font-weight: normal;
 }

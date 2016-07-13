@@ -1,14 +1,7 @@
 const React = window.React;
+const Modal = window.Modal;
 
 class SetAllSyncPolicies extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {editMode: false};
-  }
-
-  edit() {
-    this.setState({editMode: true})
-  }
 
   applyToAllAccounts(accountIds) {
     const req = new XMLHttpRequest();
@@ -31,35 +24,31 @@ class SetAllSyncPolicies extends React.Component {
     }));
   }
 
-  cancel() {
-    this.setState({editMode: false});
-  }
-
   render() {
-    if (this.state.editMode) {
-      return (
-        <div>
-          <span className="action-link" id="set-all-sync" onClick={() => this.edit.call(this)}>
-            Set sync policies for currently displayed accounts
-          </span>
-          <div className="modal-bg">
-            <div className="sync-policy modal">
-              <div className="section">Sync Policy</div>
-              <textarea id="sync-policy-all">
-              </textarea>
-              <button onClick={() => this.applyToAllAccounts.call(this, this.props.accountIds)}>
-                Apply To All Displayed Accounts
-              </button>
-              <span className="action-link cancel" onClick={() => this.cancel.call(this)}> Cancel </span>
-            </div>
-          </div>
-        </div>
-      )
-    }
     return (
-      <span className="action-link" id="set-all-sync" onClick={() => this.edit.call(this)}>
-        Set sync policies for currently displayed accounts
-      </span>
+      <Modal
+        className="sync-policy"
+        openLink={{
+          text: "Set sync policies for currently displayed accounts",
+          className: "action-link",
+          id: "open-all-sync",
+        }}
+        actionElems={[
+          {
+            title: "Apply To All Displayed Accounts",
+            action: () => this.applyToAllAccounts.call(this, this.props.accountIds),
+            type: 'button',
+            className: 'right-action',
+          }, {
+            title: "Cancel",
+            type: 'div',
+            className: 'action-link cancel',
+          },
+        ]}
+      >
+        <h3>Sync Policy</h3>
+        <textarea id="sync-policy-all"></textarea>
+      </Modal>
     )
   }
 }
