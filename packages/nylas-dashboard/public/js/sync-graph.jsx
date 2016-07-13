@@ -2,13 +2,22 @@ const React = window.React;
 const ReactDOM = window.ReactDOM;
 
 class SyncGraph extends React.Component {
-
   componentDidMount() {
     this.drawGraph(true);
+
+    this.interval = setInterval(() => {
+      if (Date.now() - this.props.syncTimestamps[0] > 10000) {
+        this.drawGraph(false);
+      }
+    }, 10000);
   }
 
   componentDidUpdate() {
     this.drawGraph(false);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
   }
 
   drawGraph(isInitial) {

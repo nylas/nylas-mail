@@ -9,6 +9,7 @@ const {
   AccountFilter,
   SyncGraph,
   SyncbackRequestDetails,
+  ElapsedTime,
 } = window;
 
 function calcAcctPosition(count) {
@@ -26,13 +27,23 @@ function calcAcctPosition(count) {
   return {left: left, top: top};
 }
 
+function formatSyncTimes(timestamp) {
+  return timestamp / 1000;
+}
+
 class Account extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       accountId: props.account.id,
+      version: null,
     }
   }
+
+  shouldComponentUpdate(nextProps) {
+    return nextProps.account.version !== this.props.account.version;
+  }
+
   clearError() {
     const req = new XMLHttpRequest();
     const url = `${window.location.protocol}/accounts/${this.state.accountId}/clear-sync-error`;
@@ -48,6 +59,7 @@ class Account extends React.Component {
     }
     req.send();
   }
+
   renderError() {
     const {account} = this.props;
 
@@ -80,7 +92,6 @@ class Account extends React.Component {
     const oldestSync = account.last_sync_completions[numStoredSyncs - 1];
     const newestSync = account.last_sync_completions[0];
     const avgBetweenSyncs = (newestSync - oldestSync) / (1000 * numStoredSyncs);
-    const timeSinceLastSync = (Date.now() - newestSync) / 1000;
 
     let firstSyncDuration = "Incomplete";
     if (account.first_sync_completion) {
@@ -108,7 +119,9 @@ class Account extends React.Component {
           <b> Average Time Between Syncs (seconds)</b>:
           <pre>{avgBetweenSyncs}</pre>
           <b>Time Since Last Sync (seconds)</b>:
-          <pre>{timeSinceLastSync}</pre>
+          <pre>
+            <ElapsedTime refTimestamp={newestSync} formatTime={formatSyncTimes} />
+          </pre>
           <b>Recent Syncs</b>:
           <SyncGraph id={account.last_sync_completions.length} syncTimestamps={account.last_sync_completions} />
         </div>
@@ -166,6 +179,11 @@ class Root extends React.Component {
   onReceivedUpdate(update) {
     const accounts = Object.assign({}, this.state.accounts);
     for (const account of update.updatedAccounts) {
+      if (accounts[account.id]) {
+        account.version = accounts[account.id].version + 1;
+      } else {
+        account.version = 0;
+      }
       accounts[account.id] = account;
     }
 
