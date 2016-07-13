@@ -39,6 +39,7 @@ class DatabaseConnector {
       return new Sequelize(dbname, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
         host: process.env.DB_HOSTNAME,
         dialect: "mysql",
+        charset: 'utf8',
         logging: false,
       });
     }

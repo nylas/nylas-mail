@@ -15,6 +15,7 @@ module.exports = (sequelize, Sequelize) => {
     lastMessageSentDate: Sequelize.DATE,
     participants: JSONARRAYType('participants'),
   }, {
+    charset: 'utf8',
     indexes: [
       { fields: ['subject'] },
       { fields: ['threadId'] },

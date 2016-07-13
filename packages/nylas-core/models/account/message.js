@@ -25,6 +25,7 @@ module.exports = (sequelize, Sequelize) => {
     folderImapUID: { type: Sequelize.STRING, allowNull: true},
     folderImapXGMLabels: { type: Sequelize.TEXT, allowNull: true},
   }, {
+    charset: 'utf8',
     indexes: [
       {
         unique: true,

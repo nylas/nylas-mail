@@ -8,6 +8,7 @@ module.exports = (sequelize, Sequelize) => {
     role: Sequelize.STRING,
     syncState: JSONType('syncState'),
   }, {
+    charset: 'utf8',
     classMethods: {
       associate: ({Message, Thread}) => {
         Folder.hasMany(Message)
