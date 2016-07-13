@@ -3,8 +3,8 @@ const PubsubConnector = require('./pubsub-connector')
 module.exports = (db, sequelize) => {
   const parseHookData = ({dataValues, _changed, $modelOptions}) => {
     return {
+      object: $modelOptions.name.singular,
       objectId: dataValues.id,
-      modelName: $modelOptions.name.singular,
       changedFields: _changed,
     }
   }
@@ -34,11 +34,13 @@ module.exports = (db, sequelize) => {
     return (sequelizeHookData) => {
       if (isSilent(sequelizeHookData)) return;
 
-      const transactionData = Object.assign({type: type},
+      const event = (type === "update" ? "modify" : type)
+
+      const transactionData = Object.assign({event},
         parseHookData(sequelizeHookData)
       );
       db.Transaction.create(transactionData);
-      transactionData.object = sequelizeHookData.dataValues;
+      transactionData.attributes = sequelizeHookData.dataValues;
 
       PubsubConnector.notifyDelta(db.accountId, transactionData);
     }

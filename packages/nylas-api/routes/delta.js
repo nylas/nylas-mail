@@ -9,12 +9,12 @@ function keepAlive(request) {
 
 function inflateTransactions(db, transactionModels = []) {
   const transactions = _.pluck(transactionModels, "dataValues")
-  const byModel = _.groupBy(transactions, "modelName");
+  const byModel = _.groupBy(transactions, "object");
   const byObjectIds = _.groupBy(transactions, "objectId");
 
-  return Promise.all(Object.keys(byModel).map((modelName) => {
-    const ids = _.pluck(byModel[modelName], "objectId");
-    const modelConstructorName = modelName.charAt(0).toUpperCase() + modelName.slice(1);
+  return Promise.all(Object.keys(byModel).map((object) => {
+    const ids = _.pluck(byModel[object], "objectId");
+    const modelConstructorName = object.charAt(0).toUpperCase() + object.slice(1);
     const ModelKlass = db[modelConstructorName]
     let includes = [];
     if (ModelKlass.requiredAssociationsForJSON) {
@@ -25,7 +25,7 @@ function inflateTransactions(db, transactionModels = []) {
       for (const model of models) {
         const tsForId = byObjectIds[model.id];
         if (!tsForId || tsForId.length === 0) { continue; }
-        for (const t of tsForId) { t.object = model; }
+        for (const t of tsForId) { t.attributes = model; }
       }
     })
   })).then(() => transactions)
