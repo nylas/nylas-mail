@@ -223,7 +223,7 @@ class IMAPConnection extends EventEmitter {
       };
       onErrored = (error) => {
         returned = true;
-        reject(error);
+        reject(convertImapError(error));
       };
 
       this._imap.once('error', onErrored);
