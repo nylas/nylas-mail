@@ -299,7 +299,7 @@ class FetchMessagesInFolder {
 
   _fetchUnsyncedMessages() {
     const savedSyncState = this._category.syncState;
-    const isFirstSync = !savedSyncState.fetchedmax;
+    const isFirstSync = savedSyncState.fetchedmax === undefined;
     const boxUidnext = this._box.uidnext;
     const boxUidvalidity = this._box.uidvalidity;
 
@@ -350,7 +350,7 @@ class FetchMessagesInFolder {
 
   _runScan() {
     const {fetchedmin, fetchedmax} = this._category.syncState;
-    if (!fetchedmin || !fetchedmax) {
+    if ((fetchedmin === undefined) || (fetchedmax === undefined)) {
       throw new Error("Unseen messages must be fetched at least once before the first update/delete scan.")
     }
     return this._shouldRunDeepScan() ? this._runDeepScan() : this._runShallowScan()
