@@ -1,3 +1,4 @@
+const _ = require('underscore')
 const PubsubConnector = require('./pubsub-connector')
 
 module.exports = (db, sequelize) => {
@@ -5,37 +6,28 @@ module.exports = (db, sequelize) => {
     return {
       object: $modelOptions.name.singular,
       objectId: dataValues.id,
-      changedFields: _changed,
+      changedFields: Object.keys(_changed),
     }
   }
 
-  const isSilent = (data) => {
-    data._previousDataValues
-    data._changed
+  const isTransaction = (data) => {
+    return data.$modelOptions.name.singular === "transaction"
+  }
 
-    if (data.$modelOptions.name.singular === "transaction") {
-      return true
-    }
+  const allIgnoredFields = (data) => {
+    const IGNORED_FIELDS = ["syncState", "version"];
+    return _.difference(Object.keys(data._changed), IGNORED_FIELDS).length === 0
+  }
 
-    if (data._changed && data._changed.syncState) {
-      for (const key of Object.keys(data._changed)) {
-        if (key === "syncState") { continue }
-        if (data._changed[key] !== data._previousDataValues[key]) {
-          // SyncState changed, but so did something else
-          return false;
-        }
-      }
-      // Be silent due to nothing but sync state changing
-      return true;
-    }
+  const isIgnored = (data) => {
+    return (isTransaction(data) || allIgnoredFields(data))
   }
 
   const transactionLogger = (type) => {
     return (sequelizeHookData) => {
-      if (isSilent(sequelizeHookData)) return;
+      if (isIgnored(sequelizeHookData)) return;
 
       const event = (type === "update" ? "modify" : type)
-
       const transactionData = Object.assign({event},
         parseHookData(sequelizeHookData)
       );
