@@ -90,12 +90,20 @@ function onWebsocketConnectedFake(wss, ws) {
       last_sync_completions: [],
       created_at: "2016-07-13T00:49:25.000Z",
     };
-    ws.send(JSON.stringify({ cmd: "ACCOUNT", payload: acct }));
+    ws.send(JSON.stringify({ cmd: "UPDATE", payload: {
+      updatedAccounts: [acct],
+      activeAccountIds: [],
+      assignments: {},
+    }}));
     accts.push(acct);
   }
   setInterval(() => {
     const acct = accts[Math.floor(Math.random() * accts.length)];
-    ws.send(JSON.stringify({ cmd: "ACCOUNT", payload: acct }));
+    ws.send(JSON.stringify({ cmd: "UPDATE", payload: {
+      updatedAccounts: [acct],
+      activeAccountIds: [],
+      assignments: {},
+    }}));
   }, 250);
 }
 
