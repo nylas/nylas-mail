@@ -95,7 +95,7 @@ class SyncGraph extends React.Component {
 
 SyncGraph.config = {
   height: 50, // Doesn't include labels
-  width: 300,
+  width: 240,
   // timeLength is 30 minutes in seconds. If you change this, be sure to update
   // syncGraphTimeLength in sync-worker.js and the axis labels in drawGraph()!
   timeLength: 60 * 30,

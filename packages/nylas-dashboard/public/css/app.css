@@ -5,7 +5,7 @@ body {
   background-size: 100vw auto;
   background-attachment: fixed;
   font-family: Roboto, sans-serif;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 h2 {
@@ -20,22 +20,22 @@ pre {
 .account {
   position: absolute;
   border-radius: 5px;
-  width: 300px;
-  height: 500px;
+  width: 240px;
+  height: 450px;
   background-color: rgb(255, 255, 255);
   padding: 15px;
   margin: 5px;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .account h3 {
-  font-size: 16px;
+  font-size: 13px;
   margin: 0;
   padding: 0;
 }
 
 .account .section {
-  font-size: 14px;
+  font-size: 12px;
   padding: 10px 0;
   text-align: center;
 }

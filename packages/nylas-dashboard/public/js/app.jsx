@@ -14,8 +14,8 @@ const {
 } = window;
 
 function calcAcctPosition(count) {
-  const width = 340;
-  const height = 540;
+  const width = 280;
+  const height = 490;
   const marginTop = 100;
   const marginSide = 0;
 
@@ -116,13 +116,12 @@ class Account extends React.Component {
         <h3>{account.email_address} [{account.id}] {active ? '🌕' : '🌑'}</h3>
         <strong>{assignment}</strong>
         <SyncbackRequestDetails accountId={account.id} />
-        <div className="section">Sync Cycles</div>
         <div className="stats">
-          <b>First Sync Duration (seconds)</b>:
+          <b>First Sync Duration (sec)</b>:
           <pre>{firstSyncDuration}</pre>
-          <b> Average Time Between Syncs (seconds)</b>:
+          <b> Average Time Between Syncs (sec)</b>:
           <pre>{avgBetweenSyncs}</pre>
-          <b>Time Since Last Sync (seconds)</b>:
+          <b>Time Since Last Sync (sec)</b>:
           <pre>
             <ElapsedTime refTimestamp={newestSync} formatTime={formatSyncTimes} />
           </pre>
