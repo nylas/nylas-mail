@@ -198,3 +198,24 @@ pre {
   cursor: pointer;
   font-weight: normal;
 }
+
+.mini-account::after {
+  display: inline-block;
+  position: relative;
+  height: 10px;
+  width: 10px;
+  background-color: #666666;
+  content: "";
+  z-index: -1;
+}
+
+.mini-account {
+  height: 10px;
+  width: 10px;
+  background-color: rgb(0, 255, 157);
+  display: inline-block;
+}
+
+.mini-account.errored {
+  background-color: rgb(255, 38, 0);
+}

@@ -11,6 +11,7 @@ const {
   SyncbackRequestDetails,
   ElapsedTime,
   Modal,
+  MiniAccount,
 } = window;
 
 function calcAcctPosition(count) {
@@ -215,6 +216,7 @@ class Root extends React.Component {
         break;
     }
 
+    const AccountType = this.props.collapsed ? MiniAccount : Account;
     let count = 0;
 
     return (
@@ -223,7 +225,7 @@ class Root extends React.Component {
         <SetAllSyncPolicies accountIds={ids.map((id) => parseInt(id, 10))} />
         {
           ids.sort((a, b) => a / 1 - b / 1).map((id) =>
-            <Account
+            <AccountType
               key={id}
               active={this.state.activeAccountIds.includes(id)}
               assignment={this.state.assignments[id]}
@@ -237,7 +239,21 @@ class Root extends React.Component {
   }
 }
 
+Root.propTypes = {
+  collapsed: React.PropTypes.bool,
+}
+
+let collapsed = false;
+const collapsedStr = "collapsed";
+const index = window.location.search.indexOf(collapsedStr);
+if (index >= 0) {
+  const value = window.location.search.substring(index + collapsedStr.length + 1);
+  if (value.startsWith("true")) {
+    collapsed = true;
+  }
+}
+
 ReactDOM.render(
-  <Root />,
+  <Root collapsed={collapsed} />,
   document.getElementById('root')
 );
