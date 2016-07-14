@@ -1,7 +1,7 @@
 const _ = require('underscore');
 const Imap = require('imap');
 
-const {IMAPConnection, PubsubConnector, PromiseUtils} = require('nylas-core');
+const {IMAPConnection, PubsubConnector} = require('nylas-core');
 const {Capabilities} = IMAPConnection;
 
 const MessageFlagAttributes = ['id', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']
@@ -176,7 +176,7 @@ class FetchMessagesInFolder {
       uidsByPart[key].push(attributes.uid);
     })
     .then(() => {
-      return PromiseUtils.each(Object.keys(uidsByPart), (key) => {
+      return Promise.each(Object.keys(uidsByPart), (key) => {
         const uids = uidsByPart[key];
         const desiredParts = JSON.parse(key);
         const bodies = ['HEADER'].concat(desiredParts.map(p => p.id));
@@ -329,7 +329,7 @@ class FetchMessagesInFolder {
       }
     }
 
-    return PromiseUtils.each(desiredRanges, ({min, max}) => {
+    return Promise.each(desiredRanges, ({min, max}) => {
       this._logger.info({
         range: `${min}:${max}`,
       }, `FetchMessagesInFolder: Fetching range`);

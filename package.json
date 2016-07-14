@@ -14,6 +14,7 @@
     "mysql": "^2.11.1",
     "newrelic": "^1.28.1",
     "pm2": "^1.1.3",
+    "promise-props": "^1.0.0",
     "promise.prototype.finally": "^1.0.1",
     "redis": "2.x.x",
     "rx": "4.x.x",
