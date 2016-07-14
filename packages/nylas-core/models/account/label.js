@@ -1,14 +1,14 @@
 module.exports = (sequelize, Sequelize) => {
-  const Label = sequelize.define('label', {
+  return sequelize.define('label', {
     accountId: { type: Sequelize.STRING, allowNull: false },
     version: Sequelize.INTEGER,
     name: Sequelize.STRING,
     role: Sequelize.STRING,
   }, {
     classMethods: {
-      associate: ({Message, Thread}) => {
-        Label.belongsToMany(Message, {through: 'message_labels'})
-        Label.belongsToMany(Thread, {through: 'thread_labels'})
+      associate: ({Label, Message, MessageLabel, Thread, ThreadLabel}) => {
+        Label.belongsToMany(Message, {through: MessageLabel})
+        Label.belongsToMany(Thread, {through: ThreadLabel})
       },
     },
     instanceMethods: {
@@ -23,6 +23,4 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
   });
-
-  return Label;
 };

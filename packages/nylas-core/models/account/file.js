@@ -2,7 +2,7 @@ const PromiseUtils = require('../../promise-utils')
 const IMAPConnection = require('../../imap-connection')
 
 module.exports = (sequelize, Sequelize) => {
-  const File = sequelize.define('file', {
+  return sequelize.define('file', {
     accountId: { type: Sequelize.STRING, allowNull: false },
     version: Sequelize.INTEGER,
     filename: Sequelize.STRING(500),
@@ -11,7 +11,7 @@ module.exports = (sequelize, Sequelize) => {
     size: Sequelize.INTEGER,
   }, {
     classMethods: {
-      associate: ({Message}) => {
+      associate: ({File, Message}) => {
         File.belongsTo(Message)
       },
     },
@@ -52,6 +52,4 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
   });
-
-  return File;
 };

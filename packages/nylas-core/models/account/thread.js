@@ -1,10 +1,10 @@
 const {JSONARRAYType} = require('../../database-types');
 
 module.exports = (sequelize, Sequelize) => {
-  const Thread = sequelize.define('thread', {
+  return sequelize.define('thread', {
     accountId: { type: Sequelize.STRING, allowNull: false },
     version: Sequelize.INTEGER,
-    threadId: Sequelize.STRING,
+    remoteThreadId: Sequelize.STRING,
     subject: Sequelize.STRING(500),
     snippet: Sequelize.STRING(255),
     unreadCount: Sequelize.INTEGER,
@@ -17,22 +17,22 @@ module.exports = (sequelize, Sequelize) => {
   }, {
     indexes: [
       { fields: ['subject'] },
-      { fields: ['threadId'] },
+      { fields: ['remoteThreadId'] },
     ],
     classMethods: {
-      requiredAssociationsForJSON: () => {
+      requiredAssociationsForJSON: ({Folder, Label, Message}) => {
         return [
-          {model: sequelize.models.folder},
-          {model: sequelize.models.label},
+          {model: Folder},
+          {model: Label},
           {
-            model: sequelize.models.message,
+            model: Message,
             attributes: ['id'],
           },
         ]
       },
-      associate: ({Folder, Label, Message}) => {
-        Thread.belongsToMany(Folder, {through: 'thread_folders'})
-        Thread.belongsToMany(Label, {through: 'thread_labels'})
+      associate: ({Thread, Folder, ThreadFolder, Label, ThreadLabel, Message}) => {
+        Thread.belongsToMany(Folder, {through: ThreadFolder})
+        Thread.belongsToMany(Label, {through: ThreadLabel})
         Thread.hasMany(Message)
       },
     },
@@ -75,6 +75,4 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
   });
-
-  return Thread;
 };

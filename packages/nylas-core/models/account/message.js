@@ -5,11 +5,11 @@ const {JSONType, JSONARRAYType} = require('../../database-types');
 
 
 module.exports = (sequelize, Sequelize) => {
-  const Message = sequelize.define('message', {
+  return sequelize.define('message', {
     accountId: { type: Sequelize.STRING, allowNull: false },
     version: Sequelize.INTEGER,
     headerMessageId: Sequelize.STRING,
-    body: Sequelize.TEXT,
+    body: Sequelize.TEXT('long'),
     headers: JSONType('headers'),
     subject: Sequelize.STRING(500),
     snippet: Sequelize.STRING(255),
@@ -33,10 +33,10 @@ module.exports = (sequelize, Sequelize) => {
       },
     ],
     classMethods: {
-      associate: ({Folder, Label, File, Thread}) => {
+      associate: ({Message, Folder, Label, File, Thread, MessageLabel}) => {
         Message.belongsTo(Thread)
         Message.belongsTo(Folder)
-        Message.belongsToMany(Label, {through: 'message_labels'})
+        Message.belongsToMany(Label, {through: MessageLabel})
         Message.hasMany(File)
       },
       hashForHeaders: (headers) => {
@@ -44,13 +44,12 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
     instanceMethods: {
-      setLabelsFromXGM(xGmLabels, {preloadedLabels} = {}) {
+      setLabelsFromXGM(xGmLabels, {Label, preloadedLabels} = {}) {
         if (!xGmLabels) {
           return Promise.resolve();
         }
         const labelNames = xGmLabels.filter(l => l[0] !== '\\')
         const labelRoles = xGmLabels.filter(l => l[0] === '\\').map(l => l.substr(1).toLowerCase())
-        const Label = sequelize.models.label;
 
         let getLabels = null;
         if (preloadedLabels) {
@@ -101,6 +100,4 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
   });
-
-  return Message;
 };

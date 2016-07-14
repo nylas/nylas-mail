@@ -14,6 +14,7 @@ apps:
     watch    : ["packages"]
     name     : sync
     env      :
+      SYNC_AFTER_ERRORS : true
       DB_ENCRYPTION_ALGORITHM : "aes-256-ctr"
       DB_ENCRYPTION_PASSWORD : "d6F3Efeq"
       NODE_ENV: 'development'

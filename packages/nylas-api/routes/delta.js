@@ -19,7 +19,7 @@ function inflateTransactions(db, transactionModels = []) {
     const ModelKlass = db[modelConstructorName]
     let includes = [];
     if (ModelKlass.requiredAssociationsForJSON) {
-      includes = ModelKlass.requiredAssociationsForJSON()
+      includes = ModelKlass.requiredAssociationsForJSON(db)
     }
     return ModelKlass.findAll({where: {id: ids}, include: includes})
     .then((models = []) => {

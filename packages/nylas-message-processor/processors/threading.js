@@ -32,11 +32,12 @@ class ThreadingProcessor {
     return subject.replace(regex, () => "");
   }
 
-  emptyThread(Thread, options = {}) {
-    const t = Thread.build(options)
-    t.folders = [];
-    t.labels = [];
-    return t;
+  emptyThread({Thread, accountId}, options = {}) {
+    return Thread.create(Object.assign({accountId}, options)).then((t) => {
+      t.folders = [];
+      t.labels = [];
+      return t;
+    });
   }
 
   findOrCreateByMatching(db, message) {
@@ -57,16 +58,17 @@ class ThreadingProcessor {
       limit: 10,
       include: [{model: Label}, {model: Folder}],
     }).then((threads) =>
-      this.pickMatchingThread(message, threads) || this.emptyThread(Thread)
+      this.pickMatchingThread(message, threads) || this.emptyThread(db, {})
     )
   }
 
-  findOrCreateByThreadId({Thread, Label, Folder}, threadId) {
+  findOrCreateByRemoteThreadId(db, remoteThreadId) {
+    const {Thread, Label, Folder} = db;
     return Thread.find({
-      where: {threadId},
+      where: {remoteThreadId},
       include: [{model: Label}, {model: Folder}],
     }).then((thread) => {
-      return thread || this.emptyThread(Thread, {threadId})
+      return thread || this.emptyThread(db, {remoteThreadId})
     })
   }
 
@@ -82,7 +84,7 @@ class ThreadingProcessor {
     const {Folder, Label} = db;
     let findOrCreateThread = null;
     if (message.headers['x-gm-thrid']) {
-      findOrCreateThread = this.findOrCreateByThreadId(db, message.headers['x-gm-thrid'])
+      findOrCreateThread = this.findOrCreateByRemoteThreadId(db, message.headers['x-gm-thrid'])
     } else {
       findOrCreateThread = this.findOrCreateByMatching(db, message)
     }

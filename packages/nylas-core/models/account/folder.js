@@ -1,7 +1,7 @@
 const {JSONType} = require('../../database-types');
 
 module.exports = (sequelize, Sequelize) => {
-  const Folder = sequelize.define('folder', {
+  return sequelize.define('folder', {
     accountId: { type: Sequelize.STRING, allowNull: false },
     version: Sequelize.INTEGER,
     name: Sequelize.STRING,
@@ -9,7 +9,7 @@ module.exports = (sequelize, Sequelize) => {
     syncState: JSONType('syncState'),
   }, {
     classMethods: {
-      associate: ({Message, Thread}) => {
+      associate: ({Folder, Message, Thread}) => {
         Folder.hasMany(Message)
         Folder.belongsToMany(Thread, {through: 'thread_folders'})
       },
@@ -26,6 +26,4 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
   });
-
-  return Folder;
 };
