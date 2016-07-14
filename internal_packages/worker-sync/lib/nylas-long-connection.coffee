@@ -1,5 +1,5 @@
 {Emitter} = require 'event-kit'
-{DatabaseStore} = require 'nylas-exports'
+{IdentityStore, DatabaseStore} = require 'nylas-exports'
 url = require 'url'
 _ = require 'underscore'
 
@@ -98,7 +98,7 @@ class NylasLongConnection
       return if @status is NylasLongConnection.Status.Ended
 
       options = url.parse("#{@_api.APIRoot}/delta/streaming?cursor=#{cursor}&exclude_folders=false&exclude_metadata=false&exclude_account=false")
-      options.auth = "#{token}:"
+      options.auth = "#{token}:#{IdentityStore.identity().token}"
 
       if @_api.APIRoot.indexOf('https') is -1
         lib = require 'http'
