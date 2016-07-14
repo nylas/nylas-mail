@@ -223,7 +223,7 @@ class Root extends React.Component {
         <AccountFilter id="account-filter" onChange={() => this.onFilter.call(this)} />
         <SetAllSyncPolicies accountIds={ids.map((id) => parseInt(id, 10))} />
         {
-          ids.sort((a, b) => a.localeCompare(b)).map((id) =>
+          ids.sort((a, b) => a / 1 - b / 1).map((id) =>
             <Account
               key={id}
               active={this.state.activeAccountIds.includes(id)}
