@@ -4,7 +4,7 @@ class MiniAccount extends React.Component {
 
   calculateColor() {
     // in milliseconds
-    const grayAfter = 10000;
+    const grayAfter = 1000 * 60 * 10; // 10 minutes
     const elapsedTime = Date.now() - this.props.account.last_sync_completions[0];
     let opacity = 0;
     if (elapsedTime < grayAfter) {
