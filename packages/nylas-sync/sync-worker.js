@@ -205,6 +205,11 @@ class SyncWorker {
       return Promise.resolve()
     }
 
+    global.Metrics.reportMetric({
+      name: 'sync_error',
+      value: 1,
+      type: global.Metrics.Counter,
+    })
     this._account.syncError = jsonError(error)
     return this._account.save()
   }
