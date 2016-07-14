@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from 'react'
-import {Utils, DateUtils} from 'nylas-exports'
+import {DateUtils} from 'nylas-exports'
 import {Flexbox} from 'nylas-component-kit'
 import SendingProgressBar from './sending-progress-bar'
 

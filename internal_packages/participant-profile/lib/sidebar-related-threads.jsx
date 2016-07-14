@@ -1,5 +1,5 @@
 import React from 'react'
-import {Utils, Actions, DateUtils} from 'nylas-exports'
+import {Actions, DateUtils} from 'nylas-exports'
 
 export default class RelatedThreads extends React.Component {
   static displayName = "RelatedThreads";
