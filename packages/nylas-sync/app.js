@@ -1,5 +1,5 @@
 const {Metrics} = require(`nylas-core`)
-Metrics.startCapturing()
+Metrics.startCapturing('nylas-k2-sync')
 
 const {DatabaseConnector, Logger} = require('nylas-core')
 const SyncProcessManager = require('./sync-process-manager');

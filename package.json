@@ -19,6 +19,7 @@
     "redis": "2.x.x",
     "rx": "4.x.x",
     "sequelize": "3.x.x",
+    "signalfx": "^3.0.1",
     "underscore": "1.x.x",
     "utf7": "https://github.com/truebit/utf7/archive/1f753bac59b99d93b17a5ef11681e232465e2558.tar.gz"
   },

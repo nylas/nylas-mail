@@ -1,26 +1,54 @@
-const {NODE_ENV} = process.env
+const {env: {NODE_ENV, SIGNALFX_TOKEN}, pid} = process
+const os = require('os')
+const signalfx = require('signalfx')
 
-class Metrics {
-  constructor() {
-    this.newrelic = null
-    this.shouldReport = NODE_ENV && NODE_ENV !== 'development'
-  }
+let newrelicClient = null
+let signalfxClient = null
 
-  startCapturing() {
-    if (this.shouldReport) {
-      this.newrelic = require('newrelic')
-    }
-  }
+const MetricTypes = {
+  Gauge: 'gauges',
+  Counter: 'counters',
+  CumulativeCounter: 'cumulative_counters',
+}
+const shouldReport = NODE_ENV && NODE_ENV !== 'development'
+
+
+const Metrics = {
+
+  MetricTypes,
+
+  startCapturing(name) {
+    if (!shouldReport) { return }
+    newrelicClient = require('newrelic')
+    signalfxClient = new signalfx.Ingest(SIGNALFX_TOKEN, {
+      dimensions: {
+        name,
+        host: os.hostname(),
+        pid: pid.toString(),
+        env: NODE_ENV,
+      },
+    })
+  },
 
   reportError(error) {
-    if (this.newrelic && this.shouldReport) {
-      this.newrelic.noticeError(error)
+    if (!newrelicClient || !shouldReport) { return }
+    newrelicClient.noticeError(error)
+  },
+
+  reportMetric({name, value, type, dimensions = {}} = {}) {
+    if (!signalfxClient || !shouldReport) { return }
+    if (!name) {
+      throw new Error('Metrics.reportMetric requires a metric.name')
     }
-  }
-
-  reportMetric() {
-
-  }
+    if (value == null) {
+      throw new Error('Metrics.reportMetric requires a metric.value')
+    }
+    if (!type) {
+      throw new Error('Metrics.reportMetric requires a metric.type from Metrics.MetricTypes')
+    }
+    const metric = {metric: name, value, timestamp: Date.now(), dimensions}
+    signalfxClient.send({[type]: [metric]})
+  },
 }
 
-module.exports = new Metrics()
+module.exports = Metrics

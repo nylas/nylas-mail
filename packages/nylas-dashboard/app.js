@@ -1,5 +1,5 @@
 const {Metrics} = require(`nylas-core`)
-Metrics.startCapturing()
+Metrics.startCapturing('nylas-k2-dashboard')
 
 const fs = require('fs');
 const path = require('path');
