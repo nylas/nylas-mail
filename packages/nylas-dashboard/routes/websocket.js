@@ -11,6 +11,7 @@ function onWebsocketConnected(wss, ws) {
       updatedAccounts: [],
       activeAccountIds: [],
       assignments: {},
+      processLoadCounts: {},
     };
   }
   resetToSend();
@@ -42,6 +43,7 @@ function onWebsocketConnected(wss, ws) {
         toSend.activeAccountIds = accountIds;
       });
       const getAssignments = SchedulerUtils.forEachAccountList((identity, accountIds) => {
+        toSend.processLoadCounts[identity] = accountIds.length;
         for (const accountId of accountIds) {
           toSend.assignments[accountId] = identity;
         }

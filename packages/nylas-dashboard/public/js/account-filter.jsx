@@ -2,7 +2,7 @@ const React = window.React;
 
 function AccountFilter(props) {
   return (
-    <div>
+    <div className="account-filter">
       Display: <select {...props}>
         <option value={AccountFilter.states.all}>All Accounts</option>
         <option value={AccountFilter.states.errored}>Accounts with Errors</option>
