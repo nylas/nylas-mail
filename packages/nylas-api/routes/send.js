@@ -35,15 +35,13 @@ module.exports = (server) => {
         for (key of ['from', 'to', 'cc', 'bcc']) {
           if (data[key]) msg[key] = toParticipant(data[key])
         }
+        if (!msg.from || msg.from.length === 0) {
+          msg.from = `${account.name} <${account.emailAddress}>`
+        }
         msg.subject = data.subject,
         msg.html = data.body,
 
-        console.log("------------------------------------------------")
-        console.log(msg)
         sender.sendMail(msg, (error, info) => {
-          console.log("DONE ===========================================");
-          console.log(error)
-          console.log(info)
           if (error) { reply(error).code(400) }
           else { reply(info.response) }
         });
