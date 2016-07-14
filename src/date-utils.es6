@@ -1,4 +1,4 @@
-import moment from 'moment'
+import moment from 'moment-timezone'
 import chrono from 'chrono-node'
 import _ from 'underscore'
 
@@ -215,6 +215,25 @@ const DateUtils = {
     }
 
     return moment(datetime).format(format)
+  },
+
+
+  /**
+   * Return a long format date/time
+   *
+   * @param {Date} datetime - Timestamp
+   * @return {String} Formated date/time
+   */
+  fullTimeString(datetime) {
+    const tz = moment.tz.guess()
+    if (!tz) {
+      console.error("DateUtils: TimeZone could not be determined. This should not happen!")
+    }
+
+    let format = "dddd, MMMM Do YYYY, "
+    format += DateUtils.getTimeFormat({seconds: true, upperCase: true, timeZone: true})
+
+    return moment(datetime).tz(tz).format(format)
   },
 
 };
