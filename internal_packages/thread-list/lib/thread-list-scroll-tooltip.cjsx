@@ -1,5 +1,5 @@
 React = require 'react'
-{Utils} = require 'nylas-exports'
+{Utils, DateUtils} = require 'nylas-exports'
 ThreadListStore = require './thread-list-store'
 
 class ThreadListScrollTooltip extends React.Component
