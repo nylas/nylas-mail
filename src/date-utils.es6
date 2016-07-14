@@ -156,21 +156,67 @@ const DateUtils = {
     return moment(date)
   },
 
+
+  /**
+   * Return a formatting string for displaying time
+   *
+   * @param {Date} opts - Object with different properties for customising output
+   * @return {String} The format string based on syntax used by Moment.js
+   *
+   * seconds, upperCase and timeZone are the supported extra options to the format string.
+   * Checks whether or not to use 24 hour time format.
+   */
   getTimeFormat(opts) {
     const use24HourClock = NylasEnv.config.get('core.workspace.use24HourClock')
     let timeFormat = use24HourClock ? "HH:mm" : "h:mm"
+
     if (opts && opts.seconds) {
       timeFormat += ":ss"
     }
-    if (!use24HourClock && opts && opts.upperCase) {
-      timeFormat += " A"
+
+    // Append meridian if not using 24 hour clock
+    if (!use24HourClock) {
+      if (opts && opts.upperCase) {
+        timeFormat += " A"
+      } else {
+        timeFormat += " a"
+      }
     }
+
     if (opts && opts.timeZone) {
       timeFormat += " z"
     }
 
     return timeFormat
   },
+
+
+  /**
+   * Return a short format date/time
+   *
+   * @param {Date} datetime - Timestamp
+   * @return {String} Formated date/time
+   *
+   * The returned date/time format depends on how long ago the timestamp is.
+   */
+  shortTimeString(datetime) {
+    const diff = moment().diff(datetime, 'days', true)
+    let format = null
+
+    if (diff <= 1) {
+      // Time if less than 1 day old
+      format = DateUtils.getTimeFormat(null)
+    } else if (diff > 1 && diff <= 365) {
+      // Month and day up to 1 year old
+      format = "MMM D"
+    } else {
+      // Month, day and year if over a year old
+      format = "MMM D YYYY"
+    }
+
+    return moment(datetime).format(format)
+  },
+
 };
 
 export default DateUtils
