@@ -71,7 +71,7 @@ class SyncProcessManager {
       global.Metrics.reportMetric({
         name: 'accounts_syncing_count',
         value: accountsSyncing,
-        type: global.Metrics.MetricTypes.CumulativeCounter,
+        type: global.Metrics.MetricTypes.Gauge,
       })
     })
   }
