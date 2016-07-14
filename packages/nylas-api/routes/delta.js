@@ -24,10 +24,9 @@ function inflateTransactions(db, transactionModels = []) {
     return ModelKlass.findAll({where: {id: ids}, include: includes})
     .then((models = []) => {
       for (const model of models) {
-        model.dataValues.object = object
         const tsForId = byObjectIds[model.id];
         if (!tsForId || tsForId.length === 0) { continue; }
-        for (const t of tsForId) { t.attributes = model.dataValues; }
+        for (const t of tsForId) { t.attributes = model.toJSON(); }
       }
     })
   })).then(() => transactions.map(JSON.stringify).join("\n"))
