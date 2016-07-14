@@ -22,8 +22,8 @@ global.Promise.sleep = function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-global.Promise.prototype.thenReturn = function thenReturnPolyfill(value) {
-  this.then(function then() { return Promise.resolve(value); })
+global.Promise.prototype.thenReturn = function thenReturn(value) {
+  return this.then(function then() { return Promise.resolve(value); })
 }
 
 function promisify(nodeFn) {

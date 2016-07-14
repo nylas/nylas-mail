@@ -3,7 +3,7 @@ const {Provider} = require('nylas-core');
 const GMAIL_ROLES_WITH_FOLDERS = ['all', 'trash', 'junk'];
 
 class FetchFolderList {
-  constructor(provider, logger = console) {
+  constructor(provider, logger) {
     this._provider = provider;
     this._logger = logger;
   }

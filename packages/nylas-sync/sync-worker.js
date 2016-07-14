@@ -185,7 +185,7 @@ class SyncWorker {
       return this._account.update({syncError: null})
       .then(() => this.ensureConnection())
       .then(() => this.syncbackMessageActions())
-      .then(() => this._conn.runOperation(new FetchFolderList(this._account.provider)))
+      .then(() => this._conn.runOperation(new FetchFolderList(this._account.provider, this._logger)))
       .then(() => this.syncAllCategories())
       .then(() => this.onSyncDidComplete())
       .catch((error) => this.onSyncError(error))

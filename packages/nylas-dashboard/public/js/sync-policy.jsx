@@ -18,7 +18,6 @@ class SyncPolicy extends React.Component {
     req.setRequestHeader("Content-type", "application/json");
     req.onreadystatechange = () => {
       if (req.readyState === XMLHttpRequest.DONE) {
-        console.log(req.responseText);
         if (req.status === 200) {
           this.setState({editMode: false});
         }

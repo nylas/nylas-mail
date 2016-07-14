@@ -233,7 +233,8 @@ class IMAPConnection extends EventEmitter {
       const cresolve = (...args) => (!returned ? resolve(...args) : null)
       const creject = (...args) => (!returned ? reject(...args) : null)
       return callback(cresolve, creject)
-    }).finally(() => {
+    })
+    .finally(() => {
       if (this._imap) {
         this._imap.removeListener('error', onErrored);
         this._imap.removeListener('end', onEnded);
