@@ -92,25 +92,11 @@ module.exports = (sequelize, Sequelize) => {
         if (this.folder_id && !this.folder) {
           throw new Error("Message.toJSON called on a message where folder were not eagerly loaded.")
         }
-
-        return {
-          id: this.id,
-          account_id: this.accountId,
-          object: 'message',
-          body: this.body,
-          subject: this.subject,
-          snippet: this.snippet,
-          to: this.to,
-          from: this.from,
-          cc: this.cc,
-          bcc: this.bcc,
-          reply_to: this.replyTo,
-          date: this.date.getTime() / 1000.0,
-          unread: this.unread,
-          starred: this.starred,
-          folder: this.folder,
-          thread_id: this.threadId,
-        };
+        const json = Object.assign({object: 'message'}, this.dataValues)
+        if (json.date) {
+          json.date = json.date.getTime() / 1000.0
+        }
+        return json
       },
     },
   });
