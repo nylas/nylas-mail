@@ -39,12 +39,6 @@ function createOutputStream() {
   const outputStream = require('stream').Readable();
   outputStream._read = () => { return };
   outputStream.pushJSON = (msg) => {
-    try {
-      if (typeof msg === 'string') {
-        const parsed = JSON.parse(msg)
-        console.log(parsed.id, parsed.event, parsed.object, parsed.objectId)
-      }
-    } catch (err) {}
     const jsonMsg = typeof msg === 'string' ? msg : JSON.stringify(msg);
     outputStream.push(jsonMsg);
   }
@@ -65,14 +59,9 @@ function initialTransactions(db, request) {
 
 function inflatedDeltas(db, request) {
   return PubsubConnector.observeDeltas(request.auth.credentials.id)
-    .flatMap((dataValues) => {
-      const flat = [db.Transaction.build(dataValues)]
-      console.log('DV', dataValues)
-      return flat
-    })
+    .flatMap((transactionJSON) => [db.Transaction.build(transactionJSON)])
     .flatMap((objs) => inflateTransactions(db, objs))
 }
-
 
 module.exports = (server) => {
   server.route({

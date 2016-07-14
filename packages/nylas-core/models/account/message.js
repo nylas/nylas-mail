@@ -94,6 +94,10 @@ module.exports = (sequelize, Sequelize) => {
           throw new Error("Message.toJSON called on a message where folder were not eagerly loaded.")
         }
 
+        // When we request messages as a sub-object of a thread, we only
+        // request the `id` field from the database. We still toJSON the
+        // Message though and need to protect `this.date` from null
+        // errors.
         return {
           id: this.id,
           account_id: this.accountId,

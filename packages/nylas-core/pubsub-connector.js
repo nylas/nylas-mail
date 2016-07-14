@@ -73,8 +73,8 @@ class PubsubConnector {
     return this._observableForChannelOnSharedListener(`account-${accountId}`);
   }
 
-  notifyDelta(accountId, dataValues) {
-    this.broadcastClient().publish(`deltas-${accountId}`, JSON.stringify(dataValues))
+  notifyDelta(accountId, transactionJSON) {
+    this.broadcastClient().publish(`deltas-${accountId}`, JSON.stringify(transactionJSON))
   }
 
   observeAllAccounts() {
@@ -93,8 +93,8 @@ class PubsubConnector {
   observeDeltas(accountId) {
     return Rx.Observable.create((observer) => {
       const sub = this.buildClient();
-      sub.on("message", (channel, dataValuesString) => {
-        observer.onNext(JSON.parse(dataValuesString))
+      sub.on("message", (channel, transactionJSONString) => {
+        observer.onNext(JSON.parse(transactionJSONString))
       })
       sub.subscribe(`deltas-${accountId}`);
       return () => {
