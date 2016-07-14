@@ -11,6 +11,5 @@ module.exports = {
   MessageTypes: require('./message-types'),
   Logger: require('./logger'),
   Errors: require('./imap-errors'),
-  Metrics: require('./metrics'),
   PromiseUtils: require('./promise-utils'),
 }

@@ -14,7 +14,8 @@
     "jasmine": "2.4.1",
     "mailparser": "0.6.0",
     "mimelib": "0.2.19",
-    "nylas-core": "0.x.x"
+    "nylas-core": "0.x.x",
+    "nylas-metrics": "0.x.x"
   },
   "devDependencies": {
     "babel-cli": "^6.10.1",
