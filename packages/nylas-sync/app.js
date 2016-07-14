@@ -1,10 +1,16 @@
-// require('newrelic');
-const {DatabaseConnector, Logger} = require(`nylas-core`)
+const {Metrics} = require(`nylas-core`)
+Metrics.startCapturing()
+
+const {DatabaseConnector, Logger} = require('nylas-core')
 const SyncProcessManager = require('./sync-process-manager');
 
+global.Metrics = Metrics
 global.Logger = Logger.createLogger('nylas-k2-sync')
 
-const onUnhandledError = (err) => global.Logger.fatal(err, 'Unhandled error')
+const onUnhandledError = (err) => {
+  global.Logger.fatal(err, 'Unhandled error')
+  global.Metrics.reportError(err)
+}
 process.on('uncaughtException', onUnhandledError)
 process.on('unhandledRejection', onUnhandledError)
 

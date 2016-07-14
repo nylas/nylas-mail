@@ -1,4 +1,4 @@
-const {Provider} = require('nylas-core');
+const {Provider, PromiseUtils} = require('nylas-core');
 
 const GMAIL_ROLES_WITH_FOLDERS = ['all', 'trash', 'junk'];
 
@@ -6,6 +6,9 @@ class FetchFolderList {
   constructor(provider, logger) {
     this._provider = provider;
     this._logger = logger;
+    if (!this._logger) {
+      throw new Error("FetchFolderList requires a logger")
+    }
   }
 
   description() {
@@ -96,7 +99,7 @@ class FetchFolderList {
       const {Folder, Label, sequelize} = this._db;
 
       return sequelize.transaction((transaction) => {
-        return Promise.props({
+        return PromiseUtils.props({
           folders: Folder.findAll({transaction}),
           labels: Label.findAll({transaction}),
         }).then(({folders, labels}) => {

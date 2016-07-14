@@ -1,5 +1,5 @@
 const Serialization = require('./serialization');
-const {PubsubConnector, MessageTypes} = require('nylas-core')
+const {PromiseUtils, PubsubConnector, MessageTypes} = require('nylas-core')
 
 module.exports = {
   createSyncbackRequest: function createSyncbackRequest(request, reply, syncRequestArgs) {
@@ -14,7 +14,7 @@ module.exports = {
     })
   },
   findFolderOrLabel: function findFolderOrLabel({Folder, Label}, str) {
-    return Promise.props({
+    return PromiseUtils.props({
       folder: Folder.find({
         where: { $or: [
           { id: str },

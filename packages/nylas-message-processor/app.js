@@ -1,7 +1,18 @@
+const {Metrics} = require(`nylas-core`)
+Metrics.startCapturing()
+
 const {PubsubConnector, DatabaseConnector, Logger} = require(`nylas-core`)
 const {processors} = require('./processors')
 
+global.Metrics = Metrics
 global.Logger = Logger.createLogger('nylas-k2-message-processor')
+
+const onUnhandledError = (err) => {
+  global.Logger.fatal(err, 'Unhandled error')
+  global.Metrics.reportError(err)
+}
+process.on('uncaughtException', onUnhandledError)
+process.on('unhandledRejection', onUnhandledError)
 
 // List of the attributes of Message that the processor should be allowed to change.
 // The message may move between folders, get starred, etc. while it's being

@@ -9,7 +9,7 @@ exports.config = {
   /**
    * Array of application names.
    */
-  app_name: [`k2-api-${NODE_ENV}`],
+  app_name: [`k2-dash-${NODE_ENV}`],
   logging: {
     /**
      * Level at which to log. 'trace' is most useful to New Relic when diagnosing

@@ -4,9 +4,15 @@ require('promise.prototype.finally')
 
 const _ = require('underscore')
 
-global.Promise.props = require('promise-props');
+global.Promise.prototype.thenReturn = function thenReturn(value) {
+  return this.then(function then() { return Promise.resolve(value); })
+}
 
-global.Promise.each = function each(iterable, iterator) {
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function each(iterable, iterator) {
   return Promise.resolve(iterable).then((array) => {
     return new Promise((resolve, reject) => {
       Array.from(array).reduce((prevPromise, item, idx, len) => (
@@ -16,14 +22,6 @@ global.Promise.each = function each(iterable, iterator) {
       .catch((err) => reject(err))
     })
   })
-}
-
-global.Promise.sleep = function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-global.Promise.prototype.thenReturn = function thenReturn(value) {
-  return this.then(function then() { return Promise.resolve(value); })
 }
 
 function promisify(nodeFn) {
@@ -50,6 +48,9 @@ function promisifyAll(obj) {
 }
 
 module.exports = {
+  each,
+  sleep,
   promisify,
   promisifyAll,
+  props: require('promise-props'),
 }

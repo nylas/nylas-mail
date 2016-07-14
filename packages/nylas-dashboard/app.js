@@ -1,3 +1,6 @@
+const {Metrics} = require(`nylas-core`)
+Metrics.startCapturing()
+
 const fs = require('fs');
 const path = require('path');
 const Inert = require('inert');
@@ -5,7 +8,15 @@ const Hapi = require('hapi');
 const HapiWebSocket = require('hapi-plugin-websocket');
 const {Logger} = require(`nylas-core`);
 
+global.Metrics = Metrics
 global.Logger = Logger.createLogger('nylas-k2-dashboard')
+
+const onUnhandledError = (err) => {
+  global.Logger.fatal(err, 'Unhandled error')
+  global.Metrics.reportError(err)
+}
+process.on('uncaughtException', onUnhandledError)
+process.on('unhandledRejection', onUnhandledError)
 
 const server = new Hapi.Server();
 server.connection({ port: process.env.PORT });

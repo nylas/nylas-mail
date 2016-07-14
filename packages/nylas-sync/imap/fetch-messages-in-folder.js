@@ -1,7 +1,7 @@
 const _ = require('underscore');
 const Imap = require('imap');
 
-const {IMAPConnection, PubsubConnector} = require('nylas-core');
+const {PromiseUtils, IMAPConnection, PubsubConnector} = require('nylas-core');
 const {Capabilities} = IMAPConnection;
 
 const MessageFlagAttributes = ['id', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']
@@ -11,13 +11,16 @@ const FETCH_MESSAGES_FIRST_COUNT = 100;
 const FETCH_MESSAGES_COUNT = 200;
 
 class FetchMessagesInFolder {
-  constructor(category, options, logger = console) {
+  constructor(category, options, logger) {
     this._imap = null
     this._box = null
     this._db = null
     this._category = category;
     this._options = options;
     this._logger = logger;
+    if (!this._logger) {
+      throw new Error("FetchMessagesInFolder requires a logger")
+    }
     if (!this._category) {
       throw new Error("FetchMessagesInFolder requires a category")
     }
@@ -176,7 +179,7 @@ class FetchMessagesInFolder {
       uidsByPart[key].push(attributes.uid);
     })
     .then(() => {
-      return Promise.each(Object.keys(uidsByPart), (key) => {
+      return PromiseUtils.each(Object.keys(uidsByPart), (key) => {
         const uids = uidsByPart[key];
         const desiredParts = JSON.parse(key);
         const bodies = ['HEADER'].concat(desiredParts.map(p => p.id));
@@ -329,7 +332,7 @@ class FetchMessagesInFolder {
       }
     }
 
-    return Promise.each(desiredRanges, ({min, max}) => {
+    return PromiseUtils.each(desiredRanges, ({min, max}) => {
       this._logger.info({
         range: `${min}:${max}`,
       }, `FetchMessagesInFolder: Fetching range`);
@@ -414,7 +417,7 @@ class FetchMessagesInFolder {
         attributes: MessageFlagAttributes,
       })
       .then((localMessageAttributes) => (
-        Promise.props({
+        PromiseUtils.props({
           updates: this._updateMessageAttributes(remoteUIDAttributes, localMessageAttributes),
           deletes: this._removeDeletedMessages(remoteUIDAttributes, localMessageAttributes),
         })

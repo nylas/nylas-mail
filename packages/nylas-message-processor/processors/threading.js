@@ -1,3 +1,4 @@
+const {PromiseUtils} = require('nylas-core')
 // const _ = require('underscore');
 
 class ThreadingProcessor {
@@ -86,7 +87,7 @@ class ThreadingProcessor {
       findOrCreateThread = this.findOrCreateByMatching(db, message)
     }
 
-    return Promise.props({
+    return PromiseUtils.props({
       thread: findOrCreateThread,
       sentFolder: Folder.find({where: {role: 'sent'}}),
       sentLabel: Label.find({where: {role: 'sent'}}),

@@ -1,4 +1,5 @@
-// require('newrelic');
+const {Metrics} = require(`nylas-core`)
+Metrics.startCapturing()
 
 const Hapi = require('hapi');
 const HapiSwagger = require('hapi-swagger');
@@ -11,9 +12,13 @@ const fs = require('fs');
 const path = require('path');
 const {DatabaseConnector, SchedulerUtils, Logger} = require(`nylas-core`);
 
+global.Metrics = Metrics
 global.Logger = Logger.createLogger('nylas-k2-api')
 
-const onUnhandledError = (err) => global.Logger.fatal(err, 'Unhandled error')
+const onUnhandledError = (err) => {
+  global.Logger.fatal(err, 'Unhandled error')
+  global.Metrics.reportError(err)
+}
 process.on('uncaughtException', onUnhandledError)
 process.on('unhandledRejection', onUnhandledError)
 

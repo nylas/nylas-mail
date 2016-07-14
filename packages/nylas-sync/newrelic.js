@@ -1,3 +1,4 @@
+const {NODE_ENV} = process.env
 /**
  * New Relic agent configuration.
  *
@@ -8,11 +9,7 @@ exports.config = {
   /**
    * Array of application names.
    */
-  app_name: ['Nylas K2 Sync'],
-  /**
-   * Your New Relic license key.
-   */
-  license_key: 'e232d6ccc786bd87aa72b86782439710162e3739',
+  app_name: [`k2-sync-${NODE_ENV}`],
   logging: {
     /**
      * Level at which to log. 'trace' is most useful to New Relic when diagnosing

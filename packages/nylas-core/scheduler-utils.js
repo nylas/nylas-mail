@@ -8,12 +8,13 @@ const HEARTBEAT_EXPIRES = 30; // 2 min in prod?
 
 const CLAIM_DURATION = 10 * 60 * 1000; // 2 hours on prod?
 
+const PromiseUtils = require('./promise-utils')
 const PubsubConnector = require('./pubsub-connector');
 const MessageTypes = require('./message-types')
 
 const forEachAccountList = (forEachCallback) => {
   const client = PubsubConnector.broadcastClient();
-  return Promise.each(client.keysAsync(`accounts:*`), (key) => {
+  return PromiseUtils.each(client.keysAsync(`accounts:*`), (key) => {
     const processId = key.replace('accounts:', '');
     return client.lrangeAsync(key, 0, 20000).then((foundIds) =>
       forEachCallback(processId, foundIds)

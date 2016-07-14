@@ -1,3 +1,4 @@
+const PromiseUtils = require('../../promise-utils')
 const IMAPConnection = require('../../imap-connection')
 
 module.exports = (sequelize, Sequelize) => {
@@ -17,7 +18,7 @@ module.exports = (sequelize, Sequelize) => {
     instanceMethods: {
       fetch: function fetch({account, db, logger}) {
         const settings = Object.assign({}, account.connectionSettings, account.decryptedCredentials())
-        return Promise.props({
+        return PromiseUtils.props({
           message: this.getMessage(),
           connection: IMAPConnection.connect({db, settings, logger}),
         })

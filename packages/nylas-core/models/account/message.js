@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const PromiseUtils = require('../../promise-utils')
 const IMAPConnection = require('../../imap-connection')
 const {JSONType, JSONARRAYType} = require('../../database-types');
 
@@ -71,7 +72,7 @@ module.exports = (sequelize, Sequelize) => {
 
       fetchRaw: function fetchRaw({account, db, logger}) {
         const settings = Object.assign({}, account.connectionSettings, account.decryptedCredentials())
-        return Promise.props({
+        return PromiseUtils.props({
           folder: this.getFolder(),
           connection: IMAPConnection.connect({db, settings, logger}),
         })
