@@ -197,14 +197,13 @@ class SyncWorker {
   }
 
   onSyncError(error) {
-    this._logger.error(error, `SyncWorker: Error while syncing account`)
     this.closeConnection()
-
     // Continue to retry if it was a network error
     if (error instanceof Errors.RetryableError) {
       return Promise.resolve()
     }
 
+    this._logger.error(error, `SyncWorker: Error while syncing account`)
     global.Metrics.reportMetric({
       name: 'sync_error',
       value: 1,
