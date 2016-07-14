@@ -171,22 +171,27 @@ class SyncProcessManager {
   }
 
   addWorkerForAccountId(accountId) {
-    DatabaseConnector.forShared().then(({Account}) => {
+    DatabaseConnector.forShared().then(({Account}) =>
       Account.find({where: {id: accountId}}).then((account) => {
-        if (!account || this._workers[account.id]) {
-          return;
+        if (!account) {
+          return Promise.reject(new Error("Could not find account"));
         }
-        DatabaseConnector.forAccount(account.id).then((db) => {
-          if (this._exiting || this._workers[account.id]) {
-            return;
+        return DatabaseConnector.forAccount(accountId).then((db) => {
+          if (this._exiting || this._workers[accountId]) {
+            return Promise.reject(new Error("Exiting or local worker already exists"));
           }
-          this._logger.info({account_id: accountId}, `ProcessManager: Starting worker for Account`)
-
           this._workers[account.id] = new SyncWorker(account, db, () => {
             this.removeWorkerForAccountId(accountId)
           });
+          return Promise.resolve();
         });
-      });
+      })
+    )
+    .then(() => {
+      this._logger.info({account_id: accountId}, `ProcessManager: Claiming Account Succeeded`)
+    })
+    .catch((err) => {
+      this._logger.error({account_id: accountId, reason: err.message}, `ProcessManager: Claiming Account Failed`)
     });
   }
 
@@ -196,13 +201,16 @@ class SyncProcessManager {
 
     return PubsubConnector.broadcastClient().lremAsync(src, 1, accountId).then((didRemove) => {
       this._workers[accountId] = null;
-
       if (didRemove) {
-        PubsubConnector.broadcastClient().rpushAsync(dst, accountId)
-      } else {
-        this._logger.error("Wanted to return item to pool, but didn't have claim on it.")
-        return
+        return PubsubConnector.broadcastClient().rpushAsync(dst, accountId)
       }
+      return Promise.reject(new Error("Did not own account."));
+    })
+    .then(() => {
+      this._logger.info({account_id: accountId}, `ProcessManager: Relinquishing Account Succeeded`)
+    })
+    .catch((err) => {
+      this._logger.error({account_id: accountId, reason: err.message}, `ProcessManager: Relinquishing Account Failed`)
     });
   }
 }
