@@ -77,10 +77,9 @@ module.exports = (sequelize, Sequelize) => {
 
         return {
           port: smtp_port, host: smtp_host, secure: ssl_required,
-          auth: { user: smtp_username, pass: smtp_password, },
+          auth: { user: smtp_username, pass: smtp_password},
         }
-
-      }
+      },
 
     },
   });

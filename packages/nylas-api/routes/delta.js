@@ -8,7 +8,10 @@ function keepAlive(request) {
 }
 
 function inflateTransactions(db, transactionModels = []) {
-  const transactions = _.pluck(transactionModels, "dataValues")
+  if (!(_.isArray(transactionModels))) {
+    transactionModels = [transactionModels]
+  }
+  const transactions = transactionModels.map((mod) => mod.toJSON())
   transactions.forEach((t) => t.cursor = t.id);
   const byModel = _.groupBy(transactions, "object");
   const byObjectIds = _.groupBy(transactions, "objectId");
@@ -29,13 +32,19 @@ function inflateTransactions(db, transactionModels = []) {
         for (const t of tsForId) { t.attributes = model.toJSON(); }
       }
     })
-  })).then(() => transactions.map(JSON.stringify).join("\n"))
+  })).then(() => `${transactions.map(JSON.stringify).join("\n")}\n`)
 }
 
 function createOutputStream() {
   const outputStream = require('stream').Readable();
   outputStream._read = () => { return };
   outputStream.pushJSON = (msg) => {
+    try {
+      if (typeof msg === 'string') {
+        const parsed = JSON.parse(msg)
+        console.log(parsed.id, parsed.event, parsed.object, parsed.objectId)
+      }
+    } catch (err) {}
     const jsonMsg = typeof msg === 'string' ? msg : JSON.stringify(msg);
     outputStream.push(jsonMsg);
   }
@@ -54,6 +63,17 @@ function initialTransactions(db, request) {
            .flatMap((objs) => inflateTransactions(db, objs))
 }
 
+function inflatedDeltas(db, request) {
+  return PubsubConnector.observeDeltas(request.auth.credentials.id)
+    .flatMap((dataValues) => {
+      const flat = [db.Transaction.build(dataValues)]
+      console.log('DV', dataValues)
+      return flat
+    })
+    .flatMap((objs) => inflateTransactions(db, objs))
+}
+
+
 module.exports = (server) => {
   server.route({
     method: 'GET',
@@ -63,7 +83,7 @@ module.exports = (server) => {
 
       request.getAccountDatabase().then((db) => {
         const source = Rx.Observable.merge(
-          PubsubConnector.observeDeltas(request.auth.credentials.id),
+          inflatedDeltas(db, request),
           initialTransactions(db, request),
           keepAlive(request)
         ).subscribe(outputStream.pushJSON)
@@ -79,7 +99,7 @@ module.exports = (server) => {
     method: 'POST',
     path: '/delta/latest_cursor',
     handler: (request, reply) => request.getAccountDatabase().then((db) =>
-      lastTransaction(db).then((t) => reply({cursor: t.id}))
+      lastTransaction(db).then((t) => reply({cursor: (t || {}).id}))
     ),
   });
 };

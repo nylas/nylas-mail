@@ -32,12 +32,8 @@ module.exports = (db, sequelize) => {
         parseHookData(sequelizeHookData)
       );
       db.Transaction.create(transactionData).then((transaction) => {
-        const dataValues = transaction.dataValues
-        dataValues.attributes = sequelizeHookData.dataValues;
-        dataValues.cursor = transaction.id;
-        PubsubConnector.notifyDelta(db.accountId, dataValues);
+        PubsubConnector.notifyDelta(db.accountId, transaction.toJSON());
       })
-
     }
   }
 
