@@ -9,7 +9,7 @@ function ProcessLoads(props) {
   } else {
     entries = [];
     let sum = 0;
-    for (const processName of Object.keys(props.counts)) {
+    for (const processName of Object.keys(props.counts).sort()) {
       const count = props.counts[processName];
       sum += count;
       entries.push(
