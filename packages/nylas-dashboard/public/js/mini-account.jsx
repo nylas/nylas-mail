@@ -15,16 +15,16 @@ class MiniAccount extends React.Component {
   }
 
   render() {
-    const {account, assignment, active} = this.props;
-
     let errorClass;
-    let style;
-    if (account.sync_error) {
+    let style = {
+      width: `${this.props.sideDimension}px`,
+      height: `${this.props.sideDimension}px`,
+    }
+    if (this.props.account.sync_error) {
       errorClass = 'errored';
-      style = {};
     } else {
       errorClass = '';
-      style = {backgroundColor: this.calculateColor()};
+      style.backgroundColor = this.calculateColor();
     }
 
     return (
@@ -38,9 +38,7 @@ class MiniAccount extends React.Component {
 
 MiniAccount.propTypes = {
   account: React.PropTypes.object,
-  active: React.PropTypes.bool,
-  assignment: React.PropTypes.string,
-  count: React.PropTypes.number,
+  sideDimension: React.PropTypes.number,
 };
 
 window.MiniAccount = MiniAccount;

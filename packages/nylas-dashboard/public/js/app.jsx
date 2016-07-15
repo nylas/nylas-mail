@@ -3,6 +3,7 @@
 
 const React = window.React;
 const ReactDOM = window.ReactDOM;
+const _ = window._;
 const {
   SyncPolicy,
   SetAllSyncPolicies,
@@ -152,6 +153,7 @@ class Root extends React.Component {
       assignments: {},
       activeAccountIds: [],
       visibleAccounts: AccountFilter.states.all,
+      groupByProcess: false,
     };
   }
 
@@ -196,12 +198,18 @@ class Root extends React.Component {
       assignments: update.assignments || this.state.assignments,
       activeAccountIds: update.activeAccountIds || this.state.activeAccountIds,
       accounts: accounts,
-      processLoadCounts: update.processLoadCounts,
+      processLoads: update.processLoads,
     })
   }
 
   onFilter() {
     this.setState({visibleAccounts: document.getElementById('account-filter').value});
+  }
+
+  onGroupChange() {
+    this.setState({
+      groupByProcess: document.getElementById('group-by-process').checked,
+    });
   }
 
   render() {
@@ -218,18 +226,74 @@ class Root extends React.Component {
         break;
     }
 
-    const AccountType = this.props.collapsed ? MiniAccount : Account;
-    let count = 0;
+    let content;
+    if (this.props.collapsed) {
+      const groupByProcess = (
+        <div>
+          <input
+            type="checkbox"
+            id="group-by-process"
+            onChange={() => this.onGroupChange()}
+          />
+          Group Accounts By Process
+        </div>
+      )
 
-    return (
-      <div>
-        <ProcessLoads counts={this.state.processLoadCounts} />
-        <AccountFilter id="account-filter" onChange={() => this.onFilter.call(this)} />
-        <SetAllSyncPolicies accountIds={ids.map((id) => parseInt(id, 10))} />
+      if (this.state.groupByProcess) {
+        const accountsById = _.groupBy(this.state.accounts, 'id');
+        const processes = [];
+
+        for (const processName of Object.keys(this.state.processLoads)) {
+          const accounts = []
+
+          for (const accountId of this.state.processLoads[processName]) {
+            const account = accountsById[accountId][0];
+            accounts.push((
+              <MiniAccount key={accountId} account={account} sideDimension="10" />
+            ))
+          }
+          processes.push((
+            <div key={processName} title={`Process: ${processName}`} className="process-group">
+              {accounts}
+            </div>
+          ))
+        }
+        content = (
+          <div>
+            {groupByProcess}
+            <div id="accounts-wrapper">
+              {processes}
+            </div>
+          </div>
+        )
+      } else {
+        const area = window.innerWidth * window.innerHeight * 0.75;
+        const singleAcctArea = area / Object.keys(this.state.accounts).length;
+        const acctSideDimension = Math.sqrt(singleAcctArea);
+        content = (
+          <div>
+            {groupByProcess}
+            <div id="accounts-wrapper">
+              {
+                ids.sort((a, b) => a / 1 - b / 1).map((id) =>
+                  <MiniAccount
+                    key={id}
+                    account={this.state.accounts[id]}
+                    sideDimension={acctSideDimension}
+                  />
+                )
+              }
+            </div>
+          </div>
+        )
+      }
+    } else {
+      let count = 0;
+      content = (
         <div id="accounts-wrapper">
           {
             ids.sort((a, b) => a / 1 - b / 1).map((id) =>
-              <AccountType
+              <Account
                 key={id}
                 active={this.state.activeAccountIds.includes(id)}
                 assignment={this.state.assignments[id]}
@@ -239,6 +303,15 @@ class Root extends React.Component {
             )
           }
         </div>
+      )
+    }
+
+    return (
+      <div>
+        <ProcessLoads loads={this.state.processLoads} />
+        <AccountFilter id="account-filter" onChange={() => this.onFilter.call(this)} />
+        <SetAllSyncPolicies accountIds={ids.map((id) => parseInt(id, 10))} />
+        {content}
       </div>
     )
   }

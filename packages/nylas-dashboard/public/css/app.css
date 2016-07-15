@@ -207,16 +207,14 @@ pre {
 .mini-account::after {
   display: inline-block;
   position: relative;
-  height: 10px;
-  width: 10px;
+  height: 100%;
+  width: 100%;
   background-color: #666666;
   content: "";
   z-index: -1;
 }
 
 .mini-account {
-  height: 10px;
-  width: 10px;
   background-color: rgb(0, 255, 157);
   display: inline-block;
 }
@@ -247,4 +245,15 @@ pre {
 
 .account-filter {
   padding-left: 5px;
+}
+
+.process-group {
+  display: inline-block;
+  margin: 10px;
+  max-width: 250px;
+  vertical-align: top;
+}
+
+#group-by-process {
+  vertical-align: middle;
 }

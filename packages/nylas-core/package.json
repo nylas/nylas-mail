@@ -4,7 +4,6 @@
   "description": "Core shared packages",
   "main": "index.js",
   "dependencies": {
-    "bunyan": "^1.8.1",
     "xoauth2": "1.x.x"
   },
   "author": "Nylas",
