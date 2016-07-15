@@ -74,17 +74,23 @@ class DatabaseConnector {
       return this._cache[accountId];
     }
 
-    if (!this._accountsRootSequelize) {
-      this._accountsRootSequelize = this._sequelizePoolForDatabase(`account_data`);
-    }
+    let newSequelize = null;
 
-    // Create a new sequelize instance, but tie it to the same connection pool
-    // as the other account instances.
-    const newSequelize = this._sequelizePoolForDatabase(`account_data`);
-    newSequelize.dialect = this._accountsRootSequelize.dialect;
-    newSequelize.config = this._accountsRootSequelize.config;
-    newSequelize.connectionManager.close()
-    newSequelize.connectionManager = this._accountsRootSequelize.connectionManager;
+    if (process.env.DB_HOSTNAME) {
+      if (!this._accountsRootSequelize) {
+        this._accountsRootSequelize = this._sequelizePoolForDatabase(`account_data`);
+      }
+
+      // Create a new sequelize instance, but tie it to the same connection pool
+      // as the other account instances.
+      newSequelize = this._sequelizePoolForDatabase(`account_data`);
+      newSequelize.dialect = this._accountsRootSequelize.dialect;
+      newSequelize.config = this._accountsRootSequelize.config;
+      newSequelize.connectionManager.close()
+      newSequelize.connectionManager = this._accountsRootSequelize.connectionManager;
+    } else {
+      newSequelize = this._sequelizePoolForDatabase(`a-${accountId}`);
+    }
 
     const modelsPath = path.join(__dirname, 'models/account');
     const db = this._readModelsInDirectory(newSequelize, modelsPath, {schema: `a${accountId}`})
