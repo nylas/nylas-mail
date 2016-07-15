@@ -290,17 +290,22 @@ class FetchMessagesInFolder {
   }
 
   _openMailboxAndEnsureValidity() {
-    return this._imap.openBox(this._category.name)
-    .then((box) => {
+    return this._imap.openBox(this._category.name).then((box) => {
       if (box.persistentUIDs === false) {
         return Promise.reject(new Error("Mailbox does not support persistentUIDs."))
       }
-      if (box.uidvalidity !== this._category.syncState.uidvalidity) {
-        return this._recoverFromUIDInvalidity()
-        .then(() => Promise.resolve(box))
+
+      const lastUIDValidity = this._category.syncState.uidvalidity;
+
+      if (lastUIDValidity && (box.uidvalidity !== lastUIDValidity)) {
+        this._logger.info({
+          remoteuidvalidity: box.uidvalidity,
+          localuidvalidity: lastUIDValidity,
+        }, `FetchMessagesInFolder: Recovering from UIDInvalidity`);
+        return this._recoverFromUIDInvalidity().thenReturn(box)
       }
       return Promise.resolve(box);
-    })
+    });
   }
 
   _fetchUnsyncedMessages() {
