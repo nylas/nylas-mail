@@ -1,7 +1,7 @@
 const {JSONType} = require('../../database-types');
 
 module.exports = (sequelize, Sequelize) => {
-  const SyncbackRequest = sequelize.define('syncbackRequest', {
+  return sequelize.define('syncbackRequest', {
     type: Sequelize.STRING,
     status: {
       type: Sequelize.ENUM("NEW", "SUCCEEDED", "FAILED"),
@@ -11,6 +11,4 @@ module.exports = (sequelize, Sequelize) => {
     error: JSONType('error'),
     props: JSONType('props'),
   });
-
-  return SyncbackRequest;
 };

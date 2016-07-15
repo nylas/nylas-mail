@@ -80,7 +80,7 @@ class FetchMessagesInFolder {
         const xGmLabelsJSON = xGmLabels ? JSON.stringify(xGmLabels) : null;
 
         if (msg.folderImapXGMLabels !== xGmLabelsJSON) {
-          msg.setLabelsFromXGM(xGmLabels, {preloadedLabels});
+          msg.setLabelsFromXGM(xGmLabels, {Label, preloadedLabels});
         }
 
         if (msg.unread !== unread || msg.starred !== starred) {
@@ -234,7 +234,7 @@ class FetchMessagesInFolder {
   }
 
   _processMessage({attributes, headers, body}) {
-    const {Message, accountId} = this._db;
+    const {Message, Label, accountId} = this._db;
     const hash = Message.hashForHeaders(headers);
 
     const parsedHeaders = Imap.parseHeader(headers);
@@ -246,7 +246,7 @@ class FetchMessagesInFolder {
       hash: hash,
       accountId: this._db.accountId,
       body: body['text/html'] || body['text/plain'] || body['application/pgp-encrypted'] || '',
-      snippet: body['text/plain'] || null,
+      snippet: body['text/plain'] ? body['text/plain'].substr(0, 255) : null,
       unread: !attributes.flags.includes('\\Seen'),
       starred: attributes.flags.includes('\\Flagged'),
       date: attributes.date,
@@ -265,7 +265,7 @@ class FetchMessagesInFolder {
       return existing ? existing.update(values) : Message.create(values);
     })
     .then((message) =>
-      message.setLabelsFromXGM(attributes['x-gm-labels']).thenReturn(message)
+      message.setLabelsFromXGM(attributes['x-gm-labels'], {Label}).thenReturn(message)
     )
     .then((message) => {
       if (created) {

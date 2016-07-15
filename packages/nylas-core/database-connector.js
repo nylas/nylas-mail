@@ -4,6 +4,7 @@ const path = require('path');
 const HookTransactionLog = require('./hook-transaction-log');
 const HookAccountCRUD = require('./hook-account-crud');
 const HookIncrementVersionOnSave = require('./hook-increment-version-on-save');
+const PromiseUtils = require('./promise-utils');
 
 require('./database-extensions'); // Extends Sequelize on require
 
@@ -14,17 +15,21 @@ if (!fs.existsSync(STORAGE_DIR)) {
 
 class DatabaseConnector {
   constructor() {
-    this._pools = {};
+    this._cache = {};
   }
 
-  _readModelsInDirectory(sequelize, dirname) {
+  _readModelsInDirectory(sequelize, dirname, {schema} = {}) {
     const db = {};
     for (const filename of fs.readdirSync(dirname)) {
       if (filename.endsWith('.js')) {
-        const model = sequelize.import(path.join(dirname, filename));
+        let model = sequelize.import(path.join(dirname, filename));
+        if (schema) {
+          model = model.schema(schema);
+        }
         db[model.name[0].toUpperCase() + model.name.substr(1)] = model;
       }
     }
+
     Object.keys(db).forEach((modelName) => {
       if ("associate" in db[modelName]) {
         db[modelName].associate(db);
@@ -40,7 +45,12 @@ class DatabaseConnector {
         host: process.env.DB_HOSTNAME,
         dialect: "mysql",
         charset: 'utf8',
-        logging: false,
+        logging: true,
+        pool: {
+          min: 1,
+          max: 30,
+          idle: 10000,
+        },
         define: {
           charset: 'utf8',
           collate: 'utf8_general_ci',
@@ -55,52 +65,57 @@ class DatabaseConnector {
     })
   }
 
-  _sequelizeForAccount(accountId) {
+  forAccount(accountId) {
     if (!accountId) {
       return Promise.reject(new Error(`You need to pass an accountId to init the database!`))
     }
-    const sequelize = this._sequelizePoolForDatabase(`a-${accountId}`);
+
+    if (this._cache[accountId]) {
+      return this._cache[accountId];
+    }
+
+    if (!this._accountsRootSequelize) {
+      this._accountsRootSequelize = this._sequelizePoolForDatabase(`account_data`);
+    }
+
+    // Create a new sequelize instance, but tie it to the same connection pool
+    // as the other account instances.
+    const newSequelize = this._sequelizePoolForDatabase(`account_data`);
+    newSequelize.dialect = this._accountsRootSequelize.dialect;
+    newSequelize.config = this._accountsRootSequelize.config;
+    newSequelize.connectionManager.close()
+    newSequelize.connectionManager = this._accountsRootSequelize.connectionManager;
+
     const modelsPath = path.join(__dirname, 'models/account');
-    const db = this._readModelsInDirectory(sequelize, modelsPath)
+    const db = this._readModelsInDirectory(newSequelize, modelsPath, {schema: `a${accountId}`})
 
-    HookTransactionLog(db, sequelize);
-    HookIncrementVersionOnSave(db, sequelize);
+    HookTransactionLog(db, newSequelize);
+    HookIncrementVersionOnSave(db, newSequelize);
 
-    db.sequelize = sequelize;
+    db.sequelize = newSequelize;
     db.Sequelize = Sequelize;
     db.accountId = accountId;
 
-    return sequelize.authenticate().then(() =>
-      sequelize.sync()
+    this._cache[accountId] = newSequelize.authenticate().then(() =>
+      // this is a bit of a hack, because sequelize.sync() doesn't work with
+      // schemas. It's necessary to sync models individually and in the right order.
+      PromiseUtils.each(['Contact', 'Folder', 'Label', 'Transaction', 'Thread', 'ThreadLabel', 'ThreadFolder', 'Message', 'MessageLabel', 'File', 'SyncbackRequest'], (n) => db[n].sync())
     ).thenReturn(db);
-  }
 
-  forAccount(accountId) {
-    this._pools[accountId] = this._pools[accountId] || this._sequelizeForAccount(accountId);
-    return this._pools[accountId];
+    return this._cache[accountId];
   }
 
   ensureAccountDatabase(accountId) {
-    const dbname = `a-${accountId}`;
-
-    if (process.env.DB_HOSTNAME) {
-      const sequelize = this._sequelizePoolForDatabase(null);
-      return sequelize.authenticate().then(() =>
-        sequelize.query(`CREATE DATABASE IF NOT EXISTS \`${dbname}\``)
-      );
-    }
     return Promise.resolve()
   }
 
   destroyAccountDatabase(accountId) {
     const dbname = `a-${accountId}`;
     if (process.env.DB_HOSTNAME) {
-      const sequelize = this._sequelizePoolForDatabase(null);
-      return sequelize.authenticate().then(() =>
-        sequelize.query(`CREATE DATABASE \`${dbname}\``)
-      );
+      // todo
+    } else {
+      fs.removeFileSync(path.join(STORAGE_DIR, `${dbname}.sqlite`));
     }
-    fs.removeFileSync(path.join(STORAGE_DIR, `${dbname}.sqlite`));
     return Promise.resolve()
   }
 
@@ -120,8 +135,8 @@ class DatabaseConnector {
   }
 
   forShared() {
-    this._pools.shared = this._pools.shared || this._sequelizeForShared();
-    return this._pools.shared;
+    this._cache.shared = this._cache.shared || this._sequelizeForShared();
+    return this._cache.shared;
   }
 }
 
