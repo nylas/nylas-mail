@@ -9,7 +9,7 @@ class ProcessLoads extends React.Component {
     }
     else {
       entries = [];
-      for (const processName of Object.keys(this.props.counts)) {
+      for (const processName of Object.keys(this.props.counts).sort()) {
         entries.push(
           <div className="load-count">
             <b>{processName}</b>: {this.props.counts[processName]} accounts
