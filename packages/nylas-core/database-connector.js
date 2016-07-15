@@ -45,7 +45,7 @@ class DatabaseConnector {
         host: process.env.DB_HOSTNAME,
         dialect: "mysql",
         charset: 'utf8',
-        logging: true,
+        logging: false,
         pool: {
           min: 1,
           max: 30,
