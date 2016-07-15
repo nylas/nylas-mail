@@ -5,6 +5,12 @@ module.exports = (sequelize, Sequelize) => {
     name: Sequelize.STRING,
     email: Sequelize.STRING,
   }, {
+    indexes: [
+      {
+        unique: true,
+        fields: ['email'],
+      },
+    ],
     instanceMethods: {
       toJSON: function toJSON() {
         return {

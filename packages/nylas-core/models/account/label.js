@@ -5,6 +5,12 @@ module.exports = (sequelize, Sequelize) => {
     name: Sequelize.STRING,
     role: Sequelize.STRING,
   }, {
+    indexes: [
+      {
+        unique: true,
+        fields: ['role'],
+      },
+    ],
     classMethods: {
       associate: ({Label, Message, MessageLabel, Thread, ThreadLabel}) => {
         Label.belongsToMany(Message, {through: MessageLabel})

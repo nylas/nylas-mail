@@ -8,6 +8,12 @@ module.exports = (sequelize, Sequelize) => {
     role: Sequelize.STRING,
     syncState: JSONType('syncState'),
   }, {
+    indexes: [
+      {
+        unique: true,
+        fields: ['role'],
+      },
+    ],
     classMethods: {
       associate: ({Folder, Message, Thread}) => {
         Folder.hasMany(Message)

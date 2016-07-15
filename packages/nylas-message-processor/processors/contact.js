@@ -14,19 +14,6 @@ class ContactProcessor {
     return true
   }
 
-  emptyContact(Contact, options = {}, accountId) {
-    options.accountId = accountId
-    return Contact.create(options)
-  }
-
-  findOrCreateByContactId(Contact, contact, accountId) {
-    return Contact.find({where: {email: contact.email}})
-    .then((contactDb) => {
-      return contactDb || this.emptyContact(Contact, contact, accountId)
-    })
-  }
-
-
   processMessage({db, message}) {
     const {Contact} = db;
 
@@ -35,12 +22,16 @@ class ContactProcessor {
     fields.forEach((field) => {
       allContacts = allContacts.concat(message[field])
     })
-    const filtered = allContacts.filter(this.verified)
-    const contactPromises = filtered.map((contact) => {
-      return this.findOrCreateByContactId(Contact, contact, message.accountId)
-    })
 
-    return Promise.all(contactPromises)
+    const upserts = allContacts.filter(this.verified).map((contact) =>
+      Contact.upsert({
+        name: contact.name,
+        email: contact.email,
+        accountId: message.accountId,
+      })
+    )
+
+    return Promise.all(upserts)
     .then(() => {
       return message
     })

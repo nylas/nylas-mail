@@ -102,17 +102,20 @@ class DatabaseConnector {
     db.Sequelize = Sequelize;
     db.accountId = accountId;
 
-    this._cache[accountId] = newSequelize.authenticate().then(() =>
-      // this is a bit of a hack, because sequelize.sync() doesn't work with
-      // schemas. It's necessary to sync models individually and in the right order.
-      PromiseUtils.each(['Contact', 'Folder', 'Label', 'Transaction', 'Thread', 'ThreadLabel', 'ThreadFolder', 'Message', 'MessageLabel', 'File', 'SyncbackRequest'], (n) => db[n].sync())
-    ).thenReturn(db);
+    this._cache[accountId] = newSequelize.authenticate().thenReturn(db);
 
     return this._cache[accountId];
   }
 
   ensureAccountDatabase(accountId) {
-    return Promise.resolve()
+    return this.forAccount(accountId).then((db) => {
+      // this is a bit of a hack, because sequelize.sync() doesn't work with
+      // schemas. It's necessary to sync models individually and in the right order.
+      const models = ['Contact', 'Folder', 'Label', 'Transaction', 'Thread', 'ThreadLabel', 'ThreadFolder', 'Message', 'MessageLabel', 'File', 'SyncbackRequest'];
+      return PromiseUtils.each(models, (n) =>
+        db[n].sync()
+      )
+    });
   }
 
   destroyAccountDatabase(accountId) {
