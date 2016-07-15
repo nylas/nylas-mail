@@ -6,6 +6,7 @@ const OAuth2 = google.auth.OAuth2;
 const Serialization = require('../serialization');
 const {
   IMAPConnection,
+  PubsubConnector,
   DatabaseConnector,
   SyncPolicy,
   Provider,
@@ -70,9 +71,13 @@ const buildAccountWith = ({name, email, provider, settings, credentials}) => {
 
       return account.save().then((saved) =>
         AccountToken.create({accountId: saved.id}).then((token) =>
-          DatabaseConnector.ensureAccountDatabase(saved.id).thenReturn({
-            account: saved,
-            token: token,
+          DatabaseConnector.ensureAccountDatabase(saved.id).then(() => {
+            PubsubConnector.broadcastClient().lpushAsync('accounts:unclaimed', saved.id);
+
+            return Promise.resolve({
+              account: saved,
+              token: token,
+            });
           })
         )
       );
