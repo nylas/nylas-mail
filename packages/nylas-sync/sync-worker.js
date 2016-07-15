@@ -202,10 +202,6 @@ class SyncWorker {
 
   onSyncError(error) {
     this.closeConnection()
-    // Continue to retry if it was a network error
-    if (error instanceof Errors.RetryableError) {
-      return Promise.resolve()
-    }
 
     this._logger.error(error, `SyncWorker: Error while syncing account`)
     global.Metrics.reportMetric({
@@ -213,6 +209,12 @@ class SyncWorker {
       value: 1,
       type: global.Metrics.Counter,
     })
+
+    // Continue to retry if it was a network error
+    if (error instanceof Errors.RetryableError) {
+      return Promise.resolve()
+    }
+
     this._account.syncError = jsonError(error)
     return this._account.save()
   }
