@@ -5,6 +5,7 @@ const {
   DatabaseConnector,
   MessageTypes,
   Errors,
+  PromiseUtils,
 } = require('nylas-core');
 const {
   jsonError,
@@ -137,9 +138,9 @@ class SyncWorker {
 
   syncbackMessageActions() {
     const where = {where: {status: "NEW"}, limit: 100};
-    return this._db.SyncbackRequest.findAll(where)
-      .map((req) => SyncbackTaskFactory.create(this._account, req))
-      .each(this.runSyncbackTask.bind(this))
+    return PromiseUtils.each((this._db.SyncbackRequest.findAll(where)
+          .map((req) => SyncbackTaskFactory.create(this._account, req))),
+          this.runSyncbackTask.bind(this))
   }
 
   runSyncbackTask(task) {

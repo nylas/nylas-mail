@@ -4,7 +4,6 @@
   "description": "k2",
   "main": "",
   "dependencies": {
-    "bluebird": "3.x.x",
     "bunyan": "1.8.0",
     "bunyan-cloudwatch": "2.0.0",
     "bunyan-loggly": "^1.0.0",

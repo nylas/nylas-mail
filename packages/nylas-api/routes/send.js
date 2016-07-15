@@ -10,21 +10,6 @@ module.exports = (server) => {
   server.route({
     method: 'POST',
     path: '/send',
-    config: {
-      validate: {
-        payload: {
-          subject: Joi.string(),
-          reply_to_message_id: Joi.number().integer(),
-          from: Joi.array(),
-          reply_to: Joi.array(),
-          to: Joi.array(),
-          cc: Joi.array(),
-          bcc: Joi.array(),
-          body: Joi.string(),
-          file_ids: Joi.array(),
-        },
-      },
-    },
     handler: (request, reply) => { DatabaseConnector.forShared().then((db) => {
       const accountId = request.auth.credentials.id;
       db.Account.findById(accountId).then((account) => {
