@@ -143,7 +143,7 @@ class IMAPConnection extends EventEmitter {
     if (!this._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPConnection::serverSupports`)
     }
-    this._imap.serverSupports(capability);
+    return this._imap.serverSupports(capability);
   }
 
   /**
