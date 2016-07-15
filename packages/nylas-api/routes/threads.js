@@ -184,16 +184,15 @@ module.exports = (server) => {
     },
     handler: (request, reply) => {
       const payload = request.payload
-      if (payload.folder_id) {
+      if (payload.folder_id || payload.folder) {
         createSyncbackRequest(request, reply, {
           type: "MoveToFolder",
           props: {
-            folderId: request.payload.folder_id,
+            folderId: request.payload.folder_id || request.payload.folder,
             threadId: request.params.id,
           },
         })
-      }
-      if (payload.unread === false) {
+      } else if (payload.unread === false) {
         createSyncbackRequest(request, reply, {
           type: "MarkThreadAsRead",
           props: {
@@ -207,8 +206,7 @@ module.exports = (server) => {
             threadId: request.params.id,
           },
         })
-      }
-      if (payload.starred === false) {
+      } else if (payload.starred === false) {
         createSyncbackRequest(request, reply, {
           type: "UnstarThread",
           props: {
@@ -222,6 +220,8 @@ module.exports = (server) => {
             threadId: request.params.id,
           },
         })
+      } else {
+        reply("Invalid thread update").code(400)
       }
     },
   });
