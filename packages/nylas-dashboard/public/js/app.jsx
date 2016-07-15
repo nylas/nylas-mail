@@ -208,7 +208,7 @@ class Root extends React.Component {
 
   onGroupChange() {
     this.setState({
-      groupByProcess: document.getElementById('group-by-proccess').checked,
+      groupByProcess: document.getElementById('group-by-process').checked,
     });
   }
 
@@ -232,7 +232,7 @@ class Root extends React.Component {
         <div>
           <input
             type="checkbox"
-            id="group-by-proccess"
+            id="group-by-process"
             onChange={() => this.onGroupChange()}
           />
           Group Accounts By Process
@@ -249,7 +249,7 @@ class Root extends React.Component {
           for (const accountId of this.state.processLoads[processName]) {
             const account = accountsById[accountId][0];
             accounts.push((
-              <MiniAccount key={accountId} account={account} />
+              <MiniAccount key={accountId} account={account} sideDimension="10" />
             ))
           }
           processes.push((
@@ -267,6 +267,9 @@ class Root extends React.Component {
           </div>
         )
       } else {
+        const area = window.innerWidth * window.innerHeight * 0.75;
+        const singleAcctArea = area / Object.keys(this.state.accounts).length;
+        const acctSideDimension = Math.sqrt(singleAcctArea);
         content = (
           <div>
             {groupByProcess}
@@ -276,6 +279,7 @@ class Root extends React.Component {
                   <MiniAccount
                     key={id}
                     account={this.state.accounts[id]}
+                    sideDimension={acctSideDimension}
                   />
                 )
               }
