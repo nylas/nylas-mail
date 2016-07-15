@@ -17,24 +17,24 @@ class ContactProcessor {
   processMessage({db, message}) {
     const {Contact} = db;
 
-    let allContacts = []
-    const fields = ['to', 'from', 'bcc', 'cc']
-    fields.forEach((field) => {
+    let allContacts = [];
+    ['to', 'from', 'bcc', 'cc'].forEach((field) => {
       allContacts = allContacts.concat(message[field])
     })
 
-    const upserts = allContacts.filter(this.verified).map((contact) =>
-      Contact.upsert({
-        name: contact.name,
-        email: contact.email,
-        accountId: message.accountId,
-      })
-    )
+    const verifiedContacts = allContacts.filter(this.verified);
 
-    return Promise.all(upserts)
-    .then(() => {
-      return message
-    })
+    return db.sequelize.transaction((transaction) => {
+      return Promise.all(verifiedContacts.map((contact) =>
+        Contact.upsert({
+          name: contact.name,
+          email: contact.email,
+          accountId: message.accountId,
+        }, {
+          transaction,
+        })
+      ))
+    }).thenReturn(message)
   }
 }
 
