@@ -17,6 +17,10 @@ pre {
   margin: 0;
 }
 
+#accounts-wrapper {
+  position: relative;
+}
+
 .account {
   position: absolute;
   border-radius: 5px;
@@ -57,6 +61,7 @@ pre {
 
 #open-all-sync {
   color: #ffffff;
+  padding-left: 5px;
 }
 
 .right-action {
@@ -218,4 +223,22 @@ pre {
 
 .mini-account.errored {
   background-color: rgb(255, 38, 0);
+}
+
+.process-loads {
+  display: inline-block;
+  padding: 15px;
+  width: 250px;
+  margin: 15px 0;
+  background-color: white;
+}
+
+.process-loads .section {
+  text-decoration: underline;
+  margin-bottom: 10px;
+  font-size: 12px;
+}
+
+.account-filter {
+  padding-left: 5px;
 }

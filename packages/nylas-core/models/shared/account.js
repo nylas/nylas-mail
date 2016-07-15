@@ -67,6 +67,20 @@ module.exports = (sequelize, Sequelize) => {
           return null;
         }
       },
+
+      smtpConfig: function smtpConfig() {
+        if (this.provider !== "imap") {
+          throw new Error("Non IMAP not yet supported")
+        }
+        const {smtp_username, smtp_password} = this.decryptedCredentials();
+        const {smtp_host, smtp_port, ssl_required} = this.connectionSettings;
+
+        return {
+          port: smtp_port, host: smtp_host, secure: ssl_required,
+          auth: { user: smtp_username, pass: smtp_password},
+        }
+      },
+
     },
   });
 

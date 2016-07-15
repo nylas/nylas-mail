@@ -12,12 +12,13 @@ const {
   ElapsedTime,
   Modal,
   MiniAccount,
+  ProcessLoads,
 } = window;
 
 function calcAcctPosition(count) {
   const width = 280;
   const height = 490;
-  const marginTop = 100;
+  const marginTop = 0;
   const marginSide = 0;
 
   const acctsPerRow = Math.floor((window.innerWidth - 2 * marginSide) / width);
@@ -195,6 +196,7 @@ class Root extends React.Component {
       assignments: update.assignments || this.state.assignments,
       activeAccountIds: update.activeAccountIds || this.state.activeAccountIds,
       accounts: accounts,
+      processLoadCounts: update.processLoadCounts,
     })
   }
 
@@ -221,19 +223,22 @@ class Root extends React.Component {
 
     return (
       <div>
+        <ProcessLoads counts={this.state.processLoadCounts} />
         <AccountFilter id="account-filter" onChange={() => this.onFilter.call(this)} />
         <SetAllSyncPolicies accountIds={ids.map((id) => parseInt(id, 10))} />
-        {
-          ids.sort((a, b) => a / 1 - b / 1).map((id) =>
-            <AccountType
-              key={id}
-              active={this.state.activeAccountIds.includes(id)}
-              assignment={this.state.assignments[id]}
-              account={this.state.accounts[id]}
-              count={count++}
-            />
-          )
-        }
+        <div id="accounts-wrapper">
+          {
+            ids.sort((a, b) => a / 1 - b / 1).map((id) =>
+              <AccountType
+                key={id}
+                active={this.state.activeAccountIds.includes(id)}
+                assignment={this.state.assignments[id]}
+                account={this.state.accounts[id]}
+                count={count++}
+              />
+            )
+          }
+        </div>
       </div>
     )
   }

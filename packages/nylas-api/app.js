@@ -1,5 +1,5 @@
-const {Metrics} = require(`nylas-core`)
-Metrics.startCapturing()
+const Metrics = require(`nylas-metrics`)
+Metrics.startCapturing('nylas-k2-api')
 
 const Hapi = require('hapi');
 const HapiSwagger = require('hapi-swagger');

@@ -6,5 +6,17 @@ module.exports = (sequelize, Sequelize) => {
     object: Sequelize.STRING,
     objectId: Sequelize.STRING,
     changedFields: JSONARRAYType('changedFields'),
+  }, {
+    instanceMethods: {
+      toJSON: function toJSON() {
+        return {
+          id: this.id,
+          event: this.event,
+          object: this.object,
+          objectId: this.objectId,
+          changedFields: this.changedFields,
+        }
+      },
+    },
   });
-};
+}

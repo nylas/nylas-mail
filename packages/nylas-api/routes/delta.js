@@ -8,7 +8,10 @@ function keepAlive(request) {
 }
 
 function inflateTransactions(db, transactionModels = []) {
-  const transactions = _.pluck(transactionModels, "dataValues")
+  if (!(_.isArray(transactionModels))) {
+    transactionModels = [transactionModels]
+  }
+  const transactions = transactionModels.map((mod) => mod.toJSON())
   transactions.forEach((t) => t.cursor = t.id);
   const byModel = _.groupBy(transactions, "object");
   const byObjectIds = _.groupBy(transactions, "objectId");
@@ -24,13 +27,12 @@ function inflateTransactions(db, transactionModels = []) {
     return ModelKlass.findAll({where: {id: ids}, include: includes})
     .then((models = []) => {
       for (const model of models) {
-        model.dataValues.object = object
         const tsForId = byObjectIds[model.id];
         if (!tsForId || tsForId.length === 0) { continue; }
-        for (const t of tsForId) { t.attributes = model.dataValues; }
+        for (const t of tsForId) { t.attributes = model.toJSON(); }
       }
     })
-  })).then(() => transactions.map(JSON.stringify).join("\n"))
+  })).then(() => `${transactions.map(JSON.stringify).join("\n")}\n`)
 }
 
 function createOutputStream() {
@@ -55,6 +57,12 @@ function initialTransactions(db, request) {
            .flatMap((objs) => inflateTransactions(db, objs))
 }
 
+function inflatedDeltas(db, request) {
+  return PubsubConnector.observeDeltas(request.auth.credentials.id)
+    .flatMap((transactionJSON) => [db.Transaction.build(transactionJSON)])
+    .flatMap((objs) => inflateTransactions(db, objs))
+}
+
 module.exports = (server) => {
   server.route({
     method: 'GET',
@@ -64,7 +72,7 @@ module.exports = (server) => {
 
       request.getAccountDatabase().then((db) => {
         const source = Rx.Observable.merge(
-          PubsubConnector.observeDeltas(request.auth.credentials.id),
+          inflatedDeltas(db, request),
           initialTransactions(db, request),
           keepAlive(request)
         ).subscribe(outputStream.pushJSON)
@@ -80,7 +88,7 @@ module.exports = (server) => {
     method: 'POST',
     path: '/delta/latest_cursor',
     handler: (request, reply) => request.getAccountDatabase().then((db) =>
-      lastTransaction(db).then((t) => reply({cursor: t.id}))
+      lastTransaction(db).then((t) => reply({cursor: (t || {}).id}))
     ),
   });
 };

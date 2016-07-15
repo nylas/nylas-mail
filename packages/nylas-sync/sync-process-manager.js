@@ -64,9 +64,15 @@ class SyncProcessManager {
     client.setAsync(key, Date.now())
     .then(() => client.expireAsync(key, HEARTBEAT_EXPIRES))
     .then(() => {
+      const accountsSyncing = Object.keys(this._workers).length
       this._logger.info({
-        accounts_syncing_count: Object.keys(this._workers).length,
+        accounts_syncing_count: accountsSyncing,
       }, "ProcessManager: 💘")
+      global.Metrics.reportMetric({
+        name: 'accounts_syncing_count',
+        value: accountsSyncing,
+        type: global.Metrics.MetricTypes.Gauge,
+      })
     })
   }
 

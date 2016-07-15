@@ -5,6 +5,7 @@
   "dependencies": {
     "nylas-core": "0.x.x",
     "nylas-message-processor": "0.x.x",
+    "nylas-metrics": "0.x.x",
     "xoauth2": "1.1.0"
   },
   "scripts": {

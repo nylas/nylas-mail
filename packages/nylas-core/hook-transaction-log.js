@@ -24,10 +24,7 @@ module.exports = (db, sequelize) => {
       });
 
       db.Transaction.create(transactionData).then((transaction) => {
-        const pubsubPayload = transaction.dataValues;
-        pubsubPayload.attributes = dataValues;
-        pubsubPayload.cursor = transaction.id;
-        PubsubConnector.notifyDelta(db.accountId, pubsubPayload);
+        PubsubConnector.notifyDelta(db.accountId, transaction.toJSON());
       })
     }
   }
