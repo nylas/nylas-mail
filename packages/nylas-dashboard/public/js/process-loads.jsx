@@ -3,17 +3,17 @@ const React = window.React;
 function ProcessLoads(props) {
   let entries;
   let sumElem;
-  if (props.counts == null || Object.keys(props.counts).length === 0) {
+  if (props.loads == null || Object.keys(props.loads).length === 0) {
     entries = "No Data";
     sumElem = "";
   } else {
     entries = [];
     let sum = 0;
-    for (const processName of Object.keys(props.counts).sort()) {
-      const count = props.counts[processName];
+    for (const processName of Object.keys(props.loads).sort()) {
+      const count = props.loads[processName].length;
       sum += count;
       entries.push(
-        <div className="load-count">
+        <div className="load-count" key={processName}>
           <b>{processName}</b>: {count} accounts
         </div>
       );
@@ -31,7 +31,7 @@ function ProcessLoads(props) {
 }
 
 ProcessLoads.propTypes = {
-  counts: React.PropTypes.object,
+  loads: React.PropTypes.object,
 }
 
 window.ProcessLoads = ProcessLoads;

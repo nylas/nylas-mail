@@ -15,11 +15,9 @@ class MiniAccount extends React.Component {
   }
 
   render() {
-    const {account, assignment, active} = this.props;
-
     let errorClass;
     let style;
-    if (account.sync_error) {
+    if (this.props.account.sync_error) {
       errorClass = 'errored';
       style = {};
     } else {
@@ -38,9 +36,6 @@ class MiniAccount extends React.Component {
 
 MiniAccount.propTypes = {
   account: React.PropTypes.object,
-  active: React.PropTypes.bool,
-  assignment: React.PropTypes.string,
-  count: React.PropTypes.number,
 };
 
 window.MiniAccount = MiniAccount;

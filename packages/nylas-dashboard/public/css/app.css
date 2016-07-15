@@ -248,3 +248,14 @@ pre {
 .account-filter {
   padding-left: 5px;
 }
+
+.process-group {
+  display: inline-block;
+  margin: 10px;
+  max-width: 250px;
+  vertical-align: top;
+}
+
+#group-by-process {
+  vertical-align: middle;
+}
