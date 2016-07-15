@@ -203,34 +203,30 @@ class FetchMessagesInFolder {
     });
   }
 
-  _createFilesFromStruct({message, struct}) {
-    const {File} = this._db
+  _collectFilesFromStruct(message, struct) {
+    const {File} = this._db;
+    let collected = [];
+
     for (const part of struct) {
       if (part.constructor === Array) {
-        this._createFilesFromStruct({message, struct: part})
+        collected = collected.concat(this._collectFilesFromStruct(message, part));
       } else if (part.type !== 'text' && part.disposition) {
-        let filename = null
-        if (part.disposition.params) {
-          filename = part.disposition.params.filename
-        }
         // Only exposes partId for inline attachments
-        let partId = null
-        if (part.disposition.type === 'inline') {
-          partId = part.partID
-        }
-        File.create({
+        const partId = part.disposition.type === 'inline' ? part.partID : null;
+        const filename = part.disposition.params ? part.disposition.params.filename : null;
+
+        collected.push(File.build({
           filename: filename,
           partId: partId,
+          messageId: message.id,
           contentType: `${part.type}/${part.subtype}`,
           accountId: this._db.accountId,
           size: part.size,
-        })
-        .then((file) => {
-          file.setMessage(message)
-          message.addFile(file)
-        })
+        }));
       }
     }
+
+    return collected;
   }
 
   _processMessage({attributes, headers, body}) {
@@ -273,7 +269,14 @@ class FetchMessagesInFolder {
           message_id: message.id,
           uid: attributes.uid,
         }, `FetchMessagesInFolder: Created message`)
-        this._createFilesFromStruct({message, struct: attributes.struct})
+
+        const files = this._collectFilesFromStruct(message, attributes.struct);
+        if (files.length > 0) {
+          this._db.sequelize.transaction((transaction) =>
+            Promise.all(files.map(f => f.save({transaction})))
+          )
+        }
+
         PubsubConnector.queueProcessMessage({accountId, messageId: message.id});
       } else {
         this._logger.info({
