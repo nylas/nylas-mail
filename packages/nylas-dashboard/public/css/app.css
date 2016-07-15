@@ -239,6 +239,12 @@ pre {
   font-size: 12px;
 }
 
+.sum-accounts {
+  border-top: solid black 1px;
+  margin-top: 5px;
+  padding-top: 5px;
+}
+
 .account-filter {
   padding-left: 5px;
 }

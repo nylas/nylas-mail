@@ -1,30 +1,33 @@
 const React = window.React;
 
-class ProcessLoads extends React.Component {
-
-  render() {
-    let entries;
-    if (this.props.counts == null || Object.keys(this.props.counts).length === 0) {
-      entries = "No Data"
+function ProcessLoads(props) {
+  let entries;
+  let sumElem;
+  if (props.counts == null || Object.keys(props.counts).length === 0) {
+    entries = "No Data";
+    sumElem = "";
+  } else {
+    entries = [];
+    let sum = 0;
+    for (const processName of Object.keys(props.counts)) {
+      const count = props.counts[processName];
+      sum += count;
+      entries.push(
+        <div className="load-count">
+          <b>{processName}</b>: {count} accounts
+        </div>
+      );
     }
-    else {
-      entries = [];
-      for (const processName of Object.keys(this.props.counts).sort()) {
-        entries.push(
-          <div className="load-count">
-            <b>{processName}</b>: {this.props.counts[processName]} accounts
-          </div>
-        );
-      }
-    }
-
-    return (
-      <div className="process-loads">
-        <div className="section">Process Loads </div>
-        {entries}
-      </div>
-    )
+    sumElem = <div className="sum-accounts">Total Accounts: {sum} </div>
   }
+
+  return (
+    <div className="process-loads">
+      <div className="section">Process Loads </div>
+      {entries}
+      {sumElem}
+    </div>
+  )
 }
 
 ProcessLoads.propTypes = {
