@@ -217,6 +217,8 @@ pre {
 .mini-account {
   background-color: rgb(0, 255, 157);
   display: inline-block;
+  width: 10px;
+  height: 10px;
 }
 
 .mini-account.errored {

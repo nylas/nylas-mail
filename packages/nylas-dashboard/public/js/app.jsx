@@ -249,7 +249,7 @@ class Root extends React.Component {
           for (const accountId of this.state.processLoads[processName]) {
             const account = accountsById[accountId][0];
             accounts.push((
-              <MiniAccount key={accountId} account={account} sideDimension="10" />
+              <MiniAccount key={accountId} account={account} />
             ))
           }
           processes.push((
@@ -267,9 +267,6 @@ class Root extends React.Component {
           </div>
         )
       } else {
-        const area = window.innerWidth * window.innerHeight * 0.75;
-        const singleAcctArea = area / Object.keys(this.state.accounts).length;
-        const acctSideDimension = Math.sqrt(singleAcctArea);
         content = (
           <div>
             {groupByProcess}
@@ -279,7 +276,6 @@ class Root extends React.Component {
                   <MiniAccount
                     key={id}
                     account={this.state.accounts[id]}
-                    sideDimension={acctSideDimension}
                   />
                 )
               }
