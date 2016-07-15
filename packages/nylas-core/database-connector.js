@@ -48,8 +48,8 @@ class DatabaseConnector {
         logging: false,
         pool: {
           min: 1,
-          max: 30,
-          idle: 10000,
+          max: 15,
+          idle: 5000,
         },
         define: {
           charset: 'utf8',
