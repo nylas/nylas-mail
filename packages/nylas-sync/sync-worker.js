@@ -73,11 +73,14 @@ class SyncWorker {
   }
 
   _onAccountUpdated() {
-    if (!this.isWaitingForNextSync()) {
+    const syncingNow = !this.isWaitingForNextSync()
+    const syncingJustFinished = (Date.now() - this._lastSyncTime < 5000);
+
+    if (syncingNow || syncingJustFinished) {
       return;
     }
-    this._getAccount()
-    .then((account) => {
+
+    this._getAccount().then((account) => {
       this._account = account;
       this.syncNow({reason: 'Account Modification'});
     })
