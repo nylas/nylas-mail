@@ -299,6 +299,8 @@ class FetchMessagesInFolder {
 
       if (lastUIDValidity && (box.uidvalidity !== lastUIDValidity)) {
         this._logger.info({
+          boxname: box.name,
+          categoryname: this._category.name,
           remoteuidvalidity: box.uidvalidity,
           localuidvalidity: lastUIDValidity,
         }, `FetchMessagesInFolder: Recovering from UIDInvalidity`);
