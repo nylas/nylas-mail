@@ -1,8 +1,7 @@
-const os = require('os');
 const SyncWorker = require('./sync-worker');
 const {PromiseUtils, DatabaseConnector, PubsubConnector, SchedulerUtils} = require(`nylas-core`)
 
-const IDENTITY = `${os.hostname()}-${process.pid}`;
+const IDENTITY = `${global.instanceId}-${process.pid}`;
 
 const {
   ACCOUNTS_FOR,

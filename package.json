@@ -15,6 +15,7 @@
     "promise-props": "^1.0.0",
     "promise.prototype.finally": "^1.0.1",
     "redis": "2.x.x",
+    "request": "^2.73.0",
     "rx": "4.x.x",
     "sequelize": "3.x.x",
     "underscore": "1.x.x",

@@ -20,7 +20,7 @@ module.exports = (sequelize, Sequelize) => {
           error: this.error,
           props: this.props,
         }
-      }
-    }
+      },
+    },
   });
 };
