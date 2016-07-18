@@ -161,6 +161,9 @@ describe "Contact", ->
       expect((new Contact(email: 'ben@nylas.com')).isValid()).toBe(true)
       expect((new Contact(email: 'ben+123@nylas.com')).isValid()).toBe(true)
 
+    it "should support contacts with unicode characters in domains", ->
+      expect((new Contact(name: 'Ben', email: 'ben@arıman.com')).isValid()).toBe(true)
+
     it "should return false if the contact has no email", ->
       expect((new Contact(name: 'Ben')).isValid()).toBe(false)
 
@@ -174,4 +177,3 @@ describe "Contact", ->
 
     it "returns false if the email doesn't match", ->
       expect((new Contact(name: "test", email: "foo@")).isValid()).toBe false
-
