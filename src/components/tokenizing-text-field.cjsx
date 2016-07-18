@@ -528,8 +528,13 @@ class TokenizingTextField extends React.Component
 
   _onPaste: (event) =>
     data = event.clipboardData.getData('text/plain')
-    @_addInputValue(data)
-    event.preventDefault()
+    newInputValue = @state.inputValue + data
+    if RegExpUtils.emailRegex().test(newInputValue)
+      @_addInputValue(newInputValue, skipNameLookup: true)
+      event.preventDefault()
+    else
+      @_refreshCompletions(newInputValue)
+
 
   # Managing Suggestions
 
