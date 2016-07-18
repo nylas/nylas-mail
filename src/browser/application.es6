@@ -439,7 +439,11 @@ export default class Application extends EventEmitter {
     });
 
     ipcMain.on('set-badge-value', (event, value) => {
-      if (app.dock) { app.dock.setBadge(value) }
+      if (app.dock && app.dock.setBadge) {
+        app.dock.setBadge(value);
+      } else if (app.setBadgeCount) {
+        app.setBadgeCount(value.length ? (value.replace("+", "") / 1) : 0);
+      }
     });
 
     ipcMain.on('new-window', (event, options) => {
