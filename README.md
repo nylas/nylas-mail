@@ -47,6 +47,7 @@ We're working on building a plugin index that makes it super easy to add them to
 - [Monokai](https://github.com/jamiehenson/n1-monokai)
 - [Agapanthus](https://github.com/taniadaniela/n1-agapanthus)—Inbox-inspired theme
 - [Stripe](https://github.com/oeaeee/n1-stripe)
+- [Kleinstein] (https://github.com/diklein/Kleinstein)
 
 #### Bundled Plugins
 Great starting points for creating your own plugins!
