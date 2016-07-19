@@ -112,7 +112,9 @@ class DraftFactory
         accountId: message.accountId
         replyToMessageId: message.id,
         body: """
-          <br><br><div class="gmail_quote">
+          <br><br>
+          <div class="gmail_quote">
+            <br>
             #{DOMUtils.escapeHTMLCharacters(message.replyAttributionLine())}
             <br>
             <blockquote class="gmail_quote"
