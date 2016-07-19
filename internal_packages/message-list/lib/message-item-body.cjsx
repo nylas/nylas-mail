@@ -111,7 +111,7 @@ class MessageItemBody extends React.Component
       else
         # Render the completed download
         body = body.replace cidRegexp, (text, quoteCharacter) ->
-          "#{FileDownloadStore.pathForFile(file)}#{quoteCharacter}"
+          "file://#{FileDownloadStore.pathForFile(file)}#{quoteCharacter}"
 
     # Replace remaining cid:// references - we will not display them since they'll
     # throw "unknown ERR_UNKNOWN_URL_SCHEME". Show a transparent pixel so that there's
