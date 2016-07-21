@@ -18,8 +18,8 @@ const SIGNATURES = {
 }
 
 const DEFAULTS = {
-  11: '1',
-  22: '2',
+  'one@nylas.com': '1',
+  'two@nylas.com': '2',
 }
 
 
@@ -66,7 +66,7 @@ describe('PreferencesSignatures', function preferencesSignatures() {
       spyOn(Actions, 'toggleAccount')
       this.account = ReactTestUtils.scryRenderedDOMComponentsWithClass(this.component, 'item')[0]
       ReactTestUtils.Simulate.mouseDown(this.account)
-      expect(Actions.toggleAccount).toHaveBeenCalledWith('test-account-server-id')
+      expect(Actions.toggleAccount).toHaveBeenCalledWith('tester@nylas.com')
     })
     it('should set the selected signature when you click on one that is not currently selected', () => {
       spyOn(Actions, 'selectSignature')

@@ -16,18 +16,20 @@ describe('SignatureComposerExtension', function signatureComposerExtension() {
     describe("when a signature is defined", () => {
       beforeEach(() => {
         spyOn(NylasEnv.config, 'get').andCallFake(() => TEST_SIGNATURES);
-        spyOn(SignatureStore, 'signatureForAccountId').andReturn(TEST_SIGNATURE)
+        spyOn(SignatureStore, 'signatureForEmail').andReturn(TEST_SIGNATURE)
         SignatureStore.activate()
       });
 
       it("should insert the signature at the end of the message or before the first quoted text block and have a newline", () => {
         const a = new Message({
           draft: true,
+          from: ['one@nylas.com'],
           accountId: TEST_ACCOUNT_ID,
           body: 'This is a test! <div class="gmail_quote">Hello world</div>',
         });
         const b = new Message({
           draft: true,
+          from: ['one@nylas.com'],
           accountId: TEST_ACCOUNT_ID,
           body: 'This is a another test.',
         });
@@ -65,6 +67,7 @@ describe('SignatureComposerExtension', function signatureComposerExtension() {
         it(`should replace the signature if a signature is already present (${scenario.name})`, () => {
           const message = new Message({
             draft: true,
+            from: ['one@nylas.com'],
             body: scenario.body,
             accountId: TEST_ACCOUNT_ID,
           })

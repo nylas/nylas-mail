@@ -35,14 +35,14 @@ export default class PreferencesSignatures extends React.Component {
 
   _getStateFromStores() {
     const signatures = SignatureStore.getSignatures()
-    const accounts = AccountStore.accounts()
+    const accountsAndAliases = AccountStore.aliases()
     const selected = SignatureStore.selectedSignature()
     const defaults = SignatureStore.getDefaults()
     return {
       signatures: signatures,
       selectedSignature: selected,
       defaults: defaults,
-      accounts: accounts,
+      accountsAndAliases: accountsAndAliases,
       editAsHTML: this.state ? this.state.editAsHTML : false,
     }
   }
@@ -80,8 +80,8 @@ export default class PreferencesSignatures extends React.Component {
     Actions.selectSignature(sig.id)
   }
 
-  _onToggleAccount = (accountId) => {
-    Actions.toggleAccount(accountId)
+  _onToggleAccount = (account) => {
+    Actions.toggleAccount(account.email)
   }
 
   _onToggleEditAsHTML = () => {
@@ -107,34 +107,40 @@ export default class PreferencesSignatures extends React.Component {
     )
   }
 
-  _selectItemKey = (account) => {
-    return account.accountId
+  _selectItemKey = (accountOrAlias) => {
+    return accountOrAlias.clientId
   }
 
-  _isChecked = (account) => {
-    if (this.state.defaults[account.accountId] === this.state.selectedSignature.id) return true
+  _isChecked = (accountOrAlias) => {
+    if (this.state.defaults[accountOrAlias.email] === this.state.selectedSignature.id) return true
     return false
   }
 
   _numSelected() {
-    const sel = _.filter(this.state.accounts, (account) => {
-      return this._isChecked(account)
+    const sel = _.filter(this.state.accountsAndAliases, (accountOrAlias) => {
+      return this._isChecked(accountOrAlias)
     })
     const numSelected = sel.length
     return numSelected.toString() + (numSelected === 1 ? " Account" : " Accounts")
   }
 
+  _getEmail = (accountOrAlias) => {
+    return accountOrAlias.email
+  }
+
   _renderAccountPicker() {
     const buttonText = this._numSelected()
+
     return (
       <MultiselectDropdown
         className="account-dropdown"
-        items={this.state.accounts}
+        items={this.state.accountsAndAliases}
         itemChecked={this._isChecked}
         onToggleItem={this._onToggleAccount}
         itemKey={this._selectItemKey}
         current={this.selectedSignature}
         buttonText={buttonText}
+        itemContent={this._getEmail}
       />
     )
   }

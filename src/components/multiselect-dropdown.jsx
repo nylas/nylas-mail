@@ -25,6 +25,7 @@ class MultiselectDropdown extends Component {
     onToggleItem: PropTypes.func,
     itemKey: PropTypes.func,
     buttonText: PropTypes.string,
+    itemContent: PropTypes.func,
   }
 
   static defaultProps = {
@@ -34,6 +35,7 @@ class MultiselectDropdown extends Component {
     onToggleItem: () => {},
     itemKey: () => {},
     buttonText: '',
+    itemContent: () => {},
   }
 
   componentDidUpdate() {
@@ -44,13 +46,13 @@ class MultiselectDropdown extends Component {
 
 
   _onItemClick = (item) => {
-    this.props.onToggleItem(item.id)
+    this.props.onToggleItem(item)
   }
 
   _renderItem = (item) => {
     const MenuItem = Menu.Item
     return (
-      <MenuItem onMouseDown={() => this._onItemClick(item)} checked={this.props.itemChecked(item)} key={this.props.itemKey(item)} content={item.label} />
+      <MenuItem onMouseDown={() => this._onItemClick(item)} checked={this.props.itemChecked(item)} key={this.props.itemKey(item)} content={this.props.itemContent(item)} />
     )
   }
 
