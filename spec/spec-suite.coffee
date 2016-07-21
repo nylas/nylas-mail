@@ -12,7 +12,6 @@ requireSpecs = (specDirectory) ->
     regex = /-spec\.(coffee|js|jsx|cjsx|es6|es)$/
 
   for specFilePath in fs.listTreeSync(specDirectory)
-    console.log(specFilePath)
     require(specFilePath) if regex.test(specFilePath)
 
     # Set spec directory on spec for setting up the project in spec-helper
