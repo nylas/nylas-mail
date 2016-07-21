@@ -60,15 +60,13 @@ class SelfHostingConfigPage extends React.Component {
     NylasEnv.config.set('syncEngine.APIRoot', `http://${this.state.url}:${this.state.port}`)
     Actions.setNylasIdentity({
       token: "SELFHOSTEDSYNCENGINE",
-      identity: {
-        firstname: "",
-        lastname: "",
-        valid_until: null,
-        free_until: Number.INT_MAX,
-        email: "",
-        id: 1,
-        seen_welcome_page: true,
-      },
+      firstname: "",
+      lastname: "",
+      valid_until: null,
+      free_until: Number.INT_MAX,
+      email: "",
+      id: 1,
+      seen_welcome_page: true,
     })
     this._addAccountJSON()
   }
