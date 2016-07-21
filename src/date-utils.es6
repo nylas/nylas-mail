@@ -5,6 +5,11 @@ import _ from 'underscore'
 // Init locale for moment
 moment.locale(navigator.language)
 
+// Initialise moment timezone
+const tz = moment.tz.guess()
+if (!tz) {
+  console.error("DateUtils: TimeZone could not be determined. This should not happen!")
+}
 
 const yearRegex = / ?YY(YY)?/
 
@@ -200,13 +205,18 @@ const DateUtils = {
    * The returned date/time format depends on how long ago the timestamp is.
    */
   shortTimeString(datetime) {
-    const diff = moment().diff(datetime, 'days', true)
+    const now = moment()
+    const diff = now.diff(datetime, 'days', true)
+    const isSameDay = now.isSame(datetime, 'days')
     let format = null
 
-    if (diff <= 1) {
+    if (diff <= 1 && isSameDay) {
       // Time if less than 1 day old
       format = DateUtils.getTimeFormat(null)
-    } else if (diff > 1 && diff <= 365) {
+    } else if (diff < 2 && !isSameDay) {
+      // Month and day with time if up to 2 days ago
+      format = "MMM D, " + DateUtils.getTimeFormat(null)
+    } else if (diff >= 2 && diff < 365) {
       // Month and day up to 1 year old
       format = "MMM D"
     } else {
@@ -219,17 +229,26 @@ const DateUtils = {
 
 
   /**
+   * Return a medium format date/time
+   *
+   * @param {Date} datetime - Timestamp
+   * @return {String} Formated date/time
+   */
+  mediumTimeString(datetime) {
+    let format = "MMMM D, YYYY, "
+    format += DateUtils.getTimeFormat({seconds: false, upperCase: true, timeZone: false})
+
+    return moment(datetime).format(format)
+  },
+
+
+  /**
    * Return a long format date/time
    *
    * @param {Date} datetime - Timestamp
    * @return {String} Formated date/time
    */
   fullTimeString(datetime) {
-    const tz = moment.tz.guess()
-    if (!tz) {
-      console.error("DateUtils: TimeZone could not be determined. This should not happen!")
-    }
-
     let format = "dddd, MMMM Do YYYY, "
     format += DateUtils.getTimeFormat({seconds: true, upperCase: true, timeZone: true})
 

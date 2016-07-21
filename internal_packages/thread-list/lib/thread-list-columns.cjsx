@@ -18,7 +18,7 @@ ThreadListParticipants = require './thread-list-participants'
 ThreadListStore = require './thread-list-store'
 ThreadListIcon = require './thread-list-icon'
 
-{### Get and format either last sent or last received timestamp depending on thread-list being viewed ###}
+# Get and format either last sent or last received timestamp depending on thread-list being viewed
 TimestampComponentForPerspective = (thread) ->
   if FocusedPerspectiveStore.current().isSent()
     rawTimestamp = thread.lastMessageSentTimestamp

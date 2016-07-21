@@ -15,9 +15,13 @@ class MessageTimestamp extends React.Component
     +nextProps.date isnt +@props.date or nextProps.isDetailed isnt @props.isDetailed
 
   render: =>
+    if @props.isDetailed
+      formattedDate = DateUtils.mediumTimeString(@props.date)
+    else
+      fromattedDate = DateUtils.shortTimeString(@props.date)
     <div className={@props.className}
          title={DateUtils.fullTimeString(@props.date)}
-         onClick={@props.onClick}>{DateUtils.shortTimeString(@props.date)}</div>
+         onClick={@props.onClick}>{formattedDate}</div>
 
   # Stubbable for testing. Returns a `moment`
   _today: -> moment.tz(Utils.timeZone)
