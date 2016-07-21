@@ -97,32 +97,23 @@ describe "ComposerView", ->
       expect(@session.changes.add).toHaveBeenCalled()
       expect(@session.changes.add.calls.length).toBe 1
       body = @session.changes.add.calls[0].args[0].body
-      expect(body).toBe "<head></head><body>Hello <strong>world</strong></body>"
+      expect(body).toBe "Hello <strong>world</strong>"
 
   describe "when sending a reply-to message", ->
     beforeEach ->
-      @replyBody = """<blockquote class="gmail_quote">On Sep 3 2015, at 12:14 pm, Evan Morikawa &lt;evan@evanmorikawa.com&gt; wrote:<br>This is a test!</blockquote>"""
-
       useDraft.call @,
         from: [u1]
         to: [u2]
         subject: "Test Reply Message 1"
-        body: @replyBody
+        body: ""
+        replyToMessageId: "1"
 
       makeComposer.call @
       @editableNode = ReactDOM.findDOMNode(@composer).querySelector('[contenteditable]')
       spyOn(@session.changes, "add")
 
-    it 'begins with the replying message collapsed', ->
+    it 'begins with empty body', ->
       expect(@editableNode.innerHTML).toBe ""
-
-    it 'saves the full new body, plus quoted text', ->
-      @editableNode.innerHTML = "Hello <strong>world</strong>"
-      @composer.refs[Fields.Body]._onDOMMutated(["mutated"])
-      expect(@session.changes.add).toHaveBeenCalled()
-      expect(@session.changes.add.calls.length).toBe 1
-      body = @session.changes.add.calls[0].args[0].body
-      expect(body).toBe """<head></head><body>Hello <strong>world</strong>#{@replyBody}</body>"""
 
   describe "when sending a forwarded message", ->
     beforeEach ->

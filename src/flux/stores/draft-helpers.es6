@@ -34,8 +34,8 @@ export function isForwardedMessage({body, subject} = {}) {
   return bodyForwarded || bodyFwd || subjectFwd
 }
 
-export function shouldAppendQuotedText({body = ''} = {}) {
-  return !body.includes('<div id="n1-quoted-text-marker">')
+export function shouldAppendQuotedText({body = '', replyToMessageId = false} = {}) {
+  return replyToMessageId && !body.includes('<div id="n1-quoted-text-marker">')
 }
 
 export function messageMentionsAttachment({body} = {}) {

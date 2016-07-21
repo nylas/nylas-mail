@@ -20,7 +20,7 @@ describe "Composer Quoted Text", ->
 
     @onChange = jasmine.createSpy('onChange')
     @htmlNoQuote = 'Test <strong>HTML</strong><br>'
-    @htmlWithQuote = 'Test <strong>HTML</strong><br><blockquote class="gmail_quote">QUOTE</blockquote>'
+    @htmlWithQuote = 'Test <strong>HTML</strong><div id="n1-quoted-text-marker"></div><br><blockquote class="gmail_quote">QUOTE</blockquote>'
 
     @draft = new Message(draft: true, clientId: "client-123")
     @session =
@@ -39,36 +39,24 @@ describe "Composer Quoted Text", ->
     @$contentEditable.innerHTML = newHTML
     @contentEditable._onDOMMutated(["mutated"])
 
-  describe "quoted-text-control toggle button", ->
-
-  describe "when there's no quoted text", ->
+  describe "when the message is a reply", ->
     beforeEach ->
       @draft.body = @htmlNoQuote
       @composer = ReactTestUtils.renderIntoDocument(
         <Composer draft={@draft} session={@session}/>
       )
       @composer.setState
-        showQuotedText: true
+        showQuotedText: false
+        showQuotedTextControl: true
       @contentEditable = @composer.refs[Fields.Body]
       @$contentEditable = ReactDOM.findDOMNode(@contentEditable).querySelector('[contenteditable]')
       @$composerBodyWrap = ReactDOM.findDOMNode(@composer.refs.composerBodyWrap)
 
-    it 'should not display any quoted text', ->
-      expect(@$contentEditable.innerHTML).toBe @htmlNoQuote
-
-    it "allows the text to update", ->
-      textToAdd = "MORE <strong>TEXT</strong>!"
-      expect(@$contentEditable.innerHTML).toBe @htmlNoQuote
-      setHTML.call(@, textToAdd + @htmlNoQuote)
-      ev = @session.changes.add.mostRecentCall.args[0].body
-      expect(ev).toEqual(textToAdd + @htmlNoQuote)
-
-    it 'should not render the quoted-text-control toggle', ->
+    it 'should render the quoted-text-control toggle', ->
       toggles = ReactTestUtils.scryRenderedDOMComponentsWithClass(@composer, 'quoted-text-control')
-      expect(toggles.length).toBe 0
+      expect(toggles.length).toBe 1
 
-
-  describe 'when there is quoted text, and showQuotedText is true', ->
+  describe 'when the quoted text has been expanded', ->
     beforeEach ->
       @draft.body = @htmlWithQuote
       @composer = ReactTestUtils.renderIntoDocument(
@@ -76,12 +64,10 @@ describe "Composer Quoted Text", ->
       )
       @composer.setState
         showQuotedText: true
+        showQuotedTextControl: false
       @contentEditable = @composer.refs[Fields.Body]
       @$contentEditable = ReactDOM.findDOMNode(@contentEditable).querySelector('[contenteditable]')
       @$composerBodyWrap = ReactDOM.findDOMNode(@composer.refs.composerBodyWrap)
-
-    it 'should display the quoted text', ->
-      expect(@$contentEditable.innerHTML).toBe @htmlWithQuote
 
     it "should call add changes with the entire HTML string", ->
       textToAdd = "MORE <strong>TEXT</strong>!"
@@ -98,51 +84,6 @@ describe "Composer Quoted Text", ->
       expect(ev).toEqual(newText)
 
     describe 'quoted text control toggle button', ->
-      beforeEach ->
-        @toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@composer, 'quoted-text-control')
-
-      it 'should be rendered', ->
-        expect(@toggle).toBeDefined()
-
-  describe 'when there is quoted text, an showQuotedText is false', ->
-    beforeEach ->
-      @draft.body = @htmlWithQuote
-      @composer = ReactTestUtils.renderIntoDocument(
-        <Composer draft={@draft} session={@session}/>
-      )
-      @composer.setState
-        showQuotedText: false
-      @contentEditable = @composer.refs[Fields.Body]
-      @$contentEditable = ReactDOM.findDOMNode(@contentEditable).querySelector('[contenteditable]')
-      @$composerBodyWrap = ReactDOM.findDOMNode(@composer.refs.composerBodyWrap)
-
-    # The quoted text dom parser wraps stuff inertly in body tags
-    wrapBody = (html) -> "<head></head><body>#{html}</body>"
-
-    it 'should not display any quoted text', ->
-      expect(@$contentEditable.innerHTML).toBe @htmlNoQuote
-
-    it "should let you change the text, and then append the quoted text part to the end before firing adding changes", ->
-      textToAdd = "MORE <strong>TEXT</strong>!"
-      expect(@$contentEditable.innerHTML).toBe @htmlNoQuote
-      setHTML.call(@, textToAdd + @htmlNoQuote)
-      ev = @session.changes.add.mostRecentCall.args[0].body
-      # Note that we expect the version WITH a quote while setting the
-      # version withOUT a quote.
-      expect(ev).toEqual(wrapBody(textToAdd + @htmlWithQuote))
-
-    it "should let you add more html that looks like quoted text, and still properly appends the old quoted text", ->
-      textToAdd = "Yo <blockquote class=\"gmail_quote\">I'm a fake quote</blockquote>"
-      expect(@$contentEditable.innerHTML).toBe @htmlNoQuote
-      setHTML.call(@, textToAdd + @htmlNoQuote)
-      ev = @session.changes.add.mostRecentCall.args[0].body
-      # Note that we expect the version WITH a quote while setting the
-      # version withOUT a quote.
-      expect(ev).toEqual(wrapBody(textToAdd + @htmlWithQuote))
-
-    describe 'quoted text control toggle button', ->
-      beforeEach ->
-        @toggle = ReactTestUtils.findRenderedDOMComponentWithClass(@composer, 'quoted-text-control')
-
-      it 'should be rendered', ->
-        expect(@toggle).toBeDefined()
+      it 'should not be rendered', ->
+        toggles = ReactTestUtils.scryRenderedDOMComponentsWithClass(@composer, 'quoted-text-control')
+        expect(toggles.length).toBe(0)
