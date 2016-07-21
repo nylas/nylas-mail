@@ -16,7 +16,6 @@ describe('DraftHelpers', function describeBlock() {
       const draft = new Message({
         clientId: "local-123",
         threadId: "thread-123",
-        replyToMessageId: "message-123",
         uploads: ['stub'],
       });
       const session = {

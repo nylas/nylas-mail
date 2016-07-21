@@ -114,7 +114,7 @@ export function prepareDraftForSyncback(session) {
   return session.ensureCorrectAccount({noSyncback: true})
   .then(() => applyExtensionTransformsToDraft(session.draft()))
   .then((transformed) => {
-    if (!shouldAppendQuotedText(transformed)) {
+    if (!transformed.replyToMessageId || !shouldAppendQuotedText(transformed)) {
       return Promise.resolve(transformed)
     }
     return appendQuotedTextToDraft(transformed)

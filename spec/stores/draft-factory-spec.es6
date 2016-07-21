@@ -129,14 +129,10 @@ describe('DraftFactory', function draftFactory() {
 
   describe("creating drafts", () => {
     describe("createDraftForReply", () => {
-      it("should include quoted text", () => {
+      it("should be empty string", () => {
         waitsForPromise(() => {
           return DraftFactory.createDraftForReply({thread: fakeThread, message: fakeMessage1, type: 'reply'}).then((draft) => {
-            expect(draft.body.indexOf('blockquote') > 0).toBe(true);
-            expect(draft.body.indexOf(fakeMessage1.body) > 0).toBe(true);
-            expect(draft.body.indexOf('gmail_quote') > 0).toBe(true);
-
-            expect(draft.body.search(/On .+, at .+, Customer &lt;customer@example.com&gt; wrote/) > 0).toBe(true);
+            expect(draft.body).toEqual("");
           });
         });
       });
@@ -231,14 +227,6 @@ describe('DraftFactory', function draftFactory() {
         waitsForPromise(() => {
           return DraftFactory.createDraftForReply({thread: fakeThread, message: fakeMessage1, type: 'reply'}).then((draft) => {
             expect(draft.subject).toEqual("Re: This is my DRAFT");
-          });
-        });
-      });
-
-      it("should only include the sender's name if it was available", () => {
-        waitsForPromise(() => {
-          return DraftFactory.createDraftForReply({thread: fakeThread, message: fakeMessage2, type: 'reply'}).then((draft) => {
-            expect(draft.body.search(/On .+, at .+, ben@nylas.com wrote:/) > 0).toBe(true);
           });
         });
       });
