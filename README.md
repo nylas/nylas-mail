@@ -68,8 +68,8 @@ Great starting points for creating your own plugins!
 - [Website Launcher](https://github.com/adriangrantdotorg/nylas-n1-background-webpage)—Opens a URL in separate window
 - In Development: [Cypher](https://github.com/mbilker/cypher) (PGP Encryption)
 
-# Running Locally
-By default, the N1 source points to our hosted version of the Nylas Sync Engine—however, the Sync Engine is open source, and you can [run it yourself](https://github.com/nylas/N1/blob/master/CONFIGURATION.md).
+# Configuration
+You can configure N1 in a few ways—for instance, pointing it to your self-hosted instance of the sync engine or changing the interface zoom level. [Learn more about how.](https://github.com/nylas/N1/blob/master/CONFIGURATION.md).
 
 # Feature Requests / Plugin Ideas
 
