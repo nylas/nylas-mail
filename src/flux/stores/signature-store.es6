@@ -45,8 +45,8 @@ class SignatureStore extends NylasStore {
     return this.defaultSignatures
   }
 
-  signatureForAccountId = (accountId) => {
-    return this.signatures[this.defaultSignatures[accountId]]
+  signatureForEmail = (email) => {
+    return this.signatures[this.defaultSignatures[email]]
   }
 
   _saveSignatures() {
@@ -102,11 +102,11 @@ class SignatureStore extends NylasStore {
     this._saveSignatures()
   }
 
-  _onToggleAccount = (accountId) => {
-    if (this.defaultSignatures[accountId] === this.selectedSignatureId) {
-      this.defaultSignatures[accountId] = null
+  _onToggleAccount = (email) => {
+    if (this.defaultSignatures[email] === this.selectedSignatureId) {
+      this.defaultSignatures[email] = null
     } else {
-      this.defaultSignatures[accountId] = this.selectedSignatureId
+      this.defaultSignatures[email] = this.selectedSignatureId
     }
 
     this.trigger()
