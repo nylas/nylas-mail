@@ -2,6 +2,15 @@ import _ from 'underscore';
 import Message from '../models/message';
 import MessageStore from './message-store';
 import DatabaseStore from './database-store';
+import SanitizeTransformer from '../../services/sanitize-transformer';
+
+const SanitizeSettings = Object.assign({}, SanitizeTransformer.Preset.UnsafeOnly);
+
+// We do not want to filter any URL schemes except file://. (We may add file URLs,
+// but we do it ourselves after sanitizing the body.)
+SanitizeSettings.allowedSchemes = {
+  indexOf: (scheme) => (scheme !== 'file'),
+};
 
 class MessageBodyProcessor {
   constructor() {
@@ -20,9 +29,10 @@ class MessageBodyProcessor {
     // both data structures so we can access it in O(1) and also delete in O(1)
     this._recentlyProcessedA = [];
     this._recentlyProcessedD = {};
-    for (const {message, callback} of this._subscriptions) {
-      callback(this.retrieve(message));
-    }
+
+    this._subscriptions.forEach(({message, callback}) => {
+      this.retrieve(message).then(callback)
+    });
   }
 
   updateCacheForMessage = (changedMessage) => {
@@ -51,15 +61,16 @@ class MessageBodyProcessor {
     if (subscriptions.length > 0) {
       const updatedMessage = changedMessage.clone();
       updatedMessage.body = updatedMessage.body || subscriptions[0].message.body;
-      const output = this.retrieve(updatedMessage);
 
-      // only trigger if the output has really changed
-      if (output !== oldOutput) {
-        for (const subscription of subscriptions) {
-          subscription.callback(output);
-          subscription.message = updatedMessage;
+      this.retrieve(updatedMessage).then((output) => {
+        // only trigger if the output has really changed
+        if (output !== oldOutput) {
+          for (const subscription of subscriptions) {
+            subscription.callback(output);
+            subscription.message = updatedMessage;
+          }
         }
-      }
+      });
     }
   }
 
@@ -68,8 +79,11 @@ class MessageBodyProcessor {
   }
 
   subscribe(message, callback) {
-    _.defer(() => callback(this.retrieve(message)));
-    const sub = {message, callback}
+    // Extra defer to ensure that subscribe never calls it's callback synchronously,
+    // (In Node, callbacks should always be called after caller execution has finished)
+    _.defer(() => this.retrieve(message).then(callback));
+
+    const sub = {message, callback};
     this._subscriptions.push(sub);
     return () => {
       this._subscriptions.splice(this._subscriptions.indexOf(sub), 1);
@@ -79,11 +93,13 @@ class MessageBodyProcessor {
   retrieve(message) {
     const key = this._key(message);
     if (this._recentlyProcessedD[key]) {
-      return this._recentlyProcessedD[key].body;
+      return Promise.resolve(this._recentlyProcessedD[key].body);
     }
-    const body = this._process(message);
-    this._addToCache(key, body);
-    return body;
+
+    return this._process(message).then((body) => {
+      this._addToCache(key, body)
+      return body;
+    });
   }
 
   // Private Methods
@@ -95,31 +111,35 @@ class MessageBodyProcessor {
   }
 
   _process(message) {
-    let body = message.body;
-
-    if (!_.isString(body)) {
-      return "";
+    if (!_.isString(message.body)) {
+      return Promise.resolve("");
     }
 
-    // Give each extension the message object to process the body, but don't
-    // allow them to modify anything but the body for the time being.
-    for (const extension of MessageStore.extensions()) {
-      if (!extension.formatMessageBody) {
-        continue;
-      }
-      const previousBody = body;
-      try {
-        const virtual = message.clone();
-        virtual.body = body;
-        extension.formatMessageBody({message: virtual});
-        body = virtual.body;
-      } catch (err) {
-        NylasEnv.reportError(err);
-        body = previousBody;
-      }
-    }
+    // Sanitizing <script> tags, etc. isn't necessary because we use CORS rules
+    // to prevent their execution and sandbox content in the iFrame, but we still
+    // want to remove contenteditable attributes and other strange things.
+    return SanitizeTransformer.run(message.body, SanitizeSettings).then((sanitized) => {
+      let body = sanitized;
+      for (const extension of MessageStore.extensions()) {
+        if (!extension.formatMessageBody) {
+          continue;
+        }
 
-    return body;
+        // Give each extension the message object to process the body, but don't
+        // allow them to modify anything but the body for the time being.
+        const previousBody = body;
+        try {
+          const virtual = message.clone();
+          virtual.body = body;
+          extension.formatMessageBody({message: virtual});
+          body = virtual.body;
+        } catch (err) {
+          NylasEnv.reportError(err);
+          body = previousBody;
+        }
+      }
+      return body;
+    });
   }
 
   _addToCache(key, body) {
