@@ -1,8 +1,10 @@
 import _ from 'underscore'
 import Actions from '../actions'
 import DatabaseStore from './database-store'
+import Message from '../models/message'
 import * as ExtensionRegistry from '../../extension-registry'
 import SyncbackDraftFilesTask from '../tasks/syncback-draft-files-task'
+import DOMUtils from '../../dom-utils'
 import QuotedHTMLTransformer from '../../services/quoted-html-transformer'
 
 
@@ -32,6 +34,10 @@ export function isForwardedMessage({body, subject} = {}) {
   return bodyForwarded || bodyFwd || subjectFwd
 }
 
+export function shouldAppendQuotedText({body = ''} = {}) {
+  return !body.includes('<div id="n1-quoted-text-marker">')
+}
+
 export function messageMentionsAttachment({body} = {}) {
   if (body == null) { throw new Error('DraftHelpers::messageMentionsAttachment - Message has no body loaded') }
   let cleaned = QuotedHTMLTransformer.removeQuotedHTML(body.toLowerCase().trim());
@@ -46,6 +52,25 @@ export function queueDraftFileUploads(draft) {
   if (draft.files.length > 0 || draft.uploads.length > 0) {
     Actions.queueTask(new SyncbackDraftFilesTask(draft.clientId))
   }
+}
+
+export function appendQuotedTextToDraft(draft) {
+  return DatabaseStore.find(Message, draft.replyToMessageId)
+  .include(Message.attributes.body)
+  .then((prevMessage) => {
+    const quotedText = `
+      <div class="gmail_quote">
+        <br>
+        ${DOMUtils.escapeHTMLCharacters(prevMessage.replyAttributionLine())}
+        <br>
+        <blockquote class="gmail_quote"
+          style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
+          ${prevMessage.body}
+        </blockquote>
+      </div>`
+    draft.body = draft.body + quotedText
+    return Promise.resolve(draft)
+  })
 }
 
 export function applyExtensionTransformsToDraft(draft) {
@@ -88,9 +113,15 @@ export function applyExtensionTransformsToDraft(draft) {
 export function prepareDraftForSyncback(session) {
   return session.ensureCorrectAccount({noSyncback: true})
   .then(() => applyExtensionTransformsToDraft(session.draft()))
-  .then((transformed) => (
-    DatabaseStore.inTransaction((t) => t.persistModel(transformed))
-    .then(() => Promise.resolve(queueDraftFileUploads(transformed)))
-    .thenReturn(transformed)
+  .then((transformed) => {
+    if (!shouldAppendQuotedText(transformed)) {
+      return Promise.resolve(transformed)
+    }
+    return appendQuotedTextToDraft(transformed)
+  })
+  .then((draft) => (
+    DatabaseStore.inTransaction((t) => t.persistModel(draft))
+    .then(() => Promise.resolve(queueDraftFileUploads(draft)))
+    .thenReturn(draft)
   ))
 }

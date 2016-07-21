@@ -109,19 +109,9 @@ class DraftFactory
         cc: cc,
         from: [@_fromContactForReply(message)],
         threadId: thread.id,
-        accountId: message.accountId
+        accountId: message.accountId,
         replyToMessageId: message.id,
-        body: """
-          <br><br>
-          <div class="gmail_quote">
-            <br>
-            #{DOMUtils.escapeHTMLCharacters(message.replyAttributionLine())}
-            <br>
-            <blockquote class="gmail_quote"
-              style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
-              #{body}
-            </blockquote>
-          </div>"""
+        body: ""
       )
 
   createDraftForForward: ({thread, message}) =>
@@ -141,7 +131,9 @@ class DraftFactory
         threadId: thread.id,
         accountId: message.accountId,
         body: """
-          <br><br><div class="gmail_quote">
+          <br><br>
+          <div class="gmail_quote">
+            <br>
             ---------- Forwarded message ---------
             <br><br>
             #{fields.join('<br>')}
