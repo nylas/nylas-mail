@@ -85,12 +85,10 @@ class NylasAPI
       @AppID = 'c5dis00do2vki9ib6hngrjs18'
       @APIRoot = 'https://api-staging-experimental.nylas.com'
       @pluginsSupported = true
-    else if env in ['local']
-      @AppID = NylasEnv.config.get('syncEngine.AppID') or 'n/a'
-      @APIRoot = 'http://localhost:5555'
-    else if env in ['custom']
+    else if env in ['custom', 'local']
       @AppID = NylasEnv.config.get('syncEngine.AppID') or 'n/a'
       @APIRoot = NylasEnv.config.get('syncEngine.APIRoot') or 'http://localhost:5555'
+      @pluginsSupported = false
 
     current = {@AppID, @APIRoot, @APITokens}
 
