@@ -90,15 +90,18 @@ class NylasLongConnection
     return unless @_config.ready()
     return unless @_status in [NylasLongConnection.Status.None, NylasLongConnection.Status.Closed]
 
-    token = @_api.accessTokenForAccountId(@_accountId)
-    return if not token?
     return if @_req
+
+    accountToken = @_api.accessTokenForAccountId(@_accountId)
+    identityToken = IdentityStore.identity()?.token
+    return if not accountToken?
+
 
     @withCursor (cursor) =>
       return if @status is NylasLongConnection.Status.Ended
 
       options = url.parse("#{@_api.APIRoot}/delta/streaming?cursor=#{cursor}&exclude_folders=false&exclude_metadata=false&exclude_account=false")
-      options.auth = "#{token}:#{IdentityStore.identity().token}"
+      options.auth = "#{accountToken}:#{identityToken}"
 
       if @_api.APIRoot.indexOf('https') is -1
         lib = require 'http'

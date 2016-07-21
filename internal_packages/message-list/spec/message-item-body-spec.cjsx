@@ -149,7 +149,7 @@ describe "MessageItem", ->
 
       it "should replace cid://<file.contentId> with the FileDownloadStore's path for the file", ->
         body = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub).props.content
-        expect(body.indexOf('alt="A" src="/fake/path-inline.png"')).toEqual(@message.body.indexOf('alt="A"'))
+        expect(body.indexOf('alt="A" src="file:///fake/path-inline.png"')).toEqual(@message.body.indexOf('alt="A"'))
 
       it "should not replace cid://<file.contentId> with the FileDownloadStore's path if the download is in progress", ->
         body = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub).props.content
