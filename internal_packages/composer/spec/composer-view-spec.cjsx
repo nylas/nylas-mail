@@ -124,7 +124,7 @@ describe "ComposerView", ->
       body = @session.changes.add.calls[0].args[0].body
       expect(body).toBe """<head></head><body>Hello <strong>world</strong>#{@replyBody}</body>"""
 
-  describe "when sending a forwarded message message", ->
+  describe "when sending a forwarded message", ->
     beforeEach ->
       @fwdBody = """<br><br><blockquote class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
       ---------- Forwarded message ---------
