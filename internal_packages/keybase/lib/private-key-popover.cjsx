@@ -37,7 +37,7 @@ class PrivateKeyPopover extends React.Component
       {if (@state.import or @state.paste) and !@state.validKeyBody and @state.keyBody != "" then errorBar}
       {if @state.import or @state.paste then keyArea}
       <div className="picker-controls">
-        <div style={{width: 80}}><button className="btn modal-cancel-button" onClick={() => Actions.closePopover()}>Cancel</button></div>
+        <div style={{width: 80}}><button className="btn modal-cancel-button" onClick={=> Actions.closePopover()}>Cancel</button></div>
         <button className="btn modal-prefs-button" onClick={@_onClickAdvanced}>Advanced</button>
         <div style={{width: 80}}>{saveButton}</div>
       </div>
