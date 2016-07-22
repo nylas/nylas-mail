@@ -12,7 +12,7 @@
 
 # Download N1
 
-You can download compiled versions of N1 for Windows, Mac OS X, and Linux (.deb) from [https://nylas.com/N1](https://nylas.com/N1). You can also build and run N1 on Fedora. A Fedora distribution is coming soon! On Arch Linux, you can install **[n1](https://aur.archlinux.org/packages/n1/)** or **[n1-git](https://aur.archlinux.org/packages/n1-git/)** from the aur.
+You can download compiled versions of N1 for Windows, Mac OS X, and Linux (.deb) from [https://nylas.com/N1](https://nylas.com/N1). You can also build and run N1 on Fedora. On Arch Linux, you can install **[n1](https://aur.archlinux.org/packages/n1/)** or **[n1-git](https://aur.archlinux.org/packages/n1-git/)** from the aur.
 
 # Build A Plugin
 
@@ -69,7 +69,7 @@ Great starting points for creating your own plugins!
 - In Development: [Cypher](https://github.com/mbilker/cypher) (PGP Encryption)
 
 # Configuration
-You can configure N1 in a few ways—for instance, pointing it to your self-hosted instance of the sync engine or changing the interface zoom level. [Learn more about how.](https://github.com/nylas/N1/blob/master/CONFIGURATION.md).
+You can configure N1 in a few ways—for instance, pointing it to your self-hosted instance of the sync engine or changing the interface zoom level. [Learn more about how.](https://github.com/nylas/N1/blob/master/CONFIGURATION.md)
 
 # Feature Requests / Plugin Ideas
 
