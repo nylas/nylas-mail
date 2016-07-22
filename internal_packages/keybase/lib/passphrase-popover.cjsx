@@ -15,7 +15,7 @@ class PassphrasePopover extends React.Component
       mounted: true
     }
 
-  componentDidMount: -> 
+  componentDidMount: ->
     @_mounted = true
 
   componentWillUnmount: ->
@@ -42,7 +42,7 @@ class PassphrasePopover extends React.Component
     if event.keyCode == 13
       @_validatePassphrase()
 
-  _validatePassphrase: () =>
+  _validatePassphrase: =>
     passphrase = @state.passphrase
     for emailIndex of @props.addresses
       email = @props.addresses[emailIndex]

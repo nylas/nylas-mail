@@ -140,20 +140,26 @@ describe "MessageItem", ->
           <img alt=\"B\" src=\"cid:#{file_inline_downloading.contentId}\"/>
           <img alt=\"C\" src=\"cid:#{file_inline_not_downloaded.contentId}\"/>
           <img src=\"cid:missing-attachment\"/>
+          Hello world!
           """
         @createComponent()
+        waitsFor =>
+          ReactTestUtils.scryRenderedComponentsWithType(@component, EmailFrameStub).length
 
       it "should never leave src=cid:// in the message body", ->
-        body = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub).props.content
-        expect(body.indexOf('cid')).toEqual(-1)
+        runs =>
+          body = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub).props.content
+          expect(body.indexOf('cid')).toEqual(-1)
 
       it "should replace cid://<file.contentId> with the FileDownloadStore's path for the file", ->
-        body = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub).props.content
-        expect(body.indexOf('alt="A" src="file:///fake/path-inline.png"')).toEqual(@message.body.indexOf('alt="A"'))
+        runs =>
+          body = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub).props.content
+          expect(body.indexOf('alt="A" src="file:///fake/path-inline.png"')).toEqual(@message.body.indexOf('alt="A"'))
 
       it "should not replace cid://<file.contentId> with the FileDownloadStore's path if the download is in progress", ->
-        body = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub).props.content
-        expect(body.indexOf('/fake/path-downloading.png')).toEqual(-1)
+        runs =>
+          body = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub).props.content
+          expect(body.indexOf('/fake/path-downloading.png')).toEqual(-1)
 
   describe "showQuotedText", ->
     it "should be initialized to false", ->
@@ -222,6 +228,8 @@ describe "MessageItem", ->
           """
         @createComponent()
         @component.setState(showQuotedText: true)
+        waitsFor =>
+          ReactTestUtils.scryRenderedComponentsWithType(@component, EmailFrameStub).length
 
       describe 'quoted text control toggle button', ->
         beforeEach ->
@@ -231,5 +239,6 @@ describe "MessageItem", ->
           expect(@toggle).toBeDefined()
 
       it "should pass the value into the EmailFrame", ->
-        frame = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub)
-        expect(frame.props.showQuotedText).toBe(true)
+        runs =>
+          frame = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub)
+          expect(frame.props.showQuotedText).toBe(true)

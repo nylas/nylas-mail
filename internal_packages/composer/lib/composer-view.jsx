@@ -1,6 +1,6 @@
-import _ from 'underscore';
-import React from 'react';
-import ReactDOM from 'react-dom';
+import _ from 'underscore'
+import React from 'react'
+import ReactDOM from 'react-dom'
 import {remote} from 'electron'
 
 import {
@@ -9,8 +9,7 @@ import {
   DraftStore,
   DraftHelpers,
   FileDownloadStore,
-  QuotedHTMLTransformer,
-} from 'nylas-exports';
+} from 'nylas-exports'
 
 import {
   DropZone,
@@ -21,17 +20,17 @@ import {
   KeyCommandsRegion,
   OverlaidComponents,
   InjectedComponentSet,
-} from 'nylas-component-kit';
+} from 'nylas-component-kit'
 
-import FileUpload from './file-upload';
-import ImageFileUpload from './image-file-upload';
+import FileUpload from './file-upload'
+import ImageFileUpload from './image-file-upload'
 
-import ComposerEditor from './composer-editor';
-import ComposerHeader from './composer-header';
-import SendActionButton from './send-action-button';
+import ComposerEditor from './composer-editor'
+import ComposerHeader from './composer-header'
+import SendActionButton from './send-action-button'
 import ActionBarPlugins from './action-bar-plugins'
 
-import Fields from './fields';
+import Fields from './fields'
 
 // The ComposerView is a unique React component because it (currently) is a
 // singleton. Normally, the React way to do things would be to re-render the
@@ -55,6 +54,7 @@ export default class ComposerView extends React.Component {
     super(props)
     this.state = {
       showQuotedText: DraftHelpers.isForwardedMessage(props.draft),
+      showQuotedTextControl: DraftHelpers.shouldAppendQuotedText(props.draft),
     }
   }
 
@@ -69,9 +69,11 @@ export default class ComposerView extends React.Component {
       this._teardownForProps();
       this._setupForProps(nextProps);
     }
-    if (DraftHelpers.isForwardedMessage(this.props.draft) !== DraftHelpers.isForwardedMessage(nextProps.draft)) {
+    if (DraftHelpers.isForwardedMessage(this.props.draft) !== DraftHelpers.isForwardedMessage(nextProps.draft) ||
+      DraftHelpers.shouldAppendQuotedText(this.props.draft) !== DraftHelpers.shouldAppendQuotedText(nextProps.draft)) {
       this.setState({
         showQuotedText: DraftHelpers.isForwardedMessage(nextProps.draft),
+        showQuotedTextControl: DraftHelpers.shouldAppendQuotedText(nextProps.draft),
       });
     }
   }
@@ -118,6 +120,7 @@ export default class ComposerView extends React.Component {
   _setupForProps({draft, session}) {
     this.setState({
       showQuotedText: DraftHelpers.isForwardedMessage(draft),
+      showQuotedTextControl: DraftHelpers.shouldAppendQuotedText(draft),
     });
 
     // TODO: This is a dirty hack to save selection state into the undo/redo
@@ -203,7 +206,7 @@ export default class ComposerView extends React.Component {
 
   _renderEditor() {
     const exposedProps = {
-      body: this._removeQuotedText(this.props.draft.body),
+      body: this.props.draft.body,
       draftClientId: this.props.draft.clientId,
       parentActions: {
         getComposerBoundingRect: this._getComposerBoundingRect,
@@ -239,20 +242,10 @@ export default class ComposerView extends React.Component {
     return ReactDOM.findDOMNode(this.refs.composerWrap).getBoundingClientRect()
   }
 
-  _removeQuotedText = (html) => {
-    const {showQuotedText} = this.state;
-    return showQuotedText ? html : QuotedHTMLTransformer.removeQuotedHTML(html);
-  }
-
-  _showQuotedText = (html) => {
-    const {showQuotedText} = this.state;
-    return showQuotedText ? html : QuotedHTMLTransformer.appendQuotedHTML(html, this.props.draft.body);
-  }
-
   _renderQuotedTextControl() {
-    if (QuotedHTMLTransformer.hasQuotedHTML(this.props.draft.body)) {
+    if (this.state.showQuotedTextControl) {
       return (
-        <a className="quoted-text-control" onClick={this._onToggleQuotedText}>
+        <a className="quoted-text-control" onClick={this._onExpandQuotedText}>
           <span className="dots">&bull;&bull;&bull;</span>
           <span className="remove-quoted-text" onClick={this._onRemoveQuotedText}>
             <RetinaImg
@@ -267,17 +260,30 @@ export default class ComposerView extends React.Component {
     return false;
   }
 
-  _onToggleQuotedText = () => {
-    this.setState({showQuotedText: !this.state.showQuotedText});
+  _onExpandQuotedText = () => {
+    this.setState({
+      showQuotedText: true,
+      showQuotedTextControl: false,
+    }, () => {
+      DraftHelpers.appendQuotedTextToDraft(this.props.draft)
+      .then((draftWithQuotedText) => {
+        this.props.session.changes.add({
+          body: `${draftWithQuotedText.body}<div id="n1-quoted-text-marker"></div>`,
+        })
+      })
+    })
   }
 
   _onRemoveQuotedText = (event) => {
     event.stopPropagation()
     const {session, draft} = this.props
     session.changes.add({
-      body: QuotedHTMLTransformer.removeQuotedHTML(draft.body),
+      body: `${draft.body}<div id="n1-quoted-text-marker"></div>`,
     })
-    this.setState({showQuotedText: false})
+    this.setState({
+      showQuotedText: false,
+      showQuotedTextControl: false,
+    })
   }
 
   _renderFooterRegions() {
@@ -508,7 +514,7 @@ export default class ComposerView extends React.Component {
   }
 
   _onBodyChanged = (event) => {
-    this.props.session.changes.add({body: this._showQuotedText(event.target.value)});
+    this.props.session.changes.add({body: event.target.value});
     return;
   }
 

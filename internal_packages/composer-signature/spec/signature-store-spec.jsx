@@ -15,9 +15,9 @@ let SIGNATURES = {
 }
 
 const DEFAULTS = {
-  11: '2',
-  22: '2',
-  33: null,
+  'one@nylas.com': '2',
+  'two@nylas.com': '2',
+  'three@nylas.com': null,
 }
 
 describe('SignatureStore', function signatureStore() {
@@ -27,7 +27,7 @@ describe('SignatureStore', function signatureStore() {
     spyOn(SignatureStore, '_saveSignatures').andCallFake(() => {
       NylasEnv.config.set(`nylas.signatures`, SignatureStore.signatures)
     })
-    spyOn(SignatureStore, 'signatureForAccountId').andCallFake((accountId) => SIGNATURES[DEFAULTS[accountId]])
+    spyOn(SignatureStore, 'signatureForEmail').andCallFake((email) => SIGNATURES[DEFAULTS[email]])
     spyOn(SignatureStore, 'selectedSignature').andCallFake(() => SIGNATURES['1'])
     SignatureStore.activate()
   })
@@ -35,10 +35,10 @@ describe('SignatureStore', function signatureStore() {
 
   describe('signatureForAccountId', () => {
     it('should return the default signature for that account', () => {
-      const titleForAccount11 = SignatureStore.signatureForAccountId(11).title
-      expect(titleForAccount11).toEqual(SIGNATURES['2'].title)
-      const account22Def = SignatureStore.signatureForAccountId(33)
-      expect(account22Def).toEqual(undefined)
+      const titleForAccount1 = SignatureStore.signatureForEmail('one@nylas.com').title
+      expect(titleForAccount1).toEqual(SIGNATURES['2'].title)
+      const account2Def = SignatureStore.signatureForEmail('three@nylas.com')
+      expect(account2Def).toEqual(undefined)
     })
   })
 

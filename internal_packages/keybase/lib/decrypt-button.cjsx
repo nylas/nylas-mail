@@ -43,7 +43,7 @@ class DecryptMessageButton extends React.Component
       Actions.openPopover(
         <PrivateKeyPopover
           addresses={_.pluck(@props.message.to, "email")}
-          callback={() => @_openPassphrasePopover(popoverTarget, @decryptPopoverDone)}/>,
+          callback={=> @_openPassphrasePopover(popoverTarget, @decryptPopoverDone)}/>,
         {originRect: popoverTarget, direction: 'down'}
       )
     else
@@ -59,7 +59,7 @@ class DecryptMessageButton extends React.Component
       Actions.openPopover(
         <PrivateKeyPopover
           addresses={_.pluck(@props.message.to, "email")}
-          callback={() => @_openPassphrasePopover(popoverTarget, @decryptAttachmentsPopoverDone)}/>,
+          callback={=> @_openPassphrasePopover(popoverTarget, @decryptAttachmentsPopoverDone)}/>,
         {originRect: popoverTarget, direction: 'down'}
       )
     else
@@ -81,9 +81,9 @@ class DecryptMessageButton extends React.Component
 
   _openPassphrasePopover: (target, callback) =>
     Actions.openPopover(
-        <PassphrasePopover addresses={_.pluck(@props.message.to, "email")} onPopoverDone={callback} />,
-        {originRect: target, direction: 'down'}
-      )
+      <PassphrasePopover addresses={_.pluck(@props.message.to, "email")} onPopoverDone={callback} />,
+      {originRect: target, direction: 'down'}
+    )
 
   _noPrivateKeys: =>
     numKeys = 0

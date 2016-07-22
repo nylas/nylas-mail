@@ -1,6 +1,7 @@
 import {
   APIError,
   Actions,
+  AccountStore,
   DatabaseStore,
   DatabaseTransaction,
   Message,
@@ -535,6 +536,97 @@ describe('SendDraftTask', function sendDraftTask() {
           expect(model.draft).toBe(false);
         }));
       });
+    });
+  });
+
+  describe("usingMultiSend", () => {
+    beforeEach(() => {
+      this.task = new SendDraftTask('client-id');
+      this.task.allowMultiSend = true;
+      this.task.draft = new Message({
+        version: 1,
+        clientId: 'client-id',
+        serverId: 'server-123',
+        accountId: TEST_ACCOUNT_ID,
+        from: [new Contact({email: TEST_ACCOUNT_EMAIL})],
+        subject: 'New Draft',
+        draft: true,
+        body: 'hello world',
+        to: {
+          name: 'Dummy',
+          email: 'dummythis.nylas.com',
+        },
+        uploads: [],
+      });
+      this.task.draft.applyPluginMetadata('open-tracking', true);
+      this.task.draft.applyPluginMetadata('link-tracking', true);
+
+      this.applySpies = (customValues = {}) => {
+        let value = {provider: customValues["AccountStore.accountForId"] || "gmail"}
+        spyOn(AccountStore, "accountForId").andReturn(value)
+
+        value = customValues["NylasEnv.packages.pluginIdFor"] || (name => name)
+        spyOn(NylasEnv.packages, "pluginIdFor").andCallFake(value);
+
+        value = {length: customValues["draft.participants"] || 5}
+        spyOn(this.task.draft, "participants").andReturn(value);
+      }
+    });
+
+    it("should return false if the provider is eas", () => {
+      this.applySpies({"AccountStore.accountForId": "eas"})
+      expect(this.task.usingMultiSend()).toBe(false);
+    });
+
+    it("should return false if allowMultiSend is false", () => {
+      this.applySpies();
+      this.task.allowMultiSend = false;
+      expect(this.task.usingMultiSend()).toBe(false);
+    });
+
+    it("should return false if the open-tracking id is null", () => {
+      const fake = (name) => {
+        return name === "open-tracking" ? null : name;
+      };
+      this.applySpies({"NylasEnv.packages.pluginIdFor": fake});
+      expect(this.task.usingMultiSend()).toBe(false);
+    });
+
+    it("should return false if the link-tracking id is null", () => {
+      const fake = (name) => {
+        return name === "link-tracking" ? null : name;
+      };
+      this.applySpies({"NylasEnv.packages.pluginIdFor": fake});
+      expect(this.task.usingMultiSend()).toBe(false);
+    });
+
+    it("should return false if neither open-tracking nor link-tracking is on", () => {
+      this.applySpies();
+      this.task.draft.applyPluginMetadata('open-tracking', false);
+      this.task.draft.applyPluginMetadata('link-tracking', false);
+      expect(this.task.usingMultiSend()).toBe(false);
+    });
+
+    it("should return true if only open-tracking is on", () => {
+      this.applySpies();
+      this.task.draft.applyPluginMetadata('link-tracking', false);
+      expect(this.task.usingMultiSend()).toBe(true);
+    });
+
+    it("should return true if only link-tracking is on", () => {
+      this.applySpies();
+      this.task.draft.applyPluginMetadata('open-tracking', false);
+      expect(this.task.usingMultiSend()).toBe(true);
+    });
+
+    it("should return false if there are too many participants", () => {
+      this.applySpies({"draft.participants": 15});
+      expect(this.task.usingMultiSend()).toBe(false);
+    });
+
+    it("should return true otherwise", () => {
+      this.applySpies();
+      expect(this.task.usingMultiSend()).toBe(true);
     });
   });
 });

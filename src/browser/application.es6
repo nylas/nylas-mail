@@ -193,11 +193,8 @@ export default class Application extends EventEmitter {
     const accounts = this.config.get('nylas.accounts');
     const hasAccount = accounts && accounts.length > 0;
     const hasN1ID = this.config.get('nylas.identity.id');
-    const env = this.config.get('env');
-    const isLocalOrCustom = (env === 'local' || env === 'custom');
 
-
-    if (isLocalOrCustom || (hasAccount && hasN1ID)) {
+    if (hasAccount && hasN1ID) {
       this.windowManager.ensureWindow(WindowManager.MAIN_WINDOW);
       this.windowManager.ensureWindow(WindowManager.WORK_WINDOW);
     } else {
