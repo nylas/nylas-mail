@@ -215,7 +215,7 @@ const DateUtils = {
       format = DateUtils.getTimeFormat(null)
     } else if (diff < 2 && !isSameDay) {
       // Month and day with time if up to 2 days ago
-      format = "MMM D, " + DateUtils.getTimeFormat(null)
+      format = `MMM D, ${DateUtils.getTimeFormat(null)}`
     } else if (diff >= 2 && diff < 365) {
       // Month and day up to 1 year old
       format = "MMM D"
