@@ -2,7 +2,6 @@ import {
   Actions,
   Message,
   DraftHelpers,
-  DatabaseStore,
   SyncbackDraftFilesTask,
 } from 'nylas-exports';
 
