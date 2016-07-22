@@ -19,7 +19,6 @@ import DraftFactory from '../../src/flux/stores/draft-factory';
 let msgFromMe = null;
 let fakeThread = null;
 let fakeMessage1 = null;
-let fakeMessage2 = null;
 let msgWithReplyTo = null;
 let fakeMessageWithFiles = null;
 let msgWithReplyToDuplicates = null;
@@ -50,17 +49,6 @@ describe('DraftFactory', function draftFactory() {
       threadId: 'fake-thread-id',
       body: 'Fake Message 1',
       subject: 'Fake Subject',
-      date: new Date(1415814587),
-    });
-
-    fakeMessage2 = new Message({
-      id: 'fake-message-2',
-      accountId: account.id,
-      to: [new Contact({email: 'customer@example.com'})],
-      from: [new Contact({email: 'ben@nylas.com'})],
-      threadId: 'fake-thread-id',
-      body: 'Fake Message 2',
-      subject: 'Re: Fake Subject',
       date: new Date(1415814587),
     });
 
