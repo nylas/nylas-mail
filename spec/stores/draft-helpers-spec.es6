@@ -34,7 +34,7 @@ describe('DraftHelpers', function describeBlock() {
     });
   });
 
-  fdescribe('shouldAppendQuotedText', () => {
+  describe('shouldAppendQuotedText', () => {
     it('returns true if message is reply and has no marker', () => {
       const draft = {
         replyToMessageId: 1,
