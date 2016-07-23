@@ -74,7 +74,7 @@ class EditorAPI
 
   insertCustomComponent: (componentKey, props = {}) ->
     OverlaidComponents ?= require('../overlaid-components/overlaid-components').default
-    {anchorId, anchorTag} = OverlaidComponents.buildAnchorTag(componentKey, props)
+    {anchorId, anchorTag} = OverlaidComponents.buildAnchorTag(componentKey, props, props.anchorId)
     @insertHTML(anchorTag)
     return anchorId
 

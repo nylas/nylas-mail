@@ -31,8 +31,8 @@ export default class AccountChoosePage extends React.Component {
   }
 
   render() {
-    if (NylasEnv.config.get('env', 'custom') ||
-      NylasEnv.config.get('env', 'local')) {
+    if (NylasEnv.config.get('env') === 'custom' ||
+      NylasEnv.config.get('env') === 'local') {
       return (<SelfHostingConfigPage addAccount />)
     }
 

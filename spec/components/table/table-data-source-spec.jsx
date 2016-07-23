@@ -69,14 +69,14 @@ describe('TableDataSource', function describeBlock() {
     });
   });
 
-  describe('removeColumn', () => {
+  describe('removeLastColumn', () => {
     it('removes last column from the data source\'s columns', () => {
-      const res = testDataSource.removeColumn()
+      const res = testDataSource.removeLastColumn()
       expect(res.columns()).toEqual(['col1', 'col2'])
     });
 
     it('removes last column from every row', () => {
-      const res = testDataSource.removeColumn()
+      const res = testDataSource.removeLastColumn()
       expect(res.rows()).toEqual([
         [1, 2],
         [4, 5],
