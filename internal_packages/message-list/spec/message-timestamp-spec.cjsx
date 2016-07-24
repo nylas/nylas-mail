@@ -18,25 +18,3 @@ describe "MessageTimestamp", ->
     feb28 = moment([2015, 1, 28])
     mar01 = moment([2015, 2, 1])
     expect(mar01.diff(feb28, 'days')).toBe 1
-
-  it "displays the full time when in detailed timestamp mode", ->
-    expect(@item._formattedDate(msgTime(), null, true)).toBe "February 14, 2010 at 3:25 PM"
-
-  it "displays the time from messages shown today", ->
-    now = msgTime().add(2, 'hours')
-    expect(@item._formattedDate(msgTime(), now)).toBe "3:25 PM"
-
-  it "displays the time from messages yesterday with the relative time if it's less than 36 hours ago", ->
-    now = msgTime().add(21, 'hours')
-    expect(@item._formattedDate(msgTime(), now)).toBe "3:25 PM (21 hours ago)"
-
-    now = msgTime().add(30, 'hours')
-    expect(@item._formattedDate(msgTime(), now)).toBe "3:25 PM (a day ago)"
-
-  it "displays month, day for messages less than a year ago, but more than 24 hours ago", ->
-    now = msgTime().add(2, 'months')
-    expect(@item._formattedDate(msgTime(), now)).toBe "Feb 14"
-
-  it "displays month, day, and year for messages over a year ago", ->
-    now = msgTime().add(2, 'years')
-    expect(@item._formattedDate(msgTime(), now)).toBe "Feb 14, 2010"

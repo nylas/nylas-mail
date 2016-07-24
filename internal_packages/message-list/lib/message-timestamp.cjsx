@@ -26,7 +26,4 @@ class MessageTimestamp extends React.Component
   # Stubbable for testing. Returns a `moment`
   _today: -> moment.tz(Utils.timeZone)
 
-
-
-
 module.exports = MessageTimestamp
