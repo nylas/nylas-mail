@@ -627,3 +627,49 @@ body.platform-win32 {
   color: @component-active-color;
   img { background-color: @component-active-color; }
 }
+
+
+.alternative-auth {
+  p {
+    color: @text-color-heading;
+  }
+  .url-copy-target {
+    width: 50%;
+    border: 1px solid #c6c7c7;
+    margin: 10px;
+  }
+  .copy-to-clipboard {
+    display: inline-block;
+    cursor: pointer;
+    img {
+      background-color: @btn-icon-color;
+    }
+    img:active {
+      background-color: @black;
+    }
+  }
+
+  .hidden {
+    opacity: 0;
+  }
+
+  .visible {
+    opacity: 1;
+    margin-bottom: 0;
+  }
+
+  .fadein {
+    opacity: 1;
+    transition: opacity 2s linear;
+  }
+
+  .fadeout {
+    opacity: 0;
+    transition: opacity 1s linear;
+  }
+
+  input {
+    margin-top: 0;
+  }
+
+}
