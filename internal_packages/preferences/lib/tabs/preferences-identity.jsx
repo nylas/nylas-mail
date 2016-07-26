@@ -96,7 +96,7 @@ class PreferencesIdentity extends React.Component {
       if (daysUntilSubscriptionRequired > 1) {
         msg = `There are ${daysUntilSubscriptionRequired} days remaining in your 30-day trial of Nylas Pro.`;
       } else if (daysUntilSubscriptionRequired === 1) {
-        msg = `There is one day remaining in your trial of Nylas Pro. Upgrade today!`;
+        msg = `There is one day remaining in your trial of Nylas Pro. Subscribe today!`;
       }
       return (
         <div className="row payment-row">
