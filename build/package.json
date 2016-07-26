@@ -20,6 +20,7 @@
     "eslint-plugin-import": "1.7.0",
     "eslint-plugin-jsx-a11y": "1.0.4",
     "eslint-plugin-react": "5.0.1",
+    "eslint_d": "4.0.1",
     "fs-plus": "2.x",
     "github-releases": "~0.3.0",
     "grunt": "~0.4.1",
