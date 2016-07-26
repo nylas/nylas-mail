@@ -1,57 +1,94 @@
+/* eslint global-require: 0*/
 import React from 'react';
+import fs from 'fs';
 
 import ConfigSchemaItem from './config-schema-item';
 import WorkspaceSection from './workspace-section';
 import SendingSection from './sending-section';
 
-const PreferencesGeneral = (props) => {
-  return (
-    <div className="container-general" style={{maxWidth: 600}}>
 
-      <WorkspaceSection config={props.config} configSchema={props.configSchema} />
+class PreferencesGeneral extends React.Component {
+  static displayName = 'PreferencesGeneral'
 
-      <ConfigSchemaItem
-        configSchema={props.configSchema.properties.notifications}
-        keyName="Notifications"
-        keyPath="core.notifications"
-        config={props.config}
-      />
+  static propTypes = {
+    config: React.PropTypes.object,
+    configSchema: React.PropTypes.object,
+  };
 
-      <div className="platform-note platform-linux-only">
-        N1 desktop notifications on Linux require Zenity. You may need to install
-        it with your package manager (i.e., <code>sudo apt-get install zenity</code>).
+  _reboot = () => {
+    const app = require('electron').remote.app;
+    app.relaunch()
+    app.quit()
+  }
+
+
+  _resetAccountsAndSettings = () => {
+    const rimraf = require('rimraf')
+    rimraf(NylasEnv.getConfigDirPath(), {disableGlob: true}, (err) => {
+      if (err) console.log(err)
+      else this._reboot()
+    })
+  }
+
+  _resetEmailCache = () => {
+    const dataPath = `${NylasEnv.getConfigDirPath()}/edgehill.db`
+    fs.unlink(dataPath, (err) => {
+      if (err) console.log(err)
+      else this._reboot()
+    })
+  }
+
+
+  render() {
+    return (
+      <div className="container-general" style={{maxWidth: 600}}>
+
+        <WorkspaceSection config={this.props.config} configSchema={this.props.configSchema} />
+
+        <ConfigSchemaItem
+          configSchema={this.props.configSchema.properties.notifications}
+          keyName="Notifications"
+          keyPath="core.notifications"
+          config={this.props.config}
+        />
+
+        <div className="platform-note platform-linux-only">
+          N1 desktop notifications on Linux require Zenity. You may need to install
+          it with your package manager (i.e., <code>sudo apt-get install zenity</code>).
+        </div>
+
+        <ConfigSchemaItem
+          configSchema={this.props.configSchema.properties.reading}
+          keyName="Reading"
+          keyPath="core.reading"
+          config={this.props.config}
+        />
+
+        <ConfigSchemaItem
+          configSchema={this.props.configSchema.properties.composing}
+          keyName="Composing"
+          keyPath="core.composing"
+          config={this.props.config}
+        />
+
+        <SendingSection config={this.props.config} configSchema={this.props.configSchema} />
+
+        <ConfigSchemaItem
+          configSchema={this.props.configSchema.properties.attachments}
+          keyName="Attachments"
+          keyPath="core.attachments"
+          config={this.props.config}
+        />
+
+        <div className="local-data">
+          <h6>Local Data</h6>
+          <div className="btn" onClick={this._resetEmailCache}>Reset Email Cache</div>
+          <div className="btn" onClick={this._resetAccountsAndSettings}>Reset Accounts and Settings</div>
+        </div>
       </div>
-
-      <ConfigSchemaItem
-        configSchema={props.configSchema.properties.reading}
-        keyName="Reading"
-        keyPath="core.reading"
-        config={props.config}
-      />
-
-      <ConfigSchemaItem
-        configSchema={props.configSchema.properties.composing}
-        keyName="Composing"
-        keyPath="core.composing"
-        config={props.config}
-      />
-
-      <SendingSection config={props.config} configSchema={props.configSchema} />
-
-      <ConfigSchemaItem
-        configSchema={props.configSchema.properties.attachments}
-        keyName="Attachments"
-        keyPath="core.attachments"
-        config={props.config}
-      />
-
-    </div>
-  );
+    )
+  }
 }
 
-PreferencesGeneral.propTypes = {
-  config: React.PropTypes.object,
-  configSchema: React.PropTypes.object,
-};
 
 export default PreferencesGeneral;
