@@ -6,7 +6,6 @@ _ = require 'underscore'
  DatabaseStore,
  MailRulesProcessor} = require 'nylas-exports'
 
-NylasLongConnection = require './nylas-long-connection'
 NylasSyncWorker = require './nylas-sync-worker'
 
 class NylasSyncWorkerPool
