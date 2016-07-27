@@ -409,9 +409,7 @@ class Contenteditable extends React.Component
     menu.append(new MenuItem({ label: 'Cut', role: 'cut'}))
     menu.append(new MenuItem({ label: 'Copy', role: 'copy'}))
     menu.append(new MenuItem({ label: 'Paste', role: 'paste'}))
-    menu.append(new MenuItem({ label: 'Paste and Match Style', click: =>
-      NylasEnv.getCurrentWindow().webContents.pasteAndMatchStyle()
-    }))
+    menu.append(new MenuItem({ label: 'Paste and Match Style', role: 'pasteandmatchstyle'}))
     menu.popup(remote.getCurrentWindow())
 
 

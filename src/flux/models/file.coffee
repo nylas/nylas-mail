@@ -8,7 +8,7 @@ RegExpUtils = null
 ###
 Public: File model represents a File object served by the Nylas Platform API.
 For more information about Files on the Nylas Platform, read the
-[Files API Documentation](https://nylas.com/docs/api#files)
+[Files API Documentation](https://nylas.com/cloud/docs#files)
 
 ## Attributes
 

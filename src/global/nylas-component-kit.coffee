@@ -43,6 +43,7 @@ class NylasComponentKit
   @load "ButtonDropdown", 'button-dropdown'
   @load "Contenteditable", 'contenteditable/contenteditable'
   @load "MultiselectList", 'multiselect-list'
+  @load "MultiselectDropdown", "multiselect-dropdown"
   @load "KeyCommandsRegion", 'key-commands-region'
   @load "TabGroupRegion", 'tab-group-region'
   @load "InjectedComponent", 'injected-component'

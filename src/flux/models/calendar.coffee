@@ -6,7 +6,7 @@ _ = require 'underscore'
 Public: The Calendar model represents a Calendar object served by the
 Nylas Platform API.  For more information about Calendar on the Nylas
 Platform, read the [Calendar API
-Documentation](https://nylas.com/docs/api#calendar)
+Documentation](https://nylas.com/cloud/docs#calendars)
 
 ## Attributes
 

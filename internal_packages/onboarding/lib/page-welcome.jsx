@@ -19,6 +19,10 @@ export default class WelcomePage extends React.Component {
     OnboardingActions.moveToPage("tutorial");
   }
 
+  _onSelfHosting = () => {
+    OnboardingActions.moveToPage("self-hosting-setup")
+  }
+
   _renderContent(isFirstAccount) {
     if (isFirstAccount) {
       return (
@@ -32,15 +36,14 @@ export default class WelcomePage extends React.Component {
     return (
       <div>
         <p className="hero-text" style={{fontSize: 46, marginTop: 187}}>Welcome back!</p>
-        <p className="hero-text" style={{fontSize: 20, maxWidth: 550, margin: 'auto', lineHeight: 1.7, marginTop: 30}}>This month we're <a href="https://nylas.com/blog/nylas-pro/">launching Nylas Pro</a>. As an existing user, you'll receive a coupon for your first year free. Create a Nylas ID to continue using N1, and look out for a coupon email!</p>
+        <p className="hero-text" style={{fontSize: 20, maxWidth: 550, margin: 'auto', lineHeight: 1.7, marginTop: 30}}>Since you've been gone, we've <a href="https://nylas.com/blog/nylas-pro/">launched Nylas Pro</a>, which now requires a paid subscription. Create a Nylas ID to start your trial and continue using N1!</p>
         <RetinaImg className="icons" url="nylas://onboarding/assets/icons-bg@2x.png" mode={RetinaImg.Mode.ContentPreserve} />
       </div>
     )
   }
 
   render() {
-    const isFirstAccount = (AccountStore.accounts().length === 0);
-
+    const isFirstAccount = (AccountStore.accounts().length === 0)
     return (
       <div className={`page welcome is-first-account-${isFirstAccount}`}>
         <div className="steps-container">
@@ -48,6 +51,7 @@ export default class WelcomePage extends React.Component {
         </div>
         <div className="footer">
           <button key="next" className="btn btn-large btn-continue" onClick={this._onContinue}>Get Started</button>
+          <div className="btn-self-hosting" onClick={this._onSelfHosting}>Hosting your own sync engine?</div>
         </div>
       </div>
     );

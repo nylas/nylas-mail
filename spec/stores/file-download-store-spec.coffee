@@ -285,9 +285,28 @@ describe "FileDownloadStore", ->
         expect(shell.showItemInFolder).not.toHaveBeenCalled()
         @onEndEventCallback()
         advanceClock(1)
+
+      it "should show file in folder if download path differs from previous download path", ->
+        spyOn(FileDownloadStore, '_saveDownload').andCallFake =>
+          Promise.resolve(@testfile)
+        NylasEnv.savedState.lastDownloadDirectory = null
+        @userSelectedPath = "/Users/imaginary/.nylas/Another Random Folder/file.jpg"
+        FileDownloadStore._fetchAndSave(@testfile)
+        advanceClock(1)
         expect(shell.showItemInFolder).toHaveBeenCalledWith(@userSelectedPath)
 
-      it "should update the NylasEnv.savedState.lastDownloadDirectory", ->
+      it "should not show the file in the folder if the download path is the previous download path", ->
+        spyOn(FileDownloadStore, '_saveDownload').andCallFake =>
+          Promise.resolve(@testfile)
+        @userSelectedPath = "/Users/imaginary/.nylas/Another Random Folder/123.png"
+        NylasEnv.savedState.lastDownloadDirectory = "/Users/imaginary/.nylas/Another Random Folder"
+        FileDownloadStore._fetchAndSave(@testfile)
+        advanceClock(1)
+        expect(shell.showItemInFolder).not.toHaveBeenCalled()
+
+      it "should update the NylasEnv.savedState.lastDownloadDirectory if is has changed", ->
+        spyOn(FileDownloadStore, '_saveDownload').andCallFake =>
+          Promise.resolve(@testfile)
         NylasEnv.savedState.lastDownloadDirectory = null
         @userSelectedPath = "/Users/imaginary/.nylas/Another Random Folder/file.jpg"
         FileDownloadStore._fetchAndSave(@testfile)

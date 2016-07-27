@@ -681,6 +681,7 @@ class NylasEnvConstructor
   # hot windows), the packages won't be loaded until `populateHotWindow`
   # gets fired.
   startSecondaryWindow: ->
+    @extendRxObservables()
     document.getElementById("application-loading-cover")?.remove()
     @startWindow()
     @initializeBasicSheet()

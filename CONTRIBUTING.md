@@ -20,7 +20,7 @@ First, clone and build N1 from source:
     cd N1
     script/bootstrap
 
-Read the [getting started guides](http://nylas.com/N1/docs/).
+Read the [getting started guides](https://nylas.github.io/N1/getting-started/).
 
 See [Windows instructions here](https://github.com/nylas/N1/blob/master/docs/Windows.md)
 
@@ -41,6 +41,8 @@ This will run the full suite of automated unit tests. We use [Jasmine 1.3](http:
 
 It runs all tests inside of the `/spec` folder and all tests inside of
 `/internal_packages/**/spec`
+
+You may skip certain tests (temporarily) with `xit` and `xdescribe`, or focus on only certain tests with `fit` and `fdescribe`.
 
 ### Creating binaries
 

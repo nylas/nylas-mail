@@ -295,12 +295,33 @@ body.platform-win32 {
     margin: 0 8px;
 
     .quoted-text-control {
-      margin: @spacing-standard;
+      position: relative;
       // The quoted-text-control has no top margin since the
       // div[contentedtiable] has 10px of bottom padding. It's better to
       // put the padding on the contenteditable so the bottom looks nice
-      // in popout windoes when there's no quoted text control.
-      margin-top: 0;
+      // in popout windows when there's no quoted text control.
+      margin: 0 @spacing-standard @spacing-standard 0;
+
+      .remove-quoted-text {
+        display: none;
+        cursor: pointer;
+        position: absolute;
+        z-index: 2;
+        right: -6px;
+        top: -6px;
+        border-radius: 0 0 0 3px;
+        &:active {
+          background: none;
+          -webkit-filter: brightness(95%);
+        }
+        img {
+          height: 24px;
+        }
+      }
+
+      &:hover .remove-quoted-text {
+        display: block;
+      }
     }
 
     div[contenteditable] {

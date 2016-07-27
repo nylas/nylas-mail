@@ -118,9 +118,9 @@ export default class AccountErrorHeader extends React.Component {
           <div className="message">
             {
               (this.state.subscriptionState === IdentityStore.State.Lapsed) ? (
-                "Your subscription has expired and we've paused your mailboxes. Re-new your subscription to continue using N1!"
+                "Your subscription has expired, and we've paused your mailboxes. Renew your subscription to continue using N1!"
               ) : (
-                "Your 30-day trial has expired and we've paused your mailboxes. Upgrade today to continue using N1!"
+                "Your 30-day trial has expired, and we've paused your mailboxes. Subscribe to continue using N1!"
               )
           }
           </div>
@@ -165,7 +165,7 @@ export default class AccountErrorHeader extends React.Component {
 
         default:
           return this._renderErrorHeader(
-            `Nylas encountered an error while syncing mail for ${account.emailAddress} - we're
+            `Nylas encountered an error while syncing mail for ${account.emailAddress}—we're
             looking into it. Contact Nylas support for details.`,
             "Contact support",
             () => this._contactSupport());

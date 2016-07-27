@@ -24,6 +24,7 @@ class OnboardingStore extends NylasStore {
     this.listenTo(OnboardingActions.moveToPreviousPage, this._onMoveToPreviousPage)
     this.listenTo(OnboardingActions.moveToPage, this._onMoveToPage)
     this.listenTo(OnboardingActions.accountJSONReceived, this._onAccountJSONReceived)
+    this.listenTo(OnboardingActions.accountsAddedLocally, this._onAccountsAddedLocally)
     this.listenTo(OnboardingActions.authenticationJSONReceived, this._onAuthenticationJSONReceived)
     this.listenTo(OnboardingActions.setAccountInfo, this._onSetAccountInfo);
     this.listenTo(OnboardingActions.setAccountType, this._onSetAccountType);
@@ -40,6 +41,7 @@ class OnboardingStore extends NylasStore {
     }
 
     if (existingAccount) {
+      // Used when re-adding an account after re-connecting
       const accountType = accountTypeForProvider(existingAccount.provider);
       this._pageStack = ['account-choose']
       this._accountInfo = {
@@ -48,8 +50,18 @@ class OnboardingStore extends NylasStore {
       };
       this._onSetAccountType(accountType);
     } else if (addingAccount) {
+      // Adding a new, unknown account
+      this._pageStack = ['account-choose'];
+    } else if (identity) {
+      // Should only happen if config was edited to remove all accounts,
+      // but don't want to re-login to Nylas account. Very useful when
+      // switching environments.
       this._pageStack = ['account-choose'];
     } else {
+      // Standard new user onboarding flow.
+      // Note: If accounts are already connected, but no Nylas ID is, then
+      // the welcome page will show a separate page for returning users to
+      // create a Nylas Pro ID.
       this._pageStack = ['welcome'];
     }
   }
@@ -163,6 +175,29 @@ class OnboardingStore extends NylasStore {
     } catch (e) {
       NylasEnv.reportError(e);
       NylasEnv.showErrorDialog("Unable to Connect Account", "Sorry, something went wrong on the Nylas server. Please try again. If you're still having issues, contact us at support@nylas.com.");
+    }
+  }
+
+  _onAccountsAddedLocally = (accounts) => {
+    try {
+      const isFirstAccount = AccountStore.accounts().length === 0
+
+      for (const account of accounts) {
+        account.auth_token = account.id
+        AccountStore.addAccountFromJSON(account)
+      }
+
+      ipcRenderer.send('new-account-added')
+      NylasEnv.displayWindow()
+
+      if (isFirstAccount) {
+        this._onMoveToPage('initial-preferences')
+      } else {
+        this._onOnboardingComplete();
+      }
+    } catch (e) {
+      NylasEnv.reportError(e)
+      NylasEnv.showErrorDialog("Unable to Connect Accounts", "Sorry, something went wrong on your instance of the sync engine. Please try again.")
     }
   }
 

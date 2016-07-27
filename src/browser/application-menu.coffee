@@ -109,9 +109,13 @@ class ApplicationMenu
     return unless windowMenu
     idx = _.findIndex(windowMenu.submenu, ({id}) -> id is 'window-list-separator')
 
+    workShortcut = "CmdOrCtrl+alt+w"
+    if process.platform is "win32"
+      workShortcut = "ctrl+shift+f10"
+
     accelerators = {
       'default': 'CmdOrCtrl+0',
-      'work': 'CmdOrCtrl+alt+w',
+      'work': workShortcut,
     }
     windows = global.application.windowManager.getOpenWindows()
     windowsItems = windows.map (w) => {

@@ -139,6 +139,42 @@ describe('EditableList', function editableList() {
     });
   });
 
+  describe('_onDeleteItem', () => {
+    let onSelectItem;
+    let onDeleteItem;
+    beforeEach(() => {
+      onSelectItem = jasmine.createSpy('onSelectItem');
+      onDeleteItem = jasmine.createSpy('onDeleteItem');
+    })
+    it('deletes the item from the list', () => {
+      const list = makeList(['1', '2'], {selected: '2', onDeleteItem, onSelectItem});
+      const button = scryRenderedDOMComponentsWithClass(list, 'btn-editable-list')[1];
+
+      Simulate.click(button);
+      expect(onDeleteItem).toHaveBeenCalledWith('2', 1);
+    })
+    it('sets the selected item to the one above if it exists', () => {
+      const list = makeList(['1', '2'], {selected: '2', onDeleteItem, onSelectItem});
+      const button = scryRenderedDOMComponentsWithClass(list, 'btn-editable-list')[1];
+
+      Simulate.click(button);
+      expect(onSelectItem).toHaveBeenCalledWith('1', 0)
+    })
+    it('sets the selected item to the one below if it is at the top', () => {
+      const list = makeList(['1', '2'], {selected: '1', onDeleteItem, onSelectItem});
+      const button = scryRenderedDOMComponentsWithClass(list, 'btn-editable-list')[1];
+
+      Simulate.click(button);
+      expect(onSelectItem).toHaveBeenCalledWith('2', 1)
+    })
+    it('sets the selected item to nothing when you delete the last item', () => {
+      const list = makeList(['1'], {selected: '1', onDeleteItem, onSelectItem});
+      const button = scryRenderedDOMComponentsWithClass(list, 'btn-editable-list')[1];
+
+      Simulate.click(button);
+      expect(onSelectItem).not.toHaveBeenCalled()
+    })
+  })
   describe('_renderItem', () => {
     const makeItem = (item, idx, state = {}, handlers = {}) => {
       const list = makeList([], {initialState: state});
@@ -231,18 +267,13 @@ describe('EditableList', function editableList() {
     });
 
     it('renders delete button', () => {
-      const onSelectItem = jasmine.createSpy('onSelectItem');
-      const onDeleteItem = jasmine.createSpy('onDeleteItem');
-      const list = makeList(['1', '2'], {selected: '2', onDeleteItem, onSelectItem});
+      const list = makeList(['1', '2'], {selected: '2'});
       const button = scryRenderedDOMComponentsWithClass(list, 'btn-editable-list')[1];
 
-      Simulate.click(button);
-
       expect(findDOMNode(button).textContent).toEqual('—');
-      expect(onDeleteItem).toHaveBeenCalledWith('2', 1);
     });
 
-    it('disables teh delete button when no item is selected', () => {
+    it('disables the delete button when no item is selected', () => {
       const onSelectItem = jasmine.createSpy('onSelectItem');
       const onDeleteItem = jasmine.createSpy('onDeleteItem');
       const list = makeList(['1', '2'], {selected: null, onDeleteItem, onSelectItem});

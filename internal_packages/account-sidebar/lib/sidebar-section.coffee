@@ -3,7 +3,8 @@ _ = require 'underscore'
  SyncbackCategoryTask,
  DestroyCategoryTask,
  CategoryStore,
- Category} = require 'nylas-exports'
+ Category,
+ RegExpUtils} = require 'nylas-exports'
 SidebarItem = require './sidebar-item'
 SidebarActions = require './sidebar-actions'
 
@@ -119,7 +120,8 @@ class SidebarSection
     seenItems = {}
     for category in CategoryStore.userCategories(account)
       # https://regex101.com/r/jK8cC2/1
-      itemKey = category.displayName.replace(/[./\\]/g, '/')
+      re = RegExpUtils.subcategorySplitRegex()
+      itemKey = category.displayName.replace(re, '/')
 
       parent = null
       parentComponents = itemKey.split('/')

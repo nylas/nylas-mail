@@ -12,11 +12,11 @@
 
 # Download N1
 
-You can download compiled versions of N1 for Windows, Mac OS X, and Linux (.deb) from [https://nylas.com/N1](https://nylas.com/N1). You can also build and run N1 on Fedora. A Fedora distribution is coming soon! On Arch Linux, you can install **[n1](https://aur.archlinux.org/packages/n1/)** or **[n1-git](https://aur.archlinux.org/packages/n1-git/)** from the aur.
+You can download compiled versions of N1 for Windows, Mac OS X, and Linux (.deb) from [https://nylas.com/N1](https://nylas.com/N1). You can also build and run N1 on Fedora. On Arch Linux, you can install **[n1](https://aur.archlinux.org/packages/n1/)** or **[n1-git](https://aur.archlinux.org/packages/n1-git/)** from the aur.
 
 # Build A Plugin
 
-Plugins lie at the heart of N1 and give it its powerful features. Building your own plugins allows you to integrate the app with other tools, experiment with new workflows, and more. Follow the [Getting Started guide](http://nylas.com/N1/getting-started/) to write your first plugin in five minutes. To create your own theme, go to our [Theme Starter guide](http://github.com/nylas/N1-theme-starter).
+Plugins lie at the heart of N1 and give it its powerful features. Building your own plugins allows you to integrate the app with other tools, experiment with new workflows, and more. Follow the [Getting Started guide](https://nylas.github.io/N1/getting-started/) to write your first plugin in five minutes. To create your own theme, go to our [Theme Starter guide](https://github.com/nylas/N1-theme-starter).
 
 If you would like to run the N1 source and contribute, check out our [contributing
 guide](https://github.com/nylas/N1/blob/master/CONTRIBUTING.md).
@@ -33,7 +33,7 @@ We're working on building a plugin index that makes it super easy to add them to
 
 
 #### Community Themes
-[Create your own theme!](http://github.com/nylas/N1-theme-starter)
+[Create your own theme!](https://github.com/nylas/N1-theme-starter)
 - [Arc Dark](https://github.com/varlesh/Nylas-Arc-Dark-Theme)
 - [Predawn](https://github.com/adambmedia/N1-Predawn)
 - [ElementaryOS](https://github.com/edipox/elementary-nylas)
@@ -47,11 +47,11 @@ We're working on building a plugin index that makes it super easy to add them to
 - [Monokai](https://github.com/jamiehenson/n1-monokai)
 - [Agapanthus](https://github.com/taniadaniela/n1-agapanthus)—Inbox-inspired theme
 - [Stripe](https://github.com/oeaeee/n1-stripe)
+- [Kleinstein] (https://github.com/diklein/Kleinstein)—Hide the account list sidebar
 
 #### Bundled Plugins
 Great starting points for creating your own plugins!
 - [Translate](https://github.com/nylas/N1/tree/master/internal_packages/composer-translate)—Works with 10 languages
-- [Scheduler](https://github.com/nylas/N1/tree/master/internal_packages/composer-scheduler)—Show your availability to schedule a meeting with someone
 - [Quick Replies](https://github.com/nylas/N1/tree/master/internal_packages/composer-templates)—Send emails faster with templates
 - [Emoji Keyboard](https://github.com/nylas/N1/tree/master/internal_packages/composer-emoji)—Insert emoji by typing a colon (:) followed by the name of an emoji symbol
 - [GitHub Sidebar Info](https://github.com/nylas/N1/tree/master/internal_packages/github-contact-card)
@@ -68,8 +68,8 @@ Great starting points for creating your own plugins!
 - [Website Launcher](https://github.com/adriangrantdotorg/nylas-n1-background-webpage)—Opens a URL in separate window
 - In Development: [Cypher](https://github.com/mbilker/cypher) (PGP Encryption)
 
-# Running Locally
-By default, the N1 source points to our hosted version of the Nylas Sync Engine—however, the Sync Engine is open source, and you can [run it yourself](https://github.com/nylas/N1/blob/master/CONFIGURATION.md).
+# Configuration
+You can configure N1 in a few ways—for instance, pointing it to your self-hosted instance of the sync engine or changing the interface zoom level. [Learn more about how.](https://github.com/nylas/N1/blob/master/CONFIGURATION.md)
 
 # Feature Requests / Plugin Ideas
 

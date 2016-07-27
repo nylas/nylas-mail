@@ -2,9 +2,13 @@ import {ExtensionRegistry} from 'nylas-exports';
 import SpellcheckComposerExtension from './spellcheck-composer-extension';
 
 export function activate() {
-  ExtensionRegistry.Composer.register(SpellcheckComposerExtension);
+  if (NylasEnv.config.get("core.composing.spellcheck")) {
+    ExtensionRegistry.Composer.register(SpellcheckComposerExtension);
+  }
 }
 
 export function deactivate() {
-  ExtensionRegistry.Composer.unregister(SpellcheckComposerExtension);
+  if (NylasEnv.config.get("core.composing.spellcheck")) {
+    ExtensionRegistry.Composer.unregister(SpellcheckComposerExtension);
+  }
 }

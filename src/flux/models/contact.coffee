@@ -12,7 +12,7 @@ name_suffixes = {}
 ###
 Public: The Contact model represents a Contact object served by the Nylas Platform API.
 For more information about Contacts on the Nylas Platform, read the
-[Contacts API Documentation](https://nylas.com/docs/api#contacts)
+[Contacts API Documentation](https://nylas.com/cloud/docs#contacts)
 
 ## Attributes
 

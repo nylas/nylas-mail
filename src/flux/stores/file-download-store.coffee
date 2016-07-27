@@ -231,8 +231,8 @@ FileDownloadStore = Reflux.createStore
 
     NylasEnv.showSaveDialog {defaultPath}, (savePath) =>
       return unless savePath
-      NylasEnv.savedState.lastDownloadDirectory = path.dirname(savePath)
 
+      newDownloadDirectory = path.dirname(savePath)
       saveExtension = path.extname(savePath)
       didLoseExtension = defaultExtension isnt '' and saveExtension is ''
       if didLoseExtension
@@ -240,7 +240,10 @@ FileDownloadStore = Reflux.createStore
 
       @_runDownload(file)
       .then (download) => @_saveDownload(download, savePath)
-      .then => shell.showItemInFolder(savePath)
+      .then =>
+        if NylasEnv.savedState.lastDownloadDirectory isnt newDownloadDirectory
+          shell.showItemInFolder(savePath)
+          NylasEnv.savedState.lastDownloadDirectory = newDownloadDirectory
       .catch(@_catchFSErrors)
       .catch (error) =>
         @_presentError({file, error})

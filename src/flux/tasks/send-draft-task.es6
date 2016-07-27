@@ -64,6 +64,12 @@ export default class SendDraftTask extends BaseDraftTask {
       return false;
     }
 
+    // Sending individual bodies for too many participants can cause us
+    // to hit the smtp rate limit.
+    if (this.draft.participants({includeFrom: false}).length > 10) {
+      return false;
+    }
+
     const openTrackingId = NylasEnv.packages.pluginIdFor('open-tracking')
     const linkTrackingId = NylasEnv.packages.pluginIdFor('link-tracking')
 

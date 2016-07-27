@@ -6,7 +6,7 @@ import {
 } from 'nylas-exports';
 
 describe('DraftHelpers', function describeBlock() {
-  describe('prepareForSyncback', () => {
+  describe('prepareDraftForSyncback', () => {
     beforeEach(() => {
       spyOn(DraftHelpers, 'applyExtensionTransformsToDraft').andCallFake((draft) => Promise.resolve(draft))
       spyOn(Actions, 'queueTask')
@@ -16,7 +16,6 @@ describe('DraftHelpers', function describeBlock() {
       const draft = new Message({
         clientId: "local-123",
         threadId: "thread-123",
-        replyToMessageId: "message-123",
         uploads: ['stub'],
       });
       const session = {
@@ -34,4 +33,29 @@ describe('DraftHelpers', function describeBlock() {
       });
     });
   });
+
+  describe('shouldAppendQuotedText', () => {
+    it('returns true if message is reply and has no marker', () => {
+      const draft = {
+        replyToMessageId: 1,
+        body: `<div>hello!</div>`,
+      }
+      expect(DraftHelpers.shouldAppendQuotedText(draft)).toBe(true)
+    })
+
+    it('returns false if message is reply and has marker', () => {
+      const draft = {
+        replyToMessageId: 1,
+        body: `<div>hello!</div><div id="n1-quoted-text-marker"></div>Quoted Text`,
+      }
+      expect(DraftHelpers.shouldAppendQuotedText(draft)).toBe(false)
+    })
+
+    it('returns false if message is not reply', () => {
+      const draft = {
+        body: `<div>hello!</div>`,
+      }
+      expect(DraftHelpers.shouldAppendQuotedText(draft)).toBe(false)
+    })
+  })
 });

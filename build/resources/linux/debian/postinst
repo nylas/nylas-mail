@@ -15,7 +15,7 @@
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
-UBUNTU_CODENAMES="precise trusty utopic vivid"
+UBUNTU_CODENAMES="precise trusty utopic vivid" # "xenial is not yet available in nylas repos."
 DEBIAN_CODENAMES="squeeze wheezy jessie sid"
 
 case "$1" in
@@ -24,14 +24,14 @@ case "$1" in
 
         DISTRO=`lsb_release -s -i`
 
-        if [ "$DISTRO" = "Ubuntu" ] || [ "$DISTRO" = "elementary OS" ]; then
+        if [ "$DISTRO" = "Ubuntu" ] || [ "$DISTRO" = "elementary OS" ] || [ "$DISTRO" = "LinuxMint" ] ; then
           DISTS=$UBUNTU_CODENAMES
           DISTRO="ubuntu"
         elif [ "$DISTRO" = "Debian" ]; then
           DISTS=$DEBIAN_CODENAMES
           DISTRO="debian"
         else
-          echo "You are not running Debian or Ubuntu.  Not adding Nylas repository."
+          echo "You are not running Debian, Ubuntu, ElementaryOS or LinuxMint.  Not adding Nylas repository."
           DISTRO=""
         fi
 

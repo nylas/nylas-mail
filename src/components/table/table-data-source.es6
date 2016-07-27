@@ -137,9 +137,9 @@ export default class TableDataSource {
    * Removes last column and all of its data.
    *
    * @return {TableDataSource} - updated data source instance
-   * @method removeColumn
+   * @method removeLastColumn
    */
-  removeColumn() {
+  removeLastColumn() {
     const nextRows = this.rows().map(row => row.slice(0, row.length - 1))
     const nextColumns = this.columns().slice(0, this.columns().length - 1)
     return new TableDataSource({

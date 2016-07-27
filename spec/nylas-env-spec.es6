@@ -102,6 +102,10 @@ describe("the `NylasEnv` global", function nylasEnvSpec() {
     });
 
     it("invokes onUpdateAvailable listeners", () => {
+      if (process.platform === "linux") {
+        return;
+      }
+
       const updateAvailableHandler = jasmine.createSpy("update-available-handler");
       subscription = NylasEnv.onUpdateAvailable(updateAvailableHandler);
 
