@@ -21,9 +21,11 @@ describe("UnreadNotifications", function UnreadNotifications() {
     const account = AccountStore.accounts()[0];
 
     this.threadA = new Thread({
+      id: 'A',
       categories: [inbox],
     });
     this.threadB = new Thread({
+      id: 'B',
       categories: [archive],
     });
 
@@ -52,21 +54,21 @@ describe("UnreadNotifications", function UnreadNotifications() {
       unread: true,
       date: new Date(),
       from: [new Contact({name: 'Ben', email: 'benthis.example.com'})],
-      subject: "Hello World",
+      subject: "Hello World 3",
       threadId: "A",
     });
     this.msg4 = new Message({
       unread: true,
       date: new Date(),
       from: [new Contact({name: 'Ben', email: 'benthis.example.com'})],
-      subject: "Hello World",
+      subject: "Hello World 4",
       threadId: "A",
     });
     this.msg5 = new Message({
       unread: true,
       date: new Date(),
       from: [new Contact({name: 'Ben', email: 'benthis.example.com'})],
-      subject: "Hello World",
+      subject: "Hello World 5",
       threadId: "A",
     });
     this.msgUnreadButArchived = new Message({
@@ -108,7 +110,9 @@ describe("UnreadNotifications", function UnreadNotifications() {
       return Promise.resolve(null);
     });
 
-    spyOn(NativeNotifications, 'displayNotification').andCallFake(() => false)
+    this.notification = jasmine.createSpyObj('notification', ['close']);
+    spyOn(NativeNotifications, 'displayNotification').andReturn(this.notification);
+
     spyOn(Promise, 'props').andCallFake((dict) => {
       const dictOut = {};
       for (const key of Object.keys(dict)) {
@@ -154,6 +158,27 @@ describe("UnreadNotifications", function UnreadNotifications() {
         advanceClock(2000)
         advanceClock(2000)
         expect(NativeNotifications.displayNotification.callCount).toEqual(3)
+      });
+    });
+  });
+
+  it("should create Notifications in the order of messages received", () => {
+    waitsForPromise(() => {
+      return this.notifier._onNewMailReceived({message: [this.msg1, this.msg2]})
+      .then(() => {
+        advanceClock(2000);
+        return this.notifier._onNewMailReceived({message: [this.msg3, this.msg4]});
+      })
+      .then(() => {
+        advanceClock(2000);
+        advanceClock(2000);
+        expect(NativeNotifications.displayNotification.callCount).toEqual(4);
+        const subjects = NativeNotifications.displayNotification.calls.map((call) => {
+          return call.args[0].subtitle;
+        });
+        const expected = [this.msg1, this.msg2, this.msg3, this.msg4]
+          .map((msg) => msg.subject);
+        expect(subjects).toEqual(expected);
       });
     });
   });
@@ -226,7 +251,7 @@ describe("UnreadNotifications", function UnreadNotifications() {
     });
   });
 
-  it("should not create a Notification if the new messages are not unread", () => {
+  it("should not create a Notification if the new messages are read", () => {
     waitsForPromise(() => {
       return this.notifier._onNewMailReceived({message: [this.msgRead]})
       .then(() => {
@@ -251,6 +276,27 @@ describe("UnreadNotifications", function UnreadNotifications() {
         expect(NativeNotifications.displayNotification).not.toHaveBeenCalled()
       });
     });
+  });
+
+  it("clears notifications when a thread is read", () => {
+    waitsForPromise(() => {
+      return this.notifier._onNewMailReceived({message: [this.msg1]})
+      .then(() => {
+        expect(NativeNotifications.displayNotification).toHaveBeenCalled();
+        expect(this.notification.close).not.toHaveBeenCalled();
+        this.notifier._onThreadIsRead(this.threadA);
+        expect(this.notification.close).toHaveBeenCalled();
+      });
+    });
+  });
+
+  it("detects changes that may be a thread being read", () => {
+    const unreadThread = { unread: true };
+    const readThread = { unread: false };
+    spyOn(this.notifier, '_onThreadIsRead');
+    this.notifier._onDatabaseUpdated({ objectClass: 'Thread', objects: [unreadThread, readThread]});
+    expect(this.notifier._onThreadIsRead.calls.length).toEqual(1);
+    expect(this.notifier._onThreadIsRead).toHaveBeenCalledWith(readThread);
   });
 
   it("should play a sound when it gets new mail", () => {

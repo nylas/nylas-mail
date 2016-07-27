@@ -3,7 +3,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import AccountContactField from './account-contact-field';
 import {Utils, DraftHelpers, Actions, AccountStore} from 'nylas-exports';
-import {InjectedComponent, KeyCommandsRegion, ParticipantsTextField, ListensToFluxStore} from 'nylas-component-kit';
+import {
+  InjectedComponent,
+  KeyCommandsRegion,
+  ParticipantsTextField,
+  ListensToFluxStore,
+} from 'nylas-component-kit';
 
 import CollapsedParticipants from './collapsed-participants';
 import ComposerHeaderActions from './composer-header-actions';
@@ -270,6 +275,7 @@ export default class ComposerHeader extends React.Component {
           key="from"
           ref={Fields.From}
           draft={this.props.draft}
+          session={this.props.session}
           onChange={this._onChangeParticipants}
           value={from[0]}
         />

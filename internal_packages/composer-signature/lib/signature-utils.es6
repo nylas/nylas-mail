@@ -7,10 +7,10 @@ export default {
 
     let newBody = body;
     let paddingBefore = '';
-    let paddingAfter = '';
 
     // Remove any existing signature in the body
     newBody = newBody.replace(signatureRegex, "");
+    const signatureInPrevious = newBody !== body
 
     // http://www.regexpal.com/?fam=94390
     // prefer to put the signature one <br> before the beginning of the quote,
@@ -18,13 +18,11 @@ export default {
     let insertionPoint = newBody.search(RegExpUtils.n1QuoteStartRegex());
     if (insertionPoint === -1) {
       insertionPoint = newBody.length;
-      paddingBefore = '<br/><br/>';
-    } else {
-      paddingAfter = '<br/>';
+      if (!signatureInPrevious) paddingBefore = '<br><br>'
     }
 
     const contentBefore = newBody.slice(0, insertionPoint);
     const contentAfter = newBody.slice(insertionPoint);
-    return `${contentBefore}${paddingBefore}<signature>${signature}${paddingAfter}</signature>${contentAfter}`;
+    return `${contentBefore}${paddingBefore}<signature>${signature}</signature>${contentAfter}`;
   },
 };

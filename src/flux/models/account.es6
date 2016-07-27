@@ -11,7 +11,7 @@ let Contact = null
  * an email account.
  *
  * For more information about Accounts on the Nylas Platform, read the
- * [Account API Documentation](https://nylas.com/docs/api#Account)
+ * [Account API Documentation](https://nylas.com/cloud/docs#account)
  *
  * ## Attributes
  *

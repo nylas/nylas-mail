@@ -55,7 +55,6 @@
     in an infinite loading loop in some scenarios.
 
 
-
 ### 0.4.40 (5/19/16)
 
 - Fixes:

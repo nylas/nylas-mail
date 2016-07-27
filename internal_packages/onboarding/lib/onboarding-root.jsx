@@ -5,6 +5,8 @@ import PageTopBar from './page-top-bar';
 
 import WelcomePage from './page-welcome';
 import TutorialPage from './page-tutorial';
+import SelfHostingSetupPage from './page-self-hosting-setup';
+import SelfHostingConfigPage from './page-self-hosting-config';
 import AuthenticatePage from './page-authenticate';
 import AccountChoosePage from './page-account-choose';
 import AccountSettingsPage from './page-account-settings';
@@ -16,6 +18,8 @@ import InitialPreferencesPage from './page-initial-preferences';
 const PageComponents = {
   "welcome": WelcomePage,
   "tutorial": TutorialPage,
+  "self-hosting-setup": SelfHostingSetupPage,
+  "self-hosting-config": SelfHostingConfigPage,
   "authenticate": AuthenticatePage,
   "account-choose": AccountChoosePage,
   "account-settings": AccountSettingsPage,

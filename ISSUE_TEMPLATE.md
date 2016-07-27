@@ -20,7 +20,7 @@ actionable, try to include the following information:
 --
 
 **Bug?**
-##### Do you have any third-party plugins installed?
+##### Do you have any third-party plugins installed? If so, which ones?
 ...
 
 ##### Is the issue related to a specific email provider (Gmail, Exchange, etc.)?

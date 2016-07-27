@@ -27,7 +27,6 @@ class PreferencesTabItem extends React.Component {
 
   render() {
     const {tabId, displayName} = this.props.tabItem;
-
     const classes = classNames({
       item: true,
       active: tabId === this.props.selection.get('tabId'),

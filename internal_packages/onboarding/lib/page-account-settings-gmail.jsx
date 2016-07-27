@@ -11,6 +11,8 @@ import {
 import OnboardingActions from './onboarding-actions';
 import AccountTypes from './account-types';
 
+const clipboard = require('electron').clipboard
+
 export default class AccountSettingsPageGmail extends React.Component {
   static displayName = "AccountSettingsPageGmail";
 
@@ -18,15 +20,26 @@ export default class AccountSettingsPageGmail extends React.Component {
     accountInfo: React.PropTypes.object,
   };
 
+  constructor() {
+    super()
+    this.state = {
+      showAlternative: false,
+    }
+  }
+
   componentDidMount() {
     // Show the "Sign in to Gmail" prompt for a moment before actually bouncing
     // to Gmail. (400msec animation + 200msec to read)
     this._sessionKey = buildGmailSessionKey();
     this._pollTimer = null;
+    this._gmailAuthUrl = buildGmailAuthURL(this._sessionKey)
     this._startTimer = setTimeout(() => {
-      shell.openExternal(buildGmailAuthURL(this._sessionKey));
+      shell.openExternal(this._gmailAuthUrl);
       this.startPollingForResponse();
     }, 600);
+    setTimeout(() => {
+      this.setState({showAlternative: true})
+    }, 1500);
   }
 
   componentWillUnmount() {
@@ -64,6 +77,30 @@ export default class AccountSettingsPageGmail extends React.Component {
     this._pollTimer = setTimeout(poll, 5000);
   }
 
+
+  _renderAlternative() {
+    let classnames = "input hidden"
+    if (this.state.showAlternative) {
+      classnames += " fadein"
+    }
+
+    return (
+      <div className={classnames}>
+        <p> Page didn't open?</p>
+        <p>Paste into your browser:
+          <input type="url" className="url-copy-target" value={this._gmailAuthUrl} />
+          <div className="copy-to-clipboard" onClick={() => clipboard.writeText(this._gmailAuthUrl)} onMouseDown={() => this.setState({pressed: true})} onMouseUp={() => this.setState({pressed: false})}>
+            <RetinaImg
+              name="icon-copytoclipboard.png"
+              mode={RetinaImg.Mode.ContentIsMask}
+            />
+          </div>
+        </p>
+      </div>
+    )
+  }
+
+
   render() {
     const {accountInfo} = this.props;
     const iconName = AccountTypes.find(a => a.type === accountInfo.type).headerIcon;
@@ -80,6 +117,9 @@ export default class AccountSettingsPageGmail extends React.Component {
         <h2>
           Sign in to Google in<br />your browser.
         </h2>
+        <div className="alternative-auth">
+          {this._renderAlternative()}
+        </div>
       </div>
     );
   }

@@ -4,7 +4,7 @@
 1. **Visual Studio**: You must have Visual Studio installed to build native
 extensions. See the notes about Visual Studio below if you encounter compilation
 errors.
-1. **Node**: Node 0.10, 0.11, 0.12, and 4.x supported
+1. **Node**: Node 4.x and Node 6.x supported
 1. **Python 2.7**: The `python` command must be on your `PATH` and must point to
 Python 2.7 (not 3.x)
 1. **Git**: The `git` command must be on your `PATH`

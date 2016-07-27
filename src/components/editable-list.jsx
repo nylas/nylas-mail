@@ -262,13 +262,10 @@ class EditableList extends Component {
   _onDeleteItem = () => {
     const selectedItem = this._getSelectedItem();
     const index = this.props.items.indexOf(selectedItem);
-
     if (selectedItem) {
-      // Move the selection 1 up after deleting
-      const len = this.props.items.length;
-      const newIndex = Math.min(len - 2, Math.max(0, index + 1));
+      // Move the selection 1 up or down after deleting
+      const newIndex = index === 0 ? index + 1 : index - 1
       this.props.onDeleteItem(selectedItem, index);
-
       if (this.props.items[newIndex]) {
         this._selectItem(this.props.items[newIndex], newIndex);
       }

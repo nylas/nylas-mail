@@ -68,8 +68,23 @@ class ModalKeyRecommender extends React.Component
         ['Encrypt', 'Cancel']
       )
         return
-    Actions.closePopover()
-    @props.callback(@state.identities)
+
+    emptyIdents = _.filter(@state.identities, (identity) -> !identity.key?)
+    if emptyIdents.length == 0
+      Actions.closePopover()
+      @props.callback(@state.identities)
+    else
+      newIdents = []
+      for idIndex of emptyIdents
+        identity = emptyIdents[idIndex]
+        if idIndex < emptyIdents.length - 1
+          PGPKeyStore.getKeyContents(key: identity, callback: (identity) => newIdents.push(identity))
+        else
+          PGPKeyStore.getKeyContents(key: identity, callback: (identity) =>
+            newIdents.push(identity)
+            @props.callback(newIdents)
+            Actions.closePopover()
+          )
 
   _onManageKeys: =>
     Actions.switchPreferencesTab('Encryption')
@@ -130,7 +145,6 @@ class ModalKeyRecommender extends React.Component
       ]
 
     prefsButton = <button className="btn modal-prefs-button" onClick={@_onManageKeys}>Advanced Key Management</button>
-    prefsLink = <a className="preferences-references" onClick={@_onManageKeys}>Advanced Key Management</a>
 
     <div className="key-picker-modal">
       { body }

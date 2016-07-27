@@ -70,6 +70,13 @@ module.exports =
             type: 'boolean'
             default: false
             title: "Swipe gesture and backspace / delete move messages to trash"
+      composing:
+        type: 'object'
+        properties:
+          spellcheck:
+            type: 'boolean'
+            default: true
+            title: "Check messages for spelling"
       sending:
         type: 'object'
         properties:

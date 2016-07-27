@@ -65,7 +65,7 @@ class KeyAdder extends React.Component
             armored: data
           }, (err, km) =>
             if err
-              PGPKeyStore._displayError("The file you selected for import is not a valid PGP Key.")
+              PGPKeyStore._displayError("File is not a valid PGP key.")
               return
             else
               privateStart = "-----BEGIN PGP PRIVATE KEY BLOCK-----"

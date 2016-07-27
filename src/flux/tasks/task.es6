@@ -429,7 +429,7 @@ export default class Task {
   //
   // This is where you should put your actual API code. You can use the
   // node `request` library to easily hit APIs, or use the {NylasAPI} class
-  // to talk to the [Nylas Platform API](https://nylas.com/docs).
+  // to talk to the [Nylas Platform API](https://nylas.com/cloud/docs/).
   //
   // Here is a more detailed explanation of Task Statuses:
   //
