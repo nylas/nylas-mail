@@ -9,6 +9,8 @@ import {
 } from 'nylas-exports'
 import SearchActions from './search-actions'
 
+const {LongConnectionStatus} = NylasAPI
+
 
 class SearchQuerySubscription extends MutableQuerySubscription {
 
@@ -93,8 +95,13 @@ class SearchQuerySubscription extends MutableQuerySubscription {
           resultIds = resultIds.concat(_.pluck(threads, 'id'))
           resultsReturned()
         },
-        onStatusChanged: (conn) => {
-          if (conn.isClosed()) {
+        onStatusChanged: (status) => {
+          const hasClosed = [
+            LongConnectionStatus.Closed,
+            LongConnectionStatus.Ended,
+          ].includes(status)
+
+          if (hasClosed) {
             accountsSearched.add(accountId)
             if (allAccountsSearched()) {
               SearchActions.searchCompleted()

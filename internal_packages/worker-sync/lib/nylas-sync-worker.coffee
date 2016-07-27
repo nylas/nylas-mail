@@ -1,6 +1,6 @@
 _ = require 'underscore'
-{Actions, DatabaseStore, NylasSyncStatusStore} = require 'nylas-exports'
-NylasLongConnection = require './nylas-long-connection'
+{Actions, DatabaseStore, NylasSyncStatusStore, NylasLongConnection} = require 'nylas-exports'
+DeltaStreamingConnection = require('./delta-streaming-connection').default
 ContactRankingsCache = require './contact-rankings-cache'
 
 INITIAL_PAGE_SIZE = 30
@@ -17,8 +17,8 @@ class BackoffTimer
     clearTimeout(@_timeout) if @_timeout
     @_timeout = null
 
-  backoff: =>
-    @_delay = Math.min(@_delay * 1.7, 5 * 1000 * 60) # Cap at 5 minutes
+  backoff: (delay) =>
+    @_delay = delay ? Math.min(@_delay * 1.7, 5 * 1000 * 60) # Cap at 5 minutes
     if not NylasEnv.inSpecMode()
       console.log("Backing off after sync failure. Will retry in #{Math.floor(@_delay / 1000)} seconds.")
 
@@ -48,7 +48,7 @@ class NylasSyncWorker
     @_refreshingCaches = [new ContactRankingsCache(account.id)]
 
     @_terminated = false
-    @_connection = new NylasLongConnection(api, account.id, {
+    @_connection = new DeltaStreamingConnection(api, account.id, {
       ready: => @_state isnt null
       getCursor: =>
         return null if @_state is null
@@ -56,10 +56,12 @@ class NylasSyncWorker
       setCursor: (val) =>
         @_state.cursor = val
         @writeState()
-      setStatus: (status) =>
+      setStatus: (status, statusCode) =>
         @_state.longConnectionStatus = status
         if status is NylasLongConnection.Status.Closed
-          @_backoff()
+          # Make the delay 30 seconds if we get a 403
+          delay = 30 * 1000 if statusCode is 403
+          @_backoff(delay)
         if status is NylasLongConnection.Status.Connected
           @_resumeTimer.resetDelay()
         @writeState()
@@ -70,7 +72,6 @@ class NylasSyncWorker
     @_state = null
     DatabaseStore.findJSONBlob("NylasSyncWorker:#{@_account.id}").then (json) =>
       @_state = json ? {}
-      @_state.longConnectionStatus = NylasLongConnection.Status.Idle
       for key in NylasSyncStatusStore.ModelsForSync
         @_state[key].busy = false if @_state[key]
       @resume()
@@ -274,8 +275,8 @@ class NylasSyncWorker
       lastRequestRange: {offset: params.offset, limit: params.limit}
     })
 
-  _backoff: =>
-    @_resumeTimer.backoff()
+  _backoff: (delay) =>
+    @_resumeTimer.backoff(delay)
     @_resumeTimer.start()
     @_state.nextRetryDelay = @_resumeTimer.getCurrentDelay()
     @_state.nextRetryTimestamp = Date.now() + @_state.nextRetryDelay
