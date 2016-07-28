@@ -12,11 +12,9 @@ class QuotedHTMLTransformer
   hideQuotedHTML: (html, {keepIfWholeBodyIsQuote}={}) ->
     doc = @_parseHTML(html)
     quoteElements = @_findQuoteLikeElements(doc)
-    if keepIfWholeBodyIsQuote and @_wholeBodyIsQuote(doc, quoteElements)
-      return doc.children[0].innerHTML
-    else
+    unless keepIfWholeBodyIsQuote and @_wholeBodyIsQuote(doc, quoteElements)
       @_annotateElements(quoteElements)
-      return doc.children[0].innerHTML
+    return @_outputHTMLFor(doc, {initialHTML: html})
 
   hasQuotedHTML: (html) ->
     doc = @_parseHTML(html)
@@ -42,19 +40,19 @@ class QuotedHTMLTransformer
   removeQuotedHTML: (html, options={}) ->
     doc = @_parseHTML(html)
     quoteElements = @_findQuoteLikeElements(doc, options)
-    if options.keepIfWholeBodyIsQuote and @_wholeBodyIsQuote(doc, quoteElements)
-      return doc.children[0].innerHTML
-    else
+    unless options.keepIfWholeBodyIsQuote and @_wholeBodyIsQuote(doc, quoteElements)
       DOMUtils.Mutating.removeElements(quoteElements, options)
 
       # It's possible that the entire body was quoted text and we've removed everything.
-      return "<head></head><body></body>" unless doc.body
+      if not doc.body
+        return @_outputHTMLFor(@_parseHTML(""), {initialHTML: html})
 
       @removeTrailingBr(doc)
       DOMUtils.Mutating.removeElements(quoteStringDetector(doc))
+      if not doc.children[0]
+        return @_outputHTMLFor(@_parseHTML(""), {initialHTML: html})
 
-      return "<head></head><body></body>" unless doc.children[0]
-      return doc.children[0].innerHTML
+    return @_outputHTMLFor(doc, {initialHTML: html})
 
   # Finds any trailing BR tags and removes them in place
   removeTrailingBr: (doc) ->
@@ -74,13 +72,13 @@ class QuotedHTMLTransformer
     quoteElements = @_findQuoteLikeElements(doc)
     doc = @_parseHTML(htmlWithoutQuotes)
     doc.body.appendChild(node) for node in quoteElements
-    return doc.children[0].innerHTML
+    return @_outputHTMLFor(doc, {initialHTML: originalHTML})
 
   restoreAnnotatedHTML: (html) ->
     doc = @_parseHTML(html)
     quoteElements = @_findAnnotatedElements(doc)
     @_removeAnnotation(quoteElements)
-    return doc.children[0].innerHTML
+    return @_outputHTMLFor(doc, {initialHTML: html})
 
   _parseHTML: (text) ->
     domParser = new DOMParser()
@@ -94,6 +92,12 @@ class QuotedHTMLTransformer
     # As far as we can tell, when this succeeds, doc /always/ has at least
     # one child: an <html> node.
     return doc
+
+  _outputHTMLFor: (doc, {initialHTML}) ->
+    if /<\s?head\s?>/i.test(initialHTML) || /<\s?body[\s>]/i.test(initialHTML)
+      return doc.children[0].innerHTML
+    else
+      return doc.body.innerHTML
 
   _wholeBodyIsQuote: (doc, quoteElements) ->
     nonBlankChildElements = []
