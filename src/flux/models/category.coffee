@@ -65,10 +65,6 @@ class Category extends Model
       modelKey: 'displayName'
       jsonKey: 'display_name'
 
-    'isDeleted': Attributes.Boolean
-      modelKey: 'isDeleted'
-      jsonKey: 'is_deleted'
-
   @Types:
     Standard: 'standard'
     Locked: 'locked'

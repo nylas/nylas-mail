@@ -1,6 +1,7 @@
 import DatabaseStore from '../stores/database-store';
 import AccountStore from '../stores/account-store';
 import Task from './task';
+import Category from '../models/category';
 import ChangeFolderTask from './change-folder-task';
 import ChangeLabelTask from './change-labels-task';
 import SyncbackCategoryTask from './syncback-category-task';
@@ -29,9 +30,8 @@ export default class DestroyCategoryTask extends Task {
       return Promise.reject(new Error("Attempt to call DestroyCategoryTask.performLocal without this.category."));
     }
 
-    this.category.isDeleted = true;
     return DatabaseStore.inTransaction((t) =>
-      t.persistModel(this.category)
+      t.unpersistModel(this.category)
     );
   }
 
@@ -47,6 +47,11 @@ export default class DestroyCategoryTask extends Task {
     const account = AccountStore.accountForId(accountId);
     const path = account.usesLabels() ? `/labels/${serverId}` : `/folders/${serverId}`;
 
+    // We need to lock this model here to prevent it from beifly showing up
+    // on the modify delta and then correctly disappearing on the delete
+    // delta which comes after a delay
+    NylasAPI.incrementRemoteChangeLock(Category, this.category.serverId);
+
     return NylasAPI.makeRequest({
       accountId,
       path,
@@ -58,9 +63,10 @@ export default class DestroyCategoryTask extends Task {
       if (!NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
         return Promise.resolve(Task.Status.Retry);
       }
-
-      // Revert isDeleted flag
-      this.category.isDeleted = false;
+      if (err.body && err.body.message.includes(`Couldn't find folder`)) {
+        return Promise.resolve(Task.Status.Continue)
+      }
+      NylasAPI.decrementRemoteChangeLock(Category, this.category.serverId);
       return DatabaseStore.inTransaction((t) =>
         t.persistModel(this.category)
       ).then(() => {
