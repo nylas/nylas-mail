@@ -26,9 +26,6 @@ isItemSelected = (perspective) ->
   (WorkspaceStore.rootSheet() in [WorkspaceStore.Sheet.Threads, WorkspaceStore.Sheet.Drafts] and
     FocusedPerspectiveStore.current().isEqual(perspective))
 
-isItemDeleted = (perspective) ->
-  _.any perspective.categories(), (c) -> c.isDeleted
-
 isItemCollapsed = (id) ->
   if NylasEnv.savedState.sidebarKeysCollapsed[id] isnt undefined
     NylasEnv.savedState.sidebarKeysCollapsed[id]
@@ -80,7 +77,6 @@ class SidebarItem
       iconName: perspective.iconName
       children: []
       perspective: perspective
-      className: if isItemDeleted(perspective) then 'deleted' else ''
       selected: isItemSelected(perspective)
       collapsed: isItemCollapsed(id) ? true
       counterStyle: counterStyle

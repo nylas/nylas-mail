@@ -35,6 +35,7 @@ describe "DestroyCategoryTask", ->
       category: category
 
   beforeEach ->
+    spyOn(DatabaseTransaction.prototype, 'unpersistModel').andCallFake -> Promise.resolve()
     spyOn(DatabaseTransaction.prototype, 'persistModel').andCallFake -> Promise.resolve()
 
   describe "performLocal", ->
@@ -43,11 +44,10 @@ describe "DestroyCategoryTask", ->
       runs =>
         task.performLocal()
       waitsFor =>
-        DatabaseTransaction.prototype.persistModel.callCount > 0
+        DatabaseTransaction.prototype.unpersistModel.callCount > 0
       runs =>
-        model = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
+        model = DatabaseTransaction.prototype.unpersistModel.calls[0].args[0]
         expect(model.serverId).toEqual "server-444"
-        expect(model.isDeleted).toBe true
 
   describe "performRemote", ->
     it "throws error when no category present", ->
@@ -73,7 +73,13 @@ describe "DestroyCategoryTask", ->
     describe "when request succeeds", ->
       beforeEach ->
         spyOn(NylasAPI, "makeRequest").andCallFake -> Promise.resolve("null")
+        spyOn(NylasAPI, "incrementRemoteChangeLock")
 
+      it "blocks other remote changes to that category", ->
+        makeAccount()
+        task = makeTask()
+        task.performRemote()
+        expect(NylasAPI.incrementRemoteChangeLock).toHaveBeenCalled()
       it "sends API req to /labels if user uses labels", ->
         makeAccount(usesLabels: true)
         task = makeTask()
@@ -101,11 +107,12 @@ describe "DestroyCategoryTask", ->
     describe "when request fails", ->
       beforeEach ->
         makeAccount()
+        spyOn(NylasAPI, 'decrementRemoteChangeLock')
         spyOn(NylasEnv, 'reportError')
         spyOn(NylasAPI, 'makeRequest').andCallFake ->
           Promise.reject(new APIError({statusCode: 403}))
 
-      it "updates the isDeleted flag for the category and notifies error", ->
+      it "persists the category and notifies error", ->
         waitsForPromise ->
           task = makeTask()
           spyOn(task, "_notifyUserOfError")
@@ -117,7 +124,7 @@ describe "DestroyCategoryTask", ->
             expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
             model = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
             expect(model.serverId).toEqual "server-444"
-            expect(model.isDeleted).toBe false
+            expect(NylasAPI.decrementRemoteChangeLock).toHaveBeenCalled
 
       describe "_notifyUserOfError", ->
         it "should present an error dialog", ->

@@ -58,6 +58,7 @@ class ObservableListDataSource extends ListTabular.DataSource
     @_resultSet.modelAtOffset(offset)
 
   getById: (id) ->
+    return null unless @_resultSet
     @_resultSet.modelWithId(id)
 
   indexOfId: (id) ->

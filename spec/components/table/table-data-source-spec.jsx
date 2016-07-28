@@ -1,4 +1,4 @@
-import {testData, testDataSource} from '../../fixtures/table-data'
+import {testData, testDataSource, testDataSourceUneven} from '../../fixtures/table-data'
 
 
 describe('TableDataSource', function describeBlock() {
@@ -83,6 +83,15 @@ describe('TableDataSource', function describeBlock() {
         [7, 8],
       ])
     });
+
+    it('removes the last column only from every row with that column', () => {
+      const res = testDataSourceUneven.removeLastColumn()
+      expect(res.rows()).toEqual([
+        [1, 2],
+        [4, 5],
+        [7, 8],
+      ])
+    })
   });
 
   describe('addRow', () => {

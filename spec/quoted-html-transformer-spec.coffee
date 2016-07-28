@@ -22,7 +22,7 @@ describe "QuotedHTMLTransformer", ->
   [1..18].forEach (n) ->
     it "properly parses email_#{n}", ->
       opts = keepIfWholeBodyIsQuote: true
-      expect(removeQuotedHTML("email_#{n}.html", opts)).toEqual readFile("email_#{n}_stripped.html")
+      expect(removeQuotedHTML("email_#{n}.html", opts).trim()).toEqual(readFile("email_#{n}_stripped.html").trim())
 
   describe 'manual quote detection tests', ->
 
@@ -60,7 +60,7 @@ describe "QuotedHTMLTransformer", ->
 
         </div>
         """
-      after: """<head></head><body>
+      after: """
         <div>
           Some text
 
@@ -76,7 +76,7 @@ describe "QuotedHTMLTransformer", ->
           </blockquote>
 
           <div>Text at end</div>
-         </div></body>
+         </div>
         """
 
     # Test 2: Basic quote removal
@@ -88,11 +88,11 @@ describe "QuotedHTMLTransformer", ->
         <br>
         <br>
         """
-      after: """<head></head><body>
+      after: """
         <br>
         Yo
         <br>
-        <br></body>
+        <br>
         """
 
     # Test 3: It found the blockquote in another div
@@ -106,13 +106,13 @@ describe "QuotedHTMLTransformer", ->
         <br>
         <br>
         """
-      after: """<head></head><body>
+      after: """
         <div>Hello World</div>
         <br>
         <div>
          </div>
         <br>
-        <br></body>
+        <br>
         """
 
       # Test 4: It works inside of a wrapped div
@@ -125,12 +125,12 @@ describe "QuotedHTMLTransformer", ->
           <br>
         </div>
         """
-      after: """<head></head><body>
+      after: """
         <div>
           <br>
           <br>
           <br>
-        </div></body>
+        </div>
         """
 
     # Test 5: Inline quotes and text
@@ -140,10 +140,10 @@ describe "QuotedHTMLTransformer", ->
         <blockquote>Inline quote</blockquote>
         World
         """
-      after: """<head></head><body>
+      after: """
         Hello
         <blockquote>Inline quote</blockquote>
-        World</body>
+        World
         """
 
     # Test 6: No quoted elements at all
@@ -151,8 +151,8 @@ describe "QuotedHTMLTransformer", ->
       before: """
         Hello World
         """
-      after: """<head></head><body>
-        Hello World</body>
+      after: """
+        Hello World
         """
 
     # Test 7: Common ancestor is a quoted node
@@ -165,8 +165,8 @@ describe "QuotedHTMLTransformer", ->
           Other content
         </blockquote>
         """
-      after: """<head></head><body>
-        <div>Content</div></body>
+      after: """
+        <div>Content</div>
         """
 
     # Test 8: All of our quote blocks we want to remove are at the end…
@@ -196,7 +196,7 @@ describe "QuotedHTMLTransformer", ->
         <br>
         <blockquote>More quotes!</blockquote>
         """
-      after: """<head></head><body>
+      after: """
         <div>Content</div>
         <blockquote>
           Some content
@@ -214,7 +214,7 @@ describe "QuotedHTMLTransformer", ->
           <br>
         </div>
         <br>
-        </body>
+
         """
 
     # Test 9: Last several tags are blockquotes. Note the 3 blockquote
@@ -232,12 +232,12 @@ describe "QuotedHTMLTransformer", ->
         <blockquote>Bar</blockquote>
         <blockquote>Baz</blockquote>
         """
-      after: """<head></head><body>
+      after: """
         <div>
           <blockquote>I'm inline</blockquote>
           Content
          </div>
-        <div></div></body>
+        <div></div>
         """
 
     # Test 10: If it's only a quote and no other text, then just show the
@@ -249,11 +249,11 @@ describe "QuotedHTMLTransformer", ->
         <br>
         <br>
         """
-      after: """<head></head><body>
+      after: """
         <br>
         <blockquote>Nothing but quotes</blockquote>
         <br>
-        <br></body>
+        <br>
         """
 
 
@@ -265,8 +265,7 @@ describe "QuotedHTMLTransformer", ->
           This entire thing is quoted text!
         </body>
         """
-      after: """<head></head><body></body>
-        """
+      after: "<head></head><body></body>"
 
     # Test 12: Make sure that a single quote inside of a bunch of other
     # content is detected. We used to have a bug where we were only
@@ -285,7 +284,7 @@ describe "QuotedHTMLTransformer", ->
         Yo
         <br>
         """
-      after: """<head></head><body>
+      after: """
         <br>
         Yo
         <table><tbody>
@@ -294,7 +293,7 @@ describe "QuotedHTMLTransformer", ->
           <tr><td>E</td><td>F</td></tr>
         </tbody></table>
         Yo
-        <br></body>
+        <br>
         """
 
     # Test 13: If there's an "On date…" string immediatley before a blockquote,
@@ -323,12 +322,12 @@ describe "QuotedHTMLTransformer", ->
         </div>
         <br>
       """
-      after: """<head></head><body>
+      after: """
         Hey
         <div>
           On FOOBAR
           <br><br>
-          </div><br></body>
+          </div><br>
       """
 
     # Test 14: Don't pick up false positives on the string precursors to block
@@ -346,14 +345,14 @@ describe "QuotedHTMLTransformer", ->
         </blockquote>
         </div>
       """
-      after: """<head></head><body>
+      after: """
         Hey
         <div>
         On FOOBAR
         <br>
         On Thu, Mar 3, 2016 I went to my writing club and wrote:
         <strong>A little song</strong>
-        </div></body>
+        </div>
       """
 
     it 'works with these manual test cases', ->
@@ -364,12 +363,12 @@ describe "QuotedHTMLTransformer", ->
 
     it 'removes all trailing <br> tags except one', ->
       input0 = "hello world<br><br><blockquote>foolololol</blockquote>"
-      expect0 = "<head></head><body>hello world<br></body>"
+      expect0 = "hello world<br>"
       expect(QuotedHTMLTransformer.removeQuotedHTML(input0)).toEqual expect0
 
     it 'preserves <br> tags in the middle and only chops off tail', ->
       input0 = "hello<br><br>world<br><br><blockquote>foolololol</blockquote>"
-      expect0 = "<head></head><body>hello<br><br>world<br></body>"
+      expect0 = "hello<br><br>world<br>"
       expect(QuotedHTMLTransformer.removeQuotedHTML(input0)).toEqual expect0
 
     it 'works as expected when body tag inside the html', ->
@@ -386,7 +385,7 @@ describe "QuotedHTMLTransformer", ->
       <h1 id="h2">h2</h1>
       <p>he he hehehehehehe</p>
       <p>dufjcasc</p>
-      </body>
+
 
       </blockquote>
       """
@@ -405,7 +404,7 @@ describe "QuotedHTMLTransformer", ->
   # It's inside of the specs here instaed of its own script because the
   # `QuotedHTMLTransformer` needs Electron booted up in order to work because
   # of the DOMParser.
-  xit "Run this simple funciton to generate output files", ->
+  xit "Run this simple function to generate output files", ->
     [18].forEach (n) ->
       newHTML = QuotedHTMLTransformer.removeQuotedHTML(readFile("email_#{n}.html"))
       outPath = path.resolve(__dirname, 'fixtures', 'emails', "email_#{n}_raw_stripped.html")
