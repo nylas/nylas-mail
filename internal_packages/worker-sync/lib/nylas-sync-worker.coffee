@@ -57,7 +57,6 @@ class NylasSyncWorker
         @_state.cursor = val
         @writeState()
       onStatusChanged: (status, statusCode) =>
-        console.log('status changing!!!')
         @_state.longConnectionStatus = status
         if status is NylasLongConnection.Status.Closed
           # Make the delay 30 seconds if we get a 403
