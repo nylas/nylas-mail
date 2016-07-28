@@ -61,13 +61,13 @@ class KeybaseSearch extends React.Component
     initialSearch: React.PropTypes.string
     # importFunc: a alternate function to execute when the "import" button is
     # clicked instead of the "please specify an email" popover
-    importFunc: React.PropTypes.function
+    importFunc: React.PropTypes.func
     # TODO consider just passing in a pre-specified email instead of a func?
     inPreferences: React.PropTypes.bool
 
   @defaultProps:
     initialSearch: ""
-    importFunc: false
+    importFunc: null
     inPreferences: false
 
   constructor: (props) ->
