@@ -146,7 +146,7 @@ export default class SpellcheckComposerExtension extends ComposerExtension {
                   selectionSnapshot[`${prop}Node`] = afterMatchNode;
                   selectionSnapshot[`${prop}Offset`] -= match.index + match[0].length;
                   selectionSnapshot.modified = true;
-                } else if (selectionSnapshot[`${prop}Offset`] > match.index) {
+                } else if (selectionSnapshot[`${prop}Offset`] >= match.index) {
                   selectionSnapshot[`${prop}Node`] = spellingSpan.childNodes[0];
                   selectionSnapshot[`${prop}Offset`] -= match.index;
                   selectionSnapshot.modified = true;
