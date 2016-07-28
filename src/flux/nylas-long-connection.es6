@@ -36,23 +36,23 @@ class NylasLongConnection {
     this._buffer = ''
     this._results = []
     this._pingTimeout = null
-    this._statusCode = null
+    this._httpStatusCode = null
 
     // Options
     this._path = path
     this._timeout = timeout || CONNECTION_TIMEOUT
     this._onError = onError || (() => {})
     this._onStatusChanged = onStatusChanged || (() => {})
-    this._debounceInterval = debounceInterval
+    this._debounceInterval = debounceInterval || null
     this._closeIfDataStopsInterval = closeIfDataStopsInterval
 
-    this._flushResults = () => {
+    this._flushResultsSoon = () => {
       if (this._results.length === 0) { return }
       this._emitter.emit('results-stopped-arriving', this._results);
       this._results = []
     }
-    if (this._debounceInterval != null) {
-      this._flushResults = _.debounce(this._flushResults, this._debounceInterval)
+    if (this._debounceInterval !== null) {
+      this._flushResultsSoon = _.debounce(this._flushResultsSoon, this._debounceInterval)
     }
   }
 
@@ -76,7 +76,7 @@ class NylasLongConnection {
         this._results.push(result)
       }
     })
-    this._flushResults()
+    this._flushResultsSoon()
   }, PROCESS_RESULTS_THROTTLE, {leading: false})
 
   get accountId() {
@@ -90,11 +90,15 @@ class NylasLongConnection {
   setStatus(status) {
     if (this._status === status) { return }
     this._status = status
-    this._onStatusChanged(status, this._statusCode)
+    this._onStatusChanged(this._status, this._httpStatusCode)
   }
 
   onResults(callback) {
     this._emitter.on('results-stopped-arriving', callback)
+  }
+
+  onError(error) {
+    return this._onError(error)
   }
 
   canStart() {
@@ -123,12 +127,12 @@ class NylasLongConnection {
     }
 
     this._req = lib.request(options, (responseStream) => {
-      this._statusCode = responseStream.statusCode
+      this._httpStatusCode = responseStream.statusCode
       if (responseStream.statusCode !== 200) {
         responseStream.on('data', (chunk) => {
           const error = new Error(chunk.toString('utf8'))
           console.error(error)
-          this._onError(error)
+          this.onError(error)
           this.close()
         })
         return
@@ -152,7 +156,7 @@ class NylasLongConnection {
     this._req.setSocketKeepAlive(true)
     this._req.on('error', (err) => {
       console.error(err)
-      this._onError(err)
+      this.onError(err)
       this.close()
     })
     this._req.on('socket', (socket) => {
@@ -182,7 +186,7 @@ class NylasLongConnection {
     }
     clearTimeout(this._pingTimeout)
     this._pingTimeout = null
-    this._statusCode = null
+    this._httpStatusCode = null
     this._buffer = ''
     if (this._req) {
       this._req.end()

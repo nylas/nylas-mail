@@ -54,6 +54,7 @@ class NylasWindow
       resizable: resizable
       webPreferences:
         directWrite: true
+      autoHideMenuBar: true
 
     if @neverClose
       # Prevents DOM timers from being suspended when the main window is hidden.

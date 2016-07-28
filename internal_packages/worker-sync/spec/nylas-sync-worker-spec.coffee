@@ -176,6 +176,17 @@ describe "NylasSyncWorker", ->
       expect(connection.hasCursor()).toBe(true)
       expect(connection._getCursor()).toEqual('new-school')
 
+    it "should set the cursor to the last cursor after receiving deltas", ->
+      spyOn(DeltaStreamingConnection.prototype, 'latestCursor').andReturn Promise.resolve()
+      worker = new NylasSyncWorker(@api, @account)
+      advanceClock()
+      connection = worker.connection()
+      deltas = [{cursor: '1'}, {cursor: '2'}]
+      connection._emitter.emit('results-stopped-arriving', deltas)
+      advanceClock()
+      expect(connection._getCursor()).toEqual('2')
+
+
   describe "when a count request completes", ->
     beforeEach ->
       @worker.start()
