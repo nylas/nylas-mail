@@ -177,7 +177,9 @@ class DraftStore
       # handler, so we need to always defer by one tick before re-firing close.
       Promise.settle(promises).then =>
         @_draftSessions = {}
-        readyToUnload()
+        # We have to wait for accumulateAndTrigger() in the DatabaseStore to
+        # send events to ActionBridge before closing the window.
+        setTimeout(readyToUnload, 15)
 
       # Stop and wait before closing
       return false
