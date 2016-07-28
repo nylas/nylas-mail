@@ -1,5 +1,61 @@
 # N1 Changelog
 
+### 0.4.47 (7/28/16)
+
+- Features:
+
+  + Signatures: You can now create as many signatures as you want, make them
+    the default for accounts and aliases, and choose which one to apply to a
+    draft!
+
+  + Snooze & Send Later: We've made snooze and send later more responsive. They
+    now act on your email within one minute of your scheduled time.
+
+  + Linux Unread Badge: On Linux systems with the Unity Launcher, an unread count
+    appears on the app icon.
+
+  + Keybase: We've improved decryption support and messaging in the Keybase plugin,
+    making it even easier to encrypt and decrypt your email.
+
+- Fixes:
+  + N1 now supports email addresses and URLs containing unicode characters. #1920
+  + The composer no longer lags significantly when replying to emails with large
+    amounts of quoted text.
+  + Inline images render properly in emails that specify a "base" URL in their HTML.
+  + HTML emails with a body height of `100%` or `inherit` now render
+    at the correct height instead of appearing 10px tall. #1280
+  + Reading emails now removes related system notifications #1393
+  + Notifications are now displayed in the correct order as they are received #2517
+  + Mail merge no longer complains about empty rows, and removing a column no
+    longer removes data from other columns when some rows are missing values.
+  + When you delete a folder, it now disappears immediately.
+  + When closing a draft, your most recent changes reliably appear in the draft list.
+  + Emails sent from Outlook for Mac that contain `contenteditable` nodes no longer
+    appear to be editable when viewed in N1.
+  + "Per recipient" read receipts and open tracking are no longer enabled when
+    you're sending to more than 10 people, since they can cause you to go over
+    your provider's sending quota more quickly.
+  + On linux, the menu bar automatically hides. #1181
+  + In Preferences > General, a new option allows you to clear your local cache
+    and / or reset your accounts in N1.
+  + In Preferences > General, a new option allows you to disable spellcheck.
+    Note: You must relaunch N1 for this setting to take effect.
+  + When N1 prompts you to "Sign in to Gmail", it displays the authentication URL
+    so you can copy it if the page does not appear in your browser properly.
+  + When saving several attachments, N1 does not repeatedly open the same Finder window. #1044
+  + If you've disabled the Important label in Gmail preferences, you no longer see
+    a lowercase `important` label on your mail.
+  + We now support Linux Mint 18
+  + The "View on Github" plugin now works as expected.
+  + Renaming a label inside another label now maintains the hierarchy as expected. #2402
+
+- Development:
+
+  + Local Sync Engine: When you first setup N1, you can choose to link it to a
+    version of the sync engine on your local machine. This is a developer / hacker
+    feature and we recommend you use the hosted infrastructure! Creating a Nylas
+    Identity is no longer required when using a custom environment.
+
 ### 0.4.45 (6/14/16)
 
 - Features:
