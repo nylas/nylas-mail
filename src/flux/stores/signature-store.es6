@@ -24,7 +24,6 @@ class SignatureStore extends NylasStore {
       this.trigger()
     });
     this.signatures = NylasEnv.config.get(`nylas.signatures`) || {}
-    this.selectedSignatureId = this._setSelectedSignatureId()
     this.defaultSignatures = NylasEnv.config.get(`nylas.defaultSignatures`) || {}
 
     // backfill the new signatures structure with old signatures from < v0.4.45
@@ -43,6 +42,8 @@ class SignatureStore extends NylasStore {
       this._saveSignatures();
       this._saveDefaultSignatures();
     }
+
+    this.selectedSignatureId = this._setSelectedSignatureId()
 
     this.trigger()
   }

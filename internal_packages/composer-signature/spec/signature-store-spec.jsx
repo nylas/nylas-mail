@@ -22,7 +22,7 @@ const DEFAULTS = {
 
 describe('SignatureStore', function signatureStore() {
   beforeEach(() => {
-    spyOn(NylasEnv.config, 'get').andCallFake(() => SIGNATURES)
+    spyOn(NylasEnv.config, 'get').andCallFake((key) => (key === 'nylas.signatures' ? SIGNATURES : null))
 
     spyOn(SignatureStore, '_saveSignatures').andCallFake(() => {
       NylasEnv.config.set(`nylas.signatures`, SignatureStore.signatures)
@@ -44,8 +44,10 @@ describe('SignatureStore', function signatureStore() {
 
   describe('removeSignature', () => {
     beforeEach(() => {
-      spyOn(NylasEnv.config, 'set').andCallFake((notImportant, newObject) => {
-        SIGNATURES = newObject
+      spyOn(NylasEnv.config, 'set').andCallFake((key, newObject) => {
+        if (key === 'nylas.signatures') {
+          SIGNATURES = newObject;
+        }
       })
     })
     it('should remove the signature from our list of signatures', () => {
