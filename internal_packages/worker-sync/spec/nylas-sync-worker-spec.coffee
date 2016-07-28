@@ -43,11 +43,11 @@ describe "NylasSyncWorker", ->
         return throw new Error("Not stubbed! #{key}")
 
 
+    spyOn(DeltaStreamingConnection.prototype, 'start')
     @account = new Account(clientId: TEST_ACCOUNT_CLIENT_ID, serverId: TEST_ACCOUNT_ID, organizationUnit: 'label')
     @worker = new NylasSyncWorker(@api, @account)
     @worker._metadata = {"a": [{"id":"b"}]}
     @connection = @worker.connection()
-    spyOn(@connection, 'start')
     advanceClock()
 
   it "should reset `busy` to false when reading state from disk", ->

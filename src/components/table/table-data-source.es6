@@ -140,8 +140,9 @@ export default class TableDataSource {
    * @method removeLastColumn
    */
   removeLastColumn() {
-    const nextRows = this.rows().map(row => row.slice(0, row.length - 1))
-    const nextColumns = this.columns().slice(0, this.columns().length - 1)
+    const nextNumColumns = this.columns().length - 1
+    const nextRows = this.rows().map(row => row.slice(0, nextNumColumns))
+    const nextColumns = this.columns().slice(0, nextNumColumns)
     return new TableDataSource({
       ...this._tableData,
       rows: nextRows,
@@ -232,4 +233,3 @@ export default class TableDataSource {
     return {...this._tableData}
   }
 }
-
