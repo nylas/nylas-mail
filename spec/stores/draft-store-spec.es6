@@ -258,6 +258,7 @@ describe('DraftStore', function draftStore() {
         expect(callback).not.toHaveBeenCalled();
         this.resolve();
         advanceClock(1000);
+        advanceClock(1000);
         expect(callback).toHaveBeenCalled();
       });
     });
@@ -280,6 +281,7 @@ describe('DraftStore', function draftStore() {
         expect(DraftStore._onBeforeUnload(callback)).toBe(false);
         expect(callback).not.toHaveBeenCalled();
         advanceClock();
+        advanceClock(1000);
         expect(callback).toHaveBeenCalled();
       });
     });
