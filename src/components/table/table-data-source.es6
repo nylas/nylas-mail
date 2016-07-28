@@ -45,7 +45,8 @@ export default class TableDataSource {
    * @method colAt
    */
   colAt(colIdx) {
-    return this._tableData.columns[colIdx] || null
+    const col = this._tableData.columns[colIdx]
+    return col != null ? col : null
   }
 
   /**
@@ -90,7 +91,41 @@ export default class TableDataSource {
       return this.colAt(colIdx)
     }
     const row = this.rowAt(rowIdx)
-    return row ? row[colIdx] || null : null
+    const cell = row ? row[colIdx] : null
+    return cell != null ? cell : null
+  }
+
+  /**
+   * Returns true if the given cell, column, or row is empty
+   *
+   * ```
+   * source.isEmpty({rowIdx: 1}) // true if row 1 is empty
+   * ```
+   *
+   * @param {object} arg
+   * @param {number} arg.rowIdx - Row index of cell
+   * @param {number} arg.colIdx - Col index of cell
+   * @return {any} - value for cell at given indices or null if it does not exist
+   * @method cellAt
+   */
+  isEmpty({rowIdx, colIdx} = {}) {
+    if (rowIdx == null && colIdx == null) {
+      throw new Error('TableDataSource::isEmpty - Must provide rowIdx and/or colIdx')
+    }
+    if (rowIdx == null) {
+      const col = this.colAt(colIdx)
+      if (col == null) {
+        throw new Error('TableDataSource::isEmpty - Must provide a valid colIdx')
+      }
+    }
+    const row = this.rowAt(rowIdx)
+    if (!row) {
+      throw new Error('TableDataSource::isEmpty - Must provide a valid rowIdx')
+    }
+    if (colIdx == null) {
+      return row.every((el) => !el)
+    }
+    return !this.cellAt({rowIdx, colIdx})
   }
 
   /**
