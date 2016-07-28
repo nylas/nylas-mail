@@ -1,4 +1,9 @@
-import {testData, testDataSource, testDataSourceUneven} from '../../fixtures/table-data'
+import {
+  testData,
+  testDataSource,
+  testDataSourceEmpty,
+  testDataSourceUneven,
+} from '../../fixtures/table-data'
 
 
 describe('TableDataSource', function describeBlock() {
@@ -38,6 +43,37 @@ describe('TableDataSource', function describeBlock() {
     it('returns null if cell does not exist', () => {
       expect(testDataSource.cellAt({rowIdx: 3, colIdx: 1})).toBe(null)
       expect(testDataSource.cellAt({rowIdx: 1, colIdx: 3})).toBe(null)
+    });
+  });
+
+  describe('isEmpty', () => {
+    it('throws if no args passed', () => {
+      expect(() => testDataSource.isEmpty()).toThrow()
+    });
+
+    it('throws if row does not exist', () => {
+      expect(() => testDataSource.isEmpty({rowIdx: 100})).toThrow()
+    });
+
+    it('throws if col does not exist', () => {
+      expect(() => testDataSource.isEmpty({colIdx: 100})).toThrow()
+    });
+
+    it('returns correct value when checking cell', () => {
+      expect(testDataSourceEmpty.isEmpty({rowIdx: 2, colIdx: 1})).toBe(true)
+      expect(testDataSourceEmpty.isEmpty({rowIdx: 3, colIdx: 1})).toBe(true)
+      expect(testDataSourceEmpty.isEmpty({rowIdx: 0, colIdx: 0})).toBe(false)
+    });
+
+    it('returns correct value when checking col', () => {
+      expect(testDataSourceEmpty.isEmpty({colIdx: 2})).toBe(true)
+      expect(testDataSourceEmpty.isEmpty({colIdx: 0})).toBe(false)
+    });
+
+    it('returns correct value when checking row', () => {
+      expect(testDataSourceEmpty.isEmpty({rowIdx: 2})).toBe(true)
+      expect(testDataSourceEmpty.isEmpty({rowIdx: 3})).toBe(true)
+      expect(testDataSourceEmpty.isEmpty({rowIdx: 1})).toBe(false)
     });
   });
 
