@@ -38,8 +38,8 @@ export default class SignatureComposerDropdown extends React.Component {
 
   componentDidUpdate(previousProps) {
     if (previousProps.currentAccount.clientId !== this.props.currentAccount.clientId) {
-      const newAccountDefaultSignature = SignatureStore.signatureForEmail(this.props.currentAccount.email)
-      this._changeSignature(newAccountDefaultSignature)
+      const nextDefaultSignature = SignatureStore.signatureForEmail(this.props.currentAccount.email)
+      this._changeSignature(nextDefaultSignature)
     }
   }
 

@@ -1,8 +1,8 @@
-import {Utils, Actions} from 'nylas-exports';
+import {Utils, Actions, AccountStore} from 'nylas-exports';
 import NylasStore from 'nylas-store'
 import _ from 'underscore'
 
-const DefaultSignature = "Sent from <a href=\"https://nylas.com/n1?ref=n1\">Nylas N1</a>, the extensible, open source mail client.";
+const DefaultSignatureText = "Sent from <a href=\"https://nylas.com/n1?ref=n1\">Nylas N1</a>, the extensible, open source mail client.";
 
 class SignatureStore extends NylasStore {
 
@@ -18,14 +18,32 @@ class SignatureStore extends NylasStore {
     NylasEnv.config.onDidChange(`nylas.signatures`, () => {
       this.signatures = NylasEnv.config.get(`nylas.signatures`)
       this.trigger()
-    })
+    });
     NylasEnv.config.onDidChange(`nylas.defaultSignatures`, () => {
       this.defaultSignatures = NylasEnv.config.get(`nylas.defaultSignatures`)
       this.trigger()
-    })
+    });
     this.signatures = NylasEnv.config.get(`nylas.signatures`) || {}
     this.selectedSignatureId = this._setSelectedSignatureId()
     this.defaultSignatures = NylasEnv.config.get(`nylas.defaultSignatures`) || {}
+
+    // backfill the new signatures structure with old signatures from < v0.4.45
+    let changed = false;
+    for (const account of AccountStore.accounts()) {
+      const signature = NylasEnv.config.get(`nylas.account-${account.id}.signature`)
+      if (signature) {
+        const newId = Utils.generateTempId();
+        this.signatures[newId] = {id: newId, title: account.label, body: signature};
+        this.defaultSignatures[account.emailAddress] = newId;
+        NylasEnv.config.unset(`nylas.account-${account.id}.signature`);
+        changed = true;
+      }
+    }
+    if (changed) {
+      this._saveSignatures();
+      this._saveDefaultSignatures();
+    }
+
     this.trigger()
   }
 
@@ -46,7 +64,7 @@ class SignatureStore extends NylasStore {
   }
 
   signatureForEmail = (email) => {
-    return this.signatures[this.defaultSignatures[email]]
+    return this.signatures[this.defaultSignatures[email]] || {id: 'default', body: DefaultSignatureText, title: 'Default'}
   }
 
   _saveSignatures() {
@@ -89,7 +107,7 @@ class SignatureStore extends NylasStore {
 
   _onAddSignature = (sigTitle = "Untitled") => {
     const newId = Utils.generateTempId()
-    this.signatures[newId] = {id: newId, title: sigTitle, body: DefaultSignature}
+    this.signatures[newId] = {id: newId, title: sigTitle, body: DefaultSignatureText}
     this.selectedSignatureId = newId
     this.trigger()
     this._saveSignatures()
