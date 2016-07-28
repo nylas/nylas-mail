@@ -168,8 +168,6 @@ class PackageManager
   #
   # Return a {String} folder path or undefined if it could not be resolved.
   resolvePackagePath: (name) ->
-    return name if fs.isDirectorySync(name)
-
     packagePath = fs.resolve(@packageDirPaths..., name)
     return packagePath if fs.isDirectorySync(packagePath)
 

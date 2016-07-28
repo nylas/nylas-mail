@@ -1,3 +1,4 @@
+import _ from 'underscore'
 import {NylasLongConnection, DatabaseStore} from 'nylas-exports'
 
 const {Status} = NylasLongConnection
@@ -10,20 +11,16 @@ class DeltaStreamingConnection extends NylasLongConnection {
     opts.closeIfDataStopsInterval = 15 * 1000
     super(api, accountId, opts)
 
-    const {ready, getCursor, setCursor, setStatus} = opts
-    this._ready = ready
+    const {isReady, getCursor, setCursor} = opts
+    this._isReady = isReady
     this._getCursor = getCursor
     this._setCursor = setCursor
 
-    // Override super class instance vars
-    this._onStatusChanged = setStatus
-    this._onError = (err) => {
-      if (err.message.indexOf('Invalid cursor') > 0) {
-        const error = new Error('Delta Connection: Cursor is invalid. Need to blow away local cache.')
-        NylasEnv.config.unset(`nylas.${this._accountId}.cursor`)
-        DatabaseStore._handleSetupError(error)
-      }
-    }
+    // Update cursor when deltas received
+    this.onDeltas((deltas) => {
+      const last = _.last(deltas)
+      this._setCursor(last.cursor)
+    })
   }
 
   deltaStreamingPath(cursor) {
@@ -32,6 +29,14 @@ class DeltaStreamingConnection extends NylasLongConnection {
 
   hasCursor() {
     return !!this._getCursor()
+  }
+
+  onError(err) {
+    if (err.message.indexOf('Invalid cursor') > 0) {
+      const error = new Error('Delta Connection: Cursor is invalid. Need to blow away local cache.')
+      NylasEnv.config.unset(`nylas.${this._accountId}.cursor`)
+      DatabaseStore._handleSetupError(error)
+    }
   }
 
   latestCursor() {
@@ -54,7 +59,7 @@ class DeltaStreamingConnection extends NylasLongConnection {
   }
 
   start() {
-    if (!this._ready()) { return }
+    if (!this._isReady()) { return }
     if (!this.canStart()) { return }
     if (this._req != null) { return }
 

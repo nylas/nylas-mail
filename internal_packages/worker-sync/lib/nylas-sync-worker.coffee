@@ -49,14 +49,15 @@ class NylasSyncWorker
 
     @_terminated = false
     @_connection = new DeltaStreamingConnection(api, account.id, {
-      ready: => @_state isnt null
+      isReady: => @_state isnt null
       getCursor: =>
         return null if @_state is null
         @_state.cursor || NylasEnv.config.get("nylas.#{@_account.id}.cursor")
       setCursor: (val) =>
         @_state.cursor = val
         @writeState()
-      setStatus: (status, statusCode) =>
+      onStatusChanged: (status, statusCode) =>
+        console.log('status changing!!!')
         @_state.longConnectionStatus = status
         if status is NylasLongConnection.Status.Closed
           # Make the delay 30 seconds if we get a 403
