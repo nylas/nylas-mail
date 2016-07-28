@@ -112,15 +112,17 @@ export default class PreferencesSignatures extends React.Component {
   }
 
   _isChecked = (accountOrAlias) => {
-    if (this.state.defaults[accountOrAlias.email] === this.state.selectedSignature.id) return true
-    return false
+    if (!this.state.selectedSignature) {
+      return false;
+    }
+    return (this.state.defaults[accountOrAlias.email] === this.state.selectedSignature.id);
   }
 
-  _numSelected() {
+  _labelForAccountPicker() {
     const sel = _.filter(this.state.accountsAndAliases, (accountOrAlias) => {
       return this._isChecked(accountOrAlias)
     })
-    const numSelected = sel.length
+    const numSelected = sel.length;
     return numSelected.toString() + (numSelected === 1 ? " Account" : " Accounts")
   }
 
@@ -129,7 +131,7 @@ export default class PreferencesSignatures extends React.Component {
   }
 
   _renderAccountPicker() {
-    const buttonText = this._numSelected()
+    const buttonText = this._labelForAccountPicker()
 
     return (
       <MultiselectDropdown
