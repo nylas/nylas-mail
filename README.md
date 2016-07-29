@@ -67,6 +67,7 @@ Great starting points for creating your own plugins!
 - [Squirt Speed Reader](https://github.com/HarleyKwyn/squirt-reader-N1-plugin/)
 - [Website Launcher](https://github.com/adriangrantdotorg/nylas-n1-background-webpage)—Opens a URL in separate window
 - In Development: [Cypher](https://github.com/mbilker/cypher) (PGP Encryption)
+- [Markdown](https://github.com/evenh/n1-markdown) - Markdown support in composing windows
 
 # Configuration
 You can configure N1 in a few ways—for instance, pointing it to your self-hosted instance of the sync engine or changing the interface zoom level. [Learn more about how.](https://github.com/nylas/N1/blob/master/CONFIGURATION.md)
