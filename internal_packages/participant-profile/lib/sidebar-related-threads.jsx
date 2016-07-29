@@ -1,5 +1,5 @@
 import React from 'react'
-import {Utils, Actions} from 'nylas-exports'
+import {Actions, DateUtils} from 'nylas-exports'
 
 export default class RelatedThreads extends React.Component {
   static displayName = "RelatedThreads";
@@ -60,7 +60,7 @@ export default class RelatedThreads extends React.Component {
             {subject}
             <span className="snippet" style={snippetStyles}>{snippet}</span>
           </span>
-          <span className="timestamp" title={Utils.fullTimeString(lastMessageReceivedTimestamp)}>{Utils.shortTimeString(lastMessageReceivedTimestamp)}</span>
+          <span className="timestamp" title={DateUtils.fullTimeString(lastMessageReceivedTimestamp)}>{DateUtils.shortTimeString(lastMessageReceivedTimestamp)}</span>
         </div>
       )
     })
