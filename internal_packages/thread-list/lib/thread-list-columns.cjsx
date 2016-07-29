@@ -1,6 +1,7 @@
 _ = require 'underscore'
 React = require 'react'
 classNames = require 'classnames'
+moment = require 'moment'
 
 {ListTabular,
  RetinaImg,
@@ -8,7 +9,7 @@ classNames = require 'classnames'
  MailImportantIcon,
  InjectedComponentSet} = require 'nylas-component-kit'
 
-{Thread, FocusedPerspectiveStore, Utils} = require 'nylas-exports'
+{Thread, FocusedPerspectiveStore, Utils, DateUtils} = require 'nylas-exports'
 
 {ThreadArchiveQuickAction,
  ThreadTrashQuickAction} = require './thread-list-quick-actions'
@@ -17,11 +18,14 @@ ThreadListParticipants = require './thread-list-participants'
 ThreadListStore = require './thread-list-store'
 ThreadListIcon = require './thread-list-icon'
 
+# Get and format either last sent or last received timestamp depending on thread-list being viewed
 TimestampComponentForPerspective = (thread) ->
   if FocusedPerspectiveStore.current().isSent()
-    <span className="timestamp">{Utils.shortTimeString(thread.lastMessageSentTimestamp)}</span>
+    rawTimestamp = thread.lastMessageSentTimestamp
   else
-    <span className="timestamp">{Utils.shortTimeString(thread.lastMessageReceivedTimestamp)}</span>
+    rawTimestamp = thread.lastMessageReceivedTimestamp
+  timestamp = DateUtils.shortTimeString(rawTimestamp)
+  <span className="timestamp">{timestamp}</span>
 
 subject = (subj) ->
   if (subj ? "").trim().length is 0

@@ -3,12 +3,6 @@ fs = require('fs-plus')
 path = require('path')
 moment = require('moment-timezone')
 
-# Attempts to use  Intl.DateTimeFormat().resolvedOptions().timeZone, falls back
-# to intelligently guessing based on how key dates over one year are formatted.
-tz = moment.tz.guess()
-if not tz
-  console.error("Utils:TimeZone could not be determined. This should not happen!")
-
 DefaultResourcePath = null
 TaskRegistry = require('../../task-registry').default
 DatabaseObjectRegistry = require('../../database-object-registry').default
@@ -57,23 +51,6 @@ Utils =
       if DatabaseObjectRegistry.isInRegistry(type) or TaskRegistry.isInRegistry(type)
         v.__constructorName = type
     return v
-
-  timeZone: tz
-
-  shortTimeString: (time) ->
-    return "" unless time
-    diff = moment().diff(time, 'days', true)
-    if diff <= 1
-      format = "h:mm a"
-    else if diff > 1 and diff <= 365
-      format = "MMM D"
-    else
-      format = "MMM D YYYY"
-    moment(time).format(format)
-
-  fullTimeString: (time) ->
-    return "" unless time
-    moment(time).tz(Utils.timeZone).format("dddd, MMMM Do YYYY, h:mm:ss a z")
 
   fastOmit: (props, without) ->
     otherProps = Object.assign({}, props)

@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from 'react'
-import {Utils} from 'nylas-exports'
+import {DateUtils} from 'nylas-exports'
 import {Flexbox} from 'nylas-component-kit'
 import SendingProgressBar from './sending-progress-bar'
 
@@ -24,6 +24,6 @@ export default class DraftListSendStatus extends Component {
         </Flexbox>
       )
     }
-    return <span className="timestamp">{Utils.shortTimeString(draft.date)}</span>
+    return <span className="timestamp">{DateUtils.shortTimeString(draft.date)}</span>
   }
 }

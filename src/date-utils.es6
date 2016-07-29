@@ -1,10 +1,15 @@
-import moment from 'moment'
+import moment from 'moment-timezone'
 import chrono from 'chrono-node'
 import _ from 'underscore'
 
 // Init locale for moment
 moment.locale(navigator.language)
 
+// Initialise moment timezone
+const tz = moment.tz.guess()
+if (!tz) {
+  console.error("DateUtils: TimeZone could not be determined. This should not happen!")
+}
 
 const yearRegex = / ?YY(YY)?/
 
@@ -156,21 +161,100 @@ const DateUtils = {
     return moment(date)
   },
 
+
+  /**
+   * Return a formatting string for displaying time
+   *
+   * @param {Date} opts - Object with different properties for customising output
+   * @return {String} The format string based on syntax used by Moment.js
+   *
+   * seconds, upperCase and timeZone are the supported extra options to the format string.
+   * Checks whether or not to use 24 hour time format.
+   */
   getTimeFormat(opts) {
     const use24HourClock = NylasEnv.config.get('core.workspace.use24HourClock')
     let timeFormat = use24HourClock ? "HH:mm" : "h:mm"
+
     if (opts && opts.seconds) {
       timeFormat += ":ss"
     }
-    if (!use24HourClock && opts && opts.upperCase) {
-      timeFormat += " A"
+
+    // Append meridian if not using 24 hour clock
+    if (!use24HourClock) {
+      if (opts && opts.upperCase) {
+        timeFormat += " A"
+      } else {
+        timeFormat += " a"
+      }
     }
+
     if (opts && opts.timeZone) {
       timeFormat += " z"
     }
 
     return timeFormat
   },
+
+
+  /**
+   * Return a short format date/time
+   *
+   * @param {Date} datetime - Timestamp
+   * @return {String} Formated date/time
+   *
+   * The returned date/time format depends on how long ago the timestamp is.
+   */
+  shortTimeString(datetime) {
+    const now = moment()
+    const diff = now.diff(datetime, 'days', true)
+    const isSameDay = now.isSame(datetime, 'days')
+    let format = null
+
+    if (diff <= 1 && isSameDay) {
+      // Time if less than 1 day old
+      format = DateUtils.getTimeFormat(null)
+    } else if (diff < 2 && !isSameDay) {
+      // Month and day with time if up to 2 days ago
+      format = `MMM D, ${DateUtils.getTimeFormat(null)}`
+    } else if (diff >= 2 && diff < 365) {
+      // Month and day up to 1 year old
+      format = "MMM D"
+    } else {
+      // Month, day and year if over a year old
+      format = "MMM D YYYY"
+    }
+
+    return moment(datetime).format(format)
+  },
+
+
+  /**
+   * Return a medium format date/time
+   *
+   * @param {Date} datetime - Timestamp
+   * @return {String} Formated date/time
+   */
+  mediumTimeString(datetime) {
+    let format = "MMMM D, YYYY, "
+    format += DateUtils.getTimeFormat({seconds: false, upperCase: true, timeZone: false})
+
+    return moment(datetime).format(format)
+  },
+
+
+  /**
+   * Return a long format date/time
+   *
+   * @param {Date} datetime - Timestamp
+   * @return {String} Formated date/time
+   */
+  fullTimeString(datetime) {
+    let format = "dddd, MMMM Do YYYY, "
+    format += DateUtils.getTimeFormat({seconds: true, upperCase: true, timeZone: true})
+
+    return moment(datetime).tz(tz).format(format)
+  },
+
 };
 
 export default DateUtils
