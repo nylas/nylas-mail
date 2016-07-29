@@ -166,11 +166,6 @@ class Menu extends React.Component
   getSelectedItem: =>
     @props.items[@state.selectedIndex]
 
-  # Public: Set the currently selected item. Pass
-  # null to remove the selection
-  #
-  setSelectedItem: (item) =>
-    @setState selectedIndex: @props.items.indexOf(item)
 
   componentWillReceiveProps: (newProps) =>
     # Attempt to preserve selection across props.items changes by
@@ -242,7 +237,6 @@ class Menu extends React.Component
 
   _itemComponentForItem: (item, i) =>
     content = @props.itemContent(item)
-
     if React.isValidElement(content) and content.type is MenuItem
       return content
 

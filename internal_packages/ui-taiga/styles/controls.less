@@ -67,8 +67,9 @@ body.platform-win32 {
   .secondary-items {
     .item  {
       color: @taiga-light !important;
-      background: @white !important;
-
+      .search-match {
+        background: @white !important;
+      }
       .button-dropdown {
         img {
           background: @taiga-light  !important;
@@ -92,27 +93,26 @@ body.platform-win32 {
   border: none !important;
 }
 
-/**
- * Search bar
- */
-.content-container {
-  .item.selected {
-    background: @taiga-light !important;
-    color: @white !important;
-  }
-}
 
 /**
  * Dropdown
  */
 .menu {
   .item.selected {
-    background: @taiga-light !important;
     .primary {
       color: @white !important;
     }
     .secondary {
       color: @taiga-lighter !important;
+    }
+  }
+  &.search-container {
+    .item {
+      background: @white !important;
+    }
+    .item.selected {
+      background: @taiga-light !important;
+      color: @white !important;
     }
   }
 }
