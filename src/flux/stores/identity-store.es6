@@ -1,6 +1,6 @@
 import NylasStore from 'nylas-store';
 import keytar from 'keytar';
-import {ipcRenderer} from 'electron';
+import {ipcRenderer, remote} from 'electron';
 import request from 'request';
 import url from 'url'
 
@@ -207,7 +207,11 @@ class IdentityStore extends NylasStore {
 
   _onSetNylasIdentity = (identity) => {
     if (identity.token) {
-      keytar.replacePassword(keytarServiceName, keytarIdentityKey, identity.token);
+      if (!keytar.replacePassword(keytarServiceName, keytarIdentityKey, identity.token)) {
+        remote.dialog.showErrorBox("Password Management Error",
+          "We couldn't store your password securely! For more information, visit " +
+          "https://support.nylas.com/hc/en-us/articles/223790028")
+      }
       delete identity.token;
     }
     NylasEnv.config.set(configIdentityKey, identity);
