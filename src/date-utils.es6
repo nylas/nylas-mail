@@ -90,6 +90,8 @@ const DateUtils = {
 
   DATE_FORMAT_LLLL_NO_TIME: moment.localeData().longDateFormat("LLLL").replace(/h:mm/, "").replace(" A", ""),
 
+  timeZone: tz,
+
   format(momentDate, formatString) {
     if (!momentDate) return null;
     return momentDate.format(formatString);
