@@ -151,7 +151,7 @@ class WindowEventHandler
 
     return unless href
 
-    return if currentTarget?.closest?('.no-open-link-events')
+    return if target?.closest('.no-open-link-events')
 
     schema = url.parse(href).protocol
     return unless schema

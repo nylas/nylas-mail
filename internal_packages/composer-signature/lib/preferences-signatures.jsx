@@ -5,6 +5,7 @@ import {
     RetinaImg,
     EditableList,
     Contenteditable,
+    ScrollRegion,
     MultiselectDropdown,
 } from 'nylas-component-kit';
 import {AccountStore, SignatureStore, Actions} from 'nylas-exports';
@@ -199,8 +200,10 @@ export default class PreferencesSignatures extends React.Component {
           selected={this.state.selectedSignature}
         />
         <div className="signature-wrap">
+          <ScrollRegion className="signature-scroll-region">
             {this.state.editAsHTML ? this._renderHTMLSignature() : this._renderEditableSignature()}
-            {this._renderSignatureToolbar()}
+          </ScrollRegion>
+          {this._renderSignatureToolbar()}
         </div>
       </Flexbox>
     )
