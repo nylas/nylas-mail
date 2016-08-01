@@ -1,7 +1,7 @@
 _ = require 'underscore'
 moment = require 'moment-timezone'
 React = require 'react'
-{DateUtils, Utils} = require 'nylas-exports'
+{DateUtils} = require 'nylas-exports'
 
 class MessageTimestamp extends React.Component
   @displayName: 'MessageTimestamp'
@@ -24,6 +24,6 @@ class MessageTimestamp extends React.Component
          onClick={@props.onClick}>{formattedDate}</div>
 
   # Stubbable for testing. Returns a `moment`
-  _today: -> moment.tz(Utils.timeZone)
+  _today: -> moment.tz(DateUtils.timeZone)
 
 module.exports = MessageTimestamp
