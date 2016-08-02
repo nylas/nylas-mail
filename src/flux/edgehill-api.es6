@@ -1,3 +1,4 @@
+import AccountStore from './stores/account-store'
 import NylasAPIRequest from './nylas-api-request';
 
 class EdgehillAPI {
@@ -19,16 +20,33 @@ class EdgehillAPI {
     }
   }
 
+  accessTokenForAccountId(aid) {
+    return AccountStore.tokenForAccountId(aid)
+  }
+
   makeRequest(options = {}) {
     if (NylasEnv.getLoadSettings().isSpec) {
       return Promise.resolve();
     }
 
-    options.auth = options.auth || {
-      user: '',
-      pass: '',
-      sendImmediately: true,
-    };
+    if (options.authWithNylasAPI) {
+      // The account doesn't matter for Edgehill server. We just need to
+      // ensure it's a valid account.
+      options.accountId = AccountStore.accounts()[0].id;
+      // The `NylasAPIRequest` object will grab the appropriate tokens.
+      delete options.auth;
+      delete options.authWithNylasAPI;
+    } else {
+      // A majority of Edgehill-server (aka auth) requests neither need
+      // (nor have) account or N1 ID tokens to provide.
+      // The existence of the options.auth object will prevent
+      // `NylasAPIRequest` from constructing them from existing tokens
+      options.auth = options.auth || {
+        user: '',
+        pass: '',
+        sendImmediately: true,
+      };
+    }
 
     const req = new NylasAPIRequest(this, options);
     return req.run();

@@ -10,12 +10,9 @@ module.exports = class ClearbitDataSource
   find: ({email, tryCount}) ->
     if (tryCount ? 0) >= MAX_RETRY
       return Promise.resolve(null)
-    tok = AccountStore.tokenForAccountId(AccountStore.accounts()[0].id)
     new Promise (resolve, reject) =>
       EdgehillAPI.makeRequest
-        auth:
-          user: tok
-          pass: ""
+        authWithNylasAPI: true
         path: "/proxy/clearbit/#{@clearbitAPI()}/find?email=#{email}",
         success: (body, response) =>
           @parseResponse(body, response, email, tryCount).then(resolve).catch(reject)
