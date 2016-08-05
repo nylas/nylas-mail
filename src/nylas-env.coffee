@@ -959,6 +959,9 @@ class NylasEnvConstructor
   onBeforeUnload: (callback) ->
     @windowEventHandler.addUnloadCallback(callback)
 
+  removeUnloadCallback: (callback) ->
+    @windowEventHandler.removeUnloadCallback(callback)
+
   enhanceEventObject: ->
     overriddenStop =  Event::stopPropagation
     Event::stopPropagation = ->

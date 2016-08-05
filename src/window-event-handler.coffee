@@ -103,6 +103,9 @@ class WindowEventHandler
   addUnloadCallback: (callback) ->
     @unloadCallbacks.push(callback)
 
+  removeUnloadCallback: (callback) ->
+    @unloadCallbacks = @unloadCallbacks.filter (cb) -> cb isnt callback
+
   runUnloadCallbacks: ->
     hasReturned = false
 
