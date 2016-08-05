@@ -82,6 +82,6 @@
   "packageDependencies": {},
   "scripts": {
     "test": "./N1.sh --test",
-    "install-eslint-packages": "mv ./node_modules/sqlite3 ./sqlite3; npm install eslint@2.9.0 eslint-config-airbnb@8.0.0 eslint-plugin-import@1.7.0 eslint-plugin-jsx-a11y@1.0.4 eslint-plugin-react@5.0.1 babel-eslint@6.0.4; mv ./sqlite3 ./node_modules/sqlite3;"
+    "install-eslint-packages": "mv ./node_modules/sqlite3 ./sqlite3; npm install eslint@2.9.0 eslint-config-airbnb@8.0.0 eslint-plugin-import@1.7.0 eslint-plugin-jsx-a11y@1.0.4 eslint-plugin-react@5.0.1 babel-eslint@6.0.4 eslint_d@4.0.1; mv ./sqlite3 ./node_modules/sqlite3;"
   }
 }
