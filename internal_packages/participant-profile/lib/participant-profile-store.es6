@@ -1,4 +1,4 @@
-import {Utils} from 'nylas-exports'
+import {DatabaseStore, Utils} from 'nylas-exports'
 import NylasStore from 'nylas-store'
 import ClearbitDataSource from './clearbit-data-source'
 
@@ -32,6 +32,7 @@ class ParticipantProfileStore extends NylasStore {
 
     this.dataSource.find({email: contact.email}).then((data) => {
       if (data && data.email === contact.email) {
+        this.saveDataToContact(contact, data)
         this.setCache(contact, data);
         this.trigger()
       }
@@ -60,6 +61,19 @@ class ParticipantProfileStore extends NylasStore {
       delete contactCache[contactCacheKeyIndex.shift()]
     }
     return value
+  }
+
+  /**
+   * We save the clearbit data to the contat object in the database.
+   * This lets us load extra Clearbit data from other windows without
+   * needing to call a very expensive API again.
+   */
+  saveDataToContact(contact, data) {
+    return DatabaseStore.inTransaction((t) => {
+      if (!contact.thirdPartyData) contact.thirdPartyData = {};
+      contact.thirdPartyData.clearbit = data
+      return t.persistModel(contact)
+    })
   }
 
   deactivate() {

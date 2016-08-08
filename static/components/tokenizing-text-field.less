@@ -12,11 +12,35 @@
 @token-invalid-selected-top: mix(@token-top, red, 60%);
 @token-invalid-selected-bottom: mix(@token-bottom, red, 55%);
 
+@base-box-shadow: 0 0.5px 0 rgba(0,0,0,0.17), 0 -0.5px 0 rgba(0,0,0,0.17), 0.5px 0 0 rgba(0,0,0,0.17), -0.5px 0 0 rgba(0,0,0,0.17), 0 1px 1px rgba(0, 0, 0, 0.1);
+
 .tokenizing-field {
   display: block;
   margin: 0;
   padding: 0;
   position: relative;
+
+  &.disabled {
+    background: rgba(0,0,0,0.02);
+    opacity: 0.7;
+    .token {
+      background: @token-top;
+      box-shadow: @base-box-shadow;
+      &:hover {
+        background: @token-top;
+        cursor: default;
+        box-shadow: @base-box-shadow;
+      }
+    }
+    .tokenizing-field-input {
+      &:hover {
+        cursor: default;
+      }
+    }
+    &:hover {
+      cursor: default;
+    }
+  }
 
   .content-container {
     border: 1px solid @border-color-secondary;
@@ -60,7 +84,7 @@
     line-height: 1.9em;
 
     background: linear-gradient(to bottom, @token-top 0%, @token-bottom 100%);
-    box-shadow: 0 0.5px 0 rgba(0,0,0,0.17), 0 -0.5px 0 rgba(0,0,0,0.17), 0.5px 0 0 rgba(0,0,0,0.17), -0.5px 0 0 rgba(0,0,0,0.17), 0 1px 1px rgba(0, 0, 0, 0.1);
+    box-shadow: @base-box-shadow;
 
     .action {
       position:absolute;
@@ -141,6 +165,13 @@
     &:hover {
       cursor: text;
     }
+    &.at-max-tokens {
+      cursor: default;
+      input {
+        &:hover { cursor: default; }
+        opacity: 0;
+      }
+    }
 
     input {
       display: inline-block;
@@ -179,20 +210,27 @@
     color: fade(@text-color, 50%);
     position: absolute;
     top: 50%;
-    margin-top: -0.8em;
-    left: 1em;
-    font-size: 12px;
+    margin-top: -0.75em;
+    left: 8px;
   }
 }
 
 body.is-blurred .tokenizing-field .token:not(.invalid) {
   background: @background-secondary;
+  color: @text-color;
+  &.selected .action img { background-color: @text-color-very-subtle; }
 }
 
 body.platform-win32 {
   .tokenizing-field {
     .content-container {
       border-radius: 0;
+    }
+    .tokenizing-field-input {
+      input, input:focus {
+        border: 0;
+        box-shadow: 0 0 0;
+      }
     }
   }
   .token {

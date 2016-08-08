@@ -13,7 +13,7 @@ import DatabaseChangeRecord from './database-change-record';
 import DatabaseTransaction from './database-transaction';
 import DatabaseSetupQueryBuilder from './database-setup-query-builder';
 
-const DatabaseVersion = "23";
+const DatabaseVersion = "25";
 const DatabasePhase = {
   Setup: 'setup',
   Ready: 'ready',

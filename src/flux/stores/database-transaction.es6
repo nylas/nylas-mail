@@ -143,6 +143,10 @@ export default class DatabaseTransaction {
     });
   }
 
+  removeAllOfClass(klass) {
+    return this._query(`DELETE FROM ${klass.name}`)
+  }
+
   // PRIVATE METHODS ////////////////////////////////////////////////////////
 
   _query = (...args) => {

@@ -57,12 +57,6 @@ Actions.dequeueMatchingTask({
 })
 ```
 
-## Creating Tasks
-
-Support for creating custom {Task} subclasses in third-party packages is coming soon.
-This is currently blocked by the ActionBridge, which is responsible for sending actions
-between windows, since it's JSON serializer is not extensible.
-
 Section: Stores
 ###
 class TaskQueue
@@ -127,7 +121,7 @@ class TaskQueue
 
   enqueue: (task) =>
     if not (task instanceof Task)
-      throw new Error("You must queue a `Task` instance")
+      throw new Error("You must queue a `Task` instance. Be sure you have the task registered with the TaskRegistry. If this is a task for a custom plugin, you must export a `taskConstructors` array with your `Task` constructors in it. You must all subclass the base Nylas `Task`.")
     if not (TaskRegistry.isInRegistry(task.constructor.name))
       throw new Error("You must queue a `Task` instance which is registred with the TaskRegistry")
     if not task.id

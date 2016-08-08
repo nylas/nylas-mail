@@ -81,6 +81,7 @@ class MessageItem extends React.Component
           {@_renderHeader()}
           <MessageItemBody message={@props.message} downloads={@state.downloads} />
           {@_renderAttachments()}
+          {@_renderFooterStatus()}
         </div>
       </div>
     </div>
@@ -189,6 +190,12 @@ class MessageItem extends React.Component
       </div>
     else
       <div />
+
+  _renderFooterStatus: =>
+    <InjectedComponentSet
+      className="message-footer-status"
+      matching={role:"MessageFooterStatus"}
+      exposedProps={message: @props.message, thread: @props.thread, detailedHeaders: @state.detailedHeaders} />
 
   _renderHeaderSideItems: ->
     styles =

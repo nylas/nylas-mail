@@ -60,8 +60,12 @@ export default class WindowLauncher {
       // packages.
       win.windowKey = opts.windowKey || `${opts.windowType}-${winNum}`;
       winNum += 1;
-      win.windowKey = opts.windowKey;
       win.windowType = opts.windowType;
+
+      if (options.bounds) {
+        win.browserWindow.setBounds(options.bounds)
+      }
+
       win.setLoadSettings(newLoadSettings);
     }
 

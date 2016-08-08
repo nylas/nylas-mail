@@ -26,14 +26,26 @@ input[type="url"] {
   border: 1px solid @input-border-color;
 
   &:disabled {
-    background: fadeout(@input-bg, 40%);
+    background: rgba(0,0,0,0.02);
+    opacity: 0.7;
   }
 }
 
+.search-bar .menu .header-container input,
 textarea,
 input[type="text"],
 input[type="email"],
-.search-bar .menu .header-container input {
+input[type="date"],
+input[type="datetime"],
+input[type="datetime-local"],
+input[type="month"],
+input[type="number"],
+input[type="password"],
+input[type="range"],
+input[type="search"],
+input[type="tel"],
+input[type="time"],
+input[type="url"] {
   &:focus {
     border: 1px solid @accent-primary;
     box-shadow: 0 0 1.5px @accent-primary;
