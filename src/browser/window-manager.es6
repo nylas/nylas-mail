@@ -120,6 +120,7 @@ export default class WindowManager {
       if (!win.browserWindow.webContents) {
         continue;
       }
+      console.log(`---> SENDING TO ${windowKey}`)
       win.browserWindow.webContents.send(msg, ...args);
     }
   }

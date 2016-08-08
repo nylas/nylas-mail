@@ -136,22 +136,36 @@ class FormItem extends React.Component
     not Utils.isEqualReact(nextProps, @props) or
     not Utils.isEqualReact(nextState, @state)
 
+  # We can get an error from the server, or from the HTML Constraint
+  # validation APIs. Server errors will be placed on
+  # `props.formItemError`. HTML DOM errors will be on the element's
+  # `validity` property.
   refreshValidityState: => _.defer =>
     return unless @refs.input
     el = ReactDOM.findDOMNode(@refs.input)
 
-    customMsg = @props.formItemError?.message
-    if el.setCustomValidity?
-      if customMsg then el.setCustomValidity(customMsg)
-      else el.setCustomValidity('')
+    validityState = {}
+    if @props.formItemError
+      customError = @props.formItemError.message ? ""
+      el.setCustomValidity?(customError)
+      validityState = {
+        valid: false
+        customError: true
+        validationMessage: customError
+        valueMissing: /required/.test(customError)
+      }
+    else
+      # See https://developer.mozilla.org/en-US/docs/Web/API/ValidityState
+      # AND https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement for `validationMessage` property
+      el.setCustomValidity?("")
+      el.checkValidity?()
+      validityState = Object.assign {}, el.validity,
+        validationMessage: el.validationMessage ? ""
 
-    newValidity = _.extend {}, (el.validity ? {}),
-      validationMessage: el.validationMessage ? ""
+    if not Utils.isEqual(validityState, @_lastValidity)
+      @setState validityState
 
-    if not Utils.isEqual(newValidity, @_lastValidity)
-      @setState newValidity
-
-    @_lastValidity = newValidity
+    @_lastValidity = validityState
 
   _renderError: =>
     if @state.valid

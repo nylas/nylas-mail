@@ -64,7 +64,10 @@ export default class WindowLauncher {
       // packages.
       win.windowKey = opts.windowKey || `${opts.windowType}-${winNum}`;
       winNum += 1;
+<<<<<<< 45b1eef00d351e5934b78bae22c280d7ee4dd7a9
       win.windowKey = opts.windowKey;
+=======
+>>>>>>> Fixes to generated form error handling
       win.windowType = opts.windowType;
       win.setLoadSettings(newLoadSettings);
     }
