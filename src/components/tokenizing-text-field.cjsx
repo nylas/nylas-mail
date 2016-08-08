@@ -322,7 +322,7 @@ class TokenizingTextField extends React.Component
       onFocus: @_onInputFocused
       onChange: @_onInputChanged
       disabled: @props.disabled
-      tabIndex: 0
+      tabIndex: @props.tabIndex ? 0
       value: @state.inputValue
 
     # If we can't accept additional tokens, override the events that would

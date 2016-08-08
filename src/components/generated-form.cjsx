@@ -3,6 +3,8 @@ classNames = require 'classnames'
 React = require 'react'
 ReactDOM = require 'react-dom'
 {Utils} = require 'nylas-exports'
+DatePicker = require('./date-picker').default
+TabGroupRegion = require('./tab-group-region')
 
 idPropType = React.PropTypes.oneOfType([
   React.PropTypes.string
@@ -21,7 +23,7 @@ class FormItem extends React.Component
   @inputElementTypes:
     "checkbox": true
     "color": true
-    "date": true
+    "date": false # We use Nylas DatePicker instead
     "datetime": true
     "datetime-local": true
     "email": true
@@ -168,7 +170,7 @@ class FormItem extends React.Component
         @props.onChange(@props.id, ((eventOrValue?.target?.value) ? eventOrValue))
       onBlur: => @refreshValidityState()
 
-    if @props.type of FormItem.inputElementTypes
+    if FormItem.inputElementTypes[@props.type]
       React.createElement("input", inputProps)
     else if @props.type is "select"
       options = (@props.selectOptions ? []).map (optionData) ->
@@ -177,6 +179,8 @@ class FormItem extends React.Component
       <select {...inputProps}>{options}</select>
     else if @props.type is "textarea"
       React.createElement("textarea", inputProps)
+    else if @props.type is "date"
+      React.createElement(DatePicker, inputProps)
     else if _.isFunction(@props.type)
       React.createElement(@props.type, inputProps)
     else
@@ -303,14 +307,16 @@ class GeneratedForm extends React.Component
 
   render: =>
     <form className="generated-form" ref="form">
-      {@_renderHeaderFormError()}
-      <div className="fieldsets">
-        {@_renderFieldsets()}
-      </div>
-      {@_renderHeaderFormError()}
-      <div className="form-footer">
-        <button onClick={@props.onSubmit}>Submit</button>
-      </div>
+      <TabGroupRegion>
+        {@_renderHeaderFormError()}
+        <div className="fieldsets">
+          {@_renderFieldsets()}
+        </div>
+        {@_renderHeaderFormError()}
+        <div className="form-footer">
+          <button className="btn btn-emphasis" onClick={@props.onSubmit}>Submit</button>
+        </div>
+      </TabGroupRegion>
     </form>
 
   shouldComponentUpdate: (nextProps, nextState) =>

@@ -117,7 +117,7 @@ const TaskDebugStatus = {
 //
 //   performLocal() {
 //     this.updatedTodo = _.extend(_.clone(this.existingTodo), this.newData);
-//     return DatabaseStore.persistModel(this.updatedTodo);
+//     return DatabaseStore.inTransaction((t) => t.persistModel(this.updatedTodo));
 //   }
 //
 //   performRemote() {
@@ -358,7 +358,7 @@ export default class Task {
   // class MyTask extends Task {
   //   performLocal() {
   //     this.updatedModel = this._myModelUpdateCode()
-  //     return DatabaseStore.persistModel(this.updatedModel);
+  //     return DatabaseStore.inTransaction((t) => persistModel(this.updatedModel));
   //   }
   // }
   // ```
@@ -373,7 +373,7 @@ export default class Task {
   //     } else {
   //       this.updatedModel = this._myModelUpdateCode();
   //     }
-  //     return DatabaseStore.persistModel(this.updatedModel);
+  //     return DatabaseStore.inTransaction((t) => persistModel(this.updatedModel));
   //   }
   //   performRemote() {
   //     return this._APIPutHelperMethod(this.updatedModel).catch((apiError) => {
@@ -396,7 +396,7 @@ export default class Task {
   //     } else {
   //       this.updatedModel = this._myModelUpdateCode();
   //     }
-  //     return DatabaseStore.persistModel(this.updatedModel);
+  //     return DatabaseStore.inTransaction((t) => persistModel(this.updatedModel));
   //   }
   //
   //   createUndoTask() {

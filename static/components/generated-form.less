@@ -1,5 +1,24 @@
 @import "ui-variables";
 
+@spacing-form: 22px;
+
+body.platform-win32 {
+  .generated-form {
+    .tokenizing-field {
+      border-radius: 0;
+      border: 0;
+      border-radius: 0;
+      box-shadow: 0 0 0 2px @input-border-color;
+
+      &.focused {
+        border: 0;
+        border-radius: 0;
+        box-shadow: 0 0 0 2px darken(@input-border-color, 20%);
+      }
+    }
+  }
+}
+
 .generated-form {
   position: relative;
 
@@ -10,23 +29,30 @@
       font-weight: @font-weight-semi-bold;
     }
     margin: 0;
-    padding: @spacing-double 50px 50px 50px;
+    padding: @spacing-double @spacing-form @spacing-form @spacing-form;
     border: 0;
     border-bottom: 1px solid fade(@black, 20%);
   }
 
+  .tokenizing-field {
+    border: 1px solid @input-border-color;
+    border-radius: @border-radius-base;
+
+    &.focused {
+      border: 1px solid @accent-primary;
+      box-shadow: 0 0 1.5px @accent-primary;
+    }
+  }
+
   .form-item {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     .label-area {
-      padding-top: 0.5em;
-      width: 125px;
-      margin-right: @spacing-standard;
     }
 
     .input-area {
       position: relative;
-      flex: 2;
+      margin-top: 0.3em;
 
       select {
         margin-top: 9px;
@@ -41,9 +67,18 @@
     }
 
     input {
-      padding-top: 5px;
-      padding-bottom: 2px;
-      padding-left: 5px;
+      padding: 5px 8px;
+    }
+    .tokenizing-field-input {
+      .placeholder {
+        font-size: 14px;
+      }
+
+      padding: 6px 8px;
+      input {
+        margin: 0;
+        padding: 0;
+      }
     }
 
     textarea {
@@ -52,12 +87,20 @@
     }
   }
 
+  .menu .item {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
   .fieldset-form-items {
     .row {
       position: relative;
-      margin-top: @spacing-double;
+      margin-top: 15px;
       display: flex;
       flex-direction: row;
+      &:first-child {
+        margin-top: 0;
+      }
     }
     .column {
       flex: 1;
@@ -73,28 +116,14 @@
   }
 
   .form-footer {
-    background: @background-secondary;
-    text-align: center;
-    padding: 22px 0;
+    background: @background-off-primary;
+    border-top: 1px solid darken(@background-off-primary, 7%);
+    padding: 9px 22px;
   }
 
-  button {
-    font-size: @font-size-larger;
-    background: #fff;
-    border: 0;
-    border-bottom: 3px solid @input-border-color;
-    border-radius: 4px;
-    padding: 7px 35px 2px 35px;
-  }
-
-  .tokenizing-field-input {
-    padding: 0;
-    .token {
-      padding-top: 0.4em;
-      margin-bottom: 3px;
-    }
-    input {
-      margin-bottom: 3px;
+  .btn {
+    &:focus {
+      box-shadow: 0 0 6px @btn-emphasis-bg-color;
     }
   }
 

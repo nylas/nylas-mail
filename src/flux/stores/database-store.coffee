@@ -17,7 +17,7 @@ JSONBlob = null
 
 {remote, ipcRenderer} = require 'electron'
 
-DatabaseVersion = 23
+DatabaseVersion = 24
 DatabasePhase =
   Setup: 'setup'
   Ready: 'ready'
