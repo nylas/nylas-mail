@@ -262,7 +262,7 @@ class NylasEnvConstructor
     @emitter.emit('will-throw-error', event)
     return if event.defaultPrevented
 
-    console.error(error.stack)
+    console.error(error.stack, extra)
     @lastUncaughtError = error
 
     extra.pluginIds = @_findPluginsFromError(error)
@@ -565,6 +565,9 @@ class NylasEnvConstructor
   toggleFullScreen: ->
     @setFullScreen(!@isFullScreen())
 
+  getAllWindowDimensions: ->
+    remote.getGlobal('application').getAllWindowDimensions()
+
   # Get the dimensions of this window.
   #
   # Returns an {Object} with the following keys:
@@ -718,9 +721,6 @@ class NylasEnvConstructor
 
     @emitter.emit('window-props-received', loadSettings.windowProps ? {})
 
-    {width, height} = loadSettings
-    if width and height
-      @setWindowDimensions({width, height})
     browserWindow = @getCurrentWindow()
     if browserWindow.isResizable() isnt loadSettings.resizable
       browserWindow.setResizable(loadSettings.resizable)
@@ -962,3 +962,7 @@ class NylasEnvConstructor
       overriddenStop.apply(@, arguments)
     Event::isPropagationStopped = ->
       @propagationStopped
+
+  registerGlobalActions: (args...) ->
+    return if @inSpecMode()
+    @actionBridge.registerGlobalActions(args...)

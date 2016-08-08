@@ -82,7 +82,6 @@ class Actions
   ###
   @sendDraftSuccess: ActionScopeGlobal
   @sendDraftFailed: ActionScopeGlobal
-  @sendToAllWindows: ActionScopeGlobal
 
   ###
   Public: Queue a {Task} object to the {TaskQueue}.

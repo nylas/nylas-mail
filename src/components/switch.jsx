@@ -9,7 +9,7 @@ import React from 'react';
 */
 
 const Switch = (props) => {
-  let classnames = `${props.className} slide-switch`;
+  let classnames = `${props.className || ""} slide-switch`;
   if (props.checked) {
     classnames += " active";
   }

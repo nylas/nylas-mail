@@ -48,6 +48,7 @@ module.exports = class ClearbitDataSource
         currentTitle: person.employment?.title,
         currentEmployer: person.employment?.name,
         profilePhotoUrl: person.avatar,
+        rawClearbitData: body,
         socialProfiles: @_socialProfiles(person)
       })
 

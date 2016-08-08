@@ -1,8 +1,7 @@
 /* eslint jsx-a11y/tabindex-no-positive: 0 */
 import React from 'react';
 
-import {Actions} from 'nylas-exports';
-import {Flexbox, RetinaImg, ScrollRegion} from 'nylas-component-kit';
+import {Flexbox, ScrollRegion} from 'nylas-component-kit';
 import ThemeOption from './theme-option';
 
 
@@ -67,13 +66,6 @@ class ThemePicker extends React.Component {
     return (
       <div className="theme-picker" tabIndex="1">
         <Flexbox direction="column">
-          <RetinaImg
-            className="theme-picker-x"
-            style={{width: "14", WebkitFilter: "none"}}
-            name="picker-close.png"
-            mode={RetinaImg.Mode.ContentDark}
-            onMouseDown={() => Actions.closeModal()}
-          />
           <h4 style={{color: "#434648"}}>Themes</h4>
           <div style={{color: "rgba(35, 31, 32, 0.5)", fontSize: "12px"}}>Click any theme to apply:</div>
           <ScrollRegion style={{margin: "10px 5px 0 5px", height: "290px"}}>

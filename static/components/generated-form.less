@@ -1,49 +1,149 @@
 @import "ui-variables";
 
+@spacing-form: 22px;
+@form-margin: 15px;
+
+body.platform-win32 {
+  .generated-form {
+    .tokenizing-field {
+      border-radius: 0;
+      border: 0;
+      border-radius: 0;
+      box-shadow: 0 0 0 2px @input-border-color;
+
+      &.focused {
+        border: 0;
+        border-radius: 0;
+        box-shadow: 0 0 0 2px darken(@input-border-color, 20%);
+      }
+    }
+  }
+}
+
+body.is-blurred, body.platform-win32.is-blurred {
+  .generated-form {
+    .tokenizing-field {
+      &.focused {
+        border: 1px solid @input-border-color;
+        box-shadow: none;
+      }
+    }
+    .form-item .input-area select:focus {
+      box-shadow: none;
+    }
+    .btn:focus {
+      box-shadow: none;
+    }
+  }
+}
+
 .generated-form {
   position: relative;
 
   fieldset {
     legend {
-      margin-bottom: @spacing-double;
       color: fade(@black, 40%);
-      font-weight: @font-weight-semi-bold;
+      font-size: 1.4em;
     }
     margin: 0;
-    padding: @spacing-double 50px 50px 50px;
+    padding: 22px @spacing-form 22px @spacing-form;
     border: 0;
-    border-bottom: 1px solid fade(@black, 20%);
+    border-top: 1px solid rgba(0,0,0,0.08);
+    border-bottom: 1px solid rgba(0,0,0,0.03);
+    &:first-child {
+      border-top: 0;
+    }
+  }
+
+  .prefilled-message {
+    text-align: center;
+    padding: @padding-base-vertical @padding-base-horizontal;
+    background: @background-secondary;
+    margin: 20px auto 0;
+    width: 340px;
+    border-radius: @border-radius-large;
+
+    .highlighted {
+      color: @color-success;
+    }
+  }
+
+  .tokenizing-field {
+    border: 1px solid @input-border-color;
+    border-radius: @border-radius-base;
+
+    &.focused {
+      border: 1px solid @accent-primary;
+      box-shadow: 0 0 1.5px @accent-primary;
+    }
   }
 
   .form-item {
     display: flex;
-    flex-direction: row;
+    margin-top: @form-margin;
+    &:first-child { margin-top: 0; }
+    flex-direction: column;
+
+    &.invalid {
+      .label-area {
+        color: @color-error;
+      }
+    }
+
     .label-area {
-      padding-top: 0.5em;
-      width: 125px;
-      margin-right: @spacing-standard;
+    }
+
+    .required {
+      color: @color-danger;
+    }
+
+    &.prefilled .input-area input {
+      border: 1px solid @color-success;
     }
 
     .input-area {
       position: relative;
-      flex: 2;
+      margin-top: 0.3em;
 
       select {
-        margin-top: 9px;
+        margin-top: 2px;
+        &:focus {
+          border: 1px solid @accent-primary;
+          box-shadow: 0 0 1.5px @accent-primary;
+        }
       }
     }
 
     .form-error {
-      position: absolute;
       color: @color-error;
       font-size: @font-size-smaller;
       margin-top: 0.3em;
     }
 
-    input {
-      padding-top: 5px;
-      padding-bottom: 2px;
-      padding-left: 5px;
+    input, select[multiple], textarea {
+      padding: 5px 8px;
+    }
+    .tokenizing-field-input {
+      overflow: hidden;
+      padding: 0 5px 5px 5px;
+      .placeholder {
+        font-size: 14px;
+      }
+
+      .token {
+        padding: 0 20px 0 28px;
+        margin: 5px 5px 0 0;
+
+        &.selected {
+          border: 0;
+        }
+      }
+
+      input {
+        margin: 5px 0 0 0;
+        padding: 0;
+        line-height: 26px;
+      }
     }
 
     textarea {
@@ -52,12 +152,17 @@
     }
   }
 
+  .menu .item {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
   .fieldset-form-items {
     .row {
       position: relative;
-      margin-top: @spacing-double;
       display: flex;
       flex-direction: row;
+      margin-top: @form-margin;
     }
     .column {
       flex: 1;
@@ -66,35 +171,34 @@
       }
     }
     .column-spacer {
-      min-width: 30px;
-      max-width: 80px;
-      width: 10%;
+      width: 22px;
     }
   }
 
   .form-footer {
-    background: @background-secondary;
-    text-align: center;
-    padding: 22px 0;
+    background: @background-off-primary;
+    border-top: 1px solid darken(@background-off-primary, 7%);
+    padding: 9px 22px;
   }
 
-  button {
-    font-size: @font-size-larger;
-    background: #fff;
-    border: 0;
-    border-bottom: 3px solid @input-border-color;
-    border-radius: 4px;
-    padding: 7px 35px 2px 35px;
-  }
-
-  .tokenizing-field-input {
-    padding: 0;
-    .token {
-      padding-top: 0.4em;
-      margin-bottom: 3px;
+  .btn {
+    &:focus {
+      box-shadow: 0 0 6px @btn-emphasis-bg-color;
     }
-    input {
-      margin-bottom: 3px;
+  }
+
+  .form-header-error {
+    background: @color-error;
+    color: @text-color-inverse;
+    text-align: center;
+    font-weight: @font-weight-semi-bold;
+    margin-bottom: 5px;
+    padding: 0.5em;
+  }
+
+  .last-fieldset {
+    .content-container {
+      position: relative;
     }
   }
 

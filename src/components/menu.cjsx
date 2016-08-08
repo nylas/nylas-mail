@@ -142,6 +142,7 @@ class Menu extends React.Component
     className: React.PropTypes.string,
     footerComponents: React.PropTypes.arrayOf(React.PropTypes.element),
     headerComponents: React.PropTypes.arrayOf(React.PropTypes.element),
+    itemContext: React.PropTypes.object,
     itemContent: React.PropTypes.func.isRequired,
     itemKey: React.PropTypes.func.isRequired,
     itemChecked: React.PropTypes.func,
@@ -269,7 +270,7 @@ class Menu extends React.Component
     while isDivider
       item = @props.items[index]
       break unless item
-      if @props.itemContent(item).props?.divider
+      if @props.itemContent(item, @props.itemContext).props?.divider
         if delta > 0 then index += 1
         else if delta < 0 then index -= 1
       else isDivider = false

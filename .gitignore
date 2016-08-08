@@ -29,7 +29,9 @@ spec-saved-state.json
 *~
 *#
 
-*nylas-private-*
+src/error-logger-extensions
+src/nylas-private-*
+internal_packages/nylas-private-*
 internal_packages/activity-list
 internal_packages/composer-mail-merge
 internal_packages/composer-scheduler
