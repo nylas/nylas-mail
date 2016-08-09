@@ -24,16 +24,18 @@ body.platform-win32 {
 
   fieldset {
     legend {
-      margin-bottom: @spacing-double;
+      margin-bottom: 15px;
       color: fade(@black, 40%);
-      font-weight: @font-weight-semi-bold;
+      font-size: 1.4em;
     }
     margin: 0;
-    margin-top: 15px;
-    &:first-child { margin-top: 0; }
-    padding: @spacing-double @spacing-form @spacing-form @spacing-form;
+    padding: 22px @spacing-form 22px @spacing-form;
     border: 0;
-    border-bottom: 1px solid fade(@black, 20%);
+    border-top: 1px solid rgba(0,0,0,0.08);
+    border-bottom: 1px solid rgba(0,0,0,0.03);
+    &:first-child {
+      border-top: 0;
+    }
   }
 
   .tokenizing-field {
@@ -61,7 +63,11 @@ body.platform-win32 {
       margin-top: 0.3em;
 
       select {
-        margin-top: 9px;
+        margin-top: 2px;
+        &:focus {
+          border: 1px solid @accent-primary;
+          box-shadow: 0 0 1.5px @accent-primary;
+        }
       }
     }
 
@@ -71,7 +77,7 @@ body.platform-win32 {
       margin-top: 0.3em;
     }
 
-    input {
+    input, select[multiple], textarea {
       padding: 5px 8px;
     }
     .tokenizing-field-input {
@@ -114,9 +120,7 @@ body.platform-win32 {
       }
     }
     .column-spacer {
-      min-width: 30px;
-      max-width: 80px;
-      width: 10%;
+      width: 22px;
     }
   }
 
