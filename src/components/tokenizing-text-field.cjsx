@@ -337,7 +337,7 @@ class TokenizingTextField extends React.Component
     <SizeToFitInput ref="input" spellCheck="false" {...props} />
 
   _placeholder: =>
-    if not @state.focus and @props.placeholder?
+    if not @state.focus and @props.placeholder? and @props.tokens.length is 0
       return <div className="placeholder">{@props.placeholder}</div>
     else
       return <span></span>
