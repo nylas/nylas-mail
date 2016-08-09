@@ -102,18 +102,15 @@ class FormItem extends React.Component
       "valid": @state.valid
 
     label = @props.label
-    if @props.label[-3..-1] is " ID"
-      label = @props.label[0...-3]
-
-    if _.last(label) isnt ":"
-      label = "#{label}:"
+    if @props.required
+      label = <strong><span className="required">*</span>{@props.label}</strong>
 
     if @props.type is "hidden"
       @_renderInput()
     else
       <div className={classes}>
         <div className="label-area">
-          <label>{label}</label>
+          <label for={@props.id}>{label}</label>
         </div>
         <div className="input-area">
           {@_renderInput()}
