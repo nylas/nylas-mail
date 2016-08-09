@@ -10,6 +10,7 @@ export default class DatePicker extends React.Component {
   static propTypes = {
     value: React.PropTypes.number,
     onChange: React.PropTypes.func,
+    dateFormat: React.PropTypes.string,
   }
 
   static contextTypes = {
@@ -18,6 +19,7 @@ export default class DatePicker extends React.Component {
 
   static defaultProps = {
     value: moment().valueOf(),
+    dateFormat: null, // Default to valueOf
     onChange: () => {},
   }
 
@@ -26,10 +28,21 @@ export default class DatePicker extends React.Component {
     this.state = {focused: false}
   }
 
+  value() {
+    return moment(this.props.value)
+  }
+
+  _onChange(newMoment) {
+    if (this.props.dateFormat) {
+      return this.props.onChange(newMoment.format(this.props.dateFormat))
+    }
+    return this.props.onChange(newMoment.valueOf())
+  }
+
   _moveDay(numDays) {
-    const val = moment(this.props.value)
+    const val = this.value()
     const day = val.dayOfYear();
-    this.props.onChange(val.dayOfYear(day + numDays).valueOf())
+    this._onChange(val.dayOfYear(day + numDays))
   }
 
   _onKeyDown = (event) => {
@@ -55,7 +68,7 @@ export default class DatePicker extends React.Component {
   }
 
   _onSelectDay = (newTimestamp) => {
-    this.props.onChange(newTimestamp)
+    this._onChange(moment(newTimestamp))
     this.context.parentTabGroup.shiftFocus(1);
   }
 
@@ -65,7 +78,7 @@ export default class DatePicker extends React.Component {
         <div className="mini-month-view-wrap">
           <MiniMonthView
             onChange={this._onSelectDay}
-            value={this.props.value}
+            value={this.value()}
           />
         </div>
       )
@@ -79,7 +92,7 @@ export default class DatePicker extends React.Component {
       'focused': this.state.focused,
     })
 
-    const dayTxt = moment(this.props.value).format(DateUtils.DATE_FORMAT_llll_NO_TIME)
+    const dayTxt = this.value().format(DateUtils.DATE_FORMAT_llll_NO_TIME)
 
     return (
       <div

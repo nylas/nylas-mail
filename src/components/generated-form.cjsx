@@ -156,13 +156,13 @@ class FormItem extends React.Component
       # AND https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement for `validationMessage` property
       el.setCustomValidity?("")
       el.checkValidity?()
-      validityState = Object.assign {}, el.validity,
+      validityState = _.extend {}, el.validity,
         validationMessage: el.validationMessage ? ""
 
     if not Utils.isEqual(validityState, @_lastValidity)
       @setState validityState
 
-    @_lastValidity = validityState
+    @_lastValidity = Utils.deepClone(validityState)
 
   _renderError: =>
     if @state.valid
@@ -191,6 +191,7 @@ class FormItem extends React.Component
     else if @props.type is "textarea"
       React.createElement("textarea", inputProps)
     else if @props.type is "date"
+      inputProps.dateFormat = "YYYY-MM-DD"
       React.createElement(DatePicker, inputProps)
     else if _.isFunction(@props.type)
       React.createElement(@props.type, inputProps)
