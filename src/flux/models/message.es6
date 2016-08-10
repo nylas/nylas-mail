@@ -8,6 +8,7 @@ import Contact from './contact'
 import Category from './category'
 import Attributes from '../attributes'
 import ModelWithMetadata from './model-with-metadata'
+import QuotedHTMLTransformer from '../../services/quoted-html-transformer'
 
 
 /**
@@ -342,11 +343,15 @@ Message(date DESC) WHERE draft = 1`,
 
   // Public: Returns a plaintext version of the message body using Chromium's
   // DOMParser. Use with care.
-  plainTextBody() {
+  computePlainText(options = {}) {
     if ((this.body || "").trim().length === 0) {
       return ""
     }
-    return (new DOMParser()).parseFromString(this.body, "text/html").body.innerText
+    if (options.includeQuotedText) {
+      return (new DOMParser()).parseFromString(this.body, "text/html").body.innerText
+    }
+    const doc = QuotedHTMLTransformer.removeQuotedHTML(this.body, {returnAsDOM: true});
+    return doc.body.innerText
   }
 
   fromContact() {

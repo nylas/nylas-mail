@@ -52,6 +52,8 @@ class QuotedHTMLTransformer
       if not doc.children[0]
         return @_outputHTMLFor(@_parseHTML(""), {initialHTML: html})
 
+    if options.returnAsDOM
+      return doc
     return @_outputHTMLFor(doc, {initialHTML: html})
 
   # Finds any trailing BR tags and removes them in place

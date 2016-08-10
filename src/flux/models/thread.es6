@@ -149,6 +149,31 @@ class Thread extends ModelWithMetadata {
     )
   }
 
+  /** Computes the plaintext version of ALL messages.
+   * WARNING: This method is VERY expensive.
+   * Parsing a thread with ~50 messages took ~2-3 seconds!
+   */
+  computePlainText() {
+    return Promise.map(this.messages(), (message) => {
+      return new Promise((resolve) => {
+        // Add a defer tick so we don't COMPLETELY hang the thread.
+        setTimeout(() => {
+          resolve(`${message.replyAttributionLine()}\n\n${message.computePlainText()}`)
+        }, 1)
+      })
+    }).then((plainTextBodies = []) => {
+      const msgDivider = "\n\n--------------------------------------------------\n"
+      let joinedBody = plainTextBodies.join(msgDivider)
+      const leadingOrTrailingTabs = /(?:^\t+|\t+$)/gmi
+      joinedBody = joinedBody.replace(leadingOrTrailingTabs, "")
+      const manyNewlines = /\n{3,}/gi
+      joinedBody = joinedBody.replace(manyNewlines, "\n\n")
+      const manySpaces = /\n{5,}/gi
+      joinedBody = joinedBody.replace(manySpaces, "    ")
+      return joinedBody
+    })
+  }
+
   get labels() {
     return this.categories;
   }
