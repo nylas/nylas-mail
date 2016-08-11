@@ -4,6 +4,7 @@ Attributes = require '../attributes'
 RegExpUtils = require '../../regexp-utils'
 AccountStore = require '../stores/account-store'
 FocusedPerspectiveStore = null # Circular Dependency
+_str = require 'underscore.string'
 _ = require 'underscore'
 
 name_prefixes = {}
@@ -159,6 +160,14 @@ class Contact extends Model
     c1 = @firstName()[0]?.toUpperCase() ? ""
     c2 = @lastName()[0]?.toUpperCase() ? ""
     return c1+c2
+
+  guessCompanyFromEmail: (email = @email) ->
+    return "" if (Utils.emailHasCommonDomain(email))
+    domain = _.last(email.toLowerCase().trim().split("@"))
+    domainParts = domain.split(".")
+    if (domainParts.length >= 2)
+      return _str.titleize(_str.humanize(domainParts[domainParts.length - 2]))
+    return ""
 
   _nameParts: ->
     name = @name

@@ -576,3 +576,37 @@ Utils =
     avg = Utils.mean(values)
     squareDiffs = values.map((val) -> Math.pow((val - avg), 2))
     return Math.sqrt(Utils.mean(squareDiffs))
+
+  # Resolves nested paths in objects of the form "key.subKey.subKey".
+  # Null checks along the way.
+  #
+  # If the result is a function, this will call it with no arguments.
+  #
+  # Also supports "key1,key2.subkey,key3". The commas lookup those paths
+  # in order and takes the first non-blank one.
+  #
+  # Also supports "key1+key2". This will attempt to concatenate the
+  # lookup.
+  #
+  # Order of operations is "," then "+", then "."
+  resolvePath: (fullPath="", model) ->
+    commaPaths = fullPath.split(",")
+    for commaPath in commaPaths
+      joinedVals = []
+      paths = commaPath.split("+")
+      for path in paths
+        parts = path.split(".")
+        curVal = model
+        for part in parts
+          if _.isFunction(curVal[part])
+            curVal = curVal[part]()
+          else
+            curVal = curVal[part]
+          if not curVal or curVal.length is 0
+            curVal = null
+            break
+        joinedVals.push(curVal)
+      joinedVals = _.compact(joinedVals)
+      continue if joinedVals.length is 0
+      return joinedVals.join(" ")
+    return null
