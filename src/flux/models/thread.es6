@@ -163,14 +163,7 @@ class Thread extends ModelWithMetadata {
       })
     }).then((plainTextBodies = []) => {
       const msgDivider = "\n\n--------------------------------------------------\n"
-      let joinedBody = plainTextBodies.join(msgDivider)
-      const leadingOrTrailingTabs = /(?:^\t+|\t+$)/gmi
-      joinedBody = joinedBody.replace(leadingOrTrailingTabs, "")
-      const manyNewlines = /\n{3,}/gi
-      joinedBody = joinedBody.replace(manyNewlines, "\n\n")
-      const manySpaces = /\n{5,}/gi
-      joinedBody = joinedBody.replace(manySpaces, "    ")
-      return joinedBody
+      return plainTextBodies.join(msgDivider)
     })
   }
 
