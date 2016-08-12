@@ -61,12 +61,14 @@ class InjectedComponent extends React.Component
     onComponentDidRender: React.PropTypes.func
     style: React.PropTypes.object
     requiredMethods: React.PropTypes.arrayOf(React.PropTypes.string)
+    onComponentDidChange: React.PropTypes.func
 
   @defaultProps:
     style: {}
     exposedProps: {}
     requiredMethods: []
     onComponentDidRender: ->
+    onComponentDidChange: ->
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
@@ -76,7 +78,9 @@ class InjectedComponent extends React.Component
   componentDidMount: =>
     @_componentUnlistener = ComponentRegistry.listen =>
       @setState(@_getStateFromStores())
-    @props.onComponentDidRender() if @state.component?.containerRequired is false
+    if @state.component?.containerRequired is false
+      @props.onComponentDidRender()
+      @props.onComponentDidChange()
 
   componentWillUnmount: =>
     @_componentUnlistener() if @_componentUnlistener
@@ -85,9 +89,13 @@ class InjectedComponent extends React.Component
     if not _.isEqual(newProps.matching, @props?.matching)
       @setState(@_getStateFromStores(newProps))
 
-  componentDidUpdate: =>
+  componentDidUpdate: (prevProps, prevState) =>
     @_setRequiredMethods(@props.requiredMethods)
-    @props.onComponentDidRender() if @state.component?.containerRequired is false
+    if @state.component?.containerRequired is false
+      @props.onComponentDidRender()
+      if @state.component isnt prevState.component
+        @props.onComponentDidChange()
+
 
   render: =>
     return <div></div> unless @state.component
