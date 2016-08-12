@@ -82,6 +82,9 @@ export default class ModelWithMetadata extends Model {
   // Private helpers
 
   metadataObjectForPluginId(pluginId) {
+    if (typeof pluginId !== "string") {
+      throw new Error(`Invalid pluginId. Must be a valid string: '${pluginId}'`, pluginId)
+    }
     return this.pluginMetadata.find(metadata => metadata.pluginId === pluginId);
   }
 
