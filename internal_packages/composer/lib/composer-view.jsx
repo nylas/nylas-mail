@@ -166,6 +166,12 @@ export default class ComposerView extends React.Component {
     return this._renderContent();
   }
 
+  _onNewHeaderComponents = () => {
+    if (this.refs.header) {
+      this.focus()
+    }
+  }
+
   _renderContent() {
     return (
       <div className="composer-centered">
@@ -174,6 +180,7 @@ export default class ComposerView extends React.Component {
           draft={this.props.draft}
           session={this.props.session}
           initiallyFocused={this.props.draft.to.length === 0}
+          onNewHeaderComponents={this._onNewHeaderComponents}
         />
         <div
           className="compose-body"

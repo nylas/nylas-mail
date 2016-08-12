@@ -34,6 +34,9 @@ export default class ComposerHeader extends React.Component {
     draft: React.PropTypes.object.isRequired,
     session: React.PropTypes.object.isRequired,
     initiallyFocused: React.PropTypes.bool,
+    // Subject text field injected component needs to call this function
+    // when it is rendered with a new header component
+    onNewHeaderComponents: React.PropTypes.func,
   }
 
   static contextTypes = {
@@ -213,6 +216,7 @@ export default class ComposerHeader extends React.Component {
         }}
         requiredMethods={['focus']}
         fallback={SubjectTextField}
+        onComponentDidChange={this.props.onNewHeaderComponents}
       />
     )
   }
