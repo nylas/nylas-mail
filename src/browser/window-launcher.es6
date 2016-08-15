@@ -1,6 +1,7 @@
 import NylasWindow from './nylas-window'
 
 const DEBUG_SHOW_HOT_WINDOW = false;
+let winNum = 0;
 
 /**
  * It takes a full second or more to bootup a Nylas window. Most of this
@@ -61,6 +62,8 @@ export default class WindowLauncher {
       // Reset the loaded state and update the load settings.
       // This will fire `NylasEnv::populateHotWindow` and reload the
       // packages.
+      win.windowKey = opts.windowKey || `${opts.windowType}-${winNum}`;
+      winNum += 1;
       win.windowKey = opts.windowKey;
       win.windowType = opts.windowType;
       win.setLoadSettings(newLoadSettings);
