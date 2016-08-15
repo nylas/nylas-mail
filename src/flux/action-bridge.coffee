@@ -68,12 +68,13 @@ class ActionBridge
         callback = (args...) => @onRebroadcast(TargetWindows.WORK, name, args)
         Actions[name].listen(callback, @)
 
-  registerGlobalAction: ({scope, name, actionFn}) =>
-    @globalActions.push({scope, name, actionFn})
-    callback = (args...) =>
-      broadcastName = "#{scope}::#{name}"
-      @onRebroadcast(TargetWindows.ALL, broadcastName, args)
-    actionFn.listen(callback, @)
+  registerGlobalActions: ({pluginName, actions}) =>
+    _.each actions, (actionFn, name) =>
+      @globalActions.push({name, actionFn, scope: pluginName})
+      callback = (args...) =>
+        broadcastName = "#{pluginName}::#{name}"
+        @onRebroadcast(TargetWindows.ALL, broadcastName, args)
+      actionFn.listen(callback, @)
 
   _isExtensionAction: (name) ->
     name.split("::").length is 2

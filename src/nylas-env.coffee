@@ -969,3 +969,7 @@ class NylasEnvConstructor
       overriddenStop.apply(@, arguments)
     Event::isPropagationStopped = ->
       @propagationStopped
+
+  registerGlobalActions: (args...) ->
+    return if @inSpecMode()
+    @actionBridge.registerGlobalActions(args...)
