@@ -1,0 +1,13 @@
+{
+  "name": "verify-install-location",
+  "main": "./lib/main",
+  "version": "0.0.1",
+  "description": "Verifies the install location for N1",
+  "license": "GPL-3.0",
+  "engines": {
+    "nylas": "*"
+  },
+  "windowTypes": {
+    "default": true
+  }
+}
