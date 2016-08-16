@@ -14,6 +14,7 @@ import {BrowserWindow, Menu, app, ipcMain, dialog} from 'electron';
 import fs from 'fs-plus';
 import url from 'url';
 import path from 'path';
+import proc from 'child_process'
 import {EventEmitter} from 'events';
 
 let clipboard = null;
@@ -579,6 +580,41 @@ export default class Application extends EventEmitter {
       global.errorLogger.reportError(err, params.extra)
       event.returnValue = true
     })
+
+    ipcMain.on("move-to-applications", () => {
+      if (process.platform !== "darwin") return;
+      const re = /(^.*?\.app)/i;
+      const appPath = (re.exec(process.argv[0]) || [])[0];
+      if (!appPath) {
+        throw new Error(`Couldn't find .app in launch path: ${process.argv[0]}`)
+      }
+      let appName = appPath.split("/");
+      appName = appName[appName.length - 1]
+      if (!appName) {
+        throw new Error(`Couldn't find .app in app path: ${appPath}`)
+      }
+      const escapedName = this._escapeShell(appName);
+      const escapedPath = this._escapeShell(appPath);
+
+      // We separate the commands with a `;` instead of `&&` so in case the
+      // mv fails, the open will still run.
+      // We need the sleep to let the first app fully finish quitting.
+      // Otherwise it'll attempt to re-open the existing app (the one in
+      // the process of quitting)
+      let move = `mv`
+      try { fs.accessSync(appPath, fs.W_OK) } catch (e) { move = `cp -r` }
+      const cmd = `${move} ${escapedPath} /Applications/; sleep 0.5; open /Applications/${escapedName}`;
+      app.once('will-quit', () => {
+        // We need to use `exec` since that will start a new shell process and
+        // allow us to kill this one.
+        proc.exec(cmd)
+      })
+      app.quit()
+    })
+  }
+
+  _escapeShell(cmd) {
+    return cmd.replace(/(["\s'$`\\])/g, '\\$1');
   }
 
   // Public: Executes the given command.
