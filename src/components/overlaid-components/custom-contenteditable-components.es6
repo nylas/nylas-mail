@@ -7,11 +7,11 @@ class CustomContenteditableComponents {
     return this._components[componentKey]
   }
 
-  register(componentKey, components = {}) {
-    if (!components.main) {
-      throw new Error("Must register a `main` component and optionally a `serialized` component.")
+  register(componentKey, component) {
+    if (!component) {
+      throw new Error("Must register a component.")
     }
-    this._components[componentKey] = components
+    this._components[componentKey] = component
   }
 
   unregister(componentKey) {
