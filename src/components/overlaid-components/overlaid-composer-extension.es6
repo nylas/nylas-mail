@@ -49,18 +49,20 @@ export default class OverlaidComposerExtension extends ComposerExtension {
     const matcher = self.overlayMatches(self._anchorExtractRe(), outDraft.body)
 
     for (const match of matcher) {
-      const componentData = CustomContenteditableComponents.get(match.dataComponentKey);
-      if (!componentData || !componentData.serialized) {
+      const component = CustomContenteditableComponents.get(match.dataComponentKey);
+      if (!component) {
         continue
       }
-      const component = componentData.serialized
-      const props = Object.assign({draft}, match.dataComponentProps);
+      const props = Object.assign({draft, isPreview: true}, match.dataComponentProps);
       const el = React.createElement(component, props);
       let html = ReactDOMServer.renderToStaticMarkup(el);
 
       html = `<overlay data-overlay-id="${match.dataOverlayId}" data-component-props="${OverlaidComponents.propsToDOMAttr(match.dataComponentProps)}" data-component-key="${match.dataComponentKey}" data-style="${match.dataStyle}">${html}</overlay>`
 
-      outBody = outBody.replace(OverlaidComposerExtension._anchorReplacerRe(match.dataOverlayId), html)
+      outBody = outBody.replace(
+        OverlaidComposerExtension._anchorReplacerRe(match.dataOverlayId),
+        html
+      )
     }
 
     outDraft.body = outBody;
