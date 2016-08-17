@@ -1,5 +1,36 @@
 # N1 Changelog
 
+### 0.4.48 (8/18/16)
+
+- Features:
+
+  + 24h clock: You can now choose to view times in the app in 24h clock format. You
+    can select this option within the General Preferences.
+  + Installer: Adds a new notification bar for mac users only that warns you if
+    N1 is not in your Applications folder, and gives you the option to move it to your
+    Applications folder. This prevents errors that can prevent you from receiving
+    autoupdates.
+
+- Fixes:
+
+  + We now display better error messaging when we can't save your credentials
+    to the system keychain.
+  + Phishing detection now uses case insensitive detection when inspecting
+    emails.
+  + Issues connecting to the Clearbit and Keyabse API's are now resolved.
+  + Fixed issue where new windows wouldn't refresh themselves.
+  + Long signatures inside preferences can now be scrolled.
+  + You can now correctly select to enable link tracking or open tracking
+    independently when sending and tracking multiple recipients.
+  + When clicking the top of the composer body, the top of the text content is
+    now correctly focused, rather than the end.
+  + The subject field is now correctly focused when a composer is opened via a
+    mailto link.
+  + MailMerge will no longer error when trying to send after previewing contents
+    as the recipients will recieve them. Also, the cursor styles for MailMerge tokens
+    have been updated to indicate that they can be dragged.
+
+
 ### 0.4.47 (7/28/16)
 
 - Features:
@@ -328,7 +359,7 @@
 - Developer:
   + Composer Extensions using `finalizeSessionBeforeSending:` must now use `applyTransformsToDraft:`
   + A new `InjectedComponentSet` allows you to add icons beside user's names in the composer.
-  + N1 is slowly transitioning to ES6 - 20% of package code was converted to ES6 this month!  
+  + N1 is slowly transitioning to ES6 - 20% of package code was converted to ES6 this month!
 
 ### 0.4.16 (3/18/16)
 
@@ -454,7 +485,7 @@ This is a small patch release resolving the following issues:
     arbitrary data with threads and messages (like snooze times and link IDs).
 
 - Many, many other bug fixes were incorporated into this release. Take a look at
-  closed GitHub issues that made it into this release here:  
+  closed GitHub issues that made it into this release here:
 
   https://github.com/nylas/N1/issues?q=updated%3A2016-02-07..2016-02-25+is%3Aclosed
 
