@@ -43,15 +43,25 @@ export default class MultiSendToIndividualTask extends Task {
   }
 
   _customizeTrackingForRecipient(text) {
+    const openTrackingId = NylasEnv.packages.pluginIdFor('open-tracking')
+    const linkTrackingId = NylasEnv.packages.pluginIdFor('link-tracking')
+    const usesOpenTracking = this.message.metadataForPluginId(openTrackingId)
+    const usesLinkTracking = this.message.metadataForPluginId(linkTrackingId)
+
     const encodedEmail = btoa(this.recipient.email)
       .replace(/\+/g, '-')
       .replace(/\//g, '_');
-    let body = text.replace(/<img class="n1-open"[^<]+src="([a-zA-Z0-9-_:\/.]*)">/g, (match, url) => {
-      return `<img class="n1-open" width="0" height="0" style="border:0; width:0; height:0;" src="${url}?r=${encodedEmail}">`;
-    });
-    body = body.replace(RegExpUtils.urlLinkTagRegex(), (match, prefix, url, suffix, content, closingTag) => {
-      return `${prefix}${url}&r=${encodedEmail}${suffix}${content}${closingTag}`;
-    });
+    let body = text
+    if (usesOpenTracking) {
+      body = body.replace(/<img class="n1-open"[^<]+src="([a-zA-Z0-9-_:\/.]*)">/g, (match, url) => {
+        return `<img class="n1-open" width="0" height="0" style="border:0; width:0; height:0;" src="${url}?r=${encodedEmail}">`;
+      });
+    }
+    if (usesLinkTracking) {
+      body = body.replace(RegExpUtils.urlLinkTagRegex(), (match, prefix, url, suffix, content, closingTag) => {
+        return `${prefix}${url}&r=${encodedEmail}${suffix}${content}${closingTag}`;
+      });
+    }
     return body;
   }
 }
