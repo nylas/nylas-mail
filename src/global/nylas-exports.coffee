@@ -53,6 +53,7 @@ class NylasExports
 
   # API Endpoints
   @lazyLoad "NylasAPI", 'flux/nylas-api'
+  @lazyLoad "NylasAPIRequest", 'flux/nylas-api-request'
   @lazyLoad "EdgehillAPI", 'flux/edgehill-api'
   @lazyLoad "NylasLongConnection", 'flux/nylas-long-connection'
   @lazyLoad "NylasSyncStatusStore", 'flux/stores/nylas-sync-status-store'

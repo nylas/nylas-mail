@@ -48,6 +48,9 @@ We're working on building a plugin index that makes it super easy to add them to
 - [Agapanthus](https://github.com/taniadaniela/n1-agapanthus)—Inbox-inspired theme
 - [Stripe](https://github.com/oeaeee/n1-stripe)
 - [Kleinstein] (https://github.com/diklein/Kleinstein)—Hide the account list sidebar
+- [BoraBora](https://github.com/arimai/N1-BoraBora)
+- [Honeyduke](https://github.com/arimai/n1-honeyduke)
+- [Snow](https://github.com/Wattenberger/N1-snow-theme)
 
 #### Bundled Plugins
 Great starting points for creating your own plugins!

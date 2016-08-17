@@ -24,15 +24,12 @@ class KeybaseInviteButton extends React.Component
   _onGetKeybaseInvite: =>
     @setState({loading: true})
 
-    token = AccountStore.tokenForAccountId(AccountStore.accounts()[0].id)
     errorHandler = (err) =>
       @setState({loading: false})
       NylasEnv.showErrorDialog(err.message)
 
     EdgehillAPI.makeRequest
-      auth:
-        user: token
-        pass: ""
+      authWithNylasAPI: true
       path: "/keybase-invite",
       method: "POST",
       body:

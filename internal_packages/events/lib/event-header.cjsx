@@ -6,7 +6,6 @@ React = require 'react'
  DateUtils,
  Message,
  Event,
- Utils,
  ComponentRegistry,
  EventRSVPTask,
  DatabaseStore,
@@ -56,11 +55,11 @@ class EventHeader extends React.Component
         <div className="event-body">
           <div className="event-date">
             <div className="event-day">
-              {moment(@state.event.start*1000).tz(Utils.timeZone).format("dddd, MMMM Do")}
+              {moment(@state.event.start*1000).tz(DateUtils.timeZone).format("dddd, MMMM Do")}
             </div>
             <div>
               <div className="event-time">
-                {moment(@state.event.start*1000).tz(Utils.timeZone).format(timeFormat)}
+                {moment(@state.event.start*1000).tz(DateUtils.timeZone).format(timeFormat)}
               </div>
               {@_renderEventActions()}
             </div>

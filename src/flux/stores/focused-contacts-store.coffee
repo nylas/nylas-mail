@@ -118,7 +118,7 @@ class FocusedContactsStore extends NylasStore
   _calculatePenalties: (contact, score) ->
     penalties = 0
     email = contact.email.toLowerCase().trim()
-    myEmail = AccountStore.accountForId(@currentThread?.accountId)?.emailAddress
+    myEmail = AccountStore.accountForId(@_currentThread?.accountId)?.emailAddress
 
     if email is myEmail
       # The whole thing which will penalize to zero
