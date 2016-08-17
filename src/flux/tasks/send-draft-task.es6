@@ -73,8 +73,8 @@ export default class SendDraftTask extends BaseDraftTask {
     const openTrackingId = NylasEnv.packages.pluginIdFor('open-tracking')
     const linkTrackingId = NylasEnv.packages.pluginIdFor('link-tracking')
 
-    const pluinsAvailable = (openTrackingId && linkTrackingId);
-    if (!pluinsAvailable) {
+    const pluginsAvailable = (openTrackingId && linkTrackingId);
+    if (!pluginsAvailable) {
       return false;
     }
     const pluginsInUse = (this.draft.metadataForPluginId(openTrackingId) || this.draft.metadataForPluginId(linkTrackingId));
