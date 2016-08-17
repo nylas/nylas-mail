@@ -10,79 +10,81 @@ import {ipcRenderer} from 'electron'
  * leave their app in the /Downloads folder (which frequently gets
  * erased!).
  */
-module.exports = {
-  activate() {
-    this._unlisten = Actions.notificationActionTaken.listen(this._onNotificationActionTaken, this)
 
-    if (NylasEnv.inDevMode() || NylasEnv.inSpecMode()) return;
-    if (process.platform === "darwin") {
-      const appRe = /Applications/gi;
-      if (appRe.test(process.argv[0])) return;
+let unlisten = () => {}
 
-      // If we're in Volumes, that means we've launched from the DMG. This
-      // is unsupported. We should optimistically move.
-      const volTest = /Volumes/gi;
-      if (volTest.test(process.argv[0])) {
-        ipcRenderer.send("move-to-applications");
-        return;
-      }
+function onNotificationActionTaken({action}) {
+  if (action.id === "verify-install:dont-ask-again") {
+    NylasEnv.config.set("asksAboutAppMove", 5)
+  } else if (action.id === "verify-install:do-not-move") {
+    const numAsks = NylasEnv.config.get("asksAboutAppMove") || 0
+    NylasEnv.config.set("asksAboutAppMove", numAsks + 1)
+  } else if (action.id === "verify-install:move-to-applications") {
+    ipcRenderer.send("move-to-applications")
+  }
+}
 
-      const numAsks = NylasEnv.config.get("asksAboutAppMove")
-      if (numAsks >= 5) return;
+export function activate() {
+  unlisten = Actions.notificationActionTaken.listen(onNotificationActionTaken)
 
-      const actions = []
-      if (numAsks >= 1) {
-        actions.push({
-          label: "Don't ask again",
-          dismisses: true,
-          id: 'verify-install:dont-ask-again',
-        })
-      }
+  if (NylasEnv.inDevMode() || NylasEnv.inSpecMode()) { return; }
 
-      const re = /(^.*?\.app)/i;
-      let enclosingFolder = (re.exec(process.argv[0]) || [])[0].split("/");
-      enclosingFolder = enclosingFolder[enclosingFolder.length - 2]
+  if (process.platform !== "darwin") { return; }
 
-      let msg = `I can move myself to your Applications folder if you'd like.`
-      if (enclosingFolder) {
-        msg += ` This will keep your ${enclosingFolder} folder uncluttered.`
-      }
+  const appRe = /Applications/gi;
+  if (appRe.test(process.argv[0])) { return; }
 
-      Actions.postNotification({
-        type: 'info',
-        tag: 'app-update',
-        sticky: true,
-        message: msg,
-        icon: 'fa-flag',
-        actions: actions.concat([
-          {
-            label: "Do Not Move",
-            dismisses: true,
-            id: 'verify-install:do-not-move',
-          },
-          {
-            "label": "Move to Applications Folder",
-            "dismisses": true,
-            "default": true,
-            "id": 'verify-install:move-to-applications',
-          },
-        ]),
-      });
-    }
-  },
+  // If we're in Volumes, that means we've launched from the DMG. This
+  // is unsupported. We should optimistically move.
+  const volTest = /Volumes/gi;
+  if (volTest.test(process.argv[0])) {
+    ipcRenderer.send("move-to-applications");
+    return;
+  }
 
-  _onNotificationActionTaken({action}) {
-    if (action.id === "verify-install:dont-ask-again") {
-      NylasEnv.config.set("asksAboutAppMove", 5)
-    } else if (action.id === "verify-install:do-not-move") {
-      const numAsks = NylasEnv.config.get("asksAboutAppMove") || 0
-      NylasEnv.config.set("asksAboutAppMove", numAsks + 1)
-    } else if (action.id === "verify-install:move-to-applications") {
-      ipcRenderer.send("move-to-applications")
-    }
-  },
+  const numAsks = NylasEnv.config.get("asksAboutAppMove")
+  if (numAsks >= 5) return;
 
-  deactivate() {
-    this._unlisten()
-  },
+  const actions = []
+  if (numAsks >= 1) {
+    actions.push({
+      label: "Don't ask again",
+      dismisses: true,
+      id: 'verify-install:dont-ask-again',
+    })
+  }
+
+  const re = /(^.*?\.app)/i;
+  let enclosingFolder = (re.exec(process.argv[0]) || [])[0].split("/");
+  enclosingFolder = enclosingFolder[enclosingFolder.length - 2]
+
+  let msg = `I can move myself to your Applications folder if you'd like.`
+  if (enclosingFolder) {
+    msg += ` This will keep your ${enclosingFolder} folder uncluttered.`
+  }
+
+  Actions.postNotification({
+    type: 'info',
+    tag: 'app-update',
+    sticky: true,
+    message: msg,
+    icon: 'fa-flag',
+    actions: actions.concat([
+      {
+        label: "Do Not Move",
+        dismisses: true,
+        id: 'verify-install:do-not-move',
+      },
+      {
+        "label": "Move to Applications Folder",
+        "dismisses": true,
+        "default": true,
+        "id": 'verify-install:move-to-applications',
+      },
+    ]),
+  });
+}
+
+export function deactivate() {
+  unlisten()
 }

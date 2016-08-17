@@ -120,6 +120,12 @@ require('moment-round')
 window.testNowMoment = ->
   moment.tz("2016-03-15 12:00", TEST_TIME_ZONE)
 
+# We need to mock the config even before `beforeEach` runs because it gets
+# accessed on module definitions
+fakePersistedConfig = {env: 'production'}
+NylasEnv.config = new Config()
+NylasEnv.config.settings = fakePersistedConfig
+
 beforeEach ->
   NylasEnv.testOrganizationUnit = null
   Grim.clearDeprecations() if isCoreSpec
@@ -196,7 +202,7 @@ beforeEach ->
   FocusedPerspectiveStore._current = MailboxPerspective.forNothing()
 
   # reset config before each spec; don't load or save from/to `config.json`
-  fakePersistedConfig = {}
+  fakePersistedConfig = {env: 'production'}
   spyOn(Config::, 'getRawValues').andCallFake =>
     fakePersistedConfig
   spyOn(Config::, 'setRawValue').andCallFake (keyPath, value) ->
