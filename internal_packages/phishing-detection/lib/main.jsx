@@ -50,9 +50,9 @@ class PhishingIndicator extends React.Component {
     // phishing attempt boils down to checking the `replyTo` attributes on
     // `Message` models from `MessageStore`.
     if (message && message.replyTo && message.replyTo.length !== 0) {
-      const from = message.from[0].email
+      const from = message.from[0].email.toLowerCase();
       const fromDomain = tld.registered(from.split('@')[1]);
-      const replyTo = message.replyTo[0].email
+      const replyTo = message.replyTo[0].email.toLowerCase();
       const replyToDomain = tld.registered(replyTo.split('@')[1]);
       if (replyToDomain !== fromDomain) {
         return (

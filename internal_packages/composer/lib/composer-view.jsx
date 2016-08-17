@@ -166,6 +166,12 @@ export default class ComposerView extends React.Component {
     return this._renderContent();
   }
 
+  _onNewHeaderComponents = () => {
+    if (this.refs.header) {
+      this.focus()
+    }
+  }
+
   _renderContent() {
     return (
       <div className="composer-centered">
@@ -174,6 +180,7 @@ export default class ComposerView extends React.Component {
           draft={this.props.draft}
           session={this.props.session}
           initiallyFocused={this.props.draft.to.length === 0}
+          onNewHeaderComponents={this._onNewHeaderComponents}
         />
         <div
           className="compose-body"
@@ -453,8 +460,12 @@ export default class ComposerView extends React.Component {
     if (event.target === this._mouseDownTarget && !this._inFooterRegion(event.target)) {
       // We don't set state directly here because we want the native
       // contenteditable focus behavior. When the contenteditable gets focused
-      // the focused field state will be properly set via editor.onFocus
-      this.refs[Fields.Body].focusAbsoluteEnd();
+      const bodyRect = ReactDOM.findDOMNode(this.refs[Fields.Body]).getBoundingClientRect()
+      if (event.pageY < bodyRect.top) {
+        this.refs[Fields.Body].focus()
+      } else {
+        this.refs[Fields.Body].focusAbsoluteEnd();
+      }
     }
     this._mouseDownTarget = null;
   }

@@ -7,8 +7,8 @@ moment = require 'moment'
 class DeveloperBarCurlRequest
   constructor: ({@id, request, statusCode, error}) ->
     url = request.url
-    if request.auth
-      url = url.replace('://', "://#{request.auth.user}:#{request.auth.pass}@")
+    if request.auth and (request.auth.user || request.auth.pass)
+      url = url.replace('://', "://#{request.auth.user ? ""}:#{request.auth.pass ? ""}@")
     if request.qs
       url += "?#{qs.stringify(request.qs)}"
 
@@ -22,6 +22,10 @@ class DeveloperBarCurlRequest
     if request.headers
       for k,v of request.headers
         headers += "-H \"#{k}: #{v}\" "
+
+    if request.auth?.bearer
+      tok = request.auth.bearer.replace("!", "\\!")
+      headers += "-H \"Authorization: Bearer #{tok}\" "
 
     @command = "curl -X #{request.method} #{headers}#{data} \"#{url}\""
     @statusCode = statusCode ? error?.code ? "pending"

@@ -173,7 +173,6 @@ export default class CategoryPickerPopover extends Component {
     const {account, threads} = this.props
 
     if (threads.length === 0) return;
-    this.refs.menu.setSelectedItem(null)
 
     if (item.newCategoryItem) {
       const category = new Category({

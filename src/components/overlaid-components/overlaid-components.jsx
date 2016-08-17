@@ -45,7 +45,9 @@ export default class OverlaidComponents extends React.Component {
     return {
       anchorId: overlayId,
       anchorTag:
-        `<img class="${className}" src="${IMG_SRC}" data-overlay-id="${overlayId}" data-component-props="${propsStr}" data-component-key="${componentKey}" style="${style}">`,
+        `<img class="${className}" src="${IMG_SRC}" data-overlay-id="${overlayId}" ` +
+        `data-component-props="${propsStr}" data-component-key="${componentKey}" ` +
+        `style="${style}">`,
     }
   }
 
@@ -53,7 +55,7 @@ export default class OverlaidComponents extends React.Component {
     super(props);
     this.state = {
       anchorRectIds: [],
-      serialized: false,
+      previewMode: false,
     }
     this._anchorData = {}
     this._overlayData = {}
@@ -162,12 +164,20 @@ export default class OverlaidComponents extends React.Component {
     return updatedRegistry
   }
 
-  _renderSerializeToggle() {
+  _onTogglePreview = () => {
+    this.setState({previewMode: !this.state.previewMode})
+  }
+
+  _renderPreviewToggle() {
     let msg = "Preview as recipient";
-    if (this.state.serialized) {
+    if (this.state.previewMode) {
       msg = "Return to editor"
     }
-    return <a className="toggle-serialized" onClick={() => { this.setState({serialized: !this.state.serialized}) }}>{msg}</a>
+    return (
+      <a className="toggle-preview" onClick={this._onTogglePreview} >
+        {msg}
+      </a>
+    )
   }
 
   _renderOverlaidComponents() {
@@ -177,25 +187,22 @@ export default class OverlaidComponents extends React.Component {
       if (!data) { throw new Error("No mounted rect for #{id}") }
 
       const style = {left: data.left, top: data.top, position: 'absolute'}
-      const componentData = CustomContenteditableComponents.get(data.componentKey);
+      const component = CustomContenteditableComponents.get(data.componentKey);
 
-      if (!componentData) {
+      if (!component) {
         // It's possible that the plugin with that will register this
         // componentKey hasn't loaded yet. This is common in popout
         // composers where 3rd party plugins are loaded later.
         continue
       }
 
-      const component = this.state.serialized ? componentData.serialized : componentData.main;
-
-      if (!component) { throw new Error(`No registered component for ${data.componentKey}`) }
-
-      let props = JSON.parse(data.componentProps);
-
-      props = Object.assign({}, this.props.exposedProps, props);
+      const props = Object.assign({},
+        this.props.exposedProps,
+        JSON.parse(data.componentProps),
+        {isPreview: this.state.previewMode}
+      );
 
       const el = React.createElement(component, props)
-
       const wrap = (
         <span
           key={id}
@@ -209,7 +216,7 @@ export default class OverlaidComponents extends React.Component {
 
       els.push(wrap)
     }
-    const toggle = (els.length > 0) ? this._renderSerializeToggle() : false
+    const toggle = (els.length > 0) ? this._renderPreviewToggle() : false
     return (
       <div ref="overlaidComponents" className="overlaid-components">
         {toggle}
