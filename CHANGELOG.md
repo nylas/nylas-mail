@@ -29,6 +29,9 @@
   + MailMerge will no longer error when trying to send after previewing contents
     as the recipients will recieve them. Also, the cursor styles for MailMerge tokens
     have been updated to indicate that they can be dragged.
+  + We don't open dev tools when `applyTransformsToDraft` fails when sending.
+  + The autoupdater now properly uses your Nylas ID when available.
+  + We no longer retry send, and just show an error dialog when sending fails.
 
 
 ### 0.4.47 (7/28/16)
