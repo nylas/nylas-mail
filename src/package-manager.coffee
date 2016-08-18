@@ -434,8 +434,8 @@ class PackageManager
 
     # Only active 3rd party plugins
     activeThirdPartyPluginNames = @getActivePackages().filter((p) ->
-        (p.path?.indexOf('internal_packages') is -1 and
-        p.path?.indexOf('nylas-private') is -1)
+      (p.path?.indexOf('internal_packages') is -1 and
+      p.path?.indexOf('nylas-private') is -1)
     ).map((p) -> p.name)
 
     # Only active core optional, and core required plugins
