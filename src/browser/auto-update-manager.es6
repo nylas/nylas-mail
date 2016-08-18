@@ -24,6 +24,21 @@ export default class AutoUpdateManager extends EventEmitter {
     this.config = config;
     this.specMode = specMode;
 
+    this._updateFeedURL();
+
+    this.config.onDidChange(
+      'nylas.identity.id',
+      this._updateFeedURL
+    );
+    this.config.onDidChange(
+      'nylas.accounts',
+      this._updateFeedURL
+    );
+
+    process.nextTick(() => this.setupAutoUpdater());
+  }
+
+  _updateFeedURL = () => {
     let updaterId = this.config.get("nylas.identity.id");
     if (!updaterId) {
       updaterId = "anonymous";
@@ -46,7 +61,9 @@ export default class AutoUpdateManager extends EventEmitter {
       this.feedURL = `https://edgehill.nylas.com/update-check?platform=${process.platform}&arch=${process.arch}&version=${this.version}&id=${updaterId}&emails=${updaterEmails}`;
     }
 
-    process.nextTick(() => this.setupAutoUpdater());
+    if (autoUpdater) {
+      autoUpdater.setFeedURL(this.feedURL)
+    }
   }
 
   setupAutoUpdater() {
