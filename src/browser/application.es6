@@ -596,14 +596,19 @@ export default class Application extends EventEmitter {
       const escapedName = this._escapeShell(appName);
       const escapedPath = this._escapeShell(appPath);
 
+      if (!escapedName || escapedName.trim().length === 0) {
+        throw new Error(`escapedName is invalid: ${escapedName}`)
+      }
+
       // We separate the commands with a `;` instead of `&&` so in case the
       // mv fails, the open will still run.
       // We need the sleep to let the first app fully finish quitting.
       // Otherwise it'll attempt to re-open the existing app (the one in
       // the process of quitting)
+      const newAppDest = `/Applications/${escapedName}`
       let move = `mv`
       try { fs.accessSync(appPath, fs.W_OK) } catch (e) { move = `cp -r` }
-      const cmd = `${move} ${escapedPath} /Applications/; sleep 0.5; open /Applications/${escapedName}`;
+      const cmd = `rm -rf ${newAppDest}; ${move} ${escapedPath} ${newAppDest}; sleep 0.5; open ${newAppDest}`;
       app.once('will-quit', () => {
         // We need to use `exec` since that will start a new shell process and
         // allow us to kill this one.

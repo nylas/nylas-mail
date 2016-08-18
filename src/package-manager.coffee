@@ -7,6 +7,7 @@ EmitterMixin = require('emissary').Emitter
 fs = require 'fs-plus'
 Q = require 'q'
 
+Actions = require './flux/actions'
 Package = require './package'
 ThemePackage = require './theme-package'
 DatabaseStore = require './flux/stores/database-store'
@@ -37,6 +38,7 @@ class PackageManager
 
   constructor: ({configDirPath, @devMode, safeMode, @resourcePath, @specMode}) ->
     @emitter = new Emitter
+    @onPluginsChanged = _.debounce(@_onPluginsChanged, 200)
     @packageDirPaths = []
     if @specMode
       @packageDirPaths.push(path.join(@resourcePath, "spec", "fixtures", "packages"))
@@ -422,6 +424,38 @@ class PackageManager
 
       null
 
+  # This lets us report the active plugins in the main window (since plugins
+  # are window-specific). Useful for letting the worker window know what
+  # plugins are installed in the main window.
+  _onPluginsChanged: =>
+    return unless NylasEnv.isMainWindow()
+    # All active plugins, core optional, core required, and 3rd party
+    activePluginNames = @getActivePackages().map((p) -> p.name)
+
+    # Only active 3rd party plugins
+    activeThirdPartyPluginNames = @getActivePackages().filter((p) ->
+        (p.path?.indexOf('internal_packages') is -1 and
+        p.path?.indexOf('nylas-private') is -1)
+    ).map((p) -> p.name)
+
+    # Only active core optional, and core required plugins
+    activeCorePluginNames = _.difference(activePluginNames, activeThirdPartyPluginNames)
+
+    # All plugins (3rd party and core optional) that have the {optional: true}
+    # flag.  If it's an internal_packages core package, it'll show up in
+    # preferences.
+    optionalPluginNames = @getAvailablePackageMetadata()
+      .filter(({isOptional}) -> isOptional)
+      .map((p) -> p.name)
+
+    activeCoreOptionalPluginNames = _.intersection(activeCorePluginNames, optionalPluginNames)
+
+    Actions.notifyPluginsChanged({
+      allActivePluginNames: activePluginNames
+      coreActivePluginNames: activeCoreOptionalPluginNames
+      thirdPartyActivePluginNames: activeThirdPartyPluginNames
+    })
+
   # If a windowType is passed, we'll only load packages who declare that
   # windowType as `true` in their package.json file.
   loadPackages: (windowType) ->
@@ -451,6 +485,7 @@ class PackageManager
           @packagesWithDatabaseObjects.push pack
         @loadedPackages[pack.name] = pack
         @emitter.emit 'did-load-package', pack
+        @onPluginsChanged()
         return pack
       catch error
         console.warn "Failed to load package.json '#{path.basename(packagePath)}'"
@@ -470,6 +505,7 @@ class PackageManager
     if pack = @getLoadedPackage(name)
       delete @loadedPackages[pack.name]
       @emitter.emit 'did-unload-package', pack
+      @onPluginsChanged()
     else
       throw new Error("No loaded package for name '#{name}'")
 
@@ -522,6 +558,7 @@ class PackageManager
       pack.activate().then =>
         @activePackages[pack.name] = pack
         @emitter.emit 'did-activate-package', pack
+        @onPluginsChanged()
         pack
     else
       Q.reject(new Error("Failed to load package '#{name}'"))
@@ -540,3 +577,4 @@ class PackageManager
     pack.deactivate()
     delete @activePackages[pack.name]
     @emitter.emit 'did-deactivate-package', pack
+    @onPluginsChanged()

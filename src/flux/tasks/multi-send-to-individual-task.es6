@@ -33,10 +33,7 @@ export default class MultiSendToIndividualTask extends Task {
       // dozens of these tasks. The `MultieSendSessionCloseTask`
       // accumulates and shows the errors.
       if (err instanceof APIError) {
-        if (NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
-          return Promise.resolve([Task.Status.Failed, err]);
-        }
-        return Promise.resolve(Task.Status.Retry);
+        return Promise.resolve([Task.Status.Failed, err]);
       }
       return Promise.resolve([Task.Status.Failed, err]);
     });
