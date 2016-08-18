@@ -168,7 +168,7 @@ describe('SyncbackModelTask', function syncbackModelTask() {
 
     it("retries on retry-able API errors", () => {
       jasmine.unspy(NylasAPI, "makeRequest");
-      const err = new APIError({statusCode: 429});
+      const err = new APIError({statusCode: 420});
       spyOn(NylasAPI, "makeRequest").andReturn(Promise.reject(err))
       performRemote((status) => {
         expect(status).toBe(Task.Status.Retry)

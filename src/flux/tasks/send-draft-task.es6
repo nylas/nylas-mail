@@ -239,10 +239,6 @@ export default class SendDraftTask extends BaseDraftTask {
     let message = err.message;
 
     if (err instanceof APIError) {
-      if (!NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
-        return Promise.resolve(Task.Status.Retry);
-      }
-
       message = `Sorry, this message could not be sent. Please try again, and make sure your message is addressed correctly and is not too large.`;
       if (err.statusCode === 402 && err.body.message) {
         if (err.body.message.indexOf('at least one recipient') !== -1) {
