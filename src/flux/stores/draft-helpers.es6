@@ -35,7 +35,9 @@ export function isForwardedMessage({body, subject} = {}) {
 }
 
 export function shouldAppendQuotedText({body = '', replyToMessageId = false} = {}) {
-  return replyToMessageId && !body.includes('<div id="n1-quoted-text-marker">')
+  return replyToMessageId &&
+    !body.includes('<div id="n1-quoted-text-marker">') &&
+    !body.includes(`nylas-quote-id-${replyToMessageId}`)
 }
 
 export function messageMentionsAttachment({body} = {}) {
@@ -59,7 +61,7 @@ export function appendQuotedTextToDraft(draft) {
   .include(Message.attributes.body)
   .then((prevMessage) => {
     const quotedText = `
-      <div class="gmail_quote">
+      <div class="gmail_quote nylas-quote nylas-quote-id-${draft.replyToMessageId}">
         <br>
         ${DOMUtils.escapeHTMLCharacters(prevMessage.replyAttributionLine())}
         <br>
@@ -97,7 +99,8 @@ export function applyExtensionTransformsToDraft(draft) {
               console.log(transformed.body)
               console.log("-- UNTRANSFORMED (should match BEFORE) --")
               console.log(untransformed.body)
-              NylasEnv.reportError(new Error(`Extension ${ext.name} applied a transform to the draft that it could not reverse.`))
+              // FIXME: We're removing the error reporting for now, but the real fix is finding out why the console opens when dev mode is false.
+              // NylasEnv.reportError(new Error(`Extension ${ext.name} applied a transform to the draft that it could not reverse.`))
             }
             latestTransformed = transformed
             return Promise.resolve()

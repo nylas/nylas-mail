@@ -146,9 +146,9 @@ class Contact extends Model
     return @_nameParts().join(' ')
 
   firstName: ->
-    articles = ['a', 'the']
+    exclusions = ['a', 'the', 'dr.', 'mrs.', 'mr.', 'mx.', 'prof.', 'ph.d.']
     for part in @_nameParts()
-      if part.toLowerCase() not in articles
+      if part.toLowerCase() not in exclusions
         return part
     return ""
 

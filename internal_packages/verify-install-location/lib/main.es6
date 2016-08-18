@@ -1,4 +1,4 @@
-import {Actions} from 'nylas-exports'
+const {dialog} = require('electron').remote
 import {ipcRenderer} from 'electron'
 
 /**
@@ -11,22 +11,25 @@ import {ipcRenderer} from 'electron'
  * erased!).
  */
 
-let unlisten = () => {}
+function onNotificationActionTaken(numAsks) {
+  return (buttonIndex) => {
+    if (buttonIndex === 0) {
+      ipcRenderer.send("move-to-applications")
+    }
 
-function onNotificationActionTaken({action}) {
-  if (action.id === "verify-install:dont-ask-again") {
-    NylasEnv.config.set("asksAboutAppMove", 5)
-  } else if (action.id === "verify-install:do-not-move") {
-    const numAsks = NylasEnv.config.get("asksAboutAppMove") || 0
-    NylasEnv.config.set("asksAboutAppMove", numAsks + 1)
-  } else if (action.id === "verify-install:move-to-applications") {
-    ipcRenderer.send("move-to-applications")
+    if (numAsks >= 1) {
+      if (buttonIndex === 1) {
+        NylasEnv.config.set("asksAboutAppMove", 5)
+      } else {
+        NylasEnv.config.set("asksAboutAppMove", numAsks + 1)
+      }
+    } else {
+      NylasEnv.config.set("asksAboutAppMove", numAsks + 1)
+    }
   }
 }
 
 export function activate() {
-  unlisten = Actions.notificationActionTaken.listen(onNotificationActionTaken)
-
   if (NylasEnv.inDevMode() || NylasEnv.inSpecMode()) { return; }
 
   if (process.platform !== "darwin") { return; }
@@ -45,13 +48,18 @@ export function activate() {
   const numAsks = NylasEnv.config.get("asksAboutAppMove")
   if (numAsks >= 5) return;
 
-  const actions = []
+  let buttons;
   if (numAsks >= 1) {
-    actions.push({
-      label: "Don't ask again",
-      dismisses: true,
-      id: 'verify-install:dont-ask-again',
-    })
+    buttons = [
+      "Move to Applications Folder",
+      "Don't ask again",
+      "Do Not Move",
+    ]
+  } else {
+    buttons = [
+      "Move to Applications Folder",
+      "Do Not Move",
+    ]
   }
 
   const re = /(^.*?\.app)/i;
@@ -63,28 +71,18 @@ export function activate() {
     msg += ` This will keep your ${enclosingFolder} folder uncluttered.`
   }
 
-  Actions.postNotification({
-    type: 'info',
-    tag: 'app-update',
-    sticky: true,
-    message: msg,
-    icon: 'fa-flag',
-    actions: actions.concat([
-      {
-        label: "Do Not Move",
-        dismisses: true,
-        id: 'verify-install:do-not-move',
-      },
-      {
-        "label": "Move to Applications Folder",
-        "dismisses": true,
-        "default": true,
-        "id": 'verify-install:move-to-applications',
-      },
-    ]),
-  });
+  const CANCEL_ID = 3;
+
+  dialog.showMessageBox({
+    type: "question",
+    buttons: buttons,
+    title: "A Better Place to Install N1",
+    message: "Move to Applications folder?",
+    detail: msg,
+    defaultId: 0,
+    cancelId: CANCEL_ID,
+  }, onNotificationActionTaken(numAsks))
 }
 
 export function deactivate() {
-  unlisten()
 }

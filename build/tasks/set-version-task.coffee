@@ -12,6 +12,9 @@ module.exports = (grunt) ->
     if onBuildMachine or onWindows or not inRepository
       callback(null, version)
     else
+      # NOTE: We need to attach the commit hash to the version so it will match
+      # properly with the S3 bucket we're supposed to download new releases
+      # from.
       cmd = 'git'
       args = ['rev-parse', '--short', 'HEAD']
       spawn {cmd, args}, (error, {stdout}={}, code) ->
