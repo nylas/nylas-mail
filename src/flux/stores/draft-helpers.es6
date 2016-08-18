@@ -35,7 +35,9 @@ export function isForwardedMessage({body, subject} = {}) {
 }
 
 export function shouldAppendQuotedText({body = '', replyToMessageId = false} = {}) {
-  return replyToMessageId && !body.includes('<div id="n1-quoted-text-marker">')
+  return replyToMessageId &&
+    !body.includes('<div id="n1-quoted-text-marker">') &&
+    !body.includes(`nylas-quote-id-${replyToMessageId}`)
 }
 
 export function messageMentionsAttachment({body} = {}) {
@@ -59,7 +61,7 @@ export function appendQuotedTextToDraft(draft) {
   .include(Message.attributes.body)
   .then((prevMessage) => {
     const quotedText = `
-      <div class="gmail_quote">
+      <div class="gmail_quote nylas-quote nylas-quote-id-${draft.replyToMessageId}">
         <br>
         ${DOMUtils.escapeHTMLCharacters(prevMessage.replyAttributionLine())}
         <br>
