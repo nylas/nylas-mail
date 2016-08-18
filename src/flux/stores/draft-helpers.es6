@@ -97,7 +97,8 @@ export function applyExtensionTransformsToDraft(draft) {
               console.log(transformed.body)
               console.log("-- UNTRANSFORMED (should match BEFORE) --")
               console.log(untransformed.body)
-              NylasEnv.reportError(new Error(`Extension ${ext.name} applied a transform to the draft that it could not reverse.`))
+              // FIXME: We're removing the error reporting for now, but the real fix is finding out why the console opens when dev mode is false.
+              // NylasEnv.reportError(new Error(`Extension ${ext.name} applied a transform to the draft that it could not reverse.`))
             }
             latestTransformed = transformed
             return Promise.resolve()
