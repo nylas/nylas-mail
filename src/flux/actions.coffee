@@ -554,6 +554,8 @@ class Actions
   @selectSignature: ActionScopeWindow
   @toggleAccount: ActionScopeWindow
 
+  @notifyPluginsChanged: ActionScopeGlobal
+
 
 # Read the actions we declared on the dummy Actions object above
 # and translate them into Reflux Actions
