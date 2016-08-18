@@ -4,14 +4,17 @@ url = require 'url'
 describe "AutoUpdateManager", ->
   beforeEach ->
     @nylasIdentityId = null
+    @accounts = [{email_address: 'ben@nylas.com'},{email_address: 'mark@nylas.com'}]
     @specMode = true
     @config =
       set: jasmine.createSpy('config.set')
       get: (key) =>
         if key is 'nylas.accounts'
-          return [{email_address: 'ben@nylas.com'},{email_address: 'mark@nylas.com'}]
+          return @accounts
         if key is 'nylas.identity.id'
           return @nylasIdentityId
+      onDidChange: (key, callback) =>
+        callback()
 
   describe "with attached commit version", ->
     it "correctly sets the feedURL", ->
@@ -44,5 +47,16 @@ describe "AutoUpdateManager", ->
       @nylasIdentityId = "test-nylas-id"
       m = new AutoUpdateManager("3.222.1", @config, @specMode)
       spyOn(m, "setupAutoUpdater")
+      {query} = url.parse(m.feedURL, true)
+      expect(query.id).toEqual(@nylasIdentityId)
+
+  describe "when an update identity is added", ->
+    it "should update the feed URL", ->
+      m = new AutoUpdateManager("3.222.1", @config, @specMode)
+      spyOn(m, "setupAutoUpdater")
+      {query} = url.parse(m.feedURL, true)
+      expect(query.id).toEqual('anonymous')
+      @nylasIdentityId = '1'
+      m._updateFeedURL()
       {query} = url.parse(m.feedURL, true)
       expect(query.id).toEqual(@nylasIdentityId)
