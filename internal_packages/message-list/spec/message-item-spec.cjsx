@@ -86,7 +86,7 @@ user_5 = new Contact
 MessageItem = proxyquire '../lib/message-item',
   './message-item-body': MessageItemBody
 
-MessageTimestamp = require '../lib/message-timestamp'
+MessageTimestamp = require('../lib/message-timestamp').default
 
 
 describe "MessageItem", ->
