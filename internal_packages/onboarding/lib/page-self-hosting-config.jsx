@@ -14,6 +14,7 @@ class SelfHostingConfigPage extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
+      usesHTTPS: false,
       url: "",
       port: "",
       error: null,
@@ -29,6 +30,12 @@ class SelfHostingConfigPage extends React.Component {
   _onChangePort = (event) => {
     this.setState({
       port: event.target.value,
+    })
+  }
+
+  _onChangeProtocol = (event) => {
+    this.setState({
+      usesHTTPS: !this.state.usesHTTPS,
     })
   }
 
@@ -57,7 +64,7 @@ class SelfHostingConfigPage extends React.Component {
       return
     }
     NylasEnv.config.set('env', 'custom')
-    NylasEnv.config.set('syncEngine.APIRoot', `http://${this.state.url}:${this.state.port}`)
+    NylasEnv.config.set('syncEngine.APIRoot', `http${this.state.usesHTTPS ? "s" : ""}://${this.state.url}:${this.state.port}`)
     Actions.setNylasIdentity({
       token: "SELFHOSTEDSYNCENGINE",
       firstname: "",
@@ -116,7 +123,7 @@ class SelfHostingConfigPage extends React.Component {
         <div className="self-hosting-container">
           <Flexbox direction="horizontal">
             <div className="api-root">
-              <h4>{`http://`}</h4>
+              <h4>{`http${this.state.usesHTTPS ? "s" : ""}://`}</h4>
             </div>
             <div>
               <label>Sync Engine URL:</label>
@@ -142,6 +149,15 @@ class SelfHostingConfigPage extends React.Component {
               />
             </div>
           </Flexbox>
+          <div className="item">
+            <input
+              id="https"
+              type="checkbox"
+              onChange={this._onChangeProtocol}
+              checked={this.state.usesHTTPS}
+            />
+            <label htmlFor="https">Use HTTPS</label>
+          </div>
         </div>
         <button
           className="btn btn-large btn-gradient"
