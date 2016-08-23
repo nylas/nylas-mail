@@ -21,7 +21,7 @@ class DeveloperBarCurlItem extends React.Component
 
   _onCopyCommand: =>
     clipboard = require('electron').clipboard
-    clipboard.writeText(@props.item.command)
+    clipboard.writeText(@props.item.commandWithAuth)
 
   _isError: ->
     return false if @props.item.statusCode is "pending"
@@ -38,7 +38,7 @@ class DeveloperBarCurlItem extends React.Component
     fs = require 'fs-plus'
     if fs.existsSync(curlFile)
       fs.unlinkSync(curlFile)
-    fs.writeFileSync(curlFile, @props.item.command)
+    fs.writeFileSync(curlFile, @props.item.commandWithAuth)
     fs.chmodSync(curlFile, '777')
     {shell} = require 'electron'
     shell.openItem(curlFile)

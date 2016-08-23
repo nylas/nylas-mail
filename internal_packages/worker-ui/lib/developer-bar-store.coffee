@@ -7,10 +7,13 @@ moment = require 'moment'
 class DeveloperBarCurlRequest
   constructor: ({@id, request, statusCode, error}) ->
     url = request.url
+    urlWithAuth = url
     if request.auth and (request.auth.user || request.auth.pass)
-      url = url.replace('://', "://#{request.auth.user ? ""}:#{request.auth.pass ? ""}@")
+      urlWithAuth = url.replace('://', "://#{request.auth.user ? ""}:#{request.auth.pass ? ""}@")
+
     if request.qs
       url += "?#{qs.stringify(request.qs)}"
+      urlWithAuth += "?#{qs.stringify(request.qs)}"
 
     postBody = ""
     postBody = JSON.stringify(request.body).replace(/'/g, '\\u0027') if request.body
@@ -27,7 +30,9 @@ class DeveloperBarCurlRequest
       tok = request.auth.bearer.replace("!", "\\!")
       headers += "-H \"Authorization: Bearer #{tok}\" "
 
-    @command = "curl -X #{request.method} #{headers}#{data} \"#{url}\""
+    baseCommand = "curl -X #{request.method} #{headers}#{data}"
+    @command = baseCommand + " \"#{url}\""
+    @commandWithAuth = baseCommand + " \"#{urlWithAuth}\""
     @statusCode = statusCode ? error?.code ? "pending"
     @errorMessage = error?.message ? error
     @startMoment = moment(request.startTime)
