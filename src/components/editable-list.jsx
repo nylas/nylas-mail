@@ -434,7 +434,7 @@ class EditableList extends Component {
           <span>+</span>
         </div>
         <div className={deleteClasses} onClick={this._onDeleteItem}>
-          <span>—</span>
+          <span>-</span>
         </div>
       </div>
     );
