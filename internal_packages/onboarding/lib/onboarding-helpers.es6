@@ -18,7 +18,7 @@ function base64url(inBuffer) {
     .replace(/\//g, '_'); // Convert '/' to '_'
 }
 
-export function pollForGmailAccount(sessionKey, callback) {
+export function makeGmailOAuthRequest(sessionKey, callback) {
   EdgehillAPI.makeRequest({
     path: `/oauth/google/token?key=${sessionKey}`,
     method: "GET",
