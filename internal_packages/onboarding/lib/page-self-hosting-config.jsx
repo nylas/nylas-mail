@@ -33,7 +33,7 @@ class SelfHostingConfigPage extends React.Component {
     })
   }
 
-  _onChangeProtocol = (event) => {
+  _onChangeProtocol = () => {
     this.setState({
       usesHTTPS: !this.state.usesHTTPS,
     })
