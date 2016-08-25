@@ -72,6 +72,7 @@ class NylasComponentKit
   @load "LazyRenderedList", "lazy-rendered-list"
   @load "OverlaidComponents", "overlaid-components/overlaid-components"
   @load "OverlaidComposerExtension", "overlaid-components/overlaid-composer-extension"
+  @load "OAuthSignInPage", "oauth-signin-page"
 
   @load "ScrollRegion", 'scroll-region'
   @load "ResizableRegion", 'resizable-region'
