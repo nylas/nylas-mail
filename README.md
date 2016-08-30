@@ -25,6 +25,7 @@ guide](https://github.com/nylas/N1/blob/master/CONTRIBUTING.md).
 
 The Nylas N1 user interface is styled using CSS, which means it's easy to modify and extend. N1 comes stock with a few beautiful themes, and there are many more which have been built by community developers
 
+<center><img width=550 src="http://i.imgur.com/PWQ7NlY.jpg"></center>
 
 
 #### Bundled Themes
