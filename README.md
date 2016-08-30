@@ -21,8 +21,11 @@ Plugins lie at the heart of N1 and give it its powerful features. Building your 
 If you would like to run the N1 source and contribute, check out our [contributing
 guide](https://github.com/nylas/N1/blob/master/CONTRIBUTING.md).
 
-# Plugin List
-We're working on building a plugin index that makes it super easy to add them to N1. For now, check out the list below! (Feel free to submit a PR if you build a plugin and want it featured here.)
+# Themes
+
+The Nylas N1 user interface is styled using CSS, which means it's easy to modify and extend. N1 comes stock with a few beautiful themes, and there are many more which have been built by community developers
+
+
 
 #### Bundled Themes
 - [Dark](https://github.com/nylas/N1/tree/master/internal_packages/ui-dark)
@@ -32,8 +35,8 @@ We're working on building a plugin index that makes it super easy to add them to
 - [Less Is More](https://github.com/nylas/N1/tree/master/internal_packages/ui-less-is-more) (designed by [Alexander Adkins](https://github.com/P0WW0W))
 
 
+
 #### Community Themes
-[Create your own theme!](https://github.com/nylas/N1-theme-starter)
 - [Arc Dark](https://github.com/varlesh/Nylas-Arc-Dark-Theme)
 - [Predawn](https://github.com/adambmedia/N1-Predawn)
 - [ElementaryOS](https://github.com/edipox/elementary-nylas)
@@ -51,6 +54,21 @@ We're working on building a plugin index that makes it super easy to add them to
 - [BoraBora](https://github.com/arimai/N1-BoraBora)
 - [Honeyduke](https://github.com/arimai/n1-honeyduke)
 - [Snow](https://github.com/Wattenberger/N1-snow-theme)
+
+#### To install community themes: 
+
+1. Download and unzip the repo
+2. In Nylas N1, select `Developer > Install a Package Manually... `
+3. Navigate to where you downloaded the theme and select the root folder. The theme is copied into the `~/.nylas` folder for your convinence
+5. Select `Change Theme...` from the top level menu, and you'll see the newly installed theme. That's it! 
+
+
+Want to dive in more? Try [creating your own theme](https://github.com/nylas/N1-theme-starter)!
+
+
+# Plugin List
+We're working on building a plugin index that makes it super easy to add them to N1. For now, check out the list below! (Feel free to submit a PR if you build a plugin and want it featured here.)
+
 
 #### Bundled Plugins
 Great starting points for creating your own plugins!
@@ -70,6 +88,9 @@ Great starting points for creating your own plugins!
 - [Squirt Speed Reader](https://github.com/HarleyKwyn/squirt-reader-N1-plugin/)
 - [Website Launcher](https://github.com/adriangrantdotorg/nylas-n1-background-webpage)—Opens a URL in separate window
 - In Development: [Cypher](https://github.com/mbilker/cypher) (PGP Encryption)
+
+When you install packages, they're moved to ~/.nylas/packages, and N1 runs apm install on the command line to fetch dependencies listed in the package's package.json
+
 
 # Configuration
 You can configure N1 in a few ways—for instance, pointing it to your self-hosted instance of the sync engine or changing the interface zoom level. [Learn more about how.](https://github.com/nylas/N1/blob/master/CONFIGURATION.md)
