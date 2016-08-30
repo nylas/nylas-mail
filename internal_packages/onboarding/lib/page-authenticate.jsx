@@ -1,4 +1,5 @@
 import React from 'react';
+import {shell} from 'electron'
 import classnames from 'classnames';
 import ReactDOM from 'react-dom';
 import {IdentityStore} from 'nylas-exports';
@@ -86,6 +87,7 @@ export default class AuthenticatePage extends React.Component {
     webview.addEventListener('did-fail-load', this.webviewDidFailLoad);
     webview.addEventListener('did-finish-load', this.webviewDidFinishLoad);
     webview.addEventListener('console-message', (e) => {
+      if (/^http.+/i.test(e.message)) { shell.openExternal(e.message) }
       console.log('Guest page logged a message:', e.message);
     });
   }
@@ -128,6 +130,7 @@ export default class AuthenticatePage extends React.Component {
     const js = `
       var a = document.querySelector('#pro-account');
       result = a ? a.innerText : null;
+      document.querySelector('.open-external').addEventListener('click', function(event) {console.log(this.href); event.preventDefault(); return false;})
     `;
 
     const webview = ReactDOM.findDOMNode(this.refs.webview);
