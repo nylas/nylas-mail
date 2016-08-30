@@ -35,7 +35,7 @@ install:
       git submodule init
 
       # http://stackoverflow.com/questions/21002919/running-a-remote-powershell-script-with-a-git-command-in-it-results-in-nativecom
-      Start-Process -FilePath git.exe -ArgumentList 'submodule update'  -Wait -NoNewWindow
+      Start-Process -FilePath git.exe -ArgumentList 'submodule update --recursive'  -Wait -NoNewWindow
 
       secure-file\tools\secure-file -decrypt src\pro\encrypted_certificates\appveyor\win-nylas-n1.p12.enc -secret $env:DECRYPTION_PASSWORD
       secure-file\tools\secure-file -decrypt src\pro\encrypted_certificates\appveyor\set_win_env.ps1.enc -secret $env:DECRYPTION_PASSWORD
