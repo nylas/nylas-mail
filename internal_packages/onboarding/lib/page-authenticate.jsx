@@ -81,7 +81,8 @@ export default class AuthenticatePage extends React.Component {
 
   componentDidMount() {
     const webview = ReactDOM.findDOMNode(this.refs.webview);
-    webview.src = `${IdentityStore.URLRoot}/onboarding?utm_medium=N1&utm_source=OnboardingPage`;
+    const n1Version = NylasEnv.getVersion();
+    webview.src = `${IdentityStore.URLRoot}/onboarding?utm_medium=N1&utm_source=OnboardingPage&N1_version=${n1Version}`;
     webview.addEventListener('did-start-loading', this.webviewDidStartLoading);
     webview.addEventListener('did-get-response-details', this.webviewDidGetResponseDetails);
     webview.addEventListener('did-fail-load', this.webviewDidFailLoad);
@@ -130,7 +131,8 @@ export default class AuthenticatePage extends React.Component {
     const js = `
       var a = document.querySelector('#pro-account');
       result = a ? a.innerText : null;
-      document.querySelector('.open-external').addEventListener('click', function(event) {console.log(this.href); event.preventDefault(); return false;})
+      var el = document.querySelector('.open-external');
+      if (el) {el.addEventListener('click', function(event) {console.log(this.href); event.preventDefault(); return false;})}
     `;
 
     const webview = ReactDOM.findDOMNode(this.refs.webview);
