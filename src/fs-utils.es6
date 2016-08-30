@@ -1,5 +1,5 @@
 import fs from 'fs'
-import {Utils} from 'nylas-exports'
+import Utils from './flux/models/utils'
 
 export function atomicWriteFileSync(filepath, content) {
   const randomId = Utils.generateTempId()
