@@ -39,6 +39,20 @@ export default class WindowManager {
     return values.sort((a, b) => score(b) - score(a));
   }
 
+  getAllWindowDimensions() {
+    const dims = {}
+    Object.keys(this._windows).forEach((key) => {
+      const win = this._windows[key];
+      if (win.windowType !== WindowLauncher.EMPTY_WINDOW) {
+        const {x, y, width, height} = win.browserWindow.getBounds()
+        const maximized = win.browserWindow.isMaximized()
+        const fullScreen = win.browserWindow.isFullScreen()
+        dims[key] = {x, y, width, height, maximized, fullScreen}
+      }
+    });
+    return dims
+  }
+
   newWindow(options = {}) {
     const win = this.windowLauncher.newWindow(options);
     const existingKey = this._registeredKeyForWindow(win);

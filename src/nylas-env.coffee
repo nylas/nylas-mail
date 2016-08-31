@@ -569,6 +569,9 @@ class NylasEnvConstructor
   toggleFullScreen: ->
     @setFullScreen(!@isFullScreen())
 
+  getAllWindowDimensions: ->
+    remote.getGlobal('application').getAllWindowDimensions()
+
   # Get the dimensions of this window.
   #
   # Returns an {Object} with the following keys:
@@ -722,9 +725,6 @@ class NylasEnvConstructor
 
     @emitter.emit('window-props-received', loadSettings.windowProps ? {})
 
-    {width, height} = loadSettings
-    if width and height
-      @setWindowDimensions({width, height})
     browserWindow = @getCurrentWindow()
     if browserWindow.isResizable() isnt loadSettings.resizable
       browserWindow.setResizable(loadSettings.resizable)
