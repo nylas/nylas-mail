@@ -1,0 +1,25 @@
+{
+  "name": "composer-markdown",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "title": "Markdown (Experimental)",
+  "description": "Write emails using Markdown!",
+  "license": "GPL-3.0",
+  "icon": "./icon.png",
+  "engines": {
+    "nylas": "*"
+  },
+  "isOptional": true,
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  },
+  "dependencies": {
+    "marked": "^0.3",
+    "simplemde": "^1.11.2"
+  }
+}
