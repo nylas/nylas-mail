@@ -1,8 +1,7 @@
 import OnboardingActions from './onboarding-actions';
 import {AccountStore, Actions, IdentityStore} from 'nylas-exports';
-import {shell, ipcRenderer} from 'electron';
+import {ipcRenderer} from 'electron';
 import NylasStore from 'nylas-store';
-import {buildWelcomeURL} from './onboarding-helpers';
 
 function accountTypeForProvider(provider) {
   if (provider === 'eas') {
@@ -79,20 +78,6 @@ class OnboardingStore extends NylasStore {
     }
   }
 
-  /**
-   * User hits nylas.com for the first time and is given cookieId
-   * All events must now be associated with cookieId or its current
-   * alias.
-   *
-   * When this page is opened we pass our new Nylas ID. This will get
-   * aliased to the current cookie on the page.
-   */
-  _openWelcomePage() {
-    // open the external welcome page
-    const url = buildWelcomeURL(this.welcomeRoot, {source: "OnboardingStore"});
-    shell.openExternal(url, {activate: false});
-  }
-
   _onOnboardingComplete = () => {
     // When account JSON is received, we want to notify external services
     // that it succeeded. Unfortunately in this case we're likely to
@@ -134,9 +119,6 @@ class OnboardingStore extends NylasStore {
     const isFirstAccount = AccountStore.accounts().length === 0;
 
     Actions.setNylasIdentity(json);
-    if (!json.seen_welcome_page) {
-      this._openWelcomePage();
-    }
 
     setTimeout(() => {
       if (isFirstAccount) {
