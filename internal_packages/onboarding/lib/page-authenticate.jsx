@@ -126,22 +126,26 @@ export default class AuthenticatePage extends React.Component {
 
   webviewDidFinishLoad = () => {
     // this is sometimes called right after did-fail-load
-    if (this.state.error) { return; }
-
-    const js = `
-      var a = document.querySelector('#pro-account');
-      result = a ? a.innerText : null;
-      var el = document.querySelector('.open-external');
-      if (el) {el.addEventListener('click', function(event) {console.log(this.href); event.preventDefault(); return false;})}
-    `;
+    if (this.state.error) return;
 
     const webview = ReactDOM.findDOMNode(this.refs.webview);
-    webview.executeJavaScript(js, false, (result) => {
+
+    const receiveUserInfo = `
+      var a = document.querySelector('#pro-account');
+      result = a ? a.innerText : null;
+    `;
+    webview.executeJavaScript(receiveUserInfo, false, (result) => {
       this.setState({ready: true, webviewLoading: false});
       if (result !== null) {
         OnboardingActions.authenticationJSONReceived(JSON.parse(result));
       }
     });
+
+    const openExternalLink = `
+      var el = document.querySelector('.open-external');
+      if (el) {el.addEventListener('click', function(event) {console.log(this.href); event.preventDefault(); return false;})}
+    `;
+    webview.executeJavaScript(openExternalLink);
   }
 
   render() {
