@@ -4,7 +4,7 @@ _ = require 'underscore'
 EmailFrame = require('./email-frame').default
 MessageParticipants = require "./message-participants"
 MessageItemBody = require "./message-item-body"
-MessageTimestamp = require "./message-timestamp"
+MessageTimestamp = require("./message-timestamp").default
 MessageControls = require './message-controls'
 {Utils,
  Actions,

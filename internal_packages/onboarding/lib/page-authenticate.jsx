@@ -1,4 +1,5 @@
 import React from 'react';
+import {shell} from 'electron'
 import classnames from 'classnames';
 import ReactDOM from 'react-dom';
 import {IdentityStore} from 'nylas-exports';
@@ -80,12 +81,14 @@ export default class AuthenticatePage extends React.Component {
 
   componentDidMount() {
     const webview = ReactDOM.findDOMNode(this.refs.webview);
-    webview.src = `${IdentityStore.URLRoot}/onboarding?utm_medium=N1&utm_source=OnboardingPage`;
+    const n1Version = NylasEnv.getVersion();
+    webview.src = `${IdentityStore.URLRoot}/onboarding?utm_medium=N1&utm_source=OnboardingPage&N1_version=${n1Version}`;
     webview.addEventListener('did-start-loading', this.webviewDidStartLoading);
     webview.addEventListener('did-get-response-details', this.webviewDidGetResponseDetails);
     webview.addEventListener('did-fail-load', this.webviewDidFailLoad);
     webview.addEventListener('did-finish-load', this.webviewDidFinishLoad);
     webview.addEventListener('console-message', (e) => {
+      if (/^http.+/i.test(e.message)) { shell.openExternal(e.message) }
       console.log('Guest page logged a message:', e.message);
     });
   }
@@ -123,20 +126,26 @@ export default class AuthenticatePage extends React.Component {
 
   webviewDidFinishLoad = () => {
     // this is sometimes called right after did-fail-load
-    if (this.state.error) { return; }
+    if (this.state.error) return;
 
-    const js = `
+    const webview = ReactDOM.findDOMNode(this.refs.webview);
+
+    const receiveUserInfo = `
       var a = document.querySelector('#pro-account');
       result = a ? a.innerText : null;
     `;
-
-    const webview = ReactDOM.findDOMNode(this.refs.webview);
-    webview.executeJavaScript(js, false, (result) => {
+    webview.executeJavaScript(receiveUserInfo, false, (result) => {
       this.setState({ready: true, webviewLoading: false});
       if (result !== null) {
         OnboardingActions.authenticationJSONReceived(JSON.parse(result));
       }
     });
+
+    const openExternalLink = `
+      var el = document.querySelector('.open-external');
+      if (el) {el.addEventListener('click', function(event) {console.log(this.href); event.preventDefault(); return false;})}
+    `;
+    webview.executeJavaScript(openExternalLink);
   }
 
   render() {

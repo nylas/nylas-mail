@@ -18,7 +18,7 @@ function base64url(inBuffer) {
     .replace(/\//g, '_'); // Convert '/' to '_'
 }
 
-export function pollForGmailAccount(sessionKey, callback) {
+export function makeGmailOAuthRequest(sessionKey, callback) {
   EdgehillAPI.makeRequest({
     path: `/oauth/google/token?key=${sessionKey}`,
     method: "GET",
@@ -65,22 +65,6 @@ export function buildGmailAuthURL(sessionKey) {
       prompt: 'consent',
     },
   });
-}
-
-export function buildWelcomeURL(welcomeRoot, {source}) {
-  const identity = IdentityStore.identity();
-  if (!identity || !identity.id) { NylasEnv.reportError(new Error("buildWelcomeURL: Can't find Nylas ID")) }
-  const query = {
-    f: base64url(identity.firstname),
-    l: base64url(identity.lastname),
-    n: base64url(identity.id),
-    utm_medium: "N1",
-  }
-  if (source) { query.utm_source = source }
-  return url.format({
-    pathname: `${welcomeRoot}/welcome`,
-    query: query,
-  })
 }
 
 export function runAuthRequest(accountInfo) {

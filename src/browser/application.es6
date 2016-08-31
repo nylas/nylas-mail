@@ -89,6 +89,7 @@ export default class Application extends EventEmitter {
       'N1-Phishing-Detection': 'phishing-detection',
       'N1-Github-Contact-Card-Section': 'github-contact-card',
       'N1-Keybase': 'keybase',
+      'N1-Markdown': 'composer-markdown',
     }
     const exampleOldNames = Object.keys(exampleNewNames);
     let examplesEnabled = [];

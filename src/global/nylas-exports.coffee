@@ -168,6 +168,7 @@ class NylasExports
   @lazyLoad "Utils", 'flux/models/utils'
   @lazyLoad "DOMUtils", 'dom-utils'
   @lazyLoad "DateUtils", 'date-utils'
+  @lazyLoad "FsUtils", 'fs-utils'
   @lazyLoad "CanvasUtils", 'canvas-utils'
   @lazyLoad "RegExpUtils", 'regexp-utils'
   @lazyLoad "MenuHelpers", 'menu-helpers'
