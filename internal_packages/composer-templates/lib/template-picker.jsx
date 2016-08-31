@@ -117,7 +117,7 @@ class TemplatePicker extends React.Component {
     return (
       <button
         tabIndex={-1}
-        className="btn btn-toolbar narrow pull-right"
+        className="btn btn-toolbar btn-templates narrow pull-right"
         onClick={this._onClickButton}
         title="Insert quick reply…"
       >
