@@ -1,5 +1,24 @@
 # N1 Changelog
 
+### 0.4.50 (8/31/16)
+
+- Features:
+
+  + Onboarding flow improvements:
+    + Allow HTTPS in self-hosted sync engine onboarding
+    + Add new UI component for OAuth sign-in
+    + No longer show welcome page
+  + Add markdown composer plugin
+
+- Fixes:
+
+  + We now correctly display message timestamp in the message list.
+  + No longer show tokens in developer api bar.
+  + Fix composer contact chip styles on Windows.
+  + Fix webview issues for unboarding flow.
+  + Fix issue with blank config.json (#2518)
+
+
 ### 0.4.49 (8/18/16)
 
 - Features:
