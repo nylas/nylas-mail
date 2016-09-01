@@ -12,6 +12,11 @@ markdownStylesheet = null
 class MarkdownEditor extends React.Component
   @displayName: 'MarkdownEditor'
 
+  @containerRequired: false
+
+  @contextTypes:
+    parentTabGroup: React.PropTypes.object,
+
   @propTypes:
     body: React.PropTypes.string.isRequired,
     onBodyChanged: React.PropTypes.func.isRequired,
@@ -24,17 +29,17 @@ class MarkdownEditor extends React.Component
       showIcons: ['code', 'table']
     )
     @mde.codemirror.on "change", @_onBodyChanged
+    @mde.codemirror.on "keydown", @_onKeyDown
     @mde.value(Utils.getTextFromHtml(@props.body))
+    @focus()
 
   componentWillReceiveProps: (newProps) =>
     currentText = Utils.getTextFromHtml(@props.body)
     if @props.body isnt newProps.body and currentText.length is 0
       @mde.value(Utils.getTextFromHtml(newProps.body))
-      @mde.codemirror.execCommand('goDocEnd')
 
   focus: =>
     @mde.codemirror.focus()
-    @mde.codemirror.execCommand('goDocEnd')
 
   focusAbsoluteEnd: =>
     @focus()
@@ -51,17 +56,31 @@ class MarkdownEditor extends React.Component
     setImmediate =>
       @props.onBodyChanged(target: {value: @mde.value()})
 
+  _onKeyDown: (codemirror, e)=>
+    if e.key is 'Tab' and e.shiftKey is true
+      position = codemirror.cursorCoords(true, 'local')
+      isAtBeginning = position.top <= 5 and position.left <= 5
+      if isAtBeginning
+        # TODO i'm /really/ sorry
+        # Subject is at position 2 within the tab group, the focused text area
+        # in this component is at position 17, so that's why we shift back 15
+        # positions.
+        # This will break if the dom elements between here and the subject ever
+        # change
+        @context.parentTabGroup.shiftFocus(-15)
+        e.preventDefault()
+        e.codemirrorIgnore = true
+
   render: ->
     # TODO sorry
     # Add style tag to disable incompatible plugins
-    <div className="markdown-editor">
+    <div tabIndex="1" className="markdown-editor" onFocus={@focus}>
       <style>
         {".btn-mail-merge { display:none; }"}
         {".btn-emoji { display:none; }"}
         {".btn-templates { display:none; }"}
         {".btn-scheduler { display:none; }"}
         {".btn-translate { display:none; }"}
-        {".signature-button-dropdown { display:none; }"}
       </style>
       <textarea
         ref="textarea"
