@@ -81,21 +81,26 @@ export default class OAuthSignInPage extends React.Component {
 
     return (
       <div className={classnames}>
-        <p>Page didn't open?</p>
-        <p>Paste into your browser:
-          <input type="url" className="url-copy-target" value={this.props.authUrl} />
-          <div
-            className="copy-to-clipboard"
-            onClick={() => clipboard.writeText(this.props.authUrl)}
-            onMouseDown={() => this.setState({pressed: true})}
-            onMouseUp={() => this.setState({pressed: false})}
-          >
-            <RetinaImg
-              name="icon-copytoclipboard.png"
-              mode={RetinaImg.Mode.ContentIsMask}
-            />
-          </div>
-        </p>
+        <div style={{marginTop: 40}}>
+          Page didn't open? Paste this URL into your browser:
+        </div>
+        <input
+          type="url"
+          className="url-copy-target"
+          value={this.props.authUrl}
+          readOnly
+        />
+        <div
+          className="copy-to-clipboard"
+          onClick={() => clipboard.writeText(this.props.authUrl)}
+          onMouseDown={() => this.setState({pressed: true})}
+          onMouseUp={() => this.setState({pressed: false})}
+        >
+          <RetinaImg
+            name="icon-copytoclipboard.png"
+            mode={RetinaImg.Mode.ContentIsMask}
+          />
+        </div>
       </div>
     )
   }
