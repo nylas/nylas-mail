@@ -128,7 +128,7 @@ export default class ConfigPersistenceManager {
         global.errorLogger.reportError(error, {event: 'Failed to save config.json'})
         const clickedIndex = dialog.showMessageBox({
           type: 'error',
-          message: 'Failed to save "${path.basename(this.configFilePath)}"',
+          message: `Failed to save "${path.basename(this.configFilePath)}"`,
           detail: `\n\nWe were unable to save the file ${this.configFilePath}. Make sure you have permissions to access this file, and check that the file is not open or being edited and try again.`,
           buttons: ['Okay', 'Try again'],
         })
