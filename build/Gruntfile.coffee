@@ -369,6 +369,9 @@ module.exports = (grunt) ->
 
   grunt.registerTask('docs', ['build-docs', 'render-docs'])
 
+  # NOTE: add-nylas-build-resources task has already run during
+  # script/bootstrap
+  #
   buildTasks = [
     'copy-files-for-build',
     'compile',
