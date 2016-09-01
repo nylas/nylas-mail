@@ -89,28 +89,60 @@ export default class ConfigPersistenceManager {
   }
 
   observe() {
-    try {
-      this.watchSubscription = pathWatcher.watch(this.configFilePath, (eventType) => {
-        if (eventType === 'change' && this.watchSubscription) {
-          if (Date.now() - this.lastSaveTimstamp < 100) {
-            return;
-          }
-          this.loadSoon();
+    // watch the config file for edits. This observer needs to be
+    // replaced if the config file is deleted.
+    let watcher = null;
+    const watchCurrentConfigFile = () => {
+      try {
+        if (watcher) {
+          watcher.close();
         }
+        watcher = pathWatcher.watch(this.configFilePath, (e) => {
+          if (e === 'change') {
+            this.loadSoon();
+          }
+        });
+      } catch (error) {
+        this.observeErrorOccurred(error);
+      }
+    }
+    watchCurrentConfigFile();
+
+    // watch the config directory (non-recursive) to catch the config file
+    // being deleted and replaced or atomically edited.
+    try {
+      let lastctime = null;
+      pathWatcher.watch(this.configDirPath, () => {
+        fs.stat(this.configFilePath, (err, stats) => {
+          if (err) { return; }
+
+          const ctime = stats.ctime.getTime();
+          if (ctime !== lastctime) {
+            if (Math.abs(ctime - this.lastSaveTimestamp) > 2000) {
+              this.loadSoon();
+            }
+            watchCurrentConfigFile();
+            lastctime = ctime;
+          }
+        });
       })
     } catch (error) {
-      global.errorLogger.reportError(error)
-      dialog.showMessageBox({
-        type: 'error',
-        message: 'Configuration Error',
-        detail: `
-        Unable to watch path: ${path.basename(this.configFilePath)}. Make sure you have permissions to
-        ${this.configFilePath}. On linux there are currently problems with watch
-        sizes.
-        `,
-        buttons: ['Okay'],
-      })
+      this.observeErrorOccurred(error);
     }
+  }
+
+  observeErrorOccurred = (error) => {
+    global.errorLogger.reportError(error)
+    dialog.showMessageBox({
+      type: 'error',
+      message: 'Configuration Error',
+      detail: `
+      Unable to watch path: ${path.basename(this.configFilePath)}. Make sure you have permissions to
+      ${this.configFilePath}. On linux there are currently problems with watch
+      sizes.
+      `,
+      buttons: ['Okay'],
+    })
   }
 
   save = () => {
@@ -119,7 +151,8 @@ export default class ConfigPersistenceManager {
     }
     const allSettings = {'*': this.settings};
     const allSettingsJSON = JSON.stringify(allSettings, null, 2);
-    this.lastSaveTimstamp = Date.now();
+    this.lastSaveTimestamp = Date.now();
+
     try {
       atomicWriteFileSync(this.configFilePath, allSettingsJSON)
       this.saveRetries = 0
