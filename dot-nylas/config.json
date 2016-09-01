@@ -6,6 +6,11 @@
         "ui-light"
       ],
       "disabledPackages": [
+        "message-view-on-github",
+        "personal-level-indicators",
+        "phishing-detection",
+        "github-contact-card",
+        "keybase"
       ]
     }
   }
