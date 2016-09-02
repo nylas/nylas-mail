@@ -20,6 +20,6 @@
   },
   "dependencies": {
     "marked": "^0.3",
-    "simplemde": "^1.11.2"
+    "simplemde": "jstejada/simplemde-markdown-editor#input-style-support"
   }
 }

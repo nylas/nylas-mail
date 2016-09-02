@@ -1,5 +1,6 @@
 fs = require 'fs'
 path = require 'path'
+rimraf = require 'rimraf'
 _ = require 'underscore'
 
 module.exports = (grunt) ->
@@ -169,6 +170,7 @@ module.exports = (grunt) ->
 
     cp 'spec', path.join(appDir, 'spec')
     cp 'src', path.join(appDir, 'src'), filter: /.+\.(cson|coffee|cjsx|jsx)$/
+    rimraf.sync(path.join(appDir, 'src', 'pro'))
     cp 'static', path.join(appDir, 'static')
     cp 'keymaps', path.join(appDir, 'keymaps')
     cp 'menus', path.join(appDir, 'menus')

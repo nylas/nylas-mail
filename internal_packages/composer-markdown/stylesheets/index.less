@@ -1,0 +1,27 @@
+@import "../internal_packages/composer-markdown/node_modules/simplemde/dist/simplemde.min.css";
+@import "ui-variables";
+@import "ui-mixins";
+
+@blurred-primary-color: mix(@background-primary, #ffbb00, 96%);
+
+.markdown-editor {
+  padding-top: 10px;
+}
+.markdown-editor .uneditable-notice {
+  text-align: center;
+  font-size: 0.9em;
+  color: @text-color-very-subtle;
+  margin-bottom: 10px;
+  border-top: 1px dashed;
+  border-bottom: 1px dashed;
+  padding: 4px;
+}
+
+.CodeMirror {
+  height: 225px;
+  min-height: 225px;
+  background: transparent;
+}
+.CodeMirror-sided {
+  display: inline-block;
+}
