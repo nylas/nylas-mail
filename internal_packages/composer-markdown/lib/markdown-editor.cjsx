@@ -74,6 +74,9 @@ class MarkdownEditor extends React.Component
   getPreviousSelection: ->
 
   setSelection: ->
+    textarea = ReactDOM.findDOMNode(@refs.textarea),
+    sel = document.getSelection()
+    sel.setBaseAndExtent(textarea, 0, textarea, 0)
 
   _onDOMMutated: ->
 
