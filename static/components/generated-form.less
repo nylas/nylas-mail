@@ -19,6 +19,23 @@ body.platform-win32 {
   }
 }
 
+body.is-blurred, body.platform-win32.is-blurred {
+  .generated-form {
+    .tokenizing-field {
+      &.focused {
+        border: 1px solid @input-border-color;
+        box-shadow: none;
+      }
+    }
+    .form-item .input-area select:focus {
+      box-shadow: none;
+    }
+    .btn:focus {
+      box-shadow: none;
+    }
+  }
+}
+
 .generated-form {
   position: relative;
 

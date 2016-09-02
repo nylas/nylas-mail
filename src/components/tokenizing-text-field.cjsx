@@ -55,6 +55,7 @@ class Token extends React.Component
     onEdited: React.PropTypes.func,
     onAction: React.PropTypes.func
     disabled: React.PropTypes.bool
+    onEditMotion: React.PropTypes.bool
 
   @defaultProps:
     className: ''
@@ -130,11 +131,14 @@ class Token extends React.Component
 
   _onDoubleClick: (event) =>
     return if @props.disabled
+    @props.onEditMotion?(@props.item)
     if @props.onEdited
       @setState(editing: true)
 
   _onEditKeydown: (event) =>
     return if @props.disabled
+    if event.key is "Enter" and @props.selected
+      @props.onEditMotion?(@props.item)
     if event.key in ['Escape', 'Enter']
       @_onEditFinished()
 
@@ -257,6 +261,13 @@ class TokenizingTextField extends React.Component
     # responible for mutating the parent's state in a way that eventually
     # updates this component's `tokens` prop.
     onEdit: React.PropTypes.func
+
+    # This is slightly different than onEdit. onEditMotion gets fired if
+    # the user does an editing-like action on a Token. Double clicking,
+    # etc. This is usefulf for when you don't want the text of the tokens
+    # themselves to be editable, but want to perform some action when the
+    # tokens are double clicked.
+    onEditMotion: React.PropTypes.func
 
     # Called when we remove and there's nothing left to remove
     onEmptied: React.PropTypes.func
@@ -386,6 +397,7 @@ class TokenizingTextField extends React.Component
              selected={@state.selectedTokenKey is key}
              onSelected={@_selectToken}
              onEdited={@props.onEdit}
+             onEditMotion={@props.onEditMotion}
              onAction={onAction}>
         <TokenRenderer token={item} />
       </Token>
@@ -524,6 +536,11 @@ class TokenizingTextField extends React.Component
       label: 'Remove',
       click: => @_removeToken(token)
     ))
+    if (@props.onEditMotion)
+      menu.append(new MenuItem(
+        label: 'Edit',
+        click: => @props.onEditMotion(token)
+      ))
     menu.popup(remote.getCurrentWindow())
 
   # Copy and Paste
