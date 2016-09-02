@@ -12,11 +12,35 @@
 @token-invalid-selected-top: mix(@token-top, red, 60%);
 @token-invalid-selected-bottom: mix(@token-bottom, red, 55%);
 
+@base-box-shadow: 0 0.5px 0 rgba(0,0,0,0.17), 0 -0.5px 0 rgba(0,0,0,0.17), 0.5px 0 0 rgba(0,0,0,0.17), -0.5px 0 0 rgba(0,0,0,0.17), 0 1px 1px rgba(0, 0, 0, 0.1);
+
 .tokenizing-field {
   display: block;
   margin: 0;
   padding: 0;
   position: relative;
+
+  &.disabled {
+    background: rgba(0,0,0,0.02);
+    opacity: 0.7;
+    .token {
+      background: @token-top;
+      box-shadow: @base-box-shadow;
+      &:hover {
+        background: @token-top;
+        cursor: default;
+        box-shadow: @base-box-shadow;
+      }
+    }
+    .tokenizing-field-input {
+      &:hover {
+        cursor: default;
+      }
+    }
+    &:hover {
+      cursor: default;
+    }
+  }
 
   .content-container {
     border: 1px solid @border-color-secondary;
@@ -60,7 +84,7 @@
     line-height: 1.9em;
 
     background: linear-gradient(to bottom, @token-top 0%, @token-bottom 100%);
-    box-shadow: 0 0.5px 0 rgba(0,0,0,0.17), 0 -0.5px 0 rgba(0,0,0,0.17), 0.5px 0 0 rgba(0,0,0,0.17), -0.5px 0 0 rgba(0,0,0,0.17), 0 1px 1px rgba(0, 0, 0, 0.1);
+    box-shadow: @base-box-shadow;
 
     .action {
       position:absolute;

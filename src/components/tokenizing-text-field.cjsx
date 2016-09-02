@@ -54,6 +54,7 @@ class Token extends React.Component
     onSelected: React.PropTypes.func.isRequired,
     onEdited: React.PropTypes.func,
     onAction: React.PropTypes.func
+    disabled: React.PropTypes.bool
 
   @defaultProps:
     className: ''
@@ -91,6 +92,7 @@ class Token extends React.Component
   _renderViewing: =>
     classes = classNames
       "token": true
+      "disabled": @state.disabled
       "dragging": @state.dragging
       "invalid": !@props.valid
       "selected": @props.selected
@@ -98,10 +100,10 @@ class Token extends React.Component
     <div className={"#{classes} #{@props.className}"}
          onDragStart={@_onDragStart}
          onDragEnd={@_onDragEnd}
-         draggable="true"
+         draggable={!@props.disabled}
          onDoubleClick={@_onDoubleClick}
          onClick={@_onSelect}>
-      {if @props.onAction
+      {if @props.onAction and !@props.disabled
         <button className="action" onClick={@_onAction} tabIndex={-1}>
           <RetinaImg mode={RetinaImg.Mode.ContentIsMask} name="composer-caret.png" />
         </button>
@@ -110,6 +112,7 @@ class Token extends React.Component
     </div>
 
   _onDragStart: (event) =>
+    return if @props.disabled
     json = JSON.stringify(@props.item, Utils.registeredObjectReplacer)
     event.dataTransfer.setData('nylas-token-item', json)
     event.dataTransfer.setData('text/plain', @props.item.toString())
@@ -118,24 +121,30 @@ class Token extends React.Component
     @setState(dragging: true)
 
   _onDragEnd: (event) =>
+    return if @props.disabled
     @setState(dragging: false)
 
   _onSelect: (event) =>
+    return if @props.disabled
     @props.onSelected(@props.item)
 
   _onDoubleClick: (event) =>
+    return if @props.disabled
     if @props.onEdited
       @setState(editing: true)
 
   _onEditKeydown: (event) =>
+    return if @props.disabled
     if event.key in ['Escape', 'Enter']
       @_onEditFinished()
 
   _onEditFinished: (event) =>
+    return if @props.disabled
     @props.onEdited?(@props.item, @state.editingValue)
     @setState(editing: false)
 
   _onAction: (event) =>
+    return if @props.disabled
     @props.onAction(@props.item)
     event.preventDefault()
 
@@ -267,6 +276,8 @@ class TokenizingTextField extends React.Component
     # A classSet hash applied to the Menu item
     menuClassSet: React.PropTypes.object
 
+    disabled: React.PropTypes.bool
+
   @defaultProps:
     className: ''
     tokenClassNames: -> ''
@@ -287,6 +298,7 @@ class TokenizingTextField extends React.Component
     classSet[@props.className] = true
     classes = classNames _.extend {}, classSet, (@props.menuClassSet ? {}),
       "tokenizing-field": true
+      "disabled": @props.disabled
       "focused": @state.focus
       "empty": (@state.inputValue ? "").trim().length is 0
 
@@ -370,6 +382,7 @@ class TokenizingTextField extends React.Component
              item={item}
              key={key}
              valid={valid}
+             disabled={@props.disabled}
              selected={@state.selectedTokenKey is key}
              onSelected={@_selectToken}
              onEdited={@props.onEdit}

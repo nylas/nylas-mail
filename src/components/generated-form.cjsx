@@ -95,6 +95,9 @@ class FormItem extends React.Component
     referenceTo: React.PropTypes.string
 
     relationshipName: React.PropTypes.string
+    formType: React.PropTypes.oneOf(['new', 'update'])
+    editableForNew: React.PropTypes.bool
+    editableForUpdate: React.PropTypes.bool
 
   render: =>
     classes = classNames
@@ -173,6 +176,10 @@ class FormItem extends React.Component
       else
         <div></div>
 
+  _isDisabled: =>
+    (@props.formType is "new" and @props.editableForNew is false) or
+    (@props.formType is "update" and @props.editableForUpdate is false)
+
   _renderInput: =>
     inputProps = _.extend {}, @props,
       ref: "input"
@@ -180,6 +187,8 @@ class FormItem extends React.Component
         @_changedOnce = true
         @props.onChange(@props.id, ((eventOrValue?.target?.value) ? eventOrValue))
       onBlur: => @refreshValidityState()
+
+    if @_isDisabled() then inputProps.disabled = true
 
     if FormItem.inputElementTypes[@props.type]
       React.createElement("input", inputProps)
@@ -222,6 +231,7 @@ class GeneratedFieldset extends React.Component
 
     heading: React.PropTypes.node
     useHeading: React.PropTypes.bool
+    formType: React.PropTypes.string
 
   render: =>
     <fieldset>
@@ -247,27 +257,27 @@ class GeneratedFieldset extends React.Component
 
   _renderFormItems: =>
     byRow = _.groupBy(@props.formItems, "row")
-    _.map byRow, (items=[], rowNum) =>
-      itemsWithSpacers = []
-
-      for item, i in items
-        itemsWithSpacers.push(item)
-        if i isnt items.length - 1
-          itemsWithSpacers.push(spacer: true)
+    _.map byRow, (itemsInRow=[], rowNum) =>
+      byCol = _.groupBy(itemsInRow, "column")
+      numCols = Math.max.apply(null, Object.keys(byCol))
 
       <div className="row"
            data-row-num={rowNum}
            style={zIndex: 1000-rowNum}
            key={rowNum}>
-        {_.map itemsWithSpacers, (formItemData, i) =>
-          if formItemData.spacer
-            <div className="column-spacer" data-col-num={i} key={i}>
-            </div>
-          else
-            props = @_propsFromFormItemData(formItemData)
-            <div className="column" data-col-num={i} key={i}>
+        {_.map byCol, (itemsInCol=[], colNum) =>
+          colEls = [<div className="column" data-col-num={colNum} key={colNum}>
+            {itemsInCol.map (formItemData) =>
+              props = @_propsFromFormItemData(formItemData)
               <FormItem {...props} ref={"form-item-#{formItemData.id}"}/>
-            </div>
+            }
+          </div>]
+          if colNum isnt numCols - 1
+            colEls.push(
+              <div className="column-spacer" data-col-num={"#{colNum}-spacer"} key={"#{colNum}-spacer"}>
+              </div>
+            )
+          return colEls
         }
       </div>
 
@@ -279,6 +289,7 @@ class GeneratedFieldset extends React.Component
     error = @props.formItemErrors?[props.id]
     if error then props.formItemError = error
     props.onChange = _.bind(@_onChangeItem, @)
+    props.formType = @props.formType
     return props
 
   _onChangeItem: (itemId, newValue) =>
@@ -316,6 +327,8 @@ class GeneratedForm extends React.Component
     onChange: React.PropTypes.func.isRequired
 
     onSubmit: React.PropTypes.func.isRequired
+
+    formType: React.PropTypes.string
 
   render: =>
     <form className="generated-form" ref="form">
@@ -364,6 +377,7 @@ class GeneratedForm extends React.Component
     if errors then props.formItemErrors = errors
     props.key = fieldsetData.id
     props.onChange = _.bind(@_onChangeFieldset, @)
+    props.formType = @props.formType
     return props
 
   _onChangeFieldset: (fieldsetId, newFormItems) =>
