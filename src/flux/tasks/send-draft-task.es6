@@ -66,7 +66,7 @@ export default class SendDraftTask extends BaseDraftTask {
 
     // Sending individual bodies for too many participants can cause us
     // to hit the smtp rate limit.
-    if (this.draft.participants({includeFrom: false}).length > 10) {
+    if (this.draft.participants({includeFrom: false, includeBcc: true}).length > 10) {
       return false;
     }
 
