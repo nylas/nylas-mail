@@ -21,7 +21,7 @@
 - Development:
 
   + Add PackageMigrationManager which allows us to migrate external packages
-    into the N1 build and specify wether newly added packages should be enabled or
+    into the N1 build and specify whether newly added packages should be enabled or
     disabled by default
 
 
