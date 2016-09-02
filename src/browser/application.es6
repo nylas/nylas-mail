@@ -7,6 +7,7 @@ import ApplicationMenu from './application-menu';
 import AutoUpdateManager from './auto-update-manager';
 import PerformanceMonitor from './performance-monitor'
 import NylasProtocolHandler from './nylas-protocol-handler';
+import PackageMigrationManager from './package-migration-manager';
 import ConfigPersistenceManager from './config-persistence-manager';
 
 import {BrowserWindow, Menu, app, ipcMain, dialog} from 'electron';
@@ -44,7 +45,8 @@ export default class Application extends EventEmitter {
     this.configPersistenceManager = new ConfigPersistenceManager({configDirPath, resourcePath});
     config.load();
 
-    this.temporaryInitializeDisabledPackages();
+    this.packageMigrationManager = new PackageMigrationManager({config, configDirPath, version})
+    this.packageMigrationManager.migrate()
 
     let initializeInBackground = options.background;
     if (initializeInBackground === undefined) {
@@ -76,51 +78,6 @@ export default class Application extends EventEmitter {
 
   isQuitting() {
     return this.quitting;
-  }
-
-  temporaryInitializeDisabledPackages() {
-    if (this.config.get('core.disabledPackagesInitialized')) {
-      return;
-    }
-
-    const exampleNewNames = {
-      'N1-Message-View-on-Github': 'message-view-on-github',
-      'N1-Personal-Level-Indicators': 'personal-level-indicators',
-      'N1-Phishing-Detection': 'phishing-detection',
-      'N1-Github-Contact-Card-Section': 'github-contact-card',
-      'N1-Keybase': 'keybase',
-      'N1-Markdown': 'composer-markdown',
-    }
-    const exampleOldNames = Object.keys(exampleNewNames);
-    let examplesEnabled = [];
-
-    // Temporary: Find the examples that have been manually installed
-    if (fs.existsSync(path.join(this.configDirPath, 'packages'))) {
-      const packages = fs.readdirSync(path.join(this.configDirPath, 'packages'));
-      examplesEnabled = packages.filter((packageName) =>
-         exampleOldNames.includes(packageName) && (packageName[0] !== '.')
-      );
-
-      // Move old installed examples to a deprecated folder
-      const deprecatedPath = path.join(this.configDirPath, 'packages-deprecated')
-      if (!fs.existsSync(deprecatedPath)) {
-        fs.mkdirSync(deprecatedPath);
-      }
-      examplesEnabled.forEach((dir) => {
-        const prevPath = path.join(this.configDirPath, 'packages', dir)
-        const nextPath = path.join(deprecatedPath, dir)
-        fs.renameSync(prevPath, nextPath);
-      });
-    }
-
-    // Disable examples not specifically enabled
-    for (const oldName of Object.keys(exampleNewNames)) {
-      if (examplesEnabled.includes(oldName)) {
-        continue;
-      }
-      this.config.pushAtKeyPath('core.disabledPackages', exampleNewNames[oldName]);
-    }
-    this.config.set('core.disabledPackagesInitialized', true);
   }
 
   temporaryMigrateConfig() {
