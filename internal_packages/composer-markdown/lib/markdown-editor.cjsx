@@ -27,14 +27,15 @@ class MarkdownEditor extends React.Component
 
   componentDidMount: =>
     @mde = new SimpleMDE(
-      element: ReactDOM.findDOMNode(@refs.textarea),
+      inputStyle: 'contenteditable'
+      element: ReactDOM.findDOMNode(@refs.container),
       hideIcons: ['fullscreen', 'side-by-side']
       showIcons: ['code', 'table']
+      spellChecker: false,
     )
     @mde.codemirror.on("change", @_onBodyChanged)
     @mde.codemirror.on("keydown", @_onKeyDown)
     @setCurrentBodyInDOM()
-    @mde.codemirror.execCommand('goDocEnd')
 
   componentDidUpdate: (prevProps) =>
     wasEmpty = prevProps.body.length is 0
@@ -74,9 +75,9 @@ class MarkdownEditor extends React.Component
   getPreviousSelection: ->
 
   setSelection: ->
-    textarea = ReactDOM.findDOMNode(@refs.textarea),
+    container = ReactDOM.findDOMNode(@refs.container)
     sel = document.getSelection()
-    sel.setBaseAndExtent(textarea, 0, textarea, 0)
+    sel.setBaseAndExtent(container, 0, container, 0)
 
   _onDOMMutated: ->
 
@@ -111,8 +112,8 @@ class MarkdownEditor extends React.Component
         {".btn-scheduler { display:none; }"}
         {".btn-translate { display:none; }"}
       </style>
-      <textarea
-        ref="textarea"
+      <div
+        ref="container"
         className="editing-region"
       />
       <div ref="uneditableNotice" style={{display: 'none'}} className="uneditable-notice">
