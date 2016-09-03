@@ -1,4 +1,5 @@
 import request from 'request'
+import {remote} from 'electron'
 import Utils from './models/utils'
 import Actions from './actions'
 import {APIError} from './errors'
@@ -35,7 +36,15 @@ export default class NylasAPIRequest {
 
     const identity = IdentityStore.identity();
     if (identity && !identity.token) {
-      throw new Error("Identity is present but identity token is missing.");
+      const clickedIndex = remote.dialog.showMessageBox({
+        type: 'error',
+        message: 'Identity is present but identity token is missing.',
+        detail: `Actions like sending and receiving mail require this token. Please log back into your Nylas ID to restore it—your email accounts will not be removed in this process.`,
+        buttons: ['Log out'],
+      })
+      if (clickedIndex === 0) {
+        Actions.logoutNylasIdentity()
+      }
     }
 
     const accountToken = this.api.accessTokenForAccountId(this.options.accountId);
