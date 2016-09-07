@@ -55,6 +55,19 @@ body.is-blurred, body.platform-win32.is-blurred {
     }
   }
 
+  .prefilled-message {
+    text-align: center;
+    padding: @padding-base-vertical @padding-base-horizontal;
+    background: @background-secondary;
+    margin: 20px auto 0;
+    width: 340px;
+    border-radius: @border-radius-large;
+
+    .highlighted {
+      color: @color-success;
+    }
+  }
+
   .tokenizing-field {
     border: 1px solid @input-border-color;
     border-radius: @border-radius-base;
@@ -69,11 +82,16 @@ body.is-blurred, body.platform-win32.is-blurred {
     display: flex;
     margin-top: 15px;
     flex-direction: column;
+
     .label-area {
     }
 
     .required {
       color: @color-danger;
+    }
+
+    &.prefilled .input-area input {
+      border: 1px solid @color-success;
     }
 
     .input-area {

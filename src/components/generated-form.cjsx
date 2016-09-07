@@ -87,6 +87,7 @@ class FormItem extends React.Component
     # Anything that can be passed into a standard React <input> item will
     # be passed along. Here are some common ones. There can be many more
     required: React.PropTypes.bool
+    prefilled: React.PropTypes.bool
     multiple: React.PropTypes.bool
     maxlength: React.PropTypes.number
     placeholder: React.PropTypes.string
@@ -329,11 +330,13 @@ class GeneratedForm extends React.Component
     onSubmit: React.PropTypes.func.isRequired
 
     formType: React.PropTypes.string
+    prefilled: React.PropTypes.bool
 
   render: =>
     <form className="generated-form" ref="form">
       <TabGroupRegion>
         {@_renderHeaderFormError()}
+        {@_renderPrefilledMessage()}
         <div className="fieldsets">
           {@_renderFieldsets()}
         </div>
@@ -358,6 +361,12 @@ class GeneratedForm extends React.Component
   refreshValidityStates: =>
     for key, ref in @refs
       ref.refreshValidityStates() if key.indexOf("fieldset") is 0
+
+  _renderPrefilledMessage: =>
+    if @props.prefilled
+      <div className="prefilled-message">
+        The <span className="highlighted">highlighted</span> fields have been prefilled for you!
+      </div>
 
   _renderHeaderFormError: =>
     if @props.errors?.formError
