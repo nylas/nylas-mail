@@ -262,9 +262,13 @@ class GeneratedFieldset extends React.Component
       byCol = _.groupBy(itemsInRow, "column")
       numCols = Math.max.apply(null, Object.keys(byCol))
 
+      style = { zIndex: 1000-rowNum }
+      allHidden = _.every(itemsInRow, (item) -> item.type is "hidden")
+      if allHidden then style.display = "none"
+
       <div className="row"
            data-row-num={rowNum}
-           style={zIndex: 1000-rowNum}
+           style={style}
            key={rowNum}>
         {_.map byCol, (itemsInCol=[], colNum) =>
           colEls = [<div className="column" data-col-num={colNum} key={colNum}>

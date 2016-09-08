@@ -1,6 +1,7 @@
 @import "ui-variables";
 
 @spacing-form: 22px;
+@form-margin: 15px;
 
 body.platform-win32 {
   .generated-form {
@@ -41,7 +42,6 @@ body.is-blurred, body.platform-win32.is-blurred {
 
   fieldset {
     legend {
-      margin-bottom: 15px;
       color: fade(@black, 40%);
       font-size: 1.4em;
     }
@@ -80,7 +80,8 @@ body.is-blurred, body.platform-win32.is-blurred {
 
   .form-item {
     display: flex;
-    margin-top: 15px;
+    margin-top: @form-margin;
+    &:first-child { margin-top: 0; }
     flex-direction: column;
 
     .label-area {
@@ -145,9 +146,7 @@ body.is-blurred, body.platform-win32.is-blurred {
       position: relative;
       display: flex;
       flex-direction: row;
-      &:first-child {
-        margin-top: 0;
-      }
+      margin-top: @form-margin;
     }
     .column {
       flex: 1;
