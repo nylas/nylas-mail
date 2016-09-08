@@ -318,6 +318,7 @@ class TokenizingTextField extends React.Component
       ref="completions"
       items={@state.completions}
       itemKey={ (item) -> item.id }
+      itemContext={@state.inputValue}
       itemContent={@props.completionNode}
       headerComponents={[@_fieldComponent()]}
       onFocus={@_onInputFocused}

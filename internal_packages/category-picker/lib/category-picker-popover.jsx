@@ -4,6 +4,7 @@ import {
   Menu,
   RetinaImg,
   LabelColorizer,
+  BoldedSearchResult,
 } from 'nylas-component-kit'
 import {
   Utils,
@@ -218,28 +219,6 @@ export default class CategoryPickerPopover extends Component {
     )
   };
 
-  _renderBoldedSearchResults = (item) => {
-    const name = item.display_name
-    const searchTerm = (this.state.searchValue || "").trim()
-
-    if (searchTerm.length === 0) return name;
-
-    const re = Utils.wordSearchRegExp(searchTerm)
-    const parts = name.split(re).map((part) => {
-      // The wordSearchRegExp looks for a leading non-word character to
-      // deterine if it's a valid place to search. As such, we need to not
-      // include that leading character as part of our match.
-      if (re.test(part)) {
-        if (/\W/.test(part[0])) {
-          return <span>{part[0]}<strong>{part.slice(1)}</strong></span>
-        }
-        return <strong>{part}</strong>
-      }
-      return part
-    });
-    return <span>{parts}</span>;
-  };
-
   _renderFolderIcon = (item) => {
     return (
       <RetinaImg
@@ -331,7 +310,7 @@ export default class CategoryPickerPopover extends Component {
       <div className="category-item">
         {icon}
         <div className="category-display-name">
-          {this._renderBoldedSearchResults(item)}
+          <BoldedSearchResult value={item.display_name} query={this.state.searchValue || ""} />
         </div>
       </div>
     )
