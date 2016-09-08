@@ -102,6 +102,7 @@ class FormItem extends React.Component
 
   render: =>
     classes = classNames
+      "prefilled": @props.prefilled
       "form-item": true
       "valid": @state.valid
 
