@@ -93,7 +93,7 @@ class FormItem extends React.Component
     placeholder: React.PropTypes.string
     tabIndex: React.PropTypes.number
 
-    referenceTo: React.PropTypes.string
+    referenceTo: React.PropTypes.array
 
     relationshipName: React.PropTypes.string
     formType: React.PropTypes.oneOf(['new', 'update'])

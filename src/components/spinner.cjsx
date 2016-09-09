@@ -80,8 +80,8 @@ class Spinner extends React.Component
     style = Object.assign {}, (@props.style ? {}),
       'position':'absolute'
       'display': if @state.hidden then "none" else "block"
-      'top': '0'
-      'left': '0'
+      'top': 0
+      'left': 0
       'width': '100%'
       'height': '100%'
       'background': 'rgba(255,255,255,0.9)'

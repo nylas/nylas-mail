@@ -53,9 +53,9 @@ class Token extends React.Component
     item: React.PropTypes.object,
     onSelected: React.PropTypes.func.isRequired,
     onEdited: React.PropTypes.func,
-    onAction: React.PropTypes.func
-    disabled: React.PropTypes.bool
-    onEditMotion: React.PropTypes.bool
+    onAction: React.PropTypes.func,
+    disabled: React.PropTypes.bool,
+    onEditMotion: React.PropTypes.func,
 
   @defaultProps:
     className: ''
@@ -318,7 +318,7 @@ class TokenizingTextField extends React.Component
       ref="completions"
       items={@state.completions}
       itemKey={ (item) -> item.id }
-      itemContext={@state.inputValue}
+      itemContext={{inputValue: @state.inputValue}}
       itemContent={@props.completionNode}
       headerComponents={[@_fieldComponent()]}
       onFocus={@_onInputFocused}
