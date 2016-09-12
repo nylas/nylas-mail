@@ -48,7 +48,7 @@ The Nylas N1 user interface is styled using CSS, which means it's easy to modify
 - [Sunrise](https://github.com/jackiehluo/n1-sunrise)
 - [ToogaBooga](https://github.com/brycedorn/N1-ToogaBooga)
 - [Material](https://github.com/jackiehluo/n1-material)
-- [Monokai](https://github.com/jamiehenson/n1-monokai)
+- [Monokai](https://github.com/dcondrey/n1-monokai)
 - [Agapanthus](https://github.com/taniadaniela/n1-agapanthus)—Inbox-inspired theme
 - [Stripe](https://github.com/oeaeee/n1-stripe)
 - [Kleinstein] (https://github.com/diklein/Kleinstein)—Hide the account list sidebar
@@ -56,6 +56,14 @@ The Nylas N1 user interface is styled using CSS, which means it's easy to modify
 - [Honeyduke](https://github.com/arimai/n1-honeyduke)
 - [Snow](https://github.com/Wattenberger/N1-snow-theme)
 - [Hull](https://github.com/unity/n1-hull)
+- [Express](https://github.com/oeaeee/n1-express)
+- [DarkSoda](https://github.com/adambullmer/N1-theme-DarkSoda)
+- [Bemind](https://github.com/bemindinteractive/Bemind-N1-Theme)
+- [Dracula](https://github.com/dracula/nylas-n1)
+- [MouseEatsCat](https://github.com/MouseEatsCat/MouseEatsCat-N1)
+- [Sublime Dark](https://github.com/rishabhkesarwani/Nylas-Sublime-Dark-Theme)
+- [Firefox](https://github.com/darshandsoni/n1-firefox-theme)
+- [Gmail](https://github.com/dregitsky/n1-gmail-theme)
 
 #### To install community themes: 
 
@@ -83,6 +91,9 @@ Great starting points for creating your own plugins!
 - [Phishing Detection](https://github.com/nylas/N1/tree/master/internal_packages/phishing-detection)
 
 #### Community Plugins
+
+Note these are not tested or officially supported by Nylas, but we still think they are really cool! If you find bugs with them, please open GitHub issues on their individual project pages, not the N1 repo page. Thanks!
+
 - [Jiffy](http://noahbuscher.github.io/N1-Jiffy/)—Insert animated GIFs
 - [Weather](https://github.com/jackiehluo/n1-weather)
 - [Todoist](https://github.com/anopensourceguy/TodoistN1)
@@ -91,6 +102,11 @@ Great starting points for creating your own plugins!
 - [Website Launcher](https://github.com/adriangrantdotorg/nylas-n1-background-webpage)—Opens a URL in separate window
 - In Development: [Cypher](https://github.com/mbilker/cypher) (PGP Encryption)
 - [Avatars](https://github.com/unity/n1-avatars)
+- [Events Calendar (WIP)](https://github.com/nerdenough/n1-events-calendar)
+- [Mail in Chat (WIP)](https://github.com/yjchen/mail_in_chat)
+- [Evernote](https://github.com/grobgl/n1-evernote)
+- [Wunderlist](https://github.com/miguelrs/n1-wunderlist)
+- [Participants Display](https://github.com/kbruccoleri/nylas-participants-display)
 
 When you install packages, they're moved to ~/.nylas/packages, and N1 runs apm install on the command line to fetch dependencies listed in the package's package.json
 
