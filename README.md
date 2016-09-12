@@ -55,6 +55,7 @@ The Nylas N1 user interface is styled using CSS, which means it's easy to modify
 - [BoraBora](https://github.com/arimai/N1-BoraBora)
 - [Honeyduke](https://github.com/arimai/n1-honeyduke)
 - [Snow](https://github.com/Wattenberger/N1-snow-theme)
+- [Hull](https://github.com/unity/n1-hull)
 
 #### To install community themes: 
 
@@ -89,6 +90,7 @@ Great starting points for creating your own plugins!
 - [Squirt Speed Reader](https://github.com/HarleyKwyn/squirt-reader-N1-plugin/)
 - [Website Launcher](https://github.com/adriangrantdotorg/nylas-n1-background-webpage)—Opens a URL in separate window
 - In Development: [Cypher](https://github.com/mbilker/cypher) (PGP Encryption)
+- [Avatars](https://github.com/unity/n1-avatars)
 
 When you install packages, they're moved to ~/.nylas/packages, and N1 runs apm install on the command line to fetch dependencies listed in the package's package.json
 
