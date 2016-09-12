@@ -96,7 +96,7 @@ Note these are not tested or officially supported by Nylas, but we still think t
 
 - [Jiffy](http://noahbuscher.github.io/N1-Jiffy/)—Insert animated GIFs
 - [Weather](https://github.com/jackiehluo/n1-weather)
-- [Todoist](https://github.com/anopensourceguy/TodoistN1)
+- [Todoist](https://github.com/alexfruehwirth/N1TodoistIntegration)
 - [Unsubscribe](https://github.com/colinking/n1-unsubscribe)
 - [Squirt Speed Reader](https://github.com/HarleyKwyn/squirt-reader-N1-plugin/)
 - [Website Launcher](https://github.com/adriangrantdotorg/nylas-n1-background-webpage)—Opens a URL in separate window
