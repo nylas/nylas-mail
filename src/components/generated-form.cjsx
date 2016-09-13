@@ -335,11 +335,16 @@ class GeneratedForm extends React.Component
 
     onSubmit: React.PropTypes.func.isRequired
 
+    style: React.PropTypes.object
+
     formType: React.PropTypes.string
     prefilled: React.PropTypes.bool
 
+  @defaultProps:
+    style: {}
+
   render: =>
-    <form className="generated-form" ref="form">
+    <form className="generated-form" ref="form" style={this.props.style}>
       <TabGroupRegion>
         {@_renderHeaderFormError()}
         {@_renderPrefilledMessage()}
