@@ -143,6 +143,8 @@ class NylasExports
   @lazyLoadAndRegisterStore "SearchableComponentStore", 'searchable-component-store'
   @lazyLoad "CustomContenteditableComponents", 'components/overlaid-components/custom-contenteditable-components'
 
+  @lazyLoad "ServiceRegistry", "service-registry"
+
   # Decorators
   @lazyLoad "InflatesDraftClientId", 'decorators/inflates-draft-client-id'
 
