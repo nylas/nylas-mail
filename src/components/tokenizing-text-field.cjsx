@@ -426,6 +426,7 @@ class TokenizingTextField extends React.Component
       @_addToken(item)
 
   _onInputFocused: ({noCompletions}={}) =>
+    return unless @refs.input
     @setState(focus: true)
     @props.onFocus?()
     @_refreshCompletions() unless noCompletions
@@ -486,7 +487,8 @@ class TokenizingTextField extends React.Component
     @_refreshCompletions("", clear: true)
 
   focus: =>
-    @refs.input.focus()
+    if @refs.input
+      @refs.input.focus()
 
   # Managing Tokens
 
