@@ -1,0 +1,78 @@
+tutorial-tip-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: -webkit-radial-gradient(50% 50%, circle, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 4%, rgba(0,0,0,0.2) 7%);
+  z-index: 20;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity ease-in-out 250ms;
+}
+
+tutorial-tip-background.visible {
+  pointer-events: inherit;
+  opacity: 1;
+}
+
+.tutorial-tip {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 2px solid white;
+  cursor: pointer;
+  pointer-events: none;
+  z-index: 100;
+  transform: translate3d(-50%,-50%,0);
+  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgb(241, 170, 211)), to(rgb(185, 59, 255)));
+  opacity: 0;
+  transition: opacity ease-out 100ms;
+}
+
+.tutorial-tip.visible {
+  opacity: 1;
+}
+
+body {
+  background: #000;
+}
+
+.tutorial-tip.visible:after {
+  pointer-events: none;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  content: '';
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+
+  box-shadow: 0 0 0 2px rgb(241, 170, 211);
+
+  animation: sonarEffect 2s ease-out 75ms;
+  animation-iteration-count: infinite;
+}
+
+@-webkit-keyframes sonarEffect {
+  0% {
+    opacity: 0.3;
+  }
+  40% {
+    opacity: 0.7;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.1), 0 0 10px 10px #fff, 0 0 0 10px rgba(255,255,255,0.5);
+  }
+  80% {
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.1), 0 0 10px 10px #fff, 0 0 0 10px rgba(255,255,255,0.5);
+    -webkit-transform: scale(1.4);
+    opacity: 0.5;
+  }
+  100% {
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.1), 0 0 10px 10px #fff, 0 0 0 10px rgba(255,255,255,0.5);
+    -webkit-transform: scale(1.5);
+    opacity: 0;
+  }
+}

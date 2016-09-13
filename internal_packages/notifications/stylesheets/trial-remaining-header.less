@@ -1,0 +1,59 @@
+.trial-remaining-header {
+  background-color: #f6f7f8;
+  box-shadow: 0px 0px 3px #999;
+
+  .notifications-sticky-item {
+    color: black;
+    align-items: center;
+    padding: 5px;
+    font-size: 12px;
+  }
+
+  .icon {
+    border: solid #4b8e79 1px;
+    border-radius: 3px;
+  }
+
+  .upgrade-to-pro {
+    margin: 0 10px;
+    border-radius: 5px;
+    color: white;
+    background-color: #30A797;
+    border: solid #30A797 1px;
+    padding: 0 12px;
+    cursor: pointer;
+  }
+}
+
+@handleWidth: 100px;
+@handleHeight: 30px;
+
+.trial-timer-wrapper {
+  position: relative;
+  flex-grow: 1;
+  height: 2px;
+  background-color: #ccc;
+  border-radius: 2px;
+  margin: 0 ~"calc(5px + @{handleWidth}/2)";
+}
+
+.trial-timer-progress {
+  position: relative;
+  background-color: #30A797;
+  width: 50%;
+  height: 100%;
+}
+
+.trial-timer-handle {
+  background-color: #f6f7f8;
+  box-shadow: 0px 1px 3px #ccc;
+  border: solid #ccc 1px;
+  border-radius: 15px;
+  text-align: center;
+  padding: 0 15px;
+  position: absolute;
+  top: ~"calc(50% - @{handleHeight}/2)";
+  color: #30A797;
+  width: @handleWidth;
+  height: @handleHeight;
+}
