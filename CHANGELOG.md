@@ -1,5 +1,24 @@
 # N1 Changelog
 
+### 0.4.52 (9/14/16)
+
+- Features:
+
+  + More themes on Readme.md
+
+- Fixes:
+
+  + Fix url parsing of ?#
+  + Changes to trial length
+  + Add “Ctrl-A” to the outlook shortcuts
+  + Log user out of app if identity token is missing
+  + Check for number of BCC participants before using multi-send
+
+- Development:
+
+  + apm ignores dev dependencesi
+
+
 ### 0.4.51 (9/1/16)
 
 - Features:
