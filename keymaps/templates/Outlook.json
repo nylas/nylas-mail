@@ -11,5 +11,7 @@
   "send": "mod+enter",
   "core:find-in-thread": "f4",
   "core:find-in-thread-next": "shift+f4",
-  "core:find-in-thread-previous": "ctrl+shift+f4"
+  "core:find-in-thread-previous": "ctrl+shift+f4",
+
+  "multiselect-list:select-all": "ctrl+a"
 }
