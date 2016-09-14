@@ -269,7 +269,7 @@ class NylasEnvConstructor
     @emitter.emit('will-throw-error', event)
     return if event.defaultPrevented
 
-    console.error(error.stack)
+    console.error(error.stack, extra)
     @lastUncaughtError = error
 
     extra.pluginIds = @_findPluginsFromError(error)
