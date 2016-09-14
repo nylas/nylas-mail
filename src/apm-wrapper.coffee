@@ -219,7 +219,7 @@ class APMWrapper
         error.stderr = stderr
         callback(error)
 
-    apmProcess = @runCommand(['install'], {cwd: dir}, exit)
+    apmProcess = @runCommand(['install', '--production'], {cwd: dir}, exit)
     handleProcessErrors(apmProcess, errorMessage, callback)
 
   uninstall: (pack, callback) ->

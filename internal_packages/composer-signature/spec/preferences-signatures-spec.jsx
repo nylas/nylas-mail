@@ -1,5 +1,5 @@
 /* eslint quote-props: 0 */
-import PreferencesSignatures from '../lib/preferences-signatures.jsx';
+import PreferencesSignatures from '../lib/preferences-signatures';
 import ReactTestUtils from 'react-addons-test-utils';
 import React from 'react';
 import {SignatureStore, Actions} from 'nylas-exports';
