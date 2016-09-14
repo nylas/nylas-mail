@@ -1,5 +1,15 @@
 # N1 Changelog
 
+### 0.4.53 (9/27/16)
+
+- Features:
+
+  + Onboarding tips: We've added helpful tips to different parts of the app on
+    how to get started using some of N1's features.
+  + Thread sharing: You can now create a link to any thread and share it on the
+    web publicly! You'll see a new button to enable sharing in the top toolbar.
+
+
 ### 0.4.52 (9/14/16)
 
 - Features:
