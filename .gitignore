@@ -36,3 +36,4 @@ internal_packages/composer-scheduler
 internal_packages/link-tracking
 internal_packages/open-tracking
 internal_packages/send-later
+internal_packages/thread-sharing
