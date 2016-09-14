@@ -120,7 +120,7 @@ export default class AccountErrorHeader extends React.Component {
               (this.state.subscriptionState === IdentityStore.State.Lapsed) ? (
                 "Your subscription has expired, and we've paused your mailboxes. Renew your subscription to continue using N1!"
               ) : (
-                "Your 30-day trial has expired, and we've paused your mailboxes. Subscribe to continue using N1!"
+                "Your trial has expired, and we've paused your mailboxes. Subscribe to continue using N1!"
               )
           }
           </div>
