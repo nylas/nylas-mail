@@ -94,7 +94,7 @@ class PreferencesIdentity extends React.Component {
     if (subscriptionState === IdentityStore.State.Trialing) {
       let msg = "You have not upgraded to Nylas Pro.";
       if (daysUntilSubscriptionRequired > 1) {
-        msg = `There are ${daysUntilSubscriptionRequired} days remaining in your 30-day trial of Nylas Pro.`;
+        msg = `There are ${daysUntilSubscriptionRequired} days remaining in your trial of Nylas Pro.`;
       } else if (daysUntilSubscriptionRequired === 1) {
         msg = `There is one day remaining in your trial of Nylas Pro. Subscribe today!`;
       }
