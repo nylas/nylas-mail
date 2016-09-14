@@ -9,6 +9,7 @@ import PerformanceMonitor from './performance-monitor'
 import NylasProtocolHandler from './nylas-protocol-handler';
 import PackageMigrationManager from './package-migration-manager';
 import ConfigPersistenceManager from './config-persistence-manager';
+import LaunchServices from '../launch-services';
 
 import {BrowserWindow, Menu, app, ipcMain, dialog} from 'electron';
 
@@ -70,6 +71,13 @@ export default class Application extends EventEmitter {
     this.setupJavaScriptArguments();
     this.handleEvents();
     this.handleLaunchOptions(options);
+
+    if (process.platform === 'linux') {
+      const services = new LaunchServices();
+      services.registerForURLScheme('nylas');
+    } else {
+      app.setAsDefaultProtocolClient('nylas')
+    }
   }
 
   getMainWindow() {
@@ -671,6 +679,9 @@ export default class Application extends EventEmitter {
     if (protocol === 'mailto:') {
       const main = this.windowManager.get(WindowManager.MAIN_WINDOW);
       if (main) { main.sendMessage('mailto', urlToOpen) }
+    } else if (protocol === 'nylas:') {
+      const main = this.windowManager.get(WindowManager.MAIN_WINDOW);
+      if (main) { main.sendMessage('openExternalThread', urlToOpen) }
     } else {
       console.log(`Ignoring unknown URL type: ${urlToOpen}`);
     }

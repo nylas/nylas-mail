@@ -45,10 +45,10 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>edgehill</string>
+				<string>nylas</string>
 			</array>
 			<key>CFBundleURLName</key>
-			<string>Nylas Shared Session Protocol</string>
+			<string>Nylas Protocol</string>
 		</dict>
 		<dict>
 			<key>CFBundleURLSchemes</key>
