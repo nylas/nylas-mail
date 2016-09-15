@@ -1,6 +1,5 @@
 # N1 Changelog
 
-
 ### 0.4.52 (9/14/16)
 
 - Features:
