@@ -18,7 +18,6 @@ export default class DatePicker extends React.Component {
   }
 
   static defaultProps = {
-    value: moment().valueOf(),
     dateFormat: null, // Default to valueOf
     onChange: () => {},
   }
@@ -29,7 +28,7 @@ export default class DatePicker extends React.Component {
   }
 
   value() {
-    return moment(this.props.value)
+    return this.props.value ? moment(this.props.value) : null
   }
 
   _onChange(newMoment) {
@@ -92,7 +91,11 @@ export default class DatePicker extends React.Component {
       'focused': this.state.focused,
     })
 
-    const dayTxt = this.value().format(DateUtils.DATE_FORMAT_llll_NO_TIME)
+    const val = this.value();
+    let dayTxt = "Click to set date"
+    if (val) {
+      dayTxt = this.value().format(DateUtils.DATE_FORMAT_llll_NO_TIME)
+    }
 
     return (
       <div

@@ -84,6 +84,12 @@ body.is-blurred, body.platform-win32.is-blurred {
     &:first-child { margin-top: 0; }
     flex-direction: column;
 
+    &.invalid {
+      .label-area {
+        color: @color-error;
+      }
+    }
+
     .label-area {
     }
 

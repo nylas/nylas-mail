@@ -99,12 +99,14 @@ class FormItem extends React.Component
     formType: React.PropTypes.oneOf(['new', 'update'])
     editableForNew: React.PropTypes.bool
     editableForUpdate: React.PropTypes.bool
+    disableValidation: React.PropTypes.bool
 
   render: =>
     classes = classNames
       "prefilled": @props.prefilled
       "form-item": true
-      "valid": @state.valid
+      "invalid": !@props.disableValidation and !@state.valid
+      "valid": !@props.disableValidation and @state.valid
 
     label = @props.label
     if @props.required
@@ -143,6 +145,7 @@ class FormItem extends React.Component
   # `props.formItemError`. HTML DOM errors will be on the element's
   # `validity` property.
   refreshValidityState: => _.defer =>
+    return if @props.disableValidation
     return unless @refs.input
     el = ReactDOM.findDOMNode(@refs.input)
 
@@ -165,6 +168,8 @@ class FormItem extends React.Component
         validationMessage: el.validationMessage ? ""
 
     if not Utils.isEqual(validityState, @_lastValidity)
+      if validityState and validityState.valid is false
+        el.scrollIntoView(true)
       @setState validityState
 
     @_lastValidity = Utils.deepClone(validityState)
@@ -204,6 +209,8 @@ class FormItem extends React.Component
     else if @props.type is "date"
       inputProps.dateFormat = "YYYY-MM-DD"
       React.createElement(DatePicker, inputProps)
+    else if @props.type is "EmptySpace"
+      React.createElement("div", {className: "empty-space"})
     else if _.isFunction(@props.type)
       React.createElement(@props.type, inputProps)
     else
@@ -235,6 +242,7 @@ class GeneratedFieldset extends React.Component
     useHeading: React.PropTypes.bool
     formType: React.PropTypes.string
     zIndex: React.PropTypes.number
+    disableValidation: React.PropTypes.bool
 
   render: =>
     <fieldset style={{zIndex: @props.zIndex ? 0}}>
@@ -339,6 +347,8 @@ class GeneratedForm extends React.Component
 
     formType: React.PropTypes.string
     prefilled: React.PropTypes.bool
+
+    disableValidation: React.PropTypes.bool
 
   @defaultProps:
     style: {}
