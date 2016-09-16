@@ -27,7 +27,7 @@ export default class MiniMonthView extends React.Component {
   }
 
   _stateFromProps(props) {
-    const m = moment(props.value);
+    const m = props.value ? moment(props.value) : moment()
     return {
       shownYear: m.year(),
       shownMonth: m.month(),
