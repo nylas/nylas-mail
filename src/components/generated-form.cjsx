@@ -99,14 +99,14 @@ class FormItem extends React.Component
     formType: React.PropTypes.oneOf(['new', 'update'])
     editableForNew: React.PropTypes.bool
     editableForUpdate: React.PropTypes.bool
-    disableValidation: React.PropTypes.bool
+    formSubmitted: React.PropTypes.bool
 
   render: =>
     classes = classNames
       "prefilled": @props.prefilled
       "form-item": true
-      "invalid": !@props.disableValidation and !@state.valid
-      "valid": !@props.disableValidation and @state.valid
+      "invalid": @_shouldShowError(@state)
+      "valid": @state.valid
 
     label = @props.label
     if @props.required
@@ -115,7 +115,7 @@ class FormItem extends React.Component
     if @props.type is "hidden"
       @_renderInput()
     else
-      <div className={classes}>
+      <div className={classes} ref="inputWrap">
         <div className="label-area">
           <label for={@props.id}>{label}</label>
         </div>
@@ -144,8 +144,7 @@ class FormItem extends React.Component
   # validation APIs. Server errors will be placed on
   # `props.formItemError`. HTML DOM errors will be on the element's
   # `validity` property.
-  refreshValidityState: => _.defer =>
-    return if @props.disableValidation
+  refreshValidityState: ({force} = {}) => _.defer =>
     return unless @refs.input
     el = ReactDOM.findDOMNode(@refs.input)
 
@@ -167,10 +166,10 @@ class FormItem extends React.Component
       validityState = _.extend {}, el.validity,
         validationMessage: el.validationMessage ? ""
 
-    if not Utils.isEqual(validityState, @_lastValidity)
-      if validityState and validityState.valid is false
-        el.scrollIntoView(true)
+    if force or not Utils.isEqual(validityState, @_lastValidity)
       @setState validityState
+      if @_shouldShowError(validityState)
+        ReactDOM.findDOMNode(@refs.inputWrap).scrollIntoView(true)
 
     @_lastValidity = Utils.deepClone(validityState)
 
@@ -178,10 +177,13 @@ class FormItem extends React.Component
     if @state.valid
       <div></div>
     else
-      if @state.customError or @_changedOnce
+      if @_shouldShowError(@state)
         <div className="form-error">{@state.validationMessage}</div>
       else
         <div></div>
+
+  _shouldShowError: (state = {}) ->
+    !state.valid and (state.customError or @_changedOnce or @props.formSubmitted)
 
   _isDisabled: =>
     (@props.formType is "new" and @props.editableForNew is false) or
@@ -242,7 +244,7 @@ class GeneratedFieldset extends React.Component
     useHeading: React.PropTypes.bool
     formType: React.PropTypes.string
     zIndex: React.PropTypes.number
-    disableValidation: React.PropTypes.bool
+    formSubmitted: React.PropTypes.bool
 
   render: =>
     <fieldset style={{zIndex: @props.zIndex ? 0}}>
@@ -257,9 +259,9 @@ class GeneratedFieldset extends React.Component
     not Utils.isEqualReact(nextProps, @props) or
     not Utils.isEqualReact(nextState, @state)
 
-  refreshValidityStates: =>
-    for key, ref in @refs
-      ref.refreshValidityState() if key.indexOf("form-item") is 0
+  refreshValidityStates: ({force} = {})=>
+    for key, ref of @refs
+      ref.refreshValidityState({force}) if key.indexOf("form-item") is 0
 
   _renderHeader: =>
     if @props.useHeading
@@ -348,13 +350,17 @@ class GeneratedForm extends React.Component
     formType: React.PropTypes.string
     prefilled: React.PropTypes.bool
 
-    disableValidation: React.PropTypes.bool
-
   @defaultProps:
     style: {}
 
+  constructor: (props) ->
+    super(props)
+    @state = {
+      formSubmitted: false
+    }
+
   render: =>
-    <form className="generated-form" ref="form" style={this.props.style}>
+    <form className="generated-form" ref="form" style={this.props.style} onSubmit={this._onSubmit}>
       <TabGroupRegion>
         {@_renderHeaderFormError()}
         {@_renderPrefilledMessage()}
@@ -363,7 +369,7 @@ class GeneratedForm extends React.Component
         </div>
         {@_renderHeaderFormError()}
         <div className="form-footer">
-          <button className="btn btn-emphasis" onClick={@props.onSubmit}>Submit</button>
+          <button className="btn btn-emphasis" onClick={this._onSubmit}>Submit</button>
         </div>
       </TabGroupRegion>
     </form>
@@ -373,15 +379,16 @@ class GeneratedForm extends React.Component
     not Utils.isEqualReact(nextState, @state)
 
   _onSubmit: =>
+    @setState formSubmitted: true
     valid = ReactDOM.findDOMNode(@refs.form).reportValidity()
     if valid
       @props.onSubmit()
     else
-      @refreshValidityStates()
+      @refreshValidityStates(force: true)
 
-  refreshValidityStates: =>
-    for key, ref in @refs
-      ref.refreshValidityStates() if key.indexOf("fieldset") is 0
+  refreshValidityStates: ({force} = {}) =>
+    for key, ref of @refs
+      ref.refreshValidityStates({force}) if key.indexOf("fieldset") is 0
 
   _renderPrefilledMessage: =>
     if @props.prefilled
@@ -409,6 +416,7 @@ class GeneratedForm extends React.Component
     props.key = fieldsetData.id
     props.onChange = _.bind(@_onChangeFieldset, @)
     props.formType = @props.formType
+    props.formSubmitted = @state.formSubmitted
     return props
 
   _onChangeFieldset: (fieldsetId, newFormItems) =>
