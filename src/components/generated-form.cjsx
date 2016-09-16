@@ -99,14 +99,13 @@ class FormItem extends React.Component
     formType: React.PropTypes.oneOf(['new', 'update'])
     editableForNew: React.PropTypes.bool
     editableForUpdate: React.PropTypes.bool
-    formSubmitted: React.PropTypes.bool
 
   render: =>
     classes = classNames
       "prefilled": @props.prefilled
       "form-item": true
-      "invalid": @_shouldShowError(@state)
-      "valid": @state.valid
+      "invalid": !@_isValid()
+      "valid": @_isValid()
 
     label = @props.label
     if @props.required
@@ -125,65 +124,20 @@ class FormItem extends React.Component
         </div>
       </div>
 
-  # Since the validity state is something we need to pull off of rendered
-  # DOM nodes we need to bend the React rules a bit and do a
-  # repeated-render until the `state` matches the validity state of the
-  # input.
-  componentWillMount: =>
-    @setState valid: true
+  shouldComponentUpdate: (nextProps) =>
+    not Utils.isEqualReact(nextProps, @props)
 
-  componentDidMount: => @refreshValidityState()
+  componentDidUpdate: (prevProps) ->
+    if !prevProps.formItemError and !@_isValid()
+      ReactDOM.findDOMNode(@refs.inputWrap).scrollIntoView(true)
 
-  componentDidUpdate: => @refreshValidityState()
-
-  shouldComponentUpdate: (nextProps, nextState) =>
-    not Utils.isEqualReact(nextProps, @props) or
-    not Utils.isEqualReact(nextState, @state)
-
-  # We can get an error from the server, or from the HTML Constraint
-  # validation APIs. Server errors will be placed on
-  # `props.formItemError`. HTML DOM errors will be on the element's
-  # `validity` property.
-  refreshValidityState: ({force} = {}) => _.defer =>
-    return unless @refs.input
-    el = ReactDOM.findDOMNode(@refs.input)
-
-    validityState = {}
-    if @props.formItemError
-      customError = @props.formItemError.message ? ""
-      el.setCustomValidity?(customError)
-      validityState = {
-        valid: false
-        customError: true
-        validationMessage: customError
-        valueMissing: /required/.test(customError)
-      }
-    else
-      # See https://developer.mozilla.org/en-US/docs/Web/API/ValidityState
-      # AND https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement for `validationMessage` property
-      el.setCustomValidity?("")
-      el.checkValidity?()
-      validityState = _.extend {}, el.validity,
-        validationMessage: el.validationMessage ? ""
-
-    if force or not Utils.isEqual(validityState, @_lastValidity)
-      @setState validityState
-      if @_shouldShowError(validityState)
-        ReactDOM.findDOMNode(@refs.inputWrap).scrollIntoView(true)
-
-    @_lastValidity = Utils.deepClone(validityState)
+  _isValid: ->
+    !@props.formItemError
 
   _renderError: =>
-    if @state.valid
-      <div></div>
-    else
-      if @_shouldShowError(@state)
-        <div className="form-error">{@state.validationMessage}</div>
-      else
-        <div></div>
-
-  _shouldShowError: (state = {}) ->
-    !state.valid and (state.customError or @_changedOnce or @props.formSubmitted)
+    return false if @_isValid()
+    msg = @props.formItemError.message
+    <div className="form-error">{msg}</div>
 
   _isDisabled: =>
     (@props.formType is "new" and @props.editableForNew is false) or
@@ -193,9 +147,7 @@ class FormItem extends React.Component
     inputProps = _.extend {}, @props,
       ref: "input"
       onChange: (eventOrValue) =>
-        @_changedOnce = true
         @props.onChange(@props.id, ((eventOrValue?.target?.value) ? eventOrValue))
-      onBlur: => @refreshValidityState()
 
     if @_isDisabled() then inputProps.disabled = true
 
@@ -244,7 +196,6 @@ class GeneratedFieldset extends React.Component
     useHeading: React.PropTypes.bool
     formType: React.PropTypes.string
     zIndex: React.PropTypes.number
-    formSubmitted: React.PropTypes.bool
 
   render: =>
     <fieldset style={{zIndex: @props.zIndex ? 0}}>
@@ -255,13 +206,8 @@ class GeneratedFieldset extends React.Component
       {@_renderFooter()}
     </fieldset>
 
-  shouldComponentUpdate: (nextProps, nextState) =>
-    not Utils.isEqualReact(nextProps, @props) or
-    not Utils.isEqualReact(nextState, @state)
-
-  refreshValidityStates: ({force} = {})=>
-    for key, ref of @refs
-      ref.refreshValidityState({force}) if key.indexOf("form-item") is 0
+  shouldComponentUpdate: (nextProps) =>
+    not Utils.isEqualReact(nextProps, @props)
 
   _renderHeader: =>
     if @props.useHeading
@@ -353,14 +299,8 @@ class GeneratedForm extends React.Component
   @defaultProps:
     style: {}
 
-  constructor: (props) ->
-    super(props)
-    @state = {
-      formSubmitted: false
-    }
-
   render: =>
-    <form className="generated-form" ref="form" style={this.props.style} onSubmit={this._onSubmit}>
+    <form className="generated-form" ref="form" style={this.props.style} onSubmit={this.props.onSubmit}>
       <TabGroupRegion>
         {@_renderHeaderFormError()}
         {@_renderPrefilledMessage()}
@@ -369,26 +309,13 @@ class GeneratedForm extends React.Component
         </div>
         {@_renderHeaderFormError()}
         <div className="form-footer">
-          <button className="btn btn-emphasis" onClick={this._onSubmit}>Submit</button>
+          <button className="btn btn-emphasis" onClick={this.props.onSubmit}>Submit</button>
         </div>
       </TabGroupRegion>
     </form>
 
-  shouldComponentUpdate: (nextProps, nextState) =>
-    not Utils.isEqualReact(nextProps, @props) or
-    not Utils.isEqualReact(nextState, @state)
-
-  _onSubmit: =>
-    @setState formSubmitted: true
-    valid = ReactDOM.findDOMNode(@refs.form).reportValidity()
-    if valid
-      @props.onSubmit()
-    else
-      @refreshValidityStates(force: true)
-
-  refreshValidityStates: ({force} = {}) =>
-    for key, ref of @refs
-      ref.refreshValidityStates({force}) if key.indexOf("fieldset") is 0
+  shouldComponentUpdate: (nextProps) =>
+    not Utils.isEqualReact(nextProps, @props)
 
   _renderPrefilledMessage: =>
     if @props.prefilled
@@ -416,7 +343,6 @@ class GeneratedForm extends React.Component
     props.key = fieldsetData.id
     props.onChange = _.bind(@_onChangeFieldset, @)
     props.formType = @props.formType
-    props.formSubmitted = @state.formSubmitted
     return props
 
   _onChangeFieldset: (fieldsetId, newFormItems) =>
