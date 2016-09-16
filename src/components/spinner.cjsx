@@ -41,6 +41,11 @@ class Spinner extends React.Component
     clearTimeout(@timer) if @timer
 
   componentWillReceiveProps: (nextProps) =>
+    # If we have a cover, show right away.
+    if nextProps.withCover
+      @setState hidden: !nextProps.visible
+      return
+
     hidden = if nextProps.visible? then !nextProps.visible else false
 
     if @state.hidden is false and hidden is true

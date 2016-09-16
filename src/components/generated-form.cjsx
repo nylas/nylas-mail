@@ -309,7 +309,7 @@ class GeneratedForm extends React.Component
         </div>
         {@_renderHeaderFormError()}
         <div className="form-footer">
-          <button className="btn btn-emphasis" onClick={this.props.onSubmit}>Submit</button>
+          <input type="submit" value="Submit" className="btn btn-emphasis" />
         </div>
       </TabGroupRegion>
     </form>
