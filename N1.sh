@@ -3,12 +3,12 @@
 N1_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
 
 if [ "$(uname)" == 'Darwin' ]; then
-  ELECTRON_PATH=${ELECTRON_PATH:-$N1_PATH/electron/Electron.app/Contents/MacOS/Electron}
+  ELECTRON_PATH="${ELECTRON_PATH:-$N1_PATH/electron/Electron.app/Contents/MacOS/Electron}"
 elif [ "$(expr substr $(uname -s) 1 5)" == 'Linux' ]; then
-  ELECTRON_PATH=${ELECTRON_PATH:-$N1_PATH/electron/electron}
+  ELECTRON_PATH="${ELECTRON_PATH:-$N1_PATH/electron/electron}"
   mkdir -p "$HOME/.nylas"
 elif [ "$(expr substr $(uname -s) 1 10)" == 'MINGW32_NT' ]; then
-  ELECTRON_PATH=${ELECTRON_PATH:-$N1_PATH/electron/electron.exe}
+  ELECTRON_PATH="${ELECTRON_PATH:-$N1_PATH/electron/electron.exe}"
 else
   echo "Your platform ($(uname -a)) is not supported."
   exit 1
@@ -19,5 +19,5 @@ if [ ! -e "$ELECTRON_PATH" ]; then
   exit 1
 fi
 
-$ELECTRON_PATH --enable-logging --executed-from="$(pwd)" --pid=$$ $N1_PATH "$@"
+"$ELECTRON_PATH" --enable-logging --executed-from="$(pwd)" --pid=$$ "$N1_PATH" "$@"
 exit $?
