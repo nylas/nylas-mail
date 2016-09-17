@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'underscore';
 
-import {Actions} from 'nylas-exports';
+import {Actions, WorkspaceStore} from 'nylas-exports';
 import NylasStore from 'nylas-store';
 
 const TipsBackgroundEl = document.createElement('tutorial-tip-background');
@@ -104,13 +104,19 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
 
     constructor(props) {
       super(props);
+      this._unlisteners = [];
       this.state = {visible: false};
     }
 
     componentDidMount() {
       TipsStore.mountedTip(TipKey);
 
-      this._unlisten = TipsStore.listen(this._onTooltipStateChanged);
+      this._unlisteners = [
+        TipsStore.listen(this._onTooltipStateChanged),
+        WorkspaceStore.listen(() => {
+          this._workspaceTimer = setTimeout(this._onTooltipStateChanged, 0);
+        }),
+      ]
       window.addEventListener('resize', this._onRecomputeTooltipPosition);
 
       // unfortunately, we can't render() a container around ComposedComponent
@@ -134,16 +140,28 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
     }
 
     componentWillUnmount() {
-      this._unlisten();
+      for (const unlisten of this._unlisteners) {
+        unlisten();
+      }
 
       window.removeEventListener('resize', this._onRecomputeTooltipPosition);
       document.body.removeChild(this.tipNode);
+      clearTimeout(this._workspaceTimer);
 
       TipsStore.unmountedTip(TipKey);
     }
 
+    _containingSheetIsVisible = () => {
+      const el = ReactDOM.findDOMNode(this);
+      const sheetEl = el.closest('.sheet') || el.closest('.sheet-toolbar-container');
+      if (!sheetEl) {
+        return true;
+      }
+      return (sheetEl.dataset.id === WorkspaceStore.topSheet().id);
+    }
+
     _onTooltipStateChanged = () => {
-      const visible = TipsStore.isTipVisible(TipKey);
+      const visible = TipsStore.isTipVisible(TipKey) && this._containingSheetIsVisible();
 
       if (this.state.visible !== visible) {
         this.setState({visible});
@@ -165,15 +183,12 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
       el.removeEventListener('mouseover', this._onMouseOver);
 
       const tipRect = this.tipNode.getBoundingClientRect();
+      const tipFocusCircleRadius = 64;
       const rect = ReactDOM.findDOMNode(this).getBoundingClientRect();
-      const rectCX = rect.left + rect.width / 2;
-      const rectCY = rect.top + rect.height / 2;
-      TipsBackgroundEl.style.background = `
-        -webkit-radial-gradient(
-          ${Math.round(rectCX / window.innerWidth * 100)}%
-          ${Math.round(rectCY / window.innerHeight * 100)}%,
-          circle, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 3%, rgba(0, 0, 0, 0.2) 5%)
-      `;
+      const rectCX = Math.round(rect.left + rect.width / 2 - tipFocusCircleRadius);
+      const rectCY = Math.round(rect.top + rect.height / 2 - tipFocusCircleRadius);
+      TipsBackgroundEl.style.webkitMaskPosition = `0 0, ${rectCX}px ${rectCY}px`;
+
       Actions.openPopover((
         <TipPopoverContents
           tipKey={TipKey}
@@ -205,7 +220,7 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
         }
         settled += 1;
         if (settled < 5) {
-          window.requestAnimationFrame(this._onRecomputeTooltipPosition);
+          window.requestAnimationFrame(attempt);
         }
       }
       attempt();
