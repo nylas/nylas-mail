@@ -16,7 +16,7 @@
 
 - Development:
 
-  + apm ignores dev dependencesi
+  + apm ignores dev dependencies
 
 
 ### 0.4.51 (9/1/16)
