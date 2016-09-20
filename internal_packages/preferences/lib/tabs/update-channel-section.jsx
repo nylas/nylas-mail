@@ -70,7 +70,7 @@ class UpdateChannelSection extends React.Component {
         >
           {
             available.map((channel) => {
-              return (<option value={channel.name}>
+              return (<option value={channel.name} key={channel.name}>
                 {channel.name[0].toUpperCase() + channel.name.substr(1)}
               </option>);
             })
