@@ -1,0 +1,78 @@
+@import "darkside-variables";
+
+// Remove inverted color effects
+.thread-list .focused .thread-icon,
+.draft-list .focused .thread-icon,
+.thread-list .focused .draft-icon,
+.draft-list .focused .draft-icon,
+.thread-list .focused .mail-important-icon,
+.draft-list .focused .mail-important-icon,
+.thread-list.handler-split .list-item.selected .thread-icon,
+.thread-list.handler-split .list-item.selected .draft-icon,
+.thread-list.handler-split .list-item.selected .mail-important-icon {
+  -webkit-filter: none !important;
+}
+
+// Base settings for replacing backgrounds with -webkit-filters for easier color changes
+.thread-list .thread-icon {
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 12px;
+  -webkit-mask-position: center;
+}
+
+// Change color of unread dot icon
+.thread-list .thread-icon.thread-icon-unread {
+  background-image: none;
+  background-color: @accent;
+  -webkit-mask-image: url(../static/images/thread-list/icon-unread-@2x.png);
+}
+
+// replace undread icon with star icon on thread item hover
+.thread-list .list-item:hover .thread-icon.thread-icon-unread {
+  background-color: tint(@sidebar);
+  -webkit-mask-image: url(../static/images/thread-list/icon-star-@2x.png);
+  &:hover { background-color: tint(@sidebar, 20%); }
+}
+
+// Replace outlined star icon with solid one
+.thread-list .thread-icon.thread-icon-star,
+.thread-list .thread-icon-star-on-hover:hover {
+  background-color: tint(@sidebar);
+  -webkit-mask-image: url(../static/images/thread-list/icon-star-@2x.png);
+}
+
+// for Read messages, use the solid star on item hover as well
+.thread-list .list-item:hover .thread-icon-none {
+  background-image: none;
+  background-color: tint(@sidebar);
+  -webkit-mask-image: url(../static/images/thread-list/icon-star-@2x.png);
+}
+
+// Make the star a bit darker on direct hover
+.thread-list .list-item:hover .thread-icon-none:hover {
+  background-image: none;
+  background-color: tint(@sidebar, 20%);
+  -webkit-mask-image: url(../static/images/thread-list/icon-star-@2x.png);
+}
+
+.thread-icon.thread-icon-attachment {
+  opacity: 0.5;
+  background-size: 12px;
+}
+
+// The gradient behind threadlist hover icons (Snooze, Arvhive Delete)
+.thread-list .list-item:hover .list-column-HoverActions .inner,
+.thread-list .list-item.focused:hover .list-column-HoverActions .inner,
+.thread-list .list-item.selected:hover .list-column-HoverActions .inner,
+.thread-list.handler-split .list-item.selected:hover .list-column-HoverActions .inner {
+  background-image: -webkit-linear-gradient(left, fade(@messagelist-bg, 0%) 0%, @messagelist-bg 40%, @messagelist-bg 100%);
+}
+
+.thread-list .list-item.focused:hover .list-column-HoverActions .inner .action,
+.thread-list.handler-split .list-item.selected:hover .list-column-HoverActions .inner .action {
+  -webkit-filter: none;
+}
+
+.thread-list .list-item.focused:hover .list-column-HoverActions .inner .action.action-trash {
+  background: url("../static/images/thread-list-quick-actions/ic-quick-button-trash@2x.png") center no-repeat, linear-gradient(to top, rgba(241, 241, 241, 0.75) 0%, rgba(253, 253, 253, 0.75) 100%);
+}

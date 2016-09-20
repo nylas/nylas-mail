@@ -1,7 +1,8 @@
 _ = require 'underscore'
 React = require "react"
 classnames = require 'classnames'
-{Contact} = require 'nylas-exports'
+{Actions, Contact} = require 'nylas-exports'
+{Menu, MenuItem} = require('electron').remote
 
 
 MAX_COLLAPSED = 5
@@ -47,6 +48,15 @@ class MessageParticipants extends React.Component
       names.push("and #{extra} more")
     names.join(", ")
 
+  _onContactContextMenu: (contact) =>
+    menu = new Menu()
+    menu.append(new MenuItem({role: 'copy'}))
+    menu.append(new MenuItem({
+      label: "Email #{contact.email}",
+      click: => Actions.composeNewDraftToRecipient(contact)
+    }))
+    menu.popup(NylasEnv.getCurrentWindow())
+
   # Renderers
 
   _renderFullContacts: (contacts = []) =>
@@ -61,13 +71,26 @@ class MessageParticipants extends React.Component
             {c.fullName()}
           </div>
           <div className="participant-secondary">
-            {"<"}<span onClick={@_selectText}><a href="mailto:#{c.email}">{c.email}</a></span>{">#{comma}"}
+            {"<"}
+            <span
+              onClick={@_selectText}
+              onContextMenu={=> @_onContactContextMenu(c)}
+            >
+              {c.email}
+            </span>
+            {">#{comma}"}
           </div>
         </div>
       else
         <div key={"#{c.email}-#{i}"} className="participant selectable">
           <div className="participant-primary">
-            <span onClick={@_selectText}><a href="mailto:#{c.email}">{c.email}</a></span>{comma}
+            <span
+              onClick={@_selectText}
+              onContextMenu={=> @_onContactContextMenu(c)}
+            >
+              {c.email}
+            </span>
+            {comma}
           </div>
         </div>
     )
