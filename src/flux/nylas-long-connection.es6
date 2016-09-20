@@ -112,8 +112,7 @@ class NylasLongConnection {
     const accountToken = this._api.accessTokenForAccountId(this._accountId)
     const identityToken = (IdentityStore.identity() || {}).token || ''
     if (!accountToken) {
-      console.error(`Can't establish NylasLongConnection: No account token available for account ${this._accountId}`)
-      return this;
+      throw new Error(`Can't establish NylasLongConnection: No account token available for account ${this._accountId}`)
     }
 
     const options = url.parse(`${this._api.APIRoot}${this._path}`)
