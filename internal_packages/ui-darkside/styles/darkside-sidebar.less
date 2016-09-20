@@ -1,0 +1,197 @@
+// ============================
+//  Sidebar Base
+// ============================
+
+// Make sidebar and corresponding toolbar match
+.column-RootSidebar,
+.account-sidebar,
+.toolbar-RootSidebar {
+  height: 100%;
+  background-color: @sidebar;
+  // If NOT Retina display, subpixel-antialias fonts instead
+  @media
+    not screen and (-webkit-min-device-pixel-ratio: 1.3),
+    not screen and (-o-min-device-pixel-ratio: 13/10),
+    not screen and (min-resolution: 120dpi) {
+      -webkit-font-smoothing: subpixel-antialiased !important;
+  }
+}
+
+// Refactored this to make sure all items
+// in sidebar always align left with each other
+.account-sidebar {
+  // make absolute elements (like compose button)
+  // relate to the sidear, not the column
+  position: relative;
+  margin: @sidebar-margin;
+}
+
+.nylas-outline-view {
+  margin-bottom: @sidebar-margin;
+}
+
+// Section headers
+.account-sidebar .heading {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: fade(@sidebar-text, 50%);
+  margin-bottom: 10px;
+  padding: 0;
+}
+
+// Down arrow icon
+.account-switcher {
+  height: 14px;
+  width: 16px;
+  top: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0.5;
+  transition: opacity 200ms;
+  &:hover {
+    opacity: 1;
+  }
+}
+
+// Down arrow icon
+.account-switcher img {
+  zoom: 1 !important;
+  max-width: 10px;
+  max-height: 6px;
+  transform: none;
+  background-image: none;
+  background-color: @sidebar-text;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path fill="#FFF" d="M0 0h1l4 4 4-4h1v1L5 6 0 1z"/></svg>');
+}
+
+.account-sidebar .item,
+.account-sidebar .item.selected {
+  color: @sidebar-text;
+  font-size: 13px;
+  font-weight: 400;
+  padding-right: 0;
+}
+
+.account-sidebar .item.selected {
+  background: transparent;
+  color: @active-sidebar-text;
+}
+
+// Item expansion icon wrapper
+.disclosure-triangle {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  width: 15px;
+}
+
+// Item expansion icon
+.disclosure-triangle div {
+  border-left-color: fade(@sidebar-text, 50%);
+  border-top-width: 3px;
+  border-bottom-width: 3px;
+  border-left-width: 5px;
+  transform-origin: 2px;
+}
+
+//====================================================
+//  Sidebar Icons
+//====================================================
+
+.account-sidebar .item img.content-mask,
+.account-sidebar .add-item-button img, {
+  background-color: @sidebar-text;
+}
+
+.account-sidebar .item.selected img.content-mask {
+  background-color: @active-sidebar-text;
+}
+
+.nylas-outline-view .item-container.dropping {
+  background: transparent;
+}
+
+.nylas-outline-view .item-container.dropping .item {
+  color: @accent;
+}
+
+.nylas-outline-view .item-container.dropping .item img.content-mask {
+  background-color: @accent;
+}
+
+.nylas-outline-view .heading .add-item-button img {
+  background: fade(@sidebar-text, 50%);
+}
+
+//====================================================
+//  Sidebar Count Badges
+//====================================================
+
+.nylas-outline-view .item .item-count-box.alt-count {
+  background: @accent;
+  color: @sidebar;
+}
+
+.nylas-outline-view .item .item-count-box {
+  color: @accent;
+  box-shadow: inset 0 0 0 1px fade(@accent, 50%);
+}
+
+//====================================================
+//  Scrollbar Base & Sidebar Scrollbar
+//====================================================
+
+.scrollbar-track {
+  background: transparent;
+  border-left: none;
+  width: 10px;
+}
+
+// transitioning background instead of opacity
+// so the location tooltip isn't affected
+.scrollbar-track .scrollbar-handle {
+  background: fade(@sidebar, 20%);
+  border: none !important;
+  cursor: -webkit-grab;
+  transition: background 300ms;
+}
+
+.scrollbar-track.dragging .scrollbar-handle {
+  background: fade(@sidebar, 50%);
+  cursor: -webkit-grabbing;
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(-50px); }
+  to   { opacity: 1; transform: translateX(-15px); }
+}
+
+.scrollbar-track .scrollbar-handle .tooltip .scroll-tooltip {
+  transform-origin: center right;
+  animation: slideInRight 300ms;
+}
+
+.flexbox-handle-horizontal div {
+  box-shadow: none;
+}
+
+// Removing overlap of scrollbar and handle
+.column-ThreadList .flexbox-handle-horizontal.flexbox-handle-right {
+  right: -8px;
+  padding: 0;
+}
+
+// we now offset the margin on scrollbar
+// in sidebar since it's position: relative
+.account-sidebar .scrollbar-track {
+  margin-right: -@sidebar-margin;
+}
+
+// and lighten the handle background
+.account-sidebar .scrollbar-track .scrollbar-handle {
+  background: fade(lighten(@sidebar, 50%), 40%);
+}
