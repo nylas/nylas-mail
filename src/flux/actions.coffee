@@ -361,6 +361,17 @@ class Actions
   @composeNewBlankDraft: ActionScopeWindow
 
   ###
+  Public: Open a new composer window for a new draft addressed to the given recipient
+
+  *Scope: Window*
+
+  ```
+  Actions.composeNewDraftToRecipient(contact)
+  ```
+  ###
+  @composeNewDraftToRecipient: ActionScopeWindow
+
+  ###
   Public: Send the draft with the given ID. This Action is handled by the {DraftStore},
   which finalizes the {DraftChangeSet} and allows {ComposerExtension}s to display
   warnings and do post-processing. To change send behavior, you should consider using
