@@ -177,6 +177,15 @@ body.is-blurred, body.platform-win32.is-blurred {
     }
   }
 
+  .form-header-error {
+    background: @color-error;
+    color: @text-color-inverse;
+    text-align: center;
+    font-weight: @font-weight-semi-bold;
+    margin-bottom: 5px;
+    padding: 0.5em;
+  }
+
   /* NOTE: We intentionally don't use the HTML :valid :invalid CSS pseudo
    * selectors since we can't set them declaratively with React.
   input, textarea {

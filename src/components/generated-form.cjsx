@@ -307,7 +307,6 @@ class GeneratedForm extends React.Component
         <div className="fieldsets">
           {@_renderFieldsets()}
         </div>
-        {@_renderHeaderFormError()}
         <div className="form-footer">
           <input type="submit" value="Submit" className="btn btn-emphasis" />
         </div>
@@ -317,6 +316,10 @@ class GeneratedForm extends React.Component
   shouldComponentUpdate: (nextProps) =>
     not Utils.isEqualReact(nextProps, @props)
 
+  componentDidUpdate: (prevProps) ->
+    if !prevProps.errors?.formError and @props.errors?.formError
+      ReactDOM.findDOMNode(@refs.formHeaderError).scrollIntoView(true)
+
   _renderPrefilledMessage: =>
     if @props.prefilled
       <div className="prefilled-message">
@@ -325,10 +328,10 @@ class GeneratedForm extends React.Component
 
   _renderHeaderFormError: =>
     if @props.errors?.formError
-      <div className="form-error form-header-error">
+      <div ref="formHeaderError" className="form-error form-header-error">
         {@props.errors.formError.message}
       </div>
-    else return <div></div>
+    else return false
 
   _renderFieldsets: =>
     (@props.fieldsets ? []).map (fieldset, i) =>
