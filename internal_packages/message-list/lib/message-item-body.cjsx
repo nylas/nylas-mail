@@ -19,7 +19,7 @@ class MessageItemBody extends React.Component
     downloads: React.PropTypes.object.isRequired
 
   constructor: (@props) ->
-    @_unmounted = false
+    @_mounted = false
     @state =
       showQuotedText: DraftHelpers.isForwardedMessage(@props.message)
       processedBody: null
@@ -30,6 +30,7 @@ class MessageItemBody extends React.Component
       @setState({processedBody})
 
   componentDidMount: =>
+    @_mounted = true
     @_onFetchBody() if not _.isString(@props.message.body)
 
   componentWillReceiveProps: (nextProps) ->
@@ -39,7 +40,7 @@ class MessageItemBody extends React.Component
         @setState({processedBody})
 
   componentWillUnmount: =>
-    @_unmounted = true
+    @_mounted = false
     @_unsub?()
 
   render: =>
@@ -89,16 +90,16 @@ class MessageItemBody extends React.Component
       accountId: @props.message.accountId
       returnsModel: true
     .then =>
-      return if @_unmounted
+      return unless @_mounted
       @setState({error: null})
       # message will be put into the database and the MessageBodyProcessor
       # will provide us with the new body once it's been processed.
     .catch (error) =>
-      return if @_unmounted
+      return unless @_mounted
       @setState({error})
 
   _mergeBodyWithFiles: (body) =>
-    # Replace cid:// references with the paths to downloaded files
+    # Replace cid: references with the paths to downloaded files
     for file in @props.message.files
       download = @props.downloads[file.id]
       cidRegexp = new RegExp("cid:#{file.contentId}(['\"]+)", 'gi')
@@ -113,7 +114,7 @@ class MessageItemBody extends React.Component
         body = body.replace cidRegexp, (text, quoteCharacter) ->
           "file://#{FileDownloadStore.pathForFile(file)}#{quoteCharacter}"
 
-    # Replace remaining cid:// references - we will not display them since they'll
+    # Replace remaining cid: references - we will not display them since they'll
     # throw "unknown ERR_UNKNOWN_URL_SCHEME". Show a transparent pixel so that there's
     # no "missing image" region shown, just a space.
     body = body.replace(MessageUtils.cidRegex, "src=\"#{TransparentPixel}\"")
