@@ -13,7 +13,7 @@ try
   require '../src/window'
   NylasEnvConstructor = require '../src/nylas-env'
   window.NylasEnv = window.atom = NylasEnvConstructor.loadOrCreate()
-  global.Promise.longStackTraces() if NylasEnv.inDevMode()
+  global.Promise.config({longStackTraces: true}) if NylasEnv.inDevMode()
 
   # Show window synchronously so a focusout doesn't fire on input elements
   # that are focused in the very first spec run.
