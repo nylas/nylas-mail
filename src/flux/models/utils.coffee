@@ -81,6 +81,10 @@ Utils =
     if _.isArray(object)
       # http://perfectionkills.com/how-ecmascript-5-still-does-not-allow-to-subclass-an-array/
       newObject = []
+    else if object instanceof Date
+      # You can't clone dates by iterating through `getOwnPropertyNames`
+      # of the Date object. We need to special-case Dates.
+      newObject = new Date(object)
     else
       newObject = Object.create(Object.getPrototypeOf(object))
 
