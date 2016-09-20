@@ -80,25 +80,32 @@ class SidebarItem
       selected: isItemSelected(perspective)
       collapsed: isItemCollapsed(id) ? true
       counterStyle: counterStyle
-      dataTransferType: 'nylas-threads-data'
       onDelete: if opts.deletable then onDeleteItem else undefined
       onEdited: if opts.editable then onEditItem else undefined
       onCollapseToggled: toggleItemCollapsed
+
       onDrop: (item, event) ->
-        jsonString = event.dataTransfer.getData(item.dataTransferType)
-        data = Utils.jsonParse(jsonString)
-        return unless data
-        item.perspective.receiveThreads(data.threadIds)
+        jsonString = event.dataTransfer.getData('nylas-threads-data')
+        jsonData = null
+        try
+          jsonData = JSON.parse(jsonString)
+        catch err
+          console.error("JSON parse error: #{err}")
+        return unless jsonData
+        item.perspective.receiveThreads(jsonData.threadIds)
+
       shouldAcceptDrop: (item, event) ->
         target = item.perspective
         current = FocusedPerspectiveStore.current()
-        jsonString = event.dataTransfer.getData(item.dataTransferType)
-        data = Utils.jsonParse(jsonString)
-        return false unless data
-        return false unless target
+        return false unless event.dataTransfer.types.includes('nylas-threads-data')
         return false if target.isEqual(current)
-        return false unless target.canReceiveThreadsFromAccountIds(data.accountIds)
-        return item.dataTransferType in event.dataTransfer.types
+
+        # We can't inspect the drag payload until drop, so we use a dataTransfer
+        # type to encode the account IDs of threads currently being dragged.
+        accountsType = event.dataTransfer.types.find((t) => t.startsWith('nylas-accounts='))
+        accountIds = (accountsType || "").replace('nylas-accounts=', '').split(',')
+        return target.canReceiveThreadsFromAccountIds(accountIds)
+
       onSelect: (item) ->
         Actions.focusMailboxPerspective(item.perspective)
     }, opts)
