@@ -3,6 +3,7 @@ import keytar from 'keytar';
 import {ipcRenderer, remote} from 'electron';
 import request from 'request';
 import url from 'url'
+import Moment from 'moment-timezone';
 
 import Actions from '../actions';
 import AccountStore from './account-store';
@@ -93,7 +94,12 @@ class IdentityStore extends NylasStore {
     if (!this._subscriptionRequiredAfter) {
       return null;
     }
-    return Math.max(0, Math.round((this._subscriptionRequiredAfter.getTime() - Date.now()) / (1000 * 24 * 60 * 60)));
+    const now = new Moment();
+    const nowDayOfEpoch = now.dayOfYear() + now.year() * 365;
+    const requiredAt = new Moment(this._subscriptionRequiredAfter);
+    const requiredDayOfEpoch = requiredAt.dayOfYear() + requiredAt.year() * 365;
+
+    return Math.max(0, requiredDayOfEpoch - nowDayOfEpoch);
   }
 
   refreshStatus = () => {

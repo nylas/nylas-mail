@@ -32,5 +32,5 @@
 
   "core:remove-and-previous": ["}", "]"],
   "core:remove-and-next": ["{", "["],
-  "core:undo": "z"
+  "core:undo": "mod+z"
 }

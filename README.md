@@ -64,6 +64,7 @@ The Nylas N1 user interface is styled using CSS, which means it's easy to modify
 - [Sublime Dark](https://github.com/rishabhkesarwani/Nylas-Sublime-Dark-Theme)
 - [Firefox](https://github.com/darshandsoni/n1-firefox-theme)
 - [Gmail](https://github.com/dregitsky/n1-gmail-theme)
+- [Darkish](https://github.com/dyrnade/N1-Darkish)
 
 #### To install community themes: 
 

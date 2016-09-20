@@ -230,6 +230,7 @@ class DatabaseStore extends NylasStore
       app.rebuildDatabase()
 
   _prettyConsoleLog: (q) =>
+    q = q.replace(/%/g, '%%')
     q = "color:black |||%c " + q
     q = q.replace(/`(\w+)`/g, "||| color:purple |||%c$&||| color:black |||%c")
 
