@@ -332,6 +332,9 @@ class Config
 
     if process.type is 'renderer'
       {ipcRenderer} = require 'electron'
+      # If new Config() has already been called, unmount it's listener when
+      # we attach ourselves. This is only done during specs, Config is a singleton.
+      ipcRenderer.removeAllListeners('on-config-reloaded')
       ipcRenderer.on 'on-config-reloaded', (event, settings) =>
         @updateSettings(settings)
 

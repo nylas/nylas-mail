@@ -27,7 +27,10 @@ describe('ComposerHeader', function composerHeader() {
 
   describe("showAndFocusField", () => {
     beforeEach(() => {
-      const draft = new Message({draft: true, accountId: TEST_ACCOUNT_ID});
+      const draft = new Message({
+        draft: true,
+        accountId: TEST_ACCOUNT_ID,
+      });
       this.createWithDraft(draft);
     });
 
@@ -80,7 +83,12 @@ describe('ComposerHeader', function composerHeader() {
       this.createWithDraft(draft);
       expect(this.component.state.enabledFields).toEqual(['textFieldTo', 'fromField', 'textFieldSubject'])
 
-      draft = new Message({draft: true, cc: [new Contact()], bcc: [new Contact()], accountId: TEST_ACCOUNT_ID});
+      draft = new Message({
+        draft: true,
+        cc: [new Contact({id: 'a', email: 'a'})],
+        bcc: [new Contact({id: 'b', email:'b'})],
+        accountId: TEST_ACCOUNT_ID,
+      });
       this.createWithDraft(draft);
       expect(this.component.state.enabledFields).toEqual(['textFieldTo', 'textFieldCc', 'textFieldBcc', 'fromField', 'textFieldSubject'])
     });
