@@ -20,9 +20,19 @@
     "occurences": 1256
   },
   "fastmail.fm": {
-    "imap_host": "mail.messagingengine.com",
+    "imap_host": "imap.fastmail.com",
     "imap_port": "993",
-    "smtp_host": "mail.messagingengine.com",
+    "smtp_host": "smtp.fastmail.com",
+    "smtp_port": "465",
+    "smtp_user_format": "email",
+    "imap_user_format": "email",
+    "ssl": "1",
+    "occurences": 68
+  },
+  "fastmail.com": {
+    "imap_host": "imap.fastmail.com",
+    "imap_port": "993",
+    "smtp_host": "smtp.fastmail.com",
     "smtp_port": "465",
     "smtp_user_format": "email",
     "imap_user_format": "email",
