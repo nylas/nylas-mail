@@ -243,7 +243,7 @@ class NylasEnvConstructor
       @reportError(error, {promise})
 
     if @inSpecMode() or @inDevMode()
-      Promise.config({longStackTraces: true})
+      Promise.longStackTraces()
 
   _createErrorCallbackEvent: (error, extraArgs={}) ->
     event = _.extend({}, extraArgs, {

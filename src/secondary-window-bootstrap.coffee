@@ -19,7 +19,7 @@ require './window'
 NylasEnvConstructor = require './nylas-env'
 window.NylasEnv = window.atom = NylasEnvConstructor.loadOrCreate()
 
-global.Promise.config({longStackTraces: true}) if NylasEnv.inDevMode()
+global.Promise.longStackTraces() if NylasEnv.inDevMode()
 
 NylasEnv.initialize()
 NylasEnv.startSecondaryWindow()
