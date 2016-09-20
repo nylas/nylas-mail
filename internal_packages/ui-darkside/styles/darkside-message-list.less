@@ -1,0 +1,84 @@
+#message-list {
+  background: @messagelist-bg;
+}
+
+// Make toolbars match panels
+.column-MessageList,
+.toolbar-MessageList,
+.column-MessageListSidebar,
+.toolbar-MessageListSidebar {
+  height: 100%;
+  background: @messagelist-bg;
+  border-left: 1px solid @border-color;
+}
+
+// Message List top and bottom spacing
+#message-list .messages-wrap .scroll-region-content-inner {
+  padding: 20px;
+  padding-bottom: 40vh;
+}
+
+// Reset padding
+#message-list .message-header,
+#message-list .message-item-wrap.collapsed .message-item-white-wrap,
+#message-list .message-item-wrap.collapsed .message-item-area {
+  padding: 0;
+}
+
+// Make padding uniform
+#message-list .message-item-area,
+#message-list .footer-reply-area-wrap .footer-reply-area {
+  padding: 20px !important;
+}
+
+// Adjusting position of thread participants toggle
+#message-list .header-toggle-control {
+  top: 6px !important;
+  left: -11px !important;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+}
+
+// Reducing size and overriding invalid -webkit-mask-repeat- property
+#message-list .header-toggle-control img {
+  zoom: 0.35 !important;
+  -webkit-mask-repeat: no-repeat !important;
+}
+
+.message-participants.to-participants .collapsed-participants,
+.message-participants .expanded-participants .participant-type {
+  margin-top: 0;
+}
+
+.message-participants .from-label,
+.message-participants .to-label,
+.message-participants .cc-label,
+.message-participants .bcc-label {
+  margin-right: 6px;
+}
+
+#message-list .message-item-wrap .message-item-white-wrap,
+#message-list .minified-bundle .msg-line,
+#message-list .minified-bundle .num-messages,
+#message-list .footer-reply-area-wrap, {
+  box-shadow: inset 0 0 0 1px @border-color;
+  border: none;
+}
+
+#message-list .minified-bundle + .message-item-wrap,
+#message-list .message-item-wrap.collapsed + .minified-bundle,
+#message-list .minified-bundle .num-messages,
+#message-list .minified-bundle .msg-lines {
+  margin-top: 0;
+}
+
+// Collapsed Messages Pill Label
+#message-list .minified-bundle .num-messages {
+  padding: 3px;
+}
+
+// remove margin for last message before reply
+#message-list .message-item-wrap.before-reply-area {
+  margin-bottom: 0;
+}
