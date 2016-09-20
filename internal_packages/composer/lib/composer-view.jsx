@@ -615,7 +615,8 @@ export default class ComposerView extends React.Component {
                 {this._renderActionsWorkspaceRegion()}
               </div>
 
-              <div className="composer-action-bar-wrap">
+              <div className="composer-action-bar-wrap" data-tooltips-anchor>
+                <div className="tooltips-container" />
                 {this._renderActionsRegion()}
               </div>
             </DropZone>
