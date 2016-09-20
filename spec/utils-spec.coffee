@@ -76,6 +76,11 @@ describe 'Utils', ->
       @o2.circular = @o2
       @o2Clone = Utils.deepClone(@o2)
 
+    it "deep clones dates correctly", ->
+      d1 = new Date(2016,1,1)
+      d2 = Utils.deepClone(d1)
+      expect(d2.valueOf()).toBe(d1.valueOf())
+
     it "makes a deep clone", ->
       @v1.push(4)
       @v2.push(7)
