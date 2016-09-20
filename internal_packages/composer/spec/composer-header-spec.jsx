@@ -86,7 +86,7 @@ describe('ComposerHeader', function composerHeader() {
       draft = new Message({
         draft: true,
         cc: [new Contact({id: 'a', email: 'a'})],
-        bcc: [new Contact({id: 'b', email:'b'})],
+        bcc: [new Contact({id: 'b', email: 'b'})],
         accountId: TEST_ACCOUNT_ID,
       });
       this.createWithDraft(draft);
