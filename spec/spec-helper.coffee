@@ -50,6 +50,46 @@ Object.defineProperty document, 'title',
 
 jasmine.getEnv().addEqualityTester(_.isEqual) # Use underscore's definition of equality for toEqual assertions
 
+# ----------------------------------------------------
+# Custom log reporter to pointpoint console statements
+# ----------------------------------------------------
+
+util = require('util')
+console.inspect = (args...) ->
+  arg = args
+  if (args.length is 1)
+    arg = args[0]
+  console.log(util.inspect(arg))
+
+original_log = console.log
+original_warn = console.warn
+original_error = console.error
+
+class JasmineConsoleReporter
+  reportSpecStarting: (spec) ->
+    withContext = (log) ->
+      return ->
+        if arguments[0] is '.'
+          log(arguments...)
+        else
+          log("[#{spec.getFullName()}] #{arguments[0]}", Array(arguments)[1..-1]...)
+    console.log = withContext(original_log)
+    console.warn = withContext(original_warn)
+    console.error = withContext(original_error)
+
+  reportSpecResults: (result) ->
+    if console.log isnt original_log
+      console.log = original_log
+    if console.warn isnt original_warn
+      console.warn = original_warn
+    if console.error isnt original_error
+      console.error = original_error
+
+jasmine.getEnv().addReporter(new JasmineConsoleReporter())
+
+#
+#
+
 if process.env.JANKY_SHA1 and process.platform is 'win32'
   jasmine.getEnv().defaultTimeoutInterval = 60000
 else
@@ -226,26 +266,8 @@ beforeEach ->
 
   TimeOverride.resetSpyData()
 
-util = require('util')
-console.inspect = (args...) ->
-  arg = args
-  if (args.length is 1)
-    arg = args[0]
-  console.log(util.inspect(arg))
-
-original_log = console.log
-original_warn = console.warn
-original_error = console.error
 
 afterEach ->
-
-  if console.log isnt original_log
-    console.log = original_log
-  if console.warn isnt original_warn
-    console.warn = original_warn
-  if console.error isnt original_error
-    console.error = original_error
-
   NylasEnv.packages.deactivatePackages()
   NylasEnv.menu.template = []
 
@@ -347,6 +369,11 @@ addCustomMatchers = (spec) ->
       element = element.get(0) if element.jquery
       @message = -> return "Expected element '#{element}' or its descendants#{notText} to show."
       element.style.display in ['block', 'inline-block', 'static', 'fixed']
+
+
+# -------------------------
+# Stubs for Window methods
+# -------------------------
 
 window.keyIdentifierForKey = (key) ->
   if key.length > 1 # named key
