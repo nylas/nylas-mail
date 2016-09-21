@@ -8,7 +8,7 @@ CategoryStore = require '../../src/flux/stores/category-store'
 AccountStore = require '../../src/flux/stores/account-store'
 FocusedPerspectiveStore = require '../../src/flux/stores/focused-perspective-store'
 
-fdescribe "FocusedPerspectiveStore", ->
+describe "FocusedPerspectiveStore", ->
   beforeEach ->
     spyOn(FocusedPerspectiveStore, 'trigger')
     FocusedPerspectiveStore._perspective = null
