@@ -1,7 +1,7 @@
 _ = require 'underscore'
 QueryRange = require './query-range'
 QueryResultSet = require './query-result-set'
-AttributeJoinedData = require '../attributes/attribute-joined-data'
+AttributeJoinedData = require('../attributes/attribute-joined-data').default
 
 # TODO: Make mutator methods QueryResultSet.join(), QueryResultSet.clip...
 class MutableQueryResultSet extends QueryResultSet

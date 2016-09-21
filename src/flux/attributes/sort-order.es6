@@ -1,4 +1,4 @@
-###
+/*
 Public: Represents a particular sort direction on a particular column. You should not
 instantiate SortOrders manually. Instead, call {Attribute::ascending} or
 {Attribute::descending} to obtain a sort order instance:
@@ -11,12 +11,18 @@ DatabaseStore.findBy(Message)
 ```
 
 Section: Database
-###
-class SortOrder
-  constructor: (@attr, @direction = 'DESC') ->
-  orderBySQL: (klass) ->
-    "`#{klass.name}`.`#{@attr.jsonKey}` #{@direction}"
-  attribute: ->
-    @attr
+*/
+export default class SortOrder {
+  constructor(attr, direction = 'DESC') {
+    this.attr = attr;
+    this.direction = direction;
+  }
 
-module.exports = SortOrder
+  orderBySQL(klass) {
+    return `\`${klass.name}\`.\`${this.attr.jsonKey}\` ${this.direction}`;
+  }
+
+  attribute() {
+    return this.attr;
+  }
+}
