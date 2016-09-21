@@ -29,8 +29,15 @@ Section: Component Kit
 class EventedIFrame extends React.Component
   @displayName = 'EventedIFrame'
 
+  @propTypes =
+    searchable: React.PropTypes.bool
+    onResize: React.PropTypes.func
+
   render: =>
-    <iframe seamless="seamless" {...@props} />
+    otherProps = Utils.fastOmit(@props, Object.keys(@constructor.propTypes))
+    return (
+      <iframe seamless="seamless" {...otherProps} />
+    )
 
   componentDidMount: =>
     if @props.searchable

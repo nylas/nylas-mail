@@ -72,24 +72,23 @@ describe "EncryptMessageButton", ->
 
     waitsFor (=> @km?), "getting a key took too long", 1000
 
-    @msg = new Message({subject: 'Subject', body: '<p>Body</p>'})
+    @msg = new Message({subject: 'Subject', body: '<p>Body</p>', draft: true})
+    @session =
+      draft: =>
+        return @msg
+      changes:
+        add: (changes) =>
+          @output = changes
 
     @output = null
 
     add = jasmine.createSpy('add')
     spyOn(DraftStore, 'sessionForClientId').andCallFake((draftClientId) =>
-      d = @msg
-      session =
-        draft: =>
-          return d
-        changes:
-          add: (changes) =>
-            @output = changes
-      return Promise.resolve(session)
+      return Promise.resolve(@session)
     )
 
     @component = ReactTestUtils.renderIntoDocument(
-      <EncryptMessageButton draftClientId="test" />
+      <EncryptMessageButton draft={@msg} session={@session} />
     )
 
   it "should render into the page", ->

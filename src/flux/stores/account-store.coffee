@@ -242,6 +242,11 @@ class AccountStore extends NylasStore
         return @accountForId(alias.accountId)
     return null
 
+  emailAddresses: ->
+    addresses = _.pluck((@accounts() ? []), "emailAddress")
+    addresses = addresses.concat(_.pluck((@aliases() ? [])), "email")
+    return addresses
+
   # Public: Returns the {Account} for the given account id, or null.
   accountForId: (id) =>
     @_cachedGetter "accountForId:#{id}", => _.findWhere(@_accounts, {id})

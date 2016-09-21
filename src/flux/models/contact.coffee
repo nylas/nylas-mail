@@ -1,6 +1,6 @@
 Model = require './model'
 Utils = require './utils'
-Attributes = require '../attributes'
+Attributes = require('../attributes').default
 RegExpUtils = require '../../regexp-utils'
 AccountStore = require '../stores/account-store'
 FocusedPerspectiveStore = null # Circular Dependency
@@ -111,6 +111,11 @@ class Contact extends Model
   isMe: ->
     account = AccountStore.accountForEmail(@email)
     return account?
+
+  hasSameDomainAsMe: ->
+    for myEmail in AccountStore.emailAddresses()
+      return true if Utils.emailsHaveSameDomain(@email, myEmail)
+    return false
 
   isMePhrase: ({includeAccountLabel, forceAccountLabel} = {}) ->
     account = AccountStore.accountForEmail(@email)

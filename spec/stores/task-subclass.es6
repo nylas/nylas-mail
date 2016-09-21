@@ -56,3 +56,30 @@ export class OKTask extends Task {
 export class BadTask extends Task {
   performRemote() { return Promise.resolve('lalal') }
 }
+
+export class Task100 extends Task {
+  performLocal() {
+    return new Promise((resolve) => setTimeout(resolve, 100))
+  }
+  performRemote() {
+    return new Promise((resolve) => setTimeout(resolve, 1000))
+  }
+}
+
+export class Task200 extends Task {
+  performLocal() {
+    return new Promise((resolve) => setTimeout(resolve, 200))
+  }
+  performRemote() {
+    return new Promise((resolve) => setTimeout(resolve, 1000))
+  }
+}
+
+export class Task300 extends Task {
+  performLocal() {
+    return new Promise((resolve) => setTimeout(resolve, 300))
+  }
+  performRemote() {
+    return new Promise((resolve) => setTimeout(resolve, 1000))
+  }
+}

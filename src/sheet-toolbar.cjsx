@@ -187,8 +187,8 @@ class Toolbar extends React.Component
     </div>
 
   _flexboxForComponents: (components) =>
-    elements = components.map (component) =>
-      <component key={component.displayName} {...@props} />
+    elements = components.map (Component) =>
+      <Component key={Component.displayName} {...@props} />
 
     <Flexbox className="item-container" direction="row">
       {elements}

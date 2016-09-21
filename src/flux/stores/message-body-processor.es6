@@ -79,11 +79,16 @@ class MessageBodyProcessor {
   }
 
   subscribe(message, callback) {
+    const sub = {message, callback};
+
     // Extra defer to ensure that subscribe never calls it's callback synchronously,
     // (In Node, callbacks should always be called after caller execution has finished)
-    _.defer(() => this.retrieve(message).then(callback));
+    _.defer(() => this.retrieve(message).then((output) => {
+      if (this._subscriptions.includes(sub)) {
+        callback(output);
+      }
+    }));
 
-    const sub = {message, callback};
     this._subscriptions.push(sub);
     return () => {
       this._subscriptions.splice(this._subscriptions.indexOf(sub), 1);

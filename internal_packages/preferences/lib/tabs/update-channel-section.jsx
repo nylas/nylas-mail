@@ -58,10 +58,17 @@ class UpdateChannelSection extends React.Component {
   render() {
     const {current, available, saving} = this.state;
 
+    // HACK: Temporarily do not allow users to move on to the Salesforce channel.
+    // In the future we could implement this server-side via a "public" flag.
+    let allowed = available;
+    if (current && current.name.toLowerCase() !== 'salesforce') {
+      allowed = available.filter(c => c.name.toLowerCase() !== 'salesforce');
+    }
+
     return (
       <section>
         <h6>Updates</h6>
-        <label forHtml="">Release channel: </label>
+        <label>Release channel: </label>
         <select
           style={{minWidth: 130}}
           value={current.name}
@@ -69,8 +76,8 @@ class UpdateChannelSection extends React.Component {
           disabled={saving}
         >
           {
-            available.map((channel) => {
-              return (<option value={channel.name}>
+            allowed.map((channel) => {
+              return (<option value={channel.name} key={channel.name}>
                 {channel.name[0].toUpperCase() + channel.name.substr(1)}
               </option>);
             })

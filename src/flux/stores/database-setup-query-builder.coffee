@@ -1,5 +1,5 @@
 _ = require 'underscore'
-{AttributeCollection, AttributeJoinedData} = require '../attributes'
+{AttributeCollection, AttributeJoinedData} = require('../attributes').default
 
 DatabaseObjectRegistry = require('../../database-object-registry').default
 {tableNameForJoin} = require '../models/utils'

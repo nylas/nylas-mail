@@ -8,6 +8,10 @@ import NylasStore from 'nylas-store';
 const TipsBackgroundEl = document.createElement('tutorial-tip-background');
 document.body.appendChild(TipsBackgroundEl);
 
+const TipsContainerEl = document.createElement('div');
+TipsContainerEl.classList.add('tooltips-container');
+document.body.appendChild(TipsContainerEl);
+
 
 class TipsStore extends NylasStore {
   constructor() {
@@ -123,12 +127,14 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
       // without modifying the DOM tree and messing with things like flexbox.
       // Instead, we leave render() unchanged and attach the bubble and hover
       // listeners to the DOM manually.
+      const el = ReactDOM.findDOMNode(this);
 
       this.tipNode = document.createElement('div');
       this.tipNode.classList.add('tutorial-tip');
-      document.body.appendChild(this.tipNode);
 
-      const el = ReactDOM.findDOMNode(this);
+      this.tipAnchor = el.closest('[data-tooltips-anchor]') || document.body;
+      this.tipAnchor.querySelector('.tooltips-container').appendChild(this.tipNode);
+
       el.addEventListener('mouseover', this._onMouseOver);
       this._onTooltipStateChanged();
     }
@@ -145,7 +151,7 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
       }
 
       window.removeEventListener('resize', this._onRecomputeTooltipPosition);
-      document.body.removeChild(this.tipNode);
+      this.tipNode.parentNode.removeChild(this.tipNode);
       clearTimeout(this._workspaceTimer);
 
       TipsStore.unmountedTip(TipKey);
@@ -211,8 +217,10 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
       let last = {};
       const attempt = () => {
         const {left, top} = el.getBoundingClientRect();
-        this.tipNode.style.left = `${left + 5}px`;
-        this.tipNode.style.top = `${top + 5}px`;
+        const anchorRect = this.tipAnchor.getBoundingClientRect();
+
+        this.tipNode.style.left = `${left - anchorRect.left + 5}px`;
+        this.tipNode.style.top = `${top - anchorRect.top + 5}px`;
 
         if (!_.isEqual(last, {left, top})) {
           settled = 0;

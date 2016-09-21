@@ -1,6 +1,6 @@
 _ = require 'underscore'
 Model = require './model'
-Attributes = require '../attributes'
+Attributes = require('../attributes').default
 
 class JSONBlob extends Model
   @attributes:

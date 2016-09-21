@@ -1,6 +1,6 @@
 Model = require './model'
 Contact = require './contact'
-Attributes = require '../attributes'
+Attributes = require('../attributes').default
 _ = require 'underscore'
 moment = require('moment')
 
