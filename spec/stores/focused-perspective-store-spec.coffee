@@ -8,7 +8,7 @@ CategoryStore = require '../../src/flux/stores/category-store'
 AccountStore = require '../../src/flux/stores/account-store'
 FocusedPerspectiveStore = require '../../src/flux/stores/focused-perspective-store'
 
-describe "FocusedPerspectiveStore", ->
+fdescribe "FocusedPerspectiveStore", ->
   beforeEach ->
     spyOn(FocusedPerspectiveStore, 'trigger')
     FocusedPerspectiveStore._perspective = null
@@ -33,26 +33,27 @@ describe "FocusedPerspectiveStore", ->
       spyOn(FocusedPerspectiveStore, '_defaultPerspective').andReturn @default
 
     it "uses default perspective when no perspective has been saved", ->
-      current = FocusedPerspectiveStore._loadSavedPerspective(undefined, @accounts)
+      NylasEnv.savedState.perspective = undefined
+      current = FocusedPerspectiveStore._loadSavedPerspective(@accounts)
       expect(current).toEqual @default
 
     it "uses default if saved perspective has more account ids not present in current accounts", ->
-      saved = {accountIds: [1,2,3]}
-      current = FocusedPerspectiveStore._loadSavedPerspective(saved, @accounts)
+      NylasEnv.savedState.perspective = {accountIds: [1,2,3]}
+      current = FocusedPerspectiveStore._loadSavedPerspective(@accounts)
       expect(current).toEqual @default
 
-      saved = {accountIds: [3]}
-      current = FocusedPerspectiveStore._loadSavedPerspective(saved, @accounts)
+      NylasEnv.savedState.perspective = {accountIds: [3]}
+      current = FocusedPerspectiveStore._loadSavedPerspective(@accounts)
       expect(current).toEqual @default
 
     it "uses saved perspective if all accounts in saved perspective are present in the current accounts", ->
-      saved = {accountIds: [1,2]}
-      current = FocusedPerspectiveStore._loadSavedPerspective(saved, @accounts)
-      expect(current).toEqual saved
+      NylasEnv.savedState.perspective = {accountIds: [1,2]}
+      current = FocusedPerspectiveStore._loadSavedPerspective(@accounts)
+      expect(current).toEqual NylasEnv.savedState.perspective
 
-      saved = {accountIds: [1]}
-      current = FocusedPerspectiveStore._loadSavedPerspective(saved, @accounts)
-      expect(current).toEqual saved
+      NylasEnv.savedState.perspective = {accountIds: [1]}
+      current = FocusedPerspectiveStore._loadSavedPerspective(@accounts)
+      expect(current).toEqual NylasEnv.savedState.perspective
 
   describe "_onCategoryStoreChanged", ->
     it "should load the saved perspective if the perspective has not been initialized", ->
