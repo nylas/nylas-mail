@@ -1,5 +1,5 @@
 Model = require './model'
-Attributes = require '../attributes'
+Attributes = require('../attributes').default
 _ = require 'underscore'
 
 ###

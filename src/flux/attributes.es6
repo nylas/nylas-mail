@@ -9,7 +9,7 @@ import AttributeCollection from './attributes/attribute-collection'
 import AttributeJoinedData from './attributes/attribute-joined-data'
 import AttributeServerId from './attributes/attribute-serverid'
 
-module.exports = {
+export default {
   Matcher: Matcher,
   SortOrder: SortOrder,
 

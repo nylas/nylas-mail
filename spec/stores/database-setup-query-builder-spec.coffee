@@ -1,5 +1,5 @@
 TestModel = require '../fixtures/db-test-model'
-Attributes = require '../../src/flux/attributes'
+Attributes = require('../../src/flux/attributes').default
 DatabaseSetupQueryBuilder = require '../../src/flux/stores/database-setup-query-builder'
 
 describe "DatabaseSetupQueryBuilder", ->
