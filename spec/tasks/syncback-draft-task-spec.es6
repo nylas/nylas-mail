@@ -99,6 +99,7 @@ describe('SyncbackDraftTask', function syncbackDraftTask() {
       spyOn(this.taskC, "runLocal").andReturn(Promise.resolve());
 
       TaskQueue.enqueue(this.taskC);
+      advanceClock(10)
 
       // Note that taskB is gone, taskOther was untouched, and taskC was
       // added.
