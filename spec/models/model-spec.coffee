@@ -1,6 +1,6 @@
 Model = require '../../src/flux/models/model'
 Utils = require '../../src/flux/models/utils'
-Attributes = require '../../src/flux/attributes'
+Attributes = require('../../src/flux/attributes').default
 {isTempId} = require '../../src/flux/models/utils'
 _ = require 'underscore'
 

@@ -2,7 +2,7 @@ _ = require 'underscore'
 Model = require '../models/model'
 Utils = require '../models/utils'
 
-{AttributeCollection, AttributeJoinedData} = require '../attributes'
+{AttributeCollection, AttributeJoinedData} = require('../attributes').default
 {tableNameForJoin} = require '../models/utils'
 
 class DatabaseTransaction

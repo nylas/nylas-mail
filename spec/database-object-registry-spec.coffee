@@ -1,6 +1,6 @@
 _ = require 'underscore'
 Model = require '../src/flux/models/model'
-Attributes = require '../src/flux/attributes'
+Attributes = require('../src/flux/attributes').default
 DatabaseObjectRegistry = require('../src/database-object-registry').default
 
 class GoodTest extends Model

@@ -1,6 +1,6 @@
 _ = require 'underscore'
 Model = require './model'
-Attributes = require '../attributes'
+Attributes = require('../attributes').default
 AccountStore = null
 
 # We look for a few standard categories and display them in the Mailboxes
