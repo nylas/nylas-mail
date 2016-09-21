@@ -82,8 +82,8 @@ class SidebarStore extends NylasStore
 
   # TODO Refactor this
   # Listen to changes on the account store only for when the account label
-  # changes. When accounts or added or removed, those changes will come in
-  # through the FocusedPerspectiveStore
+  # or order changes. When accounts or added or removed, those changes will
+  # come in through the FocusedPerspectiveStore
   _onAccountsChanged: =>
     @_updateSections()
 
@@ -104,9 +104,10 @@ class SidebarStore extends NylasStore
       @_updateSections()
 
   _updateSections: =>
-    accounts = _.compact(
-      FocusedPerspectiveStore.sidebarAccountIds().map((id) => AccountStore.accountForId(id))
-    )
+    accounts = FocusedPerspectiveStore.sidebarAccountIds()
+      .map((id) => AccountStore.accountForId(id))
+      .filter((a) => !!a)
+
     return if accounts.length is 0
     multiAccount = accounts.length > 1
 
