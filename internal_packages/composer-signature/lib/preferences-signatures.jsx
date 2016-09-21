@@ -102,7 +102,7 @@ export default class PreferencesSignatures extends React.Component {
         </div>
         <div className="render-mode">
           <input type="checkbox" id="render-mode" checked={this.state.editAsHTML} onClick={this._onToggleEditAsHTML} />
-          <label>Edit raw HTML</label>
+          <label htmlFor="render-mode">Edit raw HTML</label>
         </div>
       </div>
     )
