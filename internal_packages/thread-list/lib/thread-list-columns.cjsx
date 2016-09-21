@@ -33,11 +33,11 @@ subject = (subj) ->
   else if subj.split(/([\uD800-\uDBFF][\uDC00-\uDFFF])/g).length > 1
     subjComponents = []
     subjParts = subj.split /([\uD800-\uDBFF][\uDC00-\uDFFF])/g
-    for part in subjParts
+    for part, idx in subjParts
       if part.match /([\uD800-\uDBFF][\uDC00-\uDFFF])/g
-        subjComponents.push <span className="emoji">{part}</span>
+        subjComponents.push <span className="emoji" key={idx}>{part}</span>
       else
-        subjComponents.push <span>{part}</span>
+        subjComponents.push <span key={idx}>{part}</span>
     return subjComponents
   else
     return subj

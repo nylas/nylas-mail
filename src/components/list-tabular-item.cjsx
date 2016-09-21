@@ -34,20 +34,19 @@ class ListTabularItem extends React.Component
     @_columnCache ?= @_columns()
 
     <SwipeContainer {...props} onClick={@_onClick} style={position:'absolute', top: @props.metrics.top, width:'100%', height:@props.metrics.height}>
-      <div className={className} style={height:@props.metrics.height}>
+      <div className={className} style={height: @props.metrics.height}>
         {@_columnCache}
       </div>
     </SwipeContainer>
 
   _columns: =>
     names = {}
-    for column in (@props.columns ? [])
+    (@props.columns ? []).map (column) =>
       if names[column.name]
         console.warn("ListTabular: Columns do not have distinct names, will cause React error! `#{column.name}` twice.")
       names[column.name] = true
 
       <div key={column.name}
-           displayName={column.name}
            style={{flex: column.flex, width: column.width}}
            className="list-column list-column-#{column.name}">
         {column.resolver(@props.item, @)}
