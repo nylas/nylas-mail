@@ -38,14 +38,20 @@ export default class AttributeCollection extends Attribute {
   }
 
   toJSON(vals) {
-    if (!vals) { return []; }
+    if (!vals) {
+      return [];
+    }
+
+    if (!(vals instanceof Array)) {
+      throw new Error(`AttributeCollection::toJSON: ${this.modelKey} is not an array.`);
+    }
 
     const json = []
     for (const val of vals) {
       if (!(val instanceof this.ItemClass)) {
         throw new Error(`AttributeCollection::toJSON: Value \`${val}\` in ${this.modelKey} is not an ${this.ItemClass.name}`);
       }
-      if (val.toJSON) {
+      if (val.toJSON !== undefined) {
         json.push(val.toJSON());
       } else {
         json.push(val);
@@ -58,7 +64,7 @@ export default class AttributeCollection extends Attribute {
     if (!json || !(json instanceof Array)) {
       return [];
     }
-    const objs = []
+    const objs = [];
 
     for (const objJSON of json) {
       // Note: It's possible for a malformed API request to return an array

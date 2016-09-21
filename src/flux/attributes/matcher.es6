@@ -90,7 +90,7 @@ class Matcher {
       case '>=':
         return modelValue >= matcherValue
       case 'in':
-        return modelValue in matcherValue
+        return matcherValue.includes(modelValue)
       case 'contains':
         return modelArrayContainsValue(modelValue, matcherValue)
       case 'containsAny':
@@ -98,7 +98,7 @@ class Matcher {
       case 'startsWith':
         return modelValue.startsWith(matcherValue)
       case 'like':
-        return modelValue.search(new RegExp(".*${matcherValue}.*", "gi")) >= 0
+        return modelValue.search(new RegExp(`.*${matcherValue}.*`, "gi")) >= 0
       default:
         throw new Error(`Matcher.evaulate() not sure how to evaluate ${this.attr.modelKey} with comparator ${this.comparator}`)
     }
