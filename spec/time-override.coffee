@@ -88,7 +88,7 @@ class TimeOverride
 
   @_fakeSetInterval = (callback, ms) =>
     id = ++@intervalCount
-    action = =>
+    action = ->
       callback()
       @intervalTimeouts[id] = @_fakeSetTimeout(action, ms)
     @intervalTimeouts[id] = @_fakeSetTimeout(action, ms)

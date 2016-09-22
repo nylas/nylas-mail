@@ -77,8 +77,6 @@ class TaskQueue
     @_updatePeriodicallyTimeout = null
     @_currentSequentialId = Date.now()
 
-    @_runLocalPromise = Promise.resolve()
-
     @_restoreQueue()
 
     @listenTo Actions.queueTask, @enqueue
@@ -139,25 +137,9 @@ class TaskQueue
     task.sequentialId = ++@_currentSequentialId
 
     @_dequeueObsoleteTasks(task)
-
-    doRunLocal = =>
-      task.runLocal().then =>
-        @_queue.push(task)
-        @_updateSoon()
-        return Promise.resolve()
-
-    # NOTE: runLocal now runs synchronously so when people build
-    # `performLocal` methods they can assume the entire set is atomic.
-    # `performLocal` very frequently has numerous reads and sets to the
-    # database and we don't want simultaneous tasks to make those reads
-    # and sets not atomic. While users could wrap their entire
-    # performLocals in Database transaction blocks, it's common to forget
-    # to do this and it will still block other tasks from accessing the
-    # database.
-    if !@_runLocalPromise.isPending()
-      # Reset to prevent memory leak of chain.
-      @_runLocalPromise = Promise.resolve()
-    @_runLocalPromise = @_runLocalPromise.then(doRunLocal)
+    task.runLocal().then =>
+      @_queue.push(task)
+      @_updateSoon()
 
   enqueueUndoOfTaskId: (taskId) =>
     task = _.findWhere(@_queue, {id: taskId})
