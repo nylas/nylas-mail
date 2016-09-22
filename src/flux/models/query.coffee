@@ -1,5 +1,5 @@
 {Matcher, AttributeJoinedData, AttributeCollection} = require('../attributes').default
-QueryRange = require './query-range'
+QueryRange = require('./query-range').default
 Utils = require './utils'
 _ = require 'underscore'
 
