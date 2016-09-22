@@ -12,9 +12,6 @@ TaskRegistry = require('../../src/task-registry').default
  KillsTaskA,
  BlockedByTaskA,
  BlockingTask,
- Task100,
- Task200,
- Task300,
  TaskAA,
  TaskBB} = require('./task-subclass')
 
@@ -38,7 +35,6 @@ describe "TaskQueue", ->
     @unstartedTask     = makeUnstartedTask(new Task())
     @processingTask    = makeProcessing(new Task())
     @retryInFutureTask = makeRetryInFuture(new Task())
-    TaskQueue._runLocalPromise = Promise.resolve()
 
   afterEach ->
     # Flush any throttled or debounced updates
@@ -103,63 +99,8 @@ describe "TaskQueue", ->
       expect(TaskQueue._queue.length).toBe(1)
 
     it "immediately calls runLocal", ->
-      waitsForPromise =>
-        TaskQueue.enqueue(@unstartedTask).then =>
-          expect(@unstartedTask.runLocal).toHaveBeenCalled()
-
-    it "correctly orders two task queues one after another", ->
-      t1 = new Task100()
-      t2 = new Task200()
-      t2b = new Task200()
-      t3 = new Task300()
-      spyOn(t1, "runLocal").andCallThrough()
-      spyOn(t2, "runLocal").andCallThrough()
-      spyOn(t2b, "runLocal").andCallThrough()
-      spyOn(t3, "runLocal").andCallThrough()
-
-      TaskQueue.enqueue(t1)
-      advanceClock(1) # Need to tick past the first Promise.resolve()
-      expect(t1.runLocal).toHaveBeenCalled()
-      expect(TaskQueue._queue.length).toBe(0)
-
-      TaskQueue.enqueue(t2)
-      # Blocked waiting for t1
-      expect(t2.runLocal).not.toHaveBeenCalled()
-      expect(TaskQueue._queue.length).toBe(0)
-
-      advanceClock(11) # Not enough for Task100's performLocal to clear
-      expect(t1.runLocal).toHaveBeenCalled()
-      expect(t2.runLocal).not.toHaveBeenCalled() # Still blocked on t1
-      expect(TaskQueue._queue.length).toBe(0)
-
-      # This clears Task100's timeout. Note performRemote has a 1000ms
-      # timeout.
-      advanceClock(100) # Clears timeouts
-      advanceClock(1) # Clears remaining Promises
-      # T1 performLocal is done now!
-      expect(TaskQueue._queue.length).toBe(1)
-      expect(TaskQueue._queue[0]).toBe(t1) # T1 on the queue
-      expect(t2.runLocal).toHaveBeenCalled() #T2 unblocked
-
-      # This clears Task200's timeout. Note performRemote has a 1000ms
-      # timeout.
-      advanceClock(200) # Clears timeouts
-      advanceClock(1) # Clears remaining promises
-      expect(TaskQueue._queue.length).toBe(2)
-      expect(TaskQueue._queue[1]).toBe(t2) # T2 on the queue
-
-      # All previous promise should have been resolved, meaning we only
-      # have to wait 1 tick for the freshly cleared queue to restart.
-      TaskQueue.enqueue(t3)
-      advanceClock(1)
-      expect(t3.runLocal).toHaveBeenCalled()
-
-      advanceClock(300) # Clears t3 performLocal
-      advanceClock(1) # Clears remaining promises
-      expect(TaskQueue._queue.length).toBe(3)
-      expect(TaskQueue._queue[2]).toBe(t3)
-
-      advanceClock(1500) # Clears Task300 off the queue
+      TaskQueue.enqueue(@unstartedTask)
+      expect(@unstartedTask.runLocal).toHaveBeenCalled()
 
     it "notifies the queue should be processed", ->
       spyOn(TaskQueue, "_processQueue").andCallThrough()
