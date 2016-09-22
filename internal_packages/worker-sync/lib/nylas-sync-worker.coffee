@@ -19,18 +19,21 @@ class BackoffTimer
 
   backoff: (delay) =>
     @_delay = delay ? Math.min(@_delay * 1.7, 5 * 1000 * 60) # Cap at 5 minutes
+    # Add "full" jitter (see: https://www.awsarchitectureblog.com/2015/03/backoff.html)
+    @_actualDelay = Math.random() * @_delay
     if not NylasEnv.inSpecMode()
-      console.log("Backing off after sync failure. Will retry in #{Math.floor(@_delay / 1000)} seconds.")
+      console.log("Backing off after sync failure. Will retry in #{Math.floor(@_actualDelay / 1000)} seconds.")
 
   start: =>
     clearTimeout(@_timeout) if @_timeout
     @_timeout = setTimeout =>
       @_timeout = null
       @fn()
-    , @_delay
+    , @_actualDelay
 
   resetDelay: =>
     @_delay = 2 * 1000
+    @_actualDelay = Math.random() * @_delay
 
   getCurrentDelay: =>
     @_delay
