@@ -11,7 +11,7 @@ NylasStore = require '../../global/nylas-store'
 PromiseQueue = require 'promise-queue'
 PriorityUICoordinator = require '../../priority-ui-coordinator'
 DatabaseSetupQueryBuilder = require './database-setup-query-builder'
-DatabaseChangeRecord = require './database-change-record'
+DatabaseChangeRecord = require('./database-change-record').default
 DatabaseTransaction = require './database-transaction'
 JSONBlob = null
 

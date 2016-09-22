@@ -1,4 +1,4 @@
-QueryRange = require '../../src/flux/models/query-range'
+QueryRange = require('../../src/flux/models/query-range').default
 
 describe "QueryRange", ->
   describe "@infinite", ->
