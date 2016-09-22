@@ -295,9 +295,13 @@ class TaskQueue
       otherTask.isDependentOnTask(failedTask) and
       otherTask.shouldBeDequeuedOnDependencyFailure()
 
+  # If any tasks queued BEFORE my tasks fail the dependency check, then
+  # block.
   _taskIsBlocked: (task) =>
-    _.any @_queue, (otherTask) ->
-      task isnt otherTask and task.isDependentOnTask(otherTask)
+    for otherTask in @_queue
+      return false if otherTask is task
+      return true if task.isDependentOnTask(otherTask)
+    return false
 
   _resolveTaskArgument: (taskOrId) =>
     if not taskOrId
