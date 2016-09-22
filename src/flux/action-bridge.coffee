@@ -2,6 +2,7 @@ _ = require 'underscore'
 Actions = require './actions'
 Model = require './models/model'
 DatabaseStore = require './stores/database-store'
+DatabaseChangeRecord = require('./stores/database-change-record').default
 
 Utils = require './models/utils'
 
@@ -98,7 +99,7 @@ class ActionBridge
 
       if name == Message.DATABASE_STORE_TRIGGER
         DatabaseStore.triggeringFromActionBridge = true
-        DatabaseStore.trigger(new DatabaseStore.ChangeRecord(args...))
+        DatabaseStore.trigger(new DatabaseChangeRecord(args[0]))
         DatabaseStore.triggeringFromActionBridge = false
 
       else if Actions[name]

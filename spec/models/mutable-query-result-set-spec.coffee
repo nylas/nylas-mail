@@ -1,5 +1,5 @@
-MutableQueryResultSet = require '../../src/flux/models/mutable-query-result-set'
-QueryRange = require '../../src/flux/models/query-range'
+MutableQueryResultSet = require('../../src/flux/models/mutable-query-result-set').default
+QueryRange = require('../../src/flux/models/query-range').default
 _ = require 'underscore'
 
 describe "MutableQueryResultSet", ->
