@@ -139,7 +139,7 @@ class NylasLongConnection {
 
       responseStream.setEncoding('utf8')
       responseStream.on('close', () => this.close())
-      responseStream.on('end', () => this.end())
+      responseStream.on('end', () => this.close())
       responseStream.on('data', (chunk) => {
         this.closeIfDataStops()
         // Ignore redundant newlines sent as pings. Want to avoid
