@@ -180,7 +180,7 @@ describe "ComposerView", ->
 
     describe "empty body warning", ->
       it "warns if the body of the email is still the pristine body", ->
-        pristineBody = "<head></head><body><br><br></body>"
+        pristineBody = "<br><br>"
 
         useDraft.call @,
           to: [u1]

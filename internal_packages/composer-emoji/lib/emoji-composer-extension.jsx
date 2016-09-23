@@ -133,20 +133,38 @@ class EmojiComposerExtension extends ComposerExtension {
     return null;
   };
 
-  static applyTransformsToDraft = ({draft}) => {
-    const nextDraft = draft.clone();
-    nextDraft.body = nextDraft.body.replace(/<img class="emoji ([a-zA-Z0-9-_]*)" [^<]+>/g, (match, emojiName) =>
-      emoji.get(emojiName)
-    );
-    return nextDraft;
+  static applyTransformsForSending = ({draftBodyRootNode}) => {
+    const imgs = draftBodyRootNode.querySelectorAll('img')
+    for (const imgEl of Array.from(imgs)) {
+      const names = imgEl.className.split(' ');
+      if (names[0] === 'emoji') {
+        const emojiChar = emoji.get(names[1]);
+        if (emojiChar) {
+          imgEl.parentNode.replaceChild(document.createTextNode(emojiChar), imgEl);
+        }
+      }
+    }
   }
 
-  static unapplyTransformsToDraft = ({draft}) => {
-    const nextDraft = draft.clone();
-    nextDraft.body = nextDraft.body.replace(RegExpUtils.emojiRegex(), (match) =>
-      `<img class="emoji ${emoji.which(match)}" src="${EmojiStore.getImagePath(emoji.which(match))}" width="14" height="14" style="margin-top: -5px;">`
-    );
-    return nextDraft;
+  static unapplyTransformsForSending = ({draftBodyRootNode}) => {
+    const treeWalker = document.createTreeWalker(draftBodyRootNode, NodeFilter.SHOW_TEXT);
+    while (treeWalker.nextNode()) {
+      const textNode = treeWalker.currentNode;
+      const match = RegExpUtils.emojiRegex().exec(textNode.textContent);
+      if (match) {
+        const emojiPlusTrailingEl = textNode.splitText(match.index);
+        emojiPlusTrailingEl.splitText(match.length);
+        const emojiEl = emojiPlusTrailingEl;
+        const imgEl = document.createElement('img');
+        const emojiName = emoji.which(match[0])
+        imgEl.className = `emoji ${emojiName}`;
+        imgEl.src = EmojiStore.getImagePath(emojiName);
+        imgEl.width = '14';
+        imgEl.height = '14';
+        imgEl.style.marginTop = '-5px';
+        emojiEl.parentNode.replaceChild(imgEl, emojiEl);
+      }
+    }
   }
 
   static _findEmojiOptions(sel) {
