@@ -706,8 +706,24 @@ body.platform-win32 {
     font-weight: @font-weight-semi-bold;
     text-transform: uppercase;
     color: @text-color-very-subtle;
-    border-bottom: 1px solid @border-color-divider;
-    margin: 0 0 1em 0;
+    margin: 0 0 18px 0;
+    position: relative;
+
+    &:after {
+      content: " ";
+      background-image: url(images/sidebar/sidebar-section-divider@2x.png);
+      background-size: 100%;
+      background-repeat: repeat-x;
+      background-color: transparent;
+      position: absolute;
+      left: -15px;
+      bottom: -10px;
+      width: calc(~"100% + 30px");
+      height: 3px;
+    }
+    &:first-child {
+      margin-top: 0;
+    }
   }
 
   .sidebar-contact-card {
