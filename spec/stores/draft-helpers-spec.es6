@@ -8,7 +8,7 @@ import {
 describe('DraftHelpers', function describeBlock() {
   describe('prepareDraftForSyncback', () => {
     beforeEach(() => {
-      spyOn(DraftHelpers, 'applyExtensionTransformsToDraft').andCallFake((draft) => Promise.resolve(draft))
+      spyOn(DraftHelpers, 'applyExtensionTransforms').andCallFake((draft) => Promise.resolve(draft))
       spyOn(Actions, 'queueTask')
     });
 

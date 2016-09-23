@@ -209,14 +209,21 @@ class DraftEditingSession
     if !draft.body?
       throw new Error("DraftEditingSession._setDraft - new draft has no body!")
 
-    # Reverse draft transformations performed by third-party plugins when the draft
-    # was last saved to disk
-    return Promise.each ExtensionRegistry.Composer.extensions(), (ext) ->
-      if ext.applyTransformsToDraft and ext.unapplyTransformsToDraft
-        Promise.resolve(ext.unapplyTransformsToDraft({draft})).then (untransformed) ->
-          unless untransformed is 'unnecessary'
-            draft = untransformed
+    extensions = ExtensionRegistry.Composer.extensions()
+
+    # Run `extensions[].unapplyTransformsForSending`
+    fragment = document.createDocumentFragment()
+    draftBodyRootNode = document.createElement('root')
+    fragment.appendChild(draftBodyRootNode)
+    draftBodyRootNode.innerHTML = draft.body
+
+    return Promise.each extensions, (ext) ->
+      if ext.applyTransformsForSending and ext.unapplyTransformsForSending
+        Promise.resolve(ext.unapplyTransformsForSending({
+          draftBodyRootNode: draftBodyRootNode,
+          draft: draft}))
     .then =>
+      draft.body = draftBodyRootNode.innerHTML
       @_draft = draft
 
       # We keep track of the draft's initial body if it's pristine when the editing

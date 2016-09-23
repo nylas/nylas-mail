@@ -1,88 +1,41 @@
 import React from 'react'
 import ReactDOMServer from 'react-dom/server'
 import ComposerExtension from '../../extensions/composer-extension'
-// import {ANCHOR_CLASS, IMG_SRC} from './anchor-constants'
 import OverlaidComponents from './overlaid-components'
 import CustomContenteditableComponents from './custom-contenteditable-components'
 
+// In this code, "anchor" refers to the "img" tag used in the draft while the
+// user is editing it.
+
+// <overlay> is used when the draft is sent.
 export default class OverlaidComposerExtension extends ComposerExtension {
 
-  // https://regex101.com/r/fW6sV3/2
-  static _serializedExtractRe() {
-    return /<overlay .*?data-overlay-id="(.*?)" data-component-props="(.*?)" data-component-key="(.*?)" data-style="(.*?)".*?>.*?<\/overlay>/gmi
-  }
-
-  static _serializedReplacerRe(id) {
-    return new RegExp(`<overlay .*?data-overlay-id="${id}".*?>.*?<\/overlay>`, 'gim')
-  }
-
-  // https://regex101.com/r/rK3uA3/1
-  static _anchorExtractRe() {
-    return /<img .*?data-overlay-id="(.*?)" data-component-props="(.*?)" data-component-key="(.*?)" style="(.*?)".*?>/gmi
-  }
-
-  static _anchorReplacerRe(id) {
-    return new RegExp(`<img .*?data-overlay-id="${id}".*?>`, 'gim')
-  }
-
-  static *overlayMatches(re, body) {
-    let result = re.exec(body);
-    while (result) {
-      let props = result[2];
-      props = JSON.parse(props.replace(/&quot;/g, `"`));
-      const data = {
-        dataOverlayId: result[1],
-        dataComponentProps: props,
-        dataComponentKey: result[3],
-        dataStyle: result[4],
+  static applyTransformsForSending({draftBodyRootNode, draft}) {
+    const overlayImgEls = Array.from(draftBodyRootNode.querySelectorAll('img[data-overlay-id]'));
+    for (const imgEl of overlayImgEls) {
+      const Component = CustomContenteditableComponents.get(imgEl.dataset.componentKey);
+      if (!Component) {
+        continue;
       }
-      yield data
-      result = re.exec(body);
+
+      const props = Object.assign({draft, isPreview: true}, imgEl.dataset.componentProps);
+      const reactElement = React.createElement(Component, props);
+
+      const overlayEl = document.createElement('overlay');
+      overlayEl.innerHTML = ReactDOMServer.renderToStaticMarkup(reactElement);
+      Object.assign(overlayEl.dataset, imgEl.dataset);
+
+      imgEl.parentNode.replaceChild(overlayEl, imgEl);
     }
-    return
   }
 
-  static applyTransformsToDraft({draft}) {
-    const self = OverlaidComposerExtension;
-    const outDraft = draft.clone();
-    let outBody = outDraft.body;
-    const matcher = self.overlayMatches(self._anchorExtractRe(), outDraft.body)
-
-    for (const match of matcher) {
-      const component = CustomContenteditableComponents.get(match.dataComponentKey);
-      if (!component) {
-        continue
-      }
-      const props = Object.assign({draft, isPreview: true}, match.dataComponentProps);
-      const el = React.createElement(component, props);
-      let html = ReactDOMServer.renderToStaticMarkup(el);
-
-      html = `<overlay data-overlay-id="${match.dataOverlayId}" data-component-props="${OverlaidComponents.propsToDOMAttr(match.dataComponentProps)}" data-component-key="${match.dataComponentKey}" data-style="${match.dataStyle}">${html}</overlay>`
-
-      outBody = outBody.replace(
-        OverlaidComposerExtension._anchorReplacerRe(match.dataOverlayId),
-        html
-      )
+  static unapplyTransformsForSending({draftBodyRootNode}) {
+    const overlayEls = Array.from(draftBodyRootNode.querySelectorAll('overlay[data-overlay-id]'));
+    for (const overlayEl of overlayEls) {
+      const {componentKey, componentProps, overlayId, style} = overlayEl.dataset;
+      const {anchorTag} = OverlaidComponents.buildAnchorTag(componentKey, componentProps, overlayId, style);
+      const anchorFragment = document.createRange().createContextualFragment(anchorTag);
+      overlayEl.parentNode.replaceChild(anchorFragment, overlayEl);
     }
-
-    outDraft.body = outBody;
-    return outDraft;
-  }
-
-  static unapplyTransformsToDraft({draft}) {
-    const self = OverlaidComposerExtension;
-    const outDraft = draft.clone();
-    let outBody = outDraft.body
-
-    const matcher = self.overlayMatches(self._serializedExtractRe(), outDraft.body);
-
-    for (const match of matcher) {
-      const {anchorTag} = OverlaidComponents.buildAnchorTag(match.dataComponentKey, match.dataComponentProps, match.dataOverlayId, match.dataStyle);
-
-      outBody = outBody.replace(OverlaidComposerExtension._serializedReplacerRe(match.dataOverlayId), anchorTag)
-    }
-
-    outDraft.body = outBody;
-    return outDraft;
   }
 }
