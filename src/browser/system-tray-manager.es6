@@ -31,7 +31,7 @@ function _getMenuTemplate(platform, application) {
 }
 
 function _getTooltip(unreadString) {
-  return unreadString ? '' : `${unreadString} unread messages`;
+  return unreadString ? `${unreadString} unread messages` : '';
 }
 
 function _getIcon(iconPath, isTemplateImg) {
