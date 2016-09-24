@@ -10,20 +10,16 @@ export default class TemplatesComposerExtension extends ComposerExtension {
     return warnings;
   }
 
-  static applyTransformsToDraft = ({draft}) => {
-    const nextDraft = draft.clone();
-    nextDraft.body = nextDraft.body.replace(/<\/?code[^>]*>/g, (match) =>
+  static applyTransformsForSending = ({draftBodyRootNode}) => {
+    draftBodyRootNode.innerHTML = draftBodyRootNode.innerHTML.replace(/<\/?code[^>]*>/g, (match) =>
       `<!-- ${match} -->`
     );
-    return nextDraft;
   }
 
-  static unapplyTransformsToDraft = ({draft}) => {
-    const nextDraft = draft.clone();
-    nextDraft.body = nextDraft.body.replace(/<!-- (<\/?code[^>]*>) -->/g, (match, node) =>
+  static unapplyTransformsForSending = ({draftBodyRootNode}) => {
+    draftBodyRootNode.innerHTML = draftBodyRootNode.innerHTML.replace(/<!-- (<\/?code[^>]*>) -->/g, (match, node) =>
       node
     );
-    return nextDraft;
   }
 
   static onClick({editor, event}) {

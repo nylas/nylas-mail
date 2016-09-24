@@ -35,12 +35,9 @@ class ProductsExtension extends ComposerExtension
         	return ["with the word '#{word}'?"]
 	  return []
 
-   @applyTransformsToDraft: ({draft}) ->
+   @applyTransformsForSending: ({draftBodyRootNode, draft}) ->
     if @warningsForSending({draft})
-      updated = draft.clone()
-      updated.body += "<br>This email \
-       	contains competitor's product names \
-      	or trademarks used in context."
-      return updated
-    return draft
+      el = document.createElement('p');
+      el.innerText = "This email contains competitor's product names or trademarks used in context."
+      draftBodyRootNode.appendChild(el)
 ```
