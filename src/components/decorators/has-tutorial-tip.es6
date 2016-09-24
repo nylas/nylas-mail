@@ -6,7 +6,6 @@ import {Actions, WorkspaceStore} from 'nylas-exports';
 import NylasStore from 'nylas-store';
 
 const TipsBackgroundEl = document.createElement('tutorial-tip-background');
-document.body.appendChild(TipsBackgroundEl);
 
 const TipsContainerEl = document.createElement('div');
 TipsContainerEl.classList.add('tooltips-container');
@@ -62,7 +61,12 @@ class TipPopoverContents extends React.Component {
   }
 
   componentDidMount() {
-    TipsBackgroundEl.classList.add('visible');
+    if (TipsBackgroundEl.parentNode === null) {
+      document.body.appendChild(TipsBackgroundEl);
+    }
+    window.requestAnimationFrame(() => {
+      TipsBackgroundEl.classList.add('visible');
+    });
   }
 
   componentWillUnmount() {
@@ -220,7 +224,7 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
         const anchorRect = this.tipAnchor.getBoundingClientRect();
 
         this.tipNode.style.left = `${left - anchorRect.left + 5}px`;
-        this.tipNode.style.top = `${top - anchorRect.top + 5}px`;
+        this.tipNode.style.top = `${Math.max(top - anchorRect.top + 5, 10)}px`;
 
         if (!_.isEqual(last, {left, top})) {
           settled = 0;
