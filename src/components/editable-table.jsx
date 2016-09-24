@@ -1,4 +1,5 @@
 import React, {Component, PropTypes} from 'react'
+import {pickHTMLProps} from 'pick-react-known-prop'
 import RetinaImg from './retina-img'
 import ReactDOM from 'react-dom'
 import SelectableTable, {SelectableTableCell} from './selectable-table'
@@ -77,7 +78,7 @@ export class EditableTableCell extends Component {
 
   static defaultProps = {
     inputProps: {},
-    InputRenderer: 'input',
+    InputRenderer: (props) => <input {...pickHTMLProps(props)} />,
   }
 
   componentDidMount() {

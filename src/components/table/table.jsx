@@ -1,5 +1,6 @@
 import classnames from 'classnames'
 import React, {Component, PropTypes} from 'react'
+import {pickHTMLProps} from 'pick-react-known-prop'
 import LazyRenderedList from '../lazy-rendered-list'
 import TableDataSource from './table-data-source'
 
@@ -63,7 +64,7 @@ export function TableCell(props) {
   const {className, isHeader, children, ...extraProps} = props;
   const CellTag = isHeader ? 'th' : 'td'
   return (
-    <CellTag {...extraProps} className={`table-cell ${className}`} >
+    <CellTag {...pickHTMLProps(extraProps)} className={`table-cell ${className}`} >
       {children}
     </CellTag>
   )
@@ -101,7 +102,7 @@ export class TableRow extends Component {
     })
 
     return (
-      <tr className={classes} {...props} >
+      <tr className={classes} {...pickHTMLProps(props)}>
         {displayNumbers ?
           <TableCell
             className="numbered-cell"
@@ -203,7 +204,7 @@ export default class Table extends Component {
     const {className, ...otherProps} = this.props
 
     return (
-      <div className={`nylas-table ${className}`} {...otherProps}>
+      <div className={`nylas-table ${className}`} {...pickHTMLProps(otherProps)}>
         <table>
           {this.renderHeader()}
           {this.renderBody()}
