@@ -43,8 +43,8 @@ export default class AttributeNumber extends Attribute {
     return new Matcher(this, '<=', val);
   }
 
-  gt = AttributeNumber.greaterThan;
-  lt = AttributeNumber.lessThan;
-  gte = AttributeNumber.greaterThanOrEqualTo;
-  lte = AttributeNumber.lessThanOrEqualTo;
+  gt = AttributeNumber.prototype.greaterThan;
+  lt = AttributeNumber.prototype.lessThan;
+  gte = AttributeNumber.prototype.greaterThanOrEqualTo;
+  lte = AttributeNumber.prototype.lessThanOrEqualTo;
 }
