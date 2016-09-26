@@ -52,6 +52,7 @@
     "nslog": "^3",
     "optimist": "0.4.0",
     "pathwatcher": "~6.2",
+    "pick-react-known-prop": "0.x.x",
     "promise-queue": "2.1.1",
     "property-accessors": "^1",
     "proxyquire": "1.3.1",
