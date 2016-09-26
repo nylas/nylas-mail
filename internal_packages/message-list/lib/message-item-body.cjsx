@@ -102,6 +102,7 @@ class MessageItemBody extends React.Component
     # Replace cid: references with the paths to downloaded files
     for file in @props.message.files
       download = @props.downloads[file.id]
+
       cidRegexp = new RegExp("cid:#{file.contentId}(['\"]+)", 'gi')
 
       if download and download.state isnt 'finished'

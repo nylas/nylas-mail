@@ -323,7 +323,7 @@ class DraftStore
         Actions.addAttachment({
           filePath: path,
           messageClientId: draftClientId,
-          callback: callback
+          onUploadCreated: callback
         })
 
   _onDestroyDraft: (draftClientId) =>
