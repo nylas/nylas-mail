@@ -17,8 +17,7 @@ export default class OverlaidComposerExtension extends ComposerExtension {
       if (!Component) {
         continue;
       }
-
-      const props = Object.assign({draft, isPreview: true}, imgEl.dataset.componentProps);
+      const props = Object.assign({draft, isPreview: true}, JSON.parse(imgEl.dataset.componentProps));
       const reactElement = React.createElement(Component, props);
 
       const overlayEl = document.createElement('overlay');

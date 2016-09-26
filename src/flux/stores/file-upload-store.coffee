@@ -15,10 +15,14 @@ mkdirpAsync = Promise.promisify(mkdirp)
 UPLOAD_DIR = path.join(NylasEnv.getConfigDirPath(), 'uploads')
 
 class Upload
-
-  constructor: (@messageClientId, @originPath, @stats, @id, @uploadDir = UPLOAD_DIR) ->
-    @id ?= Utils.generateTempId()
-    @filename = path.basename(@originPath)
+  constructor: ({messageClientId, filePath, stats, id, inline, uploadDir}) ->
+    @inline = inline
+    @stats = stats
+    @uploadDir = uploadDir || UPLOAD_DIR
+    @messageClientId = messageClientId
+    @originPath = filePath
+    @id = id ? Utils.generateTempId()
+    @filename = path.basename(filePath)
     @targetDir = path.join(@uploadDir, @messageClientId, @id)
     @targetPath = path.join(@targetDir, @filename)
     @size = @stats.size
@@ -49,7 +53,7 @@ class FileUploadStore extends NylasStore
       @_deleteUploadsForClientId(message.clientId)
 
   _onSelectAttachment: ({messageClientId}) ->
-    @_verifyId(messageClientId)
+    @_assertIdPresent(messageClientId)
 
     # When the dialog closes, it triggers `Actions.addAttachment`
     NylasEnv.showOpenDialog {properties: ['openFile', 'multiSelections']}, (pathsToOpen) ->
@@ -59,19 +63,27 @@ class FileUploadStore extends NylasStore
       pathsToOpen.forEach (filePath) ->
         Actions.addAttachment({messageClientId, filePath})
 
-  _onAddAttachment: ({messageClientId, filePath, callback}) ->
-    callback ?= ->
+  _onAddAttachment: ({messageClientId, filePath, onUploadCreated, inline}) ->
+    onUploadCreated ?= ->
+    inline ?= false
 
-    @_verifyId(messageClientId)
-    @_getFileStats({messageClientId, filePath})
-    .then(@_makeUpload)
-    .then(@_verifyUpload)
+    @_assertIdPresent(messageClientId)
+
+    @_getFileStats(filePath)
+    .then (stats) =>
+      upload = new Upload({messageClientId, filePath, stats, inline})
+      if stats.isDirectory()
+        Promise.reject(new Error("#{upload.filename} is a directory. Try compressing it and attaching it again."))
+      else if stats.size > 25 * 1000000
+        Promise.reject(new Error("#{upload.filename} cannot be attached because it is larger than 25MB."))
+      else
+        Promise.resolve(upload)
     .then(@_prepareTargetDir)
     .then(@_copyUpload)
     .then (upload) =>
-      @_applySessionChanges upload.messageClientId, (uploads) ->
+      return @_applySessionChanges upload.messageClientId, (uploads) ->
         uploads.concat([upload])
-    .then(callback)
+      .then( => onUploadCreated(upload))
     .catch(@_onAttachFileError)
 
   _onRemoveAttachment: (upload) ->
@@ -86,27 +98,13 @@ class FileUploadStore extends NylasStore
 
   # Helpers
 
-  _verifyId: (messageClientId) ->
+  _assertIdPresent: (messageClientId) ->
     unless messageClientId
       throw new Error "You need to pass the ID of the message (draft) this Action refers to"
 
-  _getFileStats: ({messageClientId, filePath}) ->
-    fs.statAsync(filePath).then (stats) =>
-      Promise.resolve({messageClientId, filePath, stats})
-    .catch (err) ->
+  _getFileStats: (filePath) ->
+    fs.statAsync(filePath).catch (err) ->
       Promise.reject(new Error("#{filePath} could not be found, or has invalid file permissions."))
-
-  _makeUpload: ({messageClientId, filePath, stats}) ->
-    Promise.resolve(new Upload(messageClientId, filePath, stats))
-
-  _verifyUpload: (upload) ->
-    {filename, stats} = upload
-    if stats.isDirectory()
-      Promise.reject(new Error("#{filename} is a directory. Try compressing it and attaching it again."))
-    else if stats.size > 25 * 1000000
-      Promise.reject(new Error("#{filename} cannot be attached because it is larger than 25MB."))
-    else
-      Promise.resolve(upload)
 
   _prepareTargetDir: (upload) =>
     mkdirpAsync(upload.targetDir).thenReturn(upload)

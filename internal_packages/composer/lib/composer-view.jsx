@@ -1,4 +1,3 @@
-import _ from 'underscore'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import {remote} from 'electron'
@@ -23,7 +22,7 @@ import {
 } from 'nylas-component-kit'
 
 import FileUpload from './file-upload'
-import ImageFileUpload from './image-file-upload'
+import ImageUpload from './image-upload'
 
 import ComposerEditor from './composer-editor'
 import ComposerHeader from './composer-header'
@@ -219,7 +218,7 @@ export default class ComposerView extends React.Component {
         getComposerBoundingRect: this._getComposerBoundingRect,
         scrollTo: this.props.scrollTo,
       },
-      onFilePaste: this._onFilePaste,
+      onFilePaste: this._onFileReceived,
       onBodyChanged: this._onBodyChanged,
     };
 
@@ -356,18 +355,18 @@ export default class ComposerView extends React.Component {
     const nonImageUploads = this._nonImageFiles(uploads).map(upload =>
       <FileUpload key={upload.id} upload={upload} />
     );
-    const imageUploads = this._imageFiles(uploads).map(upload =>
-      <ImageFileUpload key={upload.id} upload={upload} />
+    const imageUploads = this._imageFiles(uploads).filter(u => !u.inline).map(upload =>
+      <ImageUpload key={upload.id} upload={upload} />
     );
     return nonImageUploads.concat(imageUploads);
   }
 
   _imageFiles(files) {
-    return _.filter(files, Utils.shouldDisplayAsImage);
+    return files.filter(f => Utils.shouldDisplayAsImage(f));
   }
 
   _nonImageFiles(files) {
-    return _.reject(files, Utils.shouldDisplayAsImage);
+    return files.filter(f => !Utils.shouldDisplayAsImage(f));
   }
 
   _renderActionsWorkspaceRegion() {
@@ -506,22 +505,41 @@ export default class ComposerView extends React.Component {
   }
 
   _onDrop = (event) => {
-    const {clientId} = this.props.draft;
-
     // Accept drops of real files from other applications
     for (const file of Array.from(event.dataTransfer.files)) {
-      Actions.addAttachment({filePath: file.path, messageClientId: clientId});
+      this._onFileReceived(file.path);
     }
 
     // Accept drops from attachment components / images within the app
     const uri = this._nonNativeFilePathForDrop(event);
     if (uri) {
-      Actions.addAttachment({filePath: uri, messageClientId: clientId});
+      this._onFileReceived(uri);
     }
   }
 
-  _onFilePaste = (path) => {
-    Actions.addAttachment({filePath: path, messageClientId: this.props.draft.clientId});
+  _onFileReceived = (filePath) => {
+    // called from onDrop and onPaste - assume images should be inline
+    Actions.addAttachment({
+      filePath: filePath,
+      messageClientId: this.props.draft.clientId,
+      onUploadCreated: (upload) => {
+        if (Utils.shouldDisplayAsImage(upload)) {
+          const {draft, session} = this.props;
+
+          const uploads = [].concat(draft.uploads);
+          const matchingUpload = uploads.find(u => u.id === upload.id);
+          if (matchingUpload) {
+            matchingUpload.inline = true;
+            session.changes.add({uploads})
+
+            Actions.insertAttachmentIntoDraft({
+              draftClientId: draft.clientId,
+              uploadId: matchingUpload.id,
+            });
+          }
+        }
+      },
+    });
   }
 
   _onBodyChanged = (event) => {
