@@ -300,7 +300,7 @@ export default class Application extends EventEmitter {
     });
 
     this.on('application:view-help', () => {
-      const helpUrl = 'https://nylas.zendesk.com/hc/en-us/sections/203638587-N1';
+      const helpUrl = 'https://support.nylas.com/hc/en-us/categories/200419318-Help-for-N1-users';
       require('electron').shell.openExternal(helpUrl);
     });
 
