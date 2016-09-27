@@ -8,10 +8,10 @@ class MetadataStore extends NylasStore {
 
   constructor() {
     super();
-    this.listenTo(Actions.setMetadata, this._setMetadata);
+    this.listenTo(Actions.setMetadata, this._onSetMetadata);
   }
 
-  _setMetadata(modelOrModels, pluginId, metadataValue) {
+  _onSetMetadata(modelOrModels, pluginId, metadataValue) {
     const models = (modelOrModels instanceof Array) ? modelOrModels : [modelOrModels];
     const modelClass = models[0].constructor
     if (!models.every(m => m.constructor === modelClass)) {
