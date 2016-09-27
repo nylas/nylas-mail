@@ -1,5 +1,61 @@
 # N1 Changelog
 
+### 0.4.55 (9/27/16)
+
+- Features:
+
+  + Tutorial: We've added helpful overlay tips that guide you through some of
+    N1's features.
+  + Thread sharing: You can now create a link to any thread and share it on the
+    web publicly! You'll see a new button to enable sharing in the top toolbar.
+  + Inline Images: You can now add inline images to your messages! Just
+    drag and drop or paste them anywhere in the composer.
+  + Channels: You can now select to be a part of the stable or beta channels to
+    receive N1 updates. This option is now available under Preferences.
+  + Messages: Participants inside a message now have a right-click context menu
+    to copy the email address or send an email to the participant.
+
+- Fixes:
+
+  + Search now correclty displays results returned from provider (#750).
+  + Mail Merge now correctly handles empty column names.
+  + `z` key no longer incorrectly dispatches the undo command.
+  + Compute days remaining in trial in a timezone-aware way.
+  + Participants inside a message are no longer mailto: links.
+  + Update autofill values for when adding Fastmail accounts.
+  + Restore support for thread dragging.
+  + Restore account reordering.
+  + Fix displaying unread count in system tray menu.
+  + Update help url.
+  + Correctly update selected contact profile in contact sidebar.
+
+- Design:
+  + New design for notification for days left in trial, which is now displayed
+    on the bottom left corner of N1.
+
+- Development:
+
+  + N1 now uses electron 1.4.1, which improves memory usage up to 40%.
+  + N1 now uses React.15.3.x.
+  + N1.sh now allows path to working copy to have spaces.
+  + SQL queries are now correctly escaped and logged to the console.
+  + `Utils.deepClone` now correctly clones Dates.
+  + Any kind of logging inside specs will now also display what spec the log
+    originates from.
+  + Fixed all React warnings inside specs.
+  + Fix stack traces for APIErrors, plus report more errors around tasks and
+    streaming connections.
+  + Converted Database related code to ES6.
+  + ComposerExtension methods `applyTransformsToDraft` and `unapplyTransformsToDraft`
+    have been deprecated in favor of `applyTransformsForSending` and `unapplyTransformsForSending`.
+    In order to facilitate transformations on the draft body, these new extension
+    points take a DOM tree instance of the draft body so no HTML string
+    manipulation is necessary.
+  + Backoff timer for streaming connections now has "jitter", which should help
+    us avoid the thundering herd problem if we have some kind of API outage
+    affecting a wide number of clients.
+
+
 ### 0.4.52 (9/14/16)
 
 - Features:
