@@ -29,7 +29,7 @@ const Steps = [
     id: 'snooze',
     title: 'Send on your own schedule',
     image: 'feature-snooze@2x.png',
-    description: "Snooze emails to any time that suits you. Schedule messages to send at the ideal time. N1 makes it easy to control the fabric of spacetime!",
+    description: "Snooze emails to return at any time that suits you. Schedule messages to send at the ideal time. N1 makes it easy to control the fabric of spacetime!",
     x: 5.5,
     y: 23.3,
     xDot: 10,

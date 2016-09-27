@@ -6,12 +6,14 @@ import NotificationStore from './notifications-store';
 import ConnectionStatusHeader from './headers/connection-status-header';
 import AccountErrorHeader from './headers/account-error-header';
 import NotificationsHeader from "./headers/notifications-header";
+import TrialRemainingBlock from "./sidebar/trial-remaining-block";
 
 export function activate() {
   ComponentRegistry.register(ActivitySidebar, {location: WorkspaceStore.Location.RootSidebar});
   ComponentRegistry.register(NotificationsHeader, {location: WorkspaceStore.Sheet.Global.Header});
   ComponentRegistry.register(ConnectionStatusHeader, {location: WorkspaceStore.Sheet.Global.Header});
   ComponentRegistry.register(AccountErrorHeader, {location: WorkspaceStore.Sheet.Threads.Header});
+  ComponentRegistry.register(TrialRemainingBlock, {location: WorkspaceStore.Location.RootSidebar});
 }
 
 export function serialize() {}
@@ -21,4 +23,5 @@ export function deactivate() {
   ComponentRegistry.unregister(NotificationsHeader);
   ComponentRegistry.unregister(ConnectionStatusHeader);
   ComponentRegistry.unregister(AccountErrorHeader);
+  ComponentRegistry.unregister(TrialRemainingBlock);
 }

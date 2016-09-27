@@ -1,4 +1,4 @@
-QuerySubscriptionPool = require '../../src/flux/models/query-subscription-pool'
+QuerySubscriptionPool = require('../../src/flux/models/query-subscription-pool').default
 DatabaseStore = require '../../src/flux/stores/database-store'
 Label = require '../../src/flux/models/label'
 

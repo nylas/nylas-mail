@@ -62,8 +62,8 @@ class UnsafeComponent extends React.Component
     element = null
     try
       props = Utils.fastOmit(@props, Object.keys(@constructor.propTypes))
-      component = @props.component
-      element = <component key={name} {...props} />
+      Component = @props.component
+      element = <Component key={name} {...props} />
       @injected = ReactDOM.render(element, node, @props.onComponentDidRender)
     catch err
       if NylasEnv.inDevMode()

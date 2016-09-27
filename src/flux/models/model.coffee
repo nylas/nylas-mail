@@ -1,6 +1,6 @@
 _ = require 'underscore'
 Utils = require './utils'
-Attributes = require '../attributes'
+Attributes = require('../attributes').default
 
 ###
 Public: A base class for API objects that provides abstract support for

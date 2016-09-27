@@ -179,13 +179,16 @@ class Toolbar extends React.Component
         {@_flexboxForComponents(components)}
       </div>
 
-    <div style={style} className={"sheet-toolbar-container mode-#{@state.mode}"}>
+    <div
+      style={style}
+      className={"sheet-toolbar-container mode-#{@state.mode}"}
+      data-id={@props.data.id}>
       {toolbars}
     </div>
 
   _flexboxForComponents: (components) =>
-    elements = components.map (component) =>
-      <component key={component.displayName} {...@props} />
+    elements = components.map (Component) =>
+      <Component key={Component.displayName} {...@props} />
 
     <Flexbox className="item-container" direction="row">
       {elements}

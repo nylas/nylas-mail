@@ -290,13 +290,18 @@ class EditableList extends Component {
     }
 
     event.dataTransfer.setData('editablelist-index', row.dataset.itemIdx);
-    event.dataTransfer.setData('editablelist-listid', this.listId);
+    event.dataTransfer.setData(`editablelist-listid:${this.listId}`, 'true');
     event.dataTransfer.effectAllowed = "move";
   };
 
   _onDragOver = (event) => {
     const wrapperNode = ReactDOM.findDOMNode(this.refs.itemsWrapper);
-    const originListId = event.dataTransfer.getData('editablelist-listid')
+
+    // As of Chromium 53, we cannot access the contents of the drag pasteboard
+    // until the user drops for security reasons. Pull the list id from the
+    // drag datatype itself.
+    const originListType = event.dataTransfer.types.find(t => t.startsWith('editablelist-listid:'));
+    const originListId = originListType ? originListType.split(':').pop() : null;
     const originSameList = (originListId === this.listId);
     let dropInsertionIndex = 0;
 

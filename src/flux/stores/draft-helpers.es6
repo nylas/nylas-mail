@@ -1,4 +1,3 @@
-import _ from 'underscore'
 import Actions from '../actions'
 import DatabaseStore from './database-store'
 import Message from '../models/message'
@@ -75,56 +74,48 @@ export function appendQuotedTextToDraft(draft) {
   })
 }
 
-export function applyExtensionTransformsToDraft(draft) {
-  let latestTransformed = draft
-  const extensions = ExtensionRegistry.Composer.extensions()
-  const transformPromise = (
-    Promise.each(extensions, (ext) => {
-      const extApply = ext.applyTransformsToDraft
-      const extUnapply = ext.unapplyTransformsToDraft
+export function applyExtensionTransforms(draft) {
+  const extensions = ExtensionRegistry.Composer.extensions();
 
-      if (!extApply || !extUnapply) {
-        return Promise.resolve()
-      }
+  const fragment = document.createDocumentFragment();
+  const draftBodyRootNode = document.createElement('root');
+  fragment.appendChild(draftBodyRootNode);
+  draftBodyRootNode.innerHTML = draft.body;
 
-      return Promise.resolve(extUnapply({draft: latestTransformed})).then((cleaned) => {
-        const base = cleaned === 'unnecessary' ? latestTransformed : cleaned;
-        return Promise.resolve(extApply({draft: base})).then((transformed) => (
-          Promise.resolve(extUnapply({draft: transformed.clone()})).then((reverted) => {
-            const untransformed = reverted === 'unnecessary' ? base : reverted;
-            if (!_.isEqual(_.pick(untransformed, AllowedTransformFields), _.pick(base, AllowedTransformFields))) {
-              console.log("-- BEFORE --")
-              console.log(base.body)
-              console.log("-- TRANSFORMED --")
-              console.log(transformed.body)
-              console.log("-- UNTRANSFORMED (should match BEFORE) --")
-              console.log(untransformed.body)
-              // FIXME: We're removing the error reporting for now, but the real fix is finding out why the console opens when dev mode is false.
-              // NylasEnv.reportError(new Error(`Extension ${ext.name} applied a transform to the draft that it could not reverse.`))
-            }
-            latestTransformed = transformed
-            return Promise.resolve()
-          })
-        ))
-      })
-    })
-  )
-  return transformPromise
-  .then(() => Promise.resolve(latestTransformed))
+  return Promise.each(extensions, (ext) => {
+    const extApply = ext.applyTransformsForSending;
+    const extUnapply = ext.unapplyTransformsForSending;
+
+    if (!extApply || !extUnapply) {
+      return Promise.resolve();
+    }
+
+    return Promise.resolve(extUnapply({draft, draftBodyRootNode})).then(() => {
+      return Promise.resolve(extApply({draft, draftBodyRootNode}));
+    });
+  }).then(() => {
+    draft.body = draftBodyRootNode.innerHTML;
+    return draft;
+  });
 }
 
 export function prepareDraftForSyncback(session) {
   return session.ensureCorrectAccount({noSyncback: true})
-  .then(() => applyExtensionTransformsToDraft(session.draft()))
+  .then(() =>
+    applyExtensionTransforms(session.draft()))
   .then((transformed) => {
     if (!transformed.replyToMessageId || !shouldAppendQuotedText(transformed)) {
-      return Promise.resolve(transformed)
+      return Promise.resolve(transformed);
     }
-    return appendQuotedTextToDraft(transformed)
+    return appendQuotedTextToDraft(transformed);
   })
   .then((draft) => (
-    DatabaseStore.inTransaction((t) => t.persistModel(draft))
-    .then(() => Promise.resolve(queueDraftFileUploads(draft)))
+    DatabaseStore.inTransaction((t) =>
+      t.persistModel(draft)
+    )
+    .then(() =>
+      Promise.resolve(queueDraftFileUploads(draft))
+    )
     .thenReturn(draft)
   ))
 }

@@ -1,7 +1,7 @@
 path = require 'path'
 Model = require './model'
 Actions = require '../actions'
-Attributes = require '../attributes'
+Attributes = require('../attributes').default
 _ = require 'underscore'
 RegExpUtils = null
 

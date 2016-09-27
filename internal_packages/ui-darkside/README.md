@@ -1,41 +1,38 @@
-## [Important Notice](https://github.com/nylas/N1/releases/tag/0.4.14)
-## Darkside will now come bundled with N1. New manual installation and activation instructions coming soon.
-
 # Darkside
-A customizable, dark sidebar theme for [Nylas N1](https://nylas.com/n1).
+**An dark sidebar theme for [Nylas N1](https://nylas.com/n1). Created by [Jamie Wilson](http://jamiewilson.io)**
 
-[![Default Theme](./images/default.png)](./images/default.png)
+## Activation
+Darkside comes [pre-installed](https://github.com/nylas/N1/tree/master/internal_packages/ui-darkside) with N1. To change themes, go to `Nylas N1 > Change Theme…` in the menu bar, then select `Darkside`. Learn more at [support.nylas.com](https://support.nylas.com/hc/en-us/articles/217557858-How-do-I-change-my-theme-).
 
-[See other example themes →](http://jamiewilson.io/darkside)
+## Customization
+In order to customize Darkside, you'll need to manually install it.
 
-## Installation
+#### 1. Download the `ui-darkside` folder.
 
-### Step 1: Download
+> **Download Option 1:**  
+> [Download just the 'ui-darkside' folder](https://kinolien.github.io/gitzip/?download=https://github.com/nylas/N1/tree/master/internal_packages/ui-darkside) thanks to the service [gitzip by @kinolien](https://kinolien.github.io/gitzip/).
+  
 
-#### Option 1: via the command line  
-`git clone https://github.com/jamiewilson/darkside.git ~/.nylas/packages/darkside-master`
+> **Download Option 2:**  
+> [Download the entire N1 repo](https://github.com/nylas/N1/archive/master.zip) or `git clone https://github.com/nylas/N1.git`. Then grab the folder from `N1/internal_packages/ui-darkside`.
+  
+#### 2. Manual Install
 
-**Note:** _Be sure to clone the repo as `darkside-master` or else images referenced in the CSS won't be found._
+> To manually install a theme, go to `Nylas N1 > Install Theme…` in the menu bar. Select the `ui-darkside` folder you just downloaded. This will copy the folder into your N1 packages directory so you can delete the orginal download if you want to. 
 
-#### Option 2: the ZIP archive  
-[![Download Darkside](./images/download.png)](https://github.com/jamiewilson/darkside/archive/master.zip)
+#### 3. Customize
 
-Then, unzip `darkside-master.zip`.
+> **Open the theme directory**  
+> If you're on a Mac, you can find the theme files at `~/.nylas/packages`. To get there quickly, use the key command <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>G</kbd> and enter `~/.nylas/packages`.
 
-### Step 2: Install
-Open the Nylas N1 Preferences panel with <kbd>Cmd</kbd> + <kbd>,</kbd> or `Nylas N1 > Preferences` and choose `Install a theme…` from the `Select Theme` dropdown.
+> **Change package.json**  
+> In order to avoid conflicts between your custom theme and the pre-installed version, change `name` and `displayName` in `package.json` to:
 
-![Default Theme](./images/install.png)
+    "name": "ui-darkside-custom",
+    "displayName": "Darkside Custom",
 
-### Step 3: Activate
-Select the `darkside-master` folder and press `Open`. N1 will make a copy of the theme files into your `.nylas/packages` directory, notify you that the theme has been installed, and open it a new Finder window.
-
-If you need to get back to the package files, they're located at `/Users/<yourUsername>/.nylas/packages/darkside-master`. Either use Terminal or you can open a Finder window and press <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>G</kbd> and paste the path in, replacing `<yourUsername>` with your username.
-
-### Step 3: Customize
-To customize Darkside, open `darkside-master/styles/darkside.less` in a text editor.
-
-**To change colors, just comment out the default `@sidebar` and `@accent` variables and uncomment another theme or simply replace with your own colors.**
+> **Edit LESS files**  
+> Open the `darkside-variables.less` file. To change colors, just comment out the default `@sidebar` and `@accent` variables and uncomment another theme or simply replace with your own colors.
 
 ```sass
 // Default
@@ -64,4 +61,4 @@ To customize Darkside, open `darkside-master/styles/darkside.less` in a text edi
 ```
 
 ### Feedback
-If you have questions or suggestions, please add an issue. Or if you need to, you can email me at [jamie@jamiewilson.io](mailto:jamie@jamiewilson?subject=Re: Darkside).
+If you have questions or suggestions, please submit an issue. If you need to, you can email me at [jamie@jamiewilson.io](mailto:jamie@jamiewilson?subject=Re: Darkside).

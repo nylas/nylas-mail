@@ -1,0 +1,23 @@
+@import "darkside-variables";
+
+textarea:focus,
+input[type="text"]:focus,
+input[type="email"]:focus,
+.search-bar .menu .header-container input:focus {
+  border-color: @accent;
+  box-shadow: 0 0 1.5px @accent;
+}
+
+.search-bar {
+  margin: 7.5px;
+  width: 100%;
+}
+
+.search-container .content-container {
+  margin-top: 5px !important;
+}
+
+.menu .item.selected, .menu .item:active,
+.search-container .content-container .item.selected {
+  background: @accent;
+}

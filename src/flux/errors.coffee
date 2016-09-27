@@ -12,8 +12,14 @@ class APIError extends Error
     @statusCode ?= @response?.statusCode
     @requestOptions ?= @response?.requestOptions
     @name = "APIError"
+    @stack = (new Error()).stack
     @message = @body?.message ? @body ? @error?.toString?()
     @errorTitle = @body?.error
+
+  fromJSON: (json = {}) ->
+    for key, val of json
+      @[key] = val
+    @
 
 class TimeoutError extends Error
   constructor: ->

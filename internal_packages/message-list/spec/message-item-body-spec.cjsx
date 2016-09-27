@@ -146,17 +146,17 @@ describe "MessageItem", ->
         waitsFor =>
           ReactTestUtils.scryRenderedComponentsWithType(@component, EmailFrameStub).length
 
-      it "should never leave src=cid:// in the message body", ->
+      it "should never leave src=cid: in the message body", ->
         runs =>
           body = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub).props.content
           expect(body.indexOf('cid')).toEqual(-1)
 
-      it "should replace cid://<file.contentId> with the FileDownloadStore's path for the file", ->
+      it "should replace cid:<file.contentId> with the FileDownloadStore's path for the file", ->
         runs =>
           body = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub).props.content
           expect(body.indexOf('alt="A" src="file:///fake/path-inline.png"')).toEqual(@message.body.indexOf('alt="A"'))
 
-      it "should not replace cid://<file.contentId> with the FileDownloadStore's path if the download is in progress", ->
+      it "should not replace cid:<file.contentId> with the FileDownloadStore's path if the download is in progress", ->
         runs =>
           body = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub).props.content
           expect(body.indexOf('/fake/path-downloading.png')).toEqual(-1)
@@ -227,7 +227,7 @@ describe "MessageItem", ->
           </blockquote>
           """
         @createComponent()
-        @component.setState(showQuotedText: true)
+        @component.state.showQuotedText = true
         waitsFor =>
           ReactTestUtils.scryRenderedComponentsWithType(@component, EmailFrameStub).length
 

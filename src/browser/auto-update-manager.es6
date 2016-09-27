@@ -3,6 +3,7 @@ import {dialog} from 'electron';
 import {EventEmitter} from 'events';
 import path from 'path';
 import fs from 'fs';
+import qs from 'querystring';
 
 let autoUpdater = null;
 
@@ -38,7 +39,7 @@ export default class AutoUpdateManager extends EventEmitter {
     process.nextTick(() => this.setupAutoUpdater());
   }
 
-  _updateFeedURL = () => {
+  parameters = () => {
     let updaterId = this.config.get("nylas.identity.id");
     if (!updaterId) {
       updaterId = "anonymous";
@@ -53,12 +54,24 @@ export default class AutoUpdateManager extends EventEmitter {
     }
     const updaterEmails = emails.join(',');
 
+    return {
+      platform: process.platform,
+      arch: process.arch,
+      version: this.version,
+      id: updaterId,
+      emails: updaterEmails,
+    };
+  }
+
+  _updateFeedURL = () => {
+    const params = this.parameters();
+
     if (process.platform === 'win32') {
       // Squirrel for Windows can't handle query params
       // https://github.com/Squirrel/Squirrel.Windows/issues/132
-      this.feedURL = `https://edgehill.nylas.com/update-check/win32/${process.arch}/${this.version}/${updaterId}/${updaterEmails}`
+      this.feedURL = `https://edgehill.nylas.com/update-check/win32/${params.arch}/${params.version}/${params.id}/${params.emails}`
     } else {
-      this.feedURL = `https://edgehill.nylas.com/update-check?platform=${process.platform}&arch=${process.arch}&version=${this.version}&id=${updaterId}&emails=${updaterEmails}`;
+      this.feedURL = `https://edgehill.nylas.com/update-check?${qs.stringify(params)}`;
     }
 
     if (autoUpdater) {

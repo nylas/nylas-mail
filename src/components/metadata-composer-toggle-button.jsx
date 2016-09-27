@@ -116,7 +116,12 @@ export default class MetadataComposerToggleButton extends React.Component {
     }
 
     return (
-      <button className={className} onClick={this._onClick} title={title} tabIndex={-1}>
+      <button
+        className={className}
+        onClick={this._onClick}
+        title={title}
+        tabIndex={-1}
+      >
         <RetinaImg {...attrs} mode={RetinaImg.Mode.ContentIsMask} />
       </button>
     );

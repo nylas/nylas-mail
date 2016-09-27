@@ -182,12 +182,15 @@ export default class OverlaidComponents extends React.Component {
 
   _renderOverlaidComponents() {
     const els = [];
+    let previewToggleVisible = false;
+
     for (const id of this.state.anchorRectIds) {
       const data = this._anchorData[id];
-      if (!data) { throw new Error("No mounted rect for #{id}") }
+      if (!data) { throw new Error(`No mounted rect for ${id}`) }
 
       const style = {left: data.left, top: data.top, position: 'absolute'}
       const component = CustomContenteditableComponents.get(data.componentKey);
+      const supportsPreviewWithinEditor = (component.supportsPreviewWithinEditor !== false);
 
       if (!component) {
         // It's possible that the plugin with that will register this
@@ -199,24 +202,25 @@ export default class OverlaidComponents extends React.Component {
       const props = Object.assign({},
         this.props.exposedProps,
         JSON.parse(data.componentProps),
-        {isPreview: this.state.previewMode}
+        {isPreview: supportsPreviewWithinEditor && this.state.previewMode}
       );
 
-      const el = React.createElement(component, props)
-      const wrap = (
+      previewToggleVisible = previewToggleVisible || supportsPreviewWithinEditor;
+
+      els.push(
         <span
           key={id}
           className={OverlaidComponents.WRAP_CLASS}
           style={style}
           data-overlay-id={id}
         >
-          {el}
+          {React.createElement(component, props)}
         </span>
       )
-
-      els.push(wrap)
     }
-    const toggle = (els.length > 0) ? this._renderPreviewToggle() : false
+
+    const toggle = (previewToggleVisible) ? this._renderPreviewToggle() : false;
+
     return (
       <div ref="overlaidComponents" className="overlaid-components">
         {toggle}

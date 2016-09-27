@@ -196,7 +196,7 @@ class NylasWindow
       @browserWindow.destroy() if chosen is 0
 
     @browserWindow.webContents.on 'crashed', =>
-      global.application.exit(100) if @exitWhenDone
+      app.exit(100) if @exitWhenDone
 
       if @neverClose
         @browserWindow.reload()
