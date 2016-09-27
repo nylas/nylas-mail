@@ -2,6 +2,7 @@ import _ from 'underscore';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Actions from '../flux/actions';
+import RetinaImg from './retina-img';
 
 
 class Modal extends React.Component {
@@ -86,6 +87,13 @@ class Modal extends React.Component {
           style={modalStyle}
           onClick={(event) => event.stopPropagation()}
         >
+          <RetinaImg
+            className="modal-close"
+            style={{width: "14", WebkitFilter: "none"}}
+            name="modal-close.png"
+            mode={RetinaImg.Mode.ContentDark}
+            onMouseDown={() => Actions.closeModal()}
+          />
           {children}
         </div>
       </div>
