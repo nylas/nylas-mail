@@ -30,6 +30,7 @@
   + Correctly update selected contact profile in contact sidebar.
 
 - Design:
+
   + New design for notification for days left in trial, which is now displayed
     on the bottom left corner of N1.
 
