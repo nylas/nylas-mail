@@ -402,8 +402,13 @@ class DatabaseStore extends NylasStore
 
     if ids.length
       queries.modelsFromIds = @findAll(klass).where(klass.attributes.id.in(ids))
+      # Allow Sqlite to exit early once it's found a single match for each ID
+      queries.modelsFromIds.limit(ids.length)
+
     if clientIds.length
       queries.modelsFromClientIds = @findAll(klass).where(klass.attributes.clientId.in(clientIds))
+      # Allow Sqlite to exit early once it's found a single match for each ID
+      queries.modelsFromClientIds.limit(clientIds.length)
 
     Promise.props(queries).then ({modelsFromIds, modelsFromClientIds}) =>
       modelsByString = {}
