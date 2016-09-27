@@ -6,7 +6,7 @@ Thread = require('../src/flux/models/thread').default
 Message = require('../src/flux/models/message').default
 AccountStore = require '../src/flux/stores/account-store'
 DatabaseStore = require '../src/flux/stores/database-store'
-DatabaseTransaction = require '../src/flux/stores/database-transaction'
+DatabaseTransaction = require('../src/flux/stores/database-transaction').default
 
 describe "NylasAPI", ->
   describe "authPlugin", ->
