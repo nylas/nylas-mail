@@ -23,12 +23,16 @@
     border-left:1px solid @border-color-divider;
     margin-left: @spacing-standard/2;
     font-size: @font-size-smaller;
+    display: flex;
+
     a {
-      overflow:hidden;
-      text-overflow:ellipsis;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+      white-space: nowrap;
     }
     .stars {
-      float:right;
+      order: 2;
       margin-left:@spacing-standard;
     }
   }
