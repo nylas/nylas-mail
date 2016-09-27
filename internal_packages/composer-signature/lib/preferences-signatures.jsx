@@ -127,10 +127,6 @@ export default class PreferencesSignatures extends React.Component {
     return numSelected.toString() + (numSelected === 1 ? " Account" : " Accounts")
   }
 
-  _getEmail = (accountOrAlias) => {
-    return accountOrAlias.email
-  }
-
   _renderAccountPicker() {
     const buttonText = this._labelForAccountPicker()
 
@@ -143,7 +139,7 @@ export default class PreferencesSignatures extends React.Component {
         itemKey={this._selectItemKey}
         current={this.selectedSignature}
         buttonText={buttonText}
-        itemContent={this._getEmail}
+        itemContent={(accountOrAlias) => accountOrAlias.email}
       />
     )
   }

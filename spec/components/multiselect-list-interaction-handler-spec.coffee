@@ -80,17 +80,17 @@ describe "MultiselectListInteractionHandler", ->
       @handler.onEnter()
       expect(@onFocusItem).toHaveBeenCalledWith(@itemKeyboardFocus)
 
-  describe "onSelect (x key on keyboard)", ->
+  describe "onSelectKeyboardItem (x key on keyboard)", ->
     describe "on the root view", ->
       it "should toggle the selection of the keyboard item", ->
         @isRootSheet = true
-        @handler.onSelect()
+        @handler.onSelectKeyboardItem()
         expect(@dataSource.selection.toggle).toHaveBeenCalledWith(@itemKeyboardFocus)
 
     describe "on the thread view", ->
       it "should toggle the selection of the focused item", ->
         @isRootSheet = false
-        @handler.onSelect()
+        @handler.onSelectKeyboardItem()
         expect(@dataSource.selection.toggle).toHaveBeenCalledWith(@itemFocus)
 
   describe "onShift", ->

@@ -70,7 +70,7 @@ class MultiselectList extends React.Component
   _globalKeymapHandlers: ->
     _.extend({}, @props.keymapHandlers, {
       'core:focus-item': => @_onEnter()
-      'core:select-item': => @_onSelect()
+      'core:select-item': => @_onSelectKeyboardItem()
       'core:next-item': => @_onShift(1)
       'core:previous-item': => @_onShift(-1)
       'core:select-down': => @_onShift(1, {select: true})
@@ -140,18 +140,18 @@ class MultiselectList extends React.Component
     return unless @state.handler
     @state.handler.onEnter()
 
-  _onSelect: =>
+  _onSelectKeyboardItem: =>
     return unless @state.handler
-    @state.handler.onSelect()
+    @state.handler.onSelectKeyboardItem()
 
   _onSelectAll: =>
     return unless @state.handler
     items = @props.dataSource.itemsCurrentlyInViewMatching -> true
-    @props.dataSource.selection.set(items)
+    @state.handler.onSelect(items)
 
   _onDeselect: =>
-    return unless @_visible() and @props.dataSource
-    @props.dataSource.selection.clear()
+    return unless @_visible() and @state.handler
+    @state.handler.onDeselect()
 
   _onShift: (delta, options = {}) =>
     return unless @state.handler
@@ -208,6 +208,9 @@ class MultiselectList extends React.Component
     layoutMode: layoutMode
 
   # Public Methods
+
+  handler: ->
+    return @state.handler
 
   itemIdAtPoint: (x, y) ->
     item = document.elementFromPoint(x, y).closest('[data-item-id]')
