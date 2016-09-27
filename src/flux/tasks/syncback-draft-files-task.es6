@@ -45,12 +45,21 @@ export default class SyncbackDraftFilesTask extends BaseDraftTask {
       get: () => this._attachmentUploadsMonitor.value(),
     });
 
-    const uploaded = [].concat(this.draft.uploads);
-    return Promise.all(uploaded.map(this.uploadAttachment)).then((files) => {
+    this._appliedUploads = [];
+    this._removedUploads = [];
+
+    this.draft.uploads.forEach((u) => {
+      if (u.inline && !this.draft.body.includes(`cid:${u.id}`)) {
+        this._removedUploads.push(u);
+      } else {
+        this._appliedUploads.push(u);
+      }
+    });
+
+    return Promise.all(this._appliedUploads.map(this.uploadAttachment)).then((files) => {
       // Note: We don't actually delete uploaded files until send completes,
       // because it's possible for the app to quit without saving state and
       // need to re-upload the file.
-      this._appliedUploads = uploaded;
       this._appliedFiles = files;
     });
   }
@@ -90,13 +99,31 @@ export default class SyncbackDraftFilesTask extends BaseDraftTask {
   applyChangesToDraft = () => {
     return DatabaseStore.inTransaction((t) => {
       return this.refreshDraftReference().then(() => {
-        this.draft.files = this.draft.files.concat(this._appliedFiles);
-        if (this.draft.uploads instanceof Array) {
-          const uploadedPaths = this._appliedUploads.map((upload) => upload.targetPath);
-          this.draft.uploads = this.draft.uploads.filter((upload) =>
-             !uploadedPaths.includes(upload.targetPath)
-          );
+        if (!(this.draft.uploads instanceof Array)) {
+          this.draft.uploads = [];
         }
+
+        // replace uploads with files
+        this._appliedFiles.forEach((file, idx) => {
+          const upload = this._appliedUploads[idx];
+
+          // update the draft object
+          this.draft.files.push(file);
+          this.draft.uploads = this.draft.uploads.filter(u =>
+            u.targetPath !== upload.targetPath
+          );
+          // replace references in the body
+          this.draft.body = this.draft.body.replace(`cid:${upload.id}`, `cid:${file.id}`);
+        });
+
+        // remove "stale" inline uploads that are no longer present in the body,
+        // could have been cut out or deleted during text editing.
+        this._removedUploads.forEach((upload) => {
+          this.draft.uploads = this.draft.uploads.filter(u =>
+            u.targetPath !== upload.targetPath
+          );
+        });
+
         return t.persistModel(this.draft);
       });
     });

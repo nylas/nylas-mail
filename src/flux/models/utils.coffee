@@ -81,6 +81,10 @@ Utils =
     if _.isArray(object)
       # http://perfectionkills.com/how-ecmascript-5-still-does-not-allow-to-subclass-an-array/
       newObject = []
+    else if object instanceof Date
+      # You can't clone dates by iterating through `getOwnPropertyNames`
+      # of the Date object. We need to special-case Dates.
+      newObject = new Date(object)
     else
       newObject = Object.create(Object.getPrototypeOf(object))
 
@@ -510,15 +514,6 @@ Utils =
         fn.apply(@, [fnFinished, fnReinvoked, arguments...])
     fnRun
 
-  # Parse json without throwing an error. Logs a sensible message to indicate
-  # the error occurred while parsing
-  jsonParse: (jsonString) =>
-    data = null
-    try
-      data = JSON.parse(jsonString)
-    catch err
-      console.error("JSON parse error: #{err}")
-    return data
 
   hueForString: (str='') ->
     str.split('').map((c) -> c.charCodeAt()).reduce((n,a) -> n+a) % 360

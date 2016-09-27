@@ -1,0 +1,47 @@
+@import "darkside-variables";
+
+// Make corresponding toolbar match threadlist background
+.column-ThreadList,
+.toolbar-ThreadList {
+  height: 100%;
+  background: @threadlist-bg;
+  border-bottom: 1px solid @border-color;
+}
+
+// jackiehluo -> Hide search bar when buttons appear in list mode
+.toolbar-ThreadList .selection-bar .inner {
+  background: @threadlist-bg;
+}
+
+.list-tabular .list-tabular-item {
+  background-color: @threadlist-bg;
+  border-bottom: 1px solid @border-color !important;
+}
+
+// Using !important so multiple selection actions
+.list-tabular .list-tabular-item:hover {
+  background: tint(@sidebar, 95%) !important;
+}
+
+.list-container .list-item.focused,
+.list-container .list-item.selected,
+.thread-list.handler-split .list-item.selected {
+  background: tint(@accent, 90%);
+  color: @active-thread-text;
+}
+
+body.is-blurred .list-container .list-item.focused,
+body.is-blurred .list-container .list-item.selected,
+body.is-blurred .thread-list.handler-split .list-item.selected {
+  background: tint(@sidebar, 90%);
+  color: @active-thread-text;
+}
+
+.list-tabular .list-tabular-item.keyboard-cursor {
+  border-left-color: @accent;
+  background: tint(@accent, 90%);
+}
+
+body.is-blurred .list-tabular .list-tabular-item.keyboard-cursor {
+  border-left-color: tint(@sidebar, 70%);
+}

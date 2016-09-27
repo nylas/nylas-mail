@@ -1,0 +1,37 @@
+@import "darkside-variables";
+
+// Make corresponding toolbar match threadlist background
+.draft-list,
+.toolbar-DraftList {
+  background: @messagelist-bg;
+}
+
+.draft-list .list-container .list-item.selected,
+.draft-list .list-tabular .list-tabular-item.keyboard-cursor {
+  background: white;
+}
+
+.draft-list .list-tabular .list-tabular-item .checkmark .inner {
+  background-color: white;
+  border-color: tint(@sidebar, 75%);
+}
+
+.list-tabular .list-tabular-item.selected .checkmark .inner {
+  background-color: @accent;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="6" viewBox="0 0 8 6"><path fill="#FFF" d="M7 0h1v1L3 6 0 3V2h1l2 2z"/></svg>');
+  background-size: 8px 6px;
+}
+
+// Make draft-list items slightly darker on hover
+// Using !important so multiple selection actions
+.draft-list .list-tabular .list-tabular-item:hover {
+  background: tint(@sidebar, 90%) !important;
+}
+
+// Center vertically regardless of list item height
+.draft-list .sending-progress {
+  align-self: center;
+  background-color: #f5f5f5;
+  border: none;
+  margin-top: 0;
+}

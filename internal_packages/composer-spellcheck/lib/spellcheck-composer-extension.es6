@@ -163,11 +163,19 @@ export default class SpellcheckComposerExtension extends ComposerExtension {
     });
   }
 
-  static applyTransformsToDraft = ({draft}) => {
-    const nextDraft = draft.clone();
-    nextDraft.body = nextDraft.body.replace(/<\/?spelling[^>]*>/g, '');
-    return nextDraft;
+  static applyTransformsForSending = ({draftBodyRootNode}) => {
+    const spellingEls = draftBodyRootNode.querySelectorAll('spelling');
+    for (const spellingEl of Array.from(spellingEls)) {
+      // move contents out of the spelling node, remove the node
+      const parent = spellingEl.parentNode;
+      while (spellingEl.firstChild) {
+        parent.insertBefore(spellingEl.firstChild, spellingEl);
+      }
+      parent.removeChild(spellingEl);
+    }
   }
 
-  static unapplyTransformsToDraft = () => 'unnecessary'
+  static unapplyTransformsForSending = () => {
+    // no need to put spelling nodes back!
+  }
 }

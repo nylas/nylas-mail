@@ -69,8 +69,9 @@ class FocusedContactsStore extends NylasStore
 
     if contact
       query = DatabaseStore.findBy(Contact, {
+        accountId: @_currentThread.accountId,
         email: contact.email,
-        accountId: @_currentThread.accountId
+        name: contact.name,
       })
       @_unsubFocusedContact = Rx.Observable.fromQuery(query).subscribe (match) =>
         @_currentFocusedContact = match ? contact

@@ -33,9 +33,10 @@ class FocusedPerspectiveStore extends NylasStore
       'navigation:go-to-label'   : => ## TODO
     })
 
-  _loadSavedPerspective: (savedPerspective, accounts = AccountStore.accounts()) =>
-    if savedPerspective
-      perspective = MailboxPerspective.fromJSON(savedPerspective)
+  _loadSavedPerspective: (accounts = AccountStore.accounts()) =>
+    json = NylasEnv.savedState.perspective
+    if json
+      perspective = MailboxPerspective.fromJSON(json)
       if perspective
         accountIds = _.pluck(accounts, 'id')
         accountIdsNotPresent = _.difference(perspective.accountIds, accountIds)
@@ -47,7 +48,7 @@ class FocusedPerspectiveStore extends NylasStore
   # Inbound Events
   _onCategoryStoreChanged: ->
     if @_current.isEqual(MailboxPerspective.forNothing())
-      perspective = @_loadSavedPerspective(NylasEnv.savedState.perspective)
+      perspective = @_loadSavedPerspective()
       @_setPerspective(perspective, NylasEnv.savedState.sidebarAccountIds ? perspective.accountIds)
     else
       accountIds = @_current.accountIds
@@ -60,7 +61,7 @@ class FocusedPerspectiveStore extends NylasStore
 
   _onFocusPerspective: (perspective) =>
     # If looking at unified inbox, don't attempt to change the sidebar accounts
-    sidebarIsUnifiedInbox = NylasEnv.savedState.sidebarAccountIds?.length > 1
+    sidebarIsUnifiedInbox = @sidebarAccountIds().length > 1
     if sidebarIsUnifiedInbox
       @_setPerspective(perspective)
     else
@@ -71,6 +72,7 @@ class FocusedPerspectiveStore extends NylasStore
   # provided
   _onFocusPerspectiveForAccounts: (accountsOrIds, {sidebarAccountIds} = {}) =>
     return unless accountsOrIds
+
     perspective = @_defaultPerspective(accountsOrIds)
     sidebarAccountIds ?= perspective.accountIds
     @_setPerspective(perspective, sidebarAccountIds)
@@ -82,12 +84,12 @@ class FocusedPerspectiveStore extends NylasStore
   _setPerspective: (perspective, sidebarAccountIds) ->
     shouldTrigger = false
 
-    if not perspective.isEqual(@_current)
+    if !perspective.isEqual(@_current)
       NylasEnv.savedState.perspective = perspective.toJSON()
       @_current = perspective
       shouldTrigger = true
 
-    if sidebarAccountIds and not _.isEqual(NylasEnv.savedState.sidebarAccountIds, sidebarAccountIds)
+    if sidebarAccountIds and !_.isEqual(NylasEnv.savedState.sidebarAccountIds, sidebarAccountIds)
       NylasEnv.savedState.sidebarAccountIds = sidebarAccountIds
       shouldTrigger = true
 
@@ -116,10 +118,15 @@ class FocusedPerspectiveStore extends NylasStore
     @_current
 
   sidebarAccountIds: =>
-    NylasEnv.savedState.sidebarAccountIds ?= AccountStore.accountIds()
-    accIdsAreInvalid = not NylasEnv.savedState.sidebarAccountIds.every((accId) => AccountStore.accountForId(accId)?)
-    if accIdsAreInvalid
-      NylasEnv.savedState.sidebarAccountIds = AccountStore.accountIds()
-    return NylasEnv.savedState.sidebarAccountIds
+    ids = NylasEnv.savedState.sidebarAccountIds
+    if not ids or not ids.every((id) => AccountStore.accountForId(id))
+      ids = NylasEnv.savedState.sidebarAccountIds = AccountStore.accountIds()
+
+    # Always defer to the AccountStore for the desired order of accounts in
+    # the sidebar - users can re-arrange them!
+    order = AccountStore.accountIds()
+    ids = ids.sort((a, b) => order.indexOf(a) - order.indexOf(b))
+
+    return ids
 
 module.exports = new FocusedPerspectiveStore()

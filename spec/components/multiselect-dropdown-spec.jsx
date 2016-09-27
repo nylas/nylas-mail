@@ -15,7 +15,8 @@ describe('MultiselectDropdown', function multiSelectedDropdown() {
     it('calls onToggleItem function', () => {
       const onToggleItem = jasmine.createSpy('onToggleItem')
       const itemChecked = jasmine.createSpy('itemChecked')
-      const dropdown = makeDropdown(["annie@nylas.com", "anniecook@ostby.com"], {onToggleItem, itemChecked})
+      const itemKey = (i) => i
+      const dropdown = makeDropdown(["annie@nylas.com", "anniecook@ostby.com"], {onToggleItem, itemChecked, itemKey})
       dropdown.setState({selectingItems: true})
       const item = scryRenderedDOMComponentsWithClass(dropdown, 'item')[0]
       Simulate.mouseDown(item)

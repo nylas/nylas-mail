@@ -1,6 +1,6 @@
 Category = require '../../src/flux/models/category'
 Model = require '../../src/flux/models/model'
-Attributes = require '../../src/flux/attributes'
+Attributes = require('../../src/flux/attributes').default
 
 class TestModel extends Model
   @attributes =

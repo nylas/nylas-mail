@@ -2,7 +2,7 @@
  ExtensionRegistry,
  WorkspaceStore} = require 'nylas-exports'
 
-MessageList = require "./message-list"
+MessageList = require("./message-list")
 MessageListHiddenMessagesToggle = require('./message-list-hidden-messages-toggle').default
 
 SidebarPluginContainer = require "./sidebar-plugin-container"

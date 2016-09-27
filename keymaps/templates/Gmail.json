@@ -23,7 +23,7 @@
   "core:select-down": "shift+j",
   "core:focus-item": "o",
   "core:select-item": "x",
-  "core:undo": "z",
+  "core:undo": "mod+z",
 
   "message-list:previous-message": "p",
   "message-list:next-message": "n",

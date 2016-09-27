@@ -3,7 +3,7 @@ _ = require 'underscore'
 Label = require '../../src/flux/models/label'
 Thread = require('../../src/flux/models/thread').default
 TestModel = require '../fixtures/db-test-model'
-ModelQuery = require '../../src/flux/models/query'
+ModelQuery = require('../../src/flux/models/query').default
 DatabaseStore = require '../../src/flux/stores/database-store'
 
 testMatchers = {'id': 'b'}
@@ -69,11 +69,11 @@ describe "DatabaseStore", ->
       # Actually returns correct sets for queries, since matchers can evaluate
       # themselves against models in memory
       spyOn(DatabaseStore, 'run').andCallFake (query) =>
-        results = []
-        for model in @models
-          found = _.every query._matchers, (matcher) ->
+        results = @models.filter((model) ->
+          query._matchers.every((matcher) ->
             matcher.evaluate(model)
-          results.push(model) if found
+          )
+        )
         Promise.resolve(results)
 
     describe "when given an array or input that is not an array", ->

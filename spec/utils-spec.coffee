@@ -2,7 +2,7 @@ _ = require('underscore')
 Utils = require '../src/flux/models/utils'
 Thread = require('../src/flux/models/thread').default
 Contact = require '../src/flux/models/contact'
-JSONBlob = require '../src/flux/models/json-blob'
+JSONBlob = require('../src/flux/models/json-blob').default
 
 class Foo
   constructor: (@instanceVar) ->
@@ -38,9 +38,9 @@ describe 'Utils', ->
       expect(revived).toEqual([@testThread])
 
     it "should re-inflate Models in places they're not explicitly declared types", ->
-      b = new JSONBlob({id: "local-ThreadsToProcess", json: [@testThread]})
+      b = new JSONBlob({id: "ThreadsToProcess", json: [@testThread]})
       jsonString = JSON.stringify(b, Utils.registeredObjectReplacer)
-      expectedString = '{"client_id":"local-ThreadsToProcess","server_id":"local-ThreadsToProcess","json":[{"client_id":"local-1","account_id":"1","metadata":[],"subject":"Test 1234","participants":[{"client_id":"local-a","account_id":"1","name":"Juan","email":"juan@nylas.com","thirdPartyData":{},"id":"local-a"},{"client_id":"local-b","account_id":"1","name":"Ben","email":"ben@nylas.com","thirdPartyData":{},"id":"local-b"}],"in_all_mail":true,"id":"local-1","__constructorName":"Thread"}],"id":"local-ThreadsToProcess","__constructorName":"JSONBlob"}'
+      expectedString = '{"client_id":"ThreadsToProcess","server_id":"ThreadsToProcess","json":[{"client_id":"local-1","account_id":"1","metadata":[],"subject":"Test 1234","participants":[{"client_id":"local-a","account_id":"1","name":"Juan","email":"juan@nylas.com","thirdPartyData":{},"id":"local-a"},{"client_id":"local-b","account_id":"1","name":"Ben","email":"ben@nylas.com","thirdPartyData":{},"id":"local-b"}],"in_all_mail":true,"id":"local-1","__constructorName":"Thread"}],"id":"ThreadsToProcess","__constructorName":"JSONBlob"}'
 
       expect(jsonString).toEqual(expectedString)
       revived = JSON.parse(jsonString, Utils.registeredObjectReviver)
@@ -75,6 +75,11 @@ describe 'Utils', ->
       ]
       @o2.circular = @o2
       @o2Clone = Utils.deepClone(@o2)
+
+    it "deep clones dates correctly", ->
+      d1 = new Date(2016,1,1)
+      d2 = Utils.deepClone(d1)
+      expect(d2.valueOf()).toBe(d1.valueOf())
 
     it "makes a deep clone", ->
       @v1.push(4)

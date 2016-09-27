@@ -1,0 +1,27 @@
+@import "darkside-variables";
+
+.thread-list .swipe-backing.swipe-all,
+.thread-list .swipe-backing.swipe-archive,
+.draft-list .swipe-backing.swipe-all,
+.draft-list .swipe-backing.swipe-archive {
+  background: @swipe-archive;
+  &.confirmed {
+    background: saturate(@swipe-archive, 10%);
+  }
+}
+
+.thread-list .swipe-backing.swipe-snooze,
+.draft-list .swipe-backing.swipe-snooze {
+  background: @swipe-snooze;
+  &.confirmed {
+    background: saturate(@swipe-snooze, 10%);
+  }
+}
+
+.thread-list .swipe-backing.swipe-trash,
+.draft-list .swipe-backing.swipe-trash {
+  background: @swipe-trash;
+  &.confirmed {
+    background: saturate(@swipe-trash, 10%);
+  }
+}

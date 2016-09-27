@@ -1,6 +1,6 @@
 Model = require './model'
 Utils = require './utils'
-Attributes = require '../attributes'
+Attributes = require('../attributes').default
 RegExpUtils = require '../../regexp-utils'
 AccountStore = require '../stores/account-store'
 FocusedPerspectiveStore = null # Circular Dependency

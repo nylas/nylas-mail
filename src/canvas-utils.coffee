@@ -3,11 +3,13 @@ ThreadDragImage.src = """data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgC
 
 DragCanvas = document.createElement("canvas")
 DragCanvas.style.position = "absolute"
+DragCanvas.style.zIndex = 0
 document.body.appendChild(DragCanvas)
 
 PercentLoadedCache = {}
 PercentLoadedCanvas = document.createElement("canvas")
 PercentLoadedCanvas.style.position = "absolute"
+PercentLoadedCanvas.style.zIndex = 0
 document.body.appendChild(PercentLoadedCanvas)
 
 SystemTrayCanvas = document.createElement("canvas")

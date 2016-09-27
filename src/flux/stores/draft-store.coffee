@@ -54,6 +54,7 @@ class DraftStore
     @listenTo Actions.composeForward, @_onComposeForward
     @listenTo Actions.composePopoutDraft, @_onPopoutDraftClientId
     @listenTo Actions.composeNewBlankDraft, @_onPopoutBlankDraft
+    @listenTo Actions.composeNewDraftToRecipient, @_onPopoutNewDraftToRecipient
     @listenTo Actions.sendDraftFailed, @_onSendDraftFailed
     @listenTo Actions.sendDraftSuccess, @_onSendDraftSuccess
     @listenTo Actions.sendQuickReply, @_onSendQuickReply
@@ -266,6 +267,10 @@ class DraftStore
   _createSession: (clientId, draft) =>
     @_draftSessions[clientId] = new DraftEditingSession(clientId, draft)
 
+  _onPopoutNewDraftToRecipient: (contact) =>
+    DraftFactory.createDraft({to: [contact]}).then (draft) =>
+      @_finalizeAndPersistNewMessage(draft, popout: true)
+
   _onPopoutBlankDraft: =>
     Actions.recordUserEvent("Draft Created", {type: "new"})
     NylasEnv.perf.start("Popout Draft")
@@ -318,7 +323,7 @@ class DraftStore
         Actions.addAttachment({
           filePath: path,
           messageClientId: draftClientId,
-          callback: callback
+          onUploadCreated: callback
         })
 
   _onDestroyDraft: (draftClientId) =>

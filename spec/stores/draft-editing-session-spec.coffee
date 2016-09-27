@@ -1,7 +1,7 @@
 Message = require('../../src/flux/models/message').default
 Actions = require '../../src/flux/actions'
 DatabaseStore = require '../../src/flux/stores/database-store'
-DatabaseTransaction = require '../../src/flux/stores/database-transaction'
+DatabaseTransaction = require('../../src/flux/stores/database-transaction').default
 DraftEditingSession = require '../../src/flux/stores/draft-editing-session'
 DraftChangeSet = DraftEditingSession.DraftChangeSet
 _ = require 'underscore'

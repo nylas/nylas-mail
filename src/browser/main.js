@@ -84,7 +84,7 @@ const parseCommandLine = (argv) => {
   // On Windows and Linux, mailto and file opens are passed as the last argv
   if (argv.length > 1 && !argv.join(' ').includes('--squirrel')) {
     const lastArg = argv[argv.length - 1];
-    if (lastArg.startsWith('mailto:')) {
+    if (lastArg.startsWith('mailto:') || lastArg.startsWith('nylas:')) {
       urlsToOpen.push(lastArg);
     } else if ((lastArg[0] !== '-') && (/[\/|\\]/.test(lastArg))) {
       pathsToOpen.push(lastArg);

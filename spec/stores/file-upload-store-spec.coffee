@@ -10,10 +10,8 @@ fpath = "/foo/bar/test123.jpg"
 fDir = "/foo/bar"
 uploadDir = "/uploads"
 filename = "test123.jpg"
-argsObj = {messageClientId: msgId, filePath: fpath}
 
 describe 'FileUploadStore', ->
-
   beforeEach ->
     @draft = new Message()
     @session =
@@ -21,12 +19,12 @@ describe 'FileUploadStore', ->
         add: jasmine.createSpy('session.changes.add')
         commit: ->
       draft: => @draft
-    spyOn(NylasEnv, "isMainWindow").andReturn true
+    spyOn(NylasEnv, "isMainWindow").andReturn(true)
+    spyOn(DraftStore, "sessionForClientId").andReturn(Promise.resolve(@session))
     spyOn(FileUploadStore, "_onAttachFileError").andCallFake (msg) ->
       throw new Error(msg)
     spyOn(NylasEnv, "showOpenDialog").andCallFake (props, callback) ->
       callback(fpath)
-    spyOn(DraftStore, "sessionForClientId").andCallFake => Promise.resolve @session
 
   describe 'selectAttachment', ->
     it "throws if no messageClientId is provided", ->
@@ -42,31 +40,60 @@ describe 'FileUploadStore', ->
       expect(NylasEnv.showOpenDialog).toHaveBeenCalled()
       expect(Actions.addAttachment).toHaveBeenCalled()
       args = Actions.addAttachment.calls[0].args[0]
-      expect(args.messageClientId).toBe msgId
-      expect(args.filePath).toBe fpath
+      expect(args.messageClientId).toBe(msgId)
+      expect(args.filePath).toBe(fpath)
 
 
   describe 'addAttachment', ->
     beforeEach ->
-      @upload = new Upload(msgId, fpath, {size: 1234, isDirectory: -> false}, 'u1', uploadDir)
-      spyOn(FileUploadStore, '_getFileStats').andCallFake -> Promise.resolve()
-      spyOn(FileUploadStore, '_makeUpload').andCallFake -> Promise.resolve()
-      spyOn(FileUploadStore, '_verifyUpload').andCallFake -> Promise.resolve()
-      spyOn(FileUploadStore, '_prepareTargetDir').andCallFake -> Promise.resolve()
+      @stats =  {
+        size: 1234,
+        isDirectory: -> false,
+      }
+      @upload = new Upload({
+        messageClientId: msgId,
+        filePath: fpath,
+        stats: @stats,
+        id: 'u1',
+        uploadDir: uploadDir
+      })
+      spyOn(FileUploadStore, '_getFileStats').andCallFake => Promise.resolve(@stats)
+      spyOn(FileUploadStore, '_prepareTargetDir').andCallFake => Promise.resolve()
       spyOn(FileUploadStore, '_copyUpload').andCallFake => Promise.resolve(@upload)
       spyOn(FileUploadStore, '_applySessionChanges').andCallThrough()
 
     it "throws if no messageClientId or path is provided", ->
       expect(-> Actions.addAttachment()).toThrow()
 
+    it 'throws if upload is a directory', ->
+      @stats = {
+        isDirectory: -> true
+      }
+      waitsForPromise ->
+        FileUploadStore._onAddAttachment({messageClientId: msgId, filePath: fpath})
+        .then ->
+          throw new Error('Expected test to land in catch.')
+        .catch (error) ->
+          expect(error.message.indexOf(filename + ' is a directory')).not.toBe(-1)
+
+    it 'throws if the file is more than 25MB', ->
+      @stats = {
+        size: 25*1000000+1,
+        isDirectory: -> false,
+      }
+      waitsForPromise ->
+        FileUploadStore._onAddAttachment({messageClientId: msgId, filePath: fpath})
+        .then ->
+          throw new Error('Expected test to land in catch.')
+        .catch (error) ->
+          expect(error.message.indexOf(filename + ' cannot')).not.toBe(-1)
+
     it "executes the required steps and triggers", ->
       waitsForPromise ->
-        FileUploadStore._onAddAttachment(argsObj)
+        FileUploadStore._onAddAttachment({messageClientId: msgId, filePath: fpath})
 
       runs =>
         expect(FileUploadStore._getFileStats).toHaveBeenCalled()
-        expect(FileUploadStore._makeUpload).toHaveBeenCalled()
-        expect(FileUploadStore._verifyUpload).toHaveBeenCalled()
         expect(FileUploadStore._prepareTargetDir).toHaveBeenCalled()
         expect(FileUploadStore._copyUpload).toHaveBeenCalled()
         expect(FileUploadStore._applySessionChanges).toHaveBeenCalled()
@@ -75,7 +102,16 @@ describe 'FileUploadStore', ->
 
   describe 'removeAttachment', ->
     beforeEach ->
-      @upload = new Upload(msgId, fpath, {size: 1234, isDirectory: -> false}, 'u1', uploadDir)
+      @upload = new Upload({
+        messageClientId: msgId,
+        filePath: fpath,
+        stats: {
+          size: 1234,
+          isDirectory: -> false
+        },
+        id: 'u1',
+        uploadDir: uploadDir
+      })
       spyOn(FileUploadStore, '_deleteUpload').andCallFake => Promise.resolve(@upload)
       spyOn(fs, 'rmdir')
 
@@ -101,13 +137,12 @@ describe 'FileUploadStore', ->
       expect(FileUploadStore._deleteUploadsForClientId).toHaveBeenCalledWith('123')
 
   describe '_getFileStats', ->
-
     it 'returns the correct stats', ->
       spyOn(fs, 'stat').andCallFake (path, callback) ->
         callback(null, {size: 1234, isDirectory: -> false})
       waitsForPromise ->
-        FileUploadStore._getFileStats(argsObj)
-        .then ({stats}) ->
+        FileUploadStore._getFileStats(fpath)
+        .then (stats) ->
           expect(stats.size).toEqual 1234
           expect(stats.isDirectory()).toBe false
 
@@ -115,42 +150,25 @@ describe 'FileUploadStore', ->
       spyOn(fs, 'stat').andCallFake (path, callback) ->
         callback("Error!", null)
       waitsForPromise ->
-        FileUploadStore._getFileStats(argsObj)
+        FileUploadStore._getFileStats(fpath)
         .then -> throw new Error('It should fail.')
         .catch (error) ->
           expect(error.message.indexOf(fpath)).toBe 0
 
 
-  describe '_verifyUpload', ->
-
-    it 'throws if upload is a directory', ->
-      upload = new Upload(msgId, fpath, {isDirectory: -> true})
-      waitsForPromise ->
-        FileUploadStore._verifyUpload(upload)
-        .then -> throw new Error('It should fail.')
-        .catch (error) ->
-          expect(error.message.indexOf(filename + ' is a directory')).toBe 0
-
-    it 'throws if the file is more than 25MB', ->
-      upload = new Upload(msgId, fpath, {size: 25*1000000+1, isDirectory: -> false})
-      waitsForPromise ->
-        FileUploadStore._verifyUpload(upload)
-        .then -> throw new Error('It should fail.')
-        .catch (error) ->
-          expect(error.message.indexOf(filename + ' cannot')).toBe 0
-
-    it 'resolves otherwise', ->
-      upload = new Upload(msgId, fpath, {size: 1234, isDirectory: -> false})
-      waitsForPromise ->
-        FileUploadStore._verifyUpload(upload)
-        .then (up) -> expect(up.id).toBe upload.id
-
-
   describe '_copyUpload', ->
-
     beforeEach ->
       stream = require 'stream'
-      @upload = new Upload(msgId, fpath, {size: 1234, isDirectory: -> false}, null, uploadDir)
+      @upload = new Upload({
+        messageClientId: msgId,
+        filePath: fpath,
+        stats: {
+          size: 1234,
+          isDirectory: -> false
+        },
+        id: null,
+        uploadDir: uploadDir
+      })
       @readStream = stream.Readable()
       @writeStream = stream.Writable()
       spyOn(@readStream, 'pipe')

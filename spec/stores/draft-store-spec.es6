@@ -530,7 +530,7 @@ describe('DraftStore', function draftStore() {
       const defaultMe = new Contact();
       spyOn(DraftStore, '_onPopoutDraftClientId');
       spyOn(Account.prototype, 'defaultMe').andReturn(defaultMe);
-      spyOn(Actions, 'addAttachment').andCallFake(({callback}) => callback());
+      spyOn(Actions, 'addAttachment').andCallFake(({onUploadCreated}) => onUploadCreated());
       DraftStore._onHandleMailFiles({}, ['/Users/ben/file1.png', '/Users/ben/file2.png']);
       waitsFor(() => DatabaseTransaction.prototype.persistModel.callCount > 0);
       runs(() => {

@@ -2699,7 +2699,7 @@
 6688298: internal_packages/composer/lib/compose-button.js
 6693285: internal_packages/composer/lib/composer-view.js
 6801894: internal_packages/composer/lib/file-upload.js
-6810718: internal_packages/composer/lib/image-file-upload.js
+6810718: internal_packages/composer/lib/image-upload.js
 6817376: internal_packages/composer/lib/composer-editor.js
 15488775: internal_packages/composer/lib/composer-header.js
 6881838: internal_packages/composer/lib/account-contact-field.js

@@ -93,5 +93,6 @@ class NylasComponentKit
   @load "ListensToObservable", 'decorators/listens-to-observable'
   @load "ListensToFluxStore", 'decorators/listens-to-flux-store'
   @load "ListensToMovementKeys", 'decorators/listens-to-movement-keys'
+  @load "HasTutorialTip", 'decorators/has-tutorial-tip'
 
 module.exports = new NylasComponentKit()

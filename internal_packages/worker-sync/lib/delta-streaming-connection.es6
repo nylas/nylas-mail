@@ -7,7 +7,7 @@ const {Status} = NylasLongConnection
 class DeltaStreamingConnection extends NylasLongConnection {
 
   constructor(api, accountId, opts = {}) {
-    opts.debounceInterval = 1000
+    opts.debounceResultsInterval = 1000
     opts.closeIfDataStopsInterval = 15 * 1000
     super(api, accountId, opts)
 

@@ -1,0 +1,79 @@
+@import "darkside-variables";
+
+.toolbar-window-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0;
+  min-width: 50px;
+  width: 50px;
+}
+
+.toolbar-window-controls button {
+  background-color: @sidebar-text;
+  background-image: none !important;
+  float: none;
+  opacity: 0.5;
+  margin: 0;
+  transform: scaleY(0.5);
+  border-radius: 2px;
+  transition-duration: 150ms;
+  transition-property: border-radius, opacity, transform;
+}
+
+.toolbar-window-controls:hover button {
+  opacity: 1;
+  border-radius: 50%;
+  transform: scaleY(1);
+}
+
+.toolbar-window-controls .close {
+  background-color: @danger;
+}
+
+.toolbar-window-controls .minimize {
+  background-color: @minimize;
+}
+
+.toolbar-window-controls .maximize {
+  background-color: @maximize;
+}
+
+.is-blurred {
+  .toolbar-window-controls .close,
+  .toolbar-window-controls .minimize,
+  .toolbar-window-controls .maximize {
+    background-color: fade(@sidebar-text, 50%);
+  }
+}
+
+// Compose Button Overrides
+.sheet-toolbar .btn.btn-toolbar.item-compose {
+  background: transparent;
+  box-shadow: none;
+  opacity: 0.5;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  transition: opacity 200ms;
+  &:hover {
+    opacity: 1;
+  }
+}
+
+// Compose button icon color
+.sheet-toolbar .btn.btn-toolbar.item-compose img.content-mask {
+  background-color: @sidebar-text;
+}
+
+// Activity List
+.toolbar-activity {
+  margin-right: 8px;
+}
+
+.activity-list-container {
+  .disclosure-triangle div {
+    margin-left: 4px;
+    margin-top: -2px;
+  }
+}
