@@ -51,25 +51,18 @@ export function activate() {
   let buttons;
   if (numAsks >= 1) {
     buttons = [
-      "Move to Applications Folder",
+      "Move to Applications folder",
       "Don't ask again",
-      "Do Not Move",
+      "Do not move",
     ]
   } else {
     buttons = [
-      "Move to Applications Folder",
-      "Do Not Move",
+      "Move to Applications folder",
+      "Do not move",
     ]
   }
 
-  const re = /(^.*?\.app)/i;
-  let enclosingFolder = (re.exec(process.argv[0]) || [])[0].split("/");
-  enclosingFolder = enclosingFolder[enclosingFolder.length - 2]
-
-  let msg = `I can move myself to your Applications folder if you'd like.`
-  if (enclosingFolder) {
-    msg += ` This will keep your ${enclosingFolder} folder uncluttered.`
-  }
+  let msg = `We recommend that you move N1 to your Applications folder to get updates correctly and keep this folder uncluttered.`
 
   const CANCEL_ID = 3;
 
