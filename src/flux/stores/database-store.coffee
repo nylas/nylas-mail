@@ -6,13 +6,13 @@ sqlite3 = require 'sqlite3'
 Model = require '../models/model'
 Utils = require '../models/utils'
 Actions = require '../actions'
-ModelQuery = require '../models/query'
+ModelQuery = require('../models/query').default
 NylasStore = require '../../global/nylas-store'
 PromiseQueue = require 'promise-queue'
 PriorityUICoordinator = require '../../priority-ui-coordinator'
 DatabaseSetupQueryBuilder = require('./database-setup-query-builder').default
 DatabaseChangeRecord = require('./database-change-record').default
-DatabaseTransaction = require './database-transaction'
+DatabaseTransaction = require('./database-transaction').default
 JSONBlob = null
 
 {remote, ipcRenderer} = require 'electron'
@@ -30,12 +30,6 @@ BEGIN_TRANSACTION = 'BEGIN TRANSACTION'
 COMMIT = 'COMMIT'
 
 TXINDEX = 0
-
-class JSONBlobQuery extends ModelQuery
-  formatResult: (objects) =>
-    return objects[0]?.json || null
-
-
 
 ###
 Public: N1 is built on top of a custom database layer modeled after
@@ -438,8 +432,8 @@ class DatabaseStore extends NylasStore
       Promise.resolve(result)
 
   findJSONBlob: (id) ->
-    JSONBlob ?= require '../models/json-blob'
-    new JSONBlobQuery(JSONBlob, @).where({id}).one()
+    JSONBlob ?= require('../models/json-blob').default
+    new JSONBlob.Query(JSONBlob, @).where({id}).one()
 
   # Private: Mutation hooks allow you to observe changes to the database and
   # add additional functionality before and after the REPLACE / INSERT queries.

@@ -1,4 +1,4 @@
-ModelQuery = require '../../src/flux/models/query'
+ModelQuery = require('../../src/flux/models/query').default
 {Matcher} = require('../../src/flux/attributes').default
 Message = require('../../src/flux/models/message').default
 Thread = require('../../src/flux/models/thread').default

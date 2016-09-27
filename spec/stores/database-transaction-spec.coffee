@@ -3,8 +3,8 @@ _ = require 'underscore'
 Category = require '../../src/flux/models/category'
 Thread = require('../../src/flux/models/thread').default
 TestModel = require '../fixtures/db-test-model'
-ModelQuery = require '../../src/flux/models/query'
-DatabaseTransaction = require '../../src/flux/stores/database-transaction'
+ModelQuery = require('../../src/flux/models/query').default
+DatabaseTransaction = require('../../src/flux/stores/database-transaction').default
 
 testMatchers = {'id': 'b'}
 testModelInstance = new TestModel(id: "1234")
