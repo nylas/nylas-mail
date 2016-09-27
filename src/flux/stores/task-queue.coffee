@@ -137,7 +137,13 @@ class TaskQueue
     task.sequentialId = ++@_currentSequentialId
 
     @_dequeueObsoleteTasks(task)
-    task.runLocal().then =>
+    runLocalStart = Date.now()
+    task.runLocal()
+    .then =>
+      runLocalTime = Date.now() - runLocalStart
+      if runLocalTime >= 150
+        err = new Error("Task peformLocal took more than 150ms")
+        NylasEnv.reportError(err, {task: task.toJSON(), duration: runLocalTime, taskName: task.constructor.name})
       @_queue.push(task)
       @_updateSoon()
 
