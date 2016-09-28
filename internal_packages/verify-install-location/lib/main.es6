@@ -62,7 +62,7 @@ export function activate() {
     ]
   }
 
-  let msg = `We recommend that you move N1 to your Applications folder to get updates correctly and keep this folder uncluttered.`
+  const msg = `We recommend that you move N1 to your Applications folder to get updates correctly and keep this folder uncluttered.`
 
   const CANCEL_ID = 3;
 
