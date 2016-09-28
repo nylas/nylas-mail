@@ -447,55 +447,57 @@ export default class WeekView extends React.Component {
             prevAction={this._onClickPrevWeek}
           />
 
-          <div className="calendar-legend">
-            <div
-              className="date-label-legend"
-              style={{height: this._allDayEventHeight(allDayOverlap) + 75 + 1}}
-            >
-              <span className="legend-text">All Day</span>
-            </div>
-            <div className="event-grid-legend-wrap" ref="eventGridLegendWrap">
-              <div className="event-grid-legend" style={{height: this._gridHeight()}}>
-                {this._renderEventGridLabels()}
+          <div className="calendar-body-wrap">
+            <div className="calendar-legend">
+              <div
+                className="date-label-legend"
+                style={{height: this._allDayEventHeight(allDayOverlap) + 75 + 1}}
+              >
+                <span className="legend-text">All Day</span>
+              </div>
+              <div className="event-grid-legend-wrap" ref="eventGridLegendWrap">
+                <div className="event-grid-legend" style={{height: this._gridHeight()}}>
+                  {this._renderEventGridLabels()}
+                </div>
               </div>
             </div>
-          </div>
 
-          <div
-            className="calendar-area-wrap"
-            ref="calendarAreaWrap"
-            onScroll={this._onScrollCalWrap}
-          >
-            <div className="week-header" style={{width: `${this._bufferRatio() * 100}%`}}>
-              <div className="date-labels">
-                {days.map(this._renderDateLabel)}
-              </div>
-
-              <WeekViewAllDayEvents
-                ref="weekViewAllDayEvents"
-                minorDim={MIN_INTERVAL_HEIGHT}
-                end={this.state.endMoment.unix()}
-                height={this._allDayEventHeight(allDayOverlap)}
-                start={this.state.startMoment.unix()}
-                allDayEvents={eventsByDay.allDay}
-                allDayOverlap={allDayOverlap}
-              />
-            </div>
             <div
-              className="event-grid-wrap"
-              ref="eventGridWrap"
-              onScroll={this._onGridScroll}
-              style={{width: `${this._bufferRatio() * 100}%`}}
+              className="calendar-area-wrap"
+              ref="calendarAreaWrap"
+              onScroll={this._onScrollCalWrap}
             >
-              <div className="event-grid" style={{height: this._gridHeight()}}>
-                {days.map(_.partial(this._renderEventColumn, eventsByDay))}
-                <EventGridBackground
-                  height={this._gridHeight()}
-                  intervalHeight={this.state.intervalHeight}
-                  numColumns={BUFFER_DAYS * 2 + DAYS_IN_VIEW}
-                  ref="eventGridBg"
-                  tickGenerator={tickGen}
+              <div className="week-header" style={{width: `${this._bufferRatio() * 100}%`}}>
+                <div className="date-labels">
+                  {days.map(this._renderDateLabel)}
+                </div>
+
+                <WeekViewAllDayEvents
+                  ref="weekViewAllDayEvents"
+                  minorDim={MIN_INTERVAL_HEIGHT}
+                  end={this.state.endMoment.unix()}
+                  height={this._allDayEventHeight(allDayOverlap)}
+                  start={this.state.startMoment.unix()}
+                  allDayEvents={eventsByDay.allDay}
+                  allDayOverlap={allDayOverlap}
                 />
+              </div>
+              <div
+                className="event-grid-wrap"
+                ref="eventGridWrap"
+                onScroll={this._onGridScroll}
+                style={{width: `${this._bufferRatio() * 100}%`}}
+              >
+                <div className="event-grid" style={{height: this._gridHeight()}}>
+                  {days.map(_.partial(this._renderEventColumn, eventsByDay))}
+                  <EventGridBackground
+                    height={this._gridHeight()}
+                    intervalHeight={this.state.intervalHeight}
+                    numColumns={BUFFER_DAYS * 2 + DAYS_IN_VIEW}
+                    ref="eventGridBg"
+                    tickGenerator={tickGen}
+                  />
+                </div>
               </div>
             </div>
           </div>
