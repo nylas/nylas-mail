@@ -27,12 +27,12 @@ function InflatesDraftClientId(ComposedComponent) {
     }
 
     componentDidMount() {
-      this._unmounted = false;
+      this._mounted = true;
       this._prepareForDraft(this.props.draftClientId);
     }
 
     componentWillUnmount() {
-      this._unmounted = true;
+      this._mounted = false;
       this._teardownForDraft();
       this._deleteDraftIfEmpty();
     }
@@ -49,14 +49,12 @@ function InflatesDraftClientId(ComposedComponent) {
         return;
       }
       DraftStore.sessionForClientId(draftClientId).then((session) => {
-        if (this._unmounted) {
-          return;
-        }
-        if (session.draftClientId !== this.props.draftClientId) {
-          return;
-        }
+        const shouldSetState = () =>
+          this._mounted && session.draftClientId === this.props.draftClientId
 
+        if (!shouldSetState()) { return; }
         this._sessionUnlisten = session.listen(() => {
+          if (!shouldSetState()) { return; }
           this.setState({draft: session.draft()});
         });
 
