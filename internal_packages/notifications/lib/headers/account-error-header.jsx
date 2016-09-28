@@ -51,16 +51,13 @@ export default class AccountErrorHeader extends React.Component {
   }
 
   _onCheckAgain = (event) => {
-    const errorAccounts = this.state.accounts.filter(a => a.hasSyncStateError());
     this.setState({refreshing: true});
 
     event.stopPropagation();
 
-    IdentityStore.refreshStatus().finally(() => {
-      AccountStore.refreshHealthOfAccounts(errorAccounts.map(a => a.id)).finally(() => {
-        if (!this.mounted) { return; }
-        this.setState({refreshing: false});
-      });
+    IdentityStore.refreshIdentityAndAccounts().finally(() => {
+      if (!this.mounted) { return; }
+      this.setState({refreshing: false});
     });
   }
 
