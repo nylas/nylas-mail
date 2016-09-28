@@ -44,14 +44,14 @@ describe "FocusedPerspectiveStore", ->
       NylasEnv.savedState.sidebarAccountIds = [1, 2, 3]
       NylasEnv.savedState.perspective =
         accountIds: [1, 2, 3],
-        categories: () => [{accountId: 1, id: 'A'}],
+        categories: => [{accountId: 1, id: 'A'}],
       FocusedPerspectiveStore._initializeFromSavedState()
       expect(FocusedPerspectiveStore._setPerspective).toHaveBeenCalledWith(@default, @default.accountIds)
 
       NylasEnv.savedState.sidebarAccountIds = [1, 2, 3]
       NylasEnv.savedState.perspective =
         accountIds: [3]
-        categories: () => [{accountId: 3, id: 'A'}]
+        categories: => [{accountId: 3, id: 'A'}]
       FocusedPerspectiveStore._initializeFromSavedState()
       expect(FocusedPerspectiveStore._setPerspective).toHaveBeenCalledWith(@default, @default.accountIds)
 
@@ -59,7 +59,7 @@ describe "FocusedPerspectiveStore", ->
       NylasEnv.savedState.sidebarAccountIds = [2]
       NylasEnv.savedState.perspective =
         accountIds: [2]
-        categories: () => [{accountId: 2, id: 'C'}]
+        categories: => [{accountId: 2, id: 'C'}]
       FocusedPerspectiveStore._initializeFromSavedState()
       expect(FocusedPerspectiveStore._setPerspective).toHaveBeenCalledWith(@default, @default.accountIds)
 
@@ -67,7 +67,7 @@ describe "FocusedPerspectiveStore", ->
       NylasEnv.savedState.sidebarAccountIds = [1, 2, 3]
       NylasEnv.savedState.perspective =
         accountIds: [1]
-        categories: () => [{accountId: 1, id: 'A'}]
+        categories: => [{accountId: 1, id: 'A'}]
       FocusedPerspectiveStore._initializeFromSavedState()
       expect(FocusedPerspectiveStore._setPerspective).toHaveBeenCalledWith(NylasEnv.savedState.perspective, [1])
 
@@ -75,14 +75,14 @@ describe "FocusedPerspectiveStore", ->
       NylasEnv.savedState.sidebarAccountIds = [1, 2]
       NylasEnv.savedState.perspective =
         accountIds: [1, 2]
-        categories: () => [{accountId: 1, id: 'A'}]
+        categories: => [{accountId: 1, id: 'A'}]
       FocusedPerspectiveStore._initializeFromSavedState()
       expect(FocusedPerspectiveStore._setPerspective).toHaveBeenCalledWith(NylasEnv.savedState.perspective, [1, 2])
 
       NylasEnv.savedState.sidebarAccountIds = [1, 2]
       NylasEnv.savedState.perspective =
         accountIds: [1]
-        categories: () => []
+        categories: => []
         type: 'DraftsMailboxPerspective'
 
       FocusedPerspectiveStore._initializeFromSavedState()
@@ -91,7 +91,7 @@ describe "FocusedPerspectiveStore", ->
       NylasEnv.savedState.sidebarAccountIds = [1]
       NylasEnv.savedState.perspective =
         accountIds: [1]
-        categories: () => []
+        categories: => []
         type: 'DraftsMailboxPerspective'
 
       FocusedPerspectiveStore._initializeFromSavedState()
