@@ -26,11 +26,6 @@ class AccountStore extends NylasStore
     @listenTo Actions.updateAccount, @_onUpdateAccount
     @listenTo Actions.reorderAccount, @_onReorderAccount
 
-    if NylasEnv.isWorkWindow() and ['staging', 'production'].includes(NylasEnv.config.get('env'))
-      setTimeout( =>
-        @refreshHealthOfAccounts(@_accounts.map((a) -> a.id))
-      , 2000)
-
     NylasEnv.config.onDidChange configVersionKey, (change) =>
       # If we already have this version of the accounts config, it means we
       # are the ones who saved the change, and we don't need to reload.

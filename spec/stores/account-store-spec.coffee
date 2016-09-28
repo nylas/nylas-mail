@@ -79,21 +79,6 @@ describe "AccountStore", ->
       expect(@instance.tokenForAccountId('A')).toEqual('A-TOKEN')
       expect(@instance.tokenForAccountId('B')).toEqual('B-TOKEN')
 
-    describe "in the work window and running on production", ->
-      it "should refresh the accounts", ->
-        spyOn(NylasEnv, 'isWorkWindow').andReturn(true)
-        @instance = new @constructor
-        spyOn(@instance, 'refreshHealthOfAccounts')
-        advanceClock(10000)
-        expect(@instance.refreshHealthOfAccounts).toHaveBeenCalledWith(['A', 'B'])
-
-    describe "in the main window", ->
-      it "should not refresh the accounts", ->
-        @instance = new @constructor
-        spyOn(@instance, 'refreshHealthOfAccounts')
-        advanceClock(10000)
-        expect(@instance.refreshHealthOfAccounts).not.toHaveBeenCalled()
-
   describe "accountForEmail", ->
     beforeEach ->
       @instance = new @constructor
