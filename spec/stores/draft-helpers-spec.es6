@@ -5,6 +5,10 @@ import {
   SyncbackDraftFilesTask,
 } from 'nylas-exports';
 
+import InlineStyleTransformer from '../../src/services/inline-style-transformer';
+import SanitizeTransformer from '../../src/services/sanitize-transformer';
+
+
 describe('DraftHelpers', function describeBlock() {
   describe('prepareDraftForSyncback', () => {
     beforeEach(() => {
@@ -33,6 +37,19 @@ describe('DraftHelpers', function describeBlock() {
       });
     });
   });
+
+  describe("prepareBodyForQuoting", () => {
+    it("should transform inline styles and sanitize unsafe html", () => {
+      const input = "test 123";
+      spyOn(InlineStyleTransformer, 'run').andCallThrough();
+      spyOn(SanitizeTransformer, 'run').andCallThrough();
+      DraftHelpers.prepareBodyForQuoting(input);
+      expect(InlineStyleTransformer.run).toHaveBeenCalledWith(input);
+      advanceClock();
+      expect(SanitizeTransformer.run).toHaveBeenCalledWith(input, SanitizeTransformer.Preset.UnsafeOnly);
+    });
+  });
+
 
   describe('shouldAppendQuotedText', () => {
     it('returns true if message is reply and has no marker', () => {
