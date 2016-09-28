@@ -58,7 +58,7 @@ describe('SyncbackDraftFilesTask', function syncbackDraftFilesTask() {
           });
         });
       });
-      spyOn(DatabaseStore, 'run').andReturn(Promise.resolve(this.draft));
+      spyOn(DatabaseStore, 'run').andCallFake(() => Promise.resolve(this.draft))
     });
 
     it("should begin file uploads and not resolve until they complete", () => {
@@ -86,6 +86,39 @@ describe('SyncbackDraftFilesTask', function syncbackDraftFilesTask() {
       expect(draft.files.length).toBe(2);
       expect(draft.uploads.length).toBe(0);
     });
+
+    it("should not upload inline attachments which were removed from the draft body", () => {
+      this.uploads = [
+        {targetPath: '/test-file-1.png', size: 100, inline: true, id: 'aaa'},
+        {targetPath: '/test-file-2.png', size: 100, inline: true, id: 'bbb'},
+      ];
+      this.draft = new Message({
+        version: 1,
+        clientId: 'client-id',
+        accountId: TEST_ACCOUNT_ID,
+        from: [new Contact({email: TEST_ACCOUNT_EMAIL})],
+        subject: 'New Draft',
+        draft: true,
+        body: 'This is my response<br><br><img src="cid:bbb"><br>I cut out aaa! What a bummer.',
+        uploads: [].concat(this.uploads),
+      });
+
+      this.task.performRemote();
+      advanceClock();
+
+      // Only upload `bbb` should be sent, upload `aaa` should be deleted
+      // because it was not present in the draft body.
+      expect(NylasAPI.makeRequest.callCount).toEqual(1);
+      expect(NylasAPI.makeRequest.calls[0].args[0].formData).toEqual({file: {value: 'stub', options: { filename: 'test-file-2.png' } } });
+      this.resolveAll();
+      advanceClock();
+      expect(DBt.persistModel).toHaveBeenCalled();
+      const draft = DBt.persistModel.mostRecentCall.args[0];
+      expect(draft.files.length).toBe(1);
+
+      // the upload should still be removed
+      expect(draft.uploads.length).toBe(0);
+    })
 
     it("should not interfere with other uploads added to the draft during task execution", () => {
       this.task.performRemote();

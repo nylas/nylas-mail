@@ -112,11 +112,6 @@ class Contact extends Model
     account = AccountStore.accountForEmail(@email)
     return account?
 
-  hasSameDomainAsMe: ->
-    for myEmail in AccountStore.emailAddresses()
-      return true if Utils.emailsHaveSameDomain(@email, myEmail)
-    return false
-
   isMePhrase: ({includeAccountLabel, forceAccountLabel} = {}) ->
     account = AccountStore.accountForEmail(@email)
     return null unless account

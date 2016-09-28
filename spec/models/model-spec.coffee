@@ -98,6 +98,9 @@ describe "Model", ->
             modelKey: 'testCollection'
             jsonKey: 'test_collection'
             itemClass: SubmodelItem
+          'testJoinedData': Attributes.JoinedData
+            modelKey: 'testJoinedData'
+            jsonKey: 'test_joined_data'
 
       @json =
         'id': '1234'
@@ -126,6 +129,11 @@ describe "Model", ->
       @m.fromJSON(@json)
       expect(@m.daysOld).toBe(undefined)
 
+    it "should maintain empty string as empty strings", ->
+      expect(@m.accountId).toBe(undefined)
+      @m.fromJSON({account_id: ''})
+      expect(@m.accountId).toBe('')
+
     describe "Attributes.Number", ->
       it "should read number attributes and coerce them to numeric values", ->
         @m.fromJSON('test_number': 4)
@@ -139,6 +147,17 @@ describe "Model", ->
 
         @m.fromJSON('test_number': 0)
         expect(@m.testNumber).toBe(0)
+
+    describe "Attributes.JoinedData", ->
+      it "should read joined data attributes and coerce them to string values", ->
+        @m.fromJSON('test_joined_data': null)
+        expect(@m.testJoinedData).toBe(null)
+
+        @m.fromJSON('test_joined_data': '')
+        expect(@m.testJoinedData).toBe('')
+
+        @m.fromJSON('test_joined_data': 'lolz')
+        expect(@m.testJoinedData).toBe('lolz')
 
     describe "Attributes.Collection", ->
       it "should parse and inflate items", ->

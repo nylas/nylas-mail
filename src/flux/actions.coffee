@@ -483,6 +483,7 @@ class Actions
   @addAttachment: ActionScopeWindow
   @selectAttachment: ActionScopeWindow
   @removeAttachment: ActionScopeWindow
+  @insertAttachmentIntoDraft: ActionScopeWindow
 
   @fetchAndOpenFile: ActionScopeWindow
   @fetchAndSaveFile: ActionScopeWindow

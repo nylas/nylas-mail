@@ -87,7 +87,7 @@ class WindowEventHandler
     document.addEventListener 'dragover', @onDragOver
 
     document.addEventListener 'click', (event) =>
-      if event.target.nodeName is 'A'
+      if event.target.closest('[href]')
         @openLink(event)
 
     document.addEventListener 'contextmenu', (event) =>
@@ -145,27 +145,29 @@ class WindowEventHandler
     event.preventDefault()
     event.stopPropagation()
 
+  resolveHref: (el) ->
+    return null unless el
+    closestHrefEl = el.closest('[href]')
+    return closestHrefEl.getAttribute('href') if closestHrefEl
+    return null
+
   openLink: ({href, target, currentTarget, metaKey}) ->
     if not href
-      if target instanceof Element
-        href = target.getAttribute('href')
-      else if currentTarget instanceof Element
-        href = currentTarget.getAttribute('href')
-
+      href = @resolveHref(target || currentTarget)
     return unless href
 
     return if target?.closest('.no-open-link-events')
 
-    schema = url.parse(href).protocol
-    return unless schema
+    {protocol} = url.parse(href)
+    return unless protocol
 
-    if schema is 'mailto:'
+    if protocol is 'mailto:'
       # We sometimes get mailto URIs that are not escaped properly, or have been only partially escaped.
       # (T1927) Be sure to escape them once, and completely, before we try to open them. This logic
       # *might* apply to http/https as well but it's unclear.
       href = encodeURI(decodeURI(href))
       remote.getGlobal('application').openUrl(href)
-    else if schema in ['http:', 'https:', 'tel:']
+    else if protocol in ['http:', 'https:', 'tel:']
       shell.openExternal(href, activate: !metaKey)
 
     return

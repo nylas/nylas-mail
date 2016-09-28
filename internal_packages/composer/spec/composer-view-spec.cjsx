@@ -6,6 +6,7 @@ ReactDOM = require 'react-dom'
 ReactTestUtils = require('react-addons-test-utils')
 
 {Actions,
+ Utils,
  File,
  Contact,
  Message,
@@ -432,6 +433,38 @@ describe "ComposerView", ->
     it 'injects an Attachment:Image component for image files', ->
       els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, InjectedComponent, matching: {role: "Attachment:Image"})
       expect(els.length).toBe 1
+
+describe "when a file is received (via drag and drop or paste)", ->
+  beforeEach ->
+    useDraft.call @
+    makeComposer.call @
+    @upload = {targetPath: 'a/f.txt', size: 1000, name: 'f.txt', id: 'f'}
+    spyOn(Actions, 'addAttachment').andCallFake ({filePath, messageClientId, onUploadCreated}) =>
+      @draft.uploads.push(@upload)
+      onUploadCreated(@upload)
+    spyOn(Actions, 'insertAttachmentIntoDraft')
+
+  it "should call addAttachment with the path and clientId", ->
+    @composer._onFileReceived('../../f.txt')
+    expect(Actions.addAttachment.callCount).toBe(1)
+    expect(Object.keys(Actions.addAttachment.calls[0].args[0])).toEqual([
+      'filePath', 'messageClientId', 'onUploadCreated',
+    ])
+
+  it "should call insertAttachmentIntoDraft if the upload looks like an image", ->
+    @upload = {targetPath: 'a/f.txt', size: 1000, name: 'f.txt', id: 'f'}
+    @composer._onFileReceived('../../f.txt')
+    advanceClock()
+    expect(Actions.insertAttachmentIntoDraft).not.toHaveBeenCalled()
+    expect(@upload.inline).not.toEqual(true)
+
+    @upload = {targetPath: 'a/f.png', size: 1000, name: 'f.png', id: 'g'}
+    expect(Utils.shouldDisplayAsImage(@upload)).toBe(true) # sanity check
+
+    @composer._onFileReceived('../../f.png')
+    advanceClock()
+    expect(Actions.insertAttachmentIntoDraft).toHaveBeenCalled()
+    expect(@upload.inline).toEqual(true)
 
 describe "when the DraftStore `isSending` isn't stubbed out", ->
   beforeEach ->

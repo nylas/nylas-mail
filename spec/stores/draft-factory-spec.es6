@@ -192,14 +192,6 @@ describe('DraftFactory', function draftFactory() {
           });
         });
       });
-      it("should sanitize the HTML", () => {
-        waitsForPromise(() => {
-          return DraftFactory.createDraftForReply({thread: fakeThread, message: fakeMessage1, type: 'reply'}).then(() => {
-            expect(InlineStyleTransformer.run).toHaveBeenCalled();
-            expect(SanitizeTransformer.run).toHaveBeenCalled();
-          });
-        });
-      });
 
       it("should make the subject the subject of the message, not the thread", () => {
         fakeMessage1.subject = "OLD SUBJECT";
@@ -558,16 +550,6 @@ describe('DraftFactory', function draftFactory() {
         expect(contact.name).toEqual(expected.name);
         expect(contact.email).toEqual(expected.email);
       });
-    });
-  });
-
-  describe("_prepareBodyForQuoting", () => {
-    it("should transform inline styles and sanitize unsafe html", () => {
-      const input = "test 123";
-      DraftFactory._prepareBodyForQuoting(input);
-      expect(InlineStyleTransformer.run).toHaveBeenCalledWith(input);
-      advanceClock();
-      expect(SanitizeTransformer.run).toHaveBeenCalledWith(input, SanitizeTransformer.Preset.UnsafeOnly);
     });
   });
 

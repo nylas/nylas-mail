@@ -3,7 +3,7 @@ _ = require 'underscore'
 Label = require '../../src/flux/models/label'
 Thread = require('../../src/flux/models/thread').default
 TestModel = require '../fixtures/db-test-model'
-ModelQuery = require '../../src/flux/models/query'
+ModelQuery = require('../../src/flux/models/query').default
 DatabaseStore = require '../../src/flux/stores/database-store'
 
 testMatchers = {'id': 'b'}

@@ -59,6 +59,16 @@ body.platform-win32 {
     }
   }
 
+  .inline-image-upload-container {
+    display: inline-block;
+
+    .file-wrap.file-image-wrap {
+      margin: 0;
+      max-width: 100%;
+      min-width: 0;
+    }
+  }
+
   .composer-action-bar-wrap {
     @action-bar-bg: @background-off-primary;
     position: relative;
@@ -477,11 +487,13 @@ body.platform-win32 {
   left: 0;
   width: 100%;
   height: 0;
+  line-height: 1.4; // must match contenteditable container
   overflow: visible;
-  z-index: 10;
+  z-index: 1;
 }
 img.n1-overlaid-component-anchor-container {
   border: 0;
+  vertical-align: baseline;
 }
 .toggle-preview {
   position: absolute;

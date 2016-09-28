@@ -36,7 +36,13 @@ class MultiselectListInteractionHandler
       item = @props.dataSource.getById(keyboardCursorId)
       @onFocusItem(item)
 
-  onSelect: =>
+  onDeselect: =>
+    @props.dataSource.selection.clear()
+
+  onSelect: (items) =>
+    @props.dataSource.selection.set(items)
+
+  onSelectKeyboardItem: =>
     {id} = @_keyboardContext()
     return unless id
     @props.dataSource.selection.toggle(@props.dataSource.getById(id))

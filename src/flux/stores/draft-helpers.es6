@@ -4,7 +4,11 @@ import Message from '../models/message'
 import * as ExtensionRegistry from '../../extension-registry'
 import SyncbackDraftFilesTask from '../tasks/syncback-draft-files-task'
 import DOMUtils from '../../dom-utils'
+
 import QuotedHTMLTransformer from '../../services/quoted-html-transformer'
+import InlineStyleTransformer from '../../services/inline-style-transformer'
+import SanitizeTransformer from '../../services/sanitize-transformer'
+import MessageUtils from '../models/message-utils'
 
 
 export const AllowedTransformFields = ['to', 'from', 'cc', 'bcc', 'subject', 'body']
@@ -39,6 +43,19 @@ export function shouldAppendQuotedText({body = '', replyToMessageId = false} = {
     !body.includes(`nylas-quote-id-${replyToMessageId}`)
 }
 
+export function prepareBodyForQuoting(body = "") {
+  // TODO: Fix inline images
+  const cidRE = MessageUtils.cidRegexString;
+
+  // Be sure to match over multiple lines with [\s\S]*
+  // Regex explanation here: https://regex101.com/r/vO6eN2/1
+  body.replace(new RegExp(`<img.*${cidRE}[\\s\\S]*?>`, "igm"), "")
+
+  return InlineStyleTransformer.run(body).then((inlineStyled) =>
+    SanitizeTransformer.run(inlineStyled, SanitizeTransformer.Preset.UnsafeOnly)
+  )
+}
+
 export function messageMentionsAttachment({body} = {}) {
   if (body == null) { throw new Error('DraftHelpers::messageMentionsAttachment - Message has no body loaded') }
   let cleaned = QuotedHTMLTransformer.removeQuotedHTML(body.toLowerCase().trim());
@@ -56,21 +73,25 @@ export function queueDraftFileUploads(draft) {
 }
 
 export function appendQuotedTextToDraft(draft) {
-  return DatabaseStore.find(Message, draft.replyToMessageId)
-  .include(Message.attributes.body)
-  .then((prevMessage) => {
-    const quotedText = `
-      <div class="gmail_quote nylas-quote nylas-quote-id-${draft.replyToMessageId}">
-        <br>
-        ${DOMUtils.escapeHTMLCharacters(prevMessage.replyAttributionLine())}
-        <br>
-        <blockquote class="gmail_quote"
-          style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
-          ${prevMessage.body}
-        </blockquote>
-      </div>`
-    draft.body = draft.body + quotedText
-    return Promise.resolve(draft)
+  const query = DatabaseStore.find(Message, draft.replyToMessageId).include(Message.attributes.body);
+
+  return query.then((prevMessage) => {
+    if (!prevMessage) {
+      return Promise.resolve(draft);
+    }
+    return prepareBodyForQuoting(prevMessage.body).then((prevBodySanitized) => {
+      draft.body = `${draft.body}
+        <div class="gmail_quote nylas-quote nylas-quote-id-${draft.replyToMessageId}">
+          <br>
+          ${DOMUtils.escapeHTMLCharacters(prevMessage.replyAttributionLine())}
+          <br>
+          <blockquote class="gmail_quote"
+            style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
+            ${prevBodySanitized}
+          </blockquote>
+        </div>`;
+      return Promise.resolve(draft);
+    });
   })
 }
 

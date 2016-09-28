@@ -41,7 +41,7 @@ export default class QuerySubscription {
 
   addCallback = (callback) => {
     if (!(callback instanceof Function)) {
-      throw new Error("QuerySubscription:addCallback - expects a function, received #{callback}");
+      throw new Error(`QuerySubscription:addCallback - expects a function, received ${callback}`);
     }
     this._callbacks.push(callback);
 
@@ -59,7 +59,7 @@ export default class QuerySubscription {
 
   removeCallback(callback) {
     if (!(callback instanceof Function)) {
-      throw new Error("QuerySubscription:removeCallback - expects a function, received #{callback}")
+      throw new Error(`QuerySubscription:removeCallback - expects a function, received ${callback}`)
     }
     this._callbacks = _.without(this._callbacks, callback);
     if (this.callbackCount() === 0) {
