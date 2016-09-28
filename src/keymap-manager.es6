@@ -181,7 +181,9 @@ export default class KeymapManager {
         if (!this._commandsCache[keystrokes]) {
           this._commandsCache[keystrokes] = [];
         }
-        this._commandsCache[keystrokes].push(command);
+        if (!this._commandsCache[keystrokes].includes(command)) {
+          this._commandsCache[keystrokes].push(command);
+        }
       }
     }
 
