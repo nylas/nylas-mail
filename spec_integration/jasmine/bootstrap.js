@@ -16,10 +16,6 @@ console.errorColor = function(err){
   }
 }
 
-console.inspect = function(val) {
-  console.log(util.inspect(val, true, depth=7, colorize=true));
-}
-
 jasmine.NYLAS_ROOT_PATH = process.argv[3].split("NYLAS_ROOT_PATH=")[1]
 jasmine.UNIT_TEST_TIMEOUT = 120*1000;
 jasmine.BOOT_TIMEOUT = 30*1000;
