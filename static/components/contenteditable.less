@@ -12,6 +12,9 @@
   div[contenteditable], .contenteditable {
     flex: 1;
 
+    // Subtle: overflow is required to make the composer wrap
+    // instead of scroll when you type a very long "word" / url.
+    overflow-x: hidden;
     a:hover {
       cursor: text;
     }
