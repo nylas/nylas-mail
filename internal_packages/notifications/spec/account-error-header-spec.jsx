@@ -20,12 +20,9 @@ describe("AccountErrorHeader", function AccountErrorHeaderTests() {
 
     it("allows the user to refresh the account", () => {
       const header = mount(<AccountErrorHeader />);
-      spyOn(IdentityStore, 'refreshStatus').andReturn(Promise.resolve());
-      spyOn(AccountStore, 'refreshHealthOfAccounts').andReturn(Promise.resolve());
+      spyOn(IdentityStore, 'refreshIdentityAndAccounts').andReturn(Promise.resolve());
       header.find('.action.refresh').simulate('click');
-      expect(IdentityStore.refreshStatus).toHaveBeenCalled();
-      advanceClock();
-      expect(AccountStore.refreshHealthOfAccounts).toHaveBeenCalledWith(['A']);
+      expect(IdentityStore.refreshIdentityAndAccounts).toHaveBeenCalled();
     });
 
     it("allows the user to reconnect the account", () => {
@@ -53,12 +50,9 @@ describe("AccountErrorHeader", function AccountErrorHeaderTests() {
 
     it("allows the user to refresh the accounts", () => {
       const header = mount(<AccountErrorHeader />);
-      spyOn(IdentityStore, 'refreshStatus').andReturn(Promise.resolve());
-      spyOn(AccountStore, 'refreshHealthOfAccounts').andReturn(Promise.resolve());
+      spyOn(IdentityStore, 'refreshIdentityAndAccounts').andReturn(Promise.resolve());
       header.find('.action.refresh').simulate('click');
-      expect(IdentityStore.refreshStatus).toHaveBeenCalled();
-      advanceClock();
-      expect(AccountStore.refreshHealthOfAccounts).toHaveBeenCalledWith(['A', 'B']);
+      expect(IdentityStore.refreshIdentityAndAccounts).toHaveBeenCalled();
     });
 
     it("allows the user to open preferences", () => {

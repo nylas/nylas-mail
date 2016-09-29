@@ -141,8 +141,8 @@ class TaskQueue
     task.runLocal()
     .then =>
       runLocalTime = Date.now() - runLocalStart
-      if runLocalTime >= 150
-        err = new Error("Task peformLocal took more than 150ms")
+      if runLocalTime >= 500
+        err = new Error("Task peformLocal took more than 500ms")
         NylasEnv.reportError(err, {task: task.toJSON(), duration: runLocalTime, taskName: task.constructor.name})
       @_queue.push(task)
       @_updateSoon()

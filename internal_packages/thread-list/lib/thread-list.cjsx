@@ -302,21 +302,21 @@ class ThreadList extends React.Component
   _onSelectRead: =>
     dataSource = ThreadListStore.dataSource()
     items = dataSource.itemsCurrentlyInViewMatching (item) -> not item.unread
-    dataSource.selection.set(items)
+    @refs.list.handler().onSelect(items)
 
   _onSelectUnread: =>
     dataSource = ThreadListStore.dataSource()
     items = dataSource.itemsCurrentlyInViewMatching (item) -> item.unread
-    dataSource.selection.set(items)
+    @refs.list.handler().onSelect(items)
 
   _onSelectStarred: =>
     dataSource = ThreadListStore.dataSource()
     items = dataSource.itemsCurrentlyInViewMatching (item) -> item.starred
-    dataSource.selection.set(items)
+    @refs.list.handler().onSelect(items)
 
   _onSelectUnstarred: =>
     dataSource = ThreadListStore.dataSource()
     items = dataSource.itemsCurrentlyInViewMatching (item) -> not item.starred
-    dataSource.selection.set(items)
+    @refs.list.handler().onSelect(items)
 
 module.exports = ThreadList

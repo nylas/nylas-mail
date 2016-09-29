@@ -190,7 +190,6 @@ export default class OverlaidComponents extends React.Component {
 
       const style = {left: data.left, top: data.top, position: 'absolute'}
       const component = CustomContenteditableComponents.get(data.componentKey);
-      const supportsPreviewWithinEditor = (component.supportsPreviewWithinEditor !== false);
 
       if (!component) {
         // It's possible that the plugin with that will register this
@@ -199,6 +198,7 @@ export default class OverlaidComponents extends React.Component {
         continue
       }
 
+      const supportsPreviewWithinEditor = component.supportsPreviewWithinEditor !== false;
       const props = Object.assign({},
         this.props.exposedProps,
         JSON.parse(data.componentProps),

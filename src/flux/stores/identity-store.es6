@@ -7,6 +7,7 @@ import Moment from 'moment-timezone';
 
 import Actions from '../actions';
 import AccountStore from './account-store';
+import Utils from '../models/utils';
 
 const configIdentityKey = "nylas.identity";
 const keytarServiceName = 'Nylas';
@@ -35,13 +36,16 @@ class IdentityStore extends NylasStore {
     NylasEnv.config.onDidChange(configIdentityKey, () => {
       this._loadIdentity();
       this.trigger();
+      if (NylasEnv.isMainWindow()) {
+        this.refreshAccounts();
+      }
     });
 
     this._loadIdentity();
 
     if (NylasEnv.isMainWindow() && ['staging', 'production'].includes(NylasEnv.config.get('env'))) {
-      setInterval(this.refreshStatus, 1000 * 60 * 60);
-      this.refreshStatus();
+      setInterval(this.refreshIdentityAndAccounts, 1000 * 60 * 60); // 1 hour
+      this.refreshIdentityAndAccounts();
     }
   }
 
@@ -102,18 +106,26 @@ class IdentityStore extends NylasStore {
     return Math.max(0, requiredDayOfEpoch - nowDayOfEpoch);
   }
 
-  refreshStatus = () => {
-    return Promise.all([
-      this.fetchIdentity(),
-      Promise.all(AccountStore.accounts().map((a) =>
-        this.fetchSubscriptionRequiredDate(a))
-      ).then((subscriptionRequiredDates) => {
-        this._subscriptionRequiredAfter = subscriptionRequiredDates.sort().shift();
-        this.trigger();
-      }),
-    ]).catch((err) => {
+  refreshIdentityAndAccounts = () => {
+    return this.fetchIdentity().then(() =>
+      this.refreshAccounts()
+    ).catch((err) => {
       console.error(`Unable to refresh IdentityStore status: ${err.message}`)
     });
+  }
+
+  refreshAccounts = () => {
+    const accountIds = AccountStore.accounts().map((a) => a.id);
+    AccountStore.refreshHealthOfAccounts(accountIds);
+
+    return Promise.all(AccountStore.accounts().map((a) =>
+      this.fetchSubscriptionRequiredDate(a))
+    ).then((subscriptionRequiredDates) => {
+      this._subscriptionRequiredAfter = subscriptionRequiredDates.sort().shift();
+      this.trigger();
+    }).catch((err) => {
+      console.error(`Unable to refresh IdentityStore accounts: ${err.message}`)
+    })
   }
 
   /**
@@ -184,15 +196,29 @@ class IdentityStore extends NylasStore {
 
   fetchPath = (path) => {
     return new Promise((resolve, reject) => {
-      request({
+      const requestId = Utils.generateTempId();
+      const options = {
         method: 'GET',
         url: `${this.URLRoot}${path}`,
+        startTime: Date.now(),
         auth: {
           username: this._identity.token,
           password: '',
           sendImmediately: true,
         },
-      }, (error, response = {}, body) => {
+      };
+
+      Actions.willMakeAPIRequest({
+        request: options,
+        requestId: requestId,
+      });
+      request(options, (error, response = {}, body) => {
+        Actions.didMakeAPIRequest({
+          request: options,
+          statusCode: response.statusCode,
+          error: error,
+          requestId: requestId,
+        });
         if (response.statusCode === 200) {
           try {
             return resolve(JSON.parse(body));

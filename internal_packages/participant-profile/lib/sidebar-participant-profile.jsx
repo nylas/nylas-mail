@@ -1,7 +1,6 @@
 import _ from 'underscore'
 import React from 'react'
-import {shell} from 'electron'
-import {DOMUtils, Utils} from 'nylas-exports'
+import {DOMUtils, RegExpUtils, Utils} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
 import ParticipantProfileStore from './participant-profile-store'
 
@@ -95,9 +94,13 @@ export default class SidebarParticipantProfile extends React.Component {
   _renderSocialProfiles() {
     if (!this.state.socialProfiles) { return false }
     const profiles = _.map(this.state.socialProfiles, (profile, type) => {
-      const linkFn = () => { shell.openExternal(profile.url) }
       return (
-        <a className="social-profile-item" onClick={linkFn} key={type} title={profile.url}>
+        <a
+          className="social-profile-item"
+          key={type}
+          title={profile.url}
+          href={profile.url}
+        >
           <RetinaImg
             url={`nylas://participant-profile/assets/${type}-sidebar-icon@2x.png`}
             mode={RetinaImg.Mode.ContentPreserve}
@@ -131,8 +134,32 @@ export default class SidebarParticipantProfile extends React.Component {
 
   _renderBio() {
     if (!this.state.bio) { return false; }
+
+    const bioNodes = [];
+    const hashtagOrMentionRegex = RegExpUtils.hashtagOrMentionRegex();
+
+    let bioRemainder = this.state.bio;
+    let match = null;
+    let count = 0;
+
+    /* I thought we were friends. */
+    /* eslint no-cond-assign: 0 */
+    while (match = hashtagOrMentionRegex.exec(bioRemainder)) {
+      // the first char of the match is whitespace, match[1] is # or @, match[2] is the tag itself.
+      bioNodes.push(bioRemainder.substr(0, match.index + 1));
+      if (match[1] === '#') {
+        bioNodes.push(<a key={count} href={`https://twitter.com/hashtag/${match[2]}`}>{`#${match[2]}`}</a>);
+      }
+      if (match[1] === '@') {
+        bioNodes.push(<a key={count} href={`https://twitter.com/${match[2]}`}>{`@${match[2]}`}</a>);
+      }
+      bioRemainder = bioRemainder.substr(match.index + match[0].length);
+      count += 1;
+    }
+    bioNodes.push(bioRemainder);
+
     return (
-      <p className="selectable bio">{this.state.bio}</p>
+      <p className="selectable bio">{bioNodes}</p>
     )
   }
 

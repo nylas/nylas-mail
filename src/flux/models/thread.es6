@@ -126,6 +126,7 @@ class Thread extends ModelWithMetadata {
 
       // Thread: General index
       'CREATE INDEX IF NOT EXISTS ThreadDateIndex ON `Thread` (last_message_received_timestamp DESC)',
+      'CREATE INDEX IF NOT EXISTS ThreadClientIdIndex ON `Thread` (client_id)',
 
       // Thread: Partial indexes for specific views
       'CREATE INDEX IF NOT EXISTS ThreadUnreadIndex ON `Thread` (account_id, last_message_received_timestamp DESC) WHERE unread = 1 AND in_all_mail = 1',

@@ -83,7 +83,7 @@ class PreferencesIdentity extends React.Component {
 
   _onRefresh = () => {
     this.setState({refreshing: true});
-    IdentityStore.refreshStatus().finally(() => {
+    IdentityStore.refreshIdentityAndAccounts().finally(() => {
       this.setState({refreshing: false});
     });
   }

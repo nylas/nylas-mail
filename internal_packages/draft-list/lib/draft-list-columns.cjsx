@@ -16,7 +16,7 @@ subject = (subj) ->
   if (subj ? "").trim().length is 0
     return <span className="no-subject">(No Subject)</span>
   else
-    return subj
+    return text = Utils.extractTextFromHtml(subj)
 
 ParticipantsColumn = new ListTabular.Column
   name: "Participants"

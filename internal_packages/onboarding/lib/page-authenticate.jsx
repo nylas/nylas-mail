@@ -82,6 +82,7 @@ export default class AuthenticatePage extends React.Component {
   componentDidMount() {
     const webview = ReactDOM.findDOMNode(this.refs.webview);
     const n1Version = NylasEnv.getVersion();
+    webview.partition = 'in-memory-only';
     webview.src = `${IdentityStore.URLRoot}/onboarding?utm_medium=N1&utm_source=OnboardingPage&N1_version=${n1Version}`;
     webview.addEventListener('did-start-loading', this.webviewDidStartLoading);
     webview.addEventListener('did-get-response-details', this.webviewDidGetResponseDetails);
@@ -151,7 +152,7 @@ export default class AuthenticatePage extends React.Component {
   render() {
     return (
       <div className="page authenticate">
-        <webview ref="webview" partition="in-memory-only"></webview>
+        <webview ref="webview"></webview>
         <div className={`webview-loading-spinner loading-${this.state.webviewLoading}`}>
           <RetinaImg
             style={{width: 20, height: 20}}
