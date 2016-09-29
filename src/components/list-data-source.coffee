@@ -26,9 +26,10 @@ class ListDataSource
 
     return =>
       @_emitter.removeListener('trigger', eventHandler)
-      if @_emitter.listenerCount('trigger') is 0
-        @_cleanedup = true
-        @cleanup()
+      process.nextTick =>
+        if @_emitter.listenerCount('trigger') is 0
+          @_cleanedup = true
+          @cleanup()
 
   loaded: ->
     throw new Error("ListDataSource base class does not implement loaded()")
