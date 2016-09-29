@@ -1,6 +1,6 @@
 # N1 Changelog
 
-### 0.4.55 (9/27/16)
+### 0.4.56 (9/29/16)
 
 - Features:
 
@@ -8,50 +8,54 @@
     N1's features.
   + Thread sharing: You can now create a link to any thread and share it on the
     web publicly! You'll see a new button to enable sharing in the top toolbar.
-  + Inline Images: You can now add inline images to your messages! Just
+  + Inline images: You can now add inline images to your messages! Just
     drag and drop or paste them anywhere in the composer.
-  + Channels: You can now select to be a part of the stable or beta channels to
-    receive N1 updates. This option is now available under Preferences.
+  + Channels: A new option in Preferences > General allows you to join our public
+    `beta` channel and receive pre-release versions of N1.
   + Messages: Participants inside a message now have a right-click context menu
     to copy the email address or send an email to the participant.
 
 - Fixes:
 
-  + Search now correclty displays results returned from provider (#750).
+  + Search now correctly displays results returned from your email provider (#750).
+  + Local / offline search now matches subject lines more loosely.
   + Mail Merge now correctly handles empty column names.
-  + `z` key no longer incorrectly dispatches the undo command.
-  + Compute days remaining in trial in a timezone-aware way.
+  + Mail Merge is now limited to 150 recipients, since 500 recipients caused many
+    accounts to be rate-limited. We will be adding more batch-sending options in the future.
+  + The `z` key no longer incorrectly dispatches the undo command.
   + Participants inside a message are no longer mailto: links.
-  + Update autofill values for when adding Fastmail accounts.
-  + Restore support for thread dragging.
-  + Restore account reordering.
-  + Fix displaying unread count in system tray menu.
-  + Update help url.
+  + When linking Fastmail accounts, N1 autofills the correct IMAP and SMTP settings.
+  + Thread drag-and-drop now works consistently.
+  + The sidebar now displays accounts in the same order you choose in Preferences > Accounts.
+  + On Windows, the unread count is properly displayed when you hover over the system tray.
   + Correctly update selected contact profile in contact sidebar.
+  + The "Nylas N1 Help" menu item now directs you to a better help page.
+  + Hashtags and @mentions in the contact sidebar now link out to Twitter.
+  + Command-clicking links in the contact sidebar now opens them in the background.
+  + The composer no longer scrolls horizontally when a long link is present in your email.
+  + Performance of snoozing has been improved thanks to a new database index.
+  + N1 no longer launches into an empty mailbox view in some scenarios.
 
 - Design:
 
-  + New design for notification for days left in trial, which is now displayed
-    on the bottom left corner of N1.
+  + We're in the process of moving annoying "bars" displayed across the top of the
+    main window into the lower left. Stay tuned!
 
 - Development:
 
-  + N1 now uses electron 1.4.1, which improves memory usage up to 40%.
-  + N1 now uses React.15.3.x.
-  + N1.sh now allows path to working copy to have spaces.
+  + N1 now uses Electron 1.4.1 and Chromium 53, which uses less memory and performs
+    better in many scenarios. We've also upgraded to React 15.3.
+  + `N1.sh` now supports working copy paths that contain spaces.
   + SQL queries are now correctly escaped and logged to the console.
   + `Utils.deepClone` now correctly clones Dates.
-  + Any kind of logging inside specs will now also display what spec the log
-    originates from.
-  + Fixed all React warnings inside specs.
+  + When printing to the console within specs, the name of the current spec is now included.
   + Fix stack traces for APIErrors, plus report more errors around tasks and
     streaming connections.
-  + Converted Database related code to ES6.
+  + More database code has been transitioned to ES6.
   + ComposerExtension methods `applyTransformsToDraft` and `unapplyTransformsToDraft`
     have been deprecated in favor of `applyTransformsForSending` and `unapplyTransformsForSending`.
     In order to facilitate transformations on the draft body, these new extension
-    points take a DOM tree instance of the draft body so no HTML string
-    manipulation is necessary.
+    APIs receive a DOM tree of the draft body so no HTML string manipulation is necessary.
   + Backoff timer for streaming connections now has "jitter", which should help
     us avoid the thundering herd problem if we have some kind of API outage
     affecting a wide number of clients.
