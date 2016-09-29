@@ -89,7 +89,7 @@ export default class AutoUpdateManager extends EventEmitter {
     }
 
     autoUpdater.on('error', (event, message) => {
-      if (this.specMode) return false;
+      if (this.specMode) return;
       console.error(`Error Downloading Update: ${message}`);
       this.setState(ErrorState);
     });
