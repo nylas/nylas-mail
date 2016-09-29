@@ -20,7 +20,7 @@ export default class WelcomePage extends React.Component {
   }
 
   _onSelfHosting = () => {
-    OnboardingActions.moveToPage("self-hosting-setup")
+    OnboardingActions.moveToPage("self-hosting-restrictions")
   }
 
   _renderContent(isFirstAccount) {
