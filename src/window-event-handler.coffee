@@ -39,13 +39,12 @@ class WindowEventHandler
       # throttled in case more work needs to be done before closing
 
       # In Electron, returning any value other than undefined cancels the close.
-      canCloseWindow = @runUnloadCallbacks()
-      return undefined if canCloseWindow
+      if @runUnloadCallbacks()
+        # Good to go! Window will be closing...
+        NylasEnv.storeWindowDimensions()
+        NylasEnv.saveStateAndUnloadWindow()
+        return undefined
       return false
-
-    window.onunload = =>
-      NylasEnv.storeWindowDimensions()
-      NylasEnv.saveStateAndUnloadWindow()
 
     NylasEnv.commands.add document.body, 'window:toggle-full-screen', ->
       NylasEnv.toggleFullScreen()
