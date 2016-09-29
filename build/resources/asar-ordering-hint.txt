@@ -3427,7 +3427,6 @@
 2370863: node_modules/emissary/lib/subscriber.js
 2374948: node_modules/emissary/lib/subscription.js
 2389703: node_modules/grim/lib/deprecation.js
-92066163: src/nylas-private-ship-logs-task.js
 4222287: node_modules/request/package.json
 4225420: node_modules/request/index.js
 80790165: node_modules/request/node_modules/extend/package.json
@@ -3659,7 +3658,6 @@
 2370863: node_modules/emissary/lib/subscriber.js
 2374948: node_modules/emissary/lib/subscription.js
 2389703: node_modules/grim/lib/deprecation.js
-92066163: src/nylas-private-ship-logs-task.js
 4222287: node_modules/request/package.json
 4225420: node_modules/request/index.js
 80790165: node_modules/request/node_modules/extend/package.json
