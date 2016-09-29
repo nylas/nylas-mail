@@ -2,6 +2,7 @@ ContenteditableService = require './contenteditable-service'
 
 {InlineStyleTransformer,
  SanitizeTransformer,
+ RegExpUtils,
  Utils} = require 'nylas-exports'
 
 class ClipboardService extends ContenteditableService
@@ -65,8 +66,10 @@ class ClipboardService extends ContenteditableService
 
     return {input: null, mimetype: null}
 
-  # This is used primarily when pasting text in
+  # This is used when pasting text in
   _sanitizeHTMLInput: (input) =>
+    # Check if we are pasting any of our tracked links
+    input = input.replace(RegExpUtils.trackedLinkRegex(), (match, p1) -> decodeURIComponent(p1))
     InlineStyleTransformer.run(input).then (input) =>
       SanitizeTransformer.run(input, SanitizeTransformer.Preset.Permissive).then (input) =>
         # We never want more then 2 line breaks in a row.

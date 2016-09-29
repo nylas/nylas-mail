@@ -137,6 +137,14 @@ RegExpUtils =
   # https://regex101.com/r/zG7aW4/3
   imageTagRegex: -> /<img\s+[^>]*src="([^"]*)"[^>]*>/g
 
+  # Regex that matches our link tracking urls, surrounded by quotes
+  # ("link.nylas.com...?redirect=")
+  # Test cases: https://regex101.com/r/rB4fO4/3
+  # Returns the following capturing groups
+  # 1.The redirect url: the actual url you want to visit by clicking a url
+  # that matches this regex
+  trackedLinkRegex: -> /[\"|\']https:\/\/link\.nylas\.com\/link\/.*?\?.*?redirect=([^&\"\']*).*?[\"|\']/g
+
   punctuation: ({exclude}={}) ->
     exclude ?= []
     punctuation = [ '.', ',', '\\/', '#', '!', '$', '%', '^', '&', '*',
