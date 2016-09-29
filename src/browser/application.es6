@@ -61,6 +61,7 @@ export default class Application extends EventEmitter {
       configDirPath: this.configDirPath,
       config: this.config,
       devMode: this.devMode,
+      specMode: this.specMode,
       safeMode: this.safeMode,
       initializeInBackground: initializeInBackground,
     });

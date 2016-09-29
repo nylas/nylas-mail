@@ -16,7 +16,7 @@ let winNum = 0;
 export default class WindowLauncher {
   static EMPTY_WINDOW = "emptyWindow"
 
-  constructor({devMode, safeMode, resourcePath, configDirPath, onCreatedHotWindow, config}) {
+  constructor({devMode, safeMode, specMode, resourcePath, configDirPath, onCreatedHotWindow, config}) {
     this.defaultWindowOpts = {
       frame: process.platform !== "darwin",
       hidden: false,
@@ -31,6 +31,7 @@ export default class WindowLauncher {
     }
     this.config = config;
     this.onCreatedHotWindow = onCreatedHotWindow;
+    if (specMode) return;
     this.createHotWindow();
   }
 
