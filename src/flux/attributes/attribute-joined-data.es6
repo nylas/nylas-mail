@@ -38,6 +38,14 @@ export default class AttributeJoinedData extends Attribute {
     this.modelTable = modelTable;
   }
 
+  toJSON(val) {
+    return val;
+  }
+
+  fromJSON(val) {
+    return (val === null || val === undefined || val === false) ? null : `${val}`;
+  }
+
   selectSQL() {
     // NullPlaceholder is necessary because if the LEFT JOIN returns nothing, it leaves the field
     // blank, and it comes through in the result row as "" rather than NULL

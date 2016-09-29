@@ -518,7 +518,7 @@ export default class ComposerView extends React.Component {
   }
 
   _onFileReceived = (filePath) => {
-    // called from onDrop and onPaste - assume images should be inline
+    // called from onDrop and onFilePaste - assume images should be inline
     Actions.addAttachment({
       filePath: filePath,
       messageClientId: this.props.draft.clientId,

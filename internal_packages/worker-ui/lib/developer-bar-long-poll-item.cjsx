@@ -13,7 +13,7 @@ class DeveloperBarLongPollItem extends React.Component
 
   render: =>
     if @state.expanded
-      payload = JSON.stringify(@props.item)
+      payload = JSON.stringify(@props.item, null, 2)
     else
       payload = []
 

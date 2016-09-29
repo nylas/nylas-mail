@@ -273,7 +273,7 @@ class SearchMatcher extends Matcher {
 
   whereSQL(klass) {
     const searchTable = `${klass.name}Search`
-    return `\`${searchTable}\` MATCH '"${this.searchQuery}"'`;
+    return `\`${searchTable}\` MATCH '"${this.searchQuery}"*'`;
   }
 }
 

@@ -33,31 +33,40 @@ class FocusedPerspectiveStore extends NylasStore
       'navigation:go-to-label'   : => ## TODO
     })
 
-  _loadSavedPerspective: (accounts = AccountStore.accounts()) =>
+  _isValidPerspective: (perspective) =>
+    # Ensure all the accountIds referenced in the perspective still exist
+    return false unless @_isValidAccountSet(perspective.accountIds)
+    # Ensure all the categories referenced in the perspective still exist
+    return false unless perspective.categories().every((c) =>
+      return !!CategoryStore.byId(c.accountId, c.id))
+    return true
+
+  _isValidAccountSet: (ids) =>
+    accountIds = AccountStore.accountIds()
+    return ids.every((a) => accountIds.includes(a))
+
+  _initializeFromSavedState: =>
     json = NylasEnv.savedState.perspective
+    sidebarAccountIds = NylasEnv.savedState.sidebarAccountIds
+
     if json
       perspective = MailboxPerspective.fromJSON(json)
-      if perspective
-        accountIds = _.pluck(accounts, 'id')
-        accountIdsNotPresent = _.difference(perspective.accountIds, accountIds)
-        perspective = null if accountIdsNotPresent.length > 0
 
-    perspective ?= @_defaultPerspective()
-    return perspective
+    if not perspective or not @_isValidPerspective(perspective)
+      perspective = @_defaultPerspective()
+      sidebarAccountIds = perspective.accountIds
+
+    if not sidebarAccountIds or not @_isValidAccountSet(sidebarAccountIds) or sidebarAccountIds.length < perspective.accountIds.length
+      sidebarAccountIds = perspective.accountIds
+
+    @_setPerspective(perspective, sidebarAccountIds)
 
   # Inbound Events
   _onCategoryStoreChanged: ->
     if @_current.isEqual(MailboxPerspective.forNothing())
-      perspective = @_loadSavedPerspective()
-      @_setPerspective(perspective, NylasEnv.savedState.sidebarAccountIds ? perspective.accountIds)
-    else
-      accountIds = @_current.accountIds
-      categories = @_current.categories()
-      catExists  = (cat) -> CategoryStore.byId(cat.accountId, cat.id)
-      categoryHasBeenDeleted = categories and not _.every(categories, catExists)
-
-      if categoryHasBeenDeleted
-        @_setPerspective(@_defaultPerspective(accountIds))
+      @_initializeFromSavedState()
+    else if !@_isValidPerspective(@_current)
+      @_setPerspective(@_defaultPerspective(@_current.accountIds))
 
   _onFocusPerspective: (perspective) =>
     # If looking at unified inbox, don't attempt to change the sidebar accounts
@@ -72,14 +81,18 @@ class FocusedPerspectiveStore extends NylasStore
   # provided
   _onFocusPerspectiveForAccounts: (accountsOrIds, {sidebarAccountIds} = {}) =>
     return unless accountsOrIds
-
     perspective = @_defaultPerspective(accountsOrIds)
-    sidebarAccountIds ?= perspective.accountIds
-    @_setPerspective(perspective, sidebarAccountIds)
+    @_setPerspective(perspective, sidebarAccountIds || perspective.accountIds)
 
-  _defaultPerspective: (accounts = AccountStore.accounts()) ->
-    return MailboxPerspective.forNothing() unless accounts.length > 0
-    return MailboxPerspective.forInbox(accounts)
+  _defaultPerspective: (accountsOrIds = AccountStore.accountIds()) ->
+    perspective = MailboxPerspective.forInbox(accountsOrIds)
+
+    # If no account ids were selected, or the categories for these accounts have
+    # not loaded yet, return forNothing(). This means that the next time the
+    # CategoryStore triggers, we'll try again.
+    if perspective.categories().length is 0
+      return MailboxPerspective.forNothing()
+    return perspective
 
   _setPerspective: (perspective, sidebarAccountIds) ->
     shouldTrigger = false
@@ -119,7 +132,7 @@ class FocusedPerspectiveStore extends NylasStore
 
   sidebarAccountIds: =>
     ids = NylasEnv.savedState.sidebarAccountIds
-    if not ids or not ids.every((id) => AccountStore.accountForId(id))
+    if !ids or !ids.length or !ids.every((id) => AccountStore.accountForId(id))
       ids = NylasEnv.savedState.sidebarAccountIds = AccountStore.accountIds()
 
     # Always defer to the AccountStore for the desired order of accounts in

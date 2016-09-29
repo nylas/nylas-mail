@@ -78,7 +78,7 @@ export class EditableTableCell extends Component {
 
   static defaultProps = {
     inputProps: {},
-    InputRenderer: (props) => <input {...pickHTMLProps(props)} />,
+    InputRenderer: (props) => <input {...pickHTMLProps(props)} defaultValue={props.defaultValue} />,
   }
 
   componentDidMount() {

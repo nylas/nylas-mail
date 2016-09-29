@@ -1,6 +1,11 @@
 /* eslint dot-notation: 0 */
 /* eslint global-require: 0 */
 global.shellStartTime = Date.now();
+var util = require('util')
+
+console.inspect = function consoleInspect(val) {
+  console.log(util.inspect(val, true, depth=7, colorize=true));
+}
 
 const app = require('electron').app;
 const path = require('path');

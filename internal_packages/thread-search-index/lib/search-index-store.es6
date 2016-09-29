@@ -46,6 +46,7 @@ class SearchIndexStore {
    * We only want to build the entire index if:
    * - It doesn't exist yet
    * - It is too big
+   * - We bumped the index version
    *
    * Otherwise, we just want to index accounts that haven't been indexed yet.
    * An account may not have been indexed if it is added and the app is closed
@@ -158,9 +159,7 @@ class SearchIndexStore {
 
   getUnindexedAccounts() {
     return Promise.resolve(this.accountIds)
-    .filter((accId) => (
-      DatabaseStore.isIndexEmptyForAccount(accId, Thread)
-    ))
+    .filter((accId) => DatabaseStore.isIndexEmptyForAccount(accId, Thread))
   }
 
   indexThreadsForAccount(accountId, indexSize) {
@@ -209,18 +208,16 @@ class SearchIndexStore {
     const messageBodies = (
       thread.messages()
       .then((messages) => (
-        Promise.resolve(
-          messages
-          .map(({body, snippet}) => (
-            !_.isString(body) ?
-              {snippet} :
-              {body: QuotedHTMLTransformer.removeQuotedHTML(body)}
-          ))
-          .map(({body, snippet}) => (
-            snippet || Utils.extractTextFromHtml(body, {maxLength: MESSAGE_BODY_LENGTH}).replace(/(\s)+/g, ' ')
-          ))
-          .join(' ')
-        )
+        messages
+        .map(({body, snippet}) => (
+          !_.isString(body) ?
+            {snippet} :
+            {body: QuotedHTMLTransformer.removeQuotedHTML(body)}
+        ))
+        .map(({body, snippet}) => (
+          snippet || Utils.extractTextFromHtml(body, {maxLength: MESSAGE_BODY_LENGTH}).replace(/(\s)+/g, ' ')
+        ))
+        .join(' ')
       ))
     )
     const participants = (

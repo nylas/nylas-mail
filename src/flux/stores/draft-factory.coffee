@@ -6,16 +6,14 @@ AccountStore = require './account-store'
 ContactStore = require './contact-store'
 MessageStore = require './message-store'
 FocusedPerspectiveStore = require './focused-perspective-store'
-DraftStore = null
 
-InlineStyleTransformer = require '../../services/inline-style-transformer'
-SanitizeTransformer = require '../../services/sanitize-transformer'
+DraftStore = null
+DraftHelpers = require './draft-helpers'
 
 Thread = require('../models/thread').default
 Contact = require '../models/contact'
 Message = require('../models/message').default
 Utils = require '../models/utils'
-MessageUtils = require '../models/message-utils'
 
 {subjectWithPrefix} = require '../models/utils'
 DOMUtils = require '../../dom-utils'
@@ -97,22 +95,21 @@ class DraftFactory
         @createDraftForReply({message, thread, type})
 
   createDraftForReply: ({message, thread, type}) =>
-    @_prepareBodyForQuoting(message.body).then (body) =>
-      if type is 'reply'
-        {to, cc} = message.participantsForReply()
-      else if type is 'reply-all'
-        {to, cc} = message.participantsForReplyAll()
+    if type is 'reply'
+      {to, cc} = message.participantsForReply()
+    else if type is 'reply-all'
+      {to, cc} = message.participantsForReplyAll()
 
-      @createDraft(
-        subject: subjectWithPrefix(message.subject, 'Re:')
-        to: to,
-        cc: cc,
-        from: [@_fromContactForReply(message)],
-        threadId: thread.id,
-        accountId: message.accountId,
-        replyToMessageId: message.id,
-        body: ""
-      )
+    @createDraft(
+      subject: subjectWithPrefix(message.subject, 'Re:')
+      to: to,
+      cc: cc,
+      from: [@_fromContactForReply(message)],
+      threadId: thread.id,
+      accountId: message.accountId,
+      replyToMessageId: message.id,
+      body: "" # quoted html is managed by the composer via the replyToMessageId
+    )
 
   createDraftForForward: ({thread, message}) =>
     contactsAsHtml = (cs) ->
@@ -123,7 +120,8 @@ class DraftFactory
     fields.push("Date: #{message.formattedDate()}")
     fields.push("To: #{contactsAsHtml(message.to)}") if message.to.length > 0
     fields.push("Cc: #{contactsAsHtml(message.cc)}") if message.cc.length > 0
-    @_prepareBodyForQuoting(message.body).then (body) =>
+
+    DraftHelpers.prepareBodyForQuoting(message.body).then (body) =>
       @createDraft(
         subject: subjectWithPrefix(message.subject, 'Fwd:')
         files: [].concat(message.files),
@@ -203,19 +201,6 @@ class DraftFactory
     DatabaseStore.inTransaction (t) =>
       t.persistModel(draft)
     .thenReturn(draft)
-
-  # Eventually we'll want a nicer solution for inline attachments
-  _prepareBodyForQuoting: (body="") =>
-    ## Fix inline images
-    cidRE = MessageUtils.cidRegexString
-
-    # Be sure to match over multiple lines with [\s\S]*
-    # Regex explanation here: https://regex101.com/r/vO6eN2/1
-    re = new RegExp("<img.*#{cidRE}[\\s\\S]*?>", "igm")
-    body.replace(re, "")
-
-    InlineStyleTransformer.run(body).then (body) =>
-      SanitizeTransformer.run(body, SanitizeTransformer.Preset.UnsafeOnly)
 
   _fromContactForReply: (message) =>
     account = AccountStore.accountForId(message.accountId)

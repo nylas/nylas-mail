@@ -35,8 +35,17 @@ class MultiselectSplitInteractionHandler
     @_checkSelectionAndFocusConsistency()
 
   onEnter: =>
+    # This concept does not exist in split mode
 
-  onSelect: =>
+  onDeselect: =>
+    @props.dataSource.selection.clear()
+    @_checkSelectionAndFocusConsistency()
+
+  onSelect: (items) =>
+    @props.dataSource.selection.set(items)
+    @_checkSelectionAndFocusConsistency()
+
+  onSelectKeyboardItem: =>
     @_checkSelectionAndFocusConsistency()
 
   onShift: (delta, options) =>
