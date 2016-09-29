@@ -480,6 +480,10 @@ class PackageManager
           pack = new ThemePackage(packagePath, metadata)
         else
           pack = new Package(packagePath, metadata)
+
+        if metadata.supportedEnvs && !metadata.supportedEnvs.includes(NylasEnv.config.get('env'))
+          return null
+
         pack.load()
         if pack.declaresNewDatabaseObjects
           @packagesWithDatabaseObjects.push pack
