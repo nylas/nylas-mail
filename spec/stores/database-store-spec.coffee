@@ -4,7 +4,7 @@ Label = require '../../src/flux/models/label'
 Thread = require('../../src/flux/models/thread').default
 TestModel = require '../fixtures/db-test-model'
 ModelQuery = require('../../src/flux/models/query').default
-DatabaseStore = require '../../src/flux/stores/database-store'
+DatabaseStore = require('../../src/flux/stores/database-store').default
 
 testMatchers = {'id': 'b'}
 testModelInstance = new TestModel(id: "1234")

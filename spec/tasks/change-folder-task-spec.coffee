@@ -5,7 +5,7 @@ Message = require('../../src/flux/models/message').default
 Actions = require '../../src/flux/actions'
 NylasAPI = require '../../src/flux/nylas-api'
 Query = require('../../src/flux/models/query').default
-DatabaseStore = require '../../src/flux/stores/database-store'
+DatabaseStore = require('../../src/flux/stores/database-store').default
 ChangeFolderTask = require('../../src/flux/tasks/change-folder-task').default
 ChangeMailTask = require('../../src/flux/tasks/change-mail-task').default
 

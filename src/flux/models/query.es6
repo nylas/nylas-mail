@@ -45,7 +45,7 @@ export default class ModelQuery {
   //
   constructor(klass, database) {
     this._klass = klass;
-    this._database = database || require('./database-store');
+    this._database = database || require('./database-store').default;
     this._matchers = [];
     this._orders = [];
     this._distinct = false;

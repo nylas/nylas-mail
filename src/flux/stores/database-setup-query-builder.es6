@@ -84,7 +84,7 @@ export default class DatabaseSetupQueryBuilder {
     }
 
     if (klass.searchable === true) {
-      const DatabaseStore = require('./database-store');
+      const DatabaseStore = require('./database-store').default;
       queries.push(DatabaseStore.createSearchIndexSql(klass));
     }
 

@@ -10,7 +10,7 @@ TaskRegistry = require('../../task-registry').default
 Utils = require "../models/utils"
 Reflux = require 'reflux'
 Actions = require '../actions'
-DatabaseStore = require './database-store'
+DatabaseStore = require('./database-store').default
 
 {APIError,
  TimeoutError} = require '../errors'

@@ -6,7 +6,7 @@ Category = require './flux/models/category'
 Thread = require('./flux/models/thread').default
 Message = require('./flux/models/message').default
 AccountStore = require './flux/stores/account-store'
-DatabaseStore = require './flux/stores/database-store'
+DatabaseStore = require('./flux/stores/database-store').default
 TaskQueueStatusStore = require './flux/stores/task-queue-status-store'
 
 {ConditionMode, ConditionTemplates} = require './mail-rules-templates'
