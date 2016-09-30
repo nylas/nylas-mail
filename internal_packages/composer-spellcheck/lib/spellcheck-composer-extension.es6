@@ -101,7 +101,16 @@ export default class SpellcheckComposerExtension extends ComposerExtension {
   // with a <spelling> node and updates the selection to account for the change.
   static _wrapMisspelledWords = (editor) => {
     SpellcheckComposerExtension._whileApplyingSelectionChanges((selectionSnapshot) => {
-      const treeWalker = document.createTreeWalker(editor.rootNode, NodeFilter.SHOW_TEXT);
+      const treeWalker = document.createTreeWalker(editor.rootNode, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, {
+        acceptNode: (node) => {
+          // skip the entire subtree inside <code> tags and <a> tags...
+          if ((node.nodeType === Node.ELEMENT_NODE) && (["CODE", "A", "PRE"].includes(node.tagName))) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          return (node.nodeType === Node.TEXT_NODE) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+        },
+      });
+
       const nodeList = [];
 
       while (treeWalker.nextNode()) {

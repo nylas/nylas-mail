@@ -122,21 +122,22 @@ export function applyExtensionTransforms(draft) {
 
 export function prepareDraftForSyncback(session) {
   return session.ensureCorrectAccount({noSyncback: true})
-  .then(() =>
-    applyExtensionTransforms(session.draft()))
+  .then(() => {
+    return applyExtensionTransforms(session.draft())
+  })
   .then((transformed) => {
     if (!transformed.replyToMessageId || !shouldAppendQuotedText(transformed)) {
       return Promise.resolve(transformed);
     }
     return appendQuotedTextToDraft(transformed);
   })
-  .then((draft) => (
-    DatabaseStore.inTransaction((t) =>
+  .then((draft) => {
+    return DatabaseStore.inTransaction((t) =>
       t.persistModel(draft)
     )
     .then(() =>
       Promise.resolve(queueDraftFileUploads(draft))
     )
     .thenReturn(draft)
-  ))
+  })
 }
