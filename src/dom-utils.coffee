@@ -414,8 +414,14 @@ DOMUtils =
       style = window.getComputedStyle(node)
       node = node.parentNode
       continue unless style?
-      # NOTE: opacity must be soft ==
-      if style.opacity is 0 or style.opacity is "0" or style.visibility is "hidden" or style.display is "none"
+      isInvisible = (
+        [0, "0"].includes(style.opacity) or
+        style.visibility is "hidden" or
+        style.display is "none" or
+        [0, "0", "0px"].includes(style.width) or
+        [0, "0", "0px"].includes(style.height)
+      )
+      if isInvisible
         return false
     return true
 
