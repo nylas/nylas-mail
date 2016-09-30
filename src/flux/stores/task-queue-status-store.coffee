@@ -1,7 +1,7 @@
 _ = require 'underscore'
 Rx = require 'rx-lite'
 NylasStore = require 'nylas-store'
-DatabaseStore = require './database-store'
+DatabaseStore = require('./database-store').default
 AccountStore = require './account-store'
 TaskQueue = require './task-queue'
 

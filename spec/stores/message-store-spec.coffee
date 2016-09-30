@@ -5,7 +5,7 @@ Message = require('../../src/flux/models/message').default
 FocusedContentStore = require '../../src/flux/stores/focused-content-store'
 FocusedPerspectiveStore = require '../../src/flux/stores/focused-perspective-store'
 MessageStore = require '../../src/flux/stores/message-store'
-DatabaseStore = require '../../src/flux/stores/database-store'
+DatabaseStore = require('../../src/flux/stores/database-store').default
 ChangeUnreadTask = require('../../src/flux/tasks/change-unread-task').default
 Actions = require '../../src/flux/actions'
 

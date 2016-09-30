@@ -77,6 +77,8 @@ module.exports =
       if listenable == this
         return 'Listener is not able to listen to itself'
       if !_.isFunction(listenable.listen)
+        console.log require('util').inspect(listenable)
+        console.log((new Error()).stack)
         return listenable + ' is missing a listen method'
       if listenable.hasListener and listenable.hasListener(this)
         return 'Listener cannot listen to this listenable because of circular loop'

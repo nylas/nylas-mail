@@ -3,7 +3,7 @@ NylasStore = require 'nylas-store'
 Actions = require '../actions'
 Account = require('../models/account').default
 Utils = require '../models/utils'
-DatabaseStore = require './database-store'
+DatabaseStore = require('./database-store').default
 keytar = require 'keytar'
 NylasAPI = null
 
