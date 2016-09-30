@@ -30,6 +30,38 @@ describe('SpellcheckComposerExtension', function spellcheckComposerExtension() {
       SpellcheckComposerExtension.update(editor);
       expect(node.innerHTML).toEqual(afterHTML);
     });
+
+    it("does not mark misspelled words inside A, CODE and PRE tags", () => {
+      const node = document.createElement('div');
+      node.innerHTML = `
+      <br>
+      This is a testst! I have a few misspellled words.
+      <code>myvariable</code>
+      <pre>
+         fragmen = document.applieed();
+      </pre>
+      <a href="apple.com">I like appples!</a>
+      <br>
+      This is back to normall.
+      `;
+
+      const editor = {
+        rootNode: node,
+        whilePreservingSelection: (cb) => cb(),
+      };
+
+      SpellcheckComposerExtension.update(editor);
+      expect(node.innerHTML).toEqual(`
+      <br>
+      This is a <spelling class="misspelled">testst</spelling>! I have a few <spelling class="misspelled">misspellled</spelling> words.
+      <code>myvariable</code>
+      <pre>         fragmen = document.applieed();
+      </pre>
+      <a href="apple.com">I like appples!</a>
+      <br>
+      This is back to <spelling class="misspelled">normall</spelling>.
+      `);
+    });
   });
 
   describe("applyTransformsForSending", () => {
