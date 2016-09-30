@@ -125,6 +125,11 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
           this._workspaceTimer = setTimeout(this._onTooltipStateChanged, 0);
         }),
       ]
+      this._disposables = [
+        NylasEnv.themes.onDidChangeActiveThemes(() => {
+          this._themesTimer = setTimeout(this._onRecomputeTooltipPosition, 0);
+        }),
+      ]
       window.addEventListener('resize', this._onRecomputeTooltipPosition);
 
       // unfortunately, we can't render() a container around ComposedComponent
@@ -150,13 +155,13 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
     }
 
     componentWillUnmount() {
-      for (const unlisten of this._unlisteners) {
-        unlisten();
-      }
+      this._unlisteners.forEach((unlisten) => unlisten())
+      this._disposables.forEach((disposable) => disposable.dispose())
 
       window.removeEventListener('resize', this._onRecomputeTooltipPosition);
       this.tipNode.parentNode.removeChild(this.tipNode);
       clearTimeout(this._workspaceTimer);
+      clearTimeout(this._themesTimer);
 
       TipsStore.unmountedTip(TipKey);
     }
