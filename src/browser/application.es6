@@ -319,17 +319,20 @@ export default class Application extends EventEmitter {
     });
 
     this.on('application:install-update', () => {
-      this.quitting = true
-      this.windowManager.cleanupBeforeAppQuit()
-      this.autoUpdateManager.install()
+      this.quitting = true;
+      this.windowManager.cleanupBeforeAppQuit();
+      this.autoUpdateManager.install();
     });
 
     this.on('application:toggle-dev', () => {
-      this.devMode = !this.devMode;
-      this.config.set('devMode', this.devMode ? true : undefined);
-      this.windowManager.destroyAllWindows();
-      this.windowManager.devMode = this.devMode;
-      this.openWindowsForTokenState();
+      let args = process.argv.slice(1);
+      if (args.includes('--dev')) {
+        args = args.filter(a => a !== '--dev');
+      } else {
+        args.push('--dev')
+      }
+      app.relaunch({args});
+      app.quit();
     });
 
     if (process.platform === 'darwin') {
