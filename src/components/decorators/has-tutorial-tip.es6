@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'underscore';
 
-import {Actions, WorkspaceStore} from 'nylas-exports';
+import {Actions, WorkspaceStore, DOMUtils} from 'nylas-exports';
 import NylasStore from 'nylas-store';
 
 const TipsBackgroundEl = document.createElement('tutorial-tip-background');
@@ -161,8 +161,7 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
       TipsStore.unmountedTip(TipKey);
     }
 
-    _containingSheetIsVisible = () => {
-      const el = ReactDOM.findDOMNode(this);
+    _containingSheetIsVisible = (el) => {
       const sheetEl = el.closest('.sheet') || el.closest('.sheet-toolbar-container');
       if (!sheetEl) {
         return true;
@@ -170,9 +169,17 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
       return (sheetEl.dataset.id === WorkspaceStore.topSheet().id);
     }
 
-    _onTooltipStateChanged = () => {
-      const visible = TipsStore.isTipVisible(TipKey) && this._containingSheetIsVisible();
+    _isVisible = () => {
+      const el = ReactDOM.findDOMNode(this);
+      return (
+        TipsStore.isTipVisible(TipKey) &&
+        this._containingSheetIsVisible(el) &&
+        DOMUtils.nodeIsVisible(el)
+      )
+    }
 
+    _onTooltipStateChanged = () => {
+      const visible = this._isVisible()
       if (this.state.visible !== visible) {
         this.setState({visible});
         if (visible) {
