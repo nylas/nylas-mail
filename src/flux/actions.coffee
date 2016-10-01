@@ -254,6 +254,17 @@ class Actions
   @focusDefaultMailboxPerspectiveForAccounts: ActionScopeWindow
 
   ###
+  Public: Focus the mailbox perspective for the given account id and category names
+
+  *Scope: Window*
+
+  ```
+  Actions.ensureCategoryIsFocused(accountIds, categoryName)
+  ```
+  ###
+  @ensureCategoryIsFocused: ActionScopeWindow
+
+  ###
   Public: If the message with the provided id is currently beign displayed in the
   thread view, this action toggles whether it's full content or snippet is shown.
 

@@ -289,7 +289,7 @@ class CategoryMailboxPerspective extends MailboxPerspective
     super and not _.any @_categories, (c) -> c.isLockedCategory()
 
   receiveThreads: (threadsOrIds) =>
-    FocusedPerspectiveStore = require './flux/stores/focused-perspective-store'
+    FocusedPerspectiveStore = require('./flux/stores/focused-perspective-store').default
     current= FocusedPerspectiveStore.current()
 
     # This assumes that the we don't have more than one category per accountId
