@@ -30,6 +30,17 @@ body.platform-win32 {
   }
 }
 
+// Used to allow the click targets to extend into the margins
+.composer-field-bottom-border() {
+  width: calc(~"100% - 44px");
+  height: 1px;
+  position: absolute;
+  bottom: 0;
+  left: 23px;
+  content: " ";
+  background: @border-color-divider;
+}
+
 .composer-inner-wrap {
   position: relative;
   height: 100%;
@@ -178,7 +189,7 @@ body.platform-win32 {
   }
 
   .composer-body-wrap {
-    padding: 20px 14px 5px 14px;
+    padding: 0 0 5px 0;
   }
 
   .composer-header-actions {
@@ -223,6 +234,9 @@ body.platform-win32 {
     float: left;
     padding-top: 13px;
     display: block;
+    &:hover {
+      cursor: default;
+    }
   }
 
   .collapsed-composer-participants {
@@ -269,13 +283,22 @@ body.platform-win32 {
 
   .composer-subject {
     position: relative;
-    margin: 0 23px;
-    border-bottom: 1px solid @border-color-divider;
+    margin: 0;
     flex-shrink:0;
+
+    &:after {
+      .composer-field-bottom-border;
+    }
+
+    // for Mail Merge
+    div[contenteditable] {
+      padding-left: 22px;
+      padding-right: 22px;
+    }
 
     input {
       display: inline-block;
-      padding: 13px 0 9px 0;
+      padding: 13px 22px 9px 22px;
       min-width: 5em;
       background-color: transparent;
       border: none;
@@ -302,7 +325,7 @@ body.platform-win32 {
     cursor: text;
     overflow-x: auto;
     position: relative;
-    margin: 0 8px;
+    margin: 0;
 
     .quoted-text-control {
       position: relative;
@@ -310,7 +333,7 @@ body.platform-win32 {
       // div[contentedtiable] has 10px of bottom padding. It's better to
       // put the padding on the contenteditable so the bottom looks nice
       // in popout windows when there's no quoted text control.
-      margin: 0 @spacing-standard @spacing-standard 0;
+      margin: 0 @spacing-standard @spacing-standard 22px;
 
       .remove-quoted-text {
         display: none;
@@ -334,7 +357,10 @@ body.platform-win32 {
       }
     }
 
+    // All of the padding is placed on the contenteditable itself so
+    // clicks on the margins register within the region.
     div[contenteditable] {
+      padding: 20px 22px 0 22px;
       min-height: @compose-min-height;
     }
   }
@@ -349,7 +375,7 @@ body.platform-win32 {
   // TODO FIXME DRY From stylesheets/message-list.less
   .attachments-area {
     padding: 0;
-    margin: 0;
+    margin: 0 8px;
   }
 }
 
@@ -430,11 +456,31 @@ body.platform-win32 {
 //////////////////////////////////
 .composer-participant-field {
   position: relative;
-  margin: 0 8+@spacing-standard;
+  margin: 0;
   flex-shrink: 0;
-  border-bottom: 1px solid @border-color-divider;
   min-height: 46px;
   color: @text-color;
+
+  .tokenizing-field-wrap {
+    padding: 0 22px;
+  }
+  .content-container {
+    margin-left: 22px;
+    width: calc(~"100% - 44px");
+  }
+  &:after {
+    .composer-field-bottom-border;
+  }
+
+  &.from-field {
+    padding: 0 22px;
+  }
+
+  .from-single-name {
+    &:hover {
+      cursor: default;
+    }
+  }
 
   .button-dropdown {
     margin-left: 10px;

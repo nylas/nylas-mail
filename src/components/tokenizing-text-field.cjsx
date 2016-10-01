@@ -303,7 +303,7 @@ class TokenizingTextField extends React.Component
     />
 
   _fieldComponent: =>
-    <div key="field-component" ref="field-drop-target" onClick={@_onClick} onDrop={@_onDrop}>
+    <div key="field-component" ref="field-drop-target" onClick={@_onClick} onDrop={@_onDrop} className="tokenizing-field-wrap">
       {@_renderPrompt()}
       <div className="tokenizing-field-input">
         {@_placeholder()}
