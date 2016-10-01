@@ -97,21 +97,31 @@ describe 'ParticipantsTextField', ->
 
     it "should use the name of an existing contact in the ContactStore if possible", ->
       spyOn(ContactStore, 'searchContacts').andCallFake (val, options={}) ->
-        return Promise.resolve([participant3]) if val is participant3.email
+        return Promise.resolve([participant3]) if val is participant3.name
         return Promise.resolve([])
 
-      @expectInputToYield participant3.email,
+      @expectInputToYield participant3.name,
         to: [participant1, participant2, participant3]
         cc: []
         bcc: []
 
-    it "should not allow the same contact to appear multiple times", ->
+    it "should use the plain email if that's what's entered", ->
       spyOn(ContactStore, 'searchContacts').andCallFake (val, options={}) ->
-        return Promise.resolve([participant2]) if val is participant2.email
+        return Promise.resolve([participant3]) if val is participant3.email
         return Promise.resolve([])
 
-      @expectInputToYield participant2.email,
-        to: [participant1, participant2]
+      @expectInputToYield participant3.email,
+        to: [participant1, participant2, new Contact(email: "evan@nylas.com")]
+        cc: []
+        bcc: []
+
+    it "should not have the same contact auto-picked multiple times", ->
+      spyOn(ContactStore, 'searchContacts').andCallFake (val, options={}) ->
+        return Promise.resolve([participant2]) if val is participant2.name
+        return Promise.resolve([])
+
+      @expectInputToYield participant2.name,
+        to: [participant1, participant2, new Contact(email: participant2.name, name: participant2.name)]
         cc: [participant3]
         bcc: []
 
