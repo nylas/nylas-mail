@@ -18,7 +18,7 @@ class TabManager extends ContenteditableExtension
       if event.shiftKey
         if DOMUtils.isAtTabChar(selection)
           @_removeLastCharacter(editor)
-        else if DOMUtils.isAtBeginningOfDocument(editor.rootNode, selection)
+        else
           return # Don't stop propagation
       else
         editor.insertText("\t")
