@@ -229,6 +229,18 @@ class TokenizingTextField extends React.Component
     # updates this component's `tokens` prop.
     onAdd: React.PropTypes.func.isRequired
 
+    # This gets fired when people try and submit a query with a break
+    # character (tab, comma, semicolon, etc). It lets us the caller
+    # determine how to best deal with available options.
+    #
+    # If this method is not implemented we'll pick the first available
+    # option in the completions
+    onInputTrySubmit: React.PropTypes.func
+
+    # If implemented lets the caller determine when to cut a token based
+    # on the current input value and the current keydown.
+    shouldBreakOnKeydown: React.PropTypes.func
+
     # Gets called when we remove a token
     #
     # It's passed an array of objects (the same ones used to render
@@ -414,7 +426,11 @@ class TokenizingTextField extends React.Component
     else if event.key in ["Tab", "Enter"]
       @_onInputTrySubmit(event)
 
-    else if event.keyCode is 188 # comma
+    if @props.shouldBreakOnKeydown
+      if @props.shouldBreakOnKeydown(event)
+        event.preventDefault()
+        @_onInputTrySubmit(event)
+    else if event.key is "," # comma
       event.preventDefault() # never allow commas in the field
       @_onInputTrySubmit(event)
 
@@ -422,8 +438,17 @@ class TokenizingTextField extends React.Component
     return if (@state.inputValue ? "").trim().length is 0
     event.preventDefault()
     event.stopPropagation()
-    if @state.completions.length > 0
-      @_addToken(@refs.completions.getSelectedItem() || @state.completions[0])
+
+    token = null
+    if @props.onInputTrySubmit
+      token = @props.onInputTrySubmit(@state.inputValue, @state.completions, @refs.completions.getSelectedItem())
+      if (typeof token is 'string')
+        return @_addInputValue(token, skipNameLookup: true)
+    else if @state.completions.length > 0
+      token = @refs.completions.getSelectedItem() || @state.completions[0]
+
+    if token
+      @_addToken(token)
     else
       @_addInputValue()
 
@@ -432,14 +457,7 @@ class TokenizingTextField extends React.Component
     @setState
       selectedTokenKey: null
       inputValue: val
-
-    # If it looks like an email, and the last character entered was a
-    # space, then let's add the input value.
-    # TODO WHY IS THIS EMAIL RELATED?
-    if RegExpUtils.emailRegex().test(val) and _.last(val) is " "
-      @_addInputValue(val[0...-1], skipNameLookup: true)
-    else
-      @_refreshCompletions(val)
+    @_refreshCompletions(val)
 
   _onInputBlurred: (event) =>
     # Not having a relatedTarget can happen when the whole app blurs. When
