@@ -33,7 +33,7 @@ class SizeToFitInput extends React.Component
 
   render: =>
     <span>
-      <span ref="measure" style={visibility:'hidden', position: 'absolute'}></span>
+      <span className="token-editing-input" ref="measure" style={visibility:'hidden', position: 'absolute', padding: 0, margin: 0}></span>
       <input ref="input" type="text" style={width: 1} {...@props}/>
     </span>
 
