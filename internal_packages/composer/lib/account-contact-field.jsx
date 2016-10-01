@@ -48,7 +48,7 @@ export default class AccountContactField extends React.Component {
 
   _renderAccountSpan = (label) => {
     return (
-      <span style={{position: "relative", top: 13, left: "0.5em"}}>
+      <span className="from-single-name" style={{position: "relative", top: 13, left: "0.5em"}}>
         {label}
       </span>
     );
@@ -95,7 +95,7 @@ export default class AccountContactField extends React.Component {
 
   render() {
     return (
-      <div className="composer-participant-field">
+      <div className="composer-participant-field from-field">
         <div className="composer-field-label">From:</div>
         {this._renderAccountSelector()}
         {this._renderFromFieldComponents()}
