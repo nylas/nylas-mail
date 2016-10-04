@@ -45,26 +45,36 @@ class PhishingIndicator extends React.Component {
   // `@state` and `@props` are popular inputs as well.
   render() {
     const {message} = this.state;
+    if (!message) {
+      return (<span />);
+    }
+
+    const {replyTo, from} = message;
+    if (!replyTo || !replyTo.length || !from || !from.length) {
+      return (<span />);
+    }
 
     // This package's strategy to ascertain whether or not the email is a
     // phishing attempt boils down to checking the `replyTo` attributes on
     // `Message` models from `MessageStore`.
-    if (message && message.replyTo && message.replyTo.length !== 0) {
-      const from = message.from[0].email.toLowerCase();
-      const fromDomain = tld.registered(from.split('@')[1]);
-      const replyTo = message.replyTo[0].email.toLowerCase();
-      const replyToDomain = tld.registered(replyTo.split('@')[1]);
-      if (replyToDomain !== fromDomain) {
-        return (
-          <div className="phishingIndicator">
-            <b>This message looks suspicious!</b>
-            <div className="description">{`It originates from ${from} but replies will go to ${replyTo}.`}</div>
-          </div>
-        );
-      }
+    const fromEmail = from[0].email.toLowerCase();
+    const replyToEmail = replyTo[0].email.toLowerCase();
+    if (!fromEmail || !replyToEmail) {
+      return (<span />);
     }
 
-    return null;
+    const fromDomain = tld.registered(fromEmail.split('@')[1] || '');
+    const replyToDomain = tld.registered(replyToEmail.split('@')[1] || '');
+    if (replyToDomain !== fromDomain) {
+      return (
+        <div className="phishingIndicator">
+          <b>This message looks suspicious!</b>
+          <div className="description">{`It originates from ${fromEmail} but replies will go to ${replyToEmail}.`}</div>
+        </div>
+      );
+    }
+
+    return (<span />);
   }
 }
 
