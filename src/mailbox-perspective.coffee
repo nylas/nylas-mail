@@ -242,7 +242,9 @@ class CategoryMailboxPerspective extends MailboxPerspective
     if @_categories[0].name
       @iconName = "#{@_categories[0].name}.png"
     else
-      @iconName = AccountStore.accountForId(@accountIds[0]).categoryIcon()
+      account = AccountStore.accountForId(@accountIds[0])
+      @iconName = "folder.png"
+      @iconName = account.categoryIcon() if account
     @
 
   toJSON: =>
