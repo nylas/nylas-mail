@@ -4,7 +4,6 @@ ReactCSSTransitionGroup = require 'react-addons-css-transition-group'
 _ = require 'underscore'
 classNames = require 'classnames'
 
-NotificationStore = require '../notifications-store'
 StreamingSyncActivity = require './streaming-sync-activity'
 InitialSyncActivity = require './initial-sync-activity'
 
@@ -28,14 +27,13 @@ class ActivitySidebar extends React.Component
   componentDidMount: =>
     @_unlisteners = []
     @_unlisteners.push TaskQueueStatusStore.listen @_onDataChanged
-    @_unlisteners.push NotificationStore.listen @_onDataChanged
     @_unlisteners.push NylasSyncStatusStore.listen @_onDataChanged
 
   componentWillUnmount: =>
     unlisten() for unlisten in @_unlisteners
 
   render: =>
-    items = [@_renderNotificationActivityItems(), @_renderTaskActivityItems()]
+    items = @_renderTaskActivityItems()
 
     if @state.isInitialSyncComplete
       items.push <StreamingSyncActivity key="streaming-sync" />
@@ -84,19 +82,10 @@ class ActivitySidebar extends React.Component
         </div>
       </div>
 
-  _renderNotificationActivityItems: =>
-    @state.notifications.map (notification) ->
-      <div className="item" key={notification.id}>
-        <div className="inner">
-          {notification.message}
-        </div>
-      </div>
-
   _onDataChanged: =>
     @setState(@_getStateFromStores())
 
   _getStateFromStores: =>
-    notifications: NotificationStore.notifications()
     tasks: TaskQueueStatusStore.queue()
     isInitialSyncComplete: NylasSyncStatusStore.isSyncComplete()
 

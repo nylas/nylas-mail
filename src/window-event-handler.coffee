@@ -219,17 +219,7 @@ class WindowEventHandler
   showDevModeMessages: ->
     return unless NylasEnv.isMainWindow()
 
-    if NylasEnv.inDevMode()
-      Actions = require './flux/actions'
-      Actions.postNotification
-        icon: 'fa-flask'
-        type: 'developer'
-        tag: 'developer'
-        sticky: true
-        actions: [{label: 'Thanks', id: 'ok', dismisses: true, default: true}]
-        message: "N1 is running with debug flags enabled (slower). Packages in
-                  ~/.nylas/dev/packages will be loaded. Have fun!"
-    else
+    if !NylasEnv.inDevMode()
       console.log("%c Welcome to N1! If you're exploring the source or building a
                    plugin, you should enable debug flags. It's slower, but
                    gives you better exceptions, the debug version of React,
