@@ -30,7 +30,7 @@ const patched = proxyquire("../lib/items/update-notification",
 
 const UpdateNotification = patched.default;
 
-describe("UpdateNotification", () => {
+describe("UpdateNotification", function describeBlock() {
   beforeEach(() => {
     stubUpdaterState = 'idle'
     stubUpdaterReleaseVersion = undefined
