@@ -1,13 +1,9 @@
-import {
-  NylasAPI,
-  NylasSyncStatusStore,
-  React,
-  Actions,
-} from 'nylas-exports';
-import {RetinaImg} from 'nylas-component-kit';
+import {NylasSyncStatusStore, React, Actions} from 'nylas-exports';
+import Notification from '../notification';
 
-export default class ConnectionStatusHeader extends React.Component {
-  static displayName = 'ConnectionStatusHeader';
+export default class OfflineNotification extends React.Component {
+  static displayName = 'OfflineNotification';
+  static containerRequired = false;
 
   constructor() {
     super();
@@ -16,7 +12,7 @@ export default class ConnectionStatusHeader extends React.Component {
   }
 
   componentDidMount() {
-    this.unsubscribe = NylasSyncStatusStore.listen(() => {
+    this.unlisten = NylasSyncStatusStore.listen(() => {
       const nextState = this.getStateFromStores();
       if ((nextState.connected !== this.state.connected) || (nextState.nextRetryText !== this.state.nextRetryText)) {
         this.setState(nextState);
@@ -68,6 +64,7 @@ export default class ConnectionStatusHeader extends React.Component {
         }
       }
     }
+
     return {connected, nextRetryText};
   }
 
@@ -86,29 +83,18 @@ export default class ConnectionStatusHeader extends React.Component {
 
   render() {
     const {connected, nextRetryText} = this.state;
-
     if (connected) {
-      return (<span />);
+      return <span />
     }
 
-    const apiDomain = NylasAPI.APIRoot.split('//').pop();
-
     return (
-      <div className="connection-status-header notifications-sticky">
-        <div className={"notifications-sticky-item notification-offline"}>
-          <RetinaImg
-            className="icon"
-            name="icon-alert-onred.png"
-            mode={RetinaImg.Mode.ContentPreserve}
-          />
-          <div className="message">
-            Nylas N1 isn't able to reach {apiDomain}. Retrying {nextRetryText}.
-          </div>
-          <a className="action default" onClick={this.onTryAgain}>
-            Try Again Now
-          </a>
-        </div>
-      </div>
-    );
+      <Notification
+        title="Nylas N1 is offline"
+        priority="5"
+        icon="volstead-offline.png"
+        subtitle={`Trying again ${nextRetryText}`}
+        actions={[{label: 'Try now', id: 'try_now', fn: this.onTryAgain}]}
+      />
+    )
   }
 }

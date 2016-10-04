@@ -32,8 +32,6 @@ how it propogates between windows.
 ## Firing Actions
 
 ```coffee
-Actions.postNotification({message: "Removed Thread", type: 'success'})
-
 Actions.queueTask(new ChangeStarredTask(thread: @_thread, starred: true))
 ```
 
@@ -412,58 +410,6 @@ class Actions
   *Scope: Window*
   ###
   @RSVPEvent: ActionScopeWindow
-
-  ###
-  Public: Fire to display an in-window notification to the user in the app's standard
-  notification interface.
-
-  *Scope: Global*
-
-  ```
-  # A simple notification
-  Actions.postNotification({message: "Removed Thread", type: 'success'})
-
-  # A sticky notification with actions
-  NOTIF_ACTION_YES = 'YES'
-  NOTIF_ACTION_NO = 'NO'
-
-  Actions.postNotification
-    type: 'info',
-    sticky: true
-    message: "Thanks for trying out N1! Would you like to make it your default mail client?",
-    icon: 'fa-inbox',
-    actions: [{
-      label: 'Yes'
-      default: true
-      dismisses: true
-      id: NOTIF_ACTION_YES
-    },{
-      label: 'More Info'
-      dismisses: false
-      id: NOTIF_ACTION_MORE_INFO
-    }]
-
-  ```
-  ###
-  @postNotification: ActionScopeGlobal
-
-  @dismissNotificationsMatching: ActionScopeGlobal
-
-  ###
-  Public: Listen to this action to handle user interaction with notifications you
-  published via `postNotification`.
-
-  *Scope: Global*
-
-  ```
-  @_unlisten = Actions.notificationActionTaken.listen(@_onActionTaken, @)
-
-  _onActionTaken: ({notification, action}) ->
-    if action.id is NOTIF_ACTION_YES
-      # perform action
-  ```
-  ###
-  @notificationActionTaken: ActionScopeGlobal
 
   # FullContact Sidebar
   @getFullContactDetails: ActionScopeWindow

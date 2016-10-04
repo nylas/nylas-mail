@@ -26,13 +26,15 @@ class MailRulesStore extends NylasStore
     @listenTo Actions.reorderMailRule, @_onReorderMailRule
     @listenTo Actions.updateMailRule, @_onUpdateMailRule
     @listenTo Actions.disableMailRule, @_onDisableMailRule
-    @listenTo Actions.notificationActionTaken, @_onNotificationActionTaken
 
   rules: =>
     @_rules
 
   rulesForAccountId: (accountId) =>
     @_rules.filter (f) => f.accountId is accountId
+
+  disabledRules: (accountId) =>
+    @_rules.filter (f) => f.disabled
 
   _onDeleteMailRule: (id) =>
     @_rules = @_rules.filter (f) -> f.id isnt id
@@ -74,22 +76,6 @@ class MailRulesStore extends NylasStore
     existing = _.find @_rules, (f) -> id is f.id
     return if not existing or existing.disabled is true
 
-    Actions.postNotification
-      message: "We were unable to run your mail rules - one or more rules have been disabled."
-      type: "error"
-      tag: 'mail-rule-failure'
-      sticky: true
-      actions: [{
-        label: 'Hide'
-        dismisses: true
-        id: 'hide'
-      },{
-        label: 'View Rules'
-        dismisses: true
-        default: true
-        id: 'mail-rule-failure:view-rules'
-      }]
-
     # Disable the task
     existing.disabled = true
     existing.disabledReason = reason
@@ -101,20 +87,10 @@ class MailRulesStore extends NylasStore
 
     @trigger()
 
-  _onNotificationActionTaken: ({notification, action}) =>
-    return unless NylasEnv.isMainWindow()
-    accountId = AccountStore.accounts()[0].accountId
-    if action.id is 'mail-rule-failure:view-rules'
-      Actions.switchPreferencesTab('Mail Rules', {accountId})
-      Actions.openPreferences()
-
   _saveMailRules: =>
     @_saveMailRulesDebounced ?= _.debounce =>
       DatabaseStore.inTransaction (t) =>
         t.persistJSONBlob(RulesJSONBlobKey, @_rules)
-
-      if not _.findWhere(@_rules, {disabled: true})
-        Actions.dismissNotificationsMatching({tag: 'mail-rule-failure'})
     ,1000
     @_saveMailRulesDebounced()
 
