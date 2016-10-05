@@ -83,7 +83,7 @@ class Modal extends React.Component {
         onClick={() => Actions.closeModal()}
       >
         <div
-          className="modal"
+          className="modal nylas-modal-container"
           style={modalStyle}
           onClick={(event) => event.stopPropagation()}
         >
