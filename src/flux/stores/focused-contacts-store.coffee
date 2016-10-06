@@ -8,7 +8,7 @@ Thread = require('../models/thread').default
 Contact = require '../models/contact'
 MessageStore = require './message-store'
 AccountStore = require './account-store'
-DatabaseStore = require './database-store'
+DatabaseStore = require('./database-store').default
 FocusedContentStore = require './focused-content-store'
 
 # A store that handles the focuses collections of and individual contacts

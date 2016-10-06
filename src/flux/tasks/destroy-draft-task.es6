@@ -2,7 +2,6 @@ import Task from './task';
 import {APIError} from '../errors';
 import Message from '../models/message';
 import DatabaseStore from '../stores/database-store';
-import Actions from '../actions';
 import NylasAPI from '../nylas-api';
 import BaseDraftTask from './base-draft-task';
 
@@ -65,10 +64,7 @@ export default class DestroyDraftTask extends BaseDraftTask {
         return Promise.resolve(Task.Status.Retry);
       }
 
-      Actions.postNotification({
-        message: "Unable to delete this draft. Restoring...",
-        type: "error",
-      });
+      NylasEnv.showErrorDialog("Unable to delete this draft. Restoring...");
 
       return DatabaseStore.inTransaction((t) =>
         t.persistModel(this.draft)

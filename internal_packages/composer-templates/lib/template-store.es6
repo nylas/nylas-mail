@@ -90,6 +90,13 @@ class TemplateStore extends NylasStore {
 
   _populate() {
     fs.readdir(this._templatesDir, (err, filenames) => {
+      if (err) {
+        NylasEnv.showErrorDialog({
+          title: "Cannot scan templates directory",
+          message: `N1 was unable to read the contents of your templates directory (${this._templatesDir}). You may want to delete this folder or ensure filesystem permissions are set correctly.`,
+        });
+        return;
+      }
       this._items = [];
       for (let i = 0, filename; i < filenames.length; i++) {
         filename = filenames[i];

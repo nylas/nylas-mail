@@ -36,12 +36,7 @@ export default class WindowLauncher {
   }
 
   newWindow(options) {
-    // Normally, you enter dev mode by passing the --dev command line flag.
-    // But for developers using the compiled app, it's easier to toggle dev
-    // mode from the menu and have it persist through relaunch.
-    const devOpt = this.config.get('devMode') ? {devMode: true} : {};
-
-    const opts = Object.assign({}, this.defaultWindowOpts, devOpt, options);
+    const opts = Object.assign({}, this.defaultWindowOpts, options);
 
     let win;
     if (this._mustUseColdWindow(opts)) {

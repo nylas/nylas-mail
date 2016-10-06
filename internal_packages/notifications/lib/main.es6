@@ -2,26 +2,43 @@
 
 import {ComponentRegistry, WorkspaceStore} from 'nylas-exports';
 import ActivitySidebar from "./sidebar/activity-sidebar";
-import NotificationStore from './notifications-store';
-import ConnectionStatusHeader from './headers/connection-status-header';
-import AccountErrorHeader from './headers/account-error-header';
-import NotificationsHeader from "./headers/notifications-header";
 import TrialRemainingBlock from "./sidebar/trial-remaining-block";
+import NotifWrapper from "./notif-wrapper";
+
+import AccountErrorNotification from "./items/account-error-notif";
+import DefaultClientNotification from "./items/default-client-notif";
+import DevModeNotification from "./items/dev-mode-notif";
+import DisabledMailRulesNotification from "./items/disabled-mail-rules-notif";
+import OfflineNotification from "./items/offline-notification";
+import UpdateNotification from "./items/update-notification";
+
+const notifications = [
+  AccountErrorNotification,
+  DefaultClientNotification,
+  DevModeNotification,
+  DisabledMailRulesNotification,
+  OfflineNotification,
+  UpdateNotification,
+]
 
 export function activate() {
   ComponentRegistry.register(ActivitySidebar, {location: WorkspaceStore.Location.RootSidebar});
-  ComponentRegistry.register(NotificationsHeader, {location: WorkspaceStore.Sheet.Global.Header});
-  ComponentRegistry.register(ConnectionStatusHeader, {location: WorkspaceStore.Sheet.Global.Header});
-  ComponentRegistry.register(AccountErrorHeader, {location: WorkspaceStore.Sheet.Threads.Header});
+  ComponentRegistry.register(NotifWrapper, {location: WorkspaceStore.Location.RootSidebar});
   ComponentRegistry.register(TrialRemainingBlock, {location: WorkspaceStore.Location.RootSidebar});
+
+  for (const notification of notifications) {
+    ComponentRegistry.register(notification, {role: 'RootSidebar:Notifications'});
+  }
 }
 
 export function serialize() {}
 
 export function deactivate() {
   ComponentRegistry.unregister(ActivitySidebar);
-  ComponentRegistry.unregister(NotificationsHeader);
-  ComponentRegistry.unregister(ConnectionStatusHeader);
-  ComponentRegistry.unregister(AccountErrorHeader);
   ComponentRegistry.unregister(TrialRemainingBlock);
+  ComponentRegistry.unregister(NotifWrapper);
+
+  for (const notification of notifications) {
+    ComponentRegistry.unregister(notification)
+  }
 }

@@ -1,9 +1,9 @@
 import {mount} from 'enzyme';
-import AccountErrorHeader from '../lib/headers/account-error-header';
-import {IdentityStore, AccountStore, Account, Actions, React} from 'nylas-exports'
+import AccountErrorNotification from '../lib/items/account-error-notif';
+import {IdentityStore, AccountStore, Account, Actions, React} from 'nylas-exports';
 import {ipcRenderer} from 'electron';
 
-describe("AccountErrorHeader", function AccountErrorHeaderTests() {
+describe("AccountErrorNotif", function AccountErrorNotifTests() {
   describe("when one account is in the `invalid` state", () => {
     beforeEach(() => {
       spyOn(AccountStore, 'accounts').andReturn([
@@ -13,22 +13,21 @@ describe("AccountErrorHeader", function AccountErrorHeaderTests() {
     });
 
     it("renders an error bar that mentions the account email", () => {
-      const header = mount(<AccountErrorHeader />);
-      expect(header.find('.notifications-sticky-item')).toBeDefined();
-      expect(header.find('.message').text().indexOf('123@gmail.com') > 0).toBe(true);
+      const notif = mount(<AccountErrorNotification />);
+      expect(notif.find('.title').text().indexOf('123@gmail.com') > 0).toBe(true);
     });
 
     it("allows the user to refresh the account", () => {
-      const header = mount(<AccountErrorHeader />);
+      const notif = mount(<AccountErrorNotification />);
       spyOn(IdentityStore, 'refreshIdentityAndAccounts').andReturn(Promise.resolve());
-      header.find('.action.refresh').simulate('click');
+      notif.find('#action-0').simulate('click'); // Expects first action to be the refresh action
       expect(IdentityStore.refreshIdentityAndAccounts).toHaveBeenCalled();
     });
 
     it("allows the user to reconnect the account", () => {
-      const header = mount(<AccountErrorHeader />);
+      const notif = mount(<AccountErrorNotification />);
       spyOn(ipcRenderer, 'send');
-      header.find('.action.default').simulate('click');
+      notif.find('#action-1').simulate('click'); // Expects second action to be the reconnect action
       expect(ipcRenderer.send).toHaveBeenCalledWith('command', 'application:add-account', {
         existingAccount: AccountStore.accounts()[0],
       });
@@ -44,22 +43,22 @@ describe("AccountErrorHeader", function AccountErrorHeaderTests() {
     });
 
     it("renders an error bar", () => {
-      const header = mount(<AccountErrorHeader />);
-      expect(header.find('.notifications-sticky-item')).toBeDefined();
+      const notif = mount(<AccountErrorNotification />);
+      expect(notif.find('.notification').isEmpty()).toEqual(false);
     });
 
     it("allows the user to refresh the accounts", () => {
-      const header = mount(<AccountErrorHeader />);
+      const notif = mount(<AccountErrorNotification />);
       spyOn(IdentityStore, 'refreshIdentityAndAccounts').andReturn(Promise.resolve());
-      header.find('.action.refresh').simulate('click');
+      notif.find('#action-0').simulate('click'); // Expects first action to be the refresh action
       expect(IdentityStore.refreshIdentityAndAccounts).toHaveBeenCalled();
     });
 
     it("allows the user to open preferences", () => {
       spyOn(Actions, 'switchPreferencesTab')
       spyOn(Actions, 'openPreferences')
-      const header = mount(<AccountErrorHeader />);
-      header.find('.action.default').simulate('click');
+      const notif = mount(<AccountErrorNotification />);
+      notif.find('#action-1').simulate('click'); // Expects second action to be the preferences action
       expect(Actions.openPreferences).toHaveBeenCalled();
       expect(Actions.switchPreferencesTab).toHaveBeenCalledWith('Accounts');
     });
@@ -74,8 +73,8 @@ describe("AccountErrorHeader", function AccountErrorHeaderTests() {
     });
 
     it("renders nothing", () => {
-      const header = mount(<AccountErrorHeader />);
-      expect(header.html()).toEqual('<span></span>');
+      const notif = mount(<AccountErrorNotification />);
+      expect(notif.find('.notification').isEmpty()).toEqual(true);
     });
   });
 });

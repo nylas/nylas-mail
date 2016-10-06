@@ -1,7 +1,7 @@
 Reflux = require 'reflux'
 _ = require 'underscore'
 NylasStore = require 'nylas-store'
-DatabaseStore = require './database-store'
+DatabaseStore = require('./database-store').default
 Thread = require('../models/thread').default
 
 ###

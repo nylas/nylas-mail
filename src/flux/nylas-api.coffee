@@ -8,7 +8,7 @@ IdentityStore = require('./stores/identity-store').default
 Actions = require './actions'
 {APIError} = require './errors'
 PriorityUICoordinator = require '../priority-ui-coordinator'
-DatabaseStore = require './stores/database-store'
+DatabaseStore = require('./stores/database-store').default
 async = require 'async'
 
 # A 0 code is when an error returns without a status code. These are

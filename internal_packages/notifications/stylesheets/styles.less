@@ -1,0 +1,91 @@
+@import 'ui-variables';
+
+.notifications {
+  background-color: @panel-background-color;
+}
+
+.notification {
+  background: @background-color-info;
+  display: none;
+  color: @text-color-inverse;
+  margin: 10px;
+  border-radius: @border-radius-large;
+}
+
+.notification.error {
+  background: @background-color-error;
+}
+
+.notification.highest-priority {
+  display: block;
+}
+
+.notif-top {
+  display: flex;
+  align-items: flex-start;
+  padding: 10px;
+}
+
+.notification .icon {
+  margin-right: 20px;
+}
+
+.notification .title {
+  padding: 10px;
+  padding-left: 40px;
+  text-indent: -30px;
+}
+
+.notification .subtitle {
+  font-size: @font-size-smaller;
+  position: relative;
+  opacity: 0.8;
+}
+
+.notification .subtitle.has-action {
+  cursor: pointer;
+}
+
+.notification .subtitle.has-action::after {
+  content:'';
+  background: url(nylas://notifications/assets/minichevron@2x.png) top left no-repeat;
+  background-size: 4.5px 7px;
+  margin-left:3px;
+  display: inline-block;
+  width:4.5px;
+  height:7px;
+  vertical-align: baseline;
+}
+
+.notification .actions-wrapper {
+  display: flex;
+}
+
+.notification .action {
+  text-align: center;
+  flex: 1;
+  border-top: solid rgba(255, 255, 255, 0.5) 1px;
+  border-left: solid rgba(255, 255, 255, 0.5) 1px;
+  padding: 10px;
+  cursor: pointer;
+
+  /* The semi-transparent backgrounds that can be layered on top
+     of this class shouldn't have sharp corners on the bottom */
+  border-bottom-left-radius: @border-radius-large;
+  border-bottom-right-radius: @border-radius-large;
+}
+
+.notification .action:first-child {
+  border-left: none;
+}
+
+.notification .action:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  box-shadow: @standard-shadow inset;
+}
+
+.notification .action.loading {
+  cursor: progress;
+  background-color: rgba(0, 0, 0, 0.2);
+  box-shadow: @standard-shadow inset;
+}
