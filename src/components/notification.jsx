@@ -1,5 +1,5 @@
-import {React} from 'nylas-exports';
-import {RetinaImg} from 'nylas-component-kit';
+import React from 'react'
+import RetinaImg from './retina-img';
 
 export default class Notification extends React.Component {
   static containerRequired = false;

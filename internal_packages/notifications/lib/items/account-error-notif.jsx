@@ -1,6 +1,6 @@
 import {shell, ipcRenderer} from 'electron';
 import {React, Account, AccountStore, Actions, IdentityStore} from 'nylas-exports';
-import Notification from '../notification';
+import {Notification} from 'nylas-component-kit';
 
 export default class AccountErrorNotification extends React.Component {
   static displayName = 'AccountErrorNotification';

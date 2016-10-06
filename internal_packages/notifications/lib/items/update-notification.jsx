@@ -1,6 +1,6 @@
 import {React} from 'nylas-exports';
 import {ipcRenderer, remote, shell} from 'electron';
-import Notification from '../notification';
+import {Notification} from 'nylas-component-kit';
 
 export default class UpdateNotification extends React.Component {
   static displayName = 'UpdateNotification';
