@@ -37,6 +37,7 @@ class NylasComponentKit
   @load "EmptyListState", 'empty-list-state'
   @load "ListTabular", 'list-tabular'
   @load "DraggableImg", 'draggable-img'
+  @load "Notification", 'notification'
   @load "NylasCalendar", 'nylas-calendar/nylas-calendar'
   @load "MiniMonthView", 'nylas-calendar/mini-month-view'
   @load "EventedIFrame", 'evented-iframe'
