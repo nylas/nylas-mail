@@ -1,5 +1,5 @@
 import {React, LaunchServices} from 'nylas-exports';
-import Notification from '../notification';
+import {Notification} from 'nylas-component-kit';
 
 const SETTINGS_KEY = 'nylas.mailto.prompted-about-default'
 

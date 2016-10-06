@@ -1,7 +1,7 @@
 import {mount} from 'enzyme';
 import {ComponentRegistry, React} from 'nylas-exports';
 import NotifWrapper from '../lib/notif-wrapper.jsx';
-import Notification from '../lib/notification.jsx';
+import {Notification} from 'nylas-component-kit';
 
 const stubNotif = (priority) => {
   return class extends React.Component {

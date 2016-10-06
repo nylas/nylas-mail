@@ -1,5 +1,5 @@
 import {React} from 'nylas-exports';
-import Notification from '../notification';
+import {Notification} from 'nylas-component-kit';
 
 export default class DevModeNotification extends React.Component {
   static displayName = 'DevModeNotification';
