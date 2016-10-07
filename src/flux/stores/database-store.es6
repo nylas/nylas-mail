@@ -1,11 +1,11 @@
 /* eslint global-require: 0 */
-import async from 'async';
 import path from 'path';
 import fs from 'fs';
-import sqlite3 from 'sqlite3';
+import Sqlite3 from 'better-sqlite3';
 import PromiseQueue from 'promise-queue';
 import NylasStore from '../../global/nylas-store';
 import {remote, ipcRenderer} from 'electron';
+import LRU from "lru-cache";
 
 import Utils from '../models/utils';
 import Query from '../models/query';
@@ -13,7 +13,7 @@ import DatabaseChangeRecord from './database-change-record';
 import DatabaseTransaction from './database-transaction';
 import DatabaseSetupQueryBuilder from './database-setup-query-builder';
 
-const DatabaseVersion = 23;
+const DatabaseVersion = "23";
 const DatabasePhase = {
   Setup: 'setup',
   Ready: 'ready',
@@ -22,8 +22,6 @@ const DatabasePhase = {
 
 const DEBUG_TO_LOG = false;
 const DEBUG_QUERY_PLANS = NylasEnv.inDevMode();
-
-const COMMIT = 'COMMIT';
 
 let JSONBlob = null;
 
@@ -83,6 +81,8 @@ class DatabaseStore extends NylasStore {
     this._open = false;
     this._waiting = [];
 
+    this._preparedStatementCache = LRU({max: 500});
+
     this.setupEmitter();
     this._emitter.setMaxListeners(100);
 
@@ -110,7 +110,7 @@ class DatabaseStore extends NylasStore {
 
     if (phase === DatabasePhase.Setup && NylasEnv.isWorkWindow()) {
       this._openDatabase(() => {
-        this._checkDatabaseVersion({allowNotSet: true}, () => {
+        this._checkDatabaseVersion({allowUnset: true}, () => {
           this._runDatabaseSetup(() => {
             app.setDatabasePhase(DatabasePhase.Ready);
             setTimeout(() => this._runDatabaseAnalyze(), 60 * 1000);
@@ -156,97 +156,84 @@ class DatabaseStore extends NylasStore {
       return;
     }
 
-    let mode = sqlite3.OPEN_READWRITE;
-    if (NylasEnv.isWorkWindow()) {
-      // Since only the main window calls \`_runDatabaseSetup\`, it's important that
-      // it is also the only window with permission to create the file on disk
-      mode = sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE;
-    }
-
-    this._db = new sqlite3.Database(this._databasePath, mode, (err) => {
-      if (err) {
-        this._handleSetupError(err);
-        return;
-      }
-
+    this._db = new Sqlite3(this._databasePath, {});
+    this._db.on('close', (err) => {
+      NylasEnv.showErrorDialog({
+        title: `Unable to open SQLite database at ${this._databasePath}`,
+        message: err.toString(),
+      });
+      this._handleSetupError(err);
+    })
+    this._db.on('open', () => {
       // https://www.sqlite.org/wal.html
       // WAL provides more concurrency as readers do not block writers and a writer
       // does not block readers. Reading and writing can proceed concurrently.
-      this._db.run(`PRAGMA journal_mode = WAL;`);
+      this._db.pragma(`journal_mode = WAL`);
 
       // Note: These are properties of the connection, so they must be set regardless
       // of whether the database setup queries are run.
 
       // https://www.sqlite.org/intern-v-extern-blob.html
       // A database page size of 8192 or 16384 gives the best performance for large BLOB I/O.
-      this._db.run(`PRAGMA main.page_size = 8192;`);
-      this._db.run(`PRAGMA main.cache_size = 20000;`);
-      this._db.run(`PRAGMA main.synchronous = NORMAL;`);
-      this._db.configure('busyTimeout', 10000);
-      this._db.on('profile', (query, msec) => {
-        if (msec > 100) {
-          this._prettyConsoleLog(`${msec}msec: ${query}`);
-        } else {
-          console.debug(DEBUG_TO_LOG, `${msec}: ${query}`);
-        }
-      });
+      this._db.pragma(`main.page_size = 8192`);
+      this._db.pragma(`main.cache_size = 20000`);
+      this._db.pragma(`main.synchronous = NORMAL`);
+
       ready();
     });
   }
 
-  _checkDatabaseVersion({allowNotSet} = {}, ready) {
-    this._db.get('PRAGMA user_version', (err, result) => {
-      if (err) {
-        return this._handleSetupError(err)
-      }
-      const emptyVersion = (result.user_version === 0);
-      const wrongVersion = (result.user_version / 1 !== DatabaseVersion);
-      if (wrongVersion && !(emptyVersion && allowNotSet)) {
-        return this._handleSetupError(new Error(`Incorrect database schema version: ${result.user_version} not ${DatabaseVersion}`));
-      }
-      return ready();
-    });
+  _checkDatabaseVersion({allowUnset} = {}, ready) {
+    const result = this._db.pragma('user_version', true);
+    const isUnsetVersion = (result === '0');
+    const isWrongVersion = (result !== DatabaseVersion);
+    if (isWrongVersion && !(isUnsetVersion && allowUnset)) {
+      return this._handleSetupError(new Error(`Incorrect database schema version: ${result} not ${DatabaseVersion}`));
+    }
+    return ready();
   }
 
   _runDatabaseSetup(ready) {
     const builder = new DatabaseSetupQueryBuilder()
 
-    this._db.serialize(() => {
-      async.each(builder.setupQueries(), (query, callback) => {
+    try {
+      for (const query of builder.setupQueries()) {
         console.debug(DEBUG_TO_LOG, `DatabaseStore: ${query}`);
-        this._db.run(query, [], callback);
-      }, (err) => {
-        if (err) {
-          return this._handleSetupError(err);
-        }
-        return this._db.run(`PRAGMA user_version=${DatabaseVersion}`, (versionErr) => {
-          if (versionErr) {
-            return this._handleSetupError(versionErr);
-          }
+        this._db.prepare(query).run();
+      }
+    } catch (err) {
+      return this._handleSetupError(err);
+    }
 
-          const exportPath = path.join(NylasEnv.getConfigDirPath(), 'mail-rules-export.json')
-          if (fs.existsSync(exportPath)) {
-            try {
-              const row = JSON.parse(fs.readFileSync(exportPath));
-              this.inTransaction(t => t.persistJSONBlob('MailRules-V2', row.json));
-              fs.unlink(exportPath);
-            } catch (mailRulesError) {
-              console.log(`Could not re-import mail rules: ${mailRulesError}`);
-            }
-          }
-          return ready();
-        });
-      });
-    });
+    this._db.pragma(`user_version=${DatabaseVersion}`);
+
+    const exportPath = path.join(NylasEnv.getConfigDirPath(), 'mail-rules-export.json')
+    if (fs.existsSync(exportPath)) {
+      try {
+        const row = JSON.parse(fs.readFileSync(exportPath));
+        this.inTransaction(t => t.persistJSONBlob('MailRules-V2', row.json));
+        fs.unlink(exportPath);
+      } catch (mailRulesError) {
+        console.log(`Could not re-import mail rules: ${mailRulesError}`);
+      }
+    }
+    return ready();
   }
 
   _runDatabaseAnalyze() {
     const builder = new DatabaseSetupQueryBuilder();
-    async.each(builder.analyzeQueries(), (query, callback) => {
-      this._db.run(query, [], callback);
-    }, (err) => {
-      console.log(`Completed ANALYZE of database`, err);
-    });
+    const queries = builder.analyzeQueries();
+    const step = () => {
+      const query = queries.shift();
+      if (query) {
+        console.debug(DEBUG_TO_LOG, `DatabaseStore: ${query}`);
+        this._db.prepare(query).run();
+        setTimeout(step, 100);
+      } else {
+        console.log(`Completed ANALYZE of database`);
+      }
+    }
+    step();
   }
 
   _handleSetupError(err = (new Error(`Manually called _handleSetupError`))) {
@@ -254,19 +241,23 @@ class DatabaseStore extends NylasStore {
 
     // Temporary: export mail rules. They're the only bit of data in the cache
     // we can't rebuild. Should be moved to cloud metadata store soon.
-    this._db.all(`SELECT * FROM JSONBlob WHERE id = 'MailRules-V2' LIMIT 1`, [], (mailsRulesErr, results = []) => {
-      if (!mailsRulesErr && results.length === 1) {
-        const exportPath = path.join(NylasEnv.getConfigDirPath(), 'mail-rules-export.json');
-        try {
-          fs.writeFileSync(exportPath, results[0].data);
-        } catch (writeErr) {
-          console.log(`Could not write mail rules to file: ${writeErr}`);
+    if (this._db.open) {
+      try {
+        const result = this._db.prepare(`SELECT * FROM JSONBlob WHERE id = 'MailRules-V2' LIMIT 1`).get();
+        if (result) {
+          const exportPath = path.join(NylasEnv.getConfigDirPath(), 'mail-rules-export.json');
+          try {
+            fs.writeFileSync(exportPath, result.data);
+          } catch (writeErr) {
+            console.log(`Could not write mail rules to file: ${writeErr}`);
+          }
         }
+      } catch (dberr) {
+        console.error(`Unable to save mail rules: ${dberr}`)
       }
-
-      const app = remote.getGlobal('application');
-      app.rebuildDatabase();
-    });
+    }
+    const app = remote.getGlobal('application');
+    app.rebuildDatabase();
   }
 
   _prettyConsoleLog(qa) {
@@ -299,12 +290,11 @@ class DatabaseStore extends NylasStore {
     console.log(msg.join(''), ...colors);
   }
 
-  // Returns a promise that resolves when the query has been completed and
+  // Returns a Promise that resolves when the query has been completed and
   // rejects when the query has failed.
   //
-  // If a query is made while the connection is being setup, the
-  // DatabaseConnection will queue the queries and fire them after it has
-  // been setup. The Promise returned here wont resolve until that happens
+  // If a query is made before the database has been opened, the query will be
+  // held in a queue and run / resolved when the database is ready.
   _query(query, values = []) {
     return new Promise((resolve, reject) => {
       if (!this._open) {
@@ -312,58 +302,80 @@ class DatabaseStore extends NylasStore {
         return;
       }
 
-      const fn = (query.indexOf(`SELECT `) === 0) ? 'all' : 'run';
+      // Undefined, True, and False are not valid SQLite datatypes:
+      // https://www.sqlite.org/datatype3.html
+      values.forEach((val, idx) => {
+        if (val === false) {
+          values[idx] = 0;
+        } else if (val === true) {
+          values[idx] = 1;
+        } else if (val === undefined) {
+          values[idx] = null;
+        }
+      });
 
-      if (query.indexOf(`SELECT `) === 0) {
-        if (DEBUG_QUERY_PLANS) {
-          this._db.all(`EXPLAIN QUERY PLAN ${query}`, values, (err, results = []) => {
-            const str = `${results.map(row => row.detail).join('\n')} for ${query}`;
-            if (str.indexOf('ThreadCounts') > 0) {
-              return;
-            }
-            if (str.indexOf('ThreadSearch') > 0) {
-              return;
-            }
-            if ((str.indexOf('SCAN') !== -1) && (str.indexOf('COVERING INDEX') === -1)) {
-              this._prettyConsoleLog(str);
-            }
-          });
+      if (query.startsWith(`SELECT `) && DEBUG_QUERY_PLANS) {
+        const plan = this._db.prepare(`EXPLAIN QUERY PLAN ${query}`).all(values);
+        const planString = `${plan.map(row => row.detail).join('\n')} for ${query}`;
+        if (planString.includes('ThreadCounts')) {
+          return;
+        }
+        if (planString.includes('ThreadSearch')) {
+          return;
+        }
+        if (planString.includes('SCAN') && !planString.includes('COVERING INDEX')) {
+          this._prettyConsoleLog(planString);
         }
       }
 
-      // Important: once the user begins a transaction, queries need to run
-      // in serial.  This ensures that the subsequent `COMMIT` call
-      // actually runs after the other queries in the transaction, and that
-      // no other code can execute `BEGIN TRANS.` until the previously
-      // queued BEGIN/COMMIT have been processed.
-
-      // We don't exit serial execution mode until the last pending transaction has
-      // finished executing.
-
-      if (query.indexOf(`BEGIN`) === 0) {
-        if (this._inflightTransactions === 0) {
-          this._db.serialize();
+      if (query.startsWith(`BEGIN`)) {
+        if (this._inflightTransactions !== 0) {
+          throw new Error("Assertion Failure: BEGIN called when an existing transaction is in-flight. Use DatabaseStore.inTransaction() to aquire transactions.")
         }
         this._inflightTransactions += 1;
       }
 
-      this._db[fn](query, values, (err, results) => {
-        if (err) {
-          console.error(`DatabaseStore: Query ${query}, ${JSON.stringify(values)} failed ${err.toString()}`);
-        }
+      const fn = query.startsWith('SELECT') ? 'all' : 'run';
+      const start = Date.now();
+      let tries = 0;
+      let results = null;
 
-        if (query === COMMIT) {
-          this._inflightTransactions -= 1;
-          if (this._inflightTransactions === 0) {
-            this._db.parallelize();
+      // Because other processes may be writing to the database and modifying the
+      // schema (running ANALYZE, etc.), we may `prepare` a statement and then be
+      // unable to execute it. Handle this case silently unless it's persistent.
+      while (!results) {
+        try {
+          let stmt = this._preparedStatementCache.get(query);
+          if (!stmt) {
+            stmt = this._db.prepare(query);
+            this._preparedStatementCache.set(query, stmt)
+          }
+          results = stmt[fn](values);
+        } catch (err) {
+          if (tries < 3 && err.toString().includes('database schema has changed')) {
+            this._preparedStatementCache.del(query);
+            tries += 1;
+          } else {
+            // note: this function may throw a promise, which causes our Promise to reject
+            throw new Error(`DatabaseStore: Query ${query}, ${JSON.stringify(values)} failed ${err.toString()}`);
           }
         }
-        if (err) {
-          reject(err)
-        } else {
-          resolve(results)
+      }
+
+      const msec = Date.now() - start;
+      if ((msec > 100) || DEBUG_TO_LOG) {
+        this._prettyConsoleLog(`${msec}msec: ${query}`);
+      }
+
+      if (query === 'COMMIT') {
+        this._inflightTransactions -= 1;
+        if (this._inflightTransactions < 0) {
+          this._inflightTransactions = 0;
+          throw new Error("Assertion Failure: COMMIT was called too many times and the transaction count went negative.")
         }
-      });
+      }
+
+      resolve(results);
     });
   }
 
