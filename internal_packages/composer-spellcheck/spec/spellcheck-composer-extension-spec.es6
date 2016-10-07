@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 import SpellcheckComposerExtension from '../lib/spellcheck-composer-extension';
-import {NylasSpellchecker, Message} from 'nylas-exports';
+import {Spellchecker, Message} from 'nylas-exports';
 
 const initialPath = path.join(__dirname, 'fixtures', 'california-with-misspellings-before.html');
 const initialHTML = fs.readFileSync(initialPath).toString();
@@ -14,7 +14,7 @@ describe('SpellcheckComposerExtension', function spellcheckComposerExtension() {
     // Avoid differences between node-spellcheck on different platforms
     const lookupPath = path.join(__dirname, 'fixtures', 'california-spelling-lookup.json');
     const spellings = JSON.parse(fs.readFileSync(lookupPath));
-    spyOn(NylasSpellchecker, 'isMisspelled').andCallFake(word => spellings[word])
+    spyOn(Spellchecker, 'isMisspelled').andCallFake(word => spellings[word])
   });
 
   describe("update", () => {
