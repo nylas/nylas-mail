@@ -1,4 +1,4 @@
-import {DOMUtils, ComposerExtension, NylasSpellchecker} from 'nylas-exports';
+import {DOMUtils, ComposerExtension, Spellchecker} from 'nylas-exports';
 
 const recycled = [];
 
@@ -27,7 +27,7 @@ export default class SpellcheckComposerExtension extends ComposerExtension {
     const range = DOMUtils.Mutating.getRangeAtAndSelectWord(selection, 0);
     const word = range.toString();
 
-    NylasSpellchecker.appendSpellingItemsToMenu({
+    Spellchecker.appendSpellingItemsToMenu({
       menu,
       word,
       onCorrect: (correction) => {
@@ -42,7 +42,12 @@ export default class SpellcheckComposerExtension extends ComposerExtension {
 
   static update = (editor) => {
     SpellcheckComposerExtension._unwrapWords(editor);
-    SpellcheckComposerExtension._wrapMisspelledWords(editor);
+    Spellchecker.handler.provideHintText(editor.rootNode.textContent)
+    // This should technically be in a .then() clause of the promise returned by
+    // provideHintText(), but that doesn't work for some reason. provideHintText()
+    // currently runs fast enough, or _wrapMisspelledWords() runs slow enough,
+    // that just running _wrapMisspelledWords() immediately works as intended.
+    SpellcheckComposerExtension._wrapMisspelledWords(editor)
   }
 
   // Creates a shallow copy of a selection object where anchorNode / focusNode
@@ -136,7 +141,7 @@ export default class SpellcheckComposerExtension extends ComposerExtension {
             break;
           }
 
-          if (NylasSpellchecker.isMisspelled(match[0])) {
+          if (Spellchecker.isMisspelled(match[0])) {
             // The insertion point is currently at the end of this misspelled word.
             // Do not mark it until the user types a space or leaves.
             if ((selectionSnapshot.focusNode === node) && (selectionSnapshot.focusOffset === match.index + match[0].length)) {

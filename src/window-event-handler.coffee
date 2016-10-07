@@ -191,8 +191,8 @@ class WindowEventHandler
     {Menu, MenuItem} = remote
     menu = new Menu()
 
-    NylasSpellchecker = require('./nylas-spellchecker')
-    NylasSpellchecker.appendSpellingItemsToMenu
+    Spellchecker = require('./spellchecker').default
+    Spellchecker.appendSpellingItemsToMenu
       menu: menu,
       word: word,
       onCorrect: (correction) =>

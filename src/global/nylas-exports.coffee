@@ -176,7 +176,7 @@ class NylasExports
   @lazyLoad "MenuHelpers", 'menu-helpers'
   @lazyLoad "DeprecateUtils", 'deprecate-utils'
   @lazyLoad "VirtualDOMUtils", 'virtual-dom-utils'
-  @lazyLoad "NylasSpellchecker", 'nylas-spellchecker'
+  @lazyLoad "Spellchecker", 'spellchecker'
   @lazyLoad "DraftHelpers", 'flux/stores/draft-helpers'
   @lazyLoad "MessageUtils", 'flux/models/message-utils'
   @lazyLoad "EditorAPI", 'components/contenteditable/editor-api'
