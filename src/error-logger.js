@@ -179,10 +179,12 @@ module.exports = ErrorLogger = (function() {
           if (logFilter.test(file) === true) {
             var filepath = path.join(tmpPath, file);
             fs.stat(filepath, function(err, stats) {
-              var lastModified = new Date(stats['mtime']);
-              var fileAge = Date.now() - lastModified.getTime();
-              if (fileAge > (1000 * 60 * 60 * 24 * 2)) { // two days
-                fs.unlink(filepath);
+              if (!err && stats) {
+                var lastModified = new Date(stats['mtime']);
+                var fileAge = Date.now() - lastModified.getTime();
+                if (fileAge > (1000 * 60 * 60 * 24 * 2)) { // two days
+                  fs.unlink(filepath);
+                }
               }
             });
           }
