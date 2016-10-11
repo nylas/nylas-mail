@@ -98,7 +98,7 @@ module.exports = (sequelize, Sequelize) => {
         // Message though and need to protect `this.date` from null
         // errors.
         return {
-          id: this.id,
+          id: `${this.id}`,
           account_id: this.accountId,
           object: 'message',
           body: this.body,

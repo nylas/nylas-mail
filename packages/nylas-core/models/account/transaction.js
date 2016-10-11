@@ -10,7 +10,7 @@ module.exports = (sequelize, Sequelize) => {
     instanceMethods: {
       toJSON: function toJSON() {
         return {
-          id: this.id,
+          id: `${this.id}`,
           event: this.event,
           object: this.object,
           objectId: this.objectId,

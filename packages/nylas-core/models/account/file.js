@@ -40,7 +40,7 @@ module.exports = (sequelize, Sequelize) => {
       },
       toJSON: function toJSON() {
         return {
-          id: this.id,
+          id: `${this.id}`,
           object: 'file',
           account_id: this.accountId,
           message_id: this.messageId,

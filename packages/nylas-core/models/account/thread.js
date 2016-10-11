@@ -49,7 +49,7 @@ module.exports = (sequelize, Sequelize) => {
         }
 
         const response = {
-          id: this.id,
+          id: `${this.id}`,
           object: 'thread',
           folders: this.folders,
           labels: this.labels,

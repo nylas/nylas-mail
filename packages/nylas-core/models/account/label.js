@@ -20,7 +20,7 @@ module.exports = (sequelize, Sequelize) => {
     instanceMethods: {
       toJSON: function toJSON() {
         return {
-          id: this.id,
+          id: `${this.id}`,
           account_id: this.accountId,
           object: 'label',
           name: this.role,
