@@ -74,7 +74,7 @@ export default class MailLabelSet extends React.Component {
         children={labels}
         matching={{role: "Thread:MailLabel"}}
         className="thread-injected-mail-labels"
-        exposedProps={{thread: thread}}
+        exposedProps={{thread}}
       />
     );
   }

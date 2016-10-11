@@ -57,12 +57,6 @@ Actions.dequeueMatchingTask({
 })
 ```
 
-## Creating Tasks
-
-Support for creating custom {Task} subclasses in third-party packages is coming soon.
-This is currently blocked by the ActionBridge, which is responsible for sending actions
-between windows, since it's JSON serializer is not extensible.
-
 Section: Stores
 ###
 class TaskQueue
