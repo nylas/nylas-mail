@@ -18,7 +18,6 @@
     "babel-preset-electron": "0.37.8",
     "babel-preset-react": "6.11.1",
     "babel-regenerator-runtime": "6.5.0",
-    "better-sqlite3": "bengotow/better-sqlite3#b96d1b2b390cfcea7f55c8a4cbecd57c5d325c29",
     "bluebird": "^2.9",
     "chromium-net-errors": "1.0.3",
     "chrono-node": "^1.1.2",
