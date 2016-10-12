@@ -204,6 +204,7 @@ class MessageList extends React.Component
       <div onClick={@_onPrintThread}>
         <RetinaImg name="print.png" title="Print Thread" mode={RetinaImg.Mode.ContentIsMask}/>
       </div>
+      {@_renderPopoutToggle()}
     </div>
 
   _renderExpandToggle: =>
@@ -217,6 +218,17 @@ class MessageList extends React.Component
       <div onClick={@_onToggleAllMessagesExpanded}>
         <RetinaImg name={"collapse.png"} title={"Collapse All"} mode={RetinaImg.Mode.ContentIsMask}/>
       </div>
+
+  _renderPopoutToggle: =>
+    if NylasEnv.isThreadWindow()
+      <div onClick={@_onPopThreadIn}>
+        <RetinaImg name="thread-popin.png" title="Pop thread in" mode={RetinaImg.Mode.ContentIsMask}/>
+      </div>
+    else
+      <div onClick={@_onPopoutThread}>
+        <RetinaImg name="thread-popout.png" title="Popout thread" mode={RetinaImg.Mode.ContentIsMask}/>
+      </div>
+
 
   _renderReplyArea: =>
     <div className="footer-reply-area-wrap" onClick={@_onClickReplyArea} key='reply-area'>
@@ -249,6 +261,18 @@ class MessageList extends React.Component
   _onPrintThread: =>
     node = ReactDOM.findDOMNode(@)
     Actions.printThread(@state.currentThread, node.innerHTML)
+
+  _onPopThreadIn: =>
+    return unless @state.currentThread
+    Actions.focusThreadMainWindow(@state.currentThread)
+    NylasEnv.close()
+
+  _onPopoutThread: =>
+    return unless @state.currentThread
+    Actions.popoutThread(@state.currentThread)
+    # This returns the single-pane view to the inbox, and does nothing for
+    # double-pane view because we're at the root sheet.
+    Actions.popSheet()
 
   _onClickReplyArea: =>
     return unless @state.currentThread

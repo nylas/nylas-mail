@@ -16,7 +16,8 @@
   },
   "windowTypes": {
     "default": true,
-    "composer": true
+    "composer": true,
+    "thread-popout": true
   },
   "dependencies": {
     "marked": "^0.3",

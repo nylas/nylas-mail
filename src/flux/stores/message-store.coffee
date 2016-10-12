@@ -107,6 +107,8 @@ class MessageStore extends NylasStore
     @listenTo Actions.toggleAllMessagesExpanded, @_onToggleAllMessagesExpanded
     @listenTo Actions.toggleHiddenMessages, @_onToggleHiddenMessages
     @listenTo FocusedPerspectiveStore, @_onPerspectiveChanged
+    @listenTo Actions.popoutThread, @_onPopoutThread
+    @listenTo Actions.focusThreadMainWindow, @_onFocusThreadMainWindow
 
   _onPerspectiveChanged: =>
     @trigger()
@@ -312,6 +314,20 @@ class MessageStore extends NylasStore
         items.push(item)
 
     items
+
+  _onPopoutThread: (thread) ->
+    NylasEnv.newWindow
+      title: false, # MessageList already displays the thread subject
+      hidden: false,
+      windowKey: "thread-#{thread.id}",
+      windowType: 'thread-popout',
+      windowProps: threadId: thread.id,
+
+  _onFocusThreadMainWindow: (thread) ->
+    if NylasEnv.isMainWindow()
+      Actions.setFocus({collection: 'thread', item: thread})
+      NylasEnv.focus()
+
 
 store = new MessageStore()
 store.registerExtension = deprecate(

@@ -360,6 +360,9 @@ class NylasEnvConstructor
   isComposerWindow: ->
     @getWindowType() in ["composer", "composer-preload"]
 
+  isThreadWindow: ->
+    @getWindowType() is 'thread-popout'
+
   getWindowType: ->
     @getLoadSettings().windowType
 

@@ -115,6 +115,10 @@ export function activate() {
     ComponentRegistry.register(ComposeButton, {
       location: WorkspaceStore.Location.RootSidebar.Toolbar,
     });
+  } else if (NylasEnv.isThreadWindow()) {
+    ComponentRegistry.register(ComposerViewForDraftClientId, {
+      role: 'Composer',
+    });
   } else {
     NylasEnv.getCurrentWindow().setMinimumSize(480, 250);
     ComponentRegistry.register(ComposerWithWindowProps, {
