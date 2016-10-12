@@ -106,8 +106,10 @@ class EncryptMessageButton extends React.Component
       @_checkKeysAndEncrypt(plaintext, identities, (err, cryptotext) =>
         if err
           console.warn err
+          Actions.recordUserEvent("Email Encryption Errored", {error: err})
           NylasEnv.showErrorDialog(err)
         if cryptotext? and cryptotext != ""
+          Actions.recordUserEvent("Email Encrypted")
           # <pre> tag prevents gross HTML formatting in-flight
           cryptotext = "<pre>#{cryptotext}</pre>"
           @setState({
