@@ -1,10 +1,10 @@
 # Getting Started with N1 on Windows
 
 ## Dependencies
-1. **Visual Studio**: You must have Visual Studio installed to build native
-extensions. See the notes about Visual Studio below if you encounter compilation
-errors.
-1. **Node**: Node 4.x and Node 6.x supported
+1. **Visual Studio 2013**: You must have Visual Studio 2013 installed to build
+N1's native node modules. See the notes about Visual Studio below if you encounter compilation
+errors. You can install [Visual Studio 2013 Community Edition](https://www.visualstudio.com/en-us/news/releasenotes/vs2013-community-vs) for free.
+1. **Node**: You must have Node 4.x or Node 6.x to run N1's build script. Run `node -v` to check which version of NodeJS you are using.
 1. **Python 2.7**: The `python` command must be on your `PATH` and must point to
 Python 2.7 (not 3.x)
 1. **Git**: The `git` command must be on your `PATH`
@@ -13,7 +13,7 @@ Python 2.7 (not 3.x)
 
         git clone https://github.com/nylas/N1.git
         cd N1
-        npm config set msvs_version 2013
+        npm config set msvs_version 2013 --global
         script\bootstrap.cmd
 
 ## Running
@@ -21,23 +21,24 @@ Python 2.7 (not 3.x)
         electron\electron.exe . --dev
 
 # Common Issues:
-While `script\bootstrap.cmd` is designed to work out of the box, we have to
-compile a few native extensions via node-gyp and expect certain programs to be
-available on your `PATH`. If `script\bootstrap.cmd` fails due to a compilation
-error, it is likely due to a Visual Studio problem.
+While `script\bootstrap.cmd` is designed to work out of the box, it needs to
+compile native extensions with node-gyp. If `script\bootstrap.cmd` fails due
+to a compilation error, it is likely a Visual Studio configuration issue.
 
 ## Visual Studio
-There are now several versions of Visual Studio. Node-gyp is designed to detect
-the current version installed on your system. If you are using Visual Studio 2015,
-you must be using a newer version of Node.
+There are several versions of Visual Studio. `node-gyp` is designed to detect
+the current version installed on your system. Nylas N1 only officially supports
+Visual Studio 2013. If you are using Visual Studio 2015, be sure you chose to
+install the C++ features in the Visual Studio installer.
 
-If during compilation, node-gyp looks in the wrong place for headers, you can
-explicitly set the version of Visual Studio you want it to use by setting the
-`GYP_MSVS_VERSION` environment variable to the year of your Visual Studio version.
-Valid values are `2015`, `2013`, `2013e`, `2012`, etc. (`e` stands for "express").
-The full set of values are [here](https://github.com/nodejs/node/blob/v4.2.1/tools/gyp/pylib/gyp/MSVSVersion.py#L411)
+To ensure `node-gyp` uses Visual Studio 2013, run the following commands:
 
-## Node & Npm
+```
+set GYP_MSVS_VERSION=2013
+npm config set msvs_version 2013 --global
+```
+
+## Node & NPM
 We only use your system's Node to bootstrap `apm`. Once we have `apm` installed,
 your system's Node no longer matters and we install remaining packages with `apm`.
 
