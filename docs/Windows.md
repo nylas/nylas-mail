@@ -13,6 +13,7 @@ Python 2.7 (not 3.x)
 
         git clone https://github.com/nylas/N1.git
         cd N1
+        npm config set msvs_version 2013
         script\bootstrap.cmd
 
 ## Running
