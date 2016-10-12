@@ -1,0 +1,60 @@
+Windows Registry Editor Version 5.00
+
+[{{HKEY_ROOT}}\SOFTWARE\Classes\Nylas.Url.mailto]
+"FriendlyTypeName"="Nylas Url"
+
+[{{HKEY_ROOT}}\SOFTWARE\Classes\Nylas.Url.mailto\shell]
+
+[{{HKEY_ROOT}}\SOFTWARE\Classes\Nylas.Url.mailto\shell\open]
+
+[{{HKEY_ROOT}}\SOFTWARE\Classes\Nylas.Url.mailto\shell\open\command]
+@="\"{{PATH_TO_ROOT_FOLDER}}\\Update.exe\" --processStart nylas.exe --process-start-args %1"
+
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Nylas]
+@="Nylas"
+"LocalizedString"="@{{PATH_TO_ROOT_FOLDER}}\\Update.exe,-123"
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Nylas\DefaultIcon]
+@="{{PATH_TO_APP_FOLDER}}\\nylas.exe,1"
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Nylas\Capabilities]
+"ApplicationName"="Nylas N1"
+"ApplicationDescription"="A fast, modern mail client designed to help you boost your productivity."
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Nylas\Capabilities\StartMenu]
+"Mail"="Nylas"
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Nylas\Capabilities\URLAssociations]
+"mailto"="Nylas.Url.mailto"
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Nylas\Protocols]
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Nylas\Protocols\mailto]
+@="URL:MailTo Protocol"
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Nylas\Protocols\mailto\DefaultIcon]
+@="{{PATH_TO_APP_FOLDER}}\\nylas.exe,1"
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Nylas\Protocols\mailto\shell]
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Nylas\Protocols\mailto\shell\open]
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Nylas\Protocols\mailto\shell\open\command]
+@="\"{{PATH_TO_ROOT_FOLDER}}\\Update.exe\" --processStart nylas.exe --process-start-args %1"
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Nylas\shell]
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Nylas\shell\open]
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Nylas\shell\open\command]
+@="\"{{PATH_TO_ROOT_FOLDER}}\\Update.exe\" --processStart nylas.exe"
+
+[{{HKEY_ROOT}}\SOFTWARE\RegisteredApplications]
+"Nylas"="Software\\Clients\\Mail\\Nylas\\Capabilities"
+
+
+[HKEY_CURRENT_USER\SOFTWARE\Classes\Local Settings\Software\Microsoft\Windows\Shell\MuiCache]
+"{{PATH_TO_ROOT_FOLDER}}\\Update.exe"="Nylas N1"
+"{{PATH_TO_ROOT_FOLDER}}\\Update.exe.FriendlyAppName"="Nylas N1"
+"{{PATH_TO_ROOT_FOLDER}}\\Update.exe.ApplicationCompany"="Nylas"

@@ -1,4 +1,4 @@
-import {React, LaunchServices} from 'nylas-exports';
+import {React, DefaultClientHelper} from 'nylas-exports';
 import {Notification} from 'nylas-component-kit';
 
 const SETTINGS_KEY = 'nylas.mailto.prompted-about-default'
@@ -9,7 +9,7 @@ export default class DefaultClientNotification extends React.Component {
 
   constructor() {
     super();
-    this.services = new LaunchServices();
+    this.helper = new DefaultClientHelper();
     this.state = this.getStateFromStores();
     this.state.initializing = true;
     this.mounted = false;
@@ -17,7 +17,7 @@ export default class DefaultClientNotification extends React.Component {
 
   componentDidMount() {
     this.mounted = true;
-    this.services.isRegisteredForURLScheme('mailto', (registered) => {
+    this.helper.isRegisteredForURLScheme('mailto', (registered) => {
       if (this.mounted) {
         this.setState({
           initializing: false,
@@ -41,7 +41,7 @@ export default class DefaultClientNotification extends React.Component {
   }
 
   _onAccept = () => {
-    this.services.registerForURLScheme('mailto', (err) => {
+    this.helper.registerForURLScheme('mailto', (err) => {
       if (err) {
         NylasEnv.reportError(err)
       }

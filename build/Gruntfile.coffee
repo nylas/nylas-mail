@@ -377,7 +377,8 @@ module.exports = (grunt) ->
     'compile',
     'generate-license:save',
     'generate-module-cache',
-    'compile-packages-slug']
+    'compile-packages-slug',
+  ]
   buildTasks.push('copy-info-plist') if process.platform is 'darwin'
   buildTasks.push('set-exe-icon') if process.platform is 'win32'
   grunt.registerTask('build', buildTasks)

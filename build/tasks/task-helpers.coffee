@@ -93,28 +93,12 @@ module.exports = (grunt) ->
       if process.env.APPVEYOR_PULL_REQUEST_NUMBER
         grunt.log.writeln("Skipping because this is a pull request")
         return false
-
-      branch = process.env.APPVEYOR_REPO_BRANCH
-      if branch is "master" or branch is "ci-test" or branch is "stable"
-        return true
-      else
-        grunt.log.writeln("Skipping. We don't operate on branch '#{branch}''")
-        return false
-
     else if process.env.TRAVIS
       if process.env.TRAVIS_PULL_REQUEST isnt "false"
         grunt.log.writeln("Skipping because this is a pull request")
-        return false
-
-      branch = process.env.TRAVIS_BRANCH
-      if branch is "master" or branch is "ci-test" or branch is "stable"
-        return true
-      else
-        grunt.log.writeln("Skipping. We don't operate on branch '#{branch}''")
         return false
     return true
 
   fillTemplate: (templatePath, outputPath, data) ->
     content = _.template(String(fs.readFileSync(templatePath)))(data)
     grunt.file.write(outputPath, content)
-
