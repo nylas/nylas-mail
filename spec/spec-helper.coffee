@@ -334,11 +334,6 @@ jasmine.restoreDeprecationsSnapshot = ->
 
 addCustomMatchers = (spec) ->
   spec.addMatchers
-    toBeInstanceOf: (expected) ->
-      notText = if @isNot then " not" else ""
-      this.message = => "Expected #{jasmine.pp(@actual)} to#{notText} be instance of #{expected.name} class"
-      @actual instanceof expected
-
     toHaveLength: (expected) ->
       if not @actual?
         this.message = => "Expected object #{@actual} has no length method"
@@ -347,28 +342,6 @@ addCustomMatchers = (spec) ->
         notText = if @isNot then " not" else ""
         this.message = => "Expected object with length #{@actual.length} to#{notText} have length #{expected}"
         @actual.length == expected
-
-    toExistOnDisk: (expected) ->
-      notText = this.isNot and " not" or ""
-      @message = -> return "Expected path '" + @actual + "'" + notText + " to exist."
-      fs.existsSync(@actual)
-
-    toHaveFocus: ->
-      notText = this.isNot and " not" or ""
-      if not document.hasFocus()
-        console.error "Specs will fail because the Dev Tools have focus. To fix this close the Dev Tools or click the spec runner."
-
-      @message = -> return "Expected element '" + @actual + "' or its descendants" + notText + " to have focus."
-      element = @actual
-      element = element.get(0) if element.jquery
-      element is document.activeElement or element.contains(document.activeElement)
-
-    toShow: ->
-      notText = if @isNot then " not" else ""
-      element = @actual
-      element = element.get(0) if element.jquery
-      @message = -> return "Expected element '#{element}' or its descendants#{notText} to show."
-      element.style.display in ['block', 'inline-block', 'static', 'fixed']
 
 
 # -------------------------
