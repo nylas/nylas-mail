@@ -13,6 +13,7 @@
   "windowTypes": {
     "default": true,
     "composer": true,
-    "composer-preload": true
+    "composer-preload": true,
+    "thread-popout": true
   }
 }

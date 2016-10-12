@@ -14,7 +14,8 @@
   },
   "windowTypes": {
     "default": true,
-    "composer": true
+    "composer": true,
+    "thread-popout": true
   },
   "dependencies": {
     "tld": "^0.0.2"

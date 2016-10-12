@@ -306,6 +306,30 @@ class Actions
   @printThread: ActionScopeWindow
 
   ###
+  Public: Display the thread in a new popout window
+
+  *Scope: Window*
+
+  ```
+  thread = <Thread>
+  Actions.popoutThread(thread)
+  ```
+  ###
+  @popoutThread: ActionScopeWindow
+
+  ###
+  Public: Display the thread in the main window
+
+  *Scope: Global*
+
+  ```
+  thread = <Thread>
+  Actions.focusThreadMainWindow(thread)
+  ```
+  ###
+  @focusThreadMainWindow: ActionScopeGlobal
+
+  ###
   Public: Create a new reply to the provided threadId and messageId and populate
   it with the body provided.
 
