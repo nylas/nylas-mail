@@ -198,7 +198,7 @@ class NylasExports
   @lazyLoadCustomGetter "TimeoutError", -> require('../flux/errors').TimeoutError
 
   # Process Internals
-  @lazyLoad "LaunchServices", 'launch-services'
+  @lazyLoad "DefaultClientHelper", 'default-client-helper'
   @lazyLoad "BufferedProcess", 'buffered-process'
   @lazyLoad "SystemStartService", 'system-start-service'
   @lazyLoadCustomGetter "APMWrapper", -> require('../apm-wrapper')
