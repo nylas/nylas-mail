@@ -1,6 +1,7 @@
 import React from 'react'
-import {Event, Utils} from 'nylas-exports'
+import {Event} from 'nylas-exports'
 import {InjectedComponentSet} from 'nylas-component-kit'
+import {calcColor} from './calendar-helpers'
 
 export default class CalendarEvent extends React.Component {
   static displayName = "CalendarEvent";
@@ -37,7 +38,7 @@ export default class CalendarEvent extends React.Component {
       }
     }
 
-    styles.backgroundColor = this._bgColor();
+    styles.backgroundColor = calcColor(this.props.event.calendarId);
 
     return styles
   }
@@ -65,15 +66,6 @@ export default class CalendarEvent extends React.Component {
     height = `${height * 100}%`
 
     return {left, width, height, top}
-  }
-
-  _bgColor() {
-    let bgColor = NylasEnv.config.get(`calendar.colors.${this.props.event.calendarId}`)
-    if (!bgColor) {
-      const hue = Utils.hueForString(this.props.event.calendarId);
-      bgColor = `hsla(${hue}, 50%, 45%, 0.35)`
-    }
-    return bgColor
   }
 
   _overflowBefore() {

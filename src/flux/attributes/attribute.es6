@@ -32,7 +32,7 @@ export default class Attribute {
   }
 
   // Public: Returns a {Matcher} for objects `=` to the provided value.
-  in(val) {
+  in(val, {notIn} = {}) {
     this._assertPresentAndQueryable('in', val);
 
     if (!(val instanceof Array)) {
@@ -41,7 +41,16 @@ export default class Attribute {
     if (val.length === 0) {
       console.warn(`Attribute::in (${this.modelKey}) called with an empty set. You should avoid this useless query!`);
     }
-    return (val.length === 1) ? new Matcher(this, '=', val[0]) : new Matcher(this, 'in', val);
+    if (val.length === 1) {
+      const testChar = notIn ? "!=" : "="
+      return new Matcher(this, testChar, val[0])
+    }
+    const matcherType = notIn ? "not in" : "in";
+    return new Matcher(this, matcherType, val);
+  }
+
+  notIn(val) {
+    return this.in(val, {notIn: true})
   }
 
   // Public: Returns a {Matcher} for objects `!=` to the provided value.

@@ -71,7 +71,7 @@ class MessageParticipants extends React.Component
             {c.fullName()}
           </div>
           <div className="participant-secondary">
-            {"<"}
+            {" <"}
             <span
               onClick={@_selectText}
               onContextMenu={=> @_onContactContextMenu(c)}

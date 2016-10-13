@@ -112,4 +112,22 @@
     }
   }
 
+  .inline-download-prompt {
+    border: solid 1px rgba(0, 0, 0, 0.09);
+    border-radius: 2px;
+    color: @text-color;
+    background: @background-off-primary;
+    margin: 4px 0;
+    padding: 4px 8px;
+    cursor: pointer;
+    display: inline-block;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+  .inline-download-prompt:hover {
+    cursor: pointer;
+    color: @text-color;
+    border: solid 1px rgba(0, 0, 0, 0.16);
+  }
 }

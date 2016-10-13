@@ -144,7 +144,7 @@ class OutlineView extends Component {
         onDragStateChange={this._onDragStateChange}
         shouldAcceptDrop={() => true}
       >
-        <span className="text">
+        <span className="text" title={this.props.title}>
           {this.props.title}
         </span>
         {allowCreate ? this._renderCreateButton() : void 0}

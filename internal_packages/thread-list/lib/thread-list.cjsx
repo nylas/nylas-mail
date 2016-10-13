@@ -101,6 +101,7 @@ class ThreadList extends React.Component
           scrollTooltipComponent={ThreadListScrollTooltip}
           emptyComponent={EmptyListState}
           keymapHandlers={@_keymapHandlers()}
+          onDoubleClick={(thread) -> Actions.popoutThread(thread)}
           onDragStart={@_onDragStart}
           onDragEnd={@_onDragEnd}
           draggable="true" />

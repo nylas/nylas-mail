@@ -22,7 +22,7 @@ First, clone and build N1 from source:
 
 Read the [getting started guides](https://nylas.github.io/N1/getting-started/).
 
-See [Windows instructions here](https://github.com/nylas/N1/blob/master/docs/Windows.md)
+**Building Nylas on Windows? See the [Windows instructions.](https://github.com/nylas/N1/blob/master/docs/Windows.md)**
 
 Linux users on Debian 8 and Ubuntu 15.04 onward must also install libgcrypt11, which Electron depends on.
 

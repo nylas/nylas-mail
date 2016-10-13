@@ -1,5 +1,5 @@
 Actions = require '../../src/flux/actions'
-DatabaseStore = require '../../src/flux/stores/database-store'
+DatabaseStore = require('../../src/flux/stores/database-store').default
 TaskQueue = require '../../src/flux/stores/task-queue'
 Task = require('../../src/flux/tasks/task').default
 TaskRegistry = require('../../src/task-registry').default

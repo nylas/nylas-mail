@@ -1,9 +1,15 @@
+import Rx from 'rx-lite'
 import React from 'react'
 import moment from 'moment'
 import WeekView from './week-view'
 import MonthView from './month-view'
+import CalendarToggles from './calendar-toggles'
 import CalendarDataSource from './calendar-data-source'
+import {DatabaseStore, AccountStore, Calendar} from 'nylas-exports'
 import {WEEK_VIEW, MONTH_VIEW} from './calendar-constants'
+import {ScrollRegion, ResizableRegion} from 'nylas-component-kit'
+
+const DISABLED_CALENDARS = "nylas.disabledCalendars"
 
 /**
  * Nylas Calendar
@@ -77,9 +83,34 @@ export default class NylasCalendar extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      calendars: [],
       currentView: WEEK_VIEW,
       currentMoment: props.currentMoment || this._now(),
+      disabledCalendars: NylasEnv.config.get(DISABLED_CALENDARS) || [],
     };
+  }
+
+  componentWillMount() {
+    this._disposable = this._subscribeToCalendars()
+  }
+
+  componentWillUnmount() {
+    this._disposable.dispose()
+  }
+
+  _subscribeToCalendars() {
+    const calQuery = DatabaseStore.findAll(Calendar)
+    const calQueryObs = Rx.Observable.fromQuery(calQuery)
+    const accQueryObs = Rx.Observable.fromStore(AccountStore)
+    const configObs = Rx.Observable.fromConfig(DISABLED_CALENDARS)
+    return Rx.Observable.combineLatest([calQueryObs, accQueryObs, configObs])
+    .subscribe(([calendars, accountStore, disabledCalendars]) => {
+      this.setState({
+        accounts: accountStore.accounts() || [],
+        calendars: calendars || [],
+        disabledCalendars: disabledCalendars || [],
+      })
+    })
   }
 
   _now() {
@@ -105,6 +136,21 @@ export default class NylasCalendar extends React.Component {
     const CurrentView = this._getCurrentViewComponent();
     return (
       <div className="nylas-calendar">
+        <ResizableRegion
+          className="calendar-toggles"
+          initialWidth={175}
+          minWidth={125}
+          maxWidth={275}
+          handle={ResizableRegion.Handle.Right}
+        >
+          <ScrollRegion style={{flex: 1}}>
+            <CalendarToggles
+              accounts={this.state.accounts}
+              calendars={this.state.calendars}
+              disabledCalendars={this.state.disabledCalendars}
+            />
+          </ScrollRegion>
+        </ResizableRegion>
         <CurrentView
           dataSource={this.props.dataSource}
           currentMoment={this.state.currentMoment}
@@ -112,6 +158,7 @@ export default class NylasCalendar extends React.Component {
           headerComponents={this.props.headerComponents[this.state.currentView]}
           footerComponents={this.props.footerComponents[this.state.currentView]}
           changeCurrentView={this._changeCurrentView}
+          disabledCalendars={this.state.disabledCalendars}
           changeCurrentMoment={this._changeCurrentMoment}
           onCalendarMouseUp={this.props.onCalendarMouseUp}
           onCalendarMouseDown={this.props.onCalendarMouseDown}

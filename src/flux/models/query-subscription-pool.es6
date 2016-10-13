@@ -99,7 +99,7 @@ class QuerySubscriptionPool {
   }
 
   _setup() {
-    DatabaseStore = DatabaseStore || require('../stores/database-store');
+    DatabaseStore = DatabaseStore || require('../stores/database-store').default;
     DatabaseStore.listen(this._onChange);
   }
 

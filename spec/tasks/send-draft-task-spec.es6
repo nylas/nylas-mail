@@ -92,7 +92,6 @@ describe('SendDraftTask', function sendDraftTask() {
       spyOn(DBt, 'unpersistModel').andReturn(Promise.resolve());
       spyOn(DBt, 'persistModel').andReturn(Promise.resolve());
       spyOn(SoundRegistry, "playSound");
-      spyOn(Actions, "postNotification");
       spyOn(Actions, "sendDraftSuccess");
     });
 

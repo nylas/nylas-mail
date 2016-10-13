@@ -17,6 +17,7 @@
   "license": "GPL-3.0",
   "windowTypes": {
     "default": true,
-    "composer": true
+    "composer": true,
+    "thread-popout": true
   }
 }

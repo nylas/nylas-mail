@@ -1,6 +1,6 @@
 path = require 'path'
 Package = require '../src/package'
-DatabaseStore = require '../src/flux/stores/database-store'
+DatabaseStore = require('../src/flux/stores/database-store').default
 {Disposable} = require 'event-kit'
 
 describe "PackageManager", ->

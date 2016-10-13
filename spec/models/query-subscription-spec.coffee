@@ -1,4 +1,4 @@
-DatabaseStore = require '../../src/flux/stores/database-store'
+DatabaseStore = require('../../src/flux/stores/database-store').default
 
 QueryRange = require('../../src/flux/models/query-range').default
 MutableQueryResultSet = require('../../src/flux/models/mutable-query-result-set').default

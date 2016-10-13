@@ -1,7 +1,7 @@
 _ = require 'underscore'
 
 Model = require '../flux/models/model'
-DatabaseStore = require '../flux/stores/database-store'
+DatabaseStore = require('../flux/stores/database-store').default
 
 module.exports =
 class ListSelection

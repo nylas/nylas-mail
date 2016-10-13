@@ -13,8 +13,6 @@ class ApplicationMenu
     @setActiveTemplate(@getDefaultTemplate())
     global.application.autoUpdateManager.on 'state-changed', (state) =>
       @updateAutoupdateMenuItem(state)
-    global.application.config.observe 'devMode', (state) =>
-      @updateDevModeItem()
 
   # Public: Updates the entire menu with the given keybindings.
   #
