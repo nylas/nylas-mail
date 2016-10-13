@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'underscore';
 
-import {Actions, WorkspaceStore} from 'nylas-exports';
+import {Actions, WorkspaceStore, DOMUtils} from 'nylas-exports';
 import NylasStore from 'nylas-store';
 
 const TipsBackgroundEl = document.createElement('tutorial-tip-background');
@@ -125,6 +125,11 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
           this._workspaceTimer = setTimeout(this._onTooltipStateChanged, 0);
         }),
       ]
+      this._disposables = [
+        NylasEnv.themes.onDidChangeActiveThemes(() => {
+          this._themesTimer = setTimeout(this._onRecomputeTooltipPosition, 0);
+        }),
+      ]
       window.addEventListener('resize', this._onRecomputeTooltipPosition);
 
       // unfortunately, we can't render() a container around ComposedComponent
@@ -150,19 +155,18 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
     }
 
     componentWillUnmount() {
-      for (const unlisten of this._unlisteners) {
-        unlisten();
-      }
+      this._unlisteners.forEach((unlisten) => unlisten())
+      this._disposables.forEach((disposable) => disposable.dispose())
 
       window.removeEventListener('resize', this._onRecomputeTooltipPosition);
       this.tipNode.parentNode.removeChild(this.tipNode);
       clearTimeout(this._workspaceTimer);
+      clearTimeout(this._themesTimer);
 
       TipsStore.unmountedTip(TipKey);
     }
 
-    _containingSheetIsVisible = () => {
-      const el = ReactDOM.findDOMNode(this);
+    _containingSheetIsVisible = (el) => {
       const sheetEl = el.closest('.sheet') || el.closest('.sheet-toolbar-container');
       if (!sheetEl) {
         return true;
@@ -170,9 +174,17 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
       return (sheetEl.dataset.id === WorkspaceStore.topSheet().id);
     }
 
-    _onTooltipStateChanged = () => {
-      const visible = TipsStore.isTipVisible(TipKey) && this._containingSheetIsVisible();
+    _isVisible = () => {
+      const el = ReactDOM.findDOMNode(this);
+      return (
+        TipsStore.isTipVisible(TipKey) &&
+        this._containingSheetIsVisible(el) &&
+        DOMUtils.nodeIsVisible(el)
+      )
+    }
 
+    _onTooltipStateChanged = () => {
+      const visible = this._isVisible()
       if (this.state.visible !== visible) {
         this.setState({visible});
         if (visible) {

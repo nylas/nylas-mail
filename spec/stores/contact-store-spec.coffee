@@ -5,7 +5,7 @@ Contact = require '../../src/flux/models/contact'
 NylasAPI = require '../../src/flux/nylas-api'
 ContactStore = require '../../src/flux/stores/contact-store'
 ContactRankingStore = require '../../src/flux/stores/contact-ranking-store'
-DatabaseStore = require '../../src/flux/stores/database-store'
+DatabaseStore = require('../../src/flux/stores/database-store').default
 AccountStore = require '../../src/flux/stores/account-store'
 
 {mockObservable} = NylasTestUtils

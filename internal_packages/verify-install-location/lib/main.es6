@@ -11,7 +11,7 @@ import {ipcRenderer} from 'electron'
  * erased!).
  */
 
-function onNotificationActionTaken(numAsks) {
+function onDialogActionTaken(numAsks) {
   return (buttonIndex) => {
     if (buttonIndex === 0) {
       ipcRenderer.send("move-to-applications")
@@ -74,7 +74,7 @@ export function activate() {
     detail: msg,
     defaultId: 0,
     cancelId: CANCEL_ID,
-  }, onNotificationActionTaken(numAsks))
+  }, onDialogActionTaken(numAsks))
 }
 
 export function deactivate() {

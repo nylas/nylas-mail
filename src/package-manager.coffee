@@ -10,7 +10,7 @@ Q = require 'q'
 Actions = require './flux/actions'
 Package = require './package'
 ThemePackage = require './theme-package'
-DatabaseStore = require './flux/stores/database-store'
+DatabaseStore = require('./flux/stores/database-store').default
 APMWrapper = require './apm-wrapper'
 
 basePackagePaths = null

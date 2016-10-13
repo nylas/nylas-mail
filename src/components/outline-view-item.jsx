@@ -319,7 +319,7 @@ class OutlineViewItem extends Component {
         />
       );
     }
-    return <div className="name">{item.name}</div>;
+    return <div className="name" title={item.name}>{item.name}</div>;
   }
 
   _renderItem(item = this.props.item, state = this.state) {

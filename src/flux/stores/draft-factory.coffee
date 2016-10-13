@@ -1,11 +1,11 @@
 _ = require 'underscore'
 
 Actions = require '../actions'
-DatabaseStore = require './database-store'
+DatabaseStore = require('./database-store').default
 AccountStore = require './account-store'
 ContactStore = require './contact-store'
 MessageStore = require './message-store'
-FocusedPerspectiveStore = require './focused-perspective-store'
+FocusedPerspectiveStore = require('./focused-perspective-store').default
 
 DraftStore = null
 DraftHelpers = require './draft-helpers'

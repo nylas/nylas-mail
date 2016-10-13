@@ -9,7 +9,7 @@ import PerformanceMonitor from './performance-monitor'
 import NylasProtocolHandler from './nylas-protocol-handler';
 import PackageMigrationManager from './package-migration-manager';
 import ConfigPersistenceManager from './config-persistence-manager';
-import LaunchServices from '../launch-services';
+import DefaultClientHelper from '../default-client-helper';
 
 import {BrowserWindow, Menu, app, ipcMain, dialog} from 'electron';
 
@@ -74,8 +74,8 @@ export default class Application extends EventEmitter {
     this.handleLaunchOptions(options);
 
     if (process.platform === 'linux') {
-      const services = new LaunchServices();
-      services.registerForURLScheme('nylas');
+      const helper = new DefaultClientHelper();
+      helper.registerForURLScheme('nylas');
     } else {
       app.setAsDefaultProtocolClient('nylas')
     }
@@ -319,17 +319,20 @@ export default class Application extends EventEmitter {
     });
 
     this.on('application:install-update', () => {
-      this.quitting = true
-      this.windowManager.cleanupBeforeAppQuit()
-      this.autoUpdateManager.install()
+      this.quitting = true;
+      this.windowManager.cleanupBeforeAppQuit();
+      this.autoUpdateManager.install();
     });
 
     this.on('application:toggle-dev', () => {
-      this.devMode = !this.devMode;
-      this.config.set('devMode', this.devMode ? true : undefined);
-      this.windowManager.destroyAllWindows();
-      this.windowManager.devMode = this.devMode;
-      this.openWindowsForTokenState();
+      let args = process.argv.slice(1);
+      if (args.includes('--dev')) {
+        args = args.filter(a => a !== '--dev');
+      } else {
+        args.push('--dev')
+      }
+      app.relaunch({args});
+      app.quit();
     });
 
     if (process.platform === 'darwin') {

@@ -5,7 +5,7 @@ NylasAPI = require '../src/flux/nylas-api'
 Thread = require('../src/flux/models/thread').default
 Message = require('../src/flux/models/message').default
 AccountStore = require '../src/flux/stores/account-store'
-DatabaseStore = require '../src/flux/stores/database-store'
+DatabaseStore = require('../src/flux/stores/database-store').default
 DatabaseTransaction = require('../src/flux/stores/database-transaction').default
 
 describe "NylasAPI", ->

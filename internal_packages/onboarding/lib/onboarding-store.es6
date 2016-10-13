@@ -96,6 +96,11 @@ class OnboardingStore extends NylasStore {
     } else if (type === 'exchange') {
       nextPage = "account-settings-exchange";
     }
+
+    Actions.recordUserEvent('Selected Account Type', {
+      provider: type,
+    });
+
     this._onSetAccountInfo(Object.assign({}, this._accountInfo, {type}));
     this._onMoveToPage(nextPage);
   }

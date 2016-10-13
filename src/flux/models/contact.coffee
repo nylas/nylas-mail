@@ -116,7 +116,7 @@ class Contact extends Model
     return null unless account
 
     if includeAccountLabel
-      FocusedPerspectiveStore ?= require '../stores/focused-perspective-store'
+      FocusedPerspectiveStore ?= require('../stores/focused-perspective-store').default
       if account and (FocusedPerspectiveStore.current().accountIds.length > 1 || forceAccountLabel)
         return "You (#{account.label})"
 

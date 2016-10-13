@@ -415,6 +415,7 @@ class PGPKeyStore extends NylasStore
           errMsg = "Unable to decrypt message. Private key does not match encrypted block."
           if !@msgStatus(message)?
             errMsg = "Decryption preprocessing failed."
+        Actions.recordUserEvent("Email Decryption Errored", {error: errMsg})
         @_msgStatus.push({"clientId": message.clientId, "time": Date.now(), "message": errMsg})
       else
         if warnings._w.length > 0
@@ -436,6 +437,7 @@ class PGPKeyStore extends NylasStore
           keyprint = subkey.get_fingerprint().toString('hex')
           @_msgStatus.push({"clientId": message.clientId, "time": Date.now(), "message": "Message decrypted with key #{keyprint}"})
           # re-render messages
+          Actions.recordUserEvent("Email Decrypted")
           MessageBodyProcessor.resetCache()
           @trigger(@)
         else

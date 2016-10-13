@@ -1,7 +1,7 @@
 _ = require 'underscore'
 Rx = require 'rx-lite'
 AccountStore = require './account-store'
-DatabaseStore = require './database-store'
+DatabaseStore = require('./database-store').default
 NylasStore = require 'nylas-store'
 
 ModelsForSync = [

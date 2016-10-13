@@ -16,6 +16,7 @@
   },
   "windowTypes": {
     "default": true,
-    "composer": true
+    "composer": true,
+    "thread-popout": true
   }
 }

@@ -1,6 +1,6 @@
 Message = require('../../src/flux/models/message').default
 Actions = require '../../src/flux/actions'
-DatabaseStore = require '../../src/flux/stores/database-store'
+DatabaseStore = require('../../src/flux/stores/database-store').default
 DatabaseTransaction = require('../../src/flux/stores/database-transaction').default
 DraftEditingSession = require '../../src/flux/stores/draft-editing-session'
 DraftChangeSet = DraftEditingSession.DraftChangeSet

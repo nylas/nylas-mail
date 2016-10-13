@@ -211,11 +211,6 @@ describe 'TokenizingTextField', ->
       ReactTestUtils.Simulate.mouseDown(ReactDOM.findDOMNode(menuItem))
       expect(@propAdd).toHaveBeenCalledWith([participant4])
 
-    it "manually enters whatever's in the field when the user presses the space bar as long as it looks like an email", ->
-      ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'abc@foo.com '}})
-      advanceClock(10)
-      expect(@propAdd).toHaveBeenCalledWith("abc@foo.com", skipNameLookup: true)
-
     it "doesn't sumbmit if it looks like an email but has no space at the end", ->
       ReactTestUtils.Simulate.change(@renderedInput, {target: {value: 'abc@foo.com'}})
       advanceClock(10)

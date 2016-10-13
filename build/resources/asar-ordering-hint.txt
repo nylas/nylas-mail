@@ -3012,7 +3012,7 @@
 9914642: internal_packages/mode-switch/lib/main.js
 9915888: internal_packages/mode-switch/lib/mode-toggle.js
 9918736: internal_packages/notification-mailto/lib/main.js
-9920876: src/launch-services.js
+9920876: src/default-client-helper.js
 9923701: internal_packages/notification-update-available/stylesheets/release-bar.less
 3709902: static/variables/ui-variables.less
 3718416: internal_packages/ui-light/styles/ui-variables.less

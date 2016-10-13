@@ -74,11 +74,12 @@ export class Notifier {
           NylasEnv.displayWindow()
         }
 
-        Actions.setFocus({
-          collection: 'thread',
-          item: thread,
-          desiredCategoryName: 'inbox',
-        });
+        if (!thread) {
+          NylasEnv.showErrorDialog(`Can't find that thread`)
+          return
+        }
+        Actions.ensureCategoryIsFocused('inbox', thread.accountId);
+        Actions.setFocus({collection: 'thread', item: thread});
       },
     });
 

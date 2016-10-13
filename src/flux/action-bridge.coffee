@@ -1,7 +1,7 @@
 _ = require 'underscore'
 Actions = require './actions'
 Model = require './models/model'
-DatabaseStore = require './stores/database-store'
+DatabaseStore = require('./stores/database-store').default
 DatabaseChangeRecord = require('./stores/database-change-record').default
 
 Utils = require './models/utils'

@@ -38,8 +38,6 @@ function _runOnImageNode(node) {
 }
 
 export function autoscaleImages(doc) {
-  // Traverse the new DOM tree and make things that look like links clickable,
-  // and ensure anything with an href has a title attribute.
   const imgTagWalker = document.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT, {
     acceptNode: (node) => {
       if (node.nodeName === 'IMG') {

@@ -188,7 +188,7 @@ class NylasEnvConstructor
       @getCurrentWindow().setMenuBarVisibility(false)
 
     # initialize spell checking
-    @spellchecker = require('./nylas-spellchecker')
+    @spellchecker = require('./spellchecker').default
 
     @packages.onDidActivateInitialPackages => @watchThemes()
     @windowEventHandler = new WindowEventHandler()
@@ -359,6 +359,9 @@ class NylasEnvConstructor
 
   isComposerWindow: ->
     @getWindowType() in ["composer", "composer-preload"]
+
+  isThreadWindow: ->
+    @getWindowType() is 'thread-popout'
 
   getWindowType: ->
     @getLoadSettings().windowType
