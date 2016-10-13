@@ -83,6 +83,8 @@ const DateUtils = {
   // Localized format: ddd, MMM D, YYYY h:mmA
   DATE_FORMAT_LONG: 'llll',
 
+  DATE_FORMAT_LONG_NO_YEAR: moment.localeData().longDateFormat('llll').replace(yearRegex, ''),
+
   // Localized format: MMM D, h:mmA
   DATE_FORMAT_SHORT: moment.localeData().longDateFormat('lll').replace(yearRegex, ''),
 
@@ -104,6 +106,10 @@ const DateUtils = {
 
   minutesFromNow(minutes, now = moment()) {
     return now.add(minutes, 'minutes');
+  },
+
+  hoursFromNow(hours, now = moment()) {
+    return now.add(hours, 'hours');
   },
 
   in1Hour() {
@@ -137,8 +143,16 @@ const DateUtils = {
     return morning(now.day(Days.ThisWeekend(now.day())))
   },
 
+  weeksFromNow(weeks, now = moment()) {
+    return now.add(weeks, 'weeks');
+  },
+
   nextWeek(now = moment()) {
     return morning(now.day(Days.NextMonday(now.day())))
+  },
+
+  monthsFromNow(months, now = moment()) {
+    return now.add(months, 'months');
   },
 
   nextMonth(now = moment()) {

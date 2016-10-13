@@ -25,6 +25,7 @@
     .menu {
       z-index:1;
       position: relative;
+      width: 250px;
       .content-container {
         background: none;
       }
@@ -48,6 +49,14 @@
             border-bottom-right-radius: @border-radius-base;
         }
       }
+    }
+
+    .section {
+      padding: @padding-base-vertical * 1.5  @padding-base-horizontal;
+    }
+
+    .divider {
+      border-top: 1px solid @border-color-divider;
     }
 
     input[type=text] {

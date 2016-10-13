@@ -54,3 +54,7 @@ Registry.include(Listener);
 export const Composer = new Registry('Composer');
 
 export const MessageView = new Registry('MessageView');
+
+export const ThreadList = new Registry('ThreadList');
+
+export const AccountSidebar = new Registry('AccountSidebar');

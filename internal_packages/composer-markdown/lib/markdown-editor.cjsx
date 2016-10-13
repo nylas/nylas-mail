@@ -111,6 +111,7 @@ class MarkdownEditor extends React.Component
         {".btn-templates { display:none; }"}
         {".btn-scheduler { display:none; }"}
         {".btn-translate { display:none; }"}
+        {".btn-send-reminder { display:none; }"}
       </style>
       <div
         ref="container"

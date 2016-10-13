@@ -4,6 +4,7 @@ React = require 'react'
  Actions,
  Thread,
  ChangeStarredTask,
+ ExtensionRegistry,
  AccountStore} = require 'nylas-exports'
 
 class ThreadListIcon extends React.Component
@@ -11,9 +12,19 @@ class ThreadListIcon extends React.Component
   @propTypes:
     thread: React.PropTypes.object
 
-  _iconType: =>
+  _extensionsIconClassNames: =>
+    return ExtensionRegistry.ThreadList.extensions()
+    .filter((ext) => ext.cssClassNamesForThreadListIcon?)
+    .reduce(((prev, ext) => prev + ' ' + ext.cssClassNamesForThreadListIcon(@props.thread)), '')
+    .trim()
+
+  _iconClassNames: =>
     if !@props.thread
       return 'thread-icon-star-on-hover'
+
+    extensionIconClassNames = @_extensionsIconClassNames()
+    if extensionIconClassNames.length > 0
+      return extensionIconClassNames
 
     if @props.thread.starred
       return 'thread-icon-star'
@@ -33,7 +44,7 @@ class ThreadListIcon extends React.Component
     return 'thread-icon-none thread-icon-star-on-hover'
 
   _nonDraftMessages: =>
-    msgs = @props.thread.metadata
+    msgs = @props.thread.__messages
     return [] unless msgs and msgs instanceof Array
     msgs = _.filter msgs, (m) -> m.serverId and not m.draft
     return msgs
@@ -43,7 +54,7 @@ class ThreadListIcon extends React.Component
     true
 
   render: =>
-    <div className="thread-icon #{@_iconType()}"
+    <div className="thread-icon #{@_iconClassNames()}"
          title="Star"
          onClick={@_onToggleStar}></div>
 

@@ -117,7 +117,7 @@ class SnoozePopover extends Component {
         <DateInput
           className="snooze-input"
           dateFormat={DATE_FORMAT_LONG}
-          onSubmitDate={this.onSelectCustomDate}
+          onDateSubmitted={this.onSelectCustomDate}
         />
       </div>
     );

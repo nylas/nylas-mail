@@ -4,6 +4,7 @@ _ = require 'underscore'
  DestroyCategoryTask,
  CategoryStore,
  Category,
+ ExtensionRegistry,
  RegExpUtils} = require 'nylas-exports'
 SidebarItem = require './sidebar-item'
 SidebarActions = require './sidebar-actions'
@@ -42,8 +43,15 @@ class SidebarSection
     draftsItem = SidebarItem.forDrafts([account.id])
     snoozedItem = SidebarItem.forSnoozed([account.id])
 
+    extensionItems = ExtensionRegistry.AccountSidebar.extensions()
+    .filter((ext) => ext.sidebarItem?)
+    .map((ext) => ext.sidebarItem([account.id]))
+    .map(({id, name, iconName, perspective}) =>
+      SidebarItem.forPerspective(id, perspective, {name, iconName})
+    )
+
     # Order correctly: Inbox, Unread, Starred, rest... , Drafts
-    items.splice(1, 0, unreadItem, starredItem, snoozedItem)
+    items.splice(1, 0, unreadItem, starredItem, snoozedItem, extensionItems...)
     items.push(draftsItem)
 
     return {
@@ -96,8 +104,26 @@ class SidebarSection
       children: accounts.map (acc) -> SidebarItem.forSnoozed([acc.id], name: acc.label)
     )
 
+    extensionItems =  ExtensionRegistry.AccountSidebar.extensions()
+    .filter((ext) => ext.sidebarItem?)
+    .map((ext) =>
+      {id, name, iconName, perspective} = ext.sidebarItem(accountIds)
+      return SidebarItem.forPerspective(id, perspective, {
+        name,
+        iconName,
+        children: accounts.map((acc) =>
+          subItem = ext.sidebarItem([acc.id])
+          return SidebarItem.forPerspective(
+            subItem.id + "-#{acc.id}",
+            subItem.perspective,
+            {name: acc.label, iconName: subItem.iconName}
+          )
+        )
+      })
+    )
+
     # Order correctly: Inbox, Unread, Starred, rest... , Drafts
-    items.splice(1, 0, unreadItem, starredItem, snoozedItem)
+    items.splice(1, 0, unreadItem, starredItem, snoozedItem, extensionItems...)
     items.push(draftsItem)
 
     return {

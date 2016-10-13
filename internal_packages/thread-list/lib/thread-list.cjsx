@@ -1,7 +1,7 @@
 _ = require 'underscore'
 React = require 'react'
 ReactDOM = require 'react-dom'
-classNames = require 'classnames'
+classnames = require 'classnames'
 
 {MultiselectList,
  FocusContainer,
@@ -18,6 +18,7 @@ classNames = require 'classnames'
  WorkspaceStore,
  AccountStore,
  CategoryStore,
+ ExtensionRegistry,
  FocusedContentStore,
  FocusedPerspectiveStore} = require 'nylas-exports'
 
@@ -109,9 +110,15 @@ class ThreadList extends React.Component
     </FluxContainer>
 
   _threadPropsProvider: (item) ->
+    classes = classnames({
+      'unread': item.unread
+    })
+    classes += ExtensionRegistry.ThreadList.extensions()
+    .filter((ext) => ext.cssClassNamesForThreadListItem?)
+    .reduce(((prev, ext) => prev + ' ' + ext.cssClassNamesForThreadListItem(item)), ' ')
+
     props =
-      className: classNames
-        'unread': item.unread
+      className: classes
 
     props.shouldEnableSwipe = =>
       perspective = FocusedPerspectiveStore.current()

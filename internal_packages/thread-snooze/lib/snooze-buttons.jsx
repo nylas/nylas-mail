@@ -11,33 +11,28 @@ class SnoozeButton extends Component {
     className: PropTypes.string,
     threads: PropTypes.array,
     direction: PropTypes.string,
-    renderImage: PropTypes.bool,
+    shouldRenderIconImg: PropTypes.bool,
     getBoundingClientRect: PropTypes.func,
   };
 
   static defaultProps = {
     className: 'btn btn-toolbar',
     direction: 'down',
-    renderImage: true,
+    shouldRenderIconImg: true,
+    getBoundingClientRect: (inst) => ReactDOM.findDOMNode(inst).getBoundingClientRect(),
   };
 
   onClick = (event) => {
     event.stopPropagation()
-    const buttonRect = this.getBoundingClientRect()
+    const {threads, direction, getBoundingClientRect} = this.props
+    const buttonRect = getBoundingClientRect(this)
     Actions.openPopover(
       <SnoozePopover
-        threads={this.props.threads}
+        threads={threads}
         closePopover={Actions.closePopover}
       />,
-      {originRect: buttonRect, direction: this.props.direction}
+      {originRect: buttonRect, direction: direction}
     )
-  };
-
-  getBoundingClientRect = () => {
-    if (this.props.getBoundingClientRect) {
-      return this.props.getBoundingClientRect()
-    }
-    return ReactDOM.findDOMNode(this).getBoundingClientRect()
   };
 
   render() {
@@ -51,11 +46,12 @@ class SnoozeButton extends Component {
         className={`snooze-button ${this.props.className}`}
         onClick={this.onClick}
       >
-        {this.props.renderImage ?
+        {this.props.shouldRenderIconImg ?
           <RetinaImg
             name="toolbar-snooze.png"
             mode={RetinaImg.Mode.ContentIsMask}
-          /> : null
+          /> :
+          null
         }
       </button>
     );
@@ -89,9 +85,9 @@ export class QuickActionSnooze extends Component {
     return (
       <SnoozeButton
         direction="left"
-        renderImage={false}
         threads={[this.props.thread]}
         className="btn action action-snooze"
+        shouldRenderIconImg={false}
         getBoundingClientRect={this.getBoundingClientRect}
       />
     );

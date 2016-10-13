@@ -394,4 +394,12 @@ Message(date DESC) WHERE draft = 1`,
     const re = /(?:<signature>.*<\/signature>)|(?:<.+?>)|\s/gmi;
     return this.body.replace(re, "").length === 0;
   }
+
+  isHidden() {
+    return (
+      this.to.length === 1 && this.from.length === 1 &&
+      this.to[0].email === this.from[0].email &&
+      (this.snippet || "").startsWith('Nylas N1 Reminder:')
+    )
+  }
 }
