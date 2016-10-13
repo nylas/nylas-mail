@@ -33,7 +33,7 @@ describe("Spellchecker", function spellcheckerTests() {
 
   it("knows whether a word is misspelled or not", () => {
     const correctlySpelled = ["hello", "world", "create", "goodbye", "regards"]
-    const misspelled = ["mispelled", "particularily", "welp", "adlkdgiekdl"]
+    const misspelled = ["mispelled", "particularily", "kelfiekd", "adlkdgiekdl"]
     for (const word of correctlySpelled) {
       expect(Spellchecker.isMisspelled(word)).toEqual(false);
     }
@@ -49,7 +49,7 @@ describe("Spellchecker", function spellcheckerTests() {
   })
 
   describe("when a custom word is added", () => {
-    this.customWord = "Halla"
+    this.customWord = "becaause"
 
     beforeEach(() => {
       expect(Spellchecker.isMisspelled(this.customWord)).toEqual(true)

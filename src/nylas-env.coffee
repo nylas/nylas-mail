@@ -188,7 +188,7 @@ class NylasEnvConstructor
       @getCurrentWindow().setMenuBarVisibility(false)
 
     # initialize spell checking
-    @spellchecker = require('./spellchecker')
+    @spellchecker = require('./spellchecker').default
 
     @packages.onDidActivateInitialPackages => @watchThemes()
     @windowEventHandler = new WindowEventHandler()
