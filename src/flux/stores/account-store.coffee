@@ -241,6 +241,11 @@ class AccountStore extends NylasStore
   accountForId: (id) =>
     @_cachedGetter "accountForId:#{id}", => _.findWhere(@_accounts, {id})
 
+  emailAddresses: ->
+    addresses = _.pluck((@accounts() ? []), "emailAddress")
+    addresses = addresses.concat(_.pluck((@aliases() ? [])), "email")
+    return addresses
+
   aliases: =>
     @_cachedGetter "aliases", =>
       aliases = []
