@@ -7,7 +7,7 @@ let stubRegister = () => {};
 const patched = proxyquire('../lib/items/default-client-notif',
   {
     'nylas-exports': {
-      LaunchServices: class {
+      DefaultClientHelper: class {
         constructor() {
           this.isRegisteredForURLScheme = (urlScheme, callback) => { callback(stubIsRegistered) };
           this.registerForURLScheme = (urlScheme) => { stubRegister(urlScheme) };

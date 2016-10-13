@@ -26,6 +26,7 @@ build:
 install:
 - ps: Install-Product node $env:NODE_VERSION $env:PLATFORM
 - ps: nuget install secure-file -ExcludeVersion
+- ps: npm config set msvs_version 2013
 
 # We need to extract the encrypted private ssh key to clone the submodule.
 - ps: |
@@ -46,7 +47,7 @@ build_script:
 
 environment:
   matrix:
-  - NODE_VERSION: 0.12
+  - NODE_VERSION: 4.2
     PUBLISH_BUILD: true
   global:
     CERTIFICATE_FILE: .\src\pro\encrypted_certificates\appveyor\win-nylas-n1.p12

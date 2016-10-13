@@ -1,5 +1,5 @@
 import React from 'react';
-import {LaunchServices, SystemStartService} from 'nylas-exports';
+import {DefaultClientHelper, SystemStartService} from 'nylas-exports';
 import ConfigSchemaItem from './config-schema-item';
 
 class DefaultMailClientItem extends React.Component {
@@ -7,9 +7,9 @@ class DefaultMailClientItem extends React.Component {
   constructor() {
     super();
     this.state = {defaultClient: false};
-    this._services = new LaunchServices();
-    if (this._services.available()) {
-      this._services.isRegisteredForURLScheme('mailto', (registered) => {
+    this._helper = new DefaultClientHelper();
+    if (this._helper.available()) {
+      this._helper.isRegisteredForURLScheme('mailto', (registered) => {
         if (this._mounted) this.setState({defaultClient: registered});
       });
     }
@@ -26,16 +26,15 @@ class DefaultMailClientItem extends React.Component {
   toggleDefaultMailClient = (event) => {
     if (this.state.defaultClient) {
       this.setState({defaultClient: false});
-      this._services.resetURLScheme('mailto');
+      this._helper.resetURLScheme('mailto');
     } else {
       this.setState({defaultClient: true});
-      this._services.registerForURLScheme('mailto');
+      this._helper.registerForURLScheme('mailto');
     }
     event.target.blur();
   }
 
   render() {
-    if (process.platform === "win32") return false;
     return (
       <div className="item">
         <input

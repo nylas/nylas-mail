@@ -176,7 +176,7 @@ class NylasExports
   @lazyLoad "MenuHelpers", 'menu-helpers'
   @lazyLoad "DeprecateUtils", 'deprecate-utils'
   @lazyLoad "VirtualDOMUtils", 'virtual-dom-utils'
-  @lazyLoad "NylasSpellchecker", 'nylas-spellchecker'
+  @lazyLoad "Spellchecker", 'spellchecker'
   @lazyLoad "DraftHelpers", 'flux/stores/draft-helpers'
   @lazyLoad "MessageUtils", 'flux/models/message-utils'
   @lazyLoad "EditorAPI", 'components/contenteditable/editor-api'
@@ -198,7 +198,7 @@ class NylasExports
   @lazyLoadCustomGetter "TimeoutError", -> require('../flux/errors').TimeoutError
 
   # Process Internals
-  @lazyLoad "LaunchServices", 'launch-services'
+  @lazyLoad "DefaultClientHelper", 'default-client-helper'
   @lazyLoad "BufferedProcess", 'buffered-process'
   @lazyLoad "SystemStartService", 'system-start-service'
   @lazyLoadCustomGetter "APMWrapper", -> require('../apm-wrapper')

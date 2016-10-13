@@ -102,4 +102,3 @@ module.exports = (grunt) ->
   fillTemplate: (templatePath, outputPath, data) ->
     content = _.template(String(fs.readFileSync(templatePath)))(data)
     grunt.file.write(outputPath, content)
-

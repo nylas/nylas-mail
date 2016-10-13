@@ -8,7 +8,6 @@ export default class UpdateNotification extends React.Component {
 
   constructor() {
     super();
-    this.updater = remote.getGlobal('application').autoUpdateManager
     this.state = this.getStateFromStores();
   }
 
@@ -23,9 +22,11 @@ export default class UpdateNotification extends React.Component {
   }
 
   getStateFromStores() {
+    const updater = remote.getGlobal('application').autoUpdateManager;
+
     return {
-      updateAvailable: this.updater.getState() === 'update-available',
-      version: this.updater.releaseVersion,
+      updateAvailable: updater.getState() === 'update-available',
+      version: updater.releaseVersion,
     }
   }
 

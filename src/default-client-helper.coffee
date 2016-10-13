@@ -1,29 +1,68 @@
 exec = require('child_process').exec
 fs = require('fs')
+{remote, shell} = require('electron')
 
 bundleIdentifier = 'com.nylas.nylas-mail'
 
-class LaunchServicesUnavailable
+class Windows
   available: ->
-    false
+    true
 
   isRegisteredForURLScheme: (scheme, callback) ->
-    throw new Error "isRegisteredForURLScheme is not available"
+    throw new Error "isRegisteredForURLScheme is async, provide a callback" unless callback
+    output = ""
+    exec "reg.exe query HKCU\\SOFTWARE\\Microsoft\\Windows\\Roaming\\OpenWith\\UrlAssociations\\#{scheme}\\UserChoice", (err, stdout, stderr) ->
+      output += stdout.toString()
+      exec "reg.exe query HKCU\\SOFTWARE\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\#{scheme}\\UserChoice", (err, stdout, stderr) ->
+        output += stdout.toString()
+        return callback(err) if callback and err
+        callback(stdout.includes('Nylas'))
 
   resetURLScheme: (scheme, callback) ->
-    throw new Error "resetURLScheme is not available"
+    remote.dialog.showMessageBox null, {
+      type: 'info',
+      buttons: ['Learn More'],
+      message: "Visit Windows Settings to change your default mail client",
+      detail: "You'll find Nylas N1, along with other options, listed in Default Apps > Mail.",
+    }, ->
+      shell.openExternal('https://support.nylas.com/hc/en-us/articles/229277648')
 
   registerForURLScheme: (scheme, callback) ->
-    throw new Error "registerForURLScheme is not available"
+    # Ensure that our registry entires are present
+    WindowsUpdater = remote.require('./windows-updater')
+    WindowsUpdater.createRegistryEntries({
+      allowEscalation: true,
+      registerDefaultIfPossible: true,
+    }, (err, didMakeDefault) =>
+      if err
+        remote.dialog.showMessageBox(null, {
+          type: 'error',
+          buttons: ['OK'],
+          message: 'Sorry, an error occurred.',
+          detail: err.message,
+        })
 
-class LaunchServicesLinux
+      if not didMakeDefault
+        remote.dialog.showMessageBox null, {
+          type: 'info',
+          buttons: ['Learn More'],
+          defaultId: 1,
+          message: "Visit Windows Settings to finish making Nylas N1 your mail client",
+          detail: "Click 'Learn More' to view instructions in our knowledge base.",
+        }, ->
+          shell.openExternal('https://support.nylas.com/hc/en-us/articles/229277648')
+
+      callback(null, null) if callback
+    )
+
+class Linux
   available: ->
     true
 
   isRegisteredForURLScheme: (scheme, callback) ->
     throw new Error "isRegisteredForURLScheme is async, provide a callback" unless callback
     exec "xdg-mime query default x-scheme-handler/#{scheme}", (err, stdout, stderr) ->
-      return callback(err) if callback and err
+      return callback(err) if err
       callback(stdout.trim() is 'nylas.desktop')
 
   resetURLScheme: (scheme, callback) ->
@@ -36,7 +75,7 @@ class LaunchServicesLinux
       return callback(err) if callback and err
       callback(null, null) if callback
 
-class LaunchServicesMac
+class Mac
   constructor: ->
     @secure = false
 
@@ -117,12 +156,15 @@ class LaunchServicesMac
       @writeDefaults(defaults, callback)
 
 
-module.exports = LaunchServicesUnavailable
 if process.platform is 'darwin'
-  module.exports = LaunchServicesMac
+  module.exports = Mac
 else if process.platform is 'linux'
-  module.exports = LaunchServicesLinux
+  module.exports = Linux
+else if process.platform is 'win32'
+  module.exports = Windows
+else
+  module.exports = {}
 
-module.exports.LaunchServicesMac = LaunchServicesMac
-module.exports.LaunchServicesLinux = LaunchServicesLinux
-module.exports.LaunchServicesUnavailable = LaunchServicesUnavailable
+module.exports.Mac = Mac
+module.exports.Linux = Linux
+module.exports.Windows = Windows
