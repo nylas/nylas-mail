@@ -1,12 +1,74 @@
 @import 'ui-variables';
+body.platform-win32 {
+  .calendar-toggles {
+    .colored-checkbox {
+      border-radius: 0;
+      .bg-color {
+        border-radius: 0;
+      }
+    }
+  }
+}
 
 .nylas-calendar {
 
   height: 100%;
+  display: flex;
+
+  .calendar-toggles {
+    display: flex;
+    background-color: @source-list-bg;
+    border-right: 1px solid @border-color-divider;
+    color: @text-color-subtle;
+    .calendar-toggles-wrap {
+      padding: 20px;
+      padding-top: 6px;
+    }
+    .colored-checkbox {
+      position: relative;
+      top: 1px;
+      margin-left: 1px;
+      display: inline-block;
+      border-radius: 3px;
+      width: 12px;
+      height: 12px;
+      box-shadow: 0 0 0.5px rgba(0,0,0,0.4), inset 0 1px 0 rgba(0,0,0,0.13);
+      background: white;
+      .bg-color {
+        width: 100%;
+        height: 100%;
+        border-radius: 3px;
+      }
+    }
+    label {
+      padding-left: 0.4em;
+    }
+    .toggle-wrap, .account-label {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }
+    .account-calendars-wrap {
+      &:first-child {
+        margin-top: 0;
+      }
+    }
+    .account-label {
+      cursor: default;
+      color: @text-color-very-subtle;
+      font-weight: @font-weight-semi-bold;
+      font-size: @font-size-small * 0.9;
+      margin-top: @padding-large-vertical;
+      letter-spacing: -0.2px;
+    }
+  }
 
   background: @background-off-primary;
   .calendar-view {
     height: 100%;
+    flex: 1;
+    position: relative;
   }
 
   .calendar-event {
@@ -242,6 +304,7 @@
 
   .footer-controls {
     padding: 10px;
+    min-height: 45px;
     display: flex;
     color: #808080;
     background: @background-primary;

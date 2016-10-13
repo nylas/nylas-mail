@@ -91,6 +91,8 @@ class Matcher {
         return modelValue >= matcherValue
       case 'in':
         return matcherValue.includes(modelValue)
+      case 'not in':
+        return !(matcherValue.includes(modelValue))
       case 'contains':
         return modelArrayContainsValue(modelValue, matcherValue)
       case 'containsAny':

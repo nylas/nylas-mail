@@ -7,6 +7,7 @@ describe "QuerySubscriptionPool", ->
     @query = DatabaseStore.findAll(Label)
     @queryKey = @query.sql()
     QuerySubscriptionPool._subscriptions = {}
+    QuerySubscriptionPool._cleanupChecks = []
 
   describe "add", ->
     it "should add a new subscription with the callback", ->

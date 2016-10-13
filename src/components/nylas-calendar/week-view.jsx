@@ -33,6 +33,7 @@ export default class WeekView extends React.Component {
     bannerComponents: React.PropTypes.node,
     headerComponents: React.PropTypes.node,
     footerComponents: React.PropTypes.node,
+    disabledCalendars: React.PropTypes.array,
     changeCurrentView: React.PropTypes.func,
     changeCurrentMoment: React.PropTypes.func,
     onCalendarMouseUp: React.PropTypes.func,
@@ -98,6 +99,7 @@ export default class WeekView extends React.Component {
     this._sub = this.props.dataSource.buildObservable({
       startTime: startMoment.unix(),
       endTime: endMoment.unix(),
+      disabledCalendars: props.disabledCalendars,
     }).subscribe((state) => { this.setState(state) })
     this.setState({startMoment, endMoment})
   }
