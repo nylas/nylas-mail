@@ -195,6 +195,7 @@ class MessageList extends React.Component
         <span className="message-subject">{subject}</span>
         <MailLabelSet
           removable={true}
+          messages={@state.messages}
           thread={@state.currentThread}
           includeCurrentCategories={true}
         />

@@ -12,17 +12,20 @@ MenuItem's props allow you to display dividers as well as standard items.
 Section: Component Kit
 ###
 class MenuItem extends React.Component
+
   @displayName = 'MenuItem'
 
   ###
   Public: React `props` supported by MenuItem:
 
+   - `index`: {Number} of the index of the current menu item
    - `divider` (optional) Pass a {Boolean} to render the menu item as a section divider.
    - `key` (optional) Pass a {String} to be the React key to optimize rendering lists of items.
    - `selected` (optional) Pass a {Boolean} to specify whether the item is selected.
    - `checked` (optional) Pass a {Boolean} to specify whether the item is checked.
   ###
   @propTypes:
+    index: React.PropTypes.number.isRequired
     divider: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.bool])
     selected: React.PropTypes.bool
     checked: React.PropTypes.bool
@@ -140,8 +143,8 @@ class Menu extends React.Component
   ###
   @propTypes:
     className: React.PropTypes.string,
-    footerComponents: React.PropTypes.arrayOf(React.PropTypes.element),
-    headerComponents: React.PropTypes.arrayOf(React.PropTypes.element),
+    footerComponents: React.PropTypes.node,
+    headerComponents: React.PropTypes.node,
     itemContext: React.PropTypes.object,
     itemContent: React.PropTypes.func.isRequired,
     itemKey: React.PropTypes.func.isRequired,
@@ -159,6 +162,7 @@ class Menu extends React.Component
     onEscape: ->
 
   constructor: (@props) ->
+    @_mounted = false
     @state =
       selectedIndex: @props.defaultSelectedIndex ? 0
 
@@ -167,6 +171,18 @@ class Menu extends React.Component
   getSelectedItem: =>
     @props.items[@state.selectedIndex]
 
+  # TODO this is a hack, refactor
+  clearSelection: =>
+    setImmediate(=>
+      return if @_mounted is false
+      @setState({selectedIndex: -1})
+    )
+
+  componentDidMount: =>
+    @_mounted = true
+
+  componentWillUnmount: =>
+    @_mounted = false
 
   componentWillReceiveProps: (newProps) =>
     # Attempt to preserve selection across props.items changes by
@@ -194,12 +210,11 @@ class Menu extends React.Component
       container.scrollTop += adjustment
 
   render: =>
-    hc = @props.headerComponents ? []
-    if hc.length is 0 then hc = <span></span>
-    fc = @props.footerComponents ? []
-    if fc.length is 0 then fc = <span></span>
+    hc = @props.headerComponents ? <span />
+    fc = @props.footerComponents ? <span />
+    className = if @props.className then @props.className else ''
     <div onKeyDown={@_onKeyDown}
-         className={"menu " + @props.className}
+         className={"menu #{className}"}
          tabIndex="-1">
       <div className="header-container">
         {hc}
@@ -236,7 +251,9 @@ class Menu extends React.Component
 
       onMouseDown = (event) =>
         event.preventDefault()
-        @props.onSelect(item) if @props.onSelect
+        @setState({selectedIndex: i}, =>
+          @props.onSelect(item) if @props.onSelect
+        )
 
       key = @props.itemKey(item)
       if not key
@@ -246,6 +263,7 @@ class Menu extends React.Component
       seenItemKeys[key] = item
 
       <MenuItem
+        index={i}
         key={key}
         onMouseDown={onMouseDown}
         checked={@props.itemChecked?(item)}

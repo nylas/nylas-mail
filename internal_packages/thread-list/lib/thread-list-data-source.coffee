@@ -9,7 +9,7 @@ Rx = require 'rx-lite'
 
 _flatMapJoiningMessages = ($threadsResultSet) =>
   # DatabaseView leverages `QuerySubscription` for threads /and/ for the
-  # messages on each thread, which are passed to out as `thread.metadata`.
+  # messages on each thread, which are passed to out as `thread.__messages`.
 
   $messagesResultSets = {}
 
@@ -52,13 +52,13 @@ _flatMapJoiningMessages = ($threadsResultSet) =>
     Rx.Observable.combineLatest(sets)
 
   .flatMapLatest ([threadsResultSet, messagesResultSets...]) =>
-    threadsWithMetadata = {}
+    threadsWithMessages = {}
     threadsResultSet.models().map (thread, idx) ->
       thread = new thread.constructor(thread)
-      thread.metadata = messagesResultSets[idx]?.models()
-      threadsWithMetadata[thread.id] = thread
+      thread.__messages = messagesResultSets[idx]?.models().filter((m) => !m.isHidden())
+      threadsWithMessages[thread.id] = thread
 
-    Rx.Observable.from([QueryResultSet.setByApplyingModels(threadsResultSet, threadsWithMetadata)])
+    Rx.Observable.from([QueryResultSet.setByApplyingModels(threadsResultSet, threadsWithMessages)])
 
 _observableForThreadMessages = (id, initialModels) ->
   subscription = new QuerySubscription(DatabaseStore.findAll(Message, threadId: id), {

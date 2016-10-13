@@ -8,6 +8,15 @@ class NylasComponentKit
       get: ->
         NylasComponentKit.default(require "../components/#{path}")
 
+  # We load immediately when the component won't be loaded until the user
+  # performs an action. For example, opening a popover. In this case, the
+  # popover would take a long time to open the first time the user tries to open
+  # the popover
+  @loadImmediately = (prop, path) ->
+    exported = NylasComponentKit.default(require "../components/#{path}")
+    Object.defineProperty @prototype, prop,
+      get: -> exported
+
   @loadFrom = (prop, path) ->
     Object.defineProperty @prototype, prop,
       get: ->
@@ -28,6 +37,7 @@ class NylasComponentKit
   @load "Switch", 'switch'
   @loadDeprecated "Popover", 'popover', instead: 'Actions.openPopover'
   @load "FixedPopover", 'fixed-popover'
+  @loadImmediately "DatePickerPopover", 'date-picker-popover'
   @load "Modal", 'modal'
   @load "Flexbox", 'flexbox'
   @load "RetinaImg", 'retina-img'

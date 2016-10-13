@@ -13,7 +13,6 @@ class SearchMailboxPerspective extends MailboxPerspective {
     if (!_.isString(this.searchQuery)) {
       throw new Error("SearchMailboxPerspective: Expected a `string` search query")
     }
-    return this
   }
 
   emptyMessage() {

@@ -6,10 +6,10 @@ function ListensToObservable(ComposedComponent, {getObservable, getStateFromObse
 
     static containerRequired = ComposedComponent.containerRequired;
 
-    constructor() {
-      super()
-      this.state = getStateFromObservable()
-      this.observable = getObservable()
+    constructor(props) {
+      super(props)
+      this.state = getStateFromObservable(null, {props})
+      this.observable = getObservable(props)
     }
 
     componentDidMount() {
@@ -24,7 +24,7 @@ function ListensToObservable(ComposedComponent, {getObservable, getStateFromObse
 
     onObservableChanged = (data) => {
       if (this.unmounted) return;
-      this.setState(getStateFromObservable(data))
+      this.setState(getStateFromObservable(data, {props: this.props}))
     };
 
     render() {
