@@ -18,8 +18,4 @@ describe("Nylas Calendar Toggles", function calendarPickerSpec() {
     );
     this.toggles = ReactTestUtils.findRenderedComponentWithType(this.calendar, CalendarToggles);
   });
-
-  it("renders the toggles", () => {
-    
-  });
 });
