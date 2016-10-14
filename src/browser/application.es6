@@ -77,7 +77,16 @@ export default class Application extends EventEmitter {
       const helper = new DefaultClientHelper();
       helper.registerForURLScheme('nylas');
     } else {
-      app.setAsDefaultProtocolClient('nylas')
+      app.setAsDefaultProtocolClient('nylas');
+    }
+
+    if (process.platform === 'darwin') {
+      const addedToDock = config.get('addedToDock');
+      const appPath = process.argv[0];
+      if (!addedToDock && appPath.includes('/Applications/') && appPath.includes('.app/')) {
+        proc.exec(`defaults write com.apple.dock persistent-apps -array-add "<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>${appPath.split('.app/')[0]}.app/</string><key>_CFURLStringType</key><integer>0</integer></dict></dict></dict>"`);
+        config.set('addedToDock', true);
+      }
     }
   }
 
@@ -552,7 +561,9 @@ export default class Application extends EventEmitter {
     })
 
     ipcMain.on("move-to-applications", () => {
-      if (process.platform !== "darwin") return;
+      if (process.platform !== "darwin") {
+        return;
+      }
       const re = /(^.*?\.app)/i;
       const appPath = (re.exec(process.argv[0]) || [])[0];
       if (!appPath) {
