@@ -690,15 +690,37 @@ export default class Application extends EventEmitter {
   // Open a mailto:// url.
   //
   openUrl(urlToOpen) {
-    const {protocol} = url.parse(urlToOpen);
-    if (protocol === 'mailto:') {
-      const main = this.windowManager.get(WindowManager.MAIN_WINDOW);
-      if (main) { main.sendMessage('mailto', urlToOpen) }
-    } else if (protocol === 'nylas:') {
-      const main = this.windowManager.get(WindowManager.MAIN_WINDOW);
-      if (main) { main.sendMessage('openExternalThread', urlToOpen) }
+    const parts = url.parse(urlToOpen);
+    const main = this.windowManager.get(WindowManager.MAIN_WINDOW);
+
+    if (!main) {
+      console.log(`Ignoring URL - main window is not available, user may not be authed.`);
+    }
+
+    if (parts.protocol === 'mailto:') {
+      main.sendMessage('mailto', urlToOpen);
+    } else if (parts.protocol === 'nylas:') {
+      if (parts.host === 'calendar') {
+        this.openCalendarURL(parts.path);
+      } else {
+        main.sendMessage('openExternalThread', urlToOpen);
+      }
     } else {
       console.log(`Ignoring unknown URL type: ${urlToOpen}`);
+    }
+  }
+
+  openCalendarURL(command) {
+    if (command === '/open') {
+      this.windowManager.ensureWindow(WindowManager.CALENDAR_WINDOW, {
+        windowKey: WindowManager.CALENDAR_WINDOW,
+        windowType: WindowManager.CALENDAR_WINDOW,
+        title: "Calendar",
+        hidden: false,
+      });
+    } else if (command === '/close') {
+      const win = this.windowManager.get(WindowManager.CALENDAR_WINDOW);
+      if (win) { win.hide(); }
     }
   }
 
