@@ -1,3 +1,5 @@
+/* eslint global-require:0 */
+
 import { remote } from 'electron';
 import jasmineExports from './jasmine';
 import {TerminalReporter} from 'jasmine-tagged';
