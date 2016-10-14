@@ -58,7 +58,7 @@ suiteString: (spec) ->
   descriptions.join("\n")
 
 
-class N1SpecReporter extends React.Component
+class N1GuiReporter extends React.Component
   constructor: (@props) ->
 
   render: ->
@@ -262,7 +262,7 @@ deprecations = []
 plainTextOutput = ""
 
 update = =>
-  component = <N1SpecReporter
+  component = <N1GuiReporter
     startedAt={startedAt}
     specs={specs}
     deprecations={deprecations}

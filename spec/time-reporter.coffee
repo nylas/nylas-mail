@@ -1,5 +1,6 @@
 _ = require 'underscore'
 _str = require 'underscore.string'
+{jasmine} = require('./jasmine')
 
 module.exports =
 class TimeReporter extends jasmine.Reporter
