@@ -4,7 +4,7 @@
 fs = require('fs')
 path = require 'path'
 _ = require('underscore')
-QuotedPlainTextParser = require('../src/services/quoted-plain-text-transformer')
+QuotedPlainTextParser = require('../../src/services/quoted-plain-text-transformer')
 
 getParsedEmail = (name, format="plain") ->
   data = getRawEmail(name, format)
@@ -13,7 +13,7 @@ getParsedEmail = (name, format="plain") ->
   return reply
 
 getRawEmail = (name, format="plain") ->
-  emailPath = path.resolve(__dirname, 'fixtures', 'emails', "#{name}.txt")
+  emailPath = path.resolve(__dirname, '..', 'fixtures', 'emails', "#{name}.txt")
   return fs.readFileSync(emailPath, "utf8")
 
 deepEqual = (expected=[], test=[]) ->

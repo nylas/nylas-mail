@@ -3,8 +3,8 @@ path = require 'path'
 fs = require 'fs-plus'
 temp = require 'temp'
 
-ThemeManager = require '../src/theme-manager'
-Package = require '../src/package'
+ThemeManager = require '../../src/theme-manager'
+Package = require '../../src/package'
 
 describe "ThemeManager", ->
   themeManager = null
@@ -15,13 +15,13 @@ describe "ThemeManager", ->
     spyOn(console, "log")
     spyOn(console, "warn")
     spyOn(console, "error")
-    theme_dir = path.resolve(__dirname, '../internal_packages')
+    theme_dir = path.resolve(__dirname, '../../internal_packages')
 
     # Don't load ALL of our packages. Some packages may do very expensive
     # and asynchronous things on require, including hitting the database.
     packagePaths = [
-      path.resolve(__dirname, '../internal_packages/ui-light')
-      path.resolve(__dirname, '../internal_packages/ui-dark')
+      path.resolve(__dirname, '../../internal_packages/ui-light')
+      path.resolve(__dirname, '../../internal_packages/ui-dark')
     ]
     spyOn(NylasEnv.packages, "getAvailablePackagePaths").andReturn packagePaths
     NylasEnv.packages.packageDirPaths.unshift(theme_dir)
@@ -178,7 +178,7 @@ describe "ThemeManager", ->
     it "synchronously loads css at the given path and installs a style tag for it in the head", ->
       NylasEnv.styles.onDidAddStyleElement styleElementAddedHandler = jasmine.createSpy("styleElementAddedHandler")
 
-      cssPath = path.join(__dirname, 'fixtures', 'css.css')
+      cssPath = path.join(__dirname, '..', 'fixtures', 'css.css')
       lengthBefore = document.querySelectorAll('head style').length
 
       themeManager.requireStylesheet(cssPath)
@@ -199,7 +199,7 @@ describe "ThemeManager", ->
       element .remove()
 
     it "synchronously loads and parses less files at the given path and installs a style tag for it in the head", ->
-      lessPath = path.join(__dirname, 'fixtures', 'sample.less')
+      lessPath = path.join(__dirname, '..', 'fixtures', 'sample.less')
       lengthBefore = document.querySelectorAll('head style').length
       themeManager.requireStylesheet(lessPath)
       lengthAfter = document.querySelectorAll('head style').length
@@ -223,16 +223,16 @@ describe "ThemeManager", ->
       element.remove()
 
     it "supports requiring css and less stylesheets without an explicit extension", ->
-      themeManager.requireStylesheet path.join(__dirname, 'fixtures', 'css')
-      expect(document.querySelector('head style[source-path*="css.css"]').getAttribute('source-path')).toBe themeManager.stringToId(path.join(__dirname, 'fixtures', 'css.css'))
-      themeManager.requireStylesheet path.join(__dirname, 'fixtures', 'sample')
-      expect(document.querySelector('head style[source-path*="sample.less"]').getAttribute('source-path')).toBe themeManager.stringToId(path.join(__dirname, 'fixtures', 'sample.less'))
+      themeManager.requireStylesheet path.join(__dirname, '..', 'fixtures', 'css')
+      expect(document.querySelector('head style[source-path*="css.css"]').getAttribute('source-path')).toBe themeManager.stringToId(path.join(__dirname, '..', 'fixtures', 'css.css'))
+      themeManager.requireStylesheet path.join(__dirname, '..', 'fixtures', 'sample')
+      expect(document.querySelector('head style[source-path*="sample.less"]').getAttribute('source-path')).toBe themeManager.stringToId(path.join(__dirname, '..', 'fixtures', 'sample.less'))
 
       document.querySelector('head style[source-path*="css.css"]').remove()
       document.querySelector('head style[source-path*="sample.less"]').remove()
 
     it "returns a disposable allowing styles applied by the given path to be removed", ->
-      cssPath = require.resolve('./fixtures/css.css')
+      cssPath = require.resolve('../fixtures/css.css')
 
       expect(window.getComputedStyle(document.body)['font-weight']).not.toBe("bold")
       disposable = themeManager.requireStylesheet(cssPath)

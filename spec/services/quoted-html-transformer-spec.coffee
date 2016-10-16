@@ -1,12 +1,12 @@
 _ = require('underscore')
 fs = require('fs')
 path = require 'path'
-QuotedHTMLTransformer = require('../src/services/quoted-html-transformer')
+QuotedHTMLTransformer = require('../../src/services/quoted-html-transformer')
 
 describe "QuotedHTMLTransformer", ->
 
   readFile = (fname) ->
-    emailPath = path.resolve(__dirname, 'fixtures', 'emails', fname)
+    emailPath = path.resolve(__dirname, '..', 'fixtures', 'emails', fname)
     return fs.readFileSync(emailPath, 'utf8')
 
   hideQuotedHTML = (fname) ->

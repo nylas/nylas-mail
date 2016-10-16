@@ -1,4 +1,4 @@
-StyleManager = require '../src/style-manager'
+StyleManager = require '../../src/style-manager'
 
 describe "StyleManager", ->
   [manager, addEvents, removeEvents, updateEvents] = []

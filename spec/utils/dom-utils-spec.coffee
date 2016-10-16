@@ -1,5 +1,5 @@
 _ = require 'underscore'
-DOMUtils = require '../src/dom-utils'
+DOMUtils = require '../../src/dom-utils'
 describe 'nodesWithContent', ->
 
   tests = {

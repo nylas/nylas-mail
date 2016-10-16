@@ -24,7 +24,7 @@ class TestExtension extends ComposerExtension {
   }
 }
 
-fdescribe('DraftStore', function draftStore() {
+describe('DraftStore', function draftStore() {
   beforeEach(() => {
     this.fakeThread = new Thread({id: 'fake-thread', clientId: 'fake-thread'});
     this.fakeMessage = new Message({id: 'fake-message', clientId: 'fake-message'});
@@ -67,8 +67,7 @@ fdescribe('DraftStore', function draftStore() {
       });
       advanceClock();
       advanceClock();
-      console.log("Hi")
-      expect(Actions.focusDraft).not.toHaveBeenCalled();
+      expect(Actions.focusDraft).toHaveBeenCalled();
     });
 
     describe("context", () => {
