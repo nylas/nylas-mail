@@ -1,5 +1,5 @@
-StylesElement = require '../src/styles-element'
-StyleManager = require '../src/style-manager'
+StylesElement = require '../../src/styles-element'
+StyleManager = require '../../src/style-manager'
 
 describe "StylesElement", ->
   [element, addedStyleElements, removedStyleElements, updatedStyleElements] = []
