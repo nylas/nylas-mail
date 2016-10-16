@@ -21,7 +21,7 @@ NylasEnv.themes.requireStylesheet('../static/jasmine');
 NylasEnv.themes.initialLoadComplete = true;
 
 NylasEnv.keymaps.loadKeymaps();
-let styleElementsToRestore = NylasEnv.styles.getSnapshot();
+const styleElementsToRestore = NylasEnv.styles.getSnapshot();
 
 window.addEventListener('core:close', () => window.close());
 window.addEventListener('beforeunload', function() {
