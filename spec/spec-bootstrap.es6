@@ -3,26 +3,38 @@
 global.Promise = require('bluebird');
 Promise.longStackTraces();
 
-import jasmineExports from './jasmine';
+// import jasmineExports from './jasmine';
 import NylasEnvConstructor from '../src/nylas-env';
-
-Object.assign(window, {
-  NylasEnv: NylasEnvConstructor.loadOrCreate(),
-  jasmine: jasmineExports.jasmine,
-  it: jasmineExports.it,
-  xit: jasmineExports.xit,
-  runs: jasmineExports.runs,
-  waits: jasmineExports.waits,
-  spyOn: jasmineExports.spyOn,
-  expect: jasmineExports.expect,
-  waitsFor: jasmineExports.waitsFor,
-  describe: jasmineExports.describe,
-  xdescribe: jasmineExports.xdescribe,
-  afterEach: jasmineExports.afterEach,
-  beforeEach: jasmineExports.beforeEach,
-})
-
+window.NylasEnv = NylasEnvConstructor.loadOrCreate();
 import {runSpecSuite} from './jasmine-helper';
+
+// Object.assign(window, {
+//   NylasEnv: NylasEnvConstructor.loadOrCreate(),
+//
+//   jasmine: jasmineExports.jasmine,
+//
+//   it: jasmineExports.it,
+//   xit: jasmineExports.xit,
+//   runs: jasmineExports.runs,
+//   waits: jasmineExports.waits,
+//   spyOn: jasmineExports.spyOn,
+//   expect: jasmineExports.expect,
+//   waitsFor: jasmineExports.waitsFor,
+//   describe: jasmineExports.describe,
+//   xdescribe: jasmineExports.xdescribe,
+//   afterEach: jasmineExports.afterEach,
+//   beforeEach: jasmineExports.beforeEach,
+// })
+
 NylasEnv.initialize();
+
+// specSetup.extendGlobalWindow();
+// specSetup.addReporters();
+// specSetup.setupDOM();
+//
+// specSetup.setupJasmine();
+// specSetup.requireSpecs();
+// specSetup.runSpecs();
+
 runSpecSuite('./spec-suite');
 

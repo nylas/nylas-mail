@@ -7,6 +7,9 @@ import ConsoleReporter from './console-reporter'
 import N1TerminalReporter from './terminal-reporter'
 
 export function runSpecSuite(specSuite) {
+  for (const key of Object.keys(jasmineExports)) {
+    window[key] = jasmineExports[key]
+  }
   const timeReporter = new TimeReporter();
   const consoleReporter = new ConsoleReporter();
   const terminalReporter = new N1TerminalReporter();
