@@ -1,4 +1,9 @@
 import _ from 'underscore';
+import nylasTestConstants from './nylas-test-constants'
+
+import moment from 'moment-timezone';
+// On import this will extend the `moment` object
+import 'moment-round';
 
 export function waitsForPromise(...args) {
   let shouldReject;
@@ -37,4 +42,29 @@ export function waitsForPromise(...args) {
       return moveOn();
     });
   });
+}
+
+export function toHaveLength(expected) {
+  if (this.actual == null) {
+    this.message = () => `Expected object ${this.actual} has no length method`;
+    return false;
+  }
+  const notText = this.isNot ? " not" : "";
+  this.message = () => `Expected object with length ${this.actual.length} to${notText} have length ${expected}`;
+  return this.actual.length === expected;
+}
+
+export function unspy(object, methodName) {
+  if (!object[methodName].hasOwnProperty('originalValue')) { throw new Error("Not a spy"); }
+  object[methodName] = object[methodName].originalValue;
+}
+
+export function attachToDOM(element) {
+  const jasmineContent = document.querySelector('#jasmine-content');
+  if (!jasmineContent.contains(element)) { jasmineContent.appendChild(element); }
+}
+
+// This date was chosen because it's close to a DST boundary
+export function testNowMoment() {
+  moment.tz("2016-03-15 12:00", nylasTestConstants.TEST_TIME_ZONE);
 }
