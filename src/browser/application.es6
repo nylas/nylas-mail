@@ -750,9 +750,9 @@ export default class Application extends EventEmitter {
 
     let bootstrapScript = null;
     try {
-      bootstrapScript = require.resolve(path.resolve(this.resourcePath, 'spec', 'spec-bootstrap'));
+      bootstrapScript = require.resolve(path.resolve(this.resourcePath, 'spec', 'n1-spec-runner', 'spec-bootstrap'));
     } catch (error) {
-      bootstrapScript = require.resolve(path.resolve(__dirname, '..', '..', 'spec', 'spec-bootstrap'));
+      bootstrapScript = require.resolve(path.resolve(__dirname, '..', '..', 'spec', 'n1-spec-runner', 'spec-bootstrap'));
     }
 
     // Important: Use .nylas-spec instead of .nylas to avoid overwriting the

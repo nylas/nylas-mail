@@ -2,7 +2,7 @@ import _ from 'underscore';
 import fs from 'fs-plus';
 import path from 'path';
 
-import '../src/window';
+import '../../src/window';
 NylasEnv.restoreWindowDimensions();
 
 import 'jasmine-json';
@@ -10,7 +10,7 @@ import 'jasmine-json';
 import Grim from 'grim';
 import TimeOverride from './time-override';
 
-import Config from '../src/config';
+import Config from '../../src/config';
 import pathwatcher from 'pathwatcher';
 import { clipboard } from 'electron';
 
