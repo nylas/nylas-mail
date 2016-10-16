@@ -1,15 +1,17 @@
 /* eslint global-require:0 */
+import N1SpecLoader from './n1-spec-loader'
 import TimeReporter from './time-reporter'
 import N1GuiReporter from './n1-gui-reporter';
 import jasmineExports from './jasmine';
 import ConsoleReporter from './console-reporter'
 
 class N1SpecRunner {
-  runSpecs() {
+  runSpecs(loadSettings) {
+    this.loadSettings = loadSettings
     this._extendGlobalWindow();
     this._setupJasmine();
-    this._requireSpecs();
-    this._executeSpecs();
+    N1SpecLoader.loadSpecs(loadSettings, this.jasmineEnv);
+    this.jasmineEnv.execute();
   }
 
   /**
@@ -44,14 +46,6 @@ class N1SpecRunner {
   _setupJasmine() {
     this._addReporters()
     this._initializeDOM()
-  }
-
-  _requireSpecs() {
-    require("./spec-suite");
-  }
-
-  _executeSpecs() {
-    this.jasmineEnv.execute();
   }
 
   _addReporters() {
