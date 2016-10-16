@@ -9,16 +9,3 @@ NylasEnv.initialize();
 
 import N1SpecRunner from './n1-spec-runner'
 N1SpecRunner.runSpecs();
-
-// import {runSpecSuite} from './jasmine-helper';
-
-// specSetup.extendGlobalWindow();
-// specSetup.addReporters();
-// specSetup.setupDOM();
-//
-// specSetup.setupJasmine();
-// specSetup.requireSpecs();
-// specSetup.runSpecs();
-
-// runSpecSuite('./spec-suite');
-
