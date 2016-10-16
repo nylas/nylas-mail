@@ -4,6 +4,7 @@ import TimeReporter from './time-reporter'
 import N1GuiReporter from './n1-gui-reporter';
 import jasmineExports from './jasmine';
 import ConsoleReporter from './console-reporter'
+import * as jasmineExtensions from './jasmine-extensions'
 
 class N1SpecRunner {
   runSpecs(loadSettings) {
@@ -33,6 +34,7 @@ class N1SpecRunner {
       xdescribe: jasmineExports.xdescribe,
       afterEach: jasmineExports.afterEach,
       beforeEach: jasmineExports.beforeEach,
+      waitsForPromise: jasmineExtensions.waitsForPromise,
     })
 
     // On load, this will require "jasmine-focused" which looks up the
