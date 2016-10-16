@@ -299,44 +299,6 @@ var addCustomMatchers = spec =>
   })
 ;
 
-// See docs/writing-specs.md
-window.waitsForPromise = function(...args) {
-  if (args.length > 1) {
-    var { shouldReject, timeout } = args[0];
-  } else {
-    var shouldReject = false;
-  }
-  let fn = _.last(args);
-
-  return window.waitsFor(timeout, function(moveOn) {
-    let promise = fn();
-    // Keep in mind we can't check `promise instanceof Promise` because parts of
-    // the app still use other Promise libraries Just see if it looks
-    // promise-like.
-    if (!promise || !promise.then) {
-      jasmine.getEnv().currentSpec.fail(`Expected callback to return a promise-like object, but it returned ${promise}`);
-      return moveOn();
-    } else if (shouldReject) {
-      promise.catch(moveOn);
-      return promise.then(function() {
-        jasmine.getEnv().currentSpec.fail("Expected promise to be rejected, but it was resolved");
-        return moveOn();
-      });
-    } else {
-      promise.then(moveOn);
-      return promise.catch(function(error) {
-        // I don't know what `pp` does, but for standard `new Error` objects,
-        // it sometimes returns "{  }". Catch this case and fall through to toString()
-        let msg = jasmine.pp(error);
-        if (msg === "{  }") { msg = error.toString(); }
-        jasmine.getEnv().currentSpec.fail(`Expected promise to be resolved, but it was rejected with ${msg}`);
-        return moveOn();
-      });
-    }
-  }
-  );
-};
-
 function __guard__(value, transform) {
   return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
 }
