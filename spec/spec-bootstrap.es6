@@ -6,6 +6,7 @@ Promise.longStackTraces();
 import NylasEnvConstructor from '../src/nylas-env';
 window.NylasEnv = NylasEnvConstructor.loadOrCreate();
 NylasEnv.initialize();
+const loadSettings = NylasEnv.getLoadSettings()
 
 import N1SpecRunner from './n1-spec-runner'
-N1SpecRunner.runSpecs();
+N1SpecRunner.runSpecs(loadSettings);
