@@ -10,8 +10,14 @@ class N1SpecRunner {
   runSpecs(loadSettings) {
     this.loadSettings = loadSettings
     this._extendGlobalWindow();
+
     this._setupJasmine();
+
+    // this._setupBeforeEach();
+    // this._setupAfterEach();
+
     N1SpecLoader.loadSpecs(this.loadSettings, this.jasmineEnv);
+
     this.jasmineEnv.execute();
   }
 

@@ -3,7 +3,7 @@
 global.Promise = require('bluebird');
 Promise.longStackTraces();
 
-import NylasEnvConstructor from '../src/nylas-env';
+import NylasEnvConstructor from '../../src/nylas-env';
 window.NylasEnv = NylasEnvConstructor.loadOrCreate();
 NylasEnv.initialize();
 const loadSettings = NylasEnv.getLoadSettings()
