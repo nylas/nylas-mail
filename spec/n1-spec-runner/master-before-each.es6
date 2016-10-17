@@ -6,9 +6,8 @@ import {
   ComponentRegistry,
   MailboxPerspective,
   FocusedPerspectiveStore,
-} from "nylas-exports";
+} from 'nylas-exports';
 import fs from 'fs-plus';
-import path from 'path';
 import Grim from 'grim';
 import Config from '../../src/config';
 import {clipboard} from 'electron';
@@ -45,8 +44,7 @@ class MasterBeforeEach {
 
   _resetNylasEnv() {
     NylasEnv.testOrganizationUnit = null;
-    const styleElementsToRestore = NylasEnv.styles.getSnapshot();
-    NylasEnv.styles.restoreSnapshot(styleElementsToRestore);
+
     NylasEnv.workspaceViewParentSelector = '#jasmine-content';
 
     // Don't actually write to disk
@@ -67,28 +65,6 @@ class MasterBeforeEach {
 
   _resetPackageManager = () => {
     NylasEnv.packages.packageStates = {};
-
-    let specPackageName;
-    let specPackagePath;
-
-    if (this.loadSettings.specDirectory) {
-      specPackagePath = path.resolve(this.loadSettings.specDirectory, '..');
-      try {
-        const packageJSON = fs.readFileSync(path.join(specPackagePath, 'package.json'));
-        specPackageName = (JSON.parse(packageJSON) || {}).name
-      } catch (error) {
-        console.error(error)
-      }
-    }
-
-    const resolvePackagePath = NylasEnv.packages.resolvePackagePath;
-    spyOn(NylasEnv.packages, 'resolvePackagePath')
-    .andCallFake((packageName) => {
-      if (specPackageName && packageName === specPackageName) {
-        return resolvePackagePath(specPackagePath);
-      }
-      return resolvePackagePath(packageName);
-    });
   }
 
   _resetDatabase() {
