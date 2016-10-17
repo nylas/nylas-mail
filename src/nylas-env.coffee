@@ -848,9 +848,6 @@ class NylasEnvConstructor
     @packages.packageStates = @savedState.packageStates ? {}
     delete @savedState.packageStates
 
-  loadThemes: ->
-    @themes.load()
-
   loadConfig: ->
     @config.setSchema null, {type: 'object', properties: _.clone(require('./config-schema'))}
     @config.load()

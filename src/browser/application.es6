@@ -77,7 +77,16 @@ export default class Application extends EventEmitter {
       const helper = new DefaultClientHelper();
       helper.registerForURLScheme('nylas');
     } else {
-      app.setAsDefaultProtocolClient('nylas')
+      app.setAsDefaultProtocolClient('nylas');
+    }
+
+    if (process.platform === 'darwin') {
+      const addedToDock = config.get('addedToDock');
+      const appPath = process.argv[0];
+      if (!addedToDock && appPath.includes('/Applications/') && appPath.includes('.app/')) {
+        proc.exec(`defaults write com.apple.dock persistent-apps -array-add "<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>${appPath.split('.app/')[0]}.app/</string><key>_CFURLStringType</key><integer>0</integer></dict></dict></dict>"`);
+        config.set('addedToDock', true);
+      }
     }
   }
 
@@ -556,7 +565,9 @@ export default class Application extends EventEmitter {
     })
 
     ipcMain.on("move-to-applications", () => {
-      if (process.platform !== "darwin") return;
+      if (process.platform !== "darwin") {
+        return;
+      }
       const re = /(^.*?\.app)/i;
       const appPath = (re.exec(process.argv[0]) || [])[0];
       if (!appPath) {
@@ -683,15 +694,37 @@ export default class Application extends EventEmitter {
   // Open a mailto:// url.
   //
   openUrl(urlToOpen) {
-    const {protocol} = url.parse(urlToOpen);
-    if (protocol === 'mailto:') {
-      const main = this.windowManager.get(WindowManager.MAIN_WINDOW);
-      if (main) { main.sendMessage('mailto', urlToOpen) }
-    } else if (protocol === 'nylas:') {
-      const main = this.windowManager.get(WindowManager.MAIN_WINDOW);
-      if (main) { main.sendMessage('openExternalThread', urlToOpen) }
+    const parts = url.parse(urlToOpen);
+    const main = this.windowManager.get(WindowManager.MAIN_WINDOW);
+
+    if (!main) {
+      console.log(`Ignoring URL - main window is not available, user may not be authed.`);
+    }
+
+    if (parts.protocol === 'mailto:') {
+      main.sendMessage('mailto', urlToOpen);
+    } else if (parts.protocol === 'nylas:') {
+      if (parts.host === 'calendar') {
+        this.openCalendarURL(parts.path);
+      } else {
+        main.sendMessage('openExternalThread', urlToOpen);
+      }
     } else {
       console.log(`Ignoring unknown URL type: ${urlToOpen}`);
+    }
+  }
+
+  openCalendarURL(command) {
+    if (command === '/open') {
+      this.windowManager.ensureWindow(WindowManager.CALENDAR_WINDOW, {
+        windowKey: WindowManager.CALENDAR_WINDOW,
+        windowType: WindowManager.CALENDAR_WINDOW,
+        title: "Calendar",
+        hidden: false,
+      });
+    } else if (command === '/close') {
+      const win = this.windowManager.get(WindowManager.CALENDAR_WINDOW);
+      if (win) { win.hide(); }
     }
   }
 
@@ -721,9 +754,9 @@ export default class Application extends EventEmitter {
 
     let bootstrapScript = null;
     try {
-      bootstrapScript = require.resolve(path.resolve(this.resourcePath, 'spec', 'spec-bootstrap'));
+      bootstrapScript = require.resolve(path.resolve(this.resourcePath, 'spec', 'n1-spec-runner', 'spec-bootstrap'));
     } catch (error) {
-      bootstrapScript = require.resolve(path.resolve(__dirname, '..', '..', 'spec', 'spec-bootstrap'));
+      bootstrapScript = require.resolve(path.resolve(__dirname, '..', '..', 'spec', 'n1-spec-runner', 'spec-bootstrap'));
     }
 
     // Important: Use .nylas-spec instead of .nylas to avoid overwriting the
