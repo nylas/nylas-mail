@@ -5,8 +5,11 @@ Promise.longStackTraces();
 
 import NylasEnvConstructor from '../../src/nylas-env';
 window.NylasEnv = NylasEnvConstructor.loadOrCreate();
-NylasEnv.initialize();
-const loadSettings = NylasEnv.getLoadSettings()
 
-import N1SpecRunner from './n1-spec-runner'
-N1SpecRunner.runSpecs(loadSettings);
+NylasEnv.initialize();
+const loadSettings = NylasEnv.getLoadSettings();
+
+// This must be `required` instead of imported because
+// NylasEnv.initialize() must complete before `nylas-exports` and other
+// globals are available for import via es6 modules.
+require('./n1-spec-runner').default.runSpecs(loadSettings)

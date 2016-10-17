@@ -66,5 +66,5 @@ export function attachToDOM(element) {
 
 // This date was chosen because it's close to a DST boundary
 export function testNowMoment() {
-  moment.tz("2016-03-15 12:00", nylasTestConstants.TEST_TIME_ZONE);
+  return moment.tz("2016-03-15 12:00", nylasTestConstants.TEST_TIME_ZONE);
 }

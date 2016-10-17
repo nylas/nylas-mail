@@ -2,12 +2,10 @@ import pathwatcher from 'pathwatcher';
 import ReactTestUtils from 'react-addons-test-utils';
 
 class MasterAfterEach {
-  setup(afterEach) {
+  setup(loadSettings, afterEach) {
     afterEach(() => {
       NylasEnv.packages.deactivatePackages();
       NylasEnv.menu.template = [];
-
-      NylasEnv.themes.removeStylesheet('global-editor-styles');
 
       if (NylasEnv.state) {
         delete NylasEnv.state.packageStates;

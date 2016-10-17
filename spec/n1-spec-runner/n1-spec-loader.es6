@@ -1,12 +1,10 @@
 /* eslint global-require:0 */
-
 import _ from 'underscore';
 import fs from 'fs-plus';
 import path from 'path';
 
 class N1SpecLoader {
   loadSpecs(loadSettings, jasmineEnv) {
-    require('./spec-helper');
     this.jasmineEnv = jasmineEnv
     this.loadSettings = loadSettings;
     if (this.loadSettings.specDirectory) {
@@ -79,8 +77,6 @@ class N1SpecLoader {
       }
     }
 
-    // Set spec directory on spec for setting up the project in
-    // spec-helper
     this._setSpecDirectory(specDirectory)
   }
 

@@ -12,7 +12,7 @@ describe "ThemeManager", ->
   configDirPath = NylasEnv.getConfigDirPath()
 
   beforeEach ->
-    spyOn(console, "log")
+    # spyOn(console, "log")
     spyOn(console, "warn")
     spyOn(console, "error")
     theme_dir = path.resolve(__dirname, '../../internal_packages')
@@ -174,6 +174,8 @@ describe "ThemeManager", ->
 
     afterEach ->
       jasmine.restoreDeprecationsSnapshot()
+      themeManager.removeStylesheet(path.join(__dirname, '..', 'fixtures', 'css.css'))
+      themeManager.removeStylesheet(path.join(__dirname, '..', 'fixtures', 'sample.less'))
 
     it "synchronously loads css at the given path and installs a style tag for it in the head", ->
       NylasEnv.styles.onDidAddStyleElement styleElementAddedHandler = jasmine.createSpy("styleElementAddedHandler")
@@ -196,7 +198,7 @@ describe "ThemeManager", ->
       expect(document.querySelectorAll('head style').length).toBe lengthBefore + 1
       expect(styleElementAddedHandler).not.toHaveBeenCalled()
 
-      element .remove()
+      element.remove()
 
     it "synchronously loads and parses less files at the given path and installs a style tag for it in the head", ->
       lessPath = path.join(__dirname, '..', 'fixtures', 'sample.less')
