@@ -18,7 +18,12 @@ class MasterAfterEach {
 
       jasmine.unspy(NylasEnv, 'saveSync');
       this.ensureNoPathSubscriptions();
-      return waits(0);
+
+      for (const styleElement of NylasEnv.styles.styleElements) {
+        NylasEnv.styles.removeStyleElement(styleElement)
+      }
+
+      waits(0);
     }); // yield to ui thread to make screen update more frequently
   }
 

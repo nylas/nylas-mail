@@ -32,6 +32,8 @@ describe "StylesElement", ->
     expect(element.children[initialChildCount].textContent).toBe "a {color: blue;}"
     expect(removedStyleElements).toEqual [addedStyleElements[0]]
 
+    disposable2.dispose()
+
   it "orders style elements by priority", ->
     initialChildCount = element.children.length
 
