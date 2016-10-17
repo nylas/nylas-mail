@@ -19,7 +19,7 @@ export default function BoldedSearchResult({query = "", value = ""} = {}) {
     }
     return part
   });
-  return <span>{parts}</span>;
+  return <span className="search-result">{parts}</span>;
 }
 BoldedSearchResult.propTypes = {
   query: React.PropTypes.string,
