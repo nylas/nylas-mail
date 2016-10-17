@@ -65,14 +65,19 @@ export default class Notification extends React.Component {
     })
 
     const {isError, priority, icon, title, subtitleAction, subtitle} = this.props;
+
+    let iconEl = null;
+    if (icon) {
+      iconEl = <RetinaImg
+        className="icon"
+        name={icon}
+        mode={RetinaImg.Mode.ContentPreserve}
+      />
+    }
     return (
       <div className={`notification${isError ? ' error' : ''}`} data-priority={priority}>
         <div className="title">
-          <RetinaImg
-            className="icon"
-            name={icon}
-            mode={RetinaImg.Mode.ContentPreserve}
-          /> {title} <br />
+          {iconEl} {title} <br />
           <span
             className={`subtitle ${subtitleAction ? 'has-action' : ''}`}
             onClick={subtitleAction || (() => {})}
