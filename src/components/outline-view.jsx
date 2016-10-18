@@ -147,7 +147,7 @@ class OutlineView extends Component {
         <span className="text" title={this.props.title}>
           {this.props.title}
         </span>
-        {allowCreate ? this._renderCreateButton() : void 0}
+        {allowCreate ? this._renderCreateButton() : null}
         {collapsible ?
           <span
             className="collapse-button"
@@ -155,7 +155,7 @@ class OutlineView extends Component {
           >
             {collapseLabel}
           </span>
-          : void 0
+          : null
         }
       </DropZone>
     );
@@ -175,7 +175,7 @@ class OutlineView extends Component {
     const showInput = allowCreate && this.state.showCreateInput;
     return (
       <div>
-        {showInput ? this._renderCreateInput() : void 0}
+        {showInput ? this._renderCreateInput() : null}
         {this._renderItems()}
       </div>
     );

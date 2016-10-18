@@ -345,7 +345,7 @@ export default class SwipeContainer extends Component {
         onTouchCancel={this._onTouchEnd}
         {...otherProps}
       >
-        <div style={backingStyles} className={backingClass}></div>
+        <div style={backingStyles} className={backingClass} />
         <div style={{transform: `translate3d(${currentX}px, 0, 0)`}}>
           {this.props.children}
         </div>

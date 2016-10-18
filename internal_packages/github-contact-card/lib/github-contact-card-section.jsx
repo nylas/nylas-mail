@@ -1,6 +1,6 @@
 import _ from 'underscore';
-import GithubUserStore from "./github-user-store";
 import {React} from 'nylas-exports';
+import GithubUserStore from "./github-user-store";
 
 // Small React component that renders a single Github repository
 const GithubRepo = function GithubRepo(props) {

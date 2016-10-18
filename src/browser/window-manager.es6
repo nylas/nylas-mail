@@ -1,6 +1,6 @@
 import _ from 'underscore';
-import WindowLauncher from './window-launcher';
 import {app} from 'electron';
+import WindowLauncher from './window-launcher';
 
 const MAIN_WINDOW = "default"
 const WORK_WINDOW = "work"

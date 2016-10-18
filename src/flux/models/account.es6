@@ -94,6 +94,7 @@ export default class Account extends ModelWithMetadata {
   // Returns a {Contact} model that represents the current user.
   me() {
     Contact = Contact || require('./contact')
+
     return new Contact({
       accountId: this.id,
       name: this.name,
@@ -103,6 +104,7 @@ export default class Account extends ModelWithMetadata {
 
   meUsingAlias(alias) {
     Contact = Contact || require('./contact')
+
     if (!alias) {
       return this.me()
     }
@@ -159,16 +161,19 @@ export default class Account extends ModelWithMetadata {
 
   canArchiveThreads() {
     CategoryStore = CategoryStore || require('../stores/category-store')
+
     return CategoryStore.getArchiveCategory(this)
   }
 
   canTrashThreads() {
     CategoryStore = CategoryStore || require('../stores/category-store')
+
     return CategoryStore.getTrashCategory(this)
   }
 
   defaultFinishedCategory() {
     CategoryStore = CategoryStore || require('../stores/category-store')
+
     const preferDelete = NylasEnv.config.get('core.reading.backspaceDelete')
     const archiveCategory = CategoryStore.getArchiveCategory(this)
     const trashCategory = CategoryStore.getTrashCategory(this)

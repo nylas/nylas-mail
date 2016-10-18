@@ -91,7 +91,7 @@ export default class SyncbackDraftFilesTask extends BaseDraftTask {
     })
     .then((rawResponseString) => {
       const json = JSON.parse(rawResponseString);
-      const file = (new File).fromJSON(json[0]);
+      const file = (new File()).fromJSON(json[0]);
       return Promise.resolve(file);
     })
   }

@@ -3,10 +3,10 @@ import path from 'path';
 import fs from 'fs';
 import Sqlite3 from 'better-sqlite3';
 import PromiseQueue from 'promise-queue';
-import NylasStore from '../../global/nylas-store';
 import {remote, ipcRenderer} from 'electron';
 import LRU from "lru-cache";
 
+import NylasStore from '../../global/nylas-store';
 import Utils from '../models/utils';
 import Query from '../models/query';
 import DatabaseChangeRecord from './database-change-record';
@@ -279,7 +279,7 @@ class DatabaseStore extends NylasStore {
     q = q.split('|||');
     const colors = [];
     const msg = [];
-    for (let i = 0; i < q.length; i ++) {
+    for (let i = 0; i < q.length; i++) {
       if (i % 2 === 0) {
         colors.push(q[i]);
       } else {
@@ -478,7 +478,7 @@ class DatabaseStore extends NylasStore {
         } else {
           continue;
         }
-      } else if (typeof(item) === 'string') {
+      } else if (typeof item === 'string') {
         if (Utils.isTempId(item)) {
           clientIds.push(item);
         } else {

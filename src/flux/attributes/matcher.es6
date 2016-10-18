@@ -127,7 +127,7 @@ class Matcher {
     const val = (this.comparator === "like") ? `%${this.val}%` : this.val;
     let escaped = null;
 
-    if (typeof(val) === 'string') {
+    if (typeof val === 'string') {
       escaped = `'${val.replace(/'/g, singleQuoteEscapeSequence)}'`;
     } else if (val === true) {
       escaped = 1
@@ -138,7 +138,7 @@ class Matcher {
     } else if (val instanceof Array) {
       const escapedVals = []
       for (const v of val) {
-        if (typeof(v) !== 'string') {
+        if (typeof v !== 'string') {
           throw new Error(`${this.attr.jsonKey} value ${v} must be a string.`);
         }
         escapedVals.push(`'${v.replace(/'/g, singleQuoteEscapeSequence)}'`);

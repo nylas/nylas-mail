@@ -2,16 +2,15 @@ import _ from 'underscore';
 import Reflux from 'reflux';
 import path from 'path';
 import fs from 'fs-plus';
+import {APMWrapper} from 'nylas-exports';
+import {ipcRenderer, shell, remote} from 'electron';
 
 import PluginsActions from './plugins-actions';
-import {APMWrapper} from 'nylas-exports';
 
-import {ipcRenderer, shell, remote} from 'electron';
 const dialog = remote.dialog;
 
 
 const PackagesStore = Reflux.createStore({
-
   init: function init() {
     this._apm = new APMWrapper();
 
@@ -55,7 +54,7 @@ const PackagesStore = Reflux.createStore({
       this.trigger(this);
       this._apm.install(pkg, (err) => {
         if (err) {
-          delete(this._installing[pkg.name]);
+          delete this._installing[pkg.name];
           this._displayMessage("Sorry, an error occurred", err.toString());
         } else {
           if (NylasEnv.packages.isPackageDisabled(pkg.name)) {
@@ -192,7 +191,7 @@ const PackagesStore = Reflux.createStore({
       for (const category of ['dev', 'user']) {
         packages[category].forEach((pkg) => {
           pkg.category = category;
-          delete(this._installing[pkg.name]);
+          delete this._installing[pkg.name];
         });
       }
 

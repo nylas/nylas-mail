@@ -11,6 +11,7 @@ class Spellchecker {
     this.handler = new SpellCheckHandler();
     this.handler.switchLanguage('en-US'); // Start with US English
     this.handler.attachToInput();
+    this.isMisspelledCache = {};
 
     this._customDictLoaded = false;
     this._saveOnLoad = false;
@@ -70,7 +71,15 @@ class Spellchecker {
   }
 
   isMisspelled = (word) => {
-    return !(word in this._customDict || this.handler.handleElectronSpellCheck(word));
+    if (word in this._customDict) {
+      return false
+    }
+    if (word in this.isMisspelledCache) {
+      return this.isMisspelledCache[word]
+    }
+    const misspelled = !this.handler.handleElectronSpellCheck(word);
+    this.isMisspelledCache[word] = misspelled;
+    return misspelled;
   }
 
   learnWord = (word) => {

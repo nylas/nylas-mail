@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import {Spellchecker, Message} from 'nylas-exports';
 
 import SpellcheckComposerExtension from '../lib/spellcheck-composer-extension';
-import {Spellchecker, Message} from 'nylas-exports';
 
 const initialPath = path.join(__dirname, 'fixtures', 'california-with-misspellings-before.html');
 const initialHTML = fs.readFileSync(initialPath).toString();

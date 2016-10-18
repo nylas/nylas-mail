@@ -1,8 +1,8 @@
 import React, {Component, PropTypes} from 'react';
 import ReactDOM from 'react-dom';
-import ImageUpload from './image-upload';
 import fs from 'fs';
 import path from 'path';
+import ImageUpload from './image-upload';
 
 export default class InlineImageUploadContainer extends Component {
   static displayName = 'InlineImageUploadContainer';
@@ -131,7 +131,7 @@ export default class InlineImageUploadContainer extends Component {
 
     if (!upload) {
       return (
-        <span></span>
+        <span />
       );
     }
     if (isPreview) {

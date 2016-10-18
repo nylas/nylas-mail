@@ -47,7 +47,7 @@ class PreferencesKeymaps extends React.Component {
   _loadTemplates() {
     const templatesDir = path.join(NylasEnv.getLoadSettings().resourcePath, 'keymaps', 'templates');
     fs.readdir(templatesDir, (err, files) => {
-      if (!files || !files instanceof Array) return;
+      if (!files || !(files instanceof Array)) return;
       let templates = files.filter((filename) => {
         return path.extname(filename) === '.json';
       });
@@ -118,7 +118,7 @@ class PreferencesKeymaps extends React.Component {
                 })}
               </select>
             </div>
-            <div style={{flex: 1}}></div>
+            <div style={{flex: 1}} />
             <button className="btn" onClick={this._onDeleteUserKeymap}>Reset to Defaults</button>
           </Flexbox>
           <p>

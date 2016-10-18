@@ -1,3 +1,4 @@
+/* eslint jsx-a11y/tabindex-no-positive: 0 */
 import React from 'react';
 
 import {Flexbox, ScrollRegion} from 'nylas-component-kit';

@@ -153,7 +153,7 @@ class SystemStartServiceLinux extends SystemStartServiceBase {
   }
 }
 
-
+/* eslint import/no-mutable-exports: 0*/
 let SystemStartService;
 if (process.platform === "darwin") {
   SystemStartService = SystemStartServiceDarwin;

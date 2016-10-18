@@ -1,7 +1,6 @@
 import _ from 'underscore';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import AccountContactField from './account-contact-field';
 import {Utils, DraftHelpers, Actions, AccountStore} from 'nylas-exports';
 import {
   InjectedComponent,
@@ -10,6 +9,7 @@ import {
   ListensToFluxStore,
 } from 'nylas-component-kit';
 
+import AccountContactField from './account-contact-field';
 import CollapsedParticipants from './collapsed-participants';
 import ComposerHeaderActions from './composer-header-actions';
 import SubjectTextField from './subject-text-field';
@@ -157,7 +157,7 @@ export default class ComposerHeader extends React.Component {
     });
   }
 
-  _onDragCollapsedParticipants({isDropping}) {
+  _onDragCollapsedParticipants = ({isDropping}) => {
     if (isDropping) {
       this.setState({
         participantsFocused: true,
@@ -176,7 +176,7 @@ export default class ComposerHeader extends React.Component {
           to={this.props.draft.to}
           cc={this.props.draft.cc}
           bcc={this.props.draft.bcc}
-          onDragChange={::this._onDragCollapsedParticipants}
+          onDragChange={this._onDragCollapsedParticipants}
         />
       )
     }

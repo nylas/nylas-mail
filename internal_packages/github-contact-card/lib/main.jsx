@@ -1,9 +1,8 @@
-import GithubContactCardSection from "./github-contact-card-section";
-
 import {
   ComponentRegistry,
 } from "nylas-exports";
 
+import GithubContactCardSection from "./github-contact-card-section";
 
 /*
 All packages must export a basic object that has at least the following 3

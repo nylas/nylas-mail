@@ -80,8 +80,8 @@ export default class EventGridBackground extends React.Component {
     }
     return (
       <div className="event-grid-bg-wrap">
-        <div ref="cursor" className="cursor"></div>
-        <canvas ref="canvas" className="event-grid-bg" style={styles}></canvas>
+        <div ref="cursor" className="cursor" />
+        <canvas ref="canvas" className="event-grid-bg" style={styles} />
       </div>
     )
   }

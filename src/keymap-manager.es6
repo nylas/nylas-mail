@@ -78,7 +78,7 @@ export default class KeymapManager {
   constructor({configDirPath, resourcePath}) {
     this.configDirPath = configDirPath;
     this.resourcePath = resourcePath;
-    this._emitter = new Emitter;
+    this._emitter = new Emitter();
     this._registered = {};
     this._files = [];
   }
