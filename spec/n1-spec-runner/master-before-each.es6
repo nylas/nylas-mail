@@ -9,9 +9,10 @@ import {
 } from 'nylas-exports';
 import fs from 'fs-plus';
 import Grim from 'grim';
-import Config from '../../src/config';
 import {clipboard} from 'electron';
 import pathwatcher from 'pathwatcher';
+
+import Config from '../../src/config';
 import configUtils from '../../src/config-utils'
 import TimeOverride from './time-override';
 import nylasTestConstants from './nylas-test-constants'

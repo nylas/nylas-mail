@@ -1,10 +1,10 @@
 /* eslint quote-props: 0 */
 
 import React from 'react';
-import SignatureComposerDropdown from '../lib/signature-composer-dropdown'
-import {renderIntoDocument} from '../../../spec/nylas-test-utils'
 import ReactTestUtils from 'react-addons-test-utils'
 import {SignatureStore} from 'nylas-exports';
+import SignatureComposerDropdown from '../lib/signature-composer-dropdown'
+import {renderIntoDocument} from '../../../spec/nylas-test-utils'
 
 const SIGNATURES = {
   '1': {

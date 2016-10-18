@@ -1,8 +1,9 @@
 /* eslint quote-props: 0 */
+import _ from 'underscore';
+
 import Model from '../../src/flux/models/model';
 import Utils from '../../src/flux/models/utils';
 import Attributes from '../../src/flux/attributes';
-import _ from 'underscore';
 
 describe("Model", function modelSpecs() {
   describe("constructor", () => {
@@ -45,7 +46,7 @@ describe("Model", function modelSpecs() {
     });
 
     return it("automatically assigns a clientId (and id) to the model if no id is provided", () => {
-      const m = new Model;
+      const m = new Model();
       expect(Utils.isTempId(m.id)).toBe(true);
       expect(Utils.isTempId(m.clientId)).toBe(true);
       return expect(m.serverId).toBeUndefined();
@@ -135,7 +136,7 @@ describe("Model", function modelSpecs() {
         'daysOld': 4,
         'account_id': 'bla',
       };
-      this.m = new Submodel;
+      this.m = new Submodel();
     });
 
     it("should assign attribute values by calling through to attribute fromJSON functions", () => {

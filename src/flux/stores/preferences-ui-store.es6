@@ -1,10 +1,10 @@
 import {ipcRenderer} from 'electron';
 import _ from 'underscore'
 import NylasStore from 'nylas-store'
+import Immutable from 'immutable'
 import WorkspaceStore from './workspace-store'
 import FocusedPerspectiveStore from './focused-perspective-store'
 import Actions from '../actions'
-import Immutable from 'immutable'
 
 const MAIN_TAB_ITEM_ID = 'General'
 

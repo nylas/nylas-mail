@@ -81,10 +81,10 @@ export function runAuthRequest(accountInfo) {
   data.settings.username = username || email;
 
   if (data.settings.imap_port) {
-    data.settings.imap_port = data.settings.imap_port / 1;
+    data.settings.imap_port /= 1;
   }
   if (data.settings.smtp_port) {
-    data.settings.smtp_port = data.settings.smtp_port / 1;
+    data.settings.smtp_port /= 1;
   }
   // if there's an account with this email, get the ID for it to notify the backend of re-auth
   const account = AccountStore.accountForEmail(accountInfo.email);

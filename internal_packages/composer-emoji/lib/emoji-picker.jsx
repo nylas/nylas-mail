@@ -1,8 +1,8 @@
 import {React, ReactDOM} from 'nylas-exports';
+import emoji from 'node-emoji';
 
 import EmojiStore from './emoji-store';
 import EmojiActions from './emoji-actions';
-import emoji from 'node-emoji';
 
 
 class EmojiPicker extends React.Component {

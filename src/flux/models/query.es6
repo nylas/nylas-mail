@@ -268,7 +268,7 @@ export default class ModelQuery {
     try {
       return result.map((row) => {
         const json = JSON.parse(row.data, Utils.registeredObjectReviver)
-        const object = (new this._klass).fromJSON(json);
+        const object = (new this._klass()).fromJSON(json);
         for (const attr of this._includeJoinedData) {
           let value = row[attr.jsonKey];
           if (value === AttributeJoinedData.NullPlaceholder) {

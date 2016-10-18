@@ -7,6 +7,7 @@ import {
 } from 'nylas-exports'
 
 import CategoryRemovalTargetRulesets from '../internal_packages/thread-list/lib/category-removal-target-rulesets'
+
 const {Default} = CategoryRemovalTargetRulesets;
 
 

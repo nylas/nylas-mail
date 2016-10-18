@@ -2,7 +2,7 @@ import {React} from 'nylas-exports';
 import {RetinaImg} from 'nylas-component-kit';
 
 const StaticEmptyIndicator = (
-  <div className="personal-level-icon"></div>
+  <div className="personal-level-icon" />
 );
 
 export default class PersonalLevelIcon extends React.Component {

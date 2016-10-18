@@ -170,15 +170,15 @@ class ComposerEditor extends Component {
     this.refs.contenteditable._onDOMMutated(mutations);
   }
 
-  _onDrop(event) {
+  _onDrop = (event) => {
     this.refs.contenteditable._onDrop(event)
   }
 
-  _onDragOver(event) {
+  _onDragOver = (event) => {
     this.refs.contenteditable._onDragOver(event)
   }
 
-  _shouldAcceptDrop(event) {
+  _shouldAcceptDrop = (event) => {
     return this.refs.contenteditable._shouldAcceptDrop(event)
   }
   // Helpers
@@ -264,9 +264,9 @@ class ComposerEditor extends Component {
     return (
       <DropZone
         className="composer-inner-wrap"
-        onDrop={::this._onDrop}
-        onDragOver={::this._onDragOver}
-        shouldAcceptDrop={::this._shouldAcceptDrop}
+        onDrop={this._onDrop}
+        onDragOver={this._onDragOver}
+        shouldAcceptDrop={this._shouldAcceptDrop}
       >
         <Contenteditable
           ref="contenteditable"

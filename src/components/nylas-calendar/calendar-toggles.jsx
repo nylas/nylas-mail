@@ -1,9 +1,11 @@
+/* eslint jsx-a11y/label-has-for: 0 */
 import _ from 'underscore'
 import classnames from 'classnames'
 import React from 'react'
 
-const DISABLED_CALENDARS = "nylas.disabledCalendars"
 import {calcColor} from './calendar-helpers'
+
+const DISABLED_CALENDARS = "nylas.disabledCalendars"
 
 function renderCalendarToggles(calendars, disabledCalendars) {
   return calendars.map((calendar) => {
@@ -32,10 +34,11 @@ function renderCalendarToggles(calendars, disabledCalendars) {
         key={`check-${calendar.id}`}
       >
         <div className={checkboxClass}>
-          <div className="bg-color" style={{backgroundColor: bgColor}}></div>
+          <div className="bg-color" style={{backgroundColor: bgColor}} />
         </div>
         <label>{calendar.name}</label>
-      </div>)
+      </div>
+    )
   })
 }
 

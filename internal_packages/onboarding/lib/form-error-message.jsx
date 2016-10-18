@@ -2,7 +2,7 @@ import React from 'react';
 import {RegExpUtils} from 'nylas-exports';
 
 const FormErrorMessage = (props) => {
-  let {message, empty} = props;
+  const {message, empty} = props;
   if (!message) {
     return <div className="message empty">{empty}</div>;
   }

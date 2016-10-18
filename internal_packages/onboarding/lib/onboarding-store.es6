@@ -1,7 +1,8 @@
-import OnboardingActions from './onboarding-actions';
 import {AccountStore, Actions, IdentityStore} from 'nylas-exports';
 import {ipcRenderer} from 'electron';
 import NylasStore from 'nylas-store';
+
+import OnboardingActions from './onboarding-actions';
 
 function accountTypeForProvider(provider) {
   if (provider === 'eas') {

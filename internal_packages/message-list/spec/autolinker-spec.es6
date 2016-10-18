@@ -1,6 +1,6 @@
-import {autolink} from '../lib/autolinker';
 import fs from 'fs';
 import path from 'path';
+import {autolink} from '../lib/autolinker';
 
 describe('autolink', function autolinkSpec() {
   const fixturesDir = path.join(__dirname, 'autolinker-fixtures');

@@ -1,9 +1,9 @@
 import {DOMUtils, ComposerExtension, RegExpUtils} from 'nylas-exports';
+import emoji from 'node-emoji';
 
 import EmojiStore from './emoji-store';
 import EmojiActions from './emoji-actions';
 import EmojiPicker from './emoji-picker';
-import emoji from 'node-emoji';
 
 
 class EmojiComposerExtension extends ComposerExtension {

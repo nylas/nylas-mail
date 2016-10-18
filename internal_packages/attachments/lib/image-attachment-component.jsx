@@ -59,8 +59,8 @@ class ImageAttachmentComponent extends AttachmentComponent {
     return (
       <div>
         <span className={`progress-bar-wrap state-${state}`}>
-          <span className="progress-background"></span>
-          <span className="progress-foreground" style={this._downloadProgressStyle()}></span>
+          <span className="progress-background" />
+          <span className="progress-foreground" style={this._downloadProgressStyle()} />
         </span>
         {this._renderFileActionIcon()}
         <div className="file-preview" onDoubleClick={this._onClickView}>

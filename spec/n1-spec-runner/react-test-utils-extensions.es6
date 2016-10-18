@@ -1,3 +1,4 @@
+/* eslint react/no-render-return-value: 0 */
 import _ from 'underscore';
 import ReactDOM from "react-dom";
 import ReactTestUtils from 'react-addons-test-utils';

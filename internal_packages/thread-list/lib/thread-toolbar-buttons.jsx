@@ -1,6 +1,5 @@
 import React from "react";
 import classNames from 'classnames';
-import ThreadListStore from './thread-list-store';
 import {RetinaImg} from 'nylas-component-kit';
 import {
   Actions,
@@ -10,6 +9,9 @@ import {
   FocusedContentStore,
   FocusedPerspectiveStore,
 } from "nylas-exports";
+
+import ThreadListStore from './thread-list-store';
+
 
 export class ArchiveButton extends React.Component {
   static displayName = 'ArchiveButton';

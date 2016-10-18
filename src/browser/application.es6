@@ -1,5 +1,13 @@
 /* eslint global-require: "off" */
 
+import {BrowserWindow, Menu, app, ipcMain, dialog} from 'electron';
+
+import fs from 'fs-plus';
+import url from 'url';
+import path from 'path';
+import proc from 'child_process'
+import {EventEmitter} from 'events';
+
 import SystemTrayManager from './system-tray-manager';
 import WindowManager from './window-manager';
 import FileListCache from './file-list-cache';
@@ -10,14 +18,6 @@ import NylasProtocolHandler from './nylas-protocol-handler';
 import PackageMigrationManager from './package-migration-manager';
 import ConfigPersistenceManager from './config-persistence-manager';
 import DefaultClientHelper from '../default-client-helper';
-
-import {BrowserWindow, Menu, app, ipcMain, dialog} from 'electron';
-
-import fs from 'fs-plus';
-import url from 'url';
-import path from 'path';
-import proc from 'child_process'
-import {EventEmitter} from 'events';
 
 let clipboard = null;
 

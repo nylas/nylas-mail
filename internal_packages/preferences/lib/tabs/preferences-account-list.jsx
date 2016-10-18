@@ -59,7 +59,7 @@ class PreferencesAccountList extends Component {
 
   render() {
     if (!this.props.accounts) {
-      return <div className="account-list"></div>;
+      return <div className="account-list" />;
     }
     return (
       <EditableList

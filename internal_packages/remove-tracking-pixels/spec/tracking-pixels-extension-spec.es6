@@ -1,6 +1,6 @@
 /* eslint no-irregular-whitespace: 0 */
-import {removeTrackingPixels} from '../lib/main';
 import fs from 'fs';
+import {removeTrackingPixels} from '../lib/main';
 
 const readFixture = (name) => {
   return fs.readFileSync(`${__dirname}/fixtures/${name}`).toString().trim()

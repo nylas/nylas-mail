@@ -30,7 +30,7 @@ function ListensToMovementKeys(ComposedComponent) {
       };
     }
 
-    onKeyDown(event) {
+    onKeyDown = (event) => {
       if (['Enter', 'Return'].includes(event.key)) {
         if (!(this.refs.composed || {}).onEnter) { return }
         event.stopPropagation();
@@ -56,7 +56,7 @@ function ListensToMovementKeys(ComposedComponent) {
         <KeyCommandsRegion
           tabIndex="0"
           localHandlers={this.localKeyHandlers()}
-          onKeyDown={::this.onKeyDown}
+          onKeyDown={this.onKeyDown}
         >
           <ComposedComponent ref="composed" {...this.props} />
         </KeyCommandsRegion>

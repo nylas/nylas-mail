@@ -274,7 +274,7 @@ export default class ComposerView extends React.Component {
       DraftHelpers.appendQuotedTextToDraft(this.props.draft)
       .then((draftWithQuotedText) => {
         this.props.session.changes.add({
-          body: `${draftWithQuotedText.body}<div id="n1-quoted-text-marker"></div>`,
+          body: `${draftWithQuotedText.body}<div id="n1-quoted-text-marker" />`,
         })
       })
     })
@@ -284,7 +284,7 @@ export default class ComposerView extends React.Component {
     event.stopPropagation()
     const {session, draft} = this.props
     session.changes.add({
-      body: `${draft.body}<div id="n1-quoted-text-marker"></div>`,
+      body: `${draft.body}<div id="n1-quoted-text-marker" />`,
     })
     this.setState({
       showQuotedText: false,

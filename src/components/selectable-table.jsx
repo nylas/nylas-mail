@@ -101,7 +101,7 @@ export class SelectableTableCell extends Component {
     return cellValueChanged || selectionStateChanged
   }
 
-  onClickCell() {
+  onClickCell = () => {
     const {selection, rowIdx, colIdx, onSetSelection} = this.props
     if (_.isEqual(selection, {row: rowIdx, col: colIdx})) { return }
     onSetSelection({rowIdx, colIdx, key: null})
@@ -134,7 +134,7 @@ export class SelectableTableCell extends Component {
       <TableCell
         {...this.props}
         className={classes}
-        onClick={::this.onClickCell}
+        onClick={this.onClickCell}
       />
     )
   }

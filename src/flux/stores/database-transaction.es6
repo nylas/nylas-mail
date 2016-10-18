@@ -45,6 +45,7 @@ export default class DatabaseTransaction {
 
   persistJSONBlob(id, json) {
     const JSONBlob = require('../models/json-blob').default;
+
     return this.persistModel(new JSONBlob({id, json}));
   }
 
@@ -265,7 +266,7 @@ export default class DatabaseTransaction {
         // 400 values: slices:[0..0]
         // 401 values: slices:[0..1]
         const slicePageCount = Math.ceil(joinMarks.length / rowsPerInsert) - 1;
-        for (let slice = 0; slice <= slicePageCount; slice ++) {
+        for (let slice = 0; slice <= slicePageCount; slice++) {
           const [ms, me] = [slice * rowsPerInsert, slice * rowsPerInsert + rowsPerInsert];
           const [vs, ve] = [slice * valuesPerInsert, slice * valuesPerInsert + valuesPerInsert];
           promises.push(this._query(`INSERT OR IGNORE INTO \`${joinTable}\` (\`${joinColumns.join('`,`')}\`) VALUES ${joinMarks.slice(ms, me).join(',')}`, joinedValues.slice(vs, ve)));

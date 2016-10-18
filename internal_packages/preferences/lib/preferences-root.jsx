@@ -1,3 +1,4 @@
+/* eslint jsx-a11y/tabindex-no-positive: 0 */
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -92,7 +93,7 @@ class PreferencesRoot extends React.Component {
   }
 
   render() {
-    let bodyElement = <div></div>;
+    let bodyElement = <div />;
     if (this.state.tab) {
       bodyElement = <this.state.tab.component accountId={this.state.selection.get('accountId')} />
     }

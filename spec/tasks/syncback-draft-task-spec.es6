@@ -23,7 +23,7 @@ const inboxError = {
 const testData = {
   to: [new Contact({name: "Ben Gotow", email: "benthis.nylas.com"})],
   from: [new Contact({name: "Evan Morikawa", email: "evanthis.nylas.com"})],
-  date: new Date,
+  date: new Date(),
   draft: true,
   subject: "Test",
   accountId: "abc123",

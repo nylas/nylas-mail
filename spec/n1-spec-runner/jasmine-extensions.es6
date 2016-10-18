@@ -1,9 +1,10 @@
+/* eslint no-prototype-builtins: 0 */
 import _ from 'underscore';
-import nylasTestConstants from './nylas-test-constants'
-
 import moment from 'moment-timezone';
 // On import this will extend the `moment` object
 import 'moment-round';
+
+import nylasTestConstants from './nylas-test-constants'
 
 export function waitsForPromise(...args) {
   let shouldReject;

@@ -54,7 +54,7 @@ export function activate() {
       }
 
       exec(`chmod +x "${helperPath}/Contents/MacOS/Nylas Calendar"`, () => {
-        exec(`open \"${helperPath}\"`);
+        exec(`open "${helperPath}"`);
       });
 
       if (!NylasEnv.config.get('addedToDockCalendar')) {

@@ -1,8 +1,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import moment from 'moment'
-require('moment-round') // overrides moment
 import classnames from 'classnames'
+
+require('moment-round') // overrides moment
 
 const INTERVAL = [30, 'minutes']
 
@@ -64,11 +65,11 @@ export default class TimePicker extends React.Component {
 
   _onArrow(key) {
     let newT = moment(this.props.value);
-    newT = newT.round.apply(newT, INTERVAL);
+    newT = newT.round(...INTERVAL);
     if (key === "ArrowUp") {
-      newT = newT.subtract.apply(newT, INTERVAL);
+      newT = newT.subtract(...INTERVAL);
     } else if (key === "ArrowDown") {
-      newT = newT.add.apply(newT, INTERVAL);
+      newT = newT.add(...INTERVAL);
     }
     if (moment(this.props.value).day() !== newT.day()) {
       return
@@ -145,17 +146,17 @@ export default class TimePicker extends React.Component {
     const enteredMoment = moment(this.props.value);
 
     const roundedMoment = moment(enteredMoment);
-    roundedMoment.ceil.apply(roundedMoment, INTERVAL);
+    roundedMoment.ceil(...INTERVAL);
 
     const firstVisibleMoment = moment(roundedMoment);
-    firstVisibleMoment.add.apply(firstVisibleMoment, INTERVAL);
+    firstVisibleMoment.add(...INTERVAL);
 
     let startVal = moment(this.props.value).startOf('day').valueOf();
     startVal = Math.max(startVal, (this.props.relativeTo || 0));
 
     const startMoment = moment(startVal)
     if (this.props.relativeTo) {
-      startMoment.ceil.apply(startMoment, INTERVAL).add.apply(startMoment, INTERVAL)
+      startMoment.ceil(...INTERVAL).add(...INTERVAL)
     }
     const endMoment = moment(startVal).endOf('day');
     const opts = []
@@ -187,7 +188,7 @@ export default class TimePicker extends React.Component {
           {timeIter.format("LT")}{relTxt}
         </div>
       )
-      timeIter.add.apply(timeIter, INTERVAL)
+      timeIter.add(...INTERVAL)
     }
 
     const className = classnames({

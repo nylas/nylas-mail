@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import NylasStore from 'nylas-store'
-import Actions from '../actions'
 import {Modal} from 'nylas-component-kit';
+import NylasStore from 'nylas-store'
 
+import Actions from '../actions'
 
 const CONTAINER_ID = "nylas-modal-container";
 

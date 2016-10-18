@@ -25,8 +25,8 @@ export default class AttributeObject extends Attribute {
     // even if it's actually the same, makes React components re-render!
     obj.clientId = undefined;
 
-    // Warning: typeof(null) is object
-    if (obj.fromJSON && !!val && (typeof(val) === 'object')) {
+    // Warning: typeof null is object
+    if (obj.fromJSON && !!val && (typeof val === 'object')) {
       obj.fromJSON(val);
     }
 

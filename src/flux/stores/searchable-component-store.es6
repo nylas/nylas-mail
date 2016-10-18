@@ -1,6 +1,6 @@
 import _ from 'underscore'
-import DOMUtils from '../../dom-utils'
 import NylasStore from 'nylas-store'
+import DOMUtils from '../../dom-utils'
 import Actions from '../actions'
 import {MAX_MATCHES, CHAR_THRESHOLD} from '../../searchable-components/search-constants'
 import FocusedContentStore from './focused-content-store'
