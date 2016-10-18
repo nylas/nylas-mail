@@ -31,6 +31,7 @@
     "emoji-data": "^0.2.0",
     "enzyme": "^2.2.0",
     "event-kit": "^1.0.2",
+    "flow-bin": "0.33.0",
     "fs-plus": "^2.3.2",
     "grim": "1.5.0",
     "guid": "0.0.10",
@@ -83,6 +84,7 @@
   },
   "packageDependencies": {},
   "scripts": {
+    "flow": "flow; test $? -eq 0 -o $? -eq 2",
     "test": "./N1.sh --test",
     "install-eslint-packages": "mv ./node_modules/better-sqlite3 ./better-sqlite3; npm install eslint@3.8.0 eslint-config-airbnb@12.0.0 eslint-plugin-import@1.16.0 eslint-plugin-jsx-a11y@2.2.3 eslint-plugin-react@6.4.1 babel-eslint@6.0.4 eslint_d@4.0.1; mv ./better-sqlite3 ./node_modules/better-sqlite3;"
   }
