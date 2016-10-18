@@ -81,6 +81,9 @@ class DraftFactory
       if query[attr]
         contacts[attr] = ContactStore.parseContactsInString(query[attr])
 
+    if query.body
+      query.body = query.body.replace(/[\n\r]/g, '<br/>')
+
     Promise.props(contacts).then (contacts) =>
       @createDraft(_.extend(query, contacts))
 
