@@ -126,8 +126,9 @@ class SelfHostingConfigPage extends React.Component {
               <h4>{`http${this.state.usesHTTPS ? "s" : ""}://`}</h4>
             </div>
             <div>
-              <label>Sync Engine URL:</label>
+              <label htmlFor="sync-engine">Sync Engine URL:</label>
               <input
+                id="sync-engine"
                 title="Sync Engine URL"
                 type="text"
                 value={this.state.url}
@@ -139,8 +140,9 @@ class SelfHostingConfigPage extends React.Component {
               <h4>{`:`}</h4>
             </div>
             <div>
-              <label>Sync Engine Port:</label>
+              <label htmlFor="ync-engine-port">Sync Engine Port:</label>
               <input
+                id="sync-engine-port"
                 title="Sync Engine Port"
                 type="text"
                 value={this.state.port}

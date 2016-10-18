@@ -1,3 +1,4 @@
+/* eslint react/no-danger: 0 */
 import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'underscore';
@@ -12,7 +13,7 @@ TipsContainerEl.classList.add('tooltips-container');
 document.body.appendChild(TipsContainerEl);
 
 
-class TipsStore extends NylasStore {
+class TipsStoreCls extends NylasStore {
   constructor() {
     super();
 
@@ -50,7 +51,7 @@ class TipsStore extends NylasStore {
   }
 }
 
-TipsStore = new TipsStore();
+const TipsStore = new TipsStoreCls();
 
 class TipPopoverContents extends React.Component {
   static propTypes = {
@@ -84,7 +85,7 @@ class TipPopoverContents extends React.Component {
   render() {
     let content = null;
 
-    if (typeof(this.props.instructions) === 'string') {
+    if (typeof this.props.instructions === 'string') {
       content = <p dangerouslySetInnerHTML={{__html: this.props.instructions}} />;
     } else {
       content = <p>{this.props.instructions}</p>

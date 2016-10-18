@@ -53,4 +53,4 @@ class EdgehillAPI {
   }
 }
 
-export default new EdgehillAPI;
+export default new EdgehillAPI();

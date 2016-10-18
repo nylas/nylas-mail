@@ -85,7 +85,7 @@ class ConfigSchemaItem extends React.Component {
       );
     }
     return (
-      <span></span>
+      <span />
     );
   }
 

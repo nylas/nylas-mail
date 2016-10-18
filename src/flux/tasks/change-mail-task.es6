@@ -46,7 +46,7 @@ const mapLimit = (input, numberInParallel, fn) => {
       });
     };
 
-    for (let i = 0; i < Math.min(numberInParallel, input.length); i ++) {
+    for (let i = 0; i < Math.min(numberInParallel, input.length); i++) {
       startNext();
     }
   });

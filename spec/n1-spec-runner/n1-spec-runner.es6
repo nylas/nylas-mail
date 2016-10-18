@@ -1,11 +1,12 @@
 /* eslint global-require:0 */
 import _ from 'underscore';
 import Grim from 'grim';
+import ReactTestUtils from 'react-addons-test-utils';
+
 import Config from '../../src/config'
 import N1SpecLoader from './n1-spec-loader'
 import TimeReporter from './time-reporter'
 import N1GuiReporter from './n1-gui-reporter';
-import ReactTestUtils from 'react-addons-test-utils';
 import jasmineExports from './jasmine';
 import ConsoleReporter from './console-reporter'
 import MasterAfterEach from './master-after-each'

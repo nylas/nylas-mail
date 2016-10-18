@@ -68,11 +68,13 @@ export default class Notification extends React.Component {
 
     let iconEl = null;
     if (icon) {
-      iconEl = <RetinaImg
-        className="icon"
-        name={icon}
-        mode={RetinaImg.Mode.ContentPreserve}
-      />
+      iconEl = (
+        <RetinaImg
+          className="icon"
+          name={icon}
+          mode={RetinaImg.Mode.ContentPreserve}
+        />
+      )
     }
     return (
       <div className={`notification${isError ? ' error' : ''}`} data-priority={priority}>

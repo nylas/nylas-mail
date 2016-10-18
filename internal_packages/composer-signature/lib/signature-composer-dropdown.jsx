@@ -3,14 +3,14 @@ import {
   Actions,
   SignatureStore,
 } from 'nylas-exports'
-
 import {
   Menu,
   RetinaImg,
   ButtonDropdown,
 } from 'nylas-component-kit'
-import SignatureUtils from './signature-utils'
 import _ from 'underscore'
+
+import SignatureUtils from './signature-utils'
 
 
 export default class SignatureComposerDropdown extends React.Component {

@@ -1,7 +1,8 @@
+import {RegExpUtils} from 'nylas-exports';
+
 import Task from './task';
 import {APIError} from '../errors';
 import NylasAPI from '../nylas-api';
-import {RegExpUtils} from 'nylas-exports';
 
 
 export default class MultiSendToIndividualTask extends Task {

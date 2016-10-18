@@ -1,7 +1,7 @@
 import React from 'react';
-import Fields from './fields';
 import {Actions} from 'nylas-exports';
 import {RetinaImg} from 'nylas-component-kit';
+import Fields from './fields';
 
 export default class ComposerHeaderActions extends React.Component {
   static displayName = 'ComposerHeaderActions';

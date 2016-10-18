@@ -31,7 +31,7 @@ function AutoFocuses(ComposedComponent, {onMount = true, onUpdate = true} = {}) 
       return document.activeElement === currentNode
     }
 
-    focusElementWithTabIndex() {
+    focusElementWithTabIndex = () => {
       if (!this.mounted) {
         return
       }
@@ -65,7 +65,7 @@ function AutoFocuses(ComposedComponent, {onMount = true, onUpdate = true} = {}) 
       return (
         <ComposedComponent
           {...this.props}
-          focusElementWithTabIndex={::this.focusElementWithTabIndex}
+          focusElementWithTabIndex={this.focusElementWithTabIndex}
         />
       )
     }

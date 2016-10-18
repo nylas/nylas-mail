@@ -37,7 +37,7 @@ class LazyRenderedList extends Component {
     this.updateRangeState(nextProps)
   }
 
-  onScroll() {
+  onScroll = () => {
     this.updateRangeState(this.props)
   }
 
@@ -76,7 +76,7 @@ class LazyRenderedList extends Component {
     return (
       <RootRenderer
         style={{height: containerHeight, overflowX: 'hidden', overflowY: 'auto'}}
-        onScroll={::this.onScroll}
+        onScroll={this.onScroll}
       >
         {this.renderItems()}
       </RootRenderer>

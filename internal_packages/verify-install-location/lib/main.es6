@@ -1,5 +1,4 @@
-const {dialog} = require('electron').remote
-import {ipcRenderer} from 'electron'
+import {ipcRenderer, remote} from 'electron'
 
 /**
  * We want to make sure that people have installed the app in a
@@ -66,7 +65,7 @@ export function activate() {
 
   const CANCEL_ID = 3;
 
-  dialog.showMessageBox({
+  remote.dialog.showMessageBox({
     type: "question",
     buttons: buttons,
     title: "A Better Place to Install N1",

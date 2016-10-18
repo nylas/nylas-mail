@@ -1,3 +1,4 @@
+/* eslint jsx-a11y/tabindex-no-positive: 0 */
 import {Actions, React, ReactDOM} from 'nylas-exports';
 import {Menu, RetinaImg} from 'nylas-component-kit';
 import TemplateStore from './template-store';

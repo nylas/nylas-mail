@@ -1,7 +1,8 @@
 import {mount} from 'enzyme';
-import AccountErrorNotification from '../lib/items/account-error-notif';
 import {IdentityStore, AccountStore, Account, Actions, React} from 'nylas-exports';
 import {ipcRenderer} from 'electron';
+
+import AccountErrorNotification from '../lib/items/account-error-notif';
 
 describe("AccountErrorNotif", function AccountErrorNotifTests() {
   describe("when one account is in the `invalid` state", () => {

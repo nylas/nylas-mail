@@ -202,12 +202,10 @@ describe("QuerySubscription", function QuerySubscriptionSpecs() {
 
             if (test.mustUpdate) {
               expect(subscription.update).toHaveBeenCalledWith({mustRefetchEntireRange: true});
+            } else if (test.nextModels === 'unchanged') {
+              expect(subscription._set.models()).toEqual(scenario.lastModels);
             } else {
-              if (test.nextModels === 'unchanged') {
-                expect(subscription._set.models()).toEqual(scenario.lastModels);
-              } else {
-                expect(subscription._set.models()).toEqual(test.nextModels);
-              }
+              expect(subscription._set.models()).toEqual(test.nextModels);
             }
 
             if (test.mustTriger) {

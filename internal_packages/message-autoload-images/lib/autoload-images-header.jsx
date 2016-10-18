@@ -1,7 +1,8 @@
 import React from 'react';
+import {Message} from 'nylas-exports';
+
 import AutoloadImagesStore from './autoload-images-store';
 import Actions from './autoload-images-actions';
-import {Message} from 'nylas-exports';
 
 export default class AutoloadImagesHeader extends React.Component {
   static displayName = 'AutoloadImagesHeader';
@@ -36,7 +37,7 @@ export default class AutoloadImagesHeader extends React.Component {
 
     if (blocking === false) {
       return (
-        <div></div>
+        <div />
       );
     }
 

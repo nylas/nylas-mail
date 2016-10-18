@@ -68,8 +68,9 @@ class UpdateChannelSection extends React.Component {
     return (
       <section>
         <h6>Updates</h6>
-        <label>Release channel: </label>
+        <label htmlFor="release-channel">Release channel: </label>
         <select
+          id="release-channel"
           style={{minWidth: 130}}
           value={current.name}
           onChange={this._onSelectedChannel}

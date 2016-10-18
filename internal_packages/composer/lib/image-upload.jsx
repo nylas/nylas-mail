@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import FileUpload from './file-upload';
 import {RetinaImg} from 'nylas-component-kit';
+import FileUpload from './file-upload';
 
 export default class ImageUpload extends FileUpload {
   static displayName = 'ImageUpload';
