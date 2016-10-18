@@ -134,6 +134,7 @@ class NylasExports
   @lazyLoadAndRegisterStore "FileUploadStore", 'file-upload-store'
   @lazyLoadAndRegisterStore "ThreadCountsStore", 'thread-counts-store'
   @lazyLoadAndRegisterStore "FileDownloadStore", 'file-download-store'
+  @lazyLoadAndRegisterStore "UpdateChannelStore", 'update-channel-store'
   @lazyLoadAndRegisterStore "PreferencesUIStore", 'preferences-ui-store'
   @lazyLoadAndRegisterStore "FocusedContentStore", 'focused-content-store'
   @lazyLoadAndRegisterStore "MessageBodyProcessor", 'message-body-processor'

@@ -2,6 +2,8 @@
 
 .notifications {
   background-color: @panel-background-color;
+  box-shadow: 0 -6px 4px @panel-background-color;
+  z-index: 2;
 }
 
 .notification {
@@ -9,6 +11,7 @@
   display: none;
   color: @text-color-inverse;
   margin: 10px;
+  margin-top: 0;
   border-radius: @border-radius-large;
 }
 
@@ -27,13 +30,13 @@
 }
 
 .notification .icon {
-  margin-right: 20px;
+  margin-right: 10px;
 }
 
 .notification .title {
   padding: 10px;
   padding-left: 40px;
-  text-indent: -30px;
+  text-indent: -27px;
 }
 
 .notification .subtitle {
