@@ -13,7 +13,7 @@ class ModalKeyRecommender extends React.Component
   @propTypes:
     contacts: React.PropTypes.array.isRequired
     emails: React.PropTypes.array
-    callback: React.PropTypes.function
+    callback: React.PropTypes.func
 
   @defaultProps:
     callback: -> return # NOP
