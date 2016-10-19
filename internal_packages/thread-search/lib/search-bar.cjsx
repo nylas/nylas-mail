@@ -63,6 +63,7 @@ class SearchBar extends React.Component
              placeholder="Search all email"
              value={@state.query}
              onChange={@_onValueChange}
+             onKeyDown={@_onKeyDown}
              onFocus={@_onFocus}
              onBlur={@_onBlur} />,
       loupeImg,
@@ -110,6 +111,10 @@ class SearchBar extends React.Component
     SearchActions.queryChanged(event.target.value)
     if (event.target.value is '')
       @_onClearSearch()
+
+  _onKeyDown: (event) =>
+    if (event.keyCode is 27)
+      @_clearAndBlur()
 
   _onSelectSuggestion: (item) =>
     if item.thread?
