@@ -10,7 +10,10 @@ class UpdateChannelStore extends NylasStore {
     super();
     this._current = {name: 'Loading...'};
     this._available = [{name: 'Loading...'}];
-    this.refreshChannel();
+
+    if (NylasEnv.isMainWindow()) {
+      this.refreshChannel();
+    }
   }
 
   current() {
