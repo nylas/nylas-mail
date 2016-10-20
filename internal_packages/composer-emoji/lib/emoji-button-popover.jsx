@@ -317,8 +317,7 @@ class EmojiButtonPopover extends React.Component {
             onMouseOut={this.onMouseOut}
             onMouseMove={this.onHover}
             style={{zoom: "0.5"}}
-          >
-          </canvas>
+          />
         </ScrollRegion>
         <div className="emoji-name">
           {this.state.emojiName}

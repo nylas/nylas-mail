@@ -1,8 +1,8 @@
 /* eslint no-cond-assign:0 */
 import {MessageViewExtension, RegExpUtils} from 'nylas-exports';
+import emoji from 'node-emoji';
 
 import EmojiStore from './emoji-store';
-import emoji from 'node-emoji';
 
 function makeIntoEmojiTag(nodeArg, emojiName) {
   const node = nodeArg;

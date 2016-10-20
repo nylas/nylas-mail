@@ -71,11 +71,12 @@ export default class MailLabelSet extends React.Component {
       <InjectedComponentSet
         inline
         containersRequired={false}
-        children={labels}
         matching={{role: "Thread:MailLabel"}}
         className="thread-injected-mail-labels"
         exposedProps={{thread: thread}}
-      />
+      >
+        {labels}
+      </InjectedComponentSet>
     );
   }
 }

@@ -1,13 +1,14 @@
 import Rx from 'rx-lite'
 import React from 'react'
 import moment from 'moment'
+import {DatabaseStore, AccountStore, Calendar} from 'nylas-exports'
+import {ScrollRegion, ResizableRegion} from 'nylas-component-kit'
+
 import WeekView from './week-view'
 import MonthView from './month-view'
 import CalendarToggles from './calendar-toggles'
 import CalendarDataSource from './calendar-data-source'
-import {DatabaseStore, AccountStore, Calendar} from 'nylas-exports'
 import {WEEK_VIEW, MONTH_VIEW} from './calendar-constants'
-import {ScrollRegion, ResizableRegion} from 'nylas-component-kit'
 
 const DISABLED_CALENDARS = "nylas.disabledCalendars"
 

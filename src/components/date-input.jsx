@@ -1,3 +1,4 @@
+/* eslint jsx-a11y/tabindex-no-positive: 0 */
 import classnames from 'classnames';
 import React, {Component, PropTypes} from 'react';
 import {DateUtils} from 'nylas-exports';

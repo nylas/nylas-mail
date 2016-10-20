@@ -55,8 +55,7 @@ class SnoozeButton extends Component {
           <RetinaImg
             name="toolbar-snooze.png"
             mode={RetinaImg.Mode.ContentIsMask}
-          /> :
-          void 0
+          /> : null
         }
       </button>
     );

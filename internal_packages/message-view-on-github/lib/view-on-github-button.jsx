@@ -1,7 +1,8 @@
 import {shell} from 'electron'
-import GithubStore from './github-store'
 import {Actions, React} from 'nylas-exports'
 import {RetinaImg, KeyCommandsRegion} from 'nylas-component-kit'
+
+import GithubStore from './github-store'
 
 /**
 The `ViewOnGithubButton` displays a button whenever there's a relevant

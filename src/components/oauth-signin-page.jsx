@@ -82,7 +82,7 @@ export default class OAuthSignInPage extends React.Component {
     return (
       <div className={classnames}>
         <div style={{marginTop: 40}}>
-          Page didn't open? Paste this URL into your browser:
+          Page didn&#39;t open? Paste this URL into your browser:
         </div>
         <input
           type="url"

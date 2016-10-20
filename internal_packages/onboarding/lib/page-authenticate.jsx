@@ -4,8 +4,8 @@ import classnames from 'classnames';
 import ReactDOM from 'react-dom';
 import {IdentityStore} from 'nylas-exports';
 import {RetinaImg} from 'nylas-component-kit';
-import OnboardingActions from './onboarding-actions';
 import networkErrors from 'chromium-net-errors';
+import OnboardingActions from './onboarding-actions';
 
 class InitialLoadingCover extends React.Component {
   static propTypes = {
@@ -152,7 +152,7 @@ export default class AuthenticatePage extends React.Component {
   render() {
     return (
       <div className="page authenticate">
-        <webview ref="webview"></webview>
+        <webview ref="webview" />
         <div className={`webview-loading-spinner loading-${this.state.webviewLoading}`}>
           <RetinaImg
             style={{width: 20, height: 20}}

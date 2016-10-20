@@ -1,8 +1,9 @@
 import React from 'react'
 import moment from 'moment'
 import classnames from 'classnames'
-import CalendarEvent from './calendar-event'
 import {Utils} from 'nylas-exports'
+
+import CalendarEvent from './calendar-event'
 
 /**
  * This display a single column of events in the Week View.

@@ -1,6 +1,6 @@
 // import Rx from 'rx-lite-testing'
-import {events} from './fixtures/events'
 import {CalendarDataSource} from 'nylas-exports'
+import {events} from './fixtures/events'
 
 export default class TestDataSource extends CalendarDataSource {
   buildObservable({startTime, endTime}) {

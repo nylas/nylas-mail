@@ -36,7 +36,7 @@ export default class WelcomePage extends React.Component {
     return (
       <div>
         <p className="hero-text" style={{fontSize: 46, marginTop: 187}}>Welcome back!</p>
-        <p className="hero-text" style={{fontSize: 20, maxWidth: 550, margin: 'auto', lineHeight: 1.7, marginTop: 30}}>Since you've been gone, we've <a href="https://nylas.com/blog/nylas-pro/">launched Nylas Pro</a>, which now requires a paid subscription. Create a Nylas ID to start your trial and continue using N1!</p>
+        <p className="hero-text" style={{fontSize: 20, maxWidth: 550, margin: 'auto', lineHeight: 1.7, marginTop: 30}}>Since you&#39;ve been gone, we&#39;ve <a href="https://nylas.com/blog/nylas-pro/">launched Nylas Pro</a>, which now requires a paid subscription. Create a Nylas ID to start your trial and continue using N1!</p>
         <RetinaImg className="icons" url="nylas://onboarding/assets/icons-bg@2x.png" mode={RetinaImg.Mode.ContentPreserve} />
       </div>
     )

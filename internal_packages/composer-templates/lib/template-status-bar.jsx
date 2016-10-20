@@ -19,11 +19,11 @@ class TemplateStatusBar extends React.Component {
     if (this._usingTemplate(this.props)) {
       return (
         <div className="template-status-bar">
-          Press "tab" to quickly move between the blanks - highlighting will not be visible to recipients.
+          Press &quot;tab&quot; to quickly move between the blanks - highlighting will not be visible to recipients.
         </div>
       );
     }
-    return <div></div>;
+    return <div />;
   }
 
 }

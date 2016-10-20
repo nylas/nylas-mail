@@ -2,7 +2,7 @@ import UndoStack from "../src/undo-stack";
 
 describe("UndoStack", function UndoStackSpecs() {
   beforeEach(() => {
-    this.undoManager = new UndoStack;
+    this.undoManager = new UndoStack();
   });
 
   afterEach(() => {
