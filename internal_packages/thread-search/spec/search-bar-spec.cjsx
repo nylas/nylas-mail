@@ -2,7 +2,7 @@ React = require 'react'
 ReactDOM = require 'react-dom'
 ReactTestUtils = require('react-addons-test-utils')
 
-SearchBar = require '../lib/search-bar'
+SearchBar = require('../lib/search-bar').default
 SearchActions = require('../lib/search-actions').default
 
 describe 'SearchBar', ->
