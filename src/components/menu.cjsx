@@ -226,7 +226,32 @@ class Menu extends React.Component
     return
 
   _contentContainer: =>
-    items = @props.items.map(@_itemComponentForItem) ? []
+    seenItemKeys = {}
+
+    items = (@props.items || []).map (item, i) =>
+      content = @props.itemContent(item)
+      if React.isValidElement(content) and content.type is MenuItem
+        return content
+
+      onMouseDown = (event) =>
+        event.preventDefault()
+        @props.onSelect(item) if @props.onSelect
+
+      key = @props.itemKey(item)
+      if not key
+        console.warn("Menu parent did not return an itemKey for item", item)
+      if seenItemKeys[key]
+        console.warn("Menu items have colliding keys": item, seenItemKeys[key])
+      seenItemKeys[key] = item
+
+      <MenuItem
+        key={key}
+        onMouseDown={onMouseDown}
+        checked={@props.itemChecked?(item)}
+        content={content}
+        selected={@state.selectedIndex is i}
+      />
+
     contentClass = classNames
       'content-container': true
       'empty': items.length is 0
@@ -234,23 +259,6 @@ class Menu extends React.Component
     <div className={contentClass}>
       {items}
     </div>
-
-  _itemComponentForItem: (item, i) =>
-    content = @props.itemContent(item)
-    if React.isValidElement(content) and content.type is MenuItem
-      return content
-
-    onMouseDown = (event) =>
-      event.preventDefault()
-      @props.onSelect(item) if @props.onSelect
-
-    <MenuItem
-      onMouseDown={onMouseDown}
-      key={@props.itemKey(item)}
-      checked={@props.itemChecked?(item)}
-      content={content}
-      selected={@state.selectedIndex is i}
-    />
 
   _onShiftSelectedIndex: (delta) =>
     return if @props.items.length is 0
