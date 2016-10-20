@@ -1,11 +1,12 @@
 import _ from 'underscore';
-import WindowLauncher from './window-launcher';
 import {app} from 'electron';
+import WindowLauncher from './window-launcher';
 
 const MAIN_WINDOW = "default"
 const WORK_WINDOW = "work"
 const SPEC_WINDOW = "spec"
 const ONBOARDING_WINDOW = "onboarding"
+const CALENDAR_WINDOW = "calendar"
 
 export default class WindowManager {
 
@@ -224,4 +225,5 @@ export default class WindowManager {
 WindowManager.MAIN_WINDOW = MAIN_WINDOW;
 WindowManager.WORK_WINDOW = WORK_WINDOW;
 WindowManager.SPEC_WINDOW = SPEC_WINDOW;
+WindowManager.CALENDAR_WINDOW = CALENDAR_WINDOW;
 WindowManager.ONBOARDING_WINDOW = ONBOARDING_WINDOW;

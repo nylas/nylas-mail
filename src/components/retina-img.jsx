@@ -127,8 +127,8 @@ class RetinaImg extends React.Component {
     const style = this.props.style || {};
     style.WebkitUserDrag = 'none';
     style.zoom = pathIsRetina ? 0.5 : 1;
-    if (style.width) style.width = style.width / style.zoom;
-    if (style.height) style.height = style.height / style.zoom
+    if (style.width) style.width /= style.zoom;
+    if (style.height) style.height /= style.zoom
 
     if (this.props.mode === Mode.ContentIsMask) {
       style.WebkitMaskImage = `url('${path}')`;

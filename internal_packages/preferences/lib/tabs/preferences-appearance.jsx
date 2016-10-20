@@ -96,8 +96,8 @@ class PreferencesAppearance extends React.Component {
   render() {
     return (
       <div className="container-appearance">
-        <label>Change layout:</label>
-        <AppearanceModeSwitch config={this.props.config} />
+        <label htmlFor="change-layout">Change layout:</label>
+        <AppearanceModeSwitch id="change-layout" config={this.props.config} />
         <button className="btn btn-large" onClick={this.onClick}>Change theme...</button>
       </div>
     );

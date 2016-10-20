@@ -660,16 +660,16 @@ describe('DraftFactory', function draftFactory() {
         new Message(
           {to: [new Contact({name: 'email@address.com', email: 'email@address.com'})],
           subject: 'test',
-          body: 'type your\nmessage here'}
+          body: 'type your<br/>message here'}
         ),
         new Message(
           {to: [],
-          body: 'type your\r\nmessage\r\nhere'}
+          body: 'type your<br/><br/>message<br/><br/>here'}
         ),
         new Message(
           {to: [],
           subject: 'Issues · atom/electron · GitHub',
-          body: 'https://github.com/atom/electron/issues?utf8=&q=is%3Aissue+is%3Aopen+123\n\n'},
+          body: 'https://github.com/atom/electron/issues?utf8=&q=is%3Aissue+is%3Aopen+123<br/><br/>'},
         ),
       ];
 

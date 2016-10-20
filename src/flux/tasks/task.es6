@@ -553,7 +553,7 @@ export default class Task {
   createIdenticalTask() {
     const json = this.toJSON();
     delete json.queueState;
-    return (new this.constructor).fromJSON(json);
+    return (new this.constructor()).fromJSON(json);
   }
 
   // Public: code to run if (someone tries to dequeue your task while it is)

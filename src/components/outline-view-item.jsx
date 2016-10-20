@@ -1,4 +1,5 @@
 /* eslint global-require:0 */
+/* eslint jsx-a11y/tabindex-no-positive:0 */
 
 import _ from 'underscore';
 import classnames from 'classnames';
@@ -282,7 +283,9 @@ class OutlineViewItem extends Component {
   // Renderers
 
   _renderCount(item = this.props.item) {
-    if (!item.count) return <span></span>;
+    if (!item.count) {
+      return <span />;
+    }
     const className = classnames({
       'item-count-box': true,
       'alt-count': item.counterStyle === CounterStyles.Alt,
@@ -357,7 +360,7 @@ class OutlineViewItem extends Component {
         </section>
       );
     }
-    return <span></span>;
+    return <span />;
   }
 
   render() {

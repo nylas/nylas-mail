@@ -105,7 +105,7 @@ export default class CollapsedParticipants extends React.Component {
 
     return (
       <div className="num-remaining-wrap tokenizing-field">
-        <div className="show-more-fade"></div>
+        <div className="show-more-fade" />
         <div className="num-remaining token">{str}</div>
       </div>
     );

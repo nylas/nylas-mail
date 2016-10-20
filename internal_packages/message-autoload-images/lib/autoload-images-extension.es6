@@ -1,5 +1,5 @@
-import AutoloadImagesStore from './autoload-images-store';
 import {MessageViewExtension} from 'nylas-exports';
+import AutoloadImagesStore from './autoload-images-store';
 
 export default class AutoloadImagesExtension extends MessageViewExtension {
   static formatMessageBody = ({message}) => {

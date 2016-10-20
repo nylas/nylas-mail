@@ -1,3 +1,4 @@
+/* eslint react/jsx-no-bind: 0 */
 import _ from 'underscore'
 import React from 'react'
 import ReactDOM from 'react-dom'
@@ -301,7 +302,7 @@ export default class WeekView extends React.Component {
 
   // This generates the ticks used mark the event grid and the
   // correspodning legend in the week view.
-  *_tickGenerator({type}) {
+  * _tickGenerator({type}) {
     const height = this._gridHeight();
 
     let step = INTERVAL_TIME;

@@ -32,7 +32,7 @@ class PackageMigrationManager {
     } else {
       migrations = PACKAGE_MIGRATIONS.map(migration => migration['package-migrations'])
     }
-    return [].concat.apply([], migrations)
+    return [].concat(...migrations)
   }
 
   migrate() {

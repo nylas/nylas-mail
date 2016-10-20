@@ -191,7 +191,7 @@ module.exports = (grunt) ->
 
     if process.platform is 'darwin'
       grunt.file.recurse path.join('build', 'resources', 'mac'), (sourcePath, rootDirectory, subDirectory='', filename) ->
-        unless /.+\.plist/.test(sourcePath)
+        unless filename is "helper-Info.plist" or filename is "nylas-Info.plist"
           grunt.file.copy(sourcePath, path.resolve(appDir, '..', subDirectory, filename))
 
     if process.platform is 'win32'

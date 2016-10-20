@@ -16,7 +16,7 @@ class QuerySubscriptionPool {
 
   add(query, callback) {
     if (NylasEnv.inDevMode()) {
-      callback._registrationPoint = this._formatRegistrationPoint((new Error).stack);
+      callback._registrationPoint = this._formatRegistrationPoint((new Error()).stack);
     }
 
     const key = this._keyForQuery(query);

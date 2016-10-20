@@ -255,7 +255,7 @@ class PreferencesMailRules extends React.Component {
                 <strong>{AccountStore.accountForId(task.accountId).emailAddress}</strong>
                 {` — ${Number(task.numberOfImpactedItems()).toLocaleString()} processed...`}
               </div>
-              <div style={{flex: 1}}></div>
+              <div style={{flex: 1}} />
               <button className="btn btn-sm" onClick={() => Actions.dequeueTask(task.id)}>
                 Cancel
               </button>

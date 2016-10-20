@@ -119,8 +119,7 @@ export default class TutorialPage extends React.Component {
                   <div
                     className="overlay-content"
                     style={{backgroundPosition: `${step.x}% ${step.y}%`}}
-                  >
-                  </div>
+                  />
                 </div>
               )}
             </div>

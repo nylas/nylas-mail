@@ -111,7 +111,7 @@ class PreferencesIdentity extends React.Component {
         <div className="row payment-row">
           <div>
             Your subscription has been canceled or your billing information has expired.
-            We've paused your mailboxes! Renew your subscription to continue using N1.
+            We&#39;ve paused your mailboxes! Renew your subscription to continue using N1.
           </div>
           <OpenIdentityPageButton img="ic-upgrade.png" label="Update Subscription" path="/dashboard#subscription" campaign="Renew" source="Preferences" />
         </div>

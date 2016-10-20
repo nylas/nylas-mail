@@ -79,13 +79,13 @@ class ThemeOption extends React.Component {
                     <div class="theme-option active-${this.props.active}">
                       <div class="theme-name ">${this.props.theme.displayName}</div>
                       <div class="swatches" style="display:flex;flex-direction:row;">
-                        <div class="swatch font-color"></div>
-                        <div class="swatch active-color"></div>
-                        <div class="swatch toolbar-color"></div>
+                        <div class="swatch font-color" />
+                        <div class="swatch active-color" />
+                        <div class="swatch toolbar-color" />
                       </div>
-                      <div class="divider-black"></div>
-                      <div class="divider-white"></div>
-                      <div class="strip"></div>
+                      <div class="divider-black" />
+                      <div class="divider-white" />
+                      <div class="strip" />
                     </div>
                   </body>`
 

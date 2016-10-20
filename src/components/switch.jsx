@@ -16,7 +16,7 @@ const Switch = (props) => {
 
   return (
     <div className={classnames} onClick={props.onChange}>
-      <div className="handle"></div>
+      <div className="handle" />
     </div>
   );
 }

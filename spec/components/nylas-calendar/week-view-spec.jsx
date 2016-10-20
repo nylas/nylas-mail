@@ -2,14 +2,16 @@ import _ from 'underscore'
 import moment from 'moment'
 import React from 'react'
 import ReactTestUtils from 'react-addons-test-utils'
+import {NylasCalendar} from 'nylas-component-kit'
+
 import {
   now,
   NOW_WEEK_START,
   NOW_BUFFER_START,
   NOW_BUFFER_END,
 } from './test-utils'
+
 import TestDataSource from './test-data-source'
-import {NylasCalendar} from 'nylas-component-kit'
 import {
   numByDay,
   numAllDayEvents,
