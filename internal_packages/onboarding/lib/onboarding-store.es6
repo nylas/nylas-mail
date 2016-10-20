@@ -31,7 +31,9 @@ class OnboardingStore extends NylasStore {
 
     const {existingAccount, addingAccount} = NylasEnv.getWindowProps();
 
+    const hasAccounts = (AccountStore.accounts().length > 0)
     const identity = IdentityStore.identity();
+
     if (identity) {
       this._accountInfo = {
         name: `${identity.firstname || ""} ${identity.lastname || ""}`,
@@ -57,11 +59,13 @@ class OnboardingStore extends NylasStore {
       // but don't want to re-login to Nylas account. Very useful when
       // switching environments.
       this._pageStack = ['account-choose'];
+    } else if (hasAccounts) {
+      // Should only happen when the user has "signed out" of their Nylas ID,
+      // but already has accounts synced. Or is upgrading from a very old build.
+      // We used to show "Welcome Back", but now just jump to sign in.
+      this._pageStack = ['authenticate'];
     } else {
       // Standard new user onboarding flow.
-      // Note: If accounts are already connected, but no Nylas ID is, then
-      // the welcome page will show a separate page for returning users to
-      // create a Nylas Pro ID.
       this._pageStack = ['welcome'];
     }
   }
