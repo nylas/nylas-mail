@@ -74,14 +74,7 @@ class Actions
 
   @downloadStateChanged: ActionScopeGlobal
 
-  ###
-  Public: Fired when a draft is successfully sent
-  *Scope: Global*
-
-  Recieves the clientId of the message that was sent
-  ###
-  @sendDraftSuccess: ActionScopeGlobal
-  @sendDraftFailed: ActionScopeGlobal
+  @sendToAllWindows: ActionScopeGlobal
 
   ###
   Public: Queue a {Task} object to the {TaskQueue}.
@@ -412,10 +405,22 @@ class Actions
   *Scope: Window*
 
   ```
-  Actions.sendDraft('123')
+  Actions.sendDraft('123', action)
   ```
   ###
   @sendDraft: ActionScopeWindow
+  @willPerformSendAction: ActionScopeGlobal
+  @didPerformSendAction: ActionScopeGlobal
+  @didCancelSendAction: ActionScopeGlobal
+  ###
+  Public: Fired when a draft is successfully sent
+  *Scope: Global*
+
+  Recieves the clientId of the message that was sent
+  ###
+  @sendDraftSuccess: ActionScopeGlobal
+  @sendDraftFailed: ActionScopeGlobal
+
   @sendManyDrafts: ActionScopeWindow
   @ensureDraftSynced: ActionScopeWindow
 

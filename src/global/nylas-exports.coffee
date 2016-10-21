@@ -93,8 +93,6 @@ class NylasExports
   @lazyLoadAndRegisterTask "EventRSVPTask", 'event-rsvp-task'
   @lazyLoadAndRegisterTask "BaseDraftTask", 'base-draft-task'
   @lazyLoadAndRegisterTask "SendDraftTask", 'send-draft-task'
-  @lazyLoadAndRegisterTask "MultiSendToIndividualTask", 'multi-send-to-individual-task'
-  @lazyLoadAndRegisterTask "MultiSendSessionCloseTask", 'multi-send-session-close-task'
   @lazyLoadAndRegisterTask "ChangeMailTask", 'change-mail-task'
   @lazyLoadAndRegisterTask "DestroyDraftTask", 'destroy-draft-task'
   @lazyLoadAndRegisterTask "ChangeLabelsTask", 'change-labels-task'
@@ -107,9 +105,12 @@ class NylasExports
   @lazyLoadAndRegisterTask "DestroyCategoryTask", 'destroy-category-task'
   @lazyLoadAndRegisterTask "SyncbackCategoryTask", 'syncback-category-task'
   @lazyLoadAndRegisterTask "SyncbackMetadataTask", 'syncback-metadata-task'
+  @lazyLoadAndRegisterTask "PerformSendActionTask", 'perform-send-action-task'
   @lazyLoadAndRegisterTask "SyncbackDraftFilesTask", 'syncback-draft-files-task'
   @lazyLoadAndRegisterTask "ReprocessMailRulesTask", 'reprocess-mail-rules-task'
   @lazyLoadAndRegisterTask "NotifyPluginsOfSendTask", 'notify-plugins-of-send-task'
+  @lazyLoadAndRegisterTask "MultiSendToIndividualTask", 'multi-send-to-individual-task'
+  @lazyLoadAndRegisterTask "MultiSendSessionCloseTask", 'multi-send-session-close-task'
 
   # Stores
   # These need to be required immediately since some Stores are
@@ -132,6 +133,7 @@ class NylasExports
   @lazyLoadAndRegisterStore "WorkspaceStore", 'workspace-store'
   @lazyLoadAndRegisterStore "MailRulesStore", 'mail-rules-store'
   @lazyLoadAndRegisterStore "FileUploadStore", 'file-upload-store'
+  @lazyLoadAndRegisterStore "SendActionsStore", 'send-actions-store'
   @lazyLoadAndRegisterStore "ThreadCountsStore", 'thread-counts-store'
   @lazyLoadAndRegisterStore "FileDownloadStore", 'file-download-store'
   @lazyLoadAndRegisterStore "UpdateChannelStore", 'update-channel-store'

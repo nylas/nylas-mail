@@ -6,7 +6,7 @@ NylasStore = require 'nylas-store'
 Actions = require '../actions'
 Utils = require '../models/utils'
 Message = require('../models/message').default
-DraftStore = require './draft-store'
+DraftStore = require('./draft-store').default
 DatabaseStore = require('./database-store').default
 
 Promise.promisifyAll(fs)

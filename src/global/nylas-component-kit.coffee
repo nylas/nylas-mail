@@ -71,6 +71,8 @@ class NylasComponentKit
   @loadFrom "SelectableTableCell", "selectable-table"
   @load "EditableTable", "editable-table"
   @loadFrom "EditableTableCell", "editable-table"
+  @load "Toast", "toast"
+  @load "UndoToast", "undo-toast"
   @load "LazyRenderedList", "lazy-rendered-list"
   @load "OverlaidComponents", "overlaid-components/overlaid-components"
   @load "OverlaidComposerExtension", "overlaid-components/overlaid-composer-extension"

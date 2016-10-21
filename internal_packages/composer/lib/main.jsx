@@ -2,7 +2,6 @@
 import _ from 'underscore';
 import React from 'react';
 import {remote} from 'electron';
-
 import {
   Message,
   Actions,
@@ -13,9 +12,7 @@ import {
   InflatesDraftClientId,
   CustomContenteditableComponents,
 } from 'nylas-exports';
-
 import {OverlaidComposerExtension} from 'nylas-component-kit'
-
 import ComposeButton from './compose-button';
 import ComposerView from './composer-view';
 import ImageUploadComposerExtension from './image-upload-composer-extension';
@@ -107,7 +104,6 @@ class ComposerWithWindowProps extends React.Component {
 }
 
 export function activate() {
-  ExtensionRegistry.Composer.register(OverlaidComposerExtension, {priority: 1})
   if (NylasEnv.isMainWindow()) {
     ComponentRegistry.register(ComposerViewForDraftClientId, {
       role: 'Composer',
@@ -126,6 +122,7 @@ export function activate() {
     });
   }
 
+  ExtensionRegistry.Composer.register(OverlaidComposerExtension, {priority: 1})
   ExtensionRegistry.Composer.register(ImageUploadComposerExtension);
   CustomContenteditableComponents.register("InlineImageUploadContainer", InlineImageUploadContainer);
 }
@@ -137,6 +134,7 @@ export function deactivate() {
   } else {
     ComponentRegistry.unregister(ComposerWithWindowProps);
   }
+
   ExtensionRegistry.Composer.unregister(OverlaidComposerExtension)
   ExtensionRegistry.Composer.unregister(ImageUploadComposerExtension);
   CustomContenteditableComponents.unregister("InlineImageUploadContainer");

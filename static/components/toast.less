@@ -1,0 +1,53 @@
+@import "ui-variables";
+
+.nylas-toast {
+  position: absolute;
+  bottom: 10px;
+  z-index: 100;
+  width:100%;
+  text-align: center;
+  pointer-events: none;
+
+  .nylas-toast-wrap {
+    height: 45px;
+    display:inline-block;
+    padding-top: 12px;
+    opacity: 0.9;
+    border-radius: @border-radius-base;
+    background: @gray-darker;
+    white-space:nowrap;
+    cursor:default;
+    pointer-events: initial;
+    display: inline-flex;
+    flex-direction:row;
+    max-width:90%;
+  }
+}
+
+body.platform-win32 {
+  .nylas-toast-wrap {
+    border-radius: 0;
+  }
+}
+
+.nylas-toast-item-enter {
+  opacity: 0.01;
+  transform: translate3d(0, 10px, 0);
+  transition: all .15s ease-out;
+}
+
+.nylas-toast-item-enter.nylas-toast-item-enter-active {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.nylas-toast-item-leave {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition: all .15s ease-in;
+}
+
+.nylas-toast-item-leave.nylas-toast-item-leave-active {
+  transform: translate3d(0, 10px, 0);
+  opacity: 0.01;
+}
