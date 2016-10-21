@@ -159,7 +159,7 @@ class InjectedComponent extends React.Component
       Object.defineProperty(@, method,
         configurable: true
         enumerable: true
-        value: (args...)=>
+        value: (args...) =>
           @_runInnerDOMMethod(method, args...)
       )
 

@@ -1,7 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import {remote} from 'electron'
-
 import {
   Utils,
   Actions,
@@ -9,7 +8,6 @@ import {
   DraftHelpers,
   FileDownloadStore,
 } from 'nylas-exports'
-
 import {
   DropZone,
   RetinaImg,
@@ -422,7 +420,7 @@ export default class ComposerView extends React.Component {
           matching={{role: "Composer:SendActionButton"}}
           fallback={SendActionButton}
           requiredMethods={[
-            'primaryClick',
+            'primarySend',
           ]}
           exposedProps={{
             draft: this.props.draft,
@@ -586,7 +584,7 @@ export default class ComposerView extends React.Component {
   }
 
   _onPrimarySend = () => {
-    this.refs.sendActionButton.primaryClick();
+    this.refs.sendActionButton.primarySend();
   }
 
   _onDestroyDraft = () => {

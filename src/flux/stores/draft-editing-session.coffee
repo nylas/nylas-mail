@@ -103,7 +103,7 @@ class DraftEditingSession
   @include Listener
 
   constructor: (@draftClientId, draft = null) ->
-    DraftStore ?= require './draft-store'
+    DraftStore ?= require('./draft-store').default
     @listenTo DraftStore, @_onDraftChanged
 
     @_draft = false

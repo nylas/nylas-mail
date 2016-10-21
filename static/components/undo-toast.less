@@ -1,0 +1,29 @@
+@import "ui-variables";
+
+.nylas-undo-toast {
+
+  .undo-message-wrapper {
+    flex: 1;
+    flex-shrink: 1;
+    margin-left: 16px;
+    margin-right: 30px;
+    color: @background-primary;
+    overflow:hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+  }
+
+  .undo-action-wrapper {
+    flex-shrink: 0;
+    margin-right: 15px;
+    white-space:nowrap;
+
+    img {
+      background-color: @background-primary;
+    }
+    .undo-action-text {
+      margin-left: 5px;
+      color: @background-primary;
+    }
+  }
+}

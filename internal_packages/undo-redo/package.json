@@ -8,6 +8,10 @@
   "engines": {
     "nylas": "*"
   },
+  "windowTypes": {
+    "default": true,
+    "thread-popout": true
+  },
   "dependencies": {
   }
 }

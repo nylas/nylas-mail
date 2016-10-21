@@ -93,9 +93,15 @@ module.exports =
           defaultSendType:
             type: 'string'
             default: 'send'
-            enum: ['send', 'send-and-archive']
-            enumLabels: ['Send', 'Send and Archive']
+            enum: ['send']
+            enumLabels: ['Send']
             title: "Default send behavior"
+          undoSend:
+            type: 'number'
+            default: 3000
+            enum: [3000, 10000, 15000, 0]
+            enumLabels: ['3 seconds', '10 seconds', '15 seconds', 'Disable']
+            title: "After sending, enable undo for"
       notifications:
         type: 'object'
         properties:

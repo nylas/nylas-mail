@@ -484,8 +484,9 @@ export default class Task {
   //
   // Any task that passes the truth test will be considered a "dependency".
   //
-  // if (a "dependency" has a `Task.Status.Failed`, then all downstream)
-  // tasks will get dequeued recursively.
+  // if a "dependency" has a `Task.Status.Failed`, then all downstream
+  // tasks will get dequeued recursively for any of the downstream tasks that
+  // return true for `shouldBeDequeuedOnDependencyFailure`
   //
   // A task will also never be run at the same time as one of its
   // dependencies.

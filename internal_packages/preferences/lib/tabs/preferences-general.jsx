@@ -72,7 +72,10 @@ class PreferencesGeneral extends React.Component {
           config={this.props.config}
         />
 
-        <SendingSection config={this.props.config} configSchema={this.props.configSchema} />
+        <SendingSection
+          config={this.props.config}
+          configSchema={this.props.configSchema}
+        />
 
         <ConfigSchemaItem
           configSchema={this.props.configSchema.properties.attachments}

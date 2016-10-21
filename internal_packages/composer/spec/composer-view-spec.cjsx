@@ -1,6 +1,4 @@
 _ = require "underscore"
-proxyquire = require "proxyquire"
-
 React = require "react"
 ReactDOM = require 'react-dom'
 ReactTestUtils = require('react-addons-test-utils')
@@ -279,18 +277,18 @@ describe "ComposerView", ->
     it "sends when you click the send button", ->
       useFullDraft.apply(@); makeComposer.call(@)
       sendBtn = @composer.refs.sendActionButton
-      sendBtn.primaryClick()
-      expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID)
+      sendBtn.primarySend()
+      expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID, 'send')
       expect(Actions.sendDraft.calls.length).toBe 1
 
     it "doesn't send twice if you double click", ->
       useFullDraft.apply(@); makeComposer.call(@)
       sendBtn = @composer.refs.sendActionButton
-      sendBtn.primaryClick()
+      sendBtn.primarySend()
       @isSending = true
       DraftStore.trigger()
-      sendBtn.primaryClick()
-      expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID)
+      sendBtn.primarySend()
+      expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID, 'send')
       expect(Actions.sendDraft.calls.length).toBe 1
 
     describe "when sending a message with keyboard inputs", ->
@@ -300,23 +298,18 @@ describe "ComposerView", ->
         @$composer = @composer.refs.composerWrap
 
       it "sends the draft on cmd-enter", ->
-        if process.platform is "darwin"
-          mod = 'command'
-        else
-          mod = 'ctrl'
-
         ReactDOM.findDOMNode(@$composer).dispatchEvent(new CustomEvent('composer:send-message'))
-        expect(Actions.sendDraft).toHaveBeenCalled()
+        expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID, 'send')
         expect(Actions.sendDraft.calls.length).toBe 1
 
       it "doesn't let you send twice", ->
         ReactDOM.findDOMNode(@$composer).dispatchEvent(new CustomEvent('composer:send-message'))
-        expect(Actions.sendDraft).toHaveBeenCalled()
+        expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID, 'send')
         expect(Actions.sendDraft.calls.length).toBe 1
         @isSending = true
         DraftStore.trigger()
         ReactDOM.findDOMNode(@$composer).dispatchEvent(new CustomEvent('composer:send-message'))
-        expect(Actions.sendDraft).toHaveBeenCalled()
+        expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID, 'send')
         expect(Actions.sendDraft.calls.length).toBe 1
 
   describe "drag and drop", ->

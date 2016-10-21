@@ -207,14 +207,14 @@ describe('DraftStore', function draftStore() {
 
     it("should close the window if it's a popout", () => {
       spyOn(NylasEnv, "close");
-      spyOn(DraftStore, "_isPopout").andReturn(true);
+      spyOn(NylasEnv, "isComposerWindow").andReturn(true);
       DraftStore._onDestroyDraft('abc');
       expect(NylasEnv.close).toHaveBeenCalled();
     });
 
     it("should NOT close the window if isn't a popout", () => {
       spyOn(NylasEnv, "close");
-      spyOn(DraftStore, "_isPopout").andReturn(false);
+      spyOn(NylasEnv, "isComposerWindow").andReturn(false);
       DraftStore._onDestroyDraft('abc');
       expect(NylasEnv.close).not.toHaveBeenCalled();
     });
@@ -399,11 +399,11 @@ describe('DraftStore', function draftStore() {
       spyOn(NylasEnv, "getWindowType").andReturn("other");
       spyOn(NylasEnv, "isMainWindow").andReturn(false);
       spyOn(NylasEnv, "close");
-      spyOn(DraftStore, "_isPopout").andCallThrough();
+      spyOn(NylasEnv, "isComposerWindow").andCallThrough();
       runs(() => {
         DraftStore._onSendDraft(this.draft.clientId);
       });
-      waitsFor(() => DraftStore._isPopout.calls.length > 0);
+      waitsFor(() => NylasEnv.isComposerWindow.calls.length > 0);
       runs(() => {
         expect(NylasEnv.close).not.toHaveBeenCalled();
       });
