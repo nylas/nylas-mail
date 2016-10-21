@@ -244,7 +244,7 @@ class AccountStore extends NylasStore
   emailAddresses: ->
     addresses = _.pluck((@accounts() ? []), "emailAddress")
     addresses = addresses.concat(_.pluck((@aliases() ? [])), "email")
-    return addresses
+    return _.compact(addresses)
 
   aliases: =>
     @_cachedGetter "aliases", =>
