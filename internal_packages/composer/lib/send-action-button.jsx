@@ -116,19 +116,19 @@ export default class SendActionButton extends React.Component {
     return {preferred, rest};
   }
 
-  _contentForAction = ({iconUrl}) => {
-    let plusHTML = "";
-    let additionalImg = false;
+  _contentForAction = ({buttonTitle, title, iconUrl}) => {
+    let additionalImg = null;
+
+    const actionTitle = buttonTitle ? buttonTitle : title;
 
     if (iconUrl) {
-      plusHTML = (<span>&nbsp;+&nbsp;</span>);
       additionalImg = (<RetinaImg url={iconUrl} mode={RetinaImg.Mode.ContentIsMask} />);
     }
 
     return (
       <span>
         <RetinaImg name="icon-composer-send.png" mode={RetinaImg.Mode.ContentIsMask} />
-        <span className="text">Send{plusHTML}</span>{additionalImg}
+        <span className="text">{actionTitle}</span>{additionalImg}
       </span>
     );
   }
