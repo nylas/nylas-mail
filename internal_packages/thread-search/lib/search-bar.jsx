@@ -88,6 +88,12 @@ export default class SearchBar extends React.Component {
     }, 150);
   }
 
+  _onKeyDown = (event) => {
+    if (event.keyCode === 27) {
+      this._onClearAndBlur();
+    }
+  }
+
   _doSearch = () => {
     SearchActions.querySubmitted(this.state.query);
   }
@@ -139,6 +145,7 @@ export default class SearchBar extends React.Component {
         onChange={this._onValueChange}
         onFocus={this._onFocus}
         onBlur={this._onBlur}
+        onKeyDown={this._onKeyDown}
       />,
       loupeImg,
       <RetinaImg
