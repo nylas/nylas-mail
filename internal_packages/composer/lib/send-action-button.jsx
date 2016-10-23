@@ -122,7 +122,12 @@ export default class SendActionButton extends React.Component {
     const actionTitle = buttonTitle ? buttonTitle : title;
 
     if (iconUrl) {
-      additionalImg = (<RetinaImg url={iconUrl} mode={RetinaImg.Mode.ContentIsMask} />);
+      additionalImg = (
+        <span className="additional">
+          &nbsp;
+          <RetinaImg url={iconUrl} mode={RetinaImg.Mode.ContentIsMask} />
+        </span>
+      );
     }
 
     return (
