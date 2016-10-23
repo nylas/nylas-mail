@@ -119,7 +119,7 @@ export default class SendActionButton extends React.Component {
   _contentForAction = ({buttonTitle, title, iconUrl}) => {
     let additionalImg = null;
 
-    const actionTitle = buttonTitle ? buttonTitle : title;
+    const actionTitle = buttonTitle || title;
 
     if (iconUrl) {
       additionalImg = (
