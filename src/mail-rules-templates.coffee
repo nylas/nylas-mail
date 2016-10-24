@@ -1,4 +1,3 @@
-_ = require 'underscore'
 NylasObservables = require 'nylas-observables'
 {Template} = require './components/scenario-editor-models'
 
@@ -6,38 +5,38 @@ ConditionTemplates = [
   new Template('from', Template.Type.String, {
     name: 'From',
     valueForMessage: (message) ->
-      _.pluck(message.from, 'email')
+      [].concat(message.from.map((c) -> c.email), message.from.map((c) -> c.name))
   })
 
   new Template('to', Template.Type.String, {
     name: 'To',
     valueForMessage: (message) ->
-      _.pluck(message.to, 'email')
+      [].concat(message.to.map((c) -> c.email), message.to.map((c) -> c.name))
   })
 
   new Template('cc', Template.Type.String, {
     name: 'Cc',
     valueForMessage: (message) ->
-      _.pluck(message.cc, 'email')
+      [].concat(message.cc.map((c) -> c.email), message.cc.map((c) -> c.name))
   })
 
   new Template('bcc', Template.Type.String, {
     name: 'Bcc',
     valueForMessage: (message) ->
-      _.pluck(message.bcc, 'email')
+      [].concat(message.bcc.map((c) -> c.email), message.bcc.map((c) -> c.name))
   })
 
   new Template('anyRecipient', Template.Type.String, {
     name: 'Any Recipient',
     valueForMessage: (message) ->
       recipients = [].concat(message.to, message.cc, message.bcc, message.from)
-      _.pluck(recipients, 'email')
+      [].concat(recipients.map((c) -> c.email), recipients.map((c) -> c.name))
   })
 
   new Template('anyAttachmentName', Template.Type.String, {
     name: 'Any attachment name',
     valueForMessage: (message) ->
-      _.pluck(message.files, 'filename')
+      message.files.map((f) -> f.filename)
   })
 
   new Template('starred', Template.Type.Enum, {
