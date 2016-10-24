@@ -2,7 +2,7 @@ import Rx from 'rx-lite'
 import React from 'react'
 import moment from 'moment'
 import {DatabaseStore, AccountStore, Calendar} from 'nylas-exports'
-import {ScrollRegion, ResizableRegion} from 'nylas-component-kit'
+import {ScrollRegion, ResizableRegion, MiniMonthView} from 'nylas-component-kit'
 
 import WeekView from './week-view'
 import MonthView from './month-view'
@@ -133,16 +133,21 @@ export default class NylasCalendar extends React.Component {
     this.setState({currentMoment})
   }
 
+  _changeCurrentMomentFromValue = (value) => {
+    this.setState({currentMoment: moment(value)})
+  }
+
   render() {
     const CurrentView = this._getCurrentViewComponent();
     return (
       <div className="nylas-calendar">
         <ResizableRegion
           className="calendar-toggles"
-          initialWidth={175}
-          minWidth={125}
-          maxWidth={275}
+          initialWidth={200}
+          minWidth={200}
+          maxWidth={300}
           handle={ResizableRegion.Handle.Right}
+          style={{flexDirection: 'column'}}
         >
           <ScrollRegion style={{flex: 1}}>
             <CalendarToggles
@@ -151,6 +156,13 @@ export default class NylasCalendar extends React.Component {
               disabledCalendars={this.state.disabledCalendars}
             />
           </ScrollRegion>
+          <div style={{width: "100%"}}>
+            <MiniMonthView
+              value={this.state.currentMoment.valueOf()}
+              onChange={this._changeCurrentMomentFromValue}
+            />
+          </div>
+
         </ResizableRegion>
         <CurrentView
           dataSource={this.props.dataSource}

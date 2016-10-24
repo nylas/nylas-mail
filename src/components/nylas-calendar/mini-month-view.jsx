@@ -58,6 +58,7 @@ export default class MiniMonthView extends React.Component {
   }
 
   _onClickDay = (event) => {
+    if (!event.target.dataset.timestamp) { return }
     const newVal = moment(parseInt(event.target.dataset.timestamp, 10)).valueOf()
     this.props.onChange(newVal)
   }
@@ -70,9 +71,10 @@ export default class MiniMonthView extends React.Component {
     const dayIter = this._shownMonthMoment().date(1);
     const startWeek = dayIter.week();
     const curMonth = this.state.shownMonth;
+    const endWeek = moment(dayIter).date(dayIter.daysInMonth()).week();
     const weekEls = []
     const valDay = moment(this.props.value)
-    for (let week = startWeek; week < 5 + startWeek; week++) {
+    for (let week = startWeek; week <= endWeek; week++) {
       dayIter.week(week); // Locale aware!
       const dayEls = []
       for (let weekday = 0; weekday < 7; weekday++) {
@@ -106,7 +108,7 @@ export default class MiniMonthView extends React.Component {
             className="btn btn-icon"
             onClick={_.partial(this._changeMonth, -1)}
           >&lsaquo;</div>
-          <span className="title">{this._shownMonthMoment().format("MMMM YYYY")}</span>
+          <span className="month-title">{this._shownMonthMoment().format("MMMM YYYY")}</span>
           <div
             className="btn btn-icon"
             onClick={_.partial(this._changeMonth, 1)}
