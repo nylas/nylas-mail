@@ -150,6 +150,8 @@ const CreatePageForForm = (FormComponent) => {
         throw new Error(`Cannot find account type ${accountInfo.type}`);
       }
 
+      const hideTitle = errorMessage && errorMessage.length > 120;
+
       return (
         <div className={`page account-setup ${FormComponent.displayName}`}>
           <div className="logo-container">
@@ -160,9 +162,7 @@ const CreatePageForForm = (FormComponent) => {
               className="logo"
             />
           </div>
-          <h2>
-            {FormComponent.titleLabel(AccountType)}
-          </h2>
+          {hideTitle ? <div style={{height: 20}} /> : <h2>{FormComponent.titleLabel(AccountType)}</h2>}
           <FormErrorMessage
             message={errorMessage}
             empty={FormComponent.subtitleLabel(AccountType)}
