@@ -144,10 +144,11 @@ module.exports = (grunt) ->
     ignoredPaths.push "#{escapeRegExp(path.sep)}linker\\.lock$"
     ignoredPaths.push "#{escapeRegExp(path.join('build', 'Release') + path.sep)}.+\\.node\\.dSYM"
 
-    # Hunspell dictionaries are only not needed on OS X.
-    if process.platform is 'darwin'
-      ignoredPaths.push path.join('spellchecker', 'vendor', 'hunspell_dictionaries')
+    # https://github.com/paulcbetts/node-cld#warning
+    ignoredPaths.push path.join('@paulcbetts', 'cld', 'deps', 'cld')
+
     ignoredPaths = ignoredPaths.map (ignoredPath) -> "(#{ignoredPath})"
+
 
     testFolderPattern = new RegExp("#{escapeRegExp(path.sep)}te?sts?#{escapeRegExp(path.sep)}")
     exampleFolderPattern = new RegExp("#{escapeRegExp(path.sep)}examples?#{escapeRegExp(path.sep)}")

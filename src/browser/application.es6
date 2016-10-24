@@ -699,6 +699,7 @@ export default class Application extends EventEmitter {
 
     if (!main) {
       console.log(`Ignoring URL - main window is not available, user may not be authed.`);
+      return;
     }
 
     if (parts.protocol === 'mailto:') {

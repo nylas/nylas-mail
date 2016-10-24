@@ -1,8 +1,5 @@
 import React from 'react';
-import {remote} from 'electron';
-import {EdgehillAPI} from 'nylas-exports';
-
-const autoUpdater = remote.getGlobal('application').autoUpdateManager;
+import {UpdateChannelStore} from 'nylas-exports';
 
 class UpdateChannelSection extends React.Component {
 
@@ -10,49 +7,32 @@ class UpdateChannelSection extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      current: {name: 'Loading...'},
-      available: [{name: 'Loading...'}],
-    }
+    this.state = this.getStateFromStores();
   }
 
   componentDidMount() {
-    this._refreshChannel();
-    this._mounted = true;
+    this._unsub = UpdateChannelStore.listen(() => {
+      this.setState(Object.assign(this.getStateFromStores(), {saving: false}));
+    });
+    UpdateChannelStore.refreshChannel();
   }
 
   componentWillUnmount() {
-    this._mounted = false;
+    if (this._unsub) {
+      this._unsub();
+    }
   }
 
-  _refreshChannel() {
-    EdgehillAPI.makeRequest({
-      method: 'GET',
-      path: `/update-channel`,
-      qs: autoUpdater.parameters(),
-      json: true,
-    }).then(({current, available}) => {
-      if (!this._mounted) { return; }
-      this.setState({current, available});
-    });
+  getStateFromStores() {
+    return {
+      current: UpdateChannelStore.current(),
+      available: UpdateChannelStore.available(),
+    }
   }
 
   _onSelectedChannel = (event) => {
-    const channel = event.target.value;
-
     this.setState({saving: true});
-
-    EdgehillAPI.makeRequest({
-      method: 'POST',
-      path: `/update-channel`,
-      qs: Object.assign({channel}, autoUpdater.parameters()),
-      json: true,
-    }).then(({current, available}) => {
-      this.setState({current, available, saving: false});
-    }).catch((err) => {
-      this.setState({saving: false});
-      NylasEnv.showErrorDialog(err.toString())
-    });
+    UpdateChannelStore.setChannel(event.target.value);
   }
 
   render() {
@@ -63,6 +43,13 @@ class UpdateChannelSection extends React.Component {
     let allowed = available;
     if (current && current.name.toLowerCase() !== 'salesforce') {
       allowed = available.filter(c => c.name.toLowerCase() !== 'salesforce');
+    }
+
+    const displayNameForChannel = (channel) => {
+      if (channel.name === 'beta') {
+        return 'Beta (Unstable)'
+      }
+      return channel.name[0].toUpperCase() + channel.name.substr(1)
     }
 
     return (
@@ -79,7 +66,7 @@ class UpdateChannelSection extends React.Component {
           {
             allowed.map((channel) => {
               return (<option value={channel.name} key={channel.name}>
-                {channel.name[0].toUpperCase() + channel.name.substr(1)}
+                {displayNameForChannel(channel)}
               </option>);
             })
           }
