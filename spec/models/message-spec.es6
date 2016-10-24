@@ -31,7 +31,7 @@ const almostMe = new Contact({
   email: "tester+12345@nylas.com",
 });
 
-fdescribe("Message", () => {
+describe("Message", () => {
   describe("detecting empty bodies", () => {
     const cases = [
       {
