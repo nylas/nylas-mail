@@ -68,11 +68,7 @@ class FocusedContactsStore extends NylasStore
     @_currentParticipantThreads = []
 
     if contact
-      query = DatabaseStore.findBy(Contact, {
-        accountId: @_currentThread.accountId,
-        email: contact.email,
-        name: contact.name,
-      })
+      query = DatabaseStore.findBy(Contact, {email: contact.email})
       @_unsubFocusedContact = Rx.Observable.fromQuery(query).subscribe (match) =>
         @_currentFocusedContact = match ? contact
         @trigger()
