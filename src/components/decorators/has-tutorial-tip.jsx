@@ -118,6 +118,10 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
     }
 
     componentDidMount() {
+      if (super.componentDidMount) {
+        super.componentDidMount();
+      }
+
       TipsStore.mountedTip(TipKey);
 
       this._unlisteners = [
@@ -149,13 +153,20 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
       this._onTooltipStateChanged();
     }
 
-    componentDidUpdate() {
+    componentDidUpdate(...args) {
+      if (super.componentDidUpdate) {
+        super.componentDidUpdate(...args);
+      }
       if (this.state.visible) {
         this._onRecomputeTooltipPosition();
       }
     }
 
     componentWillUnmount() {
+      if (super.componentWillUnmount) {
+        super.componentWillUnmount();
+      }
+
       this._unlisteners.forEach((unlisten) => unlisten())
       this._disposables.forEach((disposable) => disposable.dispose())
 
