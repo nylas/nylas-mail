@@ -116,7 +116,7 @@ class FormItem extends React.Component
     else
       <div className={classes} ref="inputWrap">
         <div className="label-area">
-          <label for={@props.id}>{label}</label>
+          <label htmlFor={@props.id}>{label}</label>
         </div>
         <div className="input-area">
           {@_renderInput()}
