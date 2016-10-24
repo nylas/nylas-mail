@@ -239,6 +239,9 @@ Utils =
     email2 = Utils.toEquivalentEmailForm(email2)
     return email1 is email2
 
+  stringifyContacts: (contacts=[]) ->
+    contacts.map((c) -> "#{c}").join(', ')
+
   rectVisibleInRect: (r1, r2) ->
     return !(r2.left > r1.right ||  r2.right < r1.left ||  r2.top > r1.bottom || r2.bottom < r1.top)
 

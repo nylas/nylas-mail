@@ -457,4 +457,67 @@ describe("Message", () => {
   });
 
   describe("participantsForReplyAll", () => {});
+
+  describe('toRaw', () => {
+    describe('subject', () => {
+      it('works', () => {
+        const message = new Message({
+          from: [evan],
+          to: [ben],
+          subject: 'Foo Bar',
+        });
+        expect(message.toRaw().trim()).toEqual(`
+Return-Path: <${evan.email}>
+Date: ${message.rfc822Date()}
+Message-Id: <${message.id}-0@mailer.nylas.com>
+To: ${ben}
+From: ${evan}
+Subject: Foo Bar
+Mime-Version: 1.0
+        `.trim());
+      });
+    });
+
+    describe('body', () => {
+      it('works', () => {
+        const message = new Message({
+          from: [evan],
+          to: [ben],
+          body: 'Foo Bar',
+        });
+        expect(message.toRaw().trim()).toEqual(`
+Return-Path: <${evan.email}>
+Date: ${message.rfc822Date()}
+Message-Id: <${message.id}-0@mailer.nylas.com>
+To: ${ben}
+From: ${evan}
+Subject: 
+Mime-Version: 1.0
+
+Foo Bar
+        `.trim());
+      });
+
+      it('converts html', () => {
+        const message = new Message({
+          from: [evan],
+          to: [ben],
+          body: 'Foo Bar\n\n<a href="https://nylas.com/N1">Nylas N1</a>',
+        });
+        expect(message.toRaw().trim()).toEqual(`
+Return-Path: <${evan.email}>
+Date: ${message.rfc822Date()}
+Message-Id: <${message.id}-0@mailer.nylas.com>
+To: ${ben}
+From: ${evan}
+Subject: 
+Mime-Version: 1.0
+
+Foo Bar
+
+[Nylas N1](https://nylas.com/N1)
+        `.trim());
+      });
+    });
+  });
 });
