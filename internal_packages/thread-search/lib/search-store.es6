@@ -117,17 +117,17 @@ class SearchStore extends NylasStore {
     if (this._fetchingThreadResultsVersion) { return; }
     this._fetchingThreadResultsVersion = this._searchSuggestionsVersion;
 
-    const databaseQuery = DatabaseStore.findAll(Thread)
-      .where(Thread.attributes.subject.like(this._searchQuery))
+    const {accountIds} = FocusedPerspectiveStore.current();
+    let dbQuery = DatabaseStore.findAll(Thread)
+    if (Array.isArray(accountIds) && accountIds.length === 1) {
+      dbQuery = dbQuery.where({accountId: accountIds[0]})
+    }
+    dbQuery = dbQuery
+      .search(this._searchQuery)
       .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
       .limit(4);
 
-    const {accountIds} = FocusedPerspectiveStore.current();
-    if (accountIds instanceof Array) {
-      databaseQuery.where(Thread.attributes.accountId.in(accountIds));
-    }
-
-    databaseQuery.then(results => {
+    dbQuery.then(results => {
       // We've fetched the latest thread results - display them!
       if (this._searchSuggestionsVersion === this._fetchingThreadResultsVersion) {
         this._fetchingThreadResultsVersion = null;
