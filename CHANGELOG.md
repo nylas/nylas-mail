@@ -1,5 +1,59 @@
 # N1 Changelog
 
+### 0.4.59 (10/24/16)
+
+- Features:
+
+  + Spellchecker: Spellchecker now intelligently detects different languages
+    across Windows, Mac and Linux.
+  + You can now select N1 as the default mail client on Windows.
+  + You can now open threads in a new window.
+  + You can now pick which of your calendars you want displayed in the calendar
+    view when proposing times to meet.
+  + Automatically add N1 to the dock on install (Mac only).
+
+- Fixes:
+
+  + N1 no longer becomes locked when offline.
+  + Thread sharing popover is now correctly closed when blurred or when a new
+    thread is selected.
+  + Tutorial tips are now correctly positioned when the theme is changed and
+    correctly hidden when the element they are attached to is not visible.
+  + Spellchecker no longer spellchecks `<code>`, `<a>`, `<pre>` tags.
+  + Inline Images: When download mode is “manual”, add an option to manually
+    download inline images.
+  + Mail Merge now correctly sends inline images
+  + Mail Rules: Allow recipient filters to contain names (#2942)
+  + Correctly detect dev mode. This will prevent errors from popping out in the
+    developer console unless you are actually running in dev mode.
+  + When copying participants, include space (#2871).
+  + Notifications will no longer error when the thread is not found.
+  + Phishing now correctly handles scenarios where input is malformed.
+  + QuickReplies now correctly handles errors when scanning templates directory.
+  + Enabled click regions on margins of composer.
+  + In composer, can now Shift-Tab back to the subject correctly.
+  + Allow mailto links to have bodies with \n or \r characters.
+  + Prevent tutorial tips from breaking send later button.
+  + Add preview as recipient toggle back to composer.
+  + No longer display outdated welcome message in the onboarding window.
+
+- Design:
+
+  + All notification bars previously displayed at the top of the main window are
+    now displayed in the lower left side of the window with an improved design.
+
+- Development:
+
+  + We switched our SQLite bindings from `node-sqlite3` to `better-sqlite3`
+    which improves query performance by ~28%, and fixes an error which
+    caused the database to become locked.
+  + Dev mode: No longer store devMode flag in `config.json` to prevent the
+    production build from incorrectly running in dev mode.
+    Rather, run N1 with `--dev` flag.
+  + All database-related code (ORM) has been transitioned to ES6.
+  + Improve spec bootup process.
+
+
 ### 0.4.56 (9/29/16)
 
 - Features:
