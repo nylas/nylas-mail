@@ -1,6 +1,5 @@
 /* eslint global-require:0 */
 import _ from 'underscore';
-import Grim from 'grim';
 import ReactTestUtils from 'react-addons-test-utils';
 
 import Config from '../../src/config'
@@ -142,15 +141,6 @@ class N1SpecRunner {
         return this.append(obj.inspect());
       }
       return origEmitObject.call(this, obj);
-    };
-
-    let deprecationsSnapshot = null;
-    jasmine.snapshotDeprecations = () => {
-      deprecationsSnapshot = Object.assign({}, Grim.deprecations);
-    }
-
-    jasmine.restoreDeprecationsSnapshot = () => {
-      Grim.deprecations = deprecationsSnapshot
     };
   }
 }

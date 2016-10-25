@@ -32,11 +32,7 @@ describe "ThemeManager", ->
 
   describe "theme getters and setters", ->
     beforeEach ->
-      jasmine.snapshotDeprecations()
       NylasEnv.packages.loadPackages()
-
-    afterEach ->
-      jasmine.restoreDeprecationsSnapshot()
 
     it 'getLoadedThemes get all the loaded themes', ->
       themes = themeManager.getLoadedThemes()
@@ -169,11 +165,7 @@ describe "ThemeManager", ->
       expect(console.warn.argsForCall[0][0]).toContain "Could not resolve 'a-theme-that-will-not-be-found'"
 
   describe "::requireStylesheet(path)", ->
-    beforeEach ->
-      jasmine.snapshotDeprecations()
-
     afterEach ->
-      jasmine.restoreDeprecationsSnapshot()
       themeManager.removeStylesheet(path.join(__dirname, '..', 'fixtures', 'css.css'))
       themeManager.removeStylesheet(path.join(__dirname, '..', 'fixtures', 'sample.less'))
 

@@ -9,28 +9,28 @@
  * @type {Object}
  */
 var _MAP = {
-    8: 'backspace',
-    9: 'tab',
-    13: 'enter',
-    16: 'shift',
-    17: 'ctrl',
-    18: 'alt',
-    20: 'capslock',
-    27: 'esc',
-    32: 'space',
-    33: 'pageup',
-    34: 'pagedown',
-    35: 'end',
-    36: 'home',
-    37: 'left',
-    38: 'up',
-    39: 'right',
-    40: 'down',
-    45: 'ins',
-    46: 'del',
-    91: 'meta',
-    93: 'meta',
-    224: 'meta'
+    '8': 'backspace',
+    '9': 'tab',
+    '13': 'enter',
+    '16': 'shift',
+    '17': 'ctrl',
+    '18': 'alt',
+    '20': 'capslock',
+    '27': 'esc',
+    '32': 'space',
+    '33': 'pageup',
+    '34': 'pagedown',
+    '35': 'end',
+    '36': 'home',
+    '37': 'left',
+    '38': 'up',
+    '39': 'right',
+    '40': 'down',
+    '45': 'ins',
+    '46': 'del',
+    '91': 'meta',
+    '93': 'meta',
+    '224': 'meta'
 };
 
 /**
@@ -42,22 +42,22 @@ var _MAP = {
  * @type {Object}
  */
 var _KEYCODE_MAP = {
-    106: '*',
-    107: '+',
-    109: '-',
-    110: '.',
-    111 : '/',
-    186: ';',
-    187: '=',
-    188: ',',
-    189: '-',
-    190: '.',
-    191: '/',
-    192: '`',
-    219: '[',
-    220: '\\',
-    221: ']',
-    222: '\''
+    '106': '*',
+    '107': '+',
+    '109': '-',
+    '110': '.',
+    '111' : '/',
+    '186': ';',
+    '187': '=',
+    '188': ',',
+    '189': '-',
+    '190': '.',
+    '191': '/',
+    '192': '`',
+    '219': '[',
+    '220': '\\',
+    '221': ']',
+    '222': '\''
 };
 
 /**
@@ -160,8 +160,8 @@ function characterFromEvent(e) {
       return _MAP[e.which];
   }
 
-  if (_KEYCODE_MAP[e.which]) {
-      return _KEYCODE_MAP[e.which];
+  if (_KEYCODE_MAP[`${e.which}`]) {
+      return _KEYCODE_MAP[`${e.which}`];
   }
 
   // if it is not in the special map

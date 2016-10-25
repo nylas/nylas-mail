@@ -66,12 +66,6 @@ export function messageMentionsAttachment({body} = {}) {
   return (cleaned.indexOf("attach") >= 0);
 }
 
-export function queueDraftFileUploads(draft) {
-  if (draft.files.length > 0 || draft.uploads.length > 0) {
-    Actions.queueTask(new SyncbackDraftFilesTask(draft.clientId))
-  }
-}
-
 export function appendQuotedTextToDraft(draft) {
   const query = DatabaseStore.find(Message, draft.replyToMessageId).include(Message.attributes.body);
 
@@ -135,9 +129,11 @@ export function prepareDraftForSyncback(session) {
     return DatabaseStore.inTransaction((t) =>
       t.persistModel(draft)
     )
-    .then(() =>
-      Promise.resolve(queueDraftFileUploads(draft))
-    )
+    .then(() => {
+      if (draft.files.length > 0 || draft.uploads.length > 0) {
+        Actions.queueTask(new SyncbackDraftFilesTask(draft.clientId))
+      }
+    })
     .thenReturn(draft)
   })
 }
