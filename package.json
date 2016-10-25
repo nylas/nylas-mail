@@ -33,7 +33,6 @@
     "event-kit": "^1.0.2",
     "flow-bin": "0.33.0",
     "fs-plus": "^2.3.2",
-    "grim": "1.5.0",
     "guid": "0.0.10",
     "immutable": "3.7.5",
     "jasmine-json": "~0.0",
