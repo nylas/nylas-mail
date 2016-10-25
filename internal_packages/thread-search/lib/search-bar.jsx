@@ -20,7 +20,7 @@ export default class SearchBar extends React.Component {
 
   componentDidMount() {
     this._mounted = true;
-    this._unsubscribes = [
+    this._unsubscribers = [
       SearchStore.listen(this._onChange),
       WorkspaceStore.listen(() => {
         if (this.state.focused) {
@@ -30,18 +30,20 @@ export default class SearchBar extends React.Component {
     ];
   }
 
-  // It's important that every React class explicitly stops listening to
-  // N1 events before it unmounts. Thank you event-kit
-  // This can be fixed via a Reflux mixin
   componentWillUnmount() {
     this._mounted = false;
-    for (const usub of this._unsubscribes) {
-      usub();
-    }
+    this._unsubscribers.forEach((usub) => usub())
   }
 
   _onFocusSearch = () => {
     ReactDOM.findDOMNode(this.refs.searchInput).focus();
+  }
+
+  _onInputKeyDown = (event) => {
+    const {key, target: {value}} = event;
+    if (value.length > 0 && key === 'Escape') {
+      this._onClearAndBlur();
+    }
   }
 
   _onValueChange = (event) => {
@@ -136,6 +138,7 @@ export default class SearchBar extends React.Component {
         className={inputClass}
         placeholder="Search all email"
         value={query}
+        onKeyDown={this._onInputKeyDown}
         onChange={this._onValueChange}
         onFocus={this._onFocus}
         onBlur={this._onBlur}
@@ -168,7 +171,6 @@ export default class SearchBar extends React.Component {
         className="search-bar"
         globalHandlers={{
           'core:focus-search': this._onFocusSearch,
-          'search-bar:escape-search': this._onClearAndBlur,
         }}
       >
         <div>

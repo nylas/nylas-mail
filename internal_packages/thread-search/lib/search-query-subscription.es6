@@ -52,7 +52,11 @@ class SearchQuerySubscription extends MutableQuerySubscription {
     if (this._accountIds.length === 1) {
       dbQuery = dbQuery.where({accountId: this._accountIds[0]})
     }
-    dbQuery = dbQuery.search(this._searchQuery).limit(30)
+    dbQuery = dbQuery
+    .search(this._searchQuery)
+    .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
+    .limit(30)
+
     dbQuery.then((results) => {
       if (results.length > 0) {
         this.replaceQuery(dbQuery)
