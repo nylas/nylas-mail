@@ -11,8 +11,8 @@ export default class InlineImageUploadContainer extends Component {
 
   static propTypes = {
     draft: PropTypes.object.isRequired,
-    session: PropTypes.object.isRequired,
     uploadId: PropTypes.string.isRequired,
+    session: PropTypes.object,
     isPreview: PropTypes.bool,
   }
 
@@ -21,6 +21,10 @@ export default class InlineImageUploadContainer extends Component {
   }
 
   _onGoEdit = () => {
+    if (!this.props.session) {
+      console.warn("InlineImage editor cannot be activated, `session` prop not present. (isPreview?)")
+      return;
+    }
     // This is just a fun temporary hack because I was jealous of Apple Mail.
     //
     const el = ReactDOM.findDOMNode(this);

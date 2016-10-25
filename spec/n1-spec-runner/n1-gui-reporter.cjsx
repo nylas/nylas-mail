@@ -4,7 +4,6 @@ _str = require 'underscore.string'
 {convertStackTrace} = require 'coffeestack'
 React = require 'react'
 ReactDOM = require 'react-dom'
-grim = require 'grim'
 marked = require 'marked'
 
 sourceMaps = {}
@@ -82,7 +81,6 @@ class N1GuiReporter extends React.Component
       <div className="results">
         {@_renderFailures()}
       </div>
-      {@_renderDeprecations()}
       <div className="plain-text-output">
         {@props.plainTextOutput}
       </div>
@@ -124,42 +122,6 @@ class N1GuiReporter extends React.Component
 
     topLevelSuites.map (suite, idx) =>
       <SuiteResultView suite={suite} key={idx} allSpecs={failedSpecs} />
-
-  _renderDeprecations: =>
-    return if @props.deprecations.length is 0
-
-    if @props.deprecations.length is 1
-      label = "1 deprecation"
-    else
-      label = "#{@props.deprecations.length} deprecations"
-
-    <div className="status alert alert-warning">
-      <span>{label}</span>
-      <div className="deprecation-toggle">
-        <div className="deprecation-list">
-          {@_renderDeprecationList()}
-        </div>
-      </div>
-    </div>
-
-  _renderDeprecationList: =>
-    @props.deprecations.map (deprecation) =>
-      <div className="padded" key={deprecation.message}>
-        <div className="result-message fail deprecation-message">
-          {deprecation.message}
-          {
-            deprecation.getStacks().map (stack) =>
-              fullStack = stack.map ({functionName, location}) ->
-                if functionName is '<unknown>'
-                  "  at #{location}"
-                else
-                  "  at #{functionName} (#{location})"
-              <pre className="stack-trace padded">
-                {formatStackTrace(deprecation.spec, deprecation.message, fullStack.join('\n'))}
-              </pre>
-          }
-        </div>
-      </div>
 
   _renderStatus: =>
     failedCount = 0
@@ -258,14 +220,12 @@ document.body.appendChild(el)
 
 startedAt = null
 specs = []
-deprecations = []
 plainTextOutput = ""
 
 update = =>
   component = <N1GuiReporter
     startedAt={startedAt}
     specs={specs}
-    deprecations={deprecations}
   />
   ReactDOM.render(component, el)
 
@@ -284,10 +244,6 @@ module.exports =
 
   reportSpecResults: (spec) ->
     spec.endedAt = Date.now()
-    specDeprecations = grim.getDeprecations()
-    d.spec = spec for d in specDeprecations
-    deprecations = deprecations.concat(specDeprecations)
-    grim.clearDeprecations()
     updateSoon()
 
   reportPlainTextSpecResult: (spec) ->

@@ -1,7 +1,7 @@
 {
   "name": "nylas",
   "productName": "Nylas N1",
-  "version": "0.4.58",
+  "version": "0.4.59",
   "description": "An extensible, open-source mail client built on the modern web.",
   "main": "./src/browser/main.js",
   "repository": {
@@ -31,8 +31,8 @@
     "emoji-data": "^0.2.0",
     "enzyme": "^2.2.0",
     "event-kit": "^1.0.2",
+    "flow-bin": "0.33.0",
     "fs-plus": "^2.3.2",
-    "grim": "1.5.0",
     "guid": "0.0.10",
     "immutable": "3.7.5",
     "jasmine-json": "~0.0",
@@ -50,6 +50,7 @@
     "moment-timezone": "0.5.4",
     "mousetrap": "^1.5.3",
     "nock": "^2",
+    "node-mac-notifier": "0.0.13",
     "node-uuid": "^1.4",
     "nslog": "^3",
     "optimist": "0.4.0",
@@ -83,6 +84,7 @@
   },
   "packageDependencies": {},
   "scripts": {
+    "flow": "flow; test $? -eq 0 -o $? -eq 2",
     "test": "./N1.sh --test",
     "install-eslint-packages": "mv ./node_modules/better-sqlite3 ./better-sqlite3; npm install eslint@3.8.0 eslint-config-airbnb@12.0.0 eslint-plugin-import@1.16.0 eslint-plugin-jsx-a11y@2.2.3 eslint-plugin-react@6.4.1 babel-eslint@6.0.4 eslint_d@4.0.1; mv ./better-sqlite3 ./node_modules/better-sqlite3;"
   }
