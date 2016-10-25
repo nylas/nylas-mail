@@ -8,7 +8,6 @@ import {
   FocusedPerspectiveStore,
 } from 'nylas-exports';
 import fs from 'fs-plus';
-import Grim from 'grim';
 import {clipboard} from 'electron';
 import pathwatcher from 'pathwatcher';
 
@@ -55,9 +54,6 @@ class MasterBeforeEach {
     spyOn(NylasEnv.menu, 'sendToBrowserProcess');
 
     FocusedPerspectiveStore._current = MailboxPerspective.forNothing();
-
-    const isCoreSpec = this.loadSettings.specDirectory === fs.realpathSync(__dirname);
-    if (isCoreSpec) { Grim.clearDeprecations(); }
 
     spyOn(pathwatcher.File.prototype, "detectResurrectionAfterDelay").andCallFake(function detectResurrection() {
       return this.detectResurrection();

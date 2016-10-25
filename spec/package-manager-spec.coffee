@@ -143,24 +143,6 @@ describe "PackageManager", ->
           expect(NylasEnv.config.set('package-with-config-schema.numbers.one', '10')).toBe true
           expect(NylasEnv.config.get('package-with-config-schema.numbers.one')).toBe 10
 
-      describe "when a package has configDefaults", ->
-        beforeEach ->
-          jasmine.snapshotDeprecations()
-
-        afterEach ->
-          jasmine.restoreDeprecationsSnapshot()
-
-        # it "still assigns configDefaults from the module though deprecated", ->
-        #
-        #   expect(NylasEnv.config.get('package-with-config-defaults.numbers.one')).toBeUndefined()
-        #
-        #   waitsForPromise ->
-        #     NylasEnv.packages.activatePackage('package-with-config-defaults')
-        #
-        #   runs ->
-        #     expect(NylasEnv.config.get('package-with-config-defaults.numbers.one')).toBe 1
-        #     expect(NylasEnv.config.get('package-with-config-defaults.numbers.two')).toBe 2
-
     describe "when the package has no main module", ->
       it "does not throw an exception", ->
         spyOn(console, "error")
@@ -472,7 +454,6 @@ describe "PackageManager", ->
 
   describe "::activate()", ->
     beforeEach ->
-      jasmine.snapshotDeprecations()
       spyOn(console, 'warn')
       spyOn(console, "error")
       NylasEnv.packages.loadPackages()
@@ -483,7 +464,6 @@ describe "PackageManager", ->
     afterEach ->
       NylasEnv.packages.deactivatePackages()
       NylasEnv.packages.unloadPackages()
-      jasmine.restoreDeprecationsSnapshot()
 
     it "activates all the packages, and none of the themes", ->
       packageActivator = spyOn(NylasEnv.packages, 'activatePackages')
