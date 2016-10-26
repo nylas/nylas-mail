@@ -55,13 +55,18 @@ class ComposerExtension extends ContenteditableExtension
     ## TODO FIXME: The preferences does not yet know how to dynamically
     # pick these up. For now they are hard-coded.
 
+    - `buttonTitle`: The text that is displayed in the send button. Can be
+    used in combination with an icon by setting it to "Send + ", like what
+    is done in the SendAndArchiveExtension. When not set the `title` will
+    be used instead.
+
     - `onSend`: Callback for when your option is clicked as the primary
     action. The function will be passed `{draft}` as its only argument.
     It does not need to return anything. It may be asynchronous and likely
     queue Tasks.
 
     - `iconUrl`: A custom icon to be placed in the Send button. SendAction
-    extensions have the form "Send + {ICON}"
+    extensions have the form "{TITLE} {ICON}"
   ###
   @sendActionConfig: ({draft}) ->
 

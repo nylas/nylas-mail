@@ -13,6 +13,7 @@ class SendAndArchiveExtension extends ComposerExtension
     if draft.threadId
       return {
         title: "Send and Archive"
+        buttonTitle: "Send +"
         iconUrl: "nylas://send-and-archive/images/composer-archive@2x.png"
         onSend: @_sendAndArchive
       }
