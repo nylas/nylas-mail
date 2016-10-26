@@ -297,6 +297,10 @@ export default class TokenizingTextField extends React.Component {
     // option in the completions
     onInputTrySubmit: React.PropTypes.func,
 
+    // If implemented lets the caller determine when to cut a token based
+    // on the current input value and the current keydown.
+    shouldBreakOnKeydown: React.PropTypes.func,
+
     // Gets called when we remove a token
     //
     // It's passed an array of objects (the same ones used to render
@@ -423,7 +427,14 @@ export default class TokenizingTextField extends React.Component {
         this._onShiftSelection(delta, event);
         event.preventDefault();
       }
-    } else if (event.keyCode === 188) { // comma
+    }
+
+    if (this.props.shouldBreakOnKeydown) {
+      if (this.props.shouldBreakOnKeydown(event)) {
+        event.preventDefault();
+        this._onInputTrySubmit(event);
+      }
+    } else if (event.key === ',') { // comma
       event.preventDefault();
       this._onInputTrySubmit(event);
     }
@@ -519,14 +530,7 @@ export default class TokenizingTextField extends React.Component {
       inputValue: val,
     });
 
-    // If it looks like an email, and the last character entered was a
-    // space, then let's add the input value.
-    // TODO WHY IS THIS EMAIL RELATED?
-    if (RegExpUtils.emailRegex().test(val) && (_.last(val) === " ")) {
-      this._addInputValue(val.substr(0, val.length - 1), {skipNameLookup: true});
-    } else {
-      this._refreshCompletions(val);
-    }
+    this._refreshCompletions(val);
   }
 
   _onInputBlurred = (event) => {
