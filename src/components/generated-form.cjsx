@@ -199,8 +199,15 @@ class GeneratedFieldset extends React.Component
     formType: React.PropTypes.string
     zIndex: React.PropTypes.number
 
+    lastFieldset: React.PropTypes.bool
+    firstFieldset: React.PropTypes.bool
+
   render: =>
-    <fieldset style={{zIndex: @props.zIndex ? 0}}>
+    classStr = classNames
+      "first-fieldset": @props.firstFieldset
+      "last-fieldset": @props.lastFieldset
+
+    <fieldset style={{zIndex: @props.zIndex ? 0}} className={classStr} >
       {@_renderHeader()}
       <div className="fieldset-form-items">
         {@_renderFormItems()}
@@ -339,6 +346,8 @@ class GeneratedForm extends React.Component
     (@props.fieldsets ? []).map (fieldset, i) =>
       props = @_propsFromFieldsetData(fieldset)
       props.zIndex = 100-i
+      props.firstFieldset = i is 0
+      props.lastFieldset = i isnt 0 and i is @props.fieldsets.length - 1
       <GeneratedFieldset {...props} ref={"fieldset-#{fieldset.id}"} />
 
   _propsFromFieldsetData: (fieldsetData) =>

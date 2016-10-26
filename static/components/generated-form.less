@@ -125,14 +125,24 @@ body.is-blurred, body.platform-win32.is-blurred {
     }
     .tokenizing-field-input {
       overflow: hidden;
+      padding: 0 5px 5px 5px;
       .placeholder {
         font-size: 14px;
       }
 
-      padding: 6px 8px;
+      .token {
+        padding: 0 20px 0 28px;
+        margin: 5px 5px 0 0;
+
+        &.selected {
+          border: 0;
+        }
+      }
+
       input {
-        margin: 0;
+        margin: 5px 0 0 0;
         padding: 0;
+        line-height: 26px;
       }
     }
 
@@ -184,6 +194,12 @@ body.is-blurred, body.platform-win32.is-blurred {
     font-weight: @font-weight-semi-bold;
     margin-bottom: 5px;
     padding: 0.5em;
+  }
+
+  .last-fieldset {
+    .content-container {
+      position: relative;
+    }
   }
 
   /* NOTE: We intentionally don't use the HTML :valid :invalid CSS pseudo

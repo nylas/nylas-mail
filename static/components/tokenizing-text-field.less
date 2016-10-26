@@ -164,6 +164,13 @@
     &:hover {
       cursor: text;
     }
+    &.at-max-tokens {
+      cursor: default;
+      input {
+        &:hover { cursor: default; }
+        opacity: 0;
+      }
+    }
 
     input {
       display: inline-block;
