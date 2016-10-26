@@ -52,10 +52,11 @@ class FormItem extends React.Component
 
     # Either a type of input or any type that can be passed into
     # `React.createElement(type, ...)`
-    type: React.PropTypes.oneOfType([
-      React.PropTypes.string
-      React.PropTypes.func
-    ]).isRequired
+    type: React.PropTypes.string.isRequired
+
+    # Some types, like "reference" will define a customComponent to render
+    # with.
+    customComponent: React.PropTypes.func
 
     name: React.PropTypes.string
     label: React.PropTypes.node
@@ -167,8 +168,8 @@ class FormItem extends React.Component
       React.createElement(DatePicker, inputProps)
     else if @props.type is "EmptySpace"
       React.createElement("div", {className: "empty-space"})
-    else if _.isFunction(@props.type)
-      React.createElement(@props.type, inputProps)
+    else if _.isFunction(@props.customComponent)
+      React.createElement(@props.customComponent, inputProps)
     else
       console.warn "We do not support type #{@props.type} with attributes:", inputProps
 
