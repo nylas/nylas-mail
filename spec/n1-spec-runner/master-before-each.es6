@@ -7,7 +7,6 @@ import {
   MailboxPerspective,
   FocusedPerspectiveStore,
 } from 'nylas-exports';
-import fs from 'fs-plus';
 import {clipboard} from 'electron';
 import pathwatcher from 'pathwatcher';
 
