@@ -81,6 +81,8 @@ class Token extends React.Component {
     onDragStart: React.PropTypes.func.isRequired,
     onEdited: React.PropTypes.func,
     onAction: React.PropTypes.func,
+    disabled: React.PropTypes.bool,
+    onEditMotion: React.PropTypes.func,
   }
 
   static defaultProps = {
@@ -126,15 +128,16 @@ class Token extends React.Component {
   _renderViewing() {
     const classes = classNames({
       token: true,
+      disabled: this.props.disabled,
       dragging: this.state.dragging,
       invalid: !this.props.valid,
       selected: this.props.selected,
     });
 
     let actionButton = null;
-    if (this.props.onAction) {
+    if (this.props.onAction && !this.props.disabled) {
       actionButton = (
-        <button className="action" onClick={this._onAction} tabIndex={-1}>
+        <button type="button" className="action" onClick={this._onAction} tabIndex={-1}>
           <RetinaImg mode={RetinaImg.Mode.ContentIsMask} name="composer-caret.png" />
         </button>
       );
@@ -145,7 +148,7 @@ class Token extends React.Component {
         className={`${classes} ${this.props.className}`}
         onDragStart={this._onDragStart}
         onDragEnd={this._onDragEnd}
-        draggable="true"
+        draggable={!this.props.disabled}
         onDoubleClick={this._onDoubleClick}
         onClick={this._onClick}
       >
@@ -156,31 +159,43 @@ class Token extends React.Component {
   }
 
   _onDragStart = (event) => {
+    if (this.props.disabled) return;
     this.props.onDragStart(event, this.props.item);
     this.setState({dragging: true});
   }
 
   _onDragEnd = () => {
+    if (this.props.disabled) return;
     this.setState({dragging: false})
   }
 
   _onClick = (event) => {
+    if (this.props.disabled) return;
     this.props.onClick(event, this.props.item);
   }
 
   _onDoubleClick = () => {
+    if (this.props.disabled) return;
+    if (this.props.onEditMotion) {
+      this.props.onEditMotion(this.props.item);
+    }
     if (this.props.onEdited) {
       this.setState({editing: true});
     }
   }
 
   _onEditKeydown = (event) => {
+    if (this.props.disabled) return;
+    if (event.key === "Enter" && this.props.selected && this.props.onEditMotion) {
+      this.props.onEditMotion(this.props.item);
+    }
     if (['Escape', 'Enter'].includes(event.key)) {
       this._onEditFinished();
     }
   }
 
   _onEditFinished = () => {
+    if (this.props.disabled) return;
     if (this.props.onEdited) {
       this.props.onEdited(this.props.item, this.state.editingValue);
     }
@@ -188,6 +203,7 @@ class Token extends React.Component {
   }
 
   _onAction = () => {
+    if (this.props.disabled) return;
     this.props.onAction(this.props.item);
     event.preventDefault();
   }
@@ -321,6 +337,13 @@ export default class TokenizingTextField extends React.Component {
     // updates this component's `tokens` prop.
     onEdit: React.PropTypes.func,
 
+    // This is slightly different than onEdit. onEditMotion gets fired if
+    // the user does an editing-like action on a Token. Double clicking,
+    // etc. This is usefulf for when you don't want the text of the tokens
+    // themselves to be editable, but want to perform some action when the
+    // tokens are double clicked.
+    onEditMotion: React.PropTypes.func,
+
     // Called when we remove and there's nothing left to remove
     onEmptied: React.PropTypes.func,
 
@@ -338,6 +361,8 @@ export default class TokenizingTextField extends React.Component {
 
     // A classSet hash applied to the Menu item
     menuClassSet: React.PropTypes.object,
+
+    tabIndex: React.PropTypes.number,
   };
 
   static defaultProps = {
@@ -674,6 +699,13 @@ export default class TokenizingTextField extends React.Component {
       click: () => this._removeTokens([token]),
       label: 'Remove',
     }));
+
+    if (this.props.onEditMotion) {
+      menu.append(new remote.MenuItem({
+        label: 'Edit',
+        click: () => this.props.onEditMotion(token),
+      }))
+    }
     menu.popup(remote.getCurrentWindow());
   }
 
@@ -777,7 +809,7 @@ export default class TokenizingTextField extends React.Component {
       onFocus: this._onInputFocused,
       onChange: this._onInputChanged,
       disabled: this.props.disabled,
-      tabIndex: 0,
+      tabIndex: this.props.tabIndex || 0,
       value: this.state.inputValue,
     };
 
@@ -799,6 +831,7 @@ export default class TokenizingTextField extends React.Component {
     if (this.state.focus || this.props.placeholder === undefined) {
       return false;
     }
+    if (this.props.tokens.length > 0) return false;
     return (<div className="placeholder">{this.props.placeholder}</div>)
   }
 
@@ -830,9 +863,11 @@ export default class TokenizingTextField extends React.Component {
           item={item}
           key={key}
           valid={valid}
+          disabled={this.props.disabled}
           selected={this.state.selectedKeys.includes(key)}
           onDragStart={this._onDragToken}
           onClick={this._onClickToken}
+          onEditMotion={this.props.onEditMotion}
           onEdited={onEdit}
           onAction={onAction}
         >
@@ -843,6 +878,10 @@ export default class TokenizingTextField extends React.Component {
   }
 
   _fieldComponent() {
+    const fieldClasses = classNames({
+      "tokenizing-field-input": true,
+      "at-max-tokens": this._atMaxTokens(),
+    })
     return (
       <KeyCommandsRegion
         key="field-component"
@@ -855,7 +894,7 @@ export default class TokenizingTextField extends React.Component {
         onDrop={this._onDrop}
       >
         {this._renderPromptComponent()}
-        <div className="tokenizing-field-input">
+        <div className={fieldClasses}>
           {this._placeholderComponent()}
           {this._fieldComponents()}
           {this._inputComponent()}
@@ -870,6 +909,7 @@ export default class TokenizingTextField extends React.Component {
 
     const classes = classNames(_.extend({}, classSet, (this.props.menuClassSet || {}), {
       "tokenizing-field": true,
+      "disabled": this.props.disabled,
       "focused": this.state.focus,
       "empty": (this.state.inputValue || "").trim().length === 0,
     }));
@@ -880,6 +920,7 @@ export default class TokenizingTextField extends React.Component {
         ref="completions"
         items={this.state.completions}
         itemKey={(item) => item.id}
+        itemContext={{inputValue: this.state.inputValue}}
         itemContent={this.props.completionNode}
         headerComponents={[this._fieldComponent()]}
         onFocus={this._onInputFocused}
