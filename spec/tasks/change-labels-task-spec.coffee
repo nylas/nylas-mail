@@ -1,5 +1,5 @@
 _ = require 'underscore'
-Label = require '../../src/flux/models/label'
+Label = require('../../src/flux/models/label').default
 Thread = require('../../src/flux/models/thread').default
 Message = require('../../src/flux/models/message').default
 Actions = require '../../src/flux/actions'

@@ -1,5 +1,5 @@
-Category = require '../../src/flux/models/category'
 Model = require '../../src/flux/models/model'
+Category = require('../../src/flux/models/category').default
 Attributes = require('../../src/flux/attributes').default
 
 class TestModel extends Model

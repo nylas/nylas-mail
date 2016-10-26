@@ -1,6 +1,6 @@
 _ = require 'underscore'
 Thread = require('../../src/flux/models/thread').default
-Category = require '../../src/flux/models/category'
+Category = require('../../src/flux/models/category').default
 Message = require('../../src/flux/models/message').default
 FocusedContentStore = require '../../src/flux/stores/focused-content-store'
 FocusedPerspectiveStore = require('../../src/flux/stores/focused-perspective-store').default

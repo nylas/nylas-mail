@@ -1,5 +1,5 @@
 _ = require 'underscore'
-Folder = require '../../src/flux/models/folder'
+Folder = require('../../src/flux/models/folder').default
 Thread = require('../../src/flux/models/thread').default
 Message = require('../../src/flux/models/message').default
 Actions = require '../../src/flux/actions'

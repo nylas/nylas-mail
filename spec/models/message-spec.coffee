@@ -1,6 +1,6 @@
 Utils = require "../../src/flux/models/utils"
 Message = require("../../src/flux/models/message").default
-Contact = require "../../src/flux/models/contact"
+Contact = require("../../src/flux/models/contact").default
 
 evan = new Contact
   name: "Evan Morikawa"
