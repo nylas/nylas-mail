@@ -225,8 +225,9 @@ Utils =
   # to match an email address. We'd rather let false positives through.
   toEquivalentEmailForm: (email) ->
     # https://regex101.com/r/iS7kD5/3
-    [_, user, domain] = /^([^+]+).*@(.+)$/gi.exec(email)
+    [ignored, user, domain] = /^([^+]+).*@(.+)$/gi.exec(email) || [null, "", ""]
     "#{user}@#{domain}".trim().toLowerCase()
+
 
   emailIsEquivalent: (email1="", email2="") ->
     return true if email1 is email2
