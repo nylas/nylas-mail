@@ -104,9 +104,6 @@
 2378208: node_modules/event-kit/lib/event-kit.js
 2378397: node_modules/event-kit/lib/emitter.js
 2382101: node_modules/event-kit/lib/disposable.js
-2383052: node_modules/grim/package.json
-2384904: node_modules/grim/lib/grim.js
-2389703: node_modules/grim/lib/deprecation.js
 2394595: node_modules/event-kit/lib/composite-disposable.js
 2441735: node_modules/pathwatcher/package.json
 2444020: node_modules/pathwatcher/lib/main.js
@@ -366,7 +363,6 @@
 3049187: node_modules/babel-core/package.json
 2901212: node_modules/bluebird/js/main/bluebird.js
 2926597: node_modules/bluebird/js/main/util.js
-2384904: node_modules/grim/lib/grim.js
 1973294: src/compile-cache.js
 2266273: node_modules/emissary/lib/emissary.js
 2266555: node_modules/emissary/lib/helpers.js
@@ -378,7 +374,6 @@
 2290574: node_modules/emissary/node_modules/underscore-plus/node_modules/underscore/underscore.js
 2901212: node_modules/bluebird/js/main/bluebird.js
 2926597: node_modules/bluebird/js/main/util.js
-2384904: node_modules/grim/lib/grim.js
 2266273: node_modules/emissary/lib/emissary.js
 3052709: src/window.js
 2266555: node_modules/emissary/lib/helpers.js
@@ -391,13 +386,11 @@
 2343179: node_modules/emissary/lib/signal.js
 2352520: node_modules/emissary/lib/emitter.js
 2370863: node_modules/emissary/lib/subscriber.js
-2384904: node_modules/grim/lib/grim.js
 2374948: node_modules/emissary/lib/subscription.js
 2266273: node_modules/emissary/lib/emissary.js
 2266555: node_modules/emissary/lib/helpers.js
 2268129: node_modules/emissary/lib/behavior.js
 2274072: node_modules/emissary/node_modules/underscore-plus/lib/underscore-plus.js
-2389703: node_modules/grim/lib/deprecation.js
 2378208: node_modules/event-kit/lib/event-kit.js
 2337929: node_modules/property-accessors/lib/property-accessors.js
 2378397: node_modules/event-kit/lib/emitter.js
@@ -411,7 +404,6 @@
 3093983: src/window-event-handler.js
 2370863: node_modules/emissary/lib/subscriber.js
 2374948: node_modules/emissary/lib/subscription.js
-2389703: node_modules/grim/lib/deprecation.js
 2378208: node_modules/event-kit/lib/event-kit.js
 2337929: node_modules/property-accessors/lib/property-accessors.js
 3106501: src/styles-element.js
@@ -431,7 +423,6 @@
 8174990: node_modules/moment-timezone/package.json
 8177056: node_modules/moment-timezone/index.js
 8177170: node_modules/moment-timezone/moment-timezone.js
-2389703: node_modules/grim/lib/deprecation.js
 2378208: node_modules/event-kit/lib/event-kit.js
 2378397: node_modules/event-kit/lib/emitter.js
 3974612: node_modules/moment/moment.js
@@ -3406,8 +3397,6 @@
 2113947: node_modules/source-map-support/node_modules/source-map/lib/source-map/binary-search.js
 2117157: node_modules/source-map-support/node_modules/source-map/lib/source-map/source-node.js
 94911340: src/task-bootstrap.js
-2383052: node_modules/grim/package.json
-2384904: node_modules/grim/lib/grim.js
 2264399: node_modules/emissary/package.json
 2266273: node_modules/emissary/lib/emissary.js
 2266555: node_modules/emissary/lib/helpers.js
@@ -3426,7 +3415,6 @@
 2369463: node_modules/emissary/node_modules/mixto/lib/mixin.js
 2370863: node_modules/emissary/lib/subscriber.js
 2374948: node_modules/emissary/lib/subscription.js
-2389703: node_modules/grim/lib/deprecation.js
 4222287: node_modules/request/package.json
 4225420: node_modules/request/index.js
 80790165: node_modules/request/node_modules/extend/package.json
@@ -3637,8 +3625,6 @@
 2113947: node_modules/source-map-support/node_modules/source-map/lib/source-map/binary-search.js
 2117157: node_modules/source-map-support/node_modules/source-map/lib/source-map/source-node.js
 94911340: src/task-bootstrap.js
-2383052: node_modules/grim/package.json
-2384904: node_modules/grim/lib/grim.js
 2264399: node_modules/emissary/package.json
 2266273: node_modules/emissary/lib/emissary.js
 2266555: node_modules/emissary/lib/helpers.js
@@ -3657,7 +3643,6 @@
 2369463: node_modules/emissary/node_modules/mixto/lib/mixin.js
 2370863: node_modules/emissary/lib/subscriber.js
 2374948: node_modules/emissary/lib/subscription.js
-2389703: node_modules/grim/lib/deprecation.js
 4222287: node_modules/request/package.json
 4225420: node_modules/request/index.js
 80790165: node_modules/request/node_modules/extend/package.json

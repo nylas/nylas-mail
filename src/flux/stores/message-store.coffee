@@ -321,7 +321,9 @@ class MessageStore extends NylasStore
       hidden: false,
       windowKey: "thread-#{thread.id}",
       windowType: 'thread-popout',
-      windowProps: threadId: thread.id,
+      windowProps:
+        threadId: thread.id,
+        perspectiveJSON: FocusedPerspectiveStore.current().toJSON()
 
   _onFocusThreadMainWindow: (thread) ->
     if NylasEnv.isMainWindow()

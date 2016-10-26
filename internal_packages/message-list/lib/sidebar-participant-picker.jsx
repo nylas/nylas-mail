@@ -62,7 +62,7 @@ export default class SidebarParticipantPicker extends React.Component {
   render() {
     const {sortedContacts, focusedContact} = this.state
     const value = this._getKeyForContact(focusedContact)
-    if (sortedContacts.length === 0) {
+    if (sortedContacts.length === 0 || !value) {
       return false
     }
     return (

@@ -5,7 +5,6 @@ path = require 'path'
 {ipcRenderer, remote, shell} = require 'electron'
 
 _ = require 'underscore'
-{deprecate} = require 'grim'
 {Emitter} = require 'event-kit'
 fs = require 'fs-plus'
 {convertStackTrace, convertLine} = require 'coffeestack'
@@ -132,12 +131,6 @@ class NylasEnvConstructor
   #
   # Call after this instance has been assigned to the `NylasEnv` global.
   initialize: ->
-    # Disable deprecations unless in dev mode or spec mode so that regular
-    # editor performance isn't impacted by generating stack traces for
-    # deprecated calls.
-    unless @inDevMode() or @inSpecMode()
-      require('grim').deprecate = ->
-
     @enhanceEventObject()
 
     @setupErrorLogger()
