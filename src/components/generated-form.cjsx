@@ -94,8 +94,10 @@ class FormItem extends React.Component
     tabIndex: React.PropTypes.number
 
     referenceTo: React.PropTypes.array
-
+    referenceType: React.PropTypes.oneOf(["belongsTo", "hasMany", "hasManyThrough"])
+    referenceThrough: React.PropTypes.string
     relationshipName: React.PropTypes.string
+
     formType: React.PropTypes.oneOf(['new', 'update'])
     editableForNew: React.PropTypes.bool
     editableForUpdate: React.PropTypes.bool
