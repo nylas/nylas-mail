@@ -1,7 +1,7 @@
 _ = require 'underscore'
 Rx = require 'rx-lite'
 {NylasTestUtils} = require 'nylas-exports'
-Contact = require '../../src/flux/models/contact'
+Contact = require('../../src/flux/models/contact').default
 NylasAPI = require '../../src/flux/nylas-api'
 ContactStore = require '../../src/flux/stores/contact-store'
 ContactRankingStore = require '../../src/flux/stores/contact-ranking-store'

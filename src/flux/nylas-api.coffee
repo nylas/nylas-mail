@@ -261,16 +261,16 @@ class NylasAPI
         obj.metadata = metadataToAttach[obj.id]
 
   _apiObjectToClassMap:
-    "file": require('./models/file')
-    "event": require('./models/event')
-    "label": require('./models/label')
-    "folder": require('./models/folder')
+    "file": require('./models/file').default
+    "event": require('./models/event').default
+    "label": require('./models/label').default
+    "folder": require('./models/folder').default
     "thread": require('./models/thread').default
     "draft": require('./models/message').default
     "account": require('./models/account').default
     "message": require('./models/message').default
-    "contact": require('./models/contact')
-    "calendar": require('./models/calendar')
+    "contact": require('./models/contact').default
+    "calendar": require('./models/calendar').default
 
   getThreads: (accountId, params = {}, requestOptions = {}) ->
     requestSuccess = requestOptions.success

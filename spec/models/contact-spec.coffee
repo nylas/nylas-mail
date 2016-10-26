@@ -1,4 +1,4 @@
-Contact = require "../../src/flux/models/contact"
+Contact = require("../../src/flux/models/contact").default
 AccountStore = require "../../src/flux/stores/account-store"
 Account = require("../../src/flux/models/account").default
 

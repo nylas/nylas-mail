@@ -93,7 +93,7 @@ export default class Account extends ModelWithMetadata {
 
   // Returns a {Contact} model that represents the current user.
   me() {
-    Contact = Contact || require('./contact')
+    Contact = Contact || require('./contact').default
 
     return new Contact({
       accountId: this.id,
@@ -103,7 +103,7 @@ export default class Account extends ModelWithMetadata {
   }
 
   meUsingAlias(alias) {
-    Contact = Contact || require('./contact')
+    Contact = Contact || require('./contact').default
 
     if (!alias) {
       return this.me()

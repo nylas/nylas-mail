@@ -1,7 +1,7 @@
 _ = require('underscore')
 Utils = require '../../src/flux/models/utils'
 Thread = require('../../src/flux/models/thread').default
-Contact = require '../../src/flux/models/contact'
+Contact = require('../../src/flux/models/contact').default
 JSONBlob = require('../../src/flux/models/json-blob').default
 
 class Foo

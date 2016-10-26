@@ -2,7 +2,7 @@ _ = require 'underscore'
 
 Task = require('./flux/tasks/task').default
 Actions = require './flux/actions'
-Category = require './flux/models/category'
+Category = require('./flux/models/category').default
 Thread = require('./flux/models/thread').default
 Message = require('./flux/models/message').default
 AccountStore = require './flux/stores/account-store'

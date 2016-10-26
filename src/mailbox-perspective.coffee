@@ -12,7 +12,7 @@ MutableQuerySubscription = require('./flux/models/mutable-query-subscription').d
 UnreadQuerySubscription = require('./flux/models/unread-query-subscription').default
 Matcher = require('./flux/attributes/matcher').default
 Thread = require('./flux/models/thread').default
-Category = require './flux/models/category'
+Category = require('./flux/models/category').default
 Actions = require './flux/actions'
 ChangeUnreadTask = null
 

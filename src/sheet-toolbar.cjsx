@@ -44,7 +44,7 @@ class ToolbarBack extends React.Component
   # These stores are only required when this Toolbar is actually needed.
   # This is because loading these stores has database side effects.
   constructor: (@props) ->
-    Category ?= require './flux/models/category'
+    Category ?= require('./flux/models/category').default
     FocusedPerspectiveStore ?= require('./flux/stores/focused-perspective-store').default
     @state =
       categoryName: FocusedPerspectiveStore.current().name

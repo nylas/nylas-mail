@@ -4,7 +4,7 @@ NylasStore = require 'nylas-store'
 AccountStore = require './account-store'
 NylasSyncStatusStore = require './nylas-sync-status-store'
 Account = require('../models/account').default
-{StandardCategoryNames} = require '../models/category'
+{StandardCategoryNames} = require('../models/category').default
 {Categories} = require 'nylas-observables'
 
 asAccount = (a) ->
