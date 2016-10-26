@@ -8,7 +8,7 @@ import Contact from './contact'
 import Category from './category'
 import Attributes from '../attributes'
 import ModelWithMetadata from './model-with-metadata'
-
+import RegExpUtils from '../../regexp-utils';
 
 /**
 Public: The Message model represents a Message object served by the Nylas Platform API.
@@ -246,6 +246,41 @@ Message(date DESC) WHERE draft = 1`,
     return this
   }
 
+  toRaw() {
+    const headers = []
+
+    headers.push(`Return-Path: <${this.from[0].email}>`)
+    headers.push(`Date: ${this.rfc822Date()}`)
+
+    if (this.replyToMessageId) {
+      headers.push(`In-Reply-To: ${this.replyToMessageId}`)
+    }
+
+    headers.push(`Message-Id: <${this.id}-0@mailer.nylas.com>`)
+
+    if (this.replyTo.length) {
+      headers.push(`Reply-To: ${Utils.stringifyContacts(this.replyTo)}`)
+    }
+
+    if (this.to.length) {
+      headers.push(`To: ${Utils.stringifyContacts(this.to)}`)
+    }
+
+    if (this.cc.length) {
+      headers.push(`Cc: ${Utils.stringifyContacts(this.cc)}`)
+    }
+
+    if (this.bcc.length) {
+      headers.push(`Bcc: ${Utils.stringifyContacts(this.bcc)}`)
+    }
+
+    headers.push(`From: ${Utils.stringifyContacts(this.from)}`)
+    headers.push(`Subject: ${this.subject}`)
+    headers.push('Mime-Version: 1.0')
+
+    return `${headers.join("\n")}\n\n${this.plainTextBody({preserveLinks: true})}`
+  }
+
   canReplyAll() {
     const {to, cc} = this.participantsForReplyAll()
     return to.length > 1 || cc.length > 0
@@ -342,11 +377,17 @@ Message(date DESC) WHERE draft = 1`,
 
   // Public: Returns a plaintext version of the message body using Chromium's
   // DOMParser. Use with care.
-  plainTextBody() {
+  plainTextBody({preserveLinks = false}) {
     if ((this.body || "").trim().length === 0) {
       return ""
     }
-    return (new DOMParser()).parseFromString(this.body, "text/html").body.innerText
+    let body = this.body
+    if (preserveLinks) {
+      body = body.replace(RegExpUtils.urlLinkTagRegex(), (match, prefix, url, suffix, content) => (
+        `[${content}](${url})`
+      ))
+    }
+    return (new DOMParser()).parseFromString(body, "text/html").body.innerText
   }
 
   fromContact() {
@@ -362,6 +403,10 @@ Message(date DESC) WHERE draft = 1`,
 
   formattedDate() {
     return moment(this.date).format("MMM D YYYY, [at] h:mm a")
+  }
+
+  rfc822Date() {
+    return moment(this.date).format('ddd, DD MMM YYYY HH:mm:ss ZZ')
   }
 
   hasEmptyBody() {
