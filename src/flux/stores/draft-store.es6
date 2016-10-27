@@ -315,7 +315,7 @@ class DraftStore extends NylasStore {
   }
 
   _onHandleMailtoLink = (event, urlString) => {
-    DraftFactory.createDraftForMailto(urlString).then((draft) => {
+    return DraftFactory.createDraftForMailto(urlString).then((draft) => {
       return this._finalizeAndPersistNewMessage(draft, {popout: true});
     });
   }
