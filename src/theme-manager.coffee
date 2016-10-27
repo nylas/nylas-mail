@@ -196,7 +196,7 @@ class ThemeManager
 
   loadLessStylesheet: (lessStylesheetPath, importFallbackVariables=false) ->
     unless @lessCache?
-      LessCompileCache = require './less-compile-cache'
+      LessCompileCache = require('./less-compile-cache').default
       @lessCache = new LessCompileCache({@configDirPath, @resourcePath, importPaths: @getImportPaths()})
 
     try
