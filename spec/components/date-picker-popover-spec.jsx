@@ -34,19 +34,19 @@ describe('DatePickerPopover', function sendLaterPopover() {
 
   });
 
-  describe('onSelectCustomOption', () => {
+  describe('onCustomDateSelected', () => {
     it('selects date', () => {
       const popover = makePopover()
       const instance = popover.instance()
       spyOn(instance, 'selectDate')
-      instance.onSelectCustomOption('date', 'abc')
+      instance.onCustomDateSelected('date', 'abc')
       expect(instance.selectDate).toHaveBeenCalledWith('date', 'Custom')
     });
 
     it('throws error if date is invalid', () => {
       spyOn(NylasEnv, 'showErrorDialog')
       const popover = makePopover()
-      popover.instance().onSelectCustomOption(null, 'abc')
+      popover.instance().onCustomDateSelected(null, 'abc')
       expect(NylasEnv.showErrorDialog).toHaveBeenCalled()
     });
   });

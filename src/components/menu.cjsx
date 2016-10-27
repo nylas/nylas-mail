@@ -18,14 +18,12 @@ class MenuItem extends React.Component
   ###
   Public: React `props` supported by MenuItem:
 
-   - `index`: {Number} of the index of the current menu item
    - `divider` (optional) Pass a {Boolean} to render the menu item as a section divider.
    - `key` (optional) Pass a {String} to be the React key to optimize rendering lists of items.
    - `selected` (optional) Pass a {Boolean} to specify whether the item is selected.
    - `checked` (optional) Pass a {Boolean} to specify whether the item is checked.
   ###
   @propTypes:
-    index: React.PropTypes.number.isRequired
     divider: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.bool])
     selected: React.PropTypes.bool
     checked: React.PropTypes.bool
@@ -263,7 +261,6 @@ class Menu extends React.Component
       seenItemKeys[key] = item
 
       <MenuItem
-        index={i}
         key={key}
         onMouseDown={onMouseDown}
         checked={@props.itemChecked?(item)}
