@@ -16,10 +16,12 @@ import TimeOverride from './time-override';
 import nylasTestConstants from './nylas-test-constants'
 import * as jasmineExtensions from './jasmine-extensions'
 
+
 class MasterBeforeEach {
   setup(loadSettings, beforeEach) {
     this.loadSettings = loadSettings;
     const self = this;
+
     beforeEach(function jasmineBeforeEach() {
       const currentSpec = this;
       currentSpec.addMatchers({
