@@ -2,7 +2,7 @@ React = require 'react'
 ReactDOM = require 'react-dom'
 _ = require 'underscore'
 UnsafeComponent = require './unsafe-component'
-InjectedComponentLabel = require './injected-component-label'
+InjectedComponentLabel = require('./injected-component-label').default
 
 {Actions,
  WorkspaceStore,
