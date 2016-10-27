@@ -29,16 +29,13 @@ describe('DateInput', function dateInput() {
       const keys = ['Enter', 'Return']
       inputNode.value = 'tomorrow'
       spyOn(DateUtils, 'futureDateFromString').andReturn('someday')
-      spyOn(component, 'setState')
 
       keys.forEach((key) => {
         Simulate.keyDown(inputNode, {key, stopPropagation})
         expect(stopPropagation).toHaveBeenCalled()
         expect(onDateSubmitted).toHaveBeenCalledWith('someday', 'tomorrow')
-        expect(component.setState).toHaveBeenCalledWith({inputDate: null})
         stopPropagation.reset()
         onDateSubmitted.reset()
-        component.setState.reset()
       })
     });
   });
