@@ -7,7 +7,7 @@ Message = require('./models/message').default
 IdentityStore = require('./stores/identity-store').default
 Actions = require './actions'
 {APIError} = require './errors'
-PriorityUICoordinator = require '../priority-ui-coordinator'
+PriorityUICoordinator = require('../priority-ui-coordinator').default
 DatabaseStore = require('./stores/database-store').default
 async = require 'async'
 
