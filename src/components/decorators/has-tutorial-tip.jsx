@@ -104,11 +104,14 @@ class TipPopoverContents extends React.Component {
 export default function HasTutorialTip(ComposedComponent, TipConfig) {
   const TipKey = ComposedComponent.displayName;
 
+  if (!TipKey) {
+    throw new Error("To use the HasTutorialTip decorator, your component must have a displayName.");
+  }
   if (TipsStore.hasSeenTip(TipKey)) {
     return ComposedComponent;
   }
 
-  return class extends ComposedComponent {
+  return class extends React.Component {
     static displayName = ComposedComponent.displayName;
 
     constructor(props) {
@@ -118,10 +121,6 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
     }
 
     componentDidMount() {
-      if (super.componentDidMount) {
-        super.componentDidMount();
-      }
-
       TipsStore.mountedTip(TipKey);
 
       this._unlisteners = [
@@ -153,20 +152,13 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
       this._onTooltipStateChanged();
     }
 
-    componentDidUpdate(...args) {
-      if (super.componentDidUpdate) {
-        super.componentDidUpdate(...args);
-      }
+    componentDidUpdate() {
       if (this.state.visible) {
         this._onRecomputeTooltipPosition();
       }
     }
 
     componentWillUnmount() {
-      if (super.componentWillUnmount) {
-        super.componentWillUnmount();
-      }
-
       this._unlisteners.forEach((unlisten) => unlisten())
       this._disposables.forEach((disposable) => disposable.dispose())
 
@@ -260,6 +252,12 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
         }
       }
       attempt();
+    }
+
+    render() {
+      return (
+        <ComposedComponent {...this.props} />
+      );
     }
   }
 }
