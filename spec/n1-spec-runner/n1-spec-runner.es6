@@ -77,7 +77,7 @@ class N1SpecRunner {
 
     NylasEnv.restoreWindowDimensions();
     NylasEnv.themes.loadBaseStylesheets();
-    NylasEnv.themes.requireStylesheet('../static/jasmine');
+    NylasEnv.themes.requireStylesheet('../../static/jasmine');
     NylasEnv.themes.initialLoadComplete = true;
     NylasEnv.keymaps.loadKeymaps();
   }
@@ -122,6 +122,12 @@ class N1SpecRunner {
     document.body.appendChild(div);
     document.querySelector('html').style.overflow = 'initial';
     document.querySelector('body').style.overflow = 'initial';
+
+    if (NylasEnv.getLoadSettings().showSpecsInWindow) {
+      const el = document.querySelector("#application-loading-cover");
+      el.parentNode.removeChild(el);
+      NylasEnv.show();
+    }
   }
 
   _extendJasmineMethods() {
