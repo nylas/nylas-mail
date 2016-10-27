@@ -18,15 +18,12 @@ import {
   OverlaidComponents,
   InjectedComponentSet,
 } from 'nylas-component-kit'
-
 import FileUpload from './file-upload'
 import ImageUpload from './image-upload'
-
 import ComposerEditor from './composer-editor'
 import ComposerHeader from './composer-header'
 import SendActionButton from './send-action-button'
 import ActionBarPlugins from './action-bar-plugins'
-
 import Fields from './fields'
 
 // The ComposerView is a unique React component because it (currently) is a

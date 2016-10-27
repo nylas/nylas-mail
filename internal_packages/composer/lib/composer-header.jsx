@@ -8,13 +8,12 @@ import {
   ParticipantsTextField,
   ListensToFluxStore,
 } from 'nylas-component-kit';
-
 import AccountContactField from './account-contact-field';
 import CollapsedParticipants from './collapsed-participants';
 import ComposerHeaderActions from './composer-header-actions';
 import SubjectTextField from './subject-text-field';
-
 import Fields from './fields';
+
 
 const ScopedFromField = ListensToFluxStore(AccountContactField, {
   stores: [AccountStore],

@@ -72,8 +72,7 @@ class DateInput extends Component {
     const dateInterpretation = inputDate ?
       <span className="date-interpretation">
         {DateUtils.format(this.state.inputDate, this.props.dateFormat)}
-      </span> :
-      <span />;
+      </span> : <span />;
 
 
     return (
