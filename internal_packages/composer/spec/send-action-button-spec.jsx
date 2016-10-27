@@ -2,7 +2,9 @@ import React from 'react';
 import {mount} from 'enzyme';
 import {ButtonDropdown, RetinaImg} from 'nylas-component-kit';
 import {Actions, Message, SendActionsStore} from 'nylas-exports';
-import {UndecoratedSendActionButton as SendActionButton} from '../lib/send-action-button';
+import SendActionButton from '../lib/send-action-button';
+
+const {UndecoratedSendActionButton} = SendActionButton;
 
 const {DefaultSendAction} = SendActionsStore
 
@@ -40,7 +42,7 @@ describe('SendActionButton', function describeBlock() {
   const render = (draft, {isValid = true, sendActions = [], ordered = {}} = {}) => {
     this.isValidDraft.andReturn(isValid)
     return mount(
-      <SendActionButton
+      <UndecoratedSendActionButton
         draft={draft}
         isValidDraft={this.isValidDraft}
         sendActions={[DefaultSendAction].concat(sendActions)}
@@ -54,7 +56,7 @@ describe('SendActionButton', function describeBlock() {
 
   it("renders without error", () => {
     const sendActionButton = render(this.draft);
-    expect(sendActionButton.is(SendActionButton)).toBe(true);
+    expect(sendActionButton.is(UndecoratedSendActionButton)).toBe(true);
   });
 
   it("initializes with the default and shows the standard Send option", () => {
