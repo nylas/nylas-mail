@@ -277,10 +277,10 @@ export default class ComposerHeader extends React.Component {
         <ScopedFromField
           key="from"
           ref={Fields.From}
+          value={from[0]}
           draft={this.props.draft}
           session={this.props.session}
           onChange={this._onChangeParticipants}
-          value={from[0]}
         />
       )
     }
