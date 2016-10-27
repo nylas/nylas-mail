@@ -1,7 +1,7 @@
 /* eslint global-require:0 */
 import _ from 'underscore';
-import ReactTestUtils from 'react-addons-test-utils';
 
+import ReactTestUtils from 'react-addons-test-utils';
 import Config from '../../src/config'
 import N1SpecLoader from './n1-spec-loader'
 import TimeReporter from './time-reporter'
@@ -109,6 +109,7 @@ class N1SpecRunner {
 
     if (NylasEnv.getLoadSettings().showSpecsInWindow) {
       this.jasmineEnv.addReporter(N1GuiReporter);
+      NylasEnv.show();
     } else {
       this.jasmineEnv.addReporter(terminalReporter);
     }
@@ -122,12 +123,7 @@ class N1SpecRunner {
     document.body.appendChild(div);
     document.querySelector('html').style.overflow = 'initial';
     document.querySelector('body').style.overflow = 'initial';
-
-    if (NylasEnv.getLoadSettings().showSpecsInWindow) {
-      const el = document.querySelector("#application-loading-cover");
-      el.parentNode.removeChild(el);
-      NylasEnv.show();
-    }
+    document.getElementById("application-loading-cover").remove();
   }
 
   _extendJasmineMethods() {
