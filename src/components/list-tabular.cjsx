@@ -5,7 +5,7 @@ ScrollRegion = require './scroll-region'
 Spinner = require './spinner'
 {Utils} = require 'nylas-exports'
 
-ListDataSource = require './list-data-source'
+ListDataSource = require('./list-data-source').default
 ListSelection = require './list-selection'
 ListTabularItem = require './list-tabular-item'
 
