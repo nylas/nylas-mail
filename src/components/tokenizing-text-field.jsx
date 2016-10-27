@@ -236,7 +236,7 @@ export default class TokenizingTextField extends React.Component {
 
     disabled: React.PropTypes.bool,
 
-    placeholder: React.PropTypes.string,
+    placeholder: React.PropTypes.node,
 
     // An array of current tokens.
     //
@@ -664,8 +664,13 @@ export default class TokenizingTextField extends React.Component {
 
   _addTokens = (tokens) => {
     this.props.onAdd(tokens);
-    this._clearInput();
-    this.focus();
+    // It's possible for `_addTokens` to be fired by the menu
+    // asynchronously. When the tokenizing text field is in a popover it's
+    // possible for it to be unmounted before the add tokens fires.
+    if (this._mounted) {
+      this._clearInput();
+      this.focus();
+    }
   }
 
   _removeTokens = (tokensToDelete) => {
@@ -828,10 +833,11 @@ export default class TokenizingTextField extends React.Component {
   }
 
   _placeholderComponent() {
-    if (this.state.focus || this.props.placeholder === undefined) {
+    if (this.state.inputValue.length > 0 ||
+        this.props.placeholder === undefined ||
+        this.props.tokens.length > 0) {
       return false;
     }
-    if (this.props.tokens.length > 0) return false;
     return (<div className="placeholder">{this.props.placeholder}</div>)
   }
 
