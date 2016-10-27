@@ -3,6 +3,7 @@
   "productName": "Nylas N1",
   "version": "0.4.200",
   "description": "An extensible, open-source mail client built on the modern web.",
+  "license": "GPL-3.0",
   "main": "./src/browser/main.js",
   "repository": {
     "type": "git",
