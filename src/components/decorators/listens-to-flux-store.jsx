@@ -1,3 +1,4 @@
+/* eslint no-prototype-builtins: 0 */
 import React, {Component} from 'react';
 
 function ListensToFluxStore(ComposedComponent, {stores, getStateFromStores}) {
@@ -34,7 +35,14 @@ function ListensToFluxStore(ComposedComponent, {stores, getStateFromStores}) {
     }
 
     render() {
-      return <ComposedComponent ref="composed" {...this.props} {...this.state} />;
+      const props = {
+        ...this.props,
+        ...this.state,
+      }
+      if (Component.isPrototypeOf(ComposedComponent)) {
+        props.ref = 'composed'
+      }
+      return <ComposedComponent {...props} />;
     }
   };
 }
