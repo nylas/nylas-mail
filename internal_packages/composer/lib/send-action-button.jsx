@@ -123,5 +123,6 @@ Object.assign(EnhancedSendActionButton.prototype, {
   },
 })
 
-export const UndecoratedSendActionButton = SendActionButton
+EnhancedSendActionButton.UndecoratedSendActionButton = SendActionButton
+
 export default EnhancedSendActionButton
