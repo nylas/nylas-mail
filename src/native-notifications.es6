@@ -1,12 +1,18 @@
 /* eslint global-require: 0 */
 let MacNotifierNotification = null;
+if (process.platform === 'darwin') {
+  try {
+    MacNotifierNotification = require('node-mac-notifier');
+  } catch (err) {
+    console.error("node-mac-notifier (a platform-specific optionalDependency) was not installed correctly! Check the Travis build log for errors.")
+  }
+}
 
 class NativeNotifications {
   displayNotification({title, subtitle, body, tag, canReply, onActivate} = {}) {
     let notif = null;
 
-    if (process.platform === 'darwin') {
-      MacNotifierNotification = MacNotifierNotification || require('node-mac-notifier');
+    if (MacNotifierNotification) {
       notif = new MacNotifierNotification(title, {
         bundleId: 'com.nylas.nylas-mail',
         canReply: canReply,

@@ -51,7 +51,6 @@
     "moment-timezone": "0.5.4",
     "mousetrap": "^1.5.3",
     "nock": "^2",
-    "node-mac-notifier": "0.0.13",
     "node-uuid": "^1.4",
     "nslog": "^3",
     "optimist": "0.4.0",
@@ -82,6 +81,9 @@
     "underscore": "^1.8",
     "underscore.string": "^3.0",
     "windows-shortcuts": "emorikawa/windows-shortcuts#b0a0fc7"
+  },
+  "optionalDependencies": {
+    "node-mac-notifier": "0.0.13"
   },
   "packageDependencies": {},
   "scripts": {
