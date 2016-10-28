@@ -51,14 +51,11 @@
   "contenteditable:bold": "mod+b",
   "contenteditable:italic": "mod+i",
   "contenteditable:insert-link": "mod+k",
-  "contenteditable:numbered-list": "mod+&",
-  "contenteditable:bulleted-list": "mod+*",
-  "contenteditable:quote": "mod+(",
+  "contenteditable:numbered-list": "mod+shift+7",
+  "contenteditable:bulleted-list": "mod+shift+8",
+  "contenteditable:quote": "mod+shift+9",
   "contenteditable:outdent": "mod+[",
   "contenteditable:indent": "mod+]",
-  "contenteditable:increase-text-size": "mod++",
-  "contenteditable:decrease-text-size": "mod+-",
-  "contenteditable:previous-selection": "mod+;",
   "contenteditable:next-selection": "mod+\"",
   "contenteditable:open-spelling-suggestions": "mod+m"
 }
