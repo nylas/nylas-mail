@@ -3,7 +3,7 @@ Actions = require '../src/flux/actions'
 Message = require('../src/flux/models/message').default
 DatabaseStore = require('../src/flux/stores/database-store').default
 AccountStore = require '../src/flux/stores/account-store'
-ActionBridge = require '../src/flux/action-bridge',
+ActionBridge = require('../src/flux/action-bridge').default,
 _ = require 'underscore'
 
 ipc =

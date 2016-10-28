@@ -143,7 +143,7 @@ class NylasEnvConstructor
     PackageManager = require './package-manager'
     ThemeManager = require './theme-manager'
     StyleManager = require './style-manager'
-    ActionBridge = require './flux/action-bridge'
+    ActionBridge = require('./flux/action-bridge').default
     MenuManager = require('./menu-manager').default
 
     {devMode, safeMode, resourcePath, configDirPath, windowType} = @getLoadSettings()

@@ -1,7 +1,7 @@
 React = require 'react'
 ReactDOM = require 'react-dom'
 Sheet = require './sheet'
-Flexbox = require './components/flexbox'
+Flexbox = require('./components/flexbox').default
 RetinaImg = require('./components/retina-img').default
 Utils = require './flux/models/utils'
 {remote} = require 'electron'
