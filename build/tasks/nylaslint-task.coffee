@@ -63,7 +63,8 @@ module.exports = (grunt) ->
 
         content = fs.readFileSync(f, encoding:'utf8')
         if /module.exports\s?=\s?.+/gmi.test(content)
-          errors.push("#{f}: Don't use module.exports in ES6")
+          unless f.endsWith('nylas-exports.es6')
+            errors.push("#{f}: Don't use module.exports in ES6")
 
         if /^export/gmi.test(content)
           if /^export\ default/gmi.test(content)

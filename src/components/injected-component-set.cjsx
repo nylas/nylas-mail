@@ -1,7 +1,7 @@
 React = require 'react'
 _ = require 'underscore'
 UnsafeComponent = require './unsafe-component'
-Flexbox = require './flexbox'
+Flexbox = require('./flexbox').default
 InjectedComponentLabel = require('./injected-component-label').default
 {Utils,
  Actions,

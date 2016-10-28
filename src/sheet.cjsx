@@ -2,7 +2,7 @@ React = require 'react'
 _ = require 'underscore'
 {Actions,ComponentRegistry, WorkspaceStore} = require "nylas-exports"
 RetinaImg = require('./components/retina-img').default
-Flexbox = require './components/flexbox'
+Flexbox = require('./components/flexbox').default
 InjectedComponentSet = require './components/injected-component-set'
 ResizableRegion = require './components/resizable-region'
 
