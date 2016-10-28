@@ -1,5 +1,5 @@
 NylasStore = require "nylas-store"
-Actions = require "../actions"
+Actions = require("../actions").default
 Message = require("../models/message").default
 Thread = require("../models/thread").default
 Utils = require '../models/utils'

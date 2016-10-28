@@ -1,6 +1,6 @@
 _ = require 'underscore'
 NylasStore = require 'nylas-store'
-Actions = require '../actions'
+Actions = require('../actions').default
 Account = require('../models/account').default
 Utils = require '../models/utils'
 DatabaseStore = require('./database-store').default

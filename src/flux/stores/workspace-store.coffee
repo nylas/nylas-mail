@@ -1,5 +1,5 @@
 _ = require 'underscore'
-Actions = require '../actions'
+Actions = require('../actions').default
 AccountStore = require './account-store'
 CategoryStore = require './category-store'
 MailboxPerspective = require '../../mailbox-perspective'

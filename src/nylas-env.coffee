@@ -139,7 +139,7 @@ class NylasEnvConstructor
 
     Config = require './config'
     KeymapManager = require('./keymap-manager').default
-    CommandRegistry = require './command-registry'
+    CommandRegistry = require('./command-registry').default
     PackageManager = require './package-manager'
     ThemeManager = require './theme-manager'
     StyleManager = require './style-manager'
@@ -842,7 +842,7 @@ class NylasEnvConstructor
     delete @savedState.packageStates
 
   loadConfig: ->
-    @config.setSchema null, {type: 'object', properties: _.clone(require('./config-schema'))}
+    @config.setSchema null, {type: 'object', properties: _.clone(require('./config-schema').default)}
     @config.load()
 
   watchThemes: ->
