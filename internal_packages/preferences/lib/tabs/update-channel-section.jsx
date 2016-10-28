@@ -40,10 +40,13 @@ class UpdateChannelSection extends React.Component {
 
     // HACK: Temporarily do not allow users to move on to the Salesforce channel.
     // In the future we could implement this server-side via a "public" flag.
-    let allowed = available;
-    if (current && current.name.toLowerCase() !== 'salesforce') {
-      allowed = available.filter(c => c.name.toLowerCase() !== 'salesforce');
+    const allowedNames = ["stable", "beta"]
+    if (NylasEnv.config.get("salesforce")) {
+      allowedNames.push("salesforce");
     }
+    const allowed = available.filter(c => {
+      return allowedNames.includes(c.name) || c.name === current.name
+    });
 
     const displayNameForChannel = (channel) => {
       if (channel.name === 'beta') {
