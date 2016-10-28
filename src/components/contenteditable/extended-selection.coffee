@@ -1,6 +1,6 @@
 _ = require 'underscore'
 {DOMUtils} = require 'nylas-exports'
-ExportedSelection = require './exported-selection'
+ExportedSelection = require('./exported-selection').default
 
 # Convenience methods over the DOM's Selection object
 # https://developer.mozilla.org/en-US/docs/Web/API/Selection

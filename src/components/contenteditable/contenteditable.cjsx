@@ -9,16 +9,16 @@ FloatingToolbar = require './floating-toolbar'
 EditorAPI = require './editor-api'
 ExtendedSelection = require './extended-selection'
 
-TabManager = require './tab-manager'
-LinkManager = require './link-manager'
-ListManager = require './list-manager'
-MouseService = require './mouse-service'
+TabManager = require('./tab-manager').default
+LinkManager = require('./link-manager').default
+ListManager = require('./list-manager').default
+MouseService = require('./mouse-service').default
 DOMNormalizer = require './dom-normalizer'
-ClipboardService = require './clipboard-service'
-BlockquoteManager = require './blockquote-manager'
-ToolbarButtonManager = require './toolbar-button-manager'
-EmphasisFormattingExtension = require './emphasis-formatting-extension'
-ParagraphFormattingExtension = require './paragraph-formatting-extension'
+ClipboardService = require('./clipboard-service').default
+BlockquoteManager = require('./blockquote-manager').default
+ToolbarButtonManager = require('./toolbar-button-manager').default
+EmphasisFormattingExtension = require('./emphasis-formatting-extension').default
+ParagraphFormattingExtension = require('./paragraph-formatting-extension').default
 
 ###
 Public: A modern React-compatible contenteditable
