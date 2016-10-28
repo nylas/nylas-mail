@@ -16,7 +16,6 @@ debug.log
 docs/output
 docs/includes
 spec/fixtures/evil-files/
-yoursway-create-dmg
 /_site
 /.sass-cache
 .integration-test-config
