@@ -389,6 +389,9 @@ module.exports = (grunt) ->
   ciTasks.push('dump-symbols') if process.platform isnt 'win32'
   ciTasks.push('set-version', 'lint', 'generate-asar')
 
+  if process.platform is "darwin"		
+    ciTasks.push('test', 'codesign')
+
   if process.platform is "linux"
     ciTasks.push('mkdeb')
     ciTasks.push('mkrpm')
