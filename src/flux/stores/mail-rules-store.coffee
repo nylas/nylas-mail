@@ -6,7 +6,7 @@ DatabaseStore = require('./database-store').default
 TaskQueueStatusStore = require './task-queue-status-store'
 ReprocessMailRulesTask = require('../tasks/reprocess-mail-rules-task').default
 Utils = require '../models/utils'
-Actions = require '../actions'
+Actions = require('../actions').default
 
 {ConditionMode, ConditionTemplates, ActionTemplates} = require '../../mail-rules-templates'
 

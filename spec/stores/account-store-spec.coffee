@@ -3,7 +3,7 @@ keytar = require 'keytar'
 NylasAPI = require '../../src/flux/nylas-api'
 AccountStore = require '../../src/flux/stores/account-store'
 Account = require('../../src/flux/models/account').default
-Actions = require '../../src/flux/actions'
+Actions = require('../../src/flux/actions').default
 
 
 describe "AccountStore", ->

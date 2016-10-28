@@ -1,5 +1,5 @@
 Message = require('../models/message').default
-Actions = require '../actions'
+Actions = require('../actions').default
 NylasAPI = require '../nylas-api'
 AccountStore = require './account-store'
 ContactStore = require './contact-store'

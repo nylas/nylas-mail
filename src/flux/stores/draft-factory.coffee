@@ -1,6 +1,6 @@
 _ = require 'underscore'
 
-Actions = require '../actions'
+Actions = require('../actions').default
 DatabaseStore = require('./database-store').default
 AccountStore = require './account-store'
 ContactStore = require './contact-store'

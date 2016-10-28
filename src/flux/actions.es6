@@ -1,10 +1,10 @@
-Reflux = require 'reflux'
+import Reflux from 'reflux';
 
-ActionScopeWindow = 'window'
-ActionScopeGlobal = 'global'
-ActionScopeWorkWindow = 'work'
+const ActionScopeWindow = 'window';
+const ActionScopeGlobal = 'global';
+const ActionScopeWorkWindow = 'work';
 
-###
+/*
 Public: In the Flux {Architecture.md}, almost every user action
 is translated into an Action object and fired globally. Stores in the app observe
 these actions and perform business logic. This loose coupling means that your
@@ -14,7 +14,7 @@ the rest of the app will handle.
 In Reflux, each {Action} is an independent object that acts as an event emitter.
 You can listen to an Action, or invoke it as a function to fire it.
 
-## Action Scopes
+*# Action Scopes
 
 N1 is a multi-window application. The `scope` of an Action dictates
 how it propogates between windows.
@@ -29,13 +29,13 @@ how it propogates between windows.
 
 - **Window**: These actions only trigger listeners in the window they're fired in.
 
-## Firing Actions
+*# Firing Actions
 
 ```coffee
 Actions.queueTask(new ChangeStarredTask(thread: @_thread, starred: true))
 ```
 
-## Listening for Actions
+*# Listening for Actions
 
 If you're using Reflux to create your own Store, you can use the `listenTo`
 convenience method to listen for an Action. If you're creating your own class
@@ -53,10 +53,10 @@ teardown: ->
 ```
 
 Section: General
-###
-class Actions
+*/
+class Actions {
 
-  ###
+  /*
   Public: Fired when the Nylas API Connector receives new data from the API.
 
   *Scope: Global*
@@ -69,93 +69,93 @@ class Actions
     'contact': [<Contact>]
   }
   ```
-  ###
-  @didPassivelyReceiveNewModels: ActionScopeGlobal
+  */
+  static didPassivelyReceiveNewModels = ActionScopeGlobal;
 
-  @downloadStateChanged: ActionScopeGlobal
+  static downloadStateChanged = ActionScopeGlobal;
 
-  @sendToAllWindows: ActionScopeGlobal
+  static sendToAllWindows = ActionScopeGlobal;
 
-  ###
+  /*
   Public: Queue a {Task} object to the {TaskQueue}.
 
   *Scope: Work Window*
-  ###
-  @queueTask: ActionScopeWorkWindow
+  */
+  static queueTask = ActionScopeWorkWindow;
 
-  ###
+  /*
   Public: Queue multiple {Task} objects to the {TaskQueue}, which should be
   undone as a single user action.
 
   *Scope: Work Window*
-  ###
-  @queueTasks: ActionScopeWorkWindow
+  */
+  static queueTasks = ActionScopeWorkWindow;
 
-  @undoTaskId: ActionScopeWorkWindow
+  static undoTaskId = ActionScopeWorkWindow;
 
-  ###
+  /*
   Public: Dequeue all {Task}s from the {TaskQueue}. Use with care.
 
   *Scope: Work Window*
-  ###
-  @dequeueAllTasks: ActionScopeWorkWindow
-  @dequeueTask: ActionScopeWorkWindow
+  */
+  static dequeueAllTasks = ActionScopeWorkWindow;
+  static dequeueTask = ActionScopeWorkWindow;
 
-  ###
+  /*
   Public: Dequeue a {Task} matching the description provided.
 
   *Scope: Work Window*
-  ###
-  @dequeueMatchingTask: ActionScopeWorkWindow
+  */
+  static dequeueMatchingTask = ActionScopeWorkWindow;
 
-  @longPollReceivedRawDeltas: ActionScopeWorkWindow
-  @longPollReceivedRawDeltasPing: ActionScopeGlobal
-  @longPollProcessedDeltas: ActionScopeWorkWindow
-  @willMakeAPIRequest: ActionScopeWorkWindow
-  @didMakeAPIRequest: ActionScopeWorkWindow
+  static longPollReceivedRawDeltas = ActionScopeWorkWindow;
+  static longPollReceivedRawDeltasPing = ActionScopeGlobal;
+  static longPollProcessedDeltas = ActionScopeWorkWindow;
+  static willMakeAPIRequest = ActionScopeWorkWindow;
+  static didMakeAPIRequest = ActionScopeWorkWindow;
 
-  ###
+  /*
   Public: Retry the initial sync
 
   *Scope: Work Window*
-  ###
-  @retrySync: ActionScopeWorkWindow
+  */
+  static retrySync = ActionScopeWorkWindow;
 
-  ###
+  /*
   Public: Open the preferences view.
 
   *Scope: Global*
-  ###
-  @openPreferences: ActionScopeGlobal
+  */
+  static openPreferences = ActionScopeGlobal;
 
-  ###
+  /*
   Public: Switch to the preferences tab with the specific name
 
   *Scope: Global*
-  ###
-  @switchPreferencesTab: ActionScopeGlobal
+  */
+  static switchPreferencesTab = ActionScopeGlobal;
 
-  ###
+  /*
   Public: Clear the developer console for the current window.
 
   *Scope: Window*
-  ###
-  @clearDeveloperConsole: ActionScopeWindow
+  */
+  static clearDeveloperConsole = ActionScopeWindow;
 
-  ###
+  /*
   Public: Manage the Nylas identity
-  ###
-  @setNylasIdentity: ActionScopeWindow
-  @logoutNylasIdentity: ActionScopeWindow
+  */
+  static setNylasIdentity = ActionScopeWindow;
+  static logoutNylasIdentity = ActionScopeWindow;
 
-  ###
+  /*
   Public: Remove the selected account
 
   *Scope: Window*
-  ###
-  @removeAccount: ActionScopeWindow
+  */
+  static removeAccount = ActionScopeWindow;
 
-  ###
+  /*
   Public: Update the provided account
 
   *Scope: Window*
@@ -163,10 +163,10 @@ class Actions
   ```
   Actions.updateAccount(account.id, {accountName: 'new'})
   ```
-  ###
-  @updateAccount: ActionScopeWindow
+  */
+  static updateAccount = ActionScopeWindow;
 
-  ###
+  /*
   Public: Re-order the provided account in the account list.
 
   *Scope: Window*
@@ -174,10 +174,10 @@ class Actions
   ```
   Actions.reorderAccount(account.id, newIndex)
   ```
-  ###
-  @reorderAccount: ActionScopeWindow
+  */
+  static reorderAccount = ActionScopeWindow;
 
-  ###
+  /*
   Public: Select the provided sheet in the current window. This action changes
   the top level sheet.
 
@@ -186,20 +186,20 @@ class Actions
   ```
   Actions.selectRootSheet(WorkspaceStore.Sheet.Threads)
   ```
-  ###
-  @selectRootSheet: ActionScopeWindow
+  */
+  static selectRootSheet = ActionScopeWindow;
 
-  ###
+  /*
   Public: Toggle whether a particular column is visible. Call this action
   with one of the Sheet location constants:
 
   ```
   Actions.toggleWorkspaceLocationHidden(WorkspaceStore.Location.MessageListSidebar)
   ```
-  ###
-  @toggleWorkspaceLocationHidden: ActionScopeWindow
+  */
+  static toggleWorkspaceLocationHidden = ActionScopeWindow;
 
-  ###
+  /*
   Public: Focus the keyboard on an item in a collection. This action moves the
   `keyboard focus` element in lists and other components,  but does not change
   the focused DOM element.
@@ -209,10 +209,10 @@ class Actions
   ```
   Actions.setCursorPosition(collection: 'thread', item: <Thread>)
   ```
-  ###
-  @setCursorPosition: ActionScopeWindow
+  */
+  static setCursorPosition = ActionScopeWindow;
 
-  ###
+  /*
   Public: Focus on an item in a collection. This action changes the selection
   in lists and other components, but does not change the focused DOM element.
 
@@ -221,10 +221,10 @@ class Actions
   ```
   Actions.setFocus(collection: 'thread', item: <Thread>)
   ```
-  ###
-  @setFocus: ActionScopeWindow
+  */
+  static setFocus = ActionScopeWindow;
 
-  ###
+  /*
   Public: Focus the interface on a specific {MailboxPerspective}.
 
   *Scope: Window*
@@ -232,18 +232,18 @@ class Actions
   ```
   Actions.focusMailboxPerspective(<Category>)
   ```
-  ###
-  @focusMailboxPerspective: ActionScopeWindow
+  */
+  static focusMailboxPerspective = ActionScopeWindow;
 
-  ###
+  /*
   Public: Focus the interface on the default mailbox perspective for the provided
   account id.
 
   *Scope: Window*
-  ###
-  @focusDefaultMailboxPerspectiveForAccounts: ActionScopeWindow
+  */
+  static focusDefaultMailboxPerspectiveForAccounts = ActionScopeWindow;
 
-  ###
+  /*
   Public: Focus the mailbox perspective for the given account id and category names
 
   *Scope: Window*
@@ -251,10 +251,10 @@ class Actions
   ```
   Actions.ensureCategoryIsFocused(accountIds, categoryName)
   ```
-  ###
-  @ensureCategoryIsFocused: ActionScopeWindow
+  */
+  static ensureCategoryIsFocused = ActionScopeWindow;
 
-  ###
+  /*
   Public: If the message with the provided id is currently beign displayed in the
   thread view, this action toggles whether it's full content or snippet is shown.
 
@@ -264,16 +264,16 @@ class Actions
   message = <Message>
   Actions.toggleMessageIdExpanded(message.id)
   ```
-  ###
-  @toggleMessageIdExpanded: ActionScopeWindow
+  */
+  static toggleMessageIdExpanded = ActionScopeWindow;
 
-  ###
+  /*
   Public: Toggle whether messages from trash and spam are shown in the current
   message view.
-  ###
-  @toggleHiddenMessages: ActionScopeWindow
+  */
+  static toggleHiddenMessages = ActionScopeWindow;
 
-  ###
+  /*
   Public: This action toggles wether to collapse or expand all messages in a
   thread depending on if there are currently collapsed messages.
 
@@ -282,10 +282,10 @@ class Actions
   ```
   Actions.toggleAllMessagesExpanded()
   ```
-  ###
-  @toggleAllMessagesExpanded: ActionScopeWindow
+  */
+  static toggleAllMessagesExpanded = ActionScopeWindow;
 
-  ###
+  /*
   Public: Print the currently selected thread.
 
   *Scope: Window*
@@ -294,10 +294,10 @@ class Actions
   thread = <Thread>
   Actions.printThread(thread)
   ```
-  ###
-  @printThread: ActionScopeWindow
+  */
+  static printThread = ActionScopeWindow;
 
-  ###
+  /*
   Public: Display the thread in a new popout window
 
   *Scope: Window*
@@ -306,10 +306,10 @@ class Actions
   thread = <Thread>
   Actions.popoutThread(thread)
   ```
-  ###
-  @popoutThread: ActionScopeWindow
+  */
+  static popoutThread = ActionScopeWindow;
 
-  ###
+  /*
   Public: Display the thread in the main window
 
   *Scope: Global*
@@ -318,10 +318,10 @@ class Actions
   thread = <Thread>
   Actions.focusThreadMainWindow(thread)
   ```
-  ###
-  @focusThreadMainWindow: ActionScopeGlobal
+  */
+  static focusThreadMainWindow = ActionScopeGlobal;
 
-  ###
+  /*
   Public: Create a new reply to the provided threadId and messageId and populate
   it with the body provided.
 
@@ -331,10 +331,10 @@ class Actions
   message = <Message>
   Actions.sendQuickReply({threadId: '123', messageId: '234'}, "Thanks Ben!")
   ```
-  ###
-  @sendQuickReply: ActionScopeWindow
+  */
+  static sendQuickReply = ActionScopeWindow;
 
-  ###
+  /*
   Public: Create a new reply to the provided threadId and messageId. Note that
   this action does not focus on the thread, so you may not be able to see the new draft
   unless you also call {::setFocus}.
@@ -342,24 +342,24 @@ class Actions
   *Scope: Window*
 
   ```
-  # Compose a reply to the last message in the thread
+  * Compose a reply to the last message in the thread
   Actions.composeReply({threadId: '123'})
 
-  # Compose a reply to a specific message in the thread
+  * Compose a reply to a specific message in the thread
   Actions.composeReply({threadId: '123', messageId: '123'})
   ```
-  ###
-  @composeReply: ActionScopeWindow
+  */
+  static composeReply = ActionScopeWindow;
 
-  ###
+  /*
   Public: Create a new draft for forwarding the provided threadId and messageId. See
   {::composeReply} for parameters and behavior.
 
   *Scope: Window*
-  ###
-  @composeForward: ActionScopeWindow
+  */
+  static composeForward = ActionScopeWindow;
 
-  ###
+  /*
   Public: Pop out the draft with the provided ID so the user can edit it in another
   window.
 
@@ -369,12 +369,12 @@ class Actions
   messageId = '123'
   Actions.composePopoutDraft(messageId)
   ```
-  ###
-  @composePopoutDraft: ActionScopeWindow
+  */
+  static composePopoutDraft = ActionScopeWindow;
 
-  @focusDraft: ActionScopeWindow
+  static focusDraft = ActionScopeWindow;
 
-  ###
+  /*
   Public: Open a new composer window for creating a new draft from scratch.
 
   *Scope: Window*
@@ -382,10 +382,10 @@ class Actions
   ```
   Actions.composeNewBlankDraft()
   ```
-  ###
-  @composeNewBlankDraft: ActionScopeWindow
+  */
+  static composeNewBlankDraft = ActionScopeWindow;
 
-  ###
+  /*
   Public: Open a new composer window for a new draft addressed to the given recipient
 
   *Scope: Window*
@@ -393,10 +393,10 @@ class Actions
   ```
   Actions.composeNewDraftToRecipient(contact)
   ```
-  ###
-  @composeNewDraftToRecipient: ActionScopeWindow
+  */
+  static composeNewDraftToRecipient = ActionScopeWindow;
 
-  ###
+  /*
   Public: Send the draft with the given ID. This Action is handled by the {DraftStore},
   which finalizes the {DraftChangeSet} and allows {ComposerExtension}s to display
   warnings and do post-processing. To change send behavior, you should consider using
@@ -407,51 +407,51 @@ class Actions
   ```
   Actions.sendDraft('123', action)
   ```
-  ###
-  @sendDraft: ActionScopeWindow
-  @willPerformSendAction: ActionScopeGlobal
-  @didPerformSendAction: ActionScopeGlobal
-  @didCancelSendAction: ActionScopeGlobal
-  ###
+  */
+  static sendDraft = ActionScopeWindow;
+  static willPerformSendAction = ActionScopeGlobal;
+  static didPerformSendAction = ActionScopeGlobal;
+  static didCancelSendAction = ActionScopeGlobal;
+  /*
   Public: Fired when a draft is successfully sent
   *Scope: Global*
 
   Recieves the clientId of the message that was sent
-  ###
-  @sendDraftSuccess: ActionScopeGlobal
-  @sendDraftFailed: ActionScopeGlobal
+  */
+  static sendDraftSuccess = ActionScopeGlobal;
+  static sendDraftFailed = ActionScopeGlobal;
 
-  @sendManyDrafts: ActionScopeWindow
-  @ensureDraftSynced: ActionScopeWindow
+  static sendManyDrafts = ActionScopeWindow;
+  static ensureDraftSynced = ActionScopeWindow;
 
-  ###
+  /*
   Public: Destroys the draft with the given ID. This Action is handled by the {DraftStore},
   and does not display any confirmation UI.
 
   *Scope: Window*
-  ###
-  @destroyDraft: ActionScopeWindow
+  */
+  static destroyDraft = ActionScopeWindow;
 
-  ###
+  /*
   Public: Submits the user's response to an RSVP event.
 
   *Scope: Window*
-  ###
-  @RSVPEvent: ActionScopeWindow
+  */
+  static RSVPEvent = ActionScopeWindow;
 
-  # FullContact Sidebar
-  @getFullContactDetails: ActionScopeWindow
-  @focusContact: ActionScopeWindow
+  // FullContact Sidebar
+  static getFullContactDetails = ActionScopeWindow;
+  static focusContact = ActionScopeWindow;
 
-  # Templates
-  @insertTemplateId: ActionScopeWindow
-  @createTemplate: ActionScopeWindow
-  @showTemplates: ActionScopeWindow
+  // Templates
+  static insertTemplateId = ActionScopeWindow;
+  static createTemplate = ActionScopeWindow;
+  static showTemplates = ActionScopeWindow;
 
-  # Account Sidebar
-  @setCollapsedSidebarItem: ActionScopeWindow
+  // Account Sidebar
+  static setCollapsedSidebarItem = ActionScopeWindow;
 
-  ###
+  /*
   Public: Remove a file from a draft.
 
   *Scope: Window*
@@ -461,38 +461,38 @@ class Actions
     file: fileObject
     messageClientId: draftClientId
   ```
-  ###
-  @removeFile: ActionScopeWindow
+  */
+  static removeFile = ActionScopeWindow;
 
-  # File Actions
-  # Some file actions only need to be processed in their current window
-  @addAttachment: ActionScopeWindow
-  @selectAttachment: ActionScopeWindow
-  @removeAttachment: ActionScopeWindow
-  @insertAttachmentIntoDraft: ActionScopeWindow
+  // File Actions
+  // Some file actions only need to be processed in their current window
+  static addAttachment = ActionScopeWindow;
+  static selectAttachment = ActionScopeWindow;
+  static removeAttachment = ActionScopeWindow;
+  static insertAttachmentIntoDraft = ActionScopeWindow;
 
-  @fetchAndOpenFile: ActionScopeWindow
-  @fetchAndSaveFile: ActionScopeWindow
-  @fetchAndSaveAllFiles: ActionScopeWindow
-  @fetchFile: ActionScopeWindow
-  @abortFetchFile: ActionScopeWindow
+  static fetchAndOpenFile = ActionScopeWindow;
+  static fetchAndSaveFile = ActionScopeWindow;
+  static fetchAndSaveAllFiles = ActionScopeWindow;
+  static fetchFile = ActionScopeWindow;
+  static abortFetchFile = ActionScopeWindow;
 
-  ###
+  /*
   Public: Pop the current sheet off the Sheet stack maintained by the {WorkspaceStore}.
   This action has no effect if the window is currently showing a root sheet.
 
   *Scope: Window*
-  ###
-  @popSheet: ActionScopeWindow
+  */
+  static popSheet = ActionScopeWindow;
 
-  ###
+  /*
   Public: Pop the to the root sheet currently selected.
 
   *Scope: Window*
-  ###
-  @popToRootSheet: ActionScopeWindow
+  */
+  static popToRootSheet = ActionScopeWindow;
 
-  ###
+  /*
   Public: Push a sheet of a specific type onto the Sheet stack maintained by the
   {WorkspaceStore}. Note that sheets have no state. To show a *specific* thread,
   you should push a Thread sheet and call `setFocus` to select the thread.
@@ -507,74 +507,85 @@ class Actions
 
   @pushSheet(WorkspaceStore.Sheet.Thread)
   ```
-  ###
-  @pushSheet: ActionScopeWindow
+  */
+  static pushSheet = ActionScopeWindow;
 
-  ###
+  /*
   Public: Publish a user event to any analytics services linked to N1.
-  ###
-  @recordUserEvent: ActionScopeWorkWindow
+  */
+  static recordUserEvent = ActionScopeWorkWindow;
 
-  @addMailRule: ActionScopeWindow
-  @reorderMailRule: ActionScopeWindow
-  @updateMailRule: ActionScopeWindow
-  @deleteMailRule: ActionScopeWindow
-  @disableMailRule: ActionScopeWindow
+  static addMailRule = ActionScopeWindow;
+  static reorderMailRule = ActionScopeWindow;
+  static updateMailRule = ActionScopeWindow;
+  static deleteMailRule = ActionScopeWindow;
+  static disableMailRule = ActionScopeWindow;
 
-  @openPopover: ActionScopeWindow
-  @closePopover: ActionScopeWindow
+  static openPopover = ActionScopeWindow;
+  static closePopover = ActionScopeWindow;
 
-  @openModal: ActionScopeWindow
-  @closeModal: ActionScopeWindow
+  static openModal = ActionScopeWindow;
+  static closeModal = ActionScopeWindow;
 
-  ###
+  /*
   Public: Set metadata for a specified model and pluginId.
 
   *Scope: Window*
 
   Receives an {Model} or {Array} of {Model}s, a plugin id, and an Object that
   represents the metadata value.
-  ###
-  @setMetadata: ActionScopeWindow
+  */
+  static setMetadata = ActionScopeWindow;
 
-  @draftParticipantsChanged: ActionScopeWindow
+  static draftParticipantsChanged = ActionScopeWindow;
 
-  @findInThread: ActionScopeWindow
-  @nextSearchResult: ActionScopeWindow
-  @previousSearchResult: ActionScopeWindow
-
-
-  # Actions for the signature preferences and shared with the composer
-  @addSignature: ActionScopeWindow
-  @removeSignature: ActionScopeWindow
-  @updateSignature: ActionScopeWindow
-  @selectSignature: ActionScopeWindow
-  @toggleAccount: ActionScopeWindow
-
-  @notifyPluginsChanged: ActionScopeGlobal
+  static findInThread = ActionScopeWindow;
+  static nextSearchResult = ActionScopeWindow;
+  static previousSearchResult = ActionScopeWindow;
 
 
-# Read the actions we declared on the dummy Actions object above
-# and translate them into Reflux Actions
+  // Actions for the signature preferences and shared with the composer
+  static addSignature = ActionScopeWindow;
+  static removeSignature = ActionScopeWindow;
+  static updateSignature = ActionScopeWindow;
+  static selectSignature = ActionScopeWindow;
+  static toggleAccount = ActionScopeWindow;
 
-# This helper method exists to trick the Donna lexer so it doesn't
-# try to understand what we're doing to the Actions object.
-create = (obj, name, scope) ->
-  obj[name] = Reflux.createAction(name)
-  obj[name].scope = scope
-  obj[name].sync = true
+  static notifyPluginsChanged = ActionScopeGlobal;
+}
 
-scopes = {'window': [], 'global': [], 'work': []}
 
-for name in Object.getOwnPropertyNames(Actions)
-  continue if name in ['length', 'name', 'arguments', 'caller', 'prototype']
-  continue unless Actions[name] in ['window', 'global', 'work']
-  scope = Actions[name]
-  scopes[scope].push(name)
-  create(Actions, name, scope)
+// Read the actions we declared on the dummy Actions object above
+// and translate them into Reflux Actions
 
-Actions.windowActions = scopes['window']
-Actions.workWindowActions = scopes['work']
-Actions.globalActions = scopes['global']
+// This helper method exists to trick the Donna lexer so it doesn't
+// try to understand what we're doing to the Actions object.
+const create = (obj, name, scope) => {
+  obj[name] = Reflux.createAction(name);
+  obj[name].scope = scope;
+  obj[name].sync = true;
+};
 
-module.exports = Actions
+const scopes = {
+  window: [],
+  global: [],
+  work: [],
+};
+
+for (const name of Object.getOwnPropertyNames(Actions)) {
+  if (name === 'length' || name === 'name' || name === 'arguments' || name === 'caller' || name === 'prototype') {
+    continue;
+  }
+  if (Actions[name] !== 'window' && Actions[name] !== 'global' && Actions[name] !== 'work') {
+    continue;
+  }
+  const scope = Actions[name];
+  scopes[scope].push(name);
+  create(Actions, name, scope);
+}
+
+Actions.windowActions = scopes.window;
+Actions.workWindowActions = scopes.work;
+Actions.globalActions = scopes.global;
+
+export default Actions;

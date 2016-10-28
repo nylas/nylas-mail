@@ -9,7 +9,7 @@ Task = require("../tasks/task").default
 TaskRegistry = require('../../task-registry').default
 Utils = require "../models/utils"
 Reflux = require 'reflux'
-Actions = require '../actions'
+Actions = require('../actions').default
 DatabaseStore = require('./database-store').default
 
 {APIError,

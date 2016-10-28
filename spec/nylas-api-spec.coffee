@@ -1,6 +1,6 @@
 _ = require 'underscore'
 fs = require 'fs'
-Actions = require '../src/flux/actions'
+Actions = require('../src/flux/actions').default
 NylasAPI = require '../src/flux/nylas-api'
 Thread = require('../src/flux/models/thread').default
 Message = require('../src/flux/models/message').default

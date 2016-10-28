@@ -1,7 +1,7 @@
 _ = require 'underscore'
 Thread = require('../../src/flux/models/thread').default
 FocusedContentStore = require '../../src/flux/stores/focused-content-store'
-Actions = require '../../src/flux/actions'
+Actions = require('../../src/flux/actions').default
 
 testThread = new Thread(id: '123', accountId: TEST_ACCOUNT_ID)
 

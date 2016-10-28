@@ -7,7 +7,7 @@ FocusedPerspectiveStore = require('../../src/flux/stores/focused-perspective-sto
 MessageStore = require '../../src/flux/stores/message-store'
 DatabaseStore = require('../../src/flux/stores/database-store').default
 ChangeUnreadTask = require('../../src/flux/tasks/change-unread-task').default
-Actions = require '../../src/flux/actions'
+Actions = require('../../src/flux/actions').default
 
 testThread = new Thread(id: '123', accountId: TEST_ACCOUNT_ID)
 testMessage1 = new Message(id: 'a', body: '123', files: [], accountId: TEST_ACCOUNT_ID)
