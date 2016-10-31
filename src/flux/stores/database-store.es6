@@ -13,14 +13,14 @@ import DatabaseChangeRecord from './database-change-record';
 import DatabaseTransaction from './database-transaction';
 import DatabaseSetupQueryBuilder from './database-setup-query-builder';
 
-const DatabaseVersion = "25";
+const DatabaseVersion = "23";
 const DatabasePhase = {
   Setup: 'setup',
   Ready: 'ready',
   Close: 'close',
 }
 
-const DEBUG_TO_LOG = false;
+const DEBUG_TO_LOG = true;
 const DEBUG_QUERY_PLANS = NylasEnv.inDevMode();
 
 let JSONBlob = null;
