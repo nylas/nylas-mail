@@ -20,7 +20,7 @@ const DatabasePhase = {
   Close: 'close',
 }
 
-const DEBUG_TO_LOG = true;
+const DEBUG_TO_LOG = false;
 const DEBUG_QUERY_PLANS = NylasEnv.inDevMode();
 
 let JSONBlob = null;
