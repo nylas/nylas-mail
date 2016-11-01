@@ -69,7 +69,7 @@ export default class MenuManager {
           item.enabled = NylasEnv.commands.listenerCountForCommand(item.command) > 0;
         }
         if (item.submenu != null) {
-          item.enabled = item.submenu.every((subitem) => subitem.enabled === false);
+          item.enabled = !item.submenu.every((subitem) => subitem.enabled === false);
         }
       });
       return this.sendToBrowserProcess(this.template, NylasEnv.keymaps.getBindingsForAllCommands());
