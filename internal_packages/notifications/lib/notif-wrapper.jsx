@@ -43,6 +43,7 @@ export default class NotifWrapper extends React.Component {
         className="notifications"
         matching={{role: ROLE}}
         direction="column"
+        containersRequired={false}
       />
     )
   }
