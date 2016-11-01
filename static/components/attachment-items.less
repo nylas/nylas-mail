@@ -1,5 +1,6 @@
 @import "ui-variables";
 @import "ui-mixins";
+@file-icon-color: #c7c7c7;
 
 
 .nylas-attachment-item {
@@ -11,6 +12,12 @@
   width: calc(~"50% - 23px");
   min-width: 320px;
 
+  &.file-attachment-item:focus {
+    .file-info-wrap,.file-action-icon {
+      border-color: lighten(@component-active-color, 10%);
+    }
+  }
+
   .inner {
     border-radius: 2px;
     color: @text-color;
@@ -21,10 +28,12 @@
   .file-info-wrap {
     display: flex;
     align-items: center;
-    padding-left: @spacing-half + 1;
+    padding: 10px;
     width: 100%;
-    height: 100%;
+    height: 105%;
     border: solid 1px rgba(0, 0, 0, 0.09);
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
     border-right: none;
 
     .file-icon {
@@ -46,20 +55,31 @@
       margin-right: @spacing-three-quarters;
       color: @file-size-color;
     }
+    img.quicklook-icon {
+      background-color: @file-icon-color;
+
+      &:hover {
+        background-color: darken(@file-icon-color, 20%);
+      }
+      &:active {
+        background-color: darken(@file-icon-color, 40%);
+      }
+    }
   }
 
   .file-action-icon {
-    @file-icon-color: #c7c7c7;
-
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     margin-left: auto;
-    padding-top: 1px;
-    height: 100%;
-    width: 37px;
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.09);
+    padding: 10px;
+    height: 105%;
+    width: 38px;
+    border: solid 1px rgba(0, 0, 0, 0.09);
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    // box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.09);
 
     img {
       background-color: @file-icon-color;

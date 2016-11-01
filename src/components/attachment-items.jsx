@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import React, {Component, PropTypes} from 'react'
 import ReactDOM from 'react-dom'
+import {pickHTMLProps} from 'pick-react-known-prop'
 import RetinaImg from './retina-img'
 import Flexbox from './flexbox'
 import Spinner from './spinner'
@@ -10,6 +11,8 @@ import Spinner from './spinner'
 const propTypes = {
   className: PropTypes.string,
   draggable: PropTypes.bool,
+  focusable: PropTypes.bool,
+  previewable: PropTypes.bool,
   filePath: PropTypes.string,
   contentType: PropTypes.string,
   download: PropTypes.shape({
@@ -28,6 +31,8 @@ const propTypes = {
 const defaultProps = {
   draggable: true,
 }
+
+const SPACE = ' '
 
 function ProgressBar(props) {
   const {download} = props
@@ -100,14 +105,30 @@ export class AttachmentItem extends Component {
 
   static defaultProps = defaultProps;
 
+  _canPreview() {
+    const {filePath, previewable} = this.props
+    return previewable && process.platform === 'darwin' && fs.existsSync(filePath)
+  }
+
+  _previewAttachment() {
+    const {filePath} = this.props
+    const currentWin = NylasEnv.getCurrentWindow()
+    currentWin.previewFile(filePath)
+  }
+
   _onDragStart = (event) => {
     const {contentType, filePath} = this.props
     if (fs.existsSync(filePath)) {
       // Note: From trial and error, it appears that the second param /MUST/ be the
       // same as the last component of the filePath URL, or the download fails.
-      const DownloadURL = `${contentType}:${path.basename(filePath)}:file://${filePath}`
-      event.dataTransfer.setData("DownloadURL", DownloadURL)
-      event.dataTransfer.setData("text/nylas-file-url", DownloadURL)
+      const downloadURL = `${contentType}:${path.basename(filePath)}:file://${filePath}`
+      event.dataTransfer.setData("DownloadURL", downloadURL)
+      event.dataTransfer.setData("text/nylas-file-url", downloadURL)
+      const fileIconImg = ReactDOM.findDOMNode(this.refs.fileIconImg)
+      const rect = fileIconImg.getBoundingClientRect()
+      const x = window.devicePixelRatio === 2 ? rect.height / 2 : rect.height
+      const y = window.devicePixelRatio === 2 ? rect.width / 2 : rect.width
+      event.dataTransfer.setDragImage(fileIconImg, x, y)
     } else {
       event.preventDefault()
     }
@@ -120,20 +141,49 @@ export class AttachmentItem extends Component {
     }
   };
 
+  _onAttachmentKeyDown = (event) => {
+    if (event.key === SPACE) {
+      if (!this._canPreview()) { return; }
+      event.preventDefault()
+      this._previewAttachment()
+    }
+    if (event.key === 'Escape') {
+      const attachmentNode = ReactDOM.findDOMNode(this)
+      if (attachmentNode) {
+        attachmentNode.blur()
+      }
+    }
+  }
+
+  _onClickQuicklookIcon = (event) => {
+    event.preventDefault()
+    event.stopPropagation()
+    this._previewAttachment()
+  }
+
   render() {
     const {
       download,
       className,
+      focusable,
       draggable,
       displayName,
       displaySize,
       fileIconName,
+      ...extraProps
     } = this.props
-    const classes = `nylas-attachment-item ${className}`
+    const classes = `nylas-attachment-item file-attachment-item ${className || ''}`
     const style = draggable ? {WebkitUserDrag: 'element'} : null;
+    const tabIndex = focusable ? 0 : null
 
     return (
-      <div className={classes} style={style}>
+      <div
+        style={style}
+        className={classes}
+        tabIndex={tabIndex}
+        onKeyDown={focusable ? this._onAttachmentKeyDown : null}
+        {...pickHTMLProps(extraProps)}
+      >
         <div
           className="inner"
           draggable={draggable}
@@ -144,13 +194,23 @@ export class AttachmentItem extends Component {
           <Flexbox direction="row" style={{alignItems: 'center'}}>
             <div className="file-info-wrap">
               <RetinaImg
+                ref="fileIconImg"
                 className="file-icon"
                 fallback="file-fallback.png"
                 mode={RetinaImg.Mode.ContentPreserve}
                 name={fileIconName}
               />
               <span className="file-name">{displayName}</span>
-              <span className="file-size">{displaySize}</span>
+              <span className="file-size">({displaySize})</span>
+              {this._canPreview() ?
+                <RetinaImg
+                  className="quicklook-icon"
+                  name="attachment-quicklook.png"
+                  mode={RetinaImg.Mode.ContentIsMask}
+                  onClick={this._onClickQuicklookIcon}
+                /> :
+                null
+              }
             </div>
             <AttachmentActionIcon
               {...this.props}
@@ -212,10 +272,10 @@ export class ImageAttachmentItem extends Component {
   }
 
   render() {
-    const {className, displayName, download} = this.props
-    const classes = `nylas-attachment-item image-attachment-item ${className}`
+    const {className, displayName, download, ...extraProps} = this.props
+    const classes = `nylas-attachment-item image-attachment-item ${className || ''}`
     return (
-      <div className={classes}>
+      <div className={classes} {...pickHTMLProps(extraProps)}>
         <div>
           <ProgressBar download={download} />
           <AttachmentActionIcon
