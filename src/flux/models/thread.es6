@@ -148,6 +148,7 @@ class Thread extends ModelWithMetadata {
       .where({threadId: this.id})
       .include(Message.attributes.body)
     )
+    .then((messages) => messages.filter((m) => !m.isHidden()))
   }
 
   /** Computes the plaintext version of ALL messages.

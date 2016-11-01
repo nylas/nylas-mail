@@ -27,6 +27,7 @@ ThreadListTimestamp = ({thread}) ->
     rawTimestamp = thread.lastMessageReceivedTimestamp
   timestamp = DateUtils.shortTimeString(rawTimestamp)
   return <span className="timestamp">{timestamp}</span>
+ThreadListTimestamp.containerRequired = false
 
 subject = (subj) ->
   if (subj ? "").trim().length is 0
@@ -91,7 +92,7 @@ c3 = new ListTabular.Column
   flex: 4
   resolver: (thread) =>
     attachment = false
-    messages = (thread.__messages || [])
+    messages = thread.__messages || []
 
     hasAttachments = thread.hasAttachments and messages.find (m) -> Utils.showIconForAttachments(m.files)
     if hasAttachments
@@ -107,7 +108,14 @@ c3 = new ListTabular.Column
 c4 = new ListTabular.Column
   name: "Date"
   resolver: (thread) =>
-    return <ThreadListTimestamp thread={thread} />
+    return (
+      <InjectedComponent
+        className="thread-injected-timestamp"
+        fallback={ThreadListTimestamp}
+        exposedProps={thread: thread}
+        matching={role: "ThreadListTimestamp"}
+      />
+    )
 
 c5 = new ListTabular.Column
   name: "HoverActions"
@@ -134,7 +142,7 @@ cNarrow = new ListTabular.Column
   resolver: (thread) =>
     pencil = false
     attachment = false
-    messages = (thread.__messages || [])
+    messages = thread.__messages || []
 
     hasAttachments = thread.hasAttachments and messages.find (m) -> Utils.showIconForAttachments(m.files)
     if hasAttachments
@@ -173,8 +181,6 @@ cNarrow = new ListTabular.Column
           <InjectedComponent
             key="thread-injected-timestamp"
             className="thread-injected-timestamp"
-            inline={true}
-            containersRequired={false}
             fallback={ThreadListTimestamp}
             exposedProps={thread: thread}
             matching={role: "ThreadListTimestamp"}

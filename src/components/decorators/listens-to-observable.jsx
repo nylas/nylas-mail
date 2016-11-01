@@ -9,11 +9,20 @@ function ListensToObservable(ComposedComponent, {getObservable, getStateFromObse
     constructor(props) {
       super(props)
       this.state = getStateFromObservable(null, {props})
+      this.disposable = null
       this.observable = getObservable(props)
     }
 
     componentDidMount() {
       this.unmounted = false
+      this.disposable = this.observable.subscribe(this.onObservableChanged)
+    }
+
+    componentWillReceiveProps(nextProps) {
+      if (this.disposable) {
+        this.disposable.dispose()
+      }
+      this.observable = getObservable(nextProps)
       this.disposable = this.observable.subscribe(this.onObservableChanged)
     }
 
