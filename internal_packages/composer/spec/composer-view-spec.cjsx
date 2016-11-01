@@ -419,13 +419,11 @@ describe "ComposerView", ->
         expect(Actions.fetchFile.calls.length).toBe(1)
         expect(Actions.fetchFile.calls[0].args[0]).toBe @file2
 
-    it 'injects an Attachment component for non image files', ->
-      els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, InjectedComponent, matching: {role: "Attachment"})
+    it 'injects a MessageAttachments component for any present attachments', ->
+      els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, InjectedComponent, matching: {role: "MessageAttachments"})
       expect(els.length).toBe 1
-
-    it 'injects an Attachment:Image component for image files', ->
-      els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, InjectedComponent, matching: {role: "Attachment:Image"})
-      expect(els.length).toBe 1
+      el = els[0]
+      expect(el.props.exposedProps.files).toEqual(@draft.files)
 
 describe "when a file is received (via drag and drop or paste)", ->
   beforeEach ->

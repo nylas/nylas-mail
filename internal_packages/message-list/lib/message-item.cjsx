@@ -182,11 +182,18 @@ class MessageItem extends React.Component
 
 
   _renderAttachments: =>
-    attachments = @_attachmentComponents()
-    if attachments.length > 0
+    files = (@props.message.files ? []).filter((f) => @_isRealFile(f))
+    messageClientId = @props.message.clientId
+    downloadsData = @state.downloads
+    if files.length > 0
       <div>
-        {if attachments.length > 1 then @_renderDownloadAllButton()}
-        <div className="attachments-area">{attachments}</div>
+        {if files.length > 1 then @_renderDownloadAllButton()}
+        <div className="attachments-area">
+          <InjectedComponent
+            matching={{role: 'MessageAttachments'}}
+            exposedProps={{files, messageClientId, downloadsData, canRemoveAttachments: false}}
+          />
+        </div>
       </div>
     else
       <div />
@@ -226,40 +233,6 @@ class MessageItem extends React.Component
   _toggleCollapsed: =>
     return if @props.isLastMsg
     Actions.toggleMessageIdExpanded(@props.message.id)
-
-  _formatContacts: (contacts=[]) =>
-
-  _attachmentComponents: =>
-    imageAttachments = []
-    otherAttachments = []
-
-    for file in (@props.message.files ? [])
-      continue unless @_isRealFile(file)
-      if Utils.shouldDisplayAsImage(file)
-        imageAttachments.push(file)
-      else
-        otherAttachments.push(file)
-
-    otherAttachments = otherAttachments.map (file) =>
-      <InjectedComponent
-        className="file-wrap"
-        matching={role:"Attachment"}
-        exposedProps={file:file, download: @state.downloads[file.id]}
-        key={file.id}/>
-
-    imageAttachments = imageAttachments.map (file) =>
-      props =
-        file: file
-        download: @state.downloads[file.id]
-        targetPath: FileDownloadStore.pathForFile(file)
-
-      <InjectedComponent
-        className="file-wrap file-image-wrap"
-        matching={role:"Attachment:Image"}
-        exposedProps={props}
-        key={file.id} />
-
-    return otherAttachments.concat(imageAttachments)
 
   _isRealFile: (file) ->
     hasCIDInBody = file.contentId? and @props.message.body?.indexOf(file.contentId) > 0
