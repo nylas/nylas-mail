@@ -3,14 +3,6 @@ import {Actions, Utils, FileDownloadStore} from 'nylas-exports'
 import {AttachmentItem, ImageAttachmentItem} from 'nylas-component-kit'
 
 
-function getImageFiles(files) {
-  return files.filter(f => Utils.shouldDisplayAsImage(f));
-}
-
-function getNonImageFiles(files) {
-  return files.filter(f => !Utils.shouldDisplayAsImage(f));
-}
-
 class MessageAttachments extends Component {
   static displayName= 'MessageAttachments'
 
@@ -56,6 +48,8 @@ class MessageAttachments extends Component {
     return (
       <AttachmentRenderer
         key={file.id}
+        focusable
+        previewable
         filePath={filePath}
         download={download}
         contentType={contentType}
@@ -72,8 +66,8 @@ class MessageAttachments extends Component {
 
   render() {
     const {files, downloadsData} = this.props;
-    const nonImageFiles = getNonImageFiles(files)
-    const imageFiles = getImageFiles(files)
+    const nonImageFiles = files.filter((f) => !Utils.shouldDisplayAsImage(f));
+    const imageFiles = files.filter((f) => Utils.shouldDisplayAsImage(f));
     return (
       <div>
         {nonImageFiles.map((file) =>

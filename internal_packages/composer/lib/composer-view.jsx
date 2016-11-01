@@ -333,27 +333,30 @@ export default class ComposerView extends React.Component {
   _renderUploadAttachments() {
     const {uploads} = this.props.draft;
 
-    const nonImageUploads = this._nonImageFiles(uploads).map(upload =>
-      <AttachmentItem
-        key={upload.id}
-        className="file-upload"
-        draggable={false}
-        filePath={upload.targetPath}
-        displayName={upload.filename}
-        fileIconName={`file-${upload.extension}.png`}
-        onRemoveAttachment={() => Actions.removeAttachment(upload)}
-      />
-    );
-    const imageUploads = this._imageFiles(uploads).filter(u => !u.inline).map(upload =>
-      <ImageAttachmentItem
-        key={upload.id}
-        className="file-upload"
-        draggable={false}
-        filePath={upload.targetPath}
-        displayName={upload.filename}
-        onRemoveAttachment={() => Actions.removeAttachment(upload)}
-      />
-    );
+    const nonImageUploads = this._nonImageFiles(uploads)
+      .map((upload) =>
+        <AttachmentItem
+          key={upload.id}
+          className="file-upload"
+          draggable={false}
+          filePath={upload.targetPath}
+          displayName={upload.filename}
+          fileIconName={`file-${upload.extension}.png`}
+          onRemoveAttachment={() => Actions.removeAttachment(upload)}
+        />
+      );
+    const imageUploads = this._imageFiles(uploads)
+      .filter(u => !u.inline)
+      .map((upload) =>
+        <ImageAttachmentItem
+          key={upload.id}
+          className="file-upload"
+          draggable={false}
+          filePath={upload.targetPath}
+          displayName={upload.filename}
+          onRemoveAttachment={() => Actions.removeAttachment(upload)}
+        />
+      );
     return nonImageUploads.concat(imageUploads);
   }
 
