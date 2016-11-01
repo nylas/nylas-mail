@@ -4,7 +4,6 @@ import {Notification} from 'nylas-component-kit';
 
 export default class UpdateNotification extends React.Component {
   static displayName = 'UpdateNotification';
-  static containerRequired = false;
 
   constructor() {
     super();

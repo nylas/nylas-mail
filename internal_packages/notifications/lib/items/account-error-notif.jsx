@@ -4,7 +4,6 @@ import {Notification} from 'nylas-component-kit';
 
 export default class AccountErrorNotification extends React.Component {
   static displayName = 'AccountErrorNotification';
-  static containerRequired = false;
 
   constructor() {
     super();

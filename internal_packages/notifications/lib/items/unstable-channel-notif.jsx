@@ -3,7 +3,6 @@ import {Notification} from 'nylas-component-kit';
 
 export default class UnstableChannelNotification extends React.Component {
   static displayName = 'UnstableChannelNotification';
-  static containerRequired = false;
 
   constructor() {
     super();

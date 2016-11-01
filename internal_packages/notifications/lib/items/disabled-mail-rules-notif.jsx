@@ -3,7 +3,6 @@ import {Notification} from 'nylas-component-kit';
 
 export default class DisabledMailRulesNotification extends React.Component {
   static displayName = 'DisabledMailRulesNotification';
-  static containerRequired = false;
 
   constructor() {
     super();
