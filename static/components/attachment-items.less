@@ -1,7 +1,8 @@
 @import "ui-variables";
 @import "ui-mixins";
 
-.file-wrap {
+
+.nylas-attachment-item {
   cursor: default;
   display: inline-block;
   position: relative;
@@ -9,7 +10,6 @@
   margin: 0 0 @spacing-standard @spacing-standard;
   width: calc(~"50% - 23px");
   min-width: 320px;
-  -webkit-user-drag: element;
 
   .inner {
     border-radius: 2px;
@@ -73,15 +73,6 @@
     }
   }
 
-  &.file-upload {
-    .file-name {
-      color: @text-color-very-subtle;
-      .uploading {
-        color: @text-color;
-      }
-    }
-  }
-
   .progress-bar-wrap {
     display: none;
 
@@ -125,10 +116,17 @@
       border-bottom-right-radius:4px;
     }
   }
-
 }
 
-.file-wrap.file-image-wrap {
+body.platform-win32 {
+  .nylas-attachment-item {
+    .inner {
+      border-radius: 0;
+    }
+  }
+}
+
+.nylas-attachment-item.image-attachment-item {
   position: relative;
   text-align: center;
   display:inline-block;
@@ -211,15 +209,6 @@
       max-width: 100%;
       background: url(../static/images/attachments/transparency-background.png) top left repeat;
       background-size: 8px;
-    }
-  }
-
-}
-
-body.platform-win32 {
-  .file-wrap {
-    .inner {
-      border-radius: 0;
     }
   }
 }

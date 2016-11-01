@@ -196,25 +196,28 @@ describe "MessageItem", ->
       attachments = ReactTestUtils.findRenderedDOMComponentWithClass(@component, 'attachments-area')
       expect(attachments).toBeDefined()
 
-    it "should render the registered an injected component for each attachment", ->
-      attachments = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@component, InjectedComponent, matching: {role: 'Attachment'})
-      expect(attachments[0].props.exposedProps.file).toBe(file)
+    it 'injects a MessageAttachments component for any present attachments', ->
+      els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@component, InjectedComponent, matching: {role: "MessageAttachments"})
+      expect(els.length).toBe 1
 
     it "should list attachments that are not mentioned in the body via cid", ->
-      attachments = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@component, InjectedComponent, matching: {role: 'Attachment'})
+      els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@component, InjectedComponent, matching: {role: "MessageAttachments"})
+      attachments = els[0].props.exposedProps.files
       expect(attachments.length).toEqual(5)
-      expect(attachments[0].props.exposedProps.file).toBe(file)
-      expect(attachments[1].props.exposedProps.file).toBe(file_not_downloaded)
-      expect(attachments[2].props.exposedProps.file).toBe(file_cid_but_not_referenced)
-      expect(attachments[3].props.exposedProps.file).toBe(file_cid_but_not_referenced_or_image)
+      expect(attachments[0]).toBe(file)
+      expect(attachments[1]).toBe(file_not_downloaded)
+      expect(attachments[2]).toBe(file_cid_but_not_referenced)
+      expect(attachments[3]).toBe(file_cid_but_not_referenced_or_image)
 
-    it "should provide file download state to each InjectedComponent", ->
-      attachments = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@component, InjectedComponent, matching: {role: 'Attachment'})
-      expect(attachments[0].props.exposedProps.download).toBe(download)
-      expect(attachments[1].props.exposedProps.download).toBe(undefined)
+    it "should provide the correct file download state for each attachment", ->
+      els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@component, InjectedComponent, matching: {role: "MessageAttachments"})
+      {downloadsData} = els[0].props.exposedProps
+      expect(downloadsData['file_1_id']).toBe(download)
+      expect(downloadsData['file_not_downloaded']).toBe(undefined)
 
     it "should still list attachments when the message has no body", ->
       @message.body = ""
       @createComponent()
-      attachments = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@component, InjectedComponent, matching: {role: 'Attachment'})
+      els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@component, InjectedComponent, matching: {role: "MessageAttachments"})
+      attachments = els[0].props.exposedProps.files
       expect(attachments.length).toEqual(8)
