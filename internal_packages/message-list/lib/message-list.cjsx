@@ -175,9 +175,10 @@ class MessageList extends React.Component
           <div className="headers" style={position:'relative'}>
             <InjectedComponentSet
               className="message-list-headers"
-              matching={role:"MessageListHeaders"}
-              exposedProps={thread: @state.currentThread}
-              direction="column"/>
+              matching={{role: "MessageListHeaders"}}
+              exposedProps={{thread: @state.currentThread, messages: @state.messages}}
+              direction="column"
+            />
           </div>
           {@_messageElements()}
         </ScrollRegion>
@@ -304,14 +305,17 @@ class MessageList extends React.Component
       isBeforeReplyArea = isLastMsg and hasReplyArea
 
       elements.push(
-        <MessageItemContainer key={message.clientId}
-                              ref={"message-container-#{message.clientId}"}
-                              thread={@state.currentThread}
-                              message={message}
-                              collapsed={collapsed}
-                              isLastMsg={isLastMsg}
-                              isBeforeReplyArea={isBeforeReplyArea}
-                              scrollTo={@_scrollTo} />
+        <MessageItemContainer
+          key={message.clientId}
+          ref={"message-container-#{message.clientId}"}
+          thread={@state.currentThread}
+          message={message}
+          messages={@state.messages}
+          collapsed={collapsed}
+          isLastMsg={isLastMsg}
+          isBeforeReplyArea={isBeforeReplyArea}
+          scrollTo={@_scrollTo}
+        />
       )
 
     if hasReplyArea

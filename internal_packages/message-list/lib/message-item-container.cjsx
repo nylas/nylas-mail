@@ -15,6 +15,7 @@ class MessageItemContainer extends React.Component
   @propTypes =
     thread: React.PropTypes.object.isRequired
     message: React.PropTypes.object.isRequired
+    messages: React.PropTypes.array.isRequired
     collapsed: React.PropTypes.bool
     isLastMsg: React.PropTypes.bool
     isBeforeReplyArea: React.PropTypes.bool
@@ -54,9 +55,11 @@ class MessageItemContainer extends React.Component
       pending={pending}
       thread={@props.thread}
       message={@props.message}
+      messages={@props.messages}
       className={@_classNames()}
       collapsed={@props.collapsed}
-      isLastMsg={@props.isLastMsg} />
+      isLastMsg={@props.isLastMsg}
+    />
 
   _renderComposer: =>
     Composer = ComponentRegistry.findComponentsMatching(role: 'Composer')[0]

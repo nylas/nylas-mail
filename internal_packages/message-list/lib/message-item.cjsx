@@ -1,4 +1,5 @@
 React = require 'react'
+ReactDOM = require 'react-dom'
 classNames = require 'classnames'
 _ = require 'underscore'
 EmailFrame = require('./email-frame').default
@@ -10,7 +11,6 @@ MessageControls = require './message-controls'
  Actions,
  MessageUtils,
  AccountStore,
- MessageStore,
  MessageBodyProcessor,
  QuotedHTMLTransformer,
  ComponentRegistry,
@@ -27,6 +27,7 @@ class MessageItem extends React.Component
   @propTypes =
     thread: React.PropTypes.object.isRequired
     message: React.PropTypes.object.isRequired
+    messages: React.PropTypes.array.isRequired
     collapsed: React.PropTypes.bool
 
   constructor: (@props) ->
@@ -35,9 +36,14 @@ class MessageItem extends React.Component
       # keyed by a fileId. The value is the downloadData.
       downloads: FileDownloadStore.downloadDataForFiles(@props.message.fileIds())
       detailedHeaders: false
+      detailedHeadersTogglePos: {top: 18}
 
   componentDidMount: =>
     @_storeUnlisten = FileDownloadStore.listen(@_onDownloadStoreChange)
+    @_setDetailedHeadersTogglePos()
+
+  componentDidUpdate: =>
+    @_setDetailedHeadersTogglePos()
 
   componentWillUnmount: =>
     @_storeUnlisten() if @_storeUnlisten
@@ -91,39 +97,46 @@ class MessageItem extends React.Component
       "message-header": true
       "pending": @props.pending
 
-    <header className={classes} onClick={@_onClickHeader}>
-      {@_renderHeaderSideItems()}
+    <header ref="header" className={classes} onClick={@_onClickHeader}>
+      <InjectedComponent
+        matching={{role: "MessageHeader"}}
+        exposedProps={{message: @props.message, thread: @props.thread, messages: @props.messages}}
+      />
+      <div className="pending-spinner" style={{position: 'absolute', marginTop: -2}}>
+        <RetinaImg
+          ref="spinner"
+          name="sending-spinner.gif"
+          mode={RetinaImg.Mode.ContentPreserve}
+        />
+      </div>
       <div className="message-header-right">
-        <MessageTimestamp className="message-time"
-                          isDetailed={@state.detailedHeaders}
-                          date={@props.message.date} />
-
+        <MessageTimestamp
+          className="message-time"
+          isDetailed={@state.detailedHeaders}
+          date={@props.message.date}
+        />
         <InjectedComponentSet
           className="message-header-status"
-          matching={role:"MessageHeaderStatus"}
-          exposedProps={message: @props.message, thread: @props.thread, detailedHeaders: @state.detailedHeaders} />
-
+          matching={role: "MessageHeaderStatus"}
+          exposedProps={message: @props.message, thread: @props.thread, detailedHeaders: @state.detailedHeaders}
+        />
         <MessageControls thread={@props.thread} message={@props.message}/>
       </div>
-      {@_renderFromParticipants()}
-      {@_renderToParticipants()}
+      <MessageParticipants
+        from={@props.message.from}
+        onClick={@_onClickParticipants}
+        isDetailed={@state.detailedHeaders}
+      />
+      <MessageParticipants
+        to={@props.message.to}
+        cc={@props.message.cc}
+        bcc={@props.message.bcc}
+        onClick={@_onClickParticipants}
+        isDetailed={@state.detailedHeaders}
+      />
       {@_renderFolder()}
       {@_renderHeaderDetailToggle()}
     </header>
-
-  _renderFromParticipants: =>
-    <MessageParticipants
-      from={@props.message.from}
-      onClick={@_onClickParticipants}
-      isDetailed={@state.detailedHeaders} />
-
-  _renderToParticipants: =>
-    <MessageParticipants
-      to={@props.message.to}
-      cc={@props.message.cc}
-      bcc={@props.message.bcc}
-      onClick={@_onClickParticipants}
-      isDetailed={@state.detailedHeaders} />
 
   _renderFolder: =>
     return [] unless @state.detailedHeaders
@@ -202,32 +215,45 @@ class MessageItem extends React.Component
     <InjectedComponentSet
       className="message-footer-status"
       matching={role:"MessageFooterStatus"}
-      exposedProps={message: @props.message, thread: @props.thread, detailedHeaders: @state.detailedHeaders} />
+      exposedProps={message: @props.message, thread: @props.thread, detailedHeaders: @state.detailedHeaders}
+    />
 
-  _renderHeaderSideItems: ->
-    styles =
-      position: "absolute"
-      marginTop: -2
-
-    <div className="pending-spinner" style={styles}>
-      <RetinaImg ref="spinner"
-                 name="sending-spinner.gif"
-                 mode={RetinaImg.Mode.ContentPreserve}/>
-    </div>
+  _setDetailedHeadersTogglePos: =>
+    header = ReactDOM.findDOMNode(@refs.header)
+    if !header
+      return
+    fromNode = header.querySelector('.participant-name.from-contact,.participant-primary')
+    if !fromNode
+      return
+    fromRect = fromNode.getBoundingClientRect()
+    topPos = Math.floor(fromNode.offsetTop + (fromRect.height / 2) - 10)
+    if topPos isnt @state.detailedHeadersTogglePos.top
+      @setState({detailedHeadersTogglePos: {top: topPos}})
 
   _renderHeaderDetailToggle: =>
     return null if @props.pending
+    {top} = @state.detailedHeadersTogglePos
     if @state.detailedHeaders
-      <div className="header-toggle-control"
-           style={top: "18px", left: "-14px"}
-           onClick={ (e) => @setState(detailedHeaders: false); e.stopPropagation()}>
-        <RetinaImg name={"message-disclosure-triangle-active.png"} mode={RetinaImg.Mode.ContentIsMask}/>
+      <div
+        className="header-toggle-control"
+        style={{top, left: "-14px"}}
+        onClick={(e) => @setState(detailedHeaders: false); e.stopPropagation()}
+      >
+        <RetinaImg
+          name={"message-disclosure-triangle-active.png"}
+          mode={RetinaImg.Mode.ContentIsMask}
+        />
       </div>
     else
-      <div className="header-toggle-control inactive"
-           style={top: "18px"}
-           onClick={ (e) => @setState(detailedHeaders: true); e.stopPropagation()}>
-        <RetinaImg name={"message-disclosure-triangle.png"} mode={RetinaImg.Mode.ContentIsMask}/>
+      <div
+        className="header-toggle-control inactive"
+        style={{top}}
+        onClick={(e) => @setState(detailedHeaders: true); e.stopPropagation()}
+      >
+        <RetinaImg
+          name={"message-disclosure-triangle.png"}
+          mode={RetinaImg.Mode.ContentIsMask}
+        />
       </div>
 
   _toggleCollapsed: =>

@@ -106,7 +106,12 @@ class InjectedComponent extends React.Component
 
     Component = @state.component
     if Component.containerRequired is false
-      element = <Component ref="inner" key={Component.displayName} {...exposedProps} />
+      privateProps = {
+        key: Component.displayName,
+      }
+      if React.Component.isPrototypeOf(Component)
+        privateProps.ref = 'inner'
+      element = <Component {...privateProps} {...exposedProps} />
     else
       element = (
         <UnsafeComponent

@@ -69,6 +69,7 @@ const _flatMapJoiningMessages = ($threadsResultSet) => {
     threadsResultSet.models().forEach((thread, idx) => {
       const clone = new thread.constructor(thread);
       clone.__messages = messagesResultSets[idx] ? messagesResultSets[idx].models() : [];
+      clone.__messages = clone.__messages.filter((m) => !m.isHidden())
       threadsWithMessages[clone.id] = clone;
     });
 
