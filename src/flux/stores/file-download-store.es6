@@ -235,7 +235,7 @@ class FileDownloadStore extends NylasStore {
     });
   }
 
-  _fetchPreview(download) {
+  _fetchPreview() {
 
   }
 
