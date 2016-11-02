@@ -45,32 +45,42 @@ class FormItem extends React.Component
     # Some sort of unique identifier
     id: idPropType.isRequired
 
-    formItemError: React.PropTypes.shape(
-      id: idPropType # The formItemId
-      message: React.PropTypes.string
-    )
-
     # Either a type of input or any type that can be passed into
     # `React.createElement(type, ...)`
     type: React.PropTypes.string.isRequired
 
-    # Some types, like "reference" will define a customComponent to render
-    # with.
-    customComponent: React.PropTypes.func
-
+    # The name as POSTed to the eventual endpoint.
     name: React.PropTypes.string
+
+    # The human-readable display label for the formItem
     label: React.PropTypes.node
 
-    # For making all items controlled inputs
+    # Most input types take strings, numbers, and bools. Some types (like
+    # "reference" can get passed arrays)
     value: React.PropTypes.oneOfType([
       React.PropTypes.string
       React.PropTypes.number
-      React.PropTypes.object
       React.PropTypes.bool
     ])
-
-    # For initialization
     defaultValue: React.PropTypes.string
+
+    # A function that takes two arguments:
+    #   - The id of this FormItem
+    #   - The new value of the FormItem
+    onChange: React.PropTypes.func
+
+    # FormItems can either explicitly set the disabled state, or determine
+    # the disabled state by whether or not this is a 'new' or 'update'
+    # form.
+    formType: React.PropTypes.oneOf(['new', 'update'])
+    disabled: React.PropTypes.bool
+    editableForNew: React.PropTypes.bool
+    editableForUpdate: React.PropTypes.bool
+
+    formItemError: React.PropTypes.shape(
+      id: idPropType # The formItemId
+      message: React.PropTypes.string
+    )
 
     # selectOptions
     # An array of options.
@@ -79,29 +89,30 @@ class FormItem extends React.Component
       value: React.PropTypes.string
     ))
 
-    # A function that takes two arguments:
-    #   - The id of this FormItem
-    #   - The new value of the FormItem
-    onChange: React.PropTypes.func
-
     # Common <input> props.
     # Anything that can be passed into a standard React <input> item will
     # be passed along. Here are some common ones. There can be many more
+    multiple: React.PropTypes.bool
     required: React.PropTypes.bool
     prefilled: React.PropTypes.bool
-    multiple: React.PropTypes.bool
     maxlength: React.PropTypes.number
-    placeholder: React.PropTypes.string
-    tabIndex: React.PropTypes.number
+    placeholder: React.PropTypes.node
+    tabIndex: React.PropTypes.oneOfType([
+      React.PropTypes.number,
+      React.PropTypes.string,
+    ]),
 
-    referenceTo: React.PropTypes.array
+
+    #### Used by "reference" type objects
+    customComponent: React.PropTypes.func
+    contextData: React.PropTypes.object,
+    referenceTo: React.PropTypes.oneOfType([
+      React.PropTypes.array,
+      React.PropTypes.string,
+    ])
     referenceType: React.PropTypes.oneOf(["belongsTo", "hasMany", "hasManyThrough"])
     referenceThrough: React.PropTypes.string
-    relationshipName: React.PropTypes.string
 
-    formType: React.PropTypes.oneOf(['new', 'update'])
-    editableForNew: React.PropTypes.bool
-    editableForUpdate: React.PropTypes.bool
 
   render: =>
     classes = classNames
@@ -143,6 +154,7 @@ class FormItem extends React.Component
     <div className="form-error">{msg}</div>
 
   _isDisabled: =>
+    @props.disabled or
     (@props.formType is "new" and @props.editableForNew is false) or
     (@props.formType is "update" and @props.editableForUpdate is false)
 
@@ -188,7 +200,7 @@ class GeneratedFieldset extends React.Component
     ))
 
     # The key is the formItem id, the value is the error object
-    formItemErrors: React.PropTypes.object
+    formItemErrors: React.PropTypes.arrayOf(FormItem.propTypes.formItemError)
 
     # A function that takes two arguments:
     #   - The id of this GeneratedFieldset
@@ -202,6 +214,7 @@ class GeneratedFieldset extends React.Component
 
     lastFieldset: React.PropTypes.bool
     firstFieldset: React.PropTypes.bool
+    contextData: React.PropTypes.object,
 
   render: =>
     classStr = classNames
@@ -263,6 +276,7 @@ class GeneratedFieldset extends React.Component
     if error then props.formItemError = error
     props.onChange = _.bind(@_onChangeItem, @)
     props.formType = @props.formType
+    props.contextData = @props.contextData
     return props
 
   _onChangeItem: (itemId, newValue) =>
@@ -305,6 +319,7 @@ class GeneratedForm extends React.Component
 
     formType: React.PropTypes.string
     prefilled: React.PropTypes.bool
+    contextData: React.PropTypes.object,
 
   @defaultProps:
     style: {}
@@ -347,6 +362,7 @@ class GeneratedForm extends React.Component
     (@props.fieldsets ? []).map (fieldset, i) =>
       props = @_propsFromFieldsetData(fieldset)
       props.zIndex = 100-i
+      props.contextData = @props.contextData
       props.firstFieldset = i is 0
       props.lastFieldset = i isnt 0 and i is @props.fieldsets.length - 1
       <GeneratedFieldset {...props} ref={"fieldset-#{fieldset.id}"} />
