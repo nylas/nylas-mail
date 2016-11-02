@@ -145,11 +145,15 @@ export default class ListSelection {
       if (startIdx === -1 || endIdx === -1) {
         return;
       }
-      for (let idx = startIdx; idx <= endIdx; idx++) {
+      const count = Math.abs(startIdx - endIdx) + 1
+      const indexes = new Array(count)
+        .fill(0)
+        .map((val, idx) => (startIdx > endIdx ? startIdx - idx : startIdx + idx))
+      indexes.forEach((idx) => {
         const idxItem = this._view.get(idx);
         this._items = _.reject(this._items, t => t.id === idxItem.id);
         this._items.push(idxItem);
-      }
+      })
     }
     this.trigger();
   }
