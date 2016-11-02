@@ -241,6 +241,9 @@ class NotCompositeMatcher extends AndCompositeMatcher {
 
 class SearchMatcher extends Matcher {
   constructor(searchQuery) {
+    if ((typeof searchQuery !== 'string') || (searchQuery.length === 0)) {
+      throw new Error("You must pass a string with non-zero length to search.")
+    }
     super(null, null, null);
     this.searchQuery = (
       searchQuery.trim()

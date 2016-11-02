@@ -86,6 +86,10 @@ export default class Contact extends Model {
     },
   };
 
+  static searchable = true;
+
+  static searchFields = ['content'];
+
   static fromString(string, {accountId} = {}) {
     const emailRegex = RegExpUtils.emailRegex();
     const match = emailRegex.exec(string);
