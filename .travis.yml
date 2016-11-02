@@ -32,7 +32,7 @@ matrix:
     env: NODE_VERSION=6.9 CC=clang CXX=clang++ PUBLISH_BUILD=true
 
 before_install:
-- if [ "${TRAVIS_PULL_REQUEST}" = "false" && "${MIRROR}" = "false" ]; then
+- if [ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${MIRROR}" = "false" ]; then
   openssl aes-256-cbc -k "$DECRYPTION_PASSWORD" -in build/resources/ssh/nylas-n1-ci-ssh.openssl.enc -out nylas-n1-ci-ssh -d;
   mv nylas-n1-ci-ssh ~/.ssh/id_rsa;
   chmod 400 ~/.ssh/id_rsa;
