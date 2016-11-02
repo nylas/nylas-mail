@@ -79,7 +79,10 @@ export default class Contact extends Model {
 
   static additionalSQLiteConfig = {
     setup: () => {
-      return ['CREATE INDEX IF NOT EXISTS ContactEmailIndex ON Contact(email)'];
+      return [
+        'CREATE INDEX IF NOT EXISTS ContactEmailIndex ON Contact(email)',
+        'CREATE INDEX IF NOT EXISTS ContactAccountEmailIndex ON Contact(account_id, email)',
+      ];
     },
   };
 
