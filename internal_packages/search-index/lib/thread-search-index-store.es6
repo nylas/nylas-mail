@@ -230,10 +230,6 @@ class SearchIndexStore {
       participants,
       body: messageBodies,
       subject: thread.subject,
-    }).then((results) => {
-      return {
-        content: [results.participants, results.body, results.subject].concat(' '),
-      };
     });
   }
 

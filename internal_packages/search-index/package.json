@@ -1,5 +1,5 @@
 {
-  "name": "thread-search-index",
+  "name": "search-index",
   "version": "0.1.0",
   "main": "./lib/main",
   "description": "Keeps search index up to date",
@@ -14,4 +14,3 @@
     "work": true
   }
 }
-
