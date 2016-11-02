@@ -112,7 +112,7 @@ export default class EmailFrame extends React.Component {
       }
     }
 
-    if (doc && doc.documentElement) {
+    if (doc && doc.documentElement && doc.documentElement.scrollHeight > 0) {
       height = doc.documentElement.scrollHeight;
     } else {
       height = doc.body.scrollHeight;
