@@ -53,7 +53,7 @@ class InlineStyleTransformer {
     if (typeof userAgentDefault === 'undefined' || userAgentDefault === null) {
       userAgentDefault = require('../chrome-user-agent-stylesheet-string');
     }
-    return `${body.slice(0, i)}<style>${userAgentDefault}</style>${body.slice(i, -1 + 1)}`;
+    return `${body.slice(0, i)}<style>${userAgentDefault}</style>${body.slice(i)}`;
   }
 
   _onInlineStylesResult(event, {html, key}) {
