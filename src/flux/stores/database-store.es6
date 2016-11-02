@@ -317,7 +317,7 @@ class DatabaseStore extends NylasStore {
       if (query.startsWith(`SELECT `) && DEBUG_QUERY_PLANS) {
         const plan = this._db.prepare(`EXPLAIN QUERY PLAN ${query}`).all(values);
         const planString = `${plan.map(row => row.detail).join('\n')} for ${query}`;
-        const quiet = ['ThreadCounts', 'ThreadSearch', 'COVERING INDEX'];
+        const quiet = ['ThreadCounts', 'ThreadSearch', 'ContactSearch', 'COVERING INDEX'];
 
         if (planString.includes('SCAN') && !quiet.find(str => planString.includes(str))) {
           this._prettyConsoleLog(planString);

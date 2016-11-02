@@ -63,7 +63,10 @@ export default class WindowLauncher {
       win.windowType = opts.windowType;
 
       if (options.bounds) {
-        win.browserWindow.setBounds(options.bounds)
+        win.browserWindow.setBounds(options.bounds);
+      }
+      if (options.width && options.height) {
+        win.browserWindow.setSize(options.width, options.height);
       }
 
       win.setLoadSettings(newLoadSettings);
