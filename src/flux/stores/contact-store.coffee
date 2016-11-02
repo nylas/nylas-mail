@@ -47,7 +47,8 @@ class ContactStore extends NylasStore
     search = search.toLowerCase()
     accountCount = AccountStore.accounts().length
 
-    return Promise.resolve([]) if not search or search.length is 0
+    if not search or search.length is 0
+      return Promise.resolve([])
 
     # Search ranked contacts which are stored in order in memory
     results = []
@@ -63,11 +64,9 @@ class ContactStore extends NylasStore
     # return contacts with distinct email addresses, and the same contact
     # could exist in every account. Rather than make SQLite do a SELECT DISTINCT
     # (which is very slow), we just ask for more items.
-    query = DatabaseStore.findAll(Contact).whereAny([
-      Contact.attributes.name.like(search),
-      Contact.attributes.email.like(search)
-    ])
-    query.limit(limit * accountCount)
+    query = DatabaseStore.findAll(Contact)
+      .search(search)
+      .limit(limit * accountCount)
     query.then (queryResults) =>
       existingEmails = _.pluck(results, 'email')
 
