@@ -9,7 +9,7 @@ export default class ConsoleReporter {
         if (args[0] === '.') {
           return log(...args);
         }
-        return log(`[${spec.getFullName()}] ${args[0]}`, ...args.slice(1, -1 + 1));
+        return log(`[${spec.getFullName()}] ${args[0]}`, ...args.slice(1));
       }
     }
     console.log = withContext(originalLog);
