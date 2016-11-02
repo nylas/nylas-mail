@@ -1,10 +1,13 @@
-import SearchIndexStore from './search-index-store'
+import ThreadSearchIndexStore from './thread-search-index-store'
+import ContactSearchIndexStore from './contact-search-index-store'
 
 
 export function activate() {
-  SearchIndexStore.activate()
+  ThreadSearchIndexStore.activate()
+  ContactSearchIndexStore.activate()
 }
 
 export function deactivate() {
-  SearchIndexStore.deactivate()
+  ThreadSearchIndexStore.deactivate()
+  ContactSearchIndexStore.deactivate()
 }
