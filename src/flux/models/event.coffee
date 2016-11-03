@@ -1,5 +1,5 @@
 Model = require './model'
-Contact = require './contact'
+Contact = require('./contact').default
 Attributes = require('../attributes').default
 _ = require 'underscore'
 moment = require('moment')

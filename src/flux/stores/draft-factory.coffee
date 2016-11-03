@@ -11,7 +11,7 @@ DraftStore = null
 DraftHelpers = require './draft-helpers'
 
 Thread = require('../models/thread').default
-Contact = require '../models/contact'
+Contact = require('../models/contact').default
 Message = require('../models/message').default
 Utils = require '../models/utils'
 
