@@ -12,6 +12,14 @@ const PACKAGE_MIGRATIONS = [
       "enabled-by-default": false,
     }],
   },
+  {
+    "version": "0.4.200",
+    "package-migrations": [{
+      "new-name": "nylas-private-salesforce",
+      "old-name": "nylas-private-salesforce",
+      "enabled-by-default": false,
+    }],
+  },
 ]
 
 class PackageMigrationManager {

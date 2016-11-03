@@ -5,7 +5,7 @@ WorkspaceStore = require './workspace-store'
 DatabaseStore = require('./database-store').default
 FocusedPerspectiveStore = require('./focused-perspective-store').default
 MailboxPerspective = require '../../mailbox-perspective'
-Actions = require '../actions'
+Actions = require('../actions').default
 Thread = require('../models/thread').default
 Model = require '../models/model'
 

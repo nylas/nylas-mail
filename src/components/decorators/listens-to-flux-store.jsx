@@ -1,10 +1,13 @@
-import React from 'react';
+/* eslint no-prototype-builtins: 0 */
+import React, {Component} from 'react';
 
 function ListensToFluxStore(ComposedComponent, {stores, getStateFromStores}) {
-  return class extends ComposedComponent {
+  return class extends Component {
+    static displayName = ComposedComponent.displayName
+
     static containerRequired = false;
 
-    static propTypes = {}
+    static propTypes = ComposedComponent.propTypes
 
     constructor(props) {
       super(props);
@@ -32,7 +35,14 @@ function ListensToFluxStore(ComposedComponent, {stores, getStateFromStores}) {
     }
 
     render() {
-      return <ComposedComponent {...this.props} {...this.state} />;
+      const props = {
+        ...this.props,
+        ...this.state,
+      }
+      if (Component.isPrototypeOf(ComposedComponent)) {
+        props.ref = 'composed'
+      }
+      return <ComposedComponent {...props} />;
     }
   };
 }

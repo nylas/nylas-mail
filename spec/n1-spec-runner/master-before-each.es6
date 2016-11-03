@@ -7,8 +7,6 @@ import {
   MailboxPerspective,
   FocusedPerspectiveStore,
 } from 'nylas-exports';
-import fs from 'fs-plus';
-import Grim from 'grim';
 import {clipboard} from 'electron';
 import pathwatcher from 'pathwatcher';
 
@@ -18,10 +16,12 @@ import TimeOverride from './time-override';
 import nylasTestConstants from './nylas-test-constants'
 import * as jasmineExtensions from './jasmine-extensions'
 
+
 class MasterBeforeEach {
   setup(loadSettings, beforeEach) {
     this.loadSettings = loadSettings;
     const self = this;
+
     beforeEach(function jasmineBeforeEach() {
       const currentSpec = this;
       currentSpec.addMatchers({
@@ -55,9 +55,6 @@ class MasterBeforeEach {
     spyOn(NylasEnv.menu, 'sendToBrowserProcess');
 
     FocusedPerspectiveStore._current = MailboxPerspective.forNothing();
-
-    const isCoreSpec = this.loadSettings.specDirectory === fs.realpathSync(__dirname);
-    if (isCoreSpec) { Grim.clearDeprecations(); }
 
     spyOn(pathwatcher.File.prototype, "detectResurrectionAfterDelay").andCallFake(function detectResurrection() {
       return this.detectResurrection();

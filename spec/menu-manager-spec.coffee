@@ -1,4 +1,4 @@
-MenuManager = require '../src/menu-manager'
+MenuManager = require('../src/menu-manager').default
 
 describe "MenuManager", ->
   menu = null

@@ -3,7 +3,6 @@ import {Notification} from 'nylas-component-kit';
 
 export default class OfflineNotification extends React.Component {
   static displayName = 'OfflineNotification';
-  static containerRequired = false;
 
   constructor() {
     super();

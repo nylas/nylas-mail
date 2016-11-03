@@ -6,6 +6,7 @@ import WorkspaceStore from './workspace-store'
 import FocusedPerspectiveStore from './focused-perspective-store'
 import Actions from '../actions'
 
+
 const MAIN_TAB_ITEM_ID = 'General'
 
 class TabItem {
@@ -16,11 +17,11 @@ class TabItem {
 }
 
 class PreferencesUIStore extends NylasStore {
+
   constructor() {
     super();
 
     const perspective = FocusedPerspectiveStore.current()
-
     this._tabs = Immutable.List();
     this._selection = Immutable.Map({
       tabId: null,
@@ -29,6 +30,10 @@ class PreferencesUIStore extends NylasStore {
 
     this._triggerDebounced = _.debounce(() => this.trigger(), 20)
     this.setupListeners()
+  }
+
+  get TabItem() {
+    return TabItem
   }
 
   setupListeners() {
@@ -45,11 +50,11 @@ class PreferencesUIStore extends NylasStore {
     });
   }
 
-  tabs = () => {
+  tabs() {
     return this._tabs;
   }
 
-  selection = () => {
+  selection() {
     return this._selection;
   }
 
@@ -98,6 +103,4 @@ class PreferencesUIStore extends NylasStore {
   }
 }
 
-const Store = new PreferencesUIStore();
-Store.TabItem = TabItem;
-export default Store;
+export default new PreferencesUIStore();

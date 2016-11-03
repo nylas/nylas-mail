@@ -1,57 +1,37 @@
 /* eslint jsx-a11y/tabindex-no-positive: 0 */
-import React from 'react';
+import React, {PropTypes} from 'react';
 import ReactDOM from 'react-dom';
-
-import {Flexbox,
- ConfigPropContainer,
- ScrollRegion,
- KeyCommandsRegion} from 'nylas-component-kit';
+import {
+  Flexbox,
+  ScrollRegion,
+  KeyCommandsRegion,
+  ListensToFluxStore,
+  ConfigPropContainer,
+} from 'nylas-component-kit';
 import {PreferencesUIStore} from 'nylas-exports';
-
-
 import PreferencesTabsBar from './preferences-tabs-bar';
 
-class PreferencesRoot extends React.Component {
 
+class PreferencesRoot extends React.Component {
   static displayName = 'PreferencesRoot';
 
   static containerRequired = false;
 
-  constructor() {
-    super();
-    this.state = this.getStateFromStores();
+  static propTypes = {
+    tab: PropTypes.object,
+    tabs: PropTypes.object,
+    selection: PropTypes.object,
   }
 
   componentDidMount() {
     ReactDOM.findDOMNode(this).focus();
-    this.unlisteners = [];
-    this.unlisteners.push(PreferencesUIStore.listen(() =>
-      this.setState(this.getStateFromStores(), () => {
-        const scrollRegion = document.querySelector(".preferences-content .scroll-region-content");
-        scrollRegion.scrollTop = 0;
-      })
-    ));
     this._focusContent();
   }
 
   componentDidUpdate() {
+    const scrollRegion = document.querySelector(".preferences-content .scroll-region-content");
+    scrollRegion.scrollTop = 0;
     this._focusContent();
-  }
-
-  componentWillUnmount() {
-    this.unlisteners.forEach(unlisten => unlisten());
-  }
-
-  getStateFromStores() {
-    const tabs = PreferencesUIStore.tabs();
-    const selection = PreferencesUIStore.selection();
-    const tabId = selection.get('tabId');
-    const tab = tabs.find((s) => s.tabId === tabId);
-    return {
-      tabs: tabs,
-      selection: selection,
-      tab: tab,
-    }
   }
 
   _localHandlers() {
@@ -93,21 +73,21 @@ class PreferencesRoot extends React.Component {
   }
 
   render() {
-    let bodyElement = <div />;
-    if (this.state.tab) {
-      bodyElement = <this.state.tab.component accountId={this.state.selection.get('accountId')} />
-    }
+    const {tab, selection, tabs} = this.props
 
     return (
       <KeyCommandsRegion className="preferences-wrap" tabIndex="1" localHandlers={this._localHandlers()}>
         <Flexbox direction="column">
           <PreferencesTabsBar
-            tabs={this.state.tabs}
-            selection={this.state.selection}
+            tabs={tabs}
+            selection={selection}
           />
           <ScrollRegion className="preferences-content">
             <ConfigPropContainer ref="content">
-              {bodyElement}
+              {tab ?
+                <tab.component accountId={selection.get('accountId')} /> :
+                false
+              }
             </ConfigPropContainer>
           </ScrollRegion>
         </Flexbox>
@@ -117,4 +97,13 @@ class PreferencesRoot extends React.Component {
 
 }
 
-export default PreferencesRoot;
+export default ListensToFluxStore(PreferencesRoot, {
+  stores: [PreferencesUIStore],
+  getStateFromStores() {
+    const tabs = PreferencesUIStore.tabs();
+    const selection = PreferencesUIStore.selection();
+    const tabId = selection.get('tabId');
+    const tab = tabs.find((s) => s.tabId === tabId);
+    return {tabs, selection, tab}
+  },
+});

@@ -43,7 +43,7 @@ class ComposerExtension extends ContenteditableExtension
 
   - `draft`: A fully populated {Message} object that is about to be sent.
 
-  Return an object that adheres to the following spec. If the draft data
+  Return an array of objects that adhere to the following spec. If the draft data
   indicates that your action should not be available, then return null.
 
     - `title`: A short, single string that is displayed to users when
@@ -52,18 +52,21 @@ class ComposerExtension extends ContenteditableExtension
     Behavior" dropdown setting. If your string is selected, then the
     `core.sending.defaultSendType` will be set to your string and your
     option will appear as the default.
-    ## TODO FIXME: The preferences does not yet know how to dynamically
-    # pick these up. For now they are hard-coded.
 
-    - `onSend`: Callback for when your option is clicked as the primary
+    - `performSendAction`: Callback for when your option is clicked as the primary
     action. The function will be passed `{draft}` as its only argument.
     It does not need to return anything. It may be asynchronous and likely
     queue Tasks.
 
+    - `isEnabled`: Callback to determine if this send action should be rendered
+    for the given draft. Takes a draft: A fully populated {Message} object that
+    is about to be sent.
+
     - `iconUrl`: A custom icon to be placed in the Send button. SendAction
     extensions have the form "Send + {ICON}"
   ###
-  @sendActionConfig: ({draft}) ->
+  @sendActions: ->
+    []
 
   ###
   Public: Inspect the draft, and return any warnings that need to be

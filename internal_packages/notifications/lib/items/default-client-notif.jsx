@@ -5,7 +5,6 @@ const SETTINGS_KEY = 'nylas.mailto.prompted-about-default'
 
 export default class DefaultClientNotification extends React.Component {
   static displayName = 'DefaultClientNotification';
-  static containerRequired = false;
 
   constructor() {
     super();

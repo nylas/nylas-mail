@@ -1,4 +1,4 @@
-ClipboardService = require '../../src/components/contenteditable/clipboard-service'
+ClipboardService = require('../../src/components/contenteditable/clipboard-service').default
 {InlineStyleTransformer, SanitizeTransformer} = require 'nylas-exports'
 fs = require 'fs'
 

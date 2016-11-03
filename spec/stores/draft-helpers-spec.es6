@@ -5,7 +5,7 @@ import {
   SyncbackDraftFilesTask,
 } from 'nylas-exports';
 
-import InlineStyleTransformer from '../../src/services/inline-style-transformer';
+import InlineStyleTransformer from '../../src/services/inline-style-transformer'
 import SanitizeTransformer from '../../src/services/sanitize-transformer';
 
 

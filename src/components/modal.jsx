@@ -2,6 +2,7 @@ import _ from 'underscore';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Actions from '../flux/actions';
+import RetinaImg from './retina-img';
 
 
 class Modal extends React.Component {
@@ -46,7 +47,7 @@ class Modal extends React.Component {
     const modalStyle = {
       top: "50%",
       left: "50%",
-      margin: "-200px 0 0 -125px",
+      margin: `-${height / 2}px 0 0 -${width / 2}px`,
       height: height,
       width: width,
       position: "absolute",
@@ -64,13 +65,6 @@ class Modal extends React.Component {
     return {containerStyle, modalStyle};
   };
 
-  _onBlur = (event) => {
-    const target = event.nativeEvent.relatedTarget;
-    if (!target || (!ReactDOM.findDOMNode(this).contains(target))) {
-      Actions.closeModal();
-    }
-  };
-
   _onKeyDown = (event) => {
     if (event.key === "Escape") {
       Actions.closeModal();
@@ -86,9 +80,20 @@ class Modal extends React.Component {
         style={containerStyle}
         className="modal-container"
         onKeyDown={this._onKeyDown}
-        onBlur={this._onBlur}
+        onClick={() => Actions.closeModal()}
       >
-        <div className="modal" style={modalStyle}>
+        <div
+          className="modal nylas-modal-container"
+          style={modalStyle}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <RetinaImg
+            className="modal-close"
+            style={{width: "14", WebkitFilter: "none"}}
+            name="modal-close.png"
+            mode={RetinaImg.Mode.ContentDark}
+            onMouseDown={() => Actions.closeModal()}
+          />
           {children}
         </div>
       </div>

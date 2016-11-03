@@ -134,10 +134,15 @@ describe "ListSelection", ->
     it "should throw an exception if the item passed is not a model", ->
       expect( => @selection.expandTo('hi')).toThrow()
 
-    it "should select all items from the last selected item to the provided item", ->
+    it "should select all items from the last selected item to the provided item when the provided item is below the current selection", ->
       @selection.set([@items[2], @items[5]])
       @selection.expandTo(@items[8])
       expect(@selection.ids()).toEqual(['2','5','6','7','8'])
+
+    it "should select all items from the last selected item to the provided item when the provided item is above the current selection", ->
+      @selection.set([@items[7], @items[5]])
+      @selection.expandTo(@items[2])
+      expect(@selection.ids()).toEqual(['7', '5', '4', '3', '2'])
 
     it "should not do anything if the provided item is not in the view set", ->
       @selection.set([@items[2]])

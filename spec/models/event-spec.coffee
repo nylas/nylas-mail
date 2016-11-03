@@ -1,4 +1,4 @@
-Event = require "../../src/flux/models/event"
+Event = require("../../src/flux/models/event").default
 AccountStore = require "../../src/flux/stores/account-store"
 
 json_event =

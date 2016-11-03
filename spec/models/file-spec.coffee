@@ -1,4 +1,4 @@
-File = require '../../src/flux/models/file'
+File = require('../../src/flux/models/file').default
 
 test_file_path = "/path/to/file.jpg"
 

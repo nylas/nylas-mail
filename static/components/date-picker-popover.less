@@ -1,0 +1,17 @@
+@import "ui-variables";
+
+.date-picker-popover {
+  .menu .item {
+    .time {
+      display: none;
+      float: right;
+      padding-right: @padding-base-horizontal;
+    }
+    &.selected,
+    &:hover {
+      .time {
+        display: inline-block;
+      }
+    }
+  }
+}

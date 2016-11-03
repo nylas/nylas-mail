@@ -16,7 +16,6 @@ debug.log
 docs/output
 docs/includes
 spec/fixtures/evil-files/
-yoursway-create-dmg
 /_site
 /.sass-cache
 .integration-test-config
@@ -29,11 +28,14 @@ spec-saved-state.json
 *~
 *#
 
-*nylas-private-*
+src/error-logger-extensions
+src/nylas-private-*
+internal_packages/nylas-private-*
 internal_packages/activity-list
 internal_packages/composer-mail-merge
 internal_packages/composer-scheduler
 internal_packages/link-tracking
 internal_packages/open-tracking
 internal_packages/send-later
+internal_packages/send-reminders
 internal_packages/thread-sharing

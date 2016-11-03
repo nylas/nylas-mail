@@ -3,7 +3,6 @@ import {Notification} from 'nylas-component-kit';
 
 export default class DevModeNotification extends React.Component {
   static displayName = 'DevModeNotification';
-  static containerRequired = false;
 
   constructor() {
     super();

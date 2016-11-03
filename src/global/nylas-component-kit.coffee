@@ -8,6 +8,22 @@ class NylasComponentKit
       get: ->
         NylasComponentKit.default(require "../components/#{path}")
 
+  # We use require to load the component immediately (instead of lazy loading)
+  # to improve visible latency,
+  # Sometimes a component won't be loaded until the user performs an action
+  # (e.g. opening a popover), so we don't want to wait until that happens to load the
+  # component. In our example, the popover would take a long time to open the first time
+  # if it was lazy loaded
+  @require = (prop, path) ->
+    exported = NylasComponentKit.default(require "../components/#{path}")
+    Object.defineProperty @prototype, prop,
+      get: -> exported
+
+  @requireFrom = (prop, path) ->
+    exported = require "../components/#{path}"
+    Object.defineProperty @prototype, prop,
+      get: -> exported[prop]
+
   @loadFrom = (prop, path) ->
     Object.defineProperty @prototype, prop,
       get: ->
@@ -28,6 +44,7 @@ class NylasComponentKit
   @load "Switch", 'switch'
   @loadDeprecated "Popover", 'popover', instead: 'Actions.openPopover'
   @load "FixedPopover", 'fixed-popover'
+  @require "DatePickerPopover", 'date-picker-popover'
   @load "Modal", 'modal'
   @load "Flexbox", 'flexbox'
   @load "RetinaImg", 'retina-img'
@@ -36,7 +53,6 @@ class NylasComponentKit
   @load "FocusContainer", 'focus-container'
   @load "EmptyListState", 'empty-list-state'
   @load "ListTabular", 'list-tabular'
-  @load "DraggableImg", 'draggable-img'
   @load "Notification", 'notification'
   @load "NylasCalendar", 'nylas-calendar/nylas-calendar'
   @load "MiniMonthView", 'nylas-calendar/mini-month-view'
@@ -44,6 +60,7 @@ class NylasComponentKit
   @load "ButtonDropdown", 'button-dropdown'
   @load "Contenteditable", 'contenteditable/contenteditable'
   @load "MultiselectList", 'multiselect-list'
+  @load "BoldedSearchResult", 'bolded-search-result'
   @load "MultiselectDropdown", "multiselect-dropdown"
   @load "KeyCommandsRegion", 'key-commands-region'
   @load "TabGroupRegion", 'tab-group-region'
@@ -70,10 +87,14 @@ class NylasComponentKit
   @loadFrom "SelectableTableCell", "selectable-table"
   @load "EditableTable", "editable-table"
   @loadFrom "EditableTableCell", "editable-table"
+  @load "Toast", "toast"
+  @load "UndoToast", "undo-toast"
   @load "LazyRenderedList", "lazy-rendered-list"
   @load "OverlaidComponents", "overlaid-components/overlaid-components"
   @load "OverlaidComposerExtension", "overlaid-components/overlaid-composer-extension"
   @load "OAuthSignInPage", "oauth-signin-page"
+  @requireFrom "AttachmentItem", "attachment-items"
+  @requireFrom "ImageAttachmentItem", "attachment-items"
 
   @load "ScrollRegion", 'scroll-region'
   @load "ResizableRegion", 'resizable-region'

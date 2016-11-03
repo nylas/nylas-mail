@@ -8,13 +8,12 @@ import {
   ParticipantsTextField,
   ListensToFluxStore,
 } from 'nylas-component-kit';
-
 import AccountContactField from './account-contact-field';
 import CollapsedParticipants from './collapsed-participants';
 import ComposerHeaderActions from './composer-header-actions';
 import SubjectTextField from './subject-text-field';
-
 import Fields from './fields';
+
 
 const ScopedFromField = ListensToFluxStore(AccountContactField, {
   stores: [AccountStore],
@@ -278,10 +277,10 @@ export default class ComposerHeader extends React.Component {
         <ScopedFromField
           key="from"
           ref={Fields.From}
+          value={from[0]}
           draft={this.props.draft}
           session={this.props.session}
           onChange={this._onChangeParticipants}
-          value={from[0]}
         />
       )
     }

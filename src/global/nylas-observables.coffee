@@ -1,6 +1,6 @@
 Rx = require 'rx-lite'
 _ = require 'underscore'
-Category = require '../flux/models/category'
+Category = require('../flux/models/category').default
 QuerySubscriptionPool = require('../flux/models/query-subscription-pool').default
 DatabaseStore = require('../flux/stores/database-store').default
 

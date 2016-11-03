@@ -53,15 +53,16 @@ class ThreadListParticipants extends React.Component
           short += ", "
         accumulate(short, unread)
 
-    if @props.thread.metadata and @props.thread.metadata.length > 1
-      accumulate(" (#{@props.thread.metadata.length})")
+    messages = (@props.thread.__messages ? [])
+    if messages.length > 1
+      accumulate(" (#{messages.length})")
 
     flush()
 
     return spans
 
-  getTokensFromMetadata: =>
-    messages = @props.thread.metadata
+  getTokensFromMessages: =>
+    messages = @props.thread.__messages
     tokens = []
 
     field = 'from'
@@ -94,8 +95,8 @@ class ThreadListParticipants extends React.Component
     contacts.map (contact) -> { contact: contact, unread: false }
 
   getTokens: =>
-    if @props.thread.metadata instanceof Array
-      list = @getTokensFromMetadata()
+    if @props.thread.__messages instanceof Array
+      list = @getTokensFromMessages()
     else
       list = @getTokensFromParticipants()
 

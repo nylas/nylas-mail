@@ -2,7 +2,7 @@ MultiselectSplitInteractionHandler = require '../../src/components/multiselect-s
 WorkspaceStore = require '../../src/flux/stores/workspace-store'
 FocusedContentStore = require '../../src/flux/stores/focused-content-store'
 Thread = require('../../src/flux/models/thread').default
-Actions = require '../../src/flux/actions'
+Actions = require('../../src/flux/actions').default
 _ = require 'underscore'
 
 describe "MultiselectSplitInteractionHandler", ->

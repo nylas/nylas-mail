@@ -1,34 +1,28 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import {remote} from 'electron'
-
 import {
   Utils,
   Actions,
   DraftStore,
   DraftHelpers,
-  FileDownloadStore,
 } from 'nylas-exports'
-
 import {
   DropZone,
   RetinaImg,
   ScrollRegion,
   TabGroupRegion,
+  AttachmentItem,
   InjectedComponent,
   KeyCommandsRegion,
   OverlaidComponents,
+  ImageAttachmentItem,
   InjectedComponentSet,
 } from 'nylas-component-kit'
-
-import FileUpload from './file-upload'
-import ImageUpload from './image-upload'
-
 import ComposerEditor from './composer-editor'
 import ComposerHeader from './composer-header'
 import SendActionButton from './send-action-button'
 import ActionBarPlugins from './action-bar-plugins'
-
 import Fields from './fields'
 
 // The ComposerView is a unique React component because it (currently) is a
@@ -319,46 +313,13 @@ export default class ComposerView extends React.Component {
   }
 
   _renderFileAttachments() {
-    const {files} = this.props.draft;
-    const nonImageFiles = this._nonImageFiles(files).map(file =>
-      this._renderFileAttachment(file, "Attachment")
-    );
-    const imageFiles = this._imageFiles(files).map(file =>
-      this._renderFileAttachment(file, "Attachment:Image")
-    );
-    return nonImageFiles.concat(imageFiles);
-  }
-
-  _renderFileAttachment(file, role) {
-    const props = {
-      file: file,
-      removable: true,
-      targetPath: FileDownloadStore.pathForFile(file),
-      messageClientId: this.props.draft.clientId,
-    };
-
-    const className = (role === "Attachment") ? "file-wrap" : "file-wrap file-image-wrap";
-
+    const {files, clientId: messageClientId} = this.props.draft
     return (
       <InjectedComponent
-        key={file.id}
-        matching={{role}}
-        className={className}
-        exposedProps={props}
+        matching={{role: 'MessageAttachments'}}
+        exposedProps={{files, messageClientId, canRemoveAttachments: true}}
       />
-    );
-  }
-
-  _renderUploadAttachments() {
-    const {uploads} = this.props.draft;
-
-    const nonImageUploads = this._nonImageFiles(uploads).map(upload =>
-      <FileUpload key={upload.id} upload={upload} />
-    );
-    const imageUploads = this._imageFiles(uploads).filter(u => !u.inline).map(upload =>
-      <ImageUpload key={upload.id} upload={upload} />
-    );
-    return nonImageUploads.concat(imageUploads);
+    )
   }
 
   _imageFiles(files) {
@@ -367,6 +328,36 @@ export default class ComposerView extends React.Component {
 
   _nonImageFiles(files) {
     return files.filter(f => !Utils.shouldDisplayAsImage(f));
+  }
+
+  _renderUploadAttachments() {
+    const {uploads} = this.props.draft;
+
+    const nonImageUploads = this._nonImageFiles(uploads)
+      .map((upload) =>
+        <AttachmentItem
+          key={upload.id}
+          className="file-upload"
+          draggable={false}
+          filePath={upload.targetPath}
+          displayName={upload.filename}
+          fileIconName={`file-${upload.extension}.png`}
+          onRemoveAttachment={() => Actions.removeAttachment(upload)}
+        />
+      );
+    const imageUploads = this._imageFiles(uploads)
+      .filter(u => !u.inline)
+      .map((upload) =>
+        <ImageAttachmentItem
+          key={upload.id}
+          className="file-upload"
+          draggable={false}
+          filePath={upload.targetPath}
+          displayName={upload.filename}
+          onRemoveAttachment={() => Actions.removeAttachment(upload)}
+        />
+      );
+    return nonImageUploads.concat(imageUploads);
   }
 
   _renderActionsWorkspaceRegion() {
@@ -422,7 +413,7 @@ export default class ComposerView extends React.Component {
           matching={{role: "Composer:SendActionButton"}}
           fallback={SendActionButton}
           requiredMethods={[
-            'primaryClick',
+            'primarySend',
           ]}
           exposedProps={{
             draft: this.props.draft,
@@ -586,7 +577,7 @@ export default class ComposerView extends React.Component {
   }
 
   _onPrimarySend = () => {
-    this.refs.sendActionButton.primaryClick();
+    this.refs.sendActionButton.primarySend();
   }
 
   _onDestroyDraft = () => {

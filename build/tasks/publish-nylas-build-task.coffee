@@ -13,7 +13,6 @@ module.exports = (grunt) ->
   {cp, shouldPublishBuild, spawn, rm} = require('./task-helpers')(grunt)
 
   appName = -> grunt.config.get('nylasGruntConfig.appName')
-  dmgName = -> "#{appName().split('.')[0]}.dmg"
   zipName = -> "#{appName().split('.')[0]}.zip"
   winReleasesName = -> "RELEASES"
   winSetupName = -> "Nylas N1Setup.exe"
@@ -150,7 +149,6 @@ module.exports = (grunt) ->
     .then ->
       uploadPromises = []
       if process.platform is 'darwin'
-        uploadPromises.push uploadToS3(dmgName(), "#{fullVersion}/#{process.platform}/#{process.arch}/N1.dmg")
         uploadPromises.push uploadZipToS3(appName(), "#{fullVersion}/#{process.platform}/#{process.arch}/N1.zip")
 
       else if process.platform is 'win32'

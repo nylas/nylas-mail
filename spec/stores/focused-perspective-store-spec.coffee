@@ -1,7 +1,7 @@
 _ = require 'underscore'
 
-Actions = require '../../src/flux/actions'
-Category = require '../../src/flux/models/category'
+Actions = require('../../src/flux/actions').default
+Category = require('../../src/flux/models/category').default
 MailboxPerspective = require '../../src/mailbox-perspective'
 
 CategoryStore = require '../../src/flux/stores/category-store'

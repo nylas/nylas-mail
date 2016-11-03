@@ -1,4 +1,4 @@
-Label = require '../../src/flux/models/label'
+Label = require('../../src/flux/models/label').default
 BadgeStore = require('../../src/flux/stores/badge-store').default
 
 describe "BadgeStore", ->

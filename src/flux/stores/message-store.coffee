@@ -1,5 +1,5 @@
 NylasStore = require "nylas-store"
-Actions = require "../actions"
+Actions = require("../actions").default
 Message = require("../models/message").default
 Thread = require("../models/thread").default
 Utils = require '../models/utils'
@@ -125,14 +125,14 @@ class MessageStore extends NylasStore
         itemIndex = _.findIndex @_items, (msg) -> msg.id is item.id or msg.clientId is item.clientId
 
         if change.type is 'persist' and itemIndex is -1
-          @_items = [].concat(@_items, [item])
+          @_items = [].concat(@_items, [item]).filter((m) => !m.isHidden())
           @_items = @_sortItemsForDisplay(@_items)
           @_expandItemsToDefault()
           @trigger()
           return
 
         if change.type is 'unpersist' and itemIndex isnt -1
-          @_items = [].concat(@_items)
+          @_items = [].concat(@_items).filter((m) => !m.isHidden())
           @_items.splice(itemIndex, 1)
           @_expandItemsToDefault()
           @trigger()
@@ -250,7 +250,8 @@ class MessageStore extends NylasStore
 
       loaded = true
 
-      @_items = @_sortItemsForDisplay(items)
+      @_items = items.filter((m) => !m.isHidden())
+      @_items = @_sortItemsForDisplay(@_items)
 
       # If no items were returned, attempt to load messages via the API. If items
       # are returned, this will trigger a refresh here.
@@ -321,7 +322,9 @@ class MessageStore extends NylasStore
       hidden: false,
       windowKey: "thread-#{thread.id}",
       windowType: 'thread-popout',
-      windowProps: threadId: thread.id,
+      windowProps:
+        threadId: thread.id,
+        perspectiveJSON: FocusedPerspectiveStore.current().toJSON()
 
   _onFocusThreadMainWindow: (thread) ->
     if NylasEnv.isMainWindow()

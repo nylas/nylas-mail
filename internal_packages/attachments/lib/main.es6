@@ -1,16 +1,10 @@
-import {
-  ComponentRegistry,
-} from 'nylas-exports';
-
-import AttachmentComponent from "./attachment-component";
-import ImageAttachmentComponent from "./image-attachment-component";
+import {ComponentRegistry} from 'nylas-exports';
+import MessageAttachments from './message-attachments'
 
 export function activate() {
-  ComponentRegistry.register(AttachmentComponent, {role: 'Attachment'})
-  ComponentRegistry.register(ImageAttachmentComponent, {role: 'Attachment:Image'})
+  ComponentRegistry.register(MessageAttachments, {role: 'MessageAttachments'})
 }
 
 export function deactivate() {
-  ComponentRegistry.unregister(AttachmentComponent);
-  ComponentRegistry.unregister(ImageAttachmentComponent);
+  ComponentRegistry.unregister(MessageAttachments);
 }

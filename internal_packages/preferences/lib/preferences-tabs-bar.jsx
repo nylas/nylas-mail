@@ -8,7 +8,6 @@ import {Actions, PreferencesUIStore, Utils} from 'nylas-exports';
 
 
 class PreferencesTabItem extends React.Component {
-
   static displayName = 'PreferencesTabItem';
 
   static propTypes = {
@@ -26,10 +25,11 @@ class PreferencesTabItem extends React.Component {
   }
 
   render() {
-    const {tabId, displayName} = this.props.tabItem;
+    const {selection, tabItem} = this.props
+    const {tabId, displayName} = tabItem;
     const classes = classNames({
       item: true,
-      active: tabId === this.props.selection.get('tabId'),
+      active: tabId === selection.get('tabId'),
     });
 
     let path = `icon-preferences-${displayName.toLowerCase().replace(" ", "-")}.png`
@@ -56,7 +56,6 @@ class PreferencesTabItem extends React.Component {
 
 
 class PreferencesTabsBar extends React.Component {
-
   static displayName = 'PreferencesTabsBar';
 
   static propTypes = {

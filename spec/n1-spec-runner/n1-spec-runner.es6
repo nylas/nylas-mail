@@ -1,8 +1,7 @@
 /* eslint global-require:0 */
 import _ from 'underscore';
-import Grim from 'grim';
-import ReactTestUtils from 'react-addons-test-utils';
 
+import ReactTestUtils from 'react-addons-test-utils';
 import Config from '../../src/config'
 import N1SpecLoader from './n1-spec-loader'
 import TimeReporter from './time-reporter'
@@ -78,7 +77,7 @@ class N1SpecRunner {
 
     NylasEnv.restoreWindowDimensions();
     NylasEnv.themes.loadBaseStylesheets();
-    NylasEnv.themes.requireStylesheet('../static/jasmine');
+    NylasEnv.themes.requireStylesheet('../../static/jasmine');
     NylasEnv.themes.initialLoadComplete = true;
     NylasEnv.keymaps.loadKeymaps();
   }
@@ -110,6 +109,7 @@ class N1SpecRunner {
 
     if (NylasEnv.getLoadSettings().showSpecsInWindow) {
       this.jasmineEnv.addReporter(N1GuiReporter);
+      NylasEnv.show();
     } else {
       this.jasmineEnv.addReporter(terminalReporter);
     }
@@ -123,6 +123,7 @@ class N1SpecRunner {
     document.body.appendChild(div);
     document.querySelector('html').style.overflow = 'initial';
     document.querySelector('body').style.overflow = 'initial';
+    document.getElementById("application-loading-cover").remove();
   }
 
   _extendJasmineMethods() {
@@ -142,15 +143,6 @@ class N1SpecRunner {
         return this.append(obj.inspect());
       }
       return origEmitObject.call(this, obj);
-    };
-
-    let deprecationsSnapshot = null;
-    jasmine.snapshotDeprecations = () => {
-      deprecationsSnapshot = Object.assign({}, Grim.deprecations);
-    }
-
-    jasmine.restoreDeprecationsSnapshot = () => {
-      Grim.deprecations = deprecationsSnapshot
     };
   }
 }

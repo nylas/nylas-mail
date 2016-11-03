@@ -1,6 +1,6 @@
 _ = require 'underscore'
 
-Actions = require '../actions'
+Actions = require('../actions').default
 DatabaseStore = require('./database-store').default
 AccountStore = require './account-store'
 ContactStore = require './contact-store'
@@ -162,7 +162,7 @@ class DraftFactory
         return Promise.resolve(candidateDrafts.pop())
 
       else if behavior is 'prefer-existing-if-pristine'
-        DraftStore ?= require './draft-store'
+        DraftStore ?= require('./draft-store').default
         return Promise.all(candidateDrafts.map (candidateDraft) =>
           DraftStore.sessionForClientId(candidateDraft.clientId)
         ).then (sessions) =>
