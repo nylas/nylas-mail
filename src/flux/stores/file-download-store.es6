@@ -2,12 +2,14 @@ import _ from 'underscore';
 import os from 'os';
 import fs from 'fs';
 import path from 'path';
-import { remote, shell } from 'electron';
+import {exec} from 'child_process';
+import {remote, shell} from 'electron';
 import mkdirp from 'mkdirp';
 import progress from 'request-progress';
 import NylasStore from 'nylas-store';
 import Actions from '../actions';
 import NylasAPI from '../nylas-api';
+
 
 Promise.promisifyAll(fs);
 const mkdirpAsync = Promise.promisify(mkdirp);
@@ -19,6 +21,25 @@ const State = {
   Failed: 'failed',
 };
 
+// TODO make this list more exhaustive
+const NonPreviewableExtensions = [
+  'jpg',
+  'bmp',
+  'gif',
+  'png',
+  'jpeg',
+  'zip',
+  'tar',
+  'gz',
+  'bz2',
+  'dmg',
+  'exe',
+]
+
+const PreviewThumbnailSize = 128
+
+
+// Expose the Download class for our tests, and possibly for other things someday
 export class Download {
   static State = State
 
@@ -146,13 +167,9 @@ class FileDownloadStore extends NylasStore {
     this.listenTo(Actions.didPassivelyReceiveNewModels, this._onNewMailReceived);
 
     this._downloads = {};
+    this._filePreviewPaths = {};
     this._downloadDirectory = path.join(NylasEnv.getConfigDirPath(), 'downloads');
     mkdirp(this._downloadDirectory);
-  }
-
-  // Expose the Download class for our tests, and possibly for other things someday
-  get Download() {
-    return Download
   }
 
   // Returns a path on disk for saving the file. Note that we must account
@@ -180,6 +197,17 @@ class FileDownloadStore extends NylasStore {
     return downloadData;
   }
 
+  previewPathsForFiles(fileIds = []) {
+    const previewPaths = {};
+    fileIds.forEach((fileId) => {
+      previewPaths[fileId] = this.previewPathForFile(fileId);
+    });
+    return previewPaths;
+  }
+
+  previewPathForFile(fileId) {
+    return this._filePreviewPaths[fileId];
+  }
 
   _onNewMailReceived = (incoming) => {
     if (NylasEnv.config.get('core.attachments.downloadPolicy') !== 'on-receive') {
@@ -215,7 +243,8 @@ class FileDownloadStore extends NylasStore {
     // for an already-downloaded file has side-effects, like making the UI
     // flicker briefly.
     return this._prepareFolder(file).then(() => {
-      return this._checkForDownloadedFile(file).then((alreadyHaveFile) => {
+      return this._checkForDownloadedFile(file)
+      .then((alreadyHaveFile) => {
         if (alreadyHaveFile) {
           // If we have the file, just resolve with a resolved download representing the file.
           download.promise = Promise.resolve();
@@ -231,12 +260,56 @@ class FileDownloadStore extends NylasStore {
           }
           this.trigger();
         });
-      });
+      })
+      .then(() => this._generatePreview(file))
+      .then(() => Promise.resolve(download))
     });
   }
 
-  _fetchPreview() {
+  _generatePreview(file) {
+    if (process.platform !== 'darwin') { return Promise.resolve() }
+    if (!NylasEnv.config.get('core.attachments.displayFilePreview')) {
+      return Promise.resolve()
+    }
+    if (NonPreviewableExtensions.includes(file.displayExtension())) {
+      return Promise.resolve()
+    }
 
+    const filePath = this.pathForFile(file)
+    return fs.accessAsync(filePath, fs.F_OK)
+    .then(() => {
+      const previewPath = `${filePath}.png`
+      fs.accessAsync(previewPath, fs.F_OK)
+      .then(() => {
+        // If the preview file already exists, set our state and bail
+        this._filePreviewPaths[file.id] = previewPath
+        this.trigger()
+      })
+      .catch(() => {
+        // If the preview file doesn't exist yet, generate it
+        const fileDir = path.dirname(filePath)
+        return new Promise((resolve) => {
+          exec(`qlmanage -t -s ${PreviewThumbnailSize} -o ${fileDir} ${filePath}`, (error, stdout, stderr) => {
+            if (error) {
+              // Ignore errors, we don't really mind if we can't generate a preview
+              // for a file
+              NylasEnv.reportError(error)
+              resolve()
+              return
+            }
+            if (stdout.match(/No thumbnail created/i) || stderr) {
+              resolve()
+              return
+            }
+            this._filePreviewPaths[file.id] = previewPath
+            this.trigger()
+            resolve()
+          })
+        })
+      })
+    })
+    // If the file doesn't exist, ignore the error.
+    .catch(() => Promise.resolve())
   }
 
   // Returns a promise that resolves with true or false. True if the file has

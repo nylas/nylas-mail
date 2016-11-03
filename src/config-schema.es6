@@ -67,6 +67,11 @@ export default {
             'enumLabels': ['When Received', 'When Read', 'Manually'],
             'title': "Download attachments for new mail",
           },
+          displayFilePreview: {
+            'type': 'boolean',
+            'default': true,
+            'title': "Display thumbnail previews for attachments when available. (macOS only)",
+          },
         },
       },
       reading: {

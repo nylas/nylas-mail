@@ -211,9 +211,9 @@ describe "MessageItem", ->
 
     it "should provide the correct file download state for each attachment", ->
       els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@component, InjectedComponent, matching: {role: "MessageAttachments"})
-      {downloadsData} = els[0].props.exposedProps
-      expect(downloadsData['file_1_id']).toBe(download)
-      expect(downloadsData['file_not_downloaded']).toBe(undefined)
+      {downloads} = els[0].props.exposedProps
+      expect(downloads['file_1_id']).toBe(download)
+      expect(downloads['file_not_downloaded']).toBe(undefined)
 
     it "should still list attachments when the message has no body", ->
       @message.body = ""

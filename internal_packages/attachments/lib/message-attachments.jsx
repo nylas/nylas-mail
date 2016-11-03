@@ -8,13 +8,14 @@ class MessageAttachments extends Component {
 
   static propTypes = {
     files: PropTypes.array,
-    downloadsData: PropTypes.object,
+    downloads: PropTypes.object,
     messageClientId: PropTypes.string,
+    filePreviewPaths: PropTypes.object,
     canRemoveAttachments: PropTypes.bool,
   }
 
   static defaultProps = {
-    downloadsData: {},
+    downloads: {},
   }
 
   onOpenAttachment = (file) => {
@@ -37,13 +38,16 @@ class MessageAttachments extends Component {
     Actions.abortFetchFile(file)
   }
 
-  renderAttachment(AttachmentRenderer, file, download) {
-    const {canRemoveAttachments} = this.props
+  renderAttachment(AttachmentRenderer, file) {
+    const {canRemoveAttachments, downloads, filePreviewPaths} = this.props
+    const download = downloads[file.id]
     const filePath = FileDownloadStore.pathForFile(file)
     const fileIconName = `file-${file.displayExtension()}.png`
     const displayName = file.displayName()
     const displaySize = file.displayFileSize()
     const contentType = file.contentType
+    const displayFilePreview = NylasEnv.config.get('core.attachments.displayFilePreview')
+    const filePreviewPath = displayFilePreview ? filePreviewPaths[file.id] : null;
 
     return (
       <AttachmentRenderer
@@ -56,6 +60,7 @@ class MessageAttachments extends Component {
         displayName={displayName}
         displaySize={displaySize}
         fileIconName={fileIconName}
+        filePreviewPath={filePreviewPath}
         onOpenAttachment={() => this.onOpenAttachment(file)}
         onDownloadAttachment={() => this.onDownloadAttachment(file)}
         onAbortDownload={() => this.onAbortDownload(file)}
@@ -65,16 +70,16 @@ class MessageAttachments extends Component {
   }
 
   render() {
-    const {files, downloadsData} = this.props;
+    const {files} = this.props;
     const nonImageFiles = files.filter((f) => !Utils.shouldDisplayAsImage(f));
     const imageFiles = files.filter((f) => Utils.shouldDisplayAsImage(f));
     return (
       <div>
         {nonImageFiles.map((file) =>
-          this.renderAttachment(AttachmentItem, file, downloadsData[file.id])
+          this.renderAttachment(AttachmentItem, file)
         )}
         {imageFiles.map((file) =>
-          this.renderAttachment(ImageAttachmentItem, file, downloadsData[file.id])
+          this.renderAttachment(ImageAttachmentItem, file)
         )}
       </div>
     )

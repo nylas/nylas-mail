@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import classnames from 'classnames'
 import React, {Component, PropTypes} from 'react'
 import ReactDOM from 'react-dom'
 import {pickHTMLProps} from 'pick-react-known-prop'
@@ -22,6 +23,7 @@ const propTypes = {
   displayName: PropTypes.string,
   displaySize: PropTypes.string,
   fileIconName: PropTypes.string,
+  filePreviewPath: PropTypes.string,
   onOpenAttachment: PropTypes.func,
   onRemoveAttachment: PropTypes.func,
   onDownloadAttachment: PropTypes.func,
@@ -170,9 +172,15 @@ export class AttachmentItem extends Component {
       displayName,
       displaySize,
       fileIconName,
+      filePreviewPath,
       ...extraProps
     } = this.props
-    const classes = `nylas-attachment-item file-attachment-item ${className || ''}`
+    const classes = classnames({
+      'nylas-attachment-item': true,
+      'file-attachment-item': true,
+      'has-preview': filePreviewPath,
+      [className]: className,
+    })
     const style = draggable ? {WebkitUserDrag: 'element'} : null;
     const tabIndex = focusable ? 0 : null
 
@@ -184,6 +192,15 @@ export class AttachmentItem extends Component {
         onKeyDown={focusable ? this._onAttachmentKeyDown : null}
         {...pickHTMLProps(extraProps)}
       >
+        {filePreviewPath ?
+          <div className="file-thumbnail-preview">
+            <img
+              role="presentation"
+              src={`file://${filePreviewPath}`}
+            />
+          </div> :
+          null
+        }
         <div
           className="inner"
           draggable={draggable}
