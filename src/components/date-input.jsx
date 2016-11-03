@@ -10,23 +10,30 @@ class DateInput extends Component {
   static propTypes = {
     className: PropTypes.string,
     dateFormat: PropTypes.string.isRequired,
-    onSubmitDate: PropTypes.func,
+    onDateInterpreted: PropTypes.func,
+    onDateSubmitted: PropTypes.func,
   };
 
   static defaultProps = {
-    onSubmitDate: () => {},
+    onDateInterpreted: () => {},
+    onDateSubmitted: () => {},
   };
 
   constructor(props) {
     super(props)
-    this.unmounted = false
+    this._mounted = false
     this.state = {
       inputDate: null,
+      inputValue: '',
     }
   }
 
+  componentDidMount() {
+    this._mounted = true
+  }
+
   componentWillUnmount() {
-    this.unmounted = true
+    this._mounted = false
   }
 
   onInputKeyDown = (event) => {
@@ -35,39 +42,45 @@ class DateInput extends Component {
       // This prevents onInputChange from being fired
       event.stopPropagation();
       const date = DateUtils.futureDateFromString(value);
-      this.props.onSubmitDate(date, value);
-
-      // this.props.onSubmitDate may have unmounted this component
-      if (!this.unmounted) {
-        this.setState({inputDate: null})
-      }
+      this.props.onDateSubmitted(date, value);
     }
   };
 
   onInputChange = (event) => {
-    this.setState({inputDate: DateUtils.futureDateFromString(event.target.value)});
+    const {target: {value}} = event
+    const nextDate = DateUtils.futureDateFromString(value)
+    if (nextDate) {
+      this.props.onDateInterpreted(nextDate.clone(), value)
+    }
+    this.setState({inputDate: nextDate, inputValue: value});
   };
 
+  clearInput() {
+    setImmediate(() => {
+      if (!this._mounted) { return }
+      this.setState({inputValue: '', inputDate: null})
+    })
+  }
+
   render() {
-    let dateInterpretation;
-    if (this.state.inputDate) {
-      dateInterpretation = (
-        <span className="date-interpretation">
-          {DateUtils.format(this.state.inputDate, this.props.dateFormat)}
-        </span>
-      );
-    }
     const {className} = this.props
+    const {inputDate, inputValue} = this.state
     const classes = classnames({
       "nylas-date-input": true,
       [className]: className != null,
     })
+    const dateInterpretation = inputDate ?
+      <span className="date-interpretation">
+        {DateUtils.format(this.state.inputDate, this.props.dateFormat)}
+      </span> : <span />;
+
 
     return (
       <div className={classes}>
         <input
           tabIndex="1"
           type="text"
+          value={inputValue}
           placeholder="Or, 'next Monday at 2PM'"
           onKeyDown={this.onInputKeyDown}
           onChange={this.onInputChange}

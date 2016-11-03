@@ -390,9 +390,9 @@ module.exports = (grunt) ->
   ciTasks.push('set-version', 'lint', 'generate-asar')
 
   if process.platform is "darwin"
-    ciTasks.push('test', 'codesign', 'mkdmg')
+    ciTasks.push('test', 'codesign')
 
-  else if process.platform is "linux"
+  if process.platform is "linux"
     ciTasks.push('mkdeb')
     ciTasks.push('mkrpm')
 
@@ -406,6 +406,5 @@ module.exports = (grunt) ->
   grunt.registerTask('ci', ciTasks)
 
   defaultTasks = ['download-electron', 'build', 'set-version', 'generate-asar']
-  defaultTasks.push 'mkdmg' if process.platform is 'darwin'
   defaultTasks.push 'install' unless process.platform is 'linux'
   grunt.registerTask('default', defaultTasks)

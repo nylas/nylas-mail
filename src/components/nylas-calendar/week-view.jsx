@@ -94,6 +94,8 @@ export default class WeekView extends React.Component {
   _initializeComponent(props) {
     this.todayYear = this._now().year()
     this.todayDayOfYear = this._now().dayOfYear()
+    const weekStart = moment(props.currentMoment).startOf('day').weekday(0).unix()
+    this._scrollTime = weekStart
     if (this._sub) { this._sub.dispose() }
     const startMoment = this._calculateStartMoment(props)
     const endMoment = this._calculateEndMoment(props)
@@ -272,22 +274,16 @@ export default class WeekView extends React.Component {
   }
 
   _onClickToday = () => {
-    this._onChangeCurrentMoment(this._now())
+    this.props.changeCurrentMoment(this._now())
   }
 
   _onClickNextWeek = () => {
     const newMoment = moment(this.props.currentMoment).add(1, 'week')
-    this._onChangeCurrentMoment(newMoment)
+    this.props.changeCurrentMoment(newMoment)
   }
 
   _onClickPrevWeek = () => {
     const newMoment = moment(this.props.currentMoment).subtract(1, 'week')
-    this._onChangeCurrentMoment(newMoment)
-  }
-
-  _onChangeCurrentMoment(newMoment) {
-    const weekStart = moment(newMoment).startOf('day').weekday(0).unix()
-    this._scrollTime = weekStart
     this.props.changeCurrentMoment(newMoment)
   }
 

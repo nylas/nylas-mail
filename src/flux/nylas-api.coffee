@@ -5,9 +5,9 @@ Utils = require './models/utils'
 Account = require('./models/account').default
 Message = require('./models/message').default
 IdentityStore = require('./stores/identity-store').default
-Actions = require './actions'
+Actions = require('./actions').default
 {APIError} = require './errors'
-PriorityUICoordinator = require '../priority-ui-coordinator'
+PriorityUICoordinator = require('../priority-ui-coordinator').default
 DatabaseStore = require('./stores/database-store').default
 async = require 'async'
 
@@ -261,16 +261,16 @@ class NylasAPI
         obj.metadata = metadataToAttach[obj.id]
 
   _apiObjectToClassMap:
-    "file": require('./models/file')
-    "event": require('./models/event')
-    "label": require('./models/label')
-    "folder": require('./models/folder')
+    "file": require('./models/file').default
+    "event": require('./models/event').default
+    "label": require('./models/label').default
+    "folder": require('./models/folder').default
     "thread": require('./models/thread').default
     "draft": require('./models/message').default
     "account": require('./models/account').default
     "message": require('./models/message').default
     "contact": require('./models/contact').default
-    "calendar": require('./models/calendar')
+    "calendar": require('./models/calendar').default
 
   getThreads: (accountId, params = {}, requestOptions = {}) ->
     requestSuccess = requestOptions.success

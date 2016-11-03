@@ -2,7 +2,7 @@ React = require 'react'
 ReactDOM = require 'react-dom'
 _ = require 'underscore'
 UnsafeComponent = require './unsafe-component'
-InjectedComponentLabel = require './injected-component-label'
+InjectedComponentLabel = require('./injected-component-label').default
 
 {Actions,
  WorkspaceStore,
@@ -106,7 +106,12 @@ class InjectedComponent extends React.Component
 
     Component = @state.component
     if Component.containerRequired is false
-      element = <Component ref="inner" key={Component.displayName} {...exposedProps} />
+      privateProps = {
+        key: Component.displayName,
+      }
+      if React.Component.isPrototypeOf(Component)
+        privateProps.ref = 'inner'
+      element = <Component {...privateProps} {...exposedProps} />
     else
       element = (
         <UnsafeComponent
@@ -159,7 +164,7 @@ class InjectedComponent extends React.Component
       Object.defineProperty(@, method,
         configurable: true
         enumerable: true
-        value: (args...)=>
+        value: (args...) =>
           @_runInnerDOMMethod(method, args...)
       )
 

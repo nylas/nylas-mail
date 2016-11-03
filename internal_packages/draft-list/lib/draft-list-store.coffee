@@ -53,7 +53,7 @@ class DraftListStore extends NylasStore
 
         # Generate a new result set that includes additional information on
         # the draft objects. This is similar to what we do in the thread-list,
-        # where we set thread.metadata to the message array.
+        # where we set thread.__messages to the message array.
         resultSetWithTasks = new MutableQueryResultSet(resultSet)
 
         mailboxPerspective.accountIds.forEach (aid) =>

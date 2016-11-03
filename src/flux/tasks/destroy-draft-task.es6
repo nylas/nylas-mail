@@ -53,7 +53,7 @@ export default class DestroyDraftTask extends BaseDraftTask {
       const inboxMsg = (err.body && err.body.message) ? err.body.message : '';
 
       // Draft has already been deleted, this is not really an error
-      if ([404, 409].inclues(err.statusCode)) {
+      if ([404, 409].includes(err.statusCode)) {
         return Promise.resolve(Task.Status.Continue);
       }
       // Draft has been sent, and can't be deleted. Not much we can do but finish

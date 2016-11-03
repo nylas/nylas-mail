@@ -73,7 +73,7 @@ export default class ParticipantsTextField extends React.Component {
 
   _completionNode = (p) => {
     return (
-      <Menu.NameEmailItem name={p.name} email={p.email} />
+      <Menu.NameEmailItem name={p.name} email={p.email} key={p.id} />
     );
   }
 

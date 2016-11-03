@@ -7,6 +7,7 @@ moment = require 'moment'
  RetinaImg,
  MailLabelSet,
  MailImportantIcon,
+ InjectedComponent,
  InjectedComponentSet} = require 'nylas-component-kit'
 
 {Thread, FocusedPerspectiveStore, Utils, DateUtils} = require 'nylas-exports'
@@ -19,13 +20,14 @@ ThreadListStore = require './thread-list-store'
 ThreadListIcon = require './thread-list-icon'
 
 # Get and format either last sent or last received timestamp depending on thread-list being viewed
-TimestampComponentForPerspective = (thread) ->
+ThreadListTimestamp = ({thread}) ->
   if FocusedPerspectiveStore.current().isSent()
     rawTimestamp = thread.lastMessageSentTimestamp
   else
     rawTimestamp = thread.lastMessageReceivedTimestamp
   timestamp = DateUtils.shortTimeString(rawTimestamp)
-  <span className="timestamp">{timestamp}</span>
+  return <span className="timestamp">{timestamp}</span>
+ThreadListTimestamp.containerRequired = false
 
 subject = (subj) ->
   if (subj ? "").trim().length is 0
@@ -42,6 +44,13 @@ subject = (subj) ->
   else
     return subj
 
+getSnippet = (thread) ->
+  messages = thread.__messages || []
+  if (messages.length is 0)
+    return thread.snippet
+
+  return messages[messages.length - 1].snippet
+
 
 c1 = new ListTabular.Column
   name: "★"
@@ -51,21 +60,23 @@ c1 = new ListTabular.Column
       <MailImportantIcon
         key="mail-important-icon"
         thread={thread}
-        showIfAvailableForAnyAccount={true} />
+        showIfAvailableForAnyAccount={true}
+      />
       <InjectedComponentSet
         key="injected-component-set"
         inline={true}
         containersRequired={false}
         matching={role: "ThreadListIcon"}
         className="thread-injected-icons"
-        exposedProps={thread: thread}/>
+        exposedProps={thread: thread}
+      />
     ]
 
 c2 = new ListTabular.Column
   name: "Participants"
   width: 200
   resolver: (thread) =>
-    hasDraft = _.find (thread.metadata ? []), (m) -> m.draft
+    hasDraft = (thread.__messages || []).find((m) => m.draft)
     if hasDraft
       <div style={display: 'flex'}>
         <ThreadListParticipants thread={thread} />
@@ -81,23 +92,30 @@ c3 = new ListTabular.Column
   flex: 4
   resolver: (thread) =>
     attachment = false
-    metadata = (thread.metadata ? [])
+    messages = thread.__messages || []
 
-    hasAttachments = thread.hasAttachments and metadata.find (m) -> Utils.showIconForAttachments(m.files)
+    hasAttachments = thread.hasAttachments and messages.find (m) -> Utils.showIconForAttachments(m.files)
     if hasAttachments
       attachment = <div className="thread-icon thread-icon-attachment"></div>
 
     <span className="details">
       <MailLabelSet thread={thread} />
       <span className="subject">{subject(thread.subject)}</span>
-      <span className="snippet">{thread.snippet}</span>
+      <span className="snippet">{getSnippet(thread)}</span>
       {attachment}
     </span>
 
 c4 = new ListTabular.Column
   name: "Date"
   resolver: (thread) =>
-    TimestampComponentForPerspective(thread)
+    return (
+      <InjectedComponent
+        className="thread-injected-timestamp"
+        fallback={ThreadListTimestamp}
+        exposedProps={thread: thread}
+        matching={role: "ThreadListTimestamp"}
+      />
+    )
 
 c5 = new ListTabular.Column
   name: "HoverActions"
@@ -114,7 +132,8 @@ c5 = new ListTabular.Column
         ]}
         matching={role: "ThreadListQuickAction"}
         className="thread-injected-quick-actions"
-        exposedProps={thread: thread}/>
+        exposedProps={thread: thread}
+      />
     </div>
 
 cNarrow = new ListTabular.Column
@@ -123,13 +142,13 @@ cNarrow = new ListTabular.Column
   resolver: (thread) =>
     pencil = false
     attachment = false
-    metadata = (thread.metadata ? [])
+    messages = thread.__messages || []
 
-    hasAttachments = thread.hasAttachments and metadata.find (m) -> Utils.showIconForAttachments(m.files)
+    hasAttachments = thread.hasAttachments and messages.find (m) -> Utils.showIconForAttachments(m.files)
     if hasAttachments
       attachment = <div className="thread-icon thread-icon-attachment"></div>
 
-    hasDraft = _.find metadata, (m) -> m.draft
+    hasDraft = messages.find((m) => m.draft)
     if hasDraft
       pencil = <RetinaImg name="icon-draft-pencil.png" className="draft-icon" mode={RetinaImg.Mode.ContentPreserve} />
 
@@ -159,11 +178,17 @@ cNarrow = new ListTabular.Column
           {pencil}
           <span style={flex:1}></span>
           {attachment}
-          {TimestampComponentForPerspective(thread)}
+          <InjectedComponent
+            key="thread-injected-timestamp"
+            className="thread-injected-timestamp"
+            fallback={ThreadListTimestamp}
+            exposedProps={thread: thread}
+            matching={role: "ThreadListTimestamp"}
+          />
         </div>
         <div className="subject">{subject(thread.subject)}</div>
         <div className="snippet-and-labels">
-          <div className="snippet">{thread.snippet}&nbsp;</div>
+          <div className="snippet">{getSnippet(thread)}&nbsp;</div>
           <div style={flex: 1, flexShrink: 1}></div>
           <MailLabelSet thread={thread} />
         </div>

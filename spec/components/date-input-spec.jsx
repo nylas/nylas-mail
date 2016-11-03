@@ -22,23 +22,20 @@ const makeInput = (props = {}) => {
 describe('DateInput', function dateInput() {
   describe('onInputKeyDown', () => {
     it('should submit the input if Enter or Escape pressed', () => {
-      const onSubmitDate = jasmine.createSpy('onSubmitDate')
-      const component = makeInput({onSubmitDate: onSubmitDate})
+      const onDateSubmitted = jasmine.createSpy('onDateSubmitted')
+      const component = makeInput({onDateSubmitted: onDateSubmitted})
       const inputNode = ReactDOM.findDOMNode(component).querySelector('input')
       const stopPropagation = jasmine.createSpy('stopPropagation')
       const keys = ['Enter', 'Return']
       inputNode.value = 'tomorrow'
       spyOn(DateUtils, 'futureDateFromString').andReturn('someday')
-      spyOn(component, 'setState')
 
       keys.forEach((key) => {
         Simulate.keyDown(inputNode, {key, stopPropagation})
         expect(stopPropagation).toHaveBeenCalled()
-        expect(onSubmitDate).toHaveBeenCalledWith('someday', 'tomorrow')
-        expect(component.setState).toHaveBeenCalledWith({inputDate: null})
+        expect(onDateSubmitted).toHaveBeenCalledWith('someday', 'tomorrow')
         stopPropagation.reset()
-        onSubmitDate.reset()
-        component.setState.reset()
+        onDateSubmitted.reset()
       })
     });
   });

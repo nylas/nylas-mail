@@ -4,8 +4,7 @@ _ = require 'underscore'
 
 {Utils, Actions} = require "nylas-exports"
 InjectedComponentSet = require './injected-component-set'
-RetinaImg = requir(('./retina-img').default).default
-Flexbox = require './flexbox'
+Flexbox = require('./flexbox').default
 
 ###
 Public: MultiselectActionBar is a simple component that can be placed in a {Sheet} Toolbar.

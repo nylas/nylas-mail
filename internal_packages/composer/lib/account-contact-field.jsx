@@ -10,7 +10,7 @@ export default class AccountContactField extends React.Component {
 
   static propTypes = {
     value: React.PropTypes.object,
-    accounts: React.PropTypes.array.isRequired,
+    accounts: React.PropTypes.array,
     session: React.PropTypes.object.isRequired,
     draft: React.PropTypes.object.isRequired,
     onChange: React.PropTypes.func.isRequired,

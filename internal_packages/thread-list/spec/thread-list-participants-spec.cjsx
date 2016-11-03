@@ -20,7 +20,7 @@ describe "ThreadListParticipants", ->
     ben = new Contact(email: 'ben@nylas.com', name: 'ben')
     ben.unread = true
     thread = new Thread()
-    thread.metadata = [new Message(from: [ben], unread:true)]
+    thread.__messages = [new Message(from: [ben], unread:true)]
 
     @participants = ReactTestUtils.renderIntoDocument(
       <ThreadListParticipants thread={thread}/>
@@ -171,7 +171,7 @@ describe "ThreadListParticipants", ->
 
         for scenario in scenarios
           thread = new Thread()
-          thread.metadata = scenario.in
+          thread.__messages = scenario.in
           participants = ReactTestUtils.renderIntoDocument(
             <ThreadListParticipants thread={thread}/>
           )
@@ -191,9 +191,9 @@ describe "ThreadListParticipants", ->
         @michael = new Contact(email: 'michael@nylas.com', name: 'michael')
         @kavya = new Contact(email: 'kavya@nylas.com', name: 'kavya')
 
-      getTokens = (threadMetadata) ->
+      getTokens = (threadMessages) ->
         thread = new Thread()
-        thread.metadata = threadMetadata
+        thread.__messages = threadMessages
         participants = ReactTestUtils.renderIntoDocument(
           <ThreadListParticipants thread={thread}/>
         )

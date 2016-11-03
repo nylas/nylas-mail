@@ -12,8 +12,8 @@ MutableQuerySubscription = require('./flux/models/mutable-query-subscription').d
 UnreadQuerySubscription = require('./flux/models/unread-query-subscription').default
 Matcher = require('./flux/attributes/matcher').default
 Thread = require('./flux/models/thread').default
-Category = require './flux/models/category'
-Actions = require './flux/actions'
+Category = require('./flux/models/category').default
+Actions = require('./flux/actions').default
 ChangeUnreadTask = null
 
 # This is a class cluster. Subclasses are not for external use!

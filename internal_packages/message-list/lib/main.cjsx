@@ -1,4 +1,5 @@
-{ComponentRegistry,
+{MailboxPerspective,
+ ComponentRegistry,
  ExtensionRegistry,
  WorkspaceStore,
  DatabaseStore,
@@ -28,12 +29,17 @@ module.exports =
         role: 'MessageListHeaders'
     else
       # This is for the thread-popout window.
+      {threadId, perspectiveJSON} = NylasEnv.getWindowProps()
       ComponentRegistry.register(MessageList, {location: WorkspaceStore.Location.Center})
-      threadId = NylasEnv.getWindowProps().threadId;
       # We need to locate the thread and focus it so that the MessageList displays it
       DatabaseStore.find(Thread, threadId).then((thread) =>
         Actions.setFocus({collection: 'thread', item: thread})
       )
+      # Set the focused perspective and hide the proper messages
+      # (e.g. we should hide deleted items from the inbox, but not from trash)
+      Actions.focusMailboxPerspective(MailboxPerspective.fromJSON(perspectiveJSON))
+      ComponentRegistry.register MessageListHiddenMessagesToggle,
+        role: 'MessageListHeaders'
 
   deactivate: ->
     ComponentRegistry.unregister MessageList

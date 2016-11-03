@@ -11,6 +11,10 @@ const app = require('electron').app;
 const path = require('path');
 const mkdirp = require('mkdirp');
 
+if (typeof process.setFdLimit === 'function') {
+  process.setFdLimit(1024);
+}
+
 const setupConfigDir = (args) => {
   const defaultDirName = (args.specMode) ? '.nylas-spec' : '.nylas';
   let configDirPath = path.join(app.getPath('home'), defaultDirName);

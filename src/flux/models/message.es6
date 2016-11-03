@@ -8,6 +8,7 @@ import Contact from './contact'
 import Category from './category'
 import Attributes from '../attributes'
 import ModelWithMetadata from './model-with-metadata'
+import QuotedHTMLTransformer from '../../services/quoted-html-transformer'
 
 
 /**
@@ -342,11 +343,33 @@ Message(date DESC) WHERE draft = 1`,
 
   // Public: Returns a plaintext version of the message body using Chromium's
   // DOMParser. Use with care.
-  plainTextBody() {
+  computePlainText(options = {}) {
     if ((this.body || "").trim().length === 0) {
       return ""
     }
-    return (new DOMParser()).parseFromString(this.body, "text/html").body.innerText
+    if (options.includeQuotedText) {
+      return (new DOMParser()).parseFromString(this.body, "text/html").body.innerText
+    }
+    const doc = this.computeDOMWithoutQuotes()
+    return this.cleanPlainTextBody(doc.body.innerText)
+  }
+
+  cleanPlainTextBody(body) {
+    let cleanBody = body;
+    const leadingOrTrailingTabs = /(?:^\t+|\t+$)/gmi
+    cleanBody = cleanBody.replace(leadingOrTrailingTabs, "")
+    const manyNewlines = /\n{3,}/gi
+    cleanBody = cleanBody.replace(manyNewlines, "\n\n")
+    const manySpaces = /\n{5,}/gi
+    cleanBody = cleanBody.replace(manySpaces, "    ")
+    return cleanBody
+  }
+
+  // Separated out so callers (like SyncbackThreadToSalesforce) can only
+  // run an expensive parse once, but use the DOM to load both HTML and
+  // PlainText versions of the body.
+  computeDOMWithoutQuotes() {
+    return QuotedHTMLTransformer.removeQuotedHTML(this.body, {returnAsDOM: true});
   }
 
   fromContact() {
@@ -370,5 +393,13 @@ Message(date DESC) WHERE draft = 1`,
     // https://regex101.com/r/hR7zN3/1
     const re = /(?:<signature>.*<\/signature>)|(?:<.+?>)|\s/gmi;
     return this.body.replace(re, "").length === 0;
+  }
+
+  isHidden() {
+    return (
+      this.to.length === 1 && this.from.length === 1 &&
+      this.to[0].email === this.from[0].email &&
+      (this.snippet || "").startsWith('Nylas N1 Reminder:')
+    )
   }
 }

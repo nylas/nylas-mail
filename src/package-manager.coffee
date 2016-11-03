@@ -7,7 +7,7 @@ EmitterMixin = require('emissary').Emitter
 fs = require 'fs-plus'
 Q = require 'q'
 
-Actions = require './flux/actions'
+Actions = require('./flux/actions').default
 Package = require './package'
 ThemePackage = require './theme-package'
 DatabaseStore = require('./flux/stores/database-store').default

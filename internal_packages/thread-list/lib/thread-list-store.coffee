@@ -12,7 +12,7 @@ NylasStore = require 'nylas-store'
  FocusedPerspectiveStore} = require 'nylas-exports'
 {ListTabular} = require 'nylas-component-kit'
 
-ThreadListDataSource = require './thread-list-data-source'
+ThreadListDataSource = require('./thread-list-data-source').default
 
 class ThreadListStore extends NylasStore
   constructor: ->

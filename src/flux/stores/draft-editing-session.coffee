@@ -1,5 +1,5 @@
 Message = require('../models/message').default
-Actions = require '../actions'
+Actions = require('../actions').default
 NylasAPI = require '../nylas-api'
 AccountStore = require './account-store'
 ContactStore = require './contact-store'
@@ -103,7 +103,7 @@ class DraftEditingSession
   @include Listener
 
   constructor: (@draftClientId, draft = null) ->
-    DraftStore ?= require './draft-store'
+    DraftStore ?= require('./draft-store').default
     @listenTo DraftStore, @_onDraftChanged
 
     @_draft = false

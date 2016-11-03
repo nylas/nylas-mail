@@ -94,6 +94,10 @@ export default class Application extends EventEmitter {
     return this.windowManager.get(WindowManager.MAIN_WINDOW).browserWindow;
   }
 
+  getAllWindowDimensions() {
+    return this.windowManager.getAllWindowDimensions()
+  }
+
   isQuitting() {
     return this.quitting;
   }

@@ -47,7 +47,7 @@ build_script:
 
 environment:
   matrix:
-  - NODE_VERSION: 4.2
+  - NODE_VERSION: 6.9
     PUBLISH_BUILD: true
   global:
     CERTIFICATE_FILE: .\src\pro\encrypted_certificates\appveyor\win-nylas-n1.p12

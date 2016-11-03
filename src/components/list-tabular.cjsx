@@ -5,8 +5,8 @@ ScrollRegion = require './scroll-region'
 Spinner = require './spinner'
 {Utils} = require 'nylas-exports'
 
-ListDataSource = require './list-data-source'
-ListSelection = require './list-selection'
+ListDataSource = require('./list-data-source').default
+ListSelection = require('./list-selection').default
 ListTabularItem = require './list-tabular-item'
 
 class ListColumn

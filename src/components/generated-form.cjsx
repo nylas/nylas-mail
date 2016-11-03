@@ -3,6 +3,8 @@ classNames = require 'classnames'
 React = require 'react'
 ReactDOM = require 'react-dom'
 {Utils} = require 'nylas-exports'
+DatePicker = require('./date-picker').default
+TabGroupRegion = require('./tab-group-region')
 
 idPropType = React.PropTypes.oneOfType([
   React.PropTypes.string
@@ -21,7 +23,7 @@ class FormItem extends React.Component
   @inputElementTypes:
     "checkbox": true
     "color": true
-    "date": true
+    "date": false # We use Nylas DatePicker instead
     "datetime": true
     "datetime-local": true
     "email": true
@@ -43,31 +45,42 @@ class FormItem extends React.Component
     # Some sort of unique identifier
     id: idPropType.isRequired
 
+    # Either a type of input or any type that can be passed into
+    # `React.createElement(type, ...)`
+    type: React.PropTypes.string.isRequired
+
+    # The name as POSTed to the eventual endpoint.
+    name: React.PropTypes.string
+
+    # The human-readable display label for the formItem
+    label: React.PropTypes.node
+
+    # Most input types take strings, numbers, and bools. Some types (like
+    # "reference" can get passed arrays)
+    value: React.PropTypes.oneOfType([
+      React.PropTypes.string
+      React.PropTypes.number
+      React.PropTypes.bool
+    ])
+    defaultValue: React.PropTypes.string
+
+    # A function that takes two arguments:
+    #   - The id of this FormItem
+    #   - The new value of the FormItem
+    onChange: React.PropTypes.func
+
+    # FormItems can either explicitly set the disabled state, or determine
+    # the disabled state by whether or not this is a 'new' or 'update'
+    # form.
+    formType: React.PropTypes.oneOf(['new', 'update'])
+    disabled: React.PropTypes.bool
+    editableForNew: React.PropTypes.bool
+    editableForUpdate: React.PropTypes.bool
+
     formItemError: React.PropTypes.shape(
       id: idPropType # The formItemId
       message: React.PropTypes.string
     )
-
-    # Either a type of input or any type that can be passed into
-    # `React.createElement(type, ...)`
-    type: React.PropTypes.oneOfType([
-      React.PropTypes.string
-      React.PropTypes.func
-    ]).isRequired
-
-    name: React.PropTypes.string
-    label: React.PropTypes.node
-
-    # For making all items controlled inputs
-    value: React.PropTypes.oneOfType([
-      React.PropTypes.string
-      React.PropTypes.number
-      React.PropTypes.object
-      React.PropTypes.bool
-    ])
-
-    # For initialization
-    defaultValue: React.PropTypes.string
 
     # selectOptions
     # An array of options.
@@ -76,42 +89,48 @@ class FormItem extends React.Component
       value: React.PropTypes.string
     ))
 
-    # A function that takes two arguments:
-    #   - The id of this FormItem
-    #   - The new value of the FormItem
-    onChange: React.PropTypes.func
-
     # Common <input> props.
     # Anything that can be passed into a standard React <input> item will
     # be passed along. Here are some common ones. There can be many more
-    required: React.PropTypes.bool
     multiple: React.PropTypes.bool
+    required: React.PropTypes.bool
+    prefilled: React.PropTypes.bool
     maxlength: React.PropTypes.number
-    placeholder: React.PropTypes.string
-    tabIndex: React.PropTypes.number
+    placeholder: React.PropTypes.node
+    tabIndex: React.PropTypes.oneOfType([
+      React.PropTypes.number,
+      React.PropTypes.string,
+    ]),
 
-    referenceTo: React.PropTypes.string
+    #### Used by "reference" type objects
+    customComponent: React.PropTypes.func
+    contextData: React.PropTypes.object,
+    referenceTo: React.PropTypes.oneOfType([
+      React.PropTypes.array,
+      React.PropTypes.string,
+    ])
+    referenceType: React.PropTypes.oneOf(["belongsTo", "hasMany", "hasManyThrough"])
+    referenceThrough: React.PropTypes.string
 
-    relationshipName: React.PropTypes.string
+    currentFormValues: React.PropTypes.object
 
   render: =>
     classes = classNames
+      "prefilled": @props.prefilled
       "form-item": true
-      "valid": @state.valid
+      "invalid": !@_isValid()
+      "valid": @_isValid()
 
     label = @props.label
-    if @props.label[-3..-1] is " ID"
-      label = @props.label[0...-3]
-
-    if _.last(label) isnt ":"
-      label = "#{label}:"
+    if @props.required
+      label = <strong><span className="required">*</span>{@props.label}</strong>
 
     if @props.type is "hidden"
       @_renderInput()
     else
-      <div className={classes}>
+      <div className={classes} ref="inputWrap">
         <div className="label-area">
-          <label>{label}</label>
+          <label htmlFor={@props.id}>{label}</label>
         </div>
         <div className="input-area">
           {@_renderInput()}
@@ -119,56 +138,35 @@ class FormItem extends React.Component
         </div>
       </div>
 
-  # Since the validity state is something we need to pull off of rendered
-  # DOM nodes we need to bend the React rules a bit and do a
-  # repeated-render until the `state` matches the validity state of the
-  # input.
-  componentWillMount: =>
-    @setState valid: true
+  shouldComponentUpdate: (nextProps) =>
+    not Utils.isEqualReact(nextProps, @props)
 
-  componentDidMount: => @refreshValidityState()
+  componentDidUpdate: (prevProps) ->
+    if !prevProps.formItemError and !@_isValid()
+      ReactDOM.findDOMNode(@refs.inputWrap).scrollIntoView(true)
 
-  componentDidUpdate: => @refreshValidityState()
-
-  shouldComponentUpdate: (nextProps, nextState) =>
-    not Utils.isEqualReact(nextProps, @props) or
-    not Utils.isEqualReact(nextState, @state)
-
-  refreshValidityState: => _.defer =>
-    return unless @refs.input
-    el = ReactDOM.findDOMNode(@refs.input)
-
-    customMsg = @props.formItemError?.message
-    if el.setCustomValidity?
-      if customMsg then el.setCustomValidity(customMsg)
-      else el.setCustomValidity('')
-
-    newValidity = _.extend {}, (el.validity ? {}),
-      validationMessage: el.validationMessage ? ""
-
-    if not Utils.isEqual(newValidity, @_lastValidity)
-      @setState newValidity
-
-    @_lastValidity = newValidity
+  _isValid: ->
+    !@props.formItemError
 
   _renderError: =>
-    if @state.valid
-      <div></div>
-    else
-      if @state.customError or @_changedOnce
-        <div className="form-error">{@state.validationMessage}</div>
-      else
-        <div></div>
+    return false if @_isValid()
+    msg = @props.formItemError.message
+    <div className="form-error">{msg}</div>
+
+  _isDisabled: =>
+    @props.disabled or
+    (@props.formType is "new" and @props.editableForNew is false) or
+    (@props.formType is "update" and @props.editableForUpdate is false)
 
   _renderInput: =>
     inputProps = _.extend {}, @props,
       ref: "input"
       onChange: (eventOrValue) =>
-        @_changedOnce = true
         @props.onChange(@props.id, ((eventOrValue?.target?.value) ? eventOrValue))
-      onBlur: => @refreshValidityState()
 
-    if @props.type of FormItem.inputElementTypes
+    if @_isDisabled() then inputProps.disabled = true
+
+    if FormItem.inputElementTypes[@props.type]
       React.createElement("input", inputProps)
     else if @props.type is "select"
       options = (@props.selectOptions ? []).map (optionData) ->
@@ -177,8 +175,13 @@ class FormItem extends React.Component
       <select {...inputProps}>{options}</select>
     else if @props.type is "textarea"
       React.createElement("textarea", inputProps)
-    else if _.isFunction(@props.type)
-      React.createElement(@props.type, inputProps)
+    else if @props.type is "date"
+      inputProps.dateFormat = "YYYY-MM-DD"
+      React.createElement(DatePicker, inputProps)
+    else if @props.type is "EmptySpace"
+      React.createElement("div", {className: "empty-space"})
+    else if _.isFunction(@props.customComponent)
+      React.createElement(@props.customComponent, inputProps)
     else
       console.warn "We do not support type #{@props.type} with attributes:", inputProps
 
@@ -197,7 +200,7 @@ class GeneratedFieldset extends React.Component
     ))
 
     # The key is the formItem id, the value is the error object
-    formItemErrors: React.PropTypes.object
+    formItemErrors: React.PropTypes.arrayOf(FormItem.propTypes.formItemError)
 
     # A function that takes two arguments:
     #   - The id of this GeneratedFieldset
@@ -206,9 +209,21 @@ class GeneratedFieldset extends React.Component
 
     heading: React.PropTypes.node
     useHeading: React.PropTypes.bool
+    formType: React.PropTypes.string
+    zIndex: React.PropTypes.number
+
+    lastFieldset: React.PropTypes.bool
+    firstFieldset: React.PropTypes.bool
+    contextData: React.PropTypes.object
+
+    currentFormValues: React.PropTypes.object
 
   render: =>
-    <fieldset>
+    classStr = classNames
+      "first-fieldset": @props.firstFieldset
+      "last-fieldset": @props.lastFieldset
+
+    <fieldset style={{zIndex: @props.zIndex ? 0}} className={classStr} >
       {@_renderHeader()}
       <div className="fieldset-form-items">
         {@_renderFormItems()}
@@ -216,13 +231,8 @@ class GeneratedFieldset extends React.Component
       {@_renderFooter()}
     </fieldset>
 
-  shouldComponentUpdate: (nextProps, nextState) =>
-    not Utils.isEqualReact(nextProps, @props) or
-    not Utils.isEqualReact(nextState, @state)
-
-  refreshValidityStates: =>
-    for key, ref in @refs
-      ref.refreshValidityState() if key.indexOf("form-item") is 0
+  shouldComponentUpdate: (nextProps) =>
+    not Utils.isEqualReact(nextProps, @props)
 
   _renderHeader: =>
     if @props.useHeading
@@ -231,27 +241,31 @@ class GeneratedFieldset extends React.Component
 
   _renderFormItems: =>
     byRow = _.groupBy(@props.formItems, "row")
-    _.map byRow, (items=[], rowNum) =>
-      itemsWithSpacers = []
+    _.map byRow, (itemsInRow=[], rowNum) =>
+      byCol = _.groupBy(itemsInRow, "column")
+      numCols = Math.max.apply(null, Object.keys(byCol))
 
-      for item, i in items
-        itemsWithSpacers.push(item)
-        if i isnt items.length - 1
-          itemsWithSpacers.push(spacer: true)
+      style = { zIndex: 1000-rowNum }
+      allHidden = _.every(itemsInRow, (item) -> item.type is "hidden")
+      if allHidden then style.display = "none"
 
       <div className="row"
            data-row-num={rowNum}
-           style={zIndex: 1000-rowNum}
+           style={style}
            key={rowNum}>
-        {_.map itemsWithSpacers, (formItemData, i) =>
-          if formItemData.spacer
-            <div className="column-spacer" data-col-num={i} key={i}>
-            </div>
-          else
-            props = @_propsFromFormItemData(formItemData)
-            <div className="column" data-col-num={i} key={i}>
+        {_.map byCol, (itemsInCol=[], colNum) =>
+          colEls = [<div className="column" data-col-num={colNum} key={colNum}>
+            {itemsInCol.map (formItemData) =>
+              props = @_propsFromFormItemData(formItemData)
               <FormItem {...props} ref={"form-item-#{formItemData.id}"}/>
-            </div>
+            }
+          </div>]
+          if colNum isnt numCols - 1
+            colEls.push(
+              <div className="column-spacer" data-col-num={"#{colNum}-spacer"} key={"#{colNum}-spacer"}>
+              </div>
+            )
+          return colEls
         }
       </div>
 
@@ -263,6 +277,9 @@ class GeneratedFieldset extends React.Component
     error = @props.formItemErrors?[props.id]
     if error then props.formItemError = error
     props.onChange = _.bind(@_onChangeItem, @)
+    props.formType = @props.formType
+    props.contextData = @props.contextData
+    props.currentFormValues = @props.currentFormValues
     return props
 
   _onChangeItem: (itemId, newValue) =>
@@ -301,44 +318,65 @@ class GeneratedForm extends React.Component
 
     onSubmit: React.PropTypes.func.isRequired
 
+    style: React.PropTypes.object
+
+    formType: React.PropTypes.string
+    prefilled: React.PropTypes.bool
+    contextData: React.PropTypes.object,
+
+  @defaultProps:
+    style: {}
+
   render: =>
-    <form className="generated-form" ref="form">
-      {@_renderHeaderFormError()}
-      <div className="fieldsets">
-        {@_renderFieldsets()}
-      </div>
-      {@_renderHeaderFormError()}
-      <div className="form-footer">
-        <button onClick={@props.onSubmit}>Submit</button>
-      </div>
+    <form className="generated-form" ref="form" style={this.props.style} onSubmit={this.props.onSubmit}>
+      <TabGroupRegion>
+        {@_renderHeaderFormError()}
+        {@_renderPrefilledMessage()}
+        <div className="fieldsets">
+          {@_renderFieldsets()}
+        </div>
+        <div className="form-footer">
+          <input type="submit" value="Submit" className="btn btn-emphasis" />
+        </div>
+      </TabGroupRegion>
     </form>
 
-  shouldComponentUpdate: (nextProps, nextState) =>
-    not Utils.isEqualReact(nextProps, @props) or
-    not Utils.isEqualReact(nextState, @state)
+  shouldComponentUpdate: (nextProps) =>
+    not Utils.isEqualReact(nextProps, @props)
 
-  _onSubmit: =>
-    valid = ReactDOM.findDOMNode(@refs.form).reportValidity()
-    if valid
-      @props.onSubmit()
-    else
-      @refreshValidityStates()
+  componentDidUpdate: (prevProps) ->
+    if !prevProps.errors?.formError and @props.errors?.formError
+      ReactDOM.findDOMNode(@refs.formHeaderError).scrollIntoView(true)
 
-  refreshValidityStates: =>
-    for key, ref in @refs
-      ref.refreshValidityStates() if key.indexOf("fieldset") is 0
+  _renderPrefilledMessage: =>
+    if @props.prefilled
+      <div className="prefilled-message">
+        The <span className="highlighted">highlighted</span> fields have been prefilled for you!
+      </div>
 
   _renderHeaderFormError: =>
     if @props.errors?.formError
-      <div className="form-error form-header-error">
+      <div ref="formHeaderError" className="form-error form-header-error">
         {@props.errors.formError.message}
       </div>
-    else return <div></div>
+    else return false
 
   _renderFieldsets: =>
-    (@props.fieldsets ? []).map (fieldset) =>
+    (@props.fieldsets ? []).map (fieldset, i) =>
       props = @_propsFromFieldsetData(fieldset)
+      props.zIndex = 100-i
+      props.contextData = @props.contextData
+      props.currentFormValues = @_currentFormValues()
+      props.firstFieldset = i is 0
+      props.lastFieldset = i isnt 0 and i is @props.fieldsets.length - 1
       <GeneratedFieldset {...props} ref={"fieldset-#{fieldset.id}"} />
+
+  _currentFormValues: =>
+    vals = {}
+    for fieldset in @props.fieldsets
+      for formItem in fieldset.formItems
+        vals[formItem.name] = formItem.value
+    return vals
 
   _propsFromFieldsetData: (fieldsetData) =>
     props = _.clone(fieldsetData)
@@ -346,6 +384,7 @@ class GeneratedForm extends React.Component
     if errors then props.formItemErrors = errors
     props.key = fieldsetData.id
     props.onChange = _.bind(@_onChangeFieldset, @)
+    props.formType = @props.formType
     return props
 
   _onChangeFieldset: (fieldsetId, newFormItems) =>

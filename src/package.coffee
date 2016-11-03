@@ -6,7 +6,6 @@ fs = require 'fs-plus'
 EmitterMixin = require('emissary').Emitter
 {Emitter, CompositeDisposable} = require 'event-kit'
 Q = require 'q'
-{deprecate} = require 'grim'
 
 ModuleCache = require './module-cache'
 
@@ -46,7 +45,6 @@ class Package
     metadata.name = packageName
 
     if metadata.stylesheets?
-      deprecate("Use the `styleSheets` key instead of `stylesheets` in the `package.json` of `#{packageName}`", {packageName})
       metadata.styleSheets = metadata.stylesheets
 
     metadata
@@ -253,7 +251,6 @@ class Package
 
   getStylesheetsPath: ->
     if fs.isDirectorySync(path.join(@path, 'stylesheets'))
-      deprecate("Store package style sheets in the `styles/` directory instead of `stylesheets/` in the `#{@name}` package", packageName: @name)
       path.join(@path, 'stylesheets')
     else
       path.join(@path, 'styles')

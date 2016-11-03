@@ -1,4 +1,4 @@
-InlineStyleTransformer = require '../../src/services/inline-style-transformer'
+InlineStyleTransformer = require('../../src/services/inline-style-transformer').default
 {ipcRenderer} = require 'electron'
 
 describe "InlineStyleTransformer", ->

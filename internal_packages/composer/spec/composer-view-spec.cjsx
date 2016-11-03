@@ -1,6 +1,4 @@
 _ = require "underscore"
-proxyquire = require "proxyquire"
-
 React = require "react"
 ReactDOM = require 'react-dom'
 ReactTestUtils = require('react-addons-test-utils')
@@ -279,18 +277,18 @@ describe "ComposerView", ->
     it "sends when you click the send button", ->
       useFullDraft.apply(@); makeComposer.call(@)
       sendBtn = @composer.refs.sendActionButton
-      sendBtn.primaryClick()
-      expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID)
+      sendBtn.primarySend()
+      expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID, 'send')
       expect(Actions.sendDraft.calls.length).toBe 1
 
     it "doesn't send twice if you double click", ->
       useFullDraft.apply(@); makeComposer.call(@)
       sendBtn = @composer.refs.sendActionButton
-      sendBtn.primaryClick()
+      sendBtn.primarySend()
       @isSending = true
       DraftStore.trigger()
-      sendBtn.primaryClick()
-      expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID)
+      sendBtn.primarySend()
+      expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID, 'send')
       expect(Actions.sendDraft.calls.length).toBe 1
 
     describe "when sending a message with keyboard inputs", ->
@@ -300,23 +298,18 @@ describe "ComposerView", ->
         @$composer = @composer.refs.composerWrap
 
       it "sends the draft on cmd-enter", ->
-        if process.platform is "darwin"
-          mod = 'command'
-        else
-          mod = 'ctrl'
-
         ReactDOM.findDOMNode(@$composer).dispatchEvent(new CustomEvent('composer:send-message'))
-        expect(Actions.sendDraft).toHaveBeenCalled()
+        expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID, 'send')
         expect(Actions.sendDraft.calls.length).toBe 1
 
       it "doesn't let you send twice", ->
         ReactDOM.findDOMNode(@$composer).dispatchEvent(new CustomEvent('composer:send-message'))
-        expect(Actions.sendDraft).toHaveBeenCalled()
+        expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID, 'send')
         expect(Actions.sendDraft.calls.length).toBe 1
         @isSending = true
         DraftStore.trigger()
         ReactDOM.findDOMNode(@$composer).dispatchEvent(new CustomEvent('composer:send-message'))
-        expect(Actions.sendDraft).toHaveBeenCalled()
+        expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID, 'send')
         expect(Actions.sendDraft.calls.length).toBe 1
 
   describe "drag and drop", ->
@@ -426,13 +419,11 @@ describe "ComposerView", ->
         expect(Actions.fetchFile.calls.length).toBe(1)
         expect(Actions.fetchFile.calls[0].args[0]).toBe @file2
 
-    it 'injects an Attachment component for non image files', ->
-      els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, InjectedComponent, matching: {role: "Attachment"})
+    it 'injects a MessageAttachments component for any present attachments', ->
+      els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, InjectedComponent, matching: {role: "MessageAttachments"})
       expect(els.length).toBe 1
-
-    it 'injects an Attachment:Image component for image files', ->
-      els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, InjectedComponent, matching: {role: "Attachment:Image"})
-      expect(els.length).toBe 1
+      el = els[0]
+      expect(el.props.exposedProps.files).toEqual(@draft.files)
 
 describe "when a file is received (via drag and drop or paste)", ->
   beforeEach ->

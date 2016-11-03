@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from 'react';
 import ReactDOM from 'react-dom';
 import fs from 'fs';
 import path from 'path';
-import ImageUpload from './image-upload';
+import {Actions, ImageAttachmentItem} from 'nylas-component-kit'
 
 export default class InlineImageUploadContainer extends Component {
   static displayName = 'InlineImageUploadContainer';
@@ -14,10 +14,6 @@ export default class InlineImageUploadContainer extends Component {
     uploadId: PropTypes.string.isRequired,
     session: PropTypes.object,
     isPreview: PropTypes.bool,
-  }
-
-  componentDidMount() {
-
   }
 
   _onGoEdit = () => {
@@ -150,7 +146,13 @@ export default class InlineImageUploadContainer extends Component {
         className="inline-image-upload-container"
         onDoubleClick={this._onGoEdit}
       >
-        <ImageUpload key={uploadId} upload={upload} />
+        <ImageAttachmentItem
+          className="file-upload"
+          draggable={false}
+          filePath={upload.targetPath}
+          displayName={upload.filename}
+          onRemoveAttachment={() => Actions.removeAttachment(upload)}
+        />
       </div>
     )
   }

@@ -1,5 +1,12 @@
 # N1 Changelog
 
+### 0.4.201 (11/3/16)
+
+- Fixes:
+
+  + N1 no longer freezes when searching for contacts in the search bar. (#3001)
+
+
 ### 0.4.59 (10/24/16)
 
 - Features:

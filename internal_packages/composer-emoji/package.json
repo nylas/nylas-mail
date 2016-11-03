@@ -12,8 +12,8 @@
 
   "isOptional": true,
 
-  "title":"Emoji Picker",
-  "icon":"./assets/icon.png",
+  "title": "Emoji Picker",
+  "icon": "./assets/icon.png",
   "description": "Insert emoji into messages by typing a colon (:) and the emoji name or choosing one from the composer toolbar!",
 
   "dependencies": {

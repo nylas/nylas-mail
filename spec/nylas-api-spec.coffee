@@ -1,6 +1,6 @@
 _ = require 'underscore'
 fs = require 'fs'
-Actions = require '../src/flux/actions'
+Actions = require('../src/flux/actions').default
 NylasAPI = require '../src/flux/nylas-api'
 Thread = require('../src/flux/models/thread').default
 Message = require('../src/flux/models/message').default
@@ -299,16 +299,16 @@ describe "NylasAPI", ->
 
     describe "handling all types of objects", ->
       apiObjectToClassMap =
-        "file": require('../src/flux/models/file')
-        "event": require('../src/flux/models/event')
-        "label": require('../src/flux/models/label')
-        "folder": require('../src/flux/models/folder')
+        "file": require('../src/flux/models/file').default
+        "event": require('../src/flux/models/event').default
+        "label": require('../src/flux/models/label').default
+        "folder": require('../src/flux/models/folder').default
         "thread": require('../src/flux/models/thread').default
         "draft": require('../src/flux/models/message').default
         "account": require('../src/flux/models/account').default
         "message": require('../src/flux/models/message').default
         "contact": require('../src/flux/models/contact').default
-        "calendar": require('../src/flux/models/calendar')
+        "calendar": require('../src/flux/models/calendar').default
 
       verifyUpdateHappened = (klass, responseModels) ->
         changedModels = DatabaseTransaction.prototype.persistModels.calls[0].args[0]
