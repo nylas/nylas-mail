@@ -1,6 +1,7 @@
 @import "ui-variables";
 @import "ui-mixins";
 @file-icon-color: #c7c7c7;
+@attachment-border-color: rgba(0, 0, 0, 0.09);
 
 
 .nylas-attachment-item {
@@ -13,8 +14,30 @@
   min-width: 320px;
 
   &.file-attachment-item:focus {
-    .file-info-wrap,.file-action-icon {
+    .file-info-wrap,.file-action-icon,.file-thumbnail-preview {
       border-color: lighten(@component-active-color, 10%);
+    }
+    .file-info-wrap,.file-action-icon {
+      border-top-color: @attachment-border-color;
+    }
+  }
+
+  .file-thumbnail-preview {
+    max-height: 64px;
+    text-align: left;
+    overflow: hidden;
+    border: solid 1px @attachment-border-color;
+    border-bottom: none;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+  }
+
+  &.has-preview {
+    .file-info-wrap {
+      border-top-left-radius: 0;
+    }
+    .file-action-icon {
+      border-top-right-radius: 0;
     }
   }
 
@@ -31,7 +54,7 @@
     padding: 10px;
     width: 100%;
     height: 105%;
-    border: solid 1px rgba(0, 0, 0, 0.09);
+    border: solid 1px @attachment-border-color;
     border-top-left-radius: 8px;
     border-bottom-left-radius: 8px;
     border-right: none;
@@ -76,10 +99,10 @@
     padding: 10px;
     height: 105%;
     width: 38px;
-    border: solid 1px rgba(0, 0, 0, 0.09);
+    border: solid 1px @attachment-border-color;
     border-top-right-radius: 8px;
     border-bottom-right-radius: 8px;
-    // box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.09);
+    // box-shadow: inset 0 0 0 1px @attachment-border-color;
 
     img {
       background-color: @file-icon-color;

@@ -31,10 +31,12 @@ class MessageItem extends React.Component
     collapsed: React.PropTypes.bool
 
   constructor: (@props) ->
+    fileIds = @props.message.fileIds()
     @state =
       # Holds the downloadData (if any) for all of our files. It's a hash
       # keyed by a fileId. The value is the downloadData.
-      downloads: FileDownloadStore.downloadDataForFiles(@props.message.fileIds())
+      downloads: FileDownloadStore.downloadDataForFiles(fileIds)
+      filePreviewPaths: FileDownloadStore.previewPathsForFiles(fileIds)
       detailedHeaders: false
       detailedHeadersTogglePos: {top: 18}
 
@@ -197,14 +199,14 @@ class MessageItem extends React.Component
   _renderAttachments: =>
     files = (@props.message.files ? []).filter((f) => @_isRealFile(f))
     messageClientId = @props.message.clientId
-    downloadsData = @state.downloads
+    {filePreviewPaths, downloads} = @state
     if files.length > 0
       <div>
         {if files.length > 1 then @_renderDownloadAllButton()}
         <div className="attachments-area">
           <InjectedComponent
             matching={{role: 'MessageAttachments'}}
-            exposedProps={{files, messageClientId, downloadsData, canRemoveAttachments: false}}
+            exposedProps={{files, downloads, filePreviewPaths, messageClientId, canRemoveAttachments: false}}
           />
         </div>
       </div>
@@ -265,7 +267,9 @@ class MessageItem extends React.Component
     return not hasCIDInBody
 
   _onDownloadStoreChange: =>
+    fileIds = @props.message.fileIds()
     @setState
-      downloads: FileDownloadStore.downloadDataForFiles(@props.message.fileIds())
+      downloads: FileDownloadStore.downloadDataForFiles(fileIds)
+      filePreviewPaths: FileDownloadStore.previewPathsForFiles(fileIds)
 
 module.exports = MessageItem
