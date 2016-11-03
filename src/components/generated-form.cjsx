@@ -102,7 +102,6 @@ class FormItem extends React.Component
       React.PropTypes.string,
     ]),
 
-
     #### Used by "reference" type objects
     customComponent: React.PropTypes.func
     contextData: React.PropTypes.object,
@@ -113,6 +112,7 @@ class FormItem extends React.Component
     referenceType: React.PropTypes.oneOf(["belongsTo", "hasMany", "hasManyThrough"])
     referenceThrough: React.PropTypes.string
 
+    currentFormValues: React.PropTypes.object
 
   render: =>
     classes = classNames
@@ -214,7 +214,9 @@ class GeneratedFieldset extends React.Component
 
     lastFieldset: React.PropTypes.bool
     firstFieldset: React.PropTypes.bool
-    contextData: React.PropTypes.object,
+    contextData: React.PropTypes.object
+
+    currentFormValues: React.PropTypes.object
 
   render: =>
     classStr = classNames
@@ -277,6 +279,7 @@ class GeneratedFieldset extends React.Component
     props.onChange = _.bind(@_onChangeItem, @)
     props.formType = @props.formType
     props.contextData = @props.contextData
+    props.currentFormValues = @props.currentFormValues
     return props
 
   _onChangeItem: (itemId, newValue) =>
@@ -363,9 +366,17 @@ class GeneratedForm extends React.Component
       props = @_propsFromFieldsetData(fieldset)
       props.zIndex = 100-i
       props.contextData = @props.contextData
+      props.currentFormValues = @_currentFormValues()
       props.firstFieldset = i is 0
       props.lastFieldset = i isnt 0 and i is @props.fieldsets.length - 1
       <GeneratedFieldset {...props} ref={"fieldset-#{fieldset.id}"} />
+
+  _currentFormValues: =>
+    vals = {}
+    for fieldset in @props.fieldsets
+      for formItem in fieldset.formItems
+        vals[formItem.name] = formItem.value
+    return vals
 
   _propsFromFieldsetData: (fieldsetData) =>
     props = _.clone(fieldsetData)
