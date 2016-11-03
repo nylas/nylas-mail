@@ -269,7 +269,7 @@ class NylasAPI
     "draft": require('./models/message').default
     "account": require('./models/account').default
     "message": require('./models/message').default
-    "contact": require('./models/contact')
+    "contact": require('./models/contact').default
     "calendar": require('./models/calendar')
 
   getThreads: (accountId, params = {}, requestOptions = {}) ->

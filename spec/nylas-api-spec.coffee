@@ -307,7 +307,7 @@ describe "NylasAPI", ->
         "draft": require('../src/flux/models/message').default
         "account": require('../src/flux/models/account').default
         "message": require('../src/flux/models/message').default
-        "contact": require('../src/flux/models/contact')
+        "contact": require('../src/flux/models/contact').default
         "calendar": require('../src/flux/models/calendar')
 
       verifyUpdateHappened = (klass, responseModels) ->
