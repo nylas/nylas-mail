@@ -27,9 +27,9 @@ branches:
 matrix:
   include:
   - os: linux
-    env: NODE_VERSION=6.9 CC=gcc-4.8 CXX=g++-4.8 PUBLISH_BUILD=true
+    env: NODE_VERSION=6.9 CC=gcc-4.8 CXX=g++-4.8
   - os: osx
-    env: NODE_VERSION=6.9 CC=clang CXX=clang++ PUBLISH_BUILD=true
+    env: NODE_VERSION=6.9 CC=clang CXX=clang++
 
 before_install:
 - if [ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${MIRROR}" = "false" ]; then
@@ -44,6 +44,7 @@ before_install:
   2>/dev/null 1>/dev/null source build/resources/certs/set_unix_env.sh;
   fi
 - if [ "${MIRROR}" = "true" ]; then
+  export PUBLISH_BUILD=true;
   git submodule update --init --recursive;
   2>/dev/null 1>/dev/null openssl aes-256-cbc -K $encrypted_e6bb7e15b74d_key -iv $encrypted_e6bb7e15b74d_iv -in src/pro/encrypted_certificates/travis/travis-files-mirror.tar.enc -out src/pro/encrypted_certificates/travis/travis-files.tar -d;
   mkdir build/resources/certs;
