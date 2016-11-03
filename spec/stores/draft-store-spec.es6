@@ -134,7 +134,7 @@ describe('DraftStore', function draftStore() {
         });
         runs(() => {
           expect(NylasEnv.newWindow).toHaveBeenCalledWith({
-            title: 'Message',
+            title: 'B',
             hidden: true,
             windowKey: `composer-A`,
             windowType: "composer-preload",
@@ -156,7 +156,7 @@ describe('DraftStore', function draftStore() {
         });
         runs(() => {
           expect(NylasEnv.newWindow).toHaveBeenCalledWith({
-            title: 'Message',
+            title: 'B',
             hidden: true,
             windowKey: `composer-A`,
             windowType: "composer-preload",
