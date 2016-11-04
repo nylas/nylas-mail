@@ -73,6 +73,12 @@ class TaskQueue
 
     @_restoreQueue()
 
+    NylasEnv.onBeforeUnload((finishUnload) =>
+      @_saveQueue()
+      .finally(finishUnload)
+      return false
+    )
+
     @listenTo Actions.queueTask, @enqueue
     @listenTo Actions.queueTasks, (tasks) =>
       return unless tasks and tasks.length > 0
@@ -325,10 +331,14 @@ class TaskQueue
       @_queue = queue
       @_updateSoon()
 
+  _saveQueue: =>
+    return DatabaseStore.inTransaction((t) =>
+      return t.persistJSONBlob(JSONBlobStorageKey, @_queue ? [])
+    )
+
   _updateSoon: =>
     @_updateSoonThrottled ?= _.throttle =>
-      DatabaseStore.inTransaction (t) =>
-        t.persistJSONBlob(JSONBlobStorageKey, @_queue ? [])
+      @_saveQueue()
       _.defer =>
         @_processQueue()
         @_ensurePeriodicUpdates()
