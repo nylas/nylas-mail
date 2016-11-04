@@ -16,6 +16,7 @@ class MessageAttachments extends Component {
 
   static defaultProps = {
     downloads: {},
+    filePreviewPaths: {},
   }
 
   onOpenAttachment = (file) => {
