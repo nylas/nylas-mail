@@ -25,6 +25,8 @@ export default class MultiSendToIndividualTask extends Task {
         },
         body: this._customizeTrackingForRecipient(this.message.body),
       },
+      ensureOnce: true,
+      requestId: this.message.id,
     })
     .then(() => {
       return Promise.resolve(Task.Status.Success);
