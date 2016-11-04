@@ -209,7 +209,7 @@ class GeneratedFieldset extends React.Component
 
     heading: React.PropTypes.node
     useHeading: React.PropTypes.bool
-    formType: React.PropTypes.string
+    formType: React.PropTypes.oneOf(['new', 'update'])
     zIndex: React.PropTypes.number
 
     lastFieldset: React.PropTypes.bool
@@ -320,7 +320,7 @@ class GeneratedForm extends React.Component
 
     style: React.PropTypes.object
 
-    formType: React.PropTypes.string
+    formType: React.PropTypes.oneOf(['new', 'update'])
     prefilled: React.PropTypes.bool
     contextData: React.PropTypes.object,
 
@@ -328,6 +328,7 @@ class GeneratedForm extends React.Component
     style: {}
 
   render: =>
+    submitTxt = if @props.formType is "new" then "Submit" else "Update"
     <form className="generated-form" ref="form" style={this.props.style} onSubmit={this.props.onSubmit}>
       <TabGroupRegion>
         {@_renderHeaderFormError()}
@@ -336,7 +337,7 @@ class GeneratedForm extends React.Component
           {@_renderFieldsets()}
         </div>
         <div className="form-footer">
-          <input type="submit" value="Submit" className="btn btn-emphasis" />
+          <input type="submit" value={submitTxt} className="btn btn-emphasis" />
         </div>
       </TabGroupRegion>
     </form>
