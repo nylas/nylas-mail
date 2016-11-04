@@ -34,9 +34,10 @@ const NonPreviewableExtensions = [
   'bz2',
   'dmg',
   'exe',
+  'ics',
 ]
 
-const PreviewThumbnailSize = 128
+const THUMBNAIL_WIDTH = 320
 
 
 // Expose the Download class for our tests, and possibly for other things someday
@@ -276,6 +277,7 @@ class FileDownloadStore extends NylasStore {
     }
 
     const filePath = this.pathForFile(file)
+    const escapedPath = filePath.replace(/ /g, '\\ ')
     return fs.accessAsync(filePath, fs.F_OK)
     .then(() => {
       const previewPath = `${filePath}.png`
@@ -289,7 +291,8 @@ class FileDownloadStore extends NylasStore {
         // If the preview file doesn't exist yet, generate it
         const fileDir = path.dirname(filePath)
         return new Promise((resolve) => {
-          exec(`qlmanage -t -s ${PreviewThumbnailSize} -o ${fileDir} ${filePath}`, (error, stdout, stderr) => {
+          const previewSize = THUMBNAIL_WIDTH * (11 / 8.5)
+          exec(`qlmanage -t -f ${window.devicePixelRatio} -s ${previewSize} -o ${fileDir} ${escapedPath}`, (error, stdout, stderr) => {
             if (error) {
               // Ignore errors, we don't really mind if we can't generate a preview
               // for a file

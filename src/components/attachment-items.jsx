@@ -38,12 +38,13 @@ const SPACE = ' '
 
 function ProgressBar(props) {
   const {download} = props
-  if (!download) {
+  const isDownloading = download ? download.state === 'downloading' : false;
+  if (!isDownloading) {
     return <span />
   }
   const {state: downloadState, percent: downloadPercent} = download
   const downloadProgressStyle = {
-    width: `${downloadPercent}%`,
+    width: `${Math.min(downloadPercent, 97.5)}%`,
   }
   return (
     <span className={`progress-bar-wrap state-${downloadState}`}>
@@ -109,7 +110,11 @@ export class AttachmentItem extends Component {
 
   _canPreview() {
     const {filePath, previewable} = this.props
-    return previewable && process.platform === 'darwin' && fs.existsSync(filePath)
+    return (
+      previewable &&
+      process.platform === 'darwin' &&
+      fs.existsSync(filePath)
+    )
   }
 
   _previewAttachment() {
@@ -183,6 +188,7 @@ export class AttachmentItem extends Component {
     })
     const style = draggable ? {WebkitUserDrag: 'element'} : null;
     const tabIndex = focusable ? 0 : null
+    const {devicePixelRatio} = window
 
     return (
       <div
@@ -197,6 +203,7 @@ export class AttachmentItem extends Component {
             <img
               role="presentation"
               src={`file://${filePreviewPath}`}
+              style={{zoom: (1 / devicePixelRatio)}}
             />
           </div> :
           null
@@ -218,7 +225,7 @@ export class AttachmentItem extends Component {
                 name={fileIconName}
               />
               <span className="file-name">{displayName}</span>
-              <span className="file-size">({displaySize})</span>
+              <span className="file-size">{displaySize ? `(${displaySize})` : ''}</span>
               {this._canPreview() ?
                 <RetinaImg
                   className="quicklook-icon"
