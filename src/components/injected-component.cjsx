@@ -157,7 +157,8 @@ class InjectedComponent extends React.Component
     else
       target = ReactDOM.findDOMNode(@)
 
-    target[method].bind(target)(args...)
+    if target[method]
+      target[method].bind(target)(args...)
 
   _setRequiredMethods: (methods) =>
     methods.forEach (method) =>
