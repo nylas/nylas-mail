@@ -53,6 +53,10 @@ class SearchStore extends NylasStore {
 
   _onQueryChanged = (query) => {
     this._searchQuery = query;
+    if (this._searchQuery.length <= 1) {
+      this.trigger()
+      return
+    }
     this._compileResults();
     setTimeout(() => this._rebuildResults(), 0);
   }
