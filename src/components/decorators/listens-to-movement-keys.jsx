@@ -4,6 +4,8 @@ import KeyCommandsRegion from '../key-commands-region'
 function ListensToMovementKeys(ComposedComponent) {
   return class extends ComposedComponent {
     static displayName = ComposedComponent.displayName
+    static containerRequired = ComposedComponent.containerRequired;
+    static containerStyles = ComposedComponent.containerStyles;
 
     localKeyHandlers() {
       return {
