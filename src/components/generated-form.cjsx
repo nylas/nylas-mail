@@ -326,7 +326,7 @@ class GeneratedForm extends React.Component
 
   @defaultProps:
     style: {}
-    onSubmit: () ->
+    onSubmit: ->
 
   render: =>
     submitText = if @props.formType is "new" then "Submit" else "Update"
