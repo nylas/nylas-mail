@@ -7,7 +7,6 @@ export default class UnstableChannelNotification extends React.Component {
   constructor() {
     super();
     this.state = {
-      isDismissed: false,
       isUnstableChannel: UpdateChannelStore.currentIsUnstable(),
     }
   }
@@ -26,31 +25,27 @@ export default class UnstableChannelNotification extends React.Component {
     }
   }
 
-  _onDismiss = () => {
-    this.setState({isDismissed: true});
-  }
-
   _onReportIssue = () => {
     NylasEnv.windowEventHandler.openLink({href: 'mailto:support@nylas.com'})
   }
 
   render() {
-    if (!this.state.isUnstableChannel || this.state.isDismissed) {
+    if (!this.state.isUnstableChannel) {
       return <span />
     }
     return (
       <Notification
         priority="0"
+        displayName={UnstableChannelNotification.displayName}
         title="You're on a pre-release channel. We'd love your feedback."
         subtitle="You can switch back to stable from N1's preferences."
         icon="volstead-defaultclient.png"
         actions={[{
           label: "Feedback",
           fn: this._onReportIssue,
-        }, {
-          label: "Dismiss",
-          fn: this._onDismiss,
         }]}
+        isDismissable
+        isPermanentlyDismissable
       />
     )
   }
