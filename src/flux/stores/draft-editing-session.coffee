@@ -151,7 +151,7 @@ class DraftEditingSession
     warnings = []
     errors = []
     allRecipients = [].concat(@_draft.to, @_draft.cc, @_draft.bcc)
-    bodyIsEmpty = @_draft.body is @draftPristineBody()
+    bodyIsEmpty = @_draft.body is @draftPristineBody() or @_draft.body is "<br>"
     forwarded = DraftHelpers.isForwardedMessage(@_draft)
     hasAttachment = @_draft.files?.length > 0 or @_draft.uploads?.length > 0
 

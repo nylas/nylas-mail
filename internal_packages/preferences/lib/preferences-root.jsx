@@ -28,10 +28,12 @@ class PreferencesRoot extends React.Component {
     this._focusContent();
   }
 
-  componentDidUpdate() {
-    const scrollRegion = document.querySelector(".preferences-content .scroll-region-content");
-    scrollRegion.scrollTop = 0;
-    this._focusContent();
+  componentDidUpdate(oldProps) {
+    if (oldProps.tab !== this.props.tab) {
+      const scrollRegion = document.querySelector(".preferences-content .scroll-region-content");
+      scrollRegion.scrollTop = 0;
+      this._focusContent();
+    }
   }
 
   _localHandlers() {

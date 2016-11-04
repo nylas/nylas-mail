@@ -48,14 +48,14 @@ class SearchQuerySubscription extends MutableQuerySubscription {
   }
 
   performLocalSearch() {
-    let dbQuery = DatabaseStore.findAll(Thread)
+    let dbQuery = DatabaseStore.findAll(Thread).distinct()
     if (this._accountIds.length === 1) {
       dbQuery = dbQuery.where({accountId: this._accountIds[0]})
     }
     dbQuery = dbQuery
     .search(this._searchQuery)
     .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
-    .limit(30)
+    .limit(100)
 
     dbQuery.then((results) => {
       if (results.length > 0) {

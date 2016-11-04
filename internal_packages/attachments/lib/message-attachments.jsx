@@ -4,7 +4,9 @@ import {AttachmentItem, ImageAttachmentItem} from 'nylas-component-kit'
 
 
 class MessageAttachments extends Component {
-  static displayName= 'MessageAttachments'
+  static displayName = 'MessageAttachments'
+
+  static containerRequired = false
 
   static propTypes = {
     files: PropTypes.array,
@@ -16,6 +18,7 @@ class MessageAttachments extends Component {
 
   static defaultProps = {
     downloads: {},
+    filePreviewPaths: {},
   }
 
   onOpenAttachment = (file) => {
