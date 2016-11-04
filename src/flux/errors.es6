@@ -38,6 +38,10 @@ export class APIError extends Error {
   }
 }
 
+export class RequestEnsureOnceError extends Error {
+
+}
+
 export class TimeoutError extends Error {
 
 }
