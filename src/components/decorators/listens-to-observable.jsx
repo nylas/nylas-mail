@@ -3,8 +3,8 @@ import React from 'react'
 function ListensToObservable(ComposedComponent, {getObservable, getStateFromObservable}) {
   return class extends ComposedComponent {
     static displayName = ComposedComponent.displayName;
-
     static containerRequired = ComposedComponent.containerRequired;
+    static containerStyles = ComposedComponent.containerStyles;
 
     constructor(props) {
       super(props)

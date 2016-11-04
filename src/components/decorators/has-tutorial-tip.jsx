@@ -113,6 +113,8 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
 
   return class extends React.Component {
     static displayName = ComposedComponent.displayName;
+    static containerRequired = ComposedComponent.containerRequired;
+    static containerStyles = ComposedComponent.containerStyles;
 
     constructor(props) {
       super(props);
