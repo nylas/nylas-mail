@@ -17,12 +17,13 @@
     .file-info-wrap,.file-action-icon,.file-thumbnail-preview {
       border-color: lighten(@component-active-color, 10%);
     }
-    .file-info-wrap,.file-action-icon {
-      border-top-color: @attachment-border-color;
+    .file-action-icon {
+      border-left-color: @attachment-border-color;
     }
   }
 
   .file-thumbnail-preview {
+    width: 100%;
     max-height: 64px;
     text-align: left;
     overflow: hidden;
@@ -32,7 +33,12 @@
     border-top-right-radius: 8px;
   }
 
-  &.has-preview {
+  &.file-attachment-item.has-preview {
+    &:focus {
+      .file-info-wrap,.file-action-icon {
+        border-top-color: @attachment-border-color;
+      }
+    }
     .file-info-wrap {
       border-top-left-radius: 0;
     }
@@ -51,8 +57,9 @@
   .file-info-wrap {
     display: flex;
     align-items: center;
+    flex-grow: 2;
+    min-width: 85%;
     padding: 10px;
-    width: 100%;
     height: 105%;
     border: solid 1px @attachment-border-color;
     border-top-left-radius: 8px;
@@ -95,6 +102,8 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    flex-grow: 0;
+    flex-basis: 38px;
     margin-left: auto;
     padding: 10px;
     height: 105%;
@@ -135,7 +144,7 @@
 
     .progress-foreground {
       position: absolute;
-      left: 0;
+      left: 4px;
       bottom: 0;
       height: 2px;
       width: 0; // Changed by React
@@ -148,10 +157,10 @@
     }
     .progress-background {
       position: absolute;
-      left: 0;
+      left: 4px;
       bottom: 0;
       height: 2px;
-      width: 100%;
+      width: 97.5%;
       z-index: 2;
       display: block;
       background: @background-color-pending;
@@ -209,7 +218,7 @@ body.platform-win32 {
     top: -8px;
     width: 26px;
     border-radius: 0 0 0 3px;
-    box-shadow: none;
+    border: none;
     img {
       background: none;
     }

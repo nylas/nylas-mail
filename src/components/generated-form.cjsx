@@ -209,7 +209,7 @@ class GeneratedFieldset extends React.Component
 
     heading: React.PropTypes.node
     useHeading: React.PropTypes.bool
-    formType: React.PropTypes.string
+    formType: React.PropTypes.oneOf(['new', 'update'])
     zIndex: React.PropTypes.number
 
     lastFieldset: React.PropTypes.bool
@@ -320,15 +320,17 @@ class GeneratedForm extends React.Component
 
     style: React.PropTypes.object
 
-    formType: React.PropTypes.string
+    formType: React.PropTypes.oneOf(['new', 'update'])
     prefilled: React.PropTypes.bool
     contextData: React.PropTypes.object,
 
   @defaultProps:
     style: {}
+    onSubmit: ->
 
   render: =>
-    <form className="generated-form" ref="form" style={this.props.style} onSubmit={this.props.onSubmit}>
+    submitText = if @props.formType is "new" then "Submit" else "Update"
+    <form className="generated-form" ref="form" style={this.props.style} onSubmit={this.props.onSubmit} onKeyDown={this._onKeyDown} noValidate>
       <TabGroupRegion>
         {@_renderHeaderFormError()}
         {@_renderPrefilledMessage()}
@@ -336,7 +338,9 @@ class GeneratedForm extends React.Component
           {@_renderFieldsets()}
         </div>
         <div className="form-footer">
-          <input type="submit" value="Submit" className="btn btn-emphasis" />
+          <button type="button" className="btn btn-emphasis" onClick={this.props.onSubmit}>
+            {submitText}
+          </button>
         </div>
       </TabGroupRegion>
     </form>
@@ -347,6 +351,10 @@ class GeneratedForm extends React.Component
   componentDidUpdate: (prevProps) ->
     if !prevProps.errors?.formError and @props.errors?.formError
       ReactDOM.findDOMNode(@refs.formHeaderError).scrollIntoView(true)
+
+  _onKeyDown: (event) =>
+    if event.key is "Enter" && (event.metaKey || event.ctrlKey)
+      this.props.onSubmit(event)
 
   _renderPrefilledMessage: =>
     if @props.prefilled

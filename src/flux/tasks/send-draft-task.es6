@@ -4,7 +4,7 @@ import Task from './task';
 import Actions from '../actions';
 import Message from '../models/message';
 import NylasAPI from '../nylas-api';
-import {APIError} from '../errors';
+import {APIError, RequestEnsureOnceError} from '../errors';
 import SoundRegistry from '../../sound-registry';
 import DatabaseStore from '../stores/database-store';
 import AccountStore from '../stores/account-store';
@@ -131,6 +131,8 @@ export default class SendDraftTask extends BaseDraftTask {
       body: this.draft.toJSON(),
       timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
       returnsModel: false,
+      ensureOnce: true,
+      requestId: this.draft.clientId,
     })
     .then((responseJSON) => {
       return this.createMessageFromResponse(responseJSON)
@@ -252,7 +254,7 @@ export default class SendDraftTask extends BaseDraftTask {
       }
     }
 
-    if (this.emitError) {
+    if (this.emitError && !(err instanceof RequestEnsureOnceError)) {
       Actions.sendDraftFailed({
         threadId: this.draft.threadId,
         draftClientId: this.draft.clientId,

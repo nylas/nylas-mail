@@ -5,6 +5,7 @@ export default class Notification extends React.Component {
   static containerRequired = false;
 
   static propTypes = {
+    displayName: React.PropTypes.string,
     title: React.PropTypes.string,
     subtitle: React.PropTypes.string,
     subtitleAction: React.PropTypes.func,
@@ -12,11 +13,16 @@ export default class Notification extends React.Component {
     icon: React.PropTypes.string,
     priority: React.PropTypes.string,
     isError: React.PropTypes.bool,
+    isDismissable: React.PropTypes.bool,
+    isPermanentlyDismissable: React.PropTypes.bool,
   }
 
-  constructor() {
-    super()
-    this.state = {loadingActions: []}
+  constructor(props) {
+    super(props)
+    this.state = {
+      loadingActions: [],
+      isDismissed: this._isDismissed(),
+    }
   }
 
   componentDidMount() {
@@ -25,6 +31,23 @@ export default class Notification extends React.Component {
 
   componentWillUnmount() {
     this.mounted = false;
+  }
+
+  _isDismissed() {
+    if (this.props.isPermanentlyDismissable) {
+      return this._numAsks() >= 5
+    }
+    return false
+  }
+
+  _numAsks() {
+    if (!NylasEnv.savedState.dismissedNotificationAsks) {
+      NylasEnv.savedState.dismissedNotificationAsks = {}
+    }
+    if (!NylasEnv.savedState.dismissedNotificationAsks[this.props.displayName]) {
+      NylasEnv.savedState.dismissedNotificationAsks[this.props.displayName] = 0
+    }
+    return NylasEnv.savedState.dismissedNotificationAsks[this.props.displayName]
   }
 
   _onClick(actionId, actionFn) {
@@ -44,8 +67,38 @@ export default class Notification extends React.Component {
     }
   }
 
+  _subtitle() {
+    if (this.props.isPermanentlyDismissable && this._numAsks() >= 1) {
+      return "Don't show this again"
+    }
+    return this.props.subtitle
+  }
+
+  _subtitleAction = () => {
+    if (this.props.isPermanentlyDismissable && this._numAsks() >= 1) {
+      return () => {
+        NylasEnv.savedState.dismissedNotificationAsks[this.props.displayName] = 5
+        this.setState({isDismissed: true})
+      }
+    }
+    return this.props.subtitleAction
+  }
+
   render() {
+    if (this.state.isDismissed) return <span />
+
     const actions = this.props.actions || [];
+
+    if (this.props.isDismissable) {
+      actions.push({
+        label: 'Dismiss',
+        fn: () => {
+          NylasEnv.savedState.dismissedNotificationAsks[this.props.displayName] = this._numAsks() + 1
+          this.setState({isDismissed: true})
+        },
+      })
+    }
+
     const actionElems = actions.map((action, idx) => {
       const id = `action-${idx}`;
       let className = 'action'
@@ -64,7 +117,9 @@ export default class Notification extends React.Component {
       );
     })
 
-    const {isError, priority, icon, title, subtitleAction, subtitle} = this.props;
+    const {isError, priority, icon, title} = this.props;
+    const subtitle = this._subtitle();
+    const subtitleAction = this._subtitleAction();
 
     let iconEl = null;
     if (icon) {

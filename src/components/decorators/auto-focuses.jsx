@@ -8,6 +8,8 @@ const FOCUSABLE_SELECTOR = 'input, textarea, [contenteditable], [tabIndex]'
 function AutoFocuses(ComposedComponent, {onMount = true, onUpdate = true} = {}) {
   return class extends ComposedComponent {
     static displayName = ComposedComponent.displayName
+    static containerRequired = ComposedComponent.containerRequired;
+    static containerStyles = ComposedComponent.containerStyles;
 
     componentDidMount() {
       this.mounted = true
