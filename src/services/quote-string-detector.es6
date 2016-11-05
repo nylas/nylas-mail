@@ -17,7 +17,7 @@ export default function quoteStringDetector(doc) {
   for (const node of DOMWalkers.walkBackwards(doc)) {
     if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim().length > 0) {
       if (!seenInitialQuoteEnd) {
-        if (/wrote:$/gim.test(node.nodeValue)) {
+        if (/wrote:\s*$/gim.test(node.nodeValue)) {
           seenInitialQuoteEnd = true;
           quoteNodesToRemove.push(node);
           if (/On \S/gim.test(node.nodeValue)) {
