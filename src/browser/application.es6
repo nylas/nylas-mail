@@ -707,6 +707,8 @@ export default class Application extends EventEmitter {
     } else if (parts.protocol === 'nylas:') {
       if (parts.host === 'calendar') {
         this.openCalendarURL(parts.path);
+      } else if (parts.host === 'plugins') {
+        main.sendMessage('changePluginStateFromUrl', urlToOpen);
       } else {
         main.sendMessage('openExternalThread', urlToOpen);
       }
