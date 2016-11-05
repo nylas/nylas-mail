@@ -1,7 +1,7 @@
 _ = require('underscore')
 fs = require('fs')
 path = require 'path'
-QuotedHTMLTransformer = require('../../src/services/quoted-html-transformer')
+QuotedHTMLTransformer = require('../../src/services/quoted-html-transformer').default
 
 describe "QuotedHTMLTransformer", ->
 
@@ -407,5 +407,5 @@ describe "QuotedHTMLTransformer", ->
   xit "Run this simple function to generate output files", ->
     [18].forEach (n) ->
       newHTML = QuotedHTMLTransformer.removeQuotedHTML(readFile("email_#{n}.html"))
-      outPath = path.resolve(__dirname, 'fixtures', 'emails', "email_#{n}_raw_stripped.html")
+      outPath = path.resolve(__dirname, '..', 'fixtures', 'emails', "email_#{n}_raw_stripped.html")
       fs.writeFileSync(outPath, newHTML)
