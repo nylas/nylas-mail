@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import DOMUtils from '../dom-utils';
 import quoteStringDetector from './quote-string-detector';
+import unwrappedSignatureDetector from './unwrapped-signature-detector';
 
 class QuotedHTMLTransformer {
 
@@ -151,6 +152,7 @@ class QuotedHTMLTransformer {
     for (const parser of parsers) {
       quoteElements = quoteElements.concat(parser(doc) || []);
     }
+    quoteElements = quoteElements.concat(unwrappedSignatureDetector(doc, quoteElements))
 
     if (!includeInline && quoteElements.length > 0) {
       // This means we only want to remove quoted text that shows up at the

@@ -10,6 +10,8 @@ import DOMWalkers from '../dom-walkers'
  * the document.
  *
  * This is in its own file to make use of ES6 generators
+ *
+ * See email_19 as a test case for this.
  */
 export default function quoteStringDetector(doc) {
   const quoteNodesToRemove = [];
