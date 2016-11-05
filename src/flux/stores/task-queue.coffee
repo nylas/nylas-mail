@@ -73,9 +73,14 @@ class TaskQueue
 
     @_restoreQueue()
 
+    @_savedOnUnload = false
     NylasEnv.onBeforeUnload((finishUnload) =>
+      if @_savedOnUnload then return true
       @_saveQueue()
-      .finally(finishUnload)
+      .finally(() =>
+        @_savedOnUnload = true
+        finishUnload()
+      )
       return false
     )
 
