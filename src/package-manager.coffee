@@ -72,9 +72,11 @@ class PackageManager
 
   _onChangePluginState: (event, urlToOpen = "") =>
     {query} = url.parse(urlToOpen, true)
+    disabled = NylasEnv.config.get('core.disabledPackages') ? []
     for name, state of query
-      if state is "off" then @deactivatePackage(name)
-      else if state is "on" then @activatePackage(name)
+      if state is "off" and name not in disabled then disabled.push(name)
+      else if state is "on" then disabled = _.without(disabled, name)
+    NylasEnv.config.set('core.disabledPackages', disabled)
 
   _resolvePluginIdFor: (packageName, env) =>
     metadata = @loadedPackages[packageName]?.metadata
