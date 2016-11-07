@@ -1,23 +1,5 @@
 @import "darkside-variables";
 
-.tokenizing-field .token,
-.tokenizing-field .token:hover,
-.tokenizing-field .token.selected,
-.tokenizing-field .token.dragging {
-  color: @sidebar;
-  background: @messagelist-bg;
-  box-shadow: none;
-  border: none;
-  margin: 0;
-  margin-right: 5px;
-}
-
-.tokenizing-field .token.selected,
-.tokenizing-field .token.dragging {
-  color: @sidebar;
-  background: @accent;
-}
-
 .tokenizing-field .token.invalid,
 .tokenizing-field .token.invalid:hover,
 .tokenizing-field .token.invalid.selected,
@@ -56,76 +38,16 @@
   &.focused .composer-action-bar-wrap { background: darken(@messagelist-bg, 1%); }
 }
 
-.composer-participant-field,
-.composer-inner-wrap .composer-subject,
-.composer-inner-wrap .collapsed-composer-participants {
-  margin: 0;
-}
-
-.composer-inner-wrap .composer-centered,
-.composer-inner-wrap .compose-body,
-.composer-inner-wrap .composer-body-wrap,
-.composer-inner-wrap .composer-header-actions {
-  margin: 0;
-  padding: 0;
-}
-
-.composer-inner-wrap .composer-header-actions .action,
-.tokenizing-field .tokenizing-field-input,
-.tokenizing-field .tokenizing-field-label,
-.composer-participant-field .button-dropdown,
-.composer-inner-wrap .composer-field-label,
-.composer-inner-wrap .composer-subject input,
-.tokenizing-field .tokenizing-field-input input {
-  padding-top: 0;
-  padding-bottom: 0;
-}
-
-.composer-inner-wrap .composer-header-actions {
-  padding-right: 0;
-}
-
-.composer-inner-wrap .collapsed-composer-participants,
-.composer-inner-wrap .composer-subject,
-.composer-participant-field {
-  min-height: 0;
-  padding-top: 10px;
-  padding-bottom: 10px;
-}
-
-.composer-participant-field span {
-  top: 0 !important;
-}
-
-.composer-participant-field .button-dropdown {
-  vertical-align: initial;
-}
-
-.composer-inner-wrap .composer-centered,
 .composer-inner-wrap .composer-action-bar-wrap .composer-action-bar-content {
   padding: 20px;
   max-width: 100%;
 }
 
-.body-field { margin-top: 20px; }
-
 // ============================
 //  Attachements
 // ============================
 
-.attachments-area,
-.nylas-attachment-item,
-.nylas-attachment-item.image-attachment-item {
-  margin: 0;
-  padding: 0;
-}
-
-.nylas-attachment-item.image-attachment-item {
-  max-width: 100%;
-}
-
-// Composer attatchments hover style
-.nylas-attachment-item.image-attachment-item .file-preview .file-name-container {
+.file-wrap.file-image-wrap .file-preview .file-name-container {
   background: fade(@sidebar, 20%);
   min-height: 0;
   & .file-name {
