@@ -77,7 +77,7 @@ class SendActionsStore extends NylasStore {
     return this._sendActions
   }
 
-  sendActionForKey(draft, configKey) {
+  sendActionForKey(configKey) {
     return _.findWhere(this._sendActions, {configKey});
   }
 

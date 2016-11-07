@@ -11,7 +11,8 @@
   "windowTypes": {
     "default": true,
     "composer": true,
-    "thread-popout": true
+    "thread-popout": true,
+    "work": true
   },
   "dependencies": {
   }
