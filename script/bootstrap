@@ -31,7 +31,7 @@ function makeNodeMacNotifierCommand() {
 
   // Use our local version of npm (npm 3x) to build sqlite
   var npmPath = '"' + path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'npm') + '"';
-  return npmPath + " install node-mac-notifier --ignore-scripts && cd node_modules/node-mac-notifier && "+nodeGypPath+" configure rebuild --msvs_version=2013 --target="+targetElectronVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell"
+  return npmPath + " install node-mac-notifier --legacy-bundling --ignore-scripts && cd node_modules/node-mac-notifier && "+nodeGypPath+" configure rebuild --msvs_version=2013 --target="+targetElectronVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell"
 }
 
 
