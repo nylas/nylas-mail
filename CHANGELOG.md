@@ -1,5 +1,49 @@
 # N1 Changelog
 
+### 0.4.203 (11/7/16)
+
+- Features:
+
+  + You can now select multiple recipients from the composer fields at once,
+    and cut, copy, paste and drag them between other recipient fields.
+  + You can now undo sending a message, and configure the time available to undo
+    it from within N1 Preferences.
+  + You can now create reminders on sent messages which will remind you if you
+    don't receive a reply to a message within a specified time in the future.
+  + On macOS, you can now preview attachments using the space key or the new
+    quick look icon. Attachment items will now also display a thumbnail preview
+    for the file when available.
+
+- Fixes:
+
+  + N1 no longer freezes when submitting a search in the search bar. (#3001)
+  + Escape key now correctly clears the current search value.
+  + Thread windows now correctly hide deleted messages depending on which
+    view you opened them from (e.g. hide deleted messages when opened from the
+    inbox, but not when opened from the trash folder).
+  + Several message height display issues have been fixed.
+  + In preferences, N1 will now only scroll to the top when switching tabs.
+  + Allow in-app notifications to be dismissable.
+  + Ensure that a send message request succeeds only once.
+  + Ensure that the latest state of our TaskQueue is saved before closing N1.
+  + Improved quoted text detection for trailing signatures.
+
+- Design:
+
+  + Design for in-app notifications has been cleaned up.
+  + Theme-picker styles have been fixed.
+
+- Development:
+
+  + A lot more code has been converted from Coffeescript to Javascript,
+    including all remaining database `Model` classes.
+  + We've re-enabled running N1 tests from within N1.
+  + We've made several improvements to the build process.
+  + Completely removed the deprecated Popover component.
+  + Removed `grim` package, which was completely unused.
+  + `TokenizingTextField` from the component-kit now supports a new prop: `onEditMotion`.
+
+
 ### 0.4.201 (11/3/16)
 
 - Fixes:
