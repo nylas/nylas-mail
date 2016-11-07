@@ -13,7 +13,7 @@ const PACKAGE_MIGRATIONS = [
     }],
   },
   {
-    "version": "0.4.200",
+    "version": "0.4.204",
     "package-migrations": [{
       "new-name": "nylas-private-salesforce",
       "old-name": "nylas-private-salesforce",

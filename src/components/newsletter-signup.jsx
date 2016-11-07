@@ -35,7 +35,7 @@ export default class NewsletterSignup extends React.Component {
     this.setState(state);
   }
 
-  _onGetStatus(props = this.props) {
+  _onGetStatus = (props = this.props) => {
     this._setState({status: 'Pending'});
     EdgehillAPI.makeRequest({
       method: 'GET',
@@ -53,7 +53,7 @@ export default class NewsletterSignup extends React.Component {
     });
   }
 
-  _onSubscribe() {
+  _onSubscribe = () => {
     this._setState({status: 'Pending'});
     EdgehillAPI.makeRequest({
       method: 'POST',
@@ -67,7 +67,7 @@ export default class NewsletterSignup extends React.Component {
     });
   }
 
-  _onUnsubscribe() {
+  _onUnsubscribe = () => {
     this._setState({status: 'Pending'});
     EdgehillAPI.makeRequest({
       method: 'DELETE',
