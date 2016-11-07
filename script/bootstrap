@@ -25,15 +25,6 @@ function makeSqlite3Command() {
   return npmPath + " install https://github.com/bengotow/better-sqlite3/archive/a888061ad334c76d2db4c06554c90785cc6e7cce.tar.gz --ignore-scripts && cd node_modules/better-sqlite3 && "+nodeGypPath+" configure rebuild --msvs_version=2013 --target="+targetElectronVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell"
 }
 
-function makeNodeMacNotifierCommand() {
-  var nodeGypPath = '"' + path.resolve(__dirname, '..', 'build', 'node_modules', 'npm', 'node_modules', '.bin', 'node-gyp') + '"';
-  var targetArch = require('os').arch();
-
-  // Use our local version of npm (npm 3x) to build sqlite
-  var npmPath = '"' + path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'npm') + '"';
-  return npmPath + " install node-mac-notifier --legacy-bundling --ignore-scripts && cd node_modules/node-mac-notifier && "+nodeGypPath+" configure rebuild --msvs_version=2013 --target="+targetElectronVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell"
-}
-
 
 
 // Executes an array of commands in series
@@ -249,13 +240,6 @@ function bootstrap() {
         message: "Building sqlite3 with command: " + sqlite3Command,
       },
     ]);
-
-    if (process.platform === 'darwin') {
-      commands.push({
-        command: makeNodeMacNotifierCommand(),
-        message: "Building node-mac-notifier"
-      });
-    }
 
     process.chdir(path.dirname(__dirname));
     executeCommands(commands, function() {
