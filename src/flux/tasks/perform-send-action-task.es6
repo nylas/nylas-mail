@@ -69,8 +69,12 @@ class PerformSendActionTask extends BaseDraftTask {
   _performSendAction() {
     return this.refreshDraftReference()
     .then((draft) => {
-      const {performSendAction} = SendActionsStore.sendActionForKey(draft, this._sendActionKey)
-      performSendAction({draft})
+      const sendAction = SendActionsStore.sendActionForKey(this._sendActionKey)
+      if (!sendAction) {
+        return Promise.reject(new Error(`Cant find send action ${this._sendActionKey} `))
+      }
+      const {performSendAction} = sendAction
+      return performSendAction({draft})
     })
   }
 }
