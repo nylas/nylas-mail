@@ -150,24 +150,22 @@ describe('DateUtils', function dateUtils() {
   describe('fullTimeString: 12-hour time', () => {
     beforeEach(() => {
       spyOn(NylasEnv.config, 'get').andReturn(false)
-      self.tz = moment.tz(moment.tz.guess()).zoneAbbr()
     });
 
     it('displays a date and time', () => {
       const datestring = DateUtils.fullTimeString('1982-10-24 22:45')
-      expect(datestring).toBe(`Sunday, October 24th 1982, 10:45:00 PM ${self.tz}`)
+      expect(datestring.startsWith(`Sunday, October 24th 1982, 10:45:00 PM`)).toBe(true)
     });
   });
 
   describe('fullTimeString: 24-hour time', () => {
     beforeEach(() => {
       spyOn(NylasEnv.config, 'get').andReturn(true)
-      self.tz = moment.tz(moment.tz.guess()).zoneAbbr()
     });
 
     it('displays a date and time', () => {
       const datestring = DateUtils.fullTimeString('1982-10-24 22:45')
-      expect(datestring).toBe(`Sunday, October 24th 1982, 22:45:00 ${self.tz}`)
+      expect(datestring.startsWith(`Sunday, October 24th 1982, 22:45:00`)).toBe(true)
     });
   });
 });
