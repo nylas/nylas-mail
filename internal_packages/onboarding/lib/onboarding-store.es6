@@ -189,7 +189,7 @@ class OnboardingStore extends NylasStore {
       }
     } catch (e) {
       NylasEnv.reportError(e)
-      NylasEnv.showErrorDialog("Unable to Connect Accounts", "Sorry, something went wrong on your instance of the sync engine. Please try again.")
+      NylasEnv.showErrorDialog("Unable to Connect Accounts", `Sorry, something went wrong on your instance of the sync engine. Please try again. Detail: ${e.toString()}`)
     }
   }
 

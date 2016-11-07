@@ -277,10 +277,9 @@ class FileDownloadStore extends NylasStore {
     }
 
     const filePath = this.pathForFile(file)
-    const escapedPath = filePath.replace(/ /g, '\\ ')
+    const previewPath = `${filePath}.png`
     return fs.accessAsync(filePath, fs.F_OK)
     .then(() => {
-      const previewPath = `${filePath}.png`
       fs.accessAsync(previewPath, fs.F_OK)
       .then(() => {
         // If the preview file already exists, set our state and bail
@@ -289,7 +288,8 @@ class FileDownloadStore extends NylasStore {
       })
       .catch(() => {
         // If the preview file doesn't exist yet, generate it
-        const fileDir = path.dirname(filePath)
+        const fileDir = `"${path.dirname(filePath)}"`
+        const escapedPath = `"${filePath}"`
         return new Promise((resolve) => {
           const previewSize = THUMBNAIL_WIDTH * (11 / 8.5)
           exec(`qlmanage -t -f ${window.devicePixelRatio} -s ${previewSize} -o ${fileDir} ${escapedPath}`, (error, stdout, stderr) => {

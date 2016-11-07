@@ -38,7 +38,11 @@ class DraftFactory
     try
       urlString = decodeURI(urlString)
 
-    [whole, to, queryString] = /mailto:\/*([^\?\&]*)((.|\n|\r)*)/.exec(urlString)
+    match = /mailto:\/*([^\?\&]*)((.|\n|\r)*)/.exec(urlString)
+    if not match
+      return Promise.reject(new Error("#{urlString} is not a valid mailto URL."))
+
+    [whole, to, queryString] = match
 
     if to.length > 0 and to.indexOf('@') is -1
       to = decodeURIComponent(to)

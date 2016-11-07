@@ -315,12 +315,16 @@ class DraftStore extends NylasStore {
   }
 
   _onHandleMailtoLink = (event, urlString) => {
+    // return is just used for specs
     return DraftFactory.createDraftForMailto(urlString).then((draft) => {
       return this._finalizeAndPersistNewMessage(draft, {popout: true});
+    }).catch((err) => {
+      NylasEnv.showErrorDialog(err.toString())
     });
   }
 
   _onHandleMailFiles = (event, paths) => {
+    // return is just used for specs
     return DraftFactory.createDraft().then((draft) => {
       return this._finalizeAndPersistNewMessage(draft);
     })
