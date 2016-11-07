@@ -10,6 +10,8 @@ import DOMWalkers from '../dom-walkers'
  * the document.
  *
  * This is in its own file to make use of ES6 generators
+ *
+ * See email_19 as a test case for this.
  */
 export default function quoteStringDetector(doc) {
   const quoteNodesToRemove = [];
@@ -17,7 +19,7 @@ export default function quoteStringDetector(doc) {
   for (const node of DOMWalkers.walkBackwards(doc)) {
     if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim().length > 0) {
       if (!seenInitialQuoteEnd) {
-        if (/wrote:$/gim.test(node.nodeValue)) {
+        if (/wrote:\s*$/gim.test(node.nodeValue)) {
           seenInitialQuoteEnd = true;
           quoteNodesToRemove.push(node);
           if (/On \S/gim.test(node.nodeValue)) {

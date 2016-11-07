@@ -1,7 +1,8 @@
 path = require 'path'
+url = require 'url'
 
 _ = require 'underscore'
-{remote} = require 'electron'
+{ipcRenderer, remote} = require 'electron'
 EmitterMixin = require('emissary').Emitter
 {Emitter} = require 'event-kit'
 fs = require 'fs-plus'
@@ -58,6 +59,8 @@ class PackageManager
     @packageActivators = []
     @registerPackageActivator(this, ['nylas'])
 
+    ipcRenderer.on("changePluginStateFromUrl", @_onChangePluginState)
+
 
   pluginIdFor: (packageName) =>
     env = NylasEnv.config.get("env")
@@ -66,6 +69,14 @@ class PackageManager
     if @cachedPackagePluginIds[cacheKey] is undefined
       @cachedPackagePluginIds[cacheKey] = @_resolvePluginIdFor(packageName, env)
     return @cachedPackagePluginIds[cacheKey]
+
+  _onChangePluginState: (event, urlToOpen = "") =>
+    {query} = url.parse(urlToOpen, true)
+    disabled = NylasEnv.config.get('core.disabledPackages') ? []
+    for name, state of query
+      if state is "off" and name not in disabled then disabled.push(name)
+      else if state is "on" then disabled = _.without(disabled, name)
+    NylasEnv.config.set('core.disabledPackages', disabled)
 
   _resolvePluginIdFor: (packageName, env) =>
     metadata = @loadedPackages[packageName]?.metadata
