@@ -582,6 +582,16 @@ describe('DraftFactory', function draftFactory() {
           });
         });
       });
+      ['mailto', 'mail', ''].forEach((url) => {
+        it(`rejects gracefully on super mangled mailto link: ${url}`, () => {
+          waitsForPromise(() => {
+            return DraftFactory.createDraftForMailto(url).then(() => {
+              expect('resolved').toBe(false);
+            }).catch(() => {
+            });
+          });
+        });
+      });
     });
 
     describe("should correctly instantiate drafts for a wide range of mailto URLs", () => {
