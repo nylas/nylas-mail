@@ -42,7 +42,7 @@ export default class InlineImageUploadContainer extends Component {
     editorEl.appendChild(editorCanvas);
 
     const editorCtx = editorCanvas.getContext("2d");
-    editorCtx.drawImage(el.querySelector('img.upload'), 0, 0, editorCanvas.width, editorCanvas.height);
+    editorCtx.drawImage(el.querySelector('.file-preview img'), 0, 0, editorCanvas.width, editorCanvas.height);
     editorCtx.strokeStyle = "#df4b26";
     editorCtx.lineJoin = "round";
     editorCtx.lineWidth = 3 * window.devicePixelRatio;
@@ -100,7 +100,7 @@ export default class InlineImageUploadContainer extends Component {
               NylasEnv.showErrorDialog(err.toString())
               return;
             }
-            const img = el.querySelector('img.upload');
+            const img = el.querySelector('.file-preview img');
             img.style.width = `${rect.width}px`;
             img.style.height = `${rect.height}px`;
             img.src = `${img.src}?${Date.now()}`;
