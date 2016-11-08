@@ -9,10 +9,24 @@ if (process.platform === 'darwin') {
 }
 
 class NativeNotifications {
+  constructor() {
+    if (MacNotifierNotification) {
+      this._macNotificationsByTag = {};
+      NylasEnv.onBeforeUnload(() => {
+        Object.keys(this._macNotificationsByTag).forEach((key) => {
+          this._macNotificationsByTag[key].close();
+        });
+        return true;
+      });
+    }
+  }
   displayNotification({title, subtitle, body, tag, canReply, onActivate} = {}) {
     let notif = null;
 
     if (MacNotifierNotification) {
+      if (tag && this._macNotificationsByTag[tag]) {
+        this._macNotificationsByTag[tag].close();
+      }
       notif = new MacNotifierNotification(title, {
         bundleId: 'com.nylas.nylas-mail',
         canReply: canReply,
@@ -26,6 +40,9 @@ class NativeNotifications {
       notif.addEventListener('click', () => {
         onActivate({response: null, activationType: 'clicked'});
       });
+      if (tag) {
+        this._macNotificationsByTag[tag] = notif;
+      }
     } else {
       notif = new Notification(title, {
         silent: true,
