@@ -1,39 +1,43 @@
-'use strict';
-var chalk = require('chalk');
-var eslint = require('eslint');
+const chalk = require('chalk');
+const eslint = require('eslint');
 
-module.exports = function (grunt) {
-  grunt.registerMultiTask('eslint', 'Validate files with ESLint', function () {
-    var opts = this.options({
+module.exports = (grunt) => {
+  grunt.config.merge({
+    eslint: {
+      options: {
+        ignore: false,
+        configFile: 'build/config/eslint.json',
+      },
+      target: grunt.config('source:es6'),
+    },
+
+    eslintFixer: {
+      src: grunt.config('source:es6'),
+    },
+  });
+
+  grunt.registerMultiTask('eslint', 'Validate files with ESLint', function task() {
+    const opts = this.options({
       outputFile: false,
       quiet: false,
-      maxWarnings: -1
+      maxWarnings: -1,
     });
-
-    // legacy
-    // TODO: remove in the future
-    if (opts.config) {
-      opts.configFile = opts.config;
-    }
-    if (opts.rulesdir) {
-      opts.rulePaths = opts.rulesdir;
-    }
 
     if (this.filesSrc.length === 0) {
       grunt.log.writeln(chalk.magenta('Could not find any files to validate.'));
       return true;
     }
 
-    var formatter = eslint.CLIEngine.getFormatter(opts.format);
+    const formatter = eslint.CLIEngine.getFormatter(opts.format);
 
     if (!formatter) {
-      grunt.warn('Could not find formatter ' + opts.format + '\'.');
+      grunt.warn(`Could not find formatter ${opts.format}.`);
       return false;
     }
 
-    var engine = new eslint.CLIEngine(opts);
+    const engine = new eslint.CLIEngine(opts);
 
-    var report;
+    let report = null;
     try {
       report = engine.executeOnFiles(this.filesSrc);
     } catch (err) {
@@ -45,13 +49,12 @@ module.exports = function (grunt) {
       eslint.CLIEngine.outputFixes(report);
     }
 
-    var results = report.results;
-
+    let results = report.results;
     if (opts.quiet) {
       results = eslint.CLIEngine.getErrorResults(results);
     }
 
-    var output = formatter(results);
+    const output = formatter(results);
 
     if (opts.outputFile) {
       grunt.file.write(opts.outputFile, output);
@@ -59,10 +62,9 @@ module.exports = function (grunt) {
       console.log(output);
     }
 
-    var tooManyWarnings = opts.maxWarnings >= 0 && report.warningCount > opts.maxWarnings;
-
+    const tooManyWarnings = opts.maxWarnings >= 0 && report.warningCount > opts.maxWarnings;
     if (report.errorCount === 0 && tooManyWarnings) {
-      grunt.warn('ESLint found too many warnings (maximum:' + opts.maxWarnings + ')');
+      grunt.warn(`ESLint found too many warnings (maximum:${opts.maxWarnings})`);
     }
 
     return report.errorCount === 0;

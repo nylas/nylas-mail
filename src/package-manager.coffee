@@ -158,7 +158,7 @@ class PackageManager
     commandName = 'apm'
     commandName += '.cmd' if process.platform is 'win32'
 
-    @apmPath = path.join(process.resourcesPath, 'app', 'apm', 'bin', commandName)
+    @apmPath = path.join(process.resourcesPath, 'apm', 'bin', commandName)
     if not fs.isFileSync(@apmPath)
       @apmPath = path.join(@resourcePath, 'apm', 'bin', commandName)
     if not fs.isFileSync(@apmPath)

@@ -6,7 +6,7 @@ var ErrorLogger, _, fs, path, app, os, remote;
 os = require('os');
 fs = require('fs-plus');
 path = require('path');
-ipcRenderer = null;
+let ipcRenderer = null;
 if (process.type === 'renderer') {
   ipcRenderer = require('electron').ipcRenderer;
   remote = require('electron').remote;
@@ -202,7 +202,7 @@ module.exports = ErrorLogger = (function() {
       flags: 'a',
       encoding: 'utf8',
       fd: null,
-      mode: 0666
+      mode: 666,
     });
   }
 
@@ -238,7 +238,7 @@ module.exports = ErrorLogger = (function() {
     command = arguments[0]
     args = 2 <= arguments.length ? Array.prototype.slice.call(arguments, 1) : [];
     for (var i=0; i < this.extensions.length; i++) {
-      extension = this.extensions[i]
+      const extension = this.extensions[i]
       extension[command].apply(this, args);
     }
   }

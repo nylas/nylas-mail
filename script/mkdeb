@@ -9,12 +9,11 @@ cd $ROOT
 
 VERSION="$1"
 ARCH="$2"
-CONTROL_FILE="$3"
-DESKTOP_FILE="$4"
-ICON_FILE="$5"
-POSTINST_FILE="$6"
-POSTRM_FILE="$7"
-DEB_PATH="$8"
+ICON_FILE="$3"
+LINUX_ASSETS_DIRECTORY="$4"
+APP_CONTENTS_DIRECTORY="$5"
+OUTPUT_PATH="$6"
+
 FILE_MODE=755
 
 TARGET_ROOT="`mktemp -d`"
@@ -22,16 +21,21 @@ chmod $FILE_MODE "$TARGET_ROOT"
 TARGET="$TARGET_ROOT/nylas-$VERSION-$ARCH"
 
 mkdir -m $FILE_MODE -p "$TARGET/usr"
-env INSTALL_PREFIX="$TARGET/usr" script/grunt install
+mkdir -m $FILE_MODE -p "$TARGET/usr/share"
+cp -r "$APP_CONTENTS_DIRECTORY" "$TARGET/usr/share/nylas"
 
 mkdir -m $FILE_MODE -p "$TARGET/DEBIAN"
-cp "$CONTROL_FILE" "$TARGET/DEBIAN/control"
+cp "$OUTPUT_PATH/control" "$TARGET/DEBIAN/control"
 
-cp "$POSTINST_FILE" "$TARGET/DEBIAN/postinst"
-cp "$POSTRM_FILE" "$TARGET/DEBIAN/postrm"
+cp "$LINUX_ASSETS_DIRECTORY/debian/postinst" "$TARGET/DEBIAN/postinst"
+cp "$LINUX_ASSETS_DIRECTORY/debian/postrm" "$TARGET/DEBIAN/postrm"
+
+mkdir -m $FILE_MODE -p "$TARGET/usr/bin"
+cp "$LINUX_ASSETS_DIRECTORY/nylas.sh" "$TARGET/usr/bin/nylas"
+chmod +x "$TARGET/usr/bin/nylas"
 
 mkdir -m $FILE_MODE -p "$TARGET/usr/share/applications"
-cp "$DESKTOP_FILE" "$TARGET/usr/share/applications"
+cp "$OUTPUT_PATH/nylas.desktop" "$TARGET/usr/share/applications"
 
 mkdir -m $FILE_MODE -p "$TARGET/usr/share/pixmaps"
 cp "$ICON_FILE" "$TARGET/usr/share/pixmaps"
@@ -39,12 +43,12 @@ cp "$ICON_FILE" "$TARGET/usr/share/pixmaps"
 mkdir -m $FILE_MODE -p "$TARGET/usr/share/icons/hicolor"
 for i in 256 128 64 32 16; do
   mkdir -p "$TARGET/usr/share/icons/hicolor/${i}x${i}/apps"
-  cp "$DEB_PATH/icons/${i}.png" "$TARGET/usr/share/icons/hicolor/${i}x${i}/apps/nylas.png"
+  cp "$LINUX_ASSETS_DIRECTORY/icons/${i}.png" "$TARGET/usr/share/icons/hicolor/${i}x${i}/apps/nylas.png"
 done
 
 # Copy generated LICENSE.md to /usr/share/doc/nylas/copyright
 mkdir -m $FILE_MODE -p "$TARGET/usr/share/doc/nylas"
-cp "$TARGET/usr/share/nylas/resources/LICENSE.md" "$TARGET/usr/share/doc/nylas/copyright"
+cp "$TARGET/usr/share/nylas/LICENSE" "$TARGET/usr/share/doc/nylas/copyright"
 
 # Add lintian overrides
 mkdir -m $FILE_MODE -p "$TARGET/usr/share/lintian/overrides"
@@ -57,5 +61,5 @@ chmod -R g-w "$TARGET";
 find "$TARGET" -type f -name "*.node" -exec chmod a-x {} \;
 
 fakeroot dpkg-deb -b "$TARGET"
-mv "$TARGET_ROOT/nylas-$VERSION-$ARCH.deb" "$DEB_PATH"
+mv "$TARGET_ROOT/nylas-$VERSION-$ARCH.deb" "$OUTPUT_PATH"
 rm -rf "$TARGET_ROOT"

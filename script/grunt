@@ -12,6 +12,6 @@ if (!fs.existsSync(gruntPath)) {
   process.exit(1);
 }
 
-var args = ['--gruntfile', path.resolve('build', 'Gruntfile.coffee')];
+var args = ['--gruntfile', path.resolve('build', 'Gruntfile.js')];
 args = args.concat(process.argv.slice(2));
 cp.safeSpawn(gruntPath, args, process.exit);

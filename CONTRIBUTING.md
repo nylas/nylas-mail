@@ -28,14 +28,14 @@ Linux users on Debian 8 and Ubuntu 15.04 onward must also install libgcrypt11, w
 
 ### Running N1
 
-    ./N1.sh --dev --enable-logging
+    npm start
 
 Once the app boots, you'll be prompted to enter your email credentials.
 
 
 ### Testing N1
 
-    ./N1.sh --test --enable-logging
+    npm test
 
 This will run the full suite of automated unit tests. We use [Jasmine 1.3](http://jasmine.github.io/1.3/introduction.html).
 
