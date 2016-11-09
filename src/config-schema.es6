@@ -124,8 +124,6 @@ export default {
           defaultSendType: {
             'type': 'string',
             'default': 'send',
-            'enum': ['send'],
-            'enumLabels': ['Send'],
             'title': "Default send behavior",
           },
           undoSend: {
