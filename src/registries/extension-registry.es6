@@ -1,6 +1,6 @@
 import _ from 'underscore';
-import {Listener, Publisher} from './flux/modules/reflux-coffee';
-import {includeModule} from './flux/coffee-helpers';
+import {Listener, Publisher} from '../flux/modules/reflux-coffee';
+import {includeModule} from '../flux/coffee-helpers';
 
 export class Registry {
 

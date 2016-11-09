@@ -1,8 +1,8 @@
 /* eslint global-require: 0 */
 /* eslint import/no-dynamic-require: 0 */
-import TaskRegistry from '../task-registry'
-import StoreRegistry from '../store-registry'
-import DatabaseObjectRegistry from '../database-object-registry'
+import TaskRegistry from '../registries/task-registry'
+import StoreRegistry from '../registries/store-registry'
+import DatabaseObjectRegistry from '../registries/database-object-registry'
 
 const resolveExport = (requireValue) => {
   return requireValue.default || requireValue;
@@ -161,13 +161,13 @@ lazyLoadAndRegisterStore(`FocusedPerspectiveStore`, 'focused-perspective-store')
 lazyLoadAndRegisterStore(`SearchableComponentStore`, 'searchable-component-store');
 lazyLoad(`CustomContenteditableComponents`, 'components/overlaid-components/custom-contenteditable-components');
 
-lazyLoad(`ServiceRegistry`, `service-registry`);
+lazyLoad(`ServiceRegistry`, `registries/service-registry`);
 
 // Decorators
 lazyLoad(`InflatesDraftClientId`, 'decorators/inflates-draft-client-id');
 
 // Extensions
-lazyLoad(`ExtensionRegistry`, 'extension-registry');
+lazyLoad(`ExtensionRegistry`, 'registries/extension-registry');
 lazyLoad(`ComposerExtension`, 'extensions/composer-extension');
 lazyLoad(`MessageViewExtension`, 'extensions/message-view-extension');
 lazyLoad(`ContenteditableExtension`, 'extensions/contenteditable-extension');
@@ -181,7 +181,7 @@ lazyLoadWithGetter(`ReactTestUtils`, () => require('react-addons-test-utils'));
 lazyLoadWithGetter(`Keytar`, () => require('keytar')); // atom-keytar access through native module
 
 // React Components
-lazyLoad(`ComponentRegistry`, 'component-registry');
+lazyLoad(`ComponentRegistry`, 'registries/component-registry');
 lazyLoad(`PriorityUICoordinator`, 'priority-ui-coordinator');
 
 // Utils
@@ -200,7 +200,7 @@ lazyLoad(`MessageUtils`, 'flux/models/message-utils');
 lazyLoad(`EditorAPI`, 'components/contenteditable/editor-api');
 
 // Services
-lazyLoad(`SoundRegistry`, 'sound-registry');
+lazyLoad(`SoundRegistry`, 'registries/sound-registry');
 lazyLoad(`MailRulesTemplates`, 'mail-rules-templates');
 lazyLoad(`MailRulesProcessor`, 'mail-rules-processor');
 lazyLoad(`MailboxPerspective`, 'mailbox-perspective');

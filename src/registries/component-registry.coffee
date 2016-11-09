@@ -1,7 +1,7 @@
 _ = require 'underscore'
 
-{Listener, Publisher} = require './flux/modules/reflux-coffee'
-CoffeeHelpers = require './flux/coffee-helpers'
+{Listener, Publisher} = require '../flux/modules/reflux-coffee'
+CoffeeHelpers = require '../flux/coffee-helpers'
 
 DeprecatedRoles = {
   'thread:BulkAction': 'ThreadActionsToolbarButton',

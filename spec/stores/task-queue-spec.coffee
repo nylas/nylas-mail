@@ -2,7 +2,7 @@ Actions = require('../../src/flux/actions').default
 DatabaseStore = require('../../src/flux/stores/database-store').default
 TaskQueue = require '../../src/flux/stores/task-queue'
 Task = require('../../src/flux/tasks/task').default
-TaskRegistry = require('../../src/task-registry').default
+TaskRegistry = require('../../src/registries/task-registry').default
 
 {APIError,
  TimeoutError} = require '../../src/flux/errors'

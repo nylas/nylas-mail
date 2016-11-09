@@ -62,7 +62,7 @@ class WindowEventHandler
       NylasEnv.errorLogger.openLogs()
 
     NylasEnv.commands.add document.body, 'window:toggle-component-regions', ->
-      ComponentRegistry = require './component-registry'
+      ComponentRegistry = require './registries/component-registry'
       ComponentRegistry.toggleComponentRegions()
 
     webContents = NylasEnv.getCurrentWindow().webContents

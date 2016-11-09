@@ -1,5 +1,5 @@
 /* eslint global-require:0 */
-import DatabaseObjectRegistry from '../../database-object-registry';
+import DatabaseObjectRegistry from '../../registries/database-object-registry';
 import {tableNameForJoin} from '../models/utils';
 
 import Attributes from '../attributes';

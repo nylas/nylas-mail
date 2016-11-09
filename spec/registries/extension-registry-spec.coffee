@@ -1,4 +1,4 @@
-ExtensionRegistry = require('../src/extension-registry')
+ExtensionRegistry = require('../../src/registries/extension-registry')
 
 class TestExtension
   @name: 'TestExtension'

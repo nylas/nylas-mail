@@ -4,7 +4,7 @@ import Actions from '../actions';
 import {APIError} from '../errors';
 import NylasAPI from '../nylas-api';
 import TaskQueue from '../../flux/stores/task-queue';
-import SoundRegistry from '../../sound-registry';
+import SoundRegistry from '../../registries/sound-registry';
 import MultiSendToIndividualTask from './multi-send-to-individual-task';
 
 

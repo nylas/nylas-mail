@@ -1,5 +1,5 @@
 React = require 'react'
-ComponentRegistry = require '../src/component-registry'
+ComponentRegistry = require '../../src/registries/component-registry'
 
 class TestComponent extends React.Component
   @displayName: 'TestComponent'
