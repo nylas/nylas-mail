@@ -5,7 +5,7 @@ import Category from '../../../src/flux/models/category'
 import CategoryStore from '../../../src/flux/stores/category-store'
 import DatabaseStore from '../../../src/flux/stores/database-store'
 import AccountStore from '../../../src/flux/stores/account-store'
-import SoundRegistry from '../../../src/sound-registry'
+import SoundRegistry from '../../../src/registries/sound-registry'
 import NativeNotifications from '../../../src/native-notifications'
 import {Notifier} from '../lib/main'
 

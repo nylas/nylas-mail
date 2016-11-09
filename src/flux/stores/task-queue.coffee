@@ -6,7 +6,7 @@ path = require 'path'
 CoffeeHelpers = require '../coffee-helpers'
 
 Task = require("../tasks/task").default
-TaskRegistry = require('../../task-registry').default
+TaskRegistry = require('../../registries/task-registry').default
 Utils = require "../models/utils"
 Reflux = require 'reflux'
 Actions = require('../actions').default

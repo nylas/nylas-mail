@@ -4,8 +4,8 @@ path = require('path')
 moment = require('moment-timezone')
 
 DefaultResourcePath = null
-TaskRegistry = require('../../task-registry').default
-DatabaseObjectRegistry = require('../../database-object-registry').default
+TaskRegistry = require('../../registries/task-registry').default
+DatabaseObjectRegistry = require('../../registries/database-object-registry').default
 
 imageData = null
 

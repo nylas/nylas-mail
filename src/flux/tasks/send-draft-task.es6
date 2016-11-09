@@ -5,7 +5,7 @@ import Actions from '../actions';
 import Message from '../models/message';
 import NylasAPI from '../nylas-api';
 import {APIError, RequestEnsureOnceError} from '../errors';
-import SoundRegistry from '../../sound-registry';
+import SoundRegistry from '../../registries/sound-registry';
 import DatabaseStore from '../stores/database-store';
 import AccountStore from '../stores/account-store';
 import BaseDraftTask from './base-draft-task';

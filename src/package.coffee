@@ -9,8 +9,8 @@ Q = require 'q'
 
 ModuleCache = require './module-cache'
 
-TaskRegistry = require('./task-registry').default
-DatabaseObjectRegistry = require('./database-object-registry').default
+TaskRegistry = require('./registries/task-registry').default
+DatabaseObjectRegistry = require('./registries/database-object-registry').default
 
 try
   packagesCache = require('../package.json')?._N1Packages ? {}

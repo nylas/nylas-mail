@@ -1,5 +1,5 @@
 import SyncbackModelTask from './syncback-model-task'
-import DatabaseObjectRegistry from '../../database-object-registry'
+import DatabaseObjectRegistry from '../../registries/database-object-registry'
 
 export default class SyncbackMetadataTask extends SyncbackModelTask {
 
