@@ -151,6 +151,34 @@ class Thread extends ModelWithMetadata {
     .then((messages) => messages.filter((m) => !m.isHidden()))
   }
 
+  /**
+   * Returns unique participants as keyed by email.
+   */
+  uniqueParticipantsByEmail() {
+    const origParticipants = (this.participants || [])
+    .map(p => {
+      const newP = p.clone();
+      newP.email = (p.email || "").toLowerCase();
+      return newP;
+    });
+    const pByEmail = _.groupBy(origParticipants, "email");
+    const participants = []
+    for (const email of Object.keys(pByEmail)) {
+      const ps = pByEmail[email]
+      if (ps.length === 1) {
+        participants.push(ps[0])
+      } else {
+        const withName = ps.filter(p => p.name !== p.email);
+        if (withName.length > 0) {
+          participants.push(withName[0])
+        } else {
+          participants.push(ps[0])
+        }
+      }
+    }
+    return participants
+  }
+
   /** Computes the plaintext version of ALL messages.
    * WARNING: This method is VERY expensive.
    * Parsing a thread with ~50 messages took ~2-3 seconds!
