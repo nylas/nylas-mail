@@ -56,5 +56,8 @@ environment:
       secure: 48VSzDtdBd52Xlo3TZ1NeR1yRRrZ3AU6Px5XjD5RDp44cFU5GYVspecGqX6DGCV7i0D7nldGMyEbXNrjM1t1Kw==
 
 cache:
+  - node_modules
+  - apm\node_modules
+  - build\node_modules
   - '%USERPROFILE%\.nylas\.apm'
   - '%USERPROFILE%\.npm'
