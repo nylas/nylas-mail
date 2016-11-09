@@ -68,11 +68,15 @@ before_script:
   sh -e /etc/init.d/xvfb start;
   fi
 
-script: script/cibuild
+script:
+  - script/bootstrap
+  - npm test
+  - script/grunt ci --stack --no-color
 
 cache:
   directories:
     - node_modules
+    - apm/node_modules
     - build/node_modules
 
 # The NYLAS_GITHUB_OAUTH_TOKEN is overriden by build/resources/certs/set_unix_env.sh

@@ -1,6 +1,0 @@
-#!/bin/sh
-set -e
-echo "---> $(npm --version)"
-echo "---> $(node --version)"
-script/bootstrap
-build/node_modules/.bin/grunt build --gruntfile build/Gruntfile.js --stack --no-color;
