@@ -16,7 +16,5 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/bengotow/nylas-sidebar-github-profile"
-  },
-  "dependencies": {
   }
 }

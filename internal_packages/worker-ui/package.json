@@ -8,8 +8,6 @@
   "engines": {
     "nylas": "*"
   },
-  "dependencies": {
-  },
   "windowTypes": {
     "work": true
   }

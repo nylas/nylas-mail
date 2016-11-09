@@ -8,9 +8,6 @@
   "windowTypes": {
     "default": true
   },
-  "dependencies": {
-    "clearbit": "^1.2"
-  },
   "engines": {
     "nylas": "*"
   },
