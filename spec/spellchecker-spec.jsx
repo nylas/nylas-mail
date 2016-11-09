@@ -4,31 +4,28 @@ import {Spellchecker} from 'nylas-exports';
 describe("Spellchecker", function spellcheckerTests() {
   beforeEach(() => {
     Spellchecker.handler.switchLanguage('en-US'); // Start with US English
-  })
-  it("properly detects language when given a full sentence", () => {
-    // Not necessarily a complete list of supported languages
-    const langs = [
-      {name: "French", code: "fr", sentence: "Ceci est une phrase avec quelques mots."},
-      {name: "German", code: "de", sentence: "Das ist ein Satz mit einigen Worten."},
-      {name: "Italian", code: "it", sentence: "Questa è una frase con alcune parole."},
-      {name: "Russian", code: "ru", sentence: "Это предложение с некоторыми словами."},
-      {name: "Spanish", code: "es", sentence: "Esta es una oración con algunas palabras."},
-      // English shouldn't be first since we start out as English.
-      {name: "English", code: "en", sentence: "This is a sentence with some words."},
-    ]
-    for (const lang of langs) {
-      let ready = false;
+  });
 
-      runs(() => Spellchecker.handler.provideHintText(lang.sentence).then(() => {
-        ready = true;
-      }));
-
-      waitsFor(() => ready, `.provideHintText() never resolved for lang: ${lang.name}`, 500);
-
+  // Note, on Linux, calling provideHintText can result in a Hunspell dictionary
+  // being downloaded. Typically this is fast but if this causes intermittent
+  // failures we should disable these specs on Linux.
+  [
+    {name: "French", code: "fr", sentence: "Ceci est une phrase avec quelques mots."},
+    {name: "German", code: "de", sentence: "Das ist ein Satz mit einigen Worten."},
+    {name: "Italian", code: "it", sentence: "Questa è una frase con alcune parole."},
+    {name: "Russian", code: "ru", sentence: "Это предложение с некоторыми словами."},
+    {name: "Spanish", code: "es", sentence: "Esta es una oración con algunas palabras."},
+    // English shouldn't be first since we start out as English.
+    {name: "English", code: "en", sentence: "This is a sentence with some words."},
+  ].forEach(({name, code, sentence}) => {
+    it(`properly detects language when given a full sentence (${name})`, () => {
+      waitsForPromise(() =>
+        Spellchecker.handler.provideHintText(sentence)
+      )
       runs(() => {
-        expect(Spellchecker.handler.currentSpellcheckerLanguage.startsWith(lang.code)).toEqual(true)
+        expect(Spellchecker.handler.currentSpellcheckerLanguage.startsWith(code)).toEqual(true)
       })
-    }
+    });
   });
 
   it("knows whether a word is misspelled or not", () => {
