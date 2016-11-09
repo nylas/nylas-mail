@@ -43,7 +43,9 @@ install:
     }
 
 build_script:
-- ps: .\script\cibuild.ps1
+- ps: script\bootstrap.cmd
+- ps: npm test
+- ps: script\grunt.cmd ci --stack --no-color
 
 environment:
   matrix:
