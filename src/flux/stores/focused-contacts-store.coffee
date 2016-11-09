@@ -17,6 +17,8 @@ class FocusedContactsStore extends NylasStore
     @listenTo MessageStore, @_onMessageStoreChanged
     @listenTo Actions.focusContact, @_onFocusContact
     @_clearCurrentParticipants()
+    @_triggerLater = _.debounce(@trigger, 250)
+    @_loadCurrentParticipantThreads = _.debounce(@_loadCurrentParticipantThreads, 250)
 
   sortedContacts: -> @_currentContacts
 
@@ -38,13 +40,10 @@ class FocusedContactsStore extends NylasStore
     # Wait to populate until the user has stopped moving through threads. This is
     # important because the FocusedContactStore powers tons of third-party extensions,
     # which could do /horrible/ things when we trigger.
-    @_onMessageStoreChangeThrottled ?= _.debounce =>
-      thread = if MessageStore.itemsLoading() then null else MessageStore.thread()
-      if thread and thread.id isnt @_currentThread?.id
-        @_currentThread = thread
-        @_popuateCurrentParticipants()
-    , 250
-    @_onMessageStoreChangeThrottled()
+    thread = if MessageStore.itemsLoading() then null else MessageStore.thread()
+    if thread and thread.id isnt @_currentThread?.id
+      @_currentThread = thread
+      @_popuateCurrentParticipants()
 
   # For now we take the last message
   _popuateCurrentParticipants: ->
@@ -75,14 +74,17 @@ class FocusedContactsStore extends NylasStore
       })
       @_unsubFocusedContact = Rx.Observable.fromQuery(query).subscribe (match) =>
         @_currentFocusedContact = match ? contact
-        @trigger()
+        @_triggerLater()
       @_loadCurrentParticipantThreads(contact.email)
     else
       @_currentFocusedContact = null
-      @trigger()
+      @_triggerLater()
 
   _loadCurrentParticipantThreads: (email) ->
+    email = @_currentFocusedContact?.email
+    return unless email
     DatabaseStore.findAll(Thread).where(Thread.attributes.participants.contains(email)).limit(100).then (threads = []) =>
+      return unless @_currentFocusedContact?.email is email
       @_currentParticipantThreads = threads
       @trigger()
 
