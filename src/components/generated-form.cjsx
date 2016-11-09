@@ -329,7 +329,7 @@ class GeneratedForm extends React.Component
     onSubmit: ->
 
   render: =>
-    submitText = if @props.formType is "new" then "Submit" else "Update"
+    submitText = if @props.formType is "new" then "Create" else "Update"
     <form className="generated-form" ref="form" style={this.props.style} onSubmit={this.props.onSubmit} onKeyDown={this._onKeyDown} noValidate>
       <TabGroupRegion>
         {@_renderHeaderFormError()}
