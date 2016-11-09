@@ -18,9 +18,5 @@
     "default": true,
     "composer": true,
     "thread-popout": true
-  },
-  "dependencies": {
-    "marked": "^0.3",
-    "simplemde": "jstejada/simplemde-markdown-editor#input-style-support"
   }
 }
