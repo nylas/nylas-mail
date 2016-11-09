@@ -39,3 +39,4 @@ internal_packages/open-tracking
 internal_packages/send-later
 internal_packages/send-reminders
 internal_packages/thread-sharing
+/dist

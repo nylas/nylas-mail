@@ -1,261 +1,73 @@
 #!/usr/bin/env node
+/* eslint global-require: 0 */
+/* eslint quote-props: 0 */
+const path = require('path');
+const safeExec = require('./utils/child-process-wrapper.js').safeExec;
 
-var fs = require('fs');
-var verifyRequirements = require('./utils/verify-requirements');
-var safeExec = require('./utils/child-process-wrapper.js').safeExec;
-var path = require('path');
+const npmEnvs = {
+  system: process.env,
+  apm: Object.assign({}, process.env, {
+    'npm_config_target': '0.10.40',
+  }),
+  electron: Object.assign({}, process.env, {
+    'npm_config_target': '1.4.1',
+    'npm_config_arch': 'x64',
+    'npm_config_target_arch': 'x64',
+    'npm_config_disturl': 'https://atom.io/download/atom-shell',
+    'npm_config_runtime': 'electron',
+    'npm_config_build_from_source': true,
+  }),
+};
 
-var userHomeDirectory = (process.platform === 'win32') ? process.env.USERPROFILE : process.env.HOME;
-var appPackageJSON = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'package.json')));
-var targetElectronVersion = appPackageJSON['electronVersion'];
-var targetPlatform = require('os').platform();
+function npm(cmd, options) {
+  const {cwd, env} = Object.assign({cwd: '.', env: 'system'}, options);
 
-function makeSqlite3Command() {
-  var nodeGypPath = '"' + path.resolve(__dirname, '..', 'build', 'node_modules', 'npm', 'node_modules', '.bin', 'node-gyp') + '"';
-  if (targetPlatform == "win32") {
-    // As of Electron 0.29.2, all windows machines, even if they're 64 bit,
-    // return "ia32" as the arch
-    var targetArch = "ia32"
-  } else {
-    var targetArch = require('os').arch();
-  }
+  return new Promise((resolve, reject) => {
+    console.log(`\n-- Running npm ${cmd} in ./${cwd} with ${env} config --`)
 
-  // Use our local version of npm (npm 3x) to build sqlite
-  var npmPath = '"' + path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'npm') + '"';
-  return npmPath + " install https://github.com/bengotow/better-sqlite3/archive/a888061ad334c76d2db4c06554c90785cc6e7cce.tar.gz --ignore-scripts && cd node_modules/better-sqlite3 && "+nodeGypPath+" configure rebuild --msvs_version=2013 --target="+targetElectronVersion+" --arch="+targetArch+" --target_platform="+targetPlatform+" --dist-url=https://atom.io/download/atom-shell"
-}
-
-
-
-// Executes an array of commands in series
-function executeCommands(commands, done, index) {
-  index = (index == undefined ? 0 : index);
-  if (index < commands.length) {
-    var command = commands[index];
-    if (command.message)
-      console.log(command.message);
-    var options = null;
-    if (typeof command !== 'string') {
-      options = command.options;
-      command = command.command;
-    }
-    safeExec(command, options, executeCommands.bind(this, commands, done, index + 1));
-  }
-  else
-    done(null);
-}
-
-function printArgs(args) {
-  out = "";
-  for(key in args) {
-    out += "--"+key+"="+JSON.stringify(args[key])+" ";
-  }
-  return out;
-}
-
-function bootstrap() {
-  var apmDestinationPath = path.resolve(__dirname, '..', 'apm');
-  if (!fs.existsSync(apmDestinationPath))
-    fs.mkdirSync(apmDestinationPath);
-  if (!fs.existsSync(path.join(apmDestinationPath, 'node_modules')))
-    fs.mkdirSync(path.join(apmDestinationPath, 'node_modules'));
-
-  var apmPath = '"' + path.resolve(__dirname, '..', 'apm', 'node_modules', 'atom-package-manager', 'bin', 'apm') + '"';
-  var apmFlags = process.env.JANKY_SHA1 || process.argv.indexOf('--no-color') !== -1 ? ' --no-color' : '';
-
-  var npmFlags = ' --userconfig=' + '"' + path.resolve('.npmrc') + '" ';
-
-  var gruntPath = '"' + path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'grunt') + '"';
-
-  // use the system version of npm to install build folder dependencies, including our
-  // own copy of NPM 3.x, which we'll use for subsequent commands
-  var buildInstallCommand = 'npm' + npmFlags + 'install';
-  var buildInstallOptions = {cwd: path.resolve(__dirname, '..', 'build')};
-  var npmPath = '"' + path.resolve(__dirname, '..', 'build', 'node_modules', '.bin', 'npm') + '"';
-
-  // Use our local version of npm in ./build to install apm. This ensures it gets a
-  // flat dependency tree.
-  var npmInstallApmCommand = npmPath + npmFlags + '--target=0.10.40 ' + 'install';
-  var npmInstallApmOptions = {cwd: apmDestinationPath};
-
-  var npmDedupeNpmCommand = npmPath + npmFlags + '--target=0.10.40 ' + 'dedupe';
-  var npmDedupeNpmOptions = {cwd: path.join(apmDestinationPath, 'node_modules', 'npm')};
-
-  var sqlite3Command = makeSqlite3Command();
-
-  var apmInstallCommand = apmPath + ' install' + apmFlags;
-
-  var apmEnv = JSON.parse(JSON.stringify(process.env))
-  apmEnv['ATOM_ELECTRON_VERSION'] = targetElectronVersion;
-  apmEnv['ATOM_HOME'] = path.join(userHomeDirectory, '.nylas');
-
-  var apmDedupeCommand = apmPath + ' dedupe' + apmFlags;
-  var semverOptions = {
-    cwd: path.resolve(__dirname, '..', 'apm', 'node_modules', 'atom-package-manager'),
-    env: apmEnv
-  };
-
-  var integrationCommand = npmPath + npmFlags + 'install';
-  var integrationOptions = {cwd: path.resolve(__dirname, '..', 'spec_integration')};
-
-  if (process.argv.indexOf('--no-quiet') === -1) {
-    buildInstallCommand  += ' --loglevel error';
-    npmInstallApmCommand    += ' --loglevel error';
-    apmInstallCommand += ' --loglevel error';
-    integrationCommand += ' --loglevel error';
-    apmDedupeCommand     += ' --quiet';
-
-    npmDedupeNpmOptions.ignoreStderr = true;
-    npmDedupeNpmOptions.ignoreStdout = true;
-    buildInstallOptions.ignoreStdout = true;
-    npmInstallApmOptions.ignoreStdout = true;
-    integrationOptions.ignoreStdout = true;
-  }
-
-  // apm ships with 32-bit node so make sure its native modules are compiled
-  // for a 32-bit target architecture
-  if (process.env.JANKY_SHA1 && process.platform === 'win32')
-    npmInstallApmCommand += ' --arch=ia32';
-
-  m1  = "\n---> Installing N1 build tools\n"
-  m1 += "     This goes inside the `build` folder and runs `npm install`\n"
-  m1 += "     It will use the system `npm` to bootstrap our own N1 npm.\n"
-  m1 += "     Our build tools (like Grunt) need to be compiled against Node via `npm`.\n"
-  m1 += "     Everything else needs to be compiled against Chromium with `apm`.\n\n"
-  m1 += "     $ "+buildInstallCommand+" "+printArgs(buildInstallOptions)+"\n"
-
-  m2  = "\n\n---> Installing apm\n"
-  m2 += "     This installs apm via N1's `npm`\n"
-  m2 += "     We use this local apm copy to install all N1 dependencies & packages\n\n"
-  m2 += "     $ "+npmInstallApmCommand+" "+printArgs(npmInstallApmOptions)+"\n"
-
-  m2a  = "\n\n---> Flattening apm package tree\n"
-  m2a += "     This runs `npm dedupe` on apm's `npm` dependency.\n"
-  m2a += "     We use this to prevent paths over 260 characters on Windows.\n\n"
-  m2a += "     $ "+npmDedupeNpmCommand+" "+printArgs(npmDedupeNpmOptions)+"\n"
-
-  m3  = "\n\n---> Cleaning apm via `apm clean`\n"
-
-  m4  = "\n\n---> Installing N1 dependencies & packages via `apm install`\n\n"
-  m4 += "     $ "+apmInstallCommand+"\n"
-
-  m5  = "\n\n---> De-duping packages `apm dedupe`\n\n"
-  m5 += "     $ "+apmDedupeCommand+"\n"
-
-  m6  = "\n\n---> Request version `apm dedupe`\n\n"
-  m6 += "     $ "+apmDedupeCommand+" request semver "+printArgs(semverOptions)+"\n"
-
-  m7  = "\n\n---> Getting latest Electron\n\n"
-  var gruntCmd = ""
-  var downloadElectronCmd = gruntPath + " download-electron --gruntfile build/Gruntfile.coffee"
-  m7 += "     $ "+downloadElectronCmd
-
-  m8  = "\n\n---> Installing integration test modules\n\n"
-  m8 += "     $ "+integrationCommand+" "+printArgs(integrationOptions)+"\n"
-
-  var commands = [
-    {
-      command: buildInstallCommand,
-      message: m1,
-      options: buildInstallOptions
-    },
-    {
-      command: gruntPath + " add-nylas-build-resources --gruntfile build/Gruntfile.coffee",
-      message: "",
-      options: {}
-    }
-  ]
-  process.chdir(path.dirname(__dirname));
-  executeCommands(commands, function() {
-    var commands = [
-      {
-        command: npmInstallApmCommand,
-        message: m2,
-        options: npmInstallApmOptions
-      },
-      {
-        command: npmDedupeNpmCommand,
-        message: m2a,
-        options: npmDedupeNpmOptions
-      },
-      {
-        command: apmPath + ' clean' + apmFlags,
-        options: { env: apmEnv },
-        message: m3
-      }
-    ];
-
-    // we need this because we don't put our modules in node_modules and npm
-    // install doesn't find them. Run APM install on each package directory manually.
-    [
-      path.resolve(__dirname, '..', 'internal_packages')
-    ].forEach(function(packagesDir) {
-      fs.readdirSync(packagesDir).forEach(function(dir) {
-        var dirPackageJSONPath = path.join(packagesDir, dir, 'package.json');
-        // On windows and linux, invoking the apm command is very slow even when there are no
-        // dependencies. Make it faster by not calling unless we find there are deps.
-        if (fs.existsSync(dirPackageJSONPath)) {
-          var dirPackageJSON = JSON.parse(fs.readFileSync(dirPackageJSONPath));
-          if (dirPackageJSON.dependencies && (Object.keys(dirPackageJSON.dependencies).length > 0)) {
-            commands.push({
-              command: apmInstallCommand,
-              message: "Installing dependencies for "+dir,
-              options: {
-                cwd: path.join(packagesDir, dir),
-                env: apmEnv
-              }
-            });
-          }
-        }
-      });
-    });
-
-    commands = commands.concat([
-      {
-        command: apmInstallCommand,
-        options: { env: apmEnv },
-        message: m4
-      },
-      {
-        command: apmDedupeCommand,
-        options: { env: apmEnv },
-        message: m5
-      },
-      {
-        command: apmDedupeCommand + ' request semver',
-        options: semverOptions,
-        message: m6
-      },
-      {
-        command: downloadElectronCmd,
-        message: m7
-      },
-      {
-        command: integrationCommand,
-        options: integrationOptions,
-        message: m8
-      },
-      {
-        command: sqlite3Command,
-        message: "Building sqlite3 with command: " + sqlite3Command,
-      },
-    ]);
-
-    process.chdir(path.dirname(__dirname));
-    executeCommands(commands, function() {
-      console.log("---------------------------------------------");
-      console.log("script/bootstrap completed successfully. You can start\nN1 via ./N1.sh --dev, or run tests with ./N1.sh --test");
-      process.exit();
+    safeExec(`npm ${cmd}`, {
+      cwd: path.resolve(__dirname, '..', cwd),
+      env: npmEnvs[env],
+    }, (err) => {
+      return err ? reject(err) : resolve(null);
     });
   });
 }
 
-verifyRequirements(function(error, successMessage) {
-  if (error) {
-    console.log(error);
-    process.exit(1);
+function installPrivateResources() {
+  console.log("\n-- Linking Nylas submodule resources --")
+
+  const fs = require('fs-plus');
+  const proDir = path.resolve(path.join('src', 'pro'))
+  const canaryFileExists = fs.existsSync(path.join(proDir, "README.md"))
+  if (!canaryFileExists) {
+    console.log(`Could not find pro submodule at ${proDir}. Skipping...`)
+    return;
   }
 
-  console.log(successMessage);
-  bootstrap();
-});
+  const unlinkIfExistsSync = (p) => {
+    try { if (fs.lstatSync(p)) { fs.removeSync(p); } } catch (err) { return }
+  }
+
+  // copy Arc Files
+  fs.copySync(path.join(proDir, 'arc-N1'), '.')
+
+  // copy Source Extensions
+  unlinkIfExistsSync(path.join('src', 'error-logger-extensions'));
+  fs.copySync(path.join(proDir, 'src'), 'src');
+
+  // link Plugins
+  for (const plugin of fs.readdirSync(path.join(proDir, 'packages'))) {
+    const from = path.join(proDir, 'packages', plugin);
+    const to = path.join(path.resolve('internal_packages'), plugin);
+    unlinkIfExistsSync(to);
+    fs.symlinkSync(from, to, 'dir');
+  }
+}
+
+npm('install', {cwd: 'build'})
+.then(() => npm('install', {cwd: 'apm', env: 'apm'}))
+.then(() => npm('dedupe', {cwd: path.join('apm', 'node_modules', 'npm'), env: 'apm'}))
+.then(() => npm('install', {cwd: '.', env: 'electron'}))
+.then(() => npm('dedupe', {cwd: '.', env: 'electron'}))
+.then(() => installPrivateResources())

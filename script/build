@@ -1,13 +1,6 @@
-#!/usr/bin/env node
-var cp = require('./utils/child-process-wrapper.js');
-var path = require('path');
-
-process.chdir(path.dirname(__dirname));
-
-cp.safeExec('node script/bootstrap', function() {
-  // build/node_modules/.bin/grunt "$@"
-  var gruntPath = path.join('build', 'node_modules', '.bin', 'grunt') + (process.platform === 'win32' ? '.cmd' : '');
-  var args = ['--gruntfile', path.resolve('build', 'Gruntfile.coffee')];
-  args = args.concat(process.argv.slice(2));
-  cp.safeSpawn(gruntPath, args, process.exit);
-});
+#!/bin/sh
+set -e
+echo "---> $(npm --version)"
+echo "---> $(node --version)"
+script/bootstrap
+build/node_modules/.bin/grunt build --gruntfile build/Gruntfile.js --stack --no-color;
