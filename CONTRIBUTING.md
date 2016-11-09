@@ -1,8 +1,12 @@
 # Filing an Issue
 
-Thanks for checking out N1! If you have a feature request, be sure to check out the [open source roadmap](http://trello.com/b/hxsqB6vx/n1-open-source-roadmap). If someone has already requested the feature you have in mind, you can upvote the card on Trello—to keep things organized, we often close feature requests on GitHub  after creating Trello cards.
+Thanks for checking out N1! If you have a feature request, be sure to check out the [open source roadmap](http://trello.com/b/hxsqB6vx/n1-open-source-roadmap). If someone has already requested
+the feature you have in mind, you can upvote the card on Trello—to keep things organized, we
+often close feature requests on GitHub after creating Trello cards.
 
-If you've found a bug, try searching for similars issue before filing a new one. Please include the version of N1 you're using, the platform you're using (Mac / Windows / Linux), and the type of email account. (Gmail, Outlook 365, etc.)
+If you've found a bug, try searching for similars issue before filing a new one. Please include
+the version of N1 you're using, the platform you're using (Mac / Windows / Linux), and the
+type of email account. (Gmail, Outlook 365, etc.)
 
 # Contributing to N1
 
@@ -14,7 +18,16 @@ engine](https://github.com/nylas/sync-engine) repository.
 
 ### Getting Started
 
-First, clone and build N1 from source:
+Before you get started, make sure you've installed the following dependencies.
+N1's build scripts and tooling use modern JavaScript features and require:
+
+ - Node 6.0 or above with npm3
+ - python 2.7
+
+Linux users on Debian 8 and Ubuntu 15.04 onward must also install libgcrypt11
+and gnome-keyring.
+
+Next, clone and build N1 from source:
 
     git clone https://github.com/nylas/N1.git
     cd N1
@@ -24,14 +37,9 @@ Read the [getting started guides](https://nylas.github.io/N1/getting-started/).
 
 **Building Nylas on Windows? See the [Windows instructions.](https://github.com/nylas/N1/blob/master/docs/Windows.md)**
 
-Linux users on Debian 8 and Ubuntu 15.04 onward must also install libgcrypt11, which Electron depends on.
-
 ### Running N1
 
     npm start
-
-Once the app boots, you'll be prompted to enter your email credentials.
-
 
 ### Testing N1
 
@@ -43,6 +51,11 @@ It runs all tests inside of the `/spec` folder and all tests inside of
 `/internal_packages/**/spec`
 
 You may skip certain tests (temporarily) with `xit` and `xdescribe`, or focus on only certain tests with `fit` and `fdescribe`.
+
+### Linting N1
+
+N1 lints clean against eslint, coffeelint, csslint, lesslint, and our own internal
+tool, nylaslint. To run the linters, just run `npm run lint`.
 
 ### Creating binaries
 
