@@ -128,9 +128,9 @@ export default {
           },
           undoSend: {
             'type': 'number',
-            'default': 3000,
-            'enum': [3000, 10000, 15000, 0],
-            'enumLabels': ['3 seconds', '10 seconds', '15 seconds', 'Disable'],
+            'default': 5000,
+            'enum': [5000, 15000, 30000, 60000, 0],
+            'enumLabels': ['5 seconds', '15 seconds', '30 seconds', '60 seconds', 'Disable'],
             'title': "After sending, enable undo for",
           },
         },
