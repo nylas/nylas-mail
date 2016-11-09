@@ -13,11 +13,6 @@ branches:
   - stable
   - /ci-build\/.*/
 
-test: off
-
-# We deploy via grunt publish-nylas-build instead of AppVeyor
-deploy: off
-
 # We need to only clone the main module because our submodule requires the
 # encrypted ssh key to access submodules
 clone_depth: 1
@@ -44,7 +39,11 @@ install:
 
 build_script:
 - ps: script\bootstrap.cmd
+
+test_script:
 - ps: npm test
+
+deploy_script:
 - ps: script\grunt.cmd ci --stack --no-color
 
 environment:
