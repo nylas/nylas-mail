@@ -15,8 +15,8 @@ const TokenRenderer = (props) => {
     <div className="participant">
       <InjectedComponentSet
         matching={{role: "Composer:RecipientChip"}}
-        exposedProps={{contact: props.token}}
-        direction="column"
+        exposedProps={{contact: props.token, collapsed: false}}
+        direction="row"
         inline
       />
       <span className="participant-primary">{chipText}</span>
@@ -72,9 +72,20 @@ export default class ParticipantsTextField extends React.Component {
   }
 
   _completionNode = (p) => {
+    if (p instanceof Contact) {
+      return (
+        <Menu.NameEmailItem name={p.name} email={p.email} key={p.id} />
+      );
+    }
     return (
-      <Menu.NameEmailItem name={p.name} email={p.email} key={p.id} />
-    );
+      <InjectedComponentSet
+        ref="textField"
+        matching={{role: 'ContactSearchResults'}}
+        exposedProps={{token: p}}
+        direction="row"
+        inline
+      />
+    )
   }
 
   _tokensForString = (string, options = {}) => {

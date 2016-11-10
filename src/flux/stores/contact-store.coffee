@@ -9,6 +9,7 @@ NylasStore = require 'nylas-store'
 RegExpUtils = require '../../regexp-utils'
 DatabaseStore = require('./database-store').default
 AccountStore = require './account-store'
+ComponentRegistry = require('../../registries/component-registry')
 ContactRankingStore = require './contact-ranking-store'
 _ = require 'underscore'
 
@@ -57,7 +58,7 @@ class ContactStore extends NylasStore
           contact.name.toLowerCase().indexOf(search) isnt -1)
         results.push(contact)
       if results.length is limit
-        return Promise.resolve(results)
+        break
 
     # If we haven't found enough items in memory, query for more from the
     # database. Note that we ask for LIMIT * accountCount because we want to
@@ -75,9 +76,16 @@ class ContactStore extends NylasStore
       queryResults = @_distinctByEmail(queryResults)
 
       results = results.concat(queryResults)
-      results.length = limit if results.length > limit
 
-      return Promise.resolve(results)
+      extensions = ComponentRegistry.findComponentsMatching({
+        role: "ContactSearchResults"
+      })
+      return Promise.each extensions, (ext) =>
+        return ext.findAdditionalContacts(search, results).then (contacts) =>
+          results = contacts
+      .then () =>
+        results.length = limit
+        return Promise.resolve(results)
 
   isValidContact: (contact) =>
     return false unless contact instanceof Contact
