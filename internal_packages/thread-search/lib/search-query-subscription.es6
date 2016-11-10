@@ -119,7 +119,6 @@ class SearchQuerySubscription extends MutableQuerySubscription {
             if (allAccountsSearched()) {
               SearchActions.searchCompleted()
             }
-            resultsReturned()
           }
         },
       })
