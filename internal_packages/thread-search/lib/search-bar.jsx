@@ -163,6 +163,9 @@ export default class SearchBar extends React.Component {
       if (item.thread) {
         return item.thread.subject;
       }
+      if (item.element) {
+        return item.element;
+      }
       return item.label;
     }
 
