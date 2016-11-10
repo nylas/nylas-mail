@@ -1,5 +1,13 @@
 import NylasStore from 'nylas-store';
-import { Thread, Actions, ContactStore, AccountStore, DatabaseStore, FocusedPerspectiveStore } from 'nylas-exports';
+import {
+  Thread,
+  Actions,
+  ContactStore,
+  AccountStore,
+  DatabaseStore,
+  ComponentRegistry,
+  FocusedPerspectiveStore,
+} from 'nylas-exports';
 
 import SearchActions from './search-actions';
 import SearchMailboxPerspective from './search-mailbox-perspective';
@@ -16,6 +24,7 @@ class SearchStore extends NylasStore {
     this._searchQuery = FocusedPerspectiveStore.current().searchQuery || "";
     this._searchSuggestionsVersion = 1;
     this._isSearching = false;
+    this._extensionData = []
     this._clearResults();
 
     this.listenTo(FocusedPerspectiveStore, this._onPerspectiveChanged);
@@ -102,6 +111,20 @@ class SearchStore extends NylasStore {
       return;
     }
     this._searchSuggestionsVersion += 1;
+    const searchExtensions = ComponentRegistry.findComponentsMatching({
+      role: "SearchBarResults",
+    })
+
+    Promise.map(searchExtensions, (ext) => {
+      return Promise.props({
+        label: ext.searchLabel(),
+        suggestions: ext.fetchSearchSuggestions(this._searchQuery),
+      })
+    }).then((extensionData = []) => {
+      this._extensionData = extensionData;
+      this._compileResults();
+    })
+
     this._fetchThreadResults();
     this._fetchContactResults();
   }
@@ -170,6 +193,13 @@ class SearchStore extends NylasStore {
           contact: contact,
           value: contact.email,
         });
+      }
+    }
+
+    if (this._extensionData.length) {
+      for (const {label, suggestions} of this._extensionData) {
+        this._suggestions.push({divider: label});
+        this._suggestions = this._suggestions.concat(suggestions)
       }
     }
 

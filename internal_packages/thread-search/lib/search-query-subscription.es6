@@ -4,6 +4,7 @@ import {
   NylasAPI,
   Thread,
   DatabaseStore,
+  ComponentRegistry,
   FocusedContentStore,
   MutableQuerySubscription,
 } from 'nylas-exports'
@@ -25,6 +26,8 @@ class SearchQuerySubscription extends MutableQuerySubscription {
     this._unsubscribers = [
       FocusedContentStore.listen(::this.onFocusedContentChanged),
     ]
+    this._extDisposables = []
+
     _.defer(() => this.performSearch())
   }
 
@@ -45,6 +48,7 @@ class SearchQuerySubscription extends MutableQuerySubscription {
 
     this.performLocalSearch()
     this.performRemoteSearch()
+    this.performExtensionSearch()
   }
 
   performLocalSearch() {
@@ -64,6 +68,21 @@ class SearchQuerySubscription extends MutableQuerySubscription {
     })
   }
 
+  _addThreadIdsToSearch(ids = []) {
+    const currentResults = this._set && this._set.ids().length > 0;
+    let searchIds = ids;
+    if (currentResults) {
+      const currentResultIds = this._set.ids()
+      searchIds = _.uniq(currentResultIds.concat(ids))
+    }
+    const dbQuery = (
+      DatabaseStore.findAll(Thread)
+      .where({id: searchIds})
+      .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
+    )
+    this.replaceQuery(dbQuery)
+  }
+
   performRemoteSearch() {
     const accountsSearched = new Set()
     let resultIds = []
@@ -73,17 +92,7 @@ class SearchQuerySubscription extends MutableQuerySubscription {
       // Don't emit a "result" until we have at least one thread to display.
       // Otherwise it will show "No Results Found"
       if (resultIds.length > 0 || allAccountsSearched()) {
-        const currentResults = this._set && this._set.ids().length > 0
-        if (currentResults) {
-          const currentResultIds = this._set.ids()
-          resultIds = _.uniq(currentResultIds.concat(resultIds))
-        }
-        const dbQuery = (
-          DatabaseStore.findAll(Thread)
-          .where({id: resultIds})
-          .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
-        )
-        this.replaceQuery(dbQuery)
+        this._addThreadIdsToSearch(resultIds)
       }
     }
 
@@ -113,6 +122,21 @@ class SearchQuerySubscription extends MutableQuerySubscription {
             resultsReturned()
           }
         },
+      })
+    })
+  }
+
+  performExtensionSearch() {
+    const searchExtensions = ComponentRegistry.findComponentsMatching({
+      role: "SearchBarResults",
+    })
+
+    this._extDisposables = searchExtensions.map((ext) => {
+      return ext.observeThreadIdsForQuery(this._searchQuery)
+      .subscribe((ids = []) => {
+        const allIds = _.compact(_.flatten(ids))
+        if (allIds.length === 0) return;
+        this._addThreadIdsToSearch(allIds)
       })
     })
   }
@@ -165,6 +189,7 @@ class SearchQuerySubscription extends MutableQuerySubscription {
     this.reportSearchMetrics();
     this._connections.forEach((conn) => conn.end())
     this._unsubscribers.forEach((unsub) => unsub())
+    this._extDisposables.forEach((disposable) => disposable.dispose())
   }
 }
 
