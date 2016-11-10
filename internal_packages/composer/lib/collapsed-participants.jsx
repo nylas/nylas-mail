@@ -122,8 +122,8 @@ export default class CollapsedParticipants extends React.Component {
       >
         <InjectedComponentSet
           matching={{role: "Composer:RecipientChip"}}
-          exposedProps={{contact: contact}}
-          direction="column"
+          exposedProps={{contact: contact, collapsed: true}}
+          direction="row"
           inline
         />
         {name}
