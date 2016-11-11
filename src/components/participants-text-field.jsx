@@ -72,20 +72,11 @@ export default class ParticipantsTextField extends React.Component {
   }
 
   _completionNode = (p) => {
-    if (p instanceof Contact) {
-      return (
-        <Menu.NameEmailItem name={p.name} email={p.email} key={p.id} />
-      );
-    }
+    const CustomComponent = p.customComponent
+    if (CustomComponent) return (<CustomComponent token={p} />)
     return (
-      <InjectedComponentSet
-        ref="textField"
-        matching={{role: 'ContactSearchResults'}}
-        exposedProps={{token: p}}
-        direction="row"
-        inline
-      />
-    )
+      <Menu.NameEmailItem name={p.name} email={p.email} key={p.id} />
+    );
   }
 
   _tokensForString = (string, options = {}) => {
