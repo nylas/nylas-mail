@@ -164,17 +164,36 @@ class QuotedHTMLTransformer {
      * message. We detect this case (by looking for signature text
      * repetition) and add it to the set of flagged quote candidates.
      */
-    quoteElements = quoteElements.concat(unwrappedSignatureDetector(doc, quoteElements))
+    const unwrappedSignatureNodes = unwrappedSignatureDetector(doc, quoteElements)
+    quoteElements = quoteElements.concat(unwrappedSignatureNodes)
 
     if (!includeInline && quoteElements.length > 0) {
-      // This means we only want to remove quoted text that shows up at the
-      // end of a message. If there were non quoted content after, it'd be
-      // inline.
-
       const trailingQuotes = this._findTrailingQuotes(doc, Array.from(quoteElements));
 
       // Only keep the trailing quotes so we can delete them.
+      /**
+       * The _findTrailingQuotes method will return an array of the quote
+       * elements we should remove. If there was no trailing text, it
+       * should include all of the existing VISIBLE quoteElements. If
+       * there was trailing text, it will only include the quote elements
+       * up to that trailling text. The intersection below will only
+       * mark the quote elements below trailing text ot be deleted.
+       */
       quoteElements = _.intersection(quoteElements, trailingQuotes);
+
+      /**
+       * The _findTraillingQuotes method only preserves VISIBLE elements.
+       * It's possible that the unwrappedSignatureDetector discovered a
+       * collection of nodes with both visible and not visible (like br)
+       * content. If we're going to get rid of trailing signatures we
+       * need to also remove those trailling <br/>s, or we can get a bunch
+       * of blank space at the end of the text. First make sure that some
+       * of our unwrappedSignatureNodes were marked for deletion, and then
+       * make sure we include all of them.
+       */
+      if (_.intersection(quoteElements, unwrappedSignatureNodes).length > 0) {
+        quoteElements = _.uniq(quoteElements.concat(unwrappedSignatureNodes))
+      }
     }
 
     return _.compact(_.uniq(quoteElements));
@@ -192,6 +211,8 @@ class QuotedHTMLTransformer {
    * unique text that a user wrote. We return at that point assuming that
    * everything at the text and above should be visible, even if it's a
    * quoted text candidate.
+   *
+   * See email_18 and email_23 and unwrapped-signature-detector
    */
   _findTrailingQuotes(scopeElement, quoteElements = []) {
     let trailingQuotes = [];
