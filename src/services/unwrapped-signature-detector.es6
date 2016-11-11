@@ -23,21 +23,30 @@ function textAndNodesAfterNode(node) {
  * it looks very similar to someone writing inline regular text after some
  * quoted text (which is allowed).
  *
- * See email_20 and email_21 as a test case for this.
+ * See email_18, email_20, email_21, and email_23 test cases for this.
  */
 export default function unwrappedSignatureDetector(doc, quoteElements) {
   // Find the last quoteBlock
   for (const node of DOMWalkers.walkBackwards(doc)) {
-    if (quoteElements.includes(node)) {
-      const {text, nodes} = textAndNodesAfterNode(node);
-      const maybeSig = text.trim();
-      if (maybeSig.length > 0) {
-        if ((node.textContent || "").search(Utils.escapeRegExp(maybeSig)) >= 0) {
-          return nodes;
-        }
-      }
-      break;
+    let textAndNodes;
+    let focusNode = node;
+    if (node && quoteElements.includes(node)) {
+      textAndNodes = textAndNodesAfterNode(node);
+    } else if (node.previousSibling && quoteElements.includes(node.previousSibling)) {
+      focusNode = node.previousSibling;
+      textAndNodes = textAndNodesAfterNode(node.previousSibling);
+    } else {
+      continue;
     }
+
+    const {text, nodes} = textAndNodes;
+    const maybeSig = text.replace(/\s/g, "");
+    if (maybeSig.length > 0) {
+      if ((focusNode.textContent || "").replace(/\s/g, "").search(Utils.escapeRegExp(maybeSig)) >= 0) {
+        return nodes;
+      }
+    }
+    break;
   }
   return []
 }
