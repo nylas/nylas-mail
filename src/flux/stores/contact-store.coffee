@@ -83,8 +83,8 @@ class ContactStore extends NylasStore
       return Promise.each extensions, (ext) =>
         return ext.findAdditionalContacts(search, results).then (contacts) =>
           results = contacts
-      .then () =>
-        results.length = limit
+      .then =>
+        if (results.length > limit) then results.length = limit
         return Promise.resolve(results)
 
   isValidContact: (contact) =>
