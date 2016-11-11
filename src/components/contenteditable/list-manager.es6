@@ -40,9 +40,9 @@ export default class ListManager extends ContenteditableExtension {
     return event;
   }
 
-  static bulletRegex() { return /^[*-]\s/; }
+  static bulletRegex() { return /^[*-]\s[^\S]*/; }
 
-  static numberRegex() { return /^\d\.\s/; }
+  static numberRegex() { return /^\d\.\s[^\S]*/; }
 
   static hasListStartSignature(selection) {
     if (!selection || !selection.anchorNode) {
