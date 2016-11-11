@@ -152,6 +152,18 @@ class QuotedHTMLTransformer {
     for (const parser of parsers) {
       quoteElements = quoteElements.concat(parser(doc) || []);
     }
+
+    /**
+     * At this point we've pulled out of the DOM all elements that happen
+     * to look like quote blocks via CSS selectors and other patterns.
+     * They are not necessarily ordered nor should all be eliminated
+     * (because people can type inline around quoted text blocks).
+     *
+     * The `unwrappedSignatureDetector` looks for a case when signatures
+     * look almost exactly like someone replying inline at the end of the
+     * message. We detect this case (by looking for signature text
+     * repetition) and add it to the set of flagged quote candidates.
+     */
     quoteElements = quoteElements.concat(unwrappedSignatureDetector(doc, quoteElements))
 
     if (!includeInline && quoteElements.length > 0) {
@@ -159,7 +171,7 @@ class QuotedHTMLTransformer {
       // end of a message. If there were non quoted content after, it'd be
       // inline.
 
-      const trailingQuotes = this._findTrailingQuotes(doc, quoteElements);
+      const trailingQuotes = this._findTrailingQuotes(doc, Array.from(quoteElements));
 
       // Only keep the trailing quotes so we can delete them.
       quoteElements = _.intersection(quoteElements, trailingQuotes);
@@ -168,9 +180,19 @@ class QuotedHTMLTransformer {
     return _.compact(_.uniq(quoteElements));
   }
 
-  // This will recursievly move through the DOM, bottom to top, and pick
-  // out quoted text blocks. It will stop when it reaches a visible
-  // non-quote text region.
+  /**
+   * Now that we have a set of quoted text candidates, we need to figure
+   * out which ones to remove. The main thing preventing us from removing
+   * all of them is the fact users can type text after quoted text as an
+   * inline reply.
+   *
+   * To detect this, we recursively move through the dom backwards, from
+   * bottom to top, and keep going until we find visible text that's not a
+   * quote candidate. If we find some visible text, we assume that is
+   * unique text that a user wrote. We return at that point assuming that
+   * everything at the text and above should be visible, even if it's a
+   * quoted text candidate.
+   */
   _findTrailingQuotes(scopeElement, quoteElements = []) {
     let trailingQuotes = [];
 
@@ -184,7 +206,7 @@ class QuotedHTMLTransformer {
     // trailing quote elements.
     for (let i = nodesWithContent.length - 1; i >= 0; i--) {
       const nodeWithContent = nodesWithContent[i];
-      if (Array.from(quoteElements).includes(nodeWithContent)) {
+      if (quoteElements.includes(nodeWithContent)) {
         // This is a valid quote. Let's keep it!
         //
         // This quote block may have many more quote blocks inside of it.
@@ -246,12 +268,26 @@ class QuotedHTMLTransformer {
     if (weirdEl) { elements.push(weirdEl); }
 
     elements = elements.map((el) => {
+      /**
+       * When Office 365 wraps quotes in a '#divRplyFwdMsg' id, it usually
+       * preceedes it with an <hr> tag and then wraps the entire section
+       * in an anonymous div one level up.
+       */
       if (el.previousElementSibling && el.previousElementSibling.nodeName === "HR") {
-        return el.parentElement;
+        if (el.parentElement && el.parentElement.nodeName !== "BODY") {
+          return el.parentElement;
+        }
+        const quoteNodes = [el.previousElementSibling, el]
+        let node = el.nextSibling;
+        while (node) {
+          quoteNodes.push(node);
+          node = node.nextSibling;
+        }
+        return quoteNodes
       }
       return el
     });
-    return elements;
+    return _.flatten(elements);
   }
 
   _findBlockquoteQuotes(doc) {
