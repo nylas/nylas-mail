@@ -15,7 +15,7 @@ const INDEXING_WAIT = 1000
 const MESSAGE_BODY_LENGTH = 50000
 const INDEX_VERSION = 1
 
-class SearchIndexStore {
+class ThreadSearchIndexStore {
 
   constructor() {
     this.unsubscribers = []
@@ -35,8 +35,8 @@ class SearchIndexStore {
       .then(() => {
         console.log(`Thread Search: Index built successfully in ${((Date.now() - date) / 1000)}s`)
         this.unsubscribers = [
-          AccountStore.listen(::this.onAccountsChanged),
-          DatabaseStore.listen(::this.onDataChanged),
+          AccountStore.listen(this.onAccountsChanged),
+          DatabaseStore.listen(this.onDataChanged),
         ]
       })
     })
@@ -82,7 +82,7 @@ class SearchIndexStore {
    * If the application is closed before sync is completed, the new account will
    * be indexed via `initializeIndex`
    */
-  onAccountsChanged() {
+  onAccountsChanged = () => {
     _.defer(() => {
       NylasSyncStatusStore.whenSyncComplete().then(() => {
         const latestIds = _.pluck(AccountStore.accounts(), 'id')
@@ -122,7 +122,7 @@ class SearchIndexStore {
    * index either via `onAccountsChanged` or via `initializeIndex` when the app
    * starts
    */
-  onDataChanged(change) {
+  onDataChanged = (change) => {
     if (change.objectClass !== Thread.name) {
       return;
     }
@@ -133,9 +133,9 @@ class SearchIndexStore {
 
       let promises = []
       if (type === 'persist') {
-        promises = threads.map(::this.updateThreadIndex)
+        promises = threads.map(this.updateThreadIndex)
       } else if (type === 'unpersist') {
-        promises = threads.map(::this.unindexThread)
+        promises = threads.map(this.unindexThread)
       }
       Promise.all(promises)
     })
@@ -174,7 +174,7 @@ class SearchIndexStore {
       .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
       .then((threads) => {
         return Promise.all(
-          threads.map(::this.indexThread)
+          threads.map(this.indexThread)
         ).then(() => {
           return new Promise((resolve) => setTimeout(resolve, INDEXING_WAIT))
         })
@@ -182,7 +182,7 @@ class SearchIndexStore {
     })
   }
 
-  indexThread(thread) {
+  indexThread = (thread) => {
     return (
       this.getIndexData(thread)
       .then((indexData) => (
@@ -191,7 +191,7 @@ class SearchIndexStore {
     )
   }
 
-  updateThreadIndex(thread) {
+  updateThreadIndex = (thread) => {
     return (
       this.getIndexData(thread)
       .then((indexData) => (
@@ -200,7 +200,7 @@ class SearchIndexStore {
     )
   }
 
-  unindexThread(thread) {
+  unindexThread = (thread) => {
     return DatabaseStore.unindexModel(thread)
   }
 
@@ -238,4 +238,4 @@ class SearchIndexStore {
   }
 }
 
-export default new SearchIndexStore()
+export default new ThreadSearchIndexStore()

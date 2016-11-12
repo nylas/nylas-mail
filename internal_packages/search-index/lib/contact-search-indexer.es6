@@ -3,13 +3,22 @@ import {
   ModelSearchIndexer,
 } from 'nylas-exports';
 
-class ContactSearchIndexStore extends ModelSearchIndexer {
 
-  modelClass() { return Contact }
+const INDEX_VERSION = 1;
 
-  configKey() { return "contactSearchIndexVersion" }
+class ContactSearchIndexer extends ModelSearchIndexer {
 
-  INDEX_VERSION() { return 1 }
+  get ModelClass() {
+    return Contact;
+  }
+
+  get ConfigKey() {
+    return "contactSearchIndexVersion";
+  }
+
+  get IndexVersion() {
+    return INDEX_VERSION;
+  }
 
   getIndexDataForModel(contact) {
     return {
@@ -22,4 +31,4 @@ class ContactSearchIndexStore extends ModelSearchIndexer {
   }
 }
 
-export default new ContactSearchIndexStore()
+export default new ContactSearchIndexer()

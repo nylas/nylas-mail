@@ -145,7 +145,7 @@ class SearchStore extends NylasStore {
     this._fetchingThreadResultsVersion = this._searchSuggestionsVersion;
 
     const {accountIds} = FocusedPerspectiveStore.current();
-    let dbQuery = DatabaseStore.findAll(Thread)
+    let dbQuery = DatabaseStore.findAll(Thread).distinct()
     if (Array.isArray(accountIds) && accountIds.length === 1) {
       dbQuery = dbQuery.where({accountId: accountIds[0]})
     }

@@ -2,13 +2,13 @@ React = require 'react'
 ReactDOM = require 'react-dom'
 ReactTestUtils = require('react-addons-test-utils')
 
-SearchBar = require('../lib/search-bar').default
+ThreadSearchBar = require('../lib/thread-search-bar').default
 SearchActions = require('../lib/search-actions').default
 
-describe 'SearchBar', ->
+describe 'ThreadSearchBar', ->
   beforeEach ->
     spyOn(NylasEnv, "isMainWindow").andReturn true
-    @searchBar = ReactTestUtils.renderIntoDocument(<SearchBar />)
+    @searchBar = ReactTestUtils.renderIntoDocument(<ThreadSearchBar />)
     @input = ReactDOM.findDOMNode(@searchBar).querySelector("input")
 
   it 'supports search queries with a colon character', ->

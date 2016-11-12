@@ -6,7 +6,6 @@ import moment from 'moment-timezone'
 import classnames from 'classnames'
 import {Utils} from 'nylas-exports'
 import {ScrollRegion} from 'nylas-component-kit'
-
 import TopBanner from './top-banner'
 import HeaderControls from './header-controls'
 import FooterControls from './footer-controls'
@@ -32,6 +31,7 @@ export default class WeekView extends React.Component {
   static propTypes = {
     dataSource: React.PropTypes.instanceOf(CalendarDataSource).isRequired,
     currentMoment: React.PropTypes.instanceOf(moment).isRequired,
+    focusedEvent: React.PropTypes.object,
     bannerComponents: React.PropTypes.node,
     headerComponents: React.PropTypes.node,
     footerComponents: React.PropTypes.node,
@@ -43,6 +43,7 @@ export default class WeekView extends React.Component {
     onCalendarMouseMove: React.PropTypes.func,
     onEventClick: React.PropTypes.func,
     onEventDoubleClick: React.PropTypes.func,
+    onEventFocused: React.PropTypes.func,
     selectedEvents: React.PropTypes.arrayOf(React.PropTypes.object),
   }
 
@@ -165,11 +166,12 @@ export default class WeekView extends React.Component {
         key={day.valueOf()}
         events={events}
         eventOverlap={this._eventOverlap(events)}
+        focusedEvent={this.props.focusedEvent}
+        selectedEvents={this.props.selectedEvents}
         onEventClick={this.props.onEventClick}
         onEventDoubleClick={this.props.onEventDoubleClick}
-        selectedEvents={this.props.selectedEvents}
+        onEventFocused={this.props.onEventFocused}
       />
-
     )
   }
 
