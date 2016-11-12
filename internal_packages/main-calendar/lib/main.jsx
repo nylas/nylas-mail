@@ -1,13 +1,10 @@
-import {
-  WorkspaceStore,
-  ComponentRegistry,
-} from 'nylas-exports';
 import {exec} from 'child_process';
 import fs from 'fs';
 import path from 'path';
-
+import {WorkspaceStore, ComponentRegistry} from 'nylas-exports';
 import CalendarWrapper from './calendar-wrapper';
 import QuickEventButton from './quick-event-button';
+
 
 function resolveHelperPath(callback) {
   const resourcesPath = NylasEnv.getLoadSettings().resourcePath;

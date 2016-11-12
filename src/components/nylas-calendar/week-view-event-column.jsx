@@ -2,7 +2,6 @@ import React from 'react'
 import moment from 'moment'
 import classnames from 'classnames'
 import {Utils} from 'nylas-exports'
-
 import CalendarEvent from './calendar-event'
 
 /**
@@ -18,9 +17,11 @@ export default class WeekViewEventColumn extends React.Component {
     events: React.PropTypes.array.isRequired,
     day: React.PropTypes.instanceOf(moment),
     dayEnd: React.PropTypes.number,
+    focusedEvent: React.PropTypes.object,
     eventOverlap: React.PropTypes.object,
     onEventClick: React.PropTypes.func,
     onEventDoubleClick: React.PropTypes.func,
+    onEventFocused: React.PropTypes.func,
     selectedEvents: React.PropTypes.arrayOf(React.PropTypes.object),
   }
 
@@ -29,24 +30,24 @@ export default class WeekViewEventColumn extends React.Component {
             !Utils.isEqualReact(nextState, this.state));
   }
 
-  _eventComponents() {
-    const {events, selectedEvents, eventOverlap, dayEnd, day, onEventClick, onEventDoubleClick} = this.props;
-
-    return events.map((e) => {
-      return (
-        <CalendarEvent
-          event={e}
-          selected={selectedEvents.includes(e)}
-          order={eventOverlap[e.id].order}
-          key={e.id}
-          scopeEnd={dayEnd}
-          scopeStart={day.unix()}
-          concurrentEvents={eventOverlap[e.id].concurrentEvents}
-          onClick={onEventClick}
-          onDoubleClick={onEventDoubleClick}
-        />
-      );
-    });
+  renderEvents() {
+    const {events, focusedEvent, selectedEvents, eventOverlap, dayEnd, day, onEventClick, onEventDoubleClick, onEventFocused} = this.props;
+    return events.map((e) =>
+      <CalendarEvent
+        ref={`event-${e.id}`}
+        event={e}
+        selected={selectedEvents.includes(e)}
+        order={eventOverlap[e.id].order}
+        focused={focusedEvent ? focusedEvent.id === e.id : false}
+        key={e.id}
+        scopeEnd={dayEnd}
+        scopeStart={day.unix()}
+        concurrentEvents={eventOverlap[e.id].concurrentEvents}
+        onClick={onEventClick}
+        onDoubleClick={onEventDoubleClick}
+        onFocused={onEventFocused}
+      />
+    );
   }
 
   render() {
@@ -62,7 +63,7 @@ export default class WeekViewEventColumn extends React.Component {
         data-start={this.props.day.valueOf()}
         data-end={end}
       >
-        {this._eventComponents()}
+        {this.renderEvents()}
       </div>
     )
   }

@@ -3,16 +3,14 @@ import {
   DestroyModelTask,
   CalendarDataSource,
 } from 'nylas-exports';
-
 import {
-  KeyCommandsRegion,
   NylasCalendar,
+  KeyCommandsRegion,
+  CalendarEventPopover,
 } from 'nylas-component-kit';
 import React from 'react';
-import ReactDOM from 'react-dom';
 import {remote} from 'electron';
 
-import CalendarEventPopover from './calendar-event-popover';
 
 export default class CalendarWrapper extends React.Component {
   static displayName = 'CalendarWrapper';
@@ -22,6 +20,20 @@ export default class CalendarWrapper extends React.Component {
     super(props);
     this._dataSource = new CalendarDataSource();
     this.state = {selectedEvents: []};
+  }
+
+  _openEventPopover(eventModel) {
+    const eventEl = document.getElementById(eventModel.id);
+    if (!eventEl) { return; }
+    const eventRect = eventEl.getBoundingClientRect()
+
+    Actions.openPopover(
+      <CalendarEventPopover event={eventModel} />
+    , {
+      originRect: eventRect,
+      direction: 'right',
+      fallbackDirection: 'left',
+    })
   }
 
   _onEventClick = (e, event) => {
@@ -43,17 +55,12 @@ export default class CalendarWrapper extends React.Component {
     });
   }
 
-  _onEventDoubleClick = (e, event) => {
-    const eventEl = e.target.closest('.calendar-event');
-    const eventRect = ReactDOM.findDOMNode(eventEl).getBoundingClientRect()
+  _onEventDoubleClick = (eventModel) => {
+    this._openEventPopover(eventModel)
+  }
 
-    Actions.openPopover(
-      <CalendarEventPopover event={event} />
-    , {
-      originRect: eventRect,
-      direction: 'right',
-      fallbackDirection: 'left',
-    })
+  _onEventFocused = (eventModel) => {
+    this._openEventPopover(eventModel)
   }
 
   _onDeleteSelectedEvents = () => {
@@ -91,6 +98,7 @@ export default class CalendarWrapper extends React.Component {
           dataSource={this._dataSource}
           onEventClick={this._onEventClick}
           onEventDoubleClick={this._onEventDoubleClick}
+          onEventFocused={this._onEventFocused}
           selectedEvents={this.state.selectedEvents}
         />
       </KeyCommandsRegion>

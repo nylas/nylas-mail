@@ -3,9 +3,9 @@ import React from 'react'
 import moment from 'moment'
 import {DatabaseStore, AccountStore, Calendar} from 'nylas-exports'
 import {ScrollRegion, ResizableRegion, MiniMonthView} from 'nylas-component-kit'
-
 import WeekView from './week-view'
 import MonthView from './month-view'
+import EventSearchBar from './event-search-bar'
 import CalendarToggles from './calendar-toggles'
 import CalendarDataSource from './calendar-data-source'
 import {WEEK_VIEW, MONTH_VIEW} from './calendar-constants'
@@ -72,6 +72,7 @@ export default class NylasCalendar extends React.Component {
 
     onEventClick: React.PropTypes.func,
     onEventDoubleClick: React.PropTypes.func,
+    onEventFocused: React.PropTypes.func,
 
     selectedEvents: React.PropTypes.arrayOf(React.PropTypes.object),
   }
@@ -91,6 +92,7 @@ export default class NylasCalendar extends React.Component {
     super(props);
     this.state = {
       calendars: [],
+      focusedEvent: null,
       currentView: WEEK_VIEW,
       currentMoment: props.currentMoment || this._now(),
       disabledCalendars: NylasEnv.config.get(DISABLED_CALENDARS) || [],
@@ -136,11 +138,16 @@ export default class NylasCalendar extends React.Component {
   }
 
   _changeCurrentMoment = (currentMoment) => {
-    this.setState({currentMoment})
+    this.setState({currentMoment, focusedEvent: null})
   }
 
   _changeCurrentMomentFromValue = (value) => {
-    this.setState({currentMoment: moment(value)})
+    this.setState({currentMoment: moment(value), focusedEvent: null})
+  }
+
+  _focusEvent = (event) => {
+    const value = event.start * 1000
+    this.setState({currentMoment: moment(value), focusedEvent: event})
   }
 
   render() {
@@ -156,6 +163,10 @@ export default class NylasCalendar extends React.Component {
           style={{flexDirection: 'column'}}
         >
           <ScrollRegion style={{flex: 1}}>
+            <EventSearchBar
+              onSelectEvent={this._focusEvent}
+              disabledCalendars={this.state.disabledCalendars}
+            />
             <CalendarToggles
               accounts={this.state.accounts}
               calendars={this.state.calendars}
@@ -173,6 +184,7 @@ export default class NylasCalendar extends React.Component {
         <CurrentView
           dataSource={this.props.dataSource}
           currentMoment={this.state.currentMoment}
+          focusedEvent={this.state.focusedEvent}
           bannerComponents={this.props.bannerComponents[this.state.currentView]}
           headerComponents={this.props.headerComponents[this.state.currentView]}
           footerComponents={this.props.footerComponents[this.state.currentView]}
@@ -185,6 +197,7 @@ export default class NylasCalendar extends React.Component {
           selectedEvents={this.props.selectedEvents}
           onEventClick={this.props.onEventClick}
           onEventDoubleClick={this.props.onEventDoubleClick}
+          onEventFocused={this.props.onEventFocused}
         />
       </div>
     )

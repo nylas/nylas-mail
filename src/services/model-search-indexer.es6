@@ -1,29 +1,33 @@
 import { DatabaseStore } from 'nylas-exports';
 
+const INDEXING_PAGE_SIZE = 1000;
+const INDEXING_PAGE_DELAY = 1000;
+
 export default class ModelSearchIndexer {
   constructor() {
     this.unsubscribers = []
   }
 
-  modelClass() {
-    throw new Error("Override me and return a class constructor")
+  get ConfigKey() {
+    throw new Error("Override me and return a string config key")
   }
 
-  configKey() {
-    throw new Error("Override me and return a string config key")
+  get IndexVersion() {
+    throw new Error("Override me and return an IndexVersion")
+  }
+
+  get ModelClass() {
+    throw new Error("Override me and return a class constructor")
   }
 
   getIndexDataForModel() {
     throw new Error("Override me and return a hash with a `content` array")
   }
 
-  INDEX_VERSION() {
-    throw new Error("Override me and return an INDEX_VERSION")
-  }
-
   activate() {
     this._initializeIndex();
     this.unsubscribers = [
+      // TODO listen for changes in AccountStore
       DatabaseStore.listen(this._onDataChanged),
     ];
   }
@@ -33,31 +37,31 @@ export default class ModelSearchIndexer {
   }
 
   _initializeIndex() {
-    if (NylasEnv.config.get(this.configKey()) !== this.INDEX_VERSION()) {
-      DatabaseStore.dropSearchIndex(this.modelClass())
-      .then(() => DatabaseStore.createSearchIndex(this.modelClass()))
+    if (NylasEnv.config.get(this.ConfigKey) !== this.IndexVersion) {
+      return DatabaseStore.dropSearchIndex(this.ModelClass)
+      .then(() => DatabaseStore.createSearchIndex(this.ModelClass))
       .then(() => this._buildIndex())
     }
+    return Promise.resolve()
   }
 
   _buildIndex(offset = 0) {
-    const indexingPageSize = 1000;
-    const indexingPageDelay = 1000;
-
-    DatabaseStore.findAll(this.modelClass())
-    .limit(indexingPageSize)
+    const {ModelClass, IndexVersion, ConfigKey} = this
+    return DatabaseStore.findAll(ModelClass)
+    .limit(INDEXING_PAGE_SIZE)
     .offset(offset)
     .then((models) => {
       if (models.length === 0) {
-        NylasEnv.config.set(this.configKey(), this.INDEX_VERSION())
+        NylasEnv.config.set(ConfigKey, IndexVersion)
         return;
       }
       Promise.each(models, (model) => {
         return DatabaseStore.indexModel(model, this.getIndexDataForModel(model))
-      }).then(() => {
+      })
+      .then(() => {
         setTimeout(() => {
           this._buildIndex(offset + models.length);
-        }, indexingPageDelay);
+        }, INDEXING_PAGE_DELAY);
       });
     });
   }
@@ -68,7 +72,7 @@ export default class ModelSearchIndexer {
    * currently synced.
    */
   _onDataChanged = (change) => {
-    if (change.objectClass !== this.modelClass().name) {
+    if (change.objectClass !== this.ModelClass.name) {
       return;
     }
 

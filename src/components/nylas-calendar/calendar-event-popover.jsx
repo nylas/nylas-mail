@@ -4,6 +4,7 @@ import {Actions, DatabaseStore, DateUtils, SyncbackEventTask} from 'nylas-export
 import {DatePicker, RetinaImg, ScrollRegion, TabGroupRegion, TimePicker} from 'nylas-component-kit';
 import EventParticipantsInput from './event-participants-input';
 
+
 export default class CalendarEventPopover extends React.Component {
   static propTypes = {
     event: React.PropTypes.object.isRequired,
@@ -42,6 +43,8 @@ export default class CalendarEventPopover extends React.Component {
       event[key] = this.state[key]
     }
 
+    // TODO, this component shouldn't save the event here, we should expose an
+    // `onEditEvent` or similar callback
     // TODO: How will this affect the event if the when object was originally
     //   a datespan, with start_date and end_date attributes?
     event.when.start_time = this.state.start;
@@ -278,3 +281,4 @@ export default class CalendarEventPopover extends React.Component {
     );
   }
 }
+

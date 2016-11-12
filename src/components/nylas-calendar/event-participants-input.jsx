@@ -1,6 +1,5 @@
 import React from 'react';
 import _ from 'underscore';
-
 import {remote, clipboard} from 'electron';
 import {Utils, Contact, ContactStore, RegExpUtils} from 'nylas-exports';
 import {TokenizingTextField, Menu, InjectedComponentSet} from 'nylas-component-kit';
@@ -175,3 +174,4 @@ export default class EventParticipantsInput extends React.Component {
     );
   }
 }
+
