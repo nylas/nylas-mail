@@ -2,6 +2,7 @@ version: '{build}'
 
 platform:
   - x86
+  - x64
 
 pull_requests:
   do_not_increment_build_number: true
