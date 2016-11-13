@@ -175,7 +175,7 @@ const handleStartupEventWithSquirrel = () => {
 };
 
 const start = () => {
-  app.setAppUserModelId('com.squirrel.nylas.nylas');
+  app.setAppUserModelId('com.squirrel.nylas.' + process.arch);
   if (handleStartupEventWithSquirrel()) {
     return;
   }
