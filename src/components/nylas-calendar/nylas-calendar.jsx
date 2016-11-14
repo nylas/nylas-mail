@@ -81,6 +81,7 @@ export default class NylasCalendar extends React.Component {
     bannerComponents: {day: false, week: false, month: false, year: false},
     headerComponents: {day: false, week: false, month: false, year: false},
     footerComponents: {day: false, week: false, month: false, year: false},
+    selectedEvents: [],
   }
 
   static containerStyles = {
