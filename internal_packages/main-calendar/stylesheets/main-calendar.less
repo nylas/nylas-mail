@@ -9,3 +9,59 @@
     border-left: 1px solid @border-color-divider;
   }
 }
+
+.calendar-event-popover {
+  color: fadeout(@text-color, 20%);
+  background-color: @background-primary;
+  display: flex;
+  flex-direction: column;
+  font-size: @font-size-small;
+  width: 300px;
+
+  .location {
+    color: @text-color-very-subtle;
+    padding: @padding-base-vertical @padding-base-horizontal;
+    word-wrap: break-word;
+  }
+  .title-wrapper {
+    color: @text-color-inverse;
+    display: flex;
+    font-size: @font-size-larger;
+    background-color: @accent-primary;
+    border-top-left-radius: @border-radius-base;
+    border-top-right-radius: @border-radius-base;
+    padding: @padding-base-vertical @padding-base-horizontal;
+  }
+  .edit-icon {
+    background-color: @text-color-inverse;
+    cursor: pointer;
+  }
+  .description .scroll-region-content {
+    max-height:300px;
+    word-wrap: break-word;
+    position: relative;
+  }
+  .label {
+    color: @text-color-very-subtle;
+  }
+  .section {
+    border-top: 1px solid @border-color-divider;
+    padding: @padding-base-vertical @padding-base-horizontal;
+  }
+  .row.time {
+    .time-picker {
+      text-align: center;
+    }
+    .time-picker-wrap {
+      margin-right: 5px;
+
+      .time-options {
+        z-index: 10; // So the time pickers show over
+      }
+    }
+  }
+}
+
+.quick-event-popover {
+  width: 250px;
+}

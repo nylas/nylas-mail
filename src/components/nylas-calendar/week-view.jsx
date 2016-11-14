@@ -40,6 +40,9 @@ export default class WeekView extends React.Component {
     onCalendarMouseUp: React.PropTypes.func,
     onCalendarMouseDown: React.PropTypes.func,
     onCalendarMouseMove: React.PropTypes.func,
+    onEventClick: React.PropTypes.func,
+    onEventDoubleClick: React.PropTypes.func,
+    selectedEvents: React.PropTypes.arrayOf(React.PropTypes.object),
   }
 
   static defaultProps = {
@@ -161,6 +164,9 @@ export default class WeekView extends React.Component {
         key={day.valueOf()}
         events={events}
         eventOverlap={this._eventOverlap(events)}
+        onEventClick={this.props.onEventClick}
+        onEventDoubleClick={this.props.onEventDoubleClick}
+        selectedEvents={this.props.selectedEvents}
       />
 
     )

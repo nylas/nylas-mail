@@ -9,11 +9,14 @@ export default class CalendarEvent extends React.Component {
   static propTypes = {
     event: React.PropTypes.instanceOf(Event).isRequired,
     order: React.PropTypes.number,
+    selected: React.PropTypes.bool,
     scopeEnd: React.PropTypes.number.isRequired,
     scopeStart: React.PropTypes.number.isRequired,
     direction: React.PropTypes.oneOf(['horizontal', 'vertical']),
     fixedSize: React.PropTypes.number,
     concurrentEvents: React.PropTypes.number,
+    onClick: React.PropTypes.func,
+    onDoubleClick: React.PropTypes.func,
   }
 
   static defaultProps = {
@@ -21,6 +24,8 @@ export default class CalendarEvent extends React.Component {
     direction: "vertical",
     fixedSize: -1,
     concurrentEvents: 1,
+    onClick: () => {},
+    onDoubleClick: () => {},
   }
 
   _styles() {
@@ -73,19 +78,24 @@ export default class CalendarEvent extends React.Component {
   }
 
   render() {
+    const {direction, event, onClick, onDoubleClick, selected} = this.props;
+
     return (
       <div
-        className={`calendar-event ${this.props.direction}`}
+        tabIndex={0}
+        className={`calendar-event ${direction} ${selected ? 'selected' : null}`}
+        onClick={(e) => onClick(e, event)}
+        onDoubleClick={(e) => onDoubleClick(e, event)}
         style={this._styles()}
       >
         <span className="default-header" style={{order: 0}}>
-          {this.props.event.title}
+          {event.title}
         </span>
         <InjectedComponentSet
           className="event-injected-components"
           style={{position: "absolute"}}
           matching={{role: "Calendar:Event"}}
-          exposedProps={{event: this.props.event}}
+          exposedProps={{event: event}}
           direction="row"
         />
       </div>

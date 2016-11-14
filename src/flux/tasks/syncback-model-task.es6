@@ -60,7 +60,7 @@ export default class SyncbackModelTask extends Task {
     }
   };
 
-  getRequestData = (model) => {
+  getRequestData(model) {
     if (model.isSavedRemotely()) {
       return {
         path: `${this.endpoint}/${model.serverId}`,

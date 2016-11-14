@@ -83,12 +83,14 @@ body.platform-win32 {
     min-height: @interval-height;
 
     border-top: 0;
-    border-right: 2px solid @background-primary;
     border-bottom: 2px solid @background-primary;
     border-left: 0;
 
     display: flex;
+    cursor: default;
     .default-header {
+      cursor: default;
+      opacity: 0.7;
       flex: 1;
     }
 
@@ -104,6 +106,9 @@ body.platform-win32 {
 
     &.horizontal {
       white-space: nowrap;
+    }
+    &.selected {
+      background-color: @accent-primary !important; 
     }
   }
 
