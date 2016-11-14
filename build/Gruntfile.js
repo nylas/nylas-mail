@@ -64,5 +64,5 @@ module.exports = (grunt) => {
 
   grunt.registerTask('build', ['packager']);
   grunt.registerTask('lint', ['eslint', 'lesslint', 'nylaslint', 'coffeelint', 'csslint']);
-  grunt.registerTask('ci', ['build'].concat(postBuildSteps));
+  grunt.registerTask('ci', ['lint', 'build'].concat(postBuildSteps));
 }
