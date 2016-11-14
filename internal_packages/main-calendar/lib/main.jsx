@@ -1,27 +1,12 @@
-import {WorkspaceStore, ComponentRegistry, CalendarDataSource} from 'nylas-exports';
-import {NylasCalendar} from 'nylas-component-kit';
-import React from 'react';
+import {
+  WorkspaceStore,
+  ComponentRegistry,
+} from 'nylas-exports';
 import {exec} from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
-class CalendarWrapper extends React.Component {
-  static displayName = 'CalendarWrapper';
-  static containerRequired = false;
-
-  constructor(props) {
-    super(props);
-    this._dataSource = new CalendarDataSource();
-  }
-
-  render() {
-    return (
-      <div className="main-calendar">
-        <NylasCalendar dataSource={this._dataSource} />
-      </div>
-    )
-  }
-}
+import CalendarWrapper from './calendar-wrapper';
 
 function resolveHelperPath(callback) {
   const resourcesPath = NylasEnv.getLoadSettings().resourcePath;

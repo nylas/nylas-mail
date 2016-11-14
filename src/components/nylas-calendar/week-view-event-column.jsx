@@ -19,6 +19,9 @@ export default class WeekViewEventColumn extends React.Component {
     day: React.PropTypes.instanceOf(moment),
     dayEnd: React.PropTypes.number,
     eventOverlap: React.PropTypes.object,
+    onEventClick: React.PropTypes.func,
+    onEventDoubleClick: React.PropTypes.func,
+    selectedEvents: React.PropTypes.arrayOf(React.PropTypes.object),
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -27,15 +30,20 @@ export default class WeekViewEventColumn extends React.Component {
   }
 
   _eventComponents() {
-    return this.props.events.map((e) => {
+    const {events, selectedEvents, eventOverlap, dayEnd, day, onEventClick, onEventDoubleClick} = this.props;
+
+    return events.map((e) => {
       return (
         <CalendarEvent
           event={e}
-          order={this.props.eventOverlap[e.id].order}
+          selected={selectedEvents.includes(e)}
+          order={eventOverlap[e.id].order}
           key={e.id}
-          scopeEnd={this.props.dayEnd}
-          scopeStart={this.props.day.unix()}
-          concurrentEvents={this.props.eventOverlap[e.id].concurrentEvents}
+          scopeEnd={dayEnd}
+          scopeStart={day.unix()}
+          concurrentEvents={eventOverlap[e.id].concurrentEvents}
+          onClick={onEventClick}
+          onDoubleClick={onEventDoubleClick}
         />
       );
     });

@@ -111,6 +111,12 @@ export default class Event extends Model {
     }),
   });
 
+  static additionalSQLiteConfig = {
+    setup: () => {
+      return ['CREATE UNIQUE INDEX IF NOT EXISTS EventClientIndex ON Event(client_id)'];
+    },
+  };
+
   // We use moment to parse the date so we can more easily pick up the
   // current timezone of the current locale.
   // We also create a start and end times that span the full day without

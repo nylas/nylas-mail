@@ -7,6 +7,7 @@ import {ScrollRegion, ResizableRegion, MiniMonthView} from 'nylas-component-kit'
 import WeekView from './week-view'
 import MonthView from './month-view'
 import CalendarToggles from './calendar-toggles'
+import QuickEventButton from '../../../internal_packages/main-calendar/lib/quick-event-button'
 import CalendarDataSource from './calendar-data-source'
 import {WEEK_VIEW, MONTH_VIEW} from './calendar-constants'
 
@@ -69,6 +70,11 @@ export default class NylasCalendar extends React.Component {
     onCalendarMouseUp: React.PropTypes.func,
     onCalendarMouseDown: React.PropTypes.func,
     onCalendarMouseMove: React.PropTypes.func,
+
+    onEventClick: React.PropTypes.func,
+    onEventDoubleClick: React.PropTypes.func,
+
+    selectedEvents: React.PropTypes.arrayOf(React.PropTypes.object),
   }
 
   static defaultProps = {
@@ -164,6 +170,7 @@ export default class NylasCalendar extends React.Component {
           </div>
 
         </ResizableRegion>
+        <QuickEventButton />
         <CurrentView
           dataSource={this.props.dataSource}
           currentMoment={this.state.currentMoment}
@@ -176,6 +183,9 @@ export default class NylasCalendar extends React.Component {
           onCalendarMouseUp={this.props.onCalendarMouseUp}
           onCalendarMouseDown={this.props.onCalendarMouseDown}
           onCalendarMouseMove={this.props.onCalendarMouseMove}
+          selectedEvents={this.props.selectedEvents}
+          onEventClick={this.props.onEventClick}
+          onEventDoubleClick={this.props.onEventDoubleClick}
         />
       </div>
     )
