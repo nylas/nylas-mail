@@ -73,7 +73,7 @@ export default class SyncbackModelTask extends Task {
       body: model.toJSON(),
       method: "POST",
     }
-  };
+  }
 
   updateLocalModel = (responseJSON) => {
     /*
