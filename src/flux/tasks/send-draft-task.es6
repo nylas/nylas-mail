@@ -176,7 +176,7 @@ export default class SendDraftTask extends BaseDraftTask {
   }
 
   stripTrackingFromBody(text) {
-    let body = text.replace(/<img class="n1-open"[^<]+src="([a-zA-Z0-9-_:\/.]*)">/g, () => {
+    let body = text.replace(/<img class="n1-open"[^<]+src="([a-zA-Z0-9-_:/.]*)">/g, () => {
       return "";
     });
     body = body.replace(RegExpUtils.urlLinkTagRegex(), (match, prefix, url, suffix, content, closingTag) => {

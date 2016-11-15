@@ -4,7 +4,7 @@ import path from 'path';
 import {Utils, MessageBodyProcessor} from 'nylas-exports';
 import AutoloadImagesActions from './autoload-images-actions';
 
-const ImagesRegexp = /((?:src|background|placeholder|icon|background|poster|srcset)\s*=\s*['"]?(?=\w*:\/\/)|:\s*url\()+([^"'\)]*)/gi;
+const ImagesRegexp = /((?:src|background|placeholder|icon|background|poster|srcset)\s*=\s*['"]?(?=\w*:\/\/)|:\s*url\()+([^"')]*)/gi;
 
 class AutoloadImagesStore extends NylasStore {
 

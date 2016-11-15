@@ -5,36 +5,36 @@ describe("BlockquoteManager", function BlockquoteManagerSpecs() {
   const outdentCases = [`
   <div>|</div>
   `,
-  `
+    `
   <div>
     <span>|</span>
   </div>
   `,
-  `
+    `
   <p></p>
   <span>\n</span>
   <span>|</span>
   `,
-  `
+    `
   <span></span>
   <p></p>
   <span></span>
   <span>|</span>
   `,
-  `
+    `
   <div>
     <div>
       <div>|</div>
     </div>
   </div>
   `,
-  `
+    `
   <div>
     <span></span>
     <span>|</span>
   </div>
   `,
-  `
+    `
   <span></span>
   <p><span>yo</span></p>
   <span></span>
@@ -49,37 +49,37 @@ describe("BlockquoteManager", function BlockquoteManagerSpecs() {
   const backspaceCases = [`
   <div>yo|</div>
   `,
-  `
+    `
   <div>
     yo
     <span>|</span>
   </div>
   `,
-  `
+    `
   <p></p>
   <span>&nbsp;</span>
   <span>|</span>
   `,
-  `
+    `
   <span></span>
   <p></p>
   <span>yo</span>
   <span>|</span>
   `,
-  `
+    `
   <div>
     <div>
       <div>yo|</div>
     </div>
   </div>
   `,
-  `
+    `
   <div>
     <span>yo</span>
     <span>|</span>
   </div>
   `,
-  `
+    `
   <span></span>
   <p><span>yo</span></p>
   <span></span>

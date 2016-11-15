@@ -104,7 +104,7 @@ class LaunchSystemStartItem extends React.Component {
         />
         <label htmlFor="launch-on-start">Launch on system start</label>
       </div>
-      );
+    );
   }
 
 }

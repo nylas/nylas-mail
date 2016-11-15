@@ -171,15 +171,15 @@ describe('DraftStore', function draftStore() {
     beforeEach(() => {
       this.draftSessionTeardown = jasmine.createSpy('draft teardown');
       this.session =
-        {draft() {
-          return {pristine: false};
-        },
+      {draft() {
+        return {pristine: false};
+      },
         changes:
-          {commit() { return Promise.resolve(); },
+        {commit() { return Promise.resolve(); },
           teardown() {},
-          },
+        },
         teardown: this.draftSessionTeardown,
-        };
+      };
       DraftStore._draftSessions = {abc: this.session};
       spyOn(Actions, 'queueTask');
     });
