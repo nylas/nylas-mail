@@ -11,17 +11,21 @@ export default class CalendarEventPopover extends React.Component {
 
   constructor(props) {
     super(props)
-    const {title, description, start, end, location, participants} = this.props.event;
+    const {description, start, end, location, participants} = this.props.event;
 
-    this.state = {title, description, start, end, location}
+    this.state = {description, start, end, location}
+    this.state.title = this.props.event.displayTitle()
     this.state.editing = false;
     this.state.participants = participants || []
   }
 
   componentWillReceiveProps = (nextProps) => {
-    const {title, description, start, end, location, participants} = nextProps.event;
-    this.setState({title, description, start, end, location})
-    this.setState({participants: participants || []})
+    const {description, start, end, location, participants} = nextProps.event;
+    this.setState({description, start, end, location})
+    this.setState({
+      participants: participants || [],
+      title: nextProps.event.displayTitle(),
+    })
   }
 
   onEdit = () => {

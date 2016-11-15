@@ -89,7 +89,7 @@ export default class CalendarEvent extends React.Component {
         style={this._styles()}
       >
         <span className="default-header" style={{order: 0}}>
-          {event.title}
+          {event.displayTitle()}
         </span>
         <InjectedComponentSet
           className="event-injected-components"
