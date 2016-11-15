@@ -1,3 +1,4 @@
+import chrono from 'chrono-node';
 import moment from 'moment';
 
 import Model from './model';
@@ -176,6 +177,15 @@ export default class Event extends Model {
   isAllDay() {
     const daySpan = 86400 - 1;
     return (this.end - this.start) >= daySpan;
+  }
+
+  displayTitle() {
+    let displayTitle = this.title.replace(/.*Invitation: /, "")
+    const [displayTitleWithoutDate, date] = displayTitle.split(" @ ")
+    if (date && chrono.parseDate(date)) {
+      return displayTitleWithoutDate
+    }
+    return displayTitle
   }
 
   participantForMe = () => {
