@@ -78,7 +78,7 @@ export default class SignatureComposerDropdown extends React.Component {
   _isSelected = (sigObj) => {
     // http://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
     const escapeRegExp = (str) => {
-      return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+      return str.replace(/[-[\]/}{)(*+?.\\^$|]/g, "\\$&");
     }
     const signatureRegex = new RegExp(escapeRegExp(`<signature>${sigObj.body}</signature>`))
     const signatureLocation = signatureRegex.exec(this.props.draft.body)

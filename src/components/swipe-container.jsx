@@ -9,9 +9,9 @@ import {Utils} from 'nylas-exports';
 //
 const SpringBounceFactory = (options) => {
   const frequency = Math.max(1, options.frequency / 20);
-  const friction = Math.pow(20, options.friction / 100);
+  const friction = 20 ** (options.friction / 100);
   return (t) => {
-    return 1 - (Math.pow(friction / 10, -t) * (1 - t) * Math.cos(frequency * t));
+    return 1 - ((friction / 10) ** (-t) * (1 - t) * Math.cos(frequency * t));
   };
 };
 const SpringBounceFunction = SpringBounceFactory({

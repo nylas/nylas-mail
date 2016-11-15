@@ -1,9 +1,10 @@
+/* eslint import/first: 0 */
+
 // Swap out Node's native Promise for Bluebird, which allows us to
 // do fancy things like handle exceptions inside promise blocks
 global.Promise = require('bluebird');
 Promise.longStackTraces();
 
-/* eslint import/imports-first: 0 */
 import NylasEnvConstructor from '../../src/nylas-env';
 window.NylasEnv = NylasEnvConstructor.loadOrCreate();
 

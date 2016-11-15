@@ -71,7 +71,7 @@ class EmojiComposerExtension extends ComposerExtension {
         return {
           component: EmojiPicker,
           props: {emojiOptions,
-                  selectedEmoji},
+            selectedEmoji},
           locationRefNode: locationRefNode,
           width: EmojiComposerExtension._emojiPickerWidth(emojiOptions),
           height: EmojiComposerExtension._emojiPickerHeight(emojiOptions),
