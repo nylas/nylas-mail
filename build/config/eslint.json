@@ -54,7 +54,18 @@
     "react/forbid-prop-types": "off",
     "jsx-a11y/no-static-element-interactions": "off",
     "react/prop-types": ["error", {"ignore": ["children"]}],
-    "react/sort-comp": "error"
+    "react/sort-comp": "error",
+    "no-restricted-syntax": [
+      "error", "ForInStatement", "LabeledStatement", "WithStatement"
+    ],
+    "comma-dangle": ["error", {
+      "arrays": "always-multiline",
+      "objects": "always-multiline",
+      "imports": "always-multiline",
+      "exports": "always-multiline",
+      "functions": "ignore"
+    }],
+    "no-useless-return": "off"
   },
   "settings": {
     "import/core-modules": [ "nylas-exports", "nylas-component-kit", "electron", "nylas-store", "nylas-observables" ],
