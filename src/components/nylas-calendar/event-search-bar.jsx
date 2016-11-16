@@ -26,9 +26,8 @@ class EventSearchBar extends Component {
 
   onSearchQueryChanged = (query) => {
     const {disabledCalendars} = this.props
-    const {suggestions} = this.state
     this.setState({query})
-    if (query.length <= 1 && suggestions.length > 0) {
+    if (query.length <= 1) {
       this.onClearSearchSuggestions()
       return
     }
