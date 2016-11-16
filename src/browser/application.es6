@@ -178,13 +178,6 @@ export default class Application extends EventEmitter {
     if (hasAccount && hasN1ID) {
       this.windowManager.ensureWindow(WindowManager.MAIN_WINDOW);
       this.windowManager.ensureWindow(WindowManager.WORK_WINDOW);
-
-      this.windowManager.ensureWindow(WindowManager.CALENDAR_WINDOW, {
-        windowKey: WindowManager.CALENDAR_WINDOW,
-        windowType: WindowManager.CALENDAR_WINDOW,
-        title: "Calendar",
-        hidden: false,
-      });
     } else {
       this.windowManager.ensureWindow(WindowManager.ONBOARDING_WINDOW, {
         title: "Welcome to N1",
