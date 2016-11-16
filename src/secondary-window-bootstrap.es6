@@ -1,4 +1,4 @@
-/* eslint import/first: 0 */
+/* eslint import/imports-first: 0 */
 
 // Effectively all secondary windows are empty hot windows. We spawn the
 // window and pre-load all of the basic javascript libraries (which takes a
