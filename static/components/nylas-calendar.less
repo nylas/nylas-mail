@@ -110,7 +110,7 @@ body.platform-win32 {
       white-space: nowrap;
     }
     &.selected {
-      background-color: @accent-primary !important; 
+      background-color: @accent-primary !important;
     }
   }
 
@@ -127,6 +127,8 @@ body.platform-win32 {
     .calendar-body-wrap {
       display: flex;
       flex-direction: row;
+      position: relative;
+      height: 100%;
 
       .calendar-area-wrap {
         &::-webkit-scrollbar {
@@ -225,6 +227,7 @@ body.platform-win32 {
       overflow: auto;
       background: @background-primary;
       box-shadow: inset 0 1px 2.5px rgba(0,0,0,0.15);
+      height: 100%;
     }
     .event-grid {
       display: flex;
