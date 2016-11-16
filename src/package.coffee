@@ -231,6 +231,9 @@ class Package
     catch e
       console.error "Error reading menus for package '#{@name}': #{e.message}", e.stack
 
+    for [menuPath, menuObj] in @menus
+      menuItem.isOptional = @metadata.isOptional for menuItem in menuObj.menu
+
   getKeymapPaths: ->
     keymapsDirPath = path.join(@path, 'keymaps')
     if @metadata.keymaps

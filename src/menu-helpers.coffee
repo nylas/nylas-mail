@@ -25,7 +25,7 @@ unmerge = (menu, item) ->
     if item.submenu?
       unmerge(matchingItem.submenu, submenuItem) for submenuItem in item.submenu
 
-    unless matchingItem.submenu?.length > 0
+    if (matchingItem.submenu ? []).length is 0 or matchingItem.isOptional
       menu.splice(matchingItemIndex, 1)
 
 findMatchingItemIndex = (menu, {type, label, submenu}) ->
