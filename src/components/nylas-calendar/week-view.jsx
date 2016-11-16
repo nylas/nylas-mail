@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom'
 import moment from 'moment-timezone'
 import classnames from 'classnames'
 import {Utils} from 'nylas-exports'
+import {ScrollRegion} from 'nylas-component-kit'
 
 import TopBanner from './top-banner'
 import HeaderControls from './header-controls'
@@ -487,10 +488,11 @@ export default class WeekView extends React.Component {
                   allDayOverlap={allDayOverlap}
                 />
               </div>
-              <div
+              <ScrollRegion
                 className="event-grid-wrap"
                 ref="eventGridWrap"
                 onScroll={this._onGridScroll}
+                getScrollbar={() => this.refs.scrollbar}
                 style={{width: `${this._bufferRatio() * 100}%`}}
               >
                 <div className="event-grid" style={{height: this._gridHeight()}}>
@@ -503,8 +505,12 @@ export default class WeekView extends React.Component {
                     tickGenerator={tickGen}
                   />
                 </div>
-              </div>
+              </ScrollRegion>
             </div>
+            <ScrollRegion.Scrollbar
+              ref="scrollbar"
+              getScrollRegion={() => this.refs.eventGridWrap}
+            />
           </div>
 
           <FooterControls footerComponents={this.props.footerComponents} />
