@@ -371,13 +371,14 @@ export default class TokenizingTextField extends React.Component {
   static defaultProps = {
     tokens: [],
     className: '',
+    defaultValue: '',
     tokenClassNames: () => '',
   }
 
   constructor(props) {
     super(props);
     this.state = {
-      inputValue: props.defaultValue || "",
+      inputValue: props.defaultValue,
       completions: [],
       selectedKeys: [],
     }
