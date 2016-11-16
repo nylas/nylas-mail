@@ -7,6 +7,7 @@ import fs from 'fs';
 import path from 'path';
 
 import CalendarWrapper from './calendar-wrapper';
+import QuickEventButton from './quick-event-button';
 
 function resolveHelperPath(callback) {
   const resourcesPath = NylasEnv.getLoadSettings().resourcePath;
@@ -59,8 +60,12 @@ export function activate() {
   ComponentRegistry.register(CalendarWrapper, {
     location: WorkspaceStore.Location.Center,
   });
+  ComponentRegistry.register(QuickEventButton, {
+    location: WorkspaceStore.Location.Center.Toolbar,
+  });
 }
 
 export function deactivate() {
   ComponentRegistry.unregister(CalendarWrapper);
+  ComponentRegistry.unregister(QuickEventButton);
 }

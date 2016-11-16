@@ -180,7 +180,7 @@ export default class Event extends Model {
   }
 
   displayTitle() {
-    let displayTitle = this.title.replace(/.*Invitation: /, "")
+    const displayTitle = this.title.replace(/.*Invitation: /, "")
     const [displayTitleWithoutDate, date] = displayTitle.split(" @ ")
     if (date && chrono.parseDate(date)) {
       return displayTitleWithoutDate

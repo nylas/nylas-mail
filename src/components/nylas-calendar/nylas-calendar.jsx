@@ -7,7 +7,6 @@ import {ScrollRegion, ResizableRegion, MiniMonthView} from 'nylas-component-kit'
 import WeekView from './week-view'
 import MonthView from './month-view'
 import CalendarToggles from './calendar-toggles'
-import QuickEventButton from '../../../internal_packages/main-calendar/lib/quick-event-button'
 import CalendarDataSource from './calendar-data-source'
 import {WEEK_VIEW, MONTH_VIEW} from './calendar-constants'
 
@@ -171,7 +170,6 @@ export default class NylasCalendar extends React.Component {
           </div>
 
         </ResizableRegion>
-        <QuickEventButton />
         <CurrentView
           dataSource={this.props.dataSource}
           currentMoment={this.state.currentMoment}
