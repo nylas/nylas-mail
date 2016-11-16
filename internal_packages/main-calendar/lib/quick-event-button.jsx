@@ -4,6 +4,7 @@ import {Actions} from 'nylas-exports';
 import QuickEventPopover from './quick-event-popover';
 
 export default class QuickEventButton extends React.Component {
+  static displayName = "QuickEventButton";
 
   onClick = (event) => {
     event.stopPropagation()
@@ -17,6 +18,7 @@ export default class QuickEventButton extends React.Component {
   render() {
     return (
       <button
+        style={{order: -50}}
         tabIndex={-1}
         className="btn btn-toolbar"
         onClick={this.onClick}
