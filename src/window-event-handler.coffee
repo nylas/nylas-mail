@@ -160,7 +160,7 @@ class WindowEventHandler
     {protocol} = url.parse(href)
     return unless protocol
 
-    if protocol is 'mailto:'
+    if protocol in ['mailto:', 'calendar:', 'nylas:']
       # We sometimes get mailto URIs that are not escaped properly, or have been only partially escaped.
       # (T1927) Be sure to escape them once, and completely, before we try to open them. This logic
       # *might* apply to http/https as well but it's unclear.
