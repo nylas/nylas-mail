@@ -95,12 +95,14 @@ class PackageManager
       names[names.length - 1] = "and #{last}"
     has = if names.length is 1 then "has" else "have"
     pluginText = if names.length is 1 then "Plugin" else "Plugins"
-    remote.dialog.showMessageBox(remote.getCurrentWindow(), {
-      type: 'info',
-      message: "#{pluginText} #{dir}",
-      detail: "#{names.join(", ")} #{has} been #{dir}"
-      buttons: ['Thanks'],
-    })
+    setTimeout =>
+      remote.dialog.showMessageBox(remote.getCurrentWindow(), {
+        type: 'info',
+        message: "#{pluginText} #{dir}",
+        detail: "#{names.join(", ")} #{has} been #{dir}"
+        buttons: ['Thanks'],
+      })
+    , 500
 
   _resolvePluginIdFor: (packageName, env) =>
     metadata = @loadedPackages[packageName]?.metadata
