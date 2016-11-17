@@ -47,6 +47,9 @@ class ThreadSearchBar extends Component {
     if (suggestion.thread) {
       return suggestion.thread.subject;
     }
+    if (suggestion.customElement) {
+      return suggestion.customElement
+    }
     return suggestion.label;
   }
 
