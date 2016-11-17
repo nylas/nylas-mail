@@ -78,6 +78,7 @@ lazyLoad(`DatabaseStore`, 'flux/stores/database-store');
 lazyLoad(`QueryResultSet`, 'flux/models/query-result-set');
 lazyLoad(`QuerySubscription`, 'flux/models/query-subscription');
 lazyLoad(`CalendarDataSource`, 'components/nylas-calendar/calendar-data-source');
+lazyLoad(`CalendarDraggingDataSource`, 'components/nylas-calendar/calendar-dragging-data-source');
 lazyLoad(`DatabaseTransaction`, 'flux/stores/database-transaction');
 lazyLoad(`MutableQueryResultSet`, 'flux/models/mutable-query-result-set');
 lazyLoad(`QuerySubscriptionPool`, 'flux/models/query-subscription-pool');

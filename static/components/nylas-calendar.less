@@ -96,6 +96,21 @@ body.platform-win32 {
       flex: 1;
     }
 
+    .resize-handle {
+      position: absolute;
+      width: 100%;
+      height: 5px;
+      cursor: ns-resize;
+
+      &.top {
+        top: 0;
+      }
+
+      &.bottom {
+        bottom: 0;
+      }
+    }
+
     &:before {
       content: "";
       position: absolute;
