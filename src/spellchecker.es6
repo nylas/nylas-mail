@@ -72,7 +72,7 @@ class Spellchecker {
 
   isMisspelled = (word) => {
     if ({}.hasOwnProperty.call(this._customDict, word)) {
-      return true
+      return false
     }
     if ({}.hasOwnProperty.call(this.isMisspelledCache, word)) {
       return this.isMisspelledCache[word]

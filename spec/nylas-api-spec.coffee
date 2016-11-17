@@ -118,7 +118,7 @@ describe "NylasAPI", ->
       model = new Thread(id: 'threadidhere')
       spyOn(DatabaseTransaction.prototype, 'unpersistModel')
       spyOn(DatabaseStore, 'find').andCallFake (klass, id) =>
-        return { markNotBackgroundable: => Promise.resolve(model) }
+        return Promise.resolve(model)
       NylasAPI._handleModel404("/threads/#{model.id}")
       advanceClock()
       expect(DatabaseStore.find).toHaveBeenCalledWith(Thread, model.id)
@@ -127,7 +127,7 @@ describe "NylasAPI", ->
     it "should not do anything if the model is not in the cache", ->
       spyOn(DatabaseTransaction.prototype, 'unpersistModel')
       spyOn(DatabaseStore, 'find').andCallFake (klass, id) =>
-        return { markNotBackgroundable: => Promise.resolve(null) }
+        return Promise.resolve(null)
       NylasAPI._handleModel404("/threads/1234")
       advanceClock()
       expect(DatabaseStore.find).toHaveBeenCalledWith(Thread, '1234')

@@ -98,19 +98,22 @@ describe "FocusedPerspectiveStore", ->
       expect(FocusedPerspectiveStore._setPerspective).toHaveBeenCalledWith(NylasEnv.savedState.perspective, [1])
 
   describe "_onCategoryStoreChanged", ->
-    it "should try to initialize if the current perspective is `nothing`", ->
+    it "should try to initialize if the curernt perspective hasn't been fully initialized", ->
       spyOn(FocusedPerspectiveStore, '_initializeFromSavedState')
 
       FocusedPerspectiveStore._current = @inboxPerspective
+      FocusedPerspectiveStore._initialized = true
       FocusedPerspectiveStore._onCategoryStoreChanged()
       expect(FocusedPerspectiveStore._initializeFromSavedState).not.toHaveBeenCalled()
 
       FocusedPerspectiveStore._current = MailboxPerspective.forNothing()
+      FocusedPerspectiveStore._initialized = false
       FocusedPerspectiveStore._onCategoryStoreChanged()
       expect(FocusedPerspectiveStore._initializeFromSavedState).toHaveBeenCalled()
 
     it "should set the current category to default when the current category no longer exists in the CategoryStore", ->
       defaultPerspective = @inboxPerspective
+      FocusedPerspectiveStore._initialized = true
       spyOn(FocusedPerspectiveStore, '_defaultPerspective').andReturn(defaultPerspective)
 
       otherAccountInbox = @inboxCategory.clone()
