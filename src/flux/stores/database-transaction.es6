@@ -1,5 +1,6 @@
 /* eslint global-require:0 */
 import Model from '../models/model';
+import ModelQuery from '../models/query';
 import {tableNameForJoin, registeredObjectReplacer} from '../models/utils';
 
 import Attributes from '../attributes';
@@ -13,12 +14,12 @@ export default class DatabaseTransaction {
     this._opened = false;
   }
 
-  find(...args) { return this.database.find(...args).markNotBackgroundable() }
-  findBy(...args) { return this.database.findBy(...args).markNotBackgroundable() }
-  findAll(...args) { return this.database.findAll(...args).markNotBackgroundable() }
-  modelify(...args) { return this.database.modelify(...args).markNotBackgroundable() }
-  count(...args) { return this.database.count(...args).markNotBackgroundable() }
-  findJSONBlob(...args) { return this.database.findJSONBlob(...args).markNotBackgroundable() }
+  find(...args) { return this._forwardOperationToDatabase('find', ...args) }
+  findBy(...args) { return this._forwardOperationToDatabase('findBy', ...args) }
+  findAll(...args) { return this._forwardOperationToDatabase('findAll', ...args) }
+  modelify(...args) { return this._forwardOperationToDatabase('modelify', ...args) }
+  count(...args) { return this._forwardOperationToDatabase('count', ...args) }
+  findJSONBlob(...args) { return this._forwardOperationToDatabase('findJSONBlob', ...args) }
 
   execute(fn) {
     if (this._opened) {
@@ -328,5 +329,17 @@ export default class DatabaseTransaction {
     });
 
     return Promise.all(promises);
+  }
+
+  _forwardOperationToDatabase(operation, ...args) {
+    try {
+      const query = this.database[operation](...args)
+      if (query instanceof ModelQuery) {
+        return query.markNotBackgroundable()
+      }
+      return query
+    } catch (error) {
+      throw new Error(`DatabaseTransaction: Error trying to perform ${operation} on database. Is it defined?`)
+    }
   }
 }
