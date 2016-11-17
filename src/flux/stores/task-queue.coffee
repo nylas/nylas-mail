@@ -132,12 +132,16 @@ class TaskQueue
 
   enqueue: (task) =>
     if not (task instanceof Task)
+      console.log(task)
       throw new Error("You must queue a `Task` instance. Be sure you have the task registered with the TaskRegistry. If this is a task for a custom plugin, you must export a `taskConstructors` array with your `Task` constructors in it. You must all subclass the base Nylas `Task`.")
     if not (TaskRegistry.isInRegistry(task.constructor.name))
+      console.log(task)
       throw new Error("You must queue a `Task` instance which is registred with the TaskRegistry")
     if not task.id
+      console.log(task)
       throw new Error("Tasks must have an ID prior to being queued. Check that your Task constructor is calling `super`")
     if not task.queueState
+      console.log(task)
       throw new Error("Tasks must have a queueState prior to being queued. Check that your Task constructor is calling `super`")
     task.sequentialId = ++@_currentSequentialId
 
