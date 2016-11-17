@@ -1,6 +1,7 @@
 import Rx from 'rx-lite'
 import React from 'react'
 import moment from 'moment'
+import 'moment-round'
 import {DatabaseStore, AccountStore, Calendar} from 'nylas-exports'
 import {ScrollRegion, ResizableRegion, MiniMonthView} from 'nylas-component-kit'
 import WeekView from './week-view'

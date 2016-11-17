@@ -1,5 +1,6 @@
 /* eslint react/jsx-no-bind: 0 */
 import _ from 'underscore'
+import Rx from 'rx-lite'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import moment from 'moment-timezone'
@@ -52,6 +53,9 @@ export default class WeekView extends React.Component {
     bannerComponents: false,
     headerComponents: false,
     footerComponents: false,
+    onCalendarMouseUp: () => {},
+    onCalendarMouseDown: () => {},
+    onCalendarMouseMove: () => {},
   }
 
   constructor(props) {
@@ -96,6 +100,11 @@ export default class WeekView extends React.Component {
     return moment()
   }
 
+  _mouseHandlerSubscribe = (observer) => {
+    this._observer = observer;
+    observer.onNext({});
+  }
+
   _initializeComponent(props) {
     this.todayYear = this._now().year()
     this.todayDayOfYear = this._now().dayOfYear()
@@ -107,14 +116,15 @@ export default class WeekView extends React.Component {
     const startMoment = this._calculateStartMoment(props);
     const endMoment = this._calculateEndMoment(props);
 
+    const mouseHandlerObserver = Rx.Observable.create(this._mouseHandlerSubscribe);
     this._sub = this.props.dataSource.buildObservable({
       disabledCalendars: props.disabledCalendars,
       startTime: startMoment.unix(),
       endTime: endMoment.unix(),
+      mouseHandlerObserver: mouseHandlerObserver,
     }).subscribe((state) => {
       this.setState(state);
     })
-
     this.setState({startMoment, endMoment})
 
     const percent = (this._scrollTime - startMoment.unix()) / (endMoment.unix() - startMoment.unix())
@@ -205,14 +215,23 @@ export default class WeekView extends React.Component {
    */
   _eventOverlap(events) {
     const times = {}
+    const overlapById = {}
     for (const event of events) {
+      // We want dragged events to stay full-width. Since width is calculated
+      // by number of concurrentEvents, mock that out here.
+      if (event.dragged) {
+        overlapById[event.id] = {
+          concurrentEvents: 1,
+          order: 1,
+        };
+        continue;
+      }
       if (!times[event.start]) { times[event.start] = [] }
       if (!times[event.end]) { times[event.end] = [] }
       times[event.start].push(event)
       times[event.end].push(event)
     }
     const sortedTimes = Object.keys(times).map((k) => parseInt(k, 10)).sort();
-    const overlapById = {}
     let startedEvents = []
     for (const t of sortedTimes) {
       for (const e of times[t]) {
@@ -411,6 +430,30 @@ export default class WeekView extends React.Component {
     return (BUFFER_DAYS * 2 + DAYS_IN_VIEW) / DAYS_IN_VIEW
   }
 
+  _sendMouseEventToObserver = (args) => {
+    if (this._observer) {
+      this._observer.onNext(args)
+    }
+  }
+
+  _onCalendarMouseDown = (args) => {
+    this._sendMouseEventToObserver(args);
+    this.props.onCalendarMouseDown(args);
+  }
+
+  _onCalendarMouseMove = (args) => {
+    this._sendMouseEventToObserver(args);
+    this.props.onCalendarMouseMove(args)
+    if (this.refs.eventGridBg) {
+      this.refs.eventGridBg.mouseMove(args)
+    }
+  }
+
+  _onCalendarMouseUp = (args) => {
+    this._sendMouseEventToObserver(args);
+    this.props.onCalendarMouseUp(args);
+  }
+
   // We calculate events by days so we only need to iterate through all
   // events in the span once.
   _eventsByDay(days) {
@@ -450,9 +493,9 @@ export default class WeekView extends React.Component {
       <div className="calendar-view week-view">
         <CalendarEventContainer
           ref="calendarEventContainer"
-          onCalendarMouseUp={this.props.onCalendarMouseUp}
-          onCalendarMouseDown={this.props.onCalendarMouseDown}
-          onCalendarMouseMove={this.props.onCalendarMouseMove}
+          onCalendarMouseUp={this._onCalendarMouseUp}
+          onCalendarMouseDown={this._onCalendarMouseDown}
+          onCalendarMouseMove={this._onCalendarMouseMove}
         >
           <TopBanner bannerComponents={this.props.bannerComponents} />
 

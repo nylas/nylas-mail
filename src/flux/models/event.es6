@@ -1,6 +1,7 @@
 import chrono from 'chrono-node';
 import moment from 'moment';
 
+import {Utils} from 'nylas-exports';
 import Model from './model';
 import Attributes from '../attributes';
 import Contact from './contact';
@@ -135,6 +136,7 @@ export default class Event extends Model {
 
   fromJSON(json) {
     super.fromJSON(json)
+    this.when = Utils.deepClone(this.when);
 
     const when = this.when;
 
@@ -199,5 +201,25 @@ export default class Event extends Model {
       }
     }
     return null;
+  }
+
+  /* Shifts event times by newTime - origTime, rounded to the nearest multiple of
+   * 15 minutes. Also updates the corresponding entry in the when object.
+   *
+   * timeFields - an array, valid entries are 'start' and 'end'
+   * origTime - a Moment instance, the anchor point of the shift
+   * newTime - a Moment instance, the point where the shift ends.
+   */
+  shiftTimes = (timeFields, origTime, newTime) => {
+    const timeDelta = newTime.clone()
+      .subtract(origTime.valueOf())
+      .round(15, 'minutes')
+      .unix()
+    const newEvent = this.clone();
+    for (const field of timeFields) {
+      newEvent[field] += timeDelta;
+      newEvent.when[`${field}_time`] += timeDelta;
+    }
+    return newEvent;
   }
 }
