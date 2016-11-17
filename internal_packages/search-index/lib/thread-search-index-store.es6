@@ -172,6 +172,7 @@ class ThreadSearchIndexStore {
       .limit(size)
       .offset(size * idx)
       .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
+      .background()
       .then((threads) => {
         return Promise.all(
           threads.map(this.indexThread)
