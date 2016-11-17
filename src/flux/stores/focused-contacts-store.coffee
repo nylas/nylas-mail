@@ -83,7 +83,7 @@ class FocusedContactsStore extends NylasStore
   _loadCurrentParticipantThreads: (email) ->
     email = @_currentFocusedContact?.email
     return unless email
-    DatabaseStore.findAll(Thread).where(Thread.attributes.participants.contains(email)).limit(100).then (threads = []) =>
+    DatabaseStore.findAll(Thread).where(Thread.attributes.participants.contains(email)).limit(100).background().then (threads = []) =>
       return unless @_currentFocusedContact?.email is email
       @_currentParticipantThreads = threads
       @trigger()

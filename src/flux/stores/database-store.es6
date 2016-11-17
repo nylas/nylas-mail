@@ -2,6 +2,7 @@
 import path from 'path';
 import fs from 'fs';
 import Sqlite3 from 'better-sqlite3';
+import childProcess from 'child_process';
 import PromiseQueue from 'promise-queue';
 import {remote, ipcRenderer} from 'electron';
 import LRU from "lru-cache";
@@ -227,8 +228,7 @@ class DatabaseStore extends NylasStore {
       const query = queries.shift();
       if (query) {
         console.debug(DEBUG_TO_LOG, `DatabaseStore: ${query}`);
-        this._db.prepare(query).run();
-        setTimeout(step, 100);
+        this._executeInAgent(query, []).then(step);
       } else {
         console.log(`Completed ANALYZE of database`);
       }
@@ -295,7 +295,7 @@ class DatabaseStore extends NylasStore {
   //
   // If a query is made before the database has been opened, the query will be
   // held in a queue and run / resolved when the database is ready.
-  _query(query, values = []) {
+  _query(query, values = [], background = false) {
     return new Promise((resolve, reject) => {
       if (!this._open) {
         this._waiting.push(() => this._query(query, values).then(resolve, reject));
@@ -320,58 +320,118 @@ class DatabaseStore extends NylasStore {
         const quiet = ['ThreadCounts', 'ThreadSearch', 'ContactSearch', 'COVERING INDEX'];
 
         if (planString.includes('SCAN') && !quiet.find(str => planString.includes(str))) {
+          console.log("Consider setting the .background() flag on this query to avoid blocking the event loop:")
           this._prettyConsoleLog(planString);
         }
       }
 
-      if (query.startsWith(`BEGIN`)) {
-        if (this._inflightTransactions !== 0) {
-          throw new Error("Assertion Failure: BEGIN called when an existing transaction is in-flight. Use DatabaseStore.inTransaction() to aquire transactions.")
-        }
-        this._inflightTransactions += 1;
-      }
-
-      const fn = query.startsWith('SELECT') ? 'all' : 'run';
       const start = Date.now();
-      let tries = 0;
-      let results = null;
 
-      // Because other processes may be writing to the database and modifying the
-      // schema (running ANALYZE, etc.), we may `prepare` a statement and then be
-      // unable to execute it. Handle this case silently unless it's persistent.
-      while (!results) {
-        try {
-          let stmt = this._preparedStatementCache.get(query);
-          if (!stmt) {
-            stmt = this._db.prepare(query);
-            this._preparedStatementCache.set(query, stmt)
-          }
-          results = stmt[fn](values);
-        } catch (err) {
-          if (tries < 3 && err.toString().includes('database schema has changed')) {
-            this._preparedStatementCache.del(query);
-            tries += 1;
-          } else {
-            // note: this function may throw a promise, which causes our Promise to reject
-            throw new Error(`DatabaseStore: Query ${query}, ${JSON.stringify(values)} failed ${err.toString()}`);
+      if (!background) {
+        const results = this._executeLocally(query, values);
+        const msec = Date.now() - start;
+        if ((msec > 100) || DEBUG_TO_LOG) {
+          this._prettyConsoleLog(`${msec}msec: ${query}`);
+        }
+        resolve(results);
+      } else {
+        const forbidden = ['INSERT ', 'UPDATE ', 'DELETE ', 'DROP ', 'ALTER ', 'CREATE '];
+        for (const key of forbidden) {
+          if (query.startsWith(key)) {
+            throw new Error("Transactional queries cannot be made in the database agent because they would not execute in the current transaction.")
           }
         }
+        this._executeInAgent(query, values).then(({results, agentTime}) => {
+          const msec = Date.now() - start;
+          const overhead = msec - agentTime;
+          if ((msec > 100) || (overhead > 0) || DEBUG_TO_LOG) {
+            this._prettyConsoleLog(`${msec}msec (${agentTime}msec in agent): ${query}`);
+          }
+          resolve(results);
+        });
       }
+    });
+  }
 
-      const msec = Date.now() - start;
-      if ((msec > 100) || DEBUG_TO_LOG) {
-        this._prettyConsoleLog(`${msec}msec: ${query}`);
+  _executeLocally(query, values) {
+    if (query.startsWith(`BEGIN`)) {
+      if (this._inflightTransactions !== 0) {
+        throw new Error("Assertion Failure: BEGIN called when an existing transaction is in-flight. Use DatabaseStore.inTransaction() to aquire transactions.")
       }
+      this._inflightTransactions += 1;
+    }
 
-      if (query === 'COMMIT') {
-        this._inflightTransactions -= 1;
-        if (this._inflightTransactions < 0) {
-          this._inflightTransactions = 0;
-          throw new Error("Assertion Failure: COMMIT was called too many times and the transaction count went negative.")
+    const fn = query.startsWith('SELECT') ? 'all' : 'run';
+    let tries = 0;
+    let results = null;
+
+    // Because other processes may be writing to the database and modifying the
+    // schema (running ANALYZE, etc.), we may `prepare` a statement and then be
+    // unable to execute it. Handle this case silently unless it's persistent.
+    while (!results) {
+      try {
+        let stmt = this._preparedStatementCache.get(query);
+        if (!stmt) {
+          stmt = this._db.prepare(query);
+          this._preparedStatementCache.set(query, stmt)
+        }
+        results = stmt[fn](values);
+      } catch (err) {
+        if (tries < 3 && err.toString().includes('database schema has changed')) {
+          this._preparedStatementCache.del(query);
+          tries += 1;
+        } else {
+          // note: this function may throw a promise, which causes our Promise to reject
+          throw new Error(`DatabaseStore: Query ${query}, ${JSON.stringify(values)} failed ${err.toString()}`);
         }
       }
+    }
 
-      resolve(results);
+    if (query === 'COMMIT') {
+      this._inflightTransactions -= 1;
+      if (this._inflightTransactions < 0) {
+        this._inflightTransactions = 0;
+        throw new Error("Assertion Failure: COMMIT was called too many times and the transaction count went negative.")
+      }
+    }
+
+    return results;
+  }
+
+  _executeInAgent(query, values) {
+    if (!this._agent) {
+      console.log("DatabaseAgent: Starting...");
+
+      this._agentOpenQueries = {};
+      this._agent = childProcess.fork(path.join(path.dirname(__filename), 'database-agent.js'), [], {
+        silent: true,
+      });
+      this._agent.stdout.on('data', (data) =>
+        console.log(data.toString())
+      );
+      this._agent.stderr.on('data', (data) =>
+        console.error(data.toString())
+      );
+      this._agent.on('close', (code) => {
+        console.debug(DEBUG_TO_LOG, `Query Agent: exited with code ${code}`);
+        this._agent = null;
+      });
+      this._agent.on('error', (err) => {
+        console.error(DEBUG_TO_LOG, `Query Agent: failed to start or receive message: ${err.toString()}`);
+        this._agent.kill(1);
+        this._agent = null;
+      });
+      this._agent.on('message', ({type, id, results, agentTime}) => {
+        if (type === 'results') {
+          this._agentOpenQueries[id]({results, agentTime});
+          delete this._agentOpenQueries[id];
+        }
+      });
+    }
+    return new Promise((resolve) => {
+      const id = Utils.generateTempId();
+      this._agentOpenQueries[id] = resolve;
+      this._agent.send({ query, values, id, dbpath: this._databasePath });
     });
   }
 
@@ -523,7 +583,7 @@ class DatabaseStore extends NylasStore {
   //   - resolves with the result of the database query.
   //
   run(modelQuery, options = {format: true}) {
-    return this._query(modelQuery.sql(), []).then((result) => {
+    return this._query(modelQuery.sql(), [], modelQuery._background).then((result) => {
       let transformed = modelQuery.inflateResult(result);
       if (options.format !== false) {
         transformed = modelQuery.formatResult(transformed)

@@ -13,12 +13,12 @@ export default class DatabaseTransaction {
     this._opened = false;
   }
 
-  find(...args) { return this.database.find(...args) }
-  findBy(...args) { return this.database.findBy(...args) }
-  findAll(...args) { return this.database.findAll(...args) }
-  modelify(...args) { return this.database.modelify(...args) }
-  count(...args) { return this.database.count(...args) }
-  findJSONBlob(...args) { return this.database.findJSONBlob(...args) }
+  find(...args) { return this.database.find(...args).markNotBackgroundable() }
+  findBy(...args) { return this.database.findBy(...args).markNotBackgroundable() }
+  findAll(...args) { return this.database.findAll(...args).markNotBackgroundable() }
+  modelify(...args) { return this.database.modelify(...args).markNotBackgroundable() }
+  count(...args) { return this.database.count(...args).markNotBackgroundable() }
+  findJSONBlob(...args) { return this.database.findJSONBlob(...args).markNotBackgroundable() }
 
   execute(fn) {
     if (this._opened) {

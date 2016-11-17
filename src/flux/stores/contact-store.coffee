@@ -155,7 +155,7 @@ class ContactStore extends NylasStore
       (- (rankings[email.toLowerCase()] ? 0) / 1)
     emails.length = 400 if emails.length > 400
 
-    DatabaseStore.findAll(Contact, {email: emails}).then (contacts) =>
+    DatabaseStore.findAll(Contact, {email: emails}).background().then (contacts) =>
       contacts = @_distinctByEmail(contacts)
       for contact in contacts
         contact._rank = (- (rankings[contact.email.toLowerCase()] ? 0) / 1)

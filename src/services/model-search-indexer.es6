@@ -50,6 +50,7 @@ export default class ModelSearchIndexer {
     return DatabaseStore.findAll(ModelClass)
     .limit(INDEXING_PAGE_SIZE)
     .offset(offset)
+    .background()
     .then((models) => {
       if (models.length === 0) {
         NylasEnv.config.set(ConfigKey, IndexVersion)
