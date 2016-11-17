@@ -39,14 +39,14 @@ export default class SyncbackModelTask extends Task {
   getLatestModel = () => {
     return DatabaseStore.findBy(this.getModelConstructor(),
                                 {clientId: this.clientId})
-  };
+  }
 
   verifyModel = (model) => {
     if (model) {
       return Promise.resolve(model)
     }
     throw new Error(`Can't find a '${this.getModelConstructor().name}' model for clientId: ${this.clientId}'`)
-  };
+  }
 
   makeRequest = (model) => {
     try {
@@ -58,7 +58,7 @@ export default class SyncbackModelTask extends Task {
     } catch (error) {
       return Promise.reject(error)
     }
-  };
+  }
 
   getRequestData(model) {
     if (model.isSavedRemotely()) {
