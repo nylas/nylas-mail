@@ -17,7 +17,7 @@ describe('SpellcheckComposerExtension', function spellcheckComposerExtension() {
     spyOn(Spellchecker, 'isMisspelled').andCallFake(word => spellings[word])
   });
 
-  describe("update", () => {
+  describe("onContentChanged", () => {
     it("correctly walks a DOM tree and surrounds mispelled words", () => {
       const node = document.createElement('div');
       node.innerHTML = initialHTML;
@@ -27,7 +27,7 @@ describe('SpellcheckComposerExtension', function spellcheckComposerExtension() {
         whilePreservingSelection: (cb) => cb(),
       };
 
-      SpellcheckComposerExtension.update(editor);
+      SpellcheckComposerExtension.onContentChanged({editor});
       expect(node.innerHTML).toEqual(afterHTML);
     });
 
@@ -50,7 +50,7 @@ describe('SpellcheckComposerExtension', function spellcheckComposerExtension() {
         whilePreservingSelection: (cb) => cb(),
       };
 
-      SpellcheckComposerExtension.update(editor);
+      SpellcheckComposerExtension.onContentChanged({editor});
       expect(node.innerHTML).toEqual(`
       <br>
       This is a <spelling class="misspelled">testst</spelling>! I have a few <spelling class="misspelled">misspellled</spelling> words.
