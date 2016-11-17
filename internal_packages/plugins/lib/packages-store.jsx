@@ -196,7 +196,8 @@ const PackagesStore = Reflux.createStore({
       }
 
       const available = NylasEnv.packages.getAvailablePackageMetadata();
-      const examples = available.filter(({isOptional}) => isOptional);
+      const examples = available.filter(({isOptional, isHiddenOnPluginsPage}) =>
+        isOptional && !isHiddenOnPluginsPage);
       packages.example = examples.map((pkg) =>
         _.extend({}, pkg, {installed: true, category: 'example'})
       );
