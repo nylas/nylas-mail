@@ -121,7 +121,8 @@ export default class WeekView extends React.Component {
     if (percent < 0 || percent > 1) {
       this._scrollTime = startMoment.unix();
     } else {
-      this._ensureHorizontalScrollPos();
+      const weekStart = moment(props.currentMoment).startOf('day').weekday(0).unix()
+      this._scrollTime = weekStart
     }
   }
 
