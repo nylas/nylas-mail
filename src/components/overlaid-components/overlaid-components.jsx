@@ -232,7 +232,7 @@ export default class OverlaidComponents extends React.Component {
   render() {
     const {className} = this.props
     return (
-      <div className={`overlaid-components-wrap ${className}`} style={{position: "relative"}}>
+      <div className={`overlaid-components-wrap ${className || ''}`} style={{position: "relative"}}>
         <div className="anchor-container" ref="anchorContainer">
           {this.props.children}
         </div>

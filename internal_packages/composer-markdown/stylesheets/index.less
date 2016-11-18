@@ -4,17 +4,25 @@
 
 @blurred-primary-color: mix(@background-primary, #ffbb00, 96%);
 
-.markdown-editor {
-  padding-top: 10px;
-}
-.markdown-editor .uneditable-notice {
-  text-align: center;
-  font-size: 0.9em;
-  color: @text-color-very-subtle;
-  margin-bottom: 10px;
-  border-top: 1px dashed;
-  border-bottom: 1px dashed;
-  padding: 4px;
+.compose-body .markdown-editor {
+  margin: auto;
+  padding: 10px 23px 10px;
+  width: 100%;
+
+  .editing-region div[contenteditable] {
+    min-height: 0;
+    padding: 0;
+  }
+
+  .uneditable-notice {
+    text-align: center;
+    font-size: 0.9em;
+    color: @text-color-very-subtle;
+    margin-bottom: 10px;
+    border-top: 1px dashed;
+    border-bottom: 1px dashed;
+    padding: 4px;
+  }
 }
 
 .CodeMirror {
