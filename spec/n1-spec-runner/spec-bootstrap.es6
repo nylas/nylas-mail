@@ -1,4 +1,4 @@
-/* eslint import/imports-first: 0 */
+/* eslint import/first: 0 */
 
 // Swap out Node's native Promise for Bluebird, which allows us to
 // do fancy things like handle exceptions inside promise blocks
