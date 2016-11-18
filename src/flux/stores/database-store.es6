@@ -554,10 +554,10 @@ class DatabaseStore extends NylasStore {
     }
 
     if (ids.length) {
-      queries.modelsFromIds = this.findAll(klass).where(klass.attributes.id.in(ids));
+      queries.modelsFromIds = this.findAll(klass).where(klass.attributes.id.in(ids)).markNotBackgroundable();
     }
     if (clientIds.length) {
-      queries.modelsFromClientIds = this.findAll(klass).where(klass.attributes.clientId.in(clientIds));
+      queries.modelsFromClientIds = this.findAll(klass).where(klass.attributes.clientId.in(clientIds)).markNotBackgroundable();
     }
 
     return Promise.props(queries).then(({modelsFromIds, modelsFromClientIds}) => {
