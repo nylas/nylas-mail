@@ -95,7 +95,8 @@ module.exports = (grunt) => {
   grunt.registerTask("publish", "Publish Nylas build", function publish() {
     const done = this.async();
 
-    populateVersion().then(() => {
+    populateVersion()
+    .then(() => {
       // find files to publish
       const {shouldPublishBuild} = require('./task-helpers')(grunt);
       const outputDir = grunt.config.get('outputDir');
@@ -164,9 +165,13 @@ module.exports = (grunt) => {
         },
       });
 
-      Promise.all(uploads.map(({source, key, options}) =>
+      return Promise.all(uploads.map(({source, key, options}) =>
         uploadToS3(source, key, options))
-      ).then(done, done);
+      )
+      .then(done)
+    })
+    .catch((err) => {
+      grunt.fail.fatal(err)
     });
   });
 }
