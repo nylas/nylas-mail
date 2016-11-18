@@ -84,9 +84,7 @@ module.exports = (grunt) => {
     });
   }
 
-  function uploadToS3(filename, key) {
-    const filepath = path.join(grunt.config.get('outputDir'), filename);
-
+  function uploadToS3(filepath, key) {
     grunt.log.writeln(`>> Uploading ${filename} to ${key}…`);
     return put(filepath, key).then((data) => {
       const msg = `N1 release asset uploaded: <${data.Location}|${key}>`;
