@@ -38,7 +38,7 @@ install:
     }
 
 build_script:
-- ps: script\bootstrap.cmd
+- cmd: script\bootstrap.cmd
 
 test_script:
 - ps: npm test
