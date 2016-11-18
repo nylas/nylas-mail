@@ -85,7 +85,7 @@ module.exports = (grunt) => {
   }
 
   function uploadToS3(filepath, key) {
-    grunt.log.writeln(`>> Uploading ${filename} to ${key}…`);
+    grunt.log.writeln(`>> Uploading ${filepath} to ${key}…`);
     return put(filepath, key).then((data) => {
       const msg = `N1 release asset uploaded: <${data.Location}|${key}>`;
       return postToSlack(msg).then(() => Promise.resolve(data));
