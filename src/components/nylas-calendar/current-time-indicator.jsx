@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import Moment from 'moment';
 import classNames from 'classnames';
 
@@ -21,6 +22,7 @@ export default class CurrentTimeIndicator extends React.Component {
     this._movementTimer = setInterval(() => {
       this.setState(this.getStateFromTime())
     }, 60 * 1000);
+    ReactDOM.findDOMNode(this).scrollIntoViewIfNeeded(true)
   }
 
   componentWillUnmount() {
