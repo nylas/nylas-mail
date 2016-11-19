@@ -63,7 +63,7 @@ export default class CalendarEventContainer extends React.Component {
     let time = null;
     if (!event.target || !event.target.closest) { return {x, y, width, height, time} }
     const eventColumn = this._DOMCache.eventColumn || event.target.closest(".event-column");
-    const gridWrap = this._DOMCache.gridWrap || event.target.closest(".event-grid-wrap");
+    const gridWrap = this._DOMCache.gridWrap || event.target.closest(".event-grid-wrap .scroll-region-content-inner");
     const calWrap = this._DOMCache.calWrap || event.target.closest(".calendar-area-wrap")
     if (!gridWrap || !eventColumn) { return {x, y, width, height, time} }
 
