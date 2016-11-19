@@ -8,6 +8,7 @@ const coffeereact = require('coffee-react');
 const glob = require('glob');
 const babel = require('babel-core');
 
+const packageJSON = require('../../package.json')
 const babelOptions = require("../../static/babelrc");
 
 module.exports = (grunt) => {
@@ -107,10 +108,20 @@ module.exports = (grunt) => {
 
   const platform = grunt.option('platform');
 
+  // See: https://github.com/electron-userland/electron-packager/blob/master/usage.txt
   grunt.config.merge({
     'packager': {
+      'app-version': packageJSON.version,
       'platform': platform,
+      'protocols': [{
+        name: "Nylas Protocol",
+        schemes: ["nylas"],
+      }, {
+        name: "Mailto Protocol",
+        schemes: ["mailto"],
+      }],
       'dir': grunt.config('appDir'),
+      'app-category-type': "public.app-category.business",
       'tmpdir': tmpdir,
       'arch': {
         'win32': 'ia32',
@@ -199,7 +210,22 @@ module.exports = (grunt) => {
         LegalCopyright: `Copyright (C) 2014-${new Date().getFullYear()} Nylas, Inc. All rights reserved.`,
         ProductName: 'Nylas N1',
       },
+      // NOTE: The following plist keys can NOT be set in the
+      // nylas-Info.plist since they are manually overridden by
+      // electron-packager based on this config file:
+      //
+      // CFBundleDisplayName: 'name',
+      // CFBundleExecutable: 'name',
+      // CFBundleIdentifier: 'app-bundle-id',
+      // CFBundleName: 'name'
+      //
+      // See https://github.com/electron-userland/electron-packager/blob/master/mac.js#L50
+      //
+      // Our own nylas-Info.plist gets extended on top of the
+      // Electron.app/Contents/Info.plist. A majority of the defaults are
+      // left in the Electron Info.plist file
       'extend-info': path.resolve(grunt.config('appDir'), 'build', 'resources', 'mac', 'nylas-Info.plist'),
+      'app-bundle-id': "com.nylas.nylas-mail",
       'extra-resource': [
         path.resolve(grunt.config('appDir'), 'build', 'resources', 'mac', 'Nylas Calendar.app'),
       ],
