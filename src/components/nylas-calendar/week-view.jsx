@@ -411,15 +411,6 @@ export default class WeekView extends React.Component {
     return (BUFFER_DAYS * 2 + DAYS_IN_VIEW) / DAYS_IN_VIEW
   }
 
-  _onCalendarMouseMove = (args) => {
-    if (this.refs.eventGridBg) {
-      this.refs.eventGridBg.mouseMove(args)
-    }
-    if (this.props.onCalendarMouseMove) {
-      this.props.onCalendarMouseMove(args)
-    }
-  }
-
   // We calculate events by days so we only need to iterate through all
   // events in the span once.
   _eventsByDay(days) {
