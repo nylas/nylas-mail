@@ -11,9 +11,6 @@ module.exports = (server) => {
       tags: ['contacts'],
       validate: {
         query: {
-          name: Joi.string(),
-          email: Joi.string().email(),
-          view: Joi.string().valid('expanded', 'count'),
           limit: Joi.number().integer().min(1).max(2000).default(100),
           offset: Joi.number().integer().min(0).default(0),
         },
@@ -27,18 +24,7 @@ module.exports = (server) => {
     handler: (request, reply) => {
       request.getAccountDatabase().then((db) => {
         const {Contact} = db;
-        const query = request.query;
-        const where = {};
-
-        if (query.name) {
-          where.name = {like: query.name};
-        }
-        if (query.email) {
-          where.email = query.email;
-        }
-
         Contact.findAll({
-          where: where,
           limit: request.query.limit,
           offset: request.query.offset,
         }).then((contacts) => {
