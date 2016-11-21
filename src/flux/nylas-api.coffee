@@ -285,7 +285,6 @@ class NylasAPI
       if requestSuccess
         requestSuccess(json)
 
-    params.view = 'expanded'
     @getCollection(accountId, 'threads', params, requestOptions)
 
   getCollection: (accountId, collection, params={}, requestOptions={}) ->
