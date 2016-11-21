@@ -11,8 +11,8 @@ const npmEnvs = {
   }),
   electron: Object.assign({}, process.env, {
     'npm_config_target': '1.4.1',
-    'npm_config_arch': 'x64',
-    'npm_config_target_arch': 'x64',
+    'npm_config_arch': process.arch,
+    'npm_config_target_arch': process.arch,
     'npm_config_disturl': 'https://atom.io/download/atom-shell',
     'npm_config_runtime': 'electron',
     'npm_config_build_from_source': true,
