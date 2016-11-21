@@ -82,7 +82,7 @@ class Modal extends React.Component {
         <div className="modal-bg">
           <div className={`${this.props.className || ''} modal`} id={this.props.id}>
             <div className="modal-close-wrapper">
-              <div className="modal-close" onClick={() => this.close.call(this)}></div>
+              <div className="modal-close" onClick={() => this.close.call(this)} />
             </div>
             {this.props.children}
             {actionElems}
