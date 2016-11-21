@@ -112,7 +112,15 @@ require('source-map-support').install({
     }
 
     const sourceMappingURL = lastMatch[1]
-    const rawData = sourceMappingURL.slice(sourceMappingURL.indexOf(',') + 1)
+
+    // check whether this is a file path, or an inline sourcemap and load it
+    let rawData = null;
+    if (sourceMappingURL.includes(',')) {
+      rawData = sourceMappingURL.slice(sourceMappingURL.indexOf(',') + 1);
+    } else {
+      rawData = fs.readFileSync(path.resolve(path.dirname(filePath), sourceMappingURL));
+    }
+
     let sourceMap = null;
     try {
       sourceMap = JSON.parse(new Buffer(rawData, 'base64'))
