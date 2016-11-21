@@ -418,7 +418,7 @@ class DatabaseStore extends NylasStore {
       });
       this._agent.on('error', (err) => {
         console.error(DEBUG_TO_LOG, `Query Agent: failed to start or receive message: ${err.toString()}`);
-        this._agent.kill(1);
+        this._agent.kill('SIGTERM');
         this._agent = null;
       });
       this._agent.on('message', ({type, id, results, agentTime}) => {
