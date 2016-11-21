@@ -66,4 +66,21 @@ module.exports = (server) => {
       })
     },
   })
+
+  // TODO: This is a placeholder
+  server.route({
+    method: 'GET',
+    path: '/contacts/rankings',
+    config: {
+      description: 'Returns contact rankings.',
+      notes: 'Notes go here',
+      tags: ['contacts'],
+      response: {
+        schema: Serialization.jsonSchema('Contact'),
+      },
+    },
+    handler: (request, reply) => {
+      reply('{}');
+    },
+  })
 }
