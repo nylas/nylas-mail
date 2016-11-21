@@ -37,7 +37,10 @@ class IMAPBox {
    * @param {array|string} range - can be a single message identifier,
    * a message identifier range (e.g. '2504:2507' or '*' or '2504:*'),
    * an array of message identifiers, or an array of message identifier ranges.
-   * @return {Observable} that will feed each message as it becomes ready
+   * @param {Object} options
+   * @param {function} forEachMessageCallback - function to be called with each
+   * message as it comes in
+   * @return {Promise} that will feed each message as it becomes ready
    */
   fetchEach(range, options, forEachMessageCallback) {
     if (!options) {
@@ -88,8 +91,11 @@ class IMAPBox {
     if (!uid) {
       throw new Error("IMAPConnection.fetchMessage requires a message uid.")
     }
-    return this.fetchEach([uid], {
-      bodies: ['HEADER', 'TEXT'],
+    return new Promise((resolve, reject) => {
+      let message;
+      this.fetchEach([uid], {bodies: ['HEADER', 'TEXT']}, (msg) => { message = msg; })
+      .then(() => resolve(message))
+      .catch((err) => reject(err))
     })
   }
 

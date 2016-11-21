@@ -80,7 +80,7 @@ module.exports = (sequelize, Sequelize) => {
           .then((imapBox) => imapBox.fetchMessage(this.folderImapUID))
           .then((message) => {
             if (message) {
-              return Promise.resolve(`${message.headers}${message.body}`)
+              return Promise.resolve(`${message.headers}${message.parts.TEXT}`)
             }
             return Promise.reject(new Error(`Unable to fetch raw message for Message ${this.id}`))
           })
