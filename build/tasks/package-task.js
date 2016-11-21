@@ -201,9 +201,13 @@ module.exports = (grunt) => {
       'out': grunt.config('outputDir'),
       'overwrite': true,
       'prune': true,
-      'osx-sign': {
-        identity: 'Developer ID Application: InboxApp, Inc. (L6VLD5R29R)',
-      },
+      /**
+       * This will automatically look for the identity in the keychain. It
+       * runs the `security find-identity` command. Note that TRAVIS needs
+       * us to setup the keychain first and install the identity. We do
+       * this in the setup-travis-keychain-task
+       */
+      'osx-sign': true,
       'win32metadata': {
         CompanyName: 'Nylas, Inc.',
         FileDescription: 'The best email app for people and teams at work',
