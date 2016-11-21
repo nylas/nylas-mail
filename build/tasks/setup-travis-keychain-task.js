@@ -25,17 +25,17 @@ const fs = require('fs-plus');
 // Which should return "accepted"
 module.exports = (grunt) => {
   let getCertData;
-  const {spawn, shouldPublishBuild} = require('./task-helpers')(grunt);
+  const {spawnP, shouldPublishBuild} = require('./task-helpers')(grunt);
   const tmpKeychain = "n1-build.keychain";
 
   const unlockKeychain = (keychain, keychainPass) => {
     const args = ['unlock-keychain', '-p', keychainPass, keychain];
-    return spawn({cmd: "security", args});
+    return spawnP({cmd: "security", args});
   };
 
   const cleanupKeychain = () => {
     if (fs.existsSync(path.join(process.env.HOME, "Library", "Keychains", tmpKeychain))) {
-      return spawn({cmd: "security", args: ["delete-keychain", tmpKeychain]});
+      return spawnP({cmd: "security", args: ["delete-keychain", tmpKeychain]});
     }
     return Promise.resolve()
   };
@@ -48,24 +48,24 @@ module.exports = (grunt) => {
 
     // Create a custom, temporary keychain
     return cleanupKeychain()
-    .then(() => spawn({cmd: "security", args: ["create-keychain", '-p', tmpPass, tmpKeychain]}))
+    .then(() => spawnP({cmd: "security", args: ["create-keychain", '-p', tmpPass, tmpKeychain]}))
 
     // Make the custom keychain default, so xcodebuild will use it for signing
-    .then(() => spawn({cmd: "security", args: ["default-keychain", "-s", tmpKeychain]}))
+    .then(() => spawnP({cmd: "security", args: ["default-keychain", "-s", tmpKeychain]}))
 
     // Unlock the keychain
     .then(() => unlockKeychain(tmpKeychain, tmpPass))
 
     // Set keychain timeout to 1 hour for long builds
-    .then(() => spawn({cmd: "security", args: ["set-keychain-settings", "-t", "3600", "-l", tmpKeychain]}))
+    .then(() => spawnP({cmd: "security", args: ["set-keychain-settings", "-t", "3600", "-l", tmpKeychain]}))
 
     // Add certificates to keychain and allow codesign to access them
-    .then(() => spawn({cmd: "security", args: ["import", appleCert, "-k", tmpKeychain, "-T", codesignBin]}))
+    .then(() => spawnP({cmd: "security", args: ["import", appleCert, "-k", tmpKeychain, "-T", codesignBin]}))
 
-    .then(() => spawn({cmd: "security", args: ["import", nylasCert, "-k", tmpKeychain, "-T", codesignBin]}))
+    .then(() => spawnP({cmd: "security", args: ["import", nylasCert, "-k", tmpKeychain, "-T", codesignBin]}))
 
     // Load the password for the private key from environment variables
-    .then(() => spawn({cmd: "security", args: ["import", nylasPrivateKey, "-k", tmpKeychain, "-P", keyPass, "-T", codesignBin]}));
+    .then(() => spawnP({cmd: "security", args: ["import", nylasPrivateKey, "-k", tmpKeychain, "-P", keyPass, "-T", codesignBin]}));
   };
 
   getCertData = () => {
