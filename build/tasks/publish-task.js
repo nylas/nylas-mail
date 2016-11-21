@@ -146,7 +146,7 @@ module.exports = (grunt) => {
       if (!shouldPublishBuild()) {
         grunt.log.writeln(`>> Not publishing builds…`);
         grunt.log.writeln(`>> Would have uploaded the following assets: ${JSON.stringify(uploads, null, 2)}`);
-        return;
+        return Promise.resolve();
       }
       const awsKey = process.env.AWS_ACCESS_KEY_ID != null ? process.env.AWS_ACCESS_KEY_ID : "";
       const awsSecret = process.env.AWS_SECRET_ACCESS_KEY != null ? process.env.AWS_SECRET_ACCESS_KEY : "";
