@@ -125,14 +125,14 @@ module.exports = (grunt) => {
         for (const file of files) {
           if (path.extname(file) === '.deb') {
             uploads.push({
-              source: file,
+              source: `${outputDir}/${file}`,
               key: `${fullVersion}/${process.platform}-deb/${process.arch}/N1.deb`,
               options: {ContentType: "application/x-deb"},
             });
           }
           if (path.extname(file) === '.rpm') {
             uploads.push({
-              source: file,
+              source: `${outputDir}/${file}`,
               key: `${fullVersion}/${process.platform}-rpm/${process.arch}/N1.rpm`,
               options: {ContentType: "application/x-rpm"},
             });
