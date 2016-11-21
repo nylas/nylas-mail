@@ -87,7 +87,7 @@ class SyncGraph extends React.Component {
         height={SyncGraph.config.height + SyncGraph.config.labelFontSize + SyncGraph.config.labelTopMargin}
         className="sync-graph"
         syncTimestamps={this.props.syncTimestamps}
-      ></canvas>
+      />
     )
   }
 

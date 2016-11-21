@@ -16,7 +16,7 @@ class MiniAccount extends React.Component {
 
   render() {
     let errorClass;
-    let style = {};
+    const style = {};
     if (this.props.account.sync_error) {
       errorClass = 'errored';
     } else {
@@ -28,7 +28,7 @@ class MiniAccount extends React.Component {
       <div
         className={`mini-account ${errorClass}`}
         style={style}
-      ></div>
+      />
     )
   }
 }

@@ -5,8 +5,8 @@ class Modal extends React.Component {
     super(props);
     this.state = {
       open: false,
-      onOpen: props.onOpen || () => {},
-      onClose: props.onClose || () => {},
+      onOpen: props.onOpen || (() => {}),
+      onClose: props.onClose || (() => {}),
     }
   }
 

@@ -37,7 +37,7 @@ class Dropdown extends React.Component {
     );
 
     // All options, not shown if dropdown is closed
-    let options = [];
+    const options = [];
     let optionsWrapper = <span className="dropdown-options" />;
     if (!this.state.closed) {
       for (const opt of this.props.options) {

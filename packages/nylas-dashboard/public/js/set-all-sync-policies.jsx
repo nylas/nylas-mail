@@ -46,7 +46,7 @@ class SetAllSyncPolicies extends React.Component {
         ]}
       >
         <h3>Sync Policy</h3>
-        <textarea id="sync-policy-all"></textarea>
+        <textarea id="sync-policy-all" />
       </Modal>
     )
   }

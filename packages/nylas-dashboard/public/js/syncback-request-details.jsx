@@ -91,7 +91,7 @@ class SyncbackRequestDetails extends React.Component {
               title={`${this.state.counts.new} out of ${total}`}
             >
               {/* .new was throwing off my syntax higlighting, so ignoring linter*/}
-              {this.state.counts['new'] / total * 100}&#37; are still new
+              {this.state.counts.new / total * 100}&#37; are still new
             </span>
           </div>
         )
@@ -104,7 +104,7 @@ class SyncbackRequestDetails extends React.Component {
       if (this.state.statusFilter !== 'all') {
         reqs = reqs.filter((req) => req.status === this.state.statusFilter);
       }
-      let rows = [];
+      const rows = [];
       if (reqs.length === 0) {
         rows.push(<tr><td>No results</td><td>-</td><td>-</td></tr>);
       }

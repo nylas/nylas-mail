@@ -28,7 +28,7 @@ class ElapsedTime extends React.Component {
   }
 
   render() {
-    return <span ref="timestamp"></span>
+    return <span ref="timestamp" />
   }
 }
 
