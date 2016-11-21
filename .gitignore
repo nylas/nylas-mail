@@ -40,3 +40,4 @@ internal_packages/send-later
 internal_packages/send-reminders
 internal_packages/thread-sharing
 /dist
+/dump.rdb
