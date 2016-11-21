@@ -62,19 +62,14 @@ describe "NylasSyncWorker", ->
       advanceClock()
       expect(@connection.start).toHaveBeenCalled()
 
-    it "should start querying for model collections and counts that haven't been fully cached", ->
+    it "should start querying for model collections that haven't been fully cached", ->
       @worker.start()
       advanceClock()
-      expect(@apiRequests.length).toBe(12)
+      expect(@apiRequests.length).toBe(6)
       modelsRequested = _.compact _.map @apiRequests, ({model}) -> model
       expect(modelsRequested).toEqual(['threads', 'messages', 'labels', 'drafts', 'contacts', 'events'])
 
-      countsRequested = _.compact _.map @apiRequests, ({requestOptions}) ->
-        if requestOptions.qs?.view is 'count'
-          return requestOptions.path
-
       expect(modelsRequested).toEqual(['threads', 'messages', 'labels', 'drafts', 'contacts', 'events'])
-      expect(countsRequested).toEqual(['/threads', '/messages', '/labels', '/drafts', '/contacts', '/events'])
 
     it "should fetch 1000 labels and folders, to prevent issues where Inbox is not in the first page", ->
       labelsRequest = _.find @apiRequests, (r) -> r.model is 'labels'
@@ -99,7 +94,7 @@ describe "NylasSyncWorker", ->
 
     it "after failures, it should attempt to resume periodically but back off as failures continue", ->
       simulateNetworkFailure = =>
-        @apiRequests[1].requestOptions.error({statusCode: 400})
+        @apiRequests[0].requestOptions.error({statusCode: 400})
         @apiRequests = []
 
       spyOn(@worker, 'resume').andCallThrough()
@@ -191,19 +186,6 @@ describe "NylasSyncWorker", ->
       advanceClock()
       expect(connection._getCursor()).toEqual('2')
 
-
-  describe "when a count request completes", ->
-    beforeEach ->
-      @worker.start()
-      advanceClock()
-      @request = @apiRequests[0]
-      @apiRequests = []
-
-    it "should update the count on the collection", ->
-      @request.requestOptions.success({count: 1001})
-      nextState = @worker.state()
-      expect(nextState.threads.count).toEqual(1001)
-
   describe "resume", ->
     it "should fetch metadata first and fetch other collections when metadata is ready", ->
       fetchAllMetadataCallback = null
@@ -270,23 +252,14 @@ describe "NylasSyncWorker", ->
     beforeEach ->
       @apiRequests = []
 
-    it "should start the request for the model count", ->
-      @worker._state.threads = {
-        'busy': false
-        'complete': false
-      }
-      @worker.fetchCollection('threads')
-      expect(@apiRequests[0].requestOptions.path).toBe('/threads')
-      expect(@apiRequests[0].requestOptions.qs.view).toBe('count')
-
     it "should pass any metadata it preloaded", ->
       @worker._state.threads = {
         'busy': false
         'complete': false
       }
       @worker.fetchCollection('threads')
-      expect(@apiRequests[1].model).toBe('threads')
-      expect(@apiRequests[1].requestOptions.metadataToAttach).toBe(@worker._metadata)
+      expect(@apiRequests[0].model).toBe('threads')
+      expect(@apiRequests[0].requestOptions.metadataToAttach).toBe(@worker._metadata)
 
     describe "when there is no request history (`lastRequestRange`)", ->
       it "should start the first request for models", ->
@@ -295,8 +268,8 @@ describe "NylasSyncWorker", ->
           'complete': false
         }
         @worker.fetchCollection('threads')
-        expect(@apiRequests[1].model).toBe('threads')
-        expect(@apiRequests[1].params.offset).toBe(0)
+        expect(@apiRequests[0].model).toBe('threads')
+        expect(@apiRequests[0].params.offset).toBe(0)
 
     describe "when it was previously trying to fetch a page (`lastRequestRange`)", ->
       beforeEach ->
@@ -375,7 +348,7 @@ describe "NylasSyncWorker", ->
     beforeEach ->
       @worker.start()
       advanceClock()
-      @request = @apiRequests[1]
+      @request = @apiRequests[0]
       @apiRequests = []
 
     describe "successfully, with models", ->

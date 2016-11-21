@@ -174,10 +174,7 @@ class NylasSyncWorker
     state.error = null
     state.busy = true
     state.fetched ?= 0
-
-    if not state.count
-      state.count = 0
-      @fetchCollectionCount(model, maxFetchCount)
+    state.count ?= 0
 
     if state.lastRequestRange
       {limit, offset} = state.lastRequestRange
