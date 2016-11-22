@@ -80,7 +80,9 @@ class FetchMessagesInFolder {
         const xGmLabelsJSON = xGmLabels ? JSON.stringify(xGmLabels) : null;
 
         if (msg.folderImapXGMLabels !== xGmLabelsJSON) {
-          msg.setLabelsFromXGM(xGmLabels, {Label, preloadedLabels});
+          msg.setLabelsFromXGM(xGmLabels, {Label, preloadedLabels})
+          .then(() => msg.getThread())
+          .then((thread) => (thread ? thread.updateLabels() : null))
         }
 
         if (msg.unread !== unread || msg.starred !== starred) {
@@ -279,10 +281,18 @@ class FetchMessagesInFolder {
 
         PubsubConnector.queueProcessMessage({accountId, messageId: message.id});
       } else {
-        this._logger.info({
-          message_id: message.id,
-          uid: attributes.uid,
-        }, `FetchMessagesInFolder: Updated message`)
+        message.getThread()
+        .then((thread) => {
+          if (!thread) { return Promise.resolve() }
+          return thread.updateFolders()
+          .then(() => thread.updateLabels())
+        })
+        .then(() => {
+          this._logger.info({
+            message_id: message.id,
+            uid: attributes.uid,
+          }, `FetchMessagesInFolder: Updated message`)
+        })
       }
     })
 

@@ -63,10 +63,7 @@ module.exports = (sequelize, Sequelize) => {
         this.folderImapXGMLabels = JSON.stringify(xGmLabels);
 
         return getLabels.then((labels) =>
-          this.save()
-          .then(() => this.setLabels(labels))
-          .then(() => this.getThread())
-          .then((thread) => thread.updateLabels())
+          this.save().then(() => this.setLabels(labels))
         )
       },
 
