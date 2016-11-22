@@ -61,7 +61,7 @@ class NylasAPI
     @_onConfigChanged()
 
   _onConfigChanged: =>
-    prev = {@AppID, @APIRoot, @APITokens}
+    @APIRoot = 'http://localhost:5100'
 
     if NylasEnv.inSpecMode()
       @pluginsSupported = true
@@ -74,27 +74,7 @@ class NylasAPI
       console.warn("NylasAPI: config file does not contain an environment \
                      value. Defaulting to `production`.")
 
-    if env in ['production']
-      @AppID = 'eco3rpsghu81xdc48t5qugwq7'
-      @APIRoot = 'https://api.nylas.com'
-      @pluginsSupported = true
-    else if env in ['staging', 'development']
-      @AppID = '54miogmnotxuo5st254trcmb9'
-      @APIRoot = 'https://api-staging.nylas.com'
-      @pluginsSupported = true
-    else if env in ['experimental']
-      @AppID = 'c5dis00do2vki9ib6hngrjs18'
-      @APIRoot = 'https://api-staging-experimental.nylas.com'
-      @pluginsSupported = true
-    else if env in ['k2']
-      @AppID = 'k2'
-      @APIRoot = 'http://localhost:5100'
-    else if env in ['custom', 'local']
-      @AppID = NylasEnv.config.get('syncEngine.AppID') or 'n/a'
-      @APIRoot = NylasEnv.config.get('syncEngine.APIRoot') or 'http://localhost:5555'
-      @pluginsSupported = false
-
-    current = {@AppID, @APIRoot, @APITokens}
+    current = {@APIRoot, @APITokens}
 
   # Delegates to node's request object.
   # On success, it will call the passed in success callback with options.
