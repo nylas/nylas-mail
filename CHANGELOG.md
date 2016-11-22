@@ -1,5 +1,26 @@
 # N1 Changelog
 
+### 0.4.400 (11/22/16)
+
+- Features:
+  + New Salesforce private beta plugin.
+
+- Fixes:
+
+  + Improvements to quoted text folding
+  + Fixes to the creation of bullets & lists in the composer
+  + Send and Archive fixed in composer windows
+  + Typing in the composer with mispelled words is now much faster
+
+- Development:
+
+  + We now use `electron-packager` to build N1
+  + `script/bootstrap` has been replaced with a much simpler install flow built on `electron-compile`
+  + Removed devDependencies from main package.json reducing file size
+  + We no longer support Node 4 for building
+  + New background worker to parallelize expensive database queries
+
+
 ### 0.4.204 (11/7/16)
 
 - Features:
