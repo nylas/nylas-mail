@@ -11,6 +11,7 @@
     "request": "^2.79.0",
     "rx": "^4.1.0",
     "sequelize": "^3.27.0",
+    "signalfx": "3.0.1",
     "underscore": "^1.8.3",
     "xoauth2": "1.2.0"
   },
