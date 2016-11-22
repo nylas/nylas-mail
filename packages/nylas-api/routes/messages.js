@@ -95,8 +95,10 @@ module.exports = (server) => {
           payload: {
             unread: Joi.boolean(),
             starred: Joi.boolean(),
-            folder_id: Joi.string(),
+            labels: Joi.array(),
             label_ids: Joi.array(),
+            folder: Joi.string(),
+            folder_id: Joi.string(),
           },
         },
       },
@@ -106,28 +108,26 @@ module.exports = (server) => {
     },
     handler: (request, reply) => {
       const payload = request.payload
-      if (payload.label_ids) {
+      if (payload.label_ids || payload.labels) {
         const account = request.auth.credentials;
         if (account.supportsLabels()) {
           createSyncbackRequest(request, reply, {
             type: "SetMessageLabels",
             props: {
-              labelIds: request.payload.label_ids,
+              labelIds: request.payload.label_ids || payload.labels,
               messageId: request.params.id,
             },
           })
         }
-      }
-      if (payload.folder_id) {
+      } else if (payload.folder_id || payload.folder) {
         createSyncbackRequest(request, reply, {
           type: "MoveMessageToFolder",
           props: {
-            folderId: request.payload.folder_id,
+            folderId: request.payload.folder_id || payload.folder,
             messageId: request.params.id,
           },
         })
-      }
-      if (payload.unread === false) {
+      } else if (payload.unread === false) {
         createSyncbackRequest(request, reply, {
           type: "MarkMessageAsRead",
           props: {
@@ -141,8 +141,7 @@ module.exports = (server) => {
             messageId: request.params.id,
           },
         })
-      }
-      if (payload.starred === false) {
+      } else if (payload.starred === false) {
         createSyncbackRequest(request, reply, {
           type: "UnstarMessage",
           props: {
@@ -156,6 +155,8 @@ module.exports = (server) => {
             messageId: request.params.id,
           },
         })
+      } else {
+        reply("Invalid message update").code(400)
       }
     },
   });

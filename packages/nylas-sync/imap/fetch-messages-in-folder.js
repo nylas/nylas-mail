@@ -4,7 +4,7 @@ const Imap = require('imap');
 const {PromiseUtils, IMAPConnection, PubsubConnector} = require('nylas-core');
 const {Capabilities} = IMAPConnection;
 
-const MessageFlagAttributes = ['id', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']
+const MessageFlagAttributes = ['id', 'threadId', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']
 
 const SHALLOW_SCAN_UID_COUNT = 1000;
 const FETCH_MESSAGES_FIRST_COUNT = 100;

@@ -61,6 +61,11 @@ module.exports = (server) => {
         params: {
           id: Joi.string(),
           payload: {
+            unread: Joi.boolean(),
+            starred: Joi.boolean(),
+            labels: Joi.array(),
+            label_ids: Joi.array(),
+            folder: Joi.string(),
             folder_id: Joi.string(),
           },
         },
@@ -75,7 +80,15 @@ module.exports = (server) => {
         createSyncbackRequest(request, reply, {
           type: "MoveToFolder",
           props: {
-            folderId: request.payload.folder_id || request.payload.folder,
+            folderId: payload.folder_id || payload.folder,
+            threadId: request.params.id,
+          },
+        })
+      } else if (payload.label_ids || payload.labels) {
+        createSyncbackRequest(request, reply, {
+          type: "SetThreadLabels",
+          props: {
+            labelIds: payload.label_ids || payload.labels,
             threadId: request.params.id,
           },
         })

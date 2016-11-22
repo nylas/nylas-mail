@@ -37,7 +37,20 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
     instanceMethods: {
-      toJSON: function toJSON() {
+      updateLabels() {
+        this.getMessages().then((messages) => {
+          const labelIds = new Set()
+          Promise.all(messages.map((msg) =>
+            msg.getLabels()
+            .then((labels) => labels.forEach(({id}) => labelIds.add(id))))
+          )
+          .then(() => {
+            this.setLabels(Array.from(labelIds))
+          })
+        })
+      },
+
+      toJSON() {
         if (!(this.labels instanceof Array)) {
           throw new Error("Thread.toJSON called on a thread where labels were not eagerly loaded.")
         }

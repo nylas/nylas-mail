@@ -8,26 +8,26 @@ class SetMessageLabelsIMAP extends SyncbackTask {
 
   run(db, imap) {
     const messageId = this.syncbackRequestObject().props.messageId
-    const targetLabelIds = this.syncbackRequestObject().props.labelIds
+    const labelIds = this.syncbackRequestObject().props.labelIds
 
     return TaskHelpers.openMessageBox({messageId, db, imap})
-      .then(({box, message}) => {
-        if (!targetLabelIds || targetLabelIds.length === 0) {
-          return message.getLabels().then((labels) => {
-            const labelNames = labels.map(({name}) => name)
-            return box.removeLabels(message.folderImapUID, labelNames)
-          })
-        }
-        return db.Label.findAll({
-          where: {
-            id: {in: targetLabelIds},
-          },
-        })
-        .then((labels) => {
+    .then(({box, message}) => {
+      if (!labelIds || labelIds.length === 0) {
+        return message.getLabels().then((labels) => {
           const labelNames = labels.map(({name}) => name)
-          return box.setLabels(message.folderImapUID, labelNames)
+          return box.removeLabels(message.folderImapUID, labelNames)
         })
+      }
+      return db.Label.findAll({
+        where: {
+          id: {'in': labelIds},
+        },
       })
+      .then((labels) => {
+        const labelNames = labels.map(({name}) => name)
+        return box.setLabels(message.folderImapUID, labelNames)
+      })
+    })
   }
 }
 module.exports = SetMessageLabelsIMAP
