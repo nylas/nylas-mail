@@ -1,3 +1,4 @@
+/* eslint global-require:0 */
 const {env: {NODE_ENV, SIGNALFX_TOKEN}, pid} = process
 const os = require('os')
 const signalfx = require('signalfx')

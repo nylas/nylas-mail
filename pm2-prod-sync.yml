@@ -1,9 +1,0 @@
-apps:
-  - script   : packages/nylas-sync/app.js
-    name     : sync
-    instances: 0
-    exec_mode: fork
-  - script   : packages/nylas-message-processor/app.js
-    name     : processor
-    instances: 0
-    exec_mode: fork
