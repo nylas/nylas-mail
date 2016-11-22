@@ -25,7 +25,7 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
     instanceMethods: {
-      toJSON: function toJSON() {
+      toJSON() {
         return {
           id: this.id,
           object: 'account',
@@ -41,11 +41,11 @@ module.exports = (sequelize, Sequelize) => {
         }
       },
 
-      errored: function errored() {
+      errored() {
         return this.syncError != null;
       },
 
-      setCredentials: function setCredentials(json) {
+      setCredentials(json) {
         if (!(json instanceof Object)) {
           throw new Error("Call setCredentials with JSON!")
         }
@@ -56,7 +56,7 @@ module.exports = (sequelize, Sequelize) => {
         this.connectionCredentials = crypted;
       },
 
-      decryptedCredentials: function decryptedCredentials() {
+      decryptedCredentials() {
         const decipher = crypto.createDecipher(DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD)
         let dec = decipher.update(this.connectionCredentials, 'hex', 'utf8')
         dec += decipher.final('utf8');
@@ -68,7 +68,7 @@ module.exports = (sequelize, Sequelize) => {
         }
       },
 
-      smtpConfig: function smtpConfig() {
+      smtpConfig() {
         if (this.provider !== "imap") {
           throw new Error("Non IMAP not yet supported")
         }
@@ -81,6 +81,9 @@ module.exports = (sequelize, Sequelize) => {
         }
       },
 
+      supportsLabels() {
+        return this.provider === 'gmail'
+      },
     },
   });
 

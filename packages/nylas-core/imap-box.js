@@ -159,6 +159,20 @@ class IMAPBox {
     return this._conn._imap.moveAsync(range, folderName)
   }
 
+  setLabels(range, labels) {
+    if (!this._conn._imap) {
+      throw new IMAPConnectionNotReadyError(`IMAPBox::moveFromBox`)
+    }
+    return this._conn._imap.setLabelsAsync(range, labels)
+  }
+
+  removeLabels(range, labels) {
+    if (!this._conn._imap) {
+      throw new IMAPConnectionNotReadyError(`IMAPBox::moveFromBox`)
+    }
+    return this._conn._imap.delLabelsAsync(range, labels)
+  }
+
   closeBox({expunge = true} = {}) {
     if (!this._conn._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPBox::closeBox`)

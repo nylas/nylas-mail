@@ -93,7 +93,10 @@ module.exports = (server) => {
         params: {
           id: Joi.string(),
           payload: {
+            unread: Joi.boolean(),
+            starred: Joi.boolean(),
             folder_id: Joi.string(),
+            label_ids: Joi.array(),
           },
         },
       },
@@ -103,6 +106,18 @@ module.exports = (server) => {
     },
     handler: (request, reply) => {
       const payload = request.payload
+      if (payload.label_ids) {
+        const account = request.auth.credentials;
+        if (account.supportsLabels()) {
+          createSyncbackRequest(request, reply, {
+            type: "SetMessageLabels",
+            props: {
+              labelIds: request.payload.label_ids,
+              messageId: request.params.id,
+            },
+          })
+        }
+      }
       if (payload.folder_id) {
         createSyncbackRequest(request, reply, {
           type: "MoveMessageToFolder",

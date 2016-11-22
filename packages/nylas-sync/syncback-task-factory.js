@@ -18,6 +18,8 @@ class SyncbackTaskFactory {
         Task = require('./syncback_tasks/unstar-thread.imap'); break;
       case "MoveMessageToFolder":
         Task = require('./syncback_tasks/move-message-to-folder.imap'); break;
+      case "SetMessageLabels":
+        Task = require('./syncback_tasks/set-message-labels.imap'); break;
       case "MarkMessageAsRead":
         Task = require('./syncback_tasks/mark-message-as-read.imap'); break;
       case "MarkMessageAsUnread":
