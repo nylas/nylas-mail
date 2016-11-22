@@ -10,7 +10,7 @@
   + Improvements to quoted text folding
   + Fixes to the creation of bullets & lists in the composer
   + Send and Archive fixed in composer windows
-  + Typing in the composer with mispelled words is now much faster
+  + Typing in the composer with misspelled words is now much faster
 
 - Development:
 
