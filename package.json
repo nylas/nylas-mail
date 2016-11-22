@@ -4,7 +4,7 @@
   "description": "The local sync engine for Nylas N1",
   "main": "",
   "dependencies": {
-    "lerna": "2.0.0-beta.23",
+    "lerna": "2.0.0-beta.23"
   },
   "devDependencies": {
     "babel-eslint": "7.1.0",
