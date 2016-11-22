@@ -15,6 +15,8 @@ class EdgehillAPI {
       this.APIRoot = "https://edgehill-experimental.nylas.com";
     } else if (env === 'staging') {
       this.APIRoot = "https://n1-auth-staging.nylas.com";
+    } else if (env === 'k2') {
+      this.APIRoot = "http://localhost:5100";
     } else {
       this.APIRoot = "https://n1-auth.nylas.com";
     }
