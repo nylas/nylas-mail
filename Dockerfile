@@ -18,7 +18,7 @@ RUN npm install --production
 RUN node_modules/.bin/lerna bootstrap
 
 # External services run on port 80. Expose it.
-EXPOSE 80
+EXPOSE 5100
 
 # We use a start-aws command that automatically spawns the correct process
 # based on environment variables (which changes instance to instance)
