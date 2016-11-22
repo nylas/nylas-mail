@@ -9,7 +9,6 @@
   "license": "ISC",
   "dependencies": {
     "cloud-core": "0.x.x",
-    "cloud-metrics": "0.x.x",
     "googleapis": "9.0.0",
     "hapi": "13.4.1",
     "hapi-auth-basic": "4.2.0",

@@ -1,7 +1,5 @@
-const Metrics = require(`cloud-metrics`)
+const {Logger, Metrics} = require(`cloud-core`)
 Metrics.startCapturing('n1-cloud-workers')
-
-const {Logger} = require(`cloud-core`)
 
 global.Metrics = Metrics
 global.Logger = Logger.createLogger('n1-cloud-workers')

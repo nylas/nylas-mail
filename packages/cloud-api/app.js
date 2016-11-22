@@ -1,8 +1,6 @@
 /* eslint global-require: 0 */
 /* eslint import/no-dynamic-require: 0 */
 
-const Metrics = require(`cloud-metrics`)
-Metrics.startCapturing('nylas-k2-api')
 
 const Hapi = require('hapi');
 const HapiSwagger = require('hapi-swagger');
@@ -14,7 +12,9 @@ const Package = require('./package');
 const fs = require('fs');
 const request = require('request');
 const path = require('path');
-const {Logger, DatabaseConnector} = require(`cloud-core`);
+
+const {Logger, DatabaseConnector, Metrics} = require(`cloud-core`);
+Metrics.startCapturing('nylas-k2-api')
 
 global.Metrics = Metrics
 global.Logger = Logger.createLogger('nylas-k2-api')
