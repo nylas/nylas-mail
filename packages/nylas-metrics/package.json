@@ -4,8 +4,8 @@
   "description": "Metrics package",
   "main": "index.js",
   "dependencies": {
-    "newrelic": "^1.28.1",
-    "signalfx": "^3.0.1"
+    "newrelic": "1.34.0",
+    "signalfx": "3.0.1"
   },
   "author": "Nylas",
   "license": "ISC"

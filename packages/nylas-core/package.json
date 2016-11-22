@@ -4,7 +4,7 @@
   "description": "Core shared packages",
   "main": "index.js",
   "dependencies": {
-    "xoauth2": "1.x.x"
+    "xoauth2": "1.2.0"
   },
   "author": "Nylas",
   "license": "ISC"
