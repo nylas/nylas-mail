@@ -6,6 +6,10 @@ storage/
 lerna-debug.log
 newrelic_agent.log
 
+# Vim temp files
+*.swp
+*.swo
+
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml

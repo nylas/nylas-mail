@@ -1,0 +1,41 @@
+{
+  "name": "local-sync",
+  "version": "0.0.1",
+  "description": "The local sync engine for Nylas N1",
+  "main": "./app.js",
+  "dependencies": {
+    "bunyan": "1.8.0",
+    "bunyan-cloudwatch": "2.0.0",
+    "bunyan-loggly": "^1.0.0",
+    "bunyan-prettystream": "emorikawa/node-bunyan-prettystream",
+    "imap": "0.8.x",
+    "lerna": "2.0.0-beta.23",
+    "mysql": "^2.11.1",
+    "pm2": "^1.1.3",
+    "promise-props": "^1.0.0",
+    "promise.prototype.finally": "^1.0.1",
+    "redis": "2.x.x",
+    "request": "^2.73.0",
+    "rx": "4.x.x",
+    "sequelize": "3.x.x",
+    "underscore": "1.x.x",
+    "utf7": "https://github.com/truebit/utf7/archive/1f753bac59b99d93b17a5ef11681e232465e2558.tar.gz"
+    "sqlite3": "https://github.com/bengotow/node-sqlite3/archive/bengotow/usleep-v3.1.4.tar.gz"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nylas/K2.git"
+  },
+  "author": "Nylas",
+  "license": "proprietary",
+  "bugs": {
+    "url": "https://github.com/nylas/K2/issues"
+  },
+  "engines": {
+    "nylas": "*"
+  },
+  "windowTypes": {
+    "sync": true
+  },
+  "homepage": "https://github.com/nylas/K2#readme",
+}
