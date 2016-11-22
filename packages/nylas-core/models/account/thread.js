@@ -37,16 +37,29 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
     instanceMethods: {
+      updateFolders() {
+        return this.getMessages().then((messages) => {
+          const folderIds = new Set()
+          return Promise.all(messages.map((msg) =>
+            msg.getFolder({attributes: ['id']})
+            .then((folder) => folderIds.add(folder.id)))
+          )
+          .then(() =>
+            this.setFolders(Array.from(folderIds))
+          )
+        })
+      },
+
       updateLabels() {
-        this.getMessages().then((messages) => {
+        return this.getMessages().then((messages) => {
           const labelIds = new Set()
-          Promise.all(messages.map((msg) =>
-            msg.getLabels()
+          return Promise.all(messages.map((msg) =>
+            msg.getLabels({attributes: ['id']})
             .then((labels) => labels.forEach(({id}) => labelIds.add(id))))
           )
-          .then(() => {
+          .then(() =>
             this.setLabels(Array.from(labelIds))
-          })
+          )
         })
       },
 
