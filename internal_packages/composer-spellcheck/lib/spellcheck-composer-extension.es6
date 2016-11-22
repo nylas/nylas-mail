@@ -163,10 +163,10 @@ export default class SpellcheckComposerExtension extends ComposerExtension {
       word,
       onCorrect: (correction) => {
         DOMUtils.Mutating.applyTextInRange(range, selection, correction);
-        SpellcheckComposerExtension.update(editor);
+        SpellcheckComposerExtension.onContentChanged({editor});
       },
       onDidLearn: () => {
-        SpellcheckComposerExtension.update(editor);
+        SpellcheckComposerExtension.onContentChanged({editor});
       },
     });
   }
