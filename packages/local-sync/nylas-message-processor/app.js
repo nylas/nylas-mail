@@ -1,4 +1,4 @@
-const Metrics = require(`nylas-metrics`)
+const Metrics = require(`../nylas-metrics`)
 Metrics.startCapturing('nylas-k2-message-processor')
 
 const {PubsubConnector, DatabaseConnector, Logger} = require(`nylas-core`)
