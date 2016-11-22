@@ -2,7 +2,7 @@ const _ = require('underscore')
 const {PromiseUtils} = require('nylas-core')
 
 const TaskHelpers = {
-  messagesForThreadByFolder: function messagesForThreadByFolder(db, threadId) {
+  messagesForThreadByFolder(db, threadId) {
     return Promise.resolve(db.Thread.findById(threadId).then((thread) => {
       return thread.getMessages()
     })).then((messages) => {
@@ -10,7 +10,7 @@ const TaskHelpers = {
     })
   },
 
-  forEachMessageInThread: function forEachMessageInThread({threadId, db, imap, callback}) {
+  forEachMessageInThread({threadId, db, imap, callback}) {
     return TaskHelpers.messagesForThreadByFolder(db, threadId)
     .then((msgsInCategories) => {
       const cids = Object.keys(msgsInCategories);
@@ -24,7 +24,7 @@ const TaskHelpers = {
     })
   },
 
-  openMessageBox: function openMessageBox({messageId, db, imap}) {
+  openMessageBox({messageId, db, imap}) {
     return Promise.resolve(db.Message.findById(messageId).then((message) => {
       return db.Folder.findById(message.folderId).then((category) => {
         return imap.openBox(category.name).then((box) => {
