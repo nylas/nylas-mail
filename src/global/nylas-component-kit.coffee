@@ -56,6 +56,7 @@ class NylasComponentKit
   @load "Notification", 'notification'
   @load "NylasCalendar", 'nylas-calendar/nylas-calendar'
   @load "MiniMonthView", 'nylas-calendar/mini-month-view'
+  @load "CalendarEventPopover", 'nylas-calendar/calendar-event-popover'
   @load "EventedIFrame", 'evented-iframe'
   @load "ButtonDropdown", 'button-dropdown'
   @load "Contenteditable", 'contenteditable/contenteditable'
@@ -110,6 +111,8 @@ class NylasComponentKit
 
   @load "ScenarioEditor", 'scenario-editor'
   @load "NewsletterSignup", 'newsletter-signup'
+
+  @load "SearchBar", 'search-bar'
 
   # Higher order components
   @load "ListensToObservable", 'decorators/listens-to-observable'

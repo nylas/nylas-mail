@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactDOM from 'react-dom'
 import {Event} from 'nylas-exports'
 import {InjectedComponentSet} from 'nylas-component-kit'
 import {calcColor} from './calendar-helpers'
@@ -9,11 +10,16 @@ export default class CalendarEvent extends React.Component {
   static propTypes = {
     event: React.PropTypes.instanceOf(Event).isRequired,
     order: React.PropTypes.number,
+    selected: React.PropTypes.bool,
     scopeEnd: React.PropTypes.number.isRequired,
     scopeStart: React.PropTypes.number.isRequired,
     direction: React.PropTypes.oneOf(['horizontal', 'vertical']),
     fixedSize: React.PropTypes.number,
+    focused: React.PropTypes.bool,
     concurrentEvents: React.PropTypes.number,
+    onClick: React.PropTypes.func,
+    onDoubleClick: React.PropTypes.func,
+    onFocused: React.PropTypes.func,
   }
 
   static defaultProps = {
@@ -21,29 +27,30 @@ export default class CalendarEvent extends React.Component {
     direction: "vertical",
     fixedSize: -1,
     concurrentEvents: 1,
+    onClick: () => {},
+    onDoubleClick: () => {},
+    onFocused: () => {},
   }
 
-  _styles() {
-    let styles = {}
-
-    if (this.props.direction === "vertical") {
-      styles = this._dimensions()
-    } else if (this.props.direction === "horizontal") {
-      const d = this._dimensions()
-      styles = {
-        left: d.top,
-        width: d.height,
-        height: d.width,
-        top: d.left,
-      }
-    }
-
-    styles.backgroundColor = calcColor(this.props.event.calendarId);
-
-    return styles
+  componentDidMount() {
+    this._scrollFocusedEventIntoView()
   }
 
-  _dimensions() {
+  componentDidUpdate() {
+    this._scrollFocusedEventIntoView()
+  }
+
+  _scrollFocusedEventIntoView() {
+    const {focused} = this.props
+    if (!focused) { return; }
+    const eventNode = ReactDOM.findDOMNode(this)
+    if (!eventNode) { return; }
+    const {event, onFocused} = this.props
+    eventNode.scrollIntoViewIfNeeded(true)
+    onFocused(event)
+  }
+
+  _getDimensions() {
     const scopeLen = this.props.scopeEnd - this.props.scopeStart
     const duration = this.props.event.end - this.props.event.start;
 
@@ -68,24 +75,47 @@ export default class CalendarEvent extends React.Component {
     return {left, width, height, top}
   }
 
+  _getStyles() {
+    let styles = {}
+    if (this.props.direction === "vertical") {
+      styles = this._getDimensions()
+    } else if (this.props.direction === "horizontal") {
+      const d = this._getDimensions()
+      styles = {
+        left: d.top,
+        width: d.height,
+        height: d.width,
+        top: d.left,
+      }
+    }
+    styles.backgroundColor = calcColor(this.props.event.calendarId);
+    return styles
+  }
+
   _overflowBefore() {
     return Math.max(this.props.scopeStart - this.props.event.start, 0)
   }
 
   render() {
+    const {direction, event, onClick, onDoubleClick, selected} = this.props;
+
     return (
       <div
-        className={`calendar-event ${this.props.direction}`}
-        style={this._styles()}
+        id={event.id}
+        tabIndex={0}
+        style={this._getStyles()}
+        className={`calendar-event ${direction} ${selected ? 'selected' : null}`}
+        onClick={(e) => onClick(e, event)}
+        onDoubleClick={() => onDoubleClick(event)}
       >
         <span className="default-header" style={{order: 0}}>
-          {this.props.event.title}
+          {event.displayTitle()}
         </span>
         <InjectedComponentSet
           className="event-injected-components"
           style={{position: "absolute"}}
           matching={{role: "Calendar:Event"}}
-          exposedProps={{event: this.props.event}}
+          exposedProps={{event: event}}
           direction="row"
         />
       </div>

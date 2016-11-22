@@ -69,11 +69,12 @@ class DateInput extends Component {
       "nylas-date-input": true,
       [className]: className != null,
     })
-    const dateInterpretation = inputDate ?
+    const formatted = (
       <span className="date-interpretation">
         {DateUtils.format(this.state.inputDate, this.props.dateFormat)}
-      </span> : <span />;
-
+      </span>
+    )
+    const dateInterpretation = inputDate ? formatted : <span />
 
     return (
       <div className={classes}>

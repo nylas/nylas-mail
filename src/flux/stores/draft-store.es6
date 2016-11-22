@@ -15,8 +15,8 @@ import DestroyDraftTask from '../tasks/destroy-draft-task';
 import Thread from '../models/thread';
 import Message from '../models/message';
 import Actions from '../actions';
-import SoundRegistry from '../../sound-registry';
-import * as ExtensionRegistry from '../../extension-registry';
+import SoundRegistry from '../../registries/sound-registry';
+import * as ExtensionRegistry from '../../registries/extension-registry';
 
 
 const {DefaultSendActionKey} = SendActionsStore

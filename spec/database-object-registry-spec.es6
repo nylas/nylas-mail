@@ -2,7 +2,7 @@
 import _ from 'underscore';
 import Model from '../src/flux/models/model';
 import Attributes from '../src/flux/attributes';
-import DatabaseObjectRegistry from '../src/database-object-registry';
+import DatabaseObjectRegistry from '../src/registries/database-object-registry';
 
 class GoodTest extends Model {
   static attributes = _.extend({}, Model.attributes, {

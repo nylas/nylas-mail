@@ -48,6 +48,8 @@ export default class ModelQuery {
     this._database = database || require('./database-store').default;
     this._matchers = [];
     this._orders = [];
+    this._background = false;
+    this._backgroundable = true;
     this._distinct = false;
     this._range = QueryRange.infinite();
     this._returnOne = false;
@@ -61,6 +63,8 @@ export default class ModelQuery {
     q._orders = [].concat(this._orders);
     q._includeJoinedData = [].concat(this._includeJoinedData);
     q._range = this._range.clone();
+    q._background = this._background;
+    q._backgroundable = this._backgroundable;
     q._distinct = this._distinct;
     q._returnOne = this._returnOne;
     q._returnIds = this._returnIds;
@@ -70,6 +74,19 @@ export default class ModelQuery {
 
   distinct() {
     this._distinct = true;
+    return this;
+  }
+
+  background() {
+    if (!this._backgroundable) {
+      throw new Error("Queries within transactions cannot be moved to the background.");
+    }
+    this._background = true;
+    return this;
+  }
+
+  markNotBackgroundable() {
+    this._backgroundable = false;
     return this;
   }
 

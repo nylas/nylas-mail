@@ -4,7 +4,7 @@
 1. **Visual Studio 2013**: You must have Visual Studio 2013 installed to build
 N1's native node modules. See the notes about Visual Studio below if you encounter compilation
 errors. You can install [Visual Studio 2013 Community Edition](https://www.visualstudio.com/en-us/news/releasenotes/vs2013-community-vs) for free.
-1. **Node**: You must have Node 4.x or Node 6.x to run N1's build script. Run `node -v` to check which version of NodeJS you are using.
+1. **Node**: You must have Node 6.x to run N1's build script. Run `node -v` to check which version of NodeJS you are using.
 1. **Python 2.7**: The `python` command must be on your `PATH` and must point to
 Python 2.7 (not 3.x)
 1. **Git**: The `git` command must be on your `PATH`

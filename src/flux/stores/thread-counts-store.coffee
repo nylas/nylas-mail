@@ -1,4 +1,3 @@
-Reflux = require 'reflux'
 _ = require 'underscore'
 NylasStore = require 'nylas-store'
 DatabaseStore = require('./database-store').default
@@ -86,11 +85,11 @@ class ThreadCountsStore extends NylasStore
 
   _onCountsChanged: =>
     DatabaseStore._query(ReadCountsQuery()).then (results) =>
-      @_counts = {}
+      nextCounts = {}
 
       foundNegative = false
       for {category_id, unread, total} in results
-        @_counts[category_id] = {unread, total}
+        nextCounts[category_id] = {unread, total}
         if unread < 0 or total < 0
           foundNegative = true
 
@@ -99,6 +98,10 @@ class ThreadCountsStore extends NylasStore
         @reset()
         return
 
+      if _.isEqual(nextCounts, @_counts)
+        return
+
+      @_counts = nextCounts
       @trigger()
 
   unreadCountForCategoryId: (catId) =>

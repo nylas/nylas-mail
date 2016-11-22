@@ -5,7 +5,7 @@ import Actions from '../actions';
 import Message from '../models/message';
 import NylasAPI from '../nylas-api';
 import {APIError, RequestEnsureOnceError} from '../errors';
-import SoundRegistry from '../../sound-registry';
+import SoundRegistry from '../../registries/sound-registry';
 import DatabaseStore from '../stores/database-store';
 import AccountStore from '../stores/account-store';
 import BaseDraftTask from './base-draft-task';
@@ -176,7 +176,7 @@ export default class SendDraftTask extends BaseDraftTask {
   }
 
   stripTrackingFromBody(text) {
-    let body = text.replace(/<img class="n1-open"[^<]+src="([a-zA-Z0-9-_:\/.]*)">/g, () => {
+    let body = text.replace(/<img class="n1-open"[^<]+src="([a-zA-Z0-9-_:/.]*)">/g, () => {
       return "";
     });
     body = body.replace(RegExpUtils.urlLinkTagRegex(), (match, prefix, url, suffix, content, closingTag) => {

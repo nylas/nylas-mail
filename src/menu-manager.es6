@@ -71,6 +71,7 @@ export default class MenuManager {
         if (item.submenu != null) {
           item.enabled = !item.submenu.every((subitem) => subitem.enabled === false);
         }
+        if (item.hideWhenDisabled) { item.visible = item.enabled; }
       });
       return this.sendToBrowserProcess(this.template, NylasEnv.keymaps.getBindingsForAllCommands());
     });

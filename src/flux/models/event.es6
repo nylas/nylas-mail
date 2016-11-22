@@ -1,3 +1,4 @@
+import chrono from 'chrono-node';
 import moment from 'moment';
 
 import Model from './model';
@@ -111,6 +112,16 @@ export default class Event extends Model {
     }),
   });
 
+  static additionalSQLiteConfig = {
+    setup: () => {
+      return ['CREATE UNIQUE INDEX IF NOT EXISTS EventClientIndex ON Event(client_id)'];
+    },
+  };
+
+  static searchable = true
+
+  static searchFields = ['title', 'description', 'location', 'participants']
+
   // We use moment to parse the date so we can more easily pick up the
   // current timezone of the current locale.
   // We also create a start and end times that span the full day without
@@ -170,6 +181,15 @@ export default class Event extends Model {
   isAllDay() {
     const daySpan = 86400 - 1;
     return (this.end - this.start) >= daySpan;
+  }
+
+  displayTitle() {
+    const displayTitle = this.title.replace(/.*Invitation: /, "")
+    const [displayTitleWithoutDate, date] = displayTitle.split(" @ ")
+    if (date && chrono.parseDate(date)) {
+      return displayTitleWithoutDate
+    }
+    return displayTitle
   }
 
   participantForMe = () => {

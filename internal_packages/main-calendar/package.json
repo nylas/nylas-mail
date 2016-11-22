@@ -10,8 +10,6 @@
   "engines": {
     "nylas": "*"
   },
-  "dependencies": {
-  },
   "windowTypes": {
     "calendar": true
   }

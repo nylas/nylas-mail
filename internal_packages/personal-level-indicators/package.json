@@ -15,7 +15,5 @@
   "engines": {
     "nylas": ">=0.3.0 <0.5.0"
   },
-  "dependencies": {
-  },
   "license": "GPL-3.0"
 }

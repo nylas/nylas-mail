@@ -15,8 +15,8 @@ const TokenRenderer = (props) => {
     <div className="participant">
       <InjectedComponentSet
         matching={{role: "Composer:RecipientChip"}}
-        exposedProps={{contact: props.token}}
-        direction="column"
+        exposedProps={{contact: props.token, collapsed: false}}
+        direction="row"
         inline
       />
       <span className="participant-primary">{chipText}</span>
@@ -72,6 +72,8 @@ export default class ParticipantsTextField extends React.Component {
   }
 
   _completionNode = (p) => {
+    const CustomComponent = p.customComponent
+    if (CustomComponent) return (<CustomComponent token={p} />)
     return (
       <Menu.NameEmailItem name={p.name} email={p.email} key={p.id} />
     );

@@ -1,13 +1,17 @@
 import ThreadSearchIndexStore from './thread-search-index-store'
-import ContactSearchIndexStore from './contact-search-index-store'
+import ContactSearchIndexer from './contact-search-indexer'
+// import EventSearchIndexer from './event-search-indexer'
 
 
 export function activate() {
   ThreadSearchIndexStore.activate()
-  ContactSearchIndexStore.activate()
+  ContactSearchIndexer.activate()
+  // TODO Calendar feature has been punted, we will disable this indexer for now
+  // EventSearchIndexer.activate()
 }
 
 export function deactivate() {
   ThreadSearchIndexStore.deactivate()
-  ContactSearchIndexStore.deactivate()
+  ContactSearchIndexer.deactivate()
+  // EventSearchIndexer.deactivate()
 }

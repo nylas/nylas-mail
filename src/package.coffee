@@ -9,8 +9,8 @@ Q = require 'q'
 
 ModuleCache = require './module-cache'
 
-TaskRegistry = require('./task-registry').default
-DatabaseObjectRegistry = require('./database-object-registry').default
+TaskRegistry = require('./registries/task-registry').default
+DatabaseObjectRegistry = require('./registries/database-object-registry').default
 
 try
   packagesCache = require('../package.json')?._N1Packages ? {}
@@ -230,6 +230,9 @@ class Package
         @menus = @getMenuPaths().map (menuPath) -> [menuPath, JSON.parse(fs.readFileSync(menuPath)) ? {}]
     catch e
       console.error "Error reading menus for package '#{@name}': #{e.message}", e.stack
+
+    for [menuPath, menuObj] in @menus
+      menuItem.isOptional = @metadata.isOptional for menuItem in menuObj.menu
 
   getKeymapPaths: ->
     keymapsDirPath = path.join(@path, 'keymaps')

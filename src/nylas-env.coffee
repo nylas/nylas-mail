@@ -12,7 +12,7 @@ fs = require 'fs-plus'
 
 WindowEventHandler = require './window-event-handler'
 StylesElement = require './styles-element'
-StoreRegistry = require('./store-registry').default
+StoreRegistry = require('./registries/store-registry').default
 
 Utils = require './flux/models/utils'
 {APIError} = require './flux/errors'
@@ -139,7 +139,7 @@ class NylasEnvConstructor
 
     Config = require './config'
     KeymapManager = require('./keymap-manager').default
-    CommandRegistry = require('./command-registry').default
+    CommandRegistry = require('./registries/command-registry').default
     PackageManager = require './package-manager'
     ThemeManager = require './theme-manager'
     StyleManager = require './style-manager'

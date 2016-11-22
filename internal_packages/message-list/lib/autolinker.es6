@@ -59,9 +59,10 @@ export function autolink(doc, {async} = {}) {
     ['mailto:', RegExpUtils.emailRegex(), {
       // Technically, gmail.com/bengotow@gmail.com is an email address. After
       // matching, manully exclude any email that follows the .*[/?].*@ pattern.
-      exclude: [/\..*[\/|\?].*@/],
+      exclude: [/\..*[/|?].*@/],
     }],
     ['tel:', RegExpUtils.phoneRegex()],
+    ['', RegExpUtils.nylasCommandRegex()],
     ['', RegExpUtils.urlRegex({matchEntireString: false})],
   ];
 

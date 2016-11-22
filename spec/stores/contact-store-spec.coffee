@@ -51,7 +51,7 @@ describe "ContactStore", ->
         "evanc@nylas.com": 0.1
 
       spyOn(DatabaseStore, 'findAll').andCallFake =>
-        Promise.resolve([@c3, @c1, @c2, @c4])
+        return {background: => Promise.resolve([@c3, @c1, @c2, @c4])}
 
       waitsForPromise =>
         ContactStore._updateRankedContactCache().then =>

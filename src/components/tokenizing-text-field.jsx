@@ -250,6 +250,9 @@ export default class TokenizingTextField extends React.Component {
     // unlimited number of tokens may be given
     maxTokens: React.PropTypes.number,
 
+    // A string to pre-fill the input with when the tokens are empty.
+    defaultValue: React.PropTypes.string,
+
     // A function that, given an object used for tokens, returns a unique
     // id (key) for that object.
     //
@@ -366,14 +369,16 @@ export default class TokenizingTextField extends React.Component {
   };
 
   static defaultProps = {
+    tokens: [],
     className: '',
+    defaultValue: '',
     tokenClassNames: () => '',
   }
 
   constructor(props) {
     super(props);
     this.state = {
-      inputValue: "",
+      inputValue: props.defaultValue || "",
       completions: [],
       selectedKeys: [],
     }
@@ -381,6 +386,20 @@ export default class TokenizingTextField extends React.Component {
 
   componentDidMount() {
     this._mounted = true;
+    if (this.props.tokens.length === 0) {
+      if (this.state.inputValue && this.state.inputValue.length > 0) {
+        this._refreshCompletions(this.state.inputValue);
+      }
+    }
+  }
+
+  componentWillReceiveProps(newProps) {
+    if (this.props.tokens.length === 0) {
+      this.setState({inputValue: newProps.defaultValue});
+      if (newProps.defaultValue && newProps.defaultValue.length > 0) {
+        this._refreshCompletions(newProps.defaultValue);
+      }
+    }
   }
 
   componentWillUnmount() {

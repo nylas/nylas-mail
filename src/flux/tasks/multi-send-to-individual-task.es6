@@ -53,7 +53,7 @@ export default class MultiSendToIndividualTask extends Task {
       .replace(/\//g, '_');
     let body = text
     if (usesOpenTracking) {
-      body = body.replace(/<img class="n1-open"[^<]+src="([a-zA-Z0-9-_:\/.]*)">/g, (match, url) => {
+      body = body.replace(/<img class="n1-open"[^<]+src="([a-zA-Z0-9-_:/.]*)">/g, (match, url) => {
         return `<img class="n1-open" width="0" height="0" style="border:0; width:0; height:0;" src="${url}?r=${encodedEmail}">`;
       });
     }

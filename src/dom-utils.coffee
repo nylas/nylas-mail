@@ -458,7 +458,7 @@ DOMUtils =
     # We need to check `childNodes` instead of `children` to look for
     # plain Text nodes.
     for node in allNodes by -1
-      if node.nodeName is "IMG"
+      if node.nodeName is "IMG" or node.nodeName is "HR"
         nodes.unshift node
 
       # It's important to use `textContent` and NOT `innerText`.

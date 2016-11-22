@@ -1,5 +1,5 @@
 _ = require 'underscore'
-{Actions, AccountStore, MenuHelpers} = require 'nylas-exports'
+{Actions, MenuHelpers} = require 'nylas-exports'
 
 
 class AccountCommands

@@ -1,7 +1,7 @@
 import Actions from '../actions'
 import DatabaseStore from './database-store'
 import Message from '../models/message'
-import * as ExtensionRegistry from '../../extension-registry'
+import * as ExtensionRegistry from '../../registries/extension-registry'
 import SyncbackDraftFilesTask from '../tasks/syncback-draft-files-task'
 import DOMUtils from '../../dom-utils'
 

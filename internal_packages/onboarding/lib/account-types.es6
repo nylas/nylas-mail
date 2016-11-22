@@ -2,7 +2,7 @@
 const AccountTypes = [
   {
     type: 'gmail',
-    displayName: 'Gmail or Google Apps',
+    displayName: 'Gmail or G Suite',
     icon: 'ic-settings-account-gmail.png',
     headerIcon: 'setup-icon-provider-gmail.png',
     color: '#e99999',
