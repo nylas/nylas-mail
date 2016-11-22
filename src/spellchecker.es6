@@ -71,10 +71,10 @@ class Spellchecker {
   }
 
   isMisspelled = (word) => {
-    if (word in this._customDict) {
+    if ({}.hasOwnProperty.call(this._customDict, word)) {
       return false
     }
-    if (word in this.isMisspelledCache) {
+    if ({}.hasOwnProperty.call(this.isMisspelledCache, word)) {
       return this.isMisspelledCache[word]
     }
     const misspelled = !this.handler.handleElectronSpellCheck(word);

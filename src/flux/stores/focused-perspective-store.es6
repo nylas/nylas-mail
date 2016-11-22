@@ -12,6 +12,7 @@ class FocusedPerspectiveStore extends NylasStore {
   constructor() {
     super()
     this._current = MailboxPerspective.forNothing();
+    this._initialized = false
 
     this.listenTo(CategoryStore, this._onCategoryStoreChanged);
     this.listenTo(Actions.focusMailboxPerspective, this._onFocusPerspective);
@@ -80,14 +81,17 @@ class FocusedPerspectiveStore extends NylasStore {
     if (json) {
       perspective = MailboxPerspective.fromJSON(json);
     }
+    this._initialized = true
 
     if (!perspective || !this._isValidPerspective(perspective)) {
       perspective = this._defaultPerspective();
       sidebarAccountIds = perspective.accountIds;
+      this._initialized = false
     }
 
     if (!sidebarAccountIds || !this._isValidAccountSet(sidebarAccountIds) || sidebarAccountIds.length < perspective.accountIds.length) {
       sidebarAccountIds = perspective.accountIds;
+      this._initialized = false
     }
 
     this._setPerspective(perspective, sidebarAccountIds);
@@ -95,7 +99,7 @@ class FocusedPerspectiveStore extends NylasStore {
 
   // Inbound Events
   _onCategoryStoreChanged = () => {
-    if (this._current.isEqual(MailboxPerspective.forNothing())) {
+    if (!this._initialized) {
       this._initializeFromSavedState();
     } else if (!this._isValidPerspective(this._current)) {
       this._setPerspective(this._defaultPerspective(this._current.accountIds));
@@ -153,7 +157,12 @@ class FocusedPerspectiveStore extends NylasStore {
       shouldTrigger = true;
     }
 
-    if (sidebarAccountIds && !_.isEqual(NylasEnv.savedState.sidebarAccountIds, sidebarAccountIds)) {
+    const shouldSaveSidebarAccountIds = (
+      sidebarAccountIds &&
+      !_.isEqual(NylasEnv.savedState.sidebarAccountIds, sidebarAccountIds) &&
+      this._initialized === true
+    )
+    if (shouldSaveSidebarAccountIds) {
       NylasEnv.savedState.sidebarAccountIds = sidebarAccountIds;
       shouldTrigger = true;
     }

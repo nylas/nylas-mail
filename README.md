@@ -66,12 +66,12 @@ The Nylas N1 user interface is styled using CSS, which means it's easy to modify
 - [Gmail](https://github.com/dregitsky/n1-gmail-theme)
 - [Darkish](https://github.com/dyrnade/N1-Darkish)
 
-#### To install community themes: 
+#### To install community themes:
 
 1. Download and unzip the repo
 2. In Nylas N1, select `Developer > Install a Package Manually... `
 3. Navigate to where you downloaded the theme and select the root folder. The theme is copied into the `~/.nylas` folder for your convinence
-5. Select `Change Theme...` from the top level menu, and you'll see the newly installed theme. That's it! 
+5. Select `Change Theme...` from the top level menu, and you'll see the newly installed theme. That's it!
 
 
 Want to dive in more? Try [creating your own theme](https://github.com/nylas/N1-theme-starter)!

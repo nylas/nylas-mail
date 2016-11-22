@@ -1,3 +1,2 @@
-N1 uses [apm](https://github.com/atom/apm) to build packages instead of `npm`.
-This is because packages need to be compiled against Chrome's headers to work
-properly with Electron.
+N1 ships a copy of [apm](https://github.com/atom/apm) to build packages
+when users choose to install them. This won't be true much longer.

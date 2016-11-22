@@ -7,7 +7,5 @@
   "private": true,
   "engines": {
     "nylas": "*"
-  },
-  "dependencies": {
   }
 }

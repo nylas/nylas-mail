@@ -10,10 +10,6 @@
   "title": "Encryption",
   "description": "Send and receive encrypted messages using Keybase for public key exchange.",
   "icon": "./icon.png",
-
-  "dependencies": {
-    "kbpgp": "^2.0.52"
-  },
   "license": "GPL-3.0",
   "windowTypes": {
     "default": true,

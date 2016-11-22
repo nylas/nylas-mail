@@ -28,7 +28,7 @@ class InlineStyleTransformer {
 
     // http://stackoverflow.com/questions/8695031/why-is-there-often-a-inside-the-style-tag
     // https://regex101.com/r/bZ5tX4/1
-    let styled = html.replace(/<style[^>]*>[\n\r]*<!--([^<\/]*)-->[\n\r]*<\/style/g, (full, content) =>
+    let styled = html.replace(/<style[^>]*>[\n\r]*<!--([^</]*)-->[\n\r]*<\/style/g, (full, content) =>
       `<style>${content}</style`
     );
 

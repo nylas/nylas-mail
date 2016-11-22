@@ -159,6 +159,58 @@ const DateUtils = {
     return morning(now.add(1, 'month').date(1))
   },
 
+  parseDateString(dateLikeString) {
+    const parsed = chrono.parse(dateLikeString)
+    const gotTime = {start: false, end: false};
+    const gotDay = {start: false, end: false};
+    const now = moment();
+    const results = {start: moment(now), end: moment(now), leftoverText: dateLikeString};
+    for (const item of parsed) {
+      for (const val of ['start', 'end']) {
+        if (!(val in item)) {
+          continue;
+        }
+        const {day: knownDay, weekday: knownWeekday, hour: knownHour} = item[val].knownValues;
+        const {year, month, day, hour, minute} = Object.assign(item[val].knownValues, item[val].impliedValues)
+        if (!gotTime[val] && knownHour) {
+          gotTime[val] = true;
+          results[val].minute(minute)
+          results[val].hour(hour)
+
+          if (!gotDay[val]) {
+            results[val].date(day)
+            results[val].month(month - 1) // moment zero-indexes month
+            results[val].year(year)
+          }
+
+          results.leftoverText = results.leftoverText.replace(item.text, '')
+        }
+        if (!gotDay[val] && (knownDay || knownWeekday)) {
+          gotDay[val] = true
+          results[val].year(year)
+          results[val].month(month - 1) // moment zero-indexes month
+          results[val].date(day)
+
+          if (!gotTime) {
+            results[val].hour(hour)
+            results[val].minute(minute)
+          }
+
+          results.leftoverText = results.leftoverText.replace(item.text, '')
+        }
+      }
+    }
+
+    // Make the event a default 1 hour long if it looks like the end date
+    // wasn't assigned, or if it's before the start date.
+    if (results.end.valueOf() === now.valueOf() || results.end <= results.start) {
+      results.end = moment(results.start);
+      results.end.hour(results.end.hour() + 1);
+    }
+
+    return results;
+  },
+
   /**
    * Can take almost any string.
    * e.g. "Next Monday at 2pm"

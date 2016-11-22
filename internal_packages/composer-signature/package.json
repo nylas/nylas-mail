@@ -12,7 +12,5 @@
     "default": true,
     "composer": true,
     "thread-popout": true
-  },
-  "dependencies": {
   }
 }

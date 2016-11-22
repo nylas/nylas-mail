@@ -15,10 +15,6 @@
   "title": "Emoji Picker",
   "icon": "./assets/icon.png",
   "description": "Insert emoji into messages by typing a colon (:) and the emoji name or choosing one from the composer toolbar!",
-
-  "dependencies": {
-    "node-emoji": "^1.2.1"
-  },
   "windowTypes": {
     "default": true,
     "composer": true,
