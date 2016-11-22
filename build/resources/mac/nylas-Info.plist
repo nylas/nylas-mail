@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>NSPrincipalClass</key>
-	<string>NylasApplication</string>
+	<string>AtomApplication</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
