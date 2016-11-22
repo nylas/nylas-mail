@@ -67,7 +67,7 @@ class DatabaseConnector {
   }
 
   _sequelizeForShared() {
-    const sequelize = this._sequelizePoolForDatabase(`shared-cloud`);
+    const sequelize = this._sequelizePoolForDatabase(`ebdb`);
     const modelsPath = path.join(__dirname, 'models');
     const db = this._readModelsInDirectory(sequelize, modelsPath, [
       path.resolve(__dirname, '../nylas-core/models/shared/account'),
