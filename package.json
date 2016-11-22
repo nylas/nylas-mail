@@ -1,7 +1,7 @@
 {
   "name": "k2",
-  "version": "0.0.1",
-  "description": "k2",
+  "version": "0.0.2",
+  "description": "The local sync engine for Nylas N1",
   "main": "",
   "dependencies": {
     "bunyan": "1.8.0",
@@ -41,13 +41,13 @@
     "url": "git+https://github.com/nylas/K2.git"
   },
   "author": "Nylas",
-  "license": "ISC",
+  "license": "proprietary",
   "bugs": {
     "url": "https://github.com/nylas/K2/issues"
   },
   "homepage": "https://github.com/nylas/K2#readme",
   "engines": {
-    "node": "6.2.2",
-    "npm": "3.9.5"
+    "node": "6.9.1",
+    "npm": "3.10.8"
   }
 }
