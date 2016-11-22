@@ -4,6 +4,7 @@ import WindowLauncher from './window-launcher';
 
 const MAIN_WINDOW = "default"
 const WORK_WINDOW = "work"
+const SYNC_WINDOW = "sync"
 const SPEC_WINDOW = "spec"
 const ONBOARDING_WINDOW = "onboarding"
 const CALENDAR_WINDOW = "calendar"
@@ -195,6 +196,16 @@ export default class WindowManager {
       initializeInBackground: this.initializeInBackground,
     };
 
+    coreWinOpts[WindowManager.SYNC_WINDOW] = {
+      windowKey: WindowManager.SYNC_WINDOW,
+      windowType: WindowManager.SYNC_WINDOW,
+      title: "Sync Window",
+      hidden: true,
+      neverClose: true,
+      width: 800,
+      height: 400,
+    };
+
     coreWinOpts[WindowManager.WORK_WINDOW] = {
       windowKey: WindowManager.WORK_WINDOW,
       windowType: WindowManager.WORK_WINDOW,
@@ -238,6 +249,7 @@ export default class WindowManager {
 
 WindowManager.MAIN_WINDOW = MAIN_WINDOW;
 WindowManager.WORK_WINDOW = WORK_WINDOW;
+WindowManager.SYNC_WINDOW = SYNC_WINDOW;
 WindowManager.SPEC_WINDOW = SPEC_WINDOW;
 WindowManager.CALENDAR_WINDOW = CALENDAR_WINDOW;
 WindowManager.ONBOARDING_WINDOW = ONBOARDING_WINDOW;

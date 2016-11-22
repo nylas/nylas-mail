@@ -63,6 +63,12 @@ function installPrivateResources() {
     unlinkIfExistsSync(to);
     fs.symlinkSync(from, to, 'dir');
   }
+
+  // link local-sync
+  const localSyncDir = path.resolve(path.join('src', 'K2', 'local-sync'))
+  const destination = path.join(path.resolve('internal_packages'), 'local-sync');
+  unlinkIfExistsSync(destination);
+  fs.symlinkSync(localSyncDir, destination, 'dir');
 }
 
 npm('install', {cwd: 'build'})
@@ -70,6 +76,6 @@ npm('install', {cwd: 'build'})
 .then(() => npm('dedupe', {cwd: path.join('apm', 'node_modules', 'npm'), env: 'apm'}))
 .then(() => npm('install', {cwd: '.', env: 'electron'}))
 .then(() => npm('dedupe', {cwd: '.', env: 'electron'}))
-.then(() => npm('install', {cwd: 'src/K2', env: 'electron'}))
-.then(() => npm('dedupe', {cwd: 'src/K2', env: 'electron'}))
+.then(() => npm('install', {cwd: path.join('src', 'K2'), env: 'electron'}))
+.then(() => npm('dedupe', {cwd: path.join('src', 'K2'), env: 'electron'}))
 .then(() => installPrivateResources())
