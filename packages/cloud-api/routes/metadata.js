@@ -2,6 +2,32 @@ const Joi = require('joi');
 const Serialization = require('../serialization');
 const {DatabaseConnector} = require('cloud-core');
 
+function upsertMetadata(account, identity, objectId, key, version, data) {
+  DatabaseConnector.forShared().then(({Metadata}) => {
+    Metadata.find({
+      accountId: account.id,
+      nylasId: identity.id,
+      objectId: objectId,
+      key: key,
+    }).then((existing) => {
+      if (existing) {
+        if (existing.version !== version) {
+          return Promise.reject(new Error("Version Conflict"));
+        }
+        existing.data = data;
+        return existing.save();
+      }
+      return Metadata.create({
+        accountId: account.id,
+        nylasId: identity.id,
+        objectId: objectId,
+        key: key,
+        data: data,
+      })
+    })
+  })
+}
+
 module.exports = (server) => {
   server.route({
     method: 'GET',
@@ -37,50 +63,66 @@ module.exports = (server) => {
     },
   });
 
-  // TODO: consider adding some processing on routes that require display_name,
-  // so that we smartly add prefixes or proper separators and things like that.
-
   server.route({
-    method: 'POST',
-    path: `/metadata`,
-    config: {
-      description: `Create metadata`,
-      tags: ['metadata'],
-      validate: {},
-    },
-    handler: (request, reply) => {
-    },
-  })
-
-  server.route({
-    method: 'PUT',
-    path: `/metadata/{id}`,
+    method: ['PUT', 'POST'],
+    path: `/metadata/{objectId}/{key}`,
     config: {
       description: `Update metadata`,
       tags: ['metadata'],
       validate: {
         params: {
-          id: Joi.number().integer(),
+          objectId: Joi.number().integer(),
+          key: Joi.string(),
+        },
+        payload: {
+          version: Joi.number().integer(),
+          value: Joi.string(),
         },
       },
     },
     handler: (request, reply) => {
+      const {account, identity} = request.auth.credentials;
+      const {version, value} = request.payload;
+      const {key, objectId} = request.params;
+
+      upsertMetadata(account, identity, objectId, key, version, value)
+      .then((metadata) => {
+        reply(Serialization.jsonStringify(metadata));
+      })
+      .catch((err) => {
+        reply(err).status(409);
+      })
     },
   })
 
   server.route({
     method: 'DELETE',
-    path: `/metadata/{id}`,
+    path: `/metadata/{objectId}/{key}`,
     config: {
       description: `Delete metadata`,
       tags: ['metadata'],
       validate: {
         params: {
-          id: Joi.number().integer(),
+          objectId: Joi.number().integer(),
+          key: Joi.string(),
+        },
+        payload: {
+          version: Joi.number().integer(),
         },
       },
     },
     handler: (request, reply) => {
+      const {account, identity} = request.auth.credentials;
+      const {version} = request.payload;
+      const {key, objectId} = request.params;
+
+      upsertMetadata(account, identity, objectId, key, version, null)
+      .then((metadata) => {
+        reply(Serialization.jsonStringify(metadata));
+      })
+      .catch((err) => {
+        reply(err).status(409);
+      })
     },
   })
 };
