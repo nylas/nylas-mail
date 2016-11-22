@@ -1,6 +1,8 @@
 const {Provider, PromiseUtils} = require('nylas-core');
+const {localizedCategoryNames} = require('../sync-utils')
 
-const GMAIL_ROLES_WITH_FOLDERS = ['all', 'trash', 'junk'];
+const BASE_ROLES = ['inbox', 'sent', 'trash', 'spam'];
+const GMAIL_ROLES_WITH_FOLDERS = ['all', 'trash', 'spam'];
 
 class FetchFolderList {
   constructor(provider, logger) {
@@ -15,6 +17,12 @@ class FetchFolderList {
     return `FetchFolderList`;
   }
 
+  _getMissingRoles(categories) {
+    const currentRoles = new Set(categories.map(cat => cat.role));
+    const missingRoles = BASE_ROLES.filter(role => !currentRoles.has(role));
+    return missingRoles;
+  }
+
   _classForMailboxWithRole(role, {Folder, Label}) {
     if (this._provider === Provider.Gmail) {
       return GMAIL_ROLES_WITH_FOLDERS.includes(role) ? Folder : Label;
@@ -22,23 +30,31 @@ class FetchFolderList {
     return Folder;
   }
 
-  _roleForMailbox(boxName, box) {
+  _roleByName(boxName) {
+    for (const role of Object.keys(localizedCategoryNames)) {
+      if (localizedCategoryNames[role].includes(boxName.toLowerCase().trim())) {
+        return role;
+      }
+    }
+    return null;
+  }
+
+  _roleByAttr(box) {
     for (const attrib of (box.attribs || [])) {
       const role = {
         '\\Sent': 'sent',
         '\\Drafts': 'drafts',
-        '\\Junk': 'junk',
+        '\\Junk': 'spam',
+        '\\Spam': 'spam',
         '\\Trash': 'trash',
         '\\All': 'all',
         '\\Important': 'important',
         '\\Flagged': 'flagged',
+        '\\Inbox': 'inbox',
       }[attrib];
       if (role) {
         return role;
       }
-    }
-    if (boxName.toLowerCase().trim() === 'inbox') {
-      return 'inbox';
     }
     return null;
   }
@@ -74,7 +90,7 @@ class FetchFolderList {
 
       let category = categories.find((cat) => cat.name === boxName);
       if (!category) {
-        const role = this._roleForMailbox(boxName, box);
+        const role = this._roleByAttr(box);
         const Klass = this._classForMailboxWithRole(role, this._db);
         category = Klass.build({
           name: boxName,
@@ -104,7 +120,23 @@ class FetchFolderList {
           labels: Label.findAll({transaction}),
         }).then(({folders, labels}) => {
           const all = [].concat(folders, labels);
-          const {created, deleted} = this._updateCategoriesWithBoxes(all, boxes);
+          const {next, created, deleted} = this._updateCategoriesWithBoxes(all, boxes);
+
+          const categoriesByRoles = next.reduce((obj, cat) => {
+            const role = this._roleByName(cat.name);
+            if (role in obj) {
+              obj[role].push(cat);
+            } else {
+              obj[role] = [cat];
+            }
+            return obj;
+          }, {})
+
+          this._getMissingRoles(next).forEach((role) => {
+            if (categoriesByRoles[role] && categoriesByRoles[role].length === 1) {
+              categoriesByRoles[role][0].role = role;
+            }
+          })
 
           let promises = [Promise.resolve()]
           promises = promises.concat(created.map(cat => cat.save({transaction})))
