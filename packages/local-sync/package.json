@@ -8,7 +8,6 @@
     "babel-preset-es2015": "6.9.0",
     "bunyan": "1.8.0",
     "bunyan-cloudwatch": "2.0.0",
-    "bunyan-loggly": "1.1.0",
     "bunyan-prettystream": "github:emorikawa/node-bunyan-prettystream",
     "googleapis": "9.0.0",
     "hapi": "13.4.1",

@@ -4,6 +4,9 @@
   "description": "Core shared packages",
   "main": "index.js",
   "dependencies": {
+    "bunyan": "1.8.0",
+    "bunyan-cloudwatch": "2.0.0",
+    "bunyan-prettystream": "github:emorikawa/node-bunyan-prettystream",
     "xoauth2": "1.2.0"
   },
   "author": "Nylas",
