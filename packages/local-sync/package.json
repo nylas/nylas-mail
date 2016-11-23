@@ -22,6 +22,7 @@
     "sequelize": "3.27.0",
     "underscore": "1.8.3",
     "vision": "4.1.0"
+    "better-sqlite3": "bengotow/better-sqlite3#a888061ad334c76d2db4c06554c90785cc6e7cce"
   },
   "repository": {
     "type": "git",
