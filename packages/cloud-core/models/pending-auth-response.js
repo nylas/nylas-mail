@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
   const PendingAuthResponse = sequelize.define('pendingAuthResponse', {
-    response: Sequelize.STRING,
+    response: Sequelize.TEXT('long'),
     pendingAuthKey: Sequelize.STRING,
   }, {
     classMethods: {
