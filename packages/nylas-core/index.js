@@ -4,7 +4,6 @@ module.exports = {
     IMAP: 'imap',
   },
   DatabaseConnector: require('./database-connector'),
-  PubsubConnector: require('./pubsub-connector'),
   Imap: require('imap'),
   IMAPConnection: require('./imap-connection'),
   SyncPolicy: require('./sync-policy'),

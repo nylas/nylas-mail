@@ -1,6 +1,7 @@
 const _ = require('underscore');
 
-const {Imap, PromiseUtils, IMAPConnection, PubsubConnector} = require('nylas-core');
+const {Imap, PromiseUtils, IMAPConnection} = require('nylas-core');
+const LocalPubsubConnector = require('../../shared/local-pubsub-connector')
 const {Capabilities} = IMAPConnection;
 
 const MessageFlagAttributes = ['id', 'threadId', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']
@@ -278,7 +279,7 @@ class FetchMessagesInFolder {
           )
         }
 
-        PubsubConnector.queueProcessMessage({accountId, messageId: message.id});
+        LocalPubsubConnector.queueProcessMessage({accountId, messageId: message.id});
       } else {
         message.getThread()
         .then((thread) => {

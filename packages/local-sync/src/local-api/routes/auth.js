@@ -6,12 +6,12 @@ const OAuth2 = google.auth.OAuth2;
 const Serialization = require('../serialization');
 const {
   IMAPConnection,
-  PubsubConnector,
   DatabaseConnector,
   SyncPolicy,
   Provider,
   Errors,
 } = require('nylas-core');
+const LocalPubsubConnector = require('../../shared/local-pubsub-connector')
 
 const {GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL} = process.env;
 
@@ -72,7 +72,7 @@ const buildAccountWith = ({name, email, provider, settings, credentials}) => {
       return account.save().then((saved) =>
         AccountToken.create({accountId: saved.id}).then((token) =>
           DatabaseConnector.ensureAccountDatabase(saved.id).then(() => {
-            PubsubConnector.broadcastClient().lpushAsync('accounts:unclaimed', saved.id);
+            LocalPubsubConnector.broadcastClient().lpushAsync('accounts:unclaimed', saved.id);
 
             return Promise.resolve({
               account: saved,

@@ -1,5 +1,6 @@
 const SyncWorker = require('./sync-worker');
-const {PromiseUtils, DatabaseConnector, PubsubConnector} = require(`nylas-core`)
+const {PromiseUtils, DatabaseConnector} = require(`nylas-core`)
+const LocalPubsubConnector = require('../shared/local-pubsub-connector')
 const SchedulerUtils = require('../shared/scheduler-utils')
 
 const IDENTITY = `${global.instanceId}-${process.pid}`;
@@ -60,7 +61,7 @@ class SyncProcessManager {
 
   updateHeartbeat() {
     const key = HEARTBEAT_FOR(IDENTITY);
-    const client = PubsubConnector.broadcastClient();
+    const client = LocalPubsubConnector.broadcastClient();
     client.setAsync(key, Date.now())
     .then(() => client.expireAsync(key, HEARTBEAT_EXPIRES))
     .then(() => {
@@ -81,8 +82,8 @@ class SyncProcessManager {
     this._exiting = true;
 
     this.unassignAccountsAssignedTo(IDENTITY).then(() =>
-      PubsubConnector.broadcastClient().delAsync(ACCOUNTS_FOR(IDENTITY)).then(() =>
-        PubsubConnector.broadcastClient().delAsync(HEARTBEAT_FOR(IDENTITY))
+      LocalPubsubConnector.broadcastClient().delAsync(ACCOUNTS_FOR(IDENTITY)).then(() =>
+        LocalPubsubConnector.broadcastClient().delAsync(HEARTBEAT_FOR(IDENTITY))
       )
     ).finally(() => {
       process.exit(1);
@@ -90,7 +91,7 @@ class SyncProcessManager {
   }
 
   ensureAccountIDsInRedis(accountIds) {
-    const client = PubsubConnector.broadcastClient();
+    const client = LocalPubsubConnector.broadcastClient();
 
     let unseenIds = [].concat(accountIds);
 
@@ -112,7 +113,7 @@ class SyncProcessManager {
   }
 
   unassignAccountsMissingHeartbeats() {
-    const client = PubsubConnector.broadcastClient();
+    const client = LocalPubsubConnector.broadcastClient();
 
     this._logger.info("ProcessManager: Starting unassignment for processes missing heartbeats.")
 
@@ -133,7 +134,7 @@ class SyncProcessManager {
     const dst = ACCOUNTS_UNCLAIMED;
 
     const unassignOne = (count) =>
-      PubsubConnector.broadcastClient().rpoplpushAsync(src, dst).then((val) =>
+      LocalPubsubConnector.broadcastClient().rpoplpushAsync(src, dst).then((val) =>
         (val ? unassignOne(count + 1) : Promise.resolve(count))
       )
 
@@ -158,7 +159,7 @@ class SyncProcessManager {
 
   acceptUnclaimedAccount() {
     if (!this._waitForAccountClient) {
-      this._waitForAccountClient = PubsubConnector.buildClient();
+      this._waitForAccountClient = LocalPubsubConnector.buildClient();
     }
 
     const src = ACCOUNTS_UNCLAIMED;
@@ -205,10 +206,10 @@ class SyncProcessManager {
     const src = ACCOUNTS_FOR(IDENTITY);
     const dst = ACCOUNTS_UNCLAIMED;
 
-    return PubsubConnector.broadcastClient().lremAsync(src, 1, accountId).then((didRemove) => {
+    return LocalPubsubConnector.broadcastClient().lremAsync(src, 1, accountId).then((didRemove) => {
       this._workers[accountId] = null;
       if (didRemove) {
-        return PubsubConnector.broadcastClient().rpushAsync(dst, accountId)
+        return LocalPubsubConnector.broadcastClient().rpushAsync(dst, accountId)
       }
       return Promise.reject(new Error("Did not own account."));
     })

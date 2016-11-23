@@ -1,13 +1,12 @@
 const Rx = require('rx')
 const redis = require("redis");
-const PromiseUtils = require('./promise-utils')
+const {PromiseUtils} = require('nylas-core')
 const log = global.Logger || console
 
 PromiseUtils.promisifyAll(redis.RedisClient.prototype);
 PromiseUtils.promisifyAll(redis.Multi.prototype);
 
-
-class PubsubConnector {
+class LocalPubsubConnector {
   constructor() {
     this._broadcastClient = null;
     this._listenClient = null;
@@ -105,4 +104,4 @@ class PubsubConnector {
   }
 }
 
-module.exports = new PubsubConnector()
+module.exports = new LocalPubsubConnector()

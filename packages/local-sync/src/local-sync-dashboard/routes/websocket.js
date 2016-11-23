@@ -1,7 +1,5 @@
-const {
-  DatabaseConnector,
-  PubsubConnector,
-} = require(`nylas-core`);
+const { DatabaseConnector, } = require(`nylas-core`);
+const LocalPubsubConnector = require('../../shared/local-pubsub-connector')
 const SchedulerUtils = require('../../shared/scheduler-utils')
 
 function onWebsocketConnected(wss, ws) {
@@ -32,7 +30,7 @@ function onWebsocketConnected(wss, ws) {
       sendUpdate();
     });
 
-    this.observable = PubsubConnector.observeAllAccounts().subscribe((accountId) => {
+    this.observable = LocalPubsubConnector.observeAllAccounts().subscribe((accountId) => {
       Account.find({where: {id: accountId}}).then((acct) => {
         toSend.updatedAccounts.push(acct);
       });

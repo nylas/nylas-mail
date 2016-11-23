@@ -1,7 +1,7 @@
 const Metrics = require(`../local-sync-metrics`)
 Metrics.startCapturing('nylas-k2-message-processor')
 
-const {PubsubConnector, DatabaseConnector, Logger} = require(`nylas-core`)
+const {LocalPubsubConnector, DatabaseConnector, Logger} = require(`nylas-core`)
 const {processors} = require('./processors')
 
 global.Metrics = Metrics
@@ -20,7 +20,7 @@ process.on('unhandledRejection', onUnhandledError)
 const MessageAttributes = ['body', 'processed', 'to', 'from', 'cc', 'replyTo', 'bcc', 'snippet', 'threadId']
 const MessageProcessorVersion = 1;
 
-const redis = PubsubConnector.buildClient();
+const redis = LocalPubsubConnector.buildClient();
 
 function runPipeline({db, accountId, message, logger}) {
   logger.info(`MessageProcessor: Processing message`)
