@@ -8,7 +8,6 @@ const Package = require('../../package');
 const fs = require('fs');
 const path = require('path');
 const LocalDatabaseConnector = require('../shared/local-database-connector')
-const SchedulerUtils = require('../shared/scheduler-utils')
 
 if (!global.Logger) { global.Logger = console }
 
@@ -60,7 +59,6 @@ const validate = (request, username, password, callback) => {
           callback(null, false, {});
           return;
         }
-        SchedulerUtils.markAccountIsActive(account.id)
         callback(null, true, account);
       });
     });

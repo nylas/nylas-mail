@@ -8,7 +8,7 @@ const {
 } = require('isomorphic-core');
 const DefaultSyncPolicy = require('../default-sync-policy')
 const LocalDatabaseConnector = require('../../shared/local-database-connector')
-const LocalPubsubConnector = require('../../shared/local-pubsub-connector')
+const SyncProcessManager = require('../../local-sync-worker/sync-process-manager')
 
 const imapSmtpSettings = Joi.object().keys({
   imap_host: [Joi.string().ip().required(), Joi.string().hostname().required()],
@@ -59,7 +59,7 @@ const buildAccountWith = ({name, email, provider, settings, credentials}) => {
       return account.save().then((saved) =>
         AccountToken.create({accountId: saved.id}).then((token) =>
           LocalDatabaseConnector.ensureAccountDatabase(saved.id).then(() => {
-            LocalPubsubConnector.broadcastClient().lpushAsync('accounts:unclaimed', saved.id);
+            SyncProcessManager.addWorkerForAccount(saved);
 
             return Promise.resolve({
               account: saved,
