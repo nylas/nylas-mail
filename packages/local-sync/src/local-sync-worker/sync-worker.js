@@ -4,7 +4,6 @@ const {
   PromiseUtils,
 } = require('isomorphic-core');
 const LocalDatabaseConnector = require('../shared/local-database-connector')
-const MessageTypes = require('../shared/message-types')
 const {
   jsonError,
 } = require('./sync-utils')
@@ -28,8 +27,6 @@ class SyncWorker {
     this._destroyed = false;
 
     this.syncNow({reason: 'Initial'});
-
-    this._onMessage = this._onMessage.bind(this);
   }
 
   cleanup() {
@@ -42,27 +39,6 @@ class SyncWorker {
   closeConnection() {
     if (this._conn) {
       this._conn.end();
-    }
-  }
-
-  _onMessage(msg) {
-    const {type} = JSON.parse(msg);
-    switch (type) {
-      case MessageTypes.ACCOUNT_CREATED:
-        // No other processing currently required for account creation
-        break;
-      case MessageTypes.ACCOUNT_UPDATED:
-        this._onAccountUpdated();
-        break;
-      case MessageTypes.ACCOUNT_DELETED:
-        this.cleanup();
-        this._onExpired();
-        break;
-      case MessageTypes.SYNCBACK_REQUESTED:
-        this.syncNow({reason: 'Syncback Action Queued'});
-        break;
-      default:
-        this._logger.error({message: msg}, 'SyncWorker: Invalid message')
     }
   }
 
