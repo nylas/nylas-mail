@@ -35,12 +35,6 @@ const imapSmtpSettings = Joi.object().keys({
   ssl_required: Joi.boolean().required(),
 }).required();
 
-const gmailSettings = Joi.object().keys({
-  google_client_id: Joi.string().required(),
-  google_client_secret: Joi.string().required(),
-  google_refresh_token: Joi.string().required(),
-});
-
 const exchangeSettings = Joi.object().keys({
   username: Joi.string().required(),
   password: Joi.string().required(),
@@ -93,7 +87,7 @@ module.exports = (server) => {
           email: Joi.string().email().required(),
           name: Joi.string().required(),
           provider: Joi.string().valid('imap', 'gmail').required(),
-          settings: Joi.alternatives().try(imapSmtpSettings, exchangeSettings, gmailSettings),
+          settings: Joi.alternatives().try(imapSmtpSettings, exchangeSettings),
         },
       },
       response: {
@@ -241,7 +235,8 @@ module.exports = (server) => {
               db: {},
             }),
           ])
-          .then(([imap]) => {
+          .then((conns) => {
+            const imap = conns[0];
             if (imap) { imap.end(); }
 
             return DatabaseConnector.forShared().then((db) => {
