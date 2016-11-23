@@ -3,15 +3,15 @@ const Serialization = require('../serialization');
 const {DatabaseConnector} = require('cloud-core');
 
 function upsertMetadata(account, identity, objectId, key, version, data) {
-  DatabaseConnector.forShared().then(({Metadata}) => {
-    Metadata.find({
+  return DatabaseConnector.forShared().then(({Metadata}) => {
+    return Metadata.find({
       accountId: account.id,
       nylasId: identity.id,
       objectId: objectId,
       key: key,
     }).then((existing) => {
       if (existing) {
-        if (existing.version !== version) {
+        if (existing.version / 1 !== version / 1) {
           return Promise.reject(new Error("Version Conflict"));
         }
         existing.data = data;
@@ -21,6 +21,7 @@ function upsertMetadata(account, identity, objectId, key, version, data) {
         accountId: account.id,
         nylasId: identity.id,
         objectId: objectId,
+        version: 0,
         key: key,
         data: data,
       })
@@ -71,7 +72,7 @@ module.exports = (server) => {
       tags: ['metadata'],
       validate: {
         params: {
-          objectId: Joi.number().integer(),
+          objectId: Joi.string(),
           key: Joi.string(),
         },
         payload: {
@@ -90,7 +91,7 @@ module.exports = (server) => {
         reply(Serialization.jsonStringify(metadata));
       })
       .catch((err) => {
-        reply(err).status(409);
+        reply({error: err.toString()}).code(409);
       })
     },
   })
@@ -121,7 +122,7 @@ module.exports = (server) => {
         reply(Serialization.jsonStringify(metadata));
       })
       .catch((err) => {
-        reply(err).status(409);
+        reply({error: err.toString()}).code(409);
       })
     },
   })

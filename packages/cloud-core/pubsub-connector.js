@@ -1,7 +1,7 @@
 const Rx = require('rx')
 const redis = require("redis");
-const PromiseUtils = require('./promise-utils')
-const log = global.Logger || console
+const PromiseUtils = require('./promise-utils');
+const log = global.Logger || console;
 
 PromiseUtils.promisifyAll(redis.RedisClient.prototype);
 PromiseUtils.promisifyAll(redis.Multi.prototype);
