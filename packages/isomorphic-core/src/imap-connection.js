@@ -47,9 +47,10 @@ class IMAPConnection extends EventEmitter {
 
   connect() {
     if (!this._connectPromise) {
-      this._connectPromise = this._resolveIMAPSettings().then((settings) =>
+      this._connectPromise = this._resolveIMAPSettings().then((settings) => {
+        this.resolvedSettings = settings
         this._buildUnderlyingConnection(settings)
-      );
+      });
     }
     return this._connectPromise;
   }
