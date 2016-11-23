@@ -6,12 +6,9 @@ const {
 const LocalDatabaseConnector = require('../shared/local-database-connector')
 const LocalPubsubConnector = require('../shared/local-pubsub-connector')
 const MessageTypes = require('../shared/message-types')
-const SchedulerUtils = require('../shared/scheduler-utils')
 const {
   jsonError,
 } = require('./sync-utils')
-
-const {CLAIM_DURATION} = SchedulerUtils;
 
 const FetchFolderList = require('./imap/fetch-folder-list')
 const FetchMessagesInFolder = require('./imap/fetch-messages-in-folder')
@@ -255,28 +252,12 @@ class SyncWorker {
   }
 
   scheduleNextSync() {
-    if (Date.now() - this._startTime > CLAIM_DURATION) {
-      this._logger.info("SyncWorker: - Has held account for more than CLAIM_DURATION, returning to pool.");
-      this.cleanup();
-      this._onExpired();
-      return;
-    }
+    const {intervals} = this._account.syncPolicy;
+    const target = this._lastSyncTime + intervals.active;
 
-    SchedulerUtils.checkIfAccountIsActive(this._account.id).then((active) => {
-      const {intervals} = this._account.syncPolicy;
-      const interval = active ? intervals.active : intervals.inactive;
-
-      if (interval) {
-        const target = this._lastSyncTime + interval;
-        this._logger.info({
-          is_active: active,
-          next_sync: new Date(target).toLocaleString(),
-        }, `SyncWorker: Next sync scheduled`);
-        this._syncTimer = setTimeout(() => {
-          this.syncNow({reason: 'Scheduled'});
-        }, target - Date.now());
-      }
-    });
+    this._syncTimer = setTimeout(() => {
+      this.syncNow({reason: 'Scheduled'});
+    }, target - Date.now());
   }
 }
 

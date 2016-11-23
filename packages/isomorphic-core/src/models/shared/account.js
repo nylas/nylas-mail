@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const {JSONType, JSONARRAYType} = require('../../database-types');
 
-const {DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD} = process.env;
+let {DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD} = process.env;
 
 module.exports = (sequelize, Sequelize) => {
   const Account = sequelize.define('account', {
@@ -49,17 +49,26 @@ module.exports = (sequelize, Sequelize) => {
         if (!(json instanceof Object)) {
           throw new Error("Call setCredentials with JSON!")
         }
-        const cipher = crypto.createCipher(DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD)
-        let crypted = cipher.update(JSON.stringify(json), 'utf8', 'hex')
-        crypted += cipher.final('hex');
 
-        this.connectionCredentials = crypted;
+        if (DB_ENCRYPTION_ALGORITHM && DB_ENCRYPTION_PASSWORD) {
+          const cipher = crypto.createCipher(DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD)
+          let crypted = cipher.update(JSON.stringify(json), 'utf8', 'hex')
+          crypted += cipher.final('hex');
+          this.connectionCredentials = crypted;
+        } else {
+          this.connectionCredentials = JSON.stringify(json);
+        }
       },
 
       decryptedCredentials() {
-        const decipher = crypto.createDecipher(DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD)
-        let dec = decipher.update(this.connectionCredentials, 'hex', 'utf8')
-        dec += decipher.final('utf8');
+        let dec = null;
+        if (DB_ENCRYPTION_ALGORITHM && DB_ENCRYPTION_PASSWORD) {
+          const decipher = crypto.createDecipher(DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD)
+          dec = decipher.update(this.connectionCredentials, 'hex', 'utf8')
+          dec += decipher.final('utf8');
+        } else {
+          dec = this.connectionCredentials;
+        }
 
         try {
           return JSON.parse(dec);
@@ -72,6 +81,7 @@ module.exports = (sequelize, Sequelize) => {
         if (this.provider !== "imap") {
           throw new Error("Non IMAP not yet supported")
         }
+
         const {smtp_username, smtp_password} = this.decryptedCredentials();
         const {smtp_host, smtp_port, ssl_required} = this.connectionSettings;
 
