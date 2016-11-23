@@ -2,6 +2,7 @@ const _ = require('underscore');
 
 const {Imap, PromiseUtils, IMAPConnection} = require('isomorphic-core');
 const {Capabilities} = IMAPConnection;
+const {queueMessageForProcessing} = require('../../message-processor')
 
 const MessageFlagAttributes = ['id', 'threadId', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']
 
@@ -278,8 +279,7 @@ class FetchMessagesInFolder {
           )
         }
 
-        // FIXME: uncomment when we bring back message processing.
-        // LocalPubsubConnector.queueProcessMessage({accountId, messageId: message.id});
+        queueMessageForProcessing({accountId, messageId: message.id});
       } else {
         message.getThread()
         .then((thread) => {
