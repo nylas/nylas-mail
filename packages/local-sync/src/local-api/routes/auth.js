@@ -154,7 +154,7 @@ module.exports = (server) => {
       })
       .then(({account, token}) => {
         const response = account.toJSON();
-        response.token = token.value;
+        response.auth_token = token.value;
         reply(Serialization.jsonStringify(response));
       })
       .catch((err) => {
