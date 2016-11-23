@@ -1,5 +1,5 @@
 /**
- * Errors may come from:
+ * IMAPErrors may come from:
  *
  * 1. Underlying IMAP provider (Fastmail, Yahoo, etc)
  * 2. Node IMAP
@@ -60,13 +60,13 @@ function convertImapError(imapError) {
 }
 
 /**
- * An abstract base class that can be used to indicate errors that may fix
- * themselves when retried
+ * An abstract base class that can be used to indicate IMAPErrors that may
+ * fix themselves when retried
  */
 class RetryableError extends Error {  }
 
 /**
- * Errors that originate from NodeIMAP. See `convertImapError` for
+ * IMAPErrors that originate from NodeIMAP. See `convertImapError` for
  * documentation on underlying causes
  */
 class IMAPSocketError extends RetryableError { }
