@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const fs = require('fs');
 const path = require('path');
+const {loadModels} = require('isomorphic-core')
 const HookTransactionLog = require('./hook-transaction-log');
 const HookIncrementVersionOnSave = require('./hook-increment-version-on-save');
 
@@ -14,30 +15,6 @@ if (!fs.existsSync(STORAGE_DIR)) {
 class DatabaseConnector {
   constructor() {
     this._cache = {};
-  }
-
-  _readModelsInDirectory(sequelize, dirname, extras) {
-    const db = {};
-    const paths = extras;
-
-    for (const filename of fs.readdirSync(dirname)) {
-      if (filename.endsWith('.js')) {
-        paths.push(path.join(dirname, filename));
-      }
-    }
-
-    for (const filepath of paths) {
-      const model = sequelize.import(filepath);
-      db[model.name[0].toUpperCase() + model.name.substr(1)] = model;
-    }
-
-    Object.keys(db).forEach((modelName) => {
-      if ("associate" in db[modelName]) {
-        db[modelName].associate(db);
-      }
-    });
-
-    return db;
   }
 
   _sequelizePoolForDatabase(dbname) {
@@ -68,10 +45,12 @@ class DatabaseConnector {
 
   _sequelizeForShared() {
     const sequelize = this._sequelizePoolForDatabase(`ebdb`);
-    const modelsPath = path.join(__dirname, 'models');
-    const db = this._readModelsInDirectory(sequelize, modelsPath, [
-      path.resolve(__dirname, '../isomorphic-core/src/models/shared/account'),
-    ]);
+    const db = loadModels(Sequelize, sequelize, {
+      modelLocations: [
+        {modelsSubpath: 'shared'},
+        {modelsDir: path.join(__dirname, 'models')},
+      ],
+    })
 
     HookTransactionLog(db, sequelize);
     HookIncrementVersionOnSave(db, sequelize);
