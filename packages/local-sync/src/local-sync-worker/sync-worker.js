@@ -125,6 +125,7 @@ class SyncWorker {
     .catch((error) => {
       syncbackRequest.error = error
       syncbackRequest.status = "FAILED"
+      this._logger.error(syncbackRequest.toJSON(), `${task.description()} failed`)
     })
     .finally(() => syncbackRequest.save())
   }
