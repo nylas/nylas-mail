@@ -1,7 +1,7 @@
 const {
   IMAPConnection,
   MessageTypes,
-  Errors,
+  IMAPErrors,
   PromiseUtils,
 } = require('nylas-core');
 const LocalDatabaseConnector = require('../shared/local-database-connector')
@@ -211,7 +211,7 @@ class SyncWorker {
     })
 
     // Continue to retry if it was a network error
-    if (error instanceof Errors.RetryableError) {
+    if (error instanceof IMAPErrors.RetryableError) {
       return Promise.resolve()
     }
 

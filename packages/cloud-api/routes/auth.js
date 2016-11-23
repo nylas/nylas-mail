@@ -9,7 +9,7 @@ const Serialization = require('../serialization');
 const {
   IMAPConnection,
   Provider,
-  Errors,
+  IMAPErrors,
 } = require('nylas-core');
 
 
@@ -163,7 +163,7 @@ module.exports = (server) => {
         reply(Serialization.jsonStringify(response));
       })
       .catch((err) => {
-        const code = err instanceof Errors.IMAPAuthenticationError ? 401 : 400
+        const code = err instanceof IMAPErrors.IMAPAuthenticationError ? 401 : 400
         reply({message: err.message, type: "api_error"}).code(code);
       })
     },
