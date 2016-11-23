@@ -62,7 +62,7 @@ class NylasAPI
     if env is 'local'
       @RemoteAPIRoot = 'http://localhost:5100'
     else
-      @RemoteAPIRoot = 'https://n1-prod.us-east-1.elasticbeanstalk.com'
+      @RemoteAPIRoot = 'https://n1.nylas.com'
 
   # Delegates to node's request object.
   # On success, it will call the passed in success callback with options.
