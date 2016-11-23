@@ -56,25 +56,13 @@ class NylasAPI
 
   constructor: ->
     @_lockTracker = new NylasAPIChangeLockTracker()
-
-    NylasEnv.config.onDidChange('env', @_onConfigChanged)
-    @_onConfigChanged()
-
-  _onConfigChanged: =>
     @APIRoot = 'http://localhost:5100'
 
-    if NylasEnv.inSpecMode()
-      @pluginsSupported = true
-      env = "testing"
+    env = NylasEnv.config.get('env')
+    if env is 'local'
+      @RemoteAPIRoot = 'http://localhost:5100'
     else
-      env = NylasEnv.config.get('env')
-
-    if not env
-      env = 'production'
-      console.warn("NylasAPI: config file does not contain an environment \
-                     value. Defaulting to `production`.")
-
-    current = {@APIRoot, @APITokens}
+      @RemoteAPIRoot = 'https://n1-prod.us-east-1.elasticbeanstalk.com'
 
   # Delegates to node's request object.
   # On success, it will call the passed in success callback with options.
@@ -97,6 +85,11 @@ class NylasAPI
       return Promise.resolve()
 
     NylasAPIRequest ?= require('./nylas-api-request').default
+    if options.remote
+      options.APIRoot = @RemoteAPIRoot
+    else
+      options.APIRoot = @APIRoot
+
     req = new NylasAPIRequest(@, options)
 
     success = (body) =>
