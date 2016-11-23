@@ -6,7 +6,7 @@ function loadModels(Sequelize, sequelize, modelsPath, {schema} = {}) {
   const dirname = path.join(__dirname, modelsPath)
   for (const filename of fs.readdirSync(dirname)) {
     if (filename.endsWith('.js')) {
-      let model = require(filename)(sequelize, Sequelize) // eslint-disable-line
+      let model = require(path.join(dirname, filename))(sequelize, Sequelize) // eslint-disable-line
       if (schema) {
         model = model.schema(schema);
       }
