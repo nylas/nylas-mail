@@ -1,10 +1,10 @@
 const Sequelize = require('sequelize');
 const fs = require('fs');
 const path = require('path');
+const {PromiseUtils} = require('nylas-core');
 const HookTransactionLog = require('./hook-transaction-log');
 const HookAccountCRUD = require('./hook-account-crud');
 const HookIncrementVersionOnSave = require('./hook-increment-version-on-save');
-const PromiseUtils = require('./promise-utils');
 
 require('./database-extensions'); // Extends Sequelize on require
 
