@@ -41,8 +41,8 @@ export function makeGmailOAuthRequest(sessionKey, callback) {
       sendImmediately: true,
     },
     success: (json) => {
-      if (json && json.data) {
-        callback(null, JSON.parse(json.data));
+      if (json) {
+        callback(null, JSON.parse(json));
       } else {
         callback(null, null);
       }
