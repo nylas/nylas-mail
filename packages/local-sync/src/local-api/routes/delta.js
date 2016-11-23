@@ -50,7 +50,7 @@ function lastTransaction(db) {
 }
 
 function initialTransactions(db, request) {
-  let cursor = (request.query || {}).cursor;
+  const cursor = (request.query || {}).cursor;
   const where = cursor ? {id: {$gt: cursor}} : {createdAt: {$gte: new Date()}}
   return db.Transaction
            .streamAll({where})
@@ -60,8 +60,7 @@ function initialTransactions(db, request) {
 function inflatedDeltas(db, request) {
   const accountId = request.auth.credentials.id;
   return TransactionConnector.getObservableForAccountId(accountId)
-    .flatMap((transactionJSON) => [db.Transaction.build(transactionJSON)])
-    .flatMap((objs) => inflateTransactions(db, objs))
+    .flatMap((transaction) => inflateTransactions(db, [transaction]))
 }
 
 module.exports = (server) => {
