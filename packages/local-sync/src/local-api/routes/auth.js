@@ -1,27 +1,14 @@
 const Joi = require('joi');
 const _ = require('underscore');
-const google = require('googleapis');
-const OAuth2 = google.auth.OAuth2;
 
 const Serialization = require('../serialization');
 const {
   IMAPConnection,
-  Provider,
   IMAPErrors,
 } = require('isomorphic-core');
 const DefaultSyncPolicy = require('../default-sync-policy')
 const LocalDatabaseConnector = require('../../shared/local-database-connector')
 const LocalPubsubConnector = require('../../shared/local-pubsub-connector')
-
-const {GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL} = process.env;
-
-const SCOPES = [
-  'https://www.googleapis.com/auth/userinfo.email',  // email address
-  'https://www.googleapis.com/auth/userinfo.profile',  // G+ profile
-  'https://mail.google.com/',  // email
-  'https://www.google.com/m8/feeds',  // contacts
-  'https://www.googleapis.com/auth/calendar',  // calendar
-];
 
 const imapSmtpSettings = Joi.object().keys({
   imap_host: [Joi.string().ip().required(), Joi.string().hostname().required()],
@@ -174,96 +161,6 @@ module.exports = (server) => {
         const code = err instanceof IMAPErrors.IMAPAuthenticationError ? 401 : 400
         reply({message: err.message, type: "api_error"}).code(code);
       })
-    },
-  });
-
-  server.route({
-    method: 'GET',
-    path: '/auth/gmail',
-    config: {
-      description: 'Redirects to Gmail OAuth',
-      notes: 'Notes go here',
-      tags: ['accounts'],
-      auth: false,
-    },
-    handler: (request, reply) => {
-      const oauthClient = new OAuth2(GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL);
-      reply.redirect(oauthClient.generateAuthUrl({
-        access_type: 'offline',
-        prompt: 'consent',
-        scope: SCOPES,
-      }));
-    },
-  });
-
-  server.route({
-    method: 'GET',
-    path: '/auth/gmail/oauthcallback',
-    config: {
-      description: 'Authenticates a new account.',
-      notes: 'Notes go here',
-      tags: ['accounts'],
-      auth: false,
-      validate: {
-        query: {
-          code: Joi.string().required(),
-        },
-      },
-    },
-    handler: (request, reply) => {
-      const oauthClient = new OAuth2(GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL);
-      oauthClient.getToken(request.query.code, (err, tokens) => {
-        if (err) {
-          reply({message: err.message, type: "api_error"}).code(400);
-          return;
-        }
-        oauthClient.setCredentials(tokens);
-        google.oauth2({version: 'v2', auth: oauthClient}).userinfo.get((error, profile) => {
-          if (error) {
-            reply({message: error.message, type: "api_error"}).code(400);
-            return;
-          }
-
-          const settings = {
-            imap_username: profile.email,
-            imap_host: 'imap.gmail.com',
-            imap_port: 993,
-            ssl_required: true,
-          }
-          const credentials = {
-            refresh_token: tokens.refresh_token,
-            client_id: GMAIL_CLIENT_ID,
-            client_secret: GMAIL_CLIENT_SECRET,
-          }
-          Promise.all([
-            IMAPConnection.connect({
-              logger: request.logger,
-              settings: Object.assign({}, settings, credentials),
-              db: {},
-            }),
-          ])
-          .then((conns) => {
-            for (const conn of conns) {
-              if (conn) { conn.end(); }
-            }
-            return buildAccountWith({
-              name: profile.name,
-              email: profile.email,
-              provider: Provider.Gmail,
-              settings,
-              credentials,
-            })
-          })
-          .then(({account, token}) => {
-            const response = account.toJSON();
-            response.token = token.value;
-            reply(Serialization.jsonStringify(response));
-          })
-          .catch((connectionErr) => {
-            reply({message: connectionErr.message, type: "api_error"}).code(400);
-          });
-        });
-      });
     },
   });
 }
