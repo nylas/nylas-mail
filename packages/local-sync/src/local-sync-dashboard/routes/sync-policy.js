@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const {SchedulerUtils} = require(`nylas-core`);
+const SchedulerUtils = require('../../shared/scheduler-utils');
 
 module.exports = (server) => {
   server.route({

@@ -1,5 +1,4 @@
 const {
-  SchedulerUtils,
   IMAPConnection,
   PubsubConnector,
   DatabaseConnector,
@@ -7,6 +6,7 @@ const {
   Errors,
   PromiseUtils,
 } = require('nylas-core');
+const SchedulerUtils = require('../shared/scheduler-utils')
 const {
   jsonError,
 } = require('./sync-utils')
