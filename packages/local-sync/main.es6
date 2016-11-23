@@ -1,7 +1,7 @@
 
 export function activate() {
-  require('./nylas-api/app.js');
-  require('./nylas-sync/app.js');
+  require('./src/nylas-api/app.js');
+  require('./src/nylas-sync/app.js');
   console.log('wtf dude')
 }
 
