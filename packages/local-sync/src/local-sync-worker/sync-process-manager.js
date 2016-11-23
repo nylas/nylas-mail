@@ -1,5 +1,6 @@
 const SyncWorker = require('./sync-worker');
-const {PromiseUtils, DatabaseConnector, PubsubConnector, SchedulerUtils} = require(`nylas-core`)
+const {PromiseUtils, DatabaseConnector, PubsubConnector} = require(`nylas-core`)
+const SchedulerUtils = require('../shared/scheduler-utils')
 
 const IDENTITY = `${global.instanceId}-${process.pid}`;
 

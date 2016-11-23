@@ -1,8 +1,8 @@
 const {
   DatabaseConnector,
   PubsubConnector,
-  SchedulerUtils,
 } = require(`nylas-core`);
+const SchedulerUtils = require('../../shared/scheduler-utils')
 
 function onWebsocketConnected(wss, ws) {
   let toSend;

@@ -10,7 +10,8 @@ const Vision = require('vision');
 const Package = require('../../package');
 const fs = require('fs');
 const path = require('path');
-const {DatabaseConnector, SchedulerUtils, Logger} = require(`nylas-core`);
+const {DatabaseConnector, Logger} = require(`nylas-core`);
+const SchedulerUtils = require('../shared/scheduler-utils')
 
 global.Metrics = Metrics
 global.Logger = Logger.createLogger('nylas-k2-api')
