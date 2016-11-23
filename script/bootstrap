@@ -65,7 +65,7 @@ function installPrivateResources() {
   }
 
   // link local-sync
-  const localSyncDir = path.resolve(path.join('src', 'K2', 'local-sync'))
+  const localSyncDir = path.resolve(path.join('src', 'K2', 'packages', 'local-sync'))
   const destination = path.join(path.resolve('internal_packages'), 'local-sync');
   unlinkIfExistsSync(destination);
   fs.symlinkSync(localSyncDir, destination, 'dir');
