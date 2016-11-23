@@ -4,7 +4,7 @@ module.exports = {
     IMAP: 'imap',
   },
   Imap: require('imap'),
-  IMAPConnection: require('./imap-connection'),
-  IMAPErrors: require('./imap-errors'),
-  PromiseUtils: require('./promise-utils'),
+  IMAPConnection: require('src/imap-connection'),
+  IMAPErrors: require('src/imap-errors'),
+  PromiseUtils: require('src/promise-utils'),
 }
