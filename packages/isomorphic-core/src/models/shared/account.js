@@ -28,6 +28,7 @@ module.exports = (sequelize, Sequelize) => {
       toJSON() {
         return {
           id: this.id,
+          name: this.name,
           object: 'account',
           organization_unit: (this.provider === 'gmail') ? 'label' : 'folder',
           provider: this.provider,
