@@ -10,6 +10,8 @@ const path = require('path');
 const LocalDatabaseConnector = require('../shared/local-database-connector')
 const SchedulerUtils = require('../shared/scheduler-utils')
 
+if (!global.Logger) { global.Logger = console }
+
 const server = new Hapi.Server({
   connections: {
     router: {
