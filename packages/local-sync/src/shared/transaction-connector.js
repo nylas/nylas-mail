@@ -8,7 +8,7 @@ class TransactionConnector extends EventEmitter {
 
   getObservableForAccountId(accountId) {
     return Rx.Observable.create((observer) => {
-      this.on(accountId, observer.next);
+      this.on(accountId, observer.onNext.bind(observer));
     });
   }
 }
