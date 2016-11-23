@@ -36,7 +36,10 @@ class LocalDatabaseConnector {
     }
 
     const newSequelize = this._sequelizePoolForDatabase(`a-${accountId}`);
-    const db = loadModels(Sequelize, newSequelize, 'account', {schema: `a${accountId}`})
+    const db = loadModels(Sequelize, newSequelize, {
+      modelsSubPath: 'account',
+      schema: `a${accountId}`,
+    })
 
     HookTransactionLog(db, newSequelize);
     HookIncrementVersionOnSave(db, newSequelize);
@@ -69,7 +72,7 @@ class LocalDatabaseConnector {
 
   _sequelizeForShared() {
     const sequelize = this._sequelizePoolForDatabase(`shared`);
-    const db = loadModels(Sequelize, sequelize, 'shared')
+    const db = loadModels(Sequelize, sequelize, {modelsSubPath: 'shared'})
 
     HookAccountCRUD(db, sequelize);
 

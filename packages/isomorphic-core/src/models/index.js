@@ -1,12 +1,12 @@
 const fs = require('fs');
 const path = require('path');
 
-function loadModels(Sequelize, sequelize, modelsPath, {schema} = {}) {
+function loadModels(Sequelize, sequelize, {modelsDir = __dirname, modelsSubPath = '', schema} = {}) {
   const db = {};
-  const modelsDirectory = path.join(__dirname, modelsPath)
-  for (const filename of fs.readdirSync(modelsDirectory)) {
+  const fullModelsDir = path.join(modelsDir, modelsSubPath)
+  for (const filename of fs.readdirSync(fullModelsDir)) {
     if (filename.endsWith('.js')) {
-      let model = sequelize.import(path.join(modelsDirectory, filename));
+      let model = sequelize.import(path.join(fullModelsDir, filename));
       if (schema) {
         model = model.schema(schema);
       }
