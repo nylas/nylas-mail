@@ -1,8 +1,7 @@
 /* eslint global-require: 0 */
 
 import crypto from 'crypto';
-import {EdgehillAPI, NylasAPI, AccountStore, RegExpUtils, IdentityStore} from 'nylas-exports';
-import url from 'url';
+import {NylasAPI, AccountStore, RegExpUtils, IdentityStore} from 'nylas-exports';
 
 function base64url(inBuffer) {
   let buffer;
@@ -19,10 +18,16 @@ function base64url(inBuffer) {
 }
 
 export function makeGmailOAuthRequest(sessionKey, callback) {
-  EdgehillAPI.makeRequest({
-    path: `/oauth/google/token?key=${sessionKey}`,
+  NylasAPI.makeRequest({
+    remote: true,
+    path: `/auth/gmail/token?key=${sessionKey}`,
     method: "GET",
     error: callback,
+    auth: {
+      user: '',
+      pass: '',
+      sendImmediately: true,
+    },
     success: (json) => {
       if (json && json.data) {
         callback(null, JSON.parse(json.data));
@@ -38,33 +43,9 @@ export function buildGmailSessionKey() {
 }
 
 export function buildGmailAuthURL(sessionKey) {
-  // Use a different app for production and development.
-  const env = NylasEnv.config.get('env') || 'production';
-  let googleClientId = '372024217839-cdsnrrqfr4d6b4gmlqepd7v0n0l0ip9q.apps.googleusercontent.com';
-  if (env !== 'production') {
-    googleClientId = '529928329786-e5foulo1g9kiej2h9st9sb0f4dt96s6v.apps.googleusercontent.com';
-  }
-
   const encryptionKey = base64url(crypto.randomBytes(24));
   const encryptionIv = base64url(crypto.randomBytes(16));
-
-  return url.format({
-    protocol: 'https',
-    host: 'accounts.google.com/o/oauth2/auth',
-    query: {
-      response_type: 'code',
-      state: `${sessionKey},${encryptionKey},${encryptionIv},`,
-      client_id: googleClientId,
-      redirect_uri: `${EdgehillAPI.APIRoot}/oauth/google/callback`,
-      access_type: 'offline',
-      scope: `https://www.googleapis.com/auth/userinfo.email \
-          https://www.googleapis.com/auth/userinfo.profile \
-          https://mail.google.com/ \
-          https://www.google.com/m8/feeds \
-          https://www.googleapis.com/auth/calendar`,
-      prompt: 'consent',
-    },
-  });
+  return `${NylasAPI.RemoteAPIRoot}/auth/gmail?state=${sessionKey},${encryptionKey},${encryptionIv}`;
 }
 
 export function runAuthRequest(accountInfo) {
