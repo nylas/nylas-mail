@@ -1,7 +1,19 @@
 /* eslint global-require: 0 */
 
 import crypto from 'crypto';
-import {NylasAPI, AccountStore, RegExpUtils, IdentityStore} from 'nylas-exports';
+import {EdgehillAPI, NylasAPI, AccountStore, RegExpUtils, IdentityStore} from 'nylas-exports';
+
+const IMAP_FIELDS = new Set([
+  "imap_host",
+  "imap_port",
+  "imap_username",
+  "imap_password",
+  "smtp_host",
+  "smtp_port",
+  "smtp_username",
+  "smtp_password",
+  "ssl_required",
+]);
 
 function base64url(inBuffer) {
   let buffer;
@@ -70,6 +82,18 @@ export function runAuthRequest(accountInfo) {
   // if there's an account with this email, get the ID for it to notify the backend of re-auth
   const account = AccountStore.accountForEmail(accountInfo.email);
   const reauthParam = account ? `&reauth=${account.id}` : "";
+
+  /**
+   * Only include the required IMAP fields. Auth validation does not allow
+   * extra fields
+   */
+  if (type === "imap") {
+    for (const key of Object.keys(data.settings)) {
+      if (!IMAP_FIELDS.has(key)) {
+        delete data.settings[key]
+      }
+    }
+  }
 
   // Send the form data directly to Nylas to get code
   // If this succeeds, send the received code to N1 server to register the account
