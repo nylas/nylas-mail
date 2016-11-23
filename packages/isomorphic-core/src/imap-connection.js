@@ -254,7 +254,7 @@ class IMAPConnection extends EventEmitter {
 
     const {operation, resolve, reject} = this._currentOperation;
     const result = operation.run(this._db, this);
-    if (result instanceof Promise === false) {
+    if (result.constructor.name !== "Promise") {
       reject(new Error(`Expected ${operation.constructor.name} to return promise.`))
     }
 
