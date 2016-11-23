@@ -20,9 +20,9 @@
     "request": "2.79.0",
     "rx": "4.1.0",
     "sequelize": "3.27.0",
+    "sqlite3": "https://github.com/bengotow/node-sqlite3/archive/bengotow/usleep-v3.1.4.tar.gz",
     "underscore": "1.8.3",
-    "vision": "4.1.0",
-    "better-sqlite3": "bengotow/better-sqlite3#a888061ad334c76d2db4c06554c90785cc6e7cce"
+    "vision": "4.1.0"
   },
   "repository": {
     "type": "git",
