@@ -22,10 +22,8 @@ const imapSmtpSettings = Joi.object().keys({
   ssl_required: Joi.boolean().required(),
 }).required();
 
-const gmailSettings = Joi.object().keys({
-  google_client_id: Joi.string().required(),
-  google_client_secret: Joi.string().required(),
-  google_refresh_token: Joi.string().required(),
+const resolvedGmailSettings = Joi.object().keys({
+  xoauth2: Joi.string().required(),
 });
 
 const exchangeSettings = Joi.object().keys({
@@ -90,7 +88,7 @@ module.exports = (server) => {
           email: Joi.string().email().required(),
           name: Joi.string().required(),
           provider: Joi.string().valid('imap', 'gmail').required(),
-          settings: Joi.alternatives().try(imapSmtpSettings, exchangeSettings, gmailSettings),
+          settings: Joi.alternatives().try(imapSmtpSettings, exchangeSettings, resolvedGmailSettings),
         },
       },
       response: {
@@ -128,9 +126,7 @@ module.exports = (server) => {
           ssl_required: true,
         }
         connectionCredentials = {
-          client_id: settings.google_client_id,
-          client_secret: settings.google_client_secret,
-          refresh_token: settings.google_refresh_token,
+          xoauth2: settings.xoauth2,
         }
       }
 

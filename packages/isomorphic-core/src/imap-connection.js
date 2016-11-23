@@ -49,7 +49,7 @@ class IMAPConnection extends EventEmitter {
     if (!this._connectPromise) {
       this._connectPromise = this._resolveIMAPSettings().then((settings) => {
         this.resolvedSettings = settings
-        this._buildUnderlyingConnection(settings)
+        return this._buildUnderlyingConnection(settings)
       });
     }
     return this._connectPromise;
@@ -64,6 +64,7 @@ class IMAPConnection extends EventEmitter {
       tls: this._settings.ssl_required,
     }
 
+    // This account uses XOAuth2, and we have the client_id + refresh token
     if (this._settings.refresh_token) {
       const xoauthFields = ['client_id', 'client_secret', 'imap_username', 'refresh_token'];
       if (Object.keys(_.pick(this._settings, xoauthFields)).length !== 4) {
@@ -82,6 +83,13 @@ class IMAPConnection extends EventEmitter {
           return resolve(result);
         });
       });
+    }
+
+    // This account uses XOAuth2, and we have a token given to us by the
+    // backend, which has the client secret.
+    if (this._settings.xoauth2) {
+      delete result.password;
+      result.xoauth2 = this._settings.xoauth2;
     }
 
     return Promise.resolve(result);
