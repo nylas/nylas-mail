@@ -18,7 +18,7 @@ const server = new Hapi.Server({
   },
 });
 
-server.connection({ port: process.env.PORT });
+server.connection({ port: 2578 });
 
 const plugins = [Inert, Vision, HapiBasicAuth, HapiBoom, {
   register: HapiSwagger,
