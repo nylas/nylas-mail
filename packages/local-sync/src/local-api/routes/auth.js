@@ -24,7 +24,7 @@ const imapSmtpSettings = Joi.object().keys({
 
 const resolvedGmailSettings = Joi.object().keys({
   xoauth2: Joi.string().required(),
-});
+}).required();
 
 const exchangeSettings = Joi.object().keys({
   username: Joi.string().required(),
@@ -80,10 +80,6 @@ module.exports = (server) => {
       tags: ['accounts'],
       auth: false,
       validate: {
-        query: {
-          client_id: Joi.string().required(),
-          n1_id: Joi.string(),
-        },
         payload: {
           email: Joi.string().email().required(),
           name: Joi.string().required(),

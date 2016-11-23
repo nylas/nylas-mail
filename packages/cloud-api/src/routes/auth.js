@@ -79,10 +79,6 @@ module.exports = (server) => {
       tags: ['accounts'],
       auth: false,
       validate: {
-        query: {
-          client_id: Joi.string().required(),
-          n1_id: Joi.string(),
-        },
         payload: {
           email: Joi.string().email().required(),
           name: Joi.string().required(),
