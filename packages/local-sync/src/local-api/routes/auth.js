@@ -6,10 +6,10 @@ const OAuth2 = google.auth.OAuth2;
 const Serialization = require('../serialization');
 const {
   IMAPConnection,
-  SyncPolicy,
   Provider,
   Errors,
 } = require('nylas-core');
+const DefaultSyncPolicy = require('../default-sync-policy')
 const LocalDatabaseConnector = require('../../shared/local-database-connector')
 const LocalPubsubConnector = require('../../shared/local-pubsub-connector')
 
@@ -62,7 +62,7 @@ const buildAccountWith = ({name, email, provider, settings, credentials}) => {
         provider: provider,
         emailAddress: email,
         connectionSettings: settings,
-        syncPolicy: SyncPolicy.defaultPolicy(),
+        syncPolicy: DefaultSyncPolicy,
         lastSyncCompletions: [],
       })
 
