@@ -2,7 +2,7 @@ const {
   IMAPConnection,
   IMAPErrors,
   PromiseUtils,
-} = require('nylas-core');
+} = require('isomorphic-core');
 const LocalDatabaseConnector = require('../shared/local-database-connector')
 const LocalPubsubConnector = require('../shared/local-pubsub-connector')
 const MessageTypes = require('../shared/message-types')
