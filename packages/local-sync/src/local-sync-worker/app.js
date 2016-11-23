@@ -1,4 +1,4 @@
-const Metrics = require('../nylas-metrics')
+const Metrics = require('../local-sync-metrics')
 Metrics.startCapturing('nylas-k2-sync')
 
 const {DatabaseConnector, Logger} = require('nylas-core')
