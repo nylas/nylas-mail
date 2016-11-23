@@ -70,7 +70,7 @@ class DatabaseConnector {
     const sequelize = this._sequelizePoolForDatabase(`ebdb`);
     const modelsPath = path.join(__dirname, 'models');
     const db = this._readModelsInDirectory(sequelize, modelsPath, [
-      path.resolve(__dirname, '../isomorphic-core/models/shared/account'),
+      path.resolve(__dirname, '../isomorphic-core/src/models/shared/account'),
     ]);
 
     HookTransactionLog(db, sequelize);

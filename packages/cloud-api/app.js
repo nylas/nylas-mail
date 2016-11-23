@@ -106,7 +106,7 @@ server.register(plugins, (err) => {
   if (err) { throw err; }
 
   attach('./src/routes/')
-  attach('./decorators/')
+  attach('./src/decorators/')
 
   server.auth.strategy('api-consumer', 'basic', { validateFunc: validate });
   server.auth.default('api-consumer');
