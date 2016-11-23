@@ -4,6 +4,9 @@
   "description": "Core shared packages",
   "main": "index.js",
   "dependencies": {
+    "bunyan": "1.8.0",
+    "bunyan-cloudwatch": "2.0.0",
+    "bunyan-prettystream": "github:emorikawa/node-bunyan-prettystream",
     "mysql": "^2.11.1",
     "promise-props": "^1.0.0",
     "promise.prototype.finally": "^2.0.1",
