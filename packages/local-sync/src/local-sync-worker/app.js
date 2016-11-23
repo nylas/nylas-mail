@@ -1,19 +1,4 @@
-const Metrics = require('../local-sync-metrics')
-Metrics.startCapturing('nylas-k2-sync')
-
-const {Logger} = require('nylas-core')
 const LocalDatabaseConnector = require('../shared/local-database-connector')
-
-global.Metrics = Metrics
-global.Logger = Logger.createLogger('nylas-k2-sync')
-
-const onUnhandledError = (err) => {
-  global.Logger.fatal(err, 'Unhandled error')
-  global.Metrics.reportError(err)
-}
-process.on('uncaughtException', onUnhandledError)
-process.on('unhandledRejection', onUnhandledError)
-
 
 const prepareEnvironmentInfo = (callback) => {
   if (process.env.NODE_ENV === 'development') {

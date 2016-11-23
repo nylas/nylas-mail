@@ -1,6 +1,3 @@
-const Metrics = require(`../local-sync-metrics`)
-Metrics.startCapturing('nylas-k2-api')
-
 const Hapi = require('hapi');
 const HapiSwagger = require('hapi-swagger');
 const HapiBoom = require('hapi-boom-decorators')
@@ -10,19 +7,8 @@ const Vision = require('vision');
 const Package = require('../../package');
 const fs = require('fs');
 const path = require('path');
-const {Logger} = require(`nylas-core`);
 const LocalDatabaseConnector = require('../shared/local-database-connector')
 const SchedulerUtils = require('../shared/scheduler-utils')
-
-global.Metrics = Metrics
-global.Logger = Logger.createLogger('nylas-k2-api')
-
-const onUnhandledError = (err) => {
-  global.Logger.fatal(err, 'Unhandled error')
-  global.Metrics.reportError(err)
-}
-process.on('uncaughtException', onUnhandledError)
-process.on('unhandledRejection', onUnhandledError)
 
 const server = new Hapi.Server({
   connections: {
