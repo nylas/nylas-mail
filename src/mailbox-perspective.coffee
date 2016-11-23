@@ -73,7 +73,9 @@ class MailboxPerspective
   # Instance Methods
 
   constructor: (@accountIds) ->
-    unless @accountIds instanceof Array and _.every(@accountIds, _.isString)
+    unless @accountIds instanceof Array and _.every(@accountIds, (aid) =>
+      (typeof aid is 'string') or (typeof aid is 'number')
+    )
       throw new Error("#{@constructor.name}: You must provide an array of string `accountIds`")
     @
 

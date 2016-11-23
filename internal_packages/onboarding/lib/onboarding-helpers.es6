@@ -1,7 +1,7 @@
 /* eslint global-require: 0 */
 
 import crypto from 'crypto';
-import {EdgehillAPI, NylasAPI, AccountStore, RegExpUtils, IdentityStore} from 'nylas-exports';
+import {NylasAPI, AccountStore, RegExpUtils, IdentityStore} from 'nylas-exports';
 
 const IMAP_FIELDS = new Set([
   "imap_host",
@@ -109,15 +109,6 @@ export function runAuthRequest(accountInfo) {
       pass: '',
       sendImmediately: true,
     },
-  })
-  .then((json) => {
-    json.email = data.email;
-    return EdgehillAPI.makeRequest({
-      path: "/connect/nylas",
-      method: "POST",
-      timeout: 60000,
-      body: json,
-    })
   })
 }
 
