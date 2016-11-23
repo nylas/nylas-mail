@@ -1,6 +1,6 @@
 const {PromiseUtils} = require('nylas-core');
 const mockDatabase = require('./mock-database');
-const FetchFolderList = require('../../nylas-sync/imap/fetch-folder-list')
+const FetchFolderList = require('../../src/local-sync-worker/imap/fetch-folder-list')
 
 const testCategoryRoles = (db, mailboxes) => {
   const mockLogger = {
