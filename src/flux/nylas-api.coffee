@@ -56,7 +56,7 @@ class NylasAPI
 
   constructor: ->
     @_lockTracker = new NylasAPIChangeLockTracker()
-    @LocalSyncRoot = 'http://localhost:5100'
+    @LocalSyncRoot = 'http://localhost:2578'
 
     env = NylasEnv.config.get('env')
     if env is 'local'
