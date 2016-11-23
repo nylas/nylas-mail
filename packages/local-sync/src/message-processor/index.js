@@ -45,8 +45,7 @@ function queueMessageForProcessing({accountId, messageId}) {
         }
         return runPipeline({db, accountId, message, logger})
           .then((processedMessage) => saveMessage(processedMessage))
-          .catch((err) => logger.error(err, `MessageProcessor: Failed`)
-          )
+          .catch((err) => logger.error(err, `MessageProcessor: Failed`))
       })
     })
   })
