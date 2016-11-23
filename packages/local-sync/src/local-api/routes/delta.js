@@ -1,6 +1,6 @@
 const Rx = require('rx')
 const _ = require('underscore');
-const LocalPubsubConnector = require('../../shared/local-pubsub-connector')
+const TransactionConnector = require('../../shared/transaction-connector')
 
 function keepAlive(request) {
   const until = Rx.Observable.fromCallback(request.on)("disconnect")
@@ -58,7 +58,8 @@ function initialTransactions(db, request) {
 }
 
 function inflatedDeltas(db, request) {
-  return LocalPubsubConnector.observeDeltas(request.auth.credentials.id)
+  const accountId = request.auth.credentials.id;
+  return TransactionConnector.getObservableForAccountId(accountId)
     .flatMap((transactionJSON) => [db.Transaction.build(transactionJSON)])
     .flatMap((objs) => inflateTransactions(db, objs))
 }

@@ -4,7 +4,6 @@ const {
   PromiseUtils,
 } = require('isomorphic-core');
 const LocalDatabaseConnector = require('../shared/local-database-connector')
-const LocalPubsubConnector = require('../shared/local-pubsub-connector')
 const MessageTypes = require('../shared/message-types')
 const {
   jsonError,
@@ -31,14 +30,12 @@ class SyncWorker {
     this.syncNow({reason: 'Initial'});
 
     this._onMessage = this._onMessage.bind(this);
-    this._listener = LocalPubsubConnector.observeAccount(account.id).subscribe(this._onMessage)
   }
 
   cleanup() {
     clearTimeout(this._syncTimer);
     this._syncTimer = null;
     this._destroyed = true;
-    this._listener.dispose();
     this.closeConnection()
   }
 

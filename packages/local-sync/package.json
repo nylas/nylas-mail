@@ -16,7 +16,6 @@
     "joi": "8.4.2",
     "mimelib": "0.2.19",
     "nodemailer": "2.5.0",
-    "redis": "2.6.3",
     "request": "2.79.0",
     "rx": "4.1.0",
     "sequelize": "3.27.0",
