@@ -204,11 +204,6 @@ class SyncWorker {
     this.closeConnection()
 
     this._logger.error(error, `SyncWorker: Error while syncing account`)
-    global.Metrics.reportMetric({
-      name: 'sync_error',
-      value: 1,
-      type: global.Metrics.Counter,
-    })
 
     // Continue to retry if it was a network error
     if (error instanceof IMAPErrors.RetryableError) {
