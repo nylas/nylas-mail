@@ -1,19 +1,6 @@
-const Metrics = require(`../local-sync-metrics`)
-Metrics.startCapturing('nylas-k2-message-processor')
-
-const {LocalPubsubConnector, Logger} = require(`nylas-core`)
 const {processors} = require('./processors')
 const LocalDatabaseConnector = require('../shared/local-database-connector')
-
-global.Metrics = Metrics
-global.Logger = Logger.createLogger('nylas-k2-message-processor')
-
-const onUnhandledError = (err) => {
-  global.Logger.fatal(err, 'Unhandled error')
-  global.Metrics.reportError(err)
-}
-process.on('uncaughtException', onUnhandledError)
-process.on('unhandledRejection', onUnhandledError)
+const LocalPubsubConnector = require('../shared/local-pubsub-connector')
 
 // List of the attributes of Message that the processor should be allowed to change.
 // The message may move between folders, get starred, etc. while it's being
