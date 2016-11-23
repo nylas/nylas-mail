@@ -1,11 +1,12 @@
 const Serialization = require('./serialization');
-const {PubsubConnector, MessageTypes} = require('nylas-core')
+const {MessageTypes} = require('nylas-core')
+const LocalPubsubConnector = require('../shared/local-pubsub-connector')
 
 module.exports = {
   createSyncbackRequest: function createSyncbackRequest(request, reply, syncRequestArgs) {
     request.getAccountDatabase().then((db) => {
       db.SyncbackRequest.create(syncRequestArgs).then((syncbackRequest) => {
-        PubsubConnector.notifyAccount(db.accountId, {
+        LocalPubsubConnector.notifyAccount(db.accountId, {
           type: MessageTypes.SYNCBACK_REQUESTED,
           data: syncbackRequest.id,
         });

@@ -1,11 +1,11 @@
 const {
   IMAPConnection,
-  PubsubConnector,
   DatabaseConnector,
   MessageTypes,
   Errors,
   PromiseUtils,
 } = require('nylas-core');
+const LocalPubsubConnector = require('../shared/local-pubsub-connector')
 const SchedulerUtils = require('../shared/scheduler-utils')
 const {
   jsonError,
@@ -34,7 +34,7 @@ class SyncWorker {
     this.syncNow({reason: 'Initial'});
 
     this._onMessage = this._onMessage.bind(this);
-    this._listener = PubsubConnector.observeAccount(account.id).subscribe(this._onMessage)
+    this._listener = LocalPubsubConnector.observeAccount(account.id).subscribe(this._onMessage)
   }
 
   cleanup() {

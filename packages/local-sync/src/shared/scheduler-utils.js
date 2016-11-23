@@ -9,11 +9,11 @@ const HEARTBEAT_EXPIRES = 30; // 2 min in prod?
 const CLAIM_DURATION = 10 * 60 * 1000; // 2 hours on prod?
 
 const PromiseUtils = require('./promise-utils')
-const PubsubConnector = require('./pubsub-connector');
+const LocalPubsubConnector = require('./pubsub-connector');
 const MessageTypes = require('./message-types')
 
 const forEachAccountList = (forEachCallback) => {
-  const client = PubsubConnector.broadcastClient();
+  const client = LocalPubsubConnector.broadcastClient();
   return PromiseUtils.each(client.keysAsync(`accounts:*`), (key) => {
     const processId = key.replace('accounts:', '');
     return client.lrangeAsync(key, 0, 20000).then((foundIds) =>
@@ -51,13 +51,13 @@ const assignPolicyToAcounts = (accountIds, policy) => {
 }
 
 const checkIfAccountIsActive = (accountId) => {
-  const client = PubsubConnector.broadcastClient();
+  const client = LocalPubsubConnector.broadcastClient();
   const key = ACTIVE_KEY_FOR(accountId);
   return client.getAsync(key).then((val) => val !== null)
 }
 
 const listActiveAccounts = () => {
-  const client = PubsubConnector.broadcastClient();
+  const client = LocalPubsubConnector.broadcastClient();
   const keyBase = ACTIVE_KEY_FOR('');
 
   return client.keysAsync(`${keyBase}*`).then((keys) =>
@@ -66,12 +66,12 @@ const listActiveAccounts = () => {
 }
 
 const markAccountIsActive = (accountId) => {
-  const client = PubsubConnector.broadcastClient();
+  const client = LocalPubsubConnector.broadcastClient();
   const key = ACTIVE_KEY_FOR(accountId);
   client.incrAsync(key).then((val) => {
     client.expireAsync(key, 5 * 60); // 5 min in seconds
     if (val === 1) {
-      PubsubConnector.notifyAccount(accountId, {
+      LocalPubsubConnector.notifyAccount(accountId, {
         type: MessageTypes.ACCOUNT_UPDATED,
       });
     }

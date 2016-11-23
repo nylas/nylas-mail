@@ -1,6 +1,6 @@
 const Rx = require('rx')
 const _ = require('underscore');
-const {PubsubConnector} = require(`nylas-core`);
+const LocalPubsubConnector = require('../../shared/local-pubsub-connector')
 
 function keepAlive(request) {
   const until = Rx.Observable.fromCallback(request.on)("disconnect")
@@ -58,7 +58,7 @@ function initialTransactions(db, request) {
 }
 
 function inflatedDeltas(db, request) {
-  return PubsubConnector.observeDeltas(request.auth.credentials.id)
+  return LocalPubsubConnector.observeDeltas(request.auth.credentials.id)
     .flatMap((transactionJSON) => [db.Transaction.build(transactionJSON)])
     .flatMap((objs) => inflateTransactions(db, objs))
 }
