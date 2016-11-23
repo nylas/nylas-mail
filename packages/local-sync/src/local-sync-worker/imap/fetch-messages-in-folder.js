@@ -1,7 +1,6 @@
 const _ = require('underscore');
-const Imap = require('imap');
 
-const {PromiseUtils, IMAPConnection, PubsubConnector} = require('nylas-core');
+const {Imap, PromiseUtils, IMAPConnection, PubsubConnector} = require('nylas-core');
 const {Capabilities} = IMAPConnection;
 
 const MessageFlagAttributes = ['id', 'threadId', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']

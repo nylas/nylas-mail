@@ -1,4 +1,4 @@
-const Metrics = require(`../nylas-metrics`)
+const Metrics = require(`../local-sync-metrics`)
 Metrics.startCapturing('nylas-k2-api')
 
 const Hapi = require('hapi');
@@ -7,7 +7,7 @@ const HapiBoom = require('hapi-boom-decorators')
 const HapiBasicAuth = require('hapi-auth-basic');
 const Inert = require('inert');
 const Vision = require('vision');
-const Package = require('../package');
+const Package = require('../../package');
 const fs = require('fs');
 const path = require('path');
 const {DatabaseConnector, SchedulerUtils, Logger} = require(`nylas-core`);
