@@ -1,5 +1,5 @@
 const LocalPubsubConnector = require('./local-pubsub-connector')
-const {MessageTypes} = require('nylas-core')
+const MessageTypes = require('./message-types')
 
 module.exports = (db, sequelize) => {
   sequelize.addHook("afterCreate", ({dataValues, $modelOptions}) => {

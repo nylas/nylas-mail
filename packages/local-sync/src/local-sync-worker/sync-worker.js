@@ -1,11 +1,11 @@
 const {
   IMAPConnection,
-  MessageTypes,
   IMAPErrors,
   PromiseUtils,
 } = require('nylas-core');
 const LocalDatabaseConnector = require('../shared/local-database-connector')
 const LocalPubsubConnector = require('../shared/local-pubsub-connector')
+const MessageTypes = require('../shared/message-types')
 const SchedulerUtils = require('../shared/scheduler-utils')
 const {
   jsonError,

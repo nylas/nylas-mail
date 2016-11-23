@@ -8,8 +8,9 @@ const HEARTBEAT_EXPIRES = 30; // 2 min in prod?
 
 const CLAIM_DURATION = 10 * 60 * 1000; // 2 hours on prod?
 
-const {PromiseUtils, MessageTypes} = require('nylas-core')
+const {PromiseUtils} = require('nylas-core')
 const LocalPubsubConnector = require('./local-pubsub-connector');
+const MessageTypes = require('./message-types');
 
 const forEachAccountList = (forEachCallback) => {
   const client = LocalPubsubConnector.broadcastClient();
