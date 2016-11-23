@@ -8,6 +8,7 @@
     "bunyan-cloudwatch": "2.0.0",
     "bunyan-prettystream": "github:emorikawa/node-bunyan-prettystream",
     "mysql": "^2.11.1",
+    "nylas-core": "0.x.x",
     "promise-props": "^1.0.0",
     "promise.prototype.finally": "^2.0.1",
     "redis": "^2.6.3",

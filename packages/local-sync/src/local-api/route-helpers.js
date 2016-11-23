@@ -1,6 +1,6 @@
 const Serialization = require('./serialization');
-const {MessageTypes} = require('nylas-core')
 const LocalPubsubConnector = require('../shared/local-pubsub-connector')
+const MessageTypes = require('../shared/message-types')
 
 module.exports = {
   createSyncbackRequest: function createSyncbackRequest(request, reply, syncRequestArgs) {
