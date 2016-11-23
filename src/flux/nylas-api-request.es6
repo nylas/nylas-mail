@@ -12,7 +12,7 @@ import NylasAPI from './nylas-api'
 export default class NylasAPIRequest {
   constructor(api, options) {
     const defaults = {
-      url: `${options.LocalSyncRoot || api.LocalSyncRoot}${options.path}`,
+      url: `${options.APIRoot || options.LocalSyncRoot || api.LocalSyncRoot}${options.path}`,
       method: 'GET',
       json: true,
       timeout: 15000,
