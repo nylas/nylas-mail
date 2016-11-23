@@ -115,11 +115,11 @@ class NylasLongConnection {
       throw new Error(`Can't establish NylasLongConnection: No account token available for account ${this._accountId}`)
     }
 
-    const options = url.parse(`${this._api.APIRoot}${this._path}`)
+    const options = url.parse(`${this._api.LocalSyncRoot}${this._path}`)
     options.auth = `${accountToken}:${identityToken}`
 
     let lib;
-    if (this._api.APIRoot.indexOf('https') === -1) {
+    if (this._api.LocalSyncRoot.indexOf('https') === -1) {
       lib = require('http')
     } else {
       lib = require('https')

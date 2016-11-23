@@ -56,7 +56,7 @@ class NylasAPI
 
   constructor: ->
     @_lockTracker = new NylasAPIChangeLockTracker()
-    @APIRoot = 'http://localhost:5100'
+    @LocalSyncRoot = 'http://localhost:5100'
 
     env = NylasEnv.config.get('env')
     if env is 'local'
@@ -86,9 +86,9 @@ class NylasAPI
 
     NylasAPIRequest ?= require('./nylas-api-request').default
     if options.remote
-      options.APIRoot = @RemoteAPIRoot
+      options.LocalSyncRoot = @RemoteAPIRoot
     else
-      options.APIRoot = @APIRoot
+      options.LocalSyncRoot = @LocalSyncRoot
 
     req = new NylasAPIRequest(@, options)
 
