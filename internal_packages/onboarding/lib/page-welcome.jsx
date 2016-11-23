@@ -18,10 +18,6 @@ export default class WelcomePage extends React.Component {
     OnboardingActions.moveToPage("tutorial");
   }
 
-  _onSelfHosting = () => {
-    OnboardingActions.moveToPage("self-hosting-restrictions");
-  }
-
   render() {
     return (
       <div className="page welcome">
@@ -34,7 +30,6 @@ export default class WelcomePage extends React.Component {
         </div>
         <div className="footer">
           <button key="next" className="btn btn-large btn-continue" onClick={this._onContinue}>Get Started</button>
-          <div className="btn-self-hosting" onClick={this._onSelfHosting}>Hosting your own sync engine?</div>
         </div>
       </div>
     );
