@@ -2,7 +2,6 @@ import React from 'react';
 import {RetinaImg} from 'nylas-component-kit';
 import OnboardingActions from './onboarding-actions';
 import AccountTypes from './account-types';
-import SelfHostingConfigPage from './page-self-hosting-config'
 
 export default class AccountChoosePage extends React.Component {
   static displayName = "AccountChoosePage";
@@ -31,11 +30,6 @@ export default class AccountChoosePage extends React.Component {
   }
 
   render() {
-    if (NylasEnv.config.get('env') === 'custom' ||
-      NylasEnv.config.get('env') === 'local') {
-      return (<SelfHostingConfigPage addAccount />)
-    }
-
     return (
       <div className="page account-choose">
         <h2>
