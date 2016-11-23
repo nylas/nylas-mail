@@ -1,7 +1,6 @@
 const _ = require('underscore');
 
 const {Imap, PromiseUtils, IMAPConnection} = require('isomorphic-core');
-const LocalPubsubConnector = require('../../shared/local-pubsub-connector')
 const {Capabilities} = IMAPConnection;
 
 const MessageFlagAttributes = ['id', 'threadId', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']
@@ -279,7 +278,8 @@ class FetchMessagesInFolder {
           )
         }
 
-        LocalPubsubConnector.queueProcessMessage({accountId, messageId: message.id});
+        // FIXME: uncomment when we bring back message processing.
+        // LocalPubsubConnector.queueProcessMessage({accountId, messageId: message.id});
       } else {
         message.getThread()
         .then((thread) => {

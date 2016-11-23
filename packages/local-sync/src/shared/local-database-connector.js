@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const {loadModels, PromiseUtils} = require('isomorphic-core');
 const HookTransactionLog = require('./hook-transaction-log');
-const HookAccountCRUD = require('./hook-account-crud');
 const HookIncrementVersionOnSave = require('./hook-increment-version-on-save');
 
 require('./database-extensions'); // Extends Sequelize on require
@@ -75,8 +74,6 @@ class LocalDatabaseConnector {
     const db = loadModels(Sequelize, sequelize, {
       modelLocations: [{modelsSubpath: 'shared'}],
     })
-
-    HookAccountCRUD(db, sequelize);
 
     db.sequelize = sequelize;
     db.Sequelize = Sequelize;
