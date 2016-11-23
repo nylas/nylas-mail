@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const {DatabaseConnector} = require(`nylas-core`);
+const LocalDatabaseConnector = require('../../shared/local-database-connector');
 
 module.exports = (server) => {
   server.route({
@@ -19,7 +19,7 @@ module.exports = (server) => {
       },
     },
     handler: (request, reply) => {
-      DatabaseConnector.forAccount(request.params.account_id).then((db) => {
+      LocalDatabaseConnector.forAccount(request.params.account_id).then((db) => {
         const {SyncbackRequest} = db;
         SyncbackRequest.findAll().then((syncbackRequests) => {
           reply(JSON.stringify(syncbackRequests))
@@ -48,7 +48,7 @@ module.exports = (server) => {
       },
     },
     handler: (request, reply) => {
-      DatabaseConnector.forAccount(request.params.account_id).then((db) => {
+      LocalDatabaseConnector.forAccount(request.params.account_id).then((db) => {
         const {SyncbackRequest} = db;
 
         const counts = {

@@ -1,11 +1,11 @@
 /* eslint func-names:0 */
 
-const {DatabaseConnector} = require(`nylas-core`);
+const LocalDatabaseConnector = require('../../shared/local-database-connector');
 
 module.exports = (server) => {
   server.decorate('request', 'getAccountDatabase', function () {
     const account = this.auth.credentials;
-    return DatabaseConnector.forAccount(account.id);
+    return LocalDatabaseConnector.forAccount(account.id);
   });
   server.decorate('request', 'logger', (request) => {
     if (request.auth.credentials) {

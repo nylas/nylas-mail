@@ -1,5 +1,6 @@
 const SyncWorker = require('./sync-worker');
-const {PromiseUtils, DatabaseConnector} = require(`nylas-core`)
+const {PromiseUtils} = require(`nylas-core`);
+const LocalDatabaseConnector = require('../shared/local-database-connector')
 const LocalPubsubConnector = require('../shared/local-pubsub-connector')
 const SchedulerUtils = require('../shared/scheduler-utils')
 
@@ -178,12 +179,12 @@ class SyncProcessManager {
   }
 
   addWorkerForAccountId(accountId) {
-    DatabaseConnector.forShared().then(({Account}) =>
+    LocalDatabaseConnector.forShared().then(({Account}) =>
       Account.find({where: {id: accountId}}).then((account) => {
         if (!account) {
           return Promise.reject(new Error("Could not find account"));
         }
-        return DatabaseConnector.forAccount(accountId).then((db) => {
+        return LocalDatabaseConnector.forAccount(accountId).then((db) => {
           if (this._exiting || this._workers[accountId]) {
             return Promise.reject(new Error("Exiting or local worker already exists"));
           }

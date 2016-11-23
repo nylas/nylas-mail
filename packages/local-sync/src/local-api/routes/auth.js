@@ -6,11 +6,11 @@ const OAuth2 = google.auth.OAuth2;
 const Serialization = require('../serialization');
 const {
   IMAPConnection,
-  DatabaseConnector,
   SyncPolicy,
   Provider,
   Errors,
 } = require('nylas-core');
+const LocalDatabaseConnector = require('../../shared/local-database-connector')
 const LocalPubsubConnector = require('../../shared/local-pubsub-connector')
 
 const {GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL} = process.env;
@@ -48,7 +48,7 @@ const exchangeSettings = Joi.object().keys({
 }).required();
 
 const buildAccountWith = ({name, email, provider, settings, credentials}) => {
-  return DatabaseConnector.forShared().then((db) => {
+  return LocalDatabaseConnector.forShared().then((db) => {
     const {AccountToken, Account} = db;
 
     return Account.find({
@@ -71,7 +71,7 @@ const buildAccountWith = ({name, email, provider, settings, credentials}) => {
 
       return account.save().then((saved) =>
         AccountToken.create({accountId: saved.id}).then((token) =>
-          DatabaseConnector.ensureAccountDatabase(saved.id).then(() => {
+          LocalDatabaseConnector.ensureAccountDatabase(saved.id).then(() => {
             LocalPubsubConnector.broadcastClient().lpushAsync('accounts:unclaimed', saved.id);
 
             return Promise.resolve({

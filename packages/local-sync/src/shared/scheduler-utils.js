@@ -26,8 +26,8 @@ const assignPolicy = (accountId, policy) => {
   const log = global.Logger || console
   log.info({policy, account_id: accountId}, `Changing single policy`)
 
-  const DatabaseConnector = require('./database-connector');
-  return DatabaseConnector.forShared().then(({Account}) => {
+  const LocalDatabaseConnector = require('./local-database-connector');
+  return LocalDatabaseConnector.forShared().then(({Account}) => {
     Account.find({where: {id: accountId}}).then((account) => {
       account.syncPolicy = policy;
       account.save()
@@ -39,8 +39,8 @@ const assignPolicyToAcounts = (accountIds, policy) => {
   const log = global.Logger || console
   log.info({policy, account_ids: accountIds}, `Changing multiple policies`)
 
-  const DatabaseConnector = require('./database-connector');
-  return DatabaseConnector.forShared().then(({Account}) => {
+  const LocalDatabaseConnector = require('./local-database-connector');
+  return LocalDatabaseConnector.forShared().then(({Account}) => {
     Account.findAll({where: {id: {$or: accountIds}}}).then((accounts) => {
       for (const account of accounts) {
         account.syncPolicy = policy;

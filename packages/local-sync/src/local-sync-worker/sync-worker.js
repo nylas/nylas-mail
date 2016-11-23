@@ -1,10 +1,10 @@
 const {
   IMAPConnection,
-  DatabaseConnector,
   MessageTypes,
   Errors,
   PromiseUtils,
 } = require('nylas-core');
+const LocalDatabaseConnector = require('../shared/local-database-connector')
 const LocalPubsubConnector = require('../shared/local-pubsub-connector')
 const SchedulerUtils = require('../shared/scheduler-utils')
 const {
@@ -97,7 +97,7 @@ class SyncWorker {
   }
 
   _getAccount() {
-    return DatabaseConnector.forShared().then(({Account}) =>
+    return LocalDatabaseConnector.forShared().then(({Account}) =>
       Account.find({where: {id: this._account.id}})
     );
   }

@@ -3,7 +3,6 @@ module.exports = {
     Gmail: 'gmail',
     IMAP: 'imap',
   },
-  DatabaseConnector: require('./database-connector'),
   Imap: require('imap'),
   IMAPConnection: require('./imap-connection'),
   SyncPolicy: require('./sync-policy'),

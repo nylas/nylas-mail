@@ -1,6 +1,6 @@
 const path = require('path')
 const fs = require('fs')
-const {DatabaseConnector} = require('nylas-core')
+const LocalDatabaseConnector = require('../../shared/local-database-connector')
 const {processMessage} = require('../processors/threading')
 
 const BASE_PATH = path.join(__dirname, 'fixtures')
