@@ -1,8 +1,9 @@
 const Metrics = require(`../local-sync-metrics`)
 Metrics.startCapturing('nylas-k2-message-processor')
 
-const {LocalPubsubConnector, DatabaseConnector, Logger} = require(`nylas-core`)
+const {LocalPubsubConnector, Logger} = require(`nylas-core`)
 const {processors} = require('./processors')
+const LocalDatabaseConnector = require('../shared/local-database-connector')
 
 global.Metrics = Metrics
 global.Logger = Logger.createLogger('nylas-k2-message-processor')
@@ -61,7 +62,7 @@ function dequeueJob() {
     const {messageId, accountId} = json;
     const logger = global.Logger.forAccount({id: accountId}).child({message_id: messageId})
 
-    DatabaseConnector.forAccount(accountId).then((db) => {
+    LocalDatabaseConnector.forAccount(accountId).then((db) => {
       return db.Message.find({
         where: {id: messageId},
         include: [{model: db.Folder}, {model: db.Label}],

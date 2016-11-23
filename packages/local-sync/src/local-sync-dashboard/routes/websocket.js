@@ -1,4 +1,4 @@
-const { DatabaseConnector, } = require(`nylas-core`);
+const LocalDatabaseConnector = require('../../shared/local-database-connector');
 const LocalPubsubConnector = require('../../shared/local-pubsub-connector')
 const SchedulerUtils = require('../../shared/scheduler-utils')
 
@@ -19,7 +19,7 @@ function onWebsocketConnected(wss, ws) {
     resetToSend();
   }
 
-  DatabaseConnector.forShared().then(({Account}) => {
+  LocalDatabaseConnector.forShared().then(({Account}) => {
     Account.findAll().then((accounts) => {
       accounts.forEach((acct) => {
         toSend.updatedAccounts.push(acct);

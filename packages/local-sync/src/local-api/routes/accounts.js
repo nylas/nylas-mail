@@ -1,5 +1,5 @@
 const Serialization = require('../serialization');
-const {DatabaseConnector} = require('nylas-core');
+const LocalDatabaseConnector = require('../../shared/local-database-connector');
 
 module.exports = (server) => {
   if (process.env.ALLOW_LIST_ACCOUNTS) {
@@ -12,7 +12,7 @@ module.exports = (server) => {
         tags: ['accounts'],
       },
       handler: (request, reply) => {
-        DatabaseConnector.forShared().then((db) => {
+        LocalDatabaseConnector.forShared().then((db) => {
           const {Account, AccountToken} = db;
 
           // N1 assumes that the local sync engine uses the account IDs as the
@@ -68,7 +68,7 @@ module.exports = (server) => {
     handler: (request, reply) => {
       const account = request.auth.credentials;
       account.destroy().then((saved) =>
-        DatabaseConnector.destroyAccountDatabase(saved.id).then(() =>
+        LocalDatabaseConnector.destroyAccountDatabase(saved.id).then(() =>
           reply(Serialization.jsonStringify({status: 'success'}))
         )
       ).catch((err) => {

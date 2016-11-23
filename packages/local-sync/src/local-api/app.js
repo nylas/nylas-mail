@@ -10,7 +10,8 @@ const Vision = require('vision');
 const Package = require('../../package');
 const fs = require('fs');
 const path = require('path');
-const {DatabaseConnector, Logger} = require(`nylas-core`);
+const {Logger} = require(`nylas-core`);
+const LocalDatabaseConnector = require('../shared/local-database-connector')
 const SchedulerUtils = require('../shared/scheduler-utils')
 
 global.Metrics = Metrics
@@ -50,7 +51,7 @@ const validate = (request, username, password, callback) => {
   if (sharedDb) {
     getSharedDb = Promise.resolve(sharedDb)
   } else {
-    getSharedDb = DatabaseConnector.forShared()
+    getSharedDb = LocalDatabaseConnector.forShared()
   }
 
   getSharedDb.then((db) => {

@@ -1,5 +1,5 @@
 const _ = require('underscore')
-const PubsubConnector = require('./pubsub-connector')
+const LocalPubsubConnector = require('./local-pubsub-connector')
 
 module.exports = (db, sequelize) => {
   const isTransaction = ($modelOptions) => {
@@ -24,7 +24,7 @@ module.exports = (db, sequelize) => {
       });
 
       db.Transaction.create(transactionData).then((transaction) => {
-        PubsubConnector.notifyDelta(db.accountId, transaction.toJSON());
+        LocalPubsubConnector.notifyDelta(db.accountId, transaction.toJSON());
       })
     }
   }

@@ -13,7 +13,7 @@ if (!fs.existsSync(STORAGE_DIR)) {
   fs.mkdirSync(STORAGE_DIR);
 }
 
-class DatabaseConnector {
+class LocalDatabaseConnector {
   constructor() {
     this._cache = {};
   }
@@ -149,4 +149,4 @@ class DatabaseConnector {
   }
 }
 
-module.exports = new DatabaseConnector()
+module.exports = new LocalDatabaseConnector()

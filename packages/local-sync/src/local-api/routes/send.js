@@ -1,6 +1,6 @@
 const Joi = require('joi');
 const nodemailer = require('nodemailer');
-const {DatabaseConnector} = require('nylas-core');
+const LocalDatabaseConnector = require('../../shared/local-database-connector');
 
 function toParticipant(payload) {
   return payload.map((p) => `${p.name} <${p.email}>`).join(',')
@@ -10,7 +10,7 @@ module.exports = (server) => {
   server.route({
     method: 'POST',
     path: '/send',
-    handler: (request, reply) => { DatabaseConnector.forShared().then((db) => {
+    handler: (request, reply) => { LocalDatabaseConnector.forShared().then((db) => {
       const accountId = request.auth.credentials.id;
       db.Account.findById(accountId).then((account) => {
         const sender = nodemailer.createTransport(account.smtpConfig());

@@ -1,7 +1,8 @@
 const Metrics = require('../local-sync-metrics')
 Metrics.startCapturing('nylas-k2-sync')
 
-const {DatabaseConnector, Logger} = require('nylas-core')
+const {Logger} = require('nylas-core')
+const LocalDatabaseConnector = require('../shared/local-database-connector')
 
 global.Metrics = Metrics
 global.Logger = Logger.createLogger('nylas-k2-sync')
@@ -32,7 +33,7 @@ prepareEnvironmentInfo(() => {
   const SyncProcessManager = require('./sync-process-manager')
   const manager = new SyncProcessManager();
 
-  DatabaseConnector.forShared().then((db) => {
+  LocalDatabaseConnector.forShared().then((db) => {
     const {Account} = db;
     Account.findAll().then((accounts) => {
       if (accounts.length === 0) {

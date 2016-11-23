@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const {DatabaseConnector} = require(`nylas-core`);
+const LocalDatabaseConnector = require('../../shared/local-database-connector');
 
 module.exports = (server) => {
   server.route({
@@ -19,7 +19,7 @@ module.exports = (server) => {
       },
     },
     handler: (request, reply) => {
-      DatabaseConnector.forShared().then(({Account}) => {
+      LocalDatabaseConnector.forShared().then(({Account}) => {
         Account.find({where: {id: request.params.accountId}}).then((account) => {
           account.syncError = null;
           account.save().then(() => reply("Success"));

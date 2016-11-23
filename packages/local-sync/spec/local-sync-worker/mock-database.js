@@ -1,4 +1,4 @@
-const {DatabaseConnector} = require('nylas-core');
+const LocalDatabaseConnector = require('../../src/shared/local-database-connector');
 
 /*
  * Mocks out various Model and Instance methods to prevent actually saving data
@@ -15,7 +15,7 @@ const {DatabaseConnector} = require('nylas-core');
  *
  */
 function mockDatabase() {
-  return DatabaseConnector.forAccount(-1).then((db) => {
+  return LocalDatabaseConnector.forAccount(-1).then((db) => {
     const data = {};
     for (const modelName of Object.keys(db.sequelize.models)) {
       const model = db.sequelize.models[modelName];
