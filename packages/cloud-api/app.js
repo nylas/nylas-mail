@@ -105,7 +105,7 @@ const plugins = [Inert, Vision, HapiBasicAuth, HapiBoom, {
 server.register(plugins, (err) => {
   if (err) { throw err; }
 
-  attach('./routes/')
+  attach('./src/routes/')
   attach('./decorators/')
 
   server.auth.strategy('api-consumer', 'basic', { validateFunc: validate });
