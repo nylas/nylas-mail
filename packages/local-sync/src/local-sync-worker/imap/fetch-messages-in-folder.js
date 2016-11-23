@@ -1,6 +1,6 @@
 const _ = require('underscore');
 
-const {Imap, PromiseUtils, IMAPConnection} = require('nylas-core');
+const {Imap, PromiseUtils, IMAPConnection} = require('isomorphic-core');
 const LocalPubsubConnector = require('../../shared/local-pubsub-connector')
 const {Capabilities} = IMAPConnection;
 

@@ -10,7 +10,7 @@ const {
   IMAPConnection,
   Provider,
   IMAPErrors,
-} = require('nylas-core');
+} = require('isomorphic-core');
 
 
 const {GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL} = process.env;

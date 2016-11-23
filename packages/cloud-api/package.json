@@ -17,7 +17,7 @@
     "inert": "4.0.0",
     "joi": "8.4.2",
     "nodemailer": "2.5.0",
-    "nylas-core": "0.x.x",
+    "isomorphic-core": "0.x.x",
     "vision": "4.1.0",
     "rx": "^4.1.0"
   }

@@ -1,5 +1,5 @@
 const _ = require('underscore')
-const {PromiseUtils} = require('nylas-core')
+const {PromiseUtils} = require('isomorphic-core')
 
 const TaskHelpers = {
   messagesForThreadByFolder(db, threadId) {

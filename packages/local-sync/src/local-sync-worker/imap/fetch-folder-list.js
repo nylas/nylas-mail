@@ -1,4 +1,4 @@
-const {Provider, PromiseUtils} = require('nylas-core');
+const {Provider, PromiseUtils} = require('isomorphic-core');
 const {localizedCategoryNames} = require('../sync-utils')
 
 const BASE_ROLES = ['inbox', 'sent', 'trash', 'spam'];

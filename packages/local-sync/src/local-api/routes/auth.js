@@ -8,7 +8,7 @@ const {
   IMAPConnection,
   Provider,
   IMAPErrors,
-} = require('nylas-core');
+} = require('isomorphic-core');
 const DefaultSyncPolicy = require('../default-sync-policy')
 const LocalDatabaseConnector = require('../../shared/local-database-connector')
 const LocalPubsubConnector = require('../../shared/local-pubsub-connector')

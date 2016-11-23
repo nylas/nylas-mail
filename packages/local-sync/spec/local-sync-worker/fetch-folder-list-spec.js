@@ -1,4 +1,4 @@
-const {PromiseUtils} = require('nylas-core');
+const {PromiseUtils} = require('isomorphic-core');
 const mockDatabase = require('./mock-database');
 const FetchFolderList = require('../../src/local-sync-worker/imap/fetch-folder-list')
 

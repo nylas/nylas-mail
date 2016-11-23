@@ -1,4 +1,4 @@
-const {PromiseUtils} = require('nylas-core')
+const {PromiseUtils} = require('isomorphic-core')
 // const _ = require('underscore');
 
 class ThreadingProcessor {

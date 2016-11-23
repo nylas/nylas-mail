@@ -1,5 +1,5 @@
 const SyncWorker = require('./sync-worker');
-const {PromiseUtils} = require(`nylas-core`);
+const {PromiseUtils} = require(`isomorphic-core`);
 const LocalDatabaseConnector = require('../shared/local-database-connector')
 const LocalPubsubConnector = require('../shared/local-pubsub-connector')
 const SchedulerUtils = require('../shared/scheduler-utils')

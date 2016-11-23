@@ -8,7 +8,7 @@ const HEARTBEAT_EXPIRES = 30; // 2 min in prod?
 
 const CLAIM_DURATION = 10 * 60 * 1000; // 2 hours on prod?
 
-const {PromiseUtils} = require('nylas-core')
+const {PromiseUtils} = require('isomorphic-core')
 const LocalPubsubConnector = require('./local-pubsub-connector');
 const MessageTypes = require('./message-types');
 

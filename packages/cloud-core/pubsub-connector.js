@@ -1,6 +1,6 @@
 const Rx = require('rx')
 const redis = require("redis");
-const {PromiseUtils} = require('nylas-core');
+const {PromiseUtils} = require('isomorphic-core');
 const log = global.Logger || console;
 
 PromiseUtils.promisifyAll(redis.RedisClient.prototype);
