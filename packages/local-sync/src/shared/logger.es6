@@ -12,9 +12,9 @@ function Logger(boundArgs = {}) {
         if (_.isEmpty(boundArgs)) {
           return console[logFn](first, ...args)
         }
-        return console[logFn](boundArgs, first, ...args)
+        return console[logFn](first, ...args, boundArgs)
       }
-      return console[logFn]({...boundArgs, ...first}, ...args)
+      return console[logFn](...args, {...boundArgs, ...first})
     }
   })
   logger.child = (extraBoundArgs) => Logger({...boundArgs, ...extraBoundArgs})
