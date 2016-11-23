@@ -37,7 +37,7 @@ class LocalDatabaseConnector {
 
     const newSequelize = this._sequelizePoolForDatabase(`a-${accountId}`);
     const db = loadModels(Sequelize, newSequelize, {
-      modelsSubPath: 'account',
+      modelLocations: [{modelsSubpath: 'account'}],
       schema: `a${accountId}`,
     })
 
@@ -72,7 +72,9 @@ class LocalDatabaseConnector {
 
   _sequelizeForShared() {
     const sequelize = this._sequelizePoolForDatabase(`shared`);
-    const db = loadModels(Sequelize, sequelize, {modelsSubPath: 'shared'})
+    const db = loadModels(Sequelize, sequelize, {
+      modelLocations: [{modelsSubpath: 'shared'}],
+    })
 
     HookAccountCRUD(db, sequelize);
 
