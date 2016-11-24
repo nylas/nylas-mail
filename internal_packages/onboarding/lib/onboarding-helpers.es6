@@ -30,22 +30,36 @@ function base64url(inBuffer) {
 }
 
 export function makeGmailOAuthRequest(sessionKey, callback) {
+  const noauth = {
+    user: '',
+    pass: '',
+    sendImmediately: true,
+  };
   NylasAPI.makeRequest({
     remote: true,
     path: `/auth/gmail/token?key=${sessionKey}`,
-    method: "GET",
+    method: 'GET',
     error: callback,
-    auth: {
-      user: '',
-      pass: '',
-      sendImmediately: true,
-    },
-    success: (json) => {
-      if (json) {
-        callback(null, JSON.parse(json));
-      } else {
-        callback(null, null);
-      }
+    auth: noauth,
+    success: (remoteJSON) => {
+      NylasAPI.makeRequest({
+        remote: false,
+        path: `/auth`,
+        method: 'POST',
+        auth: noauth,
+        body: {
+          email: remoteJSON.email_address,
+          name: remoteJSON.name,
+          provider: 'gmail',
+          settings: {
+            xoauth2: remoteJSON.resolved_settings.xoauth2,
+          },
+        },
+        error: callback,
+        success: (localJSON) => {
+          callback(null, localJSON);
+        },
+      });
     },
   });
 }
