@@ -7,11 +7,6 @@ const HookIncrementVersionOnSave = require('./hook-increment-version-on-save');
 
 require('./database-extensions'); // Extends Sequelize on require
 
-const STORAGE_DIR = path.join(__dirname, '..', '..', 'storage');
-if (!fs.existsSync(STORAGE_DIR)) {
-  fs.mkdirSync(STORAGE_DIR);
-}
-
 class LocalDatabaseConnector {
   constructor() {
     this._cache = {};
@@ -19,7 +14,7 @@ class LocalDatabaseConnector {
 
   _sequelizePoolForDatabase(dbname) {
     return new Sequelize(dbname, '', '', {
-      storage: path.join(STORAGE_DIR, `${dbname}.sqlite`),
+      storage: path.join(process.env.NYLAS_HOME, `${dbname}.sqlite`),
       dialect: "sqlite",
       logging: false,
     })
@@ -65,7 +60,7 @@ class LocalDatabaseConnector {
 
   destroyAccountDatabase(accountId) {
     const dbname = `a-${accountId}`;
-    fs.removeFileSync(path.join(STORAGE_DIR, `${dbname}.sqlite`));
+    fs.removeFileSync(path.join(process.env.NYLAS_HOME, `${dbname}.sqlite`));
     return Promise.resolve()
   }
 
