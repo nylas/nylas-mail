@@ -13,6 +13,7 @@ module.exports = (server) => {
       tags: ['messages'],
       validate: {
         query: {
+          thread_id: Joi.string(),
           limit: Joi.number().integer().min(1).max(2000).default(100),
           offset: Joi.number().integer().min(0).default(0),
         },
@@ -26,9 +27,14 @@ module.exports = (server) => {
     handler: (request, reply) => {
       request.getAccountDatabase().then((db) => {
         const {Message, Folder, Label} = db;
+        const wheres = {};
+        if (request.query.thread_id) {
+          wheres.threadId = request.query.thread_id;
+        }
         Message.findAll({
           limit: request.query.limit,
           offset: request.query.offset,
+          where: wheres,
           include: [{model: Folder}, {model: Label}],
         }).then((messages) => {
           reply(Serialization.jsonStringify(messages));
