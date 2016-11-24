@@ -1,4 +1,6 @@
 const _ = require('underscore');
+const QuotedPrintable = require('quoted-printable');
+const utf7 = require('utf7').imap;
 
 const {Imap, PromiseUtils, IMAPConnection} = require('isomorphic-core');
 const {Capabilities} = IMAPConnection;
@@ -154,7 +156,11 @@ class FetchMessagesInFolder {
         const mimetype = `${part.type}/${part.subtype}`;
         available.push(mimetype);
         if (['text/plain', 'text/html', 'application/pgp-encrypted'].includes(mimetype)) {
-          desired.push({id: part.partID, mimetype});
+          desired.push({
+            id: part.partID,
+            encoding: part.encoding,
+            mimetype,
+          });
         }
       }
     }
@@ -196,8 +202,26 @@ class FetchMessagesInFolder {
 
         return this._box.fetchEach(uids, {bodies, struct: true}, (msg) => {
           msg.body = {};
-          for (const {id, mimetype} of desiredParts) {
-            msg.body[mimetype] = msg.parts[id];
+          for (const {id, mimetype, encoding} of desiredParts) {
+            try {
+              if (!encoding) {
+                msg.body[mimetype] = msg.parts[id];
+              } else if (encoding.toLowerCase() === 'quoted-printable') {
+                msg.body[mimetype] = QuotedPrintable.decode(msg.parts[id]);
+              } else if (encoding.toLowerCase() === '7bit') {
+                msg.body[mimetype] = utf7.decode(msg.parts[id]);
+              } else if (encoding && ['ascii', 'utf8', 'utf16le', 'ucs2', 'base64', 'latin1', 'binary', 'hex'].includes(encoding.toLowerCase())) {
+                msg.body[mimetype] = Buffer.from(msg.parts[id], encoding.toLowerCase()).toString();
+              } else {
+                throw new Error(`Unknown encoding ${encoding}`)
+              }
+            } catch (err) {
+              this._logger.error({
+                encoding,
+                mimetype,
+                underlying: err.toString(),
+              }, `FetchMessagesInFolder: Could not decode message part`)
+            }
           }
           this._processMessage(msg);
         });
