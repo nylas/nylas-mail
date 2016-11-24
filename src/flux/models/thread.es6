@@ -200,6 +200,13 @@ class Thread extends ModelWithMetadata {
     return true
   }
 
+  /**
+   * In the `clone` case, there are `categories` set, but no `folders` nor
+   * `labels`
+   *
+   * When loading data from the API, there are `folders` AND `labels` but
+   * no `categories` yet.
+   */
   fromJSON(json) {
     super.fromJSON(json)
 
@@ -210,10 +217,11 @@ class Thread extends ModelWithMetadata {
 
     if (json.labels) {
       this.categoriesType = 'labels'
-      this.categories = Thread.attributes.categories.fromJSON(json.labels)
+      if (!this.categories) this.categories = [];
+      this.categories = this.categories.concat(Thread.attributes.categories.fromJSON(json.labels))
     }
 
-    ['participants', 'categories'].forEach((attr) => {
+    ['participants'].forEach((attr) => {
       const value = this[attr]
       if (!(value && value instanceof Array)) {
         return;
