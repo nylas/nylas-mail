@@ -41,3 +41,6 @@ internal_packages/send-reminders
 internal_packages/thread-sharing
 /dist
 /dump.rdb
+
+# Untracked user preference file:
+unsubscribe-settings.json

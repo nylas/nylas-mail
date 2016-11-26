@@ -1,0 +1,27 @@
+{
+	// If you change these settings, reload Nylas (Developer > Reload)
+	// for them to take effect.
+
+	// If unsubscribing via a browser window, you can toggle between opening a tab in
+	// your default browser (true) or a popup window within N1 (false).
+	"use_browser": false,
+	// After unsubscribing, you can choose whether:
+	//   - Emails are automatically moved to the archive ("archive")
+	//   - Emails are automatically moved to the trash ("trash")
+	//   - Emails are not moved ("none")
+	"handle_threads": "archive",
+	// Ask for confirmation from the user before sending an automatic email
+	// on the user's behalf in order to unsubscribe.
+	//   - Ask for confirmation (true)
+	//   - Do not ask for confirmation (false)
+	"confirm_for_email": false,
+	// Ask for confirmation from the user before opening a browser window
+	// in order to unsubscribe.
+	//   - Ask for confirmation (true)
+	//   - Do not ask for confirmation (false)
+	"confirm_for_browser": false,
+	// Dump all debugging info to the console in N1 Dev mode
+	//   - Dump info (true)
+	//   - Only print minimal error information (false)
+	"debug": false
+}
