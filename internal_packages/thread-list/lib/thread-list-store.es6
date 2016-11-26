@@ -1,16 +1,12 @@
-import _ from 'underscore';
 import NylasStore from 'nylas-store';
 
 import {
   Rx,
   Thread,
-  Message,
   Actions,
   Matcher,
-  DatabaseStore,
   WorkspaceStore,
   FocusedContentStore,
-  TaskQueueStatusStore,
   FocusedPerspectiveStore,
   RecentlyReadStore } from 'nylas-exports';
 
@@ -41,7 +37,6 @@ class ThreadListStore extends NylasStore {
     if (threadsSubscription) {
       this._dataSource = new ThreadListDataSource(threadsSubscription);
       this._dataSourceUnlisten = this._dataSource.listen(this._onDataChanged, this);
-
     } else {
       this._dataSource = new ListTabular.DataSource.Empty();
     }
@@ -93,19 +88,17 @@ class ThreadListStore extends NylasStore {
       };
 
       const notInSet = model => {
-        
         // The "Unread" view shows all threads which are unread. When you read a thread,
         // it doesn't disappear until you leave the view and come back. This behavior
         // is implemented by keeping track of messages being read and manually
         // whitelisting them in the query.
-        let result = false;
 
         let inSetMatchers;
         if (RecentlyReadStore.ids.length > 0) {
           const recentlyReadMatcher = Thread.attributes.id.in(RecentlyReadStore.ids);
           inSetMatchers = new Matcher.Or([
             new Matcher.And(matchers),
-            recentlyReadMatcher
+            recentlyReadMatcher,
           ]);
         } else {
           inSetMatchers = matchers;
@@ -113,9 +106,8 @@ class ThreadListStore extends NylasStore {
 
         if (inSetMatchers) {
           return model.matches(inSetMatchers) === false;
-        } else {
-          return next.offsetOfId(model.id) === -1;
         }
+        return next.offsetOfId(model.id) === -1;
       };
 
       if (viewModeAutofocuses && focused && notInSet(focused)) {
