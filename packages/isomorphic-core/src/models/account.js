@@ -1,7 +1,7 @@
 const crypto = require('crypto');
-const {JSONType, JSONARRAYType} = require('../../database-types');
+const {JSONType, JSONARRAYType} = require('../database-types');
 
-let {DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD} = process.env;
+const {DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD} = process.env;
 
 module.exports = (sequelize, Sequelize) => {
   const Account = sequelize.define('account', {

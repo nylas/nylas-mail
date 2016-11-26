@@ -1,5 +1,4 @@
-const PromiseUtils = require('../../promise-utils')
-const IMAPConnection = require('../../imap-connection')
+const {PromiseUtils, IMAPConnection} = require('isomorphic-core')
 
 module.exports = (sequelize, Sequelize) => {
   return sequelize.define('file', {
