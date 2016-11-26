@@ -1,4 +1,4 @@
-const {JSONType} = require('../database-types');
+const {DatabaseTypes: {JSONType}} = require('isomorphic-core');
 
 module.exports = (sequelize, Sequelize) => {
   const Metadata = sequelize.define('metadata', {

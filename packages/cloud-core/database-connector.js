@@ -46,10 +46,7 @@ class DatabaseConnector {
   _sequelizeForShared() {
     const sequelize = this._sequelizePoolForDatabase(`ebdb`);
     const db = loadModels(Sequelize, sequelize, {
-      modelLocations: [
-        {modelsSubpath: 'shared'},
-        {modelsDir: path.join(__dirname, 'models')},
-      ],
+      modelDirs: [path.join(__dirname, 'models')],
     })
 
     HookTransactionLog(db, sequelize);

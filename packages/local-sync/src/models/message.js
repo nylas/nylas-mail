@@ -1,7 +1,6 @@
 const crypto = require('crypto');
-const PromiseUtils = require('../../promise-utils')
-const IMAPConnection = require('../../imap-connection')
-const {JSONType, JSONARRAYType} = require('../../database-types');
+const {PromiseUtils, IMAPConnection} = require('isomorphic-core')
+const {DatabaseTypes: {JSONType, JSONARRAYType}} = require('isomorphic-core');
 
 
 module.exports = (sequelize, Sequelize) => {
