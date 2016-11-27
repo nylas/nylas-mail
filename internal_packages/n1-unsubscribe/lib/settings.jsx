@@ -1,3 +1,4 @@
+const util = require('./modules/util');
 const fs = require('fs-extra');
 const stripJsonComments = require('strip-json-comments');
 
@@ -10,7 +11,6 @@ module.exports = {
     const userSettings = `${__dirname}/../unsubscribe-settings.json`;
     let settingsFile;
     try {
-      // Use user defined settings file, else the defaults
       settingsFile = fs.readFileSync(userSettings, 'utf8');
     } catch (e) {
       console.log(`n1-unsubscribe: Copying default settings to ${userSettings}.`);
@@ -31,16 +31,16 @@ module.exports = {
     process.env.N1_UNSUBSCRIBE_DEBUG = settings.debug === true ||
       settings.debug === 'true';
 
-
     // Print settings file to console
     const browserText = (process.env.n1UnsubscribeUseBrowser === 'true' ? '' : '(Popup)');
     const useBrowser = process.env.N1_UNSUBSCRIBE_USE_BROWSER;
-    console.log(
+    util.logIfDebug(
       `n1-unsubscribe settings:
       - Use preferred browser for unsubscribing: ${useBrowser} ${browserText}
       - Archive or trash after unsubscribing: ${process.env.N1_UNSUBSCRIBE_THREAD_HANDLING}
       - Confirm before email unsubscribing: ${process.env.N1_UNSUBSCRIBE_CONFIRM_EMAIL}
-      - Confirm before browser unsubscribing: ${process.env.N1_UNSUBSCRIBE_CONFIRM_BROWSER}`
+      - Confirm before browser unsubscribing: ${process.env.N1_UNSUBSCRIBE_CONFIRM_BROWSER}
+      - Print maximum debugging logs: ${process.env.N1_UNSUBSCRIBE_DEBUG}`
     );
   },
 }

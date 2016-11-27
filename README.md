@@ -88,6 +88,7 @@ Great starting points for creating your own plugins!
 - [Emoji Keyboard](https://github.com/nylas/N1/tree/master/internal_packages/composer-emoji)—Insert emoji by typing a colon (:) followed by the name of an emoji symbol
 - [GitHub Sidebar Info](https://github.com/nylas/N1/tree/master/internal_packages/github-contact-card)
 - [View on GitHub](https://github.com/nylas/N1/tree/master/internal_packages/message-view-on-github)
+- [N1-Unsubscribe](https://github.com/nylas/N1/tree/master/internal_packages/n1-unsubscribe)
 - [Personal Level Indicators](https://github.com/nylas/N1/tree/master/internal_packages/personal-level-indicators)
 - [Phishing Detection](https://github.com/nylas/N1/tree/master/internal_packages/phishing-detection)
 
@@ -98,7 +99,6 @@ Note these are not tested or officially supported by Nylas, but we still think t
 - [Jiffy](http://noahbuscher.github.io/N1-Jiffy/)—Insert animated GIFs
 - [Weather](https://github.com/jackiehluo/n1-weather)
 - [Todoist](https://github.com/alexfruehwirth/N1TodoistIntegration)
-- [Unsubscribe](https://github.com/colinking/n1-unsubscribe)
 - [Squirt Speed Reader](https://github.com/HarleyKwyn/squirt-reader-N1-plugin/)
 - [Website Launcher](https://github.com/adriangrantdotorg/nylas-n1-background-webpage)—Opens a URL in separate window
 - In Development: [Cypher](https://github.com/mbilker/cypher) (PGP Encryption)

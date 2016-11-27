@@ -4,16 +4,17 @@ const {
   FocusedPerspectiveStore,
   NylasAPI,
 } = require('nylas-exports');
-
 const NylasStore = require('nylas-store');
-const _ = require('underscore');
-const fs = require('fs-extra');
-const open = require('open');
-const cheerio = require('cheerio');
-const BrowserWindow = require('electron').remote.BrowserWindow;
 const MailParser = require('mailparser').MailParser;
-const ThreadConditionType = require(`${__dirname}/enum/threadConditionType`);
-const blacklist = fs.readJsonSync(`${__dirname}/blacklist.json`);
+const BrowserWindow = require('electron').remote.BrowserWindow;
+const open = require('open');
+const _ = require('underscore');
+const util = require('./modules/util');
+const blacklist = require('./modules/blacklist');
+const emailBodyParser = require('./modules/emailBodyParser');
+const emailHeaderParser = require('./modules/emailHeaderParser');
+const ThreadConditionType = require('./enum/threadConditionType');
+
 
 class ThreadUnsubscribeStore extends NylasStore {
   constructor(thread) {
@@ -64,8 +65,8 @@ class ThreadUnsubscribeStore extends NylasStore {
         this.unsubscribeViaBrowser(this.links[0].link, unsubscribeHandler);
       } else {
         this.threadState.condition = ThreadConditionType.ERRORED;
-        console.error('Can not unsubscribe for some reason. See this.links below:');
-        console.error(this.links);
+        util.logError('Can not unsubscribe for some reason. See this.links below:');
+        util.logError(this.links);
       }
     }
   }
@@ -74,48 +75,35 @@ class ThreadUnsubscribeStore extends NylasStore {
   loadLinks() {
     this.loadMessagesViaAPI((error, email) => {
       if (!error) {
-        // Take note when asking to unsubscribe later:
+        const confirmText = `Are you sure that you want to unsubscribe?`;
         this.isForwarded = this.thread.subject.match(/^Fwd: /i);
-        if (this.isForwarded) {
-          this.confirmText = `The email was forwarded, are you sure that you` +
-            ` want to unsubscribe?`;
-        } else {
-          this.confirmText = `Are you sure that you want to unsubscribe?`;
-        }
+        this.confirmText = this.isForwarded ? `The email was forwarded. ${confirmText}` : confirmText;
 
         // Find and concatenate links:
-        const headerLinks = this.parseHeadersForLinks(email.headers);
-        const bodyLinks = this.parseBodyForLinks(email.html);
+        const headerLinks = emailHeaderParser.parseHeadersForLinks(email.headers);
+        const bodyLinks = emailBodyParser.parseBodyForLinks(email.html);
         this.links = this.parseLinksForTypes(headerLinks.concat(bodyLinks));
         this.threadState.hasLinks = (this.links.length > 0);
+        this.threadState.condition = this.threadState.hasLinks ? ThreadConditionType.DONE : ThreadConditionType.DISABLED;
+        // Output troubleshooting info if in debug mode:
         if (this.threadState.hasLinks) {
-          this.threadState.condition = ThreadConditionType.DONE;
+          util.logIfDebug(`Found links for: "${this.thread.subject}"`);
+          util.logIfDebug({headerLinks, bodyLinks});
         } else {
-          this.threadState.condition = ThreadConditionType.DISABLED;
-        }
-        if (NylasEnv.inDevMode() === true && process.env.N1_UNSUBSCRIBE_DEBUG === 'true') {
-          if (this.threadState.hasLinks) {
-            console.info(`Found links for: "${this.thread.subject}"`);
-            console.info({headerLinks, bodyLinks});
-          } else {
-            console.log(`Found no links for: "${this.thread.subject}"`);
-          }
+          util.logIfDebug(`Found no links for: "${this.thread.subject}"`);
         }
       } else if (error === 'sentMail') {
-        console.log(`Can not parse "${this.thread.subject}" because it was sent from this account`);
+        util.logIfDebug(`Can not parse "${this.thread.subject}" because it was sent from this account`);
         this.threadState.condition = ThreadConditionType.DISABLED;
       } else if (error === 'noEmail') {
-        console.warn(`Can not parse an email for an unknown reason. See error message below:`);
-        console.warn(email);
+        util.logError(`Can not parse an email for an unknown reason. See error message below:`);
+        util.logError(email);
         this.threadState.condition = ThreadConditionType.ERRORED;
       } else {
-        if (NylasEnv.inDevMode() === true) {
-          console.warn(`\n--Error in querying message: ${this.thread.subject}--\n`);
-          console.warn(error);
-          console.warn(email);
-        }
+        util.logError(`\n--Error in querying message: ${this.thread.subject}--\n`);
+        util.logError(error);
+        util.logError(email);
         this.threadState.condition = ThreadConditionType.ERRORED;
-        this.triggerUpdate();
       }
       this.triggerUpdate();
     });
@@ -127,7 +115,6 @@ class ThreadUnsubscribeStore extends NylasStore {
   // thread will have the unsubscribe link.
   // Callback: (Error, Parsed email)
   loadMessagesViaAPI(callback) {
-    // Ignore any sent messages because they return a 404 error:
     let type = '';
     let sentMail = false;
     if (this.messages !== undefined && this.messages.length > 0) {
@@ -168,97 +155,6 @@ class ThreadUnsubscribeStore extends NylasStore {
     }
   }
 
-  // Examine the email headers for the list-unsubscribe header
-  parseHeadersForLinks(headers) {
-    const unsubscribeLinks = [];
-    if (headers) {
-      const headersLU = headers['list-unsubscribe'];
-      if (headersLU && typeof headersLU === 'string') {
-        const rawLinks = headersLU.split(/,/g);
-        rawLinks.forEach((link) => {
-          const trimmedLink = link.trim();
-          if (/mailto.*/g.test(link)) {
-            if (this.checkEmailBlacklist(trimmedLink) === false) {
-              unsubscribeLinks.push(trimmedLink.substring(1, trimmedLink.length - 1));
-            }
-          } else {
-            unsubscribeLinks.push(trimmedLink.substring(1, trimmedLink.length - 1));
-          }
-        });
-      }
-    }
-    return unsubscribeLinks;
-  }
-
-  // Parse the HTML within the email body for unsubscribe links
-  parseBodyForLinks(emailHTML) {
-    const unsubscribeLinks = [];
-    if (emailHTML) {
-      const $ = cheerio.load(emailHTML);
-      let links = _.filter($('a'), emailLink => emailLink.href !== 'blank');
-      links = links.concat(this.getLinkedSentences($));
-      const regexps = [
-        /unsubscribe/gi,
-        /Unfollow/gi,
-        /opt[ -]{0,2}out/gi,
-        /email preferences/gi,
-        /subscription/gi,
-        /notification settings/gi,
-        // Danish
-        /afmeld/gi,
-        /afmelden/gi,
-        /af te melden voor/gi,
-        // Spanish
-        /darse de baja/gi,
-        // French
-        /désabonnement/gi,
-        /désinscrire/gi,
-        /désinscription/gi,
-        /désabonner/gi,
-        /préférences d'email/gi,
-        /préférences d'abonnement/gi,
-        // Russian - this is probably wrong:
-        /отказаться от подписки/gi,
-        // Serbian
-        /одјавити/gi,
-        // Icelandic
-        /afskrá/gi,
-        // Hebrew
-        /לבטל את המנוי/gi,
-        // Creole (Haitian)
-        /koupe abònman/gi,
-        // Chinese (Simplified)
-        /退订/gi,
-        // Chinese (Traditional)
-        /退訂/gi,
-        // Arabic
-        /إلغاء الاشتراك/gi,
-        // Armenian
-        /պետք է նախ միանալ/gi,
-        // German
-        /abmelden/gi,
-        /ausschreiben/gi,
-        /austragen/gi,
-        // Swedish
-        /avprenumerera/gi,
-        /avregistrera/gi,
-        /prenumeration/gi,
-        /notisinställningar/gi,
-      ];
-
-      for (let j = 0; j < links.length; j += 1) {
-        const link = links[j];
-        for (let i = 0; i < regexps.length; i += 1) {
-          const re = regexps[i];
-          if (re.test(link.href) || re.test(link.innerText)) {
-            unsubscribeLinks.push(link.href);
-          }
-        }
-      }
-    }
-    return unsubscribeLinks;
-  }
-
   // Given a list of unsubscribe links (Strings)
   // Returns a list of objects with a link and a LinkType
   // The returned list is in the same order as links,
@@ -283,18 +179,16 @@ class ThreadUnsubscribeStore extends NylasStore {
     });
     return newLinks;
   }
+
   // Takes a String URL to later open a URL
   unsubscribeViaBrowser(rawURL, callback) {
     let url = rawURL
     url = url.replace(/^ttp:/, 'http:');
-    const disURL = this.shortenURL(url);
+    const disURL = util.shortenURL(url);
     if ((!this.isForwarded && process.env.N1_UNSUBSCRIBE_CONFIRM_BROWSER === 'false') ||
-      confirm(`${this.confirmText}\nA browser will be opened at:\n\n${disURL}`)) {
-      if (NylasEnv.inDevMode() === true) {
-        console.log(`Opening a browser window to:\n${url}`);
-      }
-
-      if (this.checkLinkBlacklist(url) ||
+      util.userAlert(`${this.confirmText}\nA browser will be opened at:\n\n${disURL}`)) {
+      util.logIfDebug(`Opening a browser window to:\n${url}`);
+      if (blacklist.checkLinkBlacklist(url) ||
         process.env.N1_UNSUBSCRIBE_USE_BROWSER === 'true') {
         open(url);
         callback(null);
@@ -314,55 +208,12 @@ class ThreadUnsubscribeStore extends NylasStore {
     }
   }
 
-  // Quick solution to
-  shortenURL(url) {
-    // modified from: http://stackoverflow.com/a/26766402/3219667
-    const regex = /^([^:/?#]+:?\/\/([^/?#]*))/i;
-    const disURL = regex.exec(url)[0];
-    return `${disURL}/...`;
-  }
-
-  // Determine if the link can be opened in the electron browser or if it
-  // should be directed to the default browser
-  checkLinkBlacklist(url) {
-    const regexps = blacklist.browser;
-    return this.regexpcompare(regexps, url);
-  }
-
-  // Check if the unsubscribe email is known to fail
-  checkEmailBlacklist(email) {
-    const regexps = blacklist.emails;
-    if (/\?/.test(email)) {
-      console.warn('Parsing complicated mailto: URL\'s is not yet' +
-        ' supported by N1-Unsibscribe:' +
-        `\n${email}`);
-    }
-    return this.regexpcompare(regexps, email) || /\?/.test(email);
-  }
-
-  // Takes an array of regular expressions and compares against a target string
-  regexpcompare(regexps, target) {
-    for (let i = 0; i < regexps.length; i += 1) {
-      const re = new RegExp(regexps[i]);
-      if (re.test(target)) {
-        if (NylasEnv.inDevMode() === true) {
-          console.log(`Found ${target} on blacklist with ${re}`);
-        }
-        return true;
-      }
-    }
-    return false;
-  }
-
   // Takes a String email address and sends an email to it in order to unsubscribe from the list
   unsubscribeViaMail(emailAddress, callback) {
     if (emailAddress) {
       if ((!this.isForwarded && process.env.N1_UNSUBSCRIBE_CONFIRM_EMAIL === 'false') ||
-        confirm(`${this.confirmText}\nAn email will be sent to:\n${emailAddress}`)) {
-        if (NylasEnv.inDevMode() === true) {
-          console.log(`Sending an unsubscription email to:\n${emailAddress}`);
-        }
-
+        util.userAlert(`${this.confirmText}\nAn email will be sent to:\n${emailAddress}`)) {
+        util.logIfDebug(`Sending an unsubscription email to:\n${emailAddress}`);
         NylasAPI.makeRequest({
           path: '/send',
           method: 'POST',
@@ -376,13 +227,12 @@ class ThreadUnsubscribeStore extends NylasStore {
             }],
           },
           success: () => {
-            // Do nothing - for now
+            // TODO: Do nothing - for now
           },
           error: (error) => {
-            console.error(error);
+            util.logError(error);
           },
         });
-
         // Temporary solution right now so that emails are trashed immediately
         // instead of waiting for the email to be sent.
         callback(null);
@@ -416,72 +266,6 @@ class ThreadUnsubscribeStore extends NylasStore {
       }
       Actions.popSheet();
     }
-  }
-
-  // Takes a parsed DOM (through cheerio) and returns sentences that contain links
-  // Good at catching cases such as
-  //    "If you would like to unsubscrbe from our emails, please click here."
-  // Returns a list of objects, each representing a single link
-  // Each object contains an href and innerText property
-  getLinkedSentences($) {
-    const aParents = [];
-    $('a').each((index, aTag) => {
-      if (aTag) {
-        if (!$(aParents).is(aTag.parent)) {
-          aParents.unshift(aTag.parent);
-        }
-      }
-    });
-
-    const linkedSentences = [];
-    $(aParents).each((parentIndex, parent) => {
-      let link = false;
-      let leftoverText = "";
-      if (parent) {
-        $(parent.children).each((childIndex, child) => {
-          if ($(child).is($('a'))) {
-            if (link !== false && leftoverText.length > 0) {
-              linkedSentences.push({
-                href: link,
-                innerText: leftoverText,
-              });
-              leftoverText = "";
-            }
-            link = $(child).attr('href');
-          }
-          const text = $(child).text();
-          const re = /(.*\.|!|\?\s)|(.*\.|!|\?)$/g;
-          if (re.test(text)) {
-            const splitup = text.split(re);
-            for (let i = 0; i < splitup.length; i += 1) {
-              if (splitup[i] !== "" && splitup[i] !== undefined) {
-                if (link !== false) {
-                  const fullLine = leftoverText + splitup[i];
-                  linkedSentences.push({
-                    href: link,
-                    innerText: fullLine,
-                  });
-                  link = undefined;
-                  leftoverText = "";
-                } else {
-                  leftoverText += splitup[i];
-                }
-              }
-            }
-          } else {
-            leftoverText += text;
-          }
-          leftoverText += " ";
-        });
-      }
-      if (link !== false && leftoverText.length > 0) {
-        linkedSentences.push({
-          href: link,
-          innerText: leftoverText,
-        });
-      }
-    });
-    return linkedSentences;
   }
 }
 
