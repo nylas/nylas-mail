@@ -24,7 +24,7 @@ class NylasLongConnection {
       timeout,
       onError,
       onStatusChanged,
-      debounceResultsInterval,
+      throttleResultsInterval,
       closeIfDataStopsInterval,
     } = opts
 
@@ -51,8 +51,8 @@ class NylasLongConnection {
       this._emitter.emit('results-stopped-arriving', this._results);
       this._results = []
     }
-    if (debounceResultsInterval != null) {
-      this._flushResultsSoon = _.debounce(this._flushResultsSoon, debounceResultsInterval)
+    if (throttleResultsInterval != null) {
+      this._flushResultsSoon = _.throttle(this._flushResultsSoon, throttleResultsInterval)
     }
   }
 
