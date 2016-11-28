@@ -23,10 +23,10 @@ class SyncWorker {
     this._onExpired = onExpired;
     this._logger = global.Logger.forAccount(account)
 
-    this._syncTimer = null;
     this._destroyed = false;
-
-    this.syncNow({reason: 'Initial'});
+    this._syncTimer = setTimeout(() => {
+      this.syncNow({reason: 'Initial'});
+    }, 0);
   }
 
   cleanup() {
@@ -42,27 +42,7 @@ class SyncWorker {
     }
   }
 
-  _onAccountUpdated() {
-    const syncingNow = !this.isWaitingForNextSync()
-    const syncingJustFinished = (Date.now() - this._lastSyncTime < 5000);
-
-    if (syncingNow || syncingJustFinished) {
-      return;
-    }
-
-    this._getAccount().then((account) => {
-      this._account = account;
-      this.syncNow({reason: 'Account Modification'});
-    })
-    .catch((err) => {
-      this._logger.error(err, 'SyncWorker: Error getting account for update')
-    })
-  }
-
   _onConnectionIdleUpdate() {
-    if (!this.isWaitingForNextSync()) {
-      return;
-    }
     this.syncNow({reason: 'IMAP IDLE Fired'});
   }
 
@@ -110,10 +90,14 @@ class SyncWorker {
   }
 
   syncbackMessageActions() {
+    const {SyncbackRequest} = this._db;
     const where = {where: {status: "NEW"}, limit: 100};
-    return PromiseUtils.each((this._db.SyncbackRequest.findAll(where)
-          .map((req) => SyncbackTaskFactory.create(this._account, req))),
-          this.runSyncbackTask.bind(this))
+
+    const tasks = SyncbackRequest.findAll(where).map((req) =>
+      SyncbackTaskFactory.create(this._account, req)
+    );
+
+    return PromiseUtils.each(tasks, this.runSyncbackTask.bind(this));
   }
 
   runSyncbackTask(task) {
@@ -130,23 +114,28 @@ class SyncWorker {
     .finally(() => syncbackRequest.save())
   }
 
-  syncAllCategories() {
+  syncMessagesInAllFolders() {
     const {Folder} = this._db;
     const {folderSyncOptions} = this._account.syncPolicy;
 
-    return Folder.findAll().then((categories) => {
+    return Folder.findAll().then((folders) => {
       const priority = ['inbox', 'all', 'drafts', 'sent', 'spam', 'trash'].reverse();
-      const categoriesToSync = categories.sort((a, b) =>
+      const foldersSorted = folders.sort((a, b) =>
         (priority.indexOf(a.role) - priority.indexOf(b.role)) * -1
       )
 
-      return Promise.all(categoriesToSync.map((cat) =>
+      return Promise.all(foldersSorted.map((cat) =>
         this._conn.runOperation(new FetchMessagesInFolder(cat, folderSyncOptions, this._logger))
       ))
     });
   }
 
   syncNow({reason} = {}) {
+    const syncInProgress = (this._syncTimer === null);
+    if (syncInProgress) {
+      return;
+    }
+
     clearTimeout(this._syncTimer);
     this._syncTimer = null;
 
@@ -161,7 +150,7 @@ class SyncWorker {
       .then(() => this.ensureConnection())
       .then(() => this.syncbackMessageActions())
       .then(() => this._conn.runOperation(new FetchFolderList(this._account.provider, this._logger)))
-      .then(() => this.syncAllCategories())
+      .then(() => this.syncMessagesInAllFolders())
       .then(() => this.onSyncDidComplete())
       .catch((error) => this.onSyncError(error))
     })
@@ -186,9 +175,9 @@ class SyncWorker {
   }
 
   onSyncDidComplete() {
-    const {afterSync} = this._account.syncPolicy;
     const now = Date.now();
 
+    // Save metrics to the account object
     if (!this._account.firstSyncCompletion) {
       this._account.firstSyncCompletion = now;
     }
@@ -200,38 +189,33 @@ class SyncWorker {
       lastSyncCompletions.pop();
     }
 
+    this._logger.info('Syncworker: Completed sync cycle')
     this._account.lastSyncCompletions = lastSyncCompletions
     this._account.save()
 
-    this._logger.info('Syncworker: Completed sync cycle')
-
-    if (afterSync === 'idle') {
-      return this._getIdleFolder()
-      .then((idleFolder) => this._conn.openBox(idleFolder.name))
-      .then(() => this._logger.info('SyncWorker: Idling on inbox category'))
-    }
-
-    if (afterSync === 'close') {
-      this._logger.info('SyncWorker: Closing connection');
-      this.closeConnection()
-      return Promise.resolve()
-    }
-
-    this._logger.error({after_sync: afterSync}, `SyncWorker.onSyncDidComplete: Unknown afterSync behavior`)
-    throw new Error('SyncWorker.onSyncDidComplete: Unknown afterSync behavior')
-  }
-
-  isWaitingForNextSync() {
-    return this._syncTimer != null;
+    // Start idling on the inbox
+    return this._getIdleFolder()
+    .then((idleFolder) => this._conn.openBox(idleFolder.name))
+    .then(() => this._logger.info('SyncWorker: Idling on inbox folder'))
   }
 
   scheduleNextSync() {
     const {intervals} = this._account.syncPolicy;
-    const target = this._lastSyncTime + intervals.active;
+    const {Folder} = this._db;
 
-    this._syncTimer = setTimeout(() => {
-      this.syncNow({reason: 'Scheduled'});
-    }, target - Date.now());
+    return Folder.findAll().then((folders) => {
+      const moreToSync = folders.some((f) =>
+        f.syncState.fetchedmax < f.syncState.uidnext || f.syncState.fetchedmin > 1
+      )
+
+      const target = this._lastSyncTime + (moreToSync ? 1 : intervals.active);
+
+      this._logger.info(`SyncWorker: Scheduling next sync iteration for ${target - Date.now()}ms}`)
+
+      this._syncTimer = setTimeout(() => {
+        this.syncNow({reason: 'Scheduled'});
+      }, target - Date.now());
+    });
   }
 }
 
