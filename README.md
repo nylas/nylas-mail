@@ -1,57 +1,30 @@
-# K2 - The local sync engine for Nylas N1
+# K2 - Local Sync Engine & Cloud Services for Nylas N1
 
-# Initial Setup:
+This is a collection of all sync and cloud components required to run N1.
+
+1. [**Cloud API**](https://github.com/nylas/K2/tree/master/packages/cloud-api): The cloud-based auth and metadata APIs for N1
+1. [**Cloud Core**](https://github.com/nylas/K2/tree/master/packages/cloud-core): Shared code used in all remote cloud services
+1. [**Cloud Workers**](https://github.com/nylas/K2/tree/master/packages/cloud-workers): Cloud workers for services like send later
+1. [**Isomorphic Core**](https://github.com/nylas/K2/tree/master/packages/isomorphic-core): Shared code across local client and cloud servers
+1. [**Local Sync**](https://github.com/nylas/K2/tree/master/packages/local-sync): The local mailsync engine integreated in Nylas N1
+
+See `/packages` for the separate pieces. Each folder in `/packages` is
+designed to be its own stand-alone repositoriy. They are all bundled here
+for the ease of source control management.
+
+# Initial Setup for All Local & Cloud Services:
 
 ## New Computer (Mac):
 
 1. Install [Homebrew](http://brew.sh/)
-4. Install [NVM](https://github.com/creationix/nvm) `brew install nvm`
-5. Install Node 6 via NVM: `nvm install 6`
-6. Install Redis locally `brew install redis`
+1. Install [NVM](https://github.com/creationix/nvm) `brew install nvm`
+1. Install Node 6 via NVM: `nvm install 6`
+1. Install Redis locally `brew install redis`
 
 ## New Computer (Linux - Debian/Ubuntu):
+
 1. Install Node 6+ via NodeSource (trusted):
   1. `curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -`
   1. `sudo apt-get install -y nodejs`
-2. Install Redis locally `sudo apt-get install -y redis-server redis-tools`
-
-# Developing Locally:
-
-```
-npm install
-npm start
-
-## New to AWS:
-
-1. Install [Elastic Beanstalk CLI](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-install.html#eb-cli3-install-osx): `sudo pip install awsebcli`
-  1. On Linux, you may need to install Python 3's pip via `sudo apt-get install python3-pip` and then run `pip3 install --user awsebcli`. This installs to your home directory and you need to have `~/.local/bin` in your $PATH.
-2. Install [AWS CLI](https://aws.amazon.com/cli/): `brew install awscli` on Mac and `pip install --user awscli` on Linux.
-  1. Add your AWS IAM Security Credentials to `aws configure`.
-  1. These are at Console Home -> IAM -> Users -> {{Your Name}} -> Security
-     Credentials. Note that your private key was only shown unpon creation. If
-     you've lost your private key you have to deactivate your old key and
-     create a new one.
-3. Get the K2 team private SSH key. (Ignore this when we have a Bastion Host). Ask someone on K2 for a copy of the private SSH key. Copy it to your ~/.ssh folder.
-  1. `chmod 400 ~/.ssh/k2-keypair.pem`
-  1. `ssh i ~/.ssh/k2-keypair.pem some-ec2-box-we-own.amazonaws.com`
-4. Connect to Elastic Beanstalk instances: `eb init`. Select correct region. Select correct application.
-
-# Developing the Cloud Components Locally:
-
-```
-pm2 start ./pm2-dev.yml --no-daemon
-```
-
-We use [pm2](http://pm2.keymetrics.io/) to launch a variety of processes
-(sync, api, dashboard, processor, etc).
-
-You can see the scripts that are running and their arguments in
-`/pm2-dev.yml`
-
-To test to see if the basic API is up go to: `http://lvh.me:5100/ping`.  You
-should see `pong`.
-
-`lvh.me` is a DNS hack that redirects back to 127.0.0.1 with the added
+1. Install Redis locally `sudo apt-get install -y redis-server redis-tools`
 benefit of letting us use subdomains.
-
-# Deploying
