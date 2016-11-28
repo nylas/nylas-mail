@@ -56,7 +56,7 @@ class NylasAPI
 
   constructor: ->
     @_lockTracker = new NylasAPIChangeLockTracker()
-    @LocalSyncRoot = 'http://localhost:2578'
+    @APIRoot = "http://localhost:2578"
 
   # Delegates to node's request object.
   # On success, it will call the passed in success callback with options.
@@ -79,8 +79,6 @@ class NylasAPI
       return Promise.resolve()
 
     NylasAPIRequest ?= require('./nylas-api-request').default
-    options.APIRoot = @LocalSyncRoot
-
     req = new NylasAPIRequest(@, options)
 
     success = (body) =>

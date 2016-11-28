@@ -7,9 +7,9 @@ class ChaosMonkey
     errorCode ?= 500
     numMonkeys ?= "all the monkeys"
     makeTimeout ?= false
-    nGet = nock(NylasAPI.LocalSyncRoot)
-    nPut = nock(NylasAPI.LocalSyncRoot)
-    nPost = nock(NylasAPI.LocalSyncRoot)
+    nGet = nock(NylasAPI.APIRoot)
+    nPut = nock(NylasAPI.APIRoot)
+    nPost = nock(NylasAPI.APIRoot)
 
     numTimes = 1
     if numMonkeys.toLowerCase() is "all the monkeys"
