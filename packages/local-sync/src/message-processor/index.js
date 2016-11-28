@@ -15,7 +15,8 @@ function runPipeline({db, accountId, message, logger}) {
       return Promise.resolve(processed)
       .then((nextMessage) => {
         if (!nextMessage.body) {
-          throw new Error("processor did not resolve with a valid message object.")
+          logger.error({processed_message: nextMessage.toJSON()}, `Processor did not resolve with a valid message object.`)
+          throw new Error('Processor did not resolve with a valid message object.')
         }
         return Promise.resolve(nextMessage);
       })

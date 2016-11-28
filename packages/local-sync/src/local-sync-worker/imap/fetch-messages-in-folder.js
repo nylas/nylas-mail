@@ -210,6 +210,8 @@ class FetchMessagesInFolder {
                 msg.body[mimetype] = QuotedPrintable.decode(msg.parts[id]);
               } else if (encoding.toLowerCase() === '7bit') {
                 msg.body[mimetype] = utf7.decode(msg.parts[id]);
+              } else if (encoding.toLowerCase() === '8bit') {
+                msg.body[mimetype] = Buffer.from(msg.parts[id], 'utf8').toString();
               } else if (encoding && ['ascii', 'utf8', 'utf16le', 'ucs2', 'base64', 'latin1', 'binary', 'hex'].includes(encoding.toLowerCase())) {
                 msg.body[mimetype] = Buffer.from(msg.parts[id], encoding.toLowerCase()).toString();
               } else {
