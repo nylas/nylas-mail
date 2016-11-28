@@ -388,6 +388,7 @@ class FetchMessagesInFolder {
         return this.updateFolderSyncState({
           fetchedmin: fetchedmin ? Math.min(fetchedmin, min) : min,
           fetchedmax: fetchedmax ? Math.max(fetchedmax, max) : max,
+          uidnext: boxUidnext,
           uidvalidity: boxUidvalidity,
           timeFetchedUnseen: Date.now(),
         });
