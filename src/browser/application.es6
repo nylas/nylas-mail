@@ -184,8 +184,6 @@ export default class Application extends EventEmitter {
       });
       this.windowManager.ensureWindow(WindowManager.WORK_WINDOW);
     }
-
-    this.windowManager.ensureWindow(WindowManager.SYNC_WINDOW);
   }
 
   _relaunchToInitialWindows = ({resetConfig, resetDatabase} = {}) => {
