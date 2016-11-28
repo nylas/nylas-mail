@@ -119,6 +119,9 @@ module.exports = (server) => {
           imap_username: email,
           imap_host: 'imap.gmail.com',
           imap_port: 993,
+          smtp_username: email,
+          smtp_host: 'smtp.gmail.com',
+          smtp_port: 465,
           ssl_required: true,
         }
         connectionCredentials = {
