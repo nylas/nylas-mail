@@ -276,9 +276,13 @@ module.exports = (server) => {
     },
     handler: (req, res) => {
       DatabaseConnector.forShared().then(({PendingAuthResponse}) => {
-        PendingAuthResponse.find({pendingAuthKey: req.query.key}).then((pending) => {
-          res(pending.response).code(200);
-          pending.destroy();
+        PendingAuthResponse.find({where: {pendingAuthKey: req.query.key}}).then((pending) => {
+          if (pending) {
+            res(pending.response).code(200);
+            pending.destroy();
+          } else {
+            res({error: "Not found."}).code(404);
+          }
         })
         .catch((err) => {
           return res(err).code(404);
