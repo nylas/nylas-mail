@@ -69,9 +69,7 @@ export function buildGmailSessionKey() {
 }
 
 export function buildGmailAuthURL(sessionKey) {
-  const encryptionKey = base64url(crypto.randomBytes(24));
-  const encryptionIv = base64url(crypto.randomBytes(16));
-  return `${NylasAPI.RemoteAPIRoot}/auth/gmail?state=${sessionKey},${encryptionKey},${encryptionIv}`;
+  return `${NylasAPI.RemoteAPIRoot}/auth/gmail?state=${sessionKey}`;
 }
 
 export function runAuthRequest(accountInfo) {
