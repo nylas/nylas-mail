@@ -58,12 +58,6 @@ class NylasAPI
     @_lockTracker = new NylasAPIChangeLockTracker()
     @LocalSyncRoot = 'http://localhost:2578'
 
-    env = NylasEnv.config.get('env')
-    if env is 'local'
-      @RemoteAPIRoot = 'http://localhost:5100'
-    else
-      @RemoteAPIRoot = 'https://n1.nylas.com'
-
   # Delegates to node's request object.
   # On success, it will call the passed in success callback with options.
   # On error it will create a new APIError object that wraps the error,
@@ -85,10 +79,7 @@ class NylasAPI
       return Promise.resolve()
 
     NylasAPIRequest ?= require('./nylas-api-request').default
-    if options.remote
-      options.LocalSyncRoot = @RemoteAPIRoot
-    else
-      options.LocalSyncRoot = @LocalSyncRoot
+    options.APIRoot = @LocalSyncRoot
 
     req = new NylasAPIRequest(@, options)
 

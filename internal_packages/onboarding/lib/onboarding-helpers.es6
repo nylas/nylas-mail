@@ -1,7 +1,7 @@
 /* eslint global-require: 0 */
 
 import crypto from 'crypto';
-import {NylasAPI, AccountStore, RegExpUtils, IdentityStore} from 'nylas-exports';
+import {NylasAPI, N1CloudAPI, AccountStore, RegExpUtils, IdentityStore} from 'nylas-exports';
 
 const IMAP_FIELDS = new Set([
   "imap_host",
@@ -35,15 +35,13 @@ export function makeGmailOAuthRequest(sessionKey, callback) {
     pass: '',
     sendImmediately: true,
   };
-  NylasAPI.makeRequest({
-    remote: true,
+  N1CloudAPI.makeRequest({
     path: `/auth/gmail/token?key=${sessionKey}`,
     method: 'GET',
     error: callback,
     auth: noauth,
     success: (remoteJSON) => {
       NylasAPI.makeRequest({
-        remote: false,
         path: `/auth`,
         method: 'POST',
         auth: noauth,
@@ -69,7 +67,7 @@ export function buildGmailSessionKey() {
 }
 
 export function buildGmailAuthURL(sessionKey) {
-  return `${NylasAPI.RemoteAPIRoot}/auth/gmail?state=${sessionKey}`;
+  return `${N1CloudAPI.APIRoot}/auth/gmail?state=${sessionKey}`;
 }
 
 export function runAuthRequest(accountInfo) {
