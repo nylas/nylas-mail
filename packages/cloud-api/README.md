@@ -8,6 +8,7 @@ and Metdata for Nylas N1 desktop clients.
 ## New to AWS:
 1. Make sure you can login at [https://nylas.signin.aws.amazon.com/console](https://nylas.signin.aws.amazon.com/console). (Ask a Nylas AWS admin to create your username if it doesn't exist already)
   1. Make sure you're on **US East (N. Virginia)**
+
 1. Create your AWS IAM Security Credentials
   1. Go to Console -> Home -> IAM -> Users -> {{Your Name}} ->
      Security Credentials and click **Create access key**.
@@ -19,21 +20,27 @@ and Metdata for Nylas N1 desktop clients.
      You'll use your `AWS Access Key ID` and `AWS Secret Access Key` in
      the next step to login to our AWS environment and make the
      appropriate resources available.
+
 1. Install [AWS CLI](https://aws.amazon.com/cli/):
   1. `brew install awscli` on Mac
   1. `pip install --user awscli` on Linux.
+
 1. Run `aws configure` and add your AWS IAM Security Credentials (`AWS
    Access Key ID` and `AWS Secret Access Key`)
+
 1. Install the [Elastic Benstalk CLI](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-install.html?icmpid=docs_elasticbeanstalk_console):
   1. `brew install awsebcli` on Mac
   1. `pip install --upgrade --user awsebcli` on Linux
+
 1. Setup the Elastic Beanstalk CLI to use `nylas-k2-api` on `us-east-1`.
    Note: This uses your AWS IAM Security Credentials you previously setup
    to authenticate against Elastic Beanstalk
   1. `eb init`
   1. Use region `us-east-1`, application `nylas-k2-api`
+
 1. Test out the Elastic Beanstalk CLI:
   1. `eb logs` OR `eb ssh`
+
 1. NOTE: While `eb ssh` is the easiest, if you want to ssh into a specific
    box Get the K2 team private SSH key. Ask Ben for a copy of the private
    SSH key. Copy it to your ~/.ssh folder. We currently use a single
