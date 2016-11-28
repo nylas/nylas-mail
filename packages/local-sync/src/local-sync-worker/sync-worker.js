@@ -151,8 +151,9 @@ class SyncWorker {
     this._syncTimer = null;
 
     this._account.reload().then(() => {
+      console.log(this._account)
       if (!process.env.SYNC_AFTER_ERRORS && this._account.errored()) {
-        this._logger.info(`SyncWorker: Account is in error state - Skipping sync`)
+        this._logger.error(`SyncWorker: Account is in error state - Skipping sync\n${this._account.syncError.message}`, this._account.syncError.stack.join('\n'))
         return Promise.resolve();
       }
       this._logger.info({reason}, `SyncWorker: Account sync started`)
