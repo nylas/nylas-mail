@@ -9,6 +9,7 @@ import progress from 'request-progress';
 import NylasStore from 'nylas-store';
 import Actions from '../actions';
 import NylasAPI from '../nylas-api';
+import NylasAPIRequest from '../nylas-api-request';
 
 
 Promise.promisifyAll(fs);
@@ -111,39 +112,44 @@ export class Download {
         resolve(this);
       };
 
-      NylasAPI.makeRequest({
-        json: false,
-        path: `/files/${this.fileId}/download`,
-        accountId: this.accountId,
-        encoding: null, // Tell `request` not to parse the response data
-        started: (req) => {
-          this.request = req;
-          return progress(this.request, {throtte: 250})
-          .on('progress', (prog) => {
-            this.percent = prog.percent;
-            this.progressCallback();
-          })
+      const request = new NylasAPIRequest({
+        api: NylasAPI,
+        options: {
+          json: false,
+          path: `/files/${this.fileId}/download`,
+          accountId: this.accountId,
+          encoding: null, // Tell `request` not to parse the response data
+          started: (req) => {
+            this.request = req;
+            return progress(this.request, {throtte: 250})
+            .on('progress', (prog) => {
+              this.percent = prog.percent;
+              this.progressCallback();
+            })
 
-          // This is a /socket/ error event, not an HTTP error event. It fires
-          // when the conn is dropped, user if offline, but not on HTTP status codes.
-          // It is sometimes called in place of "end", not before or after.
-          .on('error', onFailed)
+            // This is a /socket/ error event, not an HTTP error event. It fires
+            // when the conn is dropped, user if offline, but not on HTTP status codes.
+            // It is sometimes called in place of "end", not before or after.
+            .on('error', onFailed)
 
-          .on('end', () => {
-            if (this.state === State.Failed) { return; }
+            .on('end', () => {
+              if (this.state === State.Failed) { return; }
 
-            const {response} = this.request
-            const statusCode = response ? response.statusCode : null;
-            if ([200, 202, 204].includes(statusCode)) {
-              onSuccess();
-            } else {
-              onFailed(new Error(`Server returned a ${statusCode}`));
-            }
-          })
+              const {response} = this.request
+              const statusCode = response ? response.statusCode : null;
+              if ([200, 202, 204].includes(statusCode)) {
+                onSuccess();
+              } else {
+                onFailed(new Error(`Server returned a ${statusCode}`));
+              }
+            })
 
-          .pipe(stream);
+            .pipe(stream);
+          },
         },
       });
+
+      request.run()
     });
     return this.promise
   }

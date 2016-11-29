@@ -2,6 +2,7 @@
 import _ from 'underscore'
 import Task from './task'
 import NylasAPI from '../nylas-api'
+import NylasAPIRequest from '../nylas-api-request'
 import DatabaseStore from '../stores/database-store'
 
 export default class DestroyModelTask extends Task {
@@ -50,11 +51,16 @@ export default class DestroyModelTask extends Task {
     if (!this.serverId) {
       return Promise.resolve(Task.Status.Continue)
     }
-    return NylasAPI.makeRequest({
-      path: `${this.endpoint}/${this.serverId}`,
-      method: "DELETE",
-      accountId: this.accountId,
-    }).then(() => {
+    return new NylasAPIRequest({
+      api: new NylasAPI(),
+      options: {
+        path: `${this.endpoint}/${this.serverId}`,
+        method: "DELETE",
+        accountId: this.accountId,
+      },
+    })
+    .run()
+    .then(() => {
       return Promise.resolve(Task.Status.Success)
     }).catch(this.apiErrorHandler)
   }
