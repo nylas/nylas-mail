@@ -17,7 +17,7 @@ module.exports = (sequelize, Sequelize) => {
         Label.belongsToMany(Thread, {through: ThreadLabel})
       },
 
-      findXGMLabels(xGmLabels, {preloadedLabels}) {
+      findXGMLabels(xGmLabels, {preloadedLabels} = {}) {
         if (!xGmLabels) {
           return Promise.resolve();
         }
