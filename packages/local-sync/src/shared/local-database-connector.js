@@ -60,7 +60,12 @@ class LocalDatabaseConnector {
 
   destroyAccountDatabase(accountId) {
     const dbname = `a-${accountId}`;
-    fs.removeFileSync(path.join(process.env.NYLAS_HOME, `${dbname}.sqlite`));
+    fs.access(dbname, fs.F_OK, (err) => {
+      if (!err) {
+        fs.unlinkSync(path.join(process.env.NYLAS_HOME, `${dbname}.sqlite`));
+      }
+    });
+
     return Promise.resolve()
   }
 
