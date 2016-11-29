@@ -31,7 +31,7 @@ class SyncProcessManager {
     this._workers = {};
     this._listenForSyncsClient = null;
     this._exiting = false;
-    this._logger = global.Logger.child({identity: IDENTITY})
+    this._logger = global.Logger.child({identity: IDENTITY});
   }
 
   start() {
@@ -43,6 +43,10 @@ class SyncProcessManager {
           this.addWorkerForAccount(account);
         }
       }));
+  }
+
+  wakeWorkerForAccount(account) {
+    this._workers[account.id].syncNow();
   }
 
   addWorkerForAccount(account) {

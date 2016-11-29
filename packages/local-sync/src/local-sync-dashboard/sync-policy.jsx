@@ -1,6 +1,6 @@
-const React = window.React;
+import {React} from 'nylas-exports';
 
-class SyncPolicy extends React.Component {
+export default class SyncPolicy extends React.Component {
   constructor(props) {
     super(props);
     this.state = {editMode: false};
@@ -61,5 +61,3 @@ SyncPolicy.propTypes = {
   accountId: React.PropTypes.number,
   stringifiedSyncPolicy: React.PropTypes.string,
 }
-
-window.SyncPolicy = SyncPolicy;

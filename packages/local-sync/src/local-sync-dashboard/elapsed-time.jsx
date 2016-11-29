@@ -1,12 +1,11 @@
-const React = window.React;
-const ReactDOM = window.ReactDOM;
+import {React, ReactDOM} from 'nylas-exports';
 
 setInterval(() => {
   const event = new Event('tick');
   window.dispatchEvent(event);
 }, 1000);
 
-class ElapsedTime extends React.Component {
+export default class ElapsedTime extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -36,5 +35,3 @@ ElapsedTime.propTypes = {
   refTimestamp: React.PropTypes.number, // milliseconds
   formatTime: React.PropTypes.func,
 }
-
-window.ElapsedTime = ElapsedTime;

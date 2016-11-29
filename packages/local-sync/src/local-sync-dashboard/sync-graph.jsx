@@ -1,12 +1,11 @@
-const React = window.React;
-const ReactDOM = window.ReactDOM;
+import {React, ReactDOM} from 'nylas-exports';
 
 setInterval(() => {
   const event = new Event('graphtick')
   window.dispatchEvent(event);
 }, 10000);
 
-class SyncGraph extends React.Component {
+export default class SyncGraph extends React.Component {
   componentDidMount() {
     this.drawGraph(true);
 
@@ -86,7 +85,6 @@ class SyncGraph extends React.Component {
         width={SyncGraph.config.width}
         height={SyncGraph.config.height + SyncGraph.config.labelFontSize + SyncGraph.config.labelTopMargin}
         className="sync-graph"
-        syncTimestamps={this.props.syncTimestamps}
       />
     )
   }
@@ -112,5 +110,3 @@ SyncGraph.config = {
 SyncGraph.propTypes = {
   syncTimestamps: React.PropTypes.arrayOf(React.PropTypes.number),
 }
-
-window.SyncGraph = SyncGraph;

@@ -1,7 +1,7 @@
-const React = window.React;
-const Modal = window.Modal;
+import {React} from 'nylas-exports';
+import Modal from './modal';
 
-class SetAllSyncPolicies extends React.Component {
+export default class SetAllSyncPolicies extends React.Component {
 
   applyToAllAccounts(accountIds) {
     const req = new XMLHttpRequest();
@@ -55,5 +55,3 @@ class SetAllSyncPolicies extends React.Component {
 SetAllSyncPolicies.propTypes = {
   accountIds: React.PropTypes.arrayOf(React.PropTypes.number),
 }
-
-window.SetAllSyncPolicies = SetAllSyncPolicies;
