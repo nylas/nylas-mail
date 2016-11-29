@@ -7,6 +7,7 @@ module.exports = (sequelize, Sequelize) => {
     version: Sequelize.INTEGER,
     pluginId: Sequelize.STRING,
     objectId: Sequelize.STRING,
+    objectType: Sequelize.STRING,
   }, {
     instanceMethods: {
       id: `${this.id}`,
@@ -16,6 +17,7 @@ module.exports = (sequelize, Sequelize) => {
       plugin_id: this.pluginId,
       object_id: this.objectId,
       account_id: this.accountId,
+      object_type: this.objectType,
     },
   });
 

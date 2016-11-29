@@ -9,4 +9,5 @@ module.exports = {
   PromiseUtils: require('./src/promise-utils'),
   DatabaseTypes: require('./src/database-types'),
   loadModels: require('./src/load-models'),
+  deltaStreamBuilder: require('./src/delta-stream-builder'),
 }
