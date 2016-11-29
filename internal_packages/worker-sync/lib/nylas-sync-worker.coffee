@@ -42,7 +42,7 @@ class BackoffTimer
 module.exports =
 class NylasSyncWorker
 
-  constructor: (api, account) ->
+  constructor: (account) ->
     @_account = account
 
     # indirection needed so resumeFetches can be spied on
@@ -50,7 +50,7 @@ class NylasSyncWorker
     @_refreshingCaches = [new ContactRankingsCache(account.id)]
 
     @_terminated = false
-    @_connection = new LocalSyncDeltaConnection(api, account.id, {
+    @_connection = new LocalSyncDeltaConnection(NylasAPI, account.id, {
       isReady: => @_state isnt null
       getCursor: =>
         return null if @_state is null
