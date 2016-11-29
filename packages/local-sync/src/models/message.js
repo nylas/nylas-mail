@@ -32,41 +32,27 @@ module.exports = (sequelize, Sequelize) => {
       },
     ],
     classMethods: {
-      associate: ({Message, Folder, Label, File, Thread, MessageLabel}) => {
+      associate({Message, Folder, Label, File, Thread, MessageLabel}) {
         Message.belongsTo(Thread)
         Message.belongsTo(Folder)
         Message.belongsToMany(Label, {through: MessageLabel})
         Message.hasMany(File)
       },
-      hashForHeaders: (headers) => {
+
+      hashForHeaders(headers) {
         return crypto.createHash('sha256').update(headers, 'utf8').digest('hex');
       },
     },
     instanceMethods: {
       setLabelsFromXGM(xGmLabels, {Label, preloadedLabels} = {}) {
-        if (!xGmLabels) {
-          return Promise.resolve();
-        }
-        const labelNames = xGmLabels.filter(l => l[0] !== '\\')
-        const labelRoles = xGmLabels.filter(l => l[0] === '\\').map(l => l.substr(1).toLowerCase())
-
-        let getLabels = null;
-        if (preloadedLabels) {
-          getLabels = Promise.resolve(preloadedLabels.filter(l => labelNames.includes(l.name) || labelRoles.includes(l.role)));
-        } else {
-          getLabels = Label.findAll({
-            where: sequelize.or({name: labelNames}, {role: labelRoles}),
-          })
-        }
-
         this.folderImapXGMLabels = JSON.stringify(xGmLabels);
-
-        return getLabels.then((labels) =>
+        return Label.findXGMLabels(xGmLabels, {preloadedLabels})
+        .then((labels) =>
           this.save().then(() => this.setLabels(labels))
         )
       },
 
-      fetchRaw: function fetchRaw({account, db, logger}) {
+      fetchRaw({account, db, logger}) {
         const settings = Object.assign({}, account.connectionSettings, account.decryptedCredentials())
         return PromiseUtils.props({
           folder: this.getFolder(),
@@ -85,7 +71,7 @@ module.exports = (sequelize, Sequelize) => {
         })
       },
 
-      toJSON: function toJSON() {
+      toJSON() {
         if (this.folder_id && !this.folder) {
           throw new Error("Message.toJSON called on a message where folder were not eagerly loaded.")
         }

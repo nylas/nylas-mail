@@ -12,9 +12,26 @@ module.exports = (sequelize, Sequelize) => {
       },
     ],
     classMethods: {
-      associate: ({Label, Message, MessageLabel, Thread, ThreadLabel}) => {
+      associate({Label, Message, MessageLabel, Thread, ThreadLabel}) {
         Label.belongsToMany(Message, {through: MessageLabel})
         Label.belongsToMany(Thread, {through: ThreadLabel})
+      },
+
+      findXGMLabels(xGmLabels, {preloadedLabels}) {
+        if (!xGmLabels) {
+          return Promise.resolve();
+        }
+        const labelNames = xGmLabels.filter(l => l[0] !== '\\')
+        const labelRoles = xGmLabels.filter(l => l[0] === '\\').map(l => l.substr(1).toLowerCase())
+
+        if (preloadedLabels) {
+          return Promise.resolve(
+            preloadedLabels.filter(l => labelNames.includes(l.name) || labelRoles.includes(l.role))
+          );
+        }
+        return this.findAll({
+          where: sequelize.or({name: labelNames}, {role: labelRoles}),
+        })
       },
     },
     instanceMethods: {

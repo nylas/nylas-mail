@@ -1,10 +1,9 @@
 const _ = require('underscore');
-const QuotedPrintable = require('quoted-printable');
-const utf7 = require('utf7').imap;
 
-const {Imap, PromiseUtils, IMAPConnection} = require('isomorphic-core');
+const {PromiseUtils, IMAPConnection} = require('isomorphic-core');
 const {Capabilities} = IMAPConnection;
-const {queueMessageForProcessing} = require('../../message-processor')
+const MessageFactory = require('../../shared/message-factory')
+const {processNewMessage} = require('../../new-message-processor')
 
 const MessageFlagAttributes = ['id', 'threadId', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']
 
@@ -200,129 +199,57 @@ class FetchMessagesInFolder {
         // note: the order of UIDs in the array doesn't matter, Gmail always
         // returns them in ascending (oldest => newest) order.
 
-        return this._box.fetchEach(uids, {bodies, struct: true}, (msg) => {
-          msg.body = {};
-          for (const {id, mimetype, encoding} of desiredParts) {
-            try {
-              if (!encoding) {
-                msg.body[mimetype] = msg.parts[id];
-              } else if (encoding.toLowerCase() === 'quoted-printable') {
-                msg.body[mimetype] = QuotedPrintable.decode(msg.parts[id]);
-              } else if (encoding.toLowerCase() === '7bit') {
-                msg.body[mimetype] = utf7.decode(msg.parts[id]);
-              } else if (encoding.toLowerCase() === '8bit') {
-                msg.body[mimetype] = Buffer.from(msg.parts[id], 'utf8').toString();
-              } else if (encoding && ['ascii', 'utf8', 'utf16le', 'ucs2', 'base64', 'latin1', 'binary', 'hex'].includes(encoding.toLowerCase())) {
-                msg.body[mimetype] = Buffer.from(msg.parts[id], encoding.toLowerCase()).toString();
-              } else {
-                throw new Error(`Unknown encoding ${encoding}`)
-              }
-            } catch (err) {
-              this._logger.error({
-                encoding,
-                mimetype,
-                underlying: err.toString(),
-              }, `FetchMessagesInFolder: Could not decode message part`)
-            }
-          }
-          this._processMessage(msg);
-        });
+        return this._box.fetchEach(
+          uids,
+          {bodies, struct: true},
+          (imapMessage) => this._processMessage(imapMessage, desiredParts)
+        );
       });
     });
   }
 
-  _collectFilesFromStruct(message, struct) {
-    const {File} = this._db;
-    let collected = [];
+  _processMessage(imapMessage, desiredParts) {
+    const {Message} = this._db
 
-    for (const part of struct) {
-      if (part.constructor === Array) {
-        collected = collected.concat(this._collectFilesFromStruct(message, part));
-      } else if (part.type !== 'text' && part.disposition) {
-        // Only exposes partId for inline attachments
-        const partId = part.disposition.type === 'inline' ? part.partID : null;
-        const filename = part.disposition.params ? part.disposition.params.filename : null;
-
-        collected.push(File.build({
-          filename: filename,
-          partId: partId,
-          messageId: message.id,
-          contentType: `${part.type}/${part.subtype}`,
-          accountId: this._db.accountId,
-          size: part.size,
-        }));
-      }
-    }
-
-    return collected;
-  }
-
-  _processMessage({attributes, headers, body}) {
-    const {Message, Label, accountId} = this._db;
-    const hash = Message.hashForHeaders(headers);
-
-    const parsedHeaders = Imap.parseHeader(headers);
-    for (const key of ['x-gm-thrid', 'x-gm-msgid', 'x-gm-labels']) {
-      parsedHeaders[key] = attributes[key];
-    }
-
-    const values = {
-      hash: hash,
+    MessageFactory.parseFromImap(imapMessage, desiredParts, {
+      db: this._db,
       accountId: this._db.accountId,
-      body: body['text/html'] || body['text/plain'] || body['application/pgp-encrypted'] || '',
-      snippet: body['text/plain'] ? body['text/plain'].substr(0, 255) : null,
-      unread: !attributes.flags.includes('\\Seen'),
-      starred: attributes.flags.includes('\\Flagged'),
-      date: attributes.date,
-      folderImapUID: attributes.uid,
       folderId: this._category.id,
-      headers: parsedHeaders,
-      headerMessageId: parsedHeaders['message-id'] ? parsedHeaders['message-id'][0] : '',
-      subject: parsedHeaders.subject[0],
-    }
-
-    let created = false;
-
-    Message.find({where: {hash}})
-    .then((existing) => {
-      created = !existing;
-      return existing ? existing.update(values) : Message.create(values);
     })
-    .then((message) =>
-      message.setLabelsFromXGM(attributes['x-gm-labels'], {Label}).thenReturn(message)
-    )
-    .then((message) => {
-      if (created) {
-        this._logger.info({
-          message_id: message.id,
-          uid: attributes.uid,
-        }, `FetchMessagesInFolder: Created message`)
-
-        const files = this._collectFilesFromStruct(message, attributes.struct);
-        if (files.length > 0) {
-          this._db.sequelize.transaction((transaction) =>
-            Promise.all(files.map(f => f.save({transaction})))
-          )
-        }
-
-        queueMessageForProcessing({accountId, messageId: message.id});
-      } else {
-        message.getThread()
-        .then((thread) => {
-          if (!thread) { return Promise.resolve() }
-          return thread.updateFolders()
-          .then(() => thread.updateLabels())
-        })
-        .then(() => {
+    .then((messageValues) => {
+      Message.find({where: {hash: messageValues.hash}})
+      .then((existingMessage) => {
+        if (existingMessage) {
+          existingMessage.update(messageValues)
+          .then(() => existingMessage.getThread())
+          .then((thread) => {
+            if (!thread) { return Promise.resolve() }
+            return (
+              thread.updateFolders()
+              .then(() => thread.updateLabels())
+            )
+          })
+          .then(() => {
+            this._logger.info({
+              message_id: existingMessage.id,
+              uid: existingMessage.folderImapUID,
+            }, `FetchMessagesInFolder: Updated message`)
+          })
+        } else {
+          processNewMessage(messageValues, imapMessage)
           this._logger.info({
-            message_id: message.id,
-            uid: attributes.uid,
-          }, `FetchMessagesInFolder: Updated message`)
-        })
-      }
+            message: messageValues,
+          }, `FetchMessagesInFolder: Queued new message for processing`)
+        }
+      })
     })
-
-    return null;
+    .catch((err) => {
+      this._logger.error({
+        imapMessage,
+        desiredParts,
+        underlying: err.toString(),
+      }, `FetchMessagesInFolder: Could not build message`)
+    })
   }
 
   _openMailboxAndEnsureValidity() {
