@@ -1,6 +1,6 @@
-const React = window.React;
+import {React} from 'nylas-exports';
 
-class Dropdown extends React.Component {
+export default class Dropdown extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -67,5 +67,3 @@ Dropdown.propTypes = {
   defaultOption: React.PropTypes.string,
   onSelect: React.PropTypes.func,
 }
-
-window.Dropdown = Dropdown;

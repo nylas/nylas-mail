@@ -1,7 +1,8 @@
-const React = window.React;
-const {Dropdown, Modal} = window;
+import {React} from 'nylas-exports';
+import Dropdown from './dropdown';
+import Modal from './modal';
 
-class SyncbackRequestDetails extends React.Component {
+export default class SyncbackRequestDetails extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -170,5 +171,3 @@ class SyncbackRequestDetails extends React.Component {
 SyncbackRequestDetails.propTypes = {
   accountId: React.PropTypes.number,
 }
-
-window.SyncbackRequestDetails = SyncbackRequestDetails;

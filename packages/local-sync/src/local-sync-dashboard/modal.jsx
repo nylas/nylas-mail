@@ -1,6 +1,6 @@
-const React = window.React;
+import {React} from 'nylas-exports';
 
-class Modal extends React.Component {
+export default class Modal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -101,5 +101,3 @@ Modal.propTypes = {
   onClose: React.PropTypes.func,
   actionElems: React.PropTypes.arrayOf(React.PropTypes.object),
 }
-
-window.Modal = Modal;
