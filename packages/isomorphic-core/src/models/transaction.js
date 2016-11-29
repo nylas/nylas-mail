@@ -1,4 +1,4 @@
-const {DatabaseTypes: {JSONARRAYType}} = require('isomorphic-core');
+const {JSONARRAYType} = require('../database-types');
 
 module.exports = (sequelize, Sequelize) => {
   return sequelize.define('transaction', {
