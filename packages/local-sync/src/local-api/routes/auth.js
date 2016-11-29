@@ -55,16 +55,13 @@ const buildAccountWith = ({name, email, provider, settings, credentials}) => {
       account.setCredentials(credentials);
 
       return account.save().then((saved) =>
-        AccountToken.create({accountId: saved.id}).then((token) =>
-          LocalDatabaseConnector.ensureAccountDatabase(saved.id).then(() => {
-            SyncProcessManager.addWorkerForAccount(saved);
-
-            return Promise.resolve({
-              account: saved,
-              token: token,
-            });
-          })
-        )
+        AccountToken.create({accountId: saved.id}).then((token) => {
+          SyncProcessManager.addWorkerForAccount(saved);
+          return Promise.resolve({
+            account: saved,
+            token: token,
+          });
+        })
       );
     });
   });

@@ -45,7 +45,13 @@ class AccountCard extends React.Component {
           SyncProcessManager.wakeWorkerForAccount(account);
         });
       })
-    })
+    });
+  }
+
+  onResetSync = () => {
+    SyncProcessManager.removeWorkerForAccountId(this.props.account.id);
+    LocalDatabaseConnector.destroyAccountDatabase(this.props.account.id);
+    SyncProcessManager.addWorkerForAccount(this.props.account);
   }
 
   renderError() {
@@ -89,6 +95,7 @@ class AccountCard extends React.Component {
         style={{top: `${position.top}px`, left: `${position.left}px`}}
       >
         <h3>{account.emailAddress} [{account.id}]</h3>
+        <button name="Reset sync" onClick={this.onResetSync}>Reset sync</button>
         <SyncbackRequestDetails accountId={account.id} />
         <div className="stats">
           <b>First Sync Duration (sec)</b>:

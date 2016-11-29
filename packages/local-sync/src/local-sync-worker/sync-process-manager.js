@@ -50,15 +50,18 @@ class SyncProcessManager {
   }
 
   addWorkerForAccount(account) {
-    return LocalDatabaseConnector.forAccount(account.id).then((db) => {
-      if (this._workers[account.id]) {
-        return Promise.reject(new Error("Local worker already exists"));
-      }
+    return LocalDatabaseConnector.ensureAccountDatabase(account.id)
+    .then(() => {
+      return LocalDatabaseConnector.forAccount(account.id).then((db) => {
+        if (this._workers[account.id]) {
+          return Promise.reject(new Error("Local worker already exists"));
+        }
 
-      this._workers[account.id] = new SyncWorker(account, db, () => {
-        this.removeWorkerForAccountId(account.id)
-      });
-      return Promise.resolve();
+        this._workers[account.id] = new SyncWorker(account, db, () => {
+          this.removeWorkerForAccountId(account.id)
+        });
+        return Promise.resolve();
+      })
     })
     .then(() => {
       this._logger.info({account_id: account.id}, `ProcessManager: Claiming Account Succeeded`)
@@ -69,6 +72,8 @@ class SyncProcessManager {
   }
 
   removeWorkerForAccountId(accountId) {
+    const worker = this._workers[accountId];
+    worker.cleanup();
     this._workers[accountId] = null;
   }
 
