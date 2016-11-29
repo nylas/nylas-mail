@@ -31,7 +31,6 @@ class LocalDatabaseConnector {
 
     const newSequelize = this._sequelizePoolForDatabase(`a-${accountId}`);
     const db = loadModels(Sequelize, newSequelize, {
-      loadShared: false,
       modelDirs: [path.resolve(__dirname, '..', 'models')],
       schema: `a${accountId}`,
     })
