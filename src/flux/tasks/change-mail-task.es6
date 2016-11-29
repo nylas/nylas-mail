@@ -4,6 +4,7 @@ import Task from './task';
 import Thread from '../models/thread';
 import Message from '../models/message';
 import NylasAPI from '../nylas-api';
+import NylasAPIRequest from '../nylas-api-request';
 import DatabaseStore from '../stores/database-store';
 import {APIError} from '../errors';
 
@@ -250,17 +251,20 @@ export default class ChangeMailTask extends Task {
 
       const endpoint = (klass === Thread) ? 'threads' : 'messages';
 
-      return NylasAPI.makeRequest({
-        path: `/${endpoint}/${model.id}`,
-        accountId: model.accountId,
-        method: 'PUT',
-        body: this.requestBodyForModel(model),
-        returnsModel: true,
-        beforeProcessing: (body) => {
-          this._removeLock(model);
-          return body;
+      return new NylasAPIRequest({
+        api: NylasAPI,
+        options: {
+          path: `/${endpoint}/${model.id}`,
+          accountId: model.accountId,
+          method: 'PUT',
+          body: this.requestBodyForModel(model),
+          returnsModel: true,
+          beforeProcessing: (body) => {
+            this._removeLock(model);
+            return body;
+          },
         },
-      })
+      }).run()
       .catch((err) => {
         if (err instanceof APIError && err.statusCode === 404) {
           return Promise.resolve();

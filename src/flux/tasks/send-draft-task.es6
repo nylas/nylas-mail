@@ -4,6 +4,7 @@ import Task from './task';
 import Actions from '../actions';
 import Message from '../models/message';
 import NylasAPI from '../nylas-api';
+import NylasAPIRequest from '../nylas-api-request';
 import {APIError, RequestEnsureOnceError} from '../errors';
 import SoundRegistry from '../../registries/sound-registry';
 import DatabaseStore from '../stores/database-store';
@@ -90,14 +91,18 @@ export default class SendDraftTask extends BaseDraftTask {
     const draft = this.draft.clone();
     draft.body = this.stripTrackingFromBody(draft.body);
 
-    return NylasAPI.makeRequest({
-      path: "/send-multiple",
-      accountId: this.draft.accountId,
-      method: 'POST',
-      body: draft.toJSON(),
-      timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
-      returnsModel: false,
+    return new NylasAPIRequest({
+      api: NylasAPI,
+      options: {
+        path: "/send-multiple",
+        accountId: this.draft.accountId,
+        method: 'POST',
+        body: draft.toJSON(),
+        timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
+        returnsModel: false,
+      },
     })
+    .run()
     .then((responseJSON) => {
       return this.createMessageFromResponse(responseJSON);
     })
@@ -124,16 +129,20 @@ export default class SendDraftTask extends BaseDraftTask {
   // This function returns a promise that resolves to the draft when the draft has
   // been sent successfully.
   sendWithSingleBody = () => {
-    return NylasAPI.makeRequest({
-      path: "/send",
-      accountId: this.draft.accountId,
-      method: 'POST',
-      body: this.draft.toJSON(),
-      timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
-      returnsModel: false,
-      ensureOnce: true,
-      requestId: this.draft.clientId,
+    return new NylasAPIRequest({
+      api: NylasAPI,
+      options: {
+        path: "/send",
+        accountId: this.draft.accountId,
+        method: 'POST',
+        body: this.draft.toJSON(),
+        timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
+        returnsModel: false,
+        ensureOnce: true,
+        requestId: this.draft.clientId,
+      },
     })
+    .run()
     .then((responseJSON) => {
       return this.createMessageFromResponse(responseJSON)
     })

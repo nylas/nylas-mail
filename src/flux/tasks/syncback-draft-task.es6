@@ -2,6 +2,7 @@ import Task from './task';
 import Actions from '../actions';
 import DatabaseStore from '../stores/database-store';
 import NylasAPI from '../nylas-api';
+import NylasAPIRequest from '../nylas-api-request';
 import Message from '../models/message';
 import BaseDraftTask from './base-draft-task';
 import SyncbackMetadataTask from './syncback-metadata-task';
@@ -13,13 +14,17 @@ export default class SyncbackDraftTask extends BaseDraftTask {
   performRemote() {
     return this.refreshDraftReference()
     .then(() =>
-      NylasAPI.makeRequest({
-        accountId: this.draft.accountId,
-        path: (this.draft.serverId) ? `/drafts/${this.draft.serverId}` : "/drafts",
-        method: (this.draft.serverId) ? 'PUT' : 'POST',
-        body: this.draft.toJSON(),
-        returnsModel: false,
+      new NylasAPIRequest({
+        api: NylasAPI,
+        options: {
+          accountId: this.draft.accountId,
+          path: (this.draft.serverId) ? `/drafts/${this.draft.serverId}` : "/drafts",
+          method: (this.draft.serverId) ? 'PUT' : 'POST',
+          body: this.draft.toJSON(),
+          returnsModel: false,
+        },
       })
+      .run()
       .then(this.applyResponseToDraft)
       .thenReturn(Task.Status.Success)
     )

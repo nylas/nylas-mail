@@ -1,7 +1,14 @@
 /* eslint global-require: 0 */
 
 import crypto from 'crypto';
-import {NylasAPI, N1CloudAPI, AccountStore, RegExpUtils, IdentityStore} from 'nylas-exports';
+import {
+  N1CloudAPI,
+  NylasAPI,
+  NylasAPIRequest,
+  AccountStore,
+  RegExpUtils,
+  IdentityStore,
+} from 'nylas-exports';
 
 const IMAP_FIELDS = new Set([
   "imap_host",
@@ -41,24 +48,24 @@ export function makeGmailOAuthRequest(sessionKey, callback) {
     error: callback,
     auth: noauth,
     success: (remoteJSON) => {
-      NylasAPI.makeRequest({
-        path: `/auth`,
-        method: 'POST',
-        auth: noauth,
-        body: {
-          email: remoteJSON.email_address,
-          name: remoteJSON.name,
-          provider: 'gmail',
-          settings: {
-            xoauth2: remoteJSON.resolved_settings.xoauth2,
+      const request = new NylasAPIRequest({
+        api: NylasAPI,
+        options: {
+          path: `/auth`,
+          method: 'POST',
+          auth: noauth,
+          body: {
+            email: remoteJSON.email_address,
+            name: remoteJSON.name,
+            provider: 'gmail',
+            settings: {
+              xoauth2: remoteJSON.resolved_settings.xoauth2,
+            },
           },
           success: callback,
         },
-        error: callback,
-        success: (localJSON) => {
-          callback(null, localJSON);
-        },
-      });
+      })
+      request.run()
     },
   });
 }
@@ -109,18 +116,21 @@ export function runAuthRequest(accountInfo) {
   // Send the form data directly to Nylas to get code
   // If this succeeds, send the received code to N1 server to register the account
   // Otherwise process the error message from the server and highlight UI as needed
-  return NylasAPI.makeRequest({
-    path: `/auth?client_id=${NylasAPI.AppID}&n1_id=${IdentityStore.identityId()}${reauthParam}`,
-    method: 'POST',
-    body: data,
-    returnsModel: false,
-    timeout: 150000,
-    auth: {
-      user: '',
-      pass: '',
-      sendImmediately: true,
+  return new NylasAPIRequest({
+    api: NylasAPI,
+    options: {
+      path: `/auth?client_id=${NylasAPI.AppID}&n1_id=${IdentityStore.identityId()}${reauthParam}`,
+      method: 'POST',
+      body: data,
+      returnsModel: false,
+      timeout: 150000,
+      auth: {
+        user: '',
+        pass: '',
+        sendImmediately: true,
+      },
     },
-  })
+  }).run()
 }
 
 export function isValidHost(value) {
