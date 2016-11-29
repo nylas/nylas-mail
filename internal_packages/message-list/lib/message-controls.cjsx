@@ -1,6 +1,6 @@
 React = require 'react'
 {remote} = require 'electron'
-{Actions, NylasAPI, AccountStore} = require 'nylas-exports'
+{Actions, NylasAPI, NylasAPIRequest, AccountStore} = require 'nylas-exports'
 {RetinaImg, ButtonDropdown, Menu} = require 'nylas-component-kit'
 
 class MessageControls extends React.Component
@@ -123,16 +123,19 @@ class MessageControls extends React.Component
     app = remote.app
     tmpfile = path.join(app.getPath('temp'), @props.message.id)
 
-    NylasAPI.makeRequest
-      headers:
-        Accept: 'message/rfc822'
-      path: "/messages/#{@props.message.id}"
-      accountId: @props.message.accountId
-      json:false
-      success: (body) =>
-        fs.writeFile tmpfile, body, =>
-          window = new BrowserWindow(width: 800, height: 600, title: "#{@props.message.subject} - RFC822")
-          window.loadURL('file://'+tmpfile)
+    request = new NylasAPIRequest
+      api: NylasAPI
+      options:
+        headers:
+          Accept: 'message/rfc822'
+        path: "/messages/#{@props.message.id}"
+        accountId: @props.message.accountId
+        json:false
+        success: (body) =>
+          fs.writeFile tmpfile, body, =>
+            window = new BrowserWindow(width: 800, height: 600, title: "#{@props.message.subject} - RFC822")
+            window.loadURL('file://'+tmpfile)
+    request.run()
 
   _onLogData: =>
     console.log @props.message

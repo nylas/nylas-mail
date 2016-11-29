@@ -3,6 +3,7 @@ import {RegExpUtils} from 'nylas-exports';
 import Task from './task';
 import {APIError} from '../errors';
 import NylasAPI from '../nylas-api';
+import NylasAPIRequest from '../nylas-api-request';
 
 
 export default class MultiSendToIndividualTask extends Task {
@@ -13,21 +14,25 @@ export default class MultiSendToIndividualTask extends Task {
   }
 
   performRemote() {
-    return NylasAPI.makeRequest({
-      method: "POST",
-      timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
-      path: `/send-multiple/${this.message.id}`,
-      accountId: this.message.accountId,
-      body: {
-        send_to: {
-          email: this.recipient.email,
-          name: this.recipient.name,
+    return new NylasAPIRequest({
+      api: NylasAPI,
+      options: {
+        method: "POST",
+        timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
+        path: `/send-multiple/${this.message.id}`,
+        accountId: this.message.accountId,
+        body: {
+          send_to: {
+            email: this.recipient.email,
+            name: this.recipient.name,
+          },
+          body: this._customizeTrackingForRecipient(this.message.body),
         },
-        body: this._customizeTrackingForRecipient(this.message.body),
+        ensureOnce: true,
+        requestId: this.message.id,
       },
-      ensureOnce: true,
-      requestId: this.message.id,
     })
+    .run()
     .then(() => {
       return Promise.resolve(Task.Status.Success);
     })

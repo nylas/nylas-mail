@@ -58,53 +58,6 @@ class NylasAPI
     @_lockTracker = new NylasAPIChangeLockTracker()
     @APIRoot = "http://localhost:2578"
 
-  # Delegates to node's request object.
-  # On success, it will call the passed in success callback with options.
-  # On error it will create a new APIError object that wraps the error,
-  # response, and body.
-  #
-  # Options:
-  #   {Any option that node's request takes}
-  #   returnsModel - boolean to determine if the response should be
-  #                  unpacked into an Nylas data wrapper
-  #   success: (body) -> callback gets passed the returned json object
-  #   error: (apiError) -> the error callback gets passed an Nylas
-  #                        APIError object.
-  #
-  # Returns a Promise, which resolves or rejects in the success / error
-  # scenarios, respectively.
-  #
-  makeRequest: (options={}) ->
-    if NylasEnv.getLoadSettings().isSpec
-      return Promise.resolve()
-
-    NylasAPIRequest ?= require('./nylas-api-request').default
-    req = new NylasAPIRequest(@, options)
-
-    success = (body) =>
-      if options.beforeProcessing
-        body = options.beforeProcessing(body)
-      if options.returnsModel
-        @_handleModelResponse(body).then (objects) ->
-          return Promise.resolve(body)
-      Promise.resolve(body)
-
-    error = (err) =>
-      {url, auth, returnsModel} = req.options
-
-      handlePromise = Promise.resolve()
-      if err.response
-        if err.response.statusCode is 404 and returnsModel
-          handlePromise = @_handleModel404(url)
-        if err.response.statusCode in [401, 403]
-          handlePromise = @_handleAuthenticationFailure(url, auth?.user)
-        if err.response.statusCode is 400
-          NylasEnv.reportError(err)
-      handlePromise.finally ->
-        Promise.reject(err)
-
-    req.run().then(success, error)
-
   longConnection: (opts) ->
     connection = new NylasLongConnection(@, opts.accountId, opts)
     connection.onResults(opts.onResults)
@@ -119,7 +72,7 @@ class NylasAPI
   #
   # Handles: /account/<nid>/<collection>/<id>
   #
-  _handleModel404: (modelUrl) ->
+  handleModel404: (modelUrl) ->
     url = require('url')
     {pathname, query} = url.parse(modelUrl, true)
     components = pathname.split('/')
@@ -139,7 +92,7 @@ class NylasAPI
     else
       return Promise.resolve()
 
-  _handleAuthenticationFailure: (modelUrl, apiToken) ->
+  handleAuthenticationFailure: (modelUrl, apiToken) ->
     # prevent /auth errors from presenting auth failure notices
     return Promise.resolve() unless apiToken
 
@@ -174,8 +127,8 @@ class NylasAPI
     if uniquedJSONs.length < jsons.length
       console.warn("NylasAPI::handleModelResponse: called with non-unique object set. Maybe an API request returned the same object more than once?")
 
-    # Step 2: Filter out any objects we've locked (usually because we successfully)
-    # deleted them moments ago.
+    # Step 2: Filter out any objects we've locked (usually because we successfully
+    # deleted them moments ago).
     unlockedJSONs = _.filter uniquedJSONs, (json) =>
       if @_lockTracker.acceptRemoteChangesTo(klass, json.id) is false
         json._delta?.ignoredBecause = "Model is locked, possibly because it's already been deleted."

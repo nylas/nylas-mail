@@ -6,12 +6,16 @@ EmailFrame = require('./email-frame').default
   DraftHelpers,
   CanvasUtils,
   NylasAPI,
+  NylasAPIRequest,
   MessageUtils,
   MessageBodyProcessor,
   QuotedHTMLTransformer,
   FileDownloadStore
 } = require 'nylas-exports'
-{InjectedComponentSet, RetinaImg} = require 'nylas-component-kit'
+{
+  InjectedComponentSet,
+  RetinaImg
+} = require 'nylas-component-kit'
 
 TransparentPixel = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNikAQAACIAHF/uBd8AAAAASUVORK5CYII="
 
@@ -88,10 +92,13 @@ class MessageItemBody extends React.Component
       showQuotedText: !@state.showQuotedText
 
   _onFetchBody: =>
-    NylasAPI.makeRequest
-      path: "/messages/#{@props.message.id}"
-      accountId: @props.message.accountId
-      returnsModel: true
+    request = new NylasAPIRequest
+      api: NylasAPI
+      options:
+        path: "/messages/#{@props.message.id}"
+        accountId: @props.message.accountId
+        returnsModel: true
+    request.run()
     .then =>
       return unless @_mounted
       @setState({error: null})
