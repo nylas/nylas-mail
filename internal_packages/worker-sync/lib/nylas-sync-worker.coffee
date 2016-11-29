@@ -123,7 +123,8 @@ class NylasSyncWorker
     needed = [
       {model: 'threads'},
       {model: 'messages', maxFetchCount: 5000}
-      {model: @_account.categoryCollection(), initialPageSize: 1000}
+      {model: 'folders', initialPageSize: 1000}
+      {model: 'labels', initialPageSize: 1000}
       {model: 'drafts'},
       {model: 'contacts'},
       {model: 'calendars'},
