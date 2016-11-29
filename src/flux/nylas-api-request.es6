@@ -10,7 +10,7 @@ import IdentityStore from './stores/identity-store'
 import NylasAPI from './nylas-api'
 
 export default class NylasAPIRequest {
-  constructor(api, options) {
+  constructor({api, options}) {
     const defaults = {
       url: `${options.APIRoot || api.APIRoot}${options.path}`,
       method: 'GET',

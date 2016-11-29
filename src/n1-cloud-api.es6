@@ -24,7 +24,10 @@ class N1CloudAPI {
       pass: '',
     }
 
-    const req = new NylasAPIRequest(this, options);
+    const req = new NylasAPIRequest({
+      api: this,
+      options,
+    });
     return req.run();
   }
 }

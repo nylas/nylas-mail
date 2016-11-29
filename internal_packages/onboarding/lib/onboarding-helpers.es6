@@ -52,6 +52,7 @@ export function makeGmailOAuthRequest(sessionKey, callback) {
           settings: {
             xoauth2: remoteJSON.resolved_settings.xoauth2,
           },
+          success: callback,
         },
         error: callback,
         success: (localJSON) => {
