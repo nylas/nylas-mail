@@ -1,6 +1,7 @@
 _ = require 'underscore'
 {remote, shell} = require 'electron'
 NylasLongConnection = require('./nylas-long-connection').default
+NylasAPIRequest = require('./nylas-api-request').default
 Utils = require './models/utils'
 Account = require('./models/account').default
 Message = require('./models/message').default
@@ -20,7 +21,6 @@ SampleTemporaryErrorCode = 504
 
 # This is lazy-loaded
 AccountStore = null
-NylasAPIRequest = null
 
 class NylasAPIChangeLockTracker
   constructor: ->
@@ -255,26 +255,32 @@ class NylasAPI
   getCollection: (accountId, collection, params={}, requestOptions={}) ->
     throw (new Error "getCollection requires accountId") unless accountId
     requestSuccess = requestOptions.success
-    @makeRequest _.extend requestOptions,
-      path: "/#{collection}"
-      accountId: accountId
-      qs: params
-      returnsModel: false
-      success: (jsons) =>
-        @_attachMetadataToResponse(jsons, requestOptions.metadataToAttach)
-        @_handleModelResponse(jsons)
-        if requestSuccess
-          requestSuccess(jsons)
+    new NylasAPIRequest({
+      api: @
+      options: _.extend requestOptions,
+        path: "/#{collection}"
+        accountId: accountId
+        qs: params
+        returnsModel: false
+        success: (jsons) =>
+          @_attachMetadataToResponse(jsons, requestOptions.metadataToAttach)
+          @_handleModelResponse(jsons)
+          if requestSuccess
+            requestSuccess(jsons)
+    }).run()
 
   makeDraftDeletionRequest: (draft) ->
     return unless draft.serverId
     @incrementRemoteChangeLock(Message, draft.serverId)
-    @makeRequest
-      path: "/drafts/#{draft.serverId}"
-      accountId: draft.accountId
-      method: "DELETE"
-      body: {version: draft.version}
-      returnsModel: false
+    new NylasAPIRequest({
+      api: @
+      options:
+        path: "/drafts/#{draft.serverId}"
+        accountId: draft.accountId
+        method: "DELETE"
+        body: {version: draft.version}
+        returnsModel: false
+    }).run()
     return
 
   incrementRemoteChangeLock: (klass, id) ->
@@ -341,13 +347,14 @@ class NylasAPI
     if NylasEnv.config.get(cacheKey)
       return Promise.resolve()
 
-    return @makeRequest({
-      returnsModel: false,
-      method: "GET",
-      accountId: account.id,
-      path: "/auth/plugin?client_id=#{pluginId}"
-
-    }).then (result) =>
+    return new NylasAPIRequest({
+      api: @
+      options:
+        returnsModel: false,
+        method: "GET",
+        accountId: account.id,
+        path: "/auth/plugin?client_id=#{pluginId}"
+    }).run().then (result) =>
       if result.authed
         NylasEnv.config.set(cacheKey, Date.now())
         return Promise.resolve()
@@ -357,14 +364,16 @@ class NylasAPI
       #
       # return @_requestPluginAuth(pluginName, account).then =>
 
-      return @makeRequest({
-        returnsModel: false,
-        method: "POST",
-        accountId: account.id,
-        path: "/auth/plugin",
-        body: {client_id: pluginId},
-        json: true
-      }).then =>
+      return new NylasAPIRequest({
+        api: @
+        options:
+          returnsModel: false,
+          method: "POST",
+          accountId: account.id,
+          path: "/auth/plugin",
+          body: {client_id: pluginId},
+          json: true
+      }).run().then =>
         NylasEnv.config.set(cacheKey, Date.now())
         return Promise.resolve()
 
@@ -387,11 +396,13 @@ You can review and revoke Offline Access for plugins at any time from Preference
     )
 
   unauthPlugin: (pluginId, accountId) ->
-    return @makeRequest({
-      returnsModel: false,
-      method: "DELETE",
-      accountId: accountId,
-      path: "/auth/plugin?client_id=#{pluginId}"
-    })
+    return new NylasAPIRequest({
+      api: @
+      options:
+        returnsModel: false,
+        method: "DELETE",
+        accountId: accountId,
+        path: "/auth/plugin?client_id=#{pluginId}"
+    }).run()
 
 module.exports = new NylasAPI()
