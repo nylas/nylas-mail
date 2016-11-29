@@ -164,7 +164,7 @@ class NylasSyncWorker
     return false if state.busy
     return true
 
-  _fetchCollection: ({model, initialPageSize, maxFetchCount} = {}) ->
+  _fetchCollection: ({model, initialPageSize, maxFetchCount} = {}) =>
     initialPageSize ?= INITIAL_PAGE_SIZE
     state = @_state[model] ? {}
     state.complete = false
