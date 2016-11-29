@@ -7,7 +7,6 @@ import Actions from './actions'
 import {APIError, RequestEnsureOnceError} from './errors'
 import PriorityUICoordinator from '../priority-ui-coordinator'
 import IdentityStore from './stores/identity-store'
-import NylasAPI from './nylas-api'
 
 export default class NylasAPIRequest {
   constructor({api, options}) {
@@ -86,6 +85,7 @@ export default class NylasAPIRequest {
   }
 
   run() {
+    const NylasAPI = require("./nylas-api")
     if (NylasEnv.getLoadSettings().isSpec) {
       return Promise.resolve()
     }
@@ -116,7 +116,7 @@ export default class NylasAPIRequest {
         responseBody = this.options.beforeProcessing(responseBody)
       }
       if (this.options.returnsModel) {
-        this._handleModelResponse(responseBody).then(() => {
+        NylasAPI._handleModelResponse(responseBody).then(() => {
           return Promise.resolve(responseBody)
         })
       }

@@ -1,35 +1,45 @@
 _ = require 'underscore'
-{Actions, DatabaseStore, DatabaseTransaction, Account, Thread} = require 'nylas-exports'
-LocalSyncDeltaConnection = require('../lib/local-sync-delta-connection').default
-NylasSyncWorker = require '../lib/nylas-sync-worker'
+{NylasAPI, Actions, DatabaseStore, DatabaseTransaction, Account, Thread} = require 'nylas-exports'
+DeltaStreamingConnection = require('../lib/delta-streaming-connection').default
+NylasSyncWorker = require('../lib/nylas-sync-worker').default
 
 describe "NylasSyncWorker", ->
   beforeEach ->
     @apiRequests = []
-    @api =
-      APIRoot: 'https://api.nylas.com'
-      LongConnectionStatus: {'Closed', 'Connected'}
-      pluginsSupported: true
-      accessTokenForAccountId: =>
-        '123'
-      makeRequest: (requestOptions) =>
-        @apiRequests.push({requestOptions})
-      getCollection: (account, model, params, requestOptions) =>
-        @apiRequests.push({account, model, params, requestOptions})
-      getThreads: (account, params, requestOptions) =>
-        @apiRequests.push({account, model:'threads', params, requestOptions})
-      longConnection: -> {
-        start: ->
-        _status: 'Closed'
-      }
+    spyOn(NylasAPI, "makeRequest").andCallFake (requestOptions) =>
+      @apiRequests.push({requestOptions})
+    spyOn(NylasAPI, "getCollection").andCallFake (account, model, params, requestOptions) =>
+      @apiRequests.push({account, model, params, requestOptions})
+    spyOn(NylasAPI, "getThreads").andCallFake (account, params, requestOptions) =>
+      @apiRequests.push({account, model:'threads', params, requestOptions})
 
-    @apiCursorStub = undefined
-    spyOn(NylasSyncWorker.prototype, 'fetchAllMetadata').andCallFake (cb) -> cb()
+    # @api =
+      # APIRoot: 'https://api.nylas.com'
+      # LongConnectionStatus: {'Closed', 'Connected'}
+      # pluginsSupported: true
+      # accessTokenForAccountId: =>
+      #   '123'
+      # makeRequest: (requestOptions) =>
+      # getCollection: (account, model, params, requestOptions) =>
+      #   @apiRequests.push({account, model, params, requestOptions})
+      # getThreads: (account, params, requestOptions) =>
+      #   @apiRequests.push({account, model:'threads', params, requestOptions})
+      # longConnection: -> {
+      #   start: ->
+      #   _status: 'Closed'
+      # }
+
+    @localSyncCursorStub = undefined
+    spyOn(NylasSyncWorker.prototype, '_fetchMetadata').andReturn(Promise.resolve())
     spyOn(DatabaseTransaction.prototype, 'persistJSONBlob').andReturn(Promise.resolve())
     spyOn(DatabaseStore, 'findJSONBlob').andCallFake (key) =>
       if key is "NylasSyncWorker:#{TEST_ACCOUNT_ID}"
         return Promise.resolve _.extend {}, {
-          "cursor": @apiCursorStub
+          "deltaCursors": {
+            "localSync": @localSyncCursorStub,
+            "n1Cloud": @n1CloudCursorStub,
+          }
+          "initialized": true,
           "contacts":
             busy: true
             complete: false
@@ -43,16 +53,16 @@ describe "NylasSyncWorker", ->
         return throw new Error("Not stubbed! #{key}")
 
 
-    spyOn(LocalSyncDeltaConnection.prototype, 'start')
+    spyOn(DeltaStreamingConnection.prototype, 'start')
     @account = new Account(clientId: TEST_ACCOUNT_CLIENT_ID, serverId: TEST_ACCOUNT_ID, organizationUnit: 'label')
-    @worker = new NylasSyncWorker(@api, @account)
+    @worker = new NylasSyncWorker(@account)
     @worker._metadata = {"a": [{"id":"b"}]}
-    @connection = @worker.connection()
+    @deltaStreams = @worker.deltaStreams()
     advanceClock()
 
   it "should reset `busy` to false when reading state from disk", ->
-    @worker = new NylasSyncWorker(@api, @account)
-    spyOn(@worker, 'resume')
+    @worker = new NylasSyncWorker(@account)
+    spyOn(@worker, '_resume')
     advanceClock()
     expect(@worker.state().contacts.busy).toEqual(false)
 
@@ -60,16 +70,16 @@ describe "NylasSyncWorker", ->
     it "should open the delta connection", ->
       @worker.start()
       advanceClock()
-      expect(@connection.start).toHaveBeenCalled()
+      expect(@deltaStreams.localSync.start).toHaveBeenCalled()
+      expect(@deltaStreams.n1Cloud.start).toHaveBeenCalled()
 
     it "should start querying for model collections that haven't been fully cached", ->
-      @worker.start()
-      advanceClock()
-      expect(@apiRequests.length).toBe(6)
-      modelsRequested = _.compact _.map @apiRequests, ({model}) -> model
-      expect(modelsRequested).toEqual(['threads', 'messages', 'labels', 'drafts', 'contacts', 'events'])
+      waitsForPromise => @worker.start().then =>
+        expect(@apiRequests.length).toBe(7)
+        modelsRequested = _.compact _.map @apiRequests, ({model}) -> model
+        expect(modelsRequested).toEqual(['threads', 'messages', 'folders', 'labels', 'drafts', 'contacts', 'events'])
 
-      expect(modelsRequested).toEqual(['threads', 'messages', 'labels', 'drafts', 'contacts', 'events'])
+        expect(modelsRequested).toEqual(['threads', 'messages', 'folders', 'labels', 'drafts', 'contacts', 'events'])
 
     it "should fetch 1000 labels and folders, to prevent issues where Inbox is not in the first page", ->
       labelsRequest = _.find @apiRequests, (r) -> r.model is 'labels'
@@ -97,15 +107,15 @@ describe "NylasSyncWorker", ->
         @apiRequests[0].requestOptions.error({statusCode: 400})
         @apiRequests = []
 
-      spyOn(@worker, 'resume').andCallThrough()
+      spyOn(@worker, '_resume').andCallThrough()
       spyOn(Math, 'random').andReturn(1.0)
       @worker.start()
 
       expectThings = (resumeCallCount, randomCallCount) =>
-        expect(@worker.resume.callCount).toBe(resumeCallCount)
+        expect(@worker._resume.callCount).toBe(resumeCallCount)
         expect(Math.random.callCount).toBe(randomCallCount)
 
-      expect(@worker.resume.callCount).toBe(1, 1)
+      expect(@worker._resume.callCount).toBe(1, 1)
       simulateNetworkFailure(); expectThings(1, 1)
       advanceClock(4000);       expectThings(2, 1)
       simulateNetworkFailure(); expectThings(2, 2)
@@ -123,132 +133,141 @@ describe "NylasSyncWorker", ->
       advanceClock(4000);       expectThings(5, 4)
 
     it "handles the request as a failure if we try and grab labels or folders without an 'inbox'", ->
-      spyOn(@worker, 'resume').andCallThrough()
+      spyOn(@worker, '_resume').andCallThrough()
       @worker.start()
-      expect(@worker.resume.callCount).toBe(1)
+      expect(@worker._resume.callCount).toBe(1)
       request = _.findWhere(@apiRequests, model: 'labels')
       request.requestOptions.success([])
-      expect(@worker.resume.callCount).toBe(1)
+      expect(@worker._resume.callCount).toBe(1)
       advanceClock(30000)
-      expect(@worker.resume.callCount).toBe(2)
+      expect(@worker._resume.callCount).toBe(2)
 
     it "handles the request as a success if we try and grab labels or folders and it includes the 'inbox'", ->
-      spyOn(@worker, 'resume').andCallThrough()
+      spyOn(@worker, '_resume').andCallThrough()
       @worker.start()
-      expect(@worker.resume.callCount).toBe(1)
+      expect(@worker._resume.callCount).toBe(1)
       request = _.findWhere(@apiRequests, model: 'labels')
       request.requestOptions.success([{name: "inbox"}, {name: "archive"}])
-      expect(@worker.resume.callCount).toBe(1)
+      expect(@worker._resume.callCount).toBe(1)
       advanceClock(30000)
-      expect(@worker.resume.callCount).toBe(1)
+      expect(@worker._resume.callCount).toBe(1)
 
   describe "delta streaming cursor", ->
     it "should read the cursor from the database, and the old config format", ->
-      spyOn(LocalSyncDeltaConnection.prototype, 'latestCursor').andReturn Promise.resolve()
+      spyOn(DeltaStreamingConnection.prototype, 'latestCursor').andReturn Promise.resolve()
 
-      @apiCursorStub = undefined
+      @localSyncCursorStub = undefined
 
       # no cursor present
-      worker = new NylasSyncWorker(@api, @account)
-      connection = worker.connection()
-      expect(connection.hasCursor()).toBe(false)
+      worker = new NylasSyncWorker(@account)
+      deltaStreams = worker.deltaStreams()
+      expect(deltaStreams.localSync.hasCursor()).toBe(false)
+      expect(deltaStreams.n1Cloud.hasCursor()).toBe(false)
       advanceClock()
-      expect(connection.hasCursor()).toBe(false)
+      expect(deltaStreams.localSync.hasCursor()).toBe(false)
+      expect(deltaStreams.n1Cloud.hasCursor()).toBe(false)
 
       # cursor present in config
       spyOn(NylasEnv.config, 'get').andCallFake (key) =>
         return 'old-school' if key is "nylas.#{@account.id}.cursor"
         return undefined
 
-      worker = new NylasSyncWorker(@api, @account)
-      connection = worker.connection()
+      worker = new NylasSyncWorker(@account)
+      deltaStreams = worker.deltaStreams()
       advanceClock()
-      expect(connection.hasCursor()).toBe(true)
-      expect(connection._getCursor()).toEqual('old-school')
+      expect(deltaStreams.localSync.hasCursor()).toBe(true)
+      expect(deltaStreams.n1Cloud.hasCursor()).toBe(true)
+      expect(deltaStreams.localSync._getCursor()).toEqual('old-school')
+      expect(deltaStreams.n1Cloud._getCursor()).toEqual('old-school')
 
       # cursor present in database, overrides cursor in config
-      @apiCursorStub = "new-school"
+      @localSyncCursorStub = "new-school"
 
-      worker = new NylasSyncWorker(@api, @account)
-      connection = worker.connection()
-      expect(connection.hasCursor()).toBe(false)
+      worker = new NylasSyncWorker(@account)
+      deltaStreams = worker.deltaStreams()
+      expect(deltaStreams.localSync.hasCursor()).toBe(false)
+      expect(deltaStreams.n1Cloud.hasCursor()).toBe(false)
       advanceClock()
-      expect(connection.hasCursor()).toBe(true)
-      expect(connection._getCursor()).toEqual('new-school')
+      expect(deltaStreams.localSync.hasCursor()).toBe(true)
+      expect(deltaStreams.n1Cloud.hasCursor()).toBe(true)
+      expect(deltaStreams.localSync._getCursor()).toEqual('new-school')
+      expect(deltaStreams.n1Cloud._getCursor()).toEqual('new-school')
 
     it "should set the cursor to the last cursor after receiving deltas", ->
-      spyOn(LocalSyncDeltaConnection.prototype, 'latestCursor').andReturn Promise.resolve()
-      worker = new NylasSyncWorker(@api, @account)
+      spyOn(DeltaStreamingConnection.prototype, 'latestCursor').andReturn Promise.resolve()
+      worker = new NylasSyncWorker(@account)
       advanceClock()
-      connection = worker.connection()
+      deltaStreams = worker.deltaStreams()
       deltas = [{cursor: '1'}, {cursor: '2'}]
-      connection._emitter.emit('results-stopped-arriving', deltas)
+      deltaStreams.localSync._emitter.emit('results-stopped-arriving', deltas)
+      deltaStreams.n1Cloud._emitter.emit('results-stopped-arriving', deltas)
       advanceClock()
-      expect(connection._getCursor()).toEqual('2')
+      expect(deltaStreams.localSync._getCursor()).toEqual('2')
+      expect(deltaStreams.n1Cloud._getCursor()).toEqual('2')
 
-  describe "resume", ->
+  describe "_resume", ->
     it "should fetch metadata first and fetch other collections when metadata is ready", ->
       fetchAllMetadataCallback = null
-      jasmine.unspy(NylasSyncWorker.prototype, 'fetchAllMetadata')
-      spyOn(NylasSyncWorker.prototype, 'fetchAllMetadata').andCallFake (cb) =>
+      jasmine.unspy(NylasSyncWorker.prototype, '_fetchMetadata')
+      spyOn(NylasSyncWorker.prototype, '_fetchMetadata').andCallFake (cb) =>
         fetchAllMetadataCallback = cb
-      spyOn(@worker, 'fetchCollection')
+      spyOn(@worker, '_fetchCollection')
       @worker._state = {}
-      @worker.resume()
-      expect(@worker.fetchAllMetadata).toHaveBeenCalled()
-      expect(@worker.fetchCollection.calls.length).toBe(0)
+      @worker._resume()
+      expect(@worker._fetchMetadata).toHaveBeenCalled()
+      expect(@worker._fetchCollection.calls.length).toBe(0)
       fetchAllMetadataCallback()
-      expect(@worker.fetchCollection.calls.length).not.toBe(0)
+      expect(@worker._fetchCollection.calls.length).not.toBe(0)
 
     it "should not fetch metadata pages if pluginsSupported is false", ->
       @api.pluginsSupported = false
       spyOn(NylasSyncWorker.prototype, '_fetchWithErrorHandling')
-      spyOn(@worker, 'fetchCollection')
+      spyOn(@worker, '_fetchCollection')
       @worker._state = {}
-      @worker.resume()
+      @worker._resume()
       expect(@worker._fetchWithErrorHandling).not.toHaveBeenCalled()
-      expect(@worker.fetchCollection.calls.length).not.toBe(0)
+      expect(@worker._fetchCollection.calls.length).not.toBe(0)
 
-    it "should fetch collections for which `shouldFetchCollection` returns true", ->
-      spyOn(@worker, 'fetchCollection')
-      spyOn(@worker, 'shouldFetchCollection').andCallFake (collection) =>
+    it "should fetch collections for which `_shouldFetchCollection` returns true", ->
+      spyOn(@worker, '_fetchCollection')
+      spyOn(@worker, '_shouldFetchCollection').andCallFake (collection) =>
         return collection in ['threads', 'labels', 'drafts']
-      @worker.resume()
-      expect(@worker.fetchCollection.calls.map (call) -> call.args[0]).toEqual(['threads', 'labels', 'drafts'])
+      @worker._resume()
+      expect(@worker._fetchCollection.calls.map (call) -> call.args[0]).toEqual(['threads', 'labels', 'drafts'])
 
     it "should be called when Actions.retrySync is received", ->
-      spyOn(LocalSyncDeltaConnection.prototype, 'latestCursor').andReturn Promise.resolve()
+      spyOn(DeltaStreamingConnection.prototype, 'latestCursor').andReturn Promise.resolve()
 
       # TODO why do we need to call through?
-      spyOn(@worker, 'resume').andCallThrough()
+      spyOn(@worker, '_resume').andCallThrough()
       Actions.retrySync()
-      expect(@worker.resume).toHaveBeenCalled()
+      expect(@worker._resume).toHaveBeenCalled()
 
-  describe "shouldFetchCollection", ->
+  describe "_shouldFetchCollection", ->
     it "should return false if the collection sync is already in progress", ->
       @worker._state.threads = {
         'busy': true
         'complete': false
       }
-      expect(@worker.shouldFetchCollection('threads')).toBe(false)
+      expect(@worker._shouldFetchCollection('threads')).toBe(false)
 
     it "should return false if the collection sync is already complete", ->
       @worker._state.threads = {
         'busy': false
         'complete': true
       }
-      expect(@worker.shouldFetchCollection('threads')).toBe(false)
+      expect(@worker._shouldFetchCollection('threads')).toBe(false)
 
     it "should return true otherwise", ->
       @worker._state.threads = {
         'busy': false
         'complete': false
       }
-      expect(@worker.shouldFetchCollection('threads')).toBe(true)
+      expect(@worker._shouldFetchCollection('threads')).toBe(true)
       @worker._state.threads = undefined
-      expect(@worker.shouldFetchCollection('threads')).toBe(true)
+      expect(@worker._shouldFetchCollection('threads')).toBe(true)
 
-  describe "fetchCollection", ->
+  describe "_fetchCollection", ->
     beforeEach ->
       @apiRequests = []
 
@@ -257,7 +276,7 @@ describe "NylasSyncWorker", ->
         'busy': false
         'complete': false
       }
-      @worker.fetchCollection('threads')
+      @worker._fetchCollection('threads')
       expect(@apiRequests[0].model).toBe('threads')
       expect(@apiRequests[0].requestOptions.metadataToAttach).toBe(@worker._metadata)
 
@@ -267,7 +286,7 @@ describe "NylasSyncWorker", ->
           'busy': false
           'complete': false
         }
-        @worker.fetchCollection('threads')
+        @worker._fetchCollection('threads')
         expect(@apiRequests[0].model).toBe('threads')
         expect(@apiRequests[0].params.offset).toBe(0)
 
@@ -284,13 +303,13 @@ describe "NylasSyncWorker", ->
             limit: 50
 
       it "should start paginating from the request that was interrupted", ->
-        @worker.fetchCollection('threads')
+        @worker._fetchCollection('threads')
         expect(@apiRequests[0].model).toBe('threads')
         expect(@apiRequests[0].params.offset).toBe(100)
         expect(@apiRequests[0].params.limit).toBe(50)
 
       it "should not reset the `count`, `fetched` or start fetching the count", ->
-        @worker.fetchCollection('threads')
+        @worker._fetchCollection('threads')
         expect(@worker._state.threads.fetched).toBe(100)
         expect(@worker._state.threads.count).toBe(1200)
         expect(@apiRequests.length).toBe(1)
@@ -300,7 +319,7 @@ describe "NylasSyncWorker", ->
         @worker._state.messages =
           count: 1000
           fetched: 0
-        @worker.fetchCollection('messages', {initialPageSize: 30, maxFetchCount: 25})
+        @worker._fetchCollection('messages', {initialPageSize: 30, maxFetchCount: 25})
         expect(@apiRequests[0].params.offset).toBe 0
         expect(@apiRequests[0].params.limit).toBe 25
 
@@ -312,11 +331,11 @@ describe "NylasSyncWorker", ->
             limit: 50,
             offset: 470,
           }
-        @worker.fetchCollection('messages', {maxFetchCount: 500})
+        @worker._fetchCollection('messages', {maxFetchCount: 500})
         expect(@apiRequests[0].params.offset).toBe 470
         expect(@apiRequests[0].params.limit).toBe 30
 
-  describe "fetchCollectionPage", ->
+  describe "_fetchCollectionPage", ->
     beforeEach ->
       @apiRequests = []
 
@@ -325,7 +344,7 @@ describe "NylasSyncWorker", ->
         @worker._state.messages =
           count: 1000
           fetched: 470
-        @worker.fetchCollectionPage('messages', {limit: 30, offset: 470}, {maxFetchCount: 500})
+        @worker._fetchCollectionPage('messages', {limit: 30, offset: 470}, {maxFetchCount: 500})
         {success} = @apiRequests[0].requestOptions
         success({length: 30})
         expect(@worker._state.messages.fetched).toBe 500
@@ -336,7 +355,7 @@ describe "NylasSyncWorker", ->
         @worker._state.messages =
           count: 1000
           fetched: 450
-        @worker.fetchCollectionPage('messages', {limit: 30, offset: 450 }, {maxFetchCount: 500})
+        @worker._fetchCollectionPage('messages', {limit: 30, offset: 450 }, {maxFetchCount: 500})
         {success} = @apiRequests[0].requestOptions
         success({length: 30})
         expect(@worker._state.messages.fetched).toBe 480
@@ -442,13 +461,15 @@ describe "NylasSyncWorker", ->
 
   describe "cleanup", ->
     it "should termiate the delta connection", ->
-      spyOn(@connection, 'end')
+      spyOn(@deltaStreams.localSync, 'end')
+      spyOn(@deltaStreams.n1Cloud, 'end')
       @worker.cleanup()
-      expect(@connection.end).toHaveBeenCalled()
+      expect(@deltaStreams.localSync.end).toHaveBeenCalled()
+      expect(@deltaStreams.n1Cloud.end).toHaveBeenCalled()
 
     it "should stop trying to restart failed collection syncs", ->
       spyOn(console, 'log')
-      spyOn(@worker, 'resume').andCallThrough()
+      spyOn(@worker, '_resume').andCallThrough()
       @worker.cleanup()
       advanceClock(50000)
-      expect(@worker.resume.callCount).toBe(0)
+      expect(@worker._resume.callCount).toBe(0)

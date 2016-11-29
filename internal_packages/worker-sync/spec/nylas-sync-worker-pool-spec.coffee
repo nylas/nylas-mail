@@ -7,7 +7,7 @@ path = require 'path'
  DatabaseTransaction,
  Actions} = require 'nylas-exports'
 
-NylasSyncWorkerPool = require '../lib/nylas-sync-worker-pool'
+NylasSyncWorkerPool = require('../lib/nylas-sync-worker-pool').default
 NylasSyncWorkerPool = new NylasSyncWorkerPool()
 
 fixturesPath = path.resolve(__dirname, 'fixtures')

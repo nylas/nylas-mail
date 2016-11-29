@@ -31,7 +31,7 @@ class NylasSyncStatusStore extends NylasStore
       query = DatabaseStore.findJSONBlob("NylasSyncWorker:#{item.id}")
       @_subscriptions[item.id] ?= Rx.Observable.fromQuery(query).subscribe (json) =>
         state = _.extend({}, json ? {})
-        delete state.cursor
+        delete state.cursors
         @_statesByAccount[item.id] = state
         @trigger()
 
@@ -39,7 +39,7 @@ class NylasSyncStatusStore extends NylasStore
     @_statesByAccount
 
   isSyncCompleteForAccount: (acctId, model) =>
-    return false unless @_statesByAccount[acctId]
+    return false unless @_statesByAccount[acctId]?.initialized
     if model
       return @_statesByAccount[acctId][model]?.complete ? false
 
@@ -74,13 +74,14 @@ class NylasSyncStatusStore extends NylasStore
     # Return true if any account is in a state other than `retrying`.
     # When data isn't received, NylasLongConnection closes the socket and
     # goes into `retrying` state.
-    statuses = _.values(@_statesByAccount).map (state) ->
-      state.longConnectionStatus
+    statuses = _.compact _.values(@_statesByAccount).map (state) ->
+      state.deltaStatus
 
     if statuses.length is 0
       return true
 
-    return _.any statuses, (status) -> status isnt 'closed'
+    return _.any statuses, (status) ->
+      _.any(status, (val) -> val isnt "closed")
 
   nextRetryTimestamp: =>
     retryDates = _.values(@_statesByAccount).map (state) ->

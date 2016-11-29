@@ -34,7 +34,7 @@ class UpdateChannelStore extends NylasStore {
       path: `/update-channel`,
       qs: autoUpdater.parameters(),
       json: true,
-    }).then(({current, available}) => {
+    }).then(({current, available} = {}) => {
       this._current = current;
       this._available = available;
       this.trigger();
@@ -48,7 +48,7 @@ class UpdateChannelStore extends NylasStore {
       path: `/update-channel`,
       qs: Object.assign({channel: channelName}, autoUpdater.parameters()),
       json: true,
-    }).then(({current, available}) => {
+    }).then(({current, available} = {}) => {
       this._current = current;
       this._available = available;
       this.trigger();
