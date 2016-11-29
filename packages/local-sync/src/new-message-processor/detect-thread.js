@@ -145,9 +145,7 @@ function detectThread({db, message}) {
     if (!isSent && ((message.date > thread.lastMessageReceivedDate) || !thread.lastMessageReceivedDate)) {
       thread.lastMessageReceivedDate = message.date;
     }
-    if (!thread.folders.find(f => f.id === message.folderId)) {
-      thread.folders.push(message.folder)
-    }
+
     return thread.save()
     .then((saved) => {
       const promises = []
