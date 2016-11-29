@@ -3,7 +3,6 @@
 /* eslint global-require: 0*/
 
 import {React} from 'nylas-exports';
-import SyncPolicy from './sync-policy';
 import SetAllSyncPolicies from './set-all-sync-policies';
 import SyncGraph from './sync-graph';
 import SyncbackRequestDetails from './syncback-request-details';
@@ -49,21 +48,12 @@ class AccountCard extends React.Component {
     })
   }
 
-  renderPolicyOrError() {
-    const account = this.props.account;
-    if (account.syncError != null) {
-      return this.renderError();
-    }
-    return (
-      <SyncPolicy
-        accountId={account.id}
-        stringifiedSyncPolicy={JSON.stringify(account.syncPolicy, null, 2)}
-      />
-    );
-  }
-
   renderError() {
-    const {message, stack} = this.props.account.syncError
+    const account = this.props.account;
+    if (account.syncError === null) {
+      return false;
+    }
+    const {message, stack} = account.syncError
     return (
       <div>
         <div className="section">Error</div>
@@ -112,7 +102,7 @@ class AccountCard extends React.Component {
           <b>Recent Syncs</b>:
           <SyncGraph id={account.lastSyncCompletions.length} syncTimestamps={account.lastSyncCompletions} />
         </div>
-        {this.renderPolicyOrError()}
+        {this.renderError()}
       </div>
     );
   }

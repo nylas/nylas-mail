@@ -2,6 +2,9 @@ const _ = require('underscore')
 const TransactionConnector = require('./transaction-connector')
 
 module.exports = (db, sequelize) => {
+  if (!db.Transaction) {
+    throw new Error("Cannot enable transaction logging, there is no Transaction model class in this database.")
+  }
   const isTransaction = ($modelOptions) => {
     return $modelOptions.name.singular === "transaction"
   }
