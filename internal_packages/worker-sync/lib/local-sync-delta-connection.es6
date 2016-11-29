@@ -4,7 +4,7 @@ import {NylasLongConnection, DatabaseStore} from 'nylas-exports'
 const {Status} = NylasLongConnection
 
 
-class DeltaStreamingConnection extends NylasLongConnection {
+class LocalSyncDeltaConnection extends NylasLongConnection {
 
   constructor(api, accountId, opts = {}) {
     opts.throttleResultsInterval = 1000
@@ -69,9 +69,9 @@ class DeltaStreamingConnection extends NylasLongConnection {
       super.start()
     })
     .catch((error) => {
-      console.error(`Can't establish DeltaStreamingConnection: Error fetching latest cursor`, error)
+      console.error(`Can't establish LocalSyncDeltaConnection: Error fetching latest cursor`, error)
     })
   }
 }
 
-export default DeltaStreamingConnection
+export default LocalSyncDeltaConnection
