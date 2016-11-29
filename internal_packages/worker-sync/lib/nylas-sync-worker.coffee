@@ -1,5 +1,5 @@
 _ = require 'underscore'
-{Actions, DatabaseStore, NylasSyncStatusStore, NylasLongConnection} = require 'nylas-exports'
+{NylasAPI, N1CloudAPI, Actions, DatabaseStore, NylasSyncStatusStore, NylasLongConnection} = require 'nylas-exports'
 DeltaStreamingConnection = require('./delta-streaming-connection').default
 ContactRankingsCache = require './contact-rankings-cache'
 
@@ -43,7 +43,6 @@ module.exports =
 class NylasSyncWorker
 
   constructor: (api, account) ->
-    @_api = api
     @_account = account
 
     # indirection needed so resumeFetches can be spied on
@@ -116,8 +115,8 @@ class NylasSyncWorker
 
     @_connection.start()
 
-    # Stop the timer. If one or more network requests fails during the fetch process
-    # we'll backoff and restart the timer.
+    # Stop the timer. If one or more network requests fails during the
+    # fetch process we'll backoff and restart the timer.
     @_resumeTimer.cancel()
 
     needed = [
@@ -129,38 +128,35 @@ class NylasSyncWorker
       {model: 'contacts'},
       {model: 'calendars'},
       {model: 'events'},
-    ].filter ({model}) =>
-      @shouldFetchCollection(model)
+    ].filter(@_shouldFetchCollection)
 
     return if needed.length is 0
 
-    @fetchAllMetadata =>
-      needed.forEach ({model, initialPageSize, maxFetchCount}) =>
-        @fetchCollection(model, {initialPageSize, maxFetchCount})
+    @_fetchMetadata().then(() => Promise.each(needed, @_fetchCollection))
 
-  fetchAllMetadata: (finished) ->
-    @_metadata = {}
-    makeMetadataRequest = (offset) =>
-      limit = 200
-      @_fetchWithErrorHandling
-        path: "/metadata"
-        qs: {limit, offset}
-        success: (data) =>
-          for metadatum in data
-            @_metadata[metadatum.object_id] ?= []
-            @_metadata[metadatum.object_id].push(metadatum)
-          if data.length is limit
-            makeMetadataRequest(offset + limit)
-          else
-            console.log("Retrieved #{offset + data.length} metadata objects")
-            finished()
+  _fetchMetadata: (offset = 0) =>
+    limit = 200
+    N1CloudAPI.makeRequest
+      accountId: @_account.id
+      returnsModel: false
+      path: "/metadata"
+      qs: {limit, offset}
+    .then((data) =>
+      return if @_terminated
+      for metadatum in data
+        @_metadata[metadatum.object_id] ?= []
+        @_metadata[metadatum.object_id].push(metadatum)
+      if data.length is limit
+        return @_fetchMetadata(offset + limit)
+      else
+        console.log("Retrieved #{offset + data.length} metadata objects")
+        return Promise.resolve()
+    ).catch(() =>
+      return if @_terminated
+      @_backoff()
+    )
 
-    if @_api.pluginsSupported
-      makeMetadataRequest(0)
-    else
-      finished()
-
-  shouldFetchCollection: (model) ->
+  _shouldFetchCollection: ({model} = {}) =>
     return false unless @_state
     state = @_state[model] ? {}
 
@@ -168,7 +164,7 @@ class NylasSyncWorker
     return false if state.busy
     return true
 
-  fetchCollection: (model, {initialPageSize, maxFetchCount} = {}) ->
+  _fetchCollection: ({model, initialPageSize, maxFetchCount} = {}) ->
     initialPageSize ?= INITIAL_PAGE_SIZE
     state = @_state[model] ? {}
     state.complete = false
@@ -182,12 +178,12 @@ class NylasSyncWorker
       if state.fetched + limit > maxFetchCount
         limit = maxFetchCount - state.fetched
       state.lastRequestRange = null
-      @fetchCollectionPage(model, {limit, offset}, {maxFetchCount})
+      @_fetchCollectionPage(model, {limit, offset}, {maxFetchCount})
     else
       limit = initialPageSize
       if state.fetched + limit > maxFetchCount
         limit = maxFetchCount - state.fetched
-      @fetchCollectionPage(model, {
+      @_fetchCollectionPage(model, {
         limit: limit,
         offset: 0
       }, {maxFetchCount})
@@ -195,14 +191,7 @@ class NylasSyncWorker
     @_state[model] = state
     @writeState()
 
-  fetchCollectionCount: (model, maxFetchCount) ->
-    @_fetchWithErrorHandling
-      path: "/#{model}"
-      qs: {view: 'count'}
-      success: (response) =>
-        @updateTransferState(model, count: Math.min(response.count, maxFetchCount ? response.count))
-
-  fetchCollectionPage: (model, params = {}, options = {}) ->
+  _fetchCollectionPage: (model, params = {}, options = {}) ->
     requestStartTime = Date.now()
     requestOptions =
       metadataToAttach: @_metadata
@@ -231,7 +220,7 @@ class NylasSyncWorker
             limit = Math.min(limit, options.maxFetchCount - lastReceivedIndex)
           nextParams.limit = limit
           nextDelay = Math.max(0, 1500 - (Date.now() - requestStartTime))
-          setTimeout(( => @fetchCollectionPage(model, nextParams, options)), nextDelay)
+          setTimeout(( => @_fetchCollectionPage(model, nextParams, options)), nextDelay)
 
         @updateTransferState(model, {
           fetched: lastReceivedIndex,
@@ -242,9 +231,9 @@ class NylasSyncWorker
         })
 
     if model is 'threads'
-      @_api.getThreads(@_account.id, params, requestOptions)
+      NylasAPI.getThreads(@_account.id, params, requestOptions)
     else
-      @_api.getCollection(@_account.id, model, params, requestOptions)
+      NylasAPI.getCollection(@_account.id, model, params, requestOptions)
 
   # It's occasionally possible for the NylasAPI's labels or folders
   # endpoint to not return an "inbox" label. Since that's a core part of
@@ -252,20 +241,6 @@ class NylasSyncWorker
   # it.
   _hasNoInbox: (json) ->
     return not _.any(json, (obj) -> obj.name is "inbox")
-
-  _fetchWithErrorHandling: ({path, qs, success, error}) ->
-    @_api.makeRequest
-      accountId: @_account.id
-      returnsModel: false
-      path: path
-      qs: qs
-      success: (response) =>
-        return if @_terminated
-        success(response) if success
-      error: (err) =>
-        return if @_terminated
-        @_backoff()
-        error(err) if error
 
   _onFetchCollectionPageError: (model, params, err) ->
     @_backoff()

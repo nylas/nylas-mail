@@ -37,7 +37,7 @@ class NylasSyncWorkerPool
     worker = _.find @_workers, (c) -> c.account().id is account.id
     return worker if worker
 
-    worker = new NylasSyncWorker(NylasAPI, account)
+    worker = new NylasSyncWorker(account)
     connection = worker.connection()
     connection.onDeltas (deltas) =>
       @_handleDeltas(deltas)

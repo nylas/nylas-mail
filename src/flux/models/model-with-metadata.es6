@@ -9,6 +9,7 @@ class PluginMetadata extends Model {
   static attributes = {
     pluginId: Attributes.String({
       modelKey: 'pluginId',
+      jsonKey: "plugin_id",
     }),
     version: Attributes.Number({
       modelKey: 'version',
@@ -21,21 +22,6 @@ class PluginMetadata extends Model {
   constructor(...args) {
     super(...args)
     this.version = this.version || 0;
-  }
-
-  fromJSON(json) {
-    super.fromJSON(json);
-
-    // application_id is used in JSON coming down from the API
-    this.pluginId = this.pluginId || json.application_id;
-  }
-
-  get id() {
-    return this.pluginId
-  }
-
-  set id(pluginId) {
-    this.pluginId = pluginId
   }
 }
 
