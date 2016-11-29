@@ -60,12 +60,14 @@ class LocalDatabaseConnector {
 
   destroyAccountDatabase(accountId) {
     const dbname = `a-${accountId}`;
-    fs.access(dbname, fs.F_OK, (err) => {
-      if (!err) {
-        fs.unlinkSync(path.join(process.env.NYLAS_HOME, `${dbname}.sqlite`));
-      }
-    });
+    const dbpath = path.join(process.env.NYLAS_HOME, `${dbname}.sqlite`);
 
+    const err = fs.accessSync(dbpath, fs.F_OK);
+    if (!err) {
+      fs.unlinkSync(dbpath);
+    }
+
+    delete this._cache[accountId];
     return Promise.resolve()
   }
 
