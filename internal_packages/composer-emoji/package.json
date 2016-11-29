@@ -7,7 +7,7 @@
     "url": ""
   },
   "engines": {
-    "nylas": ">=0.3.43-b95f1f7"
+    "nylas": "*"
   },
 
   "isOptional": true,
