@@ -2,18 +2,20 @@ const {DatabaseTypes: {JSONType}} = require('isomorphic-core');
 
 module.exports = (sequelize, Sequelize) => {
   const Metadata = sequelize.define('metadata', {
-    nylasId: Sequelize.STRING,
     accountId: Sequelize.STRING,
-    modelId: Sequelize.STRING,
-    key: Sequelize.STRING,
+    value: JSONType('data'),
     version: Sequelize.INTEGER,
-    data: JSONType('data'),
+    pluginId: Sequelize.STRING,
+    objectId: Sequelize.STRING,
   }, {
-    classMethods: {
-      associate: () => {
-      },
-    },
     instanceMethods: {
+      id: `${this.id}`,
+      value: this.value,
+      object: "metadata",
+      version: this.version,
+      plugin_id: this.pluginId,
+      object_id: this.objectId,
+      account_id: this.accountId,
     },
   });
 
