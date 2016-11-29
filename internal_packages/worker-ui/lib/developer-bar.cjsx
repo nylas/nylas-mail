@@ -42,9 +42,7 @@ class DeveloperBar extends React.Component
         </div>
         <div className="btn-container pull-left">
           <div className="btn" onClick={ => @_onExpandSection('long-polling')}>
-            { _.map @state.longPollState, (val, key) =>
-              <div title={"Account ID #{key} - State: #{val}"} key={key} className={"activity-status-bubble state-" + val}></div>
-            }
+            {@_renderDeltaStates()}
             <span>Delta Streaming</span>
           </div>
         </div>
@@ -65,6 +63,14 @@ class DeveloperBar extends React.Component
         <input className="filter" placeholder="Filter..." value={@state.filter} onChange={@_onFilter} />
       </div>
     </div>
+
+  _renderDeltaStates: =>
+    _.map @state.longPollStates, (deltaStatus, accountId) =>
+      <div className="delta-state-wrap" key={accountId} >
+        { _.map deltaStatus, (val, deltaName) =>
+          <div title={"Account #{accountId} - #{deltaName} State: #{val}"} key={"#{accountId}-#{deltaName}"} className={"activity-status-bubble state-" + val}></div>
+        }
+      </div>
 
   _sectionContent: =>
     expandedDiv = <div></div>
@@ -143,7 +149,7 @@ class DeveloperBar extends React.Component
     completed: TaskQueue._completed
     curlHistory: DeveloperBarStore.curlHistory()
     longPollHistory: DeveloperBarStore.longPollHistory()
-    longPollState: DeveloperBarStore.longPollState()
+    longPollStates: DeveloperBarStore.longPollStates()
 
 
 module.exports = DeveloperBar

@@ -1,5 +1,4 @@
-import NylasAPIRequest from './flux/nylas-api-request';
-import IdentityStore from './flux/stores/identity-store'
+import {AccountStore} from 'nylas-exports'
 
 class N1CloudAPI {
   constructor() {
@@ -16,19 +15,8 @@ class N1CloudAPI {
     }
   }
 
-  makeRequest(options = {}) {
-    if (NylasEnv.getLoadSettings().isSpec) return Promise.resolve();
-
-    options.auth = options.auth || {
-      user: IdentityStore.identityId(),
-      pass: '',
-    }
-
-    const req = new NylasAPIRequest({
-      api: this,
-      options,
-    });
-    return req.run();
+  accessTokenForAccountId = (aid) => {
+    return AccountStore.tokenForAccountId(aid)
   }
 }
 

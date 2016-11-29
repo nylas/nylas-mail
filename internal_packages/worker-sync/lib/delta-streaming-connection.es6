@@ -1,10 +1,7 @@
 import _ from 'underscore'
-import {NylasLongConnection, DatabaseStore} from 'nylas-exports'
+import {NylasAPIRequest, NylasLongConnection, DatabaseStore} from 'nylas-exports'
 
-const {Status} = NylasLongConnection
-
-
-class LocalSyncDeltaConnection extends NylasLongConnection {
+class DeltaStreamingConnection extends NylasLongConnection {
 
   constructor(api, accountId, opts = {}) {
     opts.throttleResultsInterval = 1000
@@ -42,13 +39,16 @@ class LocalSyncDeltaConnection extends NylasLongConnection {
   latestCursor() {
     const cursor = this._getCursor()
     if (cursor) { return Promise.resolve(cursor) }
-    return this._api.makeRequest({
-      path: "/delta/latest_cursor",
-      accountId: this._accountId,
-      method: 'POST',
+    const request = new NylasAPIRequest({
+      api: this._api,
+      options: {
+        path: "/delta/latest_cursor",
+        accountId: this._accountId,
+        method: 'POST',
+      },
     })
-    .then((result) => {
-      console.log(`Obtained stream cursor ${result.cursor}.`)
+    return request.run().then((result) => {
+      if (!result) throw new Error(`No cursor returned from ${this._api.APIRoot}/delta/latest_cursor`)
       this._setCursor(result.cursor)
       return Promise.resolve(result.cursor)
     })
@@ -64,14 +64,14 @@ class LocalSyncDeltaConnection extends NylasLongConnection {
     if (this._req != null) { return }
 
     this.latestCursor().then((cursor) => {
-      if (this._status === Status.Ended) { return }
+      if (!cursor) { return }
       this._path = this.deltaStreamingPath(cursor)
       super.start()
     })
     .catch((error) => {
-      console.error(`Can't establish LocalSyncDeltaConnection: Error fetching latest cursor`, error)
+      console.error(`Can't establish DeltaStreamingConnection: Error fetching latest cursor`, error)
     })
   }
 }
 
-export default LocalSyncDeltaConnection
+export default DeltaStreamingConnection

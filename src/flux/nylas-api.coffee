@@ -107,7 +107,7 @@ class NylasAPI
   # Returns a Promise that resolves when any parsed out models (if any)
   # have been created and persisted to the database.
   #
-  _handleModelResponse: (jsons) ->
+  _handleModelResponse: (jsons) =>
     if not jsons
       return Promise.reject(new Error("handleModelResponse with no JSON provided"))
 

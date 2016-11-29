@@ -1,8 +1,7 @@
-NylasSyncWorkerPool = require './nylas-sync-worker-pool'
+NylasSyncWorkerPool = require('./nylas-sync-worker-pool').default
 
 module.exports =
   activate: ->
-    pool = new NylasSyncWorkerPool()
-    window.NylasSyncWorkerPool = pool
+    new NylasSyncWorkerPool()
 
   deactivate: ->

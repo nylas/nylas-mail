@@ -47,7 +47,7 @@ class DeveloperBarStore extends NylasStore
 
   curlHistory: -> @_curlHistory
 
-  longPollState: -> @_longPollState
+  longPollStates: -> @_longPollStates
 
   longPollHistory: -> @_longPollHistory
 
@@ -61,7 +61,7 @@ class DeveloperBarStore extends NylasStore
     @_curlHistoryIds = []
     @_curlHistory = []
     @_longPollHistory = []
-    @_longPollState = {}
+    @_longPollStates = {}
 
   _registerListeners: ->
     @listenTo NylasSyncStatusStore, @_onSyncStatusChanged
@@ -78,9 +78,9 @@ class DeveloperBarStore extends NylasStore
     @trigger(@)
 
   _onSyncStatusChanged: ->
-    @_longPollState = {}
+    @_longPollStates = {}
     _.forEach NylasSyncStatusStore.state(), (state, accountId) =>
-      @_longPollState[accountId] = state.longConnectionStatus
+      @_longPollStates[accountId] = state.deltaStatus
     @trigger()
 
   _onLongPollDeltas: (deltas) ->
@@ -96,10 +96,6 @@ class DeveloperBarStore extends NylasStore
     @triggerThrottled(@)
 
   _onLongPollProcessedDeltas: ->
-    @triggerThrottled(@)
-
-  _onLongPollStateChange: ({accountId, state}) ->
-    @_longPollState[accountId] = state
     @triggerThrottled(@)
 
   _onWillMakeAPIRequest: ({requestId, request}) =>
