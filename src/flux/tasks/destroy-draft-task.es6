@@ -3,6 +3,7 @@ import {APIError} from '../errors';
 import Message from '../models/message';
 import DatabaseStore from '../stores/database-store';
 import NylasAPI from '../nylas-api';
+import NylasAPIRequest from '../nylas-api-request';
 import BaseDraftTask from './base-draft-task';
 
 export default class DestroyDraftTask extends BaseDraftTask {
@@ -35,15 +36,19 @@ export default class DestroyDraftTask extends BaseDraftTask {
 
     NylasAPI.incrementRemoteChangeLock(Message, this.draft.serverId);
 
-    return NylasAPI.makeRequest({
-      path: `/drafts/${this.draft.serverId}`,
-      accountId: this.draft.accountId,
-      method: "DELETE",
-      body: {
-        version: this.draft.version,
+    return new NylasAPIRequest({
+      api: NylasAPI,
+      options: {
+        path: `/drafts/${this.draft.serverId}`,
+        accountId: this.draft.accountId,
+        method: "DELETE",
+        body: {
+          version: this.draft.version,
+        },
+        returnsModel: false,
       },
-      returnsModel: false,
     })
+    .run()
     // We deliberately do not decrement the change count, ensuring no deltas
     // about this object are received that could restore it.
     .thenReturn(Task.Status.Success)

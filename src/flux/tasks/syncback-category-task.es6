@@ -2,6 +2,7 @@ import DatabaseStore from '../stores/database-store';
 import AccountStore from '../stores/account-store';
 import Task from './task';
 import NylasAPI from '../nylas-api';
+import NylasAPIRequest from '../nylas-api-request';
 import {APIError} from '../errors';
 
 export default class SyncbackCategoryTask extends Task {
@@ -50,17 +51,21 @@ export default class SyncbackCategoryTask extends Task {
     const method = serverId ? "PUT" : "POST";
     const path = serverId ? `/${collection}/${serverId}` : `/${collection}`;
 
-    return NylasAPI.makeRequest({
-      path,
-      method,
-      accountId,
-      body: {
-        display_name: displayName,
+    return new NylasAPIRequest({
+      api: NylasAPI,
+      options: {
+        path,
+        method,
+        accountId,
+        body: {
+          display_name: displayName,
+        },
+        // returnsModel must be false because we want to update the
+        // existing model rather than returning a new model.
+        returnsModel: false,
       },
-      // returnsModel must be false because we want to update the
-      // existing model rather than returning a new model.
-      returnsModel: false,
     })
+    .run()
     .then((json) => {
       // This is where we update the existing model with the newly
       // created serverId.

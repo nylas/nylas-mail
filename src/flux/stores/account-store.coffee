@@ -6,6 +6,7 @@ Utils = require '../models/utils'
 DatabaseStore = require('./database-store').default
 keytar = require 'keytar'
 NylasAPI = null
+NylasAPIRequest = null
 
 configAccountsKey = "nylas.accounts"
 configVersionKey = "nylas.accountsVersion"
@@ -188,11 +189,15 @@ class AccountStore extends NylasStore
 
   refreshHealthOfAccounts: (accountIds) =>
     NylasAPI ?= require '../nylas-api'
+    NylasAPIRequest ?= require '../nylas-api-request'
     Promise.all(accountIds.map (accountId) =>
-      return NylasAPI.makeRequest({
-        path: '/account',
-        accountId: accountId,
-      }).then (json) =>
+      return new NylasAPIRequest({
+        api: NylasAPI,
+        options: {
+          path: '/account',
+          accountId: accountId,
+        },
+      }).run().then (json) =>
         existing = @accountForId(accountId)
         return unless existing # user may have deleted
         existing.fromJSON(json)

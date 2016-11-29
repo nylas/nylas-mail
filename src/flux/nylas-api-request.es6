@@ -86,6 +86,10 @@ export default class NylasAPIRequest {
   }
 
   run() {
+    if (NylasEnv.getLoadSettings().isSpec) {
+      return Promise.resolve()
+    }
+
     if (this.options.ensureOnce === true) {
       try {
         if (this.requestHasSucceededBefore()) {
@@ -105,6 +109,39 @@ export default class NylasAPIRequest {
     }
 
     const requestId = Utils.generateTempId();
+
+    const onSuccess = (body) => {
+      let responseBody = body;
+      if (this.options.beforeProcessing) {
+        responseBody = this.options.beforeProcessing(responseBody)
+      }
+      if (this.options.returnsModel) {
+        this._handleModelResponse(responseBody).then(() => {
+          return Promise.resolve(responseBody)
+        })
+      }
+      return Promise.resolve(responseBody)
+    }
+
+    const onError = (err) => {
+      const {url, auth, returnsModel} = this.options
+
+      let handlePromise = Promise.resolve()
+      if (err.response) {
+        if (err.response.statusCode === 404 && returnsModel) {
+          handlePromise = NylasAPI.handleModel404(url)
+        }
+        if ([401, 403].includes(err.response.statusCode)) {
+          handlePromise = NylasAPI.handleAuthenticationFailure(url, auth.user)
+        }
+        if (err.response.statusCode === 400) {
+          NylasEnv.reportError(err)
+        }
+      }
+      handlePromise.finally(() => {
+        Promise.reject(err)
+      })
+    }
 
     return new Promise((resolve, reject) => {
       this.options.startTime = Date.now();
@@ -154,6 +191,7 @@ export default class NylasAPIRequest {
       });
 
       this.options.started(req);
-    });
+    })
+    .then(onSuccess, onError)
   }
 }

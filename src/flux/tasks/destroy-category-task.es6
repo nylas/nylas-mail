@@ -6,6 +6,7 @@ import ChangeFolderTask from './change-folder-task';
 import ChangeLabelTask from './change-labels-task';
 import SyncbackCategoryTask from './syncback-category-task';
 import NylasAPI from '../nylas-api';
+import NylasAPIRequest from '../nylas-api-request';
 import {APIError} from '../errors';
 
 export default class DestroyCategoryTask extends Task {
@@ -52,12 +53,16 @@ export default class DestroyCategoryTask extends Task {
     // delta which comes after a delay
     NylasAPI.incrementRemoteChangeLock(Category, this.category.serverId);
 
-    return NylasAPI.makeRequest({
-      accountId,
-      path,
-      method: 'DELETE',
-      returnsModel: false,
+    return new NylasAPIRequest({
+      api: NylasAPI,
+      options: {
+        accountId,
+        path,
+        method: 'DELETE',
+        returnsModel: false,
+      },
     })
+    .run()
     .thenReturn(Task.Status.Success)
     .catch(APIError, (err) => {
       if (!NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {

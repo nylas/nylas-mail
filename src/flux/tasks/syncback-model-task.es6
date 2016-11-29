@@ -1,6 +1,7 @@
 import _ from 'underscore'
 import Task from './task'
 import NylasAPI from '../nylas-api'
+import NylasAPIRequest from '../nylas-api-request'
 import {APIError} from '../errors'
 import DatabaseStore from '../stores/database-store'
 
@@ -54,7 +55,10 @@ export default class SyncbackModelTask extends Task {
         accountId: model.accountId,
         returnsModel: false,
       }, this.getRequestData(model));
-      return NylasAPI.makeRequest(options);
+      return new NylasAPIRequest({
+        api: NylasAPI,
+        options,
+      }).run()
     } catch (error) {
       return Promise.reject(error)
     }

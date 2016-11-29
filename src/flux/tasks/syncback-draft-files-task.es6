@@ -5,6 +5,7 @@ import Task from './task';
 import {APIError} from '../errors';
 import File from '../models/file';
 import NylasAPI from '../nylas-api';
+import NylasAPIRequest from '../nylas-api-request';
 import BaseDraftTask from './base-draft-task';
 import DatabaseStore from '../stores/database-store';
 import MultiRequestProgressMonitor from '../../multi-request-progress-monitor';
@@ -76,16 +77,20 @@ export default class SyncbackDraftFilesTask extends BaseDraftTask {
       },
     }
 
-    return NylasAPI.makeRequest({
-      path: "/files",
-      accountId: this.draft.accountId,
-      method: "POST",
-      json: false,
-      formData,
-      started: (req) =>
-        this._attachmentUploadsMonitor.add(targetPath, size, req),
-      timeout: 20 * 60 * 1000,
+    return new NylasAPIRequest({
+      api: NylasAPI,
+      options: {
+        path: "/files",
+        accountId: this.draft.accountId,
+        method: "POST",
+        json: false,
+        formData,
+        started: (req) =>
+          this._attachmentUploadsMonitor.add(targetPath, size, req),
+        timeout: 20 * 60 * 1000,
+      },
     })
+    .run()
     .finally(() => {
       this._attachmentUploadsMonitor.remove(targetPath);
     })
