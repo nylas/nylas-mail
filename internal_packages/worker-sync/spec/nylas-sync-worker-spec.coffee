@@ -1,6 +1,6 @@
 _ = require 'underscore'
 {Actions, DatabaseStore, DatabaseTransaction, Account, Thread} = require 'nylas-exports'
-DeltaStreamingConnection = require('../lib/delta-streaming-connection').default
+LocalSyncDeltaConnection = require('../lib/local-sync-delta-connection').default
 NylasSyncWorker = require '../lib/nylas-sync-worker'
 
 describe "NylasSyncWorker", ->
@@ -43,7 +43,7 @@ describe "NylasSyncWorker", ->
         return throw new Error("Not stubbed! #{key}")
 
 
-    spyOn(DeltaStreamingConnection.prototype, 'start')
+    spyOn(LocalSyncDeltaConnection.prototype, 'start')
     @account = new Account(clientId: TEST_ACCOUNT_CLIENT_ID, serverId: TEST_ACCOUNT_ID, organizationUnit: 'label')
     @worker = new NylasSyncWorker(@api, @account)
     @worker._metadata = {"a": [{"id":"b"}]}
@@ -144,7 +144,7 @@ describe "NylasSyncWorker", ->
 
   describe "delta streaming cursor", ->
     it "should read the cursor from the database, and the old config format", ->
-      spyOn(DeltaStreamingConnection.prototype, 'latestCursor').andReturn Promise.resolve()
+      spyOn(LocalSyncDeltaConnection.prototype, 'latestCursor').andReturn Promise.resolve()
 
       @apiCursorStub = undefined
 
@@ -177,7 +177,7 @@ describe "NylasSyncWorker", ->
       expect(connection._getCursor()).toEqual('new-school')
 
     it "should set the cursor to the last cursor after receiving deltas", ->
-      spyOn(DeltaStreamingConnection.prototype, 'latestCursor').andReturn Promise.resolve()
+      spyOn(LocalSyncDeltaConnection.prototype, 'latestCursor').andReturn Promise.resolve()
       worker = new NylasSyncWorker(@api, @account)
       advanceClock()
       connection = worker.connection()
@@ -217,7 +217,7 @@ describe "NylasSyncWorker", ->
       expect(@worker.fetchCollection.calls.map (call) -> call.args[0]).toEqual(['threads', 'labels', 'drafts'])
 
     it "should be called when Actions.retrySync is received", ->
-      spyOn(DeltaStreamingConnection.prototype, 'latestCursor').andReturn Promise.resolve()
+      spyOn(LocalSyncDeltaConnection.prototype, 'latestCursor').andReturn Promise.resolve()
 
       # TODO why do we need to call through?
       spyOn(@worker, 'resume').andCallThrough()

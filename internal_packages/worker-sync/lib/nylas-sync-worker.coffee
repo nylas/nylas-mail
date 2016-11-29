@@ -1,6 +1,6 @@
 _ = require 'underscore'
 {NylasAPI, N1CloudAPI, Actions, DatabaseStore, NylasSyncStatusStore, NylasLongConnection} = require 'nylas-exports'
-DeltaStreamingConnection = require('./delta-streaming-connection').default
+LocalSyncDeltaConnection = require('./local-sync-delta-connection').default
 ContactRankingsCache = require './contact-rankings-cache'
 
 INITIAL_PAGE_SIZE = 30
@@ -50,7 +50,7 @@ class NylasSyncWorker
     @_refreshingCaches = [new ContactRankingsCache(account.id)]
 
     @_terminated = false
-    @_connection = new DeltaStreamingConnection(api, account.id, {
+    @_connection = new LocalSyncDeltaConnection(api, account.id, {
       isReady: => @_state isnt null
       getCursor: =>
         return null if @_state is null
