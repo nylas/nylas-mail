@@ -130,6 +130,9 @@ class WindowEventHandler
     _.defer ->
       if remote.getGlobal('application').isQuitting()
         remote.app.quit()
+      else if NylasEnv.isReloading
+        NylasEnv.isReloading = false
+        NylasEnv.reload()
       else
         NylasEnv.close()
 

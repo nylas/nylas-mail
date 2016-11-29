@@ -525,6 +525,7 @@ class NylasEnvConstructor
 
   # Extended: Reload the current window.
   reload: ->
+    @isReloading = true
     ipcRenderer.send('call-webcontents-method', 'reload')
 
   # Public: The windowProps passed when creating the window via `newWindow`.
