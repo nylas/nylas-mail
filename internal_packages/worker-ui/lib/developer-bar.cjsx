@@ -6,6 +6,7 @@ React = require 'react'
  Actions,
  Contact,
  Message} = require 'nylas-exports'
+{InjectedComponentSet} = require 'nylas-component-kit'
 
 DeveloperBarStore = require './developer-bar-store'
 DeveloperBarTask = require './developer-bar-task'
@@ -52,6 +53,11 @@ class DeveloperBar extends React.Component
             <span>Requests: {@state.curlHistory.length}</span>
           </div>
         </div>
+        <div className="btn-container pull-left">
+          <div className="btn" onClick={ => @_onExpandSection('local-sync')}>
+            <span>Local Sync Engine</span>
+          </div>
+        </div>
       </div>
       {@_sectionContent()}
       <div className="footer">
@@ -76,6 +82,11 @@ class DeveloperBar extends React.Component
       itemDivs = @state.longPollHistory.filter(matchingFilter).map (item) ->
         <DeveloperBarLongPollItem item={item} ignoredBecause={item.ignoredBecause} key={"#{item.cursor}-#{item.timestamp}"}/>
       expandedDiv = <div className="expanded-section long-polling">{itemDivs}</div>
+
+    else if @state.section == 'local-sync'
+      expandedDiv = <div className="expanded-section local-sync">
+        <InjectedComponentSet matching={{role: "Developer:LocalSyncUI"}} /> 
+      </div>
 
     else if @state.section == 'queue'
       queue = @state.queue.filter(matchingFilter)
