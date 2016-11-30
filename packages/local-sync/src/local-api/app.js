@@ -11,8 +11,6 @@ const fs = require('fs');
 const path = require('path');
 const LocalDatabaseConnector = require('../shared/local-database-connector')
 
-if (!global.Logger) { global.Logger = console }
-
 const server = new Hapi.Server({
   connections: {
     router: {

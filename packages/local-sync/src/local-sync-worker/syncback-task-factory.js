@@ -39,8 +39,12 @@ class SyncbackTaskFactory {
         Task = require('./syncback_tasks/rename-folder.imap'); break;
       case "DeleteFolder":
         Task = require('./syncback_tasks/delete-folder.imap'); break;
+      case "DeleteMessage":
+        Task = require('./syncback_tasks/delete-message.imap'); break;
+      case "SaveSentMessage":
+        Task = require('./syncback_tasks/save-sent-message.imap'); break;
       default:
-        throw new Error(`Invalid Task Type: ${syncbackRequest.type}`)
+        throw new Error(`Task type not defined in syncback-task-factory: ${syncbackRequest.type}`)
     }
     return new Task(account, syncbackRequest)
   }

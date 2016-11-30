@@ -1,4 +1,4 @@
-const {DatabaseTypes: {JSONARRAYType}} = require('isomorphic-core');
+const {DatabaseTypes: {buildJSONARRAYColumnOptions}} = require('isomorphic-core');
 
 module.exports = (sequelize, Sequelize) => {
   return sequelize.define('thread', {
@@ -8,13 +8,19 @@ module.exports = (sequelize, Sequelize) => {
     remoteThreadId: Sequelize.STRING,
     subject: Sequelize.STRING(500),
     snippet: Sequelize.STRING(255),
-    unreadCount: Sequelize.INTEGER,
-    starredCount: Sequelize.INTEGER,
+    unreadCount: {
+      type: Sequelize.INTEGER,
+      get: function get() { return this.getDataValue('unreadCount') || 0 },
+    },
+    starredCount: {
+      type: Sequelize.INTEGER,
+      get: function get() { return this.getDataValue('starredCount') || 0 },
+    },
     firstMessageDate: Sequelize.DATE,
     lastMessageDate: Sequelize.DATE,
     lastMessageReceivedDate: Sequelize.DATE,
     lastMessageSentDate: Sequelize.DATE,
-    participants: JSONARRAYType('participants'),
+    participants: buildJSONARRAYColumnOptions('participants'),
   }, {
     indexes: [
       { fields: ['subject'] },
@@ -56,7 +62,72 @@ module.exports = (sequelize, Sequelize) => {
 
         return this.save();
       },
+      async updateFromMessage(message) {
+        if (message.isDraft) {
+          return this;
+        }
 
+        if (!(message.labels instanceof Array)) {
+          throw new Error("Expected message.labels to be an inflated array.");
+        }
+        if (!message.folder) {
+          throw new Error("Expected message.folder value to be present.");
+        }
+
+        // Update thread participants
+        const {to, cc, bcc} = message;
+        const participantEmails = this.participants.map(contact => contact.email);
+        const newParticipants = to.concat(cc, bcc).filter(contact => {
+          if (participantEmails.includes(contact.email)) {
+            return false;
+          }
+          participantEmails.push(contact.email);
+          return true;
+        })
+        this.participants = this.participants.concat(newParticipants);
+
+        // Update starred/unread counts
+        this.starredCount += message.starred ? 1 : 0;
+        this.unreadCount += message.unread ? 1 : 0;
+
+        // Update dates/snippet
+        if (!this.lastMessageDate || (message.date > this.lastMessageDate)) {
+          this.lastMessageDate = message.date;
+          this.snippet = message.snippet;
+        }
+        if (!this.firstMessageDate || (message.date < this.firstMessageDate)) {
+          this.firstMessageDate = message.date;
+        }
+
+        // Figure out if the message is sent or received and update more dates
+        const isSent = (
+          message.folder.role === 'sent' ||
+          !!message.labels.find(l => l.role === 'sent')
+        );
+
+        if (isSent && ((message.date > this.lastMessageSentDate) || !this.lastMessageSentDate)) {
+          this.lastMessageSentDate = message.date;
+        }
+        if (!isSent && ((message.date > this.lastMessageReceivedDate) || !this.lastMessageReceivedDate)) {
+          this.lastMessageReceivedDate = message.date;
+        }
+
+        const savedThread = await this.save();
+
+        // Update folders/labels
+        // This has to be done after the thread has been saved, because the
+        // thread may not have had an assigned id yet. addFolder()/addLabel()
+        // need an existing thread id to work properly.
+        if (!savedThread.folders.find(f => f.id === message.folderId)) {
+          await savedThread.addFolder(message.folder)
+        }
+        for (const label of message.labels) {
+          if (!savedThread.labels.find(l => l.id === label)) {
+            await savedThread.addLabel(label)
+          }
+        }
+        return savedThread;
+      },
       toJSON() {
         if (!(this.labels instanceof Array)) {
           throw new Error("Thread.toJSON called on a thread where labels were not eagerly loaded.")

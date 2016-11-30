@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 
 module.exports = {
-  JSONType: (fieldName, {defaultValue = {}} = {}) => ({
+  buildJSONColumnOptions: (fieldName, {defaultValue = {}} = {}) => ({
     type: Sequelize.TEXT,
     get: function get() {
       const val = this.getDataValue(fieldName);
@@ -14,7 +14,7 @@ module.exports = {
       this.setDataValue(fieldName, JSON.stringify(val));
     },
   }),
-  JSONARRAYType: (fieldName) => ({
+  buildJSONARRAYColumnOptions: (fieldName) => ({
     type: Sequelize.TEXT,
     get: function get() {
       const val = this.getDataValue(fieldName);

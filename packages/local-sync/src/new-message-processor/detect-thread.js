@@ -35,6 +35,7 @@ function emptyThread({Thread, accountId}, options = {}) {
   const t = Thread.build(Object.assign({accountId}, options))
   t.folders = [];
   t.labels = [];
+  t.participants = [];
   return Promise.resolve(t)
 }
 
@@ -95,66 +96,15 @@ function detectThread({db, message}) {
 
     // update the basic properties of the thread
     thread.accountId = message.accountId;
+
     // Threads may, locally, have the ID of any message within the thread
     // (message IDs are globally unique, even across accounts!)
     if (!thread.id) {
       thread.id = `t:${message.id}`
     }
 
-    // update the participants on the thread
-    const threadParticipants = [].concat(thread.participants);
-    const threadEmails = thread.participants.map(p => p.email);
-
-    for (const p of [].concat(message.to, message.cc, message.from)) {
-      if (!threadEmails.includes(p.email)) {
-        threadParticipants.push(p);
-        threadEmails.push(p.email);
-      }
-    }
-    thread.participants = threadParticipants;
-
-    // update starred and unread
-    if (thread.starredCount == null) { thread.starredCount = 0; }
-    thread.starredCount += message.starred ? 1 : 0;
-    if (thread.unreadCount == null) { thread.unreadCount = 0; }
-    thread.unreadCount += message.unread ? 1 : 0;
-
-    // update dates
-    if (!thread.lastMessageDate || (message.date > thread.lastMessageDate)) {
-      thread.lastMessageDate = message.date;
-      thread.snippet = message.snippet;
-      thread.subject = cleanSubject(message.subject);
-    }
-    if (!thread.firstMessageDate || (message.date < thread.firstMessageDate)) {
-      thread.firstMessageDate = message.date;
-    }
-
-    const isSent = (
-      message.folder.role === 'sent' ||
-      !!message.labels.find(l => l.role === 'sent')
-    )
-
-    if (isSent && ((message.date > thread.lastMessageSentDate) || !thread.lastMessageSentDate)) {
-      thread.lastMessageSentDate = message.date;
-    }
-    if (!isSent && ((message.date > thread.lastMessageReceivedDate) || !thread.lastMessageReceivedDate)) {
-      thread.lastMessageReceivedDate = message.date;
-    }
-
-    return thread.save()
-    .then((saved) => {
-      const promises = []
-      // update folders and labels
-      if (!saved.folders.find(f => f.id === message.folderId)) {
-        promises.push(saved.addFolder(message.folder))
-      }
-      for (const label of message.labels) {
-        if (!saved.labels.find(l => l.id === label)) {
-          promises.push(saved.addLabel(label))
-        }
-      }
-      return Promise.all(promises).thenReturn(saved)
-    })
+    thread.subject = cleanSubject(message.subject);
+    return thread.updateFromMessage(message);
   });
 }
 
