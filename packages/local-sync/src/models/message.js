@@ -44,12 +44,10 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
     instanceMethods: {
-      setLabelsFromXGM(xGmLabels, {Label, preloadedLabels} = {}) {
+      async setLabelsFromXGM(xGmLabels, {Label, preloadedLabels} = {}) {
         this.folderImapXGMLabels = JSON.stringify(xGmLabels);
-        return Label.findXGMLabels(xGmLabels, {preloadedLabels})
-        .then((labels) =>
-          this.save().then(() => this.setLabels(labels))
-        )
+        const labels = await Label.findXGMLabels(xGmLabels, {preloadedLabels})
+        return this.setLabels(labels);
       },
 
       fetchRaw({account, db, logger}) {
