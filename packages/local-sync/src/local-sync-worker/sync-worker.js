@@ -46,28 +46,27 @@ class SyncWorker {
     this.syncNow({reason: 'IMAP IDLE Fired'});
   }
 
-  _getAccount() {
-    return LocalDatabaseConnector.forShared().then(({Account}) =>
-      Account.find({where: {id: this._account.id}})
-    );
+  async _getAccount() {
+    const {Account} = await LocalDatabaseConnector.forShared()
+    Account.find({where: {id: this._account.id}})
   }
 
   _getIdleFolder() {
     return this._db.Folder.find({where: {role: ['all', 'inbox']}})
   }
 
-  ensureConnection() {
+  async ensureConnection() {
     if (this._conn) {
-      return this._conn.connect();
+      return await this._conn.connect();
     }
     const settings = this._account.connectionSettings;
     const credentials = this._account.decryptedCredentials();
 
     if (!settings || !settings.imap_host) {
-      return Promise.reject(new Error("ensureConnection: There are no IMAP connection settings for this account."))
+      throw new Error("ensureConnection: There are no IMAP connection settings for this account.");
     }
     if (!credentials) {
-      return Promise.reject(new Error("ensureConnection: There are no IMAP connection credentials for this account."))
+      throw new Error("ensureConnection: There are no IMAP connection credentials for this account.");
     }
 
     const conn = new IMAPConnection({
@@ -86,51 +85,50 @@ class SyncWorker {
     });
 
     this._conn = conn;
-    return this._conn.connect();
+    return await this._conn.connect();
   }
 
-  syncbackMessageActions() {
+  async syncbackMessageActions() {
     const {SyncbackRequest} = this._db;
     const where = {where: {status: "NEW"}, limit: 100};
 
-    const tasks = SyncbackRequest.findAll(where).map((req) =>
+    const tasks = (await SyncbackRequest.findAll(where)).map((req) =>
       SyncbackTaskFactory.create(this._account, req)
     );
 
     return PromiseUtils.each(tasks, this.runSyncbackTask.bind(this));
   }
 
-  runSyncbackTask(task) {
-    const syncbackRequest = task.syncbackRequestObject()
-    return this._conn.runOperation(task)
-    .then(() => {
-      syncbackRequest.status = "SUCCEEDED"
-    })
-    .catch((error) => {
-      syncbackRequest.error = error
-      syncbackRequest.status = "FAILED"
-      this._logger.error(syncbackRequest.toJSON(), `${task.description()} failed`)
-    })
-    .finally(() => syncbackRequest.save())
+  async runSyncbackTask(task) {
+    const syncbackRequest = task.syncbackRequestObject();
+    try {
+      await this._conn.runOperation(task);
+      syncbackRequest.status = "SUCCEEDED";
+    } catch (error) {
+      syncbackRequest.error = error;
+      syncbackRequest.status = "FAILED";
+      this._logger.error(syncbackRequest.toJSON(), `${task.description()} failed`);
+    } finally {
+      await syncbackRequest.save();
+    }
   }
 
-  syncMessagesInAllFolders() {
+  async syncMessagesInAllFolders() {
     const {Folder} = this._db;
     const {folderSyncOptions} = this._account.syncPolicy;
 
-    return Folder.findAll().then((folders) => {
-      const priority = ['inbox', 'all', 'drafts', 'sent', 'spam', 'trash'].reverse();
-      const foldersSorted = folders.sort((a, b) =>
-        (priority.indexOf(a.role) - priority.indexOf(b.role)) * -1
-      )
+    const folders = await Folder.findAll();
+    const priority = ['inbox', 'all', 'drafts', 'sent', 'spam', 'trash'].reverse();
+    const foldersSorted = folders.sort((a, b) =>
+      (priority.indexOf(a.role) - priority.indexOf(b.role)) * -1
+    )
 
-      return Promise.all(foldersSorted.map((cat) =>
-        this._conn.runOperation(new FetchMessagesInFolder(cat, folderSyncOptions, this._logger))
-      ))
-    });
+    return await Promise.all(foldersSorted.map((cat) =>
+      this._conn.runOperation(new FetchMessagesInFolder(cat, folderSyncOptions, this._logger))
+    ))
   }
 
-  syncNow({reason} = {}) {
+  async syncNow({reason} = {}) {
     const syncInProgress = (this._syncTimer === null);
     if (syncInProgress) {
       return;
@@ -139,28 +137,33 @@ class SyncWorker {
     clearTimeout(this._syncTimer);
     this._syncTimer = null;
 
-    this._account.reload().then(() => {
-      console.log(this._account)
-      if (this._account.errored()) {
-        this._logger.error(`SyncWorker: Account is in error state - Retrying sync\n${this._account.syncError.message}`, this._account.syncError.stack.join('\n'))
-      }
-      this._logger.info({reason}, `SyncWorker: Account sync started`)
-
-      return this._account.update({syncError: null})
-      .then(() => this.ensureConnection())
-      .then(() => this.syncbackMessageActions())
-      .then(() => this._conn.runOperation(new FetchFolderList(this._account.provider, this._logger)))
-      .then(() => this.syncMessagesInAllFolders())
-      .then(() => this.onSyncDidComplete())
-      .catch((error) => this.onSyncError(error))
-      .finally(() => {
-        this._lastSyncTime = Date.now()
-        this.scheduleNextSync()
-      })
-    }).catch((err) => {
+    try {
+      await this._account.reload();
+    } catch (err) {
       this._logger.error({err}, `SyncWorker: Account could not be loaded. Sync worker will exit.`)
       this._manager.removeWorkerForAccountId(this._account.id);
-    })
+      return;
+    }
+
+    console.log(this._account)
+    if (this._account.errored()) {
+      this._logger.error(`SyncWorker: Account is in error state - Retrying sync\n${this._account.syncError.message}`, this._account.syncError.stack.join('\n'))
+    }
+    this._logger.info({reason}, `SyncWorker: Account sync started`)
+
+    try {
+      await this._account.update({syncError: null});
+      await this.ensureConnection();
+      await this.syncbackMessageActions();
+      await this._conn.runOperation(new FetchFolderList(this._account.provider, this._logger));
+      await this.syncMessagesInAllFolders();
+      await this.onSyncDidComplete();
+    } catch (error) {
+      this.onSyncError(error);
+    } finally {
+      this._lastSyncTime = Date.now()
+      this.scheduleNextSync()
+    }
   }
 
   onSyncError(error) {
@@ -177,7 +180,7 @@ class SyncWorker {
     return this._account.save()
   }
 
-  onSyncDidComplete() {
+  async onSyncDidComplete() {
     const now = Date.now();
 
     // Save metrics to the account object
@@ -186,39 +189,38 @@ class SyncWorker {
     }
 
     const syncGraphTimeLength = 60 * 30; // 30 minutes, should be the same as SyncGraph.config.timeLength
-    let lastSyncCompletions = [].concat(this._account.lastSyncCompletions)
-    lastSyncCompletions = [now, ...lastSyncCompletions]
+    let lastSyncCompletions = [].concat(this._account.lastSyncCompletions);
+    lastSyncCompletions = [now, ...lastSyncCompletions];
     while (now - lastSyncCompletions[lastSyncCompletions.length - 1] > 1000 * syncGraphTimeLength) {
       lastSyncCompletions.pop();
     }
 
-    this._logger.info('Syncworker: Completed sync cycle')
-    this._account.lastSyncCompletions = lastSyncCompletions
-    this._account.save()
+    this._logger.info('Syncworker: Completed sync cycle');
+    this._account.lastSyncCompletions = lastSyncCompletions;
+    this._account.save();
 
     // Start idling on the inbox
-    return this._getIdleFolder()
-    .then((idleFolder) => this._conn.openBox(idleFolder.name))
-    .then(() => this._logger.info('SyncWorker: Idling on inbox folder'))
+    const idleFolder = await this._getIdleFolder();
+    await this._conn.openBox(idleFolder.name);
+    this._logger.info('SyncWorker: Idling on inbox folder');
   }
 
-  scheduleNextSync() {
+  async scheduleNextSync() {
     const {intervals} = this._account.syncPolicy;
     const {Folder} = this._db;
 
-    return Folder.findAll().then((folders) => {
-      const moreToSync = folders.some((f) =>
-        f.syncState.fetchedmax < f.syncState.uidnext || f.syncState.fetchedmin > 1
-      )
+    const folders = await Folder.findAll();
+    const moreToSync = folders.some((f) =>
+      f.syncState.fetchedmax < f.syncState.uidnext || f.syncState.fetchedmin > 1
+    )
 
-      const target = this._lastSyncTime + (moreToSync ? 1 : intervals.active);
+    const target = this._lastSyncTime + (moreToSync ? 1 : intervals.active);
 
-      this._logger.info(`SyncWorker: Scheduling next sync iteration for ${target - Date.now()}ms}`)
+    this._logger.info(`SyncWorker: Scheduling next sync iteration for ${target - Date.now()}ms}`)
 
-      this._syncTimer = setTimeout(() => {
-        this.syncNow({reason: 'Scheduled'});
-      }, target - Date.now());
-    });
+    this._syncTimer = setTimeout(() => {
+      this.syncNow({reason: 'Scheduled'});
+    }, target - Date.now());
   }
 }
 
