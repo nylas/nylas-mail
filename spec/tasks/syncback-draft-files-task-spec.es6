@@ -6,6 +6,7 @@ import {
   Contact,
   SyncbackDraftFilesTask,
   NylasAPI,
+  NylasAPIRequest,
 } from 'nylas-exports';
 
 const DBt = DatabaseTransaction.prototype;
@@ -40,7 +41,7 @@ describe('SyncbackDraftFilesTask', function syncbackDraftFilesTask() {
 
       spyOn(DBt, 'persistModel');
       spyOn(fs, 'createReadStream').andReturn("stub");
-      spyOn(NylasAPI, 'makeRequest').andCallFake((options) => {
+      spyOn(NylasAPIRequest.prototype, 'run').andCallFake((options) => {
         let response = this.response;
 
         if (options.path === '/files') {
@@ -66,9 +67,9 @@ describe('SyncbackDraftFilesTask', function syncbackDraftFilesTask() {
       advanceClock();
 
       // uploads should be queued, but not the send
-      expect(NylasAPI.makeRequest.callCount).toEqual(2);
-      expect(NylasAPI.makeRequest.calls[0].args[0].formData).toEqual({file: {value: 'stub', options: { filename: 'test-file-1.png' } } });
-      expect(NylasAPI.makeRequest.calls[1].args[0].formData).toEqual({file: {value: 'stub', options: { filename: 'test-file-2.png' } } });
+      expect(NylasAPIRequest.prototype.run.callCount).toEqual(2);
+      expect(NylasAPIRequest.prototype.run.calls[0].args[0].formData).toEqual({file: {value: 'stub', options: { filename: 'test-file-1.png' } } });
+      expect(NylasAPIRequest.prototype.run.calls[1].args[0].formData).toEqual({file: {value: 'stub', options: { filename: 'test-file-2.png' } } });
 
       // finish all uploads
       expect(taskPromise.isFulfilled()).toBe(false);
@@ -108,8 +109,8 @@ describe('SyncbackDraftFilesTask', function syncbackDraftFilesTask() {
 
       // Only upload `bbb` should be sent, upload `aaa` should be deleted
       // because it was not present in the draft body.
-      expect(NylasAPI.makeRequest.callCount).toEqual(1);
-      expect(NylasAPI.makeRequest.calls[0].args[0].formData).toEqual({file: {value: 'stub', options: { filename: 'test-file-2.png' } } });
+      expect(NylasAPIRequest.prototype.run.callCount).toEqual(1);
+      expect(NylasAPIRequest.prototype.run.calls[0].args[0].formData).toEqual({file: {value: 'stub', options: { filename: 'test-file-2.png' } } });
       this.resolveAll();
       advanceClock();
       expect(DBt.persistModel).toHaveBeenCalled();
