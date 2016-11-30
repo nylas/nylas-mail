@@ -20,7 +20,7 @@ class DeltaStreamingConnection extends NylasLongConnection {
     })
   }
 
-  deltaStreamingPath(cursor) {
+  deltaStreamingPath(cursor = 0) {
     return `/delta/streaming?cursor=${cursor}&exclude_folders=false&exclude_metadata=false&exclude_account=false`
   }
 
@@ -49,7 +49,6 @@ class DeltaStreamingConnection extends NylasLongConnection {
     })
     return request.run().then((result) => {
       if (!result) throw new Error(`No cursor returned from ${this._api.APIRoot}/delta/latest_cursor`);
-      if (!result.cursor) throw new Error(`Malformed response. Missing "cursor" field in: ${JSON.stringify(result)} from ${this._api.APIRoot}/delta/latest_cursor`)
       this._setCursor(result.cursor)
       return Promise.resolve(result.cursor)
     })
