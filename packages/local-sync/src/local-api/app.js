@@ -1,3 +1,4 @@
+/* eslint import/no-dynamic-require: 0 */
 /* eslint global-require: 0 */
 const Hapi = require('hapi');
 const HapiSwagger = require('hapi-swagger');

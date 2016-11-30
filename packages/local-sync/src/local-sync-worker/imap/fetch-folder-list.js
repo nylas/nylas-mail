@@ -108,42 +108,40 @@ class FetchFolderList {
     return {next, created, deleted};
   }
 
-  run(db, imap) {
+  async run(db, imap) {
     this._db = db;
 
-    return imap.getBoxes().then((boxes) => {
-      const {Folder, Label, sequelize} = this._db;
+    const boxes = await imap.getBoxes();
+    const {Folder, Label, sequelize} = this._db;
 
-      return sequelize.transaction((transaction) => {
-        return PromiseUtils.props({
-          folders: Folder.findAll({transaction}),
-          labels: Label.findAll({transaction}),
-        }).then(({folders, labels}) => {
-          const all = [].concat(folders, labels);
-          const {next, created, deleted} = this._updateCategoriesWithBoxes(all, boxes);
+    return sequelize.transaction(async (transaction) => {
+      const {folders, labels} = await PromiseUtils.props({
+        folders: Folder.findAll({transaction}),
+        labels: Label.findAll({transaction}),
+      })
+      const all = [].concat(folders, labels);
+      const {next, created, deleted} = this._updateCategoriesWithBoxes(all, boxes);
 
-          const categoriesByRoles = next.reduce((obj, cat) => {
-            const role = this._roleByName(cat.name);
-            if (role in obj) {
-              obj[role].push(cat);
-            } else {
-              obj[role] = [cat];
-            }
-            return obj;
-          }, {})
+      const categoriesByRoles = next.reduce((obj, cat) => {
+        const role = this._roleByName(cat.name);
+        if (role in obj) {
+          obj[role].push(cat);
+        } else {
+          obj[role] = [cat];
+        }
+        return obj;
+      }, {})
 
-          this._getMissingRoles(next).forEach((role) => {
-            if (categoriesByRoles[role] && categoriesByRoles[role].length === 1) {
-              categoriesByRoles[role][0].role = role;
-            }
-          })
+      this._getMissingRoles(next).forEach((role) => {
+        if (categoriesByRoles[role] && categoriesByRoles[role].length === 1) {
+          categoriesByRoles[role][0].role = role;
+        }
+      })
 
-          let promises = [Promise.resolve()]
-          promises = promises.concat(created.map(cat => cat.save({transaction})))
-          promises = promises.concat(deleted.map(cat => cat.destroy({transaction})))
-          return Promise.all(promises)
-        });
-      });
+      let promises = [Promise.resolve()]
+      promises = promises.concat(created.map(cat => cat.save({transaction})))
+      promises = promises.concat(deleted.map(cat => cat.destroy({transaction})))
+      return Promise.all(promises)
     });
   }
 }
