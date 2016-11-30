@@ -8,13 +8,13 @@ class DeltaStreamingConnection extends NylasLongConnection {
     opts.closeIfDataStopsInterval = 15 * 1000
     super(api, accountId, opts)
 
-    const {isReady, getCursor, setCursor} = opts
-    this._isReady = isReady
+    const {getCursor, setCursor} = opts
     this._getCursor = getCursor
     this._setCursor = setCursor
 
     // Update cursor when deltas received
     this.onDeltas((deltas) => {
+      if (opts.onDeltas) opts.onDeltas(deltas);
       const last = _.last(deltas)
       this._setCursor(last.cursor)
     })
@@ -48,7 +48,8 @@ class DeltaStreamingConnection extends NylasLongConnection {
       },
     })
     return request.run().then((result) => {
-      if (!result) throw new Error(`No cursor returned from ${this._api.APIRoot}/delta/latest_cursor`)
+      if (!result) throw new Error(`No cursor returned from ${this._api.APIRoot}/delta/latest_cursor`);
+      if (!result.cursor) throw new Error(`Malformed response. Missing "cursor" field in: ${JSON.stringify(result)} from ${this._api.APIRoot}/delta/latest_cursor`)
       this._setCursor(result.cursor)
       return Promise.resolve(result.cursor)
     })
@@ -59,12 +60,10 @@ class DeltaStreamingConnection extends NylasLongConnection {
   }
 
   start() {
-    if (!this._isReady()) { return }
     if (!this.canStart()) { return }
     if (this._req != null) { return }
 
     this.latestCursor().then((cursor) => {
-      if (!cursor) { return }
       this._path = this.deltaStreamingPath(cursor)
       super.start()
     })
