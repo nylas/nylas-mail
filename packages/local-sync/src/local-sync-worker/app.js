@@ -1,18 +1,37 @@
-const LocalDatabaseConnector = require('../shared/local-database-connector')
-const os = require('os')
-global.instanceId = os.hostname();
+const {AccountStore} = require('nylas-exports');
 
+const LocalDatabaseConnector = require('../shared/local-database-connector')
 const manager = require('./sync-process-manager')
 
-LocalDatabaseConnector.forShared().then((db) => {
-  const {Account} = db;
-  Account.findAll().then((accounts) => {
-    if (accounts.length === 0) {
-      global.Logger.info(`Couldn't find any accounts to sync. Run this CURL command to auth one!`)
-      global.Logger.info(`curl -X POST -H "Content-Type: application/json" -d '{"email":"inboxapptest1@fastmail.fm", "name":"Ben Gotow", "provider":"imap", "settings":{"imap_username":"inboxapptest1@fastmail.fm","imap_host":"mail.messagingengine.com","imap_port":993,"smtp_host":"mail.messagingengine.com","smtp_port":0,"smtp_username":"inboxapptest1@fastmail.fm", "smtp_password":"trar2e","imap_password":"trar2e","ssl_required":true}}' "http://localhost:2578/auth?client_id=123"`)
+// Right now, it's a bit confusing because N1 has Account objects, and K2 has
+// Account objects. We want to sync all K2 Accounts, but when an N1 Account is
+// deleted, we want to delete the K2 account too.
+
+async function ensureK2Consistency() {
+  const {Account} = await LocalDatabaseConnector.forShared();
+  const k2Accounts = await Account.findAll();
+  const n1Accounts = AccountStore.accounts();
+  const n1Emails = n1Accounts.map(a => a.emailAddress);
+
+  const deletions = [];
+  for (const k2Account of k2Accounts) {
+    const deleted = !n1Emails.includes(k2Account.emailAddress);
+    if (deleted) {
+      console.warn(`Deleting K2 account ID ${k2Account.id} which could not be matched to an N1 account.`)
+      manager.removeWorkerForAccountId(k2Account.id);
+      LocalDatabaseConnector.destroyAccountDatabase(k2Account.id);
+      deletions.push(k2Account.destroy());
     }
-    manager.start();
-  });
+  }
+  return await Promise.all(deletions)
+}
+
+ensureK2Consistency().then(() => {
+  // Step 1: Start all K2 Accounts
+  manager.start();
 });
+
+// Step 2: Watch N1 Accounts, ensure consistency when they change.
+AccountStore.listen(ensureK2Consistency);
 
 global.manager = manager;
