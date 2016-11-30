@@ -189,7 +189,7 @@ class AccountStore extends NylasStore
 
   refreshHealthOfAccounts: (accountIds) =>
     NylasAPI ?= require '../nylas-api'
-    NylasAPIRequest ?= require '../nylas-api-request'
+    NylasAPIRequest ?= require('../nylas-api-request').default
     Promise.all(accountIds.map (accountId) =>
       return new NylasAPIRequest({
         api: NylasAPI,
@@ -198,6 +198,7 @@ class AccountStore extends NylasStore
           accountId: accountId,
         },
       }).run().then (json) =>
+        return unless json
         existing = @accountForId(accountId)
         return unless existing # user may have deleted
         existing.fromJSON(json)
