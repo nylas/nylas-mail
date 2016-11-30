@@ -1,9 +1,6 @@
 const SyncWorker = require('./sync-worker');
 const LocalDatabaseConnector = require('../shared/local-database-connector')
 
-const IDENTITY = `${global.instanceId}-${process.pid}`;
-
-
 /*
 Accounts ALWAYS exist in either `accounts:unclaimed` or an `accounts:{id}` list.
 They are atomically moved between these sets as they are claimed and returned.
@@ -31,50 +28,43 @@ class SyncProcessManager {
     this._workers = {};
     this._listenForSyncsClient = null;
     this._exiting = false;
-    this._logger = global.Logger.child({identity: IDENTITY});
+    this._logger = global.Logger.child();
   }
 
-  start() {
+  async start() {
     this._logger.info(`ProcessManager: Starting with ID`)
 
-    LocalDatabaseConnector.forShared().then(({Account}) =>
-      Account.findAll().then((accounts) => {
-        for (const account of accounts) {
-          this.addWorkerForAccount(account);
-        }
-      }));
+    const {Account} = await LocalDatabaseConnector.forShared();
+    const accounts = await Account.findAll();
+    for (const account of accounts) {
+      this.addWorkerForAccount(account);
+    }
   }
 
   wakeWorkerForAccount(account) {
     this._workers[account.id].syncNow();
   }
 
-  addWorkerForAccount(account) {
-    return LocalDatabaseConnector.ensureAccountDatabase(account.id)
-    .then(() => {
-      return LocalDatabaseConnector.forAccount(account.id).then((db) => {
-        if (this._workers[account.id]) {
-          return Promise.reject(new Error("Local worker already exists"));
-        }
+  async addWorkerForAccount(account) {
+    await LocalDatabaseConnector.ensureAccountDatabase(account.id);
 
-        this._workers[account.id] = new SyncWorker(account, db, () => {
-          this.removeWorkerForAccountId(account.id)
-        });
-        return Promise.resolve();
-      })
-    })
-    .then(() => {
+    try {
+      const db = await LocalDatabaseConnector.forAccount(account.id);
+      if (this._workers[account.id]) {
+        throw new Error("Local worker already exists");
+      }
+      this._workers[account.id] = new SyncWorker(account, db, this);
       this._logger.info({account_id: account.id}, `ProcessManager: Claiming Account Succeeded`)
-    })
-    .catch((err) => {
+    } catch (err) {
       this._logger.error({account_id: account.id, reason: err.message}, `ProcessManager: Claiming Account Failed`)
-    });
+    }
   }
 
   removeWorkerForAccountId(accountId) {
-    const worker = this._workers[accountId];
-    worker.cleanup();
-    this._workers[accountId] = null;
+    if (this._workers[accountId]) {
+      this._workers[accountId].cleanup();
+      this._workers[accountId] = null;
+    }
   }
 
 }

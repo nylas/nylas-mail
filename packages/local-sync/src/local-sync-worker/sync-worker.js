@@ -14,13 +14,13 @@ const SyncbackTaskFactory = require('./syncback-task-factory')
 
 
 class SyncWorker {
-  constructor(account, db, onExpired) {
+  constructor(account, db, parentManager) {
     this._db = db;
+    this._manager = parentManager;
     this._conn = null;
     this._account = account;
     this._startTime = Date.now();
     this._lastSyncTime = null;
-    this._onExpired = onExpired;
     this._logger = global.Logger.forAccount(account)
 
     this._destroyed = false;
@@ -153,10 +153,13 @@ class SyncWorker {
       .then(() => this.syncMessagesInAllFolders())
       .then(() => this.onSyncDidComplete())
       .catch((error) => this.onSyncError(error))
-    })
-    .finally(() => {
-      this._lastSyncTime = Date.now()
-      this.scheduleNextSync()
+      .finally(() => {
+        this._lastSyncTime = Date.now()
+        this.scheduleNextSync()
+      })
+    }).catch((err) => {
+      this._logger.error({err}, `SyncWorker: Account could not be loaded. Sync worker will exit.`)
+      this._manager.removeWorkerForAccountId(this._account.id);
     })
   }
 
