@@ -1,7 +1,19 @@
 const cryptography = require('crypto');
 const {PromiseUtils, IMAPConnection} = require('isomorphic-core')
-const {DatabaseTypes: {JSONType, JSONARRAYType}} = require('isomorphic-core');
+const {DatabaseTypes: {buildJSONColumnOptions, buildJSONARRAYColumnOptions}} = require('isomorphic-core');
+const striptags = require('striptags');
+const SendingUtils = require('../local-api/sending-utils');
 
+const SNIPPET_LENGTH = 191;
+
+const getValidateArrayLength1 = (fieldName) => {
+  return (stringifiedArr) => {
+    const arr = JSON.parse(stringifiedArr);
+    if (arr.length !== 1) {
+      throw new Error(`Value for ${fieldName} must have a length of 1. Value: ${stringifiedArr}`);
+    }
+  };
+}
 
 module.exports = (sequelize, Sequelize) => {
   return sequelize.define('message', {
@@ -10,20 +22,55 @@ module.exports = (sequelize, Sequelize) => {
     version: Sequelize.INTEGER,
     headerMessageId: Sequelize.STRING,
     body: Sequelize.TEXT('long'),
-    headers: JSONType('headers'),
+    headers: buildJSONColumnOptions('headers'),
     subject: Sequelize.STRING(500),
     snippet: Sequelize.STRING(255),
     date: Sequelize.DATE,
+    isDraft: Sequelize.BOOLEAN,
+    isSent: {
+      type: Sequelize.BOOLEAN,
+      set: async function set(val) {
+        if (val) {
+          this.isDraft = false;
+          this.date = (new Date()).getTime();
+          const thread = await this.getThread();
+          await thread.updateFromMessage(this)
+        }
+        this.setDataValue('isSent', val);
+      },
+    },
     unread: Sequelize.BOOLEAN,
     starred: Sequelize.BOOLEAN,
     processed: Sequelize.INTEGER,
-    to: JSONARRAYType('to'),
-    from: JSONARRAYType('from'),
-    cc: JSONARRAYType('cc'),
-    bcc: JSONARRAYType('bcc'),
-    replyTo: JSONARRAYType('replyTo'),
+    to: buildJSONARRAYColumnOptions('to'),
+    from: Object.assign(buildJSONARRAYColumnOptions('from'), {
+      allowNull: true,
+      validate: {validateArrayLength1: getValidateArrayLength1('Message.from')},
+    }),
+    cc: buildJSONARRAYColumnOptions('cc'),
+    bcc: buildJSONARRAYColumnOptions('bcc'),
+    replyTo: Object.assign(buildJSONARRAYColumnOptions('replyTo'), {
+      allowNull: true,
+      validate: {validateArrayLength1: getValidateArrayLength1('Message.replyTo')},
+    }),
+    inReplyTo: { type: Sequelize.STRING, allowNull: true},
+    references: buildJSONARRAYColumnOptions('references'),
     folderImapUID: { type: Sequelize.STRING, allowNull: true},
     folderImapXGMLabels: { type: Sequelize.TEXT, allowNull: true},
+    isSending: {
+      type: Sequelize.BOOLEAN,
+      set: function set(val) {
+        if (val) {
+          if (this.isSent) {
+            throw new Error("Cannot mark a sent message as sending");
+          }
+          SendingUtils.validateRecipientsPresent(this);
+          this.isDraft = false;
+          this.regenerateHeaderMessageId();
+        }
+        this.setDataValue('isSending', val);
+      },
+    },
   }, {
     indexes: [
       {
@@ -69,6 +116,13 @@ module.exports = (sequelize, Sequelize) => {
         })
       },
 
+      // The uid in this header is simply the draft id and version concatenated.
+      // Because this uid identifies the draft on the remote provider, we
+      // regenerate it on each draft revision so that we can delete the old draft
+      // and add the new one on the remote.
+      regenerateHeaderMessageId() {
+        this.headerMessageId = `<${this.id}-${this.version}@mailer.nylas.com>`
+      },
       toJSON() {
         if (this.folder_id && !this.folder) {
           throw new Error("Message.toJSON called on a message where folder were not eagerly loaded.")
@@ -97,6 +151,16 @@ module.exports = (sequelize, Sequelize) => {
           labels: this.labels,
           thread_id: this.threadId,
         };
+      },
+    },
+    hooks: {
+      beforeUpdate: (message) => {
+        // Update the snippet if the body has changed
+        if (!message.changed('body')) { return; }
+
+        const plainText = striptags(message.body);
+        // consolidate whitespace groups into single spaces and then truncate
+        message.snippet = plainText.split(/\s+/).join(" ").substring(0, SNIPPET_LENGTH)
       },
     },
   });

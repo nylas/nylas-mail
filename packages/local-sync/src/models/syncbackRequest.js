@@ -1,4 +1,4 @@
-const {DatabaseTypes: {JSONType}} = require('isomorphic-core');
+const {DatabaseTypes: {buildJSONColumnOptions}} = require('isomorphic-core');
 
 module.exports = (sequelize, Sequelize) => {
   return sequelize.define('syncbackRequest', {
@@ -8,8 +8,8 @@ module.exports = (sequelize, Sequelize) => {
       defaultValue: "NEW",
       allowNull: false,
     },
-    error: JSONType('error'),
-    props: JSONType('props'),
+    error: buildJSONColumnOptions('error'),
+    props: buildJSONColumnOptions('props'),
     accountId: { type: Sequelize.STRING, allowNull: false },
   }, {
     instanceMethods: {

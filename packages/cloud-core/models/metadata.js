@@ -1,9 +1,9 @@
-const {DatabaseTypes: {JSONType}} = require('isomorphic-core');
+const {DatabaseTypes: {buildJSONColumnOptions}} = require('isomorphic-core');
 
 module.exports = (sequelize, Sequelize) => {
   const Metadata = sequelize.define('metadata', {
     accountId: Sequelize.STRING,
-    value: JSONType('data'),
+    value: buildJSONColumnOptions('data'),
     version: Sequelize.INTEGER,
     pluginId: Sequelize.STRING,
     objectId: Sequelize.STRING,

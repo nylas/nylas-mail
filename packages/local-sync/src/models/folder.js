@@ -1,4 +1,4 @@
-const {DatabaseTypes: {JSONType}} = require('isomorphic-core');
+const {DatabaseTypes: {buildJSONColumnOptions}} = require('isomorphic-core');
 const {formatImapPath} = require('../shared/imap-paths-utils');
 
 module.exports = (sequelize, Sequelize) => {
@@ -8,7 +8,7 @@ module.exports = (sequelize, Sequelize) => {
     version: Sequelize.INTEGER,
     name: Sequelize.STRING,
     role: Sequelize.STRING,
-    syncState: JSONType('syncState'),
+    syncState: buildJSONColumnOptions('syncState'),
   }, {
     indexes: [
       {
