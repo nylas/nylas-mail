@@ -1,5 +1,6 @@
 {DestroyCategoryTask,
  NylasAPI,
+ NylasAPIRequest,
  Task,
  Category,
  AccountStore,
@@ -72,7 +73,7 @@ describe "DestroyCategoryTask", ->
 
     describe "when request succeeds", ->
       beforeEach ->
-        spyOn(NylasAPI, "makeRequest").andCallFake -> Promise.resolve("null")
+        spyOn(NylasAPIRequest.prototype, "run").andCallFake -> Promise.resolve("null")
         spyOn(NylasAPI, "incrementRemoteChangeLock")
 
       it "blocks other remote changes to that category", ->
@@ -84,32 +85,32 @@ describe "DestroyCategoryTask", ->
         makeAccount(usesLabels: true)
         task = makeTask()
         task.performRemote()
-        expect(pathOf(NylasAPI.makeRequest)).toBe "/labels/server-444"
+        expect(pathOf(NylasAPIRequest.prototype.run)).toBe "/labels/server-444"
 
       it "sends API req to /folders if user uses folders", ->
         makeAccount(usesFolders: true)
         task = makeTask()
         task.performRemote()
-        expect(pathOf(NylasAPI.makeRequest)).toBe "/folders/server-444"
+        expect(pathOf(NylasAPIRequest.prototype.run)).toBe "/folders/server-444"
 
       it "sends DELETE request", ->
         makeAccount()
         task = makeTask()
         task.performRemote()
-        expect(methodOf(NylasAPI.makeRequest)).toBe "DELETE"
+        expect(methodOf(NylasAPIRequest.prototype.run)).toBe "DELETE"
 
       it "sends the account id", ->
         makeAccount()
         task = makeTask()
         task.performRemote()
-        expect(accountIdOf(NylasAPI.makeRequest)).toBe "account 123"
+        expect(accountIdOf(NylasAPIRequest.prototype.run)).toBe "account 123"
 
     describe "when request fails", ->
       beforeEach ->
         makeAccount()
         spyOn(NylasAPI, 'decrementRemoteChangeLock')
         spyOn(NylasEnv, 'reportError')
-        spyOn(NylasAPI, 'makeRequest').andCallFake ->
+        spyOn(NylasAPIRequest.prototype, 'run').andCallFake ->
           Promise.reject(new APIError({statusCode: 403}))
 
       it "persists the category and notifies error", ->

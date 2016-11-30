@@ -4,8 +4,9 @@ _ = require 'underscore'
  Folder,
  Thread,
  Message,
- ACtions,
+ Actions,
  NylasAPI,
+ NylasAPIRequest,
  Query,
  DatabaseStore,
  DatabaseTransaction,
@@ -269,19 +270,19 @@ describe "ChangeMailTask", ->
           if model is @threadAMesage1
             return {field: 'message-1'}
 
-      it "should call NylasAPI.makeRequest for each model, passing the result of requestBodyForModel", ->
-        spyOn(NylasAPI, 'makeRequest').andReturn(Promise.resolve())
+      it "should call NylasAPIRequest.run for each model, passing the result of requestBodyForModel", ->
+        spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.resolve())
         runs ->
           @task._performRequests(Thread, [@threadA, @threadB])
         waitsFor ->
-          NylasAPI.makeRequest.callCount is 2
+          NylasAPIRequest.prototype.run.callCount is 2
         runs ->
-          expect(NylasAPI.makeRequest.calls[0].args[0].body).toEqual({field: 'thread-a-body'})
-          expect(NylasAPI.makeRequest.calls[1].args[0].body).toEqual({field: 'thread-b-body'})
+          expect(NylasAPIRequest.prototype.run.calls[0].args[0].body).toEqual({field: 'thread-a-body'})
+          expect(NylasAPIRequest.prototype.run.calls[1].args[0].body).toEqual({field: 'thread-b-body'})
 
       it "should resolve when all of the requests complete", ->
         promises = []
-        spyOn(NylasAPI, 'makeRequest').andCallFake ->
+        spyOn(NylasAPIRequest.prototype, 'run').andCallFake ->
           new Promise (resolve, reject) -> promises.push({resolve, reject})
 
         resolved = false
@@ -289,7 +290,7 @@ describe "ChangeMailTask", ->
           @task._performRequests(Thread, [@threadA, @threadB]).then =>
             resolved = true
         waitsFor ->
-          NylasAPI.makeRequest.callCount is 2
+          NylasAPIRequest.prototype.run.callCount is 2
         runs ->
           expect(resolved).toBe(false)
           promises[0].resolve()
@@ -301,7 +302,7 @@ describe "ChangeMailTask", ->
 
       it "should carry on and resolve if a request 404s, since the NylasAPI manager will clean the object from the cache", ->
         promises = []
-        spyOn(NylasAPI, 'makeRequest').andCallFake ->
+        spyOn(NylasAPIRequest.prototype, 'run').andCallFake ->
           new Promise (resolve, reject) -> promises.push({resolve, reject})
 
         resolved = false
@@ -309,7 +310,7 @@ describe "ChangeMailTask", ->
           @task._performRequests(Thread, [@threadA, @threadB]).then =>
             resolved = true
         waitsFor ->
-          NylasAPI.makeRequest.callCount is 2
+          NylasAPIRequest.prototype.run.callCount is 2
         runs ->
           promises[0].resolve()
           promises[1].reject(new APIError(statusCode: 404))
@@ -318,7 +319,7 @@ describe "ChangeMailTask", ->
 
       it "should reject with the request error encountered by any request", ->
         promises = []
-        spyOn(NylasAPI, 'makeRequest').andCallFake ->
+        spyOn(NylasAPIRequest.prototype, 'run').andCallFake ->
           new Promise (resolve, reject) -> promises.push({resolve, reject})
 
         err = null
@@ -326,7 +327,7 @@ describe "ChangeMailTask", ->
           @task._performRequests(Thread, [@threadA, @threadB]).catch (error) =>
             err = error
         waitsFor ->
-          NylasAPI.makeRequest.callCount is 2
+          NylasAPIRequest.prototype.run.callCount is 2
         runs ->
           expect(err).toBe(null)
           promises[0].resolve()
@@ -338,45 +339,45 @@ describe "ChangeMailTask", ->
           expect(err).toBe(apiError)
 
       it "should use /threads when the klass provided is Thread", ->
-        spyOn(NylasAPI, 'makeRequest').andCallFake ->
+        spyOn(NylasAPIRequest.prototype, 'run').andCallFake ->
           new Promise (resolve, reject) -> #noop
         runs ->
           @task._performRequests(Thread, [@threadA, @threadB])
         waitsFor ->
-          NylasAPI.makeRequest.callCount is 2
+          NylasAPIRequest.prototype.run.callCount is 2
         runs ->
           path = "/threads/#{@threadA.id}"
-          expect(NylasAPI.makeRequest.calls[0].args[0].path).toBe(path)
-          expect(NylasAPI.makeRequest.calls[0].args[0].accountId).toBe(@threadA.accountId)
+          expect(NylasAPIRequest.prototype.run.calls[0].args[0].path).toBe(path)
+          expect(NylasAPIRequest.prototype.run.calls[0].args[0].accountId).toBe(@threadA.accountId)
 
       it "should use /messages when the klass provided is Message", ->
-        spyOn(NylasAPI, 'makeRequest').andCallFake ->
+        spyOn(NylasAPIRequest.prototype, 'run').andCallFake ->
           new Promise (resolve, reject) -> #noop
         runs ->
           @task._performRequests(Message, [@threadAMesage1])
         waitsFor ->
-          NylasAPI.makeRequest.callCount is 1
+          NylasAPIRequest.prototype.run.callCount is 1
         runs ->
           path = "/messages/#{@threadAMesage1.id}"
-          expect(NylasAPI.makeRequest.calls[0].args[0].path).toBe(path)
-          expect(NylasAPI.makeRequest.calls[0].args[0].accountId).toBe(@threadAMesage1.accountId)
+          expect(NylasAPIRequest.prototype.run.calls[0].args[0].path).toBe(path)
+          expect(NylasAPIRequest.prototype.run.calls[0].args[0].accountId).toBe(@threadAMesage1.accountId)
 
       it "should decrement change counts as requests complete", ->
-        spyOn(NylasAPI, 'makeRequest').andCallFake ->
+        spyOn(NylasAPIRequest.prototype, 'run').andCallFake ->
           new Promise (resolve, reject) -> #noop
         spyOn(@task, '_removeLock')
         runs ->
           @task._performRequests(Thread, [@threadAMesage1])
         waitsFor ->
-          NylasAPI.makeRequest.callCount is 1
+          NylasAPIRequest.prototype.run.callCount is 1
         runs ->
-          NylasAPI.makeRequest.calls[0].args[0].beforeProcessing({})
+          NylasAPIRequest.prototype.run.calls[0].args[0].beforeProcessing({})
           expect(@task._removeLock).toHaveBeenCalledWith(@threadAMesage1)
 
       it "should make no more than 10 requests at once", ->
         resolves = []
         spyOn(@task, '_removeLock')
-        spyOn(NylasAPI, 'makeRequest').andCallFake ->
+        spyOn(NylasAPIRequest.prototype, 'run').andCallFake ->
           new Promise (resolve, reject) -> resolves.push(resolve)
 
         threads = []
@@ -400,7 +401,7 @@ describe "ChangeMailTask", ->
         resolves = []
         rejects = []
         spyOn(@task, '_removeLock')
-        spyOn(NylasAPI, 'makeRequest').andCallFake ->
+        spyOn(NylasAPIRequest.prototype, 'run').andCallFake ->
           new Promise (resolve, reject) ->
             resolves.push(resolve)
             rejects.push(reject)
