@@ -35,13 +35,13 @@ class FetchMessagesInFolder {
     return count ? Math.max(1, this._box.uidnext - count) : 1;
   }
 
-  _recoverFromUIDInvalidity() {
+  async _recoverFromUIDInvalidity() {
     // UID invalidity means the server has asked us to delete all the UIDs for
     // this folder and start from scratch. Instead of deleting all the messages,
     // we just remove the category ID and UID. We may re-assign the same message
     // the same UID. Otherwise they're eventually garbage collected.
     const {Message} = this._db;
-    return this._db.sequelize.transaction((transaction) =>
+    await this._db.sequelize.transaction((transaction) =>
       Message.update({
         folderImapUID: null,
         folderId: null,
@@ -54,7 +54,7 @@ class FetchMessagesInFolder {
     )
   }
 
-  _updateMessageAttributes(remoteUIDAttributes, localMessageAttributes) {
+  async _updateMessageAttributes(remoteUIDAttributes, localMessageAttributes) {
     const {sequelize, Label} = this._db;
 
     const messageAttributesMap = {};
@@ -65,57 +65,59 @@ class FetchMessagesInFolder {
     const createdUIDs = [];
     const flagChangeMessages = [];
 
-    return Label.findAll().then((preloadedLabels) => {
-      Object.keys(remoteUIDAttributes).forEach((uid) => {
-        const msg = messageAttributesMap[uid];
-        const attrs = remoteUIDAttributes[uid];
+    const preloadedLabels = await Label.findAll();
+    Object.keys(remoteUIDAttributes).forEach(async (uid) => {
+      const msg = messageAttributesMap[uid];
+      const attrs = remoteUIDAttributes[uid];
 
-        if (!msg) {
-          createdUIDs.push(uid);
-          return;
+      if (!msg) {
+        createdUIDs.push(uid);
+        return;
+      }
+
+      const unread = !attrs.flags.includes('\\Seen');
+      const starred = attrs.flags.includes('\\Flagged');
+      const xGmLabels = attrs['x-gm-labels'];
+      const xGmLabelsJSON = xGmLabels ? JSON.stringify(xGmLabels) : null;
+
+      if (msg.folderImapXGMLabels !== xGmLabelsJSON) {
+        await msg.setLabelsFromXGM(xGmLabels, {Label, preloadedLabels})
+        const thread = await msg.getThread();
+        if (thread) {
+          thread.updateLabels();
         }
+      }
 
-        const unread = !attrs.flags.includes('\\Seen');
-        const starred = attrs.flags.includes('\\Flagged');
-        const xGmLabels = attrs['x-gm-labels'];
-        const xGmLabelsJSON = xGmLabels ? JSON.stringify(xGmLabels) : null;
+      if (msg.unread !== unread || msg.starred !== starred) {
+        msg.unread = unread;
+        msg.starred = starred;
+        flagChangeMessages.push(msg);
+      }
+    })
 
-        if (msg.folderImapXGMLabels !== xGmLabelsJSON) {
-          msg.setLabelsFromXGM(xGmLabels, {Label, preloadedLabels})
-          .then(() => msg.getThread())
-          .then((thread) => (thread ? thread.updateLabels() : null))
-        }
+    this._logger.info({
+      flag_changes: flagChangeMessages.length,
+    }, `FetchMessagesInFolder: found flag changes`);
 
-        if (msg.unread !== unread || msg.starred !== starred) {
-          msg.unread = unread;
-          msg.starred = starred;
-          flagChangeMessages.push(msg);
-        }
-      })
-
+    if (createdUIDs.length > 0) {
       this._logger.info({
-        flag_changes: flagChangeMessages.length,
-      }, `FetchMessagesInFolder: found flag changes`)
-      if (createdUIDs.length > 0) {
-        this._logger.info({
-          new_messages: createdUIDs.length,
-        }, `FetchMessagesInFolder: found new messages. These will not be processed because we assume that they will be assigned uid = uidnext, and will be picked up in the next sync when we discover unseen messages.`)
-      }
+        new_messages: createdUIDs.length,
+      }, `FetchMessagesInFolder: found new messages. These will not be processed because we assume that they will be assigned uid = uidnext, and will be picked up in the next sync when we discover unseen messages.`);
+    }
 
-      if (flagChangeMessages.length === 0) {
-        return Promise.resolve();
-      }
+    if (flagChangeMessages.length === 0) {
+      return;
+    }
 
-      return sequelize.transaction((transaction) =>
-        Promise.all(flagChangeMessages.map(m => m.save({
-          fields: MessageFlagAttributes,
-          transaction,
-        })))
-      );
-    });
+    await sequelize.transaction((transaction) =>
+      Promise.all(flagChangeMessages.map(m => m.save({
+        fields: MessageFlagAttributes,
+        transaction,
+      })))
+    );
   }
 
-  _removeDeletedMessages(remoteUIDAttributes, localMessageAttributes) {
+  async _removeDeletedMessages(remoteUIDAttributes, localMessageAttributes) {
     const {Message} = this._db;
 
     const removedUIDs = localMessageAttributes
@@ -127,9 +129,10 @@ class FetchMessagesInFolder {
     }, `FetchMessagesInFolder: found messages no longer in the folder`)
 
     if (removedUIDs.length === 0) {
-      return Promise.resolve();
+      return;
     }
-    return this._db.sequelize.transaction((transaction) =>
+
+    await this._db.sequelize.transaction((transaction) =>
        Message.update({
          folderImapUID: null,
          folderId: null,
@@ -173,10 +176,10 @@ class FetchMessagesInFolder {
     return desired;
   }
 
-  _fetchMessagesAndQueueForProcessing(range) {
+  async _fetchMessagesAndQueueForProcessing(range) {
     const uidsByPart = {};
 
-    return this._box.fetchEach(range, {struct: true}, ({attributes}) => {
+    await this._box.fetchEach(range, {struct: true}, ({attributes}) => {
       const desiredParts = this._getDesiredMIMEParts(attributes.struct);
       if (desiredParts.length === 0) {
         return;
@@ -185,95 +188,88 @@ class FetchMessagesInFolder {
       uidsByPart[key] = uidsByPart[key] || [];
       uidsByPart[key].push(attributes.uid);
     })
-    .then(() => {
-      return PromiseUtils.each(Object.keys(uidsByPart), (key) => {
-        const uids = uidsByPart[key];
-        const desiredParts = JSON.parse(key);
-        const bodies = ['HEADER'].concat(desiredParts.map(p => p.id));
 
-        this._logger.info({
-          key,
-          num_messages: uids.length,
-        }, `FetchMessagesInFolder: Fetching parts for messages`)
+    await PromiseUtils.each(Object.keys(uidsByPart), (key) => {
+      const uids = uidsByPart[key];
+      const desiredParts = JSON.parse(key);
+      const bodies = ['HEADER'].concat(desiredParts.map(p => p.id));
 
-        // note: the order of UIDs in the array doesn't matter, Gmail always
-        // returns them in ascending (oldest => newest) order.
+      this._logger.info({
+        key,
+        num_messages: uids.length,
+      }, `FetchMessagesInFolder: Fetching parts for messages`)
 
-        return this._box.fetchEach(
-          uids,
-          {bodies, struct: true},
-          (imapMessage) => this._processMessage(imapMessage, desiredParts)
-        );
-      });
+      // note: the order of UIDs in the array doesn't matter, Gmail always
+      // returns them in ascending (oldest => newest) order.
+
+      return this._box.fetchEach(
+        uids,
+        {bodies, struct: true},
+        (imapMessage) => this._processMessage(imapMessage, desiredParts)
+      );
     });
   }
 
-  _processMessage(imapMessage, desiredParts) {
+  async _processMessage(imapMessage, desiredParts) {
     const {Message} = this._db
 
-    MessageFactory.parseFromImap(imapMessage, desiredParts, {
-      db: this._db,
-      accountId: this._db.accountId,
-      folderId: this._category.id,
-    })
-    .then((messageValues) => {
-      Message.find({where: {hash: messageValues.hash}})
-      .then((existingMessage) => {
-        if (existingMessage) {
-          existingMessage.update(messageValues)
-          .then(() => existingMessage.getThread())
-          .then((thread) => {
-            if (!thread) { return Promise.resolve() }
-            return (
-              thread.updateFolders()
-              .then(() => thread.updateLabels())
-            )
-          })
-          .then(() => {
-            this._logger.info({
-              message_id: existingMessage.id,
-              uid: existingMessage.folderImapUID,
-            }, `FetchMessagesInFolder: Updated message`)
-          })
-        } else {
-          processNewMessage(messageValues, imapMessage)
-          this._logger.info({
-            message: messageValues,
-          }, `FetchMessagesInFolder: Queued new message for processing`)
+    try {
+      const messageValues = await MessageFactory.parseFromImap(imapMessage, desiredParts, {
+        db: this._db,
+        accountId: this._db.accountId,
+        folderId: this._category.id,
+      });
+      const existingMessage = await Message.find({where: {hash: messageValues.hash}});
+
+      if (existingMessage) {
+        await existingMessage.update(messageValues)
+        const thread = await existingMessage.getThread();
+        if (thread) {
+          await thread.updateFolders();
+          await thread.updateLabels();
         }
-      })
-    })
-    .catch((err) => {
+        this._logger.info({
+          message_id: existingMessage.id,
+          uid: existingMessage.folderImapUID,
+        }, `FetchMessagesInFolder: Updated message`)
+      } else {
+        processNewMessage(messageValues, imapMessage)
+        this._logger.info({
+          message: messageValues,
+        }, `FetchMessagesInFolder: Queued new message for processing`)
+      }
+    } catch (err) {
       this._logger.error({
         imapMessage,
         desiredParts,
         underlying: err.toString(),
       }, `FetchMessagesInFolder: Could not build message`)
-    })
+    }
   }
 
-  _openMailboxAndEnsureValidity() {
-    return this._imap.openBox(this._category.name).then((box) => {
-      if (box.persistentUIDs === false) {
-        return Promise.reject(new Error("Mailbox does not support persistentUIDs."))
-      }
+  async _openMailboxAndEnsureValidity() {
+    const box = this._imap.openBox(this._category.name);
 
-      const lastUIDValidity = this._category.syncState.uidvalidity;
+    if (box.persistentUIDs === false) {
+      throw new Error("Mailbox does not support persistentUIDs.");
+    }
 
-      if (lastUIDValidity && (box.uidvalidity !== lastUIDValidity)) {
-        this._logger.info({
-          boxname: box.name,
-          categoryname: this._category.name,
-          remoteuidvalidity: box.uidvalidity,
-          localuidvalidity: lastUIDValidity,
-        }, `FetchMessagesInFolder: Recovering from UIDInvalidity`);
-        return this._recoverFromUIDInvalidity().thenReturn(box)
-      }
-      return Promise.resolve(box);
-    });
+    const lastUIDValidity = this._category.syncState.uidvalidity;
+
+    if (lastUIDValidity && (box.uidvalidity !== lastUIDValidity)) {
+      this._logger.info({
+        boxname: box.name,
+        categoryname: this._category.name,
+        remoteuidvalidity: box.uidvalidity,
+        localuidvalidity: lastUIDValidity,
+      }, `FetchMessagesInFolder: Recovering from UIDInvalidity`);
+      await this._recoverFromUIDInvalidity()
+    }
+
+    return box;
   }
 
-  _fetchUnsyncedMessages() {
+  async _fetchUnsyncedMessages() {
     const savedSyncState = this._category.syncState;
     const isFirstSync = savedSyncState.fetchedmax === undefined;
     const boxUidnext = this._box.uidnext;
@@ -305,25 +301,23 @@ class FetchMessagesInFolder {
       }
     }
 
-    return PromiseUtils.each(desiredRanges, ({min, max}) => {
+    await PromiseUtils.each(desiredRanges, async ({min, max}) => {
       this._logger.info({
         range: `${min}:${max}`,
       }, `FetchMessagesInFolder: Fetching range`);
 
-      return this._fetchMessagesAndQueueForProcessing(`${min}:${max}`).then(() => {
-        const {fetchedmin, fetchedmax} = this._category.syncState;
-        return this.updateFolderSyncState({
-          fetchedmin: fetchedmin ? Math.min(fetchedmin, min) : min,
-          fetchedmax: fetchedmax ? Math.max(fetchedmax, max) : max,
-          uidnext: boxUidnext,
-          uidvalidity: boxUidvalidity,
-          timeFetchedUnseen: Date.now(),
-        });
-      })
-    })
-    .then(() => {
-      this._logger.info(`FetchMessagesInFolder: Fetching messages finished`);
+      await this._fetchMessagesAndQueueForProcessing(`${min}:${max}`);
+      const {fetchedmin, fetchedmax} = this._category.syncState;
+      return this.updateFolderSyncState({
+        fetchedmin: fetchedmin ? Math.min(fetchedmin, min) : min,
+        fetchedmax: fetchedmax ? Math.max(fetchedmax, max) : max,
+        uidnext: boxUidnext,
+        uidvalidity: boxUidvalidity,
+        timeFetchedUnseen: Date.now(),
+      });
     });
+
+    this._logger.info(`FetchMessagesInFolder: Fetching messages finished`);
   }
 
   _runScan() {
@@ -339,7 +333,7 @@ class FetchMessagesInFolder {
     return Date.now() - (timeDeepScan || 0) > this._options.deepFolderScan;
   }
 
-  _runShallowScan() {
+  async _runShallowScan() {
     const {highestmodseq} = this._category.syncState;
     const nextHighestmodseq = this._box.highestmodseq;
 
@@ -358,56 +352,49 @@ class FetchMessagesInFolder {
       shallowFetch = this._box.fetchUIDAttributes(range);
     }
 
-    return shallowFetch
-    .then((remoteUIDAttributes) => (
-      this._db.Message.findAll({
-        where: {folderId: this._category.id},
-        attributes: MessageFlagAttributes,
-      })
-      .then((localMessageAttributes) => (
-        this._updateMessageAttributes(remoteUIDAttributes, localMessageAttributes)
-      ))
-      .then(() => {
-        this._logger.info(`FetchMessagesInFolder: finished fetching changes to messages`);
-        return this.updateFolderSyncState({
-          highestmodseq: nextHighestmodseq,
-          timeShallowScan: Date.now(),
-        })
-      })
-    ))
+    const remoteUIDAttributes = await shallowFetch;
+    const localMessageAttributes = await this._db.Message.findAll({
+      where: {folderId: this._category.id},
+      attributes: MessageFlagAttributes,
+    })
+
+    await this._updateMessageAttributes(remoteUIDAttributes, localMessageAttributes)
+
+    this._logger.info(`FetchMessagesInFolder: finished fetching changes to messages`);
+    return this.updateFolderSyncState({
+      highestmodseq: nextHighestmodseq,
+      timeShallowScan: Date.now(),
+    });
   }
 
-  _runDeepScan() {
+  async _runDeepScan() {
     const {Message} = this._db;
     const {fetchedmin, fetchedmax} = this._category.syncState;
     const range = `${fetchedmin}:${fetchedmax}`;
 
     this._logger.info({range}, `FetchMessagesInFolder: Deep attribute scan: fetching attributes in range`)
 
-    return this._box.fetchUIDAttributes(range)
-    .then((remoteUIDAttributes) => {
-      return Message.findAll({
-        where: {folderId: this._category.id},
-        attributes: MessageFlagAttributes,
-      })
-      .then((localMessageAttributes) => (
-        PromiseUtils.props({
-          updates: this._updateMessageAttributes(remoteUIDAttributes, localMessageAttributes),
-          deletes: this._removeDeletedMessages(remoteUIDAttributes, localMessageAttributes),
-        })
-      ))
-      .then(() => {
-        this._logger.info(`FetchMessagesInFolder: Deep scan finished.`);
-        return this.updateFolderSyncState({
-          highestmodseq: this._box.highestmodseq,
-          timeDeepScan: Date.now(),
-          timeShallowScan: Date.now(),
-        })
-      })
+    const remoteUIDAttributes = await this._box.fetchUIDAttributes(range)
+    const localMessageAttributes = await Message.findAll({
+      where: {folderId: this._category.id},
+      attributes: MessageFlagAttributes,
+    })
+
+    await PromiseUtils.props({
+      updates: this._updateMessageAttributes(remoteUIDAttributes, localMessageAttributes),
+      deletes: this._removeDeletedMessages(remoteUIDAttributes, localMessageAttributes),
+    })
+
+    this._logger.info(`FetchMessagesInFolder: Deep scan finished.`);
+
+    return this.updateFolderSyncState({
+      highestmodseq: this._box.highestmodseq,
+      timeDeepScan: Date.now(),
+      timeShallowScan: Date.now(),
     });
   }
 
-  updateFolderSyncState(newState) {
+  async updateFolderSyncState(newState) {
     if (_.isMatch(this._category.syncState, newState)) {
       return Promise.resolve();
     }
@@ -415,16 +402,13 @@ class FetchMessagesInFolder {
     return this._category.save();
   }
 
-  run(db, imap) {
+  async run(db, imap) {
     this._db = db;
     this._imap = imap;
 
-    return this._openMailboxAndEnsureValidity().then((box) => {
-      this._box = box
-      return this._fetchUnsyncedMessages().then(() =>
-        this._runScan()
-      )
-    })
+    this._box = await this._openMailboxAndEnsureValidity();
+    await this._fetchUnsyncedMessages()
+    await this._runScan()
   }
 }
 
