@@ -42,32 +42,36 @@ export function makeGmailOAuthRequest(sessionKey, callback) {
     pass: '',
     sendImmediately: true,
   };
-  N1CloudAPI.makeRequest({
-    path: `/auth/gmail/token?key=${sessionKey}`,
-    method: 'GET',
-    error: callback,
-    auth: noauth,
-    success: (remoteJSON) => {
-      const request = new NylasAPIRequest({
-        api: NylasAPI,
-        options: {
-          path: `/auth`,
-          method: 'POST',
-          auth: noauth,
-          body: {
-            email: remoteJSON.email_address,
-            name: remoteJSON.name,
-            provider: 'gmail',
-            settings: {
-              xoauth2: remoteJSON.resolved_settings.xoauth2,
+  const authRequest = new NylasAPIRequest({
+    api: N1CloudAPI,
+    options: {
+      path: `/auth/gmail/token?key=${sessionKey}`,
+      method: 'GET',
+      error: callback,
+      auth: noauth,
+      success: (remoteJSON) => {
+        const request = new NylasAPIRequest({
+          api: NylasAPI,
+          options: {
+            path: `/auth`,
+            method: 'POST',
+            auth: noauth,
+            body: {
+              email: remoteJSON.email_address,
+              name: remoteJSON.name,
+              provider: 'gmail',
+              settings: {
+                xoauth2: remoteJSON.resolved_settings.xoauth2,
+              },
             },
+            success: callback,
           },
-          success: callback,
-        },
-      })
-      request.run()
+        })
+        request.run()
+      },
     },
   });
+  authRequest.run()
 }
 
 export function buildGmailSessionKey() {
