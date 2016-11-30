@@ -124,10 +124,10 @@ class IMAPBox {
    * @return {Promise} that resolves to a map of uid -> attributes for every
    * message in the range
    */
-  fetchUIDAttributes(range) {
+  fetchUIDAttributes(range, fetchOptions = {}) {
     return this._conn.createConnectionPromise((resolve, reject) => {
       const attributesByUID = {};
-      const f = this._conn._imap.fetch(range, {});
+      const f = this._conn._imap.fetch(range, fetchOptions);
       f.on('message', (msg) => {
         msg.on('attributes', (attrs) => {
           attributesByUID[attrs.uid] = attrs;
