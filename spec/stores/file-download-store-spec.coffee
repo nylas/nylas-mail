@@ -2,6 +2,7 @@ fs = require 'fs'
 path = require 'path'
 {shell} = require 'electron'
 NylasAPI = require '../../src/flux/nylas-api'
+NylasAPIRequest = require '../../src/flux/nylas-api-request'
 File = require('../../src/flux/models/file').default
 Message = require('../../src/flux/models/message').default
 FileDownloadStore = require('../../src/flux/stores/file-download-store').default
@@ -14,7 +15,7 @@ describe 'FileDownloadStoreSpecs', ->
   describe "Download", ->
     beforeEach ->
       spyOn(fs, 'createWriteStream')
-      spyOn(NylasAPI, 'makeRequest')
+      spyOn(NylasAPIRequest.prototype, 'run')
 
     describe "constructor", ->
       it "should require a non-empty filename", ->
@@ -35,14 +36,14 @@ describe 'FileDownloadStoreSpecs', ->
         account = AccountStore.accounts()[0]
         @download = new Download(fileId: '123', targetPath: 'test.png', filename: 'test.png', accountId: account.id)
         @download.run()
-        expect(NylasAPI.makeRequest).toHaveBeenCalled()
+        expect(NylasAPIRequest.prototype.run).toHaveBeenCalled()
 
       it "should create a request with a null encoding to prevent the request library from attempting to parse the (potentially very large) response", ->
-        expect(NylasAPI.makeRequest.mostRecentCall.args[0].json).toBe(false)
-        expect(NylasAPI.makeRequest.mostRecentCall.args[0].encoding).toBe(null)
+        expect(NylasAPIRequest.prototype.run.mostRecentCall.args[0].json).toBe(false)
+        expect(NylasAPIRequest.prototype.run.mostRecentCall.args[0].encoding).toBe(null)
 
       it "should create a request for /files/123/download", ->
-        expect(NylasAPI.makeRequest.mostRecentCall.args[0].path).toBe("/files/123/download")
+        expect(NylasAPIRequest.prototype.run.mostRecentCall.args[0].path).toBe("/files/123/download")
 
   describe "FileDownloadStore", ->
     beforeEach ->

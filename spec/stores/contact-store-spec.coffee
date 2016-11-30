@@ -3,6 +3,7 @@ Rx = require 'rx-lite'
 {NylasTestUtils} = require 'nylas-exports'
 Contact = require('../../src/flux/models/contact').default
 NylasAPI = require '../../src/flux/nylas-api'
+NylasAPIRequest = require '../../src/flux/nylas-api-request'
 ContactStore = require '../../src/flux/stores/contact-store'
 ContactRankingStore = require '../../src/flux/stores/contact-ranking-store'
 DatabaseStore = require('../../src/flux/stores/database-store').default
@@ -20,7 +21,7 @@ describe "ContactStore", ->
       ["evanC@nylas.com", 0.1]
     ]
 
-    spyOn(NylasAPI, "makeRequest").andCallFake (options) =>
+    spyOn(NylasAPIRequest.prototype, "run").andCallFake (options) =>
       if options.path is "/contacts/rankings"
         return Promise.resolve(@rankings)
       else
