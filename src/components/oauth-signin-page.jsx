@@ -60,7 +60,11 @@ export default class OAuthSignInPage extends React.Component {
         clearTimeout(this._pollTimer);
         if (json && json.body) {
           ipcRenderer.removeListener('browser-window-focus', onWindowFocused);
-          this.props.onSuccess(json.body);
+          let body = json
+          if (json.body) {
+            body = json.body
+          }
+          this.props.onSuccess(body);
         } else {
           delay = Math.min(delay * 1.2, 10000);
           this._pollTimer = setTimeout(poll, delay);

@@ -1,6 +1,7 @@
 import {
   Task,
   NylasAPI,
+  NylasAPIRequest,
   APIError,
   Model,
   DatabaseStore,
@@ -20,7 +21,7 @@ describe('SyncbackModelTask', function syncbackModelTask() {
     spyOn(DatabaseStore, "findBy").andReturn(Promise.resolve(this.testModel));
 
     spyOn(NylasEnv, "reportError")
-    spyOn(NylasAPI, "makeRequest").andReturn(Promise.resolve({
+    spyOn(NylasAPIRequest.prototype, "run").andReturn(Promise.resolve({
       version: 10,
       id: "server-123",
     }))
@@ -93,7 +94,7 @@ describe('SyncbackModelTask', function syncbackModelTask() {
 
       performRemote(() => {
         expect(this.task.getRequestData).toHaveBeenCalled()
-        const opts = NylasAPI.makeRequest.calls[0].args[0]
+        const opts = NylasAPIRequest.prototype.run.calls[0].args[0]
         expect(opts.path).toBe("/test/server-123")
         expect(opts.method).toBe("PUT")
       });
@@ -104,7 +105,7 @@ describe('SyncbackModelTask', function syncbackModelTask() {
 
       performRemote(() => {
         expect(this.task.getRequestData).toHaveBeenCalled()
-        const opts = NylasAPI.makeRequest.calls[0].args[0]
+        const opts = NylasAPIRequest.prototype.run.calls[0].args[0]
         expect(opts.path).toBe("/test")
         expect(opts.method).toBe("POST")
       });
@@ -128,7 +129,7 @@ describe('SyncbackModelTask', function syncbackModelTask() {
       window.waitsForPromise(() => {
         return task.performRemote().then(() => {
           expect(task.getRequestData).toHaveBeenCalled()
-          const opts = NylasAPI.makeRequest.calls[0].args[0]
+          const opts = NylasAPIRequest.prototype.run.calls[0].args[0]
           expect(opts.path).toBe("/override")
           expect(opts.method).toBe("DELETE")
         })
@@ -143,7 +144,7 @@ describe('SyncbackModelTask', function syncbackModelTask() {
 
       performRemote(() => {
         expect(this.task.makeRequest).toHaveBeenCalled()
-        const opts = NylasAPI.makeRequest.calls[0].args[0]
+        const opts = NylasAPIRequest.prototype.run.calls[0].args[0]
         expect(opts.path).toBe("/test")
         expect(opts.method).toBe("POST")
         expect(opts.accountId).toBe("account-123")
@@ -167,18 +168,18 @@ describe('SyncbackModelTask', function syncbackModelTask() {
     });
 
     it("retries on retry-able API errors", () => {
-      jasmine.unspy(NylasAPI, "makeRequest");
+      jasmine.unspy(NylasAPIRequest.prototype, "run");
       const err = new APIError({statusCode: 420});
-      spyOn(NylasAPI, "makeRequest").andReturn(Promise.reject(err))
+      spyOn(NylasAPIRequest.prototype, "run").andReturn(Promise.reject(err))
       performRemote((status) => {
         expect(status).toBe(Task.Status.Retry)
       });
     });
 
     it("failes on permanent errors", () => {
-      jasmine.unspy(NylasAPI, "makeRequest");
+      jasmine.unspy(NylasAPIRequest.prototype, "run");
       const err = new APIError({statusCode: 500});
-      spyOn(NylasAPI, "makeRequest").andReturn(Promise.reject(err))
+      spyOn(NylasAPIRequest.prototype, "run").andReturn(Promise.reject(err))
       performRemote((status) => {
         expect(status[0]).toBe(Task.Status.Failed)
         expect(status[1].statusCode).toBe(500)

@@ -2,6 +2,7 @@ _ = require 'underscore'
 fs = require 'fs'
 Actions = require('../src/flux/actions').default
 NylasAPI = require '../src/flux/nylas-api'
+NylasAPIRequest = require '../src/flux/nylas-api-request'
 Thread = require('../src/flux/models/thread').default
 Message = require('../src/flux/models/message').default
 AccountStore = require '../src/flux/stores/account-store'
@@ -18,7 +19,7 @@ describe "NylasAPI", ->
       @resolved = false
       spyOn(NylasEnv.config, 'set')
       spyOn(NylasEnv.config, 'get').andReturn(null)
-      spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
+      spyOn(NylasAPIRequest.prototype, 'run').andCallFake (options) =>
         return @authGetResponse if options.method is 'GET' and @authGetResponse
         return @authPostResponse if options.method is 'POST' and @authPostResponse
         return new Promise (resolve, reject) -> #never respond
@@ -47,14 +48,14 @@ describe "NylasAPI", ->
         @resolved = true
       waitsFor =>
         @resolved
-      expect(NylasAPI.makeRequest).not.toHaveBeenCalled()
+      expect(NylasAPIRequest.prototype.run).not.toHaveBeenCalled()
 
     describe "check for existing auth", ->
       it "should GET /auth/plugin to check if the plugin has been authed", ->
         @authGetResponse = Promise.resolve({authed: true})
         NylasAPI.authPlugin('PID', 'PSECRET', TEST_ACCOUNT_ID)
         advanceClock()
-        expect(NylasAPI.makeRequest).toHaveBeenCalledWith({
+        expect(NylasAPIRequest.run).toHaveBeenCalledWith({
           returnsModel: false,
           method: 'GET',
           accountId: 'test-account-server-id',
@@ -68,7 +69,7 @@ describe "NylasAPI", ->
         waitsFor =>
           @resolved
         runs =>
-          expect(NylasAPI.makeRequest).toHaveBeenCalled()
+          expect(NylasAPIRequest.prototype.run).toHaveBeenCalled()
           expect(NylasEnv.config.set.mostRecentCall.args[0]).toEqual("plugins.PID.lastAuth.#{TEST_ACCOUNT_ID}")
 
       it "should propagate any network errors back to the caller", ->
@@ -87,13 +88,13 @@ describe "NylasAPI", ->
         waitsFor =>
           @resolved
         runs =>
-          expect(NylasAPI.makeRequest.calls[0].args[0]).toEqual({
+          expect(NylasAPIRequest.prototype.run.calls[0].args[0]).toEqual({
             returnsModel: false,
             method: 'GET',
             accountId: 'test-account-server-id',
             path: '/auth/plugin?client_id=PID'
           })
-          expect(NylasAPI.makeRequest.calls[1].args[0]).toEqual({
+          expect(NylasAPIRequest.prototype.run.calls[1].args[0]).toEqual({
             returnsModel: false,
             method: 'POST',
             accountId: 'test-account-server-id',
@@ -119,7 +120,7 @@ describe "NylasAPI", ->
       spyOn(DatabaseTransaction.prototype, 'unpersistModel')
       spyOn(DatabaseStore, 'find').andCallFake (klass, id) =>
         return Promise.resolve(model)
-      NylasAPI._handleModel404("/threads/#{model.id}")
+      NylasAPI.handleModel404("/threads/#{model.id}")
       advanceClock()
       expect(DatabaseStore.find).toHaveBeenCalledWith(Thread, model.id)
       expect(DatabaseTransaction.prototype.unpersistModel).toHaveBeenCalledWith(model)
@@ -128,7 +129,7 @@ describe "NylasAPI", ->
       spyOn(DatabaseTransaction.prototype, 'unpersistModel')
       spyOn(DatabaseStore, 'find').andCallFake (klass, id) =>
         return Promise.resolve(null)
-      NylasAPI._handleModel404("/threads/1234")
+      NylasAPI.handleModel404("/threads/1234")
       advanceClock()
       expect(DatabaseStore.find).toHaveBeenCalledWith(Thread, '1234')
       expect(DatabaseTransaction.prototype.unpersistModel).not.toHaveBeenCalledWith()
@@ -137,7 +138,7 @@ describe "NylasAPI", ->
       spyOn(DatabaseStore, 'find')
       spyOn(DatabaseTransaction.prototype, 'unpersistModel')
       waitsForPromise ->
-        NylasAPI._handleModel404("/asdasdasd/1234")
+        NylasAPI.handleModel404("/asdasdasd/1234")
       runs ->
         expect(DatabaseStore.find).not.toHaveBeenCalled()
         expect(DatabaseTransaction.prototype.unpersistModel).not.toHaveBeenCalled()
@@ -146,7 +147,7 @@ describe "NylasAPI", ->
       spyOn(DatabaseStore, 'find')
       spyOn(DatabaseTransaction.prototype, 'unpersistModel')
       waitsForPromise ->
-        NylasAPI._handleModel404("/account")
+        NylasAPI.handleModel404("/account")
       runs ->
         expect(DatabaseStore.find).not.toHaveBeenCalled()
         expect(DatabaseTransaction.prototype.unpersistModel).not.toHaveBeenCalled()
@@ -155,13 +156,13 @@ describe "NylasAPI", ->
     it "should put the account in an `invalid` state", ->
       spyOn(Actions, 'updateAccount')
       spyOn(AccountStore, 'tokenForAccountId').andReturn('token')
-      NylasAPI._handleAuthenticationFailure('/threads/1234', 'token')
+      NylasAPI.handleAuthenticationFailure('/threads/1234', 'token')
       expect(Actions.updateAccount).toHaveBeenCalled()
       expect(Actions.updateAccount.mostRecentCall.args).toEqual([AccountStore.accounts()[0].id, {syncState: 'invalid'}])
 
     it "should not throw an exception if the account cannot be found", ->
       spyOn(Actions, 'updateAccount')
-      NylasAPI._handleAuthenticationFailure('/threads/1234', 'token')
+      NylasAPI.handleAuthenticationFailure('/threads/1234', 'token')
       expect(Actions.updateAccount).not.toHaveBeenCalled()
 
   describe "handleModelResponse", ->
@@ -338,11 +339,11 @@ describe "NylasAPI", ->
   describe "makeDraftDeletionRequest", ->
     it "should make an API request to delete the draft", ->
       draft = new Message(accountId: TEST_ACCOUNT_ID, draft: true, clientId: 'asd', serverId: 'asd')
-      spyOn(NylasAPI, 'makeRequest')
+      spyOn(NylasAPIRequest.prototype, 'run')
       NylasAPI.makeDraftDeletionRequest(draft)
-      expect(NylasAPI.makeRequest).toHaveBeenCalled()
-      expect(NylasAPI.makeRequest.callCount).toBe 1
-      req = NylasAPI.makeRequest.calls[0].args[0]
+      expect(NylasAPIRequest.prototype.run).toHaveBeenCalled()
+      expect(NylasAPIRequest.prototype.run.callCount).toBe 1
+      req = NylasAPIRequest.prototype.run.calls[0].args[0]
       expect(req.path).toBe "/drafts/#{draft.serverId}"
       expect(req.accountId).toBe TEST_ACCOUNT_ID
       expect(req.method).toBe "DELETE"
@@ -361,6 +362,6 @@ describe "NylasAPI", ->
 
     it "should not do anything if the draft is missing a serverId", ->
       draft = new Message(accountId: TEST_ACCOUNT_ID, draft: true, clientId: 'asd', serverId: null)
-      spyOn(NylasAPI, 'makeRequest')
+      spyOn(NylasAPIRequest.prototype, 'run')
       NylasAPI.makeDraftDeletionRequest(draft)
-      expect(NylasAPI.makeRequest).not.toHaveBeenCalled()
+      expect(NylasAPIRequest.prototype.run).not.toHaveBeenCalled()

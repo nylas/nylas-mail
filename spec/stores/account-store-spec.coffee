@@ -1,6 +1,7 @@
 _ = require 'underscore'
 keytar = require 'keytar'
 NylasAPI = require '../../src/flux/nylas-api'
+NylasAPIRequest = require '../../src/flux/nylas-api-request'
 AccountStore = require '../../src/flux/stores/account-store'
 Account = require('../../src/flux/models/account').default
 Actions = require('../../src/flux/actions').default
@@ -167,7 +168,7 @@ describe "AccountStore", ->
   describe "refreshHealthOfAccounts", ->
     beforeEach ->
       @spyOnConfig()
-      spyOn(NylasAPI, 'makeRequest').andCallFake (options) =>
+      spyOn(NylasAPIRequest.prototype, 'run').andCallFake (options) =>
         if options.accountId is 'return-api-error'
           Promise.reject(new Error("API ERROR"))
         else
@@ -181,9 +182,9 @@ describe "AccountStore", ->
 
     it "should GET /account for each of the provided account IDs", ->
       @instance.refreshHealthOfAccounts(['A', 'B'])
-      expect(NylasAPI.makeRequest.callCount).toBe(2)
-      expect(NylasAPI.makeRequest.calls[0].args).toEqual([{path: '/account', accountId: 'A'}])
-      expect(NylasAPI.makeRequest.calls[1].args).toEqual([{path: '/account', accountId: 'B'}])
+      expect(NylasAPIRequest.prototype.run.callCount).toBe(2)
+      expect(NylasAPIRequest.prototype.run.calls[0].args).toEqual([{path: '/account', accountId: 'A'}])
+      expect(NylasAPIRequest.prototype.run.calls[1].args).toEqual([{path: '/account', accountId: 'B'}])
 
     it "should update existing account objects and call save exactly once", ->
       @instance.accountForId('A').syncState = 'invalid'

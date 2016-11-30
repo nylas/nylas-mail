@@ -13,6 +13,7 @@ import {
   Task,
   APIError,
   NylasAPI,
+  NylasAPIRequest,
 } from 'nylas-exports';
 
 const inboxError = {
@@ -128,21 +129,21 @@ describe('SyncbackDraftTask', function syncbackDraftTask() {
 
   describe("performRemote", () => {
     beforeEach(() => {
-      spyOn(NylasAPI, 'makeRequest').andReturn(Promise.resolve(remoteDraft().toJSON()))
+      spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.resolve(remoteDraft().toJSON()))
     });
 
     it("does nothing if no draft can be found in the db", () => {
       const task = new SyncbackDraftTask("missingDraftId");
       waitsForPromise(() => task.performRemote().then(() => {
-        expect(NylasAPI.makeRequest).not.toHaveBeenCalled();
+        expect(NylasAPIRequest.prototype.run).not.toHaveBeenCalled();
       }));
     });
 
     it("should start an API request with the Message JSON", () => {
       const task = new SyncbackDraftTask("localDraftId")
       waitsForPromise(() => task.performRemote().then(() => {
-        expect(NylasAPI.makeRequest).toHaveBeenCalled();
-        const reqBody = NylasAPI.makeRequest.mostRecentCall.args[0].body;
+        expect(NylasAPIRequest.prototype.run).toHaveBeenCalled();
+        const reqBody = NylasAPIRequest.prototype.run.mostRecentCall.args[0].body;
         expect(reqBody.subject).toEqual(testData.subject);
         expect(reqBody.body).toEqual(testData.body);
       }));
@@ -151,8 +152,8 @@ describe('SyncbackDraftTask', function syncbackDraftTask() {
     it("should do a PUT when the draft has already been saved", () => {
       const task = new SyncbackDraftTask("remoteDraftId")
       waitsForPromise(() => task.performRemote().then(() => {
-        expect(NylasAPI.makeRequest).toHaveBeenCalled();
-        const options = NylasAPI.makeRequest.mostRecentCall.args[0];
+        expect(NylasAPIRequest.prototype.run).toHaveBeenCalled();
+        const options = NylasAPIRequest.prototype.run.mostRecentCall.args[0];
         expect(options.path).toBe("/drafts/remoteid1234");
         expect(options.accountId).toBe("abc123");
         expect(options.method).toBe('PUT');
@@ -162,8 +163,8 @@ describe('SyncbackDraftTask', function syncbackDraftTask() {
     it("should do a POST when the draft is unsaved", () => {
       const task = new SyncbackDraftTask("localDraftId");
       waitsForPromise(() => task.performRemote().then(() => {
-        expect(NylasAPI.makeRequest).toHaveBeenCalled();
-        const options = NylasAPI.makeRequest.mostRecentCall.args[0];
+        expect(NylasAPIRequest.prototype.run).toHaveBeenCalled();
+        const options = NylasAPIRequest.prototype.run.mostRecentCall.args[0];
         expect(options.path).toBe("/drafts");
         expect(options.accountId).toBe("abc123");
         expect(options.method).toBe('POST');
@@ -185,8 +186,8 @@ describe('SyncbackDraftTask', function syncbackDraftTask() {
     it("should pass returnsModel:false so that the draft can be manually removed/added to the database, accounting for its ID change", () => {
       const task = new SyncbackDraftTask("localDraftId");
       waitsForPromise(() => task.performRemote().then(() => {
-        expect(NylasAPI.makeRequest).toHaveBeenCalled();
-        const options = NylasAPI.makeRequest.mostRecentCall.args[0];
+        expect(NylasAPIRequest.prototype.run).toHaveBeenCalled();
+        const options = NylasAPIRequest.prototype.run.mostRecentCall.args[0];
         expect(options.returnsModel).toBe(false);
       }));
     });
@@ -226,7 +227,7 @@ describe('SyncbackDraftTask', function syncbackDraftTask() {
 
   describe("When the api throws errors", () => {
     const stubAPI = (code, method) => {
-      spyOn(NylasAPI, "makeRequest").andReturn(Promise.reject(
+      spyOn(NylasAPIRequest.prototype, "run").andReturn(Promise.reject(
         new APIError({
           error: inboxError,
           response: {statusCode: code},
@@ -266,7 +267,7 @@ describe('SyncbackDraftTask', function syncbackDraftTask() {
     });
 
     it("fails on other JavaScript errors", () => {
-      spyOn(NylasAPI, "makeRequest").andReturn(Promise.reject(new TypeError()));
+      spyOn(NylasAPIRequest.prototype, "run").andReturn(Promise.reject(new TypeError()));
       waitsForPromise(() => this.task.performRemote().then(([status]) => {
         expect(status).toBe(Task.Status.Failed);
         expect(this.task.refreshDraftReference).toHaveBeenCalled();

@@ -1,7 +1,7 @@
 import {
   Task,
   Model,
-  NylasAPI,
+  NylasAPIRequest,
   DatabaseStore,
   DestroyModelTask,
   DatabaseTransaction} from 'nylas-exports'
@@ -104,9 +104,9 @@ describe('DestroyModelTask', function destroyModelTask() {
     });
 
     it("makes a DELETE request to the Nylas API", () => {
-      spyOn(NylasAPI, "makeRequest").andReturn(Promise.resolve())
+      spyOn(NylasAPIRequest.prototype, "run").andReturn(Promise.resolve())
       performRemote(() => {
-        const opts = NylasAPI.makeRequest.calls[0].args[0]
+        const opts = NylasAPIRequest.prototype.run.calls[0].args[0]
         expect(opts.method).toBe("DELETE")
         expect(opts.path).toBe("/endpoint/server-123")
         expect(opts.accountId).toBe(this.defaultArgs.accountId)

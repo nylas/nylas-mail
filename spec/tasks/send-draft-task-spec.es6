@@ -9,6 +9,7 @@ import {
   Task,
   SendDraftTask,
   NylasAPI,
+  NylasAPIRequest,
   SoundRegistry,
   SyncbackMetadataTask,
 } from 'nylas-exports';
@@ -82,7 +83,7 @@ describe('SendDraftTask', function sendDraftTask() {
         })],
       };
 
-      spyOn(NylasAPI, 'makeRequest').andCallFake((options) => {
+      spyOn(NylasAPIRequest.prototype, 'run').andCallFake((options) => {
         if (options.success) { options.success(this.response); }
         return Promise.resolve(this.response);
       })
@@ -109,9 +110,9 @@ describe('SendDraftTask', function sendDraftTask() {
 
       it("makes a send request with the correct data", () => {
         waitsForPromise(() => this.task.performRemote().then(() => {
-          expect(NylasAPI.makeRequest).toHaveBeenCalled();
-          expect(NylasAPI.makeRequest.callCount).toBe(1);
-          const options = NylasAPI.makeRequest.mostRecentCall.args[0];
+          expect(NylasAPIRequest.prototype.run).toHaveBeenCalled();
+          expect(NylasAPIRequest.prototype.run.callCount).toBe(1);
+          const options = NylasAPIRequest.prototype.run.mostRecentCall.args[0];
           expect(options.path).toBe("/send");
           expect(options.method).toBe('POST');
           expect(options.accountId).toBe(TEST_ACCOUNT_ID);
@@ -121,16 +122,16 @@ describe('SendDraftTask', function sendDraftTask() {
 
       it("should pass returnsModel:false", () => {
         waitsForPromise(() => this.task.performRemote().then(() => {
-          expect(NylasAPI.makeRequest.calls.length).toBe(1);
-          const options = NylasAPI.makeRequest.mostRecentCall.args[0];
+          expect(NylasAPIRequest.prototype.run.calls.length).toBe(1);
+          const options = NylasAPIRequest.prototype.run.mostRecentCall.args[0];
           expect(options.returnsModel).toBe(false);
         }));
       });
 
       it("should always send the draft body in the request body (joined attribute check)", () => {
         waitsForPromise(() => this.task.performRemote().then(() => {
-          expect(NylasAPI.makeRequest.calls.length).toBe(1);
-          const options = NylasAPI.makeRequest.mostRecentCall.args[0];
+          expect(NylasAPIRequest.prototype.run.calls.length).toBe(1);
+          const options = NylasAPIRequest.prototype.run.mostRecentCall.args[0];
           expect(options.body.body).toBe('hello world');
         }));
       });
@@ -224,7 +225,7 @@ describe('SendDraftTask', function sendDraftTask() {
       describe("when there are errors", () => {
         beforeEach(() => {
           spyOn(Actions, 'sendDraftFailed');
-          jasmine.unspy(NylasAPI, "makeRequest");
+          jasmine.unspy(NylasAPIRequest.prototype, "run");
         });
 
         it("notifies of a permanent error of misc error types", () => {
@@ -245,7 +246,7 @@ describe('SendDraftTask', function sendDraftTask() {
         });
 
         it("retries the task if 'Invalid message public id'", () => {
-          spyOn(NylasAPI, 'makeRequest').andCallFake((options) => {
+          spyOn(NylasAPIRequest.prototype, 'run').andCallFake((options) => {
             if (options.body.reply_to_message_id) {
               const err = new APIError({body: "Invalid message public id"});
               return Promise.reject(err);
@@ -259,10 +260,10 @@ describe('SendDraftTask', function sendDraftTask() {
           waitsForPromise(() => {
             return this.task.performRemote(this.draft)
             .then(() => {
-              expect(NylasAPI.makeRequest).toHaveBeenCalled();
-              expect(NylasAPI.makeRequest.callCount).toEqual(2);
-              const req1 = NylasAPI.makeRequest.calls[0].args[0];
-              const req2 = NylasAPI.makeRequest.calls[1].args[0];
+              expect(NylasAPIRequest.prototype.run).toHaveBeenCalled();
+              expect(NylasAPIRequest.prototype.run.callCount).toEqual(2);
+              const req1 = NylasAPIRequest.prototype.run.calls[0].args[0];
+              const req2 = NylasAPIRequest.prototype.run.calls[1].args[0];
               expect(req1.body.reply_to_message_id).toBe("reply-123");
               expect(req1.body.thread_id).toBe("thread-123");
 
@@ -273,7 +274,7 @@ describe('SendDraftTask', function sendDraftTask() {
         });
 
         it("retries the task if 'Invalid message public id'", () => {
-          spyOn(NylasAPI, 'makeRequest').andCallFake((options) => {
+          spyOn(NylasAPIRequest.prototype, 'run').andCallFake((options) => {
             if (options.body.reply_to_message_id) {
               return Promise.reject(new APIError({body: "Invalid thread"}));
             }
@@ -284,10 +285,10 @@ describe('SendDraftTask', function sendDraftTask() {
           this.draft.replyToMessageId = "reply-123";
           this.draft.threadId = "thread-123";
           waitsForPromise(() => this.task.performRemote(this.draft).then(() => {
-            expect(NylasAPI.makeRequest).toHaveBeenCalled();
-            expect(NylasAPI.makeRequest.callCount).toEqual(2);
-            const req1 = NylasAPI.makeRequest.calls[0].args[0];
-            const req2 = NylasAPI.makeRequest.calls[1].args[0];
+            expect(NylasAPIRequest.prototype.run).toHaveBeenCalled();
+            expect(NylasAPIRequest.prototype.run.callCount).toEqual(2);
+            const req1 = NylasAPIRequest.prototype.run.calls[0].args[0];
+            const req2 = NylasAPIRequest.prototype.run.calls[1].args[0];
             expect(req1.body.reply_to_message_id).toBe("reply-123");
             expect(req1.body.thread_id).toBe("thread-123");
 
@@ -299,7 +300,7 @@ describe('SendDraftTask', function sendDraftTask() {
         it("notifies of a permanent error on 500 errors", () => {
           const thrownError = new APIError({statusCode: 500, body: "err"})
           spyOn(NylasEnv, "reportError");
-          spyOn(NylasAPI, 'makeRequest').andReturn(Promise.reject(thrownError));
+          spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
 
           waitsForPromise(() => this.task.performRemote().then((status) => {
             expect(status[0]).toBe(Task.Status.Failed);
@@ -311,7 +312,7 @@ describe('SendDraftTask', function sendDraftTask() {
         it("notifies us and users of a permanent error on 400 errors", () => {
           const thrownError = new APIError({statusCode: 400, body: "err"});
           spyOn(NylasEnv, "reportError");
-          spyOn(NylasAPI, 'makeRequest').andReturn(Promise.reject(thrownError));
+          spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
 
           waitsForPromise(() => this.task.performRemote().then((status) => {
             expect(status[0]).toBe(Task.Status.Failed);
@@ -340,7 +341,7 @@ describe('SendDraftTask', function sendDraftTask() {
           `
 
           spyOn(NylasEnv, "reportError");
-          spyOn(NylasAPI, 'makeRequest').andReturn(Promise.reject(thrownError));
+          spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
 
           waitsForPromise(() => this.task.performRemote().then((status) => {
             expect(status[0]).toBe(Task.Status.Failed);
@@ -365,7 +366,7 @@ describe('SendDraftTask', function sendDraftTask() {
           const expectedMessage = "This message could not be delivered to at least one recipient. (Note: other recipients may have received this message - you should check Sent Mail before re-sending this message.)"
 
           spyOn(NylasEnv, "reportError");
-          spyOn(NylasAPI, 'makeRequest').andReturn(Promise.reject(thrownError));
+          spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
           waitsForPromise(() => this.task.performRemote().then((status) => {
             expect(status[0]).toBe(Task.Status.Failed);
             expect(status[1]).toBe(thrownError);
@@ -392,7 +393,7 @@ describe('SendDraftTask', function sendDraftTask() {
 
           it("halts on 500s", () => {
             const thrownError = new APIError({statusCode: 500, body: "err"});
-            spyOn(NylasAPI, 'makeRequest').andReturn(Promise.reject(thrownError));
+            spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
             waitsForPromise(() => this.task.performRemote().then(() =>
               this.expectBlockedChain()
             ))
@@ -400,7 +401,7 @@ describe('SendDraftTask', function sendDraftTask() {
 
           it("halts on 400s", () => {
             const thrownError = new APIError({statusCode: 400, body: "err"});
-            spyOn(NylasAPI, 'makeRequest').andReturn(Promise.reject(thrownError));
+            spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
             waitsForPromise(() => this.task.performRemote().then(() =>
               this.expectBlockedChain()
             ))
@@ -408,7 +409,7 @@ describe('SendDraftTask', function sendDraftTask() {
 
           it("halts and retries on not permanent error codes", () => {
             const thrownError = new APIError({statusCode: 409, body: "err"});
-            spyOn(NylasAPI, 'makeRequest').andReturn(Promise.reject(thrownError));
+            spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
             waitsForPromise(() => this.task.performRemote().then(() =>
               this.expectBlockedChain()
             ))
@@ -416,7 +417,7 @@ describe('SendDraftTask', function sendDraftTask() {
 
           it("halts on other errors", () => {
             const thrownError = new Error("oh no");
-            spyOn(NylasAPI, 'makeRequest').andReturn(Promise.reject(thrownError));
+            spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
             waitsForPromise(() => this.task.performRemote().then(() =>
               this.expectBlockedChain()
             ))
@@ -426,7 +427,7 @@ describe('SendDraftTask', function sendDraftTask() {
             // Don't spy reportError to make sure to fail the test on unexpected
             // errors
             jasmine.unspy(NylasEnv, 'reportError');
-            spyOn(NylasAPI, 'makeRequest').andCallFake((options) => {
+            spyOn(NylasAPIRequest.prototype, 'run').andCallFake((options) => {
               if (options.success) { options.success(this.response) }
               return Promise.resolve(this.response);
             });

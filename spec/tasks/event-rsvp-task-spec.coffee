@@ -1,6 +1,7 @@
 _ = require 'underscore'
 
 {NylasAPI,
+ NylasAPIRequest,
  Event,
  Actions,
  APIError,
@@ -49,9 +50,9 @@ describe "EventRSVPTask", ->
 
   describe "performRemote", ->
     it "should make the POST request to the message endpoint", ->
-      spyOn(NylasAPI, 'makeRequest').andCallFake => new Promise (resolve,reject) ->
+      spyOn(NylasAPIRequest.prototype, 'run').andCallFake => new Promise (resolve,reject) ->
       @task.performRemote()
-      options = NylasAPI.makeRequest.mostRecentCall.args[0]
+      options = NylasAPIRequest.prototype.run.mostRecentCall.args[0]
       expect(options.path).toBe("/send-rsvp")
       expect(options.method).toBe('POST')
       expect(options.accountId).toBe(@event.accountId)
@@ -60,7 +61,7 @@ describe "EventRSVPTask", ->
 
   describe "when the remote API request fails", ->
     beforeEach ->
-      spyOn(NylasAPI, 'makeRequest').andCallFake -> Promise.reject(new APIError(body: '', statusCode: 400))
+      spyOn(NylasAPIRequest.prototype, 'run').andCallFake -> Promise.reject(new APIError(body: '', statusCode: 400))
 
     it "should not be marked with the status", ->
       @event = new Event
