@@ -216,7 +216,7 @@ class SyncWorker {
 
     const target = this._lastSyncTime + (moreToSync ? 1 : intervals.active);
 
-    this._logger.info(`SyncWorker: Scheduling next sync iteration for ${target - Date.now()}ms}`)
+    this._logger.info(`SyncWorker: Scheduling next sync iteration for ${target - Date.now()}ms`)
 
     this._syncTimer = setTimeout(() => {
       this.syncNow({reason: 'Scheduled'});

@@ -18,7 +18,7 @@ class FetchMessagesInFolder {
     this._db = null
     this._category = category;
     this._options = options;
-    this._logger = logger;
+    this._logger = logger.child({category_name: this._category.name});
     if (!this._logger) {
       throw new Error("FetchMessagesInFolder requires a logger")
     }
@@ -124,13 +124,13 @@ class FetchMessagesInFolder {
     .filter(msg => !remoteUIDAttributes[msg.folderImapUID])
     .map(msg => msg.folderImapUID)
 
-    this._logger.info({
-      removed_messages: removedUIDs.length,
-    }, `FetchMessagesInFolder: found messages no longer in the folder`)
-
     if (removedUIDs.length === 0) {
       return;
     }
+
+    this._logger.info({
+      removed_messages: removedUIDs.length,
+    }, `FetchMessagesInFolder: found messages no longer in the folder`)
 
     await this._db.sequelize.transaction((transaction) =>
        Message.update({
@@ -248,7 +248,7 @@ class FetchMessagesInFolder {
   }
 
   async _openMailboxAndEnsureValidity() {
-    const box = this._imap.openBox(this._category.name);
+    const box = await this._imap.openBox(this._category.name);
 
     if (box.persistentUIDs === false) {
       throw new Error("Mailbox does not support persistentUIDs.");
