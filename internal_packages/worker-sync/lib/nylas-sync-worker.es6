@@ -1,14 +1,15 @@
 import _ from 'underscore';
 import { NylasAPIRequest, NylasAPI, N1CloudAPI, Actions, DatabaseStore, NylasSyncStatusStore, NylasLongConnection } from 'nylas-exports';
 import DeltaStreamingConnection from './delta-streaming-connection';
+import DeltaProcessor from './delta-processor'
 import ContactRankingsCache from './contact-rankings-cache';
 
 const INITIAL_PAGE_SIZE = 30;
 const MAX_PAGE_SIZE = 100;
 
-// BackoffTimer is a small helper class that wraps setTimeout. It fires the function
-// you provide at a regular interval, but backs off each time you call `backoff`.
-//
+// BackoffTimer is a small helper class that wraps setTimeout. It fires
+// the function you provide at a regular interval, but backs off each time
+// you call `backoff`.
 class BackoffTimer {
   constructor(fn) {
     this.fn = fn;
@@ -29,13 +30,14 @@ class BackoffTimer {
     }
   }
 
-  start = () => {
+  start = ({immediately} = {}) => {
     if (this._timeout) { clearTimeout(this._timeout); }
     this._timeout = setTimeout(() => {
       this._timeout = null;
       return this.fn();
     }
     , this._actualDelay);
+    if (immediately) this.fn()
   }
 
   resetDelay = () => {
@@ -55,7 +57,6 @@ class BackoffTimer {
  *
  * The `state` takes the following schema:
  * this._state = {
- *   "initialized": true,
  *   "deltaCursors": {
  *     n1Cloud: 523,
  *     localSync: 1108,
@@ -76,24 +77,19 @@ class BackoffTimer {
 export default class NylasSyncWorker {
 
   constructor(account) {
-    this._state = { initialized: false, deltaCursors: {}, deltaStatus: {} }
+    this._state = { deltaCursors: {}, deltaStatus: {} }
     this._account = account;
     this._unlisten = Actions.retrySync.listen(this._onRetrySync.bind(this), this);
     this._terminated = false;
     this._resumeTimer = new BackoffTimer(() => this._resume());
     this._deltaStreams = this._setupDeltaStreams(account);
     this._refreshingCaches = [new ContactRankingsCache(account.id)];
-
-    this._loadStateFromDatabase()
-    .then(this._resume)
   }
 
-  _loadStateFromDatabase() {
+  loadStateFromDatabase() {
     return DatabaseStore.findJSONBlob(`NylasSyncWorker:${this._account.id}`).then(json => {
-      this._state.initialized = true;
       if (!json) return;
       this._state = json;
-      this._state.initialized = true;
       if (!this._state.deltaCursors) this._state.deltaCursors = {}
       if (!this._state.deltaStatus) this._state.deltaStatus = {}
       for (const key of NylasSyncStatusStore.ModelsForSync) {
@@ -102,76 +98,20 @@ export default class NylasSyncWorker {
     });
   }
 
-  _setupDeltaStreams = (account) => {
-    const localSync = new DeltaStreamingConnection(NylasAPI,
-        account.id, this._deltaStreamOpts("localSync"));
-
-    const n1Cloud = new DeltaStreamingConnection(N1CloudAPI,
-        account.id, this._deltaStreamOpts("n1Cloud"));
-
-    return {localSync, n1Cloud};
-  }
-
-  _deltaStreamOpts = (streamName) => {
-    return {
-      isReady: () => this._state.initialized,
-      getCursor: () => this._state.deltaCursors[streamName],
-      setCursor: val => {
-        this._state.deltaCursors[streamName] = val;
-        this._writeState();
-      },
-      onStatusChanged: (status, statusCode) => {
-        this._state.deltaStatus[streamName] = status;
-        if (status === NylasLongConnection.Status.Closed) {
-          if (statusCode === 403) {
-            // Make the delay 30 seconds if we get a 403
-            this._backoff(30 * 1000)
-          } else {
-            this._backoff();
-          }
-        } else if (status === NylasLongConnection.Status.Connected) {
-          this._resumeTimer.resetDelay();
-        }
-        this._writeState();
-      },
-    }
-  }
-
   account() {
     return this._account;
   }
 
-  deltaStreams() {
-    return this._deltaStreams;
-  }
-
-  state() {
-    return this._state;
-  }
-
   busy() {
-    if (!this._state.initialized) { return false; }
     return _.any(this._state, ({busy} = {}) => busy)
   }
 
   start() {
-    this._resumeTimer.start();
-    _.map(this._deltaStreams, s => s.start())
-    this._refreshingCaches.map(c => c.start());
-    return this._resume();
-  }
-
-  cleanup() {
-    this._unlisten();
-    this._resumeTimer.cancel();
-    _.map(this._deltaStreams, s => s.end())
-    this._refreshingCaches.map(c => c.end());
-    this._terminated = true;
+    this._resumeTimer.start({immediately: true});
   }
 
   _resume = () => {
-    if (!this._state.initialized) { return Promise.resolve(); }
-
+    this._refreshingCaches.map(c => c.start());
     _.map(this._deltaStreams, s => s.start())
 
     // Stop the timer. If one or more network requests fails during the
@@ -193,6 +133,49 @@ export default class NylasSyncWorker {
 
     return this._fetchMetadata()
     .then(() => Promise.each(needed, this._fetchCollection.bind(this)));
+  }
+
+  cleanup() {
+    this._unlisten();
+    this._resumeTimer.cancel();
+    _.map(this._deltaStreams, s => s.end())
+    this._refreshingCaches.map(c => c.end());
+    this._terminated = true;
+  }
+
+  _setupDeltaStreams = (account) => {
+    const localSync = new DeltaStreamingConnection(NylasAPI,
+        account.id, this._deltaStreamOpts("localSync"));
+
+    const n1Cloud = new DeltaStreamingConnection(N1CloudAPI,
+        account.id, this._deltaStreamOpts("n1Cloud"));
+
+    return {localSync, n1Cloud};
+  }
+
+  _deltaStreamOpts = (streamName) => {
+    return {
+      getCursor: () => this._state.deltaCursors[streamName],
+      setCursor: val => {
+        this._state.deltaCursors[streamName] = val;
+        this._writeState();
+      },
+      onDeltas: DeltaProcessor.process.bind(DeltaProcessor),
+      onStatusChanged: (status, statusCode) => {
+        this._state.deltaStatus[streamName] = status;
+        if (status === NylasLongConnection.Status.Closed) {
+          if (statusCode === 403) {
+            // Make the delay 30 seconds if we get a 403
+            this._backoff(30 * 1000)
+          } else {
+            this._backoff();
+          }
+        } else if (status === NylasLongConnection.Status.Connected) {
+          this._resumeTimer.resetDelay();
+        }
+        this._writeState();
+      },
+    }
   }
 
   _fetchMetadata(offset = 0) {
@@ -224,7 +207,6 @@ export default class NylasSyncWorker {
   }
 
   _shouldFetchCollection({model} = {}) {
-    if (!this._state.initialized) { return false; }
     const state = this._state[model] != null ? this._state[model] : {};
 
     if (state.complete) { return false; }
