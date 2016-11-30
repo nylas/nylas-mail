@@ -1,4 +1,3 @@
-const {PromiseUtils} = require('isomorphic-core')
 // const _ = require('underscore');
 
 
@@ -79,8 +78,6 @@ function detectThread({db, message}) {
     throw new Error("Threading processMessage expects folder value to be present.");
   }
 
-
-  const {Folder, Label} = db;
   let findOrBuildThread = null;
   if (message.headers['x-gm-thrid']) {
     findOrBuildThread = findOrBuildByRemoteThreadId(db, message.headers['x-gm-thrid'])
@@ -88,12 +85,7 @@ function detectThread({db, message}) {
     findOrBuildThread = findOrBuildByMatching(db, message)
   }
 
-  return PromiseUtils.props({
-    thread: findOrBuildThread,
-    sentFolder: Folder.find({where: {role: 'sent'}}),
-    sentLabel: Label.find({where: {role: 'sent'}}),
-  })
-  .then(({thread, sentFolder, sentLabel}) => {
+  return findOrBuildThread.then((thread) => {
     if (!(thread.labels instanceof Array)) {
       throw new Error("Threading processMessage expects thread.labels to be an inflated array.");
     }
@@ -132,12 +124,10 @@ function detectThread({db, message}) {
       thread.firstMessageDate = message.date;
     }
 
-    let isSent = false;
-    if (sentFolder) {
-      isSent = message.folderId === sentFolder.id
-    } else if (sentLabel) {
-      isSent = !!message.labels.find(l => l.id === sentLabel.id)
-    }
+    const isSent = (
+      message.folder.role === 'sent' ||
+      !!message.labels.find(l => l.role === 'sent')
+    )
 
     if (isSent && ((message.date > thread.lastMessageSentDate) || !thread.lastMessageSentDate)) {
       thread.lastMessageSentDate = message.date;
