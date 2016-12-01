@@ -66,6 +66,8 @@ class FetchMessagesInFolder {
     const messagesWithChangedFlags = [];
     const messagesWithChangedLabels = [];
 
+    // Step 1: Identify changed messages and update their attributes in place
+
     const preloadedLabels = await Label.findAll();
     await PromiseUtils.each(Object.keys(remoteUIDAttributes), async (uid) => {
       const msg = messageAttributesMap[uid];
@@ -99,12 +101,9 @@ class FetchMessagesInFolder {
       }, `FetchMessagesInFolder: found new messages. These will not be processed because we assume that they will be assigned uid = uidnext, and will be picked up in the next sync when we discover unseen messages.`);
     }
 
+    // Step 2: If flags were changed, apply the changes to the corresponding
+    // threads. We do this as a separate step so we can batch-load the threads.
     if (messagesWithChangedFlags.length > 0) {
-      this._logger.info({
-        impacted_messages: messagesWithChangedFlags.length,
-      }, `FetchMessagesInFolder: Saving flag changes`);
-
-      // Update counters on the associated threads
       const threadIds = messagesWithChangedFlags.map(m => m.threadId);
       const threads = await Thread.findAll({where: {id: threadIds}});
       const threadsById = {};
@@ -112,34 +111,32 @@ class FetchMessagesInFolder {
         threadsById[thread.id] = thread;
       }
       for (const msg of messagesWithChangedFlags) {
-        // unread = true, previous = false? Add 1 to unreadCount.
         // unread = false, previous = true? Add -1 to unreadCount.
+        // IMPORTANT: Relies on messages changed above not having been saved yet!
         threadsById[msg.threadId].unreadCount += msg.unread / 1 - msg.previous('unread') / 1;
         threadsById[msg.threadId].starredCount += msg.starred / 1 - msg.previous('starred') / 1;
       }
-
-      // Save modified messages
       await sequelize.transaction(async (transaction) => {
-        await Promise.all(messagesWithChangedFlags.map(m =>
-          m.save({ fields: MessageFlagAttributes, transaction })
-        ))
         await Promise.all(threads.map(t =>
           t.save({ fields: ['starredCount', 'unreadCount'], transaction })
-        ))
+        ));
       });
     }
 
-    if (messagesWithChangedLabels.length > 0) {
-      this._logger.info({
-        impacted_messages: messagesWithChangedFlags.length,
-      }, `FetchMessagesInFolder: Saving label changes`);
+    // Step 3: Persist the messages we've updated
+    const messagesChanged = [].concat(messagesWithChangedFlags, messagesWithChangedLabels);
+    await sequelize.transaction(async (transaction) => {
+      await Promise.all(messagesChanged.map(m =>
+        m.save({fields: MessageFlagAttributes, transaction})
+      ))
+    });
 
-      // Propagate label changes to threads. Important that we do this after
-      // processing all the messages, since msgs in the same thread often change
-      // at the same time.
+    // Step 4: If message labels were changed, retreive the impacted threads
+    // and re-compute their labels. This is fairly expensive at the moment.
+    if (messagesWithChangedLabels.length > 0) {
       const threadIds = messagesWithChangedLabels.map(m => m.threadId);
       const threads = await Thread.findAll({where: {id: threadIds}});
-      threads.forEach((thread) => thread.updateLabels());
+      threads.forEach((thread) => thread.updateLabelsAndFolders());
     }
   }
 
@@ -251,8 +248,7 @@ class FetchMessagesInFolder {
         await existingMessage.update(messageValues)
         const thread = await existingMessage.getThread();
         if (thread) {
-          await thread.updateFolders();
-          await thread.updateLabels();
+          await thread.updateLabelsAndFolders();
         }
         this._logger.info({
           message_id: existingMessage.id,
