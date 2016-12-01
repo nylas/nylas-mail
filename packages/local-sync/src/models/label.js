@@ -36,7 +36,14 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
     instanceMethods: {
-      toJSON: function toJSON() {
+      imapLabelIdentifier() {
+        if (this.role) {
+          return `\\${this.role[0].toUpperCase()}${this.role.slice(1)}`
+        }
+        return this.name;
+      },
+
+      toJSON() {
         return {
           id: `${this.id}`,
           account_id: this.accountId,
