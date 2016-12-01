@@ -11,6 +11,7 @@ const {
 const FetchFolderList = require('./imap/fetch-folder-list')
 const FetchMessagesInFolder = require('./imap/fetch-messages-in-folder')
 const SyncbackTaskFactory = require('./syncback-task-factory')
+const SyncMetricsReporter = require('./sync-metrics-reporter');
 
 
 class SyncWorker {
@@ -27,6 +28,36 @@ class SyncWorker {
     this._syncTimer = setTimeout(() => {
       this.syncNow({reason: 'Initial'});
     }, 0);
+
+    // setup metrics collection. We do this in an isolated way by hooking onto
+    // the database, because otherwise things get /crazy/ messy and I don't like
+    // having counters and garbage everywhere.
+    if (!account.firstSyncCompletion) {
+      this._logger.info("This is initial sync. Setting up metrics collection!");
+
+      let seen = 0;
+      db.Thread.addHook('afterCreate', 'metricsCollection', () => {
+        if (seen === 0) {
+          SyncMetricsReporter.reportEvent({
+            type: 'imap',
+            emailAddress: account.emailAddress,
+            msecToFirstThread: (Date.now() - new Date(account.createdAt).getTime()),
+          })
+        }
+        if (seen === 500) {
+          SyncMetricsReporter.reportEvent({
+            type: 'imap',
+            emailAddress: account.emailAddress,
+            msecToFirst500Threads: (Date.now() - new Date(account.createdAt).getTime()),
+          })
+        }
+
+        if (seen > 500) {
+          db.Thread.removeHook('afterCreate', 'metricsCollection')
+        }
+        seen += 1;
+      });
+    }
   }
 
   cleanup() {

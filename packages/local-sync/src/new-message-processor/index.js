@@ -1,7 +1,7 @@
-const detectThread = require('./detect-thread')
-const extractFiles = require('./extract-files')
-const extractContacts = require('./extract-contacts')
-const LocalDatabaseConnector = require('../shared/local-database-connector')
+const detectThread = require('./detect-thread');
+const extractFiles = require('./extract-files');
+const extractContacts = require('./extract-contacts');
+const LocalDatabaseConnector = require('../shared/local-database-connector');
 
 const Queue = require('promise-queue');
 const queue = new Queue(1, Infinity);
