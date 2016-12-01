@@ -1,6 +1,6 @@
 const Joi = require('joi');
 const _ = require('underscore');
-
+const crypto = require('crypto');
 const Serialization = require('../serialization');
 const {
   IMAPConnection,
@@ -36,13 +36,11 @@ const buildAccountWith = ({name, email, provider, settings, credentials}) => {
   return LocalDatabaseConnector.forShared().then((db) => {
     const {AccountToken, Account} = db;
 
-    return Account.find({
-      where: {
-        emailAddress: email,
-        connectionSettings: JSON.stringify(settings),
-      },
-    }).then((existing) => {
+    const idString = `${email}${JSON.stringify(settings)}`
+    const id = crypto.createHash('sha256').update(idString, 'utf8').digest('hex')
+    return Account.findById(id).then((existing) => {
       const account = existing || Account.build({
+        id,
         name: name,
         provider: provider,
         emailAddress: email,
