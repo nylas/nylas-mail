@@ -66,7 +66,6 @@ class SyncProcessManager {
       this._workers[accountId] = null;
     }
   }
-
 }
 
 module.exports = new SyncProcessManager();

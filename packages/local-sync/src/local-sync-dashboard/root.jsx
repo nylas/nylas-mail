@@ -84,7 +84,7 @@ class AccountCard extends React.Component {
 
     let firstSyncDuration = "Incomplete";
     if (account.firstSyncCompletion) {
-      firstSyncDuration = (new Date(account.firstSyncCompletion) - new Date(account.createdAt)) / 1000;
+      firstSyncDuration = (new Date(account.firstSyncCompletion / 1) - new Date(account.createdAt)) / 1000;
     }
 
     const position = calcAcctPosition(this.props.count);
