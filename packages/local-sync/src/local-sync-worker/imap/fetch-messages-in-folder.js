@@ -242,7 +242,7 @@ class FetchMessagesInFolder {
         accountId: this._db.accountId,
         folderId: this._folder.id,
       });
-      const existingMessage = await Message.find({where: {hash: messageValues.hash}});
+      const existingMessage = await Message.find({where: {id: messageValues.id}});
 
       if (existingMessage) {
         await existingMessage.update(messageValues)

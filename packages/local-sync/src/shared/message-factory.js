@@ -38,12 +38,12 @@ function parseFromImap(imapMessage, desiredParts, {db, accountId, folderId}) {
   }
 
   const values = {
+    id: Message.hashForHeaders(headers),
     to: extractContacts(parsedHeaders.to),
     cc: extractContacts(parsedHeaders.cc),
     bcc: extractContacts(parsedHeaders.bcc),
     from: extractContacts(parsedHeaders.from),
     replyTo: extractContacts(parsedHeaders['reply-to']),
-    hash: Message.hashForHeaders(headers),
     accountId: accountId,
     body: body['text/html'] || body['text/plain'] || body['application/pgp-encrypted'] || '',
     snippet: body['text/plain'] ? body['text/plain'].substr(0, 255) : null,

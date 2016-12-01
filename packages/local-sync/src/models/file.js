@@ -2,6 +2,7 @@ const {PromiseUtils, IMAPConnection} = require('isomorphic-core')
 
 module.exports = (sequelize, Sequelize) => {
   return sequelize.define('file', {
+    id: { type: Sequelize.STRING(65), primaryKey: true },
     accountId: { type: Sequelize.STRING, allowNull: false },
     version: Sequelize.INTEGER,
     filename: Sequelize.STRING(500),
@@ -14,6 +15,12 @@ module.exports = (sequelize, Sequelize) => {
         File.belongsTo(Message)
       },
     },
+    indexes: [
+      {
+        unique: true,
+        fields: ['id'],
+      },
+    ],
     instanceMethods: {
       fetch: function fetch({account, db, logger}) {
         const settings = Object.assign({}, account.connectionSettings, account.decryptedCredentials())
@@ -39,7 +46,7 @@ module.exports = (sequelize, Sequelize) => {
       },
       toJSON: function toJSON() {
         return {
-          id: `${this.id}`,
+          id: this.id,
           object: 'file',
           account_id: this.accountId,
           message_id: this.messageId,

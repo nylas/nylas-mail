@@ -32,7 +32,6 @@ class LocalDatabaseConnector {
     const newSequelize = this._sequelizePoolForDatabase(`a-${accountId}`);
     const db = loadModels(Sequelize, newSequelize, {
       modelDirs: [path.resolve(__dirname, '..', 'models')],
-      schema: `a${accountId}`,
     })
 
     HookTransactionLog(db, newSequelize);
