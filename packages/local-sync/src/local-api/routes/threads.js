@@ -78,7 +78,7 @@ module.exports = (server) => {
       const payload = request.payload
       if (payload.folder_id || payload.folder) {
         createSyncbackRequest(request, reply, {
-          type: "MoveToFolder",
+          type: "MoveThreadToFolder",
           props: {
             folderId: payload.folder_id || payload.folder,
             threadId: request.params.id,

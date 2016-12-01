@@ -1,9 +1,9 @@
 const SyncbackTask = require('./syncback-task')
 const TaskHelpers = require('./task-helpers')
 
-class MoveToFolderIMAP extends SyncbackTask {
+class MoveThreadToFolderIMAP extends SyncbackTask {
   description() {
-    return `MoveToFolder`;
+    return `MoveThreadToFolder`;
   }
 
   run(db, imap) {
@@ -19,4 +19,4 @@ class MoveToFolderIMAP extends SyncbackTask {
     return TaskHelpers.forEachMessageInThread({threadId, db, imap, callback: eachMsg})
   }
 }
-module.exports = MoveToFolderIMAP
+module.exports = MoveThreadToFolderIMAP
