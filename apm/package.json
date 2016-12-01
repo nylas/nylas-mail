@@ -6,6 +6,6 @@
     "url": "https://github.com/nylas/n1"
   },
   "dependencies": {
-    "atom-package-manager": "1.15.0"
+    "atom-package-manager": "1.15.1"
   }
 }
