@@ -5,7 +5,6 @@ import {
   Message,
   Contact,
   SyncbackDraftFilesTask,
-  NylasAPI,
   NylasAPIRequest,
 } from 'nylas-exports';
 
