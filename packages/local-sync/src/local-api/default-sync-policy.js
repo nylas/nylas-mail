@@ -1,6 +1,6 @@
 const DefaultSyncPolicy = {
   intervals: {
-    active: 30 * 1000,
+    active: 10 * 1000,
     inactive: 5 * 60 * 1000,
   },
   folderSyncOptions: {
