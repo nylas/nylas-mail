@@ -129,7 +129,7 @@ class DeltaProcessor {
     .then(() =>
       Promise.map(toJSONs(modify), NylasAPI._handleModelResponse))
     .then(() =>
-      Promise.map(destroy, this._destroyDeltas))
+      Promise.map(destroy, this._handleDestroyDelta))
   }
 
   _saveMetadata = (deltas) => {
@@ -213,18 +213,16 @@ class DeltaProcessor {
     return {create, modify, destroy};
   }
 
-  _destroyDeltas = (destroy) => {
-    return Promise.map(destroy, (delta) => {
-      const klass = NylasAPI._apiObjectToClassMap[delta.object];
-      if (!klass) { return Promise.resolve(); }
+  _handleDestroyDelta = (delta) => {
+    const klass = NylasAPI._apiObjectToClassMap[delta.object];
+    if (!klass) { return Promise.resolve(); }
 
-      return DatabaseStore.inTransaction(t => {
-        return t.find(klass, delta.objectId).then((model) => {
-          if (!model) { return Promise.resolve(); }
-          return t.unpersistModel(model);
-        });
+    return DatabaseStore.inTransaction(t => {
+      return t.find(klass, delta.objectId).then((model) => {
+        if (!model) { return Promise.resolve(); }
+        return t.unpersistModel(model);
       });
-    })
+    });
   }
 }
 export default new DeltaProcessor()
