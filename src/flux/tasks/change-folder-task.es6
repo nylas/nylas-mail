@@ -97,11 +97,11 @@ export default class ChangeFolderTask extends ChangeMailTask {
   }
 
   changesToModel(model) {
-    if (model instanceof Thread) {
-      return {categories: [this.folder]}
-    }
-    if (model instanceof Message) {
-      return {categories: [this.folder]}
+    if (model instanceof Thread || model instanceof Message) {
+      const nextCategories = model.categories
+        .filter(cat => !cat.isFolder())
+        .concat([this.folder])
+      return {categories: _.uniq(nextCategories, false, cat => cat.id)}
     }
     return null;
   }
