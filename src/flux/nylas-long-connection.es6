@@ -126,6 +126,7 @@ class NylasLongConnection {
     }
 
     this._req = lib.request(options, (responseStream) => {
+      this._req.responseStream = responseStream
       this._httpStatusCode = responseStream.statusCode
       if (responseStream.statusCode !== 200) {
         responseStream.on('data', (chunk) => {
@@ -193,6 +194,10 @@ class NylasLongConnection {
     if (this._req) {
       this._req.end()
       this._req.abort()
+      this._req.removeAllListeners()
+      if (this._req.responseStream) {
+        this._req.responseStream.removeAllListeners()
+      }
       this._req = null
     }
     return this

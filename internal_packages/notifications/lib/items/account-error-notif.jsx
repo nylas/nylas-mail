@@ -61,6 +61,16 @@ export default class AccountErrorNotification extends React.Component {
     } else {
       const erroredAccount = erroredAccounts[0];
       switch (erroredAccount.syncState) {
+        case Account.N1_CLOUD_AUTH_FAILED:
+          title = `Cannot authenticate N1 Cloud Services with ${erroredAccount.emailAddress}`;
+          actions = [{
+            label: "Check Again",
+            fn: this._onCheckAgain,
+          }, {
+            label: 'Reconnect',
+            fn: () => this._onReconnect(erroredAccount),
+          }];
+          break;
         case Account.SYNC_STATE_AUTH_FAILED:
           title = `Cannot authenticate with ${erroredAccount.emailAddress}`;
           actions = [{

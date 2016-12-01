@@ -35,6 +35,7 @@ export default class Account extends ModelWithMetadata {
   static SYNC_STATE_RUNNING = "running"
   static SYNC_STATE_STOPPED = "stopped"
   static SYNC_STATE_AUTH_FAILED = "invalid"
+  static N1_CLOUD_AUTH_FAILED = "n1_cloud_auth_failed"
   static SYNC_STATE_ERROR = "sync_error"
 
   static attributes = Object.assign({}, ModelWithMetadata.attributes, {

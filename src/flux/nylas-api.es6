@@ -125,7 +125,7 @@ class NylasAPI {
     return Promise.resolve()
   }
 
-  handleAuthenticationFailure = (modelUrl, apiToken) => {
+  handleAuthenticationFailure = (modelUrl, apiToken, apiName) => {
     // Prevent /auth errors from presenting auth failure notices
     if (!apiToken) return Promise.resolve()
 
@@ -135,7 +135,11 @@ class NylasAPI {
     })
 
     if (account) {
-      Actions.updateAccount(account.id, {syncState: Account.SYNC_STATE_AUTH_FAILED})
+      let syncState = Account.SYNC_STATE_AUTH_FAILED
+      if (apiName === "N1CloudAPI") {
+        syncState = Account.N1_CLOUD_AUTH_FAILED
+      }
+      Actions.updateAccount(account.id, {syncState})
     }
     return Promise.resolve()
   }

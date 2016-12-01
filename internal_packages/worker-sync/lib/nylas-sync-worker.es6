@@ -110,6 +110,14 @@ export default class NylasSyncWorker {
     this._resumeTimer.start({immediately: true});
   }
 
+  refresh() {
+    this.cleanup();
+    // Cleanup defaults to an "ENDED" socket. We need to indicate it's
+    // merely closed and can be re-opened again immediately.
+    _.map(this._deltaStreams, s => s.setStatus(NylasLongConnection.Status.Closed))
+    this.start();
+  }
+
   _resume = () => {
     this._refreshingCaches.map(c => c.start());
     _.map(this._deltaStreams, s => s.start())
