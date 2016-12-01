@@ -58,35 +58,10 @@ const TaskFactory = {
           taskDescription,
         }))
       } else {
-        if (catsToAdd.length === 0 && catsToRemove.length === 0) {
-          return;
-        }
+        const labelsToAdd = catsToAdd
+        const labelsToRemove = catsToRemove
+        if (labelsToAdd.length === 0 && labelsToRemove.length === 0) return;
 
-        const labelsToAdd = catsToAdd.filter((cat) => !cat.isGmailFolder())
-        const labelsToRemove = catsToRemove.filter((cat) => !cat.isGmailFolder())
-        const foldersToAdd = catsToAdd.filter((cat) => cat.isGmailFolder())
-        if (foldersToAdd.length > 1) {
-          throw new Error("tasksForApplyingCategories: `categoriesToAdd` for Gmail accounts must contain at most one of either archive, trash or spam")
-        }
-        if (foldersToAdd.length > 0) {
-          const folder = foldersToAdd[0]
-          tasks.push(new ChangeFolderTask({
-            folder,
-            threads: threadsToUpdate,
-            taskDescription,
-          }))
-        } else if (labelsToAdd.find((c) => c.isInbox())) {
-          const folder = CategoryStore.getArchiveCategory(accountId)
-          tasks.push(new ChangeFolderTask({
-            folder,
-            threads: threadsToUpdate,
-            taskDescription,
-          }))
-        }
-
-        if (labelsToAdd.length === 0 && labelsToRemove.length === 0) {
-          return
-        }
         tasks.push(new ChangeLabelsTask({
           threads: threadsToUpdate,
           labelsToRemove,
@@ -143,10 +118,6 @@ const TaskFactory = {
   },
 
   tasksForMovingToTrash({threads}) {
-    // For exchange accounts, moving to the Trash folder implies removing it from the inbox.
-    // For gmail, we don't want to remove the inbox label-- the threads will
-    // be moved to the Gmail Trash folder, and still contain the Inbox label.
-    // That means that when you "untrash", it goes back into the inbox because the inbox label was always still there
     return TaskFactory.tasksForApplyingCategories({
       threads,
       categoriesToAdd: (accountId) => [CategoryStore.getTrashCategory(accountId)],
