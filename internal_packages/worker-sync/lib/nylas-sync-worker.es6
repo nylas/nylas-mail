@@ -156,7 +156,7 @@ export default class NylasSyncWorker {
   _deltaStreamOpts = (streamName) => {
     return {
       getCursor: () => this._state.deltaCursors[streamName],
-      setCursor: val => {
+      setCursor: (val) => {
         this._state.deltaCursors[streamName] = val;
         this._writeState();
       },
