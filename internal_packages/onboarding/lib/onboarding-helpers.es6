@@ -125,21 +125,28 @@ export function runAuthRequest(accountInfo) {
   // Send the form data directly to Nylas to get code
   // If this succeeds, send the received code to N1 server to register the account
   // Otherwise process the error message from the server and highlight UI as needed
-  return new NylasAPIRequest({
-    api: NylasAPI,
+  const n1CloudIMAPAuthRequest = new NylasAPIRequest({
+    api: N1CloudAPI,
     options: {
-      path: `/auth?client_id=${NylasAPI.AppID}&n1_id=${IdentityStore.identityId()}${reauthParam}`,
+      path: '/auth',
       method: 'POST',
       body: data,
       returnsModel: false,
-      timeout: 150000,
-      auth: {
-        user: '',
-        pass: '',
-        sendImmediately: true,
+      success: (remoteJSON) => {
+        const localSyncIMAPAuthRequest = new NylasAPIRequest({
+          api: NylasAPI,
+          options: {
+            path: `/auth`,
+            method: 'POST',
+            body: data,
+            returnsModel: false,
+          },
+        })
+        localSyncIMAPAuthRequest.run()
       },
     },
-  }).run()
+  })
+  n1CloudIMAPAuthRequest.run()
 }
 
 export function isValidHost(value) {
