@@ -37,7 +37,8 @@ class BackoffTimer {
       return this.fn();
     }
     , this._actualDelay);
-    if (immediately) this.fn()
+    if (immediately) return this.fn();
+    return Promise.resolve()
   }
 
   resetDelay = () => {
@@ -107,7 +108,7 @@ export default class NylasSyncWorker {
   }
 
   start() {
-    this._resumeTimer.start({immediately: true});
+    return this._resumeTimer.start({immediately: true});
   }
 
   refresh() {
@@ -115,7 +116,7 @@ export default class NylasSyncWorker {
     // Cleanup defaults to an "ENDED" socket. We need to indicate it's
     // merely closed and can be re-opened again immediately.
     _.map(this._deltaStreams, s => s.setStatus(NylasLongConnection.Status.Closed))
-    this.start();
+    return this.start();
   }
 
   _resume = () => {
@@ -135,7 +136,7 @@ export default class NylasSyncWorker {
       {model: 'contacts'},
       {model: 'calendars'},
       {model: 'events'},
-    ].filter(this._shouldFetchCollection.bind(this));
+    ].filter((data) => this._shouldFetchCollection(data)); // indirection for tests
 
     if (needed.length === 0) { return Promise.resolve(); }
 
@@ -216,7 +217,6 @@ export default class NylasSyncWorker {
 
   _shouldFetchCollection({model} = {}) {
     const state = this._state[model] != null ? this._state[model] : {};
-
     if (state.complete) { return false; }
     if (state.busy) { return false; }
     return true;
