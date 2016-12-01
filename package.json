@@ -17,6 +17,7 @@
     "eslint-plugin-react": "6.7.1"
   },
   "scripts": {
+    "start": "pm2 start ./pm2-dev.yml --no-daemon",
     "postinstall": "lerna bootstrap"
   },
   "repository": {
