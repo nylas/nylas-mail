@@ -9,6 +9,7 @@
     "promise.prototype.finally": "1.0.1",
     "sequelize": "3.27.0",
     "underscore": "1.8.3",
+    "rx": "4.1.0",
     "xoauth2": "1.2.0"
   },
   "author": "Nylas",

@@ -17,6 +17,7 @@
     "inert": "4.0.0",
     "isomorphic-core": "0.x.x",
     "joi": "8.4.2",
+    "libhoney": "^1.0.0-beta.2",
     "nodemailer": "2.5.0",
     "rx": "4.1.0",
     "vision": "4.1.0"
