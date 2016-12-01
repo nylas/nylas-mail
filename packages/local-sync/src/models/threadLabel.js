@@ -1,4 +1,4 @@
-module.exports = (sequelize, Sequelize) => {
+module.exports = (sequelize) => {
   return sequelize.define('threadLabel', {
   }, {
   });

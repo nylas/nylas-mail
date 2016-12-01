@@ -1,10 +1,9 @@
+/* eslint global-require: 0 */
+/* eslint import/no-dynamic-require: 0 */
 const path = require('path')
-const fs = require('fs')
-const LocalDatabaseConnector = require('../../shared/local-database-connector')
 const {processMessage} = require('../processors/threading')
 
 const BASE_PATH = path.join(__dirname, 'fixtures')
-
 
 it('adds the message to the thread', (done) => {
   const {message, reply} = require(`${BASE_PATH}/thread`)
@@ -12,8 +11,7 @@ it('adds the message to the thread', (done) => {
   const mockDb = {
     Thread: {
       findAll: () => {
-        return Promise.resolve([
-        {
+        return Promise.resolve([{
           id: 1,
           subject: "Loved your work and interests",
           messages: [message],
@@ -24,15 +22,15 @@ it('adds the message to the thread', (done) => {
       },
       create: (thread) => {
         thread.id = 1
-        thread.addMessage = (message) => {
+        thread.addMessage = (newMessage) => {
           if (thread.messages) {
-            thread.messages.push(message.id)
+            thread.messages.push(newMessage.id)
           } else {
-            thread.messages = [message.id]
+            thread.messages = [newMessage.id]
           }
         }
         return Promise.resolve(thread)
-      }
+      },
     },
     Message: {
       findAll: () => {
@@ -41,13 +39,13 @@ it('adds the message to the thread', (done) => {
       find: () => {
         return Promise.resolve(reply)
       },
-      create: (message) => {
+      create: () => {
         message.setThread = (thread) => {
           message.thread = thread.id
-        }
-        return Promise.resolve(message)
-      }
-    }
+        };
+        return Promise.resolve(message);
+      },
+    },
   }
 
   processMessage({db: mockDb, message: reply, accountId}).then((processed) => {

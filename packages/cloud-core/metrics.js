@@ -29,7 +29,7 @@ const Metrics = {
     })
   },
 
-  reportError(error) {
+  reportError() {
   },
 
   reportMetric({name, value, type, dimensions = {}} = {}) {
