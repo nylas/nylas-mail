@@ -170,7 +170,8 @@ class DeltaProcessor {
     for (const objectType of Object.keys(create)) {
       const klass = NylasAPI._apiObjectToClassMap[objectType];
       if (!klass) {
-        throw new Error(`Can't find class for "${objectType}" when attempting to inflate deltas`)
+        console.warn(`Can't find class for "${objectType}" when attempting to inflate deltas`)
+        continue
       }
       modelResolvers[objectType] = DatabaseStore.findAll(klass, {
         id: Object.keys(create[objectType]),
