@@ -1,7 +1,7 @@
 /* eslint no-restricted-syntax: 0 */
 
 require('promise.prototype.finally')
-
+const props = require('promise-props');
 const _ = require('underscore')
 
 global.Promise.prototype.thenReturn = function thenReturn(value) {
@@ -52,5 +52,5 @@ module.exports = {
   sleep,
   promisify,
   promisifyAll,
-  props: require('promise-props'),
+  props: props,
 }

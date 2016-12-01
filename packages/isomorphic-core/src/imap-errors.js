@@ -1,4 +1,32 @@
 /**
+ * An abstract base class that can be used to indicate IMAPErrors that may
+ * fix themselves when retried
+ */
+class RetryableError extends Error { }
+
+/**
+ * IMAPErrors that originate from NodeIMAP. See `convertImapError` for
+ * documentation on underlying causes
+ */
+class IMAPSocketError extends RetryableError { }
+class IMAPConnectionTimeoutError extends RetryableError { }
+class IMAPAuthenticationTimeoutError extends RetryableError { }
+class IMAPProtocolError extends Error { }
+class IMAPAuthenticationError extends Error { }
+
+class IMAPConnectionNotReadyError extends RetryableError {
+  constructor(funcName) {
+    super(`${funcName} - You must call connect() first.`);
+  }
+}
+
+class IMAPConnectionEndedError extends Error {
+  constructor(msg = "The IMAP Connection was ended.") {
+    super(msg);
+  }
+}
+
+/**
  * IMAPErrors may come from:
  *
  * 1. Underlying IMAP provider (Fastmail, Yahoo, etc)
@@ -39,7 +67,7 @@
  */
 function convertImapError(imapError) {
   let error;
-  switch(imapError.source) {
+  switch (imapError.source) {
     case "socket-timeout":
       error = new IMAPConnectionTimeoutError(imapError); break;
     case "timeout":
@@ -57,34 +85,6 @@ function convertImapError(imapError) {
   }
   error.source = imapError.source
   return error
-}
-
-/**
- * An abstract base class that can be used to indicate IMAPErrors that may
- * fix themselves when retried
- */
-class RetryableError extends Error {  }
-
-/**
- * IMAPErrors that originate from NodeIMAP. See `convertImapError` for
- * documentation on underlying causes
- */
-class IMAPSocketError extends RetryableError { }
-class IMAPConnectionTimeoutError extends RetryableError { }
-class IMAPAuthenticationTimeoutError extends RetryableError { }
-class IMAPProtocolError extends Error { }
-class IMAPAuthenticationError extends Error { }
-
-class IMAPConnectionNotReadyError extends RetryableError {
-  constructor(funcName) {
-    super(`${funcName} - You must call connect() first.`);
-  }
-}
-
-class IMAPConnectionEndedError extends Error {
-  constructor(msg = "The IMAP Connection was ended.") {
-    super(msg);
-  }
 }
 
 module.exports = {

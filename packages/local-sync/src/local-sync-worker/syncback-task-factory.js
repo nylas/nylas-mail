@@ -1,3 +1,4 @@
+/* eslint global-require: 0 */
 /**
  * Given a `SyncbackRequestObject` it creates the appropriate syncback task.
  *
