@@ -28,7 +28,12 @@ export default class DatabaseTransaction {
 
     return this._query("BEGIN IMMEDIATE TRANSACTION").then(() => {
       this._opened = true;
-      return fn(this);
+      const transactionReturn = fn(this);
+      if (!transactionReturn || !transactionReturn.then) {
+        console.error(fn)
+        throw new Error("The Database Transaction function shown above must return a Promise. It Returned:", transactionReturn)
+      }
+      return transactionReturn;
     }).finally(() => {
       if (!this._opened) {
         return null;

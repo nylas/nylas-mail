@@ -331,7 +331,7 @@ export default class NylasSyncWorker {
     if (this.__writeState == null) {
       this.__writeState = _.debounce(() => {
         DatabaseStore.inTransaction(t => {
-          t.persistJSONBlob(`NylasSyncWorker:${this._account.id}`, this._state);
+          return t.persistJSONBlob(`NylasSyncWorker:${this._account.id}`, this._state);
         });
       }, 100);
     }
