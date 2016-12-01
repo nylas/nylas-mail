@@ -131,7 +131,9 @@ class NylasAPI {
 
     AccountStore = AccountStore || require('./stores/account-store')
     const account = AccountStore.accounts().find((acc) => {
-      return AccountStore.tokenForAccountId(acc.id) === apiToken
+      const localMatch = AccountStore.tokensForAccountId(acc.id).localSync === apiToken;
+      const cloudMatch = AccountStore.tokensForAccountId(acc.id).n1Cloud === apiToken;
+      return localMatch || cloudMatch;
     })
 
     if (account) {
@@ -318,7 +320,7 @@ class NylasAPI {
 
   accessTokenForAccountId = (aid) => {
     AccountStore = AccountStore || require('./stores/account-store')
-    return AccountStore.tokenForAccountId(aid)
+    return AccountStore.tokensForAccountId(aid).localSync
   }
 
   /*

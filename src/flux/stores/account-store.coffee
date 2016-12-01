@@ -61,20 +61,13 @@ class AccountStore extends NylasStore
       # messages and these can result in very strange exceptions downstream otherwise.
       @_enforceAccountsValidity()
 
-      oldTokens = NylasEnv.config.get(configTokensKey)
-      if oldTokens
-        # Load tokens using the old config method and save them into the keychain
-        @_tokens = oldTokens
-        for key, val of oldTokens
-          account = @accountForId(key)
-          continue unless account
-          keytar.replacePassword(keytarServiceName, account.emailAddress, val)
-      else
-        # Load tokens using the new keytar method
-        @_tokens = {}
-        for account in @_accounts
-          @_tokens[account.id] = keytar.getPassword(keytarServiceName, account.emailAddress)
-
+      # Load tokens using the new keytar method
+      @_tokens = {}
+      for account in @_accounts
+        @_tokens[account.id] = {
+          n1Cloud: keytar.getPassword(keytarServiceName, "#{account.emailAddress}.n1Cloud"),
+          localSync: keytar.getPassword(keytarServiceName, "#{account.emailAddress}.localSync"),
+        }
     catch error
       NylasEnv.reportError(error)
 
@@ -164,7 +157,7 @@ class AccountStore extends NylasStore
     @_accounts.splice(newIdx, 0, account)
     @_save()
 
-  addAccountFromJSON: (json) =>
+  addAccountFromJSON: (json, localToken, cloudToken) =>
     if not json.email_address or not json.provider
       console.error("Returned account data is invalid", json)
       console.log JSON.stringify(json)
@@ -172,8 +165,11 @@ class AccountStore extends NylasStore
 
     @_loadAccounts()
 
-    @_tokens[json.id] = json.auth_token
-    keytar.replacePassword(keytarServiceName, json.email_address, json.auth_token)
+    @_tokens[json.id] =
+      n1Cloud: cloudToken
+      localSync: localToken
+    keytar.replacePassword(keytarServiceName, "#{json.email_address}.n1Cloud", cloudToken)
+    keytar.replacePassword(keytarServiceName, "#{json.email_address}.localSync", localToken)
 
     existingIdx = _.findIndex @_accounts, (a) ->
       a.id is json.id or a.emailAddress is json.email_address
@@ -274,7 +270,7 @@ class AccountStore extends NylasStore
 
   # Private: This method is going away soon, do not rely on it.
   #
-  tokenForAccountId: (id) =>
+  tokensForAccountId: (id) =>
     @_tokens[id]
 
   # Private: Load fake data from a directory for taking nice screenshots
