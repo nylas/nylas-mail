@@ -1,7 +1,7 @@
 _ = require 'underscore'
 keytar = require 'keytar'
 NylasAPI = require '../../src/flux/nylas-api'
-NylasAPIRequest = require '../../src/flux/nylas-api-request'
+NylasAPIRequest = require('../../src/flux/nylas-api-request').default
 AccountStore = require '../../src/flux/stores/account-store'
 Account = require('../../src/flux/models/account').default
 Actions = require('../../src/flux/actions').default
@@ -20,7 +20,6 @@ describe "AccountStore", ->
       @keys[account] = pass
 
     @spyOnConfig = =>
-      @configTokens = null
       @configVersion = 1
       @configAccounts =
         [{
@@ -43,7 +42,6 @@ describe "AccountStore", ->
         return 'production' if key is 'env'
         return @configAccounts if key is 'nylas.accounts'
         return @configVersion if key is 'nylas.accountsVersion'
-        return @configTokens if key is 'nylas.accountTokens'
         return null
 
   afterEach ->
@@ -62,23 +60,17 @@ describe "AccountStore", ->
         (new Account).fromJSON(@configAccounts[1])
       ])
 
-    it "should initialize tokens from config, if present, and save them to keytar", ->
-      @configTokens = {'A': 'A-TOKEN'}
-      @instance = new @constructor
-      expect(@instance.tokenForAccountId('A')).toEqual('A-TOKEN')
-      expect(@instance.tokenForAccountId('B')).toEqual(undefined)
-      expect(keytar.replacePassword).toHaveBeenCalledWith('Nylas', 'bengotow@gmail.com', 'A-TOKEN')
-
     it "should initialize tokens from keytar", ->
-      @configTokens = null
       jasmine.unspy(keytar, 'getPassword')
       spyOn(keytar, 'getPassword').andCallFake (service, account) =>
-        return 'A-TOKEN' if account is 'bengotow@gmail.com'
-        return 'B-TOKEN' if account is 'ben@nylas.com'
+        return 'AL-TOKEN' if account is 'bengotow@gmail.com.localSync'
+        return 'AC-TOKEN' if account is 'bengotow@gmail.com.n1Cloud'
+        return 'BL-TOKEN' if account is 'ben@nylas.com.localSync'
+        return 'BC-TOKEN' if account is 'ben@nylas.com.n1Cloud'
         return null
       @instance = new @constructor
-      expect(@instance.tokenForAccountId('A')).toEqual('A-TOKEN')
-      expect(@instance.tokenForAccountId('B')).toEqual('B-TOKEN')
+      expect(@instance.tokensForAccountId('A')).toEqual({localSync: 'AL-TOKEN', n1Cloud: 'AC-TOKEN'})
+      expect(@instance.tokensForAccountId('B')).toEqual({localSync: 'BL-TOKEN', n1Cloud: 'BC-TOKEN'})
 
   describe "accountForEmail", ->
     beforeEach ->
@@ -103,17 +95,17 @@ describe "AccountStore", ->
         "server_id" : 'B',
         "email_address":"ben@nylas.com",
         "provider":"gmail",
-        "object":"account"
-        "auth_token": "B-NEW-TOKEN"
-        "organization_unit": "label"
+        "object":"account",
+        "organization_unit": "label",
       @instance = new @constructor
       spyOn(NylasEnv.config, "set")
       spyOn(@instance, "trigger")
-      @instance.addAccountFromJSON(@json)
+      @instance.addAccountFromJSON(@json, "LOCAL_TOKEN", "CLOUD_TOKEN")
 
     it "saves the token to keytar and to the loaded tokens cache", ->
-      expect(@instance._tokens["B"]).toBe("B-NEW-TOKEN")
-      expect(keytar.replacePassword).toHaveBeenCalledWith("Nylas", "ben@nylas.com", "B-NEW-TOKEN")
+      expect(@instance._tokens["B"]).toEqual({n1Cloud: "CLOUD_TOKEN", localSync: "LOCAL_TOKEN"})
+      expect(keytar.replacePassword).toHaveBeenCalledWith("Nylas", "ben@nylas.com.localSync", "LOCAL_TOKEN")
+      expect(keytar.replacePassword).toHaveBeenCalledWith("Nylas", "ben@nylas.com.n1Cloud", "CLOUD_TOKEN")
 
     it "saves the account to the accounts cache and saves", ->
       account = (new Account).fromJSON(@json)
@@ -136,13 +128,12 @@ describe "AccountStore", ->
           "email_address":"ben@nylas.com",
           "provider":"gmail",
           "object":"account"
-          "auth_token": "B-NEW-TOKEN"
           "organization_unit": "label"
         @spyOnConfig()
         @instance = new @constructor
         spyOn(@instance, "trigger")
         expect(@instance._accounts.length).toBe 2
-        @instance.addAccountFromJSON(@json)
+        @instance.addAccountFromJSON(@json, "B-NEW-LOCAL-TOKEN", "B-NEW-CLOUD-TOKEN")
         expect(@instance._accounts.length).toBe 2
 
     describe "when an account with the same email, but different ID, is already present", ->
@@ -154,13 +145,12 @@ describe "AccountStore", ->
           "email_address":"ben@nylas.com",
           "provider":"gmail",
           "object":"account"
-          "auth_token": "B-NEW-TOKEN"
           "organization_unit": "label"
         @spyOnConfig()
         @instance = new @constructor
         spyOn(@instance, "trigger")
         expect(@instance._accounts.length).toBe 2
-        @instance.addAccountFromJSON(@json)
+        @instance.addAccountFromJSON(@json, "B-NEW-LOCAL-TOKEN", "B-NEW-CLOUD-TOKEN")
         expect(@instance._accounts.length).toBe 2
         expect(@instance.accountForId('B')).toBe(undefined)
         expect(@instance.accountForId('NEVER SEEN BEFORE')).not.toBe(undefined)
@@ -168,7 +158,11 @@ describe "AccountStore", ->
   describe "refreshHealthOfAccounts", ->
     beforeEach ->
       @spyOnConfig()
-      spyOn(NylasAPIRequest.prototype, 'run').andCallFake (options) =>
+      @calledOptions = calledOptions = []
+
+      spyOn(NylasAPIRequest.prototype, 'run').andCallFake () ->
+        options = this.options
+        calledOptions.push(this.options)
         if options.accountId is 'return-api-error'
           Promise.reject(new Error("API ERROR"))
         else
@@ -183,8 +177,10 @@ describe "AccountStore", ->
     it "should GET /account for each of the provided account IDs", ->
       @instance.refreshHealthOfAccounts(['A', 'B'])
       expect(NylasAPIRequest.prototype.run.callCount).toBe(2)
-      expect(NylasAPIRequest.prototype.run.calls[0].args).toEqual([{path: '/account', accountId: 'A'}])
-      expect(NylasAPIRequest.prototype.run.calls[1].args).toEqual([{path: '/account', accountId: 'B'}])
+      expect(@calledOptions[0].path).toEqual('/account')
+      expect(@calledOptions[0].accountId).toEqual('A')
+      expect(@calledOptions[1].path).toEqual('/account')
+      expect(@calledOptions[1].accountId).toEqual('B')
 
     it "should update existing account objects and call save exactly once", ->
       @instance.accountForId('A').syncState = 'invalid'
