@@ -218,23 +218,23 @@ describe "NylasSyncWorker", ->
         'busy': true
         'complete': false
       }
-      expect(@worker._shouldFetchCollection('threads')).toBe(false)
+      expect(@worker._shouldFetchCollection({model: 'threads'})).toBe(false)
 
     it "should return false if the collection sync is already complete", ->
       @worker._state.threads = {
         'busy': false
         'complete': true
       }
-      expect(@worker._shouldFetchCollection('threads')).toBe(false)
+      expect(@worker._shouldFetchCollection({model: 'threads'})).toBe(false)
 
     it "should return true otherwise", ->
       @worker._state.threads = {
         'busy': false
         'complete': false
       }
-      expect(@worker._shouldFetchCollection('threads')).toBe(true)
+      expect(@worker._shouldFetchCollection({model: 'threads'})).toBe(true)
       @worker._state.threads = undefined
-      expect(@worker._shouldFetchCollection('threads')).toBe(true)
+      expect(@worker._shouldFetchCollection({model: 'threads'})).toBe(true)
 
   describe "_fetchCollection", ->
     beforeEach ->
@@ -245,7 +245,7 @@ describe "NylasSyncWorker", ->
         'busy': false
         'complete': false
       }
-      @worker._fetchCollection('threads')
+      @worker._fetchCollection({model: 'threads'})
       expect(@apiRequests[0].model).toBe('threads')
       expect(@apiRequests[0].requestOptions.metadataToAttach).toBe(@worker._metadata)
 
@@ -255,7 +255,7 @@ describe "NylasSyncWorker", ->
           'busy': false
           'complete': false
         }
-        @worker._fetchCollection('threads')
+        @worker._fetchCollection({model: 'threads'})
         expect(@apiRequests[0].model).toBe('threads')
         expect(@apiRequests[0].params.offset).toBe(0)
 
@@ -272,13 +272,13 @@ describe "NylasSyncWorker", ->
             limit: 50
 
       it "should start paginating from the request that was interrupted", ->
-        @worker._fetchCollection('threads')
+        @worker._fetchCollection({model: 'threads'})
         expect(@apiRequests[0].model).toBe('threads')
         expect(@apiRequests[0].params.offset).toBe(100)
         expect(@apiRequests[0].params.limit).toBe(50)
 
       it "should not reset the `count`, `fetched` or start fetching the count", ->
-        @worker._fetchCollection('threads')
+        @worker._fetchCollection({model: 'threads'})
         expect(@worker._state.threads.fetched).toBe(100)
         expect(@worker._state.threads.count).toBe(1200)
         expect(@apiRequests.length).toBe(1)
@@ -288,7 +288,7 @@ describe "NylasSyncWorker", ->
         @worker._state.messages =
           count: 1000
           fetched: 0
-        @worker._fetchCollection('messages', {initialPageSize: 30, maxFetchCount: 25})
+        @worker._fetchCollection({model: 'messages', initialPageSize: 30, maxFetchCount: 25})
         expect(@apiRequests[0].params.offset).toBe 0
         expect(@apiRequests[0].params.limit).toBe 25
 
@@ -300,7 +300,7 @@ describe "NylasSyncWorker", ->
             limit: 50,
             offset: 470,
           }
-        @worker._fetchCollection('messages', {maxFetchCount: 500})
+        @worker._fetchCollection({model: 'messages', maxFetchCount: 500})
         expect(@apiRequests[0].params.offset).toBe 470
         expect(@apiRequests[0].params.limit).toBe 30
 
