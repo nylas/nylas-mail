@@ -13,7 +13,7 @@ module.exports = (sequelize, Sequelize) => {
           id: `${this.id}`,
           event: this.event,
           object: this.object,
-          objectId: this.objectId,
+          objectId: `${this.objectId}`,
           changedFields: this.changedFields,
         }
       },
