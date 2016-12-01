@@ -37,30 +37,23 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
     instanceMethods: {
-      updateFolders() {
-        return this.getMessages().then((messages) => {
-          const folderIds = new Set()
-          return Promise.all(messages.map((msg) =>
-            msg.getFolder({attributes: ['id']})
-            .then((folder) => folderIds.add(folder.id)))
-          )
-          .then(() =>
-            this.setFolders(Array.from(folderIds))
-          )
-        })
-      },
+      async updateLabelsAndFolders() {
+        const messages = await this.getMessages();
+        const labelIds = new Set()
+        const folderIds = new Set()
 
-      updateLabels() {
-        return this.getMessages().then((messages) => {
-          const labelIds = new Set()
-          return Promise.all(messages.map((msg) =>
-            msg.getLabels({attributes: ['id']})
-            .then((labels) => labels.forEach(({id}) => labelIds.add(id))))
-          )
-          .then(() =>
-            this.setLabels(Array.from(labelIds))
-          )
-        })
+        await Promise.all(messages.map(async (msg) => {
+          const labels = await msg.getLabels({attributes: ['id']})
+          labels.forEach(({id}) => labelIds.add(id));
+          folderIds.add(msg.folderId)
+        }));
+
+        await Promise.all([
+          this.setLabels(Array.from(labelIds)),
+          this.setFolders(Array.from(folderIds)),
+        ]);
+
+        return this.save();
       },
 
       toJSON() {
