@@ -58,13 +58,15 @@ const TaskFactory = {
           taskDescription,
         }))
       } else {
-        if (catsToAdd.length === 0 && catsToRemove.length === 0) return;
+        if (catsToAdd.length === 0 && catsToRemove.length === 0) {
+          return;
+        }
 
         const labelsToAdd = catsToAdd.filter((cat) => !cat.isGmailFolder())
         const labelsToRemove = catsToRemove.filter((cat) => !cat.isGmailFolder())
         const foldersToAdd = catsToAdd.filter((cat) => cat.isGmailFolder())
         if (foldersToAdd.length > 1) {
-          throw new Error("tasksForApplyingCategories: `categoriesToAdd` for Gmail accounts must contain at most one of inbox, trash or spam")
+          throw new Error("tasksForApplyingCategories: `categoriesToAdd` for Gmail accounts must contain at most one of either archive, trash or spam")
         }
         if (foldersToAdd.length > 0) {
           const folder = foldersToAdd[0]
@@ -82,7 +84,9 @@ const TaskFactory = {
           }))
         }
 
-        if (labelsToAdd.length === 0 && labelsToRemove.length === 0) return;
+        if (labelsToAdd.length === 0 && labelsToRemove.length === 0) {
+          return
+        }
         tasks.push(new ChangeLabelsTask({
           threads: threadsToUpdate,
           labelsToRemove,
