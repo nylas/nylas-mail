@@ -219,7 +219,7 @@ class DeltaProcessor {
       if (!klass) { return Promise.resolve(); }
 
       return DatabaseStore.inTransaction(t => {
-        return t.find(klass, delta.id).then((model) => {
+        return t.find(klass, delta.objectId).then((model) => {
           if (!model) { return Promise.resolve(); }
           return t.unpersistModel(model);
         });
