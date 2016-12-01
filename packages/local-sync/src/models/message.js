@@ -1,10 +1,11 @@
-const crypto = require('crypto');
+const cryptography = require('crypto');
 const {PromiseUtils, IMAPConnection} = require('isomorphic-core')
 const {DatabaseTypes: {JSONType, JSONARRAYType}} = require('isomorphic-core');
 
 
 module.exports = (sequelize, Sequelize) => {
   return sequelize.define('message', {
+    id: { type: Sequelize.STRING(65), primaryKey: true },
     accountId: { type: Sequelize.STRING, allowNull: false },
     version: Sequelize.INTEGER,
     headerMessageId: Sequelize.STRING,
@@ -12,7 +13,6 @@ module.exports = (sequelize, Sequelize) => {
     headers: JSONType('headers'),
     subject: Sequelize.STRING(500),
     snippet: Sequelize.STRING(255),
-    hash: Sequelize.STRING(65),
     date: Sequelize.DATE,
     unread: Sequelize.BOOLEAN,
     starred: Sequelize.BOOLEAN,
@@ -28,7 +28,7 @@ module.exports = (sequelize, Sequelize) => {
     indexes: [
       {
         unique: true,
-        fields: ['hash'],
+        fields: ['id'],
       },
     ],
     classMethods: {
@@ -40,7 +40,7 @@ module.exports = (sequelize, Sequelize) => {
       },
 
       hashForHeaders(headers) {
-        return crypto.createHash('sha256').update(headers, 'utf8').digest('hex');
+        return cryptography.createHash('sha256').update(headers, 'utf8').digest('hex');
       },
     },
     instanceMethods: {
@@ -79,7 +79,7 @@ module.exports = (sequelize, Sequelize) => {
         // Message though and need to protect `this.date` from null
         // errors.
         return {
-          id: `${this.id}`,
+          id: this.id,
           account_id: this.accountId,
           object: 'message',
           body: this.body,

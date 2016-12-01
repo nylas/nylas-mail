@@ -1,3 +1,4 @@
+const cryptography = require('crypto');
 
 function isContactVerified(contact) {
   // some suggestions: http://stackoverflow.com/questions/6317714/apache-camel-mail-to-identify-auto-generated-messages
@@ -21,13 +22,13 @@ function extractContacts({db, message}) {
   })
 
   const verifiedContacts = allContacts.filter(c => isContactVerified(c));
-
   return db.sequelize.transaction((transaction) => {
     return Promise.all(verifiedContacts.map((contact) =>
       Contact.upsert({
         name: contact.name,
         email: contact.email,
         accountId: message.accountId,
+        id: cryptography.createHash('sha256').update(contact.email, 'utf8').digest('hex'),
       }, {
         transaction,
       })
