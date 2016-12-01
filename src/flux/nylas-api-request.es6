@@ -1,3 +1,5 @@
+/* eslint global-require: 0 */
+
 import fs from 'fs'
 import request from 'request'
 import crypto from 'crypto'
@@ -85,7 +87,7 @@ export default class NylasAPIRequest {
   }
 
   run() {
-    const NylasAPI = require("./nylas-api")
+    const NylasAPI = require("./nylas-api").default
     if (NylasEnv.getLoadSettings().isSpec) {
       return Promise.resolve()
     }

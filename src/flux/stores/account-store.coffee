@@ -188,7 +188,7 @@ class AccountStore extends NylasStore
     @_save()
 
   refreshHealthOfAccounts: (accountIds) =>
-    NylasAPI ?= require '../nylas-api'
+    NylasAPI ?= require('../nylas-api').default
     NylasAPIRequest ?= require('../nylas-api-request').default
     Promise.all(accountIds.map (accountId) =>
       return new NylasAPIRequest({
