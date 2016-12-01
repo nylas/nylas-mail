@@ -90,7 +90,7 @@ class DeveloperBarStore extends NylasStore
 
     # Incoming deltas are [oldest...newest]. Append them to the beginning
     # of our internal history which is [newest...oldest]
-    @_longPollHistory.unshift(deltas.reverse()...)
+    @_longPollHistory.unshift([].concat(deltas).reverse()...)
     if @_longPollHistory.length > 200
       @_longPollHistory.length = 200
     @triggerThrottled(@)
