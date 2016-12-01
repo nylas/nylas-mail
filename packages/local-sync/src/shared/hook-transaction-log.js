@@ -10,20 +10,20 @@ module.exports = (db, sequelize) => {
   }
 
   const allIgnoredFields = (changedFields) => {
-    const IGNORED_FIELDS = ["syncState", "version"];
-    return _.difference(Object.keys(changedFields), IGNORED_FIELDS).length === 0
+    return _.isEqual(changedFields, ['syncState']);
   }
 
   const transactionLogger = (event) => {
     return ({dataValues, _changed, $modelOptions}) => {
-      if ((isTransaction($modelOptions) || allIgnoredFields(_changed))) {
+      const changedFields = Object.keys(_changed)
+      if ((isTransaction($modelOptions) || allIgnoredFields(changedFields))) {
         return;
       }
 
       const transactionData = Object.assign({event}, {
         object: $modelOptions.name.singular,
         objectId: dataValues.id,
-        changedFields: Object.keys(_changed),
+        changedFields: changedFields,
       });
 
       db.Transaction.create(transactionData).then((transaction) => {
