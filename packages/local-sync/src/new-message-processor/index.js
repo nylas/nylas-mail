@@ -3,27 +3,29 @@ const extractFiles = require('./extract-files')
 const extractContacts = require('./extract-contacts')
 const LocalDatabaseConnector = require('../shared/local-database-connector')
 
+const Queue = require('promise-queue');
+const queue = new Queue(1, Infinity);
+
 function processNewMessage(message, imapMessage) {
-  process.nextTick(() => {
-    const {accountId} = message
+  queue.add(async () => {
+    const {accountId} = message;
     const logger = global.Logger.forAccount({id: accountId}).child({message})
-    LocalDatabaseConnector.forAccount(accountId).then((db) => {
-      detectThread({db, message})
-      .then((thread) => {
-        message.threadId = thread.id
-        return db.Message.create(message)
-      })
-      .then(() => extractFiles({db, message, imapMessage}))
-      .then(() => extractContacts({db, message}))
-      .then(() => {
-        logger.info({
-          message_id: message.id,
-          uid: message.folderImapUID,
-        }, `MessageProcessor: Created and processed message`)
-      })
-      .catch((err) => logger.error(err, `MessageProcessor: Failed`))
-    })
-  })
+    const db = await LocalDatabaseConnector.forAccount(accountId);
+
+    try {
+      const thread = await detectThread({db, message});
+      message.threadId = thread.id;
+      await db.Message.create(message);
+      await extractFiles({db, message, imapMessage});
+      await extractContacts({db, message});
+      logger.info({
+        message_id: message.id,
+        uid: message.folderImapUID,
+      }, `MessageProcessor: Created and processed message`);
+    } catch (err) {
+      logger.error(err, `MessageProcessor: Failed`);
+    }
+  });
 }
 
 module.exports = {processNewMessage}
