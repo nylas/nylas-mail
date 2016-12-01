@@ -2,7 +2,7 @@ const {PromiseUtils, IMAPConnection} = require('isomorphic-core')
 
 module.exports = (sequelize, Sequelize) => {
   return sequelize.define('file', {
-    id: { type: Sequelize.STRING(65), primaryKey: true },
+    id: { type: Sequelize.STRING(500), primaryKey: true },
     accountId: { type: Sequelize.STRING, allowNull: false },
     version: Sequelize.INTEGER,
     filename: Sequelize.STRING(500),
