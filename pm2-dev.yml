@@ -10,6 +10,8 @@ apps:
       GMAIL_CLIENT_SECRET : "WhmxErj-ei6vJXLocNhBbfBF"
       GMAIL_REDIRECT_URL : "http://localhost:5100/auth/gmail/oauthcallback"
       NODE_ENV: 'development'
+      HONEY_DATASET: 'n1-cloud-staging'
+      HONEY_WRITE_KEY: 'XXXXXXXXXXXXX'
   - script   : packages/cloud-workers/app.js
     watch    : ["packages"]
     name     : workers
