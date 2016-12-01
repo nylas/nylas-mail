@@ -72,7 +72,7 @@ module.exports = (server) => {
         tags: [term],
         validate: {
           params: {
-            id: Joi.number().integer(),
+            id: Joi.string(),
           },
         },
         response: {

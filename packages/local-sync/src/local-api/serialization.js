@@ -35,7 +35,7 @@ function jsonSchema(modelName) {
   }
   if (modelName === 'Folder') {
     return Joi.object().keys({
-      id: Joi.number(),
+      id: Joi.string(),
       object: Joi.string(),
       account_id: Joi.string(),
       name: Joi.string().allow(null),
@@ -44,7 +44,7 @@ function jsonSchema(modelName) {
   }
   if (modelName === 'Label') {
     return Joi.object().keys({
-      id: Joi.number(),
+      id: Joi.string(),
       object: Joi.string(),
       account_id: Joi.string(),
       name: Joi.string().allow(null),

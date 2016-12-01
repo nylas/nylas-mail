@@ -1,5 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
   return sequelize.define('label', {
+    id: { type: Sequelize.STRING(65), primaryKey: true },
     accountId: { type: Sequelize.STRING, allowNull: false },
     version: Sequelize.INTEGER,
     name: Sequelize.STRING,
