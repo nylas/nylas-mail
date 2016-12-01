@@ -134,7 +134,8 @@ export default class NylasAPIRequest {
           handlePromise = NylasAPI.handleModel404(url)
         }
         if ([401, 403].includes(err.response.statusCode)) {
-          handlePromise = NylasAPI.handleAuthenticationFailure(url, auth.user)
+          const apiName = this.api.constructor.name
+          handlePromise = NylasAPI.handleAuthenticationFailure(url, auth.user, apiName)
         }
         if (err.response.statusCode === 400) {
           NylasEnv.reportError(err)

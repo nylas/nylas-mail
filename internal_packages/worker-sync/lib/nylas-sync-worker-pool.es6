@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import {AccountStore} from 'nylas-exports'
+import {AccountStore, Actions} from 'nylas-exports'
 import NylasSyncWorker from './nylas-sync-worker';
 
 export default class NylasSyncWorkerPool {
@@ -7,6 +7,13 @@ export default class NylasSyncWorkerPool {
     this._workers = [];
     AccountStore.listen(this._determineWorkerPool, this);
     this._determineWorkerPool();
+    Actions.refreshAllSyncWorkers.listen(this._refreshAllWorkers, this)
+  }
+
+  _refreshAllWorkers() {
+    for (const worker of this._workers) {
+      worker.refresh()
+    }
   }
 
   _existingWorkerForAccount(account) {

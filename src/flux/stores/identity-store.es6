@@ -122,6 +122,7 @@ class IdentityStore extends NylasStore {
       this.fetchSubscriptionRequiredDate(a))
     ).then((subscriptionRequiredDates) => {
       this._subscriptionRequiredAfter = subscriptionRequiredDates.sort().shift();
+      Actions.refreshAllSyncWorkers()
       this.trigger();
     }).catch((err) => {
       console.error(`Unable to refresh IdentityStore accounts: ${err.message}`)

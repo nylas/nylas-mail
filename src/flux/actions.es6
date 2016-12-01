@@ -552,6 +552,8 @@ class Actions {
   static toggleAccount = ActionScopeWindow;
 
   static notifyPluginsChanged = ActionScopeGlobal;
+
+  static refreshAllSyncWorkers = ActionScopeGlobal;
 }
 
 
