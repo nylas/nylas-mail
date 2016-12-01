@@ -14,6 +14,10 @@ module.exports = (sequelize, Sequelize) => {
         unique: true,
         fields: ['role'],
       },
+      {
+        unique: true,
+        fields: ['id'],
+      },
     ],
     classMethods: {
       associate: ({Folder, Message, Thread}) => {

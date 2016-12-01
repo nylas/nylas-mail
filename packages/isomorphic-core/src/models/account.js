@@ -5,6 +5,7 @@ const {DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD} = process.env;
 
 module.exports = (sequelize, Sequelize) => {
   const Account = sequelize.define('account', {
+    id: { type: Sequelize.STRING(65), primaryKey: true },
     name: Sequelize.STRING,
     provider: Sequelize.STRING,
     emailAddress: Sequelize.STRING,
@@ -19,6 +20,12 @@ module.exports = (sequelize, Sequelize) => {
     },
     lastSyncCompletions: JSONARRAYType('lastSyncCompletions'),
   }, {
+    indexes: [
+      {
+        unique: true,
+        fields: ['id'],
+      },
+    ],
     classMethods: {
       associate: ({AccountToken}) => {
         Account.hasMany(AccountToken, {as: 'tokens'})

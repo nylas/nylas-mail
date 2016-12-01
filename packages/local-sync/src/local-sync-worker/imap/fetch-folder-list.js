@@ -93,10 +93,11 @@ class FetchFolderList {
       if (!category) {
         const role = this._roleByAttr(box);
         const Klass = this._classForMailboxWithRole(role, this._db);
+        const {accountId} = this._db
         category = Klass.build({
-          id: crypto.createHash('sha256').update(boxName, 'utf8').digest('hex'),
+          accountId,
+          id: crypto.createHash('sha256').update(`${accountId}${boxName}`, 'utf8').digest('hex'),
           name: boxName,
-          accountId: this._db.accountId,
           role: role,
         });
         created.push(category);
