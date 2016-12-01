@@ -159,35 +159,7 @@ export default class Category extends Model {
     return !this.isStandardCategory() && !this.isHiddenCategory();
   }
 
-  isFolder() {
-    return this.object === 'folder'
-  }
-
-  isLabel() {
-    return this.object === 'label'
-  }
-
-  isInbox() {
-    return this.name === 'inbox'
-  }
-
   isArchive() {
     return ['all', 'archive'].includes(this.name);
-  }
-
-  isTrash() {
-    return this.name === 'trash'
-  }
-
-  isSpam() {
-    return this.name === 'spam'
-  }
-
-  isGmailFolder() {
-    return this.isFolder() && (
-      this.isArchive() ||
-      this.isTrash() ||
-      this.isSpam()
-    )
   }
 }

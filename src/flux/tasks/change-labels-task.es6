@@ -211,8 +211,14 @@ export default class ChangeLabelsTask extends ChangeMailTask {
   }
 
   requestBodyForModel(model) {
-    return {
-      labels: model.labels.map(l => l.id),
-    };
+    const folder = model.labels.find(l => l.object === 'folder')
+    const labels = model.labels.filter(l => l.object === 'label').map(l => l.id)
+    if (folder) {
+      return {
+        labels,
+        folder: folder.id,
+      }
+    }
+    return {labels};
   }
 }
