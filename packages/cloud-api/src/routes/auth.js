@@ -86,12 +86,6 @@ module.exports = (server) => {
           settings: Joi.alternatives().try(imapSmtpSettings, exchangeSettings),
         },
       },
-      response: {
-        schema: Joi.alternatives().try(
-          Serialization.jsonSchema('Account'),
-          Serialization.jsonSchema('Error')
-        ),
-      },
     },
     handler: (request, reply) => {
       const dbStub = {};
