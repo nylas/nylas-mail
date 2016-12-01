@@ -1,3 +1,4 @@
+const crypto = require('crypto')
 const {Provider, PromiseUtils} = require('isomorphic-core');
 const {localizedCategoryNames} = require('../sync-utils')
 
@@ -93,6 +94,7 @@ class FetchFolderList {
         const role = this._roleByAttr(box);
         const Klass = this._classForMailboxWithRole(role, this._db);
         category = Klass.build({
+          id: crypto.createHash('sha256').update(boxName, 'utf8').digest('hex'),
           name: boxName,
           accountId: this._db.accountId,
           role: role,

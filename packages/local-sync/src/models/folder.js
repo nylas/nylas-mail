@@ -2,6 +2,7 @@ const {DatabaseTypes: {JSONType}} = require('isomorphic-core');
 
 module.exports = (sequelize, Sequelize) => {
   return sequelize.define('folder', {
+    id: { type: Sequelize.STRING(65), primaryKey: true },
     accountId: { type: Sequelize.STRING, allowNull: false },
     version: Sequelize.INTEGER,
     name: Sequelize.STRING,
