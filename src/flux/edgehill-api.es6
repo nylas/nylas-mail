@@ -21,7 +21,7 @@ class EdgehillAPI {
   }
 
   accessTokenForAccountId(aid) {
-    return AccountStore.tokenForAccountId(aid)
+    return AccountStore.tokensForAccountId(aid).n1Cloud
   }
 
   makeRequest(options = {}) {

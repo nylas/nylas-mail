@@ -16,7 +16,7 @@ class N1CloudAPI {
   }
 
   accessTokenForAccountId = (aid) => {
-    return AccountStore.tokenForAccountId(aid)
+    return AccountStore.tokensForAccountId(aid).n1Cloud
   }
 }
 

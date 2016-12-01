@@ -25,7 +25,7 @@ export default class AccountSettingsPageGmail extends React.Component {
   }
 
   onSuccess(account) {
-    OnboardingActions.accountJSONReceived(account);
+    OnboardingActions.accountJSONReceived(account, account.localToken, account.cloudToken);
   }
 
   render() {
