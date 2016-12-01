@@ -5,9 +5,7 @@ import {
   N1CloudAPI,
   NylasAPI,
   NylasAPIRequest,
-  AccountStore,
   RegExpUtils,
-  IdentityStore,
 } from 'nylas-exports';
 
 const IMAP_FIELDS = new Set([
@@ -107,8 +105,8 @@ export function runAuthRequest(accountInfo) {
     data.settings.smtp_port /= 1;
   }
   // if there's an account with this email, get the ID for it to notify the backend of re-auth
-  const account = AccountStore.accountForEmail(accountInfo.email);
-  const reauthParam = account ? `&reauth=${account.id}` : "";
+  // const account = AccountStore.accountForEmail(accountInfo.email);
+  // const reauthParam = account ? `&reauth=${account.id}` : "";
 
   /**
    * Only include the required IMAP fields. Auth validation does not allow
@@ -122,6 +120,12 @@ export function runAuthRequest(accountInfo) {
     }
   }
 
+  const noauth = {
+    user: '',
+    pass: '',
+    sendImmediately: true,
+  };
+
   // Send the form data directly to Nylas to get code
   // If this succeeds, send the received code to N1 server to register the account
   // Otherwise process the error message from the server and highlight UI as needed
@@ -131,22 +135,28 @@ export function runAuthRequest(accountInfo) {
       path: '/auth',
       method: 'POST',
       body: data,
+      auth: noauth,
       returnsModel: false,
-      success: (remoteJSON) => {
-        const localSyncIMAPAuthRequest = new NylasAPIRequest({
-          api: NylasAPI,
-          options: {
-            path: `/auth`,
-            method: 'POST',
-            body: data,
-            returnsModel: false,
-          },
-        })
-        localSyncIMAPAuthRequest.run()
-      },
     },
   })
-  n1CloudIMAPAuthRequest.run()
+  return n1CloudIMAPAuthRequest.run().then((remoteJSON) => {
+    const localSyncIMAPAuthRequest = new NylasAPIRequest({
+      api: NylasAPI,
+      options: {
+        path: `/auth`,
+        method: 'POST',
+        body: data,
+        auth: noauth,
+        returnsModel: false,
+      },
+    })
+    return localSyncIMAPAuthRequest.run().then((localJSON) => {
+      const accountWithTokens = Object.assign({}, localJSON);
+      accountWithTokens.localToken = localJSON.auth_token;
+      accountWithTokens.cloudToken = remoteJSON.token;
+      return accountWithTokens
+    })
+  })
 }
 
 export function isValidHost(value) {
