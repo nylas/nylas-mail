@@ -53,7 +53,7 @@ function initialTransactions(db, request) {
 }
 
 function inflatedIncomingTransaction(db, request, transactionSource) {
-  transactionSource.flatMap((t) => inflateTransactions(db, [t]))
+  return transactionSource.flatMap((t) => inflateTransactions(db, [t]))
 }
 
 module.exports = {
