@@ -1,6 +1,5 @@
 import {
   Task,
-  NylasAPI,
   NylasAPIRequest,
   APIError,
   Model,
