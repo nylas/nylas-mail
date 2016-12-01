@@ -91,7 +91,7 @@ const CreatePageForForm = (FormComponent) => {
 
       runAuthRequest(accountInfo)
       .then((json) => {
-        OnboardingActions.accountJSONReceived(json)
+        OnboardingActions.accountJSONReceived(json, json.localToken, json.cloudToken)
       })
       .catch((err) => {
         Actions.recordUserEvent('Email Account Auth Failed', {
