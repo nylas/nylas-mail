@@ -10,15 +10,18 @@ module.exports = (sequelize, Sequelize) => {
     },
     error: JSONType('error'),
     props: JSONType('props'),
+    accountId: { type: Sequelize.STRING, allowNull: false },
   }, {
     instanceMethods: {
       toJSON: function toJSON() {
         return {
           id: `${this.id}`,
           type: this.type,
-          status: this.status,
-          error: this.error,
+          error: JSON.stringify(this.error || {}),
           props: this.props,
+          status: this.status,
+          object: 'providerSyncbackRequest',
+          account_id: this.accountId,
         }
       },
     },
