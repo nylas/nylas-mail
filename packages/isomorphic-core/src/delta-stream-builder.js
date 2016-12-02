@@ -2,83 +2,63 @@ const _ = require('underscore');
 const Rx = require('rx')
 const stream = require('stream');
 
-function keepAlive(request) {
-  const until = Rx.Observable.fromCallback(request.on)("disconnect")
-  return Rx.Observable.interval(1000).map(() => "\n").takeUntil(until)
-}
+function stringifyTransactions(db, transactions = []) {
+  const transactionJSONs = transactions.map((t) => t.toJSON())
+  transactionJSONs.forEach((t) => { t.cursor = t.id });
 
-function inflateTransactions(db, transactionModels = []) {
-  let models = transactionModels;
-  if (!(_.isArray(models))) { models = [transactionModels] }
-  const transactions = models.map((mod) => mod.toJSON())
-  transactions.forEach((t) => { t.cursor = t.id });
-  const byModel = _.groupBy(transactions, "object");
-  const byObjectIds = _.groupBy(transactions, "objectId");
+  const byModel = _.groupBy(transactionJSONs, "object");
+  const byObjectIds = _.groupBy(transactionJSONs, "objectId");
 
-  return Promise.all(Object.keys(byModel).map((object) => {
-    const ids = _.pluck(byModel[object], "objectId");
-    const modelConstructorName = object.charAt(0).toUpperCase() + object.slice(1);
+  return Promise.all(Object.keys(byModel).map((modelName) => {
+    const modelIds = byModel[modelName].map(t => t.objectId);
+    const modelConstructorName = modelName.charAt(0).toUpperCase() + modelName.slice(1);
     const ModelKlass = db[modelConstructorName]
+
     let includes = [];
     if (ModelKlass.requiredAssociationsForJSON) {
       includes = ModelKlass.requiredAssociationsForJSON(db)
     }
-    return ModelKlass.findAll({where: {id: ids}, include: includes})
-    .then((objs = []) => {
-      for (const model of objs) {
-        const tsForId = byObjectIds[model.id];
-        if (!tsForId || tsForId.length === 0) { continue; }
-        for (const t of tsForId) { t.attributes = model.toJSON(); }
+    return ModelKlass.findAll({
+      where: {id: modelIds},
+      include: includes,
+    }).then((models) => {
+      for (const model of models) {
+        const transactionsForModel = byObjectIds[model.id];
+        for (const t of transactionsForModel) {
+          t.attributes = model.toJSON();
+        }
       }
-    })
-  })).then(() => `${transactions.map(JSON.stringify).join("\n")}\n`)
-}
-
-function createOutputStream() {
-  const outputStream = stream.Readable();
-  outputStream._read = () => { return };
-  outputStream.pushJSON = (msg) => {
-    const jsonMsg = typeof msg === 'string' ? msg : JSON.stringify(msg);
-    outputStream.push(jsonMsg);
-  }
-  return outputStream
-}
-
-function initialTransactions(db, request) {
-  const cursor = (request.query || {}).cursor;
-  const where = cursor ? {id: {$gt: cursor}} : {createdAt: {$gte: new Date()}}
-  return db.Transaction
-           .streamAll({where})
-           .flatMap((objs) => inflateTransactions(db, objs))
-}
-
-function inflatedIncomingTransaction(db, request, transactionSource) {
-  return transactionSource.flatMap((t) => inflateTransactions(db, [t]))
+    });
+  })).then(() => {
+    return `${transactionJSONs.map(JSON.stringify).join("\n")}\n`;
+  });
 }
 
 module.exports = {
-  buildStream(request, dbSource, transactionSource) {
-    const outputStream = createOutputStream();
+  buildStream(request, {databasePromise, cursor, accountId, deltasSource}) {
+    return databasePromise.then((db) => {
+      const initialSource = db.Transaction.streamAll({where: { id: {$gt: cursor}, accountId }});
 
-    dbSource().then((db) => {
       const source = Rx.Observable.merge(
-        inflatedIncomingTransaction(db, request, transactionSource(db, request)),
-        initialTransactions(db, request),
-        keepAlive(request)
-      ).subscribe(outputStream.pushJSON)
+        initialSource.flatMap((t) => stringifyTransactions(db, t)),
+        deltasSource.flatMap((t) => stringifyTransactions(db, [t])),
+        Rx.Observable.interval(1000).map(() => "\n")
+      )
 
-      request.on("disconnect", source.dispose.bind(source));
+      const outputStream = stream.Readable();
+      outputStream._read = () => { return };
+      source.subscribe((str) => outputStream.push(str))
+      request.on("disconnect", () => source.dispose());
+
+      return outputStream;
     });
-
-    return outputStream
   },
 
-  lastTransactionReply(dbSource, reply) {
-    dbSource().then((db) => {
-      db.Transaction.findOne({order: [['id', 'DESC']]})
-      .then((t) => {
-        reply({cursor: (t || {}).id})
-      })
-    })
+  buildCursor({databasePromise}) {
+    return databasePromise.then(({Transaction}) => {
+      return Transaction.findOne({order: [['id', 'DESC']]}).then((t) => {
+        return (t || {}).id;
+      });
+    });
   },
 }

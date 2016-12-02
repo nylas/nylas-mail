@@ -5,6 +5,7 @@ module.exports = (sequelize, Sequelize) => {
     event: Sequelize.STRING,
     object: Sequelize.STRING,
     objectId: Sequelize.STRING,
+    accountId: Sequelize.STRING,
     changedFields: JSONARRAYType('changedFields'),
   }, {
     instanceMethods: {
@@ -14,7 +15,6 @@ module.exports = (sequelize, Sequelize) => {
           event: this.event,
           object: this.object,
           objectId: `${this.objectId}`,
-          changedFields: this.changedFields,
         }
       },
     },
