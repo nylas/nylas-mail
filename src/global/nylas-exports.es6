@@ -69,6 +69,7 @@ lazyLoad(`Actions`, 'flux/actions');
 lazyLoad(`NylasAPI`, 'flux/nylas-api');
 lazyLoad(`N1CloudAPI`, 'n1-cloud-api');
 lazyLoad(`EdgehillAPI`, 'flux/edgehill-api');
+lazyLoad(`NylasAPIHelpers`, 'flux/nylas-api-helpers');
 lazyLoad(`NylasAPIRequest`, 'flux/nylas-api-request');
 lazyLoad(`NylasLongConnection`, 'flux/nylas-long-connection');
 lazyLoad(`NylasSyncStatusStore`, 'flux/stores/nylas-sync-status-store');

@@ -3,6 +3,7 @@ import Task from './task';
 import Actions from '../actions';
 import {APIError} from '../errors';
 import NylasAPI from '../nylas-api';
+import NylasAPIHelpers from '../nylas-api-helpers';
 import NylasAPIRequest from '../nylas-api-request';
 import TaskQueue from '../../flux/stores/task-queue';
 import SoundRegistry from '../../registries/sound-registry';
@@ -58,7 +59,7 @@ export default class MultiSendSessionCloseTask extends Task {
       // TODO: This is duplicated from SendDraftTask!
       Actions.recordUserEvent("Draft Sent")
       Actions.sendDraftSuccess({message: this.message, messageClientId: this.message.clientId, draftClientId: this.draft.clientId});
-      NylasAPI.makeDraftDeletionRequest(this.draft);
+      NylasAPIHelpers.makeDraftDeletionRequest(this.draft);
 
       // Play the sending sound
       if (NylasEnv.config.get("core.sending.sounds")) {

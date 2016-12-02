@@ -88,6 +88,8 @@ export default class NylasAPIRequest {
 
   run() {
     const NylasAPI = require("./nylas-api").default
+    const NylasAPIHelpers = require("./nylas-api-helpers")
+
     if (NylasEnv.getLoadSettings().isSpec) {
       return Promise.resolve()
     }
@@ -118,7 +120,7 @@ export default class NylasAPIRequest {
         responseBody = this.options.beforeProcessing(responseBody)
       }
       if (this.options.returnsModel) {
-        NylasAPI._handleModelResponse(responseBody).then(() => {
+        NylasAPIHelpers.handleModelResponse(responseBody).then(() => {
           return Promise.resolve(responseBody)
         })
       }
@@ -131,11 +133,11 @@ export default class NylasAPIRequest {
       let handlePromise = Promise.resolve()
       if (err.response) {
         if (err.response.statusCode === 404 && returnsModel) {
-          handlePromise = NylasAPI.handleModel404(url)
+          handlePromise = NylasAPIHelpers.handleModel404(url)
         }
         if ([401, 403].includes(err.response.statusCode)) {
           const apiName = this.api.constructor.name
-          handlePromise = NylasAPI.handleAuthenticationFailure(url, auth.user, apiName)
+          handlePromise = NylasAPIHelpers.handleAuthenticationFailure(url, auth.user, apiName)
         }
         if (err.response.statusCode === 400) {
           NylasEnv.reportError(err)
