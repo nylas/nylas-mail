@@ -11,6 +11,8 @@ class SyncbackTaskFactory {
         Task = require('./syncback_tasks/move-thread-to-folder.imap'); break;
       case "SetThreadLabels":
         Task = require('./syncback_tasks/set-thread-labels.imap'); break;
+      case "SetThreadFolderAndLabels":
+        Task = require('./syncback_tasks/set-thread-folder-and-labels.imap'); break;
       case "MarkThreadAsRead":
         Task = require('./syncback_tasks/mark-thread-as-read.imap'); break;
       case "MarkThreadAsUnread":
