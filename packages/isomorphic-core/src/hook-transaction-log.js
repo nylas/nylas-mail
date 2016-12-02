@@ -9,7 +9,7 @@ module.exports = (db, sequelize, {only, onCreatedTransaction} = {}) => {
   }
 
   const allIgnoredFields = (changedFields) => {
-    return _.isEqual(changedFields, ['syncState']);
+    return _.isEqual(changedFields, ['syncState', 'updatedAt', 'version']) || _.isEqual(changedFields, ['syncState']);
   }
 
   const transactionLogger = (event) => {
