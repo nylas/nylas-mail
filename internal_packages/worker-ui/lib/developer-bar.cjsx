@@ -37,7 +37,12 @@ class DeveloperBar extends React.Component
       <div className="controls">
         <div className="btn-container pull-left">
           <div className="btn" onClick={ => @_onExpandSection('queue')}>
-            <span>Queue Length: {@state.queue?.length}</span>
+            <span>Client Tasks ({@state.queue?.length})</span>
+          </div>
+        </div>
+        <div className="btn-container pull-left">
+          <div className="btn" onClick={ => @_onExpandSection('providerSyncbackRequests')}>
+            <span>Provider Syncback Requests</span>
           </div>
         </div>
         <div className="btn-container pull-left">
@@ -93,6 +98,11 @@ class DeveloperBar extends React.Component
       expandedDiv = <div className="expanded-section local-sync">
         <InjectedComponentSet matching={{role: "Developer:LocalSyncUI"}} /> 
       </div>
+
+    else if @state.section == 'providerSyncbackRequests'
+      reqs = @state.providerSyncbackRequests.map (req) =>
+        <div key={req.id}>&nbsp;{req.type}: {req.status} - {JSON.stringify(req.props)}</div>
+      expandedDiv = <div className="expanded-section provider-syncback-requests">{reqs}</div>
 
     else if @state.section == 'queue'
       queue = @state.queue.filter(matchingFilter)
@@ -150,6 +160,7 @@ class DeveloperBar extends React.Component
     curlHistory: DeveloperBarStore.curlHistory()
     longPollHistory: DeveloperBarStore.longPollHistory()
     longPollStates: DeveloperBarStore.longPollStates()
+    providerSyncbackRequests: DeveloperBarStore.providerSyncbackRequests()
 
 
 module.exports = DeveloperBar

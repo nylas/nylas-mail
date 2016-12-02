@@ -1,5 +1,6 @@
 NylasStore = require 'nylas-store'
-{Actions, NylasSyncStatusStore} = require 'nylas-exports'
+Rx = require 'rx-lite'
+{Actions, DatabaseStore, ProviderSyncbackRequest, NylasSyncStatusStore} = require 'nylas-exports'
 qs = require 'querystring'
 _ = require 'underscore'
 moment = require 'moment'
@@ -51,6 +52,8 @@ class DeveloperBarStore extends NylasStore
 
   longPollHistory: -> @_longPollHistory
 
+  providerSyncbackRequests: -> @_providerSyncbackRequests
+
   ########### PRIVATE ####################################################
 
   triggerThrottled: ->
@@ -62,8 +65,14 @@ class DeveloperBarStore extends NylasStore
     @_curlHistory = []
     @_longPollHistory = []
     @_longPollStates = {}
+    @_providerSyncbackRequests = []
 
   _registerListeners: ->
+
+    query = DatabaseStore.findAll(ProviderSyncbackRequest)
+      .order(ProviderSyncbackRequest.attributes.id.descending())
+      .limit(100)
+    Rx.Observable.fromQuery(query).subscribe(@_onSyncbackRequestChange)
     @listenTo NylasSyncStatusStore, @_onSyncStatusChanged
     @listenTo Actions.willMakeAPIRequest, @_onWillMakeAPIRequest
     @listenTo Actions.didMakeAPIRequest, @_onDidMakeAPIRequest
@@ -76,6 +85,10 @@ class DeveloperBarStore extends NylasStore
     @_curlHistory = []
     @_longPollHistory = []
     @trigger(@)
+
+  _onSyncbackRequestChange: (reqs = []) =>
+    @_providerSyncbackRequests = reqs
+    @trigger()
 
   _onSyncStatusChanged: ->
     @_longPollStates = {}
