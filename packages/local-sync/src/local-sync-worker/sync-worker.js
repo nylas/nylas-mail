@@ -176,7 +176,6 @@ class SyncWorker {
       return;
     }
 
-    console.log(this._account)
     this._logger.info({reason}, `SyncWorker: Account sync started`)
 
     try {

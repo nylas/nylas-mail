@@ -1,6 +1,12 @@
 const _ = require('underscore')
 
+let ENABLE_LOGGING = true;
+
 function Logger(boundArgs = {}) {
+  if (NylasEnv && !NylasEnv.inDevMode()) {
+    ENABLE_LOGGING = false
+  }
+
   if (!_.isObject(boundArgs)) {
     throw new Error('Logger: Bound arguments must be an object')
   }
@@ -8,6 +14,9 @@ function Logger(boundArgs = {}) {
   const loggerFns = ['log', 'info', 'warn', 'error']
   loggerFns.forEach((logFn) => {
     logger[logFn] = (first, ...args) => {
+      if (!ENABLE_LOGGING && logFn !== "error") {
+        return () => {}
+      }
       if (first instanceof Error || !_.isObject(first)) {
         if (_.isEmpty(boundArgs)) {
           return console[logFn](first, ...args)
