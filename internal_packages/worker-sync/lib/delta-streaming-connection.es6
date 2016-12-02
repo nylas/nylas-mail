@@ -1,8 +1,7 @@
 import _ from 'underscore'
-import {NylasAPIRequest, NylasLongConnection, DatabaseStore} from 'nylas-exports'
+import {NylasLongConnection, DatabaseStore} from 'nylas-exports'
 
 class DeltaStreamingConnection extends NylasLongConnection {
-
   constructor(api, accountId, opts = {}) {
     opts.throttleResultsInterval = 1000
     opts.closeIfDataStopsInterval = 15 * 1000
@@ -20,38 +19,16 @@ class DeltaStreamingConnection extends NylasLongConnection {
     })
   }
 
-  deltaStreamingPath(cursor = 0) {
+  _deltaStreamingPath(cursor) {
     return `/delta/streaming?cursor=${cursor}`
-  }
-
-  hasCursor() {
-    return !!this._getCursor()
   }
 
   onError(err) {
     if (err.message.indexOf('Invalid cursor') > 0) {
-      const error = new Error('Delta Connection: Cursor is invalid. Need to blow away local cache.')
-      NylasEnv.config.unset(`nylas.${this._accountId}.cursor`)
+      const error = new Error('Delta Connection: Cursor is invalid. Need to blow away local cache.');
+      this._setCursor(0)
       DatabaseStore._handleSetupError(error)
     }
-  }
-
-  latestCursor() {
-    const cursor = this._getCursor()
-    if (cursor) { return Promise.resolve(cursor) }
-    const request = new NylasAPIRequest({
-      api: this._api,
-      options: {
-        path: "/delta/latest_cursor",
-        accountId: this._accountId,
-        method: 'POST',
-      },
-    })
-    return request.run().then((result) => {
-      if (!result) throw new Error(`No cursor returned from ${this._api.APIRoot}/delta/latest_cursor`);
-      this._setCursor(result.cursor)
-      return Promise.resolve(result.cursor)
-    })
   }
 
   onDeltas(callback) {
@@ -59,16 +36,8 @@ class DeltaStreamingConnection extends NylasLongConnection {
   }
 
   start() {
-    if (!this.canStart()) { return }
-    if (this._req != null) { return }
-
-    this.latestCursor().then((cursor) => {
-      this._path = this.deltaStreamingPath(cursor)
-      super.start()
-    })
-    .catch((error) => {
-      console.error(`Can't establish DeltaStreamingConnection: Error fetching latest cursor`, error)
-    })
+    this._path = this._deltaStreamingPath(this._getCursor() || 0)
+    super.start()
   }
 }
 

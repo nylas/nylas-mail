@@ -35,8 +35,8 @@ class UpdateChannelStore extends NylasStore {
       qs: autoUpdater.parameters(),
       json: true,
     }).then(({current, available} = {}) => {
-      this._current = current;
-      this._available = available;
+      this._current = current || {name: "Edgehill API Not Available"};
+      this._available = available || [];
       this.trigger();
     });
     return null;
@@ -49,8 +49,8 @@ class UpdateChannelStore extends NylasStore {
       qs: Object.assign({channel: channelName}, autoUpdater.parameters()),
       json: true,
     }).then(({current, available} = {}) => {
-      this._current = current;
-      this._available = available;
+      this._current = current || {name: "Edgehill API Not Available"};
+      this._available = available || [];
       this.trigger();
     }).catch((err) => {
       NylasEnv.showErrorDialog(err.toString())
