@@ -35,9 +35,6 @@ export default class AccountChoosePage extends React.Component {
         <h2>
           Connect an email account
         </h2>
-        <div className="cloud-sync-note">
-          <a href="https://support.nylas.com/hc/en-us/articles/217518207-Why-does-Nylas-N1-sync-email-via-the-cloud-">Learn more</a> about how Nylas syncs your mail in the cloud.
-        </div>
         <div className="provider-list">
           {this._renderAccountTypes()}
         </div>
