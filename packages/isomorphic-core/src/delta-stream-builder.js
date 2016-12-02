@@ -47,8 +47,8 @@ module.exports = {
 
       const outputStream = stream.Readable();
       outputStream._read = () => { return };
-      source.subscribe((str) => outputStream.push(str))
-      request.on("disconnect", () => source.dispose());
+      const disposable = source.subscribe((str) => outputStream.push(str))
+      request.on("disconnect", () => disposable.dispose());
 
       return outputStream;
     });
