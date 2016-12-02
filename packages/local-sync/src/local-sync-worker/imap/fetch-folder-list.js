@@ -50,7 +50,7 @@ class FetchFolderList {
         '\\Trash': 'trash',
         '\\All': 'all',
         '\\Important': 'important',
-        '\\Flagged': 'flagged',
+        '\\Flagged': 'starred',
         '\\Inbox': 'inbox',
       }[attrib];
       if (role) {
