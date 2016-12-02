@@ -3,7 +3,7 @@ import {
   Actions,
   Thread,
   Message,
-  NylasAPI,
+  NylasAPIHelpers,
   DatabaseStore,
   MailRulesProcessor,
 } from 'nylas-exports';
@@ -126,10 +126,10 @@ class DeltaProcessor {
     const {create, modify, destroy} = this._clusterDeltas(modelDeltas);
 
     const created = await Promise.props(Object.keys(create).map((type) =>
-      NylasAPI._handleModelResponse(_.values(create[type]))
+      NylasAPIHelpers.handleModelResponse(_.values(create[type]))
     ));
     const updated = await Promise.props(Object.keys(modify).map((type) =>
-      NylasAPI._handleModelResponse(_.values(modify[type]))
+      NylasAPIHelpers.handleModelResponse(_.values(modify[type]))
     ));
     await Promise.map(destroy, this._handleDestroyDelta);
 
@@ -145,7 +145,7 @@ class DeltaProcessor {
 
     return Promise.map(Object.keys(byObjectType), (objType) => {
       const jsons = byObjectType[objType]
-      const klass = NylasAPI._apiObjectToClassMap[objType];
+      const klass = NylasAPIHelpers.apiObjectToClassMap[objType];
       const byObjId = _.pluck(jsons, "object_id")
 
       return DatabaseStore.inTransaction(t => {
@@ -216,7 +216,7 @@ class DeltaProcessor {
   }
 
   _handleDestroyDelta(delta) {
-    const klass = NylasAPI._apiObjectToClassMap[delta.object];
+    const klass = NylasAPIHelpers.apiObjectToClassMap[delta.object];
     if (!klass) { return Promise.resolve(); }
 
     return DatabaseStore.inTransaction(t => {
@@ -227,4 +227,5 @@ class DeltaProcessor {
     });
   }
 }
+
 export default new DeltaProcessor()

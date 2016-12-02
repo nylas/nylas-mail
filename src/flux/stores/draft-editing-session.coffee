@@ -1,6 +1,6 @@
 Message = require('../models/message').default
 Actions = require('../actions').default
-NylasAPI = require '../nylas-api'
+NylasAPIHelpers = require '../nylas-api-helpers'
 AccountStore = require('./account-store').default
 ContactStore = require './contact-store'
 DatabaseStore = require('./database-store').default
@@ -193,7 +193,7 @@ class DraftEditingSession
       return Promise.reject(new Error("DraftEditingSession::ensureCorrectAccount - you can only send drafts from a configured account."))
 
     if account.id isnt @_draft.accountId
-      NylasAPI.makeDraftDeletionRequest(@_draft)
+      NylasAPIHelpers.makeDraftDeletionRequest(@_draft)
       @changes.add({
         accountId: account.id,
         version: null,

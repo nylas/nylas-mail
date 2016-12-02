@@ -1,4 +1,4 @@
-import {React, Actions, NylasAPI, APIError} from 'nylas-exports'
+import {React, Actions, NylasAPI, NylasAPIHelpers, APIError} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
 import classnames from 'classnames'
 import _ from 'underscore'
@@ -59,7 +59,7 @@ export default class MetadataComposerToggleButton extends React.Component {
     const metadataValue = enabled ? metadataEnabledValue : null;
     this.setState({pending: true});
 
-    NylasAPI.authPlugin(pluginId, pluginName, draft.accountId)
+    NylasAPIHelpers.authPlugin(pluginId, pluginName, draft.accountId)
     .then(() => {
       session.changes.addPluginMetadata(pluginId, metadataValue);
     })

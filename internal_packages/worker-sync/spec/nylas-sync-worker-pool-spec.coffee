@@ -1,7 +1,7 @@
 _ = require 'underscore'
 fs = require 'fs'
 path = require 'path'
-{NylasAPI,
+{NylasAPIHelpers,
  Thread,
  DatabaseStore,
  DatabaseTransaction,
@@ -42,7 +42,7 @@ describe "NylasSyncWorkerPool", ->
         fn() for fn in handleModelResponsePromises
         handleModelResponsePromises = []
 
-      spyOn(NylasAPI, '_handleModelResponse').andCallFake ->
+      spyOn(NylasAPIHelpers, 'handleModelResponse').andCallFake ->
         new Promise (resolve, reject) ->
           handleModelResponsePromises.push(resolve)
 
@@ -50,20 +50,20 @@ describe "NylasSyncWorkerPool", ->
       NylasSyncWorkerPool._handleDeltas(@sampleDeltas)
 
       createTypes = Object.keys(@sampleClustered['create'])
-      expect(NylasAPI._handleModelResponse.calls.length).toEqual(createTypes.length)
-      expect(NylasAPI._handleModelResponse.calls[0].args[0]).toEqual(_.values(@sampleClustered['create'][createTypes[0]]))
+      expect(NylasAPIHelpers.handleModelResponse.calls.length).toEqual(createTypes.length)
+      expect(NylasAPIHelpers.handleModelResponse.calls[0].args[0]).toEqual(_.values(@sampleClustered['create'][createTypes[0]]))
       expect(NylasSyncWorkerPool._handleDeltaDeletion.calls.length).toEqual(0)
 
-      NylasAPI._handleModelResponse.reset()
+      NylasAPIHelpers.handleModelResponse.reset()
       resolveModelResponsePromises()
       advanceClock()
 
       modifyTypes = Object.keys(@sampleClustered['modify'])
-      expect(NylasAPI._handleModelResponse.calls.length).toEqual(modifyTypes.length)
-      expect(NylasAPI._handleModelResponse.calls[0].args[0]).toEqual(_.values(@sampleClustered['modify'][modifyTypes[0]]))
+      expect(NylasAPIHelpers.handleModelResponse.calls.length).toEqual(modifyTypes.length)
+      expect(NylasAPIHelpers.handleModelResponse.calls[0].args[0]).toEqual(_.values(@sampleClustered['modify'][modifyTypes[0]]))
       expect(NylasSyncWorkerPool._handleDeltaDeletion.calls.length).toEqual(0)
 
-      NylasAPI._handleModelResponse.reset()
+      NylasAPIHelpers.handleModelResponse.reset()
       resolveModelResponsePromises()
       advanceClock()
 

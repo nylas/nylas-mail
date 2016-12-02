@@ -1,7 +1,7 @@
 import {
   AccountStore,
   CategoryStore,
-  NylasAPI,
+  NylasAPIHelpers,
   Thread,
   Actions,
   Category,
@@ -46,7 +46,7 @@ describe('SnoozeStore', function snoozeStore() {
     spyOn(this.store, 'groupUpdatedThreads').andReturn(Promise.resolve(this.updatedThreadsByAccountId))
 
     spyOn(AccountStore, 'accountsForItems').andReturn(this.accounts)
-    spyOn(NylasAPI, 'authPlugin').andReturn(Promise.resolve())
+    spyOn(NylasAPIHelpers, 'authPlugin').andReturn(Promise.resolve())
     spyOn(SnoozeUtils, 'moveThreadsToSnooze').andReturn(Promise.resolve(this.threads))
     spyOn(SnoozeUtils, 'moveThreadsFromSnooze')
     spyOn(Actions, 'setMetadata')
@@ -133,9 +133,9 @@ describe('SnoozeStore', function snoozeStore() {
       waitsForPromise(() => {
         return this.store.onSnoozeThreads(this.threads, 'date', 'label')
         .then(() => {
-          expect(NylasAPI.authPlugin).toHaveBeenCalled()
-          expect(NylasAPI.authPlugin.calls[0].args[2]).toEqual(this.accounts[0])
-          expect(NylasAPI.authPlugin.calls[1].args[2]).toEqual(this.accounts[1])
+          expect(NylasAPIHelpers.authPlugin).toHaveBeenCalled()
+          expect(NylasAPIHelpers.authPlugin.calls[0].args[2]).toEqual(this.accounts[0])
+          expect(NylasAPIHelpers.authPlugin.calls[1].args[2]).toEqual(this.accounts[1])
         })
       })
     });

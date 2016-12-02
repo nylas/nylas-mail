@@ -9,6 +9,7 @@ import {
   Task,
   SendDraftTask,
   NylasAPI,
+  NylasAPIHelpers,
   NylasAPIRequest,
   SoundRegistry,
   SyncbackMetadataTask,
@@ -89,7 +90,7 @@ describe('SendDraftTask', function sendDraftTask() {
       })
       spyOn(NylasAPI, 'incrementRemoteChangeLock');
       spyOn(NylasAPI, 'decrementRemoteChangeLock');
-      spyOn(NylasAPI, 'makeDraftDeletionRequest');
+      spyOn(NylasAPIHelpers, 'makeDraftDeletionRequest');
       spyOn(DBt, 'unpersistModel').andReturn(Promise.resolve());
       spyOn(DBt, 'persistModel').andReturn(Promise.resolve());
       spyOn(SoundRegistry, "playSound");
@@ -510,7 +511,7 @@ describe('SendDraftTask', function sendDraftTask() {
       it("should call makeDraftDeletionRequest to delete the draft after sending", () => {
         this.task.performLocal();
         waitsForPromise(() => this.task.performRemote().then(() => {
-          expect(NylasAPI.makeDraftDeletionRequest).toHaveBeenCalled()
+          expect(NylasAPIHelpers.makeDraftDeletionRequest).toHaveBeenCalled()
         }));
       });
 

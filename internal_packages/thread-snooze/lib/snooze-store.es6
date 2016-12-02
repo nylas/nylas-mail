@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import {Actions, NylasAPI, AccountStore, CategoryStore} from 'nylas-exports';
+import {Actions, NylasAPIHelpers, AccountStore, CategoryStore} from 'nylas-exports';
 import SnoozeUtils from './snooze-utils'
 import {PLUGIN_ID, PLUGIN_NAME} from './snooze-constants';
 import SnoozeActions from './snooze-actions';
@@ -71,7 +71,7 @@ class SnoozeStore {
 
     const accounts = AccountStore.accountsForItems(threads)
     const promises = accounts.map((acc) => {
-      return NylasAPI.authPlugin(this.pluginId, this.pluginName, acc)
+      return NylasAPIHelpers.authPlugin(this.pluginId, this.pluginName, acc)
     })
     return Promise.all(promises)
     .then(() => {
