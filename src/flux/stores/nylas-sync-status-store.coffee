@@ -31,7 +31,6 @@ class NylasSyncStatusStore extends NylasStore
       query = DatabaseStore.findJSONBlob("NylasSyncWorker:#{item.id}")
       @_subscriptions[item.id] ?= Rx.Observable.fromQuery(query).subscribe (json) =>
         state = _.extend({}, json ? {})
-        delete state.deltaCursors
         @_statesByAccount[item.id] = state
         @trigger()
 
@@ -39,9 +38,8 @@ class NylasSyncStatusStore extends NylasStore
     @_statesByAccount
 
   isSyncCompleteForAccount: (acctId, model) =>
-    return false unless @_statesByAccount[acctId]?.initialized
     if model
-      return @_statesByAccount[acctId][model]?.complete ? false
+      return @_statesByAccount[acctId]?[model]?.complete ? false
 
     return false if _.isEmpty(@_statesByAccount[acctId])
     for _model, modelState of @_statesByAccount[acctId]
@@ -66,9 +64,10 @@ class NylasSyncStatusStore extends NylasStore
   busy: =>
     for accountId, states of @_statesByAccount
       for key, state of states
-        if state.busy
-          return true
-      false
+        if ModelsForSync.includes(key)
+          if !state.complete
+            return true
+    return false
 
   connected: =>
     # Return true if any account is in a state other than `retrying`.
