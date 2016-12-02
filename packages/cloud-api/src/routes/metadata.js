@@ -5,9 +5,11 @@ const {DatabaseConnector} = require('cloud-core');
 function upsertMetadata(account, objectId, pluginId, version, data) {
   return DatabaseConnector.forShared().then(({Metadata}) => {
     return Metadata.find({
-      accountId: account.id,
-      objectId: objectId,
-      pluginId: pluginId,
+      where: {
+        accountId: account.id,
+        objectId: objectId,
+        pluginId: pluginId,
+      },
     }).then((existing) => {
       if (existing) {
         if (existing.version / 1 !== version / 1) {
@@ -52,9 +54,11 @@ module.exports = (server) => {
 
       DatabaseConnector.forShared().then(({Metadata}) => {
         Metadata.findAll({
-          accountId: account.id,
-          limit: request.query.limit,
-          offset: request.query.offset,
+          where: {
+            accountId: account.id,
+            limit: request.query.limit,
+            offset: request.query.offset,
+          },
         }).then((items) => {
           reply(Serialization.jsonStringify(items));
         })
