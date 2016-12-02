@@ -91,7 +91,7 @@ module.exports = (server) => {
       const {version, value, objectType} = request.payload;
       const {pluginId, objectId} = request.params;
 
-      upsertMetadata(account, objectId, objectType, pluginId, version, value)
+      upsertMetadata(account, objectId, objectType, pluginId, version, JSON.parse(value))
       .then((metadata) => {
         reply(Serialization.jsonStringify(metadata));
       })
