@@ -10,7 +10,7 @@ import {
 export class Notifier {
   constructor() {
     this.unlisteners = [];
-    this.unlisteners.push(Actions.didPassivelyReceiveNewModels.listen(this._onNewMailReceived, this));
+    this.unlisteners.push(Actions.didPassivelyReceiveCreateDeltas.listen(this._onNewMailReceived, this));
     this.activationTime = Date.now();
     this.unnotifiedQueue = [];
     this.hasScheduledNotify = false;

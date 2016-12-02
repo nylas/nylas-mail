@@ -171,7 +171,7 @@ class FileDownloadStore extends NylasStore {
     this.listenTo(Actions.fetchAndSaveFile, this._fetchAndSave);
     this.listenTo(Actions.fetchAndSaveAllFiles, this._fetchAndSaveAll);
     this.listenTo(Actions.abortFetchFile, this._abortFetchFile);
-    this.listenTo(Actions.didPassivelyReceiveNewModels, this._onNewMailReceived);
+    this.listenTo(Actions.didPassivelyReceiveCreateDeltas, this._onNewMailReceived);
 
     this._downloads = {};
     this._filePreviewPaths = {};

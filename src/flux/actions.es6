@@ -43,7 +43,7 @@ that is not a Store, you can still use the `listen` method provided by Reflux:
 
 ```coffee
 setup: ->
-  @unlisten = Actions.didPassivelyReceiveNewModels.listen(@onNewMailReceived, @)
+  @unlisten = Actions.didPassivelyReceiveCreateDeltas.listen(@onNewMailReceived, @)
 
 onNewMailReceived: (data) ->
   console.log("You've got mail!", data)
@@ -70,7 +70,7 @@ class Actions {
   }
   ```
   */
-  static didPassivelyReceiveNewModels = ActionScopeGlobal;
+  static didPassivelyReceiveCreateDeltas = ActionScopeGlobal;
 
   static downloadStateChanged = ActionScopeGlobal;
 
