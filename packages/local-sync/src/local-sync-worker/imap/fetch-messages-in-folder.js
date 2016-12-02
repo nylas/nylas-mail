@@ -261,10 +261,9 @@ class FetchMessagesInFolder {
         }, `FetchMessagesInFolder: Queued new message for processing`)
       }
     } catch (err) {
-      this._logger.error({
+      this._logger.error(err, {
         imapMessage,
         desiredParts,
-        underlying: err.toString(),
       }, `FetchMessagesInFolder: Could not build message`)
     }
   }
