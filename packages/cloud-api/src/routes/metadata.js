@@ -2,7 +2,7 @@ const Joi = require('joi');
 const Serialization = require('../serialization');
 const {DatabaseConnector} = require('cloud-core');
 
-function upsertMetadata(account, objectId, objectType, pluginId, version, data) {
+function upsertMetadata(account, objectId, objectType, pluginId, version, value) {
   return DatabaseConnector.forShared().then(({Metadata}) => {
     return Metadata.find({
       where: {
@@ -16,7 +16,7 @@ function upsertMetadata(account, objectId, objectType, pluginId, version, data) 
         if (existing.version / 1 !== version / 1) {
           return Promise.reject(new Error("Version Conflict"));
         }
-        existing.data = data;
+        existing.value = value;
         return existing.save();
       }
       return Metadata.create({
@@ -25,7 +25,7 @@ function upsertMetadata(account, objectId, objectType, pluginId, version, data) 
         objectType: objectType,
         pluginId: pluginId,
         version: 0,
-        data: data,
+        value: value,
       })
     })
   })
@@ -80,9 +80,9 @@ module.exports = (server) => {
           pluginId: Joi.string(),
         },
         payload: {
-          objectType: Joi.string(),
-          version: Joi.number().integer(),
-          value: Joi.string(),
+          objectType: Joi.string().required(),
+          version: Joi.number().integer().required(),
+          value: Joi.string().required(),
         },
       },
     },
