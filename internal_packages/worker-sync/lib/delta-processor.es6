@@ -67,6 +67,7 @@ class DeltaProcessor {
       await this._saveMetadata(metadataDeltas);
       await this._notifyOfNewMessages(models.created);
     } catch (err) {
+      console.error(rawDeltas)
       console.error("DeltaProcessor: Process failed.", err)
       NylasEnv.reportError(err);
     } finally {
