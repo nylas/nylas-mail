@@ -29,17 +29,15 @@ export default class SyncbackCategoryTask extends Task {
       if (this._isReverting) {
         if (isUpdating) {
           this.category.displayName = this._initialDisplayName;
-          t.persistModel(this.category);
-        } else {
-          t.unpersistModel(this.category);
+          return t.persistModel(this.category);
         }
-      } else {
-        if (isUpdating && this.displayName) {
-          this._initialDisplayName = this.category.displayName;
-          this.category.displayName = this.displayName;
-        }
-        t.persistModel(this.category);
+        return t.unpersistModel(this.category);
       }
+      if (isUpdating && this.displayName) {
+        this._initialDisplayName = this.category.displayName;
+        this.category.displayName = this.displayName;
+      }
+      return t.persistModel(this.category);
     });
   }
 
