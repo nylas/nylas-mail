@@ -1,7 +1,7 @@
 Message = require('../models/message').default
 Actions = require('../actions').default
 NylasAPI = require '../nylas-api'
-AccountStore = require './account-store'
+AccountStore = require('./account-store').default
 ContactStore = require './contact-store'
 DatabaseStore = require('./database-store').default
 UndoStack = require('../../undo-stack').default

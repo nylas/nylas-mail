@@ -2,7 +2,7 @@ _ = require 'underscore'
 Rx = require 'rx-lite'
 NylasStore = require 'nylas-store'
 DatabaseStore = require('./database-store').default
-AccountStore = require './account-store'
+AccountStore = require('./account-store').default
 TaskQueue = require './task-queue'
 
 # Public: The TaskQueueStatusStore allows you to inspect the task queue from

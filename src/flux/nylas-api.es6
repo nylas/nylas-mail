@@ -127,9 +127,11 @@ class NylasAPI {
 
   handleAuthenticationFailure = (modelUrl, apiToken, apiName) => {
     // Prevent /auth errors from presenting auth failure notices
-    if (!apiToken) return Promise.resolve()
+    if (!apiToken) {
+      return Promise.resolve()
+    }
 
-    AccountStore = AccountStore || require('./stores/account-store')
+    AccountStore = AccountStore || require('./stores/account-store').default
     const account = AccountStore.accounts().find((acc) => {
       const localMatch = AccountStore.tokensForAccountId(acc.id).localSync === apiToken;
       const cloudMatch = AccountStore.tokensForAccountId(acc.id).n1Cloud === apiToken;
@@ -319,7 +321,7 @@ class NylasAPI {
   }
 
   accessTokenForAccountId = (aid) => {
-    AccountStore = AccountStore || require('./stores/account-store')
+    AccountStore = AccountStore || require('./stores/account-store').default
     return AccountStore.tokensForAccountId(aid).localSync
   }
 
@@ -369,7 +371,7 @@ class NylasAPI {
 
     let account = accountOrId
     if (!(accountOrId instanceof Account)) {
-      AccountStore = AccountStore || require('./stores/account-store')
+      AccountStore = AccountStore || require('./stores/account-store').default
       account = AccountStore.accountForId(accountOrId)
     }
 

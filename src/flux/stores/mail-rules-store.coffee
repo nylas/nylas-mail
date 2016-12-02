@@ -1,7 +1,7 @@
 NylasStore = require 'nylas-store'
 _ = require 'underscore'
 Rx = require 'rx-lite'
-AccountStore = require './account-store'
+AccountStore = require('./account-store').default
 DatabaseStore = require('./database-store').default
 TaskQueueStatusStore = require './task-queue-status-store'
 ReprocessMailRulesTask = require('../tasks/reprocess-mail-rules-task').default

@@ -1,6 +1,6 @@
 _ = require 'underscore'
 Actions = require('../actions').default
-AccountStore = require './account-store'
+AccountStore = require('./account-store').default
 CategoryStore = require './category-store'
 MailboxPerspective = require '../../mailbox-perspective'
 NylasStore = require 'nylas-store'

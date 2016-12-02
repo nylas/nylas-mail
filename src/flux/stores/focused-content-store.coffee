@@ -1,6 +1,6 @@
 _ = require 'underscore'
 Reflux = require 'reflux'
-AccountStore = require './account-store'
+AccountStore = require('./account-store').default
 WorkspaceStore = require './workspace-store'
 DatabaseStore = require('./database-store').default
 FocusedPerspectiveStore = require('./focused-perspective-store').default

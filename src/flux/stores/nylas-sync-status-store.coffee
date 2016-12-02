@@ -1,6 +1,6 @@
 _ = require 'underscore'
 Rx = require 'rx-lite'
-AccountStore = require './account-store'
+AccountStore = require('./account-store').default
 DatabaseStore = require('./database-store').default
 NylasStore = require 'nylas-store'
 NylasObservables = require 'nylas-observables'
