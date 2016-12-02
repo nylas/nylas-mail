@@ -158,9 +158,18 @@ export class Notifier {
 
       Promise.props(threads).then((resolvedThreads) => {
         // Filter new unread messages to just the ones in the inbox
-        const newUnreadInInbox = newUnread.filter((msg) =>
-          resolvedThreads[msg.threadId] && resolvedThreads[msg.threadId].categoryNamed('inbox')
-        )
+        let newUnreadInInbox = newUnread.filter((msg) =>
+          resolvedThreads[msg.threadId] && (
+            resolvedThreads[msg.threadId].categoryNamed('inbox')
+          )
+        );
+        // Should we only notify on important messages?
+        if (NylasEnv.config.get("core.notifications.onlyImportant")) {
+          // Filter new unread messages to just the ones in the inbox that are marked important
+          newUnreadInInbox = newUnreadInInbox.filter((msg) =>
+            resolvedThreads[msg.threadId].categoryNamed('important')
+          );
+        }
 
         // Filter messages that we can't decide whether to display or not
         // since no associated Thread object has arrived yet.
@@ -196,6 +205,10 @@ export const config = {
     'type': 'boolean',
     'default': true,
   },
+  onlyImportant: {
+    'type': 'boolean',
+    'default': false,
+  }
 };
 
 export function activate() {

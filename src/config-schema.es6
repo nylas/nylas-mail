@@ -148,6 +148,11 @@ export default {
             'default': true,
             'title': "Play sound when receiving new mail",
           },
+          onlyImportant: {
+            'type': 'boolean',
+            'default': false,
+            'title': "Only notify for messages considered important",
+          },
           countBadge: {
             'type': 'string',
             'default': 'unread',
