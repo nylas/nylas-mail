@@ -100,6 +100,7 @@ lazyLoadAndRegisterModel(`Contact`, 'contact');
 lazyLoadAndRegisterModel(`Category`, 'category');
 lazyLoadAndRegisterModel(`Calendar`, 'calendar');
 lazyLoadAndRegisterModel(`JSONBlob`, 'json-blob');
+lazyLoadAndRegisterModel(`ProviderSyncbackRequest`, 'provider-syncback-request');
 
 // Tasks
 exports.TaskRegistry = TaskRegistry;
