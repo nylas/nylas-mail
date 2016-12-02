@@ -10,23 +10,6 @@ class SetThreadLabelsIMAP extends SyncbackTask {
     const threadId = this.syncbackRequestObject().props.threadId
     const labelIds = this.syncbackRequestObject().props.labelIds
 
-    if (!labelIds || labelIds.length === 0) {
-      return TaskHelpers.forEachMessageInThread({
-        db,
-        imap,
-        threadId,
-        callback: ({message, box}) => {
-          return message.getLabels().then((labels) => {
-            const labelIdentifiers = labels.map(label => label.imapLabelIdentifier())
-            return box.removeLabels(message.folderImapUID, labelIdentifiers)
-          })
-        },
-      })
-    }
-
-    const labels = await db.Label.findAll({where: {id: labelIds}});
-    const labelIdentifiers = labels.map(label => label.imapLabelIdentifier());
-
     // Ben TODO this is super inefficient because it makes IMAP requests
     // one UID at a time, rather than gathering all the UIDs and making
     // a single removeLabels call.
@@ -34,8 +17,8 @@ class SetThreadLabelsIMAP extends SyncbackTask {
       db,
       imap,
       threadId,
-      callback: ({message, box}) => {
-        return box.setLabels(message.folderImapUID, labelIdentifiers)
+      async callback({message, box}) {
+        return TaskHelpers.setMessageLabels({message, db, box, labelIds})
       },
     })
   }

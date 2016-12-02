@@ -6,16 +6,12 @@ class MoveMessageToFolderIMAP extends SyncbackTask {
     return `MoveMessageToFolder`;
   }
 
-  run(db, imap) {
+  async run(db, imap) {
     const messageId = this.syncbackRequestObject().props.messageId
-    const toFolderId = this.syncbackRequestObject().props.folderId
+    const targetFolderId = this.syncbackRequestObject().props.folderId
 
-    return TaskHelpers.openMessageBox({messageId, db, imap})
-      .then(({box, message}) => {
-        return db.Folder.findById(toFolderId).then((newFolder) => {
-          return box.moveFromBox(message.folderImapUID, newFolder.name)
-        })
-      })
+    const {box, message} = await TaskHelpers.openMessageBox({messageId, db, imap})
+    return TaskHelpers.moveMessageToFolder({db, box, message, targetFolderId})
   }
 }
 module.exports = MoveMessageToFolderIMAP

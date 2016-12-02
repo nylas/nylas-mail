@@ -33,5 +33,34 @@ const TaskHelpers = {
       })
     }))
   },
+
+  async moveMessageToFolder({db, box, message, targetFolderId}) {
+    if (!targetFolderId) {
+      throw new Error('TaskHelpers.moveMessageToFolder: targetFolderId is required')
+    }
+    if (targetFolderId === message.folderId) {
+      return Promise.resolve()
+    }
+    const targetFolder = await db.Folder.findById(targetFolderId)
+    if (!targetFolder) {
+      return Promise.resolve()
+    }
+    return box.moveFromBox(message.folderImapUID, targetFolder.name)
+  },
+
+  async setMessageLabels({db, box, message, labelIds}) {
+    if (!labelIds || labelIds.length === 0) {
+      const labels = await message.getLabels()
+      if (labels.length === 0) {
+        return Promise.resolve()
+      }
+      const labelIdentifiers = labels.map(label => label.imapLabelIdentifier())
+      return box.removeLabels(message.folderImapUID, labelIdentifiers)
+    }
+
+    const labels = await db.Label.findAll({where: {id: labelIds}});
+    const labelIdentifiers = labels.map(label => label.imapLabelIdentifier());
+    return box.setLabels(message.folderImapUID, labelIdentifiers)
+  },
 }
 module.exports = TaskHelpers

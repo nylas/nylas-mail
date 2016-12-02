@@ -76,7 +76,16 @@ module.exports = (server) => {
     },
     handler: (request, reply) => {
       const payload = request.payload
-      if (payload.folder_id || payload.folder) {
+      if ((payload.folder_id || payload.folder) && (payload.label_ids || payload.labels)) {
+        createSyncbackRequest(request, reply, {
+          type: "SetThreadFolderAndLabels",
+          props: {
+            folderId: payload.folder_id || payload.folder,
+            labelIds: payload.label_ids || payload.labels,
+            threadId: request.params.id,
+          },
+        })
+      } else if (payload.folder_id || payload.folder) {
         createSyncbackRequest(request, reply, {
           type: "MoveThreadToFolder",
           props: {
