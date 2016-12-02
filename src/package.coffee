@@ -66,16 +66,7 @@ class Package
     @metadata ?= Package.loadMetadata(@path)
     @bundledPackage = Package.isBundledPackagePath(@path)
     @name = @metadata?.name ? path.basename(@path)
-
-    if @metadata.appId
-      if _.isString @metadata.appId
-        @pluginAppId = @metadata.appId ? null
-      else if _.isObject @metadata.appId
-        @pluginAppId = @metadata.appId[NylasEnv.config.get('env')] ? null
-      else
-        @pluginAppId = null
-    else
-      @pluginAppId = null
+    @pluginAppId = @name
 
     @displayName = @metadata?.displayName || @name
     ModuleCache.add(@path, @metadata)

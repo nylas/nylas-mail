@@ -112,7 +112,7 @@ class PackageManager
       return null unless packagePath
       metadata = Package.loadMetadata(packagePath)
 
-    return metadata.appId[env] if metadata and metadata.appId instanceof Object
+    return metadata.name if metadata
     return null
 
   ###
