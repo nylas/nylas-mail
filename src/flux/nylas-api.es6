@@ -1,7 +1,6 @@
 /* eslint global-require: 0 */
 
 import _ from 'underscore'
-import {remote} from 'electron'
 import NylasLongConnection from './nylas-long-connection'
 import NylasAPIRequest from './nylas-api-request'
 import Account from './models/account'

@@ -30,6 +30,7 @@ export default class SyncbackMetadataTask extends SyncbackModelTask {
         body: {
           version: metadata.version,
           value: JSON.stringify(metadata.value),
+          objectType: this.modelClassName.toLowerCase(),
         },
       };
       return new NylasAPIRequest({
