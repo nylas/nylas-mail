@@ -89,6 +89,11 @@ class FetchFolderList {
         });
       }
 
+      const lowerCaseAttrs = box.attribs.map(attr => attr.toLowerCase())
+      if (lowerCaseAttrs.includes('\\noselect') || lowerCaseAttrs.includes('\\nonexistent')) {
+        continue;
+      }
+
       let category = categories.find((cat) => cat.name === boxName);
       if (!category) {
         const role = this._roleByAttr(box);
