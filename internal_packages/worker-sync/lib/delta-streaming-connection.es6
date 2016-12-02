@@ -21,7 +21,7 @@ class DeltaStreamingConnection extends NylasLongConnection {
   }
 
   deltaStreamingPath(cursor = 0) {
-    return `/delta/streaming?cursor=${cursor}&exclude_folders=false&exclude_metadata=false&exclude_account=false`
+    return `/delta/streaming?cursor=${cursor}`
   }
 
   hasCursor() {
