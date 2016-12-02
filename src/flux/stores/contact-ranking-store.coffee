@@ -1,7 +1,7 @@
 Rx = require 'rx-lite'
 NylasStore = require 'nylas-store'
 DatabaseStore = require('./database-store').default
-AccountStore = require './account-store'
+AccountStore = require('./account-store').default
 
 class ContactRankingStore extends NylasStore
 

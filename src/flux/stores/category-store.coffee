@@ -1,7 +1,7 @@
 _ = require 'underscore'
 Rx = require 'rx-lite'
 NylasStore = require 'nylas-store'
-AccountStore = require './account-store'
+AccountStore = require('./account-store').default
 NylasSyncStatusStore = require './nylas-sync-status-store'
 Account = require('../models/account').default
 {StandardCategoryNames} = require('../models/category').default

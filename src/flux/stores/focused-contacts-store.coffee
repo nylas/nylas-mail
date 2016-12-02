@@ -7,7 +7,7 @@ NylasStore = require 'nylas-store'
 Thread = require('../models/thread').default
 Contact = require('../models/contact').default
 MessageStore = require './message-store'
-AccountStore = require './account-store'
+AccountStore = require('./account-store').default
 DatabaseStore = require('./database-store').default
 FocusedContentStore = require './focused-content-store'
 

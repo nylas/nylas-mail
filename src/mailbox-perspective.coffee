@@ -2,7 +2,7 @@ _ = require 'underscore'
 
 Utils = require './flux/models/utils'
 TaskFactory = require('./flux/tasks/task-factory').default
-AccountStore = require './flux/stores/account-store'
+AccountStore = require('./flux/stores/account-store').default
 CategoryStore = require './flux/stores/category-store'
 DatabaseStore = require('./flux/stores/database-store').default
 OutboxStore = require('./flux/stores/outbox-store').default

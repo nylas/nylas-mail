@@ -2,7 +2,7 @@ _ = require 'underscore'
 
 Actions = require('../actions').default
 DatabaseStore = require('./database-store').default
-AccountStore = require './account-store'
+AccountStore = require('./account-store').default
 ContactStore = require './contact-store'
 MessageStore = require './message-store'
 FocusedPerspectiveStore = require('./focused-perspective-store').default
