@@ -2,12 +2,13 @@ const Joi = require('joi');
 const Serialization = require('../serialization');
 const {DatabaseConnector} = require('cloud-core');
 
-function upsertMetadata(account, objectId, pluginId, version, data) {
+function upsertMetadata(account, objectId, objectType, pluginId, version, data) {
   return DatabaseConnector.forShared().then(({Metadata}) => {
     return Metadata.find({
       where: {
         accountId: account.id,
         objectId: objectId,
+        objectType: objectType,
         pluginId: pluginId,
       },
     }).then((existing) => {
@@ -21,6 +22,7 @@ function upsertMetadata(account, objectId, pluginId, version, data) {
       return Metadata.create({
         accountId: account.id,
         objectId: objectId,
+        objectType: objectType,
         pluginId: pluginId,
         version: 0,
         data: data,
@@ -78,6 +80,7 @@ module.exports = (server) => {
           pluginId: Joi.string(),
         },
         payload: {
+          objectType: Joi.string(),
           version: Joi.number().integer(),
           value: Joi.string(),
         },
@@ -85,10 +88,10 @@ module.exports = (server) => {
     },
     handler: (request, reply) => {
       const {account} = request.auth.credentials;
-      const {version, value} = request.payload;
+      const {version, value, objectType} = request.payload;
       const {pluginId, objectId} = request.params;
 
-      upsertMetadata(account, objectId, pluginId, version, value)
+      upsertMetadata(account, objectId, objectType, pluginId, version, value)
       .then((metadata) => {
         reply(Serialization.jsonStringify(metadata));
       })
@@ -110,16 +113,17 @@ module.exports = (server) => {
           pluginId: Joi.string(),
         },
         payload: {
+          objectType: Joi.string(),
           version: Joi.number().integer(),
         },
       },
     },
     handler: (request, reply) => {
       const {account} = request.auth.credentials;
-      const {version} = request.payload;
+      const {version, objectType} = request.payload;
       const {pluginId, objectId} = request.params;
 
-      upsertMetadata(account, objectId, pluginId, version, null)
+      upsertMetadata(account, objectId, objectType, pluginId, version, null)
       .then((metadata) => {
         reply(Serialization.jsonStringify(metadata));
       })

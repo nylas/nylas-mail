@@ -10,14 +10,18 @@ module.exports = (sequelize, Sequelize) => {
     objectType: Sequelize.STRING,
   }, {
     instanceMethods: {
-      id: `${this.id}`,
-      value: this.value,
-      object: "metadata",
-      version: this.version,
-      plugin_id: this.pluginId,
-      object_id: this.objectId,
-      account_id: this.accountId,
-      object_type: this.objectType,
+      toJSON() {
+        return {
+          id: `${this.id}`,
+          value: this.value,
+          object: "metadata",
+          version: this.version,
+          plugin_id: this.pluginId,
+          object_id: this.objectId,
+          account_id: this.accountId,
+          object_type: this.objectType,
+        };
+      },
     },
   });
 
