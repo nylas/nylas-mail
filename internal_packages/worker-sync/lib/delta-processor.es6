@@ -149,7 +149,7 @@ class DeltaProcessor {
       const byObjId = _.pluck(jsons, "object_id")
 
       return DatabaseStore.inTransaction(t => {
-        return _findModelsForMetadata(t, klass, Object.keys(byObjId))
+        return this._findModelsForMetadata(t, klass, Object.keys(byObjId))
         .then((models) => {
           if (!models || models.length === 0) return Promise.resolve()
           models.forEach((model) => {
@@ -165,22 +165,20 @@ class DeltaProcessor {
   }
 
   _findModelsForMetadata(t, klass, ids) {
-    if (klass == Thread) {
+    if (klass === Thread) {
       // go through the Message table first, since local Thread IDs may be
       // the (static) ID of any Message in the thread
       // We prepend 't:' to thread IDs to avoid global object ID conflicts
       const messageIds = ids.map(i => i.slice(2))
       return t.findAll(Message, {id: ids}).then((messages) => {
-        if (messages.length != messageIds.length) {
+        if (messages.length !== messageIds.length) {
           throw new Error(`Didn't find message for each thread. Thread IDs from remote: ${ids}`);
         }
         const threadIds = messages.map(m => m.threadId);
         return t.findAll(Thread, {id: threadIds})
       });
     }
-    else {
-      return t.findAll(klass, {id: ids});
-    }
+    return t.findAll(klass, {id: ids});
   }
 
   /**
