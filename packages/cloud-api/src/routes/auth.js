@@ -196,13 +196,13 @@ module.exports = (server) => {
       const oauthClient = new OAuth2(GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL);
       oauthClient.getToken(request.query.code, (err, tokens) => {
         if (err) {
-          reply({message: err.message, type: "api_error"}).code(400);
+          reply({message: err.message, type: "api_error", step: 'get-token'}).code(400);
           return;
         }
         oauthClient.setCredentials(tokens);
         google.oauth2({version: 'v2', auth: oauthClient}).userinfo.get((error, profile) => {
           if (error) {
-            reply({message: error.message, type: "api_error"}).code(400);
+            reply({message: error.message, type: "api_error", step: 'get-profile'}).code(400);
             return;
           }
 
