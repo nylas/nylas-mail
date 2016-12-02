@@ -1,3 +1,5 @@
+const {formatImapPath} = require('../shared/imap-paths-utils');
+
 module.exports = (sequelize, Sequelize) => {
   return sequelize.define('label', {
     id: { type: Sequelize.STRING(65), primaryKey: true },
@@ -53,7 +55,7 @@ module.exports = (sequelize, Sequelize) => {
           account_id: this.accountId,
           object: 'label',
           name: this.role,
-          display_name: this.name,
+          display_name: formatImapPath(this.name),
         };
       },
     },

@@ -1,4 +1,5 @@
 const {DatabaseTypes: {JSONType}} = require('isomorphic-core');
+const {formatImapPath} = require('../shared/imap-paths-utils');
 
 module.exports = (sequelize, Sequelize) => {
   return sequelize.define('folder', {
@@ -32,7 +33,7 @@ module.exports = (sequelize, Sequelize) => {
           account_id: this.accountId,
           object: 'folder',
           name: this.role,
-          display_name: this.name,
+          display_name: formatImapPath(this.name),
         };
       },
     },
