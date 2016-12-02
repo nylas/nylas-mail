@@ -95,6 +95,11 @@ function detectThread({db, message}) {
 
     // update the basic properties of the thread
     thread.accountId = message.accountId;
+    // Threads may, locally, have the ID of any message within the thread
+    // (message IDs are globally unique, even across accounts!)
+    if (!thread.id) {
+      thread.id = `t:${message.id}`
+    }
 
     // update the participants on the thread
     const threadParticipants = [].concat(thread.participants);
