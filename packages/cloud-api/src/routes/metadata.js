@@ -2,13 +2,12 @@ const Joi = require('joi');
 const Serialization = require('../serialization');
 const {DatabaseConnector} = require('cloud-core');
 
-function upsertMetadata(account, identity, objectId, key, version, data) {
+function upsertMetadata(account, objectId, pluginId, version, data) {
   return DatabaseConnector.forShared().then(({Metadata}) => {
     return Metadata.find({
       accountId: account.id,
-      nylasId: identity.id,
       objectId: objectId,
-      key: key,
+      pluginId: pluginId,
     }).then((existing) => {
       if (existing) {
         if (existing.version / 1 !== version / 1) {
@@ -19,10 +18,9 @@ function upsertMetadata(account, identity, objectId, key, version, data) {
       }
       return Metadata.create({
         accountId: account.id,
-        nylasId: identity.id,
         objectId: objectId,
+        pluginId: pluginId,
         version: 0,
-        key: key,
         data: data,
       })
     })
@@ -66,14 +64,14 @@ module.exports = (server) => {
 
   server.route({
     method: ['PUT', 'POST'],
-    path: `/metadata/{objectId}/{key}`,
+    path: `/metadata/{objectId}/{pluginId}`,
     config: {
       description: `Update metadata`,
       tags: ['metadata'],
       validate: {
         params: {
           objectId: Joi.string(),
-          key: Joi.string(),
+          pluginId: Joi.string(),
         },
         payload: {
           version: Joi.number().integer(),
@@ -82,11 +80,11 @@ module.exports = (server) => {
       },
     },
     handler: (request, reply) => {
-      const {account, identity} = request.auth.credentials;
+      const {account} = request.auth.credentials;
       const {version, value} = request.payload;
-      const {key, objectId} = request.params;
+      const {pluginId, objectId} = request.params;
 
-      upsertMetadata(account, identity, objectId, key, version, value)
+      upsertMetadata(account, objectId, pluginId, version, value)
       .then((metadata) => {
         reply(Serialization.jsonStringify(metadata));
       })
@@ -98,14 +96,14 @@ module.exports = (server) => {
 
   server.route({
     method: 'DELETE',
-    path: `/metadata/{objectId}/{key}`,
+    path: `/metadata/{objectId}/{pluginId}`,
     config: {
       description: `Delete metadata`,
       tags: ['metadata'],
       validate: {
         params: {
           objectId: Joi.number().integer(),
-          key: Joi.string(),
+          pluginId: Joi.string(),
         },
         payload: {
           version: Joi.number().integer(),
@@ -113,11 +111,11 @@ module.exports = (server) => {
       },
     },
     handler: (request, reply) => {
-      const {account, identity} = request.auth.credentials;
+      const {account} = request.auth.credentials;
       const {version} = request.payload;
-      const {key, objectId} = request.params;
+      const {pluginId, objectId} = request.params;
 
-      upsertMetadata(account, identity, objectId, key, version, null)
+      upsertMetadata(account, objectId, pluginId, version, null)
       .then((metadata) => {
         reply(Serialization.jsonStringify(metadata));
       })
