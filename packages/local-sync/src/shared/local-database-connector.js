@@ -1,9 +1,8 @@
 const Sequelize = require('sequelize');
 const fs = require('fs');
 const path = require('path');
-const {loadModels, PromiseUtils} = require('isomorphic-core');
-const HookTransactionLog = require('./hook-transaction-log');
-const HookIncrementVersionOnSave = require('./hook-increment-version-on-save');
+const {loadModels, PromiseUtils, HookIncrementVersionOnSave, HookTransactionLog} = require('isomorphic-core');
+const TransactionConnector = require('./transaction-connector')
 
 require('./database-extensions'); // Extends Sequelize on require
 
@@ -34,7 +33,12 @@ class LocalDatabaseConnector {
       modelDirs: [path.resolve(__dirname, '..', 'models')],
     })
 
-    HookTransactionLog(db, newSequelize);
+    HookTransactionLog(db, newSequelize, {
+      onCreatedTransaction: (transaction) => {
+        TransactionConnector.notifyDelta(db.accountId, transaction);
+      },
+    });
+
     HookIncrementVersionOnSave(db, newSequelize);
 
     db.sequelize = newSequelize;

@@ -10,5 +10,7 @@ module.exports = {
   PromiseUtils: require('./src/promise-utils'),
   DatabaseTypes: require('./src/database-types'),
   loadModels: require('./src/load-models'),
-  deltaStreamBuilder: require('./src/delta-stream-builder'),
+  DeltaStreamBuilder: require('./src/delta-stream-builder'),
+  HookTransactionLog: require('./src/hook-transaction-log'),
+  HookIncrementVersionOnSave: require('./src/hook-increment-version-on-save'),
 }

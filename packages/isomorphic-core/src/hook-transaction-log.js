@@ -1,7 +1,6 @@
 const _ = require('underscore')
-const TransactionConnector = require('./transaction-connector')
 
-module.exports = (db, sequelize) => {
+module.exports = (db, sequelize, {only, onCreatedTransaction} = {}) => {
   if (!db.Transaction) {
     throw new Error("Cannot enable transaction logging, there is no Transaction model class in this database.")
   }
@@ -15,20 +14,33 @@ module.exports = (db, sequelize) => {
 
   const transactionLogger = (event) => {
     return ({dataValues, _changed, $modelOptions}) => {
+      let name = $modelOptions.name.singular;
+      if (name === 'metadatum') {
+        name = 'metadata';
+      }
+
+      if (only && !only.includes(name)) {
+        return;
+      }
+
       const changedFields = Object.keys(_changed)
       if ((isTransaction($modelOptions) || allIgnoredFields(changedFields))) {
         return;
       }
 
+      const accountId = db.accountId ? db.accountId : dataValues.accountId;
+      if (!accountId) {
+        throw new Error("Assertion failure: Cannot create a transaction - could not resolve accountId.")
+      }
+
       const transactionData = Object.assign({event}, {
-        object: $modelOptions.name.singular,
+        object: name,
         objectId: dataValues.id,
+        accountId: accountId,
         changedFields: changedFields,
       });
 
-      db.Transaction.create(transactionData).then((transaction) => {
-        TransactionConnector.notifyDelta(db.accountId, transaction);
-      })
+      db.Transaction.create(transactionData).then(onCreatedTransaction)
     }
   }
 
