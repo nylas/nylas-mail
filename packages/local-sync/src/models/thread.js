@@ -2,6 +2,7 @@ const {DatabaseTypes: {JSONARRAYType}} = require('isomorphic-core');
 
 module.exports = (sequelize, Sequelize) => {
   return sequelize.define('thread', {
+    id: { type: Sequelize.STRING(65), primaryKey: true },
     accountId: { type: Sequelize.STRING, allowNull: false },
     version: Sequelize.INTEGER,
     remoteThreadId: Sequelize.STRING,
