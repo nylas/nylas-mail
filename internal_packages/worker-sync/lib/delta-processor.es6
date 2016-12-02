@@ -54,19 +54,24 @@ import {
  * type we support
  */
 class DeltaProcessor {
-  process = (rawDeltas = []) => {
-    Promise.resolve(rawDeltas)
-    .then(this._decorateDeltas)
-    .then(this._notifyOfRawDeltas)
-    .then(this._extractDeltaTypes)
-    .then(({modelDeltas, metadataDeltas, accountDeltas}) => {
-      return Promise.resolve()
-      .then(() => this._handleAccountDeltas(accountDeltas))
-      .then(() => this._saveModels(modelDeltas))
-      .then(() => this._saveMetadata(metadataDeltas))
-      .then(() => this._notifyOfNewMessages(modelDeltas))
-    })
-    .finally(() => Actions.longPollProcessedDeltas())
+  async process(rawDeltas = []) {
+    try {
+      const deltas = await this._decorateDeltas(rawDeltas);
+      Actions.longPollReceivedRawDeltas(deltas);
+      Actions.longPollReceivedRawDeltasPing(deltas.length);
+
+      const {modelDeltas, metadataDeltas, accountDeltas} = this._extractDeltaTypes(deltas);
+      this._handleAccountDeltas(accountDeltas);
+
+      const models = await this._saveModels(modelDeltas);
+      await this._saveMetadata(metadataDeltas);
+      await this._notifyOfNewMessages(models.created);
+    } catch (err) {
+      console.error("DeltaProcessor: Process failed.", err)
+      NylasEnv.reportError(err);
+    } finally {
+      Actions.longPollProcessedDeltas()
+    }
   }
 
   /**
@@ -74,7 +79,7 @@ class DeltaProcessor {
    * carry forward back to their original deltas. This allows us to
    * mark the deltas that the app ignores later in the process.
    */
-  _decorateDeltas = (rawDeltas) => {
+  _decorateDeltas(rawDeltas) {
     rawDeltas.forEach((delta) => {
       if (!delta.attributes) return;
       Object.defineProperty(delta.attributes, '_delta', {
@@ -84,13 +89,7 @@ class DeltaProcessor {
     return rawDeltas
   }
 
-  _notifyOfRawDeltas = (rawDeltas) => {
-    Actions.longPollReceivedRawDeltas(rawDeltas);
-    Actions.longPollReceivedRawDeltasPing(rawDeltas.length);
-    return rawDeltas
-  }
-
-  _extractDeltaTypes = (rawDeltas) => {
+  _extractDeltaTypes(rawDeltas) {
     const modelDeltas = []
     const accountDeltas = []
     const metadataDeltas = []
@@ -120,19 +119,21 @@ class DeltaProcessor {
     }
   }
 
-  _saveModels = (modelDeltas) => {
+  async _saveModels(modelDeltas) {
     const {create, modify, destroy} = this._clusterDeltas(modelDeltas);
-    const toJSONs = (objs) => _.flatten(_.values(objs).map(_.values))
-    return Promise.resolve()
-    .then(() =>
-      Promise.map(toJSONs(create), NylasAPI._handleModelResponse))
-    .then(() =>
-      Promise.map(toJSONs(modify), NylasAPI._handleModelResponse))
-    .then(() =>
-      Promise.map(destroy, this._handleDestroyDelta))
+
+    const created = await Promise.props(Object.keys(create).map((type) =>
+      NylasAPI._handleModelResponse(_.values(create[type]))
+    ));
+    const updated = await Promise.props(Object.keys(modify).map((type) =>
+      NylasAPI._handleModelResponse(_.values(modify[type]))
+    ));
+    await Promise.map(destroy, this._handleDestroyDelta);
+
+    return {created, updated};
   }
 
-  _saveMetadata = (deltas) => {
+  async _saveMetadata(deltas) {
     const {create, modify} = this._clusterDeltas(deltas);
 
     const allUpdatingMetadata = _.values(create.metadata).concat(_.values(modify.metadata));
@@ -161,35 +162,6 @@ class DeltaProcessor {
   }
 
   /**
-   * We need to re-fetch the models since they may have metadata attached
-   * to them now
-   */
-  _notifyOfNewMessages = (modelDeltas) => {
-    const {create} = this._clusterDeltas(modelDeltas);
-    const modelResolvers = {}
-    for (const objectType of Object.keys(create)) {
-      const klass = NylasAPI._apiObjectToClassMap[objectType];
-      if (!klass) {
-        console.warn(`Can't find class for "${objectType}" when attempting to inflate deltas`)
-        continue
-      }
-      modelResolvers[objectType] = DatabaseStore.findAll(klass, {
-        id: Object.keys(create[objectType]),
-      })
-    }
-    Promise.props(modelResolvers).then((modelsByType) => {
-      const allModels = _.flatten(_.values(modelsByType));
-      if ((modelsByType.message || []).length > 0) {
-        return MailRulesProcessor.processMessages(modelsByType.message || [])
-        .finally(() => {
-          return Actions.didPassivelyReceiveNewModels(allModels);
-        });
-      }
-      return Promise.resolve()
-    })
-  }
-
-  /**
    * Group deltas by object type so we can mutate the cache efficiently.
    * NOTE: This code must not just accumulate creates, modifies and
    * destroys but also de-dupe them. We cannot call
@@ -214,7 +186,16 @@ class DeltaProcessor {
     return {create, modify, destroy};
   }
 
-  _handleDestroyDelta = (delta) => {
+  async _notifyOfNewMessages(created) {
+    try {
+      await MailRulesProcessor.processMessages(created.message || [])
+    } catch (err) {
+      console.error("DeltaProcessor: Running mail rules on incoming mail failed.")
+    }
+    Actions.didPassivelyReceiveCreateDeltas(created)
+  }
+
+  _handleDestroyDelta(delta) {
     const klass = NylasAPI._apiObjectToClassMap[delta.object];
     if (!klass) { return Promise.resolve(); }
 
