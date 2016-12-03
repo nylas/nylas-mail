@@ -1,4 +1,4 @@
-![plugin page](plugin.png)
+![Unsubscribe: unsubscribe without leaving Nylas N1](plugin.png)
 
 Quickly unsubscribe from emails without leaving N1. Automatically detects unsubscribe methods (email or browser) from the email headers (`list-unsubscribe` header) or the email body. If you can be automatically unsubscribed, this package will do that, else it will open an electron browser window.
 
@@ -7,7 +7,7 @@ Quickly unsubscribe from emails without leaving N1. Automatically detects unsubs
 Press <kbd>CMD</kbd> + <kbd>ALT</kbd> + <kbd>U</kbd> when viewing an email. If you want to map your own shortcut keys:
 
 1. Go to:`Nylas->Preferences`
-2. Click the `shortcuts` tab
+2. Click the `Shortcuts` tab
 3. Then scroll to the bottom and click the `Edit Custom Shortcuts` button
 4. From the finder window, open `keymap.json` in a text editor and add this snippet (replace `mod+j` with whatever shortcut you want - note: mod is the alt key on a Mac/PC):
 
@@ -33,8 +33,6 @@ To change any of these settings, you need to have N1 running from source, since 
 - **confirm_for_email**: Toggle a confirmation box on or off before sending an automatic unsubscribe email (default: off).
 - **confirm_for_browser**: Toggle a confirmation box on or off before opening a browser window to unsubscribe from an email (default: off).
 - **debug**: Toggle maximum debug info. This will allow you to see all of the logs other than just the errors (default: off).
-
-More documentation of these toggles is available in [`unsubscribe-settings.defaults.json`](unsubscribe-settings.defaults.json).
 
 ## Made by
 
