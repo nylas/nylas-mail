@@ -1,10 +1,6 @@
-# Unsubscribe
-
 ![plugin page](plugin.png)
 
 Quickly unsubscribe from emails without leaving N1. Automatically detects unsubscribe methods (email or browser) from the email headers (`list-unsubscribe` header) or the email body. If you can be automatically unsubscribed, this package will do that, else it will open an electron browser window.
-
-![promo gif](unsubscribe.gif)
 
 ## Keyboard Shortcuts
 
