@@ -12,7 +12,9 @@
 		"links\\.notifications\\.soundcloud\\.com\\/asm\\/unsubscribe",
 		"fullcontact\\.com",
 		"www\\.facebook\\.com",
-		"ke\\.am\\/"
+		"ke\\.am\\/",
+		"email\\.newyorktimes\\.com",
+		"github\\.com"
 	],
 	"emails": [
 		"@idearium.activehosted.com",
@@ -20,7 +22,6 @@
 		"sympa@",
 		"@blancmedia\\.activehosted\\.com",
 		"@bounce",
-		"unsubscribe@mail\\.notifications\\.soundcloud\\.com",
-		"newyorktimes\\.com"
+		"unsubscribe@mail\\.notifications\\.soundcloud\\.com"
 	]
 }
