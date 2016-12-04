@@ -2,9 +2,13 @@
 
 ![plugin page](plugin.png)
 
-Quickly unsubscribe from emails without leaving N1. Automatically detects unsubscribe methods (email or browser) from the email headers (`list-unsubscribe` header) or the email body. If you can be automatically unsubscribed, this package will do that, else it will open an electron browser window.
+Quickly unsubscribe from emails without leaving N1
+
+## The Plugin Magic
 
 ![promo gif](unsubscribe.gif)
+
+Quickly unsubscribe from emails without leaving N1. The plugin automatically detects unsubscribe methods from the email headers (`list-unsubscribe` header) or the email body. If the plugin can't automatically unsubscribe in the background via email, you will see a popup electron browser window to swiftly unsubscribe.
 
 ## Keyboard Shortcuts
 
@@ -23,10 +27,10 @@ Press <kbd>CMD</kbd> + <kbd>ALT</kbd> + <kbd>U</kbd> when viewing an email. If y
 
 ## Reporting Bugs
 
-- **Feature Requests or Bug Reports**: Submit them through the [issues](issues) pane.
+- **Feature Requests or Bug Reports**: Submit them through the [issues](https://github.com/nylas/N1/issues) pane.
 - **Mishandled Emails**: Find an email which this plugin doesn't handle correctly (not finding an unsubscribe link, etc.)? Forward the email to us at <a href="mailto:n1.unsubscribe@gmail.com">n1.unsubscribe@gmail.com</a> and we will look into it.
 
-### Settings - Only available when running N1 from source right now
+## (Dev-Only) Settings - Only available when running N1 from source right now
 
 Certain features for this package can be toggled by changing the appropriate settings from within `unsubscribe-settings.json`. The settings file isn't tracked, so once you edit it, your preferences will be saved even when updating N1. You can see the default file here: [`unsubscribe-settings.defaults.json`](unsubscribe-settings.defaults.json).
 

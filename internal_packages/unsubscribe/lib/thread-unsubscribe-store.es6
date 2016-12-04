@@ -188,6 +188,11 @@ class ThreadUnsubscribeStore extends NylasStore {
   // Takes a String URL to later open a URL
   unsubscribeViaBrowser(rawURL, callback) {
     let url = rawURL
+    if (url === undefined) {
+      // FIXME: Gmail Security Alert Email has undefined emails from body?
+      NylasEnv.reportError(new Error("No URL to unsubscribe from"));
+    }
+    util.logError(url);
     url = url.replace(/^ttp:/, 'http:');
     const disURL = util.shortenURL(url);
     if ((!this.isForwarded && process.env.N1_UNSUBSCRIBE_CONFIRM_BROWSER === 'false') ||

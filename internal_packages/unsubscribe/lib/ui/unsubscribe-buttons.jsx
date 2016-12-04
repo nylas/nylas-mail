@@ -2,8 +2,9 @@ const {React} = require('nylas-exports');
 const {RetinaImg, KeyCommandsRegion} = require('nylas-component-kit');
 const ThreadUnsubscribeStoreManager = require('../thread-unsubscribe-store-manager');
 const ThreadConditionType = require('../enum/threadConditionType');
+const util = require('../modules/util');
 
-const UNSUBSCRIBE_ASSETS_URL = 'nylas://n1-unsubscribe/assets/';
+const UNSUBSCRIBE_ASSETS_URL = 'nylas://unsubscribe/assets/';
 
 class ThreadUnsubscribeButton extends React.Component {
 
@@ -134,7 +135,7 @@ class ThreadUnsubscribeToolbarButton extends ThreadUnsubscribeButton {
   static displayName = 'ThreadUnsubscribeToolbarButton';
 
   _keymapHandlers() {
-    return {"n1-unsubscribe:unsubscribe": this._keymapEvent}
+    return {"unsubscribe:unsubscribe": this._keymapEvent}
   }
 
   render() {
@@ -146,7 +147,7 @@ class ThreadUnsubscribeToolbarButton extends ThreadUnsubscribeButton {
       >
         <button
           title={buttonTitle}
-          id={'N1-Unsubscribe'}
+          id={'Unsubscribe'}
           className={`btn btn-toolbar toolbar-unsubscribe ${extraClasses}`}
           onClick={this.onClick.bind(this)}
         >
@@ -160,8 +161,8 @@ class ThreadUnsubscribeToolbarButton extends ThreadUnsubscribeButton {
   }
 
   _keymapEvent() {
-    if (NylasEnv.inDevMode() === true) { console.log("Keymap event fired"); }
-    const e = document.getElementById('N1-Unsubscribe');
+    util.logIfDebug("Keymap event fired");
+    const e = document.getElementById('Unsubscribe');
     e.click()
   }
 }

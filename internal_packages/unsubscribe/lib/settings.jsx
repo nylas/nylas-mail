@@ -13,7 +13,7 @@ module.exports = {
     try {
       settingsFile = fs.readFileSync(userSettings, 'utf8');
     } catch (e) {
-      console.log(`n1-unsubscribe: Copying default settings to ${userSettings}.`);
+      console.log(`Unsubscribe: Copying default settings to ${userSettings}.`);
       fs.copySync(defaultSettings, userSettings);
       settingsFile = fs.readFileSync(userSettings, 'utf8');
     }
@@ -35,7 +35,7 @@ module.exports = {
     const browserText = (process.env.n1UnsubscribeUseBrowser === 'true' ? '' : '(Popup)');
     const useBrowser = process.env.N1_UNSUBSCRIBE_USE_BROWSER;
     util.logIfDebug(
-      `n1-unsubscribe settings:
+      `Unsubscribe settings:
       - Use preferred browser for unsubscribing: ${useBrowser} ${browserText}
       - Archive or trash after unsubscribing: ${process.env.N1_UNSUBSCRIBE_THREAD_HANDLING}
       - Confirm before email unsubscribing: ${process.env.N1_UNSUBSCRIBE_CONFIRM_EMAIL}
