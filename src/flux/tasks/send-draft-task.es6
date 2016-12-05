@@ -4,7 +4,7 @@ import Task from './task';
 import Actions from '../actions';
 import Message from '../models/message';
 import NylasAPI from '../nylas-api';
-import NylasAPIHelpers from '../nylas-api-helpers';
+import * as NylasAPIHelpers from '../nylas-api-helpers';
 import NylasAPIRequest from '../nylas-api-request';
 import {APIError, RequestEnsureOnceError} from '../errors';
 import SoundRegistry from '../../registries/sound-registry';
