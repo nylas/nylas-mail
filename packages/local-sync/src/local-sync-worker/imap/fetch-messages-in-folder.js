@@ -239,8 +239,8 @@ class FetchMessagesInFolder {
     try {
       const messageValues = await MessageFactory.parseFromImap(imapMessage, desiredParts, {
         db: this._db,
+        folder: this._folder,
         accountId: this._db.accountId,
-        folderId: this._folder.id,
       });
       const existingMessage = await Message.find({where: {id: messageValues.id}});
 

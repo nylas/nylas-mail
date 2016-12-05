@@ -19,3 +19,4 @@ newrelic_agent.log
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+/packages/local-sync/spec-saved-state.json

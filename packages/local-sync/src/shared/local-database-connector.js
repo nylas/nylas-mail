@@ -12,8 +12,9 @@ class LocalDatabaseConnector {
   }
 
   _sequelizePoolForDatabase(dbname) {
+    const storage = NylasEnv.inSpecMode() ? ':memory:' : path.join(process.env.NYLAS_HOME, `${dbname}.sqlite`);
     return new Sequelize(dbname, '', '', {
-      storage: path.join(process.env.NYLAS_HOME, `${dbname}.sqlite`),
+      storage: storage,
       dialect: "sqlite",
       logging: false,
     })
