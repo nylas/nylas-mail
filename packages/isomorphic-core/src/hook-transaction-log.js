@@ -46,5 +46,9 @@ module.exports = (db, sequelize, {only, onCreatedTransaction} = {}) => {
 
   sequelize.addHook("afterCreate", transactionLogger("create"))
   sequelize.addHook("afterUpdate", transactionLogger("modify"))
+
+  // NOTE: Hooking UPSERT requires Sequelize 4.x. We're
+  // on version 3 right now, but leaving this here for when we upgrade.
+  sequelize.addHook("afterUpsert", transactionLogger("modify"))
   sequelize.addHook("afterDelete", transactionLogger("delete"))
 }
