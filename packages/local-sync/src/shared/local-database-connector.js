@@ -66,9 +66,13 @@ class LocalDatabaseConnector {
     const dbname = `a-${accountId}`;
     const dbpath = path.join(process.env.NYLAS_HOME, `${dbname}.sqlite`);
 
-    const err = fs.accessSync(dbpath, fs.F_OK);
-    if (!err) {
-      fs.unlinkSync(dbpath);
+    try {
+      const err = fs.accessSync(dbpath, fs.F_OK);
+      if (!err) {
+        fs.unlinkSync(dbpath);
+      }
+    } catch (err) {
+      // Ignored
     }
 
     delete this._cache[accountId];

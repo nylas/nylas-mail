@@ -36,10 +36,10 @@ function emptyThread({Thread, accountId}, options = {}) {
   t.folders = [];
   t.labels = [];
   t.participants = [];
-  return Promise.resolve(t)
+  return t;
 }
 
-function findOrBuildByMatching(db, message) {
+async function findOrBuildByMatching(db, message) {
   const {Thread, Label, Folder} = db
 
   // in the future, we should look at In-reply-to. Problem is it's a single-
@@ -47,7 +47,7 @@ function findOrBuildByMatching(db, message) {
   // but from newest->oldest, so when we ingest a message it's very unlikely
   // we have the "In-reply-to" message yet.
 
-  return Thread.findAll({
+  const possibleThreads = await Thread.findAll({
     where: {
       subject: cleanSubject(message.subject),
     },
@@ -56,56 +56,54 @@ function findOrBuildByMatching(db, message) {
     ],
     limit: 10,
     include: [{model: Label}, {model: Folder}],
-  }).then((threads) =>
-    pickMatchingThread(message, threads) || emptyThread(db, {})
-  )
+  });
+
+  return pickMatchingThread(message, possibleThreads) || emptyThread(db, {});
 }
 
-function findOrBuildByRemoteThreadId(db, remoteThreadId) {
+async function findOrBuildByRemoteThreadId(db, remoteThreadId) {
   const {Thread, Label, Folder} = db;
-  return Thread.find({
+  const existing = await Thread.find({
     where: {remoteThreadId},
     include: [{model: Label}, {model: Folder}],
-  }).then((thread) => {
-    return thread || emptyThread(db, {remoteThreadId})
-  })
+  });
+  return existing || emptyThread(db, {remoteThreadId});
 }
 
-function detectThread({db, message}) {
+async function detectThread({db, message}) {
   if (!(message.labels instanceof Array)) {
-    throw new Error("Threading processMessage expects labels to be an inflated array.");
+    throw new Error("detectThread expects labels to be an inflated array.");
   }
   if (!message.folder) {
-    throw new Error("Threading processMessage expects folder value to be present.");
+    throw new Error("detectThread expects folder value to be present.");
   }
 
-  let findOrBuildThread = null;
+  let thread = null;
   if (message.headers['x-gm-thrid']) {
-    findOrBuildThread = findOrBuildByRemoteThreadId(db, message.headers['x-gm-thrid'])
+    thread = await findOrBuildByRemoteThreadId(db, message.headers['x-gm-thrid'])
   } else {
-    findOrBuildThread = findOrBuildByMatching(db, message)
+    thread = await findOrBuildByMatching(db, message)
   }
 
-  return findOrBuildThread.then((thread) => {
-    if (!(thread.labels instanceof Array)) {
-      throw new Error("Threading processMessage expects thread.labels to be an inflated array.");
-    }
-    if (!(thread.folders instanceof Array)) {
-      throw new Error("Threading processMessage expects thread.folders to be an inflated array.");
-    }
+  if (!(thread.labels instanceof Array)) {
+    throw new Error("detectThread expects thread.labels to be an inflated array.");
+  }
+  if (!(thread.folders instanceof Array)) {
+    throw new Error("detectThread expects thread.folders to be an inflated array.");
+  }
 
-    // update the basic properties of the thread
-    thread.accountId = message.accountId;
+  // update the basic properties of the thread
+  thread.accountId = message.accountId;
 
-    // Threads may, locally, have the ID of any message within the thread
-    // (message IDs are globally unique, even across accounts!)
-    if (!thread.id) {
-      thread.id = `t:${message.id}`
-    }
+  // Threads may, locally, have the ID of any message within the thread
+  // (message IDs are globally unique, even across accounts!)
+  if (!thread.id) {
+    thread.id = `t:${message.id}`
+  }
 
-    thread.subject = cleanSubject(message.subject);
-    return thread.updateFromMessage(message);
-  });
+  thread.subject = cleanSubject(message.subject);
+  await thread.updateFromMessage(message);
+  return thread;
 }
 
 module.exports = detectThread
