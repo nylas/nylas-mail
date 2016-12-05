@@ -3,7 +3,7 @@ import Task from './task';
 import Actions from '../actions';
 import {APIError} from '../errors';
 import NylasAPI from '../nylas-api';
-import NylasAPIHelpers from '../nylas-api-helpers';
+import * as NylasAPIHelpers from '../nylas-api-helpers';
 import NylasAPIRequest from '../nylas-api-request';
 import TaskQueue from '../../flux/stores/task-queue';
 import SoundRegistry from '../../registries/sound-registry';

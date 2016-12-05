@@ -1,110 +1,16 @@
 _ = require 'underscore'
 fs = require 'fs'
 Actions = require('../src/flux/actions').default
-NylasAPI = require '../src/flux/nylas-api'
+NylasAPI = require('../src/flux/nylas-api').default
 NylasAPIHelpers = require '../src/flux/nylas-api-helpers'
 NylasAPIRequest = require('../src/flux/nylas-api-request').default
 Thread = require('../src/flux/models/thread').default
 Message = require('../src/flux/models/message').default
-AccountStore = require '../src/flux/stores/account-store'
+AccountStore = require('../src/flux/stores/account-store').default
 DatabaseStore = require('../src/flux/stores/database-store').default
 DatabaseTransaction = require('../src/flux/stores/database-transaction').default
 
-describe "NylasAPI", ->
-  describe "authPlugin", ->
-    beforeEach ->
-      @authGetResponse = null
-      @authPostResponse = null
-      @error = null
-      @resolved = false
-      spyOn(NylasEnv.config, 'set')
-      spyOn(NylasEnv.config, 'get').andReturn(null)
-      spyOn(NylasAPIRequest.prototype, 'run').andCallFake (options) =>
-        return @authGetResponse if options.method is 'GET' and @authGetResponse
-        return @authPostResponse if options.method is 'POST' and @authPostResponse
-        return new Promise (resolve, reject) -> #never respond
-
-    it "should reject if no account can be found for the given accountOrId", ->
-      NylasAPIHelpers.authPlugin('PID', 'PSECRET', 'randomAccountId').catch (err) => @error = err
-      waitsFor =>
-        @error
-      runs =>
-        expect(@error.message).toEqual('Invalid account')
-
-    it "should resolve if the plugin has been successfully authed with accountOrId already", ->
-      jasmine.unspy(NylasEnv.config, 'get')
-      spyOn(NylasEnv.config, 'get').andCallFake (key) =>
-        return Date.now() if key is "plugins.PID.lastAuth.#{TEST_ACCOUNT_ID}"
-        return null
-      NylasAPIHelpers.authPlugin('PID', 'PSECRET', TEST_ACCOUNT_ID).then (err) =>
-        @resolved = true
-      waitsFor =>
-        @resolved
-      expect(NylasAPIRequest.prototype.run).not.toHaveBeenCalled()
-
-    describe "check for existing auth", ->
-      it "should GET /auth/plugin to check if the plugin has been authed", ->
-        @authGetResponse = Promise.resolve({authed: true})
-        NylasAPIHelpers.authPlugin('PID', 'PSECRET', TEST_ACCOUNT_ID)
-        advanceClock()
-        expect(NylasAPIRequest.run).toHaveBeenCalledWith({
-          returnsModel: false,
-          method: 'GET',
-          accountId: 'test-account-server-id',
-          path: '/auth/plugin?client_id=PID'
-        })
-
-      it "should record a successful auth in the config and resolve without making a POST", ->
-        @authGetResponse = Promise.resolve({authed: true})
-        @authPostResponse = null
-        NylasAPIHelpers.authPlugin('PID', 'PSECRET', TEST_ACCOUNT_ID).then => @resolved = true
-        waitsFor =>
-          @resolved
-        runs =>
-          expect(NylasAPIRequest.prototype.run).toHaveBeenCalled()
-          expect(NylasEnv.config.set.mostRecentCall.args[0]).toEqual("plugins.PID.lastAuth.#{TEST_ACCOUNT_ID}")
-
-      it "should propagate any network errors back to the caller", ->
-        @authGetResponse = Promise.reject(new Error("Network failure!"))
-        NylasAPIHelpers.authPlugin('PID', 'PSECRET', TEST_ACCOUNT_ID).catch (err) => @error = err
-        advanceClock()
-        advanceClock()
-        expect(@error.message).toBe("Network failure!")
-        expect(NylasEnv.config.set).not.toHaveBeenCalled()
-
-    describe "request for auth", ->
-      it "should POST to /auth/plugin with the client id and record a successful auth", ->
-        @authGetResponse = Promise.resolve({authed: false})
-        @authPostResponse = Promise.resolve({authed: true})
-        NylasAPIHelpers.authPlugin('PID', 'PSECRET', TEST_ACCOUNT_ID).then => @resolved = true
-        waitsFor =>
-          @resolved
-        runs =>
-          expect(NylasAPIRequest.prototype.run.calls[0].args[0]).toEqual({
-            returnsModel: false,
-            method: 'GET',
-            accountId: 'test-account-server-id',
-            path: '/auth/plugin?client_id=PID'
-          })
-          expect(NylasAPIRequest.prototype.run.calls[1].args[0]).toEqual({
-            returnsModel: false,
-            method: 'POST',
-            accountId: 'test-account-server-id',
-            path: '/auth/plugin',
-            body: {client_id: 'PID'},
-            json: true
-          })
-          setCall = NylasEnv.config.set.mostRecentCall
-          expect(setCall.args[0]).toEqual("plugins.PID.lastAuth.#{TEST_ACCOUNT_ID}")
-
-      it "should propagate any network errors back to the caller", ->
-        @authGetResponse = Promise.resolve({authed: false})
-        @authPostResponse = Promise.reject(new Error("Network failure!"))
-        NylasAPIHelpers.authPlugin('PID', 'PSECRET', TEST_ACCOUNT_ID).catch (err) => @error = err
-        waitsFor =>
-          @error
-        runs =>
-          expect(@error.message).toBe("Network failure!")
+fdescribe "NylasAPI", ->
 
   describe "handleModel404", ->
     it "should unpersist the model from the cache that was requested", ->
@@ -147,7 +53,7 @@ describe "NylasAPI", ->
   describe "handleAuthenticationFailure", ->
     it "should put the account in an `invalid` state", ->
       spyOn(Actions, 'updateAccount')
-      spyOn(AccountStore, 'tokenForAccountId').andReturn('token')
+      spyOn(AccountStore, 'tokensForAccountId').andReturn('token')
       NylasAPIHelpers.handleAuthenticationFailure('/threads/1234', 'token')
       expect(Actions.updateAccount).toHaveBeenCalled()
       expect(Actions.updateAccount.mostRecentCall.args).toEqual([AccountStore.accounts()[0].id, {syncState: 'invalid'}])
@@ -261,7 +167,7 @@ describe "NylasAPI", ->
 
       it "updates found models with new data", ->
         waitsForPromise =>
-          NylasAPIHelers.handleModelResponse(@json).then verifyUpdateHappened
+          NylasAPIHelpers.handleModelResponse(@json).then verifyUpdateHappened
 
       it "updates if the json version is newer", ->
         @existing.version = 9
@@ -343,7 +249,7 @@ describe "NylasAPI", ->
 
     it "should increment the change tracker, preventing any further deltas about the draft", ->
       draft = new Message(accountId: TEST_ACCOUNT_ID, draft: true, clientId: 'asd', serverId: 'asd')
-      spyOn(NylasAPI, 'incrementRemoteChangeLock')
+      spyOn(NylasAPI.prototype, 'incrementRemoteChangeLock')
       NylasAPIHelpers.makeDraftDeletionRequest(draft)
       expect(NylasAPI.incrementRemoteChangeLock).toHaveBeenCalledWith(Message, draft.serverId)
 

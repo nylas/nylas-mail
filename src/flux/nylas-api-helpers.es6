@@ -121,7 +121,7 @@ export function handleModelResponse(jsons) {
 
     // Step 5: Save models that have changed, and then return all of the models
     // that were in the response body.
-    DatabaseStore.inTransaction((t) =>
+    return DatabaseStore.inTransaction((t) =>
       t.persistModels(changedModels)
     )
     .then(() => {
