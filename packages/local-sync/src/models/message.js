@@ -6,11 +6,11 @@ const SendingUtils = require('../local-api/sending-utils');
 
 const SNIPPET_LENGTH = 191;
 
-const getValidateArrayLength1 = (fieldName) => {
+const getValidateArrayLength = (fieldName, min, max) => {
   return (stringifiedArr) => {
     const arr = JSON.parse(stringifiedArr);
-    if (arr.length !== 1) {
-      throw new Error(`Value for ${fieldName} must have a length of 1. Value: ${stringifiedArr}`);
+    if ((arr.length < min) || (arr.length > max)) {
+      throw new Error(`Value for ${fieldName} must have a length in range [${min}-${max}]. Value: ${stringifiedArr}`);
     }
   };
 }
@@ -44,14 +44,14 @@ module.exports = (sequelize, Sequelize) => {
     processed: Sequelize.INTEGER,
     to: buildJSONARRAYColumnOptions('to'),
     from: Object.assign(buildJSONARRAYColumnOptions('from'), {
+      validate: {validateArrayLength1: getValidateArrayLength('Message.from', 1, 1)},
       allowNull: true,
-      validate: {validateArrayLength1: getValidateArrayLength1('Message.from')},
     }),
     cc: buildJSONARRAYColumnOptions('cc'),
     bcc: buildJSONARRAYColumnOptions('bcc'),
     replyTo: Object.assign(buildJSONARRAYColumnOptions('replyTo'), {
+      validate: {validateArrayLength1: getValidateArrayLength('Message.replyTo', 0, 1)},
       allowNull: true,
-      validate: {validateArrayLength1: getValidateArrayLength1('Message.replyTo')},
     }),
     inReplyTo: { type: Sequelize.STRING, allowNull: true},
     references: buildJSONARRAYColumnOptions('references'),
