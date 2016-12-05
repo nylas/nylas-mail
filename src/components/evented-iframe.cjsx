@@ -76,6 +76,7 @@ class EventedIFrame extends React.Component
     return unless @props.searchable
     node = ReactDOM.findDOMNode(@)
     doc = node.contentDocument?.body ? node.contentDocument
+    return unless doc
     searchIndex = SearchableComponentStore.getCurrentRegionIndex(@_regionId)
     {searchTerm} = SearchableComponentStore.getCurrentSearchData()
     if @lastSearchIndex isnt searchIndex or @lastSearchTerm isnt searchTerm
