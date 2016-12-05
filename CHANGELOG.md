@@ -1,5 +1,13 @@
 # N1 Changelog
 
+### 0.4.401 (12/05/16)
+
+- Fixes:
+
+  + Fixes to issues with the Salesforce plugin
+  + Will search for Salesforce Contacts by name in addition to email
+  + Fixes to errors being thrown on spellcheck right-click
+
 ### 0.4.400 (11/22/16)
 
 - Features:
