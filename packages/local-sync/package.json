@@ -27,7 +27,7 @@
     "vision": "4.1.0"
   },
   "scripts": {
-    "test": "../../../../node_modules/.bin/electron ../../../../ --test --spec-directory=$(pwd)/spec"
+    "test": "../../../../node_modules/.bin/electron ../../../../ --test --enable-logging --spec-directory=$(pwd)/spec"
   },
   "repository": {
     "type": "git",
