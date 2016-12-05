@@ -13,26 +13,30 @@ function isContactVerified(contact) {
   return true
 }
 
-function extractContacts({db, message}) {
-  const {Contact} = db;
-
+async function extractContacts({db, message}) {
   let allContacts = [];
   ['to', 'from', 'bcc', 'cc'].forEach((field) => {
     allContacts = allContacts.concat(message[field])
   })
 
   const verifiedContacts = allContacts.filter(c => isContactVerified(c));
-  return db.sequelize.transaction((transaction) => {
-    return Promise.all(verifiedContacts.map((contact) =>
-      Contact.upsert({
-        name: contact.name,
-        email: contact.email,
+  return db.sequelize.transaction(async (transaction) => {
+    for (const c of verifiedContacts) {
+      const id = cryptography.createHash('sha256').update(c.email, 'utf8').digest('hex');
+      let contact = await db.Contact.findById(id);
+      const cdata = {
+        name: c.name,
+        email: c.email,
         accountId: message.accountId,
-        id: cryptography.createHash('sha256').update(contact.email, 'utf8').digest('hex'),
-      }, {
-        transaction,
-      })
-    ))
+        id: id,
+      };
+      
+      if (!contact) {
+        contact = await db.Contact.create(cdata)
+      } else {
+        await contact.update(cdata);
+      }
+    }
   }).thenReturn(message)
 }
 
