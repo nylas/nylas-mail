@@ -137,26 +137,31 @@ class DeltaProcessor {
   }
 
   async _saveMetadata(deltas) {
-    const {create, modify} = this._clusterDeltas(deltas);
+    const all = {};
 
-    const allUpdatingMetadata = _.values(create.metadata).concat(_.values(modify.metadata));
+    for (const delta of deltas.filter(d => d.event === 'create')) {
+      all[delta.attributes.object_id] = delta.attributes;
+    }
+    for (const delta of deltas.filter(d => d.event === 'modify')) {
+      all[delta.attributes.object_id] = delta.attributes;
+    }
+    const allByObjectType = _.groupBy(_.values(all), "object_type")
 
-    const byObjectType = _.groupBy(allUpdatingMetadata, "object_type")
-
-    return Promise.map(Object.keys(byObjectType), (objType) => {
-      const jsons = byObjectType[objType]
+    return Promise.map(Object.keys(allByObjectType), (objType) => {
+      const jsons = allByObjectType[objType]
       const klass = NylasAPIHelpers.apiObjectToClassMap[objType];
-      const byObjId = _.pluck(jsons, "object_id")
+      const objectIds = jsons.map(j => j.object_id)
 
-      return DatabaseStore.inTransaction(t => {
-        return this._findModelsForMetadata(t, klass, byObjId)
-        .then((models) => {
-          if (!models || models.length === 0) return Promise.resolve()
-          models.forEach((model) => {
-            const mdJSON = byObjId[model.id]
-            const modelWithMetadata = model.applyPluginMetadata(mdJSON.plugin_id, mdJSON.value);
-            const localMetadatum = modelWithMetadata.metadataObjectForPluginId(mdJSON.plugin_id);
-            localMetadatum.version = mdJSON.version;
+      return DatabaseStore.inTransaction((t) => {
+        return this._findModelsForMetadata(t, klass, objectIds).then((modelsByObjectId) => {
+          const models = [];
+          Object.keys(modelsByObjectId).forEach((objectId) => {
+            const model = modelsByObjectId[objectId];
+            const metadataJSON = all[objectId];
+            const modelWithMetadata = model.applyPluginMetadata(metadataJSON.plugin_id, metadataJSON.value);
+            const localMetadatum = modelWithMetadata.metadataObjectForPluginId(metadataJSON.plugin_id);
+            localMetadatum.version = metadataJSON.version;
+            models.push(model);
           })
           return t.persistModels(models)
         });
@@ -164,6 +169,12 @@ class DeltaProcessor {
     })
   }
 
+  /**
+  @param ids An array of metadata object_ids
+  @returns A map of the object_ids to models in the database, resolving the
+  IDs as necessary. Must be a hashmap because the metadata object_ids may not
+  actually be present in the resulting models.
+  */
   _findModelsForMetadata(t, klass, ids) {
     if (klass === Thread) {
       // go through the Message table first, since local Thread IDs may be
@@ -175,10 +186,24 @@ class DeltaProcessor {
           throw new Error(`Didn't find message for each thread. Thread IDs from remote: ${ids}`);
         }
         const threadIds = messages.map(m => m.threadId);
-        return t.findAll(Thread, {id: threadIds})
+        return t.findAll(Thread, {id: threadIds}).then((threads) => {
+          const map = {};
+          for (const thread of threads) {
+            const pluginObjectId = ids[threadIds.indexOf(thread.id)];
+            map[pluginObjectId] = thread;
+          }
+          return map;
+        });
       });
     }
-    return t.findAll(klass, {id: ids});
+    return t.findAll(klass, {id: ids}).then((models) => {
+      const map = {};
+      for (const model of models) {
+        const pluginObjectId = model.id;
+        map[pluginObjectId] = model;
+      }
+      return map;
+    });
   }
 
   /**
