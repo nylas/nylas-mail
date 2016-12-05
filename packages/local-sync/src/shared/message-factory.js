@@ -12,8 +12,8 @@ function extractContacts(values = []) {
   })
 }
 
-function parseFromImap(imapMessage, desiredParts, {db, accountId, folderId}) {
-  const {Message, Label, Folder} = db
+async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder}) {
+  const {Message, Label} = db
   const body = {}
   const {headers, attributes} = imapMessage
   const xGmLabels = attributes['x-gm-labels']
@@ -51,7 +51,7 @@ function parseFromImap(imapMessage, desiredParts, {db, accountId, folderId}) {
     starred: attributes.flags.includes('\\Flagged'),
     date: attributes.date,
     folderImapUID: attributes.uid,
-    folderId: folderId,
+    folderId: folder.id,
     folder: null,
     labels: [],
     headers: parsedHeaders,
@@ -72,40 +72,15 @@ function parseFromImap(imapMessage, desiredParts, {db, accountId, folderId}) {
     values.snippet = values.body.substr(0, Math.min(values.body.length, SNIPPET_SIZE));
   }
 
-  return Folder.findById(folderId)
-  .then((folder) => {
-    values.folder = folder
+  values.folder = folder
+  if (xGmLabels) {
+    values.folderImapXGMLabels = JSON.stringify(xGmLabels)
+    values.labels = await Label.findXGMLabels(xGmLabels)
+  }
 
-    if (xGmLabels) {
-      values.folderImapXGMLabels = JSON.stringify(xGmLabels)
-      return Label.findXGMLabels(xGmLabels)
-      .then((labels) => {
-        values.labels = labels
-        return values
-      })
-    }
-    return Promise.resolve(values)
-  })
-}
-
-function buildFromImap(imapMessage, desiredParts, {db, accountId, folderId}) {
-  return parseFromImap(imapMessage, desiredParts, {db, accountId, folderId})
-  .then((messageValues) => db.Message.build(messageValues))
-}
-
-function createFromImap(imapMessage, desiredParts, {db, accountId, folderId}) {
-  return parseFromImap(imapMessage, desiredParts, {db, accountId, folderId})
-  .then((messageValues) => db.Message.create(messageValues))
-}
-
-function upsertFromImap(imapMessage, desiredParts, {db, accountId, folderId}) {
-  return parseFromImap(imapMessage, desiredParts, {db, accountId, folderId})
-  .then((messageValues) => db.Message.upsert(messageValues))
+  return values;
 }
 
 module.exports = {
   parseFromImap,
-  buildFromImap,
-  createFromImap,
-  upsertFromImap,
 }

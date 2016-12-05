@@ -26,6 +26,9 @@
     "utf7": "^1.0.2",
     "vision": "4.1.0"
   },
+  "scripts": {
+    "test": "../../../../node_modules/.bin/electron ../../../../ --test --spec-directory=$(pwd)/spec"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nylas/K2.git"
