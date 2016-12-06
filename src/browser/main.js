@@ -192,11 +192,6 @@ const start = () => {
 
   const options = parseCommandLine(process.argv);
 
-  if (options.devMode && /n1/.test(__dirname)) {
-    console.error("You must cd into `/N1` (uppercase) instead of `/n1` (lowercase).");
-    app.quit();
-  }
-
   global.errorLogger = setupErrorLogger(options);
   const configDirPath = setupConfigDir(options);
   options.configDirPath = configDirPath;

@@ -181,7 +181,6 @@ lazyLoadWithGetter(`React`, () => require('react'));
 lazyLoadWithGetter(`Reflux`, () => require('reflux'));
 lazyLoadWithGetter(`ReactDOM`, () => require('react-dom'));
 lazyLoadWithGetter(`ReactTestUtils`, () => require('react-addons-test-utils'));
-lazyLoadWithGetter(`Keytar`, () => require('keytar')); // atom-keytar access through native module
 
 // React Components
 lazyLoad(`ComponentRegistry`, 'registries/component-registry');
@@ -203,6 +202,7 @@ lazyLoad(`MessageUtils`, 'flux/models/message-utils');
 lazyLoad(`EditorAPI`, 'components/contenteditable/editor-api');
 
 // Services
+lazyLoad(`KeyManager`, 'key-manager');
 lazyLoad(`SoundRegistry`, 'registries/sound-registry');
 lazyLoad(`MailRulesTemplates`, 'mail-rules-templates');
 lazyLoad(`MailRulesProcessor`, 'mail-rules-processor');

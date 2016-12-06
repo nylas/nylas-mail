@@ -1,17 +1,16 @@
 import NylasStore from 'nylas-store';
-import keytar from 'keytar';
-import {ipcRenderer, remote} from 'electron';
+import {ipcRenderer} from 'electron';
 import request from 'request';
 import url from 'url'
 import Moment from 'moment-timezone';
 
+import KeyManager from '../../key-manager'
 import Actions from '../actions';
 import AccountStore from './account-store';
 import Utils from '../models/utils';
 
 const configIdentityKey = "nylas.identity";
-const keytarServiceName = 'Nylas';
-const keytarIdentityKey = 'Nylas Account';
+const KEY_NAME = 'Nylas Account';
 
 const State = {
   Trialing: 'Trialing',
@@ -65,7 +64,7 @@ class IdentityStore extends NylasStore {
   _loadIdentity() {
     this._identity = NylasEnv.config.get(configIdentityKey);
     if (this._identity) {
-      this._identity.token = keytar.getPassword(keytarServiceName, keytarIdentityKey);
+      this._identity.token = KeyManager.getPassword(KEY_NAME, {migrateFromService: "Nylas"});
     }
   }
 
@@ -233,18 +232,14 @@ class IdentityStore extends NylasStore {
   }
 
   _onLogoutNylasIdentity = () => {
-    keytar.deletePassword(keytarServiceName, keytarIdentityKey);
+    KeyManager.deletePassword(KEY_NAME);
     NylasEnv.config.unset(configIdentityKey);
     ipcRenderer.send('command', 'application:relaunch-to-initial-windows');
   }
 
   _onSetNylasIdentity = (identity) => {
     if (identity.token) {
-      if (!keytar.replacePassword(keytarServiceName, keytarIdentityKey, identity.token)) {
-        remote.dialog.showErrorBox("Password Management Error",
-          "We couldn't store your password securely! For more information, visit " +
-          "https://support.nylas.com/hc/en-us/articles/223790028")
-      }
+      KeyManager.replacePassword(KEY_NAME, identity.token)
       delete identity.token;
     }
     NylasEnv.config.set(configIdentityKey, identity);
