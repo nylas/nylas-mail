@@ -9,8 +9,9 @@ const accountBuildFn = (accountParams, credentials) => {
     accountParams.lastSyncCompletions = []
 
     return Account.upsertWithCredentials(accountParams, credentials)
-    .then(({account}) => {
+    .then(({account, token}) => {
       SyncProcessManager.addWorkerForAccount(account)
+      return {account, token}
     })
   });
 }
