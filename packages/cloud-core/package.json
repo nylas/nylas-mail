@@ -16,11 +16,9 @@
     "rx": "4.1.0",
     "sequelize": "3.27.0",
     "signalfx": "3.0.1",
+    "sqlite3": "3.1.8",
     "underscore": "1.8.3",
     "xoauth2": "1.2.0"
-  },
-  "devDependencies": {
-    "sqlite3": "https://github.com/bengotow/node-sqlite3/archive/bengotow/usleep-v3.1.4.tar.gz"
   },
   "author": "Nylas",
   "license": "ISC"
