@@ -1,0 +1,174 @@
+{
+	"boxes": {
+		"GitHub": {
+			"attribs": ["\\HasChildren"],
+			"delimiter": "/",
+			"children": {
+				"Electron": {
+					"attribs": ["\\HasNoChildren"],
+					"delimiter": "/",
+					"children": null,
+					"parent": "[Circular]"
+				},
+				"N1": {
+					"attribs": ["\\HasNoChildren"],
+					"delimiter": "/",
+					"children": null,
+					"parent": "[Circular]"
+				}
+			},
+			"parent": null
+		},
+		"INBOX": {
+			"attribs": ["\\HasNoChildren"],
+			"delimiter": "/",
+			"children": null,
+			"parent": null
+		},
+		"Junk (Gmail)": {
+			"attribs": ["\\HasNoChildren"],
+			"delimiter": "/",
+			"children": null,
+			"parent": null
+		},
+		"N1-Snoozed": {
+			"attribs": ["\\HasNoChildren"],
+			"delimiter": "/",
+			"children": null,
+			"parent": null
+		},
+		"Notes": {
+			"attribs": ["\\HasNoChildren"],
+			"delimiter": "/",
+			"children": null,
+			"parent": null
+		},
+		"Receipts": {
+			"attribs": ["\\HasNoChildren"],
+			"delimiter": "/",
+			"children": null,
+			"parent": null
+		},
+		"Recruiters": {
+			"attribs": ["\\HasNoChildren"],
+			"delimiter": "/",
+			"children": null,
+			"parent": null
+		},
+		"Sentry": {
+			"attribs": ["\\HasNoChildren"],
+			"delimiter": "/",
+			"children": null,
+			"parent": null
+		},
+		"[Gmail]": {
+			"attribs": ["\\HasChildren", "\\Noselect"],
+			"delimiter": "/",
+			"children": {
+				"All Mail": {
+					"attribs": ["\\All", "\\HasNoChildren"],
+					"delimiter": "/",
+					"children": null,
+					"parent": "[Circular]",
+					"special_use_attrib": "\\All"
+				},
+				"Drafts": {
+					"attribs": ["\\Drafts", "\\HasNoChildren"],
+					"delimiter": "/",
+					"children": null,
+					"parent": "[Circular]",
+					"special_use_attrib": "\\Drafts"
+				},
+				"Important": {
+					"attribs": ["\\HasNoChildren", "\\Important"],
+					"delimiter": "/",
+					"children": null,
+					"parent": "[Circular]",
+					"special_use_attrib": "\\Important"
+				},
+				"Sent Mail": {
+					"attribs": ["\\HasNoChildren", "\\Sent"],
+					"delimiter": "/",
+					"children": null,
+					"parent": "[Circular]",
+					"special_use_attrib": "\\Sent"
+				},
+				"Spam": {
+					"attribs": ["\\HasNoChildren", "\\Junk"],
+					"delimiter": "/",
+					"children": null,
+					"parent": "[Circular]",
+					"special_use_attrib": "\\Junk"
+				},
+				"Starred": {
+					"attribs": ["\\Flagged", "\\HasNoChildren"],
+					"delimiter": "/",
+					"children": null,
+					"parent": "[Circular]",
+					"special_use_attrib": "\\Flagged"
+				},
+				"Trash": {
+					"attribs": ["\\HasNoChildren", "\\Trash"],
+					"delimiter": "/",
+					"children": null,
+					"parent": "[Circular]",
+					"special_use_attrib": "\\Trash"
+				}
+			},
+			"parent": null
+		}
+	},
+	"expectedFolders": [{
+		"role": "trash",
+		"name": "[Gmail]/Trash"
+	}, {
+		"role": "spam",
+		"name": "[Gmail]/Spam"
+	}, {
+		"role": "all",
+		"name": "[Gmail]/All Mail"
+	}],
+	"expectedLabels": [{
+		"role": "starred",
+		"name": "[Gmail]/Starred"
+	}, {
+		"role": "sent",
+		"name": "[Gmail]/Sent Mail"
+	}, {
+		"role": "important",
+		"name": "[Gmail]/Important"
+	}, {
+		"role": "drafts",
+		"name": "[Gmail]/Drafts"
+	}, {
+		"role": null,
+		"name": "Sentry"
+	}, {
+		"role": null,
+		"name": "Recruiters"
+	}, {
+		"role": null,
+		"name": "Receipts"
+	}, {
+		"role": null,
+		"name": "Notes"
+	}, {
+		"role": null,
+		"name": "N1-Snoozed"
+	}, {
+		"role": null,
+		"name": "Junk (Gmail)"
+	}, {
+		"role": "inbox",
+		"name": "INBOX"
+	}, {
+		"role": null,
+		"name": "GitHub"
+	}, {
+		"role": null,
+		"name": "GitHub/N1"
+	}, {
+		"role": null,
+		"name": "GitHub/Electron"
+	}]
+}
