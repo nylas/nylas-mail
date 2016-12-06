@@ -66,16 +66,25 @@ class FetchFolderList {
     const next = [];
 
     Object.keys(boxes).forEach((boxName) => {
-      stack.push([boxName, boxes[boxName]]);
+      stack.push([[boxName], boxes[boxName]]);
     });
 
     while (stack.length > 0) {
-      const [boxName, box] = stack.pop();
+      const [boxPath, box] = stack.pop();
+
       if (!box.attribs) {
-        // Some boxes seem to come back as partial objects. Not sure why, but
-        // I also can't access them via openMailbox. Possible node-imap i8n issue?
-        continue;
+        if (box.children) {
+          // In Fastmail, folders which are just containers for other folders
+          // have no attributes at all, just a children property. Add appropriate
+          // attribs so we can carry on.
+          box.attribs = ['\\HasChildren', '\\NoSelect'];
+        } else {
+          // Some boxes seem to come back as partial objects. Not sure why.
+          continue;
+        }
       }
+
+      const boxName = boxPath.join(box.delimiter);
 
       this._logger.info({
         box_name: boxName,
@@ -85,7 +94,7 @@ class FetchFolderList {
 
       if (box.children && box.attribs.includes('\\HasChildren')) {
         Object.keys(box.children).forEach((subname) => {
-          stack.push([`${boxName}${box.delimiter}${subname}`, box.children[subname]]);
+          stack.push([[].concat(boxPath, [subname]), box.children[subname]]);
         });
       }
 
