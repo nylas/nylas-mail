@@ -5,6 +5,10 @@ class DeleteSentMessageGMAIL extends SyncbackTask {
     return `DeleteSentMessage`;
   }
 
+  affectsImapMessageUIDs() {
+    return true
+  }
+
   async run(db, imap) {
     const {messageId} = this.syncbackRequestObject().props
 
