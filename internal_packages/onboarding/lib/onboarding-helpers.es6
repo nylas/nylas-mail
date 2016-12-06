@@ -64,8 +64,8 @@ export function makeGmailOAuthRequest(sessionKey, callback) {
             },
             success: (localJSON) => {
               const account = Object.assign({}, localJSON);
-              account.localToken = localJSON.auth_token;
-              account.cloudToken = remoteJSON.token;
+              account.localToken = localJSON.account_token;
+              account.cloudToken = remoteJSON.account_token;
               callback(null, account);
             },
           },
@@ -152,8 +152,8 @@ export function runAuthRequest(accountInfo) {
     })
     return localSyncIMAPAuthRequest.run().then((localJSON) => {
       const accountWithTokens = Object.assign({}, localJSON);
-      accountWithTokens.localToken = localJSON.auth_token;
-      accountWithTokens.cloudToken = remoteJSON.token;
+      accountWithTokens.localToken = localJSON.account_token;
+      accountWithTokens.cloudToken = remoteJSON.account_token;
       return accountWithTokens
     })
   })
