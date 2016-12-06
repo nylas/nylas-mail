@@ -14,7 +14,7 @@ ModelsForSync = [
   'contacts',
   'calendars',
   'events',
-  'providerSyncbackRequest'
+  'syncbackRequest'
 ]
 
 class NylasSyncStatusStore extends NylasStore

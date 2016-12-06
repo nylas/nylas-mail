@@ -32,7 +32,7 @@ export const apiObjectToClassMap = {
   message: require('./models/message').default,
   contact: require('./models/contact').default,
   calendar: require('./models/calendar').default,
-  providerSyncbackRequest: require('./models/provider-syncback-request').default,
+  syncbackRequest: require('./models/provider-syncback-request').default,
 }
 
 /*

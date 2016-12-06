@@ -72,6 +72,8 @@ class Actions {
   */
   static didPassivelyReceiveCreateDeltas = ActionScopeGlobal;
 
+  static didReceiveSyncbackRequestDeltas = ActionScopeWindow;
+
   static downloadStateChanged = ActionScopeGlobal;
 
   static sendToAllWindows = ActionScopeGlobal;
