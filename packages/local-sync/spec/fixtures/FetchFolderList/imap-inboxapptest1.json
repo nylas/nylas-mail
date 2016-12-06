@@ -1,158 +1,167 @@
 {
-  "boxes": {
-  	"2016": {
-  		"attribs": ["\\HasNoChildren"],
-  		"delimiter": "/",
-  		"children": null,
-  		"parent": null
-  	},
-  	"INBOX": {
-  		"attribs": ["\\HasNoChildren"],
-  		"delimiter": "/",
-  		"children": null,
-  		"parent": null
-  	},
-  	"Archive": {
-  		"attribs": ["\\HasNoChildren", "\\Archive"],
-  		"delimiter": "/",
-  		"children": null,
-  		"parent": null,
-  		"special_use_attrib": "\\Archive"
-  	},
-  	"Arts": {
-  		"attribs": ["\\HasNoChildren"],
-  		"delimiter": "/",
-  		"children": null,
-  		"parent": null
-  	},
-  	"Boîte de réception": {
-  		"attribs": ["\\HasNoChildren"],
-  		"delimiter": "/",
-  		"children": null,
-  		"parent": null
-  	},
-  	"Drafts": {
-  		"attribs": ["\\HasNoChildren", "\\Drafts"],
-  		"delimiter": "/",
-  		"children": null,
-  		"parent": null,
-  		"special_use_attrib": "\\Drafts"
-  	},
-  	"Fondue": {
-  		"children": {
-  			"Savoyarde": {
-  				"attribs": ["\\HasNoChildren"],
-  				"delimiter": "/",
-  				"children": null,
-  				"parent": "[Circular]"
-  			}
-  		}
-  	},
-  	"Housse": {
-  		"children": {
-  			"De": {
-  				"children": {
-  					"Bateau": {
-  						"attribs": ["\\HasNoChildren"],
-  						"delimiter": "/",
-  						"children": null,
-  						"parent": "[Circular]"
-  					},
-  					"Rateau": {
-  						"attribs": ["\\HasNoChildren"],
-  						"delimiter": "/",
-  						"children": null,
-  						"parent": "[Circular]"
-  					}
-  				}
-  			}
-  		}
-  	},
-  	"JJJJJJJ JJJJJJJJ 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1": {
-  		"attribs": ["\\HasNoChildren"],
-  		"delimiter": "/",
-  		"children": null,
-  		"parent": null
-  	},
-  	"N1-Snoozed": {
-  		"attribs": ["\\HasNoChildren"],
-  		"delimiter": "/",
-  		"children": null,
-  		"parent": null
-  	},
-  	"Over the top": {
-  		"attribs": ["\\HasNoChildren"],
-  		"delimiter": "/",
-  		"children": null,
-  		"parent": null
-  	},
-  	"Sent": {
-  		"attribs": ["\\HasNoChildren", "\\Sent"],
-  		"delimiter": "/",
-  		"children": null,
-  		"parent": null,
-  		"special_use_attrib": "\\Sent"
-  	},
-  	"Spam": {
-  		"attribs": ["\\HasNoChildren", "\\Junk"],
-  		"delimiter": "/",
-  		"children": null,
-  		"parent": null,
-  		"special_use_attrib": "\\Junk"
-  	},
-  	"Taxes": {
-  		"attribs": ["\\HasNoChildren"],
-  		"delimiter": "/",
-  		"children": null,
-  		"parent": null
-  	},
-  	"Trash": {
-  		"attribs": ["\\HasNoChildren", "\\Trash"],
-  		"delimiter": "/",
-  		"children": null,
-  		"parent": null,
-  		"special_use_attrib": "\\Trash"
-  	}
-  },
+	"boxes": {
+		"2016": {
+			"attribs": ["\\HasNoChildren"],
+			"delimiter": "/",
+			"children": null,
+			"parent": null
+		},
+		"INBOX": {
+			"attribs": ["\\HasNoChildren"],
+			"delimiter": "/",
+			"children": null,
+			"parent": null
+		},
+		"Archive": {
+			"attribs": ["\\HasNoChildren", "\\Archive"],
+			"delimiter": "/",
+			"children": null,
+			"parent": null,
+			"special_use_attrib": "\\Archive"
+		},
+		"Arts": {
+			"attribs": ["\\HasNoChildren"],
+			"delimiter": "/",
+			"children": null,
+			"parent": null
+		},
+		"Boîte de réception": {
+			"attribs": ["\\HasNoChildren"],
+			"delimiter": "/",
+			"children": null,
+			"parent": null
+		},
+		"Drafts": {
+			"attribs": ["\\HasNoChildren", "\\Drafts"],
+			"delimiter": "/",
+			"children": null,
+			"parent": null,
+			"special_use_attrib": "\\Drafts"
+		},
+		"Fondue": {
+			"children": {
+				"Savoyarde": {
+					"attribs": ["\\HasNoChildren"],
+					"delimiter": "/",
+					"children": null,
+					"parent": "[Circular]"
+				}
+			}
+		},
+		"Housse": {
+			"children": {
+				"De": {
+					"children": {
+						"Bateau": {
+							"attribs": ["\\HasNoChildren"],
+							"delimiter": "/",
+							"children": null,
+							"parent": "[Circular]"
+						},
+						"Rateau": {
+							"attribs": ["\\HasNoChildren"],
+							"delimiter": "/",
+							"children": null,
+							"parent": "[Circular]"
+						}
+					}
+				}
+			}
+		},
+		"JJJJJJJ JJJJJJJJ 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1": {
+			"attribs": ["\\HasNoChildren"],
+			"delimiter": "/",
+			"children": null,
+			"parent": null
+		},
+		"N1-Snoozed": {
+			"attribs": ["\\HasNoChildren"],
+			"delimiter": "/",
+			"children": null,
+			"parent": null
+		},
+		"Over the top": {
+			"attribs": ["\\HasNoChildren"],
+			"delimiter": "/",
+			"children": null,
+			"parent": null
+		},
+		"Sent": {
+			"attribs": ["\\HasNoChildren", "\\Sent"],
+			"delimiter": "/",
+			"children": null,
+			"parent": null,
+			"special_use_attrib": "\\Sent"
+		},
+		"Spam": {
+			"attribs": ["\\HasNoChildren", "\\Junk"],
+			"delimiter": "/",
+			"children": null,
+			"parent": null,
+			"special_use_attrib": "\\Junk"
+		},
+		"Taxes": {
+			"attribs": ["\\HasNoChildren"],
+			"delimiter": "/",
+			"children": null,
+			"parent": null
+		},
+		"Trash": {
+			"attribs": ["\\HasNoChildren", "\\Trash"],
+			"delimiter": "/",
+			"children": null,
+			"parent": null,
+			"special_use_attrib": "\\Trash"
+		}
+	},
 	"expectedFolders": [{
-		"role": "trash",
-		"name": "Trash"
+		"name": "Trash",
+		"role": "trash"
 	}, {
-		"role": null,
-		"name": "Taxes"
+		"name": "Taxes",
+		"role": null
 	}, {
-		"role": "spam",
-		"name": "Spam"
+		"name": "Spam",
+		"role": "spam"
 	}, {
-		"role": "sent",
-		"name": "Sent"
+		"name": "Sent",
+		"role": "sent"
 	}, {
-		"role": null,
-		"name": "Over the top"
+		"name": "Over the top",
+		"role": null
 	}, {
-		"role": null,
-		"name": "N1-Snoozed"
+		"name": "N1-Snoozed",
+		"role": null
 	}, {
-		"role": null,
-		"name": "JJJJJJJ JJJJJJJJ 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1"
+		"name": "JJJJJJJ JJJJJJJJ 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1",
+		"role": null
 	}, {
-		"role": "drafts",
-		"name": "Drafts"
+		"name": "Housse/De/Rateau",
+		"role": null
 	}, {
-		"role": null,
-		"name": "Boîte de réception"
+		"name": "Housse/De/Bateau",
+		"role": null
 	}, {
-		"role": null,
-		"name": "Arts"
+		"name": "Fondue/Savoyarde",
+		"role": null
 	}, {
-		"role": null,
-		"name": "Archive"
+		"name": "Drafts",
+		"role": "drafts"
 	}, {
-		"role": "inbox",
-		"name": "INBOX"
+		"name": "Boîte de réception",
+		"role": null
 	}, {
-		"role": null,
-		"name": "2016"
+		"name": "Arts",
+		"role": null
+	}, {
+		"name": "Archive",
+		"role": null
+	}, {
+		"name": "INBOX",
+		"role": "inbox"
+	}, {
+		"name": "2016",
+		"role": null
 	}],
 	"expectedLabels": []
 }
