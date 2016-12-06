@@ -33,15 +33,15 @@ class KeyManager {
   }
 
   getPassword(keyName, {migrateFromService} = {}) {
-    if (migrateFromService && !this._alreadyMigrated.has(migrateFromService)) {
+    const keys = this._getKeyHash();
+    if (!keys[keyName] && migrateFromService &&
+        !this._alreadyMigrated.has(migrateFromService)) {
       const oldVal = keytar.getPassword(migrateFromService, keyName);
       if (oldVal) {
         this.replacePassword(keyName, oldVal)
-        keytar.deletePassword(migrateFromService, keyName);
         this._alreadyMigrated.add(migrateFromService)
       }
     }
-    const keys = this._getKeyHash();
     return keys[keyName]
   }
 
