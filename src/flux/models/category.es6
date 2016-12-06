@@ -115,7 +115,7 @@ export default class Category extends Model {
     return this;
   }
 
-  displayType = () => {
+  displayType() {
     AccountStore = AccountStore || require('../stores/account-store').default;
     if (AccountStore.accountForId(this.accountId).usesLabels()) {
       return 'label';

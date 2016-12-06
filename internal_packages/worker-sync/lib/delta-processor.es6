@@ -62,12 +62,18 @@ class DeltaProcessor {
       Actions.longPollReceivedRawDeltas(deltas);
       Actions.longPollReceivedRawDeltasPing(deltas.length);
 
-      const {modelDeltas, metadataDeltas, accountDeltas} = this._extractDeltaTypes(deltas);
+      const {
+        modelDeltas,
+        accountDeltas,
+        metadataDeltas,
+        syncbackRequestDeltas,
+      } = this._extractDeltaTypes(deltas);
       this._handleAccountDeltas(accountDeltas);
 
       const models = await this._saveModels(modelDeltas);
       await this._saveMetadata(metadataDeltas);
       await this._notifyOfNewMessages(models.created);
+      this._notifyOfSyncbackRequestDeltas(syncbackRequestDeltas)
     } catch (err) {
       console.error(rawDeltas)
       console.error("DeltaProcessor: Process failed.", err)
@@ -95,17 +101,21 @@ class DeltaProcessor {
   _extractDeltaTypes(rawDeltas) {
     const modelDeltas = []
     const accountDeltas = []
+    const syncbackRequestDeltas = []
     const metadataDeltas = []
     rawDeltas.forEach((delta) => {
       if (delta.object === "metadata") {
         metadataDeltas.push(delta)
       } else if (delta.object === "account") {
         accountDeltas.push(delta)
+      } else if (delta.object === "syncbackRequest") {
+        syncbackRequestDeltas.push(delta)
+        modelDeltas.push(delta)
       } else {
         modelDeltas.push(delta)
       }
     })
-    return {modelDeltas, metadataDeltas, accountDeltas}
+    return {modelDeltas, metadataDeltas, accountDeltas, syncbackRequestDeltas}
   }
 
   _handleAccountDeltas = (accountDeltas) => {
@@ -120,6 +130,25 @@ class DeltaProcessor {
         });
       }
     }
+  }
+
+  _notifyOfSyncbackRequestDeltas(syncbackRequestDeltas = []) {
+    if (syncbackRequestDeltas.length === 0) { return }
+    const groupedDeltas = {succeeded: [], failed: [], created: []}
+
+    syncbackRequestDeltas.forEach((delta) => {
+      const {status} = delta.attributes
+      if (status === 'FAILED') {
+        groupedDeltas.failed.push(delta)
+      }
+      if (status === 'SUCCEEDED') {
+        groupedDeltas.succeeded.push(delta)
+      }
+      if (status === 'NEW') {
+        groupedDeltas.created.push(delta)
+      }
+    })
+    Actions.didReceiveSyncbackRequestDeltas(groupedDeltas)
   }
 
   async _saveModels(modelDeltas) {
