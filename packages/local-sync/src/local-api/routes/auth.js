@@ -3,34 +3,13 @@ const _ = require('underscore');
 const crypto = require('crypto');
 const Serialization = require('../serialization');
 const {
-  IMAPConnection,
   IMAPErrors,
+  AuthHelpers,
+  IMAPConnection,
 } = require('isomorphic-core');
 const DefaultSyncPolicy = require('../default-sync-policy')
 const LocalDatabaseConnector = require('../../shared/local-database-connector')
 const SyncProcessManager = require('../../local-sync-worker/sync-process-manager')
-
-const imapSmtpSettings = Joi.object().keys({
-  imap_host: [Joi.string().ip().required(), Joi.string().hostname().required()],
-  imap_port: Joi.number().integer().required(),
-  imap_username: Joi.string().required(),
-  imap_password: Joi.string().required(),
-  smtp_host: [Joi.string().ip().required(), Joi.string().hostname().required()],
-  smtp_port: Joi.number().integer().required(),
-  smtp_username: Joi.string().required(),
-  smtp_password: Joi.string().required(),
-  ssl_required: Joi.boolean().required(),
-}).required();
-
-const resolvedGmailSettings = Joi.object().keys({
-  xoauth2: Joi.string().required(),
-}).required();
-
-const exchangeSettings = Joi.object().keys({
-  username: Joi.string().required(),
-  password: Joi.string().required(),
-  eas_server_host: [Joi.string().ip().required(), Joi.string().hostname().required()],
-}).required();
 
 const buildAccountWith = ({name, email, provider, settings, credentials}) => {
   return LocalDatabaseConnector.forShared().then((db) => {
@@ -69,26 +48,7 @@ module.exports = (server) => {
   server.route({
     method: 'POST',
     path: '/auth',
-    config: {
-      description: 'Authenticates a new account.',
-      notes: 'Notes go here',
-      tags: ['accounts'],
-      auth: false,
-      validate: {
-        payload: {
-          email: Joi.string().email().required(),
-          name: Joi.string().required(),
-          provider: Joi.string().valid('imap', 'gmail').required(),
-          settings: Joi.alternatives().try(imapSmtpSettings, exchangeSettings, resolvedGmailSettings),
-        },
-      },
-      response: {
-        schema: Joi.alternatives().try(
-          Serialization.jsonSchema('Account'),
-          Serialization.jsonSchema('Error')
-        ),
-      },
-    },
+    config: AuthHelpers.authPostConfig(),
     handler: (request, reply) => {
       const dbStub = {};
       const connectionChecks = [];
