@@ -12,6 +12,10 @@ class SyncbackTask {
     throw new Error("Must return a description")
   }
 
+  affectsImapMessageUIDs() {
+    throw new Error("Must implement `affectsImapMessageUIDs`")
+  }
+
   run() {
     throw new Error("Must implement a run method")
   }

@@ -5,6 +5,10 @@ class SaveSentMessageIMAP extends SyncbackTask {
     return `SaveSentMessage`;
   }
 
+  affectsImapMessageUIDs() {
+    return false
+  }
+
   async run(db, imap) {
     const {rawMime, messageId} = this.syncbackRequestObject().props;
 

@@ -115,14 +115,62 @@ class SyncWorker {
     return await this._conn.connect();
   }
 
-  async syncbackMessageActions() {
-    const {SyncbackRequest} = this._db;
-    const where = {where: {status: "NEW"}, limit: 100};
+  async runNewSyncbackRequests() {
+    const {SyncbackRequest, Message} = this._db;
+    const where = {
+      limit: 100,
+      where: {status: "NEW"},
+      order: [['createdAt', 'ASC']],
+    };
 
+    // Make sure we run the tasks that affect IMAP uids last, and that we don't
+    // run 2 tasks that will affect the same set of UIDS together (i.e. without
+    // running a sync loop in between)
     const tasks = await SyncbackRequest.findAll(where)
-    .map((req) => SyncbackTaskFactory.create(this._account, req));
+    .map((req) => SyncbackTaskFactory.create(this._account, req))
 
-    return PromiseUtils.each(tasks, this.runSyncbackTask.bind(this));
+    if (tasks.length === 0) { return Promise.resolve() }
+
+    const tasksToProcess = tasks.filter(t => !t.affectsImapMessageUIDs())
+    const tasksAffectingUIDs = tasks.filter(t => t.affectsImapMessageUIDs())
+
+    const changeFolderTasks = tasksAffectingUIDs.filter(t =>
+      t.description() === 'RenameFolder' || t.description() === 'DeleteFolder'
+    )
+    if (changeFolderTasks.length > 0) {
+      // If we are renaming or deleting folders, those are the only tasks we
+      // want to process before executing any other tasks that may change UIDs
+      const affectedFolderIds = new Set()
+      changeFolderTasks.forEach((task) => {
+        const {props: {folderId}} = task.syncbackRequestObject()
+        if (folderId && !affectedFolderIds.has(folderId)) {
+          tasksToProcess.push(task)
+          affectedFolderIds.add(folderId)
+        }
+      })
+      return PromiseUtils.each(tasks, (task) => this.runSyncbackTask(task));
+    }
+
+    // Otherwise, make sure that we don't process more than 1 task that will affect
+    // the UID of the same message
+    const affectedMessageIds = new Set()
+    for (const task of tasksAffectingUIDs) {
+      const {props: {messageId, threadId}} = task.syncbackRequestObject()
+      if (messageId) {
+        if (!affectedMessageIds.has(messageId)) {
+          tasksToProcess.push(task)
+          affectedMessageIds.add(messageId)
+        }
+      } else if (threadId) {
+        const messageIds = await Message.findAll({where: {threadId}}).map(m => m.id)
+        const shouldIncludeTask = messageIds.every(id => !affectedMessageIds.has(id))
+        if (shouldIncludeTask) {
+          tasksToProcess.push(task)
+          messageIds.forEach(id => affectedMessageIds.add(id))
+        }
+      }
+    }
+    return PromiseUtils.each(tasks, (task) => this.runSyncbackTask(task));
   }
 
   async runSyncbackTask(task) {
@@ -176,7 +224,7 @@ class SyncWorker {
     try {
       await this._account.update({syncError: null});
       await this.ensureConnection();
-      await this.syncbackMessageActions();
+      await this.runNewSyncbackRequests();
       await this._conn.runOperation(new FetchFolderList(this._account.provider, this._logger));
       await this.syncMessagesInAllFolders();
       await this.onSyncDidComplete();

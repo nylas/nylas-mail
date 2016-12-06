@@ -6,6 +6,10 @@ class StarMessageIMAP extends SyncbackTask {
     return `StarMessage`;
   }
 
+  affectsImapMessageUIDs() {
+    return false
+  }
+
   run(db, imap) {
     const messageId = this.syncbackRequestObject().props.messageId
 

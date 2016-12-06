@@ -6,6 +6,10 @@ class SetThreadFolderAndLabelsIMAP extends SyncbackTask {
     return `SetThreadFolderAndLabels`;
   }
 
+  affectsImapMessageUIDs() {
+    return true
+  }
+
   async run(db, imap) {
     const threadId = this.syncbackRequestObject().props.threadId
     const labelIds = this.syncbackRequestObject().props.labelIds

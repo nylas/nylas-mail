@@ -6,6 +6,10 @@ class MoveMessageToFolderIMAP extends SyncbackTask {
     return `MoveMessageToFolder`;
   }
 
+  affectsImapMessageUIDs() {
+    return true
+  }
+
   async run(db, imap) {
     const messageId = this.syncbackRequestObject().props.messageId
     const targetFolderId = this.syncbackRequestObject().props.folderId

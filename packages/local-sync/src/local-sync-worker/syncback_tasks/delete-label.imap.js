@@ -5,6 +5,10 @@ class DeleteLabelIMAP extends SyncbackTask {
     return `DeleteLabel`;
   }
 
+  affectsImapMessageUIDs() {
+    return false
+  }
+
   async run(db, imap) {
     const labelId = this.syncbackRequestObject().props.labelId
     const label = await db.Label.findById(labelId)
