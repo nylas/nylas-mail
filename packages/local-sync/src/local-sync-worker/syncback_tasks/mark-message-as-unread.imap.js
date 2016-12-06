@@ -6,6 +6,10 @@ class MarkMessageAsUnreadIMAP extends SyncbackTask {
     return `MarkMessageAsUnread`;
   }
 
+  affectsImapMessageUIDs() {
+    return false
+  }
+
   run(db, imap) {
     const messageId = this.syncbackRequestObject().props.messageId
 

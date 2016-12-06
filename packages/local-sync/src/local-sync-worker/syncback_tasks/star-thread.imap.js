@@ -6,6 +6,10 @@ class StarThread extends SyncbackTask {
     return `StarThread`;
   }
 
+  affectsImapMessageUIDs() {
+    return false
+  }
+
   run(db, imap) {
     const threadId = this.syncbackRequestObject().props.threadId
 

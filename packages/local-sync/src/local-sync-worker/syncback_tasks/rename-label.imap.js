@@ -5,6 +5,10 @@ class RenameLabelIMAP extends SyncbackTask {
     return `RenameLabel`;
   }
 
+  affectsImapMessageUIDs() {
+    return false
+  }
+
   async run(db, imap) {
     const labelId = this.syncbackRequestObject().props.labelId
     const newLabelName = this.syncbackRequestObject().props.displayName

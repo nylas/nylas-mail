@@ -6,6 +6,10 @@ class UnstarMessageIMAP extends SyncbackTask {
     return `UnstarMessage`;
   }
 
+  affectsImapMessageUIDs() {
+    return false
+  }
+
   run(db, imap) {
     const messageId = this.syncbackRequestObject().props.messageId
 

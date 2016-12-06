@@ -6,6 +6,10 @@ class SetMessageLabelsIMAP extends SyncbackTask {
     return `SetMessageLabels`;
   }
 
+  affectsImapMessageUIDs() {
+    return false
+  }
+
   async run(db, imap) {
     const messageId = this.syncbackRequestObject().props.messageId
     const labelIds = this.syncbackRequestObject().props.labelIds

@@ -6,6 +6,10 @@ class MarkThreadAsUnread extends SyncbackTask {
     return `MarkThreadAsUnread`;
   }
 
+  affectsImapMessageUIDs() {
+    return false
+  }
+
   run(db, imap) {
     const threadId = this.syncbackRequestObject().props.threadId
 

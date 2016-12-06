@@ -5,6 +5,10 @@ class RenameFolderIMAP extends SyncbackTask {
     return `RenameFolder`;
   }
 
+  affectsImapMessageUIDs() {
+    return true
+  }
+
   async run(db, imap) {
     const folderId = this.syncbackRequestObject().props.folderId
     const newFolderName = this.syncbackRequestObject().props.displayName

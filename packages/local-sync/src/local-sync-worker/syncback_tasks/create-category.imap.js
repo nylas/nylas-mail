@@ -5,6 +5,10 @@ class CreateCategoryIMAP extends SyncbackTask {
     return `CreateCategory`;
   }
 
+  affectsImapMessageUIDs() {
+    return false
+  }
+
   async run(db, imap) {
     const syncbackRequestObject = this.syncbackRequestObject()
     const displayName = syncbackRequestObject.props.displayName

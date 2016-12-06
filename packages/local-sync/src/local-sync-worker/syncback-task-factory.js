@@ -5,14 +5,6 @@
  */
 class SyncbackTaskFactory {
 
-  static TaskTypesAffectingMessageFolderUIDs = [
-    'MoveThreadToFolder',
-    'MoveMessageToFolder',
-    'SetThreadFolderAndLabels',
-    'RenameFolder',
-    'DeleteFolder',
-  ]
-
   static create(account, syncbackRequest) {
     let Task = null;
     switch (syncbackRequest.type) {
