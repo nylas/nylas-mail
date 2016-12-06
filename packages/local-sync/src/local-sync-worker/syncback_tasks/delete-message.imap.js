@@ -6,13 +6,10 @@ class DeleteMessageIMAP extends SyncbackTask {
     return `DeleteMessage`;
   }
 
-  run(db, imap) {
+  async run(db, imap) {
     const messageId = this.syncbackRequestObject().props.messageId
-
-    return TaskHelpers.openMessageBox({messageId, db, imap})
-      .then(({box, message}) => {
-        return box.addFlags(message.folderImapUID, 'DELETED')
-      })
+    const {box, message} = await TaskHelpers.openMessageBox({messageId, db, imap})
+    return box.addFlags(message.folderImapUID, ['DELETED'])
   }
 }
 module.exports = DeleteMessageIMAP;

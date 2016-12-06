@@ -57,6 +57,7 @@ class SendmailClient {
     }
     msgData.subject = draft.subject;
     msgData.html = draft.body;
+    msgData.messageId = `${draft.id}@nylas.com`;
 
     // TODO: attachments
 
@@ -69,18 +70,17 @@ class SendmailClient {
     msgData.headers = draft.headers;
     msgData.headers['User-Agent'] = `NylasMailer-K2`
 
-    // TODO: do we want to set messageId or date?
-
     return msgData;
   }
 
   async buildMime(draft) {
     const builder = mailcomposer(this._draftToMsgData(draft))
-    return new Promise((resolve, reject) => {
+    const mimeNode = await (new Promise((resolve, reject) => {
       builder.build((error, result) => {
         error ? reject(error) : resolve(result)
       })
-    })
+    }));
+    return mimeNode.toString('ascii')
   }
 
   async send(draft) {

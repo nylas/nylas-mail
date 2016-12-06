@@ -56,6 +56,8 @@ class SyncbackTaskFactory {
         Task = require('./syncback_tasks/delete-message.imap'); break;
       case "SaveSentMessage":
         Task = require('./syncback_tasks/save-sent-message.imap'); break;
+      case "DeleteSentMessage":
+        Task = require('./syncback_tasks/delete-sent-message.gmail'); break;
       default:
         throw new Error(`Task type not defined in syncback-task-factory: ${syncbackRequest.type}`)
     }

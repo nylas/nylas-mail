@@ -6,10 +6,28 @@ class SaveSentMessageIMAP extends SyncbackTask {
   }
 
   async run(db, imap) {
-    // TODO: gmail doesn't have a sent folder
-    const folder = await db.Folder.find({where: {role: 'sent'}});
-    const box = await imap.openBox(folder.name);
-    return box.append(this.syncbackRequestObject().props.rawMime);
+    const {rawMime, messageId} = this.syncbackRequestObject().props;
+
+    // Non-gmail
+    const sentFolder = await db.Folder.find({where: {role: 'sent'}});
+    if (sentFolder) {
+      const box = await imap.openBox(sentFolder.name);
+      return box.append(rawMime);
+    }
+
+    // Gmail, we need to add the message to all mail and add the sent label
+    const sentLabel = await db.Label.find({where: {role: 'sent'}});
+    const allMail = await db.Folder.find({where: {role: 'all'}});
+    if (sentLabel && allMail) {
+      let box = await imap.openBox(allMail.name);
+      await box.append(rawMime, {flags: 'SEEN'})
+      const uids = await box.search([['HEADER', 'Message-ID', messageId]])
+      // There should only be one uid in the array
+      return box.setLabels(uids[0], '\\Sent');
+    }
+
+    throw new Error('Could not save message to sent folder.')
   }
 }
+
 module.exports = SaveSentMessageIMAP;
