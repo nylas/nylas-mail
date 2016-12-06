@@ -1,7 +1,9 @@
 const utf7 = require('utf7').imap;
 const mimelib = require('mimelib');
 const QuotedPrintable = require('quoted-printable');
-const {Imap} = require('isomorphic-core')
+const {Imap} = require('isomorphic-core');
+const mkdirp = require('mkdirp');
+const striptags = require('striptags');
 
 const SNIPPET_SIZE = 100
 
@@ -59,6 +61,13 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
     subject: parsedHeaders.subject[0],
   }
 
+  // preserve whitespacing on plaintext emails -- has the side effect of monospacing, but
+  // that seems OK and perhaps sometimes even desired (for e.g. ascii art, alignment)
+  if (!body['text/html'] && body['text/plain']) {
+    values.body = `<pre class="nylas-plaintext">${values.body}</pre>`;
+  }
+
+  // TODO: strip quoted text from snippets also
   if (values.snippet) {
     // trim and clean snippet which is alreay present (from values plaintext)
     values.snippet = values.snippet.replace(/[\n\r]/g, ' ').replace(/\s\s+/g, ' ')
@@ -68,8 +77,7 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
     }
   } else if (values.body) {
     // create snippet from body, which is most likely html
-    // TODO: Fanciness
-    values.snippet = values.body.substr(0, Math.min(values.body.length, SNIPPET_SIZE));
+    values.snippet = striptags(values.body).trim().substr(0, Math.min(values.body.length, SNIPPET_SIZE));
   }
 
   values.folder = folder

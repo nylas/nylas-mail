@@ -23,7 +23,8 @@
     "sqlite3": "https://github.com/bengotow/node-sqlite3/archive/bengotow/usleep-v3.1.4.tar.gz",
     "striptags": "2.1.1",
     "underscore": "1.8.3",
-    "utf7": "1.0.2",
+    "utf7": "^1.0.2",
+    "striptags": "2.1.1",
     "vision": "4.1.0"
   },
   "scripts": {
