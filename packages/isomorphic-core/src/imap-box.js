@@ -1,4 +1,5 @@
 const _ = require('underscore');
+const PromiseUtils = require('./promise-utils')
 
 const {
   IMAPConnectionNotReadyError,
@@ -171,6 +172,24 @@ class IMAPBox {
       throw new IMAPConnectionNotReadyError(`IMAPBox::moveFromBox`)
     }
     return this._conn._imap.delLabelsAsync(range, labels)
+  }
+
+  append(rawMime, options) {
+    if (!this._conn._imap) {
+      throw new IMAPConnectionNotReadyError(`IMAPBox::append`)
+    }
+    return PromiseUtils.promisify(this._conn._imap.append).call(
+      this._conn._imap, rawMime, options
+    );
+  }
+
+  search(criteria) {
+    if (!this._conn._imap) {
+      throw new IMAPConnectionNotReadyError(`IMAPBox::search`)
+    }
+    return PromiseUtils.promisify(this._conn._imap.search).call(
+      this._conn._imap, criteria
+    );
   }
 
   closeBox({expunge = true} = {}) {

@@ -168,10 +168,10 @@ module.exports = (server) => {
         // gmail creates sent messages for each one, go through and delete them
         if (account.provider === 'gmail') {
           try {
-            // TODO: use type: "PermananentDeleteMessage" once it's fully implemented
             await db.SyncbackRequest.create({
-              type: "DeleteMessage",
-              props: { messageId: draft.id },
+              accountId: account.id,
+              type: "DeleteSentMessage",
+              props: { messageId: `${draft.id}@nylas.com` },
             });
           } catch (err) {
             // Even if this fails, we need to finish the multi-send session,
@@ -185,7 +185,7 @@ module.exports = (server) => {
         await db.SyncbackRequest.create({
           accountId: account.id,
           type: "SaveSentMessage",
-          props: {rawMime},
+          props: {rawMime, messageId: `${draft.id}@nylas.com`},
         });
 
         await (draft.isSent = true);
