@@ -3,6 +3,8 @@ const {buildJSONColumnOptions, buildJSONARRAYColumnOptions} = require('../databa
 
 const {DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD} = process.env;
 
+const AccountToken = require('./account-token')
+
 module.exports = (sequelize, Sequelize) => {
   const Account = sequelize.define('account', {
     id: { type: Sequelize.STRING(65), primaryKey: true },
@@ -27,8 +29,24 @@ module.exports = (sequelize, Sequelize) => {
       },
     ],
     classMethods: {
-      associate: ({AccountToken}) => {
-        Account.hasMany(AccountToken, {as: 'tokens'})
+      associate: (data = {}) => {
+        Account.hasMany(data.AccountToken, {as: 'tokens'})
+      },
+      upsertWithCredentials: (accountParams, credentials) => {
+        const idString = `${accountParams.email}${JSON.stringify(accountParams.settings)}`
+        const id = crypto.createHash('sha256').update(idString, 'utf8').digest('hex')
+        return Account.findById(id).then((existing) => {
+          const account = existing || Account.build(Object.assign({id}, accountParams))
+
+          // always update with the latest credentials
+          account.setCredentials(credentials);
+
+          return account.save().then((saved) =>
+            AccountToken.create({accountId: saved.id}).then((token) =>
+              Promise.resolve({account: saved, token: token})
+            )
+          );
+        });
       },
     },
     instanceMethods: {

@@ -1,6 +1,4 @@
 const Joi = require('joi');
-const _ = require('underscore');
-const crypto = require('crypto');
 const google = require('googleapis');
 const OAuth2 = google.auth.OAuth2;
 
@@ -9,11 +7,9 @@ const Serialization = require('../serialization');
 
 const {
   Provider,
-  IMAPErrors,
   AuthHelpers,
   IMAPConnection,
 } = require('isomorphic-core');
-
 
 const {GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL} = process.env;
 
@@ -25,101 +21,18 @@ const SCOPES = [
   'https://www.googleapis.com/auth/calendar',  // calendar
 ];
 
-const buildAccountWith = ({Account, AccountToken}, {name, email, provider, settings, credentials}) => {
-  const idString = `${email}${JSON.stringify(settings)}`
-  const id = crypto.createHash('sha256').update(idString, 'utf8').digest('hex')
-  return Account.findById(id).then((existing) => {
-    const account = existing || Account.build({
-      id,
-      name: name,
-      provider: provider,
-      emailAddress: email,
-      connectionSettings: settings,
-    })
-
-    // always update with the latest credentials
-    account.setCredentials(credentials);
-
-    return account.save().then((saved) =>
-      AccountToken.create({accountId: saved.id}).then((token) =>
-        Promise.resolve({
-          account: saved,
-          token: token,
-        })
-      )
-    );
-  });
+const accountBuildFn = (accountParams, credentials) => {
+  return DatabaseConnector.forShared().then(({Account}) =>
+    Account.upsertWithCredentials(accountParams, credentials)
+  );
 }
 
 module.exports = (server) => {
   server.route({
     method: 'POST',
     path: '/auth',
-    config: AuthHelpers.authPostConfig(),
-    handler: (request, reply) => {
-      const dbStub = {};
-      const connectionChecks = [];
-      const {settings, email, provider, name} = request.payload;
-
-      let connectionSettings = null;
-      let connectionCredentials = null;
-
-      if (provider === 'imap') {
-        connectionSettings = _.pick(settings, [
-          'imap_host', 'imap_port',
-          'smtp_host', 'smtp_port',
-          'ssl_required',
-        ]);
-        connectionCredentials = _.pick(settings, [
-          'imap_username', 'imap_password',
-          'smtp_username', 'smtp_password',
-        ]);
-      }
-
-      if (provider === 'gmail') {
-        connectionSettings = {
-          imap_username: email,
-          imap_host: 'imap.gmail.com',
-          imap_port: 993,
-          ssl_required: true,
-        }
-        connectionCredentials = {
-          client_id: settings.google_client_id,
-          client_secret: settings.google_client_secret,
-          refresh_token: settings.google_refresh_token,
-        }
-      }
-
-      connectionChecks.push(IMAPConnection.connect({
-        settings: Object.assign({}, connectionSettings, connectionCredentials),
-        logger: request.logger,
-        db: dbStub,
-      }));
-
-      Promise.all(connectionChecks).then((conns) => {
-        for (const conn of conns) {
-          if (conn) { conn.end(); }
-        }
-        return DatabaseConnector.forShared().then((db) =>
-          buildAccountWith(db, {
-            name: name,
-            email: email,
-            provider: provider,
-            settings: connectionSettings,
-            credentials: connectionCredentials,
-          })
-        )
-      })
-      .then(({account, token}) => {
-        const response = account.toJSON();
-        response.token = token.value;
-        reply(Serialization.jsonStringify(response));
-      })
-      .catch((err) => {
-        const code = err instanceof IMAPErrors.IMAPAuthenticationError ? 401 : 400
-        reply({message: err.message, type: "api_error"}).code(code);
-      })
-    },
+    config: AuthHelpers.imapAuthRouteConfig(),
+    handler: AuthHelpers.imapAuthHandler(accountBuildFn),
   });
 
   server.route({
@@ -162,6 +75,7 @@ module.exports = (server) => {
         },
       },
     },
+
     handler: (request, reply) => {
       const oauthClient = new OAuth2(GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL);
       oauthClient.getToken(request.query.code, (err, tokens) => {
@@ -199,16 +113,16 @@ module.exports = (server) => {
             if (imap) { imap.end(); }
 
             return DatabaseConnector.forShared().then((db) => {
-              return buildAccountWith(db, {
+              const accountParams = {
                 name: profile.name,
-                email: profile.email,
                 provider: Provider.Gmail,
-                settings,
-                credentials,
-              })
+                emailAddress: profile.email,
+                connectionSettings: settings,
+              }
+              return accountBuildFn(accountParams, credentials)
               .then(({account, token}) => {
                 const response = account.toJSON();
-                response.token = token.value;
+                response.account_token = token.value;
                 response.resolved_settings = imap.resolvedSettings;
                 db.PendingAuthResponse.create({
                   response: Serialization.jsonStringify(response),

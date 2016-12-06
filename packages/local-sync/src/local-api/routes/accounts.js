@@ -23,7 +23,7 @@ module.exports = (server) => {
               accounts.map(({id}) => AccountToken.create({accountId: id, value: id})
             )).finally(() =>
               reply(accounts.map((account) =>
-                Object.assign(account.toJSON(), {id: `${account.id}`, auth_token: `${account.id}`})
+                Object.assign(account.toJSON(), {id: `${account.id}`, account_token: `${account.id}`})
               ))
             )
           });
