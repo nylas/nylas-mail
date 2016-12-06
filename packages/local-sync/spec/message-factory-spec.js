@@ -26,10 +26,17 @@ describe('MessageFactory', function MessageFactorySpecs() {
     forEachJSONFixture('MessageFactory/parseFromImap', (filename, json) => {
       it(`should correctly build message properties for ${filename}`, () => {
         const {imapMessage, desiredParts, result} = json;
+        // requiring these to match makes it overly arduous to generate test
+        // cases from real accounts
+        const excludeKeys = new Set(['id', 'accountId', 'folderId', 'folder', 'labels']);
 
         waitsForPromise(async () => {
           const actual = await parseFromImap(imapMessage, desiredParts, this.options);
-          expect(actual).toEqual(result)
+          for (const key of Object.keys(result)) {
+            if (!excludeKeys.has(key)) {
+              expect(actual[key]).toEqual(result[key]);
+            }
+          }
         });
       });
     })
