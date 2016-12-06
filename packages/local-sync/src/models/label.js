@@ -1,3 +1,4 @@
+const crypto = require('crypto')
 const {formatImapPath} = require('../shared/imap-paths-utils');
 
 module.exports = (sequelize, Sequelize) => {
@@ -39,6 +40,11 @@ module.exports = (sequelize, Sequelize) => {
         return this.findAll({
           where: sequelize.or({name: labelNames}, {role: labelRoles}),
         })
+      },
+
+      hash({boxName, accountId}) {
+        const cleanName = formatImapPath(boxName)
+        return crypto.createHash('sha256').update(`${accountId}${cleanName}`, 'utf8').digest('hex')
       },
     },
     instanceMethods: {

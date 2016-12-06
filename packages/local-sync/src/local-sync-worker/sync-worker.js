@@ -4,10 +4,7 @@ const {
   PromiseUtils,
 } = require('isomorphic-core');
 const LocalDatabaseConnector = require('../shared/local-database-connector')
-const {
-  jsonError,
-} = require('./sync-utils')
-
+const {jsonError} = require('./sync-utils')
 const FetchFolderList = require('./imap/fetch-folder-list')
 const FetchMessagesInFolder = require('./imap/fetch-messages-in-folder')
 const SyncbackTaskFactory = require('./syncback-task-factory')
@@ -112,8 +109,7 @@ class SyncWorker {
     conn.on('update', () => {
       this._onConnectionIdleUpdate();
     })
-    conn.on('queue-empty', () => {
-    });
+    conn.on('queue-empty', () => {});
 
     this._conn = conn;
     return await this._conn.connect();
@@ -123,9 +119,8 @@ class SyncWorker {
     const {SyncbackRequest} = this._db;
     const where = {where: {status: "NEW"}, limit: 100};
 
-    const tasks = (await SyncbackRequest.findAll(where)).map((req) =>
-      SyncbackTaskFactory.create(this._account, req)
-    );
+    const tasks = await SyncbackRequest.findAll(where)
+    .map((req) => SyncbackTaskFactory.create(this._account, req));
 
     return PromiseUtils.each(tasks, this.runSyncbackTask.bind(this));
   }

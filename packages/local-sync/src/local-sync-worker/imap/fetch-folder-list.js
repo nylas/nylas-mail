@@ -1,4 +1,3 @@
-const crypto = require('crypto')
 const {Provider, PromiseUtils} = require('isomorphic-core');
 const {localizedCategoryNames} = require('../sync-utils')
 
@@ -110,7 +109,7 @@ class FetchFolderList {
         const {accountId} = this._db
         category = Klass.build({
           accountId,
-          id: crypto.createHash('sha256').update(`${accountId}${boxName}`, 'utf8').digest('hex'),
+          id: Klass.hash({boxName, accountId}),
           name: boxName,
           role: role,
         });

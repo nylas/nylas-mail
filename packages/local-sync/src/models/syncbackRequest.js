@@ -13,14 +13,14 @@ module.exports = (sequelize, Sequelize) => {
     accountId: { type: Sequelize.STRING, allowNull: false },
   }, {
     instanceMethods: {
-      toJSON: function toJSON() {
+      toJSON() {
         return {
           id: `${this.id}`,
           type: this.type,
           error: JSON.stringify(this.error || {}),
           props: this.props,
           status: this.status,
-          object: 'providerSyncbackRequest',
+          object: 'syncbackRequest',
           account_id: this.accountId,
         }
       },

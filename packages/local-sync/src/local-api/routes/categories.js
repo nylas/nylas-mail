@@ -25,16 +25,14 @@ module.exports = (server) => {
           ),
         },
       },
-      handler: (request, reply) => {
-        request.getAccountDatabase().then((db) => {
-          const Klass = db[klass];
-          Klass.findAll({
-            limit: request.query.limit,
-            offset: request.query.offset,
-          }).then((items) => {
-            reply(Serialization.jsonStringify(items));
-          })
+      async handler(request, reply) {
+        const db = await request.getAccountDatabase()
+        const Klass = db[klass];
+        const items = await Klass.findAll({
+          limit: request.query.limit,
+          offset: request.query.offset,
         })
+        reply(Serialization.jsonStringify(items));
       },
     });
 
@@ -47,17 +45,30 @@ module.exports = (server) => {
       config: {
         description: `Create ${term}`,
         tags: [term],
-        validate: {},
+        validate: {
+          params: {
+            payload: {
+              display_name: Joi.string().required(),
+            },
+          },
+        },
         response: {
           schema: Serialization.jsonSchema('SyncbackRequest'),
         },
       },
-      handler: (request, reply) => {
-        if (request.payload.display_name) {
+      async handler(request, reply) {
+        const {payload} = request
+        if (payload.display_name) {
+          const accountId = request.auth.credentials.id
+          const db = await request.getAccountDatabase()
+          const objectId = db[klass].hash({boxName: payload.display_name, accountId})
+
           createSyncbackRequest(request, reply, {
-            type: "CreateFolder",
+            type: "CreateCategory",
             props: {
-              displayName: request.payload.display_name,
+              objectId,
+              object: klass.toLowerCase(),
+              displayName: payload.display_name,
             },
           })
         }
@@ -72,22 +83,42 @@ module.exports = (server) => {
         tags: [term],
         validate: {
           params: {
-            id: Joi.string(),
+            id: Joi.string().required(),
+            payload: {
+              display_name: Joi.string().required(),
+            },
           },
         },
         response: {
           schema: Serialization.jsonSchema('SyncbackRequest'),
         },
       },
-      handler: (request, reply) => {
-        if (request.payload.display_name) {
-          createSyncbackRequest(request, reply, {
-            type: "RenameFolder",
-            props: {
-              displayName: request.payload.display_name,
-              id: request.params.id,
-            },
-          })
+      async handler(request, reply) {
+        const {payload} = request
+        if (payload.display_name) {
+          const accountId = request.auth.credentials.id
+          const db = await request.getAccountDatabase()
+          const objectId = db[klass].hash({boxName: payload.display_name, accountId})
+
+          if (klass === 'Label') {
+            createSyncbackRequest(request, reply, {
+              type: "RenameLabel",
+              props: {
+                objectId,
+                labelId: request.params.id,
+                displayName: payload.display_name,
+              },
+            })
+          } else {
+            createSyncbackRequest(request, reply, {
+              type: "RenameFolder",
+              props: {
+                objectId,
+                folderId: request.params.id,
+                displayName: payload.display_name,
+              },
+            })
+          }
         }
       },
     })
@@ -100,7 +131,7 @@ module.exports = (server) => {
         tags: [term],
         validate: {
           params: {
-            id: Joi.number().integer(),
+            id: Joi.string().required(),
           },
         },
         response: {
@@ -108,12 +139,21 @@ module.exports = (server) => {
         },
       },
       handler: (request, reply) => {
-        createSyncbackRequest(request, reply, {
-          type: "DeleteFolder",
-          props: {
-            id: request.params.id,
-          },
-        })
+        if (klass === 'Label') {
+          createSyncbackRequest(request, reply, {
+            type: "DeleteLabel",
+            props: {
+              labelId: request.params.id,
+            },
+          })
+        } else {
+          createSyncbackRequest(request, reply, {
+            type: "DeleteFolder",
+            props: {
+              folderId: request.params.id,
+            },
+          })
+        }
       },
     })
   });

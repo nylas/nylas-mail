@@ -5,12 +5,11 @@ class RenameFolderIMAP extends SyncbackTask {
     return `RenameFolder`;
   }
 
-  run(db, imap) {
-    const folderId = this.syncbackRequestObject().props.id
+  async run(db, imap) {
+    const folderId = this.syncbackRequestObject().props.folderId
     const newFolderName = this.syncbackRequestObject().props.displayName
-    return db.Folder.findById(folderId).then((folder) => {
-      return imap.renameBox(folder.name, newFolderName);
-    })
+    const folder = await db.Folder.findById(folderId)
+    return imap.renameBox(folder.name, newFolderName);
   }
 }
 module.exports = RenameFolderIMAP

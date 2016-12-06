@@ -1,3 +1,4 @@
+const crypto = require('crypto')
 const {DatabaseTypes: {buildJSONColumnOptions}} = require('isomorphic-core');
 const {formatImapPath} = require('../shared/imap-paths-utils');
 
@@ -21,9 +22,14 @@ module.exports = (sequelize, Sequelize) => {
       },
     ],
     classMethods: {
-      associate: ({Folder, Message, Thread}) => {
+      associate({Folder, Message, Thread}) {
         Folder.hasMany(Message)
         Folder.belongsToMany(Thread, {through: 'thread_folders'})
+      },
+
+      hash({boxName, accountId}) {
+        const cleanName = formatImapPath(boxName)
+        return crypto.createHash('sha256').update(`${accountId}${cleanName}`, 'utf8').digest('hex')
       },
     },
     instanceMethods: {
