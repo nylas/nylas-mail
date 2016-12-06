@@ -4,6 +4,15 @@
  *
  */
 class SyncbackTaskFactory {
+
+  static TaskTypesAffectingMessageFolderUIDs = [
+    'MoveThreadToFolder',
+    'MoveMessageToFolder',
+    'SetThreadFolderAndLabels',
+    'RenameFolder',
+    'DeleteFolder',
+  ]
+
   static create(account, syncbackRequest) {
     let Task = null;
     switch (syncbackRequest.type) {
@@ -33,12 +42,16 @@ class SyncbackTaskFactory {
         Task = require('./syncback_tasks/star-message.imap'); break;
       case "UnstarMessage":
         Task = require('./syncback_tasks/unstar-message.imap'); break;
-      case "CreateFolder":
-        Task = require('./syncback_tasks/create-folder.imap'); break;
+      case "CreateCategory":
+        Task = require('./syncback_tasks/create-category.imap'); break;
       case "RenameFolder":
         Task = require('./syncback_tasks/rename-folder.imap'); break;
+      case "RenameLabel":
+        Task = require('./syncback_tasks/rename-label.imap'); break;
       case "DeleteFolder":
         Task = require('./syncback_tasks/delete-folder.imap'); break;
+      case "DeleteLabel":
+        Task = require('./syncback_tasks/delete-label.imap'); break;
       case "DeleteMessage":
         Task = require('./syncback_tasks/delete-message.imap'); break;
       case "SaveSentMessage":

@@ -68,4 +68,4 @@ class SyncProcessManager {
   }
 }
 
-module.exports = new SyncProcessManager();
+module.exports = new SyncProcessManager()
