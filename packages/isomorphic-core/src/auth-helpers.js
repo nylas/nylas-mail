@@ -25,6 +25,8 @@ const exchangeSettings = Joi.object().keys({
   eas_server_host: [Joi.string().ip().required(), Joi.string().hostname().required()],
 }).required();
 
+const AUTH_500_USER_MESSAGE = "Please contact support@nylas.com. An unforseen error has occurred."
+
 module.exports = {
   imapAuthRouteConfig() {
     return {
@@ -99,11 +101,15 @@ module.exports = {
       .then(({account, token}) => {
         const response = account.toJSON();
         response.account_token = token.value;
-        reply(JSON.stringify(response));
+        console.log(response)
+        return reply(JSON.stringify(response));
       })
       .catch((err) => {
-        const code = err instanceof IMAPErrors.IMAPAuthenticationError ? 401 : 400
-        reply({message: err.message, type: "api_error"}).code(code);
+        if (err instanceof IMAPErrors.IMAPAuthenticationError) {
+          return reply({message: err.message, type: "api_error"}).code(401);
+        }
+        request.logger.error(err)
+        return reply({message: AUTH_500_USER_MESSAGE, type: "api_error"}).code(500);
       })
     }
   },
