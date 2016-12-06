@@ -1,5 +1,5 @@
 _ = require 'underscore'
-keytar = require 'keytar'
+KeyManager = require '../../src/key-manager'
 NylasAPI = require '../../src/flux/nylas-api'
 NylasAPIRequest = require('../../src/flux/nylas-api-request').default
 AccountStore = require '../../src/flux/stores/account-store'
@@ -12,11 +12,11 @@ describe "AccountStore", ->
     @instance = null
     @constructor = AccountStore.constructor
     @keys = {}
-    spyOn(keytar, 'getPassword').andCallFake (service, account) =>
+    spyOn(KeyManager, 'getPassword').andCallFake (account) =>
       @keys[account]
-    spyOn(keytar, 'deletePassword').andCallFake (service, account) =>
+    spyOn(KeyManager, 'deletePassword').andCallFake (account) =>
       delete @keys[account]
-    spyOn(keytar, 'replacePassword').andCallFake (service, account, pass) =>
+    spyOn(KeyManager, 'replacePassword').andCallFake (account, pass) =>
       @keys[account] = pass
 
     @spyOnConfig = =>
@@ -60,9 +60,9 @@ describe "AccountStore", ->
         (new Account).fromJSON(@configAccounts[1])
       ])
 
-    it "should initialize tokens from keytar", ->
-      jasmine.unspy(keytar, 'getPassword')
-      spyOn(keytar, 'getPassword').andCallFake (service, account) =>
+    it "should initialize tokens from KeyManager", ->
+      jasmine.unspy(KeyManager, 'getPassword')
+      spyOn(KeyManager, 'getPassword').andCallFake (account) =>
         return 'AL-TOKEN' if account is 'bengotow@gmail.com.localSync'
         return 'AC-TOKEN' if account is 'bengotow@gmail.com.n1Cloud'
         return 'BL-TOKEN' if account is 'ben@nylas.com.localSync'
@@ -102,10 +102,10 @@ describe "AccountStore", ->
       spyOn(@instance, "trigger")
       @instance.addAccountFromJSON(@json, "LOCAL_TOKEN", "CLOUD_TOKEN")
 
-    it "saves the token to keytar and to the loaded tokens cache", ->
+    it "saves the token to KeyManager and to the loaded tokens cache", ->
       expect(@instance._tokens["B"]).toEqual({n1Cloud: "CLOUD_TOKEN", localSync: "LOCAL_TOKEN"})
-      expect(keytar.replacePassword).toHaveBeenCalledWith("Nylas", "ben@nylas.com.localSync", "LOCAL_TOKEN")
-      expect(keytar.replacePassword).toHaveBeenCalledWith("Nylas", "ben@nylas.com.n1Cloud", "CLOUD_TOKEN")
+      expect(KeyManager.replacePassword).toHaveBeenCalledWith("ben@nylas.com.localSync", "LOCAL_TOKEN")
+      expect(KeyManager.replacePassword).toHaveBeenCalledWith("ben@nylas.com.n1Cloud", "CLOUD_TOKEN")
 
     it "saves the account to the accounts cache and saves", ->
       account = (new Account).fromJSON(@json)

@@ -1,9 +1,9 @@
 /* eslint global-require: 0 */
 
 import _ from 'underscore'
-import keytar from 'keytar'
 
 import NylasStore from 'nylas-store'
+import KeyManager from '../../key-manager'
 import Actions from '../actions'
 import Account from '../models/account'
 import Utils from '../models/utils'
@@ -15,7 +15,6 @@ let NylasAPIRequest = null
 const configAccountsKey = "nylas.accounts"
 const configVersionKey = "nylas.accountsVersion"
 const configTokensKey = "nylas.accountTokens"
-const keytarServiceName = 'Nylas'
 
 
 /*
@@ -73,12 +72,12 @@ class AccountStore extends NylasStore {
       // messages and these can result in very strange exceptions downstream otherwise.
       this._enforceAccountsValidity()
 
-      // Load tokens using the new keytar method
+      // Load tokens using the new KeyManager method
       this._tokens = {}
       for (const account of this._accounts) {
         this._tokens[account.id] = {
-          n1Cloud: keytar.getPassword(keytarServiceName, `${account.emailAddress}.n1Cloud`),
-          localSync: keytar.getPassword(keytarServiceName, `${account.emailAddress}.localSync`),
+          n1Cloud: KeyManager.getPassword(`${account.emailAddress}.n1Cloud`, {migrateFromService: "Nylas"}),
+          localSync: KeyManager.getPassword(`${account.emailAddress}.localSync`, {migrateFromService: "Nylas"}),
         }
       }
     } catch (error) {
@@ -151,7 +150,7 @@ class AccountStore extends NylasStore {
   _onRemoveAccount = (id) => {
     const account = _.findWhere(this._accounts, {id})
     if (!account) return
-    keytar.deletePassword(keytarServiceName, account.emailAddress)
+    KeyManager.deletePassword(account.emailAddress)
 
     this._caches = {}
 
@@ -200,8 +199,8 @@ class AccountStore extends NylasStore {
       n1Cloud: cloudToken,
       localSync: localToken,
     }
-    keytar.replacePassword(keytarServiceName, `${json.email_address}.n1Cloud`, cloudToken)
-    keytar.replacePassword(keytarServiceName, `${json.email_address}.localSync`, localToken)
+    KeyManager.replacePassword(`${json.email_address}.n1Cloud`, cloudToken)
+    KeyManager.replacePassword(`${json.email_address}.localSync`, localToken)
 
     const existingIdx = _.findIndex(this._accounts, (a) =>
       a.id === json.id || a.emailAddress === json.email_address
