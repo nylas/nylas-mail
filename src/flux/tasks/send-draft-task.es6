@@ -14,7 +14,6 @@ import BaseDraftTask from './base-draft-task';
 import MultiSendToIndividualTask from './multi-send-to-individual-task';
 import MultiSendSessionCloseTask from './multi-send-session-close-task';
 import SyncbackMetadataTask from './syncback-metadata-task';
-import NotifyPluginsOfSendTask from './notify-plugins-of-send-task';
 
 
 // TODO
@@ -158,15 +157,6 @@ export default class SendDraftTask extends BaseDraftTask {
           this.message.constructor.name, m.pluginId);
       Actions.queueTask(t1);
     });
-
-    if (this.message.pluginMetadata.length > 0) {
-      const t2 = new NotifyPluginsOfSendTask({
-        accountId: this.message.accountId,
-        messageId: this.message.id,
-        messageClientId: this.message.clientId,
-      });
-      Actions.queueTask(t2);
-    }
 
     return Promise.resolve();
   }

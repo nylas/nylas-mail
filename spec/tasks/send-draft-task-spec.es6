@@ -15,7 +15,6 @@ import {
   SyncbackMetadataTask,
 } from 'nylas-exports';
 
-import NotifyPluginsOfSendTask from '../../src/flux/tasks/notify-plugins-of-send-task'
 
 const DBt = DatabaseTransaction.prototype;
 const withoutWhitespace = (s) => s.replace(/[\n\r\s]/g, '');
@@ -183,27 +182,6 @@ describe('SendDraftTask', function sendDraftTask() {
             expect(metadataTasks[idx].modelClassName).toEqual('Message');
             expect(metadataTasks[idx].pluginId).toEqual(pluginMetadatum.pluginId);
           });
-        }));
-      });
-
-      it("should queue a task to register the messageID with the plugin server", () => {
-        spyOn(Actions, 'queueTask')
-        waitsForPromise(() => this.task.performRemote().then(() => {
-          let tasks = Actions.queueTask.calls.map((call) => call.args[0]);
-          tasks = tasks.filter((task) => task instanceof NotifyPluginsOfSendTask)
-          expect(tasks.length).toEqual(1);
-          expect(tasks[0].accountId).toEqual(this.draft.accountId);
-          expect(tasks[0].messageId).toEqual(this.response.id);
-        }));
-      });
-
-      it("shouldn't queue a NotifyPluginsOfSendTask if there's no metadata", () => {
-        spyOn(Actions, 'queueTask');
-        this.draft.pluginMetadata = []
-        waitsForPromise(() => this.task.performRemote().then(() => {
-          let tasks = Actions.queueTask.calls.map((call) => call.args[0]);
-          tasks = tasks.filter((task) => task instanceof NotifyPluginsOfSendTask)
-          expect(tasks.length).toEqual(0);
         }));
       });
 

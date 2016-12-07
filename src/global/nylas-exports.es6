@@ -126,7 +126,6 @@ lazyLoadAndRegisterTask(`SyncbackMetadataTask`, 'syncback-metadata-task');
 lazyLoadAndRegisterTask(`PerformSendActionTask`, 'perform-send-action-task');
 lazyLoadAndRegisterTask(`SyncbackDraftFilesTask`, 'syncback-draft-files-task');
 lazyLoadAndRegisterTask(`ReprocessMailRulesTask`, 'reprocess-mail-rules-task');
-lazyLoadAndRegisterTask(`NotifyPluginsOfSendTask`, 'notify-plugins-of-send-task');
 lazyLoadAndRegisterTask(`MultiSendToIndividualTask`, 'multi-send-to-individual-task');
 lazyLoadAndRegisterTask(`MultiSendSessionCloseTask`, 'multi-send-session-close-task');
 
