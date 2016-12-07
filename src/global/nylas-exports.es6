@@ -216,7 +216,6 @@ lazyLoad(`QuotedPlainTextTransformer`, 'services/quoted-plain-text-transformer')
 
 // Errors
 lazyLoadWithGetter(`APIError`, () => require('../flux/errors').APIError);
-lazyLoadWithGetter(`TimeoutError`, () => require('../flux/errors').TimeoutError);
 
 // Process Internals
 lazyLoad(`DefaultClientHelper`, 'default-client-helper');

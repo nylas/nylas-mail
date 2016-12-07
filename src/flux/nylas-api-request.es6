@@ -143,9 +143,7 @@ export default class NylasAPIRequest {
           NylasEnv.reportError(err)
         }
       }
-      handlePromise.finally(() => {
-        Promise.reject(err)
-      })
+      return handlePromise.finally(() => Promise.reject(err))
     }
 
     return new Promise((resolve, reject) => {

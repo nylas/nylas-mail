@@ -12,8 +12,7 @@ Reflux = require 'reflux'
 Actions = require('../actions').default
 DatabaseStore = require('./database-store').default
 
-{APIError,
- TimeoutError} = require '../errors'
+{APIError} = require '../errors'
 
 JSONBlobStorageKey = 'task-queue'
 
