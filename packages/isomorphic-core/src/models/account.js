@@ -104,6 +104,16 @@ module.exports = (sequelize, Sequelize) => {
         }
       },
 
+      bearerToken(xoauth2) {
+        // We have to unpack the access token from the entire XOAuth2
+        // token because it is re-packed during the SMTP connection login.
+        // https://github.com/nodemailer/smtp-connection/blob/master/lib/smtp-connection.js#L1418
+        const bearer = "Bearer ";
+        const decoded = atob(xoauth2);
+        const tokenIndex = decoded.indexOf(bearer) + bearer.length;
+        return decoded.substring(tokenIndex, decoded.length - 2);
+      },
+
       smtpConfig() {
         const {smtp_host, smtp_port, ssl_required} = this.connectionSettings;
         const config = {
@@ -118,15 +128,7 @@ module.exports = (sequelize, Sequelize) => {
         } else if (this.provider === 'gmail') {
           const {xoauth2} = this.decryptedCredentials();
           const {imap_username} = this.connectionSettings;
-
-          // We have to unpack the access token from the entire XOAuth2
-          // token because it is re-packed during the SMTP connection login.
-          // https://github.com/nodemailer/smtp-connection/blob/master/lib/smtp-connection.js#L1418
-          const bearer = "Bearer ";
-          const decoded = atob(xoauth2);
-          const tokenIndex = decoded.indexOf(bearer) + bearer.length;
-          const token = decoded.substring(tokenIndex, decoded.length - 2);
-
+          const token = this.bearerToken(xoauth2);
           config.auth = { user: imap_username, xoauth2: token }
         } else {
           throw new Error(`${this.provider} not yet supported`)

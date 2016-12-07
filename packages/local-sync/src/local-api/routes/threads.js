@@ -2,6 +2,7 @@ const Joi = require('joi');
 const _ = require('underscore');
 const Serialization = require('../serialization');
 const {createSyncbackRequest} = require('../route-helpers')
+const {searchClientForAccount} = require('../search');
 
 module.exports = (server) => {
   server.route({
@@ -47,6 +48,29 @@ module.exports = (server) => {
           reply(Serialization.jsonStringify(threads));
         })
       })
+    },
+  });
+
+  server.route({
+    method: 'GET',
+    path: '/threads/search/streaming',
+    config: {
+      description: 'Returns threads',
+      notes: 'Notes go here',
+      tags: ['threads'],
+      validate: {
+        query: {
+          limit: Joi.number().integer().min(1).max(2000).default(100),
+          q: Joi.string(),
+        },
+      },
+    },
+    handler: async (request, reply) => {
+      const account = request.auth.credentials;
+      const db = await request.getAccountDatabase();
+      const client = searchClientForAccount(account);
+      const threads = await client.searchThreads(db, request.query.q, request.query.limit);
+      reply(`${JSON.stringify(threads)}\n`);
     },
   });
 
