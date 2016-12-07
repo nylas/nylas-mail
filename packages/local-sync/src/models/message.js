@@ -20,6 +20,7 @@ module.exports = (sequelize, Sequelize) => {
     accountId: { type: Sequelize.STRING, allowNull: false },
     version: Sequelize.INTEGER,
     headerMessageId: Sequelize.STRING,
+    gMsgId: { type: Sequelize.STRING, allowNull: true },
     body: Sequelize.TEXT('long'),
     headers: buildJSONColumnOptions('headers'),
     subject: Sequelize.STRING(500),

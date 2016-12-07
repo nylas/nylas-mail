@@ -105,6 +105,7 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
     labels: [],
     headers: parsedHeaders,
     headerMessageId: parsedHeaders['message-id'] ? parsedHeaders['message-id'][0] : '',
+    gMsgId: parsedHeaders['x-gm-msgid'],
     subject: parsedHeaders.subject[0],
   }
 
