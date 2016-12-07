@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {RetinaImg} from 'nylas-component-kit';
-import {Actions} from 'nylas-exports';
+import {NylasAPI, Actions} from 'nylas-exports';
 
 import OnboardingActions from '../onboarding-actions';
 import {runAuthRequest} from '../onboarding-helpers';
@@ -109,8 +109,17 @@ const CreatePageForForm = (FormComponent) => {
           errorFieldNames.push('eas_server_host')
           errorFieldNames.push('username');
         }
-        if (err.statusCode === -123) { // timeout
-          errorMessage = "Request timed out. Please try again."
+        if (err.statusCode === 401) {
+          errorFieldNames.push('password')
+          errorFieldNames.push('email');
+          errorFieldNames.push('username');
+          errorFieldNames.push('imap_username');
+          errorFieldNames.push('smtp_username');
+          errorFieldNames.push('imap_password');
+          errorFieldNames.push('smtp_password');
+        }
+        if (NylasAPI.TimeoutErrorCodes.includes(err.statusCode)) { // timeout
+          errorMessage = "We were unable to reach your mail provider. Please try again."
         }
 
         this.setState({errorMessage, errorFieldNames, submitting: false});
