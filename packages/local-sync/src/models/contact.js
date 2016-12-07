@@ -1,3 +1,5 @@
+const crypto = require('crypto')
+
 module.exports = (sequelize, Sequelize) => {
   return sequelize.define('contact', {
     id: {type: Sequelize.STRING(65), primaryKey: true},
@@ -12,8 +14,13 @@ module.exports = (sequelize, Sequelize) => {
         fields: ['id'],
       },
     ],
+    classMethods: {
+      hash({email}) {
+        return crypto.createHash('sha256').update(email, 'utf8').digest('hex');
+      },
+    },
     instanceMethods: {
-      toJSON: function toJSON() {
+      toJSON() {
         return {
           id: `${this.publicId}`,
           account_id: this.accountId,
