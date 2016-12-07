@@ -31,7 +31,10 @@ module.exports = (sequelize, Sequelize) => {
         Account.hasMany(data.AccountToken, {as: 'tokens'})
       },
       upsertWithCredentials: (accountParams, credentials) => {
-        const idString = `${accountParams.email}${JSON.stringify(accountParams.settings)}`
+        if (!accountParams || !credentials || !accountParams.emailAddress) {
+          throw new Error("Need to pass accountParams and credentials to upsertWithCredentials")
+        }
+        const idString = `${accountParams.emailAddress}${JSON.stringify(accountParams.connectionSettings)}`;
         const id = crypto.createHash('sha256').update(idString, 'utf8').digest('hex')
         return Account.findById(id).then((existing) => {
           const account = existing || Account.build(Object.assign({id}, accountParams))
