@@ -87,6 +87,9 @@ export default class ModelQuery {
 
   markNotBackgroundable() {
     this._backgroundable = false;
+    if (this._background) {
+      this._background = false;
+    }
     return this;
   }
 
