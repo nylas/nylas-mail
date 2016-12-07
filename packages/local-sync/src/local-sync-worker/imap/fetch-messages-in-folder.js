@@ -1,6 +1,7 @@
 const _ = require('underscore');
 const os = require('os');
 const fs = require('fs');
+const path = require('path')
 const mkdirp = require('mkdirp');
 
 const {PromiseUtils, IMAPConnection} = require('isomorphic-core');
