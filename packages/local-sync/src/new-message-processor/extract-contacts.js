@@ -1,4 +1,3 @@
-const cryptography = require('crypto');
 
 function isContactMeaningful(contact) {
   // some suggestions: http://stackoverflow.com/questions/6317714/apache-camel-mail-to-identify-auto-generated-messages
@@ -14,32 +13,40 @@ function isContactMeaningful(contact) {
 }
 
 async function extractContacts({db, message}) {
+  const {Contact} = db
   let allContacts = [];
   ['to', 'from', 'bcc', 'cc'].forEach((field) => {
     allContacts = allContacts.concat(message[field])
   })
 
   const meaningfulContacts = allContacts.filter(c => isContactMeaningful(c));
+  const contactsDataById = new Map()
+  meaningfulContacts.forEach(c => {
+    const id = Contact.hash(c)
+    const cdata = {
+      id,
+      name: c.name,
+      email: c.email,
+      accountId: message.accountId,
+    }
+    contactsDataById.set(id, cdata)
+  })
+  const existingContacts = await Contact.findAll({
+    where: {
+      id: Array.from(contactsDataById.keys()),
+    },
+  })
 
   await db.sequelize.transaction(async (transaction) => {
-    const promises = [];
-
-    for (const c of meaningfulContacts) {
-      const id = cryptography.createHash('sha256').update(c.email, 'utf8').digest('hex');
-      const existing = await db.Contact.findById(id);
-      const cdata = {
-        id,
-        name: c.name,
-        email: c.email,
-        accountId: message.accountId,
-      };
-
+    const promises = []
+    for (const c of contactsDataById.values()) {
+      const existing = existingContacts.find(({id}) => id === c.id)
       if (!existing) {
-        promises.push(db.Contact.create(cdata, {transaction}));
+        promises.push(Contact.create(c, {transaction}));
       } else {
-        const updateRequired = (cdata.name !== existing.name);
+        const updateRequired = (c.name !== existing.name);
         if (updateRequired) {
-          promises.push(existing.update(cdata, {transaction}));
+          promises.push(existing.update(c, {transaction}));
         }
       }
     }
