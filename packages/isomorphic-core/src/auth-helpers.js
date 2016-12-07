@@ -25,7 +25,11 @@ const exchangeSettings = Joi.object().keys({
   eas_server_host: [Joi.string().ip().required(), Joi.string().hostname().required()],
 }).required();
 
-const AUTH_500_USER_MESSAGE = "Please contact support@nylas.com. An unforseen error has occurred."
+const USER_ERRORS = {
+  AUTH_500: "Please contact support@nylas.com. An unforseen error has occurred.",
+  IMAP_AUTH: "Incorrect username or password",
+  IMAP_RETRY: "We were unable to reach your mail provider. Please try again.",
+}
 
 module.exports = {
   imapAuthRouteConfig() {
@@ -104,11 +108,14 @@ module.exports = {
         return reply(JSON.stringify(response));
       })
       .catch((err) => {
-        if (err instanceof IMAPErrors.IMAPAuthenticationError) {
-          return reply({message: err.message, type: "api_error"}).code(401);
-        }
         request.logger.error(err)
-        return reply({message: AUTH_500_USER_MESSAGE, type: "api_error"}).code(500);
+        if (err instanceof IMAPErrors.IMAPAuthenticationError) {
+          return reply({message: USER_ERRORS.IMAP_AUTH, type: "api_error"}).code(401);
+        }
+        if (err instanceof IMAPErrors.RetryableError) {
+          return reply({message: USER_ERRORS.IMAP_RETRY, type: "api_error"}).code(408);
+        }
+        return reply({message: USER_ERRORS.AUTH_500, type: "api_error"}).code(500);
       })
     }
   },
