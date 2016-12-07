@@ -188,11 +188,11 @@ export default class NylasAPIRequest {
       });
 
       req.on('abort', () => {
-        const cancelled = new APIError({
-          statusCode: NylasAPI.CancelledErrorCode,
+        const canceled = new APIError({
+          statusCode: NylasAPI.CanceledErrorCode,
           body: 'Request Aborted',
         });
-        reject(cancelled);
+        reject(canceled);
       });
 
       this.options.started(req);
