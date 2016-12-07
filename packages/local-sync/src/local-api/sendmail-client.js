@@ -1,3 +1,4 @@
+const fs = require('fs');
 const nodemailer = require('nodemailer');
 const mailcomposer = require('mailcomposer');
 const {HTTPError} = require('./sending-utils');
@@ -42,10 +43,18 @@ class SendmailClient {
       }
     }
     this._logger.error('Max sending retries reached');
+    this._handleError(error);
+  }
 
+  _handleError(err) {
     // TODO: figure out how to parse different errors, like in cloud-core
     // https://github.com/nylas/cloud-core/blob/production/sync-engine/inbox/sendmail/smtp/postel.py#L354
-    throw new HTTPError('Sending failed', 500, error)
+
+    if (err.startsWith("Error: Invalid login: 535-5.7.8 Username and Password not accepted.")) {
+      throw new HTTPError('Invalid login', 401, err)
+    }
+
+    throw new HTTPError('Sending failed', 500, err);
   }
 
   _draftToMsgData(draft) {
@@ -59,7 +68,14 @@ class SendmailClient {
     msgData.html = draft.body;
     msgData.messageId = `${draft.id}@nylas.com`;
 
-    // TODO: attachments
+    msgData.attachments = []
+    for (const upload of draft.uploads) {
+      msgData.attachments.push({
+        filename: upload.filename,
+        content: fs.createReadStream(upload.targetPath),
+        cid: upload.id,
+      })
+    }
 
     if (draft.replyTo) {
       msgData.replyTo = formatParticipants(draft.replyTo);
