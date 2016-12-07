@@ -58,7 +58,14 @@ const validate = (incomingRequest, username, password, callback) => {
     }
 
     token.getAccount().then((account) => {
-      request("https://billing.nylas.com/n1/user", {
+      const {NODE_ENV} = process.env;
+
+      let billingService = "billing.nylas.com";
+      if (NODE_ENV === "staging") {
+        billingService = "billing-staging.nylas.com"
+      }
+
+      request(`https://${billingService}/n1/user`, {
         auth: {
           username: password,
           password: '',
@@ -69,10 +76,10 @@ const validate = (incomingRequest, username, password, callback) => {
           return;
         }
         if (response.statusCode !== 200) {
-          callback(new Error(`billing.nylas.com returned a status code ${response.statusCode} when we tried to authenticate this request.`), false, {});
+          callback(new Error(`${billingService} returned a status code ${response.statusCode} when we tried to authenticate this request.`), false, {});
           return;
         }
-        global.Logger.info(identityJSON, 'Got billing.nylas.com identity response')
+        global.Logger.info(identityJSON, `Got ${billingService} identity response`)
         callback(null, true, {
           account: account,
           identity: identityJSON,

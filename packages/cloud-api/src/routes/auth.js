@@ -168,5 +168,28 @@ module.exports = (server) => {
         });
       });
     },
-  })
+  });
+
+  server.route({
+    method: "GET",
+    path: "/auth/gmail/refresh",
+    handler: (request, reply) => {
+      console.log(request.auth);
+      const {account} = request.auth.credentials;
+      const oauthClient = new OAuth2(GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL);
+      const credentials = account.decryptedCredentials();
+      oauthClient.setCredentials({ refresh_token: credentials.refresh_token });
+      oauthClient.refreshAccessToken((err, tokens) => {
+        if (err != null) {
+          console.log(err);
+          reply('Backend error: could not refresh Gmail access token. Please try again.').code(400);
+        }
+
+        const res = {}
+        res.access_token = tokens.access_token;
+        res.expiry_date = tokens.expiry_date;
+        reply(res).code(200);
+      });
+    },
+  });
 }

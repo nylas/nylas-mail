@@ -13,7 +13,7 @@ and Metdata for Nylas N1 desktop clients.
   1. Go to Console -> Home -> IAM -> Users -> {{Your Name}} ->
      Security Credentials and click **Create access key**.
 
-     Note that your private key will only be shown unpon creation! If
+     Note that your private key will only be shown upon creation! If
      you've lost your private key you have to deactivate your old key and
      create a new one.
 
@@ -80,7 +80,7 @@ You should see `pong`.
 # Deploying
 1. Make sure you're in the root of /k2, and have alredy run `eb init` then:
 
-    `eb delpoy`
+    `eb deploy`
 
 Woah wtf, did that just do‽ See the [EB CLI](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3.html) as a start.
 
