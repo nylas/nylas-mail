@@ -101,7 +101,6 @@ module.exports = {
       .then(({account, token}) => {
         const response = account.toJSON();
         response.account_token = token.value;
-        console.log(response)
         return reply(JSON.stringify(response));
       })
       .catch((err) => {
