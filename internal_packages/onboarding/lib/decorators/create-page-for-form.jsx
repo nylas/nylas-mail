@@ -102,10 +102,10 @@ const CreatePageForForm = (FormComponent) => {
         const errorFieldNames = err.body ? (err.body.missing_fields || err.body.missing_settings || []) : []
         let errorMessage = err.message;
 
-        if (err.errorTitle === "setting_update_error") {
+        if (err.errorType === "setting_update_error") {
           errorMessage = 'The IMAP/SMTP servers for this account do not match our records. Please verify that any server names you entered are correct. If your IMAP/SMTP server has changed, first remove this account from N1, then try logging in again.';
         }
-        if (err.errorTitle && err.errorTitle.includes("autodiscover") && (accountInfo.type === 'exchange')) {
+        if (err.errorType && err.errorType.includes("autodiscover") && (accountInfo.type === 'exchange')) {
           errorFieldNames.push('eas_server_host')
           errorFieldNames.push('username');
         }

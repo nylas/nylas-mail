@@ -27,7 +27,7 @@ export class APIError extends Error {
 
     this.stack = (new Error()).stack;
     this.message = (this.body ? this.body.message : null) || this.body || (this.error ? this.error.toString() : null);
-    this.errorTitle = (this.body ? this.body.error : null);
+    this.errorType = (this.body ? this.body.type : null);
   }
 
   fromJSON(json = {}) {
@@ -39,9 +39,5 @@ export class APIError extends Error {
 }
 
 export class RequestEnsureOnceError extends Error {
-
-}
-
-export class TimeoutError extends Error {
 
 }
