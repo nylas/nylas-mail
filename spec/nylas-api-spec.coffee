@@ -10,7 +10,7 @@ AccountStore = require('../src/flux/stores/account-store').default
 DatabaseStore = require('../src/flux/stores/database-store').default
 DatabaseTransaction = require('../src/flux/stores/database-transaction').default
 
-fdescribe "NylasAPI", ->
+describe "NylasAPI", ->
 
   describe "handleModel404", ->
     it "should unpersist the model from the cache that was requested", ->

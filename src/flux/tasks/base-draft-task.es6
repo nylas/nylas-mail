@@ -1,14 +1,9 @@
-import DatabaseStore from '../stores/database-store';
 import Task from './task';
-import Message from '../models/message';
-
-class DraftNotFoundError extends Error {
-
-}
+import DraftHelpers from '../stores/draft-helpers';
 
 export default class BaseDraftTask extends Task {
 
-  static DraftNotFoundError = DraftNotFoundError;
+  static DraftNotFoundError = DraftHelpers.DraftNotFoundError;
 
   constructor(draftClientId) {
     super();
@@ -47,17 +42,8 @@ export default class BaseDraftTask extends Task {
     return Promise.resolve();
   }
 
-  refreshDraftReference = () => {
-    return DatabaseStore
-    .findBy(Message, {clientId: this.draftClientId})
-    .include(Message.attributes.body)
-    .then((message) => {
-      if (!message || !message.draft) {
-        const err = new DraftNotFoundError()
-        return Promise.reject(err);
-      }
-      this.draft = message;
-      return Promise.resolve(message);
-    });
+  async refreshDraftReference() {
+    this.draft = await DraftHelpers.refreshDraftReference(this.draftClientId)
+    return this.draft;
   }
 }

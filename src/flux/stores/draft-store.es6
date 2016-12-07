@@ -2,7 +2,7 @@ import _ from 'underscore';
 import {ipcRenderer} from 'electron';
 import NylasStore from 'nylas-store';
 import DraftEditingSession from './draft-editing-session';
-import * as DraftHelpers from './draft-helpers';
+import DraftHelpers from './draft-helpers';
 import DraftFactory from './draft-factory';
 import DatabaseStore from './database-store';
 import SendActionsStore from './send-actions-store';

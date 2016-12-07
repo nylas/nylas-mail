@@ -54,9 +54,6 @@ export default class SendDraftTask extends BaseDraftTask {
     if (this.draft.accountId !== account.id) {
       return Promise.reject(new Error("The from address has changed since you started sending this draft. Double-check the draft and click 'Send' again."));
     }
-    if (this.draft.uploads && (this.draft.uploads.length > 0)) {
-      return Promise.reject(new Error("Files have been added since you started sending this draft. Double-check the draft and click 'Send' again.."));
-    }
     return Promise.resolve();
   }
 
