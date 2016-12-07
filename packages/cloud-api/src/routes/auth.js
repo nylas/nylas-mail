@@ -124,14 +124,16 @@ module.exports = (server) => {
                 const response = account.toJSON();
                 response.account_token = token.value;
                 response.resolved_settings = imap.resolvedSettings;
-                db.PendingAuthResponse.create({
+                return db.PendingAuthResponse.create({
                   response: Serialization.jsonStringify(response),
                   pendingAuthKey: request.query.state,
                 })
-                reply("Thanks! Go back to N1 now.");
+              })
+              .then(() => {
+                return reply("Thanks! Go back to N1 now.");
               })
               .catch((connectionErr) => {
-                reply({message: connectionErr.message, type: "api_error"}).code(400);
+                return reply({message: connectionErr.message, type: "api_error"}).code(400);
               });
             });
           });
