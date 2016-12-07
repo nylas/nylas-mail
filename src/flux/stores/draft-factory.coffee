@@ -8,7 +8,7 @@ MessageStore = require './message-store'
 FocusedPerspectiveStore = require('./focused-perspective-store').default
 
 DraftStore = null
-DraftHelpers = require './draft-helpers'
+DraftHelpers = require('./draft-helpers').default
 
 Thread = require('../models/thread').default
 Contact = require('../models/contact').default
