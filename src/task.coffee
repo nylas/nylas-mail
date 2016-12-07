@@ -163,5 +163,5 @@ class Task
   cancel: ->
     didForcefullyTerminate = @terminate()
     if didForcefullyTerminate
-      @emitter.emit('task:cancelled')
+      @emitter.emit('task:canceled')
     didForcefullyTerminate

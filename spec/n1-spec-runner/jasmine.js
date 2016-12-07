@@ -2609,7 +2609,7 @@ jasmine.WaitsForBlock.prototype.waitForExplicitCompletion = function(onComplete)
       name: 'timeout',
       message: message
     });
-    multiCompletion.cancelled = true;
+    multiCompletion.canceled = true;
     self.abort = true;
     onComplete();
   }, this.timeout);
@@ -2640,7 +2640,7 @@ jasmine.WaitsForBlock.MultiCompletion = function(count, env, onComplete, timeout
 };
 
 jasmine.WaitsForBlock.MultiCompletion.prototype.attemptCompletion = function() {
-  if (this.cancelled) return;
+  if (this.canceled) return;
   for (var j = 0; j < this.count; j++) {
     if (!this.completionStatuses[j]) return;
   }
