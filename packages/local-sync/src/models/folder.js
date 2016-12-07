@@ -28,8 +28,7 @@ module.exports = (sequelize, Sequelize) => {
       },
 
       hash({boxName, accountId}) {
-        const cleanName = formatImapPath(boxName)
-        return crypto.createHash('sha256').update(`${accountId}${cleanName}`, 'utf8').digest('hex')
+        return crypto.createHash('sha256').update(`${accountId}${boxName}`, 'utf8').digest('hex')
       },
     },
     instanceMethods: {

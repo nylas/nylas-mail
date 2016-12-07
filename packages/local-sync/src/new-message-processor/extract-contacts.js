@@ -28,10 +28,10 @@ async function extractContacts({db, message}) {
       const id = cryptography.createHash('sha256').update(c.email, 'utf8').digest('hex');
       const existing = await db.Contact.findById(id);
       const cdata = {
+        id,
         name: c.name,
         email: c.email,
         accountId: message.accountId,
-        id: id,
       };
 
       if (!existing) {
