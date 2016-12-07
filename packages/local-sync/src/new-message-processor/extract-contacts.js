@@ -1,6 +1,6 @@
 const cryptography = require('crypto');
 
-function isContactVerified(contact) {
+function isContactMeaningful(contact) {
   // some suggestions: http://stackoverflow.com/questions/6317714/apache-camel-mail-to-identify-auto-generated-messages
   const regex = new RegExp(/^(noreply|no-reply|donotreply|mailer|support|webmaster|news(letter)?@)/ig)
 
@@ -19,25 +19,34 @@ async function extractContacts({db, message}) {
     allContacts = allContacts.concat(message[field])
   })
 
-  const verifiedContacts = allContacts.filter(c => isContactVerified(c));
-  return db.sequelize.transaction(async (transaction) => {
-    for (const c of verifiedContacts) {
+  const meaningfulContacts = allContacts.filter(c => isContactMeaningful(c));
+
+  await db.sequelize.transaction(async (transaction) => {
+    const promises = [];
+
+    for (const c of meaningfulContacts) {
       const id = cryptography.createHash('sha256').update(c.email, 'utf8').digest('hex');
-      let contact = await db.Contact.findById(id);
+      const existing = await db.Contact.findById(id);
       const cdata = {
         name: c.name,
         email: c.email,
         accountId: message.accountId,
         id: id,
       };
-      
-      if (!contact) {
-        contact = await db.Contact.create(cdata)
+
+      if (!existing) {
+        promises.push(db.Contact.create(cdata, {transaction}));
       } else {
-        await contact.update(cdata);
+        const updateRequired = (cdata.name !== existing.name);
+        if (updateRequired) {
+          promises.push(existing.update(cdata, {transaction}));
+        }
       }
     }
-  }).thenReturn(message)
+    await Promise.all(promises);
+  })
+
+  return message;
 }
 
 module.exports = extractContacts
