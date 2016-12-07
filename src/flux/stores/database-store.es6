@@ -296,6 +296,18 @@ class DatabaseStore extends NylasStore {
   // If a query is made before the database has been opened, the query will be
   // held in a queue and run / resolved when the database is ready.
   _query(query, values = [], background = false) {
+    // Calling this method with bad arguments, or with the wrong signature
+    // can have very bad consequences. Validate arguments!
+    if (typeof query !== 'string') {
+      throw new Error("DatabaseStore._query - query must be a string");
+    }
+    if (!(values instanceof Array)) {
+      throw new Error("DatabaseStore._query - values must be an array");
+    }
+    if (typeof background !== 'boolean') {
+      throw new Error("DatabaseStore._query - background must be true or false");
+    }
+
     return new Promise((resolve, reject) => {
       if (!this._open) {
         this._waiting.push(() => this._query(query, values).then(resolve, reject));
