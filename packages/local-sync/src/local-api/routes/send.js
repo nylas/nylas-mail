@@ -81,7 +81,13 @@ module.exports = (server) => {
       try {
         const accountId = request.auth.credentials.id;
         const db = await LocalDatabaseConnector.forAccount(accountId)
-        const draft = await SendingUtils.findOrCreateMessageFromJSON(request.payload, db, false)
+        const draftData = Object.assign(request.payload, {
+          unread: true,
+          is_draft: false,
+          is_sent: false,
+          version: 0,
+        })
+        const draft = await SendingUtils.findOrCreateMessageFromJSON(draftData, db)
         await (draft.isSending = true);
         const savedDraft = await draft.save();
         reply(savedDraft.toJSON());
