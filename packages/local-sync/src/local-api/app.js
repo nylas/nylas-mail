@@ -78,8 +78,8 @@ const attach = (directory) => {
 server.register(plugins, (err) => {
   if (err) { throw err; }
 
-  attach('./routes/')
-  attach('./decorators/')
+  attach('./routes')
+  attach('./decorators')
 
   server.auth.strategy('api-consumer', 'basic', { validateFunc: validate });
   server.auth.default('api-consumer');

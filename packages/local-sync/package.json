@@ -2,7 +2,7 @@
   "name": "local-sync",
   "version": "0.0.1",
   "description": "The local sync engine for Nylas N1",
-  "main": "./main.es6",
+  "main": "./main",
   "dependencies": {
     "googleapis": "9.0.0",
     "hapi": "13.4.1",
