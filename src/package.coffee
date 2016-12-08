@@ -307,7 +307,10 @@ class Package
       """
       return
     mainModulePath = @getMainModulePath()
-    @mainModule = require(mainModulePath) if fs.isFileSync(mainModulePath)
+    if fs.isFileSync(mainModulePath)
+      @mainModule = require(mainModulePath)
+    else if not @isTheme()
+      throw new Error("Can't find main file for #{this.name}. Make sure the path is correct and you've left out the extension of the main file.")
     return @mainModule
 
   getMainModulePath: ->
