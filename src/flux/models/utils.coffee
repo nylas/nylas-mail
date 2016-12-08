@@ -585,8 +585,8 @@ Utils =
     for commaPath in commaPaths
       joinedVals = []
       paths = commaPath.split("+")
-      for path in paths
-        parts = path.split(".")
+      for filePath in paths
+        parts = filePath.split(".")
         curVal = model
         for part in parts
           if _.isFunction(curVal[part])
