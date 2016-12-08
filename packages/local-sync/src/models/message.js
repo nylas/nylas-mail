@@ -101,7 +101,12 @@ module.exports = (sequelize, Sequelize) => {
         Message.belongsToMany(Label, {through: MessageLabel})
         Message.hasMany(File)
       },
-
+      requiredAssociationsForJSON: ({Folder, Label}) => {
+        return [
+          {model: Folder},
+          {model: Label},
+        ]
+      },
       hashForHeaders(headers) {
         return cryptography.createHash('sha256').update(headers, 'utf8').digest('hex');
       },
@@ -216,7 +221,7 @@ module.exports = (sequelize, Sequelize) => {
         this.headerMessageId = `<${this.id}-${this.version}@mailer.nylas.com>`
       },
       toJSON() {
-        if (this.folder_id && !this.folder) {
+        if (this.folderId && !this.folder) {
           throw new Error("Message.toJSON called on a message where folder were not eagerly loaded.")
         }
 
