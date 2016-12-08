@@ -126,7 +126,8 @@ module.exports = (sequelize, Sequelize) => {
             await savedThread.addLabel(label)
           }
         }
-        return savedThread;
+
+        return savedThread.save();
       },
       toJSON() {
         if (!(this.labels instanceof Array)) {
