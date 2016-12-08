@@ -259,6 +259,9 @@ class FetchMessagesInFolder {
           uid: existingMessage.folderImapUID,
         }, `FetchMessagesInFolder: Updated message`)
       } else {
+        // TODO investigate batching processing new messages
+        // We could measure load of actual sync vs load of just message processing
+        // to determine how meaningful it is
         processNewMessage(messageValues, imapMessage)
         this._logger.info({
           message: messageValues,
@@ -323,6 +326,7 @@ class FetchMessagesInFolder {
       } else {
         this._logger.info('FetchMessagesInFolder: fetchedmax == uidnext, nothing more recent to fetch.')
       }
+
       if (savedSyncState.fetchedmin > 1) {
         const lowerbound = Math.max(1, savedSyncState.fetchedmin - FETCH_MESSAGES_COUNT);
         desiredRanges.push({min: lowerbound, max: savedSyncState.fetchedmin})

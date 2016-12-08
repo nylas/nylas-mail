@@ -30,6 +30,7 @@ class SyncWorker {
     // the database, because otherwise things get /crazy/ messy and I don't like
     // having counters and garbage everywhere.
     if (!account.firstSyncCompletion) {
+      // TODO extract this into its own module, can use later on for exchange
       this._logger.info("This is initial sync. Setting up metrics collection!");
 
       let seen = 0;
@@ -188,6 +189,13 @@ class SyncWorker {
   }
 
   async syncMessagesInAllFolders() {
+    // TODO prioritize syncing all of inbox first if there's a ton of folders (e.g. imap
+    // accounts). If there are many folders, we would only sync the first n
+    // messages in the inbox and not go back to it until we've done the same for
+    // the rest of the folders, which would give the appearance of the inbox
+    // syncing slowly. This should only be done during initial sync.
+    // TODO Also consider using multiple imap connections, 1 for inbox, one for the
+    // rest
     const {Folder} = this._db;
     const {folderSyncOptions} = this._account.syncPolicy;
 
@@ -196,6 +204,7 @@ class SyncWorker {
     const foldersSorted = folders.sort((a, b) =>
       (priority.indexOf(a.role) - priority.indexOf(b.role)) * -1
     )
+    // TODO make sure this order is correct
 
     return await Promise.all(foldersSorted.map((cat) =>
       this._conn.runOperation(new FetchMessagesInFolder(cat, folderSyncOptions, this._logger))
