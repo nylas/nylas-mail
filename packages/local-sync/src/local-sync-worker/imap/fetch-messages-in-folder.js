@@ -272,7 +272,7 @@ class FetchMessagesInFolder {
         imapMessage,
         desiredParts,
       }, `FetchMessagesInFolder: Could not build message`)
-      const outJSON = JSON.stringify({'imapMessage': imapMessage, 'desiredParts': desiredParts, 'result': {}});
+      const outJSON = JSON.stringify({imapMessage, desiredParts, result: {}});
       const outDir = path.join(os.tmpdir(), "k2-parse-errors", this._folder.name)
       const outFile = path.join(outDir, imapMessage.attributes.uid.toString());
       mkdirp.sync(outDir);
