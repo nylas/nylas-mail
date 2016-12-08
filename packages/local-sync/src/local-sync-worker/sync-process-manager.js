@@ -1,3 +1,4 @@
+const _ = require('underscore')
 const SyncWorker = require('./sync-worker');
 const LocalDatabaseConnector = require('../shared/local-database-connector')
 
@@ -28,9 +29,13 @@ class SyncProcessManager {
     this._workers = {};
     this._listenForSyncsClient = null;
     this._exiting = false;
+    this._accounts = []
     this._logger = global.Logger.child();
   }
 
+  /**
+   * Useful for debugging.
+   */
   async start() {
     this._logger.info(`ProcessManager: Starting with ID`)
 
@@ -40,6 +45,10 @@ class SyncProcessManager {
       this.addWorkerForAccount(account);
     }
   }
+
+  accounts() { return this._accounts }
+  workers() { return _.values(this._workers) }
+  dbs() { return this.workers().map(w => w._db) }
 
   wakeWorkerForAccount(account) {
     this._workers[account.id].syncNow();
@@ -53,6 +62,7 @@ class SyncProcessManager {
       if (this._workers[account.id]) {
         throw new Error("Local worker already exists");
       }
+      this._accounts.push(account)
       this._workers[account.id] = new SyncWorker(account, db, this);
       this._logger.info({account_id: account.id}, `ProcessManager: Claiming Account Succeeded`)
     } catch (err) {
@@ -68,4 +78,6 @@ class SyncProcessManager {
   }
 }
 
-module.exports = new SyncProcessManager()
+window.syncProcessManager = new SyncProcessManager();
+window.dbs = window.syncProcessManager.dbs.bind(window.syncProcessManager)
+module.exports = window.syncProcessManager
