@@ -93,7 +93,7 @@ export default class ChangeLabelsTask extends ChangeMailTask {
   // In Gmail all threads /must/ belong to either All Mail, Trash and Spam, and
   // they are mutually exclusive, so we need to make sure that any add/remove
   // label operation still guarantees that constraint
-  _ensureAndUpdateLabels = (account, existingLabelsToAdd, existingLabelsToRemove = {}) => {
+  _ensureAndUpdateLabels(account, existingLabelsToAdd, existingLabelsToRemove = {}) {
     const labelsToAdd = existingLabelsToAdd;
     let labelsToRemove = existingLabelsToRemove;
 

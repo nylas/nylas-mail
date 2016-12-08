@@ -4,7 +4,7 @@ import Task from './task';
 import Thread from '../models/thread';
 import Message from '../models/message';
 import NylasAPI from '../nylas-api';
-import NylasAPIRequest from '../nylas-api-request';
+import SyncbackTaskAPIRequest from '../syncback-task-api-request';
 import DatabaseStore from '../stores/database-store';
 import {APIError} from '../errors';
 
@@ -226,7 +226,8 @@ export default class ChangeMailTask extends Task {
   }
 
   performRemote() {
-    return this._performRequests(this.objectClass(), this.objectArray()).then(() => {
+    return this._performRequests(this.objectClass(), this.objectArray())
+    .then(() => {
       this._ensureLocksRemoved();
       return Promise.resolve(Task.Status.Success);
     })
@@ -251,7 +252,7 @@ export default class ChangeMailTask extends Task {
 
       const endpoint = (klass === Thread) ? 'threads' : 'messages';
 
-      return new NylasAPIRequest({
+      return new SyncbackTaskAPIRequest({
         api: NylasAPI,
         options: {
           path: `/${endpoint}/${model.id}`,
@@ -264,7 +265,8 @@ export default class ChangeMailTask extends Task {
             return body;
           },
         },
-      }).run()
+      })
+      .run()
       .catch((err) => {
         if (err instanceof APIError && err.statusCode === 404) {
           return Promise.resolve();
