@@ -236,6 +236,7 @@ class SyncWorker {
       await this.runNewSyncbackRequests();
       await this._conn.runOperation(new FetchFolderList(this._account.provider, this._logger));
       await this.syncMessagesInAllFolders();
+      await this.cleanupOrpahnMessages();
       await this.onSyncDidComplete();
     } catch (error) {
       this.onSyncError(error);
@@ -243,6 +244,11 @@ class SyncWorker {
       this._lastSyncTime = Date.now()
       this.scheduleNextSync()
     }
+  }
+
+  async cleanupOrpahnMessages() {
+    const orphans = await this._db.Message.findAll({where: {folderId: null}})
+    return Promise.map(orphans, (msg) => msg.destroy());
   }
 
   onSyncError(error) {
