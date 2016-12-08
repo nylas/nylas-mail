@@ -1,0 +1,48 @@
+import Actions from './actions'
+import NylasAPIRequest from './nylas-api-request'
+
+
+/**
+ * This API request is meant to be used for requests that create a
+ * SyncbackRequest inside K2.
+ * When the initial http request succeeds, this means that the task was created,
+ * but we cant tell if the task actually succeeded or failed until some time in
+ * the future when its processed inside K2's sync loop.
+ *
+ * A SyncbackTaskAPIRequest will only resolve until the underlying K2 syncback
+ * request has actually succeeded, or reject when it fails, by listening to
+ * deltas for ProviderSyncbackRequests
+ */
+class SyncbackTaskAPIRequest {
+
+  constructor({api, options}) {
+    this._request = new NylasAPIRequest({api, options})
+    this._onSyncbackRequestCreated = options.onSyncbackRequestCreated || (() => {})
+  }
+
+  run() {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const syncbackRequest = await this._request.run()
+        await this._onSyncbackRequestCreated(syncbackRequest)
+        const syncbackRequestId = syncbackRequest.id
+        const unsubscribe = Actions.didReceiveSyncbackRequestDeltas
+        .listen((deltas) => {
+          const failed = deltas.failed.find(d => d.objectId === syncbackRequestId)
+          const succeeded = deltas.succeeded.find(d => d.objectId === syncbackRequestId)
+          if (failed) {
+            unsubscribe()
+            reject(failed.attributes.error)
+          } else if (succeeded) {
+            unsubscribe()
+            resolve(syncbackRequest)
+          }
+        })
+      } catch (err) {
+        reject(err)
+      }
+    })
+  }
+}
+
+export default SyncbackTaskAPIRequest
