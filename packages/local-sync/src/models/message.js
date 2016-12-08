@@ -110,7 +110,15 @@ module.exports = (sequelize, Sequelize) => {
       hashForHeaders(headers) {
         return cryptography.createHash('sha256').update(headers, 'utf8').digest('hex');
       },
-      fromJSON(data) {
+      getHeadersForId(data) {
+        let participants = "";
+        const emails = _.pluck(data.from.concat(data.to, data.cc, data.bcc), 'email');
+        emails.sort().forEach((email) => {
+          participants += email
+        });
+        return `${data.date}-${data.subject}-${participants}`;
+      },
+      fromJSON(id, data) {
         // TODO: events, metadata??
         return this.build({
           accountId: data.account_id,
@@ -126,13 +134,15 @@ module.exports = (sequelize, Sequelize) => {
           isSent: false,
           version: 0,
           date: data.date,
-          id: data.id,
+          id: id,
           uploads: data.uploads,
         });
       },
       async associateFromJSON(data, db) {
-        const message = this.fromJSON(data);
         const {Thread, Message} = db;
+
+        const messageId = Message.getHeadersForId(data)
+        const message = this.fromJSON(messageId, data);
 
         let replyToThread;
         let replyToMessage;
@@ -220,6 +230,7 @@ module.exports = (sequelize, Sequelize) => {
       regenerateHeaderMessageId() {
         this.headerMessageId = `<${this.id}-${this.version}@mailer.nylas.com>`
       },
+
       toJSON() {
         if (this.folderId && !this.folder) {
           throw new Error("Message.toJSON called on a message where folder were not eagerly loaded.")
@@ -250,6 +261,7 @@ module.exports = (sequelize, Sequelize) => {
         };
       },
     },
+
     hooks: {
       beforeUpdate: (message) => {
         // Update the snippet if the body has changed

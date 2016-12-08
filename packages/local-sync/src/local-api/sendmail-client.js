@@ -64,6 +64,7 @@ class SendmailClient {
         msgData[field] = formatParticipants(draft[field])
       }
     }
+    msgData.date = draft.date;
     msgData.subject = draft.subject;
     msgData.html = draft.body;
     msgData.messageId = `${draft.id}@nylas.com`;
@@ -89,6 +90,12 @@ class SendmailClient {
     return msgData;
   }
 
+  _getBodyWithMessageIds(draft) {
+    return draft.body.replace(/n1cloud\.nylas\.com\/.+MESSAGE_ID/g, (match) => {
+      return match.replace('MESSAGE_ID', draft.id)
+    })
+  }
+
   async buildMime(draft) {
     const builder = mailcomposer(this._draftToMsgData(draft))
     const mimeNode = await (new Promise((resolve, reject) => {
@@ -110,7 +117,7 @@ class SendmailClient {
 
   async sendCustomBody(draft, body, recipients) {
     const origBody = draft.body;
-    draft.body = body;
+    draft.body = this._getBodyWithMessageIds(draft);
     const envelope = {};
     for (const field of Object.keys(recipients)) {
       envelope[field] = recipients[field].map(r => r.email);
@@ -118,8 +125,8 @@ class SendmailClient {
     const raw = await this.buildMime(draft);
     const responseOnSuccess = draft.toJSON();
     draft.body = origBody;
-    await this._send({raw, envelope})
-    return responseOnSuccess
+    await this._send({raw, envelope});
+    return responseOnSuccess;
   }
 }
 
