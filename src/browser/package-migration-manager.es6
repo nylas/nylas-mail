@@ -78,9 +78,12 @@ class PackageMigrationManager {
       // If the old install was enabled, keep it that way
       if (oldEnabledPackNames.includes(migration['old-name'])) { return }
       // If we want to enable the package by default,
-      if (migration['enabled-by-default']) { return }
-      const newName = migration['new-name']
-      this.config.pushAtKeyPath('core.disabledPackages', newName);
+      if (migration['enabled-by-default']) {
+        this.config.set('core.disabledPackages', disabledPackNames.filter(n => n !== migration['new-name']))
+      } else {
+        const newName = migration['new-name']
+        this.config.pushAtKeyPath('core.disabledPackages', newName);
+      }
     })
 
     this.config.set('core.packageMigrationVersion', this.version)
