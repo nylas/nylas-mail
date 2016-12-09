@@ -1,36 +1,28 @@
-# Unsubscribe
+![Unsubscribe: unsubscribe without leaving N1](plugin.png)
 
-![plugin page](plugin.png)
-
-Quickly unsubscribe from emails without leaving N1
-
-## The Plugin Magic
-
-![promo gif](unsubscribe.gif)
-
-Quickly unsubscribe from emails without leaving N1. The plugin automatically detects unsubscribe methods from the email headers (`list-unsubscribe` header) or the email body. If the plugin can't automatically unsubscribe in the background via email, you will see a popup electron browser window to swiftly unsubscribe.
+Quickly unsubscribe from emails without leaving N1. The unsubscribe plugin parses the `list-unsubscribe` header and the email body to look for the best way to unsubscribe. If an unsubscribe email address can be found, the plugin will send one in the background on your behalf. If only a browser link is found, either a mini N1 browser window will open or for certain cases, you will be redirected to your default browser.
 
 ## Keyboard Shortcuts
 
 Press <kbd>CMD</kbd> + <kbd>ALT</kbd> + <kbd>U</kbd> when viewing an email. If you want to map your own shortcut keys:
 
 1. Go to:`Nylas->Preferences`
-2. Click the `shortcuts` tab
+2. Click the `Shortcuts` tab
 3. Then scroll to the bottom and click the `Edit Custom Shortcuts` button
-4. From the finder window, open `keymap.json` in a text editor and add this snippet (replace `mod+j` with whatever shortcut you want - note: mod is the alt key on a Mac/PC):
+4. From the finder window, open `keymap.json` in a text editor and add this snippet, where you replace `mod+shift+u` with whichever shortcut you like (*note: mod is the special key on a Mac/PC*):
 
 	```json
 		{
-		  "unsubscribe:unsubscribe": "mod+j"
+		  "unsubscribe:unsubscribe": "mod+shift+u"
 		}
 	```
 
 ## Reporting Bugs
 
-- **Feature Requests or Bug Reports**: Submit them through the [issues](https://github.com/nylas/N1/issues) pane.
-- **Mishandled Emails**: Find an email which this plugin doesn't handle correctly (not finding an unsubscribe link, etc.)? Forward the email to us at <a href="mailto:n1.unsubscribe@gmail.com">n1.unsubscribe@gmail.com</a> and we will look into it.
+- **Feature Requests or Bug Reports**: Submit them through the [issues](issues) pane.
+- **Mishandled Emails**: Find an email which this plugin doesn't handle correctly? Not finding an unsubscribe link when there should be one? Forward the email to us at <a href="mailto:n1.unsubscribe@gmail.com">n1.unsubscribe@gmail.com</a> and we'll look into it.
 
-## (Dev-Only) Settings - Only available when running N1 from source right now
+### Settings - Only available when running N1 from source right now
 
 Certain features for this package can be toggled by changing the appropriate settings from within `unsubscribe-settings.json`. The settings file isn't tracked, so once you edit it, your preferences will be saved even when updating N1. You can see the default file here: [`unsubscribe-settings.defaults.json`](unsubscribe-settings.defaults.json).
 
@@ -41,8 +33,6 @@ To change any of these settings, you need to have N1 running from source, since 
 - **confirm_for_email**: Toggle a confirmation box on or off before sending an automatic unsubscribe email (default: off).
 - **confirm_for_browser**: Toggle a confirmation box on or off before opening a browser window to unsubscribe from an email (default: off).
 - **debug**: Toggle maximum debug info. This will allow you to see all of the logs other than just the errors (default: off).
-
-More documentation of these toggles is available in [`unsubscribe-settings.defaults.json`](unsubscribe-settings.defaults.json).
 
 ## Made by
 

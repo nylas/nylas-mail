@@ -1,6 +1,6 @@
 module.exports = {
   LOADING: 'LOADING',
   ERRORED: 'ERRORED',
-  DONE: 'DONE',
+  READY: 'READY',
   UNSUBSCRIBED: 'UNSUBSCRIBED',
 };

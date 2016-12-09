@@ -2,9 +2,9 @@ const {React} = require('nylas-exports');
 const {RetinaImg, KeyCommandsRegion} = require('nylas-component-kit');
 const ThreadUnsubscribeStoreManager = require('../thread-unsubscribe-store-manager');
 const ThreadConditionType = require('../enum/threadConditionType');
-const util = require('../modules/util');
+const helpers = require('../util/helpers');
 
-const UNSUBSCRIBE_ASSETS_URL = 'nylas://unsubscribe/assets/';
+const UNSUBSCRIBE_ASSETS_BASE_URL = 'nylas://unsubscribe/assets/';
 
 class ThreadUnsubscribeButton extends React.Component {
 
@@ -16,6 +16,7 @@ class ThreadUnsubscribeButton extends React.Component {
       condition: ThreadConditionType.LOADING,
       hasLinks: false,
     };
+    this.onClick = this.onClick.bind(this);
   }
 
   componentWillMount() {
@@ -23,7 +24,6 @@ class ThreadUnsubscribeButton extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    console.warn(newProps);
     this.load(newProps);
   }
 
@@ -36,19 +36,15 @@ class ThreadUnsubscribeButton extends React.Component {
   }
 
   onClick(event) {
-    if (this && this.tuStore) {
-      this.tuStore.unsubscribe();
-    } else {
-      console.error('ERROR: No tuStore object from within onClick event...??');
-    }
+    this.tuStore.unsubscribe();
     event.stopPropagation()
   }
 
   getIconInfo(name : string, ratio : number) {
-    let url = UNSUBSCRIBE_ASSETS_URL;
+    let url = UNSUBSCRIBE_ASSETS_BASE_URL;
     let buttonTitle;
     let extraClasses;
-    let scale = ratio
+    let scale = ratio;
 
     if (typeof scale === 'undefined') {
       scale = Math.ceil(window.devicePixelRatio);
@@ -59,7 +55,7 @@ class ThreadUnsubscribeButton extends React.Component {
     switch (this.state.condition) {
       case ThreadConditionType.UNSUBSCRIBED:
         extraClasses = 'unsubscribe-success';
-        buttonTitle = 'Unsubscribe (Success!)';
+        buttonTitle = 'Unsubscribe (Success)';
         url += '-success';
         break;
       case ThreadConditionType.ERRORED:
@@ -72,9 +68,9 @@ class ThreadUnsubscribeButton extends React.Component {
         buttonTitle = 'Unsubscribe (Disabled)';
         url += '';
         break;
-      case ThreadConditionType.DONE:
+      case ThreadConditionType.READY:
         extraClasses = 'unsubscribe-ready';
-        buttonTitle = 'Unsubscribe Now!';
+        buttonTitle = 'Unsubscribe';
         url += '';
         break;
       default:
@@ -124,7 +120,7 @@ class ThreadUnsubscribeQuickActionButton extends ThreadUnsubscribeButton {
           order: 90,
           background: `url(${url}) center no-repeat`,
         }}
-        onClick={this.onClick.bind(this)}
+        onClick={this.onClick}
       />
     );
   }
@@ -147,9 +143,9 @@ class ThreadUnsubscribeToolbarButton extends ThreadUnsubscribeButton {
       >
         <button
           title={buttonTitle}
-          id={'Unsubscribe'}
+          id={'unsubscribe'}
           className={`btn btn-toolbar toolbar-unsubscribe ${extraClasses}`}
-          onClick={this.onClick.bind(this)}
+          onClick={this.onClick}
         >
           <RetinaImg
             mode={RetinaImg.Mode.ContentIsMask}
@@ -161,8 +157,8 @@ class ThreadUnsubscribeToolbarButton extends ThreadUnsubscribeButton {
   }
 
   _keymapEvent() {
-    util.logIfDebug("Keymap event fired");
-    const e = document.getElementById('Unsubscribe');
+    helpers.logIfDebug('Keymap fired');
+    const e = document.getElementById('unsubscribe');
     e.click()
   }
 }

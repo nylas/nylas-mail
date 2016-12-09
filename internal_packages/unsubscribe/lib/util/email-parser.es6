@@ -1,12 +1,13 @@
 const _ = require('underscore');
 const cheerio = require('cheerio');
+const blacklist = require('./blacklist');
 
 const regexps = [
   /unsubscribe/gi,
   /unfollow/gi,
   /opt[ -]{0,2}out/gi,
   /email preferences/gi,
-  /[^/]subscription/gi,
+  /subscription/gi,
   /notification settings/gi,
   // Danish
   /afmeld/gi,
@@ -50,36 +51,73 @@ const regexps = [
   /notisinställningar/gi,
 ];
 
-module.exports = {
-  // Parse the HTML within the email body for unsubscribe links
-  parseBodyHTMLForLinks(emailHTML) {
-    const unsubscribeLinks = [];
-    const $ = cheerio.load(emailHTML);
-    let links = _.filter($('a'), emailLink => emailLink.href !== 'blank');
-    links = links.concat(this.getLinkedSentences($));
-    for (let j = 0; j < links.length; j += 1) {
-      const link = links[j];
-      for (let i = 0; i < regexps.length; i += 1) {
-        const re = regexps[i];
-        if (re.test(link.href) || re.test(link.innerText)) {
-          unsubscribeLinks.push(link.href);
+class EmailParser {
+  constructor(headers, html, text) {
+    this.emails = [];
+    this.urls = [];
+    this.__headers(headers);
+    this.__html(html);
+    this.__text(text);
+  }
+
+  canUnsubscribe() {
+    return this.emails.length > 0 || this.urls.length > 0;
+  }
+
+  __headers(headers) {
+    if (headers) {
+      const unsubHeader = headers['list-unsubscribe'];
+      if (unsubHeader && typeof unsubHeader === 'string') {
+        unsubHeader.split(',').forEach((link) => {
+          this.__addLink(link.trim());
+        });
+      }
+    }
+  }
+
+  __html(html) {
+    if (html) {
+      const $ = cheerio.load(html);
+      let links = _.filter($('a'), emailLink => emailLink.href !== 'blank');
+      console.log(links);
+      links = links.concat(this.getLinkedSentences($));
+      console.log(links);
+
+      for (let j = 0; j < links.length; j += 1) {
+        const link = links[j];
+        for (let i = 0; i < regexps.length; i += 1) {
+          const re = regexps[i];
+          if (re.test(link.href) || re.test(link.innerText)) {
+            this.__addLink(link.href);
+          }
         }
       }
     }
-    return unsubscribeLinks;
-  },
-  // If just a plain text email, parse the text itself
-  parseBodyTextForLinks(emailTEXT) {
+  }
+
+  __text(text) {
     const ext = /[^\s]*/ig
-    const unsubscribeLinks = [];
     for (let i = 0; i < regexps.length; i += 1) {
       const re = RegExp(`${ext.source}${regexps[i].source}${ext.source}`, 'ig');
-      if (re.test(emailTEXT)) {
-        unsubscribeLinks.push(emailTEXT.match(re)[0]);
+      if (re.test(text)) {
+        this.__addLink(text.match(re)[0]);
       }
     }
-    return unsubscribeLinks;
-  },
+  }
+
+  __addLink(link) {
+    const isEmail = /mailto:([^?]*)/g.exec(link);
+    if (isEmail) {
+      const email = isEmail[1];
+      if (!blacklist.containsEmail(email)) {
+        this.emails.push(email);
+      }
+    } else {
+      if (!blacklist.containsURL(link)) {
+        this.urls.push(link);
+      }
+    }
+  }
 
   // Takes a parsed DOM (through cheerio) and returns sentences that contain links
   // Good at catching cases such as
@@ -145,5 +183,7 @@ module.exports = {
       }
     });
     return linkedSentences;
-  },
+  }
 }
+
+module.exports = EmailParser;

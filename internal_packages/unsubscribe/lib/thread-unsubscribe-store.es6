@@ -9,10 +9,9 @@ const MailParser = require('mailparser').MailParser;
 const BrowserWindow = require('electron').remote.BrowserWindow;
 const open = require('open');
 const _ = require('underscore');
-const util = require('./modules/util');
-const blacklist = require('./modules/blacklist');
-const emailBodyParser = require('./modules/emailBodyParser');
-const emailHeaderParser = require('./modules/emailHeaderParser');
+const helpers = require('./util/helpers');
+const blacklist = require('./util/blacklist');
+const EmailParser = require('./util/email-parser');
 const ThreadConditionType = require('./enum/threadConditionType');
 
 
@@ -20,24 +19,21 @@ class ThreadUnsubscribeStore extends NylasStore {
   constructor(thread) {
     super();
 
-    this.LinkType = {
-      EMAIL: 'EMAIL',
-      BROWSER: 'BROWSER',
-    };
-
-    this.thread = thread;
-    this.threadState = {
-      id: this.thread.id,
-      condition: ThreadConditionType.LOADING,
-      hasLinks: false,
+    if (!thread) {
+      NylasEnv.reportError(new Error("Invalid thread object"));
+      this.threadState = {
+        id: null,
+        condition: ThreadConditionType.ERRORED,
+      }
+    } else {
+      this.thread = thread;
+      this.threadState = {
+        id: this.thread.id,
+        condition: ThreadConditionType.LOADING,
+      }
+      this.messages = this.thread.__messages;
+      this.loadLinks();
     }
-    this.messages = this.thread.__messages;
-    this.links = [];
-    this.loadLinks();
-  }
-
-  canUnsubscribe() {
-    return this.links.length > 0;
   }
 
   triggerUpdate() {
@@ -47,26 +43,22 @@ class ThreadUnsubscribeStore extends NylasStore {
   // Opens the unsubscribe link to unsubscribe the user
   // The optional callback returns: (Error, Boolean indicating whether it was a success)
   unsubscribe() {
-    if (this.canUnsubscribe()) {
-      const unsubscribeHandler = (error) => {
-        if (!error) {
+    if (this.parser && this.parser.canUnsubscribe()) {
+      const unsubscribeHandler = (error, unsubscribed) => {
+        if (error) {
+          this.threadState.condition = ThreadConditionType.ERRORED;
+          NylasEnv.reportError(error, this);
+        } else if (unsubscribed) {
           this.moveThread();
           this.threadState.condition = ThreadConditionType.UNSUBSCRIBED;
-        } else {
-          this.threadState.condition = ThreadConditionType.ERRORED;
         }
         this.triggerUpdate();
       };
 
-      // Determine if best to unsubscribe via email or browser:
-      if (this.links[0].type === this.LinkType.EMAIL) {
-        this.unsubscribeViaMail(this.links[0].link, unsubscribeHandler);
-      } else if (this.links.length > 0) {
-        this.unsubscribeViaBrowser(this.links[0].link, unsubscribeHandler);
+      if (this.parser.emails.length > 0) {
+        this.unsubscribeViaMail(this.parser.emails[0], unsubscribeHandler);
       } else {
-        this.threadState.condition = ThreadConditionType.ERRORED;
-        util.logError('Can not unsubscribe for some reason. See this.links below:');
-        util.logError(this.links);
+        this.unsubscribeViaBrowser(this.parser.urls[0], unsubscribeHandler);
       }
     }
   }
@@ -80,35 +72,14 @@ class ThreadUnsubscribeStore extends NylasStore {
         this.confirmText = this.isForwarded ? `The email was forwarded. ${confirmText}` : confirmText;
 
         // Find and concatenate links:
-        const headerLinks = emailHeaderParser.parseHeadersForLinks(email.headers);
-        let bodyLinks = []
-        if (email.html) {
-          bodyLinks = emailBodyParser.parseBodyHTMLForLinks(email.html);
-        } else if (email.text) {
-          bodyLinks = emailBodyParser.parseBodyTextForLinks(email.text);
-        }
-        this.links = this.parseLinksForTypes(headerLinks.concat(bodyLinks));
-        this.threadState.hasLinks = (this.links.length > 0);
-        this.threadState.condition = this.threadState.hasLinks ? ThreadConditionType.DONE : ThreadConditionType.DISABLED;
+        this.parser = new EmailParser(email.headers, email.html, email.text);
+        this.threadState.condition = this.parser.canUnsubscribe() ? ThreadConditionType.READY : ThreadConditionType.DISABLED;
         // Output troubleshooting info if in debug mode:
-        if (this.threadState.hasLinks) {
-          util.logIfDebug(`Found links for: "${this.thread.subject}"`);
-          util.logIfDebug({headerLinks, bodyLinks});
-        } else {
-          util.logIfDebug(`Found no links for: "${this.thread.subject}"`);
-        }
-      } else if (error === 'sentMail') {
-        util.logIfDebug(`Can not parse "${this.thread.subject}" because it was sent from this account`);
-        this.threadState.condition = ThreadConditionType.DISABLED;
-      } else if (error === 'noEmail') {
-        util.logError(`Can not parse an email for an unknown reason. See error message below:`);
-        util.logError(email);
-        this.threadState.condition = ThreadConditionType.ERRORED;
+        helpers.logIfDebug(`Found ${(this.parser.canUnsubscribe() ? "" : "no ")}links for: "${this.thread.subject}"`);
+        helpers.logIfDebug(this.parser);
       } else {
-        util.logError(`\n--Error in querying message: ${this.thread.subject}--\n`);
-        util.logError(error);
-        util.logError(email);
         this.threadState.condition = ThreadConditionType.ERRORED;
+        NylasEnv.reportError(error, this);
       }
       this.triggerUpdate();
     });
@@ -160,46 +131,15 @@ class ThreadUnsubscribeStore extends NylasStore {
     }
   }
 
-  // Given a list of unsubscribe links (Strings)
-  // Returns a list of objects with a link and a LinkType
-  // The returned list is in the same order as links,
-  // except that EMAIL links are pushed to the front.
-  parseLinksForTypes(links) {
-    const newLinks = _.sortBy(_.map(links, (link) => {
-      const type = (/mailto.*/g.test(link) ? this.LinkType.EMAIL : this.LinkType.BROWSER);
-      const data = {link, type};
-      if (type === this.LinkType.EMAIL) {
-        const matches = /mailto:([^?]*)/g.exec(link);
-        if (matches && matches.length > 1) {
-          data.link = matches[1];
-        }
-      }
-      return data;
-    }), (link) => {
-      if (link.type === this.LinkType.EMAIL) {
-        this.threadState.isEmail = true;
-        return 0;
-      }
-      return 1;
-    });
-    return newLinks;
-  }
-
   // Takes a String URL to later open a URL
   unsubscribeViaBrowser(rawURL, callback) {
     let url = rawURL
-    if (url === undefined) {
-      // FIXME: Gmail Security Alert Email has undefined emails from body?
-      NylasEnv.reportError(new Error("No URL to unsubscribe from"));
-    }
-    util.logError(url);
     url = url.replace(/^ttp:/, 'http:');
-    const disURL = util.shortenURL(url);
-    if ((!this.isForwarded && process.env.N1_UNSUBSCRIBE_CONFIRM_BROWSER === 'false') ||
-      util.userAlert(`${this.confirmText}\nA browser will be opened at:\n\n${disURL}`)) {
-      util.logIfDebug(`Opening a browser window to:\n${url}`);
-      if (blacklist.checkLinkBlacklist(url) ||
-        process.env.N1_UNSUBSCRIBE_USE_BROWSER === 'true') {
+    const disURL = helpers.shortenURL(url);
+    if (!this.isForwarded && (!NylasEnv.config.get("unsubscribe.confirmForBrowser") ||
+      helpers.userAlert(`${this.confirmText}\nA browser will be opened at:\n\n${disURL}`))) {
+      helpers.logIfDebug(`Opening a browser window to:\n${url}`);
+      if (blacklist.checkURL(url) || NylasEnv.config.get("unsubscribe.useNativeBrowser")) {
         open(url);
         callback(null);
       } else {
@@ -221,9 +161,9 @@ class ThreadUnsubscribeStore extends NylasStore {
   // Takes a String email address and sends an email to it in order to unsubscribe from the list
   unsubscribeViaMail(emailAddress, callback) {
     if (emailAddress) {
-      if ((!this.isForwarded && process.env.N1_UNSUBSCRIBE_CONFIRM_EMAIL === 'false') ||
-        util.userAlert(`${this.confirmText}\nAn email will be sent to:\n${emailAddress}`)) {
-        util.logIfDebug(`Sending an unsubscription email to:\n${emailAddress}`);
+      if (!this.isForwarded && (!NylasEnv.config.get("unsubscribe.confirmForEmail") ||
+        helpers.userAlert(`${this.confirmText}\nAn email will be sent to:\n${emailAddress}`))) {
+        helpers.logIfDebug(`Sending an unsubscription email to:\n${emailAddress}`);
         NylasAPI.makeRequest({
           path: '/send',
           method: 'POST',
@@ -240,24 +180,24 @@ class ThreadUnsubscribeStore extends NylasStore {
             // TODO: Do nothing - for now
           },
           error: (error) => {
-            util.logError(error);
+            NylasEnv.reportError(error, this);
           },
         });
         // Temporary solution right now so that emails are trashed immediately
         // instead of waiting for the email to be sent.
-        callback(null);
+        callback(null, /* unsubscribed= */true);
       } else {
-        callback(new Error('Did not confirm -- do not unsubscribe.'));
+        callback(null, /* unsubscribed= */false);
       }
     } else {
-      callback(new Error(`Invalid email address (${emailAddress})`));
+      callback(new Error(`Invalid email address (${emailAddress})`), /* unsubscribed= */false);
     }
   }
 
   // Move the given thread to the trash or archive
   moveThread() {
-    if (this.thread) {
-      if (process.env.N1_UNSUBSCRIBE_THREAD_HANDLING === 'trash') {
+    switch (NylasEnv.config.get("unsubscribe.handleThreads")) {
+      case "trash":
         if (FocusedPerspectiveStore.current().canTrashThreads([this.thread])) {
           const tasks = TaskFactory.tasksForMovingToTrash({
             threads: [this.thread],
@@ -265,7 +205,8 @@ class ThreadUnsubscribeStore extends NylasStore {
           });
           Actions.queueTasks(tasks);
         }
-      } else if (process.env.N1_UNSUBSCRIBE_THREAD_HANDLING === 'archive') {
+        break;
+      case "archive":
         if (FocusedPerspectiveStore.current().canArchiveThreads([this.thread])) {
           const tasks = TaskFactory.tasksForArchiving({
             threads: [this.thread],
@@ -273,9 +214,11 @@ class ThreadUnsubscribeStore extends NylasStore {
           });
           Actions.queueTasks(tasks);
         }
-      }
-      Actions.popSheet();
+        break;
+      default:
+        // "none" case -- do not move email
     }
+    Actions.popSheet();
   }
 }
 
