@@ -552,6 +552,7 @@ class Actions {
   static toggleAccount = ActionScopeWindow;
 
   static notifyPluginsChanged = ActionScopeGlobal;
+  static notifyPluginsChangedViaUrl = ActionScopeGlobal;
 }
 
 
