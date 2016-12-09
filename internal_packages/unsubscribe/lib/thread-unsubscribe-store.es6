@@ -164,16 +164,16 @@ class ThreadUnsubscribeStore extends NylasStore {
       if (!this.isForwarded && (!NylasEnv.config.get("unsubscribe.confirmForEmail") ||
         helpers.userAlert(`${this.confirmText}\nAn email will be sent to:\n${emailAddress}`))) {
         helpers.logIfDebug(`Sending an unsubscription email to:\n${emailAddress}`);
+        const email = helpers.interpretEmail(emailAddress)
         NylasAPI.makeRequest({
           path: '/send',
           method: 'POST',
           accountId: this.thread.accountId,
           body: {
-            body: 'This is an automated unsubscription request. ' +
-              'Please remove the sender of this email from all email lists.',
-            subject: 'Unsubscribe',
+            body: email.body,
+            subject: email.subject,
             to: [{
-              email: emailAddress,
+              email: email.address,
             }],
           },
           success: () => {

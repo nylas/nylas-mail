@@ -47,6 +47,6 @@ module.exports = {
 
   // Check if the unsubscribe email is known to fail
   containsEmail(email) {
-    return this.regexpcompare(blacklistExpressions.emails, email) || /\?/.test(email);
+    return this.regexpcompare(blacklistExpressions.emails, email);
   },
 }

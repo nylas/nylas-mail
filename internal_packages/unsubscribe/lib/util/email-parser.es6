@@ -79,8 +79,10 @@ class EmailParser {
     if (html) {
       const $ = cheerio.load(html);
       let links = _.filter($('a'), emailLink => emailLink.href !== 'blank');
+      console.log('Raw links');
       console.log(links);
       links = links.concat(this.getLinkedSentences($));
+      console.log('Concatenated links');
       console.log(links);
 
       for (let j = 0; j < links.length; j += 1) {
@@ -106,7 +108,7 @@ class EmailParser {
   }
 
   __addLink(link) {
-    const isEmail = /mailto:([^?]*)/g.exec(link);
+    const isEmail = /mailto:([^>]*)>/g.exec(link);
     if (isEmail) {
       const email = isEmail[1];
       if (!blacklist.containsEmail(email)) {
