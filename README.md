@@ -88,7 +88,7 @@ Great starting points for creating your own plugins!
 - [Emoji Keyboard](https://github.com/nylas/N1/tree/master/internal_packages/composer-emoji)—Insert emoji by typing a colon (:) followed by the name of an emoji symbol
 - [GitHub Sidebar Info](https://github.com/nylas/N1/tree/master/internal_packages/github-contact-card)
 - [View on GitHub](https://github.com/nylas/N1/tree/master/internal_packages/message-view-on-github)
-- [N1-Unsubscribe](https://github.com/nylas/N1/tree/master/internal_packages/n1-unsubscribe)
+- [Unsubscribe](https://github.com/nylas/N1/tree/master/internal_packages/unsubscribe)
 - [Personal Level Indicators](https://github.com/nylas/N1/tree/master/internal_packages/personal-level-indicators)
 - [Phishing Detection](https://github.com/nylas/N1/tree/master/internal_packages/phishing-detection)
 

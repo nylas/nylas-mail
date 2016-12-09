@@ -4,10 +4,35 @@ const {
   ThreadUnsubscribeToolbarButton,
 } = require('./ui/unsubscribe-buttons');
 
-const settings = require('./settings');
-settings.configure();
-
 module.exports = {
+  config: {
+    useNativeBrowser: {
+      "description": "Open web-based unsubscribe links in your native browser (Chrome, Firefox, etc.) instead of a popup window in N1",
+      "type": "boolean",
+      "default": false,
+    },
+    handleThreads: {
+      "description": "Determines where emails are moved after unsubscribing",
+      "type": "string",
+      "default": "archive",
+      "enum": ["archive", "trash", "none"],
+    },
+    confirmForEmail: {
+      "description": "Open a confirmation window before sending an unsubscribe request over email",
+      "type": "boolean",
+      "default": true,
+    },
+    confirmForBrowser: {
+      "description": "Open a confirmation window before opening web-based unsubscribe links",
+      "type": "boolean",
+      "default": true,
+    },
+    debug: {
+      "description": "Enable debug messages",
+      "type": "boolean",
+      "default": true,
+    },
+  },
   activate: () => {
     ComponentRegistry.register(ThreadUnsubscribeQuickActionButton,
       { role: 'ThreadListQuickAction' });
