@@ -23,6 +23,7 @@ module.exports = (sequelize, Sequelize) => {
     participants: buildJSONARRAYColumnOptions('participants'),
   }, {
     indexes: [
+      { fields: ['id'], unique: true },
       { fields: ['subject'] },
       { fields: ['remoteThreadId'] },
     ],
