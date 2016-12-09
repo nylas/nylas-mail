@@ -59,7 +59,7 @@ class PackageManager
     @packageActivators = []
     @registerPackageActivator(this, ['nylas'])
 
-    ipcRenderer.on("changePluginStateFromUrl", @_onChangePluginState)
+    ipcRenderer.on("changePluginStateFromUrl", @_onChangePluginStateFromUrl)
 
 
   pluginIdFor: (packageName) =>
@@ -70,7 +70,7 @@ class PackageManager
       @cachedPackagePluginIds[cacheKey] = @_resolvePluginIdFor(packageName, env)
     return @cachedPackagePluginIds[cacheKey]
 
-  _onChangePluginState: (event, urlToOpen = "") =>
+  _onChangePluginStateFromUrl: (event, urlToOpen = "") =>
     {query} = url.parse(urlToOpen, true)
     disabled = NylasEnv.config.get('core.disabledPackages') ? []
     turnedOn = []
@@ -78,18 +78,29 @@ class PackageManager
     for name, state of query
       continue if /-displayName/gi.test(name)
       displayName = query["#{name}-displayName"] ? name
+      message = query["#{name}-message"] ? null
       if state is "off" and name not in disabled
-        turnedOff.push(displayName)
+        turnedOff.push({name, displayName, message})
         if name not in disabled then disabled.push(name)
       else if state is "on"
-        turnedOn.push(displayName)
+        turnedOn.push({name, displayName, message})
         disabled = _.without(disabled, name)
     NylasEnv.config.set('core.disabledPackages', disabled)
     if NylasEnv.isMainWindow() then NylasEnv.focus()
     if turnedOn.length > 0 then @_notifyPluginsChanged(turnedOn, "enabled")
     if turnedOff.length > 0 then @_notifyPluginsChanged(turnedOff, "disabled")
 
-  _notifyPluginsChanged: (names, dir) =>
+    setTimeout(() =>
+      # This lets us enable features in plugins after it's been enabled
+      # via a url, but after the the showMessageBox modal has come up.
+      Actions.notifyPluginsChangedViaUrl({turnedOn, turnedOff})
+    , 350)
+
+  _notifyPluginsChanged: (nameData, dir) =>
+    names = _.pluck(nameData, "displayName")
+    messages = _.compact(_.pluck(nameData, "message")).map((m) => decodeURIComponent(m))
+    if messages.length > 0
+      msgText = "\n\n" + messages.join("\n\n")
     if names.length >= 2
       last = names[names.length - 1]
       names[names.length - 1] = "and #{last}"
@@ -99,10 +110,10 @@ class PackageManager
       remote.dialog.showMessageBox(remote.getCurrentWindow(), {
         type: 'info',
         message: "#{pluginText} #{dir}",
-        detail: "#{names.join(", ")} #{has} been #{dir}"
+        detail: "#{names.join(", ")} #{has} been #{dir}#{msgText}"
         buttons: ['Thanks'],
       })
-    , 500
+    , 300
 
   _resolvePluginIdFor: (packageName, env) =>
     metadata = @loadedPackages[packageName]?.metadata
