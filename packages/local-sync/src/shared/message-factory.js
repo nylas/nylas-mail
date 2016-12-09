@@ -17,8 +17,21 @@ function extractContacts(values = []) {
   })
 }
 
+function getHeadersForId(data) {
+  let participants = "";
+  const emails = _.pluck(data.from.concat(data.to, data.cc, data.bcc), 'email');
+  emails.sort().forEach((email) => {
+    participants += email
+  });
+  return `${data.date}-${data.subject}-${participants}`;
+}
+
+function hashForHeaders(headers) {
+  return cryptography.createHash('sha256').update(headers, 'utf8').digest('hex');
+}
+
 async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder}) {
-  const {Message, Label} = db
+  const {Label} = db
   const body = {}
   const {headers, attributes} = imapMessage
   const xGmLabels = attributes['x-gm-labels']
@@ -43,7 +56,7 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
   }
 
   const values = {
-    id: Message.hashForHeaders(headers),
+    id: hashForHeaders(getHeadersForId(parsedHeaders)),
     to: extractContacts(parsedHeaders.to),
     cc: extractContacts(parsedHeaders.cc),
     bcc: extractContacts(parsedHeaders.bcc),
@@ -90,19 +103,6 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
   }
 
   return values;
-}
-
-function hashForHeaders(headers) {
-  return cryptography.createHash('sha256').update(headers, 'utf8').digest('hex');
-}
-
-function getHeadersForId(data) {
-  let participants = "";
-  const emails = _.pluck(data.from.concat(data.to, data.cc, data.bcc), 'email');
-  emails.sort().forEach((email) => {
-    participants += email
-  });
-  return `${data.date}-${data.subject}-${participants}`;
 }
 
 function fromJSON(db, data) {
