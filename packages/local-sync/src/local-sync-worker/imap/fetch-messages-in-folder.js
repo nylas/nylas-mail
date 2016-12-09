@@ -187,7 +187,9 @@ class FetchMessagesInFolder {
         if (['text/plain', 'text/html', 'application/pgp-encrypted'].includes(mimetype)) {
           desired.push({
             id: part.partID,
-            encoding: part.encoding,
+            // encoding and charset may be null
+            transferEncoding: part.encoding,
+            charset: part.params ? part.params.charset : null,
             mimetype,
           });
         }
