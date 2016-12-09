@@ -11,7 +11,7 @@ Sequelize.Model.prototype.streamAll = function streamAll(options = {}) {
       this.findAll(opts).then((models = []) => {
         observer.onNext(models)
         if (models.length === chunkSize) {
-          opts.offset = chunkSize;
+          opts.offset += chunkSize;
           findFn(opts)
         } else {
           observer.onCompleted()
