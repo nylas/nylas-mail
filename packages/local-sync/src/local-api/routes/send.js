@@ -1,5 +1,6 @@
 const Joi = require('joi');
 const LocalDatabaseConnector = require('../../shared/local-database-connector');
+const Errors = require('../../shared/errors');
 const SendingUtils = require('../sending-utils');
 const SendmailClient = require('../sendmail-client');
 
@@ -128,7 +129,7 @@ module.exports = (server) => {
         const {to, cc, bcc} = draft;
         const recipients = [].concat(to, cc, bcc);
         if (!recipients.find(contact => contact.email === sendTo.email)) {
-          throw new SendingUtils.HTTPError(
+          throw new Errors.HTTPError(
             "Invalid sendTo, not present in message recipients",
             400
           );
