@@ -5,8 +5,7 @@ const mimelib = require('mimelib');
 const QuotedPrintable = require('quoted-printable');
 const striptags = require('striptags');
 const {Imap} = require('isomorphic-core');
-const SendingUtils = require('../local-api/sending-utils');
-
+const Errors = require('./errors');
 
 const SNIPPET_SIZE = 100
 
@@ -28,6 +27,17 @@ function getHeadersForId(data) {
 
 function hashForHeaders(headers) {
   return cryptography.createHash('sha256').update(headers, 'utf8').digest('hex');
+}
+
+function setReplyHeaders(newMessage, prevMessage) {
+  if (prevMessage.messageIdHeader) {
+    newMessage.inReplyTo = prevMessage.headerMessageId;
+    if (prevMessage.references) {
+      newMessage.references = prevMessage.references.concat(prevMessage.headerMessageId);
+    } else {
+      newMessage.references = [prevMessage.messageIdHeader];
+    }
+  }
 }
 
 async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder}) {
@@ -151,7 +161,7 @@ async function associateFromJSON(data, db) {
 
   if (replyToThread && replyToMessage) {
     if (!replyToThread.messages.find((msg) => msg.id === replyToMessage.id)) {
-      throw new SendingUtils.HTTPError(
+      throw new Errors.HTTPError(
         `Message ${replyToMessage.id} is not in thread ${replyToThread.id}`,
         400
       )
@@ -160,14 +170,14 @@ async function associateFromJSON(data, db) {
 
   let thread;
   if (replyToMessage) {
-    SendingUtils.setReplyHeaders(message, replyToMessage);
+    setReplyHeaders(message, replyToMessage);
     thread = await message.getThread();
   } else if (replyToThread) {
     thread = replyToThread;
     const previousMessages = thread.messages.filter(msg => !msg.isDraft);
     if (previousMessages.length > 0) {
       const lastMessage = previousMessages[previousMessages.length - 1]
-      SendingUtils.setReplyHeaders(message, lastMessage);
+      setReplyHeaders(message, lastMessage);
     }
   } else {
     thread = Thread.build({
