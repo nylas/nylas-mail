@@ -322,6 +322,8 @@ class GeneratedForm extends React.Component
 
     formType: React.PropTypes.oneOf(['new', 'update'])
     prefilled: React.PropTypes.bool
+    formHeader: React.PropTypes.node,
+    formFooter: React.PropTypes.node,
     contextData: React.PropTypes.object,
 
   @defaultProps:
@@ -329,8 +331,9 @@ class GeneratedForm extends React.Component
     onSubmit: ->
 
   render: =>
-    submitText = if @props.formType is "new" then "Create" else "Update"
+    submitText = if @props.formType is "new" then "Create" else "Save"
     <form className="generated-form" ref="form" style={this.props.style} onSubmit={this.props.onSubmit} onKeyDown={this._onKeyDown} noValidate>
+      {if this.props.formHeader then this.props.formHeader else false}
       <TabGroupRegion>
         {@_renderHeaderFormError()}
         {@_renderPrefilledMessage()}
@@ -338,9 +341,10 @@ class GeneratedForm extends React.Component
           {@_renderFieldsets()}
         </div>
         <div className="form-footer">
-          <button type="button" className="btn btn-emphasis" onClick={this.props.onSubmit}>
-            {submitText}
-          </button>
+          <div className="submit-button-wrap">
+            <button type="button" className="btn btn-emphasis" onClick={this.props.onSubmit}>{submitText}</button>
+          </div>
+          {if this.props.formFooter then this.props.formFooter else false}
         </div>
       </TabGroupRegion>
     </form>
