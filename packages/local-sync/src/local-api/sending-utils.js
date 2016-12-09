@@ -1,3 +1,6 @@
+const MessageFactory = require('../shared/message-factory')
+
+
 class HTTPError extends Error {
   constructor(message, httpCode, logContext) {
     super(message);
@@ -26,7 +29,7 @@ module.exports = {
       return existingMessage;
     }
 
-    return Message.associateFromJSON(data, db)
+    return MessageFactory.associateFromJSON(data, db)
   },
   findMultiSendDraft: async (draftId, db) => {
     const draft = await db.Message.findById(draftId)

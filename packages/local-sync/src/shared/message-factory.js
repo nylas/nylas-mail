@@ -1,9 +1,12 @@
+const _ = require('underscore');
+const cryptography = require('crypto');
 const utf7 = require('utf7').imap;
 const mimelib = require('mimelib');
 const QuotedPrintable = require('quoted-printable');
-const {Imap} = require('isomorphic-core');
-const mkdirp = require('mkdirp');
 const striptags = require('striptags');
+const {Imap} = require('isomorphic-core');
+const SendingUtils = require('../local-api/sending-utils');
+
 
 const SNIPPET_SIZE = 100
 
@@ -89,6 +92,102 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
   return values;
 }
 
+function hashForHeaders(headers) {
+  return cryptography.createHash('sha256').update(headers, 'utf8').digest('hex');
+}
+
+function getHeadersForId(data) {
+  let participants = "";
+  const emails = _.pluck(data.from.concat(data.to, data.cc, data.bcc), 'email');
+  emails.sort().forEach((email) => {
+    participants += email
+  });
+  return `${data.date}-${data.subject}-${participants}`;
+}
+
+function fromJSON(db, data) {
+  // TODO: events, metadata?
+  const {Message} = db;
+  const id = hashForHeaders(getHeadersForId(data))
+  return Message.build({
+    accountId: data.account_id,
+    from: data.from,
+    to: data.to,
+    cc: data.cc,
+    bcc: data.bcc,
+    replyTo: data.reply_to,
+    subject: data.subject,
+    body: data.body,
+    unread: true,
+    isDraft: data.is_draft,
+    isSent: false,
+    version: 0,
+    date: data.date,
+    id: id,
+    uploads: data.uploads,
+  });
+}
+
+async function associateFromJSON(data, db) {
+  const {Thread, Message} = db;
+
+  const message = fromJSON(db, data);
+
+  let replyToThread;
+  let replyToMessage;
+  if (data.thread_id != null) {
+    replyToThread = await Thread.find({
+      where: {id: data.thread_id},
+      include: [{
+        model: Message,
+        as: 'messages',
+        attributes: _.without(Object.keys(Message.attributes), 'body'),
+      }],
+    });
+  }
+  if (data.reply_to_message_id != null) {
+    replyToMessage = await Message.findById(data.reply_to_message_id);
+  }
+
+  if (replyToThread && replyToMessage) {
+    if (!replyToThread.messages.find((msg) => msg.id === replyToMessage.id)) {
+      throw new SendingUtils.HTTPError(
+        `Message ${replyToMessage.id} is not in thread ${replyToThread.id}`,
+        400
+      )
+    }
+  }
+
+  let thread;
+  if (replyToMessage) {
+    SendingUtils.setReplyHeaders(message, replyToMessage);
+    thread = await message.getThread();
+  } else if (replyToThread) {
+    thread = replyToThread;
+    const previousMessages = thread.messages.filter(msg => !msg.isDraft);
+    if (previousMessages.length > 0) {
+      const lastMessage = previousMessages[previousMessages.length - 1]
+      SendingUtils.setReplyHeaders(message, lastMessage);
+    }
+  } else {
+    thread = Thread.build({
+      accountId: message.accountId,
+      subject: message.subject,
+      firstMessageDate: message.date,
+      lastMessageDate: message.date,
+      lastMessageSentDate: message.date,
+    })
+  }
+
+  const savedMessage = await message.save();
+  const savedThread = await thread.save();
+  await savedThread.addMessage(savedMessage);
+
+  return savedMessage;
+}
+
 module.exports = {
   parseFromImap,
+  fromJSON,
+  associateFromJSON,
 }

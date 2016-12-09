@@ -1,3 +1,5 @@
+/* eslint no-useless-escape: 0 */
+
 const fs = require('fs');
 const nodemailer = require('nodemailer');
 const mailcomposer = require('mailcomposer');
@@ -91,7 +93,14 @@ class SendmailClient {
   }
 
   _getBodyWithMessageIds(draft) {
-    return draft.body.replace(/n1cloud\.nylas\.com\/.+MESSAGE_ID/g, (match) => {
+    const serverUrl = {
+      local: 'http:\/\/lvh\.me:5100',
+      development: 'http:\/\/lvh\.me:5100',
+      staging: 'https:\/\/n1cloud-staging\.nylas\.com',
+      production: 'https:\/\/n1cloud\.nylas\.com',
+    }[process.env];
+    const regex = new RegExp(`${serverUrl}\/.+MESSAGE_ID`, 'g')
+    return draft.body.replace(regex, (match) => {
       return match.replace('MESSAGE_ID', draft.id)
     })
   }
