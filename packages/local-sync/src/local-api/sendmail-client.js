@@ -52,7 +52,7 @@ class SendmailClient {
     // TODO: figure out how to parse different errors, like in cloud-core
     // https://github.com/nylas/cloud-core/blob/production/sync-engine/inbox/sendmail/smtp/postel.py#L354
 
-    if (err.startsWith("Error: Invalid login: 535-5.7.8 Username and Password not accepted.")) {
+    if (err.message.startsWith("Error: Invalid login: 535-5.7.8 Username and Password not accepted.")) {
       throw new HTTPError('Invalid login', 401, err)
     }
 
