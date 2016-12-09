@@ -1,13 +1,15 @@
 const _ = require('underscore');
 const cryptography = require('crypto');
-const utf7 = require('utf7').imap;
 const mimelib = require('mimelib');
-const QuotedPrintable = require('quoted-printable');
 const striptags = require('striptags');
+const encoding = require('encoding');
+
 const {Imap} = require('isomorphic-core');
 const Errors = require('./errors');
 
-const SNIPPET_SIZE = 100
+// aiming for the former in length, but the latter is the hard db cutoff
+const SNIPPET_SIZE = 100;
+const SNIPPET_MAX_SIZE = 255;
 
 function extractContacts(values = []) {
   return values.map(v => {
@@ -40,32 +42,41 @@ function setReplyHeaders(newMessage, prevMessage) {
   }
 }
 
+/*
+Since we only fetch the MIME structure and specific desired MIME parts from
+IMAP, we unfortunately can't use an existing library like mailparser to parse
+the message, and have to do fun stuff like deal with character sets and
+content-transfer-encodings ourselves.
+*/
 async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder}) {
   const {Label} = db
+  const {attributes} = imapMessage
+
   const body = {}
-  const {headers, attributes} = imapMessage
-  const xGmLabels = attributes['x-gm-labels']
-  for (const {id, mimetype, encoding} of desiredParts) {
-    if (!encoding) {
-      body[mimetype] = imapMessage.parts[id];
-    } else if (encoding.toLowerCase() === 'quoted-printable') {
-      body[mimetype] = QuotedPrintable.decode(imapMessage.parts[id]);
-    } else if (encoding.toLowerCase() === '7bit') {
-      body[mimetype] = utf7.decode(imapMessage.parts[id]);
-    } else if (encoding.toLowerCase() === '8bit') {
-      body[mimetype] = Buffer.from(imapMessage.parts[id], 'utf8').toString();
-    } else if (encoding && ['ascii', 'utf8', 'utf16le', 'ucs2', 'base64', 'latin1', 'binary', 'hex'].includes(encoding.toLowerCase())) {
-      body[mimetype] = Buffer.from(imapMessage.parts[id], encoding.toLowerCase()).toString();
+  for (const {id, mimetype, transferEncoding, charset} of desiredParts) {
+    // see https://www.w3.org/Protocols/rfc1341/5_Content-Transfer-Encoding.html
+    if (!transferEncoding || new Set(['7bit', '8bit']).has(transferEncoding.toLowerCase())) {
+      // NO transfer encoding has been performed --- how to decode to a string
+      // depends ONLY on the charset, which defaults to 'ascii' according to
+      // https://tools.ietf.org/html/rfc2045#section-5.2
+      const convertedBuffer = encoding.convert(imapMessage.parts[id], 'utf-8', charset || 'ascii')
+      body[mimetype] = convertedBuffer.toString('utf-8');
+    } else if (transferEncoding.toLowerCase() === 'quoted-printable') {
+      body[mimetype] = mimelib.decodeQuotedPrintable(imapMessage.parts[id], charset || 'ascii');
+    } else if (transferEncoding.toLowerCase() === 'base64') {
+      body[mimetype] = mimelib.decodeBase64(imapMessage.parts[id], charset || 'ascii');
     } else {
-      return Promise.reject(new Error(`Unknown encoding ${encoding}, mimetype ${mimetype}`))
+      // 'binary' and custom x-token content-transfer-encodings
+      return Promise.reject(new Error(`Unsupported Content-Transfer-Encoding ${transferEncoding}, mimetype ${mimetype}`))
     }
   }
+  const headers = imapMessage.headers.toString('ascii');
   const parsedHeaders = Imap.parseHeader(headers);
   for (const key of ['x-gm-thrid', 'x-gm-msgid', 'x-gm-labels']) {
     parsedHeaders[key] = attributes[key];
   }
 
-  const values = {
+  const parsedMessage = {
     id: hashForHeaders(getHeadersForId(parsedHeaders)),
     to: extractContacts(parsedHeaders.to),
     cc: extractContacts(parsedHeaders.cc),
@@ -74,7 +85,7 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
     replyTo: extractContacts(parsedHeaders['reply-to']),
     accountId: accountId,
     body: body['text/html'] || body['text/plain'] || body['application/pgp-encrypted'] || '',
-    snippet: body['text/plain'] ? body['text/plain'].substr(0, 255) : null,
+    snippet: null,
     unread: !attributes.flags.includes('\\Seen'),
     starred: attributes.flags.includes('\\Flagged'),
     date: attributes.date,
@@ -90,29 +101,41 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
   // preserve whitespacing on plaintext emails -- has the side effect of monospacing, but
   // that seems OK and perhaps sometimes even desired (for e.g. ascii art, alignment)
   if (!body['text/html'] && body['text/plain']) {
-    values.body = `<pre class="nylas-plaintext">${values.body}</pre>`;
+    parsedMessage.body = `<pre class="nylas-plaintext">${parsedMessage.body}</pre>`;
   }
 
+  // populate initial snippet
+  if (body['text/plain']) {
+    parsedMessage.snippet = body['text/plain'].trim().substr(0, SNIPPET_MAX_SIZE);
+  } else if (parsedMessage.body) {
+    // create snippet from body, which is most likely html. we strip tags but
+    // don't currently support stripping embedded CSS
+    parsedMessage.snippet = striptags(parsedMessage.body).trim().substr(0,
+      Math.min(parsedMessage.body.length, SNIPPET_MAX_SIZE));
+  }
+
+  // clean up and trim snippet
+  if (parsedMessage.snippet) {
   // TODO: strip quoted text from snippets also
-  if (values.snippet) {
-    // trim and clean snippet which is alreay present (from values plaintext)
-    values.snippet = values.snippet.replace(/[\n\r]/g, ' ').replace(/\s\s+/g, ' ')
-    const loc = values.snippet.indexOf(' ', SNIPPET_SIZE);
-    if (loc !== -1) {
-      values.snippet = values.snippet.substr(0, loc);
+    parsedMessage.snippet = parsedMessage.snippet.replace(/[\n\r]/g, ' ').replace(/\s\s+/g, ' ')
+    // trim down to approx. SNIPPET_SIZE w/out cutting off words right in the
+    // middle (if possible)
+    const wordBreak = parsedMessage.snippet.indexOf(' ', SNIPPET_SIZE);
+    if (wordBreak !== -1) {
+      parsedMessage.snippet = parsedMessage.snippet.substr(0, wordBreak);
     }
-  } else if (values.body) {
-    // create snippet from body, which is most likely html
-    values.snippet = striptags(values.body).trim().substr(0, Math.min(values.body.length, SNIPPET_SIZE));
   }
 
-  values.folder = folder
+  parsedMessage.folder = folder
+
+  // TODO: unclear if this is necessary given we already have parsed labels
+  const xGmLabels = attributes['x-gm-labels']
   if (xGmLabels) {
-    values.folderImapXGMLabels = JSON.stringify(xGmLabels)
-    values.labels = await Label.findXGMLabels(xGmLabels)
+    parsedMessage.folderImapXGMLabels = JSON.stringify(xGmLabels)
+    parsedMessage.labels = await Label.findXGMLabels(xGmLabels)
   }
 
-  return values;
+  return parsedMessage;
 }
 
 function fromJSON(db, data) {

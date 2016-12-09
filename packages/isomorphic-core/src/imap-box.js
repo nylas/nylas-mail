@@ -68,7 +68,7 @@ class IMAPBox {
           });
 
           stream.once('end', () => {
-            const full = Buffer.concat(chunks).toString('utf8');
+            const full = Buffer.concat(chunks);
             if (info.which === 'HEADER') {
               headers = full;
             } else {
@@ -77,6 +77,10 @@ class IMAPBox {
           });
         });
         imapMessage.once('end', () => {
+          // attributes is an object containing ascii strings, but parts and
+          // headers are undecoded binary Buffers (since the data for mime
+          // parts cannot be decoded to strings without looking up charset data
+          // in metadata, and this function's job is only to fetch the raw data)
           forEachMessageCallback({attributes, headers, parts});
         });
       })
