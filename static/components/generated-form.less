@@ -177,9 +177,13 @@ body.is-blurred, body.platform-win32.is-blurred {
   }
 
   .form-footer {
+    display: flex;
     background: @background-off-primary;
     border-top: 1px solid darken(@background-off-primary, 7%);
     padding: 9px 22px;
+    .submit-button-wrap {
+      flex: 1;
+    }
   }
 
   .btn {
