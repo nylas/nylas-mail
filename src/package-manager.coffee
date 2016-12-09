@@ -99,6 +99,7 @@ class PackageManager
   _notifyPluginsChanged: (nameData, dir) =>
     names = _.pluck(nameData, "displayName")
     messages = _.compact(_.pluck(nameData, "message")).map((m) => decodeURIComponent(m))
+    msgText = ""
     if messages.length > 0
       msgText = "\n\n" + messages.join("\n\n")
     if names.length >= 2
