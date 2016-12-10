@@ -1,6 +1,10 @@
 module.exports = {
+  debug: () => {
+    return NylasEnv.config.get("unsubscribe.debug");
+  },
+
   logIfDebug: (message) => {
-    if (NylasEnv.config.get("unsubscribe.debug")) {
+    if (this.debug()) {
       console.debug(message);
     }
   },

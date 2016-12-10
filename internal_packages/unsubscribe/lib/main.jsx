@@ -38,6 +38,15 @@ module.exports = {
       { role: 'ThreadListQuickAction' });
     ComponentRegistry.register(ThreadUnsubscribeToolbarButton,
       { role: 'ThreadActionsToolbarButton' });
+    const settings = NylasEnv.config.get("unsubscribe");
+    console.debug(settings.debug,
+      `Loaded n1-unsubscribe with settings:
+      - Debug mode enabled: ${settings.debug}
+      - Use Native Browser for unsubscribing: ${settings.useNativeBrowser}
+      - Archive or Trash after unsubscribing: ${settings.handleThreads}
+      - Confirm before email unsubscribing: ${settings.confirmForEmail}
+      - Confirm before browser unsubscribing: ${settings.confirmForBrowser}`
+    );
   },
   deactivate: () => {
     ComponentRegistry.unregister(ThreadUnsubscribeQuickActionButton);

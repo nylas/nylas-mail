@@ -117,8 +117,6 @@ class EmailParser {
       }
     } else if (isLink) {
       this.urls.push(link);
-    } else {
-      NylasEnv.reportError(new Error(`Could not determine if "${link}" was an email or url.`));
     }
   }
 

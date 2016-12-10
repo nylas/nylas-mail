@@ -18,6 +18,7 @@ const ThreadConditionType = require('./enum/threadConditionType');
 class ThreadUnsubscribeStore extends NylasStore {
   constructor(thread) {
     super();
+    this.settings = NylasEnv.config.get("unsubscribe");
 
     if (!thread) {
       NylasEnv.reportError(new Error("Invalid thread object"));
@@ -136,10 +137,10 @@ class ThreadUnsubscribeStore extends NylasStore {
     let url = rawURL
     url = url.replace(/^ttp:/, 'http:');
     const disURL = helpers.shortenURL(url);
-    if (!this.isForwarded && (!NylasEnv.config.get("unsubscribe.confirmForBrowser") ||
+    if (!this.isForwarded && (!this.settings.confirmForBrowser ||
       helpers.userAlert(`${this.confirmText}\nA browser will be opened at:\n\n${disURL}`))) {
       helpers.logIfDebug(`Opening a browser window to:\n${url}`);
-      if (NylasEnv.config.get("unsubscribe.useNativeBrowser") || blacklist.electronCanOpen(url)) {
+      if (this.settings.useNativeBrowser || blacklist.electronCanOpen(url)) {
         open(url);
         callback(null);
       } else {
@@ -161,7 +162,7 @@ class ThreadUnsubscribeStore extends NylasStore {
   // Takes a String email address and sends an email to it in order to unsubscribe from the list
   unsubscribeViaMail(emailAddress, callback) {
     if (emailAddress) {
-      if (!this.isForwarded && (!NylasEnv.config.get("unsubscribe.confirmForEmail") ||
+      if (!this.isForwarded && (!this.settings.confirmForEmail ||
         helpers.userAlert(`${this.confirmText}\nAn email will be sent to:\n${emailAddress}`))) {
         helpers.logIfDebug(`Sending an unsubscription email to:\n${emailAddress}`);
         const email = helpers.interpretEmail(emailAddress)
@@ -196,7 +197,7 @@ class ThreadUnsubscribeStore extends NylasStore {
 
   // Move the given thread to the trash or archive
   moveThread() {
-    switch (NylasEnv.config.get("unsubscribe.handleThreads")) {
+    switch (this.settings.handleThreads) {
       case "trash":
         if (FocusedPerspectiveStore.current().canTrashThreads([this.thread])) {
           const tasks = TaskFactory.tasksForMovingToTrash({

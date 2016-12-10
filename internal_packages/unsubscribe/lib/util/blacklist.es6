@@ -1,3 +1,5 @@
+const helpers = require('./helpers');
+
 const blacklistExpressions = {
   urls: [
     "www\\.roomster\\.com",
@@ -32,7 +34,7 @@ module.exports = {
     for (let i = 0; i < regexps.length; i += 1) {
       const re = new RegExp(regexps[i]);
       if (re.test(target)) {
-        console.debug(NylasEnv.config.get('unsubscribe.debug'), `Found ${target} on blacklist with ${re}`);
+        console.debug(helpers.debug(), `Found ${target} on blacklist with ${re}`);
         return true;
       }
     }
@@ -40,7 +42,7 @@ module.exports = {
   },
 
   // Electron has Jquery and other limitations that block certain known URLs
-  canElectronOpen(url) {
+  electronCanOpen(url) {
     return !this.onBlacklist(blacklistExpressions.urls, url);
   },
 
