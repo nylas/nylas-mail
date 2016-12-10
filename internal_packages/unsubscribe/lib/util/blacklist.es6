@@ -18,8 +18,8 @@ const blacklistExpressions = {
   ],
   emails: [
     "@idearium.activehosted.com",
-    "sympa@lists\\.eng\\.umd\\.edu",
     "sympa@",
+    "sympa@lists\\.eng\\.umd\\.edu",
     "@blancmedia\\.activehosted\\.com",
     "@bounce",
     "unsubscribe@mail\\.notifications\\.soundcloud\\.com",
@@ -28,7 +28,7 @@ const blacklistExpressions = {
 
 module.exports = {
   // Takes an array of regular expressions and compares against a target string
-  regexpcompare(regexps, target) {
+  onBlacklist(regexps, target) {
     for (let i = 0; i < regexps.length; i += 1) {
       const re = new RegExp(regexps[i]);
       if (re.test(target)) {
@@ -39,14 +39,13 @@ module.exports = {
     return false;
   },
 
-  // Determine if the link can be opened in the electron browser or if it
-  // should be directed to the default browser
-  containsURL(url) {
-    return this.regexpcompare(blacklistExpressions.urls, url);
+  // Electron has Jquery and other limitations that block certain known URLs
+  canElectronOpen(url) {
+    return !this.onBlacklist(blacklistExpressions.urls, url);
   },
 
-  // Check if the unsubscribe email is known to fail
-  containsEmail(email) {
-    return this.regexpcompare(blacklistExpressions.emails, email);
+  // Some emails fail and are ignored in favor of other links:
+  blacklistedEmail(email) {
+    return this.onBlacklist(blacklistExpressions.emails, email);
   },
 }

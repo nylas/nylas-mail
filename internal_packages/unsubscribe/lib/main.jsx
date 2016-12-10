@@ -20,12 +20,12 @@ module.exports = {
     confirmForEmail: {
       "description": "Open a confirmation window before sending an unsubscribe request over email",
       "type": "boolean",
-      "default": true,
+      "default": false,
     },
     confirmForBrowser: {
       "description": "Open a confirmation window before opening web-based unsubscribe links",
       "type": "boolean",
-      "default": true,
+      "default": false,
     },
     debug: {
       "description": "Enable debug messages",

@@ -139,7 +139,7 @@ class ThreadUnsubscribeStore extends NylasStore {
     if (!this.isForwarded && (!NylasEnv.config.get("unsubscribe.confirmForBrowser") ||
       helpers.userAlert(`${this.confirmText}\nA browser will be opened at:\n\n${disURL}`))) {
       helpers.logIfDebug(`Opening a browser window to:\n${url}`);
-      if (blacklist.checkURL(url) || NylasEnv.config.get("unsubscribe.useNativeBrowser")) {
+      if (NylasEnv.config.get("unsubscribe.useNativeBrowser") || blacklist.electronCanOpen(url)) {
         open(url);
         callback(null);
       } else {

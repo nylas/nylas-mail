@@ -108,16 +108,17 @@ class EmailParser {
   }
 
   __addLink(link) {
-    const isEmail = /mailto:([^>]*)>/g.exec(link);
+    const isEmail = /<mailto:([^>]*)>/g.exec(link);
+    const isLink = /.*http:.*/g.exec(link);
     if (isEmail) {
       const email = isEmail[1];
-      if (!blacklist.containsEmail(email)) {
+      if (!blacklist.blacklistedEmail(email)) {
         this.emails.push(email);
       }
+    } else if (isLink) {
+      this.urls.push(link);
     } else {
-      if (!blacklist.containsURL(link)) {
-        this.urls.push(link);
-      }
+      NylasEnv.reportError(new Error(`Could not determine if "${link}" was an email or url.`));
     }
   }
 
