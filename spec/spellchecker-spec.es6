@@ -1,7 +1,7 @@
 /* eslint global-require: 0 */
 import {Spellchecker} from 'nylas-exports';
 
-describe("Spellchecker", function spellcheckerTests() {
+xdescribe("Spellchecker", function spellcheckerTests() {
   beforeEach(() => {
     Spellchecker.handler.switchLanguage('en-US'); // Start with US English
   });

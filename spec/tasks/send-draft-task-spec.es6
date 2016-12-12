@@ -19,7 +19,7 @@ import {
 const DBt = DatabaseTransaction.prototype;
 const withoutWhitespace = (s) => s.replace(/[\n\r\s]/g, '');
 
-describe('SendDraftTask', function sendDraftTask() {
+xdescribe('SendDraftTask', function sendDraftTask() {
   describe("assertDraftValidity", () => {
     it("rejects if there are still uploads on the draft", () => {
       const badTask = new SendDraftTask('1');

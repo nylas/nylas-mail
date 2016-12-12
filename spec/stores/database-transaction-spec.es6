@@ -18,7 +18,7 @@ function __range__(left, right, inclusive) {
   return range;
 }
 
-describe("DatabaseTransaction", function DatabaseTransactionSpecs() {
+xdescribe("DatabaseTransaction", function DatabaseTransactionSpecs() {
   beforeEach(() => {
     this.databaseMutationHooks = [];
     this.performed = [];

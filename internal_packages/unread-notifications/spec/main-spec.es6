@@ -9,7 +9,7 @@ import SoundRegistry from '../../../src/registries/sound-registry'
 import NativeNotifications from '../../../src/native-notifications'
 import {Notifier} from '../lib/main'
 
-describe("UnreadNotifications", function UnreadNotifications() {
+xdescribe("UnreadNotifications", function UnreadNotifications() {
   beforeEach(() => {
     this.notifier = new Notifier();
 

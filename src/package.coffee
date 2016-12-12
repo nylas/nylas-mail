@@ -166,8 +166,8 @@ class Package
         @mainModule.activate(localState)
         @mainActivated = true
     catch e
-      console.log e.message
-      console.log e.stack
+      console.error e.message
+      console.error e.stack
       console.warn "Failed to activate package named '#{@name}'", e.stack
 
     @activationDeferred?.resolve()
@@ -309,8 +309,6 @@ class Package
     mainModulePath = @getMainModulePath()
     if fs.isFileSync(mainModulePath)
       @mainModule = require(mainModulePath)
-    else if not @isTheme()
-      throw new Error("Can't find main file for #{this.name}. Make sure the path is correct and you've left out the extension of the main file.")
     return @mainModule
 
   getMainModulePath: ->

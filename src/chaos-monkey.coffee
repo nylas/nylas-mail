@@ -1,4 +1,4 @@
-NylasAPI = require './flux/nylas-api'
+NylasAPI = require('./flux/nylas-api').default
 nock = require 'nock'
 
 # We be wrecking havok in your code

@@ -144,12 +144,15 @@ describe "PackageManager", ->
           expect(NylasEnv.config.get('package-with-config-schema.numbers.one')).toBe 10
 
     describe "when the package has no main module", ->
-      it "does not throw an exception", ->
+      it "des not compalain if it doesn't have a package.json", ->
         spyOn(console, "error")
         spyOn(console, "warn")
-        expect(-> NylasEnv.packages.activatePackage('package-without-module')).not.toThrow()
-        expect(console.error).not.toHaveBeenCalled()
-        expect(console.warn).not.toHaveBeenCalled()
+        waitsForPromise ->
+          NylasEnv.packages.activatePackage('package-without-module')
+          .then ->
+            expect(-> NylasEnv.packages.activatePackage('package-without-module')).not.toThrow()
+            expect(console.error).not.toHaveBeenCalled()
+            expect(console.warn).not.toHaveBeenCalled()
 
     it "passes the activate method the package's previously serialized state if it exists", ->
       pack = null

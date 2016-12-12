@@ -220,7 +220,7 @@ class AccountStore extends NylasStore {
   refreshHealthOfAccounts = (accountIds) => {
     NylasAPI = require('../nylas-api').default
     NylasAPIRequest = require('../nylas-api-request').default
-    Promise.all(accountIds.map((accountId) => {
+    return Promise.all(accountIds.map((accountId) => {
       return new NylasAPIRequest({
         api: NylasAPI,
         options: {

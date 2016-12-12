@@ -23,6 +23,14 @@ class PluginMetadata extends Model {
     super(...args)
     this.version = this.version || 0;
   }
+
+  get id() {
+    return this.pluginId
+  }
+
+  set id(pluginId) {
+    this.pluginId = pluginId
+  }
 }
 
 

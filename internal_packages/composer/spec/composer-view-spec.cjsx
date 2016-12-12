@@ -65,7 +65,7 @@ makeComposer = (props={}) ->
   )
   advanceClock()
 
-describe "ComposerView", ->
+xdescribe "ComposerView", ->
   beforeEach ->
     ComposerEditor.containerRequired = false
     ComponentRegistry.register(ComposerEditor, role: "Composer:Editor")
@@ -425,7 +425,7 @@ describe "ComposerView", ->
       el = els[0]
       expect(el.props.exposedProps.files).toEqual(@draft.files)
 
-describe "when a file is received (via drag and drop or paste)", ->
+xdescribe "when a file is received (via drag and drop or paste)", ->
   beforeEach ->
     useDraft.call @
     makeComposer.call @
@@ -457,7 +457,7 @@ describe "when a file is received (via drag and drop or paste)", ->
     expect(Actions.insertAttachmentIntoDraft).toHaveBeenCalled()
     expect(@upload.inline).toEqual(true)
 
-describe "when the DraftStore `isSending` isn't stubbed out", ->
+xdescribe "when the DraftStore `isSending` isn't stubbed out", ->
   beforeEach ->
     DraftStore._draftsSending = {}
 

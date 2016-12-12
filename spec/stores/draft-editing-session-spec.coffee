@@ -7,7 +7,7 @@ DraftChangeSet = DraftEditingSession.DraftChangeSet
 _ = require 'underscore'
 
 
-describe "DraftEditingSession Specs", ->
+xdescribe "DraftEditingSession Specs", ->
   describe "DraftChangeSet", ->
     beforeEach ->
       @onDidAddChanges = jasmine.createSpy('onDidAddChanges')

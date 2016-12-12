@@ -5,7 +5,7 @@ Actions = require('./flux/actions').default
 Category = require('./flux/models/category').default
 Thread = require('./flux/models/thread').default
 Message = require('./flux/models/message').default
-AccountStore = require './flux/stores/account-store'
+AccountStore = require('./flux/stores/account-store').default
 DatabaseStore = require('./flux/stores/database-store').default
 TaskQueueStatusStore = require './flux/stores/task-queue-status-store'
 

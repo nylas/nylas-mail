@@ -18,7 +18,7 @@ function spawn(command, args, callback) {
     spawnedProcess = ChildProcess.spawn(command, args);
   } catch (error) {
     // Spawn can throw an error
-    process.nextTick(() => callback && callback(error, stdout))
+    setTimeout(() => callback && callback(error, stdout), 0)
     return;
   }
 

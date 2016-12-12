@@ -9,7 +9,7 @@ import InlineStyleTransformer from '../../src/services/inline-style-transformer'
 import SanitizeTransformer from '../../src/services/sanitize-transformer';
 
 
-describe('DraftHelpers', function describeBlock() {
+xdescribe('DraftHelpers', function describeBlock() {
   describe('prepareDraftForSyncback', () => {
     beforeEach(() => {
       spyOn(Actions, 'queueTask')

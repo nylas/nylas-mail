@@ -5,7 +5,7 @@ Category = require('../../src/flux/models/category').default
 MailboxPerspective = require '../../src/mailbox-perspective'
 
 CategoryStore = require '../../src/flux/stores/category-store'
-AccountStore = require '../../src/flux/stores/account-store'
+AccountStore = require('../../src/flux/stores/account-store').default
 FocusedPerspectiveStore = require('../../src/flux/stores/focused-perspective-store').default
 
 describe "FocusedPerspectiveStore", ->

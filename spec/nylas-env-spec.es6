@@ -1,6 +1,6 @@
 import { remote } from 'electron';
 
-describe("the `NylasEnv` global", function nylasEnvSpec() {
+xdescribe("the `NylasEnv` global", function nylasEnvSpec() {
   describe('window sizing methods', () => {
     describe('::getPosition and ::setPosition', () =>
       it('sets the position of the window, and can retrieve the position just set', () => {

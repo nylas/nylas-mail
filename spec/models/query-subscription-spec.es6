@@ -61,8 +61,11 @@ describe("QuerySubscription", function QuerySubscriptionSpecs() {
       spyOn(QuerySubscription.prototype, 'update').andReturn();
       const subscription = new QuerySubscription(DatabaseStore.findAll(Thread));
       subscription._lastResult = 'something';
-      runs(() => subscription.addCallback(cb));
-      waitsFor(() => cb.callCount > 0);
+      runs(() => {
+        subscription.addCallback(cb);
+        advanceClock();
+      });
+      waitsFor(() => cb.calls.length > 0);
       runs(() => expect(cb).toHaveBeenCalledWith('something'));
     })
   );

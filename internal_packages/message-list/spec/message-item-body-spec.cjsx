@@ -80,7 +80,7 @@ MessageItemBody = proxyquire '../lib/message-item-body',
   './email-frame': {default: EmailFrameStub}
 
 
-describe "MessageItem", ->
+xdescribe "MessageItem", ->
   beforeEach ->
     spyOn(FileDownloadStore, 'pathForFile').andCallFake (f) ->
       return '/fake/path.png' if f.id is file.id

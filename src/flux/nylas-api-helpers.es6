@@ -176,8 +176,10 @@ export function handleAuthenticationFailure(modelUrl, apiToken, apiName) {
 
   AccountStore = AccountStore || require('./stores/account-store').default
   const account = AccountStore.accounts().find((acc) => {
-    const localMatch = AccountStore.tokensForAccountId(acc.id).localSync === apiToken;
-    const cloudMatch = AccountStore.tokensForAccountId(acc.id).n1Cloud === apiToken;
+    const tokens = AccountStore.tokensForAccountId(acc.id);
+    if (!tokens) return false
+    const localMatch = tokens.localSync === apiToken;
+    const cloudMatch = tokens.n1Cloud === apiToken;
     return localMatch || cloudMatch;
   })
 

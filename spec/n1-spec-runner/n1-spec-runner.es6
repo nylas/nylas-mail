@@ -36,7 +36,8 @@ class N1SpecRunner {
     Object.assign(window, {
       jasmine: jasmineExports.jasmine,
 
-      it: jasmineExports.it,
+      it: this._makeItAsync(jasmineExports.it),
+      // it: jasmineExports.it,
       xit: jasmineExports.xit,
       runs: jasmineExports.runs,
       waits: jasmineExports.waits,
@@ -45,13 +46,43 @@ class N1SpecRunner {
       waitsFor: jasmineExports.waitsFor,
       describe: jasmineExports.describe,
       xdescribe: jasmineExports.xdescribe,
-      afterEach: jasmineExports.afterEach,
-      beforeEach: jasmineExports.beforeEach,
+      afterEach: this._makeSurroundAsync(jasmineExports.afterEach),
+      beforeEach: this._makeSurroundAsync(jasmineExports.beforeEach),
       testNowMoment: jasmineExtensions.testNowMoment,
       waitsForPromise: jasmineExtensions.waitsForPromise,
     }, nylasTestConstants)
 
     this.jasmineEnv = jasmineExports.jasmine.getEnv();
+  }
+
+
+  _runAsync(userFn) {
+    if (!userFn) return true
+    const resp = userFn.apply(this);
+    if (resp && resp.then) {
+      return jasmineExtensions.waitsForPromise(() => {
+        return resp
+      })
+    }
+    return resp
+  }
+
+  _makeItAsync(jasmineIt) {
+    const self = this;
+    return (desc, userFn) => {
+      return jasmineIt(desc, function asyncIt() {
+        self._runAsync.call(this, userFn)
+      })
+    }
+  }
+
+  _makeSurroundAsync(jasmineBeforeAfter) {
+    const self = this;
+    return (userFn) => {
+      return jasmineBeforeAfter(function asyncBeforeAfter() {
+        self._runAsync.call(this, userFn)
+      })
+    }
   }
 
   _setupJasmine() {
@@ -129,7 +160,7 @@ class N1SpecRunner {
   _extendJasmineMethods() {
     const jasmine = jasmineExports.jasmine;
 
-    jasmine.getEnv().defaultTimeoutInterval = 250;
+    jasmine.getEnv().defaultTimeoutInterval = 500;
 
     // Use underscore's definition of equality for toEqual assertions
     jasmine.getEnv().addEqualityTester(_.isEqual);
