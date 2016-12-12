@@ -50,9 +50,9 @@ function installPrivateResources() {
   }
 
   // copy Arc Files
-  fs.copySync(path.join('src', 'K2', '.arcconfig'), '.')
-  fs.copySync(path.join('src', 'K2', '.arclint'), '.')
-  fs.copySync(path.join('src', 'K2', 'arclib'), '.')
+  fs.symlinkSync(path.join('src', 'K2', '.arcconfig'), '.arcconfig', 'file');
+  fs.symlinkSync(path.join('src', 'K2', '.arclint'), '.arclint', 'file');
+  fs.symlinkSync(path.join('src', 'K2', 'arclib'), 'arclib', 'dir');
 
   // copy Source Extensions
   unlinkIfExistsSync(path.join('src', 'error-logger-extensions'));
