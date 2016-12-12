@@ -172,7 +172,6 @@ module.exports = (grunt) => {
         '^[\\/]+build',
         '^[\\/]+electron',
         '^[\\/]+flow-typed',
-        '^[\\/]+src[\\/]+pro',
         '^[\\/]+spec_integration',
 
         // general dirs we never want

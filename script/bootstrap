@@ -38,10 +38,10 @@ function installPrivateResources() {
   console.log("\n-- Linking Nylas submodule resources --")
 
   const fs = require('fs-plus');
-  const proDir = path.resolve(path.join('src', 'pro'))
-  const canaryFileExists = fs.existsSync(path.join(proDir, "README.md"))
+  const privateDir = path.resolve(path.join('src', 'K2', 'packages', 'local-private'))
+  const canaryFileExists = fs.existsSync(path.join(privateDir, "README.md"))
   if (!canaryFileExists) {
-    console.log(`Could not find pro submodule at ${proDir}. Skipping...`)
+    console.log(`Could not find pro submodule at ${privateDir}. Skipping...`)
     return;
   }
 
@@ -50,15 +50,17 @@ function installPrivateResources() {
   }
 
   // copy Arc Files
-  fs.copySync(path.join(proDir, 'arc-N1'), '.')
+  fs.copySync(path.join('src', 'K2', '.arcconfig'), '.')
+  fs.copySync(path.join('src', 'K2', '.arclint'), '.')
+  fs.copySync(path.join('src', 'K2', 'arclib'), '.')
 
   // copy Source Extensions
   unlinkIfExistsSync(path.join('src', 'error-logger-extensions'));
-  fs.copySync(path.join(proDir, 'src'), 'src');
+  fs.copySync(path.join(privateDir, 'src'), 'src');
 
   // link Plugins
-  for (const plugin of fs.readdirSync(path.join(proDir, 'packages'))) {
-    const from = path.join(proDir, 'packages', plugin);
+  for (const plugin of fs.readdirSync(path.join(privateDir, 'packages'))) {
+    const from = path.join(privateDir, 'packages', plugin);
     const to = path.join(path.resolve('internal_packages'), plugin);
     unlinkIfExistsSync(to);
     fs.symlinkSync(from, to, 'dir');
