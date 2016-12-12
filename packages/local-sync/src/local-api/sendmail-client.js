@@ -3,7 +3,7 @@
 const fs = require('fs');
 const nodemailer = require('nodemailer');
 const mailcomposer = require('mailcomposer');
-const {HTTPError} = require('./sending-utils');
+const {HTTPError} = require('../shared/errors');
 
 const MAX_RETRIES = 1;
 
@@ -92,7 +92,7 @@ class SendmailClient {
     return msgData;
   }
 
-  _getBodyWithMessageIds(draft) {
+  _replaceBodyMessageIds(body, id) {
     const serverUrl = {
       local: 'http:\/\/lvh\.me:5100',
       development: 'http:\/\/lvh\.me:5100',
@@ -100,8 +100,8 @@ class SendmailClient {
       production: 'https:\/\/n1cloud\.nylas\.com',
     }[process.env];
     const regex = new RegExp(`${serverUrl}\/.+MESSAGE_ID`, 'g')
-    return draft.body.replace(regex, (match) => {
-      return match.replace('MESSAGE_ID', draft.id)
+    return body.replace(regex, (match) => {
+      return match.replace('MESSAGE_ID', id)
     })
   }
 
@@ -126,7 +126,7 @@ class SendmailClient {
 
   async sendCustomBody(draft, body, recipients) {
     const origBody = draft.body;
-    draft.body = this._getBodyWithMessageIds(draft);
+    draft.body = this._replaceBodyMessageIds(body);
     const envelope = {};
     for (const field of Object.keys(recipients)) {
       envelope[field] = recipients[field].map(r => r.email);

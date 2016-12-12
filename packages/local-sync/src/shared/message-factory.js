@@ -11,7 +11,17 @@ const Errors = require('./errors');
 const SNIPPET_SIZE = 100;
 const SNIPPET_MAX_SIZE = 255;
 
-function extractContacts(values = []) {
+// The input is the value of a to/cc/bcc/from header as parsed by the imap
+// library we're using, but it currently parses them in a weird format. If an
+// email is sent to a@example.com and b@example.com, the parsed output of the
+// 'to' header is ['a@example.com, b@example.com']. (Note both emails are in
+// the same string.) When fixed, this function will need to update accordingly.
+function extractContacts(input) {
+  if (!input || input.length === 0 || !input[0]) {
+    return [];
+  }
+  const s = `["${input[0].replace(/"/g, '\\"').replace(/, /g, '", "')}"]`;
+  const values = JSON.parse(s);
   return values.map(v => {
     const {name, address: email} = mimelib.parseAddresses(v).pop()
     return {name, email}
