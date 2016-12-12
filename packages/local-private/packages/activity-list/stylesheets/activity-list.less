@@ -1,0 +1,142 @@
+@import "ui-variables";
+
+.toolbar-activity {
+  order: 100;
+  position: relative;
+
+  .unread-count {
+    display: none;
+    &.active {
+      display: inline-block;
+      background: @component-active-color;
+      text-align: center;
+      color: @white;
+      border-radius: @border-radius-base;
+      font-size: 8px;
+      padding: 0 4px;
+      position: absolute;
+      right: -7px;
+      top: 5px;
+      line-height: 11px;
+    }
+  }
+  .activity-toolbar-icon {
+    margin-top: 20px;
+    background: @gray;
+    &.unread {
+      background: @component-active-color;
+    }
+  }
+}
+
+.activity-list-container {
+  width: 260px;
+  overflow: hidden;
+  font-size: @font-size-small;
+  color: @text-color-subtle;
+  .spacer {
+    flex: 1 1 0;
+  }
+
+  height: 282px;
+  &.empty {
+    height: 182px;
+  }
+
+  .empty {
+      text-align: center;
+      padding: @padding-base-horizontal * 2;
+      padding-top: @padding-base-vertical * 8;
+      img.logo {
+        background-color: @text-color-very-subtle;
+      }
+      .text {
+        margin-top: @padding-base-vertical * 6;
+        color: @text-color-very-subtle;
+      }
+  }
+
+  .activity-list-item {
+    padding: @padding-small-vertical @padding-small-horizontal;
+    white-space: nowrap;
+    border-bottom: 1px solid @border-color-primary;
+    cursor: default;
+    &.unread {
+      color: @text-color;
+      background: @background-primary;
+      &:hover {
+        background: darken(@background-primary, 2%);
+      }
+      .action-message {
+        font-weight: 600;
+      }
+    }
+
+    &:hover {
+      background: darken(@background-secondary, 2%);
+    }
+
+    .disclosure-triangle {
+      padding-top: 5px;
+      padding-bottom: 0;
+    }
+    .activity-icon-container {
+      flex-shrink: 0;
+    }
+    .activity-icon {
+      vertical-align: text-bottom;
+    }
+    .action-message, .title {
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .timestamp {
+      color: @text-color-very-subtle;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      flex-shrink: 0;
+      padding-left: 5px;
+    }
+  }
+  .activity-list-toggle-item {
+    height: 30px;
+    white-space: nowrap;
+    background: @background-secondary;
+    cursor: default;
+    overflow-y: hidden;
+    transition-property: all;
+    transition-duration: .5s;
+    transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+    &:last-child {
+      border-bottom: 1px solid @border-color-primary;
+    }
+    .action-message {
+      padding: @padding-small-vertical @padding-small-horizontal;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .timestamp {
+      padding: @padding-small-vertical @padding-small-horizontal;
+      color: @text-color-very-subtle;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+  }
+  .activity-toggle-container {
+    &.hidden {
+      .activity-list-toggle-item {
+        height: 0;
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+    }
+  }
+}
+
+body.platform-win32,
+body.platform-linux {
+  .toolbar-activity {
+    margin-right: @padding-base-horizontal;
+  }
+}

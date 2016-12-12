@@ -1,0 +1,218 @@
+@import 'ui-variables';
+
+.mail-merge-workspace {
+  width: 100%;
+  height: 250px;
+  z-index: 1;
+  border-top: 1px solid lightgrey;
+  padding: @padding-large-vertical * 1.2 @padding-large-horizontal * 1.2;
+
+  .selection-controls {
+    display: flex;
+    align-items: center;
+    color: @text-color-very-subtle;
+    margin-bottom: @padding-small-horizontal;
+
+    .btn.btn-group {
+      padding: 0;
+      &:active {
+        background: initial;
+      }
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      height: 1.5em;
+      margin-right: 5px;
+      color: @text-color-very-subtle;
+
+      &:hover {
+        img {
+          background-color: @text-color-subtle;
+        }
+      }
+
+      .btn-prev,.btn-next {
+        height: 100%;
+        width: 15px;
+        img {
+          background-color: @text-color-very-subtle;
+        }
+        &:active {
+          background: darken(@btn-default-bg-color, 9%);
+        }
+      }
+      .btn-prev img {
+        transform: rotate(90deg) translate(-9px, -8px);
+      }
+      .btn-next img {
+        transform: rotate(-90deg) translate(9px, 8px);
+      }
+    }
+  }
+
+  .mail-merge-table {
+    height: 90%;
+
+    .editable-table-container {
+      width: 100%;
+      &>.key-commands-region {
+        width: initial;
+      }
+    }
+
+    .nylas-table.editable-table {
+      max-width: 700px;
+      font-size: 0.9em;
+
+      .table-row-header {
+        &.selected, th, th.selected {
+          background: initial;
+          border: 1px solid lighten(@border-color-secondary, 5%);
+        }
+      }
+
+      .table-row.table-row-header {
+        height: 35px;
+      }
+
+      .table-row {
+        height: 30px;
+      }
+
+      .numbered-cell {
+        width: 30px;
+      }
+
+      th.table-cell {
+        .mail-merge-token {
+          input {
+            cursor: -webkit-grab;
+          }
+        }
+      }
+      td.table-cell input {
+        cursor: default;
+      }
+      .table-cell:not(.numbered-cell) {
+        width: 120px;
+      }
+
+      .header-cell {
+        display: flex;
+        align-items: center;
+        height: 28px;
+        padding-left: 6px;
+      }
+    }
+  }
+}
+
+.generate-token-colors(@n, @i: 0) when (@i =< @n) {
+  @base-color: hsla(197 + (@i * 20), 58%, 95%, 1);
+  @text-color: darken(desaturate(@base-color, 28%), 49%);
+  @border-color: darken(@base-color, 8%);
+
+  .token-color-@{i}.mail-merge-token {
+    background-color: @base-color;
+    color: @text-color;
+    border-color: darken(@base-color, 8%);
+
+    img {
+      background-color: @text-color;
+    }
+  }
+  .mail-merge-participants-text-field {
+    .token.token-color-@{i} {
+      &.selected,&.dragging {
+        border-color: @text-color;
+      }
+    }
+  }
+  .generate-token-colors(@n, (@i + 1));
+}
+
+.generate-token-colors(4);
+
+.mail-merge-token {
+  border: 1px solid;
+  border-radius: 5px;
+  padding-left: 7px;
+  cursor: -webkit-grab;
+}
+
+.mail-merge-token-wrap,
+.n1-overlaid-component-anchor-container.mail-merge-token-wrap {
+  margin: 0 1px;
+  vertical-align: bottom;
+
+  .mail-merge-token {
+    padding: @padding-small-vertical * 0.5 @padding-small-horizontal * 0.5;
+    padding-right: 2px;
+    img {
+      margin-right: 10px;
+    }
+  }
+}
+
+.header-cell .mail-merge-token {
+  display: flex;
+  align-items: center;
+  height: 22px;
+
+  input {
+    max-width: 90%;
+    text-align: left;
+    height: 100%;
+    line-height: 100%;
+    color: inherit;
+    padding-bottom: 2px;
+  }
+}
+
+.mail-merge-participants-text-field {
+  .token {
+    box-shadow: none;
+    padding: 0;
+    border-radius: 5px;
+
+    .mail-merge-token {
+      display: flex;
+      align-items: center;
+      padding: 0 @padding-base-vertical;
+      font-size: 0.9em;
+      img {
+        margin-right: 10px;
+      }
+    }
+
+    &.selected, &.dragging {
+      background: none;
+      border-radius: 5px;
+    }
+  }
+}
+
+.mail-merge-subject-overlaid {
+  .toggle-preview {
+    top: 2px;
+    right: 22px;
+  }
+}
+
+.mail-merge-subject-text-field {
+  div[contenteditable] {
+    line-height: 21px;
+    font-weight: 400;
+    padding: 13px 0 9px 0;
+    min-width: 5em;
+    background-color: transparent;
+    border: none;
+    margin: 0;
+    &:empty:before {
+      content: attr(placeholder);
+      color: @text-color-very-subtle;
+    }
+  }
+}

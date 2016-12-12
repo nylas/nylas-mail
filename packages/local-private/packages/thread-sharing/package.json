@@ -1,0 +1,18 @@
+{
+  "name": "thread-sharing",
+  "version": "0.1.0",
+  "serverUrl": {
+    "development": "http://localhost:5009",
+    "staging": "https://share-staging.nylas.com",
+    "production": "https://share.nylas.com"
+  },
+
+  "title": "Thread Sharing",
+  "description": "Share a thread through the web.",
+  "main": "./lib/main",
+  "private": true,
+  "engines": {
+    "nylas": "*"
+  },
+  "license": "GPL-3.0"
+}

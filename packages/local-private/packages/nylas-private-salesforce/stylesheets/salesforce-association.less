@@ -1,0 +1,28 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+.message-list-salesforce-opportunity-bar {
+  background: @background-primary;
+  border-bottom: 1px solid @border-color-primary;
+  padding: 4px 15px 5px 15px;
+
+  .opp-picker {
+    padding-left: 15px;
+  }
+  .opp-name {
+    font-weight:@headings-font-weight;
+    padding-left: 0.5em;
+  }
+  .unlink {
+    font-size: @font-size-small;
+    padding-left: 0.5em;
+    a {
+      color: @text-color-subtle;
+      border-bottom: 1px solid @text-color-subtle;
+      &:hover {
+        color: darken(@text-color-link, 10%);
+        border-bottom: 1px solid darken(@text-color-link, 10%);
+      }
+    }
+  }
+}

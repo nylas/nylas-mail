@@ -1,0 +1,19 @@
+{
+  "name": "nylas-private-analytics",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Nylas Analytics",
+  "license": "Proprietary",
+  "private": true,
+  "windowTypes": {
+    "work": true
+  },
+  "engines": {
+    "nylas": "*"
+  },
+  "dependencies": {
+    "getmac": "1.x.x",
+    "analytics-node": "2.x.x",
+    "underscore": "^1.8"
+  }
+}

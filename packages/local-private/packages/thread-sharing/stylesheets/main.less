@@ -1,0 +1,51 @@
+@import "ui-variables";
+
+.thread-sharing-button {
+  order: -102;
+}
+
+.fixed-popover .thread-sharing-popover {
+  position: relative;
+  width: 265px;
+
+  .share-toggle {
+    padding: 7px 10px;
+    input {
+      margin-right: @spacing-half;
+    }
+  }
+
+  .share-input {
+    border-top: 2px solid rgba(0, 0, 0, 0.15);
+    padding: 10px 5px 0 5px;
+    input[type="text"] {
+      cursor: default;
+      -webkit-user-select: all;
+    }
+  }
+
+  .share-controls {
+    text-align: center;
+    padding: 10px;
+
+    .share-message {
+      color: @text-color-very-subtle;
+      margin-bottom: 10px;
+      font-size: @font-size-smaller;
+    }
+
+    button.btn + button.btn {
+      margin-left: 10px;
+    }
+  }
+
+  &.disabled {
+    .share-input input[type="text"] {
+      color: @text-color-very-subtle;
+      -webkit-user-select: none;
+    }
+    button.btn {
+      color: @text-color-very-subtle;
+    }
+  }
+}
