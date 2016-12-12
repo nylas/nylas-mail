@@ -10,7 +10,7 @@ import {
 } from 'nylas-exports'
 import SnoozeUtils from '../lib/snooze-utils'
 
-describe('Snooze Utils', function snoozeUtils() {
+xdescribe('Snooze Utils', function snoozeUtils() {
   beforeEach(() => {
     this.name = 'Snoozed Folder'
     this.accId = 123

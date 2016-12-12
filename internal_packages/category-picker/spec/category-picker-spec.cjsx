@@ -20,7 +20,7 @@ CategoryPickerPopover = require('../lib/category-picker-popover').default
 
 {Categories} = require 'nylas-observables'
 
-describe 'CategoryPickerPopover', ->
+xdescribe 'CategoryPickerPopover', ->
   beforeEach ->
     CategoryStore._categoryCache = {}
 

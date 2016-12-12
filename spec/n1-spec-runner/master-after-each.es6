@@ -5,7 +5,8 @@ class MasterAfterEach {
   setup(loadSettings, afterEach) {
     const styleElementsToRestore = NylasEnv.styles.getSnapshot();
 
-    afterEach(() => {
+    const self = this
+    afterEach(function masterAfterEach() {
       NylasEnv.packages.deactivatePackages();
       NylasEnv.menu.template = [];
 
@@ -19,10 +20,11 @@ class MasterAfterEach {
       ReactTestUtils.unmountAll();
 
       jasmine.unspy(NylasEnv, 'saveSync');
-      this.ensureNoPathSubscriptions();
+      self.ensureNoPathSubscriptions();
 
       NylasEnv.styles.restoreSnapshot(styleElementsToRestore);
 
+      this.removeAllSpies();
       waits(0);
     }); // yield to ui thread to make screen update more frequently
   }

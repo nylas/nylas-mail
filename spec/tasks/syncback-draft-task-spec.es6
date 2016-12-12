@@ -42,7 +42,7 @@ const remoteDraft = () => new Message(_.extend({}, testData, {
   version: 2,
 }));
 
-describe('SyncbackDraftTask', function syncbackDraftTask() {
+xdescribe('SyncbackDraftTask', function syncbackDraftTask() {
   beforeEach(() => {
     spyOn(AccountStore, "accountForEmail").andCallFake((email) =>
       new Account({clientId: 'local-abc123', serverId: 'abc123', emailAddress: email})

@@ -30,12 +30,12 @@ export default class ListDataSource {
 
     return () => {
       this._emitter.removeListener('trigger', eventHandler);
-      process.nextTick(() => {
+      setTimeout(() => {
         if (this._emitter.listenerCount('trigger') === 0) {
           this._cleanedup = true;
           this.cleanup();
         }
-      });
+      }, 0);
     };
   }
 

@@ -6,7 +6,7 @@ class ServiceRegistry {
 
   withService(name, callback) {
     if (this._services[name]) {
-      process.nextTick(() => callback(this._services[name]));
+      setTimeout(() => callback(this._services[name]), 0);
     } else {
       this._waitingForServices[name] = this._waitingForServices[name] || [];
       this._waitingForServices[name].push(callback);

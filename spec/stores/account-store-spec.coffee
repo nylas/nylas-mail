@@ -1,13 +1,12 @@
 _ = require 'underscore'
-KeyManager = require '../../src/key-manager'
-NylasAPI = require '../../src/flux/nylas-api'
+KeyManager = require('../../src/key-manager').default
+NylasAPI = require('../../src/flux/nylas-api').default
 NylasAPIRequest = require('../../src/flux/nylas-api-request').default
-AccountStore = require '../../src/flux/stores/account-store'
+AccountStore = require('../../src/flux/stores/account-store').default
 Account = require('../../src/flux/models/account').default
 Actions = require('../../src/flux/actions').default
 
-
-describe "AccountStore", ->
+xdescribe "AccountStore", ->
   beforeEach ->
     @instance = null
     @constructor = AccountStore.constructor
@@ -160,7 +159,7 @@ describe "AccountStore", ->
       @spyOnConfig()
       @calledOptions = calledOptions = []
 
-      spyOn(NylasAPIRequest.prototype, 'run').andCallFake () ->
+      spyOn(NylasAPIRequest.prototype, 'run').andCallFake ->
         options = this.options
         calledOptions.push(this.options)
         if options.accountId is 'return-api-error'

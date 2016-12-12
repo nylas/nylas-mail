@@ -6,7 +6,7 @@
  SyncbackCategoryTask,
  DatabaseTransaction} = require "nylas-exports"
 
-describe "SyncbackCategoryTask", ->
+xdescribe "SyncbackCategoryTask", ->
   describe "performRemote", ->
     pathOf = (fn) ->
       fn.calls[0].args[0].path

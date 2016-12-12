@@ -36,7 +36,7 @@ export default class AutoUpdateManager extends EventEmitter {
       this._updateFeedURL
     );
 
-    process.nextTick(() => this.setupAutoUpdater());
+    setTimeout(() => this.setupAutoUpdater(), 0);
   }
 
   parameters = () => {

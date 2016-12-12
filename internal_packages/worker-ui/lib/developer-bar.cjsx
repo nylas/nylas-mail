@@ -96,7 +96,7 @@ class DeveloperBar extends React.Component
 
     else if @state.section == 'local-sync'
       expandedDiv = <div className="expanded-section local-sync">
-        <InjectedComponentSet matching={{role: "Developer:LocalSyncUI"}} /> 
+        <InjectedComponentSet matching={{role: "Developer:LocalSyncUI"}} />
       </div>
 
     else if @state.section == 'providerSyncbackRequests'

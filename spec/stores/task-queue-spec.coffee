@@ -14,7 +14,7 @@ TaskRegistry = require('../../src/registries/task-registry').default
  TaskAA,
  TaskBB} = require('./task-subclass')
 
-describe "TaskQueue", ->
+xdescribe "TaskQueue", ->
 
   makeUnstartedTask = (task) ->
     task

@@ -106,10 +106,10 @@ class ActionBridge {
     // threw React exceptions when calling setState from an IPC callback, and the debugger
     // often refuses to stop at breakpoints immediately inside IPC callbacks.
 
-    // These issues go away when you add a process.nextTick. So here's that.
+    // These issues go away when you add a setTimeout. So here's that.
     // I believe this resolves issues like https://sentry.nylas.com/sentry/edgehill/group/2735/,
     // which are React exceptions in a direct stack (no next ticks) from an IPC event.
-    process.nextTick(() => {
+    setTimeout(() => {
       console.debug(printToConsole, `ActionBridge: ${this.initiatorId} Action Bridge Received: ${name}`);
 
       const args = JSON.parse(json, Utils.registeredObjectReviver);
@@ -130,7 +130,7 @@ class ActionBridge {
       } else {
         throw new Error(`${this.initiatorId} received unknown action-bridge event: ${name}`);
       }
-    });
+    }, 0);
   }
 
   onRebroadcast(target, name, args) {

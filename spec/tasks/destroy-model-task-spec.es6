@@ -6,7 +6,7 @@ import {
   DestroyModelTask,
   DatabaseTransaction} from 'nylas-exports'
 
-describe('DestroyModelTask', function destroyModelTask() {
+xdescribe('DestroyModelTask', function destroyModelTask() {
   beforeEach(() => {
     this.existingModel = new Model()
     this.existingModel.clientId = "local-123"

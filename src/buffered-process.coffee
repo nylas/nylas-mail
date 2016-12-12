@@ -195,7 +195,7 @@ class BufferedProcess
     try
       @process = ChildProcess.spawn(command, args, options)
     catch spawnError
-      process.nextTick => @handleError(spawnError)
+      setTimeout((=> @handleError(spawnError)), 0)
 
   handleEvents: (stdout, stderr, exit) ->
     return unless @process?

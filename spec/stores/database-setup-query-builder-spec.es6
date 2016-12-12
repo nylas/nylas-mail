@@ -3,7 +3,7 @@ import TestModel from '../fixtures/db-test-model';
 import Attributes from '../../src/flux/attributes';
 import DatabaseSetupQueryBuilder from '../../src/flux/stores/database-setup-query-builder';
 
-describe("DatabaseSetupQueryBuilder", function DatabaseSetupQueryBuilderSpecs() {
+xdescribe("DatabaseSetupQueryBuilder", function DatabaseSetupQueryBuilderSpecs() {
   beforeEach(() => {
     this.builder = new DatabaseSetupQueryBuilder();
   });

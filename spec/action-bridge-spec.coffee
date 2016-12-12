@@ -2,7 +2,7 @@ Reflux = require 'reflux'
 Actions = require('../src/flux/actions').default
 Message = require('../src/flux/models/message').default
 DatabaseStore = require('../src/flux/stores/database-store').default
-AccountStore = require '../src/flux/stores/account-store'
+AccountStore = require('../src/flux/stores/account-store').default
 ActionBridge = require('../src/flux/action-bridge').default
 _ = require 'underscore'
 

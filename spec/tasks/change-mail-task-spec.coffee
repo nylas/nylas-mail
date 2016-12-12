@@ -14,7 +14,7 @@ _ = require 'underscore'
  Utils,
  ChangeMailTask} = require 'nylas-exports'
 
-describe "ChangeMailTask", ->
+xdescribe "ChangeMailTask", ->
   beforeEach ->
     @threadA = new Thread(id: 'A', folders: [new Folder(id:'folderA')])
     @threadB = new Thread(id: 'B', folders: [new Folder(id:'folderB')])

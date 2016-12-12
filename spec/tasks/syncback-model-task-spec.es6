@@ -13,7 +13,7 @@ class TestTask extends SyncbackModelTask {
   }
 }
 
-describe('SyncbackModelTask', function syncbackModelTask() {
+xdescribe('SyncbackModelTask', function syncbackModelTask() {
   beforeEach(() => {
     this.testModel = new Model({accountId: 'account-123'})
     spyOn(DatabaseTransaction.prototype, "persistModel")

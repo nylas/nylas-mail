@@ -1,5 +1,5 @@
 Contact = require("../../src/flux/models/contact").default
-AccountStore = require "../../src/flux/stores/account-store"
+AccountStore = require("../../src/flux/stores/account-store").default
 Account = require("../../src/flux/models/account").default
 
 contact_1 =

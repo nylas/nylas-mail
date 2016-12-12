@@ -19,7 +19,7 @@ const participant3 = new Contact({
   name: 'Evan Morikawa',
 });
 
-describe('ParticipantsTextField', function ParticipantsTextFieldSpecs() {
+xdescribe('ParticipantsTextField', function ParticipantsTextFieldSpecs() {
   beforeEach(() => {
     spyOn(NylasEnv, "isMainWindow").andReturn(true)
     this.propChange = jasmine.createSpy('change')

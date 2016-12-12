@@ -9,7 +9,7 @@
  DatabaseStore,
  DatabaseTransaction} = require "nylas-exports"
 
-describe "DestroyCategoryTask", ->
+xdescribe "DestroyCategoryTask", ->
   pathOf = (fn) ->
     fn.calls[0].args[0].path
 

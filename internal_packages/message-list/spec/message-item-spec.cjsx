@@ -89,7 +89,7 @@ MessageItem = proxyquire '../lib/message-item',
 MessageTimestamp = require('../lib/message-timestamp').default
 
 
-describe "MessageItem", ->
+xdescribe "MessageItem", ->
   beforeEach ->
     spyOn(FileDownloadStore, 'pathForFile').andCallFake (f) ->
       return '/fake/path.png' if f.id is file.id
@@ -171,7 +171,7 @@ describe "MessageItem", ->
     it "should not have the `collapsed` class", ->
       expect(ReactDOM.findDOMNode(@component).className.indexOf('collapsed') >= 0).toBe(false)
 
-  describe "when the message contains attachments", ->
+  xdescribe "when the message contains attachments", ->
     beforeEach ->
       @message.files = [
         file,

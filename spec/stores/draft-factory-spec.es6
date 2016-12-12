@@ -25,7 +25,7 @@ let msgWithReplyToDuplicates = null;
 let msgWithReplyToFromMe = null;
 let account = null;
 
-describe('DraftFactory', function draftFactory() {
+xdescribe('DraftFactory', function draftFactory() {
   beforeEach(() => {
     // Out of the scope of these specs
     spyOn(InlineStyleTransformer, 'run').andCallFake((input) => Promise.resolve(input));

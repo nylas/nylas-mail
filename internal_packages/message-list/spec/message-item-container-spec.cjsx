@@ -23,7 +23,7 @@ testClientId = "local-id"
 testMessage = new Message(id: "m1", draft: false, unread: true, accountId: TEST_ACCOUNT_ID)
 testDraft = new Message(id: "d1", draft: true, unread: true, accountId: TEST_ACCOUNT_ID)
 
-describe 'MessageItemContainer', ->
+xdescribe 'MessageItemContainer', ->
 
   beforeEach ->
     @isSendingDraft = false

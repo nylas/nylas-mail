@@ -2,16 +2,16 @@ _ = require 'underscore'
 Rx = require 'rx-lite'
 {NylasTestUtils} = require 'nylas-exports'
 Contact = require('../../src/flux/models/contact').default
-NylasAPI = require '../../src/flux/nylas-api'
+NylasAPI = require('../../src/flux/nylas-api').default
 NylasAPIRequest = require('../../src/flux/nylas-api-request').default
 ContactStore = require '../../src/flux/stores/contact-store'
 ContactRankingStore = require '../../src/flux/stores/contact-ranking-store'
 DatabaseStore = require('../../src/flux/stores/database-store').default
-AccountStore = require '../../src/flux/stores/account-store'
+AccountStore = require('../../src/flux/stores/account-store').default
 
 {mockObservable} = NylasTestUtils
 
-describe "ContactStore", ->
+xdescribe "ContactStore", ->
   beforeEach ->
     spyOn(NylasEnv, "isMainWindow").andReturn true
 

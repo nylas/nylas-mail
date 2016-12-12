@@ -8,7 +8,7 @@ Task = require('../../src/flux/tasks/task').default
 
 noop = ->
 
-describe "Task", ->
+xdescribe "Task", ->
   describe "initial state", ->
     it "should set up queue state with additional information about local/remote", ->
       task = new Task()
