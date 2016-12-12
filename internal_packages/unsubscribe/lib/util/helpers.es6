@@ -4,9 +4,7 @@ module.exports = {
   },
 
   logIfDebug: (message) => {
-    if (this.debug()) {
-      console.debug(message);
-    }
+    console.debug(NylasEnv.config.get("unsubscribe.debug"), message);
   },
 
   shortenURL(url) {

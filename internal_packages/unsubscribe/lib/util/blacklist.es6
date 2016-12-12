@@ -42,8 +42,8 @@ module.exports = {
   },
 
   // Electron has Jquery and other limitations that block certain known URLs
-  electronCanOpen(url) {
-    return !this.onBlacklist(blacklistExpressions.urls, url);
+  electronCantOpen(url) {
+    return this.onBlacklist(blacklistExpressions.urls, url);
   },
 
   // Some emails fail and are ignored in favor of other links:
