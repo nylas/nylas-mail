@@ -4,6 +4,7 @@
   "description": "The local sync engine for Nylas N1",
   "main": "./main",
   "dependencies": {
+    "encoding": "0.1.12",
     "googleapis": "9.0.0",
     "hapi": "13.4.1",
     "hapi-auth-basic": "4.2.0",
@@ -20,10 +21,9 @@
     "rx": "4.1.0",
     "sequelize": "3.27.0",
     "sqlite3": "https://github.com/bengotow/node-sqlite3/archive/bengotow/usleep-v3.1.4.tar.gz",
-    "underscore": "1.8.3",
     "striptags": "2.1.1",
-    "vision": "4.1.0",
-    "encoding": "0.1.12"
+    "underscore": "1.8.3",
+    "vision": "4.1.0"
   },
   "scripts": {
     "test": "../../../../node_modules/.bin/electron ../../../../ --test --enable-logging --spec-directory=$(pwd)/spec"
