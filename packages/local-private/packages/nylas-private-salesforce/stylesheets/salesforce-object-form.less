@@ -1,0 +1,53 @@
+@import "ui-variables";
+
+.salesforce-object-form-wrap {
+  overflow-y: auto;
+}
+.salesforce-object-form {
+  flex: 1;
+  position: relative;
+  .spinner {
+    z-index: 1001;
+  }
+  .form-name {
+    padding: 0 22px;
+    h1 {
+      margin: 22px 0;
+    }
+  }
+  .form-footer {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    z-index: 9999;
+  }
+  fieldset {
+    &:last-child {
+      margin-bottom: 44px;
+    }
+    position: relative;
+    // z-index set by generated-form.cjsx
+    border-bottom: 0;
+  }
+
+  &.schema-error {
+    display: flex;
+    color: @color-error;
+    align-items: center;
+    justify-content: center;
+    max-width: 540px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+}
+.salesforce-delete-object {
+  position: absolute;
+  right: 0;
+  padding: 22px 22px 0 22px;
+  text-align: right;
+  z-index: 10;
+  background: white;
+  &.confirm-control {
+    padding-top: 12px;
+  }
+}

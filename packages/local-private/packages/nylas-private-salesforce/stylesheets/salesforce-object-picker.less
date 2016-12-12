@@ -1,0 +1,272 @@
+@import "ui-variables";
+
+@lead: #f88962;
+@task: #4bc076;
+@case: #f2cf5b;
+@account: #7f8de1;
+@contact: #a094ed;
+@opportunity: #fcb95b;
+@lead_convert: #f88962;
+@emailmessage: #95aec5;
+
+body.platform-win32 {
+  .salesforce .cell-container {
+    border-radius: 0;
+  }
+}
+
+.salesforce {
+
+  .linkable-object-name {
+    flex: 1;
+    font-weight: 600;
+    font-size: 13.6px;
+    margin-right: 18px;
+    &.Lead { color: @lead; }
+    &.Task { color: @task; }
+    &.Case { color: @case; }
+    &.Account { color: @account; }
+    &.Contact { color: @contact; }
+    &.Opportunity { color: @opportunity; }
+    &.EmailMessage { color: @emailmessage; }
+  }
+
+  h2.sidebar-h2 {
+    // font-size: 11px;
+    // font-weight: @font-weight-semi-bold;
+    // text-transform: uppercase;
+    // color: @text-color-very-subtle;
+    // border-bottom: 1px solid @border-color-divider;
+    // border-bottom: 0;
+    // margin: 1.5em 0 1em 0;
+    // &:after {
+    //   background-image: url(nylas://nylas-private-salesforce/static/images/sidebar-section-divider@2x.png);
+    //   background-repeat: repeat-x;
+    //   width: 100%;
+    //   height: 3px;
+    // }
+    // &:first-child {
+    //   margin-top: 0;
+    // }
+  }
+
+  .cell-container {
+    position: relative;
+    font-size: 13px;
+    box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.08);
+    border-radius: 4px;
+    margin: 0 0 12px 0;
+  }
+
+  .cell-item {
+    &:hover {
+      cursor: default;
+    }
+    padding: 8px 8.5px 8px 8.5px;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    position: relative;
+    &.large-cell {
+      padding: 14px 12px 14px 12px;
+    }
+    &:first-child {
+      border-top: 0;
+    }
+
+    &.action-item {
+      padding-left: 38px;
+      padding-right: 32px;
+      font-size: 11px;
+      color: @text-color-subtle;
+      box-shadow: inset 0 0 0.5px 0 rgba(0,0,0,0.15);
+    }
+  }
+
+  .action-icon {
+    position: relative;
+    top: -1px;
+  }
+
+  .linkable-object-details {
+    font-size: 11px;
+    font-weight: @font-weight-medium;
+    color: @text-color-subtle;
+  }
+
+}
+
+.salesforce-object-picker {
+  .item {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .salesforce-suggestion {
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding-left: 25px;
+  }
+
+  .sf-icon-wrap {
+    left: 0;
+  }
+
+  .tokenizing-field {
+    .token {
+      .sf-icon-wrap {
+        left: 3px;
+      }
+    }
+  }
+}
+
+.salesforce-login {
+  margin: 0 10px 10px 10px;
+}
+
+.salesforce-manually-relate-popover {
+  width: 280px;
+  padding: 10px;
+
+  h5 {
+    margin: 0;
+    color: #afafaf;
+  }
+
+  input {
+    border: none !important;
+  }
+
+  .header-container {
+    padding: 0 !important;
+  }
+
+  .content-container {
+    background: white !important;
+    max-height: 300px;
+  }
+
+  .salesforce-object-picker {
+    padding: 10px 0 0 0;
+  }
+
+  .placeholder {
+    font-weight: normal !important;
+  }
+}
+
+.related-objects-wrap {
+  a{text-decoration: none}
+
+  .replica-status {
+    position: absolute;
+    right: 15px;
+    top: 8px;
+    .synced { display: none; }
+    .syncing { display: block; }
+  }
+  .has-replica {
+    .replica-status {
+      .synced { display: block; }
+      .syncing { display: none; }
+    }
+  }
+
+  .salesforce-prompt {
+    text-align: center;
+    color: fade(@text-color, 30%);
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    p {
+      margin: 10px 0 0 0;
+    }
+  }
+
+  .salesforce-no-connect-placeholder {
+    text-align: center;
+    margin: 25px 0;
+  }
+
+  h3.sidebar-h3 {
+    font-size: @font-size-smaller;
+    font-weight: @font-weight-normal;
+    margin: 1em 0 0.4em 0;
+  }
+  .tokenizing-field-input, .menu .header-container, .tokenizing-field {
+    border-bottom: 0;
+  }
+
+  .tokenizing-field-input {
+    background: @white;
+
+    overflow: hidden;
+    padding: 0 5px 5px 5px;
+    margin-left: 0;
+    .placeholder {
+      font-size: 14px;
+    }
+
+    .token {
+      padding: 0 20px 0 28px;
+      margin: 5px 5px 0 0;
+
+      &.selected {
+        border: 0;
+      }
+    }
+
+    input[type=text] {
+      border: 0;
+      box-shadow: none;
+      margin: 5px 0 0 0;
+      padding: 0;
+      line-height: 26px;
+    }
+  }
+
+  .sidebar-item {
+    position: relative;
+  }
+
+  .cell-container:hover {
+    .unassociate-object {
+      display: block;
+    }
+  }
+  .unassociate-object {
+    display: none;
+    cursor: default;
+    line-height: 15px;
+    font-size: 15px;
+    position: absolute;
+    right: -10px;
+    top: -10px;
+  }
+  img.colorfill {
+    background: @source-list-active-color;
+  }
+
+  .association-picker {
+    display: flex;
+    flex-direction: column;
+
+    .tokenizing-field-input {
+      border: 1px solid rgba(0,0,0,0.11);
+    }
+
+    .spacer {
+      padding: 5px;
+    }
+  }
+
+  .new-links {
+    margin-top: 10px;
+  }
+}
+
+.salesforce-sync-message-status {
+  padding-left: 20px;
+}

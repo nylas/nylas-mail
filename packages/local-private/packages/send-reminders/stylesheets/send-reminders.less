@@ -1,0 +1,89 @@
+@import "ui-variables";
+@reminders-background-color: #f6f6fe;
+@reminders-color: #5a31e1;
+
+.send-reminders-popover {
+  .section.send-reminders-footer {
+    .reminders-label {
+      color: @text-color-very-subtle;
+      font-size: 0.8em;
+      min-height: 36px;
+      .reminder-date {
+        font-weight: bold;
+      }
+    }
+
+    .btn-cancel {
+      width: 100%;
+      margin-top: 5px;
+    }
+  }
+}
+
+.send-reminders-toolbar-button {
+  order: -102;
+}
+
+.thread-list {
+  .list-item.focused {
+    .timestamp.send-reminders-thread-timestamp {
+      color: #fff;
+      img {
+        background-color: #fff;
+      }
+    }
+  }
+
+  .timestamp.send-reminders-thread-timestamp {
+    opacity: 0.82;
+    color: #979797;
+    img {
+      background-color: #979797;
+      margin-top: -3px;
+      padding-right: 6px;
+    }
+  }
+}
+
+.send-reminders-header {
+  color: @reminders-color;
+  background: linear-gradient(to bottom, #fbfafe 0%, #fff 25%);
+  padding-top: 13px;
+  padding-bottom: 10px;
+  cursor: default;
+  margin-top: -19px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #e7e1fb;
+  img {
+    background-color: @reminders-color;
+    margin-top: -6px;
+    margin-right: 10px;
+  }
+}
+.message-list-headers .send-reminders-header {
+  padding-left: 15px;
+  margin-top: 0;
+  .reminder-date {
+    font-weight: bold;
+    margin-left: 18px;
+  }
+}
+
+.thread-list .list-item.thread-list-reminder-item {
+  background-color: @reminders-background-color;
+
+  &.unread {
+    background-color: @reminders-background-color;
+    &:not(.focused):not(.selected) {
+      background-color: @reminders-background-color;
+    }
+  }
+
+  &.focused,&.selected {
+    background: @list-focused-bg;
+  }
+  .thread-icon-reminder {
+    margin-top: 1px;
+    background-image:url(../static/images/thread-list/icon-reminder@2x.png);
+  }
+}

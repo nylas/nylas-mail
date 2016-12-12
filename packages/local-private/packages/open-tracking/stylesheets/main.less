@@ -1,0 +1,88 @@
+@import "ui-variables";
+@import "ui-mixins";
+
+@open-tracking-color: #7C19CC;
+
+.open-tracking-icon img {
+  vertical-align: initial;
+}
+
+.open-tracking-icon img.content-mask.unopened {
+  background-color: fadeout(@open-tracking-color, 80%);
+  cursor: default;
+}
+.open-tracking-icon img.content-mask.opened {
+  background-color: @open-tracking-color;
+  cursor: pointer;
+}
+
+.list-item.focused, .list-item.selected {
+  .open-tracking-icon img.content-mask.unopened {
+    background-color: fadeout(@text-color-inverse, 70%);
+  }
+  .open-tracking-icon img.content-mask.opened {
+    background-color: @text-color-inverse;
+  }
+}
+
+.open-tracking-icon .open-count {
+  display: inline-block;
+  position: relative;
+  left: -16px;
+  text-align: center;
+
+  background-color: @text-color-link;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.open-tracking-icon {
+  width: 15px;
+  margin: 0 2px;
+}
+
+.open-tracking-message-status {
+  color: @text-color-very-subtle;
+  margin-left: 10px;
+  &.unopened {
+    img.content-mask {
+      background-color: @text-color-very-subtle;
+    }
+  }
+  &.opened {
+    cursor: pointer;
+    img.content-mask {
+      background-color: @open-tracking-color;
+    }
+  }
+}
+
+.open-tracking-message-popover {
+  width: 200px;
+  max-height: 240px;
+  .open-tracking-header {
+    padding: @padding-base-vertical @padding-base-horizontal 0 @padding-base-horizontal;
+    text-align: center;
+    color: @text-color-subtle;
+    font-weight: 600;
+  }
+  .open-history-container {
+    max-height: 216px;
+    padding: 0 @padding-base-horizontal @padding-base-vertical @padding-base-horizontal;
+    overflow: auto;
+    .open-action {
+      color: @text-color-subtle;
+      .recipient {
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+      .spacer {
+        flex: 1 1 0;
+      }
+      .timestamp {
+        color: @text-color-very-subtle;
+        flex-shrink: 0;
+      }
+    }
+  }
+}
