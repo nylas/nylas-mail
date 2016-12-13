@@ -65,6 +65,7 @@ The Nylas N1 user interface is styled using CSS, which means it's easy to modify
 - [Firefox](https://github.com/darshandsoni/n1-firefox-theme)
 - [Gmail](https://github.com/dregitsky/n1-gmail-theme)
 - [Darkish](https://github.com/dyrnade/N1-Darkish)
+- [Slack](https://github.com/jodyheavener/N1-Slack) inspired theme
 
 #### To install community themes:
 
@@ -94,7 +95,7 @@ Great starting points for creating your own plugins!
 #### Community Plugins
 
 Note these are not tested or officially supported by Nylas, but we still think they are really cool! If you find bugs with them, please open GitHub issues on their individual project pages, not the N1 repo page. Thanks!
-
+- [Thread Age](https://github.com/jodyheavener/N1-Thread-Age)
 - [Jiffy](http://noahbuscher.github.io/N1-Jiffy/)—Insert animated GIFs
 - [Weather](https://github.com/jackiehluo/n1-weather)
 - [Todoist](https://github.com/alexfruehwirth/N1TodoistIntegration)

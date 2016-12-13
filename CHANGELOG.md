@@ -1,5 +1,11 @@
 # N1 Changelog
 
+### 0.4.402 (12/12/16)
+
+- Features:
+
+  + Salesforce Plugin enabled for everyone
+
 ### 0.4.401 (12/05/16)
 
 - Fixes:
