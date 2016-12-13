@@ -262,18 +262,18 @@ class IMAPConnection extends EventEmitter {
     }
 
     const {operation, resolve, reject} = this._currentOperation;
-    const result = operation.run(this._db, this);
-    if (result.constructor.name !== "Promise") {
+    const resultPromise = operation.run(this._db, this);
+    if (resultPromise.constructor.name !== "Promise") {
       reject(new Error(`Expected ${operation.constructor.name} to return promise.`))
     }
 
-    result.then(() => {
+    resultPromise.then((maybeResult) => {
       this._currentOperation = null;
       this._logger.info({
         operation_type: operation.constructor.name,
         operation_description: operation.description(),
       }, `Finished sync operation`)
-      resolve();
+      resolve(maybeResult);
       this.processNextOperation();
     })
     .catch((err) => {
