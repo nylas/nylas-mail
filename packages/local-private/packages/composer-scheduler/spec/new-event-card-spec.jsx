@@ -24,7 +24,7 @@ import {
 
 const now = window.testNowMoment
 
-describe('NewEventCard', function newEventCard() {
+xdescribe('NewEventCard', function newEventCard() {
   beforeEach(() => {
     this.session = null
     prepareDraft.call(this)

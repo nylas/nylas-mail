@@ -27,7 +27,7 @@ const makeButton = (initialState, metadataValue) => {
   return button
 };
 
-describe('SendLaterButton', function sendLaterButton() {
+xdescribe('SendLaterButton', function sendLaterButton() {
   beforeEach(() => {
     spyOn(DateUtils, 'format').andReturn('formatted')
   });

@@ -19,7 +19,7 @@ function messagesFromFixture({Message}, folder, name) {
   return {msgA, msgB};
 }
 
-describe('threading', function threadingSpecs() {
+xdescribe('threading', function threadingSpecs() {
   beforeEach(() => {
     waitsForPromise({timeout: 1000}, async () => {
       await LocalDatabaseConnector.ensureAccountDatabase(ACCOUNT_ID);

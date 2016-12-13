@@ -15,7 +15,7 @@ function StubDiv() {
   return <div />
 }
 
-describe('Form Builder', function describeBlock() {
+xdescribe('Form Builder', function describeBlock() {
   beforeEach(() => {
     for (let i = 0; i < testData.fieldsets.length; i++) {
       const fieldset = testData.fieldsets[i];

@@ -19,7 +19,7 @@ import {
 
 const now = window.testNowMoment;
 
-describe('SchedulerComposerButton', function schedulerComposerButton() {
+xdescribe('SchedulerComposerButton', function schedulerComposerButton() {
   beforeEach(() => {
     this.session = null
     spyOn(Actions, "openPopover").andCallThrough();

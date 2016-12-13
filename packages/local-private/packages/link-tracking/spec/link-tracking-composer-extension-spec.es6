@@ -29,7 +29,7 @@ const nodeForHTML = (html) => {
   return node;
 }
 
-describe('Link tracking composer extension', function linkTrackingComposerExtension() {
+xdescribe('Link tracking composer extension', function linkTrackingComposerExtension() {
   describe("applyTransformsForSending", () => {
     beforeEach(() => {
       this.draft = new Message({accountId: "test"});
