@@ -1,0 +1,1356 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width">
+<link rel="stylesheet" href="http://mta.mit.edu/sites/all/modules/custom/mit_newsletter/templates/assets/css/ink.css">
+<link rel="stylesheet" href="http://mta.mit.edu/sites/all/modules/custom/mit_newsletter/templates/assets/css/styles.css">
+
+<style type="text/css">
+	@media only screen and (max-width: 600px){
+		table[class=body] img{
+			width:auto !important;
+			height:auto !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] center{
+			min-width:0 !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .container{
+			width:95% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .row{
+			width:100% !important;
+			display:block !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .wrapper{
+			display:block !important;
+			padding-right:0 !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns,table[class=body] .column{
+			table-layout:fixed !important;
+			float:none !important;
+			width:100% !important;
+			padding-right:0px !important;
+			padding-left:0px !important;
+			display:block !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .wrapper.first .columns,table[class=body] .wrapper.first .column{
+			display:table !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] table.columns td,table[class=body] table.column td{
+			width:100% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.one,table[class=body] .column td.one{
+			width:8.333333% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.two,table[class=body] .column td.two{
+			width:16.666666% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.three,table[class=body] .column td.three{
+			width:25% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.four,table[class=body] .column td.four{
+			width:33.333333% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.five,table[class=body] .column td.five{
+			width:41.666666% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.six,table[class=body] .column td.six{
+			width:50% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.seven,table[class=body] .column td.seven{
+			width:58.333333% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.eight,table[class=body] .column td.eight{
+			width:66.666666% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.nine,table[class=body] .column td.nine{
+			width:75% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.ten,table[class=body] .column td.ten{
+			width:83.333333% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.eleven,table[class=body] .column td.eleven{
+			width:91.666666% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.twelve,table[class=body] .column td.twelve{
+			width:100% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] td.offset-by-one,table[class=body] td.offset-by-two,table[class=body] td.offset-by-three,table[class=body] td.offset-by-four,table[class=body] td.offset-by-five,table[class=body] td.offset-by-six,table[class=body] td.offset-by-seven,table[class=body] td.offset-by-eight,table[class=body] td.offset-by-nine,table[class=body] td.offset-by-ten,table[class=body] td.offset-by-eleven{
+			padding-left:0 !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] table.columns td.expander{
+			width:1px !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .right-text-pad,table[class=body] .text-pad-right{
+			padding-left:10px !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .left-text-pad,table[class=body] .text-pad-left{
+			padding-right:10px !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .hide-for-small,table[class=body] .show-for-desktop{
+			display:none !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .show-for-small,table[class=body] .hide-for-desktop{
+			display:inherit !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .row.footer .wrapper .seven.column,table[class=body] .row.footer .wrapper .five.column.last{
+			width:90% !important;
+			padding-left:10px !important;
+			padding-right:10px !important;
+		}
+
+}</style></head>
+<body style="width: 100% !important;min-width: 100%;-webkit-text-size-adjust: 100%;-ms-text-size-adjust: 100%;margin: 0;padding: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;text-align: left;line-height: 19px;font-size: 14px;">
+  <table class="body" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;height: 100%;width: 100%;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="center" align="center" valign="top" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0;vertical-align: top;text-align: center;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;">
+        <center style="width: 100%; min-width: 580px;">
+
+          <!-- Email Content START -->
+
+          <table class="row header" style="border-spacing: 0;border-collapse: collapse;padding: 0px;vertical-align: top;text-align: left;width: 100%;position: relative;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="center" align="center" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0;vertical-align: top;text-align: center;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;">
+                <center style="width: 100%; min-width: 580px;">
+
+                  <table class="container" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: inherit;width: 580px;margin: 0 auto;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;padding-top: 0px;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0 auto;width: 580px;padding-bottom: 0px;">
+<tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="twelve columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;width: 100%;padding-bottom: 0px;">
+                              <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=b9e275f098&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;">
+                                <img src="http://mta.mit.edu/sites/default/files/public/styles/600x210/public/mit_newsletter_header_image/collierheader_0.jpg" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none;"></a>
+                            </td>
+
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr>
+<tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="twelve columns sub-header" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;width: 100%;padding-bottom: 0px;">
+                              <div class="date" style="background: #ed1c24; text-align: center; text-transform: uppercase; padding: 10px; color: white; font-weight: bold; font-size: 16px;">Upcoming Events</div>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr>
+</table>
+</td>
+                    </tr></table>
+</center>
+              </td>
+            </tr></table>
+<table class="container" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: inherit;width: 580px;margin: 0 auto;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;">
+
+                <table class="row" style="border-spacing: 0;border-collapse: collapse;padding: 0px;vertical-align: top;text-align: left;width: 100%;position: relative;display: block;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;padding-right: 0px;">
+
+                      <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0 auto;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="welcome-wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;padding-bottom: 0px;">
+                            <div class="welcome-text" style="margin: 5px 5px 0px 5px; padding: 5px 5px 14px 5px; border-bottom: 1px solid #cfd2d4;">
+                                                          </div>
+                          </td>
+                          <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                        </tr></table>
+</td>
+                  </tr></table>
+<table class="row" style="border-spacing: 0;border-collapse: collapse;padding: 0px;vertical-align: top;text-align: left;width: 100%;position: relative;display: block;">
+<tr class="item node-post post-nid-5434" style="border-bottom: 1px solid #cfd2d4;padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0px 5px;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="four sub-columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 10px;width: 33.333333%;padding-left: 5px;padding-bottom: 13px;padding-top: 3px;">
+
+                              <a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=8b1591aed3&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;"><img src="http://mta.mit.edu/sites/default/files/public/styles/180x180/public/field_event_thumbnail/jacobcollier09_web.jpg" width="180" height="180" alt="" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none; height: auto !important;"></a>
+                            </td>
+                            <td class="eight sub-columns last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 5px;width: 66.666666%;padding-left: 10px;padding-top: 3px;">
+
+                              <p class="date" style="margin: 0;color: rgb(96, 106, 113);font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 1em;font-size: 12px;margin-bottom: 6px;">December 07, 2016<span style="font-weight: normal;"> | </span>5:00pm </p>
+                              <p class="title" style="margin: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 14px;margin-bottom: 0;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=7f32b83c84&e=46b88902b8" style="color: rgb(237, 28, 36) !important; text-decoration: none; font-weight: bold; font-size: 16px;">Jacob Collier</a></p>
+                              <p class="sub-title" style="margin: 0;color: rgb(237, 28, 36) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 16px;margin-bottom: 0px;text-decoration: none;">The Creative Process of Jacob Collier</p>
+
+                              <p class="teaser" style="margin: 0;color: rgb(96, 106, 113) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 21px;font-size: 15px;margin-bottom: 0px;margin-top: 5px;">
+                                This lecture demonstration by Jacob Collier will provide insight into his unique creative process.  Collier will join the MIT Festival Jazz...                                <a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=203f900ada&e=46b88902b8" class="read-more" style="color: rgb(96, 106, 113) !important; text-decoration: none; font-weight: normal; font-size: 15px; margin-top: 5px; line-height: 21px;">Read More</a>                              </p>
+                              <p class="location-price" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;margin-top: 12px;text-decoration: none;">
+                                <span style="font-weight: bold;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=54357f88c1&e=46b88902b8" target="_blank" style="color: #606a71 !important; text-decoration: none; font-weight: bold; font-size: 12px;">MIT Lecture Hall, 6-120</a></span> | <span style="font-weight: bold;">free</span>                              </p>
+                              <p class="reservation" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;text-decoration: none;margin-top: 4px;text-transform: uppercase;">Reservations not required</p>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr></table>
+</td>
+                    </tr>
+<tr class="item node-post post-nid-5292" style="border-bottom: 1px solid #cfd2d4;padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0px 5px;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="four sub-columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 10px;width: 33.333333%;padding-left: 5px;padding-bottom: 13px;padding-top: 3px;">
+
+                              <a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=d4bea63f2f&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;"><img src="http://mta.mit.edu/sites/default/files/public/styles/180x180/public/field_event_thumbnail/ams_0.jpg" width="180" height="180" alt="" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none; height: auto !important;"></a>
+                            </td>
+                            <td class="eight sub-columns last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 5px;width: 66.666666%;padding-left: 10px;padding-top: 3px;">
+
+                              <p class="date" style="margin: 0;color: rgb(96, 106, 113);font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 1em;font-size: 12px;margin-bottom: 6px;">December 07, 2016<span style="font-weight: normal;"> | </span>5:15pm </p>
+                              <p class="title" style="margin: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 14px;margin-bottom: 0;"><a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=b0a150ad63&e=46b88902b8" style="color: rgb(237, 28, 36) !important; text-decoration: none; font-weight: bold; font-size: 16px;">COSMOGONY AND MUSIC</a></p>
+                              <p class="sub-title" style="margin: 0;color: rgb(237, 28, 36) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 16px;margin-bottom: 0px;text-decoration: none;">The Banquet Song of Iopas in Virgil's Aeneid</p>
+
+                              <p class="teaser" style="margin: 0;color: rgb(96, 106, 113) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 21px;font-size: 15px;margin-bottom: 0px;margin-top: 5px;">
+                                MIT's Ancient &amp; Medieval Studies Colloquium Series presents:
+Cosmogony and Music, The Banquet Song of Iopas in Virgil's Aeneid.
+Evan MacCarthy...                                <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=12c6c02097&e=46b88902b8" class="read-more" style="color: rgb(96, 106, 113) !important; text-decoration: none; font-weight: normal; font-size: 15px; margin-top: 5px; line-height: 21px;">Read More</a>                              </p>
+                              <p class="location-price" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;margin-top: 12px;text-decoration: none;">
+                                <span style="font-weight: bold;"><a href="whereis.mit.edu" target="_blank" style="color: #606a71 !important; text-decoration: none; font-weight: bold; font-size: 12px;">MIT Rm. 14E-304</a></span> | <span style="font-weight: bold;">free</span>                              </p>
+                              <p class="reservation" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;text-decoration: none;margin-top: 4px;text-transform: uppercase;"></p>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr></table>
+</td>
+                    </tr>
+<tr class="item node-post post-nid-5438" style="border-bottom: 1px solid #cfd2d4;padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0px 5px;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="four sub-columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 10px;width: 33.333333%;padding-left: 5px;padding-bottom: 13px;padding-top: 3px;">
+
+                              <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=71338cec11&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;"><img src="http://mta.mit.edu/sites/default/files/public/styles/180x180/public/field_event_thumbnail/mat_logo.png" width="180" height="180" alt="" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none; height: auto !important;"></a>
+                            </td>
+                            <td class="eight sub-columns last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 5px;width: 66.666666%;padding-left: 10px;padding-top: 3px;">
+
+                              <p class="date" style="margin: 0;color: rgb(96, 106, 113);font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 1em;font-size: 12px;margin-bottom: 6px;">December 10, 2016<span style="font-weight: normal;"> | </span>6:00pm </p>
+                              <p class="title" style="margin: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 14px;margin-bottom: 0;"><a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=d584ac0e9a&e=46b88902b8" style="color: rgb(237, 28, 36) !important; text-decoration: none; font-weight: bold; font-size: 16px;">MAT Confessions: #Thisis2016</a></p>
+                              <p class="sub-title" style="margin: 0;color: rgb(237, 28, 36) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 16px;margin-bottom: 0px;text-decoration: none;">Asian American Theater, 21M.846/847</p>
+
+                              <p class="teaser" style="margin: 0;color: rgb(96, 106, 113) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 21px;font-size: 15px;margin-bottom: 0px;margin-top: 5px;">
+                                A performance by 20 students in Claire Conceison's Asian American Theater class, composed from their own journal writings, inspired by their...                                <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=fac3f9cd37&e=46b88902b8" class="read-more" style="color: rgb(96, 106, 113) !important; text-decoration: none; font-weight: normal; font-size: 15px; margin-top: 5px; line-height: 21px;">Read More</a>                              </p>
+                              <p class="location-price" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;margin-top: 12px;text-decoration: none;">
+                                <span style="font-weight: bold;">Rehearsal Room A, Kresge Auditorium</span> | <span style="font-weight: bold;">free</span>                              </p>
+                              <p class="reservation" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;text-decoration: none;margin-top: 4px;text-transform: uppercase;"></p>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr></table>
+</td>
+                    </tr>
+<tr class="item node-post post-nid-5300" style="border-bottom: 1px solid #cfd2d4;padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0px 5px;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="four sub-columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 10px;width: 33.333333%;padding-left: 5px;padding-bottom: 13px;padding-top: 3px;">
+
+                              <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=adf65a1196&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;"><img src="http://mta.mit.edu/sites/default/files/public/styles/180x180/public/field_event_thumbnail/jc.thumbnail_0.jpg" width="180" height="180" alt="" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none; height: auto !important;"></a>
+                            </td>
+                            <td class="eight sub-columns last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 5px;width: 66.666666%;padding-left: 10px;padding-top: 3px;">
+
+                              <p class="date" style="margin: 0;color: rgb(96, 106, 113);font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 1em;font-size: 12px;margin-bottom: 6px;">December 10, 2016<span style="font-weight: normal;"> | </span>8:00pm </p>
+                              <p class="title" style="margin: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 14px;margin-bottom: 0;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=60cc84b632&e=46b88902b8" style="color: rgb(237, 28, 36) !important; text-decoration: none; font-weight: bold; font-size: 16px;">Jacob Collier: Imagination Off The Charts</a></p>
+                              <p class="sub-title" style="margin: 0;color: rgb(237, 28, 36) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 16px;margin-bottom: 0px;text-decoration: none;">a collaborative performance with FJE</p>
+
+                              <p class="teaser" style="margin: 0;color: rgb(96, 106, 113) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 21px;font-size: 15px;margin-bottom: 0px;margin-top: 5px;">
+                                A concert featuring musical phenom Jacob Collier, MIT Visiting Artist
+
+ 
+
+Who is Jacob Collier?
+Hailed by The Guardian as “Jazz’s New...                                <a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=41b616b433&e=46b88902b8" class="read-more" style="color: rgb(96, 106, 113) !important; text-decoration: none; font-weight: normal; font-size: 15px; margin-top: 5px; line-height: 21px;">Read More</a>                              </p>
+                              <p class="location-price" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;margin-top: 12px;text-decoration: none;">
+                                <span style="font-weight: bold;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=fad94c9deb&e=46b88902b8" target="_blank" style="color: #606a71 !important; text-decoration: none; font-weight: bold; font-size: 12px;">Kresge Auditorium</a></span> | <span style="font-weight: bold;">$5</span>                              </p>
+                              <p class="reservation" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;text-decoration: none;margin-top: 4px;text-transform: uppercase;"><a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=b1dacd94fc&e=46b88902b8" target="_blank" style="color: rgb(237, 28, 36) !important; text-decoration: underline; font-weight: bold; font-size: 12px;">Reserve a Seat</a></p>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr></table>
+</td>
+                    </tr>
+<tr class="item node-post post-nid-5372" style="border-bottom: 1px solid #cfd2d4;padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0px 5px;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="four sub-columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 10px;width: 33.333333%;padding-left: 5px;padding-bottom: 13px;padding-top: 3px;">
+
+                              <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=e0e7374068&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;"><img src="http://mta.mit.edu/sites/default/files/public/styles/180x180/public/field_event_thumbnail/mit-mta-deveau-10-18-16-3.jpg" width="180" height="180" alt="" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none; height: auto !important;"></a>
+                            </td>
+                            <td class="eight sub-columns last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 5px;width: 66.666666%;padding-left: 10px;padding-top: 3px;">
+
+                              <p class="date" style="margin: 0;color: rgb(96, 106, 113);font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 1em;font-size: 12px;margin-bottom: 6px;">From 12/11 to 12/14; times vary</p>
+                              <p class="title" style="margin: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 14px;margin-bottom: 0;"><a href="http://mit.us2.list-manage2.com/track/click?u=9a8caadec06a0edf712df1a5e&id=b7a7a319f8&e=46b88902b8" style="color: rgb(237, 28, 36) !important; text-decoration: none; font-weight: bold; font-size: 16px;">MIT Chamber Music Society</a></p>
+                              <p class="sub-title" style="margin: 0;color: rgb(237, 28, 36) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 16px;margin-bottom: 0px;text-decoration: none;">Student Concert Series</p>
+
+                              <p class="teaser" style="margin: 0;color: rgb(96, 106, 113) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 21px;font-size: 15px;margin-bottom: 0px;margin-top: 5px;">
+                                DECEMBER 11, 3PM
+
+SMETANA String Quartet No. 1, "From My Life"
+Lisa Kong '18, violin; Michelle Noh '18, violin; Aria Shi '18, viola; Courtney Guo...                                <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=42d8050eed&e=46b88902b8" class="read-more" style="color: rgb(96, 106, 113) !important; text-decoration: none; font-weight: normal; font-size: 15px; margin-top: 5px; line-height: 21px;">Read More</a>                              </p>
+                              <p class="location-price" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;margin-top: 12px;text-decoration: none;">
+                                <span style="font-weight: bold;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=fedc2465c3&e=46b88902b8" target="_blank" style="color: #606a71 !important; text-decoration: none; font-weight: bold; font-size: 12px;">Killian Hall</a></span> | <span style="font-weight: bold;">free</span>                              </p>
+                              <p class="reservation" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;text-decoration: none;margin-top: 4px;text-transform: uppercase;">Reservations not required</p>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr></table>
+</td>
+                    </tr>
+<tr class="item node-post post-nid-5287" style="border-bottom: 1px solid #cfd2d4;padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0px 5px;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="four sub-columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 10px;width: 33.333333%;padding-left: 5px;padding-bottom: 13px;padding-top: 3px;">
+
+                              <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=f22419ea7c&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;"><img src="http://mta.mit.edu/sites/default/files/public/styles/180x180/public/field_event_thumbnail/snowflakes.jpg" width="180" height="180" alt="" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none; height: auto !important;"></a>
+                            </td>
+                            <td class="eight sub-columns last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 5px;width: 66.666666%;padding-left: 10px;padding-top: 3px;">
+
+                              <p class="date" style="margin: 0;color: rgb(96, 106, 113);font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 1em;font-size: 12px;margin-bottom: 6px;">December 13, 2016<span style="font-weight: normal;"> | </span>7:30pm </p>
+                              <p class="title" style="margin: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 14px;margin-bottom: 0;"><a href="http://mit.us2.list-manage2.com/track/click?u=9a8caadec06a0edf712df1a5e&id=375d0806b6&e=46b88902b8" style="color: rgb(237, 28, 36) !important; text-decoration: none; font-weight: bold; font-size: 16px;">Holiday Pops Concert</a></p>
+                              <p class="sub-title" style="margin: 0;color: rgb(237, 28, 36) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 16px;margin-bottom: 0px;text-decoration: none;">MITSOLite, Adam Boyles, director</p>
+
+                              <p class="teaser" style="margin: 0;color: rgb(96, 106, 113) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 21px;font-size: 15px;margin-bottom: 0px;margin-top: 5px;">
+                                This concert will feature holiday season music including: Praetorius/arr. Treybig, In dulci jubilo, Morton Gould, It came upon a midnight clear;...                                <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=4f88922d9c&e=46b88902b8" class="read-more" style="color: rgb(96, 106, 113) !important; text-decoration: none; font-weight: normal; font-size: 15px; margin-top: 5px; line-height: 21px;">Read More</a>                              </p>
+                              <p class="location-price" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;margin-top: 12px;text-decoration: none;">
+                                <span style="font-weight: bold;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=02dd1ca873&e=46b88902b8" target="_blank" style="color: #606a71 !important; text-decoration: none; font-weight: bold; font-size: 12px;">Kresge Auditorium</a></span> | <span style="font-weight: bold;">free</span>                              </p>
+                              <p class="reservation" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;text-decoration: none;margin-top: 4px;text-transform: uppercase;"></p>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr></table>
+</td>
+                    </tr>
+<tr class="last node-post post-nid-5439" style="border-bottom: none;padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0px 5px;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="four sub-columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 10px;width: 33.333333%;padding-left: 5px;padding-bottom: 13px;padding-top: 3px;">
+
+                              <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=94b8c3f626&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;"><img src="http://mta.mit.edu/sites/default/files/public/styles/180x180/public/field_event_thumbnail/beethoven.jpg" width="180" height="180" alt="" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none; height: auto !important;"></a>
+                            </td>
+                            <td class="eight sub-columns last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 5px;width: 66.666666%;padding-left: 10px;padding-top: 3px;">
+
+                              <p class="date" style="margin: 0;color: rgb(96, 106, 113);font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 1em;font-size: 12px;margin-bottom: 6px;">December 17, 2016<span style="font-weight: normal;"> | </span>8:00pm </p>
+                              <p class="title" style="margin: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 14px;margin-bottom: 0;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=cef0f548c2&e=46b88902b8" style="color: rgb(237, 28, 36) !important; text-decoration: none; font-weight: bold; font-size: 16px;">Pathos Ensemble</a></p>
+                              <p class="sub-title" style="margin: 0;color: rgb(237, 28, 36) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 16px;margin-bottom: 0px;text-decoration: none;">MIT Student Chamber Orchestra</p>
+
+                              <p class="teaser" style="margin: 0;color: rgb(96, 106, 113) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 21px;font-size: 15px;margin-bottom: 0px;margin-top: 5px;">
+                                Beethoven's Symphony No. 3 will be performed by a student chamber orchestra conducted by MIT graduate student Dominique Hoskin.
+                                <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=16ee20a53e&e=46b88902b8" class="read-more" style="color: rgb(96, 106, 113) !important; text-decoration: none; font-weight: normal; font-size: 15px; margin-top: 5px; line-height: 21px;">Read More</a>                              </p>
+                              <p class="location-price" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;margin-top: 12px;text-decoration: none;">
+                                <span style="font-weight: bold;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=a63cabae3c&e=46b88902b8" target="_blank" style="color: #606a71 !important; text-decoration: none; font-weight: bold; font-size: 12px;">Kresge Auditorium</a></span> | <span style="font-weight: bold;">free</span>                              </p>
+                              <p class="reservation" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;text-decoration: none;margin-top: 4px;text-transform: uppercase;"></p>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr></table>
+</td>
+                    </tr>
+</table>
+<table class="row footer" style="border-spacing: 0;border-collapse: collapse;padding: 0px;vertical-align: top;text-align: left;width: 100%;position: relative;display: block;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                      <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0 auto;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="twelve columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 30px 0px 10px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;width: 100%;background: #606a71;">
+                            <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0 auto;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="seven column" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;width: 58.333333%;padding-left: 10px;">
+
+                                  <p class="footer-logo-wrapper" style="margin: 0;color: white !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 13px;margin-bottom: 12px;">
+                                    <img src="http://mta.mit.edu/sites/all/modules/custom/mit_newsletter/templates/assets/images/footer_logo.png" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: none; clear: both; display: block; margin-left: 5px;"></p>
+
+                                  <p class="copyright-wrapper" style="margin: 0;color: white !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 13px;margin-bottom: 17px;">Copyright © 2015 MIT Music and Theater Arts,<br> All rig hts reserved.</p>
+
+                                  <p class="address-wrapper" style="margin: 0;color: white !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 18px;font-size: 13px;margin-bottom: 10px;"><strong>MIT Music and Theater Arts</strong><br>
+                                  77 Massachusetts Avenue 4-243<br>
+                                  Cambridge, Massachusetts 02139<br><a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=1f365a5a91&e=46b88902b8" style="color: white !important; text-decoration: underline; font-weight: normal; font-size: 13px;">Campus map</a> | <a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=68404bf123&e=46b88902b8" style="color: white !important; text-decoration: underline; font-weight: normal; font-size: 13px;">Parking</a>
+                                </p>
+</td>
+                                <td class="five column last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;padding-right: 10px;width: 41.666666%;padding-left: 0px;">
+
+                                  <p style="margin: 0;color: white !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 13px;margin-bottom: 10px;">You are receiving this email because you have requested to receive the MIT Music and Theater Arts Calendar of Events.</p>
+                                  <p class="links-wrapper" style="margin: 0;color: white !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 13px;margin-bottom: 3px;margin-top: 15px;">
+                                    <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=edf051bcb9&e=46b88902b8" style="color: white !important; text-decoration: underline; font-weight: normal; font-size: 13px;">add us to your address book</a><br><a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=65659ae644&e=46b88902b8" style="color: white !important; text-decoration: underline; font-weight: normal; font-size: 13px;">unsubscribe from this list</a><br><a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=2fbcd2f88d&e=46b88902b8" style="color: white !important; text-decoration: underline; font-weight: normal; font-size: 13px;">forward to a friend</a>
+                                  </p>
+
+                                  <p class="follow-wrapper" style="margin: 0;color: white !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 13px;margin-bottom: 10px;margin-top: 13px;">
+                                    <span style="display: inline-block; margin-top: 2px; vertical-align: middle;">Follow MTA</span>
+                                    <a class="twitter-link" href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=e3e5120754&e=46b88902b8" style="color: white !important; text-decoration: underline; font-weight: normal; display: inline-block; width: 26px; height: 26px; vertical-align: middle; margin-left: 20px; font-size: 13px;">
+                                      <img src="http://mta.mit.edu/sites/all/modules/custom/mit_newsletter/templates/assets/images/twitter_logo.png" alt="twitter" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none;"></a>
+                                    <a class="facebook-link" href="http://mit.us2.list-manage2.com/track/click?u=9a8caadec06a0edf712df1a5e&id=6b7ae0bd6f&e=46b88902b8" style="color: white !important; text-decoration: underline; font-weight: normal; display: inline-block; width: 26px; height: 26px; vertical-align: middle; margin-left: 20px; font-size: 13px;">
+                                      <img src="http://mta.mit.edu/sites/all/modules/custom/mit_newsletter/templates/assets/images/facebook_logo.png" alt="facebook" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none;"></a>
+                                  </p>
+                                </td>
+                                <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                              </tr></table>
+</td>
+
+                          <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                        </tr></table>
+</td>
+                  </tr></table>
+<!-- container end below -->
+</td>
+            </tr></table>
+<!-- Email Content END -->
+</center>
+      </td>
+    </tr></table>
+            <center>
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" id="canspamBarWrapper" style="background-color:#FFFFFF; border-top:1px solid #E5E5E5;">
+                    <tr>
+                        <td align="center" valign="top" style="padding-top:20px; padding-bottom:20px;">
+                            <table border="0" cellpadding="0" cellspacing="0" id="canspamBar">
+                                <tr>
+                                    <td align="center" valign="top" style="color:#606060; font-family:Helvetica, Arial, sans-serif; font-size:11px; line-height:150%; padding-right:20px; padding-bottom:5px; padding-left:20px; text-align:center;">
+                                        This email was sent to <a href="mailto:spang@mit.edu" target="_blank" style="color:#404040 !important;">spang@mit.edu</a>
+                                        <br />
+                                        <a href="http://mit.us2.list-manage.com/about?u=9a8caadec06a0edf712df1a5e&id=cdbb4f57b1&e=46b88902b8&c=e75824be34" target="_blank" style="color:#404040 !important;"><em>why did I get this?</em></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://mit.us2.list-manage1.com/unsubscribe?u=9a8caadec06a0edf712df1a5e&id=cdbb4f57b1&e=46b88902b8&c=e75824be34" style="color:#404040 !important;">unsubscribe from this list</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://mit.us2.list-manage1.com/profile?u=9a8caadec06a0edf712df1a5e&id=cdbb4f57b1&e=46b88902b8" style="color:#404040 !important;">update subscription preferences</a>
+                                        <br />
+                                        MIT Music and Theater Arts &middot; 77 Massachusetts Avenue &middot; 4-243 &middot; Cambridge, Massachusetts 02139 &middot; USA
+                                        <br />
+                                        <br />
+
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                <style type="text/css">
+                    @media only screen and (max-width: 480px){
+                        table#canspamBar td{font-size:14px !important;}
+                        table#canspamBar td a{display:block !important; margin-top:10px !important;}
+                    }
+                </style>
+            </center><img src="http://mit.us2.list-manage.com/track/open.php?u=9a8caadec06a0edf712df1a5e&id=e75824be34&e=46b88902b8" height="1" width="1"></body>
+</html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width">
+<link rel="stylesheet" href="http://mta.mit.edu/sites/all/modules/custom/mit_newsletter/templates/assets/css/ink.css">
+<link rel="stylesheet" href="http://mta.mit.edu/sites/all/modules/custom/mit_newsletter/templates/assets/css/styles.css">
+
+<style type="text/css">
+	@media only screen and (max-width: 600px){
+		table[class=body] img{
+			width:auto !important;
+			height:auto !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] center{
+			min-width:0 !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .container{
+			width:95% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .row{
+			width:100% !important;
+			display:block !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .wrapper{
+			display:block !important;
+			padding-right:0 !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns,table[class=body] .column{
+			table-layout:fixed !important;
+			float:none !important;
+			width:100% !important;
+			padding-right:0px !important;
+			padding-left:0px !important;
+			display:block !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .wrapper.first .columns,table[class=body] .wrapper.first .column{
+			display:table !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] table.columns td,table[class=body] table.column td{
+			width:100% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.one,table[class=body] .column td.one{
+			width:8.333333% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.two,table[class=body] .column td.two{
+			width:16.666666% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.three,table[class=body] .column td.three{
+			width:25% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.four,table[class=body] .column td.four{
+			width:33.333333% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.five,table[class=body] .column td.five{
+			width:41.666666% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.six,table[class=body] .column td.six{
+			width:50% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.seven,table[class=body] .column td.seven{
+			width:58.333333% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.eight,table[class=body] .column td.eight{
+			width:66.666666% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.nine,table[class=body] .column td.nine{
+			width:75% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.ten,table[class=body] .column td.ten{
+			width:83.333333% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.eleven,table[class=body] .column td.eleven{
+			width:91.666666% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.twelve,table[class=body] .column td.twelve{
+			width:100% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] td.offset-by-one,table[class=body] td.offset-by-two,table[class=body] td.offset-by-three,table[class=body] td.offset-by-four,table[class=body] td.offset-by-five,table[class=body] td.offset-by-six,table[class=body] td.offset-by-seven,table[class=body] td.offset-by-eight,table[class=body] td.offset-by-nine,table[class=body] td.offset-by-ten,table[class=body] td.offset-by-eleven{
+			padding-left:0 !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] table.columns td.expander{
+			width:1px !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .right-text-pad,table[class=body] .text-pad-right{
+			padding-left:10px !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .left-text-pad,table[class=body] .text-pad-left{
+			padding-right:10px !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .hide-for-small,table[class=body] .show-for-desktop{
+			display:none !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .show-for-small,table[class=body] .hide-for-desktop{
+			display:inherit !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .row.footer .wrapper .seven.column,table[class=body] .row.footer .wrapper .five.column.last{
+			width:90% !important;
+			padding-left:10px !important;
+			padding-right:10px !important;
+		}
+
+}</style></head>
+<body style="width: 100% !important;min-width: 100%;-webkit-text-size-adjust: 100%;-ms-text-size-adjust: 100%;margin: 0;padding: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;text-align: left;line-height: 19px;font-size: 14px;">
+  <table class="body" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;height: 100%;width: 100%;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="center" align="center" valign="top" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0;vertical-align: top;text-align: center;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;">
+        <center style="width: 100%; min-width: 580px;">
+
+          <!-- Email Content START -->
+
+          <table class="row header" style="border-spacing: 0;border-collapse: collapse;padding: 0px;vertical-align: top;text-align: left;width: 100%;position: relative;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="center" align="center" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0;vertical-align: top;text-align: center;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;">
+                <center style="width: 100%; min-width: 580px;">
+
+                  <table class="container" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: inherit;width: 580px;margin: 0 auto;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;padding-top: 0px;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0 auto;width: 580px;padding-bottom: 0px;">
+<tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="twelve columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;width: 100%;padding-bottom: 0px;">
+                              <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=ce81b0e66e&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;">
+                                <img src="http://mta.mit.edu/sites/default/files/public/styles/600x210/public/mit_newsletter_header_image/sumieheader.jpg" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none;"></a>
+                            </td>
+
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr>
+<tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="twelve columns sub-header" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;width: 100%;padding-bottom: 0px;">
+                              <div class="date" style="background: #ed1c24; text-align: center; text-transform: uppercase; padding: 10px; color: white; font-weight: bold; font-size: 16px;">Upcoming Events</div>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr>
+</table>
+</td>
+                    </tr></table>
+</center>
+              </td>
+            </tr></table>
+<table class="container" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: inherit;width: 580px;margin: 0 auto;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;">
+
+                <table class="row" style="border-spacing: 0;border-collapse: collapse;padding: 0px;vertical-align: top;text-align: left;width: 100%;position: relative;display: block;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;padding-right: 0px;">
+
+                      <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0 auto;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="welcome-wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;padding-bottom: 0px;">
+                            <div class="welcome-text" style="margin: 5px 5px 0px 5px; padding: 5px 5px 14px 5px; border-bottom: 1px solid #cfd2d4;">
+                                                          </div>
+                          </td>
+                          <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                        </tr></table>
+</td>
+                  </tr></table>
+<table class="row" style="border-spacing: 0;border-collapse: collapse;padding: 0px;vertical-align: top;text-align: left;width: 100%;position: relative;display: block;">
+<tr class="item node-post post-nid-5398" style="border-bottom: 1px solid #cfd2d4;padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0px 5px;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="four sub-columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 10px;width: 33.333333%;padding-left: 5px;padding-bottom: 13px;padding-top: 3px;">
+
+                              <a href="http://mit.us2.list-manage2.com/track/click?u=9a8caadec06a0edf712df1a5e&id=d37e232bd7&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;"><img src="http://mta.mit.edu/sites/default/files/public/styles/180x180/public/field_event_thumbnail/guitar.jpg" width="180" height="180" alt="" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none; height: auto !important;"></a>
+                            </td>
+                            <td class="eight sub-columns last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 5px;width: 66.666666%;padding-left: 10px;padding-top: 3px;">
+
+                              <p class="date" style="margin: 0;color: rgb(96, 106, 113);font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 1em;font-size: 12px;margin-bottom: 6px;">November 29, 2016<span style="font-weight: normal;"> | </span>8:00pm </p>
+                              <p class="title" style="margin: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 14px;margin-bottom: 0;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=5a920b9f64&e=46b88902b8" style="color: rgb(237, 28, 36) !important; text-decoration: none; font-weight: bold; font-size: 16px;">CMS Jazz Combos Concert</a></p>
+                              <p class="sub-title" style="margin: 0;color: rgb(237, 28, 36) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 16px;margin-bottom: 0px;text-decoration: none;">Keala Kaumeheiwa, coach</p>
+
+                              <p class="teaser" style="margin: 0;color: rgb(96, 106, 113) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 21px;font-size: 15px;margin-bottom: 0px;margin-top: 5px;">
+                                The MIT Chamber Music Society Jazz Combos Concert Program will include:
+
+Fascinating Rhythm - George &amp; Ira Gershwin
+Dizzy Moods - Charles...                                <a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=15e2e3b314&e=46b88902b8" class="read-more" style="color: rgb(96, 106, 113) !important; text-decoration: none; font-weight: normal; font-size: 15px; margin-top: 5px; line-height: 21px;">Read More</a>                              </p>
+                              <p class="location-price" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;margin-top: 12px;text-decoration: none;">
+                                <span style="font-weight: bold;"><a href="http://mit.us2.list-manage2.com/track/click?u=9a8caadec06a0edf712df1a5e&id=2675cbf116&e=46b88902b8" target="_blank" style="color: #606a71 !important; text-decoration: none; font-weight: bold; font-size: 12px;">Killian Hall</a></span> | <span style="font-weight: bold;">free</span>                              </p>
+                              <p class="reservation" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;text-decoration: none;margin-top: 4px;text-transform: uppercase;">Reservations not required</p>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr></table>
+</td>
+                    </tr>
+<tr class="item node-post post-nid-5284" style="border-bottom: 1px solid #cfd2d4;padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0px 5px;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="four sub-columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 10px;width: 33.333333%;padding-left: 5px;padding-bottom: 13px;padding-top: 3px;">
+
+                              <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=9cd866ac27&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;"><img src="http://mta.mit.edu/sites/default/files/public/styles/180x180/public/field_event_thumbnail/kaneko.jpg" width="180" height="180" alt="" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none; height: auto !important;"></a>
+                            </td>
+                            <td class="eight sub-columns last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 5px;width: 66.666666%;padding-left: 10px;padding-top: 3px;">
+
+                              <p class="date" style="margin: 0;color: rgb(96, 106, 113);font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 1em;font-size: 12px;margin-bottom: 6px;">December 01, 2016<span style="font-weight: normal;"> | </span>5:00pm </p>
+                              <p class="title" style="margin: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 14px;margin-bottom: 0;"><a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=1c6ced6686&e=46b88902b8" style="color: rgb(237, 28, 36) !important; text-decoration: none; font-weight: bold; font-size: 16px;">MTA Composer Forum: Sumie Kaneko</a></p>
+                              <p class="sub-title" style="margin: 0;color: rgb(237, 28, 36) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 16px;margin-bottom: 0px;text-decoration: none;"></p>
+
+                              <p class="teaser" style="margin: 0;color: rgb(96, 106, 113) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 21px;font-size: 15px;margin-bottom: 0px;margin-top: 5px;">
+                                Japanese Koto and Shamisen player and jazz singer/songwriter Sumie (Sumi-é) Kaneko is known for her fusion of jazz with her Japanese roots. ...                                <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=06c592400e&e=46b88902b8" class="read-more" style="color: rgb(96, 106, 113) !important; text-decoration: none; font-weight: normal; font-size: 15px; margin-top: 5px; line-height: 21px;">Read More</a>                              </p>
+                              <p class="location-price" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;margin-top: 12px;text-decoration: none;">
+                                <span style="font-weight: bold;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=c817b6c2cb&e=46b88902b8" target="_blank" style="color: #606a71 !important; text-decoration: none; font-weight: bold; font-size: 12px;">Lewis Music Library, 14E-109</a></span> | <span style="font-weight: bold;">free</span>                              </p>
+                              <p class="reservation" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;text-decoration: none;margin-top: 4px;text-transform: uppercase;">Reservations not required</p>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr></table>
+</td>
+                    </tr>
+<tr class="item node-post post-nid-5285" style="border-bottom: 1px solid #cfd2d4;padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0px 5px;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="four sub-columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 10px;width: 33.333333%;padding-left: 5px;padding-bottom: 13px;padding-top: 3px;">
+
+                              <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=24e45e3a54&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;"><img src="http://mta.mit.edu/sites/default/files/public/styles/180x180/public/field_event_thumbnail/prism_0.jpg" width="180" height="180" alt="" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none; height: auto !important;"></a>
+                            </td>
+                            <td class="eight sub-columns last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 5px;width: 66.666666%;padding-left: 10px;padding-top: 3px;">
+
+                              <p class="date" style="margin: 0;color: rgb(96, 106, 113);font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 1em;font-size: 12px;margin-bottom: 6px;">December 02, 2016<span style="font-weight: normal;"> | </span>8:00pm </p>
+                              <p class="title" style="margin: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 14px;margin-bottom: 0;"><a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=f301bc8c61&e=46b88902b8" style="color: rgb(237, 28, 36) !important; text-decoration: none; font-weight: bold; font-size: 16px;">MIT Wind Ensemble</a></p>
+                              <p class="sub-title" style="margin: 0;color: rgb(237, 28, 36) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 16px;margin-bottom: 0px;text-decoration: none;">Prism II: Concert </p>
+
+                              <p class="teaser" style="margin: 0;color: rgb(96, 106, 113) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 21px;font-size: 15px;margin-bottom: 0px;margin-top: 5px;">
+                                The Second Annual Prism Concert Spectacular, a concert by the MIT Wind Ensemble, Frederick Harris, Jr. Music Director; Kenneth Amis, Assistant...                                <a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=8a7604d0ec&e=46b88902b8" class="read-more" style="color: rgb(96, 106, 113) !important; text-decoration: none; font-weight: normal; font-size: 15px; margin-top: 5px; line-height: 21px;">Read More</a>                              </p>
+                              <p class="location-price" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;margin-top: 12px;text-decoration: none;">
+                                <span style="font-weight: bold;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=c0bfd71ea2&e=46b88902b8" target="_blank" style="color: #606a71 !important; text-decoration: none; font-weight: bold; font-size: 12px;">Kresge Auditorium</a></span> | <span style="font-weight: bold;">$5</span>                              </p>
+                              <p class="reservation" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;text-decoration: none;margin-top: 4px;text-transform: uppercase;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=f4b23ca5be&e=46b88902b8" target="_blank" style="color: rgb(237, 28, 36) !important; text-decoration: underline; font-weight: bold; font-size: 12px;">Reserve a Seat</a></p>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr></table>
+</td>
+                    </tr>
+<tr class="item node-post post-nid-5286" style="border-bottom: 1px solid #cfd2d4;padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0px 5px;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="four sub-columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 10px;width: 33.333333%;padding-left: 5px;padding-bottom: 13px;padding-top: 3px;">
+
+                              <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=6c5ac1365d&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;"><img src="http://mta.mit.edu/sites/default/files/public/styles/180x180/public/field_event_thumbnail/gamelan_0.jpg" width="180" height="180" alt="" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none; height: auto !important;"></a>
+                            </td>
+                            <td class="eight sub-columns last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 5px;width: 66.666666%;padding-left: 10px;padding-top: 3px;">
+
+                              <p class="date" style="margin: 0;color: rgb(96, 106, 113);font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 1em;font-size: 12px;margin-bottom: 6px;">December 03, 2016<span style="font-weight: normal;"> | </span>4:30pm </p>
+                              <p class="title" style="margin: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 14px;margin-bottom: 0;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=b7d9eb62dd&e=46b88902b8" style="color: rgb(237, 28, 36) !important; text-decoration: none; font-weight: bold; font-size: 16px;">Gamelan Galak Tika</a></p>
+                              <p class="sub-title" style="margin: 0;color: rgb(237, 28, 36) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 16px;margin-bottom: 0px;text-decoration: none;">WORLD MUSIC DAY</p>
+
+                              <p class="teaser" style="margin: 0;color: rgb(96, 106, 113) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 21px;font-size: 15px;margin-bottom: 0px;margin-top: 5px;">
+                                A showcase of MIT's world music ensembles and their non-western cultures, World Music Day begins with a 4:30pm Concert by MIT Gamelan Galak Tika in...                                <a href="http://mit.us2.list-manage2.com/track/click?u=9a8caadec06a0edf712df1a5e&id=b92cde5365&e=46b88902b8" class="read-more" style="color: rgb(96, 106, 113) !important; text-decoration: none; font-weight: normal; font-size: 15px; margin-top: 5px; line-height: 21px;">Read More</a>                              </p>
+                              <p class="location-price" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;margin-top: 12px;text-decoration: none;">
+                                <span style="font-weight: bold;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=13f5533343&e=46b88902b8" target="_blank" style="color: #606a71 !important; text-decoration: none; font-weight: bold; font-size: 12px;">Kresge Auditorium</a></span> | <span style="font-weight: bold;">free</span>                              </p>
+                              <p class="reservation" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;text-decoration: none;margin-top: 4px;text-transform: uppercase;"></p>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr></table>
+</td>
+                    </tr>
+<tr class="item node-post post-nid-5288" style="border-bottom: 1px solid #cfd2d4;padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0px 5px;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="four sub-columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 10px;width: 33.333333%;padding-left: 5px;padding-bottom: 13px;padding-top: 3px;">
+
+                              <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=ce83e477eb&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;"><img src="http://mta.mit.edu/sites/default/files/public/styles/180x180/public/field_event_thumbnail/lamine_2.jpg" width="180" height="180" alt="" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none; height: auto !important;"></a>
+                            </td>
+                            <td class="eight sub-columns last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 5px;width: 66.666666%;padding-left: 10px;padding-top: 3px;">
+
+                              <p class="date" style="margin: 0;color: rgb(96, 106, 113);font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 1em;font-size: 12px;margin-bottom: 6px;">December 03, 2016<span style="font-weight: normal;"> | </span>7:30pm </p>
+                              <p class="title" style="margin: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 14px;margin-bottom: 0;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=a2ce625395&e=46b88902b8" style="color: rgb(237, 28, 36) !important; text-decoration: none; font-weight: bold; font-size: 16px;">Rambax, Senegalese Drumming Ensemble</a></p>
+                              <p class="sub-title" style="margin: 0;color: rgb(237, 28, 36) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 16px;margin-bottom: 0px;text-decoration: none;">WORLD MUSIC DAY</p>
+
+                              <p class="teaser" style="margin: 0;color: rgb(96, 106, 113) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 21px;font-size: 15px;margin-bottom: 0px;margin-top: 5px;">
+                                This Rambax performance under the direction of Lamine Touré is part of MIT World Music Day, a showcase of MIT's World Music ensembles and celebration...                                <a href="http://mit.us2.list-manage2.com/track/click?u=9a8caadec06a0edf712df1a5e&id=f7bce5003d&e=46b88902b8" class="read-more" style="color: rgb(96, 106, 113) !important; text-decoration: none; font-weight: normal; font-size: 15px; margin-top: 5px; line-height: 21px;">Read More</a>                              </p>
+                              <p class="location-price" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;margin-top: 12px;text-decoration: none;">
+                                <span style="font-weight: bold;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=b72741bc92&e=46b88902b8" target="_blank" style="color: #606a71 !important; text-decoration: none; font-weight: bold; font-size: 12px;">Lobdell, MIT Student Center</a></span> | <span style="font-weight: bold;">free</span>                              </p>
+                              <p class="reservation" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;text-decoration: none;margin-top: 4px;text-transform: uppercase;">Reservations not required</p>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr></table>
+</td>
+                    </tr>
+<tr class="item node-post post-nid-5289" style="border-bottom: 1px solid #cfd2d4;padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0px 5px;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="four sub-columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 10px;width: 33.333333%;padding-left: 5px;padding-bottom: 13px;padding-top: 3px;">
+
+                              <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=4f4e3d84dd&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;"><img src="http://mta.mit.edu/sites/default/files/public/styles/180x180/public/field_event_thumbnail/daviddeveau.jpg" width="180" height="180" alt="" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none; height: auto !important;"></a>
+                            </td>
+                            <td class="eight sub-columns last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 5px;width: 66.666666%;padding-left: 10px;padding-top: 3px;">
+
+                              <p class="date" style="margin: 0;color: rgb(96, 106, 113);font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 1em;font-size: 12px;margin-bottom: 6px;">December 04, 2016<span style="font-weight: normal;"> | </span>4:00pm </p>
+                              <p class="title" style="margin: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 14px;margin-bottom: 0;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=33c8e61d2e&e=46b88902b8" style="color: rgb(237, 28, 36) !important; text-decoration: none; font-weight: bold; font-size: 16px;">Pianist David Deveau</a></p>
+                              <p class="sub-title" style="margin: 0;color: rgb(237, 28, 36) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 16px;margin-bottom: 0px;text-decoration: none;">Schubert Sonatas</p>
+
+                              <p class="teaser" style="margin: 0;color: rgb(96, 106, 113) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 21px;font-size: 15px;margin-bottom: 0px;margin-top: 5px;">
+                                Deveau's all-Schubert program will include: Sonata in A major, D.959 and Sonata in B-flat major, D. 960.
+ 
+
+Program Note
+Franz Schubert (...                                <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=cb08810f98&e=46b88902b8" class="read-more" style="color: rgb(96, 106, 113) !important; text-decoration: none; font-weight: normal; font-size: 15px; margin-top: 5px; line-height: 21px;">Read More</a>                              </p>
+                              <p class="location-price" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;margin-top: 12px;text-decoration: none;">
+                                <span style="font-weight: bold;"><a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=43c8c3e8d7&e=46b88902b8" target="_blank" style="color: #606a71 !important; text-decoration: none; font-weight: bold; font-size: 12px;">Kresge Auditorium</a></span> | <span style="font-weight: bold;">free</span>                              </p>
+                              <p class="reservation" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;text-decoration: none;margin-top: 4px;text-transform: uppercase;">Reservations not required</p>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr></table>
+</td>
+                    </tr>
+<tr class="last node-post post-nid-5292" style="border-bottom: none;padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0px 5px;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="four sub-columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 10px;width: 33.333333%;padding-left: 5px;padding-bottom: 13px;padding-top: 3px;">
+
+                              <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=0ed0889c47&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;"><img src="http://mta.mit.edu/sites/default/files/public/styles/180x180/public/field_event_thumbnail/ams_0.jpg" width="180" height="180" alt="" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none; height: auto !important;"></a>
+                            </td>
+                            <td class="eight sub-columns last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 5px;width: 66.666666%;padding-left: 10px;padding-top: 3px;">
+
+                              <p class="date" style="margin: 0;color: rgb(96, 106, 113);font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 1em;font-size: 12px;margin-bottom: 6px;">December 07, 2016<span style="font-weight: normal;"> | </span>5:15pm </p>
+                              <p class="title" style="margin: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 14px;margin-bottom: 0;"><a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=ec1a412a2c&e=46b88902b8" style="color: rgb(237, 28, 36) !important; text-decoration: none; font-weight: bold; font-size: 16px;">COSMOGONY AND MUSIC</a></p>
+                              <p class="sub-title" style="margin: 0;color: rgb(237, 28, 36) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 16px;margin-bottom: 0px;text-decoration: none;">The Banquet Song of Iopas in Virgil's Aeneid</p>
+
+                              <p class="teaser" style="margin: 0;color: rgb(96, 106, 113) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 21px;font-size: 15px;margin-bottom: 0px;margin-top: 5px;">
+                                MIT's Ancient &amp; Medieval Studies Colloquium Series presents:
+Cosmogony and Music, The Banquet Song of Iopas in Virgil's Aeneid.
+Evan MacCarthy...                                <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=a1aa4f71dc&e=46b88902b8" class="read-more" style="color: rgb(96, 106, 113) !important; text-decoration: none; font-weight: normal; font-size: 15px; margin-top: 5px; line-height: 21px;">Read More</a>                              </p>
+                              <p class="location-price" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;margin-top: 12px;text-decoration: none;">
+                                <span style="font-weight: bold;"><a href="whereis.mit.edu" target="_blank" style="color: #606a71 !important; text-decoration: none; font-weight: bold; font-size: 12px;">MIT Rm. 14E-304</a></span> | <span style="font-weight: bold;">free</span>                              </p>
+                              <p class="reservation" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;text-decoration: none;margin-top: 4px;text-transform: uppercase;"></p>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr></table>
+</td>
+                    </tr>
+</table>
+<table class="row footer" style="border-spacing: 0;border-collapse: collapse;padding: 0px;vertical-align: top;text-align: left;width: 100%;position: relative;display: block;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                      <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0 auto;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="twelve columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 30px 0px 10px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;width: 100%;background: #606a71;">
+                            <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0 auto;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="seven column" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;width: 58.333333%;padding-left: 10px;">
+
+                                  <p class="footer-logo-wrapper" style="margin: 0;color: white !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 13px;margin-bottom: 12px;">
+                                    <img src="http://mta.mit.edu/sites/all/modules/custom/mit_newsletter/templates/assets/images/footer_logo.png" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: none; clear: both; display: block; margin-left: 5px;"></p>
+
+                                  <p class="copyright-wrapper" style="margin: 0;color: white !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 13px;margin-bottom: 17px;">Copyright © 2015 MIT Music and Theater Arts,<br> All rig hts reserved.</p>
+
+                                  <p class="address-wrapper" style="margin: 0;color: white !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 18px;font-size: 13px;margin-bottom: 10px;"><strong>MIT Music and Theater Arts</strong><br>
+                                  77 Massachusetts Avenue 4-243<br>
+                                  Cambridge, Massachusetts 02139<br><a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=bcec305433&e=46b88902b8" style="color: white !important; text-decoration: underline; font-weight: normal; font-size: 13px;">Campus map</a> | <a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=b42f1c8844&e=46b88902b8" style="color: white !important; text-decoration: underline; font-weight: normal; font-size: 13px;">Parking</a>
+                                </p>
+</td>
+                                <td class="five column last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;padding-right: 10px;width: 41.666666%;padding-left: 0px;">
+
+                                  <p style="margin: 0;color: white !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 13px;margin-bottom: 10px;">You are receiving this email because you have requested to receive the MIT Music and Theater Arts Calendar of Events.</p>
+                                  <p class="links-wrapper" style="margin: 0;color: white !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 13px;margin-bottom: 3px;margin-top: 15px;">
+                                    <a href="http://mit.us2.list-manage2.com/track/click?u=9a8caadec06a0edf712df1a5e&id=fd09fccee9&e=46b88902b8" style="color: white !important; text-decoration: underline; font-weight: normal; font-size: 13px;">add us to your address book</a><br><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=617a026974&e=46b88902b8" style="color: white !important; text-decoration: underline; font-weight: normal; font-size: 13px;">unsubscribe from this list</a><br><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=1400e5d550&e=46b88902b8" style="color: white !important; text-decoration: underline; font-weight: normal; font-size: 13px;">forward to a friend</a>
+                                  </p>
+
+                                  <p class="follow-wrapper" style="margin: 0;color: white !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 13px;margin-bottom: 10px;margin-top: 13px;">
+                                    <span style="display: inline-block; margin-top: 2px; vertical-align: middle;">Follow MTA</span>
+                                    <a class="twitter-link" href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=43c4454aaf&e=46b88902b8" style="color: white !important; text-decoration: underline; font-weight: normal; display: inline-block; width: 26px; height: 26px; vertical-align: middle; margin-left: 20px; font-size: 13px;">
+                                      <img src="http://mta.mit.edu/sites/all/modules/custom/mit_newsletter/templates/assets/images/twitter_logo.png" alt="twitter" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none;"></a>
+                                    <a class="facebook-link" href="http://mit.us2.list-manage2.com/track/click?u=9a8caadec06a0edf712df1a5e&id=ef70b5b5bf&e=46b88902b8" style="color: white !important; text-decoration: underline; font-weight: normal; display: inline-block; width: 26px; height: 26px; vertical-align: middle; margin-left: 20px; font-size: 13px;">
+                                      <img src="http://mta.mit.edu/sites/all/modules/custom/mit_newsletter/templates/assets/images/facebook_logo.png" alt="facebook" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none;"></a>
+                                  </p>
+                                </td>
+                                <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                              </tr></table>
+</td>
+
+                          <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                        </tr></table>
+</td>
+                  </tr></table>
+<!-- container end below -->
+</td>
+            </tr></table>
+<!-- Email Content END -->
+</center>
+      </td>
+    </tr></table>
+            <center>
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" id="canspamBarWrapper" style="background-color:#FFFFFF; border-top:1px solid #E5E5E5;">
+                    <tr>
+                        <td align="center" valign="top" style="padding-top:20px; padding-bottom:20px;">
+                            <table border="0" cellpadding="0" cellspacing="0" id="canspamBar">
+                                <tr>
+                                    <td align="center" valign="top" style="color:#606060; font-family:Helvetica, Arial, sans-serif; font-size:11px; line-height:150%; padding-right:20px; padding-bottom:5px; padding-left:20px; text-align:center;">
+                                        This email was sent to <a href="mailto:spang@mit.edu" target="_blank" style="color:#404040 !important;">spang@mit.edu</a>
+                                        <br />
+                                        <a href="http://mit.us2.list-manage.com/about?u=9a8caadec06a0edf712df1a5e&id=cdbb4f57b1&e=46b88902b8&c=4567355d2a" target="_blank" style="color:#404040 !important;"><em>why did I get this?</em></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://mit.us2.list-manage1.com/unsubscribe?u=9a8caadec06a0edf712df1a5e&id=cdbb4f57b1&e=46b88902b8&c=4567355d2a" style="color:#404040 !important;">unsubscribe from this list</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://mit.us2.list-manage1.com/profile?u=9a8caadec06a0edf712df1a5e&id=cdbb4f57b1&e=46b88902b8" style="color:#404040 !important;">update subscription preferences</a>
+                                        <br />
+                                        MIT Music and Theater Arts &middot; 77 Massachusetts Avenue &middot; 4-243 &middot; Cambridge, Massachusetts 02139 &middot; USA
+                                        <br />
+                                        <br />
+
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                <style type="text/css">
+                    @media only screen and (max-width: 480px){
+                        table#canspamBar td{font-size:14px !important;}
+                        table#canspamBar td a{display:block !important; margin-top:10px !important;}
+                    }
+                </style>
+            </center><img src="http://mit.us2.list-manage.com/track/open.php?u=9a8caadec06a0edf712df1a5e&id=4567355d2a&e=46b88902b8" height="1" width="1"></body>
+</html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width">
+<link rel="stylesheet" href="http://mta.mit.edu/sites/all/modules/custom/mit_newsletter/templates/assets/css/ink.css">
+<link rel="stylesheet" href="http://mta.mit.edu/sites/all/modules/custom/mit_newsletter/templates/assets/css/styles.css">
+
+<style type="text/css">
+	@media only screen and (max-width: 600px){
+		table[class=body] img{
+			width:auto !important;
+			height:auto !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] center{
+			min-width:0 !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .container{
+			width:95% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .row{
+			width:100% !important;
+			display:block !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .wrapper{
+			display:block !important;
+			padding-right:0 !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns,table[class=body] .column{
+			table-layout:fixed !important;
+			float:none !important;
+			width:100% !important;
+			padding-right:0px !important;
+			padding-left:0px !important;
+			display:block !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .wrapper.first .columns,table[class=body] .wrapper.first .column{
+			display:table !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] table.columns td,table[class=body] table.column td{
+			width:100% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.one,table[class=body] .column td.one{
+			width:8.333333% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.two,table[class=body] .column td.two{
+			width:16.666666% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.three,table[class=body] .column td.three{
+			width:25% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.four,table[class=body] .column td.four{
+			width:33.333333% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.five,table[class=body] .column td.five{
+			width:41.666666% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.six,table[class=body] .column td.six{
+			width:50% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.seven,table[class=body] .column td.seven{
+			width:58.333333% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.eight,table[class=body] .column td.eight{
+			width:66.666666% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.nine,table[class=body] .column td.nine{
+			width:75% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.ten,table[class=body] .column td.ten{
+			width:83.333333% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.eleven,table[class=body] .column td.eleven{
+			width:91.666666% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .columns td.twelve,table[class=body] .column td.twelve{
+			width:100% !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] td.offset-by-one,table[class=body] td.offset-by-two,table[class=body] td.offset-by-three,table[class=body] td.offset-by-four,table[class=body] td.offset-by-five,table[class=body] td.offset-by-six,table[class=body] td.offset-by-seven,table[class=body] td.offset-by-eight,table[class=body] td.offset-by-nine,table[class=body] td.offset-by-ten,table[class=body] td.offset-by-eleven{
+			padding-left:0 !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] table.columns td.expander{
+			width:1px !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .right-text-pad,table[class=body] .text-pad-right{
+			padding-left:10px !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .left-text-pad,table[class=body] .text-pad-left{
+			padding-right:10px !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .hide-for-small,table[class=body] .show-for-desktop{
+			display:none !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .show-for-small,table[class=body] .hide-for-desktop{
+			display:inherit !important;
+		}
+
+}	@media only screen and (max-width: 600px){
+		table[class=body] .row.footer .wrapper .seven.column,table[class=body] .row.footer .wrapper .five.column.last{
+			width:90% !important;
+			padding-left:10px !important;
+			padding-right:10px !important;
+		}
+
+}</style></head>
+<body style="width: 100% !important;min-width: 100%;-webkit-text-size-adjust: 100%;-ms-text-size-adjust: 100%;margin: 0;padding: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;text-align: left;line-height: 19px;font-size: 14px;">
+  <table class="body" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;height: 100%;width: 100%;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="center" align="center" valign="top" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0;vertical-align: top;text-align: center;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;">
+        <center style="width: 100%; min-width: 580px;">
+
+          <!-- Email Content START -->
+
+          <table class="row header" style="border-spacing: 0;border-collapse: collapse;padding: 0px;vertical-align: top;text-align: left;width: 100%;position: relative;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="center" align="center" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0;vertical-align: top;text-align: center;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;">
+                <center style="width: 100%; min-width: 580px;">
+
+                  <table class="container" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: inherit;width: 580px;margin: 0 auto;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;padding-top: 0px;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0 auto;width: 580px;padding-bottom: 0px;">
+<tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="twelve columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;width: 100%;padding-bottom: 0px;">
+                              <a href="http://mit.us2.list-manage2.com/track/click?u=9a8caadec06a0edf712df1a5e&id=17f378c63c&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;">
+                                <img src="http://mta.mit.edu/sites/default/files/public/styles/600x210/public/mit_newsletter_header_image/bassplayerheader_1.jpg" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none;"></a>
+                            </td>
+
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr>
+<tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="twelve columns sub-header" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;width: 100%;padding-bottom: 0px;">
+                              <div class="date" style="background: #ed1c24; text-align: center; text-transform: uppercase; padding: 10px; color: white; font-weight: bold; font-size: 16px;">Upcoming Events</div>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr>
+</table>
+</td>
+                    </tr></table>
+</center>
+              </td>
+            </tr></table>
+<table class="container" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: inherit;width: 580px;margin: 0 auto;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;">
+
+                <table class="row" style="border-spacing: 0;border-collapse: collapse;padding: 0px;vertical-align: top;text-align: left;width: 100%;position: relative;display: block;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;padding-right: 0px;">
+
+                      <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0 auto;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="welcome-wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;padding-bottom: 0px;">
+                            <div class="welcome-text" style="margin: 5px 5px 0px 5px; padding: 5px 5px 14px 5px; border-bottom: 1px solid #cfd2d4;">
+                                                          </div>
+                          </td>
+                          <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                        </tr></table>
+</td>
+                  </tr></table>
+<table class="row" style="border-spacing: 0;border-collapse: collapse;padding: 0px;vertical-align: top;text-align: left;width: 100%;position: relative;display: block;">
+<tr class="item node-post post-nid-5264" style="border-bottom: 1px solid #cfd2d4;padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0px 5px;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="four sub-columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 10px;width: 33.333333%;padding-left: 5px;padding-bottom: 13px;padding-top: 3px;">
+
+                              <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=89a5ed01de&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;"><img src="http://mta.mit.edu/sites/default/files/public/styles/180x180/public/field_event_thumbnail/tod.jpg" width="180" height="180" alt="" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none; height: auto !important;"></a>
+                            </td>
+                            <td class="eight sub-columns last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 5px;width: 66.666666%;padding-left: 10px;padding-top: 3px;">
+
+                              <p class="date" style="margin: 0;color: rgb(96, 106, 113);font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 1em;font-size: 12px;margin-bottom: 6px;">November 17, 2016<span style="font-weight: normal;"> | </span>5:00pm </p>
+                              <p class="title" style="margin: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 14px;margin-bottom: 0;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=c3b788cb92&e=46b88902b8" style="color: rgb(237, 28, 36) !important; text-decoration: none; font-weight: bold; font-size: 16px;">Tod Machover</a></p>
+                              <p class="sub-title" style="margin: 0;color: rgb(237, 28, 36) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 16px;margin-bottom: 0px;text-decoration: none;">MTA Composer Forum</p>
+
+                              <p class="teaser" style="margin: 0;color: rgb(96, 106, 113) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 21px;font-size: 15px;margin-bottom: 0px;margin-top: 5px;">
+                                Recent Music for Pianos, Hyperensemble and Cities
+
+Tod Machover, Muriel R. Cooper Professor of Music and Media, MIT Media Lab
+
+ 
+
+About...                                <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=acea59efd1&e=46b88902b8" class="read-more" style="color: rgb(96, 106, 113) !important; text-decoration: none; font-weight: normal; font-size: 15px; margin-top: 5px; line-height: 21px;">Read More</a>                              </p>
+                              <p class="location-price" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;margin-top: 12px;text-decoration: none;">
+                                <span style="font-weight: bold;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=09845a2796&e=46b88902b8" target="_blank" style="color: #606a71 !important; text-decoration: none; font-weight: bold; font-size: 12px;">Lewis Music Library, 14E-109</a></span> | <span style="font-weight: bold;">free</span>                              </p>
+                              <p class="reservation" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;text-decoration: none;margin-top: 4px;text-transform: uppercase;"></p>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr></table>
+</td>
+                    </tr>
+<tr class="item node-post post-nid-5293" style="border-bottom: 1px solid #cfd2d4;padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0px 5px;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="four sub-columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 10px;width: 33.333333%;padding-left: 5px;padding-bottom: 13px;padding-top: 3px;">
+
+                              <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=e3ad77895b&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;"><img src="http://mta.mit.edu/sites/default/files/public/styles/180x180/public/field_event_thumbnail/icecream.jpg" width="180" height="180" alt="" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none; height: auto !important;"></a>
+                            </td>
+                            <td class="eight sub-columns last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 5px;width: 66.666666%;padding-left: 10px;padding-top: 3px;">
+
+                              <p class="date" style="margin: 0;color: rgb(96, 106, 113);font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 1em;font-size: 12px;margin-bottom: 6px;">November 17, 2016<span style="font-weight: normal;"> | </span>7:00pm </p>
+                              <p class="title" style="margin: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 14px;margin-bottom: 0;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=0b537f6016&e=46b88902b8" style="color: rgb(237, 28, 36) !important; text-decoration: none; font-weight: bold; font-size: 16px;">UNITING THROUGH VOICE AND MUSIC</a></p>
+                              <p class="sub-title" style="margin: 0;color: rgb(237, 28, 36) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 16px;margin-bottom: 0px;text-decoration: none;">Celebrating MIT Values</p>
+
+                              <p class="teaser" style="margin: 0;color: rgb(96, 106, 113) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 21px;font-size: 15px;margin-bottom: 0px;margin-top: 5px;">
+                                In a time of change, we celebrate the enduring values that unite us at MIT. Join us for musical performances and reflections from MIT students and...                                <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=6209dee8dc&e=46b88902b8" class="read-more" style="color: rgb(96, 106, 113) !important; text-decoration: none; font-weight: normal; font-size: 15px; margin-top: 5px; line-height: 21px;">Read More</a>                              </p>
+                              <p class="location-price" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;margin-top: 12px;text-decoration: none;">
+                                <span style="font-weight: bold;">MIT Lobby 10</span> | <span style="font-weight: bold;">free</span>                              </p>
+                              <p class="reservation" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;text-decoration: none;margin-top: 4px;text-transform: uppercase;"></p>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr></table>
+</td>
+                    </tr>
+<tr class="item node-post post-nid-5260" style="border-bottom: 1px solid #cfd2d4;padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0px 5px;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="four sub-columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 10px;width: 33.333333%;padding-left: 5px;padding-bottom: 13px;padding-top: 3px;">
+
+                              <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=033db5de66&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;"><img src="http://mta.mit.edu/sites/default/files/public/styles/180x180/public/field_event_thumbnail/mitso_thumb.jpg" width="180" height="180" alt="" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none; height: auto !important;"></a>
+                            </td>
+                            <td class="eight sub-columns last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 5px;width: 66.666666%;padding-left: 10px;padding-top: 3px;">
+
+                              <p class="date" style="margin: 0;color: rgb(96, 106, 113);font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 1em;font-size: 12px;margin-bottom: 6px;">November 18, 2016<span style="font-weight: normal;"> | </span>8:00pm </p>
+                              <p class="title" style="margin: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 14px;margin-bottom: 0;"><a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=53084078a2&e=46b88902b8" style="color: rgb(237, 28, 36) !important; text-decoration: none; font-weight: bold; font-size: 16px;">MIT Symphony Orchestra</a></p>
+                              <p class="sub-title" style="margin: 0;color: rgb(237, 28, 36) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 16px;margin-bottom: 0px;text-decoration: none;">Adam K. Boyles, music director</p>
+
+                              <p class="teaser" style="margin: 0;color: rgb(96, 106, 113) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 21px;font-size: 15px;margin-bottom: 0px;margin-top: 5px;">
+                                The program will feature:
+
+Mozart, Overture to Così fan tutte; (Thus Do All Women, or The School for Lovers) an Italian opera buffa.
+
+Puccini,...                                <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=c0840d0c78&e=46b88902b8" class="read-more" style="color: rgb(96, 106, 113) !important; text-decoration: none; font-weight: normal; font-size: 15px; margin-top: 5px; line-height: 21px;">Read More</a>                              </p>
+                              <p class="location-price" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;margin-top: 12px;text-decoration: none;">
+                                <span style="font-weight: bold;"><a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=9b647d6c0f&e=46b88902b8" target="_blank" style="color: #606a71 !important; text-decoration: none; font-weight: bold; font-size: 12px;">Kresge Auditorium</a></span> | <span style="font-weight: bold;">$5</span>                              </p>
+                              <p class="reservation" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;text-decoration: none;margin-top: 4px;text-transform: uppercase;"><a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=32c3f52145&e=46b88902b8" target="_blank" style="color: rgb(237, 28, 36) !important; text-decoration: underline; font-weight: bold; font-size: 12px;">Reserve a Seat</a></p>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr></table>
+</td>
+                    </tr>
+<tr class="item node-post post-nid-5261" style="border-bottom: 1px solid #cfd2d4;padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0px 5px;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="four sub-columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 10px;width: 33.333333%;padding-left: 5px;padding-bottom: 13px;padding-top: 3px;">
+
+                              <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=870de9d49e&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;"><img src="http://mta.mit.edu/sites/default/files/public/styles/180x180/public/field_event_thumbnail/cutter_copy.jpg" width="180" height="180" alt="" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none; height: auto !important;"></a>
+                            </td>
+                            <td class="eight sub-columns last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 5px;width: 66.666666%;padding-left: 10px;padding-top: 3px;">
+
+                              <p class="date" style="margin: 0;color: rgb(96, 106, 113);font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 1em;font-size: 12px;margin-bottom: 6px;">November 19, 2016<span style="font-weight: normal;"> | </span>8:00pm </p>
+                              <p class="title" style="margin: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 14px;margin-bottom: 0;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=175677fae9&e=46b88902b8" style="color: rgb(237, 28, 36) !important; text-decoration: none; font-weight: bold; font-size: 16px;">MIT Chamber Chorus</a></p>
+                              <p class="sub-title" style="margin: 0;color: rgb(237, 28, 36) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 16px;margin-bottom: 0px;text-decoration: none;">William Cutter, director</p>
+
+                              <p class="teaser" style="margin: 0;color: rgb(96, 106, 113) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 21px;font-size: 15px;margin-bottom: 0px;margin-top: 5px;">
+                                The program will feature Händel, The ways of Zion do mourn (HWV 264), a Funeral Anthem for Queen Caroline; Bach, Komm, du Süsse Todesstunde, BWV 161...                                <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=1213378c68&e=46b88902b8" class="read-more" style="color: rgb(96, 106, 113) !important; text-decoration: none; font-weight: normal; font-size: 15px; margin-top: 5px; line-height: 21px;">Read More</a>                              </p>
+                              <p class="location-price" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;margin-top: 12px;text-decoration: none;">
+                                <span style="font-weight: bold;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=0b38b784d1&e=46b88902b8" target="_blank" style="color: #606a71 !important; text-decoration: none; font-weight: bold; font-size: 12px;">MIT Chapel</a></span> | <span style="font-weight: bold;">$5</span>                              </p>
+                              <p class="reservation" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;text-decoration: none;margin-top: 4px;text-transform: uppercase;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=fafc38164d&e=46b88902b8" target="_blank" style="color: rgb(237, 28, 36) !important; text-decoration: underline; font-weight: bold; font-size: 12px;">Reserve a Seat</a></p>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr></table>
+</td>
+                    </tr>
+<tr class="last node-post post-nid-5266" style="border-bottom: none;padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                        <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0px 5px;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="four sub-columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 10px;width: 33.333333%;padding-left: 5px;padding-bottom: 13px;padding-top: 3px;">
+
+                              <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=3536f5cca4&e=46b88902b8" style="color: black; text-decoration: underline; font-weight: bold;"><img src="http://mta.mit.edu/sites/default/files/public/styles/180x180/public/field_event_thumbnail/vje_0.jpg" width="180" height="180" alt="" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none; height: auto !important;"></a>
+                            </td>
+                            <td class="eight sub-columns last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;min-width: 0px;padding-right: 5px;width: 66.666666%;padding-left: 10px;padding-top: 3px;">
+
+                              <p class="date" style="margin: 0;color: rgb(96, 106, 113);font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 1em;font-size: 12px;margin-bottom: 6px;">November 20, 2016<span style="font-weight: normal;"> | </span>7:00pm </p>
+                              <p class="title" style="margin: 0;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 14px;margin-bottom: 0;"><a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=4ca68144b2&e=46b88902b8" style="color: rgb(237, 28, 36) !important; text-decoration: none; font-weight: bold; font-size: 16px;">Vocal Jazz Ensemble</a></p>
+                              <p class="sub-title" style="margin: 0;color: rgb(237, 28, 36) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 16px;margin-bottom: 0px;text-decoration: none;">Standards with a Twist</p>
+
+                              <p class="teaser" style="margin: 0;color: rgb(96, 106, 113) !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 21px;font-size: 15px;margin-bottom: 0px;margin-top: 5px;">
+                                This program by the MIT Vocal Jazz Ensemble will feature Standards with a Twist, arrangements created by the members of the Vocal Jazz Ensemble and...                                <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=61b7ef1928&e=46b88902b8" class="read-more" style="color: rgb(96, 106, 113) !important; text-decoration: none; font-weight: normal; font-size: 15px; margin-top: 5px; line-height: 21px;">Read More</a>                              </p>
+                              <p class="location-price" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;margin-top: 12px;text-decoration: none;">
+                                <span style="font-weight: bold;"><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=4c5f876205&e=46b88902b8" target="_blank" style="color: #606a71 !important; text-decoration: none; font-weight: bold; font-size: 12px;">Killian Hall</a></span> | <span style="font-weight: bold;">free</span>                              </p>
+                              <p class="reservation" style="margin: 0;color: #606a71 !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: bold;padding: 0;text-align: left;line-height: 19px;font-size: 12px;margin-bottom: 0px;text-decoration: none;margin-top: 4px;text-transform: uppercase;">Reservations not required</p>
+                            </td>
+                            <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                          </tr></table>
+</td>
+                    </tr>
+</table>
+<table class="row footer" style="border-spacing: 0;border-collapse: collapse;padding: 0px;vertical-align: top;text-align: left;width: 100%;position: relative;display: block;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="wrapper" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 10px 20px 0px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;position: relative;">
+
+                      <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0 auto;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="twelve columns" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 30px 0px 10px 0px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;width: 100%;background: #606a71;">
+                            <table class="twelve columns" style="border-spacing: 0;border-collapse: collapse;padding: 0;vertical-align: top;text-align: left;margin: 0 auto;width: 580px;"><tr style="padding: 0;vertical-align: top;text-align: left;">
+<td class="seven column" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;width: 58.333333%;padding-left: 10px;">
+
+                                  <p class="footer-logo-wrapper" style="margin: 0;color: white !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 13px;margin-bottom: 12px;">
+                                    <img src="http://mta.mit.edu/sites/all/modules/custom/mit_newsletter/templates/assets/images/footer_logo.png" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: none; clear: both; display: block; margin-left: 5px;"></p>
+
+                                  <p class="copyright-wrapper" style="margin: 0;color: white !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 13px;margin-bottom: 17px;">Copyright © 2015 MIT Music and Theater Arts,<br> All rig hts reserved.</p>
+
+                                  <p class="address-wrapper" style="margin: 0;color: white !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 18px;font-size: 13px;margin-bottom: 10px;"><strong>MIT Music and Theater Arts</strong><br>
+                                  77 Massachusetts Avenue 4-243<br>
+                                  Cambridge, Massachusetts 02139<br><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=709e6cfca0&e=46b88902b8" style="color: white !important; text-decoration: underline; font-weight: normal; font-size: 13px;">Campus map</a> | <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=f0e01c15c2&e=46b88902b8" style="color: white !important; text-decoration: underline; font-weight: normal; font-size: 13px;">Parking</a>
+                                </p>
+</td>
+                                <td class="five column last" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;padding-right: 10px;width: 41.666666%;padding-left: 0px;">
+
+                                  <p style="margin: 0;color: white !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 13px;margin-bottom: 10px;">You are receiving this email because you have requested to receive the MIT Music and Theater Arts Calendar of Events.</p>
+                                  <p class="links-wrapper" style="margin: 0;color: white !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 13px;margin-bottom: 3px;margin-top: 15px;">
+                                    <a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=ba3c76d3a3&e=46b88902b8" style="color: white !important; text-decoration: underline; font-weight: normal; font-size: 13px;">add us to your address book</a><br><a href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=0347d2e871&e=46b88902b8" style="color: white !important; text-decoration: underline; font-weight: normal; font-size: 13px;">unsubscribe from this list</a><br><a href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=8104a607a9&e=46b88902b8" style="color: white !important; text-decoration: underline; font-weight: normal; font-size: 13px;">forward to a friend</a>
+                                  </p>
+
+                                  <p class="follow-wrapper" style="margin: 0;color: white !important;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;padding: 0;text-align: left;line-height: 19px;font-size: 13px;margin-bottom: 10px;margin-top: 13px;">
+                                    <span style="display: inline-block; margin-top: 2px; vertical-align: middle;">Follow MTA</span>
+                                    <a class="twitter-link" href="http://mit.us2.list-manage.com/track/click?u=9a8caadec06a0edf712df1a5e&id=ea1fb7c132&e=46b88902b8" style="color: white !important; text-decoration: underline; font-weight: normal; display: inline-block; width: 26px; height: 26px; vertical-align: middle; margin-left: 20px; font-size: 13px;">
+                                      <img src="http://mta.mit.edu/sites/all/modules/custom/mit_newsletter/templates/assets/images/twitter_logo.png" alt="twitter" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none;"></a>
+                                    <a class="facebook-link" href="http://mit.us2.list-manage1.com/track/click?u=9a8caadec06a0edf712df1a5e&id=d33d557aae&e=46b88902b8" style="color: white !important; text-decoration: underline; font-weight: normal; display: inline-block; width: 26px; height: 26px; vertical-align: middle; margin-left: 20px; font-size: 13px;">
+                                      <img src="http://mta.mit.edu/sites/all/modules/custom/mit_newsletter/templates/assets/images/facebook_logo.png" alt="facebook" style="outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; width: auto; max-width: 100%; float: left; clear: both; display: block; border: none;"></a>
+                                  </p>
+                                </td>
+                                <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                              </tr></table>
+</td>
+
+                          <td class="expander" style="word-break: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;border-collapse: collapse !important;padding: 0px 0px 10px;vertical-align: top;text-align: left;color: #222222;font-family: 'Helvetica', 'Arial', sans-serif;font-weight: normal;margin: 0;line-height: 19px;font-size: 14px;visibility: hidden;width: 0px;"></td>
+                        </tr></table>
+</td>
+                  </tr></table>
+<!-- container end below -->
+</td>
+            </tr></table>
+<!-- Email Content END -->
+</center>
+      </td>
+    </tr></table>
+            <center>
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" id="canspamBarWrapper" style="background-color:#FFFFFF; border-top:1px solid #E5E5E5;">
+                    <tr>
+                        <td align="center" valign="top" style="padding-top:20px; padding-bottom:20px;">
+                            <table border="0" cellpadding="0" cellspacing="0" id="canspamBar">
+                                <tr>
+                                    <td align="center" valign="top" style="color:#606060; font-family:Helvetica, Arial, sans-serif; font-size:11px; line-height:150%; padding-right:20px; padding-bottom:5px; padding-left:20px; text-align:center;">
+                                        This email was sent to <a href="mailto:spang@mit.edu" target="_blank" style="color:#404040 !important;">spang@mit.edu</a>
+                                        <br />
+                                        <a href="http://mit.us2.list-manage2.com/about?u=9a8caadec06a0edf712df1a5e&id=cdbb4f57b1&e=46b88902b8&c=c94d4a5dcf" target="_blank" style="color:#404040 !important;"><em>why did I get this?</em></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://mit.us2.list-manage.com/unsubscribe?u=9a8caadec06a0edf712df1a5e&id=cdbb4f57b1&e=46b88902b8&c=c94d4a5dcf" style="color:#404040 !important;">unsubscribe from this list</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://mit.us2.list-manage2.com/profile?u=9a8caadec06a0edf712df1a5e&id=cdbb4f57b1&e=46b88902b8" style="color:#404040 !important;">update subscription preferences</a>
+                                        <br />
+                                        MIT Music and Theater Arts &middot; 77 Massachusetts Avenue &middot; 4-243 &middot; Cambridge, Massachusetts 02139 &middot; USA
+                                        <br />
+                                        <br />
+
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                <style type="text/css">
+                    @media only screen and (max-width: 480px){
+                        table#canspamBar td{font-size:14px !important;}
+                        table#canspamBar td a{display:block !important; margin-top:10px !important;}
+                    }
+                </style>
+            </center><img src="http://mit.us2.list-manage.com/track/open.php?u=9a8caadec06a0edf712df1a5e&id=c94d4a5dcf&e=46b88902b8" height="1" width="1"></body>
+</html>
