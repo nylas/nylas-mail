@@ -13,6 +13,17 @@ function forEachJSONFixture(relativePath, callback) {
   });
 }
 
+function forEachHTMLAndTXTFixture(relativePath, callback) {
+  const fixturesDir = path.join(FIXTURES_PATH, relativePath);
+  const filenames = fs.readdirSync(fixturesDir).filter(f => f.endsWith('.html'));
+  filenames.forEach((filename) => {
+    const html = fs.readFileSync(path.join(fixturesDir, filename)).toString();
+    const basename = path.parse(filename).name;
+    const txt = fs.readFileSync(path.join(fixturesDir, `${basename}.txt`)).toString().replace(/\n$/, '');
+    callback(filename, html, txt);
+  });
+}
+
 const silentLogger = {
   info: () => {},
   warn: () => {},
@@ -25,4 +36,5 @@ module.exports = {
   ACCOUNT_ID,
   silentLogger,
   forEachJSONFixture,
+  forEachHTMLAndTXTFixture,
 }

@@ -1,7 +1,6 @@
 const _ = require('underscore');
 const cryptography = require('crypto');
 const mimelib = require('mimelib');
-const striptags = require('striptags');
 const encoding = require('encoding');
 
 const {Imap} = require('isomorphic-core');
@@ -50,6 +49,70 @@ function setReplyHeaders(newMessage, prevMessage) {
       newMessage.references = [prevMessage.messageIdHeader];
     }
   }
+}
+
+/*
+Iteratively walk the DOM of this document's <body>, calling the callback on
+each node. Skip any nodes and the skipTags set, including their children.
+*/
+function _walkBodyDOM(doc, callback, skipTags) {
+  let nodes = Array.from(doc.body.childNodes);
+
+  while (nodes.length) {
+    const node = nodes.shift();
+
+    callback(node);
+
+    if (!skipTags.has(node.tagName)) {
+      if (node.childNodes && node.childNodes.length) {
+        nodes = Array.from(node.childNodes).concat(nodes);
+      }
+    }
+  }
+}
+
+function extractSnippet(plainBody, htmlBody) {
+  let snippetText = plainBody || '';
+  if (htmlBody) {
+    const doc = new DOMParser().parseFromString(htmlBody, 'text/html')
+    const extractedTextElements = [];
+
+    _walkBodyDOM(doc, (node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const nodeValue = node.nodeValue ? node.nodeValue.trim() : null;
+        if (nodeValue) {
+          extractedTextElements.push(nodeValue);
+        }
+      }
+    }, new Set(['TITLE', 'SCRIPT', 'STYLE', 'IMG']));
+
+    const extractedText = extractedTextElements.join(' ').trim();
+    if (extractedText) {
+      snippetText = extractedText;
+    }
+  }
+
+  // clean up and trim snippet
+  let trimmed = snippetText.trim().replace(/[\n\r]/g, ' ').replace(/\s\s+/g, ' ').substr(0, SNIPPET_MAX_SIZE);
+  if (trimmed) {
+  // TODO: strip quoted text from snippets also
+    // trim down to approx. SNIPPET_SIZE w/out cutting off words right in the
+    // middle (if possible)
+    const wordBreak = trimmed.indexOf(' ', SNIPPET_SIZE);
+    if (wordBreak !== -1) {
+      trimmed = trimmed.substr(0, wordBreak);
+    }
+  }
+  return trimmed;
+}
+
+/*
+Preserve whitespacing on plaintext emails -- has the side effect of
+monospacing, but that seems OK and perhaps sometimes even desired (for e.g.
+ascii art, alignment)
+*/
+function HTMLifyPlaintext(text) {
+  return `<pre class="nylas-plaintext">${text}</pre>`;
 }
 
 /*
@@ -109,34 +172,11 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
     subject: parsedHeaders.subject[0],
   }
 
-  // preserve whitespacing on plaintext emails -- has the side effect of monospacing, but
-  // that seems OK and perhaps sometimes even desired (for e.g. ascii art, alignment)
   if (!body['text/html'] && body['text/plain']) {
-    parsedMessage.body = `<pre class="nylas-plaintext">${parsedMessage.body}</pre>`;
+    parsedMessage.body = HTMLifyPlaintext(body['text/plain']);
   }
 
-  // populate initial snippet
-  if (body['text/plain']) {
-    parsedMessage.snippet = body['text/plain'].trim().substr(0, SNIPPET_MAX_SIZE);
-  } else if (parsedMessage.body) {
-    // create snippet from body, which is most likely html. we strip tags but
-    // don't currently support stripping embedded CSS
-    parsedMessage.snippet = striptags(parsedMessage.body).trim().substr(0,
-      Math.min(parsedMessage.body.length, SNIPPET_MAX_SIZE));
-  }
-
-  // clean up and trim snippet
-  if (parsedMessage.snippet) {
-  // TODO: strip quoted text from snippets also
-    parsedMessage.snippet = parsedMessage.snippet.replace(/[\n\r]/g, ' ').replace(/\s\s+/g, ' ')
-    // trim down to approx. SNIPPET_SIZE w/out cutting off words right in the
-    // middle (if possible)
-    const wordBreak = parsedMessage.snippet.indexOf(' ', SNIPPET_SIZE);
-    if (wordBreak !== -1) {
-      parsedMessage.snippet = parsedMessage.snippet.substr(0, wordBreak);
-    }
-  }
-
+  parsedMessage.snippet = extractSnippet(body['text/plain'], body['text/html']);
   parsedMessage.folder = folder
 
   // TODO: unclear if this is necessary given we already have parsed labels
@@ -232,6 +272,7 @@ async function associateFromJSON(data, db) {
 
 module.exports = {
   parseFromImap,
+  extractSnippet,
   fromJSON,
   associateFromJSON,
 }
