@@ -6,6 +6,7 @@
         "ui-light"
       ],
       "disabledPackages": [
+        "composer-markdown",
         "message-view-on-github",
         "personal-level-indicators",
         "phishing-detection",
