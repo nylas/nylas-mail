@@ -35,6 +35,7 @@ module.exports = (server) => {
       description: `open-tracking`,
       notes: 'Notes go here',
       tags: ['open-tracking'],
+      auth: false,
       validate: {
         params: {
           accountId: Joi.string().required(),
