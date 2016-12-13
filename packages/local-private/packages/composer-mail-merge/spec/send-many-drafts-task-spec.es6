@@ -12,7 +12,7 @@ import SendManyDraftsTask from '../lib/send-many-drafts-task'
 import {PLUGIN_ID} from '../lib/mail-merge-constants'
 
 
-describe('SendManyDraftsTask', function describeBlock() {
+xdescribe('SendManyDraftsTask', function describeBlock() {
   beforeEach(() => {
     this.baseDraft = new Message({
       clientId: 'baseId',
