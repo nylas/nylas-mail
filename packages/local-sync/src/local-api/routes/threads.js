@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const stream = require('stream');
 const _ = require('underscore');
 const Serialization = require('../serialization');
 const {createSyncbackRequest} = require('../route-helpers')
@@ -69,8 +70,13 @@ module.exports = (server) => {
       const account = request.auth.credentials;
       const db = await request.getAccountDatabase();
       const client = searchClientForAccount(account);
-      const threads = await client.searchThreads(db, request.query.q, request.query.limit);
-      reply(`${JSON.stringify(threads)}\n`);
+      const source = await client.searchThreads(db, request.query.q, request.query.limit);
+
+      const outputStream = stream.Readable();
+      outputStream._read = () => { return };
+      const disposable = source.subscribe((str) => outputStream.push(str));
+      request.on("disconnect", () => disposable.dispose());
+      reply(outputStream);
     },
   });
 
