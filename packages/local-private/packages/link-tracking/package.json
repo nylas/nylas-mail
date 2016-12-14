@@ -3,7 +3,7 @@
   "main": "./lib/main",
   "version": "0.1.0",
   "serverUrl": {
-    "development": "https://lvh.me:5100",
+    "development": "http://lvh.me:5100",
     "staging": "https://n1-staging.nylas.com",
     "production": "https://n1.nylas.com"
   },

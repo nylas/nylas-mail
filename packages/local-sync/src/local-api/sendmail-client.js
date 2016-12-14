@@ -96,10 +96,10 @@ class SendmailClient {
     const serverUrl = {
       local: 'http:\/\/lvh\.me:5100',
       development: 'http:\/\/lvh\.me:5100',
-      staging: 'https:\/\/n1cloud-staging\.nylas\.com',
-      production: 'https:\/\/n1cloud\.nylas\.com',
+      staging: 'https:\/\/n1-staging\.nylas\.com',
+      production: 'https:\/\/n1\.nylas\.com',
     }[process.env];
-    const regex = new RegExp(`${serverUrl}\/.+MESSAGE_ID`, 'g')
+    const regex = new RegExp(`${serverUrl}.+MESSAGE_ID`, 'g')
     return body.replace(regex, (match) => {
       return match.replace('MESSAGE_ID', id)
     })
