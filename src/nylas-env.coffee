@@ -865,7 +865,7 @@ class NylasEnvConstructor
     options.title ?= 'Save File'
     callback(remote.dialog.showSaveDialog(@getCurrentWindow(), options))
 
-  showErrorDialog: (messageData, {showInMainWindow}={}) ->
+  showErrorDialog: (messageData, {showInMainWindow, detail}={}) ->
     if _.isString(messageData) or _.isNumber(messageData)
       message = messageData
       title = "Error"
@@ -879,12 +879,35 @@ class NylasEnvConstructor
     if showInMainWindow
       winToShow = remote.getGlobal('application').getMainWindow()
 
-    remote.dialog.showMessageBox winToShow, {
-      type: 'warning'
-      buttons: ['Okay'],
-      message: title
-      detail: message
-    }
+    if !detail
+      remote.dialog.showMessageBox winToShow, {
+        type: 'warning'
+        buttons: ['Okay'],
+        message: title
+        detail: message
+      }
+    else
+      withoutDetails = ->
+        remote.dialog.showMessageBox winToShow, {
+          type: 'warning'
+          buttons: ['Okay', 'Show Details'],
+          message: title
+          detail: message
+        }, (buttonIndex) ->
+          if buttonIndex == 1
+            withDetails()
+
+      withDetails = ->
+        remote.dialog.showMessageBox winToShow, {
+          type: 'warning'
+          buttons: ['Okay', 'Hide Details'],
+          message: title
+          detail: message + '\n\nDetails\n‾‾‾‾‾‾‾‾‾‾\n' + detail
+        }, (buttonIndex) ->
+          if buttonIndex == 1
+            withoutDetails()
+
+      withoutDetails()
 
   # Delegate to the browser's process fileListCache
   fileListCache: ->

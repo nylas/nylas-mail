@@ -58,7 +58,7 @@ class ComposerWithWindowProps extends React.Component {
       NylasEnv.displayWindow();
 
       if (this.state.errorMessage) {
-        this._showInitialErrorDialog(this.state.errorMessage);
+        this._showInitialErrorDialog(this.state.errorMessage, this.state.errorDetail);
       }
 
       // This will start loading the rest of the composer's plugins. This
@@ -87,18 +87,12 @@ class ComposerWithWindowProps extends React.Component {
     );
   }
 
-  _showInitialErrorDialog(msg) {
-    const dialog = remote.dialog;
+  _showInitialErrorDialog(msg, detail) {
     // We delay so the view has time to update the restored draft. If we
     // don't delay the modal may come up in a state where the draft looks
     // like it hasn't been restored or has been lost.
     _.delay(() => {
-      dialog.showMessageBox(remote.getCurrentWindow(), {
-        type: 'warning',
-        buttons: ['Okay'],
-        message: "Error",
-        detail: msg,
-      });
+      NylasEnv.showErrorDialog({title: 'Error', message: msg}, {detail: detail})
     }, 100);
   }
 }

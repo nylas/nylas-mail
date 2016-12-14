@@ -256,6 +256,7 @@ export default class SendDraftTask extends BaseDraftTask {
         threadId: this.draft.threadId,
         draftClientId: this.draft.clientId,
         errorMessage: message,
+        errorDetail: err.message + (err.error ? err.error.stack : '') + err.stack,
       });
     }
     NylasEnv.reportError(err);

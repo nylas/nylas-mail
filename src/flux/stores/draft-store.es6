@@ -425,7 +425,7 @@ class DraftStore extends NylasStore {
     this.trigger(draftClientId);
   }
 
-  _onSendDraftFailed = ({draftClientId, threadId, errorMessage}) => {
+  _onSendDraftFailed = ({draftClientId, threadId, errorMessage, errorDetail}) => {
     this._draftsSending[draftClientId] = false;
     this.trigger(draftClientId);
     if (NylasEnv.isMainWindow()) {
@@ -436,17 +436,17 @@ class DraftStore extends NylasStore {
       // We also need to delay because the old draft window needs to fully
       // close. It takes windows currently (June 2016) 100ms to close by
       setTimeout(() => {
-        this._notifyUserOfError({draftClientId, threadId, errorMessage});
+        this._notifyUserOfError({draftClientId, threadId, errorMessage, errorDetail});
       }, 300);
     }
   }
 
-  _notifyUserOfError({draftClientId, threadId, errorMessage}) {
+  _notifyUserOfError({draftClientId, threadId, errorMessage, errorDetail}) {
     const focusedThread = FocusedContentStore.focused('thread');
     if (threadId && focusedThread && focusedThread.id === threadId) {
-      NylasEnv.showErrorDialog(errorMessage);
+      NylasEnv.showErrorDialog(errorMessage, {detail: errorDetail});
     } else {
-      Actions.composePopoutDraft(draftClientId, {errorMessage});
+      Actions.composePopoutDraft(draftClientId, {errorMessage, errorDetail});
     }
   }
 }
