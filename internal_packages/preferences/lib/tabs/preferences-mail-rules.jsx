@@ -45,7 +45,7 @@ class PreferencesMailRules extends React.Component {
     if (!accounts.find(acct => acct === currentAccount)) {
       currentAccount = accounts[0];
     }
-    const rules = MailRulesStore.rulesForAccountId(currentAccount.accountId);
+    const rules = MailRulesStore.rulesForAccountId(currentAccount.id);
     const selectedRule = this.state && this.state.selectedRule ? _.findWhere(rules, {id: this.state.selectedRule.id}) : rules[0];
 
     return {
@@ -61,7 +61,7 @@ class PreferencesMailRules extends React.Component {
 
   _onSelectAccount = (event) => {
     const accountId = event.target.value;
-    const currentAccount = this.state.accounts.find(acct => acct.accountId === accountId);
+    const currentAccount = this.state.accounts.find(acct => acct.id === accountId);
     this.setState({currentAccount: currentAccount}, () => {
       this.setState(this._getStateFromStores())
     });
@@ -83,12 +83,12 @@ class PreferencesMailRules extends React.Component {
       NylasEnv.showErrorDialog("One or more of your mail rules requires the bodies of messages being processed. These rules can't be run on your entire mailbox.");
     }
 
-    const task = new ReprocessMailRulesTask(this.state.currentAccount.accountId)
+    const task = new ReprocessMailRulesTask(this.state.currentAccount.id)
     Actions.queueTask(task);
   }
 
   _onAddRule = () => {
-    Actions.addMailRule({accountId: this.state.currentAccount.accountId});
+    Actions.addMailRule({accountId: this.state.currentAccount.id});
   }
 
   _onSelectRule = (rule) => {
@@ -134,12 +134,12 @@ class PreferencesMailRules extends React.Component {
 
   _renderAccountPicker() {
     const options = this.state.accounts.map(account =>
-      <option value={account.accountId} key={account.accountId}>{account.label}</option>
+      <option value={account.id} key={account.id}>{account.label}</option>
     );
 
     return (
       <select
-        value={this.state.currentAccount.accountId}
+        value={this.state.currentAccount.id}
         onChange={this._onSelectAccount}
         style={{margin: 0, minWidth: 200}}
       >
