@@ -56,7 +56,7 @@ module.exports = (server) => {
 
       if (!redirect) {
         reply('').code(404)
-      } else if (!redirect.startsWith('http://') || !redirect.startsWith('https://')) {
+      } else if (!redirect.startsWith('http://') && !redirect.startsWith('https://')) {
         redirect = `https://${redirect}`
       }
       const recipient = r ? Base64.decode(r) : null
