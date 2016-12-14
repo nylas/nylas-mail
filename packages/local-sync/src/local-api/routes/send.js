@@ -9,10 +9,13 @@ const SEND_TIMEOUT = 1000 * 60; // millliseconds
 const recipient = Joi.object().keys({
   name: Joi.string().required(),
   email: Joi.string().email().required(),
+  // Rest are optional
   account_id: Joi.string(),
   client_id: Joi.string(),
   id: Joi.string(),
   thirdPartyData: Joi.object(),
+  server_id: Joi.string(),
+  object: Joi.string(),
 });
 const recipientList = Joi.array().items(recipient);
 
