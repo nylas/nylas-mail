@@ -66,6 +66,7 @@ The Nylas N1 user interface is styled using CSS, which means it's easy to modify
 - [Gmail](https://github.com/dregitsky/n1-gmail-theme)
 - [Darkish](https://github.com/dyrnade/N1-Darkish)
 - [Slack](https://github.com/jodyheavener/N1-Slack) inspired theme
+- [MDL](https://github.com/Rawnly/n1-mdl) - based on [Google MDL Palette](https://material.google.com/style/color.html#color-color-palette)
 
 #### To install community themes:
 
