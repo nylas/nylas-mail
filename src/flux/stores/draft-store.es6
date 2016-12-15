@@ -139,7 +139,9 @@ class DraftStore extends NylasStore {
       // Important: There are some scenarios where all the promises resolve instantly.
       // Firing NylasEnv.close() does nothing if called within an existing beforeUnload
       // handler, so we need to always defer by one tick before re-firing close.
-      Promise.settle(promises).then(() => {
+      // NOTE: this replaces Promise.settle:
+      // http://bluebirdjs.com/docs/api/reflect.html
+      Promise.all(promises.map(p => p.reflect())).then(() => {
         this._draftSessions = {};
         // We have to wait for accumulateAndTrigger() in the DatabaseStore to
         // send events to ActionBridge before closing the window.
