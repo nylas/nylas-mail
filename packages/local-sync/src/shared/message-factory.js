@@ -24,9 +24,14 @@ function extractContacts(input) {
   const s = `["${input[0].replace(/"/g, '\\"').replace(/, /g, '", "')}"]`;
   const values = JSON.parse(s);
   return values.map(v => {
-    const {name, address: email} = mimelib.parseAddresses(v).pop()
+    const parsed = mimelib.parseAddresses(v)
+    if (!parsed || parsed.length === 0) {
+      return null
+    }
+    const {name, address: email} = parsed.pop()
     return {name, email}
   })
+  .filter(c => c != null)
 }
 
 /*
