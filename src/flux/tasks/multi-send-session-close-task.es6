@@ -4,7 +4,7 @@ import Actions from '../actions';
 import {APIError} from '../errors';
 import NylasAPI from '../nylas-api';
 import * as NylasAPIHelpers from '../nylas-api-helpers';
-import NylasAPIRequest from '../nylas-api-request';
+import SyncbackTaskAPIRequest from '../syncback-task-api-request';
 import TaskQueue from '../../flux/stores/task-queue';
 import SoundRegistry from '../../registries/sound-registry';
 import MultiSendToIndividualTask from './multi-send-to-individual-task';
@@ -45,7 +45,7 @@ export default class MultiSendSessionCloseTask extends Task {
   }
 
   performRemote() {
-    return new NylasAPIRequest({
+    return new SyncbackTaskAPIRequest({
       api: NylasAPI,
       options: {
         timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent

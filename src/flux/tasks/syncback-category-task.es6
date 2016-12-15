@@ -61,28 +61,16 @@ export default class SyncbackCategoryTask extends Task {
         // returnsModel must be false because we want to update the
         // existing model rather than returning a new model.
         returnsModel: false,
-        onSyncbackRequestCreated: (json) => {
-          // TODO
-          // Previously, when we sent the request to create a folder or label to our api,
-          // we would immediately get back a serverId because it was created optimistically
-          // in the back end. Given that K2 is strictly non-optimistic, we won’t have a serverId
-          // until some undetermined time in the future.
-          //
-          // For now, the simplest solution is for the created syncback request to
-          // include the id of the category that will eventually be created
-          // (given that ids are generated deterministically).
-          // We’ll need to revisit this in the future for other types of objects
-          // (drafts, contacts, events), and revisit how we will manage optimistic
-          // updates in N1 when we merge the 2 codebases with K2
-          this.category.serverId = json.props.objectId || null
-          if (!this.category.serverId) {
-            throw new Error('SyncbackRequest for creating category did not return a serverId!')
-          }
-          return DatabaseStore.inTransaction(t => t.persistModel(this.category))
-        },
       },
     })
     .run()
+    .then((responseJSON) => {
+      this.category.serverId = responseJSON.categoryId
+      if (!this.category.serverId) {
+        throw new Error('SyncbackRequest for creating category did not return a serverId!')
+      }
+      return DatabaseStore.inTransaction(t => t.persistModel(this.category))
+    })
     .thenReturn(Task.Status.Success)
     .catch(APIError, (err) => {
       if (!NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {

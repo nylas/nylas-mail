@@ -3,7 +3,7 @@ import {RegExpUtils} from 'nylas-exports';
 import Task from './task';
 import {APIError} from '../errors';
 import NylasAPI from '../nylas-api';
-import NylasAPIRequest from '../nylas-api-request';
+import SyncbackTaskAPIRequest from '../syncback-task-api-request';
 
 
 export default class MultiSendToIndividualTask extends Task {
@@ -14,7 +14,7 @@ export default class MultiSendToIndividualTask extends Task {
   }
 
   performRemote() {
-    return new NylasAPIRequest({
+    return new SyncbackTaskAPIRequest({
       api: NylasAPI,
       options: {
         method: "POST",
@@ -33,9 +33,7 @@ export default class MultiSendToIndividualTask extends Task {
       },
     })
     .run()
-    .then(() => {
-      return Promise.resolve(Task.Status.Success);
-    })
+    .thenReturn(Task.Status.Success)
     .catch((err) => {
       // NOTE: We do NOT show any error messages here since there may be
       // dozens of these tasks. The `MultieSendSessionCloseTask`

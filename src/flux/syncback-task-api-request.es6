@@ -1,5 +1,6 @@
 import Actions from './actions'
 import NylasAPIRequest from './nylas-api-request'
+import {APIError} from './errors'
 
 
 /**
@@ -16,6 +17,7 @@ import NylasAPIRequest from './nylas-api-request'
 class SyncbackTaskAPIRequest {
 
   constructor({api, options}) {
+    options.returnsModel = true
     this._request = new NylasAPIRequest({api, options})
     this._onSyncbackRequestCreated = options.onSyncbackRequestCreated || (() => {})
   }
@@ -27,15 +29,20 @@ class SyncbackTaskAPIRequest {
         await this._onSyncbackRequestCreated(syncbackRequest)
         const syncbackRequestId = syncbackRequest.id
         const unsubscribe = Actions.didReceiveSyncbackRequestDeltas
-        .listen((deltas) => {
-          const failed = deltas.failed.find(d => d.objectId === syncbackRequestId)
-          const succeeded = deltas.succeeded.find(d => d.objectId === syncbackRequestId)
+        .listen((syncbackRequests) => {
+          const failed = syncbackRequests.find(r => r.id === syncbackRequestId && r.status === 'FAILED')
+          const succeeded = syncbackRequests.find(r => r.id === syncbackRequestId && r.status === 'SUCCEEDED')
           if (failed) {
             unsubscribe()
-            reject(failed.attributes.error)
+            const error = new APIError({
+              error: failed.error,
+              body: failed.error.message,
+              statusCode: failed.error.statusCode,
+            })
+            reject(error)
           } else if (succeeded) {
             unsubscribe()
-            resolve(syncbackRequest)
+            resolve(succeeded.responseJSON || {})
           }
         })
       } catch (err) {
