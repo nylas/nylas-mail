@@ -2,7 +2,6 @@ _ = require 'underscore'
 Rx = require 'rx-lite'
 NylasStore = require 'nylas-store'
 AccountStore = require('./account-store').default
-NylasSyncStatusStore = require './nylas-sync-status-store'
 Account = require('../models/account').default
 {StandardCategoryNames} = require('../models/category').default
 {Categories} = require 'nylas-observables'
@@ -129,34 +128,6 @@ class CategoryStore extends NylasStore
   #
   getSpamCategory: (accountOrId) =>
     @getStandardCategory(accountOrId, "spam")
-
-  # Public: Returns a promise that resolves when the categories for a given
-  # account have been loaded into the local cache
-  #
-  whenCategoriesReady: (accountOrId) =>
-    accounts = AccountStore.accounts()
-    accounts = [asAccount(accountOrId)] if accountOrId
-
-    categoriesReady = =>
-      _.every accounts, (acc) =>
-        populated = @categories(acc).length > 0
-        fetched = NylasSyncStatusStore.isSyncCompleteForAccount(acc.id, acc.categoryCollection())
-        return populated and fetched
-
-    if not categoriesReady()
-      return new Promise (resolve) =>
-        syncStatusObservable = Rx.Observable.fromStore(NylasSyncStatusStore)
-        categoryObservable = Rx.Observable.fromStore(@)
-
-        disposable = Rx.Observable.merge(
-          syncStatusObservable,
-          categoryObservable
-        ).subscribe =>
-          if categoriesReady()
-            disposable.dispose()
-            resolve()
-
-    return Promise.resolve()
 
   _onCategoriesChanged: (categories) =>
     @_categoryResult = categories

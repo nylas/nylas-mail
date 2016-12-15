@@ -13,7 +13,7 @@ export default class OfflineNotification extends React.Component {
   componentDidMount() {
     this.unlisten = NylasSyncStatusStore.listen(() => {
       const nextState = this.getStateFromStores();
-      if ((nextState.connected !== this.state.connected) || (nextState.nextRetryText !== this.state.nextRetryText)) {
+      if ((nextState.connected !== this.state.connected)) {
         this.setState(nextState);
       }
     });
@@ -42,29 +42,7 @@ export default class OfflineNotification extends React.Component {
   }
 
   getStateFromStores() {
-    const nextRetryDelay = NylasSyncStatusStore.nextRetryDelay();
-    const nextRetryTimestamp = NylasSyncStatusStore.nextRetryTimestamp();
-    let connected = NylasSyncStatusStore.connected();
-
-    if (nextRetryDelay < 5000) {
-      connected = true;
-    }
-
-    let nextRetryText = null;
-    if (!connected) {
-      if (document.body.classList.contains('is-blurred')) {
-        nextRetryText = 'soon';
-      } else {
-        const seconds = Math.ceil((nextRetryTimestamp - Date.now()) / 1000.0);
-        if (seconds > 1) {
-          nextRetryText = `in ${seconds} seconds`;
-        } else {
-          nextRetryText = `now`;
-        }
-      }
-    }
-
-    return {connected, nextRetryText};
+    return {connected: NylasSyncStatusStore.connected()};
   }
 
   ensureCountdownInterval = () => {
@@ -81,7 +59,7 @@ export default class OfflineNotification extends React.Component {
   }
 
   render() {
-    const {connected, nextRetryText} = this.state;
+    const {connected} = this.state;
     if (connected) {
       return <span />
     }
@@ -91,7 +69,6 @@ export default class OfflineNotification extends React.Component {
         title="Nylas N1 is offline"
         priority="5"
         icon="volstead-offline.png"
-        subtitle={`Trying again ${nextRetryText}`}
         actions={[{label: 'Try now', id: 'try_now', fn: this.onTryAgain}]}
       />
     )

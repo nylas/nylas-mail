@@ -4,13 +4,14 @@ import {
   Actions,
   Thread,
   Category,
+  DateUtils,
+  TaskFactory,
+  AccountStore,
   CategoryStore,
   DatabaseStore,
-  AccountStore,
   SyncbackCategoryTask,
   TaskQueueStatusStore,
-  TaskFactory,
-  DateUtils,
+  NylasSyncStatusStore,
 } from 'nylas-exports';
 import {SNOOZE_CATEGORY_NAME} from './snooze-constants'
 
@@ -58,7 +59,7 @@ const SnoozeUtils = {
   },
 
   getSnoozeCategory(accountId, categoryName = SNOOZE_CATEGORY_NAME) {
-    return CategoryStore.whenCategoriesReady(accountId)
+    return NylasSyncStatusStore.whenCategoryListSynced(accountId)
     .then(() => {
       const allCategories = CategoryStore.categories(accountId)
       const category = _.findWhere(allCategories, {displayName: categoryName})
