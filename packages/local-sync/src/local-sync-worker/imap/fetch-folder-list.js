@@ -5,8 +5,9 @@ const BASE_ROLES = ['inbox', 'sent', 'trash', 'spam'];
 const GMAIL_ROLES_WITH_FOLDERS = ['all', 'trash', 'spam'];
 
 class FetchFolderList {
-  constructor(provider, logger) {
-    this._provider = provider;
+  constructor(account, logger) {
+    this._account = account;
+    this._provider = account.provider;
     this._logger = logger;
     if (!this._logger) {
       throw new Error("FetchFolderList requires a logger")
@@ -154,10 +155,12 @@ class FetchFolderList {
         }
       })
 
-      let promises = [Promise.resolve()]
-      promises = promises.concat(created.map(cat => cat.save({transaction})))
-      promises = promises.concat(deleted.map(cat => cat.destroy({transaction})))
-      return Promise.all(promises)
+      await Promise.all([].concat(
+        created.map(cat => cat.save({transaction})),
+        deleted.map(cat => cat.destroy({transaction}))
+      ))
+
+      return Promise.resolve()
     });
   }
 }

@@ -24,7 +24,8 @@ module.exports = {
       get() {
         const val = this.getDataValue(fieldName);
         if (!val) {
-          return [];
+          const {defaultValue} = options
+          return defaultValue || [];
         }
         const arr = JSON.parse(val)
         if (!Array.isArray(arr)) {
