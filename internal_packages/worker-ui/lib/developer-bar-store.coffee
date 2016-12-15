@@ -1,6 +1,5 @@
 NylasStore = require 'nylas-store'
-Rx = require 'rx-lite'
-{Actions, DatabaseStore, ProviderSyncbackRequest, NylasSyncStatusStore} = require 'nylas-exports'
+{Rx, Actions, DatabaseStore, ProviderSyncbackRequest, NylasSyncStatusStore} = require 'nylas-exports'
 qs = require 'querystring'
 _ = require 'underscore'
 moment = require 'moment'

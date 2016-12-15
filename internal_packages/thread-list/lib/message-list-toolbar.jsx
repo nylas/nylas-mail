@@ -1,7 +1,6 @@
-import Rx from 'rx-lite'
 import React, {PropTypes} from 'react'
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
-import {FocusedContentStore} from 'nylas-exports'
+import {Rx, FocusedContentStore} from 'nylas-exports'
 import ThreadListStore from './thread-list-store'
 import InjectsToolbarButtons, {ToolbarRole} from './injects-toolbar-buttons'
 
