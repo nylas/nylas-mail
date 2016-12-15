@@ -11,6 +11,8 @@ const SyncbackTaskFactory = require('./syncback-task-factory')
 const SyncMetricsReporter = require('./sync-metrics-reporter');
 
 
+const RESTART_THRESHOLD = 10
+
 class SyncWorker {
   constructor(account, db, parentManager) {
     this._db = db;
@@ -20,6 +22,8 @@ class SyncWorker {
     this._startTime = Date.now();
     this._lastSyncTime = null;
     this._logger = global.Logger.forAccount(account)
+    this._interrupted = false
+    this._syncAttemptsWhileInProgress = 0
 
     this._destroyed = false;
     this._syncTimer = setTimeout(() => {
@@ -55,19 +59,6 @@ class SyncWorker {
         }
         seen += 1;
       });
-    }
-  }
-
-  cleanup() {
-    clearTimeout(this._syncTimer);
-    this._syncTimer = null;
-    this._destroyed = true;
-    this.closeConnection()
-  }
-
-  closeConnection() {
-    if (this._conn) {
-      this._conn.end();
     }
   }
 
@@ -155,6 +146,17 @@ class SyncWorker {
     return tasksToProcess
   }
 
+  async _getFoldersToSync() {
+    const {Folder} = this._db;
+
+    // TODO make sure this order is correct/ unit tests!!
+    const folders = await Folder.findAll();
+    const priority = ['inbox', 'all', 'drafts', 'sent', 'trash', 'spam'].reverse();
+    return folders.sort((a, b) =>
+      (priority.indexOf(a.role) - priority.indexOf(b.role)) * -1
+    )
+  }
+
   async ensureConnection() {
     if (this._conn) {
       return await this._conn.connect();
@@ -209,37 +211,20 @@ class SyncWorker {
     }
   }
 
-  async syncMessagesInAllFolders() {
-    // TODO prioritize syncing all of inbox first if there's a ton of folders (e.g. imap
-    // accounts). If there are many folders, we would only sync the first n
-    // messages in the inbox and not go back to it until we've done the same for
-    // the rest of the folders, which would give the appearance of the inbox
-    // syncing slowly. This should only be done during initial sync.
-    // TODO Also consider using multiple imap connections, 1 for inbox, one for the
-    // rest
-    const {Folder} = this._db;
-    const {folderSyncOptions} = this._account.syncPolicy;
-
-    const folders = await Folder.findAll();
-    const priority = ['inbox', 'all', 'drafts', 'sent', 'spam', 'trash'].reverse();
-    const foldersSorted = folders.sort((a, b) =>
-      (priority.indexOf(a.role) - priority.indexOf(b.role)) * -1
-    )
-    // TODO make sure this order is correct
-
-    return await Promise.all(foldersSorted.map((cat) =>
-      this._conn.runOperation(new FetchMessagesInFolder(cat, folderSyncOptions, this._logger))
-    ))
-  }
-
-  async syncNow({reason} = {}) {
+  async syncNow({reason, priority = 1} = {}) {
     const syncInProgress = (this._syncTimer === null);
     if (syncInProgress) {
+      this._syncAttemptsWhileInProgress += priority
+      if (this._syncAttemptsWhileInProgress >= RESTART_THRESHOLD) {
+        this._interrupted = true
+      }
       return;
     }
 
     clearTimeout(this._syncTimer);
     this._syncTimer = null;
+    this._interrupted = false
+    this._syncAttemptsWhileInProgress = 0
 
     try {
       await this._account.reload();
@@ -256,7 +241,23 @@ class SyncWorker {
       await this.ensureConnection();
       await this.runNewSyncbackTasks();
       await this._conn.runOperation(new FetchFolderList(this._account, this._logger));
-      await this.syncMessagesInAllFolders();
+
+      // TODO prioritize syncing all of inbox first if there's a ton of folders (e.g. imap
+      // accounts). If there are many folders, we would only sync the first n
+      // messages in the inbox and not go back to it until we've done the same for
+      // the rest of the folders, which would give the appearance of the inbox
+      // syncing slowly. This should only be done during initial sync.
+      // TODO Also consider using multiple imap connections, 1 for inbox, one for the
+      // rest
+      const sortedFolders = await this._getFoldersToSync()
+      const {folderSyncOptions} = this._account.syncPolicy;
+      for (const folder of sortedFolders) {
+        if (this._interrupted) {
+          break;
+        }
+        await this._conn.runOperation(new FetchMessagesInFolder(folder, folderSyncOptions, this._logger))
+      }
+
       await this.cleanupOrphanMessages();
       await this.onSyncDidComplete();
     } catch (error) {
@@ -326,13 +327,20 @@ class SyncWorker {
       f.syncState.fetchedmax < f.syncState.uidnext || f.syncState.fetchedmin > 1
     )
 
-    const target = this._lastSyncTime + (moreToSync ? 1 : intervals.active);
+    const shouldSyncImmediately = (
+      moreToSync ||
+      this._interrupted ||
+      this._syncAttemptsWhileInProgress > 0
+    )
+    const reason = this._interrupted ? 'Sync interrupted for restart' : 'Scheduled'
+    const interval = shouldSyncImmediately ? 1 : intervals.active;
+    const nextSyncTime = this._lastSyncTime + interval
 
-    this._logger.info(`SyncWorker: Scheduling next sync iteration for ${target - Date.now()}ms`)
+    this._logger.info(`SyncWorker: Scheduling next sync iteration for ${nextSyncTime - Date.now()}ms`)
 
     this._syncTimer = setTimeout(() => {
-      this.syncNow({reason: 'Scheduled'});
-    }, target - Date.now());
+      this.syncNow({reason});
+    }, nextSyncTime - Date.now());
   }
 }
 

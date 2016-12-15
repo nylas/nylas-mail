@@ -27,7 +27,6 @@ utilization across the pool.
 class SyncProcessManager {
   constructor() {
     this._workers = {};
-    this._listenForSyncsClient = null;
     this._exiting = false;
     this._accounts = []
     this._logger = global.Logger.child();
@@ -50,10 +49,10 @@ class SyncProcessManager {
   workers() { return _.values(this._workers) }
   dbs() { return this.workers().map(w => w._db) }
 
-  wakeWorkerForAccount(account) {
+  wakeWorkerForAccount(account, {reason = 'Waking sync', priority} = {}) {
     const worker = this._workers[account.id]
     if (worker) {
-      worker.syncNow();
+      worker.syncNow({reason, priority});
     }
   }
 
