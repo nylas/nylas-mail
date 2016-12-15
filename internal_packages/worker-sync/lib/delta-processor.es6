@@ -66,14 +66,13 @@ class DeltaProcessor {
         modelDeltas,
         accountDeltas,
         metadataDeltas,
-        syncbackRequestDeltas,
       } = this._extractDeltaTypes(deltas);
       this._handleAccountDeltas(accountDeltas);
 
       const models = await this._saveModels(modelDeltas);
       await this._saveMetadata(metadataDeltas);
       await this._notifyOfNewMessages(models.created);
-      this._notifyOfSyncbackRequestDeltas(syncbackRequestDeltas)
+      this._notifyOfSyncbackRequestDeltas(models)
     } catch (err) {
       console.error(rawDeltas)
       console.error("DeltaProcessor: Process failed.", err)
@@ -101,21 +100,17 @@ class DeltaProcessor {
   _extractDeltaTypes(rawDeltas) {
     const modelDeltas = []
     const accountDeltas = []
-    const syncbackRequestDeltas = []
     const metadataDeltas = []
     rawDeltas.forEach((delta) => {
       if (delta.object === "metadata") {
         metadataDeltas.push(delta)
       } else if (delta.object === "account") {
         accountDeltas.push(delta)
-      } else if (delta.object === "syncbackRequest") {
-        syncbackRequestDeltas.push(delta)
-        modelDeltas.push(delta)
       } else {
         modelDeltas.push(delta)
       }
     })
-    return {modelDeltas, metadataDeltas, accountDeltas, syncbackRequestDeltas}
+    return {modelDeltas, metadataDeltas, accountDeltas}
   }
 
   _handleAccountDeltas = (accountDeltas) => {
@@ -132,34 +127,30 @@ class DeltaProcessor {
     }
   }
 
-  _notifyOfSyncbackRequestDeltas(syncbackRequestDeltas = []) {
-    if (syncbackRequestDeltas.length === 0) { return }
-    const groupedDeltas = {succeeded: [], failed: [], created: []}
+  _notifyOfSyncbackRequestDeltas({created, updated} = {}) {
+    const createdRequests = created.syncbackRequest || []
+    const updatedRequests = updated.syncbackRequest || []
+    const syncbackRequests = createdRequests.concat(updatedRequests)
+    if (syncbackRequests.length === 0) { return }
 
-    syncbackRequestDeltas.forEach((delta) => {
-      const {status} = delta.attributes
-      if (status === 'FAILED') {
-        groupedDeltas.failed.push(delta)
-      }
-      if (status === 'SUCCEEDED') {
-        groupedDeltas.succeeded.push(delta)
-      }
-      if (status === 'NEW') {
-        groupedDeltas.created.push(delta)
-      }
-    })
-    Actions.didReceiveSyncbackRequestDeltas(groupedDeltas)
+    Actions.didReceiveSyncbackRequestDeltas(syncbackRequests)
   }
 
   async _saveModels(modelDeltas) {
     const {create, modify, destroy} = this._clusterDeltas(modelDeltas);
 
-    const created = await Promise.props(Object.keys(create).map((type) =>
-      NylasAPIHelpers.handleModelResponse(_.values(create[type]))
-    ));
-    const updated = await Promise.props(Object.keys(modify).map((type) =>
-      NylasAPIHelpers.handleModelResponse(_.values(modify[type]))
-    ));
+    const createdPromises = {}
+    Object.keys(create).forEach((type) => {
+      createdPromises[type] = NylasAPIHelpers.handleModelResponse(_.values(create[type]))
+    })
+
+    const updatedPromises = {}
+    Object.keys(modify).forEach((type) => {
+      updatedPromises[type] = NylasAPIHelpers.handleModelResponse(_.values(modify[type]))
+    })
+
+    const created = await Promise.props(createdPromises);
+    const updated = await Promise.props(updatedPromises);
     await Promise.map(destroy, this._handleDestroyDelta);
 
     return {created, updated};

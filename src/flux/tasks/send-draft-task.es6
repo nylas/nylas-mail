@@ -6,6 +6,7 @@ import Message from '../models/message';
 import NylasAPI from '../nylas-api';
 import * as NylasAPIHelpers from '../nylas-api-helpers';
 import NylasAPIRequest from '../nylas-api-request';
+import SyncbackTaskAPIRequest from '../syncback-task-api-request';
 import {APIError, RequestEnsureOnceError} from '../errors';
 import SoundRegistry from '../../registries/sound-registry';
 import DatabaseStore from '../stores/database-store';
@@ -86,6 +87,9 @@ export default class SendDraftTask extends BaseDraftTask {
 
   sendWithMultipleBodies = () => {
     const draft = this.draft.clone();
+    // We strip the tracking links because this is the message that will be
+    // saved to the user's sent folder, and we don't want it to contain the
+    // tracking links
     draft.body = this.stripTrackingFromBody(draft.body);
 
     return new NylasAPIRequest({
@@ -118,15 +122,12 @@ export default class SendDraftTask extends BaseDraftTask {
       });
       Actions.queueTask(t2);
     })
-    .catch((err) => {
-      return this.onSendError(err, this.sendWithMultipleBodies);
-    })
   }
 
   // This function returns a promise that resolves to the draft when the draft has
   // been sent successfully.
   sendWithSingleBody = () => {
-    return new NylasAPIRequest({
+    return new SyncbackTaskAPIRequest({
       api: NylasAPI,
       options: {
         path: "/send",
@@ -142,9 +143,6 @@ export default class SendDraftTask extends BaseDraftTask {
     .run()
     .then((responseJSON) => {
       return this.createMessageFromResponse(responseJSON)
-    })
-    .catch((err) => {
-      return this.onSendError(err, this.sendWithSingleBody);
     })
   }
 
@@ -203,33 +201,6 @@ export default class SendDraftTask extends BaseDraftTask {
     return Promise.resolve(Task.Status.Success);
   }
 
-  onSendError = (err, retrySend) => {
-    let shouldRetry = false;
-    // If the message you're "replying to" has been deleted
-    if (err.message && err.message.indexOf('Invalid message public id') === 0) {
-      this.draft.replyToMessageId = null;
-      shouldRetry = true
-    }
-
-    // If the thread has been deleted
-    if (err.message && err.message.indexOf('Invalid thread') === 0) {
-      this.draft.threadId = null;
-      this.draft.replyToMessageId = null;
-      shouldRetry = true
-    }
-
-    Actions.recordUserEvent("Draft Sending Errored", {
-      error: err.message,
-      shouldRetry: shouldRetry,
-    })
-
-    if (shouldRetry) {
-      return retrySend()
-    }
-
-    return Promise.reject(err);
-  }
-
   onError = (err) => {
     if (err instanceof BaseDraftTask.DraftNotFoundError) {
       return Promise.resolve(Task.Status.Continue);
@@ -249,6 +220,10 @@ export default class SendDraftTask extends BaseDraftTask {
           }
         }
       }
+    }
+
+    if (err instanceof RequestEnsureOnceError) {
+      // TODO delete draft
     }
 
     if (this.emitError && !(err instanceof RequestEnsureOnceError)) {

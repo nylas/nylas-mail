@@ -8,14 +8,17 @@ export default class ProviderSyncbackRequest extends Model {
       modelKey: 'type',
     }),
 
-    error: Attributes.String({
+    error: Attributes.Object({
       modelKey: 'error',
     }),
 
-    // Contains the raw thirdPartyData (keyed by the vendor name) about
-    // this contact.
     props: Attributes.Object({
       modelKey: 'props',
+    }),
+
+    responseJSON: Attributes.Object({
+      modelKey: 'responseJSON',
+      jsonKey: 'response_json',
     }),
 
     // The following are "normalized" fields that we can use to consolidate
