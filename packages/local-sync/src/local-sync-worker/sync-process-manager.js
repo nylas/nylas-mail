@@ -51,7 +51,10 @@ class SyncProcessManager {
   dbs() { return this.workers().map(w => w._db) }
 
   wakeWorkerForAccount(account) {
-    this._workers[account.id].syncNow();
+    const worker = this._workers[account.id]
+    if (worker) {
+      worker.syncNow();
+    }
   }
 
   async addWorkerForAccount(account) {

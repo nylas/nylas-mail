@@ -247,7 +247,8 @@ class ImapSearchClient {
   }
 
   _searchFolder(folder, criteria) {
-    return this._conn.runOperation(new SearchFolder(folder, criteria)).catch((error) => {
+    return this._conn.runOperation(new SearchFolder(folder, criteria))
+    .catch((error) => {
       this._logger.error(`Search error: ${error}`);
       return Promise.resolve([]);
     });

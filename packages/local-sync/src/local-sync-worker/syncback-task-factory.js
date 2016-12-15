@@ -46,10 +46,12 @@ class SyncbackTaskFactory {
         Task = require('./syncback_tasks/delete-label.imap'); break;
       case "DeleteMessage":
         Task = require('./syncback_tasks/delete-message.imap'); break;
-      case "SaveSentMessage":
-        Task = require('./syncback_tasks/save-sent-message.imap'); break;
-      case "DeleteSentMessage":
-        Task = require('./syncback_tasks/delete-sent-message.gmail'); break;
+      case "SendMessage":
+        Task = require('./syncback_tasks/send-message.imap'); break;
+      case "SendCustomMessageToIndividual":
+        Task = require('./syncback_tasks/send-custom-message-to-individual.imap'); break;
+      case "CloseMultiSendSession":
+        Task = require('./syncback_tasks/close-multi-send-session.imap'); break;
       default:
         throw new Error(`Task type not defined in syncback-task-factory: ${syncbackRequest.type}`)
     }

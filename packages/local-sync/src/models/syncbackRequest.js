@@ -10,6 +10,7 @@ module.exports = (sequelize, Sequelize) => {
     },
     error: JSONColumn('error'),
     props: JSONColumn('props'),
+    responseJSON: JSONColumn('responseJSON'),
     accountId: { type: Sequelize.STRING, allowNull: false },
   }, {
     instanceMethods: {
@@ -17,8 +18,9 @@ module.exports = (sequelize, Sequelize) => {
         return {
           id: `${this.id}`,
           type: this.type,
-          error: JSON.stringify(this.error || {}),
+          error: this.error,
           props: this.props,
+          response_json: this.responseJSON,
           status: this.status,
           object: 'syncbackRequest',
           account_id: this.accountId,

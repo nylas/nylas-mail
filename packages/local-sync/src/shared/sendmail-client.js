@@ -1,9 +1,8 @@
 /* eslint no-useless-escape: 0 */
-
 const fs = require('fs');
 const nodemailer = require('nodemailer');
 const mailcomposer = require('mailcomposer');
-const {HTTPError} = require('./errors');
+const {APIError} = require('./errors')
 
 const MAX_RETRIES = 1;
 
@@ -19,45 +18,37 @@ class SendmailClient {
   }
 
   async _send(msgData) {
-    let partialFailure;
     let error;
+    let results;
     for (let i = 0; i <= MAX_RETRIES; i++) {
       try {
-        const results = await this._transporter.sendMail(msgData);
-        const {rejected, pending} = results;
-        if ((rejected && rejected.length > 0) || (pending && pending.length > 0)) {
-          // At least one recipient was rejected by the server,
-          // but at least one recipient got it. Don't retry; throw an
-          // error so that we fail to client.
-          partialFailure = new HTTPError(
-            'Sending to at least one recipient failed', 200, results);
-          throw partialFailure;
-        } else {
-          // Sending was successful!
-          return
-        }
+        results = await this._transporter.sendMail(msgData);
       } catch (err) {
+        // Keep retrying for MAX_RETRIES
         error = err;
-        if (err === partialFailure) {
-          // We don't want to retry in this case, so re-throw the error
-          throw err;
-        }
         this._logger.error(err);
       }
+      if (!results) {
+        continue;
+      }
+      const {rejected, pending} = results;
+      if ((rejected && rejected.length > 0) || (pending && pending.length > 0)) {
+        // At least one recipient was rejected by the server,
+        // but at least one recipient got it. Don't retry; throw an
+        // error so that we fail to client.
+        throw new APIError('Sending to at least one recipient failed', 500, {results});
+      }
+      return
     }
     this._logger.error('Max sending retries reached');
-    this._handleError(error);
-  }
 
-  _handleError(err) {
     // TODO: figure out how to parse different errors, like in cloud-core
     // https://github.com/nylas/cloud-core/blob/production/sync-engine/inbox/sendmail/smtp/postel.py#L354
-
-    if (err.message.startsWith("Invalid login: 535-5.7.8 Username and Password not accepted.")) {
-      throw new HTTPError('Invalid login', 401, err)
+    if (error.message.startsWith("Invalid login: 535-5.7.8 Username and Password not accepted.")) {
+      throw new APIError('Invalid login', 401, {originalError: error})
     }
 
-    throw new HTTPError('Sending failed', 500, err);
+    throw new APIError('Sending failed', 500, {originalError: error});
   }
 
   _getSendPayload(message) {
@@ -119,7 +110,6 @@ class SendmailClient {
     }
     const raw = await this.buildMime(customMessage);
     await this._send({raw, envelope});
-    return customMessage.toJSON();
   }
 }
 
