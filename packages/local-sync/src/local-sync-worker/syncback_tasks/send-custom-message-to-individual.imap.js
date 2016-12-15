@@ -1,8 +1,7 @@
+const {SendmailClient, Errors: {APIError}} = require('isomorphic-core')
 const SyncbackTask = require('./syncback-task')
-const Utils = require('../../shared/utils')
+const Utils = require('../../shared/message-factory')
 const MessageFactory = require('../../shared/message-factory')
-const SendmailClient = require('../../shared/sendmail-client')
-const {APIError} = require('../../shared/errors')
 
 
 class SendCustomMessageToIndividualIMAP extends SyncbackTask {

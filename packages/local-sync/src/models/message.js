@@ -2,7 +2,7 @@ const crypto = require('crypto')
 const striptags = require('striptags');
 const {PromiseUtils, IMAPConnection} = require('isomorphic-core')
 const {DatabaseTypes: {JSONColumn, JSONArrayColumn}} = require('isomorphic-core');
-const {APIError} = require('../shared/errors')
+const {Errors: {APIError}} = require('isomorphic-core')
 
 
 const SNIPPET_LENGTH = 191;

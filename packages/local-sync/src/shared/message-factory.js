@@ -6,8 +6,7 @@ const os = require('os');
 const fs = require('fs');
 const path = require('path')
 const mkdirp = require('mkdirp');
-const {Imap} = require('isomorphic-core');
-const {APIError} = require('./errors')
+const {Imap, Errors: {APIError}} = require('isomorphic-core');
 
 // aiming for the former in length, but the latter is the hard db cutoff
 const SNIPPET_SIZE = 100;

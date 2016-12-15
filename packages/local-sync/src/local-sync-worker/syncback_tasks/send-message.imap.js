@@ -1,8 +1,7 @@
+const {SendmailClient, Errors: {APIError}} = require('isomorphic-core')
 const SyncbackTask = require('./syncback-task')
 const TaskHelpers = require('./task-helpers')
 const MessageFactory = require('../../shared/message-factory')
-const SendmailClient = require('../../shared/sendmail-client')
-const {APIError} = require('../../shared/errors')
 
 
 class SendMessageIMAP extends SyncbackTask {

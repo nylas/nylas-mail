@@ -1,6 +1,5 @@
 const _ = require('underscore')
-const {PromiseUtils} = require('isomorphic-core')
-const {APIError} = require('../../shared/errors')
+const {PromiseUtils, Errors: {APIError}} = require('isomorphic-core')
 
 const TaskHelpers = {
   messagesForThreadByFolder(db, threadId) {
