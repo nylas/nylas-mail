@@ -235,7 +235,7 @@ class SyncWorker {
       await this._account.update({syncError: null});
       await this.ensureConnection();
       await this.runNewSyncbackRequests();
-      await this._conn.runOperation(new FetchFolderList(this._account.provider, this._logger));
+      await this._conn.runOperation(new FetchFolderList(this._account, this._logger));
       await this.syncMessagesInAllFolders();
       await this.cleanupOrpahnMessages();
       await this.onSyncDidComplete();

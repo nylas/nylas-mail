@@ -9,7 +9,30 @@ module.exports = (sequelize, Sequelize) => {
     version: Sequelize.INTEGER,
     name: Sequelize.STRING,
     role: Sequelize.STRING,
-    syncState: JSONColumn('syncState', {defaultValue: {}}),
+    /**
+     * Sync state has the following shape, and it indicates how much of the
+     * folder we've synced and what's next for syncing:
+     *
+     * {
+     *   // Lowest (oldest) IMAP uid we've fetched in folder
+     *   fetchedmin,
+     *
+     *   // Highest (newest) IMAP uid we've fetched in folder
+     *   fetchedmax,
+     *
+     *   // Highest (most recent) uid in the folder. If this changes, it means
+     *   // there is new mail we haven't synced
+     *   uidnext,
+     *
+     *   // Flag provided by IMAP server to indicate if we need to indicate if
+     *   // we need resync whole folder
+     *   uidvalidity,
+     *
+     *   // Timestamp when we last fetched unseen messages
+     *   timeFetchedUnseen,
+     * }
+    */
+    syncState: JSONColumn('syncState'),
   }, {
     indexes: [
       {
@@ -39,6 +62,7 @@ module.exports = (sequelize, Sequelize) => {
           object: 'folder',
           name: this.role,
           display_name: formatImapPath(this.name),
+          sync_state: this.syncState,
         };
       },
     },

@@ -306,7 +306,7 @@ class FetchMessagesInFolder {
 
   async _fetchUnsyncedMessages() {
     const savedSyncState = this._folder.syncState;
-    const isFirstSync = savedSyncState.fetchedmax === undefined;
+    const isFirstSync = savedSyncState.fetchedmax == null;
     const boxUidnext = this._box.uidnext;
     const boxUidvalidity = this._box.uidvalidity;
 
@@ -443,6 +443,17 @@ class FetchMessagesInFolder {
     this._imap = imap;
 
     this._box = await this._openMailboxAndEnsureValidity();
+
+    // If we haven't set any syncState at all, let's set it for the first time
+    // to generate a delta for N1
+    if (_.isEmpty(this._folder.syncState)) {
+      await this.updateFolderSyncState({
+        uidnext: this._box.uidnext,
+        uidvalidity: this._box.uidvalidity,
+        fetchedmin: null,
+        fetchedmax: null,
+      })
+    }
     await this._fetchUnsyncedMessages()
     await this._runScan()
   }
