@@ -10,7 +10,7 @@ class DeleteSentMessageGMAIL extends SyncbackTask {
   }
 
   async run(db, imap) {
-    const {messageId} = this.syncbackRequestObject().props
+    const {headerMessageId} = this.syncbackRequestObject().props
 
     const trash = await db.Folder.find({where: {role: 'trash'}});
     if (!trash) { throw new Error(`Could not find folder with role 'trash'.`) }
@@ -26,7 +26,7 @@ class DeleteSentMessageGMAIL extends SyncbackTask {
 
     for (const {folder, deleteFn} of steps) {
       const box = await imap.openBox(folder.name);
-      const uids = await box.search([['HEADER', 'Message-ID', messageId]])
+      const uids = await box.search([['HEADER', 'Message-ID', headerMessageId]])
       for (const uid of uids) {
         await deleteFn(box, uid);
       }

@@ -1,5 +1,4 @@
-const _ = require('underscore');
-const cryptography = require('crypto');
+/* eslint no-useless-escape: 0 */
 const mimelib = require('mimelib');
 const encoding = require('encoding');
 
@@ -25,30 +24,6 @@ function extractContacts(input) {
     const {name, address: email} = mimelib.parseAddresses(v).pop()
     return {name, email}
   })
-}
-
-function getHeadersForId(data) {
-  let participants = "";
-  const emails = _.pluck(data.from.concat(data.to, data.cc, data.bcc), 'email');
-  emails.sort().forEach((email) => {
-    participants += email
-  });
-  return `${data.date}-${data.subject}-${participants}`;
-}
-
-function hashForHeaders(headers) {
-  return cryptography.createHash('sha256').update(headers, 'utf8').digest('hex');
-}
-
-function setReplyHeaders(newMessage, prevMessage) {
-  if (prevMessage.messageIdHeader) {
-    newMessage.inReplyTo = prevMessage.headerMessageId;
-    if (prevMessage.references) {
-      newMessage.references = prevMessage.references.concat(prevMessage.headerMessageId);
-    } else {
-      newMessage.references = [prevMessage.messageIdHeader];
-    }
-  }
 }
 
 /*
@@ -122,7 +97,7 @@ the message, and have to do fun stuff like deal with character sets and
 content-transfer-encodings ourselves.
 */
 async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder}) {
-  const {Label} = db
+  const {Message, Label} = db
   const {attributes} = imapMessage
 
   const body = {}
@@ -150,7 +125,6 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
   }
 
   const parsedMessage = {
-    id: hashForHeaders(getHeadersForId(parsedHeaders)),
     to: extractContacts(parsedHeaders.to),
     cc: extractContacts(parsedHeaders.cc),
     bcc: extractContacts(parsedHeaders.bcc),
@@ -171,6 +145,7 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
     gMsgId: parsedHeaders['x-gm-msgid'],
     subject: parsedHeaders.subject[0],
   }
+  parsedMessage.id = Message.hash(parsedMessage)
 
   if (!body['text/html'] && body['text/plain']) {
     parsedMessage.body = HTMLifyPlaintext(body['text/plain']);
@@ -189,48 +164,50 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
   return parsedMessage;
 }
 
-function fromJSON(db, data) {
-  // TODO: events, metadata?
-  const {Message} = db;
-  const id = hashForHeaders(getHeadersForId(data))
-  return Message.build({
-    accountId: data.account_id,
-    from: data.from,
-    to: data.to,
-    cc: data.cc,
-    bcc: data.bcc,
-    replyTo: data.reply_to,
-    subject: data.subject,
-    body: data.body,
-    unread: true,
-    isDraft: data.is_draft,
-    isSent: false,
-    version: 0,
-    date: data.date,
-    id: id,
-    uploads: data.uploads,
-  });
+function getReplyHeaders(messageReplyingTo) {
+  let inReplyTo;
+  let references;
+  if (messageReplyingTo.headerMessageId) {
+    inReplyTo = messageReplyingTo.headerMessageId;
+    if (messageReplyingTo.references) {
+      references = messageReplyingTo.references.concat(messageReplyingTo.headerMessageId);
+    } else {
+      references = [messageReplyingTo.headerMessageId];
+    }
+  }
+  return {inReplyTo, references}
 }
 
-async function associateFromJSON(data, db) {
-  const {Thread, Message} = db;
+function replaceBodyMessageIds(messageId, originalBody) {
+  const env = NylasEnv.config.get('env')
+  const serverUrl = {
+    local: 'http:\/\/lvh\.me:5100',
+    development: 'http:\/\/lvh\.me:5100',
+    staging: 'https:\/\/n1-staging\.nylas\.com',
+    production: 'https:\/\/n1\.nylas\.com',
+  }[env];
+  const regex = new RegExp(`(${serverUrl}.+?)MESSAGE_ID`, 'g')
+  return originalBody.replace(regex, `$1${messageId}`)
+}
 
-  const message = fromJSON(db, data);
-
+async function buildForSend(db, json) {
+  const {Thread, Message} = db
   let replyToThread;
   let replyToMessage;
-  if (data.thread_id != null) {
+
+  if (json.thread_id != null) {
     replyToThread = await Thread.find({
-      where: {id: data.thread_id},
+      where: {id: json.thread_id},
       include: [{
         model: Message,
         as: 'messages',
-        attributes: _.without(Object.keys(Message.attributes), 'body'),
+        attributes: ['id'],
       }],
     });
   }
-  if (data.reply_to_message_id != null) {
-    replyToMessage = await Message.findById(data.reply_to_message_id);
+
+  if (json.reply_to_message_id != null) {
+    replyToMessage = await Message.findById(json.reply_to_message_id);
   }
 
   if (replyToThread && replyToMessage) {
@@ -243,36 +220,48 @@ async function associateFromJSON(data, db) {
   }
 
   let thread;
+  let replyHeaders = {};
   if (replyToMessage) {
-    setReplyHeaders(message, replyToMessage);
-    thread = await message.getThread();
+    replyHeaders = getReplyHeaders(replyToMessage);
+    thread = await replyToMessage.getThread();
   } else if (replyToThread) {
     thread = replyToThread;
     const previousMessages = thread.messages.filter(msg => !msg.isDraft);
     if (previousMessages.length > 0) {
       const lastMessage = previousMessages[previousMessages.length - 1]
-      setReplyHeaders(message, lastMessage);
+      replyHeaders = getReplyHeaders(lastMessage);
     }
-  } else {
-    thread = Thread.build({
-      accountId: message.accountId,
-      subject: message.subject,
-      firstMessageDate: message.date,
-      lastMessageDate: message.date,
-      lastMessageSentDate: message.date,
-    })
   }
 
-  const savedMessage = await message.save();
-  const savedThread = await thread.save();
-  await savedThread.addMessage(savedMessage);
-
-  return savedMessage;
+  const {inReplyTo, references} = replyHeaders
+  const message = {
+    accountId: json.account_id,
+    threadId: thread ? thread.id : null,
+    headerMessageId: Message.buildHeaderMessageId(json.client_id),
+    from: json.from,
+    to: json.to,
+    cc: json.cc,
+    bcc: json.bcc,
+    references,
+    inReplyTo,
+    replyTo: json.reply_to,
+    subject: json.subject,
+    body: json.body,
+    unread: true,
+    isDraft: json.draft,
+    isSent: false,
+    version: 0,
+    date: new Date(),
+    uploads: json.uploads,
+  }
+  message.id = Message.hash(message)
+  message.body = replaceBodyMessageIds(message.id, message.body)
+  return Message.build(message)
 }
 
 module.exports = {
+  buildForSend,
   parseFromImap,
   extractSnippet,
-  fromJSON,
-  associateFromJSON,
+  replaceBodyMessageIds,
 }

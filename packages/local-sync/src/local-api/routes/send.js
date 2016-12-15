@@ -1,10 +1,12 @@
 const Joi = require('joi');
+const Utils = require('../../shared/utils');
+const SendmailClient = require('../../shared/sendmail-client');
+const MessageFactory = require('../../shared/message-factory');
+const {HTTPError} = require('../../shared/errors');
 const LocalDatabaseConnector = require('../../shared/local-database-connector');
-const Errors = require('../../shared/errors');
-const SendingUtils = require('../sending-utils');
-const SendmailClient = require('../sendmail-client');
 
-const SEND_TIMEOUT = 1000 * 60; // millliseconds
+
+const SEND_TIMEOUT_MS = 1000 * 60; // millliseconds
 
 const recipient = Joi.object().keys({
   name: Joi.string().required(),
@@ -17,14 +19,15 @@ const recipient = Joi.object().keys({
   server_id: Joi.string(),
   object: Joi.string(),
 });
+
 const recipientList = Joi.array().items(recipient);
 
-const respondWithError = (request, reply, error) => {
+const replyWithError = (request, reply, error) => {
   if (!error.httpCode) {
-    error.type = 'apiError';
+    error.type = 'ApiError';
     error.httpCode = 500;
   }
-  request.logger.error('responding with error', error, error.logContext);
+  request.logger.error('Replying with error', error, error.logContext);
   reply(JSON.stringify(error)).code(error.httpCode);
 }
 
@@ -32,19 +35,55 @@ module.exports = (server) => {
   server.route({
     method: 'POST',
     path: '/send',
-    handler: async (request, reply) => {
+    config: {
+      validate: {
+        payload: {
+          to: recipientList,
+          cc: recipientList,
+          bcc: recipientList,
+          from: recipientList.length(1).required(),
+          reply_to: recipientList.min(0).max(1),
+          subject: Joi.string().required(),
+          body: Joi.string().required(),
+          thread_id: Joi.string(),
+          reply_to_message_id: Joi.string(),
+          client_id: Joi.string().required(),
+          account_id: Joi.string(),
+          id: Joi.string(),
+          object: Joi.string().equal('draft'),
+          metadata: Joi.array().items(Joi.object()),
+          date: Joi.number(),
+          files: Joi.array().items(Joi.string()),
+          file_ids: Joi.array(),
+          uploads: Joi.array(),
+          events: Joi.array(),
+          pristine: Joi.boolean(),
+          categories: Joi.array().items(Joi.string()),
+          draft: Joi.boolean(),
+        },
+      },
+    },
+    async handler(request, reply) {
+      // TODO make this a task to trigger a sync loop run
       try {
         const account = request.auth.credentials;
         const db = await LocalDatabaseConnector.forAccount(account.id)
-        const draft = await SendingUtils.findOrCreateMessageFromJSON(request.payload, db);
-        // Calculate the response now to prevent errors after the draft has
-        // already been sent.
-        const responseOnSuccess = draft.toJSON();
+        const message = await MessageFactory.buildForSend(db, request.payload)
         const sender = new SendmailClient(account, request.logger);
-        await sender.send(draft);
-        reply(responseOnSuccess);
+        await sender.send(message);
+
+        // We don't save the message until after successfully sending it.
+        // In the next sync loop, the message's labels and other data will be
+        // updated, and we can guarantee this because we control message id
+        // generation.
+        // The thread will be created or updated when we detect this
+        // message in the sync loop
+        message.setIsSent(true)
+        await message.save();
+        // TODO save to sent folder if non-gmail
+        reply(message.toJSON());
       } catch (err) {
-        respondWithError(request, reply, err);
+        replyWithError(request, reply, err);
       }
     },
   });
@@ -65,10 +104,10 @@ module.exports = (server) => {
           body: Joi.string().required(),
           thread_id: Joi.string(),
           reply_to_message_id: Joi.string(),
-          client_id: Joi.string(),
+          client_id: Joi.string().required(),
           account_id: Joi.string(),
           id: Joi.string(),
-          object: Joi.string(),
+          object: Joi.string().equal('draft'),
           metadata: Joi.array().items(Joi.object()),
           date: Joi.number(),
           files: Joi.array().items(Joi.string()),
@@ -81,22 +120,18 @@ module.exports = (server) => {
         },
       },
     },
-    handler: async (request, reply) => {
+    async handler(request, reply) {
       try {
         const accountId = request.auth.credentials.id;
         const db = await LocalDatabaseConnector.forAccount(accountId)
-        const draftData = Object.assign(request.payload, {
-          unread: true,
-          is_draft: false,
-          is_sent: false,
-          version: 0,
-        })
-        const draft = await SendingUtils.findOrCreateMessageFromJSON(draftData, db)
-        await (draft.isSending = true);
-        const savedDraft = await draft.save();
-        reply(savedDraft.toJSON());
+        const message = await MessageFactory.buildForSend(db,
+          Object.assign(request.payload, {draft: false})
+        )
+        message.setIsSending(true)
+        await message.save();
+        reply(message.toJSON());
       } catch (err) {
-        respondWithError(request, reply, err);
+        replyWithError(request, reply, err);
       }
     },
   });
@@ -108,48 +143,53 @@ module.exports = (server) => {
   // deleted from it.
   server.route({
     method: 'POST',
-    path: '/send-multiple/{draftId}',
+    path: '/send-multiple/{messageId}',
     config: {
       validate: {
         params: {
-          draftId: Joi.string(),
+          messageId: Joi.string(),
         },
         payload: {
-          send_to: recipient,
-          body: Joi.string(),
+          send_to: recipient.required(),
+          body: Joi.string().required(),
         },
       },
     },
-    handler: async (request, reply) => {
+    async handler(request, reply) {
       try {
-        const requestStarted = new Date();
+        const requestStarted = Date.now()
         const account = request.auth.credentials;
-        const {draftId} = request.params;
-        SendingUtils.validateBase36(draftId, 'draftId')
+        const {messageId} = request.params;
         const sendTo = request.payload.send_to;
+
+        if (!Utils.isValidId(messageId)) {
+          throw new HTTPError(`messageId is not a base-36 integer`, 400)
+        }
+
         const db = await LocalDatabaseConnector.forAccount(account.id)
-        const draft = await SendingUtils.findMultiSendDraft(draftId, db)
-        const {to, cc, bcc} = draft;
-        const recipients = [].concat(to, cc, bcc);
-        if (!recipients.find(contact => contact.email === sendTo.email)) {
-          throw new Errors.HTTPError(
+        const {Message} = db
+        const baseMessage = await Message.findMultiSendMessage(messageId)
+        if (!baseMessage.getRecipients().find(contact => contact.email === sendTo.email)) {
+          throw new HTTPError(
             "Invalid sendTo, not present in message recipients",
             400
           );
         }
 
-        const sender = new SendmailClient(account, request.logger);
-
-        if (new Date() - requestStarted > SEND_TIMEOUT) {
+        if (Date.now() - requestStarted > SEND_TIMEOUT_MS) {
           // Preemptively time out the request if we got stuck doing database work
           // -- we don't want clients to disconnect and then still send the
           // message.
-          reply('Request timeout out.').code(504);
+          reply('Request timed out.').code(504);
         }
-        const response = await sender.sendCustomBody(draft, request.payload.body, {to: [sendTo]})
+        const customMessage = Utils.copyModel(Message, baseMessage, {
+          body: MessageFactory.replaceBodyMessageIds(baseMessage.id, request.payload.body),
+        })
+        const sender = new SendmailClient(account, request.logger);
+        const response = await sender.sendCustom(customMessage, {to: [sendTo]})
         reply(response);
       } catch (err) {
-        respondWithError(request, reply, err);
+        replyWithError(request, reply, err);
       }
     },
   });
@@ -158,22 +198,26 @@ module.exports = (server) => {
   // and moving it to the user's Sent folder.
   server.route({
     method: 'DELETE',
-    path: '/send-multiple/{draftId}',
+    path: '/send-multiple/{messageId}',
     config: {
       validate: {
         params: {
-          draftId: Joi.string(),
+          messageId: Joi.string(),
         },
       },
     },
-    handler: async (request, reply) => {
+    async handler(request, reply) {
       try {
         const account = request.auth.credentials;
-        const {draftId} = request.params;
-        SendingUtils.validateBase36(draftId);
+        const {messageId} = request.params;
+
+        if (!Utils.isValidId(messageId)) {
+          throw new HTTPError(`messageId is not a base-36 integer`, 400)
+        }
 
         const db = await LocalDatabaseConnector.forAccount(account.id);
-        const draft = await SendingUtils.findMultiSendDraft(draftId, db);
+        const {Message} = db
+        const baseMessage = await Message.findMultiSendMessage(messageId);
 
         // gmail creates sent messages for each one, go through and delete them
         if (account.provider === 'gmail') {
@@ -181,7 +225,7 @@ module.exports = (server) => {
             await db.SyncbackRequest.create({
               accountId: account.id,
               type: "DeleteSentMessage",
-              props: { messageId: `${draft.id}@nylas.com` },
+              props: { headerMessageId: baseMessage.headerMessageId },
             });
           } catch (err) {
             // Even if this fails, we need to finish the multi-send session,
@@ -190,19 +234,19 @@ module.exports = (server) => {
         }
 
         const sender = new SendmailClient(account, request.logger);
-        const rawMime = await sender.buildMime(draft);
+        const rawMime = await sender.buildMime(baseMessage);
 
         await db.SyncbackRequest.create({
           accountId: account.id,
           type: "SaveSentMessage",
-          props: {rawMime, messageId: `${draft.id}@nylas.com`},
+          props: {rawMime, headerMessageId: baseMessage.headerMessageId},
         });
 
-        await (draft.isSent = true);
-        const savedDraft = await draft.save();
-        reply(savedDraft.toJSON());
+        baseMessage.setIsSent(true)
+        await baseMessage.save();
+        reply(baseMessage.toJSON());
       } catch (err) {
-        respondWithError(request, reply, err);
+        replyWithError(request, reply, err);
       }
     },
   });

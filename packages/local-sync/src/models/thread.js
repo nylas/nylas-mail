@@ -1,4 +1,4 @@
-const {DatabaseTypes: {buildJSONARRAYColumnOptions}} = require('isomorphic-core');
+const {DatabaseTypes: {JSONArrayColumn}} = require('isomorphic-core');
 
 module.exports = (sequelize, Sequelize) => {
   return sequelize.define('thread', {
@@ -20,7 +20,7 @@ module.exports = (sequelize, Sequelize) => {
     lastMessageDate: Sequelize.DATE,
     lastMessageReceivedDate: Sequelize.DATE,
     lastMessageSentDate: Sequelize.DATE,
-    participants: buildJSONARRAYColumnOptions('participants'),
+    participants: JSONArrayColumn('participants'),
   }, {
     indexes: [
       { fields: ['id'], unique: true },

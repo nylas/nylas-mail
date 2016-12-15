@@ -1,17 +1,25 @@
+const crypto = require('crypto')
 const {PromiseUtils, IMAPConnection} = require('isomorphic-core')
-const {DatabaseTypes: {buildJSONColumnOptions, buildJSONARRAYColumnOptions}} = require('isomorphic-core');
+const {DatabaseTypes: {JSONColumn, JSONArrayColumn}} = require('isomorphic-core');
 const striptags = require('striptags');
-const SendingUtils = require('../local-api/sending-utils');
+const {HTTPError} = require('../shared/errors');
+
 
 const SNIPPET_LENGTH = 191;
 
-const getValidateArrayLength = (fieldName, min, max) => {
+function getLengthValidator(fieldName, min, max) {
   return (stringifiedArr) => {
     const arr = JSON.parse(stringifiedArr);
     if ((arr.length < min) || (arr.length > max)) {
       throw new Error(`Value for ${fieldName} must have a length in range [${min}-${max}]. Value: ${stringifiedArr}`);
     }
   };
+}
+
+function validateRecipientsPresent(message) {
+  if (message.getRecipients().length === 0) {
+    throw new HTTPError(`No recipients specified`, 400);
+  }
 }
 
 module.exports = (sequelize, Sequelize) => {
@@ -22,58 +30,34 @@ module.exports = (sequelize, Sequelize) => {
     headerMessageId: Sequelize.STRING,
     gMsgId: { type: Sequelize.STRING, allowNull: true },
     body: Sequelize.TEXT('long'),
-    headers: buildJSONColumnOptions('headers'),
+    headers: JSONColumn('headers'),
     subject: Sequelize.STRING(500),
     snippet: Sequelize.STRING(255),
     date: Sequelize.DATE,
     isDraft: Sequelize.BOOLEAN,
-    isSent: {
-      type: Sequelize.BOOLEAN,
-      set: async function set(val) {
-        if (val) {
-          this.isDraft = false;
-          this.date = (new Date()).getTime();
-          const thread = await this.getThread();
-          await thread.updateFromMessage(this)
-        }
-        this.setDataValue('isSent', val);
-      },
-    },
+    isSent: Sequelize.BOOLEAN,
+    isSending: Sequelize.BOOLEAN,
     unread: Sequelize.BOOLEAN,
     starred: Sequelize.BOOLEAN,
     processed: Sequelize.INTEGER,
-    to: buildJSONARRAYColumnOptions('to'),
-    from: Object.assign(buildJSONARRAYColumnOptions('from'), {
-      validate: {validateArrayLength1: getValidateArrayLength('Message.from', 1, 1)},
+    to: JSONArrayColumn('to'),
+    from: JSONArrayColumn('from', {
+      validate: {validateArrayLength1: getLengthValidator('Message.from', 1, 1)},
       allowNull: true,
     }),
-    cc: buildJSONARRAYColumnOptions('cc'),
-    bcc: buildJSONARRAYColumnOptions('bcc'),
-    replyTo: Object.assign(buildJSONARRAYColumnOptions('replyTo'), {
-      validate: {validateArrayLength1: getValidateArrayLength('Message.replyTo', 0, 1)},
+    cc: JSONArrayColumn('cc'),
+    bcc: JSONArrayColumn('bcc'),
+    replyTo: JSONArrayColumn('replyTo', {
+      validate: {validateArrayLength1: getLengthValidator('Message.replyTo', 0, 1)},
       allowNull: true,
     }),
     inReplyTo: { type: Sequelize.STRING, allowNull: true},
-    references: buildJSONARRAYColumnOptions('references'),
+    references: JSONArrayColumn('references'),
     folderImapUID: { type: Sequelize.STRING, allowNull: true},
     folderImapXGMLabels: { type: Sequelize.TEXT, allowNull: true},
-    isSending: {
-      type: Sequelize.BOOLEAN,
-      set: function set(val) {
-        if (val) {
-          if (this.isSent) {
-            throw new Error("Cannot mark a sent message as sending");
-          }
-          SendingUtils.validateRecipientsPresent(this);
-          this.isDraft = false;
-          this.regenerateHeaderMessageId();
-        }
-        this.setDataValue('isSending', val);
-      },
-    },
-    uploads: Object.assign(buildJSONARRAYColumnOptions('testFiles'), {
+    uploads: JSONArrayColumn('uploads', {
       validate: {
-        uploadStructure: function uploadStructure(stringifiedArr) {
+        uploadStructure(stringifiedArr) {
           const arr = JSON.parse(stringifiedArr);
           const requiredKeys = ['filename', 'targetPath', 'id']
           arr.forEach((upload) => {
@@ -93,6 +77,16 @@ module.exports = (sequelize, Sequelize) => {
         fields: ['id'],
       },
     ],
+    hooks: {
+      beforeUpdate(message) {
+        // Update the snippet if the body has changed
+        if (!message.changed('body')) { return; }
+
+        const plainText = striptags(message.body);
+        // consolidate whitespace groups into single spaces and then truncate
+        message.snippet = plainText.split(/\s+/).join(" ").substring(0, SNIPPET_LENGTH)
+      },
+    },
     classMethods: {
       associate({Message, Folder, Label, File, Thread, MessageLabel}) {
         Message.belongsTo(Thread)
@@ -100,7 +94,32 @@ module.exports = (sequelize, Sequelize) => {
         Message.belongsToMany(Label, {through: MessageLabel})
         Message.hasMany(File)
       },
-      requiredAssociationsForJSON: ({Folder, Label}) => {
+
+      hash({from = [], to = [], cc = [], bcc = [], date = '', subject = '', headerMessageId = ''} = {}) {
+        const emails = from.concat(to, cc, bcc)
+        .map(participant => participant.email)
+        .sort();
+        const participants = emails.join('')
+        const data = `${date}-${subject}-${participants}-${headerMessageId}`;
+        return crypto.createHash('sha256').update(data, 'utf8').digest('hex');
+      },
+
+      buildHeaderMessageId(id) {
+        return `<${id}@mailer.nylas.com>`
+      },
+
+      async findMultiSendMessage(messageId) {
+        const message = await this.findById(messageId)
+        if (!message) {
+          throw new HTTPError(`Couldn't find multi-send message ${messageId}`, 400);
+        }
+        if (message.isSent || !message.isSending) {
+          throw new HTTPError(`Message ${messageId} is not a multi-send message`, 400);
+        }
+        return message;
+      },
+
+      requiredAssociationsForJSON({Folder, Label}) {
         return [
           {model: Folder},
           {model: Label},
@@ -108,10 +127,34 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
     instanceMethods: {
+      getRecipients() {
+        const {to, cc, bcc} = this;
+        return [].concat(to, cc, bcc);
+      },
+
       async setLabelsFromXGM(xGmLabels, {Label, preloadedLabels} = {}) {
         this.folderImapXGMLabels = JSON.stringify(xGmLabels);
         const labels = await Label.findXGMLabels(xGmLabels, {preloadedLabels})
         return this.setLabels(labels);
+      },
+
+      setIsSent(val) {
+        if (val) {
+          this.isDraft = false
+          this.isSending = false
+        }
+        this.isSent = val
+      },
+
+      setIsSending(val) {
+        if (val) {
+          if (this.isSent || this.isSending) {
+            throw new HTTPError('Cannot mark a sent message as sending', 400);
+          }
+          validateRecipientsPresent(this);
+          this.isDraft = false;
+        }
+        this.isSending = val
       },
 
       fetchRaw({account, db, logger}) {
@@ -133,14 +176,6 @@ module.exports = (sequelize, Sequelize) => {
         })
       },
 
-      // The uid in this header is simply the draft id and version concatenated.
-      // Because this uid identifies the draft on the remote provider, we
-      // regenerate it on each draft revision so that we can delete the old draft
-      // and add the new one on the remote.
-      regenerateHeaderMessageId() {
-        this.headerMessageId = `<${this.id}-${this.version}@mailer.nylas.com>`
-      },
-
       toJSON() {
         if (this.folderId && !this.folder) {
           throw new Error("Message.toJSON called on a message where folder were not eagerly loaded.")
@@ -153,7 +188,7 @@ module.exports = (sequelize, Sequelize) => {
         return {
           id: this.id,
           account_id: this.accountId,
-          object: 'message',
+          object: this.isDraft ? 'draft' : 'message',
           body: this.body,
           subject: this.subject,
           snippet: this.snippet,
@@ -169,17 +204,6 @@ module.exports = (sequelize, Sequelize) => {
           labels: this.labels,
           thread_id: this.threadId,
         };
-      },
-    },
-
-    hooks: {
-      beforeUpdate: (message) => {
-        // Update the snippet if the body has changed
-        if (!message.changed('body')) { return; }
-
-        const plainText = striptags(message.body);
-        // consolidate whitespace groups into single spaces and then truncate
-        message.snippet = plainText.split(/\s+/).join(" ").substring(0, SNIPPET_LENGTH)
       },
     },
   });

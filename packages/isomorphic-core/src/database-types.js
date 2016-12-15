@@ -1,30 +1,44 @@
 const Sequelize = require('sequelize');
 
 module.exports = {
-  buildJSONColumnOptions: (fieldName, {defaultValue = {}} = {}) => ({
-    type: Sequelize.TEXT,
-    get: function get() {
-      const val = this.getDataValue(fieldName);
-      if (!val) {
-        return defaultValue ? Object.assign({}, defaultValue) : null;
-      }
-      return JSON.parse(val);
-    },
-    set: function set(val) {
-      this.setDataValue(fieldName, JSON.stringify(val));
-    },
-  }),
-  buildJSONARRAYColumnOptions: (fieldName) => ({
-    type: Sequelize.TEXT,
-    get: function get() {
-      const val = this.getDataValue(fieldName);
-      if (!val) {
-        return [];
-      }
-      return JSON.parse(val);
-    },
-    set: function set(val) {
-      this.setDataValue(fieldName, JSON.stringify(val));
-    },
-  }),
+  JSONColumn(fieldName, options = {}) {
+    return Object.assign(options, {
+      type: Sequelize.TEXT,
+      get() {
+        const val = this.getDataValue(fieldName);
+        if (!val) {
+          const {defaultValue} = options
+          return defaultValue ? Object.assign({}, defaultValue) : {};
+        }
+        return JSON.parse(val);
+      },
+      set(val) {
+        this.setDataValue(fieldName, JSON.stringify(val));
+      },
+      defaultValue: undefined,
+    })
+  },
+  JSONArrayColumn(fieldName, options = {}) {
+    return Object.assign(options, {
+      type: Sequelize.TEXT,
+      get() {
+        const val = this.getDataValue(fieldName);
+        if (!val) {
+          return [];
+        }
+        const arr = JSON.parse(val)
+        if (!Array.isArray(arr)) {
+          throw new Error('JSONArrayType should be an array')
+        }
+        return JSON.parse(val);
+      },
+      set(val) {
+        if (!Array.isArray(val)) {
+          throw new Error('JSONArrayType should be an array')
+        }
+        this.setDataValue(fieldName, JSON.stringify(val));
+      },
+      defaultValue: undefined,
+    })
+  },
 }

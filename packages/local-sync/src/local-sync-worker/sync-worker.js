@@ -100,6 +100,7 @@ class SyncWorker {
 
     const conn = new IMAPConnection({
       db: this._db,
+      account: this._account,
       settings: Object.assign({}, settings, credentials),
       logger: this._logger,
     });

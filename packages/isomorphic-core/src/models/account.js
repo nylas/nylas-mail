@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const {buildJSONColumnOptions, buildJSONARRAYColumnOptions} = require('../database-types');
+const {JSONColumn, JSONArrayColumn} = require('../database-types');
 
 const {DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD} = process.env;
 
@@ -9,16 +9,16 @@ module.exports = (sequelize, Sequelize) => {
     name: Sequelize.STRING,
     provider: Sequelize.STRING,
     emailAddress: Sequelize.STRING,
-    connectionSettings: buildJSONColumnOptions('connectionSettings'),
+    connectionSettings: JSONColumn('connectionSettings'),
     connectionCredentials: Sequelize.TEXT,
-    syncPolicy: buildJSONColumnOptions('syncPolicy'),
-    syncError: buildJSONColumnOptions('syncError', {defaultValue: null}),
+    syncPolicy: JSONColumn('syncPolicy'),
+    syncError: JSONColumn('syncError'),
     firstSyncCompletion: {
       type: Sequelize.STRING(14),
       allowNull: true,
       defaultValue: null,
     },
-    lastSyncCompletions: buildJSONARRAYColumnOptions('lastSyncCompletions'),
+    lastSyncCompletions: JSONArrayColumn('lastSyncCompletions'),
   }, {
     indexes: [
       {
