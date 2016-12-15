@@ -22,7 +22,7 @@ module.exports = (sequelize, Sequelize) => {
     instanceMethods: {
       toJSON() {
         return {
-          id: `${this.publicId}`,
+          id: `${this.id}`,
           account_id: this.accountId,
           object: 'contact',
           email: this.email,
