@@ -10,6 +10,8 @@ class N1CloudAPI {
     const env = NylasEnv.config.get('env')
     if (['development', 'local'].includes(env)) {
       this.APIRoot = "http://localhost:5100";
+    } else if (env === 'staging') {
+      this.APIRoot = "https://n1-staging.us-east-1.elasticbeanstalk.com/";
     } else {
       this.APIRoot = "https://n1.nylas.com";
     }

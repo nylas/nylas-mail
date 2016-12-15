@@ -60,6 +60,7 @@ export function makeGmailOAuthRequest(sessionKey, callback) {
               provider: 'gmail',
               settings: {
                 xoauth2: remoteJSON.resolved_settings.xoauth2,
+                expiry_date: remoteJSON.resolved_settings.expiry_date,
               },
             },
             success: (localJSON) => {
