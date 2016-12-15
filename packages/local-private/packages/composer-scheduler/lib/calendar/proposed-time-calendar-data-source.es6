@@ -1,5 +1,4 @@
-import Rx from 'rx-lite'
-import {CalendarDataSource} from 'nylas-exports'
+import {Rx, CalendarDataSource} from 'nylas-exports'
 import ProposedTimeCalendarStore from '../proposed-time-calendar-store'
 
 export default class ProposedTimeCalendarDataSource extends CalendarDataSource {

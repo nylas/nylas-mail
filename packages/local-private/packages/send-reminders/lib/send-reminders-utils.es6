@@ -1,6 +1,6 @@
 import moment from 'moment'
-import Rx from 'rx-lite'
 import {
+  Rx,
   Thread,
   Message,
   Actions,

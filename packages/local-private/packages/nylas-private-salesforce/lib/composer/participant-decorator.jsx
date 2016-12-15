@@ -1,6 +1,5 @@
-import Rx from 'rx-lite'
 import React from 'react'
-import {DatabaseStore} from 'nylas-exports'
+import {Rx, DatabaseStore} from 'nylas-exports'
 
 import SalesforceIcon from '../shared-components/salesforce-icon'
 import SalesforceObject from '../models/salesforce-object'

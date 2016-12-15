@@ -1,7 +1,5 @@
 import _ from 'underscore'
-import Rx from 'rx-lite'
-
-import { AccountStore, DatabaseStore } from 'nylas-exports'
+import { Rx, AccountStore, DatabaseStore } from 'nylas-exports'
 import SalesforceObject from './models/salesforce-object'
 
 class SalesforceRelatedObjectCache {

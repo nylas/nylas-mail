@@ -1,7 +1,6 @@
-import Rx from 'rx-lite';
 import React, {Component, PropTypes} from 'react';
 import ReactDOM from 'react-dom';
-import {Actions, Message, DatabaseStore} from 'nylas-exports';
+import {Rx, Actions, Message, DatabaseStore} from 'nylas-exports';
 import {RetinaImg, ListensToObservable} from 'nylas-component-kit';
 import SendRemindersPopover from './send-reminders-popover';
 import {getLatestMessage, setMessageReminder, reminderDateForMessage} from './send-reminders-utils'

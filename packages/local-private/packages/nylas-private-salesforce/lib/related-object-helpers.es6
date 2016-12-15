@@ -1,7 +1,7 @@
 import _ from 'underscore'
-import Rx from 'rx-lite'
 
 import {
+  Rx,
   DatabaseStore,
   Thread,
 } from 'nylas-exports'
