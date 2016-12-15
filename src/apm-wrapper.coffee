@@ -87,16 +87,16 @@ class APMWrapper
     handleProcessErrors(apmProcess, errorMessage, callback)
 
   getInstalled: ->
-    Promise.promisify(@loadInstalled, this)()
+    Promise.promisify(@loadInstalled, {context: this})()
 
   getFeatured: (options = {}) ->
-    Promise.promisify(@loadFeatured, this)(options)
+    Promise.promisify(@loadFeatured, {context: this})(options)
 
   getOutdated: ->
-    Promise.promisify(@loadOutdated, this)()
+    Promise.promisify(@loadOutdated, {context: this})()
 
   getPackage: (packageName) ->
-    @packagePromises[packageName] ?= Promise.promisify(@loadPackage, this, packageName)()
+    @packagePromises[packageName] ?= Promise.promisify(@loadPackage, {context: this})()
 
   satisfiesVersion: (version, metadata) ->
     engine = metadata.engines?.nylas ? '*'

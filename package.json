@@ -21,7 +21,7 @@
     "babel-preset-react": "^6.16.0",
     "babel-regenerator-runtime": "6.5.0",
     "better-sqlite3": "bengotow/better-sqlite3#a888061ad334c76d2db4c06554c90785cc6e7cce",
-    "bluebird": "^2.9",
+    "bluebird": "3.4.x",
     "chromium-net-errors": "1.0.3",
     "chrono-node": "^1.1.2",
     "classnames": "1.2.1",
