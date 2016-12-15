@@ -1,10 +1,9 @@
 /* eslint global-require: "off" */
 
 import NylasStore from 'nylas-store';
-import Rx from 'rx-lite';
 import _ from 'underscore';
 
-import {DatabaseStore} from 'nylas-exports';
+import {Rx, DatabaseStore} from 'nylas-exports';
 import EmojiActions from './emoji-actions';
 
 const EmojiJSONBlobKey = 'emoji';

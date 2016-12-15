@@ -1,7 +1,7 @@
 NylasStore = require 'nylas-store'
-Rx = require 'rx-lite'
 _ = require 'underscore'
-{Message,
+{Rx,
+ Message,
  OutboxStore,
  AccountStore,
  MutableQueryResultSet,

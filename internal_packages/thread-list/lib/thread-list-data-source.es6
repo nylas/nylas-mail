@@ -1,5 +1,5 @@
-import Rx from 'rx-lite';
 import {
+  Rx,
   ObservableListDataSource,
   DatabaseStore,
   Message,
