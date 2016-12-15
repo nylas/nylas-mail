@@ -70,6 +70,10 @@ export default class Category extends Model {
       modelKey: 'displayName',
       jsonKey: 'display_name',
     }),
+    syncState: Attributes.Object({
+      modelKey: 'syncState',
+      jsonKey: 'sync_state',
+    }),
   });
 
   static Types = {

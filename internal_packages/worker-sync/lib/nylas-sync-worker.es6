@@ -24,10 +24,6 @@ import ContactRankingsCache from './contact-rankings-cache';
  *     n1Cloud: "closed",
  *     localSync: "connecting",
  *   }
- *   "threads": {
- *     complete: true,
- *   }
- *   ... other models
  * }
  *
  * It can be null to indicate

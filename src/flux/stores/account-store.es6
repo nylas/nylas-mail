@@ -43,8 +43,8 @@ class AccountStore extends NylasStore {
 
       if (newAccountIds.length > 0) {
         const newId = newAccountIds[0]
-        const CategoryStore = require('./category-store')
-        CategoryStore.whenCategoriesReady(newId).then(() => {
+        const NylasSyncStatusStore = require('./nylas-sync-status-store').default
+        NylasSyncStatusStore.whenCategoryListSynced(newId).then(() => {
           Actions.focusDefaultMailboxPerspectiveForAccounts([newId], {sidebarAccountIds: accountIds})
           // TODO: This Action is a hack, get rid of it in sidebar refactor
           // Wait until the FocusedPerspectiveStore triggers and the sidebar is
