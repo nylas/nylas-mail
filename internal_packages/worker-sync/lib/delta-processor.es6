@@ -139,18 +139,14 @@ class DeltaProcessor {
   async _saveModels(modelDeltas) {
     const {create, modify, destroy} = this._clusterDeltas(modelDeltas);
 
-    const createdPromises = {}
-    Object.keys(create).forEach((type) => {
-      createdPromises[type] = NylasAPIHelpers.handleModelResponse(_.values(create[type]))
-    })
+    const created = await Promise.props(_.mapObject(create, (val) =>
+      NylasAPIHelpers.handleModelResponse(_.values(val))
+    ))
 
-    const updatedPromises = {}
-    Object.keys(modify).forEach((type) => {
-      updatedPromises[type] = NylasAPIHelpers.handleModelResponse(_.values(modify[type]))
-    })
+    const updated = await Promise.props(_.mapObject(modify, (val) =>
+      NylasAPIHelpers.handleModelResponse(_.values(val))
+    ));
 
-    const created = await Promise.props(createdPromises);
-    const updated = await Promise.props(updatedPromises);
     await Promise.map(destroy, this._handleDestroyDelta);
 
     return {created, updated};
