@@ -266,6 +266,7 @@ describe "QuotedHTMLTransformer", ->
         </body>
         """
       after: "<head></head><body></body>"
+      options: { keepIfWholeBodyIsQuote: false }
 
     # Test 12: Make sure that a single quote inside of a bunch of other
     # content is detected. We used to have a bug where we were only
@@ -355,10 +356,37 @@ describe "QuotedHTMLTransformer", ->
         </div>
       """
 
+    # Test 15: Make sure inline quote in plaintext converted to HTML with <pre>
+    # is not completely stripped.
+    tests.push
+      before: """
+        <pre class="nylas-plaintext">On Wed, Dec 14, 2016 at 02:05:44PM +0100, Bálint Réczey wrote:
+        &gt; I have uploaded a dpkg NMU with bindnow enabled to DELAYED/10
+        &gt; according to current NMU rules. If the Release Team increases the
+        &gt; severity of #835146 it can reach unstable earlier.
+        Thanks!
+
+        --
+        WBR, wRAR
+        </pre>
+      """
+      after: """
+        <pre class="nylas-plaintext">On Wed, Dec 14, 2016 at 02:05:44PM +0100, Bálint Réczey wrote:
+        &gt; I have uploaded a dpkg NMU with bindnow enabled to DELAYED/10
+        &gt; according to current NMU rules. If the Release Team increases the
+        &gt; severity of #835146 it can reach unstable earlier.
+        Thanks!
+
+        --
+        WBR, wRAR
+        </pre>
+      """
+
     it 'works with these manual test cases', ->
-      for {before, after} in tests
-        opts = keepIfWholeBodyIsQuote: true
-        test = clean(QuotedHTMLTransformer.removeQuotedHTML(before, opts))
+      for {before, after, options} in tests
+        if not options
+          options = {keepIfWholeBodyIsQuote: true}
+        test = clean(QuotedHTMLTransformer.removeQuotedHTML(before, options))
         expect(test).toEqual clean(after)
 
     it 'removes all trailing <br> tags except one', ->
@@ -390,7 +418,7 @@ describe "QuotedHTMLTransformer", ->
       </blockquote>
       """
       expect0 = "<head></head><body><br></body>"
-      expect(QuotedHTMLTransformer.removeQuotedHTML(input0)).toEqual expect0
+      expect(QuotedHTMLTransformer.removeQuotedHTML(input0, {keepIfWholeBodyIsQuote: false})).toEqual expect0
 
 
   # We have a little utility method that you can manually uncomment to
