@@ -1,6 +1,5 @@
-import Rx from 'rx-lite'
 import React from 'react'
-import {ComponentRegistry, WorkspaceStore} from 'nylas-exports'
+import {Rx, ComponentRegistry, WorkspaceStore} from 'nylas-exports'
 
 // Worker to fetch new Salesforce objects
 import SalesforceDataReset from './salesforce-data-reset'

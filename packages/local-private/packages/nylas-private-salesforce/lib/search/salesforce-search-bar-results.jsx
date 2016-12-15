@@ -1,7 +1,6 @@
 import _ from 'underscore'
-import Rx from 'rx-lite'
 import React from 'react'
-import {Thread, DatabaseStore} from 'nylas-exports'
+import {Rx, Thread, DatabaseStore} from 'nylas-exports'
 import SalesforceIcon from '../shared-components/salesforce-icon'
 import SalesforceObject from '../models/salesforce-object'
 import {relatedSObjectsForThread} from '../related-object-helpers'

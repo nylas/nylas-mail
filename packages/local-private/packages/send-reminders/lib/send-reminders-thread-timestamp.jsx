@@ -1,7 +1,6 @@
-import Rx from 'rx-lite'
 import React, {Component, PropTypes} from 'react';
 import {RetinaImg} from 'nylas-component-kit';
-import {Message, DatabaseStore, FocusedPerspectiveStore} from 'nylas-exports';
+import {Rx, Message, DatabaseStore, FocusedPerspectiveStore} from 'nylas-exports';
 import {getReminderLabel, getLatestMessageWithReminder, setMessageReminder} from './send-reminders-utils'
 import {PLUGIN_ID} from './send-reminders-constants';
 

@@ -1,10 +1,9 @@
 import _ from 'underscore'
-import Rx from 'rx-lite'
 import React from 'react'
 import ReactDOM from 'react-dom'
 
 import {RetinaImg, KeyCommandsRegion} from 'nylas-component-kit'
-import {Actions, FocusedContactsStore} from 'nylas-exports'
+import {Rx, Actions, FocusedContactsStore} from 'nylas-exports'
 
 import SalesforceEnv from '../salesforce-env'
 import SalesforceObject from '../models/salesforce-object'
