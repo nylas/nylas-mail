@@ -35,32 +35,34 @@ class QuotedHTMLTransformer {
   // - `options`
   //   - `includeInline` Defaults false. If true, inline quotes are removed
   //   too
-  //   - `keepIfWholeBodyIsQuote` Defaults false. If true, then it will
-  //   check to see if the whole html body is a giant quote. If so, it will
-  //   preserve it.
   //
   // Returns HTML without quoted text
-  removeQuotedHTML(html, options = {}) {
+  removeQuotedHTML(html, options = {keepIfWholeBodyIsQuote: true}) {
     const doc = this._parseHTML(html);
     const quoteElements = this._findQuoteLikeElements(doc, options);
-    if (!options.keepIfWholeBodyIsQuote || !this._wholeBodyIsQuote(doc, quoteElements)) {
-      DOMUtils.Mutating.removeElements(quoteElements, options);
 
-      // It's possible that the entire body was quoted text and we've removed everything.
-      if (!doc.body) {
-        return this._outputHTMLFor(this._parseHTML(""), {initialHTML: html});
-      }
-
-      this.removeTrailingBr(doc);
-      DOMUtils.Mutating.removeElements(quoteStringDetector(doc));
-      if (!doc.children[0]) {
-        return this._outputHTMLFor(this._parseHTML(""), {initialHTML: html});
-      }
+    if (options.keepIfWholeBodyIsQuote && this._wholeBodyIsQuote(doc, quoteElements)) {
+      return this._outputHTMLFor(this._parseHTML(html), {initialHTML: html});
     }
 
-    if (options.returnAsDOM) {
-      return doc;
+    DOMUtils.Mutating.removeElements(quoteElements, options);
+
+    // It's possible that the entire body was quoted text anyway and we've
+    // removed everything.
+    if (options.keepIfWholeBodyIsQuote && (!doc.body || !doc.children[0])) {
+      return this._outputHTMLFor(this._parseHTML(html), {initialHTML: html});
     }
+
+    if (!doc.body) {
+      return this._outputHTMLFor(this._parseHTML(""), {initialHTML: html});
+    }
+
+    this.removeTrailingBr(doc);
+    DOMUtils.Mutating.removeElements(quoteStringDetector(doc));
+    if (options.keepIfWholeBodyIsQuote && (!doc.children[0] || this._wholeNylasPlaintextBodyIsQuote(doc))) {
+      return this._outputHTMLFor(this._parseHTML(html), {initialHTML: html});
+    }
+
     return this._outputHTMLFor(doc, {initialHTML: html});
   }
 
@@ -119,6 +121,11 @@ class QuotedHTMLTransformer {
       return doc.children[0].innerHTML;
     }
     return doc.body.innerHTML;
+  }
+
+  _wholeNylasPlaintextBodyIsQuote(doc) {
+    const preElement = doc.body.children[0];
+    return (preElement && preElement.tagName === 'PRE' && !preElement.children[0]);
   }
 
   _wholeBodyIsQuote(doc, quoteElements) {
@@ -251,7 +258,7 @@ class QuotedHTMLTransformer {
   }
 
   _findAnnotatedElements(doc) {
-    return Array.prototype.slice.call(doc.getElementsByClassName(this.annotationClass));
+    return Array.from(doc.getElementsByClassName(this.annotationClass));
   }
 
   _annotateElements(elements = []) {
@@ -278,12 +285,12 @@ class QuotedHTMLTransformer {
     // Gmail creates both div.gmail_quote and blockquote.gmail_quote. The div
     // version marks text but does not cause indentation, but both should be
     // considered quoted text.
-    return Array.prototype.slice.call(doc.querySelectorAll('.gmail_quote'));
+    return Array.from(doc.querySelectorAll('.gmail_quote'));
   }
 
   _findOffice365Quotes(doc) {
     let elements = doc.querySelectorAll('#divRplyFwdMsg, #OLK_SRC_BODY_SECTION');
-    elements = Array.prototype.slice.call(elements);
+    elements = Array.from(elements);
 
     const weirdEl = doc.getElementById('3D"divRplyFwdMsg"');
     if (weirdEl) { elements.push(weirdEl); }
@@ -312,7 +319,7 @@ class QuotedHTMLTransformer {
   }
 
   _findBlockquoteQuotes(doc) {
-    return Array.prototype.slice.call(doc.querySelectorAll('blockquote'));
+    return Array.from(doc.querySelectorAll('blockquote'));
   }
 }
 
