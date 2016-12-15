@@ -178,8 +178,9 @@ class SyncWorker {
   async runSyncbackTask(task) {
     const syncbackRequest = task.syncbackRequestObject();
     try {
-      await this._conn.runOperation(task);
+      const responseJSON = await this._conn.runOperation(task);
       syncbackRequest.status = "SUCCEEDED";
+      syncbackRequest.responseJSON = responseJSON || {};
     } catch (error) {
       syncbackRequest.error = error;
       syncbackRequest.status = "FAILED";
@@ -237,7 +238,7 @@ class SyncWorker {
       await this.runNewSyncbackRequests();
       await this._conn.runOperation(new FetchFolderList(this._account, this._logger));
       await this.syncMessagesInAllFolders();
-      await this.cleanupOrpahnMessages();
+      await this.cleanupOrphanMessages();
       await this.onSyncDidComplete();
     } catch (error) {
       this.onSyncError(error);
@@ -247,8 +248,14 @@ class SyncWorker {
     }
   }
 
-  async cleanupOrpahnMessages() {
-    const orphans = await this._db.Message.findAll({where: {folderId: null}})
+  async cleanupOrphanMessages() {
+    const orphans = await this._db.Message.findAll({
+      where: {
+        folderId: null,
+        isSent: {$not: true},
+        isSending: {$not: true},
+      },
+    })
     return Promise.map(orphans, (msg) => msg.destroy());
   }
 

@@ -2,14 +2,12 @@
 const mimelib = require('mimelib');
 const encoding = require('encoding');
 const he = require('he');
-
 const os = require('os');
 const fs = require('fs');
 const path = require('path')
 const mkdirp = require('mkdirp');
-
 const {Imap} = require('isomorphic-core');
-const Errors = require('./errors');
+const {APIError} = require('./errors')
 
 // aiming for the former in length, but the latter is the hard db cutoff
 const SNIPPET_SIZE = 100;
@@ -227,10 +225,7 @@ async function buildForSend(db, json) {
 
   if (replyToThread && replyToMessage) {
     if (!replyToThread.messages.find((msg) => msg.id === replyToMessage.id)) {
-      throw new Errors.HTTPError(
-        `Message ${replyToMessage.id} is not in thread ${replyToThread.id}`,
-        400
-      )
+      throw new APIError(`Message ${replyToMessage.id} is not in thread ${replyToThread.id}`, 400)
     }
   }
 

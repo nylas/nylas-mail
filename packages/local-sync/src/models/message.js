@@ -1,8 +1,8 @@
 const crypto = require('crypto')
+const striptags = require('striptags');
 const {PromiseUtils, IMAPConnection} = require('isomorphic-core')
 const {DatabaseTypes: {JSONColumn, JSONArrayColumn}} = require('isomorphic-core');
-const striptags = require('striptags');
-const {HTTPError} = require('../shared/errors');
+const {APIError} = require('../shared/errors')
 
 
 const SNIPPET_LENGTH = 191;
@@ -18,7 +18,7 @@ function getLengthValidator(fieldName, min, max) {
 
 function validateRecipientsPresent(message) {
   if (message.getRecipients().length === 0) {
-    throw new HTTPError(`No recipients specified`, 400);
+    throw new APIError(`No recipients specified`, 400);
   }
 }
 
@@ -76,6 +76,14 @@ module.exports = (sequelize, Sequelize) => {
         unique: true,
         fields: ['id'],
       },
+      {
+        unique: false,
+        fields: ['folderId'],
+      },
+      {
+        unique: false,
+        fields: ['threadId'],
+      },
     ],
     hooks: {
       beforeUpdate(message) {
@@ -111,10 +119,10 @@ module.exports = (sequelize, Sequelize) => {
       async findMultiSendMessage(messageId) {
         const message = await this.findById(messageId)
         if (!message) {
-          throw new HTTPError(`Couldn't find multi-send message ${messageId}`, 400);
+          throw new APIError(`Couldn't find multi-send message ${messageId}`, 400);
         }
         if (message.isSent || !message.isSending) {
-          throw new HTTPError(`Message ${messageId} is not a multi-send message`, 400);
+          throw new APIError(`Message ${messageId} is not a multi-send message`, 400);
         }
         return message;
       },
@@ -149,7 +157,7 @@ module.exports = (sequelize, Sequelize) => {
       setIsSending(val) {
         if (val) {
           if (this.isSent || this.isSending) {
-            throw new HTTPError('Cannot mark a sent message as sending', 400);
+            throw new APIError('Cannot mark a sent message as sending', 400);
           }
           validateRecipientsPresent(this);
           this.isDraft = false;
