@@ -26,7 +26,7 @@ class IMAPConnection extends EventEmitter {
     return new IMAPConnection(...args).connect()
   }
 
-  constructor({db, settings, logger} = {}) {
+  constructor({db, account, settings, logger} = {}) {
     super();
 
     if (!(settings instanceof Object)) {
@@ -38,11 +38,20 @@ class IMAPConnection extends EventEmitter {
 
     this._logger = logger;
     this._db = db;
+    this._account = account;
     this._queue = [];
     this._currentOperation = null;
     this._settings = settings;
     this._imap = null;
     this._connectPromise = null;
+  }
+
+  get account() {
+    return this._account
+  }
+
+  get logger() {
+    return this._logger
   }
 
   connect() {

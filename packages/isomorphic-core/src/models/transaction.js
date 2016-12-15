@@ -1,4 +1,4 @@
-const {buildJSONARRAYColumnOptions} = require('../database-types');
+const {JSONArrayColumn} = require('../database-types');
 
 module.exports = (sequelize, Sequelize) => {
   return sequelize.define('transaction', {
@@ -6,7 +6,7 @@ module.exports = (sequelize, Sequelize) => {
     object: Sequelize.STRING,
     objectId: Sequelize.STRING,
     accountId: Sequelize.STRING,
-    changedFields: buildJSONARRAYColumnOptions('changedFields'),
+    changedFields: JSONArrayColumn('changedFields'),
   }, {
     instanceMethods: {
       toJSON: function toJSON() {

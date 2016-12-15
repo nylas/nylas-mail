@@ -22,7 +22,7 @@ module.exports = (sequelize, Sequelize) => {
       },
     ],
     instanceMethods: {
-      fetch: function fetch({account, db, logger}) {
+      fetch({account, db, logger}) {
         const settings = Object.assign({}, account.connectionSettings, account.decryptedCredentials())
         return PromiseUtils.props({
           message: this.getMessage(),
@@ -44,7 +44,7 @@ module.exports = (sequelize, Sequelize) => {
           .finally(() => connection.end())
         })
       },
-      toJSON: function toJSON() {
+      toJSON() {
         return {
           id: this.id,
           object: 'file',

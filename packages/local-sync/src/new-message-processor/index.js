@@ -11,11 +11,21 @@ function processNewMessage(message, imapMessage) {
     const {accountId} = message;
     const logger = global.Logger.forAccount({id: accountId}).child({message})
     const db = await LocalDatabaseConnector.forAccount(accountId);
+    const {Message} = db
 
     try {
+      const existingMessage = await Message.findById(message.id)
+      if (existingMessage) {
+        // This is an extremely rare case when 2 or more /new/ messages with
+        // the exact same headers were queued for creation (same subject,
+        // participants, timestamp, and message-id header). In this case, we
+        // will ignore it and report the error
+        logger.warn({message}, 'MessageProcessor: Encountered 2 new messages with the same id')
+        return
+      }
       const thread = await detectThread({db, message});
       message.threadId = thread.id;
-      await db.Message.create(message);
+      await Message.create(message);
       await extractFiles({db, message, imapMessage});
       await extractContacts({db, message});
       logger.info({

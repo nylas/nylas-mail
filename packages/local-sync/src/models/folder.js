@@ -1,5 +1,5 @@
 const crypto = require('crypto')
-const {DatabaseTypes: {buildJSONColumnOptions}} = require('isomorphic-core');
+const {DatabaseTypes: {JSONColumn}} = require('isomorphic-core');
 const {formatImapPath} = require('../shared/imap-paths-utils');
 
 module.exports = (sequelize, Sequelize) => {
@@ -9,7 +9,7 @@ module.exports = (sequelize, Sequelize) => {
     version: Sequelize.INTEGER,
     name: Sequelize.STRING,
     role: Sequelize.STRING,
-    syncState: buildJSONColumnOptions('syncState'),
+    syncState: JSONColumn('syncState', {defaultValue: {}}),
   }, {
     indexes: [
       {

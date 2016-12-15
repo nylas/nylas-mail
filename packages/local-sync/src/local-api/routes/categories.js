@@ -46,10 +46,8 @@ module.exports = (server) => {
         description: `Create ${term}`,
         tags: [term],
         validate: {
-          params: {
-            payload: {
-              display_name: Joi.string().required(),
-            },
+          payload: {
+            display_name: Joi.string().required(),
           },
         },
         response: {
@@ -84,9 +82,9 @@ module.exports = (server) => {
         validate: {
           params: {
             id: Joi.string().required(),
-            payload: {
-              display_name: Joi.string().required(),
-            },
+          },
+          payload: {
+            display_name: Joi.string().required(),
           },
         },
         response: {

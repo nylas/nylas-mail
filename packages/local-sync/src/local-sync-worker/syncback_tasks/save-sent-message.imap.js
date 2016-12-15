@@ -10,7 +10,7 @@ class SaveSentMessageIMAP extends SyncbackTask {
   }
 
   async run(db, imap) {
-    const {rawMime, messageId} = this.syncbackRequestObject().props;
+    const {rawMime, headerMessageId} = this.syncbackRequestObject().props;
 
     // Non-gmail
     const sentFolder = await db.Folder.find({where: {role: 'sent'}});
@@ -23,9 +23,9 @@ class SaveSentMessageIMAP extends SyncbackTask {
     const sentLabel = await db.Label.find({where: {role: 'sent'}});
     const allMail = await db.Folder.find({where: {role: 'all'}});
     if (sentLabel && allMail) {
-      let box = await imap.openBox(allMail.name);
+      const box = await imap.openBox(allMail.name);
       await box.append(rawMime, {flags: 'SEEN'})
-      const uids = await box.search([['HEADER', 'Message-ID', messageId]])
+      const uids = await box.search([['HEADER', 'Message-ID', headerMessageId]])
       // There should only be one uid in the array
       return box.setLabels(uids[0], '\\Sent');
     }

@@ -3,7 +3,7 @@
 const fs = require('fs');
 const nodemailer = require('nodemailer');
 const mailcomposer = require('mailcomposer');
-const {HTTPError} = require('../shared/errors');
+const {HTTPError} = require('./errors');
 
 const MAX_RETRIES = 1;
 
@@ -12,6 +12,7 @@ const formatParticipants = (participants) => {
 }
 
 class SendmailClient {
+
   constructor(account, logger) {
     this._transporter = nodemailer.createTransport(account.smtpConfig());
     this._logger = logger;
@@ -59,20 +60,20 @@ class SendmailClient {
     throw new HTTPError('Sending failed', 500, err);
   }
 
-  _draftToMsgData(draft) {
+  _getSendPayload(message) {
     const msgData = {};
     for (const field of ['from', 'to', 'cc', 'bcc']) {
-      if (draft[field]) {
-        msgData[field] = formatParticipants(draft[field])
+      if (message[field]) {
+        msgData[field] = formatParticipants(message[field])
       }
     }
-    msgData.date = draft.date;
-    msgData.subject = draft.subject;
-    msgData.html = draft.body;
-    msgData.messageId = `${draft.id}@nylas.com`;
+    msgData.date = message.date;
+    msgData.subject = message.subject;
+    msgData.html = message.body;
+    msgData.messageId = message.headerMessageId;
 
     msgData.attachments = []
-    for (const upload of draft.uploads) {
+    for (const upload of message.uploads) {
       msgData.attachments.push({
         filename: upload.filename,
         content: fs.createReadStream(upload.targetPath),
@@ -80,62 +81,45 @@ class SendmailClient {
       })
     }
 
-    if (draft.replyTo) {
-      msgData.replyTo = formatParticipants(draft.replyTo);
+    if (message.replyTo) {
+      msgData.replyTo = formatParticipants(message.replyTo);
     }
 
-    msgData.inReplyTo = draft.inReplyTo;
-    msgData.references = draft.references;
-    msgData.headers = draft.headers;
+    msgData.inReplyTo = message.inReplyTo;
+    msgData.references = message.references;
+    msgData.headers = message.headers;
     msgData.headers['User-Agent'] = `NylasMailer-K2`
 
     return msgData;
   }
 
-  _replaceBodyMessageIds(body, id) {
-    const serverUrl = {
-      local: 'http:\/\/lvh\.me:5100',
-      development: 'http:\/\/lvh\.me:5100',
-      staging: 'https:\/\/n1-staging\.nylas\.com',
-      production: 'https:\/\/n1\.nylas\.com',
-    }[process.env];
-    const regex = new RegExp(`${serverUrl}.+MESSAGE_ID`, 'g')
-    return body.replace(regex, (match) => {
-      return match.replace('MESSAGE_ID', id)
-    })
-  }
-
-  async buildMime(draft) {
-    const builder = mailcomposer(this._draftToMsgData(draft))
+  async buildMime(message) {
+    const payload = this._getSendPayload(message)
+    const builder = mailcomposer(payload)
     const mimeNode = await (new Promise((resolve, reject) => {
-      builder.build((error, result) => {
+      builder.build((error, result) => (
         error ? reject(error) : resolve(result)
-      })
+      ))
     }));
     return mimeNode.toString('ascii')
   }
 
-  async send(draft) {
-    if (draft.isSent) {
-      throw new Error(`Cannot send message ${draft.id}, it has already been sent`);
+  async send(message) {
+    if (message.isSent) {
+      throw new Error(`Cannot send message ${message.id}, it has already been sent`);
     }
-    await this._send(this._draftToMsgData(draft));
-    await (draft.isSent = true);
-    await draft.save();
+    const payload = this._getSendPayload(message)
+    await this._send(payload);
   }
 
-  async sendCustomBody(draft, body, recipients) {
-    const origBody = draft.body;
-    draft.body = this._replaceBodyMessageIds(body);
+  async sendCustom(customMessage, recipients) {
     const envelope = {};
     for (const field of Object.keys(recipients)) {
       envelope[field] = recipients[field].map(r => r.email);
     }
-    const raw = await this.buildMime(draft);
-    const responseOnSuccess = draft.toJSON();
-    draft.body = origBody;
+    const raw = await this.buildMime(customMessage);
     await this._send({raw, envelope});
-    return responseOnSuccess;
+    return customMessage.toJSON();
   }
 }
 
