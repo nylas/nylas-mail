@@ -1,6 +1,7 @@
 /* eslint no-useless-escape: 0 */
 const mimelib = require('mimelib');
 const encoding = require('encoding');
+const he = require('he');
 
 const {Imap} = require('isomorphic-core');
 const Errors = require('./errors');
@@ -87,7 +88,8 @@ monospacing, but that seems OK and perhaps sometimes even desired (for e.g.
 ascii art, alignment)
 */
 function HTMLifyPlaintext(text) {
-  return `<pre class="nylas-plaintext">${text}</pre>`;
+  const escapedText = he.escape(text);
+  return `<pre class="nylas-plaintext">${escapedText}</pre>`;
 }
 
 /*
