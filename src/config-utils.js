@@ -23,17 +23,6 @@
   };
 
   plus = {
-    mapObject: function(object, iterator) {
-      var key, newObject, value, _i, _len, _ref, _ref1;
-      newObject = {};
-      _ref = Object.keys(object);
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        key = _ref[_i];
-        _ref1 = iterator(key, object[key]), key = _ref1[0], value = _ref1[1];
-        newObject[key] = value;
-      }
-      return newObject;
-    },
     remove: function(array, element) {
       var index;
       index = array.indexOf(element);
@@ -48,11 +37,9 @@
           return plus.deepClone(value);
         });
       } else if (_.isObject(object) && !_.isFunction(object)) {
-        return plus.mapObject(object, (function(_this) {
-          return function(key, value) {
-            return [key, plus.deepClone(value)];
-          };
-        })(this));
+        return _.mapObject(object, (function(value) {
+          return plus.deepClone(value);
+        }))
       } else {
         return object;
       }

@@ -588,7 +588,7 @@ class Config
     else if _.isArray(object)
       object.map (value) => @deepClone(value)
     else if isPlainObject(object)
-      _.mapObject object, (key, value) => [key, @deepClone(value)]
+      _.mapObject object, (value) => @deepClone(value)
     else
       object
 
