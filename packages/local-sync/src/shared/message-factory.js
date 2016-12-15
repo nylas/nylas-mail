@@ -3,6 +3,11 @@ const mimelib = require('mimelib');
 const encoding = require('encoding');
 const he = require('he');
 
+const os = require('os');
+const fs = require('fs');
+const path = require('path')
+const mkdirp = require('mkdirp');
+
 const {Imap} = require('isomorphic-core');
 const Errors = require('./errors');
 
@@ -161,6 +166,14 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
   if (xGmLabels) {
     parsedMessage.folderImapXGMLabels = JSON.stringify(xGmLabels)
     parsedMessage.labels = await Label.findXGMLabels(xGmLabels)
+  }
+
+  if (process.env.NYLAS_DEBUG) {
+    const outJSON = JSON.stringify({imapMessage, desiredParts, result: parsedMessage});
+    const outDir = path.join(os.tmpdir(), "k2-parse-output", folder.name)
+    const outFile = path.join(outDir, imapMessage.attributes.uid.toString());
+    mkdirp.sync(outDir);
+    fs.writeFileSync(outFile, outJSON);
   }
 
   return parsedMessage;
