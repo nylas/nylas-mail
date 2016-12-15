@@ -1,7 +1,6 @@
+const {SendmailClient, Errors: {APIError}} = require('isomorphic-core')
 const SyncbackTask = require('./syncback-task')
 const TaskHelpers = require('./task-helpers')
-const SendmailClient = require('../../shared/sendmail-client')
-const {APIError} = require('../../shared/errors')
 
 
 // Closes out a multi-send session by marking the sending draft as sent

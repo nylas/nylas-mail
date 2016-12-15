@@ -288,7 +288,7 @@ class IMAPConnection extends EventEmitter {
     .catch((err) => {
       this._currentOperation = null;
       this._logger.error({
-        err,
+        error: err,
         operation_type: operation.constructor.name,
         operation_description: operation.description(),
       }, `Sync operation errored`)
