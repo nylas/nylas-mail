@@ -1,5 +1,5 @@
 apps:
-  - script   : packages/cloud-api/app.js
+  - script   : n1_cloud_dist/cloud-api/app.js
     name     : api
     instances: 0
     exec_mode: cluster
