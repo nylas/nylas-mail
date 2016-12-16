@@ -90,7 +90,7 @@ class PackageManager
     if turnedOn.length > 0 then @_notifyPluginsChanged(turnedOn, "enabled")
     if turnedOff.length > 0 then @_notifyPluginsChanged(turnedOff, "disabled")
 
-    setTimeout(() =>
+    setTimeout(=>
       # This lets us enable features in plugins after it's been enabled
       # via a url, but after the the showMessageBox modal has come up.
       Actions.notifyPluginsChangedViaUrl({turnedOn, turnedOff})
@@ -99,6 +99,7 @@ class PackageManager
   _notifyPluginsChanged: (nameData, dir) =>
     names = _.pluck(nameData, "displayName")
     messages = _.compact(_.pluck(nameData, "message")).map((m) => decodeURIComponent(m))
+    msgText = ""
     if messages.length > 0
       msgText = "\n\n" + messages.join("\n\n")
     if names.length >= 2
