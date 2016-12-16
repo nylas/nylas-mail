@@ -140,7 +140,7 @@ export default class SendDraftTask extends BaseDraftTask {
 
   createMessageFromResponse = (responseJSON) => {
     const {failedRecipients, message} = responseJSON
-    if (failedRecipients.length > 0) {
+    if (failedRecipients && failedRecipients.length > 0) {
       const errorMessage = `We had trouble sending this message to all recipients. ${failedRecipients} may not have received this email.`;
       NylasEnv.showErrorDialog(errorMessage, {showInMainWindow: true});
     }
