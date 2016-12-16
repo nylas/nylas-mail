@@ -96,8 +96,10 @@ module.exports = (server) => {
             imap_port: 993,
             ssl_required: true,
           }
+
           const credentials = {
             refresh_token: tokens.refresh_token,
+            expiry_date: tokens.expiry_date,
             client_id: GMAIL_CLIENT_ID,
             client_secret: GMAIL_CLIENT_SECRET,
           }
@@ -119,11 +121,13 @@ module.exports = (server) => {
                 emailAddress: profile.email,
                 connectionSettings: settings,
               }
+
               return accountBuildFn(accountParams, credentials)
               .then(({account, token}) => {
                 const response = account.toJSON();
                 response.account_token = token.value;
                 response.resolved_settings = imap.resolvedSettings;
+
                 return db.PendingAuthResponse.create({
                   response: Serialization.jsonStringify(response),
                   pendingAuthKey: request.query.state,
@@ -171,10 +175,9 @@ module.exports = (server) => {
   });
 
   server.route({
-    method: "GET",
+    method: "POST",
     path: "/auth/gmail/refresh",
     handler: (request, reply) => {
-      console.log(request.auth);
       const {account} = request.auth.credentials;
       const oauthClient = new OAuth2(GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL);
       const credentials = account.decryptedCredentials();
@@ -187,7 +190,9 @@ module.exports = (server) => {
 
         const res = {}
         res.access_token = tokens.access_token;
-        res.expiry_date = tokens.expiry_date;
+        res.xoauth2 = IMAPConnection.generateXOAuth2Token(account.emailAddress,
+                                                          tokens.access_token);
+        res.expiry_date = Math.floor(tokens.expiry_date / 1000);
         reply(res).code(200);
       });
     },

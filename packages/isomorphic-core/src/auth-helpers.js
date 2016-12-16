@@ -17,6 +17,7 @@ const imapSmtpSettings = Joi.object().keys({
 
 const resolvedGmailSettings = Joi.object().keys({
   xoauth2: Joi.string().required(),
+  expiry_date: Joi.number().integer().required(),
 }).required();
 
 const exchangeSettings = Joi.object().keys({
@@ -26,7 +27,7 @@ const exchangeSettings = Joi.object().keys({
 }).required();
 
 const USER_ERRORS = {
-  AUTH_500: "Please contact support@nylas.com. An unforseen error has occurred.",
+  AUTH_500: "Please contact support@nylas.com. An unforeseen error has occurred.",
   IMAP_AUTH: "Incorrect username or password",
   IMAP_RETRY: "We were unable to reach your mail provider. Please try again.",
 }
@@ -81,6 +82,7 @@ module.exports = {
         }
         connectionCredentials = {
           xoauth2: settings.xoauth2,
+          expiry_date: settings.expiry_date,
         }
       }
 
