@@ -190,6 +190,19 @@ class SyncWorker {
     return await this._conn.connect();
   }
 
+  cleanup() {
+    clearTimeout(this._syncTimer);
+    this._syncTimer = null;
+    this._destroyed = true;
+    this.closeConnection()
+  }
+
+  closeConnection() {
+    if (this._conn) {
+      this._conn.end();
+    }
+  }
+
   async runNewSyncbackTasks() {
     const tasks = await this._getNewSyncbackTasks()
     if (tasks.length === 0) { return Promise.resolve() }
@@ -335,12 +348,19 @@ class SyncWorker {
     const reason = this._interrupted ? 'Sync interrupted for restart' : 'Scheduled'
     const interval = shouldSyncImmediately ? 1 : intervals.active;
     const nextSyncTime = this._lastSyncTime + interval
+    const nextSyncStart = Math.max(1, nextSyncTime - Date.now())
 
-    this._logger.info(`SyncWorker: Scheduling next sync iteration for ${nextSyncTime - Date.now()}ms`)
+    this._logger.info({
+      moreToSync,
+      shouldSyncImmediately,
+      interrupted: this._interrupted,
+      nextSyncStartingIn: `${nextSyncStart}ms`,
+      syncAttemptsWhileInProgress: this._syncAttemptsWhileInProgress,
+    }, `SyncWorker: Scheduling next sync iteration`)
 
     this._syncTimer = setTimeout(() => {
       this.syncNow({reason});
-    }, nextSyncTime - Date.now());
+    }, nextSyncStart);
   }
 }
 
