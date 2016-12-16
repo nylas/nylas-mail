@@ -123,7 +123,7 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
     } else if (transferEncoding.toLowerCase() === 'base64') {
       body[mimetype] = mimelib.decodeBase64(imapMessage.parts[id], charset || 'ascii');
     } else {
-      // 'binary' and custom x-token content-transfer-encodings
+      // custom x-token content-transfer-encodings
       return Promise.reject(new Error(`Unsupported Content-Transfer-Encoding ${transferEncoding}, mimetype ${mimetype}`))
     }
   }
