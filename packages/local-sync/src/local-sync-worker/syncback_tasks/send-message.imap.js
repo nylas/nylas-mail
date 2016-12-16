@@ -48,7 +48,7 @@ class SendMessageIMAP extends SyncbackTask {
       // actually did
       logger.error(err, 'SendMessage: Could not sent message to sent folder')
     }
-    return message.toJSON()
+    return {message: message.toJSON()}
   }
 }
 

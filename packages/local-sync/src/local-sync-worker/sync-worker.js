@@ -126,6 +126,7 @@ class SyncWorker {
       db: this._db,
       settings: Object.assign({}, settings, credentials),
       logger: this._logger,
+      account: this._account,
     });
 
     conn.on('mail', () => {
