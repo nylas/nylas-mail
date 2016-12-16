@@ -35,6 +35,9 @@ class QuotedHTMLTransformer {
   // - `options`
   //   - `includeInline` Defaults false. If true, inline quotes are removed
   //   too
+  //   - `keepIfWholeBodyIsQuote` Defaults false. If true, then it will
+  //   check to see if the whole html body is a giant quote. If so, it will
+  //   preserve it.
   //
   // Returns HTML without quoted text
   removeQuotedHTML(html, options = {keepIfWholeBodyIsQuote: true}) {
