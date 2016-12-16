@@ -34,9 +34,13 @@ class SyncbackTaskAPIRequest {
           const succeeded = syncbackRequests.find(r => r.id === syncbackRequestId && r.status === 'SUCCEEDED')
           if (failed) {
             unsubscribe()
+            // TODO fix/standardize this error format with K2
             const error = new APIError({
               error: failed.error,
-              body: failed.error.message,
+              body: {
+                message: failed.error.message,
+                data: failed.error.data,
+              },
               statusCode: failed.error.statusCode,
             })
             reject(error)
