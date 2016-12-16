@@ -1,6 +1,6 @@
 const {SendmailClient, Errors: {APIError}} = require('isomorphic-core')
 const SyncbackTask = require('./syncback-task')
-const Utils = require('../../shared/message-factory')
+const Utils = require('../../shared/utils')
 const MessageFactory = require('../../shared/message-factory')
 
 
