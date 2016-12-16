@@ -112,7 +112,7 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
   const body = {}
   for (const {id, mimetype, transferEncoding, charset} of desiredParts) {
     // see https://www.w3.org/Protocols/rfc1341/5_Content-Transfer-Encoding.html
-    if (!transferEncoding || new Set(['7bit', '8bit']).has(transferEncoding.toLowerCase())) {
+    if (!transferEncoding || new Set(['7bit', '8bit', 'binary']).has(transferEncoding.toLowerCase())) {
       // NO transfer encoding has been performed --- how to decode to a string
       // depends ONLY on the charset, which defaults to 'ascii' according to
       // https://tools.ietf.org/html/rfc2045#section-5.2
@@ -152,7 +152,7 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
     headers: parsedHeaders,
     headerMessageId: parsedHeaders['message-id'] ? parsedHeaders['message-id'][0] : '',
     gMsgId: parsedHeaders['x-gm-msgid'],
-    subject: parsedHeaders.subject[0],
+    subject: parsedHeaders.subject ? parsedHeaders.subject[0] : '(no subject)',
   }
   parsedMessage.id = Message.hash(parsedMessage)
 
