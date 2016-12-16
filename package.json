@@ -16,9 +16,9 @@
   "dependencies": {
     "analytics-node": "2.x.x",
     "async": "^0.9",
-    "babel-core": "6.8.0",
+    "babel-core": "6.20.0",
     "babel-preset-electron": "^0.37.8",
-    "babel-preset-react": "^6.16.0",
+    "babel-preset-react": "6.16.0",
     "babel-regenerator-runtime": "6.5.0",
     "better-sqlite3": "bengotow/better-sqlite3#a888061ad334c76d2db4c06554c90785cc6e7cce",
     "bluebird": "3.4.x",
