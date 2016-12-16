@@ -38,6 +38,13 @@ const AccountTypes = [
     color: '#e99999',
   },
   {
+    type: 'office365',
+    displayName: 'Office 365',
+    icon: 'ic-settings-account-outlook.png',
+    headerIcon: 'setup-icon-provider-outlook.png',
+    color: '#0078d7',
+  },
+  {
     type: 'imap',
     displayName: 'IMAP / SMTP Setup',
     title: 'Setup your account',

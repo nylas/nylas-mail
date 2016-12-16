@@ -57,7 +57,7 @@ class InitialPreferencesOptions extends React.Component
     if @props.account.provider is 'gmail'
       @props.config.set('core.workspace.mode', 'list')
       @props.config.set('core.keymapTemplate', templateWithBasename('Gmail'))
-    else if @props.account.provider is 'eas'
+    else if @props.account.provider is 'eas' or @props.account.provider is 'office365'
       @props.config.set('core.workspace.mode', 'split')
       @props.config.set('core.keymapTemplate', templateWithBasename('Outlook'))
     else
