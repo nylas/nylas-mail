@@ -116,8 +116,12 @@ module.exports = (sequelize, Sequelize) => {
         return `<${id}@mailer.nylas.com>`
       },
 
-      async findMultiSendMessage(messageId) {
-        const message = await this.findById(messageId)
+      async findMultiSendMessage(db, messageId) {
+        const message = await this.findById(messageId, {
+          include: [
+            {model: db.Folder},
+          ],
+        })
         if (!message) {
           throw new APIError(`Couldn't find multi-send message ${messageId}`, 400);
         }
@@ -186,7 +190,7 @@ module.exports = (sequelize, Sequelize) => {
 
       toJSON() {
         if (this.folderId && !this.folder) {
-          throw new Error("Message.toJSON called on a message where folder were not eagerly loaded.")
+          throw new Error("Message.toJSON called on a message where folder was not eagerly loaded.")
         }
 
         // When we request messages as a sub-object of a thread, we only

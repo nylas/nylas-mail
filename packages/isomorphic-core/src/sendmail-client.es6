@@ -36,7 +36,7 @@ class SendmailClient {
         // At least one recipient was rejected by the server,
         // but at least one recipient got it. Don't retry; throw an
         // error so that we fail to client.
-        throw new APIError('Sending to at least one recipient failed', 500, {results});
+        throw new APIError('Sending to at least one recipient failed', 402, {results});
       }
       return
     }

@@ -1,13 +1,13 @@
 const {SendmailClient, Errors: {APIError}} = require('isomorphic-core')
-const SyncbackTask = require('./syncback-task')
 const TaskHelpers = require('./task-helpers')
+const SyncbackTask = require('./syncback-task')
 
 
 // Closes out a multi-send session by marking the sending draft as sent
 // and moving it to the user's Sent folder.
-class CloseMultiSendSessionIMAP extends SyncbackTask {
+class ReconcileSentMessagesPerRecipientIMAP extends SyncbackTask {
   description() {
-    return `CloseMultiSendSession`;
+    return `ReconcileSentMessagesPerRecipient`;
   }
 
   affectsImapMessageUIDs() {
@@ -19,26 +19,28 @@ class CloseMultiSendSessionIMAP extends SyncbackTask {
     const {messageId} = this.syncbackRequestObject().props
     const {account, logger} = imap
     if (!account) {
-      throw new APIError('Send failed: account not available on imap connection')
+      throw new APIError('ReconcileSentMessagesPerRecipient: Failed, account not available on imap connection')
     }
 
-    const baseMessage = await Message.findMultiSendMessage(messageId);
+    const baseMessage = await Message.findMultiSendMessage(db, messageId);
     const {provider} = account
     const {headerMessageId} = baseMessage
+
     // Gmail automatically creates sent messages when sending, so we delete each
-    // of the ones we sent to each recipient in `SendCustomMessageToIndividual`
-    // tasks
+    // of the ones we sent to each recipient in the `SendMessagePerRecipient`
+    // task
     if (provider === 'gmail') {
       try {
         await TaskHelpers.deleteGmailSentMessage({db, imap, provider, headerMessageId})
       } catch (err) {
-        // Even if this fails, we need to finish the multi-send session,
-        logger.error(err);
+        // Even if this fails, we need to finish attempting to save the
+        // baseMessage to the sent folder
+        logger.error(err, 'ReconcileSentMessagesPerRecipient: Failed to delete Gmail sent messages');
       }
     }
 
     // Regardless of provider, we need to save the actual message we want
-    // to show the user as sent
+    // the user to see as sent
     const sender = new SendmailClient(account, logger);
     const rawMime = await sender.buildMime(baseMessage);
     await TaskHelpers.saveSentMessage({db, imap, provider, rawMime, headerMessageId})
@@ -49,4 +51,4 @@ class CloseMultiSendSessionIMAP extends SyncbackTask {
   }
 }
 
-module.exports = CloseMultiSendSessionIMAP;
+module.exports = ReconcileSentMessagesPerRecipientIMAP;
