@@ -20,6 +20,8 @@ const Capabilities = {
   Sort: 'SORT',
 }
 
+const ONE_HOUR_SECS = 60 * 60;
+
 class IMAPConnection extends EventEmitter {
 
   static connect(...args) {
@@ -44,6 +46,13 @@ class IMAPConnection extends EventEmitter {
     this._settings = settings;
     this._imap = null;
     this._connectPromise = null;
+  }
+
+  static generateXOAuth2Token(username, accessToken) {
+    // See https://developers.google.com/gmail/xoauth2_protocol
+    // for more details.
+    const s = `user=${username}\x01auth=Bearer ${accessToken}\x01\x01`
+    return new Buffer(s).toString('base64');
   }
 
   get account() {
@@ -89,6 +98,7 @@ class IMAPConnection extends EventEmitter {
           if (err) { return reject(err) }
           delete result.password;
           result.xoauth2 = token;
+          result.expiry_date = Math.floor(Date.now() / 1000) + ONE_HOUR_SECS;
           return resolve(result);
         });
       });
@@ -99,6 +109,7 @@ class IMAPConnection extends EventEmitter {
     if (this._settings.xoauth2) {
       delete result.password;
       result.xoauth2 = this._settings.xoauth2;
+      result.expiry_date = this._settings.expiry_date;
     }
 
     return Promise.resolve(result);

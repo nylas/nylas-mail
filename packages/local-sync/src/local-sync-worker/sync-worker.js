@@ -9,6 +9,8 @@ const FetchFolderList = require('./imap/fetch-folder-list')
 const FetchMessagesInFolder = require('./imap/fetch-messages-in-folder')
 const SyncbackTaskFactory = require('./syncback-task-factory')
 const SyncMetricsReporter = require('./sync-metrics-reporter');
+const {NylasAPI, N1CloudAPI, NylasAPIRequest, NylasAPIHelpers} = require('nylas-exports');
+
 
 
 const RESTART_THRESHOLD = 10
@@ -74,6 +76,68 @@ class SyncWorker {
 
   _getIdleFolder() {
     return this._db.Folder.find({where: {role: ['all', 'inbox']}})
+  }
+
+  async ensureConnection() {
+    if (this._conn) {
+      return await this._conn.connect();
+    }
+    const settings = this._account.connectionSettings;
+    let credentials = this._account.decryptedCredentials();
+
+    if (!settings || !settings.imap_host) {
+      throw new Error("ensureConnection: There are no IMAP connection settings for this account.");
+    }
+    if (!credentials) {
+      throw new Error("ensureConnection: There are no IMAP connection credentials for this account.");
+    }
+
+    if (this._account.provider == 'gmail') {
+      // Before creating a connection, check if the our access token expired.
+      // If yes, we need to get a new one.
+      const currentUnixDate =  Math.floor(Date.now() / 1000);
+
+      if (currentUnixDate > credentials.expiry_date) {
+        const req = new NylasAPIRequest({
+          api: N1CloudAPI,
+          options: {
+            path: `/auth/gmail/refresh`,
+            method: 'POST',
+            accountId: this._account.id,
+          },
+        });
+
+        try {
+          const newCredentials = await req.run()
+          this._account.setCredentials(newCredentials);
+          await this._account.save()
+
+          credentials = newCredentials;
+          this._logger.info("Refreshed and updated access token.");
+        } catch (error) {
+          const accountToken = NylasAPI.accessTokenForAccountId(this._account.id);
+          NylasAPIHelpers.handleAuthenticationFailure('/auth/gmail/refresh', accountToken);
+          throw new Error("Unable to authenticate to the remote server.");
+        }
+      }
+    }
+
+    const conn = new IMAPConnection({
+      db: this._db,
+      settings: Object.assign({}, settings, credentials),
+      logger: this._logger,
+    });
+
+    conn.on('mail', () => {
+      this._onConnectionIdleUpdate();
+    })
+    conn.on('update', () => {
+      this._onConnectionIdleUpdate();
+    })
+    conn.on('queue-empty', () => {});
+
+    this._conn = conn;
+    return await this._conn.connect();
   }
 
   /**
@@ -156,39 +220,6 @@ class SyncWorker {
     return folders.sort((a, b) =>
       (priority.indexOf(a.role) - priority.indexOf(b.role)) * -1
     )
-  }
-
-  async ensureConnection() {
-    if (this._conn) {
-      return await this._conn.connect();
-    }
-    const settings = this._account.connectionSettings;
-    const credentials = this._account.decryptedCredentials();
-
-    if (!settings || !settings.imap_host) {
-      throw new Error("ensureConnection: There are no IMAP connection settings for this account.");
-    }
-    if (!credentials) {
-      throw new Error("ensureConnection: There are no IMAP connection credentials for this account.");
-    }
-
-    const conn = new IMAPConnection({
-      db: this._db,
-      account: this._account,
-      settings: Object.assign({}, settings, credentials),
-      logger: this._logger,
-    });
-
-    conn.on('mail', () => {
-      this._onConnectionIdleUpdate();
-    })
-    conn.on('update', () => {
-      this._onConnectionIdleUpdate();
-    })
-    conn.on('queue-empty', () => {});
-
-    this._conn = conn;
-    return await this._conn.connect();
   }
 
   cleanup() {
