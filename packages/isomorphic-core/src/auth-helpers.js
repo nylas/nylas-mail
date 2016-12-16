@@ -20,16 +20,64 @@ const resolvedGmailSettings = Joi.object().keys({
   expiry_date: Joi.number().integer().required(),
 }).required();
 
-const exchangeSettings = Joi.object().keys({
-  username: Joi.string().required(),
+const office365Settings = Joi.object().keys({
+  name: Joi.string().required(),
+  type: Joi.string().valid('office365').required(),
+  email: Joi.string().required(),
   password: Joi.string().required(),
-  eas_server_host: [Joi.string().ip().required(), Joi.string().hostname().required()],
+  username: Joi.string().required(),
 }).required();
 
 const USER_ERRORS = {
   AUTH_500: "Please contact support@nylas.com. An unforeseen error has occurred.",
   IMAP_AUTH: "Incorrect username or password",
   IMAP_RETRY: "We were unable to reach your mail provider. Please try again.",
+}
+
+function credentialsForProvider({provider, settings, email}) {
+  if (provider === "gmail") {
+    const connectionSettings = {
+      imap_username: email,
+      imap_host: 'imap.gmail.com',
+      imap_port: 993,
+      smtp_username: email,
+      smtp_host: 'smtp.gmail.com',
+      smtp_port: 465,
+      ssl_required: true,
+    }
+    const connectionCredentials = {
+      xoauth2: settings.xoauth2,
+      expiry_date: settings.expiry_date,
+    }
+    return {connectionSettings, connectionCredentials}
+  } else if (provider === "imap") {
+    const connectionSettings = _.pick(settings, [
+      'imap_host', 'imap_port',
+      'smtp_host', 'smtp_port',
+      'ssl_required',
+    ]);
+    const connectionCredentials = _.pick(settings, [
+      'imap_username', 'imap_password',
+      'smtp_username', 'smtp_password',
+    ]);
+    return {connectionSettings, connectionCredentials}
+  } else if (provider === "office365") {
+    const connectionSettings = {
+      imap_host: 'outlook.office365.com',
+      imap_port: 993,
+      smtp_host: 'smtp.office365.com',
+      smtp_port: 465,
+      ssl_required: true,
+    }
+    const connectionCredentials = {
+      imap_username: email,
+      imap_password: settings.password,
+      smtp_username: email,
+      smpt_password: settings.password,
+    }
+    return {connectionSettings, connectionCredentials}
+  }
+  throw new Error(`Invalid provider: ${provider}`)
 }
 
 module.exports = {
@@ -42,8 +90,8 @@ module.exports = {
         payload: {
           email: Joi.string().email().required(),
           name: Joi.string().required(),
-          provider: Joi.string().valid('imap', 'gmail').required(),
-          settings: Joi.alternatives().try(imapSmtpSettings, exchangeSettings, resolvedGmailSettings),
+          provider: Joi.string().valid('imap', 'gmail', 'office365').required(),
+          settings: Joi.alternatives().try(imapSmtpSettings, office365Settings, resolvedGmailSettings),
         },
       },
     }
@@ -53,38 +101,9 @@ module.exports = {
     return (request, reply) => {
       const dbStub = {};
       const connectionChecks = [];
-      const {settings, email, provider, name} = request.payload;
+      const {email, provider, name} = request.payload;
 
-      let connectionSettings = null;
-      let connectionCredentials = null;
-
-      if (provider === 'imap') {
-        connectionSettings = _.pick(settings, [
-          'imap_host', 'imap_port',
-          'smtp_host', 'smtp_port',
-          'ssl_required',
-        ]);
-        connectionCredentials = _.pick(settings, [
-          'imap_username', 'imap_password',
-          'smtp_username', 'smtp_password',
-        ]);
-      }
-
-      if (provider === 'gmail') {
-        connectionSettings = {
-          imap_username: email,
-          imap_host: 'imap.gmail.com',
-          imap_port: 993,
-          smtp_username: email,
-          smtp_host: 'smtp.gmail.com',
-          smtp_port: 465,
-          ssl_required: true,
-        }
-        connectionCredentials = {
-          xoauth2: settings.xoauth2,
-          expiry_date: settings.expiry_date,
-        }
-      }
+      const {connectionSettings, connectionCredentials} = credentialsForProvider(request.payload)
 
       connectionChecks.push(IMAPConnection.connect({
         settings: Object.assign({}, connectionSettings, connectionCredentials),
