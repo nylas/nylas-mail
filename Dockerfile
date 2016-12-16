@@ -17,6 +17,9 @@ RUN npm install --production
 # to run this separately from npm postinstall due to permission issues.
 RUN node_modules/.bin/lerna bootstrap
 
+# This uses babel to compile any es6 to stock js for plain node
+RUN npm run build-n1-cloud
+
 # External services run on port 80. Expose it.
 EXPOSE 5100
 
