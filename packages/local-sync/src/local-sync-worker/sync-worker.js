@@ -23,6 +23,7 @@ class SyncWorker {
     this._lastSyncTime = null;
     this._logger = global.Logger.forAccount(account)
     this._interrupted = false
+    this._syncInProgress = false
     this._syncAttemptsWhileInProgress = 0
 
     this._destroyed = false;
@@ -225,8 +226,7 @@ class SyncWorker {
   }
 
   async syncNow({reason, priority = 1} = {}) {
-    const syncInProgress = (this._syncTimer === null);
-    if (syncInProgress) {
+    if (this._syncInProgress) {
       this._syncAttemptsWhileInProgress += priority
       if (this._syncAttemptsWhileInProgress >= RESTART_THRESHOLD) {
         this._interrupted = true
@@ -238,6 +238,7 @@ class SyncWorker {
     this._syncTimer = null;
     this._interrupted = false
     this._syncAttemptsWhileInProgress = 0
+    this._syncInProgress = true
 
     try {
       await this._account.reload();
@@ -274,10 +275,11 @@ class SyncWorker {
       await this.cleanupOrphanMessages();
       await this.onSyncDidComplete();
     } catch (error) {
-      this.onSyncError(error);
+      await this.onSyncError(error);
     } finally {
       this._lastSyncTime = Date.now()
-      this.scheduleNextSync()
+      this._syncInProgress = false
+      await this.scheduleNextSync()
     }
   }
 
