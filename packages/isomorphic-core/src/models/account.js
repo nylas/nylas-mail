@@ -122,7 +122,7 @@ module.exports = (sequelize, Sequelize) => {
           secure: ssl_required,
         }
 
-        if (this.provider === "imap") {
+        if (this.provider === "imap" || this.provider === "office365") {
           const {smtp_username, smtp_password} = this.decryptedCredentials();
           config.auth = { user: smtp_username, pass: smtp_password}
         } else if (this.provider === 'gmail') {
