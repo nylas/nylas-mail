@@ -27,8 +27,7 @@ class SendMessageIMAP extends SyncbackTask {
     // We don't save the message until after successfully sending it.
     // In the next sync loop, the message's labels and other data will be
     // updated, and we can guarantee this because we control message id
-    // generation.
-    // The thread will be created or updated when we detect this
+    // generation. The thread will be created or updated when we detect this
     // message in the sync loop
     message.setIsSent(true)
     await message.save();

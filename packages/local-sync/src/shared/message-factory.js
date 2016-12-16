@@ -4,13 +4,15 @@ const encoding = require('encoding');
 const he = require('he');
 const os = require('os');
 const fs = require('fs');
-const path = require('path')
+const path = require('path');
 const mkdirp = require('mkdirp');
 const {Imap, Errors: {APIError}} = require('isomorphic-core');
+const {N1CloudAPI, RegExpUtils} = require('nylas-exports');
 
-// aiming for the former in length, but the latter is the hard db cutoff
+// Aiming for the former in length, but the latter is the hard db cutoff
 const SNIPPET_SIZE = 100;
 const SNIPPET_MAX_SIZE = 255;
+
 
 // The input is the value of a to/cc/bcc/from header as parsed by the imap
 // library we're using, but it currently parses them in a weird format. If an
@@ -34,10 +36,9 @@ function extractContacts(input) {
   .filter(c => c != null)
 }
 
-/*
-Iteratively walk the DOM of this document's <body>, calling the callback on
-each node. Skip any nodes and the skipTags set, including their children.
-*/
+
+// Iteratively walk the DOM of this document's <body>, calling the callback on
+// each node. Skip any nodes and the skipTags set, including their children.
 function _walkBodyDOM(doc, callback, skipTags) {
   let nodes = Array.from(doc.body.childNodes);
 
@@ -53,6 +54,7 @@ function _walkBodyDOM(doc, callback, skipTags) {
     }
   }
 }
+
 
 function extractSnippet(plainBody, htmlBody) {
   let snippetText = plainBody || '';
@@ -78,7 +80,7 @@ function extractSnippet(plainBody, htmlBody) {
   // clean up and trim snippet
   let trimmed = snippetText.trim().replace(/[\n\r]/g, ' ').replace(/\s\s+/g, ' ').substr(0, SNIPPET_MAX_SIZE);
   if (trimmed) {
-  // TODO: strip quoted text from snippets also
+    // TODO: strip quoted text from snippets also
     // trim down to approx. SNIPPET_SIZE w/out cutting off words right in the
     // middle (if possible)
     const wordBreak = trimmed.indexOf(' ', SNIPPET_SIZE);
@@ -89,22 +91,77 @@ function extractSnippet(plainBody, htmlBody) {
   return trimmed;
 }
 
-/*
-Preserve whitespacing on plaintext emails -- has the side effect of
-monospacing, but that seems OK and perhaps sometimes even desired (for e.g.
-ascii art, alignment)
-*/
-function HTMLifyPlaintext(text) {
+
+// Preserve whitespacing on plaintext emails -- has the side effect of
+// monospacing, but that seems OK and perhaps sometimes even desired (for e.g.
+// ascii art, alignment)
+function htmlifyPlaintext(text) {
   const escapedText = he.escape(text);
   return `<pre class="nylas-plaintext">${escapedText}</pre>`;
 }
 
-/*
-Since we only fetch the MIME structure and specific desired MIME parts from
-IMAP, we unfortunately can't use an existing library like mailparser to parse
-the message, and have to do fun stuff like deal with character sets and
-content-transfer-encodings ourselves.
-*/
+
+function replaceMessageIdInBodyTrackingLinks(messageId, originalBody) {
+  const regex = new RegExp(`(${N1CloudAPI.APIRoot}.+?)MESSAGE_ID`, 'g')
+  return originalBody.replace(regex, `$1${messageId}`)
+}
+
+
+function stripTrackingLinksFromBody(originalBody) {
+  let body = originalBody.replace(/<img class="n1-open"[^<]+src="([a-zA-Z0-9-_:/.]*)">/g, () => {
+    return "";
+  });
+  body = body.replace(RegExpUtils.urlLinkTagRegex(), (match, prefix, url, suffix, content, closingTag) => {
+    const param = url.split("?")[1];
+    if (param) {
+      const link = decodeURIComponent(param.split("=")[1]);
+      return `${prefix}${link}${suffix}${content}${closingTag}`;
+    }
+    return match;
+  });
+  return body;
+}
+
+
+function buildTrackingBodyForRecipient({baseMessage, recipient, usesOpenTracking, usesLinkTracking} = {}) {
+  const {id: messageId, body} = baseMessage
+  const encodedEmail = btoa(recipient.email)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+  let customBody = body
+  if (usesOpenTracking) {
+    customBody = customBody.replace(/<img class="n1-open"[^<]+src="([a-zA-Z0-9-_:/.]*)">/g, (match, url) => {
+      return `<img class="n1-open" width="0" height="0" style="border:0; width:0; height:0;" src="${url}?r=${encodedEmail}">`;
+    });
+  }
+  if (usesLinkTracking) {
+    customBody = customBody.replace(RegExpUtils.urlLinkTagRegex(), (match, prefix, url, suffix, content, closingTag) => {
+      return `${prefix}${url}&r=${encodedEmail}${suffix}${content}${closingTag}`;
+    });
+  }
+  return replaceMessageIdInBodyTrackingLinks(messageId, customBody);
+}
+
+
+function getReplyHeaders(messageReplyingTo) {
+  let inReplyTo;
+  let references;
+  if (messageReplyingTo.headerMessageId) {
+    inReplyTo = messageReplyingTo.headerMessageId;
+    if (messageReplyingTo.references) {
+      references = messageReplyingTo.references.concat(messageReplyingTo.headerMessageId);
+    } else {
+      references = [messageReplyingTo.headerMessageId];
+    }
+  }
+  return {inReplyTo, references}
+}
+
+
+// Since we only fetch the MIME structure and specific desired MIME parts from
+// IMAP, we unfortunately can't use an existing library like mailparser to parse
+// the message, and have to do fun stuff like deal with character sets and
+// content-transfer-encodings ourselves.
 async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder}) {
   const {Message, Label} = db
   const {attributes} = imapMessage
@@ -144,7 +201,11 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
     snippet: null,
     unread: !attributes.flags.includes('\\Seen'),
     starred: attributes.flags.includes('\\Flagged'),
-    date: attributes.date,
+    // Make sure we use the date from the headers because we use the header date
+    // for generating message ids.
+    // `attributes.date` is the server generated date and might differ from the
+    // header
+    date: new Date(parsedHeaders.date),
     folderImapUID: attributes.uid,
     folderId: folder.id,
     folder: null,
@@ -157,7 +218,7 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
   parsedMessage.id = Message.hash(parsedMessage)
 
   if (!body['text/html'] && body['text/plain']) {
-    parsedMessage.body = HTMLifyPlaintext(body['text/plain']);
+    parsedMessage.body = htmlifyPlaintext(body['text/plain']);
   }
 
   parsedMessage.snippet = extractSnippet(body['text/plain'], body['text/html']);
@@ -181,31 +242,6 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
   return parsedMessage;
 }
 
-function getReplyHeaders(messageReplyingTo) {
-  let inReplyTo;
-  let references;
-  if (messageReplyingTo.headerMessageId) {
-    inReplyTo = messageReplyingTo.headerMessageId;
-    if (messageReplyingTo.references) {
-      references = messageReplyingTo.references.concat(messageReplyingTo.headerMessageId);
-    } else {
-      references = [messageReplyingTo.headerMessageId];
-    }
-  }
-  return {inReplyTo, references}
-}
-
-function replaceBodyMessageIds(messageId, originalBody) {
-  const env = NylasEnv.config.get('env')
-  const serverUrl = {
-    local: 'http:\/\/lvh\.me:5100',
-    development: 'http:\/\/lvh\.me:5100',
-    staging: 'https:\/\/n1-staging\.nylas\.com',
-    production: 'https:\/\/n1\.nylas\.com',
-  }[env];
-  const regex = new RegExp(`(${serverUrl}.+?)MESSAGE_ID`, 'g')
-  return originalBody.replace(regex, `$1${messageId}`)
-}
 
 async function buildForSend(db, json) {
   const {Thread, Message} = db
@@ -269,7 +305,7 @@ async function buildForSend(db, json) {
     uploads: json.uploads,
   }
   message.id = Message.hash(message)
-  message.body = replaceBodyMessageIds(message.id, message.body)
+  message.body = replaceMessageIdInBodyTrackingLinks(message.id, message.body)
   return Message.build(message)
 }
 
@@ -277,5 +313,7 @@ module.exports = {
   buildForSend,
   parseFromImap,
   extractSnippet,
-  replaceBodyMessageIds,
+  stripTrackingLinksFromBody,
+  buildTrackingBodyForRecipient,
+  replaceMessageIdInBodyTrackingLinks,
 }
