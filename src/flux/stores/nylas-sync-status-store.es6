@@ -21,7 +21,7 @@ import CategoryStore from './category-store'
  *     localSync,
  *     n1Cloud,
  *   },
- *   folders: {
+ *   folderSyncProgress: {
  *     inbox: 0.5,
  *     archive: 0.2,
  *     ...
@@ -86,10 +86,12 @@ class NylasSyncStatusStore extends NylasStore {
           const progress = (+fetchedmax - +fetchedmin) / uidnext
           updates[name] = progress
         } else {
-          updates[name] = null
+          // We don't have a uidnext if the sync hasn't started at all,
+          // but we've fund the folder.
+          updates[name] = "SYNC_NOT_STARTED"
         }
       }
-      this._updateState(accountId, {folders: updates})
+      this._updateState(accountId, {folderSyncProgress: updates})
     }
   }
 
@@ -118,9 +120,9 @@ class NylasSyncStatusStore extends NylasStore {
   isCategoryListSynced(accountId) {
     const state = this._statesByAccount[accountId]
     if (!state) { return false }
-    const folders = Object.keys(state.folders || {})
-    if (folders.length === 0) { return false }
-    return folders.some((folder) => state.folders[folder] != null)
+    const folderNames = Object.keys(state.folderSyncProgress || {})
+    if (folderNames.length === 0) { return false }
+    return folderNames.some((name) => state.folderSyncProgress[name] !== "SYNC_NOT_STARTED")
   }
 
   whenCategoryListSynced(accountId) {
@@ -146,12 +148,12 @@ class NylasSyncStatusStore extends NylasStore {
     }
 
     if (folderName) {
-      return state.folders[folderName].complete === true
+      return state.folderSyncProgress[folderName] >= 1
     }
-    const folderNames = Object.keys(state.folders)
+    const folderNames = Object.keys(state.folderSyncProgress)
     for (const fname of folderNames) {
-      const folder = state.folders[fname]
-      if (folder.complete !== true) {
+      const syncProgress = state.folderSyncProgress[fname]
+      if (syncProgress < 1 || syncProgress === "SYNC_NOT_STARTED") {
         return false
       }
     }
