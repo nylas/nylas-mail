@@ -77,7 +77,7 @@ export default class EmailParser {
   __html(html) {
     if (html) {
       const $ = cheerio.load(html);
-      const links = this.__getLinkedSentences($);
+      const links = this.__getLinks($);
 
       for (const link of links) {
         for (const re of regexps) {
@@ -112,12 +112,11 @@ export default class EmailParser {
     }
   }
 
-  // Takes a parsed DOM (through cheerio) and returns sentences that contain links
-  // Good at catching cases such as
+  // Takes a parsed DOM (through cheerio) and returns links paired with contextual text
+  // Good at catching cases such as:
   //    "If you would like to unsubscrbe from our emails, please click here."
-  // Returns a list of objects, each representing a single link
-  // Each object contains an href and innerText property
-  __getLinkedSentences($) {
+  // Returns a list of links as {href, innerText} objects
+  __getLinks($) {
     const aParents = [];
     $('a').each((index, aTag) => {
       if (aTag && aTag.parent && !$(aParents).is(aTag.parent)) {
@@ -125,14 +124,14 @@ export default class EmailParser {
       }
     });
 
-    const linkedSentences = [];
+    const links = [];
     $(aParents).each((parentIndex, parent) => {
       let link = false;
       let leftoverText = "";
       $(parent.children).each((childIndex, child) => {
         if ($(child).is($('a'))) {
           if (link !== false && leftoverText.length > 0) {
-            linkedSentences.push({
+            links.push({
               href: link,
               innerText: leftoverText,
             });
@@ -148,7 +147,7 @@ export default class EmailParser {
             if (splitup[i] !== "" && splitup[i] !== undefined) {
               if (link !== false) {
                 const fullLine = leftoverText + splitup[i];
-                linkedSentences.push({
+                links.push({
                   href: link,
                   innerText: fullLine,
                 });
@@ -165,12 +164,12 @@ export default class EmailParser {
         leftoverText += " ";
       });
       if (link !== false && leftoverText.length > 0) {
-        linkedSentences.push({
+        links.push({
           href: link,
           innerText: leftoverText,
         });
       }
     });
-    return linkedSentences;
+    return links;
   }
 }

@@ -9,7 +9,6 @@ export function logIfDebug(message) {
 }
 
 export function shortenURL(url) {
-  // modified from: http://stackoverflow.com/a/26766402/3219667
   const regex = /^(?:[^:/?#]+:?\/\/([^/?#]*))/i;
   const disURL = regex.exec(url)[1];
   return `${disURL}/...`;
