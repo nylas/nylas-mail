@@ -1,4 +1,4 @@
-const ThreadUnsubscribeStore = require('./thread-unsubscribe-store');
+import ThreadUnsubscribeStore from './thread-unsubscribe-store';
 
 class ThreadUnsubscribeStoreManager {
   constructor() {
@@ -14,4 +14,4 @@ class ThreadUnsubscribeStoreManager {
   }
 }
 
-module.exports = new ThreadUnsubscribeStoreManager();
+export default new ThreadUnsubscribeStoreManager();

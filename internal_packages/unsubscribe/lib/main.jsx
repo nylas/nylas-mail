@@ -1,55 +1,51 @@
-const {ComponentRegistry} = require('nylas-exports');
-const {
-  ThreadUnsubscribeQuickActionButton,
-  ThreadUnsubscribeToolbarButton,
-} = require('./ui/unsubscribe-buttons');
+import {ComponentRegistry, PreferencesUIStore} from 'nylas-exports';
+import {ThreadUnsubscribeQuickActionButton, ThreadUnsubscribeToolbarButton}
+  from './ui/unsubscribe-buttons';
+import UnsubscribePreferences from './ui/unsubscribe-preferences';
 
-module.exports = {
-  config: {
-    useNativeBrowser: {
-      "description": "Open web-based unsubscribe links in your native browser (Chrome, Firefox, etc.) instead of a popup window in N1",
-      "type": "boolean",
-      "default": false,
-    },
-    handleThreads: {
-      "description": "Determines where emails are moved after unsubscribing",
-      "type": "string",
-      "default": "archive",
-      "enum": ["archive", "trash", "none"],
-    },
-    confirmForEmail: {
-      "description": "Open a confirmation window before sending an unsubscribe request over email",
-      "type": "boolean",
-      "default": false,
-    },
-    confirmForBrowser: {
-      "description": "Open a confirmation window before opening web-based unsubscribe links",
-      "type": "boolean",
-      "default": false,
-    },
-    debug: {
-      "description": "Enable debug messages",
-      "type": "boolean",
-      "default": true,
-    },
+export const config = {
+  defaultBrowser: {
+    "title": "Default browser",
+    "type": "string",
+    "default": "popup",
+    "enum": ["popup", "native"],
+    'enumLabels': ["Popup Window", "Native Browser"],
   },
-  activate: () => {
-    ComponentRegistry.register(ThreadUnsubscribeQuickActionButton,
-      { role: 'ThreadListQuickAction' });
-    ComponentRegistry.register(ThreadUnsubscribeToolbarButton,
-      { role: 'ThreadActionsToolbarButton' });
-    const settings = NylasEnv.config.get("unsubscribe");
-    console.debug(settings.debug,
-      `Loaded n1-unsubscribe with settings:
-      - Debug mode enabled: ${settings.debug}
-      - Use Native Browser for unsubscribing: ${settings.useNativeBrowser}
-      - Archive or Trash after unsubscribing: ${settings.handleThreads}
-      - Confirm before email unsubscribing: ${settings.confirmForEmail}
-      - Confirm before browser unsubscribing: ${settings.confirmForBrowser}`
-    );
+  handleThreads: {
+    "title": "Default unsubscribe behaivor",
+    "type": "string",
+    "default": "archive",
+    "enum": ["archive", "trash", "none"],
+    'enumLabels': ["Archive", "Trash", "None"],
   },
-  deactivate: () => {
-    ComponentRegistry.unregister(ThreadUnsubscribeQuickActionButton);
-    ComponentRegistry.unregister(ThreadUnsubscribeToolbarButton);
+  confirmForEmail: {
+    "title": "Confirm before sending email-based unsubscribe requests",
+    "type": "boolean",
+    "default": false,
   },
+  confirmForBrowser: {
+    "title": "Confirm before opening web-based unsubscribe links",
+    "type": "boolean",
+    "default": false,
+  },
+}
+
+export function activate() {
+  ComponentRegistry.register(ThreadUnsubscribeQuickActionButton,
+    { role: 'ThreadListQuickAction' });
+  ComponentRegistry.register(ThreadUnsubscribeToolbarButton,
+    { role: 'ThreadActionsToolbarButton' });
+
+  this.preferencesTab = new PreferencesUIStore.TabItem({
+    tabId: 'Unsubscribe',
+    displayName: "Unsubscribe",
+    component: UnsubscribePreferences,
+  });
+  PreferencesUIStore.registerPreferencesTab(this.preferencesTab);
+}
+
+export function deactivate() {
+  PreferencesUIStore.unregisterPreferencesTab(this.preferencesTab);
+  ComponentRegistry.unregister(ThreadUnsubscribeQuickActionButton);
+  ComponentRegistry.unregister(ThreadUnsubscribeToolbarButton);
 }

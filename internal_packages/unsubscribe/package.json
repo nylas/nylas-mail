@@ -18,6 +18,7 @@
     "cheerio": "^0.22.0",
     "fs-extra": "^0.30.0",
     "mailparser": "^0.6.1",
+    "mailto-parser": "^1.0.0",
     "open": "0.0.5",
     "strip-json-comments": "^2.0.1",
     "underscore": "^1.8.3"

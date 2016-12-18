@@ -1,6 +1,5 @@
-const _ = require('underscore');
-const cheerio = require('cheerio');
-const blacklist = require('./blacklist');
+import cheerio from 'cheerio';
+import {blacklistedEmail} from './blacklist';
 
 const regexps = [
   /unsubscribe/gi,
@@ -51,7 +50,7 @@ const regexps = [
   /notisinställningar/gi,
 ];
 
-class EmailParser {
+export default class EmailParser {
   constructor(headers, html, text) {
     this.emails = [];
     this.urls = [];
@@ -69,7 +68,7 @@ class EmailParser {
       const unsubHeader = headers['list-unsubscribe'];
       if (unsubHeader && typeof unsubHeader === 'string') {
         unsubHeader.split(',').forEach((link) => {
-          this.__addLink(link.trim());
+          this.__addLink(link.trim().replace(/^<|>$/g, ''));
         });
       }
     }
@@ -78,17 +77,10 @@ class EmailParser {
   __html(html) {
     if (html) {
       const $ = cheerio.load(html);
-      let links = _.filter($('a'), emailLink => emailLink.href !== 'blank');
-      console.log('Raw links');
-      console.log(links);
-      links = links.concat(this.getLinkedSentences($));
-      console.log('Concatenated links');
-      console.log(links);
+      const links = this.__getLinkedSentences($);
 
-      for (let j = 0; j < links.length; j += 1) {
-        const link = links[j];
-        for (let i = 0; i < regexps.length; i += 1) {
-          const re = regexps[i];
+      for (const link of links) {
+        for (const re of regexps) {
           if (re.test(link.href) || re.test(link.innerText)) {
             this.__addLink(link.href);
           }
@@ -98,24 +90,24 @@ class EmailParser {
   }
 
   __text(text) {
-    const ext = /[^\s]*/ig
-    for (let i = 0; i < regexps.length; i += 1) {
-      const re = RegExp(`${ext.source}${regexps[i].source}${ext.source}`, 'ig');
-      if (re.test(text)) {
-        this.__addLink(text.match(re)[0]);
+    if (text) {
+      const ext = /[^\s]*/ig;
+      for (let i = 0; i < regexps.length; i += 1) {
+        const re = RegExp(`${ext.source}${regexps[i].source}${ext.source}`, 'ig');
+        const matcher = text.match(re);
+        if (matcher) {
+          this.__addLink(matcher[0].replace(/(?:\.|!)$/g, ''));
+        }
       }
     }
   }
 
   __addLink(link) {
-    const isEmail = /<mailto:([^>]*)>/g.exec(link);
-    const isLink = /.*http:.*/g.exec(link);
-    if (isEmail) {
-      const email = isEmail[1];
-      if (!blacklist.blacklistedEmail(email)) {
-        this.emails.push(email);
+    if (/mailto:[^>]*/g.test(link)) {
+      if (!blacklistedEmail(link)) {
+        this.emails.push(link);
       }
-    } else if (isLink) {
+    } else if (/https?:.*/g.test(link)) {
       this.urls.push(link);
     }
   }
@@ -125,13 +117,11 @@ class EmailParser {
   //    "If you would like to unsubscrbe from our emails, please click here."
   // Returns a list of objects, each representing a single link
   // Each object contains an href and innerText property
-  getLinkedSentences($) {
+  __getLinkedSentences($) {
     const aParents = [];
     $('a').each((index, aTag) => {
-      if (aTag) {
-        if (!$(aParents).is(aTag.parent)) {
-          aParents.unshift(aTag.parent);
-        }
+      if (aTag && aTag.parent && !$(aParents).is(aTag.parent)) {
+        aParents.unshift(aTag.parent);
       }
     });
 
@@ -139,43 +129,41 @@ class EmailParser {
     $(aParents).each((parentIndex, parent) => {
       let link = false;
       let leftoverText = "";
-      if (parent) {
-        $(parent.children).each((childIndex, child) => {
-          if ($(child).is($('a'))) {
-            if (link !== false && leftoverText.length > 0) {
-              linkedSentences.push({
-                href: link,
-                innerText: leftoverText,
-              });
-              leftoverText = "";
-            }
-            link = $(child).attr('href');
+      $(parent.children).each((childIndex, child) => {
+        if ($(child).is($('a'))) {
+          if (link !== false && leftoverText.length > 0) {
+            linkedSentences.push({
+              href: link,
+              innerText: leftoverText,
+            });
+            leftoverText = "";
           }
-          const text = $(child).text();
-          const re = /(.*\.|!|\?\s)|(.*\.|!|\?)$/g;
-          if (re.test(text)) {
-            const splitup = text.split(re);
-            for (let i = 0; i < splitup.length; i += 1) {
-              if (splitup[i] !== "" && splitup[i] !== undefined) {
-                if (link !== false) {
-                  const fullLine = leftoverText + splitup[i];
-                  linkedSentences.push({
-                    href: link,
-                    innerText: fullLine,
-                  });
-                  link = undefined;
-                  leftoverText = "";
-                } else {
-                  leftoverText += splitup[i];
-                }
+          link = $(child).attr('href');
+        }
+        const text = $(child).text();
+        const re = /(.*[.!?](?:\s|$))/g;
+        if (re.test(text)) {
+          const splitup = text.split(re);
+          for (let i = 0; i < splitup.length; i += 1) {
+            if (splitup[i] !== "" && splitup[i] !== undefined) {
+              if (link !== false) {
+                const fullLine = leftoverText + splitup[i];
+                linkedSentences.push({
+                  href: link,
+                  innerText: fullLine,
+                });
+                link = false;
+                leftoverText = "";
+              } else {
+                leftoverText += splitup[i];
               }
             }
-          } else {
-            leftoverText += text;
           }
-          leftoverText += " ";
-        });
-      }
+        } else {
+          leftoverText += text;
+        }
+        leftoverText += " ";
+      });
       if (link !== false && leftoverText.length > 0) {
         linkedSentences.push({
           href: link,
@@ -186,5 +174,3 @@ class EmailParser {
     return linkedSentences;
   }
 }
-
-module.exports = EmailParser;

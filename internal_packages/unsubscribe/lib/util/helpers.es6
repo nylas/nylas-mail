@@ -1,44 +1,42 @@
-module.exports = {
-  debug: () => {
-    return NylasEnv.config.get("unsubscribe.debug");
-  },
+const mailto = require("mailto-parser");
 
-  logIfDebug: (message) => {
-    console.debug(NylasEnv.config.get("unsubscribe.debug"), message);
-  },
+export function logIfDebug(message) {
+  console.debug(NylasEnv.config.settings.devMode, message);
+}
 
-  shortenURL(url) {
-    // modified from: http://stackoverflow.com/a/26766402/3219667
-    const regex = /^([^:/?#]+:?\/\/([^/?#]*))/i;
-    const disURL = regex.exec(url)[0];
-    return `${disURL}/...`;
-  },
+export function shortenURL(url) {
+  // modified from: http://stackoverflow.com/a/26766402/3219667
+  const regex = /^(?:[^:/?#]+:?\/\/([^/?#]*))/i;
+  const disURL = regex.exec(url)[1];
+  return `${disURL}/...`;
+}
 
-  interpretEmail(emailAddress) {
-    let subject = 'Unsubscribe';
-    let body = 'This is an automated unsubscription request. ' +
-      'Please remove the sender of this email from all email lists.';
-    const components = emailAddress.split('?');
-    for (const component of components.slice(1, components.length)) {
-      const values = component.split('=');
-      const type = values[0];
-      if (values.length < 2) {
-        NylasEnv.reportError(new Error('Invalid component from unsubscribe ' +
-          `email: "${component}" of "${emailAddress}"`));
-      } else if (type === 'subject') {
-        subject = values[1];
-      } else if (type === 'body') {
-        body = values[1];
-      } else {
-        console.debug(`Unknown component: ${type} = ${values[1]}`);
-      }
-    }
-    const address = components[0];
-    return { subject, body, address };
-  },
+export const defaultBody = 'This is an automated unsubscription request. ' +
+  'Please remove the sender of this email from all email lists.'
 
-  // TODO: Some kind of native N1 confirmation
-  userAlert(message) {
-    return confirm(message)
-  },
+export function interpretEmail(emailAddress) {
+  const parsedEmail = mailto.parse(emailAddress);
+  const email = {
+    body: parsedEmail.attributeKey.body || defaultBody,
+    subject: parsedEmail.attributeKey.subject || "Unsubscribe",
+    to: [{
+      email: parsedEmail.to,
+    }],
+  }
+  if (parsedEmail.attributeKey.cc) {
+    email.cc = [{
+      email: parsedEmail.attributeKey.cc,
+    }];
+  }
+  if (parsedEmail.attributeKey.bcc) {
+    email.bcc = [{
+      email: parsedEmail.attributeKey.bcc,
+    }];
+  }
+  return email;
+}
+
+// TODO: Some kind of native N1 confirmation
+export function userAlert(message) {
+  return confirm(message);
 }

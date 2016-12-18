@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   LOADING: 'LOADING',
   ERRORED: 'ERRORED',
   READY: 'READY',

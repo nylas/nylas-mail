@@ -1,8 +1,8 @@
-const {React} = require('nylas-exports');
-const {RetinaImg, KeyCommandsRegion} = require('nylas-component-kit');
-const ThreadUnsubscribeStoreManager = require('../thread-unsubscribe-store-manager');
-const ThreadConditionType = require('../enum/threadConditionType');
-const helpers = require('../util/helpers');
+import {React} from 'nylas-exports';
+import {RetinaImg, KeyCommandsRegion} from 'nylas-component-kit';
+import ThreadUnsubscribeStoreManager from '../thread-unsubscribe-store-manager';
+import ThreadConditionType from '../enum/threadConditionType';
+import {logIfDebug} from '../util/helpers';
 
 const UNSUBSCRIBE_ASSETS_BASE_URL = 'nylas://unsubscribe/assets/';
 
@@ -89,7 +89,7 @@ class ThreadUnsubscribeButton extends React.Component {
     this.unload();
     this.tuStore = ThreadUnsubscribeStoreManager.getStoreForThread(props.thread);
     this.unlisten = this.tuStore.listen(this.onMessageLoad.bind(this));
-    this.tuStore.triggerUpdate();
+    this.tuStore._triggerUpdate();
   }
 
   unload() {
@@ -105,7 +105,7 @@ class ThreadUnsubscribeButton extends React.Component {
   }
 }
 
-class ThreadUnsubscribeQuickActionButton extends ThreadUnsubscribeButton {
+export class ThreadUnsubscribeQuickActionButton extends ThreadUnsubscribeButton {
 
   static displayName = 'ThreadUnsubscribeQuickActionButton';
 
@@ -126,7 +126,7 @@ class ThreadUnsubscribeQuickActionButton extends ThreadUnsubscribeButton {
   }
 }
 
-class ThreadUnsubscribeToolbarButton extends ThreadUnsubscribeButton {
+export class ThreadUnsubscribeToolbarButton extends ThreadUnsubscribeButton {
 
   static displayName = 'ThreadUnsubscribeToolbarButton';
 
@@ -157,13 +157,8 @@ class ThreadUnsubscribeToolbarButton extends ThreadUnsubscribeButton {
   }
 
   _keymapEvent() {
-    helpers.logIfDebug('Keymap fired');
+    logIfDebug('Unsubscribe keymap fired');
     const e = document.getElementById('unsubscribe');
     e.click()
   }
 }
-
-module.exports = {
-  ThreadUnsubscribeToolbarButton,
-  ThreadUnsubscribeQuickActionButton,
-};
