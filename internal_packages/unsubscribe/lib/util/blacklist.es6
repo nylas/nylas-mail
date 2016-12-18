@@ -1,6 +1,7 @@
-import {logIfDebug} from './helpers';
+import _ from 'underscore';
 
 const blacklistExpressions = {
+  // Electron has Jquery and other limitations that block certain known URLs
   urls: [
     /www\.roomster\.com/,
     /trulia\.com/,
@@ -18,6 +19,7 @@ const blacklistExpressions = {
     /email\.newyorktimes\.com/,
     /github\.com/,
   ],
+  // Some emails are known to fail or require a custom body message
   emails: [
     /@idearium.activehosted.com/,
     /sympa@/,
@@ -27,23 +29,10 @@ const blacklistExpressions = {
   ],
 }
 
-// Takes an array of regular expressions and compares against a target string
-function _onBlacklist(regexps, target) {
-  for (const re of regexps) {
-    if (re.test(target)) {
-      logIfDebug(`Found ${target} on blacklist with ${re}`);
-      return true;
-    }
-  }
-  return false;
-}
-
-// Electron has Jquery and other limitations that block certain known URLs
 export function electronCantOpen(url) {
-  return _onBlacklist(blacklistExpressions.urls, url);
+  return _.some(blacklistExpressions.urls, (re) => re.test(url));
 }
 
-// Some emails fail and are ignored in favor of other links:
 export function blacklistedEmail(email) {
-  return _onBlacklist(blacklistExpressions.emails, email);
+  return _.some(blacklistExpressions.emails, (re) => re.test(email));
 }
