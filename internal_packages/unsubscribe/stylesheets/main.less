@@ -4,29 +4,10 @@
 
 .action-unsubscribe,
 .toolbar-unsubscribe {
-	&.unsubscribe-disabled,
-	&.unsubscribe-loading,
-	&.unsubscribe-error {
-		opacity: 0.5;
-	}
-}
-
-// Style the plugin notification bar to differentiate from the regular updates
-// Can only select one of: `info`, `developer`, `error`, or `success` types
-// Selected developer because least likely to interfere with regular users
-.notifications-sticky .notification-developer {
-	background-color: #60CBF1 !important;
-}
-
-// Less for loop, from: http://stackoverflow.com/a/35548888/3219667
-.for(@list, @code) {
-  & {
-    .loop(@i:1) when (@i =< length(@list)) {
-        @value: extract(@list, @i);
-        @code();
-        .loop(@i + 1);
-    }
-    .loop();
+  &.unsubscribe-disabled,
+  &.unsubscribe-loading,
+  &.unsubscribe-error {
+    opacity: 0.5;
   }
 }
 
@@ -46,26 +27,26 @@ body.theme-ui-taiga .thread-list .list-item:hover .list-column-HoverActions .inn
 //
 // Dark Themes:
 //
-// Supported dark schemes
-@darkthemes: theme-arc-dark, theme-ui-dark, theme-n1-monokai, theme-levelup, theme-N1-Predawn;
 
-.for(@darkthemes, {
-	body.@{value} .thread-list .list-item:hover .list-column-HoverActions .inner {
-      background-image: -webkit-linear-gradient(left, rgba(38, 38, 38, 0) 0%, #262626 20%, #262626 100%);
-	}
-  body.@{value} .thread-list .list-item:hover .list-column-HoverActions .action.action-unsubscribe {
-      background-color: RGB(198, 198, 198) !important;
+.dark-theme-fix(@theme) {
+  body.@{theme} .thread-list .list-item:hover .list-column-HoverActions .inner {
+    background-image: -webkit-linear-gradient(left, rgba(38, 38, 38, 0) 0%, #262626 20%, #262626 100%);
   }
+  body.@{theme} .thread-list .list-item:hover .list-column-HoverActions .action.action-unsubscribe {
+    background-color: RGB(198, 198, 198) !important;
+  }
+};
 
-  // Button Color Fixes:
-  body.@{value} .thread-list .list-item:hover .list-column-HoverActions .action.action-unsubscribe {
-      background-color: RGB(198, 198, 198) !important;
-  }
-});
+// Supported dark themes
+.dark-theme-fix(theme-arc-dark);
+.dark-theme-fix(theme-ui-dark);
+.dark-theme-fix(theme-n1-monokai);
+.dark-theme-fix(theme-levelup);
+.dark-theme-fix(theme-N1-Predawn);
 
 body.theme-arc-dark .thread-list .list-item:hover .list-column-HoverActions .action.action-unsubscribe {
-    background-color: RGB(37, 143, 225) !important;
+  background-color: RGB(37, 143, 225) !important;
 }
 body.theme-N1-Ido .thread-list .list-item:hover .list-column-HoverActions .action.action-unsubscribe {
-    background-color: RGB(255, 255, 255) !important;
+  background-color: RGB(255, 255, 255) !important;
 }
