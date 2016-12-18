@@ -6,10 +6,9 @@ fdescribe("helpers", () => {
     expect(shortenURL("https://www.aweber.com/z/r/?HCwMbCwctKzsLJzqHAxMtEa0zCzMTOycrIw=")).toEqual("www.aweber.com/...");
   });
   it("shortenEmail", () => {
-    expect(shortenEmail("test@test.com")).toEqual("test@test.com");
-    expect(shortenEmail("testing123456@test.com")).toEqual("testing1...@test.com");
-    expect(shortenEmail("testing123456@test.com")).toEqual("testing1...@test.com");
-    expect(shortenEmail("test@testing123456.com")).toEqual("test@testing1...");
+    expect(shortenEmail("mailto:test@test.com")).toEqual("test@test.com");
+    expect(shortenEmail("mailto:testing0123456789@test.com")).toEqual("testing01234...@test.com");
+    expect(shortenEmail("mailto:test@test.testing0123456789.com")).toEqual("test@test.testing0123456789...");
   });
   it("interpretEmail", () => {
     expect(interpretEmail("mailto:thisistrue@aweber.com?subject=unsubscribe;HCwMbCwctKzsLJzqHAxMtEa0zCzMTOycrIw=")).toEqual({

@@ -1,6 +1,9 @@
 import {parse} from "mailto-parser";
 import {remote} from 'electron';
 
+const MAX_USERNAME_LENGTH = 15;
+const MAX_DOMAIN_LENGTH = 25;
+
 export function logIfDebug(message) {
   console.debug(NylasEnv.config.settings.devMode, message);
 }
@@ -39,9 +42,9 @@ export function interpretEmail(emailAddress) {
 
 export function shortenEmail(email) {
   const address = interpretEmail(email).to[0].email;
-  const parts = address.split('@', 1);
-  const shortUsername = parts[0].length > 10 ? `${parts[0].substring(0, 7)}...` : parts[0];
-  const shortDomain = parts[1].length > 10 ? `${parts[1].substring(0, 7)}...` : parts[1];
+  const parts = address.split('@', 2);
+  const shortUsername = parts[0].length > MAX_USERNAME_LENGTH ? `${parts[0].substring(0, MAX_USERNAME_LENGTH - 3)}...` : parts[0];
+  const shortDomain = parts[1].length > MAX_DOMAIN_LENGTH ? `${parts[1].substring(0, MAX_DOMAIN_LENGTH - 3)}...` : parts[1];
   return `${shortUsername}@${shortDomain}`;
 }
 
