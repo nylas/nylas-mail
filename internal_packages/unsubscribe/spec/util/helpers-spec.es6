@@ -1,9 +1,15 @@
-import {shortenURL, interpretEmail, defaultBody} from '../../lib/util/helpers';
+import {shortenURL, shortenEmail, interpretEmail, defaultBody} from '../../lib/util/helpers';
 
 fdescribe("helpers", () => {
   it("shortenURL", () => {
     expect(shortenURL("http://www.aweber.com/z/r/?HCwMbCwctKzsLJzqHAxMtEa0zCzMTOycrIw=")).toEqual("www.aweber.com/...");
     expect(shortenURL("https://www.aweber.com/z/r/?HCwMbCwctKzsLJzqHAxMtEa0zCzMTOycrIw=")).toEqual("www.aweber.com/...");
+  });
+  it("shortenEmail", () => {
+    expect(shortenEmail("test@test.com")).toEqual("test@test.com");
+    expect(shortenEmail("testing123456@test.com")).toEqual("testing1...@test.com");
+    expect(shortenEmail("testing123456@test.com")).toEqual("testing1...@test.com");
+    expect(shortenEmail("test@testing123456.com")).toEqual("test@testing1...");
   });
   it("interpretEmail", () => {
     expect(interpretEmail("mailto:thisistrue@aweber.com?subject=unsubscribe;HCwMbCwctKzsLJzqHAxMtEa0zCzMTOycrIw=")).toEqual({

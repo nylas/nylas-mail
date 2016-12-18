@@ -6,10 +6,10 @@ import {
 } from 'nylas-exports';
 import NylasStore from 'nylas-store';
 import {MailParser} from 'mailparser';
-import {BrowserWindow} from 'electron';
+import {remote} from 'electron';
 import open from 'open';
 import _ from 'underscore';
-import {logIfDebug, shortenURL, interpretEmail, userAlert} from './util/helpers';
+import {logIfDebug, shortenURL, shortenEmail, interpretEmail, userConfirm} from './util/helpers';
 import {electronCantOpen} from './util/blacklist';
 import EmailParser from './util/email-parser';
 import ThreadConditionType from './enum/threadConditionType';
@@ -78,6 +78,8 @@ export default class ThreadUnsubscribeStore extends NylasStore {
         // Output troubleshooting info
         logIfDebug(`Found ${(this.parser.canUnsubscribe() ? "" : "no ")}links for: "${this.thread.subject}"`);
         logIfDebug(this.parser);
+      } else {
+        this.threadState.condition = ThreadConditionType.DISABLED;
       }
       this._triggerUpdate();
     });
@@ -122,35 +124,36 @@ export default class ThreadUnsubscribeStore extends NylasStore {
 
   // Takes a String URL to later open a URL
   _unsubscribeViaBrowser(url, callback) {
-    const disURL = shortenURL(url);
-    if (!this.isForwarded && (!this.settings.confirmForBrowser ||
-      userAlert(`${this.confirmText}\nA browser will be opened at:\n\n${disURL}`))) {
+    if ((!this.isForwarded && !this.settings.confirmForBrowser) ||
+      userConfirm(this.confirmText, `A browser will be opened at: ${shortenURL(url)}`)) {
       logIfDebug(`Opening a browser window to:\n${url}`);
       if (this.settings.defaultBrowser === "native" || electronCantOpen(url)) {
         open(url);
-        callback(null);
+        callback(null, /* unsubscribed=*/true);
       } else {
-        const browserWindow = new BrowserWindow({
+        const browserWindow = new remote.BrowserWindow({
           'web-preferences': { 'web-security': false },
           'width': 1000,
           'height': 800,
           'center': true,
         });
         browserWindow.on('closed', () => {
-          callback(null, true);
+          callback(null, /* unsubscribed=*/true);
         });
         browserWindow.loadURL(url);
         browserWindow.show();
       }
+    } else {
+      callback(null, /* unsubscribed=*/false);
     }
   }
 
   // Takes a String email address and sends an email to it in order to unsubscribe from the list
   _unsubscribeViaMail(emailAddress, callback) {
     if (emailAddress) {
-      if (!this.isForwarded && (!this.settings.confirmForEmail ||
-        userAlert(`${this.confirmText}\nAn email will be sent to:\n${emailAddress}`))) {
-        logIfDebug(`Sending an email to:\n${emailAddress}`);
+      if ((!this.isForwarded && !this.settings.confirmForEmail) ||
+        userConfirm(this.confirmText, `An email will be sent to:\n${shortenEmail(emailAddress)}`)) {
+        logIfDebug(`Sending an email to: ${emailAddress}`);
         NylasAPI.makeRequest({
           path: '/send',
           method: 'POST',

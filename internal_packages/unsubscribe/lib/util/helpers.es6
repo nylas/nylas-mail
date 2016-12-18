@@ -1,4 +1,5 @@
-const mailto = require("mailto-parser");
+import {parse} from "mailto-parser";
+import {remote} from 'electron';
 
 export function logIfDebug(message) {
   console.debug(NylasEnv.config.settings.devMode, message);
@@ -15,7 +16,7 @@ export const defaultBody = 'This is an automated unsubscription request. ' +
   'Please remove the sender of this email from all email lists.'
 
 export function interpretEmail(emailAddress) {
-  const parsedEmail = mailto.parse(emailAddress);
+  const parsedEmail = parse(emailAddress);
   const email = {
     body: parsedEmail.attributeKey.body || defaultBody,
     subject: parsedEmail.attributeKey.subject || "Unsubscribe",
@@ -36,7 +37,21 @@ export function interpretEmail(emailAddress) {
   return email;
 }
 
-// TODO: Some kind of native N1 confirmation
-export function userAlert(message) {
-  return confirm(message);
+export function shortenEmail(email) {
+  const address = interpretEmail(email).to[0].email;
+  const parts = address.split('@', 1);
+  const shortUsername = parts[0].length > 10 ? `${parts[0].substring(0, 7)}...` : parts[0];
+  const shortDomain = parts[1].length > 10 ? `${parts[1].substring(0, 7)}...` : parts[1];
+  return `${shortUsername}@${shortDomain}`;
+}
+
+export function userConfirm(message, detail) {
+  const chosen = remote.dialog.showMessageBox(NylasEnv.getCurrentWindow(), {
+    type: 'info',
+    message: message,
+    detail: detail,
+    buttons: ['Cancel', 'Unsubscribe'],
+  });
+
+  return chosen === 1;
 }
