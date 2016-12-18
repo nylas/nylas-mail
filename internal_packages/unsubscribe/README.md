@@ -4,18 +4,7 @@ Quickly unsubscribe from emails without leaving N1. The unsubscribe plugin parse
 
 ## Keyboard Shortcuts
 
-Press <kbd>CMD</kbd> + <kbd>ALT</kbd> + <kbd>U</kbd> when viewing an email. If you want to map your own shortcut keys:
-
-1. Go to:`Nylas->Preferences`
-2. Click the `Shortcuts` tab
-3. Then scroll to the bottom and click the `Edit Custom Shortcuts` button
-4. From the finder window, open `keymap.json` in a text editor and add this snippet, where you replace `mod+shift+u` with whichever shortcut you like (*note: mod is the special key on a Mac/PC*):
-
-	```json
-		{
-		  "unsubscribe:unsubscribe": "mod+shift+u"
-		}
-	```
+Press <kbd>CMD</kbd> + <kbd>ALT</kbd> + <kbd>U</kbd> when viewing an email. This shortcut can be changed in the preference panel (`Nylas->Preferences->Unsubscribe`).
 
 ## Reporting Bugs
 
