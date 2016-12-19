@@ -55,7 +55,15 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
     instanceMethods: {
-      toJSON: function toJSON() {
+      isSyncComplete() {
+        if (!this.syncState) { return true }
+        return (
+          this.syncState.fetchedmin <= 1 &&
+          this.syncState.fetchedmax >= this.syncState.uidnext
+        )
+      },
+
+      toJSON() {
         return {
           id: `${this.id}`,
           account_id: this.accountId,

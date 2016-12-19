@@ -46,6 +46,7 @@ class IMAPConnection extends EventEmitter {
     this._settings = settings;
     this._imap = null;
     this._connectPromise = null;
+    this._isOpeningBox = false;
   }
 
   static generateXOAuth2Token(username, accessToken) {
@@ -123,6 +124,9 @@ class IMAPConnection extends EventEmitter {
       // Fix https://github.com/mscdex/node-imap/issues/445
       let lastMailEventBox = null;
       this._imap.on('mail', () => {
+        // This check is for working around
+        // https://github.com/mscdex/node-imap/issues/585
+        if (this._isOpeningBox) { return }
         if (lastMailEventBox === this._imap._box.name) {
           this.emit('mail');
         }
@@ -182,9 +186,11 @@ class IMAPConnection extends EventEmitter {
     if (!this._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPConnection::openBox`)
     }
-    return this._imap.openBoxAsync(folderName, readOnly).then((box) =>
-      new IMAPBox(this, box)
-    )
+    this._isOpeningBox = true
+    return this._imap.openBoxAsync(folderName, readOnly).then((box) => {
+      this._isOpeningBox = false
+      return new IMAPBox(this, box)
+    })
   }
 
   getBoxes() {
