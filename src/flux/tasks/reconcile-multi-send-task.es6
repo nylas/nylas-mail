@@ -16,7 +16,7 @@ export default class ReconcileMultiSendTask extends Task {
   }
 
   performLocal() {
-    if (!this.messgae) {
+    if (!this.message) {
       const errMsg = `Attempt to call ${this.constructor.name}.performLocal without a message`;
       return Promise.reject(new Error(errMsg));
     }
