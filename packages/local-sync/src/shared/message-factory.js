@@ -205,7 +205,7 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
     // for generating message ids.
     // `attributes.date` is the server generated date and might differ from the
     // header
-    date: new Date(parsedHeaders.date),
+    date: parsedHeaders.date[0],
     folderImapUID: attributes.uid,
     folderId: folder.id,
     folder: null,
