@@ -12,7 +12,7 @@ export default class OpenTrackingComposerExtension extends ComposerExtension {
     }
 
     // insert a tracking pixel <img> into the message
-    const serverUrl = `${PLUGIN_URL}/open/${draft.accountId}/MESSAGE_ID`
+    const serverUrl = `${PLUGIN_URL}/open/MESSAGE_ID`
     const imgFragment = document.createRange().createContextualFragment(`<img class="n1-open" width="0" height="0" style="border:0; width:0; height:0;" src="${serverUrl}">`);
     const beforeEl = draftBodyRootNode.querySelector('.gmail_quote');
     if (beforeEl) {

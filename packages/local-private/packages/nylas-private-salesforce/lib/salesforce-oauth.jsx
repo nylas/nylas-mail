@@ -1,4 +1,4 @@
-import {shell, remote} from 'electron'
+import {shell} from 'electron'
 import crypto from 'crypto';
 import {Actions, NylasAPIRequest, React, KeyManager} from 'nylas-exports'
 
