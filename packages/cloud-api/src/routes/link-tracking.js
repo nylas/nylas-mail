@@ -4,9 +4,17 @@ const {DatabaseConnector} = require('cloud-core')
 
 const PLUGIN_NAME = 'link-tracking'
 
-function updateMetadata(metadata, recipient, linkIdx) {
+function updateMetadata({metadata, recipient, linkIdx}) {
+  if (!metadata) {
+    throw new Error("No metadata found, unable to update.")
+  }
+
   const FIVE_MINUTES = 60 * 5 // in seconds
   const timestamp = Date.now() / 1000
+
+  if (!metadata.value || !metadata.value.links) {
+    throw new Error('Message metadata does not have links to track!')
+  }
   const linkMetadata = metadata.value.links[linkIdx]
 
   // Iterate backwards until you reach older timestamps or find the same
@@ -16,22 +24,25 @@ function updateMetadata(metadata, recipient, linkIdx) {
       break
     }
     if (click.recipient === recipient) {
-      return
+      return Promise.resolve()
     }
   }
 
-  linkMetadata.click_count += 1
-  linkMetadata.click_data.append({
-    timestamp: timestamp,
-    recipient: recipient,
-  })
-  metadata.save()
+  const links = metadata.value.links
+  links[linkIdx] = {
+    click_count: linkMetadata.click_count + 1,
+    click_data: linkMetadata.click_data.concat({
+      timestamp: timestamp,
+      recipient: recipient,
+    }),
+  }
+  return metadata.updateValue({links})
 }
 
 module.exports = (server) => {
   server.route({
     method: 'GET',
-    path: `/link/{accountId}/{messageId}/{linkIdx}`,
+    path: `/link/{messageId}/{linkIdx}`,
     config: {
       description: `link-tracking`,
       notes: 'Notes go here',
@@ -39,7 +50,6 @@ module.exports = (server) => {
       auth: false,
       validate: {
         params: {
-          accountId: Joi.string().required(),
           messageId: Joi.string().required(),
           linkIdx: Joi.number().integer().required(),
         },
@@ -49,8 +59,8 @@ module.exports = (server) => {
         },
       },
     },
-    handler: (request, reply) => {
-      const {accountId, messageId, linkIdx} = request.params
+    handler: async (request, reply) => {
+      const {messageId, linkIdx} = request.params
       let {redirect} = request.query
       const {r} = request.query
 
@@ -61,22 +71,21 @@ module.exports = (server) => {
       }
       const recipient = r ? Base64.decode(r) : null
 
-      DatabaseConnector.forShared().then(({Metadata}) => {
-        Metadata.find({
-          where: {
-            accountId: accountId,
-            pluginId: PLUGIN_NAME,
-            objectId: messageId,
-            objectType: 'Message',
-          },
-        }).then((metadata) => {
-          try {
-            updateMetadata(metadata, recipient, linkIdx)
-          } finally {
-            reply.redirect(redirect)
-          }
-        })
+      const {Metadata} = await DatabaseConnector.forShared()
+      const metadata = await Metadata.find({
+        where: {
+          pluginId: PLUGIN_NAME,
+          objectId: messageId,
+          objectType: 'message',
+        },
       })
+      try {
+        await updateMetadata({metadata, recipient, linkIdx})
+      } catch (err) {
+        request.logger.error(err)
+      } finally {
+        reply.redirect(redirect)
+      }
     },
   })
 }

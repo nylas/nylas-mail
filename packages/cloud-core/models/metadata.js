@@ -3,7 +3,7 @@ const {DatabaseTypes: {JSONColumn}} = require('isomorphic-core');
 module.exports = (sequelize, Sequelize) => {
   const Metadata = sequelize.define('metadata', {
     accountId: Sequelize.STRING,
-    value: JSONColumn('data'),
+    value: JSONColumn('value'),
     version: Sequelize.INTEGER,
     pluginId: Sequelize.STRING,
     objectId: Sequelize.STRING,
@@ -21,6 +21,12 @@ module.exports = (sequelize, Sequelize) => {
           account_id: this.accountId,
           object_type: this.objectType,
         };
+      },
+      updateValue(value) {
+        this.value = Object.assign({}, this.value, value)
+        return sequelize.transaction((t) => {
+          return this.save({transaction: t})
+        })
       },
     },
   });

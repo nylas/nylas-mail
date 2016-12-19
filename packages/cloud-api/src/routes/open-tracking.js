@@ -1,12 +1,24 @@
 const Joi = require('joi')
 const Base64 = require('js-base64').Base64
+const Path = require('path')
 const {DatabaseConnector} = require('cloud-core')
 
 const PLUGIN_NAME = 'open-tracking'
 
-function updateMetadata(metadata, recipient) {
+function updateMetadata({metadata, recipient}) {
+  if (!metadata) {
+    throw new Error("No metadata found, unable to update.")
+  }
+
   const FIVE_MINUTES = 60 * 5 // in seconds
   const timestamp = Date.now() / 1000
+
+  if (!metadata.value || !metadata.value.open_data) {
+    metadata.value = {
+      open_count: 0,
+      open_data: [],
+    }
+  }
 
   // Iterate backwards until you reach older timestamps or find the same
   // recipient with a timestamp newer than five minutes
@@ -15,22 +27,23 @@ function updateMetadata(metadata, recipient) {
       break
     }
     if (open.recipient === recipient) {
-      return
+      return Promise.resolve()
     }
   }
 
-  metadata.value.open_count += 1
-  metadata.value.open_data.append({
-    timestamp: timestamp,
-    recipient: recipient,
+  return metadata.updateValue({
+    open_count: metadata.value.open_count + 1,
+    open_data: metadata.value.open_data.concat({
+      timestamp: timestamp,
+      recipient: recipient,
+    }),
   })
-  metadata.save()
 }
 
 module.exports = (server) => {
   server.route({
     method: 'GET',
-    path: `/open/{accountId}/{messageId}`,
+    path: `/open/{messageId}`,
     config: {
       description: `open-tracking`,
       notes: 'Notes go here',
@@ -38,7 +51,6 @@ module.exports = (server) => {
       auth: false,
       validate: {
         params: {
-          accountId: Joi.string().required(),
           messageId: Joi.string().required(),
         },
         query: {
@@ -46,28 +58,29 @@ module.exports = (server) => {
         },
       },
     },
-    handler: (request, reply) => {
-      const {accountId, messageId} = request.params
+    handler: async (request, reply) => {
+      const {messageId} = request.params
       const {r} = request.query
       const recipient = r ? Base64.decode(r) : null
 
-      DatabaseConnector.forShared().then(({Metadata}) => {
-        Metadata.find({
-          where: {
-            accountId: accountId,
-            pluginId: PLUGIN_NAME,
-            objectId: messageId,
-            objectType: 'Message',
-          },
-        }).then((metadata) => {
-          try {
-            updateMetadata(metadata, recipient)
-          } finally {
-            reply.file('../../static/images/transparent.gif')
-            .header('Cache-Control', 'no-cache max-age=0')
-          }
-        })
+      const {Metadata} = await DatabaseConnector.forShared()
+      const metadata = await Metadata.find({
+        where: {
+          pluginId: PLUGIN_NAME,
+          objectId: messageId,
+          objectType: 'message',
+        },
       })
+      try {
+        await updateMetadata({metadata, recipient})
+      } catch (err) {
+        request.logger.error(err)
+      } finally {
+        reply.file(Path.join(__dirname, '../../static/images/transparent.gif'), {
+          confine: false,
+        })
+        .header('Cache-Control', 'no-cache max-age=0')
+      }
     },
   })
 }
