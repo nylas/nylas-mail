@@ -1,8 +1,8 @@
-const Joi = require('joi');
-const {DatabaseConnector, PubsubConnector} = require(`cloud-core`);
-const {DeltaStreamBuilder} = require('isomorphic-core')
+import Joi from 'joi';
+import {DatabaseConnector, PubsubConnector} from 'cloud-core';
+import {DeltaStreamBuilder} from 'isomorphic-core'
 
-module.exports = (server) => {
+export default function registerDeltaRoutes(server) {
   server.route({
     method: 'GET',
     path: '/delta/streaming',
@@ -38,4 +38,4 @@ module.exports = (server) => {
       });
     },
   });
-};
+}

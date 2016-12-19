@@ -3,11 +3,12 @@
   "version": "0.0.1",
   "description": "Nylas API",
   "scripts": {
-    "start": "node app.js"
+    "start": "babel-node app.es6"
   },
   "author": "Nylas",
   "license": "ISC",
   "dependencies": {
+    "boom": "4.2.0",
     "cloud-core": "0.x.x",
     "googleapis": "9.0.0",
     "hapi": "13.4.1",
@@ -19,6 +20,8 @@
     "joi": "8.4.2",
     "js-base64": "2.1.9",
     "libhoney": "1.0.0-beta.2",
+    "request": "2.79.0",
+    "request-promise": "4.1.1",
     "rx": "4.1.0",
     "vision": "4.1.0"
   }

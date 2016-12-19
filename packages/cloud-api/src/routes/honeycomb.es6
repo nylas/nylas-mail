@@ -1,11 +1,11 @@
-const LibHoney = require('libhoney').default;
+import LibHoney from 'libhoney'
 
 const honey = new LibHoney({
   writeKey: process.env.HONEY_WRITE_KEY,
   dataset: process.env.HONEY_DATASET,
 });
 
-module.exports = (server) => {
+export default function registerHoneycombRoutes(server) {
   server.route({
     method: 'POST',
     path: '/ingest-metrics',
@@ -14,4 +14,4 @@ module.exports = (server) => {
       reply({success: true})
     },
   });
-};
+}
