@@ -5,6 +5,7 @@ _ = require 'underscore'
 classNames = require 'classnames'
 
 StreamingSyncActivity = require './streaming-sync-activity'
+InitialSyncActivity = require('./initial-sync-activity').default
 
 {Actions,
  TaskQueue,
@@ -36,6 +37,8 @@ class ActivitySidebar extends React.Component
 
     if @state.isInitialSyncComplete
       items.push <StreamingSyncActivity key="streaming-sync" />
+    else
+      items.push <InitialSyncActivity key="initial-sync-activity" />
 
     names = classNames
       "sidebar-activity": true

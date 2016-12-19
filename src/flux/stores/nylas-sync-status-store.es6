@@ -88,7 +88,7 @@ class NylasSyncStatusStore extends NylasStore {
         } else {
           // We don't have a uidnext if the sync hasn't started at all,
           // but we've fund the folder.
-          updates[name] = "SYNC_NOT_STARTED"
+          updates[name] = 0
         }
       }
       this._updateState(accountId, {folderSyncProgress: updates})
@@ -122,7 +122,7 @@ class NylasSyncStatusStore extends NylasStore {
     if (!state) { return false }
     const folderNames = Object.keys(state.folderSyncProgress || {})
     if (folderNames.length === 0) { return false }
-    return folderNames.some((name) => state.folderSyncProgress[name] !== "SYNC_NOT_STARTED")
+    return folderNames.some((name) => state.folderSyncProgress[name] !== 0)
   }
 
   whenCategoryListSynced(accountId) {
@@ -153,7 +153,7 @@ class NylasSyncStatusStore extends NylasStore {
     const folderNames = Object.keys(state.folderSyncProgress)
     for (const fname of folderNames) {
       const syncProgress = state.folderSyncProgress[fname]
-      if (syncProgress < 1 || syncProgress === "SYNC_NOT_STARTED") {
+      if (syncProgress < 1) {
         return false
       }
     }
