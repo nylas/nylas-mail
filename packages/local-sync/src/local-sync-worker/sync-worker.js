@@ -370,10 +370,10 @@ class SyncWorker {
     const {Folder} = this._db;
 
     const folders = await Folder.findAll();
-    const moreToSync = folders.some((f) =>
-      f.syncState.fetchedmax < f.syncState.uidnext || f.syncState.fetchedmin > 1
-    )
+    const moreToSync = folders.some((f) => !f.isSyncComplete())
 
+    // Continue syncing if initial sync isn't done, or if the loop was
+    // interrupted or a sync was requested
     const shouldSyncImmediately = (
       moreToSync ||
       this._interrupted ||
@@ -381,20 +381,19 @@ class SyncWorker {
     )
     const reason = this._interrupted ? 'Sync interrupted for restart' : 'Scheduled'
     const interval = shouldSyncImmediately ? 1 : intervals.active;
-    const nextSyncTime = this._lastSyncTime + interval
-    const nextSyncStart = Math.max(1, nextSyncTime - Date.now())
+    const nextSyncIn = Math.max(1, this._lastSyncTime + interval - Date.now())
 
     this._logger.info({
       moreToSync,
       shouldSyncImmediately,
       interrupted: this._interrupted,
-      nextSyncStartingIn: `${nextSyncStart}ms`,
+      nextSyncStartingIn: `${nextSyncIn}ms`,
       syncAttemptsWhileInProgress: this._syncAttemptsWhileInProgress,
     }, `SyncWorker: Scheduling next sync iteration`)
 
     this._syncTimer = setTimeout(() => {
       this.syncNow({reason});
-    }, nextSyncStart);
+    }, nextSyncIn);
   }
 }
 
