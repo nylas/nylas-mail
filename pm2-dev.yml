@@ -1,5 +1,5 @@
 apps:
-  - script   : packages/cloud-api/app.js
+  - script   : packages/cloud-api/app.es6
     interpreter : node_modules/.bin/babel-node
     watch    : ["packages"]
     name     : api

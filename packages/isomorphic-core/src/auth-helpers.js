@@ -97,7 +97,7 @@ module.exports = {
     }
   },
 
-  imapAuthHandler(accountBuildFn) {
+  imapAuthHandler(upsertAccount) {
     return (request, reply) => {
       const dbStub = {};
       const connectionChecks = [];
@@ -121,7 +121,7 @@ module.exports = {
           emailAddress: email,
           connectionSettings: connectionSettings,
         }
-        return accountBuildFn(accountParams, connectionCredentials)
+        return upsertAccount(accountParams, connectionCredentials)
       })
       .then(({account, token}) => {
         const response = account.toJSON();
