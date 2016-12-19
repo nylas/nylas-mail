@@ -34,7 +34,7 @@ function base64url(inBuffer) {
     .replace(/\//g, '_'); // Convert '/' to '_'
 }
 
-export function makeGmailOAuthRequest(sessionKey, callback) {
+export async function makeGmailOAuthRequest(sessionKey, callback) {
   const noauth = {
     user: '',
     pass: '',
@@ -47,35 +47,31 @@ export function makeGmailOAuthRequest(sessionKey, callback) {
       method: 'GET',
       error: callback,
       auth: noauth,
-      success: (remoteJSON) => {
-        const localRequest = new NylasAPIRequest({
-          api: NylasAPI,
-          options: {
-            path: `/auth`,
-            method: 'POST',
-            auth: noauth,
-            body: {
-              email: remoteJSON.email_address,
-              name: remoteJSON.name,
-              provider: 'gmail',
-              settings: {
-                xoauth2: remoteJSON.resolved_settings.xoauth2,
-                expiry_date: remoteJSON.resolved_settings.expiry_date,
-              },
-            },
-            success: (localJSON) => {
-              const account = Object.assign({}, localJSON);
-              account.localToken = localJSON.account_token;
-              account.cloudToken = remoteJSON.account_token;
-              callback(null, account);
-            },
-          },
-        })
-        localRequest.run()
-      },
     },
   });
-  remoteRequest.run()
+  const remoteJSON = await remoteRequest.run()
+  const localRequest = new NylasAPIRequest({
+    api: NylasAPI,
+    options: {
+      path: `/auth`,
+      method: 'POST',
+      auth: noauth,
+      body: {
+        email: remoteJSON.email_address,
+        name: remoteJSON.name,
+        provider: 'gmail',
+        settings: {
+          xoauth2: remoteJSON.resolved_settings.xoauth2,
+          expiry_date: remoteJSON.resolved_settings.expiry_date,
+        },
+      },
+    },
+  })
+  const localJSON = await localRequest.run()
+  const account = Object.assign({}, localJSON);
+  account.localToken = localJSON.account_token;
+  account.cloudToken = remoteJSON.account_token;
+  callback(null, account);
 }
 
 export function buildGmailSessionKey() {
