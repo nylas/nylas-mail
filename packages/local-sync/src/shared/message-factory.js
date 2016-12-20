@@ -37,48 +37,43 @@ function extractContacts(input) {
 }
 
 
-// Iteratively walk the DOM of this document's <body>, calling the callback on
-// each node. Skip any nodes and the skipTags set, including their children.
-function _walkBodyDOM(doc, callback, skipTags) {
-  let nodes = Array.from(doc.body.childNodes);
-
-  while (nodes.length) {
-    const node = nodes.shift();
-
-    callback(node);
-
-    if (!skipTags.has(node.tagName)) {
-      if (node.childNodes && node.childNodes.length) {
-        nodes = Array.from(node.childNodes).concat(nodes);
-      }
-    }
-  }
-}
-
-
 function extractSnippet(plainBody, htmlBody) {
-  let snippetText = plainBody || '';
+  let snippetText = plainBody ? plainBody.trim() : '';
   if (htmlBody) {
     const doc = new DOMParser().parseFromString(htmlBody, 'text/html')
-    const extractedTextElements = [];
+    const skipTags = new Set(['TITLE', 'SCRIPT', 'STYLE', 'IMG']);
 
-    _walkBodyDOM(doc, (node) => {
+    const treeWalker = document.createTreeWalker(doc, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, (node) => {
+      if (skipTags.has(node.tagName)) {
+        // skip this node and all its children
+        return NodeFilter.FILTER_REJECT;
+      }
       if (node.nodeType === Node.TEXT_NODE) {
         const nodeValue = node.nodeValue ? node.nodeValue.trim() : null;
         if (nodeValue) {
-          extractedTextElements.push(nodeValue);
+          return NodeFilter.FILTER_ACCEPT;
         }
       }
-    }, new Set(['TITLE', 'SCRIPT', 'STYLE', 'IMG']));
+      return NodeFilter.FILTER_SKIP;
+    });
 
-    const extractedText = extractedTextElements.join(' ').trim();
-    if (extractedText) {
-      snippetText = extractedText;
+    let extractedText = "";
+    while (treeWalker.nextNode()) {
+      // TODO: there may be some elements we don't want to add a space between
+      if (extractedText) {
+        extractedText += " ";
+      }
+      extractedText += treeWalker.currentNode.nodeValue;
+      if (extractedText.length > SNIPPET_MAX_SIZE) {
+        break;
+      }
     }
+
+    snippetText = extractedText;
   }
 
   // clean up and trim snippet
-  let trimmed = snippetText.trim().replace(/[\n\r]/g, ' ').replace(/\s\s+/g, ' ').substr(0, SNIPPET_MAX_SIZE);
+  let trimmed = snippetText.replace(/[\n\r]/g, ' ').replace(/\s\s+/g, ' ').substr(0, SNIPPET_MAX_SIZE);
   if (trimmed) {
     // TODO: strip quoted text from snippets also
     // trim down to approx. SNIPPET_SIZE w/out cutting off words right in the
