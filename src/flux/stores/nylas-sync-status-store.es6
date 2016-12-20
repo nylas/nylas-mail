@@ -83,11 +83,11 @@ class NylasSyncStatusStore extends NylasStore {
         const name = folder.name || folder.displayName
         const {uidnext, fetchedmin, fetchedmax} = folder.syncState || {}
         if (uidnext) {
-          const progress = (+fetchedmax - +fetchedmin) / uidnext
+          const progress = (+fetchedmax - +fetchedmin + 1) / uidnext
           updates[name] = progress
         } else {
           // We don't have a uidnext if the sync hasn't started at all,
-          // but we've fund the folder.
+          // but we've found the folder.
           updates[name] = 0
         }
       }
