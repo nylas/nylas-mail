@@ -65,15 +65,19 @@ function credentialsForProvider({provider, settings, email}) {
     const connectionSettings = {
       imap_host: 'outlook.office365.com',
       imap_port: 993,
-      smtp_host: 'smtp.office365.com',
-      smtp_port: 465,
       ssl_required: true,
+      smtp_custom_config: {
+        host: 'smtp.office365.com',
+        port: 587,
+        secure: false,
+        tls: {ciphers: 'SSLv3'},
+      },
     }
     const connectionCredentials = {
       imap_username: email,
       imap_password: settings.password,
       smtp_username: email,
-      smpt_password: settings.password,
+      smtp_password: settings.password,
     }
     return {connectionSettings, connectionCredentials}
   }

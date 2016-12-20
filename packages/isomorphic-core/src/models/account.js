@@ -116,12 +116,16 @@ module.exports = (sequelize, Sequelize) => {
 
       smtpConfig() {
         const {smtp_host, smtp_port, ssl_required} = this.connectionSettings;
-        const config = {
-          host: smtp_host,
-          port: smtp_port,
-          secure: ssl_required,
+        let config = {}
+        if (this.connectionSettings.smtp_custom_config) {
+          config = this.connectionSettings.smtp_custom_config
+        } else {
+          config = {
+            host: smtp_host,
+            port: smtp_port,
+            secure: ssl_required,
+          }
         }
-
         if (this.provider === "imap" || this.provider === "office365") {
           const {smtp_username, smtp_password} = this.decryptedCredentials();
           config.auth = { user: smtp_username, pass: smtp_password}
