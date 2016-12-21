@@ -86,10 +86,10 @@ class FetchFolderList {
 
       const boxName = boxPath.join(box.delimiter);
 
-      this._logger.info({
-        box_name: boxName,
-        attributes: JSON.stringify(box.attribs),
-      }, `FetchFolderList: Box Information`)
+      // this._logger.info({
+      //   box_name: boxName,
+      //   attributes: JSON.stringify(box.attribs),
+      // }, `FetchFolderList: Box Information`)
 
 
       if (box.children && box.attribs.includes('\\HasChildren')) {

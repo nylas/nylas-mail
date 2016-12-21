@@ -266,6 +266,7 @@ class SyncWorker {
       return;
     }
 
+    this._syncStart = Date.now()
     clearTimeout(this._syncTimer);
     this._syncTimer = null;
     this._interrupted = false
@@ -280,7 +281,8 @@ class SyncWorker {
       return;
     }
 
-    this._logger.info({reason}, `SyncWorker: Account sync started`)
+    console.log(`🔃 🆕 reason: ${reason}`)
+    // this._logger.info({reason}, `SyncWorker: Account sync started`)
 
     try {
       await this._account.update({syncError: null});
@@ -355,14 +357,15 @@ class SyncWorker {
       lastSyncCompletions.pop();
     }
 
-    this._logger.info('Syncworker: Completed sync cycle');
+    console.log(`🔃 🔚 took ${now - this._syncStart}ms`)
+    // this._logger.info('Syncworker: Completed sync cycle');
     this._account.lastSyncCompletions = lastSyncCompletions;
     this._account.save();
 
     // Start idling on the inbox
     const idleFolder = await this._getIdleFolder();
     await this._conn.openBox(idleFolder.name);
-    this._logger.info('SyncWorker: Idling on inbox folder');
+    // this._logger.info('SyncWorker: Idling on inbox folder');
   }
 
   async scheduleNextSync() {
@@ -383,13 +386,14 @@ class SyncWorker {
     const interval = shouldSyncImmediately ? 1 : intervals.active;
     const nextSyncIn = Math.max(1, this._lastSyncTime + interval - Date.now())
 
-    this._logger.info({
-      moreToSync,
-      shouldSyncImmediately,
-      interrupted: this._interrupted,
-      nextSyncStartingIn: `${nextSyncIn}ms`,
-      syncAttemptsWhileInProgress: this._syncAttemptsWhileInProgress,
-    }, `SyncWorker: Scheduling next sync iteration`)
+    // this._logger.info({
+    //   moreToSync,
+    //   shouldSyncImmediately,
+    //   interrupted: this._interrupted,
+    //   nextSyncStartingIn: `${nextSyncIn}ms`,
+    //   syncAttemptsWhileInProgress: this._syncAttemptsWhileInProgress,
+    // }, `SyncWorker: Scheduling next sync iteration`)
+    console.log(`🔃 🔜 in ${nextSyncIn}ms`)
 
     this._syncTimer = setTimeout(() => {
       this.syncNow({reason});

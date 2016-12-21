@@ -28,10 +28,11 @@ function processNewMessage(message, imapMessage) {
       await Message.create(message);
       await extractFiles({db, message, imapMessage});
       await extractContacts({db, message});
-      logger.info({
-        message_id: message.id,
-        uid: message.folderImapUID,
-      }, `MessageProcessor: Created and processed message`);
+      console.log(`🔃 ✉️ "${message.subject}"`)
+      // logger.info({
+      //   message_id: message.id,
+      //   uid: message.folderImapUID,
+      // }, `MessageProcessor: Created and processed message`);
     } catch (err) {
       logger.error(err, `MessageProcessor: Failed`);
     }

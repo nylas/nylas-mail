@@ -100,9 +100,9 @@ class FetchMessagesInFolder {
     })
 
     if (createdUIDs.length > 0) {
-      this._logger.info({
-        new_messages: createdUIDs.length,
-      }, `FetchMessagesInFolder: found new messages. These will not be processed because we assume that they will be assigned uid = uidnext, and will be picked up in the next sync when we discover unseen messages.`);
+      // this._logger.info({
+      //   new_messages: createdUIDs.length,
+      // }, `FetchMessagesInFolder: found new messages. These will not be processed because we assume that they will be assigned uid = uidnext, and will be picked up in the next sync when we discover unseen messages.`);
     }
 
     // Step 2: If flags were changed, apply the changes to the corresponding
@@ -155,9 +155,9 @@ class FetchMessagesInFolder {
       return;
     }
 
-    this._logger.info({
-      removed_messages: removedUIDs.length,
-    }, `FetchMessagesInFolder: found messages no longer in the folder`)
+    // this._logger.info({
+    //   removed_messages: removedUIDs.length,
+    // }, `FetchMessagesInFolder: found messages no longer in the folder`)
 
     await this._db.sequelize.transaction((transaction) =>
        Message.update({
@@ -223,10 +223,10 @@ class FetchMessagesInFolder {
       const desiredParts = JSON.parse(key);
       const bodies = ['HEADER'].concat(desiredParts.map(p => p.id));
 
-      this._logger.info({
-        key,
-        num_messages: uids.length,
-      }, `FetchMessagesInFolder: Fetching parts for messages`)
+      // this._logger.info({
+      //   key,
+      //   num_messages: uids.length,
+      // }, `FetchMessagesInFolder: Fetching parts for messages`)
 
       // note: the order of UIDs in the array doesn't matter, Gmail always
       // returns them in ascending (oldest => newest) order.
@@ -256,18 +256,18 @@ class FetchMessagesInFolder {
         if (thread) {
           await thread.updateLabelsAndFolders();
         }
-        this._logger.info({
-          message_id: existingMessage.id,
-          uid: existingMessage.folderImapUID,
-        }, `FetchMessagesInFolder: Updated message`)
+        // this._logger.info({
+        //   message_id: existingMessage.id,
+        //   uid: existingMessage.folderImapUID,
+        // }, `FetchMessagesInFolder: Updated message`)
       } else {
         // TODO investigate batching processing new messages
         // We could measure load of actual sync vs load of just message processing
         // to determine how meaningful it is
         processNewMessage(messageValues, imapMessage)
-        this._logger.info({
-          message: messageValues,
-        }, `FetchMessagesInFolder: Queued new message for processing`)
+        // this._logger.info({
+        //   message: messageValues,
+        // }, `FetchMessagesInFolder: Queued new message for processing`)
       }
     } catch (err) {
       this._logger.error(err, {
@@ -292,12 +292,12 @@ class FetchMessagesInFolder {
     const lastUIDValidity = this._folder.syncState.uidvalidity;
 
     if (lastUIDValidity && (box.uidvalidity !== lastUIDValidity)) {
-      this._logger.info({
-        boxname: box.name,
-        categoryname: this._folder.name,
-        remoteuidvalidity: box.uidvalidity,
-        localuidvalidity: lastUIDValidity,
-      }, `FetchMessagesInFolder: Recovering from UIDInvalidity`);
+      // this._logger.info({
+      //   boxname: box.name,
+      //   categoryname: this._folder.name,
+      //   remoteuidvalidity: box.uidvalidity,
+      //   localuidvalidity: lastUIDValidity,
+      // }, `FetchMessagesInFolder: Recovering from UIDInvalidity`);
       await this._recoverFromUIDInvalidity()
     }
 
@@ -312,9 +312,9 @@ class FetchMessagesInFolder {
 
     const desiredRanges = [];
 
-    this._logger.info({
-      range: `${savedSyncState.fetchedmin}:${savedSyncState.fetchedmax}`,
-    }, `FetchMessagesInFolder: Fetching messages.`)
+    // this._logger.info({
+    //   range: `${savedSyncState.fetchedmin}:${savedSyncState.fetchedmax}`,
+    // }, `FetchMessagesInFolder: Fetching messages.`)
 
     // Todo: In the future, this is where logic should go that limits
     // sync based on number of messages / age of messages.
@@ -326,21 +326,21 @@ class FetchMessagesInFolder {
       if (savedSyncState.fetchedmax < boxUidnext) {
         desiredRanges.push({min: savedSyncState.fetchedmax, max: boxUidnext})
       } else {
-        this._logger.info('FetchMessagesInFolder: fetchedmax == uidnext, nothing more recent to fetch.')
+        // this._logger.info('FetchMessagesInFolder: fetchedmax == uidnext, nothing more recent to fetch.')
       }
 
       if (savedSyncState.fetchedmin > 1) {
         const lowerbound = Math.max(1, savedSyncState.fetchedmin - FETCH_MESSAGES_COUNT);
         desiredRanges.push({min: lowerbound, max: savedSyncState.fetchedmin})
       } else {
-        this._logger.info("FetchMessagesInFolder: fetchedmin == 1, nothing older to fetch.")
+        // this._logger.info("FetchMessagesInFolder: fetchedmin == 1, nothing older to fetch.")
       }
     }
 
     await PromiseUtils.each(desiredRanges, async ({min, max}) => {
-      this._logger.info({
-        range: `${min}:${max}`,
-      }, `FetchMessagesInFolder: Fetching range`);
+      // this._logger.info({
+      //   range: `${min}:${max}`,
+      // }, `FetchMessagesInFolder: Fetching range`);
 
       await this._fetchMessagesAndQueueForProcessing(`${min}:${max}`);
       const {fetchedmin, fetchedmax} = this._folder.syncState;
@@ -353,7 +353,7 @@ class FetchMessagesInFolder {
       });
     });
 
-    this._logger.info(`FetchMessagesInFolder: Fetching messages finished`);
+    // this._logger.info(`FetchMessagesInFolder: Fetching messages finished`);
   }
 
   _runScan() {
@@ -376,15 +376,15 @@ class FetchMessagesInFolder {
     let shallowFetch = null;
 
     if (this._imap.serverSupports(Capabilities.Condstore)) {
-      this._logger.info(`FetchMessagesInFolder: Shallow attribute scan (using CONDSTORE)`)
+      // this._logger.info(`FetchMessagesInFolder: Shallow attribute scan (using CONDSTORE)`)
       if (nextHighestmodseq === highestmodseq) {
-        this._logger.info('FetchMessagesInFolder: highestmodseq matches, nothing more to fetch')
+        // this._logger.info('FetchMessagesInFolder: highestmodseq matches, nothing more to fetch')
         return Promise.resolve();
       }
       shallowFetch = this._box.fetchUIDAttributes(`1:*`, {changedsince: highestmodseq});
     } else {
       const range = `${this._getLowerBoundUID(SHALLOW_SCAN_UID_COUNT)}:*`;
-      this._logger.info({range}, `FetchMessagesInFolder: Shallow attribute scan`)
+      // this._logger.info({range}, `FetchMessagesInFolder: Shallow attribute scan`)
       shallowFetch = this._box.fetchUIDAttributes(range);
     }
 
@@ -396,7 +396,7 @@ class FetchMessagesInFolder {
 
     await this._updateMessageAttributes(remoteUIDAttributes, localMessageAttributes)
 
-    this._logger.info(`FetchMessagesInFolder: finished fetching changes to messages`);
+    // this._logger.info(`FetchMessagesInFolder: finished fetching changes to messages`);
     return this.updateFolderSyncState({
       highestmodseq: nextHighestmodseq,
       timeShallowScan: Date.now(),
@@ -408,7 +408,7 @@ class FetchMessagesInFolder {
     const {fetchedmin, fetchedmax} = this._folder.syncState;
     const range = `${fetchedmin}:${fetchedmax}`;
 
-    this._logger.info({range}, `FetchMessagesInFolder: Deep attribute scan: fetching attributes in range`)
+    // this._logger.info({range}, `FetchMessagesInFolder: Deep attribute scan: fetching attributes in range`)
 
     const remoteUIDAttributes = await this._box.fetchUIDAttributes(range)
     const localMessageAttributes = await Message.findAll({
@@ -421,7 +421,7 @@ class FetchMessagesInFolder {
       deletes: this._removeDeletedMessages(remoteUIDAttributes, localMessageAttributes),
     })
 
-    this._logger.info(`FetchMessagesInFolder: Deep scan finished.`);
+    // this._logger.info(`FetchMessagesInFolder: Deep scan finished.`);
 
     return this.updateFolderSyncState({
       highestmodseq: this._box.highestmodseq,
@@ -439,6 +439,7 @@ class FetchMessagesInFolder {
   }
 
   async run(db, imap) {
+    console.log(`🔃 📂 ${this._folder.name}`)
     this._db = db;
     this._imap = imap;
 
