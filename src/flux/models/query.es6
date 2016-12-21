@@ -295,8 +295,8 @@ export default class ModelQuery {
         }
         return object;
       });
-    } catch (jsonError) {
-      throw new Error(`Query could not parse the database result. Query: ${this.sql()}, Error: ${jsonError.toString()}`);
+    } catch (error) {
+      throw new Error(`Query could not parse the database result. Query: ${this.sql()}, Error: ${error.toString()}`);
     }
   }
 

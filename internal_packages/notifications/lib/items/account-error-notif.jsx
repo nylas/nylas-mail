@@ -1,5 +1,5 @@
 import {shell, ipcRenderer} from 'electron';
-import {React, Account, AccountStore, Actions, IdentityStore} from 'nylas-exports';
+import {React, Account, AccountStore, Actions} from 'nylas-exports';
 import {Notification} from 'nylas-component-kit';
 
 export default class AccountErrorNotification extends React.Component {
@@ -37,8 +37,13 @@ export default class AccountErrorNotification extends React.Component {
     Actions.openPreferences()
   }
 
-  _onCheckAgain = () => {
-    return IdentityStore.refreshIdentityAndAccounts();
+  _onCheckAgain(account) {
+    if (account) {
+      Actions.wakeLocalSyncWorkerForAccount(account.id)
+      return
+    }
+    const erroredAccounts = this.state.accounts.filter(a => a.hasSyncStateError());
+    erroredAccounts.forEach(acc => Actions.wakeLocalSyncWorkerForAccount(acc.id))
   }
 
   render() {
@@ -53,7 +58,7 @@ export default class AccountErrorNotification extends React.Component {
       title = "Several of your accounts are having issues";
       actions = [{
         label: "Check Again",
-        fn: this._onCheckAgain,
+        fn: () => this._onCheckAgain(),
       }, {
         label: "Manage",
         fn: this._onOpenAccountPreferences,
@@ -61,11 +66,11 @@ export default class AccountErrorNotification extends React.Component {
     } else {
       const erroredAccount = erroredAccounts[0];
       switch (erroredAccount.syncState) {
-        case Account.N1_CLOUD_AUTH_FAILED:
+        case Account.SYNC_STATE_N1_CLOUD_AUTH_FAILED:
           title = `Cannot authenticate N1 Cloud Services with ${erroredAccount.emailAddress}`;
           actions = [{
             label: "Check Again",
-            fn: this._onCheckAgain,
+            fn: () => this._onCheckAgain(erroredAccount),
           }, {
             label: 'Reconnect',
             fn: () => this._onReconnect(erroredAccount),
@@ -75,28 +80,19 @@ export default class AccountErrorNotification extends React.Component {
           title = `Cannot authenticate with ${erroredAccount.emailAddress}`;
           actions = [{
             label: "Check Again",
-            fn: this._onCheckAgain,
+            fn: () => this._onCheckAgain(erroredAccount),
           }, {
             label: 'Reconnect',
             fn: () => this._onReconnect(erroredAccount),
           }];
           break;
-        case Account.SYNC_STATE_STOPPED:
-          title = `Sync has been disabled for ${erroredAccount.emailAddress}`;
-          subtitle = "Contact support";
-          subtitleAction = this._onContactSupport;
-          actions = [{
-            label: "Check Again",
-            fn: this._onCheckAgain,
-          }];
-          break;
         default:
-          title = `Encountered an error with ${erroredAccount.emailAddress}`;
+          title = `Encountered an error while syncing ${erroredAccount.emailAddress}`;
           subtitle = "Contact support";
           subtitleAction = this._onContactSupport;
           actions = [{
             label: "Check Again",
-            fn: this._onCheckAgain,
+            fn: () => this._onCheckAgain(erroredAccount),
           }];
       }
     }

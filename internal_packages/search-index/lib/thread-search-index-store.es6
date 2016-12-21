@@ -128,8 +128,9 @@ class ThreadSearchIndexStore {
     }
     _.defer(() => {
       const {objects, type} = change
-      const {isSyncCompleteForAccount} = NylasSyncStatusStore
-      const threads = objects.filter(({accountId}) => isSyncCompleteForAccount(accountId))
+      const threads = objects.filter(({accountId}) =>
+        NylasSyncStatusStore.isSyncCompleteForAccount(accountId)
+      )
 
       let promises = []
       if (type === 'persist') {

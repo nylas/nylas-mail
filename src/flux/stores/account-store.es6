@@ -211,6 +211,7 @@ class AccountStore extends NylasStore {
       this._accounts.push(account)
     } else {
       const account = this._accounts[existingIdx]
+      account.syncState = Account.SYNC_STATE_RUNNING
       account.fromJSON(json)
     }
 
@@ -290,6 +291,15 @@ class AccountStore extends NylasStore {
   // Public: Returns the {Account} for the given account id, or null.
   accountForId(id) {
     return this._cachedGetter(`accountForId:${id}`, () => _.findWhere(this._accounts, {id}))
+  }
+
+  accountIsSyncing(accountId) {
+    const account = this.accountForId(accountId)
+    return !account.hasSyncStateError()
+  }
+
+  accountsAreSyncing() {
+    return this.accounts().every(acc => !acc.hasSyncStateError())
   }
 
   emailAddresses() {
