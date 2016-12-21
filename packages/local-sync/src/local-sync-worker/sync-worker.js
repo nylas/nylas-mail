@@ -244,6 +244,7 @@ class SyncWorker {
 
   async runSyncbackTask(task) {
     const syncbackRequest = task.syncbackRequestObject();
+    console.log(`🔃 📤 ${syncbackRequest.type}`, syncbackRequest.props)
     try {
       const responseJSON = await this._conn.runOperation(task);
       syncbackRequest.status = "SUCCEEDED";
