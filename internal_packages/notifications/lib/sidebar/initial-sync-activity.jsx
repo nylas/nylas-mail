@@ -8,7 +8,11 @@ export default class InitialSyncActivity extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = this.getStateFromStores();
+    this.state = {
+      isExpanded: false,
+      syncState: NylasSyncStatusStore.getSyncState(),
+      syncProgress: NylasSyncStatusStore.getSyncProgress(),
+    }
   }
 
   componentDidMount() {
@@ -22,35 +26,15 @@ export default class InitialSyncActivity extends React.Component {
   }
 
   onDataChanged = () => {
-    this.setState(this.getStateFromStores());
-  }
-
-  getStateFromStores() {
-    return {
-      syncState: NylasSyncStatusStore.state(),
-    };
-  }
-
-  /*
-    Iterate through the sync progress of each folder of each account and get a
-    normalized progress value (0: not started, 1: sync complete) for all syncs.
-  */
-  calculateProgress() {
-    let count = 0;
-    const total = _.values(this.state.syncState).reduce((outerSum, accountSyncState) => {
-      return outerSum + _.values(accountSyncState.folderSyncProgress).reduce((innerSum, progress) => {
-        count++;
-        return innerSum + progress;
-      }, 0)
-    }, 0);
-
-    return count ? (total / count) : 0;
+    const syncState = NylasSyncStatusStore.getSyncState()
+    const syncProgress = NylasSyncStatusStore.getSyncProgress()
+    this.setState({syncState, syncProgress});
   }
 
   hideExpandedState = (event) => {
     event.stopPropagation(); // So it doesn't reach the parent's onClick
     event.preventDefault();
-    this.setState({expandedSync: false});
+    this.setState({isExpanded: false});
   }
 
   renderExpandedSyncState() {
@@ -60,7 +44,8 @@ export default class InitialSyncActivity extends React.Component {
         return false;
       }
 
-      const folderStates = _.map(accountSyncState.folderSyncProgress, (progress, name) => {
+      const {folderSyncProgress} = accountSyncState
+      const folderStates = _.map(folderSyncProgress, ({progress}, name) => {
         return this.renderFolderProgress(name, progress)
       })
 
@@ -104,7 +89,7 @@ export default class InitialSyncActivity extends React.Component {
   }
 
   render() {
-    const progress = this.calculateProgress();
+    const {syncProgress: {progress}} = this.state
     if (progress === 1) {
       return false;
     }
@@ -124,14 +109,14 @@ export default class InitialSyncActivity extends React.Component {
 
     const classSet = classNames({
       'item': true,
-      'expanded-sync': this.state.expandedSync,
+      'expanded-sync': this.state.isExpanded,
     });
 
     return (
       <div
         className={classSet}
         key="initial-sync"
-        onClick={() => (progress ? this.setState({expandedSync: !this.state.expandedSync}) : null)}
+        onClick={() => (progress ? this.setState({isExpanded: !this.state.isExpanded}) : null)}
       >
         {this.renderProgressBar(progress)}
         {innerContent}

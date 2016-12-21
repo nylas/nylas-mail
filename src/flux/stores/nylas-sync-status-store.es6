@@ -22,8 +22,14 @@ import CategoryStore from './category-store'
  *     n1Cloud,
  *   },
  *   folderSyncProgress: {
- *     inbox: 0.5,
- *     archive: 0.2,
+ *     inbox: {
+ *       progress: 0.5,
+ *       total: 100,
+ *     }
+ *     archive: {
+ *       progress: 0.2,
+ *       total: 600,
+ *     },
  *     ...
  *   }
  * }
@@ -85,11 +91,11 @@ class NylasSyncStatusStore extends NylasStore {
         const {uidnext, fetchedmin, fetchedmax} = folder.syncState || {}
         if (uidnext) {
           const progress = (+fetchedmax - +fetchedmin + 1) / uidnext
-          updates[name] = progress
+          updates[name] = {progress, total: uidnext}
         } else {
           // We don't have a uidnext if the sync hasn't started at all,
           // but we've found the folder.
-          updates[name] = 0
+          updates[name] = {progress: 0, total: null}
         }
       }
       this._updateState(accountId, {folderSyncProgress: updates})
@@ -107,8 +113,49 @@ class NylasSyncStatusStore extends NylasStore {
     this._triggerDebounced()
   }
 
-  state() {
+  getSyncState() {
     return this._statesByAccount
+  }
+
+  /**
+   * Returns the weighted sync progress for all accounts as a percentage, and
+   * the total number of messages to sync for a given account
+   */
+  getSyncProgressForAccount(accountId) {
+    const {folderSyncProgress} = this._statesByAccount[accountId]
+    const folderNames = Object.keys(folderSyncProgress)
+    const progressPerFolder = folderNames.map(fname => folderSyncProgress[fname])
+    const weightedProgress = progressPerFolder.reduce(
+      (accum, {progress, total}) => accum + progress * total, 0
+    )
+    const totalMessageCount = progressPerFolder.reduce(
+      (accum, {total}) => accum + total, 0
+    )
+    return {
+      progress: weightedProgress / totalMessageCount,
+      total: totalMessageCount,
+    }
+  }
+
+  /**
+   * Returns the weighted sync progress for all accounts as a percentage, and
+   * the total number of messages to sync
+   */
+  getSyncProgress() {
+    const accountIds = AccountStore.accountIds()
+    const progressPerAccount = (
+      accountIds.map(accId => this.getSyncProgressForAccount(accId))
+    )
+    const weightedProgress = progressPerAccount.reduce(
+      (accum, {progress, total}) => accum + progress * total, 0
+    )
+    const totalMessageCount = progressPerAccount.reduce(
+      (accum, {total}) => accum + total, 0
+    )
+    return {
+      progress: weightedProgress / totalMessageCount,
+      total: totalMessageCount,
+    }
   }
 
   /**
@@ -123,7 +170,7 @@ class NylasSyncStatusStore extends NylasStore {
     if (!state) { return false }
     const folderNames = Object.keys(state.folderSyncProgress || {})
     if (folderNames.length === 0) { return false }
-    return folderNames.some((name) => state.folderSyncProgress[name] !== 0)
+    return folderNames.some((fname) => state.folderSyncProgress[fname].progress !== 0)
   }
 
   whenCategoryListSynced(accountId) {
@@ -149,11 +196,11 @@ class NylasSyncStatusStore extends NylasStore {
     }
 
     if (folderName) {
-      return state.folderSyncProgress[folderName] >= 1
+      return state.folderSyncProgress[folderName].progress >= 1
     }
     const folderNames = Object.keys(state.folderSyncProgress)
     for (const fname of folderNames) {
-      const syncProgress = state.folderSyncProgress[fname]
+      const syncProgress = state.folderSyncProgress[fname].progress
       if (syncProgress < 1) {
         return false
       }
