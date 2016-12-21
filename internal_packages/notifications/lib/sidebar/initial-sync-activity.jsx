@@ -47,7 +47,13 @@ export default class InitialSyncActivity extends React.Component {
     return count ? (total / count) : 0;
   }
 
-  expandedSyncState() {
+  hideExpandedState = (event) => {
+    event.stopPropagation(); // So it doesn't reach the parent's onClick
+    event.preventDefault();
+    this.setState({expandedSync: false});
+  }
+
+  renderExpandedSyncState() {
     const accounts = _.map(this.state.syncState, (accountSyncState, accountId) => {
       const account = _.findWhere(AccountStore.accounts(), {id: accountId});
       if (!account) {
@@ -72,12 +78,6 @@ export default class InitialSyncActivity extends React.Component {
         <a className="close-expanded" onClick={this.hideExpandedState}>Hide</a>
       </div>
     )
-  }
-
-  hideExpandedState = (event) => {
-    event.stopPropagation(); // So it doesn't reach the parent's onClick
-    event.preventDefault();
-    this.setState({expandedSync: false});
   }
 
   renderFolderProgress(name, progress) {
