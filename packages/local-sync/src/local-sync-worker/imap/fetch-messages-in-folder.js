@@ -264,11 +264,12 @@ class FetchMessagesInFolder {
         // TODO investigate batching processing new messages
         // We could measure load of actual sync vs load of just message processing
         // to determine how meaningful it is
-        processNewMessage(messageValues, imapMessage)
+        await processNewMessage(messageValues, imapMessage)
         // this._logger.info({
         //   message: messageValues,
         // }, `FetchMessagesInFolder: Queued new message for processing`)
       }
+      console.log(`🔃 ✉️ "${messageValues.subject}" - ${messageValues.date}`)
     } catch (err) {
       this._logger.error(err, {
         imapMessage,
