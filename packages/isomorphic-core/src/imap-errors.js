@@ -1,8 +1,9 @@
+const {NylasError} = require('./errors')
 /**
  * An abstract base class that can be used to indicate IMAPErrors that may
  * fix themselves when retried
  */
-class RetryableError extends Error { }
+class RetryableError extends NylasError { }
 
 /**
  * IMAPErrors that originate from NodeIMAP. See `convertImapError` for
@@ -11,8 +12,8 @@ class RetryableError extends Error { }
 class IMAPSocketError extends RetryableError { }
 class IMAPConnectionTimeoutError extends RetryableError { }
 class IMAPAuthenticationTimeoutError extends RetryableError { }
-class IMAPProtocolError extends Error { }
-class IMAPAuthenticationError extends Error { }
+class IMAPProtocolError extends NylasError { }
+class IMAPAuthenticationError extends NylasError { }
 
 class IMAPConnectionNotReadyError extends RetryableError {
   constructor(funcName) {
@@ -20,7 +21,7 @@ class IMAPConnectionNotReadyError extends RetryableError {
   }
 }
 
-class IMAPConnectionEndedError extends Error {
+class IMAPConnectionEndedError extends NylasError {
   constructor(msg = "The IMAP Connection was ended.") {
     super(msg);
   }

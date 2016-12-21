@@ -1,11 +1,5 @@
 
-class APIError extends Error {
-  constructor(message, statusCode, data) {
-    super(message);
-    this.statusCode = statusCode;
-    this.data = data;
-  }
-
+class NylasError extends Error {
   toJSON() {
     const json = super.toJSON() || {}
     Object.getOwnPropertyNames(this).forEach((key) => {
@@ -15,6 +9,15 @@ class APIError extends Error {
   }
 }
 
+class APIError extends NylasError {
+  constructor(message, statusCode, data) {
+    super(message);
+    this.statusCode = statusCode;
+    this.data = data;
+  }
+}
+
 module.exports = {
+  NylasError,
   APIError,
 }

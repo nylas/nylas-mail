@@ -27,10 +27,10 @@ module.exports = (sequelize, Sequelize) => {
       },
     ],
     classMethods: {
-      associate: (data = {}) => {
+      associate(data = {}) {
         Account.hasMany(data.AccountToken, {as: 'tokens'})
       },
-      upsertWithCredentials: (accountParams, credentials) => {
+      upsertWithCredentials(accountParams, credentials) {
         if (!accountParams || !credentials || !accountParams.emailAddress) {
           throw new Error("Need to pass accountParams and credentials to upsertWithCredentials")
         }
