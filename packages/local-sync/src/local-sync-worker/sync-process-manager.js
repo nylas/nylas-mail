@@ -1,4 +1,5 @@
 const _ = require('underscore')
+const {Actions} = require('nylas-exports')
 const SyncWorker = require('./sync-worker');
 const LocalDatabaseConnector = require('../shared/local-database-connector')
 
@@ -30,6 +31,10 @@ class SyncProcessManager {
     this._exiting = false;
     this._accounts = []
     this._logger = global.Logger.child();
+
+    Actions.wakeLocalSyncWorkerForAccount.listen((accountId) =>
+      this.wakeWorkerForAccount(accountId)
+    )
   }
 
   /**
@@ -49,8 +54,8 @@ class SyncProcessManager {
   workers() { return _.values(this._workers) }
   dbs() { return this.workers().map(w => w._db) }
 
-  wakeWorkerForAccount(account, {reason = 'Waking sync', priority} = {}) {
-    const worker = this._workers[account.id]
+  wakeWorkerForAccount(accountId, {reason = 'Waking sync', priority} = {}) {
+    const worker = this._workers[accountId]
     if (worker) {
       worker.syncNow({reason, priority});
     }

@@ -93,7 +93,8 @@ server.register(plugins, (err) => {
   registerErrorFormatDecorator(server)
 
   server.auth.strategy('api-consumer', 'basic', {
-    validateFunc: apiAuthenticate });
+    validateFunc: apiAuthenticate,
+  });
   server.auth.default('api-consumer');
 
   server.start((startErr) => {

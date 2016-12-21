@@ -42,7 +42,7 @@ class AccountCard extends React.Component {
       Account.find({where: {id: this.props.account.id}}).then((account) => {
         account.syncError = null;
         account.save().then(() => {
-          SyncProcessManager.wakeWorkerForAccount(account);
+          SyncProcessManager.wakeWorkerForAccount(account.id);
         });
       })
     });

@@ -11,7 +11,7 @@ module.exports = {
     const syncbackRequest = await db.SyncbackRequest.create(syncRequestArgs)
 
     const priority = syncbackImmediately ? 10 : 1;
-    SyncProcessManager.wakeWorkerForAccount(account, {priority})
+    SyncProcessManager.wakeWorkerForAccount(account.id, {priority})
     reply(Serialization.jsonStringify(syncbackRequest))
   },
 }

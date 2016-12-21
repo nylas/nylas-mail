@@ -3,14 +3,17 @@ const {
   IMAPErrors,
   PromiseUtils,
 } = require('isomorphic-core');
+const {
+  Actions,
+  N1CloudAPI,
+  NylasAPIRequest,
+  Account: {SYNC_STATE_RUNNING, SYNC_STATE_AUTH_FAILED, SYNC_STATE_ERROR},
+} = require('nylas-exports')
 const LocalDatabaseConnector = require('../shared/local-database-connector')
-const {jsonError} = require('./sync-utils')
 const FetchFolderList = require('./imap/fetch-folder-list')
 const FetchMessagesInFolder = require('./imap/fetch-messages-in-folder')
 const SyncbackTaskFactory = require('./syncback-task-factory')
 const SyncMetricsReporter = require('./sync-metrics-reporter');
-const {NylasAPI, N1CloudAPI, NylasAPIRequest, NylasAPIHelpers} = require('nylas-exports');
-
 
 const RESTART_THRESHOLD = 10
 
@@ -68,76 +71,13 @@ class SyncWorker {
     this.syncNow({reason: "You've got mail!"});
   }
 
-  async _getAccount() {
-    const {Account} = await LocalDatabaseConnector.forShared()
-    Account.find({where: {id: this._account.id}})
-  }
-
   _getIdleFolder() {
     return this._db.Folder.find({where: {role: ['all', 'inbox']}})
   }
 
-  async ensureConnection() {
-    if (this._conn) {
-      return await this._conn.connect();
-    }
-    const settings = this._account.connectionSettings;
-    let credentials = this._account.decryptedCredentials();
-
-    if (!settings || !settings.imap_host) {
-      throw new Error("ensureConnection: There are no IMAP connection settings for this account.");
-    }
-    if (!credentials) {
-      throw new Error("ensureConnection: There are no IMAP connection credentials for this account.");
-    }
-
-    if (this._account.provider == 'gmail') {
-      // Before creating a connection, check if the our access token expired.
-      // If yes, we need to get a new one.
-      const currentUnixDate =  Math.floor(Date.now() / 1000);
-
-      if (currentUnixDate > credentials.expiry_date) {
-        const req = new NylasAPIRequest({
-          api: N1CloudAPI,
-          options: {
-            path: `/auth/gmail/refresh`,
-            method: 'POST',
-            accountId: this._account.id,
-          },
-        });
-
-        try {
-          const newCredentials = await req.run()
-          this._account.setCredentials(newCredentials);
-          await this._account.save()
-
-          credentials = newCredentials;
-          this._logger.info("Refreshed and updated access token.");
-        } catch (error) {
-          const accountToken = NylasAPI.accessTokenForAccountId(this._account.id);
-          NylasAPIHelpers.handleAuthenticationFailure('/auth/gmail/refresh', accountToken);
-          throw new Error("Unable to authenticate to the remote server.");
-        }
-      }
-    }
-
-    const conn = new IMAPConnection({
-      db: this._db,
-      settings: Object.assign({}, settings, credentials),
-      logger: this._logger,
-      account: this._account,
-    });
-
-    conn.on('mail', () => {
-      this._onConnectionIdleUpdate();
-    })
-    conn.on('update', () => {
-      this._onConnectionIdleUpdate();
-    })
-    conn.on('queue-empty', () => {});
-
-    this._conn = conn;
-    return await this._conn.connect();
+  async _getAccount() {
+    const {Account} = await LocalDatabaseConnector.forShared()
+    Account.find({where: {id: this._account.id}})
   }
 
   /**
@@ -146,7 +86,7 @@ class SyncWorker {
    *
    * We want to make sure that we run the tasks that affect IMAP uids last, and
    * that we don't  run 2 tasks that will affect the same set of UIDS together,
-   * i.e. without running a sync loop in between.
+   * i.e. without running a sync loop in between them.
    *
    * For example, if there's a task to change the labels of a message, and also
    * a task to move that message to another folder, we need to run the label
@@ -222,6 +162,82 @@ class SyncWorker {
     )
   }
 
+  async _ensureAccessToken() {
+    if (this._account.provider !== 'gmail') {
+      return null
+    }
+
+    try {
+      const credentials = this._account.decryptedCredentials()
+      if (!credentials) {
+        throw new Error("ensureAccessToken: There are no IMAP connection credentials for this account.");
+      }
+
+      const currentUnixDate = Math.floor(Date.now() / 1000);
+      if (currentUnixDate > credentials.expiry_date) {
+        const req = new NylasAPIRequest({
+          api: N1CloudAPI,
+          options: {
+            path: `/auth/gmail/refresh`,
+            method: 'POST',
+            accountId: this._account.id,
+          },
+        });
+
+        const newCredentials = await req.run()
+        this._account.setCredentials(newCredentials);
+        await this._account.save()
+        return newCredentials
+      }
+      return null
+    } catch (err) {
+      this._logger.error(err, 'Unable to refresh access token')
+      throw new IMAPErrors.IMAPAuthenticationError(`Unable to refresh access token`)
+    }
+  }
+
+  async ensureConnection() {
+    const newCredentials = await this._ensureAccessToken()
+
+    if (!newCredentials && this._conn) {
+      // We already have a connection and we don't need to update the
+      // credentials
+      return this._conn.connect();
+    }
+
+    if (newCredentials) {
+      this._logger.info("Refreshed and updated access token.");
+    }
+
+    const settings = this._account.connectionSettings;
+    const credentials = newCredentials || this._account.decryptedCredentials();
+
+    if (!settings || !settings.imap_host) {
+      throw new Error("ensureConnection: There are no IMAP connection settings for this account.");
+    }
+    if (!credentials) {
+      throw new Error("ensureConnection: There are no IMAP connection credentials for this account.");
+    }
+
+    const conn = new IMAPConnection({
+      db: this._db,
+      settings: Object.assign({}, settings, credentials),
+      logger: this._logger,
+      account: this._account,
+    });
+
+    conn.on('mail', () => {
+      this._onConnectionIdleUpdate();
+    })
+    conn.on('update', () => {
+      this._onConnectionIdleUpdate();
+    })
+    conn.on('queue-empty', () => {});
+
+    this._conn = conn;
+    return this._conn.connect();
+  }
+
   cleanup() {
     clearTimeout(this._syncTimer);
     this._syncTimer = null;
@@ -233,6 +249,7 @@ class SyncWorker {
     if (this._conn) {
       this._conn.end();
     }
+    this._conn = null
   }
 
   async runNewSyncbackTasks() {
@@ -338,7 +355,14 @@ class SyncWorker {
       return Promise.resolve()
     }
 
-    this._account.syncError = jsonError(error)
+    const isAuthError = error instanceof IMAPErrors.IMAPAuthenticationError
+    const errorJSON = error.toJSON()
+    const accountSyncState = isAuthError ? SYNC_STATE_AUTH_FAILED : SYNC_STATE_ERROR;
+    // TODO this is currently a hack to keep N1's account in sync and notify of
+    // sync errors. This should go away when we merge the databases
+    Actions.updateAccount(this._account.id, {syncState: accountSyncState, syncError: errorJSON})
+
+    this._account.syncError = errorJSON
     return this._account.save()
   }
 
@@ -357,10 +381,15 @@ class SyncWorker {
       lastSyncCompletions.pop();
     }
 
+    // TODO this is currently a hack to keep N1's account in sync and notify of
+    // sync errors. This should go away when we merge the databases
+    Actions.updateAccount(this._account.id, {syncState: SYNC_STATE_RUNNING})
+
+    this._account.lastSyncCompletions = lastSyncCompletions;
+    await this._account.save();
+
     console.log(`🔃 🔚 took ${now - this._syncStart}ms`)
     // this._logger.info('Syncworker: Completed sync cycle');
-    this._account.lastSyncCompletions = lastSyncCompletions;
-    this._account.save();
 
     // Start idling on the inbox
     const idleFolder = await this._getIdleFolder();

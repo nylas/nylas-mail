@@ -84,15 +84,20 @@ export default function registerAuthRoutes(server) {
         },
       },
     },
-    handler: (request, reply) => {
+    async handler(request, reply) {
       request.logger.info("Redirecting to Gmail OAuth")
-      const oauthClient = GAuth.newOAuthClient();
-      reply.redirect(oauthClient.generateAuthUrl({
-        access_type: 'offline',
-        prompt: 'consent',
-        scope: SCOPES,
-        state: request.query.state,
-      }));
+      try {
+        const oauthClient = GAuth.newOAuthClient();
+        const authUrl = oauthClient.generateAuthUrl({
+          access_type: 'offline',
+          prompt: 'consent',
+          scope: SCOPES,
+          state: request.query.state,
+        });
+        reply.redirect(authUrl)
+      } catch (err) {
+        reply(Boom.wrap(err))
+      }
     },
   });
 
@@ -114,7 +119,7 @@ export default function registerAuthRoutes(server) {
       },
     },
 
-    handler: async (request, reply) => {
+    async handler(request, reply) {
       request.logger.info("Have Google OAuth Code. Exchanging for token")
       const log = request.logger
       const code = request.query.code
@@ -130,9 +135,9 @@ export default function registerAuthRoutes(server) {
         const account = await GAuth.createCloudAccount(settings, profile)
         request.logger.info("Creating PendingAuthResponse")
         await GAuth.createPendingAuthResponse(account, settings, n1Key)
-        return reply("Thanks! Go back to N1 now.");
+        reply("Thanks! Go back to N1 now.");
       } catch (err) {
-        return reply(Boom.wrap(err))
+        reply(Boom.wrap(err))
       }
     },
   });
@@ -153,29 +158,31 @@ export default function registerAuthRoutes(server) {
         },
       },
     },
-    handler: async (request, reply) => {
+    async handler(request, reply) {
       const {PendingAuthResponse} = await DatabaseConnector.forShared();
       let tokenData = null;
       try {
         tokenData = await PendingAuthResponse.find({where:
           {pendingAuthKey: request.query.key},
         })
-        if (!tokenData) return reply(Boom.notFound())
+        if (!tokenData) {
+          return reply(Boom.notFound())
+        }
       } catch (err) {
         return reply(Boom.notFound())
       }
       if (!tokenData.response) {
         return reply(Boom.badImplementation("Malformed PendingAuthResponse", tokenData))
       }
-      reply(tokenData.response)
-      return tokenData.destroy()
+      await tokenData.destroy()
+      return reply(tokenData.response)
     },
   });
 
   server.route({
     method: "POST",
     path: "/auth/gmail/refresh",
-    handler: (request, reply) => {
+    handler(request, reply) {
       const {account} = request.auth.credentials;
       const oauthClient = new OAuth2(GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL);
       const credentials = account.decryptedCredentials();
