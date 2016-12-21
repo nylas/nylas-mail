@@ -12,7 +12,6 @@ const SyncMetricsReporter = require('./sync-metrics-reporter');
 const {NylasAPI, N1CloudAPI, NylasAPIRequest, NylasAPIHelpers} = require('nylas-exports');
 
 
-
 const RESTART_THRESHOLD = 10
 
 class SyncWorker {
@@ -66,7 +65,7 @@ class SyncWorker {
   }
 
   _onConnectionIdleUpdate() {
-    this.syncNow({reason: 'IMAP IDLE Fired'});
+    this.syncNow({reason: "You've got mail!"});
   }
 
   async _getAccount() {
@@ -383,7 +382,15 @@ class SyncWorker {
       this._interrupted ||
       this._syncAttemptsWhileInProgress > 0
     )
-    const reason = this._interrupted ? 'Sync interrupted for restart' : 'Scheduled'
+
+    let reason = "Idle scheduled"
+    if (moreToSync) {
+      reason = "More to sync"
+    } else if (this._interrupted) {
+      reason = "Sync interrupted by high priority task"
+    } else if (this._syncAttemptsWhileInProgress > 0) {
+      reason = "Sync requested while in progress"
+    }
     const interval = shouldSyncImmediately ? 1 : intervals.active;
     const nextSyncIn = Math.max(1, this._lastSyncTime + interval - Date.now())
 
