@@ -295,10 +295,10 @@ class IMAPConnection extends EventEmitter {
 
     resultPromise.then((maybeResult) => {
       this._currentOperation = null;
-      this._logger.info({
-        operation_type: operation.constructor.name,
-        operation_description: operation.description(),
-      }, `Finished sync operation`)
+      // this._logger.info({
+      //   operation_type: operation.constructor.name,
+      //   operation_description: operation.description(),
+      // }, `Finished sync operation`)
       resolve(maybeResult);
       this.processNextOperation();
     })
