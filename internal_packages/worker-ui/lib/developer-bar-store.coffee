@@ -91,7 +91,7 @@ class DeveloperBarStore extends NylasStore
 
   _onSyncStatusChanged: ->
     @_longPollStates = {}
-    _.forEach NylasSyncStatusStore.state(), (state, accountId) =>
+    _.forEach NylasSyncStatusStore.getSyncState(), (state, accountId) =>
       @_longPollStates[accountId] = state.deltaStatus
     @trigger()
 
