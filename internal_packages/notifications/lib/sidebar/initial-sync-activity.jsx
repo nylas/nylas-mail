@@ -110,14 +110,16 @@ export default class InitialSyncActivity extends React.Component {
     }
 
     const innerContent = []
-    if (progress === 0) {
-      // On application start, the NylasSyncStatusStore takes awhile to populate
-      // the folderSyncProgress fields. Don't let the user expand the details,
-      // because they'll be empty.
-      innerContent.push(<div className="inner" key="0">Preparing to sync your mailbox&hellip;</div>);
-    } else {
-      innerContent.push(<div className="inner" key="0">Syncing your mailbox&hellip;</div>);
-      innerContent.push(this.expandedSyncState());
+    if (AccountStore.accountsAreSyncing()) {
+      if (progress === 0) {
+        // On application start, the NylasSyncStatusStore takes awhile to populate
+        // the folderSyncProgress fields. Don't let the user expand the details,
+        // because they'll be empty.
+        innerContent.push(<div className="inner" key="0">Preparing to sync your mailbox&hellip;</div>);
+      } else {
+        innerContent.push(<div className="inner" key="0">Syncing your mailbox&hellip;</div>);
+        innerContent.push(this.renderExpandedSyncState());
+      }
     }
 
     const classSet = classNames({

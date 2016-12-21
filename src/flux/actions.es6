@@ -116,6 +116,9 @@ class Actions {
   static willMakeAPIRequest = ActionScopeWorkWindow;
   static didMakeAPIRequest = ActionScopeWorkWindow;
 
+
+  static wakeLocalSyncWorkerForAccount = ActionScopeGlobal;
+
   /*
   Public: Retry the initial sync
 

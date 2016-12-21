@@ -35,11 +35,12 @@ class NylasSyncStatusStore extends NylasStore {
     super()
     this._statesByAccount = {}
     this._subscriptions = new Map()
+    this._triggerDebounced = _.debounce(this.trigger, 100)
 
     this.listenTo(AccountStore, () => this._onAccountsChanged())
     this.listenTo(CategoryStore, () => this._onCategoriesChanged())
 
-    this._triggerDebounced = _.debounce(this.trigger, 100)
+    this._onCategoriesChanged()
     this._setupSubscriptions(AccountStore.accountIds())
   }
 
@@ -73,7 +74,7 @@ class NylasSyncStatusStore extends NylasStore {
   }
 
   _onCategoriesChanged() {
-    const accountIds = Object.keys(this._statesByAccount)
+    const accountIds = AccountStore.accountIds()
     for (const accountId of accountIds) {
       const folders = CategoryStore.categories(accountId)
       .filter(cat => cat.object === 'folder')

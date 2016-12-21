@@ -186,7 +186,7 @@ export function handleAuthenticationFailure(modelUrl, apiToken, apiName) {
   if (account) {
     let syncState = Account.SYNC_STATE_AUTH_FAILED
     if (apiName === "N1CloudAPI") {
-      syncState = Account.N1_CLOUD_AUTH_FAILED
+      syncState = Account.SYNC_STATE_N1_CLOUD_AUTH_FAILED
     }
     Actions.updateAccount(account.id, {syncState})
   }

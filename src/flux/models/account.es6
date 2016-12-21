@@ -33,9 +33,11 @@ let Contact = null
 export default class Account extends ModelWithMetadata {
 
   static SYNC_STATE_RUNNING = "running"
-  static SYNC_STATE_STOPPED = "stopped"
+
   static SYNC_STATE_AUTH_FAILED = "invalid"
-  static N1_CLOUD_AUTH_FAILED = "n1_cloud_auth_failed"
+
+  static SYNC_STATE_N1_CLOUD_AUTH_FAILED = "n1_cloud_auth_failed"
+
   static SYNC_STATE_ERROR = "sync_error"
 
   static attributes = Object.assign({}, ModelWithMetadata.attributes, {
@@ -74,6 +76,11 @@ export default class Account extends ModelWithMetadata {
     syncState: Attributes.String({
       modelKey: 'syncState',
       jsonKey: 'sync_state',
+    }),
+
+    syncError: Attributes.Object({
+      modelKey: 'syncError',
+      jsonKey: 'sync_error',
     }),
   });
 
@@ -186,8 +193,6 @@ export default class Account extends ModelWithMetadata {
   }
 
   hasSyncStateError() {
-    // TODO: ignoring "stopped" until it's no longer overloaded on API
-    return this.syncState !== Account.SYNC_STATE_RUNNING &&
-        this.syncState !== Account.SYNC_STATE_STOPPED
+    return this.syncState !== Account.SYNC_STATE_RUNNING
   }
 }

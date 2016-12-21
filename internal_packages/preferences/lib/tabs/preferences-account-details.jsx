@@ -159,11 +159,6 @@ class PreferencesAccountDetails extends Component {
             authentication may have changed.`,
             "Reconnect",
             this._onReconnect);
-        case Account.SYNC_STATE_STOPPED:
-          return this._renderErrorDetail(
-            `The cloud sync for ${account.emailAddress} has been disabled. Please contact Nylas support.`,
-            "Contact support",
-            this._onContactSupport);
         default:
           return this._renderErrorDetail(
             `Nylas encountered an error while syncing mail for ${account.emailAddress}. Contact Nylas support for details.`,
