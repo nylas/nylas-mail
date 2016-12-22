@@ -1,4 +1,3 @@
-
 function collectFilesFromStruct({db, message, struct, fileIds = new Set()}) {
   const {File} = db;
   let collected = [];
@@ -34,8 +33,7 @@ function collectFilesFromStruct({db, message, struct, fileIds = new Set()}) {
   return collected;
 }
 
-async function extractFiles({db, message, imapMessage}) {
-  const {attributes: {struct}} = imapMessage
+async function extractFiles({db, message, struct}) {
   const files = collectFilesFromStruct({db, message, struct});
   if (files.length > 0) {
     for (const file of files) {

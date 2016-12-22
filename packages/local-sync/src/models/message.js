@@ -1,7 +1,7 @@
 const crypto = require('crypto')
 const striptags = require('striptags');
 const {PromiseUtils, IMAPConnection} = require('isomorphic-core')
-const {DatabaseTypes: {JSONColumn, JSONArrayColumn}} = require('isomorphic-core');
+const {DatabaseTypes: {JSONArrayColumn}} = require('isomorphic-core');
 const {Errors: {APIError}} = require('isomorphic-core')
 
 
@@ -20,8 +20,8 @@ module.exports = (sequelize, Sequelize) => {
     version: Sequelize.INTEGER,
     headerMessageId: Sequelize.STRING,
     gMsgId: { type: Sequelize.STRING, allowNull: true },
+    gThrId: { type: Sequelize.STRING, allowNull: true },
     body: Sequelize.TEXT,
-    headers: JSONColumn('headers'),
     subject: Sequelize.STRING(500),
     snippet: Sequelize.STRING(255),
     date: Sequelize.DATE,
@@ -171,6 +171,10 @@ module.exports = (sequelize, Sequelize) => {
           .then((imapBox) => imapBox.fetchMessage(this.folderImapUID))
           .then((message) => {
             if (message) {
+              // TODO: this can mangle the raw body of the email because it
+              // does not respect the charset specified in the headers, which
+              // MUST be decoded before you can figure out how to interpret the
+              // body MIME bytes
               return Promise.resolve(`${message.headers}${message.parts.TEXT}`)
             }
             return Promise.reject(new Error(`Unable to fetch raw message for Message ${this.id}`))
