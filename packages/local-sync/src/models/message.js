@@ -212,8 +212,8 @@ module.exports = (sequelize, Sequelize) => {
           date: this.date ? this.date.getTime() / 1000.0 : null,
           unread: this.unread,
           starred: this.starred,
-          folder: this.folder,
-          labels: this.labels,
+          folder: this.folder.toJSON(),
+          labels: this.labels.map(l => l.toJSON()),
           thread_id: this.threadId,
         };
       },

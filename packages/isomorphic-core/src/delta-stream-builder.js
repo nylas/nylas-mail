@@ -2,9 +2,19 @@ const _ = require('underscore');
 const Rx = require('rx')
 const stream = require('stream');
 
-function stringifyTransactions(db, transactions = []) {
+/**
+ * A Transaction references objects that changed. This finds and inflates
+ * those objects.
+ *
+ * Resolves to an array of transactions with their `attributes` set to be
+ * the inflated model they reference.
+ */
+function inflateTransactions(db, accountId, transactions = []) {
   const transactionJSONs = transactions.map((t) => (t.toJSON ? t.toJSON() : t))
-  transactionJSONs.forEach((t) => { t.cursor = t.id });
+  transactionJSONs.forEach((t) => {
+    t.cursor = t.id;
+    t.accountId = accountId;
+  });
 
   const byModel = _.groupBy(transactionJSONs, "object");
   const byObjectIds = _.groupBy(transactionJSONs, "objectId");
@@ -22,6 +32,9 @@ function stringifyTransactions(db, transactions = []) {
       where: {id: modelIds},
       include: includes,
     }).then((models) => {
+      if (models.length !== modelIds.length) {
+        console.error("Couldn't find a model for some IDs", modelName, modelIds, models)
+      }
       for (const model of models) {
         const transactionsForModel = byObjectIds[model.id];
         for (const t of transactionsForModel) {
@@ -29,19 +42,26 @@ function stringifyTransactions(db, transactions = []) {
         }
       }
     });
-  })).then(() => {
+  })).then(() => transactionJSONs)
+}
+
+function stringifyTransactions(db, accountId, transactions = []) {
+  return inflateTransactions(db, accountId, transactions).then((transactionJSONs) => {
     return `${transactionJSONs.map(JSON.stringify).join("\n")}\n`;
   });
 }
 
-module.exports = {
-  buildStream(request, {databasePromise, cursor, accountId, deltasSource}) {
-    return databasePromise.then((db) => {
-      const initialSource = db.Transaction.streamAll({where: { id: {$gt: cursor}, accountId }});
+function transactionsSinceCursor(db, cursor, accountId) {
+  return db.Transaction.streamAll({where: { id: {$gt: cursor}, accountId }});
+}
 
+module.exports = {
+  buildAPIStream(request, {databasePromise, cursor, accountId, deltasSource}) {
+    return databasePromise.then((db) => {
+      const initialSource = transactionsSinceCursor(db, cursor, accountId);
       const source = Rx.Observable.merge(
-        initialSource.flatMap((t) => stringifyTransactions(db, t)),
-        deltasSource.flatMap((t) => stringifyTransactions(db, [t])),
+        initialSource.flatMap((ts) => stringifyTransactions(db, accountId, ts)),
+        deltasSource.flatMap((t) => stringifyTransactions(db, accountId, [t])),
         Rx.Observable.interval(1000).map(() => "\n")
       )
 
@@ -52,6 +72,14 @@ module.exports = {
 
       return outputStream;
     });
+  },
+
+  buildDeltaObservable({db, cursor, accountId, deltasSource}) {
+    const initialSource = transactionsSinceCursor(db, cursor, accountId);
+    return Rx.Observable.merge(
+      initialSource.flatMap((ts) => inflateTransactions(db, accountId, ts)),
+      deltasSource.flatMap((t) => inflateTransactions(db, accountId, [t]))
+    )
   },
 
   buildCursor({databasePromise}) {
