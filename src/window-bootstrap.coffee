@@ -8,7 +8,6 @@ require './window'
 
 NylasEnvConstructor = require './nylas-env'
 window.NylasEnv = window.atom = NylasEnvConstructor.loadOrCreate()
-global.Promise.longStackTraces() if NylasEnv.inDevMode()
 NylasEnv.initialize()
 NylasEnv.startRootWindow()
 
