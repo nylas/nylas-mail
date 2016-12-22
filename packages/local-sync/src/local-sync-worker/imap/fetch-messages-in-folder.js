@@ -4,11 +4,11 @@ const {Capabilities} = IMAPConnection;
 const SyncOperation = require('../sync-operation')
 const MessageProcessor = require('../../message-processor')
 
-
 const MessageFlagAttributes = ['id', 'threadId', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']
 const SHALLOW_SCAN_UID_COUNT = 1000;
 const FETCH_MESSAGES_FIRST_COUNT = 100;
 const FETCH_MESSAGES_COUNT = 200;
+
 
 class FetchMessagesInFolder extends SyncOperation {
   constructor(folder, options, logger) {
@@ -215,6 +215,7 @@ class FetchMessagesInFolder extends SyncOperation {
 
   async _fetchAndProcessMessages(range) {
     const uidsByPart = {};
+    const structsByPart = {};
 
     await this._box.fetchEach(range, {struct: true}, ({attributes}) => {
       const desiredParts = this._getDesiredMIMEParts(attributes.struct);
@@ -224,6 +225,7 @@ class FetchMessagesInFolder extends SyncOperation {
       const key = JSON.stringify(desiredParts);
       uidsByPart[key] = uidsByPart[key] || [];
       uidsByPart[key].push(attributes.uid);
+      structsByPart[key] = attributes.struct;
     })
 
     await PromiseUtils.each(Object.keys(uidsByPart), async (key) => {
@@ -231,19 +233,18 @@ class FetchMessagesInFolder extends SyncOperation {
       // returns them in ascending (oldest => newest) order.
       const uids = uidsByPart[key];
       const desiredParts = JSON.parse(key);
-      const bodies = ['HEADER'].concat(desiredParts.map(p => p.id));
-
-      // this._logger.info({
-      //   key,
-      //   num_messages: uids.length,
-      // }, `FetchMessagesInFolder: Fetching parts for messages`)
+      // headers are BIG (something like 30% of total storage for an average
+      // mailbox), so only download the ones we care about
+      const bodies = ['HEADER.FIELDS (FROM TO SUBJECT DATE CC BCC REPLY-TO IN-REPLY-TO REFERENCES MESSAGE-ID)'].concat(desiredParts.map(p => p.id));
+      const struct = structsByPart[key];
 
       const promises = []
       await this._box.fetchEach(
         uids,
-        {bodies, struct: true},
+        {bodies},
         (imapMessage) => promises.push(MessageProcessor.queueMessageForProcessing({
           imapMessage,
+          struct,
           desiredParts,
           folderId: this._folder.id,
           accountId: this._db.accountId,

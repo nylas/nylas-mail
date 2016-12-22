@@ -208,7 +208,11 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
   const {Message, Label} = db;
   const {attributes} = imapMessage;
 
-  const headers = imapMessage.headers.toString('ascii');
+  // this key name can change depending on which subset of headers we're downloading,
+  // so to prevent having to update this code every time we change the set,
+  // dynamically look up the key instead
+  const headerKey = Object.keys(imapMessage.parts).filter(k => k.startsWith('HEADER'))[0]
+  const headers = imapMessage.parts[headerKey].toString('ascii')
   const parsedHeaders = mimelib.parseHeaders(headers);
   for (const key of ['x-gm-thrid', 'x-gm-msgid', 'x-gm-labels']) {
     parsedHeaders[key] = attributes[key];
@@ -239,9 +243,9 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
     folderId: folder.id,
     folder: null,
     labels: [],
-    headers: parsedHeaders,
     headerMessageId: parsedHeaders['message-id'] ? parsedHeaders['message-id'][0] : '',
     gMsgId: parsedHeaders['x-gm-msgid'],
+    gThrId: parsedHeaders['x-gm-thrid'],
     subject: parsedHeaders.subject ? parsedHeaders.subject[0] : '(no subject)',
   }
   // Inversely to `buildForSend`, we leave the date header as it is so that the

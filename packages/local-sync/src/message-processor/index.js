@@ -36,11 +36,11 @@ class MessageProcessor {
    * If message processing fails, we will register the failure in the folder
    * syncState
    */
-  queueMessageForProcessing({accountId, folderId, imapMessage, desiredParts}) {
+  queueMessageForProcessing({accountId, folderId, imapMessage, struct, desiredParts}) {
     return new Promise((resolve) => {
       this._queueLength++
       this._queue = this._queue.then(async () => {
-        await this._processMessage({accountId, folderId, imapMessage, desiredParts})
+        await this._processMessage({accountId, folderId, imapMessage, struct, desiredParts})
         this._queueLength--
 
         // To save memory, we reset the Promise chain if the queue reaches a
@@ -57,7 +57,7 @@ class MessageProcessor {
     })
   }
 
-  async _processMessage({accountId, folderId, imapMessage, desiredParts}) {
+  async _processMessage({accountId, folderId, imapMessage, struct, desiredParts}) {
     const db = await LocalDatabaseConnector.forAccount(accountId);
     const {Message, Folder} = db
     const folder = await Folder.findById(folderId)
@@ -70,9 +70,10 @@ class MessageProcessor {
       const existingMessage = await Message.find({where: {id: messageValues.id}});
       let processedMessage;
       if (existingMessage) {
-        processedMessage = await this._processExistingMessage(existingMessage, messageValues, imapMessage)
+        // TODO: optimize to not do a full message parse for existing messages
+        processedMessage = await this._processExistingMessage(existingMessage, messageValues, struct)
       } else {
-        processedMessage = await this._processNewMessage(messageValues, imapMessage)
+        processedMessage = await this._processNewMessage(messageValues, struct)
       }
       console.log(`🔃 ✉️ "${messageValues.subject}" - ${messageValues.date}`)
       return processedMessage
@@ -100,7 +101,7 @@ class MessageProcessor {
     }
   }
 
-  async _processNewMessage(message, imapMessage) {
+  async _processNewMessage(message, struct) {
     const {accountId} = message;
     const db = await LocalDatabaseConnector.forAccount(accountId);
     const {Message} = db
@@ -123,7 +124,7 @@ class MessageProcessor {
       // Note that the labels aren't officially added until save() is called later
     }
 
-    await extractFiles({db, message, imapMessage});
+    await extractFiles({db, message, struct});
     await extractContacts({db, message});
     createdMessage.isProcessed = true;
     await createdMessage.save()
@@ -141,7 +142,7 @@ class MessageProcessor {
    *
    * It'll have the basic ID, but no thread, labels, etc.
    */
-  async _processExistingMessage(existingMessage, parsedMessage, rawIMAPMessage) {
+  async _processExistingMessage(existingMessage, parsedMessage, struct) {
     const {accountId} = parsedMessage;
     const db = await LocalDatabaseConnector.forAccount(accountId);
     await existingMessage.update(parsedMessage);
@@ -155,7 +156,7 @@ class MessageProcessor {
         thread = await detectThread({db, message: parsedMessage});
         existingMessage.threadId = thread.id;
       }
-      await extractFiles({db, message: existingMessage, imapMessage: rawIMAPMessage});
+      await extractFiles({db, message: existingMessage, struct});
       await extractContacts({db, message: existingMessage});
       existingMessage.isProcessed = true;
     } else {

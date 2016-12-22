@@ -104,8 +104,8 @@ async function detectThread({db, message}) {
   }
 
   let thread = null;
-  if (message.headers['x-gm-thrid']) {
-    thread = await findOrBuildByRemoteThreadId(db, message.headers['x-gm-thrid'])
+  if (message.gThrId) {
+    thread = await findOrBuildByRemoteThreadId(db, message.gThrId)
   } else {
     thread = await findOrBuildByMatching(db, message)
   }
