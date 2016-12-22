@@ -180,7 +180,7 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
     }
   }
   const headers = imapMessage.headers.toString('ascii');
-  const parsedHeaders = Imap.parseHeader(headers);
+  const parsedHeaders = mimelib.parseHeaders(headers);
   for (const key of ['x-gm-thrid', 'x-gm-msgid', 'x-gm-labels']) {
     parsedHeaders[key] = attributes[key];
   }
