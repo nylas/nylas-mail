@@ -95,12 +95,22 @@ whatever single port is exposed to port 80 and serves it.
 # Diagnosing Deploys
 Use `eb ssh` to login to the EC2 instance.
 
-The deploys are put in `/var/app/current`
+The deploys is copied to `/var/app/current`. Note that this is not the
+running code. It's the starting place for `docker build` to run from. The
+actual running code is within the docker container.
 
-You can access logs with `eb logs`
+You can access logs with `eb logs`. NOTE: `eb logs` does NOT do a live
+tail and only shows the latest copy of `/var/log/eb-activity.log`.
 
-If you're SSH'd into the machine, you can see logs stored in: `/var/log/`.
-The most common log to look at is `/var/log/eb-activity.log`
+The best way to look at logs is to ssh into the box, then go to `/var/log/`
+
+There are 2 common log files to look at:
+
+1. `/var/log/eb-activity.log`. This will show you the progress of our npm
+   install and other setup piped from the docker container. These are only
+   the logs to setup the environment and do not contain application logs
+2. `/var/log/eb-docker/containers/eb-current-app/{DOCKERVERSION}-stdouterr.log`
+   is the location of the application logs of the current docker deploy.
 
 The script Elastic Beanstalk runs when deploying your app can be found
 here: `/opt/elasticbeanstalk/hooks/appdeploy/enact/00run.sh`
