@@ -29,13 +29,13 @@ function collectFilesFromStruct({db, message, struct, fileIds = new Set()}) {
   return collected;
 }
 
-function extractFiles({db, message, imapMessage}) {
+async function extractFiles({db, message, imapMessage}) {
   const {attributes: {struct}} = imapMessage
   const files = collectFilesFromStruct({db, message, struct});
   if (files.length > 0) {
-    return db.sequelize.transaction((transaction) =>
-      Promise.all(files.map(f => f.save({transaction})))
-    )
+    for (const file of files) {
+      await file.save()
+    }
   }
   return Promise.resolve()
 }

@@ -144,8 +144,8 @@ module.exports = (sequelize, Sequelize) => {
         const response = {
           id: `${this.id}`,
           object: 'thread',
-          folders: this.folders,
-          labels: this.labels,
+          folders: this.folders.map(f => f.toJSON()),
+          labels: this.labels.map(l => l.toJSON()),
           account_id: this.accountId,
           participants: this.participants,
           subject: this.subject,

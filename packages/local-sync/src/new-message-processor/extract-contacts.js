@@ -37,21 +37,17 @@ async function extractContacts({db, message}) {
     },
   })
 
-  await db.sequelize.transaction(async (transaction) => {
-    const promises = []
-    for (const c of contactsDataById.values()) {
-      const existing = existingContacts.find(({id}) => id === c.id)
-      if (!existing) {
-        promises.push(Contact.create(c, {transaction}));
-      } else {
-        const updateRequired = (c.name !== existing.name);
-        if (updateRequired) {
-          promises.push(existing.update(c, {transaction}));
-        }
+  for (const c of contactsDataById.values()) {
+    const existing = existingContacts.find(({id}) => id === c.id)
+    if (!existing) {
+      await Contact.create(c)
+    } else {
+      const updateRequired = (c.name !== existing.name);
+      if (updateRequired) {
+        await existing.update(c)
       }
     }
-    await Promise.all(promises);
-  })
+  }
 
   return message;
 }

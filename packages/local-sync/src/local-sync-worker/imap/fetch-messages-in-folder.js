@@ -45,17 +45,10 @@ class FetchMessagesInFolder {
     // we just remove the category ID and UID. We may re-assign the same message
     // the same UID. Otherwise they're eventually garbage collected.
     const {Message} = this._db;
-    await this._db.sequelize.transaction((transaction) =>
-      Message.update({
-        folderImapUID: null,
-        folderId: null,
-      }, {
-        transaction: transaction,
-        where: {
-          folderId: this._folder.id,
-        },
-      })
-    )
+    await Message.update({
+      folderImapUID: null,
+      folderId: null,
+    }, {where: {folderId: this._folder.id}})
   }
 
   async _updateMessageAttributes(remoteUIDAttributes, localMessageAttributes) {
@@ -159,18 +152,10 @@ class FetchMessagesInFolder {
     //   removed_messages: removedUIDs.length,
     // }, `FetchMessagesInFolder: found messages no longer in the folder`)
 
-    await this._db.sequelize.transaction((transaction) =>
-       Message.update({
-         folderImapUID: null,
-         folderId: null,
-       }, {
-         transaction,
-         where: {
-           folderId: this._folder.id,
-           folderImapUID: removedUIDs,
-         },
-       })
-    );
+    await Message.update({
+      folderImapUID: null,
+      folderId: null,
+    }, {where: {folderId: this._folder.id, folderImapUID: removedUIDs}})
   }
 
   _getDesiredMIMEParts(struct) {

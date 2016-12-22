@@ -14,6 +14,7 @@ const FetchFolderList = require('./imap/fetch-folder-list')
 const FetchMessagesInFolder = require('./imap/fetch-messages-in-folder')
 const SyncbackTaskFactory = require('./syncback-task-factory')
 const SyncMetricsReporter = require('./sync-metrics-reporter');
+const LocalSyncDeltaEmitter = require('./local-sync-delta-emitter').default
 
 const RESTART_THRESHOLD = 10
 
@@ -29,6 +30,7 @@ class SyncWorker {
     this._interrupted = false
     this._syncInProgress = false
     this._syncAttemptsWhileInProgress = 0
+    this._localDeltas = new LocalSyncDeltaEmitter(db, account.id)
 
     this._destroyed = false;
     this._syncTimer = setTimeout(() => {
