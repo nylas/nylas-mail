@@ -21,6 +21,12 @@ export default class NylasSyncWorkerPool {
   }
 
   _determineWorkerPool() {
+    // we need a function lock on this because on bootup, many legitimate
+    // events coming in may result in this function being called multiple times
+    // in quick succession, which can cause us to start multiple syncs for the
+    // same account
+    if (this._isBuildingWorkers) return;
+    this._isBuildingWorkers = true;
     if (NylasEnv.inSpecMode()) { return; }
     const origWorkers = this._workers;
     const currentWorkers = []
@@ -40,6 +46,8 @@ export default class NylasSyncWorkerPool {
       const oldWorkers = _.difference(origWorkers, currentWorkers);
       for (const worker of oldWorkers) { worker.cleanup() }
       this._workers = currentWorkers;
+    }).finally(() => {
+      this._isBuildingWorkers = false;
     })
   }
 }
