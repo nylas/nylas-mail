@@ -21,8 +21,6 @@ import './window';
 import NylasEnvConstructor from './nylas-env';
 window.NylasEnv = window.atom = NylasEnvConstructor.loadOrCreate();
 
-if (NylasEnv.inDevMode()) { global.Promise.longStackTraces(); }
-
 NylasEnv.initialize();
 NylasEnv.startSecondaryWindow();
 

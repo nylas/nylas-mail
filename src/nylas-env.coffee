@@ -188,6 +188,8 @@ class NylasEnvConstructor
 
     @perf = remote.getGlobal('application').perf
 
+    @localSyncEmitter = new Emitter
+
     unless @inSpecMode()
       @actionBridge = new ActionBridge(ipcRenderer)
 

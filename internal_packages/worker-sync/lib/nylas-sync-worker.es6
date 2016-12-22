@@ -1,12 +1,12 @@
 import _ from 'underscore';
 import {
   Actions,
-  NylasAPI,
   N1CloudAPI,
   DatabaseStore,
   NylasLongConnection,
 } from 'nylas-exports';
 import DeltaStreamingConnection from './delta-streaming-connection';
+import DeltaStreamingInMemoryConnection from './delta-streaming-in-memory-connection';
 import DeltaProcessor from './delta-processor'
 import ContactRankingsCache from './contact-rankings-cache';
 
@@ -40,6 +40,11 @@ export default class NylasSyncWorker {
     NylasEnv.onBeforeUnload = (readyToUnload) => {
       this._writeState().finally(readyToUnload)
     }
+    NylasEnv.localSyncEmitter.on("refreshLocalDeltas", (accountId) => {
+      if (accountId !== account.id) return;
+      this._deltaStreams.localSync.end()
+      this._deltaStreams.localSync.start()
+    })
   }
 
   loadStateFromDatabase() {
@@ -75,8 +80,7 @@ export default class NylasSyncWorker {
   }
 
   _setupDeltaStreams = (account) => {
-    const localSync = new DeltaStreamingConnection(NylasAPI,
-        account.id, this._deltaStreamOpts("localSync"));
+    const localSync = new DeltaStreamingInMemoryConnection(account.id, this._deltaStreamOpts("localSync"));
 
     const n1Cloud = new DeltaStreamingConnection(N1CloudAPI,
         account.id, this._deltaStreamOpts("n1Cloud"));
