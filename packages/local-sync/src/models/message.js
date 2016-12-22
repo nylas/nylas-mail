@@ -197,6 +197,7 @@ module.exports = (sequelize, Sequelize) => {
         // request the `id` field from the database. We still toJSON the
         // Message though and need to protect `this.date` from null
         // errors.
+        // Folders and labels can be null if the message is sending!
         return {
           id: this.id,
           account_id: this.accountId,
@@ -212,8 +213,8 @@ module.exports = (sequelize, Sequelize) => {
           date: this.date ? this.date.getTime() / 1000.0 : null,
           unread: this.unread,
           starred: this.starred,
-          folder: this.folder.toJSON(),
-          labels: this.labels.map(l => l.toJSON()),
+          folder: this.folder ? this.folder.toJSON() : null,
+          labels: this.labels ? this.labels.map(l => l.toJSON()) : null,
           thread_id: this.threadId,
         };
       },
