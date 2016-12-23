@@ -73,6 +73,15 @@ const snippetTestCases = [{
   plainBody: null,
   htmlBody: '<p>Unicorns are<!-- an HTML comment! -->native to the</p>',
   snippet: 'Unicorns are native to the',
+}, {
+  purpose: "don't add extraneous spaces after text format markup",
+  plainBody: null,
+  htmlBody: `
+  <td style="padding: 0px 10px">
+            Hey there, <b>Nylas</b>!<br>
+            You have a new follower on Product Hunt.
+          </td>`,
+  snippet: 'Hey there, Nylas! You have a new follower on Product Hunt.',
 },
 ]
 
