@@ -48,7 +48,6 @@ module.exports = (sequelize, Sequelize) => {
     cc: JSONArrayColumn('cc'),
     bcc: JSONArrayColumn('bcc'),
     replyTo: JSONArrayColumn('replyTo', {
-      validate: {validateArrayLength1: getLengthValidator('Message.replyTo', 0, 1)},
       allowNull: true,
     }),
     inReplyTo: { type: Sequelize.STRING, allowNull: true},
