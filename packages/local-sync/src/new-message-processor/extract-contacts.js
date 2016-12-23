@@ -1,3 +1,4 @@
+const Sequelize = require('sequelize');
 
 function isContactMeaningful(contact) {
   // some suggestions: http://stackoverflow.com/questions/6317714/apache-camel-mail-to-identify-auto-generated-messages
@@ -31,6 +32,7 @@ async function extractContacts({db, message}) {
     }
     contactsDataById.set(id, cdata)
   })
+
   const existingContacts = await Contact.findAll({
     where: {
       id: Array.from(contactsDataById.keys()),
@@ -38,18 +40,26 @@ async function extractContacts({db, message}) {
   })
 
   for (const c of contactsDataById.values()) {
-    const existing = existingContacts.find(({id}) => id === c.id)
+    const existing = existingContacts.find(({id}) => id === c.id);
+
     if (!existing) {
-      await Contact.create(c)
+      Contact.create(c).catch(Sequelize.ValidationError, (err) => {
+        if (err.name !== "SequelizeUniqueConstraintError") {
+          console.log('Unknown error inserting contact', err);
+          throw err;
+        } else {
+          // Another message with the same contact was processing concurrently,
+          // and beat us to inserting. Since contacts are never deleted within
+          // an account, we can safely assume that we can perform an update
+          // instead.
+          Contact.find({where: {id: c.id}}).then(
+            (row) => { row.update(c) });
+        }
+      });
     } else {
-      const updateRequired = (c.name !== existing.name);
-      if (updateRequired) {
-        await existing.update(c)
-      }
+      existing.update(c);
     }
   }
-
-  return message;
 }
 
 module.exports = extractContacts
