@@ -117,14 +117,32 @@ module.exports = (sequelize, Sequelize) => {
 
         // Update folders/labels
         // This has to be done after the thread has been saved, because the
-        // thread may not have had an assigned id yet. addFolder()/addLabel()
+        // thread may not have had an id assigned yet. addFolder()/addLabel()
         // need an existing thread id to work properly.
         if (!savedThread.folders.find(f => f.id === message.folderId)) {
-          await savedThread.addFolder(message.folder)
+          // Since multiple messages from the same thread may be being
+          // processed at the same time, it's possible the association has
+          // already been added. Carry on without error in that case.
+          try {
+            await savedThread.addFolder(message.folder)
+          } catch (err) {
+            if (err.name !== "SequelizeUniqueConstraintError") {
+              throw err;
+            }
+          }
         }
         for (const label of message.labels) {
           if (!savedThread.labels.find(l => l.id === label)) {
-            await savedThread.addLabel(label)
+            // Since multiple messages from the same thread may be being
+            // processed at the same time, it's possible the association has
+            // already been added. Carry on without error in that case.
+            try {
+              await savedThread.addLabel(label)
+            } catch (err) {
+              if (err.name !== "SequelizeUniqueConstraintError") {
+                throw err;
+              }
+            }
           }
         }
 
