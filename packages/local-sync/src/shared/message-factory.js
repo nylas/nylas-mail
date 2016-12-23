@@ -42,6 +42,7 @@ function extractSnippet(plainBody, htmlBody) {
   if (htmlBody) {
     const doc = new DOMParser().parseFromString(htmlBody, 'text/html')
     const skipTags = new Set(['TITLE', 'SCRIPT', 'STYLE', 'IMG']);
+    const noSpaceTags = new Set(['B', 'I', 'STRONG', 'EM', 'SPAN']);
 
     const treeWalker = document.createTreeWalker(doc, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, (node) => {
       if (skipTags.has(node.tagName)) {
@@ -53,23 +54,28 @@ function extractSnippet(plainBody, htmlBody) {
         if (nodeValue) {
           return NodeFilter.FILTER_ACCEPT;
         }
+        return NodeFilter.FILTER_SKIP;
       }
-      return NodeFilter.FILTER_SKIP;
+      return NodeFilter.FILTER_ACCEPT;
     });
 
     let extractedText = "";
+    let lastNodeTag = "";
     while (treeWalker.nextNode()) {
-      // TODO: there may be some elements we don't want to add a space between
-      if (extractedText) {
-        extractedText += " ";
-      }
-      extractedText += treeWalker.currentNode.nodeValue;
-      if (extractedText.length > SNIPPET_MAX_SIZE) {
-        break;
+      if (treeWalker.currentNode.nodeType === Node.ELEMENT_NODE) {
+        lastNodeTag = treeWalker.currentNode.nodeName;
+      } else {
+        if (extractedText && !noSpaceTags.has(lastNodeTag)) {
+          extractedText += " ";
+        }
+        extractedText += treeWalker.currentNode.nodeValue;
+        if (extractedText.length > SNIPPET_MAX_SIZE) {
+          break;
+        }
       }
     }
 
-    snippetText = extractedText;
+    snippetText = extractedText.trim();
   }
 
   // clean up and trim snippet
