@@ -16,8 +16,8 @@ class ActivityListItemContainer extends React.Component {
     group: React.PropTypes.array,
   };
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       collapsed: true,
     };

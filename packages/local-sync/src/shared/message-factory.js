@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const mkdirp = require('mkdirp');
 const {Errors: {APIError}} = require('isomorphic-core');
-const {N1CloudAPI, RegExpUtils} = require('nylas-exports');
+const {N1CloudAPI, RegExpUtils, Utils} = require('nylas-exports');
 
 // Aiming for the former in length, but the latter is the hard db cutoff
 const SNIPPET_SIZE = 100;
@@ -227,7 +227,10 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
     gMsgId: parsedHeaders['x-gm-msgid'],
     subject: parsedHeaders.subject ? parsedHeaders.subject[0] : '(no subject)',
   }
+  // Inversely to `buildForSend`, we leave the date header as it is so that the
+  // format is consistent for the generative IDs, then convert it to a Date object
   parsedMessage.id = Message.hash(parsedMessage)
+  parsedMessage.date = new Date(Date.parse(parsedMessage.date))
 
   if (!body['text/html'] && body['text/plain']) {
     parsedMessage.body = htmlifyPlaintext(body['text/plain']);
@@ -296,6 +299,7 @@ async function buildForSend(db, json) {
   }
 
   const {inReplyTo, references} = replyHeaders
+  const date = new Date()
   const message = {
     accountId: json.account_id,
     threadId: thread ? thread.id : null,
@@ -313,10 +317,17 @@ async function buildForSend(db, json) {
     isDraft: json.draft,
     isSent: false,
     version: 0,
-    date: new Date(),
+    date: date,
     uploads: json.uploads,
   }
-  message.id = Message.hash(message)
+  // We have to clone the message and change the date for hashing because the
+  // date we get later when we parse from IMAP is a different format, per the
+  // nodemailer buildmail function that gives us the raw message and replaces
+  // the date header with this modified UTC string
+  // https://github.com/nodemailer/buildmail/blob/master/lib/buildmail.js#L470
+  const messageForHashing = Utils.deepClone(message)
+  messageForHashing.date = date.toUTCString().replace(/GMT/, '+0000')
+  message.id = Message.hash(messageForHashing)
   message.body = replaceMessageIdInBodyTrackingLinks(message.id, message.body)
   return Message.build(message)
 }
