@@ -279,6 +279,7 @@ module.exports.searchClientForAccount = (account) => {
     case 'gmail': {
       return new GmailSearchClient(account);
     }
+    case 'office365':
     case 'imap': {
       return new ImapSearchClient(account);
     }
