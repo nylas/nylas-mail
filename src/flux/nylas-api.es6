@@ -64,7 +64,7 @@ class NylasAPI {
   }
 
   startLongConnection = (opts) => {
-    this.longConnection(opts).start()
+    return this.longConnection(opts).start()
   }
 
   incrementRemoteChangeLock = (klass, id) => {
