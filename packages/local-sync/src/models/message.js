@@ -29,7 +29,7 @@ module.exports = (sequelize, Sequelize) => {
     version: Sequelize.INTEGER,
     headerMessageId: Sequelize.STRING,
     gMsgId: { type: Sequelize.STRING, allowNull: true },
-    body: Sequelize.TEXT('long'),
+    body: Sequelize.TEXT,
     headers: JSONColumn('headers'),
     subject: Sequelize.STRING(500),
     snippet: Sequelize.STRING(255),
