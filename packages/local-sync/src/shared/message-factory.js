@@ -6,7 +6,7 @@ const os = require('os');
 const fs = require('fs');
 const path = require('path');
 const mkdirp = require('mkdirp');
-const {Imap, Errors: {APIError}} = require('isomorphic-core');
+const {Errors: {APIError}} = require('isomorphic-core');
 const {N1CloudAPI, RegExpUtils} = require('nylas-exports');
 
 // Aiming for the former in length, but the latter is the hard db cutoff
