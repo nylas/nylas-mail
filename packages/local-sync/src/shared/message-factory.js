@@ -23,14 +23,20 @@ function extractContacts(input) {
   if (!input || input.length === 0 || !input[0]) {
     return [];
   }
-  const s = `["${input[0].replace(/"/g, '\\"').replace(/, /g, '", "')}"]`;
-  const values = JSON.parse(s);
+  const values = mimelib.parseAddresses(input[0]);
+  if (!values || values.length === 0 || !input[0]) {
+    return [];
+  }
   return values.map(v => {
-    const parsed = mimelib.parseAddresses(v)
-    if (!parsed || parsed.length === 0) {
+    if (!v || v.length === 0) {
       return null
     }
-    const {name, address: email} = parsed.pop()
+    const {name, address: email} = v;
+    // contacts without an email address are worthless, especially when
+    // extracted from emails
+    if (!email) {
+      return null;
+    }
     return {name, email}
   })
   .filter(c => c != null)
@@ -319,6 +325,7 @@ module.exports = {
   buildForSend,
   parseFromImap,
   extractSnippet,
+  extractContacts,
   stripTrackingLinksFromBody,
   buildTrackingBodyForRecipient,
   replaceMessageIdInBodyTrackingLinks,
