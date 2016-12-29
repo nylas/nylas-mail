@@ -1,5 +1,5 @@
 const LocalDatabaseConnector = require('../src/shared/local-database-connector');
-const {parseFromImap, extractSnippet} = require('../src/shared/message-factory');
+const {parseFromImap, extractSnippet, extractContacts} = require('../src/shared/message-factory');
 const {forEachJSONFixture, forEachHTMLAndTXTFixture, ACCOUNT_ID} = require('./helpers');
 
 xdescribe('MessageFactory', function MessageFactorySpecs() {
@@ -85,6 +85,21 @@ const snippetTestCases = [{
 },
 ]
 
+const contactsTestCases = [{
+  purpose: "not erroneously split contact names on commas",
+  // NOTE: inputs must be in same format as output by mimelib.parseHeader
+  input: ['"Little Bo Peep, The Hill" <bopeep@example.com>'],
+  output: [{name: "Little Bo Peep, The Hill", email: "bopeep@example.com"}],
+}, {
+  purpose: "extract two separate contacts, removing quotes properly & respecing unicode",
+  input: ['AppleBees Zé <a@example.com>, "Tiger Zen" b@example.com'],
+  output: [
+    {name: 'AppleBees Zé', email: 'a@example.com'},
+    {name: 'Tiger Zen', email: 'b@example.com'},
+  ],
+},
+]
+
 describe('MessageFactoryHelpers', function MessageFactoryHelperSpecs() {
   describe('extractSnippet (basic)', () => {
     snippetTestCases.forEach(({purpose, plainBody, htmlBody, snippet}) => {
@@ -99,6 +114,14 @@ describe('MessageFactoryHelpers', function MessageFactoryHelperSpecs() {
       it(`should correctly extract the snippet from the html`, () => {
         const parsedSnippet = extractSnippet(null, html);
         expect(parsedSnippet).toEqual(txt);
+      });
+    });
+  });
+  describe('extractContacts (basic)', () => {
+    contactsTestCases.forEach(({purpose, input, output}) => {
+      it(`should ${purpose}`, () => {
+        const parsedContacts = extractContacts(input);
+        expect(parsedContacts).toEqual(output);
       });
     });
   });
