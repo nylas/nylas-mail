@@ -2,7 +2,7 @@ const LocalDatabaseConnector = require('../src/shared/local-database-connector')
 const {parseFromImap, extractSnippet} = require('../src/shared/message-factory');
 const {forEachJSONFixture, forEachHTMLAndTXTFixture, ACCOUNT_ID} = require('./helpers');
 
-fdescribe('MessageFactory', function MessageFactorySpecs() {
+xdescribe('MessageFactory', function MessageFactorySpecs() {
   beforeEach(() => {
     waitsForPromise(async () => {
       await LocalDatabaseConnector.ensureAccountDatabase(ACCOUNT_ID);
