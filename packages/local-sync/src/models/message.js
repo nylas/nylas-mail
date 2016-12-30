@@ -214,6 +214,7 @@ module.exports = (sequelize, Sequelize) => {
           starred: this.starred,
           folder: this.folder ? this.folder.toJSON() : null,
           labels: this.labels ? this.labels.map(l => l.toJSON()) : null,
+          imap_uid: this.folderImapUID,
           thread_id: this.threadId,
         };
       },
