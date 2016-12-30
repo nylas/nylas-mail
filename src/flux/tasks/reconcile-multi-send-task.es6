@@ -12,7 +12,7 @@ export default class ReconcileMultiSendTask extends Task {
   }
 
   isDependentOnTask(other) {
-    return (other instanceof SendDraftTask) && (other.message.clientId === this.message.clientId);
+    return (other instanceof SendDraftTask) && (other.message) && (other.message.clientId === this.message.clientId);
   }
 
   performLocal() {
