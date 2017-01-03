@@ -23,8 +23,10 @@ class SalesforceDataReset {
 
   deleteAllData() {
     return DatabaseStore.inTransaction((t) => {
-      t.removeAllOfClass(SalesforceObject)
-      t.removeAllOfClass(SalesforceSchema)
+      return Promise.all([
+        t.removeAllOfClass(SalesforceObject),
+        t.removeAllOfClass(SalesforceSchema),
+      ])
     });
   }
 }

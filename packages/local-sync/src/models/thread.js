@@ -109,7 +109,7 @@ module.exports = (sequelize, Sequelize) => {
         if (isSent && ((message.date > this.lastMessageSentDate) || !this.lastMessageSentDate)) {
           this.lastMessageSentDate = message.date;
         }
-        if (!isSent && ((message.date > this.lastMessageReceivedDate) || !this.lastMessageReceivedDate)) {
+        if (((message.date > this.lastMessageReceivedDate) || !this.lastMessageReceivedDate)) {
           this.lastMessageReceivedDate = message.date;
         }
 
