@@ -5,6 +5,7 @@
   "main": "./main",
   "dependencies": {
     "encoding": "0.1.12",
+    "iconv": "2.2.1",
     "googleapis": "9.0.0",
     "hapi": "13.4.1",
     "hapi-auth-basic": "4.2.0",
