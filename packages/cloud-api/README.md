@@ -52,6 +52,13 @@ and Metdata for Nylas N1 desktop clients.
   1. Make read-only: `chmod 400 ~/.ssh/k2-keypair.pem`
   1. `ssh -i ~/.ssh/k2-keypair.pem ec2-user@some-ec2-box-we-own.amazonaws.com`
 
+## New to Docker:
+
+1. Read [Understanding Docker](https://docs.docker.com/engine/understanding-docker/)
+
+1. Install [Docker](https://www.docker.com/products/overview) on your
+   machine.
+
 # Developing the Cloud Components Locally:
 From the root /K2 directory:
 
@@ -92,17 +99,26 @@ hard-coded Amazon shell scripts.
 Our Dockerfile exposes port 5100, and Elastic Beanstalk automatically maps
 whatever single port is exposed to port 80 and serves it.
 
+# Logs:
+
+Don't use `eb logs`. It will download a static 100 lines of the
+`eb-activity.log`, which only contains setup logs (no application logs).
+
+1. `eb ssh`
+
+1. `docker logs --follow $(docker ps --format "{{.ID}}" --filter status=running)` - This will tail and follow the application logs out of Docker. Use this to see what the app is doing.
+
+1. `tail -f /var/log/eb-activity.log` - This shows you logs from when the
+   container builds. See this to see the output of `npm install` and other
+   setup.
+
 # Diagnosing Deploys
+
 Use `eb ssh` to login to the EC2 instance.
 
 The deploys is copied to `/var/app/current`. Note that this is not the
 running code. It's the starting place for `docker build` to run from. The
 actual running code is within the docker container.
-
-You can access logs with `eb logs`. NOTE: `eb logs` does NOT do a live
-tail and only shows the latest copy of `/var/log/eb-activity.log`.
-
-The best way to look at logs is to ssh into the box, then go to `/var/log/`
 
 There are 2 common log files to look at:
 
