@@ -95,7 +95,7 @@ class NylasSyncStatusStore extends NylasStore {
         } else {
           // We don't have a uidnext if the sync hasn't started at all,
           // but we've found the folder.
-          updates[name] = {progress: 0, total: null}
+          updates[name] = {progress: 0, total: 0}
         }
       }
       this._updateState(accountId, {folderSyncProgress: updates})
@@ -122,7 +122,7 @@ class NylasSyncStatusStore extends NylasStore {
    * the total number of messages to sync for a given account
    */
   getSyncProgressForAccount(accountId) {
-    const {folderSyncProgress} = this._statesByAccount[accountId]
+    const {folderSyncProgress = {}} = this._statesByAccount[accountId]
     const folderNames = Object.keys(folderSyncProgress)
     const progressPerFolder = folderNames.map(fname => folderSyncProgress[fname])
     const weightedProgress = progressPerFolder.reduce(
@@ -153,7 +153,7 @@ class NylasSyncStatusStore extends NylasStore {
       (accum, {total}) => accum + total, 0
     )
     return {
-      progress: weightedProgress / totalMessageCount,
+      progress: totalMessageCount ? weightedProgress / totalMessageCount : 0,
       total: totalMessageCount,
     }
   }

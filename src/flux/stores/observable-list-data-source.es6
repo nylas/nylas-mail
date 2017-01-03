@@ -23,7 +23,7 @@ export default class ObservableListDataSource extends ListTabular.DataSource {
   _attach = () => {
     this._subscription = this._$resultSetObservable.subscribe((nextResultSet) => {
       if (nextResultSet.range().end === this._resultDesiredLast) {
-        this._countEstimate = Math.max(this._countEstimate, nextResultSet.range().end + 1)
+        this._countEstimate = Math.max(this._countEstimate, nextResultSet.range().end)
       } else {
         this._countEstimate = nextResultSet.range().end
       }

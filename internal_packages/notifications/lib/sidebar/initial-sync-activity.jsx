@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import _str from 'underscore.string';
 import classNames from 'classnames';
-import {AccountStore, NylasSyncStatusStore, React} from 'nylas-exports';
+import {Actions, AccountStore, NylasSyncStatusStore, React} from 'nylas-exports';
 
 export default class InitialSyncActivity extends React.Component {
   static displayName = 'InitialSyncActivity';
@@ -13,16 +13,22 @@ export default class InitialSyncActivity extends React.Component {
       syncState: NylasSyncStatusStore.getSyncState(),
       syncProgress: NylasSyncStatusStore.getSyncProgress(),
     }
+    this.mounted = false;
   }
 
   componentDidMount() {
-    this.unsubscribe = NylasSyncStatusStore.listen(this.onDataChanged);
+    this.mounted = true;
+    this.unsubs = [
+      NylasSyncStatusStore.listen(this.onDataChanged),
+      Actions.expandInitialSyncState.listen(this.showExpandedState),
+    ]
   }
 
   componentWillUnmount() {
-    if (this.unsubscribe) {
-      this.unsubscribe();
+    if (this.unsubs) {
+      this.unsubs.forEach((unsub) => unsub())
     }
+    this.mounted = false;
   }
 
   onDataChanged = () => {
@@ -31,23 +37,43 @@ export default class InitialSyncActivity extends React.Component {
     this.setState({syncState, syncProgress});
   }
 
-  hideExpandedState = (event) => {
-    event.stopPropagation(); // So it doesn't reach the parent's onClick
-    event.preventDefault();
+  hideExpandedState = () => {
     this.setState({isExpanded: false});
   }
 
+  showExpandedState = () => {
+    if (!this.state.isExpanded) {
+      this.setState({isExpanded: true});
+    } else {
+      this.setState({blink: true});
+      setTimeout(() => {
+        if (this.mounted) {
+          this.setState({blink: false});
+        }
+      }, 1000)
+    }
+  }
+
   renderExpandedSyncState() {
-    const accounts = _.map(this.state.syncState, (accountSyncState, accountId) => {
+    let maxHeight = 0;
+    let accounts = _.map(this.state.syncState, (accountSyncState, accountId) => {
       const account = _.findWhere(AccountStore.accounts(), {id: accountId});
       if (!account) {
         return false;
       }
 
       const {folderSyncProgress} = accountSyncState
-      const folderStates = _.map(folderSyncProgress, ({progress}, name) => {
+      let folderStates = _.map(folderSyncProgress, ({progress}, name) => {
         return this.renderFolderProgress(name, progress)
       })
+
+      if (folderStates.length === 0) {
+        folderStates = <div><br />Gathering folders...</div>
+      }
+
+      // A row for the account email address plus a row for each folder state,
+      const numRows = 1 + (folderStates.length || 1)
+      maxHeight += 50 * numRows;
 
       return (
         <div className="account inner" key={accountId}>
@@ -57,8 +83,16 @@ export default class InitialSyncActivity extends React.Component {
       )
     });
 
+    if (accounts.length === 0) {
+      accounts = <div><br />Looking for accounts...</div>
+    }
+
     return (
-      <div className="account-detail-area" key="expanded-sync-state">
+      <div
+        className="account-detail-area"
+        key="expanded-sync-state"
+        style={{maxHeight: `${maxHeight + 500}px`}}
+      >
         {accounts}
         <a className="close-expanded" onClick={this.hideExpandedState}>Hide</a>
       </div>
@@ -89,37 +123,30 @@ export default class InitialSyncActivity extends React.Component {
   }
 
   render() {
+    if (!AccountStore.accountsAreSyncing()) {
+      return false;
+    }
+
     const {syncProgress: {progress}} = this.state
     if (progress === 1) {
       return false;
     }
 
-    const innerContent = []
-    if (AccountStore.accountsAreSyncing()) {
-      if (progress === 0) {
-        // On application start, the NylasSyncStatusStore takes awhile to populate
-        // the folderSyncProgress fields. Don't let the user expand the details,
-        // because they'll be empty.
-        innerContent.push(<div className="inner" key="0">Preparing to sync your mailbox&hellip;</div>);
-      } else {
-        innerContent.push(<div className="inner" key="0">Syncing your mailbox&hellip;</div>);
-        innerContent.push(this.renderExpandedSyncState());
-      }
-    }
-
     const classSet = classNames({
       'item': true,
       'expanded-sync': this.state.isExpanded,
+      'blink': this.state.blink,
     });
 
     return (
       <div
         className={classSet}
         key="initial-sync"
-        onClick={() => (progress ? this.setState({isExpanded: !this.state.isExpanded}) : null)}
+        onClick={() => (this.setState({isExpanded: !this.state.isExpanded}))}
       >
         {this.renderProgressBar(progress)}
-        {innerContent}
+        <div className="inner">Syncing your mailbox&hellip;</div>
+        {this.state.isExpanded ? this.renderExpandedSyncState() : false}
       </div>
     )
   }

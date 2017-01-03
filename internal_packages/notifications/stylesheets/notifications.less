@@ -64,9 +64,6 @@
       transition: max-height 0.2s;
     }
     &.expanded-sync {
-      .account-detail-area {
-        max-height: 1000px;
-      }
       .account.inner {
         border-top: 1px solid rgba(0,0,0,0.1)
       }
@@ -199,6 +196,20 @@
       -webkit-filter: brightness(110%);
       cursor:default;
     }
+  }
+}
+
+.blink {
+  animation: blink 1s ease;
+}
+
+@-webkit-keyframes blink {
+  0%, 100%{
+    box-shadow: none;
+  }
+  50% {
+    box-shadow: 5px 5px 1px rgba(37, 143, 225, 1) inset,
+               -5px -5px 1px rgba(37, 143, 225, 1) inset;
   }
 }
 

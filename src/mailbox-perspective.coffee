@@ -101,10 +101,14 @@ class MailboxPerspective
     false
 
   emptyMessage: =>
-    "Nothing to display"
+    "No Messages"
 
   categories: =>
     []
+
+  # overwritten in CategoryMailboxPerspective
+  hasSyncingCategories: =>
+    false
 
   categoriesSharedName: =>
     @_categoriesSharedName ?= Category.categoriesSharedName(@categories())
@@ -285,6 +289,12 @@ class CategoryMailboxPerspective extends MailboxPerspective
 
   categories: =>
     @_categories
+
+  hasSyncingCategories: =>
+    for cat in @_categories
+      if not cat.isSyncComplete()
+        return true
+    return false
 
   isArchive: =>
     _.every(@_categories, (cat) -> cat.isArchive())
