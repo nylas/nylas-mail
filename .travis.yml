@@ -23,6 +23,7 @@ branches:
   - ci-test
   - stable
   - /ci-build\/.*/
+  - n1-next
 
 matrix:
   include:
