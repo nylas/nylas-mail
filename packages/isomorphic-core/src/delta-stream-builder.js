@@ -9,7 +9,7 @@ const stream = require('stream');
  * Resolves to an array of transactions with their `attributes` set to be
  * the inflated model they reference.
  */
-function inflateTransactions(db, accountId, transactions = []) {
+function inflateTransactions(db, accountId, transactions = [], sourceName) {
   const transactionJSONs = transactions.map((t) => (t.toJSON ? t.toJSON() : t))
   transactionJSONs.forEach((t) => {
     t.cursor = t.id;
@@ -32,8 +32,11 @@ function inflateTransactions(db, accountId, transactions = []) {
       where: {id: modelIds},
       include: includes,
     }).then((models) => {
-      if (models.length !== modelIds.length) {
-        console.error("Couldn't find a model for some IDs", modelName, modelIds, models)
+      const remaining = _.difference(modelIds, models.map(m => `${m.id}`))
+      if (remaining.length !== 0) {
+        const badTrans = byModel[modelName].filter(t =>
+          remaining.includes(t.objectId))
+        console.error(`While inflating ${sourceName} transactions, we couldn't find models for some ${modelName} IDs`, remaining, badTrans)
       }
       for (const model of models) {
         const transactionsForModel = byObjectIds[model.id];
@@ -45,8 +48,9 @@ function inflateTransactions(db, accountId, transactions = []) {
   })).then(() => transactionJSONs)
 }
 
-function stringifyTransactions(db, accountId, transactions = []) {
-  return inflateTransactions(db, accountId, transactions).then((transactionJSONs) => {
+function stringifyTransactions(db, accountId, transactions = [], sourceName) {
+  return inflateTransactions(db, accountId, transactions, sourceName)
+  .then((transactionJSONs) => {
     return `${transactionJSONs.map(JSON.stringify).join("\n")}\n`;
   });
 }
@@ -58,10 +62,11 @@ function transactionsSinceCursor(db, cursor, accountId) {
 module.exports = {
   buildAPIStream(request, {databasePromise, cursor, accountId, deltasSource}) {
     return databasePromise.then((db) => {
-      const initialSource = transactionsSinceCursor(db, cursor, accountId);
       const source = Rx.Observable.merge(
-        initialSource.flatMap((ts) => stringifyTransactions(db, accountId, ts)),
-        deltasSource.flatMap((t) => stringifyTransactions(db, accountId, [t])),
+        transactionsSinceCursor(db, cursor, accountId).flatMap((ts) =>
+          stringifyTransactions(db, accountId, ts, "initial")),
+        deltasSource.flatMap((t) =>
+          stringifyTransactions(db, accountId, [t], "new")),
         Rx.Observable.interval(1000).map(() => "\n")
       )
 
@@ -75,10 +80,11 @@ module.exports = {
   },
 
   buildDeltaObservable({db, cursor, accountId, deltasSource}) {
-    const initialSource = transactionsSinceCursor(db, cursor, accountId);
     return Rx.Observable.merge(
-      initialSource.flatMap((ts) => inflateTransactions(db, accountId, ts)),
-      deltasSource.flatMap((t) => inflateTransactions(db, accountId, [t]))
+      transactionsSinceCursor(db, cursor, accountId).flatMap((ts) =>
+        inflateTransactions(db, accountId, ts, "initial")),
+      deltasSource.flatMap((t) =>
+        inflateTransactions(db, accountId, [t], "new"))
     )
   },
 
