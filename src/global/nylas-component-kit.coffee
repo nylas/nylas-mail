@@ -51,6 +51,7 @@ class NylasComponentKit
   @load "SwipeContainer", 'swipe-container'
   @load "FluxContainer", 'flux-container'
   @load "FocusContainer", 'focus-container'
+  @load "SyncingListState", 'syncing-list-state'
   @load "EmptyListState", 'empty-list-state'
   @load "ListTabular", 'list-tabular'
   @load "Notification", 'notification'

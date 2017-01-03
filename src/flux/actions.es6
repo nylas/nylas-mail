@@ -559,6 +559,8 @@ class Actions {
   static notifyPluginsChanged = ActionScopeGlobal;
 
   static refreshAllSyncWorkers = ActionScopeGlobal;
+
+  static expandInitialSyncState = ActionScopeWindow;
 }
 
 

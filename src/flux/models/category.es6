@@ -1,4 +1,5 @@
 /* eslint global-require: 0 */
+import {NylasSyncStatusStore} from 'nylas-exports';
 import Model from './model';
 import Attributes from '../attributes';
 let AccountStore = null
@@ -165,5 +166,17 @@ export default class Category extends Model {
 
   isArchive() {
     return ['all', 'archive'].includes(this.name);
+  }
+
+  isSyncComplete() {
+    // We sync by folders, not labels. So if the category is a label, just
+    // return based on the sync status for the entire account.
+    if (this.object === 'label') {
+      return NylasSyncStatusStore.isSyncCompleteForAccount(this.accountId);
+    }
+    return NylasSyncStatusStore.isSyncCompleteForAccount(
+      this.accountId,
+      this.name || this.displayName
+    );
   }
 }

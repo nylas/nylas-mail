@@ -6,7 +6,8 @@ classnames = require 'classnames'
 {MultiselectList,
  FocusContainer,
  EmptyListState,
- FluxContainer} = require 'nylas-component-kit'
+ FluxContainer
+ SyncingListState} = require 'nylas-component-kit'
 
 {Actions,
  Thread,
@@ -20,7 +21,8 @@ classnames = require 'classnames'
  CategoryStore,
  ExtensionRegistry,
  FocusedContentStore,
- FocusedPerspectiveStore} = require 'nylas-exports'
+ FocusedPerspectiveStore
+ NylasSyncStatusStore} = require 'nylas-exports'
 
 ThreadListColumns = require './thread-list-columns'
 ThreadListScrollTooltip = require './thread-list-scroll-tooltip'
@@ -81,6 +83,11 @@ class ThreadList extends React.Component
     'thread-list:select-starred': @_onSelectStarred
     'thread-list:select-unstarred': @_onSelectUnstarred
 
+  _renderFooterContent: ->
+    return null if ThreadListStore.dataSource().count() <= 0
+    return null unless FocusedPerspectiveStore.current().hasSyncingCategories()
+    return <SyncingListState />
+
   render: ->
     if @state.style is 'wide'
       columns = ThreadListColumns.Wide
@@ -90,6 +97,7 @@ class ThreadList extends React.Component
       itemHeight = 85
 
     <FluxContainer
+      renderFooterContent={@_renderFooterContent}
       stores=[ThreadListStore]
       getStateFromStores={ -> dataSource: ThreadListStore.dataSource() }>
       <FocusContainer collection="thread">
@@ -105,7 +113,8 @@ class ThreadList extends React.Component
           onDoubleClick={(thread) -> Actions.popoutThread(thread)}
           onDragStart={@_onDragStart}
           onDragEnd={@_onDragEnd}
-          draggable="true" />
+          draggable="true"
+        />
       </FocusContainer>
     </FluxContainer>
 
