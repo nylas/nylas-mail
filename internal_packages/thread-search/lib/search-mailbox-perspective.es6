@@ -1,7 +1,6 @@
 import _ from 'underscore'
-import {AccountStore, TaskFactory, MailboxPerspective} from 'nylas-exports'
+import {AccountStore, CategoryStore, TaskFactory, MailboxPerspective} from 'nylas-exports'
 import SearchQuerySubscription from './search-query-subscription'
-
 
 class SearchMailboxPerspective extends MailboxPerspective {
 
@@ -37,6 +36,9 @@ class SearchMailboxPerspective extends MailboxPerspective {
       categoriesToAdd: (accountId) => {
         const account = AccountStore.accountForId(accountId)
         return [account.defaultFinishedCategory()]
+      },
+      categoriesToRemove: (accountId) => {
+        return [CategoryStore.getInboxCategory(accountId)]
       },
     })
   }
