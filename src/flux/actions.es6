@@ -423,8 +423,11 @@ class Actions {
 
   Recieves the clientId of the message that was sent
   */
-  static sendDraftSuccess = ActionScopeGlobal;
-  static sendDraftFailed = ActionScopeGlobal;
+  static draftDeliverySucceeded = ActionScopeGlobal;
+  static draftDeliveryFailed = ActionScopeGlobal;
+
+  static ensureMessageInSentSuccess = ActionScopeGlobal;
+  static ensureMessageInSentFailed = ActionScopeGlobal;
 
   static sendManyDrafts = ActionScopeWindow;
   static ensureDraftSynced = ActionScopeWindow;

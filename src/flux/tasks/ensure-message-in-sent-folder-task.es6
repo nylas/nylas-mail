@@ -1,14 +1,16 @@
 import Task from './task';
 import {APIError} from '../errors';
+import Actions from '../actions';
 import NylasAPI from '../nylas-api';
 import SyncbackTaskAPIRequest from '../syncback-task-api-request';
 import SendDraftTask from './send-draft-task';
 
 
-export default class ReconcileMultiSendTask extends Task {
+export default class EnsureMessageInSentFolderTask extends Task {
   constructor(opts = {}) {
     super(opts);
     this.message = opts.message;
+    this.sentPerRecipient = opts.sentPerRecipient;
   }
 
   isDependentOnTask(other) {
@@ -27,18 +29,24 @@ export default class ReconcileMultiSendTask extends Task {
     return new SyncbackTaskAPIRequest({
       api: NylasAPI,
       options: {
-        timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
-        method: "DELETE",
-        path: `/send-multiple/${this.message.id}`,
+        path: `/ensure-message-in-sent-folder/${this.message.id}`,
+        method: "POST",
+        body: {
+          sentPerRecipient: this.sentPerRecipient,
+        },
         accountId: this.message.accountId,
       },
     })
     .run()
-    .thenReturn(Task.Status.Success)
+    .then(() => {
+      Actions.ensureMessageInSentSuccess({messageClientId: this.message.clientId})
+      return Task.Status.Success
+    })
     .catch((err) => {
-      const errorMessage = `We had trouble saving your message, "${this.message.subject}", to your Sent folder.\n\n${err.message}`;
+      const errorMessage = `Your message successfully sent; however, we had trouble saving your message, "${this.message.subject}", to your Sent folder.\n\n${err.message}`;
+      Actions.ensureMessageInSentFailed()
       if (err instanceof APIError) {
-        if (SyncbackTaskAPIRequest.PermanentErrorCodes.includes(err.statusCode)) {
+        if (NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
           NylasEnv.showErrorDialog(errorMessage, {showInMainWindow: true, detail: err.stack});
           return Promise.resolve([Task.Status.Failed, err]);
         }

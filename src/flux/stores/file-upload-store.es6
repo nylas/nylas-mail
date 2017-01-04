@@ -49,7 +49,7 @@ class FileUploadStore extends NylasStore {
 
     mkdirp.sync(UPLOAD_DIR);
     if (NylasEnv.isMainWindow() || NylasEnv.inSpecMode()) {
-      this.listenTo(Actions.sendDraftSuccess, ({messageClientId}) => {
+      this.listenTo(Actions.ensureMessageInSentSuccess, ({messageClientId}) => {
         this._deleteUploadsForClientId(messageClientId);
       });
     }
