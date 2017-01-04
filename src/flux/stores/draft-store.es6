@@ -41,8 +41,8 @@ class DraftStore extends NylasStore {
     this.listenTo(Actions.composePopoutDraft, this._onPopoutDraftClientId);
     this.listenTo(Actions.composeNewBlankDraft, this._onPopoutBlankDraft);
     this.listenTo(Actions.composeNewDraftToRecipient, this._onPopoutNewDraftToRecipient);
-    this.listenTo(Actions.sendDraftFailed, this._onSendDraftFailed);
-    this.listenTo(Actions.sendDraftSuccess, this._onSendDraftSuccess);
+    this.listenTo(Actions.draftDeliveryFailed, this._onSendDraftFailed);
+    this.listenTo(Actions.draftDeliverySucceeded, this._onSendDraftSuccess);
     this.listenTo(Actions.didCancelSendAction, this._onDidCancelSendAction);
     this.listenTo(Actions.sendQuickReply, this._onSendQuickReply);
 

@@ -41,7 +41,7 @@ class SyncbackTaskAPIRequest {
                 message: failed.error.message,
                 data: failed.error.data,
               },
-              statusCode: failed.error.statusCode,
+              statusCode: failed.error.statusCode || 500,
             })
             reject(error)
           } else if (succeeded) {

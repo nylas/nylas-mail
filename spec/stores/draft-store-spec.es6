@@ -412,7 +412,7 @@ xdescribe('DraftStore', function draftStore() {
     it("resets the sending state if there's an error", () => {
       spyOn(NylasEnv, "isMainWindow").andReturn(false);
       DraftStore._draftsSending[this.draft.clientId] = true;
-      Actions.sendDraftFailed({errorMessage: "boohoo", draftClientId: this.draft.clientId});
+      Actions.draftDeliveryFailed({errorMessage: "boohoo", draftClientId: this.draft.clientId});
       expect(DraftStore.isSendingDraft(this.draft.clientId)).toBe(false);
       expect(DraftStore.trigger).toHaveBeenCalledWith(this.draft.clientId);
     });
@@ -423,7 +423,7 @@ xdescribe('DraftStore', function draftStore() {
       spyOn(remote.dialog, "showMessageBox");
       spyOn(Actions, "composePopoutDraft");
       DraftStore._draftsSending[this.draft.clientId] = true;
-      Actions.sendDraftFailed({threadId: 't1', errorMessage: "boohoo", draftClientId: this.draft.clientId});
+      Actions.draftDeliveryFailed({threadId: 't1', errorMessage: "boohoo", draftClientId: this.draft.clientId});
       advanceClock(400);
       expect(DraftStore.isSendingDraft(this.draft.clientId)).toBe(false);
       expect(DraftStore.trigger).toHaveBeenCalledWith(this.draft.clientId);
@@ -438,7 +438,7 @@ xdescribe('DraftStore', function draftStore() {
       spyOn(FocusedContentStore, "focused").andReturn({id: "t1"});
       spyOn(Actions, "composePopoutDraft");
       DraftStore._draftsSending[this.draft.clientId] = true;
-      Actions.sendDraftFailed({threadId: 't2', errorMessage: "boohoo", draftClientId: this.draft.clientId});
+      Actions.draftDeliveryFailed({threadId: 't2', errorMessage: "boohoo", draftClientId: this.draft.clientId});
       advanceClock(400);
       expect(Actions.composePopoutDraft).toHaveBeenCalled();
       const call = Actions.composePopoutDraft.calls[0];
@@ -451,7 +451,7 @@ xdescribe('DraftStore', function draftStore() {
       spyOn(Actions, "composePopoutDraft");
       DraftStore._draftsSending[this.draft.clientId] = true;
       spyOn(FocusedContentStore, "focused").andReturn(null);
-      Actions.sendDraftFailed({errorMessage: "boohoo", draftClientId: this.draft.clientId});
+      Actions.draftDeliveryFailed({errorMessage: "boohoo", draftClientId: this.draft.clientId});
       advanceClock(400);
       expect(Actions.composePopoutDraft).toHaveBeenCalled();
       const call = Actions.composePopoutDraft.calls[0];

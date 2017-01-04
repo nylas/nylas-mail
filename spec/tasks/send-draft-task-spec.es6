@@ -93,7 +93,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
       spyOn(DBt, 'unpersistModel').andReturn(Promise.resolve());
       spyOn(DBt, 'persistModel').andReturn(Promise.resolve());
       spyOn(SoundRegistry, "playSound");
-      spyOn(Actions, "sendDraftSuccess");
+      spyOn(Actions, "draftDeliverySucceeded");
     });
 
     // The tests below are invoked twice, once with a new this.draft and one with a
@@ -165,7 +165,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
 
       it("should notify the draft was sent", () => {
         waitsForPromise(() => this.task.performRemote().then(() => {
-          const args = Actions.sendDraftSuccess.calls[0].args[0];
+          const args = Actions.draftDeliverySucceeded.calls[0].args[0];
           expect(args.message instanceof Message).toBe(true)
           expect(args.messageClientId).toBe(this.draft.clientId)
         }));
@@ -203,7 +203,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
 
       describe("when there are errors", () => {
         beforeEach(() => {
-          spyOn(Actions, 'sendDraftFailed');
+          spyOn(Actions, 'draftDeliveryFailed');
           jasmine.unspy(NylasAPIRequest.prototype, "run");
         });
 
@@ -219,7 +219,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
           waitsForPromise(() => this.task.performRemote().then((status) => {
             expect(status[0]).toBe(Task.Status.Failed);
             expect(status[1]).toBe(thrownError);
-            expect(Actions.sendDraftFailed).toHaveBeenCalled();
+            expect(Actions.draftDeliveryFailed).toHaveBeenCalled();
             expect(NylasEnv.reportError).toHaveBeenCalled();
           }));
         });
@@ -284,7 +284,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
           waitsForPromise(() => this.task.performRemote().then((status) => {
             expect(status[0]).toBe(Task.Status.Failed);
             expect(status[1]).toBe(thrownError);
-            expect(Actions.sendDraftFailed).toHaveBeenCalled();
+            expect(Actions.draftDeliveryFailed).toHaveBeenCalled();
           }));
         });
 
@@ -296,7 +296,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
           waitsForPromise(() => this.task.performRemote().then((status) => {
             expect(status[0]).toBe(Task.Status.Failed);
             expect(status[1]).toBe(thrownError);
-            expect(Actions.sendDraftFailed).toHaveBeenCalled();
+            expect(Actions.draftDeliveryFailed).toHaveBeenCalled();
           }));
         });
 
@@ -325,9 +325,9 @@ xdescribe('SendDraftTask', function sendDraftTask() {
           waitsForPromise(() => this.task.performRemote().then((status) => {
             expect(status[0]).toBe(Task.Status.Failed);
             expect(status[1]).toBe(thrownError);
-            expect(Actions.sendDraftFailed).toHaveBeenCalled();
+            expect(Actions.draftDeliveryFailed).toHaveBeenCalled();
 
-            const msg = Actions.sendDraftFailed.calls[0].args[0].errorMessage;
+            const msg = Actions.draftDeliveryFailed.calls[0].args[0].errorMessage;
             expect(withoutWhitespace(msg)).toEqual(withoutWhitespace(expectedMessage));
           }));
         });
@@ -349,9 +349,9 @@ xdescribe('SendDraftTask', function sendDraftTask() {
           waitsForPromise(() => this.task.performRemote().then((status) => {
             expect(status[0]).toBe(Task.Status.Failed);
             expect(status[1]).toBe(thrownError);
-            expect(Actions.sendDraftFailed).toHaveBeenCalled();
+            expect(Actions.draftDeliveryFailed).toHaveBeenCalled();
 
-            const msg = Actions.sendDraftFailed.calls[0].args[0].errorMessage;
+            const msg = Actions.draftDeliveryFailed.calls[0].args[0].errorMessage;
             expect(withoutWhitespace(msg)).toEqual(withoutWhitespace(expectedMessage));
           }));
         });
@@ -509,7 +509,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
     });
   });
 
-  describe("usingMultiSend", () => {
+  describe("hasCustomBodyPerRecipient", () => {
     beforeEach(() => {
       this.task = new SendDraftTask('client-id');
       this.task.allowMultiSend = true;
@@ -545,13 +545,13 @@ xdescribe('SendDraftTask', function sendDraftTask() {
 
     it("should return false if the provider is eas", () => {
       this.applySpies({"AccountStore.accountForId": "eas"})
-      expect(this.task.usingMultiSend()).toBe(false);
+      expect(this.task.hasCustomBodyPerRecipient()).toBe(false);
     });
 
     it("should return false if allowMultiSend is false", () => {
       this.applySpies();
       this.task.allowMultiSend = false;
-      expect(this.task.usingMultiSend()).toBe(false);
+      expect(this.task.hasCustomBodyPerRecipient()).toBe(false);
     });
 
     it("should return false if the open-tracking id is null", () => {
@@ -559,7 +559,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
         return name === "open-tracking" ? null : name;
       };
       this.applySpies({"NylasEnv.packages.pluginIdFor": fake});
-      expect(this.task.usingMultiSend()).toBe(false);
+      expect(this.task.hasCustomBodyPerRecipient()).toBe(false);
     });
 
     it("should return false if the link-tracking id is null", () => {
@@ -567,36 +567,36 @@ xdescribe('SendDraftTask', function sendDraftTask() {
         return name === "link-tracking" ? null : name;
       };
       this.applySpies({"NylasEnv.packages.pluginIdFor": fake});
-      expect(this.task.usingMultiSend()).toBe(false);
+      expect(this.task.hasCustomBodyPerRecipient()).toBe(false);
     });
 
     it("should return false if neither open-tracking nor link-tracking is on", () => {
       this.applySpies();
       this.task.draft.applyPluginMetadata('open-tracking', false);
       this.task.draft.applyPluginMetadata('link-tracking', false);
-      expect(this.task.usingMultiSend()).toBe(false);
+      expect(this.task.hasCustomBodyPerRecipient()).toBe(false);
     });
 
     it("should return true if only open-tracking is on", () => {
       this.applySpies();
       this.task.draft.applyPluginMetadata('link-tracking', false);
-      expect(this.task.usingMultiSend()).toBe(true);
+      expect(this.task.hasCustomBodyPerRecipient()).toBe(true);
     });
 
     it("should return true if only link-tracking is on", () => {
       this.applySpies();
       this.task.draft.applyPluginMetadata('open-tracking', false);
-      expect(this.task.usingMultiSend()).toBe(true);
+      expect(this.task.hasCustomBodyPerRecipient()).toBe(true);
     });
 
     it("should return false if there are too many participants", () => {
       this.applySpies({"draft.participants": 15});
-      expect(this.task.usingMultiSend()).toBe(false);
+      expect(this.task.hasCustomBodyPerRecipient()).toBe(false);
     });
 
     it("should return true otherwise", () => {
       this.applySpies();
-      expect(this.task.usingMultiSend()).toBe(true);
+      expect(this.task.hasCustomBodyPerRecipient()).toBe(true);
     });
   });
 });

@@ -125,7 +125,7 @@ lazyLoadAndRegisterTask(`SyncbackCategoryTask`, 'syncback-category-task');
 lazyLoadAndRegisterTask(`SyncbackMetadataTask`, 'syncback-metadata-task');
 lazyLoadAndRegisterTask(`PerformSendActionTask`, 'perform-send-action-task');
 lazyLoadAndRegisterTask(`ReprocessMailRulesTask`, 'reprocess-mail-rules-task');
-lazyLoadAndRegisterTask(`ReconcileMultiSendTask`, 'reconcile-multi-send-task');
+lazyLoadAndRegisterTask(`EnsureMessageInSentFolderTask`, 'ensure-message-in-sent-folder-task');
 
 // Stores
 // These need to be required immediately since some Stores are
