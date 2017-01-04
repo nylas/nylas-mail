@@ -232,6 +232,10 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
   parsedMessage.id = Message.hash(parsedMessage)
   parsedMessage.date = new Date(Date.parse(parsedMessage.date))
 
+  // sometimes decoding results in a NUL-terminated body string, which makes
+  // SQLite blow up with an 'unrecognized token' error
+  parsedMessage.body = parsedMessage.body.replace(/\0/g, '');
+
   if (!body['text/html'] && body['text/plain']) {
     parsedMessage.body = htmlifyPlaintext(body['text/plain']);
   }
