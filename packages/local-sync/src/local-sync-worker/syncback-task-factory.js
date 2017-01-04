@@ -50,8 +50,8 @@ class SyncbackTaskFactory {
         Task = require('./syncback_tasks/send-message.imap'); break;
       case "SendMessagePerRecipient":
         Task = require('./syncback_tasks/send-message-per-recipient.imap'); break;
-      case "ReconcileSentMessagesPerRecipient":
-        Task = require('./syncback_tasks/reconcile-sent-messages-per-recipient.imap'); break;
+      case "EnsureMessageInSentFolder":
+        Task = require('./syncback_tasks/ensure-message-in-sent-folder.imap'); break;
       default:
         throw new Error(`Task type not defined in syncback-task-factory: ${syncbackRequest.type}`)
     }

@@ -37,7 +37,7 @@ module.exports = (server) => {
   // Initiates a multi-send session by creating a new multi-send draft.
   server.route({
     method: 'POST',
-    path: '/send-multiple',
+    path: '/send-per-recipient',
     config: {
     },
     async handler(request, reply) {
@@ -56,10 +56,13 @@ module.exports = (server) => {
   // Closes out a multi-send session by marking the sending draft as sent
   // and moving it to the user's Sent folder.
   server.route({
-    method: 'DELETE',
-    path: '/send-multiple/{messageId}',
+    method: 'POST',
+    path: '/ensure-message-in-sent-folder/{messageId}',
     config: {
       validate: {
+        payload: {
+          sentPerRecipient: Joi.boolean(),
+        },
         params: {
           messageId: Joi.string(),
         },
@@ -67,14 +70,15 @@ module.exports = (server) => {
     },
     async handler(request, reply) {
       const {messageId} = request.params;
+      const {sentPerRecipient} = request.payload;
 
       if (!Utils.isValidId(messageId)) {
         reply.badRequest(`messageId is not a base-36 integer`)
         return
       }
       createSyncbackRequest(request, reply, {
-        type: "ReconcileSentMessagesPerRecipient",
-        props: { messageId },
+        type: "EnsureMessageInSentFolder",
+        props: { messageId, sentPerRecipient },
         syncbackImmediately: true,
       })
     },

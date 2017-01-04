@@ -1,9 +1,16 @@
 const {SendmailClient, Errors: {APIError}} = require('isomorphic-core')
 const SyncbackTask = require('./syncback-task')
-const TaskHelpers = require('./task-helpers')
 const MessageFactory = require('../../shared/message-factory')
 
-
+/**
+ * This sets up the actual delivery of a message.
+ *
+ * Errors in this task always mean the message failed to deliver and it's
+ * safe to retry
+ *
+ * We later get EnsureMessageInSentFolder queued to ensure the newly
+ * delivered message shows up in the sent folder.
+ */
 class SendMessageIMAP extends SyncbackTask {
   description() {
     return `SendMessage`;
@@ -20,35 +27,19 @@ class SendMessageIMAP extends SyncbackTask {
       throw new APIError('Send failed: account not available on imap connection')
     }
 
-    const message = await MessageFactory.buildForSend(db, messagePayload)
+    const message = await MessageFactory.buildForSend(db, messagePayload);
+    message.setIsSending(true);
     const sender = new SendmailClient(account, logger);
     await sender.send(message);
 
-    // We don't save the message until after successfully sending it.
-    // In the next sync loop, the message's labels and other data will be
-    // updated, and we can guarantee this because we control message id
-    // generation. The thread will be created or updated when we detect this
-    // message in the sync loop
-    message.setIsSent(true)
-    await message.save();
-
     try {
-      const {provider} = account
-      if (provider !== 'gmail') {
-        // Gmail will automatically create the sent message in the sent folder
-        // because of it's robust integration of IMAP/SMTP. Otherwise, we need to
-        // create it ourselves
-        const rawMime = await sender.buildMime(message);
-        const {headerMessageId} = message
-        await TaskHelpers.saveSentMessage({db, imap, provider, rawMime, headerMessageId})
-      }
+      message.setIsSent(true)
+      await message.save();
+      return {message: message.toJSON()}
     } catch (err) {
-      // If we encounter an error trying to save the send message, log it and
-      // proceed. We don't want N1 to think that the message did not send if it
-      // actually did
-      logger.error(err, 'SendMessage: Could not sent message to sent folder')
+      logger.error(err, "SendMessage: Failed to save the message to the local sync database after it was successfully delivered")
+      return {message: {}}
     }
-    return {message: message.toJSON()}
   }
 }
 

@@ -86,7 +86,7 @@ const TaskHelpers = {
     throw new APIError('Could not save message to sent folder.')
   },
 
-  async deleteGmailSentMessage({db, imap, provider, headerMessageId}) {
+  async deleteGmailSentMessages({db, imap, provider, headerMessageId}) {
     if (provider !== 'gmail') { return }
 
     const trash = await db.Folder.find({where: {role: 'trash'}});
