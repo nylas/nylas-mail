@@ -228,11 +228,18 @@ Message(date DESC) WHERE draft = 1`,
       this.draft = (json.object === 'draft')
     }
 
-    if (json.folder) {
-      this.categories = this.constructor.attributes.categories.fromJSON([json.folder])
-    } else if (json.labels) {
-      this.categories = this.constructor.attributes.categories.fromJSON(json.labels)
+    let categories = []
+    if (json.categories) {
+      categories = this.constructor.attributes.categories.fromJSON(json.categories)
+    } else {
+      if (json.folder) {
+        categories = categories.concat(this.constructor.attributes.categories.fromJSON([json.folder]))
+      }
+      if (json.labels) {
+        categories = categories.concat(this.constructor.attributes.categories.fromJSON(json.labels))
+      }
     }
+    this.categories = categories
 
     for (const attr of ['to', 'from', 'cc', 'bcc', 'files', 'categories']) {
       const values = this[attr]
