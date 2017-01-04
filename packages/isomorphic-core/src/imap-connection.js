@@ -21,6 +21,7 @@ const Capabilities = {
 }
 
 const ONE_HOUR_SECS = 60 * 60;
+const SOCKET_TIMEOUT_SECS = 60;
 
 class IMAPConnection extends EventEmitter {
 
@@ -81,6 +82,7 @@ class IMAPConnection extends EventEmitter {
       user: this._settings.imap_username,
       password: this._settings.imap_password,
       tls: this._settings.ssl_required,
+      socketTimeout: SOCKET_TIMEOUT_SECS,
     }
 
     // This account uses XOAuth2, and we have the client_id + refresh token
