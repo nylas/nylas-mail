@@ -36,6 +36,21 @@ async function sendPerRecipient({db, imap, baseMessage, usesOpenTracking, usesLi
   return {failedRecipients}
 }
 
+/**
+ * This enables customized link and open tracking on a per-recipient basis
+ * by delivering several messages to each recipient.
+ *
+ * Errors in this task always mean the all messages failed to send to all
+ * receipients.
+ *
+ * If it failed to some recipients, we return a `failedRecipients` array
+ * to notify the user.
+ *
+ * We later get EnsureMessageInSentFolder queued with the
+ * `sentPerRecipient` flag set to ensure the newly delivered message shows
+ * up in the sent folder and only a single message shows up in the sent
+ * folder.
+ */
 class SendMessagePerRecipientIMAP extends SyncbackTask {
   description() {
     return `SendMessagePerRecipient`;
@@ -60,19 +75,34 @@ class SendMessagePerRecipientIMAP extends SyncbackTask {
 
     const sendResult = await sendPerRecipient({db, imap, baseMessage, usesOpenTracking, usesLinkTracking})
 
-    // We strip the tracking links because this is the message that we want to
-    // show the user as sent, so it shouldn't contain the tracking links
-    baseMessage.body = MessageFactory.stripTrackingLinksFromBody(baseMessage.body)
+    /**
+     * Once messages have actually been delivered, we need to be very
+     * careful not to throw an error from this task. An Error in the send
+     * task implies failed delivery and the prompting of users to try
+     * again.
+     */
+    try {
+      // We strip the tracking links because this is the message that we want to
+      // show the user as sent, so it shouldn't contain the tracking links
+      baseMessage.body = MessageFactory.stripTrackingLinksFromBody(baseMessage.body)
 
-    // We don't save the message until after successfully sending it.
-    // In the next sync loop, the message's labels and other data will be
-    // updated, and we can guarantee this because we control message id
-    // generation. The thread will be created or updated when we detect this
-    // message in the sync loop
-    baseMessage.save()
+      baseMessage.setIsSent(true)
 
-    const {failedRecipients} = sendResult
-    return {message: baseMessage.toJSON(), failedRecipients}
+      // We don't save the message until after successfully sending it.
+      // In the next sync loop, the message's labels and other data will
+      // be updated, and we can guarantee this because we control message
+      // id generation. The thread will be created or updated when we
+      // detect this message in the sync loop
+      await baseMessage.save()
+
+      return {
+        message: baseMessage.toJSON(),
+        failedRecipients: sendResult.failedRecipients,
+      }
+    } catch (err) {
+      imap.logger.error(err, 'SendMessagePerRecipient: Failed to save the baseMessage to local sync database after it was successfully delivered');
+      return {message: {}, failedRecipients: []}
+    }
   }
 }
 

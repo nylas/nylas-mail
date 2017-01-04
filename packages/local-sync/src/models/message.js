@@ -28,6 +28,7 @@ module.exports = (sequelize, Sequelize) => {
     isDraft: Sequelize.BOOLEAN,
     isSent: Sequelize.BOOLEAN,
     isSending: Sequelize.BOOLEAN,
+    isProcessed: { type: Sequelize.BOOLEAN, defaultValue: false },
     unread: Sequelize.BOOLEAN,
     starred: Sequelize.BOOLEAN,
     processed: Sequelize.INTEGER,
@@ -51,7 +52,7 @@ module.exports = (sequelize, Sequelize) => {
           const requiredKeys = ['filename', 'targetPath', 'id']
           arr.forEach((upload) => {
             requiredKeys.forEach((key) => {
-              if (!upload.hasOwnPropery(key)) {
+              if (!Object.prototype.hasOwnProperty.call(upload, key)) {
                 throw new Error(`Upload must have '${key}' key.`)
               }
             })
@@ -105,20 +106,20 @@ module.exports = (sequelize, Sequelize) => {
         return `<${id}@mailer.nylas.com>`
       },
 
-      async findMultiSendMessage(db, messageId) {
-        const message = await this.findById(messageId, {
-          include: [
-            {model: db.Folder},
-          ],
-        })
-        if (!message) {
-          throw new APIError(`Couldn't find multi-send message ${messageId}`, 400);
-        }
-        if (message.isSent || !message.isSending) {
-          throw new APIError(`Message ${messageId} is not a multi-send message`, 400);
-        }
-        return message;
-      },
+      // async findMultiSendMessage(db, messageId) {
+      //   const message = await this.findById(messageId, {
+      //     include: [
+      //       {model: db.Folder},
+      //     ],
+      //   })
+      //   if (!message) {
+      //     throw new APIError(`Couldn't find multi-send message ${messageId}`, 400);
+      //   }
+      //   if (message.isSent || !message.isSending) {
+      //     throw new APIError(`Message ${messageId} is not a multi-send message`, 400);
+      //   }
+      //   return message;
+      // },
 
       requiredAssociationsForJSON({Folder, Label}) {
         return [

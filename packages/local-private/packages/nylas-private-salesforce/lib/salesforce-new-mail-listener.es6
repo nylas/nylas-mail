@@ -13,7 +13,7 @@ class SalesforceNewMailListener extends NylasStore {
 
   activate() {
     this.listenTo(Actions.didPassivelyReceiveCreateDeltas, this._newMailReceived);
-    this.listenTo(Actions.sendDraftSuccess, this._onSendDraftSuccess);
+    this.listenTo(Actions.draftDeliverySucceeded, this._onSendDraftSuccess);
   }
 
   deactivate() {

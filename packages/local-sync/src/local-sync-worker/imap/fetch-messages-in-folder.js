@@ -7,7 +7,7 @@ const mkdirp = require('mkdirp');
 const {PromiseUtils, IMAPConnection} = require('isomorphic-core');
 const {Capabilities} = IMAPConnection;
 const MessageFactory = require('../../shared/message-factory')
-const {processNewMessage} = require('../../new-message-processor')
+const {processNewMessage, processExistingMessage} = require('../../new-message-processor')
 
 const MessageFlagAttributes = ['id', 'threadId', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']
 
@@ -234,25 +234,10 @@ class FetchMessagesInFolder {
         accountId: this._db.accountId,
       });
       const existingMessage = await Message.find({where: {id: messageValues.id}});
-
       if (existingMessage) {
-        await existingMessage.update(messageValues)
-        const thread = await existingMessage.getThread();
-        if (thread) {
-          await thread.updateLabelsAndFolders();
-        }
-        // this._logger.info({
-        //   message_id: existingMessage.id,
-        //   uid: existingMessage.folderImapUID,
-        // }, `FetchMessagesInFolder: Updated message`)
+        await processExistingMessage(existingMessage, messageValues, imapMessage)
       } else {
-        // TODO investigate batching processing new messages
-        // We could measure load of actual sync vs load of just message processing
-        // to determine how meaningful it is
         await processNewMessage(messageValues, imapMessage)
-        // this._logger.info({
-        //   message: messageValues,
-        // }, `FetchMessagesInFolder: Queued new message for processing`)
       }
       console.log(`🔃 ✉️ "${messageValues.subject}" - ${messageValues.date}`)
     } catch (err) {
