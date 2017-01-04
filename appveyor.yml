@@ -41,9 +41,6 @@ install:
 build_script:
 - cmd: script\bootstrap.cmd
 
-test_script:
-- ps: npm test
-
 deploy_script:
 - cmd: script\grunt.cmd ci --stack --no-color
 
