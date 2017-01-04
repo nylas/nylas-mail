@@ -42,7 +42,6 @@ module.exports = (sequelize, Sequelize) => {
     processed: Sequelize.INTEGER,
     to: JSONArrayColumn('to'),
     from: JSONArrayColumn('from', {
-      validate: {validateArrayLength1: getLengthValidator('Message.from', 1, 1)},
       allowNull: true,
     }),
     cc: JSONArrayColumn('cc'),
