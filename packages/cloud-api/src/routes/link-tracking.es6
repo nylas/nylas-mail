@@ -30,11 +30,13 @@ function updateMetadata({metadata, recipient, linkIdx}) {
 
   const links = metadata.value.links
   links[linkIdx] = {
+    url: linkMetadata.url,
     click_count: linkMetadata.click_count + 1,
     click_data: linkMetadata.click_data.concat({
       timestamp: timestamp,
       recipient: recipient,
     }),
+    redirect_url: linkMetadata.url,
   }
   return metadata.updateValue({links})
 }
