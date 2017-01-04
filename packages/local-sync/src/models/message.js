@@ -7,15 +7,6 @@ const {Errors: {APIError}} = require('isomorphic-core')
 
 const SNIPPET_LENGTH = 191;
 
-function getLengthValidator(fieldName, min, max) {
-  return (stringifiedArr) => {
-    const arr = JSON.parse(stringifiedArr);
-    if ((arr.length < min) || (arr.length > max)) {
-      throw new Error(`Value for ${fieldName} must have a length in range [${min}-${max}]. Value: ${stringifiedArr}`);
-    }
-  };
-}
-
 function validateRecipientsPresent(message) {
   if (message.getRecipients().length === 0) {
     throw new APIError(`No recipients specified`, 400);
