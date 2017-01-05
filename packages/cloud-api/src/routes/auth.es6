@@ -55,7 +55,7 @@ const upsertAccount = (accountParams, credentials) => {
  * give the xoauth2 token and an N1 Cloud Account token back to N1.
  *
  * 4. The xoauth2 token that we give back to N1 only works for an hour.
- * Ever hour or so N1 must request a new one via the /auth/gmail/refresh
+ * Every hour or so N1 must request a new one via the /auth/gmail/refresh
  * endpoint. Using the N1 Cloud Account token, we can lookup the account,
  * get the original Google refresh token, then use that refresh token to
  * get a new xoauth2 token and return it to N1.
