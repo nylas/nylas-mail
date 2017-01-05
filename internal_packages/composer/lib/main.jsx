@@ -1,7 +1,6 @@
 /* eslint react/sort-comp: 0 */
 import _ from 'underscore';
 import React from 'react';
-import {remote} from 'electron';
 import {
   Message,
   Actions,

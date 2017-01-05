@@ -35,6 +35,7 @@ module.exports = (grunt) => {
       'spec/**/*.es6',
       'spec/**/*.es',
       'spec/**/*.jsx',
+      '!src/K2/packages/local-private/src/error-logger-extensions/*.js',
       '!src/**/node_modules/**/*.es6',
       '!src/**/node_modules/**/*.es',
       '!src/**/node_modules/**/*.jsx',
