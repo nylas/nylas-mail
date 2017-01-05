@@ -5,7 +5,7 @@ module.exports = (grunt) => {
   grunt.config.merge({
     eslint: {
       options: {
-        ignore: false,
+        ignore: ['src/K2/packages/local-private/src/error-logger-extensions/*.js'],
         configFile: 'build/config/eslint.json',
       },
       target: grunt.config('source:es6'),
