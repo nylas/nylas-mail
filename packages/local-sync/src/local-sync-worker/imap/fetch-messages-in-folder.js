@@ -162,23 +162,27 @@ class FetchMessagesInFolder {
     const desired = [];
     const available = [];
     const unseen = [struct];
+    const ignoreTypes = new Set(['alternative', 'mixed', 'signed']);
+    const desiredTypes = new Set(['text/plain', 'text/html', 'application/pgp-encrypted']);
     while (unseen.length > 0) {
       const part = unseen.shift();
       if (part instanceof Array) {
-        unseen.push(...part);
-      } else {
-        const mimetype = `${part.type}/${part.subtype}`;
-        available.push(mimetype);
-        if (['text/plain', 'text/html', 'application/pgp-encrypted'].includes(mimetype)) {
+        unseen.unshift(...part);
+      } else if (!ignoreTypes.has(part.type)) {
+        const mimeType = `${part.type}/${part.subtype}`;
+        available.push(mimeType);
+        const disposition = part.disposition ? part.disposition.type.toLowerCase() : null;
+        if (desiredTypes.has(mimeType) && (disposition !== 'attachment')) {
           desired.push({
             id: part.partID,
             // encoding and charset may be null
             transferEncoding: part.encoding,
             charset: part.params ? part.params.charset : null,
-            mimetype,
+            mimeType,
           });
         }
       }
+      // attachment metadata is extracted later---ignore for now
     }
 
     if (desired.length === 0) {
