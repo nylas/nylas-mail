@@ -76,9 +76,9 @@ module.exports = (sequelize, Sequelize) => {
         }
 
         // Update thread participants
-        const {to, cc, bcc} = message;
+        const {to, cc, bcc, from} = message;
         const participantEmails = this.participants.map(contact => contact.email);
-        const newParticipants = to.concat(cc, bcc).filter(contact => {
+        const newParticipants = to.concat(cc, bcc, from).filter(contact => {
           if (participantEmails.includes(contact.email)) {
             return false;
           }
