@@ -35,7 +35,10 @@ class AccountStore extends NylasStore {
     NylasEnv.config.onDidChange(configVersionKey, (change) => {
       // If we already have this version of the accounts config, it means we
       // are the ones who saved the change, and we don't need to reload.
-      if (this._version / 1 === change.newValue / 1) return
+      if (this._version / 1 === change.newValue / 1) {
+        return;
+      }
+
       const oldAccountIds = _.pluck(this._accounts, 'id')
       this._loadAccounts()
       const accountIds = _.pluck(this._accounts, 'id')
