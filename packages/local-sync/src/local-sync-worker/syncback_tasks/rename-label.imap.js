@@ -12,8 +12,8 @@ class RenameLabelIMAP extends SyncbackTask {
   async run(db, imap) {
     const labelId = this.syncbackRequestObject().props.labelId
     const newLabelName = this.syncbackRequestObject().props.displayName
-    const folder = await db.Label.findById(labelId)
-    return imap.renameBox(folder.name, newLabelName);
+    const label = await db.Label.findById(labelId)
+    return imap.renameBox(label.name, newLabelName);
   }
 }
 module.exports = RenameLabelIMAP
