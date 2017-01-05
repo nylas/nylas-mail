@@ -135,7 +135,10 @@ export default class NylasAPIRequest {
         if (err.response.statusCode === 404 && returnsModel) {
           handlePromise = NylasAPIHelpers.handleModel404(url)
         }
-        if ([401, 403].includes(err.response.statusCode)) {
+
+        // If we got a 401 or 403 from our local sync engine, mark the account
+        // as having auth issues.
+        if ([401, 403].includes(err.response.statusCode) && url.startsWith(NylasAPI.APIRoot)) {
           const apiName = this.api.constructor.name
           handlePromise = NylasAPIHelpers.handleAuthenticationFailure(url, auth.user, apiName)
         }
