@@ -12,6 +12,10 @@ class DeleteFolderIMAP extends SyncbackTask {
   async run(db, imap) {
     const folderId = this.syncbackRequestObject().props.folderId
     const folder = await db.Folder.findById(folderId)
+    if (!folder) {
+      // Nothing to delete!
+      return null;
+    }
     return imap.delBox(folder.name);
   }
 }

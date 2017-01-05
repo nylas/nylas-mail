@@ -19,12 +19,12 @@ module.exports = (db, sequelize, {only, onCreatedTransaction} = {}) => {
         name = 'metadata';
       }
 
-      if (only && !only.includes(name)) {
+      if ((only && !only.includes(name)) || isTransaction($modelOptions)) {
         return;
       }
 
       const changedFields = Object.keys(_changed)
-      if ((isTransaction($modelOptions) || changedFields.length === 0 || allIgnoredFields(changedFields))) {
+      if (event !== 'delete' && (changedFields.length === 0 || allIgnoredFields(changedFields))) {
         return;
       }
 
@@ -50,5 +50,5 @@ module.exports = (db, sequelize, {only, onCreatedTransaction} = {}) => {
   // NOTE: Hooking UPSERT requires Sequelize 4.x. We're
   // on version 3 right now, but leaving this here for when we upgrade.
   sequelize.addHook("afterUpsert", transactionLogger("modify"))
-  sequelize.addHook("afterDelete", transactionLogger("delete"))
+  sequelize.addHook("afterDestroy", transactionLogger("delete"))
 }
