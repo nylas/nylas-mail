@@ -19,30 +19,15 @@ export default class SyncbackCategoryTask extends Task {
   }
 
   performLocal() {
-    if (!this.category) {
-      return Promise.reject(new Error("Attempt to call SyncbackCategoryTask.performLocal without this.category."));
-    }
-
-    const isUpdating = this.category.serverId;
-
-    return DatabaseStore.inTransaction((t) => {
-      if (this._isReverting) {
-        if (isUpdating) {
-          this.category.displayName = this._initialDisplayName;
-          return t.persistModel(this.category);
-        }
-        return t.unpersistModel(this.category);
-      }
-      if (isUpdating && this.displayName) {
-        this._initialDisplayName = this.category.displayName;
-        this.category.displayName = this.displayName;
-      }
-      return t.persistModel(this.category);
-    });
+    // This operation is non-optimistic! Don't do anything.
+    return Promise.resolve();
   }
 
   performRemote() {
-    const {serverId, accountId, displayName} = this.category;
+    if (!this.category) {
+      return Promise.reject(new Error("Attempted to call SyncbackCategoryTask.performRemote without this.category."));
+    }
+    const {serverId, accountId} = this.category;
     const account = AccountStore.accountForId(accountId);
     const collection = account.usesLabels() ? "labels" : "folders";
 
@@ -56,7 +41,7 @@ export default class SyncbackCategoryTask extends Task {
         method,
         accountId,
         body: {
-          display_name: displayName,
+          display_name: this.displayName || this.category.displayName,
         },
         // returnsModel must be false because we want to update the
         // existing model rather than returning a new model.
@@ -65,7 +50,8 @@ export default class SyncbackCategoryTask extends Task {
     })
     .run()
     .then((responseJSON) => {
-      this.category.serverId = responseJSON.categoryId
+      if (serverId) { return null; }
+      this.category.serverId = responseJSON.categoryServerId
       if (!this.category.serverId) {
         throw new Error('SyncbackRequest for creating category did not return a serverId!')
       }
