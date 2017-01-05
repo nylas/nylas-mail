@@ -1,13 +1,12 @@
 import DatabaseStore from '../stores/database-store';
 import AccountStore from '../stores/account-store';
 import Task from './task';
-import Actions from '../actions';
 import Category from '../models/category';
 import ChangeFolderTask from './change-folder-task';
 import ChangeLabelTask from './change-labels-task';
 import SyncbackCategoryTask from './syncback-category-task';
 import NylasAPI from '../nylas-api';
-import NylasAPIRequest from '../nylas-api-request';
+import SyncbackTaskAPIRequest from '../syncback-task-api-request';
 import {APIError} from '../errors';
 
 export default class DestroyCategoryTask extends Task {
@@ -54,56 +53,35 @@ export default class DestroyCategoryTask extends Task {
     // delta which comes after a delay
     NylasAPI.incrementRemoteChangeLock(Category, this.category.serverId);
 
-    return new Promise((resolve) => {
-      new NylasAPIRequest({
-        api: NylasAPI,
-        options: {
-          accountId,
-          path,
-          method: 'DELETE',
-          returnsModel: false,
-        },
-      })
-      .run()
-      .then((json) => {
-        const syncbackRequestId = json.id
-        const unsubscribe = Actions.didReceiveSyncbackRequestDeltas.listen(async (deltas) => {
-          const failed = deltas.find(d => d.id === syncbackRequestId && d.status === 'FAILED')
-          const succeeded = deltas.find(d => d.id === syncbackRequestId && d.status === 'SUCCEEDED')
-          if (failed) {
-            unsubscribe()
-            await DatabaseStore.inTransaction((t) =>
-              t.persistModel(this.category)
-            )
-            resolve(Task.Status.Failed);
-          } else if (succeeded) {
-            unsubscribe()
-            resolve(Task.Status.Success)
-          }
-        })
-      })
-      .catch(APIError, (err) => {
-        if (!NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
-          return Promise.resolve(Task.Status.Retry);
-        }
-        if (err.body && err.body.message.includes(`Couldn't find folder`)) {
-          return Promise.resolve(Task.Status.Continue)
-        }
-        NylasAPI.decrementRemoteChangeLock(Category, this.category.serverId);
-        return DatabaseStore.inTransaction((t) =>
-          t.persistModel(this.category)
-        ).then(() => {
-          NylasEnv.reportError(
-            new Error(`Deleting category responded with ${err.statusCode}!`)
-          );
-          this._notifyUserOfError(this.category);
-          return Promise.resolve(Task.Status.Failed);
-        });
-      })
+    return new SyncbackTaskAPIRequest({
+      api: NylasAPI,
+      options: {
+        accountId,
+        path,
+        method: 'DELETE',
+        returnsModel: false,
+      },
+    })
+    .run()
+    .thenReturn(Task.Status.Success)
+    .catch(APIError, (err) => {
+      if (!NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
+        return Promise.resolve(Task.Status.Retry);
+      }
+      NylasAPI.decrementRemoteChangeLock(Category, this.category.serverId);
+      return DatabaseStore.inTransaction((t) =>
+        t.persistModel(this.category)
+      ).then(() => {
+        NylasEnv.reportError(
+          new Error(`Deleting category responded with ${err.statusCode}!`)
+        );
+        this._notifyUserOfError(this.category, err);
+        return Promise.resolve(Task.Status.Failed);
+      });
     })
   }
 
-  _notifyUserOfError(category) {
+  _notifyUserOfError(category, err) {
     const displayName = category.displayName;
     const displayType = category.displayType();
 
@@ -112,6 +90,6 @@ export default class DestroyCategoryTask extends Task {
       msg += " Make sure the folder you want to delete is empty before deleting it.";
     }
 
-    NylasEnv.showErrorDialog(msg);
+    NylasEnv.showErrorDialog(msg, {detail: JSON.stringify(err)});
   }
 }
