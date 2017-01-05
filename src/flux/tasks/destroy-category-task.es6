@@ -68,8 +68,8 @@ export default class DestroyCategoryTask extends Task {
       .then((json) => {
         const syncbackRequestId = json.id
         const unsubscribe = Actions.didReceiveSyncbackRequestDeltas.listen(async (deltas) => {
-          const failed = deltas.failed.find(d => d.objectId === syncbackRequestId)
-          const succeeded = deltas.succeeded.find(d => d.objectId === syncbackRequestId)
+          const failed = deltas.find(d => d.id === syncbackRequestId && d.status === 'FAILED')
+          const succeeded = deltas.find(d => d.id === syncbackRequestId && d.status === 'SUCCEEDED')
           if (failed) {
             unsubscribe()
             await DatabaseStore.inTransaction((t) =>
