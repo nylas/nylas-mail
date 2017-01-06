@@ -6,6 +6,7 @@
     "nylas": "*"
   },
   "isOptional": true,
+  "isHiddenOnPluginsPage": true,
 
   "title": "Encryption",
   "description": "Send and receive encrypted messages using Keybase for public key exchange.",

@@ -2,6 +2,7 @@
   "name": "personal-level-indicators",
   "main": "./lib/main",
   "version": "0.1.0",
+  "isHiddenOnPluginsPage": true,
 
   "title": "Personal Level Indicators",
   "description": "Display chevrons beside threads that indicate whether you're a direct recipient or the only recipient on a thread.",
