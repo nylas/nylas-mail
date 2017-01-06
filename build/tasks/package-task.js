@@ -192,6 +192,7 @@ module.exports = (grunt) => {
         '\\.lint$',
         '\\.lintignore$',
         '\\.arcconfig$',
+        '\\.arclint$',
         '\\.flowconfig$',
         '\\.jshintignore$',
         '\\.gitattributes$',
