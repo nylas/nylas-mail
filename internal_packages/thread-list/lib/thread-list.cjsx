@@ -68,7 +68,7 @@ class ThreadList extends React.Component
     'core:archive-item': @_onArchiveItem
     'core:delete-item': @_onDeleteItem
     'core:star-item': @_onStarItem
-    'core:snooze-item': @_onSnoozeItem
+    # 'core:snooze-item': @_onSnoozeItem
     'core:mark-important': => @_onSetImportant(true)
     'core:mark-unimportant': => @_onSetImportant(false)
     'core:mark-as-unread': => @_onSetUnread(true)
@@ -158,22 +158,22 @@ class ThreadList extends React.Component
       Actions.queueTasks(tasks)
       callback(true)
 
-    if FocusedPerspectiveStore.current().isInbox()
-      props.onSwipeLeftClass = 'swipe-snooze'
-      props.onSwipeCenter = =>
-        Actions.closePopover()
-      props.onSwipeLeft = (callback) =>
-        # TODO this should be grabbed from elsewhere
-        SnoozePopover = require('../../thread-snooze/lib/snooze-popover').default
-
-        element = document.querySelector("[data-item-id=\"#{item.id}\"]")
-        originRect = element.getBoundingClientRect()
-        Actions.openPopover(
-          <SnoozePopover
-            threads={[item]}
-            swipeCallback={callback} />,
-          {originRect, direction: 'right', fallbackDirection: 'down'}
-        )
+    # if FocusedPerspectiveStore.current().isInbox()
+    #   props.onSwipeLeftClass = 'swipe-snooze'
+    #   props.onSwipeCenter = =>
+    #     Actions.closePopover()
+    #   props.onSwipeLeft = (callback) =>
+    #     # TODO this should be grabbed from elsewhere
+    #     SnoozePopover = require('../../thread-snooze/lib/snooze-popover').default
+    #
+    #     element = document.querySelector("[data-item-id=\"#{item.id}\"]")
+    #     originRect = element.getBoundingClientRect()
+    #     Actions.openPopover(
+    #       <SnoozePopover
+    #         threads={[item]}
+    #         swipeCallback={callback} />,
+    #       {originRect, direction: 'right', fallbackDirection: 'down'}
+    #     )
 
     return props
 
@@ -242,20 +242,20 @@ class ThreadList extends React.Component
     task = TaskFactory.taskForInvertingStarred({threads})
     Actions.queueTask(task)
 
-  _onSnoozeItem: =>
-    threads = @_threadsForKeyboardAction()
-    return unless threads
-    # TODO this should be grabbed from elsewhere
-    SnoozePopover = require('../../thread-snooze/lib/snooze-popover').default
-
-    element = document.querySelector(".snooze-button.btn.btn-toolbar")
-    return unless element
-    originRect = element.getBoundingClientRect()
-    Actions.openPopover(
-      <SnoozePopover
-        threads={threads} />,
-      {originRect, direction: 'down'}
-    )
+  # _onSnoozeItem: =>
+  #   threads = @_threadsForKeyboardAction()
+  #   return unless threads
+  #   # TODO this should be grabbed from elsewhere
+  #   SnoozePopover = require('../../thread-snooze/lib/snooze-popover').default
+  #
+  #   element = document.querySelector(".snooze-button.btn.btn-toolbar")
+  #   return unless element
+  #   originRect = element.getBoundingClientRect()
+  #   Actions.openPopover(
+  #     <SnoozePopover
+  #       threads={threads} />,
+  #     {originRect, direction: 'down'}
+  #   )
 
   _onSetImportant: (important) =>
     threads = @_threadsForKeyboardAction()

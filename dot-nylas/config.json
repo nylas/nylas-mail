@@ -11,7 +11,17 @@
         "phishing-detection",
         "nylas-private-salesforce",
         "github-contact-card",
-        "keybase"
+        "keybase",
+        "thread-snooze",
+        "send-later",
+        "send-reminders",
+        "thread-sharing",
+        "composer-markdown",
+        "composer-scheduler",
+        "composer-scheduler",
+        "composer-mail-merge",
+        "send-and-archive",
+        "main-calendar"
       ]
     }
   }

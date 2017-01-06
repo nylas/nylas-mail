@@ -2,6 +2,7 @@
   "name": "phishing-detection",
   "version": "0.2.1",
   "main": "./lib/main",
+  "isHiddenOnPluginsPage": true,
   "license": "GPL-3.0",
 
   "title": "Phishing Detection",
