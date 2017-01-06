@@ -11,7 +11,7 @@ function loadModels(Sequelize, sequelize, {loadShared = true, modelDirs = [], sc
 
   for (const modelsDir of modelDirs) {
     for (const filename of fs.readdirSync(modelsDir)) {
-      if (filename.endsWith('.js')) {
+      if (filename.endsWith('.js') || filename.endsWith('.es6')) {
         let model = sequelize.import(path.join(modelsDir, filename));
         if (schema) {
           model = model.schema(schema);
