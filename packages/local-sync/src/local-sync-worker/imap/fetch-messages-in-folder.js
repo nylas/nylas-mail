@@ -158,24 +158,47 @@ class FetchMessagesInFolder extends SyncOperation {
     const desired = [];
     const available = [];
     const unseen = [struct];
-    const ignoreTypes = new Set(['alternative', 'mixed', 'signed']);
-    const desiredTypes = new Set(['text/plain', 'text/html', 'application/pgp-encrypted']);
+    const desiredTypes = new Set(['text/plain', 'text/html']);
+    // MIME structures can be REALLY FREAKING COMPLICATED. To simplify
+    // processing, we flatten the MIME structure by walking it depth-first,
+    // throwing away all multipart headers with the exception of
+    // multipart/alternative trees. We special case these, flattening via a
+    // recursive call and then extracting only HTML parts, since their
+    // equivalent nature allows us to pick our desired representation and throw
+    // away the rest.
     while (unseen.length > 0) {
       const part = unseen.shift();
-      if (part instanceof Array) {
+      if (part instanceof Array && (part[0].type !== 'alternative')) {
         unseen.unshift(...part);
-      } else if (!ignoreTypes.has(part.type)) {
-        const mimeType = `${part.type}/${part.subtype}`;
-        available.push(mimeType);
-        const disposition = part.disposition ? part.disposition.type.toLowerCase() : null;
-        if (desiredTypes.has(mimeType) && (disposition !== 'attachment')) {
-          desired.push({
-            id: part.partID,
-            // encoding and charset may be null
-            transferEncoding: part.encoding,
-            charset: part.params ? part.params.charset : null,
-            mimeType,
-          });
+      } else if (part instanceof Array && (part[0].type === 'alternative')) {
+        // Picking our desired alternative part(s) here vastly simplifies
+        // later parsing of the body, since we can then completely ignore
+        // mime structure without making any terrible mistakes. We assume
+        // here that all multipart/alternative MIME parts are arrays of
+        // text/plain vs text/html, which is ~always true (and if it isn't,
+        // the message is bound to be absurd in other ways and we can't
+        // guarantee sensible display).
+        part.shift();
+        const htmlParts = this._getDesiredMIMEParts(part).filter((p) => {
+          return p.mimeType === 'text/html';
+        });
+        if (htmlParts.length > 0) {
+          desired.push(...htmlParts);
+        }
+      } else {
+        if (part.size) { // will skip all multipart types
+          const mimeType = `${part.type}/${part.subtype}`;
+          available.push(mimeType);
+          const disposition = part.disposition ? part.disposition.type.toLowerCase() : null;
+          if (desiredTypes.has(mimeType) && (disposition !== 'attachment')) {
+            desired.push({
+              id: part.partID,
+              // encoding and charset may be null
+              transferEncoding: part.encoding,
+              charset: part.params ? part.params.charset : null,
+              mimeType,
+            });
+          }
         }
       }
       // attachment metadata is extracted later---ignore for now
