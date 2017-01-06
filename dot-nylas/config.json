@@ -18,7 +18,6 @@
         "thread-sharing",
         "composer-markdown",
         "composer-scheduler",
-        "composer-scheduler",
         "composer-mail-merge",
         "send-and-archive",
         "main-calendar"
