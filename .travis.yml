@@ -70,7 +70,7 @@ before_script:
   fi
 
 script:
-  - script/bootstrap && npm test && script/grunt ci --stack --no-color
+  - script/bootstrap && script/grunt ci --stack --no-color
 
 cache:
   directories:
