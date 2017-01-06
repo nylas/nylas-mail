@@ -74,7 +74,7 @@ export default class CategoryPickerPopover extends Component {
 
     if (account) {
       if (account.usesLabels()) {
-        hiddenCategories = Category.StandardCategoryNames.concat(["N1-Snoozed"])
+        hiddenCategories = Category.StandardCategoryNames.concat(["starred", "N1-Snoozed"])
         if (allInInbox) {
           hiddenCategories.push("inbox")
         }
