@@ -4,7 +4,7 @@ const Rx = require('rx');
 const {IMAPConnection} = require('isomorphic-core')
 
 const getThreadsForMessages = (db, messages, limit) => {
-  const {Message, Folder, Label, Thread} = db;
+  const {Message, Folder, Label, Thread, File} = db;
   const threadIds = _.uniq(messages.map((m) => m.threadId));
   return Thread.findAll({
     where: {id: threadIds},
@@ -17,6 +17,8 @@ const getThreadsForMessages = (db, messages, limit) => {
         attributes: _.without(Object.keys(Message.attributes), 'body'),
         include: [
           {model: Folder},
+          {model: Label},
+          {model: File},
         ],
       },
     ],

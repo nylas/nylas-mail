@@ -52,6 +52,7 @@ async function processExistingMessage(existingMessage, parsedMessage, rawIMAPMes
     await existingMessage.setLabels(parsedMessage.labels)
   }
   let thread = await existingMessage.getThread();
+
   if (!existingMessage.isProcessed) {
     if (!thread) {
       thread = await detectThread({db, message: parsedMessage});
@@ -60,12 +61,13 @@ async function processExistingMessage(existingMessage, parsedMessage, rawIMAPMes
     await extractFiles({db, message: existingMessage, imapMessage: rawIMAPMessage});
     await extractContacts({db, message: existingMessage});
     existingMessage.isProcessed = true;
-    await existingMessage.save();
   } else {
     if (!thread) {
       throw new Error(`Existing processed message ${existingMessage.id} doesn't have thread`)
     }
   }
+
+  await existingMessage.save();
   await thread.updateLabelsAndFolders();
 }
 

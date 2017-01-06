@@ -26,7 +26,7 @@ module.exports = (server) => {
     },
     handler: (request, reply) => {
       request.getAccountDatabase().then((db) => {
-        const {Message, Folder, Label} = db;
+        const {Message, Folder, Label, File} = db;
         const wheres = {};
         if (request.query.thread_id) {
           wheres.threadId = request.query.thread_id;
@@ -35,7 +35,7 @@ module.exports = (server) => {
           limit: request.query.limit,
           offset: request.query.offset,
           where: wheres,
-          include: [{model: Folder}, {model: Label}],
+          include: [{model: Folder}, {model: Label}, {model: File}],
         }).then((messages) => {
           reply(Serialization.jsonStringify(messages));
         })
@@ -64,12 +64,14 @@ module.exports = (server) => {
     },
     handler: (request, reply) => {
       request.getAccountDatabase().then((db) => {
-        const {Message, Folder, Label} = db;
+        const {Message, Folder, Label, File} = db;
         const {headers: {accept}} = request;
         const {params: {id}} = request;
         const account = request.auth.credentials;
 
-        Message.findOne({where: {id}, include: [{model: Folder}, {model: Label}]}).then((message) => {
+        Message.findOne({where: {id},
+          include: [{model: Folder}, {model: Label}, {model: File}]})
+        .then((message) => {
           if (!message) {
             return reply.notFound(`Message ${id} not found`)
           }

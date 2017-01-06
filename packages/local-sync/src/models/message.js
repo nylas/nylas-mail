@@ -121,10 +121,11 @@ module.exports = (sequelize, Sequelize) => {
       //   return message;
       // },
 
-      requiredAssociationsForJSON({Folder, Label}) {
+      requiredAssociationsForJSON({Folder, Label, File}) {
         return [
           {model: Folder},
           {model: Label},
+          {model: File},
         ]
       },
     },
@@ -203,8 +204,9 @@ module.exports = (sequelize, Sequelize) => {
           date: this.date ? this.date.getTime() / 1000.0 : null,
           unread: this.unread,
           starred: this.starred,
+          files: this.files ? this.files.map(f => f.toJSON()) : [],
           folder: this.folder ? this.folder.toJSON() : null,
-          labels: this.labels ? this.labels.map(l => l.toJSON()) : null,
+          labels: this.labels ? this.labels.map(l => l.toJSON()) : [],
           imap_uid: this.folderImapUID,
           thread_id: this.threadId,
         };
