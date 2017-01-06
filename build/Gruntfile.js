@@ -67,5 +67,5 @@ module.exports = (grunt) => {
 
   grunt.registerTask('build', ['setup-travis-keychain', 'packager']);
   grunt.registerTask('lint', ['eslint', 'lesslint', 'nylaslint', 'coffeelint', 'csslint']);
-  grunt.registerTask('ci', ['lint', 'build'].concat(postBuildSteps));
+  grunt.registerTask('ci', ['build'].concat(postBuildSteps));
 }
