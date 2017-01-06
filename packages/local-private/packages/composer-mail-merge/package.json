@@ -3,6 +3,7 @@
   "title":"Mail Merge",
   "description": "Send personalized emails at scale using CSV-formatted data.",
   "main": "./lib/main",
+  "isHiddenOnPluginsPage": true,
   "version": "0.1.0",
   "engines": {
     "nylas": "*"
