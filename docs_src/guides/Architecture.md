@@ -5,7 +5,7 @@ Nylas Mail uses [Reflux](https://github.com/spoike/refluxjs), a slim implementat
 - **Uni-directional data flow**
 - **Loose coupling between components**
 
-For more information about the Flux pattern, check out [this diagram](https://facebook.github.io/flux/docs/overview.html#structure-and-data-flow). For a bit more insight into why we chose Reflux over other Flux implementations, there's a great [blog post](http://spoike.ghost.io/deconstructing-reactjss-flux/) by the author of Reflux.
+For more information about the Flux pattern, check out [this diagram](https://facebook.github.io/flux/docs/in-depth-overview.html#structure-and-data-flow). For a bit more insight into why we chose Reflux over other Flux implementations, there's a great [blog post](http://spoike.ghost.io/deconstructing-reactjss-flux/) by the author of Reflux.
 
 There are several core stores in the application:
 
