@@ -43,46 +43,42 @@ function extractContacts(input) {
 }
 
 
-function extractSnippet(plainBody, htmlBody) {
-  let snippetText = plainBody ? plainBody.trim() : '';
-  if (htmlBody) {
-    const doc = new DOMParser().parseFromString(htmlBody, 'text/html')
-    const skipTags = new Set(['TITLE', 'SCRIPT', 'STYLE', 'IMG']);
-    const noSpaceTags = new Set(['B', 'I', 'STRONG', 'EM', 'SPAN']);
+function extractSnippet(body) {
+  const doc = new DOMParser().parseFromString(body, 'text/html')
+  const skipTags = new Set(['TITLE', 'SCRIPT', 'STYLE', 'IMG']);
+  const noSpaceTags = new Set(['B', 'I', 'STRONG', 'EM', 'SPAN']);
 
-    const treeWalker = document.createTreeWalker(doc, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, (node) => {
-      if (skipTags.has(node.tagName)) {
-        // skip this node and all its children
-        return NodeFilter.FILTER_REJECT;
+  const treeWalker = document.createTreeWalker(doc, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, (node) => {
+    if (skipTags.has(node.tagName)) {
+      // skip this node and all its children
+      return NodeFilter.FILTER_REJECT;
+    }
+    if (node.nodeType === Node.TEXT_NODE) {
+      const nodeValue = node.nodeValue ? node.nodeValue.trim() : null;
+      if (nodeValue) {
+        return NodeFilter.FILTER_ACCEPT;
       }
-      if (node.nodeType === Node.TEXT_NODE) {
-        const nodeValue = node.nodeValue ? node.nodeValue.trim() : null;
-        if (nodeValue) {
-          return NodeFilter.FILTER_ACCEPT;
-        }
-        return NodeFilter.FILTER_SKIP;
-      }
-      return NodeFilter.FILTER_ACCEPT;
-    });
+      return NodeFilter.FILTER_SKIP;
+    }
+    return NodeFilter.FILTER_ACCEPT;
+  });
 
-    let extractedText = "";
-    let lastNodeTag = "";
-    while (treeWalker.nextNode()) {
-      if (treeWalker.currentNode.nodeType === Node.ELEMENT_NODE) {
-        lastNodeTag = treeWalker.currentNode.nodeName;
-      } else {
-        if (extractedText && !noSpaceTags.has(lastNodeTag)) {
-          extractedText += " ";
-        }
-        extractedText += treeWalker.currentNode.nodeValue;
-        if (extractedText.length > SNIPPET_MAX_SIZE) {
-          break;
-        }
+  let extractedText = "";
+  let lastNodeTag = "";
+  while (treeWalker.nextNode()) {
+    if (treeWalker.currentNode.nodeType === Node.ELEMENT_NODE) {
+      lastNodeTag = treeWalker.currentNode.nodeName;
+    } else {
+      if (extractedText && !noSpaceTags.has(lastNodeTag)) {
+        extractedText += " ";
+      }
+      extractedText += treeWalker.currentNode.nodeValue;
+      if (extractedText.length > SNIPPET_MAX_SIZE) {
+        break;
       }
     }
-
-    snippetText = extractedText.trim();
   }
+  const snippetText = extractedText.trim();
 
   // clean up and trim snippet
   let trimmed = snippetText.replace(/[\n\r]/g, ' ').replace(/\s\s+/g, ' ').substr(0, SNIPPET_MAX_SIZE);
@@ -164,33 +160,54 @@ function getReplyHeaders(messageReplyingTo) {
   return {inReplyTo, references}
 }
 
+function bodyFromParts(imapMessage, desiredParts) {
+  let body = '';
+  for (const {id, mimeType, transferEncoding, charset} of desiredParts) {
+    let decoded = '';
+    // see https://www.w3.org/Protocols/rfc1341/5_Content-Transfer-Encoding.html
+    if (!transferEncoding || new Set(['7bit', '8bit', 'binary']).has(transferEncoding.toLowerCase())) {
+      // NO transfer encoding has been performed --- how to decode to a string
+      // depends ONLY on the charset, which defaults to 'ascii' according to
+      // https://tools.ietf.org/html/rfc2045#section-5.2
+      decoded = encoding.convert(imapMessage.parts[id], 'utf-8', charset || 'ascii').toString('utf-8');
+    } else if (transferEncoding.toLowerCase() === 'quoted-printable') {
+      decoded = mimelib.decodeQuotedPrintable(imapMessage.parts[id], charset || 'ascii');
+    } else if (transferEncoding.toLowerCase() === 'base64') {
+      decoded = mimelib.decodeBase64(imapMessage.parts[id], charset || 'ascii');
+    } else {
+      // custom x-token content-transfer-encodings
+      return Promise.reject(new Error(`Unsupported Content-Transfer-Encoding ${transferEncoding}, mimetype ${mimeType}`))
+    }
+    // desiredParts are in order of the MIME tree walk, e.g. 1.1, 1.2, 2...,
+    // and for multipart/alternative arrays, we have already pulled out the
+    // highest fidelity part (generally HTML).
+    //
+    // Therefore, the correct way to display multiple parts is to simply
+    // concatenate later ones with the body of the previous MIME parts.
+    //
+    // This may seem kind of weird, but some MUAs _do_ send out whack stuff
+    // like an HTML body followed by a plaintext footer.
+    if (mimeType === 'text/plain') {
+      body += htmlifyPlaintext(decoded);
+    } else {
+      body += decoded;
+    }
+  }
+  // sometimes decoding results in a NUL-terminated body string, which makes
+  // SQLite blow up with an 'unrecognized token' error
+  body = body.replace(/\0/g, '');
+
+  return body;
+}
 
 // Since we only fetch the MIME structure and specific desired MIME parts from
 // IMAP, we unfortunately can't use an existing library like mailparser to parse
 // the message, and have to do fun stuff like deal with character sets and
 // content-transfer-encodings ourselves.
 async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder}) {
-  const {Message, Label} = db
-  const {attributes} = imapMessage
+  const {Message, Label} = db;
+  const {attributes} = imapMessage;
 
-  const body = {}
-  for (const {id, mimeType, transferEncoding, charset} of desiredParts) {
-    // see https://www.w3.org/Protocols/rfc1341/5_Content-Transfer-Encoding.html
-    if (!transferEncoding || new Set(['7bit', '8bit', 'binary']).has(transferEncoding.toLowerCase())) {
-      // NO transfer encoding has been performed --- how to decode to a string
-      // depends ONLY on the charset, which defaults to 'ascii' according to
-      // https://tools.ietf.org/html/rfc2045#section-5.2
-      const convertedBuffer = encoding.convert(imapMessage.parts[id], 'utf-8', charset || 'ascii')
-      body[mimeType] = convertedBuffer.toString('utf-8');
-    } else if (transferEncoding.toLowerCase() === 'quoted-printable') {
-      body[mimeType] = mimelib.decodeQuotedPrintable(imapMessage.parts[id], charset || 'ascii');
-    } else if (transferEncoding.toLowerCase() === 'base64') {
-      body[mimeType] = mimelib.decodeBase64(imapMessage.parts[id], charset || 'ascii');
-    } else {
-      // custom x-token content-transfer-encodings
-      return Promise.reject(new Error(`Unsupported Content-Transfer-Encoding ${transferEncoding}, mimetype ${mimeType}`))
-    }
-  }
   const headers = imapMessage.headers.toString('ascii');
   const parsedHeaders = mimelib.parseHeaders(headers);
   for (const key of ['x-gm-thrid', 'x-gm-msgid', 'x-gm-labels']) {
@@ -204,7 +221,7 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
     from: extractContacts(parsedHeaders.from),
     replyTo: extractContacts(parsedHeaders['reply-to']),
     accountId: accountId,
-    body: body['text/html'] || body['text/plain'] || body['application/pgp-encrypted'] || '',
+    body: bodyFromParts(imapMessage, desiredParts),
     snippet: null,
     unread: !attributes.flags.includes('\\Seen'),
     starred: attributes.flags.includes('\\Flagged'),
@@ -232,16 +249,8 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
   parsedMessage.id = Message.hash(parsedMessage)
   parsedMessage.date = new Date(Date.parse(parsedMessage.date))
 
-  // sometimes decoding results in a NUL-terminated body string, which makes
-  // SQLite blow up with an 'unrecognized token' error
-  parsedMessage.body = parsedMessage.body.replace(/\0/g, '');
-
-  if (!body['text/html'] && body['text/plain']) {
-    parsedMessage.body = htmlifyPlaintext(body['text/plain']);
-  }
-
-  parsedMessage.snippet = extractSnippet(body['text/plain'], body['text/html']);
-  parsedMessage.folder = folder
+  parsedMessage.snippet = extractSnippet(parsedMessage.body);
+  parsedMessage.folder = folder;
 
   // TODO: unclear if this is necessary given we already have parsed labels
   const xGmLabels = attributes['x-gm-labels']
