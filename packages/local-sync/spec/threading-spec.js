@@ -1,6 +1,6 @@
 /* eslint global-require: 0 */
 /* eslint import/no-dynamic-require: 0 */
-const detectThread = require('../src/new-message-processor/detect-thread');
+const detectThread = require('../src/message-processor/detect-thread');
 const LocalDatabaseConnector = require('../src/shared/local-database-connector');
 
 const {FIXTURES_PATH, ACCOUNT_ID} = require('./helpers')

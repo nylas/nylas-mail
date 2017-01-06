@@ -1,22 +1,18 @@
 const _ = require('underscore');
-const os = require('os');
-const fs = require('fs');
-const path = require('path')
-const mkdirp = require('mkdirp');
-
 const {PromiseUtils, IMAPConnection} = require('isomorphic-core');
 const {Capabilities} = IMAPConnection;
-const MessageFactory = require('../../shared/message-factory')
-const {processNewMessage, processExistingMessage} = require('../../new-message-processor')
+const SyncOperation = require('../sync-operation')
+const MessageProcessor = require('../../message-processor')
+
 
 const MessageFlagAttributes = ['id', 'threadId', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']
-
 const SHALLOW_SCAN_UID_COUNT = 1000;
 const FETCH_MESSAGES_FIRST_COUNT = 100;
 const FETCH_MESSAGES_COUNT = 200;
 
-class FetchMessagesInFolder {
+class FetchMessagesInFolder extends SyncOperation {
   constructor(folder, options, logger) {
+    super()
     this._imap = null
     this._box = null
     this._db = null
@@ -194,7 +190,7 @@ class FetchMessagesInFolder {
     return desired;
   }
 
-  async _fetchMessagesAndQueueForProcessing(range) {
+  async _fetchAndProcessMessages(range) {
     const uidsByPart = {};
 
     await this._box.fetchEach(range, {struct: true}, ({attributes}) => {
@@ -207,7 +203,9 @@ class FetchMessagesInFolder {
       uidsByPart[key].push(attributes.uid);
     })
 
-    await PromiseUtils.each(Object.keys(uidsByPart), (key) => {
+    await PromiseUtils.each(Object.keys(uidsByPart), async (key) => {
+      // note: the order of UIDs in the array doesn't matter, Gmail always
+      // returns them in ascending (oldest => newest) order.
       const uids = uidsByPart[key];
       const desiredParts = JSON.parse(key);
       const bodies = ['HEADER'].concat(desiredParts.map(p => p.id));
@@ -217,44 +215,23 @@ class FetchMessagesInFolder {
       //   num_messages: uids.length,
       // }, `FetchMessagesInFolder: Fetching parts for messages`)
 
-      // note: the order of UIDs in the array doesn't matter, Gmail always
-      // returns them in ascending (oldest => newest) order.
-
-      return this._box.fetchEach(
+      const promises = []
+      await this._box.fetchEach(
         uids,
         {bodies, struct: true},
-        (imapMessage) => this._processMessage(imapMessage, desiredParts)
+        (imapMessage) => promises.push(MessageProcessor.queueMessageForProcessing({
+          imapMessage,
+          desiredParts,
+          folderId: this._folder.id,
+          accountId: this._db.accountId,
+        }))
       );
+
+      // We need to wait for all of the messages in the range to be processed
+      // before actually updating the folder sync state, otherwise we might skip
+      // messages.
+      return Promise.all(promises)
     });
-  }
-
-  async _processMessage(imapMessage, desiredParts) {
-    const {Message} = this._db
-
-    try {
-      const messageValues = await MessageFactory.parseFromImap(imapMessage, desiredParts, {
-        db: this._db,
-        folder: this._folder,
-        accountId: this._db.accountId,
-      });
-      const existingMessage = await Message.find({where: {id: messageValues.id}});
-      if (existingMessage) {
-        await processExistingMessage(existingMessage, messageValues, imapMessage)
-      } else {
-        await processNewMessage(messageValues, imapMessage)
-      }
-      console.log(`🔃 ✉️ "${messageValues.subject}" - ${messageValues.date}`)
-    } catch (err) {
-      this._logger.error(err, {
-        imapMessage,
-        desiredParts,
-      }, `FetchMessagesInFolder: Could not build message`)
-      const outJSON = JSON.stringify({imapMessage, desiredParts, result: {}});
-      const outDir = path.join(os.tmpdir(), "k2-parse-errors", this._folder.name)
-      const outFile = path.join(outDir, imapMessage.attributes.uid.toString());
-      mkdirp.sync(outDir);
-      fs.writeFileSync(outFile, outJSON);
-    }
   }
 
   async _openMailboxAndEnsureValidity() {
@@ -317,9 +294,9 @@ class FetchMessagesInFolder {
       //   range: `${min}:${max}`,
       // }, `FetchMessagesInFolder: Fetching range`);
 
-      await this._fetchMessagesAndQueueForProcessing(`${min}:${max}`);
+      await this._fetchAndProcessMessages(`${min}:${max}`);
       const {fetchedmin, fetchedmax} = this._folder.syncState;
-      return this.updateFolderSyncState({
+      return this._folder.updateSyncState({
         fetchedmin: fetchedmin ? Math.min(fetchedmin, min) : min,
         fetchedmax: fetchedmax ? Math.max(fetchedmax, max) : max,
         uidnext: boxUidnext,
@@ -372,7 +349,7 @@ class FetchMessagesInFolder {
     await this._updateMessageAttributes(remoteUIDAttributes, localMessageAttributes)
 
     // this._logger.info(`FetchMessagesInFolder: finished fetching changes to messages`);
-    return this.updateFolderSyncState({
+    return this._folder.updateSyncState({
       highestmodseq: nextHighestmodseq,
       timeShallowScan: Date.now(),
     });
@@ -398,22 +375,14 @@ class FetchMessagesInFolder {
 
     // this._logger.info(`FetchMessagesInFolder: Deep scan finished.`);
 
-    return this.updateFolderSyncState({
+    return this._folder.updateSyncState({
       highestmodseq: this._box.highestmodseq,
       timeDeepScan: Date.now(),
       timeShallowScan: Date.now(),
     });
   }
 
-  async updateFolderSyncState(newState) {
-    if (_.isMatch(this._folder.syncState, newState)) {
-      return Promise.resolve();
-    }
-    this._folder.syncState = Object.assign(this._folder.syncState, newState);
-    return this._folder.save();
-  }
-
-  async run(db, imap) {
+  async runOperation(db, imap) {
     console.log(`🔃 📂 ${this._folder.name}`)
     this._db = db;
     this._imap = imap;
@@ -423,11 +392,12 @@ class FetchMessagesInFolder {
     // If we haven't set any syncState at all, let's set it for the first time
     // to generate a delta for N1
     if (_.isEmpty(this._folder.syncState)) {
-      await this.updateFolderSyncState({
+      await this._folder.updateSyncState({
         uidnext: this._box.uidnext,
         uidvalidity: this._box.uidvalidity,
         fetchedmin: null,
         fetchedmax: null,
+        failedUIDs: [],
       })
     }
     await this._fetchUnsyncedMessages()
