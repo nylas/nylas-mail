@@ -1,11 +1,13 @@
 const {Provider, PromiseUtils} = require('isomorphic-core');
+const SyncOperation = require('../sync-operation')
 const {localizedCategoryNames} = require('../sync-utils')
 
 const BASE_ROLES = ['inbox', 'sent', 'trash', 'spam'];
 const GMAIL_ROLES_WITH_FOLDERS = ['all', 'trash', 'spam'];
 
-class FetchFolderList {
+class FetchFolderList extends SyncOperation {
   constructor(account, logger) {
+    super()
     this._account = account;
     this._provider = account.provider;
     this._logger = logger;
@@ -125,7 +127,7 @@ class FetchFolderList {
     return {next, created, deleted};
   }
 
-  async run(db, imap) {
+  async runOperation(db, imap) {
     this._db = db;
 
     const boxes = await imap.getBoxes();

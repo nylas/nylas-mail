@@ -73,7 +73,7 @@ class SyncWorker {
     this.syncNow({reason: "You've got mail!"});
   }
 
-  _getIdleFolder() {
+  _getInboxFolder() {
     return this._db.Folder.find({where: {role: ['all', 'inbox']}})
   }
 
@@ -394,8 +394,8 @@ class SyncWorker {
     // this._logger.info('Syncworker: Completed sync cycle');
 
     // Start idling on the inbox
-    const idleFolder = await this._getIdleFolder();
-    await this._conn.openBox(idleFolder.name);
+    const inbox = await this._getInboxFolder();
+    await this._conn.openBox(inbox.name);
     // this._logger.info('SyncWorker: Idling on inbox folder');
   }
 

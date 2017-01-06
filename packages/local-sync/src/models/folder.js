@@ -1,3 +1,4 @@
+const _ = require('underscore')
 const crypto = require('crypto')
 const {DatabaseTypes: {JSONColumn}} = require('isomorphic-core');
 const {formatImapPath} = require('../shared/imap-paths-utils');
@@ -30,6 +31,9 @@ module.exports = (sequelize, Sequelize) => {
      *
      *   // Timestamp when we last fetched unseen messages
      *   timeFetchedUnseen,
+     *
+     *   // UIDs that failed to be fetched
+     *   failedUIDs,
      * }
     */
     syncState: JSONColumn('syncState'),
@@ -61,6 +65,14 @@ module.exports = (sequelize, Sequelize) => {
           this.syncState.fetchedmin <= 1 &&
           this.syncState.fetchedmax >= this.syncState.uidnext
         )
+      },
+
+      updateSyncState(nextSyncState = {}) {
+        if (_.isMatch(this.syncState, nextSyncState)) {
+          return Promise.resolve();
+        }
+        this.syncState = Object.assign(this.syncState, nextSyncState);
+        return this.save();
       },
 
       toJSON() {
