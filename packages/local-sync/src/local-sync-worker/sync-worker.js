@@ -286,6 +286,8 @@ class SyncWorker {
     }
 
     this._syncStart = Date.now()
+    clearTimeout(this._syncTimer);
+    this._syncTimer = null;
     this._interrupted = false
     this._syncAttemptsWhileInProgress = 0
     this._syncInProgress = true
@@ -304,9 +306,7 @@ class SyncWorker {
     try {
       await this._account.update({syncError: null});
       await this.ensureConnection();
-
       await this.runNewSyncbackTasks();
-
       await this._conn.runOperation(new FetchFolderList(this._account, this._logger));
 
       // TODO prioritize syncing all of inbox first if there's a ton of folders (e.g. imap
@@ -435,7 +435,6 @@ class SyncWorker {
     console.log(`🔃 🔜 in ${nextSyncIn}ms`)
 
     this._syncTimer = setTimeout(() => {
-      this.closeConnection();
       this.syncNow({reason});
     }, nextSyncIn);
   }
