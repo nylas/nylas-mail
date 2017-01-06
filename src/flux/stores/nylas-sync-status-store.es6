@@ -118,11 +118,14 @@ class NylasSyncStatusStore extends NylasStore {
   }
 
   /**
-   * Returns the weighted sync progress for all accounts as a percentage, and
+   * Returns the weighted sync progress as a percentage, and
    * the total number of messages to sync for a given account
    */
   getSyncProgressForAccount(accountId) {
-    const {folderSyncProgress = {}} = this._statesByAccount[accountId]
+    const state = this._statesByAccount[accountId]
+    if (!state) { return null }
+    const {folderSyncProgress} = this._statesByAccount[accountId]
+    if (!folderSyncProgress) { return null }
     const folderNames = Object.keys(folderSyncProgress)
     const progressPerFolder = folderNames.map(fname => folderSyncProgress[fname])
     const weightedProgress = progressPerFolder.reduce(
@@ -144,7 +147,9 @@ class NylasSyncStatusStore extends NylasStore {
   getSyncProgress() {
     const accountIds = AccountStore.accountIds()
     const progressPerAccount = (
-      accountIds.map(accId => this.getSyncProgressForAccount(accId))
+      accountIds
+      .map(accId => this.getSyncProgressForAccount(accId))
+      .filter(p => p != null)
     )
     const weightedProgress = progressPerAccount.reduce(
       (accum, {progress, total}) => accum + progress * total, 0
