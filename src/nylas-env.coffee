@@ -889,27 +889,20 @@ class NylasEnvConstructor
         detail: message
       }
     else
-      withoutDetails = ->
-        remote.dialog.showMessageBox winToShow, {
-          type: 'warning'
-          buttons: ['Okay', 'Show Details'],
-          message: title
-          detail: message
-        }, (buttonIndex) ->
-          if buttonIndex == 1
-            withDetails()
-
-      withDetails = ->
-        remote.dialog.showMessageBox winToShow, {
-          type: 'warning'
-          buttons: ['Okay', 'Hide Details'],
-          message: title
-          detail: message + '\n\nDetails\n‾‾‾‾‾‾‾‾‾‾\n' + detail
-        }, (buttonIndex) ->
-          if buttonIndex == 1
-            withoutDetails()
-
-      withoutDetails()
+      remote.dialog.showMessageBox winToShow, {
+        type: 'warning'
+        buttons: ['Okay', 'Show Details'],
+        message: title
+        detail: message
+      }, (buttonIndex) ->
+        if buttonIndex == 1
+          {Actions} = require 'nylas-exports'
+          {CodeSnippet} = require 'nylas-component-kit'
+          Actions.openModal({
+            component: CodeSnippet({intro: message, code: detail, className: 'error-details'})
+            height: 600,
+            width: 800,
+          })
 
   # Delegate to the browser's process fileListCache
   fileListCache: ->

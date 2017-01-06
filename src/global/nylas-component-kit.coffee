@@ -97,6 +97,7 @@ class NylasComponentKit
   @load "OAuthSignInPage", "oauth-signin-page"
   @requireFrom "AttachmentItem", "attachment-items"
   @requireFrom "ImageAttachmentItem", "attachment-items"
+  @load "CodeSnippet", "code-snippet"
 
   @load "ScrollRegion", 'scroll-region'
   @load "ResizableRegion", 'resizable-region'
