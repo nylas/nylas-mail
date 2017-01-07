@@ -33,5 +33,8 @@ module.exports = {
       'inbox.papierkorb', 'odeslan\xc3\xa9', 'mail/sent-mail',
       'ko\xc5\xa1', 'outbox', 'outbox', 'inbox.sentmail', 'gesendet',
       'ko\xc5\xa1/sent items', 'gesendete elemente'],
+    archive: [
+      'archive',
+    ],
   },
 }

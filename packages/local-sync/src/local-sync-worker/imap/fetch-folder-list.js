@@ -2,7 +2,7 @@ const {Provider, PromiseUtils} = require('isomorphic-core');
 const SyncOperation = require('../sync-operation')
 const {localizedCategoryNames} = require('../sync-utils')
 
-const BASE_ROLES = ['inbox', 'sent', 'trash', 'spam'];
+const BASE_ROLES = ['inbox', 'archive', 'sent', 'trash', 'spam'];
 const GMAIL_ROLES_WITH_FOLDERS = ['all', 'trash', 'spam'];
 
 class FetchFolderList extends SyncOperation {
