@@ -101,35 +101,72 @@ class MessageProcessor {
     }
   }
 
-  async _processNewMessage(message, struct) {
-    const {accountId} = message;
+  // Replaces ["<rfc2822messageid>", ...] with [[object Reference], ...]
+  // Creates references that do not yet exist, and adds the correct
+  // associations as well
+  async _addReferences(db, message, thread, references) {
+    const {Reference} = db;
+
+    let existingReferences = [];
+    if (references.length > 0) {
+      existingReferences = await Reference.findAll({
+        where: {
+          rfc2822MessageId: references,
+        },
+      });
+    }
+
+    const refByMessageId = {};
+    for (const ref of existingReferences) {
+      refByMessageId[ref.rfc2822MessageId] = ref;
+    }
+    for (const mid of references) {
+      if (!refByMessageId[mid]) {
+        refByMessageId[mid] = await Reference.create({rfc2822MessageId: mid, threadId: thread.id});
+      }
+    }
+
+    const referencesInstances = references.map(mid => refByMessageId[mid]);
+    message.addReferences(referencesInstances);
+    message.referencesOrder = referencesInstances.map(ref => ref.id);
+    thread.addReferences(referencesInstances);
+  }
+
+  async _processNewMessage(messageValues, struct) {
+    const {accountId} = messageValues;
     const db = await LocalDatabaseConnector.forAccount(accountId);
     const {Message} = db
 
-    const existingMessage = await Message.findById(message.id)
+    const existingMessage = await Message.findById(messageValues.id)
     if (existingMessage) {
       // This is an extremely rare case when 2 or more /new/ messages with
       // the exact same headers were queued for creation (same subject,
       // participants, timestamp, and message-id header). In this case, we
       // will ignore it and report the error
-      console.warn('MessageProcessor: Encountered 2 new messages with the same id', {message})
+      console.warn('MessageProcessor: Encountered 2 new messages with the same id', messageValues)
       return null
     }
-    const thread = await detectThread({db, message});
-    message.threadId = thread.id;
-    const createdMessage = await Message.create(message);
+    const thread = await detectThread({db, messageValues});
+    messageValues.threadId = thread.id;
+    const createdMessage = await Message.create(messageValues);
 
-    if (message.labels) {
-      await createdMessage.addLabels(message.labels)
-      // Note that the labels aren't officially added until save() is called later
+    if (messageValues.labels) {
+      await createdMessage.addLabels(messageValues.labels)
+      // Note that the labels aren't officially associated until save() is called later
     }
 
-    const files = await extractFiles({db, message, struct});
+    await this._addReferences(db, createdMessage, thread, messageValues.references);
+
+    // TODO: need to delete dangling references somewhere (maybe at the
+    // end of the sync loop?)
+
+    const files = await extractFiles({db, messageValues, struct});
     if (files.length > 0 && !thread.hasAttachments) {
       thread.hasAttachments = true;
       await thread.save();
     }
-    await extractContacts({db, message});
+    await extractContacts({db, messageValues});
+
     createdMessage.isProcessed = true;
     await createdMessage.save()
     return createdMessage

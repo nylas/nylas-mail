@@ -19,6 +19,10 @@ module.exports = (db, sequelize, {only, onCreatedTransaction} = {}) => {
         name = 'metadata';
       }
 
+      if (name === 'reference') {
+        return;
+      }
+
       if ((only && !only.includes(name)) || isTransaction($modelOptions)) {
         return;
       }

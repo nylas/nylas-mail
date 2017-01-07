@@ -39,10 +39,12 @@ module.exports = (sequelize, Sequelize) => {
           },
         ]
       },
-      associate: ({Thread, Folder, ThreadFolder, Label, ThreadLabel, Message}) => {
+      associate: ({Thread, Folder, ThreadFolder, Label, ThreadLabel, Message, Reference}) => {
         Thread.belongsToMany(Folder, {through: ThreadFolder})
         Thread.belongsToMany(Label, {through: ThreadLabel})
         Thread.hasMany(Message, {onDelete: 'cascade', hooks: true})
+        // TODO: what is the desired cascade behaviour for references?
+        Thread.hasMany(Reference)
       },
     },
     instanceMethods: {

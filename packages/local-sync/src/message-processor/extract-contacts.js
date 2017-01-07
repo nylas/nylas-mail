@@ -13,11 +13,11 @@ function isContactMeaningful(contact) {
   return true
 }
 
-async function extractContacts({db, message}) {
+async function extractContacts({db, messageValues}) {
   const {Contact} = db
   let allContacts = [];
   ['to', 'from', 'bcc', 'cc'].forEach((field) => {
-    allContacts = allContacts.concat(message[field])
+    allContacts = allContacts.concat(messageValues[field])
   })
 
   const meaningfulContacts = allContacts.filter(c => isContactMeaningful(c));
@@ -28,7 +28,7 @@ async function extractContacts({db, message}) {
       id,
       name: c.name,
       email: c.email,
-      accountId: message.accountId,
+      accountId: messageValues.accountId,
     }
     contactsDataById.set(id, cdata)
   })

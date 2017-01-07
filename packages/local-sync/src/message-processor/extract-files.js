@@ -1,10 +1,10 @@
-function collectFilesFromStruct({db, message, struct, fileIds = new Set()}) {
+function collectFilesFromStruct({db, messageValues, struct, fileIds = new Set()}) {
   const {File} = db;
   let collected = [];
 
   for (const part of struct) {
     if (part.constructor === Array) {
-      collected = collected.concat(collectFilesFromStruct({db, message, struct: part, fileIds}));
+      collected = collected.concat(collectFilesFromStruct({db, messageValues, struct: part, fileIds}));
     } else {
       const disposition = part.disposition || {}
       const filename = (disposition.params || {}).filename;
@@ -23,7 +23,7 @@ function collectFilesFromStruct({db, message, struct, fileIds = new Set()}) {
       if (!isAttachment) continue
 
       const partId = part.partID
-      const fileId = `${message.id}-${partId}-${part.size}`
+      const fileId = `${messageValues.id}-${partId}-${part.size}`
       if (!fileIds.has(fileId)) {
         collected.push(File.build({
           id: fileId,
@@ -31,8 +31,8 @@ function collectFilesFromStruct({db, message, struct, fileIds = new Set()}) {
           partId: partId,
           encoding: part.encoding,
           filename: filename,
-          messageId: message.id,
-          accountId: message.accountId,
+          messageId: messageValues.id,
+          accountId: messageValues.accountId,
           contentType: `${part.type}/${part.subtype}`,
           contentId,
         }));
@@ -44,8 +44,8 @@ function collectFilesFromStruct({db, message, struct, fileIds = new Set()}) {
   return collected;
 }
 
-async function extractFiles({db, message, struct}) {
-  const files = collectFilesFromStruct({db, message, struct});
+async function extractFiles({db, messageValues, struct}) {
+  const files = collectFilesFromStruct({db, messageValues, struct});
   if (files.length > 0) {
     for (const file of files) {
       await file.save()

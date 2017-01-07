@@ -18,7 +18,7 @@ const SNIPPET_MAX_SIZE = 255;
 // where each element of the array is the unparsed contents of a single
 // element of the same header field. (It's totally valid to have multiple
 // From/To/etc. headers on the same email.)
-function computeContacts(input) {
+function parseContacts(input) {
   if (!input || input.length === 0 || !input[0]) {
     return [];
   }
@@ -41,7 +41,7 @@ function computeContacts(input) {
 }
 
 
-function computeSnippet(body) {
+function parseSnippet(body) {
   const doc = new DOMParser().parseFromString(body, 'text/html')
   const skipTags = new Set(['TITLE', 'SCRIPT', 'STYLE', 'IMG']);
   const noSpaceTags = new Set(['B', 'I', 'STRONG', 'EM', 'SPAN']);
@@ -92,6 +92,23 @@ function computeSnippet(body) {
   return trimmed;
 }
 
+// In goes arrays of text, out comes sets of RFC2822 Message-Ids. Luckily,
+// these days most all text in In-Reply-To, Message-Id, and References headers
+// actually conforms to the spec.
+function parseReferences(input) {
+  if (!input || !input.length || !input[0]) {
+    return [];
+  }
+  const references = new Set();
+  for (const headerLine of input) {
+    for (const ref of headerLine.split(/\s+/)) {
+      if (/^<.*>$/.test(ref)) {
+        references.add(ref);
+      }
+    }
+  }
+  return Array.from(references);
+}
 
 function htmlifyPlaintext(text) {
   const escapedText = he.escape(text);
@@ -147,7 +164,17 @@ function getReplyHeaders(messageReplyingTo) {
   if (messageReplyingTo.headerMessageId) {
     inReplyTo = messageReplyingTo.headerMessageId;
     if (messageReplyingTo.references) {
-      references = messageReplyingTo.references.concat(messageReplyingTo.headerMessageId);
+      const refById = {};
+      for (const ref of messageReplyingTo.references) {
+        refById[ref.id] = ref;
+      }
+      references = [];
+      for (const referenceId of messageReplyingTo.referencesOrder) {
+        references.push(refById[referenceId].rfc2822MessageId);
+      }
+      if (!references.includes(messageReplyingTo.headerMessageId)) {
+        references.push(messageReplyingTo.headerMessageId);
+      }
     } else {
       references = [messageReplyingTo.headerMessageId];
     }
@@ -214,11 +241,11 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
   }
 
   const parsedMessage = {
-    to: computeContacts(parsedHeaders.to),
-    cc: computeContacts(parsedHeaders.cc),
-    bcc: computeContacts(parsedHeaders.bcc),
-    from: computeContacts(parsedHeaders.from),
-    replyTo: computeContacts(parsedHeaders['reply-to']),
+    to: parseContacts(parsedHeaders.to),
+    cc: parseContacts(parsedHeaders.cc),
+    bcc: parseContacts(parsedHeaders.bcc),
+    from: parseContacts(parsedHeaders.from),
+    replyTo: parseContacts(parsedHeaders['reply-to']),
     accountId: accountId,
     body: bodyFromParts(imapMessage, desiredParts),
     snippet: null,
@@ -237,7 +264,15 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
     folderId: folder.id,
     folder: null,
     labels: [],
-    headerMessageId: parsedHeaders['message-id'] ? parsedHeaders['message-id'][0] : '',
+    headerMessageId: parseReferences(parsedHeaders['message-id'])[0],
+    // References are not saved on the message model itself, but are later
+    // converted to associated Reference objects so we can index them. Since we
+    // don't do tree threading, we don't need to care about In-Reply-To
+    // separately, and can simply associate them all in the same way.
+    // Generally, References already contains the Message-IDs in In-Reply-To,
+    // but we concat and dedupe just in case.
+    references: parseReferences((parsedHeaders.references || []).concat(
+      (parsedHeaders['in-reply-to'] || []), (parsedHeaders['message-id'] || []))),
     gMsgId: parsedHeaders['x-gm-msgid'],
     gThrId: parsedHeaders['x-gm-thrid'],
     subject: parsedHeaders.subject ? parsedHeaders.subject[0] : '(no subject)',
@@ -247,10 +282,10 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
   parsedMessage.id = Message.hash(parsedMessage)
   parsedMessage.date = new Date(Date.parse(parsedMessage.date))
 
-  parsedMessage.snippet = computeSnippet(parsedMessage.body);
+  parsedMessage.snippet = parseSnippet(parsedMessage.body);
+
   parsedMessage.folder = folder;
 
-  // TODO: unclear if this is necessary given we already have parsed labels
   const xGmLabels = attributes['x-gm-labels']
   if (xGmLabels) {
     parsedMessage.folderImapXGMLabels = JSON.stringify(xGmLabels)
@@ -270,7 +305,7 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
 
 
 async function buildForSend(db, json) {
-  const {Thread, Message} = db
+  const {Thread, Message, Reference} = db
   let replyToThread;
   let replyToMessage;
 
@@ -286,7 +321,8 @@ async function buildForSend(db, json) {
   }
 
   if (json.reply_to_message_id != null) {
-    replyToMessage = await Message.findById(json.reply_to_message_id);
+    replyToMessage = await Message.findById(json.reply_to_message_id,
+      { include: [{model: Reference, as: 'references', attributes: ['id', 'rfc2822MessageId']}] });
   }
 
   if (replyToThread && replyToMessage) {
@@ -319,8 +355,6 @@ async function buildForSend(db, json) {
     to: json.to,
     cc: json.cc,
     bcc: json.bcc,
-    references,
-    inReplyTo,
     replyTo: json.reply_to,
     subject: json.subject,
     body: json.body,
@@ -340,14 +374,19 @@ async function buildForSend(db, json) {
   messageForHashing.date = date.toUTCString().replace(/GMT/, '+0000')
   message.id = Message.hash(messageForHashing)
   message.body = replaceMessageIdInBodyTrackingLinks(message.id, message.body)
-  return Message.build(message)
+  const instance = Message.build(message)
+  // we don't store these fields in the db, so if we set them on `message`
+  // beforehand Message.build() would drop them---this is just a convenience
+  instance.inReplyTo = inReplyTo;
+  instance.references = references;
+  return instance;
 }
 
 module.exports = {
   buildForSend,
   parseFromImap,
-  computeSnippet,
-  computeContacts,
+  parseSnippet,
+  parseContacts,
   stripTrackingLinksFromBody,
   buildTrackingBodyForRecipient,
   replaceMessageIdInBodyTrackingLinks,
