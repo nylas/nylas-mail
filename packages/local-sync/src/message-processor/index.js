@@ -117,6 +117,12 @@ class MessageProcessor {
     const thread = await detectThread({db, message});
     message.threadId = thread.id;
     const createdMessage = await Message.create(message);
+
+    if (message.labels) {
+      await createdMessage.addLabels(message.labels)
+      // Note that the labels aren't officially added until save() is called later
+    }
+
     await extractFiles({db, message, imapMessage});
     await extractContacts({db, message});
     createdMessage.isProcessed = true;
