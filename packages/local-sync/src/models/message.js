@@ -15,7 +15,7 @@ module.exports = (sequelize, Sequelize) => {
     id: { type: Sequelize.STRING(65), primaryKey: true },
     accountId: { type: Sequelize.STRING, allowNull: false },
     version: Sequelize.INTEGER,
-    headerMessageId: Sequelize.STRING,
+    headerMessageId: { type: Sequelize.STRING, allowNull: true },
     gMsgId: { type: Sequelize.STRING, allowNull: true },
     gThrId: { type: Sequelize.STRING, allowNull: true },
     body: Sequelize.TEXT,
@@ -43,10 +43,12 @@ module.exports = (sequelize, Sequelize) => {
     replyTo: JSONArrayColumn('replyTo', {
       allowNull: true,
     }),
-    inReplyTo: { type: Sequelize.STRING, allowNull: true},
-    references: JSONArrayColumn('references'),
     folderImapUID: { type: Sequelize.STRING, allowNull: true},
     folderImapXGMLabels: { type: Sequelize.TEXT, allowNull: true},
+    // an array of IDs to Reference objects, specifying which order they
+    // appeared on the original message (so we don't muck up the order when
+    // sending replies, which could break other mail clients)
+    referencesOrder: JSONArrayColumn('referencesOrder', { allowNull: true }),
     uploads: JSONArrayColumn('uploads', {
       validate: {
         uploadStructure(stringifiedArr) {
@@ -70,11 +72,15 @@ module.exports = (sequelize, Sequelize) => {
       {fields: ['folderImapUID']}, // Use in `searchThreads`
     ],
     classMethods: {
-      associate({Message, Folder, Label, File, Thread, MessageLabel}) {
+      associate({Message, Folder, Label, File, Thread, MessageLabel, Reference, MessageReference}) {
         Message.belongsTo(Thread)
         Message.belongsTo(Folder)
         Message.belongsToMany(Label, {through: MessageLabel})
         Message.hasMany(File, {onDelete: 'cascade', hooks: true})
+        Message.belongsToMany(Reference, {
+          through: MessageReference,
+          as: 'references',
+        })
       },
 
       hash({from = [], to = [], cc = [], bcc = [], date = '', subject = '', headerMessageId = ''} = {}) {

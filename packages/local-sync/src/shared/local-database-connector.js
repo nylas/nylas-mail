@@ -57,7 +57,7 @@ class LocalDatabaseConnector {
     return this.forAccount(accountId).then((db) => {
       // this is a bit of a hack, because sequelize.sync() doesn't work with
       // schemas. It's necessary to sync models individually and in the right order.
-      const models = ['Contact', 'Folder', 'Label', 'Transaction', 'Thread', 'ThreadLabel', 'ThreadFolder', 'Message', 'MessageLabel', 'File', 'SyncbackRequest'];
+      const models = ['Contact', 'Folder', 'Label', 'Transaction', 'Thread', 'ThreadLabel', 'ThreadFolder', 'Message', 'MessageLabel', 'Reference', 'MessageReference', 'File', 'SyncbackRequest'];
       return PromiseUtils.each(models, (n) =>
         db[n].sync()
       )

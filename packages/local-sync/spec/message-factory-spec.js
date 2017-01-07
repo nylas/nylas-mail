@@ -1,5 +1,5 @@
 const LocalDatabaseConnector = require('../src/shared/local-database-connector');
-const {parseFromImap, computeSnippet, computeContacts} = require('../src/shared/message-factory');
+const {parseFromImap, parseSnippet, parseContacts} = require('../src/shared/message-factory');
 const {forEachJSONFixture, forEachHTMLAndTXTFixture, ACCOUNT_ID} = require('./helpers');
 
 xdescribe('MessageFactory', function MessageFactorySpecs() {
@@ -101,26 +101,26 @@ const contactsTestCases = [{
 ]
 
 describe('MessageFactoryHelpers', function MessageFactoryHelperSpecs() {
-  describe('computeSnippet (basic)', () => {
+  describe('parseSnippet (basic)', () => {
     snippetTestCases.forEach(({purpose, body, snippet}) => {
       it(`should ${purpose}`, () => {
-        const parsedSnippet = computeSnippet(body);
+        const parsedSnippet = parseSnippet(body);
         expect(parsedSnippet).toEqual(snippet);
       });
     });
   });
-  describe('computeSnippet (real world)', () => {
-    forEachHTMLAndTXTFixture('MessageFactory/computeSnippet', (filename, html, txt) => {
+  describe('parseSnippet (real world)', () => {
+    forEachHTMLAndTXTFixture('MessageFactory/parseSnippet', (filename, html, txt) => {
       it(`should correctly extract the snippet from the html`, () => {
-        const parsedSnippet = computeSnippet(html);
+        const parsedSnippet = parseSnippet(html);
         expect(parsedSnippet).toEqual(txt);
       });
     });
   });
-  describe('computeContacts (basic)', () => {
+  describe('parseContacts (basic)', () => {
     contactsTestCases.forEach(({purpose, input, output}) => {
       it(`should ${purpose}`, () => {
-        const parsedContacts = computeContacts(input);
+        const parsedContacts = parseContacts(input);
         expect(parsedContacts).toEqual(output);
       });
     });
