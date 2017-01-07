@@ -27,7 +27,9 @@ function pickMatchingThread(message, threads, maxThreadLength) {
         // No need to loop through the rest of the messages in the thread
         if (thread.messages.length >= maxThreadLength) {
           break;
-        } else return thread;
+        } else {
+          return thread;
+        }
       }
 
       // handle the case where someone is self-sending an email
@@ -42,7 +44,9 @@ function pickMatchingThread(message, threads, maxThreadLength) {
           && newMsgToEmails === existingMsgFromEmails) {
         if (thread.messages.length >= maxThreadLength) {
           break;
-        } else return thread;
+        } else {
+          return thread;
+        }
       }
     }
   }
