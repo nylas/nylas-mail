@@ -28,6 +28,7 @@ module.exports = (sequelize, Sequelize) => {
       { fields: ['remoteThreadId'] },
     ],
     classMethods: {
+      MAX_THREAD_LENGTH: 500,
       requiredAssociationsForJSON: ({Folder, Label, Message}) => {
         return [
           {model: Folder},
