@@ -1,4 +1,3 @@
-
 module.exports = {
   copyModel(Model, model, updates = {}) {
     const fields = Object.keys(model.dataValues)
