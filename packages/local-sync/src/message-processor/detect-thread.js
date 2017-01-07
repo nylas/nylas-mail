@@ -73,7 +73,7 @@ async function findOrBuildByMatching(db, message) {
     order: [
       ['id', 'DESC'],
     ],
-    limit: 10,
+    limit: 50,
     include: [{model: Label}, {model: Folder},
               {model: Message, attributes: ["to", "cc", "from"]}],
   });
