@@ -78,7 +78,8 @@ class SendmailClient {
 
     msgData.inReplyTo = message.inReplyTo;
     msgData.references = message.references;
-    // TODO do we actually need message.headers here?
+    // message.headers is usually unset, but in the case that we do add
+    // headers elsewhere, we don't want to override them here
     msgData.headers = message.headers || {};
     msgData.headers['User-Agent'] = `NylasMailer-K2`
 
