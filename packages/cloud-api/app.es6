@@ -23,6 +23,8 @@ import HapiSwagger from 'hapi-swagger';
 // https://github.com/hapijs/hapi-auth-basic
 import HapiBasicAuth from 'hapi-auth-basic';
 
+import Handlebars from 'handlebars'
+
 import {Logger, Metrics} from 'cloud-core';
 
 import Package from './package.json';
@@ -38,6 +40,7 @@ import registerMetadataRoutes from './src/routes/metadata'
 import registerHoneycombRoutes from './src/routes/honeycomb'
 import registerLinkTrackingRoutes from './src/routes/link-tracking'
 import registerOpenTrackingRoutes from './src/routes/open-tracking'
+import registerStaticRoutes from './src/routes/static'
 
 /**
  * API Decorators
@@ -88,6 +91,7 @@ server.register(plugins, (err) => {
   registerHoneycombRoutes(server)
   registerLinkTrackingRoutes(server)
   registerOpenTrackingRoutes(server)
+  registerStaticRoutes(server)
 
   registerLoggerDecorator(server)
   registerErrorFormatDecorator(server)
@@ -97,8 +101,19 @@ server.register(plugins, (err) => {
   });
   server.auth.default('api-consumer');
 
+  server.views({
+    engines: {
+      html: Handlebars,
+    },
+    relativeTo: __dirname,
+    path: 'src/views',
+    layoutPath: 'src/views/layout',
+    layout: 'default',
+  });
+
   server.start((startErr) => {
     if (startErr) { throw startErr; }
     global.Logger.info({url: server.info.uri}, 'API running');
   });
 });
+

@@ -135,7 +135,7 @@ export default function registerAuthRoutes(server) {
         const account = await GAuth.createCloudAccount(settings, profile)
         request.logger.info("Creating PendingAuthResponse")
         await GAuth.createPendingAuthResponse(account, settings, n1Key)
-        reply("Thanks! Go back to N1 now.");
+        reply.view('gmail-auth-success')
       } catch (err) {
         reply(Boom.wrap(err))
       }
