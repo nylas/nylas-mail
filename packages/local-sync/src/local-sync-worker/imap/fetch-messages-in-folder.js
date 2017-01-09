@@ -357,7 +357,8 @@ class FetchMessagesInFolder extends SyncOperation {
         // this._logger.info('FetchMessagesInFolder: highestmodseq matches, nothing more to fetch')
         return Promise.resolve();
       }
-      shallowFetch = this._box.fetchUIDAttributes(`1:*`, {changedsince: highestmodseq});
+      shallowFetch = this._box.fetchUIDAttributes(`1:*`,
+        {modifiers: {changedsince: highestmodseq}});
     } else {
       const range = `${this._getLowerBoundUID(SHALLOW_SCAN_UID_COUNT)}:*`;
       // this._logger.info({range}, `FetchMessagesInFolder: Shallow attribute scan`)
