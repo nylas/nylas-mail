@@ -9,9 +9,9 @@ import {
   MutableQuerySubscription,
 } from 'nylas-exports'
 import SearchActions from './search-actions'
+import {parseSearchQuery} from './search-query-parser'
 
 const {LongConnectionStatus} = NylasAPI
-
 
 class SearchQuerySubscription extends MutableQuerySubscription {
 
@@ -56,10 +56,19 @@ class SearchQuerySubscription extends MutableQuerySubscription {
     if (this._accountIds.length === 1) {
       dbQuery = dbQuery.where({accountId: this._accountIds[0]})
     }
+    try {
+      const parsedQuery = parseSearchQuery(this._searchQuery);
+      console.info('Successfully parsed and codegened search query', parsedQuery);
+      dbQuery = dbQuery.structuredSearch(parsedQuery);
+    } catch (e) {
+      console.info('Failed to parse local search query, falling back to generic query', e);
+      dbQuery = dbQuery.search(this._searchQuery);
+    }
     dbQuery = dbQuery
-    .search(this._searchQuery)
-    .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
-    .limit(100)
+      .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
+      .limit(100)
+
+    console.info('dbQuery.sql() =', dbQuery.sql());
 
     dbQuery.then((results) => {
       if (results.length > 0) {

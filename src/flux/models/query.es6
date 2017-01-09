@@ -140,6 +140,12 @@ export default class ModelQuery {
     return this;
   }
 
+  structuredSearch(query) {
+    this._assertNotFinalized();
+    this._matchers.push(new Matcher.StructuredSearch(query));
+    return this;
+  }
+
   // Public: Include specific joined data attributes in result objects.
   // - `attr` A {AttributeJoinedData} that you want to be populated in
   //  the returned models. Note: This results in a LEFT OUTER JOIN.
