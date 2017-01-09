@@ -104,6 +104,9 @@ lazyLoadAndRegisterModel(`Calendar`, 'calendar');
 lazyLoadAndRegisterModel(`JSONBlob`, 'json-blob');
 lazyLoadAndRegisterModel(`ProviderSyncbackRequest`, 'provider-syncback-request');
 
+// Thread Search Query AST
+lazyLoad(`ThreadQueryAST`, 'flux/models/thread-query-ast');
+
 // Tasks
 exports.TaskRegistry = TaskRegistry;
 lazyLoad(`Task`, 'flux/tasks/task');

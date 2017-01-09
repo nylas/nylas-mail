@@ -22,23 +22,21 @@ class ThreadSearchIndexStore {
   }
 
   activate() {
-    NylasSyncStatusStore.whenSyncComplete().then(() => {
-      const date = Date.now()
-      console.log('Thread Search: Initializing thread search index...')
+    const date = Date.now()
+    console.log('Thread Search: Initializing thread search index...')
 
-      this.accountIds = _.pluck(AccountStore.accounts(), 'id')
-      this.initializeIndex()
-      .then(() => {
-        NylasEnv.config.set('threadSearchIndexVersion', INDEX_VERSION)
-        return Promise.resolve()
-      })
-      .then(() => {
-        console.log(`Thread Search: Index built successfully in ${((Date.now() - date) / 1000)}s`)
-        this.unsubscribers = [
-          AccountStore.listen(this.onAccountsChanged),
-          DatabaseStore.listen(this.onDataChanged),
-        ]
-      })
+    this.accountIds = _.pluck(AccountStore.accounts(), 'id')
+    this.initializeIndex()
+    .then(() => {
+      NylasEnv.config.set('threadSearchIndexVersion', INDEX_VERSION)
+      return Promise.resolve()
+    })
+    .then(() => {
+      console.log(`Thread Search: Index built successfully in ${((Date.now() - date) / 1000)}s`)
+      this.unsubscribers = [
+        AccountStore.listen(this.onAccountsChanged),
+        DatabaseStore.listen(this.onDataChanged),
+      ]
     })
   }
 
@@ -84,31 +82,29 @@ class ThreadSearchIndexStore {
    */
   onAccountsChanged = () => {
     _.defer(() => {
-      NylasSyncStatusStore.whenSyncComplete().then(() => {
-        const latestIds = _.pluck(AccountStore.accounts(), 'id')
-        if (_.isEqual(this.accountIds, latestIds)) {
-          return;
-        }
-        const date = Date.now()
-        console.log(`Thread Search: Updating thread search index for accounts ${latestIds}`)
+      const latestIds = _.pluck(AccountStore.accounts(), 'id')
+      if (_.isEqual(this.accountIds, latestIds)) {
+        return;
+      }
+      const date = Date.now()
+      console.log(`Thread Search: Updating thread search index for accounts ${latestIds}`)
 
-        const newIds = _.difference(latestIds, this.accountIds)
-        const removedIds = _.difference(this.accountIds, latestIds)
-        const promises = []
-        if (newIds.length > 0) {
-          promises.push(this.buildIndex(newIds))
-        }
+      const newIds = _.difference(latestIds, this.accountIds)
+      const removedIds = _.difference(this.accountIds, latestIds)
+      const promises = []
+      if (newIds.length > 0) {
+        promises.push(this.buildIndex(newIds))
+      }
 
-        if (removedIds.length > 0) {
-          promises.push(
-            Promise.all(removedIds.map(id => DatabaseStore.unindexModelsForAccount(id, Thread)))
-          )
-        }
-        this.accountIds = latestIds
-        Promise.all(promises)
-        .then(() => {
-          console.log(`Thread Search: Index updated successfully in ${((Date.now() - date) / 1000)}s`)
-        })
+      if (removedIds.length > 0) {
+        promises.push(
+          Promise.all(removedIds.map(id => DatabaseStore.unindexModelsForAccount(id, Thread)))
+        )
+      }
+      this.accountIds = latestIds
+      Promise.all(promises)
+      .then(() => {
+        console.log(`Thread Search: Index updated successfully in ${((Date.now() - date) / 1000)}s`)
       })
     })
   }
@@ -128,9 +124,7 @@ class ThreadSearchIndexStore {
     }
     _.defer(() => {
       const {objects, type} = change
-      const threads = objects.filter(({accountId}) =>
-        NylasSyncStatusStore.isSyncCompleteForAccount(accountId)
-      )
+      const threads = objects;
 
       let promises = []
       if (type === 'persist') {
