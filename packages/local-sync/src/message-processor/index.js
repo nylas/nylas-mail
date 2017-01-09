@@ -124,7 +124,11 @@ class MessageProcessor {
       // Note that the labels aren't officially added until save() is called later
     }
 
-    await extractFiles({db, message, struct});
+    const files = await extractFiles({db, message, struct});
+    if (files.length > 0 && !thread.hasAttachments) {
+      thread.hasAttachments = true;
+      await thread.save();
+    }
     await extractContacts({db, message});
     createdMessage.isProcessed = true;
     await createdMessage.save()
@@ -156,7 +160,11 @@ class MessageProcessor {
         thread = await detectThread({db, message: parsedMessage});
         existingMessage.threadId = thread.id;
       }
-      await extractFiles({db, message: existingMessage, struct});
+      const files = await extractFiles({db, message: existingMessage, struct});
+      if (files.length > 0 && !thread.hasAttachments) {
+        thread.hasAttachments = true;
+        await thread.save();
+      }
       await extractContacts({db, message: existingMessage});
       existingMessage.isProcessed = true;
     } else {

@@ -51,7 +51,7 @@ async function extractFiles({db, message, struct}) {
       await file.save()
     }
   }
-  return Promise.resolve()
+  return Promise.resolve(files)
 }
 
 module.exports = extractFiles
