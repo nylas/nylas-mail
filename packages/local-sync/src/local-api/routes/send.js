@@ -3,19 +3,19 @@ const Utils = require('../../shared/utils');
 const {createSyncbackRequest} = require('../route-helpers');
 
 
-const recipient = Joi.object().keys({
-  name: Joi.string().required(),
-  email: Joi.string().email().required(),
-  // Rest are optional
-  account_id: Joi.string(),
-  client_id: Joi.string(),
-  id: Joi.string(),
-  thirdPartyData: Joi.object(),
-  server_id: Joi.string(),
-  object: Joi.string(),
-});
+// const recipient = Joi.object().keys({
+//   name: Joi.string().required(),
+//   email: Joi.string().email().required(),
+//   // Rest are optional
+//   account_id: Joi.string(),
+//   client_id: Joi.string(),
+//   id: Joi.string(),
+//   thirdPartyData: Joi.object(),
+//   server_id: Joi.string(),
+//   object: Joi.string(),
+// });
 
-const recipientList = Joi.array().items(recipient);
+// const recipientList = Joi.array().items(recipient);
 
 module.exports = (server) => {
   server.route({
