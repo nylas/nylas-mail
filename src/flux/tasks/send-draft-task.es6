@@ -16,8 +16,30 @@ import EnsureMessageInSentFolderTask from './ensure-message-in-sent-folder-task'
 const OPEN_TRACKING_ID = NylasEnv.packages.pluginIdFor('open-tracking')
 const LINK_TRACKING_ID = NylasEnv.packages.pluginIdFor('link-tracking')
 
-// TODO
-// Refactor this to consolidate error handling across all Sending tasks
+/**
+ * TOOD: NOTE: The SendDraft process is extremely sensitive to the worker
+ * window crashing part-way through sending. This will be true until we
+ * unifiy N1 and K2's sync worker systems.
+ *
+ * Unfortunately the sendMessage "API" request is wrapped in
+ * SyncbackTaskAPIRequest. The API task doesn't resolve until the
+ * corresponding SyncbackTask has been processed in K2 and either
+ * succeeded or failed. We only know if this happens based on listening to
+ * the DeltaStream for a SyncbackTask delta.
+ *
+ * If the worker window (where the TaskQueue and K2 live) reboots before
+ * K2 gets around to actually running the task, then our `SendDraftTask`
+ * will be half-way through performRemote when it reboots. The TaskQueue
+ * will attempt to restore from disk, but the fact we were half-way
+ * through the performRemote, and the syncbackRequest handler we were
+ * listening to is currently not saved to disk. This means that
+ * SendDraftTask will never know when or if the corresponding K2
+ * SyncbackTask ever finished.
+ *
+ * Not knowing this it will try and send the task again, but fail due to
+ * the ensureOnce protection we have preventing API requests from running
+ * twice.
+ */
 export default class SendDraftTask extends BaseDraftTask {
 
   constructor(draftClientId, {playSound = true, emitError = true, allowMultiSend = true} = {}) {
@@ -194,17 +216,22 @@ export default class SendDraftTask extends BaseDraftTask {
       }
     }
 
-    if (err instanceof RequestEnsureOnceError) {
-      // TODO delete draft
-    }
-
-    if (this.emitError && !(err instanceof RequestEnsureOnceError)) {
-      Actions.draftDeliveryFailed({
-        threadId: this.draft.threadId,
-        draftClientId: this.draft.clientId,
-        errorMessage: message,
-        errorDetail: err.message + (err.error ? err.error.stack : '') + err.stack,
-      });
+    if (this.emitError) {
+      if (err instanceof RequestEnsureOnceError) {
+        Actions.draftDeliveryFailed({
+          threadId: this.draft.threadId,
+          draftClientId: this.draft.clientId,
+          errorMessage: `WARNING: Your message MIGHT have sent. We encountered a network problem while the send was in progress. Please wait a few minutes then check your sent folder and try again if necessary.`,
+          errorDetail: `Please email support@nylas.com if you see this error message.`,
+        });
+      } else {
+        Actions.draftDeliveryFailed({
+          threadId: this.draft.threadId,
+          draftClientId: this.draft.clientId,
+          errorMessage: message,
+          errorDetail: err.message + (err.error ? err.error.stack : '') + err.stack,
+        });
+      }
     }
     NylasEnv.reportError(err);
 
