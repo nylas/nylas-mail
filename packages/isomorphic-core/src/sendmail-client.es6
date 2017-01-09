@@ -78,7 +78,8 @@ class SendmailClient {
 
     msgData.inReplyTo = message.inReplyTo;
     msgData.references = message.references;
-    msgData.headers = message.headers;
+    // TODO do we actually need message.headers here?
+    msgData.headers = message.headers || {};
     msgData.headers['User-Agent'] = `NylasMailer-K2`
 
     return msgData;
