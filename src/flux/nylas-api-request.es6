@@ -97,7 +97,7 @@ export default class NylasAPIRequest {
     if (this.options.ensureOnce === true) {
       try {
         if (this.requestHasSucceededBefore()) {
-          const error = new RequestEnsureOnceError('NylasAPIRequest: request with `ensureOnce = true` has already succeeded before')
+          const error = new RequestEnsureOnceError('NylasAPIRequest: request with `ensureOnce = true` has already succeeded before. This commonly happens when the worker window reboots before send has completed.')
           return Promise.reject(error)
         }
       } catch (error) {
