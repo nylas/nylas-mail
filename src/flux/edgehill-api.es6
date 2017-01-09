@@ -1,6 +1,10 @@
 import AccountStore from './stores/account-store'
 import NylasAPIRequest from './nylas-api-request';
 
+// We're currently moving between services hosted on edgehill-api (written in
+// Python) and services written in Node. Since we're doing this move progressively,
+// we need to be able to use the two services at once. That's why we have two
+// objects, EdgehillAPI (new API) and LegacyEdgehillAPI (old API).
 class _EdgehillAPI {
   constructor() {
     NylasEnv.config.onDidChange('env', this._onConfigChanged);
