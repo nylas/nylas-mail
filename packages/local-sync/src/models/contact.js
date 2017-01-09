@@ -1,5 +1,14 @@
 const crypto = require('crypto')
 
+/**
+ * NOTE: SQLITE creates an index on the `primaryKey` (the ID) for you.
+ * This "Auto Index" is called `sqlite_autoindex_contacts_1`.
+ *
+ * If you run `EXPLAIN QUERY PLAN SELECT * FROM contacts WHERE id=1` you
+ * get:
+ *   SEARCH TABLE contacts USING INDEX sqlite_autoindex_contacts_1
+ * (id=?)
+ */
 module.exports = (sequelize, Sequelize) => {
   return sequelize.define('contact', {
     id: {type: Sequelize.STRING(65), primaryKey: true},
@@ -8,12 +17,6 @@ module.exports = (sequelize, Sequelize) => {
     name: Sequelize.STRING,
     email: Sequelize.STRING,
   }, {
-    indexes: [
-      {
-        unique: true,
-        fields: ['id'],
-      },
-    ],
     classMethods: {
       hash({email}) {
         return crypto.createHash('sha256').update(email, 'utf8').digest('hex');

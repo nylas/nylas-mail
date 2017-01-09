@@ -260,10 +260,7 @@ class ImapSearchClient {
     const {Message} = db;
     return (await this._search(db, query)).flatMap((uids) => {
       return Message.findAll({
-        where: {
-          accountId: this.account.id,
-          folderImapUID: uids,
-        },
+        where: {folderImapUID: uids},
       });
     }).flatMap((messages) => {
       return getThreadsForMessages(db, messages, limit);

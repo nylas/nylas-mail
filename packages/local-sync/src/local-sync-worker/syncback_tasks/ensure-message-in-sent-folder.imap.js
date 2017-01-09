@@ -32,7 +32,7 @@ class EnsureMessageInSentFolderIMAP extends SyncbackTask {
     }
 
     const baseMessage = await Message.findById(messageId,
-      {include: [{model: db.Folder}, {model: db.Label}]});
+      {include: [{model: db.Folder}, {model: db.Label}, {model: db.File}]});
 
     if (!baseMessage) {
       throw new APIError(`Couldn't find message ${messageId} to stuff in sent folder`, 500)
