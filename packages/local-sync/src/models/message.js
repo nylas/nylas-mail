@@ -62,18 +62,10 @@ module.exports = (sequelize, Sequelize) => {
     }),
   }, {
     indexes: [
-      {
-        unique: true,
-        fields: ['id'],
-      },
-      {
-        unique: false,
-        fields: ['folderId'],
-      },
-      {
-        unique: false,
-        fields: ['threadId'],
-      },
+      {fields: ['folderId']},
+      {fields: ['threadId']},
+      {fields: ['gMsgId']}, // Use in `searchThreads`
+      {fields: ['folderImapUID']}, // Use in `searchThreads`
     ],
     hooks: {
       beforeUpdate(message) {

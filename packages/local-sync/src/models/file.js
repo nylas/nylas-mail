@@ -13,17 +13,14 @@ module.exports = (sequelize, Sequelize) => {
     accountId: { type: Sequelize.STRING, allowNull: false },
     contentType: Sequelize.STRING(500),
   }, {
+    indexes: [
+      {fields: ['messageId']},
+    ],
     classMethods: {
       associate: ({File, Message}) => {
         File.belongsTo(Message)
       },
     },
-    indexes: [
-      {
-        unique: true,
-        fields: ['id'],
-      },
-    ],
     instanceMethods: {
       async fetch({account, db, logger}) {
         const settings = Object.assign({}, account.connectionSettings, account.decryptedCredentials())

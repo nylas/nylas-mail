@@ -38,16 +38,6 @@ module.exports = (sequelize, Sequelize) => {
     */
     syncState: JSONColumn('syncState'),
   }, {
-    indexes: [
-      {
-        unique: true,
-        fields: ['role'],
-      },
-      {
-        unique: true,
-        fields: ['id'],
-      },
-    ],
     classMethods: {
       associate({Folder, Message, Thread}) {
         Folder.hasMany(Message)
