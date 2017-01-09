@@ -68,10 +68,14 @@ describe('Clean app boot', () => {
       const json = JSON.parse(jsonStr);
       $n._nylasApiMakeRequest = $n.NylasAPIRequest.run;
       $n._edgehillRequest = $n.EdgehillAPI.makeRequest;
+      $n._legacyEdgehillRequest = $n.LegacyEdgehillAPI.makeRequest;
       $n.NylasAPIRequest.run = () => {
         return Promise.resolve(json);
       };
       $n.EdgehillAPI.makeRequest = ({success}) => {
+        success(json);
+      };
+      $n.LegacyEdgehillAPI.makeRequest = ({success}) => {
         success(json);
       };
     }, fakeAccountJson)

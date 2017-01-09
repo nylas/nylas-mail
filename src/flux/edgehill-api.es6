@@ -1,7 +1,7 @@
 import AccountStore from './stores/account-store'
 import NylasAPIRequest from './nylas-api-request';
 
-class EdgehillAPI {
+class _EdgehillAPI {
   constructor() {
     NylasEnv.config.onDidChange('env', this._onConfigChanged);
     this._onConfigChanged();
@@ -56,4 +56,5 @@ class EdgehillAPI {
   }
 }
 
-export default new EdgehillAPI();
+const EdgehillAPI = new _EdgehillAPI();
+export {EdgehillAPI, _EdgehillAPI};
