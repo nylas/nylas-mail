@@ -3,5 +3,8 @@
     "electron",
     "react"
   ],
+  "plugins": [
+    "transform-async-generator-functions"
+  ],
   "sourceMaps": "inline"
 }

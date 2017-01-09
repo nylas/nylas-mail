@@ -17,6 +17,7 @@
     "analytics-node": "2.x.x",
     "async": "^0.9",
     "babel-core": "6.20.0",
+    "babel-plugin-transform-async-generator-functions": "6.17.0",
     "babel-preset-electron": "^0.37.8",
     "babel-preset-react": "6.16.0",
     "babel-regenerator-runtime": "6.5.0",
