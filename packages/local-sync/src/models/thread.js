@@ -21,6 +21,7 @@ module.exports = (sequelize, Sequelize) => {
     lastMessageReceivedDate: Sequelize.DATE,
     lastMessageSentDate: Sequelize.DATE,
     participants: JSONArrayColumn('participants'),
+    hasAttachments: {type: Sequelize.BOOLEAN, defaultValue: false},
   }, {
     indexes: [
       { fields: ['subject'] },
@@ -170,6 +171,7 @@ module.exports = (sequelize, Sequelize) => {
           snippet: this.snippet,
           unread: this.unreadCount > 0,
           starred: this.starredCount > 0,
+          has_attachments: this.hasAttachments,
           last_message_timestamp: this.lastMessageDate ? this.lastMessageDate.getTime() / 1000.0 : null,
           last_message_sent_timestamp: this.lastMessageSentDate ? this.lastMessageSentDate.getTime() / 1000.0 : null,
           last_message_received_timestamp: this.lastMessageReceivedDate ? this.lastMessageReceivedDate.getTime() / 1000.0 : null,
