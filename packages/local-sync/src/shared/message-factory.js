@@ -32,12 +32,7 @@ function extractContacts(input) {
       return null
     }
     const {name, address: email} = v;
-    // contacts without an email address are worthless, especially when
-    // extracted from emails
-    if (!email) {
-      return null;
-    }
-    return {name, email}
+    return {name, email};
   })
   .filter(c => c != null)
 }
