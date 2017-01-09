@@ -5,7 +5,7 @@
  RegExpUtils,
  IdentityStore,
  AccountStore,
- EdgehillAPI} = require 'nylas-exports'
+ LegacyEdgehillAPI} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
 EmailPopover = require './email-popover'
 PGPKeyStore = require './pgp-key-store'
@@ -28,7 +28,7 @@ class KeybaseInviteButton extends React.Component
       @setState({loading: false})
       NylasEnv.showErrorDialog(err.message)
 
-    EdgehillAPI.makeRequest
+    LegacyEdgehillAPI.makeRequest
       authWithNylasAPI: true
       path: "/keybase-invite",
       method: "POST",

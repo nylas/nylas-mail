@@ -1,7 +1,7 @@
 import NylasStore from 'nylas-store';
 import {remote} from 'electron';
 
-import EdgehillAPI from '../edgehill-api';
+import {LegacyEdgehillAPI} from 'nylas-exports';
 
 const autoUpdater = remote.getGlobal('application').autoUpdateManager;
 
@@ -29,7 +29,7 @@ class UpdateChannelStore extends NylasStore {
   }
 
   refreshChannel() {
-    EdgehillAPI.makeRequest({
+    LegacyEdgehillAPI.makeRequest({
       method: 'GET',
       path: `/update-channel`,
       qs: autoUpdater.parameters(),
@@ -43,7 +43,7 @@ class UpdateChannelStore extends NylasStore {
   }
 
   setChannel(channelName) {
-    EdgehillAPI.makeRequest({
+    LegacyEdgehillAPI.makeRequest({
       method: 'POST',
       path: `/update-channel`,
       qs: Object.assign({channel: channelName}, autoUpdater.parameters()),
