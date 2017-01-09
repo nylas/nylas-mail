@@ -12,6 +12,7 @@ module.exports = (sequelize, Sequelize) => {
     messageId: { type: Sequelize.STRING, allowNull: false },
     accountId: { type: Sequelize.STRING, allowNull: false },
     contentType: Sequelize.STRING(500),
+    contentId: Sequelize.STRING(500),
   }, {
     indexes: [
       {fields: ['messageId']},
@@ -54,6 +55,7 @@ module.exports = (sequelize, Sequelize) => {
           message_id: this.messageId,
           account_id: this.accountId,
           content_type: this.contentType,
+          content_id: this.contentId,
         };
       },
     },
