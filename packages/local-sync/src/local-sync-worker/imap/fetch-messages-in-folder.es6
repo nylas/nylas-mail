@@ -62,7 +62,7 @@ class FetchMessagesInFolder extends SyncOperation {
     // Step 1: Identify changed messages and update their attributes in place
 
     const preloadedLabels = await Label.findAll();
-    await PromiseUtils.each(Object.keys(remoteUIDAttributes), async (uid) => {
+    for (const uid of Object.keys(remoteUIDAttributes)) {
       const msg = messageAttributesMap[uid];
       const attrs = remoteUIDAttributes[uid];
 
@@ -86,7 +86,7 @@ class FetchMessagesInFolder extends SyncOperation {
         msg.starred = starred;
         messagesWithChangedFlags.push(msg);
       }
-    })
+    }
 
     if (createdUIDs.length > 0) {
       // this._logger.info({
@@ -213,11 +213,12 @@ class FetchMessagesInFolder extends SyncOperation {
     return desired;
   }
 
-  async _fetchAndProcessMessages(range) {
+  async * _fetchAndProcessMessages({min, max} = {}) {
     const uidsByPart = {};
     const structsByPart = {};
+    const rangeQuery = `${min}:${max}`
 
-    await this._box.fetchEach(range, {struct: true}, ({attributes}) => {
+    yield this._box.fetchEach(rangeQuery, {struct: true}, ({attributes}) => {
       const desiredParts = this._getDesiredMIMEParts(attributes.struct);
       if (desiredParts.length === 0) {
         return;
@@ -228,7 +229,7 @@ class FetchMessagesInFolder extends SyncOperation {
       structsByPart[key] = attributes.struct;
     })
 
-    await PromiseUtils.each(Object.keys(uidsByPart), async (key) => {
+    for (const key of Object.keys(uidsByPart)) {
       // note: the order of UIDs in the array doesn't matter, Gmail always
       // returns them in ascending (oldest => newest) order.
       const uids = uidsByPart[key];
@@ -238,28 +239,52 @@ class FetchMessagesInFolder extends SyncOperation {
       const bodies = ['HEADER.FIELDS (FROM TO SUBJECT DATE CC BCC REPLY-TO IN-REPLY-TO REFERENCES MESSAGE-ID)'].concat(desiredParts.map(p => p.id));
       const struct = structsByPart[key];
 
-      const promises = []
-      await this._box.fetchEach(
+      const messagesToProcess = []
+      yield this._box.fetchEach(
         uids,
         {bodies},
-        (imapMessage) => promises.push(MessageProcessor.queueMessageForProcessing({
+        (imapMessage) => messagesToProcess.push(imapMessage)
+      );
+
+      // Processing messages is not fire and forget.
+      // We need to wait for all of the messages in the range to be processed
+      // before actually updating the folder sync state. If we optimistically
+      // updated the fetched range, we would have to persist the processing
+      // queue to disk in case you quit the app and there are still messages
+      // left in the queue. Otherwise we would end up skipping messages.
+      for (const imapMessage of messagesToProcess) {
+        // This will resolve when the message is actually processed
+        await MessageProcessor.queueMessageForProcessing({
           imapMessage,
           struct,
           desiredParts,
           folderId: this._folder.id,
           accountId: this._db.accountId,
-        }))
-      );
+        })
+        // Yield to allow interruption
+        // If execution gets interrupted here, we will have to refetch these
+        // messages because the folder.syncState won't get updated, but that's
+        // ok.
+        yield
+      }
+    }
 
-      // We need to wait for all of the messages in the range to be processed
-      // before actually updating the folder sync state, otherwise we might skip
-      // messages.
-      return Promise.all(promises)
+    // Update our folder sync state to reflect the messages we've synced and
+    // processed
+    const boxUidnext = this._box.uidnext;
+    const boxUidvalidity = this._box.uidvalidity;
+    const {fetchedmin, fetchedmax} = this._folder.syncState;
+    return this._folder.updateSyncState({
+      fetchedmin: fetchedmin ? Math.min(fetchedmin, min) : min,
+      fetchedmax: fetchedmax ? Math.max(fetchedmax, max) : max,
+      uidnext: boxUidnext,
+      uidvalidity: boxUidvalidity,
+      timeFetchedUnseen: Date.now(),
     });
   }
 
-  async _openMailboxAndEnsureValidity() {
-    const box = await this._imap.openBox(this._folder.name);
+  async * _openMailboxAndEnsureValidity() {
+    const box = yield this._imap.openBox(this._folder.name);
 
     if (box.persistentUIDs === false) {
       throw new Error("Mailbox does not support persistentUIDs.");
@@ -280,12 +305,10 @@ class FetchMessagesInFolder extends SyncOperation {
     return box;
   }
 
-  async _fetchUnsyncedMessages() {
+  * _fetchUnsyncedMessages() {
     const savedSyncState = this._folder.syncState;
     const isFirstSync = savedSyncState.fetchedmax == null;
     const boxUidnext = this._box.uidnext;
-    const boxUidvalidity = this._box.uidvalidity;
-
     const desiredRanges = [];
 
     // this._logger.info({
@@ -313,31 +336,26 @@ class FetchMessagesInFolder extends SyncOperation {
       }
     }
 
-    await PromiseUtils.each(desiredRanges, async ({min, max}) => {
+    for (const range of desiredRanges) {
       // this._logger.info({
       //   range: `${min}:${max}`,
       // }, `FetchMessagesInFolder: Fetching range`);
-
-      await this._fetchAndProcessMessages(`${min}:${max}`);
-      const {fetchedmin, fetchedmax} = this._folder.syncState;
-      return this._folder.updateSyncState({
-        fetchedmin: fetchedmin ? Math.min(fetchedmin, min) : min,
-        fetchedmax: fetchedmax ? Math.max(fetchedmax, max) : max,
-        uidnext: boxUidnext,
-        uidvalidity: boxUidvalidity,
-        timeFetchedUnseen: Date.now(),
-      });
-    });
+      yield this._fetchAndProcessMessages(range);
+    }
 
     // this._logger.info(`FetchMessagesInFolder: Fetching messages finished`);
   }
 
-  _runScan() {
+  * _runScan() {
     const {fetchedmin, fetchedmax} = this._folder.syncState;
     if ((fetchedmin === undefined) || (fetchedmax === undefined)) {
       throw new Error("Unseen messages must be fetched at least once before the first update/delete scan.")
     }
-    return this._shouldRunDeepScan() ? this._runDeepScan() : this._runShallowScan()
+    if (this._shouldRunDeepScan()) {
+      yield this._runDeepScan()
+    } else {
+      yield this._runShallowScan()
+    }
   }
 
   _shouldRunDeepScan() {
@@ -345,7 +363,7 @@ class FetchMessagesInFolder extends SyncOperation {
     return Date.now() - (timeDeepScan || 0) > this._options.deepFolderScan;
   }
 
-  async _runShallowScan() {
+  async * _runShallowScan() {
     const {highestmodseq} = this._folder.syncState;
     const nextHighestmodseq = this._box.highestmodseq;
 
@@ -365,8 +383,8 @@ class FetchMessagesInFolder extends SyncOperation {
       shallowFetch = this._box.fetchUIDAttributes(range);
     }
 
-    const remoteUIDAttributes = await shallowFetch;
-    const localMessageAttributes = await this._db.Message.findAll({
+    const remoteUIDAttributes = yield shallowFetch;
+    const localMessageAttributes = yield this._db.Message.findAll({
       where: {folderId: this._folder.id},
       attributes: MessageFlagAttributes,
     })
@@ -380,15 +398,15 @@ class FetchMessagesInFolder extends SyncOperation {
     });
   }
 
-  async _runDeepScan() {
+  async * _runDeepScan() {
     const {Message} = this._db;
     const {fetchedmin, fetchedmax} = this._folder.syncState;
     const range = `${fetchedmin}:${fetchedmax}`;
 
     // this._logger.info({range}, `FetchMessagesInFolder: Deep attribute scan: fetching attributes in range`)
 
-    const remoteUIDAttributes = await this._box.fetchUIDAttributes(range)
-    const localMessageAttributes = await Message.findAll({
+    const remoteUIDAttributes = yield this._box.fetchUIDAttributes(range)
+    const localMessageAttributes = yield Message.findAll({
       where: {folderId: this._folder.id},
       attributes: MessageFlagAttributes,
     })
@@ -399,7 +417,6 @@ class FetchMessagesInFolder extends SyncOperation {
     })
 
     // this._logger.info(`FetchMessagesInFolder: Deep scan finished.`);
-
     return this._folder.updateSyncState({
       highestmodseq: this._box.highestmodseq,
       timeDeepScan: Date.now(),
@@ -407,17 +424,19 @@ class FetchMessagesInFolder extends SyncOperation {
     });
   }
 
-  async runOperation(db, imap) {
+  // This operation is interruptible, see `SyncOperation` for info on why we use
+  // `yield`
+  * runOperation(db, imap) {
     console.log(`🔃 📂 ${this._folder.name}`)
     this._db = db;
     this._imap = imap;
 
-    this._box = await this._openMailboxAndEnsureValidity();
+    this._box = yield this._openMailboxAndEnsureValidity();
 
     // If we haven't set any syncState at all, let's set it for the first time
     // to generate a delta for N1
     if (_.isEmpty(this._folder.syncState)) {
-      await this._folder.updateSyncState({
+      yield this._folder.updateSyncState({
         uidnext: this._box.uidnext,
         uidvalidity: this._box.uidvalidity,
         fetchedmin: null,
@@ -425,8 +444,8 @@ class FetchMessagesInFolder extends SyncOperation {
         failedUIDs: [],
       })
     }
-    await this._fetchUnsyncedMessages()
-    await this._runScan()
+    yield this._fetchUnsyncedMessages()
+    yield this._runScan()
   }
 }
 

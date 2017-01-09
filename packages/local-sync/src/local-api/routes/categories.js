@@ -68,6 +68,7 @@ module.exports = (server) => {
               object: klass.toLowerCase(),
               displayName: payload.display_name,
             },
+            syncbackImmediately: true,
           })
         }
       },
@@ -106,6 +107,7 @@ module.exports = (server) => {
                 labelId: request.params.id,
                 displayName: payload.display_name,
               },
+              syncbackImmediately: true,
             })
           } else {
             createSyncbackRequest(request, reply, {
@@ -115,6 +117,7 @@ module.exports = (server) => {
                 folderId: request.params.id,
                 displayName: payload.display_name,
               },
+              syncbackImmediately: true,
             })
           }
         }
