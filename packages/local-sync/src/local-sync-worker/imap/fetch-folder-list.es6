@@ -1,6 +1,7 @@
-const {Provider, PromiseUtils} = require('isomorphic-core');
+const {Provider} = require('isomorphic-core');
 const SyncOperation = require('../sync-operation')
 const {localizedCategoryNames} = require('../sync-utils')
+
 
 const BASE_ROLES = ['inbox', 'archive', 'sent', 'trash', 'spam'];
 const GMAIL_ROLES_WITH_FOLDERS = ['all', 'trash', 'spam'];
@@ -127,16 +128,17 @@ class FetchFolderList extends SyncOperation {
     return {next, created, deleted};
   }
 
-  async runOperation(db, imap) {
+  // This operation is interruptible, see `SyncOperation` for info on why we use
+  // `yield`
+  async * runOperation(db, imap) {
+    console.log(`🔃  Fetching folder list`)
     this._db = db;
 
-    const boxes = await imap.getBoxes();
+    const boxes = yield imap.getBoxes();
     const {Folder, Label} = this._db;
 
-    const {folders, labels} = await PromiseUtils.props({
-      folders: Folder.findAll(),
-      labels: Label.findAll(),
-    })
+    const folders = yield Folder.findAll()
+    const labels = yield Label.findAll()
     const all = [].concat(folders, labels);
     const {next, created, deleted} = this._updateCategoriesWithBoxes(all, boxes);
 

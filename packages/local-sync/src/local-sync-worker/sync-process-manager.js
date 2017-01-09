@@ -54,10 +54,10 @@ class SyncProcessManager {
   workers() { return _.values(this._workers) }
   dbs() { return this.workers().map(w => w._db) }
 
-  wakeWorkerForAccount(accountId, {reason = 'Waking sync', priority} = {}) {
+  wakeWorkerForAccount(accountId, {reason = 'Waking sync', interrupt} = {}) {
     const worker = this._workers[accountId]
     if (worker) {
-      worker.syncNow({reason, priority});
+      worker.syncNow({reason, interrupt});
     }
   }
 
