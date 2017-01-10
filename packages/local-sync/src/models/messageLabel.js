@@ -17,7 +17,7 @@ module.exports = (sequelize) => {
       // the order ['labelId', 'messageId']. This is the correct index we
       // need for queries requesting Messages for a certain Label.
       //
-      // We need to create one more index to allow queryes from the
+      // We need to create one more index to allow queries from the
       // reverse direction requesting Labels for a certain Message.
       {fields: ['messageId', 'labelId']},
     ],

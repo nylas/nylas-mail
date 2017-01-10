@@ -17,7 +17,7 @@ module.exports = (sequelize) => {
       // the order ['threadId', 'folderId']. This is the correct index we
       // need for queries requesting Folders for a certain Thread.
       //
-      // We need to create one more index to allow queryes from the
+      // We need to create one more index to allow queries from the
       // reverse direction requesting Threads for a certain Folder.
       {fields: ['folderId', 'threadId']},
     ],
