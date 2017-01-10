@@ -193,20 +193,27 @@ class SyncWorker {
    */
   async _getNewSyncbackTasks() {
     const {SyncbackRequest, Message} = this._db;
-    const where = {
-      limit: 100,
-      where: {status: "NEW"},
-      order: [['createdAt', 'ASC']],
-    };
+    const sendTaskTypes = ['SendMessage', 'SendMessagePerRecipient', 'EnsureMessageInSentFolder']
 
-    const tasks = await SyncbackRequest.findAll(where)
+    const sendTasks = await SyncbackRequest.findAll({
+      limit: 100,
+      where: {type: sendTaskTypes, status: 'NEW'},
+      order: [['createdAt', 'ASC']],
+    })
+    .map((req) => SyncbackTaskFactory.create(this._account, req))
+    const tasks = await SyncbackRequest.findAll({
+      limit: 100,
+      where: {type: {$notIn: sendTaskTypes}, status: 'NEW'},
+      order: [['createdAt', 'ASC']],
+    })
     .map((req) => SyncbackTaskFactory.create(this._account, req))
 
-    if (tasks.length === 0) { return [] }
+    if (sendTasks.length === 0 && tasks.length === 0) { return [] }
 
-    // TODO prioritize Send!
-
-    const tasksToProcess = tasks.filter(t => !t.affectsImapMessageUIDs())
+    const tasksToProcess = [
+      ...sendTasks,
+      ...tasks.filter(t => !t.affectsImapMessageUIDs()),
+    ]
     const tasksAffectingUIDs = tasks.filter(t => t.affectsImapMessageUIDs())
 
     const changeFolderTasks = tasksAffectingUIDs.filter(t =>
@@ -402,7 +409,7 @@ class SyncWorker {
     const sortedFolders = yield this._getFoldersToSync()
     const {folderSyncOptions} = this._account.syncPolicy;
     for (const folder of sortedFolders) {
-      this._runOperation(new FetchMessagesInFolder(folder, folderSyncOptions, this._logger))
+      await this._runOperation(new FetchMessagesInFolder(folder, folderSyncOptions, this._logger))
       yield  // Yield to allow interruption
     }
   }

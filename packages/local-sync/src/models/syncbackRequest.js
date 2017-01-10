@@ -26,7 +26,7 @@ module.exports = (sequelize, Sequelize) => {
     accountId: { type: Sequelize.STRING, allowNull: false },
   }, {
     indexes: [
-      {fields: ['status']},
+      {fields: ['status', 'type']},
     ],
     instanceMethods: {
       toJSON() {
