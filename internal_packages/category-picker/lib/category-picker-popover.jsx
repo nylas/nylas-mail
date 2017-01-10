@@ -186,6 +186,11 @@ export default class CategoryPickerPopover extends Component {
       TaskQueueStatusStore.waitForPerformRemote(syncbackTask).then(() => {
         DatabaseStore.findBy(category.constructor, {clientId: category.clientId})
         .then((cat) => {
+          if (!cat) {
+            const categoryType = account.usesLabels() ? "label" : "folder";
+            NylasEnv.showErrorDialog({title: "Error", message: `Could not create ${categoryType}.`})
+            return;
+          }
           const applyTask = TaskFactory.taskForApplyingCategory({
             threads: threads,
             category: cat,
