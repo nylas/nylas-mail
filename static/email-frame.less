@@ -99,7 +99,11 @@
     max-width: 100%;
   }
 
-  pre {
+  pre.nylas-plaintext {
+    // The default font for <pre> tags is the system monospace font. We want
+    // themes to be able to override with monospace, but not have that be the
+    // default for normal people.
+    font-family: "Nylas-Pro", "Helvetica", "Lucidia Grande", sans-serif;
     white-space: pre-wrap;
     word-wrap: break-word;
   }
