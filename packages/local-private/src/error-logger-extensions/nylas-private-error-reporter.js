@@ -64,7 +64,6 @@ module.exports = (function (...args) {
   };
 
   ErrorReporter.prototype._prepareSentryCaptureObjects = function (error, extra) {
-    let captureObjects = this._prepareSentryCaptureObjects(error, extra)
     // Never send user auth tokens
     if (error.requestOptions && error.requestOptions.auth) {
       delete error.requestOptions.auth;
@@ -76,7 +75,7 @@ module.exports = (function (...args) {
     }
 
     if (extra && extra.pluginIds && extra.pluginIds.length > 0) {
-      captureObjects = [];
+      const captureObjects = [];
       for (let i = 0; i < extra.pluginIds.length; i++) {
         captureObjects.push({
           extra: extra,
