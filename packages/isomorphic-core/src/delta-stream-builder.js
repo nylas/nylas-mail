@@ -10,7 +10,10 @@ const stream = require('stream');
  * the inflated model they reference.
  */
 function inflateTransactions(db, accountId, transactions = [], sourceName) {
-  const transactionJSONs = transactions.map((t) => (t.toJSON ? t.toJSON() : t))
+  const transactionJSONs = transactions
+  .filter((t) => t.event !== 'delete')
+  .map((t) => (t.toJSON ? t.toJSON() : t))
+
   transactionJSONs.forEach((t) => {
     t.cursor = t.id;
     t.accountId = accountId;
