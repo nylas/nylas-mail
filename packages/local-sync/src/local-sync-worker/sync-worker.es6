@@ -164,7 +164,7 @@ class SyncWorker {
     const openBoxName = this._conn ? this._conn.getOpenBoxName() : null
     const isInboxUpdate = (
       openBoxName &&
-      ['inbox', 'all'].includes(openBoxName.toLowerCase())
+      ['inbox', '[gmail]/all mail'].includes(openBoxName.toLowerCase())
     )
     if (!isInboxUpdate) { return; }
     this.syncNow({reason: "You've got mail!"});
