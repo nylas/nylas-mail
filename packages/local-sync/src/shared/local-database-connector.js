@@ -6,7 +6,7 @@ const TransactionConnector = require('./transaction-connector')
 
 require('./database-extensions'); // Extends Sequelize on require
 
-const ENABLE_SEQUELIZE_DEUBG_LOGGING = false
+const ENABLE_SEQUELIZE_DEBUG_LOGGING = false
 
 class LocalDatabaseConnector {
   constructor() {
@@ -18,7 +18,7 @@ class LocalDatabaseConnector {
     return new Sequelize(dbname, '', '', {
       storage: storage,
       dialect: "sqlite",
-      logging: ENABLE_SEQUELIZE_DEUBG_LOGGING ? console.log : false,
+      logging: ENABLE_SEQUELIZE_DEBUG_LOGGING ? console.log : false,
     })
   }
 
