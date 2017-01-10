@@ -1,11 +1,8 @@
 const crypto = require('crypto')
-const striptags = require('striptags');
 const {PromiseUtils, IMAPConnection} = require('isomorphic-core')
 const {DatabaseTypes: {JSONArrayColumn}} = require('isomorphic-core');
 const {Errors: {APIError}} = require('isomorphic-core')
 
-
-const SNIPPET_LENGTH = 191;
 
 function validateRecipientsPresent(message) {
   if (message.getRecipients().length === 0) {
@@ -25,6 +22,11 @@ module.exports = (sequelize, Sequelize) => {
     subject: Sequelize.STRING(500),
     snippet: Sequelize.STRING(255),
     date: Sequelize.DATE,
+    // TODO: We do not currently sync drafts with the remote. When we add
+    // this feature, we need to be careful because this breaks the assumption
+    // that messages, modulo their flags and folders/labels, are immutable.
+    // Particularly, we will need to implement logic to make sure snippets
+    // stay in sync with the current message body.
     isDraft: Sequelize.BOOLEAN,
     isSent: Sequelize.BOOLEAN,
     isSending: Sequelize.BOOLEAN,
@@ -67,16 +69,6 @@ module.exports = (sequelize, Sequelize) => {
       {fields: ['gMsgId']}, // Use in `searchThreads`
       {fields: ['folderImapUID']}, // Use in `searchThreads`
     ],
-    hooks: {
-      beforeUpdate(message) {
-        // Update the snippet if the body has changed
-        if (!message.changed('body')) { return; }
-
-        const plainText = striptags(message.body);
-        // consolidate whitespace groups into single spaces and then truncate
-        message.snippet = plainText.split(/\s+/).join(" ").substring(0, SNIPPET_LENGTH)
-      },
-    },
     classMethods: {
       associate({Message, Folder, Label, File, Thread, MessageLabel}) {
         Message.belongsTo(Thread)
