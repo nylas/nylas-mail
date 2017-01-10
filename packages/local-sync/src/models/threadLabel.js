@@ -17,7 +17,7 @@ module.exports = (sequelize) => {
       // the order ['labelId', 'threadId']. This is the correct index we
       // need for queries requesting Threads for a certain Label.
       //
-      // We need to create one more index to allow queryes from the
+      // We need to create one more index to allow queries from the
       // reverse direction requesting Labels for a certain Thread.
       {fields: ['threadId', 'labelId']},
     ],
