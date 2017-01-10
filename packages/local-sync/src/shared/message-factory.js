@@ -14,27 +14,30 @@ const SNIPPET_SIZE = 100;
 const SNIPPET_MAX_SIZE = 255;
 
 
-// The input is the value of a to/cc/bcc/from header as parsed by the imap
-// library we're using, but it currently parses them in a weird format. If an
-// email is sent to a@example.com and b@example.com, the parsed output of the
-// 'to' header is ['a@example.com, b@example.com']. (Note both emails are in
-// the same string.) When fixed, this function will need to update accordingly.
+// Format of input: ['a@example.com, B <b@example.com>', 'c@example.com'],
+// where each element of the array is the unparsed contents of a single
+// element of the same header field. (It's totally valid to have multiple
+// From/To/etc. headers on the same email.)
 function computeContacts(input) {
   if (!input || input.length === 0 || !input[0]) {
     return [];
   }
-  const values = mimelib.parseAddresses(input[0]);
-  if (!values || values.length === 0 || !input[0]) {
-    return [];
-  }
-  return values.map(v => {
-    if (!v || v.length === 0) {
-      return null
+  let contacts = [];
+  for (const headerLine of input) {
+    const values = mimelib.parseAddresses(headerLine);
+    if (!values || values.length === 0) {
+      continue;
     }
-    const {name, address: email} = v;
-    return {name, email};
-  })
-  .filter(c => c != null)
+    contacts = contacts.concat(values.map(v => {
+      if (!v || v.length === 0) {
+        return null
+      }
+      const {name, address: email} = v;
+      return {name, email};
+    })
+    .filter(c => c != null))
+  }
+  return contacts;
 }
 
 

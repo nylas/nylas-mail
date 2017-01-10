@@ -90,6 +90,13 @@ const contactsTestCases = [{
     {name: 'AppleBees Zé', email: 'a@example.com'},
     {name: 'Tiger Zen', email: 'b@example.com'},
   ],
+}, {
+  purpose: "correctly concatenate multiple array elements (from multiple header lines)",
+  input: ['Yubi Key <yubi@example.com>', 'Smokey the Bear <smokey@example.com>'],
+  output: [
+    {name: 'Yubi Key', email: 'yubi@example.com'},
+    {name: 'Smokey the Bear', email: 'smokey@example.com'},
+  ],
 },
 ]
 
