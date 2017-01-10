@@ -90,9 +90,6 @@ function computeSnippet(body) {
 }
 
 
-// Preserve whitespacing on plaintext emails -- has the side effect of
-// monospacing, but that seems OK and perhaps sometimes even desired (for e.g.
-// ascii art, alignment)
 function htmlifyPlaintext(text) {
   const escapedText = he.escape(text);
   return `<pre class="nylas-plaintext">${escapedText}</pre>`;
