@@ -8,7 +8,7 @@ module.exports = {
       "x-gm-thrid": "GMAILTHREAD1",
       "Delivered-To": "jackiehluo@gmail.com",
       "Date": "Fri, 17 Jun 2016 09:38:44 -0700 (PDT)",
-      "Message-Id": "<82y7eq1ipmadaxwcy6kr072bw-2147483647@mailer.nylas.com>",
+      "Message-Id": "<82y7eq1ipmadaxwcy6kr072bw-2147483647@nylas-mail.nylas.com>",
       "X-Inbox-Id": "82y7eq1ipmadaxwcy6kr072bw-2147483647",
     },
     from: [{
@@ -21,7 +21,7 @@ module.exports = {
     }],
     cc: [],
     bcc: [],
-    headerMessageId: "<82y7eq1ipmadaxwcy6kr072bw-2147483647@mailer.nylas.com>",
+    headerMessageId: "<82y7eq1ipmadaxwcy6kr072bw-2147483647@nylas-mail.nylas.com>",
     snippet: "Hi Jackie, While browsing Nylas themes, I stumbled upon your website and looked at your work. Great ",
   },
   B: {
@@ -32,9 +32,9 @@ module.exports = {
     headers: {
       "x-gm-thrid": "GMAILTHREAD2",
       "Date": "Fri, 17 Jun 2016 18:20:47 +0000",
-      "References": "<82y7eq1ipmadaxwcy6kr072bw-2147483647@mailer.nylas.com>",
-      "In-Reply-To": "<82y7eq1ipmadaxwcy6kr072bw-2147483647@mailer.nylas.com>",
-      "Message-Id": "<cq08iqwatp00kai4qnff7zbaj-2147483647@mailer.nylas.com>",
+      "References": "<82y7eq1ipmadaxwcy6kr072bw-2147483647@nylas-mail.nylas.com>",
+      "In-Reply-To": "<82y7eq1ipmadaxwcy6kr072bw-2147483647@nylas-mail.nylas.com>",
+      "Message-Id": "<cq08iqwatp00kai4qnff7zbaj-2147483647@nylas-mail.nylas.com>",
       "X-Inbox-Id": "cq08iqwatp00kai4qnff7zbaj-2147483647",
     },
     from: [{
@@ -47,7 +47,7 @@ module.exports = {
     }],
     cc: [],
     bcc: [],
-    headerMessageId: "<cq08iqwatp00kai4qnff7zbaj-2147483647@mailer.nylas.com>",
+    headerMessageId: "<cq08iqwatp00kai4qnff7zbaj-2147483647@nylas-mail.nylas.com>",
     snippet: "Sagar, Aw, glad to hear it! Thanks for getting in touch! Jackie Luo Software Engineer, Nylas",
   },
 };

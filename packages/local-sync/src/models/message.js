@@ -87,7 +87,7 @@ module.exports = (sequelize, Sequelize) => {
       },
 
       buildHeaderMessageId(id) {
-        return `<${id}@mailer.nylas.com>`
+        return `<${id}@nylas-mail.nylas.com>`
       },
 
       // async findMultiSendMessage(db, messageId) {
