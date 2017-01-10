@@ -19,7 +19,7 @@ const SNIPPET_MAX_SIZE = 255;
 // email is sent to a@example.com and b@example.com, the parsed output of the
 // 'to' header is ['a@example.com, b@example.com']. (Note both emails are in
 // the same string.) When fixed, this function will need to update accordingly.
-function extractContacts(input) {
+function computeContacts(input) {
   if (!input || input.length === 0 || !input[0]) {
     return [];
   }
@@ -38,7 +38,7 @@ function extractContacts(input) {
 }
 
 
-function extractSnippet(body) {
+function computeSnippet(body) {
   const doc = new DOMParser().parseFromString(body, 'text/html')
   const skipTags = new Set(['TITLE', 'SCRIPT', 'STYLE', 'IMG']);
   const noSpaceTags = new Set(['B', 'I', 'STRONG', 'EM', 'SPAN']);
@@ -214,11 +214,11 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
   }
 
   const parsedMessage = {
-    to: extractContacts(parsedHeaders.to),
-    cc: extractContacts(parsedHeaders.cc),
-    bcc: extractContacts(parsedHeaders.bcc),
-    from: extractContacts(parsedHeaders.from),
-    replyTo: extractContacts(parsedHeaders['reply-to']),
+    to: computeContacts(parsedHeaders.to),
+    cc: computeContacts(parsedHeaders.cc),
+    bcc: computeContacts(parsedHeaders.bcc),
+    from: computeContacts(parsedHeaders.from),
+    replyTo: computeContacts(parsedHeaders['reply-to']),
     accountId: accountId,
     body: bodyFromParts(imapMessage, desiredParts),
     snippet: null,
@@ -248,7 +248,7 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
   parsedMessage.id = Message.hash(parsedMessage)
   parsedMessage.date = new Date(Date.parse(parsedMessage.date))
 
-  parsedMessage.snippet = extractSnippet(parsedMessage.body);
+  parsedMessage.snippet = computeSnippet(parsedMessage.body);
   parsedMessage.folder = folder;
 
   // TODO: unclear if this is necessary given we already have parsed labels
@@ -347,8 +347,8 @@ async function buildForSend(db, json) {
 module.exports = {
   buildForSend,
   parseFromImap,
-  extractSnippet,
-  extractContacts,
+  computeSnippet,
+  computeContacts,
   stripTrackingLinksFromBody,
   buildTrackingBodyForRecipient,
   replaceMessageIdInBodyTrackingLinks,
