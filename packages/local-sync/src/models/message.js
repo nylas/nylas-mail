@@ -82,7 +82,7 @@ module.exports = (sequelize, Sequelize) => {
         Message.belongsTo(Thread)
         Message.belongsTo(Folder)
         Message.belongsToMany(Label, {through: MessageLabel})
-        Message.hasMany(File)
+        Message.hasMany(File, {onDelete: 'cascade', hooks: true})
       },
 
       hash({from = [], to = [], cc = [], bcc = [], date = '', subject = '', headerMessageId = ''} = {}) {

@@ -40,7 +40,7 @@ module.exports = (sequelize, Sequelize) => {
   }, {
     classMethods: {
       associate({Folder, Message, Thread}) {
-        Folder.hasMany(Message)
+        Folder.hasMany(Message, {onDelete: 'cascade', hooks: true})
         Folder.belongsToMany(Thread, {through: 'thread_folders'})
       },
 

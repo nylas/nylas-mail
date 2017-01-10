@@ -28,7 +28,7 @@ module.exports = (sequelize, Sequelize) => {
     ],
     classMethods: {
       associate(data = {}) {
-        Account.hasMany(data.AccountToken, {as: 'tokens'})
+        Account.hasMany(data.AccountToken, {as: 'tokens', onDelete: 'cascade', hooks: true})
       },
       upsertWithCredentials(accountParams, credentials) {
         if (!accountParams || !credentials || !accountParams.emailAddress) {
