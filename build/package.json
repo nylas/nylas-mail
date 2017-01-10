@@ -9,7 +9,7 @@
     "archiver": "1.2.x",
     "chalk": "1.x.x",
     "coffeelint-cjsx": "^2.0",
-    "electron-packager": "^8.2.0",
+    "electron-packager": "^10.17.2",
     "grunt": "~0.4.1",
     "grunt-cli": "~0.1.9",
     "grunt-coffee-react": "^5.0.0",
