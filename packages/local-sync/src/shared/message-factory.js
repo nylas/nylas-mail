@@ -224,15 +224,14 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
     snippet: null,
     unread: !attributes.flags.includes('\\Seen'),
     starred: attributes.flags.includes('\\Flagged'),
-    // Make sure we use the date from the headers because we use the header date
-    // for generating message ids.
-    // `attributes.date` is the server generated date and might differ from the
-    // header across accounts
-    // TODO: how to exclude the date header from the hash if there is no
-    // Date: header and we have to use the IMAP server date for message sort
-    // & display? seems like it should be OK within an account, but might
-    // generate different message IDs across different accounts (which I
-    // don't think is a problem we're intending to solve...)
+    // We prefer the date from the message headers because the date is one of
+    // the fields we use for generating unique message IDs, and the server
+    // INTERNALDATE, `attributes.date`, may differ across accounts for the same
+    // message. If the Date header is not included in the message, we fall
+    // back to the INTERNALDATE and it's possible we'll generate different IDs
+    // for the same message delivered to different accounts (which is better
+    // than having message ID collisions for different messages, which could
+    // happen if we did not include the date).
     date: parsedHeaders.date ? parsedHeaders.date[0] : imapMessage.attributes.date,
     folderImapUID: attributes.uid,
     folderId: folder.id,
