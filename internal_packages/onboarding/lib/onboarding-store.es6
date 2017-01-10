@@ -105,7 +105,9 @@ class OnboardingStore extends NylasStore {
       provider: type,
     });
 
-    this._onSetAccountInfo(Object.assign({}, this._accountInfo, {type}));
+    // Don't carry over any type-specific account information
+    const {email, name, password} = this._accountInfo;
+    this._onSetAccountInfo({email, name, password, type});
     this._onMoveToPage(nextPage);
   }
 
