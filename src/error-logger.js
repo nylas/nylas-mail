@@ -15,6 +15,8 @@ if (process.type === 'renderer') {
   app = require('electron').app;
 }
 
+var crashReporter = require('electron').crashReporter
+
 // A globally available ErrorLogger that can report errors to various
 // sources and enhance error functionality.
 //
@@ -37,6 +39,8 @@ module.exports = ErrorLogger = (function() {
     this.inSpecMode = args.inSpecMode
     this.inDevMode = args.inDevMode
     this.resourcePath = args.resourcePath
+
+    this._startCrashReporter()
 
     this._extendErrorObject()
 
@@ -96,6 +100,15 @@ module.exports = ErrorLogger = (function() {
   /////////////////////////////////////////////////////////////////////
   ////////////////////////// PRIVATE METHODS //////////////////////////
   /////////////////////////////////////////////////////////////////////
+
+  ErrorLogger.prototype._startCrashReporter = function(args) {
+    crashReporter.start({
+      productName: 'Nylas Mail',
+      companyName: 'Nylas',
+      submitURL: 'https://electron-crash-report-server.herokuapp.com/',
+      autoSubmit: true,
+    })
+  }
 
   ErrorLogger.prototype._extendNativeConsole = function(args) {
     console.debug = this._consoleDebug.bind(this)
