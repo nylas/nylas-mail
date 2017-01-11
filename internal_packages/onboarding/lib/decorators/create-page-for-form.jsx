@@ -1,3 +1,4 @@
+import {shell} from 'electron'
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {RetinaImg} from 'nylas-component-kit';
@@ -65,7 +66,7 @@ const CreatePageForForm = (FormComponent) => {
       const accountInfo = Object.assign({}, this.state.accountInfo, changes);
       const {errorFieldNames, errorMessage, populated} = FormComponent.validateAccountInfo(accountInfo);
 
-      this.setState({accountInfo, errorFieldNames, errorMessage, populated});
+      this.setState({accountInfo, errorFieldNames, errorMessage, populated, errorStatusCode: null});
     }
 
     onSubmit = () => {
@@ -101,6 +102,7 @@ const CreatePageForForm = (FormComponent) => {
 
         const errorFieldNames = err.body ? (err.body.missing_fields || err.body.missing_settings || []) : []
         let errorMessage = err.message;
+        const errorStatusCode = err.statusCode
 
         if (err.errorType === "setting_update_error") {
           errorMessage = 'The IMAP/SMTP servers for this account do not match our records. Please verify that any server names you entered are correct. If your IMAP/SMTP server has changed, first remove this account from N1, then try logging in again.';
@@ -122,7 +124,7 @@ const CreatePageForForm = (FormComponent) => {
           errorMessage = "We were unable to reach your mail provider. Please try again."
         }
 
-        this.setState({errorMessage, errorFieldNames, submitting: false});
+        this.setState({errorMessage, errorStatusCode, errorFieldNames, submitting: false});
       });
     }
 
@@ -151,6 +153,37 @@ const CreatePageForForm = (FormComponent) => {
       );
     }
 
+    // When a user enters the wrong credentials, show a message that could
+    // help with common problems. For instance, they may need an app password,
+    // or to enable specific settings with their provider.
+    _renderCredentialsNote() {
+      const {errorStatusCode, accountInfo} = this.state;
+      if (errorStatusCode !== 401) { return false; }
+      let message;
+      let articleURL;
+      if (accountInfo.email.includes("@yahoo.com")) {
+        message = "Have you enabled access through Yahoo?";
+        articleURL = "https://support.nylas.com/hc/en-us/articles/115001076128";
+      } else {
+        message = "Some providers require an app password."
+        articleURL = "https://support.nylas.com/hc/en-us/articles/115001056608";
+      }
+      // We don't use a FormErrorMessage component because the content
+      // we need to display has HTML.
+      return (
+        <div className="message error">
+          {message}&nbsp;
+          <a
+            href=""
+            style={{cursor: 'pointer'}}
+            onClick={() => { shell.openExternal(articleURL) }}
+          >
+            Learn more.
+          </a>
+        </div>
+      );
+    }
+
     render() {
       const {accountInfo, errorMessage, errorFieldNames, submitting} = this.state;
       const AccountType = AccountTypes.find(a => a.type === accountInfo.type);
@@ -176,6 +209,7 @@ const CreatePageForForm = (FormComponent) => {
             message={errorMessage}
             empty={FormComponent.subtitleLabel(AccountType)}
           />
+          { this._renderCredentialsNote() }
           <FormComponent
             ref="form"
             accountInfo={accountInfo}
