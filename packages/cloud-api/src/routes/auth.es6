@@ -10,6 +10,7 @@ const OAuth2 = google.auth.OAuth2;
 const {
   AuthHelpers,
   IMAPConnection,
+  IMAPErrors,
 } = require('isomorphic-core');
 
 const SCOPES = [
@@ -80,7 +81,7 @@ export default function registerAuthRoutes(server) {
       auth: false,
       validate: {
         query: {
-          state: Joi.string().default('none'),
+          state: Joi.string().required(),
         },
       },
     },
@@ -114,7 +115,8 @@ export default function registerAuthRoutes(server) {
       validate: {
         query: {
           state: Joi.string().required(),
-          code: Joi.string().required(),
+          code: Joi.string(),
+          error: Joi.string(),
         },
       },
     },
@@ -124,6 +126,7 @@ export default function registerAuthRoutes(server) {
       const log = request.logger
       const code = request.query.code
       const n1Key = request.query.state
+      const error = request.query.error // Google sometimes passes the error back here
 
       try {
         const client = GAuth.newOAuthClient()
@@ -135,16 +138,35 @@ export default function registerAuthRoutes(server) {
         const account = await GAuth.createCloudAccount(settings, profile)
         request.logger.info("Creating PendingAuthResponse")
         await GAuth.createPendingAuthResponse(account, settings, n1Key)
-        reply.view('gmail-auth-success')
       } catch (err) {
-        reply(Boom.wrap(err))
+        request.logger.error("Error: %s, Source: %s", err.message, err.source)
+        const res = {
+          state_string: n1Key,
+          google_client_id: GMAIL_CLIENT_ID,
+          redirect_uri: GMAIL_REDIRECT_URL,
+          error: err.message,
+        }
+        if (error === 'access_denied') {
+          res.try_again = true
+          res.access_denied = true
+        } else if (err instanceof IMAPErrors.IMAPAuthenticationError) {
+          res.try_again = true
+          res.imap_auth_error = true
+        } else if (err.message.includes("invalid_grant")) {
+          res.try_again = true
+          res.invalid_grant = true
+        }
+
+        return reply.view('gmail-auth-failure', res)
       }
+
+      reply.view('gmail-auth-success')
     },
   });
 
   /**
    * Gmail Auth Step 3
-   * N1 continues to poll this endpoint wiht the original key it set in
+   * N1 continues to poll this endpoint with the original key it set in
    * the state parameter during Step 1
    */
   server.route({

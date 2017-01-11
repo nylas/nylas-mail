@@ -23,6 +23,7 @@
     "request": "2.79.0",
     "request-promise": "4.1.1",
     "rx": "4.1.0",
-    "vision": "4.1.0"
+    "vision": "4.1.0",
+    "handlebars": "4.0.6"
   }
 }
