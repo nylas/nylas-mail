@@ -83,6 +83,7 @@
     { "type": "separator" },
     { "label": "Preferences", "command": "application:open-preferences" },
     { "label": "Add Account...", "command": "application:add-account" },
+    { "label": "Add Custom IMAP Account...", "command": "application:add-account", "args": {"accountType": "imap"}},
     { "label": "Change Theme...", "command": "window:launch-theme-picker" },
     { "label": "Install Theme...", "command": "application:install-package" },
     { "type": "separator" },

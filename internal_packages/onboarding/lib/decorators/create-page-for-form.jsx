@@ -85,8 +85,8 @@ const CreatePageForForm = (FormComponent) => {
       OnboardingActions.moveToPreviousPage();
     }
 
-    onConnect = () => {
-      const {accountInfo} = this.state;
+    onConnect = (updatedAccountInfo) => {
+      const accountInfo = updatedAccountInfo || this.state.accountInfo;
 
       this.setState({submitting: true});
 

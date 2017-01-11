@@ -189,7 +189,7 @@ class PreferencesAccountDetails extends Component {
         <h3>Account Settings</h3>
 
         <div className="btn" onClick={this._onReconnect}>
-          {account.provider === 'gmail' ? 'Re-authenticate with Gmail...' : 'Update Connection Settings...'}
+          {account.provider === 'imap' ? 'Update Connection Settings...' : 'Re-authenticate...'}
         </div>
 
         <h3>Aliases</h3>
