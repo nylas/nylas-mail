@@ -65,7 +65,7 @@
     }
     &.expanded-sync {
       .account.inner {
-        border-top: 1px solid rgba(0,0,0,0.1)
+        border-bottom: 1px solid rgba(0,0,0,0.1)
       }
     }
     h2 {
@@ -86,7 +86,9 @@
     }
     .close-expanded {
       display: block;
-      margin: 0 @padding-base-horizontal @padding-large-vertical @padding-base-horizontal;
+      text-align: right;
+      border-top: 1px solid rgba(0,0,0,0.1);
+      padding: @padding-large-vertical @padding-base-horizontal 0 @padding-base-horizontal;
     }
 
     .complete .progress-track .progress {
