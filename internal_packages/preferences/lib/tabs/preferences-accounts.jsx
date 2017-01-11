@@ -26,9 +26,18 @@ class PreferencesAccounts extends React.Component {
 
   getStateFromStores({selected} = {}) {
     const accounts = AccountStore.accounts()
+    let selectedAccount;
+    if (selected) {
+      selectedAccount = _.findWhere(accounts, {id: selected.id})
+    }
+    // If selected was null or no longer exists in the AccountStore,
+    // just use the first account.
+    if (!selectedAccount) {
+      selectedAccount = accounts[0];
+    }
     return {
       accounts,
-      selected: selected ? _.findWhere(accounts, {id: selected.id}) : accounts[0],
+      selected: selectedAccount,
     };
   }
 
