@@ -92,7 +92,7 @@ From the root of the /K2 directory:
 npm run debug-cloud-api
 ```
 
-will run `pm2 start ./pm2-debug.yml --no-daemon`, which passes in an `--inspect`
+will run `pm2 start ./pm2-debug-cloud-api.yml --no-daemon`, which passes in an `--inspect`
 flag to the cloud-api interpreter. This will allow you to live debug using
 chrome web tools.
 
