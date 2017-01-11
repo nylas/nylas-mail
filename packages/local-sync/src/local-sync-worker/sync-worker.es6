@@ -167,7 +167,7 @@ class SyncWorker {
       ['inbox', '[gmail]/all mail'].includes(openBoxName.toLowerCase())
     )
     if (!isInboxUpdate) { return; }
-    this.syncNow({reason: "You've got mail!"});
+    this.syncNow({reason: "You've got mail!", interrupt: true});
   }
 
   _closeConnection() {
@@ -418,8 +418,10 @@ class SyncWorker {
   // Public API:
 
   async syncNow({reason, interrupt = false} = {}) {
-    if (this._syncInProgress && interrupt) {
-      this.interrupt()
+    if (this._syncInProgress) {
+      if (interrupt) {
+        this.interrupt()
+      }
       return;
     }
 

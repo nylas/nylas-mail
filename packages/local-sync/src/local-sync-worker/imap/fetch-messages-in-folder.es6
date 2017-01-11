@@ -427,7 +427,7 @@ class FetchMessagesInFolder extends SyncOperation {
   // This operation is interruptible, see `SyncOperation` for info on why we use
   // `yield`
   * runOperation(db, imap) {
-    console.log(`🔃 📂 ${this._folder.name}`)
+    console.log(`🔜 📂 ${this._folder.name}`)
     this._db = db;
     this._imap = imap;
 
@@ -446,6 +446,7 @@ class FetchMessagesInFolder extends SyncOperation {
     }
     yield this._fetchUnsyncedMessages()
     yield this._runScan()
+    console.log(`🔚 📂 ${this._folder.name} done`)
   }
 }
 

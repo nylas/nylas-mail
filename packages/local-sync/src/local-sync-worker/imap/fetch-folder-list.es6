@@ -131,7 +131,7 @@ class FetchFolderList extends SyncOperation {
   // This operation is interruptible, see `SyncOperation` for info on why we use
   // `yield`
   async * runOperation(db, imap) {
-    console.log(`🔃  Fetching folder list`)
+    console.log(`🔜  Fetching folder list`)
     this._db = db;
 
     const boxes = yield imap.getBoxes();
@@ -165,6 +165,7 @@ class FetchFolderList extends SyncOperation {
     for (const category of deleted) {
       await category.destroy()
     }
+    console.log(`🔚  Fetching folder list done`)
   }
 }
 
