@@ -26,14 +26,17 @@ class SyncWorker {
     this._interruptible = new Interruptible()
     this._localDeltas = new LocalSyncDeltaEmitter(db, account.id)
 
-    this._startTime = Date.now();
-    this._lastSyncTime = null;
+    this._startTime = Date.now()
+    this._lastSyncTime = null
     this._logger = global.Logger.forAccount(account)
     this._interrupted = false
     this._syncInProgress = false
-    this._destroyed = false;
+    this._destroyed = false
 
     this._syncTimer = setTimeout(() => {
+      // TODO this is currently a hack to keep N1's account in sync and notify of
+      // sync errors. This should go away when we merge the databases
+      Actions.updateAccount(this._account.id, {syncState: SYNC_STATE_RUNNING})
       this.syncNow({reason: 'Initial'});
     }, 0);
 
@@ -113,6 +116,7 @@ class SyncWorker {
       }
       return null
     } catch (err) {
+      // TODO check for retryable errors here
       this._logger.error(err, 'Unable to refresh access token')
       throw new IMAPErrors.IMAPAuthenticationError(`Unable to refresh access token`)
     }
@@ -315,6 +319,7 @@ class SyncWorker {
 
     // Continue to retry if it was a network error
     if (error instanceof IMAPErrors.RetryableError) {
+      // TODO check number of network error retries and backoff if offline
       return Promise.resolve()
     }
 
@@ -376,11 +381,11 @@ class SyncWorker {
       this._interrupted
     )
 
-    let reason = "Idle scheduled"
-    if (moreToSync) {
+    let reason = "Scheduled"
+    if (this._interrupted) {
+      reason = `Sync interrupted and restarted. Interrupt reason: ${reason}`
+    } else if (moreToSync) {
       reason = "More to sync"
-    } else if (this._interrupted) {
-      reason = "Sync interrupted and restarted"
     }
     const interval = shouldSyncImmediately ? 1 : intervals.active;
     const nextSyncIn = Math.max(1, this._lastSyncTime + interval - Date.now())
@@ -447,7 +452,7 @@ class SyncWorker {
   async syncNow({reason, interrupt = false} = {}) {
     if (this._syncInProgress) {
       if (interrupt) {
-        this.interrupt()
+        this.interrupt({reason})
       }
       return;
     }
@@ -466,9 +471,6 @@ class SyncWorker {
       return;
     }
 
-    // TODO close imap connection every once in a while To prevent sync loop from
-    // getting stuck
-
     console.log(`🔃 🆕 reason: ${reason}`)
     try {
       await this._interruptible.run(this._performSync, this)
@@ -483,7 +485,8 @@ class SyncWorker {
     }
   }
 
-  interrupt() {
+  interrupt({reason = 'No reason'}) {
+    console.log(`🔃  Interrupting sync! Reason: ${reason}`)
     this._interruptible.interrupt()
     if (this._currentOperation) {
       this._currentOperation.interrupt()
