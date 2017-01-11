@@ -16,7 +16,7 @@ module.exports = (sequelize, Sequelize) => {
   return sequelize.define('syncbackRequest', {
     type: Sequelize.STRING,
     status: {
-      type: Sequelize.ENUM("NEW", "SUCCEEDED", "FAILED"),
+      type: Sequelize.ENUM("NEW", "INPROGRESS", "SUCCEEDED", "FAILED"),
       defaultValue: "NEW",
       allowNull: false,
     },

@@ -257,10 +257,33 @@ class SyncWorker {
     return tasksToProcess
   }
 
+  async _markInProgressTasksAsFailed() {
+    // We use a very limited type of two-phase commit: before we start
+    // running a syncback task, we mark it as "in progress". If something
+    // happens during the syncback (the worker window crashes, or the power
+    // goes down), the task won't succeed or fail.
+    // We absolutely never want to retry such a task, so we mark it as failed
+    // at the next sync iteration. We use this function for that.
+    const {SyncbackRequest} = this._db;
+    const inProgressTasks = await SyncbackRequest.findAll({
+      where: {status: 'INPROGRESS'},
+    });
+
+    for (const inProgress of inProgressTasks) {
+      inProgress.status = 'FAILED';
+      await inProgress.save();
+    }
+  }
+
   async _runSyncbackTask(task) {
     const syncbackRequest = task.syncbackRequestObject();
     console.log(`🔃 📤 ${task.description()}`, syncbackRequest.props)
     try {
+      // Before anything, mark the task as in progress. This allows
+      // us to not run the same task twice.
+      syncbackRequest.status = "INPROGRESS";
+      await syncbackRequest.save();
+
       const responseJSON = await this._conn.runOperation(task);
       syncbackRequest.status = "SUCCEEDED";
       syncbackRequest.responseJSON = responseJSON || {};
@@ -386,19 +409,23 @@ class SyncWorker {
     yield this._account.update({syncError: null});
     yield this._ensureConnection();
 
-    // Step 1: Run any available syncback tasks
+    // Step 1: Mark all "INPROGRESS" tasks as failed.
+    await this._markInProgressTasksAsFailed()
+    yield // Yield to allow interruption
+
+    // Step 2: Run any available syncback tasks
     const tasks = yield this._getNewSyncbackTasks()
     for (const task of tasks) {
       await this._runSyncbackTask(task)
       yield  // Yield to allow interruption
     }
 
-    // Step 2: Fetch the folder list. We need to run this before syncing folders
+    // Step 3: Fetch the folder list. We need to run this before syncing folders
     // because we need folders to sync!
     await this._runOperation(new FetchFolderList(this._account, this._logger))
     yield  // Yield to allow interruption
 
-    // Step 3: Sync each folder, sorted by inbox first
+    // Step 4: Sync each folder, sorted by inbox first
     // TODO prioritize syncing all of inbox first if there's a ton of folders (e.g. imap
     // accounts). If there are many folders, we would only sync the first n
     // messages in the inbox and not go back to it until we've done the same for
