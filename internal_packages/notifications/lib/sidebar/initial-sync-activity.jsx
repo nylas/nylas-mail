@@ -93,8 +93,10 @@ export default class InitialSyncActivity extends React.Component {
         key="expanded-sync-state"
         style={{maxHeight: `${maxHeight + 500}px`}}
       >
+        <a className="close-expanded" onClick={this.hideExpandedState}>
+          <span style={{cursor: "pointer"}}>Hide</span>
+        </a>
         {accounts}
-        <a className="close-expanded" onClick={this.hideExpandedState}>Hide</a>
       </div>
     )
   }
