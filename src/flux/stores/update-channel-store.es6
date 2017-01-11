@@ -4,6 +4,7 @@ import {remote} from 'electron';
 import {LegacyEdgehillAPI} from 'nylas-exports';
 
 const autoUpdater = remote.getGlobal('application').autoUpdateManager;
+const preferredChannel = 'nylas-mail';
 
 class UpdateChannelStore extends NylasStore {
   constructor() {
@@ -32,7 +33,7 @@ class UpdateChannelStore extends NylasStore {
     LegacyEdgehillAPI.makeRequest({
       method: 'GET',
       path: `/update-channel`,
-      qs: autoUpdater.parameters(),
+      qs: Object.assign({preferredChannel: preferredChannel}, autoUpdater.parameters()),
       json: true,
     }).then(({current, available} = {}) => {
       this._current = current || {name: "Edgehill API Not Available"};
@@ -46,7 +47,8 @@ class UpdateChannelStore extends NylasStore {
     LegacyEdgehillAPI.makeRequest({
       method: 'POST',
       path: `/update-channel`,
-      qs: Object.assign({channel: channelName}, autoUpdater.parameters()),
+      qs: Object.assign({channel: channelName,
+                         preferredChannel: preferredChannel}, autoUpdater.parameters()),
       json: true,
     }).then(({current, available} = {}) => {
       this._current = current || {name: "Edgehill API Not Available"};
