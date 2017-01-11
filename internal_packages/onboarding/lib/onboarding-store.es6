@@ -28,7 +28,7 @@ class OnboardingStore extends NylasStore {
     this.listenTo(OnboardingActions.setAccountInfo, this._onSetAccountInfo);
     this.listenTo(OnboardingActions.setAccountType, this._onSetAccountType);
 
-    const {existingAccount, addingAccount} = NylasEnv.getWindowProps();
+    const {existingAccount, addingAccount, accountType} = NylasEnv.getWindowProps();
 
     const hasAccounts = (AccountStore.accounts().length > 0)
     const identity = IdentityStore.identity();
@@ -43,16 +43,19 @@ class OnboardingStore extends NylasStore {
 
     if (existingAccount) {
       // Used when re-adding an account after re-connecting
-      const accountType = accountTypeForProvider(existingAccount.provider);
+      const existingAccountType = accountTypeForProvider(existingAccount.provider);
       this._pageStack = ['account-choose']
       this._accountInfo = {
         name: existingAccount.name,
         email: existingAccount.emailAddress,
       };
-      this._onSetAccountType(accountType);
+      this._onSetAccountType(existingAccountType);
     } else if (addingAccount) {
       // Adding a new, unknown account
       this._pageStack = ['account-choose'];
+      if (accountType) {
+        this._onSetAccountType(accountType);
+      }
     } else if (identity) {
       // Should only happen if config was edited to remove all accounts,
       // but don't want to re-login to Nylas account. Very useful when

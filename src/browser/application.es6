@@ -295,7 +295,7 @@ export default class Application extends EventEmitter {
       win.browserWindow.inspectElement(x, y);
     });
 
-    this.on('application:add-account', ({existingAccount} = {}) => {
+    this.on('application:add-account', ({existingAccount, accountType} = {}) => {
       const onboarding = this.windowManager.get(WindowManager.ONBOARDING_WINDOW);
       if (onboarding) {
         onboarding.show();
@@ -303,7 +303,7 @@ export default class Application extends EventEmitter {
       } else {
         this.windowManager.ensureWindow(WindowManager.ONBOARDING_WINDOW, {
           title: "Add an Account",
-          windowProps: { addingAccount: true, existingAccount },
+          windowProps: { addingAccount: true, existingAccount, accountType },
         });
       }
     });
