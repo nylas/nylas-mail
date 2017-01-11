@@ -56,7 +56,7 @@ class AccountBasicSettingsForm extends React.Component {
   }
 
   submit() {
-    if (this.props.accountInfo.type === 'imap') {
+    if (!['gmail', 'office365'].includes(this.props.accountInfo.type)) {
       const accountInfo = accountInfoWithIMAPAutocompletions(this.props.accountInfo);
       OnboardingActions.setAccountInfo(accountInfo);
       OnboardingActions.moveToPage('account-settings-imap');
