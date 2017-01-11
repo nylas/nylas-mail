@@ -84,6 +84,24 @@ You should see `pong`.
 
 `lvh.me` is a DNS hack that redirects back to 127.0.0.1 with the added
 
+## Debugging
+
+From the root of the /K2 directory:
+
+```
+npm run debug-cloud-api
+```
+
+will run `pm2 start ./pm2-debug.yml --no-daemon`, which passes in an `--inspect`
+flag to the cloud-api interpreter. This will allow you to live debug using
+chrome web tools.
+
+A useful tool to automatically connect to the chrome dev tools without knowing
+the url is [NIM](https://chrome.google.com/webstore/detail/nim-node-inspector-manage/gnhhdgbaldcilmgcpfddgdbkhjohddkj)
+
+You can either set breakpoints through the inspector, or by putting `debugger;`
+statements in your code.
+
 # Deploying
 1. Make sure you're in the root of /k2, and have alredy run `eb init` then:
 

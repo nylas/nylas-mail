@@ -23,6 +23,7 @@
   },
   "scripts": {
     "start": "pm2 stop all; pm2 delete all; pm2 start ./pm2-dev.yml --no-daemon",
+    "debug-cloud-api": "pm2 stop all; pm2 delete all; pm2 start ./pm2-debug-cloud-api.yml --no-daemon",
     "stop": "pm2 stop all; pm2 delete all",
     "build-n1-cloud": "node scripts/build-n1-cloud.js",
     "restart": "pm2 restart all",
