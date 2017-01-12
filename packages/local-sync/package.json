@@ -1,7 +1,7 @@
 {
   "name": "local-sync",
   "version": "0.0.1",
-  "description": "The local sync engine for Nylas N1",
+  "description": "The local sync engine for Nylas Mail",
   "main": "./main",
   "dependencies": {
     "base64-stream": "0.1.3",

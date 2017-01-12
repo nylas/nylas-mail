@@ -10,7 +10,7 @@ import OpenTrackingComposerExtension from './open-tracking-composer-extension';
 
 const OpenTrackingButtonWithTutorialTip = HasTutorialTip(OpenTrackingButton, {
   title: "See when recipients open this email",
-  instructions: "When enabled, N1 will notify you as soon as someone reads this message. Sending to a group? N1 shows you which recipients opened your email so you can follow up with precision.",
+  instructions: "When enabled, Nylas Mail will notify you as soon as someone reads this message. Sending to a group? Nylas Mail shows you which recipients opened your email so you can follow up with precision.",
 });
 
 export function activate() {

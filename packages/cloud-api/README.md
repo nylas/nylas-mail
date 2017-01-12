@@ -1,7 +1,7 @@
 # N1-Cloud API
 
 This is an Elastic Beanstalk hosted service which provides an API for Auth
-and Metdata for Nylas N1 desktop clients.
+and Metdata for Nylas Mail desktop clients.
 
 # Getting Started
 

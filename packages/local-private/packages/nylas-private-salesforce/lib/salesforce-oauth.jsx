@@ -95,7 +95,7 @@ class SalesforceOAuth {
     Actions.openModal({
       component: (
         <div className="salesforce-welcome" tabIndex="0">
-          <h2>Success! Nylas N1 and Salesforce are now connected.</h2>
+          <h2>Success! Nylas Mail and Salesforce are now connected.</h2>
           <p>Select a message to create or edit contact and lead records or to sync the thread with an opportunity. Here&rsquo;s how it works!</p>
           <iframe width="560" height="315" src="https://www.youtube.com/embed/5ziK7lCdTjA" />
         </div>
