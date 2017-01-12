@@ -20,6 +20,8 @@ class SendmailClient {
   async _send(msgData) {
     let error;
     let results;
+    // disable nodemailer's automatic X-Mailer header
+    msgData.xMailer = false;
     for (let i = 0; i <= MAX_RETRIES; i++) {
       try {
         results = await this._transporter.sendMail(msgData);
