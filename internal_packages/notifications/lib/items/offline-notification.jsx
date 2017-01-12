@@ -67,7 +67,7 @@ export default class OfflineNotification extends React.Component {
     return (
       <Notification
         className="offline"
-        title="Nylas N1 is offline"
+        title="Nylas Mail is offline"
         priority="5"
         icon="volstead-offline.png"
         actions={[{label: 'Try now', id: 'try_now', fn: this.onTryAgain}]}

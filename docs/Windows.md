@@ -27,7 +27,7 @@ to a compilation error, it is likely a Visual Studio configuration issue.
 
 ## Visual Studio
 There are several versions of Visual Studio. `node-gyp` is designed to detect
-the current version installed on your system. Nylas N1 only officially supports
+the current version installed on your system. Nylas Mail only officially supports
 Visual Studio 2013. If you are using Visual Studio 2015, be sure you chose to
 install the C++ features in the Visual Studio installer.
 

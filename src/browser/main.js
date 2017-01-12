@@ -50,7 +50,7 @@ const setupErrorLogger = (args = {}) => {
 const declareOptions = (argv) => {
   const optimist = require('optimist');
   const options = optimist(argv);
-  options.usage("Nylas N1 v" + (app.getVersion()) + "\n\nUsage: n1 [options]\n\nRun N1: The open source extensible email client\n\n`n1 --dev` to start the client in dev mode.\n\n`n1 --test` to run unit tests.");
+  options.usage("Nylas Mail v" + (app.getVersion()) + "\n\nUsage: n1 [options]\n\nRun N1: The open source extensible email client\n\n`n1 --dev` to start the client in dev mode.\n\n`n1 --test` to run unit tests.");
   options.alias('d', 'dev').boolean('d').describe('d', 'Run in development mode.');
   options.alias('t', 'test').boolean('t').describe('t', 'Run the specified specs and exit with error code on failures.');
   options.boolean('safe').describe('safe', 'Do not load packages from ~/.nylas/packages or ~/.nylas/dev/packages.');

@@ -121,7 +121,7 @@ class PreferencesIdentity extends React.Component {
     return (
       <div className="row payment-row">
         <div>
-          Your subscription is valid until {new Date(identity.valid_until * 1000).toLocaleDateString()}. Enjoy N1!
+          Your subscription is valid until {new Date(identity.valid_until * 1000).toLocaleDateString()}. Enjoy Nylas Mail!
         </div>
       </div>
     )

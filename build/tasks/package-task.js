@@ -150,7 +150,7 @@ module.exports = (grunt) => {
         linux: undefined,
       }[platform],
       'name': {
-        darwin: 'Nylas N1',
+        darwin: 'Nylas Mail',
         win32: 'nylas',
         linux: 'nylas',
       }[platform],
@@ -230,7 +230,7 @@ module.exports = (grunt) => {
         CompanyName: 'Nylas, Inc.',
         FileDescription: 'The best email app for people and teams at work',
         LegalCopyright: `Copyright (C) 2014-${new Date().getFullYear()} Nylas, Inc. All rights reserved.`,
-        ProductName: 'Nylas N1',
+        ProductName: 'Nylas Mail',
       },
       // NOTE: The following plist keys can NOT be set in the
       // nylas-Info.plist since they are manually overridden by
@@ -261,7 +261,7 @@ module.exports = (grunt) => {
     },
   })
 
-  grunt.registerTask('packager', 'Package build of N1', function pack() {
+  grunt.registerTask('packager', 'Package build of Nylas Mail', function pack() {
     const done = this.async();
 
     console.log('---> Running build with options:');

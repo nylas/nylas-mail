@@ -23,7 +23,7 @@ guide](https://github.com/nylas/N1/blob/master/CONTRIBUTING.md).
 
 # Themes
 
-The Nylas N1 user interface is styled using CSS, which means it's easy to modify and extend. N1 comes stock with a few beautiful themes, and there are many more which have been built by community developers
+The Nylas Mail user interface is styled using CSS, which means it's easy to modify and extend. N1 comes stock with a few beautiful themes, and there are many more which have been built by community developers
 
 <center><img width=550 src="http://i.imgur.com/PWQ7NlY.jpg"></center>
 
@@ -69,7 +69,7 @@ The Nylas N1 user interface is styled using CSS, which means it's easy to modify
 #### To install community themes:
 
 1. Download and unzip the repo
-2. In Nylas N1, select `Developer > Install a Package Manually... `
+2. In Nylas Mail, select `Developer > Install a Package Manually... `
 3. Navigate to where you downloaded the theme and select the root folder. The theme is copied into the `~/.nylas` folder for your convinence
 5. Select `Change Theme...` from the top level menu, and you'll see the newly installed theme. That's it!
 

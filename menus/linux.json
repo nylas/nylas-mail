@@ -99,7 +99,7 @@
       "submenu": [
         { "label": "VERSION", "enabled": false },
         { "type": "separator" },
-        { "label": "Nylas N1 Help", "command": "application:view-help" }
+        { "label": "Nylas Mail Help", "command": "application:view-help" }
       ]
     }
   ]

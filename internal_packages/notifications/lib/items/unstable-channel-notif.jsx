@@ -38,7 +38,7 @@ export default class UnstableChannelNotification extends React.Component {
         priority="0"
         displayName={UnstableChannelNotification.displayName}
         title="You're on a pre-release channel. We'd love your feedback."
-        subtitle="You can switch back to stable from N1's preferences."
+        subtitle="You can switch back to stable from the preferences."
         icon="volstead-defaultclient.png"
         actions={[{
           label: "Feedback",

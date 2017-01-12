@@ -6,20 +6,20 @@ const path = require('path');
 module.exports = (grunt) => {
   const {spawn} = require('./task-helpers')(grunt);
 
-  grunt.registerTask('create-mac-installer', 'Zip up N1', function pack() {
+  grunt.registerTask('create-mac-installer', 'Zip up Nylas Mail', function pack() {
     const done = this.async();
-    const zipPath = path.join(grunt.config('outputDir'), 'N1.zip');
+    const zipPath = path.join(grunt.config('outputDir'), 'NylasMail.zip');
 
     if (grunt.file.exists(zipPath)) {
       grunt.file.delete(zipPath, {force: true});
     }
 
     const orig = process.cwd();
-    process.chdir(path.join(grunt.config('outputDir'), 'Nylas N1-darwin-x64'));
+    process.chdir(path.join(grunt.config('outputDir'), 'Nylas Mail-darwin-x64'));
 
     spawn({
       cmd: "zip",
-      args: ["-9", "-y", "-r", "-9", "-X", zipPath, 'Nylas N1.app'],
+      args: ["-9", "-y", "-r", "-9", "-X", zipPath, 'Nylas Mail.app'],
     }, (error) => {
       process.chdir(orig);
 
