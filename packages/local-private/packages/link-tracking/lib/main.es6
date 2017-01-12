@@ -10,7 +10,7 @@ import LinkTrackingMessageExtension from './link-tracking-message-extension';
 
 const LinkTrackingButtonWithTutorialTip = HasTutorialTip(LinkTrackingButton, {
   title: "Track links in this email",
-  instructions: "When link tracking is turned on, N1 will notify you when recipients click links in this email.",
+  instructions: "When link tracking is turned on, Nylas Mail will notify you when recipients click links in this email.",
 });
 
 export function activate() {

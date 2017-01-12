@@ -1,4 +1,4 @@
-# K2 - Local Sync Engine & Cloud Services for Nylas N1
+# K2 - Local Sync Engine & Cloud Services for Nylas Mail
 
 This is a collection of all sync and cloud components required to run N1.
 
@@ -6,7 +6,7 @@ This is a collection of all sync and cloud components required to run N1.
 1. [**Cloud Core**](https://github.com/nylas/K2/tree/master/packages/cloud-core): Shared code used in all remote cloud services
 1. [**Cloud Workers**](https://github.com/nylas/K2/tree/master/packages/cloud-workers): Cloud workers for services like send later
 1. [**Isomorphic Core**](https://github.com/nylas/K2/tree/master/packages/isomorphic-core): Shared code across local client and cloud servers
-1. [**Local Sync**](https://github.com/nylas/K2/tree/master/packages/local-sync): The local mailsync engine integreated in Nylas N1
+1. [**Local Sync**](https://github.com/nylas/K2/tree/master/packages/local-sync): The local mailsync engine integreated in Nylas Mail
 
 See `/packages` for the separate pieces. Each folder in `/packages` is
 designed to be its own stand-alone repositoriy. They are all bundled here

@@ -1,7 +1,7 @@
 {
   "name": "salesforce",
   "title": "Salesforce",
-  "description": "Nylas N1 and Salesforce integration",
+  "description": "Nylas Mail and Salesforce integration",
   "isHiddenOnPluginsPage": true,
   "isOptional": true,
   "icon": "./icon.png",
