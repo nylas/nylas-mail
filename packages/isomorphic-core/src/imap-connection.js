@@ -128,14 +128,13 @@ class IMAPConnection extends EventEmitter {
       }, SOCKET_TIMEOUT_MS)
 
       // Emitted when new mail arrives in the currently open mailbox.
-      // Fix https://github.com/mscdex/node-imap/issues/445
       let lastMailEventBox = null;
       this._imap.on('mail', () => {
-        // This check is for working around
-        // https://github.com/mscdex/node-imap/issues/585
+        // Fix https://github.com/mscdex/node-imap/issues/585
         if (this._isOpeningBox) { return }
         if (!this._imap) { return }
-        if (lastMailEventBox === this._imap._box.name) {
+        if (lastMailEventBox === null || lastMailEventBox === this._imap._box.name) {
+          // Fix https://github.com/mscdex/node-imap/issues/445
           this.emit('mail');
         }
         lastMailEventBox = this._imap._box.name
