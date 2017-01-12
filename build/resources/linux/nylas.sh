@@ -49,21 +49,21 @@ if [ $EXPECT_OUTPUT ]; then
 fi
 
 if [ $OS == 'Mac' ]; then
-  NYLAS_APP_NAME="Nylas N1.app"
+  NYLAS_APP_NAME="Nylas Mail.app"
 
   if [ -z "${NYLAS_PATH}" ]; then
-    # If NYLAS_PATH isnt set, check /Applications and then ~/Applications for Nylas N1.app
+    # If NYLAS_PATH isnt set, check /Applications and then ~/Applications for Nylas Mail.app
     if [ -x "/Applications/$NYLAS_APP_NAME" ]; then
       NYLAS_PATH="/Applications"
     elif [ -x "$HOME/Applications/$NYLAS_APP_NAME" ]; then
       NYLAS_PATH="$HOME/Applications"
     else
-      # We havent found an Nylas N1.app, use spotlight to search for N1
+      # We havent found an Nylas Mail.app, use spotlight to search for N1
       NYLAS_PATH="$(mdfind "kMDItemCFBundleIdentifier == 'com.nylas.nylas-mail'" | grep -v ShipIt | head -1 | xargs -0 dirname)"
 
       # Exit if N1 can't be found
       if [ ! -x "$NYLAS_PATH/$NYLAS_APP_NAME" ]; then
-        echo "Cannot locate 'Nylas N1.app', it is usually located in /Applications. Set the NYLAS_PATH environment variable to the directory containing 'Nylas N1.app'."
+        echo "Cannot locate 'Nylas Mail.app', it is usually located in /Applications. Set the NYLAS_PATH environment variable to the directory containing 'Nylas Mail.app'."
         exit 1
       fi
     fi

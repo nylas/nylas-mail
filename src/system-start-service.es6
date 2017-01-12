@@ -52,7 +52,7 @@ class SystemStartServiceDarwin extends SystemStartServiceBase {
   }
 
   _launcherPath() {
-    return path.join("/", "Applications", "Nylas N1.app", "Contents",
+    return path.join("/", "Applications", "Nylas Mail.app", "Contents",
                      "MacOS", "Nylas")
   }
 
@@ -149,7 +149,7 @@ class SystemStartServiceLinux extends SystemStartServiceBase {
 
   _shortcutPath() {
     const configDir = process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config');
-    return path.join(configDir, 'autostart', 'nylas-n1.desktop');
+    return path.join(configDir, 'autostart', 'nylas-mail.desktop');
   }
 }
 

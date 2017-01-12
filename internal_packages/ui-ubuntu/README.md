@@ -1,4 +1,4 @@
-# Ubuntu Theme for Nylas N1 #
+# Ubuntu Theme for Nylas Mail #
 
 ![img](https://raw.githubusercontent.com/ahmedlhanafy/Ubuntu-Ui-Theme-for-Nylas-N1/master/Screenshot.png)
 

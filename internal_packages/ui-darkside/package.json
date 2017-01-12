@@ -3,7 +3,7 @@
   "displayName": "Darkside",
   "theme": "ui",
   "version": "1.0.0",
-  "description": "A customizable, dark sidebar theme for Nylas N1.",
+  "description": "A customizable, dark sidebar theme for Nylas Mail.",
   "license": "MIT",
   "engines": {
     "nylas": "*"

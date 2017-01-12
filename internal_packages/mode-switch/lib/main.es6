@@ -5,7 +5,7 @@ import ModeToggle from './mode-toggle';
 
 const ToggleWithTutorialTip = HasTutorialTip(ModeToggle, {
   title: 'Compose with context',
-  instructions: "N1 shows you everything about your contacts right inside your inbox. See LinkedIn profiles, Twitter bios, message history, and more.",
+  instructions: "Nylas Mail shows you everything about your contacts right inside your inbox. See LinkedIn profiles, Twitter bios, message history, and more.",
 });
 
 // NOTE: this is a hack to allow ComponentRegistry

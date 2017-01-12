@@ -45,7 +45,7 @@ export default class UpdateNotification extends React.Component {
     return (
       <Notification
         priority="4"
-        title={`An update to N1 is available ${version}`}
+        title={`An update to Nylas Mail is available ${version}`}
         subtitle="View changelog"
         subtitleAction={this._onViewChangelog}
         icon="volstead-upgrade.png"

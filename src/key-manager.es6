@@ -11,8 +11,8 @@ import keytar from 'keytar'
  */
 class KeyManager {
   constructor() {
-    this.SERVICE_NAME = "Nylas N1";
-    this.KEY_NAME = "Nylas N1 Keys"
+    this.SERVICE_NAME = "Nylas Mail";
+    this.KEY_NAME = "Nylas Mail Keys"
     this._alreadyMigrated = new Set()
   }
 

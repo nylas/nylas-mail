@@ -61,14 +61,14 @@ export function activate() {
     ]
   }
 
-  const msg = `We recommend that you move N1 to your Applications folder to get updates correctly and keep this folder uncluttered.`
+  const msg = `We recommend that you move Nylas Mail to your Applications folder to get updates correctly and keep this folder uncluttered.`
 
   const CANCEL_ID = 3;
 
   remote.dialog.showMessageBox({
     type: "question",
     buttons: buttons,
-    title: "A Better Place to Install N1",
+    title: "A Better Place to Install Nylas Mail",
     message: "Move to Applications folder?",
     detail: msg,
     defaultId: 0,

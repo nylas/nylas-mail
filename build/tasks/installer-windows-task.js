@@ -18,7 +18,7 @@ module.exports = (grunt) => {
         title: appPackageJSON.productName,
         authors: 'Nylas Inc.',
         setupIcon: path.join(grunt.config('appDir'), 'build', 'resources', 'win', 'nylas.ico'),
-        setupExe: 'N1Setup.exe',
+        setupExe: 'NylasMailSetup.exe',
         exe: 'nylas.exe',
         name: 'Nylas',
       },

@@ -148,14 +148,14 @@ class PreferencesAccountDetails extends Component {
       switch (account.syncState) {
         case Account.N1_Cloud_AUTH_FAILED:
           return this._renderErrorDetail(
-            `Nylas N1 can no longer authenticate N1 Cloud Services with
+            `Nylas Mail can no longer authenticate N1 Cloud Services with
             ${account.emailAddress}. The password or authentication may
             have changed.`,
             "Reconnect",
             this._onReconnect);
         case Account.SYNC_STATE_AUTH_FAILED:
           return this._renderErrorDetail(
-            `Nylas N1 can no longer authenticate with ${account.emailAddress}. The password or
+            `Nylas Mail can no longer authenticate with ${account.emailAddress}. The password or
             authentication may have changed.`,
             "Reconnect",
             this._onReconnect);

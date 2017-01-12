@@ -1,9 +1,9 @@
 {
   "menu": [
   {
-    "label": "Nylas N1",
+    "label": "Nylas Mail",
     "submenu": [
-      { "label": "About Nylas N1", "command": "application:about" },
+      { "label": "About Nylas Mail", "command": "application:about" },
       { "type": "separator" },
       { "label": "Preferences", "command": "application:open-preferences" },
       { "label": "Change Theme...", "command": "window:launch-theme-picker" },
@@ -19,7 +19,7 @@
       { "type": "separator" },
       { "label": "Services", "submenu": [] },
       { "type": "separator" },
-      { "label": "Hide Nylas N1", "command": "application:hide" },
+      { "label": "Hide Nylas Mail", "command": "application:hide" },
       { "label": "Hide Others", "command": "application:hide-other-applications" },
       { "label": "Show All", "command": "application:unhide-all-applications" },
       { "type": "separator" },
@@ -100,7 +100,7 @@
       { "label": "Install a Plugin...", "command": "application:install-package" },
       { "type": "separator" },
       { "label": "Run Plugin Specs...", "command": "application:run-package-specs" },
-      { "label": "Run N1 Specs", "command": "application:run-all-specs" },
+      { "label": "Run Nylas Mail Specs", "command": "application:run-all-specs" },
       { "type": "separator" },
       { "label": "Open Detailed Logs", "command": "window:open-errorlogger-logs" }
     ]
@@ -119,7 +119,7 @@
   {
     "label": "Help",
     "submenu": [
-      { "label": "Nylas N1 Help", "command": "application:view-help" }
+      { "label": "Nylas Mail Help", "command": "application:view-help" }
     ]
   }
   ]

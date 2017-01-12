@@ -180,7 +180,7 @@ export default class Application extends EventEmitter {
       this.windowManager.ensureWindow(WindowManager.WORK_WINDOW);
     } else {
       this.windowManager.ensureWindow(WindowManager.ONBOARDING_WINDOW, {
-        title: "Welcome to N1",
+        title: "Welcome to Nylas Mail",
       });
       this.windowManager.ensureWindow(WindowManager.WORK_WINDOW);
     }

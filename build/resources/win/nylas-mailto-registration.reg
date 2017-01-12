@@ -19,7 +19,7 @@ Windows Registry Editor Version 5.00
 @="{{PATH_TO_APP_FOLDER}}\\nylas.exe,1"
 
 [{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Nylas\Capabilities]
-"ApplicationName"="Nylas N1"
+"ApplicationName"="Nylas Mail"
 "ApplicationDescription"="A fast, modern mail client designed to help you boost your productivity."
 
 [{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Nylas\Capabilities\StartMenu]
@@ -55,6 +55,6 @@ Windows Registry Editor Version 5.00
 
 
 [HKEY_CURRENT_USER\SOFTWARE\Classes\Local Settings\Software\Microsoft\Windows\Shell\MuiCache]
-"{{PATH_TO_ROOT_FOLDER}}\\Update.exe"="Nylas N1"
-"{{PATH_TO_ROOT_FOLDER}}\\Update.exe.FriendlyAppName"="Nylas N1"
+"{{PATH_TO_ROOT_FOLDER}}\\Update.exe"="Nylas Mail"
+"{{PATH_TO_ROOT_FOLDER}}\\Update.exe.FriendlyAppName"="Nylas Mail"
 "{{PATH_TO_ROOT_FOLDER}}\\Update.exe.ApplicationCompany"="Nylas"

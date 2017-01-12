@@ -3,7 +3,7 @@
   "displayName": "Less Is More",
   "theme": "ui-less-is-more",
   "version": "1.0.7",
-  "description": "A minimal approach to email in Nylas N1",
+  "description": "A minimal approach to email in Nylas Mail",
   "license": "MIT",
   "engines": {
     "nylas": "*"
