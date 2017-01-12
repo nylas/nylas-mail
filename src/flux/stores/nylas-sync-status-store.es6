@@ -243,10 +243,9 @@ class NylasSyncStatusStore extends NylasStore {
   }
 
   /**
-    Return true if any account is in a state other than `retrying`.
-    When data isn't received, NylasLongConnection closes the socket and
-    goes into `retrying` state.
-  */
+   * @return true if the N1Cloud delta stream is connected for at least one
+   * account
+   */
   connected() {
     const statuses = Object.keys(this._statesByAccount)
     .map((accountId) => this._statesByAccount[accountId].deltaStatus)
@@ -256,10 +255,7 @@ class NylasSyncStatusStore extends NylasStore {
       return true
     }
 
-    return statuses.some((status) => {
-      const connections = Object.keys(status)
-      return connections.some((conn) => status[conn] !== 'closed')
-    })
+    return statuses.some((status) => status.n1Cloud !== 'closed')
   }
 }
 
