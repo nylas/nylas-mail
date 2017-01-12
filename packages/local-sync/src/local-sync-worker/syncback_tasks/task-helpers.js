@@ -18,7 +18,7 @@ const TaskHelpers = {
         imap.openBox(category.name, {readOnly: false}).then((box) =>
           Promise.all(msgsInCategories[category.id].map((message) =>
             callback({message, category, box})
-          )).then(() => box.closeBox())
+          ))
         )
       )
     })

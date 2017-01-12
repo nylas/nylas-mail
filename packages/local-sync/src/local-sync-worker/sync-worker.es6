@@ -319,6 +319,7 @@ class SyncWorker {
   }
 
   async _runSyncbackTask(task) {
+    const before = new Date();
     const syncbackRequest = task.syncbackRequestObject();
     console.log(`🔃 📤 ${task.description()}`, syncbackRequest.props)
     try {
@@ -330,11 +331,13 @@ class SyncWorker {
       const responseJSON = await this._conn.runOperation(task);
       syncbackRequest.status = "SUCCEEDED";
       syncbackRequest.responseJSON = responseJSON || {};
-      console.log(`🔃 📤 ${task.description()} Succeeded`)
+      const after = new Date();
+      console.log(`🔃 📤 ${task.description()} Succeeded (${after.getTime() - before.getTime()}ms)`)
     } catch (error) {
       syncbackRequest.error = error;
       syncbackRequest.status = "FAILED";
-      console.error(`🔃 📤 ${task.description()} Failed`, {syncbackRequest: syncbackRequest.toJSON()})
+      const after = new Date();
+      console.error(`🔃 📤 ${task.description()} Failed (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON()})
     } finally {
       await syncbackRequest.save();
     }

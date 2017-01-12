@@ -196,6 +196,9 @@ class IMAPConnection extends EventEmitter {
     if (!this._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPConnection::openBox`)
     }
+    if (folderName === this.getOpenBoxName()) {
+      return Promise.resolve(new IMAPBox(this, this._imap._box));
+    }
     this._isOpeningBox = true
     return this.createConnectionPromise((resolve, reject) => {
       return this._imap.openBoxAsync(folderName, readOnly)
