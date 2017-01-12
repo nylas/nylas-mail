@@ -1,6 +1,6 @@
 import {electronCantOpen, blacklistedEmail} from '../../lib/util/blacklist';
 
-describe("blacklist", () => {
+describe("blacklist", function blacklist() {
   it("electronCantOpen", () => {
     expect(electronCantOpen("https://github.com/unsubscribe")).toBe(true);
     expect(electronCantOpen("https://test.com/wf/click?upn=iwbeg538ht938h3gnio")).toBe(true);
