@@ -4,6 +4,9 @@ const Rx = require('rx');
 const {IMAPConnection} = require('isomorphic-core')
 
 const getThreadsForMessages = (db, messages, limit) => {
+  if (messages.length === 0) {
+    return Promise.resolve([]);
+  }
   const {Message, Folder, Label, Thread, File} = db;
   const threadIds = _.uniq(messages.map((m) => m.threadId));
   return Thread.findAll({
@@ -138,7 +141,7 @@ class GmailSearchClient {
   async searchThreads(db, query, limit) {
     const messageIds = await this._search(query, limit);
     if (!messageIds.length) {
-      return [];
+      return Rx.Observable.of('[]');
     }
 
     const {Message} = db;
