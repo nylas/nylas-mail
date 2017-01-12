@@ -1,6 +1,6 @@
 import EmailParser from '../../lib/util/email-parser';
 
-fdescribe("EmailParser", () => {
+describe("EmailParser", () => {
   describe("__headers", () => {
     it("parses single email link", () => {
       const parser = new EmailParser({

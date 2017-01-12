@@ -1,6 +1,6 @@
 import {shortenURL, shortenEmail, interpretEmail, defaultBody} from '../../lib/util/helpers';
 
-fdescribe("helpers", () => {
+describe("helpers", () => {
   it("shortenURL", () => {
     expect(shortenURL("http://www.aweber.com/z/r/?HCwMbCwctKzsLJzqHAxMtEa0zCzMTOycrIw=")).toEqual("www.aweber.com/...");
     expect(shortenURL("https://www.aweber.com/z/r/?HCwMbCwctKzsLJzqHAxMtEa0zCzMTOycrIw=")).toEqual("www.aweber.com/...");
