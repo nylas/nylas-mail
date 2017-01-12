@@ -204,12 +204,12 @@ xdescribe "NylasSyncWorker", ->
       advanceClock()
       expect(@worker._fetchCollectionPage.calls.map (call) -> call.args[0]).toEqual(['threads', 'labels', 'drafts'])
 
-    it "should be called when Actions.retrySync is received", ->
+    it "should be called when Actions.retryDeltaConnection is received", ->
       spyOn(DeltaStreamingConnection.prototype, 'latestCursor').andReturn Promise.resolve()
 
       # TODO why do we need to call through?
       spyOn(@worker, '_resume').andCallThrough()
-      Actions.retrySync()
+      Actions.retryDeltaConnection()
       expect(@worker._resume).toHaveBeenCalled()
 
   describe "_shouldFetchCollection", ->

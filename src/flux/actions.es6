@@ -122,9 +122,9 @@ class Actions {
   /*
   Public: Retry the initial sync
 
-  *Scope: Work Window*
+  *Scope: Global*
   */
-  static retrySync = ActionScopeWorkWindow;
+  static retryDeltaConnection = ActionScopeGlobal;
 
   /*
   Public: Open the preferences view.

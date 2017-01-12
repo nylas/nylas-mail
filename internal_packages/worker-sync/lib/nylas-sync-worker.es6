@@ -34,7 +34,7 @@ export default class NylasSyncWorker {
     this._state = { deltaCursors: {}, deltaStatus: {} }
     this._writeStateDebounced = _.debounce(this._writeState, 100)
     this._account = account;
-    this._unlisten = Actions.retrySync.listen(this.refresh.bind(this), this);
+    this._unlisten = Actions.retryDeltaConnection.listen(() => this.refresh());
     this._deltaStreams = this._setupDeltaStreams(account);
     this._refreshingCaches = [new ContactRankingsCache(account.id)];
     NylasEnv.onBeforeUnload = (readyToUnload) => {
@@ -62,6 +62,7 @@ export default class NylasSyncWorker {
 
   refresh() {
     this.cleanup();
+    this._unlisten = Actions.retryDeltaConnection.listen(() => this.refresh());
     // Cleanup defaults to an "ENDED" socket. We need to indicate it's
     // merely closed and can be re-opened again immediately.
     _.map(this._deltaStreams, s => s.setStatus(NylasLongConnection.Status.Closed))

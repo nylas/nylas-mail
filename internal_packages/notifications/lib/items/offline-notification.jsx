@@ -33,7 +33,7 @@ export default class OfflineNotification extends React.Component {
   }
 
   onTryAgain = () => {
-    Actions.retrySync();
+    Actions.retryDeltaConnection();
   }
 
   onWindowFocusChanged = () => {
@@ -66,6 +66,7 @@ export default class OfflineNotification extends React.Component {
 
     return (
       <Notification
+        className="offline"
         title="Nylas N1 is offline"
         priority="5"
         icon="volstead-offline.png"
