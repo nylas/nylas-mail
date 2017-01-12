@@ -2,7 +2,6 @@ import {React} from 'nylas-exports';
 import {RetinaImg, KeyCommandsRegion} from 'nylas-component-kit';
 import ThreadUnsubscribeStoreManager from '../thread-unsubscribe-store-manager';
 import ThreadConditionType from '../enum/threadConditionType';
-import {logIfDebug} from '../util/helpers';
 
 const UNSUBSCRIBE_ASSETS_BASE_URL = 'nylas://unsubscribe/assets/';
 
@@ -157,7 +156,6 @@ export class ThreadUnsubscribeToolbarButton extends ThreadUnsubscribeButton {
   }
 
   _keymapEvent() {
-    logIfDebug('Unsubscribe keymap fired');
     const e = document.getElementById('unsubscribe');
     e.click()
   }

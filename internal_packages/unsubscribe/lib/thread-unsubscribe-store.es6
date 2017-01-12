@@ -84,16 +84,16 @@ export default class ThreadUnsubscribeStore extends NylasStore {
   }
 
   _loadMessagesViaAPI(callback) {
-    if (this.messages !== undefined && this.messages.length > 0) {
+    if (this.messages && this.messages.length > 0) {
       if (this.messages[0].draft || (this.messages[0].categories &&
         _.some(this.messages[0].categories, _.matcher({displayName: "Sent Mail"})))) {
         // Can't unsubscribe from draft or sent emails
-        callback();
+        callback(null, null);
       } else {
         // Fetch the email contents to parse for unsubscribe links
         // NOTE: This will only make a request for the first email message in the thread,
-        // instead of all messages based on the assumption that all of the emails in the
-        // thread will have the unsubscribe link.
+        // instead of all messages based on the assumption that the first email will have
+        // an unsubscribe link iff you can unsubscribe from that thread.
         const messagePath = `/messages/${this.messages[0].id}`;
         NylasAPI.makeRequest({
           path: messagePath,

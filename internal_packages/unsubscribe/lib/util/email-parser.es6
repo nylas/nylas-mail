@@ -2,6 +2,7 @@ import cheerio from 'cheerio';
 import {blacklistedEmail} from './blacklist';
 
 const regexps = [
+  // English
   /unsubscribe/gi,
   /unfollow/gi,
   /opt[ -]{0,2}out/gi,
