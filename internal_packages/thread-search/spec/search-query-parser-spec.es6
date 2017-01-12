@@ -14,6 +14,7 @@ const {
   TextQueryExpression,
   UnreadStatusQueryExpression,
   StarredStatusQueryExpression,
+  InQueryExpression,
 } = ThreadQueryAST;
 
 const token = (text) => { return new SearchQueryToken(text); }
@@ -23,12 +24,13 @@ const from = (text) => { return new FromQueryExpression(text); }
 const to = (text) => { return new ToQueryExpression(text); }
 const subject = (text) => { return new SubjectQueryExpression(text); }
 const generic = (text) => { return new GenericQueryExpression(text); }
+const in_ = (text) => { return new InQueryExpression(text); }
 const text = (tok) => { return new TextQueryExpression(tok); }
 const unread = (status) => { return new UnreadStatusQueryExpression(status); }
 const starred = (status) => { return new StarredStatusQueryExpression(status); }
 
 
-fdescribe('parseSearchQuery', () => {
+describe('parseSearchQuery', () => {
   it('correctly parses simple queries', () => {
     expect(parseSearchQuery('blah').equals(
       generic(text(token('blah')))
@@ -65,6 +67,9 @@ fdescribe('parseSearchQuery', () => {
     )).toBe(true)
     expect(parseSearchQuery('is:unstarred').equals(
       starred(false)
+    )).toBe(true)
+    expect(parseSearchQuery('in:foo').equals(
+      in_(text(token('foo')))
     )).toBe(true)
   });
 

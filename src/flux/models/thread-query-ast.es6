@@ -21,6 +21,7 @@ export class SearchQueryExpressionVisitor {
   visitUnread(node) { throw new Error('Abstract function not implemented!', node); }
   visitStarred(node) { throw new Error('Abstract function not implemented!', node); }
   visitMatch(node) { throw new Error('Abstract function not implemented!', node); }
+  visitIn(node) { throw new Error('Abstract function not implemented!', node); }
 }
 
 export class QueryExpression {
@@ -249,6 +250,28 @@ export class TextQueryExpression extends QueryExpression {
   }
 }
 
+export class InQueryExpression extends QueryExpression {
+  constructor(text) {
+    super();
+    this.text = text;
+  }
+
+  accept(visitor) {
+    visitor.visitIn(this);
+  }
+
+  _computeIsMatchCompatible() {
+    return true;
+  }
+
+  equals(other) {
+    if (!(other instanceof InQueryExpression)) {
+      return false;
+    }
+    return this.text.equals(other.text);
+  }
+}
+
 /*
  * Intermediate representation for multiple match-compatible nodes. Used when
  * translating the initial query AST into the proper SQL-compatible query.
@@ -305,4 +328,5 @@ module.exports = {
   UnreadStatusQueryExpression,
   StarredStatusQueryExpression,
   MatchQueryExpression,
+  InQueryExpression,
 };
