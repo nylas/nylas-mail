@@ -1,3 +1,4 @@
+const _ = require('underscore')
 const {
   IMAPConnection,
   IMAPErrors,
@@ -25,6 +26,7 @@ class SyncWorker {
     this._currentOperation = null
     this._interruptible = new Interruptible()
     this._localDeltas = new LocalSyncDeltaEmitter(db, account.id)
+    this._mailListenerConn = null
 
     this._startTime = Date.now()
     this._lastSyncTime = null
@@ -32,6 +34,7 @@ class SyncWorker {
     this._interrupted = false
     this._syncInProgress = false
     this._destroyed = false
+    this._shouldIgnoreInboxFlagUpdates = false
 
     this._syncTimer = setTimeout(() => {
       // TODO this is currently a hack to keep N1's account in sync and notify of
@@ -152,33 +155,69 @@ class SyncWorker {
       account: this._account,
     });
 
-    conn.on('mail', () => {
-      this._onConnectionIdleUpdate();
-    })
-    conn.on('update', () => {
-      this._onConnectionIdleUpdate();
-    })
     conn.on('queue-empty', () => {});
 
     this._conn = conn;
     return this._conn.connect();
   }
 
-  _onConnectionIdleUpdate() {
-    const openBoxName = this._conn ? this._conn.getOpenBoxName() : null
-    const isInboxUpdate = (
-      openBoxName &&
-      ['inbox', '[gmail]/all mail'].includes(openBoxName.toLowerCase())
-    )
-    if (!isInboxUpdate) { return; }
-    this.syncNow({reason: "You've got mail!", interrupt: true});
+  async _ensureMailListenerConnection() {
+    const newCredentials = await this._ensureAccessToken()
+
+    if (!newCredentials && this._mailListenerConn) {
+      // We already have a connection and we don't need to update the
+      // credentials
+      return this._mailListenerConn.connect();
+    }
+
+    const settings = this._account.connectionSettings;
+    const credentials = newCredentials || this._account.decryptedCredentials();
+
+    const conn = new IMAPConnection({
+      db: this._db,
+      settings: Object.assign({}, settings, credentials),
+      logger: this._logger,
+      account: this._account,
+    });
+
+    conn.on('mail', () => {
+      this._onInboxUpdates(`You've got mail`);
+    })
+    conn.on('update', () => {
+      // `update` events happen when messages receive flag updates on the inbox
+      // (e.g. marking as unread or starred). We need to listen to that event for
+      // when those updates are performed from another mail client, but ignore
+      // them when they are caused from within N1.
+      if (this._shouldIgnoreInboxFlagUpdates) { return; }
+      this._onInboxUpdates(`There are flag updates on the inbox`);
+    })
+
+    this._mailListenerConn = conn;
+    return this._mailListenerConn.connect();
   }
 
-  _closeConnection() {
+  async _listenForNewMail() {
+    // Open the inbox folder on our dedicated mail listener connection to listen
+    // to new mail events
+    const inbox = await this._getInboxFolder();
+    if (inbox && this._mailListenerConn) {
+      await this._mailListenerConn.openBox(inbox.name)
+    }
+  }
+
+  _onInboxUpdates = _.debounce((reason) => {
+    this.syncNow({reason, interrupt: true});
+  }, 100)
+
+  _closeConnections() {
     if (this._conn) {
       this._conn.end();
     }
+    if (this._mailListenerConn) {
+      this._mailListenerConn.end()
+    }
     this._conn = null
+    this._mailListenerConn = null
   }
 
   /**
@@ -313,7 +352,7 @@ class SyncWorker {
   }
 
   _onSyncError(error) {
-    this._closeConnection()
+    this._closeConnections()
 
     this._logger.error(error, `SyncWorker: Error while syncing account`)
 
@@ -357,14 +396,6 @@ class SyncWorker {
     await this._account.save();
 
     console.log(`🔃 🔚 took ${now - this._syncStart}ms`)
-    // this._logger.info('Syncworker: Completed sync cycle');
-
-    // Start idling on the inbox
-    const inbox = await this._getInboxFolder();
-    if (inbox) {
-      await this._conn.openBox(inbox.name);
-    }
-    // this._logger.info('SyncWorker: Idling on inbox folder');
   }
 
   async _scheduleNextSync() {
@@ -413,24 +444,39 @@ class SyncWorker {
   async * _performSync() {
     yield this._account.update({syncError: null});
     yield this._ensureConnection();
+    yield this._ensureMailListenerConnection();
 
     // Step 1: Mark all "INPROGRESS" tasks as failed.
     await this._markInProgressTasksAsFailed()
     yield // Yield to allow interruption
 
     // Step 2: Run any available syncback tasks
+    // While running syncback tasks, we want to ignore `update` events on the
+    // inbox.
+    // `update` events happen when messages receive flag updates on the box,
+    // (e.g. marking as unread or starred). We need to listen to that event for
+    // when updates are performed from another mail client, but ignore
+    // them when they are caused from within N1 to prevent unecessary interrupts
     const tasks = yield this._getNewSyncbackTasks()
+    this._shouldIgnoreInboxFlagUpdates = true
     for (const task of tasks) {
       await this._runSyncbackTask(task)
       yield  // Yield to allow interruption
     }
+    this._shouldIgnoreInboxFlagUpdates = false
 
     // Step 3: Fetch the folder list. We need to run this before syncing folders
     // because we need folders to sync!
     await this._runOperation(new FetchFolderList(this._account, this._logger))
     yield  // Yield to allow interruption
 
-    // Step 4: Sync each folder, sorted by inbox first
+    // Step 4: Listen to new mail. We need to do this after we've fetched the
+    // folder list so we can correctly find the inbox folder on the very first
+    // sync loop
+    await this._listenForNewMail()
+    yield  // Yield to allow interruption
+
+    // Step 5: Sync each folder, sorted by inbox first
     // TODO prioritize syncing all of inbox first if there's a ton of folders (e.g. imap
     // accounts). If there are many folders, we would only sync the first n
     // messages in the inbox and not go back to it until we've done the same for
@@ -485,7 +531,7 @@ class SyncWorker {
     }
   }
 
-  interrupt({reason = 'No reason'}) {
+  interrupt({reason = 'No reason'} = {}) {
     console.log(`🔃  Interrupting sync! Reason: ${reason}`)
     this._interruptible.interrupt()
     if (this._currentOperation) {
@@ -498,7 +544,7 @@ class SyncWorker {
     clearTimeout(this._syncTimer);
     this._syncTimer = null;
     this._destroyed = true;
-    this._closeConnection()
+    this._closeConnections()
   }
 }
 
