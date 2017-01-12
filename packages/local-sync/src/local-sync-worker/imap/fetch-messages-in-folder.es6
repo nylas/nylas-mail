@@ -204,7 +204,7 @@ class FetchMessagesInFolder extends SyncOperation {
       // attachment metadata is extracted later---ignore for now
     }
 
-    if (desired.length === 0) {
+    if (desired.length === 0 && available.length !== 0) {
       this._logger.warn({
         available_options: available.join(', '),
       }, `FetchMessagesInFolder: Could not find good part`)
@@ -220,9 +220,6 @@ class FetchMessagesInFolder extends SyncOperation {
 
     yield this._box.fetchEach(rangeQuery, {struct: true}, ({attributes}) => {
       const desiredParts = this._getDesiredMIMEParts(attributes.struct);
-      if (desiredParts.length === 0) {
-        return;
-      }
       const key = JSON.stringify(desiredParts);
       uidsByPart[key] = uidsByPart[key] || [];
       uidsByPart[key].push(attributes.uid);
