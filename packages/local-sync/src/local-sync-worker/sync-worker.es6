@@ -346,10 +346,15 @@ class SyncWorker {
   async _getFoldersToSync() {
     const {Folder} = this._db;
 
+    // Don't sync spam until everything else has been synced
+    const allFolders = await Folder.findAll();
+    const foldersExceptSpam = allFolders.filter((f) => f.role !== 'spam')
+    const shouldIncludeSpam = foldersExceptSpam.every((f) => f.isSyncComplete())
+    const foldersToSync = shouldIncludeSpam ? allFolders : foldersExceptSpam;
+
     // TODO make sure this order is correct/ unit tests!!
-    const folders = await Folder.findAll();
-    const priority = ['inbox', 'all', 'drafts', 'sent', 'trash', 'spam'].reverse();
-    return folders.sort((a, b) =>
+    const priority = ['inbox', 'all', 'sent', 'drafts', 'trash', 'spam'].reverse();
+    return foldersToSync.sort((a, b) =>
       (priority.indexOf(a.role) - priority.indexOf(b.role)) * -1
     )
   }
@@ -424,12 +429,6 @@ class SyncWorker {
     const interval = shouldSyncImmediately ? 1 : intervals.active;
     const nextSyncIn = Math.max(1, this._lastSyncTime + interval - Date.now())
 
-    // this._logger.info({
-    //   moreToSync,
-    //   shouldSyncImmediately,
-    //   interrupted: this._interrupted,
-    //   nextSyncStartingIn: `${nextSyncIn}ms`,
-    // }, `SyncWorker: Scheduling next sync iteration`)
     console.log(`🔃 🔜 in ${nextSyncIn}ms`)
 
     this._syncTimer = setTimeout(() => {
