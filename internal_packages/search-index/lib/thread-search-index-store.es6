@@ -221,8 +221,14 @@ class ThreadSearchIndexStore {
       .map(({name, email}) => `${name} ${email}`)
       .join(" ")
     )
+    const categories = (
+      thread.categories
+      .map(({displayName}) => displayName)
+      .join(" ")
+    )
 
     return Promise.props({
+      categories,
       participants,
       body: messageBodies,
       subject: thread.subject,

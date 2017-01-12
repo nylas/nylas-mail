@@ -13,6 +13,7 @@ const {
   TextQueryExpression,
   UnreadStatusQueryExpression,
   StarredStatusQueryExpression,
+  InQueryExpression,
 } = ThreadQueryAST;
 
 const nextStringToken = (text) => {
@@ -63,6 +64,7 @@ const reserved = [
   'from',
   'to',
   'subject',
+  'in',
 ];
 
 const mightBeReserved = (text) => {
@@ -155,11 +157,12 @@ const nextToken = (text) => {
  * to_query: TO COLON TEXT
  * subject_query: SUBJECT COLON TEXT
  * paren_query: LPAREN query RPAREN
- * is_query: IS is_query_rest
+ * is_query: IS COLON is_query_rest
  * is_query_rest: read_cond
  *              | starred_cond
  * read_cond: READ | UNREAD
  * starred_cond: STARRED | UNSTARRED
+ * in_query: IN COLON TEXT
  *
  * TEXT: STRING
  *     | [^\s]+
@@ -234,6 +237,12 @@ const parseSimpleQuery = (text) => {
     if (result !== null) {
       return result;
     }
+  }
+
+  if (tok.s.toUpperCase() === 'IN') {
+    const afterColon = consumeExpectedToken(afterTok, ':');
+    const [txt, afterTxt] = parseText(afterColon);
+    return [new InQueryExpression(txt), afterTxt];
   }
 
   const [txt, afterTxt] = parseText(text);

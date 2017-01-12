@@ -68,6 +68,11 @@ class MatchQueryExpressionVisitor extends SearchQueryExpressionVisitor {
   visitStarred(node) {
     this._assertIsMatchCompatible(node);
   }
+
+  visitIn(node) {
+    const text = this.visitAndGetResult(node.text);
+    this._result = `(categories : "${text}*")`;
+  }
 }
 
 /*
@@ -126,6 +131,10 @@ class MatchCompatibleQueryCondenser extends SearchQueryExpressionVisitor {
     this._result = this._matchVisitor.visit(node);
   }
 
+  visitIn(node) {
+    this._result = this._matchVisitor.visit(node);
+  }
+
   visitUnread(node) {
     this._result = new UnreadStatusQueryExpression(node.status);
   }
@@ -180,6 +189,10 @@ export class StructuredSearchQueryVisitor extends SearchQueryExpressionVisitor {
   }
 
   visitText(node) {
+    throw new Error('Unreachable', node);
+  }
+
+  visitIn(node) {
     throw new Error('Unreachable', node);
   }
 
