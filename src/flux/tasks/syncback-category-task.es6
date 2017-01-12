@@ -18,9 +18,28 @@ export default class SyncbackCategoryTask extends Task {
     return `${verb} ${this.category.displayType()}...`;
   }
 
+  _revertLocal() {
+    return DatabaseStore.inTransaction((t) => {
+      if (this.isUpdate) {
+        this.category.displayName = this._initialDisplayName;
+        return t.persistModel(this.category)
+      }
+      return t.unpersistModel(this.category)
+    })
+  }
+
   performLocal() {
-    // This operation is non-optimistic! Don't do anything.
-    return Promise.resolve();
+    if (!this.category) {
+      return Promise.reject(new Error("Attempt to call SyncbackCategoryTask.performLocal without this.category."));
+    }
+    this.isUpdate = !!this.category.serverId; // True if updating an existing category
+    return DatabaseStore.inTransaction((t) => {
+      if (this.isUpdate && this.displayName) {
+        this._initialDisplayName = this.category.displayName;
+        this.category.displayName = this.displayName;
+      }
+      return t.persistModel(this.category);
+    });
   }
 
   performRemote() {
@@ -58,12 +77,21 @@ export default class SyncbackCategoryTask extends Task {
       return DatabaseStore.inTransaction(t => t.persistModel(this.category))
     })
     .thenReturn(Task.Status.Success)
-    .catch(APIError, (err) => {
+    .catch(APIError, async (err) => {
       if (!NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
-        return Promise.resolve(Task.Status.Retry);
+        return Task.Status.Retry;
       }
-      this._isReverting = true;
-      return this.performLocal().thenReturn(Task.Status.Failed);
+      await this._revertLocal()
+      try {
+        if (/command argument error/gi.test(err.message)) {
+          const action = this.isUpdate ? 'update' : 'create';
+          const type = this.category.displayType();
+          NylasEnv.showErrorDialog(`Could not ${action} ${type}. Your mail provider has placed restrictions on this ${type}.`);
+        }
+      } catch (e) {
+        // If notifying the user fails, just move on and mark the task as failed.
+      }
+      return Task.Status.Failed;
     })
   }
 }
