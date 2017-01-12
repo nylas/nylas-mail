@@ -127,13 +127,20 @@ export default class ThreadUnsubscribeStore extends NylasStore {
         callback(null, /* unsubscribed=*/true);
       } else {
         const browserWindow = new remote.BrowserWindow({
-          'web-preferences': { 'web-security': false },
+          'web-preferences': { 'web-security': false, 'nodeIntegration': false },
           'width': 1000,
           'height': 800,
           'center': true,
+          "alwaysOnTop": true,
         });
         browserWindow.on('closed', () => {
           callback(null, /* unsubscribed=*/true);
+        });
+        browserWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+          // Unable to load this URL in a browser window. Redirect to a native browser.
+          logIfDebug(`Failed to open URL in browser window: ${errorCode} ${errorDescription}`);
+          browserWindow.destroy();
+          open(url);
         });
         browserWindow.loadURL(url);
         browserWindow.show();
