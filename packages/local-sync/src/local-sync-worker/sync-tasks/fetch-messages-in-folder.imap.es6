@@ -1,5 +1,7 @@
 const _ = require('underscore');
-const SyncOperation = require('../sync-operation')
+const {IMAPConnection} = require('isomorphic-core');
+const {Capabilities} = IMAPConnection;
+const SyncTask = require('./sync-task')
 const MessageProcessor = require('../../message-processor')
 const {IMAPConnection} = require('isomorphic-core');
 const {Capabilities} = IMAPConnection;
@@ -9,24 +11,21 @@ const FETCH_ATTRIBUTES_BATCH_SIZE = 1000;
 const FETCH_MESSAGES_FIRST_COUNT = 100;
 const FETCH_MESSAGES_COUNT = 200;
 
-class FetchMessagesInFolder extends SyncOperation {
-  constructor(folder, logger) {
-    super()
+
+class FetchMessagesInFolderIMAP extends SyncTask {
+  constructor({account, folder} = {}) {
+    super({account})
     this._imap = null
     this._box = null
     this._db = null
     this._folder = folder;
-    this._logger = logger.child({category_name: this._folder.name});
-    if (!this._logger) {
-      throw new Error("FetchMessagesInFolder requires a logger")
-    }
     if (!this._folder) {
-      throw new Error("FetchMessagesInFolder requires a category")
+      throw new Error("FetchMessagesInFolderIMAP requires a category")
     }
   }
 
   description() {
-    return `FetchMessagesInFolder (${this._folder.name} - ${this._folder.id})`;
+    return `FetchMessagesInFolderIMAP (${this._folder.name} - ${this._folder.id})`;
   }
 
   _getLowerBoundUID(count) {
@@ -53,7 +52,6 @@ class FetchMessagesInFolder extends SyncOperation {
       messageAttributesMap[msg.folderImapUID] = msg;
     }
 
-    const createdUIDs = [];
     const messagesWithChangedFlags = [];
     const messagesWithChangedLabels = [];
 
@@ -65,7 +63,6 @@ class FetchMessagesInFolder extends SyncOperation {
       const attrs = remoteUIDAttributes[uid];
 
       if (!msg) {
-        createdUIDs.push(uid);
         return;
       }
 
@@ -193,9 +190,9 @@ class FetchMessagesInFolder extends SyncOperation {
     }
 
     if (desired.length === 0 && available.length !== 0) {
-      this._logger.warn({
+      console.warn(`FetchMessagesInFolderIMAP: Could not find good part`, {
         available_options: available.join(', '),
-      }, `FetchMessagesInFolder: Could not find good part`)
+      })
     }
 
     return desired;
@@ -251,11 +248,10 @@ class FetchMessagesInFolder extends SyncOperation {
           folderId: this._folder.id,
           accountId: this._db.accountId,
         })
-        // Yield to allow interruption
         // If execution gets interrupted here, we will have to refetch these
         // messages because the folder.syncState won't get updated, but that's
         // ok.
-        yield
+        yield // Yield to allow interruption
       }
     }
 
@@ -288,12 +284,7 @@ class FetchMessagesInFolder extends SyncOperation {
     const lastUIDValidity = this._folder.syncState.uidvalidity;
 
     if (lastUIDValidity && (box.uidvalidity !== lastUIDValidity)) {
-      this._logger.info({
-        boxname: box.name,
-        categoryname: this._folder.name,
-        remoteuidvalidity: box.uidvalidity,
-        localuidvalidity: lastUIDValidity,
-      }, `FetchMessagesInFolder: Recovering from UIDInvalidity`);
+      console.log(`🔃  😵  📂 ${this._folder.name} - Recovering from UID invalidity`)
       await this._recoverFromUIDInvalidity()
     }
 
@@ -311,11 +302,7 @@ class FetchMessagesInFolder extends SyncOperation {
     const boxUidnext = this._box.uidnext;
     const desiredRanges = [];
 
-    // this._logger.info({
-    //   range: `${savedSyncState.fetchedmin}:${savedSyncState.fetchedmax}`,
-    // }, `FetchMessagesInFolder: Fetching messages.`)
-
-    // Todo: In the future, this is where logic should go that limits
+    // TODO: In the future, this is where logic should go that limits
     // sync based on number of messages / age of messages.
 
     if (isFirstSync) {
@@ -325,24 +312,24 @@ class FetchMessagesInFolder extends SyncOperation {
       if (savedSyncState.fetchedmax < boxUidnext) {
         desiredRanges.push({min: savedSyncState.fetchedmax, max: boxUidnext})
       } else {
-        // this._logger.info('FetchMessagesInFolder: fetchedmax == uidnext, nothing more recent to fetch.')
+        // this._logger.info('FetchMessagesInFolderIMAP: fetchedmax == uidnext, nothing more recent to fetch.')
       }
 
       if (savedSyncState.fetchedmin > 1) {
         const lowerbound = Math.max(1, savedSyncState.fetchedmin - FETCH_MESSAGES_COUNT);
         desiredRanges.push({min: lowerbound, max: savedSyncState.fetchedmin})
       } else {
-        // this._logger.info("FetchMessagesInFolder: fetchedmin == 1, nothing older to fetch.")
+        // this._logger.info("FetchMessagesInFolderIMAP: fetchedmin == 1, nothing older to fetch.")
       }
     }
 
     for (const range of desiredRanges) {
       // this._logger.info({
       //   range: `${min}:${max}`,
-      // }, `FetchMessagesInFolder: Fetching range`);
+      // }, `FetchMessagesInFolderIMAP: Fetching range`);
       yield this._fetchAndProcessMessages(range);
     }
-    // this._logger.info(`FetchMessagesInFolder: Fetching messages finished`);
+    // this._logger.info(`FetchMessagesInFolderIMAP: Fetching messages finished`);
   }
 
   /**
@@ -405,7 +392,6 @@ class FetchMessagesInFolder extends SyncOperation {
 
     const remoteUIDAttributes = yield this._box.fetchUIDAttributes(`1:*`,
       {modifiers: {changedsince: highestmodseq}});
-
     const localMessageAttributes = yield this._db.Message.findAll({
       where: {folderImapUID: _.compact(Object.keys(remoteUIDAttributes))},
       attributes: MessageFlagAttributes,
@@ -413,7 +399,6 @@ class FetchMessagesInFolder extends SyncOperation {
 
     await this._updateMessageAttributes(remoteUIDAttributes, localMessageAttributes)
     await this._removeDeletedMessages(remoteUIDAttributes, localMessageAttributes)
-
     await this._folder.updateSyncState({
       highestmodseq: nextHighestmodseq,
     });
@@ -445,17 +430,13 @@ class FetchMessagesInFolder extends SyncOperation {
 
     const to = Math.min(attributeFetchedMax || recentStart, recentStart);
     const from = Math.max(to - FETCH_ATTRIBUTES_BATCH_SIZE, 1)
-
     const backScanRange = `${from}:${to}`;
 
     console.log(`🔃 🚩 ${this._folder.name} via scan through ${recentRange} and ${backScanRange}`)
 
     const recentAttrs = yield this._box.fetchUIDAttributes(recentRange)
-
     const backScanAttrs = yield this._box.fetchUIDAttributes(backScanRange)
-
     const remoteUIDAttributes = Object.assign({}, backScanAttrs, recentAttrs)
-
     const localMessageAttributes = yield Message.findAll({
       where: {folderImapUID: _.compact(Object.keys(remoteUIDAttributes))},
       attributes: MessageFlagAttributes,
@@ -475,7 +456,7 @@ class FetchMessagesInFolder extends SyncOperation {
    * we want to interrupt sync. This is enabled by `SyncOperation` and
    * `Interruptible`
    */
-  * runOperation(db, imap) {
+  * runTask(db, imap) {
     console.log(`🔜 📂 ${this._folder.name}`)
     this._db = db;
     this._imap = imap;
@@ -499,4 +480,4 @@ class FetchMessagesInFolder extends SyncOperation {
   }
 }
 
-module.exports = FetchMessagesInFolder;
+module.exports = FetchMessagesInFolderIMAP;

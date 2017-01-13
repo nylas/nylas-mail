@@ -4,8 +4,8 @@ import {createLogger} from './src/shared/logger'
 
 export function activate() {
   global.Logger = createLogger('local-sync')
-  require('./src/local-api/app');
-  require('./src/local-sync-worker/app');
+  require('./src/local-api');
+  require('./src/local-sync-worker');
 
   const Root = require('./src/local-sync-dashboard/root').default;
   ComponentRegistry.register(Root, {role: 'Developer:LocalSyncUI'});

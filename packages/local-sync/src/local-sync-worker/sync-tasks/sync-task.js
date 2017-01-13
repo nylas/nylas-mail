@@ -1,16 +1,28 @@
-const MessageProcessor = require('../message-processor')
-const Interruptible = require('../shared/interruptible')
+const MessageProcessor = require('../../message-processor')
+const Interruptible = require('../../shared/interruptible')
 
 /**
- * SyncOperation represents an operation run by the SyncWorker.
+ * SyncTask represents an operation run by the SyncWorker.
  * Any IMAP sync operation that runs during sync should extend from this class
- * and implement `runOperation`
+ * and implement `runTask`
  *
  * By default, this class ensures that we skip the operation if the message
  * processing queue is full, and ensures that the operation is interruptible by
  * extending from Interruptible.
  */
-class SyncOperation extends Interruptible {
+class SyncTask extends Interruptible {
+
+  constructor({account} = {}) {
+    super()
+    this._account = account
+    if (!this._account) {
+      throw new Error("SyncTask requires an account")
+    }
+  }
+
+  description() {
+    throw new Error("Must return a description")
+  }
 
   /**
    * @returns a Promise that resolves when the operation has been executed to
@@ -21,11 +33,11 @@ class SyncOperation extends Interruptible {
       console.log(`🔃  Skipping sync operation - Message processing queue is full`)
       return Promise.resolve()
     }
-    return super.run(this.runOperation, this, ...args)
+    return super.run(this.runTask, this, ...args)
   }
 
   /**
-   * Any class that extends from `SyncOperation` must implement `runOperation`
+   * Any class that extends from `SyncTask` must implement `runTask`
    * as a generator function, meaning that it returns a
    * generator object.
    * (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*)
@@ -36,9 +48,9 @@ class SyncOperation extends Interruptible {
    *
    * e.g.
    * ```
-   * class MyOperation extends SyncOperation {
+   * class MyTask extends SyncTask {
    *
-   *   async * runOperation(db, imap) {
+   *   async * runTask(db, imap) {
    *     // Use `yield` to indicate that we can interrupt the function after
    *     // this async operation has resolved
    *     const models = yield db.Messages.findAll()
@@ -55,9 +67,9 @@ class SyncOperation extends Interruptible {
    * }
    * ```
    */
-  * runOperation(db, imap) { // eslint-disable-line
-    throw new Error('Must implement `SyncOperation::runOperation`')
+  * runTask(db, imap) { // eslint-disable-line
+    throw new Error('Must implement `SyncTask::runTask`')
   }
 }
 
-module.exports = SyncOperation
+module.exports = SyncTask
