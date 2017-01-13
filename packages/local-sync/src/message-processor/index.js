@@ -75,6 +75,33 @@ class MessageProcessor {
       } else {
         processedMessage = await this._processNewMessage(messageValues, struct)
       }
+
+      // Inflate the serialized oldestProcessedDate value, if it exists
+      let oldestProcessedDate;
+      if (folder.syncState && folder.syncState.oldestProcessedDate) {
+        oldestProcessedDate = new Date(folder.syncState.oldestProcessedDate);
+      }
+      const justProcessedDate = messageValues.date ? new Date(messageValues.date) : new Date()
+
+      // Update the oldestProcessedDate if:
+      //   a) justProcessedDate is after the year 1980. We don't want to base this
+      //      off of messages with borked 1970 dates.
+      // AND
+      //   b) i) We haven't set oldestProcessedDate yet
+      //     OR
+      //      ii) justProcessedDate is before oldestProcessedDate and in a different
+      //          month. (We only use this to update the sync status in Nylas Mail,
+      //          which uses month precision. Updating a folder's syncState triggers
+      //          many re-renders in Nylas Mail, so we only do it as necessary.)
+      if (justProcessedDate > new Date("1980") && (
+            !oldestProcessedDate || (
+              justProcessedDate.getMonth() !== oldestProcessedDate.getMonth() &&
+              justProcessedDate.getFullYear() !== oldestProcessedDate.getFullYear() &&
+              justProcessedDate < oldestProcessedDate))) {
+        await folder.updateSyncState({oldestProcessedDate: justProcessedDate})
+      }
+
+
       console.log(`🔃 ✉️ "${messageValues.subject}" - ${messageValues.date}`)
       return processedMessage
     } catch (err) {
