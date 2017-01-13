@@ -95,8 +95,8 @@ class MessageProcessor {
       //          many re-renders in Nylas Mail, so we only do it as necessary.)
       if (justProcessedDate > new Date("1980") && (
             !oldestProcessedDate || (
-              justProcessedDate.getMonth() !== oldestProcessedDate.getMonth() &&
-              justProcessedDate.getFullYear() !== oldestProcessedDate.getFullYear() &&
+              (justProcessedDate.getMonth() !== oldestProcessedDate.getMonth() ||
+                justProcessedDate.getFullYear() !== oldestProcessedDate.getFullYear()) &&
               justProcessedDate < oldestProcessedDate))) {
         await folder.updateSyncState({oldestProcessedDate: justProcessedDate})
       }
