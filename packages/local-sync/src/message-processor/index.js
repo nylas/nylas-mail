@@ -194,15 +194,15 @@ class MessageProcessor {
     let thread = await existingMessage.getThread();
     if (!existingMessage.isProcessed) {
       if (!thread) {
-        thread = await detectThread({db, message: parsedMessage});
+        thread = await detectThread({db, messageValues: parsedMessage});
         existingMessage.threadId = thread.id;
       }
-      const files = await extractFiles({db, message: existingMessage, struct});
+      const files = await extractFiles({db, messageValues: existingMessage, struct});
       if (files.length > 0 && !thread.hasAttachments) {
         thread.hasAttachments = true;
         await thread.save();
       }
-      await extractContacts({db, message: existingMessage});
+      await extractContacts({db, messageValues: existingMessage});
       existingMessage.isProcessed = true;
     } else {
       if (!thread) {
