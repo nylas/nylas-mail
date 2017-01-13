@@ -324,7 +324,7 @@ async function buildForSend(db, json) {
     replyTo: json.reply_to,
     subject: json.subject,
     body: json.body,
-    unread: true,
+    unread: false,
     isDraft: json.draft,
     isSent: false,
     version: 0,
