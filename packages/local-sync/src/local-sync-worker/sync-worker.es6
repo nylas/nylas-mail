@@ -16,7 +16,6 @@ const SyncMetricsReporter = require('./sync-metrics-reporter');
 const SyncbackTaskFactory = require('./syncback-task-factory');
 const LocalSyncDeltaEmitter = require('./local-sync-delta-emitter').default
 
-
 class SyncWorker {
   constructor(account, db, parentManager) {
     this._db = db;
@@ -487,9 +486,8 @@ class SyncWorker {
     // TODO Also consider using multiple imap connections, 1 for inbox, one for the
     // rest
     const sortedFolders = yield this._getFoldersToSync()
-    const {folderSyncOptions} = this._account.syncPolicy;
     for (const folder of sortedFolders) {
-      await this._runOperation(new FetchMessagesInFolder(folder, folderSyncOptions, this._logger))
+      await this._runOperation(new FetchMessagesInFolder(folder, this._logger))
       yield  // Yield to allow interruption
     }
   }

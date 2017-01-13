@@ -1,23 +1,21 @@
 const _ = require('underscore');
-const {PromiseUtils, IMAPConnection} = require('isomorphic-core');
-const {Capabilities} = IMAPConnection;
 const SyncOperation = require('../sync-operation')
 const MessageProcessor = require('../../message-processor')
+const {IMAPConnection} = require('isomorphic-core');
+const {Capabilities} = IMAPConnection;
 
 const MessageFlagAttributes = ['id', 'threadId', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']
-const SHALLOW_SCAN_UID_COUNT = 1000;
+const FETCH_ATTRIBUTES_BATCH_SIZE = 1000;
 const FETCH_MESSAGES_FIRST_COUNT = 100;
 const FETCH_MESSAGES_COUNT = 200;
 
-
 class FetchMessagesInFolder extends SyncOperation {
-  constructor(folder, options, logger) {
+  constructor(folder, logger) {
     super()
     this._imap = null
     this._box = null
     this._db = null
     this._folder = folder;
-    this._options = options;
     this._logger = logger.child({category_name: this._folder.name});
     if (!this._logger) {
       throw new Error("FetchMessagesInFolder requires a logger")
@@ -28,7 +26,7 @@ class FetchMessagesInFolder extends SyncOperation {
   }
 
   description() {
-    return `FetchMessagesInFolder (${this._folder.name} - ${this._folder.id})\n  Options: ${JSON.stringify(this._options)}`;
+    return `FetchMessagesInFolder (${this._folder.name} - ${this._folder.id})`;
   }
 
   _getLowerBoundUID(count) {
@@ -88,12 +86,6 @@ class FetchMessagesInFolder extends SyncOperation {
       }
     }
 
-    if (createdUIDs.length > 0) {
-      // this._logger.info({
-      //   new_messages: createdUIDs.length,
-      // }, `FetchMessagesInFolder: found new messages. These will not be processed because we assume that they will be assigned uid = uidnext, and will be picked up in the next sync when we discover unseen messages.`);
-    }
-
     // Step 2: If flags were changed, apply the changes to the corresponding
     // threads. We do this as a separate step so we can batch-load the threads.
     if (messagesWithChangedFlags.length > 0) {
@@ -143,10 +135,6 @@ class FetchMessagesInFolder extends SyncOperation {
     if (removedUIDs.length === 0) {
       return;
     }
-
-    // this._logger.info({
-    //   removed_messages: removedUIDs.length,
-    // }, `FetchMessagesInFolder: found messages no longer in the folder`)
 
     await Message.update({
       folderImapUID: null,
@@ -213,6 +201,11 @@ class FetchMessagesInFolder extends SyncOperation {
     return desired;
   }
 
+  /**
+   * Note: This function is an ES6 generator so we can `yield` at points
+   * we want to interrupt sync. This is enabled by `SyncOperation` and
+   * `Interruptible`
+   */
   async * _fetchAndProcessMessages({min, max} = {}) {
     const uidsByPart = {};
     const structsByPart = {};
@@ -280,6 +273,11 @@ class FetchMessagesInFolder extends SyncOperation {
     });
   }
 
+  /**
+   * Note: This function is an ES6 generator so we can `yield` at points
+   * we want to interrupt sync. This is enabled by `SyncOperation` and
+   * `Interruptible`
+   */
   async * _openMailboxAndEnsureValidity() {
     const box = yield this._imap.openBox(this._folder.name);
 
@@ -290,18 +288,23 @@ class FetchMessagesInFolder extends SyncOperation {
     const lastUIDValidity = this._folder.syncState.uidvalidity;
 
     if (lastUIDValidity && (box.uidvalidity !== lastUIDValidity)) {
-      // this._logger.info({
-      //   boxname: box.name,
-      //   categoryname: this._folder.name,
-      //   remoteuidvalidity: box.uidvalidity,
-      //   localuidvalidity: lastUIDValidity,
-      // }, `FetchMessagesInFolder: Recovering from UIDInvalidity`);
+      this._logger.info({
+        boxname: box.name,
+        categoryname: this._folder.name,
+        remoteuidvalidity: box.uidvalidity,
+        localuidvalidity: lastUIDValidity,
+      }, `FetchMessagesInFolder: Recovering from UIDInvalidity`);
       await this._recoverFromUIDInvalidity()
     }
 
     return box;
   }
 
+  /**
+   * Note: This function is an ES6 generator so we can `yield` at points
+   * we want to interrupt sync. This is enabled by `SyncOperation` and
+   * `Interruptible`
+   */
   * _fetchUnsyncedMessages() {
     const savedSyncState = this._folder.syncState;
     const isFirstSync = savedSyncState.fetchedmax == null;
@@ -339,90 +342,139 @@ class FetchMessagesInFolder extends SyncOperation {
       // }, `FetchMessagesInFolder: Fetching range`);
       yield this._fetchAndProcessMessages(range);
     }
-
     // this._logger.info(`FetchMessagesInFolder: Fetching messages finished`);
   }
 
-  * _runScan() {
+  /**
+   * We need to periodically check if any attributes have changed on
+   * messages. These are things like "starred" or "unread", etc. There are
+   * two types of IMAP boxes: one that supports "highestmodseq" via the
+   * "CONDSTORE" flag, and ones that do not. In the former case we can
+   * basically ask for the latest messages that have changes. In the
+   * latter case we have to slowly traverse through all messages in order
+   * to find updates.
+   *
+   * Note: This function is an ES6 generator so we can `yield` at points
+   * we want to interrupt sync. This is enabled by `SyncOperation` and
+   * `Interruptible`
+   */
+  * _fetchMessageAttributeChanges() {
     const {fetchedmin, fetchedmax} = this._folder.syncState;
     if ((fetchedmin === undefined) || (fetchedmax === undefined)) {
       throw new Error("Unseen messages must be fetched at least once before the first update/delete scan.")
     }
-    if (this._shouldRunDeepScan()) {
-      yield this._runDeepScan()
+
+    if (this._supportsChangesSince()) {
+      yield this._fetchLatestAttributeChanges()
     } else {
-      yield this._runShallowScan()
+      yield this._scanForAttributeChanges();
     }
   }
 
-  _shouldRunDeepScan() {
-    const {timeDeepScan} = this._folder.syncState;
-    return Date.now() - (timeDeepScan || 0) > this._options.deepFolderScan;
+  /**
+   * Some IMAP providers have "CONDSTORE" as a capibility. This allows us
+   * to ask for any messages that have had their attributes changed since
+   * a certain timestamp. This is a much nicer feature than slowly looking
+   * back through all messages for ones that have updated attributes.
+   */
+  _supportsChangesSince() {
+    return this._imap.serverSupports(Capabilities.Condstore)
   }
 
-  async * _runShallowScan() {
+  /**
+   * For providers that have CONDSTORE enabled, we can use the
+   * `highestmodseq` and `changedsince` parameters to ask for messages
+   * that have had their attributes updated since a recent timestamp. We
+   * used to refer to this as a "shallowScan".
+   *
+   * Note: This function is an ES6 generator so we can `yield` at points
+   * we want to interrupt sync. This is enabled by `SyncOperation` and
+   * `Interruptible`
+   */
+  async * _fetchLatestAttributeChanges() {
     const {highestmodseq} = this._folder.syncState;
     const nextHighestmodseq = this._box.highestmodseq;
-
-    let shallowFetch = null;
-
-    if (this._imap.serverSupports(Capabilities.Condstore)) {
-      // this._logger.info(`FetchMessagesInFolder: Shallow attribute scan (using CONDSTORE)`)
-      if (nextHighestmodseq === highestmodseq) {
-        // this._logger.info('FetchMessagesInFolder: highestmodseq matches, nothing more to fetch')
-        return Promise.resolve();
-      }
-      shallowFetch = this._box.fetchUIDAttributes(`1:*`,
-        {modifiers: {changedsince: highestmodseq}});
-    } else {
-      const range = `${this._getLowerBoundUID(SHALLOW_SCAN_UID_COUNT)}:*`;
-      // this._logger.info({range}, `FetchMessagesInFolder: Shallow attribute scan`)
-      shallowFetch = this._box.fetchUIDAttributes(range);
+    if (!highestmodseq || nextHighestmodseq === highestmodseq) {
+      await this._folder.updateSyncState({
+        highestmodseq: nextHighestmodseq,
+      });
+      return;
     }
 
-    const remoteUIDAttributes = yield shallowFetch;
+    console.log(`🔃 🚩 ${this._folder.name} via highestmodseq of ${highestmodseq}`)
+
+    const remoteUIDAttributes = yield this._box.fetchUIDAttributes(`1:*`,
+      {modifiers: {changedsince: highestmodseq}});
+
     const localMessageAttributes = yield this._db.Message.findAll({
-      where: {folderId: this._folder.id},
+      where: {folderImapUID: _.compact(Object.keys(remoteUIDAttributes))},
       attributes: MessageFlagAttributes,
     })
 
     await this._updateMessageAttributes(remoteUIDAttributes, localMessageAttributes)
+    await this._removeDeletedMessages(remoteUIDAttributes, localMessageAttributes)
 
-    // this._logger.info(`FetchMessagesInFolder: finished fetching changes to messages`);
-    return this._folder.updateSyncState({
+    await this._folder.updateSyncState({
       highestmodseq: nextHighestmodseq,
-      timeShallowScan: Date.now(),
     });
   }
 
-  async * _runDeepScan() {
+  /**
+   * For providers that do NOT have CONDSTORE enabled, we have to slowly
+   * go back through all messages to find if any attributes have changed.
+   * Since there may be millions of messages, we need to break this up
+   * into reasonable chunks to do it efficiently.
+   *
+   * We always scan the most recent FETCH_ATTRIBUTE_BATCH_SIZE messages
+   * since we assume those are the most likely to have their attributes
+   * updated.
+   *
+   * After we slowly scan backwards by the batch size over the rest of the
+   * mailbox over the next several syncs.
+   *
+   * Note: This function is an ES6 generator so we can `yield` at points
+   * we want to interrupt sync. This is enabled by `SyncOperation` and
+   * `Interruptible`
+   */
+  async * _scanForAttributeChanges() {
     const {Message} = this._db;
-    const {fetchedmin, fetchedmax} = this._folder.syncState;
-    const range = `${fetchedmin}:${fetchedmax}`;
+    const {fetchedmax, attributeFetchedMax} = this._folder.syncState;
 
-    // this._logger.info({range}, `FetchMessagesInFolder: Deep attribute scan: fetching attributes in range`)
+    const recentStart = Math.max(fetchedmax - FETCH_ATTRIBUTES_BATCH_SIZE, 1)
+    const recentRange = `${recentStart}:${fetchedmax}`;
 
-    const remoteUIDAttributes = yield this._box.fetchUIDAttributes(range)
+    const to = Math.min(attributeFetchedMax || recentStart, recentStart);
+    const from = Math.max(to - FETCH_ATTRIBUTES_BATCH_SIZE, 1)
+
+    const backScanRange = `${from}:${to}`;
+
+    console.log(`🔃 🚩 ${this._folder.name} via scan through ${recentRange} and ${backScanRange}`)
+
+    const recentAttrs = yield this._box.fetchUIDAttributes(recentRange)
+
+    const backScanAttrs = yield this._box.fetchUIDAttributes(backScanRange)
+
+    const remoteUIDAttributes = Object.assign({}, backScanAttrs, recentAttrs)
+
     const localMessageAttributes = yield Message.findAll({
-      where: {folderId: this._folder.id},
+      where: {folderImapUID: _.compact(Object.keys(remoteUIDAttributes))},
       attributes: MessageFlagAttributes,
     })
 
-    await PromiseUtils.props({
-      updates: this._updateMessageAttributes(remoteUIDAttributes, localMessageAttributes),
-      deletes: this._removeDeletedMessages(remoteUIDAttributes, localMessageAttributes),
-    })
+    await this._updateMessageAttributes(remoteUIDAttributes, localMessageAttributes)
+    await this._removeDeletedMessages(remoteUIDAttributes, localMessageAttributes)
 
     // this._logger.info(`FetchMessagesInFolder: Deep scan finished.`);
-    return this._folder.updateSyncState({
-      highestmodseq: this._box.highestmodseq,
-      timeDeepScan: Date.now(),
-      timeShallowScan: Date.now(),
+    await this._folder.updateSyncState({
+      attributeFetchedMax: (from <= 1 ? recentStart : from),
     });
   }
 
-  // This operation is interruptible, see `SyncOperation` for info on why we use
-  // `yield`
+  /**
+   * Note: This function is an ES6 generator so we can `yield` at points
+   * we want to interrupt sync. This is enabled by `SyncOperation` and
+   * `Interruptible`
+   */
   * runOperation(db, imap) {
     console.log(`🔜 📂 ${this._folder.name}`)
     this._db = db;
@@ -441,8 +493,8 @@ class FetchMessagesInFolder extends SyncOperation {
         failedUIDs: [],
       })
     }
-    yield this._fetchUnsyncedMessages()
-    yield this._runScan()
+    yield this._fetchUnsyncedMessages();
+    yield this._fetchMessageAttributeChanges();
     console.log(`🔚 📂 ${this._folder.name} done`)
   }
 }
