@@ -27,7 +27,7 @@ export default class SendManyDraftsTask extends Task {
   }
 
   label() {
-    return `Sending ${this.draftIdsToSend.length} messages...`
+    return `Sending ${this.draftIdsToSend.length} messages`
   }
 
   shouldDequeueOtherTask(other) {
