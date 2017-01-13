@@ -69,7 +69,7 @@ const TaskHelpers = {
       if (!sentFolder) { throw new APIError('Could not save message to sent folder.') }
 
       const box = await imap.openBox(sentFolder.name);
-      return box.append(rawMime);
+      return box.append(rawMime, {flags: 'SEEN'});
     }
 
     // Gmail, we need to add the message to all mail and add the sent label
