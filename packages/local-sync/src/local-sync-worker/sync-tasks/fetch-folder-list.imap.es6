@@ -1,24 +1,19 @@
 const {Provider} = require('isomorphic-core');
-const SyncOperation = require('../sync-operation')
+const SyncTask = require('./sync-task')
 const {localizedCategoryNames} = require('../sync-utils')
 
 
 const BASE_ROLES = ['inbox', 'archive', 'sent', 'trash', 'spam'];
 const GMAIL_ROLES_WITH_FOLDERS = ['all', 'trash', 'spam'];
 
-class FetchFolderList extends SyncOperation {
-  constructor(account, logger) {
-    super()
-    this._account = account;
-    this._provider = account.provider;
-    this._logger = logger;
-    if (!this._logger) {
-      throw new Error("FetchFolderList requires a logger")
-    }
+class FetchFolderListIMAP extends SyncTask {
+  constructor(...args) {
+    super(...args)
+    this._provider = this._account.provider;
   }
 
   description() {
-    return `FetchFolderList`;
+    return `FetchFolderListIMAP`;
   }
 
   _getMissingRoles(categories) {
@@ -89,12 +84,6 @@ class FetchFolderList extends SyncOperation {
 
       const boxName = boxPath.join(box.delimiter);
 
-      // this._logger.info({
-      //   box_name: boxName,
-      //   attributes: JSON.stringify(box.attribs),
-      // }, `FetchFolderList: Box Information`)
-
-
       if (box.children && box.attribs.includes('\\HasChildren')) {
         Object.keys(box.children).forEach((subname) => {
           stack.push([[].concat(boxPath, [subname]), box.children[subname]]);
@@ -128,9 +117,9 @@ class FetchFolderList extends SyncOperation {
     return {next, created, deleted};
   }
 
-  // This operation is interruptible, see `SyncOperation` for info on why we use
+  // This operation is interruptible, see `SyncTask` for info on why we use
   // `yield`
-  async * runOperation(db, imap) {
+  async * runTask(db, imap) {
     console.log(`🔜  Fetching folder list`)
     this._db = db;
 
@@ -169,4 +158,4 @@ class FetchFolderList extends SyncOperation {
   }
 }
 
-module.exports = FetchFolderList;
+module.exports = FetchFolderListIMAP;

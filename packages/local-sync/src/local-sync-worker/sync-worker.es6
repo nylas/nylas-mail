@@ -10,9 +10,8 @@ const {
   Account: {SYNC_STATE_RUNNING, SYNC_STATE_AUTH_FAILED, SYNC_STATE_ERROR},
 } = require('nylas-exports')
 const Interruptible = require('../shared/interruptible')
-const FetchFolderList = require('./imap/fetch-folder-list')
-const FetchMessagesInFolder = require('./imap/fetch-messages-in-folder')
 const SyncMetricsReporter = require('./sync-metrics-reporter');
+const SyncTaskFactory = require('./sync-task-factory');
 const SyncbackTaskFactory = require('./syncback-task-factory');
 const LocalSyncDeltaEmitter = require('./local-sync-delta-emitter').default
 
@@ -22,7 +21,7 @@ class SyncWorker {
     this._manager = parentManager;
     this._conn = null;
     this._account = account;
-    this._currentOperation = null
+    this._currentTask = null
     this._interruptible = new Interruptible()
     this._localDeltas = new LocalSyncDeltaEmitter(db, account.id)
     this._mailListenerConn = null
@@ -235,7 +234,7 @@ class SyncWorker {
    */
   async _getNewSyncbackTasks() {
     const {SyncbackRequest, Message} = this._db;
-    const sendTaskTypes = ['SendMessage', 'SendMessagePerRecipient', 'EnsureMessageInSentFolder']
+    const sendTaskTypes = ['EnsureMessageInSentFolder']
 
     const sendTasks = await SyncbackRequest.findAll({
       limit: 100,
@@ -435,10 +434,10 @@ class SyncWorker {
     }, nextSyncIn);
   }
 
-  async _runOperation(operation) {
-    this._currentOperation = operation
-    await this._conn.runOperation(this._currentOperation)
-    this._currentOperation = null
+  async _runTask(task) {
+    this._currentTask = task
+    await this._conn.runOperation(this._currentTask)
+    this._currentTask = null
   }
 
   // This function is interruptible. See Interruptible
@@ -468,7 +467,7 @@ class SyncWorker {
 
     // Step 3: Fetch the folder list. We need to run this before syncing folders
     // because we need folders to sync!
-    await this._runOperation(new FetchFolderList(this._account, this._logger))
+    await this._runTask(SyncTaskFactory.create('FetchFolderList', {account: this._account}))
     yield  // Yield to allow interruption
 
     // Step 4: Listen to new mail. We need to do this after we've fetched the
@@ -487,7 +486,7 @@ class SyncWorker {
     // rest
     const sortedFolders = yield this._getFoldersToSync()
     for (const folder of sortedFolders) {
-      await this._runOperation(new FetchMessagesInFolder(folder, this._logger))
+      await this._runTask(SyncTaskFactory.create('FetchMessagesInFolder', {account: this._account, folder}))
       yield  // Yield to allow interruption
     }
   }
@@ -534,8 +533,8 @@ class SyncWorker {
   interrupt({reason = 'No reason'} = {}) {
     console.log(`🔃  Interrupting sync! Reason: ${reason}`)
     this._interruptible.interrupt()
-    if (this._currentOperation) {
-      this._currentOperation.interrupt()
+    if (this._currentTask) {
+      this._currentTask.interrupt()
     }
     this._interrupted = true
   }
