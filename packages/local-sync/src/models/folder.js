@@ -57,10 +57,11 @@ module.exports = (sequelize, Sequelize) => {
         )
       },
 
-      updateSyncState(nextSyncState = {}) {
+      async updateSyncState(nextSyncState = {}) {
         if (_.isMatch(this.syncState, nextSyncState)) {
           return Promise.resolve();
         }
+        await this.reload(); // Fetch any recent syncState updates
         this.syncState = Object.assign(this.syncState, nextSyncState);
         return this.save();
       },
