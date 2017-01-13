@@ -3,6 +3,9 @@ import _str from 'underscore.string';
 import classNames from 'classnames';
 import {Actions, AccountStore, NylasSyncStatusStore, React} from 'nylas-exports';
 
+const MONTH_SHORT_FORMATS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+  'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
 export default class InitialSyncActivity extends React.Component {
   static displayName = 'InitialSyncActivity';
 
@@ -63,8 +66,8 @@ export default class InitialSyncActivity extends React.Component {
       }
 
       const {folderSyncProgress} = accountSyncState
-      let folderStates = _.map(folderSyncProgress, ({progress}, name) => {
-        return this.renderFolderProgress(name, progress)
+      let folderStates = _.map(folderSyncProgress, ({progress, oldestProcessedDate}, name) => {
+        return this.renderFolderProgress(name, progress, oldestProcessedDate)
       })
 
       if (folderStates.length === 0) {
@@ -76,7 +79,7 @@ export default class InitialSyncActivity extends React.Component {
       maxHeight += 50 * numRows;
 
       return (
-        <div className="account inner" key={accountId}>
+        <div className="account" key={accountId}>
           <h2>{account.emailAddress}</h2>
           {folderStates}
         </div>
@@ -101,25 +104,33 @@ export default class InitialSyncActivity extends React.Component {
     )
   }
 
-  renderFolderProgress(name, progress) {
+  renderFolderProgress(name, progress, oldestProcessedDate) {
     let status = 'busy';
+    let progressLabel = 'In Progress'
+    let syncedThrough = 'Syncing this past month';
     if (progress === 1) {
       status = 'complete';
+      progressLabel = '';
+      syncedThrough = 'Up to date'
+    } else {
+      let month = oldestProcessedDate.getMonth();
+      let year = oldestProcessedDate.getFullYear();
+      const currentDate = new Date();
+      if (month !== currentDate.getMonth() || year !== currentDate.getFullYear()) {
+        // We're currently syncing in `month`, which mean's we've synced through all
+        // of the month *after* it.
+        month++;
+        if (month === 12) {
+          month = 0;
+          year++;
+        }
+        syncedThrough = `Synced through ${MONTH_SHORT_FORMATS[month]} ${year}`;
+      }
     }
 
     return (
-      <div className={`model-progress ${status}`} key={name}>
-        <h3>{_str.titleize(name)}:</h3>
-        {this.renderProgressBar(progress)}
-        <div className="amount">{`${_str.numberFormat(progress * 100, 2) || '0.00'}%`}</div>
-      </div>
-    )
-  }
-
-  renderProgressBar(progress) {
-    return (
-      <div className="progress-track">
-        <div className="progress" style={{width: `${(progress || 0) * 100}%`}} />
+      <div className={`model-progress ${status}`} key={name} title={syncedThrough}>
+        {_str.titleize(name)} <span className="progress-label">{progressLabel}</span>
       </div>
     )
   }
@@ -146,8 +157,7 @@ export default class InitialSyncActivity extends React.Component {
         key="initial-sync"
         onClick={() => (this.setState({isExpanded: !this.state.isExpanded}))}
       >
-        {this.renderProgressBar(progress)}
-        <div className="inner">Syncing your mailbox&hellip;</div>
+        <div className="syncing">Syncing your mailbox</div>
         {this.state.isExpanded ? this.renderExpandedSyncState() : false}
       </div>
     )

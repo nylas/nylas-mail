@@ -28,8 +28,15 @@
     border-bottom:1px solid @border-color-divider;
     &:hover { cursor: default }
 
-    .inner {
-      padding: @padding-large-vertical*1.2 @padding-base-horizontal @padding-large-vertical*1.2 @padding-base-horizontal;
+    .syncing {
+      padding: @padding-large-vertical @padding-base-horizontal @padding-large-vertical @padding-base-horizontal;
+    }
+    .syncing::after {
+      content: '...';
+      display: inline-block;
+      vertical-align: bottom;
+      overflow: hidden;
+      animation: expand-ellipsis 3s infinite;
     }
     .count {
       color: @text-color-very-subtle;
@@ -42,17 +49,6 @@
       margin-bottom:4px;
       font-size: @font-size-small;
     }
-    .progress-track {
-      display:block;
-      height:3px;
-      font-size:0;
-      background: rgba(0,0,0,0.1);
-      .progress {
-        transition: width 0.4s;
-        height:3px;
-        background-color: @background-color-info;
-      }
-    }
     // TODO: Necessary for Chromium 42 to render `activity-opacity-leave` animation
     // properly. Removing position relative causes the div to remain visible
     position:relative;
@@ -64,8 +60,41 @@
       transition: max-height 0.2s;
     }
     &.expanded-sync {
-      .account.inner {
-        border-bottom: 1px solid rgba(0,0,0,0.1)
+      .account {
+        padding: @padding-base-vertical @padding-base-horizontal @padding-large-vertical*1.5 @padding-base-horizontal;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+
+        .model-progress::before {
+          height: 10px;
+          width: 10px;
+          background-color: #00dd00;
+          content: '';
+          display: inline-block;
+          border-radius: 5px;
+          margin-right: 5px;
+          box-sizing: border-box;
+        }
+
+        .model-progress.busy::before {
+          background-color: transparent;
+          border: solid 2px #00dd00;
+          animation: border-pulse 3s infinite;
+        }
+
+        .model-progress {
+          font-size: @font-size-base;
+          margin: 3px;
+          max-width: 100%;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+
+          .progress-label {
+            color: @text-color-very-subtle;
+            margin-left: 2px;
+            font-size: @font-size-smaller;
+          }
+        }
       }
     }
     h2 {
@@ -74,6 +103,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
       font-weight: 500;
+      margin-bottom: @padding-large-vertical;
     }
     h3 {
       font-size: 14px;
@@ -89,10 +119,6 @@
       text-align: right;
       border-top: 1px solid rgba(0,0,0,0.1);
       padding: @padding-large-vertical @padding-base-horizontal 0 @padding-base-horizontal;
-    }
-
-    .complete .progress-track .progress {
-      background-color: @color-success;
     }
   }
 
@@ -213,6 +239,20 @@
     box-shadow: 5px 5px 1px rgba(37, 143, 225, 1) inset,
                -5px -5px 1px rgba(37, 143, 225, 1) inset;
   }
+}
+
+@-webkit-keyframes border-pulse {
+  0%, 100%{
+    border-color: #00dd00;
+  }
+  50% {
+    border-color: transparent;
+  }
+}
+
+@-webkit-keyframes expand-ellipsis {
+  from {width: 0;}
+  to {width: 10px;}
 }
 
 // Windows Changes
