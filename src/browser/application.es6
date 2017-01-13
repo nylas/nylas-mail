@@ -12,6 +12,7 @@ import SystemTrayManager from './system-tray-manager';
 import WindowManager from './window-manager';
 import FileListCache from './file-list-cache';
 import ApplicationMenu from './application-menu';
+import NylasProMigrator from './nylas-pro-migrator'
 import AutoUpdateManager from './auto-update-manager';
 import PerformanceMonitor from './performance-monitor'
 import NylasProtocolHandler from './nylas-protocol-handler';
@@ -45,6 +46,7 @@ export default class Application extends EventEmitter {
     this.config = config;
     this.configPersistenceManager = new ConfigPersistenceManager({configDirPath, resourcePath});
     config.load();
+    NylasProMigrator.migrate(config, configDirPath)
 
     this.packageMigrationManager = new PackageMigrationManager({config, configDirPath, version})
     this.packageMigrationManager.migrate()
