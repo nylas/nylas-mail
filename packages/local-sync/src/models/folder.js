@@ -39,9 +39,9 @@ module.exports = (sequelize, Sequelize) => {
     syncState: JSONColumn('syncState'),
   }, {
     classMethods: {
-      associate({Folder, Message, Thread}) {
+      associate({Folder, Message, Thread, ThreadFolder}) {
         Folder.hasMany(Message)
-        Folder.belongsToMany(Thread, {through: 'thread_folders'})
+        Folder.belongsToMany(Thread, {through: ThreadFolder})
       },
 
       hash({boxName, accountId}) {
