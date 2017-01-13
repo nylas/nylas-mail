@@ -15,7 +15,7 @@ export default class SyncbackCategoryTask extends Task {
 
   label() {
     const verb = this.category.serverId ? 'Updating' : 'Creating new';
-    return `${verb} ${this.category.displayType()}...`;
+    return `${verb} ${this.category.displayType()}`;
   }
 
   _revertLocal() {

@@ -25,7 +25,7 @@ export default class ChangeLabelsTask extends ChangeMailTask {
   }
 
   label() {
-    return "Applying labels…";
+    return "Applying labels";
   }
 
   categoriesToAdd() {

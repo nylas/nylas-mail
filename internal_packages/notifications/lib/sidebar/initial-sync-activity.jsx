@@ -157,7 +157,7 @@ export default class InitialSyncActivity extends React.Component {
         key="initial-sync"
         onClick={() => (this.setState({isExpanded: !this.state.isExpanded}))}
       >
-        <div className="syncing">Syncing your mailbox</div>
+        <div className="inner">Syncing your mailbox</div>
         {this.state.isExpanded ? this.renderExpandedSyncState() : false}
       </div>
     )

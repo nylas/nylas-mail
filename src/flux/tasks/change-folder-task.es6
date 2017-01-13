@@ -27,7 +27,7 @@ export default class ChangeFolderTask extends ChangeMailTask {
 
   label() {
     if (this.folder) {
-      return `Moving to ${this.folder.displayName}…`;
+      return `Moving to ${this.folder.displayName}`;
     }
     return "Moving to folder…";
   }

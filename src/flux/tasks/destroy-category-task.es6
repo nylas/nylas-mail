@@ -17,7 +17,7 @@ export default class DestroyCategoryTask extends Task {
   }
 
   label() {
-    return `Deleting ${this.category.displayType()} ${this.category.displayName}...`
+    return `Deleting ${this.category.displayType()} ${this.category.displayName}`
   }
 
   isDependentOnTask(other) {

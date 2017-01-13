@@ -11,7 +11,7 @@ export default class ChangeStarredTask extends ChangeMailTask {
   }
 
   label() {
-    return this.starred ? "Starring…" : "Unstarring…";
+    return this.starred ? "Starring" : "Unstarring";
   }
 
   description() {
