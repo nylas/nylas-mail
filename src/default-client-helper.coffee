@@ -23,7 +23,7 @@ class Windows
       type: 'info',
       buttons: ['Learn More'],
       message: "Visit Windows Settings to change your default mail client",
-      detail: "You'll find Nylas N1, along with other options, listed in Default Apps > Mail.",
+      detail: "You'll find Nylas Pro, along with other options, listed in Default Apps > Mail.",
     }, ->
       shell.openExternal('https://support.nylas.com/hc/en-us/articles/229277648')
 
@@ -47,7 +47,7 @@ class Windows
           type: 'info',
           buttons: ['Learn More'],
           defaultId: 1,
-          message: "Visit Windows Settings to finish making Nylas N1 your mail client",
+          message: "Visit Windows Settings to finish making Nylas Pro your mail client",
           detail: "Click 'Learn More' to view instructions in our knowledge base.",
         }, ->
           shell.openExternal('https://support.nylas.com/hc/en-us/articles/229277648')
