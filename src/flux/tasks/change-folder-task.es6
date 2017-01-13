@@ -29,7 +29,7 @@ export default class ChangeFolderTask extends ChangeMailTask {
     if (this.folder) {
       return `Moving to ${this.folder.displayName}`;
     }
-    return "Moving to folder…";
+    return "Moving to folder";
   }
 
   categoriesToAdd() {
