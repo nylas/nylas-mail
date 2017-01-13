@@ -15,7 +15,7 @@ class PerformSendActionTask extends BaseDraftTask {
   }
 
   label() {
-    return "Sending message...";
+    return "Sending message";
   }
 
   shouldDequeueOtherTask(otherTask) {

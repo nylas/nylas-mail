@@ -19,7 +19,7 @@ export default class ReprocessMailRulesTask extends Task {
   }
 
   label() {
-    return "Applying Mail Rules...";
+    return "Applying Mail Rules";
   }
 
   numberOfImpactedItems() {

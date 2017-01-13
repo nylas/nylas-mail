@@ -52,7 +52,7 @@ export default class SendDraftTask extends BaseDraftTask {
   }
 
   label() {
-    return "Sending message...";
+    return "Sending message";
   }
 
   performRemote() {
