@@ -104,6 +104,12 @@ export default class AuthenticatePage extends React.Component {
   }
 
   webviewDidGetResponseDetails = ({httpResponseCode, originalURL}) => {
+    if (!originalURL.includes(IdentityStore.URLRoot)) {
+      // This means that some other secondarily loaded resource (like
+      // analytics or Linkedin, etc) got a response. We don't care about
+      // that.
+      return
+    }
     if (httpResponseCode >= 400) {
       const error = `
         Could not reach Nylas to sign in. Please try again or contact

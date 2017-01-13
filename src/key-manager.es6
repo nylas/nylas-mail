@@ -11,6 +11,11 @@ import keytar from 'keytar'
  */
 class KeyManager {
   constructor() {
+    /**
+     * NOTE: Old N1 includes a migration system that manually looks for
+     * the names of these keys. If you change them be sure that old N1 is
+     * fully deprecated or updated as well.
+     */
     this.SERVICE_NAME = "Nylas Mail";
     this.KEY_NAME = "Nylas Mail Keys"
     this._alreadyMigrated = new Set()
