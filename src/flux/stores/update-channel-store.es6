@@ -4,6 +4,7 @@ import {remote} from 'electron';
 import EdgehillAPI from '../edgehill-api';
 
 const autoUpdater = remote.getGlobal('application').autoUpdateManager;
+const preferredChannel = 'stable';
 
 class UpdateChannelStore extends NylasStore {
   constructor() {
@@ -32,7 +33,7 @@ class UpdateChannelStore extends NylasStore {
     EdgehillAPI.makeRequest({
       method: 'GET',
       path: `/update-channel`,
-      qs: autoUpdater.parameters(),
+      qs: Object.assign({preferredChannel: preferredChannel}, autoUpdater.parameters()),
       json: true,
     }).then(({current, available}) => {
       this._current = current;
@@ -46,7 +47,8 @@ class UpdateChannelStore extends NylasStore {
     EdgehillAPI.makeRequest({
       method: 'POST',
       path: `/update-channel`,
-      qs: Object.assign({channel: channelName}, autoUpdater.parameters()),
+      qs: Object.assign({channel: channelName,
+                         preferredChannel: preferredChannel}, autoUpdater.parameters()),
       json: true,
     }).then(({current, available}) => {
       this._current = current;
