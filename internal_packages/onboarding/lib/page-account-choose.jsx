@@ -30,6 +30,20 @@ export default class AccountChoosePage extends React.Component {
     );
   }
 
+  _connectPrompt() {
+    const accounts = NylasEnv.config.get("nylas.accounts") || []
+    if (NylasEnv.config.get("nylasMailBasicMigrationTime") && accounts.length === 0) {
+      return (
+        <h2 style={{marginTop: "35px", lineHeight: "36px"}}>
+          Welcome to Nylas Pro
+          <br />
+          <span style={{fontSize: "23px"}}>Please connect your email accounts.</span>
+        </h2>
+      )
+    }
+    return <h2>Connect an email account</h2>
+  }
+
   render() {
     if (NylasEnv.config.get('env') === 'custom' ||
       NylasEnv.config.get('env') === 'local') {
@@ -38,11 +52,9 @@ export default class AccountChoosePage extends React.Component {
 
     return (
       <div className="page account-choose">
-        <h2>
-          Connect an email account
-        </h2>
+        {this._connectPrompt()}
         <div className="cloud-sync-note">
-          <a href="https://support.nylas.com/hc/en-us/articles/217518207-Why-does-Nylas-N1-sync-email-via-the-cloud-">Learn more</a> about how Nylas syncs your mail in the cloud.
+          <a href="https://support.nylas.com/hc/en-us/articles/217518207-Why-does-Nylas-N1-sync-email-via-the-cloud-">Learn more</a> about how Nylas Pro syncs your mail in the cloud.
         </div>
         <div className="provider-list">
           {this._renderAccountTypes()}
