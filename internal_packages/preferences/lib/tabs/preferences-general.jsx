@@ -5,9 +5,6 @@ import {Actions} from 'nylas-exports'
 import ConfigSchemaItem from './config-schema-item';
 import WorkspaceSection from './workspace-section';
 import SendingSection from './sending-section';
-import UpdateChannelSection from './update-channel-section';
-
-
 class PreferencesGeneral extends React.Component {
   static displayName = 'PreferencesGeneral'
 
@@ -78,8 +75,6 @@ class PreferencesGeneral extends React.Component {
           keyPath="core.attachments"
           config={this.props.config}
         />
-
-        <UpdateChannelSection />
 
         <div className="local-data">
           <h6>Local Data</h6>
