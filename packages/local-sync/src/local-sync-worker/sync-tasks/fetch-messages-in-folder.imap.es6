@@ -3,8 +3,6 @@ const {IMAPConnection} = require('isomorphic-core');
 const {Capabilities} = IMAPConnection;
 const SyncTask = require('./sync-task')
 const MessageProcessor = require('../../message-processor')
-const {IMAPConnection} = require('isomorphic-core');
-const {Capabilities} = IMAPConnection;
 
 const MessageFlagAttributes = ['id', 'threadId', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']
 const FETCH_ATTRIBUTES_BATCH_SIZE = 1000;
