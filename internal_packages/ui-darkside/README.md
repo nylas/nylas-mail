@@ -23,7 +23,7 @@ In order to customize Darkside, you'll need to manually install it.
 #### 3. Customize
 
 > **Open the theme directory**  
-> If you're on a Mac, you can find the theme files at `~/.nylas/packages`. To get there quickly, use the key command <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>G</kbd> and enter `~/.nylas/packages`.
+> If you're on a Mac, you can find the theme files at `~/.nylas-mail/packages`. To get there quickly, use the key command <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>G</kbd> and enter `~/.nylas-mail/packages`.
 
 > **Change package.json**  
 > In order to avoid conflicts between your custom theme and the pre-installed version, change `name` and `displayName` in `package.json` to:

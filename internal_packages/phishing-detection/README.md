@@ -13,7 +13,7 @@ a message's originating address is different from its return address. The warnin
    The dialog will default to this examples directory. Just choose the
    package to install it!
 
-   > When you install packages, they're moved to `~/.nylas/packages`,
+   > When you install packages, they're moved to `~/.nylas-mail/packages`,
    > and N1 runs `apm install` on the command line to fetch dependencies
    > listed in the package's `package.json`
 

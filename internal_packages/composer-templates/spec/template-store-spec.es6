@@ -5,7 +5,7 @@ import TemplateStore from '../lib/template-store';
 
 const { shell } = remote;
 
-const stubTemplatesDir = '~/.nylas/templates';
+const stubTemplatesDir = '~/.nylas-mail/templates';
 
 const stubTemplateFiles = {
   'template1.html': '<p>bla1</p>',

@@ -65,32 +65,32 @@ xdescribe 'FileDownloadStoreSpecs', ->
         percent : 0,
         filename : '123.png',
         filesize : 100,
-        targetPath : '/Users/testuser/.nylas/downloads/id/123.png'
+        targetPath : '/Users/testuser/.nylas-mail/downloads/id/123.png'
       })
 
       FileDownloadStore._downloads = {}
-      FileDownloadStore._downloadDirectory = "/Users/testuser/.nylas/downloads"
+      FileDownloadStore._downloadDirectory = "/Users/testuser/.nylas-mail/downloads"
       spyOn(FileDownloadStore, '_generatePreview').andReturn(Promise.resolve())
 
     describe "pathForFile", ->
       it "should return path within the download directory with the file id and displayName", ->
         f = new File(filename: '123.png', contentType: 'image/png', id: 'id')
         spyOn(f, 'displayName').andCallThrough()
-        expect(FileDownloadStore.pathForFile(f)).toBe("/Users/testuser/.nylas/downloads/id/123.png")
+        expect(FileDownloadStore.pathForFile(f)).toBe("/Users/testuser/.nylas-mail/downloads/id/123.png")
         expect(f.displayName).toHaveBeenCalled()
 
       it "should return unique paths for identical filenames with different IDs", ->
         f1 = new File(filename: '123.png', contentType: 'image/png', id: 'id1')
         f2 = new File(filename: '123.png', contentType: 'image/png', id: 'id2')
-        expect(FileDownloadStore.pathForFile(f1)).toBe("/Users/testuser/.nylas/downloads/id1/123.png")
-        expect(FileDownloadStore.pathForFile(f2)).toBe("/Users/testuser/.nylas/downloads/id2/123.png")
+        expect(FileDownloadStore.pathForFile(f1)).toBe("/Users/testuser/.nylas-mail/downloads/id1/123.png")
+        expect(FileDownloadStore.pathForFile(f2)).toBe("/Users/testuser/.nylas-mail/downloads/id2/123.png")
 
     it "should escape the displayName if it contains path separator characters", ->
       f1 = new File(filename: "static#{path.sep}b#{path.sep}a.jpg", contentType: 'image/png', id: 'id1')
-      expect(FileDownloadStore.pathForFile(f1)).toBe("/Users/testuser/.nylas/downloads/id1/static-b-a.jpg")
+      expect(FileDownloadStore.pathForFile(f1)).toBe("/Users/testuser/.nylas-mail/downloads/id1/static-b-a.jpg")
 
       f1 = new File(filename: "my:file ? Windows /hates/ me :->.jpg", contentType: 'image/png', id: 'id1')
-      expect(FileDownloadStore.pathForFile(f1)).toBe("/Users/testuser/.nylas/downloads/id1/my-file - Windows -hates- me ---.jpg")
+      expect(FileDownloadStore.pathForFile(f1)).toBe("/Users/testuser/.nylas-mail/downloads/id1/my-file - Windows -hates- me ---.jpg")
 
     describe "_checkForDownloadedFile", ->
       it "should return true if the file exists at the path and is the right size", ->
@@ -173,7 +173,7 @@ xdescribe 'FileDownloadStoreSpecs', ->
                 percent : 0,
                 filename : '123.png',
                 filesize : 100,
-                targetPath : '/Users/testuser/.nylas/downloads/id/123.png'
+                targetPath : '/Users/testuser/.nylas-mail/downloads/id/123.png'
               })
 
       describe "when the downloaded file does not exist", ->
@@ -189,7 +189,7 @@ xdescribe 'FileDownloadStoreSpecs', ->
             percent : 0,
             filename : '123.png',
             filesize : 100,
-            targetPath : '/Users/testuser/.nylas/downloads/id/123.png'
+            targetPath : '/Users/testuser/.nylas-mail/downloads/id/123.png'
           })
 
         it "should call download.run", ->
@@ -208,7 +208,7 @@ xdescribe 'FileDownloadStoreSpecs', ->
                 percent : 0,
                 filename : '123.png',
                 filesize : 100,
-                targetPath : '/Users/testuser/.nylas/downloads/id/123.png'
+                targetPath : '/Users/testuser/.nylas-mail/downloads/id/123.png'
               })
 
     describe "_fetch", ->
@@ -227,7 +227,7 @@ xdescribe 'FileDownloadStoreSpecs', ->
 
     describe "_fetchAndOpen", ->
       it "should open the file once it's been downloaded", ->
-        @savePath = "/Users/imaginary/.nylas/Downloads/a.png"
+        @savePath = "/Users/imaginary/.nylas-mail/Downloads/a.png"
         download = {targetPath: @savePath}
         downloadResolve = null
 
@@ -251,7 +251,7 @@ xdescribe 'FileDownloadStoreSpecs', ->
 
     describe "_fetchAndSave", ->
       beforeEach ->
-        @userSelectedPath = "/Users/imaginary/.nylas/Downloads/b.png"
+        @userSelectedPath = "/Users/imaginary/.nylas-mail/Downloads/b.png"
         spyOn(NylasEnv, 'showSaveDialog').andCallFake (options, callback) => callback(@userSelectedPath)
 
       it "should open a save dialog and prompt the user to choose a download path", ->
@@ -295,7 +295,7 @@ xdescribe 'FileDownloadStoreSpecs', ->
           spyOn(FileDownloadStore, '_saveDownload').andCallFake =>
             Promise.resolve(@testfile)
           NylasEnv.savedState.lastDownloadDirectory = null
-          @userSelectedPath = "/Users/imaginary/.nylas/Another Random Folder/file.jpg"
+          @userSelectedPath = "/Users/imaginary/.nylas-mail/Another Random Folder/file.jpg"
           FileDownloadStore._fetchAndSave(@testfile)
           advanceClock(1)
           expect(shell.showItemInFolder).toHaveBeenCalledWith(@userSelectedPath)
@@ -303,8 +303,8 @@ xdescribe 'FileDownloadStoreSpecs', ->
         it "should not show the file in the folder if the download path is the previous download path", ->
           spyOn(FileDownloadStore, '_saveDownload').andCallFake =>
             Promise.resolve(@testfile)
-          @userSelectedPath = "/Users/imaginary/.nylas/Another Random Folder/123.png"
-          NylasEnv.savedState.lastDownloadDirectory = "/Users/imaginary/.nylas/Another Random Folder"
+          @userSelectedPath = "/Users/imaginary/.nylas-mail/Another Random Folder/123.png"
+          NylasEnv.savedState.lastDownloadDirectory = "/Users/imaginary/.nylas-mail/Another Random Folder"
           FileDownloadStore._fetchAndSave(@testfile)
           advanceClock(1)
           expect(shell.showItemInFolder).not.toHaveBeenCalled()
@@ -313,20 +313,20 @@ xdescribe 'FileDownloadStoreSpecs', ->
           spyOn(FileDownloadStore, '_saveDownload').andCallFake =>
             Promise.resolve(@testfile)
           NylasEnv.savedState.lastDownloadDirectory = null
-          @userSelectedPath = "/Users/imaginary/.nylas/Another Random Folder/file.jpg"
+          @userSelectedPath = "/Users/imaginary/.nylas-mail/Another Random Folder/file.jpg"
           FileDownloadStore._fetchAndSave(@testfile)
           advanceClock(1)
-          expect(NylasEnv.savedState.lastDownloadDirectory).toEqual('/Users/imaginary/.nylas/Another Random Folder')
+          expect(NylasEnv.savedState.lastDownloadDirectory).toEqual('/Users/imaginary/.nylas-mail/Another Random Folder')
 
         describe "file extensions", ->
           it "should allow the user to save the file with a different extension", ->
-            @userSelectedPath = "/Users/imaginary/.nylas/Downloads/b-changed.tiff"
+            @userSelectedPath = "/Users/imaginary/.nylas-mail/Downloads/b-changed.tiff"
             FileDownloadStore._fetchAndSave(@testfile)
             advanceClock(1)
             expect(fs.createWriteStream).toHaveBeenCalledWith(@userSelectedPath)
 
           it "should restore the extension if the user removed it entirely, because it's usually an accident", ->
-            @userSelectedPath = "/Users/imaginary/.nylas/Downloads/b-changed"
+            @userSelectedPath = "/Users/imaginary/.nylas-mail/Downloads/b-changed"
             FileDownloadStore._fetchAndSave(@testfile)
             advanceClock(1)
             expect(fs.createWriteStream).toHaveBeenCalledWith("#{@userSelectedPath}.png")

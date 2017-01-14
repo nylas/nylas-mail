@@ -79,8 +79,8 @@ elif [ $OS == 'Linux' ]; then
   SCRIPT=$(readlink -f "$0")
   USR_DIRECTORY=$(readlink -f $(dirname $SCRIPT)/..)
 
-  NYLAS_PATH="$USR_DIRECTORY/share/nylas/nylas"
-  NYLAS_HOME="${NYLAS_HOME:-$HOME/.nylas}"
+  NYLAS_PATH="$USR_DIRECTORY/share/nylas/nylas-mail"
+  NYLAS_HOME="${NYLAS_HOME:-$HOME/.nylas-mail}"
   mkdir -p "$NYLAS_HOME"
 
   : ${TMPDIR:=/tmp}

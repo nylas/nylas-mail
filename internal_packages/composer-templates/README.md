@@ -1,7 +1,7 @@
 # Composer Templates
 
 Create templates you can use to pre-fill the N1 composer - never type the same
-email again! Templates live in the ~/.nylas/templates directory on your computer.
+email again! Templates live in the ~/.nylas-mail/templates directory on your computer.
 Each template is an HTML file - the name of the
 file is the name of the template, and it's contents are the default message body.
 
@@ -24,6 +24,6 @@ experience.
    The dialog will default to this examples directory. Just choose the
    package to install it!
 
-   > When you install packages, they're moved to `~/.nylas/packages`,
+   > When you install packages, they're moved to `~/.nylas-mail/packages`,
    > and N1 runs `apm install` on the command line to fetch dependencies
    > listed in the package's `package.json`
