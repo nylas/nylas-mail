@@ -491,6 +491,12 @@ class SyncWorker {
     }
   }
 
+  async stopSync() {
+    if (this._syncInProgress) {
+      return this.interrupt({reason: "Sync stopped"})
+    }
+    return Promise.resolve()
+  }
 
   // Public API:
 

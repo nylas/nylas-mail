@@ -1,4 +1,6 @@
 const _ = require('underscore')
+const fs = require('fs')
+const {remote} = require('electron')
 const {Actions} = require('nylas-exports')
 const SyncWorker = require('./sync-worker');
 const LocalDatabaseConnector = require('../shared/local-database-connector')
@@ -35,6 +37,27 @@ class SyncProcessManager {
     Actions.wakeLocalSyncWorkerForAccount.listen((accountId) =>
       this.wakeWorkerForAccount(accountId)
     )
+    Actions.resetEmailCache.listen(this._resetEmailCache, this)
+  }
+
+  _resetEmailCache() {
+    try {
+      for (const worker of this.workers()) {
+        worker.stopSync()
+      }
+      setTimeout(async () => {
+        // Give the sync a chance to stop first before killing the whole
+        // DB
+        fs.unlinkSync(`${NylasEnv.getConfigDirPath()}/edgehill.db`)
+        for (const account of this.accounts()) {
+          await LocalDatabaseConnector.destroyAccountDatabase(account.id)
+        }
+        remote.app.relaunch()
+        remote.app.quit()
+      }, 100)
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   /**
