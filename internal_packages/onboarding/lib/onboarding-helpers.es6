@@ -17,6 +17,7 @@ const IMAP_FIELDS = new Set([
   "smtp_port",
   "smtp_username",
   "smtp_password",
+  "smtp_custom_config",
   "ssl_required",
 ]);
 
@@ -190,6 +191,7 @@ export function accountInfoWithIMAPAutocompletions(existingAccountInfo) {
     smtp_username: usernameWithFormat(template.smtp_user_format),
     smtp_password: existingAccountInfo.password,
     ssl_required: (template.ssl === '1'),
+    smtp_custom_config: template.smtp_custom_config,
   }
 
   return Object.assign({}, existingAccountInfo, defaults);
