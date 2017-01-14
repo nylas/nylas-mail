@@ -237,6 +237,9 @@ class NylasEnvConstructor
 
       @reportError(error, {promise})
 
+    process.on('uncaughtException', @reportError)
+    process.on('unhandledRejection', @reportError)
+
     if @inSpecMode() or @inDevMode()
       Promise.longStackTraces()
 
@@ -259,7 +262,7 @@ class NylasEnvConstructor
   # The difference between this and `ErrorLogger.reportError` is that
   # `NylasEnv.reportError` will hook into the event callbacks and handle
   # test failures and dev tool popups.
-  reportError: (error, extra={}, {noWindows}={}) ->
+  reportError: (error, extra={}, {noWindows}={}) =>
     event = @_createErrorCallbackEvent(error, extra)
     @emitter.emit('will-throw-error', event)
     return if event.defaultPrevented
