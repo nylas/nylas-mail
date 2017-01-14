@@ -68,8 +68,15 @@ class FileUploadStore extends NylasStore {
     .catch(() => Promise.reject(new Error(`${filePath} could not be found, or has invalid file permissions.`)));
   }
 
-  _prepareTargetDir(upload) {
-    return mkdirpAsync(upload.targetDir).thenReturn(upload);
+  async _getTotalDirSize(dirpath) {
+    const items = await fs.readdirAsync(dirpath)
+    let total = 0
+    for (const filename of items) {
+      const filepath = path.join(dirpath, filename)
+      const stats = await this._getFileStats(filepath)
+      total += stats.size
+    }
+    return total
   }
 
   _copyUpload(upload) {
@@ -148,20 +155,23 @@ class FileUploadStore extends NylasStore {
     this._assertIdPresent(messageClientId);
 
     return this._getFileStats(filePath)
-    .then((stats) => {
+    .then(async (stats) => {
       const upload = new Upload({messageClientId, filePath, stats, inline});
       if (stats.isDirectory()) {
-        return Promise.reject(new Error(`${upload.filename} is a directory. Try compressing it and attaching it again.`));
-      } else if (stats.size > 25 * 1000000) {
-        return Promise.reject(new Error(`${upload.filename} cannot be attached because it is larger than 25MB.`));
+        throw new Error(`${upload.filename} is a directory. Try compressing it and attaching it again.`);
+      } else if (stats.size > 15 * 1000000) {
+        throw new Error(`${upload.filename} cannot be attached because it is larger than 5MB.`);
       }
-      return Promise.resolve(upload);
-    })
-    .then((upload) => this._prepareTargetDir(upload))
-    .then((upload) => this._copyUpload(upload))
-    .then((upload) => {
-      return this._applySessionChanges(upload.messageClientId, (uploads) => uploads.concat([upload]))
-      .then(() => onUploadCreated(upload));
+      await mkdirpAsync(upload.targetDir)
+
+      const totalSize = await this._getTotalDirSize(upload.targetDir)
+      if (totalSize >= 15 * 1000000) {
+        throw new Error(`Can't upload more than 15MB of attachments`);
+      }
+
+      await this._copyUpload(upload)
+      await this._applySessionChanges(upload.messageClientId, (uploads) => uploads.concat([upload]))
+      onUploadCreated(upload)
     })
     .catch(this._onAttachFileError);
   }
