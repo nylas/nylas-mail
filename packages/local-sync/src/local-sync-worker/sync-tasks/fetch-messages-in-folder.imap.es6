@@ -26,10 +26,6 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     return `FetchMessagesInFolderIMAP (${this._folder.name} - ${this._folder.id})`;
   }
 
-  _getLowerBoundUID(count) {
-    return count ? Math.max(1, this._box.uidnext - count) : 1;
-  }
-
   async _recoverFromUIDInvalidity() {
     // UID invalidity means the server has asked us to delete all the UIDs for
     // this folder and start from scratch. Instead of deleting all the messages,
@@ -298,36 +294,45 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     const savedSyncState = this._folder.syncState;
     const isFirstSync = savedSyncState.fetchedmax == null;
     const boxUidnext = this._box.uidnext;
-    const desiredRanges = [];
 
     // TODO: In the future, this is where logic should go that limits
     // sync based on number of messages / age of messages.
 
     if (isFirstSync) {
       const lowerbound = Math.max(1, boxUidnext - FETCH_MESSAGES_FIRST_COUNT);
-      desiredRanges.push({min: lowerbound, max: boxUidnext})
+      yield this._fetchAndProcessMessages({min: lowerbound, max: boxUidnext});
+      // We issue a UID FETCH ALL and record the correct minimum UID for the
+      // mailbox, which could be something much larger than 1 (especially for
+      // inbox because of archiving, which "loses" smaller UIDs over time). If
+      // we do not do this, and, say, the minimum UID in a mailbox is 100k
+      // (we've seen this!), the mailbox will not register as finished initial
+      // syncing for many many sync loop iterations beyond when it is actually
+      // complete, and we will issue many unnecessary FETCH commands.
+      //
+      // We do this _after_ fetching the first few messages in the mailbox in
+      // order to prioritize the time to first thread displayed on initial
+      // account connection.
+      // TODO: yield or await?? I get a parse error with the latter
+      // TODO: add support for Mail2World bug which we support in Python SE
+      // https://www.limilabs.com/blog/mail2world-imap-search-all-bug
+      const boxMinUid = Math.min(...(yield this._box.search(['ALL'])));
+      yield this._folder.updateSyncState({ minUID: boxMinUid });
     } else {
       if (savedSyncState.fetchedmax < boxUidnext) {
-        desiredRanges.push({min: savedSyncState.fetchedmax, max: boxUidnext})
+        // console.log(`FetchMessagesInFolderIMAP: fetching ${savedSyncState.fetchedmax}:${boxUidnext}`);
+        yield this._fetchAndProcessMessages({min: savedSyncState.fetchedmax, max: boxUidnext});
       } else {
-        // this._logger.info('FetchMessagesInFolderIMAP: fetchedmax == uidnext, nothing more recent to fetch.')
+        // console.log('FetchMessagesInFolderIMAP: fetchedmax == uidnext, nothing more recent to fetch.')
       }
 
-      if (savedSyncState.fetchedmin > 1) {
-        const lowerbound = Math.max(1, savedSyncState.fetchedmin - FETCH_MESSAGES_COUNT);
-        desiredRanges.push({min: lowerbound, max: savedSyncState.fetchedmin})
+      if (savedSyncState.fetchedmin > savedSyncState.minUID) {
+        const lowerbound = Math.max(savedSyncState.minUID, savedSyncState.fetchedmin - FETCH_MESSAGES_COUNT);
+        // console.log(`FetchMessagesInFolderIMAP: fetching ${lowerbound}:${savedSyncState.fetchedmin}`);
+        yield this._fetchAndProcessMessages({min: lowerbound, max: savedSyncState.fetchedmin});
       } else {
-        // this._logger.info("FetchMessagesInFolderIMAP: fetchedmin == 1, nothing older to fetch.")
+        // console.log("FetchMessagesInFolderIMAP: fetchedmin == minUID, nothing older to fetch.")
       }
     }
-
-    for (const range of desiredRanges) {
-      // this._logger.info({
-      //   range: `${min}:${max}`,
-      // }, `FetchMessagesInFolderIMAP: Fetching range`);
-      yield this._fetchAndProcessMessages(range);
-    }
-    // this._logger.info(`FetchMessagesInFolderIMAP: Fetching messages finished`);
   }
 
   /**

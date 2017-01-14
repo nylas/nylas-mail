@@ -52,7 +52,7 @@ module.exports = (sequelize, Sequelize) => {
       isSyncComplete() {
         if (!this.syncState) { return true }
         return (
-          this.syncState.fetchedmin <= 1 &&
+          this.syncState.fetchedmin <= this.syncState.minUID &&
           this.syncState.fetchedmax >= this.syncState.uidnext
         )
       },
