@@ -40,7 +40,7 @@ class NylasSyncStatusStore extends NylasStore {
   constructor() {
     super()
     this._statesByAccount = {}
-    this._subscriptions = new Map()
+    this._accountSubscriptions = new Map()
     this._triggerDebounced = _.debounce(this.trigger, 100)
 
     this.listenTo(AccountStore, () => this._onAccountsChanged())
@@ -54,28 +54,28 @@ class NylasSyncStatusStore extends NylasStore {
     }, 30 * 1000)
 
     this._onCategoriesChanged()
-    this._setupSubscriptions(AccountStore.accountIds())
+    this._setupAccountSubscriptions(AccountStore.accountIds())
   }
 
-  _setupSubscriptions(accountIds) {
+  _setupAccountSubscriptions(accountIds) {
     accountIds.forEach((accountId) => {
-      if (this._subscriptions.has(accountId)) { return; }
+      if (this._accountSubscriptions.has(accountId)) { return; }
       const query = DatabaseStore.findJSONBlob(`NylasSyncWorker:${accountId}`)
       const sub = Rx.Observable.fromQuery(query)
       .subscribe((json) => this._updateState(accountId, json))
-      this._subscriptions.set(accountId, sub)
+      this._accountSubscriptions.set(accountId, sub)
     })
   }
 
   _onAccountsChanged() {
-    const currentIds = Array.from(this.subscriptions.keys())
+    const currentIds = Array.from(this._accountSubscriptions.keys())
     const nextIds = AccountStore.accountIds()
     const newIds = _.difference(nextIds, currentIds)
     const removedIds = _.difference(currentIds, nextIds)
 
     removedIds.forEach((accountId) => {
-      if (this._subscriptions.has(accountId)) {
-        this._subscriptions.get(accountId).dispose()
+      if (this._accountSubscriptions.has(accountId)) {
+        this._accountSubscriptions.get(accountId).dispose()
       }
 
       if (this._statesByAccount[accountId]) {
@@ -83,7 +83,7 @@ class NylasSyncStatusStore extends NylasStore {
         this._triggerDebounced()
       }
     })
-    this._setupSubscriptions(newIds)
+    this._setupAccountSubscriptions(newIds)
   }
 
   _onCategoriesChanged() {
