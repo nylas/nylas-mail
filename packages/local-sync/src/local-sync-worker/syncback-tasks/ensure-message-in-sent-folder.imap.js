@@ -1,4 +1,4 @@
-const {SendmailClient, Errors: {APIError}} = require('isomorphic-core')
+const {SendmailClient, Provider, Errors: {APIError}} = require('isomorphic-core')
 const IMAPHelpers = require('../imap-helpers')
 const SyncbackTask = require('./syncback-task')
 
@@ -48,7 +48,7 @@ class EnsureMessageInSentFolderIMAP extends SyncbackTask {
     // Each participant gets a message, but all of those messages have the
     // same Message-ID header in them. This allows us to find all of the
     // sent messages and clean them up
-    if (sentPerRecipient && provider === 'gmail') {
+    if (sentPerRecipient && provider === Provider.Gmail) {
       try {
         await IMAPHelpers.deleteGmailSentMessages({db, imap, provider, headerMessageId})
       } catch (err) {

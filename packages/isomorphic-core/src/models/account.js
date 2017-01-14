@@ -140,10 +140,6 @@ module.exports = (sequelize, Sequelize) => {
 
         return config;
       },
-
-      supportsLabels() {
-        return this.provider === 'gmail'
-      },
     },
   });
 
