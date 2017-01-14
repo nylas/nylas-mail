@@ -8,6 +8,7 @@ const MessageFlagAttributes = ['id', 'threadId', 'folderImapUID', 'unread', 'sta
 const FETCH_ATTRIBUTES_BATCH_SIZE = 1000;
 const FETCH_MESSAGES_FIRST_COUNT = 100;
 const FETCH_MESSAGES_COUNT = 200;
+const ATTRIBUTE_SCAN_INTERVAL_MS = 10 * 60 * 1000;
 
 
 class FetchMessagesInFolderIMAP extends SyncTask {
@@ -259,7 +260,6 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       fetchedmax: fetchedmax ? Math.max(fetchedmax, max) : max,
       uidnext: boxUidnext,
       uidvalidity: boxUidvalidity,
-      timeFetchedUnseen: Date.now(),
     });
   }
 
@@ -450,7 +450,40 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     // this._logger.info(`FetchMessagesInFolder: Deep scan finished.`);
     await this._folder.updateSyncState({
       attributeFetchedMax: (from <= 1 ? recentStart : from),
+      lastAttributeScanTime: Date.now(),
     });
+  }
+
+  * _shouldSyncFolder() {
+    if (!this._folder.isSyncComplete()) {
+      return true
+    }
+
+    const boxStatus = yield this._imap.getBoxStatus(this._folder.name)
+    const {syncState} = this._folder
+    const hasNewMessages = boxStatus.uidnext > syncState.fetchedmax
+
+    if (hasNewMessages) {
+      return true
+    }
+
+    if (this._supportsChangesSince()) {
+      const hasAttributeUpdates = syncState.highestmodseq !== boxStatus.highestmodseq
+      if (hasAttributeUpdates) {
+        return true
+      }
+    } else {
+      const {lastAttributeScanTime} = syncState
+      const shouldScanForAttributeChanges = (
+        !lastAttributeScanTime ||
+        Date.now() - lastAttributeScanTime >= ATTRIBUTE_SCAN_INTERVAL_MS
+      )
+      if (shouldScanForAttributeChanges) {
+        return true
+      }
+    }
+
+    return false
   }
 
   /**
@@ -458,12 +491,10 @@ class FetchMessagesInFolderIMAP extends SyncTask {
    * we want to interrupt sync. This is enabled by `SyncOperation` and
    * `Interruptible`
    */
-  * runTask(db, imap) {
+  async * runTask(db, imap) {
     console.log(`🔜 📂 ${this._folder.name}`)
     this._db = db;
     this._imap = imap;
-
-    this._box = yield this._openMailboxAndEnsureValidity();
 
     // If we haven't set any syncState at all, let's set it for the first time
     // to generate a delta for N1
@@ -476,6 +507,14 @@ class FetchMessagesInFolderIMAP extends SyncTask {
         failedUIDs: [],
       })
     }
+
+    const shouldSyncFolder = yield this._shouldSyncFolder()
+    if (!shouldSyncFolder) {
+      console.log(`🔚 📂 ${this._folder.name} has no updates - skipping sync`)
+      return;
+    }
+
+    this._box = yield this._openMailboxAndEnsureValidity();
     yield this._fetchUnsyncedMessages();
     yield this._fetchMessageAttributeChanges();
     console.log(`🔚 📂 ${this._folder.name} done`)
