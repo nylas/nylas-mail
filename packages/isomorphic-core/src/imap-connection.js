@@ -193,6 +193,9 @@ class IMAPConnection extends EventEmitter {
    * @return {Promise} that resolves to instance of IMAPBox
    */
   openBox(folderName, {readOnly = false} = {}) {
+    if (!folderName) {
+      throw new Error('IMAPConnection::openBox - You must provide a folder name')
+    }
     if (!this._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPConnection::openBox`)
     }
@@ -206,6 +209,21 @@ class IMAPConnection extends EventEmitter {
         this._isOpeningBox = false
         resolve(new IMAPBox(this, box))
       })
+      .catch((...args) => reject(...args))
+    })
+  }
+
+  getBoxStatus(folderName) {
+    if (!folderName) {
+      throw new Error('IMAPConnection::getBoxStatus - You must provide a folder name')
+    }
+    const openBoxName = this.getOpenBoxName()
+    if (openBoxName === folderName) {
+      return this._imap._box
+    }
+    return this.createConnectionPromise((resolve, reject) => {
+      return this._imap.statusAsync(folderName)
+      .then((...args) => resolve(...args))
       .catch((...args) => reject(...args))
     })
   }

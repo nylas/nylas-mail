@@ -29,8 +29,13 @@ module.exports = (sequelize, Sequelize) => {
      *   // we need resync whole folder
      *   uidvalidity,
      *
-     *   // Timestamp when we last fetched unseen messages
-     *   timeFetchedUnseen,
+     *   // Keeps track of the last uid we've scanned for attribtue changes when
+     *   // the server doesn't support CONDSTORE
+     *   attributeFetchedMax
+     *
+     *   // Timestamp when we last scanned attribute changes inside this folder
+     *   // This is only applicable when the server doesn't support CONDSTORE
+     *   lastAttributeScanTime,
      *
      *   // UIDs that failed to be fetched
      *   failedUIDs,
