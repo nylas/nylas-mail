@@ -564,6 +564,8 @@ class Actions {
   static refreshAllSyncWorkers = ActionScopeGlobal;
 
   static expandInitialSyncState = ActionScopeWindow;
+
+  static resetEmailCache = ActionScopeGlobal;
 }
 
 
