@@ -290,7 +290,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
    * we want to interrupt sync. This is enabled by `SyncOperation` and
    * `Interruptible`
    */
-  * _fetchUnsyncedMessages() {
+  async * _fetchUnsyncedMessages() {
     const savedSyncState = this._folder.syncState;
     const isFirstSync = savedSyncState.fetchedmax == null;
     const boxUidnext = this._box.uidnext;
@@ -312,11 +312,10 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       // We do this _after_ fetching the first few messages in the mailbox in
       // order to prioritize the time to first thread displayed on initial
       // account connection.
-      // TODO: yield or await?? I get a parse error with the latter
       // TODO: add support for Mail2World bug which we support in Python SE
       // https://www.limilabs.com/blog/mail2world-imap-search-all-bug
-      const boxMinUid = Math.min(...(yield this._box.search(['ALL'])));
-      yield this._folder.updateSyncState({ minUID: boxMinUid });
+      const boxMinUid = Math.min(...(await this._box.search(['ALL'])));
+      yield await this._folder.updateSyncState({ minUID: boxMinUid });
     } else {
       if (savedSyncState.fetchedmax < boxUidnext) {
         // console.log(`FetchMessagesInFolderIMAP: fetching ${savedSyncState.fetchedmax}:${boxUidnext}`);
