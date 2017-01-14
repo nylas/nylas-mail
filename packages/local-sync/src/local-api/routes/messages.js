@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const {Provider} = require('isomorphic-core')
 const Serialization = require('../serialization');
 const {createAndReplyWithSyncbackRequest} = require('../route-helpers');
 
@@ -118,7 +119,7 @@ module.exports = (server) => {
       const payload = request.payload
       if (payload.label_ids || payload.labels) {
         const account = request.auth.credentials;
-        if (account.supportsLabels()) {
+        if (account.provider === Provider.Gmail) {
           createAndReplyWithSyncbackRequest(request, reply, {
             type: "SetMessageLabels",
             props: {
