@@ -53,22 +53,31 @@ export default class SyncbackCategoryTask extends Task {
     const method = serverId ? "PUT" : "POST";
     const path = serverId ? `/${collection}/${serverId}` : `/${collection}`;
 
-    return new SyncbackTaskAPIRequest({
-      api: NylasAPI,
-      options: {
-        path,
-        method,
-        accountId,
-        body: {
-          display_name: this.displayName || this.category.displayName,
+    let runPromise = Promise.resolve();
+
+    if (this._syncbackRequestId) {
+      runPromise = SyncbackTaskAPIRequest.waitForQueuedRequest(this._syncbackRequestId)
+    } else {
+      runPromise = new SyncbackTaskAPIRequest({
+        api: NylasAPI,
+        options: {
+          path,
+          method,
+          accountId,
+          body: {
+            display_name: this.displayName || this.category.displayName,
+          },
+          // returnsModel must be false because we want to update the
+          // existing model rather than returning a new model.
+          returnsModel: false,
+          onSyncbackRequestCreated: (syncbackRequest) => {
+            this._syncbackRequestId = syncbackRequest.id
+          },
         },
-        // returnsModel must be false because we want to update the
-        // existing model rather than returning a new model.
-        returnsModel: false,
-      },
-    })
-    .run()
-    .then((responseJSON) => {
+      }).run()
+    }
+
+    return runPromise.then((responseJSON) => {
       if (serverId) { return null; }
       this.category.serverId = responseJSON.categoryServerId
       if (!this.category.serverId) {

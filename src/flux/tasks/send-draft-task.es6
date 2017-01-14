@@ -117,38 +117,54 @@ export default class SendDraftTask extends BaseDraftTask {
   }
 
   _sendWithSingleBody = async () => {
-    const task = new SyncbackTaskAPIRequest({
-      api: NylasAPI,
-      options: {
-        path: "/send",
-        accountId: this.draft.accountId,
-        method: 'POST',
-        body: this.draft.toJSON(),
-        timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
-        ensureOnce: true,
-        requestId: this.draft.clientId,
-      },
-    })
-    const responseJSON = await task.run();
+    let responseJSON = {}
+    if (this._syncbackRequestId) {
+      responseJSON = SyncbackTaskAPIRequest.waitForQueuedRequest(this._syncbackRequestId)
+    } else {
+      const task = new SyncbackTaskAPIRequest({
+        api: NylasAPI,
+        options: {
+          path: "/send",
+          accountId: this.draft.accountId,
+          method: 'POST',
+          body: this.draft.toJSON(),
+          timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
+          ensureOnce: true,
+          requestId: this.draft.clientId,
+          onSyncbackRequestCreated: (syncbackRequest) => {
+            this._syncbackRequestId = syncbackRequest.id
+          },
+        },
+      })
+      responseJSON = await task.run();
+    }
     await this._createMessageFromResponse(responseJSON)
   }
 
   _sendPerRecipient = async () => {
-    const task = new SyncbackTaskAPIRequest({
-      api: NylasAPI,
-      options: {
-        path: "/send-per-recipient",
-        accountId: this.draft.accountId,
-        method: 'POST',
-        body: {
-          message: this.draft.toJSON(),
-          uses_open_tracking: this.draft.metadataForPluginId(OPEN_TRACKING_ID) != null,
-          uses_link_tracking: this.draft.metadataForPluginId(LINK_TRACKING_ID) != null,
+    let responseJSON = {}
+    if (this._syncbackRequestId) {
+      responseJSON = await SyncbackTaskAPIRequest.waitForQueuedRequest(this._syncbackRequestId)
+    } else {
+      const task = new SyncbackTaskAPIRequest({
+        api: NylasAPI,
+        options: {
+          path: "/send-per-recipient",
+          accountId: this.draft.accountId,
+          method: 'POST',
+          body: {
+            message: this.draft.toJSON(),
+            uses_open_tracking: this.draft.metadataForPluginId(OPEN_TRACKING_ID) != null,
+            uses_link_tracking: this.draft.metadataForPluginId(LINK_TRACKING_ID) != null,
+          },
+          timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
+          onSyncbackRequestCreated: (syncbackRequest) => {
+            this._syncbackRequestId = syncbackRequest.id
+          },
         },
-        timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
-      },
-    })
-    const responseJSON = await task.run();
+      })
+      responseJSON = await task.run();
+    }
     await this._createMessageFromResponse(responseJSON);
   }
 
