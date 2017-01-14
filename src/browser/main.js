@@ -53,7 +53,7 @@ const declareOptions = (argv) => {
   options.usage("Nylas Mail v" + (app.getVersion()) + "\n\nUsage: n1 [options]\n\nRun N1: The open source extensible email client\n\n`n1 --dev` to start the client in dev mode.\n\n`n1 --test` to run unit tests.");
   options.alias('d', 'dev').boolean('d').describe('d', 'Run in development mode.');
   options.alias('t', 'test').boolean('t').describe('t', 'Run the specified specs and exit with error code on failures.');
-  options.boolean('safe').describe('safe', 'Do not load packages from ~/.nylas/packages or ~/.nylas/dev/packages.');
+  options.boolean('safe').describe('safe', 'Do not load packages from ~/.nylas-mail/packages or ~/.nylas/dev/packages.');
   options.alias('h', 'help').boolean('h').describe('h', 'Print this usage message.');
   options.alias('l', 'log-file').string('l').describe('l', 'Log all test output to file.');
   options.alias('c', 'config-dir-path').string('c').describe('c', 'Override the path to the N1 configuration directory');

@@ -406,7 +406,7 @@ class PackageManager
 
       fs.exists packageTargetDir, (packageAlreadyExists) =>
         if packageAlreadyExists
-          return callback(new Error("A package named '#{packageName}' is already installed in ~/.nylas/packages."), null)
+          return callback(new Error("A package named '#{packageName}' is already installed in ~/.nylas-mail/packages."), null)
 
         fs.copySync(packageSourceDir, packageTargetDir)
 

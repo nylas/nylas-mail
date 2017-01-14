@@ -746,8 +746,8 @@ export default class Application extends EventEmitter {
   //                        window
   //   :resourcePath - The path to include specs from.
   //   :specPath - The directory to load specs from.
-  //   :safeMode - A Boolean that, if true, won't run specs from ~/.nylas/packages
-  //               and ~/.nylas/dev/packages, defaults to false.
+  //   :safeMode - A Boolean that, if true, won't run specs from ~/.nylas-mail/packages
+  //               and ~/.nylas-mail/dev/packages, defaults to false.
   runSpecs(specWindowOptionsArg) {
     const specWindowOptions = specWindowOptionsArg;
     let {resourcePath} = specWindowOptions;
@@ -762,7 +762,7 @@ export default class Application extends EventEmitter {
       bootstrapScript = require.resolve(path.resolve(__dirname, '..', '..', 'spec', 'n1-spec-runner', 'spec-bootstrap'));
     }
 
-    // Important: Use .nylas-spec instead of .nylas to avoid overwriting the
+    // Important: Use .nylas-spec instead of .nylas-mail to avoid overwriting the
     // user's real email config!
     const configDirPath = path.join(app.getPath('home'), '.nylas-spec');
 

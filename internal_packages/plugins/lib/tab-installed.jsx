@@ -61,13 +61,13 @@ class TabInstalled extends React.Component {
     }
 
     let devPackages = []
-    let devEmpty = (<span>Run with debug flags enabled to load ~/.nylas/dev/packages.</span>);
+    let devEmpty = (<span>Run with debug flags enabled to load ~/.nylas-mail/dev/packages.</span>);
     let devCTA = (<div className="btn btn-small" onClick={this._onEnableDevMode}>Enable Debug Flags</div>);
 
     if (NylasEnv.inDevMode()) {
       devPackages = this.state.packages.dev || [];
       devEmpty = (<span>
-        {`You don't have any packages installed in ~/.nylas/dev/packages. `}
+        {`You don't have any packages installed in ~/.nylas-mail/dev/packages. `}
         These plugins are only loaded when you run the app with debug flags
         enabled (via the Developer menu).<br /><br />Learn more about building
         plugins with <a href="https://nylas.github.io/N1/docs/">our docs</a>.
@@ -92,7 +92,7 @@ class TabInstalled extends React.Component {
             packages={this.state.packages.user}
             showVersions
             title="Installed plugins"
-            emptyText={searchEmpty || <span>{`You don't have any plugins installed in ~/.nylas/packages.`}</span>}
+            emptyText={searchEmpty || <span>{`You don't have any plugins installed in ~/.nylas-mail/packages.`}</span>}
           />
           <PackageSet
             title="Built-in plugins"

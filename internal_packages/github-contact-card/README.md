@@ -17,6 +17,6 @@ external sources in the sidebar. If you want to see some more advanced plugins, 
    The dialog will default to this examples directory. Just choose the
    package to install it!
 
-   > When you install packages, they're moved to `~/.nylas/packages`,
+   > When you install packages, they're moved to `~/.nylas-mail/packages`,
    > and N1 runs `apm install` on the command line to fetch dependencies
    > listed in the package's `package.json`

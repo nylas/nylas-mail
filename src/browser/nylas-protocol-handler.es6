@@ -8,15 +8,15 @@ import path from 'path';
 // custom resource loader for 'nylas://' URLs.
 //
 // The following directories are searched in order:
-//   * ~/.nylas/assets
-//   * ~/.nylas/dev/packages (unless in safe mode)
-//   * ~/.nylas/packages
+//   * ~/.nylas-mail/assets
+//   * ~/.nylas-mail/dev/packages (unless in safe mode)
+//   * ~/.nylas-mail/packages
 //   * RESOURCE_PATH/node_modules
 //
 export default class NylasProtocolHandler {
   constructor(resourcePath, safeMode) {
     this.loadPaths = [];
-    this.dotNylasDirectory = path.join(app.getPath('home'), '.nylas');
+    this.dotNylasDirectory = path.join(app.getPath('home'), '.nylas-mail');
 
     if (!safeMode) {
       this.loadPaths.push(path.join(this.dotNylasDirectory, 'dev', 'packages'));

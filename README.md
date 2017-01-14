@@ -70,7 +70,7 @@ The Nylas Mail user interface is styled using CSS, which means it's easy to modi
 
 1. Download and unzip the repo
 2. In Nylas Mail, select `Developer > Install a Package Manually... `
-3. Navigate to where you downloaded the theme and select the root folder. The theme is copied into the `~/.nylas` folder for your convinence
+3. Navigate to where you downloaded the theme and select the root folder. The theme is copied into the `~/.nylas-mail` folder for your convinence
 5. Select `Change Theme...` from the top level menu, and you'll see the newly installed theme. That's it!
 
 
@@ -109,7 +109,7 @@ Note these are not tested or officially supported by Nylas, but we still think t
 - [Wunderlist](https://github.com/miguelrs/n1-wunderlist)
 - [Participants Display](https://github.com/kbruccoleri/nylas-participants-display)
 
-When you install packages, they're moved to ~/.nylas/packages, and N1 runs apm install on the command line to fetch dependencies listed in the package's package.json
+When you install packages, they're moved to ~/.nylas-mail/packages, and N1 runs apm install on the command line to fetch dependencies listed in the package's package.json
 
 
 # Configuration
