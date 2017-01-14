@@ -1,6 +1,6 @@
 const Joi = require('joi');
 const Serialization = require('../serialization');
-const {createSyncbackRequest} = require('../route-helpers');
+const {createAndReplyWithSyncbackRequest} = require('../route-helpers');
 
 
 module.exports = (server) => {
@@ -119,7 +119,7 @@ module.exports = (server) => {
       if (payload.label_ids || payload.labels) {
         const account = request.auth.credentials;
         if (account.supportsLabels()) {
-          createSyncbackRequest(request, reply, {
+          createAndReplyWithSyncbackRequest(request, reply, {
             type: "SetMessageLabels",
             props: {
               labelIds: request.payload.label_ids || payload.labels,
@@ -128,7 +128,7 @@ module.exports = (server) => {
           })
         }
       } else if (payload.folder_id || payload.folder) {
-        createSyncbackRequest(request, reply, {
+        createAndReplyWithSyncbackRequest(request, reply, {
           type: "MoveMessageToFolder",
           props: {
             folderId: request.payload.folder_id || payload.folder,
@@ -136,28 +136,28 @@ module.exports = (server) => {
           },
         })
       } else if (payload.unread === false) {
-        createSyncbackRequest(request, reply, {
+        createAndReplyWithSyncbackRequest(request, reply, {
           type: "MarkMessageAsRead",
           props: {
             messageId: request.params.id,
           },
         })
       } else if (payload.unread === true) {
-        createSyncbackRequest(request, reply, {
+        createAndReplyWithSyncbackRequest(request, reply, {
           type: "MarkMessageAsUnread",
           props: {
             messageId: request.params.id,
           },
         })
       } else if (payload.starred === false) {
-        createSyncbackRequest(request, reply, {
+        createAndReplyWithSyncbackRequest(request, reply, {
           type: "UnstarMessage",
           props: {
             messageId: request.params.id,
           },
         })
       } else if (payload.starred === true) {
-        createSyncbackRequest(request, reply, {
+        createAndReplyWithSyncbackRequest(request, reply, {
           type: "StarMessage",
           props: {
             messageId: request.params.id,

@@ -2,7 +2,7 @@ const Joi = require('joi');
 const stream = require('stream');
 const _ = require('underscore');
 const Serialization = require('../serialization');
-const {createSyncbackRequest} = require('../route-helpers')
+const {createAndReplyWithSyncbackRequest} = require('../route-helpers')
 const {searchClientForAccount} = require('../search');
 
 module.exports = (server) => {
@@ -107,7 +107,7 @@ module.exports = (server) => {
     handler: (request, reply) => {
       const payload = request.payload
       if ((payload.folder_id || payload.folder) && (payload.label_ids || payload.labels)) {
-        createSyncbackRequest(request, reply, {
+        createAndReplyWithSyncbackRequest(request, reply, {
           type: "SetThreadFolderAndLabels",
           props: {
             folderId: payload.folder_id || payload.folder,
@@ -116,7 +116,7 @@ module.exports = (server) => {
           },
         })
       } else if (payload.folder_id || payload.folder) {
-        createSyncbackRequest(request, reply, {
+        createAndReplyWithSyncbackRequest(request, reply, {
           type: "MoveThreadToFolder",
           props: {
             folderId: payload.folder_id || payload.folder,
@@ -124,7 +124,7 @@ module.exports = (server) => {
           },
         })
       } else if (payload.label_ids || payload.labels) {
-        createSyncbackRequest(request, reply, {
+        createAndReplyWithSyncbackRequest(request, reply, {
           type: "SetThreadLabels",
           props: {
             labelIds: payload.label_ids || payload.labels,
@@ -132,28 +132,28 @@ module.exports = (server) => {
           },
         })
       } else if (payload.unread === false) {
-        createSyncbackRequest(request, reply, {
+        createAndReplyWithSyncbackRequest(request, reply, {
           type: "MarkThreadAsRead",
           props: {
             threadId: request.params.id,
           },
         })
       } else if (payload.unread === true) {
-        createSyncbackRequest(request, reply, {
+        createAndReplyWithSyncbackRequest(request, reply, {
           type: "MarkThreadAsUnread",
           props: {
             threadId: request.params.id,
           },
         })
       } else if (payload.starred === false) {
-        createSyncbackRequest(request, reply, {
+        createAndReplyWithSyncbackRequest(request, reply, {
           type: "UnstarThread",
           props: {
             threadId: request.params.id,
           },
         })
       } else if (payload.starred === true) {
-        createSyncbackRequest(request, reply, {
+        createAndReplyWithSyncbackRequest(request, reply, {
           type: "StarThread",
           props: {
             threadId: request.params.id,

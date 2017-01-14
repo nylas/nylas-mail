@@ -12,7 +12,7 @@ const {
 const Interruptible = require('../shared/interruptible')
 const SyncMetricsReporter = require('./sync-metrics-reporter');
 const SyncTaskFactory = require('./sync-task-factory');
-const SyncbackTaskFactory = require('./syncback-task-factory');
+const {getNewSyncbackTasks, markInProgressTasksAsFailed, runSyncbackTask} = require('./syncback-task-helpers');
 const LocalSyncDeltaEmitter = require('./local-sync-delta-emitter').default
 
 class SyncWorker {
@@ -218,128 +218,6 @@ class SyncWorker {
     this._mailListenerConn = null
   }
 
-  /**
-   * Returns a list of at most 100 Syncback requests, sorted by creation date
-   * (older first) and by how they affect message IMAP uids.
-   *
-   * We want to make sure that we run the tasks that affect IMAP uids last, and
-   * that we don't  run 2 tasks that will affect the same set of UIDS together,
-   * i.e. without running a sync loop in between them.
-   *
-   * For example, if there's a task to change the labels of a message, and also
-   * a task to move that message to another folder, we need to run the label
-   * change /first/, otherwise the message would be moved and it would receive a
-   * new IMAP uid, and then attempting to change labels with an old uid would
-   * fail.
-   */
-  async _getNewSyncbackTasks() {
-    const {SyncbackRequest, Message} = this._db;
-    const sendTaskTypes = ['EnsureMessageInSentFolder']
-
-    const sendTasks = await SyncbackRequest.findAll({
-      limit: 100,
-      where: {type: sendTaskTypes, status: 'NEW'},
-      order: [['createdAt', 'ASC']],
-    })
-    .map((req) => SyncbackTaskFactory.create(this._account, req))
-    const tasks = await SyncbackRequest.findAll({
-      limit: 100,
-      where: {type: {$notIn: sendTaskTypes}, status: 'NEW'},
-      order: [['createdAt', 'ASC']],
-    })
-    .map((req) => SyncbackTaskFactory.create(this._account, req))
-
-    if (sendTasks.length === 0 && tasks.length === 0) { return [] }
-
-    const tasksToProcess = [
-      ...sendTasks,
-      ...tasks.filter(t => !t.affectsImapMessageUIDs()),
-    ]
-    const tasksAffectingUIDs = tasks.filter(t => t.affectsImapMessageUIDs())
-
-    const changeFolderTasks = tasksAffectingUIDs.filter(t =>
-      t.description() === 'RenameFolder' || t.description() === 'DeleteFolder'
-    )
-    if (changeFolderTasks.length > 0) {
-      // If we are renaming or deleting folders, those are the only tasks we
-      // want to process before executing any other tasks that may change uids.
-      // These operations may not change the uids of their messages, but we
-      // can't guarantee it, so to make sure, we will just run these.
-      const affectedFolderIds = new Set()
-      changeFolderTasks.forEach((task) => {
-        const {props: {folderId}} = task.syncbackRequestObject()
-        if (folderId && !affectedFolderIds.has(folderId)) {
-          tasksToProcess.push(task)
-          affectedFolderIds.add(folderId)
-        }
-      })
-      return tasksToProcess
-    }
-
-    // Otherwise, make sure that we don't process more than 1 task that will affect
-    // the UID of the same message
-    const affectedMessageIds = new Set()
-    for (const task of tasksAffectingUIDs) {
-      const {props: {messageId, threadId}} = task.syncbackRequestObject()
-      if (messageId) {
-        if (!affectedMessageIds.has(messageId)) {
-          tasksToProcess.push(task)
-          affectedMessageIds.add(messageId)
-        }
-      } else if (threadId) {
-        const messageIds = await Message.findAll({where: {threadId}}).map(m => m.id)
-        const shouldIncludeTask = messageIds.every(id => !affectedMessageIds.has(id))
-        if (shouldIncludeTask) {
-          tasksToProcess.push(task)
-          messageIds.forEach(id => affectedMessageIds.add(id))
-        }
-      }
-    }
-    return tasksToProcess
-  }
-
-  async _markInProgressTasksAsFailed() {
-    // We use a very limited type of two-phase commit: before we start
-    // running a syncback task, we mark it as "in progress". If something
-    // happens during the syncback (the worker window crashes, or the power
-    // goes down), the task won't succeed or fail.
-    // We absolutely never want to retry such a task, so we mark it as failed
-    // at the next sync iteration. We use this function for that.
-    const {SyncbackRequest} = this._db;
-    const inProgressTasks = await SyncbackRequest.findAll({
-      where: {status: 'INPROGRESS'},
-    });
-
-    for (const inProgress of inProgressTasks) {
-      inProgress.status = 'FAILED';
-      await inProgress.save();
-    }
-  }
-
-  async _runSyncbackTask(task) {
-    const before = new Date();
-    const syncbackRequest = task.syncbackRequestObject();
-    console.log(`🔃 📤 ${task.description()}`, syncbackRequest.props)
-    try {
-      // Before anything, mark the task as in progress. This allows
-      // us to not run the same task twice.
-      syncbackRequest.status = "INPROGRESS";
-      await syncbackRequest.save();
-
-      const responseJSON = await this._conn.runOperation(task);
-      syncbackRequest.status = "SUCCEEDED";
-      syncbackRequest.responseJSON = responseJSON || {};
-      const after = new Date();
-      console.log(`🔃 📤 ${task.description()} Succeeded (${after.getTime() - before.getTime()}ms)`)
-    } catch (error) {
-      syncbackRequest.error = error;
-      syncbackRequest.status = "FAILED";
-      const after = new Date();
-      console.error(`🔃 📤 ${task.description()} Failed (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON()})
-    } finally {
-      await syncbackRequest.save();
-    }
-  }
 
   async _getFoldersToSync() {
     const {Folder} = this._db;
@@ -447,7 +325,7 @@ class SyncWorker {
     yield this._ensureMailListenerConnection();
 
     // Step 1: Mark all "INPROGRESS" tasks as failed.
-    await this._markInProgressTasksAsFailed()
+    await markInProgressTasksAsFailed({db: this._db})
     yield // Yield to allow interruption
 
     // Step 2: Run any available syncback tasks
@@ -457,10 +335,10 @@ class SyncWorker {
     // (e.g. marking as unread or starred). We need to listen to that event for
     // when updates are performed from another mail client, but ignore
     // them when they are caused from within N1 to prevent unecessary interrupts
-    const tasks = yield this._getNewSyncbackTasks()
+    const tasks = yield getNewSyncbackTasks({db: this._db, account: this._account})
     this._shouldIgnoreInboxFlagUpdates = true
     for (const task of tasks) {
-      await this._runSyncbackTask(task)
+      await runSyncbackTask({task, runTask: (t) => this._conn.runOperation(t)})
       yield  // Yield to allow interruption
     }
     this._shouldIgnoreInboxFlagUpdates = false

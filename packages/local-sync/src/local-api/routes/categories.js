@@ -1,6 +1,6 @@
 const Joi = require('joi');
 const Serialization = require('../serialization');
-const {createSyncbackRequest} = require('../route-helpers');
+const {createAndReplyWithSyncbackRequest} = require('../route-helpers');
 
 module.exports = (server) => {
   ['Folder', 'Label'].forEach((klass) => {
@@ -61,7 +61,7 @@ module.exports = (server) => {
           const db = await request.getAccountDatabase()
           const objectId = db[klass].hash({boxName: payload.display_name, accountId})
 
-          createSyncbackRequest(request, reply, {
+          createAndReplyWithSyncbackRequest(request, reply, {
             type: "CreateCategory",
             props: {
               objectId,
@@ -100,7 +100,7 @@ module.exports = (server) => {
           const objectId = db[klass].hash({boxName: payload.display_name, accountId})
 
           if (klass === 'Label') {
-            createSyncbackRequest(request, reply, {
+            createAndReplyWithSyncbackRequest(request, reply, {
               type: "RenameLabel",
               props: {
                 objectId,
@@ -110,7 +110,7 @@ module.exports = (server) => {
               syncbackImmediately: true,
             })
           } else {
-            createSyncbackRequest(request, reply, {
+            createAndReplyWithSyncbackRequest(request, reply, {
               type: "RenameFolder",
               props: {
                 objectId,
@@ -141,14 +141,14 @@ module.exports = (server) => {
       },
       handler: (request, reply) => {
         if (klass === 'Label') {
-          createSyncbackRequest(request, reply, {
+          createAndReplyWithSyncbackRequest(request, reply, {
             type: "DeleteLabel",
             props: {
               labelId: request.params.id,
             },
           })
         } else {
-          createSyncbackRequest(request, reply, {
+          createAndReplyWithSyncbackRequest(request, reply, {
             type: "DeleteFolder",
             props: {
               folderId: request.params.id,

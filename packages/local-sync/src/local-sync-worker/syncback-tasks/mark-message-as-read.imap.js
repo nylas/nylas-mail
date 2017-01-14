@@ -1,5 +1,5 @@
 const SyncbackTask = require('./syncback-task')
-const TaskHelpers = require('./task-helpers')
+const IMAPHelpers = require('../imap-helpers')
 
 class MarkMessageAsReadIMAP extends SyncbackTask {
   description() {
@@ -13,7 +13,7 @@ class MarkMessageAsReadIMAP extends SyncbackTask {
   run(db, imap) {
     const messageId = this.syncbackRequestObject().props.messageId
 
-    return TaskHelpers.openMessageBox({messageId, db, imap})
+    return IMAPHelpers.openMessageBox({messageId, db, imap})
       .then(({box, message}) => {
         return box.addFlags(message.folderImapUID, 'SEEN')
       })

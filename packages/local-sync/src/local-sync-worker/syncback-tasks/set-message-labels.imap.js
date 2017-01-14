@@ -1,5 +1,5 @@
 const SyncbackTask = require('./syncback-task')
-const TaskHelpers = require('./task-helpers')
+const IMAPHelpers = require('../imap-helpers')
 
 class SetMessageLabelsIMAP extends SyncbackTask {
   description() {
@@ -14,8 +14,8 @@ class SetMessageLabelsIMAP extends SyncbackTask {
     const messageId = this.syncbackRequestObject().props.messageId
     const labelIds = this.syncbackRequestObject().props.labelIds
 
-    const {box, message} = await TaskHelpers.openMessageBox({messageId, db, imap})
-    return TaskHelpers.setMessageLabels({message, db, box, labelIds})
+    const {box, message} = await IMAPHelpers.openMessageBox({messageId, db, imap})
+    return IMAPHelpers.setMessageLabels({message, db, box, labelIds})
   }
 }
 module.exports = SetMessageLabelsIMAP
