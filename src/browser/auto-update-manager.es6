@@ -66,12 +66,17 @@ export default class AutoUpdateManager extends EventEmitter {
   _updateFeedURL = () => {
     const params = this.parameters();
 
+    let host = `edgehill.nylas.com`;
+    if (this.config.settings.env === 'staging') {
+      host = `edgehill-staging.nylas.com`;
+    }
+
     if (process.platform === 'win32') {
       // Squirrel for Windows can't handle query params
       // https://github.com/Squirrel/Squirrel.Windows/issues/132
-      this.feedURL = `https://edgehill.nylas.com/update-check/win32/${params.arch}/${params.version}/${params.id}/${params.emails}`
+      this.feedURL = `https://${host}/update-check/win32/${params.arch}/${params.version}/${params.id}/${params.emails}`
     } else {
-      this.feedURL = `https://edgehill.nylas.com/update-check?${qs.stringify(params)}`;
+      this.feedURL = `https://${host}/update-check?${qs.stringify(params)}`;
     }
 
     if (autoUpdater) {
