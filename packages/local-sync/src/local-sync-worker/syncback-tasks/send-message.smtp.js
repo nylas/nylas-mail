@@ -1,5 +1,5 @@
-const {SendmailClient, Errors: {APIError}} = require('isomorphic-core')
-const SyncbackTask = require('./syncback-task')
+const {SendmailClient} = require('isomorphic-core')
+const SyncbackTask = require('../syncback-tasks/syncback-task')
 const MessageFactory = require('../../shared/message-factory')
 
 /**
@@ -11,7 +11,7 @@ const MessageFactory = require('../../shared/message-factory')
  * We later get EnsureMessageInSentFolder queued to ensure the newly
  * delivered message shows up in the sent folder.
  */
-class SendMessageIMAP extends SyncbackTask {
+class SendMessageSMTP extends SyncbackTask {
   description() {
     return `SendMessage`;
   }
@@ -20,16 +20,13 @@ class SendMessageIMAP extends SyncbackTask {
     return false
   }
 
-  async run(db, imap) {
+  async run(db) {
     const {messagePayload} = this.syncbackRequestObject().props
-    const {account, logger} = imap
-    if (!account) {
-      throw new APIError('Send failed: account not available on imap connection')
-    }
 
     const message = await MessageFactory.buildForSend(db, messagePayload);
     message.setIsSending(true);
-    const sender = new SendmailClient(account, logger);
+    const logger = global.Logger.forAccount(this._account);
+    const sender = new SendmailClient(this._account, logger);
     await sender.send(message);
 
     try {
@@ -43,4 +40,4 @@ class SendMessageIMAP extends SyncbackTask {
   }
 }
 
-module.exports = SendMessageIMAP;
+module.exports = SendMessageSMTP;

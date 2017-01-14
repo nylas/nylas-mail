@@ -1,5 +1,5 @@
 const SyncbackTask = require('./syncback-task')
-const TaskHelpers = require('./task-helpers')
+const IMAPHelpers = require('../imap-helpers')
 
 class DeleteMessageIMAP extends SyncbackTask {
   description() {
@@ -12,7 +12,7 @@ class DeleteMessageIMAP extends SyncbackTask {
 
   async run(db, imap) {
     const messageId = this.syncbackRequestObject().props.messageId
-    const {box, message} = await TaskHelpers.openMessageBox({messageId, db, imap})
+    const {box, message} = await IMAPHelpers.openMessageBox({messageId, db, imap})
     return box.addFlags(message.folderImapUID, ['DELETED'])
   }
 }

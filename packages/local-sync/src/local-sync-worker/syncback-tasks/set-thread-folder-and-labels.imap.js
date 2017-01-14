@@ -1,5 +1,5 @@
 const SyncbackTask = require('./syncback-task')
-const TaskHelpers = require('./task-helpers')
+const IMAPHelpers = require('../imap-helpers')
 
 class SetThreadFolderAndLabelsIMAP extends SyncbackTask {
   description() {
@@ -18,13 +18,13 @@ class SetThreadFolderAndLabelsIMAP extends SyncbackTask {
     // Ben TODO this is super inefficient because it makes IMAP requests
     // one UID at a time, rather than gathering all the UIDs and making
     // a single removeLabels call.
-    return TaskHelpers.forEachMessageInThread({
+    return IMAPHelpers.forEachMessageInThread({
       db,
       imap,
       threadId,
       async callback({message, box}) {
-        await TaskHelpers.setMessageLabels({message, db, box, labelIds})
-        return TaskHelpers.moveMessageToFolder({db, box, message, targetFolderId})
+        await IMAPHelpers.setMessageLabels({message, db, box, labelIds})
+        return IMAPHelpers.moveMessageToFolder({db, box, message, targetFolderId})
       },
     })
   }

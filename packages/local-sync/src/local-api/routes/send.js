@@ -1,6 +1,8 @@
 const Joi = require('joi');
 const Utils = require('../../shared/utils');
-const {createSyncbackRequest} = require('../route-helpers');
+const SyncbackTaskFactory = require('../../local-sync-worker/syncback-task-factory');
+const {runSyncbackTask} = require('../../local-sync-worker/syncback-task-helpers');
+const {createAndReplyWithSyncbackRequest} = require('../route-helpers');
 
 
 // const recipient = Joi.object().keys({
@@ -24,13 +26,20 @@ module.exports = (server) => {
     config: {
     },
     async handler(request, reply) {
-      createSyncbackRequest(request, reply, {
+      const account = request.auth.credentials;
+      const syncbackRequest = await createAndReplyWithSyncbackRequest(request, reply, {
         type: "SendMessage",
         props: {
           messagePayload: request.payload,
         },
-        syncbackImmediately: true,
+        // TODO this is a hack to run send outside the sync loop. This should be
+        // refactored when we implement the sync scheduler
+        wakeSync: false,
       })
+
+      const sendTask = SyncbackTaskFactory.create(account, syncbackRequest)
+      const db = await request.getAccountDatabase()
+      await runSyncbackTask({task: sendTask, runTask: (t) => t.run(db)})
     },
   });
 
@@ -41,15 +50,22 @@ module.exports = (server) => {
     config: {
     },
     async handler(request, reply) {
-      createSyncbackRequest(request, reply, {
+      const account = request.auth.credentials;
+      const syncbackRequest = await createAndReplyWithSyncbackRequest(request, reply, {
         type: "SendMessagePerRecipient",
         props: {
           messagePayload: request.payload.message,
           usesOpenTracking: request.payload.uses_open_tracking,
           usesLinkTracking: request.payload.uses_link_tracking,
         },
-        syncbackImmediately: true,
+        // TODO this is a hack to run send outside the sync loop. This should be
+        // refactored when we implement the sync scheduler
+        wakeSync: false,
       })
+
+      const sendTask = SyncbackTaskFactory.create(account, syncbackRequest)
+      const db = await request.getAccountDatabase()
+      await runSyncbackTask({task: sendTask, runTask: (t) => t.run(db)})
     },
   });
 
@@ -76,7 +92,7 @@ module.exports = (server) => {
         reply.badRequest(`messageId is not a base-36 integer`)
         return
       }
-      createSyncbackRequest(request, reply, {
+      createAndReplyWithSyncbackRequest(request, reply, {
         type: "EnsureMessageInSentFolder",
         props: { messageId, sentPerRecipient },
         syncbackImmediately: true,

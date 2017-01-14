@@ -4,9 +4,9 @@ const SyncbackTask = require('./syncback-task')
 const MessageFactory = require('../../shared/message-factory')
 
 
-async function sendPerRecipient({db, imap, baseMessage, usesOpenTracking, usesLinkTracking} = {}) {
+async function sendPerRecipient({db, account, baseMessage, usesOpenTracking, usesLinkTracking} = {}) {
   const {Message} = db
-  const {account, logger} = imap
+  const logger = global.Logger.forAccount(this._account);
   const recipients = baseMessage.getRecipients()
   const failedRecipients = []
 
@@ -26,7 +26,7 @@ async function sendPerRecipient({db, imap, baseMessage, usesOpenTracking, usesLi
       const sender = new SendmailClient(account, logger);
       await sender.sendCustom(individualizedMessage, {to: [recipient]})
     } catch (error) {
-      logger.error(error, {recipient: recipient.email}, 'SendMessagePerRecipient: Failed to send to recipient');
+      console.error(error, {recipient: recipient.email}, 'SendMessagePerRecipient: Failed to send to recipient');
       failedRecipients.push(recipient.email)
     }
   }
@@ -51,7 +51,7 @@ async function sendPerRecipient({db, imap, baseMessage, usesOpenTracking, usesLi
  * up in the sent folder and only a single message shows up in the sent
  * folder.
  */
-class SendMessagePerRecipientIMAP extends SyncbackTask {
+class SendMessagePerRecipientSMTP extends SyncbackTask {
   description() {
     return `SendMessagePerRecipient`;
   }
@@ -60,20 +60,18 @@ class SendMessagePerRecipientIMAP extends SyncbackTask {
     return false
   }
 
-  async run(db, imap) {
-    if (!imap.account) {
-      throw new APIError('SendMessagePerRecipient: Failed, account not available on imap connection')
-    }
+  async run(db) {
     const {
       messagePayload,
       usesOpenTracking,
       usesLinkTracking,
     } = this.syncbackRequestObject().props
+    const account = this._account
 
     const baseMessage = await MessageFactory.buildForSend(db, messagePayload)
     baseMessage.setIsSending(true)
 
-    const sendResult = await sendPerRecipient({db, imap, baseMessage, usesOpenTracking, usesLinkTracking})
+    const sendResult = await sendPerRecipient({db, account, baseMessage, usesOpenTracking, usesLinkTracking})
 
     /**
      * Once messages have actually been delivered, we need to be very
@@ -100,10 +98,10 @@ class SendMessagePerRecipientIMAP extends SyncbackTask {
         failedRecipients: sendResult.failedRecipients,
       }
     } catch (err) {
-      imap.logger.error(err, 'SendMessagePerRecipient: Failed to save the baseMessage to local sync database after it was successfully delivered');
+      console.error(err, 'SendMessagePerRecipient: Failed to save the baseMessage to local sync database after it was successfully delivered');
       return {message: {}, failedRecipients: []}
     }
   }
 }
 
-module.exports = SendMessagePerRecipientIMAP;
+module.exports = SendMessagePerRecipientSMTP;

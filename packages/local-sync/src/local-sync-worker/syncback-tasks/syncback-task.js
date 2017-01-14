@@ -2,6 +2,12 @@ class SyncbackTask {
   constructor(account, syncbackRequest) {
     this._account = account;
     this._syncbackRequest = syncbackRequest;
+    if (!this._account) {
+      throw new Error("SyncbackTask requires an account")
+    }
+    if (!this._syncbackRequest) {
+      throw new Error("SyncbackTask requires a syncbackRequest")
+    }
   }
 
   syncbackRequestObject() {

@@ -47,9 +47,9 @@ class SyncbackTaskFactory {
       case "DeleteMessage":
         Task = require('./syncback-tasks/delete-message.imap'); break;
       case "SendMessage":
-        Task = require('./syncback-tasks/send-message.imap'); break;
+        Task = require('./syncback-tasks/send-message.smtp'); break;
       case "SendMessagePerRecipient":
-        Task = require('./syncback-tasks/send-message-per-recipient.imap'); break;
+        Task = require('./syncback-tasks/send-message-per-recipient.smtp'); break;
       case "EnsureMessageInSentFolder":
         Task = require('./syncback-tasks/ensure-message-in-sent-folder.imap'); break;
       default:

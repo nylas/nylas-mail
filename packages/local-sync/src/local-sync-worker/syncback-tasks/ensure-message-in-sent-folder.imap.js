@@ -1,5 +1,5 @@
 const {SendmailClient, Errors: {APIError}} = require('isomorphic-core')
-const TaskHelpers = require('./task-helpers')
+const IMAPHelpers = require('../imap-helpers')
 const SyncbackTask = require('./syncback-task')
 
 /**
@@ -50,7 +50,7 @@ class EnsureMessageInSentFolderIMAP extends SyncbackTask {
     // sent messages and clean them up
     if (sentPerRecipient && provider === 'gmail') {
       try {
-        await TaskHelpers.deleteGmailSentMessages({db, imap, provider, headerMessageId})
+        await IMAPHelpers.deleteGmailSentMessages({db, imap, provider, headerMessageId})
       } catch (err) {
         // Even if this fails, we need to finish attempting to save the
         // baseMessage to the sent folder
@@ -68,7 +68,7 @@ class EnsureMessageInSentFolderIMAP extends SyncbackTask {
     if (provider !== 'gmail' || sentPerRecipient) {
       const sender = new SendmailClient(account, logger);
       const rawMime = await sender.buildMime(baseMessage);
-      await TaskHelpers.saveSentMessage({db, imap, provider, rawMime, headerMessageId})
+      await IMAPHelpers.saveSentMessage({db, imap, provider, rawMime, headerMessageId})
     }
 
     return baseMessage.toJSON()

@@ -1,5 +1,5 @@
 const SyncbackTask = require('./syncback-task')
-const TaskHelpers = require('./task-helpers')
+const IMAPHelpers = require('../imap-helpers')
 
 class StarThread extends SyncbackTask {
   description() {
@@ -17,7 +17,7 @@ class StarThread extends SyncbackTask {
       return box.addFlags(message.folderImapUID, 'FLAGGED')
     }
 
-    return TaskHelpers.forEachMessageInThread({threadId, db, imap, callback: eachMsg})
+    return IMAPHelpers.forEachMessageInThread({threadId, db, imap, callback: eachMsg})
   }
 }
 module.exports = StarThread;
