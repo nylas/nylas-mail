@@ -26,19 +26,27 @@ export default class EnsureMessageInSentFolderTask extends Task {
   }
 
   performRemote() {
-    return new SyncbackTaskAPIRequest({
-      api: NylasAPI,
-      options: {
-        path: `/ensure-message-in-sent-folder/${this.message.id}`,
-        method: "POST",
-        body: {
-          sentPerRecipient: this.sentPerRecipient,
+    let runPromise = Promise.resolve();
+    if (this._syncbackRequestId) {
+      runPromise = SyncbackTaskAPIRequest.waitForQueuedRequest(this._syncbackRequestId)
+    } else {
+      runPromise = new SyncbackTaskAPIRequest({
+        api: NylasAPI,
+        options: {
+          path: `/ensure-message-in-sent-folder/${this.message.id}`,
+          method: "POST",
+          body: {
+            sentPerRecipient: this.sentPerRecipient,
+          },
+          accountId: this.message.accountId,
+          onSyncbackRequestCreated: (syncbackRequest) => {
+            this._syncbackRequestId = syncbackRequest.id
+          },
         },
-        accountId: this.message.accountId,
-      },
-    })
-    .run()
-    .then(() => {
+      }).run()
+    }
+
+    return runPromise.then(() => {
       Actions.ensureMessageInSentSuccess({messageClientId: this.message.clientId})
       return Task.Status.Success
     })

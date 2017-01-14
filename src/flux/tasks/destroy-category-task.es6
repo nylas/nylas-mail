@@ -53,17 +53,26 @@ export default class DestroyCategoryTask extends Task {
     // delta which comes after a delay
     NylasAPI.incrementRemoteChangeLock(Category, this.category.serverId);
 
-    return new SyncbackTaskAPIRequest({
-      api: NylasAPI,
-      options: {
-        accountId,
-        path,
-        method: 'DELETE',
-        returnsModel: false,
-      },
-    })
-    .run()
-    .thenReturn(Task.Status.Success)
+    let runPromise = Promise.resolve();
+
+    if (this._syncbackRequestId) {
+      runPromise = SyncbackTaskAPIRequest.waitForQueuedRequest(this._syncbackRequestId)
+    } else {
+      runPromise = new SyncbackTaskAPIRequest({
+        api: NylasAPI,
+        options: {
+          accountId,
+          path,
+          method: 'DELETE',
+          returnsModel: false,
+          onSyncbackRequestCreated: (syncbackRequest) => {
+            this._syncbackRequestId = syncbackRequest.id
+          },
+        },
+      }).run()
+    }
+
+    return runPromise.thenReturn(Task.Status.Success)
     .catch(APIError, (err) => {
       if (!NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
         return Promise.resolve(Task.Status.Retry);

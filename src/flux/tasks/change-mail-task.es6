@@ -1,4 +1,3 @@
-/* eslint no-unused-vars: 0*/
 import _ from 'underscore';
 import Task from './task';
 import Thread from '../models/thread';
@@ -7,51 +6,6 @@ import NylasAPI from '../nylas-api';
 import SyncbackTaskAPIRequest from '../syncback-task-api-request';
 import DatabaseStore from '../stores/database-store';
 import {APIError} from '../errors';
-
-// MapLimit is a small helper method that implements a promise version of
-// Async.mapLimit. It runs the provided fn on each item in the `input` array,
-// but only runs `numberInParallel` copies of `fn` at a time, resolving
-// with an output array, or rejecting with an error if (any execution of)
-// `fn` returns an error.
-const mapLimit = (input, numberInParallel, fn) => {
-  return new Promise((resolve, reject) => {
-    let idx = 0;
-    let inflight = 0;
-    const output = [];
-    let outputError = null;
-
-    if (input.length === 0) {
-      resolve([]);
-      return;
-    }
-
-    const startNext = () => {
-      const startIdx = idx;
-      idx += 1;
-      inflight += 1;
-      fn(input[startIdx]).then((result) => {
-        output[startIdx] = result;
-        if (outputError) {
-          return;
-        }
-
-        inflight -= 1;
-        if (idx < input.length) {
-          startNext();
-        } else if (inflight === 0) {
-          resolve(output);
-        }
-      }).catch((err) => {
-        outputError = err;
-        reject(outputError);
-      });
-    };
-
-    for (let i = 0; i < Math.min(numberInParallel, input.length); i++) {
-      startNext();
-    }
-  });
-}
 
 /*
 Public: The ChangeMailTask is a base class for all tasks that modify sets
@@ -96,7 +50,7 @@ export default class ChangeMailTask extends Task {
   //
   // Returns an object whos key-value pairs represent the desired changed
   // object.
-  changesToModel(model) {
+  changesToModel() {
     throw new Error("You must override this method.");
   }
 
@@ -107,7 +61,7 @@ export default class ChangeMailTask extends Task {
   //
   // Returns an object that will be passed as the `body` to the actual API
   // `request` object
-  requestBodyForModel(model) {
+  requestBodyForModel() {
     throw new Error("You must override this method.");
   }
 
@@ -244,10 +198,10 @@ export default class ChangeMailTask extends Task {
   }
 
   _performRequests(klass, models) {
-    return mapLimit(models, 5, (model) => {
-      // Don't bother making a web request if (performLocal didn't modify this model)
-      if (!this._restoreValues[model.id]) {
-        return Promise.resolve();
+    const alreadyQueued = Object.assign({}, this._syncbackRequestIds || {})
+    return Promise.map(models, (model) => {
+      if (alreadyQueued[model.id]) {
+        return SyncbackTaskAPIRequest.waitForQueuedRequest(alreadyQueued[model.id])
       }
 
       const endpoint = (klass === Thread) ? 'threads' : 'messages';
@@ -260,6 +214,10 @@ export default class ChangeMailTask extends Task {
           method: 'PUT',
           body: this.requestBodyForModel(model),
           returnsModel: true,
+          onSyncbackRequestCreated: (syncbackRequest) => {
+            if (!this._syncbackRequestIds) this._syncbackRequestIds = {}
+            this._syncbackRequestIds[model.id] = syncbackRequest.id
+          },
           beforeProcessing: (body) => {
             this._removeLock(model);
             return body;
@@ -273,7 +231,7 @@ export default class ChangeMailTask extends Task {
         }
         return Promise.reject(err);
       })
-    });
+    })
   }
 
   // Task lifecycle
