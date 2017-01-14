@@ -33,7 +33,7 @@ export async function getNewSyncbackTasks({db, account} = {}) {
   .map((req) => SyncbackTaskFactory.create(account, req))
   const tasks = await SyncbackRequest.findAll({
     limit: 100,
-    where: {type: {$notIn: SendTaskTypes}, status: 'NEW'},
+    where: {type: {$notIn: [...SendTaskTypes, 'EnsureMessageInSentFolder']}, status: 'NEW'},
     order: [['createdAt', 'ASC']],
   })
   .map((req) => SyncbackTaskFactory.create(account, req))
