@@ -12,6 +12,7 @@ const imapSmtpSettings = Joi.object().keys({
   smtp_port: Joi.number().integer().required(),
   smtp_username: Joi.string().required(),
   smtp_password: Joi.string().required(),
+  smtp_custom_config: Joi.object(),
   ssl_required: Joi.boolean().required(),
 }).required();
 
@@ -54,7 +55,7 @@ function credentialsForProvider({provider, settings, email}) {
     const connectionSettings = _.pick(settings, [
       'imap_host', 'imap_port',
       'smtp_host', 'smtp_port',
-      'ssl_required',
+      'ssl_required', 'smtp_custom_config',
     ]);
     const connectionCredentials = _.pick(settings, [
       'imap_username', 'imap_password',
