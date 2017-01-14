@@ -92,7 +92,7 @@ function parseSnippet(body) {
   return trimmed;
 }
 
-// In goes arrays of text, out comes sets of RFC2822 Message-Ids. Luckily,
+// In goes arrays of text, out comes arrays of RFC2822 Message-Ids. Luckily,
 // these days most all text in In-Reply-To, Message-Id, and References headers
 // actually conforms to the spec.
 function parseReferences(input) {
