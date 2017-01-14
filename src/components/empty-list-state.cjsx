@@ -83,15 +83,16 @@ class EmptyListState extends React.Component
 
   constructor: (@props) ->
     @_mounted = false
-    @state =
-      syncing: NylasSyncStatusStore.busy()
+    @state = Object.assign
       active: false
       rect: {}
+      @_getStateFromStores()
 
   componentDidMount: ->
     @_mounted = true
     @_unlisteners = []
-    @_unlisteners.push NylasSyncStatusStore.listen(@_onChange, @)
+    @_unlisteners.push NylasSyncStatusStore.listen((=> @setState @_getStateFromStores()), @)
+    @_unlisteners.push FocusedPerspectiveStore.listen((=> @setState @_getStateFromStores()), @)
     window.addEventListener('resize', @_onResize)
     if @props.visible and not @state.active
       rect = @_getDimensions()
@@ -149,8 +150,18 @@ class EmptyListState extends React.Component
     if rect
       @setState({rect})
 
-  _onChange: ->
-    @setState
-      syncing: NylasSyncStatusStore.busy()
+  _getStateFromStores: ->
+    currentPerspective = FocusedPerspectiveStore.current()
+    accountIds = currentPerspective.accountIds
+    if accountIds.length == 1
+      accountId = accountIds[0]
+      categories = currentPerspective.categories
+      folderName = null
+      if categories.length == 1 and categories[0].object == 'folder'
+        folderName = categories[0].displayName
+      syncing = !NylasSyncStatusStore.isSyncCompleteForAccount(accountId, folderName)
+    else
+      syncing = NylasSyncStatusStore.busy()
+    return syncing: syncing
 
 module.exports = EmptyListState
