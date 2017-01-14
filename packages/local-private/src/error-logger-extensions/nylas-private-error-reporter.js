@@ -28,7 +28,7 @@ module.exports = (function (...args) {
 
   ErrorReporter.prototype._setupSentry = function () {
     // Initialize the Sentry connector
-    this.client = new raven.Client('https://7a32cb0189ff4595a55c98ffb7939c46:f791c3c402b343068bed056b8b504dd5@sentry.nylas.com/4');
+    this.client = new raven.Client('https://d5f04bffac634c89b4d497a37d4e088d:db342c8ca35d49138fe1a539bae876f1@sentry.nylas.com/25');
 
     if (typeof NylasEnv !== 'undefined' && NylasEnv !== null && NylasEnv.config) {
       this.client.setUserContext({id: NylasEnv.config.get('nylas.identity.id')});
