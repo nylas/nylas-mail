@@ -249,6 +249,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
           folderId: this._folder.id,
           accountId: this._db.accountId,
         })
+
         // If execution gets interrupted here, we will have to refetch these
         // messages because the folder.syncState won't get updated, but that's
         // ok.

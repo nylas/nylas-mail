@@ -14,6 +14,7 @@ const SyncMetricsReporter = require('./sync-metrics-reporter');
 const SyncTaskFactory = require('./sync-task-factory');
 const {getNewSyncbackTasks, markInProgressTasksAsFailed, runSyncbackTask} = require('./syncback-task-helpers');
 const LocalSyncDeltaEmitter = require('./local-sync-delta-emitter').default
+const {sleep} = require('./sync-utils')
 
 class SyncWorker {
   constructor(account, db, parentManager) {
@@ -34,6 +35,7 @@ class SyncWorker {
     this._stopped = false
     this._destroyed = false
     this._shouldIgnoreInboxFlagUpdates = false
+    this._numRetries = 0;
 
     this._syncTimer = setTimeout(() => {
       // TODO this is currently a hack to keep N1's account in sync and notify of
@@ -107,20 +109,28 @@ class SyncWorker {
           options: {
             path: `/auth/gmail/refresh`,
             method: 'POST',
-            accountId: this._account.id,
+            accountId: this._account.emailAddress,
           },
         });
 
         const newCredentials = await req.run()
         this._account.setCredentials(newCredentials);
-        await this._account.save()
-        return newCredentials
+        await this._account.save();
+        return newCredentials;
       }
       return null
     } catch (err) {
-      // TODO check for retryable errors here
-      this._logger.error(err, 'Unable to refresh access token')
-      throw new IMAPErrors.IMAPAuthenticationError(`Unable to refresh access token`)
+      this._logger.error(err, `Unable to refresh access token. Got status code #{err.response.statusCode}`);
+
+      if (err.response.statusCode >= 500) {
+        // If we got a 5xx error from the server, that means that something is wrong
+        // on the Nylas API side. It could be a bad deploy, or a bug on Google's side.
+        // In both cases, we've probably been alerted and are working on the issue,
+        // so it makes sense to have the client retry.
+        throw new IMAPErrors.IMAPTransientAuthenticationError(`Server error when trying to refresh token.`);
+      } else {
+        throw new IMAPErrors.IMAPAuthenticationError(`Unable to refresh access token`);
+      }
     }
   }
 
@@ -236,14 +246,23 @@ class SyncWorker {
     )
   }
 
-  _onSyncError(error) {
+  async _onSyncError(error) {
     this._closeConnections()
 
     this._logger.error(error, `SyncWorker: Error while syncing account`)
 
     // Continue to retry if it was a network error
     if (error instanceof IMAPErrors.RetryableError) {
-      // TODO check number of network error retries and backoff if offline
+      this._numRetries += 1;
+
+      // We do not want to retry over and over again, for two reasons:
+      // 1. most errors don't resolve immediately
+      // 2. we don't want to be hammering the server in a synchronized way.
+      const randomElement = (Math.floor(Math.random() * 20) + 1) * 1000;
+      const exponentialDuration = 15000 * this._numRetries + randomElement;
+      const duration = Math.min(exponentialDuration, 120000 + randomElement);
+      this._logger.error(`Error when running sync loop. Retrying in ${duration / 1000} seconds`);
+      await sleep(duration);
       return Promise.resolve()
     }
 
@@ -401,6 +420,7 @@ class SyncWorker {
       await this._interruptible.run(this._performSync, this)
       await this._cleanupOrphanMessages();
       await this._onSyncDidComplete();
+      this._numRetries = 0;
     } catch (error) {
       await this._onSyncError(error);
     } finally {

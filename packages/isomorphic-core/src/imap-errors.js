@@ -14,6 +14,7 @@ class IMAPConnectionTimeoutError extends RetryableError { }
 class IMAPAuthenticationTimeoutError extends RetryableError { }
 class IMAPProtocolError extends NylasError { }
 class IMAPAuthenticationError extends NylasError { }
+class IMAPTransientAuthenticationError extends RetryableError { }
 
 class IMAPConnectionNotReadyError extends RetryableError {
   constructor(funcName) {
@@ -96,6 +97,7 @@ module.exports = {
   IMAPAuthenticationTimeoutError,
   IMAPProtocolError,
   IMAPAuthenticationError,
+  IMAPTransientAuthenticationError,
   IMAPConnectionNotReadyError,
   IMAPConnectionEndedError,
 };
