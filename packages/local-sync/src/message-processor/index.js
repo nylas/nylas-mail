@@ -224,6 +224,7 @@ class MessageProcessor {
         thread = await detectThread({db, messageValues: parsedMessage});
         existingMessage.threadId = thread.id;
       }
+      await this._addReferences(db, existingMessage, thread, parsedMessage.references);
       const files = await extractFiles({db, messageValues: existingMessage, struct});
       if (files.length > 0 && !thread.hasAttachments) {
         thread.hasAttachments = true;
