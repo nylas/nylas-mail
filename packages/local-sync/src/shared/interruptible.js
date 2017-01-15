@@ -1,3 +1,4 @@
+const {EventEmitter} = require('events')
 
 /**
  * Interruptible objects allow you to run and interrupt functions by using
@@ -31,13 +32,20 @@
  * interruptible.interrupt()
  * ```
  */
-class Interruptible {
+class Interruptible extends EventEmitter {
   constructor() {
-    this._interrupted = false
+    super()
+    this._interrupt = false
+    this._running = false
   }
 
   interrupt() {
-    this._interrupted = true
+    if (!this._running) { return Promise.resolve() }
+
+    // Start listening before the interrupt, so we don't miss the 'interrupted' event
+    const promise = new Promise((resolve) => this.once('interrupted', resolve))
+    this._interrupt = true
+    return promise
   }
 
   // This function executes the generator object through completion or until we
@@ -85,7 +93,8 @@ class Interruptible {
 
         // Advance until done
         while (!step.done) {
-          if (this._interrupted) {
+          if (this._interrupt) {
+            this.emit('interrupted')
             console.log('Operation Interrupted')
             return resolve()
           }
@@ -104,9 +113,11 @@ class Interruptible {
    * the generator function throws an error at any point.
    */
   async run(generatorFunc, ctx, ...fnArgs) {
+    this._running = true
     const generatorObj = generatorFunc.call(ctx, ...fnArgs)
     await this._runGenerator(generatorObj)
-    this._interrupted = false
+    this._interrupt = false
+    this._running = false
   }
 }
 

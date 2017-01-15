@@ -31,6 +31,7 @@ class SyncWorker {
     this._logger = global.Logger.forAccount(account)
     this._interrupted = false
     this._syncInProgress = false
+    this._stopped = false
     this._destroyed = false
     this._shouldIgnoreInboxFlagUpdates = false
 
@@ -283,6 +284,7 @@ class SyncWorker {
   }
 
   async _scheduleNextSync() {
+    if (this._stopped) { return; }
     const {intervals} = this._account.syncPolicy;
     const {Folder} = this._db;
 
@@ -372,6 +374,7 @@ class SyncWorker {
   // Public API:
 
   async syncNow({reason, interrupt = false} = {}) {
+    if (this._stopped) { return }
     if (this._syncInProgress) {
       if (interrupt) {
         this.interrupt({reason})
@@ -407,25 +410,27 @@ class SyncWorker {
     }
   }
 
-  interrupt({reason = 'No reason'} = {}) {
+  async interrupt({reason = 'No reason'} = {}) {
     console.log(`🔃  Interrupting sync! Reason: ${reason}`)
-    this._interruptible.interrupt()
+    await this._interruptible.interrupt()
     if (this._currentTask) {
-      this._currentTask.interrupt()
+      await this._currentTask.interrupt()
     }
     this._interrupted = true
   }
 
   async stopSync() {
+    this._stopped = true
+    clearTimeout(this._syncTimer);
+    this._syncTimer = null;
     if (this._syncInProgress) {
       return this.interrupt({reason: "Sync stopped"})
     }
     return Promise.resolve()
   }
 
-  cleanup() {
-    clearTimeout(this._syncTimer);
-    this._syncTimer = null;
+  async cleanup() {
+    await this.stopSync()
     this._destroyed = true;
     this._closeConnections()
   }
