@@ -772,13 +772,7 @@ class DatabaseStore extends NylasStore {
     if (isIndexed === true) {
       return Promise.resolve(true);
     }
-    const searchTableName = `${model.constructor.name}Search`
-    const exists = (
-      `SELECT rowid FROM \`${searchTableName}\` WHERE \`${searchTableName}\`.\`content_id\` = ?`
-    )
-    return this._query(exists, [model.id]).then((results) =>
-      Promise.resolve(results.length > 0)
-    )
+    return Promise.resolve(!!model.isSearchIndexed);
   }
 
   indexModel(model, indexData, isModelIndexed) {
@@ -795,7 +789,10 @@ class DatabaseStore extends NylasStore {
       const sql = (
         `INSERT INTO \`${searchTableName}\`(${keysSql}) VALUES (${valsSql})`
       )
-      return this._query(sql, values);
+      return this._query(sql, values).then(() => {
+        model.isSearchIndexed = true;
+        return this.inTransaction((t) => t.persistModel(model))
+      });
     });
   }
 
@@ -825,17 +822,24 @@ class DatabaseStore extends NylasStore {
     const sql = (
       `DELETE FROM \`${searchTableName}\` WHERE \`${searchTableName}\`.\`content_id\` = ?`
     );
-    return this._query(sql, [model.id]);
+    return this._query(sql, [model.id]).then(() => {
+      model.isSearchIndexed = false;
+      return this.inTransaction((t) => t.persistModel(model))
+    });
   }
 
   unindexModelsForAccount(accountId, modelKlass) {
     const modelTable = modelKlass.name;
     const searchTableName = `${modelTable}Search`;
+    /* TODO: We don't correctly clean up the model tables right now, so we don't
+     * want to destroy the index until we do so.
     const sql = (
       `DELETE FROM \`${searchTableName}\` WHERE \`${searchTableName}\`.\`content_id\` IN
       (SELECT \`id\` FROM \`${modelTable}\` WHERE \`${modelTable}\`.\`account_id\` = ?)`
     );
-    return this._query(sql, [accountId]);
+    return this._query(sql, [accountId])
+   */
+    return Promise.resolve()
   }
 }
 
