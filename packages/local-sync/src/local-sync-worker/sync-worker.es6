@@ -369,13 +369,6 @@ class SyncWorker {
     }
   }
 
-  async stopSync() {
-    if (this._syncInProgress) {
-      return this.interrupt({reason: "Sync stopped"})
-    }
-    return Promise.resolve()
-  }
-
   // Public API:
 
   async syncNow({reason, interrupt = false} = {}) {
@@ -421,6 +414,13 @@ class SyncWorker {
       this._currentTask.interrupt()
     }
     this._interrupted = true
+  }
+
+  async stopSync() {
+    if (this._syncInProgress) {
+      return this.interrupt({reason: "Sync stopped"})
+    }
+    return Promise.resolve()
   }
 
   cleanup() {
