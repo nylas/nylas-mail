@@ -248,9 +248,6 @@ module.exports = (grunt) => {
       // left in the Electron Info.plist file
       'extend-info': path.resolve(grunt.config('appDir'), 'build', 'resources', 'mac', 'nylas-Info.plist'),
       'app-bundle-id': "com.nylas.nylas-mail",
-      'extra-resource': [
-        path.resolve(grunt.config('appDir'), 'build', 'resources', 'mac', 'Nylas Calendar.app'),
-      ],
       'afterCopy': [
         runCopyPlatformSpecificResources,
         runCopyAPM,
