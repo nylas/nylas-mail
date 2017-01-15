@@ -300,7 +300,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
 
     if (isFirstSync) {
       const lowerbound = Math.max(1, boxUidnext - FETCH_MESSAGES_FIRST_COUNT);
-      yield this._fetchAndProcessMessages({min: lowerbound, max: boxUidnext});
+      await this._fetchAndProcessMessages({min: lowerbound, max: boxUidnext});
       // We issue a UID FETCH ALL and record the correct minimum UID for the
       // mailbox, which could be something much larger than 1 (especially for
       // inbox because of archiving, which "loses" smaller UIDs over time). If
