@@ -49,6 +49,15 @@ const AccountTypes = [
     hidden: false,
   },
   {
+    type: 'fastmail',
+    displayName: 'FastMail',
+    title: 'Setup your account',
+    icon: 'ic-settings-account-fastmail.png',
+    headerIcon: 'setup-icon-provider-fastmail.png',
+    color: '#24345a',
+    hidden: false,
+  },
+  {
     type: 'imap',
     displayName: 'IMAP / SMTP Setup',
     title: 'Setup your IMAP account',

@@ -86,10 +86,8 @@ export function buildGmailAuthURL(sessionKey) {
 export function runAuthRequest(accountInfo) {
   const {username, type, email, name} = accountInfo;
 
-  const provider = ['gmail', 'office365'].includes(type) ? type : 'imap';
-
   const data = {
-    provider: provider,
+    provider: type,
     email: email,
     name: name,
     settings: Object.assign({}, accountInfo),
@@ -112,7 +110,7 @@ export function runAuthRequest(accountInfo) {
    * Only include the required IMAP fields. Auth validation does not allow
    * extra fields
    */
-  if (provider === "imap") {
+  if (type !== "gmail" && type !== "office365") {
     for (const key of Object.keys(data.settings)) {
       if (!IMAP_FIELDS.has(key)) {
         delete data.settings[key]
