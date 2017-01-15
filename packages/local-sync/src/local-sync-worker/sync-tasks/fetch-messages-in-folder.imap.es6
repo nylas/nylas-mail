@@ -506,6 +506,13 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     this._db = db;
     this._imap = imap;
 
+    const shouldSyncFolder = yield this._shouldSyncFolder()
+    if (!shouldSyncFolder) {
+      console.log(`🔚 📂 ${this._folder.name} has no updates - skipping sync`)
+      return;
+    }
+
+    this._box = yield this._openMailboxAndEnsureValidity();
     // If we haven't set any syncState at all, let's set it for the first time
     // to generate a delta for N1
     if (_.isEmpty(this._folder.syncState)) {
@@ -517,14 +524,6 @@ class FetchMessagesInFolderIMAP extends SyncTask {
         failedUIDs: [],
       })
     }
-
-    const shouldSyncFolder = yield this._shouldSyncFolder()
-    if (!shouldSyncFolder) {
-      console.log(`🔚 📂 ${this._folder.name} has no updates - skipping sync`)
-      return;
-    }
-
-    this._box = yield this._openMailboxAndEnsureValidity();
     yield this._fetchUnsyncedMessages();
     yield this._fetchMessageAttributeChanges();
     console.log(`🔚 📂 ${this._folder.name} done`)
