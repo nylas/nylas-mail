@@ -315,7 +315,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       // TODO: add support for Mail2World bug which we support in Python SE
       // https://www.limilabs.com/blog/mail2world-imap-search-all-bug
       const boxMinUid = Math.min(...(await this._box.search(['ALL'])));
-      yield await this._folder.updateSyncState({ minUID: boxMinUid });
+      await this._folder.updateSyncState({ minUID: boxMinUid });
     } else {
       if (savedSyncState.fetchedmax < boxUidnext) {
         // console.log(`FetchMessagesInFolderIMAP: fetching ${savedSyncState.fetchedmax}:${boxUidnext}`);
