@@ -29,6 +29,7 @@ function collectFilesFromStruct({db, messageValues, struct, fileIds = new Set()}
           id: fileId,
           size: part.size,
           partId: partId,
+          charset: part.params ? part.params.charset : null,
           encoding: part.encoding,
           filename: filename,
           messageId: messageValues.id,
