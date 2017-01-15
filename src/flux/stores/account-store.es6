@@ -236,6 +236,12 @@ class AccountStore extends NylasStore {
         const existing = this.accountForId(accountId)
         if (!existing) return // user may have deleted
         existing.fromJSON(json)
+      }).catch((err) => {
+        console.error(err);
+        // Dont't throw here. If this function gets run immediately at
+        // boot it may try before local-sync is ready. This is okay as
+        // we'll refresh the accounts later anyway. We'll also be
+        // eventually deprecating this API to merge it with K2
       })
     })).finally(() => {
       this._caches = {}
