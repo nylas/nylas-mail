@@ -298,7 +298,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
    */
   async * _fetchUnsyncedMessages() {
     const savedSyncState = this._folder.syncState;
-    const isFirstSync = savedSyncState.fetchedmax == null;
+    const isFirstSync = savedSyncState.minUID == null || savedSyncState.fetchedmax == null;
     const boxUidnext = this._box.uidnext;
 
     // TODO: In the future, this is where logic should go that limits
@@ -306,7 +306,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
 
     if (isFirstSync) {
       const lowerbound = Math.max(1, boxUidnext - FETCH_MESSAGES_FIRST_COUNT);
-      await this._fetchAndProcessMessages({min: lowerbound, max: boxUidnext});
+      yield this._fetchAndProcessMessages({min: lowerbound, max: boxUidnext});
       // We issue a UID FETCH ALL and record the correct minimum UID for the
       // mailbox, which could be something much larger than 1 (especially for
       // inbox because of archiving, which "loses" smaller UIDs over time). If
@@ -320,9 +320,21 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       // account connection.
       // TODO: add support for Mail2World bug which we support in Python SE
       // https://www.limilabs.com/blog/mail2world-imap-search-all-bug
-      const boxMinUid = Math.min(...(await this._box.search(['ALL'])));
+      const uids = await this._box.search(['ALL']);
+      let boxMinUid = uids[0] || 1;
+      // Using old-school min because uids may be an array of a million
+      // items. Math.min can't take that many arguments
+      for (const uid of uids) {
+        if (uid < boxMinUid) {
+          boxMinUid = uid;
+        }
+      }
       await this._folder.updateSyncState({ minUID: boxMinUid });
     } else {
+      if (!savedSyncState.minUID) {
+        throw new Error("minUID is not set. You must restart the sync loop or check boxMinUid")
+      }
+
       if (savedSyncState.fetchedmax < boxUidnext) {
         // console.log(`FetchMessagesInFolderIMAP: fetching ${savedSyncState.fetchedmax}:${boxUidnext}`);
         yield this._fetchAndProcessMessages({min: savedSyncState.fetchedmax, max: boxUidnext});
