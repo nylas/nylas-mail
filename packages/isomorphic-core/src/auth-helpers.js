@@ -91,6 +91,7 @@ function credentialsForProvider({provider, settings, email}) {
 }
 
 module.exports = {
+  SUPPORTED_PROVIDERS,
   imapAuthRouteConfig() {
     return {
       description: 'Authenticates a new account.',

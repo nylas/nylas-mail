@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const {JSONColumn, JSONArrayColumn} = require('../database-types');
+const {SUPPORTED_PROVIDERS} = require('../auth-helpers');
 
 const {DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD} = process.env;
 
@@ -126,14 +127,14 @@ module.exports = (sequelize, Sequelize) => {
             secure: ssl_required,
           }
         }
-        if (this.provider === "imap" || this.provider === "office365") {
-          const {smtp_username, smtp_password} = this.decryptedCredentials();
-          config.auth = { user: smtp_username, pass: smtp_password}
-        } else if (this.provider === 'gmail') {
+        if (this.provider === 'gmail') {
           const {xoauth2} = this.decryptedCredentials();
           const {imap_username} = this.connectionSettings;
           const token = this.bearerToken(xoauth2);
           config.auth = { user: imap_username, xoauth2: token }
+        } else if (SUPPORTED_PROVIDERS.has(this.provider)) {
+          const {smtp_username, smtp_password} = this.decryptedCredentials();
+          config.auth = { user: smtp_username, pass: smtp_password}
         } else {
           throw new Error(`${this.provider} not yet supported`)
         }
