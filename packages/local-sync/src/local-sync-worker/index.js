@@ -7,6 +7,8 @@ const manager = require('./sync-process-manager')
 // Account objects. We want to sync all K2 Accounts, but when an N1 Account is
 // deleted, we want to delete the K2 account too.
 
+const deletionsInProgress = new Set();
+
 async function ensureK2Consistency() {
   const {Account} = await LocalDatabaseConnector.forShared();
   const k2Accounts = await Account.findAll();
@@ -16,11 +18,13 @@ async function ensureK2Consistency() {
   const deletions = [];
   for (const k2Account of k2Accounts) {
     const deleted = !n1Emails.includes(k2Account.emailAddress);
-    if (deleted) {
+    if (deleted && !deletionsInProgress.has(k2Account.id)) {
       console.warn(`Deleting K2 account ID ${k2Account.id} which could not be matched to an N1 account.`)
-      manager.removeWorkerForAccountId(k2Account.id);
+      deletionsInProgress.add(k2Account.id)
+      await manager.removeWorkerForAccountId(k2Account.id);
       LocalDatabaseConnector.destroyAccountDatabase(k2Account.id);
-      deletions.push(k2Account.destroy());
+      const deletion = k2Account.destroy().then(() => deletionsInProgress.delete(k2Account.id))
+      deletions.push(deletion)
     }
   }
   return await Promise.all(deletions)

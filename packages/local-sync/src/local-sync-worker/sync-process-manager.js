@@ -100,9 +100,9 @@ class SyncProcessManager {
     }
   }
 
-  removeWorkerForAccountId(accountId) {
+  async removeWorkerForAccountId(accountId) {
     if (this._workers[accountId]) {
-      this._workers[accountId].cleanup();
+      await this._workers[accountId].cleanup();
       this._workers[accountId] = null;
     }
   }
