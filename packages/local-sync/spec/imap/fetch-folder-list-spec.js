@@ -1,5 +1,5 @@
 
-const FetchFolderList = require('../../src/local-sync-worker/imap/fetch-folder-list');
+const FetchFolderList = require('../../src/local-sync-worker/sync-tasks/fetch-folder-list.imap.es6');
 const LocalDatabaseConnector = require('../../src/shared/local-database-connector');
 const {forEachJSONFixture, ACCOUNT_ID, silentLogger} = require('../helpers');
 
