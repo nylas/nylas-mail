@@ -75,6 +75,11 @@ export default class Contact extends Model {
     company: Attributes.String({
       modelKey: 'company',
     }),
+
+    isSearchIndexed: Attributes.Boolean({
+      modelKey: 'isSearchIndexed',
+      jsonKey: 'is_search_indexed',
+    }),
   });
 
   static additionalSQLiteConfig = {

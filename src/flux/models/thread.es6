@@ -105,6 +105,11 @@ class Thread extends ModelWithMetadata {
       modelKey: 'inAllMail',
       jsonKey: 'in_all_mail',
     }),
+
+    isSearchIndexed: Attributes.Boolean({
+      modelKey: 'isSearchIndexed',
+      jsonKey: 'is_search_indexed',
+    }),
   })
 
   static naturalSortOrder = () => {

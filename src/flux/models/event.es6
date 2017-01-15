@@ -110,6 +110,11 @@ export default class Event extends Model {
       modelKey: 'end',
       jsonKey: '_end',
     }),
+
+    isSearchIndexed: Attributes.Boolean({
+      modelKey: 'isSearchIndexed',
+      jsonKey: 'is_search_indexed',
+    }),
   });
 
   static additionalSQLiteConfig = {
