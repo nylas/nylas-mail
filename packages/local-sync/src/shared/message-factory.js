@@ -189,13 +189,21 @@ function bodyFromParts(imapMessage, desiredParts) {
     // see https://www.w3.org/Protocols/rfc1341/5_Content-Transfer-Encoding.html
     if (!transferEncoding || new Set(['7bit', '8bit', 'binary']).has(transferEncoding.toLowerCase())) {
       // NO transfer encoding has been performed --- how to decode to a string
-      // depends ONLY on the charset, which defaults to 'ascii' according to
-      // https://tools.ietf.org/html/rfc2045#section-5.2
-      decoded = encoding.convert(imapMessage.parts[id], 'utf-8', charset || 'ascii').toString('utf-8');
+      // depends ONLY on the charset,
+      //
+      // According to https://tools.ietf.org/html/rfc2045#section-5.2,
+      // this should default to ascii; however, if we don't get a charset,
+      // it's possible clients (like nodemailer) encoded the data as utf-8
+      // anyway. Since ascii is a strict subset of utf-8, it's safer to
+      // try and decode as utf-8 if we don't have the charset.
+      //
+      // This applies to decoding quoted-printable and base64 as well. The
+      // mimelib library, if charset is null, will default to utf-8
+      decoded = encoding.convert(imapMessage.parts[id], 'utf-8', charset).toString('utf-8');
     } else if (transferEncoding.toLowerCase() === 'quoted-printable') {
-      decoded = mimelib.decodeQuotedPrintable(imapMessage.parts[id], charset || 'ascii');
+      decoded = mimelib.decodeQuotedPrintable(imapMessage.parts[id], charset);
     } else if (transferEncoding.toLowerCase() === 'base64') {
-      decoded = mimelib.decodeBase64(imapMessage.parts[id], charset || 'ascii');
+      decoded = mimelib.decodeBase64(imapMessage.parts[id], charset);
     } else {
       // custom x-token content-transfer-encodings
       return Promise.reject(new Error(`Unsupported Content-Transfer-Encoding ${transferEncoding}, mimetype ${mimeType}`))

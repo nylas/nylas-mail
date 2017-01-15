@@ -1,5 +1,6 @@
 const base64 = require('base64-stream');
 const {IMAPConnection} = require('isomorphic-core')
+const {QuotedPrintableStreamDecoder} = require('../shared/stream-decoders')
 
 module.exports = (sequelize, Sequelize) => {
   return sequelize.define('file', {
@@ -7,7 +8,8 @@ module.exports = (sequelize, Sequelize) => {
     size: Sequelize.INTEGER,
     partId: Sequelize.STRING,
     version: Sequelize.INTEGER,
-    encoding: Sequelize.INTEGER,
+    charset: Sequelize.STRING,
+    encoding: Sequelize.STRING,
     filename: Sequelize.STRING(500),
     messageId: { type: Sequelize.STRING, allowNull: false },
     accountId: { type: Sequelize.STRING, allowNull: false },
@@ -37,7 +39,18 @@ module.exports = (sequelize, Sequelize) => {
           if (!stream) {
             throw new Error(`Unable to fetch binary data for File ${this.id}`)
           }
-          return stream.pipe(base64.decode());
+          if (/quoted-printable/i.test(this.encoding)) {
+            return stream.pipe(new QuotedPrintableStreamDecoder({charset: this.charset}))
+          } else if (/base64/i.test(this.encoding)) {
+            return stream.pipe(base64.decode());
+          }
+
+          // If there is no encoding, or the encoding is something like
+          // '7bit', '8bit', or 'binary', just return the raw stream. This
+          // stream will be written directly to disk. It's then up to the
+          // user's computer to decide how to interpret the bytes we've
+          // dumped to disk.
+          return stream
         } catch (err) {
           connection.end();
           throw err
