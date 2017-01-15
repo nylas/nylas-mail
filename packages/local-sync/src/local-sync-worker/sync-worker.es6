@@ -432,10 +432,11 @@ class SyncWorker {
 
   async interrupt({reason = 'No reason'} = {}) {
     console.log(`🔃  Interrupting sync! Reason: ${reason}`)
-    await this._interruptible.interrupt()
+    const interruptPromises = [await this._interruptible.interrupt()]
     if (this._currentTask) {
-      await this._currentTask.interrupt()
+      interruptPromises.push(this._currentTask.interrupt())
     }
+    await Promise.all(interruptPromises)
     this._interrupted = true
   }
 
