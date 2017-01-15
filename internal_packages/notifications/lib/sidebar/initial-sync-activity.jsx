@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import _str from 'underscore.string';
 import classNames from 'classnames';
-import {Actions, AccountStore, NylasSyncStatusStore, React} from 'nylas-exports';
+import {Utils, Actions, AccountStore, NylasSyncStatusStore, React} from 'nylas-exports';
 
 const MONTH_SHORT_FORMATS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
   'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -25,6 +25,11 @@ export default class InitialSyncActivity extends React.Component {
       NylasSyncStatusStore.listen(this.onDataChanged),
       Actions.expandInitialSyncState.listen(this.showExpandedState),
     ]
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return !Utils.isEqualReact(nextProps, this.props) ||
+      !Utils.isEqualReact(nextState, this.state);
   }
 
   componentWillUnmount() {

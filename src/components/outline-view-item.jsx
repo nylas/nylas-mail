@@ -2,6 +2,7 @@
 /* eslint jsx-a11y/tabindex-no-positive:0 */
 
 import _ from 'underscore';
+import {Utils} from 'nylas-exports'
 import classnames from 'classnames';
 import React, {Component, PropTypes} from 'react';
 import ReactDOM from 'react-dom';
@@ -159,9 +160,9 @@ class OutlineViewItem extends Component {
     }
   }
 
-  shouldComponentUpdate() {
-    // TODO
-    return true;
+  shouldComponentUpdate(nextProps, nextState) {
+    return !Utils.isEqualReact(nextProps, this.props) ||
+      !Utils.isEqualReact(nextState, this.state);
   }
 
   componentWillUnmount() {

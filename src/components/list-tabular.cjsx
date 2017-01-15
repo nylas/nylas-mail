@@ -38,6 +38,10 @@ class ListTabular extends React.Component
     @setupDataSource(@props.dataSource)
     @updateRangeState()
 
+  shouldComponentUpdate: (nextProps, nextState) =>
+    not Utils.isEqualReact(nextProps, @props) or
+    not Utils.isEqualReact(nextState, @state)
+
   componentWillUnmount: =>
     window.removeEventListener('resize', @onWindowResize, true)
     window.clearTimeout(@_cleanupAnimationTimeout) if @_cleanupAnimationTimeout

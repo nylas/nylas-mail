@@ -1,6 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
-{AccountStore} = require 'nylas-exports'
+{Utils, AccountStore} = require 'nylas-exports'
 {OutlineView, ScrollRegion, Flexbox} = require 'nylas-component-kit'
 AccountSwitcher = require './account-switcher'
 SidebarStore = require '../sidebar-store'
@@ -21,6 +21,10 @@ class AccountSidebar extends React.Component
     @unsubscribers = []
     @unsubscribers.push SidebarStore.listen @_onStoreChange
     @unsubscribers.push AccountStore.listen @_onStoreChange
+
+  shouldComponentUpdate: (nextProps, nextState) =>
+    not Utils.isEqualReact(nextProps, @props) or
+    not Utils.isEqualReact(nextState, @state)
 
   componentWillUnmount: =>
     unsubscribe() for unsubscribe in @unsubscribers
