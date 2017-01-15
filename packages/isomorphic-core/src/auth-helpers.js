@@ -35,6 +35,10 @@ const USER_ERRORS = {
   IMAP_RETRY: "We were unable to reach your mail provider. Please try again.",
 }
 
+const SUPPORTED_PROVIDERS = new Set(
+  ['gmail', 'office365', 'imap', 'icloud', 'yahoo', 'fastmail']
+);
+
 function credentialsForProvider({provider, settings, email}) {
   if (provider === "gmail") {
     const connectionSettings = {
@@ -51,17 +55,6 @@ function credentialsForProvider({provider, settings, email}) {
       expiry_date: settings.expiry_date,
     }
     return {connectionSettings, connectionCredentials}
-  } else if (provider === "imap") {
-    const connectionSettings = _.pick(settings, [
-      'imap_host', 'imap_port',
-      'smtp_host', 'smtp_port',
-      'ssl_required', 'smtp_custom_config',
-    ]);
-    const connectionCredentials = _.pick(settings, [
-      'imap_username', 'imap_password',
-      'smtp_username', 'smtp_password',
-    ]);
-    return {connectionSettings, connectionCredentials}
   } else if (provider === "office365") {
     const connectionSettings = {
       imap_host: 'outlook.office365.com',
@@ -74,12 +67,24 @@ function credentialsForProvider({provider, settings, email}) {
         tls: {ciphers: 'SSLv3'},
       },
     }
+
     const connectionCredentials = {
       imap_username: email,
       imap_password: settings.password,
       smtp_username: email,
       smtp_password: settings.password,
     }
+    return {connectionSettings, connectionCredentials}
+  } else if (SUPPORTED_PROVIDERS.has(provider)) {
+    const connectionSettings = _.pick(settings, [
+      'imap_host', 'imap_port',
+      'smtp_host', 'smtp_port',
+      'ssl_required', 'smtp_custom_config',
+    ]);
+    const connectionCredentials = _.pick(settings, [
+      'imap_username', 'imap_password',
+      'smtp_username', 'smtp_password',
+    ]);
     return {connectionSettings, connectionCredentials}
   }
   throw new Error(`Invalid provider: ${provider}`)
@@ -95,7 +100,7 @@ module.exports = {
         payload: {
           email: Joi.string().email().required(),
           name: Joi.string().required(),
-          provider: Joi.string().valid('imap', 'gmail', 'office365').required(),
+          provider: Joi.string().valid(...SUPPORTED_PROVIDERS).required(),
           settings: Joi.alternatives().try(imapSmtpSettings, office365Settings, resolvedGmailSettings),
         },
       },
