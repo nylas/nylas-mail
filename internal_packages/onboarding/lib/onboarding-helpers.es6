@@ -50,7 +50,15 @@ export async function makeGmailOAuthRequest(sessionKey, callback) {
       auth: noauth,
     },
   });
-  const remoteJSON = await remoteRequest.run()
+  let remoteJSON = {}
+  try {
+    remoteJSON = await remoteRequest.run()
+  } catch (err) {
+    if (err.statusCode === 404) {
+      return
+    }
+    throw err
+  }
   const localRequest = new NylasAPIRequest({
     api: NylasAPI,
     options: {
