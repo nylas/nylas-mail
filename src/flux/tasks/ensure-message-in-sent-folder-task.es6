@@ -13,6 +13,10 @@ export default class EnsureMessageInSentFolderTask extends Task {
     this.sentPerRecipient = opts.sentPerRecipient;
   }
 
+  label() {
+    return "Saving to sent folder";
+  }
+
   isDependentOnTask(other) {
     return (other instanceof SendDraftTask) && (other.message) && (other.message.clientId === this.message.clientId);
   }

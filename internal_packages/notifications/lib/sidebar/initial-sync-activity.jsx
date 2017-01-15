@@ -1,7 +1,6 @@
 import _ from 'underscore';
 import _str from 'underscore.string';
-import classNames from 'classnames';
-import {Utils, Actions, AccountStore, NylasSyncStatusStore, React} from 'nylas-exports';
+import {Utils, AccountStore, NylasSyncStatusStore, React} from 'nylas-exports';
 
 const MONTH_SHORT_FORMATS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
   'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -12,7 +11,6 @@ export default class InitialSyncActivity extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isExpanded: false,
       syncState: NylasSyncStatusStore.getSyncState(),
       syncProgress: NylasSyncStatusStore.getSyncProgress(),
     }
@@ -21,10 +19,7 @@ export default class InitialSyncActivity extends React.Component {
 
   componentDidMount() {
     this.mounted = true;
-    this.unsubs = [
-      NylasSyncStatusStore.listen(this.onDataChanged),
-      Actions.expandInitialSyncState.listen(this.showExpandedState),
-    ]
+    this.unsub = NylasSyncStatusStore.listen(this.onDataChanged)
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -33,9 +28,7 @@ export default class InitialSyncActivity extends React.Component {
   }
 
   componentWillUnmount() {
-    if (this.unsubs) {
-      this.unsubs.forEach((unsub) => unsub())
-    }
+    this.unsub();
     this.mounted = false;
   }
 
@@ -45,24 +38,42 @@ export default class InitialSyncActivity extends React.Component {
     this.setState({syncState, syncProgress});
   }
 
-  hideExpandedState = () => {
-    this.setState({isExpanded: false});
-  }
-
-  showExpandedState = () => {
-    if (!this.state.isExpanded) {
-      this.setState({isExpanded: true});
+  renderFolderProgress(name, progress, oldestProcessedDate) {
+    let status = 'busy';
+    let progressLabel = 'In Progress'
+    let syncedThrough = 'Syncing this past month';
+    if (progress === 1) {
+      status = 'complete';
+      progressLabel = '';
+      syncedThrough = 'Up to date'
     } else {
-      this.setState({blink: true});
-      setTimeout(() => {
-        if (this.mounted) {
-          this.setState({blink: false});
+      let month = oldestProcessedDate.getMonth();
+      let year = oldestProcessedDate.getFullYear();
+      const currentDate = new Date();
+      if (month !== currentDate.getMonth() || year !== currentDate.getFullYear()) {
+        // We're currently syncing in `month`, which mean's we've synced through all
+        // of the month *after* it.
+        month++;
+        if (month === 12) {
+          month = 0;
+          year++;
         }
-      }, 1000)
+        syncedThrough = `Synced through ${MONTH_SHORT_FORMATS[month]} ${year}`;
+      }
     }
+
+    return (
+      <div className={`model-progress ${status}`} key={name} title={syncedThrough}>
+        {_str.titleize(name)} <span className="progress-label">{progressLabel}</span>
+      </div>
+    )
   }
 
-  renderExpandedSyncState() {
+  render() {
+    if (!AccountStore.accountsAreSyncing() || this.state.syncProgress.progress === 1) {
+      return false;
+    }
+
     let maxHeight = 0;
     let accounts = _.map(this.state.syncState, (accountSyncState, accountId) => {
       const account = _.findWhere(AccountStore.accounts(), {id: accountId});
@@ -101,70 +112,9 @@ export default class InitialSyncActivity extends React.Component {
         key="expanded-sync-state"
         style={{maxHeight: `${maxHeight + 500}px`}}
       >
-        <a className="close-expanded" onClick={this.hideExpandedState}>
-          <span style={{cursor: "pointer"}}>Hide</span>
-        </a>
         {accounts}
       </div>
     )
   }
 
-  renderFolderProgress(name, progress, oldestProcessedDate) {
-    let status = 'busy';
-    let progressLabel = 'In Progress'
-    let syncedThrough = 'Syncing this past month';
-    if (progress === 1) {
-      status = 'complete';
-      progressLabel = '';
-      syncedThrough = 'Up to date'
-    } else {
-      let month = oldestProcessedDate.getMonth();
-      let year = oldestProcessedDate.getFullYear();
-      const currentDate = new Date();
-      if (month !== currentDate.getMonth() || year !== currentDate.getFullYear()) {
-        // We're currently syncing in `month`, which mean's we've synced through all
-        // of the month *after* it.
-        month++;
-        if (month === 12) {
-          month = 0;
-          year++;
-        }
-        syncedThrough = `Synced through ${MONTH_SHORT_FORMATS[month]} ${year}`;
-      }
-    }
-
-    return (
-      <div className={`model-progress ${status}`} key={name} title={syncedThrough}>
-        {_str.titleize(name)} <span className="progress-label">{progressLabel}</span>
-      </div>
-    )
-  }
-
-  render() {
-    if (!AccountStore.accountsAreSyncing()) {
-      return false;
-    }
-
-    const {syncProgress: {progress}} = this.state
-    if (progress === 1) {
-      return false;
-    }
-
-    const classSet = classNames({
-      'item': true,
-      'expanded-sync': this.state.isExpanded,
-      'blink': this.state.blink,
-    });
-
-    return (
-      <div
-        className={classSet}
-        key="initial-sync"
-        onClick={() => (this.setState({isExpanded: !this.state.isExpanded}))}
-      >
-        <div className="inner">Syncing your mailbox</div>
-        {this.state.isExpanded ? this.renderExpandedSyncState() : false}
-      </div>
-    )
-  }
 }

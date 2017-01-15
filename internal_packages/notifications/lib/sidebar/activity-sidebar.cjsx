@@ -4,15 +4,19 @@ ReactCSSTransitionGroup = require 'react-addons-css-transition-group'
 _ = require 'underscore'
 classNames = require 'classnames'
 
-StreamingSyncActivity = require './streaming-sync-activity'
-InitialSyncActivity = require('./initial-sync-activity').default
+SyncActivity = require("./sync-activity").default
+SyncbackActivity = require("./syncback-activity").default
 
 {Utils,
  Actions,
  TaskQueue,
  AccountStore,
  NylasSyncStatusStore,
- TaskQueueStatusStore} = require 'nylas-exports'
+ TaskQueueStatusStore
+ PerformSendActionTask,
+ SendDraftTask} = require 'nylas-exports'
+
+SEND_TASK_CLASSES = [PerformSendActionTask, SendDraftTask]
 
 class ActivitySidebar extends React.Component
   @displayName: 'ActivitySidebar'
@@ -38,12 +42,14 @@ class ActivitySidebar extends React.Component
     unlisten() for unlisten in @_unlisteners
 
   render: =>
-    items = @_renderTaskActivityItems()
+    sendTasks = []
+    nonSendTasks = []
+    @state.tasks.forEach (task) ->
+      if SEND_TASK_CLASSES.some(((taskClass) -> task instanceof taskClass ))
+        sendTasks.push(task)
+      else
+        nonSendTasks.push(task)
 
-    if @state.isInitialSyncComplete
-      items.push <StreamingSyncActivity key="streaming-sync" />
-    else
-      items.push <InitialSyncActivity key="initial-sync-activity" />
 
     names = classNames
       "sidebar-activity": true
@@ -51,16 +57,17 @@ class ActivitySidebar extends React.Component
 
     wrapperClass = "sidebar-activity-transition-wrapper "
 
-    if items.length is 0
-      wrapperClass += "sidebar-activity-empty"
-    else
-      inside = <ReactCSSTransitionGroup
-        className={names}
-        transitionLeaveTimeout={625}
-        transitionEnterTimeout={125}
-        transitionName="activity-opacity">
-        {items}
-      </ReactCSSTransitionGroup>
+    inside = <ReactCSSTransitionGroup
+      className={names}
+      transitionLeaveTimeout={625}
+      transitionEnterTimeout={125}
+      transitionName="activity-opacity">
+        <SyncbackActivity syncbackTasks={sendTasks} />
+        <SyncActivity
+          initialSync={!@state.isInitialSyncComplete}
+          syncbackTasks={nonSendTasks}
+        />
+    </ReactCSSTransitionGroup>
 
     <ReactCSSTransitionGroup
       className={wrapperClass}
@@ -69,23 +76,6 @@ class ActivitySidebar extends React.Component
       transitionName="activity-opacity">
         {inside}
     </ReactCSSTransitionGroup>
-
-  _renderTaskActivityItems: =>
-    summary = {}
-
-    @state.tasks.map (task) ->
-      label = task.label?()
-      return unless label
-      summary[label] ?= 0
-      summary[label] += task.numberOfImpactedItems()
-
-    _.pairs(summary).map ([label, count]) ->
-      <div className="item" key={label}>
-        <div className="inner">
-          <span className="count">({new Number(count).toLocaleString()})</span>
-          {label}
-        </div>
-      </div>
 
   _onDataChanged: =>
     @setState(@_getStateFromStores())
