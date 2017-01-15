@@ -13,8 +13,8 @@ describe "AutoUpdateManager", ->
           return @accounts
         if key is 'nylas.identity.id'
           return @nylasIdentityId
-        if key is 'settings'
-          return { env: 'production' }
+        if key is 'settings.env'
+          return 'production'
       onDidChange: (key, callback) =>
         callback()
 
