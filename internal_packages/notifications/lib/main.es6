@@ -2,7 +2,6 @@
 
 import {ComponentRegistry, WorkspaceStore} from 'nylas-exports';
 import ActivitySidebar from "./sidebar/activity-sidebar";
-import TrialRemainingBlock from "./sidebar/trial-remaining-block";
 import NotifWrapper from "./notif-wrapper";
 
 import AccountErrorNotification from "./items/account-error-notif";
@@ -26,7 +25,6 @@ const notifications = [
 export function activate() {
   ComponentRegistry.register(ActivitySidebar, {location: WorkspaceStore.Location.RootSidebar});
   ComponentRegistry.register(NotifWrapper, {location: WorkspaceStore.Location.RootSidebar});
-  ComponentRegistry.register(TrialRemainingBlock, {location: WorkspaceStore.Location.RootSidebar});
 
   for (const notification of notifications) {
     ComponentRegistry.register(notification, {role: 'RootSidebar:Notifications'});
@@ -37,7 +35,6 @@ export function serialize() {}
 
 export function deactivate() {
   ComponentRegistry.unregister(ActivitySidebar);
-  ComponentRegistry.unregister(TrialRemainingBlock);
   ComponentRegistry.unregister(NotifWrapper);
 
   for (const notification of notifications) {
