@@ -2,7 +2,6 @@ import NylasStore from 'nylas-store';
 import {ipcRenderer} from 'electron';
 import request from 'request';
 import url from 'url'
-import Moment from 'moment-timezone';
 
 import KeyManager from '../../key-manager'
 import Actions from '../actions';
@@ -10,20 +9,15 @@ import AccountStore from './account-store';
 import Utils from '../models/utils';
 
 const configIdentityKey = "nylas.identity";
-const KEY_NAME = 'Nylas Account';
 
-const State = {
-  Trialing: 'Trialing',
-  Valid: 'Valid',
-  Lapsed: 'Lapsed',
-};
+// Note this key name is used when migrating to Nylas Pro accounts from
+// old N1.
+const KEY_NAME = 'Nylas Account';
 
 class IdentityStore extends NylasStore {
 
   constructor() {
     super();
-
-    this._subscriptionRequiredAfter = null;
 
     NylasEnv.config.onDidChange('env', this._onEnvChanged);
     this._onEnvChanged();
@@ -68,10 +62,6 @@ class IdentityStore extends NylasStore {
     }
   }
 
-  get State() {
-    return State;
-  }
-
   identity() {
     return this._identity;
   }
@@ -81,28 +71,6 @@ class IdentityStore extends NylasStore {
       return null;
     }
     return this._identity.id;
-  }
-
-  subscriptionState() {
-    if (!this._identity || (this._identity.valid_until === null)) {
-      return State.Trialing;
-    }
-    if (new Date(this._identity.valid_until * 1000) < new Date()) {
-      return State.Lapsed;
-    }
-    return State.Valid;
-  }
-
-  daysUntilSubscriptionRequired() {
-    if (!this._subscriptionRequiredAfter) {
-      return null;
-    }
-    const now = new Moment();
-    const nowDayOfEpoch = now.dayOfYear() + now.year() * 365;
-    const requiredAt = new Moment(this._subscriptionRequiredAfter);
-    const requiredDayOfEpoch = requiredAt.dayOfYear() + requiredAt.year() * 365;
-
-    return Math.max(0, requiredDayOfEpoch - nowDayOfEpoch);
   }
 
   refreshIdentityAndAccounts = () => {
@@ -116,16 +84,8 @@ class IdentityStore extends NylasStore {
   refreshAccounts = () => {
     const accountIds = AccountStore.accounts().map((a) => a.id);
     AccountStore.refreshHealthOfAccounts(accountIds);
-
-    return Promise.all(AccountStore.accounts().map((a) =>
-      this.fetchSubscriptionRequiredDate(a))
-    ).then((subscriptionRequiredDates) => {
-      this._subscriptionRequiredAfter = subscriptionRequiredDates.sort().shift();
-      Actions.refreshAllSyncWorkers()
-      this.trigger();
-    }).catch((err) => {
-      console.error(`Unable to refresh IdentityStore accounts: ${err.message}`)
-    })
+    Actions.refreshAllSyncWorkers()
+    this.trigger();
   }
 
   /**
@@ -175,12 +135,6 @@ class IdentityStore extends NylasStore {
           resolve(body);
         }
       });
-    });
-  }
-
-  fetchSubscriptionRequiredDate = (account) => {
-    return this.fetchPath(`/n1/account/${account.id}`).then((json) => {
-      return json.subscription_required_after ? new Date(json.subscription_required_after * 1000) : null;
     });
   }
 
