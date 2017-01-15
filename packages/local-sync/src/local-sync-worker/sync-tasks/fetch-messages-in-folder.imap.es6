@@ -327,7 +327,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       // account connection.
       // TODO: add support for Mail2World bug which we support in Python SE
       // https://www.limilabs.com/blog/mail2world-imap-search-all-bug
-      const uids = await this._box.search([['UID', `1:${lowerbound - 1}`]]);
+      const uids = await this._box.search([['UID', `1:${lowerbound}`]]);
       let boxMinUid = uids[0] || 1;
       // Using old-school min because uids may be an array of a million
       // items. Math.min can't take that many arguments
