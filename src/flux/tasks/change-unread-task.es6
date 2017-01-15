@@ -10,6 +10,10 @@ export default class ChangeUnreadTask extends ChangeMailTask {
     this.unread = options.unread;
   }
 
+  label() {
+    return this.unread ? "Marking as unread" : "Marking as read";
+  }
+
   description() {
     const count = this.threads.length;
     const type = count > 1 ? 'threads' : 'thread';
