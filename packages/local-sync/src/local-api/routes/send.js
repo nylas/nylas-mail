@@ -95,7 +95,6 @@ module.exports = (server) => {
       createAndReplyWithSyncbackRequest(request, reply, {
         type: "EnsureMessageInSentFolder",
         props: { messageId, sentPerRecipient },
-        syncbackImmediately: true,
       })
     },
   });

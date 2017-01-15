@@ -6,8 +6,7 @@ const MessageProcessor = require('../../message-processor')
 
 const MessageFlagAttributes = ['id', 'threadId', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']
 const FETCH_ATTRIBUTES_BATCH_SIZE = 1000;
-const FETCH_MESSAGES_FIRST_COUNT = 100;
-const FETCH_MESSAGES_COUNT = 200;
+const FETCH_MESSAGES_COUNT = 30;
 const ATTRIBUTE_SCAN_INTERVAL_MS = 10 * 60 * 1000;
 
 
@@ -18,7 +17,6 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     this._box = null
     this._db = null
     this._folder = folder;
-    this._fetchBatchSize = this._isFirstSync() ? FETCH_MESSAGES_FIRST_COUNT : FETCH_MESSAGES_COUNT;
     this._fetchedMsgCount = 0;
     if (!this._folder) {
       throw new Error("FetchMessagesInFolderIMAP requires a category")
@@ -314,7 +312,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     // sync based on number of messages / age of messages.
 
     if (this._isFirstSync()) {
-      const lowerbound = Math.max(1, boxUidnext - this._fetchBatchSize);
+      const lowerbound = Math.max(1, boxUidnext - FETCH_MESSAGES_COUNT);
       yield this._fetchAndProcessMessages({min: lowerbound, max: boxUidnext});
       // We issue a UID FETCH ALL and record the correct minimum UID for the
       // mailbox, which could be something much larger than 1 (especially for
@@ -352,7 +350,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       }
 
       if (savedSyncState.fetchedmin > savedSyncState.minUID) {
-        const lowerbound = Math.max(savedSyncState.minUID, savedSyncState.fetchedmin - this._fetchBatchSize);
+        const lowerbound = Math.max(savedSyncState.minUID, savedSyncState.fetchedmin - FETCH_MESSAGES_COUNT);
         // console.log(`FetchMessagesInFolderIMAP: fetching ${lowerbound}:${savedSyncState.fetchedmin}`);
         yield this._fetchAndProcessMessages({min: lowerbound, max: savedSyncState.fetchedmin});
       } else {
@@ -551,10 +549,13 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     // because UID SEARCH ALL can be slow (and big!), we may download fewer
     // messages than the batch size (up to zero) --- keep going until full
     // batch synced
-    while ((this._fetchedMsgCount < this._fetchBatchSize) &&
-           (!this._folder.isSyncComplete() || (this._box.uidnext > this._folder.uidnext))) {
+    const fetchedEnough = () => this._fetchedMsgCount >= FETCH_MESSAGES_COUNT
+    const moreToFetchAvailable = () => !this._folder.isSyncComplete() || this._box.uidnext > this._folder.syncState.fetchedmax
+    while (!fetchedEnough() && moreToFetchAvailable()) {
       const prevMsgCount = this._fetchedMsgCount;
       yield this._fetchUnsyncedMessages();
+
+      // If we didn't find any messages at all
       if (this._fetchedMsgCount === prevMsgCount) {
         // Find where the gap in the UID space ends --- SEARCH can be slow on
         // large mailboxes, but otherwise we could spin here arbitrarily long
@@ -576,10 +577,9 @@ class FetchMessagesInFolderIMAP extends SyncTask {
         } else {
           nextUid = 1;
         }
-        console.log(`FetchMessagesInFolder: Found gap in UIDs; next UID is ${nextUid}`);
+        console.log(`🔃📂 ${this._folder.name} Found gap in UIDs; next fetchedmin is ${nextUid}`);
         await this._folder.updateSyncState({ fetchedmin: nextUid });
       }
-      // console.log(`FetchMessagesInFolder: Fetched ${this._fetchedMsgCount} messages in batch`);
     }
 
     yield this._fetchMessageAttributeChanges();
