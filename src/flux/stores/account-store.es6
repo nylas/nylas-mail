@@ -78,10 +78,15 @@ class AccountStore extends NylasStore {
       // Load tokens using the new KeyManager method
       this._tokens = {}
       for (const account of this._accounts) {
-        this._tokens[account.id] = {
+        const credentials = {
           n1Cloud: KeyManager.getPassword(`${account.emailAddress}.n1Cloud`, {migrateFromService: "Nylas"}),
           localSync: KeyManager.getPassword(`${account.emailAddress}.localSync`, {migrateFromService: "Nylas"}),
         }
+        this._tokens[account.id] = credentials;
+
+        // HACK HACK HACK. For some reason we're getting passed the wrong
+        // id. Figure this out after launch.
+        this._tokens[account.emailAddress] = credentials;
       }
     } catch (error) {
       NylasEnv.reportError(error)
