@@ -49,7 +49,7 @@ module.exports = (sequelize, Sequelize) => {
     },
     instanceMethods: {
       async updateLabelsAndFolders() {
-        const messages = await this.getMessages();
+        const messages = await this.getMessages({attributes: ['id', 'folderId']});
         const labelIds = new Set()
         const folderIds = new Set()
 
