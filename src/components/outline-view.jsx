@@ -1,3 +1,4 @@
+import {Utils} from 'nylas-exports'
 import React, {Component, PropTypes} from 'react';
 import DropZone from './drop-zone';
 import RetinaImg from './retina-img';
@@ -60,6 +61,11 @@ class OutlineView extends Component {
   state = {
     showCreateInput: false,
   };
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return !Utils.isEqualReact(nextProps, this.props) ||
+      !Utils.isEqualReact(nextState, this.state);
+  }
 
   componentWillUnmount() {
     clearTimeout(this._expandTimeout);

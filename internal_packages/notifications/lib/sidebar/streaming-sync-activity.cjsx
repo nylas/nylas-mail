@@ -1,4 +1,4 @@
-{Actions, React} = require 'nylas-exports'
+{Utils, Actions, React} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
 
 class StreamingSyncActivity extends React.Component
@@ -7,6 +7,10 @@ class StreamingSyncActivity extends React.Component
     @_timeoutId = null
     @state =
       receivingDelta: false
+
+  shouldComponentUpdate: (nextProps, nextState) =>
+    not Utils.isEqualReact(nextProps, @props) or
+    not Utils.isEqualReact(nextState, @state)
 
   componentDidMount: =>
     @_unlistener = Actions.longPollReceivedRawDeltasPing.listen(@_onDeltaReceived)

@@ -7,7 +7,8 @@ classNames = require 'classnames'
 StreamingSyncActivity = require './streaming-sync-activity'
 InitialSyncActivity = require('./initial-sync-activity').default
 
-{Actions,
+{Utils,
+ Actions,
  TaskQueue,
  AccountStore,
  NylasSyncStatusStore,
@@ -23,6 +24,10 @@ class ActivitySidebar extends React.Component
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
+
+  shouldComponentUpdate: (nextProps, nextState) =>
+    not Utils.isEqualReact(nextProps, @props) or
+    not Utils.isEqualReact(nextState, @state)
 
   componentDidMount: =>
     @_unlisteners = []
