@@ -40,7 +40,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
   }
 
   async _updateMessageAttributes(remoteUIDAttributes, localMessageAttributes) {
-    const {sequelize, Label, Thread} = this._db;
+    const {Label, Thread} = this._db;
 
     const messageAttributesMap = {};
     for (const msg of localMessageAttributes) {
@@ -57,9 +57,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       const msg = messageAttributesMap[uid];
       const attrs = remoteUIDAttributes[uid];
 
-      if (!msg) {
-        return;
-      }
+      if (!msg) continue;
 
       const unread = !attrs.flags.includes('\\Seen');
       const starred = attrs.flags.includes('\\Flagged');
@@ -82,7 +80,10 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     // threads. We do this as a separate step so we can batch-load the threads.
     if (messagesWithChangedFlags.length > 0) {
       const threadIds = messagesWithChangedFlags.map(m => m.threadId);
-      const threads = await Thread.findAll({where: {id: threadIds}});
+      const threads = await Thread.findAll({
+        attributes: ['id', 'unreadCount', 'starredCount'],
+        where: {id: threadIds},
+      });
       const threadsById = {};
       for (const thread of threads) {
         threadsById[thread.id] = thread;
@@ -93,27 +94,32 @@ class FetchMessagesInFolderIMAP extends SyncTask {
         threadsById[msg.threadId].unreadCount += msg.unread / 1 - msg.previous('unread') / 1;
         threadsById[msg.threadId].starredCount += msg.starred / 1 - msg.previous('starred') / 1;
       }
-      await sequelize.transaction(async (transaction) => {
-        await Promise.all(threads.map(t =>
-          t.save({ fields: ['starredCount', 'unreadCount'], transaction })
-        ));
-      });
+      for (const thread of threads) {
+        await thread.save({fields: ['starredCount', 'unreadCount']})
+      }
     }
 
     // Step 3: Persist the messages we've updated
     const messagesChanged = [].concat(messagesWithChangedFlags, messagesWithChangedLabels);
-    await sequelize.transaction(async (transaction) => {
-      await Promise.all(messagesChanged.map(m =>
-        m.save({fields: MessageFlagAttributes, transaction})
-      ))
-    });
+    for (const messageChanged of messagesChanged) {
+      await messageChanged.save({fields: MessageFlagAttributes})
+    }
 
     // Step 4: If message labels were changed, retreive the impacted threads
     // and re-compute their labels. This is fairly expensive at the moment.
     if (messagesWithChangedLabels.length > 0) {
       const threadIds = messagesWithChangedLabels.map(m => m.threadId);
-      const threads = await Thread.findAll({where: {id: threadIds}});
-      threads.forEach((thread) => thread.updateLabelsAndFolders());
+      const threads = await Thread.findAll({
+        attributes: ['id'],
+        where: {id: threadIds},
+      });
+      for (const thread of threads) {
+        await thread.updateLabelsAndFolders()
+      }
+    }
+    return {
+      numChangedLabels: messagesWithChangedLabels.length,
+      numChangedFlags: messagesWithChangedFlags.length,
     }
   }
 
@@ -390,6 +396,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       return;
     }
 
+    const start = Date.now()
     console.log(`🔃 🚩 ${this._folder.name} via highestmodseq of ${highestmodseq}`)
 
     const remoteUIDAttributes = yield this._box.fetchUIDAttributes(`1:*`,
@@ -399,11 +406,12 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       attributes: MessageFlagAttributes,
     })
 
-    await this._updateMessageAttributes(remoteUIDAttributes, localMessageAttributes)
+    const {numChangedLabels, numChangedFlags} = await this._updateMessageAttributes(remoteUIDAttributes, localMessageAttributes)
     await this._removeDeletedMessages(remoteUIDAttributes, localMessageAttributes)
     await this._folder.updateSyncState({
       highestmodseq: nextHighestmodseq,
     });
+    console.log(`🔃 🚩 ${this._folder.name} via highestmodseq of ${highestmodseq} - took ${Date.now() - start}ms to update ${numChangedLabels + numChangedFlags} messages & threads`)
   }
 
   /**
@@ -434,6 +442,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     const from = Math.max(to - FETCH_ATTRIBUTES_BATCH_SIZE, 1)
     const backScanRange = `${from}:${to}`;
 
+    const start = Date.now()
     console.log(`🔃 🚩 ${this._folder.name} via scan through ${recentRange} and ${backScanRange}`)
 
     const recentAttrs = yield this._box.fetchUIDAttributes(recentRange)
@@ -444,7 +453,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       attributes: MessageFlagAttributes,
     })
 
-    await this._updateMessageAttributes(remoteUIDAttributes, localMessageAttributes)
+    const {numChangedLabels, numChangedFlags} = await this._updateMessageAttributes(remoteUIDAttributes, localMessageAttributes)
     await this._removeDeletedMessages(remoteUIDAttributes, localMessageAttributes)
 
     // this._logger.info(`FetchMessagesInFolder: Deep scan finished.`);
@@ -452,6 +461,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       attributeFetchedMax: (from <= 1 ? recentStart : from),
       lastAttributeScanTime: Date.now(),
     });
+    console.log(`🔃 🚩 ${this._folder.name} via scan through ${recentRange} and ${backScanRange} - took ${Date.now() - start}ms to update ${numChangedLabels + numChangedFlags} messages & threads`)
   }
 
   * _shouldSyncFolder() {
