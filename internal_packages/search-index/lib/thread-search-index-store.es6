@@ -205,11 +205,7 @@ class ThreadSearchIndexStore {
       thread.messages()
       .then((messages) => (
         messages
-        .map(({body, snippet}) => (
-          !_.isString(body) ?
-            {snippet} :
-            {body: QuotedHTMLTransformer.removeQuotedHTML(body)}
-        ))
+        .map(({body, snippet}) => (!_.isString(body) ? {snippet} : {body}))
         .map(({body, snippet}) => (
           snippet || Utils.extractTextFromHtml(body, {maxLength: MESSAGE_BODY_LENGTH}).replace(/(\s)+/g, ' ')
         ))
