@@ -205,10 +205,12 @@ class MessageProcessor {
    * delivered one. We store this to keep track of our delivered state and
    * to ensure it's in the sent folder.
    *
-   * We also get already processed messages because they may have had their
-   * folders or labels changed or had some other property updated with them.
-   *
    * It'll have the basic ID, but no thread, labels, etc.
+   *
+   * We also get already processed messages because they may have had their
+   * folders or labels changed or had some other property updated with them,
+   * or because we interrupted the sync loop before the message was fully
+   * processed.
    */
   async _processExistingMessage(existingMessage, parsedMessage, struct) {
     const {accountId} = parsedMessage;
