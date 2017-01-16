@@ -1,9 +1,9 @@
 {
   "menu": [
   {
-    "label": "Nylas N1",
+    "label": "Nylas Pro",
     "submenu": [
-      { "label": "About Nylas N1", "command": "application:about" },
+      { "label": "About Nylas Pro", "command": "application:about" },
       { "type": "separator" },
       { "label": "Preferences", "command": "application:open-preferences" },
       { "label": "Change Theme...", "command": "window:launch-theme-picker" },
@@ -18,7 +18,7 @@
       { "type": "separator" },
       { "label": "Services", "submenu": [] },
       { "type": "separator" },
-      { "label": "Hide Nylas N1", "command": "application:hide" },
+      { "label": "Hide Nylas Pro", "command": "application:hide" },
       { "label": "Hide Others", "command": "application:hide-other-applications" },
       { "label": "Show All", "command": "application:unhide-all-applications" },
       { "type": "separator" },
@@ -118,7 +118,7 @@
   {
     "label": "Help",
     "submenu": [
-      { "label": "Nylas N1 Help", "command": "application:view-help" }
+      { "label": "Nylas Pro Help", "command": "application:view-help" }
     ]
   }
   ]
