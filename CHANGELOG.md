@@ -1,5 +1,11 @@
 # N1 Changelog
 
+### 1.5.0 (1/16/17)
+
+- Features:
+
+  + Nylas N1 is now Nylas Pro. We are also introducing Nylas Mail Basic!
+
 ### 0.4.402 (12/12/16)
 
 - Features:

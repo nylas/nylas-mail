@@ -14,6 +14,7 @@ const UpdateAvailableState = 'update-available';
 const NoUpdateAvailableState = 'no-update-available';
 const UnsupportedState = 'unsupported';
 const ErrorState = 'error';
+const preferredChannel = 'stable'
 
 export default class AutoUpdateManager extends EventEmitter {
 
@@ -24,6 +25,7 @@ export default class AutoUpdateManager extends EventEmitter {
     this.version = version;
     this.config = config;
     this.specMode = specMode;
+    this.preferredChannel = preferredChannel;
 
     this._updateFeedURL();
 
@@ -60,18 +62,24 @@ export default class AutoUpdateManager extends EventEmitter {
       version: this.version,
       id: updaterId,
       emails: updaterEmails,
+      preferredChannel: this.preferredChannel,
     };
   }
 
   _updateFeedURL = () => {
     const params = this.parameters();
 
+    let host = `edgehill.nylas.com`;
+    if (this.config.get('env') === 'staging') {
+      host = `edgehill-staging.nylas.com`;
+    }
+
     if (process.platform === 'win32') {
       // Squirrel for Windows can't handle query params
       // https://github.com/Squirrel/Squirrel.Windows/issues/132
-      this.feedURL = `https://edgehill.nylas.com/update-check/win32/${params.arch}/${params.version}/${params.id}/${params.emails}`
+      this.feedURL = `https://${host}/update-check/win32/${params.arch}/${params.version}/${params.id}/${params.emails}`
     } else {
-      this.feedURL = `https://edgehill.nylas.com/update-check?${qs.stringify(params)}`;
+      this.feedURL = `https://${host}/update-check?${qs.stringify(params)}`;
     }
 
     if (autoUpdater) {

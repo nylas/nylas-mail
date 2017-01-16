@@ -46,7 +46,7 @@ class NylasWindow
 
     browserWindowOptions =
       show: false
-      title: title ? 'Nylas N1'
+      title: title ? 'Nylas Pro'
       frame: frame
       width: width
       height: height
