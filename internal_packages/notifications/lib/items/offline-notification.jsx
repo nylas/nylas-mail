@@ -53,8 +53,8 @@ export default class OfflineNotification extends React.Component {
     // foreground to avoid the battery hit.
     if (!this.state.connected && !document.body.classList.contains('is-blurred')) {
       this._updateInterval = setInterval(() => {
-        this.setState(this.getStateFromStores());
-      }, 1000);
+        Actions.retryDeltaConnection();
+      }, 5000);
     }
   }
 
