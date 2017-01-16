@@ -112,6 +112,7 @@ class SendmailClient {
     for (const field of Object.keys(recipients)) {
       envelope[field] = recipients[field].map(r => r.email);
     }
+    envelope.from = customMessage.from.map(c => c.email)
     const raw = await this.buildMime(customMessage);
     await this._send({raw, envelope});
   }
