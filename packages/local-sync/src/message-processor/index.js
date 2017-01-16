@@ -188,7 +188,8 @@ class MessageProcessor {
     // end of the sync loop?)
 
     const files = await extractFiles({db, messageValues, struct});
-    if (files.length > 0 && !thread.hasAttachments) {
+    // Don't count inline images (files with contentIds) as attachments
+    if (files.some(f => !f.contentId) && !thread.hasAttachments) {
       thread.hasAttachments = true;
       await thread.save();
     }
@@ -228,7 +229,8 @@ class MessageProcessor {
       }
       await this._addReferences(db, existingMessage, thread, parsedMessage.references);
       const files = await extractFiles({db, messageValues: existingMessage, struct});
-      if (files.length > 0 && !thread.hasAttachments) {
+      // Don't count inline images (files with contentIds) as attachments
+      if (files.some(f => !f.contentId) && !thread.hasAttachments) {
         thread.hasAttachments = true;
         await thread.save();
       }

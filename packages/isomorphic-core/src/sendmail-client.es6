@@ -70,7 +70,7 @@ class SendmailClient {
       msgData.attachments.push({
         filename: upload.filename,
         content: fs.createReadStream(upload.targetPath),
-        cid: upload.id,
+        cid: upload.inline ? upload.id : null,
       })
     }
 
