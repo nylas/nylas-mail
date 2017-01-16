@@ -25,7 +25,9 @@ export default class DatabaseChangeRecord {
      */
     if (options.objectClass === "Message") {
       this._objects = this._objects.map((o) => {
-        o.body = null;
+        if (!o.draft) {
+          o.body = null;
+        }
         return o;
       })
     }
