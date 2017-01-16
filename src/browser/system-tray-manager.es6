@@ -15,7 +15,7 @@ function _getMenuTemplate(platform, application) {
       type: 'separator',
     },
     {
-      label: 'Quit N1',
+      label: 'Quit Nylas Mail',
       click: () => application.emit('application:quit'),
     },
   ];
