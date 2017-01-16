@@ -120,7 +120,10 @@ export default class Event extends Model {
 
   static additionalSQLiteConfig = {
     setup: () => {
-      return ['CREATE UNIQUE INDEX IF NOT EXISTS EventClientIndex ON Event(client_id)'];
+      return [
+        'CREATE UNIQUE INDEX IF NOT EXISTS EventClientIndex ON Event(client_id)',
+        'CREATE INDEX IF NOT EXISTS EventIsSearchIndexedIndex ON `Event` (is_search_indexed)',
+      ];
     },
   };
 
