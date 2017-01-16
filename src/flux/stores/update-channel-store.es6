@@ -47,8 +47,7 @@ class UpdateChannelStore extends NylasStore {
     EdgehillAPI.makeRequest({
       method: 'POST',
       path: `/update-channel`,
-      qs: Object.assign({channel: channelName,
-                         preferredChannel: preferredChannel}, autoUpdater.parameters()),
+      qs: Object.assign({channel: channelName, preferredChannel: preferredChannel}, autoUpdater.parameters()),
       json: true,
     }).then(({current, available}) => {
       this._current = current;
