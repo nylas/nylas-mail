@@ -67,7 +67,7 @@ export default class AutoUpdateManager extends EventEmitter {
     const params = this.parameters();
 
     let host = `edgehill.nylas.com`;
-    if (this.config.get('settings.env') === 'staging') {
+    if (this.config.get('env') === 'staging') {
       host = `edgehill-staging.nylas.com`;
     }
 
