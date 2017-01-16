@@ -105,7 +105,7 @@ module.exports = (grunt) => {
       if (process.platform === 'darwin') {
         uploads.push({
           source: `${outputDir}/N1.zip`,
-          key: `${fullVersion}/${process.platform}/${process.arch}/N1.zip`,
+          key: `${fullVersion}/${process.platform}/${process.arch}/NylasMail.zip`,
         });
       } else if (process.platform === 'win32') {
         uploads.push({
@@ -114,7 +114,7 @@ module.exports = (grunt) => {
         });
         uploads.push({
           source: `${outputDir}/N1Setup.exe`,
-          key: `${fullVersion}/${process.platform}/${process.arch}/N1Setup.exe`,
+          key: `${fullVersion}/${process.platform}/${process.arch}/NylasMailSetup.exe`,
         });
         uploads.push({
           source: `${outputDir}/Nylas-${packageVersion}-full.nupkg`,
@@ -126,14 +126,14 @@ module.exports = (grunt) => {
           if (path.extname(file) === '.deb') {
             uploads.push({
               source: `${outputDir}/${file}`,
-              key: `${fullVersion}/${process.platform}-deb/${process.arch}/N1.deb`,
+              key: `${fullVersion}/${process.platform}-deb/${process.arch}/NylasMail.deb`,
               options: {ContentType: "application/x-deb"},
             });
           }
           if (path.extname(file) === '.rpm') {
             uploads.push({
               source: `${outputDir}/${file}`,
-              key: `${fullVersion}/${process.platform}-rpm/${process.arch}/N1.rpm`,
+              key: `${fullVersion}/${process.platform}-rpm/${process.arch}/NylasMail.rpm`,
               options: {ContentType: "application/x-rpm"},
             });
           }
