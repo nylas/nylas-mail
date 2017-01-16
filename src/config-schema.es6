@@ -63,8 +63,8 @@ export default {
           downloadPolicy: {
             'type': 'string',
             'default': 'on-read',
-            'enum': ['on-receive', 'on-read', 'manually'],
-            'enumLabels': ['When Received', 'When Read', 'Manually'],
+            'enum': ['on-read', 'manually'],
+            'enumLabels': ['When Read', 'Manually'],
             'title': "Download attachments for new mail",
           },
           displayFilePreview: {

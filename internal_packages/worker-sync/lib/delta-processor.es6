@@ -56,11 +56,14 @@ import {
  * type we support
  */
 class DeltaProcessor {
+  constructor() {
+    this.activationTime = Date.now()
+  }
+
   async process(rawDeltas = []) {
     try {
       const deltas = await this._decorateDeltas(rawDeltas);
       Actions.longPollReceivedRawDeltas(deltas);
-      Actions.longPollReceivedRawDeltasPing(deltas.length);
 
       const {
         modelDeltas,
@@ -248,12 +251,26 @@ class DeltaProcessor {
   }
 
   async _notifyOfNewMessages(created) {
+    const incomingMessages = created.message || [];
+
+    // Filter for new messages that are not sent by the current user
+    const newUnread = incomingMessages.filter((msg) => {
+      const isUnread = msg.unread === true;
+      const isNew = msg.date && msg.date.valueOf() >= this.activationTime;
+      const isFromMe = msg.isFromMe();
+      return isUnread && isNew && !isFromMe;
+    });
+
+    if (newUnread.length === 0) {
+      return;
+    }
+
     try {
       await MailRulesProcessor.processMessages(created.message || [])
     } catch (err) {
       console.error("DeltaProcessor: Running mail rules on incoming mail failed.")
     }
-    Actions.didPassivelyReceiveCreateDeltas(created)
+    Actions.onNewMailDeltas(created)
   }
 
   _handleDestroyDelta(delta) {

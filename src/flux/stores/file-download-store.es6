@@ -171,7 +171,6 @@ class FileDownloadStore extends NylasStore {
     this.listenTo(Actions.fetchAndSaveFile, this._fetchAndSave);
     this.listenTo(Actions.fetchAndSaveAllFiles, this._fetchAndSaveAll);
     this.listenTo(Actions.abortFetchFile, this._abortFetchFile);
-    this.listenTo(Actions.didPassivelyReceiveCreateDeltas, this._onNewMailReceived);
 
     this._downloads = {};
     this._filePreviewPaths = {};
@@ -214,16 +213,6 @@ class FileDownloadStore extends NylasStore {
 
   previewPathForFile(fileId) {
     return this._filePreviewPaths[fileId];
-  }
-
-  _onNewMailReceived = (incoming) => {
-    if (NylasEnv.config.get('core.attachments.downloadPolicy') !== 'on-receive') {
-      return;
-    }
-    if (!incoming.message) { return; }
-    incoming.message.forEach((message) => {
-      message.files.forEach((file) => this._fetch(file));
-    })
   }
 
   // Returns a promise with a Download object, allowing other actions to be

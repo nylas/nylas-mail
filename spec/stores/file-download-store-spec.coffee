@@ -117,23 +117,6 @@ xdescribe 'FileDownloadStoreSpecs', ->
           FileDownloadStore._checkForDownloadedFile(f).then (downloaded) ->
             expect(downloaded).toBe(false)
 
-    describe "_onNewMailReceived", ->
-      it "should fetch attachments if the setting is on-receive", ->
-        spyOn(FileDownloadStore, '_fetch')
-        spyOn(NylasEnv.config, 'get').andCallFake (key) ->
-          return 'on-receive' if key is 'core.attachments.downloadPolicy'
-          return null
-        FileDownloadStore._onNewMailReceived(message: [new Message(files: [new File()])])
-        expect(FileDownloadStore._fetch).toHaveBeenCalled()
-
-      it "should not fetch attachments otherwise", ->
-        spyOn(FileDownloadStore, '_fetch')
-        spyOn(NylasEnv.config, 'get').andCallFake (key) ->
-          return 'on-read' if key is 'core.attachments.downloadPolicy'
-          return null
-        FileDownloadStore._onNewMailReceived(message: [new Message(files: [new File()])])
-        expect(FileDownloadStore._fetch).not.toHaveBeenCalled()
-
     describe "_runDownload", ->
       beforeEach ->
         spyOn(Download.prototype, 'run').andCallFake -> Promise.resolve(@)
