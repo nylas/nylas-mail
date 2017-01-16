@@ -7,6 +7,7 @@ const MessageProcessor = require('../../message-processor')
 const MessageFlagAttributes = ['id', 'threadId', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']
 const FETCH_ATTRIBUTES_BATCH_SIZE = 1000;
 const FETCH_MESSAGES_COUNT = 30;
+const GMAIL_INBOX_PRIORITIZE_COUNT = 1000;
 const ATTRIBUTE_SCAN_INTERVAL_MS = 10 * 60 * 1000;
 
 
@@ -208,13 +209,21 @@ class FetchMessagesInFolderIMAP extends SyncTask {
    * we want to interrupt sync. This is enabled by `SyncOperation` and
    * `Interruptible`
    */
-  async * _fetchAndProcessMessages({min, max} = {}) {
+  async * _fetchAndProcessMessages({min, max, uids} = {}) {
     const uidsByPart = {};
     const structsByPart = {};
-    const rangeQuery = `${min}:${max}`;
-    if (min < 0 || max < 0) {
-      throw new Error(`Min (${min}) and max (${max}) must be > 0`);
-    } // it's OK if max < min though, IMAP will just invert them
+    let rangeQuery;
+    if (uids) {
+      if (min || max) {
+        throw new Error(`Cannot pass min/max AND uid set`);
+      }
+      rangeQuery = uids;
+    } else {
+      if (min < 0 || max < 0) {
+        throw new Error(`Min (${min}) and max (${max}) must be > 0`);
+      } // it's OK if max < min though, IMAP will just invert them
+      rangeQuery = `${min}:${max}`;
+    }
 
     // console.log(`FetchMessagesInFolderIMAP: Going to FETCH messages in range ${rangeQuery}`);
 
@@ -229,7 +238,6 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     for (const key of Object.keys(uidsByPart)) {
       // note: the order of UIDs in the array doesn't matter, Gmail always
       // returns them in ascending (oldest => newest) order.
-      const uids = uidsByPart[key];
       const desiredParts = JSON.parse(key);
       // headers are BIG (something like 30% of total storage for an average
       // mailbox), so only download the ones we care about
@@ -238,7 +246,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
 
       const messagesToProcess = []
       yield this._box.fetchEach(
-        uids,
+        uidsByPart[key],
         {bodies},
         (imapMessage) => messagesToProcess.push(imapMessage)
       );
@@ -267,17 +275,22 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       this._fetchedMsgCount += messagesToProcess.length;
     }
 
-    // Update our folder sync state to reflect the messages we've synced and
-    // processed
-    const boxUidnext = this._box.uidnext;
-    const boxUidvalidity = this._box.uidvalidity;
-    const {fetchedmin, fetchedmax} = this._folder.syncState;
-    return this._folder.updateSyncState({
-      fetchedmin: fetchedmin ? Math.min(fetchedmin, min) : min,
-      fetchedmax: fetchedmax ? Math.max(fetchedmax, max) : max,
-      uidnext: boxUidnext,
-      uidvalidity: boxUidvalidity,
-    });
+    // `uids` set is used for prioritizing specific uids. We can't update the
+    // range if this is passed because we still want to download the rest of
+    // the range later.
+    if (!uids) {
+      // Update our folder sync state to reflect the messages we've synced and
+      // processed
+      const boxUidnext = this._box.uidnext;
+      const boxUidvalidity = this._box.uidvalidity;
+      const {fetchedmin, fetchedmax} = this._folder.syncState;
+      await this._folder.updateSyncState({
+        fetchedmin: fetchedmin ? Math.min(fetchedmin, min) : min,
+        fetchedmax: fetchedmax ? Math.max(fetchedmax, max) : max,
+        uidnext: boxUidnext,
+        uidvalidity: boxUidvalidity,
+      });
+    }
   }
 
   /**
@@ -302,6 +315,59 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     return box;
   }
 
+  async * _fetchFirstUnsyncedMessages() {
+    const {provider} = this._account;
+    const folderRole = this._folder.role;
+    const gmailInboxUIDsRemaining = this._folder.syncState.gmailInboxUIDsRemaining;
+    const gmailInboxUIDsUnset = !gmailInboxUIDsRemaining;
+    const hasGmailInboxUIDsRemaining = gmailInboxUIDsRemaining && gmailInboxUIDsRemaining.length
+    if (provider === "gmail" && folderRole === "all" && (gmailInboxUIDsUnset || hasGmailInboxUIDsRemaining)) {
+      // Track the first few UIDs in the inbox label & download these first.
+      // TODO: this does not prevent us from redownloading all of these
+      // UIDs when we finish the first 1k & go back to UID range expansion
+      let inboxUids;
+      if (!gmailInboxUIDsRemaining) {
+        // console.log(`FetchMessagesInFolderIMAP: Fetching Gmail Inbox UIDs for prioritization`);
+        inboxUids = await this._box.search([['X-GM-RAW', 'in:inbox']]);
+        // Gmail always returns UIDs in order from smallest to largest, so this
+        // gets us the most recent messages first.
+        inboxUids = inboxUids.slice(Math.max(inboxUids.length - GMAIL_INBOX_PRIORITIZE_COUNT, 0));
+      } else {
+        inboxUids = this._folder.syncState.gmailInboxUIDsRemaining;
+      }
+      const batchSplitIndex = Math.max(inboxUids.length - FETCH_MESSAGES_COUNT, 0);
+      const uidsFetchNow = inboxUids.slice(batchSplitIndex);
+      const uidsFetchLater = inboxUids.slice(0, batchSplitIndex);
+      // console.log(`FetchMessagesInFolderIMAP: Remaining Gmail Inbox UIDs to download: ${fetchLater.length}`);
+      yield this._fetchAndProcessMessages({uids: uidsFetchNow});
+      await this._folder.updateSyncState({ gmailInboxUIDsRemaining: uidsFetchLater });
+    } else {
+      const lowerbound = Math.max(1, this._box.uidnext - FETCH_MESSAGES_COUNT);
+      yield this._fetchAndProcessMessages({min: lowerbound, max: this._box.uidnext});
+      // We issue a UID FETCH ALL and record the correct minimum UID for the
+      // mailbox, which could be something much larger than 1 (especially for
+      // inbox because of archiving, which "loses" smaller UIDs over time). If
+      // we do not do this, and, say, the minimum UID in a mailbox is 100k
+      // (we've seen this!), the mailbox will not register as finished initial
+      // syncing for many many sync loop iterations beyond when it is actually
+      // complete, and we will issue many unnecessary FETCH commands.
+      //
+      // We do this _after_ fetching the first few messages in the mailbox in
+      // order to prioritize the time to first thread displayed on initial
+      // account connection.
+      const uids = await this._box.search([['UID', `1:${lowerbound}`]]);
+      let boxMinUid = uids[0] || 1;
+      // Using old-school min because uids may be an array of a million
+      // items. Math.min can't take that many arguments
+      for (const uid of uids) {
+        if (uid < boxMinUid) {
+          boxMinUid = uid;
+        }
+      }
+      await this._folder.updateSyncState({ minUID: boxMinUid });
+    }
+  }
+
   /**
    * Note: This function is an ES6 generator so we can `yield` at points
    * we want to interrupt sync. This is enabled by `SyncOperation` and
@@ -315,50 +381,27 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     // sync based on number of messages / age of messages.
 
     if (this._isFirstSync()) {
-      const lowerbound = Math.max(1, boxUidnext - FETCH_MESSAGES_COUNT);
-      yield this._fetchAndProcessMessages({min: lowerbound, max: boxUidnext});
-      // We issue a UID FETCH ALL and record the correct minimum UID for the
-      // mailbox, which could be something much larger than 1 (especially for
-      // inbox because of archiving, which "loses" smaller UIDs over time). If
-      // we do not do this, and, say, the minimum UID in a mailbox is 100k
-      // (we've seen this!), the mailbox will not register as finished initial
-      // syncing for many many sync loop iterations beyond when it is actually
-      // complete, and we will issue many unnecessary FETCH commands.
-      //
-      // We do this _after_ fetching the first few messages in the mailbox in
-      // order to prioritize the time to first thread displayed on initial
-      // account connection.
-      // TODO: add support for Mail2World bug which we support in Python SE
-      // https://www.limilabs.com/blog/mail2world-imap-search-all-bug
-      const uids = await this._box.search([['UID', `1:${lowerbound}`]]);
-      let boxMinUid = uids[0] || 1;
-      // Using old-school min because uids may be an array of a million
-      // items. Math.min can't take that many arguments
-      for (const uid of uids) {
-        if (uid < boxMinUid) {
-          boxMinUid = uid;
-        }
-      }
-      await this._folder.updateSyncState({ minUID: boxMinUid });
+      yield this._fetchFirstUnsyncedMessages();
+      return;
+    }
+
+    if (!savedSyncState.minUID) {
+      throw new Error("minUID is not set. You must restart the sync loop or check boxMinUid")
+    }
+
+    if (savedSyncState.fetchedmax < boxUidnext) {
+      // console.log(`FetchMessagesInFolderIMAP: fetching ${savedSyncState.fetchedmax}:${boxUidnext}`);
+      yield this._fetchAndProcessMessages({min: savedSyncState.fetchedmax, max: boxUidnext});
     } else {
-      if (!savedSyncState.minUID) {
-        throw new Error("minUID is not set. You must restart the sync loop or check boxMinUid")
-      }
+      // console.log('FetchMessagesInFolderIMAP: fetchedmax == uidnext, nothing more recent to fetch.')
+    }
 
-      if (savedSyncState.fetchedmax < boxUidnext) {
-        // console.log(`FetchMessagesInFolderIMAP: fetching ${savedSyncState.fetchedmax}:${boxUidnext}`);
-        yield this._fetchAndProcessMessages({min: savedSyncState.fetchedmax, max: boxUidnext});
-      } else {
-        // console.log('FetchMessagesInFolderIMAP: fetchedmax == uidnext, nothing more recent to fetch.')
-      }
-
-      if (savedSyncState.fetchedmin > savedSyncState.minUID) {
-        const lowerbound = Math.max(savedSyncState.minUID, savedSyncState.fetchedmin - FETCH_MESSAGES_COUNT);
-        // console.log(`FetchMessagesInFolderIMAP: fetching ${lowerbound}:${savedSyncState.fetchedmin}`);
-        yield this._fetchAndProcessMessages({min: lowerbound, max: savedSyncState.fetchedmin});
-      } else {
-        // console.log("FetchMessagesInFolderIMAP: fetchedmin == minUID, nothing older to fetch.")
-      }
+    if (savedSyncState.fetchedmin > savedSyncState.minUID) {
+      const lowerbound = Math.max(savedSyncState.minUID, savedSyncState.fetchedmin - FETCH_MESSAGES_COUNT);
+      // console.log(`FetchMessagesInFolderIMAP: fetching ${lowerbound}:${savedSyncState.fetchedmin}`);
+      yield this._fetchAndProcessMessages({min: lowerbound, max: savedSyncState.fetchedmin});
+    } else {
+      // console.log("FetchMessagesInFolderIMAP: fetchedmin == minUID, nothing older to fetch.")
     }
   }
 
