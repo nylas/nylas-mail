@@ -4,7 +4,7 @@ import {remote} from 'electron';
 import {LegacyEdgehillAPI} from 'nylas-exports';
 
 const autoUpdater = remote.getGlobal('application').autoUpdateManager;
-const preferredChannel = 'nylas-mail';
+const preferredChannel = autoUpdater.preferredChannel;
 
 class UpdateChannelStore extends NylasStore {
   constructor() {
