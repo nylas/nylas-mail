@@ -1,5 +1,6 @@
 /* eslint global-require:0 */
 /* eslint import/no-dynamic-require:0 */
+import fs from 'fs'
 import path from 'path'
 import keytar from 'keytar'
 import Sqlite3 from 'better-sqlite3';
@@ -27,7 +28,7 @@ class NylasProMigrator {
   }
 
   _shouldMigrate() {
-    return !this.config.get("nylasMailBasicMigrationTime")
+    return fs.existsSync(this._basicConfigPath()) && !this.config.get("nylasMailBasicMigrationTime")
   }
 
   _shouldMigrateMailRules() {
@@ -41,8 +42,9 @@ class NylasProMigrator {
   _migrateConfig() {
     console.log("---> Migrating config from Nylas Mail Basic")
     try {
-      // NOTE: If the config doesn't exist
-      const oldConfig = require(path.join(this._basicConfigPath(), "config.json"))["*"]
+      // NOTE: If the config doesn't exist this will throw and not
+      // migrate.
+      const oldConfig = require(path.join(this._basicConfigPath(), "config.json"))["*"] || {}
       for (const key of Object.keys(oldConfig)) {
         if (key === "nylas" && oldConfig[key]) {
           delete oldConfig[key].accounts
@@ -76,11 +78,6 @@ class NylasProMigrator {
       const token = passwords["Nylas Account"]
       if (token) {
         keytar.replacePassword("Nylas", "Nylas Account", token)
-      } else {
-        // We can't migrate. This means that we don't have the token for
-        // the identity in our config. We should clear the identity
-        // since we can't use it.
-        this.config.set("nylas.identity", null)
       }
     } catch (err) {
       console.error(err);
