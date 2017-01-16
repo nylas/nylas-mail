@@ -192,14 +192,14 @@ class IMAPConnection extends EventEmitter {
   /**
    * @return {Promise} that resolves to instance of IMAPBox
    */
-  openBox(folderName, {readOnly = false, forceOpen = false} = {}) {
+  openBox(folderName, {readOnly = false, refetchBoxInfo = false} = {}) {
     if (!folderName) {
       throw new Error('IMAPConnection::openBox - You must provide a folder name')
     }
     if (!this._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPConnection::openBox`)
     }
-    if (!forceOpen && folderName === this.getOpenBoxName()) {
+    if (!refetchBoxInfo && folderName === this.getOpenBoxName()) {
       return Promise.resolve(new IMAPBox(this, this._imap._box));
     }
     this._isOpeningBox = true
@@ -220,7 +220,7 @@ class IMAPConnection extends EventEmitter {
     if (folderName === this.getOpenBoxName()) {
       // If the box is already open, we need to re-issue a SELECT in order to
       // get the latest stats from the box (e.g. latest uidnext, etc)
-      return this.openBox(folderName, {forceOpen: true})
+      return this.openBox(folderName, {refetchBoxInfo: true})
     }
     return this.createConnectionPromise((resolve, reject) => {
       return this._imap.statusAsync(folderName)

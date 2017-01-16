@@ -283,7 +283,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
    * `Interruptible`
    */
   async * _openMailboxAndEnsureValidity() {
-    const box = yield this._imap.openBox(this._folder.name, {forceOpen: true});
+    const box = yield this._imap.openBox(this._folder.name, {refetchBoxInfo: true});
 
     if (box.persistentUIDs === false) {
       throw new Error("Mailbox does not support persistentUIDs.");
