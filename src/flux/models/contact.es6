@@ -80,6 +80,7 @@ export default class Contact extends Model {
       queryable: true,
       modelKey: 'isSearchIndexed',
       jsonKey: 'is_search_indexed',
+      defaultValue: false,
     }),
   });
 
@@ -88,7 +89,7 @@ export default class Contact extends Model {
       return [
         'CREATE INDEX IF NOT EXISTS ContactEmailIndex ON Contact(email)',
         'CREATE INDEX IF NOT EXISTS ContactAccountEmailIndex ON Contact(account_id, email)',
-        'CREATE INDEX IF NOT EXISTS ContactIsSearchIndexedIndex ON `Contact` (is_search_indexed)',
+        'CREATE INDEX IF NOT EXISTS ContactIsSearchIndexedIndex ON `Contact` (is_search_indexed, id)',
       ];
     },
   };

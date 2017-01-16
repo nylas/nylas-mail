@@ -16,6 +16,7 @@ export default class AttributeBoolean extends Attribute {
     return ((val === 'true') || (val === true)) || false;
   }
   columnSQL() {
-    return `${this.jsonKey} INTEGER`;
+    const defaultValue = this.defaultValue ? 1 : 0;
+    return `${this.jsonKey} INTEGER DEFAULT ${defaultValue}`;
   }
 }
