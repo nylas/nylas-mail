@@ -110,6 +110,7 @@ class Thread extends ModelWithMetadata {
       queryable: true,
       modelKey: 'isSearchIndexed',
       jsonKey: 'is_search_indexed',
+      defaultValue: false,
     }),
   })
 
@@ -142,7 +143,7 @@ class Thread extends ModelWithMetadata {
       'CREATE INDEX IF NOT EXISTS ThreadStarredIndex ON `Thread` (account_id, last_message_received_timestamp DESC) WHERE starred = 1 AND in_all_mail = 1',
       'CREATE INDEX IF NOT EXISTS ThreadUnifiedStarredIndex ON `Thread` (last_message_received_timestamp DESC) WHERE starred = 1 AND in_all_mail = 1',
 
-      'CREATE INDEX IF NOT EXISTS ThreadIsSearchIndexedIndex ON `Thread` (is_search_indexed)',
+      'CREATE INDEX IF NOT EXISTS ThreadIsSearchIndexedIndex ON `Thread` (is_search_indexed, id)',
     ],
   }
 

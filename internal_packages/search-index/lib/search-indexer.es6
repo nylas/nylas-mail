@@ -28,12 +28,10 @@ export default class SearchIndexer {
     const results = await Promise.all(Object.keys(this._searchableModels).map((modelName) => {
       const modelClass = this._searchableModels[modelName].klass;
       const query = DatabaseStore.findAll(modelClass)
-                    .whereAny([
-                      modelClass.attributes.isSearchIndexed.equal(false),
-                      modelClass.attributes.isSearchIndexed.equal(null),
-                    ])
+                    .where(modelClass.attributes.isSearchIndexed.equal(false))
                     .order(modelClass.attributes.id.ascending())
                     .limit(CHUNK_SIZE);
+      // console.info(query.sql());
       return query;
     }));
     return results.reduce((acc, curr) => acc.concat(curr), []);
@@ -63,7 +61,7 @@ export default class SearchIndexer {
   }
 
   _scheduleRun() {
-    console.log(`SearchIndexer: setting timeout for ${this._computeNextTimeout()} ms`);
+    // console.info(`SearchIndexer: setting timeout for ${this._computeNextTimeout()} ms`);
     setTimeout(() => this.run(), this._computeNextTimeout());
   }
 
@@ -78,7 +76,6 @@ export default class SearchIndexer {
     let numItemsIndexed = 0;
 
     const indexNextChunk = (unindexedItems) => {
-      console.info('unindexedItems:', unindexedItems);
       if (firstIter) {
         this._lastTimeStart = start;
         firstIter = false;
@@ -87,7 +84,7 @@ export default class SearchIndexer {
       if (unindexedItems.length === 0) {
         this._hasIndexingToDo = false;
         this._lastTimeStop = new Date();
-        console.info(`Finished indexing ${numItemsIndexed} items, took ${current.getTime() - start.getTime()} ms`);
+        // console.info(`Finished indexing ${numItemsIndexed} items, took ${current.getTime() - start.getTime()} ms`);
         return;
       }
 
@@ -101,7 +98,7 @@ export default class SearchIndexer {
       }
 
       this._lastTimeStop = new Date();
-      console.info(`SearchIndexer: Finished indexing ${numItemsIndexed} items, took ${current.getTime() - start.getTime()} ms`);
+      // console.info(`SearchIndexer: Finished indexing ${numItemsIndexed} items, took ${current.getTime() - start.getTime()} ms`);
       this._scheduleRun();
     };
     this._getNewItemsToIndex().then(indexNextChunk);

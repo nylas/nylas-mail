@@ -124,6 +124,8 @@ class Model
       continue if key is 'id'
       attr = @constructor.attributes[key]
       attrValue = @[key]
+      if attrValue is undefined
+        attrValue = attr.defaultValue
       continue if attrValue is undefined
       continue if attr instanceof Attributes.AttributeJoinedData and options.joined is false
       json[attr.jsonKey] = attr.toJSON(attrValue)

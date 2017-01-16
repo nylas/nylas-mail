@@ -115,6 +115,7 @@ export default class Event extends Model {
       queryable: true,
       modelKey: 'isSearchIndexed',
       jsonKey: 'is_search_indexed',
+      defaultValue: false,
     }),
   });
 
@@ -122,7 +123,7 @@ export default class Event extends Model {
     setup: () => {
       return [
         'CREATE UNIQUE INDEX IF NOT EXISTS EventClientIndex ON Event(client_id)',
-        'CREATE INDEX IF NOT EXISTS EventIsSearchIndexedIndex ON `Event` (is_search_indexed)',
+        'CREATE INDEX IF NOT EXISTS EventIsSearchIndexedIndex ON `Event` (is_search_indexed, id)',
       ];
     },
   };
