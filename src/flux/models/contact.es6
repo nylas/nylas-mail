@@ -77,6 +77,7 @@ export default class Contact extends Model {
     }),
 
     isSearchIndexed: Attributes.Boolean({
+      queryable: true,
       modelKey: 'isSearchIndexed',
       jsonKey: 'is_search_indexed',
     }),

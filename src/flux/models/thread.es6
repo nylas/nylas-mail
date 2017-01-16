@@ -107,6 +107,7 @@ class Thread extends ModelWithMetadata {
     }),
 
     isSearchIndexed: Attributes.Boolean({
+      queryable: true,
       modelKey: 'isSearchIndexed',
       jsonKey: 'is_search_indexed',
     }),

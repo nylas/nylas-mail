@@ -150,6 +150,18 @@ class Matcher {
     }
 
     switch (this.comparator) {
+      case '=': {
+        if (escaped === null) {
+          return `\`${klass.name}\`.\`${this.attr.jsonKey}\` IS NULL`;
+        }
+        return `\`${klass.name}\`.\`${this.attr.jsonKey}\` = ${escaped}`;
+      }
+      case '!=': {
+        if (escaped === null) {
+          return `\`${klass.name}\`.\`${this.attr.jsonKey}\` IS NOT NULL`;
+        }
+        return `\`${klass.name}\`.\`${this.attr.jsonKey}\` != ${escaped}`;
+      }
       case 'startsWith':
         return " RAISE `TODO`; ";
       case 'contains':

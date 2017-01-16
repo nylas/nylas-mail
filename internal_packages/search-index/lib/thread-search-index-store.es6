@@ -19,10 +19,14 @@ class ThreadSearchIndexStore {
 
   constructor() {
     this.unsubscribers = []
+    this.indexer = null;
   }
 
-  activate() {
-    const date = Date.now()
+  activate(indexer) {
+    this.indexer = indexer;
+    this.indexer.registerSearchableModel(Thread, (model) => this.updateThreadIndex(model));
+
+    const date = Date.now();
     console.log('Thread Search: Initializing thread search index...')
 
     this.accountIds = _.pluck(AccountStore.accounts(), 'id')
@@ -128,7 +132,7 @@ class ThreadSearchIndexStore {
 
       let promises = []
       if (type === 'persist') {
-        promises = threads.map(this.updateThreadIndex)
+        this.indexer.notifyHasIndexingToDo();
       } else if (type === 'unpersist') {
         promises = threads.map(this.unindexThread)
       }
