@@ -43,7 +43,7 @@ class DatabaseConnector {
   }
 
   _sequelizeForShared() {
-    const sequelize = this._sequelizePoolForDatabase(`ebdb`);
+    const sequelize = this._sequelizePoolForDatabase(process.env.DB_NAME);
     const db = loadModels(Sequelize, sequelize, {
       modelDirs: [path.join(__dirname, 'models')],
     })

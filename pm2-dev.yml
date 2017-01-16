@@ -5,6 +5,7 @@ apps:
     name     : api
     env      :
       PORT: 5100
+      DB_NAME : "nylasmailclouddb"
       DB_ENCRYPTION_ALGORITHM : "aes-256-ctr"
       DB_ENCRYPTION_PASSWORD : "d6F3Efeq"
       GMAIL_CLIENT_ID : "271342407743-nibas08fua1itr1utq9qjladbkv3esdm.apps.googleusercontent.com"
