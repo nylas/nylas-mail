@@ -43,7 +43,7 @@ that is not a Store, you can still use the `listen` method provided by Reflux:
 
 ```coffee
 setup: ->
-  @unlisten = Actions.didPassivelyReceiveCreateDeltas.listen(@onNewMailReceived, @)
+  @unlisten = Actions.onNewMailDeltas.listen(@onNewMailReceived, @)
 
 onNewMailReceived: (data) ->
   console.log("You've got mail!", data)
@@ -70,7 +70,7 @@ class Actions {
   }
   ```
   */
-  static didPassivelyReceiveCreateDeltas = ActionScopeGlobal;
+  static onNewMailDeltas = ActionScopeGlobal;
 
   static didReceiveSyncbackRequestDeltas = ActionScopeWindow;
 
@@ -111,7 +111,6 @@ class Actions {
   static dequeueMatchingTask = ActionScopeWorkWindow;
 
   static longPollReceivedRawDeltas = ActionScopeWorkWindow;
-  static longPollReceivedRawDeltasPing = ActionScopeGlobal;
   static longPollProcessedDeltas = ActionScopeWorkWindow;
   static willMakeAPIRequest = ActionScopeWorkWindow;
   static didMakeAPIRequest = ActionScopeWorkWindow;

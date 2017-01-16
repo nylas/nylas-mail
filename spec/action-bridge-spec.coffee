@@ -83,19 +83,19 @@ describe "ActionBridge", ->
     describe "when called with TargetWindows.ALL", ->
       it "should broadcast the action over IPC to all windows", ->
         spyOn(ipc, 'send')
-        Actions.didPassivelyReceiveCreateDeltas.firing = false
-        @bridge.onRebroadcast(ActionBridge.TargetWindows.ALL, 'didPassivelyReceiveCreateDeltas', [{oldModel: '1', newModel: 2}])
-        expect(ipc.send).toHaveBeenCalledWith('action-bridge-rebroadcast-to-all', 'popout', 'didPassivelyReceiveCreateDeltas', '[{"oldModel":"1","newModel":2}]')
+        Actions.onNewMailDeltas.firing = false
+        @bridge.onRebroadcast(ActionBridge.TargetWindows.ALL, 'onNewMailDeltas', [{oldModel: '1', newModel: 2}])
+        expect(ipc.send).toHaveBeenCalledWith('action-bridge-rebroadcast-to-all', 'popout', 'onNewMailDeltas', '[{"oldModel":"1","newModel":2}]')
 
     describe "when called with TargetWindows.WORK", ->
       it "should broadcast the action over IPC to the main window only", ->
         spyOn(ipc, 'send')
-        Actions.didPassivelyReceiveCreateDeltas.firing = false
-        @bridge.onRebroadcast(ActionBridge.TargetWindows.WORK, 'didPassivelyReceiveCreateDeltas', [{oldModel: '1', newModel: 2}])
-        expect(ipc.send).toHaveBeenCalledWith('action-bridge-rebroadcast-to-work', 'popout', 'didPassivelyReceiveCreateDeltas', '[{"oldModel":"1","newModel":2}]')
+        Actions.onNewMailDeltas.firing = false
+        @bridge.onRebroadcast(ActionBridge.TargetWindows.WORK, 'onNewMailDeltas', [{oldModel: '1', newModel: 2}])
+        expect(ipc.send).toHaveBeenCalledWith('action-bridge-rebroadcast-to-work', 'popout', 'onNewMailDeltas', '[{"oldModel":"1","newModel":2}]')
 
     it "should not do anything if the current invocation of the Action was triggered by itself", ->
       spyOn(ipc, 'send')
-      Actions.didPassivelyReceiveCreateDeltas.firing = true
-      @bridge.onRebroadcast(ActionBridge.TargetWindows.ALL, 'didPassivelyReceiveCreateDeltas', [{oldModel: '1', newModel: 2}])
+      Actions.onNewMailDeltas.firing = true
+      @bridge.onRebroadcast(ActionBridge.TargetWindows.ALL, 'onNewMailDeltas', [{oldModel: '1', newModel: 2}])
       expect(ipc.send).not.toHaveBeenCalled()
