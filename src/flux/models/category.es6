@@ -169,9 +169,10 @@ export default class Category extends Model {
   }
 
   isSyncComplete() {
-    // We sync by folders, not labels. So if the category is a label, just
-    // return based on the sync status for the entire account.
-    if (this.object === 'label') {
+    // We sync by folders, not labels. If the category is a label, or hasn't been
+    // assigned an object type yet, just return based on the sync status for the
+    // entire account.
+    if (this.object !== 'folder') {
       return NylasSyncStatusStore.isSyncCompleteForAccount(this.accountId);
     }
     return NylasSyncStatusStore.isSyncCompleteForAccount(
