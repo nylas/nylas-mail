@@ -211,7 +211,10 @@ class FetchMessagesInFolderIMAP extends SyncTask {
   async * _fetchAndProcessMessages({min, max} = {}) {
     const uidsByPart = {};
     const structsByPart = {};
-    const rangeQuery = `${min}:${max}`
+    const rangeQuery = `${min}:${max}`;
+    if (min < 0 || max < 0) {
+      throw new Error(`Min (${min}) and max (${max}) must be > 0`);
+    } // it's OK if max < min though, IMAP will just invert them
 
     // console.log(`FetchMessagesInFolderIMAP: Going to FETCH messages in range ${rangeQuery}`);
 
