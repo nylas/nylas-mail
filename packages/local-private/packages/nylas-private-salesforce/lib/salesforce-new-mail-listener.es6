@@ -12,7 +12,7 @@ import * as mdHelpers from './metadata-helpers'
 class SalesforceNewMailListener extends NylasStore {
 
   activate() {
-    this.listenTo(Actions.didPassivelyReceiveCreateDeltas, this._newMailReceived);
+    this.listenTo(Actions.onNewMailDeltas, this._newMailReceived);
     this.listenTo(Actions.draftDeliverySucceeded, this._onSendDraftSuccess);
   }
 
