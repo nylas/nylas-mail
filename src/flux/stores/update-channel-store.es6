@@ -4,7 +4,7 @@ import {remote} from 'electron';
 import EdgehillAPI from '../edgehill-api';
 
 const autoUpdater = remote.getGlobal('application').autoUpdateManager;
-const preferredChannel = 'stable';
+const preferredChannel = autoUpdater.preferredChannel;
 
 class UpdateChannelStore extends NylasStore {
   constructor() {
