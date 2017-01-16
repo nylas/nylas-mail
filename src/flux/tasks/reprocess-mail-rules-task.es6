@@ -9,9 +9,10 @@ import CategoryStore from '../stores/category-store';
 import MailRulesProcessor from '../../mail-rules-processor';
 
 export default class ReprocessMailRulesTask extends Task {
-  constructor(accountId) {
+  constructor(accountId, inboxOnly) {
     super();
     this.accountId = accountId;
+    this.inboxOnly = inboxOnly;
     this._processed = this._processed || 0;
     this._offset = this._offset || 0;
     this._lastTimestamp = this._lastTimestamp || null;
@@ -39,8 +40,11 @@ export default class ReprocessMailRulesTask extends Task {
   }
 
   _processSomeMessages = (callback) => {
-    const inboxCategory = CategoryStore.getStandardCategory(this.accountId, 'inbox');
-    if (!inboxCategory) {
+    const inboxCategory = this.inboxOnly
+      ? CategoryStore.getStandardCategory(this.accountId, 'inbox')
+      : null;
+
+    if (this.inboxOnly && !inboxCategory) {
       return callback(new Error("ReprocessMailRulesTask: No inbox category found."));
     }
 
@@ -49,11 +53,16 @@ export default class ReprocessMailRulesTask extends Task {
 
     // Note that we look for "50 after X" rather than "offset 150", because
     // running mail rules can move things out of the inbox!
-    const query = DatabaseStore
-      .findAll(Thread, {accountId: this.accountId})
-      .where(Thread.attributes.categories.contains(inboxCategory.id))
-      .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
-      .limit(50)
+    const query = this.inboxOnly
+      ? DatabaseStore
+        .findAll(Thread, {accountId: this.accountId})
+        .where(Thread.attributes.categories.contains(inboxCategory.id))
+        .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
+        .limit(50)
+      : DatabaseStore
+        .findAll(Thread, {accountId: this.accountId})
+        .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
+        .limit(50)
 
     if (this._lastTimestamp !== null) {
       query.where(Thread.attributes.lastMessageReceivedTimestamp.lessThan(this._lastTimestamp))

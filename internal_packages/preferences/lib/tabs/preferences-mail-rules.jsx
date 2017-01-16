@@ -67,7 +67,7 @@ class PreferencesMailRules extends React.Component {
     });
   }
 
-  _onReprocessRules = () => {
+  _onReprocessRules = (inboxOnly) => {
     const needsMessageBodies = () => {
       for (const rule of this.state.rules) {
         for (const condition of rule.conditions) {
@@ -83,8 +83,16 @@ class PreferencesMailRules extends React.Component {
       NylasEnv.showErrorDialog("One or more of your mail rules requires the bodies of messages being processed. These rules can't be run on your entire mailbox.");
     }
 
-    const task = new ReprocessMailRulesTask(this.state.currentAccount.accountId)
+    const task = new ReprocessMailRulesTask(this.state.currentAccount.accountId, inboxOnly)
     Actions.queueTask(task);
+  }
+
+  _onReprocessRulesAgainstInbox = () => {
+    this._onReprocessRules(true);
+  }
+
+  _onReprocessRulesAgainstAll = () => {
+    this._onReprocessRules(false);
   }
 
   _onAddRule = () => {
@@ -285,7 +293,16 @@ class PreferencesMailRules extends React.Component {
           <Flexbox style={{marginTop: 40, maxWidth: 600}}>
             <div>
               <button disabled={processDisabled} className="btn" style={{'float': 'right'}} onClick={this._onReprocessRules}>
-                Process entire inbox
+                Process inbox
+              </button>
+            </div>
+            {this._renderTasks()}
+          </Flexbox>
+
+          <Flexbox style={{marginTop: 40, maxWidth: 600}}>
+            <div>
+              <button disabled={processDisabled} className="btn" style={{'float': 'right'}} onClick={this._onReprocessRules}>
+                Process all mail
               </button>
             </div>
             {this._renderTasks()}
