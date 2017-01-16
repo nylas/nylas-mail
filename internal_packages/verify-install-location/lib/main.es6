@@ -12,10 +12,6 @@ import {ipcRenderer, remote} from 'electron'
 
 function onDialogActionTaken(numAsks) {
   return (buttonIndex) => {
-    if (buttonIndex === 0) {
-      ipcRenderer.send("move-to-applications")
-    }
-
     if (numAsks >= 1) {
       if (buttonIndex === 1) {
         NylasEnv.config.set("asksAboutAppMove", 5)
@@ -44,32 +40,36 @@ export function activate() {
     return;
   }
 
-  const numAsks = NylasEnv.config.get("asksAboutAppMove")
+  const numAsks = NylasEnv.config.get("asksAboutAppMove") || 0
+  if (numAsks <= 0) {
+    NylasEnv.config.set("asksAboutAppMove", 1)
+    return;
+  }
+
+  NylasEnv.config.set("asksAboutAppMove", numAsks + 1)
   if (numAsks >= 5) return;
 
   let buttons;
   if (numAsks >= 1) {
     buttons = [
-      "Move to Applications folder",
+      "Okay",
       "Don't ask again",
-      "Do not move",
     ]
   } else {
     buttons = [
-      "Move to Applications folder",
-      "Do not move",
+      "Okay",
     ]
   }
 
   const msg = `We recommend that you move N1 to your Applications folder to get updates correctly and keep this folder uncluttered.`
 
-  const CANCEL_ID = 3;
+  const CANCEL_ID = 0;
 
   remote.dialog.showMessageBox({
-    type: "question",
+    type: "warning",
     buttons: buttons,
-    title: "A Better Place to Install N1",
-    message: "Move to Applications folder?",
+    title: "A Better Place to Install Nylas Mail",
+    message: "Please move Nylas Mail to your Applications folder",
     detail: msg,
     defaultId: 0,
     cancelId: CANCEL_ID,
