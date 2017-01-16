@@ -6,6 +6,7 @@ const INDEXING_PAGE_DELAY = 1000;
 export default class ModelSearchIndexer {
   constructor() {
     this.unsubscribers = []
+    this.indexer = null;
   }
 
   get ConfigKey() {
@@ -24,16 +25,21 @@ export default class ModelSearchIndexer {
     throw new Error("Override me and return a hash with a `content` array")
   }
 
-  activate() {
+  activate(indexer) {
+    this.indexer = indexer;
+    this.indexer.registerSearchableModel(this.ModelClass, (model) => this._indexModel(model));
+
     this._initializeIndex();
     this.unsubscribers = [
       // TODO listen for changes in AccountStore
       DatabaseStore.listen(this._onDataChanged),
+      () => indexer.unregisterSearchableModel(this.ModelClass),
     ];
   }
 
   deactivate() {
     this.unsubscribers.forEach(unsub => unsub())
+    this.indexer = null;
   }
 
   _initializeIndex() {
@@ -67,6 +73,14 @@ export default class ModelSearchIndexer {
     });
   }
 
+  _indexModel(model) {
+    DatabaseStore.indexModel(model, this.getIndexDataForModel(model))
+  }
+
+  _unindexModel(model) {
+    DatabaseStore.unindexModel(model)
+  }
+
   /**
    * When a model gets updated we will update the search index with the
    * data from that model if the account it belongs to is not being
@@ -79,9 +93,9 @@ export default class ModelSearchIndexer {
 
     change.objects.forEach((model) => {
       if (change.type === 'persist') {
-        DatabaseStore.indexModel(model, this.getIndexDataForModel(model))
+        this.indexer.notifyHasIndexingToDo();
       } else {
-        DatabaseStore.unindexModel(model)
+        this._unindexModel(model);
       }
     });
   }

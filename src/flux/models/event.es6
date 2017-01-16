@@ -112,6 +112,7 @@ export default class Event extends Model {
     }),
 
     isSearchIndexed: Attributes.Boolean({
+      queryable: true,
       modelKey: 'isSearchIndexed',
       jsonKey: 'is_search_indexed',
     }),
