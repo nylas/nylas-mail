@@ -14,7 +14,7 @@ const UpdateAvailableState = 'update-available';
 const NoUpdateAvailableState = 'no-update-available';
 const UnsupportedState = 'unsupported';
 const ErrorState = 'error';
-const preferredChannel = 'nylas-mail'
+const preferredChannel = 'stable'
 
 export default class AutoUpdateManager extends EventEmitter {
 
