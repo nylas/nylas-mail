@@ -14,6 +14,7 @@ const UpdateAvailableState = 'update-available';
 const NoUpdateAvailableState = 'no-update-available';
 const UnsupportedState = 'unsupported';
 const ErrorState = 'error';
+const preferredChannel = 'nylas-mail'
 
 export default class AutoUpdateManager extends EventEmitter {
 
@@ -24,6 +25,7 @@ export default class AutoUpdateManager extends EventEmitter {
     this.version = version;
     this.config = config;
     this.specMode = specMode;
+    this.preferredChannel = preferredChannel;
 
     this._updateFeedURL();
 
@@ -60,6 +62,7 @@ export default class AutoUpdateManager extends EventEmitter {
       version: this.version,
       id: updaterId,
       emails: updaterEmails,
+      preferredChannel: this.preferredChannel,
     };
   }
 
