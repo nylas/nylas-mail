@@ -99,7 +99,7 @@ class NylasSyncStatusStore extends NylasStore {
         if (uidnext) {
           // TODO: when we unify the databases, we shouldn't need code to
           // calculate this in two different places anymore
-          const progress = (+minUID + (+fetchedmax - +fetchedmin) + 1) / uidnext
+          const progress = (+fetchedmax - +fetchedmin + 1) / (uidnext - minUID + 1)
           updates[name] = {
             progress,
             total: uidnext,
@@ -128,52 +128,6 @@ class NylasSyncStatusStore extends NylasStore {
 
   getSyncState() {
     return this._statesByAccount
-  }
-
-  /**
-   * Returns the weighted sync progress as a percentage, and
-   * the total number of messages to sync for a given account
-   */
-  getSyncProgressForAccount(accountId) {
-    const state = this._statesByAccount[accountId]
-    if (!state) { return null }
-    const {folderSyncProgress} = this._statesByAccount[accountId]
-    if (!folderSyncProgress) { return null }
-    const folderNames = Object.keys(folderSyncProgress)
-    const progressPerFolder = folderNames.map(fname => folderSyncProgress[fname])
-    const weightedProgress = progressPerFolder.reduce(
-      (accum, {progress, total}) => accum + progress * total, 0
-    )
-    const totalMessageCount = progressPerFolder.reduce(
-      (accum, {total}) => accum + total, 0
-    )
-    return {
-      progress: weightedProgress / totalMessageCount,
-      total: totalMessageCount,
-    }
-  }
-
-  /**
-   * Returns the weighted sync progress for all accounts as a percentage, and
-   * the total number of messages to sync
-   */
-  getSyncProgress() {
-    const accountIds = AccountStore.accountIds()
-    const progressPerAccount = (
-      accountIds
-      .map(accId => this.getSyncProgressForAccount(accId))
-      .filter(p => p != null)
-    )
-    const weightedProgress = progressPerAccount.reduce(
-      (accum, {progress, total}) => accum + progress * total, 0
-    )
-    const totalMessageCount = progressPerAccount.reduce(
-      (accum, {total}) => accum + total, 0
-    )
-    return {
-      progress: totalMessageCount ? weightedProgress / totalMessageCount : 0,
-      total: totalMessageCount,
-    }
   }
 
   /**

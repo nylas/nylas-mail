@@ -12,7 +12,6 @@ export default class InitialSyncActivity extends React.Component {
     super(props);
     this.state = {
       syncState: NylasSyncStatusStore.getSyncState(),
-      syncProgress: NylasSyncStatusStore.getSyncProgress(),
     }
     this.mounted = false;
   }
@@ -33,9 +32,8 @@ export default class InitialSyncActivity extends React.Component {
   }
 
   onDataChanged = () => {
-    const syncState = NylasSyncStatusStore.getSyncState()
-    const syncProgress = NylasSyncStatusStore.getSyncProgress()
-    this.setState({syncState, syncProgress});
+    const syncState = Utils.deepClone(NylasSyncStatusStore.getSyncState())
+    this.setState({syncState});
   }
 
   renderFolderProgress(name, progress, oldestProcessedDate) {
@@ -70,7 +68,7 @@ export default class InitialSyncActivity extends React.Component {
   }
 
   render() {
-    if (!AccountStore.accountsAreSyncing() || this.state.syncProgress.progress === 1) {
+    if (!AccountStore.accountsAreSyncing() || NylasSyncStatusStore.isSyncComplete()) {
       return false;
     }
 
