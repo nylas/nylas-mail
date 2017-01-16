@@ -40,15 +40,10 @@ class UpdateChannelSection extends React.Component {
 
     // HACK: Temporarily do not allow users to move on to the Salesforce channel.
     // In the future we could implement this server-side via a "public" flag.
-    const allowedNames = ["nylas-mail", "beta"]
+    const allowedNames = ["stable", "nylas-mail", "beta"]
+
     if (NylasEnv.config.get("salesforce")) {
       allowedNames.push("salesforce");
-    }
-
-    // Also a HACK: show the stable channel only for people who are on the stable
-    // channel.
-    if (current.name === "stable") {
-      allowedNames.push("stable");
     }
 
     const allowed = available.filter(c => {
@@ -57,9 +52,11 @@ class UpdateChannelSection extends React.Component {
 
     const displayNameForChannel = (channel) => {
       if (channel.name === 'beta') {
-        return 'Beta (Unstable)'
+        return 'Beta (Unstable)';
       } else if (channel.name === 'nylas-mail') {
-        return 'Nylas Mail (Stable)'
+        return 'Nylas Mail (Stable)';
+      } else if (channel.name === 'stable') {
+        return 'Nylas Pro (Stable)';
       }
 
       return channel.name[0].toUpperCase() + channel.name.substr(1)
