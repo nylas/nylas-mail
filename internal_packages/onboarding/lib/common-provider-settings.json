@@ -61,6 +61,12 @@
     "smtp_user_format": "email",
     "imap_user_format": "email",
     "ssl": "1",
+    "smtp_custom_config": {
+      "host": "smtp.mail.me.com",
+      "port": 587,
+      "secure": false,
+      "tls": {"ciphers": "SSLv3"}
+    },
     "imap_host": "imap.mail.me.com",
     "smtp_host": "smtp.mail.me.com",
     "occurences": 1624
