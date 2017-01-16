@@ -2,6 +2,7 @@
 import Task from './task';
 import Actions from '../actions';
 import Message from '../models/message';
+import Account from '../models/account';
 import NylasAPI from '../nylas-api';
 import * as NylasAPIHelpers from '../nylas-api-helpers';
 import SyncbackTaskAPIRequest from '../syncback-task-api-request';
@@ -219,13 +220,23 @@ export default class SendDraftTask extends BaseDraftTask {
 
     let message = err.message;
 
+    // TODO Handle errors in a cleaner way
     if (err instanceof APIError) {
-      message = `Sorry, this message could not be sent. Please try again, and make sure your message is addressed correctly and is not too large.`;
-      if (err.statusCode === 402 && err.body.message) {
-        if (err.body.message.includes('at least one recipient')) {
+      const errorMessage = err.body.message || ''
+      message = `Sorry, this message could not be sent. Please try again, make sure your message is addressed correctly and is not too large.`;
+      message += `\n\nReason: ${err.message}`
+      if (errorMessage.includes('Network Error')) {
+        message = `Sorry, this message could not be sent. There was a network error, please make sure you are online.`
+      }
+      if (errorMessage.includes('Invalid login')) {
+        Actions.updateAccount(this.draft.accountId, {syncState: Account.SYNC_STATE_AUTH_FAILED})
+        message = `Sorry, this message could not be sent due to an authentication error. Please re-authenticate your account and try again.`
+      }
+      if (err.statusCode === 402) {
+        if (errorMessage.includes('at least one recipient')) {
           message = `This message could not be delivered to at least one recipient. (Note: other recipients may have received this message - you should check Sent Mail before re-sending this message.)`;
         } else {
-          message = `Sorry, this message could not be sent because it was rejected by your mail provider. (${err.body.message})`;
+          message = `Sorry, this message could not be sent because it was rejected by your mail provider. (${errorMessage})`;
           if (err.body.server_error) {
             message += `\n\n${err.body.server_error}`;
           }

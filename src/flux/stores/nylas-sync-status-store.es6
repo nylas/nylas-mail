@@ -46,13 +46,6 @@ class NylasSyncStatusStore extends NylasStore {
     this.listenTo(AccountStore, () => this._onAccountsChanged())
     this.listenTo(CategoryStore, () => this._onCategoriesChanged())
 
-    // Trigger periodically to update `connected` state
-    // Specifically, if we go offline, we want to eventually indicate that we
-    // are back online without forcing the user to click the button
-    setInterval(() => {
-      this.trigger()
-    }, 30 * 1000)
-
     this._onCategoriesChanged()
     this._setupAccountSubscriptions(AccountStore.accountIds())
   }
