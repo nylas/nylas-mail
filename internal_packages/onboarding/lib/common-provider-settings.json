@@ -201,16 +201,6 @@
     "smtp_host": "smtp-mail.outlook.com",
     "occurences": 129
   },
-  "fastmail.com": {
-    "imap_host": "imap.fastmail.com",
-    "imap_port": "993",
-    "smtp_host": "smtp.fastmail.com",
-    "smtp_port": "465",
-    "smtp_user_format": "email",
-    "imap_user_format": "email",
-    "ssl": "1",
-    "occurences": 91
-  },
   "yahoo.es": {
     "imap_port": "993",
     "smtp_port": "587",
