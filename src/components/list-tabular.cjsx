@@ -22,10 +22,10 @@ class ListTabular extends React.Component
     onSelect: React.PropTypes.func
     onClick: React.PropTypes.func
     onDoubleClick: React.PropTypes.func
-    renderFooterContent: React.PropTypes.func
+    footer: React.PropTypes.node
 
   @defaultProps =
-    renderFooterContent: => null
+    footer: => false
 
   constructor: (@props) ->
     if not @props.itemHeight
@@ -190,7 +190,7 @@ class ListTabular extends React.Component
         >
           {@_rows()}
         </div>
-        <div className="footer">{@props.renderFooterContent()}</div>
+        <div className="footer">{@props.footer}</div>
       </ScrollRegion>
       <Spinner visible={!@state.loaded and @state.empty} />
       {emptyElement}
