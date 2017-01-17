@@ -94,6 +94,7 @@ class DeltaProcessor {
     rawDeltas.forEach((delta) => {
       if (!delta.attributes) return;
       Object.defineProperty(delta.attributes, '_delta', {
+        configurable: true,
         get() { return delta; },
       });
     })
