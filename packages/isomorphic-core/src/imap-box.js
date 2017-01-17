@@ -1,5 +1,4 @@
 const _ = require('underscore');
-const PromiseUtils = require('./promise-utils')
 
 const {
   IMAPConnectionNotReadyError,
@@ -147,60 +146,89 @@ class IMAPBox {
     if (!this._conn._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPBox::addFlags`)
     }
-    return this._conn._imap.addFlagsAsync(range, flags)
+
+    return this._conn.createConnectionPromise((resolve, reject) => {
+      return this._conn._imap.addFlagsAsync(range, flags)
+      .then((...args) => resolve(...args))
+      .catch((...args) => reject(...args))
+    })
   }
 
   delFlags(range, flags) {
     if (!this._conn._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPBox::delFlags`)
     }
-    return this._conn._imap.delFlagsAsync(range, flags)
+    return this._conn.createConnectionPromise((resolve, reject) => {
+      return this._conn._imap.delFlagsAsync(range, flags)
+      .then((...args) => resolve(...args))
+      .catch((...args) => reject(...args))
+    })
   }
 
   moveFromBox(range, folderName) {
     if (!this._conn._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPBox::moveFromBox`)
     }
-    return this._conn._imap.moveAsync(range, folderName)
+    return this._conn.createConnectionPromise((resolve, reject) => {
+      return this._conn._imap.moveAsync(range, folderName)
+      .then((...args) => resolve(...args))
+      .catch((...args) => reject(...args))
+    })
   }
 
   setLabels(range, labels) {
     if (!this._conn._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPBox::moveFromBox`)
     }
-    return this._conn._imap.setLabelsAsync(range, labels)
+    return this._conn.createConnectionPromise((resolve, reject) => {
+      return this._conn._imap.setLabelsAsync(range, labels)
+      .then((...args) => resolve(...args))
+      .catch((...args) => reject(...args))
+    })
   }
 
   removeLabels(range, labels) {
     if (!this._conn._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPBox::moveFromBox`)
     }
-    return this._conn._imap.delLabelsAsync(range, labels)
+    return this._conn.createConnectionPromise((resolve, reject) => {
+      return this._conn._imap.delLabelsAsync(range, labels)
+      .then((...args) => resolve(...args))
+      .catch((...args) => reject(...args))
+    })
   }
 
   append(rawMime, options) {
     if (!this._conn._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPBox::append`)
     }
-    return PromiseUtils.promisify(this._conn._imap.append).call(
-      this._conn._imap, rawMime, options
-    );
+    return this._conn.createConnectionPromise((resolve, reject) => {
+      return this._conn._imap.appendAsync(rawMime, options)
+      .then((...args) => resolve(...args))
+      .catch((...args) => reject(...args))
+    })
   }
 
   search(criteria) {
     if (!this._conn._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPBox::search`)
     }
-    return PromiseUtils.promisify(this._conn._imap.search).call(
-      this._conn._imap, criteria
-    );
+    return this._conn.createConnectionPromise((resolve, reject) => {
+      return this._conn._imap.searchAsync(criteria)
+      .then((...args) => resolve(...args))
+      .catch((...args) => reject(...args))
+    })
   }
 
   closeBox({expunge = true} = {}) {
     if (!this._conn._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPBox::closeBox`)
     }
-    return this._conn._imap.closeBoxAsync(expunge)
+    return this._conn.createConnectionPromise((resolve, reject) => {
+      return this._conn._imap.closeBoxAsync(expunge)
+      .then((...args) => resolve(...args))
+      .catch((...args) => reject(...args))
+    })
   }
 }
 
