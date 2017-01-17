@@ -38,12 +38,12 @@ class MatchQueryExpressionVisitor extends SearchQueryExpressionVisitor {
 
   visitFrom(node) {
     const text = this.visitAndGetResult(node.text);
-    this._result = `(participants : "${text}"*)`;
+    this._result = `(from_ : "${text}"*)`;
   }
 
   visitTo(node) {
     const text = this.visitAndGetResult(node.text);
-    this._result = `(participants : "${text}"*)`;
+    this._result = `(to_ : "${text}"*)`;
   }
 
   visitSubject(node) {

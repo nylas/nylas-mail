@@ -149,7 +149,7 @@ class Thread extends ModelWithMetadata {
 
   static searchable = true
 
-  static searchFields = ['subject', 'participants', 'categories', 'body']
+  static searchFields = ['subject', 'to_', 'from_', 'categories', 'body']
 
   messages() {
     return (
