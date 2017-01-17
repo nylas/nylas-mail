@@ -1,4 +1,46 @@
 {
+  "yahoo": {
+    "imap_port": "993",
+    "smtp_port": "587",
+    "smtp_user_format": "email",
+    "imap_user_format": "email",
+    "ssl": "1",
+    "smtp_custom_config": {
+      "host": "smtp.mail.yahoo.com",
+      "port": 587,
+      "secure": false,
+      "tls": {"ciphers": "SSLv3"}
+    },
+    "imap_host": "imap.mail.yahoo.com",
+    "smtp_host": "smtp.mail.yahoo.com",
+    "occurences": 2083
+  },
+  "fastmail": {
+    "imap_host": "imap.fastmail.com",
+    "imap_port": "993",
+    "smtp_host": "smtp.fastmail.com",
+    "smtp_port": "465",
+    "smtp_user_format": "email",
+    "imap_user_format": "email",
+    "ssl": "1",
+    "occurences": 68
+  },
+  "icloud": {
+    "imap_port": "993",
+    "smtp_port": "587",
+    "smtp_user_format": "email",
+    "imap_user_format": "email",
+    "ssl": "1",
+    "smtp_custom_config": {
+      "host": "smtp.mail.me.com",
+      "port": 587,
+      "secure": false,
+      "tls": {"ciphers": "SSLv3"}
+    },
+    "imap_host": "imap.mail.me.com",
+    "smtp_host": "smtp.mail.me.com",
+    "occurences": 1624
+  },
   "yahoo.com": {
     "imap_port": "993",
     "smtp_port": "587",

@@ -172,9 +172,9 @@ export function isValidHost(value) {
 export function accountInfoWithIMAPAutocompletions(existingAccountInfo) {
   const CommonProviderSettings = require('./common-provider-settings.json');
 
-  const email = existingAccountInfo.email;
+  const {email, type} = existingAccountInfo;
   const domain = email.split('@').pop().toLowerCase();
-  const template = CommonProviderSettings[domain] || {};
+  const template = CommonProviderSettings[domain] || CommonProviderSettings[type] || {};
 
   const usernameWithFormat = (format) => {
     if (format === 'email') {
