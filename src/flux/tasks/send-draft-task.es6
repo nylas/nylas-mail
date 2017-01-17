@@ -36,10 +36,6 @@ const LINK_TRACKING_ID = NylasEnv.packages.pluginIdFor('link-tracking')
  * listening to is currently not saved to disk. This means that
  * SendDraftTask will never know when or if the corresponding K2
  * SyncbackTask ever finished.
- *
- * Not knowing this it will try and send the task again, but fail due to
- * the ensureOnce protection we have preventing API requests from running
- * twice.
  */
 export default class SendDraftTask extends BaseDraftTask {
 
@@ -131,7 +127,7 @@ export default class SendDraftTask extends BaseDraftTask {
           method: 'POST',
           body: this.draft.toJSON(),
           timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
-          ensureOnce: true,
+          ensureOnce: false, // TODO We disabled ensureOnce since K2 handles the task now
           requestId: this.draft.clientId,
           onSyncbackRequestCreated: (syncbackRequest) => {
             this._syncbackRequestId = syncbackRequest.id
