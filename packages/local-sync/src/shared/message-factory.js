@@ -341,7 +341,9 @@ async function buildForSend(db, json) {
 
   let thread;
   let replyHeaders = {};
+  let inReplyToLocalMessageId;
   if (replyToMessage) {
+    inReplyToLocalMessageId = replyToMessage.id;
     replyHeaders = getReplyHeaders(replyToMessage);
     thread = await replyToMessage.getThread();
   } else if (replyToThread) {
@@ -349,6 +351,7 @@ async function buildForSend(db, json) {
     const previousMessages = thread.messages.filter(msg => !msg.isDraft);
     if (previousMessages.length > 0) {
       const lastMessage = previousMessages[previousMessages.length - 1]
+      inReplyToLocalMessageId = lastMessage.id;
       replyHeaders = getReplyHeaders(lastMessage);
     }
   }
@@ -371,6 +374,7 @@ async function buildForSend(db, json) {
     isSent: false,
     version: 0,
     date: date,
+    inReplyToLocalMessageId: inReplyToLocalMessageId,
     uploads: json.uploads,
   }
   // We have to clone the message and change the date for hashing because the
@@ -392,6 +396,7 @@ async function buildForSend(db, json) {
 
 module.exports = {
   buildForSend,
+  getReplyHeaders,
   parseFromImap,
   parseSnippet,
   parseContacts,

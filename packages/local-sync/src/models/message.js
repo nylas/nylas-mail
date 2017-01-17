@@ -45,6 +45,9 @@ module.exports = (sequelize, Sequelize) => {
     }),
     folderImapUID: { type: Sequelize.STRING, allowNull: true},
     folderImapXGMLabels: { type: Sequelize.TEXT, allowNull: true},
+    // Only used for reconstructing In-Reply-To/References when
+    // placing newly sent messages in sent folder for generic IMAP/multi-send
+    inReplyToLocalMessageId: { type: Sequelize.STRING(65), allowNull: true },
     // an array of IDs to Reference objects, specifying which order they
     // appeared on the original message (so we don't muck up the order when
     // sending replies, which could break other mail clients)
