@@ -205,33 +205,34 @@ class ThreadSearchIndexStore {
   }
 
   getIndexData(thread) {
-    const messageBodies = (
-      thread.messages()
-      .then((messages) => (
-        messages
-        .map(({body, snippet}) => (!_.isString(body) ? {snippet} : {body}))
-        .map(({body, snippet}) => (
-          snippet || Utils.extractTextFromHtml(body, {maxLength: MESSAGE_BODY_LENGTH}).replace(/(\s)+/g, ' ')
-        ))
+    return thread.messages().then((messages) => {
+      return {
+        bodies: messages
+           .map(({body, snippet}) => (!_.isString(body) ? {snippet} : {body}))
+           .map(({body, snippet}) => (
+             snippet || Utils.extractTextFromHtml(body, {maxLength: MESSAGE_BODY_LENGTH}).replace(/(\s)+/g, ' ')
+           )).join(' '),
+        to: messages.map(({to, cc, bcc}) => (
+          _.uniq(to.concat(cc).concat(bcc).map(({name, email}) => `${name} ${email}`))
+        )).join(' '),
+        from: messages.map(({from}) => (
+          from.map(({name, email}) => `${name} ${email}`)
+        )).join(' '),
+      };
+    }).then(({bodies, to, from}) => {
+      const categories = (
+        thread.categories
+        .map(({displayName}) => displayName)
         .join(' ')
-      ))
-    )
-    const participants = (
-      thread.participants
-      .map(({name, email}) => `${name} ${email}`)
-      .join(" ")
-    )
-    const categories = (
-      thread.categories
-      .map(({displayName}) => displayName)
-      .join(" ")
-    )
+      )
 
-    return Promise.props({
-      categories,
-      participants,
-      body: messageBodies,
-      subject: thread.subject,
+      return {
+        categories: categories,
+        to_: to,
+        from_: from,
+        body: bodies,
+        subject: thread.subject,
+      };
     });
   }
 
