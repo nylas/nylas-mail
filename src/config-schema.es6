@@ -121,11 +121,6 @@ export default {
             'enumLabels': ['Reply', 'Reply All'],
             'title': "Default reply behavior",
           },
-          defaultSendType: {
-            'type': 'string',
-            'default': 'send',
-            'title': "Default send behavior",
-          },
           undoSend: {
             'type': 'number',
             'default': 5000,

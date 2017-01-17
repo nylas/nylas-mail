@@ -7,7 +7,7 @@ import ConfigSchemaItem from './config-schema-item';
 
 function getExtendedSendingSchema(configSchema) {
   const accounts = AccountStore.accounts();
-  const sendActions = SendActionsStore.sendActions()
+  // const sendActions = SendActionsStore.sendActions()
   const defaultAccountIdForSend = {
     'type': 'string',
     'title': 'Send new messages from',
@@ -15,16 +15,15 @@ function getExtendedSendingSchema(configSchema) {
     'enum': ['selected-mailbox'].concat(accounts.map(acc => acc.id)),
     'enumLabels': ['Account of selected mailbox'].concat(accounts.map(acc => acc.me().toString())),
   }
-  const defaultSendType = {
-    'type': 'string',
-    'default': 'send',
-    'enum': sendActions.map(({configKey}) => configKey),
-    'enumLabels': sendActions.map(({title}) => title),
-    'title': "Default send behavior",
-  }
+  // const defaultSendType = {
+  //   'type': 'string',
+  //   'default': 'send',
+  //   'enum': sendActions.map(({configKey}) => configKey),
+  //   'enumLabels': sendActions.map(({title}) => title),
+  //   'title': "Default send behavior",
+  // }
 
   _.extend(configSchema.properties.sending.properties, {
-    defaultSendType,
     defaultAccountIdForSend,
   });
   return configSchema.properties.sending;
