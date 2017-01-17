@@ -4,7 +4,7 @@
 
 - Features:
 
-  + Nylas N1 is now Nylas Pro. We are also introducing Nylas Mail Basic!
+  + Version bump to 1.5.0
 
 ### 0.4.402 (12/12/16)
 
