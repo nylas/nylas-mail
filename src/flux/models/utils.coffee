@@ -520,22 +520,23 @@ Utils =
   # Also emails that are really long are likely computer-generated email
   # strings used for bcc-based automated teasks.
   likelyNonHumanEmail: (email) ->
+    at = "[-@+=]"
     prefixes = [
       "noreply"
       "no-reply"
       "donotreply"
       "do-not-reply"
-      "bounce[s]?@"
-      "notification[s]?@"
-      "support@"
-      "alert[s]?@"
-      "news@"
-      "info@"
-      "automated@"
-      "list[s]?@"
-      "distribute[s]?@"
-      "catchall@"
-      "catch-all@"
+      "bounce[s]?#{at}"
+      "notification[s]?#{at}"
+      "support#{at}"
+      "alert[s]?#{at}"
+      "news#{at}"
+      "info#{at}"
+      "automated#{at}"
+      "list[s]?#{at}"
+      "distribute[s]?#{at}"
+      "catchall#{at}"
+      "catch-all#{at}"
     ]
     reStr = "(#{prefixes.join("|")})"
     re = new RegExp(reStr, "gi")
