@@ -1,13 +1,30 @@
 import Boom from 'boom'
+import {DatabaseConnector} from 'cloud-core';
 
 export default function registerPingRoutes(server) {
   server.route({
     method: 'GET',
-    path: '/ping',
+    path: '/ping/basic',
     config: { auth: false },
     handler: (request, reply) => {
       request.logger.info('---> Pong 200')
       reply("Pong")
+    },
+  });
+
+  server.route({
+    method: 'GET',
+    path: '/ping',
+    config: { auth: false },
+    handler: async (request, reply) => {
+      request.logger.info('---> Ping DB');
+      try {
+        const db = await DatabaseConnector.forShared();
+        await db.sequelize.query('SELECT 1');
+        reply("DB Okay")
+      } catch (err) {
+        reply(Boom.wrap(err, 500));
+      }
     },
   });
 
