@@ -240,7 +240,7 @@ class SyncWorker {
     const foldersToSync = shouldIncludeSpam ? allFolders : foldersExceptSpam;
 
     // TODO make sure this order is correct/ unit tests!!
-    const priority = ['inbox', 'all', 'sent', 'drafts', 'trash', 'spam'].reverse();
+    const priority = ['inbox', 'all', 'sent', 'archive', 'drafts', 'trash', 'spam'].reverse();
     return foldersToSync.sort((a, b) =>
       (priority.indexOf(a.role) - priority.indexOf(b.role)) * -1
     )
