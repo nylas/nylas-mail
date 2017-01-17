@@ -8,7 +8,6 @@ const MessageFlagAttributes = ['id', 'threadId', 'folderImapUID', 'unread', 'sta
 const FETCH_ATTRIBUTES_BATCH_SIZE = 1000;
 const FETCH_MESSAGES_COUNT = 30;
 const GMAIL_INBOX_PRIORITIZE_COUNT = 1000;
-const ATTRIBUTE_SCAN_INTERVAL_MS = 10 * 60 * 1000;
 
 
 class FetchMessagesInFolderIMAP extends SyncTask {
@@ -405,6 +404,45 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     }
   }
 
+  async * _fetchNextMessageBatch() {
+    // Since we expand the UID FETCH range without comparing to the UID list
+    // because UID SEARCH ALL can be slow (and big!), we may download fewer
+    // messages than the batch size (up to zero) --- keep going until full
+    // batch synced
+    const fetchedEnough = () => this._fetchedMsgCount >= FETCH_MESSAGES_COUNT
+    const moreToFetchAvailable = () => !this._folder.isSyncComplete() || this._box.uidnext > this._folder.syncState.fetchedmax
+    while (!fetchedEnough() && moreToFetchAvailable()) {
+      const prevMsgCount = this._fetchedMsgCount;
+      yield this._fetchUnsyncedMessages();
+
+      // If we didn't find any messages at all
+      if (this._fetchedMsgCount === prevMsgCount) {
+        // Find where the gap in the UID space ends --- SEARCH can be slow on
+        // large mailboxes, but otherwise we could spin here arbitrarily long
+        // FETCHing empty space
+        let nextUid;
+        // IMAP range searches include both ends of the range
+        const minSearchUid = this._folder.syncState.fetchedmin - 1;
+        if (minSearchUid) {
+          const uids = await this._box.search([['UID',
+            `${this._folder.syncState.minUID}:${minSearchUid}`]]);
+          // Using old-school max because uids may be an array of a million
+          // items. Math.max can't take that many arguments
+          nextUid = uids[0] || 1;
+          for (const uid of uids) {
+            if (uid > nextUid) {
+              nextUid = uid;
+            }
+          }
+        } else {
+          nextUid = 1;
+        }
+        console.log(`🔃📂 ${this._folder.name} Found gap in UIDs; next fetchedmin is ${nextUid}`);
+        await this._folder.updateSyncState({ fetchedmin: nextUid });
+      }
+    }
+  }
+
   /**
    * We need to periodically check if any attributes have changed on
    * messages. These are things like "starred" or "unread", etc. There are
@@ -529,36 +567,33 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     console.log(`🔃 🚩 ${this._folder.name} via scan through ${recentRange} and ${backScanRange} - took ${Date.now() - start}ms to update ${numChangedLabels + numChangedFlags} messages & threads`)
   }
 
-  * _shouldSyncFolder() {
+  _shouldFetchMessages(boxStatus) {
+    if (boxStatus.name !== this._folder.name) {
+      throw new Error(`FetchMessagesInFolder::_shouldFetchMessages - boxStatus doesn't correspond to folder`)
+    }
     if (!this._folder.isSyncComplete()) {
       return true
     }
-
-    const boxStatus = yield this._imap.getLatestBoxStatus(this._folder.name)
     const {syncState} = this._folder
-    const hasNewMessages = boxStatus.uidnext > syncState.fetchedmax
+    return boxStatus.uidnext > syncState.fetchedmax
+  }
 
-    if (hasNewMessages) {
+  _shouldFetchAttributes(boxStatus) {
+    if (boxStatus.name !== this._folder.name) {
+      throw new Error(`FetchMessagesInFolder::_shouldFetchMessages - boxStatus doesn't correspond to folder`)
+    }
+    if (!this._folder.isSyncComplete()) {
       return true
     }
-
+    const {syncState} = this._folder
     if (this._supportsChangesSince()) {
-      const hasAttributeUpdates = syncState.highestmodseq !== boxStatus.highestmodseq
-      if (hasAttributeUpdates) {
-        return true
-      }
-    } else {
-      const {lastAttributeScanTime} = syncState
-      const shouldScanForAttributeChanges = (
-        !lastAttributeScanTime ||
-        Date.now() - lastAttributeScanTime >= ATTRIBUTE_SCAN_INTERVAL_MS
-      )
-      if (shouldScanForAttributeChanges) {
-        return true
-      }
+      return syncState.highestmodseq !== boxStatus.highestmodseq
     }
+    return true
+  }
 
-    return false
+  _shouldSyncFolder(boxStatus) {
+    return this._shouldFetchMessages(boxStatus) || this._shouldFetchAttributes(boxStatus)
   }
 
   /**
@@ -571,19 +606,14 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     this._db = db;
     this._imap = imap;
 
-    const shouldSyncFolder = yield this._shouldSyncFolder()
-    if (!shouldSyncFolder) {
-      console.log(`🔚 📂 ${this._folder.name} has no updates - skipping sync`)
-      return;
-    }
+    const latestBoxStatus = yield this._imap.getLatestBoxStatus(this._folder.name)
 
-    this._box = yield this._openMailboxAndEnsureValidity();
     // If we haven't set any syncState at all, let's set it for the first time
     // to generate a delta for N1
     if (_.isEmpty(this._folder.syncState)) {
       yield this._folder.updateSyncState({
-        uidnext: this._box.uidnext,
-        uidvalidity: this._box.uidvalidity,
+        uidnext: latestBoxStatus.uidnext,
+        uidvalidity: latestBoxStatus.uidvalidity,
         fetchedmin: null,
         fetchedmax: null,
         minUID: null,
@@ -591,44 +621,28 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       })
     }
 
-    // Since we expand the UID FETCH range without comparing to the UID list
-    // because UID SEARCH ALL can be slow (and big!), we may download fewer
-    // messages than the batch size (up to zero) --- keep going until full
-    // batch synced
-    const fetchedEnough = () => this._fetchedMsgCount >= FETCH_MESSAGES_COUNT
-    const moreToFetchAvailable = () => !this._folder.isSyncComplete() || this._box.uidnext > this._folder.syncState.fetchedmax
-    while (!fetchedEnough() && moreToFetchAvailable()) {
-      const prevMsgCount = this._fetchedMsgCount;
-      yield this._fetchUnsyncedMessages();
-
-      // If we didn't find any messages at all
-      if (this._fetchedMsgCount === prevMsgCount) {
-        // Find where the gap in the UID space ends --- SEARCH can be slow on
-        // large mailboxes, but otherwise we could spin here arbitrarily long
-        // FETCHing empty space
-        let nextUid;
-        // IMAP range searches include both ends of the range
-        const minSearchUid = this._folder.syncState.fetchedmin - 1;
-        if (minSearchUid) {
-          const uids = await this._box.search([['UID',
-            `${this._folder.syncState.minUID}:${minSearchUid}`]]);
-          // Using old-school max because uids may be an array of a million
-          // items. Math.max can't take that many arguments
-          nextUid = uids[0] || 1;
-          for (const uid of uids) {
-            if (uid > nextUid) {
-              nextUid = uid;
-            }
-          }
-        } else {
-          nextUid = 1;
-        }
-        console.log(`🔃📂 ${this._folder.name} Found gap in UIDs; next fetchedmin is ${nextUid}`);
-        await this._folder.updateSyncState({ fetchedmin: nextUid });
-      }
+    if (!this._shouldSyncFolder(latestBoxStatus)) {
+      // Don't even attempt to issue an IMAP SELECT if there are absolutely no
+      // updates
+      console.log(`🔚 📂 ${this._folder.name} has no updates at all - skipping sync`)
+      return;
     }
 
-    yield this._fetchMessageAttributeChanges();
+    this._box = yield this._openMailboxAndEnsureValidity();
+    const shouldFetchMessages = this._shouldFetchMessages(this._box)
+    const shouldFetchAttributes = this._shouldFetchAttributes(this._box)
+
+    // Do as little work as possible
+    if (shouldFetchMessages) {
+      yield this._fetchNextMessageBatch()
+    } else {
+      console.log(`🔚 📂 ${this._folder.name} has no new messages - skipping fetch messages`)
+    }
+    if (shouldFetchAttributes) {
+      yield this._fetchMessageAttributeChanges();
+    } else {
+      console.log(`🔚 📂 ${this._folder.name} has no attribute changes - skipping fetch attributes`)
+    }
     console.log(`🔚 📂 ${this._folder.name} done`)
   }
 }
