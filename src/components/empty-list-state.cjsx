@@ -151,17 +151,6 @@ class EmptyListState extends React.Component
       @setState({rect})
 
   _getStateFromStores: ->
-    currentPerspective = FocusedPerspectiveStore.current()
-    accountIds = currentPerspective.accountIds
-    if accountIds.length == 1
-      accountId = accountIds[0]
-      categories = currentPerspective.categories
-      folderName = null
-      if categories.length == 1 and categories[0].object == 'folder'
-        folderName = categories[0].displayName
-      syncing = !NylasSyncStatusStore.isSyncCompleteForAccount(accountId, folderName)
-    else
-      syncing = NylasSyncStatusStore.busy()
-    return syncing: syncing
+    return syncing: FocusedPerspectiveStore.current().hasSyncingCategories()
 
 module.exports = EmptyListState

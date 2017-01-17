@@ -42,13 +42,18 @@ class ThreadList extends React.Component
   constructor: (@props) ->
     @state =
       style: 'unknown'
+      syncing: false
 
   componentDidMount: =>
+    @unsub = NylasSyncStatusStore.listen( => @setState
+      syncing: FocusedPerspectiveStore.current().hasSyncingCategories()
+    )
     window.addEventListener('resize', @_onResize, true)
     ReactDOM.findDOMNode(@).addEventListener('contextmenu', @_onShowContextMenu)
     @_onResize()
 
   componentWillUnmount: =>
+    @unsub()
     window.removeEventListener('resize', @_onResize, true)
     ReactDOM.findDOMNode(@).removeEventListener('contextmenu', @_onShowContextMenu)
 
@@ -83,9 +88,9 @@ class ThreadList extends React.Component
     'thread-list:select-starred': @_onSelectStarred
     'thread-list:select-unstarred': @_onSelectUnstarred
 
-  _renderFooterContent: ->
+  _getFooter: ->
+    return null unless @state.syncing
     return null if ThreadListStore.dataSource().count() <= 0
-    return null unless FocusedPerspectiveStore.current().hasSyncingCategories()
     return <SyncingListState />
 
   render: ->
@@ -97,7 +102,7 @@ class ThreadList extends React.Component
       itemHeight = 85
 
     <FluxContainer
-      renderFooterContent={@_renderFooterContent}
+      footer={@_getFooter()}
       stores=[ThreadListStore]
       getStateFromStores={ -> dataSource: ThreadListStore.dataSource() }>
       <FocusContainer collection="thread">
