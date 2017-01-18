@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/nylas/N1.png?label=ready&title=Ready)](https://waffle.io/nylas/N1)
 ![N1 Logo](https://edgehill.s3.amazonaws.com/static/N1.png)
 
 ![N1 Screenshot](https://nylas.com/static/img/home/screenshot-hero-mac@2x.png)
