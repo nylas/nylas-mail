@@ -14,7 +14,9 @@ const SyncMetricsReporter = require('./sync-metrics-reporter');
 const SyncTaskFactory = require('./sync-task-factory');
 const {getNewSyncbackTasks, markInProgressTasksAsFailed, runSyncbackTask} = require('./syncback-task-helpers');
 const LocalSyncDeltaEmitter = require('./local-sync-delta-emitter').default
-const {sleep} = require('./sync-utils')
+
+
+const SYNC_LOOP_INTERVAL_MS = 10 * 1000
 
 class SyncWorker {
   constructor(account, db, parentManager) {
@@ -120,7 +122,7 @@ class SyncWorker {
       }
       return null
     } catch (err) {
-      this._logger.error(err, `Unable to refresh access token. Got status code #{err.response.statusCode}`);
+      console.error(`🔃  Unable to refresh access token. Got status code #{err.response.statusCode}`, err);
 
       if (err.response.statusCode >= 500) {
         // If we got a 5xx error from the server, that means that something is wrong
@@ -248,33 +250,29 @@ class SyncWorker {
 
   async _onSyncError(error) {
     this._closeConnections()
+    const errorJSON = error.toJSON()
 
-    this._logger.error(error, `SyncWorker: Error while syncing account`)
+    console.error(`🔃  SyncWorker: Errored while syncing account`, error)
 
-    // Continue to retry if it was a network error
+    // Don't save the error to the account if it was a network/retryable error
+    // /and/ if we haven't retried too many times.
+    // If we've retried enough times and still can't get it to work,
+    // we do want to save the error to show it the user that there is an error
     if (error instanceof IMAPErrors.RetryableError) {
       this._numRetries += 1;
-
-      // We do not want to retry over and over again, for two reasons:
-      // 1. most errors don't resolve immediately
-      // 2. we don't want to be hammering the server in a synchronized way.
-      const randomElement = (Math.floor(Math.random() * 20) + 1) * 1000;
-      const exponentialDuration = 15000 * this._numRetries + randomElement;
-      const duration = Math.min(exponentialDuration, 120000 + randomElement);
-      this._logger.error(`Error when running sync loop. Retrying in ${duration / 1000} seconds`);
-      await sleep(duration);
-      return Promise.resolve()
+      if (this._numRetries <= 3) {
+        return
+      }
     }
 
     const isAuthError = error instanceof IMAPErrors.IMAPAuthenticationError
-    const errorJSON = error.toJSON()
     const accountSyncState = isAuthError ? SYNC_STATE_AUTH_FAILED : SYNC_STATE_ERROR;
     // TODO this is currently a hack to keep N1's account in sync and notify of
     // sync errors. This should go away when we merge the databases
     Actions.updateAccount(this._account.id, {syncState: accountSyncState, syncError: errorJSON})
 
     this._account.syncError = errorJSON
-    return this._account.save()
+    await this._account.save()
   }
 
   async _onSyncDidComplete() {
@@ -302,31 +300,51 @@ class SyncWorker {
     console.log(`🔃 🔚 took ${now - this._syncStart}ms`)
   }
 
-  async _scheduleNextSync() {
+  async _scheduleNextSync(error) {
     if (this._stopped) { return; }
-    const {intervals} = this._account.syncPolicy;
     const {Folder} = this._db;
 
     const folders = await Folder.findAll();
     const moreToSync = folders.some((f) => !f.isSyncComplete())
 
-    // Continue syncing if initial sync isn't done, or if the loop was
-    // interrupted or a sync was requested
-    const shouldSyncImmediately = (
-      moreToSync ||
-      this._interrupted
-    )
+    let interval;
+    if (error != null) {
+      if (error instanceof IMAPErrors.RetryableError) {
+        // We do not want to retry over and over again when we get
+        // network/retryable errors, for two reasons:
+        // 1. most errors don't resolve immediately
+        // 2. we don't want to be hammering the server in a synchronized way.
+        const randomElement = (Math.floor(Math.random() * 20) + 1) * 1000;
+        const exponentialDuration = 15000 * this._numRetries + randomElement;
+        interval = Math.min(exponentialDuration, 120000 + randomElement);
+      } else {
+        // Encountered a permanent error
+        // In this case we could do something fancier, but for now, just retry
+        // with the normal sync loop interval
+        interval = SYNC_LOOP_INTERVAL_MS
+      }
+    } else {
+      // Continue syncing immediately if initial sync isn't done, or if the loop was
+      // interrupted or a sync was requested
+      const shouldSyncImmediately = (
+        moreToSync ||
+        this._interrupted
+      )
+      interval = shouldSyncImmediately ? 1 : SYNC_LOOP_INTERVAL_MS;
+    }
+
 
     let reason = "Scheduled"
-    if (this._interrupted) {
+    if (error != null) {
+      reason = `Sync errored`
+    } else if (this._interrupted) {
       reason = `Sync interrupted and restarted. Interrupt reason: ${reason}`
     } else if (moreToSync) {
       reason = "More to sync"
     }
-    const interval = shouldSyncImmediately ? 1 : intervals.active;
-    const nextSyncIn = Math.max(1, this._lastSyncTime + interval - Date.now())
 
-    console.log(`🔃 🔜 in ${nextSyncIn}ms`)
+    const nextSyncIn = Math.max(1, this._lastSyncTime + interval - Date.now())
+    console.log(`🔃 🔜 in ${nextSyncIn}ms - Reason: ${reason}`)
 
     this._syncTimer = setTimeout(() => {
       this.syncNow({reason});
@@ -410,23 +428,25 @@ class SyncWorker {
     try {
       await this._account.reload();
     } catch (err) {
-      this._logger.error({err}, `SyncWorker: Account could not be loaded. Sync worker will exit.`)
+      console.error(`🔃  SyncWorker: Account could not be loaded. Sync worker will exit.`, err)
       this._manager.removeWorkerForAccountId(this._account.id);
       return;
     }
 
-    console.log(`🔃 🆕 reason: ${reason}`)
+    console.log(`🔃 🆕 Reason: ${reason}`)
+    let error;
     try {
       await this._interruptible.run(this._performSync, this)
       await this._cleanupOrphanMessages();
       await this._onSyncDidComplete();
       this._numRetries = 0;
-    } catch (error) {
+    } catch (err) {
+      error = err
       await this._onSyncError(error);
     } finally {
       this._lastSyncTime = Date.now()
       this._syncInProgress = false
-      await this._scheduleNextSync()
+      await this._scheduleNextSync(error)
     }
   }
 

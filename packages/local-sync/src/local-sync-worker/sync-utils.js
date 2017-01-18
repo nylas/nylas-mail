@@ -6,7 +6,6 @@ module.exports = {
   // Should we encounter problems with account folders in the future, add them
   // below to test for them.
   // Make sure these are lower case! (for comparison purposes)
-  sleep: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
   localizedCategoryNames: {
     trash: [
       'gel\xc3\xb6scht', 'papierkorb',

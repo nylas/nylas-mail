@@ -110,6 +110,7 @@ class MessageProcessor {
         imapMessage,
         desiredParts,
       })
+      NylasEnv.reportError(err)
 
       // Keep track of uids we failed to fetch
       const {failedUIDs = []} = folder.syncState
@@ -119,11 +120,13 @@ class MessageProcessor {
       }
 
       // Save parse errors for future debugging
-      const outJSON = JSON.stringify({imapMessage, desiredParts, result: {}});
-      const outDir = path.join(os.tmpdir(), "k2-parse-errors", folder.name)
-      const outFile = path.join(outDir, imapMessage.attributes.uid.toString());
-      mkdirp.sync(outDir);
-      fs.writeFileSync(outFile, outJSON);
+      if (process.env.NYLAS_DEBUG) {
+        const outJSON = JSON.stringify({imapMessage, desiredParts, result: {}});
+        const outDir = path.join(os.tmpdir(), "k2-parse-errors", folder.name)
+        const outFile = path.join(outDir, imapMessage.attributes.uid.toString());
+        mkdirp.sync(outDir);
+        fs.writeFileSync(outFile, outJSON);
+      }
       return null
     }
   }
