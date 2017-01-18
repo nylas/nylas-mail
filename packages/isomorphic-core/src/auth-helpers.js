@@ -140,13 +140,15 @@ module.exports = {
         return reply(JSON.stringify(response));
       })
       .catch((err) => {
-        request.logger.error(err)
         if (err instanceof IMAPErrors.IMAPAuthenticationError) {
+          global.Logger.error({err}, 'Encountered authentication error while attempting to authenticate')
           return reply({message: USER_ERRORS.IMAP_AUTH, type: "api_error"}).code(401);
         }
         if (err instanceof IMAPErrors.RetryableError) {
+          global.Logger.error({err}, 'Encountered retryable error while attempting to authenticate')
           return reply({message: USER_ERRORS.IMAP_RETRY, type: "api_error"}).code(408);
         }
+        global.Logger.error({err}, 'Encountered unknown error while attempting to authenticate')
         return reply({message: USER_ERRORS.AUTH_500, type: "api_error"}).code(500);
       })
     }
