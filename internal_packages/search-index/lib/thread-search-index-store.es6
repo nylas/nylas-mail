@@ -4,8 +4,6 @@ import {
   Thread,
   AccountStore,
   DatabaseStore,
-  NylasSyncStatusStore,
-  QuotedHTMLTransformer,
 } from 'nylas-exports'
 
 const INDEX_SIZE = 10000
@@ -13,7 +11,7 @@ const MAX_INDEX_SIZE = 30000
 const CHUNKS_PER_ACCOUNT = 10
 const INDEXING_WAIT = 1000
 const MESSAGE_BODY_LENGTH = 50000
-const INDEX_VERSION = 1
+const INDEX_VERSION = 2
 
 class ThreadSearchIndexStore {
 
