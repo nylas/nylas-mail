@@ -25,6 +25,7 @@ export async function apiAuthenticate(req, username, password, cb) {
   if (!token) return cb(null, false, {});
 
   const account = await token.getAccount();
+  account.n1IdentityToken = n1IdentityToken;
 
   let identPath = "billing.nylas.com";
   if (process.env.NODE_ENV === "staging") {
