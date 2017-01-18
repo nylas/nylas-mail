@@ -749,8 +749,11 @@ class DatabaseStore extends NylasStore {
       throw new Error(`DatabaseStore::createSearchIndex - You must provide a class`);
     }
     const searchTableName = `${klass.name}Search`
-    const sql = `DROP TABLE IF EXISTS \`${searchTableName}\``
-    return this._query(sql);
+    const dropSql = `DROP TABLE IF EXISTS \`${searchTableName}\``
+    const clearIsSearchIndexedSql = `UPDATE \`${klass.name}\` SET \`is_search_indexed\` = 0 WHERE \`is_search_indexed\` = 1`
+    return this._query(dropSql).then(() => {
+      return this._query(clearIsSearchIndexedSql);
+    });
   }
 
   isModelIndexed(model, isIndexed) {
