@@ -1,6 +1,9 @@
 import {NylasSyncStatusStore, React, Actions} from 'nylas-exports';
 import {Notification} from 'nylas-component-kit';
 
+
+const CHECK_STATUS_INTERVAL = 5000
+
 export default class OfflineNotification extends React.Component {
   static displayName = 'OfflineNotification';
 
@@ -11,12 +14,7 @@ export default class OfflineNotification extends React.Component {
   }
 
   componentDidMount() {
-    this.unlisten = NylasSyncStatusStore.listen(() => {
-      const nextState = this.getStateFromStores();
-      if ((nextState.connected !== this.state.connected)) {
-        this.setState(nextState);
-      }
-    });
+    this.unlisten = NylasSyncStatusStore.listen(this.onConnectedStatusChanged);
 
     window.addEventListener('browser-window-focus', this.onWindowFocusChanged);
     window.addEventListener('browser-window-blur', this.onWindowFocusChanged);
@@ -30,6 +28,20 @@ export default class OfflineNotification extends React.Component {
   componentWillUnmount() {
     window.removeEventListener('browser-window-focus', this.onWindowFocusChanged);
     window.removeEventListener('browser-window-blur', this.onWindowFocusChanged);
+  }
+
+  onConnectedStatusChanged = () => {
+    clearTimeout(this._setOfflineTimeout)
+    const nextState = this.getStateFromStores();
+    if ((nextState.connected !== this.state.connected)) {
+      if (nextState.connected) {
+        this.setState(nextState);
+      } else {
+        // Only set the status to offline if we are still offline after a while
+        // This prevents the notification from flickering
+        this._setOfflineTimeout = setTimeout(this.onConnectedStatusChanged, CHECK_STATUS_INTERVAL)
+      }
+    }
   }
 
   onTryAgain = () => {
@@ -54,7 +66,7 @@ export default class OfflineNotification extends React.Component {
     if (!this.state.connected && !document.body.classList.contains('is-blurred')) {
       this._updateInterval = setInterval(() => {
         Actions.retryDeltaConnection();
-      }, 5000);
+      }, CHECK_STATUS_INTERVAL);
     }
   }
 
