@@ -5,6 +5,7 @@
 - Fixes:
 
   + All Fastmail domains now use the correct credentials
+  + Offline notification more reliable
   + Fix error logging
 
 ### 1.0.8 (1/17/16)
