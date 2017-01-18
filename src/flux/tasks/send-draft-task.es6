@@ -257,6 +257,10 @@ export default class SendDraftTask extends BaseDraftTask {
         });
       }
     }
+    Actions.recordUserEvent("Draft Sending Errored", {
+      error: err.message,
+      errorClass: err.constructor.name,
+    })
     NylasEnv.reportError(err);
 
     return Promise.resolve([Task.Status.Failed, err]);
