@@ -15,6 +15,7 @@ function getExtendedSendingSchema(configSchema) {
     'enum': ['selected-mailbox'].concat(accounts.map(acc => acc.id)),
     'enumLabels': ['Account of selected mailbox'].concat(accounts.map(acc => acc.me().toString())),
   }
+  // TODO re-enable sending actions at some point
   // const defaultSendType = {
   //   'type': 'string',
   //   'default': 'send',
