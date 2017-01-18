@@ -354,13 +354,6 @@ class DatabaseStore extends NylasStore {
   }
 
   _executeLocally(query, values) {
-    if (query.startsWith(`BEGIN`)) {
-      if (this._inflightTransactions !== 0) {
-        throw new Error("Assertion Failure: BEGIN called when an existing transaction is in-flight. Use DatabaseStore.inTransaction() to aquire transactions.")
-      }
-      this._inflightTransactions += 1;
-    }
-
     const fn = query.startsWith('SELECT') ? 'all' : 'run';
     let tries = 0;
     let results = null;
@@ -384,14 +377,6 @@ class DatabaseStore extends NylasStore {
           // note: this function may throw a promise, which causes our Promise to reject
           throw new Error(`DatabaseStore: Query ${query}, ${JSON.stringify(values)} failed ${err.toString()}`);
         }
-      }
-    }
-
-    if (query === 'COMMIT') {
-      this._inflightTransactions -= 1;
-      if (this._inflightTransactions < 0) {
-        this._inflightTransactions = 0;
-        throw new Error("Assertion Failure: COMMIT was called too many times and the transaction count went negative.")
       }
     }
 
