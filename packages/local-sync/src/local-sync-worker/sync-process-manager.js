@@ -35,10 +35,18 @@ class SyncProcessManager {
     this._logger = global.Logger.child();
 
     Actions.wakeLocalSyncWorkerForAccount.listen((accountId) =>
-      this.wakeWorkerForAccount(accountId)
+      this.wakeWorkerForAccount(accountId, {interrupt: true})
     );
     this._resettingEmailCache = false
     Actions.resetEmailCache.listen(this._resetEmailCache, this)
+    Actions.debugSync.listen(this._onDebugSync)
+  }
+
+  _onDebugSync() {
+    const win = NylasEnv.getCurrentWindow()
+    win.show()
+    win.maximize()
+    win.openDevTools()
   }
 
   _resetEmailCache() {
