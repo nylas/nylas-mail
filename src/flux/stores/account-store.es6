@@ -56,7 +56,7 @@ class AccountStore extends NylasStore {
         // updated to uncollapse the inbox for the new account
         setTimeout(() => {
           Actions.setCollapsedSidebarItem('Inbox', false)
-        }, 100)
+        }, 500)
       }
     })
   }
