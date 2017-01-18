@@ -203,7 +203,7 @@ class IMAPConnection extends EventEmitter {
       return Promise.resolve(new IMAPBox(this, this._imap._box));
     }
     this._isOpeningBox = true
-    return this.createConnectionPromise((resolve, reject) => {
+    return this._createConnectionPromise((resolve, reject) => {
       return this._imap.openBoxAsync(folderName, readOnly)
       .then((box) => {
         this._isOpeningBox = false
@@ -222,7 +222,7 @@ class IMAPConnection extends EventEmitter {
       // get the latest stats from the box (e.g. latest uidnext, etc)
       return this.openBox(folderName, {refetchBoxInfo: true})
     }
-    return this.createConnectionPromise((resolve, reject) => {
+    return this._createConnectionPromise((resolve, reject) => {
       return this._imap.statusAsync(folderName)
       .then((...args) => resolve(...args))
       .catch((...args) => reject(...args))
@@ -233,7 +233,7 @@ class IMAPConnection extends EventEmitter {
     if (!this._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPConnection::getBoxes`)
     }
-    return this.createConnectionPromise((resolve, reject) => {
+    return this._createConnectionPromise((resolve, reject) => {
       return this._imap.getBoxesAsync()
       .then((...args) => resolve(...args))
       .catch((...args) => reject(...args))
@@ -244,7 +244,7 @@ class IMAPConnection extends EventEmitter {
     if (!this._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPConnection::addBox`)
     }
-    return this.createConnectionPromise((resolve, reject) => {
+    return this._createConnectionPromise((resolve, reject) => {
       return this._imap.addBoxAsync(folderName)
       .then((...args) => resolve(...args))
       .catch((...args) => reject(...args))
@@ -255,7 +255,7 @@ class IMAPConnection extends EventEmitter {
     if (!this._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPConnection::renameBox`)
     }
-    return this.createConnectionPromise((resolve, reject) => {
+    return this._createConnectionPromise((resolve, reject) => {
       return this._imap.renameBoxAsync(oldFolderName, newFolderName)
       .then((...args) => resolve(...args))
       .catch((...args) => reject(...args))
@@ -266,7 +266,7 @@ class IMAPConnection extends EventEmitter {
     if (!this._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPConnection::delBox`)
     }
-    return this.createConnectionPromise((resolve, reject) => {
+    return this._createConnectionPromise((resolve, reject) => {
       return this._imap.delBoxAsync(folderName)
       .then((...args) => resolve(...args))
       .catch((...args) => reject(...args))
@@ -284,7 +284,7 @@ class IMAPConnection extends EventEmitter {
     return new Promise((resolve, reject) => {
       this._queue.push({operation, resolve, reject});
       if (this._imap.state === 'authenticated' && !this._currentOperation) {
-        this.processNextOperation();
+        this._processNextOperation();
       }
     });
   }
@@ -296,9 +296,9 @@ class IMAPConnection extends EventEmitter {
   fetch / action forever after emitting an `end` event, or doesn't actually
   timeout the socket.
   */
-  createConnectionPromise(callback) {
+  _createConnectionPromise(callback) {
     if (!this._imap) {
-      throw new IMAPConnectionNotReadyError(`IMAPConnection::createConnectionPromise`)
+      throw new IMAPConnectionNotReadyError(`IMAPConnection::_createConnectionPromise`)
     }
 
     let onEnded = null;
@@ -336,7 +336,7 @@ class IMAPConnection extends EventEmitter {
     });
   }
 
-  processNextOperation() {
+  _processNextOperation() {
     if (this._currentOperation) {
       return;
     }
@@ -359,7 +359,7 @@ class IMAPConnection extends EventEmitter {
       //   operation_description: operation.description(),
       // }, `Finished sync operation`)
       resolve(maybeResult);
-      this.processNextOperation();
+      this._processNextOperation();
     })
     .catch((err) => {
       this._currentOperation = null;

@@ -50,7 +50,7 @@ class IMAPBox {
       return Promise.resolve()
     }
 
-    return this._conn.createConnectionPromise((resolve, reject) => {
+    return this._conn._createConnectionPromise((resolve, reject) => {
       const f = this._conn._imap.fetch(range, options);
       f.on('message', (imapMessage) => {
         const parts = {};
@@ -110,7 +110,7 @@ class IMAPBox {
     if (!options) {
       throw new Error("IMAPConnection.fetchStream requires an options object.")
     }
-    return this._conn.createConnectionPromise((resolve, reject) => {
+    return this._conn._createConnectionPromise((resolve, reject) => {
       const f = this._conn._imap.fetch(uid, options);
       f.on('message', (imapMessage) => {
         imapMessage.on('body', (stream) => {
@@ -129,7 +129,7 @@ class IMAPBox {
    * message in the range
    */
   fetchUIDAttributes(range, fetchOptions = {}) {
-    return this._conn.createConnectionPromise((resolve, reject) => {
+    return this._conn._createConnectionPromise((resolve, reject) => {
       const attributesByUID = {};
       const f = this._conn._imap.fetch(range, fetchOptions);
       f.on('message', (msg) => {
@@ -147,7 +147,7 @@ class IMAPBox {
       throw new IMAPConnectionNotReadyError(`IMAPBox::addFlags`)
     }
 
-    return this._conn.createConnectionPromise((resolve, reject) => {
+    return this._conn._createConnectionPromise((resolve, reject) => {
       return this._conn._imap.addFlagsAsync(range, flags)
       .then((...args) => resolve(...args))
       .catch((...args) => reject(...args))
@@ -158,7 +158,7 @@ class IMAPBox {
     if (!this._conn._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPBox::delFlags`)
     }
-    return this._conn.createConnectionPromise((resolve, reject) => {
+    return this._conn._createConnectionPromise((resolve, reject) => {
       return this._conn._imap.delFlagsAsync(range, flags)
       .then((...args) => resolve(...args))
       .catch((...args) => reject(...args))
@@ -169,7 +169,7 @@ class IMAPBox {
     if (!this._conn._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPBox::moveFromBox`)
     }
-    return this._conn.createConnectionPromise((resolve, reject) => {
+    return this._conn._createConnectionPromise((resolve, reject) => {
       return this._conn._imap.moveAsync(range, folderName)
       .then((...args) => resolve(...args))
       .catch((...args) => reject(...args))
@@ -180,7 +180,7 @@ class IMAPBox {
     if (!this._conn._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPBox::moveFromBox`)
     }
-    return this._conn.createConnectionPromise((resolve, reject) => {
+    return this._conn._createConnectionPromise((resolve, reject) => {
       return this._conn._imap.setLabelsAsync(range, labels)
       .then((...args) => resolve(...args))
       .catch((...args) => reject(...args))
@@ -191,7 +191,7 @@ class IMAPBox {
     if (!this._conn._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPBox::moveFromBox`)
     }
-    return this._conn.createConnectionPromise((resolve, reject) => {
+    return this._conn._createConnectionPromise((resolve, reject) => {
       return this._conn._imap.delLabelsAsync(range, labels)
       .then((...args) => resolve(...args))
       .catch((...args) => reject(...args))
@@ -202,7 +202,7 @@ class IMAPBox {
     if (!this._conn._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPBox::append`)
     }
-    return this._conn.createConnectionPromise((resolve, reject) => {
+    return this._conn._createConnectionPromise((resolve, reject) => {
       return this._conn._imap.appendAsync(rawMime, options)
       .then((...args) => resolve(...args))
       .catch((...args) => reject(...args))
@@ -213,7 +213,7 @@ class IMAPBox {
     if (!this._conn._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPBox::search`)
     }
-    return this._conn.createConnectionPromise((resolve, reject) => {
+    return this._conn._createConnectionPromise((resolve, reject) => {
       return this._conn._imap.searchAsync(criteria)
       .then((...args) => resolve(...args))
       .catch((...args) => reject(...args))
@@ -224,7 +224,7 @@ class IMAPBox {
     if (!this._conn._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPBox::closeBox`)
     }
-    return this._conn.createConnectionPromise((resolve, reject) => {
+    return this._conn._createConnectionPromise((resolve, reject) => {
       return this._conn._imap.closeBoxAsync(expunge)
       .then((...args) => resolve(...args))
       .catch((...args) => reject(...args))
