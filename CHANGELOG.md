@@ -1,4 +1,4 @@
-# N1 Changelog
+# Nylas Mail Changelog
 
 ### 1.0.9 (1/17/16)
 
