@@ -35,43 +35,34 @@ function base64url(inBuffer) {
     .replace(/\//g, '_'); // Convert '/' to '_'
 }
 
-export async function makeGmailOAuthRequest(sessionKey, callback) {
-  const noauth = {
-    user: '',
-    pass: '',
-    sendImmediately: true,
-  };
+const NO_AUTH = { user: '', pass: '', sendImmediately: true };
+
+export async function tokenRequestPollForGmail(sessionKey) {
   const remoteRequest = new NylasAPIRequest({
     api: N1CloudAPI,
     options: {
       path: `/auth/gmail/token?key=${sessionKey}`,
       method: 'GET',
-      error: callback,
-      auth: noauth,
+      auth: NO_AUTH,
     },
   });
-  let remoteJSON = {}
-  try {
-    remoteJSON = await remoteRequest.run()
-  } catch (err) {
-    if (err.statusCode === 404) {
-      return
-    }
-    throw err
-  }
+  return remoteRequest.run()
+}
+
+export async function authIMAPForGmail(tokenData) {
   const localRequest = new NylasAPIRequest({
     api: NylasAPI,
     options: {
       path: `/auth`,
       method: 'POST',
-      auth: noauth,
+      auth: NO_AUTH,
       body: {
-        email: remoteJSON.email_address,
-        name: remoteJSON.name,
+        email: tokenData.email_address,
+        name: tokenData.name,
         provider: 'gmail',
         settings: {
-          xoauth2: remoteJSON.resolved_settings.xoauth2,
-          expiry_date: remoteJSON.resolved_settings.expiry_date,
+          xoauth2: tokenData.resolved_settings.xoauth2,
+          expiry_date: tokenData.resolved_settings.expiry_date,
         },
       },
     },
@@ -79,8 +70,8 @@ export async function makeGmailOAuthRequest(sessionKey, callback) {
   const localJSON = await localRequest.run()
   const account = Object.assign({}, localJSON);
   account.localToken = localJSON.account_token;
-  account.cloudToken = remoteJSON.account_token;
-  callback(null, account);
+  account.cloudToken = tokenData.account_token;
+  return account
 }
 
 export function buildGmailSessionKey() {

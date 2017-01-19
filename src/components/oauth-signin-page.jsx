@@ -1,25 +1,57 @@
 import React from 'react';
 import {ipcRenderer, shell} from 'electron';
+import {Actions} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit';
 
 const clipboard = require('electron').clipboard
-
 
 export default class OAuthSignInPage extends React.Component {
   static displayName = "OAuthSignInPage";
 
   static propTypes = {
-    authUrl: React.PropTypes.string,
-    iconName: React.PropTypes.string,
-    makeRequest: React.PropTypes.func,
+    /**
+     * Step 1: Open a webpage in the user's browser letting them login on
+     * the native provider's website. We pass along a key and a redirect
+     * url to a Nylas-owned server
+     */
+    providerAuthPageUrl: React.PropTypes.string,
+
+    /**
+     * Step 2: Poll a Nylas server with this function looking for the key.
+     * Once users complete the auth successfully, Nylas servers will get
+     * the token and vend it back to us via this url. We need to poll
+     * since we don't know how long it'll take users to log in on their
+     * provider's website.
+     */
+    tokenRequestPollFn: React.PropTypes.func,
+
+    /**
+     * Once we have the token, we can use that to retrieve the full
+     * account credentials or establish a direct connection ourselves.
+     * Some Nylas backends vend all account credentials along with the
+     * token making this function unnecessary and a no-op. Nylas Mail
+     * local sync needs to use the returned OAuth token to establish an
+     * IMAP connection directly that may have its own set of failure
+     * cases.
+     */
+    accountFromTokenFn: React.PropTypes.func,
+
+    /**
+     * Called once we have successfully received the account data from
+     * `accountFromTokenFn`
+     */
     onSuccess: React.PropTypes.func,
-    serviceName: React.PropTypes.string,
+
+    onTryAgain: React.PropTypes.func,
+    iconName: React.PropTypes.string,
     sessionKey: React.PropTypes.string,
+    serviceName: React.PropTypes.string,
   };
 
   constructor() {
     super()
     this.state = {
+      authStage: "initial",
       showAlternative: false,
     }
   }
@@ -29,7 +61,7 @@ export default class OAuthSignInPage extends React.Component {
     // to URL. (400msec animation + 200msec to read)
     this._pollTimer = null;
     this._startTimer = setTimeout(() => {
-      shell.openExternal(this.props.authUrl);
+      shell.openExternal(this.props.providerAuthPageUrl);
       this.startPollingForResponse();
     }, 600);
     setTimeout(() => {
@@ -42,10 +74,20 @@ export default class OAuthSignInPage extends React.Component {
     if (this._pollTimer) clearTimeout(this._pollTimer);
   }
 
+  _handleError(err) {
+    this.setState({authStage: "error", errorMessage: err.message})
+    NylasEnv.reportError(err)
+    Actions.recordUserEvent('Email Account Auth Failed', {
+      errorMessage: err.message,
+      provider: "gmail",
+    })
+  }
+
   startPollingForResponse() {
     let delay = 1000;
     let onWindowFocused = null;
     let poll = null;
+    this.setState({authStage: "polling"})
 
     onWindowFocused = () => {
       delay = 1000;
@@ -55,60 +97,92 @@ export default class OAuthSignInPage extends React.Component {
       }
     };
 
-    poll = () => {
-      this.props.makeRequest(this.props.sessionKey, (err, json) => {
-        clearTimeout(this._pollTimer);
-        if (json) {
-          ipcRenderer.removeListener('browser-window-focus', onWindowFocused);
-          let body = json
-          if (json.body) {
-            body = json.body
-          }
-          this.props.onSuccess(body);
-        } else {
-          delay = Math.min(delay * 1.2, 10000);
+    poll = async () => {
+      clearTimeout(this._pollTimer);
+      try {
+        const tokenData = await this.props.tokenRequestPollFn(this.props.sessionKey)
+        ipcRenderer.removeListener('browser-window-focus', onWindowFocused);
+        this.fetchAccountDataWithToken(tokenData)
+      } catch (err) {
+        if (err.statusCode === 404) {
+          delay = Math.min(delay * 1.1, 3000);
           this._pollTimer = setTimeout(poll, delay);
+        } else {
+          ipcRenderer.removeListener('browser-window-focus', onWindowFocused);
+          this._handleError(err)
         }
-      });
+      }
     }
 
     ipcRenderer.on('browser-window-focus', onWindowFocused);
-    this._pollTimer = setTimeout(poll, 5000);
+    this._pollTimer = setTimeout(poll, 3000);
   }
 
+  async fetchAccountDataWithToken(tokenData) {
+    try {
+      this.setState({authStage: "fetchingAccount"})
+      const accountData = await this.props.accountFromTokenFn(tokenData);
+      this.props.onSuccess(accountData)
+      this.setState({authStage: "accountSuccess"})
+    } catch (err) {
+      this._handleError(err)
+    }
+  }
+
+  _renderHeader() {
+    const authStage = this.state.authStage;
+    if (authStage === "initial" || authStage === "polling") {
+      return (<h2>
+        Sign in with {this.props.serviceName} in<br />your browser.
+      </h2>)
+    } else if (authStage === "fetchingAccount") {
+      return <h2>Connecting to {this.props.serviceName}…</h2>
+    } else if (this.authStage === "accountSuccess") {
+      return <h2>Connected to {this.props.serviceName}…</h2>
+    }
+    // Error
+    return (<div>
+      <h2>Sorry, we had trouble logging you in</h2>
+      <div className="error-region">
+        <p className="message error error-message">{this.state.errorMessage}</p>
+        <p className="extra">Please <a onClick={this.props.onTryAgain}>try again</a>. If you continue to see this error contact support@nylas.com</p>
+      </div>
+    </div>)
+  }
 
   _renderAlternative() {
     let classnames = "input hidden"
-    if (this.state.showAlternative) {
+    if (this.state.authStage === "polling" && this.state.showAlternative) {
       classnames += " fadein"
     }
 
     return (
-      <div className={classnames}>
-        <div style={{marginTop: 40}}>
-          Page didn&#39;t open? Paste this URL into your browser:
-        </div>
-        <input
-          type="url"
-          className="url-copy-target"
-          value={this.props.authUrl}
-          readOnly
-        />
-        <div
-          className="copy-to-clipboard"
-          onClick={() => clipboard.writeText(this.props.authUrl)}
-          onMouseDown={() => this.setState({pressed: true})}
-          onMouseUp={() => this.setState({pressed: false})}
-        >
-          <RetinaImg
-            name="icon-copytoclipboard.png"
-            mode={RetinaImg.Mode.ContentIsMask}
+      <div className="alternative-auth">
+        <div className={classnames}>
+          <div style={{marginTop: 40}}>
+            Page didn&#39;t open? Paste this URL into your browser:
+          </div>
+          <input
+            type="url"
+            className="url-copy-target"
+            value={this.props.providerAuthPageUrl}
+            readOnly
           />
+          <div
+            className="copy-to-clipboard"
+            onClick={() => clipboard.writeText(this.props.providerAuthPageUrl)}
+            onMouseDown={() => this.setState({pressed: true})}
+            onMouseUp={() => this.setState({pressed: false})}
+          >
+            <RetinaImg
+              name="icon-copytoclipboard.png"
+              mode={RetinaImg.Mode.ContentIsMask}
+            />
+          </div>
         </div>
       </div>
     )
   }
-
 
   render() {
     return (
@@ -120,12 +194,8 @@ export default class OAuthSignInPage extends React.Component {
             className="logo"
           />
         </div>
-        <h2>
-          Sign in to {this.props.serviceName} in<br />your browser.
-        </h2>
-        <div className="alternative-auth">
-          {this._renderAlternative()}
-        </div>
+        {this._renderHeader()}
+        {this._renderAlternative()}
       </div>
     );
   }
