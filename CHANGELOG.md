@@ -11,6 +11,7 @@
 
   + Show errors on the GMail auth screen
   + Show draft sending errors
+  + Can now correctly search threads via `from:` and `to:`
   + Other error management improvements
   + The database will now be reset if malformed
   + Improve the offline notification
