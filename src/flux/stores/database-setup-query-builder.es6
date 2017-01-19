@@ -42,9 +42,7 @@ export default class DatabaseSetupQueryBuilder {
 
     // Identify attributes of this class that can be matched against. These
     // attributes need their own columns in the table
-    const columnAttributes = attributes.filter(attr =>
-      attr.queryable && attr.columnSQL && attr.jsonKey !== 'id'
-    );
+    const columnAttributes = attributes.filter(attr => attr.needsColumn())
 
     const columns = ['id TEXT PRIMARY KEY', 'data BLOB']
     columnAttributes.forEach(attr => columns.push(attr.columnSQL()));

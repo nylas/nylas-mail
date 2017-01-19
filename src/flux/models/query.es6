@@ -292,6 +292,13 @@ export default class ModelQuery {
       return result.map((row) => {
         const json = JSON.parse(row.data, Utils.registeredObjectReviver)
         const object = (new this._klass()).fromJSON(json);
+        for (const attrName of Object.keys(this._klass.attributes)) {
+          const attr = this._klass.attributes[attrName];
+          if (!attr.needsColumn() || !attr.loadFromColumn) {
+            continue;
+          }
+          object[attr.modelKey] = attr.fromColumn(row[attr.jsonKey]);
+        }
         for (const attr of this._includeJoinedData) {
           let value = row[attr.jsonKey];
           if (value === AttributeJoinedData.NullPlaceholder) {
@@ -331,6 +338,13 @@ export default class ModelQuery {
       result = `\`${this._klass.name}\`.\`id\``;
     } else {
       result = `\`${this._klass.name}\`.\`data\``;
+      for (const attrName of Object.keys(this._klass.attributes)) {
+        const attr = this._klass.attributes[attrName];
+        if (!attr.needsColumn() || !attr.loadFromColumn) {
+          continue;
+        }
+        result += `, ${attr.jsonKey} `;
+      }
       this._includeJoinedData.forEach((attr) => {
         result += `, ${attr.selectSQL(this._klass)} `;
       })
