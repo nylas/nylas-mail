@@ -1,5 +1,25 @@
 # N1 Changelog
 
+### 1.0.10 (1/19/16)
+
+- Features:
+
+  + "Contact Support" button now auto-fills information
+  + Actions reach providers faster
+
+- Fixes:
+
+  + Show errors on the GMail auth screen
+  + Show draft sending errors
+  + Other error management improvements
+  + The database will now be reset if malformed
+  + Improve the offline notification
+
+- Development:
+
+  + Update Thread indexing
+  + Add loadFromColumm option to Attribute
+
 ### 1.0.9 (1/17/16)
 
 - Fixes:
