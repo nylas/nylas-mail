@@ -15,7 +15,7 @@ class SetMessageLabelsIMAP extends SyncbackTask {
     const labelIds = this.syncbackRequestObject().props.labelIds
 
     const {box, message} = await IMAPHelpers.openMessageBox({messageId, db, imap})
-    return IMAPHelpers.setMessageLabels({message, db, box, labelIds})
+    return IMAPHelpers.setLabelsForMessages({db, box, labelIds, messages: [message]})
   }
 }
 module.exports = SetMessageLabelsIMAP

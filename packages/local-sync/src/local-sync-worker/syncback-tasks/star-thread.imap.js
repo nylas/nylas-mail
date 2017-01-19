@@ -13,11 +13,11 @@ class StarThread extends SyncbackTask {
   run(db, imap) {
     const threadId = this.syncbackRequestObject().props.threadId
 
-    const eachMsg = ({message, box}) => {
-      return box.addFlags(message.folderImapUID, 'FLAGGED')
+    const eachMsg = ({box, messageImapUIDs}) => {
+      return box.addFlags(messageImapUIDs, 'FLAGGED')
     }
 
-    return IMAPHelpers.forEachMessageInThread({threadId, db, imap, callback: eachMsg})
+    return IMAPHelpers.forEachFolderOfThread({db, imap, threadId, callback: eachMsg})
   }
 }
 module.exports = StarThread;

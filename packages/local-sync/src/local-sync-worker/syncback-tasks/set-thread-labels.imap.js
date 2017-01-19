@@ -14,15 +14,12 @@ class SetThreadLabelsIMAP extends SyncbackTask {
     const threadId = this.syncbackRequestObject().props.threadId
     const labelIds = this.syncbackRequestObject().props.labelIds
 
-    // Ben TODO this is super inefficient because it makes IMAP requests
-    // one UID at a time, rather than gathering all the UIDs and making
-    // a single removeLabels call.
-    return IMAPHelpers.forEachMessageInThread({
+    return IMAPHelpers.forEachFolderOfThread({
       db,
       imap,
       threadId,
-      async callback({message, box}) {
-        return IMAPHelpers.setMessageLabels({message, db, box, labelIds})
+      async callback({box, messages}) {
+        return IMAPHelpers.setLabelsForMessages({db, box, messages, labelIds})
       },
     })
   }

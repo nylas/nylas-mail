@@ -1,66 +1,92 @@
 const _ = require('underscore')
-const {PromiseUtils, Errors: {APIError}} = require('isomorphic-core')
+const {Errors: {APIError}} = require('isomorphic-core')
 
-const TaskHelpers = {
-  messagesForThreadByFolder(db, threadId) {
-    return Promise.resolve(db.Thread.findById(threadId).then((thread) => {
-      return thread.getMessages()
-    })).then((messages) => {
-      return _.groupBy(messages, "folderId")
-    })
-  },
-
-  forEachMessageInThread({threadId, db, imap, callback}) {
-    return TaskHelpers.messagesForThreadByFolder(db, threadId)
-    .then((msgsInCategories) => {
-      const cids = Object.keys(msgsInCategories);
-      return PromiseUtils.each(db.Folder.findAll({where: {id: cids}}), (category) =>
-        imap.openBox(category.name, {readOnly: false}).then((box) =>
-          Promise.all(msgsInCategories[category.id].map((message) =>
-            callback({message, category, box})
-          ))
-        )
-      )
-    })
-  },
-
-  openMessageBox({messageId, db, imap}) {
-    return Promise.resolve(db.Message.findById(messageId).then((message) => {
-      return db.Folder.findById(message.folderId).then((category) => {
-        return imap.openBox(category.name).then((box) => {
-          return Promise.resolve({box, message})
-        })
-      })
-    }))
-  },
-
-  async moveMessageToFolder({db, box, message, targetFolderId}) {
-    if (!targetFolderId) {
-      throw new APIError('TaskHelpers.moveMessageToFolder: targetFolderId is required')
+const IMAPHelpers = {
+  async messagesForThreadByFolder(db, threadId) {
+    const thread = await db.Thread.findById(threadId)
+    if (!thread) {
+      throw new APIError(`IMAPHelpers.messagesForThreadByFolder - Can't find thread`, 404)
     }
-    if (targetFolderId === message.folderId) {
-      return Promise.resolve()
-    }
-    const targetFolder = await db.Folder.findById(targetFolderId)
-    if (!targetFolder) {
-      return Promise.resolve()
-    }
-    return box.moveFromBox(message.folderImapUID, targetFolder.name)
+    const messages = await thread.getMessages()
+    return _.groupBy(messages, 'folderId')
   },
 
-  async setMessageLabels({db, box, message, labelIds}) {
-    if (!labelIds || labelIds.length === 0) {
+  async forEachFolderOfThread({db, imap, threadId, callback}) {
+    const {Folder} = db
+    const msgsByFolder = await IMAPHelpers.messagesForThreadByFolder(db, threadId)
+    const folderIds = Object.keys(msgsByFolder)
+    const folders = await Folder.findAll({where: {id: folderIds}})
+
+    for (const folder of folders) {
+      const messages = msgsByFolder[folder.id]
+      if (messages.length === 0) { continue }
+      const messageImapUIDs = messages.map(m => m.folderImapUID)
+      const box = await imap.openBox(folder.name, {readOnly: false})
+      await callback({folder, messages, messageImapUIDs, box})
+    }
+  },
+
+  async forEachLabelSetOfMessages({messages, callback}) {
+    const messagesByLabelSet = new Map()
+    const labelIdentifiersByLabelSet = new Map()
+
+    await Promise.all(messages.map(async (message) => {
       const labels = await message.getLabels()
-      if (labels.length === 0) {
-        return Promise.resolve()
+      if (!labels || labels.length === 0) {
+        return
       }
-      const labelIdentifiers = labels.map(label => label.imapLabelIdentifier())
-      return box.removeLabels(message.folderImapUID, labelIdentifiers)
+      const labelIdentifiers = labels.map(l => l.imapLabelIdentifier())
+      const labelSet = (
+        labelIdentifiers
+        .sort((l1, l2) => {
+          if (l1.toLowerCase() === l2.toLowerCase()) {
+            return 0
+          }
+          return l1.toLowerCase() < l2.toLowerCase() ? -1 : 1
+        })
+        .join('')
+      )
+      labelIdentifiersByLabelSet.set(labelSet, labelIdentifiers)
+      if (messagesByLabelSet.has(labelSet)) {
+        const currentMsgs = messagesByLabelSet.get(labelSet)
+        messagesByLabelSet.set(labelSet, [...currentMsgs, message])
+      } else {
+        messagesByLabelSet.set(labelSet, [message])
+      }
+    }))
+
+    for (const [labelSet, msgs] of messagesByLabelSet) {
+      const labelIdentifiers = labelIdentifiersByLabelSet.get(labelSet)
+      await callback({messages: msgs, labelIdentifiers})
+    }
+  },
+
+  async openMessageBox({messageId, db, imap}) {
+    const {Message} = db
+    const message = await Message.findById(messageId)
+    const folder = await message.getFolder()
+    if (!folder) {
+      throw new Error(`IMAPHelpers.openMessageBox - message does not have a folder`)
+    }
+    const box = await imap.openBox(folder.name)
+    return {box, message}
+  },
+
+  async setLabelsForMessages({db, box, messages, labelIds}) {
+    if (!labelIds || labelIds.length === 0) {
+      // If labelIds is empty, we need to get each message's labels and remove
+      // them, because an empty array is invalid input for `setLabels`
+      return IMAPHelpers.forEachLabelSetOfMessages({
+        messages,
+        callback({messages: msgs, labelIdentifiers}) {
+          return box.removeLabels(msgs.map(m => m.folderImapUID), labelIdentifiers)
+        },
+      })
     }
 
     const labels = await db.Label.findAll({where: {id: labelIds}});
     const labelIdentifiers = labels.map(label => label.imapLabelIdentifier());
-    return box.setLabels(message.folderImapUID, labelIdentifiers)
+    return box.setLabels(messages.map(m => m.folderImapUID), labelIdentifiers)
   },
 
   async saveSentMessage({db, imap, provider, rawMime, headerMessageId}) {
@@ -111,4 +137,4 @@ const TaskHelpers = {
     }
   },
 }
-module.exports = TaskHelpers
+module.exports = IMAPHelpers

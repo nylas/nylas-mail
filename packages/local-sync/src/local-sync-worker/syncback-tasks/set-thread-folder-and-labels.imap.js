@@ -1,3 +1,4 @@
+const {Errors: {APIError}} = require('isomorphic-core')
 const SyncbackTask = require('./syncback-task')
 const IMAPHelpers = require('../imap-helpers')
 
@@ -15,16 +16,26 @@ class SetThreadFolderAndLabelsIMAP extends SyncbackTask {
     const labelIds = this.syncbackRequestObject().props.labelIds
     const targetFolderId = this.syncbackRequestObject().props.folderId
 
-    // Ben TODO this is super inefficient because it makes IMAP requests
-    // one UID at a time, rather than gathering all the UIDs and making
-    // a single removeLabels call.
-    return IMAPHelpers.forEachMessageInThread({
+    if (!targetFolderId) {
+      throw new APIError('targetFolderId is required')
+    }
+
+    const targetFolder = await db.Folder.findById(targetFolderId)
+    if (!targetFolder) {
+      throw new APIError('targetFolder not found', 404)
+    }
+
+    return IMAPHelpers.forEachFolderOfThread({
       db,
       imap,
       threadId,
-      async callback({message, box}) {
-        await IMAPHelpers.setMessageLabels({message, db, box, labelIds})
-        return IMAPHelpers.moveMessageToFolder({db, box, message, targetFolderId})
+      async callback({box, folder, messages, messageImapUIDs}) {
+        await IMAPHelpers.setLabelsForMessages({db, box, messages, labelIds})
+
+        if (folder.id === targetFolderId) {
+          return Promise.resolve()
+        }
+        return box.moveFromBox(messageImapUIDs, targetFolder.name)
       },
     })
   }
