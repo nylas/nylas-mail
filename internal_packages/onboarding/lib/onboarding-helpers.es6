@@ -37,7 +37,7 @@ function base64url(inBuffer) {
 
 const NO_AUTH = { user: '', pass: '', sendImmediately: true };
 
-export async function tokenRequestPollForGmail(sessionKey) {
+export async function makeGmailOAuthRequest(sessionKey) {
   const remoteRequest = new NylasAPIRequest({
     api: N1CloudAPI,
     options: {
