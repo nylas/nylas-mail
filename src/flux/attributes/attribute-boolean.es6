@@ -15,6 +15,9 @@ export default class AttributeBoolean extends Attribute {
   fromJSON(val) {
     return ((val === 'true') || (val === true)) || false;
   }
+  fromColumn(val) {
+    return (val === 1) || false;
+  }
   columnSQL() {
     const defaultValue = this.defaultValue ? 1 : 0;
     return `${this.jsonKey} INTEGER DEFAULT ${defaultValue}`;

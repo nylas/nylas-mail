@@ -111,6 +111,7 @@ class Thread extends ModelWithMetadata {
       modelKey: 'isSearchIndexed',
       jsonKey: 'is_search_indexed',
       defaultValue: false,
+      loadFromColumn: true,
     }),
   })
 
