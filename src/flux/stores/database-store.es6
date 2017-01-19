@@ -741,11 +741,10 @@ class DatabaseStore extends NylasStore {
 
   isIndexEmptyForAccount(accountId, modelKlass) {
     const modelTable = modelKlass.name
-    const searchTable = `${modelTable}Search`
     const sql = (
-      `SELECT \`${searchTable}\`.\`content_id\` FROM \`${searchTable}\` INNER JOIN \`${modelTable}\`
-      ON \`${modelTable}\`.id = \`${searchTable}\`.\`content_id\` WHERE \`${modelTable}\`.\`account_id\` = ?
-      LIMIT 1`
+      `SELECT \`${modelTable}\`.\`id\` FROM \`${modelTable}\` WHERE 
+      \`${modelTable}\`.is_search_indexed = 1 AND 
+      \`${modelTable}\`.\`account_id\` = ? LIMIT 1`
     );
     return this._query(sql, [accountId]).then(result => result.length === 0);
   }

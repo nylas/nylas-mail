@@ -5,6 +5,10 @@ const INDEX_VERSION = 1
 
 class EventSearchIndexer extends ModelSearchIndexer {
 
+  get MaxIndexSize() {
+    return 5000;
+  }
+
   get ConfigKey() {
     return 'eventSearchIndexVersion';
   }

@@ -9,6 +9,10 @@ export default class ModelSearchIndexer {
     this.indexer = null;
   }
 
+  get MaxIndexSize() {
+    throw new Error("Override me and return a number")
+  }
+
   get ConfigKey() {
     throw new Error("Override me and return a string config key")
   }
@@ -27,7 +31,12 @@ export default class ModelSearchIndexer {
 
   activate(indexer) {
     this.indexer = indexer;
-    this.indexer.registerSearchableModel(this.ModelClass, (model) => this._indexModel(model));
+    this.indexer.registerSearchableModel({
+      modelClass: this.ModelClass,
+      indexSize: this.MaxIndexSize,
+      indexCallback: (model) => this._indexModel(model),
+      unindexCallback: (model) => this._unindexModel(model),
+    });
 
     this._initializeIndex();
     this.unsubscribers = [
