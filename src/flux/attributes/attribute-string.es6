@@ -31,4 +31,24 @@ export default class AttributeString extends Attribute {
     this._assertPresentAndQueryable('like', val);
     return new Matcher(this, 'like', val);
   }
+
+  lessThan(val) {
+    this._assertPresentAndQueryable('lessThanOrEqualTo', val);
+    return new Matcher(this, '<', val);
+  }
+
+  lessThanOrEqualTo(val) {
+    this._assertPresentAndQueryable('lessThanOrEqualTo', val);
+    return new Matcher(this, '<=', val);
+  }
+
+  greaterThan(val) {
+    this._assertPresentAndQueryable('greaterThanOrEqualTo', val);
+    return new Matcher(this, '>', val);
+  }
+
+  greaterThanOrEqualTo(val) {
+    this._assertPresentAndQueryable('greaterThanOrEqualTo', val);
+    return new Matcher(this, '>=', val);
+  }
 }

@@ -6,7 +6,6 @@ import {
   DatabaseStore,
 } from 'nylas-exports'
 
-const INDEX_SIZE = 10000
 const MAX_INDEX_SIZE = 30000
 const CHUNKS_PER_ACCOUNT = 10
 const INDEXING_WAIT = 1000
@@ -22,7 +21,12 @@ class ThreadSearchIndexStore {
 
   activate(indexer) {
     this.indexer = indexer;
-    this.indexer.registerSearchableModel(Thread, (model) => this.updateThreadIndex(model));
+    this.indexer.registerSearchableModel({
+      modelClass: Thread,
+      indexSize: MAX_INDEX_SIZE,
+      indexCallback: (model) => this.updateThreadIndex(model),
+      unindexCallback: (model) => this.unindexThread(model),
+    });
 
     const date = Date.now();
     console.log('Thread Search: Initializing thread search index...')
@@ -141,11 +145,7 @@ class ThreadSearchIndexStore {
 
   buildIndex = (accountIds) => {
     if (!accountIds || accountIds.length === 0) { return Promise.resolve() }
-    const sizePerAccount = Math.floor(INDEX_SIZE / accountIds.length)
-    return Promise.resolve(accountIds)
-    .each((accountId) => (
-      this.indexThreadsForAccount(accountId, sizePerAccount)
-    ))
+    this.indexer.notifyHasIndexingToDo();
   }
 
   clearIndex() {
@@ -158,27 +158,6 @@ class ThreadSearchIndexStore {
   getUnindexedAccounts() {
     return Promise.resolve(this.accountIds)
     .filter((accId) => DatabaseStore.isIndexEmptyForAccount(accId, Thread))
-  }
-
-  indexThreadsForAccount(accountId, indexSize) {
-    const chunkSize = Math.floor(indexSize / CHUNKS_PER_ACCOUNT)
-    const chunks = Promise.resolve(_.times(CHUNKS_PER_ACCOUNT, () => chunkSize))
-
-    return chunks.each((size, idx) => {
-      return DatabaseStore.findAll(Thread)
-      .where({accountId})
-      .limit(size)
-      .offset(size * idx)
-      .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
-      .background()
-      .then((threads) => {
-        return Promise.all(
-          threads.map(this.indexThread)
-        ).then(() => {
-          return new Promise((resolve) => setTimeout(resolve, INDEXING_WAIT))
-        })
-      })
-    })
   }
 
   indexThread = (thread) => {

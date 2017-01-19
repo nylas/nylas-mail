@@ -115,8 +115,12 @@ class Thread extends ModelWithMetadata {
     }),
   })
 
+  static sortOrderAttribute = () => {
+    return Thread.attributes.lastMessageReceivedTimestamp
+  }
+
   static naturalSortOrder = () => {
-    return Thread.attributes.lastMessageReceivedTimestamp.descending()
+    return Thread.sortOrderAttribute().descending()
   }
 
   static additionalSQLiteConfig = {
@@ -145,6 +149,7 @@ class Thread extends ModelWithMetadata {
       'CREATE INDEX IF NOT EXISTS ThreadUnifiedStarredIndex ON `Thread` (last_message_received_timestamp DESC) WHERE starred = 1 AND in_all_mail = 1',
 
       'CREATE INDEX IF NOT EXISTS ThreadIsSearchIndexedIndex ON `Thread` (is_search_indexed, id)',
+      'CREATE INDEX IF NOT EXISTS ThreadIsSearchIndexedLastMessageReceivedIndex ON `Thread` (is_search_indexed, last_message_received_timestamp)',
     ],
   }
 

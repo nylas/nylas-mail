@@ -98,6 +98,14 @@ export default class Contact extends Model {
 
   static searchFields = ['content'];
 
+  static sortOrderAttribute = () => {
+    return Contact.attributes.id
+  }
+
+  static naturalSortOrder = () => {
+    return Contact.sortOrderAttribute().descending()
+  }
+
   static fromString(string, {accountId} = {}) {
     const emailRegex = RegExpUtils.emailRegex();
     const match = emailRegex.exec(string);
