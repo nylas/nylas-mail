@@ -10,6 +10,8 @@ export default class OfflineNotification extends React.Component {
   constructor() {
     super();
     this._updateInterval = null;
+    this._setOfflineTimeout = null;
+    this._setRetryingTimeout = null;
     this.state = this.getStateFromStores();
   }
 
@@ -31,20 +33,24 @@ export default class OfflineNotification extends React.Component {
   }
 
   onConnectedStatusChanged = () => {
-    clearTimeout(this._setOfflineTimeout)
     const nextState = this.getStateFromStores();
     if ((nextState.connected !== this.state.connected)) {
+      clearTimeout(this._setOfflineTimeout)
+
       if (nextState.connected) {
         this.setState(nextState);
       } else {
         // Only set the status to offline if we are still offline after a while
         // This prevents the notification from flickering
-        this._setOfflineTimeout = setTimeout(this.onConnectedStatusChanged, CHECK_STATUS_INTERVAL)
+        this._setOfflineTimeout = setTimeout(this.onConnectedStatusChanged, 3 * CHECK_STATUS_INTERVAL)
       }
     }
   }
 
   onTryAgain = () => {
+    clearTimeout(this._setRetryingTimeout)
+    this.setState({retrying: true})
+    this._setRetryingTimeout = setTimeout(() => this.setState({retrying: false}), 2000)
     Actions.retryDeltaConnection();
   }
 
@@ -58,11 +64,10 @@ export default class OfflineNotification extends React.Component {
   }
 
   ensureCountdownInterval = () => {
-    if (this._updateInterval) {
-      clearInterval(this._updateInterval);
-    }
-    // only count down the "Reconnecting in..." label if the window is in the
-    // foreground to avoid the battery hit.
+    clearInterval(this._updateInterval);
+
+    // only attempt to retry if the window is in the foreground to avoid
+    // the battery hit.
     if (!this.state.connected && !document.body.classList.contains('is-blurred')) {
       this._updateInterval = setInterval(() => {
         Actions.retryDeltaConnection();
@@ -71,10 +76,11 @@ export default class OfflineNotification extends React.Component {
   }
 
   render() {
-    const {connected} = this.state;
+    const {connected, retrying} = this.state;
     if (connected) {
       return <span />
     }
+    const tryLabel = retrying ? 'Retrying...' : 'Try now';
 
     return (
       <Notification
@@ -82,7 +88,7 @@ export default class OfflineNotification extends React.Component {
         title="Nylas Mail is offline"
         priority="5"
         icon="volstead-offline.png"
-        actions={[{label: 'Try now', id: 'try_now', fn: this.onTryAgain}]}
+        actions={[{label: tryLabel, id: 'try_now', fn: this.onTryAgain}]}
       />
     )
   }
