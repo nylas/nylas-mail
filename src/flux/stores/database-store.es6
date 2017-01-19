@@ -10,6 +10,7 @@ import LRU from "lru-cache";
 import NylasStore from '../../global/nylas-store';
 import Utils from '../models/utils';
 import Query from '../models/query';
+import Actions from '../actions'
 import DatabaseChangeRecord from './database-change-record';
 import DatabaseTransaction from './database-transaction';
 import DatabaseSetupQueryBuilder from './database-setup-query-builder';
@@ -370,7 +371,12 @@ class DatabaseStore extends NylasStore {
         }
         results = stmt[fn](values);
       } catch (err) {
-        if (tries < 3 && err.toString().includes('database schema has changed')) {
+        const errString = err.toString()
+        if (/database disk image is malformed/gi.test(errString)) {
+          // This is unrecoverable. We have to do a full database reset
+          NylasEnv.reportError(err)
+          Actions.resetEmailCache()
+        } else if (tries < 3 && /database schema has changed/gi.test(errString)) {
           this._preparedStatementCache.del(query);
           tries += 1;
         } else {
@@ -816,9 +822,9 @@ class DatabaseStore extends NylasStore {
     });
   }
 
-  unindexModelsForAccount(accountId, modelKlass) {
-    const modelTable = modelKlass.name;
-    const searchTableName = `${modelTable}Search`;
+  unindexModelsForAccount() {
+    // const modelTable = modelKlass.name;
+    // const searchTableName = `${modelTable}Search`;
     /* TODO: We don't correctly clean up the model tables right now, so we don't
      * want to destroy the index until we do so.
     const sql = (
