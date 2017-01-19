@@ -565,6 +565,8 @@ class Actions {
   static expandInitialSyncState = ActionScopeWindow;
 
   static resetEmailCache = ActionScopeGlobal;
+
+  static debugSync = ActionScopeGlobal;
 }
 
 
