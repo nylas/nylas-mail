@@ -109,7 +109,8 @@ module.exports = {
   },
 
   imapAuthHandler(upsertAccount) {
-    return (request, reply) => {
+    const MAX_RETRIES = 2
+    const authHandler = (request, reply, retryNum = 0) => {
       const dbStub = {};
       const connectionChecks = [];
       const {email, provider, name} = request.payload;
@@ -137,20 +138,32 @@ module.exports = {
       .then(({account, token}) => {
         const response = account.toJSON();
         response.account_token = token.value;
-        return reply(JSON.stringify(response));
+        reply(JSON.stringify(response));
+        return
       })
       .catch((err) => {
         if (err instanceof IMAPErrors.IMAPAuthenticationError) {
           global.Logger.error({err}, 'Encountered authentication error while attempting to authenticate')
-          return reply({message: USER_ERRORS.IMAP_AUTH, type: "api_error"}).code(401);
+          reply({message: USER_ERRORS.IMAP_AUTH, type: "api_error"}).code(401);
+          return
         }
         if (err instanceof IMAPErrors.RetryableError) {
+          if (retryNum < MAX_RETRIES) {
+            setTimeout(() => {
+              request.logger.info(`IMAP Timeout. Retry #${retryNum + 1}`)
+              authHandler(request, reply, retryNum + 1)
+            }, 100)
+            return
+          }
           global.Logger.error({err}, 'Encountered retryable error while attempting to authenticate')
-          return reply({message: USER_ERRORS.IMAP_RETRY, type: "api_error"}).code(408);
+          reply({message: USER_ERRORS.IMAP_RETRY, type: "api_error"}).code(408);
+          return
         }
         global.Logger.error({err}, 'Encountered unknown error while attempting to authenticate')
-        return reply({message: USER_ERRORS.AUTH_500, type: "api_error"}).code(500);
+        reply({message: USER_ERRORS.AUTH_500, type: "api_error"}).code(500);
+        return
       })
     }
+    return authHandler
   },
 }
