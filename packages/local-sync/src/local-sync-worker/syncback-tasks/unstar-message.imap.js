@@ -10,13 +10,11 @@ class UnstarMessageIMAP extends SyncbackTask {
     return false
   }
 
-  run(db, imap) {
+  async run(db, imap) {
     const messageId = this.syncbackRequestObject().props.messageId
 
-    return IMAPHelpers.openMessageBox({messageId, db, imap})
-      .then(({box, message}) => {
-        return box.delFlags(message.folderImapUID, 'FLAGGED')
-      })
+    const {box, message} = await IMAPHelpers.openMessageBox({messageId, db, imap})
+    return box.delFlags(message.folderImapUID, 'FLAGGED')
   }
 }
 module.exports = UnstarMessageIMAP;

@@ -13,11 +13,11 @@ class UnstarThread extends SyncbackTask {
   run(db, imap) {
     const threadId = this.syncbackRequestObject().props.threadId
 
-    const eachMsg = ({message, box}) => {
-      return box.delFlags(message.folderImapUID, 'FLAGGED')
+    const eachMsg = ({box, messageImapUIDs}) => {
+      return box.delFlags(messageImapUIDs, 'FLAGGED')
     }
 
-    return IMAPHelpers.forEachMessageInThread({threadId, db, imap, callback: eachMsg})
+    return IMAPHelpers.forEachFolderOfThread({db, imap, threadId, callback: eachMsg})
   }
 }
 module.exports = UnstarThread;

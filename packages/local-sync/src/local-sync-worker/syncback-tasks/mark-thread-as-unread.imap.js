@@ -13,11 +13,11 @@ class MarkThreadAsUnread extends SyncbackTask {
   run(db, imap) {
     const threadId = this.syncbackRequestObject().props.threadId
 
-    const eachMsg = ({message, box}) => {
-      return box.delFlags(message.folderImapUID, 'SEEN')
+    const eachMsg = ({messageImapUIDs, box}) => {
+      return box.delFlags(messageImapUIDs, 'SEEN')
     }
 
-    return IMAPHelpers.forEachMessageInThread({threadId, db, imap, callback: eachMsg})
+    return IMAPHelpers.forEachFolderOfThread({threadId, db, imap, callback: eachMsg})
   }
 }
 module.exports = MarkThreadAsUnread;
