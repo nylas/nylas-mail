@@ -5,6 +5,8 @@ const {
 } = require('isomorphic-core');
 const {
   Actions,
+  APIError,
+  NylasAPI,
   N1CloudAPI,
   NylasAPIRequest,
   Account: {SYNC_STATE_RUNNING, SYNC_STATE_AUTH_FAILED, SYNC_STATE_ERROR},
@@ -122,17 +124,32 @@ class SyncWorker {
       }
       return null
     } catch (err) {
-      console.error(`🔃  Unable to refresh access token. Got status code #{err.response.statusCode}`, err);
+      if (err instanceof APIError) {
+        const statusCode = err.statusCode != null ? err.statusCode : 'Unknown status code'
+        console.error(`🔃  Unable to refresh access token. Got status code: ${statusCode}`, err);
 
-      if (err.response.statusCode >= 500) {
-        // If we got a 5xx error from the server, that means that something is wrong
-        // on the Nylas API side. It could be a bad deploy, or a bug on Google's side.
-        // In both cases, we've probably been alerted and are working on the issue,
-        // so it makes sense to have the client retry.
-        throw new IMAPErrors.IMAPTransientAuthenticationError(`Server error when trying to refresh token.`);
-      } else {
-        throw new IMAPErrors.IMAPAuthenticationError(`Unable to refresh access token`);
+        if (statusCode >= 500) {
+          // Even though we don't consider 500s as permanent errors when
+          // refreshing tokens, we want to report them
+          NylasEnv.reportError(err)
+        }
+        const isNonPermanentError = (
+          // If we got a 5xx error from the server, that means that something is wrong
+          // on the Nylas API side. It could be a bad deploy, or a bug on Google's side.
+          // In both cases, we've probably been alerted and are working on the issue,
+          // so it makes sense to have the client retry.
+          statusCode >= 500 ||
+          !NylasAPI.PermanentErrorCodes.includes(statusCode)
+        )
+        if (isNonPermanentError) {
+          throw new IMAPErrors.IMAPTransientAuthenticationError(`Server error when trying to refresh token.`);
+        } else {
+          throw new IMAPErrors.IMAPAuthenticationError(`Unable to refresh access token`);
+        }
       }
+      console.error(`🔃  Unable to refresh access token.`, err);
+      NylasEnv.reportError(err)
+      throw new Error(`Unable to refresh access token, unknown error encountered`);
     }
   }
 
