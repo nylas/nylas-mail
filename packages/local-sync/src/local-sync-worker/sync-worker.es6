@@ -125,7 +125,7 @@ class SyncWorker {
       return null
     } catch (err) {
       if (err instanceof APIError) {
-        const statusCode = err.statusCode != null ? err.statusCode : 'Unknown status code'
+        const {statusCode} = err
         console.error(`🔃  Unable to refresh access token. Got status code: ${statusCode}`, err);
 
         if (statusCode >= 500) {
