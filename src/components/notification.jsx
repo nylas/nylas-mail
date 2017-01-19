@@ -55,8 +55,8 @@ export default class Notification extends React.Component {
     return NylasEnv.savedState.dismissedNotificationAsks[this.props.displayName]
   }
 
-  _onClick(actionId, actionFn) {
-    const result = actionFn();
+  _onClick(event, actionId, actionFn) {
+    const result = actionFn(event);
     if (result instanceof Promise) {
       this.setState({
         loadingActions: this.state.loadingActions.concat([actionId]),
@@ -115,7 +115,8 @@ export default class Notification extends React.Component {
           key={id}
           id={id}
           className={className}
-          onClick={() => this._onClick(id, action.fn)}
+          onClick={(e) => this._onClick(e, id, action.fn)}
+          {...action.props}
         >
           {action.label}
         </div>
@@ -142,7 +143,7 @@ export default class Notification extends React.Component {
           {iconEl} {title} <br />
           <span
             className={`subtitle ${subtitleAction ? 'has-action' : ''}`}
-            onClick={subtitleAction || (() => {})}
+            onClick={subtitleAction}
           >
             {subtitle}
           </span>
