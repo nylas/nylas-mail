@@ -36,11 +36,14 @@ class SyncProcessManager {
 
     Actions.wakeLocalSyncWorkerForAccount.listen((accountId) =>
       this.wakeWorkerForAccount(accountId)
-    )
+    );
+    this._resettingEmailCache = false
     Actions.resetEmailCache.listen(this._resetEmailCache, this)
   }
 
   _resetEmailCache() {
+    if (this._resettingEmailCache) return;
+    this._resettingEmailCache = true
     try {
       for (const worker of this.workers()) {
         worker.stopSync()
@@ -57,6 +60,7 @@ class SyncProcessManager {
       }, 100)
     } catch (err) {
       console.error(err)
+      this._resettingEmailCache = false
     }
   }
 
