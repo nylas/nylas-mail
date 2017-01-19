@@ -2,7 +2,7 @@ import React from 'react';
 import {OAuthSignInPage} from 'nylas-component-kit';
 
 import {
-  tokenRequestPollForGmail,
+  makeGmailOAuthRequest,
   authIMAPForGmail,
   buildGmailSessionKey,
   buildGmailAuthURL,
@@ -38,7 +38,7 @@ export default class AccountSettingsPageGmail extends React.Component {
       <OAuthSignInPage
         providerAuthPageUrl={this._gmailAuthUrl}
         iconName={iconName}
-        tokenRequestPollFn={tokenRequestPollForGmail}
+        tokenRequestPollFn={makeGmailOAuthRequest}
         accountFromTokenFn={authIMAPForGmail}
         onSuccess={this.onSuccess}
         onTryAgain={goBack}
