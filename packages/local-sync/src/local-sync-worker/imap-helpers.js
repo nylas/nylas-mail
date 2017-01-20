@@ -11,18 +11,18 @@ const IMAPHelpers = {
     return _.groupBy(messages, 'folderId')
   },
 
-  async forEachFolderOfThread({db, imap, threadId, callback}) {
+  async forEachFolderOfThread({db, imap, threadMessages, callback}) {
     const {Folder} = db
-    const msgsByFolder = await IMAPHelpers.messagesForThreadByFolder(db, threadId)
+    const msgsByFolder = _.groupBy(threadMessages, 'folderId')
     const folderIds = Object.keys(msgsByFolder)
     const folders = await Folder.findAll({where: {id: folderIds}})
 
     for (const folder of folders) {
-      const messages = msgsByFolder[folder.id]
-      if (messages.length === 0) { continue }
-      const messageImapUIDs = messages.map(m => m.folderImapUID)
+      const msgsInFolder = msgsByFolder[folder.id]
+      if (msgsInFolder.length === 0) { continue }
+      const messageImapUIDs = msgsInFolder.map(m => m.folderImapUID)
       const box = await imap.openBox(folder.name, {readOnly: false})
-      await callback({folder, messages, messageImapUIDs, box})
+      await callback({folder, messages: msgsInFolder, messageImapUIDs, box})
     }
   },
 
