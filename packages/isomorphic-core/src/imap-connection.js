@@ -88,6 +88,10 @@ class IMAPConnection extends EventEmitter {
       authTimeout: this._settings.authTimeout || AUTH_TIMEOUT_MS,
     }
 
+    if (process.env.NYLAS_DEBUG) {
+      result.debug = console.log;
+    }
+
     // This account uses XOAuth2, and we have the client_id + refresh token
     if (this._settings.refresh_token) {
       const xoauthFields = ['client_id', 'client_secret', 'imap_username', 'refresh_token'];
