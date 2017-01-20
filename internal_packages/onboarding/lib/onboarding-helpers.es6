@@ -56,6 +56,7 @@ export async function authIMAPForGmail(tokenData) {
       path: `/auth`,
       method: 'POST',
       auth: NO_AUTH,
+      timeout: 30 * 1000,
       body: {
         email: tokenData.email_address,
         name: tokenData.name,
@@ -131,6 +132,7 @@ export function runAuthRequest(accountInfo) {
     options: {
       path: '/auth',
       method: 'POST',
+      timeout: 30 * 1000,
       body: data,
       auth: noauth,
       returnsModel: false,
@@ -142,6 +144,7 @@ export function runAuthRequest(accountInfo) {
       options: {
         path: `/auth`,
         method: 'POST',
+        timeout: 30 * 1000,
         body: data,
         auth: noauth,
         returnsModel: false,
