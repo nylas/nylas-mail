@@ -137,7 +137,7 @@ export default class OAuthSignInPage extends React.Component {
       </h2>)
     } else if (authStage === "fetchingAccount") {
       return <h2>Connecting to {this.props.serviceName}…</h2>
-    } else if (this.authStage === "accountSuccess") {
+    } else if (authStage === "accountSuccess") {
       return <h2>Connected to {this.props.serviceName}…</h2>
     }
     // Error
