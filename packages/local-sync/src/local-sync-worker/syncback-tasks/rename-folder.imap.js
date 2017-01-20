@@ -1,3 +1,4 @@
+const {Errors: {APIError}} = require('isomorphic-core')
 const SyncbackTask = require('./syncback-task')
 
 class RenameFolderIMAP extends SyncbackTask {
@@ -10,10 +11,51 @@ class RenameFolderIMAP extends SyncbackTask {
   }
 
   async run(db, imap) {
-    const folderId = this.syncbackRequestObject().props.folderId
-    const newFolderName = this.syncbackRequestObject().props.displayName
-    const folder = await db.Folder.findById(folderId)
-    return imap.renameBox(folder.name, newFolderName);
+    const {sequelize, accountId, Folder} = db
+    const {folderId, newFolderName} = this.syncbackRequestObject().props.folderId
+    const oldFolder = await Folder.findById(folderId)
+    await imap.renameBox(oldFolder.name, newFolderName);
+
+    // After IMAP succeeds, update the db
+    const newId = Folder.hash({boxName: newFolderName, accountId})
+    let newFolder;
+    await sequelize.transaction(async (transaction) => {
+      newFolder = await Folder.create({
+        id: newId,
+        accountId,
+        name: newFolderName,
+      }, {transaction})
+
+      // We can't do batch updates because we need to generate deltas for each
+      // message and thread
+      const messages = await oldFolder.getMessages({
+        transaction,
+        attributes: ['id'],
+        include: [{model: Folder, as: 'folders', attributes: ['id']}],
+      })
+      await Promise.all(messages.map(async (m) => {
+        await m.setFolder(newFolder, {transaction})
+        await m.save({transaction})
+      }))
+      const threads = await oldFolder.getThreads({
+        transaction,
+        attributes: ['id'],
+        include: [{model: Folder, as: 'folders', attributes: ['id']}],
+      })
+      await Promise.all(threads.map(async (t) => {
+        const nextFolders = [
+          newFolder,
+          ...t.folders.filter(f => f.id !== oldFolder.id),
+        ]
+        await t.setFolders(nextFolders, {transaction})
+        await t.save({transaction})
+      }))
+      await oldFolder.destroy({transaction})
+    })
+    if (!newFolder) {
+      throw new APIError(`Error renaming folder - can't save to database`)
+    }
+    return newFolder.toJSON()
   }
 }
 module.exports = RenameFolderIMAP

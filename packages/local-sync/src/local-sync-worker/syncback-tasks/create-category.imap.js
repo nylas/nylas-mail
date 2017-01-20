@@ -10,9 +10,16 @@ class CreateCategoryIMAP extends SyncbackTask {
   }
 
   async run(db, imap) {
-    const {objectId, displayName} = this.syncbackRequestObject().props
+    const {accountId} = db
+    const {objectClass, displayName} = this.syncbackRequestObject().props
     await imap.addBox(displayName)
-    return {categoryServerId: objectId}
+    const id = db[objectClass].hash({boxName: displayName, accountId})
+    const category = await db[objectClass].create({
+      id,
+      accountId,
+      name: displayName,
+    })
+    return category.toJSON()
   }
 }
 module.exports = CreateCategoryIMAP
