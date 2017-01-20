@@ -77,10 +77,11 @@ module.exports = ErrorLogger = (function() {
        * This is a rare use of `sendSync` to ensure the command has made
        * it before the window closes.
        */
-      ipcRenderer.sendSync("report-error", {errorJSON: errorJSON, extra: extra})
+      ipcRenderer.sendSync("report-error", {errorJSON: errorJSON, extra: JSON.stringify(extra)})
 
     } else {
       var nslog = require('nslog');
+
       this._notifyExtensions("reportError", error, extra)
       nslog(error.stack)
     }
