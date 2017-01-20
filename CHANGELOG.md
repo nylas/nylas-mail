@@ -1,6 +1,18 @@
 # N1 Changelog
 
-### 1.0.10 (1/19/16)
+### 1.0.11 (1/19/17)
+
+- Features:
+
+  + Nylas Mail's installer on Mac uses a DMG
+
+- Fixes:
+
+  + Fixed app being occasionally unresponsive
+  + Decreased odds of failed logins (by bumping connection timeout value)
+  + Sync erroring notification no longer tripped by timeouts
+
+### 1.0.10 (1/19/17)
 
 - Features:
 
@@ -21,7 +33,7 @@
   + Update Thread indexing
   + Add loadFromColumm option to Attribute
 
-### 1.0.9 (1/17/16)
+### 1.0.9 (1/17/17)
 
 - Fixes:
 
@@ -29,6 +41,6 @@
   + Offline notification more reliable
   + Fix error logging
 
-### 1.0.8 (1/17/16)
+### 1.0.8 (1/17/17)
 
 - Introducing Nylas Mail Basic! Read more about it [here](https://blog.nylas.com/nylas-mail-is-now-free-8350d6a1044d)
