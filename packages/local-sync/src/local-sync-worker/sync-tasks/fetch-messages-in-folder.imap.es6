@@ -109,7 +109,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       await messageChanged.save({fields: MessageFlagAttributes})
     }
 
-    // Step 4: If message labels were changed, retreive the impacted threads
+    // Step 4: If message labels were changed, retrieve the impacted threads
     // and re-compute their labels. This is fairly expensive at the moment.
     if (messagesWithChangedLabels.length > 0) {
       const threadIds = messagesWithChangedLabels.map(m => m.threadId);
