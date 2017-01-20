@@ -373,7 +373,7 @@ class IMAPConnection extends EventEmitter {
         error: err,
         operation_type: operation.constructor.name,
         operation_description: operation.description(),
-      }, `Sync operation errored`)
+      }, `IMAPConnection - operation errored`)
       reject(err);
     })
   }
