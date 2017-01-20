@@ -273,13 +273,9 @@ class SyncWorker {
 
     // Don't save the error to the account if it was a network/retryable error
     // /and/ if we haven't retried too many times.
-    // If we've retried enough times and still can't get it to work,
-    // we do want to save the error to show it the user that there is an error
     if (error instanceof IMAPErrors.RetryableError) {
       this._numRetries += 1;
-      if (this._numRetries <= 3) {
-        return
-      }
+      return
     }
 
     const isAuthError = error instanceof IMAPErrors.IMAPAuthenticationError
