@@ -187,9 +187,12 @@ function bodyFromParts(imapMessage, desiredParts) {
   for (const {id, mimeType, transferEncoding, charset} of desiredParts) {
     let decoded = '';
     // see https://www.w3.org/Protocols/rfc1341/5_Content-Transfer-Encoding.html
-    if (!transferEncoding || new Set(['7bit', '8bit', 'binary']).has(transferEncoding.toLowerCase())) {
-      // NO transfer encoding has been performed --- how to decode to a string
-      // depends ONLY on the charset,
+    if ((/quot(ed)?[-/]print(ed|able)?/gi).test(transferEncoding)) {
+      decoded = mimelib.decodeQuotedPrintable(imapMessage.parts[id], charset);
+    } else if ((/base64/gi).test(transferEncoding)) {
+      decoded = mimelib.decodeBase64(imapMessage.parts[id], charset);
+    } else {
+      // Treat this as having no encoding and decode based only on the charset
       //
       // According to https://tools.ietf.org/html/rfc2045#section-5.2,
       // this should default to ascii; however, if we don't get a charset,
@@ -197,16 +200,10 @@ function bodyFromParts(imapMessage, desiredParts) {
       // anyway. Since ascii is a strict subset of utf-8, it's safer to
       // try and decode as utf-8 if we don't have the charset.
       //
-      // This applies to decoding quoted-printable and base64 as well. The
-      // mimelib library, if charset is null, will default to utf-8
+      // (This applies to decoding quoted-printable and base64 as well. The
+      // mimelib library, if charset is null, will default to utf-8)
+      //
       decoded = encoding.convert(imapMessage.parts[id], 'utf-8', charset).toString('utf-8');
-    } else if (transferEncoding.toLowerCase() === 'quoted-printable') {
-      decoded = mimelib.decodeQuotedPrintable(imapMessage.parts[id], charset);
-    } else if (transferEncoding.toLowerCase() === 'base64') {
-      decoded = mimelib.decodeBase64(imapMessage.parts[id], charset);
-    } else {
-      // custom x-token content-transfer-encodings
-      return Promise.reject(new Error(`Unsupported Content-Transfer-Encoding ${transferEncoding}, mimetype ${mimeType}`))
     }
     // desiredParts are in order of the MIME tree walk, e.g. 1.1, 1.2, 2...,
     // and for multipart/alternative arrays, we have already pulled out the
