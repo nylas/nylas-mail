@@ -235,10 +235,10 @@ class NylasEnvConstructor
       if error instanceof APIError
         return if error.statusCode isnt 400
 
-      @reportError(error, {promise})
+      @reportError(error)
 
-    process.on('uncaughtException', @reportError)
-    process.on('unhandledRejection', @reportError)
+    process.on('uncaughtException', (e) => @reportError(e))
+    process.on('unhandledRejection', (e) => @reportError(e))
 
     if @inSpecMode() or @inDevMode()
       Promise.longStackTraces()
