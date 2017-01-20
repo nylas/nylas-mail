@@ -1,3 +1,4 @@
+const {Errors: {APIError}} = require('isomorphic-core')
 const SyncbackTask = require('./syncback-task')
 const IMAPHelpers = require('../imap-helpers')
 
@@ -10,14 +11,31 @@ class MarkThreadAsRead extends SyncbackTask {
     return false
   }
 
-  run(db, imap) {
+  async run(db, imap) {
+    const {sequelize, Thread} = db
     const threadId = this.syncbackRequestObject().props.threadId
-
-    const eachMsg = ({messageImapUIDs, box}) => {
-      return box.addFlags(messageImapUIDs, 'SEEN')
+    if (!threadId) {
+      throw new APIError('threadId is required')
     }
 
-    return IMAPHelpers.forEachFolderOfThread({threadId, db, imap, callback: eachMsg})
+    const thread = await Thread.findById(threadId)
+    if (!thread) {
+      throw new APIError(`Can't find thread`, 404)
+    }
+    const threadMessages = await thread.getMessages()
+    await IMAPHelpers.forEachFolderOfThread({
+      db,
+      imap,
+      threadMessages,
+      callback({messageImapUIDs, box}) {
+        return box.addFlags(messageImapUIDs, 'SEEN')
+      },
+    })
+    // If IMAP succeeds, save the model updates
+    await sequelize.transaction(async (transaction) => {
+      await Promise.all(threadMessages.map((m) => m.update({unread: false}, {transaction})))
+      await thread.update({unreadCount: 0}, {transaction})
+    })
   }
 }
 module.exports = MarkThreadAsRead;
