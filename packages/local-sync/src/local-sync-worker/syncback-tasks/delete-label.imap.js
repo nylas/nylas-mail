@@ -10,13 +10,16 @@ class DeleteLabelIMAP extends SyncbackTask {
   }
 
   async run(db, imap) {
-    const labelId = this.syncbackRequestObject().props.labelId
+    const {labelId} = this.syncbackRequestObject().props.labelId
     const label = await db.Label.findById(labelId)
     if (!label) {
       // Nothing to delete!
-      return null;
+      return
     }
-    return imap.delBox(label.name);
+    await imap.delBox(label.name);
+
+    // If IMAP succeeds, save updates to the db
+    await label.destroy()
   }
 }
 module.exports = DeleteLabelIMAP

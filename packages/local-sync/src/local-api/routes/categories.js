@@ -57,15 +57,10 @@ module.exports = (server) => {
       async handler(request, reply) {
         const {payload} = request
         if (payload.display_name) {
-          const accountId = request.auth.credentials.id
-          const db = await request.getAccountDatabase()
-          const objectId = db[klass].hash({boxName: payload.display_name, accountId})
-
           createAndReplyWithSyncbackRequest(request, reply, {
             type: "CreateCategory",
             props: {
-              objectId,
-              object: klass.toLowerCase(),
+              objectClass: klass,
               displayName: payload.display_name,
             },
           })
@@ -94,26 +89,20 @@ module.exports = (server) => {
       async handler(request, reply) {
         const {payload} = request
         if (payload.display_name) {
-          const accountId = request.auth.credentials.id
-          const db = await request.getAccountDatabase()
-          const objectId = db[klass].hash({boxName: payload.display_name, accountId})
-
           if (klass === 'Label') {
             createAndReplyWithSyncbackRequest(request, reply, {
               type: "RenameLabel",
               props: {
-                objectId,
                 labelId: request.params.id,
-                displayName: payload.display_name,
+                newLabelName: payload.display_name,
               },
             })
           } else {
             createAndReplyWithSyncbackRequest(request, reply, {
               type: "RenameFolder",
               props: {
-                objectId,
                 folderId: request.params.id,
-                displayName: payload.display_name,
+                newFolderName: payload.display_name,
               },
             })
           }

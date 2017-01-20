@@ -131,8 +131,7 @@ export async function runSyncbackTask({task, runTask} = {}) {
     syncbackRequest.error = error;
     syncbackRequest.status = "FAILED";
     const after = new Date();
-    console.error(error)
-    console.error(`🔃 📤 ${task.description()} Failed (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON()})
+    console.error(`🔃 📤 ${task.description()} Failed (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON(), error})
   } finally {
     await syncbackRequest.save();
   }
