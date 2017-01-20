@@ -6,7 +6,7 @@ const path = require('path');
 module.exports = (grunt) => {
   const {spawn} = require('./task-helpers')(grunt);
 
-  grunt.registerTask('create-mac-installer', 'Zip up Nylas Mail', function pack() {
+  grunt.registerTask('create-mac-zip', 'Zip up Nylas Mail', function pack() {
     const done = this.async();
     const zipPath = path.join(grunt.config('outputDir'), 'NylasMail.zip');
 

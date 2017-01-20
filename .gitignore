@@ -16,6 +16,7 @@ debug.log
 docs/output
 docs/includes
 spec/fixtures/evil-files/
+build/resources/certs
 /_site
 /.sass-cache
 .integration-test-config
