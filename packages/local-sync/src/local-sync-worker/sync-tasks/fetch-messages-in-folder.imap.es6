@@ -173,7 +173,11 @@ class FetchMessagesInFolderIMAP extends SyncTask {
           return p.mimeType === 'text/html';
         });
         if (htmlParts.length > 0) {
-          desired.push(...htmlParts);
+          // Some bizarre emails contain multiple copies of the same MIME
+          // part with the same MIME type. Since multipart/alternative
+          // indicates that each MIME part is a representation of equivalent
+          // data, we can safely keep only one.
+          desired.push(htmlParts[0]);
         }
       } else {
         if (part.size) { // will skip all multipart types
