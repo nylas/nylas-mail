@@ -54,7 +54,8 @@ module.exports = (grunt) => {
   if (grunt.option('platform') === 'win32') {
     postBuildSteps.push('create-windows-installer')
   } else if (grunt.option('platform') === 'darwin') {
-    postBuildSteps.push('create-mac-installer')
+    postBuildSteps.push('create-mac-zip')
+    postBuildSteps.push('create-mac-dmg')
   } else if (grunt.option('platform') === 'linux') {
     postBuildSteps.push('create-deb-installer');
     postBuildSteps.push('create-rpm-installer');

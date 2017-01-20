@@ -107,6 +107,10 @@ module.exports = (grunt) => {
           source: `${outputDir}/NylasMail.zip`,
           key: `${fullVersion}/${process.platform}/${process.arch}/NylasMail.zip`,
         });
+        uploads.push({
+          source: `${outputDir}/NylasMail.dmg`,
+          key: `${fullVersion}/${process.platform}/${process.arch}/NylasMail.dmg`,
+        });
       } else if (process.platform === 'win32') {
         uploads.push({
           source: `${outputDir}/RELEASES`,
