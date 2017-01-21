@@ -160,6 +160,7 @@ lazyLoadAndRegisterStore(`FocusedContactsStore`, 'focused-contacts-store');
 lazyLoadAndRegisterStore(`TaskQueueStatusStore`, 'task-queue-status-store');
 lazyLoadAndRegisterStore(`FocusedPerspectiveStore`, 'focused-perspective-store');
 lazyLoadAndRegisterStore(`SearchableComponentStore`, 'searchable-component-store');
+lazyLoadAndRegisterStore(`RecentlyReadStore`, 'recently-read-store');
 lazyLoad(`CustomContenteditableComponents`, 'components/overlaid-components/custom-contenteditable-components');
 
 lazyLoad(`ServiceRegistry`, `registries/service-registry`);
