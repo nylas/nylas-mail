@@ -287,25 +287,24 @@ class DraftStore extends NylasStore {
     }
     NylasEnv.perf.start("Popout Draft");
 
-    let draftJSON = null;
     let save = Promise.resolve();
     if (this._draftSessions[draftClientId]) {
       save = this._draftSessions[draftClientId].changes.commit().then(() => {
-        draftJSON = this._draftSessions[draftClientId].draft().toJSON();
+        return this._draftSessions[draftClientId].draft().toJSON();
       })
     } else {
       save = this.sessionForClientId(draftClientId).then((session) => {
-        draftJSON = session.draft().toJSON();
+        return session.draft().toJSON();
       });
     }
 
     const title = options.newDraft ? "New Message" : "Message";
-    return save.then(() => {
+    return save.then((draftJSON) => {
       // Since we pass a windowKey, if the popout composer draft already
       // exists we'll simply show that one instead of spawning a whole new
       // window.
       NylasEnv.newWindow({
-        title,
+        title: draftJSON.subject || title,
         hidden: true, // We manually show in ComposerWithWindowProps::onDraftReady
         windowKey: `composer-${draftClientId}`,
         windowType: "composer-preload",
