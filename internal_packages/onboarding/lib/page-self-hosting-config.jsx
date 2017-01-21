@@ -49,6 +49,9 @@ class SelfHostingConfigPage extends React.Component {
           this.setState({error: "There are no accounts added to this instance of the sync engine. Make sure you've authed an account."})
         }
         OnboardingActions.accountsAddedLocally(accounts)
+      } else {
+        this.setState({error: "Failed to connect to the server, Ready State: " + xmlHttp.readyState +
+                              " Status: " + xmlHttp.status})
       }
     }
     xmlHttp.onerror = () => {
