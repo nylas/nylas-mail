@@ -8,6 +8,7 @@ import {
   ComponentRegistry,
   FocusedPerspectiveStore,
 } from 'nylas-exports';
+import {parseSearchQuery} from './search-query-parser'
 
 import SearchActions from './search-actions';
 import SearchMailboxPerspective from './search-mailbox-perspective';
@@ -149,12 +150,21 @@ class SearchStore extends NylasStore {
     if (Array.isArray(accountIds) && accountIds.length === 1) {
       dbQuery = dbQuery.where({accountId: accountIds[0]})
     }
-    dbQuery = dbQuery
-      .search(this._searchQuery)
-      .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
-      .limit(4);
 
-    dbQuery.then(results => {
+    try {
+      const parsedQuery = parseSearchQuery(this._searchQuery);
+      // console.info('Successfully parsed and codegened search query', parsedQuery);
+      dbQuery = dbQuery.structuredSearch(parsedQuery);
+    } catch (e) {
+      // console.info('Failed to parse local search query, falling back to generic query', e);
+      dbQuery = dbQuery.search(this._searchQuery);
+    }
+    dbQuery = dbQuery
+      .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
+
+    // console.info(dbQuery.sql());
+
+    dbQuery.background().then(results => {
       // We've fetched the latest thread results - display them!
       if (this._searchSuggestionsVersion === this._fetchingThreadResultsVersion) {
         this._fetchingThreadResultsVersion = null;

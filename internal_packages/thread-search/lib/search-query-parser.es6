@@ -208,6 +208,9 @@ const parseIsQuery = (text) => {
 let parseQuery = null; // Satisfy our robot overlords.
 const parseSimpleQuery = (text) => {
   const [tok, afterTok] = nextToken(text);
+  if (tok === null) {
+    return [null, afterTok];
+  }
   if (tok.s === '(') {
     const [exp, afterExp] = parseQuery(afterTok);
     const afterRparen = consumeExpectedToken(afterExp, ')');
@@ -284,6 +287,9 @@ const parseQueryWrapper = (text) => {
   const exps = [];
   while (currText.length > 0) {
     const [result, leftover] = parseQuery(currText);
+    if (result === null) {
+      break;
+    }
     exps.push(result);
     currText = leftover;
   }
