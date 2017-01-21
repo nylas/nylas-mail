@@ -311,15 +311,9 @@ class SearchMatcher extends Matcher {
     return true;
   }
 
-  joinSQL(klass) {
-    const searchTable = `${klass.name}Search`
-    const joinTableRef = this.joinTableRef()
-    return `INNER JOIN \`${searchTable}\` AS \`${joinTableRef}\` ON \`${joinTableRef}\`.\`content_id\` = \`${klass.name}\`.\`id\``;
-  }
-
   whereSQL(klass) {
     const searchTable = `${klass.name}Search`
-    return `\`${searchTable}\` MATCH '"${this.searchQuery}"*'`;
+    return `\`${klass.name}\`.\`id\` IN (SELECT \`content_id\` FROM \`${searchTable}\` WHERE \`${searchTable}\` MATCH '"${this.searchQuery}"*' LIMIT 1000)`;
   }
 }
 

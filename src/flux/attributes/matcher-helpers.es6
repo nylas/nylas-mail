@@ -208,7 +208,7 @@ export class StructuredSearchQueryVisitor extends SearchQueryExpressionVisitor {
 
   visitMatch(node) {
     const searchTable = `${this._className}Search`;
-    this._result = `(\`${this._className}\`.\`id\` IN (SELECT \`content_id\` FROM \`${searchTable}\` WHERE \`${searchTable}\` MATCH '${node.rawQuery}'))`;
+    this._result = `(\`${this._className}\`.\`id\` IN (SELECT \`content_id\` FROM \`${searchTable}\` WHERE \`${searchTable}\` MATCH '${node.rawQuery}' LIMIT 1000))`;
   }
 }
 
