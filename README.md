@@ -8,7 +8,7 @@
 [![Slack Invite Button](http://slack-invite.nylas.com/badge.svg)](http://slack-invite.nylas.com)
 [![GitHub issues On Deck](https://badge.waffle.io/nylas/N1.png?label=on deck&title=On Deck)](https://waffle.io/nylas/N1)
 
-#### Want help build the future of email? [Nylas is hiring](https://jobs.lever.co/nylas)!
+#### Want to help build the future of email? [Nylas is hiring](https://jobs.lever.co/nylas)!
 
 # Download Nylas Mail
 
