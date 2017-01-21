@@ -108,6 +108,7 @@ Note these are not tested or officially supported by Nylas, but we still think t
 - [Evernote](https://github.com/grobgl/n1-evernote)
 - [Wunderlist](https://github.com/miguelrs/n1-wunderlist)
 - [Participants Display](https://github.com/kbruccoleri/nylas-participants-display)
+- [GitHub](https://github.com/ForbesLindesay/N1-GitHub)
 
 When you install packages, they're moved to ~/.nylas-mail/packages, and N1 runs apm install on the command line to fetch dependencies listed in the package's package.json
 
