@@ -8,7 +8,7 @@
 [![Slack Invite Button](http://slack-invite.nylas.com/badge.svg)](http://slack-invite.nylas.com)
 [![GitHub issues On Deck](https://badge.waffle.io/nylas/N1.png?label=on deck&title=On Deck)](https://waffle.io/nylas/N1)
 
-#### Want help build the future of email? [Nylas is hiring](https://jobs.lever.co/nylas)!
+#### Want to help build the future of email? [Nylas is hiring](https://jobs.lever.co/nylas)!
 
 # Download N1
 
@@ -110,6 +110,7 @@ Note these are not tested or officially supported by Nylas, but we still think t
 - [Evernote](https://github.com/grobgl/n1-evernote)
 - [Wunderlist](https://github.com/miguelrs/n1-wunderlist)
 - [Participants Display](https://github.com/kbruccoleri/nylas-participants-display)
+- [GitHub](https://github.com/ForbesLindesay/N1-GitHub)
 
 When you install packages, they're moved to ~/.nylas/packages, and N1 runs apm install on the command line to fetch dependencies listed in the package's package.json
 
