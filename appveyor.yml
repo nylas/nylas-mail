@@ -53,11 +53,6 @@ environment:
     DECRYPTION_PASSWORD:
       secure: 48VSzDtdBd52Xlo3TZ1NeR1yRRrZ3AU6Px5XjD5RDp44cFU5GYVspecGqX6DGCV7i0D7nldGMyEbXNrjM1t1Kw==
 
-notifications:
-  - provider: Slack
-    incoming_webhook:
-      secure: 8+K0pq8g5BbMyOPH7I/y8EguvPVIQCVDh+VmmyMMMFtXW3kg8+CMe8W1t4efdmW/fnH1Xr70DS3yF36Vw5mpsWXAVsNpkK7PlTYEqGkLiLE=
-
 cache:
   - apm\node_modules -> apm\package.json
   - build\node_modules -> build\package.json
