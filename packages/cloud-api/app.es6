@@ -29,6 +29,7 @@ import {Logger, Metrics} from 'cloud-core';
 
 import Package from './package.json';
 import {apiAuthenticate} from './src/authentication'
+import sentryPlugin from './src/sentry'
 
 /**
  * API Routes
@@ -96,6 +97,14 @@ server.register(plugins, (err) => {
   registerLoggerDecorator(server)
   registerErrorFormatDecorator(server)
 
+  if (process.env.SENTRY_DSN) {
+    server.register({
+      register: sentryPlugin,
+      options: {
+        dsn: process.env.SENTRY_DSN,
+      }});
+  }
+
   server.auth.strategy('api-consumer', 'basic', {
     validateFunc: apiAuthenticate,
   });
@@ -116,4 +125,3 @@ server.register(plugins, (err) => {
     global.Logger.info({url: server.info.uri}, 'API running');
   });
 });
-

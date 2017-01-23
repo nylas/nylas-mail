@@ -24,6 +24,7 @@
     "request-promise": "4.1.1",
     "rx": "4.1.0",
     "vision": "4.1.0",
-    "handlebars": "4.0.6"
+    "handlebars": "4.0.6",
+    "raven": "1.1.1"
   }
 }
