@@ -85,14 +85,27 @@ class SyncWorker {
   }
 
   async _cleanupOrphanMessages() {
-    const orphans = await this._db.Message.findAll({
+    const {Message, Thread, Folder, Label} = this._db;
+    const orphans = await Message.findAll({
       where: {
         folderId: null,
         isSent: {$not: true},
         isSending: {$not: true},
       },
     })
-    return Promise.map(orphans, (msg) => msg.destroy());
+    const affectedThreadIds = new Set();
+    await Promise.map(orphans, (msg) => {
+      affectedThreadIds.add(msg.threadId);
+      return msg.destroy();
+    });
+
+    const affectedThreads = await Thread.findAll({
+      where: {id: Array.from(affectedThreadIds)},
+      include: [{model: Folder}, {model: Label}],
+    });
+    return Promise.map(affectedThreads, (thread) => {
+      return thread.updateFromMessages({recompute: true, db: this._db})
+    })
   }
 
   async _ensureAccessToken() {

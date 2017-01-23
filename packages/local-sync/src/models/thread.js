@@ -66,30 +66,10 @@ module.exports = (sequelize, Sequelize) => {
 
         return this.save();
       },
-      async updateFromMessage(message) {
-        if (message.isDraft) {
-          return this;
-        }
-
-        if (!(message.labels instanceof Array)) {
-          throw new Error("Expected message.labels to be an inflated array.");
-        }
-        if (!message.folder) {
-          throw new Error("Expected message.folder value to be present.");
-        }
-
-        // Update thread participants
-        const {to, cc, bcc, from} = message;
-        const participantEmails = this.participants.map(contact => contact.email);
-        const newParticipants = to.concat(cc, bcc, from).filter(contact => {
-          if (participantEmails.includes(contact.email)) {
-            return false;
-          }
-          participantEmails.push(contact.email);
-          return true;
-        })
-        this.participants = this.participants.concat(newParticipants);
-
+      // Updates the attributes that don't require an external set to prevent
+      // duplicates. Currently includes starred/unread counts, various date
+      // values, and snippet. Does not save the thread.
+      async _updateSimpleMessageAttributes(message) {
         // Update starred/unread counts
         this.starredCount += message.starred ? 1 : 0;
         this.unreadCount += message.unread ? 1 : 0;
@@ -115,41 +95,93 @@ module.exports = (sequelize, Sequelize) => {
         if (((message.date > this.lastMessageReceivedDate) || !this.lastMessageReceivedDate)) {
           this.lastMessageReceivedDate = message.date;
         }
-
-        const savedThread = await this.save();
-
-        // Update folders/labels
-        // This has to be done after the thread has been saved, because the
-        // thread may not have had an id assigned yet. addFolder()/addLabel()
-        // need an existing thread id to work properly.
-        if (!savedThread.folders.find(f => f.id === message.folderId)) {
-          // Since multiple messages from the same thread may be being
-          // processed at the same time, it's possible the association has
-          // already been added. Carry on without error in that case.
-          try {
-            await savedThread.addFolder(message.folder)
-          } catch (err) {
-            if (err.name !== "SequelizeUniqueConstraintError") {
-              throw err;
-            }
-          }
-        }
-        for (const label of message.labels) {
-          if (!savedThread.labels.find(l => l.id === label)) {
-            // Since multiple messages from the same thread may be being
-            // processed at the same time, it's possible the association has
-            // already been added. Carry on without error in that case.
-            try {
-              await savedThread.addLabel(label)
-            } catch (err) {
-              if (err.name !== "SequelizeUniqueConstraintError") {
-                throw err;
-              }
-            }
-          }
+      },
+      async updateFromMessages({messages, recompute, db} = {}) {
+        if (!(this.folders instanceof Array) || !(this.labels instanceof Array)) {
+          throw new Error('Thread.updateFromMessages() expected .folders and .labels to be inflated arrays')
         }
 
-        return savedThread.save();
+        let _messages = messages;
+        let threadMessageIds;
+        if (recompute) {
+          if (!db) {
+            throw new Error('Cannot recompute thread attributes without a database reference.')
+          }
+          const {Label, Folder, File} = db;
+          _messages = await this.getMessages({
+            include: [{model: Label}, {model: Folder}, {model: File}],
+            attributes: {exclude: ['body']},
+          });
+          if (_messages.length === 0) {
+            return this.destroy();
+          }
+          threadMessageIds = new Set(_messages.map(m => m.id))
+
+          this.folders = [];
+          this.labels = [];
+          this.participants = [];
+          this.unreadCount = 0;
+          this.starredCount = 0;
+          this.hasAttachments = false;
+          this.snippet = null;
+          this.lastMessageDate = null;
+          this.firstMessageDate = null;
+          this.lastMessageSentDate = null;
+          this.lastMessageReceivedDate = null;
+        } else {
+          const threadMessages = await this.getMessages({attributes: ['id']})
+          threadMessageIds = new Set(threadMessages.map(m => m.id))
+        }
+
+        const folders = new Set(this.folders);
+        const labels = new Set(this.labels);
+        const participantEmails = new Set(this.participants.map(p => p.email));
+
+        for (const message of _messages) {
+          if (message.isDraft) {
+            continue;
+          }
+          if (!threadMessageIds.has(message.id)) {
+            throw new Error("Message does not belong to thread");
+          }
+          if (!(message.labels instanceof Array)) {
+            throw new Error("Expected message.labels to be an inflated array.");
+          }
+          if (!message.folder) {
+            throw new Error("Expected message.folder value to be present.");
+          }
+
+          folders.add(message.folder)
+          message.labels.forEach(label => labels.add(label))
+
+          this._updateSimpleMessageAttributes(message);
+
+          const {to, cc, bcc, from} = message;
+          to.concat(cc, bcc, from).forEach(participant => {
+            if (participantEmails.has(participant.email)) {
+              return;
+            }
+            participantEmails.add(participant.email)
+            this.participants.push(participant)
+          })
+
+          // message.files only needs to be inflated if we're recomputing
+          // the thread. Otherwise, .hasAttachments is set after we run
+          // extractFiles on each message.
+          if (!this.hasAttachments && message.files instanceof Array) {
+            this.hasAttachments = message.files.some(f => !f.contentId);
+          }
+        }
+
+        // Setting folders and labels cannot be done on a thread without an id
+        let thread = this;
+        if (!this.id) {
+          thread = await this.save();
+        }
+
+        thread.setFolders(Array.from(folders))
+        thread.setLabels(Array.from(labels))
+        return thread.save();
       },
       toJSON() {
         if (!(this.labels instanceof Array)) {
