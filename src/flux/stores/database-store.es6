@@ -811,12 +811,18 @@ class DatabaseStore extends NylasStore {
     });
   }
 
-  unindexModel(model) {
+  // opts can have a boolean isBeingUnpersisted value, which when true prevents
+  // this function from re-persisting the model.
+  unindexModel(model, opts) {
     const searchTableName = `${model.constructor.name}Search`;
     const sql = (
       `DELETE FROM \`${searchTableName}\` WHERE \`${searchTableName}\`.\`content_id\` = ?`
     );
-    return this._query(sql, [model.id]).then(() => {
+    const query = this._query(sql, [model.id]);
+    if (opts.isBeingUnpersisted) {
+      return query;
+    }
+    return query.then(() => {
       model.isSearchIndexed = false;
       return this.inTransaction((t) => t.persistModel(model))
     });
