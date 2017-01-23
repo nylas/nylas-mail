@@ -78,7 +78,7 @@ async function detectThread({db, messageValues}) {
   }
 
   thread.subject = cleanSubject(messageValues.subject);
-  await thread.updateFromMessage(messageValues);
+  await thread.updateFromMessages({messages: [messageValues]});
   return thread;
 }
 
