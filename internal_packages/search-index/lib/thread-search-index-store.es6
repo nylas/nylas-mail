@@ -132,7 +132,8 @@ class ThreadSearchIndexStore {
       if (type === 'persist') {
         this.indexer.notifyHasIndexingToDo();
       } else if (type === 'unpersist') {
-        promises = threads.map(this.unindexThread)
+        promises = threads.map(thread => this.unindexThread(thread,
+                                                  {isBeingUnpersisted: true}))
       }
       Promise.all(promises)
     })
@@ -198,8 +199,8 @@ class ThreadSearchIndexStore {
     )
   }
 
-  unindexThread = (thread) => {
-    return DatabaseStore.unindexModel(thread)
+  unindexThread = (thread, opts) => {
+    return DatabaseStore.unindexModel(thread, opts)
   }
 
   getIndexData(thread) {
