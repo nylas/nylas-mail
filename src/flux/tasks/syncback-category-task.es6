@@ -78,8 +78,7 @@ export default class SyncbackCategoryTask extends Task {
     }
 
     return runPromise.then((responseJSON) => {
-      if (serverId) { return null; }
-      this.category.serverId = responseJSON.categoryServerId
+      this.category.serverId = responseJSON.id
       if (!this.category.serverId) {
         throw new Error('SyncbackRequest for creating category did not return a serverId!')
       }
