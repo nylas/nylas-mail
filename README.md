@@ -9,7 +9,7 @@ This is a collection of all sync and cloud components required to run N1.
 1. [**Local Sync**](https://github.com/nylas/K2/tree/master/packages/local-sync): The local mailsync engine integreated in Nylas Mail
 
 See `/packages` for the separate pieces. Each folder in `/packages` is
-designed to be its own stand-alone repositoriy. They are all bundled here
+designed to be its own stand-alone repository. They are all bundled here
 for the ease of source control management.
 
 # Initial Setup for All Local & Cloud Services:
