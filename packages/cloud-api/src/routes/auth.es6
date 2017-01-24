@@ -120,7 +120,6 @@ export default function registerAuthRoutes(server) {
         },
       },
     },
-
     async handler(request, reply) {
       request.logger.info("Have Google OAuth Code. Exchanging for token")
       const log = request.logger
@@ -157,7 +156,8 @@ export default function registerAuthRoutes(server) {
           res.invalid_grant = true
         }
 
-        return reply.view('gmail-auth-failure', res)
+        reply.view('gmail-auth-failure', res)
+        return
       }
 
       reply.view('gmail-auth-success')
@@ -211,8 +211,9 @@ export default function registerAuthRoutes(server) {
       oauthClient.setCredentials({ refresh_token: credentials.refresh_token });
       oauthClient.refreshAccessToken((err, tokens) => {
         if (err != null) {
-          console.log(err);
+          request.logger.error(err);
           reply('Backend error: could not refresh Gmail access token. Please try again.').code(400);
+          return
         }
 
         const res = {}
