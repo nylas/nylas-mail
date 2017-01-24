@@ -264,7 +264,14 @@ module.exports = (grunt) => {
     console.log('---> Running build with options:');
     console.log(util.inspect(grunt.config.get('packager'), true, 7, true));
 
+    let time = 1;
+    const ongoing = setInterval(() => {
+      console.log(`---> Packaging for ${time}s`);
+      time += 1;
+    }, 1000)
+
     packager(grunt.config.get('packager'), (err, appPaths) => {
+      clearInterval(ongoing)
       if (err) {
         grunt.fail.fatal(err);
         return done(err);
