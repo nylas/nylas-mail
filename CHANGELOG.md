@@ -1,5 +1,18 @@
 # Nylas Mail Changelog
 
+### 1.0.12 (1/24/17)
+- Features:
+
+  + New 'Debug' sync button that opens up the console
+  + Faster search
+  + Message processing now throttles when on battery
+  + Analytics for change mail tasks
+
+- Fixes:
+
+  + Improved threading
+  + Drafts are no longer in the inbox
+
 ### 1.0.11 (1/19/17)
 
 - Features:
