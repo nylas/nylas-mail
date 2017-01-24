@@ -81,6 +81,7 @@ const SnoozeUtils = {
 
   moveThreads(threads, {snooze, getSnoozeCategory, getInboxCategory, description} = {}) {
     const tasks = TaskFactory.tasksForApplyingCategories({
+      source: "Snooze Move",
       threads,
       categoriesToRemove: snooze ? getInboxCategory : getSnoozeCategory,
       categoriesToAdd: snooze ? getSnoozeCategory : getInboxCategory,

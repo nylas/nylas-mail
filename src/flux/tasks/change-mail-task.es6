@@ -114,7 +114,18 @@ export default class ChangeMailTask extends Task {
       }).then(() => {
         return this._performLocalMessages(t)
       })
+    }).then(() => {
+      try {
+        this.recordUserEvent()
+      } catch (err) {
+        NylasEnv.reportError(err);
+        // don't throw
+      }
     });
+  }
+
+  recordUserEvent() {
+    throw new Error("Override recordUserEvent")
   }
 
   retrieveModels() {

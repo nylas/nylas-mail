@@ -59,7 +59,7 @@ class ThreadListIcon extends React.Component
          onClick={@_onToggleStar}></div>
 
   _onToggleStar: (event) =>
-    task = new ChangeStarredTask(thread: @props.thread, starred: !@props.thread.starred)
+    task = new ChangeStarredTask(thread: @props.thread, starred: !@props.thread.starred, source: "Thread List Icon")
     Actions.queueTask(task)
 
     # Don't trigger the thread row click

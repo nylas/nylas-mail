@@ -84,10 +84,12 @@ class MailImportantIcon extends React.Component
       isImportant = _.findWhere(@props.thread.categories, {id: category.id})?
       threads = [@props.thread]
 
+      source = "Important Icon"
+
       if !isImportant
-        task = TaskFactory.taskForApplyingCategory({threads, category})
+        task = TaskFactory.taskForApplyingCategory({threads, category, source})
       else
-        task = TaskFactory.taskForRemovingCategory({threads, category})
+        task = TaskFactory.taskForRemovingCategory({threads, category, source})
 
       Actions.queueTask(task)
 

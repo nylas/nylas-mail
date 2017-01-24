@@ -136,12 +136,12 @@ class ThreadList extends React.Component
 
     props.shouldEnableSwipe = =>
       perspective = FocusedPerspectiveStore.current()
-      tasks = perspective.tasksForRemovingItems([item], CategoryRemovalTargetRulesets.Default)
+      tasks = perspective.tasksForRemovingItems([item], CategoryRemovalTargetRulesets.Default, "Swipe")
       return tasks.length > 0
 
     props.onSwipeRightClass = =>
       perspective = FocusedPerspectiveStore.current()
-      tasks = perspective.tasksForRemovingItems([item], CategoryRemovalTargetRulesets.Default)
+      tasks = perspective.tasksForRemovingItems([item], CategoryRemovalTargetRulesets.Default, "Swipe")
       return null if tasks.length is 0
 
       # TODO this logic is brittle
@@ -157,7 +157,7 @@ class ThreadList extends React.Component
 
     props.onSwipeRight = (callback) ->
       perspective = FocusedPerspectiveStore.current()
-      tasks = perspective.tasksForRemovingItems([item], CategoryRemovalTargetRulesets.Default)
+      tasks = perspective.tasksForRemovingItems([item], CategoryRemovalTargetRulesets.Default, "Swipe")
       callback(false) if tasks.length is 0
       Actions.closePopover()
       Actions.queueTasks(tasks)
@@ -244,7 +244,7 @@ class ThreadList extends React.Component
   _onStarItem: =>
     threads = @_threadsForKeyboardAction()
     return unless threads
-    task = TaskFactory.taskForInvertingStarred({threads})
+    task = TaskFactory.taskForInvertingStarred({threads, source: "Keyboard Shortcut"})
     Actions.queueTask(task)
 
   # _onSnoozeItem: =>
@@ -269,6 +269,7 @@ class ThreadList extends React.Component
 
     if important
       tasks = TaskFactory.tasksForApplyingCategories
+        source: "Keyboard Shortcut"
         threads: threads
         categoriesToRemove: (accountId) -> []
         categoriesToAdd: (accountId) ->
@@ -276,6 +277,7 @@ class ThreadList extends React.Component
 
     else
       tasks = TaskFactory.tasksForApplyingCategories
+        source: "Keyboard Shortcut"
         threads: threads
         categoriesToRemove: (accountId) ->
           important = CategoryStore.getStandardCategory(accountId, 'important')
@@ -287,13 +289,14 @@ class ThreadList extends React.Component
   _onSetUnread: (unread) =>
     threads = @_threadsForKeyboardAction()
     return unless threads
-    Actions.queueTask(new ChangeUnreadTask({threads, unread}))
+    Actions.queueTask(new ChangeUnreadTask({threads, unread, source: "Keyboard Shortcut"}))
     Actions.popSheet()
 
   _onMarkAsSpam: =>
     threads = @_threadsForKeyboardAction()
     return unless threads
     tasks = TaskFactory.tasksForMarkingAsSpam
+      source: "Keyboard Shortcut"
       threads: threads
     Actions.queueTasks(tasks)
 
@@ -301,7 +304,7 @@ class ThreadList extends React.Component
     threads = @_threadsForKeyboardAction()
     return unless threads
     current = FocusedPerspectiveStore.current()
-    tasks = current.tasksForRemovingItems(threads, ruleset)
+    tasks = current.tasksForRemovingItems(threads, ruleset, "Keyboard Shortcut")
     Actions.queueTasks(tasks)
     Actions.popSheet()
 
@@ -309,6 +312,7 @@ class ThreadList extends React.Component
     threads = @_threadsForKeyboardAction()
     if threads
       tasks = TaskFactory.tasksForArchiving
+        source: "Keyboard Shortcut"
         threads: threads
       Actions.queueTasks(tasks)
     Actions.popSheet()
@@ -317,6 +321,7 @@ class ThreadList extends React.Component
     threads = @_threadsForKeyboardAction()
     if threads
       tasks = TaskFactory.tasksForMovingToTrash
+        source: "Keyboard Shortcut"
         threads: threads
       Actions.queueTasks(tasks)
     Actions.popSheet()

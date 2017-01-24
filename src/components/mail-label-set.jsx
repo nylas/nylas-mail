@@ -22,6 +22,7 @@ export default class MailLabelSet extends React.Component {
 
   _onRemoveLabel(label) {
     const task = new ChangeLabelsTask({
+      source: "Label Remove Icon",
       thread: this.props.thread,
       labelsToRemove: [label],
     });

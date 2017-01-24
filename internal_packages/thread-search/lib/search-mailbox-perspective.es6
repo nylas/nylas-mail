@@ -32,6 +32,7 @@ class SearchMailboxPerspective extends MailboxPerspective {
 
   tasksForRemovingItems(threads) {
     return TaskFactory.tasksForApplyingCategories({
+      source: "Dragged Out of List",
       threads: threads,
       categoriesToAdd: (accountId) => {
         const account = AccountStore.accountForId(accountId)

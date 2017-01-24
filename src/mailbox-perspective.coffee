@@ -211,11 +211,14 @@ class StarredMailboxPerspective extends MailboxPerspective
 
   receiveThreads: (threadsOrIds) =>
     ChangeStarredTask = require('./flux/tasks/change-starred-task').default
-    task = new ChangeStarredTask({threads:threadsOrIds, starred: true})
+    task = new ChangeStarredTask({threads:threadsOrIds, starred: true, source: "Dragged Into List"})
     Actions.queueTask(task)
 
   tasksForRemovingItems: (threads) =>
-    task = TaskFactory.taskForInvertingStarred(threads: threads)
+    task = TaskFactory.taskForInvertingStarred({
+      threads: threads
+      source: "Removed From List"
+    })
     return [task]
 
 
@@ -310,6 +313,7 @@ class CategoryMailboxPerspective extends MailboxPerspective
     # attached to this perspective
     DatabaseStore.modelify(Thread, threadsOrIds).then (threads) =>
       tasks = TaskFactory.tasksForApplyingCategories
+        source: "Dragged Into List",
         threads: threads
         categoriesToRemove: (accountId) ->
           if current.categoriesSharedName() in Category.LockedCategoryNames
@@ -353,7 +357,7 @@ class CategoryMailboxPerspective extends MailboxPerspective
   #   }
   # )
   #
-  tasksForRemovingItems: (threads, ruleset) =>
+  tasksForRemovingItems: (threads, ruleset, source) =>
     if not ruleset
       throw new Error("tasksForRemovingItems: you must pass a ruleset object to determine the destination of the threads")
 
@@ -366,6 +370,7 @@ class CategoryMailboxPerspective extends MailboxPerspective
     return [] if ruleset[name] is null
 
     return TaskFactory.tasksForApplyingCategories(
+      source: source || "Removed From List",
       threads: threads,
       categoriesToRemove: (accountId) =>
         # Remove all categories from this perspective that match the accountId
@@ -393,13 +398,13 @@ class UnreadMailboxPerspective extends CategoryMailboxPerspective
     super(threadsOrIds)
 
     ChangeUnreadTask ?= require('./flux/tasks/change-unread-task').default
-    task = new ChangeUnreadTask({threads:threadsOrIds, unread: true})
+    task = new ChangeUnreadTask({threads:threadsOrIds, unread: true, source: "Dragged Into List"})
     Actions.queueTask(task)
 
-  tasksForRemovingItems: (threads, ruleset) =>
+  tasksForRemovingItems: (threads, ruleset, source) =>
     ChangeUnreadTask ?= require('./flux/tasks/change-unread-task').default
     tasks = super(threads, ruleset)
-    tasks.push new ChangeUnreadTask({threads, unread: false})
+    tasks.push new ChangeUnreadTask({threads, unread: false, source: source || "Removed From List"})
     return tasks
 
 
