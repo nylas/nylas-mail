@@ -1,6 +1,7 @@
 # Nylas Mail Changelog
 
 ### 1.0.12 (1/24/17)
+
 - Features:
 
   + New 'Debug' sync button that opens up the console
