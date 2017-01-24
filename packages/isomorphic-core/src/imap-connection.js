@@ -23,7 +23,7 @@ const Capabilities = {
 
 const ONE_HOUR_SECS = 60 * 60;
 const SOCKET_TIMEOUT_MS = 30 * 1000;
-const AUTH_TIMEOUT_MS = 15 * 1000;
+const AUTH_TIMEOUT_MS = 30 * 1000;
 
 class IMAPConnection extends EventEmitter {
 
