@@ -31,18 +31,19 @@ export default class AccountSettingsPageGmail extends React.Component {
 
   render() {
     const {accountInfo} = this.props;
-    const iconName = AccountTypes.find(a => a.type === accountInfo.type).headerIcon;
+    const accountType = AccountTypes.find(a => a.type === accountInfo.type)
+    const {headerIcon} = accountType;
     const goBack = () => OnboardingActions.moveToPreviousPage()
 
     return (
       <OAuthSignInPage
+        serviceName="Google"
         providerAuthPageUrl={this._gmailAuthUrl}
-        iconName={iconName}
+        iconName={headerIcon}
         tokenRequestPollFn={makeGmailOAuthRequest}
         accountFromTokenFn={authIMAPForGmail}
         onSuccess={this.onSuccess}
         onTryAgain={goBack}
-        serviceName="Google"
         sessionKey={this._sessionKey}
       />
     );

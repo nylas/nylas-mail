@@ -123,7 +123,7 @@ export default class OAuthSignInPage extends React.Component {
       this.setState({authStage: "fetchingAccount"})
       const accountData = await this.props.accountFromTokenFn(tokenData);
       this.props.onSuccess(accountData)
-      this.setState({authStage: "accountSuccess"})
+      this.setState({authStage: 'accountSuccess'})
     } catch (err) {
       this._handleError(err)
     }
@@ -131,15 +131,21 @@ export default class OAuthSignInPage extends React.Component {
 
   _renderHeader() {
     const authStage = this.state.authStage;
-    if (authStage === "initial" || authStage === "polling") {
+    if (authStage === 'initial' || authStage === 'polling') {
       return (<h2>
         Sign in with {this.props.serviceName} in<br />your browser.
       </h2>)
-    } else if (authStage === "fetchingAccount") {
+    } else if (authStage === 'fetchingAccount') {
       return <h2>Connecting to {this.props.serviceName}…</h2>
-    } else if (authStage === "accountSuccess") {
-      return <h2>Connected to {this.props.serviceName}…</h2>
+    } else if (authStage === 'accountSuccess') {
+      return (
+        <div>
+          <h2>Successfully connected to {this.props.serviceName}!</h2>
+          <h3>Adding your account to Nylas Mail…</h3>
+        </div>
+      )
     }
+
     // Error
     return (<div>
       <h2>Sorry, we had trouble logging you in</h2>

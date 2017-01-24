@@ -92,6 +92,7 @@ const CreatePageForForm = (FormComponent) => {
 
       runAuthRequest(accountInfo)
       .then((json) => {
+        OnboardingActions.moveToPage('account-onboarding-success')
         OnboardingActions.accountJSONReceived(json, json.localToken, json.cloudToken)
       })
       .catch((err) => {

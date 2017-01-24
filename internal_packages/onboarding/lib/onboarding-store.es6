@@ -1,4 +1,4 @@
-import {AccountStore, Actions, IdentityStore} from 'nylas-exports';
+import {AccountStore, Actions, IdentityStore, NylasSyncStatusStore} from 'nylas-exports';
 import {ipcRenderer} from 'electron';
 import NylasStore from 'nylas-store';
 
@@ -147,7 +147,7 @@ class OnboardingStore extends NylasStore {
     }, 1000);
   }
 
-  _onAccountJSONReceived = (json, localToken, cloudToken) => {
+  _onAccountJSONReceived = async (json, localToken, cloudToken) => {
     try {
       const isFirstAccount = AccountStore.accounts().length === 0;
 
@@ -166,6 +166,7 @@ class OnboardingStore extends NylasStore {
           provider: this._accountFromAuth.provider,
         });
       } else {
+        await NylasSyncStatusStore.whenCategoryListSynced(json.id)
         this._onOnboardingComplete();
       }
     } catch (e) {
