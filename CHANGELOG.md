@@ -10,6 +10,8 @@
 
 - Fixes:
 
+  + Archive, Mark as Unread, and Move to trash don't "bounce back"
+  + Adding a new account is now smoother
   + Improved threading
   + Drafts are no longer in the inbox
 
