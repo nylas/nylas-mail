@@ -101,7 +101,7 @@ class MessageProcessor {
         folder,
         accountId,
       });
-      const existingMessage = await Message.find({where: {id: messageValues.id}});
+      const existingMessage = await Message.findById(messageValues.id);
       let processedMessage;
       if (existingMessage) {
         // TODO: optimize to not do a full message parse for existing messages
@@ -201,15 +201,6 @@ class MessageProcessor {
     const db = await LocalDatabaseConnector.forAccount(accountId);
     const {Message} = db
 
-    const existingMessage = await Message.findById(messageValues.id)
-    if (existingMessage) {
-      // This is an extremely rare case when 2 or more /new/ messages with
-      // the exact same headers were queued for creation (same subject,
-      // participants, timestamp, and message-id header). In this case, we
-      // will ignore it and report the error
-      console.warn('MessageProcessor: Encountered 2 new messages with the same id', messageValues)
-      return null
-    }
     const thread = await detectThread({db, messageValues});
     messageValues.threadId = thread.id;
     const createdMessage = await Message.create(messageValues);
