@@ -28,7 +28,7 @@ module.exports = (server) => {
     handler: (request, reply) => {
       request.getAccountDatabase().then((db) => {
         const {Message, Folder, Label, File} = db;
-        const wheres = {};
+        const wheres = {isDraft: false};
         if (request.query.thread_id) {
           wheres.threadId = request.query.thread_id;
         }

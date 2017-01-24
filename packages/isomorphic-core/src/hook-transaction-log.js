@@ -23,6 +23,12 @@ module.exports = (db, sequelize, {only, onCreatedTransaction} = {}) => {
         return;
       }
 
+      if (name === 'message' && dataValues.isDraft) {
+        // TODO: when draft syncing support added, remove this and force
+        // transactions for all drafts in db to sync to app
+        return;
+      }
+
       if ((only && !only.includes(name)) || isTransaction($modelOptions)) {
         return;
       }
