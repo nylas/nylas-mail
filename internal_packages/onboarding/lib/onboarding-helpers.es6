@@ -56,7 +56,7 @@ export async function authIMAPForGmail(tokenData) {
       path: `/auth`,
       method: 'POST',
       auth: NO_AUTH,
-      timeout: 1000 * 60 * 2, // Connecting to IMAP could take up to 90 seconds, so we don't want to hang up too soon
+      timeout: 1000 * 90, // Connecting to IMAP could take up to 90 seconds, so we don't want to hang up too soon
       body: {
         email: tokenData.email_address,
         name: tokenData.name,
@@ -132,7 +132,7 @@ export function runAuthRequest(accountInfo) {
     options: {
       path: '/auth',
       method: 'POST',
-      timeout: 1000 * 60 * 2, // Connecting to IMAP could take up to 90 seconds, so we don't want to hang up too soon
+      timeout: 1000 * 90, // Connecting to IMAP could take up to 90 seconds, so we don't want to hang up too soon
       body: data,
       auth: noauth,
       returnsModel: false,
@@ -144,7 +144,7 @@ export function runAuthRequest(accountInfo) {
       options: {
         path: `/auth`,
         method: 'POST',
-        timeout: 1000 * 60 * 2, // Connecting to IMAP could take up to 90 seconds, so we don't want to hang up too soon
+        timeout: 1000 * 90, // Connecting to IMAP could take up to 90 seconds, so we don't want to hang up too soon
         body: data,
         auth: noauth,
         returnsModel: false,
