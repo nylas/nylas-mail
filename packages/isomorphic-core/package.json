@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "imap": "0.8.18",
+    "imap-provider-settings": "nylas/imap-provider-settings",
     "joi": "8.4.2",
     "nodemailer": "2.5.0",
     "promise-props": "1.0.0",

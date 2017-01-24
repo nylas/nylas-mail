@@ -1,16 +1,25 @@
-const Imap = require('imap');
-const _ = require('underscore');
-const xoauth2 = require('xoauth2');
-const EventEmitter = require('events');
+import Imap from 'imap';
+import _ from 'underscore';
+import xoauth2 from 'xoauth2';
+import EventEmitter from 'events';
 
-const PromiseUtils = require('./promise-utils')
-const IMAPBox = require('./imap-box');
-const {
+import CommonProviderSettings from 'imap-provider-settings';
+
+import PromiseUtils from './promise-utils';
+import IMAPBox from './imap-box';
+
+import {
   convertImapError,
   IMAPConnectionTimeoutError,
   IMAPConnectionNotReadyError,
   IMAPConnectionEndedError,
-} = require('./imap-errors');
+} from './imap-errors';
+
+const MAJOR_IMAP_PROVIDER_HOSTS = Object.keys(CommonProviderSettings).reduce(
+  (hostnameSet, key) => {
+    hostnameSet.add(CommonProviderSettings[key].imap_host);
+    return hostnameSet;
+  }, new Set())
 
 const Capabilities = {
   Gmail: 'X-GM-EXT-1',
@@ -86,6 +95,9 @@ class IMAPConnection extends EventEmitter {
       tls: this._settings.ssl_required,
       socketTimeout: this._settings.socketTimeout || SOCKET_TIMEOUT_MS,
       authTimeout: this._settings.authTimeout || AUTH_TIMEOUT_MS,
+    }
+    if (!MAJOR_IMAP_PROVIDER_HOSTS.has(result.host)) {
+      result.tlsOptions = { rejectUnauthorized: false };
     }
 
     if (process.env.NYLAS_DEBUG) {
