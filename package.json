@@ -107,7 +107,6 @@
   },
   "packageDependencies": {},
   "scripts": {
-    "local-ci": "./build/local-ci.sh",
     "test": "electron . --test --enable-logging",
     "start": "electron . --dev --enable-logging",
     "lint": "script/grunt lint",
