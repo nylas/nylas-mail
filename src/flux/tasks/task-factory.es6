@@ -11,7 +11,7 @@ import Category from '../models/category'
 
 const TaskFactory = {
 
-  tasksForApplyingCategories({threads, categoriesToRemove, categoriesToAdd, taskDescription}) {
+  tasksForApplyingCategories({threads, categoriesToRemove, categoriesToAdd, taskDescription, source}) {
     const byAccount = {}
     const tasks = []
 
@@ -54,6 +54,7 @@ const TaskFactory = {
 
         tasks.push(new ChangeFolderTask({
           folder,
+          source,
           threads: threadsToUpdate,
           taskDescription,
         }))
@@ -63,6 +64,7 @@ const TaskFactory = {
         if (labelsToAdd.length === 0 && labelsToRemove.length === 0) return;
 
         tasks.push(new ChangeLabelsTask({
+          source,
           threads: threadsToUpdate,
           labelsToRemove,
           labelsToAdd,
@@ -74,8 +76,9 @@ const TaskFactory = {
     return tasks;
   },
 
-  taskForApplyingCategory({threads, category}) {
+  taskForApplyingCategory({threads, category, source}) {
     const tasks = TaskFactory.tasksForApplyingCategories({
+      source,
       threads,
       categoriesToAdd: () => [category],
     })
@@ -87,8 +90,9 @@ const TaskFactory = {
     return tasks[0];
   },
 
-  taskForRemovingCategory({threads, category}) {
+  taskForRemovingCategory({threads, category, source}) {
     const tasks = TaskFactory.tasksForApplyingCategories({
+      source,
       threads,
       categoriesToRemove: () => [category],
     })
@@ -100,15 +104,17 @@ const TaskFactory = {
     return tasks[0];
   },
 
-  tasksForMarkingAsSpam({threads}) {
+  tasksForMarkingAsSpam({threads, source}) {
     return TaskFactory.tasksForApplyingCategories({
+      source,
       threads,
       categoriesToAdd: (accountId) => [CategoryStore.getSpamCategory(accountId)],
     })
   },
 
-  tasksForArchiving({threads}) {
+  tasksForArchiving({threads, source}) {
     return TaskFactory.tasksForApplyingCategories({
+      source,
       threads,
       categoriesToRemove: (accountId) => [
         CategoryStore.getInboxCategory(accountId),
@@ -117,21 +123,22 @@ const TaskFactory = {
     })
   },
 
-  tasksForMovingToTrash({threads}) {
+  tasksForMovingToTrash({threads, source}) {
     return TaskFactory.tasksForApplyingCategories({
+      source,
       threads,
       categoriesToAdd: (accountId) => [CategoryStore.getTrashCategory(accountId)],
     })
   },
 
-  taskForInvertingUnread({threads}) {
+  taskForInvertingUnread({threads, source}) {
     const unread = _.every(threads, (t) => _.isMatch(t, {unread: false}))
-    return new ChangeUnreadTask({threads, unread})
+    return new ChangeUnreadTask({threads, unread, source})
   },
 
-  taskForInvertingStarred({threads}) {
+  taskForInvertingStarred({threads, source}) {
     const starred = _.every(threads, (t) => _.isMatch(t, {starred: false}))
-    return new ChangeStarredTask({threads, starred})
+    return new ChangeStarredTask({threads, starred, source})
   },
 }
 

@@ -192,6 +192,7 @@ export default class CategoryPickerPopover extends Component {
             return;
           }
           const applyTask = TaskFactory.taskForApplyingCategory({
+            source: "Category Picker: New Category",
             threads: threads,
             category: cat,
           })
@@ -201,12 +202,14 @@ export default class CategoryPickerPopover extends Component {
       Actions.queueTask(syncbackTask)
     } else if (item.usage === threads.length) {
       const applyTask = TaskFactory.taskForRemovingCategory({
+        source: "Category Picker: Existing Category",
         threads: threads,
         category: item.category,
       })
       Actions.queueTask(applyTask)
     } else {
       const applyTask = TaskFactory.taskForApplyingCategory({
+        source: "Category Picker: Existing Category",
         threads: threads,
         category: item.category,
       })

@@ -17,6 +17,7 @@ class ThreadToggleUnreadButton extends React.Component
 
   _onClick: (e) =>
     task = new ChangeUnreadTask
+      source: "Toolbar Button: Thread List"
       thread: @props.thread
       unread: !@props.thread.unread
     Actions.queueTask(task)

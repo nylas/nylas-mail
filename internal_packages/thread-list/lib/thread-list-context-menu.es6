@@ -104,6 +104,7 @@ export default class ThreadListContextMenu {
       label: "Archive",
       click: () => {
         const tasks = TaskFactory.tasksForArchiving({
+          source: "Context Menu: Thread List",
           threads: this.threads,
         })
         Actions.queueTasks(tasks)
@@ -121,6 +122,7 @@ export default class ThreadListContextMenu {
       label: "Trash",
       click: () => {
         const tasks = TaskFactory.tasksForMovingToTrash({
+          source: "Context Menu: Thread List",
           threads: this.threads,
         })
         Actions.queueTasks(tasks)
@@ -138,6 +140,7 @@ export default class ThreadListContextMenu {
       label: `Mark as ${dir}`,
       click: () => {
         const task = TaskFactory.taskForInvertingUnread({
+          source: "Context Menu: Thread List",
           threads: this.threads,
         })
         Actions.queueTask(task)
@@ -162,6 +165,7 @@ export default class ThreadListContextMenu {
       label: `${dir}${star}`,
       click: () => {
         const task = TaskFactory.taskForInvertingStarred({
+          source: "Context Menu: Thread List",
           threads: this.threads,
         })
         Actions.queueTask(task)

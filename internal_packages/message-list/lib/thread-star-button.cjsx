@@ -20,6 +20,7 @@ class StarButton extends React.Component
 
   _onStarToggle: (e) =>
     task = new ChangeStarredTask({
+      source: "Toolbar Button: Message List"
       thread: @props.thread
       starred: !@props.thread.starred
     })

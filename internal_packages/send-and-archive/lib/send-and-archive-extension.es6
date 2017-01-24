@@ -21,6 +21,7 @@ export function sendActions() {
       return DatabaseStore.modelify(Thread, [draft.threadId])
       .then((threads) => {
         const tasks = TaskFactory.tasksForArchiving({
+          source: "Send and Archive",
           threads: threads,
         })
         Actions.queueTasks(tasks)

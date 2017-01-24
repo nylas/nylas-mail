@@ -22,7 +22,7 @@ export class ArchiveButton extends React.Component {
   }
 
   _onArchive = (event) => {
-    const tasks = TaskFactory.tasksForArchiving({threads: this.props.items})
+    const tasks = TaskFactory.tasksForArchiving({threads: this.props.items, source: "Toolbar Button: Thread List"})
     Actions.queueTasks(tasks);
     Actions.popSheet();
     event.stopPropagation();
@@ -58,7 +58,7 @@ export class TrashButton extends React.Component {
   }
 
   _onRemove = (event) => {
-    const tasks = TaskFactory.tasksForMovingToTrash({threads: this.props.items});
+    const tasks = TaskFactory.tasksForMovingToTrash({threads: this.props.items, source: "Toolbar Button: Thread List"});
     Actions.queueTasks(tasks);
     Actions.popSheet();
     event.stopPropagation();
@@ -99,6 +99,7 @@ export class MarkAsSpamButton extends React.Component {
 
   _onNotSpam = (event) => {
     const tasks = TaskFactory.tasksForApplyingCategories({
+      source: "Toolbar Button: Thread List",
       threads: this.props.items,
       categoriesToAdd: (accountId) => {
         const account = AccountStore.accountForId(accountId)
@@ -115,7 +116,7 @@ export class MarkAsSpamButton extends React.Component {
   }
 
   _onMarkAsSpam = (event) => {
-    const tasks = TaskFactory.tasksForMarkingAsSpam({threads: this.props.items});
+    const tasks = TaskFactory.tasksForMarkingAsSpam({threads: this.props.items, source: "Toolbar Button: Thread List"});
     Actions.queueTasks(tasks);
     Actions.popSheet();
     event.stopPropagation();
@@ -164,7 +165,7 @@ export class ToggleStarredButton extends React.Component {
   };
 
   _onStar = (event) => {
-    const task = TaskFactory.taskForInvertingStarred({threads: this.props.items});
+    const task = TaskFactory.taskForInvertingStarred({threads: this.props.items, source: "Toolbar Button: Thread List"});
     Actions.queueTask(task);
     event.stopPropagation();
     return;
@@ -198,7 +199,7 @@ export class ToggleUnreadButton extends React.Component {
   }
 
   _onClick = (event) => {
-    const task = TaskFactory.taskForInvertingUnread({threads: this.props.items});
+    const task = TaskFactory.taskForInvertingUnread({threads: this.props.items, source: "Toolbar Button: Thread List"});
     Actions.queueTask(task);
     Actions.popSheet();
     event.stopPropagation();

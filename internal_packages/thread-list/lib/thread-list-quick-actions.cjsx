@@ -26,6 +26,7 @@ class ThreadArchiveQuickAction extends React.Component
 
   _onArchive: (event) =>
     tasks = TaskFactory.tasksForArchiving
+      source: "Quick Actions: Thread List"
       threads: [@props.thread]
     Actions.queueTasks(tasks)
 
@@ -53,6 +54,7 @@ class ThreadTrashQuickAction extends React.Component
 
   _onRemove: (event) =>
     tasks = TaskFactory.tasksForMovingToTrash
+      source: "Quick Actions: Thread List"
       threads: [@props.thread]
     Actions.queueTasks(tasks)
 

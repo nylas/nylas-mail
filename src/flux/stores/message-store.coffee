@@ -199,7 +199,7 @@ class MessageStore extends NylasStore
 
       setTimeout =>
         return unless markAsReadId is @_thread?.id and @_thread.unread
-        t = new ChangeUnreadTask(thread: @_thread, unread: false)
+        t = new ChangeUnreadTask(thread: @_thread, unread: false, source: "Thread Selected")
         t.canBeUndone = => false
         Actions.queueTask(t)
       , markAsReadDelay
