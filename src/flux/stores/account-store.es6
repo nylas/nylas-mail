@@ -32,7 +32,7 @@ class AccountStore extends NylasStore {
     this.listenTo(Actions.updateAccount, this._onUpdateAccount)
     this.listenTo(Actions.reorderAccount, this._onReorderAccount)
 
-    NylasEnv.config.onDidChange(configVersionKey, (change) => {
+    NylasEnv.config.onDidChange(configVersionKey, async (change) => {
       // If we already have this version of the accounts config, it means we
       // are the ones who saved the change, and we don't need to reload.
       if (this._version / 1 === change.newValue / 1) {
@@ -44,7 +44,7 @@ class AccountStore extends NylasStore {
       const accountIds = _.pluck(this._accounts, 'id')
       const newAccountIds = _.difference(accountIds, oldAccountIds)
 
-      if (newAccountIds.length > 0) {
+      if (NylasEnv.isMainWindow() && newAccountIds.length > 0) {
         const newId = newAccountIds[0]
         // const NylasSyncStatusStore = require('./nylas-sync-status-store').default
         Actions.focusDefaultMailboxPerspectiveForAccounts([newId], {sidebarAccountIds: accountIds})
@@ -54,9 +54,10 @@ class AccountStore extends NylasStore {
         // This Action is a hack, get rid of it in sidebar refactor
         // Wait until the FocusedPerspectiveStore triggers and the sidebar is
         // updated to uncollapse the inbox for the new account
-        setTimeout(() => {
-          Actions.setCollapsedSidebarItem('Inbox', false)
-        }, 500)
+        const NylasSyncStatusStore = require('./nylas-sync-status-store').default
+        await NylasSyncStatusStore.whenCategoryListSynced(newId)
+        Actions.focusDefaultMailboxPerspectiveForAccounts([newId], {sidebarAccountIds: accountIds})
+        Actions.setCollapsedSidebarItem('Inbox', false)
       }
     })
   }
