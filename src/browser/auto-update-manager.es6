@@ -201,7 +201,7 @@ export default class AutoUpdateManager extends EventEmitter {
       icon: this.iconURL(),
       message: 'No update available.',
       title: 'No Update Available',
-      detail: `You're running the latest version of N1 (${this.version}).`,
+      detail: `You're running the latest version of Nylas Mail (${this.version}).`,
     });
   };
 
