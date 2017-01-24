@@ -29,6 +29,7 @@ export default class SearchIndexer {
       .order(modelClass.naturalSortOrder())
       .offset(indexSize)
       .limit(1)
+      .silenceQueryPlanDebugOutput()
     // console.info('SearchIndexer: _getIndexCutoff query', query.sql());
     const models = await query;
     return models[0];
