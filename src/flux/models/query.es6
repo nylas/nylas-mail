@@ -56,6 +56,7 @@ export default class ModelQuery {
     this._returnIds = false;
     this._includeJoinedData = [];
     this._count = false;
+    this._logQueryPlanDebugOutput = true;
   }
 
   clone() {
@@ -87,6 +88,11 @@ export default class ModelQuery {
 
   markNotBackgroundable() {
     this._backgroundable = false;
+    return this;
+  }
+
+  silenceQueryPlanDebugOutput() {
+    this._logQueryPlanDebugOutput = false;
     return this;
   }
 

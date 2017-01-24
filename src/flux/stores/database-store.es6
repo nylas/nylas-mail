@@ -296,7 +296,7 @@ class DatabaseStore extends NylasStore {
   //
   // If a query is made before the database has been opened, the query will be
   // held in a queue and run / resolved when the database is ready.
-  _query(query, values = [], background = false) {
+  _query(query, values = [], background = false, logQueryPlanDebugOutput = true) {
     return new Promise((resolve, reject) => {
       if (!this._open) {
         this._waiting.push(() => this._query(query, values).then(resolve, reject));
@@ -320,7 +320,9 @@ class DatabaseStore extends NylasStore {
         const planString = `${plan.map(row => row.detail).join('\n')} for ${query}`;
         const quiet = ['ThreadCounts', 'ThreadSearch', 'ContactSearch', 'COVERING INDEX'];
 
-        if (planString.includes('SCAN') && !quiet.find(str => planString.includes(str))) {
+        if (planString.includes('SCAN') &&
+            !quiet.find(str => planString.includes(str)) &&
+            logQueryPlanDebugOutput) {
           console.log("Consider setting the .background() flag on this query to avoid blocking the event loop:")
           this._prettyConsoleLog(planString);
         }
@@ -574,7 +576,7 @@ class DatabaseStore extends NylasStore {
   //   - resolves with the result of the database query.
   //
   run(modelQuery, options = {format: true}) {
-    return this._query(modelQuery.sql(), [], modelQuery._background).then((result) => {
+    return this._query(modelQuery.sql(), [], modelQuery._background, modelQuery._logQueryPlanDebugOutput).then((result) => {
       let transformed = modelQuery.inflateResult(result);
       if (options.format !== false) {
         transformed = modelQuery.formatResult(transformed)
