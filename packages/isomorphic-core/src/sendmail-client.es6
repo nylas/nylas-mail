@@ -54,6 +54,7 @@ class SendmailClient {
       throw new APIError('Sending failed - Network Error', 401, {originalError: error})
     }
 
+    NylasEnv.reportError(error)
     throw new APIError('Sending failed', 500, {originalError: error});
   }
 
