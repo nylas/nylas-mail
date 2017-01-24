@@ -138,9 +138,6 @@ module.exports = (sequelize, Sequelize) => {
         const participantEmails = new Set(this.participants.map(p => p.email));
 
         for (const message of _messages) {
-          if (message.isDraft) {
-            continue;
-          }
           if (!(message.labels instanceof Array)) {
             throw new Error("Expected message.labels to be an inflated array.");
           }

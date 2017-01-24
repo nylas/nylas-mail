@@ -72,6 +72,8 @@ module.exports = (sequelize, Sequelize) => {
       {fields: ['folderId']},
       {fields: ['threadId']},
       {fields: ['gMsgId']}, // Use in `searchThreads`
+      // TODO: when we add 2-way draft syncing, we're going to need this index
+      // {fields: ['isDraft']},
       {fields: ['folderImapUID']}, // Use in `searchThreads`
     ],
     classMethods: {
@@ -190,6 +192,7 @@ module.exports = (sequelize, Sequelize) => {
           id: this.id,
           account_id: this.accountId,
           object: this.isDraft ? 'draft' : 'message',
+          draft: this.isDraft,
           body: this.body,
           subject: this.subject,
           snippet: this.snippet,

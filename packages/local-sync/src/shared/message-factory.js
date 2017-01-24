@@ -256,6 +256,12 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
     snippet: null,
     unread: !attributes.flags.includes('\\Seen'),
     starred: attributes.flags.includes('\\Flagged'),
+    // We limit drafts to the drafts and all mail folders because some clients
+    // may send messages and improperly leave the draft flag set, and also
+    // because we want to exclude drafts moved to the trash from the drafts view
+    // see https://github.com/nylas/cloud-core/commit/1433921a166ddcba7c269158d65febb7928767d8
+    // & associated phabricator bug https://phab.nylas.com/T5696
+    isDraft: attributes.flags.includes('\\Draft') && ['drafts', 'all'].includes(folder.role),
     // We prefer the date from the message headers because the date is one of
     // the fields we use for generating unique message IDs, and the server
     // INTERNALDATE, `attributes.date`, may differ across accounts for the same
