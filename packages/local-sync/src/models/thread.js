@@ -141,9 +141,6 @@ module.exports = (sequelize, Sequelize) => {
           if (message.isDraft) {
             continue;
           }
-          if (!threadMessageIds.has(message.id)) {
-            throw new Error("Message does not belong to thread");
-          }
           if (!(message.labels instanceof Array)) {
             throw new Error("Expected message.labels to be an inflated array.");
           }
