@@ -1,5 +1,19 @@
 # Nylas Mail Changelog
 
+### 1.0.13 (1/25/17)
+
+- Fixes:
+
+  + Messages immediately appear in sent folder. No bouncing back.
+  + Login more likely to succeed. Waits longer for IMAP
+  + Doesn't allow invalid form submission
+  + Correctly handles token refresh failing
+  + Auto updater says "Nylas Mail" properly
+
+- Development:
+
+  + Local sync account API deprecated
+
 ### 1.0.12 (1/24/17)
 
 - Features:
