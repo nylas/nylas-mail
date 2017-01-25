@@ -355,6 +355,9 @@ class NylasEnvConstructor
   isMainWindow: ->
     !!@getLoadSettings().mainWindow
 
+  isEmptyWindow: ->
+    @getWindowType() is 'emptyWindow'
+
   isWorkWindow: ->
     @getWindowType() is 'work'
 

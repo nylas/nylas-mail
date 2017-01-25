@@ -54,7 +54,13 @@ class ActionBridge {
     NylasEnv.onBeforeUnload(this.onBeforeUnload);
 
     // Listen for action bridge messages from other windows
-    this.ipc.on('action-bridge-message', this.onIPCMessage);
+    if (NylasEnv.isEmptyWindow()) {
+      NylasEnv.onWindowPropsReceived(() => {
+        this.ipc.on('action-bridge-message', this.onIPCMessage);
+      });
+    } else {
+      this.ipc.on('action-bridge-message', this.onIPCMessage);
+    }
 
     // Observe all global actions and re-broadcast them to other windows
     Actions.globalActions.forEach(name => {
@@ -102,6 +108,9 @@ class ActionBridge {
   }
 
   onIPCMessage(event, initiatorId, name, json) {
+    if (NylasEnv.isEmptyWindow()) {
+      throw new Error("Empty windows shouldn't receive IPC messages");
+    }
     // There's something very strange about IPC event handlers. The ReactRemoteParent
     // threw React exceptions when calling setState from an IPC callback, and the debugger
     // often refuses to stop at breakpoints immediately inside IPC callbacks.
