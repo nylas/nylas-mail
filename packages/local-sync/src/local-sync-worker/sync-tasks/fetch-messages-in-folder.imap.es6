@@ -28,7 +28,8 @@ class FetchMessagesInFolderIMAP extends SyncTask {
   }
 
   _isFirstSync() {
-    return this._folder.syncState.minUID == null || this._folder.syncState.fetchedmax == null;
+    return this._folder.syncState.minUID == null ||
+      (this._folder.syncState.fetchedmax == null && this._folder.syncState.fetchedmin == null);
   }
 
   async _recoverFromUIDInvalidity() {
@@ -335,13 +336,25 @@ class FetchMessagesInFolderIMAP extends SyncTask {
         // Gmail always returns UIDs in order from smallest to largest, so this
         // gets us the most recent messages first.
         inboxUids = inboxUids.slice(Math.max(inboxUids.length - GMAIL_INBOX_PRIORITIZE_COUNT, 0));
+        // Immediately persist to avoid issuing search again in case of interrupt
+        await this._folder.updateSyncState({
+          gmailInboxUIDsRemaining: inboxUids,
+          fetchedmax: this._box.uidnext,
+        });
       } else {
         inboxUids = this._folder.syncState.gmailInboxUIDsRemaining;
+      }
+      // continue fetching new mail first in the case that inbox uid download
+      // takes multiple batches
+      const fetchedmax = this._folder.syncState.fetchedmax || this._box.uidnext;
+      if (this._box.uidnext > fetchedmax) {
+        console.log(`🔃 📂 ${this._folder.name} new messages present; fetching ${fetchedmax}:${this._box.uidnext}`);
+        yield this._fetchAndProcessMessages({min: fetchedmax, max: this._box.uidnext});
       }
       const batchSplitIndex = Math.max(inboxUids.length - FETCH_MESSAGES_COUNT, 0);
       const uidsFetchNow = inboxUids.slice(batchSplitIndex);
       const uidsFetchLater = inboxUids.slice(0, batchSplitIndex);
-      // console.log(`FetchMessagesInFolderIMAP: Remaining Gmail Inbox UIDs to download: ${fetchLater.length}`);
+      // console.log(`FetchMessagesInFolderIMAP: Remaining Gmail Inbox UIDs to download: ${uidsFetchLater.length}`);
       yield this._fetchAndProcessMessages({uids: uidsFetchNow});
       await this._folder.updateSyncState({ gmailInboxUIDsRemaining: uidsFetchLater });
     } else {
