@@ -282,8 +282,11 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
     // separately, and can simply associate them all in the same way.
     // Generally, References already contains the Message-IDs in In-Reply-To,
     // but we concat and dedupe just in case.
-    references: parseReferences((parsedHeaders.references || []).concat(
-      (parsedHeaders['in-reply-to'] || []), (parsedHeaders['message-id'] || []))),
+    references: parseReferences(
+      (parsedHeaders.references || []).concat(
+        (parsedHeaders['in-reply-to'] || []), (parsedHeaders['message-id'] || [])
+      )
+    ),
     gMsgId: parsedHeaders['x-gm-msgid'],
     gThrId: parsedHeaders['x-gm-thrid'],
     subject: parsedHeaders.subject ? parsedHeaders.subject[0] : '(no subject)',
@@ -332,8 +335,10 @@ async function buildForSend(db, json) {
   }
 
   if (json.reply_to_message_id != null) {
-    replyToMessage = await Message.findById(json.reply_to_message_id,
-      { include: [{model: Reference, as: 'references', attributes: ['id', 'rfc2822MessageId']}] });
+    replyToMessage = await Message.findById(
+      json.reply_to_message_id,
+      { include: [{model: Reference, as: 'references', attributes: ['id', 'rfc2822MessageId']}] }
+    )
   }
 
   if (replyToThread && replyToMessage) {
@@ -390,8 +395,11 @@ async function buildForSend(db, json) {
   message.id = Message.hash(messageForHashing)
   message.body = replaceMessageIdInBodyTrackingLinks(message.id, message.body)
   const instance = Message.build(message)
-  // we don't store these fields in the db, so if we set them on `message`
-  // beforehand Message.build() would drop them---this is just a convenience
+
+  // TODO we set these temporary properties which aren't stored in the database
+  // model because SendmailClient requires them to send the message with the
+  // correct headers.
+  // This should be cleaned up
   instance.inReplyTo = inReplyTo;
   instance.references = references;
   return instance;

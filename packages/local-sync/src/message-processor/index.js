@@ -139,7 +139,7 @@ class MessageProcessor {
       console.log(`🔃 ✉️ "${messageValues.subject}" - ${messageValues.date}`)
       return processedMessage
     } catch (err) {
-      console.error(`FetchMessagesInFolder: Could not build message`, {
+      console.error(`MessageProcessor: Could not build message`, {
         err,
         imapMessage,
         desiredParts,
@@ -191,9 +191,9 @@ class MessageProcessor {
     }
 
     const referencesInstances = references.map(mid => refByMessageId[mid]);
-    message.addReferences(referencesInstances);
+    await message.addReferences(referencesInstances);
     message.referencesOrder = referencesInstances.map(ref => ref.id);
-    thread.addReferences(referencesInstances);
+    await thread.addReferences(referencesInstances);
   }
 
   async _processNewMessage(messageValues, struct) {
