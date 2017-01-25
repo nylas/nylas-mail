@@ -41,6 +41,7 @@
     "fs-plus": "^2.3.2",
     "getmac": "1.x.x",
     "guid": "0.0.10",
+    "imap-provider-settings": "nylas/imap-provider-settings",
     "immutable": "3.7.5",
     "jasmine-json": "~0.0",
     "jasmine-react-helpers": "^0.2",

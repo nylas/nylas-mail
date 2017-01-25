@@ -1,6 +1,7 @@
 /* eslint global-require: 0 */
 
 import crypto from 'crypto';
+import {CommonProviderSettings} from 'imap-provider-settings'
 import {
   N1CloudAPI,
   NylasAPI,
@@ -164,8 +165,6 @@ export function isValidHost(value) {
 }
 
 export function accountInfoWithIMAPAutocompletions(existingAccountInfo) {
-  const CommonProviderSettings = require('./common-provider-settings.json');
-
   const {email, type} = existingAccountInfo;
   const domain = email.split('@').pop().toLowerCase();
   const template = CommonProviderSettings[domain] || CommonProviderSettings[type] || {};
