@@ -27,6 +27,14 @@ class OnboardingStore extends NylasStore {
     this.listenTo(OnboardingActions.authenticationJSONReceived, this._onAuthenticationJSONReceived)
     this.listenTo(OnboardingActions.setAccountInfo, this._onSetAccountInfo);
     this.listenTo(OnboardingActions.setAccountType, this._onSetAccountType);
+    ipcRenderer.on('set-account-type', (e, type) => {
+      if (type) {
+        this._onSetAccountType(type)
+      } else {
+        this._pageStack = ['account-choose']
+        this.trigger()
+      }
+    })
 
     const {existingAccount, addingAccount, accountType} = NylasEnv.getWindowProps();
 
