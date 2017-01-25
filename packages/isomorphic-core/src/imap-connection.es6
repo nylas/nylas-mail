@@ -87,7 +87,7 @@ class IMAPConnection extends EventEmitter {
   }
 
   _resolveIMAPSettings() {
-    const result = {
+    const settings = {
       host: this._settings.imap_host,
       port: this._settings.imap_port,
       user: this._settings.imap_username,
@@ -96,12 +96,12 @@ class IMAPConnection extends EventEmitter {
       socketTimeout: this._settings.socketTimeout || SOCKET_TIMEOUT_MS,
       authTimeout: this._settings.authTimeout || AUTH_TIMEOUT_MS,
     }
-    if (!MAJOR_IMAP_PROVIDER_HOSTS.has(result.host)) {
-      result.tlsOptions = { rejectUnauthorized: false };
+    if (!MAJOR_IMAP_PROVIDER_HOSTS.has(settings.host)) {
+      settings.tlsOptions = { rejectUnauthorized: false };
     }
 
     if (process.env.NYLAS_DEBUG) {
-      result.debug = console.log;
+      settings.debug = console.log;
     }
 
     // This account uses XOAuth2, and we have the client_id + refresh token
@@ -118,10 +118,10 @@ class IMAPConnection extends EventEmitter {
           refreshToken: this._settings.refresh_token,
         }).getToken((err, token) => {
           if (err) { return reject(err) }
-          delete result.password;
-          result.xoauth2 = token;
-          result.expiry_date = Math.floor(Date.now() / 1000) + ONE_HOUR_SECS;
-          return resolve(result);
+          delete settings.password;
+          settings.xoauth2 = token;
+          settings.expiry_date = Math.floor(Date.now() / 1000) + ONE_HOUR_SECS;
+          return resolve(settings);
         });
       });
     }
@@ -129,12 +129,12 @@ class IMAPConnection extends EventEmitter {
     // This account uses XOAuth2, and we have a token given to us by the
     // backend, which has the client secret.
     if (this._settings.xoauth2) {
-      delete result.password;
-      result.xoauth2 = this._settings.xoauth2;
-      result.expiry_date = this._settings.expiry_date;
+      delete settings.password;
+      settings.xoauth2 = this._settings.xoauth2;
+      settings.expiry_date = this._settings.expiry_date;
     }
 
-    return Promise.resolve(result);
+    return Promise.resolve(settings);
   }
 
   _buildUnderlyingConnection(settings) {
