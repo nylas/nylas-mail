@@ -9,10 +9,12 @@
   + Doesn't allow invalid form submission
   + Correctly handles token refresh failing
   + Auto updater says "Nylas Mail" properly
+  + Sync drafts correctly on Gmail
 
 - Development:
 
   + Local sync account API deprecated
+  + Silence noisy queries in the logs
 
 ### 1.0.12 (1/24/17)
 
