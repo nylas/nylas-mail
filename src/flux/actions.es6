@@ -560,8 +560,6 @@ class Actions {
 
   static notifyPluginsChanged = ActionScopeGlobal;
 
-  static refreshAllDeltaConnections = ActionScopeGlobal;
-
   static expandInitialSyncState = ActionScopeWindow;
 
   static resetEmailCache = ActionScopeGlobal;

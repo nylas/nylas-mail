@@ -5,7 +5,6 @@ import url from 'url'
 
 import KeyManager from '../../key-manager'
 import Actions from '../actions';
-import AccountStore from './account-store';
 import Utils from '../models/utils';
 
 const configIdentityKey = "nylas.identity";
@@ -22,23 +21,19 @@ class IdentityStore extends NylasStore {
     NylasEnv.config.onDidChange('env', this._onEnvChanged);
     this._onEnvChanged();
 
-    this.listenTo(AccountStore, () => { this.trigger() });
     this.listenTo(Actions.setNylasIdentity, this._onSetNylasIdentity);
     this.listenTo(Actions.logoutNylasIdentity, this._onLogoutNylasIdentity);
 
     NylasEnv.config.onDidChange(configIdentityKey, () => {
       this._loadIdentity();
       this.trigger();
-      if (NylasEnv.isMainWindow()) {
-        this.refreshAccounts();
-      }
     });
 
     this._loadIdentity();
 
     if (NylasEnv.isMainWindow() && ['staging', 'production'].includes(NylasEnv.config.get('env'))) {
-      setInterval(this.refreshIdentityAndAccounts, 1000 * 60 * 60); // 1 hour
-      this.refreshIdentityAndAccounts();
+      setInterval(this.fetchIdentity, 1000 * 60 * 60); // 1 hour
+      this.fetchIdentity();
     }
   }
 
@@ -71,21 +66,6 @@ class IdentityStore extends NylasStore {
       return null;
     }
     return this._identity.id;
-  }
-
-  refreshIdentityAndAccounts = () => {
-    return this.fetchIdentity().then(() =>
-      this.refreshAccounts()
-    ).catch((err) => {
-      console.error(`Unable to refresh IdentityStore status: ${err.message}`)
-    });
-  }
-
-  refreshAccounts = () => {
-    const accountIds = AccountStore.accounts().map((a) => a.id);
-    AccountStore.refreshHealthOfAccounts(accountIds);
-    Actions.refreshAllDeltaConnections()
-    this.trigger();
   }
 
   /**
@@ -197,6 +177,7 @@ class IdentityStore extends NylasStore {
       delete identity.token;
     }
     NylasEnv.config.set(configIdentityKey, identity);
+    this.trigger()
   }
 }
 

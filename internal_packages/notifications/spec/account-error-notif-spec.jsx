@@ -1,5 +1,5 @@
 import {mount} from 'enzyme';
-import {IdentityStore, AccountStore, Account, Actions, React} from 'nylas-exports';
+import {AccountStore, Account, Actions, React} from 'nylas-exports';
 import {ipcRenderer} from 'electron';
 
 import AccountErrorNotification from '../lib/items/account-error-notif';
@@ -20,9 +20,9 @@ describe("AccountErrorNotif", function AccountErrorNotifTests() {
 
     it("allows the user to refresh the account", () => {
       const notif = mount(<AccountErrorNotification />);
-      spyOn(IdentityStore, 'refreshIdentityAndAccounts').andReturn(Promise.resolve());
+      spyOn(Actions, 'wakeLocalSyncWorkerForAccount').andReturn(Promise.resolve());
       notif.find('#action-0').simulate('click'); // Expects first action to be the refresh action
-      expect(IdentityStore.refreshIdentityAndAccounts).toHaveBeenCalled();
+      expect(Actions.wakeLocalSyncWorkerForAccount).toHaveBeenCalled();
     });
 
     it("allows the user to reconnect the account", () => {
@@ -45,14 +45,14 @@ describe("AccountErrorNotif", function AccountErrorNotifTests() {
 
     it("renders an error bar", () => {
       const notif = mount(<AccountErrorNotification />);
-      expect(notif.find('.notification').isEmpty()).toEqual(false);
+      expect(notif.find('.notification').exists()).toEqual(true);
     });
 
     it("allows the user to refresh the accounts", () => {
       const notif = mount(<AccountErrorNotification />);
-      spyOn(IdentityStore, 'refreshIdentityAndAccounts').andReturn(Promise.resolve());
+      spyOn(Actions, 'wakeLocalSyncWorkerForAccount').andReturn(Promise.resolve());
       notif.find('#action-0').simulate('click'); // Expects first action to be the refresh action
-      expect(IdentityStore.refreshIdentityAndAccounts).toHaveBeenCalled();
+      expect(Actions.wakeLocalSyncWorkerForAccount).toHaveBeenCalled();
     });
 
     it("allows the user to open preferences", () => {
@@ -75,7 +75,7 @@ describe("AccountErrorNotif", function AccountErrorNotifTests() {
 
     it("renders nothing", () => {
       const notif = mount(<AccountErrorNotification />);
-      expect(notif.find('.notification').isEmpty()).toEqual(true);
+      expect(notif.find('.notification').exists()).toEqual(false);
     });
   });
 });

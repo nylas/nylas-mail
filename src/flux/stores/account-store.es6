@@ -9,9 +9,6 @@ import Account from '../models/account'
 import Utils from '../models/utils'
 import DatabaseStore from './database-store'
 
-let NylasAPI = null
-let NylasAPIRequest = null
-
 const configAccountsKey = "nylas.accounts"
 const configVersionKey = "nylas.accountsVersion"
 const configTokensKey = "nylas.accountTokens"
@@ -145,8 +142,10 @@ class AccountStore extends NylasStore {
     this._trigger()
   }
 
-  // Inbound Events
-
+  /**
+   * Actions.updateAccount is called directly from the local-sync worker.
+   * This will update the account with its updated sync state
+   */
   _onUpdateAccount = (id, updated) => {
     const idx = _.findIndex(this._accounts, (a) => a.id === id)
     let account = this._accounts[idx]
@@ -157,6 +156,12 @@ class AccountStore extends NylasStore {
     this._save()
   }
 
+  /**
+   * When an account is removed from Nylas Mail, the AccountStore
+   * triggers. The local-sync/src/local-sync-worker/index.js listens to
+   * the AccountStore and runs `ensureK2Consistency`. This will actually
+   * delete the Account on the local sync side.
+   */
   _onRemoveAccount = (id) => {
     const account = _.findWhere(this._accounts, {id})
     if (!account) return
@@ -227,41 +232,6 @@ class AccountStore extends NylasStore {
 
     this._save()
   }
-
-  refreshHealthOfAccounts = (accountIds) => {
-    NylasAPI = require('../nylas-api').default
-    NylasAPIRequest = require('../nylas-api-request').default
-    return Promise.all(accountIds.map((accountId) => {
-      return new NylasAPIRequest({
-        api: NylasAPI,
-        options: {
-          path: '/account',
-          accountId: accountId,
-        },
-      }).run()
-      .then((json) => {
-        if (!json) return
-        const existing = this.accountForId(accountId)
-        if (!existing) return // user may have deleted
-        existing.fromJSON(json)
-      }).catch(() => {
-        // console.error(err);
-        // Dont't throw here. If this function gets run immediately at
-        // boot it may try before local-sync is ready. This is okay as
-        // we'll refresh the accounts later anyway. We'll also be
-        // eventually deprecating this API to merge it with K2
-      })
-    }))
-    .finally(() => {
-      this._caches = {}
-      this._save()
-    })
-  }
-
-  // Exposed Data
-
-  // Private: Helper which caches the results of getter functions often needed
-  // in the middle of React render cycles. (Performance critical!)
 
   _cachedGetter(key, fn) {
     this._caches[key] = this._caches[key] || fn()

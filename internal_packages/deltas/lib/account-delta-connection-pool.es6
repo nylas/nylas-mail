@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import {AccountStore, Actions} from 'nylas-exports'
+import {AccountStore} from 'nylas-exports'
 import AccountDeltaConnection from './account-delta-connection';
 
 export default class AccountDeltaConnectionPool {
@@ -7,13 +7,6 @@ export default class AccountDeltaConnectionPool {
     this._accountConnections = [];
     AccountStore.listen(this._determineDeltaConnectionPool, this);
     this._determineDeltaConnectionPool();
-    Actions.refreshAllDeltaConnections.listen(this._refreshAllAccountConnections, this)
-  }
-
-  _refreshAllAccountConnections() {
-    for (const accountConnection of this._accountConnections) {
-      accountConnection.refresh()
-    }
   }
 
   _existingConnectionsForAccount(account) {
