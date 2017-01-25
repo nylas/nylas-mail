@@ -133,8 +133,8 @@ module.exports = (sequelize, Sequelize) => {
           this.lastMessageReceivedDate = null;
         }
 
-        const folders = new Set(this.folders);
-        const labels = new Set(this.labels);
+        const folderIds = new Set(this.folders.map(f => f.id));
+        const labelIds = new Set(this.labels.map(l => l.id));
         const participantEmails = new Set(this.participants.map(p => p.email));
 
         for (const message of _messages) {
@@ -145,8 +145,8 @@ module.exports = (sequelize, Sequelize) => {
             throw new Error("Expected message.folder value to be present.");
           }
 
-          folders.add(message.folder)
-          message.labels.forEach(label => labels.add(label))
+          folderIds.add(message.folder.id)
+          message.labels.forEach(label => labelIds.add(label.id))
 
           this._updateSimpleMessageAttributes(message);
 
@@ -168,14 +168,13 @@ module.exports = (sequelize, Sequelize) => {
         }
 
         // Setting folders and labels cannot be done on a thread without an id
-        let thread = this;
-        if (!this.id) {
-          thread = await this.save({transaction});
-        }
+        const savedThread = await this.save({transaction});
 
-        await thread.setFolders(Array.from(folders), {transaction})
-        await thread.setLabels(Array.from(labels), {transaction})
-        return thread.save({transaction});
+        await Promise.all([
+          savedThread.setFolders(Array.from(folderIds), {transaction}),
+          savedThread.setLabels(Array.from(labelIds), {transaction}),
+        ])
+        return savedThread.save({transaction});
       },
 
       toJSON() {
