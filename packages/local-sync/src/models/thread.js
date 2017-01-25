@@ -66,10 +66,11 @@ module.exports = (sequelize, Sequelize) => {
 
         return this.save();
       },
+
       // Updates the attributes that don't require an external set to prevent
       // duplicates. Currently includes starred/unread counts, various date
       // values, and snippet. Does not save the thread.
-      async _updateSimpleMessageAttributes(message) {
+      _updateSimpleMessageAttributes(message) {
         // Update starred/unread counts
         this.starredCount += message.starred ? 1 : 0;
         this.unreadCount += message.unread ? 1 : 0;
@@ -96,13 +97,16 @@ module.exports = (sequelize, Sequelize) => {
           this.lastMessageReceivedDate = message.date;
         }
       },
-      async updateFromMessages({messages, recompute, db} = {}) {
+
+      async updateFromMessages({db, messages, recompute, transaction} = {}) {
+        if (!(messages instanceof Array)) {
+          throw new Error('Thread.updateFromMessages() expected an array of messages')
+        }
         if (!(this.folders instanceof Array) || !(this.labels instanceof Array)) {
           throw new Error('Thread.updateFromMessages() expected .folders and .labels to be inflated arrays')
         }
 
         let _messages = messages;
-        let threadMessageIds;
         if (recompute) {
           if (!db) {
             throw new Error('Cannot recompute thread attributes without a database reference.')
@@ -115,7 +119,6 @@ module.exports = (sequelize, Sequelize) => {
           if (_messages.length === 0) {
             return this.destroy();
           }
-          threadMessageIds = new Set(_messages.map(m => m.id))
 
           this.folders = [];
           this.labels = [];
@@ -128,9 +131,6 @@ module.exports = (sequelize, Sequelize) => {
           this.firstMessageDate = null;
           this.lastMessageSentDate = null;
           this.lastMessageReceivedDate = null;
-        } else {
-          const threadMessages = await this.getMessages({attributes: ['id']})
-          threadMessageIds = new Set(threadMessages.map(m => m.id))
         }
 
         const folders = new Set(this.folders);
@@ -170,13 +170,14 @@ module.exports = (sequelize, Sequelize) => {
         // Setting folders and labels cannot be done on a thread without an id
         let thread = this;
         if (!this.id) {
-          thread = await this.save();
+          thread = await this.save({transaction});
         }
 
-        thread.setFolders(Array.from(folders))
-        thread.setLabels(Array.from(labels))
-        return thread.save();
+        await thread.setFolders(Array.from(folders), {transaction})
+        await thread.setLabels(Array.from(labels), {transaction})
+        return thread.save({transaction});
       },
+
       toJSON() {
         if (!(this.labels instanceof Array)) {
           throw new Error("Thread.toJSON called on a thread where labels were not eagerly loaded.")
