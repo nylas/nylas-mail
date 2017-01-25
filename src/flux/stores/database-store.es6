@@ -742,8 +742,8 @@ class DatabaseStore extends NylasStore {
   isIndexEmptyForAccount(accountId, modelKlass) {
     const modelTable = modelKlass.name
     const sql = (
-      `SELECT \`${modelTable}\`.\`id\` FROM \`${modelTable}\` WHERE 
-      \`${modelTable}\`.is_search_indexed = 1 AND 
+      `SELECT \`${modelTable}\`.\`id\` FROM \`${modelTable}\` WHERE
+      \`${modelTable}\`.is_search_indexed = 1 AND
       \`${modelTable}\`.\`account_id\` = ? LIMIT 1`
     );
     return this._query(sql, [accountId]).then(result => result.length === 0);
@@ -812,7 +812,7 @@ class DatabaseStore extends NylasStore {
 
   // opts can have a boolean isBeingUnpersisted value, which when true prevents
   // this function from re-persisting the model.
-  unindexModel(model, opts) {
+  unindexModel(model, opts = {}) {
     const searchTableName = `${model.constructor.name}Search`;
     const sql = (
       `DELETE FROM \`${searchTableName}\` WHERE \`${searchTableName}\`.\`content_id\` = ?`
