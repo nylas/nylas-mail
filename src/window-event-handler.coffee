@@ -35,6 +35,7 @@ class WindowEventHandler
       window.dispatchEvent(new Event('scroll-touch-end'))
 
     window.onbeforeunload = =>
+      if NylasEnv.inSpecMode() then return undefined
       # Don't hide the window here if we don't want the renderer process to be
       # throttled in case more work needs to be done before closing
 

@@ -33,6 +33,7 @@ class TimeOverride
   @enableSpies = =>
     window.advanceClock = @advanceClock
 
+    window.originalSetTimeout = window.setTimeout
     window.originalSetInterval = window.setInterval
     spyOn(window, "setTimeout").andCallFake @_fakeSetTimeout
     spyOn(window, "clearTimeout").andCallFake @_fakeClearTimeout
@@ -47,7 +48,7 @@ class TimeOverride
 
   @_setPromiseScheduler: =>
     @originalPromiseScheduler ?= Promise.setScheduler (fn) =>
-      fn()
+      window.originalSetTimeout(fn, 0)
 
   @disableSpies = =>
     window.advanceClock = null

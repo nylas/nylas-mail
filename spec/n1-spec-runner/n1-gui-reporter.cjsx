@@ -151,7 +151,7 @@ class N1GuiReporter extends React.Component
     </div>
 
   onReloadSpecs: =>
-    require('electron').ipcRenderer.send('call-webcontents-method', 'reload')
+    require('electron').remote.getCurrentWindow().reload()
 
 
 class SuiteResultView extends React.Component
