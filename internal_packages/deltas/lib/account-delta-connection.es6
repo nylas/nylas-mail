@@ -10,9 +10,9 @@ import DeltaStreamingInMemoryConnection from './delta-streaming-in-memory-connec
 import DeltaProcessor from './delta-processor'
 import ContactRankingsCache from './contact-rankings-cache';
 
-/**
- * This manages the syncing of N1 assets. We create one worker per email
- * account. We save the state of the worker in the database.
+/** This manages the syncing of N1 assets. We create one
+ * AccountDeltaConnection per email account. We save the state of the
+ * AccountDeltaConnection in the database.
  *
  * The `state` takes the following schema:
  * this._state = {
@@ -28,7 +28,7 @@ import ContactRankingsCache from './contact-rankings-cache';
  *
  * It can be null to indicate
  */
-export default class NylasSyncWorker {
+export default class AccountDeltaConnection {
 
   constructor(account) {
     this._state = { deltaCursors: {}, deltaStatus: {} }

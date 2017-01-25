@@ -1,8 +1,8 @@
 {
-  "name": "worker-sync",
+  "name": "deltas",
   "version": "0.1.0",
   "main": "./lib/main",
-  "description": "Mail sync classes for the worker window",
+  "description": "Delta connection handling in Nylas Mail",
   "license": "GPL-3.0",
   "private": true,
   "engines": {
