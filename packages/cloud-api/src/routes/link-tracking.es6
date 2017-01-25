@@ -61,7 +61,7 @@ module.exports = (server) => {
         },
       },
     },
-    handler: async (request, reply) => {
+    async handler(request, reply) {
       const {messageId, linkIdx} = request.params
       let {redirect} = request.query
       const {r} = request.query
@@ -84,7 +84,7 @@ module.exports = (server) => {
       try {
         await updateMetadata({metadata, recipient, linkIdx})
       } catch (err) {
-        request.logger.error(err)
+        request.logger.error(err, 'Error tracking link')
       } finally {
         reply.redirect(redirect)
       }

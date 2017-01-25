@@ -36,7 +36,7 @@ export async function apiAuthenticate(req, username, password, cb) {
     const identity = await request(`https://${identPath}/n1/user`, {
       auth: {username: n1IdentityToken, password: ''},
     })
-    global.Logger.info(identity, `Got ${identPath} identity response`)
+    global.Logger.info({identity}, `Got ${identPath} identity response`)
     return cb(null, true, {account, identity});
   } catch (err) {
     return cb(err, false, {})

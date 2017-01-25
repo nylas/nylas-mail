@@ -58,7 +58,7 @@ module.exports = (server) => {
         },
       },
     },
-    handler: async (request, reply) => {
+    async handler(request, reply) {
       const {messageId} = request.params
       const {r} = request.query
       const recipient = r ? Base64.decode(r) : null
@@ -74,7 +74,7 @@ module.exports = (server) => {
       try {
         await updateMetadata({metadata, recipient})
       } catch (err) {
-        request.logger.error(err)
+        request.logger.error(err, 'Error tracking open')
       } finally {
         reply.file(Path.join(__dirname, '../../static/images/transparent.gif'), {
           confine: false,

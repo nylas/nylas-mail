@@ -138,7 +138,7 @@ export default function registerAuthRoutes(server) {
         request.logger.info("Creating PendingAuthResponse")
         await GAuth.createPendingAuthResponse(account, settings, n1Key)
       } catch (err) {
-        request.logger.error("Error: %s, Source: %s", err.message, err.source)
+        request.logger.error({error: err, message: err.message, source: err.source}, 'Error refreshing gmail token')
         const res = {
           state_string: n1Key,
           google_client_id: GMAIL_CLIENT_ID,
