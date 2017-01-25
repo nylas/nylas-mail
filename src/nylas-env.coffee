@@ -202,6 +202,9 @@ class NylasEnvConstructor
     # the window starts loading.
     require('nylas-exports')
 
+    process.title = "Nylas Mail #{@getWindowType()}"
+    @onWindowPropsReceived(-> process.title = "Nylas Mail #{@getWindowType}")
+
   # This ties window.onerror and Promise.onPossiblyUnhandledRejection to
   # the publically callable `reportError` method. This will take care of
   # reporting errors if necessary and hooking into error handling
