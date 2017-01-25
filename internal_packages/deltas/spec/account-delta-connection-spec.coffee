@@ -1,9 +1,9 @@
 _ = require 'underscore'
 {NylasAPI, NylasAPIHelpers, NylasAPIRequest, Actions, DatabaseStore, DatabaseTransaction, Account, Thread} = require 'nylas-exports'
 DeltaStreamingConnection = require('../lib/delta-streaming-connection').default
-NylasSyncWorker = require('../lib/nylas-sync-worker').default
+AccountDeltaConnection = require('../lib/account-delta-connection').default
 
-xdescribe "NylasSyncWorker", ->
+xdescribe "AccountDeltaConnection", ->
   beforeEach ->
     @apiRequests = []
     spyOn(NylasAPIRequest.prototype, "run").andCallFake ->
@@ -14,7 +14,7 @@ xdescribe "NylasSyncWorker", ->
       @apiRequests.push({account, model:'threads', params, requestOptions})
     @localSyncCursorStub = undefined
     @n1CloudCursorStub = undefined
-    # spyOn(NylasSyncWorker.prototype, '_fetchMetadata').andReturn(Promise.resolve())
+    # spyOn(AccountDeltaConnection.prototype, '_fetchMetadata').andReturn(Promise.resolve())
     spyOn(DatabaseTransaction.prototype, 'persistJSONBlob').andReturn(Promise.resolve())
     spyOn(DatabaseStore, 'findJSONBlob').andCallFake (key) =>
       if key is "NylasSyncWorker:#{TEST_ACCOUNT_ID}"
@@ -39,7 +39,7 @@ xdescribe "NylasSyncWorker", ->
 
     spyOn(DeltaStreamingConnection.prototype, 'start')
     @account = new Account(clientId: TEST_ACCOUNT_CLIENT_ID, serverId: TEST_ACCOUNT_ID, organizationUnit: 'label')
-    @worker = new NylasSyncWorker(@account)
+    @worker = new AccountDeltaConnection(@account)
     @worker.loadStateFromDatabase()
     advanceClock()
     @worker.start()
@@ -48,7 +48,7 @@ xdescribe "NylasSyncWorker", ->
     advanceClock()
 
   it "should reset `busy` to false when reading state from disk", ->
-    @worker = new NylasSyncWorker(@account)
+    @worker = new AccountDeltaConnection(@account)
     spyOn(@worker, '_resume')
     @worker.loadStateFromDatabase()
     advanceClock()
@@ -148,7 +148,7 @@ xdescribe "NylasSyncWorker", ->
       @n1CloudCursorStub = undefined
 
       # no cursor present
-      worker = new NylasSyncWorker(@account)
+      worker = new AccountDeltaConnection(@account)
       deltaStreams = worker._deltaStreams
       expect(deltaStreams.localSync.hasCursor()).toBe(false)
       expect(deltaStreams.n1Cloud.hasCursor()).toBe(false)
@@ -161,7 +161,7 @@ xdescribe "NylasSyncWorker", ->
       @localSyncCursorStub = "new-school"
       @n1CloudCursorStub = 123
 
-      worker = new NylasSyncWorker(@account)
+      worker = new AccountDeltaConnection(@account)
       deltaStreams = worker._deltaStreams
       expect(deltaStreams.localSync.hasCursor()).toBe(false)
       expect(deltaStreams.n1Cloud.hasCursor()).toBe(false)
@@ -174,7 +174,7 @@ xdescribe "NylasSyncWorker", ->
 
     it "should set the cursor to the last cursor after receiving deltas", ->
       spyOn(DeltaStreamingConnection.prototype, 'latestCursor').andReturn Promise.resolve()
-      worker = new NylasSyncWorker(@account)
+      worker = new AccountDeltaConnection(@account)
       advanceClock()
       deltaStreams = worker._deltaStreams
       deltas = [{cursor: '1'}, {cursor: '2'}]
@@ -341,7 +341,7 @@ xdescribe "NylasSyncWorker", ->
 
     describe "successfully, with models", ->
       it "should start out by requesting a small number of items", ->
-        expect(@request.params.limit).toBe NylasSyncWorker.INITIAL_PAGE_SIZE
+        expect(@request.params.limit).toBe AccountDeltaConnection.INITIAL_PAGE_SIZE
 
       it "should request the next page", ->
         pageSize = @request.params.limit
@@ -362,13 +362,13 @@ xdescribe "NylasSyncWorker", ->
         expect(@apiRequests[0].params.limit).toEqual pageSize * 1.5,
 
       it "never requests more then MAX_PAGE_SIZE", ->
-        pageSize = @request.params.limit = NylasSyncWorker.MAX_PAGE_SIZE
+        pageSize = @request.params.limit = AccountDeltaConnection.MAX_PAGE_SIZE
         models = []
         models.push(new Thread) for i in [0..(pageSize-1)]
         @request.requestOptions.success(models)
         advanceClock(2000); advanceClock()
         expect(@apiRequests.length).toBe(1)
-        expect(@apiRequests[0].params.limit).toEqual NylasSyncWorker.MAX_PAGE_SIZE
+        expect(@apiRequests[0].params.limit).toEqual AccountDeltaConnection.MAX_PAGE_SIZE
 
       it "should update the fetched count on the collection", ->
         expect(@worker._state.threads.fetched).toEqual(0)

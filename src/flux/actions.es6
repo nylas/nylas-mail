@@ -560,7 +560,7 @@ class Actions {
 
   static notifyPluginsChanged = ActionScopeGlobal;
 
-  static refreshAllSyncWorkers = ActionScopeGlobal;
+  static refreshAllDeltaConnections = ActionScopeGlobal;
 
   static expandInitialSyncState = ActionScopeWindow;
 

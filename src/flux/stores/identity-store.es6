@@ -84,7 +84,7 @@ class IdentityStore extends NylasStore {
   refreshAccounts = () => {
     const accountIds = AccountStore.accounts().map((a) => a.id);
     AccountStore.refreshHealthOfAccounts(accountIds);
-    Actions.refreshAllSyncWorkers()
+    Actions.refreshAllDeltaConnections()
     this.trigger();
   }
 
