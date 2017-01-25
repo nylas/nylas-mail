@@ -1,5 +1,16 @@
 # Nylas Mail Changelog
 
+### 1.0.14 (1/25/17)
+
+- Features:
+
+  + Improved spellchecker
+
+- Fixes:
+
+  + Correctly update attributes like starred and unread when syncing folders.
+    Marking as read or starred will no longer bounce back.
+
 ### 1.0.13 (1/25/17)
 
 - Fixes:
