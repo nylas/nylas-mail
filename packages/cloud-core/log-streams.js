@@ -1,14 +1,4 @@
-const os = require('os');
-const createCWStream = require('bunyan-cloudwatch')
 const PrettyStream = require('bunyan-prettystream')
-
-const cloudwatchConfig = (name, env) => ({
-  logGroupName: `k2-${env}`,
-  logStreamName: `${name}-${env}-${os.hostname()}`,
-  cloudWatchLogsOptions: {
-    region: 'us-east-1',
-  },
-})
 
 const stdoutStream = {
   level: 'info',
@@ -45,11 +35,6 @@ const getLogStreams = (name, env) => {
     default: {
       return [
         stdoutStream,
-        {
-          type: 'raw',
-          reemitErrorEvents: true,
-          stream: createCWStream(cloudwatchConfig(name, env)),
-        },
       ]
     }
   }

@@ -5,7 +5,6 @@
   "main": "index.js",
   "dependencies": {
     "bunyan": "1.8.0",
-    "bunyan-cloudwatch": "2.0.0",
     "bunyan-prettystream": "github:emorikawa/node-bunyan-prettystream",
     "isomorphic-core": "0.x.x",
     "mysql": "2.12.0",
