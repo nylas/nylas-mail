@@ -29,6 +29,13 @@ class IMAPConnectionEndedError extends NylasError {
 }
 
 /**
+ * Certificate validation failures may correct themselves over long spans
+ * of time, but not over the short spans of time in which it'd make sense
+ * for us to retry.
+ */
+class IMAPCertificateError extends NylasError { }
+
+/**
  * IMAPErrors may come from:
  *
  * 1. Underlying IMAP provider (Fastmail, Yahoo, etc)
@@ -75,7 +82,12 @@ function convertImapError(imapError) {
     case "timeout":
       error = new IMAPConnectionTimeoutError(imapError); break;
     case "socket":
-      error = new IMAPSocketError(imapError); break;
+      if (imapError.code === "UNABLE_TO_VERIFY_LEAF_SIGNATURE") {
+        error = new IMAPCertificateError(imapError);
+      } else {
+        error = new IMAPSocketError(imapError);
+      }
+      break;
     case "protocol":
       error = new IMAPProtocolError(imapError); break;
     case "authentication":
@@ -100,4 +112,5 @@ module.exports = {
   IMAPTransientAuthenticationError,
   IMAPConnectionNotReadyError,
   IMAPConnectionEndedError,
+  IMAPCertificateError,
 };

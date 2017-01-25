@@ -33,6 +33,7 @@ const USER_ERRORS = {
   AUTH_500: "Please contact support@nylas.com. An unforeseen error has occurred.",
   IMAP_AUTH: "Incorrect username or password",
   IMAP_RETRY: "We were unable to reach your mail provider. Please try again.",
+  IMAP_CERT: "We couldn't make a secure connection to your mail provider. Please contact support@nylas.com.",
 }
 
 const SUPPORTED_PROVIDERS = new Set(
@@ -145,6 +146,11 @@ module.exports = {
         if (err instanceof IMAPErrors.IMAPAuthenticationError) {
           global.Logger.error({err}, 'Encountered authentication error while attempting to authenticate')
           reply({message: USER_ERRORS.IMAP_AUTH, type: "api_error"}).code(401);
+          return
+        }
+        if (err instanceof IMAPErrors.IMAPCertificateError) {
+          global.Logger.error({err}, 'Encountered certificate error while attempting to authenticate')
+          reply({message: USER_ERRORS.IMAP_CERT, type: "api_error"}).code(401);
           return
         }
         if (err instanceof IMAPErrors.RetryableError) {
