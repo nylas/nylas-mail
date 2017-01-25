@@ -261,8 +261,13 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
     // because we want to exclude drafts moved to the trash from the drafts view
     // see https://github.com/nylas/cloud-core/commit/1433921a166ddcba7c269158d65febb7928767d8
     // & associated phabricator bug https://phab.nylas.com/T5696
-    isDraft: (attributes.flags.includes('\\Draft') || parsedHeaders['x-gm-labels'].includes('\\Draft'))
-              && ['drafts', 'all'].includes(folder.role),
+    isDraft: (
+      ['drafts', 'all'].includes(folder.role) &&
+      (
+        attributes.flags.includes('\\Draft') ||
+        (parsedHeaders['x-gm-labels'] || []).includes('\\Draft')
+      )
+    ),
     // We prefer the date from the message headers because the date is one of
     // the fields we use for generating unique message IDs, and the server
     // INTERNALDATE, `attributes.date`, may differ across accounts for the same
@@ -301,7 +306,7 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
 
   parsedMessage.folder = folder;
 
-  const xGmLabels = attributes['x-gm-labels']
+  const xGmLabels = parsedHeaders['x-gm-labels']
   if (xGmLabels) {
     parsedMessage.folderImapXGMLabels = JSON.stringify(xGmLabels)
     parsedMessage.labels = await Label.findXGMLabels(xGmLabels)
