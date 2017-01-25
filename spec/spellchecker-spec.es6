@@ -1,7 +1,7 @@
 /* eslint global-require: 0 */
 import {Spellchecker} from 'nylas-exports';
 
-xdescribe("Spellchecker", function spellcheckerTests() {
+describe("Spellchecker", function spellcheckerTests() {
   beforeEach(() => {
     Spellchecker.handler.switchLanguage('en-US'); // Start with US English
   });
@@ -15,20 +15,18 @@ xdescribe("Spellchecker", function spellcheckerTests() {
     // English shouldn't be first since we start out as English.
     {name: "English", code: "en", sentence: "This is a sentence with some words."},
   ].forEach(({name, code, sentence}) => {
-    it(`properly detects language when given a full sentence (${name})`, () => {
-      // Note, on Linux, calling provideHintText can result in a Hunspell dictionary
-      // being downloaded. Typically this is fast but it causes intermittent failures.
+    it(`properly detects language when given a full sentence (${name})`, async () => {
+      // Note, on Linux, calling provideHintText can result in a Hunspell
+      // dictionary being downloaded. Typically this is fast but it causes
+      // intermittent failures.
       if (process.env.TRAVIS && process.platform === 'linux') {
         expect(true).toEqual(true);
         return;
       }
 
-      waitsForPromise(() =>
-        Spellchecker.handler.provideHintText(sentence)
-      )
-      runs(() => {
-        expect(Spellchecker.handler.currentSpellcheckerLanguage.startsWith(code)).toEqual(true)
-      })
+      process.nextTick(() => advanceClock(20));
+      const lang = await Spellchecker.handler.detectLanguageForText(sentence);
+      expect(lang).toBe(code)
     });
   });
 
