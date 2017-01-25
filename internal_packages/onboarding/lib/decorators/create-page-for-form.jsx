@@ -55,6 +55,11 @@ const CreatePageForForm = (FormComponent) => {
       inputs[0].focus();
     }
 
+    _isValid() {
+      const {populated, errorFieldNames} = this.state
+      return errorFieldNames.length === 0 && populated
+    }
+
     onFieldChange = (event) => {
       const changes = {};
       if (event.target.type === 'checkbox') {
@@ -75,6 +80,7 @@ const CreatePageForForm = (FormComponent) => {
     }
 
     onFieldKeyPress = (event) => {
+      if (!this._isValid()) { return }
       if (['Enter', 'Return'].includes(event.key)) {
         this.onSubmit();
       }
@@ -130,7 +136,7 @@ const CreatePageForForm = (FormComponent) => {
     }
 
     _renderButton() {
-      const {accountInfo, submitting, errorFieldNames, populated} = this.state;
+      const {accountInfo, submitting} = this.state;
       const buttonLabel = FormComponent.submitLabel(accountInfo);
 
       // We're not on the last page.
@@ -143,7 +149,7 @@ const CreatePageForForm = (FormComponent) => {
         );
       }
 
-      if (errorFieldNames.length || !populated) {
+      if (!this._isValid()) {
         return (
           <button className="btn btn-large btn-gradient btn-disabled btn-add-account">{buttonLabel}</button>
         );
