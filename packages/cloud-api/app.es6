@@ -62,7 +62,11 @@ process.on('uncaughtException', onUnhandledError)
 process.on('unhandledRejection', onUnhandledError)
 
 const server = new Hapi.Server({
-  debug: { request: ['error'] },
+  // TODO disable Hapi's logging temporarily which doesn't output json and
+  // screws up our log's formatting.
+  // Turn it on when we figure out how to integrate hapi with bunyan, but for
+  // now, we have to manually log errors and anything relevant
+  debug: false,
   connections: {
     router: {
       stripTrailingSlash: true,
