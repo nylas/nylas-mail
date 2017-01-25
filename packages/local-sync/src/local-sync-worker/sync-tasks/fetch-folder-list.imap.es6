@@ -110,7 +110,7 @@ class FetchFolderListIMAP extends SyncTask {
         const role = this._roleByName(boxName);
         if (role) {
           category.role = role;
-          category.save();
+          await category.save();
         }
       }
       existing.add(category);

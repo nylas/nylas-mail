@@ -30,7 +30,7 @@ module.exports = {
       '\xeb\xb3\xb4\xeb\x82\xbc\xed\x8e\xb8\xec\xa7\x80\xed\x95\xa8',
       'elementos enviados', 'sent', 'sent items', 'sent messages',
       'inbox.papierkorb', 'odeslan\xc3\xa9', 'mail/sent-mail',
-      'ko\xc5\xa1', 'outbox', 'outbox', 'inbox.sentmail', 'gesendet',
+      'ko\xc5\xa1', 'inbox.sentmail', 'gesendet',
       'ko\xc5\xa1/sent items', 'gesendete elemente']),
     archive: new Set([
       'archive',
