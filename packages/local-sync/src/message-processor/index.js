@@ -26,6 +26,7 @@ class MessageProcessor {
     this._currentChunkStart = Date.now();
     this._isBatteryCharging = true;
     navigator.getBattery().then((battery) => {
+      this._isBatteryCharging = battery.charging;
       battery.addEventListener('chargingchange', () => {
         console.info('charge change', battery.charging);
         this._isBatteryCharging = battery.charging
