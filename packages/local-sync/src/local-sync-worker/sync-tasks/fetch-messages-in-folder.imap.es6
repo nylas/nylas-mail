@@ -522,7 +522,10 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     const remoteUIDAttributes = yield this._box.fetchUIDAttributes(`1:*`,
       {modifiers: {changedsince: highestmodseq}});
     const localMessageAttributes = yield this._db.Message.findAll({
-      where: {folderImapUID: _.compact(Object.keys(remoteUIDAttributes))},
+      where: {
+        folderId: this._folder.id,
+        folderImapUID: _.compact(Object.keys(remoteUIDAttributes)),
+      },
       attributes: MessageFlagAttributes,
     })
 
@@ -569,7 +572,10 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     const backScanAttrs = yield this._box.fetchUIDAttributes(backScanRange)
     const remoteUIDAttributes = Object.assign({}, backScanAttrs, recentAttrs)
     const localMessageAttributes = yield Message.findAll({
-      where: {folderImapUID: _.compact(Object.keys(remoteUIDAttributes))},
+      where: {
+        folderId: this._folder.id,
+        folderImapUID: _.compact(Object.keys(remoteUIDAttributes)),
+      },
       attributes: MessageFlagAttributes,
     })
 
