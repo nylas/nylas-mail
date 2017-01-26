@@ -18,6 +18,9 @@ var defaultOptions = require('../../static/babelrc.json')
 defaultOptions.presets = defaultOptions.presets.map((modulename) =>
   require.resolve(`babel-preset-${modulename}`)
 );
+defaultOptions.plugins = defaultOptions.plugins.map((modulename) =>
+  require.resolve(`babel-plugin-${modulename}`)
+);
 
 exports.shouldCompile = function (sourceCode, filePath) {
   return (filePath.endsWith('.es6') || filePath.endsWith('.jsx'))
