@@ -6,7 +6,7 @@ import {
   DatabaseStore,
 } from 'nylas-exports'
 
-const MAX_INDEX_SIZE = 30000
+const MAX_INDEX_SIZE = 100000
 const CHUNKS_PER_ACCOUNT = 10
 const INDEXING_WAIT = 1000
 const MESSAGE_BODY_LENGTH = 50000
