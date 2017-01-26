@@ -49,7 +49,7 @@ class MoveThreadToFolderIMAP extends SyncbackTask {
     // If IMAP succeeds, save the model updates
     await sequelize.transaction(async (transaction) => {
       await Promise.all(threadMessages.map(async (m) => {
-        await m.update({folderImapUID: null}, transaction)
+        await m.update({folderImapUID: null}, {transaction})
         await m.setFolder(targetFolder, {transaction})
       }))
       await thread.setFolders([targetFolder], {transaction})
