@@ -6,13 +6,17 @@ const PubsubConnector = require('./pubsub-connector');
 
 require('./database-extensions'); // Extends Sequelize on require
 
-const STORAGE_DIR = path.join(__dirname, '..', '..', 'storage');
-try {
-  if (!fs.existsSync(STORAGE_DIR)) {
-    fs.mkdirSync(STORAGE_DIR);
+// If we're running locally, create the sqlite directory if
+// it's not present.
+if (!process.env.DB_HOSTNAME) {
+  const STORAGE_DIR = path.join(__dirname, '..', '..', 'storage');
+  try {
+    if (!fs.existsSync(STORAGE_DIR)) {
+      fs.mkdirSync(STORAGE_DIR);
+    }
+  } catch (err) {
+    global.Logger.error(err, 'Error creating storage directory')
   }
-} catch (err) {
-  global.Logger.error(err, 'Error creating storage directory')
 }
 
 class DatabaseConnector {
