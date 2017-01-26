@@ -1,5 +1,16 @@
 # Nylas Mail Changelog
 
+### 1.0.15 (1/25/17)
+
+- Features:
+
+  + Improve CPU performance of idle windows
+
+- Fixes:
+
+  + Correctly detect initial battery status for throttling.
+  + Correctly allow auth for Custom IMAP accounts only #3185
+
 ### 1.0.14 (1/25/17)
 
 - Features:
@@ -10,6 +21,7 @@
 
   + Correctly update attributes like starred and unread when syncing folders.
     Marking as read or starred will no longer bounce back.
+  + Correctly detect new mail while syncing Gmail inbox.
 
 ### 1.0.13 (1/25/17)
 
