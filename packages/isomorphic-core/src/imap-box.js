@@ -1,6 +1,7 @@
 const _ = require('underscore');
 
 const {
+  RetryableError,
   IMAPConnectionNotReadyError,
 } = require('./imap-errors');
 
@@ -23,7 +24,7 @@ class IMAPBox {
           const openBox = obj._conn.getOpenBoxName()
           if (myBox !== openBox) {
             return () => {
-              throw new Error(`IMAPBox::${prop} - Mailbox is no longer selected on the IMAPConnection (${myBox} != ${openBox}).`);
+              throw new RetryableError(`IMAPBox::${prop} - Mailbox is no longer selected on the IMAPConnection (${myBox} != ${openBox}).`);
             }
           }
         }
