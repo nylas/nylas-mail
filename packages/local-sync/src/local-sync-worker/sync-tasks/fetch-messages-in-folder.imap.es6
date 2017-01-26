@@ -28,8 +28,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
   }
 
   _isFirstSync() {
-    return this._folder.syncState.minUID == null ||
-      (this._folder.syncState.fetchedmax == null && this._folder.syncState.fetchedmin == null);
+    return this._folder.syncState.minUID == null;
   }
 
   async _recoverFromUIDInvalidity() {
