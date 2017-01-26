@@ -1,5 +1,5 @@
 apps:
   - script   : n1_cloud_dist/cloud-workers/app.js
     name     : workers
-    instances: 0
+    instances: 1
     exec_mode: fork
