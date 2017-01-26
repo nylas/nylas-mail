@@ -14,7 +14,7 @@ apps:
       NODE_ENV: 'development'
       HONEY_DATASET: 'n1-cloud-staging'
       HONEY_WRITE_KEY: 'XXXXXXXXXXXXX'
-  - script   : packages/cloud-workers/app.js
+  - script   : packages/cloud-workers/app.es6
     interpreter : node_modules/.bin/babel-node
     watch    : ["packages"]
     name     : workers
