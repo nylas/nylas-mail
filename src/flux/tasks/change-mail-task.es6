@@ -196,13 +196,18 @@ export default class ChangeMailTask extends Task {
       this._ensureLocksRemoved();
       return Promise.resolve(Task.Status.Success);
     })
-    .catch(APIError, (err) => {
-      if (!NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
+    .catch((err) => {
+      if (err instanceof APIError && !NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
         return Promise.resolve(Task.Status.Retry);
       }
       this._isReverting = true;
-      return this.performLocal().then(() => {
+      return this.performLocal()
+      .then(() => {
         this._ensureLocksRemoved();
+        NylasEnv.showErrorDialog({
+          title: "Error",
+          message: `We were unable to apply the changes to your thread${this.threads.length > 1 ? 's' : ''}, please try again!\nIf the error persists, contact support@nylas.com with the error message.\n\nError message: ${err.message}`,
+        })
         return Promise.resolve([Task.Status.Failed, err]);
       });
     });
