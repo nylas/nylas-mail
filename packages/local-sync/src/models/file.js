@@ -33,8 +33,13 @@ module.exports = (sequelize, Sequelize) => {
           const folder = await message.getFolder()
           const imapBox = await connection.openBox(folder.name)
           const stream = await imapBox.fetchMessageStream(message.folderImapUID, {
-            bodies: this.partId ? [this.partId] : [],
-            struct: true,
+            fetchOptions: {
+              bodies: this.partId ? [this.partId] : [],
+              struct: true,
+            },
+            onFetchComplete() {
+              connection.end()
+            },
           })
           if (!stream) {
             throw new Error(`Unable to fetch binary data for File ${this.id}`)
