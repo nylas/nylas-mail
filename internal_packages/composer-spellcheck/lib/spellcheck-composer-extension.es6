@@ -3,7 +3,6 @@ import {DOMUtils, ComposerExtension, Spellchecker} from 'nylas-exports';
 
 const recycled = [];
 const MAX_MISPELLINGS = 10
-const provideHintText = _.debounce(Spellchecker.handler.provideHintText, 1000)
 
 function getSpellingNodeForText(text) {
   let node = recycled.pop();
@@ -139,18 +138,32 @@ function wrapMisspelledWords(rootNode) {
   });
 }
 
+let currentlyRunningSpellChecker = false;
+const runSpellChecker = _.debounce((rootNode) => {
+  currentlyRunningSpellChecker = true;
+  unwrapWords(rootNode);
+  Spellchecker.handler.provideHintText(rootNode.textContent).then(() => {
+    wrapMisspelledWords(rootNode)
+
+    // We defer here so that when the MutationObserver fires the
+    // SpellcheckComposerExtension.onContentChanged callback we will properly
+    // observe that we just ran the spellchecker and won't schedule another
+    // spellcheck pass (which would cause an infinite loop of spellchecking
+    // once every second)
+    _.defer(() => {
+      currentlyRunningSpellChecker = false;
+    });
+  })
+}, 1000)
+
 
 export default class SpellcheckComposerExtension extends ComposerExtension {
 
   static onContentChanged({editor}) {
     const {rootNode} = editor
-    unwrapWords(rootNode);
-    provideHintText(rootNode.textContent)
-    // This should technically be in a .then() clause of the promise returned by
-    // provideHintText(), but that doesn't work for some reason. provideHintText()
-    // currently runs fast enough, or wrapMisspelledWords() runs slow enough,
-    // that just running wrapMisspelledWords() immediately works as intended.
-    wrapMisspelledWords(rootNode)
+    if (!currentlyRunningSpellChecker) {
+      runSpellChecker(rootNode);
+    }
   }
 
   static onShowContextMenu({editor, menu}) {
