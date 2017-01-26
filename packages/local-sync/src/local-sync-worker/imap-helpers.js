@@ -12,6 +12,9 @@ const IMAPHelpers = {
   },
 
   async forEachFolderOfThread({db, imap, threadMessages, callback}) {
+    if (!threadMessages.every(m => m.folderImapUID != null)) {
+      throw new APIError('All messages in a thread require an IMAP uid to perform an action')
+    }
     const {Folder} = db
     const msgsByFolder = _.groupBy(threadMessages, 'folderId')
     const folderIds = Object.keys(msgsByFolder)
