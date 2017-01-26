@@ -9,7 +9,7 @@ const INDEX_VERSION = 1;
 class ContactSearchIndexer extends ModelSearchIndexer {
 
   get MaxIndexSize() {
-    return 5000;
+    return 100000;
   }
 
   get ModelClass() {
