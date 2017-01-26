@@ -121,6 +121,7 @@ async function setThreadingReferences(db, baseMessage) {
   // the sync loop)
   // We should clean this code, its duplicated from the message processor
   const thread = await baseMessage.getThread()
+  // TODO create thread for this message if it doesn't exist!
   if (thread) {
     const references = Array.from(new Set([
       ...baseMessage.references || [],
