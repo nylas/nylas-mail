@@ -9,6 +9,8 @@ module.exports = (grunt) => {
   // This allows all subsequent paths to the relative to the root of the repo
   grunt.config.init({
     'appDir': path.resolve('..'),
+    'classDocsOutputDir': './docs_src/classes',
+
     'outputDir': path.resolve('../dist'),
     'appJSON': grunt.file.readJSON('../package.json'),
     'source:coffeescript': [
@@ -44,6 +46,17 @@ module.exports = (grunt) => {
       '!internal_packages/**/node_modules/**/*.es',
       '!internal_packages/**/node_modules/**/*.jsx',
     ],
+
+    'gitbook': {
+      'development': {
+        'input': "./",
+        'title': "vue.js book",
+        'description': "This book is vue.js guide book.",
+        'github': "koba04/vuejs-book"
+      }
+    }
+
+
   });
 
   grunt.loadTasks('./tasks');
@@ -69,4 +82,7 @@ module.exports = (grunt) => {
   grunt.registerTask('build', ['setup-travis-keychain', 'packager']);
   grunt.registerTask('lint', ['eslint', 'lesslint', 'nylaslint', 'coffeelint', 'csslint']);
   grunt.registerTask('ci', ['build'].concat(postBuildSteps));
+
+  grunt.registerTask('docs', ['docs-build', 'docs-render']);
+
 }

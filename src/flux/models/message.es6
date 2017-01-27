@@ -11,7 +11,7 @@ import ModelWithMetadata from './model-with-metadata'
 import QuotedHTMLTransformer from '../../services/quoted-html-transformer'
 
 
-/**
+/*
 Public: The Message model represents a Message object served by the Nylas Platform API.
 For more information about Messages on the Nylas Platform, read the
 [Messages API Documentation](https://nylas.com/cloud/docs#messages)

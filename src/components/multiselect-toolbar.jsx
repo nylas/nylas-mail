@@ -3,7 +3,7 @@ import React, {Component, PropTypes} from 'react'
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
 
-/**
+/*
  * MultiselectToolbar renders a toolbar inside a horizontal bar and displays
  * a selection count and a button to clear the selection.
  *

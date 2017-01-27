@@ -19,12 +19,12 @@ const nameSuffixes = {};
   nameSuffixes[suffix] = true;
 });
 
-/**
+/*
 Public: The Contact model represents a Contact object served by the Nylas Platform API.
 For more information about Contacts on the Nylas Platform, read the
 [Contacts API Documentation](https://nylas.com/cloud/docs#contacts)
 
-// Attributes
+Attributes
 
 `name`: {AttributeString} The name of the contact. Queryable.
 

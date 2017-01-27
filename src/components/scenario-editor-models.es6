@@ -1,6 +1,6 @@
 import _ from 'underscore';
 
-class Comparator {
+export class Comparator {
   constructor(name, fn) {
     this.name = name;
     this.fn = fn;
@@ -24,7 +24,7 @@ const Types = {
   String: 'String',
 };
 
-const Comparators = {
+export const Comparators = {
   String: {
     contains: new Comparator('contains', ({actual, desired}) => {
       if (!actual || !desired) { return false; }
@@ -57,7 +57,7 @@ const Comparators = {
   },
 };
 
-class Template {
+export class Template {
   static Type = Types;
   static Comparator = Comparator;
   static Comparators = Comparators;
@@ -115,5 +115,3 @@ class Template {
     });
   }
 }
-
-export { Template, Comparator };

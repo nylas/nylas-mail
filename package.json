@@ -7,7 +7,7 @@
   "main": "./src/browser/main.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nylas/N1.git"
+    "url": "https://github.com/nylas/nylas-mail.git"
   },
   "bugs": {
     "url": "https://github.com/nylas/N1/issues"
@@ -37,6 +37,8 @@
     "emissary": "^1.3.1",
     "emoji-data": "^0.2.0",
     "enzyme": "^2.2.0",
+    "esdoc": "^0.5.2",
+    "esdoc-es7-plugin": "0.0.3",
     "event-kit": "^1.0.2",
     "fs-plus": "^2.3.2",
     "getmac": "1.x.x",
@@ -46,6 +48,7 @@
     "jasmine-json": "~0.0",
     "jasmine-react-helpers": "^0.2",
     "jasmine-tagged": "^1.1.2",
+    "jsx-transform": "^2.3.0",
     "juice": "^1.4",
     "kbpgp": "^2.0.52",
     "keytar": "3.0.0",
@@ -94,14 +97,36 @@
     "windows-shortcuts": "emorikawa/windows-shortcuts#b0a0fc7"
   },
   "devDependencies": {
-    "flow-bin": "0.33.0",
+    "babel-core": "^6.8.0",
     "babel-eslint": "7.1.0",
+    "babel-plugin-transform-class-properties": "^6.22.0",
+    "babel-plugin-transform-function-bind": "^6.22.0",
+    "babel-plugin-transform-react-jsx": "^6.22.0",
+    "babel-plugin-transform-react-jsx-source": "^6.22.0",
+    "babel-preset-react": "^6.22.0",
+    "babel-preset-stage-2": "^6.22.0",
+    "donna": "^1.0.15",
     "eslint": "3.10.1",
-    "eslint_d": "4.2.0",
     "eslint-config-airbnb": "13.0.0",
     "eslint-plugin-import": "2.2.0",
     "eslint-plugin-jsx-a11y": "2.2.3",
-    "eslint-plugin-react": "6.7.1"
+    "eslint-plugin-react": "6.7.1",
+    "eslint_d": "4.2.0",
+    "flow-bin": "0.33.0",
+    "gitbook": "^3.2.2",
+    "gitbook-cli": "^2.3.0",
+    "gitbook-core": "^4.0.0-alpha.1",
+    "gitbook-plugin-anchors": "^0.7.1",
+    "gitbook-plugin-editlink": "^1.0.2",
+    "gitbook-plugin-favicon": "0.0.2",
+    "gitbook-plugin-github": "^2.0.0",
+    "gitbook-plugin-infinitescroll": "^0.1.0",
+    "gitbook-plugin-theme-api": "^1.1.2",
+    "gitbook-plugin-theme-faq": "^1.2.1",
+    "grunt-gitbook": "^1.5.0",
+    "joanna": "0.0.8",
+    "meta-marked": "^0.4.2",
+    "tello": "^1.0.6"
   },
   "optionalDependencies": {
     "node-mac-notifier": "0.0.13"

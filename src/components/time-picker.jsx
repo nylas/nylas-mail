@@ -108,7 +108,7 @@ export default class TimePicker extends React.Component {
     }
   }
 
-  /**
+  /*
    * If you're going to punch only "2" into the time field, you probably
    * mean 2pm instead of 2am. The regex explicitly checks for only digits
    * (no meridiem indicators) and very basic use cases.

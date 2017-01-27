@@ -1,0 +1,38 @@
+{
+    "gitbook": "3.2.2",
+    "title": "Nylas Mail Plugin SDK",
+    "root": "./docs_src",
+
+    "plugins": [
+        "search",
+        "lunr",
+        "-fontsettings",
+        "-sharing",
+        "anchors",
+        "github",
+        "editlink",
+        "favicon"
+    ],
+
+    "pluginsConfig": {
+        "editlink": {
+          "base": "https://github.com/nylas/nylas-mail-docs/tree/master",
+          "label": "Edit This Page",
+          "multilingual": false
+        },
+        "github": {
+            "url": "https://github.com/nylas/nylas-mail-docs"
+        },
+        "favicon": {
+            "shortcut": "/img/favicon.png"
+        }
+    },
+
+  "links": {
+    "sharing": {
+      "facebook": false,
+      "twitter": false
+    }
+  }
+
+}

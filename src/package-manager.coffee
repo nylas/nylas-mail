@@ -16,7 +16,7 @@ APMWrapper = require './apm-wrapper'
 
 basePackagePaths = null
 
-# Extended: Package manager for coordinating the lifecycle of N1 packages.
+# Extended: Package manager for coordinating the lifecycle of Nylas Mail packages.
 #
 # An instance of this class is always available as the `NylasEnv.packages` global.
 #
@@ -32,7 +32,7 @@ basePackagePaths = null
 # Packages can be enabled/disabled via the `core.disabledPackages` config
 # settings and also by calling `enablePackage()/disablePackage()`.
 #
-# Section: N1
+# Section: NylasEnv
 module.exports =
 class PackageManager
   EmitterMixin.includeInto(this)

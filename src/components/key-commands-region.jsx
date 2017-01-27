@@ -3,7 +3,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import classNames from 'classnames'
 
-/**
+/*
 Public: Easily respond to keyboard shortcuts
 
 A keyboard shortcut has two parts to it:

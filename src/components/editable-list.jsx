@@ -9,37 +9,37 @@ import ScrollRegion from './scroll-region';
 import KeyCommandsRegion from './key-commands-region';
 import RetinaImg from './retina-img';
 
-/**
- * Renders a list of items and renders controls to add/edit/remove items.
- * It resembles OS X's default list component.
- * An item can be a React Component, a string or number.
- *
- * EditableList handles:
- * - Keyboard and mouse interactions to select an item
- * - Input to create a new item when the add button is clicked
- * - Callback to remove item when the remove button is clicked
- * - Double click to edit item, or use an edit button icon
- *
- * @param {object} props - props for EditableList
- * @param {string} props.className - CSS class to be applied to component
- * @param {array} props.items - Items to be rendered by the list
- * @param {function} props.itemContent - A function that returns a component
- * or string for each item. To be editable, itemContent must be a string.
- * If no function is provided, each value in `items` is coerced to a string.
- * @param {(string|object)} props.selected - The selected item. This prop is
- * optional unless uou want to control the selection externally.
- * @param {boolean} props.showEditIcon - Determines wether to show edit icon
- * button on selected items
- * @param {object} props.createInputProps - Props object to be passed on to
- * the create input element. However, keep in mind that these props can not
- * override the default props that EditableList will pass to the input.
- * @param {props.onCreateItem} props.onCreateItem
- * @param {props.onDeleteItem} props.onDeleteItem
- * @param {props.onSelectItem} props.onSelectItem
- * @param {props.onReorderItem} props.onReorderItem
- * @param {props.onItemEdited} props.onItemEdited
- * @param {props.onItemCreated} props.onItemCreated
- * @class EditableList
+/*
+Renders a list of items and renders controls to add/edit/remove items.
+It resembles OS X's default list component.
+An item can be a React Component, a string or number.
+
+EditableList handles:
+- Keyboard and mouse interactions to select an item
+- Input to create a new item when the add button is clicked
+- Callback to remove item when the remove button is clicked
+- Double click to edit item, or use an edit button icon
+
+@param {object} props - props for EditableList
+@param {string} props.className - CSS class to be applied to component
+@param {array} props.items - Items to be rendered by the list
+@param {function} props.itemContent - A function that returns a component
+or string for each item. To be editable, itemContent must be a string.
+If no function is provided, each value in `items` is coerced to a string.
+@param {(string|object)} props.selected - The selected item. This prop is
+optional unless uou want to control the selection externally.
+@param {boolean} props.showEditIcon - Determines wether to show edit icon
+button on selected items
+@param {object} props.createInputProps - Props object to be passed on to
+the create input element. However, keep in mind that these props can not
+override the default props that EditableList will pass to the input.
+@param {props.onCreateItem} props.onCreateItem
+@param {props.onDeleteItem} props.onDeleteItem
+@param {props.onSelectItem} props.onSelectItem
+@param {props.onReorderItem} props.onReorderItem
+@param {props.onItemEdited} props.onItemEdited
+@param {props.onItemCreated} props.onItemCreated
+@class EditableList
  */
 class EditableList extends Component {
   static displayName = 'EditableList';

@@ -2,7 +2,7 @@ import React from 'react'
 import {Utils} from 'nylas-exports'
 import CalendarEvent from './calendar-event'
 
-/**
+/*
  * Displays the all day events across the top bar of the week event view.
  *
  * Putting this in its own component dramatically improves performance so

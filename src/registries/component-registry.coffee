@@ -16,7 +16,6 @@ by Nylas packages. Components can use {InjectedComponent} and {InjectedComponent
 to dynamically render components registered with the ComponentRegistry.
 
 Section: Stores
-
 ###
 class ComponentRegistry
   @include: CoffeeHelpers.includeModule
