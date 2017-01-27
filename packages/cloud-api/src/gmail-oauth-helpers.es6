@@ -16,6 +16,7 @@ class GmailOAuthHelpers {
     return new Promise((resolve, reject) => {
       client.getToken(oAuthCode, (err, googleToken) => {
         if (err) {
+          global.Logger.error(err, 'Error exchanging oauth code')
           return reject(Boom.wrap(err, 400, "Error getting token from Google"))
         }
         client.setCredentials(googleToken);

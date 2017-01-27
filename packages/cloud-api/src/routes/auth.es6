@@ -121,7 +121,7 @@ export default function registerAuthRoutes(server) {
       },
     },
     async handler(request, reply) {
-      request.logger.info("Have Google OAuth Code. Exchanging for token")
+      request.logger.info('Have Google OAuth Code. Exchanging for token')
       const log = request.logger
       const code = request.query.code
       const n1Key = request.query.state
@@ -138,22 +138,32 @@ export default function registerAuthRoutes(server) {
         request.logger.info("Creating PendingAuthResponse")
         await GAuth.createPendingAuthResponse(account, settings, n1Key)
       } catch (err) {
-        request.logger.error({error: err, message: err.message, source: err.source}, 'Error refreshing gmail token')
         const res = {
           state_string: n1Key,
           google_client_id: GMAIL_CLIENT_ID,
           redirect_uri: GMAIL_REDIRECT_URL,
           error: err.message,
         }
+
+        // TODO make sure we are considering all possible errors
         if (error === 'access_denied') {
           res.try_again = true
           res.access_denied = true
+          request.logger.error({error: err, message: err.message, source: err.source}, 'Encountered access denied error while exchanging gmail oauth code for token')
         } else if (err instanceof IMAPErrors.IMAPAuthenticationError) {
           res.try_again = true
           res.imap_auth_error = true
+          request.logger.error({error: err, message: err.message, source: err.source}, 'Encountered imap auth error while exchanging gmail oauth code for token')
+        } else if (err instanceof IMAPErrors.IMAPAuthenticationTimeoutError || err instanceof IMAPErrors.IMAPConnectionTimeoutError) {
+          res.try_again = true
+          res.auth_timeout = true
+          request.logger.error({error: err, message: err.message, source: err.source}, 'Encountered imap timeout error while exchanging gmail oauth code for token')
         } else if (err.message.includes("invalid_grant")) {
           res.try_again = true
           res.invalid_grant = true
+          request.logger.error({error: err, message: err.message, source: err.source}, 'Encountered invalid grant error while exchanging gmail oauth code for token')
+        } else {
+          request.logger.error({error: err, message: err.message, source: err.source}, 'Encountered unknown error while exchanging gmail oauth code for token')
         }
 
         reply.view('gmail-auth-failure', res)
@@ -194,6 +204,7 @@ export default function registerAuthRoutes(server) {
         return reply(Boom.notFound())
       }
       if (!tokenData.response) {
+        request.logger.error("Error getting access token, malformed PendingAuthResponse")
         return reply(Boom.badImplementation("Malformed PendingAuthResponse", tokenData))
       }
       await tokenData.destroy()
@@ -211,7 +222,7 @@ export default function registerAuthRoutes(server) {
       oauthClient.setCredentials({ refresh_token: credentials.refresh_token });
       oauthClient.refreshAccessToken((err, tokens) => {
         if (err != null) {
-          request.logger.error(err);
+          request.logger.error(err, 'Error refreshing gmail access token.');
           reply('Backend error: could not refresh Gmail access token. Please try again.').code(400);
           return
         }
