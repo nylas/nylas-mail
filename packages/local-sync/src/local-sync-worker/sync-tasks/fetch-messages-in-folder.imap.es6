@@ -31,16 +31,23 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     return this._folder.syncState.minUID == null;
   }
 
-  async _recoverFromUIDInvalidity() {
+  async _recoverFromUIDInvalidity(boxUidvalidity) {
     // UID invalidity means the server has asked us to delete all the UIDs for
     // this folder and start from scratch. Instead of deleting all the messages,
-    // we just remove the category ID and UID. We may re-assign the same message
+    // we just remove the folder ID and UID. We may re-assign the same message
     // the same UID. Otherwise they're eventually garbage collected.
     const {Message} = this._db;
     await Message.update({
-      folderImapUID: null,
       folderId: null,
+      folderImapUID: null,
     }, {where: {folderId: this._folder.id}})
+
+    await this._folder.updateSyncState({
+      fetchedmax: null,
+      fetchedmin: null,
+      minUID: null,
+      uidvalidity: boxUidvalidity,
+    });
   }
 
   async _updateMessageAttributes(remoteUIDAttributes, localMessageAttributes) {
@@ -308,11 +315,12 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       throw new Error("Mailbox does not support persistentUIDs.");
     }
 
+    const boxUidvalidity = box.uidvalidity;
     const lastUIDValidity = this._folder.syncState.uidvalidity;
 
-    if (lastUIDValidity && (box.uidvalidity !== lastUIDValidity)) {
+    if (lastUIDValidity && (boxUidvalidity !== lastUIDValidity)) {
       console.log(`🔃  😵  📂 ${this._folder.name} - Recovering from UID invalidity`)
-      await this._recoverFromUIDInvalidity()
+      await this._recoverFromUIDInvalidity(boxUidvalidity)
     }
 
     return box;
@@ -596,8 +604,8 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     if (!this._folder.isSyncComplete()) {
       return true
     }
-    const {syncState} = this._folder
-    return boxStatus.uidnext > syncState.fetchedmax
+    const {syncState: {fetchedmax, uidvalidity}} = this._folder
+    return boxStatus.uidvalidity !== uidvalidity || boxStatus.uidnext > fetchedmax
   }
 
   _shouldFetchAttributes(boxStatus) {
