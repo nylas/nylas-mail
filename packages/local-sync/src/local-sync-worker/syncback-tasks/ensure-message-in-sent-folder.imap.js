@@ -1,5 +1,6 @@
 const {SendmailClient, Provider, Errors: {APIError}} = require('isomorphic-core')
 const SyncbackTask = require('./syncback-task')
+const SyncTaskFactory = require('../sync-task-factory');
 const {getReplyHeaders} = require('../../shared/message-factory')
 
 
@@ -29,10 +30,7 @@ async function deleteGmailSentMessages({db, imap, provider, headerMessageId}) {
 }
 
 async function saveSentMessage({db, account, logger, imap, provider, sentPerRecipient, baseMessage}) {
-  const {sequelize, Folder, Label} = db
-  const thread = await baseMessage.getThread({
-    include: [{model: Folder, as: 'folders'}, {model: Label, as: 'labels'}],
-  })
+  const {Folder, Label} = db
 
   // Case 1. If non gmail, save the message to the `sent` folder using IMAP
   // Only gmail creates a sent message for us, so if we are using any other provider
@@ -46,15 +44,15 @@ async function saveSentMessage({db, account, logger, imap, provider, sentPerReci
     const box = await imap.openBox(sentFolder.name);
     await box.append(rawMime, {flags: 'SEEN'});
 
-    // Finally, if IMAP succeeds, save the model updates
-    await sequelize.transaction(async (transaction) => {
-      await baseMessage.setFolder(sentFolder, {transaction})
-      await baseMessage.save({transaction})
-      baseMessage.folder = sentFolder
-      if (thread) {
-        await thread.updateFromMessages({messages: [baseMessage], transaction})
-      }
+    // If IMAP succeeds, fetch any new messages in the sent folder which
+    // should include the messages we just created there
+    // The sync operation will save the changes to the database.
+    // TODO add transaction
+    const syncOperation = SyncTaskFactory.create('FetchNewMessagesInFolder', {
+      account,
+      folder: sentFolder,
     })
+    await syncOperation.run(db, imap)
     return
   }
 
@@ -85,17 +83,15 @@ async function saveSentMessage({db, account, logger, imap, provider, sentPerReci
     await box.setLabels(uids[0], '\\Sent');
   }
 
-  // Finally, if IMAP succeeds, save the model updates
-  await sequelize.transaction(async (transaction) => {
-    await baseMessage.setFolder(allMailFolder, {transaction})
-    await baseMessage.setLabels([sentLabel], {transaction})
-    await baseMessage.save({transaction})
-    baseMessage.folder = allMailFolder
-    baseMessage.labels = [sentLabel]
-    if (thread) {
-      await thread.updateFromMessages({messages: [baseMessage], transaction})
-    }
+  // If IMAP succeeds, fetch any new messages in the sent folder which
+  // should include the messages we just created there
+  // The sync operation will save the changes to the database.
+  // TODO add transaction
+  const syncOperation = SyncTaskFactory.create('FetchNewMessagesInFolder', {
+    account,
+    folder: allMailFolder,
   })
+  await syncOperation.run(db, imap)
 }
 
 async function setThreadingReferences(db, baseMessage) {
@@ -115,43 +111,6 @@ async function setThreadingReferences(db, baseMessage) {
     const {inReplyTo, references} = getReplyHeaders(replyToMessage);
     baseMessage.inReplyTo = inReplyTo;
     baseMessage.references = references;
-  }
-  // TODO If the thread exists, let's also optimistically create any Reference
-  // objects (these will also be detected when the message gets detected in
-  // the sync loop)
-  // We should clean this code, its duplicated from the message processor
-  const thread = await baseMessage.getThread()
-  // TODO create thread for this message if it doesn't exist!
-  if (thread) {
-    const references = Array.from(new Set([
-      ...baseMessage.references || [],
-      baseMessage.headerMessageId,
-      baseMessage.inReplyTo,
-    ]))
-
-    let existingReferences = [];
-    if (references.length > 0) {
-      existingReferences = await Reference.findAll({
-        where: {
-          rfc2822MessageId: baseMessage.references,
-        },
-      });
-    }
-
-    const refByMessageId = {};
-    for (const ref of existingReferences) {
-      refByMessageId[ref.rfc2822MessageId] = ref;
-    }
-    for (const mid of baseMessage.references) {
-      if (!refByMessageId[mid]) {
-        refByMessageId[mid] = await Reference.create({rfc2822MessageId: mid, threadId: thread.id});
-      }
-    }
-
-    const referencesInstances = baseMessage.references.map(mid => refByMessageId[mid]);
-    await baseMessage.addReferences(referencesInstances);
-    baseMessage.referencesOrder = referencesInstances.map(ref => ref.id);
-    await thread.addReferences(referencesInstances);
   }
 }
 
