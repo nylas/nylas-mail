@@ -10,9 +10,10 @@
 - Fixes:
 
   + Nylas Mail plugins install properly
-  + Fix occasional archive & move tasks failing due to not having uids
+  + Fix undo and occasional archive & move tasks failing due to not having uids
   + Fix logging for auth
   + Properly clean up after file downloads
+  + Properly recover from IMAP uid invalidity
 
 ### 1.0.15 (1/25/17)
 
