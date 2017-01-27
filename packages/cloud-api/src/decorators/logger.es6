@@ -1,7 +1,7 @@
 export default function registerLoggerDecorator(server) {
   server.decorate('request', 'logger', (request) => {
     let logger = global.Logger;
-    const {account} = request.auth.credentials
+    const {account} = request.auth.credentials || {}
     if (request.auth.credentials) {
       logger = logger.forAccount(account)
     }
