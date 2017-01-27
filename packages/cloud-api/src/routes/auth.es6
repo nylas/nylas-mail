@@ -149,7 +149,7 @@ export default function registerAuthRoutes(server) {
         if (error === 'access_denied') {
           res.try_again = true
           res.access_denied = true
-          request.logger.error({error: err, message: err.message, source: err.source}, 'Encountered access denied error while exchanging gmail oauth code for token')
+          request.logger.error({error: err}, 'Encountered access denied error while exchanging gmail oauth code for token')
         } else if (err instanceof IMAPErrors.IMAPAuthenticationError) {
           res.try_again = true
           res.imap_auth_error = true
@@ -158,7 +158,7 @@ export default function registerAuthRoutes(server) {
           res.try_again = true
           res.auth_timeout = true
           request.logger.error({error: err, message: err.message, source: err.source}, 'Encountered imap timeout error while exchanging gmail oauth code for token')
-        } else if (err.message.includes("invalid_grant")) {
+        } else if ((err.message || '').includes("invalid_grant")) {
           res.try_again = true
           res.invalid_grant = true
           request.logger.error({error: err, message: err.message, source: err.source}, 'Encountered invalid grant error while exchanging gmail oauth code for token')
