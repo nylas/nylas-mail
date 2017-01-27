@@ -1,5 +1,11 @@
 # Nylas Mail Changelog
 
+### 1.0.17 (1/27/17)
+
+- Fixes:
+
+  + Fix send and archive: Can now archive after sending without errors
+
 ### 1.0.16 (1/27/17)
 
 - Performance:
