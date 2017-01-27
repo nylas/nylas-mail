@@ -1,5 +1,19 @@
 # Nylas Mail Changelog
 
+### 1.0.16 (1/27/17)
+
+- Performance:
+
+  + Improved typing performance in the composer, especially with
+    misspelled words
+
+- Fixes:
+
+  + Nylas Mail plugins install properly
+  + Fix occasional archive & move tasks failing due to not having uids
+  + Fix logging for auth
+  + Properly clean up after file downloads
+
 ### 1.0.15 (1/25/17)
 
 - Features:
