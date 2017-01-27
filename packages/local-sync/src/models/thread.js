@@ -99,9 +99,6 @@ module.exports = (sequelize, Sequelize) => {
       },
 
       async updateFromMessages({db, messages, recompute, transaction} = {}) {
-        if (!(messages instanceof Array)) {
-          throw new Error('Thread.updateFromMessages() expected an array of messages')
-        }
         if (!(this.folders instanceof Array) || !(this.labels instanceof Array)) {
           throw new Error('Thread.updateFromMessages() expected .folders and .labels to be inflated arrays')
         }
@@ -131,6 +128,12 @@ module.exports = (sequelize, Sequelize) => {
           this.firstMessageDate = null;
           this.lastMessageSentDate = null;
           this.lastMessageReceivedDate = null;
+        } else {
+          // If we're not recomputing from all of the thread's messages, we need
+          // to know which messages to update from
+          if (!(_messages instanceof Array)) {
+            throw new Error('Thread.updateFromMessages() expected an array of messages')
+          }
         }
 
         const folderIds = new Set(this.folders.map(f => f.id));
