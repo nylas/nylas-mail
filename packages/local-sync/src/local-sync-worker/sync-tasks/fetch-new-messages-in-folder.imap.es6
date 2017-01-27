@@ -17,15 +17,23 @@ class FetchNewMessagesInFolderIMAP extends FetchMessagesInFolderIMAP {
     console.log(`🔜 📂  🆕  Looking for new messages in ${this._folder.name}`)
     this._db = db;
     this._imap = imap;
+    const {syncState: {fetchedmax}} = this._folder
 
-    this._box = await this._imap.openBox(this._folder.name)
+    if (!fetchedmax) {
+      // Without a fetchedmax, can't tell what's new!
+      // If we haven't fetched anything on this folder, let's run a normal fetch
+      // operation
+      yield super.runTask(db, imap)
+      return
+    }
 
-    if (this._shouldFetchMessages(this._box)) {
+    const latestBoxStatus = yield this._imap.getLatestBoxStatus(this._folder.name)
+    if (latestBoxStatus.uidnext > fetchedmax) {
+      this._box = await this._imap.openBox(this._folder.name)
       const boxUidnext = this._box.uidnext
-      const {syncState: {fetchedmax}} = this._folder
       yield this._fetchAndProcessMessages({min: fetchedmax, max: boxUidnext});
     } else {
-      console.log(`🔚 📂 ${this._folder.name} has no new messages - skipping fetch messages`)
+      console.log(`🔚 📂  🆕$ {this._folder.name} has no new messages - skipping fetch messages`)
     }
     console.log(`🔚 📂 ${this._folder.name} done`)
   }
