@@ -1,4 +1,3 @@
-import Boom from 'boom'
 import google from 'googleapis';
 import {Provider, IMAPConnection} from 'isomorphic-core'
 import {DatabaseConnector} from 'cloud-core';
@@ -16,8 +15,7 @@ class GmailOAuthHelpers {
     return new Promise((resolve, reject) => {
       client.getToken(oAuthCode, (err, googleToken) => {
         if (err) {
-          global.Logger.error(err, 'Error exchanging oauth code')
-          return reject(Boom.wrap(err, 400, "Error getting token from Google"))
+          return reject(err)
         }
         client.setCredentials(googleToken);
         return resolve(googleToken)
@@ -30,8 +28,7 @@ class GmailOAuthHelpers {
       google.oauth2({version: 'v2', auth: client})
       .userinfo.get((err, googleProfile) => {
         if (err) {
-          global.Logger.error(err, 'Error getting gmail user info')
-          return reject(Boom.wrap(err, 400, "Error getting user profile from Google"))
+          return reject(err)
         }
         return resolve(googleProfile)
       })

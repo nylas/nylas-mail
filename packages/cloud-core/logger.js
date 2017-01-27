@@ -17,6 +17,7 @@ function createLogger(name, env = NODE_ENV) {
         const childLog = logger.child({
           account_id: account.id,
           account_email: account.emailAddress,
+          account_provider: account.provider,
           n1_id: account.n1IdentityToken || 'Not available',
         })
         childLogs.set(account.id, childLog)

@@ -143,13 +143,21 @@ module.exports = {
         return
       })
       .catch((err) => {
+        const logger = request.logger.child({
+          account_name: name,
+          account_provider: provider,
+          account_email: email,
+          connection_settings: connectionSettings,
+          error: err,
+          error_message: err.message,
+        })
         if (err instanceof IMAPErrors.IMAPAuthenticationError) {
-          global.Logger.error({err}, 'Encountered authentication error while attempting to authenticate')
+          logger.error({err}, 'Encountered authentication error while attempting to authenticate')
           reply({message: USER_ERRORS.IMAP_AUTH, type: "api_error"}).code(401);
           return
         }
         if (err instanceof IMAPErrors.IMAPCertificateError) {
-          global.Logger.error({err}, 'Encountered certificate error while attempting to authenticate')
+          logger.error({err}, 'Encountered certificate error while attempting to authenticate')
           reply({message: USER_ERRORS.IMAP_CERT, type: "api_error"}).code(401);
           return
         }
@@ -161,11 +169,11 @@ module.exports = {
             }, 100)
             return
           }
-          global.Logger.error({err}, 'Encountered retryable error while attempting to authenticate')
+          logger.error({err}, 'Encountered retryable error while attempting to authenticate')
           reply({message: USER_ERRORS.IMAP_RETRY, type: "api_error"}).code(408);
           return
         }
-        global.Logger.error({err}, 'Encountered unknown error while attempting to authenticate')
+        logger.error({err}, 'Encountered unknown error while attempting to authenticate')
         reply({message: USER_ERRORS.AUTH_500, type: "api_error"}).code(500);
         return
       })

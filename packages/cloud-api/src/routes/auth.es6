@@ -122,19 +122,24 @@ export default function registerAuthRoutes(server) {
     },
     async handler(request, reply) {
       request.logger.info('Have Google OAuth Code. Exchanging for token')
-      const log = request.logger
       const code = request.query.code
       const n1Key = request.query.state
       const error = request.query.error // Google sometimes passes the error back here
+      let profile = {};
+      let account = {};
 
       try {
         const client = GAuth.newOAuthClient()
         const tok = await GAuth.exchangeCodeForGoogleToken(client, code);
-        const profile = await GAuth.fetchGoogleProfile(client);
+
+        profile = await GAuth.fetchGoogleProfile(client);
         const settings = GAuth.imapSettings(tok, profile)
+
         request.logger.info("Resolving IMAP connection")
-        settings.resolved = await GAuth.resolveIMAPSettings(settings, log)
-        const account = await GAuth.createCloudAccount(settings, profile)
+
+        settings.resolved = await GAuth.resolveIMAPSettings(settings, request.logger)
+        account = await GAuth.createCloudAccount(settings, profile)
+
         request.logger.info("Creating PendingAuthResponse")
         await GAuth.createPendingAuthResponse(account, settings, n1Key)
       } catch (err) {
@@ -144,26 +149,33 @@ export default function registerAuthRoutes(server) {
           redirect_uri: GMAIL_REDIRECT_URL,
           error: err.message,
         }
+        const logger = request.logger.child({
+          account_provider: 'gmail',
+          account_email: account.emailAddress || profile.email,
+          error: err,
+          error_message: err.message,
+          error_source: err.source,
+        })
 
         // TODO make sure we are considering all possible errors
         if (error === 'access_denied') {
           res.try_again = true
           res.access_denied = true
-          request.logger.error({error: err}, 'Encountered access denied error while exchanging gmail oauth code for token')
+          logger.error('Encountered access denied error while exchanging gmail oauth code for token')
         } else if (err instanceof IMAPErrors.IMAPAuthenticationError) {
           res.try_again = true
           res.imap_auth_error = true
-          request.logger.error({error: err, message: err.message, source: err.source}, 'Encountered imap auth error while exchanging gmail oauth code for token')
+          logger.error('Encountered imap auth error while exchanging gmail oauth code for token')
         } else if (err instanceof IMAPErrors.IMAPAuthenticationTimeoutError || err instanceof IMAPErrors.IMAPConnectionTimeoutError) {
           res.try_again = true
           res.auth_timeout = true
-          request.logger.error({error: err, message: err.message, source: err.source}, 'Encountered imap timeout error while exchanging gmail oauth code for token')
+          logger.error('Encountered imap timeout error while exchanging gmail oauth code for token')
         } else if ((err.message || '').includes("invalid_grant")) {
           res.try_again = true
           res.invalid_grant = true
-          request.logger.error({error: err, message: err.message, source: err.source}, 'Encountered invalid grant error while exchanging gmail oauth code for token')
+          logger.error('Encountered invalid grant error while exchanging gmail oauth code for token')
         } else {
-          request.logger.error({error: err, message: err.message, source: err.source}, 'Encountered unknown error while exchanging gmail oauth code for token')
+          logger.error('Encountered unknown error while exchanging gmail oauth code for token')
         }
 
         reply.view('gmail-auth-failure', res)
