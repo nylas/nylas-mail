@@ -30,6 +30,7 @@ class GmailOAuthHelpers {
       google.oauth2({version: 'v2', auth: client})
       .userinfo.get((err, googleProfile) => {
         if (err) {
+          global.Logger.error(err, 'Error getting gmail user info')
           return reject(Boom.wrap(err, 400, "Error getting user profile from Google"))
         }
         return resolve(googleProfile)
