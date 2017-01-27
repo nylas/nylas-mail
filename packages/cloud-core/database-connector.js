@@ -8,8 +8,9 @@ require('./database-extensions'); // Extends Sequelize on require
 
 // If we're running locally, create the sqlite directory if
 // it's not present.
+let STORAGE_DIR;
 if (!process.env.DB_HOSTNAME) {
-  const STORAGE_DIR = path.join(__dirname, '..', '..', 'storage');
+  STORAGE_DIR = path.join(__dirname, '..', '..', 'storage');
   try {
     if (!fs.existsSync(STORAGE_DIR)) {
       fs.mkdirSync(STORAGE_DIR);
