@@ -5,6 +5,8 @@
 - Fixes:
 
   + Fix send and archive: Can now archive after sending without errors
+  + Local search now includes more thread results
+  + Contact autocomplete in composer participant fields now includes more results
 
 ### 1.0.16 (1/27/17)
 
