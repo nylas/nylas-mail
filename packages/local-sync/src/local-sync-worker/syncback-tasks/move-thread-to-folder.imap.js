@@ -1,6 +1,7 @@
 const {Errors: {APIError}} = require('isomorphic-core')
 const SyncbackTask = require('./syncback-task')
 const IMAPHelpers = require('../imap-helpers')
+const SyncTaskFactory = require('../sync-task-factory');
 
 class MoveThreadToFolderIMAP extends SyncbackTask {
   description() {
@@ -12,7 +13,7 @@ class MoveThreadToFolderIMAP extends SyncbackTask {
   }
 
   async run(db, imap) {
-    const {sequelize, Thread, Folder} = db
+    const {Thread, Folder} = db
     const threadId = this.syncbackRequestObject().props.threadId
     const targetFolderId = this.syncbackRequestObject().props.folderId
     if (!threadId) {
@@ -46,14 +47,15 @@ class MoveThreadToFolderIMAP extends SyncbackTask {
       },
     })
 
-    // If IMAP succeeds, save the model updates
-    await sequelize.transaction(async (transaction) => {
-      await Promise.all(threadMessages.map(async (m) => {
-        await m.update({folderImapUID: null}, {transaction})
-        await m.setFolder(targetFolder, {transaction})
-      }))
-      await thread.setFolders([targetFolder], {transaction})
+    // If IMAP succeeds, fetch any new messages in the target folder which
+    // should include the messages we just moved there
+    // The sync operation will save the changes to the database.
+    // TODO add transaction
+    const syncOperation = SyncTaskFactory.create('FetchNewMessagesInFolder', {
+      account: this._account,
+      folder: targetFolder,
     })
+    await syncOperation.run(db, imap)
   }
 }
 module.exports = MoveThreadToFolderIMAP
