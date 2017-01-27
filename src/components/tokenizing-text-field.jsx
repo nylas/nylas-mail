@@ -214,8 +214,7 @@ class Token extends React.Component {
 }
 
 /*
-The TokenizingTextField component displays a list of options as you type
-and converts them into stylable tokens.
+Public: The TokenizingTextField component displays a list of options as you type and converts them into stylable tokens.
 
 It wraps the Menu component, which takes care of the typing and keyboard
 interactions.

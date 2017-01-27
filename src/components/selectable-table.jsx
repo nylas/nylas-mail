@@ -8,72 +8,72 @@ import ListensToMovementKeys from './decorators/listens-to-movement-keys';
 import Table, {TableRow, TableCell} from './table/table'
 
 
-/**
- * SelectableTable component which renders a {Table} that supports selecting
- * cells and rows.
- *
- * The required props for SelectableTable are `tableDataSource`, `selection`,
- * `onSetSelection`, `onShiftSelection`, which are of the form:
- *
- * ```
- * const tableDataSource = new TableDataSource()
- * tableDataSource.rows()
- * // returns
- * // [
- * //   [1, 2],
- * //   [3, 4],
- * // ]
- *
- * const selection = {rowIdx: 1, colIdx: 0, key: 'Enter'}
- *
- * const onSetSelection = ({rowIdx, colIdx, key}) => { ... }
- *
- * const onShiftSelection = ({row, col, key}) => { ... }
- * ```
- *
- * SelectableTable is a controlled component, which means that it does not
- * manage any internal state. In order for the selection to be updated, the
- * functions `onShiftSelection` and `onSetSelection` must be provided as props,
- * and must eventually trigger a re render of this Component with a new set of
- * props.
- *
- * The SelectableTable Component can be extended via passing custom `RowRenderer` and
- * `CellRenderer` components as props, in the same manner that the {Table}
- * component can be extended. See the docs for {Table} for more details
- *
- * SelectableTable takes the exact same set of props as {Table}, plus additional
- * props documented below. For {Table} props, see the docs for {Table}
- *
- * @param {object} props - props for SelectableTable
- * @param {string} props.className - CSS class to be applied to component
- * @param {object} props.selection - Object representing selection indices, plus
- * the key with which the selection was established. It * is of the form {row,
- * col, key}
- * @param {props.onSetSelection} props.onSetSelection
- * @param {props.onShiftSelection} props.onSetSelection
- * @class SelectableTable
- */
+/*
+SelectableTable component which renders a {Table} that supports selecting
+cells and rows.
 
-/**
- * This function will be called when the selection needs to be set to the
- * selection passed in as a parameter
- * @callback props.onSetSelection
- * @param {object} selection - selection object of the form {rowIdx, colIdx, key}
- * @param {number} selection.rowIdx - rowIdx for selection
- * @param {number} selection.colIdx - colIds for selection
- */
+The required props for SelectableTable are `tableDataSource`, `selection`,
+`onSetSelection`, `onShiftSelection`, which are of the form:
 
-/**
- * This function will be called when the selection row and col indices need to
- * be shifted by a specific delta
- * @callback props.onShiftSelection
- * @param {object} selectionDeltas - selection object of the form {row, col, key}
- * @param {number} selectionDeltas.row - number representing by how many rows to
- * move the selection. E.g. 1, -2.
- * @param {number} selectionDeltas.col - number representing by how many columns to
- * move the selection. E.g. 1, -2.
- * @param {string} selectionDeltas.key - string that represents the key used to
- * shift the selection
+```
+const tableDataSource = new TableDataSource()
+tableDataSource.rows()
+// returns
+// [
+//   [1, 2],
+//   [3, 4],
+// ]
+
+const selection = {rowIdx: 1, colIdx: 0, key: 'Enter'}
+
+const onSetSelection = ({rowIdx, colIdx, key}) => { ... }
+
+const onShiftSelection = ({row, col, key}) => { ... }
+```
+
+SelectableTable is a controlled component, which means that it does not
+manage any internal state. In order for the selection to be updated, the
+functions `onShiftSelection` and `onSetSelection` must be provided as props,
+and must eventually trigger a re render of this Component with a new set of
+props.
+
+The SelectableTable Component can be extended via passing custom `RowRenderer` and
+`CellRenderer` components as props, in the same manner that the {Table}
+component can be extended. See the docs for {Table} for more details
+
+SelectableTable takes the exact same set of props as {Table}, plus additional
+props documented below. For {Table} props, see the docs for {Table}
+
+@param {object} props - props for SelectableTable
+@param {string} props.className - CSS class to be applied to component
+@param {object} props.selection - Object representing selection indices, plus
+the key with which the selection was established. It * is of the form {row,
+col, key}
+@param {props.onSetSelection} props.onSetSelection
+@param {props.onShiftSelection} props.onSetSelection
+@class SelectableTable
+
+
+
+This function will be called when the selection needs to be set to the
+selection passed in as a parameter
+@callback props.onSetSelection
+@param {object} selection - selection object of the form {rowIdx, colIdx, key}
+@param {number} selection.rowIdx - rowIdx for selection
+@param {number} selection.colIdx - colIds for selection
+
+
+
+This function will be called when the selection row and col indices need to
+be shifted by a specific delta
+@callback props.onShiftSelection
+@param {object} selectionDeltas - selection object of the form {row, col, key}
+@param {number} selectionDeltas.row - number representing by how many rows to
+move the selection. E.g. 1, -2.
+@param {number} selectionDeltas.col - number representing by how many columns to
+move the selection. E.g. 1, -2.
+@param {string} selectionDeltas.key - string that represents the key used to
+shift the selection
  */
 export class SelectableTableCell extends Component {
 

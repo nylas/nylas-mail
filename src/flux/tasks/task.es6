@@ -297,10 +297,7 @@ export default class Task {
     return Promise.reject(exitError);
   }
 
-  // -----------------------------------------------------------------------
-  // -------------------------HELPER METHODS--------------------------------
-  // -----------------------------------------------------------------------
-
+  // HELPER METHODS
   validateRequiredFields = (fields = []) => {
     for (const field of fields) {
       if (!this[field]) {
@@ -323,10 +320,8 @@ export default class Task {
   }
 
 
-  // -----------------------------------------------------------------------
-  // -------------------------METHODS TO OBSERVE ---------------------------
-  // -----------------------------------------------------------------------
-
+  // METHODS TO OBSERVE
+  //
   // Public: **Required** | Override to perform local, optimistic updates.
   //
   // Most tasks will put code in here that updates the {DatabaseStore}

@@ -1,7 +1,7 @@
 import React from 'react';
 import RetinaImg from './retina-img';
 
-const LabelColorizer = {
+export const LabelColorizer = {
   color(label) {
     return `hsl(${label.hue()}, 50%, 34%)`;
   },
@@ -27,7 +27,7 @@ const LabelColorizer = {
   },
 };
 
-class MailLabel extends React.Component {
+export class MailLabel extends React.Component {
   static propTypes = {
     label: React.PropTypes.object.isRequired,
     onRemove: React.PropTypes.func,
@@ -71,5 +71,3 @@ class MailLabel extends React.Component {
     );
   }
 }
-
-export { MailLabel, LabelColorizer };

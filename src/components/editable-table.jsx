@@ -6,7 +6,7 @@ import RetinaImg from './retina-img'
 import SelectableTable, {SelectableTableCell} from './selectable-table'
 
 
-/**
+/*
  * EditableTable component which renders a {SelectableTable} that supports
  * editing cells, and adding new rows and columns
  *
@@ -42,7 +42,7 @@ import SelectableTable, {SelectableTableCell} from './selectable-table'
  * @param {props.onRemoveColumn} props.onRemoveColumn
  * @class EditableTable
  */
-/**
+/*
  * This function will be called when a cell has been edited witha new value
  * @callback props.onCellEdited
  * @param {object} args - object containing indices for the cell and the new
@@ -51,15 +51,15 @@ import SelectableTable, {SelectableTableCell} from './selectable-table'
  * @param {number} args.col - column index for the edited cell
  * @param {string} args.value - value for the cell
  */
-/**
+/*
  * This function will be called when a row needs to be added
  * @callback props.onAddRow
  */
-/**
+/*
  * This function will be called when a column needs to be added
  * @callback props.onAddColumn
  */
-/**
+/*
  * This function will be called when the last column needs to be removed
  * @callback props.onRemoveColumn
  */

@@ -5,7 +5,7 @@ import ModelWithMetadata from './model-with-metadata'
 let CategoryStore = null
 let Contact = null
 
-/**
+/*
  * Public: The Account model represents a Account served by the Nylas Platform API.
  * Every object on the Nylas platform exists within a Account, which typically represents
  * an email account.

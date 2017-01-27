@@ -7,35 +7,35 @@ import DatabaseStore from '../stores/database-store'
 import ModelWithMetadata from './model-with-metadata'
 
 
-/**
-  Public: The Thread model represents a Thread object served by the Nylas Platform API.
-  For more information about Threads on the Nylas Platform, read the
-  [Threads API Documentation](https://nylas.com/cloud/docs#threads)
+/*
+Public: The Thread model represents a Thread object served by the Nylas Platform API.
+For more information about Threads on the Nylas Platform, read the
+[Threads API Documentation](https://nylas.com/cloud/docs#threads)
 
-  Attributes
+Attributes
 
-  `snippet`: {AttributeString} A short, ~140 character string with the content
-    of the last message in the thread. Queryable.
+`snippet`: {AttributeString} A short, ~140 character string with the content
+  of the last message in the thread. Queryable.
 
-  `subject`: {AttributeString} The subject of the thread. Queryable.
+`subject`: {AttributeString} The subject of the thread. Queryable.
 
-  `unread`: {AttributeBoolean} True if the thread is unread. Queryable.
+`unread`: {AttributeBoolean} True if the thread is unread. Queryable.
 
-  `starred`: {AttributeBoolean} True if the thread is starred. Queryable.
+`starred`: {AttributeBoolean} True if the thread is starred. Queryable.
 
-  `version`: {AttributeNumber} The version number of the thread.
+`version`: {AttributeNumber} The version number of the thread.
 
-  `participants`: {AttributeCollection} A set of {Contact} models
-    representing the participants in the thread.
-    Note: Contacts on Threads do not have IDs.
+`participants`: {AttributeCollection} A set of {Contact} models
+  representing the participants in the thread.
+  Note: Contacts on Threads do not have IDs.
 
-  `lastMessageReceivedTimestamp`: {AttributeDateTime} The timestamp of the
-    last message on the thread.
+`lastMessageReceivedTimestamp`: {AttributeDateTime} The timestamp of the
+  last message on the thread.
 
-  This class also inherits attributes from {Model}
+This class also inherits attributes from {Model}
 
-  Section: Models
-  @class Thread
+Section: Models
+@class Thread
 */
 class Thread extends ModelWithMetadata {
 
@@ -302,4 +302,4 @@ Object.defineProperty(Thread.attributes, "folders", {
   get: () => Thread.attributes.categories,
 })
 
-export default Thread
+export default Thread;

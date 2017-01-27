@@ -22,7 +22,7 @@ const InverseDirections = {
 
 const OFFSET_PADDING = 11.5;
 
-/**
+/*
  * Renders a popover absultely positioned in the window next to the provided
  * rect.
  * If `Actions.openPopover` is called when the popover is already open, it will

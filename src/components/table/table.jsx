@@ -5,7 +5,7 @@ import LazyRenderedList from '../lazy-rendered-list'
 import TableDataSource from './table-data-source'
 
 
-/**
+/*
  * Scrollable Table component which supports headers, numbering and lazily rendering rows.
  * The only required prop is `tableDataSource` which must be an instance of
  * {TableDataSource}:

@@ -4,7 +4,7 @@ import classnames from 'classnames'
 import {Utils} from 'nylas-exports'
 import CalendarEvent from './calendar-event'
 
-/**
+/*
  * This display a single column of events in the Week View.
  * Putting it in its own component dramatically improves render
  * performance since we can run `shouldComponentUpdate` on a

@@ -196,7 +196,7 @@ export default class WeekView extends React.Component {
     return (this._maxConcurrentEvents(allDayOverlap) * MIN_INTERVAL_HEIGHT) + 1
   }
 
-  /**
+  /*
    * Computes the overlap between a set of events in not O(n^2).
    *
    * Returns a hash keyed by event id whose value is an object:

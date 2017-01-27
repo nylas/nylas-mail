@@ -14,7 +14,7 @@ the rest of the app will handle.
 In Reflux, each {Action} is an independent object that acts as an event emitter.
 You can listen to an Action, or invoke it as a function to fire it.
 
-*# Action Scopes
+## Action Scopes
 
 N1 is a multi-window application. The `scope` of an Action dictates
 how it propogates between windows.
@@ -29,13 +29,13 @@ how it propogates between windows.
 
 - **Window**: These actions only trigger listeners in the window they're fired in.
 
-*# Firing Actions
+## Firing Actions
 
 ```coffee
 Actions.queueTask(new ChangeStarredTask(thread: @_thread, starred: true))
 ```
 
-*# Listening for Actions
+## Listening for Actions
 
 If you're using Reflux to create your own Store, you can use the `listenTo`
 convenience method to listen for an Action. If you're creating your own class

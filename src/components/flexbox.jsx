@@ -1,7 +1,7 @@
 import React from 'react';
 import {Utils} from "nylas-exports";
 
-/**
+/*
 Public: A simple wrapper that provides a Flexbox layout with the given direction and style.
 Any additional props you set on the Flexbox are rendered.
 
@@ -10,7 +10,7 @@ Section: Component Kit
 export default class Flexbox extends React.Component {
   static displayName = 'Flexbox';
 
-  /**
+  /*
   Public: React `props` supported by Flexbox:
 
    - `direction` (optional) A {String} Flexbox direction: either `column` or `row`.
