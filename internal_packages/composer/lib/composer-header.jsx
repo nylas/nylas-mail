@@ -55,6 +55,16 @@ export default class ComposerHeader extends React.Component {
     }
   }
 
+  focus() {
+    if (this.state.subjectFocused) {
+      this.refs.subject.focus();
+    } else if (this.state.participantsFocused) {
+      this.showAndFocusField(Fields.To);
+    }
+    console.warning("Nothing is marked as focused. This shouldn't happen!");
+    this.showAndFocusField(Fields.To);
+  }
+
   showAndFocusField = (fieldName) => {
     const enabledFields = _.uniq([].concat(this.state.enabledFields, [fieldName]));
     const participantsFocused = this.state.participantsFocused || Fields.ParticipantFields.includes(fieldName);
@@ -105,6 +115,7 @@ export default class ComposerHeader extends React.Component {
     return {
       enabledFields,
       participantsFocused: props.initiallyFocused,
+      subjectFocused: false,
     };
   }
 
@@ -156,6 +167,22 @@ export default class ComposerHeader extends React.Component {
     });
   }
 
+  _onFocusInSubject = () => {
+    this.setState({
+      subjectFocused: true,
+    });
+  }
+
+  _onFocusOutSubject = () => {
+    this.setState({
+      subjectFocused: false,
+    });
+  }
+
+  isFocused() {
+    return this.state.participantsFocused || this.state.subjectFocused;
+  }
+
   _onDragCollapsedParticipants = ({isDropping}) => {
     if (isDropping) {
       this.setState({
@@ -202,21 +229,28 @@ export default class ComposerHeader extends React.Component {
     }
     const {draft, session} = this.props
     return (
-      <InjectedComponent
-        ref={Fields.Subject}
-        key="subject-wrap"
-        matching={{role: 'Composer:SubjectTextField'}}
-        exposedProps={{
-          draft,
-          session,
-          value: draft.subject,
-          draftClientId: draft.clientId,
-          onSubjectChange: this._onSubjectChange,
-        }}
-        requiredMethods={['focus']}
-        fallback={SubjectTextField}
-        onComponentDidChange={this.props.onNewHeaderComponents}
-      />
+      <KeyCommandsRegion
+        tabIndex={-1}
+        ref="subjectContainer"
+        onFocusIn={this._onFocusInSubject}
+        onFocusOut={this._onFocusOutSubject}
+      >
+        <InjectedComponent
+          ref={Fields.Subject}
+          key="subject-wrap"
+          matching={{role: 'Composer:SubjectTextField'}}
+          exposedProps={{
+            draft,
+            session,
+            value: draft.subject,
+            draftClientId: draft.clientId,
+            onSubjectChange: this._onSubjectChange,
+          }}
+          requiredMethods={['focus']}
+          fallback={SubjectTextField}
+          onComponentDidChange={this.props.onNewHeaderComponents}
+        />
+      </KeyCommandsRegion>
     )
   }
 
