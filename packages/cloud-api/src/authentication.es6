@@ -39,6 +39,7 @@ export async function apiAuthenticate(req, username, password, cb) {
     global.Logger.info({identity}, `Got ${identPath} identity response`)
     return cb(null, true, {account, identity});
   } catch (err) {
-    return cb(err, false, {})
+    global.Logger.error({error: err, username}, `Invalid credentials, can't authenticate`)
+    return cb(null, false, {})
   }
 }
