@@ -12,7 +12,9 @@ _ = require 'underscore'
  DatabaseTransaction,
  Task,
  Utils,
- ChangeMailTask} = require 'nylas-exports'
+ ChangeMailTask,
+ EnsureMessageInSentFolderTask,
+} = require 'nylas-exports'
 
 xdescribe "ChangeMailTask", ->
   beforeEach ->
@@ -552,6 +554,26 @@ xdescribe "ChangeMailTask", ->
       expect( -> task.createUndoTask()).toThrow()
 
   describe "isDependentOnTask", ->
+    it "should return true if another EnsureMessageInSentFolderTask involves one of the ChangeMailTask's threads", ->
+      a = new ChangeMailTask()
+      a.threads = ['t1', 't2', 't3']
+      s1 = new EnsureMessageInSentFolderTask({message: {threadId: 't1'}})
+      s2 = new EnsureMessageInSentFolderTask({message: {threadId: 't100'}})
+      expect(a.isDependentOnTask(s1)).toEqual(true)
+      expect(a.isDependentOnTask(s2)).toEqual(false)
+
+    it "should return true if another EnsureMessageInSentFolderTask involves one of the ChangeMailTask's messages", ->
+      a = new ChangeMailTask()
+      a.messages = ['m1', 'm2', 'm3']
+      s1 = new EnsureMessageInSentFolderTask({message: {clientId: 'm1'}})
+      s2 = new EnsureMessageInSentFolderTask({message: {serverId: 'm1'}})
+      s3 = new EnsureMessageInSentFolderTask({message: {clientId: 'm100'}})
+      s4 = new EnsureMessageInSentFolderTask({message: {serverId: 'm100'}})
+      expect(a.isDependentOnTask(s1)).toEqual(true)
+      expect(a.isDependentOnTask(s2)).toEqual(true)
+      expect(a.isDependentOnTask(s3)).toEqual(false)
+      expect(a.isDependentOnTask(s4)).toEqual(false)
+
     it "should return true if another, older ChangeMailTask involves the same threads", ->
       a = new ChangeMailTask()
       a.threads = ['t1', 't2', 't3']
