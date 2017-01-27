@@ -23,7 +23,10 @@ class FetchNewMessagesInFolderIMAP extends FetchMessagesInFolderIMAP {
       // Without a fetchedmax, can't tell what's new!
       // If we haven't fetched anything on this folder, let's run a normal fetch
       // operation
-      yield super.runTask(db, imap)
+      // Can't use `super` in this scenario because babel can't compile it under
+      // these conditions. User regular prototype instead
+      console.log(`🔚 📂  🆕$ {this._folder.name} has no fetchedmax - running regular fetch operation`)
+      yield FetchMessagesInFolderIMAP.prototype.runTask.call(this, db, imap)
       return
     }
 
