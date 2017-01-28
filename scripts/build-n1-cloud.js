@@ -16,7 +16,8 @@ glob.sync("n1_cloud_dist/**/*.es6", {absolute: true}).forEach((es6Path) => {
   console.log(`---> Compiling ${es6Path.slice(es6Path.indexOf("/n1_cloud_dist") + 15)}`)
 
   const res = babel.transformFileSync(es6Path, {
-    presets: ["electron"],
+    presets: ["electron", "react"],
+    plugins: ["transform-async-generator-functions"],
     sourceMaps: true,
     sourceRoot: '/',
     sourceMapTarget: path.relative("n1_cloud_dist/", outPath),
