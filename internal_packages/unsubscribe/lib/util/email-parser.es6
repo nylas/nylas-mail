@@ -9,6 +9,7 @@ const regexps = [
   /email preferences/gi,
   /subscription/gi,
   /notification settings/gi,
+  /Remove yourself from this mailing/gi,
   // Danish
   /afmeld/gi,
   /afmelden/gi,
