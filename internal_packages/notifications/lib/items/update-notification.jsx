@@ -34,7 +34,7 @@ export default class UpdateNotification extends React.Component {
   }
 
   _onViewChangelog = () => {
-    shell.openExternal('https://github.com/nylas/N1/blob/n1-next/CHANGELOG.md')
+    shell.openExternal('https://github.com/nylas/nylas-mail/blob/master/CHANGELOG.md')
   }
 
   render() {

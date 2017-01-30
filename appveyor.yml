@@ -12,7 +12,6 @@ branches:
   - ci-test
   - stable
   - /ci-build\/.*/
-  - n1-next
 
 # We need to only clone the main module because our submodule requires the
 # encrypted ssh key to access submodules
