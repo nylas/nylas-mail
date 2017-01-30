@@ -83,13 +83,15 @@ export default class SyncActivity extends React.Component {
       'blink': this.state.blink,
     });
 
+    const ellipses = [1, 2, 3].map((i) => <span className={`ellipsis${i}`}>.</span>);
+
     return (
       <div
         className={classSet}
         key="sync-activity"
         onClick={() => (this.setState({expanded: !this.state.expanded}))}
       >
-        <div className="inner clickable">Syncing your mailbox</div>
+        <div className="inner clickable">Syncing your mailbox{ellipses}</div>
         {this.state.expanded ? this._renderExpandedDetails() : false}
       </div>
     )

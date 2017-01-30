@@ -26,13 +26,16 @@
     .inner {
       padding: @padding-large-vertical @padding-base-horizontal @padding-large-vertical @padding-base-horizontal;
       border-bottom: 1px solid rgba(0,0,0,0.1);
-    }
-    .inner::after {
-      content: '...';
-      display: inline-block;
-      vertical-align: bottom;
-      overflow: hidden;
-      animation: expand-ellipsis 3s infinite;
+
+      .ellipsis1 {
+        animation: show-ellipsis 3s 0s infinite;
+      }
+      .ellipsis2 {
+        animation: show-ellipsis 3s 250ms infinite;
+      }
+      .ellipsis3 {
+        animation: show-ellipsis 3s 500ms infinite;
+      }
     }
     .count {
       color: @text-color-very-subtle;
@@ -247,9 +250,9 @@
   }
 }
 
-@-webkit-keyframes expand-ellipsis {
-  from {width: 0;}
-  to {width: 10px;}
+@-webkit-keyframes show-ellipsis {
+  0%, 100% {opacity: 0;}
+  50%, {opacity: 1.0;}
 }
 
 // Windows Changes
