@@ -1,27 +1,25 @@
-![N1 Logo](https://edgehill.s3.amazonaws.com/static/N1.png)
-
+# Nylas Mail - the open-source, extensible mail client
 ![N1 Screenshot](https://nylas.com/static/img/home/screenshot-hero-mac@2x.png)
 
-**N1 is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).** It is designed to be extensible, so it's easy to create new experiences and workflows around email. N1 is built on the Nylas Sync Engine, which is also [open-source free software](https://github.com/nylas/sync-engine).
+  **Nylas Mail is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).** It is designed to be extensible, so it's easy to create new experiences and workflows around email. Want to learn more? Check out the [full documentation](https://nylas.github.io/nylas-mail/).
 
 [![Build Status](https://travis-ci.org/nylas/N1.svg?branch=master)](https://travis-ci.org/nylas/N1)
 [![Slack Invite Button](http://slack-invite.nylas.com/badge.svg)](http://slack-invite.nylas.com)
-[![GitHub issues On Deck](https://badge.waffle.io/nylas/N1.png?label=on deck&title=On Deck)](https://waffle.io/nylas/N1)
 
 #### Want to help build the future of email? [Nylas is hiring](https://jobs.lever.co/nylas)!
 
-# Download Nylas Mail
+## Download Nylas Mail
 
 You can download compiled versions of Nylas Mail for Windows, Mac OS X, and Linux (.deb) from [https://nylas.com/download](https://nylas.com/download). You can also build and run N1 on Fedora. On Arch Linux, you can install **[n1](https://aur.archlinux.org/packages/n1/)** or **[n1-git](https://aur.archlinux.org/packages/n1-git/)** from the aur.
 
-# Build A Plugin
+## Build A Plugin
 
-Plugins lie at the heart of Nylas Mail and give it its powerful features. Building your own plugins allows you to integrate the app with other tools, experiment with new workflows, and more. Follow the [Getting Started guide](https://nylas.github.io/nylas-mail/getting-started/) to write your first plugin in five minutes. To create your own theme, go to our [Theme Starter guide](https://github.com/nylas/N1-theme-starter).
+Plugins lie at the heart of Nylas Mail and give it its powerful features. Building your own plugins allows you to integrate the app with other tools, experiment with new workflows, and more. Follow the [Getting Started guide](https://nylas.github.io/nylas-mail/) to write your first plugin in five minutes. To create your own theme, go to our [Theme Starter guide](https://github.com/nylas/N1-theme-starter).
 
 If you would like to run the N1 source and contribute, check out our [contributing
 guide](https://github.com/nylas/nylas-mail/blob/master/CONTRIBUTING.md).
 
-# Themes
+## Themes
 
 The Nylas Mail user interface is styled using CSS, which means it's easy to modify and extend. Nylas Mail comes stock with a few beautiful themes, and there are many more which have been built by community developers
 
@@ -77,7 +75,7 @@ The Nylas Mail user interface is styled using CSS, which means it's easy to modi
 Want to dive in more? Try [creating your own theme](https://github.com/nylas/nylas-mail-theme-starter)!
 
 
-# Plugin List
+## Plugin List
 We're working on building a plugin index that makes it super easy to add them to Nylas Mail. For now, check out the list below! (Feel free to submit a PR if you build a plugin and want it featured here.)
 
 
@@ -113,9 +111,9 @@ Note these are not tested or officially supported by Nylas, but we still think t
 When you install packages, they're moved to ~/.nylas-mail/packages, and N1 runs apm install on the command line to fetch dependencies listed in the package's package.json
 
 
-# Configuration
+## Configuration
 You can configure Nylas Mail in a few ways—for instance, pointing it to your self-hosted instance of the sync engine or changing the interface zoom level. [Learn more about how.](https://github.com/nylas/nylas-mail/blob/master/CONFIGURATION.md)
 
-# Feature Requests / Plugin Ideas
+## Feature Requests / Plugin Ideas
 
 Have an idea for a package or a feature you'd love to see in Nylas Mail? Search for existing [GitHub issues](https://github.com/nylas/nylas-mail/issues) and join the conversation!
