@@ -9,8 +9,8 @@ build.
 Production builds are code-signed with a Nylas, Inc. certificate and include a
 handful of other proprietary assets such as custom fonts and sounds.
 
-We currently use [Travis](https://travis-ci.org/nylas/N1) to build on Mac &
-Windows and AppVeyor to build on Windows.
+We currently use [Travis](https://travis-ci.org/nylas/nylas-mail) to build
+on Mac & Windows and AppVeyor to build on Windows.
 
 A build can be run from a local machines by Jenkins or manually; however,
 several environment variables must be setup.:
