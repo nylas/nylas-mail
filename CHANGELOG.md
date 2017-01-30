@@ -1,5 +1,23 @@
 # Nylas Mail Changelog
 
+### 1.0.18 (1/30/17)
+
+- Performance:
+
+  + 60% reduction of CPU usage during initial sync due to optimizing
+    unnecessary rendering
+
+- Fixes:
+
+  + New composer stays in "to" field when initially typing
+
+- Development:
+
+  + Better documentation for Nylas Mail SDKs
+  + GitHub repository renamed from nylas/N1 to nylas/nylas-mail
+  + `master` branch now has Nylas Mail (1.0.x)
+  + `n1-pro` branch now has Nylas Pro (1.5.x)
+
 ### 1.0.17 (1/27/17)
 
 - Fixes:
