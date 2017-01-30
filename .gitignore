@@ -44,3 +44,5 @@ internal_packages/local-sync
 /dump.rdb
 
 /src
+/docs
+/docs_src
