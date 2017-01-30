@@ -1351,13 +1351,13 @@ cd nylas-mail
 
 rm -r docs_src/classes
 </code></pre><p>If you want to preview the docs:</p>
-<pre><code>pushd ./docs; python -m SimpleHTTPServer; popd
+<pre><code>pushd ./_docs_output; python -m SimpleHTTPServer; popd
 </code></pre><h4 id="todos"><a name="todos" class="plugin-anchor" href="#todos"><i class="fa fa-link" aria-hidden="true"></i></a>TODOs</h4>
 <ul>
-<li>[ ] Add plugin examples with code (es6 not coffeescript)</li>
-<li>[ ] Smart Linkify references. Maybe use something like <a href="https://github.com/markomanninen/gitbook-plugin-regexplace" target="_blank">gitbook-plugin-regexplace</a></li>
-<li>[ ] Consider adding infinite scroll</li>
-<li>[ ] Create build helper with something like the script below and consider putting it into a grunt task for auto post-commit doc publishing:</li>
+<li>Add plugin examples with code (es6 not coffeescript)</li>
+<li>Smart Linkify references. Maybe use something like <a href="https://github.com/markomanninen/gitbook-plugin-regexplace" target="_blank">gitbook-plugin-regexplace</a></li>
+<li>Consider adding infinite scroll</li>
+<li>Create build helper with something like the script below and consider putting it into a grunt task for auto post-commit doc publishing:</li>
 </ul>
 <pre><code class="lang-shell">#!/bin/bash
 
@@ -1367,13 +1367,14 @@ set -e
 mkdir -p _docs_output
 script/grunt docs
 ./node_modules/.bin/gitbook --gitbook=latest build . ./_docs_output --log=debug --debug
+rm -r docs_src/classes
 git checkout gh-pages --quiet
-cp -rf _docs_output/* .  # Place all of the html in its proper place
-rmdir _docs_output
+cp -rf _docs_output/* .
+rm -r _docs_output
 
 git add .
-printf &quot;Now commit the changes! \n\n&quot;
-git status
+git status -s
+printf &quot;\nNow commit the doc updates! \n\n&quot;
 </code></pre>
 
                                 
@@ -1414,7 +1415,7 @@ git status
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Introduction","level":"1.2","depth":1,"next":{"title":"Getting Started","level":"1.3","depth":1,"path":"guides/GettingStarted.md","ref":"guides/GettingStarted.md","articles":[]},"previous":{"title":"Nylas Mail SDK Guides","level":"1.1","depth":1,"ref":"","articles":[]},"dir":"ltr"},"config":{"plugins":["search","lunr","-fontsettings","-sharing","anchors","github","editlink","favicon"],"root":"./docs_src","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"editlink":{"label":"Edit This Page","multilingual":false,"base":"https://github.com/nylas/nylas-mail/tree/master/docs_src"},"github":{"url":"https://github.com/nylas/nylas-mail"},"favicon":{"shortcut":"/img/favicon.png"},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"anchors":{},"highlight":{},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Nylas Mail Plugin SDK","links":{"sharing":{"facebook":false,"twitter":false}},"gitbook":"3.2.2"},"file":{"path":"README.md","mtime":"2017-01-30T20:37:23.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2017-01-30T20:38:54.562Z"},"basePath":".","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Introduction","level":"1.2","depth":1,"next":{"title":"Getting Started","level":"1.3","depth":1,"path":"guides/GettingStarted.md","ref":"guides/GettingStarted.md","articles":[]},"previous":{"title":"Nylas Mail SDK Guides","level":"1.1","depth":1,"ref":"","articles":[]},"dir":"ltr"},"config":{"plugins":["search","lunr","-fontsettings","-sharing","anchors","github","editlink","favicon"],"root":"./docs_src","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"editlink":{"label":"Edit This Page","multilingual":false,"base":"https://github.com/nylas/nylas-mail/tree/master/docs_src"},"github":{"url":"https://github.com/nylas/nylas-mail"},"favicon":{"shortcut":"/img/favicon.png"},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"anchors":{},"highlight":{},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Nylas Mail Plugin SDK","links":{"sharing":{"facebook":false,"twitter":false}},"gitbook":"3.2.2"},"file":{"path":"README.md","mtime":"2017-01-30T20:52:32.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2017-01-30T20:53:47.350Z"},"basePath":".","book":{"language":""}});
         });
     </script>
 </div>
