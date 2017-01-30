@@ -10,7 +10,7 @@
     "url": "https://github.com/nylas/nylas-mail.git"
   },
   "bugs": {
-    "url": "https://github.com/nylas/N1/issues"
+    "url": "https://github.com/nylas/nylas-mail/issues"
   },
   "electronVersion": "1.4.14",
   "dependencies": {

@@ -3,7 +3,7 @@
   "description": "N1 Spectron Test Suite",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nylas/N1.git"
+    "url": "https://github.com/nylas/nylas-mail.git"
   },
   "scripts": {
     "test": "jasmine JASMINE_CONFIG_PATH=./jasmine/config.json"

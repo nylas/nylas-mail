@@ -8,7 +8,7 @@ actionable, try to include the following information:
 -->
 
 ##### Are there any related issues?
-<!-- Try searching for both open and closed issues here: https://github.com/nylas/N1/issues?q=is%3Aissue. Keep in mind that email features are often described differently on different platforms. (Conversations == threads, shortcuts == hotkeys, etc.) -->
+<!-- Try searching for both open and closed issues here: https://github.com/nylas/nylas-mail/issues?q=is%3Aissue. Keep in mind that email features are often described differently on different platforms. (Conversations == threads, shortcuts == hotkeys, etc.) -->
 ...
 
 ##### What operating system are you using?

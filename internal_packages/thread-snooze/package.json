@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "github.com/nylas/n1"
+    "url": "github.com/nylas/nylas-mail"
   },
   "engines": {
     "nylas": "*"
