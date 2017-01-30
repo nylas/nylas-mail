@@ -29,13 +29,13 @@ and gnome-keyring.
 
 Next, clone and build N1 from source:
 
-    git clone https://github.com/nylas/N1.git
-    cd N1
+    git clone https://github.com/nylas/nylas-mail.git
+    cd nylas-mail
     script/bootstrap
 
 Read the [getting started guides](https://nylas.github.io/N1/getting-started/).
 
-**Building Nylas on Windows? See the [Windows instructions.](https://github.com/nylas/N1/blob/master/docs/Windows.md)**
+**Building Nylas on Windows? See the [Windows instructions.](https://github.com/nylas/nylas-mail/blob/master/docs/Windows.md)**
 
 ### Running N1
 
@@ -97,4 +97,4 @@ We do have a few heuristics:
 
 # Running Against Open Source Sync Engine
 
-See [Configuration](https://github.com/nylas/N1/blob/master/CONFIGURATION.md)
+See [Configuration](https://github.com/nylas/nylas-mail/blob/master/CONFIGURATION.md)

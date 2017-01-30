@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/nylas/N1"
+    "url": "https://github.com/nylas/nylas-mail"
   },
   "windowTypes": {
     "default": true,

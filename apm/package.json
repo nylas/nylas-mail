@@ -3,7 +3,7 @@
   "description": "N1's bundled apm",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nylas/n1"
+    "url": "https://github.com/nylas/nylas-mail"
   },
   "dependencies": {
     "atom-package-manager": "1.1.1"
