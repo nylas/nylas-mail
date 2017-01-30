@@ -16,6 +16,9 @@ addons:
     - libgnome-keyring-dev
     - xvfb
     - rpm
+    - libxext-dev
+    - libxtst-dev 
+    - libxkbfile-dev
 
 branches:
   only:
