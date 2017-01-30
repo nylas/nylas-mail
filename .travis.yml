@@ -17,7 +17,7 @@ addons:
     - xvfb
     - rpm
     - libxext-dev
-    - libxtst-dev 
+    - libxtst-dev
     - libxkbfile-dev
 
 branches:
