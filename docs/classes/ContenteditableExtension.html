@@ -1,0 +1,1647 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>ContenteditableExtension · Nylas Mail Plugin SDK</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.2">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-anchors/plugin.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+        
+
+    
+
+    
+        
+        <link rel="stylesheet" href="../styles/website.css">
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="DraftStoreExtension.html" />
+    
+    
+    <link rel="prev" href="ComposerExtension.html" />
+    
+
+    
+        <link rel="shortcut icon" href='../img/favicon.png' type="image/x-icon">
+    
+    
+    
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" >
+            
+                <span>
+            
+                    
+                    Nylas Mail SDK Guides
+            
+                </span>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../">
+            
+                <a href="../">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="../guides/GettingStarted.html">
+            
+                <a href="../guides/GettingStarted.html">
+            
+                    
+                    Getting Started
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="../guides/GettingStarted-2.html">
+            
+                <a href="../guides/GettingStarted-2.html">
+            
+                    
+                    Getting Started Part 2
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="../guides/PackageOverview.html">
+            
+                <a href="../guides/PackageOverview.html">
+            
+                    
+                    Building a Package
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="../guides/InterfaceConcepts.html">
+            
+                <a href="../guides/InterfaceConcepts.html">
+            
+                    
+                    Interface Concepts
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7" data-path="../guides/React.html">
+            
+                <a href="../guides/React.html">
+            
+                    
+                    UI Components
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8" data-path="../guides/Architecture.html">
+            
+                <a href="../guides/Architecture.html">
+            
+                    
+                    Application Architecture
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.9" data-path="../guides/Debugging.html">
+            
+                <a href="../guides/Debugging.html">
+            
+                    
+                    Debugging Nylas Mail
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.10" data-path="../guides/Database.html">
+            
+                <a href="../guides/Database.html">
+            
+                    
+                    Accessing the Database
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.11" data-path="../guides/ComposerExtensions.html">
+            
+                <a href="../guides/ComposerExtensions.html">
+            
+                    
+                    Extending the Composer
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.12" data-path="../guides/WritingSpecs.html">
+            
+                <a href="../guides/WritingSpecs.html">
+            
+                    
+                    Writing Tests
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.13" data-path="../guides/IntegrationTesting.html">
+            
+                <a href="../guides/IntegrationTesting.html">
+            
+                    
+                    Integration Testing
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.14" data-path="../guides/Windows.html">
+            
+                <a href="../guides/Windows.html">
+            
+                    
+                    Developing on Windows
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.15" data-path="../guides/FAQ.html">
+            
+                <a href="../guides/FAQ.html">
+            
+                    
+                    FAQ
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="header">Full Class Reference</li>
+        
+        
+    
+        <li class="chapter " data-level="2.1" >
+            
+                <span>
+            
+                    
+                    General
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.1.1" data-path="Actions.html">
+            
+                <a href="Actions.html">
+            
+                    
+                    Actions
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.2" data-path="BufferedProcess.html">
+            
+                <a href="BufferedProcess.html">
+            
+                    
+                    BufferedProcess
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.3" data-path="ChangeFolderTask.html">
+            
+                <a href="ChangeFolderTask.html">
+            
+                    
+                    ChangeFolderTask
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.4" data-path="ChangeLabelsTask.html">
+            
+                <a href="ChangeLabelsTask.html">
+            
+                    
+                    ChangeLabelsTask
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.5" data-path="ChangeMailTask.html">
+            
+                <a href="ChangeMailTask.html">
+            
+                    
+                    ChangeMailTask
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.6" data-path="Color.html">
+            
+                <a href="Color.html">
+            
+                    
+                    Color
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.7" data-path="Config.html">
+            
+                <a href="Config.html">
+            
+                    
+                    Config
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.8" data-path="Contenteditable.html">
+            
+                <a href="Contenteditable.html">
+            
+                    
+                    Contenteditable
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.9" data-path="KeyCommandsRegion.html">
+            
+                <a href="KeyCommandsRegion.html">
+            
+                    
+                    KeyCommandsRegion
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.10" data-path="NylasEnvConstructor.html">
+            
+                <a href="NylasEnvConstructor.html">
+            
+                    
+                    NylasEnvConstructor
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.11" data-path="QueryResultSet.html">
+            
+                <a href="QueryResultSet.html">
+            
+                    
+                    QueryResultSet
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.12" data-path="QuerySubscriptionPool.html">
+            
+                <a href="QuerySubscriptionPool.html">
+            
+                    
+                    QuerySubscriptionPool
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.13" data-path="StyleManager.html">
+            
+                <a href="StyleManager.html">
+            
+                    
+                    StyleManager
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.14" data-path="Task.html">
+            
+                <a href="Task.html">
+            
+                    
+                    Task
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.15" data-path="TaskQueueStatusStore.html">
+            
+                <a href="TaskQueueStatusStore.html">
+            
+                    
+                    TaskQueueStatusStore
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.16" data-path="ThemeManager.html">
+            
+                <a href="ThemeManager.html">
+            
+                    
+                    ThemeManager
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2" >
+            
+                <span>
+            
+                    
+                    Component Kit
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.2.1" data-path="EventedIFrame.html">
+            
+                <a href="EventedIFrame.html">
+            
+                    
+                    EventedIFrame
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.2" data-path="Flexbox.html">
+            
+                <a href="Flexbox.html">
+            
+                    
+                    Flexbox
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.3" data-path="InjectedComponent.html">
+            
+                <a href="InjectedComponent.html">
+            
+                    
+                    InjectedComponent
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.4" data-path="InjectedComponentSet.html">
+            
+                <a href="InjectedComponentSet.html">
+            
+                    
+                    InjectedComponentSet
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.5" data-path="Menu.html">
+            
+                <a href="Menu.html">
+            
+                    
+                    Menu
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.6" data-path="MenuItem.html">
+            
+                <a href="MenuItem.html">
+            
+                    
+                    MenuItem
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.7" data-path="MenuNameEmailItem.html">
+            
+                <a href="MenuNameEmailItem.html">
+            
+                    
+                    MenuNameEmailItem
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.8" data-path="MultiselectActionBar.html">
+            
+                <a href="MultiselectActionBar.html">
+            
+                    
+                    MultiselectActionBar
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.9" data-path="MultiselectList.html">
+            
+                <a href="MultiselectList.html">
+            
+                    
+                    MultiselectList
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.10" data-path="ResizableRegion.html">
+            
+                <a href="ResizableRegion.html">
+            
+                    
+                    ResizableRegion
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.11" data-path="RetinaImg.html">
+            
+                <a href="RetinaImg.html">
+            
+                    
+                    RetinaImg
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.12" data-path="Spinner.html">
+            
+                <a href="Spinner.html">
+            
+                    
+                    Spinner
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.13" data-path="UnsafeComponent.html">
+            
+                <a href="UnsafeComponent.html">
+            
+                    
+                    UnsafeComponent
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3" >
+            
+                <span>
+            
+                    
+                    Extensions
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.3.1" data-path="ComposerExtension.html">
+            
+                <a href="ComposerExtension.html">
+            
+                    
+                    ComposerExtension
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="2.3.2" data-path="ContenteditableExtension.html">
+            
+                <a href="ContenteditableExtension.html">
+            
+                    
+                    ContenteditableExtension
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3.3" data-path="DraftStoreExtension.html">
+            
+                <a href="DraftStoreExtension.html">
+            
+                    
+                    DraftStoreExtension
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3.4" data-path="MessageStoreExtension.html">
+            
+                <a href="MessageStoreExtension.html">
+            
+                    
+                    MessageStoreExtension
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3.5" data-path="MessageViewExtension.html">
+            
+                <a href="MessageViewExtension.html">
+            
+                    
+                    MessageViewExtension
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4" >
+            
+                <span>
+            
+                    
+                    Models
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.4.1" data-path="Contact.html">
+            
+                <a href="Contact.html">
+            
+                    
+                    Contact
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4.2" data-path="Message.html">
+            
+                <a href="Message.html">
+            
+                    
+                    Message
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4.3" data-path="Model.html">
+            
+                <a href="Model.html">
+            
+                    
+                    Model
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4.4" data-path="Thread.html">
+            
+                <a href="Thread.html">
+            
+                    
+                    Thread
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5" >
+            
+                <span>
+            
+                    
+                    Stores
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.5.1" data-path="AccountStore.html">
+            
+                <a href="AccountStore.html">
+            
+                    
+                    AccountStore
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.2" data-path="ComponentRegistry.html">
+            
+                <a href="ComponentRegistry.html">
+            
+                    
+                    ComponentRegistry
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.3" data-path="ContactStore.html">
+            
+                <a href="ContactStore.html">
+            
+                    
+                    ContactStore
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.4" data-path="FocusedContentStore.html">
+            
+                <a href="FocusedContentStore.html">
+            
+                    
+                    FocusedContentStore
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.5" data-path="TaskQueue.html">
+            
+                <a href="TaskQueue.html">
+            
+                    
+                    TaskQueue
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.6" data-path="WorkspaceStore.html">
+            
+                <a href="WorkspaceStore.html">
+            
+                    
+                    WorkspaceStore
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6" >
+            
+                <span>
+            
+                    
+                    Database
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.6.1" data-path="Attribute.html">
+            
+                <a href="Attribute.html">
+            
+                    
+                    Attribute
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.2" data-path="AttributeBoolean.html">
+            
+                <a href="AttributeBoolean.html">
+            
+                    
+                    AttributeBoolean
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.3" data-path="AttributeCollection.html">
+            
+                <a href="AttributeCollection.html">
+            
+                    
+                    AttributeCollection
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.4" data-path="AttributeDateTime.html">
+            
+                <a href="AttributeDateTime.html">
+            
+                    
+                    AttributeDateTime
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.5" data-path="AttributeJoinedData.html">
+            
+                <a href="AttributeJoinedData.html">
+            
+                    
+                    AttributeJoinedData
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.6" data-path="AttributeNumber.html">
+            
+                <a href="AttributeNumber.html">
+            
+                    
+                    AttributeNumber
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.7" data-path="AttributeObject.html">
+            
+                <a href="AttributeObject.html">
+            
+                    
+                    AttributeObject
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.8" data-path="AttributeServerId.html">
+            
+                <a href="AttributeServerId.html">
+            
+                    
+                    AttributeServerId
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.9" data-path="AttributeString.html">
+            
+                <a href="AttributeString.html">
+            
+                    
+                    AttributeString
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.10" data-path="DatabaseStore.html">
+            
+                <a href="DatabaseStore.html">
+            
+                    
+                    DatabaseStore
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.11" data-path="Matcher.html">
+            
+                <a href="Matcher.html">
+            
+                    
+                    Matcher
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.12" data-path="ModelQuery.html">
+            
+                <a href="ModelQuery.html">
+            
+                    
+                    ModelQuery
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.13" data-path="SortOrder.html">
+            
+                <a href="SortOrder.html">
+            
+                    
+                    SortOrder
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.7" >
+            
+                <span>
+            
+                    
+                    Drafts
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.7.1" data-path="DraftChangeSet.html">
+            
+                <a href="DraftChangeSet.html">
+            
+                    
+                    DraftChangeSet
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.7.2" data-path="DraftEditingSession.html">
+            
+                <a href="DraftEditingSession.html">
+            
+                    
+                    DraftEditingSession
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.7.3" data-path="DraftStore.html">
+            
+                <a href="DraftStore.html">
+            
+                    
+                    DraftStore
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8" >
+            
+                <span>
+            
+                    
+                    NylasEnv
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.8.1" data-path="PackageManager.html">
+            
+                <a href="PackageManager.html">
+            
+                    
+                    PackageManager
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.9" >
+            
+                <span>
+            
+                    
+                    Atom
+            
+                </span>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href=".." >ContenteditableExtension</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="contenteditableextension"><a name="contenteditableextension" class="plugin-anchor" href="#contenteditableextension"><i class="fa fa-link" aria-hidden="true"></i></a>ContenteditableExtension</h1>
+<h2 id="summary"><a name="summary" class="plugin-anchor" href="#summary"><i class="fa fa-link" aria-hidden="true"></i></a>Summary</h2>
+<p>ContenteditableExtension is an abstract base class.
+Implementations of this are used to make additional changes to a</p>
+<p><contenteditable> component beyond a user&apos;s input intents. The hooks in
+this class provide the contenteditable DOM Node itself, allowing you to
+adjust selection ranges and change content as necessary.</contenteditable></p>
+<p>While some ContenteditableExtension are included with the core
+&lt;{Contenteditable} /&gt; component, others may be added via the <code>plugins</code>
+prop when you use it inside your own components.</p>
+<p>Example:</p>
+<pre><code class="lang-javascript">render() {
+  <span class="hljs-keyword">return</span>(
+    <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">Contenteditable</span> <span class="hljs-attr">extensions</span>=<span class="hljs-string">{[MyAwesomeExtension]}</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  );
+}
+</span></code></pre>
+<p>If you specifically want to enhance the Composer experience you should
+register a {ComposerExtension}</p>
+<ul>
+</ul>
+
+
+
+
+
+<h3 id="class-methods"><a name="class-methods" class="plugin-anchor" href="#class-methods"><i class="fa fa-link" aria-hidden="true"></i></a>Class Methods</h3>
+<h4 id="onContentChanged" class="function-name"><a name="onContentChanged" class="plugin-anchor" href="#onContentChanged"><i class="fa fa-link" aria-hidden="true"></i></a>
+  onContentChanged(<span class="args"></span>) <a href="#onContentChanged" class="link"></a>
+</h4>
+
+<div class="function-description markdown-from-sourecode">
+  <p>Gets called anytime any atomic change is made to the DOM of the
+contenteditable.
+
+When a user types a key, deletes some text, or does anything that
+changes the DOM. it will trigger `onContentChanged`. It is wrapper over
+a native DOM {MutationObserver}. It only gets called if there are
+mutations
+
+This also gets called at the end of callbacks that mutate the DOM. If
+another extension overrides `onClick` and performs several mutations to
+the DOM during that callback, those changes will be batched and then
+`onContentChanged` will be called once at the end of the callback with
+those mutations.
+
+Callback params:
+
+* editor: The {Editor} controller that provides a host of convenience
+  methods for manipulating the selection and DOM
+* mutations: An array of DOM Mutations as returned by the
+  {MutationObserver}. Note that these may not always be populated
+
+You may mutate the contenteditable in place, we do not expect any return
+value from this method.
+
+The onContentChanged event can be triggered by a variety of events, some
+of which could have been already been looked at by a callback. Any DOM
+mutation will fire this event. Sometimes those mutations are the cause
+of other callbacks.
+
+Example:
+
+The Nylas `templates` package uses this method to see if the user has
+populated a `<code>` tag placed in the body and change it&apos;s CSS class to
+reflect that it is no longer empty.
+
+```coffee
+onContentChanged: ({editor, mutations}) -&gt;
+  isWithinNode = (node) -&gt;
+    test = selection.baseNode
+    while test isnt editableNode
+      return true if test is node
+      test = test.parentNode
+    return false
+
+  codeTags = editableNode.querySelectorAll(&apos;code.var.empty&apos;)
+  for codeTag in codeTags
+    if selection.containsNode(codeTag) or isWithinNode(codeTag)
+      codeTag.classList.remove(&apos;empty&apos;)
+```</code></p>
+</div>
+
+
+<h4 id="onBlur" class="function-name"><a name="onBlur" class="plugin-anchor" href="#onBlur"><i class="fa fa-link" aria-hidden="true"></i></a>
+  onBlur(<span class="args"></span>) <a href="#onBlur" class="link"></a>
+</h4>
+
+<div class="function-description markdown-from-sourecode">
+  <p>Override onBlur to mutate the contenteditable DOM node whenever the
+onBlur event is fired on it. You may mutate the contenteditable in place, we
+not expect any return value from this method.
+
+* editor: The {Editor} controller that provides a host of convenience
+  methods for manipulating the selection and DOM
+* event: DOM event fired on the contenteditable</p>
+</div>
+
+
+<h4 id="onFocus" class="function-name"><a name="onFocus" class="plugin-anchor" href="#onFocus"><i class="fa fa-link" aria-hidden="true"></i></a>
+  onFocus(<span class="args"></span>) <a href="#onFocus" class="link"></a>
+</h4>
+
+<div class="function-description markdown-from-sourecode">
+  <p>Override onFocus to mutate the contenteditable DOM node whenever the
+onFocus event is fired on it. You may mutate the contenteditable in place, we
+not expect any return value from this method.
+
+* editor: The {Editor} controller that provides a host of convenience
+  methods for manipulating the selection and DOM
+* event: DOM event fired on the contenteditable</p>
+</div>
+
+
+<h4 id="onClick" class="function-name"><a name="onClick" class="plugin-anchor" href="#onClick"><i class="fa fa-link" aria-hidden="true"></i></a>
+  onClick(<span class="args"></span>) <a href="#onClick" class="link"></a>
+</h4>
+
+<div class="function-description markdown-from-sourecode">
+  <p>Override onClick to mutate the contenteditable DOM node whenever the
+onClick event is fired on it. You may mutate the contenteditable in place, we
+not expect any return value from this method.
+
+* editor: The {Editor} controller that provides a host of convenience
+  methods for manipulating the selection and DOM
+* event: DOM event fired on the contenteditable</p>
+</div>
+
+
+<h4 id="onKeyDown" class="function-name"><a name="onKeyDown" class="plugin-anchor" href="#onKeyDown"><i class="fa fa-link" aria-hidden="true"></i></a>
+  onKeyDown(<span class="args"></span>) <a href="#onKeyDown" class="link"></a>
+</h4>
+
+<div class="function-description markdown-from-sourecode">
+  <p>Override onKeyDown to mutate the contenteditable DOM node whenever the
+onKeyDown event is fired on it.
+Public: Called when the user presses a key while focused on the contenteditable&apos;s body field.
+Override onKeyDown in your ContenteditableExtension to adjust the selection or
+perform other actions.
+
+If your package implements key down behavior for a particular scenario, you
+should prevent the default behavior of the key via `event.preventDefault()`.
+You may mutate the contenteditable in place, we not expect any return value
+from this method.
+
+Important: You should prevent the default key down behavior with great care.
+
+* editor: The {Editor} controller that provides a host of convenience
+  methods for manipulating the selection and DOM
+* event: DOM event fired on the contenteditable</p>
+</div>
+
+
+<h4 id="onShowContextMenu" class="function-name"><a name="onShowContextMenu" class="plugin-anchor" href="#onShowContextMenu"><i class="fa fa-link" aria-hidden="true"></i></a>
+  onShowContextMenu(<span class="args"></span>) <a href="#onShowContextMenu" class="link"></a>
+</h4>
+
+<div class="function-description markdown-from-sourecode">
+  <p>Override onShowContextMenu to add new menu items to the right click menu
+inside the contenteditable.
+
+* editor: The {Editor} controller that provides a host of convenience
+  methods for manipulating the selection and DOM
+* event: DOM event fired on the contenteditable
+* menu: [Menu](https://github.com/atom/electron/blob/master/docs/api/menu.md)
+  object you can mutate in order to add new [MenuItems](https://github.com/atom/electron/blob/master/docs/api/menu-item.md)
+  to the context menu that will be displayed when you right click the contenteditable.</p>
+</div>
+
+
+<h4 id="keyCommandHandlers" class="function-name"><a name="keyCommandHandlers" class="plugin-anchor" href="#keyCommandHandlers"><i class="fa fa-link" aria-hidden="true"></i></a>
+  keyCommandHandlers(<span class="args"></span>) <a href="#keyCommandHandlers" class="link"></a>
+</h4>
+
+<div class="function-description markdown-from-sourecode">
+  <p>Override `keyCommandHandlers` to declaratively map keyboard
+commands to callbacks.
+
+Return an object keyed by the command name whose values are the
+callbacks.
+
+Callbacks are automatically bound to the Contenteditable context and
+passed `({editor, event})` as its argument.
+
+New commands are defined in keymap.cson files.</p>
+</div>
+
+
+<h4 id="toolbarButtons" class="function-name"><a name="toolbarButtons" class="plugin-anchor" href="#toolbarButtons"><i class="fa fa-link" aria-hidden="true"></i></a>
+  toolbarButtons(<span class="args"></span>) <a href="#toolbarButtons" class="link"></a>
+</h4>
+
+<div class="function-description markdown-from-sourecode">
+  <p>Override `toolbarButtons` to declaratively add your own button
+to the composer&apos;s toolbar.
+
+* toolbarState: The current state of the Toolbar and Composer. This is
+  Read only.
+
+Must return an array of objects obeying the following spec:
+
+* className: A string class name
+* onClick: Callback to fire when your button is clicked. The callback
+  is automatically bound to the editor and will get passed an single
+  object with the following args.
+  * editor - The {Editor} controller for manipulating the DOM
+  * event - The click Event object
+* tooltip: A string to display when users hover over your button
+* iconUrl: A url for the icon.</p>
+</div>
+
+
+<h4 id="toolbarComponentConfig" class="function-name"><a name="toolbarComponentConfig" class="plugin-anchor" href="#toolbarComponentConfig"><i class="fa fa-link" aria-hidden="true"></i></a>
+  toolbarComponentConfig(<span class="args"></span>) <a href="#toolbarComponentConfig" class="link"></a>
+</h4>
+
+<div class="function-description markdown-from-sourecode">
+  <p>Override `toolbarComponentConfig` to declaratively show your own
+toolbar when certain conditions are met.
+
+If you want to hide your toolbar component, return null.
+
+If you want to display your toolbar, then return an object with the
+signature indicated below.
+
+This methods gets called anytime the `toolbarState` changes. Since
+`toolbarState` includes the current value of the Selection and any
+objects a user is hovering over, you should expect it to change very
+frequently.
+
+* toolbarState: The current state of the Toolbar and Composer. This is
+  Read only.
+  * dragging
+  * doubleDown
+  * hoveringOver
+  * editableNode
+  * exportedSelection
+  * extensions
+  * atomicEdit
+
+Must return an object with the following signature
+
+* component: A React component or null.
+* props: Props to be passed into your custom Component
+* locationRefNode: Anything (usually a DOM Node) that responds to
+  `getBoundingClientRect`. This is used to determine where to display
+  your component.
+* width: The width of your component. This is necessary because when
+  your component is displayed in the {FloatingToolbar}, the position is
+  pre-computed based on the absolute width of the item.
+* height: The height of your component. This is necessary for the same
+  reason listed above; the position of the toolbar will be determined
+  by the absolute height given.</p>
+</div>
+
+
+
+
+
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="ComposerExtension.html" class="navigation navigation-prev " aria-label="Previous page: ComposerExtension">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="DraftStoreExtension.html" class="navigation navigation-next " aria-label="Next page: DraftStoreExtension">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"ContenteditableExtension","level":"2.3.2","depth":2,"next":{"title":"DraftStoreExtension","level":"2.3.3","depth":2,"path":"classes/DraftStoreExtension.md","ref":"classes/DraftStoreExtension.md","articles":[]},"previous":{"title":"ComposerExtension","level":"2.3.1","depth":2,"path":"classes/ComposerExtension.md","ref":"classes/ComposerExtension.md","articles":[]},"dir":"ltr"},"config":{"plugins":["search","lunr","-fontsettings","-sharing","anchors","github","editlink","favicon"],"root":"./docs_src","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"editlink":{"label":"Edit This Page","multilingual":false,"base":"https://github.com/nylas/nylas-mail-docs/tree/master"},"github":{"url":"https://github.com/nylas/nylas-mail-docs"},"favicon":{"shortcut":"/img/favicon.png"},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"anchors":{},"highlight":{},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Nylas Mail Plugin SDK","links":{"sharing":{"facebook":false,"twitter":false}},"gitbook":"3.2.2"},"file":{"path":"classes/ContenteditableExtension.md","mtime":"2017-01-30T10:28:19.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2017-01-30T10:28:53.038Z"},"basePath":"..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../gitbook/gitbook.js"></script>
+    <script src="../gitbook/theme.js"></script>
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-github/plugin.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-editlink/plugin.js"></script>
+        
+    
+
+    </body>
+</html>
+

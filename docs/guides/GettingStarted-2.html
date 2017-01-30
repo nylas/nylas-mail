@@ -1,0 +1,1663 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Getting Started Part 2 · Nylas Mail Plugin SDK</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.2">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-anchors/plugin.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+        
+
+    
+
+    
+        
+        <link rel="stylesheet" href="../styles/website.css">
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="PackageOverview.html" />
+    
+    
+    <link rel="prev" href="GettingStarted.html" />
+    
+
+    
+        <link rel="shortcut icon" href='../img/favicon.png' type="image/x-icon">
+    
+    
+    
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" >
+            
+                <span>
+            
+                    
+                    Nylas Mail SDK Guides
+            
+                </span>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../">
+            
+                <a href="../">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="GettingStarted.html">
+            
+                <a href="GettingStarted.html">
+            
+                    
+                    Getting Started
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.4" data-path="GettingStarted-2.html">
+            
+                <a href="GettingStarted-2.html">
+            
+                    
+                    Getting Started Part 2
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="PackageOverview.html">
+            
+                <a href="PackageOverview.html">
+            
+                    
+                    Building a Package
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="InterfaceConcepts.html">
+            
+                <a href="InterfaceConcepts.html">
+            
+                    
+                    Interface Concepts
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7" data-path="React.html">
+            
+                <a href="React.html">
+            
+                    
+                    UI Components
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8" data-path="Architecture.html">
+            
+                <a href="Architecture.html">
+            
+                    
+                    Application Architecture
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.9" data-path="Debugging.html">
+            
+                <a href="Debugging.html">
+            
+                    
+                    Debugging Nylas Mail
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.10" data-path="Database.html">
+            
+                <a href="Database.html">
+            
+                    
+                    Accessing the Database
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.11" data-path="ComposerExtensions.html">
+            
+                <a href="ComposerExtensions.html">
+            
+                    
+                    Extending the Composer
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.12" data-path="WritingSpecs.html">
+            
+                <a href="WritingSpecs.html">
+            
+                    
+                    Writing Tests
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.13" data-path="IntegrationTesting.html">
+            
+                <a href="IntegrationTesting.html">
+            
+                    
+                    Integration Testing
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.14" data-path="Windows.html">
+            
+                <a href="Windows.html">
+            
+                    
+                    Developing on Windows
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.15" data-path="FAQ.html">
+            
+                <a href="FAQ.html">
+            
+                    
+                    FAQ
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="header">Full Class Reference</li>
+        
+        
+    
+        <li class="chapter " data-level="2.1" >
+            
+                <span>
+            
+                    
+                    General
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.1.1" data-path="../classes/Actions.html">
+            
+                <a href="../classes/Actions.html">
+            
+                    
+                    Actions
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.2" data-path="../classes/BufferedProcess.html">
+            
+                <a href="../classes/BufferedProcess.html">
+            
+                    
+                    BufferedProcess
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.3" data-path="../classes/ChangeFolderTask.html">
+            
+                <a href="../classes/ChangeFolderTask.html">
+            
+                    
+                    ChangeFolderTask
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.4" data-path="../classes/ChangeLabelsTask.html">
+            
+                <a href="../classes/ChangeLabelsTask.html">
+            
+                    
+                    ChangeLabelsTask
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.5" data-path="../classes/ChangeMailTask.html">
+            
+                <a href="../classes/ChangeMailTask.html">
+            
+                    
+                    ChangeMailTask
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.6" data-path="../classes/Color.html">
+            
+                <a href="../classes/Color.html">
+            
+                    
+                    Color
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.7" data-path="../classes/Config.html">
+            
+                <a href="../classes/Config.html">
+            
+                    
+                    Config
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.8" data-path="../classes/Contenteditable.html">
+            
+                <a href="../classes/Contenteditable.html">
+            
+                    
+                    Contenteditable
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.9" data-path="../classes/KeyCommandsRegion.html">
+            
+                <a href="../classes/KeyCommandsRegion.html">
+            
+                    
+                    KeyCommandsRegion
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.10" data-path="../classes/NylasEnvConstructor.html">
+            
+                <a href="../classes/NylasEnvConstructor.html">
+            
+                    
+                    NylasEnvConstructor
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.11" data-path="../classes/QueryResultSet.html">
+            
+                <a href="../classes/QueryResultSet.html">
+            
+                    
+                    QueryResultSet
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.12" data-path="../classes/QuerySubscriptionPool.html">
+            
+                <a href="../classes/QuerySubscriptionPool.html">
+            
+                    
+                    QuerySubscriptionPool
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.13" data-path="../classes/StyleManager.html">
+            
+                <a href="../classes/StyleManager.html">
+            
+                    
+                    StyleManager
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.14" data-path="../classes/Task.html">
+            
+                <a href="../classes/Task.html">
+            
+                    
+                    Task
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.15" data-path="../classes/TaskQueueStatusStore.html">
+            
+                <a href="../classes/TaskQueueStatusStore.html">
+            
+                    
+                    TaskQueueStatusStore
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.16" data-path="../classes/ThemeManager.html">
+            
+                <a href="../classes/ThemeManager.html">
+            
+                    
+                    ThemeManager
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2" >
+            
+                <span>
+            
+                    
+                    Component Kit
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.2.1" data-path="../classes/EventedIFrame.html">
+            
+                <a href="../classes/EventedIFrame.html">
+            
+                    
+                    EventedIFrame
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.2" data-path="../classes/Flexbox.html">
+            
+                <a href="../classes/Flexbox.html">
+            
+                    
+                    Flexbox
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.3" data-path="../classes/InjectedComponent.html">
+            
+                <a href="../classes/InjectedComponent.html">
+            
+                    
+                    InjectedComponent
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.4" data-path="../classes/InjectedComponentSet.html">
+            
+                <a href="../classes/InjectedComponentSet.html">
+            
+                    
+                    InjectedComponentSet
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.5" data-path="../classes/Menu.html">
+            
+                <a href="../classes/Menu.html">
+            
+                    
+                    Menu
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.6" data-path="../classes/MenuItem.html">
+            
+                <a href="../classes/MenuItem.html">
+            
+                    
+                    MenuItem
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.7" data-path="../classes/MenuNameEmailItem.html">
+            
+                <a href="../classes/MenuNameEmailItem.html">
+            
+                    
+                    MenuNameEmailItem
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.8" data-path="../classes/MultiselectActionBar.html">
+            
+                <a href="../classes/MultiselectActionBar.html">
+            
+                    
+                    MultiselectActionBar
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.9" data-path="../classes/MultiselectList.html">
+            
+                <a href="../classes/MultiselectList.html">
+            
+                    
+                    MultiselectList
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.10" data-path="../classes/ResizableRegion.html">
+            
+                <a href="../classes/ResizableRegion.html">
+            
+                    
+                    ResizableRegion
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.11" data-path="../classes/RetinaImg.html">
+            
+                <a href="../classes/RetinaImg.html">
+            
+                    
+                    RetinaImg
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.12" data-path="../classes/Spinner.html">
+            
+                <a href="../classes/Spinner.html">
+            
+                    
+                    Spinner
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.13" data-path="../classes/UnsafeComponent.html">
+            
+                <a href="../classes/UnsafeComponent.html">
+            
+                    
+                    UnsafeComponent
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3" >
+            
+                <span>
+            
+                    
+                    Extensions
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.3.1" data-path="../classes/ComposerExtension.html">
+            
+                <a href="../classes/ComposerExtension.html">
+            
+                    
+                    ComposerExtension
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3.2" data-path="../classes/ContenteditableExtension.html">
+            
+                <a href="../classes/ContenteditableExtension.html">
+            
+                    
+                    ContenteditableExtension
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3.3" data-path="../classes/DraftStoreExtension.html">
+            
+                <a href="../classes/DraftStoreExtension.html">
+            
+                    
+                    DraftStoreExtension
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3.4" data-path="../classes/MessageStoreExtension.html">
+            
+                <a href="../classes/MessageStoreExtension.html">
+            
+                    
+                    MessageStoreExtension
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3.5" data-path="../classes/MessageViewExtension.html">
+            
+                <a href="../classes/MessageViewExtension.html">
+            
+                    
+                    MessageViewExtension
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4" >
+            
+                <span>
+            
+                    
+                    Models
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.4.1" data-path="../classes/Contact.html">
+            
+                <a href="../classes/Contact.html">
+            
+                    
+                    Contact
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4.2" data-path="../classes/Message.html">
+            
+                <a href="../classes/Message.html">
+            
+                    
+                    Message
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4.3" data-path="../classes/Model.html">
+            
+                <a href="../classes/Model.html">
+            
+                    
+                    Model
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4.4" data-path="../classes/Thread.html">
+            
+                <a href="../classes/Thread.html">
+            
+                    
+                    Thread
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5" >
+            
+                <span>
+            
+                    
+                    Stores
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.5.1" data-path="../classes/AccountStore.html">
+            
+                <a href="../classes/AccountStore.html">
+            
+                    
+                    AccountStore
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.2" data-path="../classes/ComponentRegistry.html">
+            
+                <a href="../classes/ComponentRegistry.html">
+            
+                    
+                    ComponentRegistry
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.3" data-path="../classes/ContactStore.html">
+            
+                <a href="../classes/ContactStore.html">
+            
+                    
+                    ContactStore
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.4" data-path="../classes/FocusedContentStore.html">
+            
+                <a href="../classes/FocusedContentStore.html">
+            
+                    
+                    FocusedContentStore
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.5" data-path="../classes/TaskQueue.html">
+            
+                <a href="../classes/TaskQueue.html">
+            
+                    
+                    TaskQueue
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.6" data-path="../classes/WorkspaceStore.html">
+            
+                <a href="../classes/WorkspaceStore.html">
+            
+                    
+                    WorkspaceStore
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6" >
+            
+                <span>
+            
+                    
+                    Database
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.6.1" data-path="../classes/Attribute.html">
+            
+                <a href="../classes/Attribute.html">
+            
+                    
+                    Attribute
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.2" data-path="../classes/AttributeBoolean.html">
+            
+                <a href="../classes/AttributeBoolean.html">
+            
+                    
+                    AttributeBoolean
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.3" data-path="../classes/AttributeCollection.html">
+            
+                <a href="../classes/AttributeCollection.html">
+            
+                    
+                    AttributeCollection
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.4" data-path="../classes/AttributeDateTime.html">
+            
+                <a href="../classes/AttributeDateTime.html">
+            
+                    
+                    AttributeDateTime
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.5" data-path="../classes/AttributeJoinedData.html">
+            
+                <a href="../classes/AttributeJoinedData.html">
+            
+                    
+                    AttributeJoinedData
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.6" data-path="../classes/AttributeNumber.html">
+            
+                <a href="../classes/AttributeNumber.html">
+            
+                    
+                    AttributeNumber
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.7" data-path="../classes/AttributeObject.html">
+            
+                <a href="../classes/AttributeObject.html">
+            
+                    
+                    AttributeObject
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.8" data-path="../classes/AttributeServerId.html">
+            
+                <a href="../classes/AttributeServerId.html">
+            
+                    
+                    AttributeServerId
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.9" data-path="../classes/AttributeString.html">
+            
+                <a href="../classes/AttributeString.html">
+            
+                    
+                    AttributeString
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.10" data-path="../classes/DatabaseStore.html">
+            
+                <a href="../classes/DatabaseStore.html">
+            
+                    
+                    DatabaseStore
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.11" data-path="../classes/Matcher.html">
+            
+                <a href="../classes/Matcher.html">
+            
+                    
+                    Matcher
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.12" data-path="../classes/ModelQuery.html">
+            
+                <a href="../classes/ModelQuery.html">
+            
+                    
+                    ModelQuery
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.13" data-path="../classes/SortOrder.html">
+            
+                <a href="../classes/SortOrder.html">
+            
+                    
+                    SortOrder
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.7" >
+            
+                <span>
+            
+                    
+                    Drafts
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.7.1" data-path="../classes/DraftChangeSet.html">
+            
+                <a href="../classes/DraftChangeSet.html">
+            
+                    
+                    DraftChangeSet
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.7.2" data-path="../classes/DraftEditingSession.html">
+            
+                <a href="../classes/DraftEditingSession.html">
+            
+                    
+                    DraftEditingSession
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.7.3" data-path="../classes/DraftStore.html">
+            
+                <a href="../classes/DraftStore.html">
+            
+                    
+                    DraftStore
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8" >
+            
+                <span>
+            
+                    
+                    NylasEnv
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.8.1" data-path="../classes/PackageManager.html">
+            
+                <a href="../classes/PackageManager.html">
+            
+                    
+                    PackageManager
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.9" >
+            
+                <span>
+            
+                    
+                    Atom
+            
+                </span>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href=".." >Getting Started Part 2</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="continue-building-your-plugin"><a name="continue-building-your-plugin" class="plugin-anchor" href="#continue-building-your-plugin"><i class="fa fa-link" aria-hidden="true"></i></a>Continue building your plugin!</h1>
+<p>If you followed the first part of the Getting Started Guide, you should have a freshly written plugin that places a colored line in the message sidebar. This guide picks up where we left off, and goes a bit more in depth explaining what each part of the code does.</p>
+<p>We&apos;re going to build on your new plugin to show the sender&apos;s <a href="http://gravatar.com/" target="_blank">Gravatar</a> image in the sidebar, instead of just a colored line.</p>
+<p>If you don&apos;t still have it open, find the plugin source in<code>~/.nylas/dev/packages</code>and open the contents in your favorite text editor.</p>
+<blockquote>
+<p>We use <a href="https://github.com/jsdf/coffee-react" target="_blank">CJSX</a>, a <a href="http://coffeescript.org/" target="_blank">CoffeeScript</a> syntax for <a href="https://facebook.github.io/react/docs/jsx-in-depth.html" target="_blank">JSX</a>, to streamline our plugin code. For syntax highlighting, we recommend <a href="https://github.com/babel/babel-sublime" target="_blank">Babel</a> for Sublime, or the <a href="https://atom.io/packages/language-cjsx" target="_blank">CJSX Language</a> Atom package.</p>
+</blockquote>
+<h3 id="changing-the-data"><a name="changing-the-data" class="plugin-anchor" href="#changing-the-data"><i class="fa fa-link" aria-hidden="true"></i></a>Changing the data </h3>
+<p>Let&apos;s poke around and change what the sidebar displays.</p>
+<p>Just like in the last tutorial, you&apos;ll find the code responsible for the sidebar in<code>lib/my-message-sidebar.cjsx</code>. Take a look at the<code>render</code>method -- this generates the content which appears in the sidebar.</p>
+<p>(How does it get in the sidebar? See<a href="https://nylas.github.io/nylas-mail/docs/InterfaceConcepts.html" target="_blank">Interface Concepts</a>and look at<code>main.cjsx</code>for clues. We&apos;ll dive into this more later in the guide.)</p>
+<p>We can change the sidebar to display the contact&apos;s email address as well. Check out the<a href="https://nylas.github.io/nylas-mail/docs/Contact.html" target="_blank">Contact attributes</a>and change the<code>_renderContent</code>method to display more information:</p>
+<pre><code class="lang-js">_renderContent: =&gt;
+  <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;header&quot;</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Hi, {@state.contact.name}
+  ({@state.contact.email})!<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
+</code></pre>
+<p>After making changes to the plugin, reload N1 by going to<code>Developer &gt; Reload</code>.</p>
+<h3 id="installing-a-dependency"><a name="installing-a-dependency" class="plugin-anchor" href="#installing-a-dependency"><i class="fa fa-link" aria-hidden="true"></i></a>Installing a dependency </h3>
+<p>Now we&apos;ve figured out how to show the contact&apos;s email address, we can use that to generate the<a href="http://gravatar.com/" target="_blank">Gravatar</a>for the contact. However, as per the<a href="https://en.gravatar.com/site/implement/images/" target="_blank">Gravatar documentation</a>, we need to be able to calculate the MD5 hash for an email address first.</p>
+<p>Let&apos;s install the<code>md5</code>plugin and save it as a dependency in our<code>package.json</code>:</p>
+<pre><code>$ npm
+install
+md5
+--save
+</code></pre><p>Installing other dependencies works the same way.</p>
+<p>Now, add the<code>md5</code>requirement in<code>my-message-sidebar.cjsx</code>and update the<code>_renderContent</code>method to show the md5 hash:</p>
+<pre><code>md5 = require &apos;md5&apos;
+
+class MyMessageSidebar
+  extends React.
+  Component
+  @displayName: &apos;MyMessageSidebar&apos;
+
+  ...
+
+  _renderContent: =&gt;
+  &lt;div className=&quot;header&quot;&gt;
+  {md5(@state.contact.email)}
+  &lt;/div&gt;
+</code></pre><blockquote>
+<p>JSX Tip: The<code>{..}</code>syntax is used for JavaScript expressions inside HTML elements.<a href="https://facebook.github.io/react/docs/jsx-in-depth.html" target="_blank">Learn more</a>.</p>
+</blockquote>
+<p>You should see the MD5 hash appear in the sidebar (after you reload N1):</p>
+<p><img src="../img/sidebar-md5.png" alt=""></p>
+<h3 id="let-s-render-"><a name="let-s-render-" class="plugin-anchor" href="#let-s-render-"><i class="fa fa-link" aria-hidden="true"></i></a>Let&apos;s Render! </h3>
+<p>Turning the MD5 hash into a Gravatar image is simple. We need to add an<code>&lt;img&gt;</code>tag to the rendered HTML:</p>
+<pre><code>_renderContent =&gt;
+    &lt;div
+      className=&quot;header&quot;&gt;
+      &lt;img
+        src={&apos;http://www.gravatar.com/avatar/&apos; + md5(@state.contact.email)}/&gt;
+    &lt;/div&gt;
+</code></pre><p>Now the Gravatar image associated with the currently focused contact appears in the sidebar. If there&apos;s no image available, the Gravatar default will show; you can<a href="https://en.gravatar.com/site/implement/images/" target="_blank">add parameters to your image tag</a>to change the default behavior.</p>
+<p><img src="../img/sidebar-gravatar.png" alt=""></p>
+<h3 id="styling"><a name="styling" class="plugin-anchor" href="#styling"><i class="fa fa-link" aria-hidden="true"></i></a>Styling </h3>
+<p>Adding styles to our Gravatar image is a matter of editing<code>stylesheets/main.less</code>and applying the class to our<code>img</code>tag. Let&apos;s make it round:</p>
+<p><strong>stylesheets/main.less</strong></p>
+<pre><code>.gravatar {
+    border-radius: 45px;
+    border: 2px solid #ccc;
+}
+lib/my-message-sidebar.cjsx
+_renderContent =&gt;
+  gravatar = &quot;http://www.gravatar.com/avatar/&quot; + md5(@state.contact.email)
+
+  &lt;div className=&quot;header&quot;&gt;
+  &lt;img src={gravatar} className=&quot;gravatar&quot;/&gt;
+  &lt;/div&gt;
+</code></pre><p><strong>lib/my-message-sidebar.cjsx</strong></p>
+<pre><code>_renderContent =&gt;
+  gravatar = &quot;http://www.gravatar.com/avatar/&quot; + md5(@state.contact.email)
+
+  &lt;div className=&quot;header&quot;&gt;
+  &lt;img src={gravatar} className=&quot;gravatar&quot;/&gt;
+  &lt;/div&gt;
+</code></pre><blockquote>
+<p>React Tip: Remember to use DOM property names, i.e.<code>className</code>instead of<code>class</code>.</p>
+</blockquote>
+<p>You&apos;ll see these styles reflected in your sidebar.</p>
+<p><img src="../img/sidebar-style.png" alt=""></p>
+<p>If you&apos;re a fan of using the Chrome Developer Tools to tinker with styles, no fear; they work in N1, too. Open them by going to<code>Developer &gt; Toggle Developer Tools</code>. You&apos;ll also find them helpful for debugging in the event that your plugin isn&apos;t behaving as expected.</p>
+<h1 id="step-3-adding-a-data-store"><a name="step-3-adding-a-data-store" class="plugin-anchor" href="#step-3-adding-a-data-store"><i class="fa fa-link" aria-hidden="true"></i></a>Step 3: Adding a Data Store</h1>
+<p>Now let&apos;s introduce a data store to give our sidebar superpowers.</p>
+<h2 id="stores-and-data-flow"><a name="stores-and-data-flow" class="plugin-anchor" href="#stores-and-data-flow"><i class="fa fa-link" aria-hidden="true"></i></a>Stores and Data Flow </h2>
+<p>The Nylas data model revolves around a central<code>DatabaseStore</code>and lightweight<code>Models</code>that represent data with a particular schema. This works a lot like ActiveRecord, SQLAlchemy and other &quot;smart model&quot; ORMs. See the<a href="https://nylas.github.io/nylas-mail/docs/database" target="_blank">Database</a>explanation for more details.</p>
+<p>Using the<a href="https://facebook.github.io/flux/docs/overview.html#structure-and-data-flow" target="_blank">Flux pattern</a>for data flow means that we set up our UI components to &apos;listen&apos; to specific data stores. When those stores change, we update the state inside our component, and re-render the view.</p>
+<p>We&apos;ve already used this (without realizing) in the<a href="https://nylas.github.io/nylas-mail/docs/getting-started-2" target="_blank">Gravatar sidebar example</a>:</p>
+<pre><code>  componentDidMount: =&gt;
+  @unsubscribe = FocusedContactsStore.listen(@_onChange)
+  ...
+  _onChange: =&gt;
+  @setState(@_getStateFromStores())
+
+  _getStateFromStores: =&gt;
+  contact: FocusedContactsStore.focusedContact()
+</code></pre><p>In this case, the sidebar listens to the<code>FocusedContactsStore</code>, which updates when the person selected in the conversation changes. This triggers the<code>_onChange</code>method which updates the component state; this causes React to render the view with the new state.</p>
+<p>To add more depth to our sidebar plugin, we need to:</p>
+<ul>
+<li>Create our own data store which will listen to
+<code>FocusedContactsStore</code></li>
+<li>Extend our data store to do additional things with the contact data</li>
+<li>Update our sidebar to listen to, and display data from, the new store.</li>
+</ul>
+<p>In this guide, we&apos;ll fetch the GitHub profile for the currently focused contact and display a link to it, using the<a href="https://developer.github.com/v3/search/" target="_blank">GitHub API</a>.</p>
+<h2 id="creating-the-store"><a name="creating-the-store" class="plugin-anchor" href="#creating-the-store"><i class="fa fa-link" aria-hidden="true"></i></a>Creating the Store </h2>
+<p>The boilerplate to create a new store which listens to<code>FocusedContactsStore</code>looks like this:</p>
+<p><strong>lib/github-user-store.coffee</strong></p>
+<pre><code>Reflux = require &apos;reflux&apos;
+  {FocusedContactsStore} = require &apos;nylas-exports&apos;
+
+  module.exports =
+
+  GithubUserStore = Reflux.createStore
+
+  init: -&gt;
+  @listenTo FocusedContactsStore, @_onFocusedContactChanged
+
+  _onFocusedContactChanged: -&gt;
+  # TBD - This is fired when the focused contact changes
+  @trigger(@)
+</code></pre><p>(Note: You&apos;ll need to set up the<code>reflux</code>dependency.)</p>
+<p>You should be able to drop this store into the sidebar example&apos;s<code>componentDidMount</code>method -- all it does is listen for the<code>FocusedContactsStore</code>to change, and then<code>trigger</code>its own event.</p>
+<p>Let&apos;s build this out to retrieve some new data based on the focused contact, and expose it via a UI component.</p>
+<h2 id="getting-data-in"><a name="getting-data-in" class="plugin-anchor" href="#getting-data-in"><i class="fa fa-link" aria-hidden="true"></i></a>Getting Data In </h2>
+<p>We&apos;ll expand the<code>_onFocusedContactChanged</code>method to do something when the focused contact changes. In this case, we&apos;ll see if there&apos;s a GitHub profile for that user, and display some information if there is.</p>
+<pre><code>request = require &apos;request&apos;
+
+  GithubUserStore = Reflux.createStore
+  init: -&gt;
+  @_profile = null
+  @listenTo FocusedContactsStore, @_onFocusedContactChanged
+
+  getProfile: -&gt;
+  @_profile
+
+  _onFocusedContactChanged: -&gt;
+  # Get the newly focused contact
+  contact = FocusedContactsStore.focusedContact()
+  # Clear the profile we&apos;re currently showing
+  @_profile = null
+  if contact
+  @_fetchGithubProfile(contact.email)
+  @trigger(@)
+
+  _fetchGithubProfile: (email) -&gt;
+  @_makeRequest &quot;https://api.github.com/search/users?q=#{email}&quot;, (err, resp, data) =&gt;
+  console.warn(data.message) if data.message?
+  # Make sure we actually got something back
+  github = data?.items?[0] ? false
+  if github
+  @_profile = github
+  console.log(github)
+  @trigger(@)
+
+  _makeRequest: (url, callback) -&gt;
+  # GitHub needs a User-Agent header. Also, parse responses as JSON.
+  request({url: url, headers: {&apos;User-Agent&apos;: &apos;request&apos;}, json: true}, callback)
+lback)
+</code></pre><p>The<code>console.log</code>line should show the GitHub profile for a contact (if they have one!) inside the Developer Tools Console, which you can enable at<code>Developer &gt; Toggle Developer Tools</code>.</p>
+<p>You may run into rate-limiting issues with the GitHub API; to avoid these, you can add <a href="https://developer.github.com/v3/#authentication" target="_blank">authentication</a> with a <a href="https://github.com/settings/tokens" target="_blank">pre-baked token</a> by modifying the HTTP request your store makes.<strong>Caution! Use this for local development only.</strong>You could also try implementing a simple cache to avoid making the same request multiple times.</p>
+<h2 id="display-time"><a name="display-time" class="plugin-anchor" href="#display-time"><i class="fa fa-link" aria-hidden="true"></i></a>Display Data </h2>
+<p>To display this new data in the sidebar, we need to make sure our component is listening to the store, and load the appropriate state when it changes.</p>
+<pre><code class="lang-js"><span class="hljs-keyword">import</span> _ <span class="hljs-keyword">from</span> <span class="hljs-string">&apos;underscore&apos;</span>;
+<span class="hljs-keyword">import</span> request <span class="hljs-keyword">from</span> <span class="hljs-string">&apos;request&apos;</span>;
+<span class="hljs-keyword">import</span> NylasStore <span class="hljs-keyword">from</span> <span class="hljs-string">&apos;nylas-store&apos;</span>;
+<span class="hljs-keyword">import</span> {FocusedContactsStore} <span class="hljs-keyword">from</span> <span class="hljs-string">&apos;nylas-exports&apos;</span>;
+
+<span class="hljs-comment">// This package uses the Flux pattern - our Store is a small singleton that</span>
+<span class="hljs-comment">// observes other parts of the application and vends data to our React</span>
+<span class="hljs-comment">// component. If the user could interact with the GithubSidebar, this store</span>
+<span class="hljs-comment">// would also listen for `Actions` emitted by our React components.</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">GithubUserStore</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">NylasStore</span> </span>{
+  <span class="hljs-keyword">constructor</span>() {
+    <span class="hljs-keyword">super</span>();
+
+    <span class="hljs-keyword">this</span>._profile = <span class="hljs-literal">null</span>;
+    <span class="hljs-keyword">this</span>._cache = {};
+    <span class="hljs-keyword">this</span>._loading = <span class="hljs-literal">false</span>;
+    <span class="hljs-keyword">this</span>._error = <span class="hljs-literal">null</span>;
+
+    <span class="hljs-comment">// Register a callback with the FocusedContactsStore. This will tell us</span>
+    <span class="hljs-comment">// whenever the selected person has changed so we can refresh our data.</span>
+    <span class="hljs-keyword">this</span>.listenTo(FocusedContactsStore, <span class="hljs-keyword">this</span>._onFocusedContactChanged);
+  }
+
+  <span class="hljs-comment">// Getter Methods</span>
+
+  profileForFocusedContact() {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._profile;
+  }
+
+  loading() {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._loading;
+  }
+
+  error() {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._error;
+  }
+
+  <span class="hljs-comment">// Called when the FocusedContactStore `triggers`, notifying us that the data</span>
+  <span class="hljs-comment">// it vends has changed.</span>
+  _onFocusedContactChanged = () =&gt; {
+    <span class="hljs-comment">// Grab the new focused contact</span>
+    <span class="hljs-keyword">const</span> contact = FocusedContactsStore.focusedContact();
+
+    <span class="hljs-comment">// First, clear the contact that we&apos;re currently showing and `trigger`. Since</span>
+    <span class="hljs-comment">// our React component observes our store, `trigger` causes our React component</span>
+    <span class="hljs-comment">// to re-render.</span>
+    <span class="hljs-keyword">this</span>._error = <span class="hljs-literal">null</span>;
+    <span class="hljs-keyword">this</span>._profile = <span class="hljs-literal">null</span>;
+
+    <span class="hljs-keyword">if</span> (contact) {
+      <span class="hljs-keyword">this</span>._profile = <span class="hljs-keyword">this</span>._cache[contact.email];
+      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>._profile === <span class="hljs-literal">undefined</span>) {
+        <span class="hljs-comment">// Make a Github search request to find the matching user profile</span>
+        <span class="hljs-keyword">this</span>._githubFetchProfile(contact.email);
+      }
+    }
+
+    <span class="hljs-keyword">this</span>.trigger(<span class="hljs-keyword">this</span>);
+  }
+
+  _githubFetchProfile(email) {
+    <span class="hljs-keyword">this</span>._loading = <span class="hljs-literal">true</span>
+    <span class="hljs-keyword">this</span>._githubRequest(<span class="hljs-string">`https://api.github.com/search/users?q=<span class="hljs-subst">${email}</span>`</span>, (err, resp, data) =&gt; {
+      <span class="hljs-keyword">if</span> (err || !data) {
+        <span class="hljs-keyword">return</span>;
+      }
+
+      <span class="hljs-keyword">if</span> (data.message !== <span class="hljs-literal">undefined</span>) {
+        <span class="hljs-built_in">console</span>.warn(data.message);
+      }
+
+      <span class="hljs-comment">// Sometimes we get rate limit errors, etc., so we need to check and make</span>
+      <span class="hljs-comment">// sure we&apos;ve gotten items before pulling the first one.</span>
+      <span class="hljs-keyword">let</span> profile = <span class="hljs-literal">false</span>;
+      <span class="hljs-keyword">if</span> (data &amp;&amp; data.items &amp;&amp; data.items[<span class="hljs-number">0</span>]) {
+        profile = data.items[<span class="hljs-number">0</span>];
+      }
+
+      <span class="hljs-comment">// If a profile was found, make a second request for the user&apos;s public</span>
+      <span class="hljs-comment">// repositories.</span>
+      <span class="hljs-keyword">if</span> (profile !== <span class="hljs-literal">false</span>) {
+        profile.repos = [];
+        <span class="hljs-keyword">this</span>._githubRequest(<span class="hljs-string">`https://api.github.com/search/repositories?q=user:<span class="hljs-subst">${profile.login}</span>&amp;sort=stars&amp;order=desc`</span>, (reposErr, reposResp, repos) =&gt; {
+          <span class="hljs-comment">// Sort the repositories by their stars (`-` for descending order)</span>
+          profile.repos = _.sortBy(repos.items, (repo) =&gt; -repo.stargazers_count);
+          <span class="hljs-comment">// Trigger so that our React components refresh their state and display</span>
+          <span class="hljs-comment">// the updated data.</span>
+          <span class="hljs-keyword">this</span>.trigger(<span class="hljs-keyword">this</span>);
+        });
+      }
+
+      <span class="hljs-keyword">this</span>._loading = <span class="hljs-literal">false</span>;
+      <span class="hljs-keyword">this</span>._profile = <span class="hljs-keyword">this</span>._cache[email] = profile;
+      <span class="hljs-keyword">this</span>.trigger(<span class="hljs-keyword">this</span>);
+    });
+  }
+
+  <span class="hljs-comment">// Wrap the Node `request` library and pass the User-Agent header, which is required</span>
+  <span class="hljs-comment">// by Github&apos;s API. Also pass `json:true`, which causes responses to be automatically</span>
+  <span class="hljs-comment">// parsed.</span>
+  _githubRequest(url, callback) {
+    <span class="hljs-keyword">return</span> request({url: url, headers: {<span class="hljs-string">&apos;User-Agent&apos;</span>: <span class="hljs-string">&apos;request&apos;</span>}, json: <span class="hljs-literal">true</span>}, callback);
+  }
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-keyword">new</span> GithubUserStore();
+</code></pre>
+<p>Now we can access<code>@state.github</code>(which is the GitHub user profile object), and display the information it contains by updating the<code>render</code>and<code>renderContent</code>methods.</p>
+<h3 id="extending-the-store"><a name="extending-the-store" class="plugin-anchor" href="#extending-the-store"><i class="fa fa-link" aria-hidden="true"></i></a>Extending The Store</h3>
+<p>To make this plugin more compelling, we can extend the store to make further API requests and fetch more data about the user. Passing this data back to the UI component follows exactly the same pattern as the barebones data shown above, so we&apos;ll leave it as an exercise for the reader. :)</p>
+<blockquote>
+<p>You can find a more extensive version of this example in our<a href="https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile" target="_blank">sample plugins repository</a>.</p>
+</blockquote>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="GettingStarted.html" class="navigation navigation-prev " aria-label="Previous page: Getting Started">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="PackageOverview.html" class="navigation navigation-next " aria-label="Next page: Building a Package">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Getting Started Part 2","level":"1.4","depth":1,"next":{"title":"Building a Package","level":"1.5","depth":1,"path":"guides/PackageOverview.md","ref":"guides/PackageOverview.md","articles":[]},"previous":{"title":"Getting Started","level":"1.3","depth":1,"path":"guides/GettingStarted.md","ref":"guides/GettingStarted.md","articles":[]},"dir":"ltr"},"config":{"plugins":["search","lunr","-fontsettings","-sharing","anchors","github","editlink","favicon"],"root":"./docs_src","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"editlink":{"label":"Edit This Page","multilingual":false,"base":"https://github.com/nylas/nylas-mail-docs/tree/master"},"github":{"url":"https://github.com/nylas/nylas-mail-docs"},"favicon":{"shortcut":"/img/favicon.png"},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"anchors":{},"highlight":{},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Nylas Mail Plugin SDK","links":{"sharing":{"facebook":false,"twitter":false}},"gitbook":"3.2.2"},"file":{"path":"guides/GettingStarted-2.md","mtime":"2017-01-30T09:55:21.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2017-01-30T10:28:53.038Z"},"basePath":"..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../gitbook/gitbook.js"></script>
+    <script src="../gitbook/theme.js"></script>
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-github/plugin.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-editlink/plugin.js"></script>
+        
+    
+
+    </body>
+</html>
+
