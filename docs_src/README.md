@@ -45,30 +45,11 @@ Nylas Mail is built on top of Electron, which runs the latest version of Chromiu
 Need help? Check out the [FAQ](https://support.nylas.com/hc/en-us) or post a question in the [slack channel](http://slack-invite.nylas.com/).
 
 
-#### Building these docs
+#### TODOs
 
-Until my patch gets merged, docs need to be built manually using my fork.
-
-    git clone git@github.com:grinich/gitbook.git
-
-    cd nylas-mail
-
-    ./node_modules/.bin/gitbook alias ../gitbook latest
-
-Then to actually build the docs:
-
-    script/grunt docs
-
-    ./node_modules/.bin/gitbook --gitbook=latest build . ./docs
+- Add plugin examples with code (es6 not coffeescript)
+- Smart Linkify references. Maybe use something like [gitbook-plugin-regexplace](https://github.com/markomanninen/gitbook-plugin-regexplace)
+- Have class reference files link to their actual sourcefiles
+- Consider adding infinite scroll
 
 
-
-<!-- TODO
-
-Smart Linkify references:
-- https://github.com/markomanninen/gitbook-plugin-regexplace
-- Figure out why infinitescroll isn't working
-- Add examples
-
-
- -->

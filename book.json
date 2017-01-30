@@ -16,12 +16,12 @@
 
     "pluginsConfig": {
         "editlink": {
-          "base": "https://github.com/nylas/nylas-mail-docs/tree/master",
+          "base": "https://github.com/nylas/nylas-mail/tree/master/docs_src",
           "label": "Edit This Page",
           "multilingual": false
         },
         "github": {
-            "url": "https://github.com/nylas/nylas-mail-docs"
+            "url": "https://github.com/nylas/nylas-mail"
         },
         "favicon": {
             "shortcut": "/img/favicon.png"

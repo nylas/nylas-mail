@@ -115,18 +115,15 @@
     "flow-bin": "0.33.0",
     "gitbook": "^3.2.2",
     "gitbook-cli": "^2.3.0",
-    "gitbook-core": "^4.0.0-alpha.1",
     "gitbook-plugin-anchors": "^0.7.1",
     "gitbook-plugin-editlink": "^1.0.2",
     "gitbook-plugin-favicon": "0.0.2",
     "gitbook-plugin-github": "^2.0.0",
-    "gitbook-plugin-infinitescroll": "^0.1.0",
     "gitbook-plugin-theme-api": "^1.1.2",
-    "gitbook-plugin-theme-faq": "^1.2.1",
-    "grunt-gitbook": "^1.5.0",
+    "handlebars": "4.0.6",
     "joanna": "0.0.8",
-    "meta-marked": "^0.4.2",
-    "tello": "^1.0.6"
+    "meta-marked": "0.4.2",
+    "tello": "1.0.6"
   },
   "optionalDependencies": {
     "node-mac-notifier": "0.0.13"

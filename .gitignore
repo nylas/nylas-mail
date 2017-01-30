@@ -13,9 +13,7 @@ npm-debug.log
 debug.log
 /tags
 /electron/
-
-
-/docs_src/classes/
+/_docs_output
 
 spec/fixtures/evil-files/
 build/resources/certs
