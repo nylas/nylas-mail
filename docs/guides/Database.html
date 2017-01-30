@@ -1,0 +1,1497 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Accessing the Database · Nylas Mail Plugin SDK</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.2">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-anchors/plugin.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+        
+
+    
+
+    
+        
+        <link rel="stylesheet" href="../styles/website.css">
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="ComposerExtensions.html" />
+    
+    
+    <link rel="prev" href="Debugging.html" />
+    
+
+    
+        <link rel="shortcut icon" href='../img/favicon.png' type="image/x-icon">
+    
+    
+    
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" >
+            
+                <span>
+            
+                    
+                    Nylas Mail SDK Guides
+            
+                </span>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../">
+            
+                <a href="../">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="GettingStarted.html">
+            
+                <a href="GettingStarted.html">
+            
+                    
+                    Getting Started
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="GettingStarted-2.html">
+            
+                <a href="GettingStarted-2.html">
+            
+                    
+                    Getting Started Part 2
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="PackageOverview.html">
+            
+                <a href="PackageOverview.html">
+            
+                    
+                    Building a Package
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="InterfaceConcepts.html">
+            
+                <a href="InterfaceConcepts.html">
+            
+                    
+                    Interface Concepts
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7" data-path="React.html">
+            
+                <a href="React.html">
+            
+                    
+                    UI Components
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8" data-path="Architecture.html">
+            
+                <a href="Architecture.html">
+            
+                    
+                    Application Architecture
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.9" data-path="Debugging.html">
+            
+                <a href="Debugging.html">
+            
+                    
+                    Debugging Nylas Mail
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.10" data-path="Database.html">
+            
+                <a href="Database.html">
+            
+                    
+                    Accessing the Database
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.11" data-path="ComposerExtensions.html">
+            
+                <a href="ComposerExtensions.html">
+            
+                    
+                    Extending the Composer
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.12" data-path="WritingSpecs.html">
+            
+                <a href="WritingSpecs.html">
+            
+                    
+                    Writing Tests
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.13" data-path="IntegrationTesting.html">
+            
+                <a href="IntegrationTesting.html">
+            
+                    
+                    Integration Testing
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.14" data-path="Windows.html">
+            
+                <a href="Windows.html">
+            
+                    
+                    Developing on Windows
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.15" data-path="FAQ.html">
+            
+                <a href="FAQ.html">
+            
+                    
+                    FAQ
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="header">Full Class Reference</li>
+        
+        
+    
+        <li class="chapter " data-level="2.1" >
+            
+                <span>
+            
+                    
+                    General
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.1.1" data-path="../classes/Actions.html">
+            
+                <a href="../classes/Actions.html">
+            
+                    
+                    Actions
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.2" data-path="../classes/BufferedProcess.html">
+            
+                <a href="../classes/BufferedProcess.html">
+            
+                    
+                    BufferedProcess
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.3" data-path="../classes/ChangeFolderTask.html">
+            
+                <a href="../classes/ChangeFolderTask.html">
+            
+                    
+                    ChangeFolderTask
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.4" data-path="../classes/ChangeLabelsTask.html">
+            
+                <a href="../classes/ChangeLabelsTask.html">
+            
+                    
+                    ChangeLabelsTask
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.5" data-path="../classes/ChangeMailTask.html">
+            
+                <a href="../classes/ChangeMailTask.html">
+            
+                    
+                    ChangeMailTask
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.6" data-path="../classes/Color.html">
+            
+                <a href="../classes/Color.html">
+            
+                    
+                    Color
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.7" data-path="../classes/Config.html">
+            
+                <a href="../classes/Config.html">
+            
+                    
+                    Config
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.8" data-path="../classes/Contenteditable.html">
+            
+                <a href="../classes/Contenteditable.html">
+            
+                    
+                    Contenteditable
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.9" data-path="../classes/KeyCommandsRegion.html">
+            
+                <a href="../classes/KeyCommandsRegion.html">
+            
+                    
+                    KeyCommandsRegion
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.10" data-path="../classes/NylasEnvConstructor.html">
+            
+                <a href="../classes/NylasEnvConstructor.html">
+            
+                    
+                    NylasEnvConstructor
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.11" data-path="../classes/QueryResultSet.html">
+            
+                <a href="../classes/QueryResultSet.html">
+            
+                    
+                    QueryResultSet
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.12" data-path="../classes/QuerySubscriptionPool.html">
+            
+                <a href="../classes/QuerySubscriptionPool.html">
+            
+                    
+                    QuerySubscriptionPool
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.13" data-path="../classes/StyleManager.html">
+            
+                <a href="../classes/StyleManager.html">
+            
+                    
+                    StyleManager
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.14" data-path="../classes/Task.html">
+            
+                <a href="../classes/Task.html">
+            
+                    
+                    Task
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.15" data-path="../classes/TaskQueueStatusStore.html">
+            
+                <a href="../classes/TaskQueueStatusStore.html">
+            
+                    
+                    TaskQueueStatusStore
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.16" data-path="../classes/ThemeManager.html">
+            
+                <a href="../classes/ThemeManager.html">
+            
+                    
+                    ThemeManager
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2" >
+            
+                <span>
+            
+                    
+                    Component Kit
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.2.1" data-path="../classes/EventedIFrame.html">
+            
+                <a href="../classes/EventedIFrame.html">
+            
+                    
+                    EventedIFrame
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.2" data-path="../classes/Flexbox.html">
+            
+                <a href="../classes/Flexbox.html">
+            
+                    
+                    Flexbox
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.3" data-path="../classes/InjectedComponent.html">
+            
+                <a href="../classes/InjectedComponent.html">
+            
+                    
+                    InjectedComponent
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.4" data-path="../classes/InjectedComponentSet.html">
+            
+                <a href="../classes/InjectedComponentSet.html">
+            
+                    
+                    InjectedComponentSet
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.5" data-path="../classes/Menu.html">
+            
+                <a href="../classes/Menu.html">
+            
+                    
+                    Menu
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.6" data-path="../classes/MenuItem.html">
+            
+                <a href="../classes/MenuItem.html">
+            
+                    
+                    MenuItem
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.7" data-path="../classes/MenuNameEmailItem.html">
+            
+                <a href="../classes/MenuNameEmailItem.html">
+            
+                    
+                    MenuNameEmailItem
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.8" data-path="../classes/MultiselectActionBar.html">
+            
+                <a href="../classes/MultiselectActionBar.html">
+            
+                    
+                    MultiselectActionBar
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.9" data-path="../classes/MultiselectList.html">
+            
+                <a href="../classes/MultiselectList.html">
+            
+                    
+                    MultiselectList
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.10" data-path="../classes/ResizableRegion.html">
+            
+                <a href="../classes/ResizableRegion.html">
+            
+                    
+                    ResizableRegion
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.11" data-path="../classes/RetinaImg.html">
+            
+                <a href="../classes/RetinaImg.html">
+            
+                    
+                    RetinaImg
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.12" data-path="../classes/Spinner.html">
+            
+                <a href="../classes/Spinner.html">
+            
+                    
+                    Spinner
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.13" data-path="../classes/UnsafeComponent.html">
+            
+                <a href="../classes/UnsafeComponent.html">
+            
+                    
+                    UnsafeComponent
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3" >
+            
+                <span>
+            
+                    
+                    Extensions
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.3.1" data-path="../classes/ComposerExtension.html">
+            
+                <a href="../classes/ComposerExtension.html">
+            
+                    
+                    ComposerExtension
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3.2" data-path="../classes/ContenteditableExtension.html">
+            
+                <a href="../classes/ContenteditableExtension.html">
+            
+                    
+                    ContenteditableExtension
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3.3" data-path="../classes/DraftStoreExtension.html">
+            
+                <a href="../classes/DraftStoreExtension.html">
+            
+                    
+                    DraftStoreExtension
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3.4" data-path="../classes/MessageStoreExtension.html">
+            
+                <a href="../classes/MessageStoreExtension.html">
+            
+                    
+                    MessageStoreExtension
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3.5" data-path="../classes/MessageViewExtension.html">
+            
+                <a href="../classes/MessageViewExtension.html">
+            
+                    
+                    MessageViewExtension
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4" >
+            
+                <span>
+            
+                    
+                    Models
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.4.1" data-path="../classes/Contact.html">
+            
+                <a href="../classes/Contact.html">
+            
+                    
+                    Contact
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4.2" data-path="../classes/Message.html">
+            
+                <a href="../classes/Message.html">
+            
+                    
+                    Message
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4.3" data-path="../classes/Model.html">
+            
+                <a href="../classes/Model.html">
+            
+                    
+                    Model
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4.4" data-path="../classes/Thread.html">
+            
+                <a href="../classes/Thread.html">
+            
+                    
+                    Thread
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5" >
+            
+                <span>
+            
+                    
+                    Stores
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.5.1" data-path="../classes/AccountStore.html">
+            
+                <a href="../classes/AccountStore.html">
+            
+                    
+                    AccountStore
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.2" data-path="../classes/ComponentRegistry.html">
+            
+                <a href="../classes/ComponentRegistry.html">
+            
+                    
+                    ComponentRegistry
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.3" data-path="../classes/ContactStore.html">
+            
+                <a href="../classes/ContactStore.html">
+            
+                    
+                    ContactStore
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.4" data-path="../classes/FocusedContentStore.html">
+            
+                <a href="../classes/FocusedContentStore.html">
+            
+                    
+                    FocusedContentStore
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.5" data-path="../classes/TaskQueue.html">
+            
+                <a href="../classes/TaskQueue.html">
+            
+                    
+                    TaskQueue
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.6" data-path="../classes/WorkspaceStore.html">
+            
+                <a href="../classes/WorkspaceStore.html">
+            
+                    
+                    WorkspaceStore
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6" >
+            
+                <span>
+            
+                    
+                    Database
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.6.1" data-path="../classes/Attribute.html">
+            
+                <a href="../classes/Attribute.html">
+            
+                    
+                    Attribute
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.2" data-path="../classes/AttributeBoolean.html">
+            
+                <a href="../classes/AttributeBoolean.html">
+            
+                    
+                    AttributeBoolean
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.3" data-path="../classes/AttributeCollection.html">
+            
+                <a href="../classes/AttributeCollection.html">
+            
+                    
+                    AttributeCollection
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.4" data-path="../classes/AttributeDateTime.html">
+            
+                <a href="../classes/AttributeDateTime.html">
+            
+                    
+                    AttributeDateTime
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.5" data-path="../classes/AttributeJoinedData.html">
+            
+                <a href="../classes/AttributeJoinedData.html">
+            
+                    
+                    AttributeJoinedData
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.6" data-path="../classes/AttributeNumber.html">
+            
+                <a href="../classes/AttributeNumber.html">
+            
+                    
+                    AttributeNumber
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.7" data-path="../classes/AttributeObject.html">
+            
+                <a href="../classes/AttributeObject.html">
+            
+                    
+                    AttributeObject
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.8" data-path="../classes/AttributeServerId.html">
+            
+                <a href="../classes/AttributeServerId.html">
+            
+                    
+                    AttributeServerId
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.9" data-path="../classes/AttributeString.html">
+            
+                <a href="../classes/AttributeString.html">
+            
+                    
+                    AttributeString
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.10" data-path="../classes/DatabaseStore.html">
+            
+                <a href="../classes/DatabaseStore.html">
+            
+                    
+                    DatabaseStore
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.11" data-path="../classes/Matcher.html">
+            
+                <a href="../classes/Matcher.html">
+            
+                    
+                    Matcher
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.12" data-path="../classes/ModelQuery.html">
+            
+                <a href="../classes/ModelQuery.html">
+            
+                    
+                    ModelQuery
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.13" data-path="../classes/SortOrder.html">
+            
+                <a href="../classes/SortOrder.html">
+            
+                    
+                    SortOrder
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.7" >
+            
+                <span>
+            
+                    
+                    Drafts
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.7.1" data-path="../classes/DraftChangeSet.html">
+            
+                <a href="../classes/DraftChangeSet.html">
+            
+                    
+                    DraftChangeSet
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.7.2" data-path="../classes/DraftEditingSession.html">
+            
+                <a href="../classes/DraftEditingSession.html">
+            
+                    
+                    DraftEditingSession
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.7.3" data-path="../classes/DraftStore.html">
+            
+                <a href="../classes/DraftStore.html">
+            
+                    
+                    DraftStore
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8" >
+            
+                <span>
+            
+                    
+                    NylasEnv
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.8.1" data-path="../classes/PackageManager.html">
+            
+                <a href="../classes/PackageManager.html">
+            
+                    
+                    PackageManager
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.9" >
+            
+                <span>
+            
+                    
+                    Atom
+            
+                </span>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href=".." >Accessing the Database</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="accessing-the-database"><a name="accessing-the-database" class="plugin-anchor" href="#accessing-the-database"><i class="fa fa-link" aria-hidden="true"></i></a>Accessing the Database</h1>
+<p>Nylas Mail is built on top of a custom database layer modeled after ActiveRecord. For many parts of the application, the database is the source of truth. Data is retrieved from the API, written to the database, and changes to the database trigger Stores and components to refresh their contents. The illustration below shows this flow of data:</p>
+<p><img src="../img/database-flow.png"></p>
+<p>The Database connection is managed by the {DatabaseStore}, a singleton object that exists in every window. All Database requests are asynchronous. Queries are forwarded to the application&apos;s <code>Browser</code> process via IPC and run in SQLite.</p>
+<h2 id="declaring-models"><a name="declaring-models" class="plugin-anchor" href="#declaring-models"><i class="fa fa-link" aria-hidden="true"></i></a>Declaring Models</h2>
+<p>In Nylas Mail, Models are thin wrappers around data with a particular schema. Each {Model} class declares a set of attributes that define the object&apos;s data. For example:</p>
+<pre><code class="lang-coffee"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Example</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span></span>
+
+  @attributes:
+    <span class="hljs-string">&apos;id&apos;</span>: Attributes.String
+      queryable: <span class="hljs-literal">true</span>
+      modelKey: <span class="hljs-string">&apos;id&apos;</span>
+
+    <span class="hljs-string">&apos;object&apos;</span>: Attributes.String
+      modelKey: <span class="hljs-string">&apos;object&apos;</span>
+
+    <span class="hljs-string">&apos;namespaceId&apos;</span>: Attributes.String
+      queryable: <span class="hljs-literal">true</span>
+      modelKey: <span class="hljs-string">&apos;namespaceId&apos;</span>
+      jsonKey: <span class="hljs-string">&apos;namespace_id&apos;</span>
+
+    <span class="hljs-string">&apos;body&apos;</span>: Attributes.JoinedData
+      modelTable: <span class="hljs-string">&apos;MessageBody&apos;</span>
+      modelKey: <span class="hljs-string">&apos;body&apos;</span>
+
+    <span class="hljs-string">&apos;files&apos;</span>: Attributes.Collection
+      modelKey: <span class="hljs-string">&apos;files&apos;</span>
+      itemClass: File
+
+    <span class="hljs-string">&apos;unread&apos;</span>: Attributes.Boolean
+      queryable: <span class="hljs-literal">true</span>
+      modelKey: <span class="hljs-string">&apos;unread&apos;</span>
+</code></pre>
+<p>When models are inflated from JSON using <code>fromJSON</code> or converted to JSON using <code>toJSON</code>, only the attributes declared on the model are copied. The <code>modelKey</code> and <code>jsonKey</code> options allow you to specify where a particular key should be found. Attributes are also coerced to the proper types: String attributes will always be strings, Boolean attributes will always be <code>true</code> or <code>false</code>, etc. <code>null</code> is a valid value for all types.</p>
+<p>The {DatabaseStore} automatically maintains cache tables for storing Model objects. By default, models are stored in the cache as JSON blobs and basic attributes are not queryable. When the <code>queryable</code> option is specified on an attribute, it is given a separate column and index in the SQLite table for the model, and you can construct queries using the attribute:</p>
+<pre><code class="lang-coffee">Thread.attributes.namespaceId.equals(<span class="hljs-string">&quot;123&quot;</span>)
+<span class="hljs-regexp">//</span> where namespace_id = <span class="hljs-string">&apos;123&apos;</span>
+
+Thread.attributes.lastMessageTimestamp.greaterThan(<span class="hljs-number">123</span>)
+<span class="hljs-regexp">//</span> where last_message_timestamp &gt; <span class="hljs-number">123</span>
+
+Thread.attributes.lastMessageTimestamp.descending()
+<span class="hljs-regexp">//</span> order <span class="hljs-keyword">by</span> last_message_timestamp DESC
+</code></pre>
+<h2 id="retrieving-models"><a name="retrieving-models" class="plugin-anchor" href="#retrieving-models"><i class="fa fa-link" aria-hidden="true"></i></a>Retrieving Models</h2>
+<p>You can make queries for models stored in SQLite using a {Promise}-based ActiveRecord-style syntax. There is no way to make raw SQL queries against the local data store.</p>
+<pre><code class="lang-coffee">DatabaseStore.find(Thread, <span class="hljs-string">&apos;123&apos;</span>).<span class="hljs-keyword">then</span> (thread) -&gt;
+    <span class="hljs-comment"># thread is a thread object</span>
+
+DatabaseStore.findBy(Thread, {subject: <span class="hljs-string">&apos;Hello World&apos;</span>}).<span class="hljs-keyword">then</span> (thread) -&gt;
+    <span class="hljs-comment"># find a single thread by subject</span>
+
+DatabaseStore.findAll(Thread).where([Thread.attributes.tags.contains(<span class="hljs-string">&apos;inbox&apos;</span>)]).<span class="hljs-keyword">then</span> (threads) -&gt;
+    <span class="hljs-comment"># find threads with the inbox tag</span>
+
+DatabaseStore.count(Thread).where([Thread.attributes.lastMessageTimestamp.greaterThan(<span class="hljs-number">120315123</span>)]).<span class="hljs-keyword">then</span> (results) -&gt;
+    <span class="hljs-comment"># count threads where last message received since 120315123.</span>
+</code></pre>
+<h2 id="retrieving-pages-of-models"><a name="retrieving-pages-of-models" class="plugin-anchor" href="#retrieving-pages-of-models"><i class="fa fa-link" aria-hidden="true"></i></a>Retrieving Pages of Models</h2>
+<p>If you need to paginate through a view of data, you should use a <code>DatabaseView</code>. Database views can be configured with a sort order and a set of where clauses. After the view is configured, it maintains a cache of models in memory in a highly efficient manner and makes it easy to implement pagination. <code>DatabaseView</code> also performs deep inspection of its cache when models are changed and can avoid costly SQL queries.</p>
+<h2 id="saving-and-updating-models"><a name="saving-and-updating-models" class="plugin-anchor" href="#saving-and-updating-models"><i class="fa fa-link" aria-hidden="true"></i></a>Saving and Updating Models</h2>
+<p>The {DatabaseStore} exposes two methods for creating and updating models: <code>persistModel</code> and <code>persistModels</code>. When you call <code>persistModel</code>, queries are automatically executed to update the object in the cache and the {DatabaseStore} triggers, broadcasting an update to the rest of the application so that views dependent on these kind of models can refresh.</p>
+<p>When possible, you should accumulate the objects you want to save and call <code>persistModels</code>. The {DatabaseStore} will generate batch insert statements, and a single notification will be broadcast throughout the application. Since saving objects can result in objects being re-fetched by many stores and components, you should be mindful of database insertions.</p>
+<h2 id="saving-drafts"><a name="saving-drafts" class="plugin-anchor" href="#saving-drafts"><i class="fa fa-link" aria-hidden="true"></i></a>Saving Drafts</h2>
+<p>Drafts in Nylas Mail presented us with a unique challenge. The same draft may be edited rapidly by unrelated parts of the application, causing race scenarios. (For example, when the user is typing and attachments finish uploading at the same time.) This problem could be solved by object locking, but we chose to marshall draft changes through a central DraftStore that debounces database queries and adds other helpful features. See the {DraftStore} documentation for more information.</p>
+<h2 id="removing-models"><a name="removing-models" class="plugin-anchor" href="#removing-models"><i class="fa fa-link" aria-hidden="true"></i></a>Removing Models</h2>
+<p>The {DatabaseStore} exposes a single method, <code>unpersistModel</code>, that allows you to purge an object from the cache. You cannot remove a model by ID alone - you must load it first.</p>
+<h4 id="advanced-model-attributes"><a name="advanced-model-attributes" class="plugin-anchor" href="#advanced-model-attributes"><i class="fa fa-link" aria-hidden="true"></i></a>Advanced Model Attributes</h4>
+<h5 id="attributejoineddata"><a name="attributejoineddata" class="plugin-anchor" href="#attributejoineddata"><i class="fa fa-link" aria-hidden="true"></i></a>Attribute.JoinedData</h5>
+<p>Joined Data attributes allow you to store certain attributes of an object in a separate table in the database. We use this attribute type for Message bodies. Storing message bodies, which can be very large, in a separate table allows us to make queries on message metadata extremely fast, and inflate Message objects without their bodies to build the thread list.</p>
+<p>When building a {ModelQuery} on a model with a {JoinedDataAttribute}, you need to call <code>include</code> to explicitly load the joined data attribute. The query builder will automatically perform a <code>LEFT OUTER JOIN</code> with the secondary table to retrieve the attribute:</p>
+<pre><code class="lang-coffee">DatabaseStore.find(Message, <span class="hljs-string">&apos;123&apos;</span>).<span class="hljs-keyword">then</span> (message) -&gt;
+    <span class="hljs-regexp">//</span> message.body <span class="hljs-keyword">is</span> <span class="hljs-literal">undefined</span>
+
+DatabaseStore.find(Message, <span class="hljs-string">&apos;123&apos;</span>).include(Message.attributes.body).<span class="hljs-keyword">then</span> (message) -&gt;
+    <span class="hljs-regexp">//</span> message.body <span class="hljs-keyword">is</span> defined
+</code></pre>
+<p>When you call <code>persistModel</code>, JoinedData attributes are automatically written to the secondary table.</p>
+<p>JoinedData attributes cannot be <code>queryable</code>.</p>
+<h5 id="attributecollection"><a name="attributecollection" class="plugin-anchor" href="#attributecollection"><i class="fa fa-link" aria-hidden="true"></i></a>Attribute.Collection</h5>
+<p>Collection attributes provide basic support for one-to-many relationships. For example, {Thread}s in Nylas Mail have a collection of {Tag}s.</p>
+<p>When Collection attributes are marked as <code>queryable</code>, the {DatabaseStore} automatically creates a join table and maintains it as you create, save, and delete models. When you call <code>persistModel</code>, entries are added to the join table associating the ID of the model with the IDs of models in the collection.</p>
+<p>Collection attributes have an additional clause builder, <code>contains</code>:</p>
+<pre><code class="lang-coffee">DatabaseStore.findAll(Thread).where([Thread.attributes.tags.contains(<span class="hljs-string">&apos;inbox&apos;</span>)])
+</code></pre>
+<p>This is equivalent to writing the following SQL:</p>
+<pre><code class="lang-sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-string">`Thread`</span>.<span class="hljs-string">`data`</span> <span class="hljs-keyword">FROM</span> <span class="hljs-string">`Thread`</span> <span class="hljs-keyword">INNER</span> <span class="hljs-keyword">JOIN</span> <span class="hljs-string">`ThreadTag`</span> <span class="hljs-keyword">AS</span> <span class="hljs-string">`M1`</span> <span class="hljs-keyword">ON</span> <span class="hljs-string">`M1`</span>.<span class="hljs-string">`id`</span> = <span class="hljs-string">`Thread`</span>.<span class="hljs-string">`id`</span> <span class="hljs-keyword">WHERE</span> <span class="hljs-string">`M1`</span>.<span class="hljs-string">`value`</span> = <span class="hljs-string">&apos;inbox&apos;</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> <span class="hljs-string">`Thread`</span>.<span class="hljs-string">`last_message_timestamp`</span> <span class="hljs-keyword">DESC</span>
+</code></pre>
+<h4 id="listening-for-changes"><a name="listening-for-changes" class="plugin-anchor" href="#listening-for-changes"><i class="fa fa-link" aria-hidden="true"></i></a>Listening for Changes</h4>
+<p>For many parts of the application, the Database is the source of truth. Funneling changes through the database ensures that they are available to the entire application. Basing your packages on the Database, and listening to it for changes, ensures that your views never fall out of sync.</p>
+<p>Within Reflux Stores, you can listen to the {DatabaseStore} using the <code>listenTo</code> helper method:</p>
+<pre><code class="lang-coffee">@listenTo(DatabaseStore, @_onDataChanged)
+</code></pre>
+<p>Within generic code, you can listen to the {DatabaseStore} using this syntax:</p>
+<pre><code class="lang-coffee">@unlisten = DatabaseStore.listen(@_onDataChanged, @)
+</code></pre>
+<p>When a model is persisted or unpersisted from the database, your listener method will fire. It&apos;s very important to inspect the change payload before making queries to refresh your data. The change payload is a simple object with the following keys:</p>
+<pre><code>{
+    &quot;objectClass&quot;: // string: the name of the class that was changed. ie: &quot;Thread&quot;
+    &quot;objects&quot;: // array: the objects that were persisted or removed
+}
+</code></pre><h2 id="but-why-cant-i"><a name="but-why-cant-i" class="plugin-anchor" href="#but-why-cant-i"><i class="fa fa-link" aria-hidden="true"></i></a>But why can&apos;t I...?</h2>
+<p>Nylas Mail exposes a minimal Database API that exposes high-level methods for saving and retrieving objects. The API was designed with several goals in mind, which will help us create a healthy ecosystem of third-party packages:</p>
+<ul>
+<li><p>Package code should not be tightly coupled to SQLite</p>
+</li>
+<li><p>Queries should be composed in a way that makes invalid queries impossible</p>
+</li>
+<li><p>All changes to the local database must be observable</p>
+</li>
+</ul>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="Debugging.html" class="navigation navigation-prev " aria-label="Previous page: Debugging Nylas Mail">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="ComposerExtensions.html" class="navigation navigation-next " aria-label="Next page: Extending the Composer">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Accessing the Database","level":"1.10","depth":1,"next":{"title":"Extending the Composer","level":"1.11","depth":1,"path":"guides/ComposerExtensions.md","ref":"guides/ComposerExtensions.md","articles":[]},"previous":{"title":"Debugging Nylas Mail","level":"1.9","depth":1,"path":"guides/Debugging.md","ref":"guides/Debugging.md","articles":[]},"dir":"ltr"},"config":{"plugins":["search","lunr","-fontsettings","-sharing","anchors","github","editlink","favicon"],"root":"./docs_src","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"editlink":{"label":"Edit This Page","multilingual":false,"base":"https://github.com/nylas/nylas-mail-docs/tree/master"},"github":{"url":"https://github.com/nylas/nylas-mail-docs"},"favicon":{"shortcut":"/img/favicon.png"},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"anchors":{},"highlight":{},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Nylas Mail Plugin SDK","links":{"sharing":{"facebook":false,"twitter":false}},"gitbook":"3.2.2"},"file":{"path":"guides/Database.md","mtime":"2017-01-30T09:55:21.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2017-01-30T10:28:53.038Z"},"basePath":"..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../gitbook/gitbook.js"></script>
+    <script src="../gitbook/theme.js"></script>
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-github/plugin.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-editlink/plugin.js"></script>
+        
+    
+
+    </body>
+</html>
+
