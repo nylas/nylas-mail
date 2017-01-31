@@ -105,6 +105,7 @@ export async function markInProgressTasksAsFailed({db} = {}) {
 
   for (const inProgress of inProgressTasks) {
     inProgress.status = 'FAILED';
+    inProgress.error = new Error('Lingering task in progress was marked as failed')
     await inProgress.save();
   }
 }
