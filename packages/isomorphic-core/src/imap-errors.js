@@ -76,6 +76,21 @@ class IMAPCertificateError extends NylasError { }
  */
 function convertImapError(imapError) {
   let error;
+
+  if (imapError.message.includes('System Error')) {
+    // System Errors encountered in the wild so far have been retryable.
+    error = new RetryableError(imapError)
+    error.source = imapError.source
+    return error
+  }
+  if (imapError.message.includes('User is authenticated but not connected')) {
+    // We need to treat this type of error as retryable
+    // See https://github.com/mscdex/node-imap/issues/523 for more details
+    error = new IMAPSocketError(imapError)
+    error.source = imapError.source
+    return error
+  }
+
   switch (imapError.source) {
     case "socket-timeout":
       error = new IMAPConnectionTimeoutError(imapError); break;
