@@ -83,7 +83,7 @@ class AccountStore extends NylasStore {
         }
         this._tokens[account.id] = credentials;
 
-        // HACK HACK HACK. For some reason we're getting passed the wrong
+        // TODO HACK. For some reason we're getting passed the wrong
         // id. Figure this out after launch.
         this._tokens[account.emailAddress] = credentials;
       }

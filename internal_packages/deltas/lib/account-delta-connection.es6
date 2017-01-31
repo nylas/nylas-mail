@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import {
   Actions,
+  Account,
   N1CloudAPI,
   DatabaseStore,
   NylasLongConnection,
@@ -70,8 +71,12 @@ export default class AccountDeltaConnection {
   }
 
   start = () => {
-    this._refreshingCaches.map(c => c.start());
-    _.map(this._deltaStreams, s => s.start())
+    try {
+      this._refreshingCaches.map(c => c.start());
+      _.map(this._deltaStreams, s => s.start())
+    } catch (err) {
+      this._onError(err)
+    }
   }
 
   cleanup() {
@@ -101,7 +106,20 @@ export default class AccountDeltaConnection {
         this._state.deltaStatus[streamName] = status;
         this._writeStateDebounced();
       },
+      onError: this._onError,
     }
+  }
+
+  _onError = (err) => {
+    if (err.statusCode === 401) {
+      Actions.updateAccount(this._account.id, {
+        syncState: Account.SYNC_STATE_AUTH_FAILED,
+        syncError: err.toJSON(),
+      })
+      this.cleanup()
+      return
+    }
+    this.refresh()
   }
 
   _writeState() {
