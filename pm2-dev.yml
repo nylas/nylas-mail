@@ -22,3 +22,5 @@ apps:
       DB_ENCRYPTION_ALGORITHM : "aes-256-ctr"
       DB_ENCRYPTION_PASSWORD : "d6F3Efeq"
       NODE_ENV: 'development'
+  - script : redis-server
+    name   : redis
