@@ -24,8 +24,9 @@ N1's build scripts and tooling use modern JavaScript features and require:
  - Node 6.0 or above with npm3
  - python 2.7
 
-Linux users on Debian 8 and Ubuntu 15.04 onward must also install libgcrypt11
-and gnome-keyring.
+Linux users should make sure they've installed all the packages listed at
+https://github.com/nylas/nylas-mail/blob/master/.travis.yml#L10. Linux users on
+Debian 8 and Ubuntu 15.04 onward must also install libgcrypt11 and gnome-keyring.
 
 Next, clone and build N1 from source:
 
