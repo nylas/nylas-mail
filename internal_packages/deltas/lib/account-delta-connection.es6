@@ -2,6 +2,7 @@ import _ from 'underscore';
 import {
   Actions,
   Account,
+  APIError,
   N1CloudAPI,
   DatabaseStore,
   NylasLongConnection,
@@ -111,15 +112,19 @@ export default class AccountDeltaConnection {
   }
 
   _onError = (err) => {
-    if (err.statusCode === 401) {
-      Actions.updateAccount(this._account.id, {
-        syncState: Account.SYNC_STATE_AUTH_FAILED,
-        syncError: err.toJSON(),
-      })
-      this.cleanup()
+    if (err instanceof APIError) {
+      if (err.statusCode === 401) {
+        Actions.updateAccount(this._account.id, {
+          syncState: Account.SYNC_STATE_AUTH_FAILED,
+          syncError: err.toJSON(),
+        })
+        this.cleanup()
+        return
+      }
+      this.refresh()
       return
     }
-    this.refresh()
+    throw err
   }
 
   _writeState() {
