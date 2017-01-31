@@ -24,11 +24,12 @@ class DeltaStreamingConnection extends NylasLongConnection {
   }
 
   onError(err) {
-    if (err.message.indexOf('Invalid cursor') > 0) {
+    if (err.message.includes('Invalid cursor')) {
       const error = new Error('Delta Connection: Cursor is invalid. Need to blow away local cache.');
       this._setCursor(0)
       DatabaseStore._handleSetupError(error)
     }
+    this._onError(err)
   }
 
   onDeltas(callback) {
