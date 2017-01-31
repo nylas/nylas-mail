@@ -5,6 +5,7 @@ const {Actions} = require('nylas-exports')
 const SyncWorker = require('./sync-worker');
 const LocalDatabaseConnector = require('../shared/local-database-connector')
 
+
 class SyncProcessManager {
   constructor() {
     this._workers = {};
