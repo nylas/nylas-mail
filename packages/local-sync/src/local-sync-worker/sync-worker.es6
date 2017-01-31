@@ -291,6 +291,7 @@ class SyncWorker {
       return
     }
 
+    NylasEnv.reportError(error)
     const isAuthError = error instanceof IMAPErrors.IMAPAuthenticationError
     const accountSyncState = isAuthError ? SYNC_STATE_AUTH_FAILED : SYNC_STATE_ERROR;
     // TODO this is currently a hack to keep N1's account in sync and notify of
