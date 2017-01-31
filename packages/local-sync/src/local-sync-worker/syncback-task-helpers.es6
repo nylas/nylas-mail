@@ -1,5 +1,7 @@
+const {IMAPErrors} = require('isomorphic-core')
 const SyncbackTaskFactory = require('./syncback-task-factory');
 
+const MAX_TASK_RETRIES = 2
 
 // TODO NOTE! These are the tasks we exclude from the sync loop. This should be
 // refactored later.
@@ -118,11 +120,22 @@ export async function runSyncbackTask({task, runTask} = {}) {
     syncbackRequest.status = "INPROGRESS";
     await syncbackRequest.save();
 
-    // TODO `runTask` is a hack to allow tasks to be executed outside the
-    // context of an imap connection, specifically to allow running send tasks
-    // outside of the sync loop. This should be solved in a better way or
-    // probably refactored when we implement the sync scheduler
-    const responseJSON = await runTask(task)
+    let responseJSON;
+    for (let numTries = 0; numTries <= MAX_TASK_RETRIES; numTries++) {
+      try {
+        // TODO `runTask` is a hack to allow tasks to be executed outside the
+        // context of an imap connection, specifically to allow running send tasks
+        // outside of the sync loop. This should be solved in a better way or
+        // probably refactored when we implement the sync scheduler
+        responseJSON = await runTask(task)
+        break;
+      } catch (err) {
+        if (!(err instanceof IMAPErrors.RetryableError) || numTries >= MAX_TASK_RETRIES) {
+          throw err
+        }
+      }
+    }
+
     syncbackRequest.status = "SUCCEEDED";
     syncbackRequest.responseJSON = responseJSON || {};
     const after = new Date();
