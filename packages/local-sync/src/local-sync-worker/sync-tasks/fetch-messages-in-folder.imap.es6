@@ -610,7 +610,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
 
   _shouldFetchAttributes(boxStatus) {
     if (boxStatus.name !== this._folder.name) {
-      throw new Error(`FetchMessagesInFolder::_shouldFetchMessages - boxStatus doesn't correspond to folder`)
+      throw new Error(`FetchMessagesInFolder::_shouldFetchAttributes - boxStatus doesn't correspond to folder`)
     }
     if (!this._folder.isSyncComplete()) {
       return true
