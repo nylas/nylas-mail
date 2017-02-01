@@ -96,6 +96,7 @@ class SyncWorker {
     const noFolderImapUID = await Message.findAll({
       where: {
         folderImapUID: null,
+        isProcessed: true,
       },
     })
     const affectedThreadIds = new Set();
