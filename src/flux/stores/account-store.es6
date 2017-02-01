@@ -11,7 +11,6 @@ import DatabaseStore from './database-store'
 
 const configAccountsKey = "nylas.accounts"
 const configVersionKey = "nylas.accountsVersion"
-const configTokensKey = "nylas.accountTokens"
 
 
 /*
@@ -136,8 +135,9 @@ class AccountStore extends NylasStore {
 
   _save = () => {
     this._version += 1
-    NylasEnv.config.set(configTokensKey, null)
-    NylasEnv.config.set(configAccountsKey, this._accounts)
+    const configAccounts = this._accounts.map(a => a.toJSON())
+    configAccounts.forEach(a => delete a.sync_error)
+    NylasEnv.config.set(configAccountsKey, configAccounts)
     NylasEnv.config.set(configVersionKey, this._version)
     this._trigger()
   }
