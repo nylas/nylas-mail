@@ -7,45 +7,6 @@ const {createAndReplyWithSyncbackRequest} = require('../route-helpers');
 module.exports = (server) => {
   server.route({
     method: 'GET',
-    path: '/messages',
-    config: {
-      description: 'Returns all your messages.',
-      notes: 'Notes go here',
-      tags: ['messages'],
-      validate: {
-        query: {
-          thread_id: Joi.string(),
-          limit: Joi.number().integer().min(1).max(2000).default(100),
-          offset: Joi.number().integer().min(0).default(0),
-        },
-      },
-      response: {
-        schema: Joi.array().items(
-          Serialization.jsonSchema('Message')
-        ),
-      },
-    },
-    handler: (request, reply) => {
-      request.getAccountDatabase().then((db) => {
-        const {Message, Folder, Label, File} = db;
-        const wheres = {isDraft: false};
-        if (request.query.thread_id) {
-          wheres.threadId = request.query.thread_id;
-        }
-        Message.findAll({
-          limit: request.query.limit,
-          offset: request.query.offset,
-          where: wheres,
-          include: [{model: Folder}, {model: Label}, {model: File}],
-        }).then((messages) => {
-          reply(Serialization.jsonStringify(messages));
-        })
-      })
-    },
-  });
-
-  server.route({
-    method: 'GET',
     path: '/messages/{id}',
     config: {
       description: 'Returns message for specified id.',
