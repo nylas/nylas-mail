@@ -71,9 +71,9 @@ export default class Category extends Model {
       modelKey: 'displayName',
       jsonKey: 'display_name',
     }),
-    syncState: Attributes.Object({
-      modelKey: 'syncState',
-      jsonKey: 'sync_state',
+    syncProgress: Attributes.Object({
+      modelKey: 'syncProgress',
+      jsonKey: 'sync_progress',
     }),
   });
 
