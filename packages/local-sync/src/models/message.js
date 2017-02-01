@@ -97,6 +97,14 @@ module.exports = (sequelize, Sequelize) => {
         return crypto.createHash('sha256').update(data, 'utf8').digest('hex');
       },
 
+      dateString(strOrDate) {
+        let date = strOrDate;
+        if (typeof strOrDate === 'string') {
+          date = new Date(Date.parse(strOrDate));
+        }
+        return date.toUTCString().replace(/GMT/, '+0000')
+      },
+
       buildHeaderMessageId(id) {
         return `<${id}@nylas-mail.nylas.com>`
       },

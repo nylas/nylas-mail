@@ -93,8 +93,13 @@ class SyncWorker {
         isSending: {$not: true},
       },
     })
+    const noFolderImapUID = await Message.findAll({
+      where: {
+        folderImapUID: null,
+      },
+    })
     const affectedThreadIds = new Set();
-    await Promise.map(orphans, (msg) => {
+    await Promise.map(orphans.concat(noFolderImapUID), (msg) => {
       affectedThreadIds.add(msg.threadId);
       return msg.destroy();
     });

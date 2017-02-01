@@ -55,7 +55,11 @@ module.exports = (sequelize, Sequelize) => {
 
         await Promise.all(messages.map(async (msg) => {
           const labels = await msg.getLabels({attributes: ['id']})
-          labels.forEach(({id}) => labelIds.add(id));
+          labels.forEach(({id}) => {
+            if (!id) return;
+            labelIds.add(id);
+          })
+          if (!msg.folderId) return;
           folderIds.add(msg.folderId)
         }));
 
