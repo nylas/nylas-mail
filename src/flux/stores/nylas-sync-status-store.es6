@@ -88,20 +88,11 @@ class NylasSyncStatusStore extends NylasStore {
       const updates = {}
       for (const folder of folders) {
         const name = folder.name || folder.displayName
-        const {uidnext, fetchedmin, fetchedmax, minUID, oldestProcessedDate} = folder.syncState || {}
-        if (uidnext) {
-          // TODO: when we unify the databases, we shouldn't need code to
-          // calculate this in two different places anymore
-          const progress = (+fetchedmax - +fetchedmin + 1) / (uidnext - minUID + 1)
-          updates[name] = {
-            progress,
-            total: uidnext,
-            oldestProcessedDate: oldestProcessedDate ? new Date(oldestProcessedDate) : new Date(),
-          }
-        } else {
-          // We don't have a uidnext if the sync hasn't started at all,
-          // but we've found the folder.
-          updates[name] = {progress: 0, total: 0, oldestProcessedDate: new Date()}
+        const {approxPercentComplete, approxTotal, oldestProcessedDate} = folder.syncProgress || {};
+        updates[name] = {
+          progress: approxPercentComplete || 0,
+          total: approxTotal || 0,
+          oldestProcessedDate: oldestProcessedDate ? new Date(oldestProcessedDate) : new Date(),
         }
       }
       this._updateState(accountId, {folderSyncProgress: updates})
