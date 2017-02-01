@@ -1,5 +1,11 @@
 # Nylas Mail Changelog
 
+### 1.0.20 (2/1/17)
+
+- Fixes:
+
+  + Properly clean up broken replies
+
 ### 1.0.19 (1/31/17)
 
 - Fixes:
