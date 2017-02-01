@@ -297,10 +297,21 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
     gThrId: parsedHeaders['x-gm-thrid'],
     subject: parsedHeaders.subject ? parsedHeaders.subject[0] : '(no subject)',
   }
+
+
+  /**
+   * mimelib will return a string date with the leading zero of single
+   * digit dates truncated. e.g. February 1 instead of February 01. When
+   * we set Message Date headers, we use javascript's `toUTCString` which
+   * zero pads digit dates. To make the hashes line up, we need to ensure
+   * that the date string used in the ID generation is also zero-padded.
+   */
+  const messageForHashing = Utils.deepClone(parsedMessage)
+  messageForHashing.date = Message.dateString(parsedMessage.date);
   // Inversely to `buildForSend`, we leave the date header as it is so that the
   // format is consistent for the generative IDs, then convert it to a Date object
-  parsedMessage.id = Message.hash(parsedMessage)
-  parsedMessage.date = new Date(Date.parse(parsedMessage.date))
+  parsedMessage.id = Message.hash(messageForHashing)
+  parsedMessage.date = new Date(Date.parse(parsedMessage.date));
 
   parsedMessage.snippet = parseSnippet(parsedMessage.body);
 
@@ -397,7 +408,7 @@ async function buildForSend(db, json) {
   // the date header with this modified UTC string
   // https://github.com/nodemailer/buildmail/blob/master/lib/buildmail.js#L470
   const messageForHashing = Utils.deepClone(message)
-  messageForHashing.date = date.toUTCString().replace(/GMT/, '+0000')
+  messageForHashing.date = Message.dateString(date)
   message.id = Message.hash(messageForHashing)
   message.body = replaceMessageIdInBodyTrackingLinks(message.id, message.body)
   const instance = Message.build(message)
