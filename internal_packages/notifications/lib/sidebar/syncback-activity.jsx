@@ -25,7 +25,9 @@ export default class SyncbackActivity extends React.Component {
       counts[label] += +task.numberOfImpactedItems()
     });
 
-    const ellipses = [1, 2, 3].map((i) => <span className={`ellipsis${i}`}>.</span>);
+    const ellipses = [1, 2, 3].map((i) => (
+      <span key={`ellipsis${i}`} className={`ellipsis${i}`}>.</span>)
+    );
 
     const items = _.pairs(counts).map(([label, count]) => {
       return (
