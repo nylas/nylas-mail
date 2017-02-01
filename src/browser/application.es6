@@ -8,23 +8,23 @@ import path from 'path';
 import proc from 'child_process'
 import {EventEmitter} from 'events';
 
-import SystemTrayManager from './system-tray-manager';
 import WindowManager from './window-manager';
 import FileListCache from './file-list-cache';
 import ApplicationMenu from './application-menu';
 import AutoUpdateManager from './auto-update-manager';
+import SystemTrayManager from './system-tray-manager';
 import PerformanceMonitor from './performance-monitor'
+import DefaultClientHelper from '../default-client-helper';
 import NylasProtocolHandler from './nylas-protocol-handler';
 import PackageMigrationManager from './package-migration-manager';
 import ConfigPersistenceManager from './config-persistence-manager';
-import DefaultClientHelper from '../default-client-helper';
 
 let clipboard = null;
 
 // The application's singleton class.
 //
 export default class Application extends EventEmitter {
-  start(options) {
+  async start(options) {
     const {resourcePath, configDirPath, version, devMode, specMode, safeMode} = options;
 
     // Normalize to make sure drive letter case is consistent on Windows
@@ -38,12 +38,13 @@ export default class Application extends EventEmitter {
     this.fileListCache = new FileListCache();
     this.nylasProtocolHandler = new NylasProtocolHandler(this.resourcePath, this.safeMode);
 
-    this.temporaryMigrateConfig();
+    this.configPersistenceManager = new ConfigPersistenceManager({
+      configDirPath, resourcePath, specMode});
+    await this.configPersistenceManager.setup()
 
     const Config = require('../config');
     const config = new Config();
     this.config = config;
-    this.configPersistenceManager = new ConfigPersistenceManager({configDirPath, resourcePath});
     config.load();
 
     this.packageMigrationManager = new PackageMigrationManager({config, configDirPath, version})
@@ -100,17 +101,6 @@ export default class Application extends EventEmitter {
 
   isQuitting() {
     return this.quitting;
-  }
-
-  temporaryMigrateConfig() {
-    const oldConfigFilePath = fs.resolve(this.configDirPath, 'config.cson');
-    const newConfigFilePath = path.join(this.configDirPath, 'config.json');
-    if (oldConfigFilePath) {
-      const CSON = require('season');
-      const userConfig = CSON.readFileSync(oldConfigFilePath);
-      fs.writeFileSync(newConfigFilePath, JSON.stringify(userConfig, null, 2));
-      fs.unlinkSync(oldConfigFilePath);
-    }
   }
 
   // Opens a new window based on the options provided.
