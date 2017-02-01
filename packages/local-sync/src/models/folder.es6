@@ -1,9 +1,11 @@
-const _ = require('underscore')
-const crypto = require('crypto')
-const {DatabaseTypes: {JSONColumn}} = require('isomorphic-core');
-const {formatImapPath} = require('../shared/imap-paths-utils');
+import _ from 'underscore'
+import crypto from 'crypto'
+import {DatabaseTypes} from 'isomorphic-core'
+import {formatImapPath} from '../shared/imap-paths-utils'
 
-module.exports = (sequelize, Sequelize) => {
+const {JSONColumn} = DatabaseTypes
+
+export default (sequelize, Sequelize) => {
   return sequelize.define('folder', {
     id: { type: Sequelize.STRING(65), primaryKey: true },
     accountId: { type: Sequelize.STRING, allowNull: false },
@@ -74,6 +76,24 @@ module.exports = (sequelize, Sequelize) => {
         return this.save();
       },
 
+      syncProgress() {
+        if (!this.syncState) {
+          return {
+            approxPercentComplete: 0,
+            approxTotal: 0,
+            oldestProcessedDate: new Date(),
+          }
+        }
+        const {fetchedmax, fetchedmin, uidnext, minUID, oldestProcessedDate} = this.syncState;
+        return {
+          // based on % of uid space scanned, but space may be sparse
+          approxPercentComplete: (+fetchedmax - +fetchedmin + 1) /
+                                 (uidnext - Math.min(minUID, fetchedmin) + 1),
+          approxTotal: uidnext,
+          oldestProcessedDate: oldestProcessedDate,
+        }
+      },
+
       toJSON() {
         return {
           id: `${this.id}`,
@@ -81,7 +101,11 @@ module.exports = (sequelize, Sequelize) => {
           object: 'folder',
           name: this.role,
           display_name: formatImapPath(this.name),
-          sync_state: this.syncState,
+          sync_progress: this.syncProgress(),
+          // intentionally overwrite any sync states stored in edgehill.db,
+          // since it may contain long arrays and cause perf degredation
+          // when serialized repeatedly
+          sync_state: null,
         };
       },
     },
