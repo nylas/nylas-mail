@@ -61,7 +61,7 @@ export default class ComposerHeader extends React.Component {
     } else if (this.state.participantsFocused) {
       this.showAndFocusField(Fields.To);
     }
-    console.warning("Nothing is marked as focused. This shouldn't happen!");
+    console.warn("Nothing is marked as focused. This shouldn't happen!");
     this.showAndFocusField(Fields.To);
   }
 
