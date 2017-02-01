@@ -1,5 +1,18 @@
 # Nylas Mail Changelog
 
+### 1.0.19 (1/31/17)
+
+- Fixes:
+
+  + Replies on threads won't create duplicate-looking emails. This began
+    to happen on midnight February 1 UTC due to a date parsing bug
+  + Improve error handling in sync
+  + Better retrying of certain syncback actions
+
+- Development:
+
+  + Now using Electron 1.4.15
+
 ### 1.0.18 (1/30/17)
 
 - Performance:
