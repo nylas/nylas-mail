@@ -96,9 +96,8 @@ class SyncWorker {
     const noFolderImapUID = await Message.findAll({
       where: {
         folderImapUID: null,
-        isProcessed: true,
       },
-    })
+    }).filter(m => Date.now() - m.date > 10 * 60 * 1000) // 10 min
     const affectedThreadIds = new Set();
     await Promise.map(orphans.concat(noFolderImapUID), (msg) => {
       affectedThreadIds.add(msg.threadId);
