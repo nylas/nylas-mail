@@ -10,9 +10,11 @@ Color = require './color'
 if process.type is 'renderer'
   app = remote.getGlobal('application')
   webContentsId = remote.getCurrentWebContents().getId()
+  errorLogger = NylasEnv.errorLogger
 else
   app = global.application
   webContentsId = null
+  errorLogger = global.errorLogger
 
 # Essential: Used to access all of N1's configuration details.
 #
@@ -338,6 +340,11 @@ class Config
       ipcRenderer.on 'on-config-reloaded', (event, settings) =>
         @updateSettings(settings)
 
+  _logError: (prefix, error) ->
+    error.message = "#{prefix}: #{error.message}"
+    console.error(error.message)
+    errorLogger.reportError(error)
+
   load: ->
     @updateSettings(@getRawValues())
 
@@ -429,22 +436,23 @@ class Config
   # * `true` if the value was set.
   # * `false` if the value was not able to be coerced to the type specified in the setting's schema.
   set: (keyPath, value) ->
-    unless value is undefined
+    if value is undefined
+      value = _.valueForKeyPath(@defaultSettings, keyPath)
+    else
       try
         value = @makeValueConformToSchema(keyPath, value)
       catch e
+        @_logError("Failed to set keyPath: #{keyPath} = #{value}", e)
         return false
 
-    defaultValue = _.valueForKeyPath(this.defaultSettings, keyPath)
-    if (_.isEqual(defaultValue, value))
-      value = undefined
-
-    # Ensure that we never send anything but plain javascript objects through remote.
+    # Ensure that we never send anything but plain javascript objects through
+    # remote. Specifically, we don't want to serialize and send function bodies
+    # across the IPC bridge.
     if _.isObject(value)
       value = JSON.parse(JSON.stringify(value))
 
     @setRawValue(keyPath, value)
-    true
+    return true
 
   # Essential: Restore the setting at `keyPath` to its default value.
   #
@@ -535,7 +543,9 @@ class Config
   ###
 
   updateSettings: (newSettings) =>
-    @settings = newSettings || {}
+    if !newSettings or _.isEmpty(newSettings)
+      throw new Error("Tried to update settings with false-y value: #{newSettings}")
+    @settings = newSettings
     @emitChangeEvent()
 
   getRawValue: (keyPath) ->
@@ -580,7 +590,7 @@ class Config
         defaults = @makeValueConformToSchema(keyPath, defaults)
         @setRawDefault(keyPath, defaults)
       catch e
-        console.warn("'#{keyPath}' could not set the default. Attempted default: #{JSON.stringify(defaults)}; Schema: #{JSON.stringify(@getSchema(keyPath))}")
+        @_logError("Failed to set keypath to default: #{keyPath} = #{JSON.stringify(defaults)}", e)
 
   deepClone: (object) ->
     if object instanceof Color
@@ -601,23 +611,19 @@ class Config
       defaults[key] = @extractDefaultsFromSchema(value) for key, value of properties
       defaults
 
-  makeValueConformToSchema: (keyPath, value, options) ->
-    if options?.suppressException
-      try
-        @makeValueConformToSchema(keyPath, value)
-      catch e
-        undefined
-    else
-      value = @constructor.executeSchemaEnforcers(keyPath, value, schema) if schema = @getSchema(keyPath)
-      value
+  makeValueConformToSchema: (keyPath, value) ->
+    value = @constructor.executeSchemaEnforcers(keyPath, value, schema) if schema = @getSchema(keyPath)
+    value
 
   # When the schema is changed / added, there may be values set in the config
-  # that do not conform to the schema. This will reset make them conform.
+  # that do not conform to the schema. This reset will make them conform.
   resetSettingsForSchemaChange: ->
     @transact =>
       settings = @getRawValues()
-      settings = @makeValueConformToSchema(null, settings, suppressException: true)
-      @setRawValue(null, settings)
+      settings = @makeValueConformToSchema(null, settings)
+      if !settings or _.isEmpty(settings)
+        throw new Error("settings is falsey or empty")
+      app.configPersistenceManager.setSettings(settings, webContentsId)
       return
 
   emitChangeEvent: ->
@@ -625,9 +631,13 @@ class Config
 
   getRawValues: ->
     try
-      return JSON.parse(app.configPersistenceManager.getRawValuesString())
-    catch
-      return {}
+      result = JSON.parse(app.configPersistenceManager.getRawValuesString())
+      if !result or _.isEmpty(result)
+        throw new Error('settings is falsey or empty')
+      return result
+    catch error
+      @_logError('Failed to parse response from getRawValuesString', error)
+      throw error
 
   setRawValue: (keyPath, value) ->
     app.configPersistenceManager.setRawValue(keyPath, value, webContentsId)
