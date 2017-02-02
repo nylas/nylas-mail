@@ -1,12 +1,10 @@
-const LocalDatabaseConnector = require('../src/shared/local-database-connector');
-const {parseFromImap, parseSnippet, parseContacts} = require('../src/shared/message-factory');
-const {forEachJSONFixture, forEachHTMLAndTXTFixture, ACCOUNT_ID} = require('./helpers');
+const {parseFromImap, parseSnippet, parseContacts} = require('../../src/shared/message-factory');
+const {forEachJSONFixture, forEachHTMLAndTXTFixture, ACCOUNT_ID, getTestDatabase} = require('./helpers');
 
 xdescribe('MessageFactory', function MessageFactorySpecs() {
   beforeEach(() => {
     waitsForPromise(async () => {
-      await LocalDatabaseConnector.ensureAccountDatabase(ACCOUNT_ID);
-      const db = await LocalDatabaseConnector.forAccount(ACCOUNT_ID);
+      const db = await getTestDatabase()
       const folder = await db.Folder.create({
         id: 'test-folder-id',
         accountId: ACCOUNT_ID,
@@ -16,10 +14,6 @@ xdescribe('MessageFactory', function MessageFactorySpecs() {
       });
       this.options = { accountId: ACCOUNT_ID, db, folder };
     })
-  })
-
-  afterEach(() => {
-    LocalDatabaseConnector.destroyAccountDatabase(ACCOUNT_ID)
   })
 
   describe("parseFromImap", () => {

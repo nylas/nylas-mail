@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const LocalDatabaseConnector = require('../src/shared/local-database-connector')
 
 const FIXTURES_PATH = path.join(__dirname, 'fixtures');
 const ACCOUNT_ID = 'test-account-id';
@@ -24,6 +25,22 @@ function forEachHTMLAndTXTFixture(relativePath, callback) {
   });
 }
 
+async function getTestDatabase(accountId = ACCOUNT_ID) {
+  await LocalDatabaseConnector.ensureAccountDatabase(accountId)
+  return LocalDatabaseConnector.forAccount(accountId)
+}
+
+function destroyTestDatabase(accountId = ACCOUNT_ID) {
+  LocalDatabaseConnector.destroyAccountDatabase(accountId)
+}
+
+function mockImapBox() {
+  return {
+    setLabels: jasmine.createSpy('setLabels'),
+    removeLabels: jasmine.createSpy('removeLabels'),
+  }
+}
+
 const silentLogger = {
   info: () => {},
   warn: () => {},
@@ -37,4 +54,7 @@ module.exports = {
   silentLogger,
   forEachJSONFixture,
   forEachHTMLAndTXTFixture,
+  mockImapBox,
+  getTestDatabase,
+  destroyTestDatabase,
 }
