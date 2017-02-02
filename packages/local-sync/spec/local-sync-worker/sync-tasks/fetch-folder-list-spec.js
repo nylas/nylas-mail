@@ -1,6 +1,6 @@
 
 const FetchFolderList = require('../../../src/local-sync-worker/sync-tasks/fetch-folder-list.imap.es6');
-const {forEachJSONFixture, silentLogger, getTestDatabase} = require('../helpers');
+const {forEachJSONFixture, silentLogger, getTestDatabase} = require('../../helpers');
 
 xdescribe("FetchFolderList", function FetchFolderListSpecs() {
   beforeEach(async () => {
