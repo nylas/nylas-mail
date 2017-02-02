@@ -1,5 +1,6 @@
 import _ from 'underscore';
-import {Actions, NylasAPIHelpers, AccountStore, CategoryStore} from 'nylas-exports';
+import {Actions, NylasAPIHelpers, AccountStore, DatabaseStore, Message,
+        CategoryStore} from 'nylas-exports';
 import SnoozeUtils from './snooze-utils'
 import {PLUGIN_ID, PLUGIN_NAME} from './snooze-constants';
 import SnoozeActions from './snooze-actions';
@@ -84,8 +85,17 @@ class SnoozeStore {
     .then((updatedThreadsByAccountId) => {
       _.each(updatedThreadsByAccountId, (update) => {
         const {snoozeCategoryId, returnCategoryId} = update;
-        Actions.setMetadata(update.threads, this.pluginId, {snoozeDate, snoozeCategoryId, returnCategoryId})
-      })
+
+        // Get messages for those threads and metadata for those.
+        DatabaseStore.findAll(Message, {threadId: update.threads.map(t => t.id)}).then((messages) => {
+          for (const message of messages) {
+            const header = message.messageIdHeader;
+            const stableId = message.id;
+            Actions.setMetadata(message, this.pluginId,
+              {expirationDate: snoozeDate, header, stableId, snoozeCategoryId, returnCategoryId})
+          }
+        });
+      });
     })
     .catch((error) => {
       SnoozeUtils.moveThreadsFromSnooze(threads, this.snoozeCategoriesPromise)

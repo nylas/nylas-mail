@@ -41,7 +41,7 @@ class SidebarSection
     unreadItem = SidebarItem.forUnread([account.id])
     starredItem = SidebarItem.forStarred([account.id])
     draftsItem = SidebarItem.forDrafts([account.id])
-    # snoozedItem = SidebarItem.forSnoozed([account.id])
+    snoozedItem = SidebarItem.forSnoozed([account.id])
 
     extensionItems = ExtensionRegistry.AccountSidebar.extensions()
     .filter((ext) => ext.sidebarItem?)
@@ -51,8 +51,7 @@ class SidebarSection
     )
 
     # Order correctly: Inbox, Unread, Starred, rest... , Drafts
-    items.splice(1, 0, unreadItem, starredItem, extensionItems...)
-    # items.splice(1, 0, unreadItem, starredItem, snoozedItem, extensionItems...)
+    items.splice(1, 0, unreadItem, starredItem, snoozedItem, extensionItems...)
     items.push(draftsItem)
 
     return {
@@ -101,9 +100,9 @@ class SidebarSection
     draftsItem = SidebarItem.forDrafts(accountIds,
       children: accounts.map (acc) -> SidebarItem.forDrafts([acc.id], name: acc.label)
     )
-    # snoozedItem = SidebarItem.forSnoozed(accountIds,
-    #   children: accounts.map (acc) -> SidebarItem.forSnoozed([acc.id], name: acc.label)
-    # )
+    snoozedItem = SidebarItem.forSnoozed(accountIds,
+      children: accounts.map (acc) -> SidebarItem.forSnoozed([acc.id], name: acc.label)
+    )
 
     extensionItems =  ExtensionRegistry.AccountSidebar.extensions()
     .filter((ext) => ext.sidebarItem?)
@@ -124,8 +123,7 @@ class SidebarSection
     )
 
     # Order correctly: Inbox, Unread, Starred, rest... , Drafts
-    items.splice(1, 0, unreadItem, starredItem, extensionItems...)
-    # items.splice(1, 0, unreadItem, starredItem, snoozedItem, extensionItems...)
+    items.splice(1, 0, unreadItem, starredItem, snoozedItem, extensionItems...)
     items.push(draftsItem)
 
     return {

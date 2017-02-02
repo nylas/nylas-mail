@@ -18,7 +18,7 @@ class MetadataStore extends NylasStore {
       throw new Error('Actions.setMetadata - All models provided must be of the same type')
     }
     DatabaseStore.inTransaction((t) => {
-      // Get the latest version of the models from the datbaase before applying
+      // Get the latest version of the models from the database before applying
       // metadata in case other plugins also saved metadata, and we don't want
       // to overwrite it
       return (

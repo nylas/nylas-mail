@@ -141,6 +141,11 @@ export default class Message extends ModelWithMetadata {
       jsonKey: 'thread_id',
     }),
 
+    messageIdHeader: Attributes.ServerId({
+      modelKey: 'messageIdHeader',
+      jsonKey: 'message_id_header',
+    }),
+
     subject: Attributes.String({
       modelKey: 'subject',
     }),
