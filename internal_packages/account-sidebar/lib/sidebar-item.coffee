@@ -121,22 +121,22 @@ class SidebarItem
     opts.contextMenuLabel = contextMenuLabel
     @forPerspective(id, perspective, opts)
 
-  # @forSnoozed: (accountIds, opts = {}) ->
-  #   # TODO This constant should be available elsewhere
-  #   constants = require('../../thread-snooze/lib/snooze-constants')
-  #   displayName = constants.SNOOZE_CATEGORY_NAME
-  #   id = displayName
-  #   id += "-#{opts.name}" if opts.name
-  #   opts.name = "Snoozed" unless opts.name
-  #   opts.iconName= 'snooze.png'
-  #
-  #   categories = accountIds.map (accId) =>
-  #     _.findWhere CategoryStore.categories(accId), {displayName}
-  #   categories = _.compact(categories)
-  #
-  #   perspective = MailboxPerspective.forCategories(categories)
-  #   perspective.name = id unless perspective.name
-  #   @forPerspective(id, perspective, opts)
+  @forSnoozed: (accountIds, opts = {}) ->
+    # TODO This constant should be available elsewhere
+    constants = require('../../thread-snooze/lib/snooze-constants')
+    displayName = constants.SNOOZE_CATEGORY_NAME
+    id = displayName
+    id += "-#{opts.name}" if opts.name
+    opts.name = "Snoozed" unless opts.name
+    opts.iconName= 'snooze.png'
+
+    categories = accountIds.map (accId) =>
+      _.findWhere CategoryStore.categories(accId), {displayName}
+    categories = _.compact(categories)
+
+    perspective = MailboxPerspective.forCategories(categories)
+    perspective.name = id unless perspective.name
+    @forPerspective(id, perspective, opts)
 
   @forStarred: (accountIds, opts = {}) ->
     perspective = MailboxPerspective.forStarred(accountIds)
