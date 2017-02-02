@@ -7,7 +7,7 @@ and Metdata for Nylas Mail desktop clients.
 
 ## New to AWS:
 1. Make sure you can login at [https://nylas.signin.aws.amazon.com/console](https://nylas.signin.aws.amazon.com/console). (Ask a Nylas AWS admin to create your username if it doesn't exist already)
-  1. Make sure you're on **US East (N. Virginia)**
+  1. Make sure you're on **US West (Oregon)**
 
 1. Create your AWS IAM Security Credentials
   1. Go to Console -> Home -> IAM -> Users -> {{Your Name}} ->
@@ -32,13 +32,13 @@ and Metdata for Nylas Mail desktop clients.
   1. `brew install awsebcli` on Mac
   1. `pip install --upgrade --user awsebcli` on Linux
 
-1. Setup the Elastic Beanstalk CLI to use `nylas-k2-api` on `us-east-1`.
+1. Setup the Elastic Beanstalk CLI to use `n1Cloud` on `us-west-2`.
    Note: This uses your AWS IAM Security Credentials you previously setup
    to authenticate against Elastic Beanstalk. **You must do this from the
    root /k2 folder**. It will create a gitignored `.elasticbeanstalk/`
    folder when it's done.
   1. `eb init`
-  1. Use region `us-east-1`, application `nylas-k2-api`
+  1. Use region `us-west-2`, application `n1Cloud`
 
 1. Test out the Elastic Beanstalk CLI:
   1. `eb logs` OR `eb ssh`
