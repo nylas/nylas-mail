@@ -1,5 +1,8 @@
 import pathwatcher from 'pathwatcher';
 import ReactTestUtils from 'react-addons-test-utils';
+// TODO the local-sync package should be moved as part of nylas-mail core,
+// instead of being a separate package
+import {destroyTestDatabase} from '../../internal_packages/local-sync/spec/helpers'
 
 class MasterAfterEach {
   setup(loadSettings, afterEach) {
@@ -7,6 +10,7 @@ class MasterAfterEach {
 
     const self = this
     afterEach(function masterAfterEach() {
+      destroyTestDatabase()
       NylasEnv.packages.deactivatePackages();
       NylasEnv.menu.template = [];
 
