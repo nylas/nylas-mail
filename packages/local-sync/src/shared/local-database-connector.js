@@ -78,7 +78,6 @@ class LocalDatabaseConnector {
     }
 
     delete this._cache[accountId];
-    return Promise.resolve()
   }
 
   _sequelizeForShared() {

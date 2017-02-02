@@ -1,12 +1,10 @@
 
-const FetchFolderList = require('../../src/local-sync-worker/sync-tasks/fetch-folder-list.imap.es6');
-const LocalDatabaseConnector = require('../../src/shared/local-database-connector');
-const {forEachJSONFixture, ACCOUNT_ID, silentLogger} = require('../helpers');
+const FetchFolderList = require('../../../src/local-sync-worker/sync-tasks/fetch-folder-list.imap.es6');
+const {forEachJSONFixture, silentLogger, getTestDatabase} = require('../helpers');
 
 xdescribe("FetchFolderList", function FetchFolderListSpecs() {
   beforeEach(async () => {
-    await LocalDatabaseConnector.ensureAccountDatabase(ACCOUNT_ID);
-    this.db = await LocalDatabaseConnector.forAccount(ACCOUNT_ID);
+    this.db = await getTestDatabase()
 
     this.stubImapBoxes = null;
     this.imap = {
@@ -15,10 +13,6 @@ xdescribe("FetchFolderList", function FetchFolderListSpecs() {
       },
     };
   });
-
-  afterEach(() => {
-    LocalDatabaseConnector.destroyAccountDatabase(ACCOUNT_ID)
-  })
 
   describe("initial syncing", () => {
     forEachJSONFixture('FetchFolderList', (filename, json) => {

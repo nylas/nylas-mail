@@ -1,9 +1,7 @@
 /* eslint global-require: 0 */
 /* eslint import/no-dynamic-require: 0 */
-const detectThread = require('../src/message-processor/detect-thread');
-const LocalDatabaseConnector = require('../src/shared/local-database-connector');
-
-const {FIXTURES_PATH, ACCOUNT_ID} = require('./helpers')
+const detectThread = require('../../src/message-processor/detect-thread');
+const {FIXTURES_PATH, ACCOUNT_ID, getTestDatabase} = require('./helpers')
 
 function messagesFromFixture({Message}, folder, name) {
   const {A, B} = require(`${FIXTURES_PATH}/Threading/${name}`)
@@ -22,8 +20,7 @@ function messagesFromFixture({Message}, folder, name) {
 xdescribe('threading', function threadingSpecs() {
   beforeEach(() => {
     waitsForPromise({timeout: 1000}, async () => {
-      await LocalDatabaseConnector.ensureAccountDatabase(ACCOUNT_ID);
-      this.db = await LocalDatabaseConnector.forAccount(ACCOUNT_ID);
+      this.db = await getTestDatabase()
       this.folder = await this.db.Folder.create({
         id: 'test-folder-id',
         accountId: ACCOUNT_ID,
@@ -33,10 +30,6 @@ xdescribe('threading', function threadingSpecs() {
       });
     });
   });
-
-  afterEach(() => {
-    LocalDatabaseConnector.destroyAccountDatabase(ACCOUNT_ID)
-  })
 
   describe("when remote thread ids are present", () => {
     it('threads emails with the same gthreadid', () => {
