@@ -235,10 +235,6 @@ export default class ChangeMailTask extends Task {
             if (!this._syncbackRequestIds) this._syncbackRequestIds = {}
             this._syncbackRequestIds[model.id] = syncbackRequest.id
           },
-          beforeProcessing: (body) => {
-            this._removeLock(model);
-            return body;
-          },
         },
       })
       .run()
