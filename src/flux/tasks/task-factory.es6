@@ -109,6 +109,7 @@ const TaskFactory = {
       source,
       threads,
       categoriesToAdd: (accountId) => [CategoryStore.getSpamCategory(accountId)],
+      categoriesToRemove: (accountId) => [CategoryStore.getInboxCategory(accountId)],
     })
   },
 
@@ -128,6 +129,7 @@ const TaskFactory = {
       source,
       threads,
       categoriesToAdd: (accountId) => [CategoryStore.getTrashCategory(accountId)],
+      categoriesToRemove: (accountId) => [CategoryStore.getInboxCategory(accountId)],
     })
   },
 
