@@ -1,6 +1,7 @@
 /* eslint global-require: 0 */
 import path from 'path';
 import fs from 'fs';
+import Sqlite3 from 'better-sqlite3';
 import childProcess from 'child_process';
 import PromiseQueue from 'promise-queue';
 import {remote, ipcRenderer} from 'electron';
@@ -13,7 +14,6 @@ import Actions from '../actions'
 import DatabaseChangeRecord from './database-change-record';
 import DatabaseTransaction from './database-transaction';
 import DatabaseSetupQueryBuilder from './database-setup-query-builder';
-import {setupDatabase, databasePath} from '../../database-helpers'
 
 const DatabaseVersion = "23";
 const DatabasePhase = {
@@ -88,7 +88,11 @@ class DatabaseStore extends NylasStore {
     this.setupEmitter();
     this._emitter.setMaxListeners(100);
 
-    this._databasePath = databasePath(NylasEnv.getConfigDirPath(), NylasEnv.inSpecMode())
+    if (NylasEnv.inSpecMode()) {
+      this._databasePath = path.join(NylasEnv.getConfigDirPath(), 'edgehill.test.db');
+    } else {
+      this._databasePath = path.join(NylasEnv.getConfigDirPath(), 'edgehill.db');
+    }
 
     this._databaseMutationHooks = [];
 
@@ -98,7 +102,7 @@ class DatabaseStore extends NylasStore {
     setTimeout(() => this._onPhaseChange(), 0);
   }
 
-  async _onPhaseChange() {
+  _onPhaseChange() {
     if (NylasEnv.inSpecMode()) {
       return;
     }
@@ -107,21 +111,23 @@ class DatabaseStore extends NylasStore {
     const phase = app.databasePhase()
 
     if (phase === DatabasePhase.Setup && NylasEnv.isWorkWindow()) {
-      await this._openDatabase()
-      this._checkDatabaseVersion({allowUnset: true}, () => {
-        this._runDatabaseSetup(() => {
-          app.setDatabasePhase(DatabasePhase.Ready);
-          setTimeout(() => this._runDatabaseAnalyze(), 60 * 1000);
+      this._openDatabase(() => {
+        this._checkDatabaseVersion({allowUnset: true}, () => {
+          this._runDatabaseSetup(() => {
+            app.setDatabasePhase(DatabasePhase.Ready);
+            setTimeout(() => this._runDatabaseAnalyze(), 60 * 1000);
+          });
         });
       });
     } else if (phase === DatabasePhase.Ready) {
-      await this._openDatabase()
-      this._checkDatabaseVersion({}, () => {
-        this._open = true;
-        for (const w of this._waiting) {
-          w();
-        }
-        this._waiting = [];
+      this._openDatabase(() => {
+        this._checkDatabaseVersion({}, () => {
+          this._open = true;
+          for (const w of this._waiting) {
+            w();
+          }
+          this._waiting = [];
+        });
       });
     } else if (phase === DatabasePhase.Close) {
       this._open = false;
@@ -146,17 +152,37 @@ class DatabaseStore extends NylasStore {
     }
   }
 
-  async _openDatabase() {
-    if (this._db) return
-    try {
-      this._db = await setupDatabase(this._databasePath)
-    } catch (err) {
+  _openDatabase(ready) {
+    if (this._db) {
+      ready();
+      return;
+    }
+
+    this._db = new Sqlite3(this._databasePath, {});
+    this._db.on('close', (err) => {
       NylasEnv.showErrorDialog({
         title: `Unable to open SQLite database at ${this._databasePath}`,
         message: err.toString(),
       });
       this._handleSetupError(err);
-    }
+    })
+    this._db.on('open', () => {
+      // https://www.sqlite.org/wal.html
+      // WAL provides more concurrency as readers do not block writers and a writer
+      // does not block readers. Reading and writing can proceed concurrently.
+      this._db.pragma(`journal_mode = WAL`);
+
+      // Note: These are properties of the connection, so they must be set regardless
+      // of whether the database setup queries are run.
+
+      // https://www.sqlite.org/intern-v-extern-blob.html
+      // A database page size of 8192 or 16384 gives the best performance for large BLOB I/O.
+      this._db.pragma(`main.page_size = 8192`);
+      this._db.pragma(`main.cache_size = 20000`);
+      this._db.pragma(`main.synchronous = NORMAL`);
+
+      ready();
+    });
   }
 
   _checkDatabaseVersion({allowUnset} = {}, ready) {

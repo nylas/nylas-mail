@@ -321,9 +321,6 @@ class Config
 
   # Created during initialization, available as `NylasEnv.config`
   constructor: ->
-    # `app` exists in the remote browser process. We do this to use a
-    # single DB connection for the Config
-    @configPersistenceManager = app.configPersistenceManager
     @emitter = new Emitter
     @schema =
       type: 'object'
@@ -620,18 +617,20 @@ class Config
     @transact =>
       settings = @getRawValues()
       settings = @makeValueConformToSchema(null, settings, suppressException: true)
-      @configPersistenceManager.resetConfig(settings)
-      @load()
+      @setRawValue(null, settings)
       return
 
   emitChangeEvent: ->
     @emitter.emit 'did-change' unless @transactDepth > 0
 
   getRawValues: ->
-    return @configPersistenceManager.getRawValues()
+    try
+      return JSON.parse(app.configPersistenceManager.getRawValuesString())
+    catch
+      return {}
 
   setRawValue: (keyPath, value) ->
-    @configPersistenceManager.setRawValue(keyPath, value, webContentsId)
+    app.configPersistenceManager.setRawValue(keyPath, value, webContentsId)
     @load()
 
 # Base schema enforcers. These will coerce raw input into the specified type,
