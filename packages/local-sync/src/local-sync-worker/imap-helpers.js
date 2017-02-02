@@ -60,7 +60,9 @@ const IMAPHelpers = {
 
     for (const [labelSet, msgs] of messagesByLabelSet) {
       const labelIdentifiers = labelIdentifiersByLabelSet.get(labelSet)
-      await callback({messages: msgs, labelIdentifiers})
+      if (labelIdentifiers.length > 0) {
+        await callback({messages: msgs, labelIdentifiers})
+      }
     }
   },
 
@@ -76,20 +78,55 @@ const IMAPHelpers = {
   },
 
   async setLabelsForMessages({db, box, messages, labelIds}) {
+    const sentLabel = await db.Label.find({where: {role: 'sent'}});
+    if (!sentLabel) {
+      throw new APIError('No Sent label present')
+    }
+    const sentLabelIdentifier = sentLabel.imapLabelIdentifier()
     if (!labelIds || labelIds.length === 0) {
       // If labelIds is empty, we need to get each message's labels and remove
       // them, because an empty array is invalid input for `setLabels`
       return IMAPHelpers.forEachLabelSetOfMessages({
         messages,
-        callback({messages: msgs, labelIdentifiers}) {
-          return box.removeLabels(msgs.map(m => m.folderImapUID), labelIdentifiers)
+        async callback({messages: msgs, labelIdentifiers}) {
+          // We can't remove the Sent label in gmail, otherwise the operation will
+          // fail silently!
+          const labelsToRemove = labelIdentifiers.filter(l => l !== sentLabelIdentifier)
+          if (labelsToRemove.length > 0) {
+            await box.removeLabels(msgs.map(m => m.folderImapUID), labelsToRemove)
+          }
         },
       })
     }
 
-    const labels = await db.Label.findAll({where: {id: labelIds}});
-    const labelIdentifiers = labels.map(label => label.imapLabelIdentifier());
-    return box.setLabels(messages.map(m => m.folderImapUID), labelIdentifiers)
+    const labelsToSet = (
+      await db.Label.findAll({where: {id: labelIds}})
+      .map(label => label.imapLabelIdentifier())
+    )
+    return IMAPHelpers.forEachLabelSetOfMessages({
+      messages,
+      async callback({messages: msgs, labelIdentifiers}) {
+        const msgLabelsContainSent = labelIdentifiers.find(l => l === sentLabelIdentifier)
+        const labelsToSetContainSent = labelsToSet.find(l => l === sentLabelIdentifier)
+
+        let actualLabelsToSet = [...labelsToSet]
+        if (!msgLabelsContainSent && labelsToSetContainSent) {
+          // We can't try to add the Sent label in gmail, otherwise the operation will
+          // fail silently!
+          actualLabelsToSet = actualLabelsToSet.filter(l => l !== sentLabelIdentifier)
+        }
+        if (msgLabelsContainSent && !labelsToSetContainSent) {
+          // If we reach this condition, it means that we want to add
+          // labelsToSet, but we cant overwrite the Sent label, so we just add it to the
+          // labelsToSet
+          actualLabelsToSet.push(sentLabel.imapLabelIdentifier())
+        }
+
+        if (actualLabelsToSet.length > 0) {
+          await box.setLabels(msgs.map(m => m.folderImapUID), actualLabelsToSet)
+        }
+      },
+    })
   },
 }
 module.exports = IMAPHelpers

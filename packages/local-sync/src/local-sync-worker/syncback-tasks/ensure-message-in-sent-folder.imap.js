@@ -80,7 +80,7 @@ async function saveSentMessage({db, account, logger, imap, provider, sentPerReci
     const {headerMessageId} = baseMessage
     const uids = await box.search([['HEADER', 'Message-ID', headerMessageId]])
     // There should only be one uid in the array
-    await box.setLabels(uids[0], '\\Sent');
+    await box.setLabels(uids[0], sentLabel.imapLabelIdentifier());
   }
 
   // If IMAP succeeds, fetch any new messages in the sent folder which

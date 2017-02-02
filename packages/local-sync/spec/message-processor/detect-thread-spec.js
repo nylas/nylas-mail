@@ -1,7 +1,7 @@
 /* eslint global-require: 0 */
 /* eslint import/no-dynamic-require: 0 */
 const detectThread = require('../../src/message-processor/detect-thread');
-const {FIXTURES_PATH, ACCOUNT_ID, getTestDatabase} = require('./helpers')
+const {FIXTURES_PATH, ACCOUNT_ID, getTestDatabase} = require('../helpers')
 
 function messagesFromFixture({Message}, folder, name) {
   const {A, B} = require(`${FIXTURES_PATH}/Threading/${name}`)
