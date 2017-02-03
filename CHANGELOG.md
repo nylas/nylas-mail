@@ -1,6 +1,6 @@
 # Nylas Mail Changelog
 
-### 1.0.21 (2/2/17)
+### 1.0.21 (2/3/17)
 
 - Fixes:
 
@@ -8,6 +8,7 @@
   + Correctly delete and archive threads when they contain sent messages (addresses #2706)
   + Improve performance and prevent crashes when running several sync actions
   + Improve error handling when sync actions fail
+  + Fix JSON serialization issue which could cause sync process to error.
 
 ### 1.0.20 (2/1/17)
 
