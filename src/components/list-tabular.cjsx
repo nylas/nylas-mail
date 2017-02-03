@@ -38,10 +38,6 @@ class ListTabular extends React.Component
     @setupDataSource(@props.dataSource)
     @updateRangeState()
 
-  shouldComponentUpdate: (nextProps, nextState) =>
-    not Utils.isEqualReact(nextProps, @props) or
-    not Utils.isEqualReact(nextState, @state)
-
   componentWillUnmount: =>
     window.removeEventListener('resize', @onWindowResize, true)
     window.clearTimeout(@_cleanupAnimationTimeout) if @_cleanupAnimationTimeout
@@ -211,15 +207,17 @@ class ListTabular extends React.Component
 
   _rowForItem: (item, idx) =>
     return false unless item
-    <ListTabularItem key={item.id ? idx}
-                     item={item}
-                     itemProps={@props.itemPropsProvider?(item, idx) ? {}}
-                     metrics={top: idx * @props.itemHeight, height: @props.itemHeight}
-                     columns={@props.columns}
-                     onSelect={@props.onSelect}
-                     onClick={@props.onClick}
-                     onReorder={@props.onReorder}
-                     onDoubleClick={@props.onDoubleClick} />
+    <ListTabularItem
+      key={item.id ? idx}
+      item={item}
+      itemProps={@props.itemPropsProvider?(item, idx) ? {}}
+      metrics={top: idx * @props.itemHeight, height: @props.itemHeight}
+      columns={@props.columns}
+      onSelect={@props.onSelect}
+      onClick={@props.onClick}
+      onReorder={@props.onReorder}
+      onDoubleClick={@props.onDoubleClick}
+    />
 
   # Public: Scroll to the DOM node provided.
   #
