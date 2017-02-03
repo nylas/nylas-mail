@@ -26,6 +26,7 @@ export async function apiAuthenticate(req, username, password, cb) {
 
   const account = await token.getAccount();
   account.n1IdentityToken = n1IdentityToken;
+  req.logger = req.logger.forAccount(account);
 
   let identPath = "billing.nylas.com";
   if (process.env.NODE_ENV === "staging") {
@@ -37,10 +38,79 @@ export async function apiAuthenticate(req, username, password, cb) {
       auth: {username: n1IdentityToken, password: ''},
     })
     req.logger.debug({identity}, `Got ${identPath} identity response`)
-    req.logger = req.logger.forAccount(account);
     return cb(null, true, {account, identity});
   } catch (err) {
-    req.logger.error({error: err, username}, `Invalid credentials, can't authenticate`)
+    let responseBody;
+    try {
+      responseBody = JSON.parse(err.response.body);
+    } catch (e) {
+      responseBody = err.response.body;
+    }
+    const responseDetails = {
+      status_code: err.response.statusCode,
+      body: responseBody,
+    }
+    // cannot log entire err object because it contains sensitive information
+    // such as the account token & auth headers - see example below
+    req.logger.error({
+      error_name: err.name,
+      identity_req_uri: err.options.uri,
+      response_details: responseDetails,
+    }, `Invalid credentials, can't authenticate`)
     return cb(null, false, {})
   }
 }
+
+// Example `error` object querying identify server (from above):
+//
+// {
+//     "error": "{\n  \"message\": \"Invalid credentials.\",\n  \"type\": \"invalid_request_error\"\n}",
+//     "message": "400 - \"{\\n  \\\"message\\\": \\\"Invalid credentials.\\\",\\n  \\\"type\\\": \\\"invalid_request_error\\\"\\n}\"",
+//     "name": "StatusCodeError",
+//     "options": {
+//         "auth": {
+//             "pass": "",
+//             "password": "",
+//             "user": "KQPTpmOsPeTneqFAcNh9dbvU4OGZSd",
+//             "username": "KQPTpmOsPeTneqFAcNh9dbvU4OGZSd"
+//         },
+//         "resolveWithFullResponse": false,
+//         "simple": true,
+//         "transform2xxOnly": false,
+//         "uri": "https://billing-staging.nylas.com/n1/user"
+//     },
+//     "response": {
+//         "body": " {\n  \"message\": \"Invalid credentials.\",\n  \"type\": \"invalid_request_error\"\n}",
+//         "headers": {
+//             "connection": "close",
+//             "content-length": "74",
+//             "content-type": "application/json",
+//             "date": "Fri, 03 Feb 2017 22:19:44 GMT",
+//             "server": "nginx/1.6.2",
+//             "strict-transport-security": "max-age=31536000;",
+//             "x-frame-options": "SAMEORIGIN, SAMEORIGIN"
+//         },
+//         "request": {
+//             "headers": {
+//                 "authorization": "Basic S1FQVHBtT3NQZVRuZXFGQWNOaDlkYnZVNE9HWlNkOg=="
+//             },
+//             "method": "GET",
+//             "uri": {
+//                 "auth": null,
+//                 "hash": null,
+//                 "host": "billing-staging.nylas.com",
+//                 "hostname": "billing-staging.nylas.com",
+//                 "href": "https://billing-staging.nylas.com/n1/user",
+//                 "path": "/n1/user",
+//                 "pathname": "/n1/user",
+//                 "port": 443,
+//                 "protocol": "https:",
+//                 "query": null,
+//                 "search": null,
+//                 "slashes": true
+//             }
+//         },
+//         "statusCode": 400
+//     },
+//     "statusCode": 400
+// }

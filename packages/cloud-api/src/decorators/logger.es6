@@ -1,6 +1,6 @@
 export default function registerLoggerDecorator(server) {
   server.decorate('request', 'logger', (request) => {
-    return global.Logger.child({
+    const childLogger = global.Logger.child({
       http_method: request.method.toUpperCase(),
       remote_addr: request.info.remoteAddress,
       remote_port: request.info.remotePort,
@@ -10,5 +10,7 @@ export default function registerLoggerDecorator(server) {
       // http://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-request-tracing.html
       request_uid: request.headers['X-Amzn-Trace-Id'] || request.id,
     })
+    childLogger.forAccount = global.Logger.forAccount;
+    return childLogger;
   }, {apply: true});
 }
