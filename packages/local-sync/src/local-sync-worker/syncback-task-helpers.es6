@@ -1,3 +1,4 @@
+const {Actions} = require('nylas-exports')
 const {IMAPErrors} = require('isomorphic-core')
 const SyncbackTaskFactory = require('./syncback-task-factory');
 
@@ -114,6 +115,8 @@ export async function markInProgressTasksAsFailed({db} = {}) {
 export async function runSyncbackTask({task, runTask} = {}) {
   const before = new Date();
   const syncbackRequest = task.syncbackRequestObject();
+  let shouldRetry = false
+
   console.log(`🔃 📤 ${task.description()}`, syncbackRequest.props)
   try {
     // Before anything, mark the task as in progress. This allows
@@ -121,32 +124,38 @@ export async function runSyncbackTask({task, runTask} = {}) {
     syncbackRequest.status = "INPROGRESS";
     await syncbackRequest.save();
 
-    let responseJSON;
-    for (let numTries = 0; numTries <= MAX_TASK_RETRIES; numTries++) {
-      try {
-        // TODO `runTask` is a hack to allow tasks to be executed outside the
-        // context of an imap connection, specifically to allow running send tasks
-        // outside of the sync loop. This should be solved in a better way or
-        // probably refactored when we implement the sync scheduler
-        responseJSON = await runTask(task)
-        break;
-      } catch (err) {
-        if (!(err instanceof IMAPErrors.RetryableError) || numTries >= MAX_TASK_RETRIES) {
-          throw err
-        }
-      }
-    }
-
+    // TODO `runTask` is a hack to allow tasks to be executed outside the
+    // context of an imap connection, specifically to allow running send tasks
+    // outside of the sync loop. This should be solved in a better way or
+    // probably refactored when we implement the sync scheduler
+    const responseJSON = await runTask(task)
     syncbackRequest.status = "SUCCEEDED";
     syncbackRequest.responseJSON = responseJSON || {};
+
     const after = new Date();
     console.log(`🔃 📤 ${task.description()} Succeeded (${after.getTime() - before.getTime()}ms)`)
   } catch (error) {
-    syncbackRequest.error = error;
-    syncbackRequest.status = "FAILED";
     const after = new Date();
-    console.error(`🔃 📤 ${task.description()} Failed (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON(), error})
+    const {numRetries = 0} = syncbackRequest.props
+
+    if (error instanceof IMAPErrors.RetryableError && numRetries < MAX_TASK_RETRIES) {
+      Actions.recordUserEvent('Retrying syncback task', {numRetries})
+      shouldRetry = true
+      // We save this in `props` to avoid a db migration
+      syncbackRequest.props = Object.assign({}, syncbackRequest.props, {
+        numRetries: numRetries + 1,
+      })
+      syncbackRequest.status = "NEW";
+      console.warn(`🔃 📤 ${task.description()} Failed with retryable error, retrying in next loop (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON(), error})
+    } else {
+      error.message = `Syncback Task Failed: ${error.message}`
+      syncbackRequest.error = error;
+      syncbackRequest.status = "FAILED";
+      NylasEnv.reportError(error);
+      console.error(`🔃 📤 ${task.description()} Failed (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON(), error})
+    }
   } finally {
     await syncbackRequest.save();
   }
+  return {shouldRetry}
 }
