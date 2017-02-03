@@ -19,8 +19,9 @@ apps:
     watch    : ["packages"]
     name     : workers
     env      :
+      DB_NAME : "nylasmailclouddb"
       DB_ENCRYPTION_ALGORITHM : "aes-256-ctr"
       DB_ENCRYPTION_PASSWORD : "d6F3Efeq"
       NODE_ENV: 'development'
-  - script : redis-server
-    name   : redis
+  - script   : scripts/run-redis.sh
+    name     : redis

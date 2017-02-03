@@ -8,6 +8,7 @@ module.exports = (sequelize, Sequelize) => {
     pluginId: Sequelize.STRING,
     objectId: Sequelize.STRING,
     objectType: Sequelize.STRING,
+    expirationDate: Sequelize.DATE,
   }, {
     instanceMethods: {
       toJSON() {

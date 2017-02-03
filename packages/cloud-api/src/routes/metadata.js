@@ -2,7 +2,7 @@ const Joi = require('joi');
 const Serialization = require('../serialization');
 const {DatabaseConnector} = require('cloud-core');
 
-function upsertMetadata(account, objectId, objectType, pluginId, version, value) {
+function upsertMetadata({account, objectId, objectType, pluginId, version, value, expirationDate}) {
   return DatabaseConnector.forShared().then(({Metadata}) => {
     return Metadata.find({
       where: {
@@ -17,6 +17,7 @@ function upsertMetadata(account, objectId, objectType, pluginId, version, value)
           return Promise.reject(new Error("Version Conflict"));
         }
         existing.value = value;
+        existing.expirationDate = expirationDate;
         return existing.save();
       }
       return Metadata.create({
@@ -26,6 +27,7 @@ function upsertMetadata(account, objectId, objectType, pluginId, version, value)
         pluginId: pluginId,
         version: 0,
         value: value,
+        expirationDate: expirationDate,
       })
     })
   })
@@ -56,10 +58,10 @@ module.exports = (server) => {
 
       DatabaseConnector.forShared().then(({Metadata}) => {
         Metadata.findAll({
+          limit: request.query.limit,
+          offset: request.query.offset,
           where: {
             accountId: account.id,
-            limit: request.query.limit,
-            offset: request.query.offset,
           },
         }).then((items) => {
           reply(Serialization.jsonStringify(items));
@@ -90,8 +92,20 @@ module.exports = (server) => {
       const {account} = request.auth.credentials;
       const {version, value, objectType} = request.payload;
       const {pluginId, objectId} = request.params;
+      const jsonValue = JSON.parse(value);
+      let expirationDate = null;
+      if (jsonValue.expirationDate) {
+        expirationDate = new Date(jsonValue.expirationDate);
+      }
 
-      upsertMetadata(account, objectId, objectType, pluginId, version, JSON.parse(value))
+      upsertMetadata({
+        account,
+        objectId,
+        objectType,
+        pluginId,
+        version,
+        value: jsonValue,
+        expirationDate})
       .then((metadata) => {
         reply(Serialization.jsonStringify(metadata));
       })
@@ -123,7 +137,7 @@ module.exports = (server) => {
       const {version, objectType} = request.payload;
       const {pluginId, objectId} = request.params;
 
-      upsertMetadata(account, objectId, objectType, pluginId, version, null)
+      upsertMetadata({account, objectId, objectType, pluginId, version, value: null})
       .then((metadata) => {
         reply(Serialization.jsonStringify(metadata));
       })

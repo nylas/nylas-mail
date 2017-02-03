@@ -73,7 +73,7 @@ class DatabaseConnector {
     ).thenReturn(db);
   }
 
-  forShared() {
+  async forShared() {
     this._cache.shared = this._cache.shared || this._sequelizeForShared();
     return this._cache.shared;
   }

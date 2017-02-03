@@ -1,8 +1,9 @@
 import Joi from 'joi';
 import Boom from 'boom';
 import google from 'googleapis';
+import {GmailOAuthHelpers as GAuth} from 'cloud-core';
 import {DatabaseConnector} from 'cloud-core';
-import GAuth from '../gmail-oauth-helpers'
+
 const {GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL} = process.env;
 
 const OAuth2 = google.auth.OAuth2;

@@ -1,7 +1,7 @@
 import google from 'googleapis';
-import {Provider, IMAPConnection} from 'isomorphic-core'
-import {DatabaseConnector} from 'cloud-core';
-import Serialization from './serialization';
+import {Provider, IMAPConnection, PromiseUtils} from 'isomorphic-core'
+import DatabaseConnector from './database-connector'
+console.log(DatabaseConnector)
 
 const OAuth2 = google.auth.OAuth2;
 const {GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL} = process.env;
@@ -75,6 +75,26 @@ class GmailOAuthHelpers {
     }, imapSettings.credentials)
   }
 
+  async refreshAccessToken(account) {
+    const oauthClient = new OAuth2(GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL);
+    const credentials = account.decryptedCredentials();
+
+    console.log(credentials.refresh_token);
+    oauthClient.setCredentials({ refresh_token: credentials.refresh_token });
+    const refreshToken = PromiseUtils.promisify(oauthClient.refreshAccessToken);
+
+    const tokens = await refreshToken();
+    const res = {}
+    res.access_token = tokens.access_token;
+    res.xoauth2 = IMAPConnection.generateXOAuth2Token(account.emailAddress,
+                                                      tokens.access_token);
+    res.expiry_date = Math.floor(tokens.expiry_date / 1000);
+    const newCredentials = Object.assign(credentials, res);
+    account.setCredentials(newCredentials);
+
+    return newCredentials;
+  }
+
   async createPendingAuthResponse({account, token}, imapSettings, n1Key) {
     const response = account.toJSON();
     response.account_token = token.value;
@@ -82,7 +102,7 @@ class GmailOAuthHelpers {
 
     const db = await DatabaseConnector.forShared()
     return db.PendingAuthResponse.create({
-      response: Serialization.jsonStringify(response),
+      response: JSON.stringify(response),
       pendingAuthKey: n1Key,
     })
   }
