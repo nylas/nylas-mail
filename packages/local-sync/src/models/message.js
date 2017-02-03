@@ -29,7 +29,7 @@ module.exports = (sequelize, Sequelize) => {
     // stay in sync with the current message body.
     isDraft: Sequelize.BOOLEAN,
     isSent: Sequelize.BOOLEAN,
-    isSending: Sequelize.BOOLEAN,
+    isSending: Sequelize.BOOLEAN, // Currently unused, left for potential future use
     isProcessed: { type: Sequelize.BOOLEAN, defaultValue: false },
     unread: Sequelize.BOOLEAN,
     starred: Sequelize.BOOLEAN,
@@ -109,21 +109,6 @@ module.exports = (sequelize, Sequelize) => {
         return `<${id}@nylas-mail.nylas.com>`
       },
 
-      // async findMultiSendMessage(db, messageId) {
-      //   const message = await this.findById(messageId, {
-      //     include: [
-      //       {model: db.Folder},
-      //     ],
-      //   })
-      //   if (!message) {
-      //     throw new APIError(`Couldn't find multi-send message ${messageId}`, 400);
-      //   }
-      //   if (message.isSent || !message.isSending) {
-      //     throw new APIError(`Message ${messageId} is not a multi-send message`, 400);
-      //   }
-      //   return message;
-      // },
-
       requiredAssociationsForJSON({Folder, Label, File}) {
         return [
           {model: Folder},
@@ -147,20 +132,8 @@ module.exports = (sequelize, Sequelize) => {
       setIsSent(val) {
         if (val) {
           this.isDraft = false
-          this.isSending = false
         }
         this.isSent = val
-      },
-
-      setIsSending(val) {
-        if (val) {
-          if (this.isSent || this.isSending) {
-            throw new APIError('Cannot mark a sent message as sending', 400);
-          }
-          validateRecipientsPresent(this);
-          this.isDraft = false;
-        }
-        this.isSending = val
       },
 
       fetchRaw({account, db, logger}) {

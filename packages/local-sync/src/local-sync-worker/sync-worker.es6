@@ -90,7 +90,6 @@ class SyncWorker {
       where: {
         folderId: null,
         isSent: {$not: true},
-        isSending: {$not: true},
       },
     })
     const noFolderImapUID = await Message.findAll({

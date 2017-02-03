@@ -69,7 +69,6 @@ class SendMessagePerRecipientSMTP extends SyncbackTask {
     const account = this._account
 
     const baseMessage = await MessageFactory.buildForSend(db, messagePayload)
-    baseMessage.setIsSending(true)
 
     const sendResult = await sendPerRecipient({db, account, baseMessage, usesOpenTracking, usesLinkTracking})
 
