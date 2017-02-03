@@ -217,6 +217,7 @@ module.exports = (sequelize, Sequelize) => {
           labels: this.labels ? this.labels.map(l => l.toJSON()) : [],
           imap_uid: this.folderImapUID,
           thread_id: this.threadId,
+          message_id_header: this.headerMessageId,
         };
       },
     },
