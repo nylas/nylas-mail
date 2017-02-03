@@ -69,8 +69,8 @@ module.exports = (function (...args) {
     }
 
     const errData = {}
-    if (typeof app !== 'undefined' && app && app.config) {
-      const fullIdent = app.config.get('nylas.identity');
+    if (typeof app !== 'undefined' && app && app.databaseReader) {
+      const fullIdent = app.databaseReader.getJSONBlob("NylasID")
       errData.user = {
         id: fullIdent.id,
         email: fullIdent.email,
