@@ -11,8 +11,6 @@ describe "AutoUpdateManager", ->
       get: (key) =>
         if key is 'nylas.accounts'
           return @accounts
-        if key is 'nylas.identity.id'
-          return @nylasIdentityId
         if key is 'env'
           return 'production'
       onDidChange: (key, callback) =>

@@ -137,10 +137,10 @@ class OnboardingStore extends NylasStore {
     this.trigger();
   }
 
-  _onAuthenticationJSONReceived = (json) => {
+  _onAuthenticationJSONReceived = async (json) => {
     const isFirstAccount = AccountStore.accounts().length === 0;
 
-    Actions.setNylasIdentity(json);
+    await IdentityStore.saveIdentity(json);
 
     setTimeout(() => {
       if (isFirstAccount) {

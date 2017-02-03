@@ -193,6 +193,8 @@ class NylasEnvConstructor
     unless @inSpecMode()
       @actionBridge = new ActionBridge(ipcRenderer)
 
+    @extendRxObservables()
+
     # Nylas exports is designed to provide a lazy-loaded set of globally
     # accessible objects to all packages. Upon require, nylas-exports will
     # fill the TaskRegistry, StoreRegistry, and DatabaseObjectRegistries
@@ -657,18 +659,17 @@ class NylasEnvConstructor
     @savedState.columnWidths ?= {}
     @savedState.columnWidths[id]
 
-  startWindow: ->
+  startWindow: =>
     @loadConfig()
-    {packageLoadingDeferred, windowType} = @getLoadSettings()
-    @extendRxObservables()
-    StoreRegistry.activateAllStores()
-    @keymaps.loadKeymaps()
-    @themes.loadBaseStylesheets()
-    @packages.loadPackages(windowType) unless packageLoadingDeferred
-    @deserializePackageStates() unless packageLoadingDeferred
-    @initializeReactRoot()
-    @packages.activate() unless packageLoadingDeferred
-    @menu.update()
+    {packageLoadingDeferred, windowType, title} = @getLoadSettings()
+    return StoreRegistry.activateAllStores().then =>
+      @keymaps.loadKeymaps()
+      @themes.loadBaseStylesheets()
+      @packages.loadPackages(windowType) unless packageLoadingDeferred
+      @deserializePackageStates() unless packageLoadingDeferred
+      @initializeReactRoot()
+      @packages.activate() unless packageLoadingDeferred
+      @menu.update()
 
   # Call this method when establishing a real application window.
   startRootWindow: ->
@@ -683,6 +684,8 @@ class NylasEnvConstructor
             window.requestAnimationFrame =>
               @displayWindow() unless initializeInBackground
               @startWindow()
+              # These don't need to wait for the window's stores and such
+              # to fully activate:
               @requireUserInitScript() unless safeMode
               @showMainWindow()
               ipcRenderer.send('window-command', 'window:loaded')
@@ -692,12 +695,11 @@ class NylasEnvConstructor
   # hot windows), the packages won't be loaded until `populateHotWindow`
   # gets fired.
   startSecondaryWindow: ->
-    @extendRxObservables()
     document.getElementById("application-loading-cover")?.remove()
-    @startWindow()
-    @initializeBasicSheet()
-    ipcRenderer.on("load-settings-changed", @populateHotWindow)
-    ipcRenderer.send('window-command', 'window:loaded')
+    @startWindow().then =>
+      @initializeBasicSheet()
+      ipcRenderer.on("load-settings-changed", @populateHotWindow)
+      ipcRenderer.send('window-command', 'window:loaded')
 
   # We setup the initial Sheet for hot windows. This is the default title
   # bar, stoplights, etc. This saves ~100ms when populating the hot
