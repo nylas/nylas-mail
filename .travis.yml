@@ -24,7 +24,7 @@ branches:
   only:
   - master
   - ci-test
-  - stable
+  - /stable\/.*/
   - /ci-build\/.*/
 
 matrix:
