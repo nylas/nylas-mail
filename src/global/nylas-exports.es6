@@ -129,6 +129,7 @@ lazyLoadAndRegisterTask(`SyncbackCategoryTask`, 'syncback-category-task');
 lazyLoadAndRegisterTask(`SyncbackMetadataTask`, 'syncback-metadata-task');
 lazyLoadAndRegisterTask(`PerformSendActionTask`, 'perform-send-action-task');
 lazyLoadAndRegisterTask(`ReprocessMailRulesTask`, 'reprocess-mail-rules-task');
+lazyLoadAndRegisterTask(`SendFeatureUsageEventTask`, 'send-feature-usage-event-task');
 lazyLoadAndRegisterTask(`EnsureMessageInSentFolderTask`, 'ensure-message-in-sent-folder-task');
 
 // Stores
@@ -153,6 +154,7 @@ lazyLoadAndRegisterStore(`WorkspaceStore`, 'workspace-store');
 lazyLoadAndRegisterStore(`MailRulesStore`, 'mail-rules-store');
 lazyLoadAndRegisterStore(`FileUploadStore`, 'file-upload-store');
 lazyLoadAndRegisterStore(`SendActionsStore`, 'send-actions-store');
+lazyLoadAndRegisterStore(`FeatureUsageStore`, 'feature-usage-store');
 lazyLoadAndRegisterStore(`ThreadCountsStore`, 'thread-counts-store');
 lazyLoadAndRegisterStore(`FileDownloadStore`, 'file-download-store');
 lazyLoadAndRegisterStore(`UpdateChannelStore`, 'update-channel-store');

@@ -18,31 +18,28 @@ const preferredChannel = 'nylas-mail'
 
 export default class AutoUpdateManager extends EventEmitter {
 
-  constructor(version, config, specMode) {
+  constructor(version, config, specMode, databaseReader) {
     super();
 
     this.state = IdleState;
     this.version = version;
     this.config = config;
+    this.databaseReader = databaseReader
     this.specMode = specMode;
     this.preferredChannel = preferredChannel;
 
-    this._updateFeedURL();
+    this.updateFeedURL();
 
     this.config.onDidChange(
-      'nylas.identity.id',
-      this._updateFeedURL
-    );
-    this.config.onDidChange(
       'nylas.accounts',
-      this._updateFeedURL
+      this.updateFeedURL
     );
 
     setTimeout(() => this.setupAutoUpdater(), 0);
   }
 
   parameters = () => {
-    let updaterId = this.config.get("nylas.identity.id");
+    let updaterId = (this.databaseReader.getJSONBlob("NylasID") || {}).id
     if (!updaterId) {
       updaterId = "anonymous";
     }
@@ -66,7 +63,7 @@ export default class AutoUpdateManager extends EventEmitter {
     };
   }
 
-  _updateFeedURL = () => {
+  updateFeedURL = () => {
     const params = this.parameters();
 
     let host = `edgehill.nylas.com`;

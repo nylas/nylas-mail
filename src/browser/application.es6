@@ -10,6 +10,8 @@ import {EventEmitter} from 'events';
 
 import WindowManager from './window-manager';
 import FileListCache from './file-list-cache';
+import DatabaseReader from './database-reader';
+import ConfigMigrator from './config-migrator';
 import ApplicationMenu from './application-menu';
 import AutoUpdateManager from './auto-update-manager';
 import SystemTrayManager from './system-tray-manager';
@@ -24,7 +26,7 @@ let clipboard = null;
 // The application's singleton class.
 //
 export default class Application extends EventEmitter {
-  start(options) {
+  async start(options) {
     const {resourcePath, configDirPath, version, devMode, specMode, safeMode} = options;
 
     // Normalize to make sure drive letter case is consistent on Windows
@@ -38,11 +40,17 @@ export default class Application extends EventEmitter {
     this.fileListCache = new FileListCache();
     this.nylasProtocolHandler = new NylasProtocolHandler(this.resourcePath, this.safeMode);
 
+    this.databaseReader = new DatabaseReader({configDirPath, specMode});
+    await this.databaseReader.open();
+
     const Config = require('../config');
     const config = new Config();
     this.config = config;
     this.configPersistenceManager = new ConfigPersistenceManager({configDirPath, resourcePath});
     config.load();
+
+    this.configMigrator = new ConfigMigrator(this.config, this.databaseReader);
+    this.configMigrator.migrate()
 
     this.packageMigrationManager = new PackageMigrationManager({config, configDirPath, version})
     this.packageMigrationManager.migrate()
@@ -52,7 +60,7 @@ export default class Application extends EventEmitter {
       initializeInBackground = false;
     }
 
-    this.autoUpdateManager = new AutoUpdateManager(version, config, specMode);
+    this.autoUpdateManager = new AutoUpdateManager(version, config, specMode, this.databaseReader);
     this.applicationMenu = new ApplicationMenu(version);
     this.windowManager = new WindowManager({
       resourcePath: this.resourcePath,
@@ -123,7 +131,6 @@ export default class Application extends EventEmitter {
     }
   }
 
-
   // On Windows, removing a file can fail if a process still has it open. When
   // we close windows and log out, we need to wait for these processes to completely
   // exit and then delete the file. It's hard to tell when this happens, so we just
@@ -160,7 +167,7 @@ export default class Application extends EventEmitter {
   openWindowsForTokenState() {
     const accounts = this.config.get('nylas.accounts');
     const hasAccount = accounts && accounts.length > 0;
-    const hasN1ID = this.config.get('nylas.identity.id');
+    const hasN1ID = this._getNylasId();
 
     if (hasAccount && hasN1ID) {
       this.windowManager.ensureWindow(WindowManager.MAIN_WINDOW);
@@ -173,7 +180,14 @@ export default class Application extends EventEmitter {
     }
   }
 
+  _getNylasId() {
+    const identity = this.databaseReader.getJSONBlob("NylasID") || {}
+    return identity.id
+  }
+
   _relaunchToInitialWindows = ({resetConfig, resetDatabase} = {}) => {
+    // This will re-fetch the NylasID to update the feed url
+    this.autoUpdateManager.updateFeedURL()
     this.setDatabasePhase('close');
     this.windowManager.destroyAllWindows();
 
@@ -269,6 +283,10 @@ export default class Application extends EventEmitter {
     });
 
     this.on('application:relaunch-to-initial-windows', this._relaunchToInitialWindows);
+
+    this.on('application:onIdentityChanged', () => {
+      this.autoUpdateManager.updateFeedURL()
+    });
 
     this.on('application:quit', () => {
       app.quit()
