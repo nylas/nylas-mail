@@ -46,7 +46,10 @@ useDraft = (draftAttributes={}) ->
   @draft = new Message _.extend({draft: true, body: ""}, draftAttributes)
   @draft.clientId = DRAFT_CLIENT_ID
   @session = new DraftEditingSession(DRAFT_CLIENT_ID, @draft)
+  # spyOn().andCallFake wasn't working properly on ensureCorrectAccount for some reason
+  @session.ensureCorrectAccount = => Promise.resolve(@session)
   DraftStore._draftSessions[DRAFT_CLIENT_ID] = @session
+  @session._draftPromise
 
 useFullDraft = ->
   useDraft.call @,
@@ -65,13 +68,12 @@ makeComposer = (props={}) ->
   )
   advanceClock()
 
-xdescribe "ComposerView", ->
+describe "ComposerView", ->
   beforeEach ->
     ComposerEditor.containerRequired = false
     ComponentRegistry.register(ComposerEditor, role: "Composer:Editor")
 
-    @isSending = false
-    spyOn(DraftStore, "isSendingDraft").andCallFake => @isSending
+    spyOn(DraftStore, "isSendingDraft").andCallThrough()
     spyOn(DraftEditingSession.prototype, 'changeSetCommit').andCallFake (draft) =>
       @draft = draft
     spyOn(ContactStore, "searchContacts").andCallFake (email) =>
@@ -87,29 +89,42 @@ xdescribe "ComposerView", ->
 
   describe "when sending a new message", ->
     it 'makes a request with the message contents', ->
-      useDraft.call(@)
-      makeComposer.call(@)
-      editableNode = ReactDOM.findDOMNode(@composer).querySelector('[contenteditable]')
-      spyOn(@session.changes, "add")
-      editableNode.innerHTML = "Hello <strong>world</strong>"
-      @composer.refs[Fields.Body]._onDOMMutated(["mutated"])
-      expect(@session.changes.add).toHaveBeenCalled()
-      expect(@session.changes.add.calls.length).toBe 1
-      body = @session.changes.add.calls[0].args[0].body
-      expect(body).toBe "Hello <strong>world</strong>"
+      sessionSetupComplete = false
+      useDraft.call(@).then( =>
+        sessionSetupComplete = true
+      )
+      waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
+      runs( =>
+        makeComposer.call(@)
+        editableNode = ReactDOM.findDOMNode(@composer).querySelector('[contenteditable]')
+        spyOn(@session.changes, "add")
+        editableNode.innerHTML = "Hello <strong>world</strong>"
+        @composer.refs[Fields.Body]._onDOMMutated(["mutated"])
+        expect(@session.changes.add).toHaveBeenCalled()
+        expect(@session.changes.add.calls.length).toBe 1
+        body = @session.changes.add.calls[0].args[0].body
+        expect(body).toBe "Hello <strong>world</strong>"
+      )
 
   describe "when sending a reply-to message", ->
     beforeEach ->
-      useDraft.call @,
+      sessionSetupComplete = false
+      useDraft.call(@,
         from: [u1]
         to: [u2]
         subject: "Test Reply Message 1"
         body: ""
-        replyToMessageId: "1"
+        replyToMessageId: "1")
+      .then( =>
+        sessionSetupComplete = true
+      )
+      waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
 
-      makeComposer.call @
-      @editableNode = ReactDOM.findDOMNode(@composer).querySelector('[contenteditable]')
-      spyOn(@session.changes, "add")
+      runs( =>
+        makeComposer.call(@)
+        @editableNode = ReactDOM.findDOMNode(@composer).querySelector('[contenteditable]')
+        spyOn(@session.changes, "add")
+      )
 
     it 'begins with empty body', ->
       expect(@editableNode.innerHTML).toBe ""
@@ -122,18 +137,25 @@ xdescribe "ComposerView", ->
       From: Evan Morikawa &lt;evan@evanmorikawa.com&gt;<br>Subject: Test Forward Message 1<br>Date: Sep 3 2015, at 12:14 pm<br>To: Evan Morikawa &lt;evan@nylas.com&gt;
       <br><br>
 
-    <meta content="text/html; charset=us-ascii">This is a test!
-    </blockquote>"""
+      <meta content="text/html; charset=us-ascii">This is a test!
+      </blockquote>"""
 
-      useDraft.call @,
+      sessionSetupComplete = false
+      useDraft.call(@,
         from: [u1]
         to: [u2]
         subject: "Fwd: Test Forward Message 1"
-        body: @fwdBody
+        body: @fwdBody)
+      .then( =>
+        sessionSetupComplete = true
+      )
+      waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
 
-      makeComposer.call @
-      @editableNode = ReactDOM.findDOMNode(@composer).querySelector('[contenteditable]')
-      spyOn(@session.changes, "add")
+      runs( =>
+        makeComposer.call(@)
+        @editableNode = ReactDOM.findDOMNode(@composer).querySelector('[contenteditable]')
+        spyOn(@session.changes, "add")
+      )
 
     it 'begins with the forwarded message expanded', ->
       expect(@editableNode.innerHTML).toBe @fwdBody
@@ -153,99 +175,158 @@ xdescribe "ComposerView", ->
       @dialog = remote.dialog
       spyOn(remote, "getCurrentWindow")
       spyOn(@dialog, "showMessageBox")
-      spyOn(Actions, "sendDraft")
+      spyOn(Actions, "sendDraft").andCallThrough()
 
     it "shows an error if there are no recipients", ->
-      useDraft.call @, subject: "no recipients"
-      makeComposer.call(@)
-      status = @composer._isValidDraft()
-      expect(status).toBe false
-      expect(@dialog.showMessageBox).toHaveBeenCalled()
-      dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
-      expect(dialogArgs.detail).toEqual("You need to provide one or more recipients before sending the message.")
-      expect(dialogArgs.buttons).toEqual ['Edit Message', 'Cancel']
+      sessionSetupComplete = false
+      useDraft.call(@, subject: "no recipients").then( =>
+        sessionSetupComplete = true
+      )
+      waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
+      runs( =>
+        makeComposer.call(@)
+        status = @composer._isValidDraft()
+        expect(status).toBe false
+        expect(@dialog.showMessageBox).toHaveBeenCalled()
+        dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
+        expect(dialogArgs.detail).toEqual("You need to provide one or more recipients before sending the message.")
+        expect(dialogArgs.buttons).toEqual ['Edit Message', 'Cancel']
+      )
 
     it "shows an error if a recipient is invalid", ->
-      useDraft.call @,
+      sessionSetupComplete = false
+      useDraft.call(@,
         subject: 'hello world!'
-        to: [new Contact(email: 'lol', name: 'lol')]
-      makeComposer.call(@)
-      status = @composer._isValidDraft()
-      expect(status).toBe false
-      expect(@dialog.showMessageBox).toHaveBeenCalled()
-      dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
-      expect(dialogArgs.detail).toEqual("lol is not a valid email address - please remove or edit it before sending.")
-      expect(dialogArgs.buttons).toEqual ['Edit Message', 'Cancel']
+        to: [new Contact(email: 'lol', name: 'lol')])
+      .then( =>
+        sessionSetupComplete = true
+      )
+      waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
+      runs( =>
+        makeComposer.call(@)
+        status = @composer._isValidDraft()
+        expect(status).toBe false
+        expect(@dialog.showMessageBox).toHaveBeenCalled()
+        dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
+        expect(dialogArgs.detail).toEqual("lol is not a valid email address - please remove or edit it before sending.")
+        expect(dialogArgs.buttons).toEqual ['Edit Message', 'Cancel']
+      )
 
     describe "empty body warning", ->
       it "warns if the body of the email is still the pristine body", ->
         pristineBody = "<br><br>"
-
-        useDraft.call @,
+        sessionSetupComplete = false
+        useDraft.call(@,
           to: [u1]
           subject: "Hello World"
-          body: pristineBody
-        makeComposer.call(@)
+          body: pristineBody)
+        .then( =>
+          sessionSetupComplete = true
+        )
+        waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
 
-        spyOn(@session, 'draftPristineBody').andCallFake -> pristineBody
+        runs( =>
+          makeComposer.call(@)
+          spyOn(@session, 'draftPristineBody').andCallFake -> pristineBody
 
-        status = @composer._isValidDraft()
-        expect(status).toBe false
-        expect(@dialog.showMessageBox).toHaveBeenCalled()
-        dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
-        expect(dialogArgs.buttons).toEqual ['Send Anyway', 'Cancel']
+          status = @composer._isValidDraft()
+          expect(status).toBe false
+          expect(@dialog.showMessageBox).toHaveBeenCalled()
+          dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
+          expect(dialogArgs.buttons).toEqual ['Send Anyway', 'Cancel']
+        )
 
       it "does not warn if the body of the email is all quoted text, but the email is a forward", ->
-        useDraft.call @,
+        sessionSetupComplete = false
+        useDraft.call(@,
           to: [u1]
           subject: "Fwd: Hello World"
-          body: "<br><br><blockquote class='gmail_quote'>This is my quoted text!</blockquote>"
-        makeComposer.call(@)
-        status = @composer._isValidDraft()
-        expect(status).toBe true
+          body: "<br><br><blockquote class='gmail_quote'>This is my quoted text!</blockquote>")
+        .then( =>
+          sessionSetupComplete = true
+        )
+        waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
+        runs( =>
+          makeComposer.call(@)
+          status = @composer._isValidDraft()
+          expect(status).toBe true
+        )
 
       it "does not warn if the user has attached a file", ->
-        useDraft.call @,
+        sessionSetupComplete = false
+        useDraft.call(@,
           to: [u1]
           subject: "Hello World"
           body: ""
-          files: [f1]
-        makeComposer.call(@)
-        status = @composer._isValidDraft()
-        expect(status).toBe true
-        expect(@dialog.showMessageBox).not.toHaveBeenCalled()
+          files: [f1])
+        .then( =>
+          sessionSetupComplete = true
+        )
+        waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
+
+        runs( =>
+          makeComposer.call(@)
+          status = @composer._isValidDraft()
+          expect(status).toBe true
+          expect(@dialog.showMessageBox).not.toHaveBeenCalled()
+        )
 
     it "shows a warning if there's no subject", ->
-      useDraft.call @, to: [u1], subject: ""
-      makeComposer.call(@)
-      status = @composer._isValidDraft()
-      expect(status).toBe false
-      expect(@dialog.showMessageBox).toHaveBeenCalled()
-      dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
-      expect(dialogArgs.buttons).toEqual ['Send Anyway', 'Cancel']
-
-    it "doesn't show a warning if requirements are satisfied", ->
-      useFullDraft.apply(@); makeComposer.call(@)
-      status = @composer._isValidDraft()
-      expect(status).toBe true
-      expect(@dialog.showMessageBox).not.toHaveBeenCalled()
-
-    describe "Checking for attachments", ->
-      warn = (body) ->
-        useDraft.call @, subject: "Subject", to: [u1], body: body
+      sessionSetupComplete = false
+      useDraft.call(@, to: [u1], subject: "").then( =>
+        sessionSetupComplete = true
+      )
+      waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
+      runs( =>
         makeComposer.call(@)
         status = @composer._isValidDraft()
         expect(status).toBe false
         expect(@dialog.showMessageBox).toHaveBeenCalled()
         dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
         expect(dialogArgs.buttons).toEqual ['Send Anyway', 'Cancel']
+      )
 
-      noWarn = (body) ->
-        useDraft.call @, subject: "Subject", to: [u1], body: body
+    it "doesn't show a warning if requirements are satisfied", ->
+      sessionSetupComplete = false
+      useFullDraft.apply(@).then( =>
+        sessionSetupComplete = true
+      )
+      waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
+      runs( =>
         makeComposer.call(@)
         status = @composer._isValidDraft()
         expect(status).toBe true
         expect(@dialog.showMessageBox).not.toHaveBeenCalled()
+      )
+
+    describe "Checking for attachments", ->
+      warn = (body) ->
+        sessionSetupComplete = false
+        useDraft.call(@, subject: "Subject", to: [u1], body: body).then( =>
+          sessionSetupComplete = true
+        )
+        waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
+        runs( =>
+          makeComposer.call(@)
+          status = @composer._isValidDraft()
+          expect(status).toBe false
+          expect(@dialog.showMessageBox).toHaveBeenCalled()
+          dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
+          expect(dialogArgs.buttons).toEqual ['Send Anyway', 'Cancel']
+        )
+
+      noWarn = (body) ->
+        sessionSetupComplete = false
+        useDraft.call(@, subject: "Subject", to: [u1], body: body).then( =>
+          sessionSetupComplete = true
+        )
+        waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
+        runs( =>
+          makeComposer.call(@)
+          status = @composer._isValidDraft()
+          expect(status).toBe true
+          expect(@dialog.showMessageBox).not.toHaveBeenCalled()
+        )
 
       it "warns", -> warn.call(@, "Check out the attached file")
       it "warns", -> warn.call(@, "I've added an attachment")
@@ -257,45 +338,81 @@ xdescribe "ComposerView", ->
       it "doesn't warn", -> noWarn.call(@, "Hey there <blockquote class='gmail_quote'>attach</blockquote>")
 
     it "doesn't show a warning if you've attached a file", ->
-      useDraft.call @,
+      sessionSetupComplete = false
+      useDraft.call(@,
         subject: "Subject"
         to: [u1]
         body: "Check out attached file"
-        files: [f1]
-      makeComposer.call(@)
-      status = @composer._isValidDraft()
-      expect(status).toBe true
-      expect(@dialog.showMessageBox).not.toHaveBeenCalled()
+        files: [f1])
+      .then( =>
+        sessionSetupComplete = true
+      )
+      waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
+      runs( =>
+        makeComposer.call(@)
+        status = @composer._isValidDraft()
+        expect(status).toBe true
+        expect(@dialog.showMessageBox).not.toHaveBeenCalled()
+      )
 
     it "bypasses the warning if force bit is set", ->
-      useDraft.call @, to: [u1], subject: ""
-      makeComposer.call(@)
-      status = @composer._isValidDraft(force: true)
-      expect(status).toBe true
-      expect(@dialog.showMessageBox).not.toHaveBeenCalled()
+      sessionSetupComplete = false
+      useDraft.call(@, to: [u1], subject: "").then( =>
+        sessionSetupComplete = true
+      )
+      waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
+      runs( =>
+        makeComposer.call(@)
+        status = @composer._isValidDraft(force: true)
+        expect(status).toBe true
+        expect(@dialog.showMessageBox).not.toHaveBeenCalled()
+      )
 
     it "sends when you click the send button", ->
-      useFullDraft.apply(@); makeComposer.call(@)
-      sendBtn = @composer.refs.sendActionButton
-      sendBtn.primarySend()
-      expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID, 'send')
-      expect(Actions.sendDraft.calls.length).toBe 1
+      sessionSetupComplete = false
+      useFullDraft.apply(@).then( =>
+        sessionSetupComplete = true
+      )
+      waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
+      runs( =>
+        makeComposer.call(@)
+        sendBtn = @composer.refs.sendActionButton
+        sendBtn.primarySend()
+        expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID, 'send')
+        expect(Actions.sendDraft.calls.length).toBe 1
+        # Delete the draft from _draftsSending so we can send it in other tests
+        delete DraftStore._draftsSending[DRAFT_CLIENT_ID]
+      )
 
-    it "doesn't send twice if you double click", ->
-      useFullDraft.apply(@); makeComposer.call(@)
-      sendBtn = @composer.refs.sendActionButton
-      sendBtn.primarySend()
-      @isSending = true
-      DraftStore.trigger()
-      sendBtn.primarySend()
-      expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID, 'send')
-      expect(Actions.sendDraft.calls.length).toBe 1
+    it "doesn't send twice if you double click", =>
+      sessionSetupComplete = false
+      useFullDraft.apply(@).then( =>
+        sessionSetupComplete = true
+      )
+      waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
+      runs( =>
+        makeComposer.call(@)
+        sendBtn = @composer.refs.sendActionButton
+        sendBtn.primarySend()
+        sendBtn.primarySend()
+        expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID, 'send')
+        expect(Actions.sendDraft.calls.length).toBe 1
+        # Delete the draft from _draftsSending so we can send it in other tests
+        delete DraftStore._draftsSending[DRAFT_CLIENT_ID]
+      )
 
     describe "when sending a message with keyboard inputs", ->
       beforeEach ->
-        useFullDraft.apply(@)
-        makeComposer.call(@)
-        @$composer = @composer.refs.composerWrap
+        sessionSetupComplete = false
+        useFullDraft.apply(@).then =>
+          makeComposer.call(@)
+          @$composer = @composer.refs.composerWrap
+          sessionSetupComplete = true
+          waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
+
+      afterEach ->
+        # Delete the draft from _draftsSending so we can send it in other tests
+        delete DraftStore._draftsSending[DRAFT_CLIENT_ID]
 
       it "sends the draft on cmd-enter", ->
         ReactDOM.findDOMNode(@$composer).dispatchEvent(new CustomEvent('composer:send-message'))
@@ -306,20 +423,23 @@ xdescribe "ComposerView", ->
         ReactDOM.findDOMNode(@$composer).dispatchEvent(new CustomEvent('composer:send-message'))
         expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID, 'send')
         expect(Actions.sendDraft.calls.length).toBe 1
-        @isSending = true
-        DraftStore.trigger()
         ReactDOM.findDOMNode(@$composer).dispatchEvent(new CustomEvent('composer:send-message'))
         expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID, 'send')
         expect(Actions.sendDraft.calls.length).toBe 1
 
   describe "drag and drop", ->
     beforeEach ->
-      useDraft.call @,
+      sessionSetupComplete = false
+      useDraft.call(@,
         to: [u1]
         subject: "Hello World"
         body: ""
-        files: [f1]
-      makeComposer.call(@)
+        files: [f1])
+      .then( =>
+        makeComposer.call(@)
+        sessionSetupComplete = true
+      )
+      waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
 
     describe "_shouldAcceptDrop", ->
       it "should return true if the event is carrying native files", ->
@@ -408,8 +528,12 @@ xdescribe "ComposerView", ->
 
       spyOn(Actions, "fetchFile")
 
-      useDraft.call @, files: [@file1, @file2]
-      makeComposer.call @
+      sessionSetupComplete = false
+      useDraft.call(@, files: [@file1, @file2]).then( =>
+        makeComposer.call(@)
+        sessionSetupComplete = true
+      )
+      waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
 
     it 'starts fetching attached files', ->
       waitsFor ->
@@ -425,15 +549,21 @@ xdescribe "ComposerView", ->
       el = els[0]
       expect(el.props.exposedProps.files).toEqual(@draft.files)
 
-xdescribe "when a file is received (via drag and drop or paste)", ->
+describe "when a file is received (via drag and drop or paste)", ->
   beforeEach ->
-    useDraft.call @
-    makeComposer.call @
-    @upload = {targetPath: 'a/f.txt', size: 1000, name: 'f.txt', id: 'f'}
-    spyOn(Actions, 'addAttachment').andCallFake ({filePath, messageClientId, onUploadCreated}) =>
-      @draft.uploads.push(@upload)
-      onUploadCreated(@upload)
-    spyOn(Actions, 'insertAttachmentIntoDraft')
+    sessionSetupComplete = false
+    useDraft.call(@).then( =>
+      sessionSetupComplete = true
+    )
+    waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
+    runs( =>
+      makeComposer.call(@)
+      @upload = {targetPath: 'a/f.txt', size: 1000, name: 'f.txt', id: 'f'}
+      spyOn(Actions, 'addAttachment').andCallFake ({filePath, messageClientId, onUploadCreated}) =>
+        @draft.uploads.push(@upload)
+        onUploadCreated(@upload)
+      spyOn(Actions, 'insertAttachmentIntoDraft')
+    )
 
   it "should call addAttachment with the path and clientId", ->
     @composer._onFileReceived('../../f.txt')
@@ -456,31 +586,3 @@ xdescribe "when a file is received (via drag and drop or paste)", ->
     advanceClock()
     expect(Actions.insertAttachmentIntoDraft).toHaveBeenCalled()
     expect(@upload.inline).toEqual(true)
-
-xdescribe "when the DraftStore `isSending` isn't stubbed out", ->
-  beforeEach ->
-    DraftStore._draftsSending = {}
-
-  it "doesn't send twice in a popout", ->
-    spyOn(Actions, "queueTask")
-    spyOn(Actions, "sendDraft").andCallThrough()
-    useFullDraft.call(@)
-    makeComposer.call(@)
-
-    firstStatus = @composer._isValidDraft()
-    expect(firstStatus).toBe true
-    Actions.sendDraft(DRAFT_CLIENT_ID)
-    secondStatus = @composer._isValidDraft()
-    expect(secondStatus).toBe false
-
-  it "doesn't send twice in the main window", ->
-    spyOn(Actions, "queueTask")
-    spyOn(Actions, "sendDraft").andCallThrough()
-    spyOn(NylasEnv, "isMainWindow").andReturn true
-    useFullDraft.call(@)
-    makeComposer.call(@)
-    firstStatus = @composer._isValidDraft()
-    expect(firstStatus).toBe true
-    Actions.sendDraft(DRAFT_CLIENT_ID)
-    secondStatus = @composer._isValidDraft()
-    expect(secondStatus).toBe false
