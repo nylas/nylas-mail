@@ -409,7 +409,10 @@ class SyncWorker {
     const tasks = yield getNewSyncbackTasks({db: this._db, account: this._account})
     this._shouldIgnoreInboxFlagUpdates = true
     for (const task of tasks) {
-      await runSyncbackTask({task, runTask: (t) => this._conn.runOperation(t)})
+      const {shouldRetry} = await runSyncbackTask({task, runTask: (t) => this._conn.runOperation(t)})
+      if (shouldRetry) {
+        this.syncNow({reason: 'Retrying syncback task', interrupt: true});
+      }
       yield  // Yield to allow interruption
     }
     this._shouldIgnoreInboxFlagUpdates = false
