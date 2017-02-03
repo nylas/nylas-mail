@@ -1,12 +1,13 @@
+const getMac = require('getmac').getMac
+const crypto = require('crypto')
 //
 // NOTE: This file is manually copied over from the edgehill repo into N1. You
 // must manually update both files. We can't use a sym-link because require
 // paths don't work properly.
 //
 
-const raven = require('raven');
-
-const app = (process.type === 'renderer') ? require('electron').remote.app : require('electron').app;
+const Raven = require('raven');
+let deviceHash = "Unknown Device Hash"
 
 module.exports = (function (...args) {
   function ErrorReporter(modes) {
@@ -16,7 +17,17 @@ module.exports = (function (...args) {
     this.resourcePath = modes.resourcePath
 
     if (!this.inSpecMode) {
-      this._setupSentry();
+      try {
+        getMac((err, macAddress) => {
+          if (!err && macAddress) {
+            deviceHash = crypto.createHash('md5').update(macAddress).digest('hex')
+          }
+          this._setupSentry(deviceHash);
+        })
+      } catch (err) {
+        console.error(err);
+        this._setupSentry(deviceHash);
+      }
     }
 
     const bind = function (fn, me) { return function () { return fn.apply(me, ...args); }; };
@@ -26,15 +37,17 @@ module.exports = (function (...args) {
   ErrorReporter.prototype.onDidLogAPIError = function (error, statusCode, message) {
   }
 
-  ErrorReporter.prototype._setupSentry = function () {
+  ErrorReporter.prototype._setupSentry = function (deviceHash) {
     // Initialize the Sentry connector
-    this.client = new raven.Client('https://d5f04bffac634c89b4d497a37d4e088d:db342c8ca35d49138fe1a539bae876f1@sentry.nylas.com/25');
+    const sentryDSN = "https://0796ad36648a40a094128d6e0287eda4:0c329e562cc74e06a48488772dd0f578@sentry.io/134984"
 
-    if (typeof NylasEnv !== 'undefined' && NylasEnv !== null && NylasEnv.config) {
-      this.client.setUserContext({id: NylasEnv.config.get('nylas.identity.id')});
-    }
+    Raven.disableConsoleAlerts();
+    Raven.config(sentryDSN, {
+      name: deviceHash,
+      autoBreadcrumbs: true,
+    }).install();
 
-    this.client.on('error', function (e) {
+    Raven.on('error', function (e) {
       console.log(e.reason);
       console.log(e.statusCode);
       return console.log(e.response);
@@ -48,17 +61,33 @@ module.exports = (function (...args) {
     // If an error comes from multiple plugins, we report a unique event
     // for each plugin since we want to group by individual pluginId
     const captureObjects = this._prepareSentryCaptureObjects(err, extra)
+
+    if (process.type === 'renderer') {
+      app = require('electron').remote.getGlobal('application')
+    } else {
+      app = global.application
+    }
+
+    const errData = {}
+    if (typeof app !== 'undefined' && app && app.config) {
+      const fullIdent = app.config.get('nylas.identity');
+      errData.user = {
+        id: fullIdent.id,
+        email: fullIdent.email,
+        name: fullIdent.firstname + " " + fullIdent.lastname,
+      }
+    }
+
     for (let i = 0; i < captureObjects.length; i++) {
-      this.client.captureError(err, captureObjects[i])
+      Raven.captureException(err, Object.assign(errData, captureObjects[i]))
     }
   };
 
   ErrorReporter.prototype.getVersion = function () {
-    if (typeof NylasEnv !== 'undefined' && NylasEnv) {
+    if (process.type === 'renderer') {
       return NylasEnv.getVersion();
-    }
-    if (typeof app !== 'undefined' && app) {
-      return app.getVersion();
+    } else {
+      return require('electron').app.getVersion()
     }
     return null;
   };
