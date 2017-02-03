@@ -149,7 +149,6 @@ class Actions {
   /*
   Public: Manage the Nylas identity
   */
-  static setNylasIdentity = ActionScopeWindow;
   static logoutNylasIdentity = ActionScopeWindow;
 
   /*

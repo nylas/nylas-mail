@@ -1,40 +1,132 @@
+import Rx from 'rx-lite'
 import NylasStore from 'nylas-store';
 import {ipcRenderer} from 'electron';
 import request from 'request';
 import url from 'url'
 
-import KeyManager from '../../key-manager'
-import Actions from '../actions';
 import Utils from '../models/utils';
-
-const configIdentityKey = "nylas.identity";
+import Actions from '../actions';
+import KeyManager from '../../key-manager'
+import DatabaseStore from './database-store'
 
 // Note this key name is used when migrating to Nylas Pro accounts from
 // old N1.
-const KEY_NAME = 'Nylas Account';
+const KEYCHAIN_NAME = 'Nylas Account';
 
 class IdentityStore extends NylasStore {
 
   constructor() {
     super();
+    this._savePromises = []
+    this._identity = null
+  }
 
+  async activate() {
     NylasEnv.config.onDidChange('env', this._onEnvChanged);
     this._onEnvChanged();
 
-    this.listenTo(Actions.setNylasIdentity, this._onSetNylasIdentity);
     this.listenTo(Actions.logoutNylasIdentity, this._onLogoutNylasIdentity);
 
-    NylasEnv.config.onDidChange(configIdentityKey, () => {
-      this._loadIdentity();
-      this.trigger();
-    });
+    const q = DatabaseStore.findJSONBlob("NylasID");
+    this._disp = Rx.Observable.fromQuery(q).subscribe(this._onIdentityChanged)
 
-    this._loadIdentity();
+    const identity = await DatabaseStore.run(q)
+    this._onIdentityChanged(identity)
 
-    if (NylasEnv.isMainWindow() && ['staging', 'production'].includes(NylasEnv.config.get('env'))) {
-      setInterval(this.fetchIdentity, 1000 * 60 * 60); // 1 hour
-      this.fetchIdentity();
+    this._fetchAndPollRemoteIdentity()
+  }
+
+  deactivate() {
+    this._disp.dispose();
+    this.stopListeningToAll()
+  }
+
+  identity() {
+    if (!this._identity || !this._identity.id) return null
+    return Utils.deepClone(this._identity);
+  }
+
+  identityId() {
+    if (!this._identity) {
+      return null;
     }
+    return this._identity.id;
+  }
+
+  _fetchAndPollRemoteIdentity() {
+    if (!NylasEnv.isMainWindow()) return;
+    if (!['staging', 'production'].includes(NylasEnv.config.get('env'))) return;
+    /**
+     * We only need to re-fetch the identity to synchronize ourselves
+     * with any changes a user did on a separate computer. Any updates
+     * they do on their primary computer will be optimistically updated.
+     * We also update from the server's version every
+     * `SendFeatureUsageEventTask`
+     */
+    setInterval(this._fetchIdentity, 1000 * 60 * 10); // 10 minutes
+    // Don't await for this!
+    this._fetchIdentity();
+  }
+
+  /**
+   * Saves the identity to the database. The local cache will be updated
+   * once the database change comes back through
+   */
+  async saveIdentity(identity) {
+    if (identity && identity.token) {
+      KeyManager.replacePassword(KEYCHAIN_NAME, identity.token)
+      delete identity.token;
+    }
+    if (!identity) {
+      KeyManager.deletePassword(KEYCHAIN_NAME)
+    }
+    const savePromise = new Promise((resolve, reject) => {
+      this._savePromises.push({
+        resolve: resolve,
+        rejectTimeout: setTimeout(() => {
+          reject(new Error("Identity never persisted to database"))
+        }, 10000),
+      });
+    })
+    await DatabaseStore.inTransaction((t) => {
+      return t.persistJSONBlob("NylasID", identity)
+    });
+    return savePromise
+  }
+
+  /**
+   * When the identity changes in the database, update our local store
+   * cache and set the token from the keychain.
+   */
+  _onIdentityChanged = (newIdentity) => {
+    const oldId = ((this._identity || {}).id)
+    this._identity = newIdentity
+    if (this._identity && this._identity.id) {
+      if (!this._identity.token) {
+        this._identity.token = KeyManager.getPassword(KEYCHAIN_NAME);
+      }
+    } else {
+      // It's possible the identity exists as an empty object. If the
+      // object looks blank, set the identity to null.
+      this._identity = null
+    }
+    const newId = ((this._identity || {}).id);
+    if (oldId !== newId) {
+      ipcRenderer.send('command', 'onIdentityChanged');
+    }
+    if (this._savePromises.length > 0) {
+      for (const {resolve, rejectTimeout} of this._savePromises) {
+        resolve();
+        clearTimeout(rejectTimeout)
+      }
+      this._savePromises = []
+    }
+    this.trigger();
+  }
+
+  _onLogoutNylasIdentity = async () => {
+    await this.saveIdentity(null)
+    ipcRenderer.send('command', 'application:relaunch-to-initial-windows');
   }
 
   _onEnvChanged = () => {
@@ -48,24 +140,6 @@ class IdentityStore extends NylasStore {
     } else {
       this.URLRoot = "https://billing.nylas.com";
     }
-  }
-
-  _loadIdentity() {
-    this._identity = NylasEnv.config.get(configIdentityKey);
-    if (this._identity) {
-      this._identity.token = KeyManager.getPassword(KEY_NAME, {migrateFromService: "Nylas"});
-    }
-  }
-
-  identity() {
-    return this._identity;
-  }
-
-  identityId() {
-    if (!this._identity) {
-      return null;
-    }
-    return this._identity.id;
   }
 
   /**
@@ -118,30 +192,37 @@ class IdentityStore extends NylasStore {
     });
   }
 
-  fetchIdentity = () => {
+  _fetchIdentity = async () => {
     if (!this._identity || !this._identity.token) {
       return Promise.resolve();
     }
-    return this.fetchPath('/n1/user').then((json) => {
-      const nextIdentity = Object.assign({}, this._identity, json);
-      this._onSetNylasIdentity(nextIdentity);
-    });
+    const json = await this.fetchPath('/n1/user')
+    const nextIdentity = Object.assign({}, this._identity, json);
+    return this.saveIdentity(nextIdentity);
   }
 
-  fetchPath = (path) => {
-    return new Promise((resolve, reject) => {
-      const requestId = Utils.generateTempId();
-      const options = {
-        method: 'GET',
-        url: `${this.URLRoot}${path}`,
-        startTime: Date.now(),
-        auth: {
-          username: this._identity.token,
-          password: '',
-          sendImmediately: true,
-        },
-      };
+  fetchPath = async (path) => {
+    const options = {
+      method: 'GET',
+      url: `${this.URLRoot}${path}`,
+      startTime: Date.now(),
+    };
+    try {
+      await this.nylasIDRequest(options)
+    } catch (err) {
+      const error = err || new Error(`IdentityStore.fetchPath: ${path} ${err.message}.`)
+      NylasEnv.reportError(error)
+    }
+  }
 
+  nylasIDRequest(options) {
+    return new Promise((resolve, reject) => {
+      options.auth = {
+        username: this._identity.token,
+        password: '',
+        sendImmediately: true,
+      }
+      const requestId = Utils.generateTempId();
       Actions.willMakeAPIRequest({
         request: options,
         requestId: requestId,
@@ -157,27 +238,12 @@ class IdentityStore extends NylasStore {
           try {
             return resolve(JSON.parse(body));
           } catch (err) {
-            NylasEnv.reportError(new Error(`IdentityStore.fetchPath: ${path} ${err.message}.`))
+            return reject(err)
           }
         }
-        return reject(error || new Error(`IdentityStore.fetchPath: ${path} ${response.statusCode}.`));
+        return reject(error)
       });
-    });
-  }
-
-  _onLogoutNylasIdentity = () => {
-    KeyManager.deletePassword(KEY_NAME);
-    NylasEnv.config.unset(configIdentityKey);
-    ipcRenderer.send('command', 'application:relaunch-to-initial-windows');
-  }
-
-  _onSetNylasIdentity = (identity) => {
-    if (identity.token) {
-      KeyManager.replacePassword(KEY_NAME, identity.token)
-      delete identity.token;
-    }
-    NylasEnv.config.set(configIdentityKey, identity);
-    this.trigger()
+    })
   }
 }
 
