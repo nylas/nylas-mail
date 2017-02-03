@@ -4,7 +4,7 @@
 
 - Fixes:
 
-  + Nylas Mail no longer removes all of your accounts unexpectedly (addresses #3231)
+  + Fixed an issue where Nylas Mail could delete all accounts (addresses #3231)
   + Correctly delete and archive threads when they contain sent messages (addresses #2706)
   + Improve performance and prevent crashes when running several sync actions
   + Improve error handling when sync actions fail
