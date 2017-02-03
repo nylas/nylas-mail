@@ -10,7 +10,7 @@
 
 ## Download Nylas Mail
 
-You can download compiled versions of Nylas Mail for Windows, Mac OS X, and Linux (.deb) from [https://nylas.com/download](https://nylas.com/download). You can also build and run N1 on Fedora. On Arch Linux, you can install **[n1](https://aur.archlinux.org/packages/n1/)** or **[n1-git](https://aur.archlinux.org/packages/n1-git/)** from the aur.
+You can download compiled versions of Nylas Mail for Windows, Mac OS X, and Linux (.deb) from [https://nylas.com/download](https://nylas.com/download). You can also build and run Nylas Mail (Previously N1) on Fedora. On Arch Linux, you can install **[n1](https://aur.archlinux.org/packages/n1/)** or **[n1-git](https://aur.archlinux.org/packages/n1-git/)** from the aur.
 
 ## Build A Plugin
 
@@ -91,7 +91,7 @@ Great starting points for creating your own plugins!
 
 #### Community Plugins
 
-Note these are not tested or officially supported by Nylas, but we still think they are really cool! If you find bugs with them, please open GitHub issues on their individual project pages, not the N1 repo page. Thanks!
+Note these are not tested or officially supported by Nylas, but we still think they are really cool! If you find bugs with them, please open GitHub issues on their individual project pages, not the Nylas Mail (N1) repo page. Thanks!
 
 - [Jiffy](http://noahbuscher.github.io/N1-Jiffy/)—Insert animated GIFs
 - [Weather](https://github.com/jackiehluo/n1-weather)
@@ -108,7 +108,7 @@ Note these are not tested or officially supported by Nylas, but we still think t
 - [Participants Display](https://github.com/kbruccoleri/nylas-participants-display)
 - [GitHub](https://github.com/ForbesLindesay/N1-GitHub)
 
-When you install packages, they're moved to ~/.nylas-mail/packages, and N1 runs apm install on the command line to fetch dependencies listed in the package's package.json
+When you install packages, they're moved to ~/.nylas-mail/packages, and Nylas Mail runs apm install on the command line to fetch dependencies listed in the package's package.json
 
 
 ## Building the docs
