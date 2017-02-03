@@ -23,7 +23,7 @@ class SnoozeMailLabel extends Component {
     )
 
     if (!isSnoozedPerspective) {
-      return false
+      return <span />
     }
 
     const {thread} = this.props;
