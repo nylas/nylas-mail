@@ -178,7 +178,7 @@ class IMAPConnection extends EventEmitter {
 
       this._imap.once('end', () => {
         clearTimeout(socketTimeout)
-        this._logger.info('Underlying IMAP Connection ended');
+        this._logger.debug('Underlying IMAP Connection ended');
         this._connectPromise = null;
         this._imap = null;
       });
