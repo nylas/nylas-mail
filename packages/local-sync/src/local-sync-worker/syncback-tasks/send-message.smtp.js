@@ -24,7 +24,6 @@ class SendMessageSMTP extends SyncbackTask {
     const {messagePayload} = this.syncbackRequestObject().props
 
     const message = await MessageFactory.buildForSend(db, messagePayload);
-    message.setIsSending(true);
     const logger = global.Logger.forAccount(this._account);
     const sender = new SendmailClient(this._account, logger);
     await sender.send(message);
