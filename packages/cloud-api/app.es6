@@ -57,6 +57,8 @@ Metrics.startCapturing('nylas-k2-api')
 global.Metrics = Metrics
 global.Logger = Logger.createLogger('nylas-k2-api')
 
+// TODO: would be really nice if we could log some request context when
+// this happens, but not sure if there's a good way to do that...
 const onUnhandledError = (err) => {
   global.Logger.fatal(err, 'Unhandled error')
   global.Metrics.reportError(err)

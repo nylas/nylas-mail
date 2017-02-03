@@ -36,11 +36,11 @@ export async function apiAuthenticate(req, username, password, cb) {
     const identity = await request(`https://${identPath}/n1/user`, {
       auth: {username: n1IdentityToken, password: ''},
     })
-    global.Logger.debug({identity}, `Got ${identPath} identity response`)
-    request.logger = request.logger.forAccount(account);
+    req.logger.debug({identity}, `Got ${identPath} identity response`)
+    req.logger = req.logger.forAccount(account);
     return cb(null, true, {account, identity});
   } catch (err) {
-    global.Logger.error({error: err, username}, `Invalid credentials, can't authenticate`)
+    req.logger.error({error: err, username}, `Invalid credentials, can't authenticate`)
     return cb(null, false, {})
   }
 }
