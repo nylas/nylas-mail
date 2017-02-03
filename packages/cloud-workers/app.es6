@@ -1,4 +1,6 @@
 import SnoozeWorker from './workers/snooze'
+import {setupMonitoring} from './monitoring'
+import Sentry from './sentry'
 const {DatabaseConnector, Logger, Metrics} = require('cloud-core')
 
 Metrics.startCapturing('n1-cloud-workers')
@@ -16,7 +18,14 @@ process.on('unhandledRejection', onUnhandledError)
 const workerTable = {};
 const MAX_ELEMENTS = 1000;
 
+// Ghetto check-in mechanism. We really want to be alerted
+// if for some reason our main loop blows up. To do that, we just
+// save the last time we've been through the loop in lastRun. Our
+// watchdog endpoint checks that the value is always < to 5 min.
+global.lastRun = new Date();
+
 async function run() {
+  const logger = global.Logger;
   const now = new Date();
   const db = await DatabaseConnector.forShared();
   const expiredMetadata = await db.Metadata.findAll({
@@ -28,8 +37,10 @@ async function run() {
     },
   });
 
+  logger.info(`Fetched ${expiredMetadata.length} expired elements from the db`);
+
   try {
-    const snoozeWorker = new SnoozeWorker();
+    const snoozeWorker = new SnoozeWorker(logger);
     for (const datum of expiredMetadata) {
       // Skip entries we're already processing.
       if (workerTable[datum.id]) {
@@ -38,15 +49,22 @@ async function run() {
 
       workerTable[datum.id] = snoozeWorker.run(datum);
       workerTable[datum.id].then(() => {
-        console.log("Deleting from the table");
+        logger.info(`Worker for task ${datum.id} completed.`);
         delete workerTable[datum.id];
       })
     }
   } catch (e) {
-    console.log("Exception in main loop", e);
+    Sentry.captureException(e);
+    logger.error("Exception in main loop", e);
   }
 
+  global.lastRun = new Date();
   setTimeout(run, 60000);
 }
 
-run();
+function main() {
+  setupMonitoring(global.Logger);
+  run();
+}
+
+main();

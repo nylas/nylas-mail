@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "cloud-core": "0.x.x",
-    "mimelib": "0.2.19"
+    "mimelib": "0.2.19",
+    "raven": "1.1.1"
   }
 }

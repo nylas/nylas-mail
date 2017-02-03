@@ -1,11 +1,16 @@
 import sleep from './utils'
+import Sentry from '../sentry'
 
 // How many times do we retry an action.
 const MAX_RETRIES = 30;
 
 export default class ExpiredDataWorker {
+  constructor(logger) {
+    this.logger = logger;
+  }
+
   async run(metadatum) {
-    console.log("Processing metadatum");
+    this.logger.info(`Processing metadatum w/ id ${metadatum.id}`);
     let count = 0;
     do {
       try {
@@ -15,10 +20,14 @@ export default class ExpiredDataWorker {
         await this.removeEntry(metadatum);
         return;
       } catch (err) {
-        // We only try to perform the action for MAX_RETRIES.
-        console.log("Error when performing action", err);
+        // We only try to perform the action for
+        Sentry.captureException(err);
         count++;
-        await sleep(60000 * (count + 1) + Math.floor((Math.random() * 100)));
+        const sleepPeriod = 60000 * (count + 1) + Math.floor((Math.random() * 100));
+
+        this.logger.error("Error when performing action", err);
+        this.logger.error(`Sleeping for ${sleepPeriod} ms`);
+        await sleep(sleepPeriod);
       }
     } while (count < MAX_RETRIES);
 
@@ -27,7 +36,7 @@ export default class ExpiredDataWorker {
 
   async removeEntry(metadatum) {
     // Remove the object
-    console.log("Destroying metadata");
+    this.logger.info(`Destroying metadata for ${metadatum.id}`);
     await metadatum.destroy();
   }
 
