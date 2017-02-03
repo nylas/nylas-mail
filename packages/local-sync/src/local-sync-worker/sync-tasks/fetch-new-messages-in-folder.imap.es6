@@ -43,6 +43,3 @@ class FetchNewMessagesInFolderIMAP extends FetchMessagesInFolderIMAP {
 }
 
 module.exports = FetchNewMessagesInFolderIMAP;
-
-
-// boo hoo
