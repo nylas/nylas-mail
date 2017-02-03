@@ -87,7 +87,7 @@ export default function registerAuthRoutes(server) {
       },
     },
     async handler(request, reply) {
-      request.logger.info("Redirecting to Gmail OAuth")
+      request.logger.debug("Redirecting to Gmail OAuth")
       try {
         const oauthClient = GAuth.newOAuthClient();
         const authUrl = oauthClient.generateAuthUrl({
@@ -122,7 +122,7 @@ export default function registerAuthRoutes(server) {
       },
     },
     async handler(request, reply) {
-      request.logger.info('Have Google OAuth Code. Exchanging for token')
+      request.logger.debug('Have Google OAuth Code. Exchanging for token')
       const code = request.query.code
       const n1Key = request.query.state
       const error = request.query.error // Google sometimes passes the error back here
@@ -136,12 +136,12 @@ export default function registerAuthRoutes(server) {
         profile = await GAuth.fetchGoogleProfile(client);
         const settings = GAuth.imapSettings(tok, profile)
 
-        request.logger.info("Resolving IMAP connection")
+        request.logger.debug("Resolving IMAP connection")
 
         settings.resolved = await GAuth.resolveIMAPSettings(settings, request.logger)
         account = await GAuth.createCloudAccount(settings, profile)
 
-        request.logger.info("Creating PendingAuthResponse")
+        request.logger.debug("Creating PendingAuthResponse")
         await GAuth.createPendingAuthResponse(account, settings, n1Key)
       } catch (err) {
         const res = {

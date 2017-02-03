@@ -17,7 +17,7 @@ export default function registerPingRoutes(server) {
     path: '/ping',
     config: { auth: false },
     handler: async (request, reply) => {
-      request.logger.info('---> Ping DB');
+      request.logger.debug('---> Ping DB');
       try {
         const db = await DatabaseConnector.forShared();
         await db.sequelize.query('SELECT 1');
@@ -33,7 +33,7 @@ export default function registerPingRoutes(server) {
     path: '/ping/400',
     config: { auth: false },
     handler: (request, reply) => {
-      request.logger.info('---> Pong 400');
+      request.logger.debug('---> Pong 400');
       reply(Boom.badRequest("Pong bad request", {foo: 'bar'}))
     },
   });
@@ -73,7 +73,7 @@ export default function registerPingRoutes(server) {
     path: '/ping/downstream_error',
     config: { auth: false },
     handler: (request, reply) => {
-      request.logger.info('---> Pong downstream error');
+      request.logger.debug('---> Pong downstream error');
       const downstream = new Error("Downstream badness");
       reply(Boom.wrap(downstream, 400, "Extra info here"));
     },

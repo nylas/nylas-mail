@@ -23,6 +23,9 @@ import HapiSwagger from 'hapi-swagger';
 // https://github.com/hapijs/hapi-auth-basic
 import HapiBasicAuth from 'hapi-auth-basic';
 
+// Common Hapi utilities
+import Hoek from 'hoek';
+
 import Handlebars from 'handlebars'
 
 import {Logger, Metrics} from 'cloud-core';
@@ -62,10 +65,6 @@ process.on('uncaughtException', onUnhandledError)
 process.on('unhandledRejection', onUnhandledError)
 
 const server = new Hapi.Server({
-  // TODO disable Hapi's logging temporarily which doesn't output json and
-  // screws up our log's formatting.
-  // Turn it on when we figure out how to integrate hapi with bunyan, but for
-  // now, we have to manually log errors and anything relevant
   debug: false,
   connections: {
     router: {
@@ -75,6 +74,24 @@ const server = new Hapi.Server({
 });
 
 server.connection({ port: process.env.PORT });
+
+
+// Time all requests, based on
+// https://github.com/codewinds/hapi-elapsed/blob/master/lib/hapi-elapsed.js
+server.on('request-internal', (request, event, tags) => {
+  if (tags.received) {
+    request.app.timing = { bench: new Hoek.Bench() };
+  }
+});
+
+// Log every request and status code for post analysis w/log aggregation tools
+server.on('response', (request) => {
+  request.logger.info({
+    http_status: request.response.statusCode,
+    request_time_ms: request.app.timing.bench.elapsed(),
+  }, 'request handled');
+});
+
 
 const plugins = [Inert, Vision, HapiBasicAuth, HapiBoom, {
   register: HapiSwagger,
