@@ -1,6 +1,7 @@
+import {remote} from 'electron'
 import _ from 'underscore';
-import {Actions, NylasAPIHelpers, AccountStore, DatabaseStore, Message,
-        CategoryStore} from 'nylas-exports';
+import {FeatureUsageStore, Actions, NylasAPIHelpers, AccountStore,
+  DatabaseStore, Message, CategoryStore} from 'nylas-exports';
 import SnoozeUtils from './snooze-utils'
 import {PLUGIN_ID, PLUGIN_NAME} from './snooze-constants';
 import SnoozeActions from './snooze-actions';
@@ -68,12 +69,22 @@ class SnoozeStore {
   };
 
   onSnoozeThreads = (threads, snoozeDate, label) => {
+    if (!FeatureUsageStore.isUsable("snooze")) {
+      remote.dialog.showMessageBox({
+        title: 'Out of snoozes',
+        detail: `You have used your monthly quota of Snoozes`,
+        buttons: ['OK'],
+        type: 'info',
+      });
+      return Promise.resolve()
+    }
     this.recordSnoozeEvent(threads, snoozeDate, label)
 
     const accounts = AccountStore.accountsForItems(threads)
     const promises = accounts.map((acc) => {
       return NylasAPIHelpers.authPlugin(this.pluginId, this.pluginName, acc)
     })
+
     return Promise.all(promises)
     .then(() => {
       return SnoozeUtils.moveThreadsToSnooze(threads, this.snoozeCategoriesPromise, snoozeDate)
@@ -96,6 +107,8 @@ class SnoozeStore {
           }
         });
       });
+    }).then(() => {
+      return FeatureUsageStore.useFeature('snooze')
     })
     .catch((error) => {
       SnoozeUtils.moveThreadsFromSnooze(threads, this.snoozeCategoriesPromise)
