@@ -14,7 +14,7 @@ class _EdgehillAPI {
   _onConfigChanged = () => {
     const env = NylasEnv.config.get('env')
     if (['development', 'local'].includes(env)) {
-      this.APIRoot = "http://localhost:5009";
+      this.APIRoot = "http://n1-auth.lvh.me:5555";
     } else if (env === 'experimental') {
       this.APIRoot = "https://edgehill-experimental.nylas.com";
     } else if (env === 'staging') {

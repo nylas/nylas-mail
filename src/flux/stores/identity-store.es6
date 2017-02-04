@@ -208,15 +208,19 @@ class IdentityStore extends NylasStore {
       startTime: Date.now(),
     };
     try {
-      await this.nylasIDRequest(options)
+      const newIdentity = await this.nylasIDRequest(options);
+      return newIdentity
     } catch (err) {
       const error = err || new Error(`IdentityStore.fetchPath: ${path} ${err.message}.`)
       NylasEnv.reportError(error)
+      return null
     }
   }
 
   nylasIDRequest(options) {
     return new Promise((resolve, reject) => {
+      options.formData = false
+      options.json = true
       options.auth = {
         username: this._identity.token,
         password: '',
@@ -236,7 +240,7 @@ class IdentityStore extends NylasStore {
         });
         if (response.statusCode === 200) {
           try {
-            return resolve(JSON.parse(body));
+            return resolve(body);
           } catch (err) {
             return reject(err)
           }
