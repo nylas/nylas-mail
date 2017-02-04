@@ -28,13 +28,15 @@ export async function apiAuthenticate(req, username, password, cb) {
   account.n1IdentityToken = n1IdentityToken;
   req.logger = req.logger.forAccount(account);
 
-  let identPath = "billing.nylas.com";
+  let identPath = "https://billing.nylas.com";
   if (process.env.NODE_ENV === "staging") {
-    identPath = "billing-staging.nylas.com"
+    identPath = "https://billing-staging.nylas.com"
+  } else if (process.env.NODE_ENV === "dev") {
+    identPath = "http://billing.lvh.me:5555"
   }
 
   try {
-    const identity = await request(`https://${identPath}/n1/user`, {
+    const identity = await request(`${identPath}/n1/user`, {
       auth: {username: n1IdentityToken, password: ''},
     })
     req.logger.debug({identity}, `Got ${identPath} identity response`)
