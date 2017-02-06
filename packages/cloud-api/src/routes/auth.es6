@@ -1,8 +1,7 @@
 import Joi from 'joi';
 import Boom from 'boom';
 import google from 'googleapis';
-import {GmailOAuthHelpers as GAuth} from 'cloud-core';
-import {DatabaseConnector} from 'cloud-core';
+import {GmailOAuthHelpers as GAuth, DatabaseConnector} from 'cloud-core';
 
 const {GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL} = process.env;
 
@@ -92,7 +91,7 @@ export default function registerAuthRoutes(server) {
         const oauthClient = GAuth.newOAuthClient();
         const authUrl = oauthClient.generateAuthUrl({
           access_type: 'offline',
-          prompt: 'consent',
+          prompt: 'select_account consent',
           scope: SCOPES,
           state: request.query.state,
         });

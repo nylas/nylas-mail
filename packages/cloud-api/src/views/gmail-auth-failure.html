@@ -1,7 +1,7 @@
 {{!< layout/default}}
 
 <div class='nylas-logo'></div>
-<form action="https://accounts.google.com/o/oauth2/auth?response_type=code&state={{ state_string }}&client_id={{ google_client_id }}&redirect_uri={{ redirect_uri }}&access_type=offline&scope=https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://mail.google.com/ https://www.google.com/m8/feeds https://www.googleapis.com/auth/calendar&prompt=consent" method="post">
+<form action="https://accounts.google.com/o/oauth2/auth?response_type=code&state={{ state_string }}&client_id={{ google_client_id }}&redirect_uri={{ redirect_uri }}&access_type=offline&scope=https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://mail.google.com/ https://www.google.com/m8/feeds https://www.googleapis.com/auth/calendar&prompt=select_account+consent" method="post">
   <div id="white-box">
     <div id="user_action" style="padding:30px;">
 
