@@ -180,7 +180,8 @@ export class Notifier {
         }
         if (!this.hasScheduledNotify) {
           if (NylasEnv.config.get("core.notifications.sounds")) {
-            SoundRegistry.playSound('new-mail');
+            this._playNewMailSound = this._playNewMailSound || _.debounce(() => SoundRegistry.playSound('new-mail'), 5000, true);
+            this._playNewMailSound();
           }
           this._notifyMessages();
         }
