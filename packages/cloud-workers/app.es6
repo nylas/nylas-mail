@@ -31,7 +31,7 @@ async function run() {
   const expiredMetadata = await db.Metadata.findAll({
     limit: MAX_ELEMENTS,
     where: {
-      expirationDate: {
+      expiration: {
         $lte: now,
       },
     },

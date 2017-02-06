@@ -1,7 +1,6 @@
 import google from 'googleapis';
 import {Provider, IMAPConnection, PromiseUtils} from 'isomorphic-core'
 import DatabaseConnector from './database-connector'
-console.log(DatabaseConnector)
 
 const OAuth2 = google.auth.OAuth2;
 const {GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL} = process.env;
@@ -79,7 +78,6 @@ class GmailOAuthHelpers {
     const oauthClient = new OAuth2(GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL);
     const credentials = account.decryptedCredentials();
 
-    console.log(credentials.refresh_token);
     oauthClient.setCredentials({ refresh_token: credentials.refresh_token });
     const refreshToken = PromiseUtils.promisify(oauthClient.refreshAccessToken);
 

@@ -2,7 +2,7 @@ const Joi = require('joi');
 const Serialization = require('../serialization');
 const {DatabaseConnector} = require('cloud-core');
 
-function upsertMetadata({account, objectId, objectType, pluginId, version, value, expirationDate}) {
+function upsertMetadata({account, objectId, objectType, pluginId, version, value, expiration}) {
   return DatabaseConnector.forShared().then(({Metadata}) => {
     return Metadata.find({
       where: {
@@ -17,7 +17,7 @@ function upsertMetadata({account, objectId, objectType, pluginId, version, value
           return Promise.reject(new Error("Version Conflict"));
         }
         existing.value = value;
-        existing.expirationDate = expirationDate;
+        existing.expiration = expiration;
         return existing.save();
       }
       return Metadata.create({
@@ -27,7 +27,7 @@ function upsertMetadata({account, objectId, objectType, pluginId, version, value
         pluginId: pluginId,
         version: 0,
         value: value,
-        expirationDate: expirationDate,
+        expiration: expiration,
       })
     })
   })
@@ -93,9 +93,9 @@ module.exports = (server) => {
       const {version, value, objectType} = request.payload;
       const {pluginId, objectId} = request.params;
       const jsonValue = JSON.parse(value);
-      let expirationDate = null;
-      if (jsonValue.expirationDate) {
-        expirationDate = new Date(jsonValue.expirationDate);
+      let expiration = null;
+      if (jsonValue.expiration) {
+        expiration = new Date(jsonValue.expiration);
       }
 
       upsertMetadata({
@@ -105,7 +105,7 @@ module.exports = (server) => {
         pluginId,
         version,
         value: jsonValue,
-        expirationDate})
+        expiration})
       .then((metadata) => {
         reply(Serialization.jsonStringify(metadata));
       })
