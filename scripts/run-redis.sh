@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Redis is one of those servers which by default
 # accept connections from everywhere. Luckily,
