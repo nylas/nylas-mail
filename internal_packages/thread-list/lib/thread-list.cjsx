@@ -108,17 +108,17 @@ class ThreadList extends React.Component
       <FocusContainer collection="thread">
         <MultiselectList
           ref="list"
+          draggable
           columns={columns}
           itemPropsProvider={@_threadPropsProvider}
           itemHeight={itemHeight}
           className="thread-list thread-list-#{@state.style}"
           scrollTooltipComponent={ThreadListScrollTooltip}
-          emptyComponent={EmptyListState}
+          EmptyComponent={EmptyListState}
           keymapHandlers={@_keymapHandlers()}
           onDoubleClick={(thread) -> Actions.popoutThread(thread)}
           onDragStart={@_onDragStart}
           onDragEnd={@_onDragEnd}
-          draggable="true"
         />
       </FocusContainer>
     </FluxContainer>
