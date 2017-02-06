@@ -220,8 +220,6 @@ class FetchMessagesInFolderIMAP extends SyncTask {
    * `Interruptible`
    */
   async * _fetchAndProcessMessages({min, max, uids} = {}) {
-    const uidsByPart = {};
-    const structsByPart = {};
     let rangeQuery;
     if (uids) {
       if (min || max) {
@@ -237,22 +235,35 @@ class FetchMessagesInFolderIMAP extends SyncTask {
 
     // console.log(`FetchMessagesInFolderIMAP: Going to FETCH messages in range ${rangeQuery}`);
 
+    // We batch downloads by which MIME parts from the full message we want
+    // because we can fetch the same part on different UIDs with the same
+    // FETCH, thus minimizing round trips.
+    const uidsByPart = {};
+    const structsByUID = {};
+    const desiredPartsByUID = {};
     yield this._box.fetchEach(rangeQuery, {struct: true}, ({attributes}) => {
       const desiredParts = this._getDesiredMIMEParts(attributes.struct);
-      const key = JSON.stringify(desiredParts);
+      const key = JSON.stringify(desiredParts.map(p => p.id));
+      desiredPartsByUID[attributes.uid] = desiredParts;
+      structsByUID[attributes.uid] = attributes.struct;
       uidsByPart[key] = uidsByPart[key] || [];
       uidsByPart[key].push(attributes.uid);
-      structsByPart[key] = attributes.struct;
     })
 
-    for (const key of Object.keys(uidsByPart)) {
-      // note: the order of UIDs in the array doesn't matter, Gmail always
-      // returns them in ascending (oldest => newest) order.
-      const desiredParts = JSON.parse(key);
+    // Prioritize the batches with the highest UIDs first, since these UIDs
+    // are usually the most recent messages
+    const maxUIDForBatch = {};
+    const partBatchesInOrder = Object.keys(uidsByPart)
+    for (const key of partBatchesInOrder) {
+      maxUIDForBatch[key] = Math.max(...uidsByPart[key]);
+    }
+    partBatchesInOrder.sort((a, b) => maxUIDForBatch[b] - maxUIDForBatch[a]);
+
+    for (const key of partBatchesInOrder) {
+      const desiredPartIDs = JSON.parse(key);
       // headers are BIG (something like 30% of total storage for an average
       // mailbox), so only download the ones we care about
-      const bodies = ['HEADER.FIELDS (FROM TO SUBJECT DATE CC BCC REPLY-TO IN-REPLY-TO REFERENCES MESSAGE-ID)'].concat(desiredParts.map(p => p.id));
-      const struct = structsByPart[key];
+      const bodies = ['HEADER.FIELDS (FROM TO SUBJECT DATE CC BCC REPLY-TO IN-REPLY-TO REFERENCES MESSAGE-ID)'].concat(desiredPartIDs);
 
       const messagesToProcess = []
       yield this._box.fetchEach(
@@ -260,6 +271,8 @@ class FetchMessagesInFolderIMAP extends SyncTask {
         {bodies},
         (imapMessage) => messagesToProcess.push(imapMessage)
       );
+      // generally higher UIDs are newer, so process those first
+      messagesToProcess.sort((a, b) => b.attributes.uid - a.attributes.uid);
 
       // Processing messages is not fire and forget.
       // We need to wait for all of the messages in the range to be processed
@@ -268,11 +281,12 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       // queue to disk in case you quit the app and there are still messages
       // left in the queue. Otherwise we would end up skipping messages.
       for (const imapMessage of messagesToProcess) {
+        const uid = imapMessage.attributes.uid;
         // This will resolve when the message is actually processed
         await MessageProcessor.queueMessageForProcessing({
           imapMessage,
-          struct,
-          desiredParts,
+          struct: structsByUID[uid],
+          desiredParts: desiredPartsByUID[uid],
           folderId: this._folder.id,
           accountId: this._db.accountId,
         })
