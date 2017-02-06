@@ -11,7 +11,7 @@ function Logger(boundArgs = {}) {
     throw new Error('Logger: Bound arguments must be an object')
   }
   const logger = {}
-  const loggerFns = ['log', 'info', 'warn', 'error']
+  const loggerFns = ['log', 'debug', 'info', 'warn', 'error']
   loggerFns.forEach((logFn) => {
     logger[logFn] = (first, ...args) => {
       if (!ENABLE_LOGGING && logFn !== "error") {
