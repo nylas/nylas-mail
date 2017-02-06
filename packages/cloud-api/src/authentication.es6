@@ -31,7 +31,7 @@ export async function apiAuthenticate(req, username, password, cb) {
   let identPath = "https://billing.nylas.com";
   if (process.env.NODE_ENV === "staging") {
     identPath = "https://billing-staging.nylas.com"
-  } else if (process.env.NODE_ENV === "dev") {
+  } else if (process.env.NODE_ENV === "development") {
     identPath = "http://billing.lvh.me:5555"
   }
 
