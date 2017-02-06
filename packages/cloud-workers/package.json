@@ -11,6 +11,13 @@
   "dependencies": {
     "cloud-core": "0.x.x",
     "mimelib": "0.2.19",
-    "raven": "1.1.1"
+    "umzug": "1.11.0",
+    "sequelize": "nylas/sequelize#nylas-3.30.1",
+    "boom": "4.2.0",
+    "googleapis": "9.0.0",
+    "hapi": "13.4.1",
+    "hapi-auth-basic": "4.2.0",
+    "hapi-boom-decorators": "1.1.3",
+    "hapi-swagger": "6.1.0"
   }
 }
