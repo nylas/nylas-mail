@@ -36,6 +36,8 @@ const AUTH_TIMEOUT_MS = 30 * 1000;
 
 class IMAPConnection extends EventEmitter {
 
+  static DefaultSocketTimeout = SOCKET_TIMEOUT_MS;
+
   static connect(...args) {
     return new IMAPConnection(...args).connect()
   }
