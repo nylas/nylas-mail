@@ -2,7 +2,7 @@ _ = require 'underscore'
 React = require 'react'
 ReactDOM = require 'react-dom'
 classNames = require 'classnames'
-ListTabular = require './list-tabular'
+ListTabular = require('./list-tabular').default
 Spinner = require './spinner'
 {Actions,
  Utils,
