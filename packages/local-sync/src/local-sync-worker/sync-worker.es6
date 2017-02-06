@@ -19,6 +19,7 @@ const LocalSyncDeltaEmitter = require('./local-sync-delta-emitter').default
 
 
 const SYNC_LOOP_INTERVAL_MS = 10 * 1000
+const MAX_SOCKET_TIMEOUT_MS = 10 * 60 * 1000 // 10 min
 
 class SyncWorker {
   constructor(account, db, parentManager) {
@@ -40,6 +41,8 @@ class SyncWorker {
     this._destroyed = false
     this._shouldIgnoreInboxFlagUpdates = false
     this._numRetries = 0;
+    this._numTimeoutErrors = 0;
+    this._socketTimeout = IMAPConnection.DefaultSocketTimeout;
 
     this._syncTimer = setTimeout(() => {
       // TODO this is currently a hack to keep N1's account in sync and notify of
@@ -170,6 +173,13 @@ class SyncWorker {
     }
   }
 
+  _getIMAPSocketTimeout() {
+    return Math.min(
+      this._socketTimeout + (this._socketTimeout * (2 ** this._numTimeoutErrors)),
+      MAX_SOCKET_TIMEOUT_MS
+    )
+  }
+
   async _ensureConnection() {
     const newCredentials = await this._ensureAccessToken()
 
@@ -193,9 +203,10 @@ class SyncWorker {
       throw new Error("_ensureConnection: There are no IMAP connection credentials for this account.");
     }
 
+    this._socketTimeout = this._getIMAPSocketTimeout()
     const conn = new IMAPConnection({
       db: this._db,
-      settings: Object.assign({}, settings, credentials),
+      settings: Object.assign({}, settings, credentials, {socketTimeout: this._socketTimeout}),
       logger: this._logger,
       account: this._account,
     });
@@ -218,9 +229,10 @@ class SyncWorker {
     const settings = this._account.connectionSettings;
     const credentials = newCredentials || this._account.decryptedCredentials();
 
+    this._socketTimeout = this._getIMAPSocketTimeout()
     const conn = new IMAPConnection({
       db: this._db,
-      settings: Object.assign({}, settings, credentials),
+      settings: Object.assign({}, settings, credentials, {socketTimeout: this._socketTimeout}),
       logger: this._logger,
       account: this._account,
     });
@@ -288,6 +300,16 @@ class SyncWorker {
 
     console.error(`🔃  SyncWorker: Errored while syncing account`, error)
 
+    if (error instanceof IMAPErrors.IMAPConnectionTimeoutError) {
+      this._numTimeoutErrors += 1;
+      Actions.recordUserEvent('Timeout error in sync loop', {
+        accountId: this._account.id,
+        provider: this._account.provider,
+        socketTimeout: this._socketTimeout,
+        numTimeoutErrors: this._numTimeoutErrors,
+      })
+    }
+
     // Don't save the error to the account if it was a network/retryable error
     // /and/ if we haven't retried too many times.
     if (error instanceof IMAPErrors.RetryableError) {
@@ -295,6 +317,7 @@ class SyncWorker {
       return
     }
 
+    error.message = `Error in sync loop: ${error.message}`
     NylasEnv.reportError(error)
     const isAuthError = error instanceof IMAPErrors.IMAPAuthenticationError
     const accountSyncState = isAuthError ? SYNC_STATE_AUTH_FAILED : SYNC_STATE_ERROR;
@@ -474,6 +497,7 @@ class SyncWorker {
       await this._cleanupOrphanMessages();
       await this._onSyncDidComplete();
       this._numRetries = 0;
+      this._numTimeoutErrors = 0;
     } catch (err) {
       error = err
       await this._onSyncError(error);
