@@ -18,13 +18,14 @@ class DraftList extends React.Component
       getStateFromStores={ -> dataSource: DraftListStore.dataSource() }>
       <FocusContainer collection="draft">
         <MultiselectList
+          className="draft-list"
           columns={DraftListColumns.Wide}
           onDoubleClick={@_onDoubleClick}
-          emptyComponent={EmptyListState}
+          EmptyComponent={EmptyListState}
           keymapHandlers={@_keymapHandlers()}
           itemPropsProvider={@_itemPropsProvider}
           itemHeight={39}
-          className="draft-list" />
+        />
       </FocusContainer>
     </FluxContainer>
 

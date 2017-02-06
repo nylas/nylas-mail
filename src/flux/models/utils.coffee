@@ -63,6 +63,11 @@ Utils =
   escapeRegExp: (str) ->
     str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")
 
+  range: (start, end, inclusive = true) ->
+    if inclusive
+      return [start..end]
+    return [start...end]
+
   # Generates a new RegExp that is great for basic search fields. It
   # checks if the test string is at the start of words
   #
