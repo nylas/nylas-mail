@@ -1,58 +1,7 @@
 import React from 'react';
 import {Actions, IdentityStore} from 'nylas-exports';
-import {RetinaImg} from 'nylas-component-kit';
+import {OpenIdentityPageButton, RetinaImg} from 'nylas-component-kit';
 import {shell} from 'electron';
-
-class OpenIdentityPageButton extends React.Component {
-  static propTypes = {
-    path: React.PropTypes.string,
-    label: React.PropTypes.string,
-    source: React.PropTypes.string,
-    campaign: React.PropTypes.string,
-    img: React.PropTypes.string,
-  }
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      loading: false,
-    };
-  }
-
-  _onClick = () => {
-    this.setState({loading: true});
-    IdentityStore.fetchSingleSignOnURL(this.props.path, {
-      source: this.props.source,
-      campaign: this.props.campaign,
-      content: this.props.label,
-    }).then((url) => {
-      this.setState({loading: false});
-      shell.openExternal(url);
-    });
-  }
-
-  render() {
-    if (this.state.loading) {
-      return (
-        <div className="btn btn-disabled">
-          <RetinaImg name="sending-spinner.gif" width={15} height={15} mode={RetinaImg.Mode.ContentPreserve} />
-          &nbsp;{this.props.label}&hellip;
-        </div>
-      );
-    }
-    if (this.props.img) {
-      return (
-        <div className="btn" onClick={this._onClick}>
-          <RetinaImg name={this.props.img} mode={RetinaImg.Mode.ContentPreserve} />
-          &nbsp;&nbsp;{this.props.label}
-        </div>
-      )
-    }
-    return (
-      <div className="btn" onClick={this._onClick}>{this.props.label}</div>
-    );
-  }
-}
 
 class PreferencesIdentity extends React.Component {
   static displayName = 'PreferencesIdentity';
