@@ -103,7 +103,7 @@ class SnoozeStore {
             const header = message.messageIdHeader;
             const stableId = message.id;
             Actions.setMetadata(message, this.pluginId,
-              {expirationDate: snoozeDate, header, stableId, snoozeCategoryId, returnCategoryId})
+              {expiration: snoozeDate, header, stableId, snoozeCategoryId, returnCategoryId})
           }
         });
       });
