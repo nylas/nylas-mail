@@ -52,10 +52,10 @@ import registerStaticRoutes from './src/routes/static'
 import registerLoggerDecorator from './src/decorators/logger'
 import registerErrorFormatDecorator from './src/decorators/error-format'
 
-Metrics.startCapturing('nylas-k2-api')
+Metrics.startCapturing('n1cloud-api')
 
 global.Metrics = Metrics
-global.Logger = Logger.createLogger('nylas-k2-api')
+global.Logger = Logger.createLogger('n1cloud-api')
 
 // TODO: would be really nice if we could log some request context when
 // this happens, but not sure if there's a good way to do that...
