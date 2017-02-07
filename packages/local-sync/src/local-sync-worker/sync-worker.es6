@@ -56,8 +56,6 @@ class SyncWorker {
     // having counters and garbage everywhere.
     if (!account.firstSyncCompletion) {
       // TODO extract this into its own module, can use later on for exchange
-      this._logger.log("This is initial sync. Setting up metrics collection!");
-
       let seen = 0;
       db.Thread.addHook('afterCreate', 'metricsCollection', () => {
         if (seen === 0) {

@@ -2,10 +2,6 @@ const {N1CloudAPI, NylasAPIRequest, AccountStore} = require('nylas-exports');
 const os = require('os');
 
 class SyncMetricsReporter {
-  constructor() {
-    this._logger = global.Logger.child();
-  }
-
   async collectCPUUsage() {
     return new Promise((resolve) => {
       const startUsage = process.cpuUsage();
@@ -22,7 +18,7 @@ class SyncMetricsReporter {
     if (!info.emailAddress) {
       throw new Error("You must include email_address");
     }
-
+    const logger = global.Logger.child({accountEmail: info.emailAddress})
     const {workingSetSize, privateBytes, sharedBytes} = process.getProcessMemoryInfo();
     const percentCPU = await this.collectCPUUsage();
 
@@ -43,11 +39,11 @@ class SyncMetricsReporter {
         method: 'POST',
         body: info,
         error: () => {
-          this._logger.warn(info, "Metrics Collector: Submission Failed.");
+          logger.warn("Metrics Collector: Submission Failed.", info);
         },
         accountId: AccountStore.accountForEmail(info.emailAddress).id,
         success: () => {
-          this._logger.info(info, "Metrics Collector: Submitted.");
+          logger.log(info, "Metrics Collector: Submitted.", info);
         },
       },
     });
