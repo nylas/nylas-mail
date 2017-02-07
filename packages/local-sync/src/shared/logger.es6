@@ -45,10 +45,12 @@ function Logger(boundArgs = {}) {
       const suffix = !_.isEmpty(otherArgs) ? otherArgs : '';
       if (prefix) {
         const color = getColorForPrefix(prefix)
+        const [first, ...extraArgs] = args
         return console[logFn](
-          `%c<${prefix}>`,
+          `%c<${prefix}> %c${first}`,
           `color: ${color}`,
-          ...args,
+          `color: #333333`,
+          ...extraArgs,
           suffix
         )
       }
