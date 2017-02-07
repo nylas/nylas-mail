@@ -112,12 +112,12 @@ export async function markInProgressTasksAsFailed({db} = {}) {
 }
 
 // TODO JUAN! remove this uglyness that is runTask
-export async function runSyncbackTask({task, runTask} = {}) {
+export async function runSyncbackTask({task, runTask, logger = console} = {}) {
   const before = new Date();
   const syncbackRequest = task.syncbackRequestObject();
   let shouldRetry = false
 
-  console.log(`🔃 📤 ${task.description()}`, syncbackRequest.props)
+  logger.log(`🔃 📤 ${task.description()}`, syncbackRequest.props)
   try {
     // Before anything, mark the task as in progress. This allows
     // us to not run the same task twice.
@@ -133,7 +133,7 @@ export async function runSyncbackTask({task, runTask} = {}) {
     syncbackRequest.responseJSON = responseJSON || {};
 
     const after = new Date();
-    console.log(`🔃 📤 ${task.description()} Succeeded (${after.getTime() - before.getTime()}ms)`)
+    logger.log(`🔃 📤 ${task.description()} Succeeded (${after.getTime() - before.getTime()}ms)`)
   } catch (error) {
     const after = new Date();
     const {numRetries = 0} = syncbackRequest.props
@@ -146,13 +146,13 @@ export async function runSyncbackTask({task, runTask} = {}) {
         numRetries: numRetries + 1,
       })
       syncbackRequest.status = "NEW";
-      console.warn(`🔃 📤 ${task.description()} Failed with retryable error, retrying in next loop (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON(), error})
+      logger.warn(`🔃 📤 ${task.description()} Failed with retryable error, retrying in next loop (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON(), error})
     } else {
       error.message = `Syncback Task Failed: ${error.message}`
       syncbackRequest.error = error;
       syncbackRequest.status = "FAILED";
       NylasEnv.reportError(error);
-      console.error(`🔃 📤 ${task.description()} Failed (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON(), error})
+      logger.error(`🔃 📤 ${task.description()} Failed (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON(), error})
     }
   } finally {
     await syncbackRequest.save();

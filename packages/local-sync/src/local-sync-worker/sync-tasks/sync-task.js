@@ -18,6 +18,7 @@ class SyncTask extends Interruptible {
     if (!this._account) {
       throw new Error("SyncTask requires an account")
     }
+    this._logger = global.Logger.forAccount(this._account)
   }
 
   description() {
@@ -30,7 +31,7 @@ class SyncTask extends Interruptible {
    */
   async run(...args) {
     if (MessageProcessor.queueIsFull()) {
-      console.log(`🔃  Skipping sync operation - Message processing queue is full`)
+      this._logger.log(`🔃  Skipping sync operation - Message processing queue is full`)
       return Promise.resolve()
     }
     return super.run(this.runTask, this, ...args)

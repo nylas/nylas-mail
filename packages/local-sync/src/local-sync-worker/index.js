@@ -19,7 +19,8 @@ async function ensureK2Consistency() {
   for (const k2Account of k2Accounts) {
     const deleted = !n1Emails.includes(k2Account.emailAddress);
     if (deleted && !deletionsInProgress.has(k2Account.id)) {
-      console.warn(`Deleting K2 account ID ${k2Account.id} which could not be matched to an N1 account.`)
+      const logger = global.Logger.forAccount(k2Account)
+      logger.warn(`Deleting K2 account ID ${k2Account.id} which could not be matched to an N1 account.`)
       deletionsInProgress.add(k2Account.id)
       await manager.removeWorkerForAccountId(k2Account.id);
       LocalDatabaseConnector.destroyAccountDatabase(k2Account.id);

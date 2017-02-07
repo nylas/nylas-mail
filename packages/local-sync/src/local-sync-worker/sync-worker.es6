@@ -56,7 +56,7 @@ class SyncWorker {
     // having counters and garbage everywhere.
     if (!account.firstSyncCompletion) {
       // TODO extract this into its own module, can use later on for exchange
-      this._logger.info("This is initial sync. Setting up metrics collection!");
+      this._logger.log("This is initial sync. Setting up metrics collection!");
 
       let seen = 0;
       db.Thread.addHook('afterCreate', 'metricsCollection', () => {
@@ -146,7 +146,7 @@ class SyncWorker {
     } catch (err) {
       if (err instanceof APIError) {
         const {statusCode} = err
-        console.error(`🔃  Unable to refresh access token. Got status code: ${statusCode}`, err);
+        this._logger.error(`🔃  Unable to refresh access token. Got status code: ${statusCode}`, err);
 
         if (statusCode >= 500) {
           // Even though we don't consider 500s as permanent errors when
@@ -167,7 +167,7 @@ class SyncWorker {
           throw new IMAPErrors.IMAPAuthenticationError(`Unable to refresh access token`);
         }
       }
-      console.error(`🔃  Unable to refresh access token.`, err);
+      this._logger.error(`🔃  Unable to refresh access token.`, err);
       NylasEnv.reportError(err)
       throw new Error(`Unable to refresh access token, unknown error encountered`);
     }
@@ -298,7 +298,7 @@ class SyncWorker {
     this._closeConnections()
     const errorJSON = error.toJSON()
 
-    console.error(`🔃  SyncWorker: Errored while syncing account`, error)
+    this._logger.error(`🔃  SyncWorker: Errored while syncing account`, error)
 
     if (error instanceof IMAPErrors.IMAPConnectionTimeoutError) {
       this._numTimeoutErrors += 1;
@@ -351,7 +351,7 @@ class SyncWorker {
     this._account.lastSyncCompletions = lastSyncCompletions;
     await this._account.save();
 
-    console.log(`🔃 🔚 took ${now - this._syncStart}ms`)
+    this._logger.log(`🔃 🔚 took ${now - this._syncStart}ms`)
   }
 
   async _scheduleNextSync(error) {
@@ -398,7 +398,7 @@ class SyncWorker {
     }
 
     const nextSyncIn = Math.max(1, this._lastSyncTime + interval - Date.now())
-    console.log(`🔃 🔜 in ${nextSyncIn}ms - Reason: ${reason}`)
+    this._logger.log(`🔃 🔜 in ${nextSyncIn}ms - Reason: ${reason}`)
 
     this._syncTimer = setTimeout(() => {
       this.syncNow({reason});
@@ -431,7 +431,11 @@ class SyncWorker {
     const tasks = yield getNewSyncbackTasks({db: this._db, account: this._account})
     this._shouldIgnoreInboxFlagUpdates = true
     for (const task of tasks) {
-      const {shouldRetry} = await runSyncbackTask({task, runTask: (t) => this._conn.runOperation(t)})
+      const {shouldRetry} = await runSyncbackTask({
+        task,
+        logger: this._logger,
+        runTask: (t) => this._conn.runOperation(t),
+      })
       if (shouldRetry) {
         this.syncNow({reason: 'Retrying syncback task', interrupt: true});
       }
@@ -485,12 +489,12 @@ class SyncWorker {
     try {
       await this._account.reload();
     } catch (err) {
-      console.error(`🔃  SyncWorker: Account could not be loaded. Sync worker will exit.`, err)
+      this._logger.error(`🔃  SyncWorker: Account could not be loaded. Sync worker will exit.`, err)
       this._manager.removeWorkerForAccountId(this._account.id);
       return;
     }
 
-    console.log(`🔃 🆕 Reason: ${reason}`)
+    this._logger.log(`🔃 🆕 Reason: ${reason}`)
     let error;
     try {
       await this._interruptible.run(this._performSync, this)
@@ -509,7 +513,7 @@ class SyncWorker {
   }
 
   async interrupt({reason = 'No reason'} = {}) {
-    console.log(`🔃 ❌ Interrupting sync! Reason: ${reason}`)
+    this._logger.log(`🔃 ✋ Interrupting sync! Reason: ${reason}`)
     const interruptPromises = [this._interruptible.interrupt()]
     if (this._currentTask) {
       interruptPromises.push(this._currentTask.interrupt())

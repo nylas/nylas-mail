@@ -8,6 +8,7 @@ class SyncbackTask {
     if (!this._syncbackRequest) {
       throw new Error("SyncbackTask requires a syncbackRequest")
     }
+    this._logger = global.Logger.forAccount(this._account)
   }
 
   syncbackRequestObject() {

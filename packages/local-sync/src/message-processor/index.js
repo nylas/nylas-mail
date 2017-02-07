@@ -11,7 +11,6 @@ const LocalDatabaseConnector = require('../shared/local-database-connector');
 
 
 const MAX_QUEUE_LENGTH = 500
-const PROCESSING_DELAY = 0
 const MAX_CPU_USE_ON_AC = 1.0;
 const MAX_CPU_USE_ON_BATTERY = 0.10;
 const MAX_CHUNK_SIZE = 1;
@@ -96,6 +95,10 @@ class MessageProcessor {
     const db = await LocalDatabaseConnector.forAccount(accountId);
     const {Message, Folder} = db
     const folder = await Folder.findById(folderId)
+    const accountDb = await LocalDatabaseConnector.forShared()
+    const account = await accountDb.Account.findById(accountId)
+    const logger = global.Logger.forAccount(account)
+
     try {
       const messageValues = await MessageFactory.parseFromImap(imapMessage, desiredParts, {
         db,
@@ -106,9 +109,18 @@ class MessageProcessor {
       let processedMessage;
       if (existingMessage) {
         // TODO: optimize to not do a full message parse for existing messages
-        processedMessage = await this._processExistingMessage(existingMessage, messageValues, struct)
+        processedMessage = await this._processExistingMessage({
+          logger,
+          struct,
+          messageValues,
+          existingMessage,
+        })
       } else {
-        processedMessage = await this._processNewMessage(messageValues, struct)
+        processedMessage = await this._processNewMessage({
+          logger,
+          struct,
+          messageValues,
+        })
       }
 
       // Inflate the serialized oldestProcessedDate value, if it exists
@@ -137,10 +149,10 @@ class MessageProcessor {
       }
 
 
-      console.log(`🔃 ✉️ "${messageValues.subject}" - ${messageValues.date}`)
+      logger.log(`🔃 ✉️ (${folder.name}) "${messageValues.subject}" - ${messageValues.date}`)
       return processedMessage
     } catch (err) {
-      console.error(`MessageProcessor: Could not build message`, {
+      logger.error(`MessageProcessor: Could not build message`, {
         err,
         imapMessage,
         desiredParts,
@@ -197,7 +209,7 @@ class MessageProcessor {
     await thread.addReferences(referencesInstances);
   }
 
-  async _processNewMessage(messageValues, struct) {
+  async _processNewMessage({messageValues, struct, logger = console} = {}) {
     const {accountId} = messageValues;
     const db = await LocalDatabaseConnector.forAccount(accountId);
     const {Message} = db
@@ -222,7 +234,7 @@ class MessageProcessor {
       thread.hasAttachments = true;
       await thread.save();
     }
-    await extractContacts({db, messageValues});
+    await extractContacts({db, messageValues, logger});
 
     createdMessage.isProcessed = true;
     await createdMessage.save()
@@ -242,21 +254,21 @@ class MessageProcessor {
    * or because we interrupted the sync loop before the message was fully
    * processed.
    */
-  async _processExistingMessage(existingMessage, parsedMessage, struct) {
-    const {accountId} = parsedMessage;
+  async _processExistingMessage({existingMessage, messageValues, struct} = {}) {
+    const {accountId} = messageValues;
     const db = await LocalDatabaseConnector.forAccount(accountId);
-    await existingMessage.update(parsedMessage);
-    if (parsedMessage.labels && parsedMessage.labels.length > 0) {
-      await existingMessage.setLabels(parsedMessage.labels)
+    await existingMessage.update(messageValues);
+    if (messageValues.labels && messageValues.labels.length > 0) {
+      await existingMessage.setLabels(messageValues.labels)
     }
 
     let thread = await existingMessage.getThread();
     if (!existingMessage.isProcessed) {
       if (!thread) {
-        thread = await detectThread({db, messageValues: parsedMessage});
+        thread = await detectThread({db, messageValues});
         existingMessage.threadId = thread.id;
       }
-      await this._addReferences(db, existingMessage, thread, parsedMessage.references);
+      await this._addReferences(db, existingMessage, thread, messageValues.references);
       const files = await extractFiles({db, messageValues: existingMessage, struct});
       // Don't count inline images (files with contentIds) as attachments
       if (files.some(f => !f.contentId) && !thread.hasAttachments) {
