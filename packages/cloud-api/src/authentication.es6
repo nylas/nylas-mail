@@ -63,7 +63,7 @@ export async function apiAuthenticate(req, username, password, cb) {
   }
 }
 
-// Example `error` object querying identify server (from above):
+// Example `error` object querying identity server (from above):
 //
 // {
 //     "error": "{\n  \"message\": \"Invalid credentials.\",\n  \"type\": \"invalid_request_error\"\n}",
