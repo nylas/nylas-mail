@@ -1,5 +1,20 @@
 # Nylas Mail Changelog
 
+### 1.0.22 (2/7/17)
+
+- Fixes:
+
+  + Nylas Mail wont flood with notification sounds on startup anymore
+  + You can now correctly select threads using `cmd` and `shift`
+  + Improve message fetching by making sure we always fetch the most recent
+    messages first.
+  + Improve IMAP connection timeouts by incrementing the socket timeout (#3232)
+  + When adding a Google account, make sure to show the Account Chooser
+
+- Development:
+
+  + Nylas Identity is no longer stored in config.json
+
 ### 1.0.21 (2/3/17)
 
 - Fixes:
