@@ -4,7 +4,7 @@
 
 - Fixes:
 
-  + Nylas Mail wont flood with notification sounds on startup anymore
+  + New mail notification sounds on startup are combined when multiple new messages have arrived
   + You can now correctly select threads using `cmd` and `shift`
   + Improve message fetching by making sure we always fetch the most recent
     messages first.
