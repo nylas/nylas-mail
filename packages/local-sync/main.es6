@@ -3,7 +3,7 @@ import {ComponentRegistry} from 'nylas-exports'
 import {createLogger} from './src/shared/logger'
 
 export function activate() {
-  global.Logger = createLogger('local-sync')
+  global.Logger = createLogger()
   require('./src/local-api');
   require('./src/local-sync-worker');
 

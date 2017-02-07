@@ -206,7 +206,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     }
 
     if (desired.length === 0 && available.length !== 0) {
-      console.warn(`FetchMessagesInFolderIMAP: Could not find good part`, {
+      this._logger.warn(`FetchMessagesInFolderIMAP: Could not find good part`, {
         available_options: available.join(', '),
       })
     }
@@ -233,7 +233,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       rangeQuery = `${min}:${max}`;
     }
 
-    // console.log(`FetchMessagesInFolderIMAP: Going to FETCH messages in range ${rangeQuery}`);
+    // this._logger.log(`FetchMessagesInFolderIMAP: Going to FETCH messages in range ${rangeQuery}`);
 
     // We batch downloads by which MIME parts from the full message we want
     // because we can fetch the same part on different UIDs with the same
@@ -333,7 +333,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     const lastUIDValidity = this._folder.syncState.uidvalidity;
 
     if (lastUIDValidity && (boxUidvalidity !== lastUIDValidity)) {
-      console.log(`🔃  😵  📂 ${this._folder.name} - Recovering from UID invalidity`)
+      this._logger.log(`🔃  😵  📂 ${this._folder.name} - Recovering from UID invalidity`)
       await this._recoverFromUIDInvalidity(boxUidvalidity)
     }
 
@@ -352,7 +352,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       // UIDs when we finish the first 1k & go back to UID range expansion
       let inboxUids;
       if (!gmailInboxUIDsRemaining) {
-        // console.log(`FetchMessagesInFolderIMAP: Fetching Gmail Inbox UIDs for prioritization`);
+        // this._logger.log(`FetchMessagesInFolderIMAP: Fetching Gmail Inbox UIDs for prioritization`);
         inboxUids = await this._box.search([['X-GM-RAW', 'in:inbox']]);
         // Gmail always returns UIDs in order from smallest to largest, so this
         // gets us the most recent messages first.
@@ -369,13 +369,13 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       // takes multiple batches
       const fetchedmax = this._folder.syncState.fetchedmax || this._box.uidnext;
       if (this._box.uidnext > fetchedmax) {
-        console.log(`🔃 📂 ${this._folder.name} new messages present; fetching ${fetchedmax}:${this._box.uidnext}`);
+        this._logger.log(`🔃 📂 ${this._folder.name} new messages present; fetching ${fetchedmax}:${this._box.uidnext}`);
         yield this._fetchAndProcessMessages({min: fetchedmax, max: this._box.uidnext});
       }
       const batchSplitIndex = Math.max(inboxUids.length - FETCH_MESSAGES_COUNT, 0);
       const uidsFetchNow = inboxUids.slice(batchSplitIndex);
       const uidsFetchLater = inboxUids.slice(0, batchSplitIndex);
-      // console.log(`FetchMessagesInFolderIMAP: Remaining Gmail Inbox UIDs to download: ${uidsFetchLater.length}`);
+      // this._logger.log(`FetchMessagesInFolderIMAP: Remaining Gmail Inbox UIDs to download: ${uidsFetchLater.length}`);
       yield this._fetchAndProcessMessages({uids: uidsFetchNow});
       await this._folder.updateSyncState({ gmailInboxUIDsRemaining: uidsFetchLater });
     } else {
@@ -427,18 +427,18 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     }
 
     if (savedSyncState.fetchedmax < boxUidnext) {
-      // console.log(`FetchMessagesInFolderIMAP: fetching ${savedSyncState.fetchedmax}:${boxUidnext}`);
+      // this._logger.log(`FetchMessagesInFolderIMAP: fetching ${savedSyncState.fetchedmax}:${boxUidnext}`);
       yield this._fetchAndProcessMessages({min: savedSyncState.fetchedmax, max: boxUidnext});
     } else {
-      // console.log('FetchMessagesInFolderIMAP: fetchedmax == uidnext, nothing more recent to fetch.')
+      // this._logger.log('FetchMessagesInFolderIMAP: fetchedmax == uidnext, nothing more recent to fetch.')
     }
 
     if (savedSyncState.fetchedmin > savedSyncState.minUID) {
       const lowerbound = Math.max(savedSyncState.minUID, savedSyncState.fetchedmin - FETCH_MESSAGES_COUNT);
-      // console.log(`FetchMessagesInFolderIMAP: fetching ${lowerbound}:${savedSyncState.fetchedmin}`);
+      // this._logger.log(`FetchMessagesInFolderIMAP: fetching ${lowerbound}:${savedSyncState.fetchedmin}`);
       yield this._fetchAndProcessMessages({min: lowerbound, max: savedSyncState.fetchedmin});
     } else {
-      // console.log("FetchMessagesInFolderIMAP: fetchedmin == minUID, nothing older to fetch.")
+      // this._logger.log("FetchMessagesInFolderIMAP: fetchedmin == minUID, nothing older to fetch.")
     }
   }
 
@@ -475,7 +475,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
         } else {
           nextUid = 1;
         }
-        console.log(`🔃📂 ${this._folder.name} Found gap in UIDs; next fetchedmin is ${nextUid}`);
+        this._logger.log(`🔃📂 ${this._folder.name} Found gap in UIDs; next fetchedmin is ${nextUid}`);
         await this._folder.updateSyncState({ fetchedmin: nextUid });
       }
     }
@@ -538,7 +538,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     }
 
     const start = Date.now()
-    console.log(`🔃 🚩 ${this._folder.name} via highestmodseq of ${highestmodseq}`)
+    this._logger.log(`🔃 🚩 ${this._folder.name} via highestmodseq of ${highestmodseq}`)
 
     const remoteUIDAttributes = yield this._box.fetchUIDAttributes(`1:*`,
       {modifiers: {changedsince: highestmodseq}});
@@ -555,7 +555,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     await this._folder.updateSyncState({
       highestmodseq: nextHighestmodseq,
     });
-    console.log(`🔃 🚩 ${this._folder.name} via highestmodseq of ${highestmodseq} - took ${Date.now() - start}ms to update ${numChangedLabels + numChangedFlags} messages & threads`)
+    this._logger.log(`🔃 🚩 ${this._folder.name} via highestmodseq of ${highestmodseq} - took ${Date.now() - start}ms to update ${numChangedLabels + numChangedFlags} messages & threads`)
   }
 
   /**
@@ -587,7 +587,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     const backScanRange = `${from}:${to}`;
 
     const start = Date.now()
-    console.log(`🔃 🚩 ${this._folder.name} via scan through ${recentRange} and ${backScanRange}`)
+    this._logger.log(`🔃 🚩 ${this._folder.name} via scan through ${recentRange} and ${backScanRange}`)
 
     const recentAttrs = yield this._box.fetchUIDAttributes(recentRange)
     const backScanAttrs = yield this._box.fetchUIDAttributes(backScanRange)
@@ -608,7 +608,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       attributeFetchedMax: (from <= 1 ? recentStart : from),
       lastAttributeScanTime: Date.now(),
     });
-    console.log(`🔃 🚩 ${this._folder.name} via scan through ${recentRange} and ${backScanRange} - took ${Date.now() - start}ms to update ${numChangedLabels + numChangedFlags} messages & threads`)
+    this._logger.log(`🔃 🚩 ${this._folder.name} via scan through ${recentRange} and ${backScanRange} - took ${Date.now() - start}ms to update ${numChangedLabels + numChangedFlags} messages & threads`)
   }
 
   _shouldFetchMessages(boxStatus) {
@@ -646,7 +646,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
    * `Interruptible`
    */
   async * runTask(db, imap) {
-    console.log(`🔜 📂 ${this._folder.name}`)
+    this._logger.log(`🔜 📂 ${this._folder.name}`)
     this._db = db;
     this._imap = imap;
 
@@ -668,7 +668,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     if (!this._shouldSyncFolder(latestBoxStatus)) {
       // Don't even attempt to issue an IMAP SELECT if there are absolutely no
       // updates
-      console.log(`🔚 📂 ${this._folder.name} has no updates at all - skipping sync`)
+      this._logger.log(`🔚 📂 ${this._folder.name} has no updates at all - skipping sync`)
       return;
     }
 
@@ -680,14 +680,14 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     if (shouldFetchMessages) {
       yield this._fetchNextMessageBatch()
     } else {
-      console.log(`🔚 📂 ${this._folder.name} has no new messages - skipping fetch messages`)
+      this._logger.log(`🔚 📂 ${this._folder.name} has no new messages - skipping fetch messages`)
     }
     if (shouldFetchAttributes) {
       yield this._fetchMessageAttributeChanges();
     } else {
-      console.log(`🔚 📂 ${this._folder.name} has no attribute changes - skipping fetch attributes`)
+      this._logger.log(`🔚 📂 ${this._folder.name} has no attribute changes - skipping fetch attributes`)
     }
-    console.log(`🔚 📂 ${this._folder.name} done`)
+    this._logger.log(`🔚 📂 ${this._folder.name} done`)
   }
 }
 

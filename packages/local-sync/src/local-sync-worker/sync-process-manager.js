@@ -11,7 +11,6 @@ class SyncProcessManager {
     this._workers = {};
     this._exiting = false;
     this._accounts = []
-    this._logger = global.Logger.child();
 
     Actions.wakeLocalSyncWorkerForAccount.listen((accountId) =>
       this.wakeWorkerForAccount(accountId, {interrupt: true})
@@ -46,7 +45,7 @@ class SyncProcessManager {
         remote.app.quit()
       }, 100)
     } catch (err) {
-      console.error(err)
+      global.Logger.error('Error resetting email cache', err)
       this._resettingEmailCache = false
     }
   }
@@ -55,7 +54,7 @@ class SyncProcessManager {
    * Useful for debugging.
    */
   async start() {
-    this._logger.info(`ProcessManager: Starting with ID`)
+    global.Logger.log(`SyncProcessManager: Starting sync`)
 
     const {Account} = await LocalDatabaseConnector.forShared();
     const accounts = await Account.findAll();
@@ -77,17 +76,19 @@ class SyncProcessManager {
 
   async addWorkerForAccount(account) {
     await LocalDatabaseConnector.ensureAccountDatabase(account.id);
+    const logger = global.Logger.forAccount(account)
 
     try {
       const db = await LocalDatabaseConnector.forAccount(account.id);
       if (this._workers[account.id]) {
-        throw new Error("Local worker already exists");
+        logger.warn(`SyncProcessManager: Worker for account already exists`)
+        return
       }
       this._accounts.push(account)
       this._workers[account.id] = new SyncWorker(account, db, this);
-      this._logger.info({account_id: account.id}, `ProcessManager: Claiming Account Succeeded`)
+      logger.log(`SyncProcessManager: Claiming Account Succeeded`)
     } catch (err) {
-      this._logger.error({account_id: account.id, reason: err.message}, `ProcessManager: Claiming Account Failed`)
+      logger.error(`SyncProcessManager: Claiming Account Failed`, err)
     }
   }
 

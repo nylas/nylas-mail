@@ -131,7 +131,7 @@ class FetchFolderListIMAP extends SyncTask {
   // This operation is interruptible, see `SyncTask` for info on why we use
   // `yield`
   async * runTask(db, imap) {
-    console.log(`🔜  Fetching folder list`)
+    this._logger.log(`🔜  Fetching folder list`)
     this._db = db;
 
     const boxes = yield imap.getBoxes();
@@ -142,7 +142,7 @@ class FetchFolderListIMAP extends SyncTask {
     const all = [].concat(folders, labels);
     await this._updateCategoriesWithBoxes(all, boxes);
 
-    console.log(`🔚  Fetching folder list done`)
+    this._logger.log(`🔚  Fetching folder list done`)
   }
 }
 

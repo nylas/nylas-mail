@@ -13,7 +13,7 @@ function isContactMeaningful(contact) {
   return true
 }
 
-async function extractContacts({db, messageValues}) {
+async function extractContacts({db, messageValues, logger = console} = {}) {
   const {Contact} = db
   let allContacts = [];
   ['to', 'from', 'bcc', 'cc'].forEach((field) => {
@@ -45,7 +45,7 @@ async function extractContacts({db, messageValues}) {
     if (!existing) {
       Contact.create(c).catch(Sequelize.ValidationError, (err) => {
         if (err.name !== "SequelizeUniqueConstraintError") {
-          console.log('Unknown error inserting contact', err);
+          logger.warn('Unknown error inserting contact', err);
           throw err;
         } else {
           // Another message with the same contact was processing concurrently,

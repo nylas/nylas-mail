@@ -4,9 +4,8 @@ const SyncbackTask = require('./syncback-task')
 const MessageFactory = require('../../shared/message-factory')
 
 
-async function sendPerRecipient({db, account, baseMessage, usesOpenTracking, usesLinkTracking} = {}) {
+async function sendPerRecipient({db, account, baseMessage, usesOpenTracking, usesLinkTracking, logger = console} = {}) {
   const {Message} = db
-  const logger = global.Logger.forAccount(this._account);
   const recipients = baseMessage.getRecipients()
   const failedRecipients = []
 
@@ -26,7 +25,7 @@ async function sendPerRecipient({db, account, baseMessage, usesOpenTracking, use
       const sender = new SendmailClient(account, logger);
       await sender.sendCustom(individualizedMessage, {to: [recipient]})
     } catch (error) {
-      console.error(error, {recipient: recipient.email}, 'SendMessagePerRecipient: Failed to send to recipient');
+      logger.error(error, {recipient: recipient.email}, 'SendMessagePerRecipient: Failed to send to recipient');
       failedRecipients.push(recipient.email)
     }
   }
@@ -97,7 +96,7 @@ class SendMessagePerRecipientSMTP extends SyncbackTask {
         failedRecipients: sendResult.failedRecipients,
       }
     } catch (err) {
-      console.error(err, 'SendMessagePerRecipient: Failed to save the baseMessage to local sync database after it was successfully delivered');
+      this._logger.error('SendMessagePerRecipient: Failed to save the baseMessage to local sync database after it was successfully delivered', err);
       return {message: {}, failedRecipients: []}
     }
   }
