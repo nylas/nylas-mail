@@ -117,6 +117,14 @@ export default class Event extends Model {
       jsonKey: 'is_search_indexed',
       defaultValue: false,
     }),
+
+    // This corresponds to the rowid in the FTS table. We need to use the FTS
+    // rowid when updating and deleting items in the FTS table because otherwise
+    // these operations would be way too slow on large FTS tables.
+    searchIndexId: Attributes.Number({
+      modelKey: 'searchIndexId',
+      jsonKey: 'search_index_id',
+    }),
   });
 
   static additionalSQLiteConfig = {
