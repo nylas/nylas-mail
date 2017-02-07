@@ -46,6 +46,8 @@ class NylasComponentKit
   @load "FixedPopover", 'fixed-popover'
   @require "DatePickerPopover", 'date-picker-popover'
   @load "Modal", 'modal'
+  @load "FeatureUsedUpModal", 'feature-used-up-modal'
+  @load "OpenIdentityPageButton", 'open-identity-page-button'
   @load "Flexbox", 'flexbox'
   @load "RetinaImg", 'retina-img'
   @load "SwipeContainer", 'swipe-container'
