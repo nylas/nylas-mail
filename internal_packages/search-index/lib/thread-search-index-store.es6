@@ -46,6 +46,10 @@ class ThreadSearchIndexStore {
     })
   }
 
+  _isInvalidSize(size) {
+    return !size || size > MAX_INDEX_SIZE || size === 0;
+  }
+
   /**
    * We only want to build the entire index if:
    * - It doesn't exist yet
@@ -65,7 +69,7 @@ class ThreadSearchIndexStore {
     return DatabaseStore.searchIndexSize(Thread)
     .then((size) => {
       console.log(`Thread Search: Current index size is ${(size || 0)} threads`)
-      if (!size || size >= MAX_INDEX_SIZE || size === 0) {
+      if (this._isInvalidSize(size)) {
         return this.clearIndex().thenReturn(this.accountIds)
       }
       return this.getUnindexedAccounts()

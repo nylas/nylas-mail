@@ -758,8 +758,9 @@ class DatabaseStore extends NylasStore {
       const sql = (
         `INSERT INTO \`${searchTableName}\`(${keysSql}) VALUES (${valsSql})`
       )
-      return this._query(sql, values).then(() => {
+      return this._query(sql, values).then(({lastInsertROWID}) => {
         model.isSearchIndexed = true;
+        model.searchIndexId = lastInsertROWID;
         return this.inTransaction((t) => t.persistModel(model))
       });
     });
@@ -773,14 +774,14 @@ class DatabaseStore extends NylasStore {
       }
 
       const indexFields = Object.keys(indexData);
-      const values = indexFields.map(key => indexData[key]).concat([model.id]);
+      const values = indexFields.map(key => indexData[key]).concat([model.searchIndexId]);
       const setSql = (
         indexFields
         .map((key) => `\`${key}\` = ?`)
         .join(', ')
       );
       const sql = (
-        `UPDATE \`${searchTableName}\` SET ${setSql} WHERE \`${searchTableName}\`.\`content_id\` = ?`
+        `UPDATE \`${searchTableName}\` SET ${setSql} WHERE \`${searchTableName}\`.\`rowid\` = ?`
       );
       return this._query(sql, values);
     });
@@ -791,14 +792,15 @@ class DatabaseStore extends NylasStore {
   unindexModel(model, opts = {}) {
     const searchTableName = `${model.constructor.name}Search`;
     const sql = (
-      `DELETE FROM \`${searchTableName}\` WHERE \`${searchTableName}\`.\`content_id\` = ?`
+      `DELETE FROM \`${searchTableName}\` WHERE \`${searchTableName}\`.\`rowid\` = ?`
     );
-    const query = this._query(sql, [model.id]);
+    const query = this._query(sql, [model.searchIndexId]);
     if (opts.isBeingUnpersisted) {
       return query;
     }
     return query.then(() => {
       model.isSearchIndexed = false;
+      model.searchIndexId = 0;
       return this.inTransaction((t) => t.persistModel(model))
     });
   }
