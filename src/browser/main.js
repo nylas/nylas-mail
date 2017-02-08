@@ -16,7 +16,9 @@ if (typeof process.setFdLimit === 'function') {
 }
 
 const setupConfigDir = (args) => {
-  const defaultDirName = (args.specMode) ? '.nylas-spec' : '.nylas-mail';
+  let defaultDirName = ".nylas-mail";
+  if (args.specMode) defaultDirName = ".nylas-spec";
+  if (args.devMode) defaultDirName = ".nylas-dev";
   let configDirPath = path.join(app.getPath('home'), defaultDirName);
 
   if (args.configDirPath) {
