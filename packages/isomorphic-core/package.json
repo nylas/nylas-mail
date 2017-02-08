@@ -4,7 +4,7 @@
   "description": "Packages use isomorphically on n1-cloud and local-sync",
   "main": "index.js",
   "dependencies": {
-    "imap": "0.8.18",
+    "imap": "jstejada/node-imap#fix-parse-body-list",
     "imap-provider-settings": "nylas/imap-provider-settings",
     "joi": "8.4.2",
     "nodemailer": "2.5.0",
