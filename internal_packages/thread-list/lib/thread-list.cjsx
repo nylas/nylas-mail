@@ -163,6 +163,10 @@ class ThreadList extends React.Component
       Actions.queueTasks(tasks)
       callback(true)
 
+    disabledPackages = NylasEnv.config.get('core.disabledPackages') ? []
+    if 'thread-snooze' in disabledPackages
+      return props
+
     if FocusedPerspectiveStore.current().isInbox()
       props.onSwipeLeftClass = 'swipe-snooze'
       props.onSwipeCenter = =>
@@ -248,6 +252,10 @@ class ThreadList extends React.Component
     Actions.queueTask(task)
 
   _onSnoozeItem: =>
+    disabledPackages = NylasEnv.config.get('core.disabledPackages') ? []
+    if 'thread-snooze' in disabledPackages
+      return
+
     threads = @_threadsForKeyboardAction()
     return unless threads
     # TODO this should be grabbed from elsewhere
