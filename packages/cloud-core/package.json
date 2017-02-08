@@ -21,5 +21,8 @@
     "xoauth2": "1.2.0"
   },
   "author": "Nylas",
-  "license": "ISC"
+  "license": "ISC",
+  "scripts": {
+    "test": "NODE_ENV=test ../../../../node_modules/.bin/electron ../../../../ --test --enable-logging --spec-directory=$(pwd)/spec"
+  }
 }

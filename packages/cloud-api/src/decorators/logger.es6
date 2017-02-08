@@ -10,7 +10,7 @@ export default function registerLoggerDecorator(server) {
       // http://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-request-tracing.html
       request_uid: request.headers['X-Amzn-Trace-Id'] || request.id,
     })
-    childLogger.forAccount = global.Logger.forAccount;
+    childLogger.forAccount = (account) => global.Logger.forAccount(account, childLogger);
     return childLogger;
   }, {apply: true});
 }

@@ -1,4 +1,31 @@
+const stream = require('stream');
 const PrettyStream = require('bunyan-prettystream')
+
+
+class StringStream extends stream.Writable {
+  constructor() {
+    super();
+    this.chunks = [];
+  }
+
+  _write(chunk, enc, next) {
+    this.chunks.push(chunk);
+    next();
+  }
+
+  toString() {
+    return Buffer.concat(this.chunks).toString();
+  }
+
+  reset() {
+    this.chunks = [];
+  }
+}
+
+const testStream = {
+  level: 'info',
+  stream: new StringStream(),
+}
 
 const stdoutStream = {
   level: 'info',
@@ -32,6 +59,11 @@ const getLogStreams = (name, env) => {
         },
       ]
     }
+    case 'test': {
+      return [
+        testStream,
+      ]
+    }
     default: {
       return [
         stdoutStream,
@@ -40,4 +72,4 @@ const getLogStreams = (name, env) => {
   }
 }
 
-module.exports = {getLogStreams}
+module.exports = {getLogStreams, testStream}
