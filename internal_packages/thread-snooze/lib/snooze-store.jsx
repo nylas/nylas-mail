@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import {React, FeatureUsageStore, Actions, NylasAPIHelpers, AccountStore,
+import {React, FeatureUsageStore, Actions, AccountStore,
   DatabaseStore, Message, CategoryStore} from 'nylas-exports';
 import {FeatureUsedUpModal} from 'nylas-component-kit'
 import SnoozeUtils from './snooze-utils'
@@ -113,12 +113,7 @@ class SnoozeStore {
     }
     this.recordSnoozeEvent(threads, snoozeDate, label)
 
-    const accounts = AccountStore.accountsForItems(threads)
-    const promises = accounts.map((acc) => {
-      return NylasAPIHelpers.authPlugin(this.pluginId, this.pluginName, acc)
-    })
-
-    return Promise.all(promises)
+    return FeatureUsageStore.useFeature('snooze')
     .then(() => {
       return SnoozeUtils.moveThreadsToSnooze(threads, this.snoozeCategoriesPromise, snoozeDate)
     })
@@ -140,8 +135,6 @@ class SnoozeStore {
           }
         });
       });
-    }).then(() => {
-      return FeatureUsageStore.useFeature('snooze')
     })
     .catch((error) => {
       SnoozeUtils.moveThreadsFromSnooze(threads, this.snoozeCategoriesPromise)
