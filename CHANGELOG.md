@@ -1,6 +1,6 @@
 # Nylas Mail Changelog
 
-### 1.0.24 (2/8/17)
+### 1.0.24 (2/9/17)
 
 - Fixes:
 
