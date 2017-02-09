@@ -130,6 +130,7 @@ describe "PackageManager", ->
             expect(pack.mainModule).toBe indexModule
 
       it "assigns config schema, including defaults when package contains a schema", ->
+        spyOn(NylasEnv.config, "_logError")
         expect(NylasEnv.config.get('package-with-config-schema.numbers.one')).toBeUndefined()
 
         waitsForPromise ->
@@ -140,6 +141,8 @@ describe "PackageManager", ->
           expect(NylasEnv.config.get('package-with-config-schema.numbers.two')).toBe 2
 
           expect(NylasEnv.config.set('package-with-config-schema.numbers.one', 'nope')).toBe false
+          expect(NylasEnv.config._logError).toHaveBeenCalled()
+          expect(NylasEnv.config._logError.callCount).toBe(1)
           expect(NylasEnv.config.set('package-with-config-schema.numbers.one', '10')).toBe true
           expect(NylasEnv.config.get('package-with-config-schema.numbers.one')).toBe 10
 
