@@ -74,7 +74,7 @@ describe('DatePickerPopover', function sendLaterPopover() {
         footer: <span key="footer" className="footer">footer</span>,
       })
       expect(popover.find('.footer').text()).toEqual('footer')
-      expect(popover.find('.date-input-section').exists()).toBe(false)
+      expect(popover.find('.date-input-section').exists()).toBe(true)
     });
   });
 });

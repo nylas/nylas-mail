@@ -107,7 +107,10 @@ describe "ThreadToolbarButtons", ->
       it "queues a task to mark as spam", ->
         spyOn(TaskFactory, 'tasksForMarkingAsSpam')
         ReactTestUtils.Simulate.click(ReactDOM.findDOMNode(markSpamButton))
-        expect(TaskFactory.tasksForMarkingAsSpam).toHaveBeenCalledWith({threads: [thread]})
+        expect(TaskFactory.tasksForMarkingAsSpam).toHaveBeenCalledWith({
+          threads: [thread],
+          source: 'Toolbar Button: Thread List'
+        })
 
       it "returns to the thread list", ->
         spyOn(Actions, 'popSheet')
