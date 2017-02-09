@@ -325,27 +325,28 @@ class Contenteditable extends React.Component
         runCallbacks = false
 
     @_mutationObserver.disconnect()
-    @setInnerState dragging: false if @innerState.dragging
-    @setInnerState doubleDown: false if @innerState.doubleDown
-    @_broadcastInnerStateToToolbar = false
+    try
+      @setInnerState dragging: false if @innerState.dragging
+      @setInnerState doubleDown: false if @innerState.doubleDown
+      @_broadcastInnerStateToToolbar = false
 
-    if runCallbacks
-      @_runCallbackOnExtensions("onContentChanged", {mutations})
+      if runCallbacks
+        @_runCallbackOnExtensions("onContentChanged", {mutations})
 
-    # NOTE: The DOMNormalizer should be the last extension to run. This
-    # will ensure that when we extract our innerHTML and re-set it during
-    # the next render the contents should look identical.
-    #
-    # Also, remember that our selection listeners have been turned off.
-    # It's very likely that one of our callbacks mutated the DOM and the
-    # selection. We need to be sure to re-save the selection.
-    @_saveSelection()
+      # NOTE: The DOMNormalizer should be the last extension to run. This
+      # will ensure that when we extract our innerHTML and re-set it during
+      # the next render the contents should look identical.
+      #
+      # Also, remember that our selection listeners have been turned off.
+      # It's very likely that one of our callbacks mutated the DOM and the
+      # selection. We need to be sure to re-save the selection.
+      @_saveSelection()
 
-    @props.onChange(target: {value: @_editableNode().innerHTML})
+      @props.onChange(target: {value: @_editableNode().innerHTML})
 
-    @_broadcastInnerStateToToolbar = true
-    @_mutationObserver.observe(@_editableNode(), @_mutationConfig())
-    return
+      @_broadcastInnerStateToToolbar = true
+    finally
+      @_mutationObserver.observe(@_editableNode(), @_mutationConfig())
 
   _onBlur: (event) =>
     @setInnerState dragging: false
