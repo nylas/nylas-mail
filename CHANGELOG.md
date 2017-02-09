@@ -7,6 +7,7 @@
   + Fix emails occasionally being sent with an incomplete body (#3269)
   + Correctly thread messages together when open/link tracking is enabled
   + Fix `Mailbox does not exist` error for iCloud users (#3253)
+  + When adding account, correctly remove whitespace from emails
   + Fix link in update notification to point to latest changelog
 
 - Performance:
