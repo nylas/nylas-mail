@@ -1,5 +1,18 @@
 # Nylas Mail Changelog
 
+### 1.0.24 (2/8/17)
+
+- Fixes:
+
+  + Fix error reporter when reporting an error without an identity (this would
+    crash the app)
+
+- Development:
+
+  + Fix logging inside local-sync api requests
+  + Stop reporting handled API errors to Sentry
+  + Report thread-list perf metrics
+
 ### 1.0.23 (2/8/17)
 
 - Fixes:
