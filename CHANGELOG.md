@@ -1,5 +1,26 @@
 # Nylas Mail Changelog
 
+### 1.0.23 (2/8/17)
+
+- Fixes:
+
+  + Fix emails occasionally being sent with an incomplete body (#3269)
+  + Correctly thread messages together when open/link tracking is enabled
+  + Fix `Mailbox does not exist` error for iCloud users (#3253)
+  + Fix link in update notification to point to latest changelog
+
+- Performance:
+
+  + Thread list actions no longer sporadically lag for ~1sec (this is especially
+    noticeable when many accounts have been added)
+  + No longer slow down sync process when more than 100,000 threads have been synced
+
+- Development:
+
+  + Better logging in worker window
+  + You can now run a development build of Nylas Mail alongside a production
+    build
+
 ### 1.0.22 (2/7/17)
 
 - Fixes:
