@@ -14,9 +14,9 @@ const stubNotif = (priority) => {
 
 const checkHighestPriority = (expectedPriority, wrapper) => {
   const visibleElems = wrapper.find(".highest-priority")
-  expect(visibleElems.exists()).toEqual(false);
+  expect(visibleElems.exists()).toEqual(true);
   const titleElem = visibleElems.first().find('.title');
-  expect(titleElem.exists()).toEqual(false);
+  expect(titleElem.exists()).toEqual(true);
   expect(titleElem.text().trim()).toEqual(`Priority ${expectedPriority}`);
   // Make sure there's only one highest-priority elem
   expect(visibleElems.get(1)).toEqual(undefined);

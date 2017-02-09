@@ -40,8 +40,7 @@ export default class NewsletterSignup extends React.Component {
     LegacyEdgehillAPI.makeRequest({
       method: 'GET',
       path: this._path(props),
-    }).run()
-    .then((status) => {
+    }).run().then((status) => {
       if (status === 'Never Subscribed') {
         this._onSubscribe();
       } else {

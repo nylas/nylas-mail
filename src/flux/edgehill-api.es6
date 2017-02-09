@@ -30,7 +30,7 @@ class _EdgehillAPI {
 
   makeRequest(options = {}) {
     if (NylasEnv.getLoadSettings().isSpec) {
-      return Promise.resolve();
+      return {run: () => Promise.resolve()}
     }
 
     if (options.authWithNylasAPI) {
