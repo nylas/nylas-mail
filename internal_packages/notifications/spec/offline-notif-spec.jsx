@@ -6,7 +6,6 @@ describe("OfflineNotif", function offlineNotifTests() {
   describe("When N1 is offline", () => {
     beforeEach(() => {
       spyOn(NylasSyncStatusStore, "connected").andReturn(false);
-      spyOn(NylasSyncStatusStore, "nextRetryDelay").andReturn(10000);
       this.notif = mount(<OfflineNotification />);
     })
     it("displays a notification", () => {
