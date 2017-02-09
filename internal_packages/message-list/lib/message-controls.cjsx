@@ -131,11 +131,12 @@ class MessageControls extends React.Component
         path: "/messages/#{@props.message.id}"
         accountId: @props.message.accountId
         json:false
-        success: (body) =>
-          fs.writeFile tmpfile, body, =>
-            window = new BrowserWindow(width: 800, height: 600, title: "#{@props.message.subject} - RFC822")
-            window.loadURL('file://'+tmpfile)
     request.run()
+    .then((body) =>
+      fs.writeFile tmpfile, body, =>
+        window = new BrowserWindow(width: 800, height: 600, title: "#{@props.message.subject} - RFC822")
+        window.loadURL('file://'+tmpfile)
+    )
 
   _onLogData: =>
     console.log @props.message

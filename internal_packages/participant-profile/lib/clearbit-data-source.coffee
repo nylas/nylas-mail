@@ -11,24 +11,26 @@ module.exports = class ClearbitDataSource
     if (tryCount ? 0) >= MAX_RETRY
       return Promise.resolve(null)
     new Promise (resolve, reject) =>
-      LegacyEdgehillAPI.makeRequest
+      req = LegacyEdgehillAPI.makeRequest({
         authWithNylasAPI: true
         path: "/proxy/clearbit/#{@clearbitAPI()}/find?email=#{email}",
-        success: (body, response) =>
-          @parseResponse(body, response, email, tryCount).then(resolve).catch(reject)
-        error: reject
+      })
+      req.run()
+      .then((body) =>
+        @parseResponse(body, req.response.statusCode, email, tryCount).then(resolve).catch(reject)
+      )
 
   # The clearbit -> Nylas adapater
-  parseResponse: (body={}, response, requestedEmail, tryCount=0) =>
+  parseResponse: (body={}, statusCode, requestedEmail, tryCount=0) =>
     new Promise (resolve, reject) =>
       # This means it's in the process of fetching. Return null so we don't
       # cache and try again.
-      if response.statusCode is 202
+      if statusCode is 202
         setTimeout =>
           @find({email: requestedEmail, tryCount: tryCount+1}).then(resolve).catch(reject)
         , 1000
         return
-      else if response.statusCode isnt 200
+      else if statusCode isnt 200
         resolve(null)
         return
 

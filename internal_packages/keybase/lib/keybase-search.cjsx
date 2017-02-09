@@ -28,21 +28,24 @@ class KeybaseInviteButton extends React.Component
       @setState({loading: false})
       NylasEnv.showErrorDialog(err.message)
 
-    LegacyEdgehillAPI.makeRequest
+    req = LegacyEdgehillAPI.makeRequest({
       authWithNylasAPI: true
       path: "/keybase-invite",
       method: "POST",
       body:
         n1_id: IdentityStore.identityId(),
-      error: errorHandler,
-      success: (body, response) =>
-        @setState({loading: false})
-        try
-          if not (body instanceof Object) or not body.invite_url
-            throw new Error("We were unable to retrieve an invitation.")
-        catch err
-          errorHandler(err)
-        require('electron').shell.openExternal(body.invite_url)
+    })
+    req.run()
+    .then((body) =>
+      @setState({loading: false})
+      try
+        if not (body instanceof Object) or not body.invite_url
+          throw new Error("We were unable to retrieve an invitation.")
+      catch err
+        errorHandler(err)
+      require('electron').shell.openExternal(body.invite_url)
+    )
+    .catch(errorHandler)
 
   render: =>
     if @state.loading

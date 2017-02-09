@@ -8,10 +8,6 @@ xdescribe "AccountDeltaConnection", ->
     @apiRequests = []
     spyOn(NylasAPIRequest.prototype, "run").andCallFake ->
       @apiRequests.push({requestOptions: this.options})
-    spyOn(NylasAPIHelpers, "getCollection").andCallFake (account, model, params, requestOptions) =>
-      @apiRequests.push({account, model, params, requestOptions})
-    spyOn(NylasAPIHelpers, "getThreads").andCallFake (account, params, requestOptions) =>
-      @apiRequests.push({account, model:'threads', params, requestOptions})
     @localSyncCursorStub = undefined
     @n1CloudCursorStub = undefined
     # spyOn(AccountDeltaConnection.prototype, '_fetchMetadata').andReturn(Promise.resolve())

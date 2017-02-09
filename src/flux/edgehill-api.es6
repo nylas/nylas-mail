@@ -56,7 +56,7 @@ class _EdgehillAPI {
       api: this,
       options,
     });
-    return req.run();
+    return req;
   }
 }
 

@@ -40,17 +40,17 @@ export default class NewsletterSignup extends React.Component {
     LegacyEdgehillAPI.makeRequest({
       method: 'GET',
       path: this._path(props),
-      success: status => {
-        if (status === 'Never Subscribed') {
-          this._onSubscribe();
-        } else {
-          this._setState({status});
-        }
-      },
-      error: () => {
-        this._setState({status: "Error"});
-      },
-    });
+    }).run()
+    .then((status) => {
+      if (status === 'Never Subscribed') {
+        this._onSubscribe();
+      } else {
+        this._setState({status});
+      }
+    })
+    .catch(() => {
+      this._setState({status: "Error"});
+    })
   }
 
   _onSubscribe = () => {
@@ -58,13 +58,13 @@ export default class NewsletterSignup extends React.Component {
     LegacyEdgehillAPI.makeRequest({
       method: 'POST',
       path: this._path(),
-      success: status => {
-        this._setState({status});
-      },
-      error: () => {
-        this._setState({status: "Error"});
-      },
-    });
+    }).run()
+    .then((status) => {
+      this._setState({status});
+    })
+    .catch(() => {
+      this._setState({status: "Error"});
+    })
   }
 
   _onUnsubscribe = () => {
@@ -72,13 +72,13 @@ export default class NewsletterSignup extends React.Component {
     LegacyEdgehillAPI.makeRequest({
       method: 'DELETE',
       path: this._path(),
-      success: status => {
-        this._setState({status});
-      },
-      error: () => {
-        this._setState({status: "Error"});
-      },
-    });
+    }).run()
+    .then((status) => {
+      this._setState({status});
+    })
+    .catch(() => {
+      this._setState({status: "Error"});
+    })
   }
 
   _path(props = this.props) {
