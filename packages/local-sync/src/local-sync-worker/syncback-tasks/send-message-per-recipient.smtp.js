@@ -20,6 +20,12 @@ async function sendPerRecipient({db, account, baseMessage, usesOpenTracking, use
     const individualizedMessage = Utils.copyModel(Message, baseMessage, {
       body: customBody,
     })
+    // TODO we set these temporary properties which aren't stored in the
+    // database model because SendmailClient requires them to send the message
+    // with the correct headers.
+    // This should be cleaned up
+    individualizedMessage.references = baseMessage.references;
+    individualizedMessage.inReplyTo = baseMessage.inReplyTo;
 
     try {
       const sender = new SendmailClient(account, logger);
