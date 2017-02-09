@@ -59,7 +59,8 @@ module.exports = ErrorLogger = (function() {
   /////////////////////////// PUBLIC METHODS //////////////////////////
   /////////////////////////////////////////////////////////////////////
 
-  ErrorLogger.prototype.reportError = function(error, extra) {
+  ErrorLogger.prototype.reportError = function(error, extra = {}) {
+    if (this.inSpecMode) { return }
     if (!error) { error = {stack: ""} }
     this._appendLog(error.stack)
     if (extra) { this._appendLog(extra) }
