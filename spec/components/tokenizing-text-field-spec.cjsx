@@ -22,22 +22,27 @@ CustomSuggestion = React.createClass
 participant1 = new Contact
   id: '1'
   email: 'ben@nylas.com'
+  isSearchIndexed: false
 participant2 = new Contact
   id: '2'
   email: 'burgers@nylas.com'
   name: 'Nylas Burger Basket'
+  isSearchIndexed: false
 participant3 = new Contact
   id: '3'
   email: 'evan@nylas.com'
   name: 'Evan'
+  isSearchIndexed: false
 participant4 = new Contact
   id: '4'
   email: 'tester@elsewhere.com',
   name: 'Tester'
+  isSearchIndexed: false
 participant5 = new Contact
   id: '5'
   email: 'michael@elsewhere.com',
   name: 'Michael'
+  isSearchIndexed: false
 
 describe 'TokenizingTextField', ->
   beforeEach ->
@@ -135,7 +140,7 @@ describe 'TokenizingTextField', ->
       token.simulate('dragStart', dragStartEvent)
 
       expect(dragStartEventData).toEqual({
-        'nylas-token-items': '[{"client_id":"123","server_id":"2","name":"Nylas Burger Basket","email":"burgers@nylas.com","thirdPartyData":{},"id":"2","__constructorName":"Contact"}]'
+        'nylas-token-items': '[{"client_id":"123","server_id":"2","name":"Nylas Burger Basket","email":"burgers@nylas.com","thirdPartyData":{},"is_search_indexed":false,"id":"2","__constructorName":"Contact"}]'
         'text/plain': 'Nylas Burger Basket <burgers@nylas.com>'
       })
 
