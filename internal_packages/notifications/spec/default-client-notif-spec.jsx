@@ -31,7 +31,7 @@ describe("DefaultClientNotif", function DefaultClientNotifTests() {
         expect(NylasEnv.config.get).toHaveBeenCalledWith(SETTINGS_KEY);
       });
       it("renders nothing", () => {
-        expect(this.notif.find('.notification').isEmpty()).toEqual(true);
+        expect(this.notif.find('.notification').exists()).toEqual(true);
       });
     });
 
@@ -42,7 +42,7 @@ describe("DefaultClientNotif", function DefaultClientNotifTests() {
         expect(NylasEnv.config.get).toHaveBeenCalledWith(SETTINGS_KEY);
       });
       it("renders a notification", () => {
-        expect(this.notif.find('.notification').isEmpty()).toEqual(false);
+        expect(this.notif.find('.notification').exists()).toEqual(false);
       });
 
       it("allows the user to set N1 as the default client", () => {
@@ -66,7 +66,7 @@ describe("DefaultClientNotif", function DefaultClientNotifTests() {
       this.notif = mount(<DefaultClientNotification />)
     })
     it("renders nothing", () => {
-      expect(this.notif.find('.notification').isEmpty()).toEqual(true);
+      expect(this.notif.find('.notification').exists()).toEqual(true);
     });
   })
 });

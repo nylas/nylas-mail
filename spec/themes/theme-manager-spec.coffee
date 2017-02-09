@@ -161,8 +161,12 @@ describe "ThemeManager", ->
   describe "when a theme fails to load", ->
     it "logs a warning", ->
       NylasEnv.packages.activatePackage('a-theme-that-will-not-be-found')
-      expect(console.warn.callCount).toBe 1
-      expect(console.warn.argsForCall[0][0]).toContain "Could not resolve 'a-theme-that-will-not-be-found'"
+      .then () ->
+        expect("This should have thrown!!").toBe(true)
+      .catch (err) ->
+        expect(err.message).toMatch(/Failed to load/)
+        expect(console.warn.callCount).toBe 1
+        expect(console.warn.argsForCall[0][0]).toContain "Could not resolve 'a-theme-that-will-not-be-found'"
 
   describe "::requireStylesheet(path)", ->
     afterEach ->

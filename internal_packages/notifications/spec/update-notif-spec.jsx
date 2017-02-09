@@ -41,13 +41,13 @@ describe("UpdateNotification", function describeBlock() {
     it("should display a notification immediately if one is available", () => {
       stubUpdaterState = 'update-available'
       const notif = mount(<UpdateNotification />);
-      expect(notif.find('.notification').isEmpty()).toEqual(false);
+      expect(notif.find('.notification').exists()).toEqual(false);
     })
 
     it("should not display a notification if no update is avialable", () => {
       stubUpdaterState = 'no-update-available'
       const notif = mount(<UpdateNotification />);
-      expect(notif.find('.notification').isEmpty()).toEqual(true);
+      expect(notif.find('.notification').exists()).toEqual(true);
     })
 
     it("should listen for `window:update-available`", () => {

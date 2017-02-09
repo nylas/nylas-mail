@@ -10,7 +10,7 @@ describe("OfflineNotif", function offlineNotifTests() {
       this.notif = mount(<OfflineNotification />);
     })
     it("displays a notification", () => {
-      expect(this.notif.find('.notification').isEmpty()).toEqual(false);
+      expect(this.notif.find('.notification').exists()).toEqual(false);
     })
 
     it("allows the user to try connecting now", () => {
@@ -24,7 +24,7 @@ describe("OfflineNotif", function offlineNotifTests() {
       this.notif = mount(<OfflineNotification />);
     })
     it("doesn't display a notification", () => {
-      expect(this.notif.find('.notification').isEmpty()).toEqual(true);
+      expect(this.notif.find('.notification').exists()).toEqual(true);
     })
   })
 });

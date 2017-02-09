@@ -14,7 +14,7 @@ describe("DisabledMailRulesNotification", function DisabledMailRulesNotifTests()
       this.notif = mount(<DisabledMailRulesNotification />)
     })
     it("displays a notification", () => {
-      expect(this.notif.find('.notification').isEmpty()).toEqual(false);
+      expect(this.notif.find('.notification').exists()).toEqual(false);
     })
 
     it("allows users to open the preferences", () => {
@@ -33,7 +33,7 @@ describe("DisabledMailRulesNotification", function DisabledMailRulesNotifTests()
       this.notif = mount(<DisabledMailRulesNotification />)
     })
     it("displays a notification", () => {
-      expect(this.notif.find('.notification').isEmpty()).toEqual(false);
+      expect(this.notif.find('.notification').exists()).toEqual(false);
     })
 
     it("allows users to open the preferences", () => {
@@ -51,7 +51,7 @@ describe("DisabledMailRulesNotification", function DisabledMailRulesNotifTests()
       this.notif = mount(<DisabledMailRulesNotification />)
     })
     it("does not display a notification", () => {
-      expect(this.notif.find('.notification').isEmpty()).toEqual(true);
+      expect(this.notif.find('.notification').exists()).toEqual(true);
     })
   })
 })
