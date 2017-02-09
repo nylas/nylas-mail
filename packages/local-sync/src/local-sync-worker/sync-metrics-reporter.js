@@ -38,16 +38,16 @@ class SyncMetricsReporter {
         path: `/ingest-metrics`,
         method: 'POST',
         body: info,
-        error: () => {
-          logger.warn("Metrics Collector: Submission Failed.", info);
-        },
         accountId: AccountStore.accountForEmail(info.emailAddress).id,
-        success: () => {
-          logger.log(info, "Metrics Collector: Submitted.", info);
-        },
       },
     });
-    req.run();
+    req.run()
+    .then(() => {
+      logger.log(info, "Metrics Collector: Submitted.", info);
+    })
+    .catch(() => {
+      logger.warn("Metrics Collector: Submission Failed.", info);
+    })
   }
 }
 
