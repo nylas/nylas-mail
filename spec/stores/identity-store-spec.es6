@@ -7,6 +7,7 @@ const TEST_TOKEN = "test-token"
 
 describe("IdentityStore", function identityStoreSpec() {
   beforeEach(() => {
+    spyOn(IdentityStore, "saveIdentity").andReturn(Promise.resolve());
     this.identityJSON = {
       valid_until: 1500093224,
       firstname: "Nylas 050",
@@ -20,31 +21,32 @@ describe("IdentityStore", function identityStoreSpec() {
 
   it("logs out of nylas identity properly", async () => {
     IdentityStore._identity = this.identityJSON;
+    jasmine.unspy(IdentityStore, "saveIdentity")
     spyOn(NylasEnv.config, 'unset')
     spyOn(KeyManager, "deletePassword")
+    spyOn(KeyManager, "replacePassword")
     spyOn(ipcRenderer, "send")
     spyOn(DatabaseTransaction.prototype, "persistJSONBlob").andReturn(Promise.resolve())
-
     const promise = IdentityStore._onLogoutNylasIdentity()
     IdentityStore._onIdentityChanged(null)
     return promise.then(() => {
       expect(KeyManager.deletePassword).toHaveBeenCalled()
+      expect(KeyManager.replacePassword).not.toHaveBeenCalled()
       expect(ipcRenderer.send).toHaveBeenCalled()
-      expect(ipcRenderer.send.calls[0].args[1]).toBe("application:relaunch-to-initial-windows")
+      expect(ipcRenderer.send.calls[0].args[1]).toBe("onIdentityChanged")
       expect(DatabaseTransaction.prototype.persistJSONBlob).toHaveBeenCalled()
       const ident = DatabaseTransaction.prototype.persistJSONBlob.calls[0].args[1]
       expect(ident).toBe(null)
     })
   });
 
-  it("can log a feature usage event", () => {
+  it("can log a feature usage event", async () => {
     spyOn(IdentityStore, "nylasIDRequest");
-    spyOn(IdentityStore, "saveIdentity");
     IdentityStore._identity = this.identityJSON
     IdentityStore._identity.token = TEST_TOKEN;
     IdentityStore._onEnvChanged()
     const t = new SendFeatureUsageEventTask("snooze");
-    t.performRemote()
+    await t.performRemote()
     const opts = IdentityStore.nylasIDRequest.calls[0].args[0]
     expect(opts).toEqual({
       method: "POST",
