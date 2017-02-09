@@ -93,7 +93,7 @@ class MessageProcessor {
 
   async _processMessage({accountId, folderId, imapMessage, struct, desiredParts}) {
     const db = await LocalDatabaseConnector.forAccount(accountId);
-    const {Message, Folder} = db
+    const {Message, Folder, Label} = db
     const folder = await Folder.findById(folderId)
     const accountDb = await LocalDatabaseConnector.forShared()
     const account = await accountDb.Account.findById(accountId)
@@ -105,7 +105,9 @@ class MessageProcessor {
         folder,
         accountId,
       });
-      const existingMessage = await Message.findById(messageValues.id);
+      const existingMessage = await Message.findById(messageValues.id, {
+        include: [{model: Folder, as: 'folder'}, {model: Label, as: 'labels'}],
+      });
       let processedMessage;
       if (existingMessage) {
         // TODO: optimize to not do a full message parse for existing messages
@@ -262,11 +264,15 @@ class MessageProcessor {
       await existingMessage.setLabels(messageValues.labels)
     }
 
-    let thread = await existingMessage.getThread();
+    let thread = await existingMessage.getThread({
+      include: [{model: db.Folder, as: 'folders'}, {model: db.Label, as: 'labels'}],
+    });
     if (!existingMessage.isProcessed) {
       if (!thread) {
         thread = await detectThread({db, messageValues});
         existingMessage.threadId = thread.id;
+      } else {
+        await thread.updateFromMessages({db, messages: [existingMessage]})
       }
       await this._addReferences(db, existingMessage, thread, messageValues.references);
       const files = await extractFiles({db, messageValues: existingMessage, struct});
