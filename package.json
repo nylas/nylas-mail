@@ -36,7 +36,7 @@
     "electron-spellchecker": "1.0.1",
     "emissary": "^1.3.1",
     "emoji-data": "^0.2.0",
-    "enzyme": "^2.2.0",
+    "enzyme": "2.7.1",
     "esdoc": "^0.5.2",
     "esdoc-es7-plugin": "0.0.3",
     "event-kit": "^1.0.2",
