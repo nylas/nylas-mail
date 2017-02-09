@@ -88,6 +88,6 @@ server.register(plugins, (err) => {
 
   server.start((startErr) => {
     if (startErr) { throw startErr; }
-    global.Logger.info({url: server.info.uri}, 'API running');
+    global.Logger.log('API running', {url: server.info.uri});
   });
 });

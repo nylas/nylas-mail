@@ -38,23 +38,27 @@ function Logger(boundArgs = {}) {
   loggerFns.forEach((logFn) => {
     logger[logFn] = (...args) => {
       if (!ENABLE_LOGGING && logFn !== "error") {
-        return () => {}
+        return
       }
       const {accountId, accountEmail, ...otherArgs} = boundArgs
       const prefix = accountEmail || accountId
       const suffix = !_.isEmpty(otherArgs) ? otherArgs : '';
+      let [first, ...extraArgs] = args
+      if (_.isObject(first)) {
+        [first, extraArgs] = [extraArgs, [first]]
+      }
       if (prefix) {
         const color = getColorForPrefix(prefix)
-        const [first, ...extraArgs] = args
-        return console[logFn](
+        console[logFn](
           `%c<${prefix}> %c${first}`,
           `color: ${color}`,
           `color: #333333`,
           ...extraArgs,
           suffix
         )
+        return
       }
-      return console[logFn](...args, suffix)
+      console[logFn](`${first}`, ...extraArgs, suffix)
     }
   })
   logger.child = (extraBoundArgs) => Logger({...boundArgs, ...extraBoundArgs})
