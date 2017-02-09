@@ -37,7 +37,9 @@ class ParticipantProfileStore extends NylasStore {
         this.trigger()
       }
     }).catch((err = {}) => {
-      if (err.statusCode !== 404) throw err
+      if (err.statusCode !== 404) {
+        throw err
+      }
     })
     return {}
   }

@@ -213,44 +213,20 @@ export function getCollection(accountId, collection, params = {}, requestOptions
   if (!accountId) {
     throw (new Error("getCollection requires accountId"))
   }
-  const requestSuccess = requestOptions.success
-  new NylasAPIRequest({
+  const req = new NylasAPIRequest({
     api: NylasAPI,
-    options: _.extend(requestOptions, {
+    options: Object.assign({}, requestOptions, {
       path: `/${collection}`,
       accountId: accountId,
       qs: params,
       returnsModel: false,
-      success: (jsons) => {
-        attachMetadataToResponse(jsons, requestOptions.metadataToAttach)
-        handleModelResponse(jsons)
-        if (requestSuccess) {
-          requestSuccess(jsons)
-        }
-      },
     }),
-  }).run()
-}
-
-export function getThreads(accountId, params = {}, requestOptions = {}) {
-  const requestSuccess = requestOptions.success
-  requestOptions.success = (json) => {
-    let messages = []
-    for (const result of json) {
-      if (result.messages) {
-        messages = messages.concat(result.messages)
-      }
-    }
-    if (messages.length > 0) {
-      attachMetadataToResponse(messages, requestOptions.metadataToAttach)
-      handleModelResponse(messages)
-    }
-    if (requestSuccess) {
-      requestSuccess(json)
-    }
-  }
-
-  getCollection(accountId, 'threads', params, requestOptions)
+  })
+  return req.run()
+  .then((jsons) => {
+    attachMetadataToResponse(jsons, requestOptions.metadataToAttach)
+    handleModelResponse(jsons)
+  })
 }
 
 export function authPlugin() {

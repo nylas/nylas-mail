@@ -35,7 +35,8 @@ class UpdateChannelStore extends NylasStore {
       path: `/update-channel`,
       qs: Object.assign({preferredChannel: preferredChannel}, autoUpdater.parameters()),
       json: true,
-    }).then(({current, available} = {}) => {
+    }).run()
+    .then(({current, available} = {}) => {
       this._current = current || {name: "Edgehill API Not Available"};
       this._available = available || [];
       this.trigger();
@@ -47,10 +48,13 @@ class UpdateChannelStore extends NylasStore {
     LegacyEdgehillAPI.makeRequest({
       method: 'POST',
       path: `/update-channel`,
-      qs: Object.assign({channel: channelName,
-                         preferredChannel: preferredChannel}, autoUpdater.parameters()),
+      qs: Object.assign({
+        channel: channelName,
+        preferredChannel: preferredChannel,
+      }, autoUpdater.parameters()),
       json: true,
-    }).then(({current, available} = {}) => {
+    }).run()
+    .then(({current, available} = {}) => {
       this._current = current || {name: "Edgehill API Not Available"};
       this._available = available || [];
       this.trigger();

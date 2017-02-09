@@ -19,12 +19,11 @@ export default class NylasAPIRequest {
       timeout: 15000,
       ensureOnce: false,
       started: () => {},
-      error: () => {},
-      success: () => {},
     }
 
     this.api = api;
     this.options = Object.assign(defaults, options);
+    this.response = null
 
     const bodyIsRequired = (this.options.method !== 'GET' && !this.options.formData);
     if (bodyIsRequired) {
@@ -176,13 +175,12 @@ export default class NylasAPIRequest {
             }
             const apiError = new APIError({error, response, body, requestOptions: this.options});
             NylasEnv.errorLogger.apiDebug(apiError);
-            this.options.error(apiError);
             reject(apiError);
           } else {
             if (this.options.ensureOnce === true) {
               this.writeRequestSuccessRecord()
             }
-            this.options.success(body, response);
+            this.response = response
             resolve(body);
           }
         });
