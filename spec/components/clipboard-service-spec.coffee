@@ -75,11 +75,11 @@ describe "ClipboardService", ->
 
     it "should inline CSS styles and run the standard permissive HTML sanitizer", ->
       input = "HTML HERE"
-      @clipboardService._sanitizeHTMLInput(input)
-      advanceClock()
-      expect(InlineStyleTransformer.run).toHaveBeenCalledWith(input)
-      advanceClock()
-      expect(SanitizeTransformer.run).toHaveBeenCalledWith(input, SanitizeTransformer.Preset.Permissive)
+      waitsForPromise =>
+        @clipboardService._sanitizeHTMLInput(input)
+        .then =>
+          expect(InlineStyleTransformer.run).toHaveBeenCalledWith(input)
+          expect(SanitizeTransformer.run).toHaveBeenCalledWith(input, SanitizeTransformer.Preset.Permissive)
 
     it "should replace two or more <br/>s in a row", ->
       tests = [{
