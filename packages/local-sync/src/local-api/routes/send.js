@@ -39,7 +39,11 @@ module.exports = (server) => {
 
       const sendTask = SyncbackTaskFactory.create(account, syncbackRequest)
       const db = await request.getAccountDatabase()
-      await runSyncbackTask({task: sendTask, runTask: (t) => t.run(db)})
+      await runSyncbackTask({
+        task: sendTask,
+        runTask: (t) => t.run(db),
+        logger: request.logger.child(),
+      })
     },
   });
 
@@ -65,7 +69,11 @@ module.exports = (server) => {
 
       const sendTask = SyncbackTaskFactory.create(account, syncbackRequest)
       const db = await request.getAccountDatabase()
-      await runSyncbackTask({task: sendTask, runTask: (t) => t.run(db)})
+      await runSyncbackTask({
+        task: sendTask,
+        runTask: (t) => t.run(db),
+        logger: request.logger.child(),
+      })
     },
   });
 

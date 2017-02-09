@@ -61,6 +61,7 @@ const validate = (request, username, password, callback) => {
           callback(null, false, {});
           return;
         }
+        request.logger = request.logger.forAccount(account)
         callback(null, true, account);
       });
     });
