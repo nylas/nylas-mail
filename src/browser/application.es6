@@ -565,11 +565,16 @@ export default class Application extends EventEmitter {
     });
 
     ipcMain.on("report-error", (event, params = {}) => {
-      const errorParams = JSON.parse(params.errorJSON || "");
-      const extra = JSON.parse(params.extra);
-      let err = new Error();
-      err = Object.assign(err, errorParams);
-      global.errorLogger.reportError(err, extra)
+      try {
+        const errorParams = JSON.parse(params.errorJSON || "{}");
+        const extra = JSON.parse(params.extra || "{}");
+        let err = new Error();
+        err = Object.assign(err, errorParams);
+        global.errorLogger.reportError(err, extra)
+      } catch (parseError) {
+        console.error(parseError)
+        global.errorLogger.reportError(parseError, {})
+      }
       event.returnValue = true
     })
 
