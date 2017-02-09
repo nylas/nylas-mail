@@ -61,6 +61,7 @@ function Logger(boundArgs = {}) {
       console[logFn](`${first}`, ...extraArgs, suffix)
     }
   })
+  logger.boundArgs = boundArgs
   logger.child = (extraBoundArgs) => Logger({...boundArgs, ...extraBoundArgs})
   return logger
 }
