@@ -67,6 +67,7 @@ class KeyManager {
     try {
       if (!fn()) {
         remote.dialog.showErrorBox("Password Management Error", ERR_MSG)
+        NylasEnv.reportError(new Error(`Password Management Error: ${ERR_MSG}`))
       }
     } catch (err) {
       remote.dialog.showErrorBox("Password Management Error", ERR_MSG)
