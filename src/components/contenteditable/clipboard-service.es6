@@ -93,8 +93,10 @@ export default class ClipboardService extends ContenteditableService {
       decodeURIComponent(p1)
     );
 
-    return InlineStyleTransformer.run(withoutTracking).then((inlined) => {
-      return SanitizeTransformer.run(inlined, SanitizeTransformer.Preset.Permissive).then((sanitized) => {
+    return InlineStyleTransformer.run(withoutTracking)
+    .then((inlined) => {
+      return SanitizeTransformer.run(inlined, SanitizeTransformer.Preset.Permissive)
+      .then((sanitized) => {
         return Promise.resolve(
           sanitized
           // We never want more then 2 line breaks in a row.
