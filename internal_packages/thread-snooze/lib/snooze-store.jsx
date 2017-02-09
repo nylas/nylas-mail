@@ -1,7 +1,8 @@
 import {remote} from 'electron'
 import _ from 'underscore';
-import {FeatureUsageStore, Actions, NylasAPIHelpers, AccountStore,
+import {React, FeatureUsageStore, Actions, AccountStore,
   DatabaseStore, Message, CategoryStore} from 'nylas-exports';
+import {FeatureUsedUpModal} from 'nylas-component-kit'
 import SnoozeUtils from './snooze-utils'
 import {PLUGIN_ID, PLUGIN_NAME} from './snooze-constants';
 import SnoozeActions from './snooze-actions';
@@ -70,22 +71,50 @@ class SnoozeStore {
 
   onSnoozeThreads = (threads, snoozeDate, label) => {
     if (!FeatureUsageStore.isUsable("snooze")) {
-      remote.dialog.showMessageBox({
-        title: 'Out of snoozes',
-        detail: `You have used your monthly quota of Snoozes`,
-        buttons: ['OK'],
-        type: 'info',
-      });
+      const featureData = FeatureUsageStore.featureData("snooze");
+
+      let headerText = "";
+      let rechargeText = ""
+      if (!featureData.quota) {
+        headerText = "Snooze not yet enabled";
+        rechargeText = "Upgrade to Pro to start Snoozing"
+      } else {
+        headerText = "All Snoozes used";
+        let time = "later";
+        if (featureData.period === "hourly") {
+          time = "next hour"
+        } else if (featureData.period === "daily") {
+          time = "tomorrow"
+        } else if (featureData.period === "weekly") {
+          time = "next week"
+        } else if (featureData.period === "monthly") {
+          time = "next month"
+        } else if (featureData.period === "yearly") {
+          time = "next year"
+        } else if (featureData.period === "unlimited") {
+          time = "if you upgrade to Pro"
+        }
+        rechargeText = `You’ll have ${featureData.quota} more snoozes ${time}`
+      }
+
+      Actions.openModal({
+        component: (
+          <FeatureUsedUpModal
+            modalClass="snooze"
+            featureName="Snooze"
+            headerText={headerText}
+            iconUrl="nylas://thread-snooze/assets/ic-snooze-modal@2x.png"
+            rechargeText={rechargeText}
+          />
+        ),
+        height: 575,
+        width: 412,
+      })
       return Promise.resolve()
     }
     this.recordSnoozeEvent(threads, snoozeDate, label)
 
-    const accounts = AccountStore.accountsForItems(threads)
-    const promises = accounts.map((acc) => {
-      return NylasAPIHelpers.authPlugin(this.pluginId, this.pluginName, acc)
-    })
-
-    return Promise.all(promises)
+    return FeatureUsageStore.useFeature('snooze')
     .then(() => {
       return SnoozeUtils.moveThreadsToSnooze(threads, this.snoozeCategoriesPromise, snoozeDate)
     })

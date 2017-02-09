@@ -45,22 +45,25 @@ class Modal extends React.Component {
 
   _computeModalStyles = (height, width) => {
     const modalStyle = {
-      top: "50%",
-      left: "50%",
-      margin: `-${height / 2}px 0 0 -${width / 2}px`,
       height: height,
+      maxHeight: "95%",
       width: width,
+      maxWidth: "95%",
+      overflow: "auto",
       position: "absolute",
       backgroundColor: "white",
       boxShadow: "0 10px 20px rgba(0,0,0,0.19), inset 0 0 1px rgba(0,0,0,0.5)",
       borderRadius: "5px",
     };
     const containerStyle = {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
       height: "100%",
       width: "100%",
       zIndex: 1000,
       position: "absolute",
-      backgroundColor: "transparent",
+      backgroundColor: "rgba(255,255,255,0.58)",
     };
     return {containerStyle, modalStyle};
   };

@@ -16,7 +16,9 @@ if (typeof process.setFdLimit === 'function') {
 }
 
 const setupConfigDir = (args) => {
-  const defaultDirName = (args.specMode) ? '.nylas-spec' : '.nylas-mail';
+  let defaultDirName = ".nylas-mail";
+  if (args.specMode) defaultDirName = ".nylas-spec";
+  if (args.devMode) defaultDirName = ".nylas-dev";
   let configDirPath = path.join(app.getPath('home'), defaultDirName);
 
   if (args.configDirPath) {
@@ -180,17 +182,19 @@ const start = () => {
     return;
   }
 
-  const otherInstanceRunning = app.makeSingleInstance((commandLine) => {
-    const options = parseCommandLine(commandLine);
-    global.application.handleLaunchOptions(options);
-  });
-
-  if (otherInstanceRunning) {
-    console.log("Exiting because another instance of the app is already running.")
-    app.quit();
-  }
-
   const options = parseCommandLine(process.argv);
+
+  if (!options.devMode) {
+    const otherInstanceRunning = app.makeSingleInstance((commandLine) => {
+      const otherOpts = parseCommandLine(commandLine);
+      global.application.handleLaunchOptions(otherOpts);
+    });
+
+    if (otherInstanceRunning) {
+      console.log("Exiting because another instance of the app is already running.")
+      app.quit();
+    }
+  }
 
   global.errorLogger = setupErrorLogger(options);
   const configDirPath = setupConfigDir(options);

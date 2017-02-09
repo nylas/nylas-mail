@@ -44,7 +44,9 @@ class NylasAPI {
 
   constructor() {
     this.lockTracker = new NylasAPIChangeLockTracker()
-    this.APIRoot = "http://localhost:2578"
+    let port = 2578;
+    if (NylasEnv.inDevMode()) port = 1337;
+    this.APIRoot = `http://localhost:${port}`
 
     this.TimeoutErrorCodes = TimeoutErrorCodes
     this.PermanentErrorCodes = PermanentErrorCodes

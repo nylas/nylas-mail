@@ -17,6 +17,9 @@ class KeyManager {
      * fully deprecated or updated as well.
      */
     this.SERVICE_NAME = "Nylas Mail";
+    if (NylasEnv.inDevMode()) {
+      this.SERVICE_NAME = "Nylas Mail Dev";
+    }
     this.KEY_NAME = "Nylas Mail Keys"
     this._alreadyMigrated = new Set()
   }

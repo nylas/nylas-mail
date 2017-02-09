@@ -11,6 +11,45 @@ import SendFeatureUsageEventTask from '../tasks/send-feature-usage-event-task'
  * The billing site is responsible for returning with the Identity object
  * a usage hash that includes all supported features, their quotas for the
  * user, and the current usage of that user. We keep a cache locally
+ *
+ * The Identity object (aka Nylas ID or N1User) has a field called
+ * `feature_usage`. The schema for `feature_usage` is computed dynamically
+ * in `compute_feature_usage` here:
+ * https://github.com/nylas/cloud-core/blob/master/redwood/models/n1.py#L175-207
+ *
+ * The schema of each feature is determined by the `FeatureUsage` model in
+ * redwood here:
+ * https://github.com/nylas/cloud-core/blob/master/redwood/models/feature_usage.py#L14-32
+ *
+ * The final schema looks like (Feb 7, 2017):
+ *
+ * NylasID = {
+ *   ...
+ *   "feature_usage": {
+ *     "snooze": {
+ *       "quota": 15,
+ *       "period": "monthly",
+ *       "used_in_period": 10,
+ *       "feature_limit_name": "snooze-experiment-A",
+ *     },
+ *     "send-later": {
+ *       "quota": 99999,
+ *       "period": "unlimited",
+ *       "used_in_period": 228,
+ *       "feature_limit_name": "send-later-unlimited-A",
+ *     },
+ *     "reminders": {
+ *       "quota": 10,
+ *       "period": "daily",
+ *       "used_in_period": 10,
+ *       "feature_limit_name": null,
+ *     },
+ *   },
+ *   ...
+ * }
+ *
+ * Valid periods are:
+ * 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'unlimited'
  */
 class FeatureUsageStore extends NylasStore {
   activate() {
@@ -23,10 +62,19 @@ class FeatureUsageStore extends NylasStore {
     })
   }
 
+  featureData(feature) {
+    const usage = this._featureUsage()
+    if (!usage[feature]) {
+      NylasEnv.reportError(new Error(`${feature} isn't supported`));
+      return {}
+    }
+    return usage[feature]
+  }
+
   isUsable(feature) {
     const usage = this._featureUsage()
     if (!usage[feature]) {
-      NylasEnv.reportError(`${feature} isn't supported`);
+      NylasEnv.reportError(new Error(`${feature} isn't supported`));
       return false
     }
     return usage[feature].used_in_period < usage[feature].quota

@@ -61,21 +61,31 @@ class AccountStore extends NylasStore {
   _loadAccounts = () => {
     try {
       this._caches = {}
-      this._tokens = {}
+      this._tokens = this._tokens || {};
       this._version = NylasEnv.config.get(configVersionKey) || 0
 
+      const oldAccountIds = _.pluck(this._accounts, 'id')
       this._accounts = []
       for (const json of NylasEnv.config.get(configAccountsKey) || []) {
         this._accounts.push((new Account()).fromJSON(json))
+      }
+      const accountIds = _.pluck(this._accounts, 'id')
+
+      // Loading passwords from the KeyManager is expensive so only do it if
+      // we really have to (i.e. we're loading a new Account)
+      const addedAccountIds = _.difference(accountIds, oldAccountIds);
+      const addedAccounts = _.filter(this._accounts, (a) => addedAccountIds.includes(a.id));
+
+      const removedAccountIds = _.difference(oldAccountIds, accountIds);
+      if (removedAccountIds.length > 0) {
+        NylasEnv.reportError(new Error('_loadAccounts encountered Accounts that should have already been removed'));
       }
 
       // Run a few checks on account consistency. We want to display useful error
       // messages and these can result in very strange exceptions downstream otherwise.
       this._enforceAccountsValidity()
 
-      // Load tokens using the new KeyManager method
-      this._tokens = {}
-      for (const account of this._accounts) {
+      for (const account of addedAccounts) {
         const credentials = {
           n1Cloud: KeyManager.getPassword(`${account.emailAddress}.n1Cloud`, {migrateFromService: "Nylas"}),
           localSync: KeyManager.getPassword(`${account.emailAddress}.localSync`, {migrateFromService: "Nylas"}),

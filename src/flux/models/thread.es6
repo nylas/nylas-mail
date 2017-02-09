@@ -113,6 +113,14 @@ class Thread extends ModelWithMetadata {
       defaultValue: false,
       loadFromColumn: true,
     }),
+
+    // This corresponds to the rowid in the FTS table. We need to use the FTS
+    // rowid when updating and deleting items in the FTS table because otherwise
+    // these operations would be way too slow on large FTS tables.
+    searchIndexId: Attributes.Number({
+      modelKey: 'searchIndexId',
+      jsonKey: 'search_index_id',
+    }),
   })
 
   static sortOrderAttribute = () => {

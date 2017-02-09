@@ -66,6 +66,9 @@ const CreatePageForForm = (FormComponent) => {
         changes[event.target.id] = event.target.checked;
       } else {
         changes[event.target.id] = event.target.value;
+        if (event.target.id === 'email') {
+          changes[event.target.id] = event.target.value.trim();
+        }
       }
 
       const accountInfo = Object.assign({}, this.state.accountInfo, changes);

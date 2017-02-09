@@ -1,0 +1,70 @@
+@import "ui-variables";
+
+.feature-usage-modal {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+
+  .feature-header {
+    text-align: center;
+    padding-top: 32px;
+    padding-bottom: 30px;
+    color: @white;
+    border-radius: 5px 5px 0 0;
+  }
+  .header-text {
+    color: @white;
+    margin-top: 24px;
+    margin-bottom: 11px;
+  }
+  .recharge-text {
+    margin: 0;
+    opacity: 0.67;
+  }
+  .feature-cta {
+    text-align: center;
+    padding-bottom: 26px;
+    h2 {
+      margin-top: 26px;
+      margin-bottom: 26px;
+    }
+  }
+  .pro-description {
+    width: 275px;
+    margin: 0 auto;
+    padding-bottom: 28px;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+
+    ul {
+      color: rgba(51, 51, 51, 0.67);
+      text-align: left;
+      list-style: none;
+      line-height: 24px;
+      margin-bottom: 0;
+    }
+    li {
+      &:before {
+        content: '✓';
+        margin-right: 11px;
+      }
+    }
+    h3 {
+      margin-top: 23px;
+      margin-bottom: 18px;
+    }
+    p {
+      color: rgba(51, 51, 51, 0.67);
+      margin: 0;
+      text-align: left;
+      padding-left: 62px;
+      line-height: 24px;
+    }
+  }
+
+  .btn {
+    margin-top: 21px;
+    padding: 0 33px 25px 33px;
+  }
+}
