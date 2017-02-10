@@ -3,10 +3,15 @@
   "version": "0.0.1",
   "description": "Nylas API",
   "scripts": {
-    "start": "babel-node app.es6"
+    "start": "babel-node app.es6",
+    "test": "babel-node spec/run.es6"
   },
   "author": "Nylas",
   "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.0.0",
+    "jasmine": "2.5.3"
+  },
   "dependencies": {
     "boom": "4.2.0",
     "cloud-core": "0.x.x",

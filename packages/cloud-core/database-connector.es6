@@ -25,8 +25,8 @@ class DatabaseConnector {
     this._cache = {};
   }
 
-  _sequelizePoolForDatabase(dbname) {
-    if (process.env.DB_HOSTNAME) {
+  _sequelizePoolForDatabase(dbname, {test} = {}) {
+    if (!test && process.env.DB_HOSTNAME) {
       return new Sequelize(dbname, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
         host: process.env.DB_HOSTNAME,
         dialect: "mysql",
@@ -44,15 +44,16 @@ class DatabaseConnector {
       });
     }
 
+    const storage = test ? ':memory:' : path.join(STORAGE_DIR, `${dbname}.sqlite`)
     return new Sequelize(dbname, '', '', {
-      storage: path.join(STORAGE_DIR, `${dbname}.sqlite`),
+      storage: storage,
       dialect: "sqlite",
       logging: false,
     })
   }
 
-  _sequelizeForShared() {
-    const sequelize = this._sequelizePoolForDatabase(process.env.DB_NAME);
+  _sequelizeForShared(options) {
+    const sequelize = this._sequelizePoolForDatabase(process.env.DB_NAME, options);
     const db = loadModels(Sequelize, sequelize, {
       modelDirs: [path.join(__dirname, 'models')],
     })
