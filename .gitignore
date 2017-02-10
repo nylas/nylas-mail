@@ -14,6 +14,7 @@ debug.log
 /tags
 /electron/
 /_docs_output
+/junitxml
 
 spec/fixtures/evil-files/
 build/resources/certs

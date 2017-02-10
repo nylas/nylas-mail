@@ -129,24 +129,34 @@ class N1SpecRunner {
     const timeReporter = new TimeReporter();
     const consoleReporter = new ConsoleReporter();
 
-    // This needs to be `required` at runtime because terminal-reporter
-    // depends on jasmine-tagged, which depends on jasmine-focused, which
-    // on require will attempt to extend the `jasmine` object with
-    // methods. The `jasmine` object has to be attached to the global
-    // scope before it gets extended. This is done in
-    // `_extendGlobalWindow`.
-    const N1TerminalReporter = require('./terminal-reporter').default
+    const loadSettings = NylasEnv.getLoadSettings();
 
-    const terminalReporter = new N1TerminalReporter();
-
-    if (NylasEnv.getLoadSettings().showSpecsInWindow) {
-      this.jasmineEnv.addReporter(N1GuiReporter);
-      NylasEnv.show();
-    } else {
-      this.jasmineEnv.addReporter(terminalReporter);
+    if (loadSettings.jUnitXmlPath) {
+      // jasmine-reporters extends the jasmine global with methods, so needs to
+      // be `required` at runtime. The `jasmine` object has to be attached to the
+      // global scope before it gets extended. This is done in
+      // `_extendGlobalWindow`
+      require('jasmine-reporters');
+      const jUnitXmlReporter = new jasmine.JUnitXmlReporter(loadSettings.jUnitXmlPath, true, true);
+      this.jasmineEnv.addReporter(jUnitXmlReporter);
     }
     this.jasmineEnv.addReporter(timeReporter);
     this.jasmineEnv.addReporter(consoleReporter);
+
+    if (loadSettings.showSpecsInWindow) {
+      this.jasmineEnv.addReporter(N1GuiReporter);
+      NylasEnv.show();
+    } else {
+      // this package's dep `jasmine-focused` also adds methods to the
+      // `jasmine` global
+      // NOTE: this reporter MUST be added last as it exits the test process
+      // when complete, which may result in e.g. your XML output not getting
+      // written to disk if that reporter is added afterward.
+      const N1TerminalReporter = require('./terminal-reporter').default
+
+      const terminalReporter = new N1TerminalReporter();
+      this.jasmineEnv.addReporter(terminalReporter);
+    }
   }
 
   _initializeDOM() {

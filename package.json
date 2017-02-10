@@ -48,6 +48,7 @@
     "jasmine-json": "~0.0",
     "jasmine-react-helpers": "^0.2",
     "jasmine-tagged": "^1.1.2",
+    "jasmine-reporters": "1.x.x",
     "jsx-transform": "^2.3.0",
     "juice": "^1.4",
     "kbpgp": "^2.0.52",
@@ -132,6 +133,7 @@
   "scripts": {
     "test": "electron . --test --enable-logging",
     "test-window": "electron . --test=window --enable-logging",
+    "test-junit": "electron . --test --enable-logging --junit-xml=junitxml",
     "start": "electron . --dev --enable-logging",
     "lint": "script/grunt lint",
     "build": "script/grunt build",
