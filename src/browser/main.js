@@ -86,6 +86,7 @@ const parseCommandLine = (argv) => {
   const devMode = args['dev'] || args['test'];
   const logFile = args['log-file'];
   const specMode = args['test'];
+  const jUnitXmlPath = args['junit-xml'];
   const safeMode = args['safe'];
   const background = args['background'];
   const configDirPath = args['config-dir-path'];
@@ -129,6 +130,7 @@ const parseCommandLine = (argv) => {
     background,
     logFile,
     specMode,
+    jUnitXmlPath,
     safeMode,
     configDirPath,
     specDirectory,

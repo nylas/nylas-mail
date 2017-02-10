@@ -113,9 +113,9 @@ export default class Application extends EventEmitter {
     const {specMode, pathsToOpen, urlsToOpen} = options;
 
     if (specMode) {
-      const {resourcePath, specDirectory, specFilePattern, logFile, showSpecsInWindow} = options;
+      const {resourcePath, specDirectory, specFilePattern, logFile, showSpecsInWindow, jUnitXmlPath} = options;
       const exitWhenDone = true;
-      this.runSpecs({exitWhenDone, showSpecsInWindow, resourcePath, specDirectory, specFilePattern, logFile});
+      this.runSpecs({exitWhenDone, showSpecsInWindow, resourcePath, specDirectory, specFilePattern, logFile, jUnitXmlPath});
       return;
     }
 
@@ -762,6 +762,7 @@ export default class Application extends EventEmitter {
   //   :specPath - The directory to load specs from.
   //   :safeMode - A Boolean that, if true, won't run specs from ~/.nylas-mail/packages
   //               and ~/.nylas-mail/dev/packages, defaults to false.
+  //   :jUnitXmlPath - The path to output jUnit XML reports to, if desired.
   runSpecs(specWindowOptionsArg) {
     const specWindowOptions = specWindowOptionsArg;
     let {resourcePath} = specWindowOptions;
