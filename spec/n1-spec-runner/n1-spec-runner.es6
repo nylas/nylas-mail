@@ -38,6 +38,7 @@ class N1SpecRunner {
 
       it: this._makeItAsync(jasmineExports.it),
       // it: jasmineExports.it,
+      fit: this._makeItAsync(jasmineExports.fit),
       xit: jasmineExports.xit,
       runs: jasmineExports.runs,
       waits: jasmineExports.waits,
