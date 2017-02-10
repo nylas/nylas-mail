@@ -683,12 +683,12 @@ class NylasEnvConstructor
           window.requestAnimationFrame =>
             window.requestAnimationFrame =>
               @displayWindow() unless initializeInBackground
-              @startWindow()
-              # These don't need to wait for the window's stores and such
-              # to fully activate:
-              @requireUserInitScript() unless safeMode
-              @showMainWindow()
-              ipcRenderer.send('window-command', 'window:loaded')
+              @startWindow().then =>
+                # These don't need to wait for the window's stores and
+                # such to fully activate:
+                @requireUserInitScript() unless safeMode
+                @showMainWindow()
+                ipcRenderer.send('window-command', 'window:loaded')
 
   # Initializes a secondary window.
   # NOTE: If the `packageLoadingDeferred` option is set (which is true for
