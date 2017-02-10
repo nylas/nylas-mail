@@ -160,8 +160,6 @@ class N1SpecRunner {
   _extendJasmineMethods() {
     const jasmine = jasmineExports.jasmine;
 
-    jasmine.getEnv().defaultTimeoutInterval = 500;
-
     // Use underscore's definition of equality for toEqual assertions
     jasmine.getEnv().addEqualityTester(_.isEqual);
 
