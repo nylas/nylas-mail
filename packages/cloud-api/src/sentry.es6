@@ -34,3 +34,5 @@ exports.register.attributes = {
   name: 'sentry-plugin',
   version: '1.0.0',
 }
+
+exports.captureException = Raven.captureException

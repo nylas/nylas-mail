@@ -198,6 +198,7 @@ module.exports = (sequelize, Sequelize) => {
         const response = {
           id: `${this.id}`,
           object: 'thread',
+          message_ids: this.messages.map(m => m.id),
           folders: this.folders.map(f => f.toJSON()),
           labels: this.labels.map(l => l.toJSON()),
           account_id: this.accountId,
