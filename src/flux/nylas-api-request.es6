@@ -90,7 +90,7 @@ export default class NylasAPIRequest {
     const NylasAPIHelpers = require("./nylas-api-helpers")
 
     if (NylasEnv.getLoadSettings().isSpec) {
-      return Promise.resolve()
+      return Promise.resolve([])
     }
 
     if (this.options.ensureOnce === true) {

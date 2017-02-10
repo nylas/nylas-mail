@@ -22,8 +22,8 @@ class N1SpecRunner {
     this._setupNylasEnv();
     this._setupWindow();
     Object.assign(ReactTestUtils, reactTestUtilsExtensions)
-    MasterBeforeEach.setup(this.loadSettings, jasmineExports.beforeEach)
-    MasterAfterEach.setup(this.loadSettings, jasmineExports.afterEach)
+    MasterBeforeEach.setup(this.loadSettings, window.beforeEach)
+    MasterAfterEach.setup(this.loadSettings, window.afterEach)
     N1SpecLoader.loadSpecs(this.loadSettings, this.jasmineEnv);
     this.jasmineEnv.execute();
   }

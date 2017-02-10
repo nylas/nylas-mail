@@ -10,8 +10,8 @@ class MasterAfterEach {
     const styleElementsToRestore = NylasEnv.styles.getSnapshot();
 
     const self = this
-    afterEach(function masterAfterEach() {
-      destroyTestDatabase()
+    afterEach(async function masterAfterEach() {
+      await destroyTestDatabase()
       NylasEnv.packages.deactivatePackages();
       NylasEnv.menu.template = [];
 
