@@ -1,5 +1,15 @@
 # Nylas Mail Changelog
 
+### 1.0.25 (2/10/17)
+
+- Fixes:
+
+  + When replying to a thread, properly add it to the sent folder
+
+- Development:
+
+  + Can now once again run Nylas Mail test suite
+
 ### 1.0.24 (2/9/17)
 
 - Fixes:
