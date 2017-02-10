@@ -15,6 +15,11 @@ describe('SpellcheckComposerExtension', function spellcheckComposerExtension() {
     const lookupPath = path.join(__dirname, 'fixtures', 'california-spelling-lookup.json');
     const spellings = JSON.parse(fs.readFileSync(lookupPath));
     spyOn(Spellchecker, 'isMisspelled').andCallFake(word => spellings[word])
+    spyOn(Spellchecker.handler, 'provideHintText').andReturn({
+      then(cb) {
+        cb()
+      },
+    })
   });
 
   describe("onContentChanged", () => {
@@ -28,6 +33,8 @@ describe('SpellcheckComposerExtension', function spellcheckComposerExtension() {
       };
 
       SpellcheckComposerExtension.onContentChanged({editor});
+      advanceClock(1000) // Wait for debounce
+      advanceClock(1) // Wait for defer
       expect(node.innerHTML).toEqual(afterHTML);
     });
 
@@ -51,6 +58,8 @@ describe('SpellcheckComposerExtension', function spellcheckComposerExtension() {
       };
 
       SpellcheckComposerExtension.onContentChanged({editor});
+      advanceClock(1000) // Wait for debounce
+      advanceClock(1) // Wait for defer
       expect(node.innerHTML).toEqual(`
       <br>
       This is a <spelling class="misspelled">testst</spelling>! I have a few <spelling class="misspelled">misspellled</spelling> words.
