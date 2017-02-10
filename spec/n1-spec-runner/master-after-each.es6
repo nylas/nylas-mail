@@ -1,5 +1,6 @@
 import pathwatcher from 'pathwatcher';
 import ReactTestUtils from 'react-addons-test-utils';
+import {TaskQueue} from 'nylas-exports'
 // TODO the local-sync package should be moved as part of nylas-mail core,
 // instead of being a separate package
 import {destroyTestDatabase} from '../../internal_packages/local-sync/spec/helpers'
@@ -29,6 +30,11 @@ class MasterAfterEach {
       NylasEnv.styles.restoreSnapshot(styleElementsToRestore);
 
       this.removeAllSpies();
+      if (TaskQueue._queue.length > 0) {
+        console.inspect(TaskQueue._queue)
+        TaskQueue._queue = []
+        throw new Error("Your test forgot to clean up the TaskQueue")
+      }
       waits(0);
     }); // yield to ui thread to make screen update more frequently
   }
