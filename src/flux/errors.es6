@@ -28,7 +28,11 @@ export class APIError extends Error {
 
     this.stack = (new Error()).stack;
     if (!this.message) {
-      this.message = (this.body ? this.body.message : null) || this.body || (this.error ? this.error.toString() : null);
+      if (this.body) {
+        this.message = this.body.message || this.body.error || JSON.stringify(this.body)
+      } else {
+        this.message = this.error ? this.error.message || this.error.toString() : null;
+      }
     }
     this.errorType = (this.body ? this.body.type : null);
   }
