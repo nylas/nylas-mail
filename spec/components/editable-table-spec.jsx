@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import {mount} from 'enzyme'
+import {mount, shallow} from 'enzyme'
 import {SelectableTable, EditableTableCell, EditableTable} from 'nylas-component-kit'
 import {selection, cellProps, tableProps, testDataSource} from '../fixtures/table-data'
 
@@ -103,7 +103,7 @@ describe('EditableTable Components', function describeBlock() {
 
   describe('EditableTable', () => {
     function renderTable(props) {
-      return mount(
+      return shallow(
         <EditableTable
           {...tableProps}
           {...props}
@@ -143,7 +143,7 @@ describe('EditableTable Components', function describeBlock() {
       expect(table.prop('extraProps').InputRenderer).toBe(InputRenderer)
       expect(table.prop('other')).toEqual('other')
       expect(table.prop('CellRenderer')).toBe(EditableTableCell)
-      expect(table.prop('className')).toEqual('editable-table')
+      expect(table.hasClass('editable-table')).toBe(true)
     });
   });
 });
