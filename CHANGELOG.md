@@ -1,10 +1,13 @@
 # Nylas Mail Changelog
 
-### 1.0.25 (2/10/17)
+### 1.0.26 (2/10/17)
 
 - Fixes:
 
   + When replying to a thread, properly add it to the sent folder
+  + Downloads retry if they fail
+  + NylasID doesn't intermittently log out or throw errors
+  + Fix initial sync for Inbox Zero Gmail accounts
 
 - Development:
 
