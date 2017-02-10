@@ -1,8 +1,8 @@
 import {NylasSyncStatusStore, React, Actions} from 'nylas-exports';
 import {Notification} from 'nylas-component-kit';
 
-
-const CHECK_STATUS_INTERVAL = 5000
+const DISCONNECT_DEBOUNCE_INTERVAL = 15000;
+const CHECK_STATUS_INTERVAL = 3000
 
 export default class OfflineNotification extends React.Component {
   static displayName = 'OfflineNotification';
@@ -28,22 +28,22 @@ export default class OfflineNotification extends React.Component {
   }
 
   componentWillUnmount() {
+    this.unlisten();
     window.removeEventListener('browser-window-focus', this.onWindowFocusChanged);
     window.removeEventListener('browser-window-blur', this.onWindowFocusChanged);
   }
 
   onConnectedStatusChanged = () => {
     const nextState = this.getStateFromStores();
-    if ((nextState.connected !== this.state.connected)) {
-      clearTimeout(this._setOfflineTimeout)
-
-      if (nextState.connected) {
-        this.setState(nextState);
-      } else {
-        // Only set the status to offline if we are still offline after a while
-        // This prevents the notification from flickering
-        this._setOfflineTimeout = setTimeout(this.onConnectedStatusChanged, 3 * CHECK_STATUS_INTERVAL)
+    if (this.state.connected) {
+      if (!nextState.connected && !this._setOfflineTimeout) {
+        this._setOfflineTimeout = setTimeout(this._didBecomeDisconnected, DISCONNECT_DEBOUNCE_INTERVAL);
       }
+      return;
+    }
+
+    if (nextState.connected) {
+      this._didBecomeConnected();
     }
   }
 
@@ -55,7 +55,12 @@ export default class OfflineNotification extends React.Component {
   }
 
   onWindowFocusChanged = () => {
-    this.setState(this.getStateFromStores());
+    const nextState = this.getStateFromStores();
+    // If we notice we've reconnected we want to immediately remove the notification.
+    if (nextState.connected && !this.state.connected) {
+      this._didBecomeConnected();
+      return;
+    }
     this.ensureCountdownInterval();
   }
 
@@ -63,8 +68,35 @@ export default class OfflineNotification extends React.Component {
     return {connected: NylasSyncStatusStore.connected()};
   }
 
+  _clearOfflineTimeout = () => {
+    if (this._setOfflineTimeout) {
+      clearTimeout(this._setOfflineTimeout);
+      this._setOfflineTimeout = null;
+    }
+  }
+
+  _clearUpdateInterval = () => {
+    if (this._updateInterval) {
+      clearInterval(this._updateInterval);
+      this._updateInterval = null;
+    }
+  }
+
+  _didBecomeConnected = () => {
+    this._clearOfflineTimeout();
+    this._clearUpdateInterval();
+    this.setState({connected: true});
+  }
+
+  _didBecomeDisconnected = () => {
+    this._clearOfflineTimeout();
+    // We will call ensureCountdownInterval() in componentDidUpdate when this
+    // setState is complete.
+    this.setState({connected: false});
+  }
+
   ensureCountdownInterval = () => {
-    clearInterval(this._updateInterval);
+    this._clearUpdateInterval();
 
     // only attempt to retry if the window is in the foreground to avoid
     // the battery hit.
@@ -78,7 +110,7 @@ export default class OfflineNotification extends React.Component {
   render() {
     const {connected, retrying} = this.state;
     if (connected) {
-      return <span />
+      return <span />;
     }
     const tryLabel = retrying ? 'Retrying...' : 'Try now';
 
