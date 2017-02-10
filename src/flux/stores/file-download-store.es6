@@ -45,13 +45,18 @@ const THUMBNAIL_WIDTH = 320
 export class Download {
   static State = State
 
-  constructor({accountId, fileId, targetPath, filename, filesize, progressCallback}) {
+  constructor({accountId, fileId, targetPath, filename, filesize, progressCallback, retryWithBackoff}) {
     this.accountId = accountId;
     this.fileId = fileId;
     this.targetPath = targetPath;
     this.filename = filename;
     this.filesize = filesize;
     this.progressCallback = progressCallback;
+    this.retryWithBackoff = retryWithBackoff || false;
+    this.timeout = 15000;
+    this.maxTimeout = 2 * 60 * 1000;
+    this.attempts = 0;
+    this.maxAttempts = 10;
     if (!this.accountId) {
       throw new Error("Download.constructor: You must provide a non-empty accountId.");
     }
@@ -94,14 +99,22 @@ export class Download {
       const stream = fs.createWriteStream(this.targetPath);
       this.state = State.Downloading;
 
+      let startRequest = null;
+
       const onFailed = (err) => {
         this.request = null;
         stream.end();
-        this.state = State.Failed;
-        if (fs.existsSync(this.targetPath)) {
-          fs.unlinkSync(this.targetPath);
+        if (!this.retryWithBackoff || this.attempts >= this.maxAttempts) {
+          this.state = State.Failed;
+          if (fs.existsSync(this.targetPath)) {
+            fs.unlinkSync(this.targetPath);
+          }
+          reject(err);
+          return;
         }
-        reject(err);
+
+        this.timeout = Math.min(this.maxTimeout, this.timeout * 2);
+        startRequest();
       };
 
       const onSuccess = () => {
@@ -112,44 +125,51 @@ export class Download {
         resolve(this);
       };
 
-      const request = new NylasAPIRequest({
-        api: NylasAPI,
-        options: {
-          json: false,
-          path: `/files/${this.fileId}/download`,
-          accountId: this.accountId,
-          encoding: null, // Tell `request` not to parse the response data
-          started: (req) => {
-            this.request = req;
-            return progress(this.request, {throtte: 250})
-            .on('progress', (prog) => {
-              this.percent = prog.percent;
-              this.progressCallback();
-            })
+      startRequest = () => {
+        console.info(`starting download with ${this.timeout}ms timeout`);
+        const request = new NylasAPIRequest({
+          api: NylasAPI,
+          options: {
+            json: false,
+            path: `/files/${this.fileId}/download`,
+            accountId: this.accountId,
+            encoding: null, // Tell `request` not to parse the response data
+            timeout: this.timeout,
+            started: (req) => {
+              this.attempts += 1;
+              this.request = req;
+              return progress(this.request, {throtte: 250})
+              .on('progress', (prog) => {
+                this.percent = prog.percent;
+                this.progressCallback();
+              })
 
-            // This is a /socket/ error event, not an HTTP error event. It fires
-            // when the conn is dropped, user if offline, but not on HTTP status codes.
-            // It is sometimes called in place of "end", not before or after.
-            .on('error', onFailed)
+              // This is a /socket/ error event, not an HTTP error event. It fires
+              // when the conn is dropped, user if offline, but not on HTTP status codes.
+              // It is sometimes called in place of "end", not before or after.
+              .on('error', onFailed)
 
-            .on('end', () => {
-              if (this.state === State.Failed) { return; }
+              .on('end', () => {
+                if (this.state === State.Failed) { return; }
 
-              const {response} = this.request
-              const statusCode = response ? response.statusCode : null;
-              if ([200, 202, 204].includes(statusCode)) {
-                onSuccess();
-              } else {
-                onFailed(new Error(`Server returned a ${statusCode}`));
-              }
-            })
+                const {response} = this.request
+                const statusCode = response ? response.statusCode : null;
+                if ([200, 202, 204].includes(statusCode)) {
+                  onSuccess();
+                } else {
+                  onFailed(new Error(`Server returned a ${statusCode}`));
+                }
+              })
 
-            .pipe(stream);
+              .pipe(stream);
+            },
           },
-        },
-      });
+        });
 
-      request.run()
+        request.run()
+      };
+
+      startRequest();
     });
     return this.promise
   }
@@ -233,6 +253,7 @@ class FileDownloadStore extends NylasStore {
       filename: file.displayName(),
       targetPath,
       progressCallback: () => this.trigger(),
+      retryWithBackoff: true,
     });
 
     // Do we actually need to queue and run the download? Queuing a download
