@@ -65,6 +65,14 @@ class LocalDatabaseConnector {
   }
 
   destroyAccountDatabase(accountId) {
+    if (NylasEnv.inSpecMode()) {
+      // The db is in memory, so we don't have to unlink it. Just drop the data.
+      return this.forAccount(accountId).then(db => {
+        delete this._cache[accountId];
+        return db.sequelize.drop()
+      });
+    }
+
     const dbname = `a-${accountId}`;
     const dbpath = path.join(process.env.NYLAS_HOME, `${dbname}.sqlite`);
 
@@ -78,6 +86,7 @@ class LocalDatabaseConnector {
     }
 
     delete this._cache[accountId];
+    return Promise.resolve();
   }
 
   _sequelizeForShared() {
