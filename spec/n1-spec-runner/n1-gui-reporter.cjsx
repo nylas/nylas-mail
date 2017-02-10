@@ -229,22 +229,20 @@ update = =>
   />
   ReactDOM.render(component, el)
 
-updateSoon = _.debounce(update, 125)
-
 module.exports =
   reportRunnerStarting: (runner) ->
     specs = runner.specs()
     startedAt = Date.now()
-    updateSoon()
+    update()
 
   reportRunnerResults: (runner) ->
-    updateSoon()
+    update()
 
   reportSuiteResults: (suite) ->
 
   reportSpecResults: (spec) ->
     spec.endedAt = Date.now()
-    updateSoon()
+    update()
 
   reportPlainTextSpecResult: (spec) ->
     str = ""
@@ -265,7 +263,7 @@ module.exports =
       str += "\n\n"
 
     plainTextOutput = plainTextOutput + str
-    updateSoon()
+    update()
 
   reportSpecStarting: (spec) ->
-    updateSoon()
+    update()
