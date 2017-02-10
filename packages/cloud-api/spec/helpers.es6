@@ -14,7 +14,17 @@ async function destroyTestDatabase() {
   }
 }
 
+function getMockServer() {
+  return {
+    routes: [],
+    route: function route(r) {
+      this.routes.push(r)
+    },
+  }
+}
+
 module.exports = {
   getTestDatabase,
   destroyTestDatabase,
+  getMockServer,
 }
