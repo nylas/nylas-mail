@@ -26,39 +26,57 @@ module.exports = (sequelize, Sequelize) => {
     },
     instanceMethods: {
       async fetch({account, db, logger}) {
-        const settings = Object.assign({}, account.connectionSettings, account.decryptedCredentials())
-        const message = await this.getMessage()
-        const connection = await IMAPConnection.connect({db, settings, logger})
-        try {
-          const folder = await message.getFolder()
-          const imapBox = await connection.openBox(folder.name)
-          const stream = await imapBox.fetchMessageStream(message.folderImapUID, {
-            fetchOptions: {
-              bodies: this.partId ? [this.partId] : [],
-              struct: true,
-            },
-            onFetchComplete() {
-              connection.end()
-            },
-          })
-          if (!stream) {
-            throw new Error(`Unable to fetch binary data for File ${this.id}`)
-          }
-          if (/quoted-printable/i.test(this.encoding)) {
-            return stream.pipe(new QuotedPrintableStreamDecoder({charset: this.charset}))
-          } else if (/base64/i.test(this.encoding)) {
-            return stream.pipe(base64.decode());
-          }
+        let numAttempts = 0;
+        const maxAttempts = 5;
+        let currentTimeout = 30 * 1000;
+        const maxTimeout = 2 * 60 * 1000;
+        while (numAttempts <= maxAttempts) {
+          const settings = Object.assign({},
+            account.connectionSettings,
+            account.decryptedCredentials(),
+            {socketTimeout: currentTimeout})
+          const message = await this.getMessage()
+          let connection = null;
+          try {
+            connection = await IMAPConnection.connect({db, settings, logger})
+            const folder = await message.getFolder()
+            const imapBox = await connection.openBox(folder.name)
+            const stream = await imapBox.fetchMessageStream(message.folderImapUID, {
+              fetchOptions: {
+                bodies: this.partId ? [this.partId] : [],
+                struct: true,
+              },
+              onFetchComplete() {
+                connection.end()
+              },
+            })
+            if (!stream) {
+              throw new Error(`Unable to fetch binary data for File ${this.id}`)
+            }
+            if (/quoted-printable/i.test(this.encoding)) {
+              return stream.pipe(new QuotedPrintableStreamDecoder({charset: this.charset}))
+            } else if (/base64/i.test(this.encoding)) {
+              return stream.pipe(base64.decode());
+            }
 
-          // If there is no encoding, or the encoding is something like
-          // '7bit', '8bit', or 'binary', just return the raw stream. This
-          // stream will be written directly to disk. It's then up to the
-          // user's computer to decide how to interpret the bytes we've
-          // dumped to disk.
-          return stream
-        } catch (err) {
-          connection.end();
-          throw err
+            // If there is no encoding, or the encoding is something like
+            // '7bit', '8bit', or 'binary', just return the raw stream. This
+            // stream will be written directly to disk. It's then up to the
+            // user's computer to decide how to interpret the bytes we've
+            // dumped to disk.
+            return stream
+          } catch (err) {
+            if (connection) {
+              connection.end();
+            }
+            if (numAttempts <= maxAttempts) {
+              console.error('Error trying to fetch file:', err);
+              numAttempts += 1;
+              currentTimeout = Math.min(maxTimeout, currentTimeout * 2);
+              continue;
+            }
+            throw err
+          }
         }
       },
 
