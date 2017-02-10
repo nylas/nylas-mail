@@ -72,10 +72,10 @@ before_script:
   fi
 
 script:
-- if [ "${TRAVIS_OS_NAME}" == "linux" ]; then
-  script/bootstrap && script/grunt ci --stack --no-color
-  else
-  script/bootstrap && npm test && script/grunt ci --stack --no-color
+- if [ "${TRAVIS_OS_NAME}" == "linux" ]; then;
+  script/bootstrap && script/grunt ci --stack --no-color;
+  else;
+  script/bootstrap && npm test && script/grunt ci --stack --no-color;
   fi
 
 cache:
