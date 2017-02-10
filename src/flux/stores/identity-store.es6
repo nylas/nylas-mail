@@ -6,6 +6,7 @@ import url from 'url'
 
 import Utils from '../models/utils';
 import Actions from '../actions';
+import {APIError} from '../errors'
 import KeyManager from '../../key-manager'
 import DatabaseStore from './database-store'
 
@@ -17,7 +18,6 @@ class IdentityStore extends NylasStore {
 
   constructor() {
     super();
-    this._savePromises = []
     this._identity = null
   }
 
@@ -63,7 +63,7 @@ class IdentityStore extends NylasStore {
      * We also update from the server's version every
      * `SendFeatureUsageEventTask`
      */
-    setInterval(this._fetchIdentity, 1000 * 60 * 10); // 10 minutes
+    setInterval(this._fetchIdentity.bind(this), 1000 * 60 * 10); // 10 minutes
     // Don't await for this!
     this._fetchIdentity();
   }
@@ -80,18 +80,10 @@ class IdentityStore extends NylasStore {
     if (!identity) {
       KeyManager.deletePassword(KEYCHAIN_NAME)
     }
-    const savePromise = new Promise((resolve, reject) => {
-      this._savePromises.push({
-        resolve: resolve,
-        rejectTimeout: setTimeout(() => {
-          reject(new Error("Identity never persisted to database"))
-        }, 10000),
-      });
-    })
     await DatabaseStore.inTransaction((t) => {
       return t.persistJSONBlob("NylasID", identity)
     });
-    return savePromise
+    this._onIdentityChanged(identity)
   }
 
   /**
@@ -113,13 +105,6 @@ class IdentityStore extends NylasStore {
     const newId = ((this._identity || {}).id);
     if (oldId !== newId) {
       ipcRenderer.send('command', 'onIdentityChanged');
-    }
-    if (this._savePromises.length > 0) {
-      for (const {resolve, rejectTimeout} of this._savePromises) {
-        resolve();
-        clearTimeout(rejectTimeout)
-      }
-      this._savePromises = []
     }
     this.trigger();
   }
@@ -192,11 +177,16 @@ class IdentityStore extends NylasStore {
     });
   }
 
-  _fetchIdentity = async () => {
+  async _fetchIdentity() {
     if (!this._identity || !this._identity.token) {
       return Promise.resolve();
     }
-    const json = await this.fetchPath('/n1/user')
+    const json = await this.fetchPath('/n1/user');
+    if (!json || !json.id || json.id !== this._identity.id) {
+      console.error(json)
+      NylasEnv.reportError(new Error("Remote Identity returned invalid json"), json)
+      return Promise.resolve(this._identity)
+    }
     const nextIdentity = Object.assign({}, this._identity, json);
     return this.saveIdentity(nextIdentity);
   }
@@ -238,14 +228,12 @@ class IdentityStore extends NylasStore {
           error: error,
           requestId: requestId,
         });
-        if (response.statusCode === 200) {
-          try {
-            return resolve(body);
-          } catch (err) {
-            return reject(err)
-          }
+        if (error || response.statusCode > 299) {
+          const apiError = new APIError({
+            error, response, body, requestOptions: options});
+          return reject(apiError)
         }
-        return reject(error)
+        return resolve(body);
       });
     })
   }
