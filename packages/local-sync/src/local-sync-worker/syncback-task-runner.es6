@@ -4,9 +4,11 @@ const SyncbackTaskFactory = require('./syncback-task-factory');
 
 const MAX_TASK_RETRIES = 2
 
-// TODO NOTE! These are the tasks we exclude from the sync loop. This should be
-// refactored later.
-export const SendTaskTypes = ['SendMessage', 'SendMessagePerRecipient']
+const SendTaskTypes = [
+  'SendMessage',
+  'SendMessagePerRecipient',
+  'EnsureMessageInSentFolder',
+]
 
 class SyncbackTaskRunner {
 
@@ -38,33 +40,30 @@ class SyncbackTaskRunner {
    * change /first/, otherwise the message would be moved and it would receive a
    * new IMAP uid, and then attempting to change labels with an old uid would
    * fail.
-   *
-   * TODO NOTE: This function excludes Send tasks because these are run outside fo the
-   * sync loop for performance reasons.
    */
   async getNewSyncbackTasks() {
     const {SyncbackRequest, Message} = this._db;
 
-    const ensureSentFolderTasks = await SyncbackRequest.findAll({
+    const sendTasks = await SyncbackRequest.findAll({
       limit: 100,
-      where: {type: ['EnsureMessageInSentFolder'], status: 'NEW'},
+      where: {type: SendTaskTypes, status: 'NEW'},
       order: [['createdAt', 'ASC']],
     })
     .map((req) => SyncbackTaskFactory.create(this._account, req))
-    const tasks = await SyncbackRequest.findAll({
+    const otherTasks = await SyncbackRequest.findAll({
       limit: 100,
-      where: {type: {$notIn: [...SendTaskTypes, 'EnsureMessageInSentFolder']}, status: 'NEW'},
+      where: {type: {$notIn: SendTaskTypes}, status: 'NEW'},
       order: [['createdAt', 'ASC']],
     })
     .map((req) => SyncbackTaskFactory.create(this._account, req))
 
-    if (ensureSentFolderTasks.length === 0 && tasks.length === 0) { return [] }
+    if (sendTasks.length === 0 && otherTasks.length === 0) { return [] }
 
     const tasksToProcess = [
-      ...ensureSentFolderTasks,
-      ...tasks.filter(t => !t.affectsImapMessageUIDs()),
+      ...sendTasks,
+      ...otherTasks.filter(t => !t.affectsImapMessageUIDs()),
     ]
-    const tasksAffectingUIDs = tasks.filter(t => t.affectsImapMessageUIDs())
+    const tasksAffectingUIDs = otherTasks.filter(t => t.affectsImapMessageUIDs())
 
     const changeFolderTasks = tasksAffectingUIDs.filter(t =>
       t.description() === 'RenameFolder' || t.description() === 'DeleteFolder'
@@ -116,9 +115,7 @@ class SyncbackTaskRunner {
     // at the next sync iteration. We use this function for that.
     const {SyncbackRequest} = this._db;
     const inProgressTasks = await SyncbackRequest.findAll({
-      // TODO this is a hack
-      // NOTE: We exclude SendTaskTypes because they are run outside of the sync loop
-      where: {type: {$notIn: SendTaskTypes}, status: 'INPROGRESS'},
+      where: {status: 'INPROGRESS'},
     });
 
     for (const inProgress of inProgressTasks) {

@@ -1,7 +1,5 @@
 const Joi = require('joi');
 const Utils = require('../../shared/utils');
-const SyncbackTaskFactory = require('../../local-sync-worker/syncback-task-factory');
-const SyncbackTaskRunner = require('../../local-sync-worker/syncback-task-runner').default;
 const {createAndReplyWithSyncbackRequest} = require('../route-helpers');
 
 
@@ -26,27 +24,11 @@ module.exports = (server) => {
     config: {
     },
     async handler(request, reply) {
-      const account = request.auth.credentials;
-      const syncbackRequest = await createAndReplyWithSyncbackRequest(request, reply, {
+      createAndReplyWithSyncbackRequest(request, reply, {
         type: "SendMessage",
         props: {
           messagePayload: request.payload,
         },
-        // TODO this is a hack to run send outside the sync loop. This should be
-        // refactored when we implement the sync scheduler
-        wakeSync: false,
-      })
-
-      const sendTask = SyncbackTaskFactory.create(account, syncbackRequest)
-      const db = await request.getAccountDatabase()
-      const runner = new SyncbackTaskRunner({
-        db,
-        account,
-        logger: request.logger.child(),
-      })
-      await runner.runSyncbackTask({
-        task: sendTask,
-        runTask: (t) => t.run(db),
       })
     },
   });
@@ -58,29 +40,13 @@ module.exports = (server) => {
     config: {
     },
     async handler(request, reply) {
-      const account = request.auth.credentials;
-      const syncbackRequest = await createAndReplyWithSyncbackRequest(request, reply, {
+      createAndReplyWithSyncbackRequest(request, reply, {
         type: "SendMessagePerRecipient",
         props: {
           messagePayload: request.payload.message,
           usesOpenTracking: request.payload.uses_open_tracking,
           usesLinkTracking: request.payload.uses_link_tracking,
         },
-        // TODO this is a hack to run send outside the sync loop. This should be
-        // refactored when we implement the sync scheduler
-        wakeSync: false,
-      })
-
-      const sendTask = SyncbackTaskFactory.create(account, syncbackRequest)
-      const db = await request.getAccountDatabase()
-      const runner = new SyncbackTaskRunner({
-        db,
-        account,
-        logger: request.logger.child(),
-      })
-      await runner.runSyncbackTask({
-        task: sendTask,
-        runTask: (t) => t.run(db),
       })
     },
   });
