@@ -27,10 +27,12 @@ test_thread_starred = (new Thread).fromJSON({
 })
 
 describe "ThreadToolbarButtons", ->
+  beforeEach ->
+    spyOn Actions, "queueTask"
+    spyOn Actions, "queueTasks"
 
   describe "Starring", ->
     it "stars a thread if the star button is clicked and thread is unstarred", ->
-      spyOn(Actions, 'queueTask')
       starButton = ReactTestUtils.renderIntoDocument(<ToggleStarredButton items={[test_thread]}/>)
 
       ReactTestUtils.Simulate.click ReactDOM.findDOMNode(starButton)
@@ -39,7 +41,6 @@ describe "ThreadToolbarButtons", ->
       expect(Actions.queueTask.mostRecentCall.args[0].starred).toEqual(true)
 
     it "unstars a thread if the star button is clicked and thread is starred", ->
-      spyOn(Actions, 'queueTask')
       starButton = ReactTestUtils.renderIntoDocument(<ToggleStarredButton items={[test_thread_starred]}/>)
 
       ReactTestUtils.Simulate.click ReactDOM.findDOMNode(starButton)
@@ -58,7 +59,6 @@ describe "ThreadToolbarButtons", ->
       )
 
     it "queues a task to change unread status to true", ->
-      spyOn Actions, "queueTask"
       ReactTestUtils.Simulate.click ReactDOM.findDOMNode(markUnreadBtn).childNodes[0]
 
       changeUnreadTask = Actions.queueTask.calls[0].args[0]
@@ -88,7 +88,6 @@ describe "ThreadToolbarButtons", ->
         )
 
       it "queues a task to remove spam", ->
-        spyOn(Actions, 'queueTasks')
         spyOn(CategoryStore, 'getSpamCategory').andReturn(thread.categories[0])
         ReactTestUtils.Simulate.click(ReactDOM.findDOMNode(markSpamButton))
         {labelsToAdd, labelsToRemove} = Actions.queueTasks.mostRecentCall.args[0][0]
@@ -97,7 +96,6 @@ describe "ThreadToolbarButtons", ->
 
     describe "when the thread can be moved to spam", ->
       beforeEach ->
-        spyOn(Actions, 'queueTasks')
         spyOn(MailboxPerspective.prototype, 'canMoveThreadsTo').andReturn(true)
         thread = new Thread(id: "thread-id-lol-123", accountId: TEST_ACCOUNT_ID, categories: [])
         markSpamButton = ReactTestUtils.renderIntoDocument(
