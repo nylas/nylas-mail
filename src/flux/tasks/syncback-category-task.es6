@@ -99,7 +99,7 @@ export default class SyncbackCategoryTask extends Task {
       } catch (e) {
         // If notifying the user fails, just move on and mark the task as failed.
       }
-      return Task.Status.Failed;
+      return [Task.Status.Failed, err];
     })
   }
 }
