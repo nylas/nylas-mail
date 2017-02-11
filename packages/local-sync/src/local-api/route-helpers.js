@@ -3,8 +3,8 @@ const Serialization = require('./serialization');
 const SyncProcessManager = require('../local-sync-worker/sync-process-manager')
 
 
-const wakeSyncWorker = _.debounce((accountId) => {
-  SyncProcessManager.wakeWorkerForAccount(accountId, {interrupt: true})
+const wakeSyncWorker = _.debounce((accountId, reason) => {
+  SyncProcessManager.wakeWorkerForAccount(accountId, {interrupt: true, reason})
 }, 500)
 
 module.exports = {
@@ -17,7 +17,7 @@ module.exports = {
     const syncbackRequest = await db.SyncbackRequest.create(syncRequestArgs)
 
     if (wakeSync) {
-      wakeSyncWorker(account.id)
+      wakeSyncWorker(account.id, `Need to run task ${syncbackRequest.type}`)
     }
     reply(Serialization.jsonStringify(syncbackRequest))
     return syncbackRequest
