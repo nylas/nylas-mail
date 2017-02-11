@@ -17,26 +17,6 @@ import EnsureMessageInSentFolderTask from './ensure-message-in-sent-folder-task'
 const OPEN_TRACKING_ID = NylasEnv.packages.pluginIdFor('open-tracking')
 const LINK_TRACKING_ID = NylasEnv.packages.pluginIdFor('link-tracking')
 
-/**
- * TOOD: NOTE: The SendDraft process is extremely sensitive to the worker
- * window crashing part-way through sending. This will be true until we
- * unifiy N1 and K2's sync worker systems.
- *
- * Unfortunately the sendMessage "API" request is wrapped in
- * SyncbackTaskAPIRequest. The API task doesn't resolve until the
- * corresponding SyncbackTask has been processed in K2 and either
- * succeeded or failed. We only know if this happens based on listening to
- * the DeltaStream for a SyncbackTask delta.
- *
- * If the worker window (where the TaskQueue and K2 live) reboots before
- * K2 gets around to actually running the task, then our `SendDraftTask`
- * will be half-way through performRemote when it reboots. The TaskQueue
- * will attempt to restore from disk, but the fact we were half-way
- * through the performRemote, and the syncbackRequest handler we were
- * listening to is currently not saved to disk. This means that
- * SendDraftTask will never know when or if the corresponding K2
- * SyncbackTask ever finished.
- */
 export default class SendDraftTask extends BaseDraftTask {
 
   constructor(draftClientId, {playSound = true, emitError = true, allowMultiSend = true} = {}) {
@@ -117,7 +97,7 @@ export default class SendDraftTask extends BaseDraftTask {
   _sendWithSingleBody = async () => {
     let responseJSON = {}
     if (this._syncbackRequestId) {
-      responseJSON = SyncbackTaskAPIRequest.waitForQueuedRequest(this._syncbackRequestId)
+      responseJSON = await SyncbackTaskAPIRequest.waitForQueuedRequest(this._syncbackRequestId)
     } else {
       const task = new SyncbackTaskAPIRequest({
         api: NylasAPI,
