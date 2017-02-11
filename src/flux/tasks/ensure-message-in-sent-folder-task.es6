@@ -56,7 +56,6 @@ export default class EnsureMessageInSentFolderTask extends Task {
     })
     .catch((err) => {
       const errorMessage = `Your message successfully sent; however, we had trouble saving your message, "${this.message.subject}", to your Sent folder.\n\n${err.message}`;
-      Actions.ensureMessageInSentFailed()
       if (err instanceof APIError) {
         if (NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
           NylasEnv.showErrorDialog(errorMessage, {showInMainWindow: true, detail: err.stack});
