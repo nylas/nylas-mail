@@ -1,7 +1,7 @@
 const Joi = require('joi');
 const Utils = require('../../shared/utils');
 const SyncbackTaskFactory = require('../../local-sync-worker/syncback-task-factory');
-const {runSyncbackTask} = require('../../local-sync-worker/syncback-task-helpers');
+const SyncbackTaskRunner = require('../../local-sync-worker/syncback-task-runner').default;
 const {createAndReplyWithSyncbackRequest} = require('../route-helpers');
 
 
@@ -39,10 +39,14 @@ module.exports = (server) => {
 
       const sendTask = SyncbackTaskFactory.create(account, syncbackRequest)
       const db = await request.getAccountDatabase()
-      await runSyncbackTask({
+      const runner = new SyncbackTaskRunner({
+        db,
+        account,
+        logger: request.logger.child(),
+      })
+      await runner.runSyncbackTask({
         task: sendTask,
         runTask: (t) => t.run(db),
-        logger: request.logger.child(),
       })
     },
   });
@@ -69,10 +73,14 @@ module.exports = (server) => {
 
       const sendTask = SyncbackTaskFactory.create(account, syncbackRequest)
       const db = await request.getAccountDatabase()
-      await runSyncbackTask({
+      const runner = new SyncbackTaskRunner({
+        db,
+        account,
+        logger: request.logger.child(),
+      })
+      await runner.runSyncbackTask({
         task: sendTask,
         runTask: (t) => t.run(db),
-        logger: request.logger.child(),
       })
     },
   });

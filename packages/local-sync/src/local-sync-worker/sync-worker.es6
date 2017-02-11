@@ -14,7 +14,7 @@ const {
 const Interruptible = require('../shared/interruptible')
 const SyncMetricsReporter = require('./sync-metrics-reporter');
 const SyncTaskFactory = require('./sync-task-factory');
-const {getNewSyncbackTasks, markInProgressTasksAsFailed, runSyncbackTask} = require('./syncback-task-helpers');
+const SyncbackTaskRunner = require('./syncback-task-runner').default;
 const LocalSyncDeltaEmitter = require('./local-sync-delta-emitter').default
 
 
@@ -28,13 +28,18 @@ class SyncWorker {
     this._conn = null;
     this._account = account;
     this._currentTask = null
+    this._mailListenerConn = null
     this._interruptible = new Interruptible()
     this._localDeltas = new LocalSyncDeltaEmitter(db, account.id)
-    this._mailListenerConn = null
+    this._logger = global.Logger.forAccount(account)
+    this._syncbackTaskRunner = new SyncbackTaskRunner({
+      db,
+      account,
+      logger: this._logger,
+    })
 
     this._startTime = Date.now()
     this._lastSyncTime = null
-    this._logger = global.Logger.forAccount(account)
     this._interrupted = false
     this._syncInProgress = false
     this._stopped = false
@@ -416,7 +421,7 @@ class SyncWorker {
     yield this._ensureMailListenerConnection();
 
     // Step 1: Mark all "INPROGRESS" tasks as failed.
-    await markInProgressTasksAsFailed({db: this._db})
+    await this._syncbackTaskRunner.markInProgressTasksAsFailed()
     yield // Yield to allow interruption
 
     // Step 2: Run any available syncback tasks
@@ -426,12 +431,11 @@ class SyncWorker {
     // (e.g. marking as unread or starred). We need to listen to that event for
     // when updates are performed from another mail client, but ignore
     // them when they are caused from within N1 to prevent unecessary interrupts
-    const tasks = yield getNewSyncbackTasks({db: this._db, account: this._account})
+    const tasks = yield this._syncbackTaskRunner.getNewSyncbackTasks()
     this._shouldIgnoreInboxFlagUpdates = true
     for (const task of tasks) {
-      const {shouldRetry} = await runSyncbackTask({
+      const {shouldRetry} = await this._syncbackTaskRunner.runSyncbackTask({
         task,
-        logger: this._logger,
         runTask: (t) => this._conn.runOperation(t),
       })
       if (shouldRetry) {
