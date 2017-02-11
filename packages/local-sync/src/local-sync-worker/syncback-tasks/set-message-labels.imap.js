@@ -1,7 +1,7 @@
-const SyncbackTask = require('./syncback-task')
+const {SyncbackIMAPTask} = require('./syncback-task')
 const IMAPHelpers = require('../imap-helpers')
 
-class SetMessageLabelsIMAP extends SyncbackTask {
+class SetMessageLabelsIMAP extends SyncbackIMAPTask {
   description() {
     return `SetMessageLabels`;
   }

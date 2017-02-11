@@ -1,7 +1,7 @@
-const SyncbackTask = require('./syncback-task')
+const {SyncbackIMAPTask} = require('./syncback-task')
 const IMAPHelpers = require('../imap-helpers')
 
-class MarkMessageAsUnreadIMAP extends SyncbackTask {
+class MarkMessageAsUnreadIMAP extends SyncbackIMAPTask {
   description() {
     return `MarkMessageAsUnread`;
   }

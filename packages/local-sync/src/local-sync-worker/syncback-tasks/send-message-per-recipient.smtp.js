@@ -1,45 +1,8 @@
-const {SendmailClient, Errors: {APIError}} = require('isomorphic-core')
+const {Errors: {APIError}} = require('isomorphic-core')
 const Utils = require('../../shared/utils')
-const SyncbackTask = require('./syncback-task')
+const {SyncbackSMTPTask} = require('./syncback-task')
 const MessageFactory = require('../../shared/message-factory')
 
-
-async function sendPerRecipient({db, account, baseMessage, usesOpenTracking, usesLinkTracking, logger = console} = {}) {
-  const {Message} = db
-  const recipients = baseMessage.getRecipients()
-  const failedRecipients = []
-
-  for (const recipient of recipients) {
-    const customBody = MessageFactory.buildTrackingBodyForRecipient({
-      recipient,
-      baseMessage,
-      usesOpenTracking,
-      usesLinkTracking,
-    })
-
-    const individualizedMessage = Utils.copyModel(Message, baseMessage, {
-      body: customBody,
-    })
-    // TODO we set these temporary properties which aren't stored in the
-    // database model because SendmailClient requires them to send the message
-    // with the correct headers.
-    // This should be cleaned up
-    individualizedMessage.references = baseMessage.references;
-    individualizedMessage.inReplyTo = baseMessage.inReplyTo;
-
-    try {
-      const sender = new SendmailClient(account, logger);
-      await sender.sendCustom(individualizedMessage, {to: [recipient]})
-    } catch (error) {
-      logger.error(error, {recipient: recipient.email}, 'SendMessagePerRecipient: Failed to send to recipient');
-      failedRecipients.push(recipient.email)
-    }
-  }
-  if (failedRecipients.length === recipients.length) {
-    throw new APIError('SendMessagePerRecipient: Sending failed for all recipients', 500);
-  }
-  return {failedRecipients}
-}
 
 /**
  * This enables customized link and open tracking on a per-recipient basis
@@ -56,26 +19,21 @@ async function sendPerRecipient({db, account, baseMessage, usesOpenTracking, use
  * up in the sent folder and only a single message shows up in the sent
  * folder.
  */
-class SendMessagePerRecipientSMTP extends SyncbackTask {
+class SendMessagePerRecipientSMTP extends SyncbackSMTPTask {
   description() {
     return `SendMessagePerRecipient`;
   }
 
-  affectsImapMessageUIDs() {
-    return false
-  }
-
-  async run(db) {
+  async run(db, smtp) {
     const {
       messagePayload,
       usesOpenTracking,
       usesLinkTracking,
     } = this.syncbackRequestObject().props
-    const account = this._account
 
     const baseMessage = await MessageFactory.buildForSend(db, messagePayload)
 
-    const sendResult = await sendPerRecipient({db, account, baseMessage, usesOpenTracking, usesLinkTracking})
+    const sendResult = await this._sendPerRecipient({db, smtp, baseMessage, usesOpenTracking, usesLinkTracking})
 
     /**
      * Once messages have actually been delivered, we need to be very
@@ -105,6 +63,42 @@ class SendMessagePerRecipientSMTP extends SyncbackTask {
       this._logger.error('SendMessagePerRecipient: Failed to save the baseMessage to local sync database after it was successfully delivered', err);
       return {message: {}, failedRecipients: []}
     }
+  }
+
+  async _sendPerRecipient({db, smtp, baseMessage, usesOpenTracking, usesLinkTracking} = {}) {
+    const {Message} = db
+    const recipients = baseMessage.getRecipients()
+    const failedRecipients = []
+
+    for (const recipient of recipients) {
+      const customBody = MessageFactory.buildTrackingBodyForRecipient({
+        recipient,
+        baseMessage,
+        usesOpenTracking,
+        usesLinkTracking,
+      })
+
+      const individualizedMessage = Utils.copyModel(Message, baseMessage, {
+        body: customBody,
+      })
+      // TODO we set these temporary properties which aren't stored in the
+      // database model because SendmailClient requires them to send the message
+      // with the correct headers.
+      // This should be cleaned up
+      individualizedMessage.references = baseMessage.references;
+      individualizedMessage.inReplyTo = baseMessage.inReplyTo;
+
+      try {
+        await smtp.sendCustom(individualizedMessage, {to: [recipient]})
+      } catch (error) {
+        this._logger.error(error, {recipient: recipient.email}, 'SendMessagePerRecipient: Failed to send to recipient');
+        failedRecipients.push(recipient.email)
+      }
+    }
+    if (failedRecipients.length === recipients.length) {
+      throw new APIError('SendMessagePerRecipient: Sending failed for all recipients', 500);
+    }
+    return {failedRecipients}
   }
 }
 

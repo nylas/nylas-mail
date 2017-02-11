@@ -1,6 +1,6 @@
-const SyncbackTask = require('./syncback-task')
+const {SyncbackIMAPTask} = require('./syncback-task')
 
-class DeleteFolderIMAP extends SyncbackTask {
+class DeleteFolderIMAP extends SyncbackIMAPTask {
   description() {
     return `DeleteFolder`;
   }

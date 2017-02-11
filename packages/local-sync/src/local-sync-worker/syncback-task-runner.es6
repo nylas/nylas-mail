@@ -1,6 +1,7 @@
-const {Actions} = require('nylas-exports')
-const {IMAPErrors} = require('isomorphic-core')
-const SyncbackTaskFactory = require('./syncback-task-factory');
+import {Actions} from 'nylas-exports'
+import {IMAPErrors} from 'isomorphic-core'
+import SyncbackTask from './syncback-tasks/syncback-task'
+import SyncbackTaskFactory from './syncback-task-factory';
 
 const MAX_TASK_RETRIES = 2
 
@@ -12,7 +13,7 @@ const SendTaskTypes = [
 
 class SyncbackTaskRunner {
 
-  constructor({db, account, logger} = {}) {
+  constructor({db, account, logger, imap, smtp} = {}) {
     if (!db) {
       throw new Error('SyncbackTaskRunner: need to pass db')
     }
@@ -22,9 +23,17 @@ class SyncbackTaskRunner {
     if (!logger) {
       throw new Error('SyncbackTaskRunner: need to pass logger')
     }
+    if (!imap) {
+      throw new Error('SyncbackTaskRunner: need to pass imap')
+    }
+    if (!smtp) {
+      throw new Error('SyncbackTaskRunner: need to pass smtp')
+    }
     this._db = db
     this._account = account
     this._logger = logger
+    this._imap = imap
+    this._smtp = smtp
   }
 
   /**
@@ -125,8 +134,10 @@ class SyncbackTaskRunner {
     }
   }
 
-  // TODO JUAN! remove this uglyness that is runTask
-  async runSyncbackTask({task, runTask} = {}) {
+  async runSyncbackTask(task) {
+    if (!task || !(task instanceof SyncbackTask)) {
+      throw new Error('runSyncbackTask: must pass a SyncbackTask')
+    }
     const before = new Date();
     const syncbackRequest = task.syncbackRequestObject();
     let shouldRetry = false
@@ -138,11 +149,18 @@ class SyncbackTaskRunner {
       syncbackRequest.status = "INPROGRESS";
       await syncbackRequest.save();
 
-      // TODO `runTask` is a hack to allow tasks to be executed outside the
-      // context of an imap connection, specifically to allow running send tasks
-      // outside of the sync loop. This should be solved in a better way or
-      // probably refactored when we implement the sync scheduler
-      const responseJSON = await runTask(task)
+      const resource = task.resource()
+      let responseJSON;
+      switch (resource) {
+        case 'imap':
+          responseJSON = await this._imap.runOperation(task)
+          break;
+        case 'smtp':
+          responseJSON = await task.run(this._db, this._smtp)
+          break;
+        default:
+          throw new Error(`runSyncbackTask: unknown resource. Must be one of ['imap', 'smtp']`)
+      }
       syncbackRequest.status = "SUCCEEDED";
       syncbackRequest.responseJSON = responseJSON || {};
 

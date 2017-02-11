@@ -1,5 +1,5 @@
 const {SendmailClient, Provider, Errors: {APIError}} = require('isomorphic-core')
-const SyncbackTask = require('./syncback-task')
+const {SyncbackIMAPTask} = require('./syncback-task')
 const SyncTaskFactory = require('../sync-task-factory');
 const {getReplyHeaders} = require('../../shared/message-factory')
 
@@ -126,7 +126,7 @@ async function setThreadingReferences(db, baseMessage) {
  * automatically created (keyed by the same Meassage-Id header we set),
  * then stuff a copy of the original message in the sent folder.
  */
-class EnsureMessageInSentFolderIMAP extends SyncbackTask {
+class EnsureMessageInSentFolderIMAP extends SyncbackIMAPTask {
   description() {
     return `EnsureMessageInSentFolder`;
   }

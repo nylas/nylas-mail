@@ -1,7 +1,7 @@
 const {Errors: {APIError}} = require('isomorphic-core')
-const SyncbackTask = require('./syncback-task')
+const {SyncbackIMAPTask} = require('./syncback-task')
 
-class RenameFolderIMAP extends SyncbackTask {
+class RenameFolderIMAP extends SyncbackIMAPTask {
   description() {
     return `RenameFolder`;
   }
