@@ -73,6 +73,8 @@ describe "ComposerView", ->
     ComposerEditor.containerRequired = false
     ComponentRegistry.register(ComposerEditor, role: "Composer:Editor")
 
+    spyOn(Actions, 'queueTask')
+    spyOn(Actions, 'queueTasks')
     spyOn(DraftStore, "isSendingDraft").andCallThrough()
     spyOn(DraftEditingSession.prototype, 'changeSetCommit').andCallFake (draft) =>
       @draft = draft
