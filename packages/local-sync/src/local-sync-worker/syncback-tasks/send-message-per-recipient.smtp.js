@@ -25,16 +25,18 @@ class SendMessagePerRecipientSMTP extends SyncbackSMTPTask {
   }
 
   async run(db, smtp) {
+    const syncbackRequest = this.syncbackRequestObject()
     const {
       messagePayload,
       usesOpenTracking,
       usesLinkTracking,
-    } = this.syncbackRequestObject().props
-
+    } = syncbackRequest;
     const baseMessage = await MessageFactory.buildForSend(db, messagePayload)
 
+    await syncbackRequest.update({
+      status: 'INPROGRESS-NOTRETRYABLE',
+    })
     const sendResult = await this._sendPerRecipient({db, smtp, baseMessage, usesOpenTracking, usesLinkTracking})
-
     /**
      * Once messages have actually been delivered, we need to be very
      * careful not to throw an error from this task. An Error in the send
@@ -45,7 +47,6 @@ class SendMessagePerRecipientSMTP extends SyncbackSMTPTask {
       // We strip the tracking links because this is the message that we want to
       // show the user as sent, so it shouldn't contain the tracking links
       baseMessage.body = MessageFactory.stripTrackingLinksFromBody(baseMessage.body)
-
       baseMessage.setIsSent(true)
 
       // We don't save the message until after successfully sending it.

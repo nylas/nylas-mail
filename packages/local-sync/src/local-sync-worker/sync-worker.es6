@@ -425,8 +425,9 @@ class SyncWorker {
       account: this._account,
     })
 
-    // Step 1: Mark all "INPROGRESS" tasks as failed.
-    await syncbackTaskRunner.markInProgressTasksAsFailed()
+    // Step 1: Mark all "INPROGRESS-NOTRETRYABLE" tasks as failed, and all
+    // "INPROGRESS-RETRYABLE tasks as new
+    await syncbackTaskRunner.updateLingeringTasksInProgress()
     yield // Yield to allow interruption
 
     // Step 2: Run any available syncback tasks
