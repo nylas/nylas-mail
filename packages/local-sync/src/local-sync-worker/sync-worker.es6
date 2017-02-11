@@ -89,19 +89,36 @@ class SyncWorker {
 
   async _cleanupOrphanMessages() {
     const {Message, Thread, Folder, Label} = this._db;
-    const orphans = await Message.findAll({
+
+    const messagesWithoutFolder = await Message.findAll({
       where: {
         folderId: null,
         isSent: {$not: true},
       },
     })
-    const noFolderImapUID = await Message.findAll({
+
+    const messageIdsWithSendInProgress = await this._db.SyncbackRequest.findAll({
+      limit: 100,
+      where: {
+        type: 'EnsureMessageInSentFolder',
+        status: {$notIn: ['SUCCEEDED', 'FAILED']},
+      },
+    })
+    .map(syncbackRequest => syncbackRequest.props.messageId)
+    const messagesWithoutImapUID = await Message.findAll({
       where: {
         folderImapUID: null,
       },
-    }).filter(m => Date.now() - m.date > 10 * 60 * 1000) // 10 min
+    })
+    // We don't want to remove messages that are currently being added to the
+    // sent folder, which we know wont have a folderImapUID while that is
+    // happening.
+    .filter(m => !messageIdsWithSendInProgress.includes(m.id))
+    .filter(m => Date.now() - m.date > 10 * 60 * 1000) // 10 min
+
+    const messagesToRemove = [...messagesWithoutFolder, ...messagesWithoutImapUID]
     const affectedThreadIds = new Set();
-    await Promise.map(orphans.concat(noFolderImapUID), (msg) => {
+    await Promise.map(messagesToRemove, (msg) => {
       affectedThreadIds.add(msg.threadId);
       return msg.destroy();
     });

@@ -3,8 +3,6 @@ import {IMAPErrors} from 'isomorphic-core'
 import SyncbackTask from './syncback-tasks/syncback-task'
 import SyncbackTaskFactory from './syncback-task-factory';
 
-const MAX_TASK_RETRIES = 2
-
 const SendTaskTypes = [
   'SendMessage',
   'SendMessagePerRecipient',
@@ -178,15 +176,14 @@ class SyncbackTaskRunner {
       this._logger.log(`🔃 📤 ${task.description()} Succeeded (${after.getTime() - before.getTime()}ms)`)
     } catch (error) {
       const after = new Date();
-      const {numRetries = 0} = syncbackRequest.props
 
-      if (error instanceof IMAPErrors.RetryableError && numRetries < MAX_TASK_RETRIES) {
-        Actions.recordUserEvent('Retrying syncback task', {numRetries})
-        shouldRetry = true
-        // We save this in `props` to avoid a db migration
-        syncbackRequest.props = Object.assign({}, syncbackRequest.props, {
-          numRetries: numRetries + 1,
+      if (error instanceof IMAPErrors.RetryableError) {
+        Actions.recordUserEvent('Retrying syncback task', {
+          accountId: this._account.id,
+          provider: this._account.provider,
+          errorMessage: error.message,
         })
+        shouldRetry = true
         syncbackRequest.status = "NEW";
         this._logger.warn(`🔃 📤 ${task.description()} Failed with retryable error, retrying in next loop (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON(), error})
       } else {
