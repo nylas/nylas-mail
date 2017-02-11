@@ -8,6 +8,7 @@ import DatabaseStore from './stores/database-store'
 import Actions from './actions'
 import Account from './models/account'
 import Message from './models/message'
+import Thread from './models/thread'
 
 // Lazy-loaded
 let AccountStore = null
@@ -39,9 +40,9 @@ export const apiObjectToClassMap = {
  Returns a Promise that resolves when any parsed out models (if any)
  have been created and persisted to the database.
 */
-export function handleModelResponse(jsons) {
+export async function handleModelResponse(jsons) {
   if (!jsons) {
-    return Promise.reject(new Error("handleModelResponse with no JSON provided"))
+    throw new Error("handleModelResponse with no JSON provided")
   }
 
   let response = jsons
@@ -49,14 +50,14 @@ export function handleModelResponse(jsons) {
     response = [response]
   }
   if (response.length === 0) {
-    return Promise.resolve([])
+    return []
   }
 
   const type = response[0].object
   const Klass = apiObjectToClassMap[type]
   if (!Klass) {
     console.warn(`NylasAPI::handleModelResponse: Received unknown API object type: ${type}`)
-    return Promise.resolve([])
+    return []
   }
 
   // Step 1: Make sure the list of objects contains no duplicates, which cause
@@ -79,55 +80,78 @@ export function handleModelResponse(jsons) {
   })
 
   if (unlockedJSONs.length === 0) {
-    return Promise.resolve([])
+    return []
   }
 
   // Step 3: Retrieve any existing models from the database for the given IDs.
-  const ids = _.pluck(unlockedJSONs, 'id')
-  return DatabaseStore.findAll(Klass)
-  .where(Klass.attributes.id.in(ids))
-  .then((models) => {
-    const existingModels = {}
-    for (const model of models) {
-      existingModels[model.id] = model
-    }
+  let ids = []
+  const localIdToJSONId = {}
+  if (Klass === Thread) {
+    // Thread ids can be any of their message ids prefixed with "t:". To figure
+    // out if we already have an equivalent thread, we have to check all possible
+    // thread ids.
+    unlockedJSONs.forEach(json => {
+      json.message_ids.forEach(messageId => {
+        const possibleThreadId = `t:${messageId}`
+        ids.push(possibleThreadId)
+        localIdToJSONId[possibleThreadId] = json.id
+      })
+    })
+  } else {
+    ids = _.pluck(unlockedJSONs, 'id')
+  }
 
-    const responseModels = []
-    const changedModels = []
+  if (ids.length === 0) {
+    // This case will happen when the jsons are for threads, and all the threads
+    // are brand new. There should be deltas right after this with the initial
+    // message association.
+    return []
+  }
+  const models = await DatabaseStore.findAll(Klass).where(Klass.attributes.id.in(ids))
+  const existingModels = {}
+  for (const model of models) {
+    const jsonId = localIdToJSONId[model.id] || model.id;
+    existingModels[jsonId] = model
+  }
 
-    // Step 4: Merge the response data into the existing data for each model,
-    // skipping changes when we already have the given version
-    unlockedJSONs.forEach((json) => {
-      let model = existingModels[json.id]
+  const responseModels = []
+  const changedModels = []
+  const unpersistModels = []
 
-      const isSameOrNewerVersion = model && model.version && json.version && model.version >= json.version
-      const isAlreadySent = model && model.draft === false && json.draft === true
+  // Step 4: Merge the response data into the existing data for each model,
+  // skipping changes when we already have the given version
+  unlockedJSONs.forEach((json) => {
+    let model = existingModels[json.id]
 
-      if (isSameOrNewerVersion) {
-        if (json && json._delta) {
-          json._delta.ignoredBecause = `JSON v${json.version} <= model v${model.version}`
-        }
-      } else if (isAlreadySent) {
-        if (json && json._delta) {
-          json._delta.ignoredBecause = `Model ${model.id} is already sent!`
-        }
-      } else {
-        model = model || new Klass()
-        model.fromJSON(json)
-        changedModels.push(model)
+    const isSameOrNewerVersion = model && model.version && json.version && model.version >= json.version
+    const isAlreadySent = model && model.draft === false && json.draft === true
+
+    if (isSameOrNewerVersion) {
+      if (json && json._delta) {
+        json._delta.ignoredBecause = `JSON v${json.version} <= model v${model.version}`
       }
-      responseModels.push(model)
-    })
-
-    // Step 5: Save models that have changed, and then return all of the models
-    // that were in the response body.
-    return DatabaseStore.inTransaction((t) =>
-      t.persistModels(changedModels)
-    )
-    .then(() => {
-      return Promise.resolve(responseModels)
-    })
+    } else if (isAlreadySent) {
+      if (json && json._delta) {
+        json._delta.ignoredBecause = `Model ${model.id} is already sent!`
+      }
+    } else {
+      if (model && model.id !== json.id) {
+        unpersistModels.push(model.clone())
+      }
+      model = model || new Klass()
+      model.fromJSON(json)
+      changedModels.push(model)
+    }
+    responseModels.push(model)
   })
+
+  // Step 5: Save models that have changed, and then return all of the models
+  // that were in the response body.
+  await DatabaseStore.inTransaction(async (t) => {
+    await t.persistModels(changedModels)
+    await Promise.all(unpersistModels.map(model => t.unpersistModel(model)))
+  })
+  return responseModels
 }
 
 /*
@@ -156,7 +180,7 @@ export function handleModel404(modelUrl) {
       console.warn(`Deleting ${klass.name}:${klassId} due to API 404`)
     }
 
-    DatabaseStore.inTransaction((t) =>
+    return DatabaseStore.inTransaction((t) =>
       t.find(klass, klassId).then((model) => {
         if (model) {
           return t.unpersistModel(model)

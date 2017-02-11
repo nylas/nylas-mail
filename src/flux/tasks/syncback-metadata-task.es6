@@ -15,31 +15,34 @@ export default class SyncbackMetadataTask extends SyncbackModelTask {
     return DatabaseObjectRegistry.get(this.modelClassName);
   }
 
-  makeRequest = (model) => {
+  makeRequest = async (model) => {
     if (!model.serverId) {
       throw new Error(`Can't syncback metadata for a ${this.modelClassName} instance that doesn't have a serverId`)
     }
     const metadata = model.metadataObjectForPluginId(this.pluginId);
 
-    try {
-      const options = {
-        accountId: model.accountId,
-        returnsModel: false,
-        path: `/metadata/${model.serverId}/${this.pluginId}`,
-        method: 'POST',
-        body: {
-          version: metadata.version,
-          value: JSON.stringify(metadata.value),
-          objectType: this.modelClassName.toLowerCase(),
-        },
-      };
-      return new NylasAPIRequest({
-        api: N1CloudAPI,
-        options,
-      }).run()
-    } catch (error) {
-      return Promise.reject(error)
+    const objectType = this.modelClassName.toLowerCase();
+    let messageIds;
+    if (objectType === 'thread') {
+      const messages = await model.messages();
+      messageIds = messages.map(message => message.id)
     }
+    const options = {
+      accountId: model.accountId,
+      returnsModel: false,
+      path: `/metadata/${model.serverId}/${this.pluginId}`,
+      method: 'POST',
+      body: {
+        version: metadata.version,
+        value: JSON.stringify(metadata.value),
+        objectType: objectType,
+        messageIds: messageIds,
+      },
+    };
+    return new NylasAPIRequest({
+      api: N1CloudAPI,
+      options,
+    }).run()
   }
 
   applyRemoteChangesToModel = (model, {version}) => {
