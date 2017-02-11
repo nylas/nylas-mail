@@ -425,7 +425,6 @@ class Actions {
   static draftDeliveryFailed = ActionScopeGlobal;
 
   static ensureMessageInSentSuccess = ActionScopeGlobal;
-  static ensureMessageInSentFailed = ActionScopeGlobal;
 
   static sendManyDrafts = ActionScopeWindow;
   static ensureDraftSynced = ActionScopeWindow;

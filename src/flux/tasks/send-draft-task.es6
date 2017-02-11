@@ -162,6 +162,18 @@ export default class SendDraftTask extends BaseDraftTask {
       const errorMessage = `We had trouble sending this message to all recipients. ${failedRecipients} may not have received this email.`;
       NylasEnv.showErrorDialog(errorMessage, {showInMainWindow: true});
     }
+    if (!message || !message.id || !message.account_id) {
+      const errorMessage = `Your message successfully sent; however, we had trouble saving your message, "${message.subject}", to your Sent folder.`;
+      if (!message) {
+        throw new Error(`${errorMessage}\n\nError: Did not return message`)
+      }
+      if (!message.id) {
+        throw new Error(`${errorMessage}\n\nError: Returned a message without id`)
+      }
+      if (!message.accountId) {
+        throw new Error(`${errorMessage}\n\nError: Returned a message without accountId`)
+      }
+    }
 
     this.message = new Message().fromJSON(message);
     this.message.clientId = this.draft.clientId;
@@ -199,7 +211,7 @@ export default class SendDraftTask extends BaseDraftTask {
     // TODO Handle errors in a cleaner way
     if (err instanceof APIError) {
       const errorMessage = err.body.message || ''
-      message = `Sorry, this message could not be sent. Please try again, make sure your message is addressed correctly and is not too large.`;
+      message = `Sorry, this message could not be sent, please try again.`;
       message += `\n\nReason: ${err.message}`
       if (errorMessage.includes('Network Error')) {
         message = `Sorry, this message could not be sent. There was a network error, please make sure you are online.`
