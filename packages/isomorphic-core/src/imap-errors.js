@@ -77,6 +77,11 @@ class IMAPCertificateError extends NylasError { }
 function convertImapError(imapError) {
   let error;
 
+  if (imapError.message.toLowerCase().includes('try again')) {
+    error = new RetryableError(imapError)
+    error.source = imapError.source
+    return error
+  }
   if (imapError.message.includes('System Error')) {
     // System Errors encountered in the wild so far have been retryable.
     error = new RetryableError(imapError)
