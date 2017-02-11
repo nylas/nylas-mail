@@ -115,22 +115,31 @@ class SyncbackTaskRunner {
     return tasksToProcess
   }
 
-  async markInProgressTasksAsFailed() {
+  async updateLingeringTasksInProgress() {
     // We use a very limited type of two-phase commit: before we start
     // running a syncback task, we mark it as "in progress". If something
     // happens during the syncback (the worker window crashes, or the power
     // goes down), the task won't succeed or fail.
-    // We absolutely never want to retry such a task, so we mark it as failed
-    // at the next sync iteration. We use this function for that.
+    // By default, we will attempt to retry any INPROGRESS-RETRYABLE tasks,
+    // unless the task marks itself as INPROGRESS-NOTRETRYABLE
     const {SyncbackRequest} = this._db;
-    const inProgressTasks = await SyncbackRequest.findAll({
-      where: {status: 'INPROGRESS'},
+
+    const retryableRequests = await SyncbackRequest.findAll({
+      where: {status: 'INPROGRESS-RETRYABLE'},
+    });
+    const notRetryableRequests = await SyncbackRequest.findAll({
+      where: {status: 'INPROGRESS-NOTRETRYABLE'},
     });
 
-    for (const inProgress of inProgressTasks) {
-      inProgress.status = 'FAILED';
-      inProgress.error = new Error('Lingering task in progress was marked as failed')
-      await inProgress.save();
+    for (const retryableReq of retryableRequests) {
+      retryableReq.status = 'NEW';
+      await retryableReq.save();
+    }
+    for (const notRetryableReq of notRetryableRequests) {
+      notRetryableReq.status = 'FAILED';
+      const errorMessage = `App was closed while ${notRetryableReq.type} was in progress.`
+      notRetryableReq.error = new Error(errorMessage)
+      await notRetryableReq.save();
     }
   }
 
@@ -146,7 +155,8 @@ class SyncbackTaskRunner {
     try {
       // Before anything, mark the task as in progress. This allows
       // us to not run the same task twice.
-      syncbackRequest.status = "INPROGRESS";
+      // By default, tasks are retryable
+      syncbackRequest.status = "INPROGRESS-RETRYABLE";
       await syncbackRequest.save();
 
       const resource = task.resource()
