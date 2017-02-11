@@ -1,4 +1,4 @@
-import {TaskQueue, TaskQueueStatusStore} from 'nylas-exports'
+import {Actions, TaskQueue, TaskQueueStatusStore} from 'nylas-exports'
 import FeatureUsageStore from '../../src/flux/stores/feature-usage-store'
 import Task from '../../src/flux/tasks/task'
 import SendFeatureUsageEventTask from '../../src/flux/tasks/send-feature-usage-event-task'
@@ -51,6 +51,9 @@ describe("FeatureUsageStore", function featureUsageStoreSpec() {
         IdentityStore._identity = ident
       })
       spyOn(TaskQueueStatusStore, "waitForPerformLocal").andReturn(Promise.resolve())
+      spyOn(Actions, 'queueTask').andCallFake((task) => {
+        task.performLocal()
+      })
     });
 
     afterEach(() => {
