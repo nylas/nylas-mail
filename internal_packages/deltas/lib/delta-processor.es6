@@ -169,11 +169,11 @@ class DeltaProcessor {
 
     return Promise.map(Object.keys(allByObjectType), (objType) => {
       const jsons = allByObjectType[objType]
-      const klass = NylasAPIHelpers.apiObjectToClassMap[objType];
+      const Klass = NylasAPIHelpers.apiObjectToClassMap[objType];
       const objectIds = jsons.map(j => j.object_id)
 
       return DatabaseStore.inTransaction((t) => {
-        return this._findModelsForMetadata(t, klass, objectIds).then((modelsByObjectId) => {
+        return this._findOrCreateModelsForMetadata(t, Klass, objectIds).then((modelsByObjectId) => {
           const models = [];
           Object.keys(modelsByObjectId).forEach((objectId) => {
             const model = modelsByObjectId[objectId];
@@ -181,7 +181,7 @@ class DeltaProcessor {
             const modelWithMetadata = model.applyPluginMetadata(metadataJSON.plugin_id, metadataJSON.value);
             const localMetadatum = modelWithMetadata.metadataObjectForPluginId(metadataJSON.plugin_id);
             localMetadatum.version = metadataJSON.version;
-            models.push(model);
+            models.push(modelWithMetadata);
           })
           return t.persistModels(models)
         });
@@ -189,41 +189,89 @@ class DeltaProcessor {
     })
   }
 
+
+  /**
+  @param ids An array of metadata object_ids that correspond to threads
+  @returns A map of the object_ids to threads in the database, resolving the
+  IDs as necessary. If the thread does not yet exist, we create a ghost thread that
+  contains only the serverId and the metadata.
+  */
+  async _findOrCreateThreadsForMetadata(t, ids) {
+    // Since threads can have different ids, we need to find the equivalent threads
+    // through their messages. First, find the messages that correspond to the thread
+    // ids (which are of the format `t:${messageId}`)
+    const messageIds = ids.map(i => i.substring(2))
+    const messages = await t.findAll(Message, {id: messageIds})
+
+    // Create a map of which local thread ids are equivalent to the ids from the server
+    const localIdToRemoteId = {}
+    messages.forEach(msg => { localIdToRemoteId[msg.threadId] = `t:${msg.id}` })
+
+    // Then map the actual thread models to the server ids
+    const threads = await t.findAll(Thread, {id: Object.keys(localIdToRemoteId)})
+    const map = {};
+    for (const thread of threads) {
+      const pluginObjectId = localIdToRemoteId[thread.id]
+      map[pluginObjectId] = thread;
+    }
+
+    // Create ghost models for threads that we haven't synced yet
+    const missingIds = ids.filter(id => !map[id])
+    const newThreads = [];
+    const newMessages = [];
+    missingIds.forEach(id => {
+      // Build both the thread and corresponding message. We won't be able to find
+      // the ghost thread if the message with the corresponding id doesn't exist.
+      const thread = new Thread();
+      thread.serverId = id;
+      thread.categories = [];
+      const message = new Message();
+      message.serverId = id.substring(2);
+      message.threadId = id;
+
+      map[id] = thread;
+      newThreads.push(thread);
+      newMessages.push(message);
+    })
+
+    if (newThreads.length > 0) {
+      await t.persistModels(newThreads);
+      await t.persistModels(newMessages);
+    }
+    return map;
+  }
+
   /**
   @param ids An array of metadata object_ids
   @returns A map of the object_ids to models in the database, resolving the
-  IDs as necessary. Must be a hashmap because the metadata object_ids may not
-  actually be present in the resulting models.
+  IDs as necessary. If the model does not yet exist, we create a ghost model that
+  contains only the serverId and the metadata.
   */
-  _findModelsForMetadata(t, klass, ids) {
-    if (klass === Thread) {
-      // go through the Message table first, since local Thread IDs may be
-      // the (static) ID of any Message in the thread
-      // We prepend 't:' to thread IDs to avoid global object ID conflicts
-      const messageIds = ids.map(i => i.slice(2))
-      return t.findAll(Message, {id: messageIds}).then((messages) => {
-        if (messages.length !== messageIds.length) {
-          throw new Error(`Didn't find message for each thread. Thread IDs from remote: ${ids}`);
-        }
-        const threadIds = messages.map(m => m.threadId);
-        return t.findAll(Thread, {id: threadIds}).then((threads) => {
-          const map = {};
-          for (const thread of threads) {
-            const pluginObjectId = ids[threadIds.indexOf(thread.id)];
-            map[pluginObjectId] = thread;
-          }
-          return map;
-        });
-      });
+  async _findOrCreateModelsForMetadata(t, Klass, ids) {
+    if (Klass === Thread) {
+      return this._findOrCreateThreadsForMetadata(t, ids)
     }
-    return t.findAll(klass, {id: ids}).then((models) => {
-      const map = {};
-      for (const model of models) {
-        const pluginObjectId = model.id;
-        map[pluginObjectId] = model;
-      }
-      return map;
-    });
+
+    const models = await t.findAll(Klass, {id: ids})
+    const map = {};
+    for (const model of models) {
+      const pluginObjectId = model.id;
+      map[pluginObjectId] = model;
+    }
+
+    // Build ghost models for objects we haven't synced yet
+    const missingIds = ids.filter(id => !map[id])
+    const instances = []
+    missingIds.forEach(id => {
+      const klass = new Klass({serverId: id})
+      map[id] = klass
+      instances.push(klass)
+    })
+
+    if (instances.length > 0) {
+      await t.persistModels(instances)
+    }
+    return map;
   }
 
   /**
