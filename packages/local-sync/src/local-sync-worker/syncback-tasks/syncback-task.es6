@@ -19,6 +19,10 @@ class SyncbackTask {
     throw new Error("Must return a description")
   }
 
+  resource() {
+    throw new Error("Must return a resource. Must be one of ['imap', 'smtp']")
+  }
+
   affectsImapMessageUIDs() {
     throw new Error("Must implement `affectsImapMessageUIDs`")
   }
@@ -27,4 +31,17 @@ class SyncbackTask {
     throw new Error("Must implement a run method")
   }
 }
-module.exports = SyncbackTask
+
+export class SyncbackIMAPTask extends SyncbackTask {
+  resource() {
+    return 'imap'
+  }
+}
+
+export class SyncbackSMTPTask extends SyncbackTask {
+  resource() {
+    return 'smtp'
+  }
+}
+
+export default SyncbackTask

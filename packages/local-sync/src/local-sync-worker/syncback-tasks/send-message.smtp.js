@@ -1,6 +1,5 @@
-const {SendmailClient} = require('isomorphic-core')
-const SyncbackTask = require('../syncback-tasks/syncback-task')
 const MessageFactory = require('../../shared/message-factory')
+const {SyncbackSMTPTask} = require('../syncback-tasks/syncback-task')
 
 /**
  * This sets up the actual delivery of a message.
@@ -11,29 +10,23 @@ const MessageFactory = require('../../shared/message-factory')
  * We later get EnsureMessageInSentFolder queued to ensure the newly
  * delivered message shows up in the sent folder.
  */
-class SendMessageSMTP extends SyncbackTask {
+class SendMessageSMTP extends SyncbackSMTPTask {
   description() {
     return `SendMessage`;
   }
 
-  affectsImapMessageUIDs() {
-    return false
-  }
-
-  async run(db) {
+  async run(db, smtp) {
     const {messagePayload} = this.syncbackRequestObject().props
 
     const message = await MessageFactory.buildForSend(db, messagePayload);
-    const logger = global.Logger.forAccount(this._account);
-    const sender = new SendmailClient(this._account, logger);
-    await sender.send(message);
+    await smtp.send(message);
 
     try {
       message.setIsSent(true)
       await message.save();
       return {message: message.toJSON()}
     } catch (err) {
-      logger.error(err, "SendMessage: Failed to save the message to the local sync database after it was successfully delivered")
+      this._logger.error(err, "SendMessage: Failed to save the message to the local sync database after it was successfully delivered")
       return {message: {}}
     }
   }

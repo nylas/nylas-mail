@@ -1,7 +1,8 @@
 const _ = require('underscore')
 const {
-  IMAPConnection,
   IMAPErrors,
+  IMAPConnection,
+  SendmailClient,
 } = require('isomorphic-core');
 const {
   Actions,
@@ -32,11 +33,7 @@ class SyncWorker {
     this._interruptible = new Interruptible()
     this._localDeltas = new LocalSyncDeltaEmitter(db, account.id)
     this._logger = global.Logger.forAccount(account)
-    this._syncbackTaskRunner = new SyncbackTaskRunner({
-      db,
-      account,
-      logger: this._logger,
-    })
+    this._smtp = new SendmailClient(this._account, this._logger)
 
     this._startTime = Date.now()
     this._lastSyncTime = null
@@ -420,8 +417,16 @@ class SyncWorker {
     yield this._ensureConnection();
     yield this._ensureMailListenerConnection();
 
+    const syncbackTaskRunner = new SyncbackTaskRunner({
+      db: this._db,
+      imap: this._conn,
+      smtp: this._smtp,
+      logger: this._logger,
+      account: this._account,
+    })
+
     // Step 1: Mark all "INPROGRESS" tasks as failed.
-    await this._syncbackTaskRunner.markInProgressTasksAsFailed()
+    await syncbackTaskRunner.markInProgressTasksAsFailed()
     yield // Yield to allow interruption
 
     // Step 2: Run any available syncback tasks
@@ -431,13 +436,10 @@ class SyncWorker {
     // (e.g. marking as unread or starred). We need to listen to that event for
     // when updates are performed from another mail client, but ignore
     // them when they are caused from within N1 to prevent unecessary interrupts
-    const tasks = yield this._syncbackTaskRunner.getNewSyncbackTasks()
+    const tasks = yield syncbackTaskRunner.getNewSyncbackTasks()
     this._shouldIgnoreInboxFlagUpdates = true
     for (const task of tasks) {
-      const {shouldRetry} = await this._syncbackTaskRunner.runSyncbackTask({
-        task,
-        runTask: (t) => this._conn.runOperation(t),
-      })
+      const {shouldRetry} = await syncbackTaskRunner.runSyncbackTask(task)
       if (shouldRetry) {
         this.syncNow({reason: 'Retrying syncback task', interrupt: true});
       }

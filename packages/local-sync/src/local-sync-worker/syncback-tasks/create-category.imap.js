@@ -1,6 +1,6 @@
-const SyncbackTask = require('./syncback-task')
+const {SyncbackIMAPTask} = require('./syncback-task')
 
-class CreateCategoryIMAP extends SyncbackTask {
+class CreateCategoryIMAP extends SyncbackIMAPTask {
   description() {
     return `CreateCategory`;
   }

@@ -1,8 +1,8 @@
 const {Errors: {APIError}} = require('isomorphic-core')
-const SyncbackTask = require('./syncback-task')
+const {SyncbackIMAPTask} = require('./syncback-task')
 const IMAPHelpers = require('../imap-helpers')
 
-class SetThreadLabelsIMAP extends SyncbackTask {
+class SetThreadLabelsIMAP extends SyncbackIMAPTask {
   description() {
     return `SetThreadLabels`;
   }
