@@ -76,11 +76,6 @@ class AccountStore extends NylasStore {
       const addedAccountIds = _.difference(accountIds, oldAccountIds);
       const addedAccounts = _.filter(this._accounts, (a) => addedAccountIds.includes(a.id));
 
-      const removedAccountIds = _.difference(oldAccountIds, accountIds);
-      if (removedAccountIds.length > 0) {
-        NylasEnv.reportError(new Error('_loadAccounts encountered Accounts that should have already been removed'));
-      }
-
       // Run a few checks on account consistency. We want to display useful error
       // messages and these can result in very strange exceptions downstream otherwise.
       this._enforceAccountsValidity()
