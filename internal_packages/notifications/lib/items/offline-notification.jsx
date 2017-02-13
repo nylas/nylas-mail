@@ -101,6 +101,7 @@ export default class OfflineNotification extends React.Component {
     // only attempt to retry if the window is in the foreground to avoid
     // the battery hit.
     if (!this.state.connected && !document.body.classList.contains('is-blurred')) {
+      Actions.retryDeltaConnection();
       this._updateInterval = setInterval(() => {
         Actions.retryDeltaConnection();
       }, CHECK_STATUS_INTERVAL);
