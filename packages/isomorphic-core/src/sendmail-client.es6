@@ -50,7 +50,11 @@ class SendmailClient {
       throw new APIError('Sending failed - Invalid login', 401, {originalError: error})
     }
 
-    if (error.message.startsWith("getaddrinfo ENOTFOUND")) {
+    if (error.message.includes("getaddrinfo ENOTFOUND")) {
+      throw new APIError('Sending failed - Network Error', 401, {originalError: error})
+    }
+
+    if (error.message.includes("connect ETIMEDOUT")) {
       throw new APIError('Sending failed - Network Error', 401, {originalError: error})
     }
 
