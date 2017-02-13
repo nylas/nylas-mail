@@ -224,7 +224,7 @@ class WindowEventHandler
     return unless NylasEnv.isMainWindow()
 
     if !NylasEnv.inDevMode()
-      console.log("%c Welcome to N1! If you're exploring the source or building a
+      console.log("%c Welcome to Nylas Mail! If you're exploring the source or building a
                    plugin, you should enable debug flags. It's slower, but
                    gives you better exceptions, the debug version of React,
                    and more. Choose %c Developer > Run with Debug Flags %c
