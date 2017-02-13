@@ -279,10 +279,12 @@ export default class Contact extends Model {
     if (parts.join('').length === 0) {
       parts = [];
       parts = name.split(/\s+/);
-      parts = parts.filter((part) => {
-        const lpart = part.toLowerCase().replace(/\./, '');
-        return !namePrefixes[lpart] && !nameSuffixes[lpart];
-      });
+      if (parts.length > 0 && namePrefixes[parts[0].toLowerCase().replace(/\./, '')]) {
+        parts = parts.slice(1);
+      }
+      if (parts.length > 0 && nameSuffixes[parts[parts.length - 1].toLowerCase().replace(/\./, '')]) {
+        parts = parts.slice(0, parts.length - 1);
+      }
     }
 
     // If we've removed all the parts, just return the whole name
