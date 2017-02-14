@@ -8,6 +8,9 @@ module.exports = (sequelize, Sequelize) => {
     accountId: Sequelize.STRING,
     changedFields: JSONArrayColumn('changedFields'),
   }, {
+    indexes: [
+      { fields: ['accountId'] },
+    ],
     instanceMethods: {
       toJSON: function toJSON() {
         return {
