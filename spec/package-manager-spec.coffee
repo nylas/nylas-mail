@@ -487,7 +487,7 @@ describe "PackageManager", ->
       expect(['theme']).toContain(theme.getType()) for theme in themes
 
     it "refreshes the database after activating packages with models", ->
-      spyOn(DatabaseStore, "refreshDatabaseSchema")
+      spyOn(DatabaseStore, "refreshDatabaseSchema").andReturn(Promise.resolve())
       package2 = NylasEnv.packages.loadPackage('package-with-models')
       NylasEnv.packages.activatePackages([package2])
       expect(DatabaseStore.refreshDatabaseSchema).toHaveBeenCalled()
@@ -533,7 +533,7 @@ describe "PackageManager", ->
           expect(NylasEnv.config.get('core.disabledPackages')).not.toContain packageName
 
       it 'refreshes the DB when loading a package with models', ->
-        spyOn(DatabaseStore, "refreshDatabaseSchema")
+        spyOn(DatabaseStore, "refreshDatabaseSchema").andReturn(Promise.resolve())
         packageName = "package-with-models"
         NylasEnv.config.pushAtKeyPath('core.disabledPackages', packageName)
         NylasEnv.packages.observeDisabledPackages()

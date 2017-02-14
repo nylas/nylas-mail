@@ -571,10 +571,10 @@ class PackageManager
       for pack in packages
         @loadPackage(pack.name)
 
-      @refreshDatabaseSchema()
+      setupPromise = @refreshDatabaseSchema()
 
       for pack in packages
-        promise = @activatePackage(pack.name)
+        promise = @activatePackage(pack.name, setupPromise)
         promises.push(promise)
     @observeDisabledPackages()
     promises
@@ -588,19 +588,21 @@ class PackageManager
   # entry in `packagesWithDatabaseObjects`.
   refreshDatabaseSchema: ->
     if @packagesWithDatabaseObjects.length > 0
-      DatabaseStore.refreshDatabaseSchema()
-      @packagesWithDatabaseObjects = []
+      return DatabaseStore.refreshDatabaseSchema().then =>
+        @packagesWithDatabaseObjects = []
+    return Promise.resolve()
 
   # Activate a single package by name
-  activatePackage: (name) ->
+  activatePackage: (name, setupPromise = Promise.resolve()) ->
     if pack = @getActivePackage(name)
       Q(pack)
     else if pack = @loadPackage(name)
-      pack.activate().then =>
-        @activePackages[pack.name] = pack
-        @emitter.emit 'did-activate-package', pack
-        @onPluginsChanged()
-        pack
+      setupPromise.then =>
+        pack.activate().then =>
+          @activePackages[pack.name] = pack
+          @emitter.emit 'did-activate-package', pack
+          @onPluginsChanged()
+          pack
     else
       Q.reject(new Error("Failed to load package '#{name}'"))
 

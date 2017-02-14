@@ -98,8 +98,26 @@ class DatabaseStore extends NylasStore {
     setTimeout(() => this._onPhaseChange(), 0);
   }
 
+  async _asyncWaitForReady() {
+    return new Promise((resolve) => {
+      const app = remote.getGlobal('application')
+      const phase = app.databasePhase()
+      if (phase === DatabasePhase.Setup) {
+        resolve()
+        return
+      }
+
+      const listener = () => {
+        this._emitter.removeListener('ready', listener);
+        resolve()
+      }
+      this._emitter.on('ready', listener)
+    })
+  }
+
   async _onPhaseChange() {
     if (NylasEnv.inSpecMode()) {
+      this._emitter.emit('ready')
       return;
     }
 
@@ -122,6 +140,7 @@ class DatabaseStore extends NylasStore {
           w();
         }
         this._waiting = [];
+        this._emitter.emit('ready')
       });
     } else if (phase === DatabasePhase.Close) {
       this._open = false;
@@ -137,13 +156,14 @@ class DatabaseStore extends NylasStore {
   // extremely frequently as new models are added when packages load.
   refreshDatabaseSchema() {
     if (!NylasEnv.isWorkWindow()) {
-      return;
+      return Promise.resolve();
     }
     const app = remote.getGlobal('application');
     const phase = app.databasePhase();
     if (phase !== DatabasePhase.Setup) {
       app.setDatabasePhase(DatabasePhase.Setup);
     }
+    return this._asyncWaitForReady()
   }
 
   async _openDatabase() {
