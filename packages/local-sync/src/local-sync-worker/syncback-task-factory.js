@@ -22,18 +22,6 @@ class SyncbackTaskFactory {
         Task = require('./syncback-tasks/star-thread.imap'); break;
       case "UnstarThread":
         Task = require('./syncback-tasks/unstar-thread.imap'); break;
-      case "MoveMessageToFolder":
-        Task = require('./syncback-tasks/move-message-to-folder.imap'); break;
-      case "SetMessageLabels":
-        Task = require('./syncback-tasks/set-message-labels.imap'); break;
-      case "MarkMessageAsRead":
-        Task = require('./syncback-tasks/mark-message-as-read.imap'); break;
-      case "MarkMessageAsUnread":
-        Task = require('./syncback-tasks/mark-message-as-unread.imap'); break;
-      case "StarMessage":
-        Task = require('./syncback-tasks/star-message.imap'); break;
-      case "UnstarMessage":
-        Task = require('./syncback-tasks/unstar-message.imap'); break;
       case "CreateCategory":
         Task = require('./syncback-tasks/create-category.imap'); break;
       case "RenameFolder":
@@ -44,8 +32,6 @@ class SyncbackTaskFactory {
         Task = require('./syncback-tasks/delete-folder.imap'); break;
       case "DeleteLabel":
         Task = require('./syncback-tasks/delete-label.imap'); break;
-      case "DeleteMessage":
-        Task = require('./syncback-tasks/delete-message.imap'); break;
       case "SendMessage":
         Task = require('./syncback-tasks/send-message.smtp'); break;
       case "SendMessagePerRecipient":
