@@ -16,6 +16,8 @@ export default function registerDeltaRoutes(server) {
     handler: (request, reply) => {
       const {account} = request.auth.credentials;
 
+      request.logger.info("Starting /delta/streaming")
+
       DeltaStreamBuilder.buildAPIStream(request, {
         accountId: account.id,
         cursor: request.query.cursor,

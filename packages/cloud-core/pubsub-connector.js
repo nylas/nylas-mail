@@ -14,15 +14,16 @@ class PubsubConnector {
     this._listenClientSubs = {};
   }
 
-  buildClient() {
+  buildClient(accountId) {
     const client = redis.createClient(process.env.REDIS_URL || null);
+    log.info({account_id: accountId}, "Connecting to Redis")
     client.on("error", log.error);
     return client;
   }
 
   broadcastClient() {
     if (!this._broadcastClient) {
-      this._broadcastClient = this.buildClient();
+      this._broadcastClient = this.buildClient("broadcast");
     }
     return this._broadcastClient;
   }
@@ -92,12 +93,13 @@ class PubsubConnector {
 
   observeDeltas(accountId) {
     return Rx.Observable.create((observer) => {
-      const sub = this.buildClient();
+      const sub = this.buildClient(accountId);
       sub.on("message", (channel, transactionJSONString) => {
         observer.onNext(JSON.parse(transactionJSONString))
       })
       sub.subscribe(`deltas-${accountId}`);
       return () => {
+        log.info({account_id: accountId}, "Closing Redis")
         sub.unsubscribe();
         sub.quit();
       }
