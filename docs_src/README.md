@@ -5,7 +5,7 @@
 </center>
 
 The Nylas SDK allows you to create powerful extensions to Nylas Mail, a mail client for Mac OS X, Windows, and Linux. Building on Nylas Mail saves time and allows you to build innovative new experiences fast.
-[Get Started](http://nylas.github.io/nylas-mail/docs/GettingStartedPart1.html)
+[Get Started](https://nylas.github.io/nylas-mail/guides/GettingStarted.html)
 
 
 #### Installing Nylas Mail
