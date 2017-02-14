@@ -147,7 +147,7 @@ class SyncbackTaskRunner {
     }
     const before = new Date();
     const syncbackRequest = task.syncbackRequestObject();
-    let shouldRetry = false
+    let retryableError = null
 
     this._logger.log(`🔃 📤 ${task.description()}`, syncbackRequest.props)
     try {
@@ -183,7 +183,7 @@ class SyncbackTaskRunner {
           provider: this._account.provider,
           errorMessage: error.message,
         })
-        shouldRetry = true
+        retryableError = error
         syncbackRequest.status = "NEW";
         this._logger.warn(`🔃 📤 ${task.description()} Failed with retryable error, retrying in next loop (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON(), error})
       } else {
@@ -196,7 +196,13 @@ class SyncbackTaskRunner {
     } finally {
       await syncbackRequest.save();
     }
-    return {shouldRetry}
+    if (retryableError) {
+      // Throw retryable error to interrupt and restart sync loop
+      // The sync loop will take care of backing off when handling retryable
+      // errors.
+      retryableError.message = `${task.description()} failed with retryable error: ${retryableError.message}`
+      throw retryableError
+    }
   }
 }
 

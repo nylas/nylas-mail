@@ -406,7 +406,7 @@ class SyncWorker {
 
     let reason = "Scheduled"
     if (error != null) {
-      reason = `Sync errored`
+      reason = `Sync errored: ${error.message}`
     } else if (this._interrupted) {
       reason = `Sync interrupted and restarted. Interrupt reason: ${reason}`
     } else if (moreToSync) {
@@ -456,10 +456,7 @@ class SyncWorker {
     const tasks = yield syncbackTaskRunner.getNewSyncbackTasks()
     this._shouldIgnoreInboxFlagUpdates = true
     for (const task of tasks) {
-      const {shouldRetry} = await syncbackTaskRunner.runSyncbackTask(task)
-      if (shouldRetry) {
-        this.syncNow({reason: 'Retrying syncback task', interrupt: true});
-      }
+      await syncbackTaskRunner.runSyncbackTask(task)
       yield  // Yield to allow interruption
     }
     this._shouldIgnoreInboxFlagUpdates = false
