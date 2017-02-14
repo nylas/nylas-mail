@@ -42,21 +42,30 @@ export async function apiAuthenticate(req, username, password, cb) {
     req.logger.debug({identity}, `Got ${identPath} identity response`)
     return cb(null, true, {account, identity});
   } catch (err) {
-    let responseBody;
-    try {
-      responseBody = JSON.parse(err.response.body);
-    } catch (e) {
-      responseBody = err.response.body;
+    let statusCode = err;
+    let responseBody = err;
+    if (err && err.response) {
+      statusCode = err.response.statusCode
+      try {
+        responseBody = JSON.parse(err.response.body);
+      } catch (e) {
+        responseBody = err.response.body;
+      }
     }
     const responseDetails = {
-      status_code: err.response.statusCode,
+      status_code: statusCode,
       body: responseBody,
+    }
+
+    let identityReqUri = "";
+    if (err & err.options) {
+      identityReqUri = err.options.uri
     }
     // cannot log entire err object because it contains sensitive information
     // such as the account token & auth headers - see example below
     req.logger.error({
       error_name: err.name,
-      identity_req_uri: err.options.uri,
+      identity_req_uri: identityReqUri,
       response_details: responseDetails,
     }, `Invalid credentials, can't authenticate`)
     return cb(null, false, {})
