@@ -328,7 +328,6 @@ class SyncWorker {
     }
 
     // Don't save the error to the account if it was a network/retryable error
-    // /and/ if we haven't retried too many times.
     if (error instanceof IMAPErrors.RetryableError) {
       this._numRetries += 1;
       return
