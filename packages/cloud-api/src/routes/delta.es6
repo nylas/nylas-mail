@@ -22,6 +22,17 @@ export default function registerDeltaRoutes(server) {
         databasePromise: DatabaseConnector.forShared(),
         deltasSource: PubsubConnector.observeDeltas(account.id),
       }).then((stream) => {
+        const streamTimeout = setTimeout(() => {
+          const response = request.raw.res; // request is the hapijs handler request object
+          request.logger.info('Delta stream connection timeout.')
+          response.end();
+        }, DeltaStreamBuilder.DELTA_CONNECTION_TIMEOUT_MS);
+
+        stream.once('end', () => {
+          clearTimeout(streamTimeout);
+          return stream.close();
+        });
+
         reply(stream)
       });
     },
