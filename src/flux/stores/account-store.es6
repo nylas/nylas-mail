@@ -75,6 +75,8 @@ class AccountStore extends NylasStore {
       // we really have to (i.e. we're loading a new Account)
       const addedAccountIds = _.difference(accountIds, oldAccountIds);
       const addedAccounts = _.filter(this._accounts, (a) => addedAccountIds.includes(a.id));
+      const removedAccountIds = _.difference(oldAccountIds, accountIds);
+      const removedAccounts = _.filter(this._accounts, (a) => removedAccountIds.includes(a.id));
 
       // Run a few checks on account consistency. We want to display useful error
       // messages and these can result in very strange exceptions downstream otherwise.
@@ -90,6 +92,15 @@ class AccountStore extends NylasStore {
         // TODO HACK. For some reason we're getting passed the wrong
         // id. Figure this out after launch.
         this._tokens[account.emailAddress] = credentials;
+      }
+      for (const removedAccount of removedAccounts) {
+        const {id, emailAddress} = removedAccount
+        if (this._tokens[id]) {
+          delete this._tokens[id]
+        }
+        if (this._tokens[emailAddress]) {
+          delete this._tokens[emailAddress]
+        }
       }
     } catch (error) {
       NylasEnv.reportError(error)
