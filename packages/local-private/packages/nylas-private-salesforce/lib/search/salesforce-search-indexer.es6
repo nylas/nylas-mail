@@ -2,6 +2,11 @@ import { ModelSearchIndexer } from 'nylas-exports';
 import SalesforceObject from '../models/salesforce-object'
 
 class SalesforceSearchIndexer extends ModelSearchIndexer {
+
+  get MaxIndexSize() {
+    return 10000
+  }
+
   get ConfigKey() {
     return "salesforce.searchIndexVersion"
   }
