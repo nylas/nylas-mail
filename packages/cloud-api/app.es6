@@ -59,8 +59,13 @@ global.Logger = Logger.createLogger('n1cloud-api')
 
 // TODO: would be really nice if we could log some request context when
 // this happens, but not sure if there's a good way to do that...
+// (this can only happen in request paths during async handlers---otherwise
+// hapi catches the error and transforms it into a 5xx error)
 const onUnhandledError = (err) => {
-  global.Logger.fatal(err, 'Unhandled error')
+  global.Logger.fatal({
+    error: err.name,
+    error_message: err.message,
+    error_tb: err.stack}, 'Unhandled error')
   global.Metrics.reportError(err)
 }
 process.on('uncaughtException', onUnhandledError)
@@ -87,11 +92,22 @@ server.on('request-internal', (request, event, tags) => {
 });
 
 // Log every request and status code for post analysis w/log aggregation tools
-server.on('response', (request) => {
+server.on('request-error', (request, err) => {
   request.logger.info({
     http_status: request.response.statusCode,
     request_time_ms: request.app.timing.bench.elapsed(),
+    error: err.name,
+    error_message: err.message,
+    error_tb: err.stack,
   }, 'request handled');
+});
+server.on('response', (request) => {
+  if (request.response && request.response.statusCode < 500) {
+    request.logger.info({
+      http_status: request.response ? request.response.statusCode : null,
+      request_time_ms: request.app.timing.bench.elapsed(),
+    }, 'request handled');
+  }
 });
 
 
