@@ -82,7 +82,7 @@ server.connection({ port: process.env.PORT });
 // https://github.com/codewinds/hapi-elapsed/blob/master/lib/hapi-elapsed.js
 server.on('request-internal', (request, event, tags) => {
   if (tags.received) {
-    request.app.timing = { bench: new Hoek.Bench() };
+    request.app.timing = { bench: new Hoek.Timer() };
   }
 });
 
