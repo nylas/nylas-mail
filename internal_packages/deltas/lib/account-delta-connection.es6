@@ -12,6 +12,9 @@ import DeltaStreamingInMemoryConnection from './delta-streaming-in-memory-connec
 import DeltaProcessor from './delta-processor'
 import ContactRankingsCache from './contact-rankings-cache';
 
+const MAX_RETRY_DELAY = 10 * 60 * 1000; // 15 minutes
+const BASE_RETRY_DELAY = 1000;
+
 /** This manages the syncing of N1 assets. We create one
  * AccountDeltaConnection per email account. We save the state of the
  * AccountDeltaConnection in the database.
@@ -34,6 +37,7 @@ export default class AccountDeltaConnection {
 
   constructor(account) {
     this._state = { deltaCursors: {}, deltaStatus: {} }
+    this.retryDelay = BASE_RETRY_DELAY;
     this._writeStateDebounced = _.debounce(this._writeState, 100)
     this._account = account;
     this._unlisten = Actions.retryDeltaConnection.listen(() => this.refresh());
@@ -101,6 +105,7 @@ export default class AccountDeltaConnection {
       setCursor: (val) => {
         this._state.deltaCursors[streamName] = val;
         this._writeStateDebounced();
+        this.retryDelay = BASE_RETRY_DELAY;
       },
       onDeltas: DeltaProcessor.process.bind(DeltaProcessor),
       onStatusChanged: (status) => {
@@ -111,20 +116,18 @@ export default class AccountDeltaConnection {
     }
   }
 
-  _onError = (err) => {
-    if (err instanceof APIError) {
-      if (err.statusCode === 401) {
-        Actions.updateAccount(this._account.id, {
-          syncState: Account.SYNC_STATE_AUTH_FAILED,
-          syncError: err.toJSON(),
-        })
-        this.cleanup()
-        return
-      }
-      this.refresh()
-      return
+  _onError = (err = {}) => {
+    if (err instanceof APIError && err.statusCode === 401) {
+      Actions.updateAccount(this._account.id, {
+        syncState: Account.SYNC_STATE_AUTH_FAILED,
+        syncError: err.toJSON(),
+      })
     }
-    throw err
+    NylasEnv.reportError(`Error connecting to delta stream: ${err.message}`)
+    this.cleanup()
+    setTimeout(() => this.refresh(), this.retryDelay);
+    this.retryDelay = Math.min(MAX_RETRY_DELAY, this.retryDelay * 1.2)
+    return
   }
 
   _writeState() {
