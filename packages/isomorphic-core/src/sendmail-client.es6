@@ -26,6 +26,8 @@ class SendmailClient {
       try {
         results = await this._transporter.sendMail(msgData);
       } catch (err) {
+        // TODO: shouldn't retry on permanent errors like Invalid login
+        // TODO: should also wait between retries :(
         // Keep retrying for MAX_RETRIES
         error = err;
         this._logger.error(err);
