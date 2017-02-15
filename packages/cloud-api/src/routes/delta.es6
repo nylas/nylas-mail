@@ -39,16 +39,4 @@ export default function registerDeltaRoutes(server) {
       });
     },
   });
-
-  server.route({
-    method: 'POST',
-    path: '/delta/latest_cursor',
-    handler: (request, reply) => {
-      DeltaStreamBuilder.buildCursor({
-        databasePromise: DatabaseConnector.forShared(),
-      }).then((cursor) => {
-        reply({cursor})
-      });
-    },
-  });
 }
