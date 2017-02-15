@@ -45,6 +45,7 @@ class SyncWorker {
     this._numRetries = 0;
     this._numTimeoutErrors = 0;
     this._socketTimeout = IMAPConnection.DefaultSocketTimeout;
+    this._requireTokenRefresh = false
 
     this._syncTimer = setTimeout(() => {
       // TODO this is currently a hack to keep N1's account in sync and notify of
@@ -144,7 +145,12 @@ class SyncWorker {
       }
 
       const currentUnixDate = Math.floor(Date.now() / 1000);
-      if (currentUnixDate > credentials.expiry_date) {
+      if (this._requireTokenRefresh && (credentials.expiry_date > currentUnixDate)) {
+        console.warn("ensureAccessToken: got Invalid Credentials from server but token is not expired");
+      }
+      // try to avoid tokens expiring during the sync loop
+      const expiryDatePlusSlack = credentials.expiry_date - (5 * 60);
+      if (this._requireTokenRefresh || (currentUnixDate > expiryDatePlusSlack)) {
         const req = new NylasAPIRequest({
           api: N1CloudAPI,
           options: {
@@ -157,6 +163,7 @@ class SyncWorker {
         const newCredentials = await req.run()
         this._account.setCredentials(newCredentials);
         await this._account.save();
+        this._requireTokenRefresh = false
         return newCredentials;
       }
       return null
@@ -181,6 +188,8 @@ class SyncWorker {
         if (isNonPermanentError) {
           throw new IMAPErrors.IMAPTransientAuthenticationError(`Server error when trying to refresh token.`);
         } else {
+          // sync worker is persistent across reauths, so need to clear this flag
+          this._requireTokenRefresh = false
           throw new IMAPErrors.IMAPAuthenticationError(`Unable to refresh access token`);
         }
       }
@@ -312,6 +321,19 @@ class SyncWorker {
   }
 
   async _onSyncError(error) {
+    // We try to refresh Google OAuth2 access tokens in advance, but sometimes
+    // it doesn't work (e.g. the token expires during the sync loop). In this
+    // case, we need to immediately restart the sync loop & refresh the token.
+    //
+    // These error messages look like "Error: Invalid credentials (Failure)"
+    const isExpiredTokenError = (this._account.provider === "gmail" &&
+                                 error instanceof IMAPErrors.IMAPAuthenticationError &&
+                                 /invalid credentials/i.test(error.message))
+    if (isExpiredTokenError) {
+      this._requireTokenRefresh = true
+      return
+    }
+
     this._closeConnections()
     const errorJSON = error.toJSON()
 
@@ -398,7 +420,8 @@ class SyncWorker {
       // interrupted or a sync was requested
       const shouldSyncImmediately = (
         moreToSync ||
-        this._interrupted
+        this._interrupted ||
+        this._requireTokenRefresh
       )
       interval = shouldSyncImmediately ? 1 : SYNC_LOOP_INTERVAL_MS;
     }
