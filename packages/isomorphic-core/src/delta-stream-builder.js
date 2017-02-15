@@ -77,7 +77,28 @@ module.exports = {
       const outputStream = stream.Readable();
       outputStream._read = () => { return };
       const disposable = source.subscribe((str) => outputStream.push(str))
-      request.on("disconnect", () => { disposable.dispose() });
+      // See the following for why we need to set up the listeners on the raw
+      // stream.
+      // http://stackoverflow.com/questions/26221000/detecting-when-a-long-request-has-ended-in-nodejs-express
+      // https://github.com/hapijs/discuss/issues/322#issuecomment-235999544
+      //
+      // Hapi's disconnect event only fires on error or unexpected aborts: https://hapijs.com/api#response-events
+      request.raw.req.on('error', (error) => {
+        request.logger.error({error}, 'Delta connection stream errored')
+        disposable.dispose()
+      })
+      request.raw.req.on('close', () => {
+        request.logger.info('Delta connection stream was closed')
+        disposable.dispose()
+      })
+      request.raw.req.on('end', () => {
+        request.logger.info('Delta connection stream ended')
+        disposable.dispose()
+      })
+      request.on("disconnect", () => {
+        request.logger.info('Delta connection request was disconnected')
+        disposable.dispose()
+      });
 
       return outputStream;
     });
