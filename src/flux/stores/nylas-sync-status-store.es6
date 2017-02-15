@@ -188,26 +188,6 @@ class NylasSyncStatusStore extends NylasStore {
       })
     })
   }
-
-  busy() {
-    return !this.isSyncComplete()
-  }
-
-  /**
-   * @return true if the N1Cloud delta stream is connected for at least one
-   * account
-   */
-  connected() {
-    const statuses = Object.keys(this._statesByAccount)
-    .map((accountId) => this._statesByAccount[accountId].deltaStatus)
-    .filter((deltaStatus) => deltaStatus != null)
-
-    if (statuses.length === 0) {
-      return true
-    }
-
-    return statuses.some((status) => status.n1Cloud !== 'closed')
-  }
 }
 
 export default new NylasSyncStatusStore()
