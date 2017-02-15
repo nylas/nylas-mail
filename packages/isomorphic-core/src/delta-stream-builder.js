@@ -1,8 +1,6 @@
 const _ = require('underscore');
 const Rx = require('rx')
 const stream = require('stream');
-const DELTA_CONNECTION_TIMEOUT_MS = 15 * 60000;
-const OBSERVABLE_TIMEOUT_MS = DELTA_CONNECTION_TIMEOUT_MS - (1 * 60000);
 
 /**
  * A Transaction references objects that changed. This finds and inflates
@@ -63,7 +61,6 @@ function transactionsSinceCursor(db, cursor, accountId) {
 }
 
 module.exports = {
-  DELTA_CONNECTION_TIMEOUT_MS: DELTA_CONNECTION_TIMEOUT_MS,
   buildAPIStream(request, {databasePromise, cursor, accountId, deltasSource}) {
     return databasePromise.then((db) => {
       const source = Rx.Observable.merge(
@@ -72,7 +69,7 @@ module.exports = {
         deltasSource.flatMap((t) =>
           stringifyTransactions(db, accountId, [t], "new")),
         Rx.Observable.interval(1000).map(() => "\n")
-      ).timeout(OBSERVABLE_TIMEOUT_MS);
+      )
 
       const outputStream = stream.Readable();
       outputStream._read = () => { return };
