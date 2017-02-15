@@ -8,7 +8,7 @@ const FRACTION_CPU_AVAILABLE = 0.05;
 const MIN_TIMEOUT = 1000;
 const MAX_TIMEOUT = 5 * 60 * 1000; // 5 minutes
 
-export default class SearchIndexer {
+class SearchIndexScheduler {
   constructor() {
     this._searchableModels = {};
     this._hasIndexingToDo = false;
@@ -30,7 +30,7 @@ export default class SearchIndexer {
       .offset(indexSize)
       .limit(1)
       .silenceQueryPlanDebugOutput()
-    // console.info('SearchIndexer: _getIndexCutoff query', query.sql());
+    // console.info('SearchIndexScheduler: _getIndexCutoff query', query.sql());
     const models = await query;
     return models[0];
   }
@@ -44,7 +44,7 @@ export default class SearchIndexer {
       .where(whereConds)
       .limit(CHUNK_SIZE)
       .order(modelClass.naturalSortOrder())
-    // console.info('SearchIndexer: _getNewUnindexed query', query.sql());
+    // console.info('SearchIndexScheduler: _getNewUnindexed query', query.sql());
     return query;
   }
 
@@ -61,7 +61,7 @@ export default class SearchIndexer {
       .where(whereConds)
       .limit(CHUNK_SIZE)
       .order(modelClass.naturalSortOrder())
-    // console.info('SearchIndexer: _getOldIndexed query', query.sql());
+    // console.info('SearchIndexScheduler: _getOldIndexed query', query.sql());
     return query;
   }
 
@@ -73,10 +73,10 @@ export default class SearchIndexer {
         this._getNewUnindexed(modelClass, indexSize, cutoff),
         this._getOldIndexed(modelClass, cutoff),
       ]);
-      // console.info('SearchIndexer: ', modelClass.name);
-      // console.info('SearchIndexer: _getIndexCutoff cutoff', cutoff);
-      // console.info('SearchIndexer: _getIndexDiff toIndex', toIndex.map((model) => [model.isSearchIndexed, model.subject]));
-      // console.info('SearchIndexer: _getIndexDiff toUnindex', toUnindex.map((model) => [model.isSearchIndexed, model.subject]));
+      // console.info('SearchIndexScheduler: ', modelClass.name);
+      // console.info('SearchIndexScheduler: _getIndexCutoff cutoff', cutoff);
+      // console.info('SearchIndexScheduler: _getIndexDiff toIndex', toIndex.map((model) => [model.isSearchIndexed, model.subject]));
+      // console.info('SearchIndexScheduler: _getIndexDiff toUnindex', toUnindex.map((model) => [model.isSearchIndexed, model.subject]));
       return [toIndex, toUnindex];
     }));
     const [toIndex, toUnindex] = _.unzip(results).map((l) => _.flatten(l))
@@ -109,7 +109,7 @@ export default class SearchIndexer {
   }
 
   _scheduleRun() {
-    // console.info(`SearchIndexer: setting timeout for ${this._computeNextTimeout()} ms`);
+    // console.info(`SearchIndexScheduler: setting timeout for ${this._computeNextTimeout()} ms`);
     setTimeout(() => this.run(), this._computeNextTimeout());
   }
 
@@ -127,12 +127,14 @@ export default class SearchIndexer {
       ]);
       this._lastTimeStart = start;
       this._lastTimeStop = new Date();
-      // console.info(`SearchIndexer: ${toIndex.length} items indexed, ${toUnindex.length} items unindexed, took ${this._lastTimeStop.getTime() - this._lastTimeStart.getTime()} ms`);
+      // console.info(`SearchIndexScheduler: ${toIndex.length} items indexed, ${toUnindex.length} items unindexed, took ${this._lastTimeStop.getTime() - this._lastTimeStart.getTime()} ms`);
       this._scheduleRun();
     } else {
       // const stop = new Date();
-      // console.info(`SearchIndexer: No changes to index, took ${stop.getTime() - start.getTime()} ms`);
+      // console.info(`SearchIndexScheduler: No changes to index, took ${stop.getTime() - start.getTime()} ms`);
       this._hasIndexingToDo = false;
     }
   }
 }
+
+export default new SearchIndexScheduler()
