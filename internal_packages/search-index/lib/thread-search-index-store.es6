@@ -4,11 +4,10 @@ import {
   Thread,
   AccountStore,
   DatabaseStore,
+  SearchIndexScheduler,
 } from 'nylas-exports'
 
 const MAX_INDEX_SIZE = 100000
-const CHUNKS_PER_ACCOUNT = 10
-const INDEXING_WAIT = 1000
 const MESSAGE_BODY_LENGTH = 50000
 const INDEX_VERSION = 2
 
@@ -16,11 +15,10 @@ class ThreadSearchIndexStore {
 
   constructor() {
     this.unsubscribers = []
-    this.indexer = null;
+    this.indexer = SearchIndexScheduler;
   }
 
-  activate(indexer) {
-    this.indexer = indexer;
+  activate() {
     this.indexer.registerSearchableModel({
       modelClass: Thread,
       indexSize: MAX_INDEX_SIZE,
@@ -150,6 +148,7 @@ class ThreadSearchIndexStore {
   buildIndex = (accountIds) => {
     if (!accountIds || accountIds.length === 0) { return Promise.resolve() }
     this.indexer.notifyHasIndexingToDo();
+    return Promise.resolve()
   }
 
   clearIndex() {

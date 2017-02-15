@@ -212,6 +212,7 @@ lazyLoad(`MailRulesProcessor`, 'mail-rules-processor');
 lazyLoad(`MailboxPerspective`, 'mailbox-perspective');
 lazyLoad(`NativeNotifications`, 'native-notifications');
 lazyLoad(`ModelSearchIndexer`, 'services/model-search-indexer');
+lazyLoad(`SearchIndexScheduler`, 'services/search-index-scheduler');
 lazyLoad(`SanitizeTransformer`, 'services/sanitize-transformer');
 lazyLoad(`QuotedHTMLTransformer`, 'services/quoted-html-transformer');
 lazyLoad(`InlineStyleTransformer`, 'services/inline-style-transformer');

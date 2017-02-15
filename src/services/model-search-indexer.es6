@@ -1,4 +1,5 @@
-import { DatabaseStore } from 'nylas-exports';
+import DatabaseStore from '../flux/stores/database-store'
+import SearchIndexScheduler from './search-index-scheduler'
 
 const INDEXING_PAGE_SIZE = 1000;
 const INDEXING_PAGE_DELAY = 1000;
@@ -6,7 +7,7 @@ const INDEXING_PAGE_DELAY = 1000;
 export default class ModelSearchIndexer {
   constructor() {
     this.unsubscribers = []
-    this.indexer = null;
+    this.indexer = SearchIndexScheduler;
   }
 
   get MaxIndexSize() {
@@ -29,8 +30,7 @@ export default class ModelSearchIndexer {
     throw new Error("Override me and return a hash with a `content` array")
   }
 
-  activate(indexer) {
-    this.indexer = indexer;
+  activate() {
     this.indexer.registerSearchableModel({
       modelClass: this.ModelClass,
       indexSize: this.MaxIndexSize,
@@ -42,13 +42,12 @@ export default class ModelSearchIndexer {
     this.unsubscribers = [
       // TODO listen for changes in AccountStore
       DatabaseStore.listen(this._onDataChanged),
-      () => indexer.unregisterSearchableModel(this.ModelClass),
+      () => this.indexer.unregisterSearchableModel(this.ModelClass),
     ];
   }
 
   deactivate() {
     this.unsubscribers.forEach(unsub => unsub())
-    this.indexer = null;
   }
 
   _initializeIndex() {
