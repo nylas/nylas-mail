@@ -9,7 +9,6 @@ import DefaultClientNotification from "./items/default-client-notif";
 import UnstableChannelNotification from "./items/unstable-channel-notif";
 import DevModeNotification from "./items/dev-mode-notif";
 import DisabledMailRulesNotification from "./items/disabled-mail-rules-notif";
-import OfflineNotification from "./items/offline-notification";
 import UpdateNotification from "./items/update-notification";
 
 const notifications = [
@@ -18,7 +17,6 @@ const notifications = [
   UnstableChannelNotification,
   DevModeNotification,
   DisabledMailRulesNotification,
-  OfflineNotification,
   UpdateNotification,
 ]
 
