@@ -321,24 +321,29 @@ class SyncWorker {
   }
 
   async _onSyncError(error) {
+    this._closeConnections()
+    this._logger.error(`🔃  SyncWorker: Errored while syncing account`, error)
+
+    // Step 1 Check if we encountered an expired token error
     // We try to refresh Google OAuth2 access tokens in advance, but sometimes
     // it doesn't work (e.g. the token expires during the sync loop). In this
     // case, we need to immediately restart the sync loop & refresh the token.
+    // We don't want to save the error to the account in case refreshing the
+    // token fixes the issue.
     //
     // These error messages look like "Error: Invalid credentials (Failure)"
-    const isExpiredTokenError = (this._account.provider === "gmail" &&
-                                 error instanceof IMAPErrors.IMAPAuthenticationError &&
-                                 /invalid credentials/i.test(error.message))
+    const isExpiredTokenError = (
+      this._account.provider === "gmail" &&
+      error instanceof IMAPErrors.IMAPAuthenticationError &&
+      /invalid credentials/i.test(error.message)
+    )
     if (isExpiredTokenError) {
       this._requireTokenRefresh = true
       return
     }
 
-    this._closeConnections()
-    const errorJSON = error.toJSON()
-
-    this._logger.error(`🔃  SyncWorker: Errored while syncing account`, error)
-
+    // Step 2 Check if is we encountered an IMAP timeout error to be able to set
+    // an appropriate socket timeout
     if (error instanceof IMAPErrors.IMAPConnectionTimeoutError) {
       this._numTimeoutErrors += 1;
       Actions.recordUserEvent('Timeout error in sync loop', {
@@ -349,12 +354,16 @@ class SyncWorker {
       })
     }
 
-    // Don't save the error to the account if it was a network/retryable error
+    // Step 3 Check if we've encountered a retryable/network error
+    // If so, we don't want to save the error to the account, which will cause a
+    // red box to show up
     if (error instanceof IMAPErrors.RetryableError) {
       this._numRetries += 1;
       return
     }
 
+    // Step 4 Update account error state
+    const errorJSON = error.toJSON()
     error.message = `Error in sync loop: ${error.message}`
     NylasEnv.reportError(error)
     const isAuthError = error instanceof IMAPErrors.IMAPAuthenticationError
