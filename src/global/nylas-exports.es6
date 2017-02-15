@@ -157,6 +157,7 @@ lazyLoadAndRegisterStore(`SendActionsStore`, 'send-actions-store');
 lazyLoadAndRegisterStore(`FeatureUsageStore`, 'feature-usage-store');
 lazyLoadAndRegisterStore(`ThreadCountsStore`, 'thread-counts-store');
 lazyLoadAndRegisterStore(`FileDownloadStore`, 'file-download-store');
+lazyLoadAndRegisterStore(`OnlineStatusStore`, 'online-status-store');
 lazyLoadAndRegisterStore(`UpdateChannelStore`, 'update-channel-store');
 lazyLoadAndRegisterStore(`PreferencesUIStore`, 'preferences-ui-store');
 lazyLoadAndRegisterStore(`FocusedContentStore`, 'focused-content-store');
