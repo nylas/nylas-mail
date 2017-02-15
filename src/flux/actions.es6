@@ -114,6 +114,7 @@ class Actions {
   static longPollProcessedDeltas = ActionScopeWorkWindow;
   static willMakeAPIRequest = ActionScopeWorkWindow;
   static didMakeAPIRequest = ActionScopeWorkWindow;
+  static checkOnlineStatus = ActionScopeWindow;
 
 
   static wakeLocalSyncWorkerForAccount = ActionScopeGlobal;
