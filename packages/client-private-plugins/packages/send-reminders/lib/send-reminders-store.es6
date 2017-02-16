@@ -4,6 +4,7 @@ import {
   getLatestMessage,
   setMessageReminder,
   getLatestMessageWithReminder,
+  asyncUpdateFromSentMessage,
   observableForThreadsWithReminders,
 } from './send-reminders-utils'
 
@@ -14,6 +15,7 @@ class SendRemindersStore {
     this._lastFocusedThread = null
     this._unsubscribers = [
       FocusedContentStore.listen(this._onFocusedContentChanged),
+      Actions.draftDeliverySucceeded.listen(asyncUpdateFromSentMessage),
     ]
     this._disposables = [
       observableForThreadsWithReminders().subscribe(this._onThreadsWithRemindersChanged),

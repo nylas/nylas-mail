@@ -65,6 +65,26 @@ async function asyncBuildMetadata({message, thread, expiration} = {}) {
   return {expiration}
 }
 
+export async function asyncUpdateFromSentMessage({messageClientId}) {
+  const message = await DatabaseStore.findBy(Message, {clientId: messageClientId})
+  if (!message) {
+    throw new Error("SendReminders: Could not find message to update")
+  }
+  const {expiration} = message.metadataForPluginId(PLUGIN_ID) || {}
+  if (!expiration) {
+    // This message doesn't have a reminder
+    return;
+  }
+
+  let thread;
+  if (message.threadId) {
+    thread = await DatabaseStore.find(Thread, message.threadId)
+  } // else: this message wasn't a reply and doesn't have a thread yet
+
+  const newMetadata = await asyncBuildMetadata({message, thread, expiration})
+  Actions.setMetadata(message, PLUGIN_ID, newMetadata)
+}
+
 async function asyncSetReminder(accountId, reminderDate, dateLabel, {message, thread, isDraft, draftSession} = {}) {
   if (reminderDate && dateLabel) {
     const remindInSec = Math.round(((new Date(reminderDate)).valueOf() - Date.now()) / 1000)
