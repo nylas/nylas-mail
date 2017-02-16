@@ -2,6 +2,7 @@
 
 var crypto = require('crypto')
 var path = require('path')
+var fs = require('fs')
 
 var babel = null
 var babelVersionDirectory = null
@@ -14,11 +15,14 @@ require('babel-regenerator-runtime');
 // We run babel with lots of different working directories (like plugin folders).
 // To make sure presets always resolve to the correct path inside N1, resolve
 // them to their absolute paths ahead of time.
-var defaultOptions = require('../../static/babelrc.json')
-defaultOptions.presets = defaultOptions.presets.map((modulename) =>
+//
+// TODO: Please fix babelrc reference for the build.
+const babelPath = path.resolve(path.join(__dirname, "../../../../.babelrc"))
+var defaultOptions = JSON.parse(fs.readFileSync(babelPath));
+defaultOptions.presets = (defaultOptions.presets || []).map((modulename) =>
   require.resolve(`babel-preset-${modulename}`)
 );
-defaultOptions.plugins = defaultOptions.plugins.map((modulename) =>
+defaultOptions.plugins = (defaultOptions.plugins || []).map((modulename) =>
   require.resolve(`babel-plugin-${modulename}`)
 );
 

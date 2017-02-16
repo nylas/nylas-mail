@@ -20,10 +20,8 @@ for the ease of source control management.
 ## New Computer (Mac):
 
 1. Install [Homebrew](http://brew.sh/)
-1. Install [NVM](https://github.com/creationix/nvm) `brew install nvm`
+1. Install [NVM](https://github.com/creationix/nvm) & Redis `brew install nvm redis`
 1. Install Node 6 via NVM: `nvm install 6`
-1. Install Redis locally `brew install redis`
-1. `npm install`
 
 ## New Computer (Linux - Debian/Ubuntu):
 
@@ -32,4 +30,9 @@ for the ease of source control management.
   1. `sudo apt-get install -y nodejs`
 1. Install Redis locally `sudo apt-get install -y redis-server redis-tools`
 benefit of letting us use subdomains.
-1. `npm install`
+
+# Running Nylas Mail
+
+1. `npm install` (Only on fresh install and new packages)
+1. `npm run start-client`: Starts Electron app client
+1. `npm run start-api`: Starts cloud API locally

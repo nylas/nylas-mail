@@ -155,6 +155,15 @@ class NylasEnvConstructor
     globalPath = path.join(resourcePath, 'src', 'global')
     require('module').globalPaths.push(globalPath)
 
+    # Our client-private-plugins get sym-linked into internal_packages.
+    # However, when we require anything from those files, the require chain is
+    # relative to their original location. Their original location is a sibling
+    # (not a child) of the client-app repo. This means the node_modules that
+    # they should see aren't actually there due to the symlink. We manually add
+    # node_modules to the global require path (even though it's already there
+    # by default) to support these symlinked modules
+    require('module').globalPaths.push(path.join(resourcePath, 'node_modules'))
+
     # Still set NODE_PATH since tasks may need it.
     process.env.NODE_PATH = globalPath
 

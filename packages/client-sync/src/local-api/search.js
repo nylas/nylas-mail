@@ -1,6 +1,6 @@
 const request = require('request');
 const _ = require('underscore');
-const Rx = require('rx');
+const Rx = require('rx-lite');
 const {IMAPConnection} = require('isomorphic-core')
 
 const getThreadsForMessages = (db, messages, limit) => {

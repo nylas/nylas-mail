@@ -1,9 +1,7 @@
 import pathwatcher from 'pathwatcher';
 import ReactTestUtils from 'react-addons-test-utils';
 import {TaskQueue} from 'nylas-exports'
-// TODO the local-sync package should be moved as part of nylas-mail core,
-// instead of being a separate package
-import {destroyTestDatabase} from '../../internal_packages/local-sync/spec/helpers'
+import {destroyTestDatabase} from '../../internal_packages/client-sync/spec/helpers'
 
 class MasterAfterEach {
   setup(loadSettings, afterEach) {

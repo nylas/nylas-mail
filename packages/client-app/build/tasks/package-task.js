@@ -70,7 +70,7 @@ module.exports = (grunt) => {
 
   /**
    * We don't need the K2 folder anymore since the previous step hard
-   * copied the local-sync package (and its isomorphic-core dependency)
+   * copied the client-sync package (and its isomorphic-core dependency)
    * into /internal_packages. The remains of the folder are N1-Cloud
    * pieces that aren't necessary
    */

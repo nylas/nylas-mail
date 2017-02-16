@@ -1,4 +1,4 @@
-const Rx = require('rx')
+const Rx = require('rx-lite')
 const EventEmitter = require('events');
 
 class TransactionConnector extends EventEmitter {
