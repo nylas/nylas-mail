@@ -51,6 +51,7 @@ module.exports = (sequelize, Sequelize) => {
           object: 'label',
           name: this.role,
           display_name: formatImapPath(this.name),
+          imap_name: this.name,
         };
       },
     },
