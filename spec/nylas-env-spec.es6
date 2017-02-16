@@ -1,6 +1,6 @@
 import { remote } from 'electron';
 
-xdescribe("the `NylasEnv` global", function nylasEnvSpec() {
+describe("the `NylasEnv` global", function nylasEnvSpec() {
   describe('window sizing methods', () => {
     describe('::getPosition and ::setPosition', () =>
       it('sets the position of the window, and can retrieve the position just set', () => {
@@ -142,26 +142,39 @@ xdescribe("the `NylasEnv` global", function nylasEnvSpec() {
       expect(extra.column).toBe(3)
     });
 
-    it("Catches unhandled rejections", () => {
+    it("Catches unhandled rejections", async () => {
       spyOn(NylasEnv, "reportError");
       const err = new Error("TEST");
-      runs(() => {
-        const p = new Promise((resolve, reject) => {
-          setTimeout(() => {
-            reject(err);
-          }, 10)
-        })
-        p.then(() => {
-          throw new Error("Shouldn't resolve")
-        })
-        advanceClock(10);
+
+      const p = new Promise((resolve, reject) => {
+        reject(err);
       })
-      waitsFor(() => NylasEnv.reportError.callCount > 0);
-      runs(() => {
-        expect(NylasEnv.reportError.callCount).toBe(1);
-        expect(NylasEnv.reportError.calls[0].args[0]).toBe(err);
-        expect(NylasEnv.reportError.calls[0].args[1].promise).toBeDefined();
+      p.then(() => {
+        throw new Error("Shouldn't resolve")
       })
+
+      /**
+       * This test was started from within the `setTimeout` block of the
+       * Node event loop. The unhandled rejection will not get caught
+       * until the "pending callbacks" block (which happens next). Since
+       * that happens immediately next it's important that we don't use:
+       *
+       * await new Promise(setImmediate)
+       *
+       * Because of setImmediate's position in the Node event loop
+       * relative to this test and process.on('unhandledRejection'), using
+       * setImmediate would require us to await for it twice.
+       *
+       * We can use the original, no-stubbed-out `setTimeout` to put our
+       * test in the correct spot in the Node event loop relative to
+       * unhandledRejection.
+       */
+      await new Promise((resolve) => {
+        window.originalSetTimeout(resolve, 0)
+      })
+
+      expect(NylasEnv.reportError.callCount).toBe(1);
+      expect(NylasEnv.reportError.calls[0].args[0]).toBe(err);
     });
 
     describe("reportError", () => {

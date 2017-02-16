@@ -232,18 +232,23 @@ class NylasEnvConstructor
       originalError.stack = convertStackTrace(originalError.stack, sourceMapCache)
       @reportError(originalError, {url, line, column})
 
-    Promise.onPossiblyUnhandledRejection (error, promise) =>
-      error.stack = convertStackTrace(error.stack, sourceMapCache)
-
-      # API Errors are logged to Sentry only under certain circumstances,
-      # and are logged directly from the NylasAPI class.
-      if error instanceof APIError
-        return if error.statusCode isnt 400
-
-      @reportError(error)
-
     process.on('uncaughtException', (e) => @reportError(e))
-    process.on('unhandledRejection', (e) => @reportError(e))
+
+    # We use the native Node 'unhandledRejection' instead of Bluebird's
+    # `Promise.onPossiblyUnhandledRejection`. Testing indicates that
+    # the Node process method is a strict superset of Bluebird's handler.
+    # With the introduction of transpiled async/await, it is now possible
+    # to get a native, non-Bluebird Promise. In that case, Bluebird's
+    # `onPossiblyUnhandledRejection` gets bypassed and we miss some
+    # errors. The Node process handler catches all Bluebird promises plus
+    # those created with a native Promise.
+    process.on('unhandledRejection', (error) =>
+      if @inDevMode()
+        error.stack = convertStackTrace(error.stack, sourceMapCache)
+        @reportError(error)
+      else
+        @reportError(error)
+    )
 
     if @inSpecMode() or @inDevMode()
       Promise.longStackTraces()
