@@ -1,0 +1,26 @@
+{
+  "name": "composer-scheduler",
+  "title":"Scheduler",
+  "description": "Add event invites to emails easily.",
+  "main": "./lib/main",
+  "isHiddenOnPluginsPage": true,
+  "version": "0.1.0",
+  "serverUrl": {
+    "development": "http://localhost:5009",
+    "staging": "https://edgehill-staging.nylas.com",
+    "production": "https://edgehill.nylas.com"
+  },
+  "engines": {
+    "nylas": "*"
+  },
+  "icon": "./icon.png",
+  "isOptional": true,
+  "supportedEnvs": ["development", "staging", "production"],
+  "windowTypes": {
+    "default": true,
+    "composer": true,
+    "scheduler-calendar": true,
+    "thread-popout": true
+  },
+  "license": "GPL-3.0"
+}

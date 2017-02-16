@@ -1,0 +1,8 @@
+{
+  "project_id" : "N1",
+  "conduit_uri" : "https://phab.nylas.com/",
+  "load" : [
+    "arclib"
+  ],
+  "lint.engine": "ArcanistConfigurationDrivenLintEngine"
+}

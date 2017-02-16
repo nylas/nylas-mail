@@ -1,0 +1,17 @@
+{
+  "linters": {
+    "coffeescript-linter": {
+      "type": "script-and-regex",
+      "script-and-regex.script": "script/grunt coffeelint:target --target",
+      "script-and-regex.regex": "/^  ((?P<error>✖)|(?P<warning>⚠)) *line (?P<line>\\d+) +(?P<message>.*)$/m",
+      "include": "{\\.(e?coffee|cjsx)}"
+    },
+    "eslint-regex-based": {
+      "type": "script-and-regex",
+      "include": ["(\\.jsx?$)", "(\\.es6$)"],
+      "exclude": ["(src\\/K2)", "(node_modules)"],
+      "script-and-regex.script": "sh -c '([ -e ./node_modules/.bin/eslint ]) && (./node_modules/.bin/eslint -f compact \"$0\" || true)'",
+      "script-and-regex.regex": "/^(?P<file>.*): line (?P<line>[0-9]*), col (?P<char>[0-9]*), (?P<warning>Warning|Error) - (?P<message>.*?)(\\((?P<code>[a-z-]+)\\))?$/m"
+    }
+  }
+}

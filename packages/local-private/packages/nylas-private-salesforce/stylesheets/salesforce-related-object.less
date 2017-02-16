@@ -1,0 +1,70 @@
+@import "ui-variables";
+
+.salesforce .cell-item.sf-related-object {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+
+  &.create-sf-obj-link {
+    border-top: 0;
+    margin-top: 0;
+  }
+
+  .synced-wrap {
+    flex: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    padding-right: 9px;
+  }
+
+  .main-cell-wrap {
+    padding: 10px 10px 10px 37px;
+    box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.08);
+    border-radius: 4px 4px 0 0;
+    display: flex;
+    position: relative;
+    z-index: 2;
+    background: @background-off-primary;
+
+    .sf-icon-wrap {
+      left: 10px;
+    }
+  }
+
+  .sub-items-wrap {
+    padding: 5px 0;
+    position: relative;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    overflow: auto;
+    z-index: 1;
+    transition: height 200ms ease-in-out;
+  }
+  .sub-item {
+    height: 26px;
+    padding: 3px 10px 3px 37px;
+    position: relative;
+    display: flex;
+  }
+  .toggle {
+    font-size: 12px;
+    text-align: center;
+    padding: 0.5em 15px;
+    border-top: 1px solid rgba(0,0,0,0.08);
+    color: @text-color-link;
+  }
+}
+.cell-container .new-item {
+  position: relative;
+  padding: 7px 10px 8px 37px;
+}
+.cell-container.inline {
+  display: inline-block;
+}
+
+body.platform-win32 {
+  .salesforce .cell-item.sf-related-object .main-cell-wrap {
+    border-radius: 0;
+  }
+}

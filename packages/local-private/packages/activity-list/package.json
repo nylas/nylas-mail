@@ -1,0 +1,21 @@
+{
+  "name": "activity-list",
+  "main": "./lib/main",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "nylas": "*"
+  },
+
+  "isOptional": true,
+
+  "title":"Activity List",
+  "icon":"./assets/icon.png",
+  "description": "Get notifications for open and link tracking activity.",
+  "supportedEnvs": ["development", "staging", "production"],
+
+  "license": "GPL-3.0"
+}

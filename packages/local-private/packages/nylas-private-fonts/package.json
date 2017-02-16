@@ -1,0 +1,14 @@
+{
+  "name": "nylas-private-fonts",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Nylas Fonts",
+  "license": "Proprietary",
+  "private": true,
+  "windowTypes": {
+    "all": true
+  },
+  "engines": {
+    "nylas": "*"
+  }
+}

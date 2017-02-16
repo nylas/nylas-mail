@@ -1,0 +1,170 @@
+@import 'ui-variables';
+@import "ui-mixins";
+
+.calendar-event {
+  .rm-time {
+    font-size: 13px;
+    padding: 3px 5px 10px 10px;
+    position: absolute;
+    right: 0;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    text-align: right;
+    cursor: default;
+    color: @text-color-very-subtle;
+    &:hover {
+      color: @text-color-subtle;
+    }
+  }
+
+  .event-injected-components {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+  }
+}
+
+.scheduler-picker {
+  min-width: 186px;
+}
+
+img[data-overlay-id].new-event-card-container {
+  display: block;
+}
+
+.new-event-card-container {
+  .new-event-card {
+    border-radius: 4px;
+    box-shadow: 0 0 0.5px rgba(0, 0, 0, 0.28), 0 1px 1.5px rgba(0, 0, 0, 0.08);
+    padding: 10px 0;
+    padding-right: 30px;
+
+    .remove-button {
+      position: absolute;
+      right: 5px;
+      top: 0;
+      color: #CCC;
+      padding: 10px;
+      cursor: default;
+    }
+    .remove-button:hover {
+      color: @text-color;
+    }
+    .row {
+      position: relative;
+      display: flex;
+      align-items: baseline;
+      padding: 10px 0;
+    }
+    .row.title {
+      font-size: @font-size-h3;
+    }
+    .suggest-times {
+      padding-left: 56px;
+      color: #A9A9A9;
+      padding-bottom: 10px;
+      a {
+        &:hover {
+          cursor: default;
+        }
+        margin-left: 0.5em;
+      }
+    }
+    .row.expand, .row.time {
+      color: #A9A9A9;
+
+      .timezone {
+        font-size: 10px;
+        font-weight: 600;
+      }
+    }
+    .row.time {
+      .time-picker {
+        text-align: center;
+      }
+      .time-picker-wrap {
+        margin-right: 5px;
+
+        .time-options {
+          z-index: 10; // So the time pickers show over
+        }
+      }
+    }
+    .datetime-input-container {
+      padding: 0 5px;
+      display: inline-block;
+      input {
+        margin: 0;
+      }
+    }
+    .datetime-input-container:first-child {
+      padding-left: 0;
+      input[type=date] {
+        padding-left: 0;
+      }
+    }
+
+    .row textarea {
+      border-bottom: 1px solid #EEE;
+      &:focus {
+        box-shadow: 0 0 0;
+      }
+    }
+
+    input[type=text] {
+      border-radius: 0;
+      display: inline-block;
+      flex: 1;
+      border-bottom: 1px solid #EEE;
+    }
+    input[type=text]:focus {
+      border: none;
+      box-shadow: none;
+      border-bottom: 1px solid #EEE;
+    }
+
+    .field-icon {
+      padding: 0 20px;
+
+      img.content-mask {
+        background: #CCC;
+      }
+    }
+
+    .proposals-wrap {
+      margin-top: 10px;
+      display: flex;
+      padding-left: 58px;
+    }
+    .proposal-day {
+      flex: 1;
+      border: 1px solid @border-color-divider;
+      border-radius: @border-radius-base;
+      margin-right: 15px;
+      text-align: center;
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+
+    .day-header {
+      padding: 10px;
+      border-bottom: 1px solid @border-color-divider;
+    }
+    .proposal {
+      padding: 10px;
+      border-bottom: 1px solid @border-color-divider;
+      &:last-child {
+        border-bottom: 0;
+      }
+    }
+
+    .day-header {
+      text-transform: uppercase;
+      color: @text-color-very-subtle;
+    }
+  }
+}

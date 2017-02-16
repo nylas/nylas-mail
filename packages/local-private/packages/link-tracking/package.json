@@ -1,0 +1,31 @@
+{
+  "name": "link-tracking",
+  "main": "./lib/main",
+  "version": "0.1.0",
+  "serverUrl": {
+    "development": "http://lvh.me:5100",
+    "staging": "https://n1-staging.nylas.com",
+    "production": "https://n1.nylas.com"
+  },
+
+  "title": "Link Tracking",
+  "description": "Track when links in an email have been clicked by recipients.",
+  "icon": "./icon.png",
+  "isOptional": true,
+  "supportedEnvs": ["development", "staging", "production"],
+
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "nylas": "*"
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true,
+    "thread-popout": true
+  },
+  "dependencies": {},
+  "license": "GPL-3.0"
+}

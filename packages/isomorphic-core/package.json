@@ -1,0 +1,20 @@
+{
+  "name": "isomorphic-core",
+  "version": "0.0.1",
+  "description": "Packages use isomorphically on n1-cloud and local-sync",
+  "main": "index.js",
+  "dependencies": {
+    "imap": "github:jstejada/node-imap#fix-parse-body-list",
+    "imap-provider-settings": "github:nylas/imap-provider-settings",
+    "joi": "8.4.2",
+    "nodemailer": "2.5.0",
+    "promise-props": "1.0.0",
+    "promise.prototype.finally": "1.0.1",
+    "rx": "4.1.0",
+    "sequelize": "3.28.0",
+    "underscore": "1.8.3",
+    "xoauth2": "1.2.0"
+  },
+  "author": "Nylas",
+  "license": "ISC"
+}

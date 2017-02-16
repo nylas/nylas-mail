@@ -1,0 +1,19 @@
+{
+  "menu": [
+    {
+      "label": "Salesforce",
+      "submenu": [
+        { "label": "Refresh Salesforce Data", "command": "salesforce:sync" },
+        { "type": "separator" },
+        { "label": "Connect Salesforce",
+          "command": "salesforce:connect",
+          "hideWhenDisabled": true
+        },
+        { "label": "Disconnect Salesforce",
+          "command": "salesforce:disconnect",
+          "hideWhenDisabled": true
+        }
+      ]
+    }
+  ]
+}
