@@ -11,6 +11,7 @@ export class BackoffScheduler {
 
   constructor({baseDelay, maxDelay, getNextBackoffDelay, jitter = true} = {}) {
     this._numTries = 0
+    this._currentDelay = 0
     this._jitter = jitter
     this._maxDelay = maxDelay || MAX_TIMEOUT
     this._baseDelay = baseDelay || BASE_TIMEOUT
@@ -20,13 +21,23 @@ export class BackoffScheduler {
     this._getNextBackoffDelay = getNextBackoffDelay
   }
 
+  numTries() {
+    return this._numTries;
+  }
+
+  currentDelay() {
+    return this._currentDelay;
+  }
+
   reset() {
     this._numTries = 0
+    this._currentDelay = 0
   }
 
   nextDelay() {
     const nextDelay = this._calcNextDelay()
     this._numTries++
+    this._currentDelay = nextDelay
     return nextDelay
   }
 
