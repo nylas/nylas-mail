@@ -1,3 +1,4 @@
+const atob = require('atob')
 const crypto = require('crypto');
 const {JSONColumn, JSONArrayColumn} = require('../database-types');
 const {SUPPORTED_PROVIDERS} = require('../auth-helpers');
