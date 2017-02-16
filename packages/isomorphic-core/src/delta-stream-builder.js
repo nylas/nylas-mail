@@ -1,5 +1,5 @@
 const _ = require('underscore');
-const Rx = require('rx')
+const Rx = require('rx-lite')
 const stream = require('stream');
 const DELTA_CONNECTION_TIMEOUT_MS = 15 * 60000;
 const OBSERVABLE_TIMEOUT_MS = DELTA_CONNECTION_TIMEOUT_MS - (1 * 60000);

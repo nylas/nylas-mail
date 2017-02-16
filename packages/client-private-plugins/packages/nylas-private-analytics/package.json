@@ -10,10 +10,5 @@
   },
   "engines": {
     "nylas": "*"
-  },
-  "dependencies": {
-    "getmac": "1.x.x",
-    "analytics-node": "2.x.x",
-    "underscore": "^1.8"
   }
 }

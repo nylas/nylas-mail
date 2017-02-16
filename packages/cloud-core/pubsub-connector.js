@@ -1,4 +1,4 @@
-const Rx = require('rx')
+const Rx = require('rx-lite')
 const redis = require("redis");
 const {PromiseUtils} = require('isomorphic-core');
 const log = global.Logger || console;

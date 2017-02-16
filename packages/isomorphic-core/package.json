@@ -1,7 +1,7 @@
 {
   "name": "isomorphic-core",
   "version": "0.0.1",
-  "description": "Packages use isomorphically on n1-cloud and local-sync",
+  "description": "Packages use isomorphically on n1-cloud and client-sync",
   "main": "index.js",
   "dependencies": {
     "imap": "github:jstejada/node-imap#fix-parse-body-list",

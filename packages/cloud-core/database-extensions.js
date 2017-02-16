@@ -1,4 +1,4 @@
-const Rx = require('rx');
+const Rx = require('rx-lite');
 const Sequelize = require('sequelize');
 
 Sequelize.Model.prototype.streamAll = function streamAll(options = {}) {

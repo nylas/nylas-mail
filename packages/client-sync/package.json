@@ -1,48 +1,14 @@
 {
-  "name": "local-sync",
+  "name": "client-sync",
   "version": "0.0.1",
   "description": "The local sync engine for Nylas Mail",
   "main": "./main",
-  "dependencies": {
-    "base64-stream": "0.1.3",
-    "encoding": "0.1.12",
-    "googleapis": "9.0.0",
-    "hapi": "16.1.0",
-    "hapi-auth-basic": "^4.2.0",
-    "hapi-boom-decorators": "2.2.2",
-    "hapi-plugin-websocket": "^0.9.2",
-    "hapi-swagger": "7.6.0",
-    "he": "1.1.0",
-    "iconv": "2.2.1",
-    "inert": "4.0.0",
-    "isomorphic-core": "0.x.x",
-    "jasmine": "2.4.1",
-    "joi": "8.4.2",
-    "mimelib": "0.2.19",
-    "request": "2.79.0",
-    "rx": "4.1.0",
-    "sequelize": "github:nylas/sequelize#nylas-3.30.0",
-    "sqlite3": "https://github.com/bengotow/node-sqlite3/archive/bengotow/usleep-v3.1.4.tar.gz",
-    "underscore": "1.8.3",
-    "vision": "4.1.0"
-  },
-  "scripts": {
-    "test": "../../../../node_modules/.bin/electron ../../../../ --test --enable-logging --spec-directory=$(pwd)/spec"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/nylas/K2.git"
-  },
   "author": "Nylas",
   "license": "proprietary",
-  "bugs": {
-    "url": "https://github.com/nylas/K2/issues"
-  },
   "engines": {
     "nylas": "*"
   },
   "windowTypes": {
     "work": true
-  },
-  "homepage": "https://github.com/nylas/K2#readme"
+  }
 }
