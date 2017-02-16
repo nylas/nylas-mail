@@ -8,7 +8,7 @@ const extractFiles = require('./extract-files');
 const extractContacts = require('./extract-contacts');
 const MessageFactory = require('../shared/message-factory')
 const LocalDatabaseConnector = require('../shared/local-database-connector');
-
+const {BatteryStatusManager} = require('nylas-exports');
 
 const MAX_QUEUE_LENGTH = 500
 const MAX_CPU_USE_ON_AC = 1.0;
@@ -23,14 +23,6 @@ class MessageProcessor {
     this._queueLength = 0
     this._currentChunkSize = 0
     this._currentChunkStart = Date.now();
-    this._isBatteryCharging = true;
-    navigator.getBattery().then((battery) => {
-      this._isBatteryCharging = battery.charging;
-      battery.addEventListener('chargingchange', () => {
-        console.info('charge change', battery.charging);
-        this._isBatteryCharging = battery.charging
-      });
-    });
   }
 
   queueLength() {
@@ -42,7 +34,7 @@ class MessageProcessor {
   }
 
   _maxCPUForProcessing() {
-    if (this._isBatteryCharging) {
+    if (BatteryStatusManager.isBatteryCharging()) {
       return MAX_CPU_USE_ON_AC;
     }
     return MAX_CPU_USE_ON_BATTERY;

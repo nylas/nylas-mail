@@ -10,6 +10,7 @@ const {
   NylasAPI,
   N1CloudAPI,
   NylasAPIRequest,
+  BatteryStatusManager,
   Account: {SYNC_STATE_RUNNING, SYNC_STATE_AUTH_FAILED, SYNC_STATE_ERROR},
 } = require('nylas-exports')
 const Interruptible = require('../shared/interruptible')
@@ -18,9 +19,9 @@ const SyncTaskFactory = require('./sync-task-factory');
 const SyncbackTaskRunner = require('./syncback-task-runner').default;
 const LocalSyncDeltaEmitter = require('./local-sync-delta-emitter').default
 
-
-const SYNC_LOOP_INTERVAL_MS = 10 * 1000
-const MAX_SOCKET_TIMEOUT_MS = 10 * 60 * 1000 // 10 min
+const AC_SYNC_LOOP_INTERVAL_MS = 10 * 1000            // 10 sec
+const BATTERY_SYNC_LOOP_INTERVAL_MS = 5 * 60 * 1000   //  5 min
+const MAX_SOCKET_TIMEOUT_MS = 10 * 60 * 1000          // 10 min
 
 class SyncWorker {
   constructor(account, db, parentManager) {
@@ -422,7 +423,7 @@ class SyncWorker {
         // Encountered a permanent error
         // In this case we could do something fancier, but for now, just retry
         // with the normal sync loop interval
-        interval = SYNC_LOOP_INTERVAL_MS
+        interval = AC_SYNC_LOOP_INTERVAL_MS;
       }
     } else {
       // Continue syncing immediately if initial sync isn't done, or if the loop was
@@ -432,7 +433,13 @@ class SyncWorker {
         this._interrupted ||
         this._requireTokenRefresh
       )
-      interval = shouldSyncImmediately ? 1 : SYNC_LOOP_INTERVAL_MS;
+      if (shouldSyncImmediately) {
+        interval = 1;
+      } else if (BatteryStatusManager.isBatteryCharging()) {
+        interval = AC_SYNC_LOOP_INTERVAL_MS;
+      } else {
+        interval = BATTERY_SYNC_LOOP_INTERVAL_MS;
+      }
     }
 
 
