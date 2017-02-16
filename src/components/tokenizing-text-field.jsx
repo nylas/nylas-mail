@@ -394,9 +394,10 @@ export default class TokenizingTextField extends React.Component {
 
   componentWillReceiveProps(newProps) {
     if (this.props.tokens.length === 0 && this.state.inputValue.length === 0) {
-      this.setState({inputValue: newProps.defaultValue});
-      if (newProps.defaultValue && newProps.defaultValue.length > 0) {
-        this._refreshCompletions(newProps.defaultValue);
+      const newDefaultValue = newProps.defaultValue || ""
+      this.setState({inputValue: newDefaultValue});
+      if (newDefaultValue.length > 0) {
+        this._refreshCompletions(newDefaultValue);
       }
     }
   }
