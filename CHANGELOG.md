@@ -1,5 +1,11 @@
 # Nylas Mail Changelog
 
+### 1.0.27 (2/14/17)
+
+- Fixes:
+
+  + Offline notification fixes
+
 ### 1.0.26 (2/10/17)
 
 - Fixes:
