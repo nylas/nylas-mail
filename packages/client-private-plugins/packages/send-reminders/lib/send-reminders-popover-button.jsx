@@ -15,10 +15,8 @@ function getMessageObservable({thread} = {}) {
 
 function getStateFromObservable(message, {props}) {
   const {thread} = props
-  if (!message) {
-    return {latestMessage: getLatestMessage(thread)}
-  }
-  return {latestMessage: message}
+  const latestMessage = message || getLatestMessage(thread)
+  return {latestMessage}
 }
 
 
@@ -40,8 +38,8 @@ class SendRemindersPopoverButton extends Component {
   };
 
   onSetReminder = (reminderDate, dateLabel) => {
-    const {latestMessage} = this.props
-    setMessageReminder(latestMessage.accountId, latestMessage, reminderDate, dateLabel)
+    const {latestMessage, thread} = this.props
+    setMessageReminder(latestMessage.accountId, latestMessage, reminderDate, dateLabel, thread)
   }
 
   onClick = (event) => {

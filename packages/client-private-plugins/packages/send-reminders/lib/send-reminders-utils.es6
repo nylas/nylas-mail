@@ -4,6 +4,7 @@ import {
   Thread,
   Message,
   Actions,
+  Category,
   NylasAPIHelpers,
   DateUtils,
   DatabaseStore,
@@ -21,7 +22,50 @@ export function reminderDateForMessage(message) {
   return messageMetadata.expiration;
 }
 
-function setReminder(accountId, reminderDate, dateLabel, {message, isDraft, draftSession} = {}) {
+async function asyncBuildMetadata({message, thread, expiration} = {}) {
+  if (message) { // Not a draft
+    let messageIdHeaders = [message.messageIdHeader];
+    let folderImapNames = [];
+    let hasPrimary = false; // whether folderImapNames includes All Mail or Inbox
+
+    // There won't be a thread if this is a newly sent draft that wasn't a reply.
+    if (thread) {
+      // We need to include the hidden messages so the cloud-worker doesn't think
+      // that previously hidden messages are new replies to the thread.
+      const messages = await thread.messages({includeHidden: true})
+      messageIdHeaders = messages.map(msg => msg.messageIdHeader)
+
+      const folders = thread.categories.filter(c => c.object === 'folder')
+      hasPrimary = folders.some(f => ['all', 'inbox'].includes(f.name))
+      folderImapNames = folders.map(f => f.imapName).filter(name => name)
+    }
+
+    // We always want to check the main inbox folder for replies
+    if (!hasPrimary) {
+      let primary = await DatabaseStore.findBy(Category, {name: 'all'})
+      if (!primary) {
+        primary = await DatabaseStore.findBy(Category, {name: 'inbox'})
+      }
+      const primaryName = primary ? primary.imapName : null;
+
+      if (primaryName) {
+        folderImapNames.unshift(primaryName); // Put it at the front so we check it first
+      }
+    }
+
+    return {
+      expiration,
+      folderImapNames,
+      messageIdHeaders,
+      replyTo: message.messageIdHeader,
+      subject: message.subject,
+    }
+  }
+  // else: this is a draft, the rest of the metadata will be updated after send.
+  return {expiration}
+}
+
+async function asyncSetReminder(accountId, reminderDate, dateLabel, {message, thread, isDraft, draftSession} = {}) {
   if (reminderDate && dateLabel) {
     const remindInSec = Math.round(((new Date(reminderDate)).valueOf() - Date.now()) / 1000)
     Actions.recordUserEvent("Set Reminder", {
@@ -31,7 +75,11 @@ function setReminder(accountId, reminderDate, dateLabel, {message, isDraft, draf
     });
   }
 
-  const metadata = {reminderDate}
+  let metadata = {}
+  if (reminderDate) {
+    metadata = await asyncBuildMetadata({message, thread, expiration: reminderDate})
+  } // else: we're clearing the reminder and the metadata should remain empty
+
   return NylasAPIHelpers.authPlugin(PLUGIN_ID, PLUGIN_NAME, accountId)
   .then(() => {
     if (isDraft) {
@@ -51,12 +99,12 @@ function setReminder(accountId, reminderDate, dateLabel, {message, isDraft, draf
   });
 }
 
-export function setMessageReminder(accountId, message, reminderDate, dateLabel) {
-  return setReminder(accountId, reminderDate, dateLabel, {isDraft: false, message})
+export function setMessageReminder(accountId, message, reminderDate, dateLabel, thread) {
+  return asyncSetReminder(accountId, reminderDate, dateLabel, {isDraft: false, message, thread})
 }
 
 export function setDraftReminder(accountId, draftSession, reminderDate, dateLabel) {
-  return setReminder(accountId, reminderDate, dateLabel, {isDraft: true, draftSession})
+  return asyncSetReminder(accountId, reminderDate, dateLabel, {isDraft: true, draftSession})
 }
 
 

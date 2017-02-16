@@ -165,13 +165,14 @@ class Thread extends ModelWithMetadata {
 
   static searchFields = ['subject', 'to_', 'from_', 'categories', 'body']
 
-  messages() {
-    return (
-      DatabaseStore.findAll(Message)
+  async messages({includeHidden} = {}) {
+    const messages = await DatabaseStore.findAll(Message)
       .where({threadId: this.id})
       .include(Message.attributes.body)
-    )
-    .then((messages) => messages.filter((m) => !m.isHidden()))
+    if (!includeHidden) {
+      return messages.filter(message => !message.isHidden())
+    }
+    return messages
   }
 
   /** Computes the plaintext version of ALL messages.
