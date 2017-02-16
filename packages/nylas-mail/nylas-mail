@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+if [ -e .setup-complete ]; then
+  cd N1
+  ./atom.sh "$@"
+else
+  echo "ERROR: Please run ./setup.sh first"
+  exit 1
+fi

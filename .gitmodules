@@ -1,3 +1,0 @@
-[submodule "src/K2"]
-	path = src/K2
-	url = git@github.com:nylas/K2.git
