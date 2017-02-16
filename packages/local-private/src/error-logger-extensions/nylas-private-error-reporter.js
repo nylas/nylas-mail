@@ -85,7 +85,6 @@ class ErrorReporter {
     Raven.disableConsoleAlerts();
     Raven.config(sentryDSN, {
       name: this.deviceHash,
-      autoBreadcrumbs: true,
       release: this.getVersion(),
     }).install();
 
