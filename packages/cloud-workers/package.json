@@ -9,24 +9,24 @@
     "test": "babel-node spec/run.js"
   },
   "dependencies": {
-    "cloud-core": "0.x.x",
-    "mimelib": "0.2.19",
-    "umzug": "1.11.0",
-    "sequelize": "nylas/sequelize#nylas-3.30.1",
     "boom": "4.2.0",
+    "cloud-core": "0.x.x",
     "googleapis": "9.0.0",
-    "hapi": "^16.0.3",
-    "hapi-auth-basic": "^4.2.0",
-    "hapi-boom-decorators": "^2.2.2",
-    "hapi-swagger": "^7.6.0",
+    "handlebars": "4.0.6",
+    "hapi": "16.1.0",
+    "hapi-auth-basic": "4.2.0",
+    "hapi-boom-decorators": "2.2.2",
+    "hapi-swagger": "7.6.0",
     "joi": "8.4.2",
     "js-base64": "2.1.9",
     "libhoney": "1.0.0-beta.2",
+    "mimelib": "0.2.19",
+    "raven": "1.1.1",
     "request": "2.79.0",
     "request-promise": "4.1.1",
     "rx": "4.1.0",
-    "vision": "4.1.0",
-    "handlebars": "4.0.6",
-    "raven": "1.1.1"
+    "sequelize": "github:nylas/sequelize#nylas-3.30.1",
+    "umzug": "1.11.0",
+    "vision": "4.1.0"
   }
 }
