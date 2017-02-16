@@ -1,6 +1,6 @@
 {
   "ignore_dirs": [
-    "build",
+    "build/node_modules",
     "apm/node_modules",
     "node_modules",
     "src/K2/node_modules",
