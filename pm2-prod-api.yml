@@ -1,0 +1,7 @@
+apps:
+  - script   : n1_cloud_dist/cloud-api/app.js
+    name     : api
+    instances: 0
+    exec_mode: cluster
+    env      :
+      PORT: 5100

@@ -1,0 +1,24 @@
+{
+  "name": "salesforce",
+  "title": "Salesforce",
+  "description": "Nylas Mail and Salesforce integration",
+  "isHiddenOnPluginsPage": true,
+  "isOptional": true,
+  "icon": "./icon.png",
+
+  "version": "0.1.0",
+  "main": "./lib/main",
+
+  "license": "Proprietary",
+
+  "engines": {
+    "nylas": "*"
+  },
+
+  "windowTypes": {
+    "default": true,
+    "composer": true,
+    "work": true,
+    "SalesforceObjectForm": true
+  }
+}

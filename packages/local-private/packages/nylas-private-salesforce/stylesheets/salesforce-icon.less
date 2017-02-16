@@ -1,0 +1,84 @@
+@import "ui-variables";
+@icon-size: 20px;
+
+.sf-icon-wrap {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  margin-top: @icon-size / -2;
+  box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.1);
+  background-image: linear-gradient(to top, rgba(255,255,255,0) 0%, rgba(255,255,255,0.11) 100%);
+
+  display: inline-block;
+  width: @icon-size;
+  height: @icon-size;
+  line-height: @icon-size - 1px;
+  border-radius: 2px;
+
+  &.checked {
+    &:after {
+      content: "✓";
+      width: 8px;
+      height: 8px;
+      font-size: 6px;
+      position: absolute;
+      color: #fff;
+      background: @color-success;
+      bottom: 0;
+      right: 0;
+      border-radius: 2px 0 2px 0;
+      line-height: 6px;
+      text-align: center;
+      padding-top: 1px;
+      padding-left: 1px;
+      box-shadow: 0 0 0 0.5px rgba(0,0,0,0.1);
+    }
+  }
+
+  &.round {
+    border-radius: 50%;
+    padding: 5px;
+    .sf-icon-img {
+      width: @icon-size * 0.58;
+      height: @icon-size * 0.58;
+      vertical-align: top;
+    }
+  }
+
+  &.round-create {
+    border-radius: 50%;
+    padding: 1px;
+    .sf-icon-img {
+      width: @icon-size * 0.9;
+      height: @icon-size * 0.9;
+      vertical-align: text-top;
+    }
+  }
+
+  &.inline {
+    position: relative;
+    left: 0;
+    top: 0;
+    margin-top: 0;
+    margin-left: 10px;
+  }
+
+  .sf-icon-img {
+    width: @icon-size;
+    height: @icon-size;
+    position: relative;
+    margin-top: -1px;
+  }
+}
+
+.cell-item.action-item .sf-icon-wrap {
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  left: 16px;
+  padding: 4px 3px;
+  .sf-icon-img {
+    width: 8px;
+    height: 8px;
+  }
+}

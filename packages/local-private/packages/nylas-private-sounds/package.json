@@ -1,0 +1,14 @@
+{
+  "name": "nylas-private-sounds",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Nylas Sounds",
+  "license": "Proprietary",
+  "private": true,
+  "engines": {
+    "nylas": "*"
+  },
+  "windowTypes": {
+    "all": true
+  }
+}

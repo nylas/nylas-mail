@@ -1,0 +1,31 @@
+@import "ui-variables";
+
+.salesforce-contact-info {
+  font-size: 12px;
+  margin-bottom: 22px;
+  .sf-profile {
+    .profile-source-icon {
+      width: 18px;
+      padding-top: 0;
+      float: left;
+    }
+    .profile-source-link {
+      color: @text-color-link;
+      a {
+        text-decoration: none;
+        &:hover {
+          color: @text-color-link;
+        }
+      }
+    }
+  }
+  .create-sf-obj-link {
+    display: block;
+    position: relative;
+    margin-top: 0.5em;
+    &:first-child {
+      margin-top: 0;
+    }
+    color: @text-color-link;
+  }
+}

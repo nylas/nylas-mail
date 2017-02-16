@@ -1,0 +1,53 @@
+{
+  "name": "k2",
+  "version": "0.0.2",
+  "description": "The local sync engine for Nylas Mail",
+  "main": "",
+  "dependencies": {
+    "babel-cli": "6.22.2",
+    "babel-core": "6.20.0",
+    "babel-plugin-transform-async-generator-functions": "6.17.0",
+    "babel-preset-electron": "^0.37.8",
+    "babel-preset-react": "6.16.0",
+    "fs-extra": "1.0.0",
+    "glob": "7.1.1",
+    "lerna": "2.0.0-beta.30",
+    "pm2": "^2.4.0",
+    "sequelize": "^3.30.1",
+    "sequelize-cli": "^2.5.1",
+    "umzug": "1.11.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "7.1.0",
+    "eslint": "3.10.2",
+    "eslint_d": "4.2.0",
+    "eslint-config-airbnb": "13.0.0",
+    "eslint-plugin-import": "2.2.0",
+    "eslint-plugin-jsx-a11y": "2.2.3",
+    "eslint-plugin-react": "6.7.1"
+  },
+  "scripts": {
+    "start": "pm2 stop all; pm2 delete all; pm2 start ./pm2-dev.yml --no-daemon",
+    "debug-cloud-api": "pm2 stop all; pm2 delete all; pm2 start ./pm2-debug-cloud-api.yml --no-daemon",
+    "stop": "pm2 stop all; pm2 delete all",
+    "build-n1-cloud": "node scripts/build-n1-cloud.js",
+    "restart": "pm2 restart all",
+    "postinstall": "lerna bootstrap",
+    "upgrade-db": "babel-node scripts/migrate-db.es6 up",
+    "downgrade-db": "babel-node scripts/migrate-db.es6 down"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nylas/K2.git"
+  },
+  "author": "Nylas",
+  "license": "proprietary",
+  "bugs": {
+    "url": "https://github.com/nylas/K2/issues"
+  },
+  "homepage": "https://github.com/nylas/K2#readme",
+  "engines": {
+    "node": "6.9.1",
+    "npm": "3.10.8"
+  }
+}

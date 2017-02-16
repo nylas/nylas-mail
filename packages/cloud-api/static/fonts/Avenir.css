@@ -1,0 +1,70 @@
+/**
+ * @license
+ * MyFonts Webfont Build ID 2958943, 2015-01-23T23:27:44-0500
+ * 
+ * The fonts listed in this notice are subject to the End User License
+ * Agreement(s) entered into by the website owner. All other parties are 
+ * explicitly restricted from using the Licensed Webfonts(s).
+ * 
+ * You may obtain a valid license at the URLs below.
+ * 
+ * Webfont: AvenirLTStd-MediumOblique by Linotype
+ * URL: http://www.myfonts.com/fonts/linotype/avenir/65-mediumoblique/
+ * Copyright: Copyright &#x00A9; 1981 - 2006 Linotype GmbH, www.linotype.com. All rights reserved. Copyright &#x00A9; 1989 - 2002 Adobe Systems Incorporated.  All Rights Reserved.
+ * 
+ * Webfont: AvenirLTStd-Medium by Linotype
+ * URL: http://www.myfonts.com/fonts/linotype/avenir/65-medium/
+ * Copyright: Copyright &#x00A9; 1981 - 2006 Linotype GmbH, www.linotype.com. All rights reserved. Copyright &#x00A9; 1989 - 2002 Adobe Systems Incorporated.  All Rights Reserved.
+ * 
+ * Webfont: AvenirLTStd-Light by Linotype
+ * URL: http://www.myfonts.com/fonts/linotype/avenir/35-light/
+ * Copyright: Copyright &#x00A9; 1989, 1995, 2002 Adobe Systems Incorporated.  All Rights Reserved. &#x00A9; 1981, 1995, 2002 Heidelberger Druckmaschinen AG. All rights reserved.
+ * 
+ * Webfont: AvenirLTStd-Black by Linotype
+ * URL: http://www.myfonts.com/fonts/linotype/avenir/95-black/
+ * Copyright: Copyright &#x00A9; 1989, 1995, 2002 Adobe Systems Incorporated.  All Rights Reserved. &#x00A9; 1981, 1995, 2002 Heidelberger Druckmaschinen AG. All rights reserved.
+ * 
+ * 
+ * License: http://www.myfonts.com/viewlicense?type=web&buildid=2958943
+ * Licensed pageviews: 250,000
+ * 
+ * © 2015 MyFonts Inc
+*/
+
+
+/* @import must be at top of file, otherwise CSS will not work */
+@import url("//hello.myfonts.net/count/2d265f");
+
+  
+@font-face {font-family: 'AvenirLTStd-MediumOblique';src: url('webfonts/2D265F_0_0.eot');src: url('webfonts/2D265F_0_0.eot?#iefix') format('embedded-opentype'),url('webfonts/2D265F_0_0.woff2') format('woff2'),url('webfonts/2D265F_0_0.woff') format('woff'),url('webfonts/2D265F_0_0.ttf') format('truetype');}
+ 
+  
+@font-face {font-family: 'AvenirLTStd-Medium';src: url('webfonts/2D265F_1_0.eot');src: url('webfonts/2D265F_1_0.eot?#iefix') format('embedded-opentype'),url('webfonts/2D265F_1_0.woff2') format('woff2'),url('webfonts/2D265F_1_0.woff') format('woff'),url('webfonts/2D265F_1_0.ttf') format('truetype');}
+ 
+  
+@font-face {font-family: 'AvenirLTStd-Light';src: url('webfonts/2D265F_2_0.eot');src: url('webfonts/2D265F_2_0.eot?#iefix') format('embedded-opentype'),url('webfonts/2D265F_2_0.woff2') format('woff2'),url('webfonts/2D265F_2_0.woff') format('woff'),url('webfonts/2D265F_2_0.ttf') format('truetype');}
+ 
+  
+@font-face {font-family: 'AvenirLTStd-Black';src: url('webfonts/2D265F_3_0.eot');src: url('webfonts/2D265F_3_0.eot?#iefix') format('embedded-opentype'),url('webfonts/2D265F_3_0.woff2') format('woff2'),url('webfonts/2D265F_3_0.woff') format('woff'),url('webfonts/2D265F_3_0.ttf') format('truetype');}
+
+
+/* Purchased from Linotype */
+@import url("http://fast.fonts.net/lt/1.css?apiType=css&c=a583385f-c01c-436f-a213-75a8dd3d9630&fontids=1437416,1437496,1437516");
+
+@font-face{
+font-family:"Avenir Next LT W04 Ultra Light";
+src:url("webfonts/1437416/1c2faa72-b1b1-421e-bc47-43ebd67cc8bd.eot?#iefix");
+src:url("webfonts/1437416/1c2faa72-b1b1-421e-bc47-43ebd67cc8bd.eot?#iefix") format("eot"),url("webfonts/1437416/599179d8-2203-4a9f-b271-010a707271dc.woff2") format("woff2"),url("webfonts/1437416/3b0370cd-39d6-4a24-9c65-60787db0ebe0.woff") format("woff"),url("webfonts/1437416/55f63dc4-546d-4886-95bd-d2360a19f485.ttf") format("truetype"),url("webfonts/1437416/045bc73e-b69c-4a8e-86db-808e585eca39.svg#045bc73e-b69c-4a8e-86db-808e585eca39") format("svg");
+}
+
+@font-face{
+font-family:"Avenir Next LT W04 Regu1437496";
+src:url("webfonts/1437496/483d8937-5e17-4378-9c51-aa91a3d9e1eb.eot?#iefix");
+src:url("webfonts/1437496/483d8937-5e17-4378-9c51-aa91a3d9e1eb.eot?#iefix") format("eot"),url("webfonts/1437496/ed4b9060-b5ab-4379-8840-0b50a15258b7.woff2") format("woff2"),url("webfonts/1437496/9b47db0b-77fb-4bb0-b5c2-3c131a36fc4d.woff") format("woff"),url("webfonts/1437496/9c8b7e5f-b3ca-435d-a197-b3dfeae277a1.ttf") format("truetype"),url("webfonts/1437496/0f72ee75-31c8-42ba-b262-3e13b83a8fdf.svg#0f72ee75-31c8-42ba-b262-3e13b83a8fdf") format("svg");
+}
+
+@font-face{
+font-family:"Avenir Next LT W04 Demi1437516";
+src:url("webfonts/1437516/47d79f32-82c5-4a74-9646-5150297aabc1.eot?#iefix");
+src:url("webfonts/1437516/47d79f32-82c5-4a74-9646-5150297aabc1.eot?#iefix") format("eot"),url("webfonts/1437516/249228f0-61ac-40cc-a5a5-5609c9816e3f.woff2") format("woff2"),url("webfonts/1437516/efba18ed-80cc-49c4-997a-fbb140739d19.woff") format("woff"),url("webfonts/1437516/750a20ec-9242-42a8-b3bd-c4dcec552196.ttf") format("truetype"),url("webfonts/1437516/9505c912-495c-462c-899a-e61574ee9559.svg#9505c912-495c-462c-899a-e61574ee9559") format("svg");
+}

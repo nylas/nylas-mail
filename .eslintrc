@@ -1,0 +1,74 @@
+{
+  "parser": "babel-eslint",
+  "extends": "airbnb",
+  "globals": {
+    "NylasEnv": false,
+    "$n": false,
+    "waitsForPromise": false,
+    "advanceClock": false,
+    "TEST_ACCOUNT_ID": false,
+    "TEST_ACCOUNT_NAME": false,
+    "TEST_ACCOUNT_EMAIL": false,
+    "TEST_ACCOUNT_ALIAS_EMAIL": false
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "jasmine": true
+  },
+  "rules": {
+    "arrow-body-style": "off",
+    "arrow-parens": "off",
+    "class-methods-use-this": "off",
+    "prefer-arrow-callback": ["error", {"allowNamedFunctions": true}],
+    "eqeqeq": ["error", "smart"],
+    "id-length": "off",
+    "object-curly-spacing": "off",
+    "max-len": "off",
+    "new-cap": ["error", {"capIsNew": false}],
+    "newline-per-chained-call": "off",
+    "no-bitwise": "off",
+    "no-lonely-if": "off",
+    "no-console": "off",
+    "no-continue": "off",
+    "no-constant-condition": "off",
+    "no-loop-func": "off",
+    "no-plusplus": "off",
+    "no-shadow": "error",
+    "no-underscore-dangle": "off",
+    "object-shorthand": "off",
+    "quotes": "off",
+    "quote-props": ["error", "consistent-as-needed", { "keywords": true }],
+    "no-param-reassign": ["error", { "props": false }],
+    "semi": "off",
+    "no-mixed-operators": "off",
+    "import/extensions": ["error", "never", { "json": "always" }],
+    "import/no-unresolved": ["error", {"ignore": ["nylas-exports", "nylas-component-kit", "electron", "nylas-store", "react-dom/server", "nylas-observables", "windows-shortcuts", "moment-round", "better-sqlite3", "chrono-node", "event-kit", "enzyme"]}],
+    "import/no-extraneous-dependencies": "off",
+    "import/newline-after-import": "off",
+    "import/prefer-default-export": "off",
+    "react/no-multi-comp": "off",
+    "react/no-find-dom-node": "off",
+    "react/no-string-refs": "off",
+    "react/no-unused-prop-types": "off",
+    "react/forbid-prop-types": "off",
+    "jsx-a11y/no-static-element-interactions": "off",
+    "react/prop-types": ["error", {"ignore": ["children"]}],
+    "react/sort-comp": "error",
+    "no-restricted-syntax": [
+      "error", "ForInStatement", "LabeledStatement", "WithStatement"
+    ],
+    "comma-dangle": ["error", {
+      "arrays": "always-multiline",
+      "objects": "always-multiline",
+      "imports": "always-multiline",
+      "exports": "always-multiline",
+      "functions": "ignore"
+    }],
+    "no-useless-return": "off"
+  },
+  "settings": {
+    "import/core-modules": [ "nylas-exports", "nylas-component-kit", "electron", "nylas-store", "nylas-observables" ],
+    "import/resolver": {"node": {"extensions": [".es6", ".jsx", ".coffee", ".json", ".cjsx", ".js"]}}
+  }
+}

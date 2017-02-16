@@ -1,0 +1,72 @@
+{{!< layout/default}}
+
+<div class='nylas-logo'></div>
+<form action="https://accounts.google.com/o/oauth2/auth?response_type=code&state={{ state_string }}&client_id={{ google_client_id }}&redirect_uri={{ redirect_uri }}&access_type=offline&scope=https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://mail.google.com/ https://www.google.com/m8/feeds https://www.googleapis.com/auth/calendar&prompt=select_account+consent" method="post">
+  <div id="white-box">
+    <div id="user_action" style="padding:30px;">
+
+      <h2>Action Required</h2>
+        {{#if access_denied }}
+          <p class="alert">
+            You'll need to approve access in order to start syncing this account!
+          </p>
+          <p>
+            Please try again and select "Allow".
+          </p>
+        {{else if auth_timeout }}
+          <p class="alert">
+            It took too long to authenticate your account and the request timed out. Please try again.
+          </p>
+          <p>
+            If you're seeing this error multiple times, contact us at <a href="mailto:support@nylas.com?subject=Unable%20to%20connect%20gmail%20account&body=client_key%3D{{ error }}">support@nylas.com</a>.
+          </p>
+        {{else if imap_auth_error }}
+          <p class="alert">
+            Something went wrong when trying to authenticate your account!
+          </p>
+          <h4>Make sure Gmail is enabled</h4>
+          <p>
+            Make sure Gmail is enabled for your domain. Gmail can be turned on by a Google Apps administrator using
+            <a href="https://support.google.com/a/answer/57919?hl=en" target="_blank">this guide</a>.
+          </p>
+          <h4>Enable IMAP Access</h4>
+          <p>
+            Please make sure IMAP access is enabled for the account.  IMAP can be enabled by a Google Apps administrator using
+            <a href="https://support.google.com/a/answer/105694?hl=en" target="_blank">this guide</a>.
+          </p>
+          <h4>Enable IMAP for All Mail and Trash labels</h4>
+          <p>
+            Make sure "Show in IMAP" is checked for the "All Mail" and "Trash" labels.
+          </p>
+          <p><a href="https://mail.google.com/mail/#settings/labels" target="_blank"><img src="/static/images/all_trash_imap.png"/></a></p>
+          <h4>Still having trouble?</h4>
+          <p>
+             If you've tried all of these solutions but are still running into problems, please contact us at
+            <a href="mailto:support@nylas.com?subject=Unable%20to%20connect%20gmail%20account&body=error%3D{{ error }}">support@nylas.com</a>.
+          </p>
+        {{else if invalid_grant }}
+          <p class="alert">
+              Couldn't get an authorization token from Google! Please try authenticating again.
+          </p>
+          <p>
+             If you're repeatedly receiving this error please contact us at 
+            <a href="mailto:support@nylas.com?subject=Unable%20to%20connect%20gmail%20account&body=error%3D{{ error }}">support@nylas.com</a>.
+          </p>
+        {{else}}
+          <p class="alert">
+            An unknown error occured when authorizing your account.
+          </p>
+          <p>
+             If you're repeatedly receiving this error please contact us at 
+             <a href="mailto:support@nylas.com?subject=Unable%20to%20connect%20gmail%20account&body=error%3D{{ error }}">support@nylas.com</a>.
+          </p>
+        {{/if}}
+
+        {{#if try_again}}
+          <input class="btn" type="submit" value="Try Again" />
+        {{/if}}
+
+    </div>
+  </div>
+
+</form>

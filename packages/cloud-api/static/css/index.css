@@ -1,0 +1,185 @@
+p {
+  color: #666;
+  font-family: sans-serif;
+  font-weight:300;
+  line-height: 1.5em;
+}
+a {
+  color:#419bf9;
+}
+strong {
+  font-weight:500;
+  font-family:sans-serif;
+}
+
+.alert {
+    text-align:center;
+    display:block;
+    text-shadow:0 1px rgba(255,255,255,0.7);
+    color: #BB4945;
+    background-color: #F2DEDE;
+    border:1px solid #EFD3D7;
+    padding: 16px;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.alert p:first-child {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+.btn {
+  outline:0;
+  padding: 0.44em 1em;
+  border-radius: 4px;
+  border: 0;
+  cursor: default;
+  display: inline-block;
+  color: #231f20;
+  background: linear-gradient(to top, rgba(241, 241, 241, 0.75) 0%, rgba(253, 253, 253, 0.75) 100%);
+  box-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.15), 0 -0.5px 0 rgba(0, 0, 0, 0.15), 0.5px 0 0 rgba(0, 0, 0, 0.15), -0.5px 0 0 rgba(0, 0, 0, 0.15), 0 1px 1px rgba(0, 0, 0, 0.15);
+  line-height: 1.3em;
+  font-size: 15px;
+  text-decoration: none;
+}
+
+.btn:active {
+  cursor: default;
+  background-color: rgba(230, 230, 230, 0.75);
+  box-shadow: 0 0.5px 0 rgba(0,0,0,0.15), 0 -0.5px 0 rgba(0,0,0,0.15), 0.5px 0 0 rgba(0,0,0,0.15), -0.5px 0 0 rgba(0,0,0,0.15), 0 -1px 1px rgba(0, 0, 0, 0.21);
+}
+.btn:focus {
+  outline: none
+}
+
+html, body {
+    font-family:sans-serif;
+    background-color:#F7F7F7;
+    height: 100%;
+    border:0;
+    padding:0;
+    margin:0;
+}
+
+body.nylas-gradient-bg {
+  background-color: #F6F6F6;
+  background-size: cover;
+  color: white;
+}
+
+.nylas-logo {
+  width: 90px;
+  height: 93px;
+  background: url("/static/images/logo@2x.png") top left no-repeat;
+  background-size: cover;
+  margin: auto;
+  margin-bottom: 60px;
+}
+
+h1 {
+    padding:0; margin:0; margin-bottom:30px; font-family: 'FaktPro-Black', sans-serif; color:#393939; font-size: 40pt; font-weight: 300; text-align:center;
+}
+h2 {
+    padding:0; margin:0; margin-bottom:20px; font-family: 'FaktPro-Black', sans-serif; font-size:24pt; font-weight:300; color:#393939; text-align:center;
+}
+h3 {
+    padding:0; margin:0; margin-bottom:15px; font-family: 'FaktPro-Black', sans-serif; font-weight:300; color:#393939; text-align:left;
+}
+h4 {
+    padding:0; padding-top: 10px; margin:0; margin-bottom:10px; font-family: 'FaktPro-Black', sans-serif; font-size:16px; font-weight:300; color:#393939; text-align:center;
+}
+input {
+    font-family: sans-serif;
+}
+input.field {
+    width:100%; margin-bottom:20px; border:1px solid #D3D3D3; font-size:14px; padding:9px;
+}
+input.host-field {
+    width:75%; margin-bottom:20px; margin-right:3%; border:1px solid #D3D3D3; font-size:14px; padding:9px;
+}
+input.port-field {
+    width:22%; margin-bottom:20px; border:1px solid #D3D3D3; font-size:14px; padding:9px;
+}
+#footer {
+    border-top:1px solid #EBEBEB; background-color:#FBFBFB; padding:20px; padding-left:30px; padding-right:30px; text-align:center;
+}
+#provider-logo {
+    width:100px; height:80px; margin-bottom:30px; display:inline-block; text-align:center;
+}
+#container {
+    margin:auto; padding-top:10%; width:420px; text-align:center;
+}
+
+#white-box {
+    border:1px solid #D3D3D3;
+    background-color:white;
+    box-shadow:0 2px 3px rgba(0,0,0,0.05);
+}
+
+#clear-box {
+  margin:auto;
+  text-align:center;
+}
+
+#powered-by {
+    font-weight:400; color:#ccc; margin-top:40px;
+}
+a.show_toggle {
+    font-size:13px;
+    color: #999;
+}
+a.explain {
+    font-size:13px;
+    color: #999;
+}
+a.error-help {
+    font-size: 13px;
+    color: #BB4945;
+}
+.help {
+    text-align:center; display:none; text-shadow:0 1px rgba(255,255,255,0.7); color: #333; background-color: #eee; border:1px solid #aaa; padding: 9px; font-size: 14px; margin-bottom: 20px; position: absolute; width: 240px;
+}
+
+#provider_choice input[type=radio]:not(old){
+    opacity : 0;
+}
+
+#user_action p {
+    font-size: 14px;
+}
+
+#loading {
+    display:none; text-shadow:0 1px rgba(255,255,255,0.7); color: #333; background-color: #eee; border:1px solid #aaa; padding: 9px; font-size: 14px; margin-bottom: 20px; position: absolute; width: 147px;
+    text-align: left;
+    padding-left: 100px;
+}
+#reset-container {
+    margin-top: 15px;
+}
+#reset-container a {
+    font-size:13px;
+    color: #999;
+}
+@media (max-width: 480px) {
+    body {
+        padding:0; margin:0;
+    }
+    #provider-logo {
+        margin-bottom: 0;
+    }
+    #container {
+        margin-top:0;
+        width:100%;
+    }
+    #white-box {
+        border-left:0;
+        border-right:0;
+    }
+    input.field {
+        font-size:18px;
+    }
+    input.btn {
+        width:100%;
+        font-size:18px;
+    }
+}

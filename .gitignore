@@ -44,3 +44,24 @@ internal_packages/thread-sharing
 internal_packages/local-sync
 /dist
 /dump.rdb
+n1_cloud_dist
+
+*.swp
+*~
+.DS_Store
+node_modules
+dump.rdb
+*npm-debug.log
+storage/
+lerna-debug.log
+newrelic_agent.log
+
+# Vim temp files
+*.swp
+*.swo
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+/packages/local-sync/spec-saved-state.json
