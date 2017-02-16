@@ -163,7 +163,7 @@ module.exports = (sequelize, Sequelize) => {
               return;
             }
             participantEmails.add(participant.email)
-            this.participants.push(participant)
+            this.participants = [...this.participants, participant]
           })
 
           // message.files only needs to be inflated if we're recomputing
