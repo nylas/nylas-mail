@@ -219,8 +219,10 @@ lazyLoad(`QuotedHTMLTransformer`, 'services/quoted-html-transformer');
 lazyLoad(`InlineStyleTransformer`, 'services/inline-style-transformer');
 lazyLoad(`SearchableComponentMaker`, 'searchable-components/searchable-component-maker');
 lazyLoad(`QuotedPlainTextTransformer`, 'services/quoted-plain-text-transformer');
+lazyLoad(`BatteryStatusManager`, 'services/battery-status-manager');
 lazyLoadWithGetter(`BackoffScheduler`, () => require('../services/backoff-schedulers').BackoffScheduler);
 lazyLoadWithGetter(`ExponentialBackoffScheduler`, () => require('../services/backoff-schedulers').ExponentialBackoffScheduler);
+
 // Errors
 lazyLoadWithGetter(`APIError`, () => require('../flux/errors').APIError);
 
