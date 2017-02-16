@@ -101,6 +101,7 @@ export default (sequelize, Sequelize) => {
           object: 'folder',
           name: this.role,
           display_name: formatImapPath(this.name),
+          imap_name: this.name,
           sync_progress: this.syncProgress(),
           // intentionally overwrite any sync states stored in edgehill.db,
           // since it may contain long arrays and cause perf degredation

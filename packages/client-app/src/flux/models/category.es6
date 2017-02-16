@@ -71,6 +71,10 @@ export default class Category extends Model {
       modelKey: 'displayName',
       jsonKey: 'display_name',
     }),
+    imapName: Attributes.String({
+      modelKey: 'imapName',
+      jsonKey: 'imap_name',
+    }),
     syncProgress: Attributes.Object({
       modelKey: 'syncProgress',
       jsonKey: 'sync_progress',
