@@ -4,6 +4,7 @@
   "description": "Packages use isomorphically on n1-cloud and client-sync",
   "main": "index.js",
   "dependencies": {
+    "atob": "2.0.3",
     "imap": "github:jstejada/node-imap#fix-parse-body-list",
     "imap-provider-settings": "github:nylas/imap-provider-settings",
     "joi": "8.4.2",
