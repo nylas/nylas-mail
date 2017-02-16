@@ -1,5 +1,5 @@
 {
-  "project_id" : "N1",
+  "project_id" : "nylas-mail",
   "conduit_uri" : "https://phab.nylas.com/",
   "load" : [
     "arclib"
