@@ -3,6 +3,9 @@ const glob = require('glob');
 const path = require('path');
 const babel = require('babel-core');
 
+// This moves us out of /packages/cloud-core/build to the nylas-mail-all root
+process.chdir(path.join(__dirname, "..", "..", ".."))
+
 fs.removeSync("n1_cloud_dist")
 fs.copySync("packages/cloud-api", "n1_cloud_dist/cloud-api")
 fs.copySync("packages/cloud-workers", "n1_cloud_dist/cloud-workers")
@@ -10,14 +13,15 @@ fs.copySync("packages/cloud-workers", "n1_cloud_dist/cloud-workers")
 fs.copySync("packages/cloud-core", "n1_cloud_dist/cloud-core")
 fs.copySync("packages/isomorphic-core", "n1_cloud_dist/isomorphic-core")
 
-glob.sync("n1_cloud_dist/**/*.es6", {absolute: true}).forEach((es6Path) => {
-  if (/(node_modules|\.js$)/.test(es6Path)) return
+glob.sync("n1_cloud_dist/**/*+(.es6|.js)", {absolute: true}).forEach((es6Path) => {
+  if (/node_modules/.test(es6Path)) return
   const outPath = es6Path.replace(path.extname(es6Path), '.js');
-  console.log(`---> Compiling ${es6Path.slice(es6Path.indexOf("/n1_cloud_dist") + 15)}`)
+  console.log(`---> Compiling ${es6Path.slice(es6Path.indexOf("/n1_cloud_dist") + 15)}`);
 
+  const babelConfig = JSON.parse(fs.readFileSync(".babelrc"))
   const res = babel.transformFileSync(es6Path, {
-    presets: ["electron", "react"],
-    plugins: ["transform-async-generator-functions"],
+    presets: babelConfig.presets || [],
+    plugins: babelConfig.plugins || [],
     sourceMaps: true,
     sourceRoot: '/',
     sourceMapTarget: path.relative("n1_cloud_dist/", outPath),
@@ -26,7 +30,9 @@ glob.sync("n1_cloud_dist/**/*.es6", {absolute: true}).forEach((es6Path) => {
 
   fs.writeFileSync(outPath, `${res.code}\n//# sourceMappingURL=${path.basename(outPath)}.map\n`);
   fs.writeFileSync(`${outPath}.map`, JSON.stringify(res.map));
-  fs.unlinkSync(es6Path);
+  if (/.es6$/.test(es6Path)) {
+    fs.unlinkSync(es6Path);
+  }
 });
 
 // Lerna bootstrap creates symlinks. Unfortunately it creates absolute

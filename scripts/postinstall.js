@@ -14,6 +14,10 @@ async function spawn(cmd, args, opts={}) {
 async function installPrivateResources() {
   console.log("\n---> Linking private plugins")
   const privateDir = path.resolve(path.join('packages', 'client-private-plugins'))
+  if (!fs.existsSync(privateDir)) {
+    console.log("\n---> No client app to link. Moving on")
+    return;
+  }
   const unlinkIfExistsSync = (p) => {
     try {
       if (fs.lstatSync(p)) {
@@ -72,6 +76,10 @@ async function npm(cmd, options) {
 }
 
 async function electronRebuild() {
+  if (!fs.existsSync(path.join("packages", "client-app"))) {
+    console.log("\n---> No client app to rebuild. Moving on")
+    return;
+  }
   await npm('rebuild', {cwd: path.join('packages', 'client-app', 'apm'),
                         env: 'apm'})
   await npm('rebuild', {cwd: path.join('packages', 'client-app'),

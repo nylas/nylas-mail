@@ -10,20 +10,16 @@ FROM node:6
 COPY . /home
 WORKDIR /home
 
+# This installs global dependencies, then in the postinstall script, runs lerna
+# bootstrap to install and link cloud-api, cloud-core, and cloud-workers
 RUN npm install --production
 
-# This will do an `npm install` for each of our modules and then link them all
-# together. See more about Lerna here: https://github.com/lerna/lerna We have
-# to run this separately from npm postinstall due to permission issues.
-RUN node_modules/.bin/lerna bootstrap
-
 # This uses babel to compile any es6 to stock js for plain node
-RUN npm run build-n1-cloud
+RUN node packages/cloud-core/build/build-n1-cloud
 
 # External services run on port 80. Expose it.
 EXPOSE 5100
 
 # We use a start-aws command that automatically spawns the correct process
 # based on environment variables (which changes instance to instance)
-#CMD ./node_modules/pm2/bin/pm2 start --no-daemon ./pm2-prod-${AWS_SERVICE_NAME}.yml
-CMD ./_n1cloud_docker_launcher.sh ${AWS_SERVICE_NAME}
+CMD packages/cloud-core/_n1cloud_docker_launcher.sh ${AWS_SERVICE_NAME}

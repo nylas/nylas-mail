@@ -13,7 +13,7 @@ async function activate() {
       tableName: 'migrations',
     },
     migrations: {
-      path: `migrations`,
+      path: `../migrations`,
       params: [db.sequelize.getQueryInterface(), db.sequelize],
       pattern: /^\d+[\w-]+\.es6$/,
     },

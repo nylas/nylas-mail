@@ -1,20 +1,14 @@
-n1_cloud_dist
-
-.git
-.arcconfig
-.arclint
+.arc*
+.git*
 arclib
+**/node_modules
+packages/client-*
 
 *.swp
 *~
 .DS_Store
-node_modules
-**/node_modules
-dump.rdb
-*npm-debug.log
-storage/
-lerna-debug.log
-newrelic_agent.log
+**/npm-debug.log
+**/lerna-debug.log
 
 # Vim temp files
 *.swp
@@ -25,3 +19,6 @@ newrelic_agent.log
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
 /packages/client-sync/spec-saved-state.json
+
+# Built cloud files
+n1_cloud_dist

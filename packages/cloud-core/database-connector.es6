@@ -10,7 +10,8 @@ require('./database-extensions'); // Extends Sequelize on require
 // it's not present.
 let STORAGE_DIR;
 if (!process.env.DB_HOSTNAME) {
-  STORAGE_DIR = path.join(__dirname, '..', '..', 'storage');
+  const os = require('os')
+  STORAGE_DIR = path.join(os.homedir(), '.nylas-cloud-storage');
   try {
     if (!fs.existsSync(STORAGE_DIR)) {
       fs.mkdirSync(STORAGE_DIR);
