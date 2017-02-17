@@ -1,4 +1,4 @@
-import {BackoffScheduler, ExponentialBackoffScheduler} from '../../src/services/backoff-schedulers'
+import {BackoffScheduler, ExponentialBackoffScheduler} from '../src/backoff-schedulers'
 
 
 describe('BackoffSchedulers', function describeBlock() {
