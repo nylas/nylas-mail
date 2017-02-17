@@ -26,6 +26,13 @@ function _runOnImageNode(node) {
       node.style.display = 'none';
       node.parentNode.insertBefore(downloadButton, node);
     });
+
+    node.addEventListener('load', () => {
+      const file = JSON.parse(safeDecode(node.dataset.nylasFile), Utils.registeredObjectReviver);
+      node.addEventListener('dblclick', () => {
+        Actions.fetchAndOpenFile(file);
+      });
+    });
   }
 }
 
@@ -33,7 +40,7 @@ export function encodedAttributeForFile(file) {
   return safeEncode(JSON.stringify(file, Utils.registeredObjectReplacer));
 }
 
-export function addInlineDownloadPrompts(doc) {
+export function addInlineImageListeners(doc) {
   const imgTagWalker = document.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT, {
     acceptNode: (node) => {
       if (node.nodeName === 'IMG') {

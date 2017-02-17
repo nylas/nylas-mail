@@ -5,7 +5,7 @@ import {EventedIFrame} from 'nylas-component-kit';
 import {Utils, QuotedHTMLTransformer, MessageStore} from 'nylas-exports';
 import {autolink} from './autolinker';
 import {autoscaleImages} from './autoscale-images';
-import {addInlineDownloadPrompts} from './inline-download-prompts';
+import {addInlineImageListeners} from './inline-image-listeners';
 import EmailFrameStylesStore from './email-frame-styles-store';
 
 export default class EmailFrame extends React.Component {
@@ -70,7 +70,7 @@ export default class EmailFrame extends React.Component {
 
     autolink(doc, {async: true});
     autoscaleImages(doc);
-    addInlineDownloadPrompts(doc);
+    addInlineImageListeners(doc);
 
     for (const extension of MessageStore.extensions()) {
       if (!extension.renderedMessageBodyIntoDocument) {
