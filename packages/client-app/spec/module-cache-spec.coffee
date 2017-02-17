@@ -75,7 +75,7 @@ describe 'ModuleCache', ->
     ModuleCache.add NylasEnv.getLoadSettings().resourcePath, {
       _nylasModuleCache:
         dependencies: [{
-          name: 'underscore'
+          name: 'unknown-lib'
           version: require('underscore/package.json').version
           path: path.join('node_modules', 'underscore', 'underscore.js')
         }]
@@ -83,7 +83,7 @@ describe 'ModuleCache', ->
 
     indexPath = path.join(packagePath, 'index.js')
     fs.writeFileSync indexPath, """
-      exports.load = function() { require('underscore'); };
+      exports.load = function() { require('unknown-lib'); };
     """
 
     spyOn(process, 'cwd').andReturn('/') # Required when running this test from CLI
