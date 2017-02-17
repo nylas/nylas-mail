@@ -22,7 +22,7 @@ TARGET="$TARGET_ROOT/nylas-$VERSION-$ARCH"
 
 mkdir -m $FILE_MODE -p "$TARGET/usr"
 mkdir -m $FILE_MODE -p "$TARGET/usr/share"
-cp -r "$APP_CONTENTS_DIRECTORY" "$TARGET/usr/share/nylas"
+cp -r "$APP_CONTENTS_DIRECTORY" "$TARGET/usr/share/nylas-mail"
 
 mkdir -m $FILE_MODE -p "$TARGET/DEBIAN"
 cp "$OUTPUT_PATH/control" "$TARGET/DEBIAN/control"
@@ -31,28 +31,28 @@ cp "$LINUX_ASSETS_DIRECTORY/debian/postinst" "$TARGET/DEBIAN/postinst"
 cp "$LINUX_ASSETS_DIRECTORY/debian/postrm" "$TARGET/DEBIAN/postrm"
 
 mkdir -m $FILE_MODE -p "$TARGET/usr/bin"
-cp "$LINUX_ASSETS_DIRECTORY/nylas.sh" "$TARGET/usr/bin/nylas"
-chmod +x "$TARGET/usr/bin/nylas"
+ln -s "../share/nylas-mail/nylas" "$TARGET/usr/bin/nylas-mail"
+chmod +x "$TARGET/usr/bin/nylas-mail"
 
 mkdir -m $FILE_MODE -p "$TARGET/usr/share/applications"
-cp "$OUTPUT_PATH/nylas.desktop" "$TARGET/usr/share/applications"
+cp "$OUTPUT_PATH/nylas-mail.desktop" "$TARGET/usr/share/applications"
 
 mkdir -m $FILE_MODE -p "$TARGET/usr/share/pixmaps"
-cp "$ICON_FILE" "$TARGET/usr/share/pixmaps"
+cp "$ICON_FILE" "$TARGET/usr/share/pixmaps/nylas-mail.png"
 
 mkdir -m $FILE_MODE -p "$TARGET/usr/share/icons/hicolor"
 for i in 256 128 64 32 16; do
   mkdir -p "$TARGET/usr/share/icons/hicolor/${i}x${i}/apps"
-  cp "$LINUX_ASSETS_DIRECTORY/icons/${i}.png" "$TARGET/usr/share/icons/hicolor/${i}x${i}/apps/nylas.png"
+  cp "$LINUX_ASSETS_DIRECTORY/icons/${i}.png" "$TARGET/usr/share/icons/hicolor/${i}x${i}/apps/nylas-mail.png"
 done
 
-# Copy generated LICENSE.md to /usr/share/doc/nylas/copyright
-mkdir -m $FILE_MODE -p "$TARGET/usr/share/doc/nylas"
-cp "$TARGET/usr/share/nylas/LICENSE" "$TARGET/usr/share/doc/nylas/copyright"
+# Copy generated LICENSE.md to /usr/share/doc/nylas-mail/copyright
+mkdir -m $FILE_MODE -p "$TARGET/usr/share/doc/nylas-mail"
+cp "$TARGET/usr/share/nylas-mail/LICENSE" "$TARGET/usr/share/doc/nylas-mail/copyright"
 
 # Add lintian overrides
 mkdir -m $FILE_MODE -p "$TARGET/usr/share/lintian/overrides"
-cp "$ROOT/build/resources/linux/debian/lintian-overrides" "$TARGET/usr/share/lintian/overrides/nylas"
+cp "$ROOT/build/resources/linux/debian/lintian-overrides" "$TARGET/usr/share/lintian/overrides/nylas-mail"
 
 # Remove group write from all files
 chmod -R g-w "$TARGET";

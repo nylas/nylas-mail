@@ -2,8 +2,8 @@
 Name=<%= productName %>
 Comment=<%= description %>
 GenericName=<%= productName %>
-Exec=<%= linuxShareDir %>/nylas %U
-Icon=nylas
+Exec=/usr/bin/nylas-mail %U
+Icon=nylas-mail
 Type=Application
 StartupNotify=true
 StartupWMClass=<%= productName %>

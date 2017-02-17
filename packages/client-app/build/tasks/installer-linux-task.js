@@ -59,7 +59,7 @@ module.exports = (grunt) => {
     writeFromTemplate(specInFilePath, templateData)
 
     // This populates nylas.desktop
-    const desktopInFilePath = path.join(linuxAssetsDir, 'nylas.desktop.in')
+    const desktopInFilePath = path.join(linuxAssetsDir, 'nylas-mail.desktop.in')
     writeFromTemplate(desktopInFilePath, templateData)
 
     const cmd = path.join('script', 'mkrpm')
@@ -92,14 +92,14 @@ module.exports = (grunt) => {
         name: grunt.config('appJSON').name,
         description: grunt.config('appJSON').description,
         productName: grunt.config('appJSON').productName,
-        linuxShareDir: '/usr/share/nylas',
+        linuxShareDir: '/usr/share/nylas-mail',
         arch: arch,
         section: 'devel',
         maintainer: 'Nylas Team <support@nylas.com>',
         installedSize: installedSize,
       }
       writeFromTemplate(path.join(linuxAssetsDir, 'debian', 'control.in'), data)
-      writeFromTemplate(path.join(linuxAssetsDir, 'nylas.desktop.in'), data)
+      writeFromTemplate(path.join(linuxAssetsDir, 'nylas-mail.desktop.in'), data)
 
       const icon = path.join('build', 'resources', 'nylas.png')
       const cmd = path.join('script', 'mkdeb');
