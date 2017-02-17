@@ -1,5 +1,5 @@
 import google from 'googleapis';
-import {Provider, IMAPConnection, PromiseUtils} from 'isomorphic-core'
+import {Provider, IMAPConnection} from 'isomorphic-core'
 import DatabaseConnector from './database-connector'
 
 const OAuth2 = google.auth.OAuth2;
@@ -40,6 +40,9 @@ class GmailOAuthHelpers {
         imap_username: googleProfile.email,
         imap_host: 'imap.gmail.com',
         imap_port: 993,
+        smtp_username: googleProfile.email,
+        smtp_host: 'smtp.gmail.com',
+        smtp_port: 465,
         ssl_required: true,
       },
       credentials: {
@@ -79,9 +82,16 @@ class GmailOAuthHelpers {
     const credentials = account.decryptedCredentials();
 
     oauthClient.setCredentials({ refresh_token: credentials.refresh_token });
-    const refreshToken = PromiseUtils.promisify(oauthClient.refreshAccessToken);
 
-    const tokens = await refreshToken();
+    const tokens = await new Promise((resolve, reject) => {
+      oauthClient.refreshAccessToken((error, _tokens) => {
+        if (error) {
+          reject(error)
+        } else {
+          resolve(_tokens)
+        }
+      })
+    })
     const res = {}
     res.access_token = tokens.access_token;
     res.xoauth2 = IMAPConnection.generateXOAuth2Token(account.emailAddress,

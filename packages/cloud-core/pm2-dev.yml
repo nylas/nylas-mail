@@ -22,6 +22,9 @@ apps:
       DB_NAME : "nylasmailclouddb"
       DB_ENCRYPTION_ALGORITHM : "aes-256-ctr"
       DB_ENCRYPTION_PASSWORD : "d6F3Efeq"
+      GMAIL_CLIENT_ID : "271342407743-nibas08fua1itr1utq9qjladbkv3esdm.apps.googleusercontent.com"
+      GMAIL_CLIENT_SECRET : "WhmxErj-ei6vJXLocNhBbfBF"
+      GMAIL_REDIRECT_URL : "http://localhost:5100/auth/gmail/oauthcallback"
       NODE_ENV: 'development'
   - script   : packages/cloud-core/scripts/run-redis.sh
     name     : redis
