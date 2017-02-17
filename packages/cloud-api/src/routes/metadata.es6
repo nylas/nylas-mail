@@ -35,7 +35,7 @@ function upsertMetadata({account, objectId, objectType, pluginId, version, value
 }
 
 async function upsertThreadMetadata(args) {
-  const {messageIds, account, pluginId, expirationDate} = args
+  const {messageIds, account, pluginId, expiration} = args
   let {objectId, value, version} = args
   // Thread ids can be any of their message ids prefixed with "t:", so we need
   // to check all of them
@@ -84,7 +84,7 @@ async function upsertThreadMetadata(args) {
     pluginId,
     version,
     value,
-    expirationDate,
+    expiration,
     objectType: 'thread',
   })
 }
@@ -156,11 +156,11 @@ module.exports = (server) => {
         } catch (e) {
           throw new Error("Invalid Request: `value` is not a parseable JSON string")
         }
-        let expirationDate = null;
-        if (value.expirationDate) {
-          expirationDate = new Date(value.expirationDate);
-          if (isNaN(expirationDate.valueOf())) {
-            throw new Error("Invalid Request: `expirationDate` is not a parseable date")
+        let expiration = null;
+        if (value.expiration) {
+          expiration = new Date(value.expiration);
+          if (isNaN(expiration.valueOf())) {
+            throw new Error("Invalid Request: `expiration` is not a parseable date")
           }
         }
 
@@ -172,7 +172,7 @@ module.exports = (server) => {
             pluginId,
             version,
             value,
-            expirationDate,
+            expiration,
             messageIds,
           })
         } else {
@@ -183,7 +183,7 @@ module.exports = (server) => {
             pluginId,
             version,
             value,
-            expirationDate,
+            expiration,
           })
         }
 
