@@ -1,0 +1,1 @@
+/Users/mhahnenberg/Code/src/nylas/nylas-mail-all/packages/isomorphic-core/spec/imap-pool-spec.es6
