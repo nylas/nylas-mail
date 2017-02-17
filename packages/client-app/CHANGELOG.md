@@ -2,47 +2,27 @@
 
 ### 1.0.28 (2/16/2017)
 
-- nylas-mail:
+- Fixes:
 
-  + [battery] Add BatteryStatusManager
-  + fix(exports) Add backoff schedulers
-  + feat(offline) Re add offline status notification
-  + reafctor(scheduler): Move SearchIndexer -> SearchIndexScheduler
-  + feat(backoff-scheduler): Add a backoff scheduler service
+  + Fix offline notification bug that caused outage!
+  + Cloud api fixes for outage!
+  + We now properly handle gmail auth token errors in the middle of the sync loop. This means less red boxes for users!
+  + Less battery usage when initial sync has completed!
+  + No more errors when saving sent messages to sent folders (`auth or accountId` errors)
+  + No more `Lingering tasks in progress marked as failed errors`
+  + Syncback tasks will continue retrying even after closing app
+  + Syncback tasks retry more aggressively
+  + Detect more offline errors when sending, sending is more reliable
+  + Imap connection pooling (yet to land)
+  + More retryable IMAP errors, means less red boxes for users
+  + Offline notification now shows itself when we’re actually offline, shows countdown for next reconnect attempt
 
-- K2:
+- Development:
 
-  + [local-sync] :art: sync loop error handler
-  + [sentry] Don't use breadcrumbs in dev mode
-  + [cloud-api] remove latest_cursor endpoint
-  + [cloud-api] Log error info on 5xx errors
-  + [local-sync] Refresh Google OAuth2 tokens when Invalid Credentials occurs in sync loop
-  + Add TODOs about retries in sending
-  + [local-sync] Add exponential backoff when retrying syncback tasks
-  + [SFDC] Update SalesforceSearchIndexer for new search indexing
-  + [cloud-api,cloud-workers,local-sync] Bump hapi version
-  + [cloud-api] Reduce request timing precision
-  + Bump pm2 version to 2.4.0
-  + [cloud-api] KEEP Timeout streaming API connections every 15 minutes
-  + Revert [cloud-api] Timeout streaming API connections every 15 minutes
-  + [cloud-\*] Properly listen to stream disconnect events to close redis connections
-  + [cloud-core, cloud-api] add logging to delta connection
-  + [cloud-api] Timeout streaming API connections every 15 minutes
-  + [isomorphic-core] add accountId index definition to Transaction table
-  + [cloud-api] recover from bad error from /n1/user
-  + [local-sync] :art: comment
-  + [local-sync] syncback(Part 5): Always keep retrying tasks if error is retryable
-  + [local-sync] :fire: Message syncback tasks
-  + [cloud-api] Change an extension from .js to .es6
-  + [local-sync] syncback(Part 4): Don't always mark INPROGRESS tasks as failed at beginning of sync
-  + [local-sync] syncback(Part 3): Fixup 
-  + [local-sync] syncback(Part 2): Reinstate send tasks back into the sync loop
-  + [cloud-api] Add metadata tests
-  + [local-sync, cloud-api] Add logic to handle thread metadata
-  + [local-sync] syncback(Part 1): Refactor syncback-task-helpers
-  + [iso-core] Detect more offline errors when sending
-  + [local-sync] Add a better reason when waking sync for syncback
-  + [local-sync] More retryable IMAP errors
+  + More tests
+  + Don't use breadcrumbs in dev mode
+  + Add a better reason when waking sync for syncback in the logs
+  + BackoffScheduler, BatteryManager added for reusability
 
 ### 1.0.27 (2/14/17)
 
