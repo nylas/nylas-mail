@@ -16,4 +16,6 @@ module.exports = {
   DeltaStreamBuilder: require('./src/delta-stream-builder'),
   HookTransactionLog: require('./src/hook-transaction-log'),
   HookIncrementVersionOnSave: require('./src/hook-increment-version-on-save'),
+  BackoffScheduler: require('./src/backoff-schedulers').BackoffScheduler,
+  ExponentialBackoffScheduler: require('./src/backoff-schedulers').ExponentialBackoffScheduler,
 }
