@@ -32,7 +32,7 @@
     "raven": "1.1.1",
     "request": "2.79.0",
     "request-promise": "4.1.1",
-    "rx": "4.1.0",
+    "rx-lite": "4.0.8",
     "vision": "4.1.0"
   }
 }
