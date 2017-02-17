@@ -2,25 +2,31 @@
   "name": "nylas-mail-all",
   "version": "0.0.1",
   "description": "All components required to run Nylas Mail",
-  "devDependencies": {
+  "dependencies": {
     "babel-cli": "6.x.x",
     "babel-core": "6.x.x",
     "babel-eslint": "7.1.0",
     "babel-preset-electron": "1.4.15",
     "babel-preset-react": "6.x.x",
+    "pm2": "2.4.0",
+    "lerna": "2.0.0-beta.37",
+    "fs-plus": "2.x.x",
+    "fs-extra": "2.x.x",
+    "glob": "7.x.x",
+    "request": "2.x.x",
+    "underscore": "1.8.x"
+  },
+  "devDependencies": {
+    "chalk": "1.x.x",
+    "coffeelint-cjsx": "2.x.x",
+    "electron-installer-dmg": "0.2.x",
+    "electron-packager": "8.4.x",
     "eslint": "3.10.1",
     "eslint-config-airbnb": "13.0.0",
     "eslint-plugin-import": "2.2.0",
     "eslint-plugin-jsx-a11y": "2.2.3",
     "eslint-plugin-react": "6.7.1",
     "eslint_d": "4.2.0",
-    "fs-plus": "2.x.x",
-    "lerna": "2.0.0-beta.37",
-    "chalk": "1.x.x",
-    "coffeelint-cjsx": "2.x.x",
-    "electron-installer-dmg": "0.2.x",
-    "electron-packager": "8.4.x",
-    "glob": "7.x.x",
     "grunt": "0.4.x",
     "grunt-cli": "0.1.x",
     "grunt-coffeelint": "git+https://github.com/atom/grunt-coffeelint.git#cfb99aa99811d52687969532bd5a98011ed95bfe",
@@ -30,22 +36,25 @@
     "grunt-contrib-less": "0.8.x",
     "grunt-electron-installer": "2.x.x",
     "grunt-lesslint": "0.13.x",
-    "request": "2.x.x",
     "s3": "4.x.x",
-    "temp": "0.8.x",
-    "underscore": "1.8.x"
+    "temp": "0.8.x"
   },
   "scripts": {
     "start": "npm run start-client",
     "test": "npm run test-client",
+
     "start-client": "packages/client-app/node_modules/.bin/electron packages/client-app --enable-logging --dev",
-    "start-api": "",
-    "build-client": "",
-    "build-api": "",
     "test-client": "packages/client-app/node_modules/.bin/electron packages/client-app --enable-logging --test",
     "test-client-window": "packages/client-app/node_modules/.bin/electron packages/client-app --enable-logging --test=window",
     "test-client-junit": "",
-    "test-api": "",
+    "build-client": "",
+
+    "start-cloud": "pm2 stop all; pm2 delete all; pm2 start packages/cloud-core/pm2-dev.yml --no-daemon",
+    "test-cloud": "",
+    "stop": "npm run stop-cloud",
+    "stop-cloud": "pm2 stop all; pm2 delete all;",
+    "build-cloud": "",
+
     "postinstall": "babel-node scripts/postinstall.js"
   },
   "repository": {
