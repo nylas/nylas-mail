@@ -11,8 +11,10 @@ COPY . /home
 WORKDIR /home
 
 # This installs global dependencies, then in the postinstall script, runs lerna
-# bootstrap to install and link cloud-api, cloud-core, and cloud-workers
-RUN npm install --production
+# bootstrap to install and link cloud-api, cloud-core, and cloud-workers.
+# We need the --unsafe-perm param to run the postinstall script since Docker
+# will run everything as sudo
+RUN npm install --production --unsafe-perm
 
 # This uses babel to compile any es6 to stock js for plain node
 RUN node packages/cloud-core/build/build-n1-cloud
@@ -21,5 +23,5 @@ RUN node packages/cloud-core/build/build-n1-cloud
 EXPOSE 5100
 
 # We use a start-aws command that automatically spawns the correct process
-# based on environment variables (which changes instance to instance)
+# based on environmpackages/cloud-coreent variables (which changes instance to instance)
 CMD packages/cloud-core/_n1cloud_docker_launcher.sh ${AWS_SERVICE_NAME}
