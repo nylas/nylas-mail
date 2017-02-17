@@ -176,7 +176,8 @@ class SyncWorker {
         if (statusCode >= 500) {
           // Even though we don't consider 500s as permanent errors when
           // refreshing tokens, we want to report them
-          NylasEnv.reportError(err)
+          const fingerprint = ["{{ default }}", "access token refresh", statusCode, err.message];
+          NylasEnv.reportError(err, {fingerprint: fingerprint})
         }
         const isNonPermanentError = (
           // If we got a 5xx error from the server, that means that something is wrong
@@ -195,7 +196,8 @@ class SyncWorker {
         }
       }
       this._logger.error(`🔃  Unable to refresh access token.`, err);
-      NylasEnv.reportError(err)
+      const fingerprint = ["{{ default }}", "access token refresh", err.message];
+      NylasEnv.reportError(err, {fingerprint: fingerprint})
       throw new Error(`Unable to refresh access token, unknown error encountered`);
     }
   }
@@ -365,8 +367,9 @@ class SyncWorker {
 
     // Step 4 Update account error state
     const errorJSON = error.toJSON()
-    error.message = `Error in sync loop: ${error.message}`
-    NylasEnv.reportError(error)
+    const fingerprint = ["{{ default }}", "sync loop", error.message];
+    NylasEnv.reportError(error, {fingerprint: fingerprint});
+
     const isAuthError = error instanceof IMAPErrors.IMAPAuthenticationError
     const accountSyncState = isAuthError ? SYNC_STATE_AUTH_FAILED : SYNC_STATE_ERROR;
     // TODO this is currently a hack to keep N1's account in sync and notify of

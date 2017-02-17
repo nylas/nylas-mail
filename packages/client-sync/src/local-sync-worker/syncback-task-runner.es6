@@ -187,10 +187,10 @@ class SyncbackTaskRunner {
         syncbackRequest.status = "NEW";
         this._logger.warn(`🔃 📤 ${task.description()} Failed with retryable error, retrying in next loop (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON(), error})
       } else {
-        error.message = `Syncback Task Failed: ${error.message}`
+        const fingerprint = ["{{ default }}", "syncback task", error.message];
+        NylasEnv.reportError(error, {fingerprint: fingerprint});
         syncbackRequest.error = error;
         syncbackRequest.status = "FAILED";
-        NylasEnv.reportError(error);
         this._logger.error(`🔃 📤 ${task.description()} Failed (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON(), error})
       }
     } finally {
