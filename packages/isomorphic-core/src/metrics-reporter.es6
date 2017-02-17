@@ -28,6 +28,13 @@ class MetricsReporter {
     });
   }
 
+  sendToHoneycomb(info) {
+    if (!this._honey) {
+      throw new Error('Metrics Reporter: Honeycomb is not available in this environment')
+    }
+    this._honey.sendNow(info);
+  }
+
   async reportEvent(info) {
     if (!info.accountId) {
       throw new Error("Metrics Reporter: You must include an accountId");
@@ -58,11 +65,11 @@ class MetricsReporter {
         });
         await req.run()
       } else {
-        this._honey.sendNow(info);
+        this.sendToHoneycomb(info)
       }
     } catch (err) {
-      logger.log(info, "Metrics Collector: Submitted.", info);
-      logger.warn("Metrics Collector: Submission Failed.", {error: err, ...info});
+      logger.log(info, "Metrics Reporter: Submitted.", info);
+      logger.warn("Metrics Reporter: Submission Failed.", {error: err, ...info});
     }
   }
 }
