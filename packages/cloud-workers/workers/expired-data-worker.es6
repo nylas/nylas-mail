@@ -15,9 +15,7 @@ export default class ExpiredDataWorker {
     do {
       try {
         await this.performAction(metadatum);
-
-        // Now, get rid of the entry.
-        await this.removeEntry(metadatum);
+        await this.nullifyEntry(metadatum); // So we don't try to process it again
         return;
       } catch (err) {
         // We only try to perform the action for
@@ -34,10 +32,14 @@ export default class ExpiredDataWorker {
     await this.removeEntry(metadatum);
   }
 
-  async removeEntry(metadatum) {
-    // Remove the object
-    this.logger.info(`Destroying metadata for ${metadatum.id}`);
-    await metadatum.destroy();
+  async nullifyEntry(metadatum) {
+    // Nylas Mail can't properly process delete deltas for metadata, because
+    // the transactions don't store what the objectId and pluginId of the
+    // metadata were. Instead, we just nullify the value.
+    this.logger.info(`Nullifying metadata for ${metadatum.id}`);
+    metadatum.value = {};
+    metadatum.expiration = null;
+    await metadatum.save();
   }
 
   async performAction(metadatum) {
