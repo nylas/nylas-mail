@@ -1,14 +1,31 @@
 import fs from 'fs-plus'
 import path from 'path'
-import child_process from 'child_process'
+import childProcess from 'child_process'
 
-async function spawn(cmd, args, opts={}) {
+async function spawn(cmd, args, opts = {}) {
   return new Promise((resolve, reject) => {
     const options = Object.assign({stdio: 'inherit'}, opts);
-    const proc = child_process.spawn(cmd, args, options)
+    const proc = childProcess.spawn(cmd, args, options)
     proc.on("error", reject)
     proc.on("exit", resolve)
   })
+}
+
+function unlinkIfExistsSync(p) {
+  try {
+    if (fs.lstatSync(p)) {
+      fs.removeSync(p);
+    }
+  } catch (err) {
+    return
+  }
+}
+
+function copyErrorLoggerExtensions(privateDir) {
+  const from = path.join(privateDir, 'src')
+  const to = path.resolve(path.join('packages', 'client-app', 'src'))
+  unlinkIfExistsSync(path.join(to, 'error-logger-extensions'));
+  fs.copySync(from, to);
 }
 
 async function installPrivateResources() {
@@ -18,19 +35,8 @@ async function installPrivateResources() {
     console.log("\n---> No client app to link. Moving on")
     return;
   }
-  const unlinkIfExistsSync = (p) => {
-    try {
-      if (fs.lstatSync(p)) {
-        fs.removeSync(p);
-      }
-    } catch (err) {
-      return
-    }
-  }
 
-  // copy Source Extensions
-  unlinkIfExistsSync(path.join('packages', 'client-app', 'src', 'error-logger-extensions'));
-  fs.copySync(path.join(privateDir, 'src'), 'src');
+  copyErrorLoggerExtensions(privateDir)
 
   // link private plugins
   for (const plugin of fs.readdirSync(path.join(privateDir, 'packages'))) {
@@ -55,15 +61,15 @@ async function lernaBootstrap() {
 const npmEnvs = {
   system: process.env,
   apm: Object.assign({}, process.env, {
-    'NPM_CONFIG_TARGET': '0.10.40',
+    NPM_CONFIG_TARGET: '0.10.40',
   }),
   electron: Object.assign({}, process.env, {
-    'NPM_CONFIG_TARGET': '1.4.15',
-    'NPM_CONFIG_ARCH': process.arch,
-    'NPM_CONFIG_TARGET_ARCH': process.arch,
-    'NPM_CONFIG_DISTURL': 'https://atom.io/download/electron',
-    'NPM_CONFIG_RUNTIME': 'electron',
-    'NPM_CONFIG_BUILD_FROM_SOURCE': true,
+    NPM_CONFIG_TARGET: '1.4.15',
+    NPM_CONFIG_ARCH: process.arch,
+    NPM_CONFIG_TARGET_ARCH: process.arch,
+    NPM_CONFIG_DISTURL: 'https://atom.io/download/electron',
+    NPM_CONFIG_RUNTIME: 'electron',
+    NPM_CONFIG_BUILD_FROM_SOURCE: true,
   }),
 };
 
@@ -80,10 +86,14 @@ async function electronRebuild() {
     console.log("\n---> No client app to rebuild. Moving on")
     return;
   }
-  await npm('rebuild', {cwd: path.join('packages', 'client-app', 'apm'),
-                        env: 'apm'})
-  await npm('rebuild', {cwd: path.join('packages', 'client-app'),
-                        env: 'electron'})
+  await npm('rebuild', {
+    cwd: path.join('packages', 'client-app', 'apm'),
+    env: 'apm',
+  })
+  await npm('rebuild', {
+    cwd: path.join('packages', 'client-app'),
+    env: 'electron',
+  })
 }
 
 async function main() {
