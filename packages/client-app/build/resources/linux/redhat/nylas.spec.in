@@ -3,7 +3,7 @@ Version:        <%= version %>
 Release:        0.1%{?dist}
 Summary:        <%= description %>
 License:        GPLv3
-URL:            https://nylas.com/N1
+URL:            https://github.com/nylas/nylas-mail
 AutoReqProv:    no # Avoid libchromiumcontent.so missing dependency
 
 requires:       libgnome-keyring
@@ -12,29 +12,29 @@ requires:       libgnome-keyring
 <%= description %>
 
 %install
-mkdir -p %{buildroot}/usr/local/share/nylas
-cp -r <%= contentsDir %>/* %{buildroot}/usr/local/share/nylas
+mkdir -p %{buildroot}/usr/share/nylas-mail
+cp -r <%= contentsDir %>/* %{buildroot}/usr/share/nylas-mail
 
-mkdir -p %{buildroot}/usr/local/bin/
+mkdir -p %{buildroot}/usr/bin/
 
-cp <%= linuxAssetsDir %>/nylas.sh %{buildroot}/usr/local/bin/nylas
-chmod 755 %{buildroot}/usr/local/bin/nylas
+ln -s ../share/nylas-mail/nylas %{buildroot}/usr/bin/nylas-mail
+chmod 755 %{buildroot}/usr/bin/nylas-mail
 
-mkdir -p %{buildroot}/usr/local/share/applications/
-mv nylas.desktop %{buildroot}/usr/local/share/applications/
+mkdir -p %{buildroot}/usr/share/applications/
+mv nylas-mail.desktop %{buildroot}/usr/share/applications/
 
 for s in 16 32 64 128 256 512; do
-    mkdir -p %{buildroot}/usr/local/share/icons/hicolor/${s}x${s}/apps
-    cp -p <%= linuxAssetsDir %>/icons/${s}.png %{buildroot}/usr/local/share/icons/hicolor/${s}x${s}/apps/nylas.png
+    mkdir -p %{buildroot}/usr/share/icons/hicolor/${s}x${s}/apps
+    cp -p <%= linuxAssetsDir %>/icons/${s}.png %{buildroot}/usr/share/icons/hicolor/${s}x${s}/apps/nylas-mail.png
 done
 
 %files
-/usr/local/bin/nylas
-/usr/local/share/nylas
-/usr/local/share/applications/nylas.desktop
-/usr/local/share/icons/hicolor/16x16/apps/nylas.png
-/usr/local/share/icons/hicolor/32x32/apps/nylas.png
-/usr/local/share/icons/hicolor/64x64/apps/nylas.png
-/usr/local/share/icons/hicolor/128x128/apps/nylas.png
-/usr/local/share/icons/hicolor/256x256/apps/nylas.png
-/usr/local/share/icons/hicolor/512x512/apps/nylas.png
+/usr/bin/nylas-mail
+/usr/share/nylas-mail
+/usr/share/applications/nylas-mail.desktop
+/usr/share/icons/hicolor/16x16/apps/nylas-mail.png
+/usr/share/icons/hicolor/32x32/apps/nylas-mail.png
+/usr/share/icons/hicolor/64x64/apps/nylas-mail.png
+/usr/share/icons/hicolor/128x128/apps/nylas-mail.png
+/usr/share/icons/hicolor/256x256/apps/nylas-mail.png
+/usr/share/icons/hicolor/512x512/apps/nylas-mail.png
