@@ -3,8 +3,8 @@ const getMac = require('getmac').getMac
 const crypto = require('crypto')
 const Raven = require('raven');
 //
-// NOTE: This file is manually copied over from the edgehill repo into N1. You
-// must manually update both files. We can't use a sym-link because require
+// NOTE: This file is manually copied over from the K2 repo into Nylas Mail.
+// You must manually update both files. We can't use a sym-link because require
 // paths don't work properly.
 //
 
@@ -73,8 +73,8 @@ class ErrorReporter {
       }
     }
 
-    for (let i = 0; i < captureObjects.length; i++) {
-      Raven.captureException(err, Object.assign(errData, captureObjects[i]))
+    for (const obj of captureObjects) {
+      Raven.captureException(err, Object.assign(errData, obj))
     }
   }
 
@@ -106,27 +106,49 @@ class ErrorReporter {
       delete error.requestOptions.body.body;
     }
 
+    // https://docs.sentry.io/learn/rollups/#customize-grouping-with-fingerprints
+    const fingerprint = extra.fingerprint;
+    // The error-handling codepath of Nylas Mail involves several steps which
+    // end with reporter extensions being called always with two arguments:
+    // the Error object, and `extra`, which is an arbitrary object that
+    // contains any extra params. The Sentry API _also_ takes an `extra`
+    // param which contains arbitrary extra data. In order to avoid changing
+    // the whole error reporting extension API to be less generic, when
+    // reporting data to Sentry we pass in some `extra` params that should be
+    // sent to Sentry in non-`extra` params, and then delete them from the
+    // `extra` object so it's not sending confusing duplicate information.
+    // This should not affect other plugins as these deleted params are
+    // Sentry-specific.
+    if (extra.fingerprint) delete extra.fingerprint;
+
     if (extra && extra.pluginIds && extra.pluginIds.length > 0) {
       const captureObjects = [];
-      for (let i = 0; i < extra.pluginIds.length; i++) {
-        captureObjects.push({
+      for (const pluginId of extra.pluginIds) {
+        const obj = {
           extra: extra,
           tags: {
             platform: process.platform,
             version: this.getVersion(),
-            pluginId: extra.pluginIds[i],
+            pluginId: pluginId,
           },
-        });
+        };
+        if (fingerprint) {
+          obj.fingerprint = fingerprint;
+        }
+        captureObjects.push(obj);
       }
+      if (extra.pluginIds) delete extra.pluginIds;
       return captureObjects
     }
-    return [{
+    const objs = [{
       extra: extra,
       tags: {
         platform: process.platform,
         version: this.getVersion(),
       },
-    }]
+    }];
+    if (fingerprint) objs[0].fingerprint = fingerprint;
+    return objs;
   }
 }
 

@@ -174,7 +174,8 @@ export default class NylasAPIRequest {
               response.statusCode = NylasAPI.TimeoutErrorCodes[0];
             }
             const apiError = new APIError({error, response, body, requestOptions: this.options});
-            NylasEnv.errorLogger.apiDebug(apiError);
+            const fingerprint = ["{{ default }}", "local api", response.statusCode, error.message];
+            NylasEnv.reportError(apiError, {fingerprint: fingerprint});
             reject(apiError);
           } else {
             if (this.options.ensureOnce === true) {

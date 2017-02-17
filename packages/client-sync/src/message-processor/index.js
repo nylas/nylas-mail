@@ -151,7 +151,8 @@ class MessageProcessor {
         imapMessage,
         desiredParts,
       })
-      NylasEnv.reportError(err)
+      const fingerprint = ["{{ default }}", "message processor", err.message];
+      NylasEnv.reportError(err, {fingerprint: fingerprint})
 
       // Keep track of uids we failed to fetch
       const {failedUIDs = []} = folder.syncState
