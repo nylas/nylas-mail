@@ -1,7 +1,7 @@
 React = require 'react'
 _ = require 'underscore'
 EmailFrame = require('./email-frame').default
-{encodedAttributeForFile} = require('./inline-download-prompts')
+{encodedAttributeForFile} = require('./inline-image-listeners')
 {
   DraftHelpers,
   CanvasUtils,
