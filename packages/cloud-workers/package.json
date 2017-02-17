@@ -27,6 +27,7 @@
     "rx-lite": "4.0.8",
     "sequelize": "github:nylas/sequelize#nylas-3.30.1",
     "umzug": "1.11.0",
+    "underscore": "1.8.3",
     "vision": "4.1.0"
   }
 }

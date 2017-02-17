@@ -1,3 +1,4 @@
+import _ from 'underscore'
 import SnoozeWorker from './workers/snooze'
 import {setupMonitoring} from './monitoring'
 import Sentry from './sentry'
@@ -17,6 +18,10 @@ process.on('unhandledRejection', onUnhandledError)
 
 const workerTable = {};
 const MAX_ELEMENTS = 1000;
+
+const workers = [new SnoozeWorker(global.Logger)]
+const workersByPluginId = {}
+workers.forEach((worker) => { workersByPluginId[worker.pluginId()] = worker })
 
 // Ghetto check-in mechanism. We really want to be alerted
 // if for some reason our main loop blows up. To do that, we just
@@ -40,18 +45,24 @@ async function run() {
   logger.info(`Fetched ${expiredMetadata.length} expired elements from the db`);
 
   try {
-    const snoozeWorker = new SnoozeWorker(logger);
-    for (const datum of expiredMetadata) {
-      // Skip entries we're already processing.
-      if (workerTable[datum.id]) {
-        continue;
+    const expiredMetadataByPluginId = _.groupBy(expiredMetadata, (datum) => datum.pluginId)
+    for (const pluginId of Object.keys(expiredMetadataByPluginId)) {
+      const worker = workersByPluginId[pluginId]
+      if (!worker) {
+        throw new Error(`Could not find worker for pluginId ${pluginId}`)
       }
-
-      workerTable[datum.id] = snoozeWorker.run(datum);
-      workerTable[datum.id].then(() => {
-        logger.info(`Worker for task ${datum.id} completed.`);
-        delete workerTable[datum.id];
-      })
+      for (const datum of expiredMetadataByPluginId[pluginId]) {
+        // Skip entries we're already processing.
+        if (workerTable[datum.id]) {
+          logger.info(`Skipping metadum with id ${datum.id}, it's already being processed`)
+          continue;
+        }
+        workerTable[datum.id] = worker.run(datum)
+        workerTable[datum.id].then(() => {
+          logger.info(`Worker for task ${datum.id} completed.`);
+          delete workerTable[datum.id];
+        })
+      }
     }
   } catch (e) {
     Sentry.captureException(e);

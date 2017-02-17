@@ -6,6 +6,10 @@ import {asyncGetImapConnection} from './utils'
 const SNOOZE_FOLDER_NAME = "N1-Snoozed";
 
 export default class SnoozeWorker extends ExpiredDataWorker {
+  pluginId() {
+    return 'thread-snooze'
+  }
+
   async performAction(metadatum) {
     this.logger.debug(`Snoozed message message-id-header: ${metadatum.value.header}`);
 

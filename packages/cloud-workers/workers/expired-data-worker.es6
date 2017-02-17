@@ -9,6 +9,10 @@ export default class ExpiredDataWorker {
     this.logger = logger;
   }
 
+  pluginId() {
+    throw new Error("You should override this!");
+  }
+
   async run(metadatum) {
     this.logger.info(`Processing metadatum w/ id ${metadatum.id}`);
     let count = 0;
