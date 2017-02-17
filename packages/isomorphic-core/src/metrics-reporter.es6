@@ -34,7 +34,6 @@ class MetricsReporter {
     }
     const logger = global.Logger.child({accountEmail: info.emailAddress})
     const {workingSetSize, privateBytes, sharedBytes} = process.getProcessMemoryInfo();
-    const percentCPU = await this.collectCPUUsage();
 
     info.hostname = os.hostname();
     info.cpus = os.cpus().length;
@@ -44,7 +43,6 @@ class MetricsReporter {
     info.processWorkingSetSize = workingSetSize;
     info.processPrivateBytes = privateBytes;
     info.processSharedBytes = sharedBytes;
-    info.processPercentCPU = percentCPU;
 
     try {
       if (isClientEnv()) {
