@@ -6,7 +6,7 @@ const MAX_RETRIES = 30;
 
 export default class ExpiredDataWorker {
   constructor(logger) {
-    this.logger = logger;
+    this.logger = logger.child({pluginId: this.pluginId()});
   }
 
   pluginId() {
@@ -24,12 +24,18 @@ export default class ExpiredDataWorker {
       } catch (err) {
         // We only try to perform the action for
         Sentry.captureException(err);
-        count++;
-        const sleepPeriod = 60000 * (count + 1) + Math.floor((Math.random() * 100));
 
-        this.logger.error("Error when performing action", err);
-        this.logger.error(`Sleeping for ${sleepPeriod} ms`);
-        await sleep(sleepPeriod);
+        if (/invalid metadata values/i.test(err.message)) {
+          this.logger.error("Cannot process metadatum, will not retry.", err)
+          count = MAX_RETRIES;
+        } else {
+          count++;
+          const sleepPeriod = 60000 * (count + 1) + Math.floor((Math.random() * 100));
+
+          this.logger.error("Error when performing action", err);
+          this.logger.error(`Sleeping for ${sleepPeriod} ms`);
+          await sleep(sleepPeriod);
+        }
       }
     } while (count < MAX_RETRIES);
 

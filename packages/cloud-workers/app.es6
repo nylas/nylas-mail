@@ -1,5 +1,6 @@
 import _ from 'underscore'
 import SnoozeWorker from './workers/snooze'
+import SendRemindersWorker from './workers/send-reminders'
 import {setupMonitoring} from './monitoring'
 import Sentry from './sentry'
 const {DatabaseConnector, Logger, Metrics} = require('cloud-core')
@@ -19,7 +20,10 @@ process.on('unhandledRejection', onUnhandledError)
 const workerTable = {};
 const MAX_ELEMENTS = 1000;
 
-const workers = [new SnoozeWorker(global.Logger)]
+const workers = [
+  new SnoozeWorker(global.Logger),
+  new SendRemindersWorker(global.Logger),
+]
 const workersByPluginId = {}
 workers.forEach((worker) => { workersByPluginId[worker.pluginId()] = worker })
 

@@ -130,6 +130,9 @@ module.exports = (sequelize, Sequelize) => {
         }
         if (this.provider === 'gmail') {
           const {xoauth2} = this.decryptedCredentials();
+          if (!xoauth2) {
+            throw new Error("Missing XOAuth2 Token")
+          }
           const {imap_username} = this.connectionSettings;
           const token = this.bearerToken(xoauth2);
           config.auth = { user: imap_username, xoauth2: token }
