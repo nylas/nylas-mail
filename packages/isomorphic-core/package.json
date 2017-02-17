@@ -10,7 +10,7 @@
     "nodemailer": "2.5.0",
     "promise-props": "1.0.0",
     "promise.prototype.finally": "1.0.1",
-    "rx": "4.1.0",
+    "rx-lite": "4.0.8",
     "sequelize": "3.28.0",
     "underscore": "1.8.3",
     "xoauth2": "1.2.0"
