@@ -45,7 +45,7 @@ export function ThreadHeader(props) {
   if (!message) {
     return <span />
   }
-  const {reminderDate} = message.metadataForPluginId(PLUGIN_ID) || {}
+  const {expiration} = message.metadataForPluginId(PLUGIN_ID) || {}
   return (
     <div className="send-reminders-header">
       <RetinaImg
@@ -55,7 +55,7 @@ export function ThreadHeader(props) {
       <span>
         This thread will come back to the top of your inbox if nobody replies by: <br />
         <span className="reminder-date">
-          {` ${getReminderLabel(reminderDate)}`}
+          {` ${getReminderLabel(expiration)}`}
         </span>
       </span>
     </div>

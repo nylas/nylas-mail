@@ -18,7 +18,7 @@ export function reminderDateForMessage(message) {
     return null;
   }
   const messageMetadata = message.metadataForPluginId(PLUGIN_ID) || {};
-  return messageMetadata.reminderDate;
+  return messageMetadata.expiration;
 }
 
 function setReminder(accountId, reminderDate, dateLabel, {message, isDraft, draftSession} = {}) {
@@ -63,7 +63,7 @@ export function setDraftReminder(accountId, draftSession, reminderDate, dateLabe
 function reminderThreadIdsFromMessages(messages) {
   return Array.from(new Set(
     messages
-    .filter((message) => (message.metadataForPluginId(PLUGIN_ID) || {}).reminderDate != null)
+    .filter((message) => (message.metadataForPluginId(PLUGIN_ID) || {}).expiration != null)
     .map(({threadId}) => threadId)
     .filter((threadId) => threadId != null)
   ))
@@ -100,8 +100,8 @@ export function getLatestMessage(thread, messages) {
 export function getLatestMessageWithReminder(thread, messages) {
   const msgs = (messages || thread.__messages || []).slice().reverse();
   return msgs.find((message) => {
-    const {reminderDate} = message.metadataForPluginId(PLUGIN_ID) || {}
-    return reminderDate != null
+    const {expiration} = message.metadataForPluginId(PLUGIN_ID) || {}
+    return expiration != null
   })
 }
 

@@ -63,8 +63,8 @@ class SendRemindersThreadTimestamp extends Component {
     if (!canRenderTimestamp(message)) { return }
     const message$ = Rx.Observable.fromQuery(DatabaseStore.find(Message, message.id))
     this._disposable = message$.subscribe((msg) => {
-      const {reminderDate} = msg.metadataForPluginId(PLUGIN_ID) || {};
-      if (!reminderDate) {
+      const {expiration} = msg.metadataForPluginId(PLUGIN_ID) || {};
+      if (!expiration) {
         this.setState({message: null})
       } else {
         this.setState({message: msg})
@@ -84,9 +84,9 @@ class SendRemindersThreadTimestamp extends Component {
     if (!canRenderTimestamp(message)) {
       return <Fallback {...this.props} />
     }
-    const {reminderDate} = message.metadataForPluginId(PLUGIN_ID);
-    const title = getReminderLabel(reminderDate, {fromNow: true})
-    const shortLabel = getReminderLabel(reminderDate, {shortFormat: true})
+    const {expiration} = message.metadataForPluginId(PLUGIN_ID);
+    const title = getReminderLabel(expiration, {fromNow: true})
+    const shortLabel = getReminderLabel(expiration, {shortFormat: true})
     return (
       <span className="send-reminders-thread-timestamp timestamp" title={title}>
         <RetinaImg
