@@ -60,7 +60,6 @@ class SendmailClient {
       throw new APIError('Sending failed - Network Error', 401, {originalError: error})
     }
 
-    NylasEnv.reportError(error)
     throw new APIError('Sending failed', 500, {originalError: error});
   }
 
@@ -77,7 +76,8 @@ class SendmailClient {
     msgData.messageId = message.headerMessageId;
 
     msgData.attachments = []
-    for (const upload of message.uploads) {
+    const uploads = message.uploads || []
+    for (const upload of uploads) {
       msgData.attachments.push({
         filename: upload.filename,
         content: fs.createReadStream(upload.targetPath),
