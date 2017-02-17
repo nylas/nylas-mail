@@ -1,16 +1,11 @@
-import LibHoney from 'libhoney'
-
-const honey = new LibHoney({
-  writeKey: process.env.HONEY_WRITE_KEY,
-  dataset: process.env.HONEY_DATASET,
-});
+import {MetricsReporter} from 'isomorphic-core'
 
 export default function registerHoneycombRoutes(server) {
   server.route({
     method: 'POST',
     path: '/ingest-metrics',
     handler: (request, reply) => {
-      honey.sendNow(request.payload);
+      MetricsReporter.sendToHoneycomb(request.payload)
       reply({success: true})
     },
   });
