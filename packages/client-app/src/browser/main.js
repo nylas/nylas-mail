@@ -93,15 +93,15 @@ const parseCommandLine = (argv) => {
   const specDirectory = args['spec-directory'];
   const specFilePattern = args['spec-file-pattern'];
   const showSpecsInWindow = specMode === "window";
-  const resourcePath = path.resolve(args['resource-path'] != null ? args['resource-path'] : path.dirname(path.dirname(__dirname)));
+  const resourcePath = path.resolve(path.dirname(path.dirname(__dirname)));
   const urlsToOpen = [];
   const pathsToOpen = [];
 
   // On Windows and Linux, mailto and file opens are passed in argv. Go through
   // the items and pluck out things that look like mailto:, nylas:, file paths
   let ignoreNext = false;
-  for (let i = 1; i < argv.length; i ++) {
-    const arg = argv[i];
+  // args._ is all of the non-hyphenated options.
+  for (const arg of args._) {
     if (ignoreNext) {
       ignoreNext = false;
       continue;
@@ -110,7 +110,8 @@ const parseCommandLine = (argv) => {
       ignoreNext = true;
       continue;
     }
-    if (arg === resourcePath) {
+    // Skip the argument if it's part of the main electron invocation.
+    if (path.resolve(arg) === resourcePath) {
       continue;
     }
     if (arg.startsWith('mailto:') || arg.startsWith('nylas:')) {
