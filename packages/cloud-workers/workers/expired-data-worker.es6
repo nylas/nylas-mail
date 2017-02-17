@@ -1,4 +1,4 @@
-import sleep from './utils'
+import {sleep} from './utils'
 import Sentry from '../sentry'
 
 // How many times do we retry an action.
