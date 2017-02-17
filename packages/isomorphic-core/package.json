@@ -8,6 +8,7 @@
     "imap": "github:jstejada/node-imap#fix-parse-body-list",
     "imap-provider-settings": "github:nylas/imap-provider-settings",
     "joi": "8.4.2",
+    "libhoney": "1.0.0-beta.2",
     "nodemailer": "2.5.0",
     "promise-props": "1.0.0",
     "promise.prototype.finally": "1.0.1",

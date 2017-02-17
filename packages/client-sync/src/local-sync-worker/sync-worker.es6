@@ -3,6 +3,7 @@ const {
   IMAPErrors,
   IMAPConnection,
   SendmailClient,
+  MetricsReporter,
 } = require('isomorphic-core');
 const {
   Actions,
@@ -14,7 +15,6 @@ const {
   Account: {SYNC_STATE_RUNNING, SYNC_STATE_AUTH_FAILED, SYNC_STATE_ERROR},
 } = require('nylas-exports')
 const Interruptible = require('../shared/interruptible')
-const SyncMetricsReporter = require('./sync-metrics-reporter');
 const SyncTaskFactory = require('./sync-task-factory');
 const SyncbackTaskRunner = require('./syncback-task-runner').default;
 const LocalSyncDeltaEmitter = require('./local-sync-delta-emitter').default
@@ -63,15 +63,17 @@ class SyncWorker {
       let seen = 0;
       db.Thread.addHook('afterCreate', 'metricsCollection', () => {
         if (seen === 0) {
-          SyncMetricsReporter.reportEvent({
+          MetricsReporter.reportEvent({
             type: 'imap',
+            accountId: account.id,
             emailAddress: account.emailAddress,
             msecToFirstThread: (Date.now() - new Date(account.createdAt).getTime()),
           })
         }
         if (seen === 500) {
-          SyncMetricsReporter.reportEvent({
+          MetricsReporter.reportEvent({
             type: 'imap',
+            accountId: account.id,
             emailAddress: account.emailAddress,
             msecToFirst500Threads: (Date.now() - new Date(account.createdAt).getTime()),
           })

@@ -18,4 +18,5 @@ module.exports = {
   HookIncrementVersionOnSave: require('./src/hook-increment-version-on-save'),
   BackoffScheduler: require('./src/backoff-schedulers').BackoffScheduler,
   ExponentialBackoffScheduler: require('./src/backoff-schedulers').ExponentialBackoffScheduler,
+  MetricsReporter: require('./src/metrics-reporter').default,
 }
