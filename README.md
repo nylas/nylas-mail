@@ -35,4 +35,4 @@ benefit of letting us use subdomains.
 
 1. `npm install` (Only on fresh install and new packages)
 1. `npm run start-client`: Starts Electron app client
-1. `npm run start-api`: Starts cloud API locally
+1. `npm run start-cloud`: Starts cloud API locally
