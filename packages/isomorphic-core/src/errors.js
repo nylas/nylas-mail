@@ -1,7 +1,11 @@
 
 class NylasError extends Error {
   toJSON() {
-    const json = super.toJSON() || {}
+    let json = {}
+    if (super.toJSON) {
+      // Chromium `Error`s have a `toJSON`, but Node `Error`s do NOT!
+      json = super.toJSON()
+    }
     Object.getOwnPropertyNames(this).forEach((key) => {
       json[key] = this[key];
     });
