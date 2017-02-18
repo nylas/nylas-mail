@@ -10,6 +10,7 @@ const {
   APIError,
   NylasAPI,
   N1CloudAPI,
+  IdentityStore,
   NylasAPIRequest,
   BatteryStatusManager,
   Account: {SYNC_STATE_RUNNING, SYNC_STATE_AUTH_FAILED, SYNC_STATE_ERROR},
@@ -62,19 +63,23 @@ class SyncWorker {
       // TODO extract this into its own module, can use later on for exchange
       let seen = 0;
       db.Thread.addHook('afterCreate', 'metricsCollection', () => {
+        const identity = IdentityStore.identity()
+        const nylasId = identity ? identity.id : null;
         if (seen === 0) {
           MetricsReporter.reportEvent({
+            nylasId,
             type: 'imap',
+            provider: account.provider,
             accountId: account.id,
-            emailAddress: account.emailAddress,
             msecToFirstThread: (Date.now() - new Date(account.createdAt).getTime()),
           })
         }
         if (seen === 500) {
           MetricsReporter.reportEvent({
+            nylasId,
             type: 'imap',
+            provider: account.provider,
             accountId: account.id,
-            emailAddress: account.emailAddress,
             msecToFirst500Threads: (Date.now() - new Date(account.createdAt).getTime()),
           })
         }

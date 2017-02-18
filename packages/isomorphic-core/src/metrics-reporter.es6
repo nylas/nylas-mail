@@ -36,8 +36,8 @@ class MetricsReporter {
   }
 
   async reportEvent(info) {
-    if (!info.accountId) {
-      throw new Error("Metrics Reporter: You must include an accountId");
+    if (!info.nylasId) {
+      throw new Error("Metrics Reporter: You must include an nylasId");
     }
     const logger = global.Logger.child({accountEmail: info.emailAddress})
     const {workingSetSize, privateBytes, sharedBytes} = process.getProcessMemoryInfo();
@@ -53,6 +53,11 @@ class MetricsReporter {
 
     try {
       if (isClientEnv()) {
+        if (NylasEnv.inDevMode()) { return }
+        if (!info.accountId) {
+          throw new Error("Metrics Reporter: You must include an accountId");
+        }
+
         const {N1CloudAPI, NylasAPIRequest} = require('nylas-exports') // eslint-disable-line
         const req = new NylasAPIRequest({
           api: N1CloudAPI,
@@ -67,8 +72,8 @@ class MetricsReporter {
       } else {
         this.sendToHoneycomb(info)
       }
-    } catch (err) {
       logger.log(info, "Metrics Reporter: Submitted.", info);
+    } catch (err) {
       logger.warn("Metrics Reporter: Submission Failed.", {error: err, ...info});
     }
   }
