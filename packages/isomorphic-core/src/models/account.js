@@ -1,7 +1,7 @@
 const atob = require('atob')
 const crypto = require('crypto');
 const {JSONColumn, JSONArrayColumn} = require('../database-types');
-const {SUPPORTED_PROVIDERS} = require('../auth-helpers');
+const {SUPPORTED_PROVIDERS, credentialsForProvider} = require('../auth-helpers');
 
 const {DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD} = process.env;
 
@@ -117,10 +117,15 @@ module.exports = (sequelize, Sequelize) => {
       },
 
       smtpConfig() {
-        const {smtp_host, smtp_port, ssl_required} = this.connectionSettings;
+        const {connectionSettings, connectionCredentials} = credentialsForProvider({
+          provider: this.provider,
+          settings: this.decryptedCredentials(),
+          email: this.emailAddress,
+        });
+        const {smtp_host, smtp_port, smtp_username, ssl_required} = connectionSettings;
         let config = {}
-        if (this.connectionSettings.smtp_custom_config) {
-          config = this.connectionSettings.smtp_custom_config
+        if (connectionSettings.smtp_custom_config) {
+          config = connectionSettings.smtp_custom_config
         } else {
           config = {
             host: smtp_host,
@@ -129,15 +134,14 @@ module.exports = (sequelize, Sequelize) => {
           }
         }
         if (this.provider === 'gmail') {
-          const {xoauth2} = this.decryptedCredentials();
+          const {xoauth2} = connectionCredentials;
           if (!xoauth2) {
             throw new Error("Missing XOAuth2 Token")
           }
-          const {imap_username} = this.connectionSettings;
           const token = this.bearerToken(xoauth2);
-          config.auth = { user: imap_username, xoauth2: token }
+          config.auth = { user: smtp_username, xoauth2: token }
         } else if (SUPPORTED_PROVIDERS.has(this.provider)) {
-          const {smtp_username, smtp_password} = this.decryptedCredentials();
+          const {smtp_password} = connectionCredentials
           config.auth = { user: smtp_username, pass: smtp_password}
         } else {
           throw new Error(`${this.provider} not yet supported`)
