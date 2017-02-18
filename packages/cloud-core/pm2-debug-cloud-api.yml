@@ -16,6 +16,7 @@ apps:
       HONEY_WRITE_KEY: 'XXXXXXXXXXXXX'
   - script   : packages/cloud-workers/app.es6
     interpreter : node_modules/.bin/babel-node
+    interpreter_args: "--inspect"
     watch    : ["packages"]
     name     : workers
     env      :

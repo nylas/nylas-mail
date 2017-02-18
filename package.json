@@ -50,6 +50,7 @@
     "build-client": "",
 
     "start-cloud": "pm2 stop all; pm2 delete all; pm2 start packages/cloud-core/pm2-dev.yml --no-daemon",
+    "start-cloud-debug": "pm2 stop all; pm2 delete all; pm2 start packages/cloud-core/pm2-debug-cloud-api.yml --no-daemon",
     "test-cloud": "",
     "stop": "npm run stop-cloud",
     "stop-cloud": "pm2 stop all; pm2 delete all;",
