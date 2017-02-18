@@ -381,7 +381,7 @@ Message(date DESC) WHERE draft = 1`,
   // run an expensive parse once, but use the DOM to load both HTML and
   // PlainText versions of the body.
   computeDOMWithoutQuotes() {
-    return QuotedHTMLTransformer.removeQuotedHTML(this.body);
+    return QuotedHTMLTransformer.removeQuotedHTML(this.body, {asDOM: true});
   }
 
   fromContact() {

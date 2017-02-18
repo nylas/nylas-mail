@@ -43,9 +43,10 @@ class QuotedHTMLTransformer {
   removeQuotedHTML(html, options = {keepIfWholeBodyIsQuote: true}) {
     const doc = this._parseHTML(html);
     const quoteElements = this._findQuoteLikeElements(doc, options);
+    const asDOM = !!options.asDOM
 
     if (options.keepIfWholeBodyIsQuote && this._wholeBodyIsQuote(doc, quoteElements)) {
-      return this._outputHTMLFor(this._parseHTML(html), {initialHTML: html});
+      return this._outputHTMLFor(this._parseHTML(html), {initialHTML: html, asDOM});
     }
 
     DOMUtils.Mutating.removeElements(quoteElements, options);
@@ -53,20 +54,20 @@ class QuotedHTMLTransformer {
     // It's possible that the entire body was quoted text anyway and we've
     // removed everything.
     if (options.keepIfWholeBodyIsQuote && (!doc.body || !doc.children[0])) {
-      return this._outputHTMLFor(this._parseHTML(html), {initialHTML: html});
+      return this._outputHTMLFor(this._parseHTML(html), {initialHTML: html, asDOM});
     }
 
     if (!doc.body) {
-      return this._outputHTMLFor(this._parseHTML(""), {initialHTML: html});
+      return this._outputHTMLFor(this._parseHTML(""), {initialHTML: html, asDOM});
     }
 
     this.removeTrailingBr(doc);
     DOMUtils.Mutating.removeElements(quoteStringDetector(doc));
     if (options.keepIfWholeBodyIsQuote && (!doc.children[0] || this._wholeNylasPlaintextBodyIsQuote(doc))) {
-      return this._outputHTMLFor(this._parseHTML(html), {initialHTML: html});
+      return this._outputHTMLFor(this._parseHTML(html), {initialHTML: html, asDOM});
     }
 
-    return this._outputHTMLFor(doc, {initialHTML: html});
+    return this._outputHTMLFor(doc, {initialHTML: html, asDOM});
   }
 
   // Finds any trailing BR tags and removes them in place
@@ -119,7 +120,8 @@ class QuotedHTMLTransformer {
     return doc;
   }
 
-  _outputHTMLFor(doc, {initialHTML}) {
+  _outputHTMLFor(doc, {initialHTML, asDOM} = {}) {
+    if (asDOM) return doc
     if (/<\s?head\s?>/i.test(initialHTML) || /<\s?body[\s>]/i.test(initialHTML)) {
       return doc.children[0].innerHTML;
     }
