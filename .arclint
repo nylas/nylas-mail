@@ -2,7 +2,7 @@
   "linters": {
     "coffeescript-linter": {
       "type": "script-and-regex",
-      "script-and-regex.script": "script/grunt coffeelint:target --target",
+      "script-and-regex.script": "packages/client-app/script/grunt coffeelint:target --target",
       "script-and-regex.regex": "/^  ((?P<error>✖)|(?P<warning>⚠)) *line (?P<line>\\d+) +(?P<message>.*)$/m",
       "include": "{\\.(e?coffee|cjsx)}"
     },
