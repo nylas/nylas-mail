@@ -275,7 +275,7 @@ class DraftStore extends NylasStore {
 
   _onPopoutBlankDraft = () => {
     Actions.recordUserEvent("Draft Created", {type: "new"});
-    NylasEnv.perf.start("Popout Draft");
+    NylasEnv.timer.start("Popout Draft");
     return DraftFactory.createDraft().then((draft) => {
       return this._finalizeAndPersistNewMessage(draft).then(({draftClientId}) => {
         return this._onPopoutDraftClientId(draftClientId, {newDraft: true});
@@ -287,7 +287,7 @@ class DraftStore extends NylasStore {
     if (draftClientId == null) {
       throw new Error("DraftStore::onPopoutDraftId - You must provide a draftClientId");
     }
-    NylasEnv.perf.start("Popout Draft");
+    NylasEnv.timer.start("Popout Draft");
 
     const title = options.newDraft ? "New Message" : "Message";
     return this.sessionForClientId(draftClientId).then((session) => {
