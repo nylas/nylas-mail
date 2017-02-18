@@ -60,10 +60,12 @@ class DeltaProcessor {
     this.activationTime = Date.now()
   }
 
-  async process(rawDeltas = []) {
+  async process(rawDeltas = [], {source} = {}) {
     try {
       const deltas = await this._decorateDeltas(rawDeltas);
-      Actions.longPollReceivedRawDeltas(deltas);
+      if (source === "n1Cloud") {
+        Actions.longPollReceivedRawDeltas(deltas);
+      }
 
       const {
         modelDeltas,

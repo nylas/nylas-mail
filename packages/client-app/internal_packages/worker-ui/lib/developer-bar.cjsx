@@ -48,7 +48,7 @@ class DeveloperBar extends React.Component
         <div className="btn-container pull-left">
           <div className="btn" onClick={ => @_onExpandSection('long-polling')}>
             {@_renderDeltaStates()}
-            <span>Delta Streaming</span>
+            <span>Cloud Deltas</span>
           </div>
         </div>
         <div className="btn-container pull-left">
@@ -72,9 +72,7 @@ class DeveloperBar extends React.Component
   _renderDeltaStates: =>
     _.map @state.longPollStates, (deltaStatus, accountId) =>
       <div className="delta-state-wrap" key={accountId} >
-        { _.map deltaStatus, (val, deltaName) =>
-          <div title={"Account #{accountId} - #{deltaName} State: #{val}"} key={"#{accountId}-#{deltaName}"} className={"activity-status-bubble state-" + val}></div>
-        }
+        <div title={"Account #{accountId} - Cloud State: #{deltaStatus?.n1Cloud}"} key={"#{accountId}-n1Cloud"} className={"activity-status-bubble state-" + deltaStatus?.n1Cloud}></div>
       </div>
 
   _sectionContent: =>
