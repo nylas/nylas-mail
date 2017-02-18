@@ -5,7 +5,7 @@ const BUFFER_SIZE = 100;
  * A benchmarking system to keep track of start and end times for various
  * event types.
  */
-export default class PerformanceMonitor {
+export default class GlobalTimer {
   constructor() {
     this._doneRuns = {}
     this._pendingRuns = {}
@@ -70,5 +70,4 @@ export default class PerformanceMonitor {
   clear(key) {
     delete this._doneRuns[key]
   }
-
 }

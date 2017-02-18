@@ -8,6 +8,7 @@ import path from 'path';
 import proc from 'child_process'
 import {EventEmitter} from 'events';
 
+import GlobalTimer from './global-timer'
 import WindowManager from './window-manager';
 import FileListCache from './file-list-cache';
 import DatabaseReader from './database-reader';
@@ -15,7 +16,6 @@ import ConfigMigrator from './config-migrator';
 import ApplicationMenu from './application-menu';
 import AutoUpdateManager from './auto-update-manager';
 import SystemTrayManager from './system-tray-manager';
-import PerformanceMonitor from './performance-monitor'
 import DefaultClientHelper from '../default-client-helper';
 import NylasProtocolHandler from './nylas-protocol-handler';
 import PackageMigrationManager from './package-migration-manager';
@@ -73,7 +73,7 @@ export default class Application extends EventEmitter {
     });
     this.systemTrayManager = new SystemTrayManager(process.platform, this);
     this._databasePhase = 'setup';
-    this.perf = new PerformanceMonitor()
+    this.timer = new GlobalTimer()
 
     this.setupJavaScriptArguments();
     this.handleEvents();

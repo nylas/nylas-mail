@@ -195,7 +195,7 @@ class NylasEnvConstructor
     @packages.onDidActivateInitialPackages => @watchThemes()
     @windowEventHandler = new WindowEventHandler()
 
-    @perf = remote.getGlobal('application').perf
+    @timer = remote.getGlobal('application').timer
 
     @localSyncEmitter = new Emitter
 
@@ -739,7 +739,7 @@ class NylasEnvConstructor
   # plugins needs to be loaded.
   populateHotWindow: (event, loadSettings) =>
     if /composer/.test(loadSettings.windowType)
-      NylasEnv.perf.split("Popout Draft")
+      NylasEnv.timer.split("Popout Draft")
     @loadSettings = loadSettings
     @constructor.loadSettings = loadSettings
 
