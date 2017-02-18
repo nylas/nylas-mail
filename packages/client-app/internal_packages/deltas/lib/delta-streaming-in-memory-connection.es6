@@ -13,7 +13,7 @@ class DeltaStreamingInMemoryConnection {
 
   onDeltas = (allDeltas = []) => {
     const deltas = allDeltas.filter((d) => d.accountId === this._accountId);
-    this._onDeltas(deltas);
+    this._onDeltas(deltas, {source: "localSync"});
     const last = deltas[deltas.length - 1]
     if (last) this._setCursor(last.cursor);
   }

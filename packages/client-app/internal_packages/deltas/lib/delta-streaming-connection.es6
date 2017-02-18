@@ -15,7 +15,7 @@ class DeltaStreamingConnection extends NylasLongConnection {
 
     // Update cursor when deltas received
     this.onResults((deltas = []) => {
-      if (opts.onDeltas) opts.onDeltas(deltas);
+      if (opts.onDeltas) opts.onDeltas(deltas, {source: "n1Cloud"});
       const last = _.last(deltas);
       if (last && last.cursor) {
         this._setCursor(last.cursor)
