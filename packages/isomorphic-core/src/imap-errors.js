@@ -22,7 +22,7 @@ class IMAPConnectionNotReadyError extends RetryableError {
   }
 }
 
-class IMAPConnectionEndedError extends NylasError {
+class IMAPConnectionEndedError extends RetryableError {
   constructor(msg = "The IMAP Connection was ended.") {
     super(msg);
   }
