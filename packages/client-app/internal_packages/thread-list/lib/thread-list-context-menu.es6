@@ -162,11 +162,10 @@ export default class ThreadListContextMenu {
     return {
       label: `${dir}${star}`,
       click: () => {
-        const task = TaskFactory.taskForInvertingStarred({
+        Actions.toggleStarredThreads({
           source: "Context Menu: Thread List",
           threads: this.threads,
         })
-        Actions.queueTask(task)
       },
     }
   }

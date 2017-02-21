@@ -15,7 +15,6 @@ MessageItemContainer = require './message-item-container'
  WorkspaceStore,
  ChangeLabelsTask,
  ComponentRegistry,
- ChangeStarredTask,
  SearchableComponentStore
  SearchableComponentMaker} = require("nylas-exports")
 
