@@ -1,5 +1,19 @@
 # Nylas Mail Changelog
 
+### 1.0.29 (2/21/2017)
+
+- Fixes:
+
+  + You can now click inline images in messages to open them
+  + More IMAP errors have been identified as retryable, which means users will
+    see less errors when syncing an account
+
+- Development:
+
+  + Add performance metrics for thread-list actions
+  + Developer bar in Worker window now shows single delta connection
+  + More code converted to Javascript
+
 ### 1.0.28 (2/16/2017)
 
 - Fixes:
