@@ -191,29 +191,26 @@ export default class CategoryPickerPopover extends Component {
             NylasEnv.showErrorDialog({title: "Error", message: `Could not create ${categoryType}.`})
             return;
           }
-          const applyTask = TaskFactory.taskForApplyingCategory({
+          Actions.applyCategoryToThreads({
             source: "Category Picker: New Category",
             threads: threads,
-            category: cat,
+            categoryToApply: cat,
           })
-          Actions.queueTask(applyTask)
         })
       })
       Actions.queueTask(syncbackTask)
     } else if (item.usage === threads.length) {
-      const applyTask = TaskFactory.taskForRemovingCategory({
+      Actions.removeCategoryFromThreads({
         source: "Category Picker: Existing Category",
         threads: threads,
-        category: item.category,
+        categoryToRemove: item.category,
       })
-      Actions.queueTask(applyTask)
     } else {
-      const applyTask = TaskFactory.taskForApplyingCategory({
+      Actions.applyCategoryToThreads({
         source: "Category Picker: Existing Category",
         threads: threads,
-        category: item.category,
+        categoryToApply: item.category,
       })
-      Actions.queueTask(applyTask)
     }
     if (account.usesFolders()) {
       // In case we are drilled down into a message

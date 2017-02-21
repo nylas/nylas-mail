@@ -569,6 +569,8 @@ class Actions {
   static archiveThreads = ActionScopeWindow;
   static removeThreadsFromView = ActionScopeWindow;
   static moveThreadsToPerspective = ActionScopeWindow;
+  static applyCategoryToThreads = ActionScopeWindow;
+  static removeCategoryFromThreads = ActionScopeWindow;
   static threadListDidUpdate = ActionScopeWindow;
 }
 
