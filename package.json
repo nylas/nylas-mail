@@ -52,7 +52,7 @@
     "stop": "npm run stop-cloud",
     "stop-cloud": "pm2 stop all; pm2 delete all;",
     "build-cloud": "docker build .",
-    "postinstall": "babel-node scripts/postinstall.js"
+    "postinstall": "babel-node scripts/postinstall.es6"
   },
   "repository": {
     "type": "git",
