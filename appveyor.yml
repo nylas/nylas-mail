@@ -1,0 +1,41 @@
+version: '{build}'
+
+branches:
+  only:
+  - master
+  - /ci.*/
+  - /stable.*/
+
+# We need to only clone the main module because our submodule requires the
+# encrypted ssh key to access submodules
+install:
+- ps: Install-Product node $env:NODE_VERSION
+- ps: nuget install secure-file -ExcludeVersion
+- ps: npm config set msvs_version 2013
+
+# We need to extract the encrypted private ssh key to clone the submodule.
+- ps: |
+    if ($env:DECRYPTION_PASSWORD) {
+      secure-file\tools\secure-file -decrypt packages\client-private-plugins\encrypted_certificates\appveyor\win-nylas-n1.p12.enc -secret $env:DECRYPTION_PASSWORD
+      secure-file\tools\secure-file -decrypt packages\client-private-plugins\encrypted_certificates\appveyor\set_win_env.ps1.enc -secret $env:DECRYPTION_PASSWORD
+      . packages\client-private-plugins\encrypted_certificates\appveyor\set_win_env.ps1
+    }
+
+build_script:
+- cmd: npm install
+
+deploy_script:
+- cmd: npm run build-client
+
+environment:
+  matrix:
+  - NODE_VERSION: 6.9
+    PUBLISH_BUILD: true
+  global:
+    CERTIFICATE_FILE: .\packages\client-private-plugins\encrypted_certificates\appveyor\win-nylas-n1.p12
+    DECRYPTION_PASSWORD:
+      secure: 48VSzDtdBd52Xlo3TZ1NeR1yRRrZ3AU6Px5XjD5RDp44cFU5GYVspecGqX6DGCV7i0D7nldGMyEbXNrjM1t1Kw==
+
+cache:
+  - packages\client-app\node_modules -> packages\client-app\package.json
+  - '%USERPROFILE%\.npm'
