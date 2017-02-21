@@ -117,21 +117,24 @@ module.exports = (sequelize, Sequelize) => {
       },
 
       smtpConfig() {
+        // We always call credentialsForProvider() here because n1Cloud
+        // sometimes needs to send emails for accounts which did not have their
+        // full SMTP settings saved to the database.
         const {connectionSettings, connectionCredentials} = credentialsForProvider({
           provider: this.provider,
-          settings: this.decryptedCredentials(),
+          settings: Object.assign({}, this.decryptedCredentials(), this.connectionSettings),
           email: this.emailAddress,
         });
-        const {smtp_host, smtp_port, smtp_username, ssl_required} = connectionSettings;
-        let config = {}
+        let config;
+        const {smtp_host, smtp_port, ssl_required} = connectionSettings;
         if (connectionSettings.smtp_custom_config) {
-          config = connectionSettings.smtp_custom_config
+          config = connectionSettings.smtp_custom_config;
         } else {
           config = {
             host: smtp_host,
             port: smtp_port,
             secure: ssl_required,
-          }
+          };
         }
         if (this.provider === 'gmail') {
           const {xoauth2} = connectionCredentials;
@@ -139,9 +142,9 @@ module.exports = (sequelize, Sequelize) => {
             throw new Error("Missing XOAuth2 Token")
           }
           const token = this.bearerToken(xoauth2);
-          config.auth = { user: smtp_username, xoauth2: token }
+          config.auth = { user: connectionSettings.smtp_username, xoauth2: token }
         } else if (SUPPORTED_PROVIDERS.has(this.provider)) {
-          const {smtp_password} = connectionCredentials
+          const {smtp_username, smtp_password} = connectionCredentials
           config.auth = { user: smtp_username, pass: smtp_password}
         } else {
           throw new Error(`${this.provider} not yet supported`)
