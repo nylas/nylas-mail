@@ -30,7 +30,7 @@ class SendMessagePerRecipientSMTP extends SyncbackSMTPTask {
       messagePayload,
       usesOpenTracking,
       usesLinkTracking,
-    } = syncbackRequest;
+    } = syncbackRequest.props;
     const baseMessage = await MessageFactory.buildForSend(db, messagePayload)
 
     await syncbackRequest.update({
