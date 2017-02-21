@@ -8,6 +8,7 @@ const fs = require('fs-plus');
 const coffeereact = require('coffee-react');
 const glob = require('glob');
 const babel = require('babel-core');
+const symlinkedPackages = []
 
 module.exports = (grunt) => {
   const packageJSON = grunt.config('appJSON');
@@ -46,24 +47,41 @@ module.exports = (grunt) => {
     callback();
   }
 
-  function runCopySymlinkedPackages(buildPath, electronVersion, platform, arch, callback) {
-    console.log("---> Moving symlinked node modules / internal packages into build folder.")
-
+  /**
+   * We have to resolve the symlink paths (and cache the results) before
+   * copying over the files since some symlinks may be relative paths (like
+   * those created by lerna). We'll keep absolute references of those paths
+   * for the symlink copy function to use after the packaging is complete.
+   */
+  function resolveRealSymlinkPaths(appDir) {
+    console.log("---> Resolving symlinks");
     const dirs = [
-      path.join(buildPath, 'internal_packages'),
-      path.join(buildPath, 'node_modules'),
+      'internal_packages',
+      'node_modules',
     ];
 
     dirs.forEach((dir) => {
-      fs.readdirSync(dir).forEach((packageName) => {
-        const packagePath = path.join(dir, packageName)
-        const realPackagePath = fs.realpathSync(packagePath).replace('/private/', '/')
-        if (realPackagePath !== packagePath) {
-          console.log(`  ---> Copying ${realPackagePath} to ${packagePath}`);
-          fs.removeSync(packagePath);
-          fs.copySync(realPackagePath, packagePath);
+      absoluteDir = path.join(appDir, dir);
+      fs.readdirSync(absoluteDir).forEach((packageName) => {
+        const relativePackageDir = path.join(dir, packageName)
+        const absolutePackageDir = path.join(absoluteDir, packageName)
+        const realPackagePath = fs.realpathSync(absolutePackageDir).replace('/private/', '/')
+        if (realPackagePath !== absolutePackageDir) {
+          console.log(`  ---> Resolving '${relativePackageDir}' to '${realPackagePath}'`)
+          symlinkedPackages.push({realPackagePath, relativePackageDir})
         }
       });
+    });
+  }
+
+  function runCopySymlinkedPackages(buildPath, electronVersion, platform, arch, callback) {
+    console.log("---> Moving symlinked node modules / internal packages into build folder.")
+
+    symlinkedPackages.forEach(({realPackagePath, relativePackageDir}) => {
+      const packagePath = path.join(buildPath, relativePackageDir)
+      console.log(`  ---> Copying ${realPackagePath} to ${packagePath}`);
+      fs.removeSync(packagePath);
+      fs.copySync(realPackagePath, packagePath);
     });
 
     callback();
@@ -84,7 +102,8 @@ module.exports = (grunt) => {
     console.log("---> Running babel and coffeescript transpilers")
 
     grunt.config('source:coffeescript').forEach(pattern => {
-      glob.sync(pattern, {cwd: buildPath, absolute: true}).forEach((coffeepath) => {
+      glob.sync(pattern, {cwd: buildPath}).forEach((relPath) => {
+        const coffeepath = path.join(buildPath, relPath)
         if (/(node_modules|\.js$)/.test(coffeepath)) return
         console.log(`  ---> Compiling ${coffeepath.slice(coffeepath.indexOf("/app") + 4)}`)
         const outPath = coffeepath.replace(path.extname(coffeepath), '.js');
@@ -105,7 +124,8 @@ module.exports = (grunt) => {
     });
 
     grunt.config('source:es6').forEach(pattern => {
-      glob.sync(pattern, {cwd: buildPath, absolute: true}).forEach((es6Path) => {
+      glob.sync(pattern, {cwd: buildPath}).forEach((relPath) => {
+        const es6Path = path.join(buildPath, relPath)
         if (/(node_modules|\.js$)/.test(es6Path)) return
         const outPath = es6Path.replace(path.extname(es6Path), '.js');
         console.log(`  ---> Compiling ${es6Path.slice(es6Path.indexOf("/app") + 4)}`)
@@ -269,6 +289,8 @@ module.exports = (grunt) => {
       console.log(`---> Packaging for ${time}s`);
       time += 1;
     }, 1000)
+
+    resolveRealSymlinkPaths(grunt.config('appDir'))
 
     packager(grunt.config.get('packager'), (err, appPaths) => {
       clearInterval(ongoing)

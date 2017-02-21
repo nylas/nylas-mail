@@ -43,5 +43,8 @@ node_modules
 # Built cloud files
 n1_cloud_dist
 
+# Built Nylas Mail client
+packages/client-app/dist
+
 # Tests
 spec-saved-state.json
