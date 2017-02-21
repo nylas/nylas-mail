@@ -4,11 +4,11 @@ const path = require('path');
 const _ = require('underscore');
 
 module.exports = (grunt) => {
-  const {spawn} = require('./task-helpers')(grunt);
+  const {spawn} = grunt.config('taskHelpers');
 
   const outputDir = grunt.config.get('outputDir');
   const contentsDir = path.join(grunt.config('outputDir'), `nylas-linux-${process.arch}`);
-  const linuxAssetsDir = path.resolve(path.join('resources', 'linux'));
+  const linuxAssetsDir = path.resolve(path.join(grunt.config('buildDir'), 'resources', 'linux'));
   const arch = {
     ia32: 'i386',
     x64: 'amd64',
@@ -62,7 +62,7 @@ module.exports = (grunt) => {
     const desktopInFilePath = path.join(linuxAssetsDir, 'nylas-mail.desktop.in')
     writeFromTemplate(desktopInFilePath, templateData)
 
-    const cmd = path.join('script', 'mkrpm')
+    const cmd = path.join(grunt.config('appDir'), 'script', 'mkrpm')
     const args = [outputDir, contentsDir, linuxAssetsDir]
     spawn({cmd, args}, (error) => {
       if (error) {
@@ -101,8 +101,8 @@ module.exports = (grunt) => {
       writeFromTemplate(path.join(linuxAssetsDir, 'debian', 'control.in'), data)
       writeFromTemplate(path.join(linuxAssetsDir, 'nylas-mail.desktop.in'), data)
 
-      const icon = path.join('build', 'resources', 'nylas.png')
-      const cmd = path.join('script', 'mkdeb');
+      const icon = path.join(grunt.config('appDir'), 'build', 'resources', 'nylas.png')
+      const cmd = path.join(grunt.config('appDir'), 'script', 'mkdeb');
       const args = [version, arch, icon, linuxAssetsDir, contentsDir, outputDir];
       spawn({cmd, args}, (spawnError) => {
         if (spawnError) {

@@ -6,13 +6,25 @@ module.exports = (grunt) => {
     grunt.option('platform', process.platform);
   }
 
+  /**
+   * The main appDir is that of the root nylas-mail-all repo. This Gruntfile
+   * is designed to be run from the npm-build-client task whose repo root is
+   * the main nylas-mail-all package.
+   */
+  const appDir = path.resolve(path.join('packages', 'client-app'));
+  const buildDir = path.join(appDir, 'build');
+  const tasksDir = path.join(buildDir, 'tasks');
+  const taskHelpers = require(path.join(tasksDir, 'task-helpers'))(grunt)
+  
   // This allows all subsequent paths to the relative to the root of the repo
   grunt.config.init({
-    'appDir': path.resolve('..'),
+    'taskHelpers': taskHelpers,
+    'rootDir': path.resolve('./'),
+    'buildDir': buildDir,
+    'appDir': appDir,
     'classDocsOutputDir': './docs_src/classes',
-
-    'outputDir': path.resolve('../dist'),
-    'appJSON': grunt.file.readJSON('../package.json'),
+    'outputDir': path.join(appDir, 'dist'),
+    'appJSON': grunt.file.readJSON(path.join(appDir, 'package.json')),
     'source:coffeescript': [
       'internal_packages/**/*.cjsx',
       'internal_packages/**/*.coffee',
@@ -46,21 +58,10 @@ module.exports = (grunt) => {
       '!internal_packages/**/node_modules/**/*.es',
       '!internal_packages/**/node_modules/**/*.jsx',
     ],
-
-    'gitbook': {
-      'development': {
-        'input': "./",
-        'title': "vue.js book",
-        'description': "This book is vue.js guide book.",
-        'github': "koba04/vuejs-book"
-      }
-    }
-
-
   });
 
-  grunt.loadTasks('./tasks');
-  grunt.file.setBase(path.resolve('..'));
+  grunt.loadTasks(tasksDir);
+  grunt.file.setBase(appDir);
 
   // Register CI Tasks
   const postBuildSteps = [];
@@ -74,8 +75,7 @@ module.exports = (grunt) => {
     postBuildSteps.push('create-rpm-installer');
   }
 
-  const {shouldPublishBuild} = require('./tasks/task-helpers')(grunt);
-  if (shouldPublishBuild()) {
+  if (taskHelpers.shouldPublishBuild()) {
     postBuildSteps.push('publish');
   }
 
