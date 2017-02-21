@@ -570,6 +570,8 @@ class Actions {
   static trashThreads = ActionScopeWindow;
   static markAsSpamThreads = ActionScopeWindow;
   static toggleStarredThreads = ActionScopeWindow;
+  static toggleUnreadThreads = ActionScopeWindow;
+  static setUnreadThreads = ActionScopeWindow;
   static removeThreadsFromView = ActionScopeWindow;
   static moveThreadsToPerspective = ActionScopeWindow;
   static applyCategoryToThreads = ActionScopeWindow;

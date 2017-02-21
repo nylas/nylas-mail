@@ -198,8 +198,7 @@ export class ToggleUnreadButton extends React.Component {
   }
 
   _onClick = (event) => {
-    const task = TaskFactory.taskForInvertingUnread({threads: this.props.items, source: "Toolbar Button: Thread List"});
-    Actions.queueTask(task);
+    Actions.toggleUnreadThreads({threads: this.props.items, source: "Toolbar Button: Thread List"});
     Actions.popSheet();
     event.stopPropagation();
     return;

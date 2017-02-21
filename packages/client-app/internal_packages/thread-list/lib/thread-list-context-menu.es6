@@ -137,11 +137,10 @@ export default class ThreadListContextMenu {
     return {
       label: `Mark as ${dir}`,
       click: () => {
-        const task = TaskFactory.taskForInvertingUnread({
+        Actions.toggleUnreadThreads({
           source: "Context Menu: Thread List",
           threads: this.threads,
         })
-        Actions.queueTask(task)
       },
     }
   }

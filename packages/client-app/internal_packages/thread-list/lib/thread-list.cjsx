@@ -14,7 +14,6 @@ classnames = require 'classnames'
  Category,
  CanvasUtils,
  TaskFactory,
- ChangeUnreadTask,
  ChangeStarredTask,
  WorkspaceStore,
  AccountStore,
@@ -304,7 +303,7 @@ class ThreadList extends React.Component
   _onSetUnread: (unread) =>
     threads = @_threadsForKeyboardAction()
     return unless threads
-    Actions.queueTask(new ChangeUnreadTask({threads, unread, source: "Keyboard Shortcut"}))
+    Actions.setUnreadThreads({threads, unread, source: "Keyboard Shortcut"})
     Actions.popSheet()
 
   _onMarkAsSpam: =>

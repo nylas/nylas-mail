@@ -6,7 +6,6 @@ Utils = require '../models/utils'
 DatabaseStore = require("./database-store").default
 FocusedPerspectiveStore = require('./focused-perspective-store').default
 FocusedContentStore = require "./focused-content-store"
-ChangeUnreadTask = require('../tasks/change-unread-task').default
 NylasAPIHelpers = require '../nylas-api-helpers'
 ExtensionRegistry = require('../../registries/extension-registry')
 {deprecate} = require '../../deprecate-utils'
@@ -199,9 +198,12 @@ class MessageStore extends NylasStore
 
       setTimeout =>
         return unless markAsReadId is @_thread?.id and @_thread.unread
-        t = new ChangeUnreadTask(thread: @_thread, unread: false, source: "Thread Selected")
-        t.canBeUndone = => false
-        Actions.queueTask(t)
+        Actions.setUnreadThreads({
+          threads: [@_thread],
+          source: "Thread Selected",
+          canBeUndone: false,
+          unread: false,
+        })
       , markAsReadDelay
 
   _onToggleAllMessagesExpanded: =>
