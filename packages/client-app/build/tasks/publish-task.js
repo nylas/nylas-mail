@@ -12,7 +12,7 @@ let packageVersion = null;
 let fullVersion = null;
 
 module.exports = (grunt) => {
-  const {spawn} = require('./task-helpers')(grunt);
+  const {spawn} = grunt.config('taskHelpers');
 
   function populateVersion() {
     return new Promise((resolve, reject) => {
@@ -98,7 +98,7 @@ module.exports = (grunt) => {
     populateVersion()
     .then(() => {
       // find files to publish
-      const {shouldPublishBuild} = require('./task-helpers')(grunt);
+      const {shouldPublishBuild} = grunt.config('taskHelpers');
       const outputDir = grunt.config.get('outputDir');
       const uploads = [];
 

@@ -11,10 +11,10 @@ const tello = require('tello');
 
 module.exports = function(grunt) {
 
-  let {cp, mkdir, rm} = require('./task-helpers')(grunt);
+  let {cp, mkdir, rm} = grunt.config('taskHelpers');
 
   let getClassesToInclude = function() {
-    let modulesPath = path.resolve(__dirname, '..', '..', 'internal_packages');
+    let modulesPath = path.join(grunt.config('appDir'), 'internal_packages');
     let classes = {};
     fs.traverseTreeSync(modulesPath, function(modulePath) {
       // Don't traverse inside dependencies
@@ -92,7 +92,7 @@ module.exports = function(grunt) {
       let api;
       fs.mkdir(cjsxOutputDir);
 
-      let srcPath = path.resolve(__dirname, '..', '..', 'src');
+      let srcPath = path.resolve(grunt.config('appDir'), 'src');
 
       fs.traverseTreeSync(srcPath, function(file) {
 

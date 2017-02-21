@@ -25,7 +25,7 @@ const fs = require('fs-plus');
 // Which should return "accepted"
 module.exports = (grunt) => {
   let getCertData;
-  const {spawnP, shouldPublishBuild} = require('./task-helpers')(grunt);
+  const {spawnP, shouldPublishBuild} = grunt.config('taskHelpers')
   const tmpKeychain = "n1-build.keychain";
 
   const unlockKeychain = (keychain, keychainPass) => {
@@ -69,7 +69,7 @@ module.exports = (grunt) => {
   };
 
   getCertData = () => {
-    const certs = path.resolve(path.join('build', 'resources', 'certs'));
+    const certs = path.resolve(path.join(grunt.config('buildDir'), 'resources', 'certs'));
     const appleCert = path.join(certs, 'AppleWWDRCA.cer');
     const nylasCert = path.join(certs, 'mac-nylas-n1.cer');
     const nylasPrivateKey = path.join(certs, 'mac-nylas-n1.p12');

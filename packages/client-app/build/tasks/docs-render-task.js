@@ -42,7 +42,7 @@ let thirdPartyClasses = {
 
 module.exports = function(grunt) {
 
-  let {cp, mkdir, rm} = require('./task-helpers')(grunt);
+  let {cp, mkdir, rm} = grunt.config('taskHelpers');
 
   let relativePathForClass = classname => classname+'.html';
 
@@ -138,7 +138,7 @@ module.exports = function(grunt) {
 
 
     // Prepare to render by loading handlebars partials
-    let templatesPath = path.resolve(__dirname, '..', '..', 'build', 'docs_templates');
+    let templatesPath = path.resolve(grunt.config('buildDir'), 'docs_templates');
     grunt.file.recurse(templatesPath, function(abspath, root, subdir, filename) {
       if ((filename[0] === '_') && (path.extname(filename) === '.html')) {
         return Handlebars.registerPartial(filename, grunt.file.read(abspath));

@@ -13,7 +13,7 @@ const tello = require('tello');
 
 module.exports = function(grunt) {
 
-  let {cp, mkdir, rm} = require('./task-helpers')(grunt);
+  let {cp, mkdir, rm} = grunt.config('taskHelpers');
 
   let getClassesToInclude = function() {
     let modulesPath = path.resolve(__dirname, '..', '..', 'internal_packages');

@@ -9,10 +9,11 @@ const coffeereact = require('coffee-react');
 const glob = require('glob');
 const babel = require('babel-core');
 
-const packageJSON = require('../../package.json')
-const babelOptions = require("../../static/babelrc");
-
 module.exports = (grunt) => {
+  const packageJSON = grunt.config('appJSON');
+  const babelPath = path.join(grunt.config('rootDir'), '.babelrc')
+  const babelOptions = JSON.parse(fs.readFileSync(babelPath))
+
   function runCopyAPM(buildPath, electronVersion, platform, arch, callback) {
     // Move APM up out of the /app folder which will be inside the ASAR
     const apmTargetDir = path.resolve(buildPath, '..', 'apm');
@@ -124,7 +125,6 @@ module.exports = (grunt) => {
   }
 
   const platform = grunt.option('platform');
-  const {shouldPublishBuild} = require('./task-helpers')(grunt);
 
   // See: https://github.com/electron-userland/electron-packager/blob/master/usage.txt
   grunt.config.merge({
@@ -225,7 +225,7 @@ module.exports = (grunt) => {
        * us to setup the keychain first and install the identity. We do
        * this in the setup-travis-keychain-task
        */
-      'osx-sign': shouldPublishBuild(),
+      'osx-sign': grunt.config('taskHelpers').shouldPublishBuild(),
       'win32metadata': {
         CompanyName: 'Nylas, Inc.',
         FileDescription: 'The best email app for people and teams at work',
