@@ -18,6 +18,8 @@ class ThreadListActionsStore extends NylasStore {
   activate() {
     if (!NylasEnv.isMainWindow()) { return }
     this.listenTo(Actions.archiveThreads, this._onArchiveThreads)
+    this.listenTo(Actions.trashThreads, this._onTrashThreads)
+    this.listenTo(Actions.markAsSpamThreads, this._onMarkAsSpamThreads)
     this.listenTo(Actions.removeThreadsFromView, this._onRemoveThreadsFromView)
     this.listenTo(Actions.moveThreadsToPerspective, this._onMoveThreadsToPerspective)
     this.listenTo(Actions.removeCategoryFromThreads, this._onRemoveCategoryFromThreads)
@@ -77,13 +79,31 @@ class ThreadListActionsStore extends NylasStore {
   }
 
   _onArchiveThreads = ({threads, source} = {}) => {
+    if (!threads) { return }
     if (threads.length === 0) { return }
     this._setNewTimer({threads, source, action: 'remove-threads-from-list', targetCategory: 'archive'})
     const tasks = TaskFactory.tasksForArchiving({threads, source})
     Actions.queueTasks(tasks)
   }
 
+  _onTrashThreads = ({threads, source} = {}) => {
+    if (!threads) { return }
+    if (threads.length === 0) { return }
+    this._setNewTimer({threads, source, action: 'remove-threads-from-list', targetCategory: 'trash'})
+    const tasks = TaskFactory.tasksForMovingToTrash({threads, source})
+    Actions.queueTasks(tasks)
+  }
+
+  _onMarkAsSpamThreads = ({threads, source} = {}) => {
+    if (!threads) { return }
+    if (threads.length === 0) { return }
+    this._setNewTimer({threads, source, action: 'remove-threads-from-list', targetCategory: 'spam'})
+    const tasks = TaskFactory.tasksForMarkingAsSpam({threads, source})
+    Actions.queueTasks(tasks)
+  }
+
   _onRemoveThreadsFromView = ({threads, ruleset, source} = {}) => {
+    if (!threads) { return }
     if (threads.length === 0) { return }
     const currentPerspective = FocusedPerspectiveStore.current()
     const tasks = currentPerspective.tasksForRemovingItems(threads, ruleset, source)
@@ -103,6 +123,8 @@ class ThreadListActionsStore extends NylasStore {
   }
 
   _onMoveThreadsToPerspective = ({targetPerspective, threadIds} = {}) => {
+    if (!threadIds) { return }
+    if (threadIds.length === 0) { return }
     const currentPerspective = FocusedPerspectiveStore.current()
 
     // For now, we are only interested in timing actions that remove threads
@@ -126,6 +148,8 @@ class ThreadListActionsStore extends NylasStore {
   }
 
   _onApplyCategoryToThreads = ({threads, source, categoryToApply} = {}) => {
+    if (!threads) { return }
+    if (threads.length === 0) { return }
     const task = TaskFactory.taskForApplyingCategory({
       threads,
       source,
@@ -135,6 +159,8 @@ class ThreadListActionsStore extends NylasStore {
   }
 
   _onRemoveCategoryFromThreads = ({threads, source, categoryToRemove} = {}) => {
+    if (!threads) { return }
+    if (threads.length === 0) { return }
     // For now, we are only interested in timing actions that remove threads
     // from the inbox
     if (categoryToRemove.isInbox()) {

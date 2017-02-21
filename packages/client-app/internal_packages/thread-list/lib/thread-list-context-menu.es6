@@ -120,11 +120,10 @@ export default class ThreadListContextMenu {
     return {
       label: "Trash",
       click: () => {
-        const tasks = TaskFactory.tasksForMovingToTrash({
+        Actions.trashThreads({
           source: "Context Menu: Thread List",
           threads: this.threads,
         })
-        Actions.queueTasks(tasks)
       },
     }
   }

@@ -567,6 +567,8 @@ class Actions {
 
   // Thread list actions
   static archiveThreads = ActionScopeWindow;
+  static trashThreads = ActionScopeWindow;
+  static markAsSpamThreads = ActionScopeWindow;
   static removeThreadsFromView = ActionScopeWindow;
   static moveThreadsToPerspective = ActionScopeWindow;
   static applyCategoryToThreads = ActionScopeWindow;
