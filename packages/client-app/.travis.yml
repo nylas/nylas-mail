@@ -1,7 +1,6 @@
+# The open source Nylas Mail Client for Linux and Mac. See AppVeyor for
+# Windows
 sudo: false
-
-git:
-  submodules: false
 
 addons:
   apt:
@@ -23,9 +22,8 @@ addons:
 branches:
   only:
   - master
-  - ci-test
+  - /ci-.*/
   - /stable.*/
-  - /ci-build\/.*/
 
 matrix:
   include:
@@ -34,32 +32,7 @@ matrix:
   - os: osx
     env: NODE_VERSION=6.9 CC=clang CXX=clang++
 
-before_install:
-- if [ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${MIRROR}" = "false" ]; then
-  openssl aes-256-cbc -k "$DECRYPTION_PASSWORD" -in build/resources/ssh/nylas-n1-ci-ssh.openssl.enc -out nylas-n1-ci-ssh -d;
-  mv nylas-n1-ci-ssh ~/.ssh/id_rsa;
-  chmod 400 ~/.ssh/id_rsa;
-  ssh-keyscan github.com >> ~/.ssh/known_hosts;
-  git submodule update --init --recursive;
-  2>/dev/null 1>/dev/null openssl aes-256-cbc -K $encrypted_d583b56b822e_key -iv $encrypted_d583b56b822e_iv -in src/K2/packages/local-private/encrypted_certificates/travis/travis-files.tar.enc -out src/K2/packages/local-private/encrypted_certificates/travis/travis-files.tar -d;
-  mkdir build/resources/certs;
-  2>/dev/null 1>/dev/null tar xvf src/K2/packages/local-private/encrypted_certificates/travis/travis-files.tar --directory=build/resources/certs/;
-  2>/dev/null 1>/dev/null source build/resources/certs/set_unix_env.sh;
-  fi
-- if [ "${MIRROR}" = "true" ]; then
-  export PUBLISH_BUILD=true;
-  git submodule update --init --recursive;
-  2>/dev/null 1>/dev/null openssl aes-256-cbc -K $encrypted_e6bb7e15b74d_key -iv $encrypted_e6bb7e15b74d_iv -in src/K2/packages/local-private/encrypted_certificates/travis/travis-files-mirror.tar.enc -out src/K2/packages/local-private/encrypted_certificates/travis/travis-files.tar -d;
-  mkdir build/resources/certs;
-  2>/dev/null 1>/dev/null tar xvf src/K2/packages/local-private/encrypted_certificates/travis/travis-files.tar --directory=build/resources/certs/;
-  2>/dev/null 1>/dev/null source build/resources/certs/set_unix_env.sh;
-  fi
-
 install:
-- echo $CC
-- echo $CXX
-- clang --version
-- if [ "$CC" = "gcc-4.8" ]; then gcc-4.8 -v; else gcc -v; fi
 - git clone https://github.com/creationix/nvm.git /tmp/.nvm
 - source /tmp/.nvm/nvm.sh
 - nvm install $NODE_VERSION
@@ -72,23 +45,9 @@ before_script:
   fi
 
 script:
-- if [ "${TRAVIS_OS_NAME}" == "linux" ]; then
-  script/bootstrap && script/grunt ci --stack --no-color;
-  else
-  script/bootstrap && npm test && script/grunt ci --stack --no-color;
-  fi
+- npm install && npm test
 
 cache:
   directories:
     - node_modules
     - apm/node_modules
-    - build/node_modules
-
-# The NYLAS_GITHUB_OAUTH_TOKEN is overriden by build/resources/certs/set_unix_env.sh
-env:
-  global:
-    - secure: O+XG3C/VnCfCVXTHudOQ6JMmBqrRHXh1j7jRwfQ3PYd27gm9BWNjvwlbWTLNcaar9gM00Pwi3rR8IujzJLlw3usZGWbJMLkz+aPYdOlbiDLhyMdIHwX4oI58d1eHx7m8Eun3qT3Y0VkO3blBNdWFWV4ebkfLZyygzXva4CDlSFtbeQYGy4ft76v7Au9uVlOUoV8f+juPx+0Jv+AtQmsY9Sf+6WbxrNaE9y2u2q1ks+XpjFn8Wt1f/xp/Vae0/MjJFpGIVfaUy+q7W8QQ0TyzSCM0eGtjxilS+BkGHjjvlLlMdCspRnZzpSJC+KkpEKLJrAPjR0DAfYMedWockEaIwGG8Onf90fXKG0nlvAg4WrWjnpr0q+V79zOU/yYD/kysLBYg6fYzv6uTvN7TzNaFkKaiQZvorI9P8w/wShGFHE4Y8JC5QU4CLI8q2qrkI38KKt3valIP4qxA/56aM0+D5roTecfh3Y40OcpqKZicpeNvuB1u2FmD2+oxLEb3MVnyfnVnDBP7Crp8/oLsIl/gGR/SVUEyLIimozugUySnCig1BEicygECvp6eRpEHryNrEvLKfxtppr3eWcRKQwnYwch4CaFwya0Lpc1dSA9NaOFQu0kR374s+fhqYgrkaCJevZd+ouKY+0Zt8gZ4CjJVhJ5YamwZAPG+obRd9G3xRM0=
-    - NYLAS_GITHUB_OAUTH_TOKEN=cb200be7c921f73a1c35930f6a4ac8758b271be0
-
-notifications:
-  slack: nylas:Egem0aHuqMfkIlycPswxblzJ
