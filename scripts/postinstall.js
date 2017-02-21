@@ -86,7 +86,7 @@ async function electronRebuild() {
     console.log("\n---> No client app to rebuild. Moving on")
     return;
   }
-  await npm('rebuild', {
+  await npm('install', {
     cwd: path.join('packages', 'client-app', 'apm'),
     env: 'apm',
   })
