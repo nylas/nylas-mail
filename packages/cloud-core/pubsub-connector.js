@@ -18,6 +18,10 @@ class PubsubConnector {
     const client = redis.createClient(process.env.REDIS_URL || null);
     log.info({account_id: accountId}, "Connecting to Redis")
     client.on("error", log.error);
+    client.on("end", () => {
+      log.info({account_id: accountId}, "Redis disconnected")
+      this._broadcastClient = null;
+    })
     return client;
   }
 
