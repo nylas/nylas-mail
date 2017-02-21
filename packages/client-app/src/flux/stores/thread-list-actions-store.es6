@@ -16,9 +16,12 @@ class ThreadListActionsStore extends NylasStore {
   }
 
   activate() {
+    if (!NylasEnv.isMainWindow()) { return }
     this.listenTo(Actions.archiveThreads, this._onArchiveThreads)
     this.listenTo(Actions.removeThreadsFromView, this._onRemoveThreadsFromView)
     this.listenTo(Actions.moveThreadsToPerspective, this._onMoveThreadsToPerspective)
+    this.listenTo(Actions.removeCategoryFromThreads, this._onRemoveCategoryFromThreads)
+    this.listenTo(Actions.applyCategoryToThreads, this._onApplyCategoryToThreads)
     this.listenTo(Actions.threadListDidUpdate, this._onThreadListDidUpdate)
   }
 
@@ -75,7 +78,7 @@ class ThreadListActionsStore extends NylasStore {
 
   _onArchiveThreads = ({threads, source} = {}) => {
     if (threads.length === 0) { return }
-    this._setNewTimer({threads, source, action: 'remove-from-view', targetCategory: 'archive'})
+    this._setNewTimer({threads, source, action: 'remove-threads-from-list', targetCategory: 'archive'})
     const tasks = TaskFactory.tasksForArchiving({threads, source})
     Actions.queueTasks(tasks)
   }
@@ -94,13 +97,12 @@ class ThreadListActionsStore extends NylasStore {
     // from the inbox
     if (currentPerspective.isInbox()) {
       // TODO figure out the `targetCategory`
-      this._setNewTimer({threads, source, action: 'remove-from-view'})
+      this._setNewTimer({threads, source, action: 'remove-threads-from-list'})
     }
-
     Actions.queueTasks(tasks)
   }
 
-  _onMoveThreadsToPerspective = ({targetPerspective, threadIds}) => {
+  _onMoveThreadsToPerspective = ({targetPerspective, threadIds} = {}) => {
     const currentPerspective = FocusedPerspectiveStore.current()
 
     // For now, we are only interested in timing actions that remove threads
@@ -117,11 +119,38 @@ class ThreadListActionsStore extends NylasStore {
         threadIds,
         targetCategory,
         source: "Dragged to Sidebar",
-        action: 'remove-from-view',
+        action: 'remove-threads-from-list',
       })
     }
-
     targetPerspective.receiveThreads(threadIds)
+  }
+
+  _onApplyCategoryToThreads = ({threads, source, categoryToApply} = {}) => {
+    const task = TaskFactory.taskForApplyingCategory({
+      threads,
+      source,
+      category: categoryToApply,
+    })
+    Actions.queueTask(task)
+  }
+
+  _onRemoveCategoryFromThreads = ({threads, source, categoryToRemove} = {}) => {
+    // For now, we are only interested in timing actions that remove threads
+    // from the inbox
+    if (categoryToRemove.isInbox()) {
+      this._setNewTimer({
+        source,
+        threads,
+        targetCategory: 'archive',
+        action: 'remove-threads-from-list',
+      })
+    }
+    const task = TaskFactory.taskForRemovingCategory({
+      threads,
+      source,
+      category: categoryToRemove,
+    })
+    Actions.queueTask(task)
   }
 }
 
