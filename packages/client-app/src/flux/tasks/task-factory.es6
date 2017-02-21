@@ -133,9 +133,13 @@ const TaskFactory = {
     })
   },
 
-  taskForInvertingUnread({threads, source}) {
+  taskForInvertingUnread({threads, source, canBeUndone}) {
     const unread = _.every(threads, (t) => _.isMatch(t, {unread: false}))
-    return new ChangeUnreadTask({threads, unread, source})
+    return new ChangeUnreadTask({threads, unread, source, canBeUndone})
+  },
+
+  taskForSettingUnread({threads, unread, source, canBeUndone}) {
+    return new ChangeUnreadTask({threads, unread, source, canBeUndone})
   },
 
   taskForInvertingStarred({threads, source}) {

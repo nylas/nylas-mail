@@ -1,4 +1,4 @@
-{Actions, React, FocusedContentStore, ChangeUnreadTask} = require 'nylas-exports'
+{Actions, React, FocusedContentStore} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
 
 class ThreadToggleUnreadButton extends React.Component
@@ -16,11 +16,10 @@ class ThreadToggleUnreadButton extends React.Component
     </button>
 
   _onClick: (e) =>
-    task = new ChangeUnreadTask
-      source: "Toolbar Button: Thread List"
-      thread: @props.thread
-      unread: !@props.thread.unread
-    Actions.queueTask(task)
+    Actions.toggleUnreadThreads({
+      source: "Toolbar Button: Thread List",
+      threads: [@props.thread],
+    })
     Actions.popSheet()
     e.stopPropagation()
 

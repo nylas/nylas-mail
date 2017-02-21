@@ -10,6 +10,7 @@ export default class ChangeUnreadTask extends ChangeMailTask {
     super(options);
     this.source = options.source;
     this.unread = options.unread;
+    this._canBeUndone = options.canBeUndone;
   }
 
   label() {
@@ -29,6 +30,13 @@ export default class ChangeUnreadTask extends ChangeMailTask {
       return `Marked ${count} ${type} as ${newState}`;
     }
     return `Marked as ${newState}`;
+  }
+
+  canBeUndone() {
+    if (this._canBeUndone == null) {
+      return super.canBeUndone()
+    }
+    return this._canBeUndone
   }
 
   performLocal() {

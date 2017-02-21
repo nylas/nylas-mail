@@ -21,6 +21,8 @@ class ThreadListActionsStore extends NylasStore {
     this.listenTo(Actions.trashThreads, this._onTrashThreads)
     this.listenTo(Actions.markAsSpamThreads, this._onMarkAsSpamThreads)
     this.listenTo(Actions.toggleStarredThreads, this._onToggleStarredThreads)
+    this.listenTo(Actions.toggleUnreadThreads, this._onToggleUnreadThreads)
+    this.listenTo(Actions.setUnreadThreads, this._onSetUnreadThreads)
     this.listenTo(Actions.removeThreadsFromView, this._onRemoveThreadsFromView)
     this.listenTo(Actions.moveThreadsToPerspective, this._onMoveThreadsToPerspective)
     this.listenTo(Actions.removeCategoryFromThreads, this._onRemoveCategoryFromThreads)
@@ -107,6 +109,20 @@ class ThreadListActionsStore extends NylasStore {
     if (!threads) { return }
     if (threads.length === 0) { return }
     const task = TaskFactory.taskForInvertingStarred({threads, source})
+    Actions.queueTask(task)
+  }
+
+  _onToggleUnreadThreads = ({threads, canBeUndone, source} = {}) => {
+    if (!threads) { return }
+    if (threads.length === 0) { return }
+    const task = TaskFactory.taskForInvertingUnread({threads, source, canBeUndone})
+    Actions.queueTask(task)
+  }
+
+  _onSetUnreadThreads = ({threads, unread, canBeUndone, source} = {}) => {
+    if (!threads) { return }
+    if (threads.length === 0) { return }
+    const task = TaskFactory.taskForSettingUnread({threads, unread, source, canBeUndone})
     Actions.queueTask(task)
   }
 
