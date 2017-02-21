@@ -1,6 +1,7 @@
 const base64 = require('base64-stream');
-const {IMAPConnection} = require('isomorphic-core')
+const {IMAPConnectionPool} = require('isomorphic-core')
 const {QuotedPrintableStreamDecoder} = require('../shared/stream-decoders')
+const {Actions} = require('nylas-exports')
 
 module.exports = (sequelize, Sequelize) => {
   return sequelize.define('file', {
@@ -26,20 +27,14 @@ module.exports = (sequelize, Sequelize) => {
     },
     instanceMethods: {
       async fetch({account, db, logger}) {
-        let numAttempts = 0;
-        const maxAttempts = 5;
-        let currentTimeout = 30 * 1000;
-        const maxTimeout = 2 * 60 * 1000;
-        while (numAttempts <= maxAttempts) {
-          const settings = Object.assign({},
-            account.connectionSettings,
-            account.decryptedCredentials(),
-            {socketTimeout: currentTimeout})
-          const message = await this.getMessage()
-          let connection = null;
-          try {
-            connection = await IMAPConnection.connect({db, settings, logger})
-            const folder = await message.getFolder()
+        const message = await this.getMessage()
+        const folder = await message.getFolder()
+        let numTimeoutErrors = 0;
+        let result = null;
+        await IMAPConnectionPool.withConnectionsForAccount(account, {
+          desiredCount: 1,
+          logger,
+          onConnected: async ([connection], done) => {
             const imapBox = await connection.openBox(folder.name)
             const stream = await imapBox.fetchMessageStream(message.folderImapUID, {
               fetchOptions: {
@@ -47,16 +42,20 @@ module.exports = (sequelize, Sequelize) => {
                 struct: true,
               },
               onFetchComplete() {
-                connection.end()
+                done();
               },
-            })
+            });
+
             if (!stream) {
               throw new Error(`Unable to fetch binary data for File ${this.id}`)
             }
+
             if (/quoted-printable/i.test(this.encoding)) {
-              return stream.pipe(new QuotedPrintableStreamDecoder({charset: this.charset}))
+              result = stream.pipe(new QuotedPrintableStreamDecoder({charset: this.charset}));
+              return true;
             } else if (/base64/i.test(this.encoding)) {
-              return stream.pipe(base64.decode());
+              result = stream.pipe(base64.decode());
+              return true;
             }
 
             // If there is no encoding, or the encoding is something like
@@ -64,20 +63,20 @@ module.exports = (sequelize, Sequelize) => {
             // stream will be written directly to disk. It's then up to the
             // user's computer to decide how to interpret the bytes we've
             // dumped to disk.
-            return stream
-          } catch (err) {
-            if (connection) {
-              connection.end();
-            }
-            if (numAttempts <= maxAttempts) {
-              console.error('Error trying to fetch file:', err);
-              numAttempts += 1;
-              currentTimeout = Math.min(maxTimeout, currentTimeout * 2);
-              continue;
-            }
-            throw err
-          }
-        }
+            result = stream;
+            return true;
+          },
+          onTimeout: (socketTimeout) => {
+            numTimeoutErrors += 1;
+            Actions.recordUserEvent('Timeout error downloading file', {
+              accountId: account.id,
+              provider: account.provider,
+              socketTimeout,
+              numTimeoutErrors,
+            });
+          },
+        });
+        return result;
       },
 
       toJSON() {
