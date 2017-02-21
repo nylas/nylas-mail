@@ -7,7 +7,6 @@ ReactTestUtils = require 'react-addons-test-utils'
   Actions,
   CategoryStore,
   ChangeUnreadTask,
-  TaskFactory,
   MailboxPerspective
 } = require "nylas-exports"
 {ToggleStarredButton, ToggleUnreadButton, MarkAsSpamButton} = require '../lib/thread-toolbar-buttons'
@@ -103,9 +102,9 @@ describe "ThreadToolbarButtons", ->
         )
 
       it "queues a task to mark as spam", ->
-        spyOn(TaskFactory, 'tasksForMarkingAsSpam')
+        spyOn(Actions, 'markAsSpamThreads')
         ReactTestUtils.Simulate.click(ReactDOM.findDOMNode(markSpamButton))
-        expect(TaskFactory.tasksForMarkingAsSpam).toHaveBeenCalledWith({
+        expect(Actions.markAsSpamThreads).toHaveBeenCalledWith({
           threads: [thread],
           source: 'Toolbar Button: Thread List'
         })

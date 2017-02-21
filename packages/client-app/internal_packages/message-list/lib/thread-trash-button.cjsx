@@ -27,10 +27,10 @@ class ThreadTrashButton extends React.Component
 
   _onRemove: (e) =>
     return unless DOMUtils.nodeIsVisible(e.currentTarget)
-    tasks = TaskFactory.tasksForMovingToTrash
-      source: "Toolbar Button: Thread List"
-      threads: [@props.thread]
-    Actions.queueTasks(tasks)
+    Actions.trashThreads({
+      source: "Toolbar Button: Thread List",
+      threads: [@props.thread],
+    })
     Actions.popSheet()
     e.stopPropagation()
 

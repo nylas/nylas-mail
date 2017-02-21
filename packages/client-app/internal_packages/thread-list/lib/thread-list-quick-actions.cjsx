@@ -52,11 +52,10 @@ class ThreadTrashQuickAction extends React.Component
     newProps.thread.id isnt @props?.thread.id
 
   _onRemove: (event) =>
-    tasks = TaskFactory.tasksForMovingToTrash
-      source: "Quick Actions: Thread List"
-      threads: [@props.thread]
-    Actions.queueTasks(tasks)
-
+    Actions.trashThreads({
+      source: "Quick Actions: Thread List",
+      threads: [@props.thread],
+    })
     # Don't trigger the thread row click
     event.stopPropagation()
 
