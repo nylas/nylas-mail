@@ -567,6 +567,7 @@ class Actions {
 
   // Thread list actions
   static archiveThreads = ActionScopeWindow;
+  static removeThreadsFromView = ActionScopeWindow;
   static threadListDidUpdate = ActionScopeWindow;
 }
 

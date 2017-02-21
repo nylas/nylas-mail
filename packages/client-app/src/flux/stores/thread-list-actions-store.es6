@@ -4,6 +4,7 @@ import Actions from '../actions'
 import Utils from '../models/utils'
 import TaskFactory from '../tasks/task-factory'
 import IdentityStore from '../stores/identity-store'
+import FocusedPerspectiveStore from '../stores/focused-perspective-store'
 
 
 class ThreadListActionsStore extends NylasStore {
@@ -15,6 +16,7 @@ class ThreadListActionsStore extends NylasStore {
 
   activate() {
     this.listenTo(Actions.archiveThreads, this._onArchiveThreads)
+    this.listenTo(Actions.removeThreadsFromView, this._onRemoveThreadsFromView)
     this.listenTo(Actions.threadListDidUpdate, this._onThreadListDidUpdate)
   }
 
@@ -69,6 +71,26 @@ class ThreadListActionsStore extends NylasStore {
     if (threads.length === 0) { return }
     this._setNewTimer({threads, source, action: 'remove-from-view', targetCategory: 'archive'})
     const tasks = TaskFactory.tasksForArchiving({threads, source})
+    Actions.queueTasks(tasks)
+  }
+
+  _onRemoveThreadsFromView = ({threads, ruleset, source} = {}) => {
+    if (threads.length === 0) { return }
+    const perspective = FocusedPerspectiveStore.current()
+    const tasks = perspective.tasksForRemovingItems(threads, ruleset, source)
+
+    // This action can encompass many different actions, e.g.:
+    // - unstarring in starred view
+    // - changing unread in unread view
+    // - Moving to inbox from trash
+    // - archiving a search result (which won't actually remove it from the thread-list)
+    // For now, we are only interested in timing actions that remove threads
+    // from the inbox
+    if (perspective.isInbox()) {
+      // TODO figure out the `targetCategory`
+      this._setNewTimer({threads, source, action: 'remove-from-view'})
+    }
+
     Actions.queueTasks(tasks)
   }
 }
