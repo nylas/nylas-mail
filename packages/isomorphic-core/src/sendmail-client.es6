@@ -48,12 +48,12 @@ class SendmailClient {
 
     // TODO: figure out how to parse different errors, like in cloud-core
     // https://github.com/nylas/cloud-core/blob/production/sync-engine/inbox/sendmail/smtp/postel.py#L354
-    if (error.message.startsWith("Invalid login: 535-5.7.8 Username and Password not accepted.")) {
-      throw new APIError('Sending failed - Invalid login', 401, {originalError: error})
+    if (/invalid login/i.test(error.message)) {
+      throw new APIError(`Sending failed - Invalid login`, 401, {originalError: error})
     }
 
     if (error.message.includes("getaddrinfo ENOTFOUND")) {
-      throw new APIError('Sending failed - Network Error', 401, {originalError: error})
+      throw new APIError(`Sending failed - Network Error`, 401, {originalError: error})
     }
 
     if (error.message.includes("connect ETIMEDOUT")) {
