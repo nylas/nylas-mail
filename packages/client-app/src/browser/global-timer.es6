@@ -11,9 +11,9 @@ export default class GlobalTimer {
     this._pendingRuns = {}
   }
 
-  start(key) {
+  start(key, now = Date.now()) {
     if (!this._pendingRuns[key]) {
-      this._pendingRuns[key] = [Date.now()]
+      this._pendingRuns[key] = [now]
     }
   }
 
@@ -30,15 +30,20 @@ export default class GlobalTimer {
     }
   }
 
-  stop(key) {
+  stop(key, now = Date.now()) {
     if (!this._pendingRuns[key]) { return 0 }
-    if (!this._doneRuns[key]) { this._doneRuns[key] = [] }
-    this._pendingRuns[key].push(Date.now());
+
+    if (!this._doneRuns[key]) {
+      this._doneRuns[key] = []
+    }
+    this._pendingRuns[key].push(now);
+
     const total = this.calcTotal(this._pendingRuns[key])
     this._doneRuns[key].push(this._pendingRuns[key])
     if (this._doneRuns[key].length > BUFFER_SIZE) {
       this._doneRuns[key].shift()
     }
+
     delete this._pendingRuns[key]
     return total
   }

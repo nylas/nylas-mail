@@ -26,10 +26,10 @@ class ThreadArchiveButton extends React.Component
 
   _onArchive: (e) =>
     return unless DOMUtils.nodeIsVisible(e.currentTarget)
-    tasks = TaskFactory.tasksForArchiving
-      threads: [@props.thread]
-      source: "Toolbar Button: Message List"
-    Actions.queueTasks(tasks)
+    Actions.archiveThreads({
+      threads: [@props.thread],
+      source: 'Toolbar Button: Message List',
+    })
     Actions.popSheet()
     e.stopPropagation()
 

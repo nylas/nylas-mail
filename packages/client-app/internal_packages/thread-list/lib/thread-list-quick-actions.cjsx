@@ -24,11 +24,11 @@ class ThreadArchiveQuickAction extends React.Component
   shouldComponentUpdate: (newProps, newState) ->
     newProps.thread.id isnt @props?.thread.id
 
-  _onArchive: (event) =>
-    tasks = TaskFactory.tasksForArchiving
-      source: "Quick Actions: Thread List"
-      threads: [@props.thread]
-    Actions.queueTasks(tasks)
+  _onArchive: =>
+    Actions.archiveThreads({
+      source: "Quick Actions: Thread List",
+      threads: [@props.thread],
+    })
 
     # Don't trigger the thread row click
     event.stopPropagation()
