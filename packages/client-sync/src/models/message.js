@@ -1,7 +1,8 @@
 const crypto = require('crypto')
-const {PromiseUtils, IMAPConnection} = require('isomorphic-core')
+const {IMAPConnectionPool} = require('isomorphic-core')
 const {DatabaseTypes: {JSONArrayColumn}} = require('isomorphic-core');
 const {Errors: {APIError}} = require('isomorphic-core')
+const {Actions} = require('nylas-exports')
 
 
 function validateRecipientsPresent(message) {
@@ -136,27 +137,36 @@ module.exports = (sequelize, Sequelize) => {
         this.isSent = val
       },
 
-      fetchRaw({account, db, logger}) {
-        const settings = Object.assign({}, account.connectionSettings, account.decryptedCredentials())
-        return PromiseUtils.props({
-          folder: this.getFolder(),
-          connection: IMAPConnection.connect({db, settings, logger}),
-        })
-        .then(({folder, connection}) => {
-          return connection.openBox(folder.name)
-          .then((imapBox) => imapBox.fetchMessage(this.folderImapUID))
-          .then((message) => {
-            if (message) {
-              // TODO: this can mangle the raw body of the email because it
-              // does not respect the charset specified in the headers, which
-              // MUST be decoded before you can figure out how to interpret the
-              // body MIME bytes
-              return Promise.resolve(`${message.headers}${message.parts.TEXT}`)
+      async fetchRaw({account, logger}) {
+        const folder = await this.getFolder();
+        let numTimeoutErrors = 0;
+        let result = null;
+        await IMAPConnectionPool.withConnectionsForAccount(account, {
+          desiredCount: 1,
+          logger,
+          onConnected: async ([connection]) => {
+            const imapBox = await connection.openBox(folder.name);
+            const message = await imapBox.fetchMessage(this.folderImapUID);
+            if (!message) {
+              throw new Error(`Unable to fetch raw message for Message ${this.id}`);
             }
-            return Promise.reject(new Error(`Unable to fetch raw message for Message ${this.id}`))
-          })
-          .finally(() => connection.end())
-        })
+            // TODO: this can mangle the raw body of the email because it
+            // does not respect the charset specified in the headers, which
+            // MUST be decoded before you can figure out how to interpret the
+            // body MIME bytes
+            result = `${message.headers}${message.parts.TEXT}`;
+          },
+          onTimeout: (socketTimeout) => {
+            numTimeoutErrors += 1;
+            Actions.recordUserEvent('Timeout error downloading raw message', {
+              accountId: account.id,
+              provider: account.provider,
+              socketTimeout,
+              numTimeoutErrors,
+            });
+          },
+        });
+        return result;
       },
 
       toJSON() {

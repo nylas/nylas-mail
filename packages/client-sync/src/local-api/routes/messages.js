@@ -38,7 +38,7 @@ module.exports = (server) => {
             return reply.notFound(`Message ${id} not found`)
           }
           if (accept === 'message/rfc822') {
-            return message.fetchRaw({account, db, logger: request.logger})
+            return message.fetchRaw({account, logger: request.logger})
             .then((rawMessage) =>
               reply(rawMessage)
             )
