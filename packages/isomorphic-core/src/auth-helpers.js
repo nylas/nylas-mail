@@ -71,9 +71,9 @@ function credentialsForProvider({provider, settings, email}) {
 
     const connectionCredentials = {
       imap_username: email,
-      imap_password: settings.password,
+      imap_password: settings.password || settings.imap_password,
       smtp_username: email,
-      smtp_password: settings.password,
+      smtp_password: settings.password || settings.smtp_password,
     }
     return {connectionSettings, connectionCredentials}
   } else if (SUPPORTED_PROVIDERS.has(provider)) {
