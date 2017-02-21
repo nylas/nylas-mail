@@ -21,11 +21,11 @@ function unlinkIfExistsSync(p) {
   }
 }
 
-function linkErrorLoggerExtensions(privateDir) {
-  const from = path.join(privateDir, 'src', 'error-logger-extensions')
-  const to = path.resolve(path.join('packages', 'client-app', 'src', 'error-logger-extensions'))
-  unlinkIfExistsSync(to);
-  fs.symlinkSync(from, to, 'dir');
+function copyErrorLoggerExtensions(privateDir) {
+  const from = path.join(privateDir, 'src')
+  const to = path.resolve(path.join('packages', 'client-app', 'src'))
+  unlinkIfExistsSync(path.join(to, 'error-logger-extensions'));
+  fs.copySync(from, to);
 }
 
 async function installPrivateResources() {
@@ -36,7 +36,7 @@ async function installPrivateResources() {
     return;
   }
 
-  linkErrorLoggerExtensions(privateDir)
+  copyErrorLoggerExtensions(privateDir)
 
   // link private plugins
   for (const plugin of fs.readdirSync(path.join(privateDir, 'packages'))) {
