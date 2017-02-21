@@ -15,9 +15,7 @@ require('babel-regenerator-runtime');
 // We run babel with lots of different working directories (like plugin folders).
 // To make sure presets always resolve to the correct path inside N1, resolve
 // them to their absolute paths ahead of time.
-//
-// TODO: Please fix babelrc reference for the build.
-const babelPath = path.resolve(path.join(__dirname, "../../../../.babelrc"))
+const babelPath = path.resolve(path.join(__dirname, "../../.babelrc"))
 var defaultOptions = JSON.parse(fs.readFileSync(babelPath));
 defaultOptions.presets = (defaultOptions.presets || []).map((modulename) =>
   require.resolve(`babel-preset-${modulename}`)

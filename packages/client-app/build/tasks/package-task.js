@@ -57,6 +57,7 @@ module.exports = (grunt) => {
     console.log("---> Resolving symlinks");
     const dirs = [
       'internal_packages',
+      'src',
       'node_modules',
     ];
 
@@ -280,14 +281,14 @@ module.exports = (grunt) => {
 
   grunt.registerTask('packager', 'Package build of Nylas Mail', function pack() {
     const done = this.async();
+    const start = Date.now();
 
     console.log('---> Running build with options:');
     console.log(util.inspect(grunt.config.get('packager'), true, 7, true));
 
-    let time = 1;
     const ongoing = setInterval(() => {
-      console.log(`---> Packaging for ${time}s`);
-      time += 1;
+      const elapsed = Math.round((Date.now() - start) / 1000.0)
+      console.log(`---> Packaging for ${elapsed}s`);
     }, 1000)
 
     resolveRealSymlinkPaths(grunt.config('appDir'))

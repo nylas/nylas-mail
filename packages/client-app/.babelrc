@@ -1,0 +1,7 @@
+{
+  "presets": [
+    "electron",
+    "react"
+  ],
+  "sourceMaps": "inline"
+}

@@ -1,7 +1,1 @@
-{
-  "presets": [
-    "electron",
-    "react"
-  ],
-  "sourceMaps": "inline"
-}
+packages/client-app/.babelrc
