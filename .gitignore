@@ -42,3 +42,6 @@ node_modules
 
 # Built cloud files
 n1_cloud_dist
+
+# Tests
+spec-saved-state.json

@@ -23,7 +23,7 @@ describe "DeltaProcessor", ->
       spyOn(Actions, 'longPollReceivedRawDeltas')
       spyOn(DeltaProcessor, '_clusterDeltas').andReturn({create: {}, modify: {}, destroy: []})
       waitsForPromise ->
-        DeltaProcessor.process(@sampleDeltas)
+        DeltaProcessor.process(@sampleDeltas, {source: 'n1Cloud'})
       runs ->
         expect(Actions.longPollReceivedRawDeltas).toHaveBeenCalled()
 
