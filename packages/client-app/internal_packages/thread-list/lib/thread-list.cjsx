@@ -256,8 +256,7 @@ class ThreadList extends React.Component
   _onStarItem: =>
     threads = @_threadsForKeyboardAction()
     return unless threads
-    task = TaskFactory.taskForInvertingStarred({threads, source: "Keyboard Shortcut"})
-    Actions.queueTask(task)
+    Actions.toggleStarredThreads({threads, source: "Keyboard Shortcut"})
 
   _onSnoozeItem: =>
     disabledPackages = NylasEnv.config.get('core.disabledPackages') ? []

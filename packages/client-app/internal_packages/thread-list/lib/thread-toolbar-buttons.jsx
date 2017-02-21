@@ -165,8 +165,7 @@ export class ToggleStarredButton extends React.Component {
   };
 
   _onStar = (event) => {
-    const task = TaskFactory.taskForInvertingStarred({threads: this.props.items, source: "Toolbar Button: Thread List"});
-    Actions.queueTask(task);
+    Actions.toggleStarredThreads({threads: this.props.items, source: "Toolbar Button: Thread List"});
     event.stopPropagation();
     return;
   }
