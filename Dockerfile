@@ -14,7 +14,7 @@ WORKDIR /home
 # bootstrap to install and link cloud-api, cloud-core, and cloud-workers.
 # We need the --unsafe-perm param to run the postinstall script since Docker
 # will run everything as sudo
-RUN npm install --production --unsafe-perm
+RUN npm install --unsafe-perm
 
 # This uses babel to compile any es6 to stock js for plain node
 RUN node packages/cloud-core/build/build-n1-cloud

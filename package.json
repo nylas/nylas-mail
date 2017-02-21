@@ -2,21 +2,12 @@
   "name": "nylas-mail-all",
   "version": "0.0.1",
   "description": "All components required to run Nylas Mail",
-  "dependencies": {
+  "devDependencies": {
     "babel-cli": "6.x.x",
     "babel-core": "6.x.x",
     "babel-eslint": "7.1.0",
     "babel-preset-electron": "1.4.15",
     "babel-preset-react": "6.x.x",
-    "pm2": "2.4.0",
-    "lerna": "2.0.0-beta.37",
-    "fs-plus": "2.x.x",
-    "fs-extra": "2.x.x",
-    "glob": "7.x.x",
-    "request": "2.x.x",
-    "underscore": "1.8.x"
-  },
-  "devDependencies": {
     "chalk": "1.x.x",
     "coffeelint-cjsx": "2.x.x",
     "electron-installer-dmg": "0.2.x",
@@ -27,6 +18,9 @@
     "eslint-plugin-jsx-a11y": "2.2.3",
     "eslint-plugin-react": "6.7.1",
     "eslint_d": "4.2.0",
+    "fs-extra": "2.x.x",
+    "fs-plus": "2.x.x",
+    "glob": "7.x.x",
     "grunt": "0.4.x",
     "grunt-cli": "0.1.x",
     "grunt-coffeelint": "git+https://github.com/atom/grunt-coffeelint.git#cfb99aa99811d52687969532bd5a98011ed95bfe",
@@ -36,8 +30,12 @@
     "grunt-contrib-less": "0.8.x",
     "grunt-electron-installer": "2.x.x",
     "grunt-lesslint": "0.13.x",
+    "lerna": "2.0.0-beta.37",
+    "pm2": "2.4.0",
+    "request": "2.x.x",
     "s3": "4.x.x",
-    "temp": "0.8.x"
+    "temp": "0.8.x",
+    "underscore": "1.8.x"
   },
   "scripts": {
     "start": "npm run start-client",
@@ -54,7 +52,7 @@
     "test-cloud": "",
     "stop": "npm run stop-cloud",
     "stop-cloud": "pm2 stop all; pm2 delete all;",
-    "build-cloud": "",
+    "build-cloud": "docker build .",
 
     "postinstall": "babel-node scripts/postinstall.js"
   },
