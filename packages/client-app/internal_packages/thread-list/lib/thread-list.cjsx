@@ -52,6 +52,11 @@ class ThreadList extends React.Component
     ReactDOM.findDOMNode(@).addEventListener('contextmenu', @_onShowContextMenu)
     @_onResize()
 
+  componentDidUpdate: =>
+    dataSource = ThreadListStore.dataSource()
+    threads = dataSource.itemsCurrentlyInView()
+    Actions.threadListDidUpdate(threads)
+
   componentWillUnmount: =>
     @unsub()
     window.removeEventListener('resize', @_onResize, true)
@@ -318,11 +323,9 @@ class ThreadList extends React.Component
 
   _onArchiveItem: =>
     threads = @_threadsForKeyboardAction()
-    if threads
-      tasks = TaskFactory.tasksForArchiving
-        source: "Keyboard Shortcut"
-        threads: threads
-      Actions.queueTasks(tasks)
+    if not threads
+      return
+    Actions.archiveThreads({threads, source: "Keyboard Shortcut"})
     Actions.popSheet()
 
   _onDeleteItem: =>

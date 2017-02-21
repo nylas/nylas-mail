@@ -86,6 +86,11 @@ export default class ObservableListDataSource extends ListTabular.DataSource {
     return this._resultSet.offsetOfId(id);
   }
 
+  itemsCurrentlyInView() {
+    if (!this._resultSet) { return [] }
+    return this._resultSet.models()
+  }
+
   itemsCurrentlyInViewMatching(matchFn) {
     if (!this._resultSet) {
       return [];

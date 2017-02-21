@@ -103,11 +103,10 @@ export default class ThreadListContextMenu {
     return {
       label: "Archive",
       click: () => {
-        const tasks = TaskFactory.tasksForArchiving({
+        Actions.archiveThreads({
           source: "Context Menu: Thread List",
           threads: this.threads,
         })
-        Actions.queueTasks(tasks)
       },
     }
   }

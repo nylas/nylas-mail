@@ -39,7 +39,7 @@ class MetricsReporter {
     if (!info.nylasId) {
       throw new Error("Metrics Reporter: You must include an nylasId");
     }
-    const logger = global.Logger.child({accountEmail: info.emailAddress})
+    const logger = global.Logger ? global.Logger.child({accountEmail: info.emailAddress}) : console;
     const {workingSetSize, privateBytes, sharedBytes} = process.getProcessMemoryInfo();
 
     info.hostname = os.hostname();
@@ -54,6 +54,7 @@ class MetricsReporter {
     try {
       if (isClientEnv()) {
         if (NylasEnv.inDevMode()) { return }
+
         if (!info.accountId) {
           throw new Error("Metrics Reporter: You must include an accountId");
         }

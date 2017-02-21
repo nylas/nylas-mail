@@ -22,11 +22,10 @@ export class ArchiveButton extends React.Component {
   }
 
   _onArchive = (event) => {
-    const tasks = TaskFactory.tasksForArchiving({
+    Actions.archiveThreads({
       threads: this.props.items,
       source: "Toolbar Button: Thread List",
     })
-    Actions.queueTasks(tasks);
     Actions.popSheet();
     event.stopPropagation();
     return;

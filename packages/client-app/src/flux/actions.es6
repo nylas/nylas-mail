@@ -564,6 +564,10 @@ class Actions {
   static resetEmailCache = ActionScopeGlobal;
 
   static debugSync = ActionScopeGlobal;
+
+  // Thread list actions
+  static archiveThreads = ActionScopeWindow;
+  static threadListDidUpdate = ActionScopeWindow;
 }
 
 
