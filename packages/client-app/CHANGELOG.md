@@ -18,8 +18,7 @@
 
 - Fixes:
 
-  + Fix offline notification bug that caused outage!
-  + Cloud api fixes for outage!
+  + Fix offline notification bug that caused api outage
   + We now properly handle gmail auth token errors in the middle of the sync loop. This means less red boxes for users!
   + Less battery usage when initial sync has completed!
   + No more errors when saving sent messages to sent folders (`auth or accountId` errors)
