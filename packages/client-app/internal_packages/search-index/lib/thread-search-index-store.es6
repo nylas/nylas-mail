@@ -64,15 +64,7 @@ class ThreadSearchIndexStore {
       .then(() => this.buildIndex(this.accountIds))
     }
 
-    return DatabaseStore.searchIndexSize(Thread)
-    .then((size) => {
-      console.log(`Thread Search: Current index size is ${(size || 0)} threads`)
-      if (this._isInvalidSize(size)) {
-        return this.clearIndex().thenReturn(this.accountIds)
-      }
-      return this.getUnindexedAccounts()
-    })
-    .then((accountIds) => this.buildIndex(accountIds))
+    return this.getUnindexedAccounts().then((accountIds) => this.buildIndex(accountIds));
   }
 
   /**

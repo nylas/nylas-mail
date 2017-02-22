@@ -729,12 +729,6 @@ class DatabaseStore extends NylasStore {
     return this._query(sql);
   }
 
-  searchIndexSize(klass) {
-    const searchTableName = `${klass.name}Search`;
-    const sql = `SELECT COUNT(content_id) as count FROM \`${searchTableName}\``;
-    return this._query(sql).then((result) => result[0].count);
-  }
-
   isIndexEmptyForAccount(accountId, modelKlass) {
     const modelTable = modelKlass.name
     const sql = (
