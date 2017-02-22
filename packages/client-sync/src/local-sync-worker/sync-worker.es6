@@ -29,13 +29,13 @@ class SyncWorker {
     this._db = db;
     this._manager = parentManager;
     this._conn = null;
+    this._smtp = null;
     this._account = account;
     this._currentTask = null
     this._mailListenerConn = null
     this._interruptible = new Interruptible()
     this._localDeltas = new LocalSyncDeltaEmitter(db, account.id)
     this._logger = global.Logger.forAccount(account)
-    this._smtp = new SendmailClient(this._account, this._logger)
 
     this._startTime = Date.now()
     this._lastSyncTime = null
@@ -219,7 +219,7 @@ class SyncWorker {
   async _ensureConnection() {
     const newCredentials = await this._ensureAccessToken()
 
-    if (!newCredentials && this._conn) {
+    if (!newCredentials && this._conn && this._smtp) {
       // We already have a connection and we don't need to update the
       // credentials
       return this._conn.connect();
@@ -235,9 +235,14 @@ class SyncWorker {
     if (!settings || !settings.imap_host) {
       throw new Error("_ensureConnection: There are no IMAP connection settings for this account.");
     }
-    if (!credentials) {
-      throw new Error("_ensureConnection: There are no IMAP connection credentials for this account.");
+    if (!settings.smtp_host && !settings.smtp_custom_config) {
+      throw new Error("_ensureConnection: There are no SMTP connection settings for this account.");
     }
+    if (!credentials) {
+      throw new Error("_ensureConnection: There are no IMAP/SMTP connection credentials for this account.");
+    }
+
+    this._smtp = new SendmailClient(this._account, this._logger)
 
     this._socketTimeout = this._getIMAPSocketTimeout()
     const conn = new IMAPConnection({
