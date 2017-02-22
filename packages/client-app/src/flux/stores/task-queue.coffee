@@ -149,25 +149,7 @@ class TaskQueue
     task.runLocal()
     .then =>
       runLocalTime = Date.now() - runLocalStart
-      if runLocalTime >= 500
-        taskJSON = JSON.parse(JSON.stringify(task.toJSON()))
-        taskData = _.mapObject(taskJSON, (val, key) =>
-          if key is 'folder'
-            return val.display_name
-          if key in ['labelsToAdd', 'labelsToRemove']
-            return val.map((l) => l.display_name)
-          return val
-        )
-        taskData = _.omit(taskData, (val, key) =>
-          if key in ['thread', 'message', 'draft', 'messages', 'threads', 'queueState']
-            return true
-          return key.startsWith('_')
-        )
-        eventData = Object.assign({}, taskData, {
-          duration: runLocalTime,
-          taskName: task.constructor.name,
-        })
-        Actions.recordUserEvent("Task performLocal took more than 500ms", eventData)
+      @_reportRunLocalTime(task, runLocalTime)
       @_queue.push(task)
       @_updateSoon()
 
@@ -245,6 +227,28 @@ class TaskQueue
 
     if reprocessIn isnt Number.MAX_VALUE
       @_processQueueTimeout = setTimeout(@_processQueue, reprocessIn + 500)
+
+  _reportRunLocalTime: (task, runLocalTime) =>
+    taskJSON = JSON.parse(JSON.stringify(task.toJSON()))
+    taskData = _.mapObject(taskJSON, (val, key) =>
+      if key is 'folder'
+        return val.display_name
+      if key in ['labelsToAdd', 'labelsToRemove']
+        return val.map((l) => l.display_name)
+      return val
+    )
+    taskData = _.omit(taskData, (val, key) =>
+      if key in ['thread', 'message', 'draft', 'messages', 'threads', 'queueState']
+        return true
+      return key.startsWith('_')
+    )
+    eventData = Object.assign({}, taskData, {
+      action: 'perform-local-task'
+      actionTimeMs: runLocalTime,
+      taskName: task.constructor.name,
+      maxValue: 1000,
+    })
+    Actions.recordPerfMetric(eventData)
 
   _processTask: (task) =>
     return if task.queueState.isProcessing
