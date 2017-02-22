@@ -168,11 +168,19 @@ class AnalyticsStore extends NylasStore {
 
     const accounts = AccountStore.accounts()
     if (!accounts || accounts.length === 0) { return }
+
     // accountId is irrelevant for metrics reporting but we need to include
     // one in order to make a NylasAPIRequest to our /ingest-metrics endpoint
     const accountId = accounts[0].id
+    const {maxValue = 3000, sample = 1, ...dataToReport} = data
 
-    const {maxValue = 3000, ...dataToReport} = data
+    if (sample < 0 || sample > 1) {
+      throw new Error('recordPerfMetric requires a `sample` size between 0 and 1')
+    }
+
+    // Just report <sample>% of metrics
+    if (Math.random() >= sample) { return }
+
     // Report to honeycomb
     MetricsReporter.reportEvent(Object.assign({nylasId, accountId}, dataToReport))
 
