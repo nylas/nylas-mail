@@ -3,6 +3,7 @@
 arclib
 **/node_modules
 packages/client-*
+!packages/client-app/.babelrc
 
 *.swp
 *~

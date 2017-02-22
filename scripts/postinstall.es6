@@ -82,7 +82,7 @@ async function npm(cmd, options) {
 }
 
 async function electronRebuild() {
-  if (!fs.existsSync(path.join("packages", "client-app"))) {
+  if (!fs.existsSync(path.join("packages", "client-app", "apm"))) {
     console.log("\n---> No client app to rebuild. Moving on")
     return;
   }
