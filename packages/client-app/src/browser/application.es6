@@ -301,6 +301,7 @@ export default class Application extends EventEmitter {
     });
 
     this.on('application:add-account', ({existingAccount, accountType} = {}) => {
+      this.timer.start('open-add-account-window')
       const onboarding = this.windowManager.get(WindowManager.ONBOARDING_WINDOW);
       if (onboarding) {
         if (onboarding.browserWindow.webContents) {
