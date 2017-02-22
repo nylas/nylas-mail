@@ -82,7 +82,7 @@ function convertImapError(imapError) {
     error.source = imapError.source
     return error
   }
-  if (imapError.message.includes('System Error')) {
+  if (/system error/i.test(imapError.message)) {
     // System Errors encountered in the wild so far have been retryable.
     error = new RetryableError(imapError)
     error.source = imapError.source

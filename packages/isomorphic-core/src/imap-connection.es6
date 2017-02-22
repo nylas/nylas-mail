@@ -346,7 +346,11 @@ class IMAPConnection extends EventEmitter {
         clearTimeout(socketTimeout)
         resolve(...args)
       }
-      return callback(cbResolve, reject)
+      const cbReject = (error) => {
+        clearTimeout(socketTimeout)
+        reject(convertImapError(error))
+      }
+      return callback(cbResolve, cbReject)
     })
     .finally(() => {
       if (this._imap) {
