@@ -314,6 +314,7 @@ class MessageList extends React.Component
           isLastMsg={isLastMsg}
           isBeforeReplyArea={isBeforeReplyArea}
           scrollTo={@_scrollTo}
+          onLoad={@_onMessageLoaded}
         />
       )
 
@@ -400,6 +401,15 @@ class MessageList extends React.Component
       })
     else
       throw new Error("onChildScrollRequest: expected clientId or rect")
+
+  _onMessageLoaded: =>
+    if @state.currentThread
+      timerKey = "select-thread-#{@state.currentThread.id}"
+      if NylasEnv.timer.isPending(timerKey)
+        action = 'select-thread'
+        actionTimeMs = NylasEnv.timer.stop(timerKey)
+        messageCount = (@state.messages || []).length
+        Actions.recordUserEvent({action, actionTimeMs, messageCount})
 
   _onScrollByPage: (direction) =>
     height = ReactDOM.findDOMNode(@refs.messageWrap).clientHeight
