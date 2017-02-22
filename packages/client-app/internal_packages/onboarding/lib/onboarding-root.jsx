@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import {Actions} from 'nylas-exports'
 import OnboardingStore from './onboarding-store';
 import PageTopBar from './page-top-bar';
 
@@ -41,6 +42,13 @@ export default class OnboardingRoot extends React.Component {
     this.unsubscribe = OnboardingStore.listen(this._onStateChanged, this);
     NylasEnv.center();
     NylasEnv.displayWindow();
+    if (NylasEnv.timer.isPending('open-add-account-window')) {
+      Actions.recordPerfMetric({
+        action: 'open-add-account-window',
+        actionTimeMs: NylasEnv.timer.stop('open-add-account-window'),
+        maxValue: 4000,
+      })
+    }
   }
 
   componentWillUnmount() {
