@@ -35,6 +35,7 @@ const PERF_ACTIONS_TO_EVENTS_MAP = {
   'select-thread': 'Perf: Selected Thread',
   'send-draft': 'Perf: Draft Sent',
   'perform-local-task': 'Perf: Task Performed Database Operation',
+  'open-composer-window': 'Perf: Composer Window Opened',
 }
 
 class AnalyticsStore extends NylasStore {
