@@ -31,6 +31,7 @@ describe("AccountErrorNotif", function AccountErrorNotifTests() {
       notif.find('#action-1').simulate('click'); // Expects second action to be the reconnect action
       expect(ipcRenderer.send).toHaveBeenCalledWith('command', 'application:add-account', {
         existingAccount: AccountStore.accounts()[0],
+        source: 'Reconnect from error notification',
       });
     });
   });

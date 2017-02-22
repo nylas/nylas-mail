@@ -107,7 +107,7 @@ class PreferencesAccountDetails extends Component {
 
   _onReconnect = () => {
     const ipc = require('electron').ipcRenderer;
-    ipc.send('command', 'application:add-account', {existingAccount: this.state.account});
+    ipc.send('command', 'application:add-account', {existingAccount: this.state.account, source: 'Reconnect from preferences'});
   }
 
   _onContactSupport = () => {

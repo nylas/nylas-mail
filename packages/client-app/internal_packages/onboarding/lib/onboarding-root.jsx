@@ -44,10 +44,12 @@ export default class OnboardingRoot extends React.Component {
     NylasEnv.displayWindow();
 
     if (NylasEnv.timer.isPending('open-add-account-window')) {
+      const {source} = NylasEnv.getWindowProps()
       Actions.recordPerfMetric({
+        source,
         action: 'open-add-account-window',
         actionTimeMs: NylasEnv.timer.stop('open-add-account-window'),
-        maxValue: 4000,
+        maxValue: 4 * 1000,
       })
     }
 
