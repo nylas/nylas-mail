@@ -46,6 +46,7 @@ class ThreadListActionsStore extends NylasStore {
           actionTimeMs,
           targetCategory,
           threadCount: threadIds.length,
+          sample: 0.9,
         })
         this._timers.delete(timerId)
       }

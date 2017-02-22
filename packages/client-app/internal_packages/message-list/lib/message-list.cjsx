@@ -406,10 +406,14 @@ class MessageList extends React.Component
     if @state.currentThread
       timerKey = "select-thread-#{@state.currentThread.id}"
       if NylasEnv.timer.isPending(timerKey)
-        action = 'select-thread'
         actionTimeMs = NylasEnv.timer.stop(timerKey)
         messageCount = (@state.messages || []).length
-        Actions.recordUserEvent({action, actionTimeMs, messageCount})
+        Actions.recordPerfMetric({
+          sample: 0.1,
+          action: 'select-thread',
+          actionTimeMs,
+          messageCount,
+        })
 
   _onScrollByPage: (direction) =>
     height = ReactDOM.findDOMNode(@refs.messageWrap).clientHeight

@@ -58,6 +58,7 @@ class ComposerWithWindowProps extends React.Component {
           action: 'open-composer-window',
           actionTimeMs,
           maxValue: 4000,
+          sample: 0.9,
         })
       }
       NylasEnv.displayWindow();
