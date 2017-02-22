@@ -1,7 +1,8 @@
 const request = require('request');
 const _ = require('underscore');
 const Rx = require('rx-lite');
-const {IMAPConnection} = require('isomorphic-core')
+const {IMAPConnectionPool} = require('isomorphic-core')
+const {Actions} = require('nylas-exports')
 
 const getThreadsForMessages = (db, messages, limit) => {
   if (messages.length === 0) {
@@ -175,43 +176,10 @@ class SearchFolder {
 class ImapSearchClient {
   constructor(account) {
     this.account = account;
-    this._conn = null;
     this._logger = global.Logger.forAccount(this.account);
   }
 
-  async ensureConnection() {
-    if (this._conn) {
-      return await this._conn.connect();
-    }
-    const settings = this.account.connectionSettings;
-    const credentials = this.account.decryptedCredentials();
-
-    if (!settings || !settings.imap_host) {
-      throw new Error("ensureConnection: There are no IMAP connection settings for this account.");
-    }
-    if (!credentials) {
-      throw new Error("ensureConnection: There are no IMAP connection credentials for this account.");
-    }
-
-    const conn = new IMAPConnection({
-      db: this._db,
-      settings: Object.assign({}, settings, credentials),
-      logger: this._logger,
-    });
-
-    this._conn = conn;
-    return await this._conn.connect();
-  }
-
-  closeConnection() {
-    if (this._conn) {
-      this._conn.end();
-    }
-  }
-
   async _search(db, query) {
-    await this.ensureConnection();
-
     // We want to start the search with the 'inbox', 'sent' and 'archive'
     // folders, if they exist.
     const {Folder} = db;
@@ -232,27 +200,46 @@ class ImapSearchClient {
     folders = folders.concat(accountFolders);
 
     const criteria = [['TEXT', query]];
-    return Rx.Observable.create((observer) => {
-      const chain = folders.reduce((acc, folder) => {
-        return acc.then((uids) => {
-          if (uids.length > 0) {
-            observer.onNext(uids);
-          }
-          return this._searchFolder(folder, criteria);
-        });
-      }, Promise.resolve([]));
+    let numTimeoutErrors = 0;
+    let result = null;
+    await IMAPConnectionPool.withConnectionsForAccount(this.account, {
+      desiredCount: 1,
+      logger: this._logger,
+      onConnected: async ([conn], done) => {
+        result = Rx.Observable.create((observer) => {
+          const chain = folders.reduce((acc, folder) => {
+            return acc.then((uids) => {
+              if (uids.length > 0) {
+                observer.onNext(uids);
+              }
+              return this._searchFolder(conn, folder, criteria);
+            });
+          }, Promise.resolve([]));
 
-      chain.then((uids) => {
-        if (uids.length > 0) {
-          observer.onNext(uids);
-        }
-        observer.onCompleted();
-      }).finally(() => this.closeConnection());
+          chain.then((uids) => {
+            if (uids.length > 0) {
+              observer.onNext(uids);
+            }
+            observer.onCompleted();
+          }).finally(() => done());
+        });
+        return true;
+      },
+      onTimeout: (socketTimeout) => {
+        numTimeoutErrors += 1;
+        Actions.recordUserEvent('Timeout error in IMAP search', {
+          accountId: this._account.id,
+          provider: this._account.provider,
+          socketTimeout,
+          numTimeoutErrors,
+        });
+      },
     });
+    return result;
   }
 
-  _searchFolder(folder, criteria) {
-    return this._conn.runOperation(new SearchFolder(folder, criteria))
+  _searchFolder(conn, folder, criteria) {
+    return conn.runOperation(new SearchFolder(folder, criteria))
     .catch((error) => {
       this._logger.error(`Search error: ${error}`);
       return Promise.resolve([]);
