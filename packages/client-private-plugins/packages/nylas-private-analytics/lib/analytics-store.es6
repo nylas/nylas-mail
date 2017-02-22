@@ -162,9 +162,19 @@ class AnalyticsStore extends NylasStore {
     if (!action || actionTimeMs == null) {
       throw new Error('recordPerfMetric requires at least an `action` and `actionTimeMs`')
     }
+    const identity = IdentityStore.identity()
+    if (!identity) { return }
+    const nylasId = identity.id
+
+    const accounts = AccountStore.accounts()
+    if (!accounts || accounts.length === 0) { return }
+    // accountId is irrelevant for metrics reporting but we need to include
+    // one in order to make a NylasAPIRequest to our /ingest-metrics endpoint
+    const accountId = accounts[0].id
+
     const {maxValue = 3000, ...dataToReport} = data
     // Report to honeycomb
-    MetricsReporter.reportEvent(dataToReport)
+    MetricsReporter.reportEvent(Object.assign({nylasId, accountId}, dataToReport))
 
     // When reporting to Mixpanel, we need to make sure time data is clipped
     // to a range so that reporting does not get screwed up
