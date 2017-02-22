@@ -1,5 +1,4 @@
 import NylasStore from 'nylas-store'
-import {MetricsReporter} from 'isomorphic-core'
 import Actions from '../actions'
 import Utils from '../models/utils'
 import TaskFactory from '../tasks/task-factory'
@@ -51,7 +50,7 @@ class ThreadListActionsStore extends NylasStore {
       const threadsHaveBeenRemoved = threadIds.every(id => !threadIdsInList.has(id))
       if (threadsHaveBeenRemoved) {
         const actionTimeMs = NylasEnv.timer.stop(timerId, updatedAt)
-        MetricsReporter.reportEvent({
+        Actions.recordPerfMetric({
           action,
           source,
           nylasId,
