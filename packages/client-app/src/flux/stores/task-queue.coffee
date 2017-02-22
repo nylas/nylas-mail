@@ -247,6 +247,7 @@ class TaskQueue
       actionTimeMs: runLocalTime,
       taskName: task.constructor.name,
       maxValue: 1000,
+      sample: 0.1,
     })
     Actions.recordPerfMetric(eventData)
 
