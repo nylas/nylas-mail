@@ -882,7 +882,7 @@ export default class NylasEnvConstructor {
   // plugins needs to be loaded.
   populateHotWindow(event, loadSettings) {
     if (/composer/.test(loadSettings.windowType)) {
-      NylasEnv.timer.split("Popout Draft");
+      NylasEnv.timer.split('open-composer-window');
     }
     this.loadSettings = loadSettings;
     this.constructor.loadSettings = loadSettings;
