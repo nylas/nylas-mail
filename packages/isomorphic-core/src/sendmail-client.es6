@@ -13,7 +13,7 @@ const formatParticipants = (participants) => {
 class SendmailClient {
 
   constructor(account, logger) {
-    this._transporter = nodemailer.createTransport(account.smtpConfig());
+    this._transporter = nodemailer.createTransport(Object.assign(account.smtpConfig(), {pool: true}));
     this._logger = logger;
   }
 
