@@ -72,6 +72,10 @@ export default class GlobalTimer {
     return this._doneRuns[key]
   }
 
+  isPending(key) {
+    return this._pendingRuns[key] != null
+  }
+
   clear(key) {
     delete this._doneRuns[key]
   }

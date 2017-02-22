@@ -106,6 +106,9 @@ class FocusedContentStore
     throw new Error("focus() requires a collection") unless collection
     return if @_focused[collection]?.id is item?.id
 
+    if collection is 'thread' and item
+      NylasEnv.timer.start("select-thread-#{item.id}")
+
     @_focused[collection] = item
     @_focusedUsingClick[collection] = usingClick
     @_keyboardCursor[collection] = item if item

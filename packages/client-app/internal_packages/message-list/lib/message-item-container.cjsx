@@ -20,6 +20,7 @@ class MessageItemContainer extends React.Component
     isLastMsg: React.PropTypes.bool
     isBeforeReplyArea: React.PropTypes.bool
     scrollTo: React.PropTypes.func
+    onLoad: React.PropTypes.func
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
@@ -59,6 +60,7 @@ class MessageItemContainer extends React.Component
       className={@_classNames()}
       collapsed={@props.collapsed}
       isLastMsg={@props.isLastMsg}
+      onLoad={@props.onLoad}
     />
 
   _renderComposer: =>
