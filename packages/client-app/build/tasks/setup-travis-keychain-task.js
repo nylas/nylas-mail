@@ -69,7 +69,7 @@ module.exports = (grunt) => {
   };
 
   getCertData = () => {
-    const certs = path.resolve(path.join(grunt.config('buildDir'), 'resources', 'certs'));
+    const certs = path.resolve(path.join(grunt.config('buildDir'), 'resources', 'certs', 'mac'));
     const appleCert = path.join(certs, 'AppleWWDRCA.cer');
     const nylasCert = path.join(certs, 'mac-nylas-n1.cer');
     const nylasPrivateKey = path.join(certs, 'mac-nylas-n1.p12');
@@ -97,11 +97,10 @@ module.exports = (grunt) => {
       grunt.log.writeln(`Skipping keychain setup since ${process.platform} is not darwin`);
       return false
     }
-    if (!process.env.TRAVIS) {
-      grunt.log.writeln(`Skipping keychain setup since TRAVIS env variable is not set`);
+    if (!shouldPublishBuild()) {
+      grunt.log.writeln(`Skipping keychain setup since PUBLISH_BUILD is false`);
       return false
     }
-    if (!shouldPublishBuild()) { return false }
     return true
   }
 
