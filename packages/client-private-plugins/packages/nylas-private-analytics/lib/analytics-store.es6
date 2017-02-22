@@ -1,8 +1,8 @@
 import _ from 'underscore'
-import Segment from 'analytics-node'
+import Segment from 'analytics-node' // eslint-disable-line
 import NylasStore from 'nylas-store'
 import crypto from 'crypto'
-import {getMac} from 'getmac'
+import {getMac} from 'getmac' // eslint-disable-line
 import {
   IdentityStore,
   Actions,
@@ -151,6 +151,7 @@ class AnalyticsStore extends NylasStore {
   }
 
   track(eventName, eventArgs = {}) {
+    if (NylasEnv.inDevMode()) { return }
     const identity = IdentityStore.identity()
     if (!(identity && identity.id)) { return; }
     this.identify()
