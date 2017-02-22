@@ -32,6 +32,14 @@ export default class SendDraftTask extends BaseDraftTask {
     return "Sending message";
   }
 
+  performLocal() {
+    return super.performLocal()
+    .then(() => {
+      this._timerKey = `send-draft-${this.draftClientId}`
+      NylasEnv.timer.start(this._timerKey)
+    })
+  }
+
   performRemote() {
     return this.refreshDraftReference()
     .then(this.assertDraftValidity)
@@ -198,10 +206,26 @@ export default class SendDraftTask extends BaseDraftTask {
     if (this.playSound && NylasEnv.config.get("core.sending.sounds")) {
       SoundRegistry.playSound('send');
     }
+    if (NylasEnv.timer.isPending(this._timerKey)) {
+      Actions.recordPerfMetric({
+        action: 'send-draft',
+        actionTimeMs: NylasEnv.timer.stop(this._timerKey),
+        maxValue: 60 * 1000,
+        succeeded: true,
+      })
+    }
     return Promise.resolve(Task.Status.Success);
   }
 
   onError = (err) => {
+    if (NylasEnv.timer.isPending(this._timerKey)) {
+      Actions.recordPerfMetric({
+        action: 'send-draft',
+        actionTimeMs: NylasEnv.timer.stop(this._timerKey),
+        maxValue: 60 * 1000,
+        succeeded: false,
+      })
+    }
     if (err instanceof BaseDraftTask.DraftNotFoundError) {
       return Promise.resolve(Task.Status.Continue);
     }
