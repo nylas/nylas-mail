@@ -38,6 +38,7 @@ const PERF_ACTIONS_TO_EVENTS_MAP = {
   'open-composer-window': 'Perf: Composer Window Opened',
   'open-add-account-window': 'Perf: Add Account Window Opened',
   'app-boot': 'Perf: App Booted',
+  'search-performed': 'Perf: Search Performed',
 }
 
 class AnalyticsStore extends NylasStore {

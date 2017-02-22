@@ -24,7 +24,7 @@ class SearchQuerySubscription extends MutableQuerySubscription {
 
     this._connections = []
     this._unsubscribers = [
-      FocusedContentStore.listen(::this.onFocusedContentChanged),
+      FocusedContentStore.listen(this.onFocusedContentChanged),
     ]
     this._extDisposables = []
 
@@ -37,7 +37,10 @@ class SearchQuerySubscription extends MutableQuerySubscription {
 
   resetData() {
     this._searchStartedAt = null
-    this._resultsReceivedAt = null
+    this._localResultsReceivedAt = null
+    this._remoteResultsReceivedAt = null
+    this._remoteResultsCount = 0
+    this._localResultsCount = 0
     this._firstThreadSelectedAt = null
     this._lastFocusedThread = null
     this._focusedThreadCount = 0
@@ -71,6 +74,10 @@ class SearchQuerySubscription extends MutableQuerySubscription {
     console.info('dbQuery.sql() =', dbQuery.sql());
 
     dbQuery.then((results) => {
+      if (!this._localResultsReceivedAt) {
+        this._localResultsReceivedAt = Date.now()
+      }
+      this._localResultsCount += results.length
       if (results.length > 0) {
         this.replaceQuery(dbQuery)
       }
@@ -110,11 +117,12 @@ class SearchQuerySubscription extends MutableQuerySubscription {
         accountId,
         path: `/threads/search/streaming?q=${encodeURIComponent(this._searchQuery)}`,
         onResults: (results) => {
-          if (!this._resultsReceivedAt) {
-            this._resultsReceivedAt = Date.now()
+          if (!this._remoteResultsReceivedAt) {
+            this._remoteResultsReceivedAt = Date.now()
           }
           const threads = results[0]
           resultIds = resultIds.concat(_.pluck(threads, 'id'))
+          this._remoteResultsCount += resultIds.length
           resultsReturned()
         },
         onStatusChanged: (status) => {
@@ -149,7 +157,9 @@ class SearchQuerySubscription extends MutableQuerySubscription {
     })
   }
 
-  onFocusedContentChanged() {
+  // We want to keep track of how many threads from the search results were
+  // focused
+  onFocusedContentChanged = () => {
     const thread = FocusedContentStore.focused('thread')
     const shouldRecordChange = (
       thread &&
@@ -169,30 +179,39 @@ class SearchQuerySubscription extends MutableQuerySubscription {
       return;
     }
 
-    let timeToFirstServerResults = null;
-    let timeToFirstThreadSelected = null;
-    const timeInsideSearch = Math.round((Date.now() - this._searchStartedAt) / 1000)
-    const numItems = this._focusedThreadCount
-    const didSelectAnyThreads = numItems > 0
+    let timeToLocalResultsMs = null
+    let timeToFirstRemoteResultsMs = null;
+    let timeToFirstThreadSelectedMs = null;
+    const timeInsideSearchMs = Date.now() - this._searchStartedAt
+    const numThreadsSelected = this._focusedThreadCount
+    const numLocalResults = this._localResultsCount
+    const numRemoteResults = this._remoteResultsCount
 
     if (this._firstThreadSelectedAt) {
-      timeToFirstThreadSelected = Math.round((this._firstThreadSelectedAt - this._searchStartedAt) / 1000)
+      timeToFirstThreadSelectedMs = this._firstThreadSelectedAt - this._searchStartedAt
     }
-    if (this._resultsReceivedAt) {
-      timeToFirstServerResults = Math.round((this._resultsReceivedAt - this._searchStartedAt) / 1000)
+    if (this._localResultsReceivedAt) {
+      timeToLocalResultsMs = this._localResultsReceivedAt - this._searchStartedAt
+    }
+    if (this._remoteResultsReceivedAt) {
+      timeToFirstRemoteResultsMs = this._remoteResultsReceivedAt - this._searchStartedAt
     }
 
-    const data = {
-      numItems,
-      timeInsideSearch,
-      didSelectAnyThreads,
-      timeToFirstServerResults,
-      timeToFirstThreadSelected,
-    }
-    Actions.recordUserEvent("Search Performed", data)
+    Actions.recordPerfMetric({
+      action: 'search-performed',
+      actionTimeMs: timeToLocalResultsMs,
+      numLocalResults,
+      numRemoteResults,
+      numThreadsSelected,
+      timeInsideSearchMs,
+      timeToLocalResultsMs,
+      timeToFirstRemoteResultsMs,
+      timeToFirstThreadSelectedMs,
+    })
     this.resetData()
   }
 
+  // This function is called when the user leaves the SearchPerspective
   onLastCallbackRemoved() {
     this.reportSearchMetrics();
     this._connections.forEach((conn) => conn.end())
