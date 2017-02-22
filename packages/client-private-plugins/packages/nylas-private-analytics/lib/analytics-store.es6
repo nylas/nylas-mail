@@ -3,6 +3,7 @@ import Segment from 'analytics-node' // eslint-disable-line
 import NylasStore from 'nylas-store'
 import crypto from 'crypto'
 import {getMac} from 'getmac' // eslint-disable-line
+import {MetricsReporter} from 'isomorphic-core' // eslint-disable-line
 import {
   IdentityStore,
   Actions,
@@ -23,16 +24,16 @@ import {
 * Only completely anonymous data essential to future metrics or
 * debugging may be sent.
 */
-const coreWindowActions = {
-  recordUserEvent: (eventName, data) => [eventName, data],
-}
 
 /**
  * We wait 15 seconds to give the alias time to register before we send
  * any events.
  */
 const DEBOUNCE_TIME = 15 * 1000
-
+const PERF_ACTIONS_TO_EVENTS_MAP = {
+  'remove-threads-from-list': 'Perf: Removed Threads from List',
+  'select-thread': 'Perf: Selected Thread',
+}
 
 class AnalyticsStore extends NylasStore {
 
@@ -64,7 +65,7 @@ class AnalyticsStore extends NylasStore {
       }
     })
 
-    this.trackActions(Actions, coreWindowActions)
+    this.setupActionListeners()
   }
 
 
@@ -141,13 +142,32 @@ class AnalyticsStore extends NylasStore {
     };
   }
 
-  trackActions(dispatcher, listeners) {
-    _.each(listeners, (mappingFunction, actionName) => {
-      this.listenTo(dispatcher[actionName], (...args) => {
-        const [eventName, eventArgs] = mappingFunction(...args);
-        this.track(eventName, eventArgs);
-      });
+  setupActionListeners() {
+    this.listenTo(Actions.recordUserEvent, (eventName, eventArgs) => {
+      this.track(eventName, eventArgs);
     })
+    this.listenTo(Actions.recordPerfMetric, (data) => {
+      this.recordPerfMetric(data)
+    })
+  }
+
+  recordPerfMetric(data) {
+    const {action, actionTimeMs} = data
+    if (!action || actionTimeMs == null) {
+      throw new Error('recordPerfMetric requires at least an `action` and `actionTimeMs`')
+    }
+    const {maxValue = 3000, ...dataToReport} = data
+    // Report to honeycomb
+    MetricsReporter.reportEvent(dataToReport)
+
+    // When reporting to Mixpanel, we need to make sure time data is clipped
+    // to a range so that reporting does not get screwed up
+    const clippedActionTimeMs = Math.min(Math.max(0, actionTimeMs), maxValue)
+    const eventName = PERF_ACTIONS_TO_EVENTS_MAP[action] || action
+    this.track(eventName, Object.assign({}, dataToReport, {
+      actionTimeMs: clippedActionTimeMs,
+      rawActionTimeMs: actionTimeMs,
+    }))
   }
 
   track(eventName, eventArgs = {}) {
