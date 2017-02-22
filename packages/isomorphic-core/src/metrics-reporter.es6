@@ -5,6 +5,13 @@ class MetricsReporter {
 
   constructor() {
     this._honey = null
+    this._baseReportingData = {
+      hostname: os.hostname(),
+      cpus: os.cpus().length,
+      arch: os.arch(),
+      platform: process.platform,
+      version: isClientEnv() ? NylasEnv.getVersion() : undefined,
+    }
 
     if (isCloudEnv()) {
       const LibHoney = require('libhoney').default // eslint-disable-line
@@ -28,34 +35,32 @@ class MetricsReporter {
     });
   }
 
-  sendToHoneycomb(info) {
+  sendToHoneycomb(data) {
     if (!this._honey) {
       throw new Error('Metrics Reporter: Honeycomb is not available in this environment')
     }
-    this._honey.sendNow(info);
+    this._honey.sendNow(data);
   }
 
-  async reportEvent(info) {
-    if (!info.nylasId) {
+  async reportEvent(data) {
+    if (!data.nylasId) {
       throw new Error("Metrics Reporter: You must include an nylasId");
     }
-    const logger = global.Logger ? global.Logger.child({accountEmail: info.emailAddress}) : console;
+    const {accountId: id, emailAddress} = data
+    const logger = global.Logger ? global.Logger.forAccount({id, emailAddress}) : console;
     const {workingSetSize, privateBytes, sharedBytes} = process.getProcessMemoryInfo();
 
-    info.hostname = os.hostname();
-    info.cpus = os.cpus().length;
-    info.arch = os.arch();
-    info.platform = process.platform;
-    info.version = NylasEnv.getVersion();
-    info.processWorkingSetSize = workingSetSize;
-    info.processPrivateBytes = privateBytes;
-    info.processSharedBytes = sharedBytes;
+    const dataToReport = Object.assign({}, this._baseReportingData, data, {
+      processWorkingSetSize: workingSetSize,
+      processPrivateBytes: privateBytes,
+      processSharedBytes: sharedBytes,
+    })
 
     try {
       if (isClientEnv()) {
         if (NylasEnv.inDevMode()) { return }
 
-        if (!info.accountId) {
+        if (!dataToReport.accountId) {
           throw new Error("Metrics Reporter: You must include an accountId");
         }
 
@@ -65,17 +70,17 @@ class MetricsReporter {
           options: {
             path: `/ingest-metrics`,
             method: 'POST',
-            body: info,
-            accountId: info.accountId,
+            body: dataToReport,
+            accountId: dataToReport.accountId,
           },
         });
         await req.run()
       } else {
-        this.sendToHoneycomb(info)
+        this.sendToHoneycomb(dataToReport)
       }
-      logger.log(info, "Metrics Reporter: Submitted.", info);
+      logger.log("Metrics Reporter: Submitted.", dataToReport);
     } catch (err) {
-      logger.warn("Metrics Reporter: Submission Failed.", {error: err, ...info});
+      logger.warn("Metrics Reporter: Submission Failed.", {error: err, ...dataToReport});
     }
   }
 }
