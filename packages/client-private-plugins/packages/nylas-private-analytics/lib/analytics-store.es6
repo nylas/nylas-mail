@@ -34,6 +34,7 @@ const PERF_ACTIONS_TO_EVENTS_MAP = {
   'remove-threads-from-list': 'Perf: Removed Threads from List',
   'select-thread': 'Perf: Selected Thread',
   'send-draft': 'Perf: Draft Sent',
+  'perform-local-task': 'Perf: Task Performed Database Operation',
 }
 
 class AnalyticsStore extends NylasStore {
