@@ -42,7 +42,7 @@ export default class AccountErrorNotification extends React.Component {
   }
 
   _onReconnect = (existingAccount) => {
-    ipcRenderer.send('command', 'application:add-account', {existingAccount});
+    ipcRenderer.send('command', 'application:add-account', {existingAccount, source: 'Reconnect from error notification'});
   }
 
   _onOpenAccountPreferences = () => {
