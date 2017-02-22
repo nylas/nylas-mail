@@ -28,9 +28,9 @@ branches:
 matrix:
   include:
   - os: linux
-    env: NODE_VERSION=6.9 CC=gcc-4.8 CXX=g++-4.8
+    env: NODE_VERSION=6.9 CC=gcc-4.8 CXX=g++-4.8 PUBLISH_BUILD=true
   - os: osx
-    env: NODE_VERSION=6.9 CC=clang CXX=clang++
+    env: NODE_VERSION=6.9 CC=clang CXX=clang++ PUBLISH_BUILD=true
 
 before_install:
 - openssl aes-256-cbc
@@ -41,8 +41,8 @@ before_install:
   -d;
 - mkdir packages/client-app/build/resources/certs;
 - tar xvf packages/client-private-plugins/encrypted_certificates/travis/travis-files.tar
-  --directory=packages/client-app/build/resources/certs/;
-- source packages/client-app/build/resources/certs/set_unix_env.sh;
+  --directory=packages/client-app/build/resources/;
+- source packages/client-app/build/resources/certs/mac/set_unix_env.sh;
 
 install:
 - git clone https://github.com/creationix/nvm.git /tmp/.nvm
@@ -51,7 +51,7 @@ install:
 - nvm use --delete-prefix $NODE_VERSION
 
 script:
-- npm install && npm build-client
+- npm install && npm run build-client
 
 cache:
   directories:

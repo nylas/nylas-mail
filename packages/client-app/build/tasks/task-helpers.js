@@ -24,17 +24,6 @@ module.exports = (grunt) => {
       grunt.log.writeln("Skipping because PUBLISH_BUILD env is not set");
       return false;
     }
-    if (process.env.APPVEYOR) {
-      if (process.env.APPVEYOR_PULL_REQUEST_NUMBER) {
-        grunt.log.writeln("Skipping because this is a pull request");
-        return false;
-      }
-    } else if (process.env.TRAVIS) {
-      if (process.env.TRAVIS_PULL_REQUEST !== "false") {
-        grunt.log.writeln("Skipping because TRAVIS_PULL_REQUEST env doesn't equal 'false'");
-        return false;
-      }
-    }
     return true;
   }
 
