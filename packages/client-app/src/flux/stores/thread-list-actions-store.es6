@@ -2,8 +2,6 @@ import NylasStore from 'nylas-store'
 import Actions from '../actions'
 import Utils from '../models/utils'
 import TaskFactory from '../tasks/task-factory'
-import AccountStore from '../stores/account-store'
-import IdentityStore from '../stores/identity-store'
 import FocusedPerspectiveStore from '../stores/focused-perspective-store'
 
 
@@ -35,14 +33,6 @@ class ThreadListActionsStore extends NylasStore {
 
   _onThreadListDidUpdate = (threads) => {
     const updatedAt = Date.now()
-    const identity = IdentityStore.identity()
-    if (!identity) { return }
-
-    // accountId is irrelevant for metrics reporting but we need to include
-    // one in order to make a NylasAPIRequest to our /ingest-metrics endpoint
-    const accountId = AccountStore.accounts()[0]
-
-    const nylasId = identity.id
     const threadIdsInList = new Set(threads.map(t => t.id))
 
     for (const [timerId, timerData] of this._timers.entries()) {
@@ -53,8 +43,6 @@ class ThreadListActionsStore extends NylasStore {
         Actions.recordPerfMetric({
           action,
           source,
-          nylasId,
-          accountId,
           actionTimeMs,
           targetCategory,
           threadCount: threadIds.length,
