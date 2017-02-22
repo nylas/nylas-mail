@@ -37,6 +37,7 @@ const PERF_ACTIONS_TO_EVENTS_MAP = {
   'perform-local-task': 'Perf: Task Performed Database Operation',
   'open-composer-window': 'Perf: Composer Window Opened',
   'open-add-account-window': 'Perf: Add Account Window Opened',
+  'app-boot': 'Perf: App Booted',
 }
 
 class AnalyticsStore extends NylasStore {
