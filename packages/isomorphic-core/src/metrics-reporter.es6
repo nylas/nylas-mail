@@ -7,7 +7,7 @@ class MetricsReporter {
     this._honey = null
 
     if (isCloudEnv()) {
-      const LibHoney = require('libhoney') // eslint-disable-line
+      const LibHoney = require('libhoney').default // eslint-disable-line
 
       this._honey = new LibHoney({
         writeKey: process.env.HONEY_WRITE_KEY,
