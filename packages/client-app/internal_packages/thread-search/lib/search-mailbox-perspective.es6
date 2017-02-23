@@ -4,14 +4,32 @@ import SearchQuerySubscription from './search-query-subscription'
 
 class SearchMailboxPerspective extends MailboxPerspective {
 
-  constructor(accountIds, searchQuery) {
-    super(accountIds)
-    this.searchQuery = searchQuery
-    this.name = 'Search'
+  constructor(sourcePerspective, searchQuery) {
+    super(sourcePerspective.accountIds)
 
-    if (!_.isString(this.searchQuery)) {
+    if (!_.isString(searchQuery)) {
       throw new Error("SearchMailboxPerspective: Expected a `string` search query")
     }
+
+    this.searchQuery = searchQuery;
+
+    if (sourcePerspective instanceof SearchMailboxPerspective) {
+      this.sourcePerspective = sourcePerspective.sourcePerspective;
+    } else {
+      this.sourcePerspective = sourcePerspective;
+    }
+
+    this.name = `Searching ${this.sourcePerspective.name}`
+  }
+
+  _folderScope() {
+    // When the inbox is focused we don't specify a folder scope. If the user
+    // wants to search just the inbox then they have to specify it explicitly.
+    if (this.sourcePerspective.isInbox()) {
+      return '';
+    }
+    const folderQuery = this.sourcePerspective.categories().map((c) => c.displayName).join('" OR in:"');
+    return `AND (in:"${folderQuery}")`;
   }
 
   emptyMessage() {
@@ -23,7 +41,7 @@ class SearchMailboxPerspective extends MailboxPerspective {
   }
 
   threads() {
-    return new SearchQuerySubscription(this.searchQuery, this.accountIds)
+    return new SearchQuerySubscription(`(${this.searchQuery}) ${this._folderScope()}`, this.accountIds)
   }
 
   canReceiveThreadsFromAccountIds() {

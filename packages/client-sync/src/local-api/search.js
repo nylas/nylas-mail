@@ -228,8 +228,8 @@ class ImapSearchClient {
       onTimeout: (socketTimeout) => {
         numTimeoutErrors += 1;
         Actions.recordUserEvent('Timeout error in IMAP search', {
-          accountId: this._account.id,
-          provider: this._account.provider,
+          accountId: this.account.id,
+          provider: this.account.provider,
           socketTimeout,
           numTimeoutErrors,
         });
