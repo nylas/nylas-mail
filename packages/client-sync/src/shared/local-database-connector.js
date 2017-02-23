@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const fs = require('fs');
 const path = require('path');
-const {loadModels, PromiseUtils, HookIncrementVersionOnSave, HookTransactionLog} = require('isomorphic-core');
+const {loadModels, HookIncrementVersionOnSave, HookTransactionLog} = require('isomorphic-core');
 const TransactionConnector = require('./transaction-connector')
 
 require('./database-extensions'); // Extends Sequelize on require
@@ -58,7 +58,7 @@ class LocalDatabaseConnector {
       // this is a bit of a hack, because sequelize.sync() doesn't work with
       // schemas. It's necessary to sync models individually and in the right order.
       const models = ['Contact', 'Folder', 'Label', 'Transaction', 'Thread', 'ThreadLabel', 'ThreadFolder', 'Message', 'MessageLabel', 'Reference', 'MessageReference', 'File', 'SyncbackRequest'];
-      return PromiseUtils.each(models, (n) =>
+      return Promise.each(models, (n) =>
         db[n].sync()
       )
     });
