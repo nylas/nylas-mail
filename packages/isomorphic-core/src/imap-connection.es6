@@ -42,6 +42,65 @@ class IMAPConnection extends EventEmitter {
     return new IMAPConnection(...args).connect()
   }
 
+  static generateXOAuth2Token(username, accessToken) {
+    // See https://developers.google.com/gmail/xoauth2_protocol
+    // for more details.
+    const s = `user=${username}\x01auth=Bearer ${accessToken}\x01\x01`
+    return new Buffer(s).toString('base64');
+  }
+
+  static asyncResolveIMAPSettings(baseSettings) {
+    const settings = {
+      host: baseSettings.imap_host,
+      port: baseSettings.imap_port,
+      user: baseSettings.imap_username,
+      password: baseSettings.imap_password,
+      tls: baseSettings.ssl_required,
+      socketTimeout: baseSettings.socketTimeout || SOCKET_TIMEOUT_MS,
+      authTimeout: baseSettings.authTimeout || AUTH_TIMEOUT_MS,
+    }
+    if (!MAJOR_IMAP_PROVIDER_HOSTS.has(settings.host)) {
+      settings.tlsOptions = { rejectUnauthorized: false };
+    }
+
+    if (process.env.NYLAS_DEBUG) {
+      settings.debug = console.log;
+    }
+
+    // This account uses XOAuth2, and we have the client_id + refresh token
+    if (baseSettings.refresh_token) {
+      const xoauthFields = ['client_id', 'client_secret', 'imap_username', 'refresh_token'];
+      if (Object.keys(_.pick(baseSettings, xoauthFields)).length !== 4) {
+        return Promise.reject(new Error(`IMAPConnection: Expected ${xoauthFields.join(',')} when given refresh_token`))
+      }
+      return new Promise((resolve, reject) => {
+        xoauth2.createXOAuth2Generator({
+          clientId: baseSettings.client_id,
+          clientSecret: baseSettings.client_secret,
+          user: baseSettings.imap_username,
+          refreshToken: baseSettings.refresh_token,
+        })
+        .getToken((err, token) => {
+          if (err) { return reject(err) }
+          delete settings.password;
+          settings.xoauth2 = token;
+          settings.expiry_date = Math.floor(Date.now() / 1000) + ONE_HOUR_SECS;
+          return resolve(settings);
+        });
+      });
+    }
+
+    // This account uses XOAuth2, and we have a token given to us by the
+    // backend, which has the client secret.
+    if (baseSettings.xoauth2) {
+      delete settings.password;
+      settings.xoauth2 = baseSettings.xoauth2;
+      settings.expiry_date = baseSettings.expiry_date;
+    }
+
+    return Promise.resolve(settings);
+  }
+
   constructor({db, account, settings, logger} = {}) {
     super();
 
@@ -57,17 +116,11 @@ class IMAPConnection extends EventEmitter {
     this._account = account;
     this._queue = [];
     this._currentOperation = null;
-    this._settings = settings;
+    this._baseSettings = settings;
+    this._resolvedSettings = null;
     this._imap = null;
     this._connectPromise = null;
     this._isOpeningBox = false;
-  }
-
-  static generateXOAuth2Token(username, accessToken) {
-    // See https://developers.google.com/gmail/xoauth2_protocol
-    // for more details.
-    const s = `user=${username}\x01auth=Bearer ${accessToken}\x01\x01`
-    return new Buffer(s).toString('base64');
   }
 
   get account() {
@@ -78,70 +131,28 @@ class IMAPConnection extends EventEmitter {
     return this._logger
   }
 
-  connect() {
+  get resolvedSettings() {
+    return this._resolvedSettings
+  }
+
+  async connect() {
     if (!this._connectPromise) {
-      this._connectPromise = this._resolveIMAPSettings().then((settings) => {
-        this.resolvedSettings = settings
-        return this._buildUnderlyingConnection(settings)
-      });
+      this._connectPromise = new Promise(async (resolve, reject) => {
+        try {
+          this._resolvedSettings = await IMAPConnection.asyncResolveIMAPSettings(this._baseSettings)
+          await this._buildUnderlyingConnection()
+          resolve()
+        } catch (err) {
+          reject(err)
+        }
+      })
     }
     return this._connectPromise;
   }
 
-  _resolveIMAPSettings() {
-    const settings = {
-      host: this._settings.imap_host,
-      port: this._settings.imap_port,
-      user: this._settings.imap_username,
-      password: this._settings.imap_password,
-      tls: this._settings.ssl_required,
-      socketTimeout: this._settings.socketTimeout || SOCKET_TIMEOUT_MS,
-      authTimeout: this._settings.authTimeout || AUTH_TIMEOUT_MS,
-    }
-    if (!MAJOR_IMAP_PROVIDER_HOSTS.has(settings.host)) {
-      settings.tlsOptions = { rejectUnauthorized: false };
-    }
-
-    if (process.env.NYLAS_DEBUG) {
-      settings.debug = console.log;
-    }
-
-    // This account uses XOAuth2, and we have the client_id + refresh token
-    if (this._settings.refresh_token) {
-      const xoauthFields = ['client_id', 'client_secret', 'imap_username', 'refresh_token'];
-      if (Object.keys(_.pick(this._settings, xoauthFields)).length !== 4) {
-        return Promise.reject(new Error(`IMAPConnection: Expected ${xoauthFields.join(',')} when given refresh_token`))
-      }
-      return new Promise((resolve, reject) => {
-        xoauth2.createXOAuth2Generator({
-          clientId: this._settings.client_id,
-          clientSecret: this._settings.client_secret,
-          user: this._settings.imap_username,
-          refreshToken: this._settings.refresh_token,
-        }).getToken((err, token) => {
-          if (err) { return reject(err) }
-          delete settings.password;
-          settings.xoauth2 = token;
-          settings.expiry_date = Math.floor(Date.now() / 1000) + ONE_HOUR_SECS;
-          return resolve(settings);
-        });
-      });
-    }
-
-    // This account uses XOAuth2, and we have a token given to us by the
-    // backend, which has the client secret.
-    if (this._settings.xoauth2) {
-      delete settings.password;
-      settings.xoauth2 = this._settings.xoauth2;
-      settings.expiry_date = this._settings.expiry_date;
-    }
-
-    return Promise.resolve(settings);
-  }
-
-  _buildUnderlyingConnection(settings) {
+  async _buildUnderlyingConnection() {
     return new Promise((resolve, reject) => {
-      this._imap = PromiseUtils.promisifyAll(new Imap(settings));
+      this._imap = PromiseUtils.promisifyAll(new Imap(this._resolvedSettings));
 
       const socketTimeout = setTimeout(() => {
         reject(new IMAPConnectionTimeoutError('Socket timed out'))
