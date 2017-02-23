@@ -111,7 +111,6 @@ class AnalyticsStore extends NylasStore {
     return {
       version: NylasEnv.getVersion().split("-")[0],
       platform: process.platform,
-      inDevMode: NylasEnv.inDevMode(),
       deviceHash: this.deviceHash,
       activeTheme: theme ? theme.name : null,
       workspaceMode: NylasEnv.config.get("core.workspace.mode"),
@@ -127,7 +126,6 @@ class AnalyticsStore extends NylasStore {
       providers: providers,
       accountIds: _.pluck(AccountStore.accounts(), "id"),
       numAccounts: AccountStore.accounts().length,
-      usedDevMode: this.usedDevMode(),
       firstDaySeen: this.firstDaySeen(),
       timeSinceLaunch: (Date.now() - this.launchTime) / 1000,
       activeThirdPartyPlugins: this.thirdPartyActivePluginNames,
@@ -158,6 +156,8 @@ class AnalyticsStore extends NylasStore {
   }
 
   recordPerfMetric(data) {
+    if (NylasEnv.inDevMode()) { return }
+
     const {action, actionTimeMs} = data
     if (!action || actionTimeMs == null) {
       throw new Error('recordPerfMetric requires at least an `action` and `actionTimeMs`')
@@ -196,6 +196,7 @@ class AnalyticsStore extends NylasStore {
 
   track(eventName, eventArgs = {}) {
     if (NylasEnv.inDevMode()) { return }
+
     const identity = IdentityStore.identity()
     if (!(identity && identity.id)) { return; }
     this.identify()
@@ -219,15 +220,6 @@ class AnalyticsStore extends NylasStore {
       NylasEnv.config.set("nylas.firstDaySeen", firstDaySeen);
     }
     return firstDaySeen;
-  }
-
-  usedDevMode() {
-    let usedDevMode = NylasEnv.config.get("nylas.usedDevMode");
-    if (!usedDevMode) {
-      usedDevMode = NylasEnv.inDevMode();
-      NylasEnv.config.set("nylas.usedDevMode", usedDevMode);
-    }
-    return usedDevMode;
   }
 
   identify = () => {
