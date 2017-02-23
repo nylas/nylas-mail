@@ -1,11 +1,25 @@
 # Nylas Mail Changelog
 
+### 1.0.29 (2/21/2017)
+
+- Fixes:
+
+  + You can now click inline images in messages to open them
+  + More IMAP errors have been identified as retryable, which means users will
+    see less errors when syncing an account
+  + Improve performance of thread search indexing queries
+  + Correctly catch Invalid Login errors when sending
+
+- Development:
+
+  + Developer bar in Worker window now shows single delta connection
+  + More code converted to Javascript
+
 ### 1.0.28 (2/16/2017)
 
 - Fixes:
 
-  + Fix offline notification bug that caused outage!
-  + Cloud api fixes for outage!
+  + Fix offline notification bug that caused api outage
   + We now properly handle gmail auth token errors in the middle of the sync loop. This means less red boxes for users!
   + Less battery usage when initial sync has completed!
   + No more errors when saving sent messages to sent folders (`auth or accountId` errors)
