@@ -204,10 +204,12 @@ class SearchQuerySubscription extends MutableQuerySubscription {
       numLocalResults,
       numRemoteResults,
       numThreadsSelected,
-      timeInsideSearchMs,
-      timeToLocalResultsMs,
-      timeToFirstRemoteResultsMs,
-      timeToFirstThreadSelectedMs,
+      clippedData: [
+        {key: 'timeToLocalResultsMs', val: timeToLocalResultsMs},
+        {key: 'timeToFirstThreadSelectedMs', val: timeToFirstThreadSelectedMs},
+        {key: 'timeInsideSearchMs', val: timeInsideSearchMs, maxValue: 60 * 1000},
+        {key: 'timeToFirstRemoteResultsMs', val: timeToFirstRemoteResultsMs, maxValue: 10 * 1000},
+      ],
     })
     this.resetData()
   }

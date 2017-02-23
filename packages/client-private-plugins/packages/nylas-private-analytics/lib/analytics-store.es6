@@ -30,7 +30,8 @@ import {
  * any events.
  */
 const DEBOUNCE_TIME = 15 * 1000
-const PERF_ACTIONS_TO_EVENTS_MAP = {
+const DEFAULT_MIXPANEL_MAX_VALUE = 3 * 1000
+const PERF_ACTIONS_TO_MIXPANEL_EVENTS = {
   'remove-threads-from-list': 'Perf: Removed Threads from List',
   'select-thread': 'Perf: Selected Thread',
   'send-draft': 'Perf: Draft Sent',
@@ -172,7 +173,12 @@ class AnalyticsStore extends NylasStore {
     // accountId is irrelevant for metrics reporting but we need to include
     // one in order to make a NylasAPIRequest to our /ingest-metrics endpoint
     const accountId = accounts[0].id
-    const {maxValue = 3000, sample = 1, ...dataToReport} = data
+    const {
+      sample = 1,
+      clippedData = [],
+      maxValue = DEFAULT_MIXPANEL_MAX_VALUE,
+      ...dataToReport
+    } = data
 
     if (sample < 0 || sample > 1) {
       throw new Error('recordPerfMetric requires a `sample` size between 0 and 1')
@@ -182,16 +188,26 @@ class AnalyticsStore extends NylasStore {
     if (Math.random() >= sample) { return }
 
     // Report to honeycomb
-    MetricsReporter.reportEvent(Object.assign({nylasId, accountId}, dataToReport))
+    const honeycombData = Object.assign({nylasId, accountId}, dataToReport)
+    clippedData.forEach(({key, val}) => {
+      honeycombData[key] = val
+    })
+    MetricsReporter.reportEvent(honeycombData)
 
-    // When reporting to Mixpanel, we need to make sure time data is clipped
+    // Report to mixpanel
+    // When reporting to mixpanel, we need to make sure time data is clipped
     // to a range so that reporting does not get screwed up
     const clippedActionTimeMs = Math.min(Math.max(0, actionTimeMs), maxValue)
-    const eventName = PERF_ACTIONS_TO_EVENTS_MAP[action] || action
-    this.track(eventName, Object.assign({}, dataToReport, {
+    const mixpanelData = Object.assign({}, dataToReport, {
       actionTimeMs: clippedActionTimeMs,
       rawActionTimeMs: actionTimeMs,
-    }))
+    })
+    clippedData.forEach(({key, val, maxValue: max}) => {
+      mixpanelData[key] = Math.min(Math.max(0, val), max || DEFAULT_MIXPANEL_MAX_VALUE)
+    })
+
+    const mixpanelEventName = PERF_ACTIONS_TO_MIXPANEL_EVENTS[action] || action
+    this.track(mixpanelEventName, mixpanelData)
   }
 
   track(eventName, eventArgs = {}) {
