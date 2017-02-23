@@ -64,7 +64,7 @@ class GmailOAuthHelpers {
       db: {},
     })
     imap.end();
-    return imap.resolvedSettings
+    return imap.getResolvedSettings()
   }
 
   async createCloudAccount(imapSettings, googleProfile) {

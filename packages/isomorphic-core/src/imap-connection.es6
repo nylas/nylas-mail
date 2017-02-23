@@ -123,18 +123,6 @@ class IMAPConnection extends EventEmitter {
     this._isOpeningBox = false;
   }
 
-  get account() {
-    return this._account
-  }
-
-  get logger() {
-    return this._logger
-  }
-
-  get resolvedSettings() {
-    return this._resolvedSettings
-  }
-
   async connect() {
     if (!this._connectPromise) {
       this._connectPromise = new Promise(async (resolve, reject) => {
@@ -150,60 +138,6 @@ class IMAPConnection extends EventEmitter {
     return this._connectPromise;
   }
 
-  async _buildUnderlyingConnection() {
-    return new Promise((resolve, reject) => {
-      this._imap = PromiseUtils.promisifyAll(new Imap(this._resolvedSettings));
-
-      const socketTimeout = setTimeout(() => {
-        reject(new IMAPConnectionTimeoutError('Socket timed out'))
-      }, this._resolvedSettings.socketTimeout)
-
-      // Emitted when new mail arrives in the currently open mailbox.
-      let lastMailEventBox = null;
-      this._imap.on('mail', () => {
-        // Fix https://github.com/mscdex/node-imap/issues/585
-        if (this._isOpeningBox) { return }
-        if (!this._imap) { return }
-        if (lastMailEventBox === null || lastMailEventBox === this._imap._box.name) {
-          // Fix https://github.com/mscdex/node-imap/issues/445
-          this.emit('mail');
-        }
-        lastMailEventBox = this._imap._box.name
-      });
-
-      // Emitted if the UID validity value for the currently open mailbox
-      // changes during the current session.
-      this._imap.on('uidvalidity', () => this.emit('uidvalidity'))
-
-      // Emitted when message metadata (e.g. flags) changes externally.
-      this._imap.on('update', () => this.emit('update'))
-
-      this._imap.once('ready', () => {
-        clearTimeout(socketTimeout)
-        resolve(this)
-      });
-
-      this._imap.once('error', (err) => {
-        clearTimeout(socketTimeout)
-        this.end();
-        reject(convertImapError(err));
-      });
-
-      this._imap.once('end', () => {
-        clearTimeout(socketTimeout)
-        this._logger.debug('Underlying IMAP Connection ended');
-        this._connectPromise = null;
-        this._imap = null;
-      });
-
-      this._imap.on('alert', (msg) => {
-        this._logger.info({imap_server_msg: msg}, `IMAP server message`)
-      });
-
-      this._imap.connect();
-    });
-  }
-
   end() {
     if (this._imap) {
       this._imap.end();
@@ -211,6 +145,125 @@ class IMAPConnection extends EventEmitter {
     }
     this._queue = [];
     this._connectPromise = null;
+  }
+
+  async _buildUnderlyingConnection() {
+    this._imap = PromiseUtils.promisifyAll(new Imap(this._resolvedSettings));
+    return this._withPreparedConnection(() => {
+      return new Promise((resolve) => {
+        // `mail` event is emitted when new mail arrives in the currently open mailbox.
+        let lastMailEventBox = null;
+        this._imap.on('mail', () => {
+          // Fix https://github.com/mscdex/node-imap/issues/585
+          if (this._isOpeningBox) { return }
+          if (!this._imap) { return }
+          if (lastMailEventBox === null || lastMailEventBox === this._imap._box.name) {
+            // Fix https://github.com/mscdex/node-imap/issues/445
+            this.emit('mail');
+          }
+          lastMailEventBox = this._imap._box.name
+        });
+
+        // Emitted if the UID validity value for the currently open mailbox
+        // changes during the current session.
+        this._imap.on('uidvalidity', () => this.emit('uidvalidity'))
+
+        // Emitted when message metadata (e.g. flags) changes externally.
+        this._imap.on('update', () => this.emit('update'))
+
+        this._imap.on('alert', (msg) => {
+          this._logger.info({imap_server_msg: msg}, `IMAP server message`)
+        });
+
+        this._imap.once('ready', () => {
+          resolve()
+        });
+
+        this._imap.once('error', () => {
+          this.end();
+        });
+
+        this._imap.once('end', () => {
+          this._logger.warn('Underlying IMAP connection has ended')
+          this.end();
+        });
+
+        this._imap.connect();
+      });
+    })
+  }
+
+  /**
+   * @return {Promise} that resolves/rejects when the Promise returned by the
+   * passed-in callback resolves or rejects, and additionally will reject when
+   * the IMAP connection closes, ends or times out.
+   * This is important for 2 main reasons:
+   * - node-imap can sometimes hang the current operation after the connection
+   *   has emmitted an `end` event. For this reason, we need to manually reject
+   *   and end() on `end` event.
+   * - node-imap does not seem to respect the socketTimeout setting, so it won't
+   *   actually time out an operation after the specified timeout has passed.
+   *   For this reason, we have to manually reject when the timeout period has
+   *   passed.
+   * @param {function} callback - This callback will receive as a single arg
+   * a node-imap connection instance, and should return a Promise.
+   */
+  async _withPreparedConnection(callback) {
+    if (!this._imap) {
+      throw new IMAPConnectionNotReadyError(`IMAPConnection::_withPreparedConnection`)
+    }
+
+    let onEnded = null;
+    let onErrored = null;
+
+    try {
+      return await new Promise(async (resolve, reject) => {
+        const socketTimeout = setTimeout(() => {
+          reject(new IMAPConnectionTimeoutError('Socket timed out'))
+        }, this._resolvedSettings.socketTimeout)
+
+        const wrappedResolve = (result) => {
+          clearTimeout(socketTimeout)
+          resolve(result)
+        }
+        const wrappedReject = (error) => {
+          clearTimeout(socketTimeout)
+          const convertedError = convertImapError(error)
+          reject(convertedError)
+          this.end()
+        }
+
+        onEnded = () => {
+          wrappedReject(new IMAPConnectionEndedError())
+        };
+        onErrored = (error) => {
+          wrappedReject(error);
+        };
+
+        this._imap.on('error', onErrored);
+        this._imap.on('end', onEnded);
+
+        try {
+          const result = await callback(this._imap)
+          wrappedResolve(result)
+        } catch (error) {
+          wrappedReject(error)
+        }
+      })
+    } finally {
+      if (this._imap) {
+        this._imap.removeListener('error', onErrored);
+        this._imap.removeListener('end', onEnded);
+      }
+    }
+  }
+
+  getResolvedSettings() {
+    return this._resolvedSettings
+  }
+
+  getOpenBoxName() {
+    return (this._imap && this._imap._box) ? this._imap._box.name : null;
   }
 
   serverSupports(capability) {
@@ -223,7 +276,7 @@ class IMAPConnection extends EventEmitter {
   /**
    * @return {Promise} that resolves to instance of IMAPBox
    */
-  openBox(folderName, {readOnly = false, refetchBoxInfo = false} = {}) {
+  async openBox(folderName, {readOnly = false, refetchBoxInfo = false} = {}) {
     if (!folderName) {
       throw new Error('IMAPConnection::openBox - You must provide a folder name')
     }
@@ -234,17 +287,14 @@ class IMAPConnection extends EventEmitter {
       return Promise.resolve(new IMAPBox(this, this._imap._box));
     }
     this._isOpeningBox = true
-    return this._createConnectionPromise((resolve, reject) => {
-      return this._imap.openBoxAsync(folderName, readOnly)
-      .then((box) => {
-        this._isOpeningBox = false
-        resolve(new IMAPBox(this, box))
-      })
-      .catch((...args) => reject(...args))
+    return this._withPreparedConnection(async (imap) => {
+      const box = await imap.openBoxAsync(folderName, readOnly)
+      this._isOpeningBox = false
+      return new IMAPBox(this, box)
     })
   }
 
-  getLatestBoxStatus(folderName) {
+  async getLatestBoxStatus(folderName) {
     if (!folderName) {
       throw new Error('IMAPConnection::getLatestBoxStatus - You must provide a folder name')
     }
@@ -253,62 +303,38 @@ class IMAPConnection extends EventEmitter {
       // get the latest stats from the box (e.g. latest uidnext, etc)
       return this.openBox(folderName, {refetchBoxInfo: true})
     }
-    return this._createConnectionPromise((resolve, reject) => {
-      return this._imap.statusAsync(folderName)
-      .then((...args) => resolve(...args))
-      .catch((...args) => reject(...args))
-    })
+    return this._withPreparedConnection((imap) => imap.statusAsync(folderName))
   }
 
-  getBoxes() {
+  async getBoxes() {
     if (!this._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPConnection::getBoxes`)
     }
-    return this._createConnectionPromise((resolve, reject) => {
-      return this._imap.getBoxesAsync()
-      .then((...args) => resolve(...args))
-      .catch((...args) => reject(...args))
-    })
+    return this._withPreparedConnection((imap) => imap.getBoxesAsync())
   }
 
-  addBox(folderName) {
+  async addBox(folderName) {
     if (!this._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPConnection::addBox`)
     }
-    return this._createConnectionPromise((resolve, reject) => {
-      return this._imap.addBoxAsync(folderName)
-      .then((...args) => resolve(...args))
-      .catch((...args) => reject(...args))
-    })
+    return this._withPreparedConnection((imap) => imap.addBoxAsync(folderName))
   }
 
-  renameBox(oldFolderName, newFolderName) {
+  async renameBox(oldFolderName, newFolderName) {
     if (!this._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPConnection::renameBox`)
     }
-    return this._createConnectionPromise((resolve, reject) => {
-      return this._imap.renameBoxAsync(oldFolderName, newFolderName)
-      .then((...args) => resolve(...args))
-      .catch((...args) => reject(...args))
-    })
+    return this._withPreparedConnection((imap) => imap.renameBoxAsync(oldFolderName, newFolderName))
   }
 
-  delBox(folderName) {
+  async delBox(folderName) {
     if (!this._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPConnection::delBox`)
     }
-    return this._createConnectionPromise((resolve, reject) => {
-      return this._imap.delBoxAsync(folderName)
-      .then((...args) => resolve(...args))
-      .catch((...args) => reject(...args))
-    })
+    return this._withPreparedConnection((imap) => imap.delBoxAsync(folderName))
   }
 
-  getOpenBoxName() {
-    return (this._imap && this._imap._box) ? this._imap._box.name : null;
-  }
-
-  runOperation(operation, ctx) {
+  async runOperation(operation, ctx) {
     if (!this._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPConnection::runOperation`)
     }
@@ -316,57 +342,6 @@ class IMAPConnection extends EventEmitter {
       this._queue.push({operation, ctx, resolve, reject});
       if (this._imap.state === 'authenticated' && !this._currentOperation) {
         this._processNextOperation();
-      }
-    });
-  }
-
-  /*
-  Equivalent to new Promise, but allows you to easily create promises
-  which are also rejected when the IMAP connection closes, ends or times out.
-  This is important because node-imap sometimes just hangs the current
-  fetch / action forever after emitting an `end` event, or doesn't actually
-  timeout the socket.
-  */
-  _createConnectionPromise(callback) {
-    if (!this._imap) {
-      throw new IMAPConnectionNotReadyError(`IMAPConnection::_createConnectionPromise`)
-    }
-
-    let onEnded = null;
-    let onErrored = null;
-
-    return new Promise((resolve, reject) => {
-      const socketTimeout = setTimeout(() => {
-        reject(new IMAPConnectionTimeoutError('Socket timed out'))
-      }, this._resolvedSettings.socketTimeout)
-
-      onEnded = () => {
-        clearTimeout(socketTimeout)
-        reject(new IMAPConnectionEndedError());
-      };
-      onErrored = (error) => {
-        clearTimeout(socketTimeout)
-        this.end()
-        reject(convertImapError(error));
-      };
-
-      this._imap.once('error', onErrored);
-      this._imap.once('end', onEnded);
-
-      const cbResolve = (...args) => {
-        clearTimeout(socketTimeout)
-        resolve(...args)
-      }
-      const cbReject = (error) => {
-        clearTimeout(socketTimeout)
-        reject(convertImapError(error))
-      }
-      return callback(cbResolve, cbReject)
-    })
-    .finally(() => {
-      if (this._imap) {
-        this._imap.removeListener('error', onErrored);
-        this._imap.removeListener('end', onEnded);
       }
     });
   }
