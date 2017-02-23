@@ -48,3 +48,8 @@ packages/client-app/dist
 
 # Tests
 spec-saved-state.json
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
