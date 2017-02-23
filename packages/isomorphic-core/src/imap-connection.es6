@@ -31,12 +31,12 @@ const Capabilities = {
 }
 
 const ONE_HOUR_SECS = 60 * 60;
-const SOCKET_TIMEOUT_MS = 30 * 1000;
 const AUTH_TIMEOUT_MS = 30 * 1000;
+const DEFAULT_SOCKET_TIMEOUT_MS = 30 * 1000;
 
 class IMAPConnection extends EventEmitter {
 
-  static DefaultSocketTimeout = SOCKET_TIMEOUT_MS;
+  static DefaultSocketTimeout = DEFAULT_SOCKET_TIMEOUT_MS;
 
   static connect(...args) {
     return new IMAPConnection(...args).connect()
@@ -56,7 +56,7 @@ class IMAPConnection extends EventEmitter {
       user: baseSettings.imap_username,
       password: baseSettings.imap_password,
       tls: baseSettings.ssl_required,
-      socketTimeout: baseSettings.socketTimeout || SOCKET_TIMEOUT_MS,
+      socketTimeout: baseSettings.socketTimeout || DEFAULT_SOCKET_TIMEOUT_MS,
       authTimeout: baseSettings.authTimeout || AUTH_TIMEOUT_MS,
     }
     if (!MAJOR_IMAP_PROVIDER_HOSTS.has(settings.host)) {
@@ -156,7 +156,7 @@ class IMAPConnection extends EventEmitter {
 
       const socketTimeout = setTimeout(() => {
         reject(new IMAPConnectionTimeoutError('Socket timed out'))
-      }, SOCKET_TIMEOUT_MS)
+      }, this._resolvedSettings.socketTimeout)
 
       // Emitted when new mail arrives in the currently open mailbox.
       let lastMailEventBox = null;
@@ -338,7 +338,7 @@ class IMAPConnection extends EventEmitter {
     return new Promise((resolve, reject) => {
       const socketTimeout = setTimeout(() => {
         reject(new IMAPConnectionTimeoutError('Socket timed out'))
-      }, SOCKET_TIMEOUT_MS)
+      }, this._resolvedSettings.socketTimeout)
 
       onEnded = () => {
         clearTimeout(socketTimeout)
