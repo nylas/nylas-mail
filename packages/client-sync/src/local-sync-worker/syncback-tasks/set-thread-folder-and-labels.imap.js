@@ -14,7 +14,7 @@ class SetThreadFolderAndLabelsIMAP extends SyncbackIMAPTask {
   }
 
 
-  async run(db, imap) {
+  async run(db, imap, syncWorker) {
     const {Thread, Folder} = db
     const threadId = this.syncbackRequestObject().props.threadId
     const labelIds = this.syncbackRequestObject().props.labelIds
@@ -60,7 +60,7 @@ class SetThreadFolderAndLabelsIMAP extends SyncbackIMAPTask {
       account: this._account,
       folder: targetFolder,
     })
-    await syncOperation.run(db, imap)
+    await syncOperation.run(db, imap, syncWorker)
   }
 }
 module.exports = SetThreadFolderAndLabelsIMAP

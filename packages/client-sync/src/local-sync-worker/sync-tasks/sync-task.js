@@ -51,7 +51,7 @@ class SyncTask extends Interruptible {
    * ```
    * class MyTask extends SyncTask {
    *
-   *   async * runTask(db, imap) {
+   *   async * runTask(db, imap, syncWorker) {
    *     // Use `yield` to indicate that we can interrupt the function after
    *     // this async operation has resolved
    *     const models = yield db.Messages.findAll()
@@ -68,7 +68,7 @@ class SyncTask extends Interruptible {
    * }
    * ```
    */
-  * runTask(db, imap) { // eslint-disable-line
+  * runTask(db, imap, syncWorker) { // eslint-disable-line
     throw new Error('Must implement `SyncTask::runTask`')
   }
 }

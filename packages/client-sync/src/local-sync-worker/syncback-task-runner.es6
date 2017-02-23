@@ -11,7 +11,7 @@ const SendTaskTypes = [
 
 class SyncbackTaskRunner {
 
-  constructor({db, account, logger, imap, smtp} = {}) {
+  constructor({db, account, syncWorker, logger, imap, smtp} = {}) {
     if (!db) {
       throw new Error('SyncbackTaskRunner: need to pass db')
     }
@@ -32,6 +32,7 @@ class SyncbackTaskRunner {
     this._logger = logger
     this._imap = imap
     this._smtp = smtp
+    this._syncWorker = syncWorker
   }
 
   /**
@@ -161,7 +162,7 @@ class SyncbackTaskRunner {
       let responseJSON;
       switch (resource) {
         case 'imap':
-          responseJSON = await this._imap.runOperation(task)
+          responseJSON = await this._imap.runOperation(task, this._syncWorker)
           break;
         case 'smtp':
           responseJSON = await task.run(this._db, this._smtp)

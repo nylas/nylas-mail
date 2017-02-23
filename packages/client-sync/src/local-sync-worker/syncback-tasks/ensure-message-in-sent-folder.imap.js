@@ -29,7 +29,7 @@ async function deleteGmailSentMessages({db, imap, provider, headerMessageId}) {
   }
 }
 
-async function saveSentMessage({db, account, logger, imap, provider, sentPerRecipient, baseMessage}) {
+async function saveSentMessage({db, account, syncWorker, logger, imap, provider, sentPerRecipient, baseMessage}) {
   const {Folder, Label} = db
 
   // Case 1. If non gmail, save the message to the `sent` folder using IMAP
@@ -52,7 +52,7 @@ async function saveSentMessage({db, account, logger, imap, provider, sentPerReci
       account,
       folder: sentFolder,
     })
-    await syncOperation.run(db, imap)
+    await syncOperation.run(db, imap, syncWorker)
     return
   }
 
@@ -135,7 +135,7 @@ class EnsureMessageInSentFolderIMAP extends SyncbackIMAPTask {
     return false
   }
 
-  async run(db, imap) {
+  async run(db, imap, syncWorker) {
     const {Message} = db
     const {messageId, sentPerRecipient} = this.syncbackRequestObject().props
     const {account, logger} = imap
@@ -173,7 +173,7 @@ class EnsureMessageInSentFolderIMAP extends SyncbackIMAPTask {
       }
     }
 
-    await saveSentMessage({db, account, logger, imap, provider, sentPerRecipient, baseMessage})
+    await saveSentMessage({db, account, syncWorker, logger, imap, provider, sentPerRecipient, baseMessage})
     return baseMessage.toJSON()
   }
 }
