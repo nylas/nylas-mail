@@ -75,7 +75,7 @@ class IMAPCertificateError extends NylasError { }
  *
  */
 function convertImapError(imapError) {
-  let error;
+  let error = imapError;
 
   if (imapError.message.toLowerCase().includes('try again')) {
     error = new RetryableError(imapError)
@@ -115,7 +115,7 @@ function convertImapError(imapError) {
     case "timeout-auth":
       error = new IMAPAuthenticationTimeoutError(imapError); break;
     default:
-      return error
+      break;
   }
   error.source = imapError.source
   return error
