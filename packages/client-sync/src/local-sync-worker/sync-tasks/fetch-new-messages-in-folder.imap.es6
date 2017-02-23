@@ -13,10 +13,11 @@ class FetchNewMessagesInFolderIMAP extends FetchMessagesInFolderIMAP {
     return `FetchNewMessagesInFolderIMAP (${this._folder.name} - ${this._folder.id})`;
   }
 
-  async * runTask(db, imap) {
+  async * runTask(db, imap, syncWorker) {
     this._logger.log(`🔜 📂 🆕  ${this._folder.name} - Looking for new messages`)
     this._db = db;
     this._imap = imap;
+    this._syncWorker = syncWorker;
     const {syncState: {fetchedmax}} = this._folder
 
     if (!fetchedmax) {
@@ -26,7 +27,7 @@ class FetchNewMessagesInFolderIMAP extends FetchMessagesInFolderIMAP {
       // Can't use `super` in this scenario because babel can't compile it under
       // these conditions. User regular prototype instead
       this._logger.log(`🔚 📂 🆕  ${this._folder.name} has no fetchedmax - running regular fetch operation`)
-      yield FetchMessagesInFolderIMAP.prototype.runTask.call(this, db, imap)
+      yield FetchMessagesInFolderIMAP.prototype.runTask.call(this, db, imap, syncWorker)
       return
     }
 

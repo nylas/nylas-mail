@@ -237,6 +237,10 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     }
 
     // this._logger.log(`FetchMessagesInFolderIMAP: Going to FETCH messages in range ${rangeQuery}`);
+    if (!this._syncWorker._batchProcessedUids.has(this._folder.name)) {
+      this._syncWorker._batchProcessedUids.set(this._folder.name, new Set())
+    }
+    const processedUids = this._syncWorker._batchProcessedUids.get(this._folder.name);
 
     // We batch downloads by which MIME parts from the full message we want
     // because we can fetch the same part on different UIDs with the same
@@ -245,12 +249,14 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     const structsByUID = {};
     const desiredPartsByUID = {};
     yield this._box.fetchEach(rangeQuery, {struct: true}, ({attributes}) => {
-      const desiredParts = this._getDesiredMIMEParts(attributes.struct);
-      const key = JSON.stringify(desiredParts.map(p => p.id));
-      desiredPartsByUID[attributes.uid] = desiredParts;
-      structsByUID[attributes.uid] = attributes.struct;
-      uidsByPart[key] = uidsByPart[key] || [];
-      uidsByPart[key].push(attributes.uid);
+      if (!processedUids.has(attributes.uid)) {
+        const desiredParts = this._getDesiredMIMEParts(attributes.struct);
+        const key = JSON.stringify(desiredParts.map(p => p.id));
+        desiredPartsByUID[attributes.uid] = desiredParts;
+        structsByUID[attributes.uid] = attributes.struct;
+        uidsByPart[key] = uidsByPart[key] || [];
+        uidsByPart[key].push(attributes.uid);
+      }
     })
 
     // Prioritize the batches with the highest UIDs first, since these UIDs
@@ -294,10 +300,11 @@ class FetchMessagesInFolderIMAP extends SyncTask {
           folderId: this._folder.id,
           accountId: this._db.accountId,
         })
+        processedUids.add(uid);
 
-        // If execution gets interrupted here, we will have to refetch these
-        // messages because the folder.syncState won't get updated, but that's
-        // ok.
+        // If the user quits the app at this point, we will have to refetch
+        // these messages because the folder.syncState won't get updated, but
+        // that's ok.
         yield // Yield to allow interruption
       }
       totalProcessedMessages += messagesToProcess.length;
@@ -307,8 +314,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     // range if this is passed because we still want to download the rest of
     // the range later.
     if (!uids) {
-      // Update our folder sync state to reflect the messages we've synced and
-      // processed
+      // Update our folder sync state to reflect the messages we've synced
       const boxUidnext = this._box.uidnext;
       const boxUidvalidity = this._box.uidvalidity;
       const {fetchedmin, fetchedmax} = this._folder.syncState;
@@ -318,6 +324,13 @@ class FetchMessagesInFolderIMAP extends SyncTask {
         uidnext: boxUidnext,
         uidvalidity: boxUidvalidity,
       });
+      // to keep processedUids from growing without bound, expunge UIDs for
+      // ranges which have been recorded as fully downloaded
+      for (const uid of processedUids.values()) {
+        if (uid >= Math.min(min, max) && uid <= Math.max(min, max)) {
+          processedUids.delete(uid)
+        }
+      }
     }
 
     return totalProcessedMessages
@@ -651,10 +664,14 @@ class FetchMessagesInFolderIMAP extends SyncTask {
    * we want to interrupt sync. This is enabled by `SyncOperation` and
    * `Interruptible`
    */
-  async * runTask(db, imap) {
+  async * runTask(db, imap, syncWorker) {
     this._logger.log(`🔜 📂 ${this._folder.name}`)
     this._db = db;
     this._imap = imap;
+    if (!syncWorker) {
+      throw new Error(`SyncWorker not passed to runTask`);
+    }
+    this._syncWorker = syncWorker;
 
     const latestBoxStatus = yield this._imap.getLatestBoxStatus(this._folder.name)
 

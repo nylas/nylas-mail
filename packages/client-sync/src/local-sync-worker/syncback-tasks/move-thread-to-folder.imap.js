@@ -12,7 +12,7 @@ class MoveThreadToFolderIMAP extends SyncbackIMAPTask {
     return true
   }
 
-  async run(db, imap) {
+  async run(db, imap, syncWorker) {
     const {Thread, Folder} = db
     const threadId = this.syncbackRequestObject().props.threadId
     const targetFolderId = this.syncbackRequestObject().props.folderId
@@ -55,7 +55,7 @@ class MoveThreadToFolderIMAP extends SyncbackIMAPTask {
       account: this._account,
       folder: targetFolder,
     })
-    await syncOperation.run(db, imap)
+    await syncOperation.run(db, imap, syncWorker)
   }
 }
 module.exports = MoveThreadToFolderIMAP

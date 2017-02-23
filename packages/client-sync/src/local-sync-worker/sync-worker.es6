@@ -48,6 +48,7 @@ class SyncWorker {
     this._numTimeoutErrors = 0;
     this._socketTimeout = IMAPConnection.DefaultSocketTimeout;
     this._requireTokenRefresh = false
+    this._batchProcessedUids = new Map();
 
     this._syncTimer = setTimeout(() => {
       // TODO this is currently a hack to keep N1's account in sync and notify of
@@ -477,7 +478,7 @@ class SyncWorker {
 
   async _runTask(task) {
     this._currentTask = task
-    await this._conn.runOperation(this._currentTask)
+    await this._conn.runOperation(this._currentTask, this)
     this._currentTask = null
   }
 
@@ -493,6 +494,7 @@ class SyncWorker {
       smtp: this._smtp,
       logger: this._logger,
       account: this._account,
+      syncWorker: this,
     })
 
     // Step 1: Mark all "INPROGRESS-NOTRETRYABLE" tasks as failed, and all

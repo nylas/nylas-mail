@@ -297,12 +297,12 @@ class IMAPConnection extends EventEmitter {
     return (this._imap && this._imap._box) ? this._imap._box.name : null;
   }
 
-  runOperation(operation) {
+  runOperation(operation, ctx) {
     if (!this._imap) {
       throw new IMAPConnectionNotReadyError(`IMAPConnection::runOperation`)
     }
     return new Promise((resolve, reject) => {
-      this._queue.push({operation, resolve, reject});
+      this._queue.push({operation, ctx, resolve, reject});
       if (this._imap.state === 'authenticated' && !this._currentOperation) {
         this._processNextOperation();
       }
@@ -370,8 +370,8 @@ class IMAPConnection extends EventEmitter {
       return;
     }
 
-    const {operation, resolve, reject} = this._currentOperation;
-    const resultPromise = operation.run(this._db, this);
+    const {operation, ctx, resolve, reject} = this._currentOperation;
+    const resultPromise = operation.run(this._db, this, ctx);
     if (resultPromise.constructor.name !== "Promise") {
       reject(new Error(`Expected ${operation.constructor.name} to return promise.`))
     }
