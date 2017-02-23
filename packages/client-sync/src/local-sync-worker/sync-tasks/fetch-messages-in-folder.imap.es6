@@ -368,8 +368,9 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     let totalProcessedMessages = 0;
     if (provider === "gmail" && folderRole === "all" && (gmailInboxUIDsUnset || hasGmailInboxUIDsRemaining)) {
       // Track the first few UIDs in the inbox label & download these first.
-      // TODO: this does not prevent us from redownloading all of these
-      // UIDs when we finish the first 1k & go back to UID range expansion
+      // If the user restarts the app before all these UIDs are downloaded & we
+      // also pass the UID in the All Mail folder range downloads we will
+      // redownload them, but that's OK.
       let inboxUids;
       if (!gmailInboxUIDsRemaining) {
         // this._logger.log(`FetchMessagesInFolderIMAP: Fetching Gmail Inbox UIDs for prioritization`);
