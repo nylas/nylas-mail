@@ -7,10 +7,11 @@
   + You can now click inline images in messages to open them
   + More IMAP errors have been identified as retryable, which means users will
     see less errors when syncing an account
+  + Improve performance of thread search indexing queries
+  + Correctly catch Invalid Login errors when sending
 
 - Development:
 
-  + Add performance metrics for thread-list actions
   + Developer bar in Worker window now shows single delta connection
   + More code converted to Javascript
 
