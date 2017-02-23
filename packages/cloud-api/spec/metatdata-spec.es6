@@ -89,9 +89,9 @@ describe("Metadata route", () => {
     expect(reply.error.includes("Invalid Request")).toEqual(true)
   })
 
-  it("returns error for bad `expirationDate`", async function it() {
+  it("returns error for bad `expiration`", async function it() {
     const request = Object.assign({}, this.baseRequest)
-    request.payload.value = '{"expirationDate": "this is not a date"}'
+    request.payload.value = '{"expiration": "this is not a date"}'
     const reply = await new Promise((resolve, reject) => {
       try {
         this.upsertRoute.handler(this.baseRequest, resolve)
