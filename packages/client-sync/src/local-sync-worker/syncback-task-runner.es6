@@ -103,7 +103,10 @@ class SyncbackTaskRunner {
           affectedMessageIds.add(messageId)
         }
       } else if (threadId) {
-        const messageIds = await Message.findAll({where: {threadId}}).map(m => m.id)
+        const messageIds = await Message.findAll({
+          attributes: ['id', 'threadId'],
+          where: {threadId}})
+        .map(m => m.id)
         const shouldIncludeTask = messageIds.every(id => !affectedMessageIds.has(id))
         if (shouldIncludeTask) {
           tasksToProcess.push(task)
