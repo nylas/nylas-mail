@@ -77,7 +77,7 @@ class IMAPCertificateError extends NylasError { }
 function convertImapError(imapError) {
   let error = imapError;
 
-  if (imapError.message.toLowerCase().includes('try again')) {
+  if (/try again/i.test(imapError.message)) {
     error = new RetryableError(imapError)
     error.source = imapError.source
     return error
@@ -88,10 +88,16 @@ function convertImapError(imapError) {
     error.source = imapError.source
     return error
   }
-  if (imapError.message.includes('User is authenticated but not connected')) {
+  if (/user is authenticated but not connected/i.test(imapError.message)) {
     // We need to treat this type of error as retryable
     // See https://github.com/mscdex/node-imap/issues/523 for more details
-    error = new IMAPSocketError(imapError)
+    error = new RetryableError(imapError)
+    error.source = imapError.source
+    return error
+  }
+  if (/server unavailable/i.test(imapError.message)) {
+    // Server Unavailable encountered in the wild so far have been retryable.
+    error = new RetryableError(imapError)
     error.source = imapError.source
     return error
   }
