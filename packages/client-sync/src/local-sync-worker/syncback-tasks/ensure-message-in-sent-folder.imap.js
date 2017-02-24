@@ -91,7 +91,7 @@ async function saveSentMessage({db, account, syncWorker, logger, imap, provider,
     account,
     folder: allMailFolder,
   })
-  await syncOperation.run(db, imap)
+  await syncOperation.run(db, imap, syncWorker)
 }
 
 async function setThreadingReferences(db, baseMessage) {
