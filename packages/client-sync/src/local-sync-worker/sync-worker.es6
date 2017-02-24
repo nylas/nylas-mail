@@ -101,6 +101,8 @@ class SyncWorker {
     const {Message, Thread, Folder, Label} = this._db;
 
     const messagesWithoutFolder = await Message.findAll({
+      attributes: ['id', 'threadId'],
+      limit: 1000,
       where: {
         folderId: null,
         isSent: {$not: true},
@@ -116,6 +118,8 @@ class SyncWorker {
     })
     .map(syncbackRequest => syncbackRequest.props.messageId)
     const messagesWithoutImapUID = await Message.findAll({
+      attributes: ['id', 'threadId'],
+      limit: 1000,
       where: {
         folderImapUID: null,
       },
