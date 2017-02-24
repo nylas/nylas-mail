@@ -147,6 +147,7 @@ class GmailSearchClient {
 
     const {Message} = db;
     const messages = await Message.findAll({
+      attributes: ['id', 'threadId'],
       where: {gMsgId: {$in: messageIds}},
     });
 
@@ -250,6 +251,7 @@ class ImapSearchClient {
     const {Message} = db;
     return (await this._search(db, query)).flatMap((uids) => {
       return Message.findAll({
+        attributes: ['id', 'threadId'],
         where: {folderImapUID: uids},
       });
     }).flatMap((messages) => {
