@@ -101,7 +101,7 @@ function parseReferences(input) {
   }
   const references = new Set();
   for (const headerLine of input) {
-    for (const ref of headerLine.split(/\s+/)) {
+    for (const ref of headerLine.split(/[\s,]+/)) {
       if (/^<.*>$/.test(ref)) {
         references.add(ref);
       }
