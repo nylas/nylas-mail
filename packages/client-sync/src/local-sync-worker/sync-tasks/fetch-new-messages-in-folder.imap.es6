@@ -17,6 +17,9 @@ class FetchNewMessagesInFolderIMAP extends FetchMessagesInFolderIMAP {
     this._logger.log(`🔜 📂 🆕  ${this._folder.name} - Looking for new messages`)
     this._db = db;
     this._imap = imap;
+    if (!syncWorker) {
+      throw new Error(`SyncWorker not passed to runTask`);
+    }
     this._syncWorker = syncWorker;
     const {syncState: {fetchedmax}} = this._folder
 
