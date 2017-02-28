@@ -34,6 +34,7 @@ class MultiselectList extends React.Component
     columns: React.PropTypes.array.isRequired
     itemPropsProvider: React.PropTypes.func.isRequired
     keymapHandlers: React.PropTypes.object
+    onComponentDidUpdate: React.PropTypes.func
 
   constructor: (@props) ->
     @state = @_getStateFromStores()
@@ -48,6 +49,8 @@ class MultiselectList extends React.Component
     @setState(@_getStateFromStores(newProps))
 
   componentDidUpdate: (prevProps, prevState) =>
+    if @props.onComponentDidUpdate
+      @props.onComponentDidUpdate()
     if prevProps.focusedId isnt @props.focusedId or
        prevProps.keyboardCursorId isnt @props.keyboardCursorId
 
@@ -120,6 +123,7 @@ class MultiselectList extends React.Component
           dataSource={@props.dataSource}
           itemPropsProvider={@itemPropsProvider}
           onSelect={@_onClickItem}
+          onComponentDidUpdate={@props.onComponentDidUpdate}
           {...otherProps} />
       </KeyCommandsRegion>
     else
