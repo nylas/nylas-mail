@@ -7,7 +7,7 @@
   + Can properly add signatures and select them as default for different
     accounts.
   + Can now correctly reply to a thread and immediately archive it or move it to
-    another folder without throwing an error
+    another folder without throwing an error (#3290)
   + Correctly fix IMAP connection timeout issues (#3232)
   + Nylas Mail no longer opens an increasing number of IMAP connections which
     caused some users to reach IMAP server connection limits (#3228)
