@@ -97,6 +97,7 @@ class ListTabular extends Component {
     onDoubleClick: PropTypes.func,
     onDragStart: PropTypes.func,
     onDragEnd: PropTypes.func,
+    onComponentDidUpdate: PropTypes.func,
   };
 
   static defaultProps = {
@@ -133,6 +134,9 @@ class ListTabular extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    if (this.props.onComponentDidUpdate) {
+      this.props.onComponentDidUpdate()
+    }
     // If our view has been swapped out for an entirely different one,
     // reset our scroll position to the top.
     if (prevProps.dataSource !== this.props.dataSource) {

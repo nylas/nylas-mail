@@ -57,11 +57,6 @@ class ThreadList extends React.Component
       (not Utils.isEqualReact(@state, nextState))
     )
 
-  componentDidUpdate: =>
-    dataSource = ThreadListStore.dataSource()
-    threads = dataSource.itemsCurrentlyInView()
-    Actions.threadListDidUpdate(threads)
-
   componentWillUnmount: =>
     @unsub()
     window.removeEventListener('resize', @_onResize, true)
@@ -137,9 +132,15 @@ class ThreadList extends React.Component
           onDoubleClick={(thread) -> Actions.popoutThread(thread)}
           onDragStart={@_onDragStart}
           onDragEnd={@_onDragEnd}
+          onComponentDidUpdate={@_onThreadListDidUpdate}
         />
       </FocusContainer>
     </FluxContainer>
+
+  _onThreadListDidUpdate: =>
+    dataSource = ThreadListStore.dataSource()
+    threads = dataSource.itemsCurrentlyInView()
+    Actions.threadListDidUpdate(threads)
 
   _threadPropsProvider: (item) ->
     classes = classnames({
