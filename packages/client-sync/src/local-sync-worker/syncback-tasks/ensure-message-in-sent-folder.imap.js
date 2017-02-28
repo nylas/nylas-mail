@@ -138,10 +138,6 @@ class EnsureMessageInSentFolderIMAP extends SyncbackIMAPTask {
   async run(db, imap, syncWorker) {
     const {Message} = db
     const {messageId, sentPerRecipient} = this.syncbackRequestObject().props
-    const {account, logger} = imap
-    if (!account) {
-      throw new APIError('EnsureMessageInSentFolder: Failed, account not available on imap connection')
-    }
 
     const baseMessage = await Message.findById(messageId, {
       include: [{model: db.Folder}, {model: db.Label}, {model: db.File}],
@@ -153,7 +149,7 @@ class EnsureMessageInSentFolderIMAP extends SyncbackIMAPTask {
 
     await setThreadingReferences(db, baseMessage)
 
-    const {provider} = account
+    const {provider} = this._account
     const {headerMessageId} = baseMessage
 
     // Gmail automatically creates sent messages when sending, so we
@@ -169,11 +165,11 @@ class EnsureMessageInSentFolderIMAP extends SyncbackIMAPTask {
       } catch (err) {
         // Even if this fails, we need to finish attempting to save the
         // baseMessage to the sent folder
-        logger.error(err, 'EnsureMessageInSentFolder: Failed to delete Gmail sent messages');
+        this._logger.error(err, 'EnsureMessageInSentFolder: Failed to delete Gmail sent messages');
       }
     }
 
-    await saveSentMessage({db, account, syncWorker, logger, imap, provider, sentPerRecipient, baseMessage})
+    await saveSentMessage({db, account: this._account, syncWorker, logger: this._logger, imap, provider, sentPerRecipient, baseMessage})
     return baseMessage.toJSON()
   }
 }
