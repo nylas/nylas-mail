@@ -96,6 +96,29 @@ async function electronRebuild() {
   })
 }
 
+const getJasmineDir = (packageName) => path.resolve(
+  path.join('packages', packageName, 'spec', 'jasmine')
+)
+const getJasmineConfigPath = (packageName) => path.resolve(
+  path.join(getJasmineDir(packageName), 'config.json')
+)
+
+function linkJasmineConfigs() {
+  console.log("\n---> Linking Jasmine configs");
+  const linkToPackages = ['cloud-api', 'cloud-core', 'cloud-workers']
+  const from = getJasmineConfigPath('isomorphic-core')
+
+  for (const packageName of linkToPackages) {
+    const dir = getJasmineDir(packageName)
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir)
+    }
+    const to = getJasmineConfigPath(packageName)
+    unlinkIfExistsSync(to)
+    fs.symlinkSync(from, to, 'file')
+  }
+}
+
 function linkIsomorphicCoreSpecs() {
   console.log("\n---> Linking isomorphic-core specs to client-app")
   const dir = path.resolve(path.join('packages', 'client-app', 'internal_packages', 'isomorphic-core'))
@@ -113,6 +136,7 @@ async function main() {
     await installPrivateResources()
     await lernaBootstrap();
     await electronRebuild();
+    linkJasmineConfigs();
     linkIsomorphicCoreSpecs();
   } catch (err) {
     console.error(err);
