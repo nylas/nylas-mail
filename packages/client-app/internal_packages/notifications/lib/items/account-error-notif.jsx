@@ -78,8 +78,6 @@ export default class AccountErrorNotification extends React.Component {
       return <span />
     } else if (erroredAccounts.length > 1) {
       title = "Several of your accounts are having issues";
-      subtitle = "Contact support";
-      subtitleAction = () => this._onContactSupport(erroredAccounts[0])
       actions = [{
         label: checkAgainLabel,
         fn: (e) => this._onCheckAgain(e),
@@ -112,8 +110,6 @@ export default class AccountErrorNotification extends React.Component {
           break;
         default: {
           title = `Encountered an error while syncing ${erroredAccount.emailAddress}`;
-          subtitle = "Contact support";
-          subtitleAction = () => this._onContactSupport(erroredAccount)
           let label = this.state.checking ? 'Retrying...' : 'Try Again'
           if (this.state.debugKeyPressed) {
             label = 'Debug'
