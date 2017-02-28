@@ -10,6 +10,7 @@ classnames = require 'classnames'
  SyncingListState} = require 'nylas-component-kit'
 
 {Actions,
+ Utils,
  Thread,
  Category,
  CanvasUtils,
@@ -45,12 +46,16 @@ class ThreadList extends React.Component
 
   componentDidMount: =>
     @_reportAppBootTime()
-    @unsub = NylasSyncStatusStore.listen( => @setState
-      syncing: FocusedPerspectiveStore.current().hasSyncingCategories()
-    )
+    @unsub = NylasSyncStatusStore.listen(@_onSyncStatusChanged)
     window.addEventListener('resize', @_onResize, true)
     ReactDOM.findDOMNode(@).addEventListener('contextmenu', @_onShowContextMenu)
     @_onResize()
+
+  shouldComponentUpdate: (nextProps, nextState) =>
+    return (
+      (not Utils.isEqualReact(@props, nextProps)) or
+      (not Utils.isEqualReact(@state, nextState))
+    )
 
   componentDidUpdate: =>
     dataSource = ThreadListStore.dataSource()
@@ -220,6 +225,10 @@ class ThreadList extends React.Component
         threadIds: [thread.id]
         accountIds: [thread.accountId]
       }
+
+  _onSyncStatusChanged: =>
+    syncing = FocusedPerspectiveStore.current().hasSyncingCategories()
+    @setState({syncing})
 
   _onShowContextMenu: (event) =>
     data = @_targetItemsForMouseEvent(event)
