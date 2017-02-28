@@ -8,7 +8,7 @@ const MessageFactory = require('../../shared/message-factory')
  * This enables customized link and open tracking on a per-recipient basis
  * by delivering several messages to each recipient.
  *
- * Errors in this task always mean the all messages failed to send to all
+ * Errors in this task always mean all message failed to send to all
  * receipients.
  *
  * If it failed to some recipients, we return a `failedRecipients` array
