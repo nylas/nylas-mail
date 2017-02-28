@@ -27,6 +27,9 @@ class SyncbackTaskRunner {
     if (!smtp) {
       throw new Error('SyncbackTaskRunner: need to pass smtp')
     }
+    if (!syncWorker) {
+      throw new Error('SyncbackTaskRunner: need to pass syncWorker')
+    }
     this._db = db
     this._account = account
     this._logger = logger
