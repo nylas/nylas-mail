@@ -121,6 +121,7 @@ class IMAPConnection extends EventEmitter {
     this._imap = null;
     this._connectPromise = null;
     this._isOpeningBox = false;
+    this._lastOpenDuration = null;
   }
 
   async connect() {
@@ -287,11 +288,18 @@ class IMAPConnection extends EventEmitter {
       return Promise.resolve(new IMAPBox(this, this._imap._box));
     }
     this._isOpeningBox = true
+    this._lastOpenDuration = null;
     return this._withPreparedConnection(async (imap) => {
+      const before = Date.now();
       const box = await imap.openBoxAsync(folderName, readOnly)
+      this._lastOpenDuration = Date.now() - before;
       this._isOpeningBox = false
       return new IMAPBox(this, box)
     })
+  }
+
+  getLastOpenDuration() {
+    return this._lastOpenDuration;
   }
 
   async getLatestBoxStatus(folderName) {
