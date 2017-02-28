@@ -1,4 +1,4 @@
-import {PreferencesUIStore, ExtensionRegistry, SignatureStore, ComponentRegistry} from 'nylas-exports';
+import {PreferencesUIStore, ExtensionRegistry, ComponentRegistry} from 'nylas-exports';
 
 import SignatureComposerExtension from './signature-composer-extension';
 import SignatureComposerDropdown from './signature-composer-dropdown';
@@ -13,7 +13,6 @@ export function activate() {
 
   ExtensionRegistry.Composer.register(SignatureComposerExtension);
   PreferencesUIStore.registerPreferencesTab(this.preferencesTab);
-  SignatureStore.activate();
 
   ComponentRegistry.register(SignatureComposerDropdown, {
     role: 'Composer:FromFieldComponents',
@@ -23,7 +22,6 @@ export function activate() {
 export function deactivate() {
   ExtensionRegistry.Composer.unregister(SignatureComposerExtension);
   PreferencesUIStore.unregisterPreferencesTab(this.preferencesTab.sectionId);
-  SignatureStore.deactivate();
 
   ComponentRegistry.unregister(SignatureComposerDropdown);
 }

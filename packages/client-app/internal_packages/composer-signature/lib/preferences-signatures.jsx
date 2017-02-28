@@ -101,7 +101,12 @@ export default class PreferencesSignatures extends React.Component {
           Default for: {this._renderAccountPicker()}
         </div>
         <div className="render-mode">
-          <input type="checkbox" id="render-mode" checked={this.state.editAsHTML} onClick={this._onToggleEditAsHTML} />
+          <input
+            type="checkbox"
+            id="render-mode"
+            checked={this.state.editAsHTML}
+            onClick={this._onToggleEditAsHTML}
+          />
           <label htmlFor="render-mode">Edit raw HTML</label>
         </div>
       </div>
@@ -176,8 +181,11 @@ export default class PreferencesSignatures extends React.Component {
             mode={RetinaImg.Mode.ContentDark}
           />
           <h2>No signatures</h2>
-          <button className="btn btn-small btn-create-signature" onMouseDown={this._onCreateButtonClick}>
-              Create a new signature
+          <button
+            className="btn btn-small btn-create-signature"
+            onClick={this._onCreateButtonClick}
+          >
+            Create a new signature
           </button>
         </div>
       );

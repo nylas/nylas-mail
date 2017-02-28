@@ -2,8 +2,8 @@
 import ReactTestUtils from 'react-addons-test-utils';
 import React from 'react';
 import {SignatureStore, Actions} from 'nylas-exports';
-
 import PreferencesSignatures from '../lib/preferences-signatures';
+
 
 const SIGNATURES = {
   '1': {
@@ -39,7 +39,7 @@ describe('PreferencesSignatures', function preferencesSignatures() {
       this.component = makeComponent()
       spyOn(Actions, 'addSignature')
       this.button = ReactTestUtils.findRenderedDOMComponentWithClass(this.component, 'btn-create-signature')
-      ReactTestUtils.Simulate.mouseDown(this.button)
+      ReactTestUtils.Simulate.click(this.button)
       expect(Actions.addSignature).toHaveBeenCalled()
     })
   })
