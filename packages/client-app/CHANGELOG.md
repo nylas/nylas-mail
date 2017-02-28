@@ -1,5 +1,28 @@
 # Nylas Mail Changelog
 
+### 1.0.30 (2/28/2017)
+
+- Fixes:
+
+  + Can properly add signatures and select them as default for different
+    accounts.
+  + Correctly fix IMAP connection timeout issues (#3232)
+  + Nylas Mail no longer opens an increasing number of IMAP connections which
+    caused some users to reach IMAP server connection limits (#3228)
+  + Fix memory leak while syncing which caused sync process to restart
+    sometimes.
+  + Correctly handle IMAP connections ending unexpectedly
+  + Correctly detect retryable IMAP errors during sync + detect more
+    retryable errors
+  + Correctly catch more authentication errors when sending
+  + Improve speed of processing messages during sync
+  + Prevent unnecessary re-renders of the thread list
+
+- Development:
+
+  + Report performance metrics
+  + More Coffeescript to Javascript conversions
+
 ### 1.0.29 (2/21/2017)
 
 - Fixes:
