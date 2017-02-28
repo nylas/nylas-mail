@@ -1,6 +1,5 @@
 import React, {Component, PropTypes} from 'react'
 import {Menu, SearchBar, ListensToFluxStore} from 'nylas-component-kit'
-import {FocusedPerspectiveStore} from 'nylas-exports'
 import SearchStore from './search-store'
 import SearchActions from './search-actions'
 
@@ -12,7 +11,6 @@ class ThreadSearchBar extends Component {
     query: PropTypes.string,
     isSearching: PropTypes.bool,
     suggestions: PropTypes.array,
-    perspective: PropTypes.object,
   }
 
   _onSelectSuggestion = (suggestion) => {
@@ -55,20 +53,13 @@ class ThreadSearchBar extends Component {
     return suggestion.label;
   }
 
-  _placeholder = () => {
-    if (this.props.perspective.isInbox()) {
-      return 'Search all email';
-    }
-    return `Search ${this.props.perspective.name}`;
-  }
-
   render() {
     const {query, isSearching, suggestions} = this.props;
 
     return (
       <SearchBar
         className="thread-search-bar"
-        placeholder={this._placeholder()}
+        placeholder="Search all email"
         query={query}
         suggestions={suggestions}
         isSearching={isSearching}
@@ -85,13 +76,12 @@ class ThreadSearchBar extends Component {
 }
 
 export default ListensToFluxStore(ThreadSearchBar, {
-  stores: [SearchStore, FocusedPerspectiveStore],
+  stores: [SearchStore],
   getStateFromStores() {
     return {
       query: SearchStore.query(),
       suggestions: SearchStore.suggestions(),
       isSearching: SearchStore.isSearching(),
-      perspective: FocusedPerspectiveStore.current(),
     };
   },
 })
