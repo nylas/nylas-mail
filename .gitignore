@@ -50,6 +50,10 @@ packages/client-app/dist
 # Tests
 spec-saved-state.json
 
+# Symlinked Jasmine config files
+**/jasmine/config.json
+!packages/isomorphic-core/spec/jasmine/config.json
+
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml

@@ -1,22 +1,17 @@
-import {DatabaseConnector} from 'cloud-core'
-import {getTestDatabase, destroyTestDatabase} from '../helpers'
-
-function masterBeforeEach() {
-  spyOn(DatabaseConnector, 'forShared').and.callFake(getTestDatabase)
-}
-
-async function masterAfterEach() {
-  await destroyTestDatabase();
-}
-
 export default class JasmineExtensions {
-  extend() {
+  extend({beforeEach, afterEach} = {}) {
     global.it = this._makeItAsync(global.it)
     global.fit = this._makeItAsync(global.fit)
-    global.beforeEach = this._makeEachFnAsync(global.beforeEach)
-    global.afterEach = this._makeEachFnAsync(global.afterEach)
-    global.beforeEach(masterBeforeEach)
-    global.afterEach(masterAfterEach)
+    global.beforeAll = this._makeEachOrAllFnAsync(global.beforeAll)
+    global.afterAll = this._makeEachOrAllFnAsync(global.afterAll)
+    global.beforeEach = this._makeEachOrAllFnAsync(global.beforeEach)
+    global.afterEach = this._makeEachOrAllFnAsync(global.afterEach)
+    if (beforeEach) {
+      global.beforeEach(beforeEach)
+    }
+    if (afterEach) {
+      global.afterEach(afterEach)
+    }
   }
 
   _runAsync(userFn, done) {
@@ -38,7 +33,7 @@ export default class JasmineExtensions {
     return resp
   }
 
-  _makeEachFnAsync(jasmineEachFn) {
+  _makeEachOrAllFnAsync(jasmineEachFn) {
     const self = this;
     return (userFn) => {
       return jasmineEachFn(function asyncEachFn(done) {
