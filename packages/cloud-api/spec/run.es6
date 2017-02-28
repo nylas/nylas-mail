@@ -1,8 +1,12 @@
-import Jasmine from 'jasmine'
-import JasmineExtensions from './jasmine/extensions'
+import {DatabaseConnector} from 'cloud-core'
+import {executeJasmine} from 'isomorphic-core'
+import {getTestDatabase, destroyTestDatabase} from './helpers'
 
-const jasmine = new Jasmine()
-jasmine.loadConfigFile('spec/jasmine/config.json')
-const jasmineExtensions = new JasmineExtensions()
-jasmineExtensions.extend()
-jasmine.execute()
+executeJasmine({
+  beforeEach: () => {
+    spyOn(DatabaseConnector, 'forShared').and.callFake(getTestDatabase)
+  },
+  afterEach: async () => {
+    await destroyTestDatabase();
+  },
+})

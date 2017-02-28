@@ -9,8 +9,8 @@
   "author": "Nylas",
   "license": "ISC",
   "devDependencies": {
-    "babel-cli": "^6.0.0",
-    "jasmine": "2.5.3"
+    "babel-cli": "6.x.x",
+    "jasmine": "2.x.x"
   },
   "dependencies": {
     "babel-cli": "6.23.0",
