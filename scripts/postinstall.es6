@@ -96,11 +96,24 @@ async function electronRebuild() {
   })
 }
 
+function linkIsomorphicCoreSpecs() {
+  console.log("\n---> Linking isomorphic-core specs to client-app")
+  const dir = path.resolve(path.join('packages', 'client-app', 'internal_packages', 'isomorphic-core'))
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir)
+  }
+  const from = path.resolve(path.join('packages', 'isomorphic-core', 'spec'))
+  const to = path.resolve(path.join(dir, 'spec'))
+  unlinkIfExistsSync(to)
+  fs.symlinkSync(from, to, 'dir')
+}
+
 async function main() {
   try {
     await installPrivateResources()
     await lernaBootstrap();
     await electronRebuild();
+    linkIsomorphicCoreSpecs();
   } catch (err) {
     console.error(err);
     process.exit(1);

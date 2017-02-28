@@ -13,10 +13,10 @@ describe('IMAPConnectionPool', function describeBlock() {
     };
     IMAPConnectionPool._poolMap = {};
     this.logger = {};
-    spyOn(IMAPConnection.prototype, 'connect').and.callFake(function connectFake() {
+    spyOn(IMAPConnection.prototype, 'connect').andCallFake(function connectFake() {
       return this;
     });
-    spyOn(IMAPConnection.prototype, 'end').and.callFake(() => {});
+    spyOn(IMAPConnection.prototype, 'end').andCallFake(() => {});
   });
 
   it('opens IMAP connection and properly returns to pool at end of scope', async () => {
@@ -31,8 +31,8 @@ describe('IMAPConnectionPool', function describeBlock() {
       },
     });
     expect(invokedCallback).toBe(true);
-    expect(IMAPConnection.prototype.connect.calls.count()).toBe(1);
-    expect(IMAPConnection.prototype.end.calls.count()).toBe(0);
+    expect(IMAPConnection.prototype.connect.calls.length).toBe(1);
+    expect(IMAPConnection.prototype.end.calls.length).toBe(0);
   });
 
   it('opens multiple IMAP connections and properly returns to pool at end of scope', async () => {
@@ -48,8 +48,8 @@ describe('IMAPConnectionPool', function describeBlock() {
       },
     });
     expect(invokedCallback).toBe(true);
-    expect(IMAPConnection.prototype.connect.calls.count()).toBe(2);
-    expect(IMAPConnection.prototype.end.calls.count()).toBe(0);
+    expect(IMAPConnection.prototype.connect.calls.length).toBe(2);
+    expect(IMAPConnection.prototype.end.calls.length).toBe(0);
   });
 
   it('opens an IMAP connection properly and only returns to pool on done', async () => {
@@ -66,8 +66,8 @@ describe('IMAPConnectionPool', function describeBlock() {
       },
     });
     expect(invokedCallback).toBe(true);
-    expect(IMAPConnection.prototype.connect.calls.count()).toBe(1);
-    expect(IMAPConnection.prototype.end.calls.count()).toBe(0);
+    expect(IMAPConnection.prototype.connect.calls.length).toBe(1);
+    expect(IMAPConnection.prototype.end.calls.length).toBe(0);
     expect(IMAPConnectionPool._poolMap[this.account.id]._availableConns.length === 2);
     doneCallback();
     expect(IMAPConnectionPool._poolMap[this.account.id]._availableConns.length === 3);
@@ -85,8 +85,8 @@ describe('IMAPConnectionPool', function describeBlock() {
       },
     });
     expect(invokedCallback).toBe(true);
-    expect(IMAPConnection.prototype.connect.calls.count()).toBe(1);
-    expect(IMAPConnection.prototype.end.calls.count()).toBe(0);
+    expect(IMAPConnection.prototype.connect.calls.length).toBe(1);
+    expect(IMAPConnection.prototype.end.calls.length).toBe(0);
 
     invokedCallback = false;
     await IMAPConnectionPool.withConnectionsForAccount(this.account, {
@@ -100,8 +100,8 @@ describe('IMAPConnectionPool', function describeBlock() {
     });
 
     expect(invokedCallback).toBe(true);
-    expect(IMAPConnection.prototype.connect.calls.count()).toBe(1);
-    expect(IMAPConnection.prototype.end.calls.count()).toBe(0);
+    expect(IMAPConnection.prototype.connect.calls.length).toBe(1);
+    expect(IMAPConnection.prototype.end.calls.length).toBe(0);
   });
 
   it('waits for an available IMAP connection', async () => {
@@ -118,8 +118,8 @@ describe('IMAPConnectionPool', function describeBlock() {
       },
     });
     expect(invokedCallback).toBe(true);
-    expect(IMAPConnection.prototype.connect.calls.count()).toBe(3);
-    expect(IMAPConnection.prototype.end.calls.count()).toBe(0);
+    expect(IMAPConnection.prototype.connect.calls.length).toBe(3);
+    expect(IMAPConnection.prototype.end.calls.length).toBe(0);
 
     invokedCallback = false;
     const promise = IMAPConnectionPool.withConnectionsForAccount(this.account, {
@@ -137,8 +137,8 @@ describe('IMAPConnectionPool', function describeBlock() {
     await promise;
 
     expect(invokedCallback).toBe(true);
-    expect(IMAPConnection.prototype.connect.calls.count()).toBe(3);
-    expect(IMAPConnection.prototype.end.calls.count()).toBe(0);
+    expect(IMAPConnection.prototype.connect.calls.length).toBe(3);
+    expect(IMAPConnection.prototype.end.calls.length).toBe(0);
   });
 
   it('retries on IMAP connection timeout', async () => {
@@ -158,8 +158,8 @@ describe('IMAPConnectionPool', function describeBlock() {
     });
 
     expect(invokeCount).toBe(2);
-    expect(IMAPConnection.prototype.connect.calls.count()).toBe(2);
-    expect(IMAPConnection.prototype.end.calls.count()).toBe(1);
+    expect(IMAPConnection.prototype.connect.calls.length).toBe(2);
+    expect(IMAPConnection.prototype.end.calls.length).toBe(1);
   });
 
   it('does not retry on other IMAP error', async () => {
@@ -185,7 +185,7 @@ describe('IMAPConnectionPool', function describeBlock() {
 
     expect(invokeCount).toBe(1);
     expect(errorCount).toBe(1);
-    expect(IMAPConnection.prototype.connect.calls.count()).toBe(1);
-    expect(IMAPConnection.prototype.end.calls.count()).toBe(1);
+    expect(IMAPConnection.prototype.connect.calls.length).toBe(1);
+    expect(IMAPConnection.prototype.end.calls.length).toBe(1);
   });
 });

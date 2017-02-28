@@ -15,6 +15,7 @@
 **/internal_packages/activity-list
 **/internal_packages/composer-mail-merge
 **/internal_packages/composer-scheduler
+**/internal_packages/isomorphic-core
 **/internal_packages/link-tracking
 **/internal_packages/open-tracking
 **/internal_packages/send-later
