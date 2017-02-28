@@ -7,6 +7,7 @@ import SyncbackTaskAPIRequest from '../syncback-task-api-request';
 import DatabaseStore from '../stores/database-store';
 import {APIError} from '../errors';
 import EnsureMessageInSentFolderTask from './ensure-message-in-sent-folder-task'
+import SendDraftTask from './send-draft-task'
 
 /*
 Public: The ChangeMailTask is a base class for all tasks that modify sets
@@ -304,6 +305,9 @@ export default class ChangeMailTask extends Task {
   // and removals need to be applied in order. (For example, star many threads,
   // and then unstar one.)
   isDependentOnTask(other) {
+    if (other instanceof SendDraftTask) {
+      return this.objectIds().includes(other.draftClientId);
+    }
     // Wait on EnsureMessageInSentFolderTask if it involves a message that
     // belongs to a thread we are trying to operate on
     if (other instanceof EnsureMessageInSentFolderTask && other.message) {
