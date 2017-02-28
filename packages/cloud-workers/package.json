@@ -6,7 +6,11 @@
   "author": "Nylas",
   "license": "ISC",
   "scripts": {
-    "test": "babel-node spec/run.js"
+    "test": "babel-node spec/run.es6"
+  },
+  "devDependencies": {
+    "babel-cli": "6.x.x",
+    "jasmine": "2.x.x"
   },
   "dependencies": {
     "boom": "4.2.0",
