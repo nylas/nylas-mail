@@ -5,7 +5,7 @@ import {
   UnreadStatusQueryExpression,
   StarredStatusQueryExpression,
   MatchQueryExpression,
-} from '../models/thread-query-ast'
+} from './search-query-ast'
 
 /*
  * This class visits a match-compatible subtree and condenses it into a single
@@ -149,15 +149,14 @@ class MatchCompatibleQueryCondenser extends SearchQueryExpressionVisitor {
  * converting match-compatible subtrees into the appropriate subquery that
  * uses a MATCH clause.
  */
-export class StructuredSearchQueryVisitor extends SearchQueryExpressionVisitor {
+class StructuredSearchQueryVisitor extends SearchQueryExpressionVisitor {
   constructor(className) {
     super();
     this._className = className;
   }
 
   visit(root) {
-    const condenser = new MatchCompatibleQueryCondenser();
-    return this.visitAndGetResult(condenser.visit(root));
+    return this.visitAndGetResult(root);
   }
 
   visitAnd(node) {
@@ -212,3 +211,16 @@ export class StructuredSearchQueryVisitor extends SearchQueryExpressionVisitor {
   }
 }
 
+export default class LocalSearchQueryBackend {
+  constructor(modelClassName) {
+    this._modelClassName = modelClassName;
+  }
+
+  compile(ast) {
+    const condenser = new MatchCompatibleQueryCondenser();
+    const intermediateAST = condenser.visit(ast);
+
+    const codegen = new StructuredSearchQueryVisitor(`${this._modelClassName}`);
+    return codegen.visit(intermediateAST);
+  }
+}

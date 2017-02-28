@@ -1,7 +1,7 @@
 import {
-  ThreadQueryAST,
+  SearchQueryAST,
+  SearchQueryParser,
 } from 'nylas-exports';
-import {parseSearchQuery} from '../lib/search-query-parser'
 
 const {
   SearchQueryToken,
@@ -15,7 +15,7 @@ const {
   UnreadStatusQueryExpression,
   StarredStatusQueryExpression,
   InQueryExpression,
-} = ThreadQueryAST;
+} = SearchQueryAST;
 
 const token = (text) => { return new SearchQueryToken(text); }
 const and = (e1, e2) => { return new AndQueryExpression(e1, e2); }
@@ -30,107 +30,107 @@ const unread = (status) => { return new UnreadStatusQueryExpression(status); }
 const starred = (status) => { return new StarredStatusQueryExpression(status); }
 
 
-describe('parseSearchQuery', () => {
+describe('SearchQueryParser.parse', () => {
   it('correctly parses simple queries', () => {
-    expect(parseSearchQuery('blah').equals(
+    expect(SearchQueryParser.parse('blah').equals(
       generic(text(token('blah')))
     )).toBe(true)
-    expect(parseSearchQuery('"foo bar"').equals(
+    expect(SearchQueryParser.parse('"foo bar"').equals(
       generic(text(token('foo bar')))
     )).toBe(true)
-    expect(parseSearchQuery('to:blah').equals(
+    expect(SearchQueryParser.parse('to:blah').equals(
       to(text(token('blah')))
     )).toBe(true)
-    expect(parseSearchQuery('from:blah').equals(
+    expect(SearchQueryParser.parse('from:blah').equals(
       from(text(token('blah')))
     )).toBe(true)
-    expect(parseSearchQuery('subject:blah').equals(
+    expect(SearchQueryParser.parse('subject:blah').equals(
       subject(text(token('blah')))
     )).toBe(true)
-    expect(parseSearchQuery('to:mhahnenb@gmail.com').equals(
+    expect(SearchQueryParser.parse('to:mhahnenb@gmail.com').equals(
       to(text(token('mhahnenb@gmail.com')))
     )).toBe(true)
-    expect(parseSearchQuery('to:"mhahnenb@gmail.com"').equals(
+    expect(SearchQueryParser.parse('to:"mhahnenb@gmail.com"').equals(
       to(text(token('mhahnenb@gmail.com')))
     )).toBe(true)
-    expect(parseSearchQuery('to:"Mark mhahnenb@gmail.com"').equals(
+    expect(SearchQueryParser.parse('to:"Mark mhahnenb@gmail.com"').equals(
       to(text(token('Mark mhahnenb@gmail.com')))
     )).toBe(true)
-    expect(parseSearchQuery('is:unread').equals(
+    expect(SearchQueryParser.parse('is:unread').equals(
       unread(true)
     )).toBe(true)
-    expect(parseSearchQuery('is:read').equals(
+    expect(SearchQueryParser.parse('is:read').equals(
       unread(false)
     )).toBe(true)
-    expect(parseSearchQuery('is:starred').equals(
+    expect(SearchQueryParser.parse('is:starred').equals(
       starred(true)
     )).toBe(true)
-    expect(parseSearchQuery('is:unstarred').equals(
+    expect(SearchQueryParser.parse('is:unstarred').equals(
       starred(false)
     )).toBe(true)
-    expect(parseSearchQuery('in:foo').equals(
+    expect(SearchQueryParser.parse('in:foo').equals(
       in_(text(token('foo')))
     )).toBe(true)
   });
 
   it('correctly parses reserved words as normal text in certain places', () => {
-    expect(parseSearchQuery('to:blah').equals(
+    expect(SearchQueryParser.parse('to:blah').equals(
       to(text(token('blah')))
     )).toBe(true)
-    expect(parseSearchQuery('to:to').equals(
+    expect(SearchQueryParser.parse('to:to').equals(
       to(text(token('to')))
     )).toBe(true)
-    expect(parseSearchQuery('to:subject').equals(
+    expect(SearchQueryParser.parse('to:subject').equals(
       to(text(token('subject')))
     )).toBe(true)
-    expect(parseSearchQuery('to:from').equals(
+    expect(SearchQueryParser.parse('to:from').equals(
       to(text(token('from')))
     )).toBe(true)
-    expect(parseSearchQuery('to:unread').equals(
+    expect(SearchQueryParser.parse('to:unread').equals(
       to(text(token('unread')))
     )).toBe(true)
-    expect(parseSearchQuery('to:starred').equals(
+    expect(SearchQueryParser.parse('to:starred').equals(
       to(text(token('starred')))
     )).toBe(true)
   });
 
   it('correctly parses compound queries', () => {
-    expect(parseSearchQuery('foo bar').equals(
+    expect(SearchQueryParser.parse('foo bar').equals(
       and(generic(text(token('foo'))), generic(text(token('bar'))))
     )).toBe(true)
-    expect(parseSearchQuery('foo AND bar').equals(
+    expect(SearchQueryParser.parse('foo AND bar').equals(
       and(generic(text(token('foo'))), generic(text(token('bar'))))
     )).toBe(true)
-    expect(parseSearchQuery('foo OR bar').equals(
+    expect(SearchQueryParser.parse('foo OR bar').equals(
       or(generic(text(token('foo'))), generic(text(token('bar'))))
     )).toBe(true)
-    expect(parseSearchQuery('to:foo OR bar').equals(
+    expect(SearchQueryParser.parse('to:foo OR bar').equals(
       or(to(text(token('foo'))), generic(text(token('bar'))))
     )).toBe(true)
-    expect(parseSearchQuery('foo OR to:bar').equals(
+    expect(SearchQueryParser.parse('foo OR to:bar').equals(
       or(generic(text(token('foo'))), to(text(token('bar'))))
     )).toBe(true)
-    expect(parseSearchQuery('foo bar baz').equals(
+    expect(SearchQueryParser.parse('foo bar baz').equals(
       and(generic(text(token('foo'))),
         and(generic(text(token('bar'))), generic(text(token('baz')))))
     )).toBe(true)
-    expect(parseSearchQuery('foo AND bar AND baz').equals(
+    expect(SearchQueryParser.parse('foo AND bar AND baz').equals(
       and(generic(text(token('foo'))),
         and(generic(text(token('bar'))), generic(text(token('baz')))))
     )).toBe(true)
-    expect(parseSearchQuery('foo OR bar AND baz').equals(
+    expect(SearchQueryParser.parse('foo OR bar AND baz').equals(
       and(
         or(generic(text(token('foo'))), generic(text(token('bar')))),
         generic(text(token('baz'))))
     )).toBe(true)
-    expect(parseSearchQuery('foo OR bar OR baz').equals(
+    expect(SearchQueryParser.parse('foo OR bar OR baz').equals(
       or(generic(text(token('foo'))),
         or(generic(text(token('bar'))), generic(text(token('baz')))))
     )).toBe(true)
-    expect(parseSearchQuery('foo is:unread').equals(
+    expect(SearchQueryParser.parse('foo is:unread').equals(
       and(generic(text(token('foo'))), unread(true)),
     )).toBe(true)
-    expect(parseSearchQuery('is:unread foo').equals(
+    expect(SearchQueryParser.parse('is:unread foo').equals(
       and(unread(true), generic(text(token('foo'))))
     )).toBe(true)
   });
