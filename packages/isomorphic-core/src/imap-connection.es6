@@ -129,7 +129,7 @@ class IMAPConnection extends EventEmitter {
         try {
           this._resolvedSettings = await IMAPConnection.asyncResolveIMAPSettings(this._baseSettings)
           await this._buildUnderlyingConnection()
-          resolve()
+          resolve(this)
         } catch (err) {
           reject(err)
         }
