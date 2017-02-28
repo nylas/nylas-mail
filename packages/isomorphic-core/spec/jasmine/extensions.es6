@@ -1,5 +1,8 @@
+import applyPolyfills from './polyfills'
+
 export default class JasmineExtensions {
   extend({beforeEach, afterEach} = {}) {
+    applyPolyfills()
     global.it = this._makeItAsync(global.it)
     global.fit = this._makeItAsync(global.fit)
     global.beforeAll = this._makeEachOrAllFnAsync(global.beforeAll)

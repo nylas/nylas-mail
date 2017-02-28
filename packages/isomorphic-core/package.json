@@ -3,6 +3,13 @@
   "version": "0.0.1",
   "description": "Packages use isomorphically on n1-cloud and client-sync",
   "main": "index.js",
+  "scripts": {
+    "test": "babel-node spec/run.es6"
+  },
+  "devDependencies": {
+    "babel-cli": "6.x.x",
+    "jasmine": "2.x.x"
+  },
   "dependencies": {
     "atob": "2.0.3",
     "imap": "github:jstejada/node-imap#fix-parse-body-list",
