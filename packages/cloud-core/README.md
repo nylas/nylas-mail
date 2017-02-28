@@ -123,7 +123,7 @@ statements in your code.
 1. Make sure you're in the root of /nylas-mail-cloud, and have alredy run `eb
    init`. Verify you're on the right env with `eb list` then:
 
-    `eb deploy`
+    `./deploy-it <target>`
 
 Woah wtf, did that just do‽ See the [EB CLI](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3.html) as a start.
 

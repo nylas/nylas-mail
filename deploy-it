@@ -1,0 +1,55 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# deploy-it is the script we use to deploy changes to our N1 backend systems.
+# it tags releases automatically and helps prevent obvious mistakes like
+# deploying a non-production branch to our prod infra.
+import sys
+import subprocess
+
+if len(sys.argv) != 2:
+    print "deploy-it is the script we use to deploy changes to our N1 backend systems."
+    print "usage: deploy-it environment"
+    sys.exit(-1)
+
+environment = sys.argv[1]
+level = 'prod'
+if 'staging' in environment:
+    level = 'staging'
+elif 'dev' in environment:
+    level = 'dev'
+
+branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD'.split()).strip()
+
+if level == 'prod' and branch != 'production':
+    sys.exit("Deploys to production environments must be made from the 'production' "
+             "branch.")
+
+if level == 'prod':
+    print "Fetching latest repo data."
+    # this can fail for all sorts of reasons; best to just let a human
+    # deal with any errors
+    try:
+        subprocess.check_call(['git', 'pull'])
+    except:
+        sys.exit("`git pull` failed — can't proceed.")
+
+# Tag the deploy so that we know exactly what has been deployed by whom.
+short_commit = subprocess.check_output('git rev-parse --short HEAD'.split()).strip()
+username = subprocess.check_output(['whoami']).strip()
+tag_name = "{}-{}-{}".format(short_commit, environment, username)
+
+# Check if the tag already exists.
+if subprocess.call(['git', 'rev-parse', '-q', '--verify', tag_name]) != 0:
+    # If not create it.
+    try:
+        subprocess.check_call(['git', 'tag', '-a', tag_name, '-m', "'{}'".format(tag_name)])
+        subprocess.check_call(['git', 'push', 'origin', tag_name])
+    except:
+        sys.exit("Unable to create and save tag — won't proceed.")
+
+# Hand things off to `eb deploy`. It will push a tagged release to EB.
+try:
+    subprocess.check_call(['eb', 'deploy', environment])
+except:
+    sys.exit("eb deploy failed!")
