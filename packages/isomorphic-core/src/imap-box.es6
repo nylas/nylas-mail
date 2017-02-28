@@ -114,7 +114,7 @@ class IMAPBox {
     if (!fetchOptions) {
       throw new Error("IMAPConnection.fetchStream requires an options object.")
     }
-    return this.__withPreparedConnection((imap) => {
+    return this._withPreparedConnection((imap) => {
       return new Promise((resolve, reject) => {
         const f = imap.fetch(uid, fetchOptions);
         f.on('message', (imapMessage) => {
