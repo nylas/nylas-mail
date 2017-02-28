@@ -65,7 +65,12 @@
   margin-top: 0;
   .reminder-date {
     font-weight: bold;
-    margin-left: 18px;
+  }
+  .clear-reminder {
+    position: absolute;
+    right: 18px;
+    cursor: pointer;
+    text-decoration: underline;
   }
 }
 
@@ -82,8 +87,15 @@
   &.focused,&.selected {
     background: @list-focused-bg;
   }
-  .thread-icon-reminder {
+  .thread-icon-reminder-triggered {
     margin-top: 1px;
     background-image:url(../static/images/thread-list/icon-reminder@2x.png);
+  }
+}
+
+.thread-list .list-item {
+  .thread-icon-reminder-pending {
+    margin-top: 1px;
+    background-image:url(../static/images/thread-list/icon-reminder-outline@2x.png);
   }
 }

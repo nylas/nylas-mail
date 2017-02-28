@@ -1,7 +1,7 @@
 import React, {PropTypes} from 'react'
 import {RetinaImg} from 'nylas-component-kit'
 import {FocusedPerspectiveStore} from 'nylas-exports'
-import {getReminderLabel, getLatestMessage, getLatestMessageWithReminder} from './send-reminders-utils'
+import {getReminderLabel, getLatestMessage, getLatestMessageWithReminder, setMessageReminder} from './send-reminders-utils'
 import {PLUGIN_ID} from './send-reminders-constants'
 
 
@@ -36,28 +36,25 @@ MessageHeader.propTypes = {
 }
 
 export function ThreadHeader(props) {
-  const current = FocusedPerspectiveStore.current()
-  if (!current.isReminders) {
-    return <span />
-  }
   const {thread, messages} = props
   const message = getLatestMessageWithReminder(thread, messages)
   if (!message) {
     return <span />
   }
   const {expiration} = message.metadataForPluginId(PLUGIN_ID) || {}
+  const clearReminder = () => {
+    setMessageReminder(message.accountId, message, null)
+  }
   return (
     <div className="send-reminders-header">
       <RetinaImg
         name="ic-timestamp-reminder.png"
         mode={RetinaImg.Mode.ContentIsMask}
       />
-      <span>
-        This thread will come back to the top of your inbox if nobody replies by: <br />
-        <span className="reminder-date">
-          {` ${getReminderLabel(expiration)}`}
-        </span>
+      <span className="reminder-date">
+        {` ${getReminderLabel(expiration)}`}
       </span>
+      <span className="clear-reminder" onClick={clearReminder}>Cancel</span>
     </div>
   )
 }
