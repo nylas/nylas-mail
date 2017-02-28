@@ -33,6 +33,9 @@ async function findOrBuildByReferences(db, message) {
     });
   }
 
+  if (matchingRef && !matchingRef.thread) {
+    throw new Error(`Reference not properly cleaned up`)
+  }
   return matchingRef ? matchingRef.thread : emptyThread(db, {});
 }
 
