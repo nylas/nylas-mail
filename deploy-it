@@ -7,7 +7,7 @@
 import sys
 import subprocess
 
-if len(sys.argv) != 2:
+if len(sys.argv) != 2 or sys.argv[1] in ('-h', '--help'):
     print "deploy-it is the script we use to deploy changes to our N1 backend systems."
     print "usage: deploy-it environment"
     sys.exit(-1)
