@@ -7,6 +7,9 @@ const MessageProcessor = require('../../message-processor')
 const MessageFlagAttributes = ['id', 'threadId', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']
 const FETCH_ATTRIBUTES_BATCH_SIZE = 1000;
 const FETCH_MESSAGE_BATCH_SIZE = 30;
+const MIN_MESSAGE_BATCH_SIZE = 30;
+const MAX_MESSAGE_BATCH_SIZE = 300;
+const BATCH_SIZE_PER_SELECT_SEC = 60;
 const GMAIL_INBOX_PRIORITIZE_COUNT = 1000;
 
 
@@ -336,13 +339,26 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     return totalProcessedMessages
   }
 
+  _batchSizeForFolder() {
+    if (!this._syncWorker._latestOpenTimesByFolder.has(this._folder.name)) {
+      this._logger.log(`Unknown folder ${this._folder.name}, returning batch size of ${MIN_MESSAGE_BATCH_SIZE}`);
+      return MIN_MESSAGE_BATCH_SIZE;
+    }
+    const selectTimeSec = this._syncWorker._latestOpenTimesByFolder.get(this._folder.name) / 1000.0;
+    const batchSize = Math.floor(Math.min(Math.max(selectTimeSec * BATCH_SIZE_PER_SELECT_SEC, MIN_MESSAGE_BATCH_SIZE), MAX_MESSAGE_BATCH_SIZE));
+    this._logger.log(`Selecting folder ${this._folder.name} previously took ${selectTimeSec} seconds, returning batch size of ${batchSize}`);
+    return batchSize;
+  }
+
   /**
    * Note: This function is an ES6 generator so we can `yield` at points
    * we want to interrupt sync. This is enabled by `SyncOperation` and
    * `Interruptible`
    */
   async * _openMailboxAndEnsureValidity() {
-    const box = yield this._imap.openBox(this._folder.name, {refetchBoxInfo: true});
+    const box = await this._imap.openBox(this._folder.name, {refetchBoxInfo: true});
+    this._syncWorker._latestOpenTimesByFolder.set(this._folder.name, this._imap.getLastOpenDuration());
+    yield
 
     if (box.persistentUIDs === false) {
       throw new Error("Mailbox does not support persistentUIDs.");
@@ -359,7 +375,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     return box;
   }
 
-  async * _fetchFirstUnsyncedMessages() {
+  async * _fetchFirstUnsyncedMessages(batchSize) {
     const {provider} = this._account;
     const folderRole = this._folder.role;
     const gmailInboxUIDsRemaining = this._folder.syncState.gmailInboxUIDsRemaining;
@@ -393,14 +409,14 @@ class FetchMessagesInFolderIMAP extends SyncTask {
         this._logger.log(`🔃 📂 ${this._folder.name} new messages present; fetching ${fetchedmax}:${this._box.uidnext}`);
         totalProcessedMessages += yield this._fetchAndProcessMessages({min: fetchedmax, max: this._box.uidnext});
       }
-      const batchSplitIndex = Math.max(inboxUids.length - FETCH_MESSAGE_BATCH_SIZE, 0);
+      const batchSplitIndex = Math.max(inboxUids.length - batchSize, 0);
       const uidsFetchNow = inboxUids.slice(batchSplitIndex);
       const uidsFetchLater = inboxUids.slice(0, batchSplitIndex);
       // this._logger.log(`FetchMessagesInFolderIMAP: Remaining Gmail Inbox UIDs to download: ${uidsFetchLater.length}`);
       totalProcessedMessages += yield this._fetchAndProcessMessages({uids: uidsFetchNow});
       await this._folder.updateSyncState({ gmailInboxUIDsRemaining: uidsFetchLater });
     } else {
-      const lowerbound = Math.max(1, this._box.uidnext - FETCH_MESSAGE_BATCH_SIZE);
+      const lowerbound = Math.max(1, this._box.uidnext - batchSize);
       totalProcessedMessages += yield this._fetchAndProcessMessages({min: lowerbound, max: this._box.uidnext});
       // We issue a UID FETCH ALL and record the correct minimum UID for the
       // mailbox, which could be something much larger than 1 (especially for
@@ -433,7 +449,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
    * we want to interrupt sync. This is enabled by `SyncOperation` and
    * `Interruptible`
    */
-  async * _fetchUnsyncedMessages() {
+  async * _fetchUnsyncedMessages(batchSize) {
     const savedSyncState = this._folder.syncState;
     const boxUidnext = this._box.uidnext;
 
@@ -450,7 +466,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     }
 
     if (savedSyncState.fetchedmin > savedSyncState.minUID) {
-      const lowerbound = Math.max(savedSyncState.minUID, savedSyncState.fetchedmin - FETCH_MESSAGE_BATCH_SIZE);
+      const lowerbound = Math.max(savedSyncState.minUID, savedSyncState.fetchedmin - batchSize);
       // this._logger.log(`FetchMessagesInFolderIMAP: fetching ${lowerbound}:${savedSyncState.fetchedmin}`);
       totalProcessedMessages += yield this._fetchAndProcessMessages({min: lowerbound, max: savedSyncState.fetchedmin});
     } else {
@@ -466,12 +482,13 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     // batch synced
     let totalProcessedMessages = 0;
     const moreToFetchAvailable = () => !this._folder.isSyncComplete() || this._box.uidnext > this._folder.syncState.fetchedmax
-    while (totalProcessedMessages < FETCH_MESSAGE_BATCH_SIZE && moreToFetchAvailable()) {
+    const batchSize = this._batchSizeForFolder(this._folder);
+    while (totalProcessedMessages < batchSize && moreToFetchAvailable()) {
       let numProcessed = 0;
       if (this._isFirstSync()) {
-        numProcessed = yield this._fetchFirstUnsyncedMessages();
+        numProcessed = yield this._fetchFirstUnsyncedMessages(batchSize);
       } else {
-        numProcessed = yield this._fetchUnsyncedMessages();
+        numProcessed = yield this._fetchUnsyncedMessages(batchSize);
         if (numProcessed === 0) {
           // Find where the gap in the UID space ends --- SEARCH can be slow on
           // large mailboxes, but otherwise we could spin here arbitrarily long

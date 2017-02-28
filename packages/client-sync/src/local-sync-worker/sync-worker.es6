@@ -49,6 +49,7 @@ class SyncWorker {
     this._numTimeoutErrors = 0;
     this._requireTokenRefresh = false
     this._batchProcessedUids = new Map();
+    this._latestOpenTimesByFolder = new Map();
 
     this._syncTimer = setTimeout(() => {
       // TODO this is currently a hack to keep N1's account in sync and notify of
