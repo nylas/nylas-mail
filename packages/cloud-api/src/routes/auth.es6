@@ -2,17 +2,13 @@ import Joi from 'joi';
 import Boom from 'boom';
 import google from 'googleapis';
 import {GmailOAuthHelpers as GAuth, DatabaseConnector} from 'cloud-core';
-
-const {GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL} = process.env;
-
-const OAuth2 = google.auth.OAuth2;
-
-const {
+import {
   AuthHelpers,
   IMAPConnection,
   IMAPErrors,
-} = require('isomorphic-core');
+} from 'isomorphic-core';
 
+const {GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL} = process.env;
 const SCOPES = [
   'https://www.googleapis.com/auth/userinfo.email',  // email address
   'https://www.googleapis.com/auth/userinfo.profile',  // G+ profile
@@ -20,6 +16,7 @@ const SCOPES = [
   'https://www.google.com/m8/feeds',  // contacts
   'https://www.googleapis.com/auth/calendar',  // calendar
 ];
+const OAuth2 = google.auth.OAuth2;
 
 const upsertAccount = (accountParams, credentials) => {
   return DatabaseConnector.forShared().then(({Account}) =>
@@ -241,8 +238,7 @@ export default function registerAuthRoutes(server) {
 
         const res = {}
         res.access_token = tokens.access_token;
-        res.xoauth2 = IMAPConnection.generateXOAuth2Token(account.emailAddress,
-                                                          tokens.access_token);
+        res.xoauth2 = GAuth.generateXOAuth2Token(account.emailAddress, tokens.access_token);
         res.expiry_date = Math.floor(tokens.expiry_date / 1000);
         reply(res).code(200);
       });

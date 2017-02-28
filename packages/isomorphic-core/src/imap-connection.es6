@@ -39,13 +39,6 @@ class IMAPConnection extends EventEmitter {
     return new IMAPConnection(...args).connect()
   }
 
-  static generateXOAuth2Token(username, accessToken) {
-    // See https://developers.google.com/gmail/xoauth2_protocol
-    // for more details.
-    const s = `user=${username}\x01auth=Bearer ${accessToken}\x01\x01`
-    return new Buffer(s).toString('base64');
-  }
-
   static asyncResolveIMAPSettings(baseSettings) {
     const settings = {
       host: baseSettings.imap_host,

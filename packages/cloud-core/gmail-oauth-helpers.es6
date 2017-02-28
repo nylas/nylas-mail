@@ -10,6 +10,13 @@ class GmailOAuthHelpers {
     return new OAuth2(GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL);
   }
 
+  generateXOAuth2Token(username, accessToken) {
+    // See https://developers.google.com/gmail/xoauth2_protocol
+    // for more details.
+    const s = `user=${username}\x01auth=Bearer ${accessToken}\x01\x01`
+    return new Buffer(s).toString('base64');
+  }
+
   async exchangeCodeForGoogleToken(client, oAuthCode) {
     return new Promise((resolve, reject) => {
       client.getToken(oAuthCode, (err, googleToken) => {
@@ -94,8 +101,7 @@ class GmailOAuthHelpers {
     })
     const res = {}
     res.access_token = tokens.access_token;
-    res.xoauth2 = IMAPConnection.generateXOAuth2Token(account.emailAddress,
-                                                      tokens.access_token);
+    res.xoauth2 = this.generateXOAuth2Token(account.emailAddress, tokens.access_token);
     res.expiry_date = Math.floor(tokens.expiry_date / 1000);
     const newCredentials = Object.assign(credentials, res);
     account.setCredentials(newCredentials);
