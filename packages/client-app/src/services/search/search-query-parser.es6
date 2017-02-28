@@ -1,8 +1,4 @@
 import {
-  ThreadQueryAST,
-} from 'nylas-exports';
-
-const {
   SearchQueryToken,
   OrQueryExpression,
   AndQueryExpression,
@@ -14,7 +10,7 @@ const {
   UnreadStatusQueryExpression,
   StarredStatusQueryExpression,
   InQueryExpression,
-} = ThreadQueryAST;
+} from './search-query-ast';
 
 const nextStringToken = (text) => {
   if (text[0] !== '"') {
@@ -309,6 +305,8 @@ const parseQueryWrapper = (text) => {
   return result;
 };
 
-module.exports = {
-  parseSearchQuery: parseQueryWrapper,
-};
+export default class SearchQueryParser {
+  static parse(query) {
+    return parseQueryWrapper(query);
+  }
+}

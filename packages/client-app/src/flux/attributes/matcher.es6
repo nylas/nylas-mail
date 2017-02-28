@@ -1,5 +1,5 @@
 import {tableNameForJoin} from '../models/utils';
-import {StructuredSearchQueryVisitor} from './matcher-helpers'
+import LocalSearchQueryBackend from '../../services/search/search-query-backend-local'
 
 // https://www.sqlite.org/faq.html#q14
 // That's right. Two single quotes in a row…
@@ -275,8 +275,7 @@ class StructuredSearchMatcher extends Matcher {
   }
 
   whereSQL(klass) {
-    const visitor = new StructuredSearchQueryVisitor(`${klass.name}`);
-    return visitor.visit(this._searchQuery);
+    return (new LocalSearchQueryBackend(klass.name)).compile(this._searchQuery)
   }
 }
 

@@ -1,5 +1,5 @@
 
-export class SearchQueryExpressionVisitor {
+class SearchQueryExpressionVisitor {
   constructor() {
     this._result = null;
   }
@@ -24,7 +24,7 @@ export class SearchQueryExpressionVisitor {
   visitIn(node) { throw new Error('Abstract function not implemented!', node); }
 }
 
-export class QueryExpression {
+class QueryExpression {
   constructor() {
     this._isMatchCompatible = null;
   }
@@ -49,7 +49,7 @@ export class QueryExpression {
   }
 }
 
-export class AndQueryExpression extends QueryExpression {
+class AndQueryExpression extends QueryExpression {
   constructor(e1, e2) {
     super();
     this.e1 = e1;
@@ -72,7 +72,7 @@ export class AndQueryExpression extends QueryExpression {
   }
 }
 
-export class OrQueryExpression extends QueryExpression {
+class OrQueryExpression extends QueryExpression {
   constructor(e1, e2) {
     super();
     this.e1 = e1;
@@ -95,7 +95,7 @@ export class OrQueryExpression extends QueryExpression {
   }
 }
 
-export class FromQueryExpression extends QueryExpression {
+class FromQueryExpression extends QueryExpression {
   constructor(text) {
     super();
     this.text = text;
@@ -117,7 +117,7 @@ export class FromQueryExpression extends QueryExpression {
   }
 }
 
-export class ToQueryExpression extends QueryExpression {
+class ToQueryExpression extends QueryExpression {
   constructor(text) {
     super();
     this.text = text;
@@ -139,7 +139,7 @@ export class ToQueryExpression extends QueryExpression {
   }
 }
 
-export class SubjectQueryExpression extends QueryExpression {
+class SubjectQueryExpression extends QueryExpression {
   constructor(text) {
     super();
     this.text = text;
@@ -161,7 +161,7 @@ export class SubjectQueryExpression extends QueryExpression {
   }
 }
 
-export class UnreadStatusQueryExpression extends QueryExpression {
+class UnreadStatusQueryExpression extends QueryExpression {
   constructor(status) {
     super();
     this.status = status;
@@ -184,7 +184,7 @@ export class UnreadStatusQueryExpression extends QueryExpression {
   }
 }
 
-export class StarredStatusQueryExpression extends QueryExpression {
+class StarredStatusQueryExpression extends QueryExpression {
   constructor(status) {
     super();
     this.status = status;
@@ -206,7 +206,7 @@ export class StarredStatusQueryExpression extends QueryExpression {
   }
 }
 
-export class GenericQueryExpression extends QueryExpression {
+class GenericQueryExpression extends QueryExpression {
   constructor(text) {
     super();
     this.text = text;
@@ -228,7 +228,7 @@ export class GenericQueryExpression extends QueryExpression {
   }
 }
 
-export class TextQueryExpression extends QueryExpression {
+class TextQueryExpression extends QueryExpression {
   constructor(text) {
     super();
     this.token = text;
@@ -250,7 +250,7 @@ export class TextQueryExpression extends QueryExpression {
   }
 }
 
-export class InQueryExpression extends QueryExpression {
+class InQueryExpression extends QueryExpression {
   constructor(text) {
     super();
     this.text = text;
@@ -276,7 +276,7 @@ export class InQueryExpression extends QueryExpression {
  * Intermediate representation for multiple match-compatible nodes. Used when
  * translating the initial query AST into the proper SQL-compatible query.
  */
-export class MatchQueryExpression extends QueryExpression {
+class MatchQueryExpression extends QueryExpression {
   constructor(rawMatchQuery) {
     super();
     this.rawQuery = rawMatchQuery;
@@ -302,7 +302,7 @@ export class MatchQueryExpression extends QueryExpression {
   }
 }
 
-export class SearchQueryToken {
+class SearchQueryToken {
   constructor(s) {
     this.s = s;
   }

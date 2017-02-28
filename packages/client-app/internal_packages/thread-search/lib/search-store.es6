@@ -7,8 +7,8 @@ import {
   DatabaseStore,
   ComponentRegistry,
   FocusedPerspectiveStore,
+  SearchQueryParser,
 } from 'nylas-exports';
-import {parseSearchQuery} from './search-query-parser'
 
 import SearchActions from './search-actions';
 import SearchMailboxPerspective from './search-mailbox-perspective';
@@ -152,7 +152,7 @@ class SearchStore extends NylasStore {
     }
 
     try {
-      const parsedQuery = parseSearchQuery(this._searchQuery);
+      const parsedQuery = SearchQueryParser.parse(this._searchQuery);
       // console.info('Successfully parsed and codegened search query', parsedQuery);
       dbQuery = dbQuery.structuredSearch(parsedQuery);
     } catch (e) {

@@ -7,9 +7,9 @@ import {
   ComponentRegistry,
   FocusedContentStore,
   MutableQuerySubscription,
+  SearchQueryParser,
 } from 'nylas-exports'
 import SearchActions from './search-actions'
-import {parseSearchQuery} from './search-query-parser'
 
 const {LongConnectionStatus} = NylasAPI
 
@@ -60,7 +60,7 @@ class SearchQuerySubscription extends MutableQuerySubscription {
       dbQuery = dbQuery.where({accountId: this._accountIds[0]})
     }
     try {
-      const parsedQuery = parseSearchQuery(this._searchQuery);
+      const parsedQuery = SearchQueryParser.parse(this._searchQuery);
       console.info('Successfully parsed and codegened search query', parsedQuery);
       dbQuery = dbQuery.structuredSearch(parsedQuery);
     } catch (e) {

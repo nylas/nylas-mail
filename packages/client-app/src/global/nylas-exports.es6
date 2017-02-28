@@ -105,7 +105,8 @@ lazyLoadAndRegisterModel(`JSONBlob`, 'json-blob');
 lazyLoadAndRegisterModel(`ProviderSyncbackRequest`, 'provider-syncback-request');
 
 // Thread Search Query AST
-lazyLoad(`ThreadQueryAST`, 'flux/models/thread-query-ast');
+lazyLoad(`SearchQueryAST`, 'services/search/search-query-ast');
+lazyLoad(`SearchQueryParser`, 'services/search/search-query-parser');
 
 // Tasks
 exports.TaskRegistry = TaskRegistry;
