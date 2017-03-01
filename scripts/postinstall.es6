@@ -131,7 +131,16 @@ async function main() {
   try {
     await installPrivateResources()
     await lernaBootstrap();
+
+    // Given that `lerna bootstrap` does not install optional dependencies, we
+    // need to manually run `npm install` inside `client-app` so
+    // `node-mac-notifier` get's correctly installed and included in the build
+    // See https://github.com/lerna/lerna/issues/121
+    console.log("\n---> Reinstalling client-app dependencies to include optional dependencies");
+    await npm('install', {cwd: 'packages/client-app'})
+
     await electronRebuild();
+
     linkJasmineConfigs();
     linkIsomorphicCoreSpecs();
   } catch (err) {
