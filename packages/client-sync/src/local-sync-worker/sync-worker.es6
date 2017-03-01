@@ -1,7 +1,6 @@
 const _ = require('underscore')
 const {
   IMAPErrors,
-  IMAPConnection,
   IMAPConnectionPool,
   SendmailClient,
   MetricsReporter,
@@ -23,7 +22,6 @@ const LocalSyncDeltaEmitter = require('./local-sync-delta-emitter').default
 
 const AC_SYNC_LOOP_INTERVAL_MS = 10 * 1000            // 10 sec
 const BATTERY_SYNC_LOOP_INTERVAL_MS = 5 * 60 * 1000   //  5 min
-const MAX_SOCKET_TIMEOUT_MS = 10 * 60 * 1000          // 10 min
 
 class SyncWorker {
   constructor(account, db, parentManager) {
