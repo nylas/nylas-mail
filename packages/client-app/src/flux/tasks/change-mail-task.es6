@@ -231,7 +231,6 @@ export default class ChangeMailTask extends Task {
           accountId: model.accountId,
           method: 'PUT',
           body: this.requestBodyForModel(model),
-          returnsModel: true,
           onSyncbackRequestCreated: (syncbackRequest) => {
             if (!this._syncbackRequestIds) this._syncbackRequestIds = {}
             this._syncbackRequestIds[model.id] = syncbackRequest.id

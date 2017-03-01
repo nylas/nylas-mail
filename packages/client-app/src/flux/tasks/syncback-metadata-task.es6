@@ -29,7 +29,6 @@ export default class SyncbackMetadataTask extends SyncbackModelTask {
     }
     const options = {
       accountId: model.accountId,
-      returnsModel: false,
       path: `/metadata/${model.serverId}/${this.pluginId}`,
       method: 'POST',
       body: {

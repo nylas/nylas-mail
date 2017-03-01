@@ -45,7 +45,6 @@ export default class DestroyDraftTask extends BaseDraftTask {
         body: {
           version: this.draft.version,
         },
-        returnsModel: false,
       },
     })
     .run()

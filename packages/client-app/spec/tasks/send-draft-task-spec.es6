@@ -120,14 +120,6 @@ xdescribe('SendDraftTask', function sendDraftTask() {
         }));
       });
 
-      it("should pass returnsModel:false", () => {
-        waitsForPromise(() => this.task.performRemote().then(() => {
-          expect(NylasAPIRequest.prototype.run.calls.length).toBe(1);
-          const options = NylasAPIRequest.prototype.run.mostRecentCall.args[0];
-          expect(options.returnsModel).toBe(false);
-        }));
-      });
-
       it("should always send the draft body in the request body (joined attribute check)", () => {
         waitsForPromise(() => this.task.performRemote().then(() => {
           expect(NylasAPIRequest.prototype.run.calls.length).toBe(1);

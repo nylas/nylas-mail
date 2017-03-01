@@ -64,7 +64,6 @@ export default class DestroyCategoryTask extends Task {
           accountId,
           path,
           method: 'DELETE',
-          returnsModel: false,
           onSyncbackRequestCreated: (syncbackRequest) => {
             this._syncbackRequestId = syncbackRequest.id
           },
