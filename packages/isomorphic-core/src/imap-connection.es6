@@ -2,25 +2,23 @@ import Imap from 'imap';
 import _ from 'underscore';
 import xoauth2 from 'xoauth2';
 import EventEmitter from 'events';
-
 import CommonProviderSettings from 'imap-provider-settings';
-
 import PromiseUtils from './promise-utils';
 import IMAPBox from './imap-box';
-
 import {
   convertImapError,
+  RetryableError,
   IMAPConnectionTimeoutError,
   IMAPConnectionNotReadyError,
   IMAPConnectionEndedError,
 } from './imap-errors';
+
 
 const MAJOR_IMAP_PROVIDER_HOSTS = Object.keys(CommonProviderSettings).reduce(
   (hostnameSet, key) => {
     hostnameSet.add(CommonProviderSettings[key].imap_host);
     return hostnameSet;
   }, new Set())
-
 const Capabilities = {
   Gmail: 'X-GM-EXT-1',
   Quota: 'QUOTA',
@@ -29,7 +27,6 @@ const Capabilities = {
   Search: 'ESEARCH',
   Sort: 'SORT',
 }
-
 const ONE_HOUR_SECS = 60 * 60;
 const AUTH_TIMEOUT_MS = 30 * 1000;
 const DEFAULT_SOCKET_TIMEOUT_MS = 30 * 1000;
@@ -214,6 +211,10 @@ class IMAPConnection extends EventEmitter {
       throw new IMAPConnectionNotReadyError(`IMAPConnection::_withPreparedConnection`)
     }
 
+    if (this._isOpeningBox) {
+      throw new RetryableError('IMAPConnection: Cannot operate on connection while opening a box.')
+    }
+
     let onEnded = null;
     let onErrored = null;
 
@@ -299,6 +300,9 @@ class IMAPConnection extends EventEmitter {
   }
 
   getLastOpenDuration() {
+    if (this._isOpeningBox) {
+      throw new RetryableError('IMAPConnection: Cannot operate on connection while opening a box.')
+    }
     return this._lastOpenDuration;
   }
 
