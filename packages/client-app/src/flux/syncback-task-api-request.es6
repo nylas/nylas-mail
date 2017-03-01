@@ -2,7 +2,7 @@ import Actions from './actions'
 import {APIError} from './errors'
 import DatabaseStore from './stores/database-store'
 import NylasAPIRequest from './nylas-api-request'
-import NylasAPIHelpers from './nylas-api-helpers'
+import * as NylasAPIHelpers from './nylas-api-helpers'
 import ProviderSyncbackRequest from './models/provider-syncback-request'
 
 /**
