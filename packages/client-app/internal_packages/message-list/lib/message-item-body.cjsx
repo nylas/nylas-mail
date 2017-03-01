@@ -31,7 +31,6 @@ class MessageItemBody extends React.Component
     @state =
       showQuotedText: DraftHelpers.isForwardedMessage(@props.message)
       processedBody: null
-      error: null
 
   componentWillMount: =>
     @_unsub = MessageBodyProcessor.subscribe @props.message, (processedBody) =>
@@ -39,7 +38,6 @@ class MessageItemBody extends React.Component
 
   componentDidMount: =>
     @_mounted = true
-    @_onFetchBody() if not _.isString(@props.message.body)
 
   componentWillReceiveProps: (nextProps) ->
     if nextProps.message.id isnt @props.message.id
@@ -70,11 +68,6 @@ class MessageItemBody extends React.Component
         message={@props.message}
         onLoad={@props.onLoad}
       />
-    else if @state.error
-      <div className="message-body-error">
-        Sorry, this message could not be loaded. (Status code {@state.error.statusCode})
-        <a onClick={@_onFetchBody}>Try Again</a>
-      </div>
     else
       <div className="message-body-loading">
         <RetinaImg
@@ -92,23 +85,6 @@ class MessageItemBody extends React.Component
   _toggleQuotedText: =>
     @setState
       showQuotedText: !@state.showQuotedText
-
-  _onFetchBody: =>
-    request = new NylasAPIRequest
-      api: NylasAPI
-      options:
-        path: "/messages/#{@props.message.id}"
-        accountId: @props.message.accountId
-        returnsModel: true
-    request.run()
-    .then =>
-      return unless @_mounted
-      @setState({error: null})
-      # message will be put into the database and the MessageBodyProcessor
-      # will provide us with the new body once it's been processed.
-    .catch (error) =>
-      return unless @_mounted
-      @setState({error})
 
   _mergeBodyWithFiles: (body) =>
     # Replace cid: references with the paths to downloaded files
