@@ -2,7 +2,11 @@ const request = require('request');
 const _ = require('underscore');
 const Rx = require('rx-lite');
 const {IMAPConnectionPool} = require('isomorphic-core')
-const {Actions} = require('nylas-exports')
+const {
+  Actions,
+  SearchQueryParser,
+  IMAPSearchQueryBackend,
+} = require('nylas-exports')
 
 const getThreadsForMessages = (db, messages, limit) => {
   if (messages.length === 0) {
@@ -200,7 +204,8 @@ class ImapSearchClient {
 
     folders = folders.concat(accountFolders);
 
-    const criteria = [['TEXT', query]];
+    const parsedQuery = SearchQueryParser.parse(query);
+    const criteria = IMAPSearchQueryBackend.compile(parsedQuery);
     let numTimeoutErrors = 0;
     let result = null;
     await IMAPConnectionPool.withConnectionsForAccount(this.account, {
@@ -229,8 +234,8 @@ class ImapSearchClient {
       onTimeout: (socketTimeout) => {
         numTimeoutErrors += 1;
         Actions.recordUserEvent('Timeout error in IMAP search', {
-          accountId: this._account.id,
-          provider: this._account.provider,
+          accountId: this.account.id,
+          provider: this.account.provider,
           socketTimeout,
           numTimeoutErrors,
         });
