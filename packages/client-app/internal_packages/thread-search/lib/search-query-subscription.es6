@@ -198,7 +198,6 @@ class SearchQuerySubscription extends MutableQuerySubscription {
     }
 
     Actions.recordPerfMetric({
-      sample: 0.9,
       action: 'search-performed',
       actionTimeMs: timeToLocalResultsMs,
       numLocalResults,
