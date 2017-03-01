@@ -14,7 +14,8 @@
 // Swap out Node's native Promise for Bluebird, which allows us to
 // do fancy things like handle exceptions inside promise blocks
 global.Promise = require('bluebird');
-Promise.setScheduler(global.setImmediate);
+const timeout = global.setTimeout;
+Promise.setScheduler((fn) => timeout(fn, 0));
 
 import './window';
 
