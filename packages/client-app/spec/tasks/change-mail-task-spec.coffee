@@ -373,7 +373,6 @@ xdescribe "ChangeMailTask", ->
         waitsFor ->
           NylasAPIRequest.prototype.run.callCount is 1
         runs ->
-          NylasAPIRequest.prototype.run.calls[0].args[0].beforeProcessing({})
           expect(@task._removeLock).toHaveBeenCalledWith(@threadAMesage1)
 
       it "should make no more than 10 requests at once", ->
