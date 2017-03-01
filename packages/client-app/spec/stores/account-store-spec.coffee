@@ -6,7 +6,7 @@ AccountStore = require('../../src/flux/stores/account-store').default
 Account = require('../../src/flux/models/account').default
 Actions = require('../../src/flux/actions').default
 
-xdescribe "AccountStore", ->
+describe "AccountStore", ->
   beforeEach ->
     @instance = null
     @constructor = AccountStore.constructor
@@ -110,10 +110,10 @@ xdescribe "AccountStore", ->
       account = (new Account).fromJSON(@json)
       expect(@instance._accounts.length).toBe 1
       expect(@instance._accounts[0]).toEqual account
-      expect(NylasEnv.config.set.calls.length).toBe 3
-      expect(NylasEnv.config.set.calls[0].args).toEqual(['nylas.accountTokens', null])
+      expect(NylasEnv.config.set.calls.length).toBe 2
+      expect(NylasEnv.config.set.calls[0].args).toEqual(['nylas.accounts', [account.toJSON()]])
       # Version must be updated last since it will trigger other windows to load nylas.accounts
-      expect(NylasEnv.config.set.calls[2].args).toEqual(['nylas.accountsVersion', 1])
+      expect(NylasEnv.config.set.calls[1].args).toEqual(['nylas.accountsVersion', 1])
 
     it "triggers", ->
       expect(@instance.trigger).toHaveBeenCalled()
@@ -153,3 +153,38 @@ xdescribe "AccountStore", ->
         expect(@instance._accounts.length).toBe 2
         expect(@instance.accountForId('B')).toBe(undefined)
         expect(@instance.accountForId('NEVER SEEN BEFORE')).not.toBe(undefined)
+
+  describe "handleAuthenticationFailure", ->
+    beforeEach ->
+      spyOn(NylasEnv.config, 'set')
+      @spyOnConfig()
+      @instance = new @constructor
+      spyOn(@instance, "trigger")
+      @instance._tokens =
+        "A":
+          localSync: 'token'
+          n1Cloud: 'token'
+        "B":
+          localSync: 'token'
+          n1Cloud: 'token'
+
+    it "should put the account in an `invalid` state", ->
+      spyOn(@instance, "_onUpdateAccount")
+      spyOn(AccountStore, 'tokensForAccountId').andReturn({localSync: 'token'})
+      @instance._onAPIAuthError(new Error(), auth: user: 'token')
+      expect(@instance._onUpdateAccount).toHaveBeenCalled()
+      expect(@instance._onUpdateAccount.callCount).toBe(1)
+      expect(@instance._onUpdateAccount.mostRecentCall.args).toEqual(['A', {syncState: 'invalid'}])
+
+    it "should put the N1 Cloud account in an `invalid` state", ->
+      spyOn(@instance, "_onUpdateAccount")
+      spyOn(AccountStore, 'tokensForAccountId').andReturn({n1Cloud: 'token'})
+      @instance._onAPIAuthError(new Error(), auth: user: 'token', 'N1CloudAPI')
+      expect(@instance._onUpdateAccount).toHaveBeenCalled()
+      expect(@instance._onUpdateAccount.mostRecentCall.args).toEqual(['A', {syncState: 'n1_cloud_auth_failed'}])
+
+    it "should not throw an exception if the account cannot be found", ->
+      spyOn(@instance, "_onUpdateAccount")
+      @instance._onAPIAuthError(new Error(), auth: user: 'not found')
+      expect(@instance._onUpdateAccount).not.toHaveBeenCalled()
+

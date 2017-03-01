@@ -53,26 +53,6 @@ describe "NylasAPI", ->
         expect(DatabaseStore.find).not.toHaveBeenCalled()
         expect(DatabaseTransaction.prototype.unpersistModel).not.toHaveBeenCalled()
 
-  describe "handleAuthenticationFailure", ->
-    it "should put the account in an `invalid` state", ->
-      spyOn(Actions, 'updateAccount')
-      spyOn(AccountStore, 'tokensForAccountId').andReturn({localSync: 'token'})
-      NylasAPIHelpers.handleAuthenticationFailure('/threads/1234', 'token')
-      expect(Actions.updateAccount).toHaveBeenCalled()
-      expect(Actions.updateAccount.mostRecentCall.args).toEqual([AccountStore.accounts()[0].id, {syncState: 'invalid'}])
-
-    it "should put the N1 Cloud account in an `invalid` state", ->
-      spyOn(Actions, 'updateAccount')
-      spyOn(AccountStore, 'tokensForAccountId').andReturn({n1Cloud: 'token'})
-      NylasAPIHelpers.handleAuthenticationFailure('/threads/1234', 'token', 'N1CloudAPI')
-      expect(Actions.updateAccount).toHaveBeenCalled()
-      expect(Actions.updateAccount.mostRecentCall.args).toEqual([AccountStore.accounts()[0].id, {syncState: 'n1_cloud_auth_failed'}])
-
-    it "should not throw an exception if the account cannot be found", ->
-      spyOn(Actions, 'updateAccount')
-      NylasAPIHelpers.handleAuthenticationFailure('/threads/1234', 'token')
-      expect(Actions.updateAccount).not.toHaveBeenCalled()
-
   describe "handleModelResponse", ->
     beforeEach ->
       @stubDB = {}
