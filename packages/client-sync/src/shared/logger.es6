@@ -1,6 +1,5 @@
 const _ = require('underscore')
 
-let ENABLE_LOGGING = true;
 const LOGGER_COLORS = [
   '#E91E63',
   '#9C27B0',
@@ -26,10 +25,6 @@ function getColorForPrefix(prefix) {
 }
 
 function Logger(boundArgs = {}) {
-  if (NylasEnv && !NylasEnv.inDevMode()) {
-    ENABLE_LOGGING = false
-  }
-
   if (!_.isObject(boundArgs)) {
     throw new Error('Logger: Bound arguments must be an object')
   }
@@ -37,9 +32,6 @@ function Logger(boundArgs = {}) {
   const loggerFns = ['log', 'debug', 'info', 'warn', 'error']
   loggerFns.forEach((logFn) => {
     logger[logFn] = (...args) => {
-      if (!ENABLE_LOGGING && logFn !== "error") {
-        return
-      }
       const {accountId, accountEmail, ...otherArgs} = boundArgs
       const prefix = accountEmail || accountId
       const suffix = !_.isEmpty(otherArgs) ? otherArgs : '';
