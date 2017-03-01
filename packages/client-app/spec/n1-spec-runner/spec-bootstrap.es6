@@ -3,6 +3,8 @@
 // Swap out Node's native Promise for Bluebird, which allows us to
 // do fancy things like handle exceptions inside promise blocks
 global.Promise = require('bluebird');
+const timeout = global.setTimeout;
+Promise.setScheduler((fn) => timeout(fn, 0));
 Promise.config({longStackTraces: true});
 
 import NylasEnvConstructor from '../../src/nylas-env';
