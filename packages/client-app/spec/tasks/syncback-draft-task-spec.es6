@@ -183,15 +183,6 @@ xdescribe('SyncbackDraftTask', function syncbackDraftTask() {
       }));
     });
 
-    it("should pass returnsModel:false so that the draft can be manually removed/added to the database, accounting for its ID change", () => {
-      const task = new SyncbackDraftTask("localDraftId");
-      waitsForPromise(() => task.performRemote().then(() => {
-        expect(NylasAPIRequest.prototype.run).toHaveBeenCalled();
-        const options = NylasAPIRequest.prototype.run.mostRecentCall.args[0];
-        expect(options.returnsModel).toBe(false);
-      }));
-    });
-
     it("should save metadata associated with the draft when the draft has been already saved to the api", () => {
       const draft = remoteDraft();
       draft.pluginMetadata = [{pluginId: 1, value: {a: 1}}];

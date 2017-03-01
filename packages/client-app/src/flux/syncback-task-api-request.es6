@@ -2,6 +2,7 @@ import Actions from './actions'
 import {APIError} from './errors'
 import DatabaseStore from './stores/database-store'
 import NylasAPIRequest from './nylas-api-request'
+import NylasAPIHelpers from './nylas-api-helpers'
 import ProviderSyncbackRequest from './models/provider-syncback-request'
 
 /**
@@ -61,7 +62,6 @@ class SyncbackTaskAPIRequest {
   }
 
   constructor({api, options}) {
-    options.returnsModel = true
     this._request = new NylasAPIRequest({api, options})
     this._onSyncbackRequestCreated = options.onSyncbackRequestCreated || (() => {})
   }
@@ -69,12 +69,16 @@ class SyncbackTaskAPIRequest {
   run() {
     return new Promise(async (resolve, reject) => {
       try {
-        const syncbackRequest = await this._request.run()
+        const syncbackRequest = await this._request.run();
+        await NylasAPIHelpers.handleModelResponse(syncbackRequest)
         await this._onSyncbackRequestCreated(syncbackRequest)
         const syncbackRequestId = syncbackRequest.id
         SyncbackTaskAPIRequest.listenForRequest(syncbackRequestId)
         .then(resolve).catch(reject)
       } catch (err) {
+        if (err.response && err.response.statusCode === 404) {
+          NylasAPIHelpers.handleModel404(this._request.options.url)
+        }
         reject(err)
       }
     })

@@ -136,7 +136,6 @@ export function runAuthRequest(accountInfo) {
       timeout: 1000 * 90, // Connecting to IMAP could take up to 90 seconds, so we don't want to hang up too soon
       body: data,
       auth: noauth,
-      returnsModel: false,
     },
   })
   return n1CloudIMAPAuthRequest.run().then((remoteJSON) => {
@@ -148,7 +147,6 @@ export function runAuthRequest(accountInfo) {
         timeout: 1000 * 90, // Connecting to IMAP could take up to 90 seconds, so we don't want to hang up too soon
         body: data,
         auth: noauth,
-        returnsModel: false,
       },
     })
     return localSyncIMAPAuthRequest.run().then((localJSON) => {

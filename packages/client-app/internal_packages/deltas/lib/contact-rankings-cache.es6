@@ -24,7 +24,6 @@ class ContactRankingsCache extends RefreshingJSONCache {
       options: {
         accountId: this._accountId,
         path: "/contacts/rankings",
-        returnsModel: false,
       },
     })
 

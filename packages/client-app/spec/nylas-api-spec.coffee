@@ -281,7 +281,6 @@ describe "NylasAPI", ->
         expect(this.options.path).toBe "/drafts/#{draft.serverId}"
         expect(this.options.accountId).toBe TEST_ACCOUNT_ID
         expect(this.options.method).toBe "DELETE"
-        expect(this.options.returnsModel).toBe false
       NylasAPIHelpers.makeDraftDeletionRequest(draft)
 
     it "should increment the change tracker, preventing any further deltas about the draft", ->

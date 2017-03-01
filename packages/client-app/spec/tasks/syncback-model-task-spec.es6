@@ -147,7 +147,6 @@ xdescribe('SyncbackModelTask', function syncbackModelTask() {
         expect(opts.path).toBe("/test")
         expect(opts.method).toBe("POST")
         expect(opts.accountId).toBe("account-123")
-        expect(opts.returnsModel).toBe(false)
         expect(opts.body).toEqual(this.testModel.toJSON())
       });
     });

@@ -21,7 +21,6 @@ export default class SyncbackDraftTask extends BaseDraftTask {
           path: (this.draft.serverId) ? `/drafts/${this.draft.serverId}` : "/drafts",
           method: (this.draft.serverId) ? 'PUT' : 'POST',
           body: this.draft.toJSON(),
-          returnsModel: false,
         },
       })
       .run()

@@ -67,9 +67,6 @@ export default class SyncbackCategoryTask extends Task {
           body: {
             display_name: this.displayName || this.category.displayName,
           },
-          // returnsModel must be false because we want to update the
-          // existing model rather than returning a new model.
-          returnsModel: false,
           onSyncbackRequestCreated: (syncbackRequest) => {
             this._syncbackRequestId = syncbackRequest.id
           },

@@ -46,7 +46,6 @@ export default class EventRSVPTask extends Task {
           event_id: id,
           status: this.RSVPResponse,
         },
-        returnsModel: true,
       },
     })
     .run()
